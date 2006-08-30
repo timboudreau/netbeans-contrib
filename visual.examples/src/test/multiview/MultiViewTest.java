@@ -46,19 +46,19 @@ public class MultiViewTest {
         panel.getVerticalScrollBar ().setBlockIncrement (256);
         contentPane.add (panel, BorderLayout.CENTER);
 
-//        contentPane.add (scene.createSateliteView (), BorderLayout.NORTH);
-//        contentPane.add (scene.createSateliteView (), BorderLayout.SOUTH);
+//        contentPane.add (scene.createSatelliteView (), BorderLayout.NORTH);
+//        contentPane.add (scene.createSatelliteView (), BorderLayout.SOUTH);
         contentPane.add (scene.createSatelliteView (), BorderLayout.WEST);
-//        contentPane.add (scene.createSateliteView (), BorderLayout.EAST);
+//        contentPane.add (scene.createSatelliteView (), BorderLayout.EAST);
 
         final JButton button = new JButton ("Preview");
         button.addActionListener (new ActionListener() {
             public void actionPerformed (ActionEvent e) {
                 JPopupMenu popup = new JPopupMenu ();
                 popup.setLayout (new BorderLayout ());
-                JComponent sateliteView = scene.createSatelliteView ();
-                popup.add (sateliteView, BorderLayout.CENTER);
-                popup.show (button, (button.getSize ().width - sateliteView.getPreferredSize ().width) / 2, button.getSize ().height);
+                JComponent satelliteView = scene.createSatelliteView ();
+                popup.add (satelliteView, BorderLayout.CENTER);
+                popup.show (button, (button.getSize ().width - satelliteView.getPreferredSize ().width) / 2, button.getSize ().height);
             }
         });
         contentPane.add (button, BorderLayout.NORTH);
