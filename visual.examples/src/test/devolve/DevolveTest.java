@@ -12,7 +12,8 @@
  */
 package test.devolve;
 
-import org.netbeans.api.visual.action.*;
+import org.netbeans.api.visual.action.ActionFactory;
+import org.netbeans.api.visual.action.WidgetAction;
 import org.netbeans.api.visual.graph.GraphScene;
 import org.netbeans.api.visual.layout.LayoutFactory;
 import org.netbeans.api.visual.layout.SceneLayout;
@@ -33,7 +34,7 @@ public class DevolveTest extends GraphScene.StringGraph {
     private static final Image IMAGE = Utilities.loadImage ("test/resources/displayable_64.png"); // NOI18N
 
     private LayerWidget mainLayer;
-    private SceneLayout.DevolveWidgetLayout devolveLayout;
+    private SceneLayout devolveLayout;
     private DevolveTest.MyAction action = new DevolveTest.MyAction ();
     private WidgetAction moveAction = ActionFactory.createMoveAction ();
 
@@ -43,7 +44,7 @@ public class DevolveTest extends GraphScene.StringGraph {
 
         addChild (mainLayer = new LayerWidget (this));
 
-        devolveLayout = new SceneLayout.DevolveWidgetLayout (mainLayer, LayoutFactory.createHorizontalLayout (), true);
+        devolveLayout = LayoutFactory.createDevolveWidgetLayout (mainLayer, LayoutFactory.createHorizontalLayout (), true);
 
         getActions ().addAction (ActionFactory.createZoomAction ());
         getActions ().addAction (ActionFactory.createPanAction ());

@@ -17,7 +17,6 @@ import org.netbeans.api.visual.action.TextFieldInplaceEditor;
 import org.netbeans.api.visual.action.WidgetAction;
 import org.netbeans.api.visual.graph.GraphScene;
 import org.netbeans.api.visual.layout.LayoutFactory;
-import org.netbeans.api.visual.layout.SceneLayout;
 import org.netbeans.api.visual.widget.LabelWidget;
 import org.netbeans.api.visual.widget.LayerWidget;
 import org.netbeans.api.visual.widget.Widget;
@@ -112,7 +111,7 @@ public class InplaceEditorTest extends GraphScene.StringGraph {
         scene.addNode ("to edit");
         scene.addNode ("it");
 
-        new SceneLayout.DevolveWidgetLayout (scene.mainLayer, LayoutFactory.createHorizontalLayout (), true).invokeLayout ();
+        LayoutFactory.createDevolveWidgetLayout (scene.mainLayer, LayoutFactory.createHorizontalLayout (), true).invokeLayout ();
 
         SceneSupport.show (scene);
     }
