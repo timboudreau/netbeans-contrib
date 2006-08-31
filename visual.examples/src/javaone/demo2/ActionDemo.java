@@ -85,7 +85,7 @@ public class ActionDemo {
 
     private static class MyPopupProvider implements PopupMenuProvider {
 
-        public JPopupMenu getPopupMenu(Widget widget) {
+        public JPopupMenu getPopupMenu(Widget widget, Point localLocation) {
             JPopupMenu menu = new JPopupMenu ();
             menu.add("Open");
             return menu;

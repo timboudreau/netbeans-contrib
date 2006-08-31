@@ -72,7 +72,7 @@ public class ToolTest extends Scene {
 
         }
 
-        public JPopupMenu getPopupMenu (Widget widget) {
+        public JPopupMenu getPopupMenu (Widget widget, Point localLocation) {
             return menu;
         }
 

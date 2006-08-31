@@ -22,6 +22,7 @@ import org.netbeans.api.visual.widget.LayerWidget;
 import org.netbeans.api.visual.widget.Widget;
 
 import javax.swing.*;
+import java.awt.*;
 
 /**
  * @author David Kaspar
@@ -90,7 +91,7 @@ public class StringGraphPinScene extends GraphPinScene.StringGraph {
 
     private static class MyPopupMenuProvider implements PopupMenuProvider {
 
-        public JPopupMenu getPopupMenu (Widget widget) {
+        public JPopupMenu getPopupMenu (Widget widget, Point localLocation) {
             JPopupMenu popupMenu = new JPopupMenu ();
             popupMenu.add (new JMenuItem ("Open " + ((UMLClassWidget) widget).getClassName ()));
             return popupMenu;

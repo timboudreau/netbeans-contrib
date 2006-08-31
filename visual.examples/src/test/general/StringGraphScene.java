@@ -97,7 +97,7 @@ public class StringGraphScene extends GraphScene.StringGraph {
 
     private static class MyPopupMenuProvider implements PopupMenuProvider {
 
-        public JPopupMenu getPopupMenu (Widget widget) {
+        public JPopupMenu getPopupMenu (Widget widget, Point localLocation) {
             JPopupMenu popupMenu = new JPopupMenu ();
             popupMenu.add (new JMenuItem ("Open " + ((UMLClassWidget) widget).getClassName ()));
             return popupMenu;
