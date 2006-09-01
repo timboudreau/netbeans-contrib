@@ -39,6 +39,15 @@
             <li>A set of <b>Go to type [local variable type]</b> - Go to
             (distinct) declared and actual types of local variables of the method
             associated with the stack frame.
+            <li><b>Show Classes...</b> - Show the table of all classes loaded in
+            the debugee. Each row in Classes table shows Class name, Package name and the value
+            returned by the <code>toString()</code> method of class's ClassLoader.
+            This can be useful for debugging applications such as App Servers, IDE
+            Frameworks (e.g. Netbeans itself), that employ a complex multi-ClassLoader
+            architecture. This view helps you determine which ClassLoader loaded the class.
+            <br>
+            <image src="classes.jpg" alt="Classes loaded in the debugee.">
+            <br>
         </ul>
         <h2>Example</h2>
         The following images shows a Java classes - parent class

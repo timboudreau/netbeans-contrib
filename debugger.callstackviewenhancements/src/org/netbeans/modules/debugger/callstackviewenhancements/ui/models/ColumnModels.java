@@ -34,7 +34,7 @@ public class ColumnModels {
      * {@link org.netbeans.spi.viewmodel.TreeModel} for tree
      * table view representation.
      */
-    private static class AbstractColumnextends ColumnModel {
+    private static class AbstractColumn extends ColumnModel {
         
         private String id;
         private String previousColumnId = null;
