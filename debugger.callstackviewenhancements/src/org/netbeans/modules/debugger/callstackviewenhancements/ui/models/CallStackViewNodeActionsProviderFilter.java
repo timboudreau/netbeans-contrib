@@ -32,7 +32,12 @@ import com.sun.jdi.ReferenceType;
 import com.sun.jdi.StringReference;
 import com.sun.jdi.ThreadReference;
 import com.sun.jdi.VirtualMachine;
-import java.awt.BorderLayout;
+import java.awt.Rectangle;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -46,13 +51,13 @@ import org.netbeans.api.debugger.jpda.CallStackFrame;
 import org.netbeans.api.debugger.jpda.JPDAThread;
 import org.netbeans.api.debugger.jpda.LocalVariable;
 import org.netbeans.api.debugger.jpda.This;
+import org.netbeans.modules.debugger.callstackviewenhancements.ui.ResizablePanel;
+import org.netbeans.modules.debugger.callstackviewenhancements.ui.TableSorter;
 import org.netbeans.spi.viewmodel.Models;
 import org.netbeans.spi.viewmodel.NodeActionsProviderFilter;
 import org.netbeans.spi.viewmodel.NodeActionsProvider;
 import org.netbeans.spi.viewmodel.ModelListener;
 import org.netbeans.spi.viewmodel.UnknownTypeException;
-import org.openide.DialogDisplayer;
-import org.openide.NotifyDescriptor;
 import org.openide.util.NbBundle;
 import org.openide.windows.WindowManager;
 
@@ -61,56 +66,77 @@ import org.openide.windows.WindowManager;
  * @author Sandip V. Chitale (Sandip.Chitale@Sun.Com)
  */
 public class CallStackViewNodeActionsProviderFilter implements NodeActionsProviderFilter {
-
+    
     public CallStackViewNodeActionsProviderFilter() {
     }
-
+    
     private static class GotoLocalVariableTypeAction implements Models.ActionPerformer {
         private String typeName;
-
+        
         GotoLocalVariableTypeAction(String typeName) {
             this.typeName = typeName;
         }
-
+        
         public boolean isEnabled(Object node) {
             return true;
         }
-
+        
         public void perform(Object[] nodes) {
             Utils.showType(typeName);
         }
     }
-
+    
+    private static Rectangle bounds = new Rectangle(100, 100, 900, 700);
+    
     private static class ShowClassesAction implements Models.ActionPerformer {
         private VirtualMachine virtualMachine;
         private ThreadReference threadReference;
-
+        
         ShowClassesAction(VirtualMachine virtualMachine, ThreadReference threadReference) {
             this.virtualMachine = virtualMachine;
             this.threadReference = threadReference ;
         }
-
+        
         public boolean isEnabled(Object node) {
             return true;
         }
-
+        
         public void perform(Object[] nodes) {
-            JPanel panel = new JPanel(new BorderLayout());
-            panel.setBorder(BorderFactory.createEmptyBorder(5,5,5,5));
-            panel.add(new JScrollPane(new JTable(new ClassesTableModel(virtualMachine.allClasses(), threadReference))),
-                    BorderLayout.CENTER);
-            NotifyDescriptor notifyDescriptor = new NotifyDescriptor.Message(
-                    panel,
-                    NotifyDescriptor.PLAIN_MESSAGE);
-            notifyDescriptor.setTitle("Classes");
-            DialogDisplayer.getDefault().notify(notifyDescriptor);
+            TableSorter tableSorter = new TableSorter(new ClassesTableModel(virtualMachine.allClasses(), threadReference));
+            tableSorter.setColumnComparator(String.class, tableSorter.COMPARABLE_COMAPRATOR);
+            tableSorter.setSortingStatus(0, TableSorter.ASCENDING);
+            JTable classesTable = new JTable(tableSorter);
+            tableSorter.setTableHeader(classesTable.getTableHeader());
+            final JDialog dialog = new JDialog(WindowManager.getDefault().getMainWindow(), "", false);
+            dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+            dialog.setUndecorated(true);
+            dialog.setContentPane(new ResizablePanel(new JScrollPane(classesTable), "Classes"));
+            dialog.setBounds(bounds);
+            dialog.setVisible(true);
+            
+            dialog.addWindowListener(new WindowAdapter() {
+                public void windowDeactivated(WindowEvent e) {
+                    bounds = dialog.getBounds();
+                    dialog.setVisible(false);
+                    dialog.dispose();
+                }
+            });
+            
+            dialog.getRootPane().registerKeyboardAction(
+                    new ActionListener() {
+                public void actionPerformed(ActionEvent actionEvent) {
+                    dialog.setVisible(false);
+                }
+            },
+                    KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0, true),
+                    JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);                       
         }
     }
-
+    
     private static class ClassesTableModel extends AbstractTableModel {
         private List classes = new ArrayList();
         private ThreadReference theThreadReference;
-
+        
         ClassesTableModel(List classesList, ThreadReference threadReference) {
             this.theThreadReference = threadReference;
             for (Iterator it = classesList.iterator(); it.hasNext();) {
@@ -156,32 +182,36 @@ public class CallStackViewNodeActionsProviderFilter implements NodeActionsProvid
             }
             Collections.sort(classes);
         }
-
+        
         public int getRowCount() {
             return classes.size();
         }
-
+        
         private String[] columnNames = {
             "Class",
             "Package",
             "ClassLoader",
         };
-
+        
+        public Class getColumnClass(int columnIndex) {
+            return String.class;
+        }
+        
         public String getColumnName(int columnIndex) {
             return columnNames[columnIndex] + (columnIndex == 0 ? " (" + classes.size() + ")" : "");
         }
-
+        
         public int getColumnCount() {
             return columnNames.length;
         }
-
+        
         public Object getValueAt(int rowIndex, int columnIndex) {
             //return classes.get(rowIndex);
             String[] colValues =  ((String) classes.get(rowIndex)).split("#");
             return colValues[columnIndex];
         }
     }
-
+    
     private static String getClassName(String fqn) {
         int dotIndex = fqn.lastIndexOf(".");
         if (dotIndex != -1) {
@@ -189,7 +219,7 @@ public class CallStackViewNodeActionsProviderFilter implements NodeActionsProvid
         }
         return fqn;
     }
-
+    
     private static String getPackageName(String fqn) {
         int dotIndex = fqn.lastIndexOf(".");
         if (dotIndex != -1) {
@@ -197,7 +227,7 @@ public class CallStackViewNodeActionsProviderFilter implements NodeActionsProvid
         }
         return null;
     }
-
+    
     public Action[] getActions(NodeActionsProvider original, Object node) throws UnknownTypeException {
         Action [] actions = original.getActions(node);
         List myActions = new ArrayList();
@@ -251,9 +281,9 @@ public class CallStackViewNodeActionsProviderFilter implements NodeActionsProvid
                     }
                 }
             } catch (AbsentInformationException e) {
-
+                
             }
-
+            
             JPDAThread jpdaThread = callStackFrame.getThread();
             if (jpdaThread != null) {
                 ThreadReference threadReference = getThreadReference(jpdaThread);
@@ -266,8 +296,8 @@ public class CallStackViewNodeActionsProviderFilter implements NodeActionsProvid
                             ));
                 }
             }
-
-
+            
+            
         } else {
             return actions;
         }
@@ -276,18 +306,18 @@ public class CallStackViewNodeActionsProviderFilter implements NodeActionsProvid
         actionToAdd.addAll(myActions);
         return (Action[]) actionToAdd.toArray(new Action [actionToAdd.size()]);
     }
-
+    
     public void performDefaultAction(NodeActionsProvider original, Object node) throws UnknownTypeException {
         original.performDefaultAction(node);
     }
-
+    
     public void addModelListener(ModelListener l) {
     }
-
+    
     public void removeModelListener(ModelListener l) {
     }
-
-
+    
+    
     private ThreadReference getThreadReference(JPDAThread jpdaThread) {
         try {
             Method method = jpdaThread.getClass().getMethod("getThreadReference", new Class[0]);
@@ -300,5 +330,8 @@ public class CallStackViewNodeActionsProviderFilter implements NodeActionsProvid
         } catch (NoSuchMethodException ex) {
         }
         return null;
+    }
+    
+    protected void finalize() throws Throwable {
     }
 }
