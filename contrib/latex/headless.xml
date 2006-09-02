@@ -26,7 +26,12 @@ Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
         quiet="true"
         failonerror="true" />
         <cvs cvsroot=":pserver:anoncvs@cvs.netbeans.org:/cvs"
-        command="co -P contrib/editorhints/editorhighlights contrib/editorhints/spi contrib/fscompletion junit/external xtest/nbjunit xtest/external libs/external"
+        command="co -P contrib/editorhints/editorhighlights contrib/fscompletion junit/external xtest/nbjunit xtest/external libs/external"
+        dest="${nb-root}"
+        quiet="true"
+        failonerror="true" />
+        <cvs cvsroot=":pserver:anoncvs@cvs.netbeans.org:/cvs"
+        command="co -P -r editorhints_spi_before_enum_severity contrib/editorhints/spi"
         dest="${nb-root}"
         quiet="true"
         failonerror="true" />
