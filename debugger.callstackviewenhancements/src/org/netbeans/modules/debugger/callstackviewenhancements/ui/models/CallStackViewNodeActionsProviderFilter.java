@@ -22,15 +22,12 @@ package org.netbeans.modules.debugger.callstackviewenhancements.ui.models;
 import com.sun.jdi.AbsentInformationException;
 import com.sun.jdi.ArrayType;
 import com.sun.jdi.ClassLoaderReference;
-import com.sun.jdi.ClassNotLoadedException;
 import com.sun.jdi.ClassType;
-import com.sun.jdi.IncompatibleThreadStateException;
-import com.sun.jdi.InvalidTypeException;
-import com.sun.jdi.InvocationException;
 import com.sun.jdi.ObjectReference;
 import com.sun.jdi.ReferenceType;
 import com.sun.jdi.StringReference;
 import com.sun.jdi.ThreadReference;
+import com.sun.jdi.Value;
 import com.sun.jdi.VirtualMachine;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
@@ -47,7 +44,10 @@ import java.util.Iterator;
 import java.util.List;
 import javax.swing.*;
 import javax.swing.table.AbstractTableModel;
+import org.netbeans.api.debugger.DebuggerEngine;
+import org.netbeans.api.debugger.DebuggerManager;
 import org.netbeans.api.debugger.jpda.CallStackFrame;
+import org.netbeans.api.debugger.jpda.JPDADebugger;
 import org.netbeans.api.debugger.jpda.JPDAThread;
 import org.netbeans.api.debugger.jpda.LocalVariable;
 import org.netbeans.api.debugger.jpda.This;
@@ -116,20 +116,23 @@ public class CallStackViewNodeActionsProviderFilter implements NodeActionsProvid
             
             dialog.addWindowListener(new WindowAdapter() {
                 public void windowDeactivated(WindowEvent e) {
-                    bounds = dialog.getBounds();
-                    dialog.setVisible(false);
-                    dialog.dispose();
+                    hide(dialog);
                 }
             });
             
             dialog.getRootPane().registerKeyboardAction(
                     new ActionListener() {
                 public void actionPerformed(ActionEvent actionEvent) {
-                    dialog.setVisible(false);
+                    hide(dialog);
                 }
             },
                     KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0, true),
-                    JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);                       
+                    JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
+        }
+        
+        private void hide(JDialog dialog) {
+            bounds = dialog.getBounds();
+            dialog.setVisible(false);
         }
     }
     
@@ -139,6 +142,13 @@ public class CallStackViewNodeActionsProviderFilter implements NodeActionsProvid
         
         ClassesTableModel(List classesList, ThreadReference threadReference) {
             this.theThreadReference = threadReference;
+            
+            JPDADebugger jpdaDebugger = null;
+            DebuggerEngine debuggerEngine = DebuggerManager.getDebuggerManager().getCurrentEngine();
+            if (debuggerEngine != null) {
+                jpdaDebugger = (JPDADebugger) debuggerEngine.lookupFirst(null, JPDADebugger.class);
+            }
+            
             for (Iterator it = classesList.iterator(); it.hasNext();) {
                 ReferenceType referenceType = (ReferenceType) it.next();
                 if (referenceType instanceof ArrayType) {
@@ -150,23 +160,30 @@ public class CallStackViewNodeActionsProviderFilter implements NodeActionsProvid
                     String classLoader = null;
                     ClassLoaderReference classLoaderReference = referenceType.classLoader();
                     if (classLoaderReference != null) {
-                        if (theThreadReference != null) {
+                        if (jpdaDebugger != null && theThreadReference != null) {
                             ClassType classLoaderClassType = (ClassType) classLoaderReference.referenceType();
                             com.sun.jdi.Method toStringMethod = classLoaderClassType.
                                     concreteMethodByName("toString", "()Ljava/lang/String;");
-                            try {
-                                StringReference sr = (StringReference) classLoaderReference.invokeMethod(
-                                        threadReference,
-                                        toStringMethod,
-                                        Collections.EMPTY_LIST,
-                                        ObjectReference.INVOKE_SINGLE_THREADED);
-                                classLoader = sr.value();
-                            } catch (InvalidTypeException ex) {
-                            } catch (InvocationException ex) {
-                            } catch (IncompatibleThreadStateException ex) {
+                            
+//                            try {
+                            StringReference sr = invokeMethod(jpdaDebugger, classLoaderReference, toStringMethod);
+//                                        (StringReference) classLoaderReference.invokeMethod(
+//                                        threadReference,
+//                                        toStringMethod,
+//                                        Collections.EMPTY_LIST,
+//                                        ObjectReference.INVOKE_SINGLE_THREADED);
+                            if (sr == null) {
+                                
                                 classLoader = String.valueOf(classLoaderReference);
-                            } catch (ClassNotLoadedException ex) {
+                            } else {
+                                classLoader = sr.value();
                             }
+//                            } catch (InvalidTypeException ex) {
+//                            } catch (InvocationException ex) {
+//                            } catch (IncompatibleThreadStateException ex) {
+//                                classLoader = String.valueOf(classLoaderReference);
+//                            } catch (ClassNotLoadedException ex) {
+//                            }
                         } else {
                             classLoader = String.valueOf(classLoaderReference);
                         }
@@ -181,6 +198,24 @@ public class CallStackViewNodeActionsProviderFilter implements NodeActionsProvid
                 }
             }
             Collections.sort(classes);
+        }
+        
+        private StringReference invokeMethod(JPDADebugger jpdaDebugger, ObjectReference classLoaderReference, com.sun.jdi.Method toStringMethod) {
+            try {
+                Method method =
+                        jpdaDebugger.getClass().getMethod("invokeMethod",
+                        new Class[] {ObjectReference.class, com.sun.jdi.Method.class, Value[].class});
+                StringReference stringReference =
+                        (StringReference) method.invoke(jpdaDebugger, new Object[] {classLoaderReference, toStringMethod, new Value[0]});
+                return stringReference;
+            } catch (IllegalArgumentException ex) {
+            } catch (IllegalAccessException ex) {
+            } catch (InvocationTargetException ex) {
+            } catch (SecurityException ex) {
+            } catch (NoSuchMethodException ex) {
+            }
+            return null;
+            
         }
         
         public int getRowCount() {
