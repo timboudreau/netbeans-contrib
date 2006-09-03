@@ -142,6 +142,7 @@ public class SignatureTask extends Task {
         }
         log("Running a test compile of " + out, Project.MSG_INFO);
         JavaCompiler.CompilationTask task = ToolProvider.getSystemJavaCompiler().getTask(
+                // XXX should redirect errors to Project.log, and should perhaps fail on any messages
                 null,
                 Loader.nullOutputFileManager(),
                 null,
