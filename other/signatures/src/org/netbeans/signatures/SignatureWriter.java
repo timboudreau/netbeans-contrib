@@ -117,6 +117,9 @@ public final class SignatureWriter {
                 return types.getArrayType(instantiateTypeParametersWithUpperBound(((ArrayType) type).getComponentType()));
             case TYPEVAR:
                 return ((TypeVariable) type).getUpperBound();
+            case WILDCARD:
+                TypeMirror bound = ((WildcardType) type).getExtendsBound();
+                return bound != null ? instantiateTypeParametersWithUpperBound(bound) : elements.getTypeElement("java.lang.Object").asType();
             default:
                 return type;
         }

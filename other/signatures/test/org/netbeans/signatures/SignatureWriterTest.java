@@ -133,6 +133,18 @@ public class SignatureWriterTest extends TestCase {
                 "Object _ = new p.X();  " +
                 "p.X _ = new p.X();  " +
                 "p.X _ = new p.X(\"\", (java.util.List<String>) null, \"\", \"\");");
+        assertEmitted("package p; public final class X<T> {public X() {} public X(java.util.List<? extends T> l) {}}",
+                "p.X",
+                "Class _ = p.X.class;  " +
+                "Object _ = new p.X<Object>();  " +
+                "p.X<Object> _ = new p.X<Object>();  " +
+                "p.X<Object> _ = new p.X<Object>((java.util.List<Object>) null);");
+        assertEmitted("package p; public final class X<T extends Number> {public X() {} public X(java.util.List<? extends T> l) {}}",
+                "p.X",
+                "Class _ = p.X.class;  " +
+                "Object _ = new p.X<Number>();  " +
+                "p.X<Number> _ = new p.X<Number>();  " +
+                "p.X<Number> _ = new p.X<Number>((java.util.List<Number>) null);");
     }
 
     private static void assertEmitted(String source, String clazz, String sig) {
@@ -158,6 +170,7 @@ public class SignatureWriterTest extends TestCase {
                 null,
                 compUnits);
         StringWriter result = new StringWriter();
+        // XXX better to compile first and then run SignatureWriter on bytecode
         task.setProcessors(Collections.singleton(new P(result, clazz)));
         boolean ok = task.call();
         String errors = err.toString();
