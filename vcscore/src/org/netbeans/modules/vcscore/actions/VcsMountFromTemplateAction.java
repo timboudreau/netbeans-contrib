@@ -55,9 +55,6 @@ public class VcsMountFromTemplateAction extends NodeAction {
     /** Standard wizard (unmodified).*/
     private static Reference standardWizardRef;
     
-    /** Target folder */
-    private static DataFolder targetFolder;
-    
     private static DataFolder vcsFolder;
     
     private Node preferredActionNode;
@@ -67,13 +64,6 @@ public class VcsMountFromTemplateAction extends NodeAction {
             vcsFolder = DataFolder.findFolder(org.openide.filesystems.Repository.getDefault().getDefaultFileSystem().findResource("VCSMountTemplates"));
         }
         return vcsFolder;
-    }
-    
-    private static DataFolder getTargetFolder() {
-        if (targetFolder == null) {
-            targetFolder = DataFolder.findFolder(org.openide.filesystems.Repository.getDefault().getDefaultFileSystem().findResource("Mount"));
-        }
-        return targetFolder;
     }
     
     /** Getter for wizard.
@@ -124,7 +114,6 @@ public class VcsMountFromTemplateAction extends NodeAction {
             standardWizardRef = new SoftReference(standardWizard);
         }
         standardWizard.setTemplatesFolder(getVCSFolder());
-        standardWizard.setTargetFolder(getTargetFolder());
         return standardWizard;
     }
     
@@ -327,7 +316,7 @@ public class VcsMountFromTemplateAction extends NodeAction {
         try {
             wizard.setTargetName (null);
             //setTWIterator(wizard, obj);
-            wizard.instantiate (obj, targetFolder);
+            wizard.instantiate (obj, null);
         } catch (IOException e) {
             ErrorManager em = ErrorManager.getDefault();
             Throwable e1 = em.annotate(e, "Creating from template did not succeed."); // NOI18N
