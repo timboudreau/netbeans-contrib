@@ -53,7 +53,51 @@ public class SignatureWriterTest extends TestCase {
     }
     
     public void testBasicClass() {
-        assertEmitted("package foo; public class X {}", "foo.X", "{Class _ = foo.X.class;}\n");
+        assertEmitted("package p; class X {}", "p.X", "");
+        assertEmitted("package p; public final class X {private X() {}}",
+                "p.X",
+                "Class _ = p.X.class;");
+        assertEmitted("package p; public class X {private X() {}}",
+                "p.X",
+                "Class _ = p.X.class;");
+    }
+    
+    public void testConstructors() {
+        assertEmitted("package p; public final class X {public X() {}}",
+                "p.X",
+                "Class _ = p.X.class;  " +
+                "Object _ = new p.X();  " +
+                "p.X _ = new p.X();");
+        assertEmitted("package p; public final class X {}",
+                "p.X",
+                "Class _ = p.X.class;  " +
+                "Object _ = new p.X();  " +
+                "p.X _ = new p.X();");
+        assertEmitted("package p; public final class X {public X() {} public X(int x, String y, int[] z, java.util.Set<String> w) {}}",
+                "p.X",
+                "Class _ = p.X.class;  " +
+                "Object _ = new p.X();  " +
+                "p.X _ = new p.X();  " +
+                "p.X _ = new p.X(0, \"\", (int[]) null, (java.util.Set<String>) null);");
+        assertEmitted("package p; public class S {} package p; public final class X extends S {}",
+                "p.X",
+                "Class _ = p.X.class;  " +
+                "Object _ = new p.X();  " +
+                "p.S _ = new p.X();  " +
+                "p.X _ = new p.X();");
+        assertEmitted("package p; public class S<T> {} package p; public final class X<T> extends S<T> {public X() {} public X(T x) {}}",
+                "p.X",
+                "Class _ = p.X.class;  " +
+                "Object _ = new p.X<Object>();  " +
+                "p.S<Object> _ = new p.X<Object>();  " +
+                "p.X<Object> _ = new p.X<Object>();  " +
+                "p.X<Object> _ = new p.X<Object>((Object) null);");
+        assertEmitted("package p; public class S<T> {} package p; public final class X extends S<String> {}",
+                "p.X",
+                "Class _ = p.X.class;  " +
+                "Object _ = new p.X();  " +
+                "p.S<String> _ = new p.X();  " +
+                "p.X _ = new p.X();");
     }
 
     private static void assertEmitted(String source, String clazz, String sig) {
@@ -84,7 +128,7 @@ public class SignatureWriterTest extends TestCase {
         String errors = err.toString();
         assertTrue(errors, ok);
         assertEquals(errors, 0, errors.length());
-        assertEquals(source, sig, result.toString());
+        assertEquals(source, sig, result.toString().replaceAll("^\\{", "").replaceAll("\\}\n$", "").replaceAll("\\}\n\\{", "  "));
     }
     
     @SupportedAnnotationTypes("*")
@@ -106,7 +150,7 @@ public class SignatureWriterTest extends TestCase {
             } else {
                 return true;
             }
-            new SignatureWriter(new PrintWriter(w), "", processingEnv.getElementUtils()).process(clazz);
+            new SignatureWriter(new PrintWriter(w), "", processingEnv.getElementUtils(), processingEnv.getTypeUtils()).process(clazz);
             return true;
         }
         

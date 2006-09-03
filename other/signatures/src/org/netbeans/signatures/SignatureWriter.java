@@ -20,10 +20,22 @@
 package org.netbeans.signatures;
 
 import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Set;
+import javax.lang.model.element.Element;
+import javax.lang.model.element.ElementKind;
+import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.Modifier;
 import javax.lang.model.element.Name;
 import javax.lang.model.element.TypeElement;
+import javax.lang.model.element.TypeParameterElement;
+import javax.lang.model.element.VariableElement;
+import javax.lang.model.type.TypeMirror;
+import javax.lang.model.type.TypeVariable;
 import javax.lang.model.util.Elements;
+import javax.lang.model.util.Types;
 
 /**
  * Writes out usages of a type signature.
@@ -34,13 +46,19 @@ public final class SignatureWriter {
     private final PrintWriter w;
     private final String prefix;
     private final Elements elements;
+    private final Types types;
     
-    public SignatureWriter(PrintWriter w, String prefix, Elements elements) {
+    public SignatureWriter(PrintWriter w, String prefix, Elements elements, Types types) {
         this.w = w;
         this.prefix = prefix;
         this.elements = elements;
+        this.types = types;
     }
     
+    private void emit(String text) {
+        w.println(prefix + "{" + text + "}");
+    }
+
     public void process(String clazz) {
         TypeElement type = elements.getTypeElement(clazz);
         if (type == null) {
@@ -57,11 +75,133 @@ public final class SignatureWriter {
             return;
         }
         emit("Class _ = " + name + ".class;");
+        switch (type.getKind()) {
+            case CLASS:
+                processPublicConstructors(type);
+                // XXX
+                break;
+            case INTERFACE:
+                // XXX
+                break;
+            case ENUM:
+                // XXX
+                break;
+            case ANNOTATION_TYPE:
+                // XXX
+                break;
+            default:
+                assert false : type.getKind();
+        }
         return;
     }
     
-    private void emit(String text) {
-        w.println(prefix + "{" + text + "}");
+    private String name(TypeElement type) {
+        return type.getQualifiedName().toString().replaceFirst("^java\\.lang\\.", "");
+    }
+    private String name(TypeMirror type) {
+        return type.toString().replaceAll("\\bjava\\.lang\\.", "");
+    }
+    
+    private TypeMirror instantiateTypeParametersWithUpperBound(TypeElement type) {
+        List<TypeMirror> params = new ArrayList<TypeMirror>();
+        for (TypeParameterElement p : type.getTypeParameters()) {
+            List<? extends TypeMirror> bounds = p.getBounds();
+            if (bounds.isEmpty()) {
+                params.add(elements.getTypeElement("java.lang.Object").asType());
+            } else {
+                params.add(bounds.get(0)); // XXX OK?
+            }
+        }
+        return types.getDeclaredType(type, params.toArray(new TypeMirror[params.size()]));
+    }
+    
+    private Iterable<TypeMirror> supertypes(TypeElement type) {
+        Set<TypeMirror> supertypes = new LinkedHashSet<TypeMirror>();
+        collectSupertypes(instantiateTypeParametersWithUpperBound(type), supertypes);
+        return supertypes;
+    }
+    private void collectSupertypes(TypeMirror type, Set<TypeMirror> supertypes) {
+        for (TypeMirror t : types.directSupertypes(type)) {
+            collectSupertypes(t, supertypes);
+        }
+        supertypes.add(type);
+    }
+    
+    private void processPublicConstructors(final TypeElement type) {
+        boolean firstConstructor = true;
+        for (Element e : type.getEnclosedElements()) {
+            if (e.getKind() != ElementKind.CONSTRUCTOR) {
+                continue;
+            }
+            if (!e.getModifiers().contains(Modifier.PUBLIC)) {
+                continue;
+            }
+            String params = parameters((ExecutableElement) e);
+            String fqn = name(instantiateTypeParametersWithUpperBound(type));
+            if (firstConstructor) {
+                for (TypeMirror t : supertypes(type)) {
+                    emit(name(t) + " _ = new " + fqn + "(" + params + ");");
+                }
+                firstConstructor = false;
+            } else {
+                // For other constructors, skip type checks.
+                // But still need to translate element type to an instantiation with type parameters.
+                emit(fqn + " _ = new " + fqn + "(" + params + ");");
+            }
+        }
+    }
+
+    private String parameters(ExecutableElement e) {
+        StringBuilder b = new StringBuilder();
+        for (VariableElement var : e.getParameters()) {
+            if (b.length() > 0) {
+                b.append(", ");
+            }
+            TypeMirror type = var.asType();
+            switch (type.getKind()) {
+                case BOOLEAN:
+                    b.append("false");
+                    break;
+                case BYTE:
+                    b.append("(byte) 0");
+                    break;
+                case CHAR:
+                    b.append("' '");
+                    break;
+                case SHORT:
+                    b.append("(short) 0");
+                    break;
+                case INT:
+                    b.append("0");
+                    break;
+                case LONG:
+                    b.append("0L");
+                    break;
+                case FLOAT:
+                    b.append("0.0f");
+                    break;
+                case DOUBLE:
+                    b.append("0.0d");
+                    break;
+                case TYPEVAR:
+                    TypeVariable typevar = (TypeVariable) type;
+                    TypeMirror bound = typevar.getUpperBound();
+                    // XXX what if it is an intersection type, e.g. Number & Runnable?
+                    b.append("(" + name(bound) + ") null");
+                    break;
+                default:
+                    String n = name(type);
+                    if (n.equals("String")) {
+                        b.append("\"\"");
+                    } else {
+                        b.append("(");
+                        b.append(n);
+                        b.append(") null");
+                    }
+                    break;
+            }
+        }
+        return b.toString();
     }
     
 }
