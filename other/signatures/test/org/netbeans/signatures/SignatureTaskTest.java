@@ -39,6 +39,7 @@ public class SignatureTaskTest extends TestCase {
     private File antJar;
     private File antLauncherJar;
     private File antModuleJar;
+    private File nbdev;
     
     protected void setUp() throws Exception {
         super.setUp();
@@ -46,11 +47,13 @@ public class SignatureTaskTest extends TestCase {
         assertTrue(antJar.getAbsolutePath(), antJar.isFile());
         antLauncherJar = new File(antJar.getParentFile(), "ant-launcher.jar");
         assertTrue(antLauncherJar.getAbsolutePath(), antLauncherJar.isFile());
-        antModuleJar = new File(antJar.getParentFile().getParentFile().getParentFile().getParentFile(), "nbbuild/netbeans/ide8/modules/org-apache-tools-ant-module.jar");
+        nbdev = new File(antJar.getParentFile().getParentFile().getParentFile().getParentFile(), "nbbuild/netbeans");
+        assertTrue(nbdev.isDirectory());
+        antModuleJar = new File(nbdev, "ide8/modules/org-apache-tools-ant-module.jar");
         assertTrue(antModuleJar.getAbsolutePath(), antModuleJar.isFile());
     }
     
-    public void testExecute() throws Throwable {
+    public void testExecuteSmall() throws Exception {
         Project p = new Project();
         SignatureTask task = new SignatureTask();
         task.setProject(p);
@@ -86,6 +89,21 @@ public class SignatureTaskTest extends TestCase {
         } finally {
             r.close();
         }
+    }
+    
+    public void testExecuteBig() throws Exception {
+        Project p = new Project();
+        SignatureTask task = new SignatureTask();
+        task.setProject(p);
+        File out = File.createTempFile("signatures", ".java");
+        task.setOut(out);
+        FileSet fs = new FileSet();
+        fs.setProject(p);
+        fs.setDir(nbdev);
+        fs.setIncludes("**/*.jar");
+        task.addFileSet(fs);
+        task.execute();
+        assertTrue(out.isFile());
     }
 
 }
