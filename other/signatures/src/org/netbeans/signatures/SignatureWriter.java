@@ -97,7 +97,7 @@ public final class SignatureWriter {
             default:
                 assert false : type.getKind();
         }
-        return;
+        w.println();
     }
     
     private String name(TypeMirror type) {

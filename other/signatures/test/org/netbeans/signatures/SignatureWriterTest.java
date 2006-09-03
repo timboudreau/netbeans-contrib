@@ -176,7 +176,7 @@ public class SignatureWriterTest extends TestCase {
         String errors = err.toString();
         assertTrue(errors, ok);
         assertEquals(errors, 0, errors.length());
-        assertEquals(source, sig, result.toString().replaceAll("^\\{", "").replaceAll("\\}\n$", "").replaceAll("\\}\n\\{", "  "));
+        assertEquals(source, sig, result.toString().replaceAll("^\\{", "").replaceAll("\\}\n\n$", "").replaceAll("\\}\n\\{", "  "));
         // XXX check that sig is compilable, too
     }
     

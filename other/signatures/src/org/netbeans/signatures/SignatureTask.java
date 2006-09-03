@@ -106,6 +106,7 @@ public class SignatureTask extends Task {
                 final PrintWriter w = new PrintWriter(new OutputStreamWriter(os, "UTF-8"));
                 w.println("@SuppressWarnings(\"deprecation\")");
                 w.println("class " + sigclazz + " {");
+                w.println();
                 new Loader(cp) {
                     protected void run() {
                         SignatureWriter sigs = new SignatureWriter(w, "", elements(), types());
