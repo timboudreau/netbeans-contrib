@@ -109,7 +109,7 @@ public class SignatureTask extends Task {
                 w.println();
                 new Loader(cp) {
                     protected void run() {
-                        SignatureWriter sigs = new SignatureWriter(w, "", elements(), types());
+                        SignatureWriter sigs = new SignatureWriter(w, elements(), types());
                         int cnt = 0;
                         for (String clazz : classes) {
                             if (skipRegexp != null && skipRegexp.matcher(clazz).find()) {

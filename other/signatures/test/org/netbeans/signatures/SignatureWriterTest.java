@@ -29,6 +29,8 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.annotation.processing.AbstractProcessor;
@@ -54,97 +56,78 @@ public class SignatureWriterTest extends TestCase {
     
     public void testBasicClass() {
         assertEmitted("package p; class X {}", "p.X", "");
+    }
+    
+    public void testConstructors() {
         assertEmitted("package p; public final class X {private X() {}}",
                 "p.X",
                 "Class _ = p.X.class;");
         assertEmitted("package p; public class X {private X() {}}",
                 "p.X",
                 "Class _ = p.X.class;");
-    }
-    
-    public void testConstructors() {
         assertEmitted("package p; public final class X {public X() {}}",
                 "p.X",
                 "Class _ = p.X.class;  " +
-                "Object _ = new p.X();  " +
-                "p.X _ = new p.X();");
+                "new p.X();");
         assertEmitted("package p; public final class X {}",
                 "p.X",
                 "Class _ = p.X.class;  " +
-                "Object _ = new p.X();  " +
-                "p.X _ = new p.X();");
+                "new p.X();");
         assertEmitted("package p; public final class X {public X() {} public X(int x, String y, int[] z, java.util.Set<String> w) {}}",
                 "p.X",
                 "Class _ = p.X.class;  " +
-                "Object _ = new p.X();  " +
-                "p.X _ = new p.X();  " +
-                "p.X _ = new p.X(0, \"\", (int[]) null, (java.util.Set<String>) null);");
+                "new p.X();  " +
+                "new p.X(0, \"\", (int[]) null, (java.util.Set<String>) null);");
         assertEmitted("package p; public class S {} package p; public final class X extends S {}",
                 "p.X",
                 "Class _ = p.X.class;  " +
-                "Object _ = new p.X();  " +
-                "p.S _ = new p.X();  " +
-                "p.X _ = new p.X();");
+                "p.S _ = (p.X) null;  " +
+                "new p.X();");
         assertEmitted("package p; public class S<T> {} package p; public final class X<T> extends S<T> {public X() {} public X(T x) {}}",
                 "p.X",
                 "Class _ = p.X.class;  " +
-                "Object _ = new p.X<Object>();  " +
-                "p.S<Object> _ = new p.X<Object>();  " +
-                "p.X<Object> _ = new p.X<Object>();  " +
-                "p.X<Object> _ = new p.X<Object>((Object) null);");
+                "p.S<Object> _ = (p.X<Object>) null;  " +
+                "new p.X<Object>();  " +
+                "new p.X<Object>((Object) null);");
         assertEmitted("package p; public class S<T> {} package p; public final class X extends S<String> {}",
                 "p.X",
                 "Class _ = p.X.class;  " +
-                "Object _ = new p.X();  " +
-                "p.S<String> _ = new p.X();  " +
-                "p.X _ = new p.X();");
+                "p.S<String> _ = (p.X) null;  " +
+                "new p.X();");
         assertEmitted("package p; public abstract class X {}",
                 "p.X",
                 "Class _ = p.X.class;");
         assertEmitted("package p; class S {} package p; public final class X extends S {}",
                 "p.X",
                 "Class _ = p.X.class;  " +
-                "Object _ = new p.X();  " +
-                "p.X _ = new p.X();");
-        assertEmitted("package p; public final class X {public X() {} public X(char c) throws ClassNotFoundException, java.io.IOException, IllegalArgumentException {}}",
+                "new p.X();");
+        assertEmitted("package p; public final class X {public X(char c) throws ClassNotFoundException, java.io.IOException, IllegalArgumentException {}}",
                 "p.X",
                 "Class _ = p.X.class;  " +
-                "Object _ = new p.X();  " +
-                "p.X _ = new p.X();  " +
-                "try {p.X _ = new p.X(' ');} catch (ClassNotFoundException _) {} catch (java.io.IOException _) {}");
-        assertEmitted("package p; public final class X {public X() {} public X(java.lang.reflect.Method m) {}}",
+                "try {new p.X(' ');} catch (ClassNotFoundException _) {} catch (java.io.IOException _) {}");
+        assertEmitted("package p; public final class X {public X(java.lang.reflect.Method m) {}}",
                 "p.X",
                 "Class _ = p.X.class;  " +
-                "Object _ = new p.X();  " +
-                "p.X _ = new p.X();  " +
-                "p.X _ = new p.X((java.lang.reflect.Method) null);");
+                "new p.X((java.lang.reflect.Method) null);");
         assertEmitted("package p; class Hidden {} package p; public final class X {public X(Hidden h) {}}",
                 "p.X",
                 "Class _ = p.X.class;");
-        assertEmitted("package p; public final class X {public X() {} public <T> X(T t, Class<T> c) {}}",
+        assertEmitted("package p; public final class X {public <T> X(T t, Class<T> c) {}}",
                 "p.X",
                 "Class _ = p.X.class;  " +
-                "Object _ = new p.X();  " +
-                "p.X _ = new p.X();  " +
-                "p.X _ = new p.X((Object) null, (Class<Object>) null);");
-        assertEmitted("package p; public final class X {public X() {} public X(String s1, java.util.List<String> l, String s2, String s3) {}}",
+                "new p.X((Object) null, (Class<Object>) null);");
+        assertEmitted("package p; public final class X {public X(String s1, java.util.List<String> l, String s2, String s3) {}}",
                 "p.X",
                 "Class _ = p.X.class;  " +
-                "Object _ = new p.X();  " +
-                "p.X _ = new p.X();  " +
-                "p.X _ = new p.X(\"\", (java.util.List<String>) null, \"\", \"\");");
-        assertEmitted("package p; public final class X<T> {public X() {} public X(java.util.List<? extends T> l) {}}",
+                "new p.X(\"\", (java.util.List<String>) null, \"\", \"\");");
+        assertEmitted("package p; public final class X<T> {public X(java.util.List<? extends T> l) {}}",
                 "p.X",
                 "Class _ = p.X.class;  " +
-                "Object _ = new p.X<Object>();  " +
-                "p.X<Object> _ = new p.X<Object>();  " +
-                "p.X<Object> _ = new p.X<Object>((java.util.List<Object>) null);");
-        assertEmitted("package p; public final class X<T extends Number> {public X() {} public X(java.util.List<? extends T> l) {}}",
+                "new p.X<Object>((java.util.List<Object>) null);");
+        assertEmitted("package p; public final class X<T extends Number> {public X(java.util.List<? extends T> l) {}}",
                 "p.X",
                 "Class _ = p.X.class;  " +
-                "Object _ = new p.X<Number>();  " +
-                "p.X<Number> _ = new p.X<Number>();  " +
-                "p.X<Number> _ = new p.X<Number>((java.util.List<Number>) null);");
+                "new p.X<Number>((java.util.List<Number>) null);");
     }
 
     private static void assertEmitted(String source, String clazz, String sig) {
@@ -176,7 +159,15 @@ public class SignatureWriterTest extends TestCase {
         String errors = err.toString();
         assertTrue(errors, ok);
         assertEquals(errors, 0, errors.length());
-        assertEquals(source, sig, result.toString().replaceAll("^\\{", "").replaceAll("\\}\n\n$", "").replaceAll("\\}\n\\{", "  "));
+        SortedSet<String> lines = new TreeSet<String>(Arrays.asList(sig.split("  ")));
+        StringBuilder b = new StringBuilder();
+        for (String line : lines) {
+            if (b.length() > 0) {
+                b.append("  ");
+            }
+            b.append(line);
+        }
+        assertEquals(source, b.toString(), result.toString().replaceAll("^\\{", "").replaceAll("\\}\n\n$", "").replaceAll("\\}\n\\{", "  "));
         // XXX check that sig is compilable, too
     }
     
@@ -199,7 +190,7 @@ public class SignatureWriterTest extends TestCase {
             } else {
                 return true;
             }
-            new SignatureWriter(new PrintWriter(w), "", processingEnv.getElementUtils(), processingEnv.getTypeUtils()).process(clazz);
+            new SignatureWriter(new PrintWriter(w), processingEnv.getElementUtils(), processingEnv.getTypeUtils()).process(clazz);
             return true;
         }
         

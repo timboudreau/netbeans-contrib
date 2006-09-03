@@ -24,6 +24,8 @@ import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.ExecutableElement;
@@ -47,19 +49,18 @@ import javax.lang.model.util.Types;
 public final class SignatureWriter {
     
     private final PrintWriter w;
-    private final String prefix;
     private final Elements elements;
     private final Types types;
+    private final SortedSet<String> lines = new TreeSet<String>();
     
-    public SignatureWriter(PrintWriter w, String prefix, Elements elements, Types types) {
+    public SignatureWriter(PrintWriter w, Elements elements, Types types) {
         this.w = w;
-        this.prefix = prefix;
         this.elements = elements;
         this.types = types;
     }
     
     private void emit(String text) {
-        w.println(prefix + "{" + text + "}");
+        lines.add(text);
     }
 
     public void process(String clazz) {
@@ -78,6 +79,7 @@ public final class SignatureWriter {
             return;
         }
         emit("Class _ = " + name + ".class;");
+        processSupertypes(type);
         switch (type.getKind()) {
             case CLASS:
                 if (!type.getModifiers().contains(Modifier.ABSTRACT)) {
@@ -97,6 +99,10 @@ public final class SignatureWriter {
             default:
                 assert false : type.getKind();
         }
+        for (String line : lines) {
+            w.println("{" + line + "}");
+        }
+        lines.clear();
         w.println();
     }
     
@@ -119,10 +125,14 @@ public final class SignatureWriter {
                 return ((TypeVariable) type).getUpperBound();
             case WILDCARD:
                 TypeMirror bound = ((WildcardType) type).getExtendsBound();
-                return bound != null ? instantiateTypeParametersWithUpperBound(bound) : elements.getTypeElement("java.lang.Object").asType();
+                return bound != null ? instantiateTypeParametersWithUpperBound(bound) : objectType();
             default:
                 return type;
         }
+    }
+    
+    private TypeMirror objectType() {
+        return elements.getTypeElement("java.lang.Object").asType();
     }
     
     private TypeMirror instantiateTypeParametersWithUpperBound(TypeElement type) {
@@ -130,7 +140,7 @@ public final class SignatureWriter {
         for (TypeParameterElement p : type.getTypeParameters()) {
             List<? extends TypeMirror> bounds = p.getBounds();
             if (bounds.isEmpty()) {
-                params.add(elements.getTypeElement("java.lang.Object").asType());
+                params.add(objectType());
             } else {
                 params.add(bounds.get(0)); // XXX OK?
             }
@@ -138,9 +148,16 @@ public final class SignatureWriter {
         return types.getDeclaredType(type, params.toArray(new TypeMirror[params.size()]));
     }
     
-    private Iterable<TypeMirror> supertypes(TypeElement type) {
+    private Iterable<TypeMirror> supertypes(TypeElement type, boolean includeThis, boolean includeObject) {
         Set<TypeMirror> supertypes = new LinkedHashSet<TypeMirror>();
-        collectSupertypes(instantiateTypeParametersWithUpperBound(type), supertypes);
+        TypeMirror instantiated = instantiateTypeParametersWithUpperBound(type);
+        collectSupertypes(instantiated, supertypes);
+        if (!includeThis) {
+            supertypes.remove(instantiated);
+        }
+        if (!includeObject) {
+            supertypes.remove(objectType());
+        }
         return supertypes;
     }
     private void collectSupertypes(TypeMirror type, Set<TypeMirror> supertypes) {
@@ -150,8 +167,7 @@ public final class SignatureWriter {
         supertypes.add(type);
     }
     
-    private void processPublicConstructors(final TypeElement type) {
-        boolean firstConstructor = true;
+    private void processPublicConstructors(TypeElement type) {
         for (Element e : type.getEnclosedElements()) {
             if (e.getKind() != ElementKind.CONSTRUCTOR) {
                 continue;
@@ -173,33 +189,25 @@ public final class SignatureWriter {
                     checkedExceptions.add(exc);
                 }
             }
-            String tryprefix;
-            String catchsuffix;
             if (checkedExceptions.isEmpty()) {
-                tryprefix = "";
-                catchsuffix = "";
+                emit("new " + fqn + "(" + params + ");");
             } else {
-                tryprefix = "try {";
                 StringBuilder b = new StringBuilder();
-                b.append("}");
                 for (TypeMirror exc : checkedExceptions) {
                     b.append(" catch (");
                     b.append(name(exc));
                     b.append(" _) {}");
                 }
-                catchsuffix = b.toString();
+                emit("try {new " + fqn + "(" + params + ");}" + b);
             }
-            if (firstConstructor) {
-                for (TypeMirror t : supertypes(type)) {
-                    if (accessible(t)) {
-                        emit(tryprefix + name(t) + " _ = new " + fqn + "(" + params + ");" + catchsuffix);
-                    }
-                }
-                firstConstructor = false;
-            } else {
-                // For other constructors, skip type checks.
-                // But still need to translate element type to an instantiation with type parameters.
-                emit(tryprefix + fqn + " _ = new " + fqn + "(" + params + ");" + catchsuffix);
+        }
+    }
+    
+    private void processSupertypes(TypeElement type) {
+        String fqn = name(instantiateTypeParametersWithUpperBound(type));
+        for (TypeMirror t : supertypes(type, false, false)) {
+            if (accessible(t)) {
+                emit(name(t) + " _ = (" + fqn + ") null;");
             }
         }
     }
