@@ -41,10 +41,12 @@
             associated with the stack frame.
             <li><b>Show Classes...</b> - Show the table of all classes loaded in
             the debugee. Each row in Classes table shows Class name, Package name and the value
-            returned by the <code>toString()</code> method of class's ClassLoader.
-            This can be useful for debugging applications such as App Servers, IDE
+            returned by the <code>toString()</code> method of class's ClassLoader and the initiating
+            classloader. This can be useful for debugging applications such as App Servers, IDE
             Frameworks (e.g. Netbeans itself), that employ a complex multi-ClassLoader
             architecture. This view helps you determine which ClassLoader loaded the class.
+            <br>
+            TODO: Update screenshot
             <br>
             <image src="classes.jpg" alt="Classes loaded in the debugee.">
             <br>
