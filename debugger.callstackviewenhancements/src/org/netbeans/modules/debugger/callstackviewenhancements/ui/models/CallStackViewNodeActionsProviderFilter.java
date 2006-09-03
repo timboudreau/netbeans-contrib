@@ -192,13 +192,13 @@ public class CallStackViewNodeActionsProviderFilter implements NodeActionsProvid
                     continue;
                 } else {
                     String fqn = referenceType.name();
-                    String className = getClassName(fqn);
+                    String className = getClassName(fqn)+
+                                            " (id=" + referenceType.classObject().uniqueID() + ")"; // NOI18N
                     String packageName = getPackageName(fqn);
                     String classLoader = null;
                     String initiatingClassLoader = null;
                     
                     ClassLoaderReference classLoaderReference = referenceType.classLoader();
-                    ClassLoaderReference initiatingClassLoaderReference = (ClassLoaderReference) initiatingClassLoadersMap.get(referenceType);
                     
                     if (classLoaderReference != null) {
                         classLoader = (String) classLoaderReferenceToStringMap.get(classLoaderReference);
@@ -210,7 +210,8 @@ public class CallStackViewNodeActionsProviderFilter implements NodeActionsProvid
                                         concreteMethodByName("toString", "()Ljava/lang/String;"); // NOI18N
                                 StringReference sr = invokeMethod(jpdaDebugger, classLoaderReference, toStringMethod);
                                 if (sr != null) {
-                                    classLoader = sr.value();
+                                    classLoader = sr.value() +
+                                            " (id=" + classLoaderReference.uniqueID() + ")"; // NOI18N
                                 }
                                 if (initiatingClassLoader != null) {
                                     classLoaderReferenceToStringMap.put(classLoaderReference, classLoader);
@@ -219,6 +220,7 @@ public class CallStackViewNodeActionsProviderFilter implements NodeActionsProvid
                         }
                     }
                     
+                    ClassLoaderReference initiatingClassLoaderReference = (ClassLoaderReference) initiatingClassLoadersMap.get(referenceType);
                     if (initiatingClassLoaderReference != null) {
                         initiatingClassLoader = (String) initiatingClassLoaderReferenceToStringMap.get(initiatingClassLoaderReference);
                         if (initiatingClassLoader == null) {
@@ -229,7 +231,8 @@ public class CallStackViewNodeActionsProviderFilter implements NodeActionsProvid
                                         concreteMethodByName("toString", "()Ljava/lang/String;"); // NOI18N
                                 StringReference sr = invokeMethod(jpdaDebugger, initiatingClassLoaderReference, toStringMethod);
                                 if (sr != null) {
-                                    initiatingClassLoader = sr.value();
+                                    initiatingClassLoader = sr.value() +
+                                            " (id=" + initiatingClassLoaderReference.uniqueID() + ")"; // NOI18N
                                 }
                                 if (initiatingClassLoader != null) {
                                     initiatingClassLoaderReferenceToStringMap.put(initiatingClassLoaderReference, initiatingClassLoader);
@@ -274,10 +277,10 @@ public class CallStackViewNodeActionsProviderFilter implements NodeActionsProvid
         }
         
         private String[] columnNames = {
-            "Class", // NOI18N
-            "Package", // NOI18N
-            "ClassLoader", // NOI18N
-            "Initiating ClassLoader", // NOI18N
+            NbBundle.getBundle(CallStackViewNodeActionsProviderFilter.class).getString("HEADER_Class"), // NOI18N
+            NbBundle.getBundle(CallStackViewNodeActionsProviderFilter.class).getString("HEADER_Package"), // NOI18N
+            NbBundle.getBundle(CallStackViewNodeActionsProviderFilter.class).getString("HEADER_ClassLoader"), // NOI18N
+            NbBundle.getBundle(CallStackViewNodeActionsProviderFilter.class).getString("HEADER_InitiatingClassLoader"), // NOI18N
         };
         
         public Class getColumnClass(int columnIndex) {
@@ -390,7 +393,7 @@ public class CallStackViewNodeActionsProviderFilter implements NodeActionsProvid
     
     private ThreadReference getThreadReference(JPDAThread jpdaThread) {
         try {
-            Method method = jpdaThread.getClass().getMethod("getThreadReference", new Class[0]);
+            Method method = jpdaThread.getClass().getMethod("getThreadReference", new Class[0]); // NOI18N
             ThreadReference threadReference = (ThreadReference) method.invoke(jpdaThread, new Object[0]);
             return threadReference;
         } catch (IllegalArgumentException ex) {
