@@ -32,9 +32,11 @@ import javax.lang.model.element.Name;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.TypeParameterElement;
 import javax.lang.model.element.VariableElement;
+import javax.lang.model.type.ArrayType;
 import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.TypeMirror;
 import javax.lang.model.type.TypeVariable;
+import javax.lang.model.type.WildcardType;
 import javax.lang.model.util.Elements;
 import javax.lang.model.util.Types;
 
@@ -137,6 +139,11 @@ public final class SignatureWriter {
                 continue;
             }
             String params = parameters((ExecutableElement) e);
+            if (params == null) {
+                // Some parameter type is inaccessible, so we cannot call it.
+                // XXX this might not be strictly true in case that parameter type has a public subtype
+                continue;
+            }
             String fqn = name(instantiateTypeParametersWithUpperBound(type));
             List<TypeMirror> checkedExceptions = new ArrayList<TypeMirror>();
             for (TypeMirror exc : ((ExecutableElement) e).getThrownTypes()) {
@@ -175,6 +182,22 @@ public final class SignatureWriter {
             }
         }
     }
+    
+    private boolean accessible(TypeMirror type) {
+        switch (type.getKind()) {
+            case DECLARED:
+                return ((DeclaredType) type).asElement().getModifiers().contains(Modifier.PUBLIC);
+            case WILDCARD:
+                TypeMirror bound = ((WildcardType) type).getExtendsBound();
+                return bound == null || accessible(bound);
+            case ARRAY:
+                return accessible(((ArrayType) type).getComponentType());
+            case TYPEVAR:
+                return accessible(((TypeVariable) type).getUpperBound());
+            default:
+                return true;
+        }
+    }
 
     private String parameters(ExecutableElement e) {
         StringBuilder b = new StringBuilder();
@@ -183,6 +206,9 @@ public final class SignatureWriter {
                 b.append(", ");
             }
             TypeMirror type = var.asType();
+            if (!accessible(type)) {
+                return null;
+            }
             switch (type.getKind()) {
                 case BOOLEAN:
                     b.append("false");
