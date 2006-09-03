@@ -32,6 +32,7 @@ import javax.lang.model.element.Name;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.TypeParameterElement;
 import javax.lang.model.element.VariableElement;
+import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.TypeMirror;
 import javax.lang.model.type.TypeVariable;
 import javax.lang.model.util.Elements;
@@ -77,7 +78,9 @@ public final class SignatureWriter {
         emit("Class _ = " + name + ".class;");
         switch (type.getKind()) {
             case CLASS:
-                processPublicConstructors(type);
+                if (!type.getModifiers().contains(Modifier.ABSTRACT)) {
+                    processPublicConstructors(type);
+                }
                 // XXX
                 break;
             case INTERFACE:
@@ -95,11 +98,8 @@ public final class SignatureWriter {
         return;
     }
     
-    private String name(TypeElement type) {
-        return type.getQualifiedName().toString().replaceFirst("^java\\.lang\\.", "");
-    }
     private String name(TypeMirror type) {
-        return type.toString().replaceAll("\\bjava\\.lang\\.", "");
+        return type.toString().replaceAll("\\bjava\\.lang\\.([A-Z])", "$1");
     }
     
     private TypeMirror instantiateTypeParametersWithUpperBound(TypeElement type) {
@@ -138,15 +138,40 @@ public final class SignatureWriter {
             }
             String params = parameters((ExecutableElement) e);
             String fqn = name(instantiateTypeParametersWithUpperBound(type));
+            List<TypeMirror> checkedExceptions = new ArrayList<TypeMirror>();
+            for (TypeMirror exc : ((ExecutableElement) e).getThrownTypes()) {
+                if (types.isSubtype(exc, elements.getTypeElement("java.lang.Exception").asType()) &&
+                        !types.isSubtype(exc, elements.getTypeElement("java.lang.RuntimeException").asType())) {
+                    checkedExceptions.add(exc);
+                }
+            }
+            String tryprefix;
+            String catchsuffix;
+            if (checkedExceptions.isEmpty()) {
+                tryprefix = "";
+                catchsuffix = "";
+            } else {
+                tryprefix = "try {";
+                StringBuilder b = new StringBuilder();
+                b.append("}");
+                for (TypeMirror exc : checkedExceptions) {
+                    b.append(" catch (");
+                    b.append(name(exc));
+                    b.append(" _) {}");
+                }
+                catchsuffix = b.toString();
+            }
             if (firstConstructor) {
                 for (TypeMirror t : supertypes(type)) {
-                    emit(name(t) + " _ = new " + fqn + "(" + params + ");");
+                    if (((DeclaredType) t).asElement().getModifiers().contains(Modifier.PUBLIC)) {
+                        emit(tryprefix + name(t) + " _ = new " + fqn + "(" + params + ");" + catchsuffix);
+                    }
                 }
                 firstConstructor = false;
             } else {
                 // For other constructors, skip type checks.
                 // But still need to translate element type to an instantiation with type parameters.
-                emit(fqn + " _ = new " + fqn + "(" + params + ");");
+                emit(tryprefix + fqn + " _ = new " + fqn + "(" + params + ");" + catchsuffix);
             }
         }
     }

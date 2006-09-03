@@ -29,6 +29,7 @@ import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.net.URI;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.Set;
@@ -60,7 +61,7 @@ public abstract class Loader {
     private RuntimeException exception;
     private Error error;
     
-    protected Loader(File... cp) {
+    protected Loader(Collection<File> cp) {
         StringBuilder cps = new StringBuilder();
         for (File p : cp) {
             if (!p.exists()) {

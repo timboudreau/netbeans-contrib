@@ -98,6 +98,26 @@ public class SignatureWriterTest extends TestCase {
                 "Object _ = new p.X();  " +
                 "p.S<String> _ = new p.X();  " +
                 "p.X _ = new p.X();");
+        assertEmitted("package p; public abstract class X {}",
+                "p.X",
+                "Class _ = p.X.class;");
+        assertEmitted("package p; class S {} package p; public final class X extends S {}",
+                "p.X",
+                "Class _ = p.X.class;  " +
+                "Object _ = new p.X();  " +
+                "p.X _ = new p.X();");
+        assertEmitted("package p; public final class X {public X() {} public X(char c) throws ClassNotFoundException, java.io.IOException, IllegalArgumentException {}}",
+                "p.X",
+                "Class _ = p.X.class;  " +
+                "Object _ = new p.X();  " +
+                "p.X _ = new p.X();  " +
+                "try {p.X _ = new p.X(' ');} catch (ClassNotFoundException _) {} catch (java.io.IOException _) {}");
+        assertEmitted("package p; public final class X {public X() {} public X(java.lang.reflect.Method m) {}}",
+                "p.X",
+                "Class _ = p.X.class;  " +
+                "Object _ = new p.X();  " +
+                "p.X _ = new p.X();  " +
+                "p.X _ = new p.X((java.lang.reflect.Method) null);");
     }
 
     private static void assertEmitted(String source, String clazz, String sig) {
@@ -129,6 +149,7 @@ public class SignatureWriterTest extends TestCase {
         assertTrue(errors, ok);
         assertEquals(errors, 0, errors.length());
         assertEquals(source, sig, result.toString().replaceAll("^\\{", "").replaceAll("\\}\n$", "").replaceAll("\\}\n\\{", "  "));
+        // XXX check that sig is compilable, too
     }
     
     @SupportedAnnotationTypes("*")

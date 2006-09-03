@@ -39,7 +39,7 @@ public class ClassScanner {
     
     private ClassScanner() {}
     
-    public static Collection<String> findTopLevelClasses(boolean publicPackagesOnly, File... cp) throws IOException {
+    public static Collection<String> findTopLevelClasses(boolean publicPackagesOnly, Collection<File> cp) throws IOException {
         SortedSet<String> classes = new TreeSet<String>();
         for (File jar : cp) {
             if (!jar.isFile()) {
@@ -50,13 +50,15 @@ public class ClassScanner {
                 String[] pubpkgs = null;
                 if (publicPackagesOnly) {
                     Manifest mf = jf.getManifest();
-                    String pp = mf.getMainAttributes().getValue("OpenIDE-Module-Public-Packages");
-                    if (pp != null) {
-                        pp = pp.trim();
-                        if (pp.equals("-")) {
-                            continue;
+                    if (mf != null) {
+                        String pp = mf.getMainAttributes().getValue("OpenIDE-Module-Public-Packages");
+                        if (pp != null) {
+                            pp = pp.trim();
+                            if (pp.equals("-")) {
+                                continue;
+                            }
+                            pubpkgs = pp.split(" *[, ] *");
                         }
-                        pubpkgs = pp.split(" *[, ] *");
                     }
                 }
                 Enumeration<JarEntry> entries = jf.entries();

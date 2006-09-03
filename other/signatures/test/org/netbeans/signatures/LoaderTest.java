@@ -20,6 +20,7 @@
 package org.netbeans.signatures;
 
 import java.io.File;
+import java.util.Collections;
 import javax.lang.model.element.TypeElement;
 import junit.framework.TestCase;
 
@@ -41,7 +42,7 @@ public class LoaderTest extends TestCase {
     }
 
     public void testBasicUsage() throws Exception {
-        new Loader(antJar) {
+        new Loader(Collections.singleton(antJar)) {
             protected void run() {
                 TypeElement set = elements().getTypeElement("java.util.Set");
                 assertEquals("java.util.Set", set.getQualifiedName().toString());

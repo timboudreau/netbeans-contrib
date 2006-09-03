@@ -21,6 +21,7 @@ package org.netbeans.signatures;
 
 import java.io.File;
 import java.util.Collection;
+import java.util.Collections;
 import junit.framework.TestCase;
 
 /**
@@ -44,14 +45,14 @@ public class ClassScannerTest extends TestCase {
     }
 
     public void testFindPackages() throws Exception {
-        Collection<String> antClasses = ClassScanner.findTopLevelClasses(true, antJar);
+        Collection<String> antClasses = ClassScanner.findTopLevelClasses(true, Collections.singleton(antJar));
         //System.out.println(antClasses);
         assertTrue(antClasses.contains("org.apache.tools.ant.Project"));
         assertTrue(antClasses.contains("org.apache.tools.ant.filters.TokenFilter$Filter"));
-        Collection<String> antModuleClasses = ClassScanner.findTopLevelClasses(true, antModuleJar);
+        Collection<String> antModuleClasses = ClassScanner.findTopLevelClasses(true, Collections.singleton(antModuleJar));
         assertFalse(antModuleClasses.contains("org.apache.tools.ant.module.run.StandardLogger"));
         //System.out.println(antModuleClasses);
-        antModuleClasses = ClassScanner.findTopLevelClasses(false, antModuleJar);
+        antModuleClasses = ClassScanner.findTopLevelClasses(false, Collections.singleton(antModuleJar));
         assertTrue(antModuleClasses.contains("org.apache.tools.ant.module.run.StandardLogger"));
         //System.out.println(antModuleClasses);
     }
