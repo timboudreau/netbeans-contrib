@@ -31,9 +31,9 @@ import javax.lang.model.element.Modifier;
 import javax.lang.model.element.Name;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.TypeParameterElement;
-import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.ArrayType;
 import javax.lang.model.type.DeclaredType;
+import javax.lang.model.type.ExecutableType;
 import javax.lang.model.type.TypeMirror;
 import javax.lang.model.type.TypeVariable;
 import javax.lang.model.type.WildcardType;
@@ -104,6 +104,24 @@ public final class SignatureWriter {
         return type.toString().replaceAll("\\bjava\\.lang\\.([A-Z])", "$1");
     }
     
+    private TypeMirror instantiateTypeParametersWithUpperBound(TypeMirror type) {
+        switch (type.getKind()) {
+            case DECLARED:
+                DeclaredType dtype = (DeclaredType) type;
+                List<TypeMirror> params = new ArrayList<TypeMirror>();
+                for (TypeMirror arg : dtype.getTypeArguments()) {
+                    params.add(instantiateTypeParametersWithUpperBound(arg));
+                }
+                return types.getDeclaredType((TypeElement) types.asElement(dtype), params.toArray(new TypeMirror[params.size()]));
+            case ARRAY:
+                return types.getArrayType(instantiateTypeParametersWithUpperBound(((ArrayType) type).getComponentType()));
+            case TYPEVAR:
+                return ((TypeVariable) type).getUpperBound();
+            default:
+                return type;
+        }
+    }
+    
     private TypeMirror instantiateTypeParametersWithUpperBound(TypeElement type) {
         List<TypeMirror> params = new ArrayList<TypeMirror>();
         for (TypeParameterElement p : type.getTypeParameters()) {
@@ -170,7 +188,7 @@ public final class SignatureWriter {
             }
             if (firstConstructor) {
                 for (TypeMirror t : supertypes(type)) {
-                    if (((DeclaredType) t).asElement().getModifiers().contains(Modifier.PUBLIC)) {
+                    if (accessible(t)) {
                         emit(tryprefix + name(t) + " _ = new " + fqn + "(" + params + ");" + catchsuffix);
                     }
                 }
@@ -185,6 +203,8 @@ public final class SignatureWriter {
     
     private boolean accessible(TypeMirror type) {
         switch (type.getKind()) {
+            case ERROR:
+                return false;
             case DECLARED:
                 return ((DeclaredType) type).asElement().getModifiers().contains(Modifier.PUBLIC);
             case WILDCARD:
@@ -201,15 +221,16 @@ public final class SignatureWriter {
 
     private String parameters(ExecutableElement e) {
         StringBuilder b = new StringBuilder();
-        for (VariableElement var : e.getParameters()) {
+        // e.getParameters() does not work for classes read from bytecode
+        for (TypeMirror type : ((ExecutableType) e.asType()).getParameterTypes()) {
             if (b.length() > 0) {
                 b.append(", ");
             }
-            TypeMirror type = var.asType();
             if (!accessible(type)) {
                 return null;
             }
-            switch (type.getKind()) {
+            TypeMirror type2 = instantiateTypeParametersWithUpperBound(type);
+            switch (type2.getKind()) {
                 case BOOLEAN:
                     b.append("false");
                     break;
@@ -235,13 +256,11 @@ public final class SignatureWriter {
                     b.append("0.0d");
                     break;
                 case TYPEVAR:
-                    TypeVariable typevar = (TypeVariable) type;
-                    TypeMirror bound = typevar.getUpperBound();
                     // XXX what if it is an intersection type, e.g. Number & Runnable?
-                    b.append("(" + name(bound) + ") null");
-                    break;
-                default:
-                    String n = name(type);
+                    // fallthru
+                case DECLARED:
+                case ARRAY:
+                    String n = name(type2);
                     if (n.equals("String")) {
                         b.append("\"\"");
                     } else {
@@ -250,6 +269,8 @@ public final class SignatureWriter {
                         b.append(") null");
                     }
                     break;
+                default:
+                    assert false : type2;
             }
         }
         return b.toString();

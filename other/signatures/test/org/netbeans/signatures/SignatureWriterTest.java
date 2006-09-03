@@ -121,6 +121,18 @@ public class SignatureWriterTest extends TestCase {
         assertEmitted("package p; class Hidden {} package p; public final class X {public X(Hidden h) {}}",
                 "p.X",
                 "Class _ = p.X.class;");
+        assertEmitted("package p; public final class X {public X() {} public <T> X(T t, Class<T> c) {}}",
+                "p.X",
+                "Class _ = p.X.class;  " +
+                "Object _ = new p.X();  " +
+                "p.X _ = new p.X();  " +
+                "p.X _ = new p.X((Object) null, (Class<Object>) null);");
+        assertEmitted("package p; public final class X {public X() {} public X(String s1, java.util.List<String> l, String s2, String s3) {}}",
+                "p.X",
+                "Class _ = p.X.class;  " +
+                "Object _ = new p.X();  " +
+                "p.X _ = new p.X();  " +
+                "p.X _ = new p.X(\"\", (java.util.List<String>) null, \"\", \"\");");
     }
 
     private static void assertEmitted(String source, String clazz, String sig) {
