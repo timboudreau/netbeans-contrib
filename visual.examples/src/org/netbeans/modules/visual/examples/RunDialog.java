@@ -46,6 +46,7 @@ public class RunDialog extends javax.swing.JFrame {
         "test.list.ListTest",
         "test.lod.LevelOfDetailsTest",
         "test.multiview.MultiViewTest",
+        "test.multiview.MultiViewTableTest",
         "test.object.ObjectTest",
         "test.repaint.RepaintTest",
         "test.resize.ResizeTest",
