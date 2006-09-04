@@ -19,6 +19,7 @@
 
 package org.netbeans.signatures;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -131,6 +132,10 @@ public class SignatureWriterTest extends TestCase {
     }
 
     private static void assertEmitted(String source, String clazz, String sig) {
+        // First compile the test sources.
+        //MemoryOutputFileManager mgr = new MemoryOutputFileManager();
+        // XXX would be better to compile to memory, but cannot get it to work.
+        File dir = new File(System.getProperty("java.io.tmpdir"));
         List<JavaFileObject> compUnits = new ArrayList<JavaFileObject>();
         for (final String chunk : source.split("(?!^)(?=package [a-z.]+;)")) {
             //System.err.println("Got: " + chunk);
@@ -138,6 +143,7 @@ public class SignatureWriterTest extends TestCase {
             assertTrue(chunk, m.matches());
             String path = m.group(1).replace('.', '/') + "/" + m.group(3) + ".java";
             //System.err.println("with path: " + path);
+            //compunits.add(mgr.store(path, chunk));
             compUnits.add(new SimpleJavaFileObject(URI.create("nowhere:/" + path), JavaFileObject.Kind.SOURCE) {
                 public CharSequence getCharContent(boolean ignoreEncodingErrors) throws IOException {
                     return chunk;
@@ -147,16 +153,27 @@ public class SignatureWriterTest extends TestCase {
         StringWriter err = new StringWriter();
         JavaCompiler.CompilationTask task = ToolProvider.getSystemJavaCompiler().getTask(
                 err,
-                Loader.nullOutputFileManager(),
                 null,
-                Arrays.asList("-source", "1.6"),
+                null,
+                Arrays.asList("-source", "1.6", "-d", dir.getAbsolutePath()),
                 null,
                 compUnits);
-        StringWriter result = new StringWriter();
-        // XXX better to compile first and then run SignatureWriter on bytecode
-        task.setProcessors(Collections.singleton(new P(result, clazz)));
         boolean ok = task.call();
         String errors = err.toString();
+        assertTrue(errors, ok);
+        assertEquals(errors, 0, errors.length());
+        // Now compile a dummy class so we can run the processor.
+        task = ToolProvider.getSystemJavaCompiler().getTask(
+                err,
+                Loader.nullOutputFileManager(),
+                null,
+                Arrays.asList("-source", "1.6", "-classpath", dir.getAbsolutePath()),
+                null,
+                Collections.singleton(Loader.dummyCompilationUnit()));
+        StringWriter result = new StringWriter();
+        task.setProcessors(Collections.singleton(new P(result, clazz)));
+        ok = task.call();
+        errors = err.toString();
         assertTrue(errors, ok);
         assertEquals(errors, 0, errors.length());
         SortedSet<String> lines = new TreeSet<String>(Arrays.asList(sig.split("  ")));
@@ -170,6 +187,128 @@ public class SignatureWriterTest extends TestCase {
         assertEquals(source, b.toString(), result.toString().replaceAll("^\\{", "").replaceAll("\\}\n\n$", "").replaceAll("\\}\n\\{", "  "));
         // XXX check that sig is compilable, too
     }
+    
+    /* Just does not work, not obvious why. Never writes out a .class file.
+    private static final class MemoryOutputFileManager extends ForwardingJavaFileManager<JavaFileManager> {
+        
+        final Map<String,String> data = new HashMap<String,String>();
+        
+        public MemoryOutputFileManager() {
+            super(ToolProvider.getSystemJavaCompiler().getStandardFileManager(null, null, null));
+        }
+        
+        public JavaFileObject store(String path, String contents) {
+            data.put(path, contents);
+            return new FO(path, null);
+        }
+
+        public JavaFileObject getJavaFileForInput(JavaFileManager.Location location, String className, JavaFileObject.Kind kind) throws IOException {
+            String path = className.replace('.', '/') + ".java";
+            if (data.containsKey(path)) {
+                return new FO(path, kind);
+            } else {
+                return super.getJavaFileForInput(location, className, kind);
+            }
+        }
+
+        public JavaFileObject getJavaFileForOutput(JavaFileManager.Location location, String className, JavaFileObject.Kind kind, FileObject sibling) throws IOException {
+            return new FO(className.replace('.', '/') + ".java", kind);
+        }
+
+        public FileObject getFileForInput(JavaFileManager.Location location, String packageName, String relativeName) throws IOException {
+            String path = packageName.replace('.', '/') + "/" + relativeName;
+            if (data.containsKey(path)) {
+                return new FO(path, null);
+            } else {
+                return super.getFileForInput(location, packageName, relativeName);
+            }
+        }
+
+        public FileObject getFileForOutput(JavaFileManager.Location location, String packageName, String relativeName, FileObject sibling) throws IOException {
+            return new FO(packageName.replace('.', '/') + "/" + relativeName, null);
+        }
+
+        public Iterable<JavaFileObject> list(JavaFileManager.Location location, String packageName, Set<JavaFileObject.Kind> kinds, boolean recurse) throws IOException {
+            List<JavaFileObject> files = new ArrayList<JavaFileObject>();
+            for (JavaFileObject f : super.list(location, packageName, kinds, recurse)) {
+                files.add(f);
+            }
+            for (Map.Entry<String,String> entry : data.entrySet()) {
+                String path = entry.getKey();
+                if (path.startsWith(packageName.replace('.', '/') + "/") && kinds.contains(kindFor(path))) {
+                    files.add(new FO(path, null));
+                }
+            }
+            System.err.println("XXX list: " + location + " " + packageName + " " + kinds + " " + recurse + " -> " + files);
+            return files;
+        }
+
+        public boolean hasLocation(JavaFileManager.Location location) {
+            return true;
+            / *
+            boolean retValue;
+            
+            retValue = super.hasLocation(location);
+            System.err.println("XXX hasLocation " + location + " -> " + retValue);
+            return retValue;
+             * /
+        }
+        
+        private JavaFileObject.Kind kindFor(String path) {
+            if (path.endsWith(".java")) {
+                return JavaFileObject.Kind.SOURCE;
+            } else if (path.endsWith(".class")) {
+                return JavaFileObject.Kind.CLASS;
+            } else {
+                return JavaFileObject.Kind.OTHER;
+            }
+        }
+
+        public String inferBinaryName(JavaFileManager.Location location, JavaFileObject file) {
+            if (file instanceof FO) {
+                return file.getName().replaceFirst("\\.[^/.]+$", "").replace('/', '.');
+            } else {
+                return super.inferBinaryName(location, file);
+            }
+        }
+
+        private class FO extends SimpleJavaFileObject {
+            
+            public FO(String path, JavaFileObject.Kind kind) {
+                super(URI.create("mem:/" + path), kind != null ? kind : kindFor(path));
+                System.err.println("XXX made FO for " + uri + " " + kind);
+            }
+
+            public InputStream openInputStream() throws IOException {
+                return new ByteArrayInputStream(data.get(getName()).getBytes("UTF-8"));
+            }
+
+            public OutputStream openOutputStream() throws IOException {
+                return new ByteArrayOutputStream() {
+                    public void close() throws IOException {
+                        super.close();
+                        data.put(getName(), toString("UTF-8"));
+                    }
+                };
+            }
+
+            public Writer openWriter() throws IOException {
+                return new StringWriter() {
+                    public void close() throws IOException {
+                        super.close();
+                        data.put(getName(), toString());
+                    }
+                };
+            }
+
+            public CharSequence getCharContent(boolean ignoreEncodingErrors) throws IOException {
+                return data.get(getName());
+            }
+            
+        }
+        
+    }
+     */
     
     @SupportedAnnotationTypes("*")
     @SupportedSourceVersion(SourceVersion.RELEASE_6)
@@ -195,5 +334,5 @@ public class SignatureWriterTest extends TestCase {
         }
         
     }
-    
+
 }

@@ -151,20 +151,19 @@ public final class SignatureWriter {
     private Iterable<TypeMirror> supertypes(TypeElement type, boolean includeThis, boolean includeObject) {
         Set<TypeMirror> supertypes = new LinkedHashSet<TypeMirror>();
         TypeMirror instantiated = instantiateTypeParametersWithUpperBound(type);
-        collectSupertypes(instantiated, supertypes);
+        collectSupertypes(instantiated, supertypes, includeObject);
         if (!includeThis) {
             supertypes.remove(instantiated);
         }
-        if (!includeObject) {
-            supertypes.remove(objectType());
-        }
         return supertypes;
     }
-    private void collectSupertypes(TypeMirror type, Set<TypeMirror> supertypes) {
+    private void collectSupertypes(TypeMirror type, Set<TypeMirror> supertypes, boolean includeObject) {
         for (TypeMirror t : types.directSupertypes(type)) {
-            collectSupertypes(t, supertypes);
+            collectSupertypes(t, supertypes, includeObject);
         }
-        supertypes.add(type);
+        if (includeObject || !types.isSameType(type, objectType())) {
+            supertypes.add(type);
+        }
     }
     
     private void processPublicConstructors(TypeElement type) {

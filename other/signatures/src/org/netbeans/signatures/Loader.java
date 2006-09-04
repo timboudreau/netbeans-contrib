@@ -25,13 +25,10 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.StringWriter;
 import java.io.Writer;
-import java.lang.reflect.InvocationHandler;
-import java.lang.reflect.Method;
 import java.net.URI;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.Set;
 import javax.annotation.processing.AbstractProcessor;
 import javax.annotation.processing.RoundEnvironment;
@@ -42,6 +39,7 @@ import javax.lang.model.element.TypeElement;
 import javax.lang.model.util.Elements;
 import javax.lang.model.util.Types;
 import javax.tools.FileObject;
+import javax.tools.ForwardingJavaFileManager;
 import javax.tools.JavaCompiler;
 import javax.tools.JavaFileManager;
 import javax.tools.JavaFileManager.Location;
@@ -72,11 +70,6 @@ public abstract class Loader {
             }
             cps.append(p);
         }
-        JavaFileObject dummyCompilationUnit = new SimpleJavaFileObject(URI.create("nowhere:/Dummy.java"), JavaFileObject.Kind.SOURCE) {
-            public CharSequence getCharContent(boolean ignoreEncodingErrors) throws IOException {
-                return "public class Dummy {}";
-            }
-        };
         StringWriter err = new StringWriter();
         JavaCompiler.CompilationTask task = ToolProvider.getSystemJavaCompiler().getTask(
                 err,
@@ -84,7 +77,7 @@ public abstract class Loader {
                 null,
                 Arrays.asList("-source", "1.6", "-classpath", cps.toString()),
                 null,
-                Collections.singleton(dummyCompilationUnit));
+                Collections.singleton(dummyCompilationUnit()));
         task.setProcessors(Collections.singleton(new LoaderProcessor()));
         boolean ok = task.call();
         String errors = err.toString();
@@ -141,55 +134,29 @@ public abstract class Loader {
         
     }
     
-    public static JavaFileManager nullOutputFileManager() {
-        final JavaFileObject devNull = new SimpleJavaFileObject(URI.create("no:/where"), JavaFileObject.Kind.OTHER) {
-            public OutputStream openOutputStream() throws IOException {
-                return new ByteArrayOutputStream();
-            }
-            public Writer openWriter() throws IOException {
-                return new StringWriter();
+    public static JavaFileObject dummyCompilationUnit() {
+        return new SimpleJavaFileObject(URI.create("nowhere:/Dummy.java"), JavaFileObject.Kind.SOURCE) {
+            public CharSequence getCharContent(boolean ignoreEncodingErrors) throws IOException {
+                return "public class Dummy {}";
             }
         };
-        return new JavaFileManager() {
-            JavaFileManager standard = ToolProvider.getSystemJavaCompiler().getStandardFileManager(null, null, null);
-            public void close() throws IOException {
-                standard.close();
-            }
-            public void flush() throws IOException {
-                standard.flush();
-            }
-            public ClassLoader getClassLoader(Location location) {
-                return standard.getClassLoader(location);
-            }
-            public FileObject getFileForInput(Location location, String packageName, String relativeName) throws IOException {
-                return standard.getFileForInput(location, packageName, relativeName);
-            }
+    }
+    
+    public static JavaFileManager nullOutputFileManager() {
+        return new ForwardingJavaFileManager<JavaFileManager>(ToolProvider.getSystemJavaCompiler().getStandardFileManager(null, null, null)) {
+            JavaFileObject devNull = new SimpleJavaFileObject(URI.create("no:/where"), JavaFileObject.Kind.OTHER) {
+                public OutputStream openOutputStream() throws IOException {
+                    return new ByteArrayOutputStream();
+                }
+                public Writer openWriter() throws IOException {
+                    return new StringWriter();
+                }
+            };
             public FileObject getFileForOutput(Location location, String packageName, String relativeName, FileObject sibling) throws IOException {
                 return devNull;
             }
-            public JavaFileObject getJavaFileForInput(Location location, String className, Kind kind) throws IOException {
-                return standard.getJavaFileForInput(location, className, kind);
-            }
             public JavaFileObject getJavaFileForOutput(Location location, String className, Kind kind, FileObject sibling) throws IOException {
                 return devNull;
-            }
-            public boolean handleOption(String current, Iterator<String> remaining) {
-                return standard.handleOption(current, remaining);
-            }
-            public boolean hasLocation(Location location) {
-                return standard.hasLocation(location);
-            }
-            public String inferBinaryName(Location location, JavaFileObject file) {
-                return standard.inferBinaryName(location, file);
-            }
-            public boolean isSameFile(FileObject a, FileObject b) {
-                return standard.isSameFile(a, b);
-            }
-            public int isSupportedOption(String option) {
-                return standard.isSupportedOption(option);
-            }
-            public Iterable<JavaFileObject> list(Location location, String packageName, Set<Kind> kinds, boolean recurse) throws IOException {
-                return standard.list(location, packageName, kinds, recurse);
             }
         };
     }
