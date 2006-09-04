@@ -24,6 +24,9 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.Reader;
 import junit.framework.TestCase;
+import org.apache.tools.ant.BuildEvent;
+import org.apache.tools.ant.BuildListener;
+import org.apache.tools.ant.BuildLogger;
 import org.apache.tools.ant.Project;
 import org.apache.tools.ant.types.FileSet;
 
@@ -53,8 +56,9 @@ public class SignatureTaskTest extends TestCase {
         assertTrue(antModuleJar.getAbsolutePath(), antModuleJar.isFile());
     }
     
-    public void testExecuteSmall() throws Exception {
+    public void testExecuteAnt() throws Exception {
         Project p = new Project();
+        p.addBuildListener(new Listener());
         SignatureTask task = new SignatureTask();
         task.setProject(p);
         File out = File.createTempFile("signatures", ".java");
@@ -86,8 +90,9 @@ public class SignatureTaskTest extends TestCase {
         }
     }
     
-    public void testExecuteBig() throws Exception {
+    public void testExecuteNB() throws Exception {
         Project p = new Project();
+        p.addBuildListener(new Listener());
         SignatureTask task = new SignatureTask();
         task.setProject(p);
         File out = File.createTempFile("signatures", ".java");
@@ -95,10 +100,47 @@ public class SignatureTaskTest extends TestCase {
         FileSet fs = new FileSet();
         fs.setProject(p);
         fs.setDir(nbdev);
-        fs.setIncludes("**/*.jar");
+        fs.setIncludes("*/modules/*.jar,*/lib/*.jar,*/core/*.jar");
         task.addFileSet(fs);
         task.execute();
         assertTrue(out.isFile());
+        Reader r = new FileReader(out);
+        try {
+            BufferedReader b = new BufferedReader(r);
+            while (true) {
+                String l = b.readLine();
+                assertNotNull("found matching line in " + out, l);
+                if (l.equals("{Class _ = javax.help.HelpSet.class;}")) {
+                    break;
+                }
+            }
+        } finally {
+            r.close();
+        }
+    }
+    
+    private static final class Listener implements BuildListener {
+        
+        Listener() {}
+        
+        public void buildStarted(BuildEvent event) {}
+
+        public void buildFinished(BuildEvent event) {}
+
+        public void targetStarted(BuildEvent event) {}
+
+        public void targetFinished(BuildEvent event) {}
+
+        public void taskStarted(BuildEvent event) {}
+
+        public void taskFinished(BuildEvent event) {}
+
+        public void messageLogged(BuildEvent event) {
+            if (event.getPriority() <= Project.MSG_INFO) {
+                System.err.println(event.getMessage());
+            }
+        }
+        
     }
 
 }

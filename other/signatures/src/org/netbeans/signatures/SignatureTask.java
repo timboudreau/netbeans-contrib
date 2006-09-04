@@ -25,11 +25,11 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.LinkedList;
-import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.tools.JavaCompiler;
@@ -42,6 +42,13 @@ import org.apache.tools.ant.types.FileSet;
 
 /**
  * Ant task to write out all signatures for some JARs.
+ * The output will be a Java source file which should be compilable
+ * when those JARs are in the classpath.
+ * It will attempt to exercise as much of the public API detected in those
+ * JARs as possible.
+ * Running the class (or classes) will not be possible; compilation is the test.
+ * Order should be stable, so you may meaningfully use a diff tool to check for
+ * syntactic API changes. Added lines are compatible; removed lines may be incompatible.
  * @author Jesse Glick
  */
 public class SignatureTask extends Task {
@@ -87,11 +94,11 @@ public class SignatureTask extends Task {
         if (!m.matches()) {
             throw new BuildException("Illegal Java source file name " + out.getName(), getLocation());
         }
-        String sigclazz = m.group(1);
+        final String sigclazz = m.group(1);
         if (filesets.isEmpty()) {
             throw new BuildException("Must specify <fileset>s", getLocation());
         }
-        final List<File> cp = new ArrayList<File>();
+        final Set<File> cp = new TreeSet<File>();
         for (FileSet fs : filesets) {
             DirectoryScanner ds = fs.getDirectoryScanner(getProject());
             File basedir = ds.getBasedir();
@@ -100,17 +107,16 @@ public class SignatureTask extends Task {
             }
         }
         try {
-            final Collection<String> classes = ClassScanner.findTopLevelClasses(true, cp);
+            final Collection<String> classes = ClassScanner.findTopLevelClasses(cp, true, true);
             OutputStream os = new FileOutputStream(out);
             try {
                 final PrintWriter w = new PrintWriter(new OutputStreamWriter(os, "UTF-8"));
-                w.println("@SuppressWarnings(\"deprecation\")");
-                w.println("class " + sigclazz + " {");
-                w.println();
+                w.printf("@SuppressWarnings(\"deprecation\")\nclass %s000 {\n\n", sigclazz);
                 new Loader(cp) {
                     protected void run() {
                         SignatureWriter sigs = new SignatureWriter(w, elements(), types());
                         int cnt = 0;
+                        int blocksize = 1000;
                         for (String clazz : classes) {
                             if (skipRegexp != null && skipRegexp.matcher(clazz).find()) {
                                 continue;
@@ -120,8 +126,9 @@ public class SignatureTask extends Task {
                             } catch (RuntimeException e) {
                                 log("Failed to create signature for " + clazz + " in " + cp + " due to " + e, Project.MSG_VERBOSE);
                             }
-                            if (cnt++ % 1000 == 0) {
+                            if (++cnt % blocksize == 0) {
                                 log("Working on " + clazz, Project.MSG_INFO);
+                                w.printf("}\n\n@SuppressWarnings(\"deprecation\")\nclass %s%03d {\n\n", sigclazz, cnt / blocksize);
                             }
                         }
                     }
