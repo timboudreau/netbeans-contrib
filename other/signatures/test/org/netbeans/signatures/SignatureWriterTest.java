@@ -173,6 +173,7 @@ public class SignatureWriterTest extends TestCase {
         StringWriter result = new StringWriter();
         task.setProcessors(Collections.singleton(new P(result, clazz)));
         ok = task.call();
+        // XXX could now delete the .class files in dir
         errors = err.toString();
         assertTrue(errors, ok);
         assertEquals(errors, 0, errors.length());
