@@ -12,6 +12,7 @@
  */
 package test.multiview;
 
+import org.netbeans.api.visual.widget.Scene;
 import test.object.ObjectTest;
 
 import javax.swing.*;
@@ -32,6 +33,10 @@ public class MultiViewTest {
         scene.addNode ("alert [Alert]");
         scene.moveTo (null);
 
+        show (scene);
+    }
+
+    public static void show (final Scene scene) {
         int width = 800, height = 600;
         JFrame frame = new JFrame ();//new JDialog (), true);
         Container contentPane = frame.getContentPane ();
