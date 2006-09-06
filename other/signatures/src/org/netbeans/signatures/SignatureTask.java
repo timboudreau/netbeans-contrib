@@ -41,7 +41,7 @@ import org.apache.tools.ant.Task;
 import org.apache.tools.ant.types.FileSet;
 
 /**
- * Ant task to write out all signatures for some JARs.
+ * Ant task to write out all public Java signatures for some JARs.
  * The output will be a Java source file which should be compilable
  * when those JARs are in the classpath.
  * It will attempt to exercise as much of the public API detected in those
