@@ -34,6 +34,7 @@ public class RunDialog extends javax.swing.JFrame {
         "test.card.CardContainerWidget",
         "test.component.ComponentTest",
         "test.connect.ConnectScene",
+        "test.connect.ConnectGraphScene",
         "test.connectionlabels.ConnectionLabelsTest",
         "test.controlpoint.AddDeleteControlPointTest",
         "test.devolve.DevolveTest",
