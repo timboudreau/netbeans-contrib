@@ -78,6 +78,7 @@ public class SceneReconnectProvider implements ReconnectProvider {
             scene.setEdgeSource(edge, replacementNode);
         else
             scene.setEdgeTarget(edge, replacementNode);
+        scene.validate();
     }
     
 }

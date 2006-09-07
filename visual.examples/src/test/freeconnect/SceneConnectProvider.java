@@ -61,6 +61,7 @@ public class SceneConnectProvider implements ConnectProvider {
             scene.addEdge(edge);
             scene.setEdgeSource(edge, source);
             scene.setEdgeTarget(edge, target);
+            scene.validate();
         }
     }
     
