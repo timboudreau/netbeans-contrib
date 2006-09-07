@@ -30,6 +30,7 @@ import org.netbeans.api.visual.widget.general.IconNodeWidget;
 import org.openide.util.Utilities;
 
 import java.awt.*;
+import java.awt.image.BufferedImage;
 import java.util.Collections;
 
 
@@ -65,10 +66,13 @@ public class DemoGraphScene extends GraphScene.StringGraph {
         addChild(interractionLayer);
         getActions().addAction(ActionFactory.createRectangularSelectAction(this, backgroundLayer));
         getActions().addAction(ActionFactory.createPopupMenuAction(new SceneMainMenu(this)));
+        setToolTipText("Left mouse click for creating new Node");
+        initGrids();
     }
     
     protected Widget attachNodeWidget(String node) {
         IconNodeWidget label = new IconNodeWidget(this);
+        label.setToolTipText("Hold 'Ctrl'+'Mouse Right Button' to create Edge");
         label.setLabel(node);
         label.setImage(IMAGE);
         label.getActions().addAction(connectAction);
@@ -81,6 +85,7 @@ public class DemoGraphScene extends GraphScene.StringGraph {
     protected Widget attachEdgeWidget(String edge) {
         FreeConnectionWidget connection = new FreeConnectionWidget(this);
         connection.setRouter(router);
+        connection.setToolTipText("Double-click for Add/Remove Control Point");
         connection.setTargetAnchorShape(AnchorShape.TRIANGLE_FILLED);
         connection.setControlPointShape(PointShape.SQUARE_FILLED_BIG);
         connection.setEndPointShape(PointShape.SQUARE_FILLED_BIG);
@@ -124,6 +129,21 @@ public class DemoGraphScene extends GraphScene.StringGraph {
             } else
                 userSelectionSuggested(Collections.emptySet(), invertSelection);
         }
+    }
+    
+    public void initGrids(){
+        Image sourceImage = Utilities.loadImage("test/resources/paper_grid17.png"); // NOI18N
+        int width = sourceImage.getWidth(null);
+        int height = sourceImage.getHeight(null);
+        BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+        Graphics2D graphics = image.createGraphics();
+        graphics.drawImage(sourceImage, 0, 0, null);
+        graphics.dispose();
+        TexturePaint PAINT_BACKGROUND = new TexturePaint(image, new Rectangle(0, 0, width, height));
+        setBackground(PAINT_BACKGROUND);
+        repaint();
+        revalidate(false);
+        validate();
     }
     
 }
