@@ -86,7 +86,7 @@ public class DemoGraphScene extends GraphScene.StringGraph {
         connection.getActions().addAction(createSelectAction());
         connection.getActions().addAction(ActionFactory.createAddRemoveControlPointAction());
         connection.getActions().addAction(moveControlPointAction);
-        connection.getActions().addAction(ActionFactory.createPopupMenuAction(new MainMenu(connection)));
+        connection.getActions().addAction(ActionFactory.createPopupMenuAction(new MainMenu(this)));
         return connection;
     }
     
