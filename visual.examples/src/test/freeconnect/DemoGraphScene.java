@@ -52,6 +52,8 @@ public class DemoGraphScene extends GraphScene.StringGraph {
     private WidgetAction moveControlPointAction = ActionFactory.createFreeMoveControlPointAction();
     private WidgetAction selectAction = ActionFactory.createSelectAction(new ObjectSelectProvider());
 
+    private NodeMenu nodeMenu=new NodeMenu(this);
+    private EdgeMenu edgeMenu=new EdgeMenu(this);
     
     
     public DemoGraphScene() {
@@ -72,7 +74,7 @@ public class DemoGraphScene extends GraphScene.StringGraph {
         label.getActions().addAction(connectAction);
         label.getActions().addAction(moveAction);
         mainLayer.addChild(label);
-        label.getActions().addAction(ActionFactory.createPopupMenuAction(new NodeMenu(this)));
+        label.getActions().addAction(ActionFactory.createPopupMenuAction(nodeMenu));
         return label;
     }
     
@@ -87,7 +89,7 @@ public class DemoGraphScene extends GraphScene.StringGraph {
         connection.getActions().addAction(createSelectAction());
         connection.getActions().addAction(ActionFactory.createAddRemoveControlPointAction());
         connection.getActions().addAction(moveControlPointAction);
-        connection.getActions().addAction(ActionFactory.createPopupMenuAction(new EdgeMenu(this)));
+        connection.getActions().addAction(ActionFactory.createPopupMenuAction(edgeMenu));
         return connection;
     }
     
