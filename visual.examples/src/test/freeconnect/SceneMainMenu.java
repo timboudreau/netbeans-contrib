@@ -17,7 +17,6 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.HashMap;
 
 /**
  *
@@ -26,9 +25,10 @@ import java.util.HashMap;
 public class SceneMainMenu implements PopupMenuProvider, ActionListener {
     
     private static final String ADD_NEW_NODE_ACTION = "addNewNodeAction"; // NOI18N
-    
-    private JPopupMenu menu;
+
     private GraphScene.StringGraph scene;
+
+    private JPopupMenu menu;
     private Point point;
     
     private int nodeCount=3;
@@ -42,7 +42,6 @@ public class SceneMainMenu implements PopupMenuProvider, ActionListener {
         item.setActionCommand(ADD_NEW_NODE_ACTION);
         item.addActionListener(this);
         menu.add(item);
-        
     }
     
     public JPopupMenu getPopupMenu(Widget widget, Point point){
@@ -51,15 +50,10 @@ public class SceneMainMenu implements PopupMenuProvider, ActionListener {
     }
     
     public void actionPerformed(ActionEvent e) {
-        if(e.getActionCommand().equals(ADD_NEW_NODE_ACTION)){
-            HashMap<String,Object> hmp=new HashMap<String,Object>(){
-                public  boolean equals(Object obj){
-                    return this==obj;
-                }
-            };
-            String hm="Node"+(nodeCount++);
-            Widget sourceNode =scene.addNode(hm);
-            scene.getSceneAnimator().animatePreferredLocation(sourceNode,point);
+        if(ADD_NEW_NODE_ACTION.equals (e.getActionCommand ())) {
+            String hm = "Node"+(nodeCount++);
+            Widget newNode = scene.addNode(hm);
+            scene.getSceneAnimator().animatePreferredLocation(newNode,point);
         }
     }
     
