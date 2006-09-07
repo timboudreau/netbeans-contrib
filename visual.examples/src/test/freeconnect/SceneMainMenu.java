@@ -54,6 +54,7 @@ public class SceneMainMenu implements PopupMenuProvider, ActionListener {
             String hm = "Node"+(nodeCount++);
             Widget newNode = scene.addNode(hm);
             scene.getSceneAnimator().animatePreferredLocation(newNode,point);
+            scene.validate();
         }
     }
     
