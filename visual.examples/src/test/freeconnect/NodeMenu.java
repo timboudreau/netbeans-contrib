@@ -53,6 +53,7 @@ public class NodeMenu implements PopupMenuProvider, ActionListener {
     public void actionPerformed(ActionEvent e) {
         if(e.getActionCommand().equals(DELETE_NODE_ACTION)){
             scene.removeNodeWithEdges((String)scene.findObject (node));
+            scene.validate();
         }
     }
 
