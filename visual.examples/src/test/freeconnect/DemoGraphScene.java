@@ -72,6 +72,7 @@ public class DemoGraphScene extends GraphScene.StringGraph {
         label.getActions().addAction(connectAction);
         label.getActions().addAction(moveAction);
         mainLayer.addChild(label);
+        label.getActions().addAction(ActionFactory.createPopupMenuAction(new NodeMenu(this)));
         return label;
     }
     
@@ -86,7 +87,7 @@ public class DemoGraphScene extends GraphScene.StringGraph {
         connection.getActions().addAction(createSelectAction());
         connection.getActions().addAction(ActionFactory.createAddRemoveControlPointAction());
         connection.getActions().addAction(moveControlPointAction);
-        connection.getActions().addAction(ActionFactory.createPopupMenuAction(new MainMenu(this)));
+        connection.getActions().addAction(ActionFactory.createPopupMenuAction(new EdgeMenu(this)));
         return connection;
     }
     
