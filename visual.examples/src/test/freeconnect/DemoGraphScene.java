@@ -132,7 +132,7 @@ public class DemoGraphScene extends GraphScene.StringGraph {
     }
     
     public void initGrids(){
-        Image sourceImage = Utilities.loadImage("/org/a1/dust/visualbpm/resources/paper_grid17.png"); // NOI18N
+        Image sourceImage = Utilities.loadImage("test/resources/paper_grid17.png"); // NOI18N
         int width = sourceImage.getWidth(null);
         int height = sourceImage.getHeight(null);
         BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
