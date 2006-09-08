@@ -1,0 +1,8 @@
+Manifest-Version: 1.0
+OpenIDE-Module: org.netbeans.modules.visual.examples.shapes
+OpenIDE-Module-Layer: org/netbeans/modules/visual/examples/shapes/layer.xml
+OpenIDE-Module-Localizing-Bundle: org/netbeans/modules/visual/examples/shapes/Bundle.properties
+OpenIDE-Module-Specification-Version: 1.0
+
+Name:  org/netbeans/modules/visual/examples/shapes/dataobject/ShapeDataLoader.class
+OpenIDE-Module-Class: Loader
