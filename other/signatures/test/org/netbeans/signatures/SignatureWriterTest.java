@@ -129,6 +129,13 @@ public class SignatureWriterTest extends TestCase {
                 "p.X",
                 "Class _ = p.X.class;  " +
                 "new p.X<Number>((java.util.List<Number>) null);");
+        assertEmitted("package p; public final class X {public X(String s) {} public <T> X(T t) {}}",
+                "p.X",
+                "Class _ = p.X.class;  " +
+                // XXX first call is ambiguous, both constructors match!
+                // Take example from javax.management.openmbean.OpenMBeanAttributeInfoSupport
+                "new p.X(\"\");  " +
+                "new p.X((Object) null);");
     }
 
     private static void assertEmitted(String source, String clazz, String sig) {
@@ -155,7 +162,7 @@ public class SignatureWriterTest extends TestCase {
                 err,
                 null,
                 null,
-                Arrays.asList("-source", "1.6", "-d", dir.getAbsolutePath()),
+                Arrays.asList("-source", "1.6", "-d", dir.getAbsolutePath(), /* exercise JDK bug #6468404 */"-g"),
                 null,
                 compUnits);
         boolean ok = task.call();

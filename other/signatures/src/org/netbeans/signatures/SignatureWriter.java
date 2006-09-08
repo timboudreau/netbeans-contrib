@@ -231,7 +231,7 @@ public final class SignatureWriter {
 
     private String parameters(ExecutableElement e) {
         StringBuilder b = new StringBuilder();
-        // e.getParameters() does not work for classes read from bytecode
+        // e.getParameters() does not work for classes read from -g bytecode (cf. JDK bug #6468404)
         for (TypeMirror type : ((ExecutableType) e.asType()).getParameterTypes()) {
             if (b.length() > 0) {
                 b.append(", ");
