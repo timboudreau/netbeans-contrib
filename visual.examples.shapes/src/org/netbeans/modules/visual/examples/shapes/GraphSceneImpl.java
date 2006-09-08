@@ -350,7 +350,7 @@ public class GraphSceneImpl extends GraphScene.StringGraph implements ActionList
         
         public boolean isSourceWidget(Widget sourceWidget) {
             Object object = findObject(sourceWidget);
-            source = mapping.containsKey(object) ? (String) object : null;
+            source = object != null  &&  mapping.containsKey(object) ? (String) object : null;
             return source != null;
         }
         
@@ -371,7 +371,7 @@ public class GraphSceneImpl extends GraphScene.StringGraph implements ActionList
         
         public ConnectorState isTargetWidget(Widget sourceWidget, Widget targetWidget) {
             Object object = findObject(targetWidget);
-            target = mapping.containsKey(object) ? (String) object : null;
+            target = object != null  &&  mapping.containsKey(object) ? (String) object : null;
             if (target != null)
                 return ! source.equals(target) ? ConnectorState.ACCEPT : ConnectorState.REJECT_AND_STOP;
             return object != null ? ConnectorState.REJECT_AND_STOP : ConnectorState.REJECT;
@@ -423,7 +423,7 @@ public class GraphSceneImpl extends GraphScene.StringGraph implements ActionList
         
         public ConnectorState isReplacementWidget(ConnectionWidget connectionWidget, Widget replacementWidget, boolean b) {
             Object object = findObject(replacementWidget);
-            replacementNode = mapping.containsKey(object) ? (String) object : null;
+            replacementNode = object != null  &&  mapping.containsKey(object) ? (String) object : null;
             if (replacementNode != null)
                 return ConnectorState.ACCEPT;
             return object != null ? ConnectorState.REJECT_AND_STOP : ConnectorState.REJECT;
