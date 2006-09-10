@@ -25,8 +25,10 @@ import java.lang.ref.WeakReference;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.nio.channels.FileChannel;
+import java.nio.charset.CharacterCodingException;
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
+import java.nio.charset.MalformedInputException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -294,7 +296,7 @@ public class GenericNavPanel implements NavigatorPanel, Runnable, ListSelectionL
                         ch.read(buf);
                         ch.close();
                         buf.flip();
-                        CharBuffer seq = decoder.decode(buf);
+                        CharBuffer seq = decode(buf);
 
                         String sq = Utilities.replaceString(seq.toString(),
                                 "\r\n", "\n"); //NOI18N
@@ -308,7 +310,35 @@ public class GenericNavPanel implements NavigatorPanel, Runnable, ListSelectionL
                 }
             }
         }
-        return " ";
+        return " "; //NOI18N
+    }
+    
+    private CharBuffer decode (ByteBuffer buf) {
+        CharsetDecoder decoder = GenericNavPanel.decoder;
+        try {
+            return decode (buf, decoder);
+        } catch (CharacterCodingException e) {
+            if (Charset.defaultCharset().equals(Charset.forName("UTF-8"))) { //NOI18N
+                try {
+                    decoder = Charset.forName("UTF-8").newDecoder(); //NOI18N
+                    return decode (buf, decoder);
+                } catch (CharacterCodingException e1) {
+                    
+                }
+            }
+            decoder = Charset.forName("US-ASCII").newDecoder(); //NOI18N
+            try {
+                return decode (buf, decoder);
+            } catch (CharacterCodingException e2) {
+                //should never get here
+                return buf.asCharBuffer();
+            }
+        }
+            
+    }
+    
+    private CharBuffer decode (ByteBuffer buf, CharsetDecoder decoder) throws CharacterCodingException {
+        return decoder.decode(buf);
     }
 
     public void valueChanged(ListSelectionEvent e) {
