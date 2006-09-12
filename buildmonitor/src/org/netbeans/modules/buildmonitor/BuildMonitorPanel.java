@@ -17,19 +17,24 @@
  * Microsystems, Inc. All Rights Reserved.
  */
 
-
 package org.netbeans.modules.buildmonitor;
 
 import java.awt.EventQueue;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JPanel;
 import org.openide.ErrorManager;
 import org.openide.cookies.InstanceCookie;
-import org.openide.filesystems.*;
-import org.openide.loaders.*;
+import org.openide.filesystems.FileAttributeEvent;
+import org.openide.filesystems.FileChangeListener;
+import org.openide.filesystems.FileEvent;
+import org.openide.filesystems.FileObject;
+import org.openide.filesystems.FileRenameEvent;
+import org.openide.filesystems.FileSystem;
+import org.openide.filesystems.FileUtil;
+import org.openide.filesystems.Repository;
+import org.openide.loaders.DataFolder;
+import org.openide.loaders.DataObject;
 
 /**
  * Displays one or more BuildStatus objects in the status bar.
@@ -42,18 +47,22 @@ public class BuildMonitorPanel extends JPanel implements FileChangeListener {
     public static BuildMonitorPanel getInstance() {
 	return instance;
     }
+
+    private final FileObject dir;
     
-    /** Creates a new instance of BuildMonitorPanel */
     private BuildMonitorPanel() {
 	super();
-	setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
-	FileObject dir = monitorDirectory();
-        dir.addFileChangeListener(this);
-	buildPanel();
+        FileSystem dfs = Repository.getDefault().getDefaultFileSystem();
+        dir = dfs.findResource("Services/BuildMonitor"); //NOI18N
+        if (dir != null) {
+            setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
+            dir.addFileChangeListener(FileUtil.weakFileChangeListener(this, dir));
+            buildPanel();
+        } // else something broken...
     }
     
     private void buildPanel() {
-	DataFolder monitorFolder = DataFolder.findFolder(monitorDirectory());
+	DataFolder monitorFolder = DataFolder.findFolder(dir);
  	DataObject[] children = monitorFolder.getChildren();
         for (int i = 0; i < children.length; i++) {
             DataObject dataObject = children[i];
@@ -82,10 +91,6 @@ public class BuildMonitorPanel extends JPanel implements FileChangeListener {
 		buildPanel();
 	    }
 	});
-    }
-    private static FileObject monitorDirectory() {
-        FileSystem dfs = Repository.getDefault().getDefaultFileSystem();
-        return dfs.findResource("Services/BuildMonitor"); //NOI18N
     }
 
     public void fileDeleted(FileEvent fe) {
