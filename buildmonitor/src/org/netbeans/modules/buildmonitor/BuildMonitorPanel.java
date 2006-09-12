@@ -85,7 +85,7 @@ public class BuildMonitorPanel extends JPanel implements FileChangeListener {
     }
     private static FileObject monitorDirectory() {
         FileSystem dfs = Repository.getDefault().getDefaultFileSystem();
-        return dfs.findResource("/Services/BuildMonitor"); //NOI18N
+        return dfs.findResource("Services/BuildMonitor"); //NOI18N
     }
 
     public void fileDeleted(FileEvent fe) {
