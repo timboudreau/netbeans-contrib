@@ -55,7 +55,6 @@ public class ComponentTest extends Scene {
         widget.addChild (label);
 
         ComponentWidget componentWidget = new ComponentWidget (this, component);
-        componentWidget.setPaintComponent (false);
         widget.addChild (componentWidget);
 
         pos += 100;
