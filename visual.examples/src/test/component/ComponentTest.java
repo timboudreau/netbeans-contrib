@@ -54,7 +54,9 @@ public class ComponentTest extends Scene {
         label.setBackground (Color.LIGHT_GRAY);
         widget.addChild (label);
 
-        widget.addChild (new ComponentWidget (this, component));
+        ComponentWidget componentWidget = new ComponentWidget (this, component);
+        componentWidget.setPaintComponent (false);
+        widget.addChild (componentWidget);
 
         pos += 100;
         widget.setPreferredLocation (new Point (pos, pos));
