@@ -143,8 +143,14 @@ public class WS70AddServerChoiceVisualPanel extends javax.swing.JPanel {
         }
         
         if(!isValidServer(new File(installDirName))){
-            Util.showError(NbBundle.getBundle(WS70AddServerChoiceVisualPanel.class).getString("MSG_INVALID_SERVER_DIRECTORY"));
+            
+            // Bug# 84607 Just show the error at the bottom of the panel. 
+            // Message box is only needed when user has selected a wrong 
+            // directory name using the FileChooser
+            
+            //Util.showError(NbBundle.getBundle(WS70AddServerChoiceVisualPanel.class).getString("MSG_INVALID_SERVER_DIRECTORY"));
             jLocationTxt.requestFocusInWindow();
+            jLocationTxt.selectAll();
             return false;
         }
         return true;
