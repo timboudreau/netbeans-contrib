@@ -23,6 +23,7 @@ import com.sun.jdi.AbsentInformationException;
 import com.sun.jdi.ArrayType;
 import com.sun.jdi.ClassLoaderReference;
 import com.sun.jdi.ClassType;
+import com.sun.jdi.InvalidStackFrameException;
 import com.sun.jdi.ObjectReference;
 import com.sun.jdi.ReferenceType;
 import com.sun.jdi.StringReference;
@@ -96,6 +97,8 @@ public class CallStackViewNodeActionsProviderFilter implements NodeActionsProvid
     private static class ShowClassesAction implements Models.ActionPerformer {
         private VirtualMachine virtualMachine;
         private ThreadReference threadReference;
+        private Thread thread;
+        private boolean stopShowClasses;
         
         ShowClassesAction(VirtualMachine virtualMachine, ThreadReference threadReference) {
             this.virtualMachine = virtualMachine;
@@ -107,18 +110,13 @@ public class CallStackViewNodeActionsProviderFilter implements NodeActionsProvid
         }
         
         public void perform(Object[] nodes) {
-            TableSorter tableSorter = new TableSorter(new ClassesTableModel(virtualMachine.allClasses(), threadReference));
-            tableSorter.setColumnComparator(String.class, tableSorter.COMPARABLE_COMAPRATOR);
-            tableSorter.setSortingStatus(0, TableSorter.ASCENDING);
-            JTable classesTable = new JTable(tableSorter);
-            tableSorter.setTableHeader(classesTable.getTableHeader());
-            final JDialog dialog = new JDialog(WindowManager.getDefault().getMainWindow(), "", false); // NOI18N
+            final JDialog dialog = new JDialog(WindowManager.getDefault().getMainWindow(), "", true); // NOI18N
             dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
             dialog.setUndecorated(true);
+            
+            final JTable classesTable = new JTable(new PleaseWaitTableModel());
             dialog.setContentPane(new ResizablePanel(new JScrollPane(classesTable),
                     NbBundle.getBundle(CallStackViewNodeActionsProviderFilter.class).getString("TITLE_Classes"))); // NOI18N
-            dialog.setBounds(bounds);
-            dialog.setVisible(true);
             
             dialog.addWindowListener(new WindowAdapter() {
                 public void windowDeactivated(WindowEvent e) {
@@ -134,171 +132,237 @@ public class CallStackViewNodeActionsProviderFilter implements NodeActionsProvid
             },
                     KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0, true),
                     JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
+            
+            thread = new Thread(new Runnable() {
+                public void run() {
+                    final TableSorter tableSorter = new TableSorter(new ClassesTableModel(virtualMachine.allClasses(), threadReference));
+                    if (!isStopShowClasses()) {
+                        SwingUtilities.invokeLater(new Runnable() {
+                            public void run() {
+                                tableSorter.setColumnComparator(String.class, tableSorter.COMPARABLE_COMAPRATOR);
+                                tableSorter.setSortingStatus(0, TableSorter.ASCENDING);
+                                tableSorter.setTableHeader(classesTable.getTableHeader());
+                                classesTable.setModel(tableSorter);
+                            }
+                        });
+                    }
+                    synchronized(ShowClassesAction.this) {
+                        thread = null;
+                    }
+                }
+            }, "Show Classes"); // NOI18N
+            setStopShowClasses(false);
+            thread.start();
+            
+            dialog.setBounds(bounds);
+            dialog.setVisible(true);
         }
         
         private void hide(JDialog dialog) {
+            synchronized(this) {
+                if (thread != null && thread.isAlive()) {
+                    setStopShowClasses(true);
+                    thread = null;
+                }
+            }
+            
             bounds = dialog.getBounds();
             dialog.setVisible(false);
         }
+        
+        public synchronized boolean isStopShowClasses() {
+            return stopShowClasses;
+        }
+        
+        public synchronized void setStopShowClasses(boolean stopShowClasses) {
+            this.stopShowClasses = stopShowClasses;
+        }
+        
+        private class ClassesTableModel extends AbstractTableModel {
+            private List classes = new ArrayList();
+            private ThreadReference theThreadReference;
+            
+            ClassesTableModel(List unmodifyableClassesList, ThreadReference threadReference) {
+                this.theThreadReference = threadReference;
+                
+                List classesList = new ArrayList(unmodifyableClassesList);
+                IdentityHashMap initiatingClassLoadersMap = new IdentityHashMap();
+                {
+                    Set initiatingClassLoaders = new HashSet();
+                    for (Iterator it = classesList.iterator(); it.hasNext();) {
+                        if (isStopShowClasses()) {
+                            return;
+                        }
+                        ReferenceType referenceType = (ReferenceType) it.next();
+                        // filter out ArrayType
+                        if (referenceType instanceof ArrayType) {
+                            it.remove();
+                            continue;
+                        }
+                        ClassLoaderReference classLoaderReference = referenceType.classLoader();
+                        if (classLoaderReference != null) {
+                            // have we scanned this ClassLoader already?
+                            if (!initiatingClassLoaders.contains(classLoaderReference)) {
+                                List visibleClasess = new ArrayList(classLoaderReference.visibleClasses());
+                                visibleClasess.removeAll(classLoaderReference.definedClasses());
+                                for (Iterator iter = visibleClasess.iterator(); iter.hasNext();) {
+                                    if (isStopShowClasses()) {
+                                        return;
+                                    }
+                                    ReferenceType visibleReferenceType = (ReferenceType) iter.next();
+                                    initiatingClassLoadersMap.put(visibleReferenceType, classLoaderReference);
+                                }
+                                initiatingClassLoaders.add(classLoaderReference);
+                            }
+                        }
+                        Thread.yield();
+                    }
+                    initiatingClassLoaders = null;
+                }
+                
+                JPDADebugger jpdaDebugger = null;
+                DebuggerEngine debuggerEngine = DebuggerManager.getDebuggerManager().getCurrentEngine();
+                if (debuggerEngine != null) {
+                    jpdaDebugger = (JPDADebugger) debuggerEngine.lookupFirst(null, JPDADebugger.class);
+                }
+                
+                Map classLoaderReferenceToStringMap = new HashMap();
+                Map initiatingClassLoaderReferenceToStringMap = new HashMap();
+                
+                for (Iterator it = classesList.iterator(); it.hasNext();) {
+                    if (isStopShowClasses()) {
+                        return;
+                    }
+                    ReferenceType referenceType = (ReferenceType) it.next();
+                    if (referenceType instanceof ArrayType) {
+                        continue;
+                    } else {
+                        String fqn = referenceType.name();
+                        String className = getClassName(fqn)+
+                                " (id=" + referenceType.classObject().uniqueID() + ")"; // NOI18N
+                        String packageName = getPackageName(fqn);
+                        String classLoader = null;
+                        String initiatingClassLoader = null;
+                        
+                        ClassLoaderReference classLoaderReference = referenceType.classLoader();
+                        
+                        if (classLoaderReference != null) {
+                            classLoader = (String) classLoaderReferenceToStringMap.get(classLoaderReference);
+                            if (classLoader == null) {
+                                classLoader = String.valueOf(classLoaderReference);
+                                if (jpdaDebugger != null && theThreadReference != null) {
+                                    ClassType classLoaderClassType = (ClassType) classLoaderReference.referenceType();
+                                    com.sun.jdi.Method toStringMethod = classLoaderClassType.
+                                            concreteMethodByName("toString", "()Ljava/lang/String;"); // NOI18N
+                                    StringReference sr = invokeMethod(jpdaDebugger, classLoaderReference, toStringMethod);
+                                    if (sr != null) {
+                                        classLoader = sr.value() +
+                                                " (id=" + classLoaderReference.uniqueID() + ")"; // NOI18N
+                                    }
+                                    if (initiatingClassLoader != null) {
+                                        classLoaderReferenceToStringMap.put(classLoaderReference, classLoader);
+                                    }
+                                }
+                            }
+                        }
+                        
+                        ClassLoaderReference initiatingClassLoaderReference = (ClassLoaderReference) initiatingClassLoadersMap.get(referenceType);
+                        if (initiatingClassLoaderReference != null) {
+                            initiatingClassLoader = (String) initiatingClassLoaderReferenceToStringMap.get(initiatingClassLoaderReference);
+                            if (initiatingClassLoader == null) {
+                                initiatingClassLoader = String.valueOf(initiatingClassLoaderReference);
+                                if (jpdaDebugger != null && theThreadReference != null) {
+                                    ClassType classLoaderClassType = (ClassType) initiatingClassLoaderReference.referenceType();
+                                    com.sun.jdi.Method toStringMethod = classLoaderClassType.
+                                            concreteMethodByName("toString", "()Ljava/lang/String;"); // NOI18N
+                                    StringReference sr = invokeMethod(jpdaDebugger, initiatingClassLoaderReference, toStringMethod);
+                                    if (sr != null) {
+                                        initiatingClassLoader = sr.value() +
+                                                " (id=" + initiatingClassLoaderReference.uniqueID() + ")"; // NOI18N
+                                    }
+                                    if (initiatingClassLoader != null) {
+                                        initiatingClassLoaderReferenceToStringMap.put(initiatingClassLoaderReference, initiatingClassLoader);
+                                    }
+                                }
+                            }
+                        }
+                        classes.add(
+                                className +
+                                "#" + // NOI18N
+                                ( packageName == null ? " " : packageName) + // NOI18N
+                                "#" + // NOI18N
+                                (classLoader == null ? " " : classLoader) + // NOI18N
+                                "#" + // NOI18N
+                                (initiatingClassLoader == null ? " " : initiatingClassLoader) // NOI18N
+                                );
+                    }
+                }
+                Collections.sort(classes);
+            }
+            
+            private StringReference invokeMethod(JPDADebugger jpdaDebugger, ObjectReference classLoaderReference, com.sun.jdi.Method toStringMethod) {
+                try {
+                    Method method =
+                            jpdaDebugger.getClass().getMethod("invokeMethod",  // NOI18N
+                            new Class[] {ObjectReference.class, com.sun.jdi.Method.class, Value[].class});
+                    StringReference stringReference =
+                            (StringReference) method.invoke(jpdaDebugger, new Object[] {classLoaderReference, toStringMethod, new Value[0]});
+                    return stringReference;
+                } catch (IllegalArgumentException ex) {
+                } catch (IllegalAccessException ex) {
+                } catch (InvocationTargetException ex) {
+                } catch (SecurityException ex) {
+                } catch (NoSuchMethodException ex) {
+                }
+                return null;
+            }
+            
+            public int getRowCount() {
+                return classes.size();
+            }
+            
+            private String[] columnNames = {
+                NbBundle.getBundle(CallStackViewNodeActionsProviderFilter.class).getString("HEADER_Class"), // NOI18N
+                NbBundle.getBundle(CallStackViewNodeActionsProviderFilter.class).getString("HEADER_Package"), // NOI18N
+                NbBundle.getBundle(CallStackViewNodeActionsProviderFilter.class).getString("HEADER_ClassLoader"), // NOI18N
+                NbBundle.getBundle(CallStackViewNodeActionsProviderFilter.class).getString("HEADER_InitiatingClassLoader"), // NOI18N
+            };
+            
+            public Class getColumnClass(int columnIndex) {
+                return String.class;
+            }
+            
+            public String getColumnName(int columnIndex) {
+                return columnNames[columnIndex] + (columnIndex == 0 ? " (" + classes.size() + ")" : ""); // NOI18N
+            }
+            
+            public int getColumnCount() {
+                return columnNames.length;
+            }
+            
+            public Object getValueAt(int rowIndex, int columnIndex) {
+                //return classes.get(rowIndex);
+                String[] colValues =  ((String) classes.get(rowIndex)).split("#"); // NOI18N
+                return colValues[columnIndex];
+            }
+        }
     }
     
-    private static class ClassesTableModel extends AbstractTableModel {
-        private List classes = new ArrayList();
-        private ThreadReference theThreadReference;
-        
-        ClassesTableModel(List unmodifyableClassesList, ThreadReference threadReference) {
-            this.theThreadReference = threadReference;
-            
-            List classesList = new ArrayList(unmodifyableClassesList);
-            IdentityHashMap initiatingClassLoadersMap = new IdentityHashMap();
-            {
-                Set initiatingClassLoaders = new HashSet();
-                for (Iterator it = classesList.iterator(); it.hasNext();) {
-                    ReferenceType referenceType = (ReferenceType) it.next();
-                    // filter out ArrayType
-                    if (referenceType instanceof ArrayType) {
-                        it.remove();
-                        continue;
-                    }
-                    ClassLoaderReference classLoaderReference = referenceType.classLoader();
-                    if (classLoaderReference != null) {
-                        // have we scanned this ClassLoader already?
-                        if (!initiatingClassLoaders.contains(classLoaderReference)) {
-                            List visibleClasess = new ArrayList(classLoaderReference.visibleClasses());
-                            visibleClasess.removeAll(classLoaderReference.definedClasses());
-                            for (Iterator iter = visibleClasess.iterator(); iter.hasNext();) {
-                                ReferenceType visibleReferenceType = (ReferenceType) iter.next();
-                                initiatingClassLoadersMap.put(visibleReferenceType, classLoaderReference);
-                            }
-                            initiatingClassLoaders.add(classLoaderReference);
-                        }
-                    }
-                }
-                initiatingClassLoaders = null;
-            }
-            
-            JPDADebugger jpdaDebugger = null;
-            DebuggerEngine debuggerEngine = DebuggerManager.getDebuggerManager().getCurrentEngine();
-            if (debuggerEngine != null) {
-                jpdaDebugger = (JPDADebugger) debuggerEngine.lookupFirst(null, JPDADebugger.class);
-            }
-            
-            Map classLoaderReferenceToStringMap = new HashMap();
-            Map initiatingClassLoaderReferenceToStringMap = new HashMap();
-            
-            for (Iterator it = classesList.iterator(); it.hasNext();) {
-                ReferenceType referenceType = (ReferenceType) it.next();
-                if (referenceType instanceof ArrayType) {
-                    continue;
-                } else {
-                    String fqn = referenceType.name();
-                    String className = getClassName(fqn)+
-                                            " (id=" + referenceType.classObject().uniqueID() + ")"; // NOI18N
-                    String packageName = getPackageName(fqn);
-                    String classLoader = null;
-                    String initiatingClassLoader = null;
-                    
-                    ClassLoaderReference classLoaderReference = referenceType.classLoader();
-                    
-                    if (classLoaderReference != null) {
-                        classLoader = (String) classLoaderReferenceToStringMap.get(classLoaderReference);
-                        if (classLoader == null) {
-                            classLoader = String.valueOf(classLoaderReference);
-                            if (jpdaDebugger != null && theThreadReference != null) {
-                                ClassType classLoaderClassType = (ClassType) classLoaderReference.referenceType();
-                                com.sun.jdi.Method toStringMethod = classLoaderClassType.
-                                        concreteMethodByName("toString", "()Ljava/lang/String;"); // NOI18N
-                                StringReference sr = invokeMethod(jpdaDebugger, classLoaderReference, toStringMethod);
-                                if (sr != null) {
-                                    classLoader = sr.value() +
-                                            " (id=" + classLoaderReference.uniqueID() + ")"; // NOI18N
-                                }
-                                if (initiatingClassLoader != null) {
-                                    classLoaderReferenceToStringMap.put(classLoaderReference, classLoader);
-                                }
-                            }
-                        }
-                    }
-                    
-                    ClassLoaderReference initiatingClassLoaderReference = (ClassLoaderReference) initiatingClassLoadersMap.get(referenceType);
-                    if (initiatingClassLoaderReference != null) {
-                        initiatingClassLoader = (String) initiatingClassLoaderReferenceToStringMap.get(initiatingClassLoaderReference);
-                        if (initiatingClassLoader == null) {
-                            initiatingClassLoader = String.valueOf(initiatingClassLoaderReference);
-                            if (jpdaDebugger != null && theThreadReference != null) {
-                                ClassType classLoaderClassType = (ClassType) initiatingClassLoaderReference.referenceType();
-                                com.sun.jdi.Method toStringMethod = classLoaderClassType.
-                                        concreteMethodByName("toString", "()Ljava/lang/String;"); // NOI18N
-                                StringReference sr = invokeMethod(jpdaDebugger, initiatingClassLoaderReference, toStringMethod);
-                                if (sr != null) {
-                                    initiatingClassLoader = sr.value() +
-                                            " (id=" + initiatingClassLoaderReference.uniqueID() + ")"; // NOI18N
-                                }
-                                if (initiatingClassLoader != null) {
-                                    initiatingClassLoaderReferenceToStringMap.put(initiatingClassLoaderReference, initiatingClassLoader);
-                                }
-                            }
-                        }
-                    }
-                    classes.add(
-                            className +
-                            "#" + // NOI18N
-                            ( packageName == null ? " " : packageName) + // NOI18N
-                            "#" + // NOI18N
-                            (classLoader == null ? " " : classLoader) + // NOI18N
-                            "#" + // NOI18N
-                            (initiatingClassLoader == null ? " " : initiatingClassLoader) // NOI18N
-                            );
-                }
-            }
-            Collections.sort(classes);
-        }
-        
-        private StringReference invokeMethod(JPDADebugger jpdaDebugger, ObjectReference classLoaderReference, com.sun.jdi.Method toStringMethod) {
-            try {
-                Method method =
-                        jpdaDebugger.getClass().getMethod("invokeMethod",  // NOI18N
-                        new Class[] {ObjectReference.class, com.sun.jdi.Method.class, Value[].class});
-                StringReference stringReference =
-                        (StringReference) method.invoke(jpdaDebugger, new Object[] {classLoaderReference, toStringMethod, new Value[0]});
-                return stringReference;
-            } catch (IllegalArgumentException ex) {
-            } catch (IllegalAccessException ex) {
-            } catch (InvocationTargetException ex) {
-            } catch (SecurityException ex) {
-            } catch (NoSuchMethodException ex) {
-            }
-            return null;
-            
-        }
-        
+    private static class PleaseWaitTableModel extends AbstractTableModel {
         public int getRowCount() {
-            return classes.size();
-        }
-        
-        private String[] columnNames = {
-            NbBundle.getBundle(CallStackViewNodeActionsProviderFilter.class).getString("HEADER_Class"), // NOI18N
-            NbBundle.getBundle(CallStackViewNodeActionsProviderFilter.class).getString("HEADER_Package"), // NOI18N
-            NbBundle.getBundle(CallStackViewNodeActionsProviderFilter.class).getString("HEADER_ClassLoader"), // NOI18N
-            NbBundle.getBundle(CallStackViewNodeActionsProviderFilter.class).getString("HEADER_InitiatingClassLoader"), // NOI18N
-        };
-        
-        public Class getColumnClass(int columnIndex) {
-            return String.class;
-        }
-        
-        public String getColumnName(int columnIndex) {
-            return columnNames[columnIndex] + (columnIndex == 0 ? " (" + classes.size() + ")" : ""); // NOI18N
+            return 1;
         }
         
         public int getColumnCount() {
-            return columnNames.length;
+            return 1;
+        }
+        
+        public String getColumnName(int columnIndex) {
+            return "";
         }
         
         public Object getValueAt(int rowIndex, int columnIndex) {
-            //return classes.get(rowIndex);
-            String[] colValues =  ((String) classes.get(rowIndex)).split("#"); // NOI18N
-            return colValues[columnIndex];
+            return NbBundle.getBundle(CallStackViewNodeActionsProviderFilter.class).getString("LBL_PleaseWait");
         }
     }
     
@@ -369,19 +433,21 @@ public class CallStackViewNodeActionsProviderFilter implements NodeActionsProvid
                 
             }
             
-            JPDAThread jpdaThread = callStackFrame.getThread();
-            if (jpdaThread != null) {
-                ThreadReference threadReference = getThreadReference(jpdaThread);
-                if (threadReference != null) {
-                    myActions.add(
-                            Models.createAction(
-                            NbBundle.getBundle(CallStackViewNodeActionsProviderFilter.class).getString("CTL_ShowClassesAction"),
-                            new ShowClassesAction(threadReference.virtualMachine(), threadReference),
-                            Models.MULTISELECTION_TYPE_EXACTLY_ONE));
+            try {
+                JPDAThread jpdaThread = callStackFrame.getThread();
+                if (jpdaThread != null) {
+                    ThreadReference threadReference = getThreadReference(jpdaThread);
+                    if (threadReference != null) {
+                        myActions.add(
+                                Models.createAction(
+                                NbBundle.getBundle(CallStackViewNodeActionsProviderFilter.class).getString("CTL_ShowClassesAction"),
+                                new ShowClassesAction(threadReference.virtualMachine(), threadReference),
+                                Models.MULTISELECTION_TYPE_EXACTLY_ONE));
+                    }
                 }
+            } catch (InvalidStackFrameException invalidStackFrameException) {
+                // Thread has been resumed.
             }
-            
-            
         } else {
             return actions;
         }
