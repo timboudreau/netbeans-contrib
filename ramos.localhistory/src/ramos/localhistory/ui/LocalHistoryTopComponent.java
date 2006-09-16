@@ -65,6 +65,7 @@ import org.openide.util.actions.SystemAction;
 import org.openide.windows.TopComponent;
 import org.openide.windows.WindowManager;
 import java.util.Collection;
+import ramos.localhistory.Listener;
 
 public final class LocalHistoryTopComponent extends TopComponent
     implements ExplorerManager.Provider {
@@ -643,12 +644,15 @@ public final class LocalHistoryTopComponent extends TopComponent
             OutputStream os = diffFiles[1].getOutputStream(lock);
             DataObject  dataObject = DataObject.find(diffFiles[1]);
             //dataObject.setModified(false);
-            dataObject.setModified(true);
+            //dataObject.setModified(true);
             FileUtil.copy(is, os);
             is.close();
             os.close();
             lock.releaseLock();
-            dataObject.setModified(false);
+            Listener.getInstance().makeLocalHistoryCopy(
+               DataObject.find(diffFiles[1]),
+               "reverted from "+diffFiles[0].lastModified().toString());
+            //dataObject.setModified(false);
             
          } catch (FileNotFoundException ex) {
             ex.printStackTrace();
