@@ -43,6 +43,7 @@ import java.awt.event.ActionEvent;
 import javax.swing.AbstractAction;
 import javax.swing.Action;   
 import java.util.Collection;
+import ramos.localhistory.ui.VersionNode;
 
 
 /**
@@ -142,7 +143,7 @@ public final class LocalHistoryAction extends CookieAction
                    .setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 
       final LocalHistoryTopComponent win = LocalHistoryTopComponent.findInstance();
-      Collection col = win.fillNodeList((FileUtil.toFile(file)));
+      Collection<VersionNode> col = win.fillNodeList((FileUtil.toFile(file)));
       if (col.size() == 0) {
           WindowManager.getDefault().getMainWindow().setCursor(old);
           JOptionPane.showMessageDialog(null,"No revisions in local history");

@@ -83,7 +83,7 @@ public final class LocalHistoryTopComponent extends TopComponent
    }
    private static final String COLOR = "    ";
    /** path to the icon used by the component and its open action */
-   static final String ICON_PATH = "ramos/localhistory/resources/clock.png";
+//   static final String ICON_PATH = "ramos/localhistory/resources/clock.png";
    public  LocalHistoryTopComponent() {
       //initComponents();
       //toolbar
@@ -126,8 +126,8 @@ public final class LocalHistoryTopComponent extends TopComponent
       toolPanel.add(prev);
       toolPanel.add(Box.createHorizontalStrut(2));
       toolPanel.add(next);
-      prev.setActionCommand("Prev");
-      next.setActionCommand("Next");
+      prev.setActionCommand(PREV);
+      next.setActionCommand(NEXT);
       prev.addActionListener(diffListener);
       next.addActionListener(diffListener);
       next.setMargin(new java.awt.Insets(2,3,2,3));
@@ -215,27 +215,35 @@ public final class LocalHistoryTopComponent extends TopComponent
    protected String preferredID() {
       return PREFERRED_ID;
    }
-   public Collection fillNodeList(File file) {
+   public Collection<VersionNode> fillNodeList(File file) {
       FileObject theDir = Repository.getDefault().getDefaultFileSystem().getRoot().getFileObject("local history");
       FileObject files[] = theDir.getChildren();
       
       String path = file.getAbsolutePath();
-      TreeSet<FilterNode> listFN = new TreeSet<FilterNode>(COMPARATOR);
+      TreeSet<VersionNode> listFN = new TreeSet<VersionNode>(COMPARATOR);
       FileObject arr$[] = files;
       int len$ = arr$.length;
       for(int i$ = 0; i$ < len$; i$++) {
          final FileObject fo = arr$[i$];
-         if(fo.isFolder() || fo.getAttribute("path") == null || !fo.getAttribute("path").equals(path)) continue;
+         if(fo.isFolder() || fo.getAttribute(PATH) == null || !fo.getAttribute(PATH).equals(path)) continue;
          try {
-            listFN.add(new VersionNode(fo));
+            if (!old(fo)) listFN.add(new VersionNode(fo));
          } catch(DataObjectNotFoundException ex) {
             ex.printStackTrace();
          }
          
       }
+      //look if size > max.rev.count
+      //if so
+      //for(int i = 0; i < delta; I++){
+      //VersionNode n = listFN.last();
+      //listFN.remove(n);
+      //n.getoriginal().delete;
+      //n = null;
+      //}
       return listFN;
    }
-   public void setFile(final File file, final Collection collection) {
+   public void setFile(final File file, final Collection<VersionNode> collection) {
       try {
          SaveCookie sc = (SaveCookie) DataObject.find(FileUtil.toFileObject(file)).
              getCookie(SaveCookie.class);
@@ -306,6 +314,8 @@ public final class LocalHistoryTopComponent extends TopComponent
       //      Difference[] diffs = dp.computeDiff(null,null);
       //      diffs[0].getFirstLineDiffs()[0].
    }
+    final static String PATH = "path";
+    final static String LOCAL_HISTORY = "local history";
    public void setFile(final File file) {
       try {
          SaveCookie sc = (SaveCookie) DataObject.find(FileUtil.toFileObject(file)).
@@ -319,16 +329,16 @@ public final class LocalHistoryTopComponent extends TopComponent
       diffLabel.setText(" 0 difference(s)  ");
       currentFile = file;
       String path = file.getAbsolutePath();
-      FileObject theDir = Repository.getDefault().getDefaultFileSystem().getRoot().getFileObject("local history");
+      FileObject theDir = Repository.getDefault().getDefaultFileSystem().getRoot().getFileObject(LOCAL_HISTORY);
       FileObject files[] = theDir.getChildren();
       
       
-      TreeSet<FilterNode> listFN = new TreeSet<FilterNode>(COMPARATOR);
+      TreeSet<VersionNode> listFN = new TreeSet<VersionNode>(COMPARATOR);
       FileObject arr$[] = files;
       int len$ = arr$.length;
       for(int i$ = 0; i$ < len$; i$++) {
          final FileObject fo = arr$[i$];
-         if(fo.isFolder() || fo.getAttribute("path") == null || !fo.getAttribute("path").equals(path)) continue;
+         if(fo.isFolder() || fo.getAttribute(PATH) == null || !fo.getAttribute(PATH).equals(path)) continue;
          try {
             listFN.add(new VersionNode(fo));
          } catch(DataObjectNotFoundException ex) {
@@ -380,8 +390,8 @@ public final class LocalHistoryTopComponent extends TopComponent
    public ExplorerManager getExplorerManager() {
       return manager;
    }
-   static class MyComparator implements Comparator<FilterNode> {
-      public int compare(FilterNode fn1, FilterNode fn2) {
+   static class MyComparator implements Comparator<VersionNode> {
+      public int compare(VersionNode fn1, VersionNode fn2) {
          DataObject do1 = (DataObject) fn1.getLookup().lookup(DataObject.class);
          DataObject do2 = (DataObject) fn2.getLookup().lookup(DataObject.class);
          FileObject fo1 = do1.getPrimaryFile();
@@ -393,6 +403,8 @@ public final class LocalHistoryTopComponent extends TopComponent
       public boolean equals(Object obj) {
          return false;
       }
+
+    
    }
    static class MyFileVersionRoot extends BeanNode{
       public MyFileVersionRoot() throws IntrospectionException{
@@ -413,7 +425,7 @@ public final class LocalHistoryTopComponent extends TopComponent
    private File currentFile = null;
    private JSplitPane split = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
    private JPanel dummyRightComponent = new JPanel();
-   private static final Comparator<FilterNode> COMPARATOR = new MyComparator();
+   private static final Comparator<VersionNode> COMPARATOR = new MyComparator();
    private static final String CURRENT_VERSION_TITLE = "Current Version";
    private static final String DIFF_VIEW = "Diff View";
    private static final String HISTORY_VIEW = "History View";
@@ -443,19 +455,21 @@ public final class LocalHistoryTopComponent extends TopComponent
    private Component oldDiff = null;
    private DiffListener diffListener = new DiffListener();
    private static final String ANNOTATION = "Annotation";
+   private static final String PREV = "Prev";
+   private static final String NEXT = "Next";
    
    private static class DiffListener implements ActionListener{
       private DiffView diffView;
       
       public void actionPerformed(ActionEvent e){
          if (diffView == null || diffView.getDifferenceCount() == 0) return ;
-         if (e.getActionCommand().equals("Prev")){
+         if (e.getActionCommand().equals(PREV)){
             int cur = diffView.getCurrentDifference();
             if (cur > 0) diffView.setCurrentDifference(cur-1);
             else if (cur == 0){
                diffView.setCurrentDifference(diffView.getDifferenceCount()-1);
             }
-         }else if (e.getActionCommand().equals("Next")){
+         }else if (e.getActionCommand().equals(NEXT)){
             int cur = diffView.getCurrentDifference();
             if (cur < diffView.getDifferenceCount()-1) diffView.setCurrentDifference(cur+1);
             else diffView.setCurrentDifference(0);
@@ -540,6 +554,10 @@ public final class LocalHistoryTopComponent extends TopComponent
    private void updateRevertEnable() {
       revertAction.setEnabled(diffFiles!=null);
    }
+
+  private boolean old(FileObject fo) {
+    return false;
+  }
    private static class AnnotationPropertyTemplate extends Property{
       AnnotationPropertyTemplate(){
          super(String.class);
@@ -563,72 +581,6 @@ public final class LocalHistoryTopComponent extends TopComponent
          return ANNOTATION;
       }
       
-      
-   }
-   private static class VersionNode extends FilterNode{
-      FileObject fo;
-      VersionNode(FileObject fo) throws DataObjectNotFoundException{
-         super(DataObject.find(fo).getNodeDelegate());
-         this.fo = fo;
-      }
-      @Override public String getDisplayName(){
-         return getName();
-      }
-      @Override public String getName(){
-         //                  Calendar cal = Calendar.getInstance();
-         //                  cal.setTime(fo.lastModified());
-         //                  cal.
-         
-         return fo.lastModified().toString();
-      }
-      
-      @Override public boolean canRename(){
-         return false;
-      }
-      
-      @Override public Action[] getActions(boolean context) {
-         return new Action[] {
-            SystemAction.get(DeleteAction.class)
-         };
-      }
-      @Override public Action getPreferredAction() {
-         return null;
-      }
-      
-      @Override public Node.PropertySet[] getPropertySets() {
-         PropertySet[] retValue = null;
-         final PropertySupport.ReadWrite prop =
-             new PropertySupport.ReadWrite(ANNOTATION, String.class, ANNOTATION, ANNOTATION){
-            public Object getValue(){
-               String retValue = "";
-               String attr = (String) fo.getAttribute(ANNOTATION);
-               if (attr != null) retValue = attr;
-               return retValue;
-            }
-            public void setValue(Object value){
-               try {
-                  fo.setAttribute(ANNOTATION,value);
-               } catch (IOException ex) {
-                  ex.printStackTrace();
-               }
-            }
-         };
-         retValue = new PropertySet[]{new PropertySet() {
-            
-            public Node.Property[] getProperties() {
-               return new Node.Property[]{prop};
-            }
-         }};
-         return retValue;
-      }
-      
-      public String getShortDescription() {
-         return "an older version";
-      }
-      
-      public Image getIcon(int type) {
-         return Utilities.loadImage(ICON_PATH);
-      }
       
    }
    
