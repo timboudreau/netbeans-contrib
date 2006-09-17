@@ -52,8 +52,7 @@ import ramos.localhistory.ui.VersionNode;
  * @author $author$
  * @version $Revision$
  */
-public final class LocalHistoryAction extends CookieAction
-   implements ContextAwareAction {
+public final class LocalHistoryAction extends CookieAction {
    /**
     * DOCUMENT ME!
     *

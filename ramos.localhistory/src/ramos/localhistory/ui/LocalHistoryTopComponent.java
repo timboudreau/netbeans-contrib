@@ -3,7 +3,6 @@ package ramos.localhistory.ui;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
-import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.beans.IntrospectionException;
@@ -21,8 +20,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.Comparator;
 import java.util.TreeSet;
 import javax.swing.AbstractAction;
-
-import javax.swing.Action;
 import javax.swing.ActionMap;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -39,7 +36,6 @@ import org.netbeans.api.diff.Diff;
 import org.netbeans.api.diff.DiffView;
 import org.netbeans.api.diff.StreamSource;
 import org.openide.ErrorManager;
-import org.openide.actions.DeleteAction;
 import org.openide.cookies.SaveCookie;
 import org.openide.explorer.ExplorerManager;
 import org.openide.explorer.ExplorerUtils;
@@ -56,12 +52,9 @@ import org.openide.nodes.Children;
 import org.openide.nodes.FilterNode;
 import org.openide.nodes.Node;
 import org.openide.nodes.Node.Property;
-import org.openide.nodes.Node.PropertySet;
-import org.openide.nodes.PropertySupport;
 import org.openide.util.Lookup;
 import org.openide.util.NbBundle;
 import org.openide.util.Utilities;
-import org.openide.util.actions.SystemAction;
 import org.openide.windows.TopComponent;
 import org.openide.windows.WindowManager;
 import java.util.Collection;
@@ -243,6 +236,7 @@ public final class LocalHistoryTopComponent extends TopComponent
       //}
       return listFN;
    }
+    final static String NEW = "new";
    public void setFile(final File file, final Collection<VersionNode> collection) {
       try {
          SaveCookie sc = (SaveCookie) DataObject.find(FileUtil.toFileObject(file)).
@@ -255,7 +249,7 @@ public final class LocalHistoryTopComponent extends TopComponent
       updateRevertEnable();
       diffLabel.setText(" 0 difference(s)  ");
       currentFile = file;
-      String path = file.getAbsolutePath();
+      //String path = file.getAbsolutePath();
       FileObject theDir = Repository.getDefault().getDefaultFileSystem().getRoot().getFileObject("local history");
       FileObject files[] = theDir.getChildren();
       
@@ -287,11 +281,10 @@ public final class LocalHistoryTopComponent extends TopComponent
       manager.setRootContext(filterRoot);
       String mimeType = FileUtil.toFileObject(currentFile).getMIMEType();
       //String title = "Current Version";
-      StreamSource stream1 = StreamSource.createSource("old",
+      StreamSource stream1 = StreamSource.createSource(OLD,
           CURRENT_VERSION_TITLE,
           mimeType,currentFile);
-      StreamSource stream2 = StreamSource.createSource("new",
-          CURRENT_VERSION_TITLE,
+      StreamSource stream2 = StreamSource.createSource(NEW,           CURRENT_VERSION_TITLE,
           mimeType,currentFile);
       DiffView diff = null;
       try {
@@ -359,10 +352,10 @@ public final class LocalHistoryTopComponent extends TopComponent
       manager.setRootContext(filterRoot);
       String mimeType = FileUtil.toFileObject(currentFile).getMIMEType();
       //String title = "Current Version";
-      StreamSource stream1 = StreamSource.createSource("old",
+      StreamSource stream1 = StreamSource.createSource(OLD,
           CURRENT_VERSION_TITLE,
           mimeType,currentFile);
-      StreamSource stream2 = StreamSource.createSource("new",
+      StreamSource stream2 = StreamSource.createSource(NEW,
           CURRENT_VERSION_TITLE,
           mimeType,currentFile);
       DiffView diff = null;
@@ -489,7 +482,7 @@ public final class LocalHistoryTopComponent extends TopComponent
       
       
    }
-   
+   private static final String OLD = "old";
    private class ShowDiffAtSelection implements VetoableChangeListener {
       
       public void vetoableChange(final PropertyChangeEvent evt) throws PropertyVetoException {
@@ -505,7 +498,7 @@ public final class LocalHistoryTopComponent extends TopComponent
             File olderFile = FileUtil.toFile(olderFileObject);
             StreamSource stream1 = null;
             try {
-               stream1 = StreamSource.createSource("old", selectedNode1.getName(), mime, new FileReader(olderFile));
+               stream1 = StreamSource.createSource(OLD, selectedNode1.getName(), mime, new FileReader(olderFile));
             } catch (FileNotFoundException ex) {
                ex.printStackTrace();
             }
@@ -516,13 +509,13 @@ public final class LocalHistoryTopComponent extends TopComponent
                FileObject olderFileObject2 = dataObject2.getPrimaryFile();
                File olderFile2 = FileUtil.toFile(olderFileObject2);
                try {
-                  stream2 = StreamSource.createSource("new", selectedNode2.getName(), mime, new FileReader(olderFile2));
+                  stream2 = StreamSource.createSource(NEW, selectedNode2.getName(), mime, new FileReader(olderFile2));
                } catch (FileNotFoundException ex) {
                   ex.printStackTrace();
                }
             } else {
                try {
-                  stream2 = StreamSource.createSource("new", CURRENT_VERSION_TITLE, mime, new FileReader(currentFile));
+                  stream2 = StreamSource.createSource(NEW, CURRENT_VERSION_TITLE, mime, new FileReader(currentFile));
                } catch (FileNotFoundException ex) {
                   ex.printStackTrace();
                }
@@ -594,7 +587,7 @@ public final class LocalHistoryTopComponent extends TopComponent
             FileLock lock = diffFiles[1].lock();
             InputStream is = diffFiles[0].getInputStream();
             OutputStream os = diffFiles[1].getOutputStream(lock);
-            DataObject  dataObject = DataObject.find(diffFiles[1]);
+            //DataObject  dataObject = DataObject.find(diffFiles[1]);
             //dataObject.setModified(false);
             //dataObject.setModified(true);
             FileUtil.copy(is, os);
