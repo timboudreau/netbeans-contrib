@@ -137,14 +137,14 @@ public final class LocalHistoryAction extends CookieAction {
    protected void performAction(final DataObject c) {
       //DataObject c = (DataObject) activatedNodes[0].getCookie(DataObject.class);
       final FileObject file = c.getPrimaryFile();
-      Cursor old = WindowManager.getDefault().getMainWindow().getCursor();
-      WindowManager.getDefault().getMainWindow()
-                   .setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+//      Cursor old = WindowManager.getDefault().getMainWindow().getCursor();
+//      WindowManager.getDefault().getMainWindow()
+//                   .setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 
       final LocalHistoryTopComponent win = LocalHistoryTopComponent.findInstance();
       Collection<VersionNode> col = win.fillNodeList((FileUtil.toFile(file)));
       if (col.size() == 0) {
-          WindowManager.getDefault().getMainWindow().setCursor(old);
+          //WindowManager.getDefault().getMainWindow().setCursor(old);
           JOptionPane.showMessageDialog(null,"No revisions in local history");
           return;
       }
@@ -159,7 +159,7 @@ public final class LocalHistoryAction extends CookieAction {
       //         }
       //      };
       //      new Thread(run).start();
-      WindowManager.getDefault().getMainWindow().setCursor(old);
+      //WindowManager.getDefault().getMainWindow().setCursor(old);
    }
 
    /**
