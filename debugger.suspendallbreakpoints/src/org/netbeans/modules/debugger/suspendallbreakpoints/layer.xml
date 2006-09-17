@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE filesystem PUBLIC "-//NetBeans//DTD Filesystem 1.1//EN" "http://www.netbeans.org/dtds/filesystem-1_1.dtd">
+<filesystem>
+    <folder name="Actions">
+        <folder name="Debug">
+            <file name="org-netbeans-modules-debugger-suspendallbreakpoints-actions-ToggleSuspendAllBreakpoints.instance"/>
+        </folder>
+    </folder>
+    <folder name="Menu">
+        <folder name="RunProject">
+            <attr name="org-netbeans-modules-debugger-ui-actions-EvaluateAction.shadow/org-netbeans-modules-debugger-suspendallbreakpoints-actions-separatorBefore.instance" boolvalue="true"/>
+            <file name="org-netbeans-modules-debugger-suspendallbreakpoints-actions-separatorBefore.instance">
+                <attr name="instanceClass" stringvalue="javax.swing.JSeparator"/>
+            </file>
+            <attr name="org-netbeans-modules-debugger-suspendallbreakpoints-actions-separatorBefore.instance/org-netbeans-modules-debugger-suspendallbreakpoints-actions-ToggleSuspendAllBreakpoints.shadow" boolvalue="true"/>
+            <file name="org-netbeans-modules-debugger-suspendallbreakpoints-actions-ToggleSuspendAllBreakpoints.shadow">
+                <attr name="originalFile" stringvalue="Actions/Debug/org-netbeans-modules-debugger-suspendallbreakpoints-actions-ToggleSuspendAllBreakpoints.instance"/>
+            </file>
+            <attr name="org-netbeans-modules-debugger-suspendallbreakpoints-actions-ToggleSuspendAllBreakpoints.shadow/org-netbeans-modules-debugger-suspendallbreakpoints-actions-separatorAfter.instance" boolvalue="true"/>
+            <file name="org-netbeans-modules-debugger-suspendallbreakpoints-actions-separatorAfter.instance">
+                <attr name="instanceClass" stringvalue="javax.swing.JSeparator"/>
+            </file>
+        </folder>
+    </folder>
+    <folder name="Toolbars">
+        <folder name="Build">
+            <attr name="org-netbeans-modules-debugger-ui-actions-ConnectAction.shadow/org-netbeans-modules-debugger-suspendallbreakpoints-actions-ToggleSuspendAllBreakpoints.shadow" boolvalue="true"/>
+            <file name="org-netbeans-modules-debugger-suspendallbreakpoints-actions-ToggleSuspendAllBreakpoints.shadow">
+                <attr name="originalFile" stringvalue="Actions/Debug/org-netbeans-modules-debugger-suspendallbreakpoints-actions-ToggleSuspendAllBreakpoints.instance"/>
+            </file>
+            <attr name="org-netbeans-modules-debugger-suspendallbreakpoints-actions-ToggleSuspendAllBreakpoints.shadow/org-netbeans-modules-debugger-ui-actions-KillAction.shadow" boolvalue="true"/>
+        </folder>
+    </folder>
+</filesystem>
