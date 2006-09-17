@@ -132,14 +132,14 @@ public final class LocalHistoryTopComponent extends TopComponent
       next.setContentAreaFilled(false);
       //      next.setBorder(null);
       //      prev.setBorder(null);
-      diffContainer.setBorder(DIFF_BORDER);
+      //diffContainer.setBorder(DIFF_BORDER);
       diffContainer.add(dummyRightComponent,BorderLayout.CENTER);
       diffContainer.add(toolPanel,BorderLayout.NORTH);
       // </editor-fold>
       
       
       this.add(split);
-      view.setBorder(HISTORY_BORDER);
+      //view.setBorder(HISTORY_BORDER);
       setName(NbBundle.getMessage(LocalHistoryTopComponent.class, "CTL_LocalHistoryTopComponent"));
       setToolTipText(NbBundle.getMessage(LocalHistoryTopComponent.class, "HINT_LocalHistoryTopComponent"));
       ActionMap map = getActionMap();
@@ -420,14 +420,14 @@ public final class LocalHistoryTopComponent extends TopComponent
    private JPanel dummyRightComponent = new JPanel();
    private static final Comparator<VersionNode> COMPARATOR = new MyComparator();
    private static final String CURRENT_VERSION_TITLE = "Current Version";
-   private static final String DIFF_VIEW = "Diff View";
-   private static final String HISTORY_VIEW = "History View";
-   private static final Border DIFF_BORDER = BorderFactory.createCompoundBorder(
-       BorderFactory.createTitledBorder(DIFF_VIEW),
-       BorderFactory.createLineBorder(Color.gray));
-   private static final Border HISTORY_BORDER = BorderFactory.createCompoundBorder(
-       BorderFactory.createTitledBorder(HISTORY_VIEW),
-       BorderFactory.createLineBorder(Color.gray));
+//   private static final String DIFF_VIEW = "Diff View";
+//   private static final String HISTORY_VIEW = "History View";
+//   private static final Border DIFF_BORDER = BorderFactory.createCompoundBorder(
+//       BorderFactory.createTitledBorder(DIFF_VIEW),
+//       BorderFactory.createLineBorder(Color.gray));
+//   private static final Border HISTORY_BORDER = BorderFactory.createCompoundBorder(
+//       BorderFactory.createTitledBorder(HISTORY_VIEW),
+//       BorderFactory.createLineBorder(Color.gray));
    private static final String X = "x";
    //toolbar
    JPanel diffContainer = new JPanel(new BorderLayout());
@@ -493,7 +493,12 @@ public final class LocalHistoryTopComponent extends TopComponent
             final FileObject currentFileObject = FileUtil.toFileObject(currentFile);
             final String mime = currentFileObject.getMIMEType();
             Node selectedNode1 = selNodes[0];
+            //System.out.println("selectedNode1 "+selectedNode1);
             DataObject dataObject = (DataObject) selectedNode1.getLookup().lookup(DataObject.class);
+            if (dataObject == null){
+              //context root node is selected. 
+              return;
+            }
             final FileObject olderFileObject = dataObject.getPrimaryFile();
             File olderFile = FileUtil.toFile(olderFileObject);
             StreamSource stream1 = null;
