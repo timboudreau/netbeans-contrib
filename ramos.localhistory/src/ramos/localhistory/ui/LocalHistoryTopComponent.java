@@ -241,6 +241,7 @@ public final class LocalHistoryTopComponent extends TopComponent
   }
   final static String NEW = "new";
   private static String getMimeType(FileObject fo){
+    if (fo.getExt().equalsIgnoreCase("properties")) return "text/x-properties";
     String mimeType = fo.getMIMEType();
     try {
       DataObject dobj = DataObject.find(fo);
