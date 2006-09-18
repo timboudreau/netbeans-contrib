@@ -147,6 +147,9 @@ public class WS70SunDeploymentManager implements DeploymentManager{
             ws70DM = ws70DF.getDeploymentManager(ws70url, uname, pword);
             userName = uname;
             password = pword;
+            InstanceProperties ip =  InstanceProperties.getInstanceProperties(this.getUri());
+            ip.setProperty(InstanceProperties.USERNAME_ATTR, uname);
+            ip.setProperty(InstanceProperties.PASSWORD_ATTR, pword);
         }catch(DeploymentManagerCreationException ex){
             ErrorManager.getDefault().log(ErrorManager.EXCEPTION, ex.getMessage());            
         }finally{
