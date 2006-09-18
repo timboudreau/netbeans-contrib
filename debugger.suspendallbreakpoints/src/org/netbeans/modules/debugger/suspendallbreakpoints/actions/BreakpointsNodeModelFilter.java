@@ -13,6 +13,7 @@
 
 package org.netbeans.modules.debugger.suspendallbreakpoints.actions;
 
+import java.awt.SystemColor;
 import org.netbeans.api.debugger.Breakpoint;
 import org.netbeans.spi.viewmodel.ModelListener;
 import org.netbeans.spi.viewmodel.NodeModel;
@@ -24,7 +25,10 @@ import org.openide.util.NbBundle;
  *
  * @author Sandip V. Chitale (Sandip.Chitale@Sun.Com)
  */
-public class BreakpointsNodeModelFilter implements NodeModelFilter {
+public class BreakpointsNodeModelFilter implements NodeModelFilter {    
+    private static int inactiveRed = SystemColor.textInactiveText.getRed();
+    private static int inactiveGreen = SystemColor.textInactiveText.getGreen();
+    private static int inactiveBlue = SystemColor.textInactiveText.getBlue();
     /**
      * This method returns.
      *
@@ -37,13 +41,22 @@ public class BreakpointsNodeModelFilter implements NodeModelFilter {
         if (node instanceof Breakpoint) {
             if (BreakpointsStateMementoManager.getDefault() != null) {
                 if (BreakpointsStateMementoManager.getDefault().isAllSuspended()) {
-                    if (displayName.startsWith("<html><b>")) {
-                        return displayName.substring(0, 9) +
-                                NbBundle.getMessage(ToggleSuspendAllBreakpoints.class, "CTL_Suspended") +
-                                " " +
-                                displayName.substring(9);
+                    if (displayName.startsWith("<html>")) {
+                        return //NbBundle.getMessage(ToggleSuspendAllBreakpoints.class, "CTL_Suspended") +
+                                "<html>" +
+                                "<i>" +
+                                "<font color='#444444'>" +
+                                displayName.substring(6) +
+                                "</font>" +
+                                "</i>";
                     } else {
-                        return NbBundle.getMessage(ToggleSuspendAllBreakpoints.class, "CTL_Suspended") + " " + displayName;
+                        return //NbBundle.getMessage(ToggleSuspendAllBreakpoints.class, "CTL_Suspended") +
+                                "<html>" +
+                                "<i>" +
+                                "<font color='#444444'>" +
+                                displayName +
+                                "</font>" +
+                                "</i>";
                     }
                 }
             }

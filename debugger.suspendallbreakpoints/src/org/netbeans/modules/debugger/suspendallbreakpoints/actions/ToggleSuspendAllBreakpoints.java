@@ -19,13 +19,14 @@ import org.netbeans.api.debugger.DebuggerManager;
 import org.openide.util.HelpCtx;
 import org.openide.util.NbBundle;
 import org.openide.util.actions.BooleanStateAction;
+import org.openide.windows.TopComponent;
+import org.openide.windows.WindowManager;
 
 /**
  *
  * @author Sandip V. Chitale (Sandip.Chitale@Sun.Com)
  */
-public final class ToggleSuspendAllBreakpoints extends BooleanStateAction implements PropertyChangeListener {
-    
+public final class ToggleSuspendAllBreakpoints extends BooleanStateAction implements PropertyChangeListener {    
     public ToggleSuspendAllBreakpoints() {
         addPropertyChangeListener(this);
     }
@@ -40,6 +41,18 @@ public final class ToggleSuspendAllBreakpoints extends BooleanStateAction implem
         putValue(NAME, getName());
         putValue(SMALL_ICON, null);
         putValue(SMALL_ICON, getIcon());
+        
+        TopComponent view = WindowManager.getDefault().findTopComponent("breakpointsView");       
+        if (view != null) {
+            String breakpointsViewTitle = view.getName();
+            if (breakpointsViewTitle != null) {
+                if (getBooleanState()) {
+                    view.setDisplayName(breakpointsViewTitle + NbBundle.getMessage(ToggleSuspendAllBreakpoints.class, "CTL_Suspended"));
+                } else {
+                    view.setDisplayName(breakpointsViewTitle);
+                }
+            }
+        }
     }
     
     public void propertyChange(PropertyChangeEvent evt) {
