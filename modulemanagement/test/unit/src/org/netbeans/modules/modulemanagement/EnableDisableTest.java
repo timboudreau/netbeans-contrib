@@ -26,6 +26,8 @@ import java.io.IOException;
 import java.util.jar.JarEntry;
 import java.util.jar.JarOutputStream;
 import java.util.jar.Manifest;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.netbeans.api.sendopts.CommandLine;
@@ -38,6 +40,7 @@ import org.openide.util.Lookup;
  * @author Jaroslav Tulach
  */
 public class EnableDisableTest extends NbTestCase {
+    private Logger LOG;
     
     public EnableDisableTest(String testName) {
         super(testName);
@@ -45,6 +48,8 @@ public class EnableDisableTest extends NbTestCase {
     
     protected void setUp() throws Exception {
         clearWorkDir();
+        
+        LOG = Logger.getLogger("TEST-" + getName());
 
         System.setProperty("netbeans.user", getWorkDirPath() + File.separator + "userdir");
 
@@ -55,11 +60,15 @@ public class EnableDisableTest extends NbTestCase {
     protected void tearDown() throws Exception {
     }
     
+    protected Level logLevel() {
+        return Level.FINE;
+    }
+    
     public void testAModuleIsPrinted() throws Exception {
         ByteArrayOutputStream os = new ByteArrayOutputStream();
         ByteArrayOutputStream err = new ByteArrayOutputStream();
 
-        CommandLine.getDefault().parse(new String[] { "--listmodules" }, System.in, os, err, new File("."));
+        CommandLine.getDefault().process(new String[] { "--listmodules" }, System.in, os, err, new File("."));
 
         assertEquals("No error", 0, err.size());
 
@@ -75,12 +84,12 @@ public class EnableDisableTest extends NbTestCase {
         m.getMainAttributes ().putValue ("OpenIDE-Module", "org.my.module/3");
         File simpleJar = generateJar (new String[0], m);
 
-        CommandLine.getDefault().parse(new String[] { "--installmodules", simpleJar.toString() }, System.in, os, err, new File("."));
+        CommandLine.getDefault().process(new String[] { "--installmodules", simpleJar.toString() }, System.in, os, err, new File("."));
 
         assertEquals("No error2", 0, err.size());
 
         os.reset();
-        CommandLine.getDefault().parse(new String[] { "--listmodules" }, System.in, os, err, new File("."));
+        CommandLine.getDefault().process(new String[] { "--listmodules" }, System.in, os, err, new File("."));
 
         assertEquals("No error", 0, err.size());
 
@@ -89,11 +98,16 @@ public class EnableDisableTest extends NbTestCase {
         }
 
         os.reset();
-        CommandLine.getDefault().parse(new String[] { "--disablemodules", "org.my.module"}, System.in, os, err, new File("."));
+        
+        Thread.sleep(1000);
+        
+        LOG.info("About to disable module");
+        CommandLine.getDefault().process(new String[] { "--disablemodules", "org.my.module"}, System.in, os, err, new File("."));
         assertEquals("No error", 0, err.size());
+        LOG.info("Disabling done");
 
         os.reset();
-        CommandLine.getDefault().parse(new String[] { "--listmodules" }, System.in, os, err, new File("."));
+        CommandLine.getDefault().process(new String[] { "--listmodules" }, System.in, os, err, new File("."));
         if (os.toString().indexOf("org.my.module") < 0) {
             fail("our module should be found: " + os.toString());
         }
@@ -103,12 +117,14 @@ public class EnableDisableTest extends NbTestCase {
             fail("and should be disabled now: " + os.toString());
         }
 
+        Thread.sleep(1000);
+        
         os.reset();
-        CommandLine.getDefault().parse(new String[] { "--enablemodules", "org.my.module"}, System.in, os, err, new File("."));
+        CommandLine.getDefault().process(new String[] { "--enablemodules", "org.my.module"}, System.in, os, err, new File("."));
         assertEquals("No error", 0, err.size());
 
         os.reset();
-        CommandLine.getDefault().parse(new String[] { "--listmodules" }, System.in, os, err, new File("."));
+        CommandLine.getDefault().process(new String[] { "--listmodules" }, System.in, os, err, new File("."));
         if (os.toString().indexOf("org.my.module") < 0) {
             fail("our module should be found: " + os.toString());
         }

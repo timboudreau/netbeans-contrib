@@ -46,7 +46,7 @@ public class ListModulesTest extends TestCase {
     }
     
     protected void setUp() throws Exception {
-        Lkp.ic.setPairs(Collections.EMPTY_LIST);
+        Lkp.ic.setPairs(Collections.<AbstractLookup.Pair>emptyList());
         Lkp.ic.add(new ModuleOptions());
     }
     
@@ -66,7 +66,7 @@ public class ListModulesTest extends TestCase {
         ByteArrayOutputStream os = new ByteArrayOutputStream();
         ByteArrayOutputStream err = new ByteArrayOutputStream();
 
-        CommandLine.getDefault().parse(new String[] { "--listmodules" }, System.in, os, err, new File("."));
+        CommandLine.getDefault().process(new String[] { "--listmodules" }, System.in, os, err, new File("."));
 
         assertEquals("No errors", 0, err.size());
 

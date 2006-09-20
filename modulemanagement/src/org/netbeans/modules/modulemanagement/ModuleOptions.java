@@ -19,21 +19,24 @@
 
 package org.netbeans.modules.modulemanagement;
 
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintStream;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Iterator;
-import java.util.ResourceBundle;
+import java.util.Map;
+import java.util.Set;
 import java.util.jar.JarFile;
+import java.util.logging.Logger;
 import org.netbeans.api.sendopts.CommandException;
-import org.netbeans.spi.sendopts.AdditionalArgumentsProcessor;
 import org.netbeans.spi.sendopts.Env;
-import org.netbeans.spi.sendopts.NoArgumentProcessor;
 import org.netbeans.spi.sendopts.Option;
-import org.netbeans.spi.sendopts.OptionProvider;
+import org.netbeans.spi.sendopts.OptionProcessor;
 import org.openide.filesystems.FileLock;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileSystem;
@@ -44,17 +47,19 @@ import org.openide.util.Lookup;
 import org.openide.util.LookupEvent;
 import org.openide.util.LookupListener;
 import org.openide.util.NbBundle;
+import org.openide.util.WeakListeners;
 
 /**
  *
  * @author Jaroslav Tulach
  */
-public class ModuleOptions
-implements OptionProvider, NoArgumentProcessor<Void>, AdditionalArgumentsProcessor<Void> {
-    private Option<Void> list;
-    private Option<Void> install;
-    private Option<Void> disable;
-    private Option<Void> enable;
+public class ModuleOptions extends OptionProcessor {
+    private static final Logger LOG = Logger.getLogger(ModuleOptions.class.getName());
+    
+    private Option list;
+    private Option install;
+    private Option disable;
+    private Option enable;
     
     /** Creates a new instance of ModuleOptions */
     public ModuleOptions() {
@@ -67,32 +72,32 @@ implements OptionProvider, NoArgumentProcessor<Void>, AdditionalArgumentsProcess
 
         String b = "org.netbeans.modules.modulemanagement.Bundle";
         list = Option.shortDescription(
-            Option.withoutArgument(-1, "listmodules", this), b, "MSG_ListModules"); // NOI18N
+            Option.withoutArgument(Option.NO_SHORT_NAME, "listmodules"), b, "MSG_ListModules"); // NOI18N
         install = Option.shortDescription(
-            Option.additionalArguments(-1, "installmodules", this), b, "MSG_InstallModules"); // NOI18N
+            Option.additionalArguments(Option.NO_SHORT_NAME, "installmodules"), b, "MSG_InstallModules"); // NOI18N
         disable = Option.shortDescription(
-            Option.additionalArguments(-1, "disablemodules", this), b, "MSG_DisableModules"); // NOI18N
+            Option.additionalArguments(Option.NO_SHORT_NAME, "disablemodules"), b, "MSG_DisableModules"); // NOI18N
         enable = Option.shortDescription(
-            Option.additionalArguments(-1, "enablemodules", this), b, "MSG_EnableModules"); // NOI18N
+            Option.additionalArguments(Option.NO_SHORT_NAME, "enablemodules"), b, "MSG_EnableModules"); // NOI18N
     }
 
-    public Option[] getOptions() {
+    public Set<Option> getOptions() {
         init();
-        return new Option[] { list, install, disable, enable };
-    }
-
-    public Void process(Option option, Env env) throws CommandException {
-        listAllModules(env.getOutputStream());
-        return null;
+        Set<Option> s = new HashSet<Option>();
+        s.add(list);
+        s.add(install);
+        s.add(disable);
+        s.add(enable);
+        return s;
     }
 
     private void listAllModules(PrintStream out) {
-        Collection modules = Lookup.getDefault().lookup(new Lookup.Template(ModuleInfo.class)).allInstances();
+        Collection<? extends ModuleInfo> modules = Lookup.getDefault().lookupAll(ModuleInfo.class);
         Integer number = new Integer(modules.size());
         out.println(NbBundle.getMessage(ModuleOptions.class, "MSG_ModuleListHeader", number));
-        Iterator it = modules.iterator();
+        Iterator<? extends ModuleInfo> it = modules.iterator();
         while (it.hasNext()) {
-            ModuleInfo module = (ModuleInfo) it.next();
+            ModuleInfo module = it.next();
             Object[] args = {
                 fixedLength(module.getCodeName(), 50),
                 fixedLength(module.getCodeNameBase(), 50),
@@ -125,26 +130,32 @@ implements OptionProvider, NoArgumentProcessor<Void>, AdditionalArgumentsProcess
         }
     }
 
-    private static ResourceBundle bundle() {
-        return NbBundle.getBundle(ModuleOptions.class);
+    private static <T extends Throwable> T initCause(T t, Throwable cause) {
+        t.initCause(cause);
+        return t;
     }
 
-    public Void process(Option option, Env env, String[] args) throws CommandException {
+    protected void process(Env env, Map<Option, String[]> optionValues) throws CommandException {
+        if (optionValues.containsKey(list)) {
+            listAllModules(env.getOutputStream());
+        }
+    
         try {
-            if (option == install) {
+            if (optionValues.containsKey(install)) {
+                String[] args = optionValues.get(install);
                 for (String fileName : args) {
                     File f = new File(env.getCurrentDirectory(), fileName);
                     if (!f.exists()) {
                         f = new File(fileName);
                     }
                     if (!f.exists()) {
-                        throw CommandException.exitCode(5, bundle(), "ERR_FileNotFound", f); // NOI18N
+                        throw new CommandException(5, NbBundle.getMessage(ModuleOptions.class, "ERR_FileNotFound", f)); // NOI18N
                     }
 
                     JarFile jar = new JarFile(f);
                     String cnb = jar.getManifest().getMainAttributes().getValue("OpenIDE-Module"); // NOI18N
                     if (cnb == null) {
-                        throw CommandException.exitCode(6, bundle(), "ERR_NotModule", f); // NOI18N
+                        throw new CommandException(6, NbBundle.getMessage(ModuleOptions.class, "ERR_NotModule", f)); // NOI18N
                     }
                     {
                         int slash = cnb.indexOf('/');
@@ -188,67 +199,70 @@ implements OptionProvider, NoArgumentProcessor<Void>, AdditionalArgumentsProcess
                     X x = new X();
 
                     if (x.conf != null) {
-                        throw CommandException.exitCode(7, bundle(), "ERR_AlreadyInstalled", f, cnb); // NOI18N
+                        throw new CommandException(7, NbBundle.getMessage(ModuleOptions.class, "ERR_AlreadyInstalled", f, cnb)); // NOI18N
                     }
 
                     dir.getFileSystem().runAtomicAction(x);
 
                     waitFor(cnb, true);
                 }
-                return null;
             }
 
-            if (disable == option) {
-                for (String name : args) {
+            if (optionValues.containsKey(disable)) {
+                for (String name : optionValues.get(disable)) {
                     changeModuleState(name, false);
                 }
-                return null;
             }
 
-            if (enable == option) {
-                for (String name : args) {
+            if (optionValues.containsKey(enable)) {
+                for (String name : optionValues.get(enable)) {
                     changeModuleState(name, true);
                 }
-                return null;
             }
         } catch (InterruptedException ex) {
-            throw CommandException.exitCode(4, ex);
+            throw initCause(new CommandException(4), ex);
         } catch (IOException ex) {
-            throw CommandException.exitCode(4, ex);
+            throw initCause(new CommandException(4), ex);
         }
-
-
-        throw new IllegalArgumentException("Unknown option: " + option); // NOI18N
     }
 
     private static void waitFor(final String codebase, final boolean shouldBeEnabled) throws IOException, InterruptedException, CommandException {
-        Lookup.Template t = new Lookup.Template(ModuleInfo.class);
-        final Lookup.Result res = Lookup.getDefault().lookup(t);
+        LOG.fine("waitFor: " + codebase + " state: " + shouldBeEnabled); // NOI18N
+        
+        final Lookup.Result<ModuleInfo> res = Lookup.getDefault().lookupResult(ModuleInfo.class);
         res.allInstances();
 
-        class L implements LookupListener {
+        class L implements LookupListener, PropertyChangeListener {
             private boolean go;
+            private Set<ModuleInfo> listening = new HashSet<ModuleInfo>();
 
             public synchronized void resultChanged(LookupEvent ev) {
                 notifyAll();
                 go = true;
+                LOG.fine("go set to true by a listener"); // NOI18N
+            }
+            
+            public synchronized void propertyChange(PropertyChangeEvent ev) {
+                notifyAll();
+                go = true;
+                LOG.fine("go set to true by a property change listener"); // NOI18N
             }
 
             public void waitFor() throws CommandException, InterruptedException {
-                Collection modules;
+                Collection<? extends ModuleInfo> modules;
 
                 for(;;) {
                     synchronized (this) {
                         go = false;
+                        LOG.fine("go = false");
                     }
 
                     modules = res.allInstances();
 
-                    Iterator it = modules.iterator();
                     boolean found = false;
-                    while (it.hasNext()) {
-                        ModuleInfo m = (ModuleInfo)it.next();
+                    for (ModuleInfo m : modules) {
                         if (m.getCodeNameBase().equals(codebase)) {
+                            LOG.fine("found code base: " + codebase + " as " + m); // NOI18N
                             found = true;
                             if (shouldBeEnabled) {
                                 if (m.isEnabled()) {
@@ -259,6 +273,8 @@ implements OptionProvider, NoArgumentProcessor<Void>, AdditionalArgumentsProcess
                                     return;
                                 }
                             }
+                            listening.add(m);
+                            m.addPropertyChangeListener(this);
                             break;
                         }
                     }
@@ -269,21 +285,36 @@ implements OptionProvider, NoArgumentProcessor<Void>, AdditionalArgumentsProcess
                     }
 
                     synchronized (this) {
+                        LOG.fine("waiting 10000"); // NOI18N
                         if (!go) {
                             wait(10000);
                         }
                         if (!go) {
-                            throw CommandException.exitCode(4, bundle(), "ERR_TimeOut", codebase, shouldBeEnabled ? 1 : 0); // NOI18N
+                            LOG.fine("No event received: " + go + " exiting"); // NOI18N
+                            throw new CommandException(4, NbBundle.getMessage(ModuleOptions.class, "ERR_TimeOut", codebase, shouldBeEnabled ? 1 : 0)); // NOI18N
                         }
                     }
+                }
+            }
+            
+            public void cleanUp() {
+                res.removeLookupListener(this);
+                for (ModuleInfo m : listening) {
+                    m.removePropertyChangeListener(this);
                 }
             }
         }
 
         L list = new L();
-        res.addLookupListener(list);
-        res.allItems();
-        list.waitFor();
+        try {
+            res.addLookupListener(list);
+            res.allItems();
+            list.waitFor();
+        } finally {
+            list.cleanUp();
+        }
+        
+        LOG.fine("waitFor finished");
     }
 
     private void changeModuleState(String cnb, boolean enable) throws IOException, CommandException, InterruptedException {
@@ -301,14 +332,14 @@ implements OptionProvider, NoArgumentProcessor<Void>, AdditionalArgumentsProcess
         final FileObject conf = dir.getFileObject(fn);
 
         if (conf == null) {
-            throw CommandException.exitCode(8, bundle(), "ERR_ModuleNotFound", cnb);
+            throw new CommandException(8, NbBundle.getMessage(ModuleOptions.class, "ERR_ModuleNotFound", cnb)); // NOI18N
         }
 
         byte[] arr = new byte[(int)conf.getSize()];
         InputStream is = conf.getInputStream();
         int len = is.read(arr);
         if (len != arr.length) {
-            throw CommandException.exitCode(8);
+            throw new CommandException(8);
         }
         is.close();
 
@@ -325,12 +356,14 @@ implements OptionProvider, NoArgumentProcessor<Void>, AdditionalArgumentsProcess
         final String newConfig = config.replaceAll(what, with);
 
         if (config.equals(newConfig)) {
-            throw CommandException.exitCode(8, bundle(), "ERR_ModuleChanged", cnb, config, newConfig);
+            throw new CommandException(8, NbBundle.getMessage(ModuleOptions.class, "ERR_ModuleChanged", cnb, config, newConfig)); // NOI18N
         }
 
         class Write implements FileSystem.AtomicAction {
             public void run() throws IOException {
                 FileLock lock = conf.lock();
+                LOG.config("about to write: " + conf);
+                LOG.config(newConfig);
                 OutputStream os = null;
                 try {
                     os = conf.getOutputStream(lock);
@@ -341,6 +374,7 @@ implements OptionProvider, NoArgumentProcessor<Void>, AdditionalArgumentsProcess
                     }
                     lock.releaseLock();
                 }
+                LOG.config("configuration written to: " + conf);
             }
         }
         Write w = new Write();
@@ -348,5 +382,6 @@ implements OptionProvider, NoArgumentProcessor<Void>, AdditionalArgumentsProcess
 
         waitFor(cnb, enable);
     }
+
 }
 
