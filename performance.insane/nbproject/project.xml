@@ -24,6 +24,15 @@ Microsystems, Inc. All Rights Reserved.
             <code-name-base>org.netbeans.modules.performance.insane</code-name-base>
             <module-dependencies>
                 <dependency>
+                    <code-name-base>org.netbeans.modules.sendopts</code-name-base>
+                    <build-prerequisite/>
+                    <compile-dependency/>
+                    <run-dependency>
+                        <release-version>2</release-version>
+                        <specification-version>2.0</specification-version>
+                    </run-dependency>
+                </dependency>
+                <dependency>
                     <code-name-base>org.openide.util</code-name-base>
                     <build-prerequisite/>
                     <compile-dependency/>
@@ -37,12 +46,6 @@ Microsystems, Inc. All Rights Reserved.
                 <runtime-relative-path>ext/insanelib.jar</runtime-relative-path>
                 <binary-origin>../insanelib/dist/insanelib.jar</binary-origin>
             </class-path-extension>
-            <extra-compilation-unit>
-                <package-root>clisrc</package-root>
-                <classpath>${cp.cli}</classpath>
-                <built-to>build/cliclasses</built-to>
-                <built-to>${cluster}/core/org-netbeans-modules-performance-insane-cli.jar</built-to>
-            </extra-compilation-unit>
         </data>
     </configuration>
 </project>
