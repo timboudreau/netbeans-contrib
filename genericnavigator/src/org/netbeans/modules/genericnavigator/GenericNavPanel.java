@@ -1,15 +1,22 @@
-/* The contents of this file are subject to the terms of the Common Development
-and Distribution License (the License). You may not use this file except in
-compliance with the License.
+/*
+ * The contents of this file are subject to the terms of the Common Development
+ * and Distribution License (the License). You may not use this file except in
+ * compliance with the License.
+ *
+ * You can obtain a copy of the License at http://www.netbeans.org/cddl.html
+ * or http://www.netbeans.org/cddl.txt.
+ *
+ * When distributing Covered Code, include this CDDL Header Notice in each file
+ * and include the License file at http://www.netbeans.org/cddl.txt.
+ * If applicable, add the following below the CDDL Header, with the fields
+ * enclosed by brackets [] replaced by your own identifying information:
+ * "Portions Copyrighted [year] [name of copyright owner]"
+ *
+ * The Original Software is NetBeans. The Initial Developer of the Original
+ * Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
+ * Microsystems, Inc. All Rights Reserved.
+ */
 
-You can obtain a copy of the License at http://www.netbeans.org/cddl.html
-or http://www.netbeans.org/cddl.txt.
-
-When distributing Covered Code, include this CDDL Header Notice in each file
-and include the License file at http://www.netbeans.org/cddl.txt.
-If applicable, add the following below the CDDL Header, with the fields
-enclosed by brackets [] replaced by your own identifying information:
-"Portions Copyrighted [year] [name of copyright owner]" */
 package org.netbeans.modules.genericnavigator;
 
 import java.awt.BorderLayout;
@@ -28,12 +35,14 @@ import java.nio.channels.FileChannel;
 import java.nio.charset.CharacterCodingException;
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
-import java.nio.charset.MalformedInputException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.swing.DefaultComboBoxModel;
@@ -69,10 +78,12 @@ import org.openide.util.WeakSet;
 import org.openide.windows.TopComponent;
 
 /**
- *
  * @author Tim Boudreau
  */
 public class GenericNavPanel implements NavigatorPanel, Runnable, ListSelectionListener, LookupListener, ActionListener, DocumentListener {
+
+    private static final Logger LOGGER = Logger.getLogger(GenericNavPanel.class.getName());
+
     private RequestProcessor rp = new RequestProcessor ("Generic Navigator Scan Thread"); //NOI18N
     private DefaultListModel mdl = new DefaultListModel();
     private JList jl = new JList(mdl);
@@ -85,7 +96,7 @@ public class GenericNavPanel implements NavigatorPanel, Runnable, ListSelectionL
     private static final ByteBuffer buf = ByteBuffer.allocate(8192);
     private static final CharsetDecoder decoder = Charset.defaultCharset().newDecoder();
     private JPanel innerPanel = new JPanel();
-    static final WeakSet cache = new WeakSet();
+    static final Set<GenericNavPanel> cache = new WeakSet<GenericNavPanel>();
 
     public GenericNavPanel() {
         jl.getSelectionModel().addListSelectionListener(this);
@@ -106,11 +117,8 @@ public class GenericNavPanel implements NavigatorPanel, Runnable, ListSelectionL
     }
 
     static void refreshAll() {
-        for (Iterator i = cache.iterator(); i.hasNext();) {
-            GenericNavPanel p = (GenericNavPanel) i.next();
-            if (p != null) {
-                p.refresh();
-            }
+        for (GenericNavPanel p : cache) {
+            p.refresh();
         }
     }
 
@@ -151,7 +159,7 @@ public class GenericNavPanel implements NavigatorPanel, Runnable, ListSelectionL
         Lookup lkp = Utilities.actionsGlobalContext();
         if (lkp.lookup(DataObject.class) != null) {
             String mimeType = ((DataObject) lkp.lookup(DataObject.class)).getPrimaryFile().getMIMEType();
-            System.err.println("PANEL DEACTIVATED " + mimeType);
+            LOGGER.log(Level.FINE, "panel deactivated: {0}", mimeType);
         }
         active = false;
         synchronized (this) {
@@ -159,7 +167,9 @@ public class GenericNavPanel implements NavigatorPanel, Runnable, ListSelectionL
                 task.cancel();
                 task = null;
             }
-            res.removeLookupListener(this);
+            if (res != null) {
+                res.removeLookupListener(this);
+            }
             res = null;
             last = null;
         }
@@ -223,9 +233,9 @@ public class GenericNavPanel implements NavigatorPanel, Runnable, ListSelectionL
         return item == null ? null : item.getPattern();
     }
 
-    private void scanFile(List <Object> l, Lookup lkp) {
+    private void scanFile(List</*XXX should be NavigationItem*/Object> l, Lookup lkp) {
         DataObject ob = (DataObject) lkp.lookup(DataObject.class);
-        System.err.println("OBJECT OF TYPE " + ob.getPrimaryFile().getMIMEType());
+        LOGGER.log(Level.FINE, "object of type {0}", ob.getPrimaryFile().getMIMEType());
         if (ob != null) {
             try {
                 CharSequence sq = getFileData(ob);
