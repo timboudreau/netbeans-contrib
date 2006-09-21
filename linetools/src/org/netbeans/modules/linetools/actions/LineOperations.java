@@ -26,6 +26,7 @@ import java.text.Collator;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.TreeSet;
+import javax.swing.JEditorPane;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Caret;
 import javax.swing.text.Document;
@@ -43,6 +44,19 @@ import org.openide.windows.InputOutput;
  * @author Sandip V. Chitale (Sandip.Chitale@Sun.Com)
  */
 public class LineOperations {
+    
+    static void exchangeDotAndMark(JEditorPane textComponent) {
+        Document doc = textComponent.getDocument();
+        Caret caret = textComponent.getCaret();
+        // check if there is a selection
+        if (caret.isSelectionVisible()) {
+            int selStart = caret.getDot();
+            int selEnd = caret.getMark();
+            caret.setDot(selStart);
+            caret.moveDot(selEnd);
+        }
+    }
+    
     static final void moveLineUp(JTextComponent textComponent) {
         if (textComponent.isEditable()) {
             Document doc = textComponent.getDocument();
@@ -295,7 +309,6 @@ public class LineOperations {
             }
             try {
                 Element rootElement = doc.getDefaultRootElement();
-                
                 
                 Caret caret = textComponent.getCaret();
                 boolean selection = false;

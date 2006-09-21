@@ -3,6 +3,9 @@
 <filesystem>
     <folder name="Actions">
         <folder name="Edit">
+            <file name="org-netbeans-modules-linetools-actions-ExchangeDotAndMark.instance">
+                <attr name="instanceClass" stringvalue="org.netbeans.modules.linetools.actions.ExchangeDotAndMark"/>
+            </file>
             <file name="org-netbeans-modules-linetools-actions-MoveLineUp.instance">
                 <attr name="instanceClass" stringvalue="org.netbeans.modules.linetools.actions.MoveLineUp"/>
             </file>
@@ -36,6 +39,9 @@
         <folder name="Edit">
             <attr name="org-netbeans-modules-editor-MainMenuAction$StopMacroRecordingAction.instance/Line" boolvalue="true"/>
             <folder name="Line">
+                <file name="org-netbeans-modules-linetools-actions-ExchangeDotAndMark.shadow">
+                    <attr name="originalFile" stringvalue="Actions/Edit/org-netbeans-modules-linetools-actions-ExchangeDotAndMark.instance"/>
+                </file>
                 <file name="org-netbeans-modules-linetools-actions-MoveLineUp.shadow">
                     <attr name="originalFile" stringvalue="Actions/Edit/org-netbeans-modules-linetools-actions-MoveLineUp.instance"/>
                 </file>
@@ -114,6 +120,9 @@
         </folder>
     </folder>
     <folder name="Shortcuts">
+        <file name="O-S-X.shadow">
+            <attr name="originalFile" stringvalue="Actions/Edit/org-netbeans-modules-linetools-actions-ExchangeDotAndMark.instance"/>
+        </file>
         <file name="O-UP.shadow">
             <attr name="originalFile" stringvalue="Actions/Edit/org-netbeans-modules-linetools-actions-MoveLineUp.instance"/>
         </file>
