@@ -15,10 +15,10 @@ package test.controlpoint;
 import org.netbeans.api.visual.action.ActionFactory;
 import org.netbeans.api.visual.anchor.AnchorFactory;
 import org.netbeans.api.visual.anchor.PointShape;
-import org.netbeans.api.visual.widget.ConnectionWidget;
 import org.netbeans.api.visual.widget.LabelWidget;
 import org.netbeans.api.visual.widget.LayerWidget;
 import org.netbeans.api.visual.widget.Scene;
+import org.netbeans.api.visual.widget.FreeConnectionWidget;
 import org.netbeans.api.visual.router.RouterFactory;
 import test.SceneSupport;
 
@@ -44,12 +44,12 @@ public class AddRemoveControlPointTest extends Scene {
         LabelWidget hello1 = addLabel ("Hello", 100, 150);
         LabelWidget hello2 = addLabel ("NetBeans", 300, 250);
 
-        ConnectionWidget conn = new ConnectionWidget (this);
+        FreeConnectionWidget conn = new FreeConnectionWidget (this);
         conn.setPaintControlPoints (true);
         conn.setControlPointShape (PointShape.SQUARE_FILLED_BIG);
         conn.setRouter (RouterFactory.createFreeRouter ());
-        conn.setSourceAnchor (AnchorFactory.createRectangularAnchor (hello1));
-        conn.setTargetAnchor (AnchorFactory.createRectangularAnchor (hello2));
+        conn.setSourceAnchor (AnchorFactory.createFreeRectangularAnchor (hello1, true));
+        conn.setTargetAnchor (AnchorFactory.createFreeRectangularAnchor (hello2, true));
         connLayer.addChild (conn);
 
         conn.getActions ().addAction (ActionFactory.createAddRemoveControlPointAction ());
