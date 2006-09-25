@@ -24,6 +24,7 @@ import java.util.Map;
 import org.netbeans.spi.wizard.Wizard;
 import org.netbeans.spi.wizard.WizardBranchController;
 import org.netbeans.spi.wizard.WizardPage;
+import org.netbeans.spi.wizard.WizardPage.WizardResultProducer;
 
 /**
  *
@@ -31,10 +32,12 @@ import org.netbeans.spi.wizard.WizardPage;
  */
 public class Brancher extends WizardBranchController {
     /** Creates a new instance of Brancher */
-    public Brancher() {
+    public Brancher(WizardResultProducer wrp) {
         super (new SelectTaskPanel());
+        this.wrp = wrp;
     }
 
+    private final WizardResultProducer wrp;
     protected Wizard getWizardForStep(String step, Map settings) {
         System.err.println("GetWizardForStep " + step + ":" + settings);
         if (Boolean.TRUE.equals(settings.get("beansModule"))) {
@@ -52,7 +55,7 @@ public class Brancher extends WizardBranchController {
     private Wizard bmWizard = null;
     private Wizard getBeansModuleWizard() {
         if (bmWizard == null) {
-            bmWizard = WizardPage.createWizard(Main.getPageList());
+            bmWizard = WizardPage.createWizard(Main.getPageList(), wrp);
         }
         return bmWizard;
     }
@@ -60,10 +63,8 @@ public class Brancher extends WizardBranchController {
     private Wizard libWizard = null;
     private Wizard getLibModuleWizard() {
         if (libWizard == null) {
-            libWizard = WizardPage.createWizard(LibGenMain.getPageList());
+            libWizard = WizardPage.createWizard(LibGenMain.getPageList(), wrp);
         }
         return libWizard;
     }
-
-    
 }

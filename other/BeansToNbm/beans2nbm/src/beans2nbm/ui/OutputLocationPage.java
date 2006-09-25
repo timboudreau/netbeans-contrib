@@ -57,6 +57,12 @@ public class OutputLocationPage extends WizardPage {
                 }
             }
             fileField.setText (new String (c) + ".nbm");
+        } else {
+            String dir = Preferences.userNodeForPackage(getClass()).get(
+                    KEY_OUTPATH, null);
+            if (new File(dir).exists()) {
+                fileField.setText (dir);
+            }
         }
     }
     
@@ -82,6 +88,10 @@ public class OutputLocationPage extends WizardPage {
         if (!f.exists()) {
             return "Directory " + f.getName() + " does not exist";
         }
+        
+        Preferences.userNodeForPackage(getClass()).put(
+                    KEY_OUTPATH, f.getPath());
+        
         return null;
     }
     

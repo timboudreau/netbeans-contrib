@@ -122,15 +122,14 @@
     <Component class="javax.swing.JComboBox" name="jComboBox1">
       <Properties>
         <Property name="model" type="javax.swing.ComboBoxModel" editor="org.netbeans.modules.form.editors2.ComboBoxModelEditor">
-          <StringArray count="8">
+          <StringArray count="7">
             <StringItem index="0" value="Custom"/>
             <StringItem index="1" value="CDDL"/>
-            <StringItem index="2" value="Sun Public License"/>
-            <StringItem index="3" value="Apache License"/>
-            <StringItem index="4" value="BSD License"/>
-            <StringItem index="5" value="GNU Public License"/>
-            <StringItem index="6" value="LGPL"/>
-            <StringItem index="7" value="Perl Artistic License"/>
+            <StringItem index="2" value="Apache License"/>
+            <StringItem index="3" value="BSD License"/>
+            <StringItem index="4" value="GNU Public License"/>
+            <StringItem index="5" value="LGPL"/>
+            <StringItem index="6" value="Perl Artistic License"/>
           </StringArray>
         </Property>
       </Properties>

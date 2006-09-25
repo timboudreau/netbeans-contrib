@@ -45,6 +45,8 @@ import java.util.prefs.Preferences;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 import org.netbeans.api.wizard.WizardDisplayer;
+import org.netbeans.spi.wizard.DeferredWizardResult;
+import org.netbeans.spi.wizard.Summary;
 import org.netbeans.spi.wizard.Wizard;
 import org.netbeans.spi.wizard.WizardException;
 import org.netbeans.spi.wizard.WizardPage;
@@ -88,7 +90,7 @@ public class Main {
         
 //        go (getPageList());
 
-        WizardDisplayer.showWizard(new Brancher().createWizard());
+        WizardDisplayer.showWizard(new Brancher(new WRP()).createWizard());
     }
 
     static Class[] getPageList() {
@@ -114,13 +116,18 @@ public class Main {
         Wizard wiz = WizardPage.createWizard(pages, new WRP());
         File f = (File) WizardDisplayer.showWizard (wiz);
         if (f != null) {
-            System.err.println("Created " + f.getPath());
+            System.out.println("Created " + f.getPath());
         }
     }
- 
-    private static class WRP implements WizardResultProducer {
-        public Object finish(Map map) throws WizardException {
-//            outMap (map);
+    
+    private static class BackgroundBuilder extends DeferredWizardResult {
+        public BackgroundBuilder() {
+            super (false);
+        }
+        
+        public void start(final Map map, final DeferredWizardResult.ResultProgressHandle progress) {
+            final int total = 15;
+            progress.setProgress("Building NBM", 1, total);
             
             String destFolder = (String) map.get ("destFolder");
             String destFileName = (String) map.get ("destFileName");
@@ -150,9 +157,10 @@ public class Main {
             }
             try {
                 if (!f.createNewFile()) {
-                    throw new IllegalArgumentException ("Couldn't create file");
+                    progress.failed("Could not create " + f.getPath(), true);
+                    return;
                 }
-                
+                progress.setProgress(2, total);
                 char[] cname = codeName.toCharArray();
                 for (int i=0; i < cname.length; i++) {
                     if (cname[i] == '.') {
@@ -162,15 +170,20 @@ public class Main {
                 String moduleJarName = new String (cname) + ".jar";
 
                 String jarFileNameSimple = new File (jarFileName).getName();
-                
+                progress.setProgress(3, 10);
                 NbmFileModel nbm = new NbmFileModel (f.getPath());
+                progress.setProgress (3, total);
+                
                 ModuleModel module = new ModuleModel ("netbeans/modules/" + moduleJarName, codeName, description, version, displayName, minJDK);
+                progress.setProgress(4, total);
                 ModuleInfoModel infoXml = new ModuleInfoModel (module, homepage, author, license);
+                progress.setProgress(5, total);
                 
                 nbm.add (module);
                 nbm.add (infoXml);
                 
                 JarToCopyModel libJar = new JarToCopyModel ("netbeans/libs/" + jarFileNameSimple, jarFileName);
+                progress.setProgress (7, total);
                 nbm.add (libJar);
 
                 String srcFileNameSimple = null;
@@ -179,12 +192,14 @@ public class Main {
                     JarToCopyModel srcJarMdl = new JarToCopyModel ("netbeans/sources/" + srcFileNameSimple, sourceJar);
                     nbm.add (srcJarMdl);
                 }
+                progress.setProgress(8, total);
                 String docsJarNameSimple = null;
                 if (docsJar != null && !"".equals(docsJar)) {
                     docsJarNameSimple = new File (docsJar).getName();
                     JarToCopyModel docsJarMdl = new JarToCopyModel ("netbeans/docs/" + docsJarNameSimple, docsJar);
                     nbm.add (docsJarMdl);
                 }
+                progress.setProgress(9, total);
                 cname = codeName.toCharArray();
                 for (int i=0; i < cname.length; i++) {
                     if (cname[i] == '.') {
@@ -204,6 +219,7 @@ public class Main {
                 
                 LayerFileModel layer = new LayerFileModel (codeNameSlashes + "/layer.xml", companyNameUnderscores, codeName);
                 module.addFileEntry(layer);
+                progress.setProgress (10, total);
                 
                 layer.addLibraryName(companyNameUnderscores);
                 
@@ -211,6 +227,8 @@ public class Main {
                 module.addFileEntry(libDesc);
                 module.addFileDisplayName("org-netbeans-api-project-libraries/Libraries/" + companyNameUnderscores + ".xml", displayName);
                 module.addFileDisplayName(companyNameUnderscores, displayName);
+                progress.setProgress (11, total);
+                
                 if (jarInfo != null) {
                     for (Iterator i=jarInfo.getBeans().iterator(); i.hasNext();) {
                         String pathInBeanJar = (String) i.next();
@@ -224,20 +242,34 @@ public class Main {
                         module.addFileDisplayName (paletteItemPathInLayer, beanClassName);
                     }
                 }
+                progress.setProgress (11, total);
                 module.addFileDisplayName(codeNameSlashes + "/" + companyNameUnderscores, displayName);
                 
                 ModuleXMLModel mxml = new ModuleXMLModel (codeName,version);
                 nbm.add(mxml);
+                progress.setProgress (12, total);
                 
                 OutputStream out = new BufferedOutputStream (new FileOutputStream (f));
+                progress.setProgress (13, total);
                 nbm.write(out);
+                progress.setProgress (14, total);
+                
                 out.close();
+                progress.setProgress (15, total);
                 
             } catch (IOException ioe) {
                 ioe.printStackTrace();
+                progress.failed(ioe.getMessage(), true);
             }
-            
-            return f;
+            progress.finished(Summary.create ("Created " + 
+                    f.getPath() + " successfully.", f));
+        }
+    }
+ 
+    private static class WRP implements WizardResultProducer {
+        public Object finish(Map map) throws WizardException {
+            return new BackgroundBuilder();
+//            outMap (map);
         }
 
         public boolean cancel (Map m) {
@@ -250,7 +282,6 @@ public class Main {
         for (Iterator i = wizardData.keySet().iterator(); i.hasNext();) {
             Object key = (Object) i.next();
             Object val = wizardData.get(key);
-            System.out.println(key + "=" + val);
         }
     }
     

@@ -202,7 +202,7 @@ public class AuthorInfoPage extends WizardPage {
         gridBagConstraints.insets = new java.awt.Insets(0, 5, 0, 0);
         add(browseButton, gridBagConstraints);
 
-        jComboBox1.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Custom", "CDDL", "Sun Public License", "Apache License", "BSD License", "GNU Public License", "LGPL", "Perl Artistic License" }));
+        jComboBox1.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Custom", "CDDL", "Apache License", "BSD License", "GNU Public License", "LGPL", "Perl Artistic License" }));
         jComboBox1.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jComboBox1ActionPerformed(evt);
