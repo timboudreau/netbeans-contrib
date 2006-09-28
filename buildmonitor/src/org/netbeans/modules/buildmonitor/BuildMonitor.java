@@ -70,6 +70,7 @@ public class BuildMonitor implements Serializable, HelpCtx.Provider {
     private transient String statusDescription;
     private transient String guid;
     private transient String pubDate;
+    private String configPath;
     
     static RequestProcessor WORKER = new RequestProcessor("build status updater");
 
@@ -86,16 +87,17 @@ public class BuildMonitor implements Serializable, HelpCtx.Provider {
 	String name = (String)fo.getAttribute("name"); //NOI18N
         Integer minutesAttr = (Integer)fo.getAttribute("minutes"); //NOI18N
         int minutes = minutesAttr != null ? minutesAttr.intValue() : 30;
-        BuildMonitor monitor = new BuildMonitor(name, url, minutes);
+        BuildMonitor monitor = new BuildMonitor(name, url, minutes, fo.getPath());
 	return monitor;
     }
     
-    private BuildMonitor(String name, URL url, int minutes) {
+    private BuildMonitor(String name, URL url, int minutes, String configPath) {
         this.pcs = new PropertyChangeSupport(this);
 	this.name = name;
 	buildStatusURL = url;
 	pollMinutes = minutes;
 	lastStatus = Status.NO_STATUS_AVAIL;
+        this.configPath = configPath;
         updateBuildStatus();
         startTimer();
     }
@@ -170,7 +172,11 @@ public class BuildMonitor implements Serializable, HelpCtx.Provider {
     public String getPubDate() {
         return pubDate;
     }
-    
+
+    String getConfigPath() {
+        return configPath;
+    }
+
     public org.openide.util.HelpCtx getHelpCtx() {
         return HelpCtx.DEFAULT_HELP;
     }
