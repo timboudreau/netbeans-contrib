@@ -1,0 +1,20 @@
+* Upgrade to DocBook 5
+Still in beta.
+How to make code completion work w/o DTD?
+** Automatic background validation using RELAXNG (JAXP) and Schematron (Skeleton)
+How to run Skeleton?
+
+* Auto preview
+Swing HTML browser after XSLT, probably.
+Where to display?
+What kind of refresh - while typing? after save?
+
+* Syntax highlighting
+** Could use XSLTHL
+Requires Saxon.
+Does not handle <callout> etc.
+Java language support does not look great (no assert, no type highlighting, ...).
+
+* References
+http://sagehill.net/docbookxsl/index.html
+http://xmlguru.cz/2006/07/docbook-syntax-highlighting
