@@ -55,7 +55,7 @@ public class SceneReconnectProvider implements ReconnectProvider {
         return originalNode != null;
     }
     
-    public ConnectorState isReplacementWidget(ConnectionWidget connectionWidget, Widget replacementWidget, boolean recoonectingSource) {
+    public ConnectorState isReplacementWidget(ConnectionWidget connectionWidget, Widget replacementWidget, boolean reconnectingSource) {
         Object object = scene.findObject(replacementWidget);
         replacementNode = scene.isNode(object) ? (String) object : null;
         if (replacementNode != null)

@@ -158,7 +158,7 @@ public class ConnectScene extends GraphScene.StringGraph {
             return originalNode != null;
         }
 
-        public ConnectorState isReplacementWidget (ConnectionWidget connectionWidget, Widget replacementWidget, boolean recoonectingSource) {
+        public ConnectorState isReplacementWidget (ConnectionWidget connectionWidget, Widget replacementWidget, boolean reconnectingSource) {
             Object object = findObject (replacementWidget);
             replacementNode = isNode (object) ? (String) object : null;
             if (replacementNode != null)
