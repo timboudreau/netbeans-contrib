@@ -205,10 +205,15 @@ public final class BuildConfiguration {
             try {
                 FileObject f = URLMapper.findFileObject(u.toURL());
                 
+                if (f == null) {
+                    //the file does not exist
+                    continue;
+                }
+                
                 inout.getOut().println("Going to delete: " + FileUtil.getFileDisplayName(f));
                 
-//                    f.delete();
-            } catch (MalformedURLException e) {
+                f.delete();
+            } catch (IOException e) {
                 ErrorManager.getDefault().notify(e);
             }
         }
