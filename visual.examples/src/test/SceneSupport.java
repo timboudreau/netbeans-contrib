@@ -24,7 +24,7 @@ import java.awt.*;
 public class SceneSupport {
 
     public static void show (final Scene scene) {
-        JComponent sceneView = scene.getComponent ();
+        JComponent sceneView = scene.getView ();
         if (sceneView == null)
             sceneView = scene.createView ();
         show (sceneView);
