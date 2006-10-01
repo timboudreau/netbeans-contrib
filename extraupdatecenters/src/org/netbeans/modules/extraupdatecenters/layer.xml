@@ -25,7 +25,13 @@ Microsystems, Inc. All Rights Reserved.
       <file name="maven.settings" url="maven.settings">
         <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.extraupdatecenters.Bundle"/>
         <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/updatecenters/resources/updateAction.gif"/>
-    <attr name="url_key" stringvalue="MavenURL"/>
+        <attr name="url_key" stringvalue="MavenURL"/>
+        <attr name="enabled" boolvalue="true"/>
+      </file>
+      <file name="maven2.settings" url="maven2.settings">
+        <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.extraupdatecenters.Bundle"/>
+        <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/updatecenters/resources/updateAction.gif"/>
+        <attr name="url_key" stringvalue="Maven2URL"/>
         <attr name="enabled" boolvalue="true"/>
       </file>
       <file name="sc.settings" url="sc.settings">
