@@ -32,7 +32,7 @@ import java.awt.*;
  */
 public class SwingBorderTest {
 
-    private static org.netbeans.api.visual.border.Border BORDER_SHADOW_NORMAL = BorderFactory.createImageBorder (new Insets (6, 6, 6, 6), Utilities.loadImage ("org/netbeans/modules/visual/resources/border/shadow_normal.png")); // NOI18N
+    private static org.netbeans.api.visual.border.Border BORDER_SHADOW_NORMAL = BorderFactory.createImageBorder (new Insets (6, 6, 6, 6), Utilities.loadImage ("../resources/shadow_normal.png")); // NOI18N
 
     public static void main (String[] args) {
         Scene scene = new Scene ();
