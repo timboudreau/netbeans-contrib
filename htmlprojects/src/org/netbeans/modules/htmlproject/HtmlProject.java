@@ -146,14 +146,13 @@ public class HtmlProject implements Project, ProjectInformation, LogicalViewProv
             if (parentProjectDisplayName == null) {
                 findParentProject();
             }
-            if (!"".equals(parentProjectDisplayName)) {
-                if (parentProjectDisplayName != null) {
-                    result = parentProjectDisplayName + " Web Site";
-                } else {
-                    result = dir.getName();
-                }
+            if (parentProjectDisplayName != null && parentProjectDisplayName.length() > 0) {
+                result = parentProjectDisplayName + " Web Site";
             } else {
                 result = dir.getName();
+                if (result.equals("www")) {
+                    // XXX look up title of any index.html and use that instead?
+                }
             }
         }
         return result;
