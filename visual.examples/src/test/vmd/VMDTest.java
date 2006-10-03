@@ -29,8 +29,8 @@ import java.util.HashMap;
  */
 public class VMDTest {
 
-    private static final Image IMAGE_LIST = Utilities.loadImage ("test/resources/list_32.png"); // NOI18N
-    private static final Image IMAGE_CANVAS = Utilities.loadImage ("test/resources/custom_displayable_32.png"); // NOI18N
+    private static final Image IMAGE_LIST = Utilities.loadImage ("test/resources/list_16.png"); // NOI18N
+    private static final Image IMAGE_CANVAS = Utilities.loadImage ("test/resources/custom_displayable_16.png"); // NOI18N
     private static final Image IMAGE_COMMAND = Utilities.loadImage ("test/resources/command_16.png"); // NOI18N
     private static final Image IMAGE_ITEM = Utilities.loadImage ("test/resources/item_16.png"); // NOI18N
     private static final Image GLYPH_PRE_CODE = Utilities.loadImage ("test/resources/preCodeGlyph.png"); // NOI18N
