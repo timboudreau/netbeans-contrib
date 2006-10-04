@@ -19,299 +19,168 @@
 
 package org.netbeans.modules.lexer.editorbridge.calc.lang;
 
-import org.netbeans.api.lexer.Language;
-import org.netbeans.api.lexer.Lexer;
-import org.netbeans.api.lexer.LexerInput;
-import org.netbeans.api.lexer.TokenId;
+import java.util.HashMap;
+import java.util.Map;
+import org.netbeans.api.lexer.InputAttributes;
+import org.netbeans.api.lexer.LanguagePath;
 import org.netbeans.api.lexer.Token;
-import org.netbeans.spi.lexer.AbstractLexer;
-import org.netbeans.spi.lexer.javacc.LexerInputCharStream;
-import org.netbeans.spi.lexer.javacc.TokenMgrError;
-import org.netbeans.spi.lexer.util.IntegerCache;
+import org.netbeans.spi.lexer.Lexer;
+import org.netbeans.spi.lexer.LexerInput;
+import org.netbeans.spi.lexer.TokenFactory;
+
 
 /**
- * Wrapper around javacc's generated token manager.
- * <BR>Please read <A href="http://lexer.netbeans.org/doc/javacc.html">
- * to get additional information related to this source.
- * 
- * <P>Most of the tokens
- * returned from the token manager are just accepted and passed on 
- * but several token types are created by assembling several tokens into one
- * extended token.
- * <br>For example block comment is assembled by first recognizing initial
- * slash-star as a tokenmanager's token and then recognizing the rest of the comment.
- * <BR>Error tokens are recognized as single characters by tokenmanagers
- * and assembled together by CalcLexer so that they form just one extended
- * token rather than many single-char successive error tokens.
+ * Lexer for the Calc Language.
  *
  * @author Miloslav Metelka
  * @version 1.00
  */
 
-final class CalcLexer extends AbstractLexer {
+public final class CalcLexer implements Lexer<CalcTokenId> {
 
-    private static final CalcLanguage language = CalcLanguage.get();
-    
-    private static final Integer[] integerStates = IntegerCache.getTable(CalcLanguage.MAX_STATE);
-    
-    private CalcTokenManager tokenManager;
-    
-    private LexerInputCharStream charStream;
+    private static final int EOF = LexerInput.EOF;
 
-    private LexerInput lexerInput;
-    
-    public CalcLexer() {
-        this.charStream = new LexerInputCharStream();
-        this.tokenManager = new CalcTokenManager(charStream);
+    private static final Map<String,CalcTokenId> keywords = new HashMap<String,CalcTokenId>();
+    static {
+        keywords.put(CalcTokenId.E.fixedText(), CalcTokenId.E);
+        keywords.put(CalcTokenId.PI.fixedText(), CalcTokenId.PI);
     }
     
-    public Object getLexerState() {
-        int s = tokenManager.curLexState;
-        // Default state is returned as null others like Integer instances
-        return (s == tokenManager.defaultLexState)
-            ? null
-            : integerStates[s];
-            
-        /* BTW in this particular case (with this Calc grammar
-         * and this CalcLexer) there could be just
-         *     return null;
-         * Although there are some extra tokenmanager's states
-         * (e.g. when tokenmanager recognizes slash-star
-         * in the block-comment and goes into non-default internal state)
-         * all those subtokens (after which
-         * the tokenmanager goes into non-deafult state)
-         * are immediately merged with the subtoken(s)
-         * that follow them and after these subtokens the tokenmanager
-         * is always in default state again. As the lexer framework
-         * only asks the lexer for its state at token boundaries
-         * (not on tokenmanager's subtoken boundaries) it would be fine
-         * to return null.
-         */
-    }
+    private LexerInput input;
+    
+    private TokenFactory<CalcTokenId> tokenFactory;
 
-    public void restart(LexerInput input, Object state) {
-        super.restart(input, state);
-
-        this.lexerInput = input;
-        /* It's necessary to update the lexerInput
-         * in the charStream that the tokenManager uses.
-         * The LexerInputCharStream is a wrapper
-         * around lexerInput to look like CharStream.
-         */
-        charStream.setLexerInput(lexerInput);
-
-        // Reinit the tokenManager so that it acts like a fresh instance
-        tokenManager.ReInit(charStream,
-            (state != null) // see getState() to info about which states can be returned
-                ? ((Integer)state).intValue() // non-default state
-                : tokenManager.defaultLexState // default state
-        );
+    CalcLexer(LexerInput input, TokenFactory<CalcTokenId> tokenFactory, Object state,
+    LanguagePath languagePath, InputAttributes inputAttributes) {
+        this.input = input;
+        this.tokenFactory = tokenFactory;
+        assert (state == null); // passed argument always null
     }
     
-    protected final LexerInput getLexerInput() { // this method is necessary for AbstractLexer
-        return lexerInput;
-    }
-    
-    protected final Language getLanguage() { // this method is necessary for AbstractLexer
-        return language;
-    }
+    public Token<CalcTokenId> nextToken() {
+        while (true) {
+            int ch = input.read();
+            switch (ch) {
+                case '+':
+                    return token(CalcTokenId.PLUS);
 
+                case '-':
+                    return token(CalcTokenId.MINUS);
 
-    /**
-     * Fetch next token from underlying javacc tokenmanager.
-     * <BR>The intId of the token that was found can be set
-     * into the given tokenData parameter
-     * by <CODE>TokenData.setTokenIntId()</CODE> in case there was
-     * a valid token found.
-     * <P>Token length of the fetched token can be set into tokenData
-     * by <CODE>TokenData.setTokenLength()</CODE>.
-     * If the token intId or length is not assigned in <CODE>fetchToken()</CODE>
-     * it must be assigned later during either
-     * {@link #ordinaryToken(OrdinaryTokenData)}
-     * or {@link #extendedToken(ExtendedTokenData)} depending
-     * which of these two gets called.
-     * @param tokenData mutable info about the token being fetched.
-     * @return true if a valid token was found or false
-     *  if there are no more tokens on the input (in which case a call
-     *  to <CODE>TokenData.setTokenIntId()</CODE> is not necessary).
-     */
-    protected boolean fetchToken(TokenData tokenData) {
-        try {
-            // Get javacc token from tokenmanager
-            org.netbeans.spi.lexer.javacc.Token javaccToken = tokenManager.getNextToken();
-            if (javaccToken != null) {
-                int tokenKind = javaccToken.kind;
-                tokenData.setTokenIntId(tokenKind);
-                tokenData.setTokenLength(tokenData.getDefaultTokenLength());
-                return (tokenKind != CalcConstants.EOF); // EOF presents no characters
-                
-            } else { // javaccToken is null
-                return false;  // no more tokens from tokenManager
-            }
-                
-        } catch (TokenMgrError e) {
-            if (e.getErrorCode() == TokenMgrError.LEXICAL_ERROR) {
-                /* Input that could not be recognized.
-                 * According to the Calc grammar this should
-                 * only occur if there are incomplete
-                 * multi-line-comment or string tokens
-                 * at the end of the input.
-                 * Signal artificial EOF as intId.
-                 */
-                tokenData.setTokenIntId(CalcConstants.EOF);
-                tokenData.setTokenLength(tokenData.getTextLookahead());
-                return true; // there are chars -> valid token exists
-                
-            } else { // other reason for the error
-                throw e;
+                case '*':
+                    return token(CalcTokenId.STAR);
+
+                case '/':
+                    switch (input.read()) {
+                        case '/': // in single-line comment
+                            while (true)
+                                switch (input.read()) {
+                                    case '\r': input.consumeNewline();
+                                    case '\n':
+                                    case EOF:
+                                        return token(CalcTokenId.SL_COMMENT);
+                                }
+                        case '*': // in multi-line comment
+                            while (true) {
+                                ch = input.read();
+                                while (ch == '*') {
+                                    ch = input.read();
+                                    if (ch == '/')
+                                        return token(CalcTokenId.ML_COMMENT);
+                                    else if (ch == EOF)
+                                        return token(CalcTokenId.ML_COMMENT_INCOMPLETE);
+                                }
+                                if (ch == EOF)
+                                    return token(CalcTokenId.ML_COMMENT_INCOMPLETE);
+                            }
+                    } // end of switch()
+                    input.backup(1);
+                    return token(CalcTokenId.SLASH);
+
+                case '(':
+                    return token(CalcTokenId.LPAREN);
+
+                case ')':
+                    return token(CalcTokenId.RPAREN);
+
+                case '0': case '1': case '2': case '3': case '4':
+                case '5': case '6': case '7': case '8': case '9':
+                case '.':
+                    return finishIntOrFloatLiteral(ch);
+
+                case EOF:
+                    return null;
+
+                default:
+                    if (Character.isWhitespace((char)ch)) {
+                        ch = input.read();
+                        while (ch != EOF && Character.isWhitespace((char)ch)) {
+                            ch = input.read();
+                        }
+                        input.backup(1);
+                        return token(CalcTokenId.WHITESPACE);
+                    }
+
+                    if (Character.isLetter((char)ch)) { // identifier or keyword
+                        while (true) {
+                            if (ch == EOF || !Character.isLetter((char)ch)) {
+                                input.backup(1); // backup the extra char (or EOF)
+                                // Check for keywords
+                                CalcTokenId id = keywords.get(input.readText());
+                                if (id == null) {
+                                    id = CalcTokenId.IDENTIFIER;
+                                }
+                                return token(id);
+                            }
+                            ch = input.read(); // read next char
+                        }
+                    }
+
+                    return token(CalcTokenId.ERROR);
             }
         }
     }
 
+    public Object state() {
+        return null;
+    }
 
-    /**
-     * Called after a token was successfully fetched
-     * by {@link #fetchToken(TokenData)} to possibly
-     * start an extended token mode
-     * by {@link OrdinaryTokenData#startExtendedToken()}
-     * <P>When extended token mode is started
-     * the {@link #extendedToken(ExtendedTokenData, boolean)}
-     * is called after each future {@link #fetchToken(TokenData) instead
-     * of <CODE>ordinaryToken()</CODE> (that would be called
-     * in non-extended mode by default).
-     * @param tokenData mutable info holding information
-     *  about previously fetched token.
-     * @see OrdinaryTokenData
-     */
-    protected void ordinaryToken(OrdinaryTokenData tokenData) {
-
-        /*
-         * Start extended tokens for errors
-         * and multi-line-comments.
-         */
-        int tokenIntId = tokenData.getTokenIntId();
-        switch (tokenIntId) { // check for types that start extended token
-            case CalcConstants.ERROR:
-                /* All errors which are recognized as single chars
-                 * by tokenManager will be concatenated together.
-                 */
-                tokenData.startExtendedToken();
-                break;
-
-            case CalcConstants.INCOMPLETE_ML_COMMENT: // "/*" was found by tokenManager
-                /* Multi-line-comment token is recognized by first matching "/*"
-                 * by tokenManager. TokenManager then goes into an extra state
-                 * in which it recognizes all the chars up to star-slash including.
-                 * The recognized token forms the rest of the multi-line-comment
-                 * token then. Both tokens from tokenManager are concatenated
-                 * into a single extended token and returned from nextToken()
-                 * implementation in <CODE>AbstractLexer</CODE>.
-                 * Here the extended token is started. The rest of the matching
-                 * is in extendedToken().
-                 * Here it's possible that the tokenManager throws
-                 * lexical error if it finds end-of-input before
-                 * matching the closing star-slash.
-                 */
-                tokenData.startExtendedToken();
-                break;
+    private Token<CalcTokenId> finishIntOrFloatLiteral(int ch) {
+        boolean floatLiteral = false;
+        boolean inExponent = false;
+        while (true) {
+            switch (ch) {
+                case '.':
+                    if (floatLiteral) {
+                        return token(CalcTokenId.FLOAT_LITERAL);
+                    } else {
+                        floatLiteral = true;
+                    }
+                    break;
+                case '0': case '1': case '2': case '3': case '4':
+                case '5': case '6': case '7': case '8': case '9':
+                    break;
+                case 'e': case 'E': // exponent part
+                    if (inExponent) {
+                        return token(CalcTokenId.FLOAT_LITERAL);
+                    } else {
+                        floatLiteral = true;
+                        inExponent = true;
+                    }
+                    break;
+                default:
+                    input.backup(1);
+                    return token(floatLiteral ? CalcTokenId.FLOAT_LITERAL
+                            : CalcTokenId.INT_LITERAL);
+            }
+            ch = input.read();
         }
-        
     }
     
-    /**
-     * Called in extended token mode after a token was successfully fetched
-     * by {@link #fetchToken(TokenData)} to possibly update
-     * the extended token identification or finish
-     * the extended token being put together.
-     *
-     * <P>Please note that the <CODE>extendedToken()</CODE> is not called
-     * after extended token mode gets started
-     * by <CODE>OrdinaryTokenData.startExtendedToken()</CODE>
-     * in <CODE>ordinaryToken()</CODE> until another <CODE>fetchToken()</CODE>
-     * is done. The sequence is:<pre>
-     *   fetchToken()
-     *   ordinaryToken() -> possibly startExtendedToken()
-     *   fetchToken()
-     *   extendedToken()
-     *   fetchToken()
-     *   extendedToken()
-     *   fetchToken()
-     *   extendedToken() -> possibly finishExtendedToken(true)
-     *   fetchToken()
-     *   ordinaryToken()
-     *   fetchToken()
-     *   ordinaryToken()
-     *   ...
-     * </pre>
-     *
-     * @param tokenData mutable compound info about the token
-     *  that was previously fetched and about the extended token
-     *  that is being put together.
-     * @param fetchedTokenExists true if the last fetched token
-     *  was valid i.e. the <CODE>fetchToken()</CODE> returned true.
-     *  False if there are no more tokens to fetch from the input.
-     *  <BR>If the parameter is false then this method
-     *  must mandatorily finish the extended token 
-     *  by calling <CODE>finishExtendedToken()</CODE>.
-     * @see ExtendedTokenData
-     */
-    protected void extendedToken(ExtendedTokenData tokenData,
-    boolean fetchedTokenExists) {
-        
-        int extendedTokenIntId = tokenData.getExtendedTokenIntId();
-        int tokenIntId = tokenData.getTokenIntId(); // fetched token id
-
-        switch (extendedTokenIntId) {
-            case CalcConstants.ERROR:
-                if (!fetchedTokenExists
-                    || tokenIntId != CalcConstants.ERROR
-                ) {
-                    /* The fetched token is not the error token
-                     * or there are no more tokens on the input.
-                     * Finish the extended token and exclude
-                     * the current token from it.
-                     */
-                    tokenData.finishExtendedToken(false);
-                }
-                break;
-
-            case CalcConstants.INCOMPLETE_ML_COMMENT:
-                /* Three possibilities exist:
-                 * 1) fetchedTokenExists == true && tokenIntId == CalcConstants.ML_COMMENT
-                 *    Lexer recognized end of the multi-line comment token
-                 *    and returned CalcConstants.ML_COMMENT.
-                 *
-                 *    In this case we change the extended token
-                 *    to be CalcConstants.ML_COMMENT.
-                 *
-                 * 2) fetchedTokenExists == true && tokenIntId == CalcConstants.EOF
-                 *    There was some additional text after "/*" but EOF was reached
-                 *    before matching the closing star-slash and therefore
-                 *    the token manager has thrown a lexical error wchich was catched in 
-                 *    the fetchToken() and reported as an artificial CalcConstants.EOF token.
-                 *    
-                 *    In this case we leave the extended token
-                 *    to be CalcConstants.INCOMPLETE_ML_COMMENT.
-                 *
-                 * 3) fetchedTokenExists == false
-                 *    There was just "/*" and no more characters after it (EOF was reached).
-                 *
-                 *    In this case we leave the extended token
-                 *    to be CalcConstants.INCOMPLETE_ML_COMMENT.
-                 */
-
-                if (fetchedTokenExists && tokenIntId == CalcConstants.ML_COMMENT) { // Token exists
-                    tokenData.updateExtendedTokenIntId(tokenIntId);
-                }
-                tokenData.finishExtendedToken(fetchedTokenExists);
-                break;
-
-            default: // there should be no other extended tokens supported
-                throw new IllegalStateException("Unsupported extended token");
-
-        }
-        
+    private Token<CalcTokenId> token(CalcTokenId id) {
+        return (id.fixedText() != null)
+            ? tokenFactory.getFlyweightToken(id, id.fixedText())
+            : tokenFactory.createToken(id);
     }
-
 
 }

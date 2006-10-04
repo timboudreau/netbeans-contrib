@@ -37,8 +37,8 @@ import org.openide.util.HelpCtx;
  */
 public class CalcDataObject extends MultiDataObject {
 
-    static final String ICON_BASE =
-        "org/netbeans/modules/lexer/editorbridge/calc/calcObject"; // NOI18N
+    static final String ICON =
+        "org/netbeans/modules/lexer/editorbridge/calc/resources/calcObject.png"; // NOI18N
 
     static final long serialVersionUID = 1L;
     

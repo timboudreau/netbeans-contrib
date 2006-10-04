@@ -50,9 +50,9 @@ public class CalcDataLoaderBeanInfo extends SimpleBeanInfo {
         if ((type == BeanInfo.ICON_COLOR_16x16) ||
             (type == BeanInfo.ICON_MONO_16x16)
         ) {
-	    return Utilities.loadImage("org/netbeans/modules/lexer/editorbridge/calc/calcLoader.gif"); // NOI18N
+	    return Utilities.loadImage("org/netbeans/modules/lexer/editorbridge/calc/resources/calcLoader.png"); // NOI18N
         } else {
-	    return Utilities.loadImage ("org/netbeans/modules/lexer/editorbridge/calc/calcLoader32.gif"); // NOI18N
+	    return Utilities.loadImage ("org/netbeans/modules/lexer/editorbridge/calc/resources/calcLoader32.png"); // NOI18N
         }
     }
 

@@ -45,11 +45,8 @@ import org.openide.actions.PropertiesAction;
 
 public class CalcDataLoader extends UniFileLoader {
 
-    /** Extension of calc files */
-    static final String CALC_EXTENSION = "calc"; // NOI18N
-
     /** Mime type assigned to calc files */
-    static final String CALC_MIME_TYPE = "text/x-calc"; // NOI18N
+    public static final String CALC_MIME_TYPE = "text/x-calc"; // NOI18N
 
     static final long serialVersionUID = 1L;
     
@@ -59,7 +56,7 @@ public class CalcDataLoader extends UniFileLoader {
 
     protected void initialize() {
         super.initialize();
-        getExtensions().addExtension(CALC_EXTENSION);
+        getExtensions().addMimeType(CALC_MIME_TYPE);
     }
 
     protected MultiDataObject createMultiObject(FileObject primaryFile)

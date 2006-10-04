@@ -19,6 +19,7 @@
 
 package org.netbeans.modules.lexer.editorbridge.calc;
 
+import javax.swing.Action;
 import org.openide.actions.OpenAction;
 import org.openide.loaders.DataNode;
 import org.openide.loaders.DataObject;
@@ -36,14 +37,11 @@ public class CalcDataNode extends DataNode {
     public CalcDataNode(DataObject dobj) {
         super(dobj, Children.LEAF);
 
-        setIconBase(CalcDataObject.ICON_BASE);
+        setIconBaseWithExtension(CalcDataObject.ICON);
     }
 
-    public SystemAction getDefaultAction() {
-        SystemAction result = super.getDefaultAction();
-        return (result == null)
-            ? SystemAction.get(OpenAction.class)
-            : result;
+    public Action getPreferredAction() {
+        return SystemAction.get(OpenAction.class);
     }
 
 }
