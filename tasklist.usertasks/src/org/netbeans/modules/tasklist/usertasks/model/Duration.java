@@ -10,7 +10,21 @@ public class Duration {
     public int weeks, days, hours, minutes;
     
     /**
-     * Splits a duration value. 
+     * Constructor.
+     * 
+     * @param minutes duration in minutes
+     * @param hoursPerDay working hours per day
+     * @param daysPerWeek working days per week
+     */
+    public Duration(int weeks, int days, int hours, int minutes) {
+        this.weeks = weeks;
+        this.days = days;
+        this.hours = hours;
+        this.minutes = minutes;
+    }
+    
+    /**
+     * Constructor. 
      * 
      * @param minutes duration in minutes
      * @param hoursPerDay working hours per day

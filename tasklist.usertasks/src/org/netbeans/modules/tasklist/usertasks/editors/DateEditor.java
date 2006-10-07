@@ -24,7 +24,6 @@
 
 package org.netbeans.modules.tasklist.usertasks.editors;
 
-import java.text.MessageFormat;
 import java.util.Date;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -32,7 +31,6 @@ import java.awt.Component;
 import java.beans.FeatureDescriptor;
 import java.beans.PropertyEditorSupport;
 import org.netbeans.modules.tasklist.usertasks.DateSelectionPanel;
-import org.openide.ErrorManager;
 import org.openide.explorer.propertysheet.ExPropertyEditor;
 import org.openide.explorer.propertysheet.PropertyEnv;
 

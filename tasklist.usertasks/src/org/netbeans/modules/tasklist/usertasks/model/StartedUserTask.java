@@ -210,8 +210,8 @@ public class StartedUserTask {
                 if (task == null) {
                     throw new InternalError("no task is running"); // NOI18N
                 } else {
+                    task.setSpentTimeComputed(false);
                     started = task;
-                    started.setSpentTimeComputed(false);
                     startedAt = System.currentTimeMillis();
                     initialSpentTime = task.getSpentTime();
                     state = STATE_WORKING;

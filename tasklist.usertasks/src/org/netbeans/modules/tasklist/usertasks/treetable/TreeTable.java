@@ -747,7 +747,7 @@ public class TreeTable extends JTable {
     }
 
     /*
-     *TODO: remove. For profiling only.
+     * For profiling only.
      *
     public void paint(Graphics g) {
         super.paint(g);

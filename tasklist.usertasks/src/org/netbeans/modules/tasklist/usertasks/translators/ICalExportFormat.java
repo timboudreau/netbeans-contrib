@@ -52,6 +52,7 @@ import net.fortuna.ical4j.model.property.Categories;
 import net.fortuna.ical4j.model.property.Completed;
 import net.fortuna.ical4j.model.property.Created;
 import net.fortuna.ical4j.model.property.Description;
+import net.fortuna.ical4j.model.property.DtStamp;
 import net.fortuna.ical4j.model.property.DtStart;
 import net.fortuna.ical4j.model.property.LastModified;
 import net.fortuna.ical4j.model.property.PercentComplete;
@@ -340,6 +341,14 @@ public class ICalExportFormat implements ExportImportFormat {
         ((Created) prop).setDate(dt);
         prop.validate();
             
+        // DTSTAMP
+        prop = pl.getProperty(Property.DTSTAMP);
+        if (prop == null) {
+            prop = new DtStamp();
+            pl.add(prop);
+        }
+        ((DtStamp) prop).setDate(dt);
+        
         prop = pl.getProperty(Property.DTSTART);
         if (task.getStart() != -1) {
             if (prop == null) {

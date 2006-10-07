@@ -20,6 +20,9 @@
 package org.netbeans.modules.tasklist.usertasks.util;
 
 import java.text.MessageFormat;
+import java.text.ParseException;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import org.netbeans.modules.tasklist.usertasks.model.Duration;
 import org.openide.util.NbBundle;
 
@@ -37,6 +40,7 @@ public class DurationFormat {
     public enum Type {SHORT, LONG};
 
     private MessageFormat format;
+    private Pattern parsePattern;
     private Type type;
 
     /**
@@ -47,14 +51,59 @@ public class DurationFormat {
     public DurationFormat(Type type) {
         this.type = type;
         String s;
-        if (type == Type.LONG)
+        if (type == Type.LONG) {
             s = NbBundle.getMessage(DurationFormat.class, 
                 "DurationFormat"); // NOI18N
-        else
+            parsePattern = Pattern.compile(
+                    NbBundle.getMessage(DurationFormat.class, 
+                    "DurationParseFormat")); // NOI18N;
+        } else {
             s = NbBundle.getMessage(DurationFormat.class, 
                 "DurationShortFormat"); // NOI18N
-        if (s.length() != 0)
+            String pp = NbBundle.getMessage(DurationFormat.class, 
+                    "DurationShortParseFormat"); // NOI18N
+            parsePattern = Pattern.compile(pp); // NOI18N;
+        }
+
+        if (s.trim().length() != 0)
             format = new MessageFormat(s);
+    }
+    
+    /**
+     * Parses duration.
+     * The method may not use the entire text of the given string.
+     *
+     * @param source A <code>String</code> whose beginning should be parsed.
+     * @return parsed duration
+     * @exception ParseException if the beginning of the specified string
+     *            cannot be parsed.
+     */
+    public Duration parse(String source) throws ParseException {
+        Matcher matcher = parsePattern.matcher(source);
+        if (!matcher.matches())
+            throw new ParseException(source, 0);
+        if (matcher.groupCount() != 4) {
+            // System.out.println("" + matcher.groupCount());
+            throw new ParseException(source, 0);
+        }
+        try {
+            //System.out.println(matcher.group(1) + " " + 
+            //        matcher.group(2) + " " + 
+            //        matcher.group(3) + " " + 
+            //        matcher.group(4));
+            String ws = matcher.group(1);
+            String ds = matcher.group(2);
+            String hs = matcher.group(3);
+            String ms = matcher.group(4);
+            int w = ws == null ? 0 : Integer.parseInt(ws);
+            int d = ds == null ? 0 : Integer.parseInt(ds);
+            int h = hs == null ? 0 : Integer.parseInt(hs);
+            int m = ms == null ? 0 : Integer.parseInt(ms);
+            // System.out.println(w + " " + d + " " + h + " " + m);
+            return new Duration(w, d, h, m);
+        } catch (NumberFormatException e) {
+            throw new ParseException(source, 0); // NOI18N
+        }
     }
     
     /**
@@ -132,14 +181,18 @@ public class DurationFormat {
                     sb.append(' ').append(d.days).append("d");
                     break;
             }
-            sb.append(' ');
-            if (d.hours < 10)
-                sb.append('0');
-            sb.append(d.hours);
-            sb.append(':');
-            if (d.minutes < 10)
-                sb.append('0');
-            sb.append(d.minutes);
+            
+            if (d.hours != 0 || d.minutes != 0) {
+                sb.append(' ');
+                if (d.hours < 10)
+                    sb.append('0');
+                sb.append(d.hours);
+                sb.append(':');
+                if (d.minutes < 10)
+                    sb.append('0');
+                sb.append(d.minutes);
+            }
+            
             if (sb.length() > 0 && sb.charAt(0) == ' ') 
                 sb.delete(0, 1);
             return sb.toString();

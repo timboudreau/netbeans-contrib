@@ -172,9 +172,13 @@ public class EditTaskPanel extends JPanel implements ActionListener {
         jPanelDependencies.add(dp, BorderLayout.CENTER);
         
         Dimension d = jDateChooserDue.getPreferredSize();
-        d.width = 150;
+        d.width = 120;
         jDateChooserDue.setPreferredSize(d);
         jDateChooserStart.setPreferredSize(d);
+        
+        d = jComboBoxProgress.getPreferredSize();
+        d.width = 50;
+        jComboBoxProgress.setPreferredSize(d);
     }
     
     public void addNotify() {
@@ -362,9 +366,8 @@ public class EditTaskPanel extends JPanel implements ActionListener {
      * @return due date
      */
     private Date getDueDate() {
-        Date ret;
-        if (dueCheckBox.isSelected()) {
-            ret = jDateChooserDue.getDate();
+        Date ret = jDateChooserDue.getDate();
+        if (ret != null) {
             Calendar c = Calendar.getInstance();
             c.setTime(ret);
             c.set(Calendar.HOUR_OF_DAY, 0);
@@ -372,8 +375,6 @@ public class EditTaskPanel extends JPanel implements ActionListener {
             c.set(Calendar.SECOND, 0);
             c.set(Calendar.MILLISECOND, 0);
             ret = c.getTime();
-        } else {
-            ret = null;
         }
         return ret;
     }
@@ -385,7 +386,7 @@ public class EditTaskPanel extends JPanel implements ActionListener {
      */
     private long getStart() {
         long ret;
-        if (jCheckBoxStart.isSelected()) {
+        if (jDateChooserStart.getDate() != null) {
             ret = jDateChooserStart.getDate().getTime();
             Calendar c = Calendar.getInstance();
             c.setTimeInMillis(ret);
@@ -416,15 +417,7 @@ public class EditTaskPanel extends JPanel implements ActionListener {
      * @param d the due date
      */
     private void setDueDate(Date d) {
-        if (d != null) {
-            jDateChooserDue.setDate(d);
-            dueCheckBox.setSelected(true);
-            enableDueChooser(true);
-        } else {
-            jDateChooserDue.setDate(new Date());
-            dueCheckBox.setSelected(false);
-            enableDueChooser(false);
-        }
+        jDateChooserDue.setDate(d);
     }
     
     /**
@@ -435,12 +428,8 @@ public class EditTaskPanel extends JPanel implements ActionListener {
     private void setStart(long d) {
         if (d != -1) {
             jDateChooserStart.setDate(new Date(d));
-            jCheckBoxStart.setSelected(true);
-            enableStartChooser(true);
         } else {
-            jDateChooserStart.setDate(new Date());
-            jCheckBoxStart.setSelected(false);
-            enableStartChooser(false);
+            jDateChooserStart.setDate(null);
         }
     }
     
@@ -523,12 +512,7 @@ public class EditTaskPanel extends JPanel implements ActionListener {
         jLabel1 = new javax.swing.JLabel();
         jComboBoxOwner = new javax.swing.JComboBox();
         jPanel3 = new javax.swing.JPanel();
-        dueCheckBox = new javax.swing.JCheckBox();
         jPanel1 = new javax.swing.JPanel();
-        jLabel6 = new javax.swing.JLabel();
-        jLabel5 = new javax.swing.JLabel();
-        jLabelLastEdited = new javax.swing.JLabel();
-        jLabelCreated = new javax.swing.JLabel();
         jPanel4 = new javax.swing.JPanel();
         jRadioButtonComputeEffort = new javax.swing.JRadioButton();
         jRadioButtonEffort = new javax.swing.JRadioButton();
@@ -542,11 +526,18 @@ public class EditTaskPanel extends JPanel implements ActionListener {
         jRadioButtonComputeSpent = new javax.swing.JRadioButton();
         jRadioButtonSpent = new javax.swing.JRadioButton();
         durationPanelSpent = new org.netbeans.modules.tasklist.usertasks.DurationPanel();
-        jLabel2 = new javax.swing.JLabel();
-        jLabelCompleted = new javax.swing.JLabel();
+        jPanel9 = new javax.swing.JPanel();
         jDateChooserDue = new com.toedter.calendar.JDateChooser();
-        jCheckBoxStart = new javax.swing.JCheckBox();
         jDateChooserStart = new com.toedter.calendar.JDateChooser();
+        jLabel4 = new javax.swing.JLabel();
+        jLabel7 = new javax.swing.JLabel();
+        jPanel10 = new javax.swing.JPanel();
+        jLabelCreated = new javax.swing.JLabel();
+        jLabel5 = new javax.swing.JLabel();
+        jLabelCompleted = new javax.swing.JLabel();
+        jLabelLastEdited = new javax.swing.JLabel();
+        jLabel2 = new javax.swing.JLabel();
+        jLabel6 = new javax.swing.JLabel();
         jPanelDependencies = new javax.swing.JPanel();
         jPanel8 = new javax.swing.JPanel();
         jScrollPane1 = new javax.swing.JScrollPane();
@@ -554,15 +545,15 @@ public class EditTaskPanel extends JPanel implements ActionListener {
         jLabel3 = new javax.swing.JLabel();
         jLabelSpentTimeToday = new javax.swing.JLabel();
 
+        setPreferredSize(new java.awt.Dimension(400, 300));
         setLayout(new java.awt.BorderLayout());
 
-        setPreferredSize(new java.awt.Dimension(400, 300));
+        jPanelGeneral.setBorder(javax.swing.BorderFactory.createEmptyBorder(11, 11, 12, 12));
         jPanelGeneral.setLayout(new java.awt.GridBagLayout());
 
-        jPanelGeneral.setBorder(new javax.swing.border.EmptyBorder(new java.awt.Insets(11, 11, 12, 12)));
         descLabel.setLabelFor(descriptionTextField);
         /*
-        org.openide.awt.Mnemonics.setLocalizedText(descLabel, NbBundle.getMessage(EditTaskPanel.class, "Brief_Description")); // NOI18N);
+        org.openide.awt.Mnemonics.setLocalizedText(descLabel, NbBundle.getMessage(EditTaskPanel.class, "Brief_Description")); // NOI18N); // NOI18N
     */
     gridBagConstraints = new java.awt.GridBagConstraints();
     gridBagConstraints.gridx = 0;
@@ -591,7 +582,7 @@ public class EditTaskPanel extends JPanel implements ActionListener {
     gridBagConstraints.insets = new java.awt.Insets(11, 0, 0, 0);
     jPanelGeneral.add(detailsScrollPane, gridBagConstraints);
 
-    org.openide.awt.Mnemonics.setLocalizedText(addLabel, NbBundle.getMessage(EditTaskPanel.class, "AddTo")); // NOI18N();
+    org.openide.awt.Mnemonics.setLocalizedText(addLabel, NbBundle.getMessage(EditTaskPanel.class, "AddTo")); // NOI18N(); // NOI18N
     gridBagConstraints = new java.awt.GridBagConstraints();
     gridBagConstraints.gridx = 0;
     gridBagConstraints.gridy = 6;
@@ -601,7 +592,7 @@ public class EditTaskPanel extends JPanel implements ActionListener {
 
     addButtonGroup.add(beginningToggle);
     /*
-    org.openide.awt.Mnemonics.setLocalizedText(beginningToggle, NbBundle.getMessage(EditTaskPanel.class, "BeginningList")); // NOI18N();
+    org.openide.awt.Mnemonics.setLocalizedText(beginningToggle, NbBundle.getMessage(EditTaskPanel.class, "BeginningList")); // NOI18N(); // NOI18N
     */
     gridBagConstraints = new java.awt.GridBagConstraints();
     gridBagConstraints.gridx = 1;
@@ -612,7 +603,7 @@ public class EditTaskPanel extends JPanel implements ActionListener {
 
     detailsLabel.setLabelFor(detailsTextArea);
     /*
-    org.openide.awt.Mnemonics.setLocalizedText(detailsLabel, NbBundle.getMessage(EditTaskPanel.class, "DetailsLabel")); // NOI18N);
+    org.openide.awt.Mnemonics.setLocalizedText(detailsLabel, NbBundle.getMessage(EditTaskPanel.class, "DetailsLabel")); // NOI18N); // NOI18N
     */
     gridBagConstraints = new java.awt.GridBagConstraints();
     gridBagConstraints.gridx = 0;
@@ -623,7 +614,7 @@ public class EditTaskPanel extends JPanel implements ActionListener {
 
     addButtonGroup.add(endToggle);
     /*
-    org.openide.awt.Mnemonics.setLocalizedText(endToggle, NbBundle.getMessage(EditTaskPanel.class, "EndList")); // NOI18N();
+    org.openide.awt.Mnemonics.setLocalizedText(endToggle, NbBundle.getMessage(EditTaskPanel.class, "EndList")); // NOI18N(); // NOI18N
     */
     gridBagConstraints = new java.awt.GridBagConstraints();
     gridBagConstraints.gridx = 1;
@@ -631,7 +622,6 @@ public class EditTaskPanel extends JPanel implements ActionListener {
     gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
     gridBagConstraints.insets = new java.awt.Insets(0, 0, 0, 12);
     jPanelGeneral.add(endToggle, gridBagConstraints);
-
     gridBagConstraints = new java.awt.GridBagConstraints();
     gridBagConstraints.gridx = 1;
     gridBagConstraints.gridy = 0;
@@ -648,7 +638,6 @@ public class EditTaskPanel extends JPanel implements ActionListener {
             priorityComboBoxActionPerformed(evt);
         }
     });
-
     gridBagConstraints = new java.awt.GridBagConstraints();
     gridBagConstraints.gridx = 1;
     gridBagConstraints.gridy = 2;
@@ -658,15 +647,14 @@ public class EditTaskPanel extends JPanel implements ActionListener {
     jPanelGeneral.add(priorityComboBox, gridBagConstraints);
 
     /*
-    org.openide.awt.Mnemonics.setLocalizedText(fileCheckBox, NbBundle.getMessage(EditTaskPanel.class, "AssociatedFile")); // NOI18N);
+    org.openide.awt.Mnemonics.setLocalizedText(fileCheckBox, NbBundle.getMessage(EditTaskPanel.class, "AssociatedFile")); // NOI18N); // NOI18N
     */
-    fileCheckBox.setBorder(new javax.swing.border.EmptyBorder(new java.awt.Insets(0, 0, 0, 0)));
+    fileCheckBox.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
     fileCheckBox.addItemListener(new java.awt.event.ItemListener() {
         public void itemStateChanged(java.awt.event.ItemEvent evt) {
             fileCheckBoxItemStateChanged(evt);
         }
     });
-
     gridBagConstraints = new java.awt.GridBagConstraints();
     gridBagConstraints.gridx = 0;
     gridBagConstraints.gridy = 5;
@@ -676,7 +664,7 @@ public class EditTaskPanel extends JPanel implements ActionListener {
 
     categoryLabel.setLabelFor(categoryCombo);
     /*
-    org.openide.awt.Mnemonics.setLocalizedText(categoryLabel, NbBundle.getMessage(EditTaskPanel.class, "CategoryLabel")); // NOI18N);
+    org.openide.awt.Mnemonics.setLocalizedText(categoryLabel, NbBundle.getMessage(EditTaskPanel.class, "CategoryLabel")); // NOI18N); // NOI18N
     */
     gridBagConstraints = new java.awt.GridBagConstraints();
     gridBagConstraints.gridx = 0;
@@ -709,7 +697,7 @@ public class EditTaskPanel extends JPanel implements ActionListener {
 
     lineLabel.setLabelFor(lineTextField);
     /*
-    org.openide.awt.Mnemonics.setLocalizedText(lineLabel, NbBundle.getMessage(EditTaskPanel.class, "LineLabel")); // NOI18N);
+    org.openide.awt.Mnemonics.setLocalizedText(lineLabel, NbBundle.getMessage(EditTaskPanel.class, "LineLabel")); // NOI18N); // NOI18N
     */
     gridBagConstraints = new java.awt.GridBagConstraints();
     gridBagConstraints.gridx = 2;
@@ -728,7 +716,7 @@ public class EditTaskPanel extends JPanel implements ActionListener {
     jPanelGeneral.add(jPanel2, gridBagConstraints);
 
     /*
-    org.openide.awt.Mnemonics.setLocalizedText(addSourceButton, NbBundle.getMessage(EditTaskPanel.class, "AddToSource")); // NOI18N();
+    org.openide.awt.Mnemonics.setLocalizedText(addSourceButton, NbBundle.getMessage(EditTaskPanel.class, "AddToSource")); // NOI18N(); // NOI18N
     */
     gridBagConstraints = new java.awt.GridBagConstraints();
     gridBagConstraints.gridx = 1;
@@ -742,7 +730,7 @@ public class EditTaskPanel extends JPanel implements ActionListener {
 
     prioLabel.setLabelFor(priorityComboBox);
     /*
-    org.openide.awt.Mnemonics.setLocalizedText(prioLabel, NbBundle.getMessage(EditTaskPanel.class, "PriorityLabel")); // NOI18N);
+    org.openide.awt.Mnemonics.setLocalizedText(prioLabel, NbBundle.getMessage(EditTaskPanel.class, "PriorityLabel")); // NOI18N); // NOI18N
     */
     gridBagConstraints = new java.awt.GridBagConstraints();
     gridBagConstraints.gridx = 0;
@@ -751,7 +739,7 @@ public class EditTaskPanel extends JPanel implements ActionListener {
     gridBagConstraints.insets = new java.awt.Insets(11, 0, 0, 12);
     jPanelGeneral.add(prioLabel, gridBagConstraints);
 
-    org.openide.awt.Mnemonics.setLocalizedText(jLabel1, org.openide.util.NbBundle.getBundle(EditTaskPanel.class).getString("OwnerLabel"));
+    org.openide.awt.Mnemonics.setLocalizedText(jLabel1, org.openide.util.NbBundle.getBundle(EditTaskPanel.class).getString("OwnerLabel")); // NOI18N
     gridBagConstraints = new java.awt.GridBagConstraints();
     gridBagConstraints.gridx = 0;
     gridBagConstraints.gridy = 4;
@@ -767,30 +755,13 @@ public class EditTaskPanel extends JPanel implements ActionListener {
     gridBagConstraints.insets = new java.awt.Insets(11, 0, 0, 0);
     jPanelGeneral.add(jComboBoxOwner, gridBagConstraints);
 
-    jTabbedPane.addTab(org.openide.util.NbBundle.getMessage(EditTaskPanel.class, "General"), jPanelGeneral);
+    jTabbedPane.addTab(org.openide.util.NbBundle.getMessage(EditTaskPanel.class, "General"), jPanelGeneral); // NOI18N
 
+    jPanel3.setBorder(javax.swing.BorderFactory.createEmptyBorder(11, 11, 12, 12));
     jPanel3.setLayout(new java.awt.GridBagLayout());
-
-    jPanel3.setBorder(new javax.swing.border.EmptyBorder(new java.awt.Insets(11, 11, 12, 12)));
-    /*
-    org.openide.awt.Mnemonics.setLocalizedText(dueCheckBox, NbBundle.getMessage(EditTaskPanel.class, "DueDateCb")); // NOI18N();
-    */
-    dueCheckBox.addItemListener(new java.awt.event.ItemListener() {
-        public void itemStateChanged(java.awt.event.ItemEvent evt) {
-            dueCheckBoxItemStateChanged(evt);
-        }
-    });
-
-    gridBagConstraints = new java.awt.GridBagConstraints();
-    gridBagConstraints.gridx = 0;
-    gridBagConstraints.gridy = 1;
-    gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
-    gridBagConstraints.insets = new java.awt.Insets(11, 0, 0, 12);
-    jPanel3.add(dueCheckBox, gridBagConstraints);
-
     gridBagConstraints = new java.awt.GridBagConstraints();
     gridBagConstraints.gridx = 3;
-    gridBagConstraints.gridy = 8;
+    gridBagConstraints.gridy = 6;
     gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
     gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
     gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
@@ -798,55 +769,24 @@ public class EditTaskPanel extends JPanel implements ActionListener {
     gridBagConstraints.weighty = 1.0;
     jPanel3.add(jPanel1, gridBagConstraints);
 
-    org.openide.awt.Mnemonics.setLocalizedText(jLabel6, org.openide.util.NbBundle.getMessage(EditTaskPanel.class, "LastEditedLabel")); // NOI18N);
-    gridBagConstraints = new java.awt.GridBagConstraints();
-    gridBagConstraints.gridx = 0;
-    gridBagConstraints.gridy = 5;
-    gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
-    gridBagConstraints.insets = new java.awt.Insets(11, 0, 0, 12);
-    jPanel3.add(jLabel6, gridBagConstraints);
-
-    org.openide.awt.Mnemonics.setLocalizedText(jLabel5, org.openide.util.NbBundle.getMessage(EditTaskPanel.class, "CreatedLabel")); // NOI18N);
-    gridBagConstraints = new java.awt.GridBagConstraints();
-    gridBagConstraints.gridx = 0;
-    gridBagConstraints.gridy = 6;
-    gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
-    gridBagConstraints.insets = new java.awt.Insets(11, 0, 0, 12);
-    jPanel3.add(jLabel5, gridBagConstraints);
-
-    gridBagConstraints = new java.awt.GridBagConstraints();
-    gridBagConstraints.gridx = 1;
-    gridBagConstraints.gridy = 5;
-    gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
-    gridBagConstraints.insets = new java.awt.Insets(11, 0, 0, 12);
-    jPanel3.add(jLabelLastEdited, gridBagConstraints);
-
-    gridBagConstraints = new java.awt.GridBagConstraints();
-    gridBagConstraints.gridx = 1;
-    gridBagConstraints.gridy = 6;
-    gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
-    gridBagConstraints.insets = new java.awt.Insets(11, 0, 0, 12);
-    jPanel3.add(jLabelCreated, gridBagConstraints);
-
+    jPanel4.setBorder(javax.swing.BorderFactory.createTitledBorder(org.openide.util.NbBundle.getMessage(EditTaskPanel.class, "Effort"))); // NOI18N
     jPanel4.setLayout(new java.awt.GridBagLayout());
 
-    jPanel4.setBorder(new javax.swing.border.TitledBorder(org.openide.util.NbBundle.getMessage(EditTaskPanel.class, "Effort")));
     effortButtonGroup.add(jRadioButtonComputeEffort);
     jRadioButtonComputeEffort.setSelected(true);
-    org.openide.awt.Mnemonics.setLocalizedText(jRadioButtonComputeEffort, org.openide.util.NbBundle.getMessage(EditTaskPanel.class, "ComputeEffortAutomatically"));
+    org.openide.awt.Mnemonics.setLocalizedText(jRadioButtonComputeEffort, org.openide.util.NbBundle.getMessage(EditTaskPanel.class, "ComputeEffortAutomatically")); // NOI18N
     gridBagConstraints = new java.awt.GridBagConstraints();
     gridBagConstraints.gridwidth = 2;
     gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
     jPanel4.add(jRadioButtonComputeEffort, gridBagConstraints);
 
     effortButtonGroup.add(jRadioButtonEffort);
-    org.openide.awt.Mnemonics.setLocalizedText(jRadioButtonEffort, org.openide.util.NbBundle.getMessage(EditTaskPanel.class, "UseThisValue"));
+    org.openide.awt.Mnemonics.setLocalizedText(jRadioButtonEffort, org.openide.util.NbBundle.getMessage(EditTaskPanel.class, "UseThisValue")); // NOI18N
     jRadioButtonEffort.addItemListener(new java.awt.event.ItemListener() {
         public void itemStateChanged(java.awt.event.ItemEvent evt) {
             jRadioButtonEffortItemStateChanged(evt);
         }
     });
-
     gridBagConstraints = new java.awt.GridBagConstraints();
     gridBagConstraints.gridx = 0;
     gridBagConstraints.gridy = 1;
@@ -855,12 +795,9 @@ public class EditTaskPanel extends JPanel implements ActionListener {
     jPanel4.add(jRadioButtonEffort, gridBagConstraints);
 
     jPanelEffort.setLayout(new java.awt.BorderLayout());
-
     gridBagConstraints = new java.awt.GridBagConstraints();
     gridBagConstraints.gridx = 1;
     gridBagConstraints.gridy = 1;
-    gridBagConstraints.gridheight = 2;
-    gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
     gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
     gridBagConstraints.weightx = 1.0;
     jPanel4.add(jPanelEffort, gridBagConstraints);
@@ -874,12 +811,11 @@ public class EditTaskPanel extends JPanel implements ActionListener {
     gridBagConstraints.insets = new java.awt.Insets(11, 0, 0, 12);
     jPanel3.add(jPanel4, gridBagConstraints);
 
+    jPanel5.setBorder(javax.swing.BorderFactory.createTitledBorder(org.openide.util.NbBundle.getMessage(EditTaskPanel.class, "Progress"))); // NOI18N
     jPanel5.setLayout(new java.awt.GridBagLayout());
 
-    jPanel5.setBorder(new javax.swing.border.TitledBorder(org.openide.util.NbBundle.getMessage(EditTaskPanel.class, "Progress")));
     jComboBoxProgress.setEditable(true);
     jComboBoxProgress.setInputVerifier(new PercentsInputVerifier());
-    jComboBoxProgress.setMinimumSize(new java.awt.Dimension(60, 21));
     gridBagConstraints = new java.awt.GridBagConstraints();
     gridBagConstraints.gridx = 1;
     gridBagConstraints.gridy = 1;
@@ -888,20 +824,19 @@ public class EditTaskPanel extends JPanel implements ActionListener {
 
     buttonGroupProgress.add(jRadioButtonComputeProgress);
     jRadioButtonComputeProgress.setSelected(true);
-    org.openide.awt.Mnemonics.setLocalizedText(jRadioButtonComputeProgress, org.openide.util.NbBundle.getMessage(EditTaskPanel.class, "ComputeProgressAutomatically"));
+    org.openide.awt.Mnemonics.setLocalizedText(jRadioButtonComputeProgress, org.openide.util.NbBundle.getMessage(EditTaskPanel.class, "ComputeProgressAutomatically")); // NOI18N
     gridBagConstraints = new java.awt.GridBagConstraints();
     gridBagConstraints.gridwidth = 2;
     gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
     jPanel5.add(jRadioButtonComputeProgress, gridBagConstraints);
 
     buttonGroupProgress.add(jRadioButtonProgress);
-    org.openide.awt.Mnemonics.setLocalizedText(jRadioButtonProgress, org.openide.util.NbBundle.getMessage(EditTaskPanel.class, "UseThisValue"));
+    org.openide.awt.Mnemonics.setLocalizedText(jRadioButtonProgress, org.openide.util.NbBundle.getMessage(EditTaskPanel.class, "UseThisValue")); // NOI18N
     jRadioButtonProgress.addItemListener(new java.awt.event.ItemListener() {
         public void itemStateChanged(java.awt.event.ItemEvent evt) {
             jRadioButtonProgressItemStateChanged(evt);
         }
     });
-
     gridBagConstraints = new java.awt.GridBagConstraints();
     gridBagConstraints.gridx = 0;
     gridBagConstraints.gridy = 1;
@@ -927,25 +862,24 @@ public class EditTaskPanel extends JPanel implements ActionListener {
     gridBagConstraints.insets = new java.awt.Insets(11, 0, 0, 12);
     jPanel3.add(jPanel5, gridBagConstraints);
 
+    jPanel7.setBorder(javax.swing.BorderFactory.createTitledBorder("Spent time"));
     jPanel7.setLayout(new java.awt.GridBagLayout());
 
-    jPanel7.setBorder(new javax.swing.border.TitledBorder("Spent time"));
     buttonGroupSpent.add(jRadioButtonComputeSpent);
     jRadioButtonComputeSpent.setSelected(true);
-    org.openide.awt.Mnemonics.setLocalizedText(jRadioButtonComputeSpent, org.openide.util.NbBundle.getMessage(EditTaskPanel.class, "ComputeSpentTkme"));
+    org.openide.awt.Mnemonics.setLocalizedText(jRadioButtonComputeSpent, org.openide.util.NbBundle.getMessage(EditTaskPanel.class, "ComputeSpentTkme")); // NOI18N
     gridBagConstraints = new java.awt.GridBagConstraints();
     gridBagConstraints.gridwidth = 2;
     gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
     jPanel7.add(jRadioButtonComputeSpent, gridBagConstraints);
 
     buttonGroupSpent.add(jRadioButtonSpent);
-    org.openide.awt.Mnemonics.setLocalizedText(jRadioButtonSpent, org.openide.util.NbBundle.getMessage(EditTaskPanel.class, "UseThisValue"));
+    org.openide.awt.Mnemonics.setLocalizedText(jRadioButtonSpent, org.openide.util.NbBundle.getMessage(EditTaskPanel.class, "UseThisValue")); // NOI18N
     jRadioButtonSpent.addItemListener(new java.awt.event.ItemListener() {
         public void itemStateChanged(java.awt.event.ItemEvent evt) {
             jRadioButtonSpentItemStateChanged(evt);
         }
     });
-
     gridBagConstraints = new java.awt.GridBagConstraints();
     gridBagConstraints.gridx = 0;
     gridBagConstraints.gridy = 1;
@@ -969,54 +903,96 @@ public class EditTaskPanel extends JPanel implements ActionListener {
     gridBagConstraints.insets = new java.awt.Insets(11, 0, 0, 12);
     jPanel3.add(jPanel7, gridBagConstraints);
 
-    org.openide.awt.Mnemonics.setLocalizedText(jLabel2, org.openide.util.NbBundle.getBundle(EditTaskPanel.class).getString("Completed"));
-    gridBagConstraints = new java.awt.GridBagConstraints();
-    gridBagConstraints.gridx = 0;
-    gridBagConstraints.gridy = 7;
-    gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
-    gridBagConstraints.insets = new java.awt.Insets(11, 0, 0, 12);
-    jPanel3.add(jLabel2, gridBagConstraints);
-
-    gridBagConstraints = new java.awt.GridBagConstraints();
-    gridBagConstraints.gridx = 1;
-    gridBagConstraints.gridy = 7;
-    gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
-    gridBagConstraints.insets = new java.awt.Insets(11, 0, 0, 12);
-    jPanel3.add(jLabelCompleted, gridBagConstraints);
-
-    jDateChooserDue.setEnabled(false);
+    jPanel9.setLayout(new java.awt.GridBagLayout());
     gridBagConstraints = new java.awt.GridBagConstraints();
     gridBagConstraints.gridx = 1;
     gridBagConstraints.gridy = 1;
     gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
-    gridBagConstraints.insets = new java.awt.Insets(11, 0, 0, 12);
-    jPanel3.add(jDateChooserDue, gridBagConstraints);
-
-    org.openide.awt.Mnemonics.setLocalizedText(jCheckBoxStart, NbBundle.getMessage(EditTaskPanel.class, "LBL_Start")); // NOI18N();
-    jCheckBoxStart.addItemListener(new java.awt.event.ItemListener() {
-        public void itemStateChanged(java.awt.event.ItemEvent evt) {
-            jCheckBoxStartItemStateChanged(evt);
-        }
-    });
-
-    gridBagConstraints = new java.awt.GridBagConstraints();
-    gridBagConstraints.gridx = 0;
-    gridBagConstraints.gridy = 0;
-    gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
-    jPanel3.add(jCheckBoxStart, gridBagConstraints);
-
-    jDateChooserStart.setEnabled(false);
+    gridBagConstraints.insets = new java.awt.Insets(11, 0, 0, 0);
+    jPanel9.add(jDateChooserDue, gridBagConstraints);
     gridBagConstraints = new java.awt.GridBagConstraints();
     gridBagConstraints.gridx = 1;
     gridBagConstraints.gridy = 0;
     gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
-    jPanel3.add(jDateChooserStart, gridBagConstraints);
+    jPanel9.add(jDateChooserStart, gridBagConstraints);
 
-    jTabbedPane.addTab(org.openide.util.NbBundle.getMessage(EditTaskPanel.class, "TimeRelated"), jPanel3);
+    org.openide.awt.Mnemonics.setLocalizedText(jLabel4, org.openide.util.NbBundle.getMessage(EditTaskPanel.class, "DueDateCb")); // NOI18N
+    gridBagConstraints = new java.awt.GridBagConstraints();
+    gridBagConstraints.gridx = 0;
+    gridBagConstraints.gridy = 1;
+    gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+    gridBagConstraints.insets = new java.awt.Insets(11, 0, 0, 12);
+    jPanel9.add(jLabel4, gridBagConstraints);
+
+    org.openide.awt.Mnemonics.setLocalizedText(jLabel7, org.openide.util.NbBundle.getMessage(EditTaskPanel.class, "LBL_Start")); // NOI18N
+    gridBagConstraints = new java.awt.GridBagConstraints();
+    gridBagConstraints.gridx = 0;
+    gridBagConstraints.gridy = 0;
+    gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+    gridBagConstraints.insets = new java.awt.Insets(0, 0, 0, 12);
+    jPanel9.add(jLabel7, gridBagConstraints);
+
+    gridBagConstraints = new java.awt.GridBagConstraints();
+    gridBagConstraints.gridx = 0;
+    gridBagConstraints.gridy = 0;
+    gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+    jPanel3.add(jPanel9, gridBagConstraints);
+
+    jPanel10.setLayout(new java.awt.GridBagLayout());
+    gridBagConstraints = new java.awt.GridBagConstraints();
+    gridBagConstraints.gridx = 1;
+    gridBagConstraints.gridy = 6;
+    gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+    gridBagConstraints.insets = new java.awt.Insets(11, 0, 0, 12);
+    jPanel10.add(jLabelCreated, gridBagConstraints);
+
+    org.openide.awt.Mnemonics.setLocalizedText(jLabel5, org.openide.util.NbBundle.getMessage(EditTaskPanel.class, "CreatedLabel")); // NOI18N); // NOI18N
+    gridBagConstraints = new java.awt.GridBagConstraints();
+    gridBagConstraints.gridx = 0;
+    gridBagConstraints.gridy = 6;
+    gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+    gridBagConstraints.insets = new java.awt.Insets(11, 0, 0, 12);
+    jPanel10.add(jLabel5, gridBagConstraints);
+    gridBagConstraints = new java.awt.GridBagConstraints();
+    gridBagConstraints.gridx = 1;
+    gridBagConstraints.gridy = 7;
+    gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+    gridBagConstraints.insets = new java.awt.Insets(11, 0, 0, 12);
+    jPanel10.add(jLabelCompleted, gridBagConstraints);
+    gridBagConstraints = new java.awt.GridBagConstraints();
+    gridBagConstraints.gridx = 1;
+    gridBagConstraints.gridy = 5;
+    gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+    gridBagConstraints.insets = new java.awt.Insets(11, 0, 0, 12);
+    jPanel10.add(jLabelLastEdited, gridBagConstraints);
+
+    org.openide.awt.Mnemonics.setLocalizedText(jLabel2, org.openide.util.NbBundle.getBundle(EditTaskPanel.class).getString("Completed")); // NOI18N
+    gridBagConstraints = new java.awt.GridBagConstraints();
+    gridBagConstraints.gridx = 0;
+    gridBagConstraints.gridy = 7;
+    gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+    gridBagConstraints.insets = new java.awt.Insets(11, 0, 0, 12);
+    jPanel10.add(jLabel2, gridBagConstraints);
+
+    org.openide.awt.Mnemonics.setLocalizedText(jLabel6, org.openide.util.NbBundle.getMessage(EditTaskPanel.class, "LastEditedLabel")); // NOI18N); // NOI18N
+    gridBagConstraints = new java.awt.GridBagConstraints();
+    gridBagConstraints.gridx = 0;
+    gridBagConstraints.gridy = 5;
+    gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+    gridBagConstraints.insets = new java.awt.Insets(11, 0, 0, 12);
+    jPanel10.add(jLabel6, gridBagConstraints);
+
+    gridBagConstraints = new java.awt.GridBagConstraints();
+    gridBagConstraints.gridx = 0;
+    gridBagConstraints.gridy = 5;
+    gridBagConstraints.gridwidth = 3;
+    gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+    jPanel3.add(jPanel10, gridBagConstraints);
+
+    jTabbedPane.addTab(org.openide.util.NbBundle.getMessage(EditTaskPanel.class, "TimeRelated"), jPanel3); // NOI18N
 
     jPanelDependencies.setLayout(new java.awt.BorderLayout());
-
-    jTabbedPane.addTab(org.openide.util.NbBundle.getBundle(EditTaskPanel.class).getString("LBL_DependenciesTab"), jPanelDependencies);
+    jTabbedPane.addTab(org.openide.util.NbBundle.getBundle(EditTaskPanel.class).getString("LBL_DependenciesTab"), jPanelDependencies); // NOI18N
 
     jPanel8.setLayout(new java.awt.GridBagLayout());
 
@@ -1030,7 +1006,7 @@ public class EditTaskPanel extends JPanel implements ActionListener {
     gridBagConstraints.insets = new java.awt.Insets(11, 11, 0, 12);
     jPanel8.add(jScrollPane1, gridBagConstraints);
 
-    jLabel3.setText(org.openide.util.NbBundle.getBundle(EditTaskPanel.class).getString("SpentTimeToday"));
+    jLabel3.setText(org.openide.util.NbBundle.getBundle(EditTaskPanel.class).getString("SpentTimeToday")); // NOI18N
     gridBagConstraints = new java.awt.GridBagConstraints();
     gridBagConstraints.gridx = 0;
     gridBagConstraints.gridy = 1;
@@ -1046,22 +1022,10 @@ public class EditTaskPanel extends JPanel implements ActionListener {
     gridBagConstraints.insets = new java.awt.Insets(11, 0, 12, 12);
     jPanel8.add(jLabelSpentTimeToday, gridBagConstraints);
 
-    jTabbedPane.addTab(org.openide.util.NbBundle.getBundle(EditTaskPanel.class).getString("WordPeriods"), jPanel8);
+    jTabbedPane.addTab(org.openide.util.NbBundle.getBundle(EditTaskPanel.class).getString("WordPeriods"), jPanel8); // NOI18N
 
     add(jTabbedPane, java.awt.BorderLayout.CENTER);
-
-    }
-    // </editor-fold>//GEN-END:initComponents
-
-    private void jCheckBoxStartItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_jCheckBoxStartItemStateChanged
-        if (evt.getID() == ItemEvent.ITEM_STATE_CHANGED) {
-            boolean enable = false;
-            if (evt.getStateChange() == ItemEvent.SELECTED) {
-                enable = true;
-            }
-            enableStartChooser(enable);
-        }
-    }//GEN-LAST:event_jCheckBoxStartItemStateChanged
+    }// </editor-fold>//GEN-END:initComponents
 
     private void jRadioButtonSpentItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_jRadioButtonSpentItemStateChanged
         durationPanelSpent.setEnabled(jRadioButtonSpent.isSelected());
@@ -1106,8 +1070,6 @@ public class EditTaskPanel extends JPanel implements ActionListener {
                      EditTaskPanel.class, "CategoryLabel")); // NOI18N
         Mnemonics.setLocalizedText(lineLabel, NbBundle.getMessage(
                  EditTaskPanel.class, "LineLabel")); // NOI18N
-        Mnemonics.setLocalizedText(dueCheckBox, NbBundle.getMessage(
-                   EditTaskPanel.class, "DueDateCb")); // NOI18N
         Mnemonics.setLocalizedText(addLabel, NbBundle.getMessage(
                 EditTaskPanel.class, "AddTo")); // NOI18N
         Mnemonics.setLocalizedText(beginningToggle, NbBundle.getMessage(
@@ -1129,12 +1091,13 @@ public class EditTaskPanel extends JPanel implements ActionListener {
                 NbBundle.getMessage(EditTaskPanel.class, "ACSD_Category")); // NOI18N
         fileTextField.getAccessibleContext().setAccessibleDescription(
                 NbBundle.getMessage(EditTaskPanel.class, "ACSD_File")); // NOI18N
+        jDateChooserDue.getAccessibleContext().setAccessibleDescription(
+                NbBundle.getMessage(EditTaskPanel.class, "ACSD_DueCb")); // NOI18N
 
         // We're using a checkbox to "label" the textfield - of course JCheckBox
         // doesn't have a setLabelFor (since it is itself an input component)
         // so we have to label the associated component ourselves
         fileTextField.getAccessibleContext().setAccessibleName(fileCheckBox.getText());
-        jDateChooserDue.getAccessibleContext().setAccessibleName(dueCheckBox.getText());
 
         lineTextField.getAccessibleContext().setAccessibleDescription(
                 NbBundle.getMessage(EditTaskPanel.class, "ACSD_Line")); // NOI18N
@@ -1142,8 +1105,6 @@ public class EditTaskPanel extends JPanel implements ActionListener {
                 NbBundle.getMessage(EditTaskPanel.class, "ACSD_Due")); // NOI18N
         fileCheckBox.getAccessibleContext().setAccessibleDescription(
                 NbBundle.getMessage(EditTaskPanel.class, "ACSD_FileCb")); // NOI18N
-        dueCheckBox.getAccessibleContext().setAccessibleDescription(
-                NbBundle.getMessage(EditTaskPanel.class, "ACSD_DueCb")); // NOI18N
         beginningToggle.getAccessibleContext().setAccessibleDescription(
                 NbBundle.getMessage(EditTaskPanel.class, "ACSD_Beginning")); // NOI18N
         endToggle.getAccessibleContext().setAccessibleDescription(
@@ -1161,42 +1122,6 @@ public class EditTaskPanel extends JPanel implements ActionListener {
         lineTextField.setEditable(s);
     }//GEN-LAST:event_fileCheckBoxItemStateChanged
 
-    /**
-     * Callback function to enable / disable the due-date fields
-     * @param evt the callback event
-     */
-    private void dueCheckBoxItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_dueCheckBoxItemStateChanged
-        if (evt.getID() == ItemEvent.ITEM_STATE_CHANGED) {
-            boolean enable = false;
-            if (evt.getStateChange() == ItemEvent.SELECTED) {
-                enable = true;
-            }
-            enableDueChooser(enable);
-        }
-    }//GEN-LAST:event_dueCheckBoxItemStateChanged
-
-    /**
-     * Bugfix for JDateChooser.setEnabled
-     *
-     * @param enable true = enabled
-     */
-    private void enableDueChooser(boolean enable) {
-        for (int i = 0; i < jDateChooserDue.getComponentCount(); i++) {
-            jDateChooserDue.getComponent(i).setEnabled(enable);
-        }
-    }
-
-    /**
-     * Bugfix for JDateChooser.setEnabled
-     *
-     * @param enable true = enabled
-     */
-    private void enableStartChooser(boolean enable) {
-        for (int i = 0; i < jDateChooserStart.getComponentCount(); i++) {
-            jDateChooserStart.getComponent(i).setEnabled(enable);
-        }
-    }
-    
     // <editor-fold defaultstate="collapsed" desc=" Generated Code: Variables declarations ">
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.ButtonGroup addButtonGroup;
@@ -1212,13 +1137,11 @@ public class EditTaskPanel extends JPanel implements ActionListener {
     private javax.swing.JLabel detailsLabel;
     private javax.swing.JScrollPane detailsScrollPane;
     private javax.swing.JTextArea detailsTextArea;
-    private javax.swing.JCheckBox dueCheckBox;
     private org.netbeans.modules.tasklist.usertasks.DurationPanel durationPanelSpent;
     private javax.swing.ButtonGroup effortButtonGroup;
     private javax.swing.JRadioButton endToggle;
     private javax.swing.JCheckBox fileCheckBox;
     private javax.swing.JTextField fileTextField;
-    private javax.swing.JCheckBox jCheckBoxStart;
     private javax.swing.JComboBox jComboBoxOwner;
     private javax.swing.JComboBox jComboBoxProgress;
     private com.toedter.calendar.JDateChooser jDateChooserDue;
@@ -1226,14 +1149,17 @@ public class EditTaskPanel extends JPanel implements ActionListener {
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
+    private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel6;
+    private javax.swing.JLabel jLabel7;
     private javax.swing.JLabel jLabelCompleted;
     private javax.swing.JLabel jLabelCreated;
     private javax.swing.JLabel jLabelLastEdited;
     private javax.swing.JLabel jLabelSpentTimeToday;
     private javax.swing.JList jListWorkPeriods;
     private javax.swing.JPanel jPanel1;
+    private javax.swing.JPanel jPanel10;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
     private javax.swing.JPanel jPanel4;
@@ -1241,6 +1167,7 @@ public class EditTaskPanel extends JPanel implements ActionListener {
     private javax.swing.JPanel jPanel6;
     private javax.swing.JPanel jPanel7;
     private javax.swing.JPanel jPanel8;
+    private javax.swing.JPanel jPanel9;
     private javax.swing.JPanel jPanelDependencies;
     private javax.swing.JPanel jPanelEffort;
     private javax.swing.JPanel jPanelGeneral;

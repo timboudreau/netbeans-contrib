@@ -20,8 +20,8 @@
 package org.netbeans.modules.tasklist.usertasks.editors;
 
 import java.awt.Component;
+import java.text.ParseException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -67,6 +67,10 @@ public class EffortTableCellEditor extends DefaultCellEditor {
     
     private List<Integer> durations;
     private List<String> texts;
+    private DurationFormat short_ = new DurationFormat(
+            DurationFormat.Type.SHORT);
+    private DurationFormat long_ = new DurationFormat(DurationFormat.Type.LONG);
+    private Duration dur;
     
     /**
      * Creates a new instance.
@@ -106,15 +110,42 @@ public class EffortTableCellEditor extends DefaultCellEditor {
             texts.add(df.format(new Duration(dur, hpd, dpw)));
         }
         
+        this.dur = new Duration(durations.get(index), hpd, dpw);
+                
         ((JComboBox) editorComponent).setModel(
                 new DefaultComboBoxModel(
                 texts.toArray(new String[texts.size()])));
         ((JComboBox) editorComponent).setSelectedIndex(index);
+        ((JComboBox) editorComponent).setEditable(true);
         return editorComponent;
     }
     
-    public Object getCellEditorValue() { 
+    public Object getCellEditorValue() {
         int index = ((JComboBox) editorComponent).getSelectedIndex();
-        return durations.get(index);
+        String txt = 
+                (String) ((JComboBox) editorComponent).getEditor().getItem();
+        Duration d = null;
+        try {
+            d = short_.parse(txt);
+        } catch (ParseException ex) {
+            // ignore
+        }
+        if (d == null) {
+            try {
+                d = long_.parse(txt);
+            } catch (ParseException ex) {
+                // ignore
+            }
+        }
+        if (d == null)
+            d = dur;
+        if (d == null)
+            return durations.get(index);
+        else {
+            int hpd = Settings.getDefault().getHoursPerDay();
+            int dpw = Settings.getDefault().getDaysPerWeek();
+            return ((d.weeks * dpw + d.days) * hpd + d.hours) * 60 +
+                    d.minutes;
+        }
     }
 }
