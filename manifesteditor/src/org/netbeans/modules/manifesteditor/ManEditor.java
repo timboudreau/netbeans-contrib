@@ -125,6 +125,8 @@ implements OpenCookie, EditorCookie, EditCookie {
         
     }
     private static final class Visual implements MultiViewDescription, MultiViewElement {
+       // private Node node;
+        
         public int getPersistenceType() {
             return TopComponent.PERSISTENCE_ONLY_OPENED;
         }
@@ -146,6 +148,10 @@ implements OpenCookie, EditorCookie, EditCookie {
         }
 
         public MultiViewElement createElement() {
+            assert EventQueue.isDispatchThread();
+            
+            
+            
             return this;
         }
 
