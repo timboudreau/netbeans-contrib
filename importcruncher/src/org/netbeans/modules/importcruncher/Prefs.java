@@ -20,6 +20,7 @@
 package org.netbeans.modules.importcruncher;
 
 import java.util.prefs.Preferences;
+import org.openide.util.NbPreferences;
 
 /**
  * Manages preferences for the module.
@@ -29,7 +30,7 @@ class Prefs {
 
     private Prefs() {}
 
-    private static final Preferences p = Preferences.userNodeForPackage(Prefs.class);
+    private static final Preferences p = NbPreferences.forModule(Prefs.class);
 
     /** only meaningful if SORT is set */
     public static final String BREAKUP = "breakup"; //NOI18N

@@ -34,6 +34,7 @@ import org.openide.nodes.Node;
 import org.openide.util.HelpCtx;
 import org.openide.util.Lookup;
 import org.openide.util.NbBundle;
+import org.openide.util.NbPreferences;
 /**
  *
  * @author Timothy Boudreau
@@ -136,7 +137,7 @@ public class PrefsDataObject extends DataObject {
                 path = stripNonDirectoryChars(parent.getPath());
         }
         assert path != null;
-        return Preferences.userRoot().node(path);
+        return NbPreferences.root().node(path);
     }
     
     private String stripNonDirectoryChars(String path) {

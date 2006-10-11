@@ -25,6 +25,7 @@ import java.util.prefs.Preferences;
 import javax.swing.UIManager;
 import org.openide.ErrorManager;
 import org.openide.modules.ModuleInstall;
+import org.openide.util.NbPreferences;
 
 /**
 * Module installation class for PlafSwitcher.
@@ -34,11 +35,11 @@ import org.openide.modules.ModuleInstall;
 public class Module extends ModuleInstall {
 
     static String getPlaf() {
-        return Preferences.userNodeForPackage(Module.class).get("plaf", null);
+        return NbPreferences.forModule(Module.class).get("plaf", null);
     }
 
     static void setPlaf(String plaf) {
-        Preferences.userNodeForPackage(Module.class).put("plaf", plaf);
+        NbPreferences.forModule(Module.class).put("plaf", plaf);
     }
 
     /** Module installed again. */

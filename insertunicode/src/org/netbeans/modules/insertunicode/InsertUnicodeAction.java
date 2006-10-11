@@ -45,6 +45,7 @@ import org.openide.cookies.EditorCookie;
 import org.openide.nodes.Node;
 import org.openide.util.HelpCtx;
 import org.openide.util.NbBundle;
+import org.openide.util.NbPreferences;
 import org.openide.util.actions.Presenter;
 import org.openide.util.actions.SystemAction;
 import org.openide.windows.TopComponent;
@@ -307,10 +308,10 @@ public class InsertUnicodeAction extends SystemAction implements Presenter.Popup
     private static final int MODE_RAW = 0, MODE_JAVA = 1, MODE_XML = 2, MODE_HTML = 3;
     private static final String KEY_MODE = "unicode.insert.mode"; // NOI18N
     static int getModeChoice() {
-        return Preferences.userNodeForPackage(InsertUnicodeAction.class).getInt(KEY_MODE, MODE_RAW);
+        return NbPreferences.forModule(InsertUnicodeAction.class).getInt(KEY_MODE, MODE_RAW);
     }
     static void setModeChoice(int mode) {
-        Preferences.userNodeForPackage(InsertUnicodeAction.class).putInt(KEY_MODE, mode);
+        NbPreferences.forModule(InsertUnicodeAction.class).putInt(KEY_MODE, mode);
     }
     // XXX make the mode sensitive to content type of current pane
     // default to MODE_JAVA for text/x-java, text/x-properties
