@@ -20,6 +20,7 @@ package org.netbeans.modules.manifesteditor;
 
 import java.awt.EventQueue;
 import java.awt.Image;
+import java.beans.BeanInfo;
 import java.io.IOException;
 import javax.swing.Action;
 import javax.swing.JButton;
@@ -43,6 +44,7 @@ import org.openide.text.DataEditorSupport;
 import org.openide.text.NbDocument;
 import org.openide.util.HelpCtx;
 import org.openide.util.Lookup;
+import org.openide.util.Mutex;
 import org.openide.windows.TopComponent;
 
 public class ManEditor extends DataEditorSupport 
@@ -196,8 +198,9 @@ implements OpenCookie, EditorCookie, EditCookie {
     }
     
     private static final class MyEd extends CloneableEditor 
-    implements MultiViewElement {
+    implements MultiViewElement, Runnable {
         private JComponent toolbar;
+        private MultiViewElementCallback callback;
         
         public MyEd() {
         }
@@ -228,7 +231,10 @@ implements OpenCookie, EditorCookie, EditCookie {
         }
 
         public void setMultiViewCallback(MultiViewElementCallback callback) {
+            this.callback = callback;
+            updateName();
         }
+        
         public void componentOpened() {
             super.componentOpened();
         }
@@ -255,6 +261,26 @@ implements OpenCookie, EditorCookie, EditCookie {
 
         public CloseOperationState canCloseElement() {
             return CloseOperationState.STATE_OK;
+        }
+
+        public void updateName() {
+            Mutex.EVENT.readAccess(this);
+        }
+        
+        public void run() {
+            MultiViewElementCallback c = callback;
+            if (c == null) {
+                return;
+            }
+            TopComponent tc = c.getTopComponent();
+            if (tc == null) {
+                return;
+            }
+            
+            super.updateName();
+            tc.setName(this.getName());
+            tc.setDisplayName(this.getDisplayName());
+            tc.setHtmlDisplayName(this.getHtmlDisplayName());
         }
     }
 }
