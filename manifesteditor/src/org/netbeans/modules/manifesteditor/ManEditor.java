@@ -24,6 +24,9 @@ import java.io.IOException;
 import javax.swing.Action;
 import javax.swing.JButton;
 import javax.swing.JComponent;
+import javax.swing.JEditorPane;
+import javax.swing.JPanel;
+import javax.swing.text.Document;
 import org.netbeans.core.spi.multiview.CloseOperationState;
 import org.netbeans.core.spi.multiview.MultiViewDescription;
 import org.netbeans.core.spi.multiview.MultiViewElement;
@@ -37,6 +40,7 @@ import org.openide.filesystems.FileObject;
 import org.openide.text.CloneableEditor;
 import org.openide.text.CloneableEditorSupport;
 import org.openide.text.DataEditorSupport;
+import org.openide.text.NbDocument;
 import org.openide.util.HelpCtx;
 import org.openide.util.Lookup;
 import org.openide.windows.TopComponent;
@@ -44,7 +48,7 @@ import org.openide.windows.TopComponent;
 public class ManEditor extends DataEditorSupport 
 implements OpenCookie, EditorCookie, EditCookie {
     private MultiViewDescription[] descriptions = {
-        new Text(), new Visual()
+        new Text(this), new Visual()
     };
     
     
@@ -79,6 +83,11 @@ implements OpenCookie, EditorCookie, EditCookie {
     
     private static final class Text implements MultiViewDescription {
         private MyEd editor;
+        private ManEditor support;
+        
+        public Text(ManEditor ed) {
+            this.support = ed;
+        }
         
         public int getPersistenceType() {
             return TopComponent.PERSISTENCE_ONLY_OPENED;
@@ -107,7 +116,7 @@ implements OpenCookie, EditorCookie, EditCookie {
         private MyEd getEd() {
             assert EventQueue.isDispatchThread();
             if (editor == null) {
-                editor = new MyEd();
+                editor = new MyEd(support);
             }
             return editor;
         }
@@ -143,8 +152,9 @@ implements OpenCookie, EditorCookie, EditCookie {
             return b;
         }
 
+        JButton c = new JButton ("Ahoj");
         public JComponent getToolbarRepresentation() {
-            return null;
+            return c;
         }
 
         public Action[] getActions() {
@@ -187,12 +197,34 @@ implements OpenCookie, EditorCookie, EditCookie {
     
     private static final class MyEd extends CloneableEditor 
     implements MultiViewElement {
+        private JComponent toolbar;
+        
+        public MyEd() {
+        }
+        
+        MyEd(ManEditor ed) {
+            super(ed);
+        }
+        
         public JComponent getVisualRepresentation() {
             return this;
         }
 
         public JComponent getToolbarRepresentation() {
-            return null;
+            if (toolbar == null) {
+                 JEditorPane pane = this.pane;
+                 if (pane != null) {
+                     Document doc = pane.getDocument();
+                     if (doc instanceof NbDocument.CustomToolbar) {
+                         toolbar = ((NbDocument.CustomToolbar)doc).createToolbar(pane);
+                     }
+                 }
+                 if (toolbar == null) {
+                     //attempt to create own toolbar?
+                     toolbar = new JPanel();
+                 }
+             }
+             return toolbar;
         }
 
         public void setMultiViewCallback(MultiViewElementCallback callback) {
