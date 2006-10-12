@@ -22,6 +22,7 @@ package org.netbeans.modules.manifesteditor;
 import java.io.IOException;
 import javax.swing.text.Document;
 import org.netbeans.junit.NbTestCase;
+import org.openide.cookies.SaveCookie;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
 import org.openide.filesystems.LocalFileSystem;
@@ -90,5 +91,11 @@ public class ManEditorTest extends NbTestCase {
         assertEquals("One property", 1, props.length);
         assertEquals("Main-Class", props[0].getName());
         assertEquals("x.java", props[0].getValue());
+        
+        SaveCookie s = obj.getCookie(SaveCookie.class);
+        assertNotNull("Document is modified", s);
+        s.save();
+        
+        assertNull("No longer modified", obj.getCookie(SaveCookie.class));
     }
 }

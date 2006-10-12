@@ -42,6 +42,7 @@ import org.netbeans.core.spi.multiview.MultiViewFactory;
 import org.openide.cookies.EditCookie;
 import org.openide.cookies.EditorCookie;
 import org.openide.cookies.OpenCookie;
+import org.openide.cookies.SaveCookie;
 import org.openide.explorer.ExplorerManager;
 import org.openide.explorer.propertysheet.PropertySheet;
 import org.openide.explorer.view.ChoiceView;
@@ -79,10 +80,33 @@ implements OpenCookie, EditorCookie, EditCookie {
         return (CloneableEditorSupport.Pane)MultiViewFactory.createCloneableMultiView(descriptions, descriptions[0]);
     }
 
+    protected boolean notifyModified() {
+        boolean retValue;
+        retValue = super.notifyModified();
+        if (retValue) {
+            ManDataObject obj = (ManDataObject)getDataObject();
+            obj.ic.add(env);
+        }
+        return retValue;
+    }
+
+    protected void notifyUnmodified() {
+        super.notifyUnmodified();
+        
+        ManDataObject obj = (ManDataObject)getDataObject();
+        obj.ic.remove(env);
+    }
+
     
-    private static final class MyEnv extends DataEditorSupport.Env {
+    private static final class MyEnv extends DataEditorSupport.Env 
+    implements SaveCookie {
         public MyEnv(ManDataObject obj) {
             super(obj);
+        }
+        
+        public void save() throws IOException {
+            ManEditor ed = (ManEditor)this.findCloneableOpenSupport();
+            ed.saveDocument();
         }
         
         protected FileObject getFile() {

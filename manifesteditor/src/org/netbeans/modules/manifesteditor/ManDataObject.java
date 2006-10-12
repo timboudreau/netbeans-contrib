@@ -30,7 +30,7 @@ import org.openide.util.lookup.InstanceContent;
 
 public class ManDataObject extends MultiDataObject 
 implements Lookup.Provider {
-    private InstanceContent ic;
+    final InstanceContent ic;
     private AbstractLookup lookup;
     
     public ManDataObject(FileObject pf, ManDataLoader loader) throws DataObjectExistsException, IOException {
