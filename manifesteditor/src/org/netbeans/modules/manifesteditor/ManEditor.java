@@ -27,18 +27,25 @@ import java.io.IOException;
 import java.util.jar.Manifest;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import javax.swing.Action;
+import javax.swing.BorderFactory;
 import javax.swing.JComponent;
 import javax.swing.JEditorPane;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
+import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
+import javax.swing.text.StyledDocument;
 import org.netbeans.core.spi.multiview.CloseOperationState;
 import org.netbeans.core.spi.multiview.MultiViewDescription;
 import org.netbeans.core.spi.multiview.MultiViewElement;
 import org.netbeans.core.spi.multiview.MultiViewElementCallback;
 import org.netbeans.core.spi.multiview.MultiViewFactory;
+import org.openide.awt.Mnemonics;
 import org.openide.cookies.EditCookie;
 import org.openide.cookies.EditorCookie;
 import org.openide.cookies.OpenCookie;
@@ -56,6 +63,7 @@ import org.openide.text.NbDocument;
 import org.openide.util.HelpCtx;
 import org.openide.util.Lookup;
 import org.openide.util.Mutex;
+import org.openide.util.NbBundle;
 import org.openide.windows.TopComponent;
 
 public class ManEditor extends DataEditorSupport 
@@ -162,7 +170,7 @@ implements OpenCookie, EditorCookie, EditCookie {
     }
     static final class Visual extends JPanel
     implements MultiViewDescription, MultiViewElement, ExplorerManager.Provider,
-    PropertyChangeListener, DocumentListener {
+    PropertyChangeListener, DocumentListener, ManNode.ChangeCallback {
         private ExplorerManager em;
         private ManEditor support;
         private PropertySheet sheet;
@@ -199,15 +207,20 @@ implements OpenCookie, EditorCookie, EditCookie {
             
             ChoiceView view = new ChoiceView();
             this.setLayout(new BorderLayout());
+            JLabel l = new JLabel();
+            Mnemonics.setLocalizedText(l, NbBundle.getMessage(ManEditor.class, "LBL_Sections"));
+            l.setLabelFor(view);
+            l.setBorder(BorderFactory.createEmptyBorder(0, 8, 0, 8));
+            this.add(BorderLayout.WEST, l);
             this.add(BorderLayout.CENTER, view);
             sheet = new PropertySheet();
             try {
                 Manifest mf = new Manifest(support.getInputStream());
-                em.setRootContext(ManNode.createManifestModel(mf));
+                em.setRootContext(ManNode.createManifestModel(mf, this));
                 em.setSelectedNodes(new Node[] { em.getRootContext().getChildren().getNodes(true)[0] });
                 support.openDocument().addDocumentListener(this);
             } catch (Exception ex) {
-                LOG.log(Level.WARNING, null, ex);
+                LOG.log(Level.INFO, null, ex);
             }
             
             return this;
@@ -283,7 +296,64 @@ implements OpenCookie, EditorCookie, EditCookie {
                 Manifest mf = new Manifest(support.getInputStream());
                 ManNode.refresh(em.getRootContext(), mf);
             } catch (Exception ex) {
-                LOG.log(Level.WARNING, null, ex);
+            }
+        }
+
+        public void change(
+            final String section, final String name, final String oldValue, final String newValue
+        ) throws IllegalArgumentException {
+            final StyledDocument d = support.getDocument();
+            if (d == null) {
+                throw new IllegalArgumentException("document is null");
+            }
+            
+            
+            class Ch implements Runnable {
+                public void run() {
+                    try {
+                        String text = d.getText(0, d.getLength());
+
+                        int beginSection;
+                        int endSection;
+
+                        if ("Main".equals(section)) {
+                            beginSection = 0;
+                        } else {
+                            Matcher m = Pattern.compile("Name:.*" + section).matcher(text);
+                            if (!m.find()) {
+                                throw new IllegalArgumentException("Section not found");
+                            }
+                            beginSection = m.start();
+                        }
+                        endSection = text.indexOf("\n\n", beginSection);
+
+                        if (endSection == -1) {
+                            endSection = d.getLength();
+                        }
+
+                        String sec = text.substring(beginSection, endSection);
+                        Matcher line = Pattern.compile(name + ".*:.*" + oldValue).matcher(sec);
+                        if (!line.find()) {
+                            throw new IllegalArgumentException("Value definition not found in: " + sec);
+                        }
+
+                        int offset = beginSection + line.start();
+                        d.remove(offset, line.end() - line.start());
+                        d.insertString(offset, name + ": " + newValue, null);
+                    } catch (BadLocationException ex) {
+                        throw new IllegalArgumentException(ex);
+                    }
+                }
+            }
+            
+            
+            try {
+                Ch ch = new Ch();
+                d.removeDocumentListener(this);
+                NbDocument.runAtomic(d, ch);
+                refresh();
+            } finally {
+                d.addDocumentListener(this);
             }
         }
     }

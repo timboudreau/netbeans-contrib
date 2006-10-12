@@ -31,7 +31,7 @@ import org.openide.nodes.Node;
  *
  * @author Jaroslav Tulach
  */
-public class ManNodeTest extends NbTestCase {
+public class ManNodeTest extends NbTestCase implements ManNode.ChangeCallback {
     
     public ManNodeTest(String testName) {
         super(testName);
@@ -58,7 +58,7 @@ public class ManNodeTest extends NbTestCase {
         
         Manifest mf = new Manifest(new FileInputStream(f));
         
-        Node n = ManNode.createManifestModel(mf);
+        Node n = ManNode.createManifestModel(mf, this);
         
         assertNotNull("Created", n);
         assertEquals("Two sections", 2, n.getChildren().getNodes(true).length);
@@ -92,5 +92,8 @@ public class ManNodeTest extends NbTestCase {
             assertEquals("nic", props[0].getValue());
         }            
         
+    }
+
+    public void change(String section, String name, String oldValue, String newValue) throws IllegalArgumentException {
     }
 }

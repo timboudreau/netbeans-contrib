@@ -58,6 +58,8 @@ public class ManEditorTest extends NbTestCase {
     }
     
     protected void setUp() throws Exception {
+        clearWorkDir();
+        
         LocalFileSystem lfs = new LocalFileSystem();
         lfs.setRootDirectory(getWorkDir());
         FileObject fo = FileUtil.createData(lfs.getRoot(), "test/mani.mf");
@@ -97,5 +99,18 @@ public class ManEditorTest extends NbTestCase {
         s.save();
         
         assertNull("No longer modified", obj.getCookie(SaveCookie.class));
+        
+        props[0].setValue("y.html");
+        
+        props = sets[0].getProperties();
+        assertEquals("One property", 1, props.length);
+        assertEquals("Main-Class", props[0].getName());
+        assertEquals("y.html", props[0].getValue());
+
+        s = obj.getCookie(SaveCookie.class);
+        assertNotNull("Document is modified2", s);
+        s.save();
+        
+        assertNull("No longer modified2", obj.getCookie(SaveCookie.class));
     }
 }

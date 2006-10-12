@@ -33,11 +33,12 @@ import org.openide.util.NbBundle;
 
 /** A node to represent on set of Manifest attributes.
  */
-class ManNode extends AbstractNode {
+final class ManNode extends AbstractNode {
     private Attributes attrs;
     private boolean sheet;
+    private final ChangeCallback callback;
     
-    private ManNode(String name, Attributes attrs) {
+    private ManNode(String name, Attributes attrs, ChangeCallback callback) {
         super(Children.LEAF);
         setName(name);
         
@@ -48,10 +49,16 @@ class ManNode extends AbstractNode {
         }
         
         this.attrs = attrs;
+        this.callback = callback;
     }
     
-    public static Node createManifestModel(Manifest mf) {
-        return new AbstractNode(new Entries(attributes(mf)));
+    public static interface ChangeCallback {
+        public void change(String section, String name, String oldValue, String newValue)
+        throws IllegalArgumentException;
+    }
+    
+    public static Node createManifestModel(Manifest mf, ChangeCallback callback) {
+        return new AbstractNode(new Entries(attributes(mf), callback));
     }
 
     private static Map<String, Attributes> attributes(final Manifest mf) {
@@ -74,7 +81,7 @@ class ManNode extends AbstractNode {
         
         Sheet sheet = new Sheet();
         Sheet.Set ps = new Sheet.Set();
-        ps.setName("Attributes");
+        ps.setName("Attributes"); // NOI18N
         ps.setDisplayName(NbBundle.getMessage(ManNode.class, "PROP_Attributes"));
         ps.setShortDescription(NbBundle.getMessage(ManNode.class, "HINT_Attributes"));
         
@@ -110,14 +117,16 @@ class ManNode extends AbstractNode {
     
     private static class Entries extends Children.Keys<String> {
         private java.util.Map<String,Attributes> entries;
+        private ChangeCallback callback;
         
-        public Entries(java.util.Map<String,Attributes> entries) {
+        public Entries(java.util.Map<String,Attributes> entries, ChangeCallback callback) {
             this.entries = entries;
+            this.callback = callback;
             setKeys(entries.keySet());
         }
 
         protected Node[] createNodes(String key) {
-            return new Node[] { new ManNode(key, entries.get(key)) };
+            return new Node[] { new ManNode(key, entries.get(key), callback) };
         }
         
         public void refresh(java.util.Map<String,Attributes> entries) {
@@ -144,7 +153,14 @@ class ManNode extends AbstractNode {
         }
 
         public void setValue(String val) throws IllegalAccessException, IllegalArgumentException, InvocationTargetException {
-            throw new IllegalArgumentException("Not implemented yet");
+            callback.change(
+                ManNode.this.getName(),
+                getName(),
+                getValue(),
+                val
+            );
         }
     }
+    
+    
 }
