@@ -106,6 +106,7 @@ public class EJBProjectGeneratorTest extends TestBase {
         l.add(s);
         l.add(conf.getName());
         EJBProjectGenerator.putEJBSourceFolder(helper, l);
+        EJBProjectGenerator.putEJBNodeView(helper, l);
         
         if (notSoEmpty) {
             ArrayList sources = new ArrayList();
@@ -169,7 +170,7 @@ public class EJBProjectGeneratorTest extends TestBase {
         List/*<Element>*/ ejbModules = Util.findSubElements(ejb);
         assertEquals("One ejb-module element should be found.", 1, ejbModules.size());
         Element module = (Element) ejbModules.get(0);
-        assertEquals("Classpath element is not empty.", "" , Util.findElement(module, "classpath", EJBProjectNature.NS_EJB).getTextContent());
+        assertEquals("Classpath element is not empty.", "" , Util.findText(Util.findElement(module, "classpath", EJBProjectNature.NS_EJB)));
     }
     
     public void testSourceFolders() throws Exception {

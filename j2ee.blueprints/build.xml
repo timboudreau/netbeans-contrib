@@ -26,7 +26,9 @@ Microsystems, Inc. All Rights Reserved.
     <property name="build.gensrc.dir" location="build/gensrc"/>
 
     <target name="jar" depends="init,extra-solutions,dd2beansgen,compile,projectized-common.jar"/>
-
+    
+    <target name="netbeans-extra" depends="release"/>
+    
     <!-- Define schema2beans task -->
     <target name="s2binit" depends="build-init">
         <taskdef name="schema2beans" classname="org.netbeans.modules.s2banttask.Schema2BeansAntTask">
@@ -38,20 +40,20 @@ Microsystems, Inc. All Rights Reserved.
         </taskdef>
     </target>
     
-    <!-- Generate schema2beans parser for bpcatalog.xml -->
+    <!-- Generate schema2beans parser for nbcatalog.xml -->
     <target name="dd2beansgen" depends="s2binit">
         <mkdir dir="${build.classes.dir}"/>
         <property name="bpcatalog_resource_root" location="${build.classes.dir}/org/netbeans/modules/j2ee/blueprints"/>
-        <echo message="Generating parser for bpcatalog.xml" />
+        <echo message="Generating parser for nbcatalog.xml" />
         <mkdir dir="build/gensrc" />
-	<schema2beans schema="${bpcatalog_resource_root}/bpcatalog.dtd"
+	<schema2beans schema="${bpcatalog_resource_root}/nbcatalog.dtd"
 	  package="org.netbeans.modules.j2ee.blueprints.catalog.bpcatalogxmlparser"
-          docRoot="bpcatalog"
+          docRoot="nbcatalog"
           outputType="javabeans"
 	  validate="true"
 	  attrProp="true"
           standalone="true"
-	  rootDir="${build.gensrc.dir}"/>
+	  rootDir="${build.gensrc.dir}"/>          
         <javac srcdir="${build.gensrc.dir}" destdir="${build.classes.dir}"
                debug="${build.compiler.debug}" 
                deprecation="${build.compiler.deprecation}" 
@@ -64,4 +66,10 @@ Microsystems, Inc. All Rights Reserved.
         <property name="examples" location="${build.classes.dir}/org/netbeans/modules/j2ee/blueprints"/>
         <unzip dest="${examples}" src="../external/blueprints-solutions-catalog.zip"/>
     </target>    
+    <!-- Unzip blueprints library jars into netbeans/extra -->
+    <target name="release" depends="init, extra-solutions">
+        <mkdir dir="${cluster}/modules/ext/blueprints"/>
+        <property name="bp-lib-dir" location="${cluster}/modules/ext/blueprints"/>
+        <unzip dest="${bp-lib-dir}" src="${build.classes.dir}/org/netbeans/modules/j2ee/blueprints/lib/blueprints-lib.zip"/>
+    </target>
 </project>

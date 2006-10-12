@@ -20,9 +20,9 @@
 package org.netbeans.modules.j2ee.blueprints.ui;
 
 import java.net.URL;
-import org.netbeans.modules.j2ee.blueprints.catalog.bpcatalogxmlparser.Category;
-import org.netbeans.modules.j2ee.blueprints.catalog.bpcatalogxmlparser.Solution;
-import org.netbeans.modules.j2ee.blueprints.catalog.bpcatalogxmlparser.Writeup;
+import org.netbeans.modules.j2ee.blueprints.catalog.bpcatalogxmlparser.Nbcategory;
+import org.netbeans.modules.j2ee.blueprints.catalog.bpcatalogxmlparser.Nbsolution;
+import org.netbeans.modules.j2ee.blueprints.catalog.bpcatalogxmlparser.Nbwriteup;
 
 /**
  * Tab Panel containing a browser with the contents of the article.
@@ -70,12 +70,12 @@ public class SolutionTab
     }
     
     public void updateTab() {
-        Category category = bluePrintsPanel.getSelectedCategory();
-        Solution solution = bluePrintsPanel.getSelectedArticle();
+        Nbcategory category = bluePrintsPanel.getSelectedCategory();
+        Nbsolution solution = bluePrintsPanel.getSelectedArticle();
         if(solution != null) {
-            Writeup writeup = solution.getWriteup();
+            Nbwriteup writeup = solution.getNbwriteup();
             String articleURLString = BluePrintsPanel.CATALOG_RESOURCES_URL 
-                + "/web/" + writeup.getArticlePath(); // NOI18N
+                + "/" + writeup.getArticlePath(); // NOI18N
             BpcatalogLocalizedResource htmlrsc =
                     new BpcatalogLocalizedResource(articleURLString, "html");
             URL articleURL = htmlrsc.getResourceURL();

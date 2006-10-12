@@ -20,9 +20,6 @@
 package org.netbeans.modules.j2ee.blueprints.ui;
 
 import java.net.URL;
-import org.netbeans.modules.j2ee.blueprints.catalog.bpcatalogxmlparser.Category;
-import org.netbeans.modules.j2ee.blueprints.catalog.bpcatalogxmlparser.Solution;
-import org.netbeans.modules.j2ee.blueprints.catalog.bpcatalogxmlparser.Writeup;
 
 /**
  * Tab Panel containing a browser with the contents of the article.

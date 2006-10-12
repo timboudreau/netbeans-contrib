@@ -21,13 +21,13 @@ package org.netbeans.modules.j2ee.blueprints.ui;
 
 import java.awt.event.ActionEvent;
 import javax.swing.Action;
-import org.netbeans.modules.j2ee.blueprints.catalog.bpcatalogxmlparser.Category;
-import org.netbeans.modules.j2ee.blueprints.catalog.bpcatalogxmlparser.Solution;
 import org.openide.ErrorManager;
 import org.openide.cookies.InstanceCookie;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.Repository;
 import org.openide.loaders.DataObject;
+
+import org.netbeans.modules.j2ee.blueprints.catalog.bpcatalogxmlparser.Nbcategory;
 
 /**
  * Tab Panel containing information about sample code for a solutions
@@ -157,9 +157,15 @@ public class ExampleTab
         if (a == null) {
             return false;
         }
+        Nbcategory category = bluePrintsPanel.getSelectedCategory();
+        String categoryId = category.getId();
+        if(category.getShowSpec().equals("true")){ //NOI18N
+            categoryId = category.getSpec() + "/" + categoryId; // NOI18N
+        }     
         a.putValue(PRESELECT_CATEGORY, BUNDLE_PROPERTY_PREFIX + "/" // NOI18N
-            + bluePrintsPanel.getSelectedCategory().getId());
+            + categoryId);
         a.putValue(PRESELECT_TEMPLATE, bluePrintsPanel.getExampleId());
+        
         ActionEvent ae = new ActionEvent(this, ActionEvent.ACTION_PERFORMED, 
             command);
         try {

@@ -116,7 +116,7 @@ public class EJBLocationsWizardPanel implements WizardDescriptor.Panel, ChangeLi
             }
         }
         component.setFolders(baseFolder, nbProjectFolder);
-        component.setConfigFiles(configFiles);
+        component.setConfigFilesField(configFiles);
         component.setSrcPackages(srcPackages);
     }
 

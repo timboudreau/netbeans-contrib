@@ -27,8 +27,6 @@ import org.netbeans.spi.project.AuxiliaryConfiguration;
 import org.netbeans.spi.project.support.ant.AntProjectHelper;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-
 
 /**
  * Reads/writes project.xml.
@@ -53,7 +51,6 @@ public class EJBProjectGenerator {
      * @param soruces list of pairs[relative path, display name]
      */
     public static void putEJBSourceFolder(AntProjectHelper helper, List/*<String>*/ sources) {
-        ArrayList list = new ArrayList();
         Element data = helper.getPrimaryConfigurationData(true);
         Document doc = data.getOwnerDocument();
         Element foldersEl = Util.findElement(data, "folders", NS_GENERAL); // NOI18N
@@ -90,14 +87,25 @@ public class EJBProjectGenerator {
             Util.appendChildElement(foldersEl, sourceFolderEl, folderElementsOrder);
             
             addSourceFolderViewItem(doc, itemsEl, EJBProjectNature.STYLE_CONFIG_FILES, "Configuration Files", path);
-
-            // TODO: ma154696: add support for multiple source roots?
-            //  now I get only first one, have to check impact of more roots 
-            // to Enterprise beans node (which one to put into view items
-            List sourceRootNames = getSourceFolders(doc, foldersEl, "java"); // NOI18N
-            addSourceFolderViewItem(doc, itemsEl, EJBProjectNature.STYLE_EJBS, "Enterprise Beans", (String) sourceRootNames.get(0)); // NOI18N
         }
         
+        helper.putPrimaryConfigurationData(data, true);
+    }
+    
+    // #82897: putting Enterprise Beans node to view section needs to be done separately
+    public static void putEJBNodeView(AntProjectHelper helper, List/*<String>*/ sources) {
+        // TODO: ma154696: add support for multiple source roots?
+        // now I get only first one, have to check impact of more roots 
+        // to Enterprise beans node (which one to put into view items
+        Element data = helper.getPrimaryConfigurationData(true);
+        Document doc = data.getOwnerDocument();
+        Element foldersEl = Util.findElement(data, "folders", NS_GENERAL); // NOI18N
+        Element viewEl = Util.findElement(data, "view", NS_GENERAL); // NOI18N
+        Element itemsEl = Util.findElement(viewEl, "items", NS_GENERAL); // NOI18N
+        List sourceRootNames = getSourceFolders(doc, foldersEl, "java"); // NOI18N
+        if (sourceRootNames.size() > 0) {
+            addSourceFolderViewItem(doc, itemsEl, EJBProjectNature.STYLE_EJBS, "Enterprise Beans", (String) sourceRootNames.get(0)); // NOI18N
+        }
         helper.putPrimaryConfigurationData(data, true);
     }
     
@@ -216,7 +224,14 @@ public class EJBProjectGenerator {
             AntProjectHelper helper, AuxiliaryConfiguration aux) {
         //assert ProjectManager.mutex().isReadAccess() || ProjectManager.mutex().isWriteAccess();
         ArrayList list = new ArrayList();
-        Element data = aux.getConfigurationFragment("ejb-data", EJBProjectNature.NS_EJB, true); // NOI18N
+        Element data = aux.getConfigurationFragment(EJBProjectNature.EL_EJB, EJBProjectNature.NS_EJB_2, true);
+        if (data == null) {
+            data = aux.getConfigurationFragment(EJBProjectNature.EL_EJB, EJBProjectNature.NS_EJB, true);
+        }
+        if (data == null) {
+            return list;
+        }
+        
         List/*<Element>*/ wms = Util.findSubElements(data);
         Iterator it = wms.iterator();
         while (it.hasNext()) {
@@ -233,10 +248,6 @@ public class EJBProjectGenerator {
                     wm.classpath = Util.findText(el);
                     continue;
                 }
-                //                if (el.getLocalName().equals("context-path")) { // NOI18N
-                //                    wm.contextPath = Util.findText(el);
-                //                    continue;
-                //                }
                 if (el.getLocalName().equals("j2ee-spec-level")) { // NOI18N
                     wm.j2eeSpecLevel = Util.findText(el);
                 }
@@ -256,12 +267,40 @@ public class EJBProjectGenerator {
     public static void putEJBModules(AntProjectHelper helper,
             AuxiliaryConfiguration aux, List/*<EJBModule>*/ ejbModules) {
         //assert ProjectManager.mutex().isWriteAccess();
-        ArrayList list = new ArrayList();
-        Element data = aux.getConfigurationFragment("ejb-data", EJBProjectNature.NS_EJB, true); // NOI18N
-        if (data == null) {
-            data = helper.getPrimaryConfigurationData(true).getOwnerDocument().
-                    createElementNS(EJBProjectNature.NS_EJB, "ejb-data"); // NOI18N
+        
+        // This /1 vs. /2 logic is mostly copied from JavaProjectGenerator.java
+        boolean need2 = false;
+        for (Iterator iter = ejbModules.iterator(); iter.hasNext(); ) {
+            EJBModule em = (EJBModule) iter.next();
+            if (em.j2eeSpecLevel.equals("1.5")) {
+                need2 = true;
+                break;
+            }
         }
+        String namespace;
+        // Look for existing /2 data.
+        Element data = aux.getConfigurationFragment(EJBProjectNature.EL_EJB, EJBProjectNature.NS_EJB_2, true); // NOI18N
+        if (data !=  null) {
+            // if there is one, use it
+            namespace = EJBProjectNature.NS_EJB_2;
+        } else {
+            // Or, for existing /1 data.
+            namespace = need2 ? EJBProjectNature.NS_EJB_2 : EJBProjectNature.NS_EJB;
+            data = aux.getConfigurationFragment(EJBProjectNature.EL_EJB, EJBProjectNature.NS_EJB, true);
+            if (data != null) {
+                if (need2) {
+                    // Have to upgrade.
+                    aux.removeConfigurationFragment(EJBProjectNature.EL_EJB, EJBProjectNature.NS_EJB, true);
+                    data = helper.getPrimaryConfigurationData(true).getOwnerDocument().
+                            createElementNS(EJBProjectNature.NS_EJB_2, EJBProjectNature.EL_EJB);
+                } // else can use it as is
+            } else {
+                // Create /1 or /2 data acc. to need.
+                data = helper.getPrimaryConfigurationData(true).getOwnerDocument().
+                    createElementNS(namespace, EJBProjectNature.EL_EJB);
+            }
+        }
+        
         Document doc = data.getOwnerDocument();
         List wms = Util.findSubElements(data);
         Iterator it = wms.iterator();
@@ -271,27 +310,22 @@ public class EJBProjectGenerator {
         }
         Iterator it2 = ejbModules.iterator();
         while (it2.hasNext()) {
-            Element wmEl = doc.createElementNS(EJBProjectNature.NS_EJB, "ejb-module"); // NOI18N
+            Element wmEl = doc.createElementNS(namespace, "ejb-module"); // NOI18N
             data.appendChild(wmEl);
             EJBModule wm = (EJBModule)it2.next();
             Element el;
             if (wm.configFiles != null) {
-                el = doc.createElementNS(EJBProjectNature.NS_EJB, "config-files"); // NOI18N
+                el = doc.createElementNS(namespace, "config-files"); // NOI18N
                 el.appendChild(doc.createTextNode(wm.configFiles));
                 wmEl.appendChild(el);
             }
             if (wm.classpath != null) {
-                el = doc.createElementNS(EJBProjectNature.NS_EJB, "classpath"); // NOI18N
+                el = doc.createElementNS(namespace, "classpath"); // NOI18N
                 el.appendChild(doc.createTextNode(wm.classpath));
                 wmEl.appendChild(el);
             }
-            //            if (wm.contextPath != null) {
-            //                el = doc.createElementNS(EJBProjectNature.NS_EJB, "context-path"); // NOI18N
-            //                el.appendChild(doc.createTextNode(wm.contextPath));
-            //                wmEl.appendChild(el);
-            //            }
             if (wm.j2eeSpecLevel != null) {
-                el = doc.createElementNS(EJBProjectNature.NS_EJB, "j2ee-spec-level"); // NOI18N
+                el = doc.createElementNS(namespace, "j2ee-spec-level"); // NOI18N
                 el.appendChild(doc.createTextNode(wm.j2eeSpecLevel));
                 wmEl.appendChild(el);
             }

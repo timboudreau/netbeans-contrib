@@ -115,11 +115,16 @@ public class NewEJBFreeformProjectWizardIterator implements WizardDescriptor.Ins
                     org.netbeans.modules.j2ee.api.ejbjar.EjbJar ejbModule = org.netbeans.modules.j2ee.api.ejbjar.EjbJar.getEjbJars(p)[0];
                     if (ejbModule != null) {
                         FileObject ejbJarFile = ejbModule.getDeploymentDescriptor();
-                        EjbJar dd = DDProvider.getDefault().getDDRoot(ejbJarFile);
+                        EjbJar dd = DDProvider.getDefault().getMergedDDRoot(ejbModule.getMetadataUnit());
+                        // #82897: putEJBNodeView() is called here because Enterprise Beans
+                        // node is supposed to be shown only for non EJB 3.0 projects
+                        if (!new BigDecimal(EjbJar.VERSION_3_0).equals(dd.getVersion())) {
+                            EJBProjectGenerator.putEJBNodeView(helper, ejbSources);
+                        }
                         boolean write = false;
                         // set the DD display name if there is none
                         String dispName = dd.getDefaultDisplayName();
-                        if (null == dispName || dispName.trim().length() == 0) {
+                        if ((null == dispName || dispName.trim().length() == 0) && (ejbJarFile != null))  {
                             dd.setDisplayName(helper.getProjectDirectory().getName());
                             write = true;
                         }
@@ -128,8 +133,15 @@ public class NewEJBFreeformProjectWizardIterator implements WizardDescriptor.Ins
                             dd.setVersion(new BigDecimal(EjbJar.VERSION_2_1));
                             write = true;
                         }
-                        if (write)
+                        // probably update the DD to 3.0 if it's 1.5 and no DD specified - XXX after #82231 is fixed!
+                        // if (j2eeLevel.equals("1.5") && ejbJarFile != null) { // NOI18N
+                        //     dd.setVersion(new BigDecimal(EjbJar.VERSION_3_0));
+                        //     write = true;
+                        // }
+                        // ejbJarFile can be null for Java EE 5
+                        if (write && ejbJarFile != null) {
                             dd.write(ejbJarFile);
+                        }
                     }
                     
                     ProjectManager.getDefault().saveProject(p);

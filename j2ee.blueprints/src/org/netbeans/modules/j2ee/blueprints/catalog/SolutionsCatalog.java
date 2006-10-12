@@ -22,7 +22,7 @@ package org.netbeans.modules.j2ee.blueprints.catalog;
 import java.io.IOException;
 import java.io.InputStream;
 import javax.xml.parsers.ParserConfigurationException;
-import org.netbeans.modules.j2ee.blueprints.catalog.bpcatalogxmlparser.Bpcatalog;
+import org.netbeans.modules.j2ee.blueprints.catalog.bpcatalogxmlparser.Nbcatalog;
 import org.xml.sax.SAXException;
 
 /**
@@ -33,12 +33,13 @@ import org.xml.sax.SAXException;
 public class SolutionsCatalog {
 
     private static SolutionsCatalog theInstance = null;
-    private static final String BPCATALOG_XML_PATH =
-        "/org/netbeans/modules/j2ee/blueprints/bpcatalog.xml"; // NOI18N
     
-    /** Parsed representation of bpcatalog.xml */
-    private Bpcatalog bpcatalogXml = null;
-    
+    private static final String NBCATALOG =
+        "/org/netbeans/modules/j2ee/blueprints/nbcatalog.xml"; // NOI18N
+        
+    /** Parsed representation of nbcatalog.xml */
+    private Nbcatalog nbcatalogXml = null;
+        
     /** Private Singleton constructor */
     private SolutionsCatalog() {}
 
@@ -55,20 +56,23 @@ public class SolutionsCatalog {
         }
     }
     
-    public Bpcatalog getBpcatalogXml() {
-        if(bpcatalogXml == null) {
-            // Lazily parse bpcatalog.xml
-            parseBpcatalogXml();
-        }
-        return bpcatalogXml;
+    public Nbcatalog getCatalogXml() {
+        if(this.nbcatalogXml == null){
+            parseCatalogXml(NBCATALOG);
+        }    
+        return this.nbcatalogXml;
     }
     
-    private synchronized void parseBpcatalogXml() {
-        if(this.bpcatalogXml == null) {
-            this.bpcatalogXml = new Bpcatalog();
+    public Nbcatalog getCurrentNbcatalogXml() {
+        parseCatalogXml(NBCATALOG);
+        return nbcatalogXml;
+    }
+    
+    private synchronized void parseCatalogXml(String catalogFile) {
+            this.nbcatalogXml = new Nbcatalog();
             try {
-                InputStream in = getClass().getResourceAsStream(BPCATALOG_XML_PATH);
-                this.bpcatalogXml = Bpcatalog.read(in);
+                InputStream in = getClass().getResourceAsStream(catalogFile);
+                this.nbcatalogXml = Nbcatalog.read(in);
                 in.close();
             }
             catch(ParserConfigurationException e) {
@@ -80,6 +84,5 @@ public class SolutionsCatalog {
             catch(IOException e) {
                 throw new RuntimeException(e);
             }
-        }
     }
 }

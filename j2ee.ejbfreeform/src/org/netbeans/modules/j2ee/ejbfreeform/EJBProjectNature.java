@@ -23,7 +23,6 @@ import java.io.IOException;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -61,22 +60,23 @@ import org.openide.util.NbBundle;
 import org.openide.util.lookup.Lookups;
 import org.openide.util.lookup.ProxyLookup;
 
-
 /**
  * @author David Konecny
  */
 public class EJBProjectNature implements ProjectNature {
 
     public static final String NS_EJB = "http://www.netbeans.org/ns/freeform-project-ejb/1"; // NOI18N
+    public static final String NS_EJB_2 = "http://www.netbeans.org/ns/freeform-project-ejb/2"; // NOI18N
     private static final String SCHEMA = "nbres:/org/netbeans/modules/j2ee/ejbfreeform/resources/freeform-project-ejb.xsd"; // NOI18N
+    private static final String SCHEMA_2 = "nbres:/org/netbeans/modules/j2ee/ejbfreeform/resources/freeform-project-ejb-2.xsd"; // NOI18N
+    
+    public static final String EL_EJB = "ejb-data"; // NOI18N
     public static final String STYLE_CONFIG_FILES = "configFiles"; // NOI18N
     public static final String STYLE_EJBS = "ejbs"; // NOI18N
 
     private static final String HELP_ID_FRAGMENT = "ejb"; // NOI18N
     
     private static final WeakHashMap/*<Project,WeakReference<Lookup>>*/ lookupCache = new WeakHashMap();
-
-    private List schemas = new ArrayList();
     
     public EJBProjectNature() {}
 
@@ -110,7 +110,7 @@ public class EJBProjectNature implements ProjectNature {
     }
     
     public Set/*<String>*/ getSchemas() {
-        return Collections.singleton(SCHEMA);
+        return new HashSet(Arrays.asList(new String[] { SCHEMA, SCHEMA_2 }));
     }
 
     public Set/*<String>*/ getSourceFolderViewStyles() {
@@ -131,7 +131,7 @@ public class EJBProjectNature implements ProjectNature {
             FileObject ddFile = ejbJar.getDeploymentDescriptor();
             org.netbeans.modules.j2ee.dd.api.ejb.EjbJar model;
             try {
-                model = DDProvider.getDefault().getDDRoot(ddFile);
+                model = DDProvider.getDefault().getMergedDDRoot(ejbJar.getMetadataUnit());
                 ClassPath cp = org.netbeans.spi.java.classpath.support.ClassPathSupport.createClassPath(ejbJar.getJavaSources());
                 return J2eeProjectView.createEjbsView(model, cp, ddFile, project);
             } catch (IOException ex) {
@@ -176,7 +176,8 @@ public class EJBProjectNature implements ProjectNature {
     }
 
     private static boolean isMyProject(AuxiliaryConfiguration aux) {
-        return aux.getConfigurationFragment("ejb-data", NS_EJB, true) != null; // NOI18N
+        return (aux.getConfigurationFragment(EL_EJB, NS_EJB, true) != null) ||
+               (aux.getConfigurationFragment(EL_EJB, NS_EJB_2, true) != null);
     }
     
     public static TargetDescriptor getExtraTarget() {
@@ -187,13 +188,19 @@ public class EJBProjectNature implements ProjectNature {
     
     private static Lookup initLookup(Project project, AntProjectHelper projectHelper, PropertyEvaluator projectEvaluator, AuxiliaryConfiguration aux) {
         
+        EJBFreeformProvider ejbFFProvider = new EJBFreeformProvider(project, projectHelper, projectEvaluator);
+        EJBFreeformModule ejbFFModule = new EJBFreeformModule(project, projectHelper, projectEvaluator);
+        ejbFFProvider.setJ2eeModule(ejbFFModule);
+                
         return Lookups.fixed(new Object[] {
-            new EJBFreeformProvider(project, projectHelper, projectEvaluator),
+            ejbFFProvider,
+            ejbFFModule,
             new EJBModules(project, projectHelper, projectEvaluator), // EJBModuleProvider, ClassPathProvider
             new PrivilegedTemplatesImpl(), // List of templates in New action popup
             EjbEnterpriseReferenceContainerSupport.createEnterpriseReferenceContainer(project, projectHelper),
             new EjbFreeFormActionProvider(project, projectHelper, aux),
             new ProjectOpenedHookImpl(project),
+            new LookupMergerImpl(),
             new HelpIDFragmentProviderImpl(),
         });
     }
@@ -266,9 +273,7 @@ public class EJBProjectNature implements ProjectNature {
         
         private static final String[] PRIVILEGED_NAMES = new String[] {
             "Templates/J2EE/Session", // NOI18N
-            "Templates/J2EE/RelatedCMP", // NOI18N
             "Templates/J2EE/Entity",  // NOI18N
-            "Templates/J2EE/Message", //NOI18N
             "Templates/J2EE/ServiceLocator.java", // NOI18N
             "Templates/Classes/Class.java" // NOI18N
         };
@@ -276,6 +281,7 @@ public class EJBProjectNature implements ProjectNature {
         private static final String[] RECOMENDED_TYPES = new String[] {
             "java-classes",         // NOI18N
             "ejb-types",            // NOI18N
+            "ejb-types_2_1",        // NOI18N
             "j2ee-types",           // NOI18N
             "java-beans",           // NOI18N
             "oasis-XML-catalogs",   // NOI18N
@@ -294,9 +300,9 @@ public class EJBProjectNature implements ProjectNature {
         public String[] getRecommendedTypes() {
             return RECOMENDED_TYPES;
         }
-        
-        
-        
+     
+    
+    
     }
     
 }

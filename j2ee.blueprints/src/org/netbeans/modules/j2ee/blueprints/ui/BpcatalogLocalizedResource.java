@@ -46,13 +46,19 @@ public class BpcatalogLocalizedResource {
     }
     
     public URL getResourceURL() {
+        String path = getResourcePath();
+        articleURL = (URL)getClass().getResource(path);
+        return articleURL;
+    }
+    
+    public String getResourcePath() {
         StringBuffer path = new StringBuffer(orgpath);
         if (!variant.equals("")) {
             if (!country.equals("")) {
                 path.insert(offset, "_"+lang+"_"+country+"_"+variant);
                 articleURL = getClass().getResource(path.toString());
                 if (articleURL!=null) {
-                    return articleURL;
+                    return path.toString();
                 }
             }
         }
@@ -62,16 +68,16 @@ public class BpcatalogLocalizedResource {
             path.insert(offset, "_"+lang+"_"+country);
             articleURL = getClass().getResource(path.toString());
             if (articleURL!=null) {
-                return articleURL;
+                return path.toString();
             }
         }
         path.replace(0, path.length(), orgpath);
         path.insert(offset, "_"+lang);
         articleURL = getClass().getResource(path.toString());
         if (articleURL!=null) {
-            return articleURL;
+            return path.toString();
         } else {
-            return (URL)getClass().getResource(orgpath);
+            return orgpath;
         }
     }
     

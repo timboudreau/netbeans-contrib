@@ -29,6 +29,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import org.netbeans.modules.j2ee.api.ejbjar.EjbJar;
+import org.netbeans.modules.j2ee.metadata.MetadataUnit;
 import org.netbeans.modules.j2ee.spi.ejbjar.EjbJarFactory;
 import org.netbeans.modules.j2ee.spi.ejbjar.EjbJarImplementation;
 import org.netbeans.modules.j2ee.spi.ejbjar.EjbJarProvider;
@@ -66,7 +67,7 @@ public class EJBModules implements EjbJarProvider, EjbJarsInProject, AntProjectL
     private Project project;
     private AntProjectHelper helper;
     private PropertyEvaluator evaluator;
-    
+        
     public EJBModules (Project project, AntProjectHelper helper, PropertyEvaluator evaluator) {
         assert project != null;
         this.project = project;
@@ -122,7 +123,12 @@ public class EJBModules implements EjbJarProvider, EjbJarsInProject, AntProjectL
         cache.clear();
         AuxiliaryConfiguration aux = (AuxiliaryConfiguration)project.getLookup().lookup(AuxiliaryConfiguration.class);
         assert aux != null;
-        Element ejb = aux.getConfigurationFragment("ejb-data", EJBProjectNature.NS_EJB, true);
+        Element ejb = aux.getConfigurationFragment(EJBProjectNature.EL_EJB, EJBProjectNature.NS_EJB_2, true);
+        String namespace = EJBProjectNature.NS_EJB_2;
+        if (ejb == null) {
+            ejb = aux.getConfigurationFragment(EJBProjectNature.EL_EJB, EJBProjectNature.NS_EJB, true);
+            namespace = EJBProjectNature.NS_EJB;
+        }
         if (ejb == null) {
             return;
         }
@@ -132,20 +138,21 @@ public class EJBModules implements EjbJarProvider, EjbJarsInProject, AntProjectL
             Element ejbModulesEl = (Element)it.next();
             assert ejbModulesEl.getLocalName().equals("ejb-module") : ejbModulesEl;
             FileObject configFilesFO = getFile (ejbModulesEl, "config-files"); //NOI18N
-            Element j2eeSpecEl = Util.findElement (ejbModulesEl, "j2ee-spec-level", EJBProjectNature.NS_EJB);
+            Element j2eeSpecEl = Util.findElement (ejbModulesEl, "j2ee-spec-level", namespace);
             String j2eeSpec = j2eeSpecEl == null ? null : evaluator.evaluate (Util.findText (j2eeSpecEl));
-//            Element contextPathEl = Util.findElement (ejbModulesEl, "context-path", EJBProjectNature.NS_WEB);
-//            String contextPathText = contextPathEl == null ? null : Util.findText (contextPathEl);
-//            String contextPath = contextPathText == null ? null : evaluator.evaluate (contextPathText);
-            Element classpathEl = Util.findElement (ejbModulesEl, "classpath", EJBProjectNature.NS_EJB);
-            ClassPath cp = classpathEl == null ? null : createClasspath (classpathEl);
+            Element classpathEl = Util.findElement (ejbModulesEl, "classpath", namespace);
             FileObject [] sources = getSources (classpathEl);
-            modules.add (new FFEJBModule (configFilesFO, j2eeSpec, /*contextPath,*/ sources, cp));
+            ClassPath cp = classpathEl == null ? null : createClasspath (classpathEl, sources);
+            File[] j2eePlatformClasspath = org.netbeans.modules.j2ee.common.Util.getJ2eePlatformClasspathEntries(project);
+            modules.add (new FFEJBModule (configFilesFO, j2eeSpec, sources, cp, j2eePlatformClasspath));
         }
     }
     
     private FileObject getFile (Element parent, String fileElName) {
-        Element el = Util.findElement (parent, fileElName, EJBProjectNature.NS_EJB);
+        Element el = Util.findElement (parent, fileElName, EJBProjectNature.NS_EJB_2);
+        if (el == null) {
+            el = Util.findElement (parent, fileElName, EJBProjectNature.NS_EJB);
+        }
         String fname = Util.findText (el);
         String locationEval = evaluator.evaluate(fname);
         if (locationEval != null) {
@@ -204,7 +211,7 @@ public class EJBModules implements EjbJarProvider, EjbJarsInProject, AntProjectL
     /**
      * Create a classpath from a &lt;classpath&gt; element.
      */
-    private ClassPath createClasspath(Element classpathEl) {
+    private ClassPath createClasspath(Element classpathEl, FileObject[] sources) {
         String cp = Util.findText(classpathEl);
         if (cp == null) {
             cp = "";
@@ -214,9 +221,21 @@ public class EJBModules implements EjbJarProvider, EjbJarsInProject, AntProjectL
             return null;
         }
         String[] path = PropertyUtils.tokenizePath(cpEval);
-        URL[] pathURL = new URL[path.length];
+        Set entries = new HashSet();
         for (int i = 0; i < path.length; i++) {
-            File entryFile = helper.resolveFile(path[i]);
+            entries.add(helper.resolveFile(path[i]));
+        }
+        if (entries.size() == 0) {
+            // if the classpath element was empty then the classpath
+            // should contain all source roots
+            for (int i = 0; i < sources.length; i++) {
+                entries.add(FileUtil.toFile(sources[i]));
+            }
+        }
+        URL[] pathURL = new URL[entries.size()];
+        int i = 0;
+        for (Iterator it = entries.iterator(); it.hasNext();) {
+            File entryFile = (File)it.next();
             URL entry;
             try {
                 entry = entryFile.toURI().toURL();
@@ -232,11 +251,9 @@ public class EJBModules implements EjbJarProvider, EjbJarsInProject, AntProjectL
             } catch (MalformedURLException x) {
                 throw new AssertionError(x);
             }
-            pathURL[i] = entry;
+            pathURL[i++] = entry;
         }
-        // create a null classpath instead of an empty one 
-        // in order to allow the Java nature to return its classpath
-        return pathURL.length > 0 ? ClassPathSupport.createClassPath(pathURL) : null;
+        return ClassPathSupport.createClassPath(pathURL);
     }
     
     public void configurationXmlChanged(AntProjectEvent ev) {
@@ -265,7 +282,7 @@ public class EJBModules implements EjbJarProvider, EjbJarsInProject, AntProjectL
         return results;
     }
     
-    private final class FFEJBModule implements EjbJarImplementation {
+    private static final class FFEJBModule implements EjbJarImplementation {
         
 //        public static final String FOLDER_META_INF = "META-INF";//NOI18N
         public static final String FILE_DD        = "ejb-jar.xml";//NOI18N
@@ -274,14 +291,18 @@ public class EJBModules implements EjbJarProvider, EjbJarsInProject, AntProjectL
         private FileObject [] sourcesFOs;
         private ClassPath classPath;
         private String j2eeSpec;
+        private MetadataUnit metadataUnit;
+        private ClassPath metadataClassPath;
+        private File[] j2eePlatformClasspath;
 //        private String contextPath;
         
-        FFEJBModule (FileObject configFilesFO, String j2eeSpec, /*String contextPath,*/ FileObject sourcesFOs[], ClassPath classPath) {
+        FFEJBModule (FileObject configFilesFO, String j2eeSpec, /*String contextPath,*/ FileObject sourcesFOs[], ClassPath classPath, File[] j2eePlatformClasspath) {
             this.configFilesFO = configFilesFO;
             this.j2eeSpec = j2eeSpec;
 //            this.contextPath = contextPath;
             this.sourcesFOs = sourcesFOs;
             this.classPath = classPath;
+            this.j2eePlatformClasspath = j2eePlatformClasspath;
         }
         
         boolean contais (FileObject fo) {
@@ -332,6 +353,25 @@ public class EJBModules implements EjbJarProvider, EjbJarsInProject, AntProjectL
         public FileObject[] getJavaSources() {
             return sourcesFOs;
         }
+
+        public MetadataUnit getMetadataUnit() {
+            synchronized (this) {
+                if (metadataUnit == null) {
+                    metadataUnit = new MetadataUnitImpl();
+                }
+                return metadataUnit;
+            }
+        }
         
+        private class MetadataUnitImpl implements MetadataUnit {
+            public ClassPath getClassPath() {
+                return classPath;
+            }
+            public FileObject getDeploymentDescriptor() {
+                return FFEJBModule.this.getDeploymentDescriptor();
+            }
+        }
+
     }
+
 }

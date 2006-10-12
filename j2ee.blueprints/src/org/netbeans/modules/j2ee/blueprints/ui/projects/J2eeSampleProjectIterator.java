@@ -96,6 +96,9 @@ public class J2eeSampleProjectIterator implements TemplateWizard.Iterator {
 
         prjLoc = J2eeSampleProjectGenerator.createProjectFromTemplate(templateWizard.getTemplate().getPrimaryFile(), projectLocation, name);
         
+        //Get the overview page for current project
+        J2eeSampleProjectGenerator.getOverviewPage(templateWizard);
+        
         //return Collections.singleton(DataObject.find(prjLoc));
         
         Set hset = new HashSet();

@@ -117,7 +117,7 @@ public class EJBFreeformModule implements J2eeModule {
     
     private EjbJar getEjbJar() {
         try {
-            return DDProvider.getDefault().getDDRoot(getEjbModule().getDeploymentDescriptor());
+            return DDProvider.getDefault().getMergedDDRoot(getEjbModule().getMetadataUnit());
         } catch (java.io.IOException e) {
             org.openide.ErrorManager.getDefault().log(e.getLocalizedMessage());
         }

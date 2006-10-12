@@ -20,16 +20,17 @@
 package org.netbeans.modules.j2ee.blueprints.ui.projects;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.HashMap;
+import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
+import org.netbeans.modules.j2ee.blueprints.catalog.SolutionsCatalog;
 import org.netbeans.spi.project.support.ant.AntProjectHelper;
 import org.netbeans.spi.project.support.ant.EditableProperties;
-import org.netbeans.spi.project.support.ant.ProjectGenerator;
 import org.openide.filesystems.FileLock;
 
 import org.openide.filesystems.FileObject;
@@ -41,7 +42,16 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.w3c.dom.Text;
 import org.xml.sax.*;
-//import org.xml.sax.InputSource;
+import org.netbeans.modules.j2ee.blueprints.catalog.bpcatalogxmlparser.Nbcatalog;
+import org.netbeans.modules.j2ee.blueprints.catalog.bpcatalogxmlparser.Nbcategory;
+import org.netbeans.modules.j2ee.blueprints.catalog.bpcatalogxmlparser.Nbexample;
+import org.netbeans.modules.j2ee.blueprints.catalog.bpcatalogxmlparser.Nbsolution;
+import org.netbeans.modules.j2ee.blueprints.catalog.bpcatalogxmlparser.Nbwriteup;
+import org.netbeans.modules.j2ee.blueprints.ui.BpcatalogLocalizedResource;
+import org.netbeans.modules.j2ee.blueprints.ui.overview.OverviewPageTopComponent;
+import org.openide.modules.InstalledFileLocator;
+import org.openide.windows.TopComponent;
+import org.openide.windows.WindowManager;
 
 /**
  * Create a sample J2EE project by unzipping a template into some directory
@@ -149,6 +159,10 @@ public class J2eeSampleProjectGenerator {
         final String DIST_EAR_JAR = "dist.ear.jar";  // NOI18N
         final String WAR_NAME = "war.name";  // NOI18N
         final String WAR_EAR_NAME = "war.ear.name";  // NOI18N
+        
+        String BP_LIB_DIR = "bp-lib.dir"; //NOI18N
+        String BP_UI5_JAR = "file.reference.bp-ui-5.jar"; //NOI18N
+        
         String currentProp;
         String suffix;
         
@@ -185,6 +199,14 @@ public class J2eeSampleProjectGenerator {
                         prjName + currentProp.substring(currentProp.indexOf("."))); // NOI18N
             }
         }
+        
+        //Replace library location
+        String bpLibsLocation = getBlueprintsLibsLocation();
+        props.setProperty(BP_LIB_DIR, bpLibsLocation);
+        if(props.getProperty(BP_UI5_JAR) != null){
+            props.setProperty(BP_UI5_JAR, bpLibsLocation + File.separator + "bp-ui-5.jar"); //NOI18N
+        }
+        
         //helper.putProperties(AntProjectHelper.PROJECT_PROPERTIES_PATH, props);
         FileLock lock = prjProp.lock();
         try {
@@ -285,4 +307,67 @@ public class J2eeSampleProjectGenerator {
             return new InputSource(url.toString());
         }
     }
+        
+    private static String getBlueprintsLibsLocation(){
+        String location = "";
+        File f = InstalledFileLocator.getDefault().locate("modules/ext/blueprints/bp-ui-14.jar", null, true);        
+        if(f != null)
+            location = f.getParentFile().getAbsolutePath();
+        return location;
+    }    
+    
+    public static void getOverviewPage(org.openide.loaders.TemplateWizard templateWizard){
+        TopComponent tc = WindowManager.getDefault().findTopComponent("BluePrints");
+        if(tc.isOpened()){
+            return;
+        }   
+        
+        FileObject template = templateWizard.getTemplate().getPrimaryFile();
+        String currentModName = template.getName();
+        SolutionsCatalog solutionsCatalog = SolutionsCatalog.getInstance();
+        
+        Nbcatalog nbcatalog = solutionsCatalog.getCatalogXml();
+        HashMap overviewFiles = populateEntries(nbcatalog);
+        String pagePath = (String)overviewFiles.get(currentModName);
+        String overviewPage = getLocalizedPath(pagePath);
+
+        TopComponent win = OverviewPageTopComponent.findInstance();
+        OverviewPageTopComponent comp = (OverviewPageTopComponent)win;
+        if(comp.isOpened())
+            comp.close();
+        comp.setOverviewFile(overviewPage);
+        comp.open();
+        comp.requestActive();
+    }
+       
+    private static HashMap populateEntries(Nbcatalog nbcatalog){ 
+        HashMap overviewFiles = new HashMap();
+        List cats = nbcatalog.fetchNbcategoryList();
+        for(int catNum=0; catNum<cats.size(); catNum++){
+            Nbcategory category = (Nbcategory)cats.get(catNum);
+            List sols = category.fetchNbsolutionList();
+            for(int solNum=0; solNum<sols.size(); solNum++){
+                Nbsolution sol = (Nbsolution)sols.get(solNum);
+                Nbwriteup write = sol.getNbwriteup();
+                String categoryID = category.getId();
+                String articlePath = write.getArticlePath();
+                if(categoryID.equals("Ajax")) { //NOI18N
+                    articlePath = "docs/ajax/overview-Ajax.html";
+                }else if(categoryID.equals("JavaPersistence")) { //NOI18N
+                    articlePath = "docs/persistence/overview-JavaPersistence.html";
+                }
+                overviewFiles.put(sol.getExampleId(), articlePath);
+            }
+        }
+        return overviewFiles;
+    }
+    
+    private static String getLocalizedPath(String articlePath){
+        String CATALOG_RESOURCES_URL = "/org/netbeans/modules/j2ee/blueprints/catalog/resources"; // NOI18N
+        String path = CATALOG_RESOURCES_URL  + "/" + articlePath; // NOI18N
+        BpcatalogLocalizedResource htmlrsc =
+                    new BpcatalogLocalizedResource(path, "html"); // NOI18N
+        String localizedPath = htmlrsc.getResourcePath();
+        return localizedPath;
+    }    
 }

@@ -49,7 +49,6 @@ public class EJBFreeformProvider extends J2eeModuleProvider implements ModuleCha
     private Project project;
     private AntProjectHelper helper;
     private PropertyEvaluator evaluator;
-    private EJBModules ejbModules;
     private EJBFreeformModule ejbModule;
     
     /** Creates a new instance of EJBFreeformProvider */
@@ -57,8 +56,6 @@ public class EJBFreeformProvider extends J2eeModuleProvider implements ModuleCha
         this.project = project;
         this.helper = helper;
         this.evaluator = evaluator;
-        ejbModules = new EJBModules(project, helper, evaluator);
-        ejbModule = new EJBFreeformModule(project, helper, evaluator);
         evaluator.addPropertyChangeListener(this);
     }
     
@@ -78,6 +75,10 @@ public class EJBFreeformProvider extends J2eeModuleProvider implements ModuleCha
     
     public ModuleChangeReporter getModuleChangeReporter() {
         return this;
+    }
+    
+    void setJ2eeModule(EJBFreeformModule ejbFreeMod) {
+        ejbModule = ejbFreeMod;
     }
     
     public J2eeModule getJ2eeModule() {

@@ -486,7 +486,7 @@ public class EjbFreeFormActionProvider implements ActionProvider {
         InputStream in = null;
         try {
             out = new BufferedOutputStream(fo.getOutputStream(lock));
-            in = getClass().getResourceAsStream(DEBUG_PROPERTIES_TEMPLATE);
+            in = EjbFreeFormActionProvider.class.getResourceAsStream(DEBUG_PROPERTIES_TEMPLATE);
             byte[] buffer = new byte[4096];
             int read;
             do {

@@ -53,10 +53,11 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.html.HTMLEditorKit;
 import org.netbeans.modules.j2ee.blueprints.catalog.SolutionsCatalog;
-import org.netbeans.modules.j2ee.blueprints.catalog.bpcatalogxmlparser.Category;
-import org.netbeans.modules.j2ee.blueprints.catalog.bpcatalogxmlparser.Bpcatalog;
-import org.netbeans.modules.j2ee.blueprints.catalog.bpcatalogxmlparser.Solution;
-import org.netbeans.modules.j2ee.blueprints.catalog.bpcatalogxmlparser.Writeup;
+import org.netbeans.modules.j2ee.blueprints.catalog.bpcatalogxmlparser.Nbcatalog;
+import org.netbeans.modules.j2ee.blueprints.catalog.bpcatalogxmlparser.Nbcategory;
+import org.netbeans.modules.j2ee.blueprints.catalog.bpcatalogxmlparser.Nbexample;
+import org.netbeans.modules.j2ee.blueprints.catalog.bpcatalogxmlparser.Nbsolution;
+import org.netbeans.modules.j2ee.blueprints.catalog.bpcatalogxmlparser.Nbwriteup;
 import org.openide.ErrorManager;
 import org.openide.filesystems.FileUtil;
 import org.openide.util.NbBundle;
@@ -103,8 +104,6 @@ public class BluePrintsPanel extends javax.swing.JPanel {
         titleLbl = new AntialiasedJLabel();
         titleSubLbl = new AntialiasedJLabel();
         toolbarPanel = new javax.swing.JPanel();
-        backBtn = new javax.swing.JButton();
-        forwardBtn = new javax.swing.JButton();
         entryCbx = new javax.swing.JComboBox();
         tabbedPnl = new javax.swing.JTabbedPane();
         categoryPnl = new CategoryTab(this);
@@ -132,7 +131,7 @@ public class BluePrintsPanel extends javax.swing.JPanel {
         titleLbl.setFont(new java.awt.Font("Dialog", 1, 24));
         titleLbl.setForeground(new java.awt.Color(89, 79, 191));
         titleLbl.setText(java.util.ResourceBundle.getBundle("org/netbeans/modules/j2ee/blueprints/ui/Bundle").getString("NB_title"));
-        titleLbl.setBorder(new javax.swing.border.EmptyBorder(new java.awt.Insets(1, 12, 1, 1)));
+        titleLbl.setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 12, 1, 1));
         titleLbl.setOpaque(true);
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
@@ -143,7 +142,7 @@ public class BluePrintsPanel extends javax.swing.JPanel {
         titleSubLbl.setBackground(new java.awt.Color(251, 226, 73));
         titleSubLbl.setForeground(new java.awt.Color(89, 79, 191));
         titleSubLbl.setText(java.util.ResourceBundle.getBundle("org/netbeans/modules/j2ee/blueprints/ui/Bundle").getString("NB_subtitle"));
-        titleSubLbl.setBorder(new javax.swing.border.EmptyBorder(new java.awt.Insets(1, 12, 1, 1)));
+        titleSubLbl.setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 12, 1, 1));
         titleSubLbl.setOpaque(true);
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
@@ -167,32 +166,6 @@ public class BluePrintsPanel extends javax.swing.JPanel {
         toolbarPanel.setLayout(new java.awt.GridBagLayout());
 
         toolbarPanel.setOpaque(false);
-        backBtn.setIcon(new javax.swing.ImageIcon(getClass().getResource("/org/netbeans/modules/j2ee/blueprints/ui/resources/back.gif")));
-        backBtn.setText(java.util.ResourceBundle.getBundle("org/netbeans/modules/j2ee/blueprints/ui/Bundle").getString("backBtn"));
-        backBtn.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                backBtnActionPerformed(evt);
-            }
-        });
-
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.fill = java.awt.GridBagConstraints.VERTICAL;
-        gridBagConstraints.insets = new java.awt.Insets(0, 5, 0, 0);
-        toolbarPanel.add(backBtn, gridBagConstraints);
-
-        forwardBtn.setIcon(new javax.swing.ImageIcon(getClass().getResource("/org/netbeans/modules/j2ee/blueprints/ui/resources/forward.gif")));
-        forwardBtn.setText(java.util.ResourceBundle.getBundle("org/netbeans/modules/j2ee/blueprints/ui/Bundle").getString("forwardBtn"));
-        forwardBtn.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                forwardBtnActionPerformed(evt);
-            }
-        });
-
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.fill = java.awt.GridBagConstraints.VERTICAL;
-        gridBagConstraints.insets = new java.awt.Insets(0, 5, 0, 0);
-        toolbarPanel.add(forwardBtn, gridBagConstraints);
-
         entryCbx.setMaximumRowCount(16);
         entryCbx.addItemListener(new java.awt.event.ItemListener() {
             public void itemStateChanged(java.awt.event.ItemEvent evt) {
@@ -231,16 +204,7 @@ public class BluePrintsPanel extends javax.swing.JPanel {
         gridBagConstraints.insets = new java.awt.Insets(0, 12, 12, 12);
         add(tabbedPnl, gridBagConstraints);
 
-    }
-    // </editor-fold>//GEN-END:initComponents
-
-    private void forwardBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_forwardBtnActionPerformed
-        goForward();
-    }//GEN-LAST:event_forwardBtnActionPerformed
-
-    private void backBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_backBtnActionPerformed
-        goBack();
-    }//GEN-LAST:event_backBtnActionPerformed
+    }// </editor-fold>//GEN-END:initComponents
 
     private void entryCbxItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_entryCbxItemStateChanged
         if(!navigating) {
@@ -255,12 +219,10 @@ public class BluePrintsPanel extends javax.swing.JPanel {
     
     
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton backBtn;
     private javax.swing.JPanel categoryPnl;
     private javax.swing.JPanel designPnl;
     private javax.swing.JComboBox entryCbx;
     private javax.swing.JPanel examplePnl;
-    private javax.swing.JButton forwardBtn;
     private javax.swing.JPanel homePnl;
     private javax.swing.JPopupMenu jPopupMenu1;
     private javax.swing.JPanel solutionPnl;
@@ -299,29 +261,29 @@ public class BluePrintsPanel extends javax.swing.JPanel {
     private boolean navigating = false;
     private int lastSelectedIndex = -1;
 
-    public Category getSelectedCategory() {
+    public Nbcategory getSelectedCategory() {
         Object entry = entryCbx.getSelectedItem();
-        if(!(entry instanceof Category)) {
+        if(!(entry instanceof Nbcategory)) {
             // Scan up the list until we hit a category
             int index = entryCbx.getSelectedIndex();
             do {
                 index--;
                 entry = entryCbx.getItemAt(index);
-            } while((index > 0) && !(entry instanceof Category));
+            } while((index > 0) && !(entry instanceof Nbcategory));
         }
-        return (Category)entry;
+        return (Nbcategory)entry;
     }
     
-    public Solution getSelectedArticle() {
+    public Nbsolution getSelectedArticle() {
         Object entry = entryCbx.getSelectedItem();
-        return (entry instanceof Solution) ? (Solution)entry : null;
+        return (entry instanceof Nbsolution) ? (Nbsolution)entry : null;
     }
     
     public String getExampleId() {
         String result = null;
-        Solution solution = getSelectedArticle();
+        Nbsolution solution = getSelectedArticle();
         if(solution != null) {
-            result = solution.getExampleId(0);
+            result = solution.getExampleId(); 
         }
         return result;
     }
@@ -342,7 +304,7 @@ public class BluePrintsPanel extends javax.swing.JPanel {
         entryCbx.setSelectedIndex(0);
         history.clear();
         updateTabs();
-        updateButtons();
+        //updateButtons();
         historyToken = createBrowseHistoryToken();
     }
     
@@ -354,7 +316,7 @@ public class BluePrintsPanel extends javax.swing.JPanel {
         history.pushBackStack(historyToken);
                 
         updateTabs();
-        updateButtons();
+        //updateButtons();
         
         // Create a new token that contains the new article and category.
         historyToken = createBrowseHistoryToken();
@@ -363,20 +325,20 @@ public class BluePrintsPanel extends javax.swing.JPanel {
     private void goForward() {
         if(!history.isForwardStackEmpty()) {
             navigateTo(history.forward(createBrowseHistoryToken()));
-            updateButtons();
+            //updateButtons();
         }
     }
     
     private void goBack() {
         if(!history.isBackStackEmpty()) {
             navigateTo(history.back(createBrowseHistoryToken()));
-            updateButtons();
+            //updateButtons();
         }
     }
     
     private BrowseHistoryToken createBrowseHistoryToken() {
         String category = getSelectedCategory().getId();
-        Solution solution = getSelectedArticle();
+        Nbsolution solution = getSelectedArticle();
         String article = (solution == null) ? null : solution.getId();
         String tab = getSelectedTabName();
         int scrollPosition = getScrollPosition();
@@ -434,8 +396,8 @@ public class BluePrintsPanel extends javax.swing.JPanel {
             int count = entryCbx.getItemCount();
             for(int i = 0; i < count; i++) {
                 Object entry = entryCbx.getItemAt(i);
-                if(entry instanceof Category) {
-                    Category c = (Category)entry;
+                if(entry instanceof Nbcategory) {
+                    Nbcategory c = (Nbcategory)entry;
                     if(c.getId().equals(category)) {
                         foundCategory = true;
                         if(article == null) {
@@ -453,7 +415,7 @@ public class BluePrintsPanel extends javax.swing.JPanel {
                 }
                 else {
                     if(foundCategory) {
-                        Solution s = (Solution)entryCbx.getItemAt(i);
+                        Nbsolution s = (Nbsolution)entryCbx.getItemAt(i);
                         if(s.getId().equals(article)) {
                             // Select this article
                             entryCbx.setSelectedIndex(i);
@@ -466,10 +428,10 @@ public class BluePrintsPanel extends javax.swing.JPanel {
         navigating = false;
     }
     
-    private void updateButtons() {
+    /*private void updateButtons() {
         backBtn.setEnabled(!history.isBackStackEmpty());
         forwardBtn.setEnabled(!history.isForwardStackEmpty());
-    }
+    }*/
     
     private void showHome() {
         tabbedPnl.removeAll();
@@ -478,8 +440,8 @@ public class BluePrintsPanel extends javax.swing.JPanel {
     }
     
     private void updateTabs() {
-        Category category = getSelectedCategory();
-        Solution solution = getSelectedArticle();
+        Nbcategory category = getSelectedCategory();
+        Nbsolution solution = getSelectedArticle();
 
         // Ensure the category panel is visible when no solution is selected
         // and the other panels are visible when an solution is selected.
@@ -526,11 +488,11 @@ public class BluePrintsPanel extends javax.swing.JPanel {
     }
     
     private void updateDesignTab() {
-        Category category = getSelectedCategory();
-        Solution solution = getSelectedArticle();
+        Nbcategory category = getSelectedCategory();
+        Nbsolution solution = getSelectedArticle();
         if(solution != null) {
-            Writeup writeup = solution.getWriteup();
-            if(writeup.getDesigndocPath() == null) {
+            Nbwriteup writeup = solution.getNbwriteup();
+            if(writeup.getDesigndocPath() == null || (writeup.getDesigndocPath().trim().equals(""))) { //NOI18N
                 tabbedPnl.remove(designPnl);
             }
         }
@@ -538,11 +500,11 @@ public class BluePrintsPanel extends javax.swing.JPanel {
     }
     
     public void updateExampleTab() {
-        Category category = getSelectedCategory();
-        Solution solution = getSelectedArticle();
+        Nbcategory category = getSelectedCategory();
+        Nbsolution solution = getSelectedArticle();
         if(solution != null) {
-            String[] exampleIds = solution.getExampleId();
-            if(exampleIds.length == 0) {
+            String exampleIds = solution.getExampleId();
+            if(exampleIds.trim().equals("")) { //NOI18N
                 tabbedPnl.remove(examplePnl);
             }
         }
@@ -551,42 +513,26 @@ public class BluePrintsPanel extends javax.swing.JPanel {
     
     /**
      * Backing model for the entry drop-down.
-     * Gets its data from bpcatalog.xml.
+     * Gets its data from nbcatalog.xml.
      */
     private class EntryComboBoxModel
         extends DefaultComboBoxModel
     {
-        private Bpcatalog bpcatalog;
+
         private ArrayList entries = new ArrayList();
+        private boolean firstTime = true;
         
         public EntryComboBoxModel() {
-            this.bpcatalog = solutionsCatalog.getBpcatalogXml();
-            Category[] categories = bpcatalog.getCategory();
-            // hack to add HOME page
-            Category homeCategory = new Category();
+            //add HOME page
+            Nbcategory homeCategory = new Nbcategory();
             homeCategory.setId("HOME"); // NOI18N
             homeCategory.setDescription(java.util.ResourceBundle.getBundle("org/netbeans/modules/j2ee/blueprints/ui/Bundle").getString("homeCatDesc"));
             homeCategory.setCategoryName(java.util.ResourceBundle.getBundle("org/netbeans/modules/j2ee/blueprints/ui/Bundle").getString("homeCatName"));
             entries.add(homeCategory);
-            for(int categoryNum = 0; categoryNum < categories.length; 
-                categoryNum++) 
-            {
-                Category category = categories[categoryNum];
-                // Add category if it's ready for the release
-                if (category.getInnetbeans().equals("true")) {
-                    entries.add(category);
-                    // Add all solutions under this category
-                    Solution[] solutions = bpcatalog.getSolution();
-                    for(int solutionNum = 0; solutionNum < solutions.length; 
-                    solutionNum++) {
-                        Solution solution = solutions[solutionNum];
-                        if(solution.getCategoryId().equals(category.getId()) &&
-                                solution.getInnetbeans().equals("true")) {
-                            entries.add(solution);
-                        }
-                    }
-                }
-            }
+            
+            //Populate Current Version Solutions
+            Nbcatalog nbcatalog = solutionsCatalog.getCatalogXml();
+            populateEntries(nbcatalog);
         }
         
         public int getSize() {
@@ -596,6 +542,29 @@ public class BluePrintsPanel extends javax.swing.JPanel {
         public Object getElementAt(int index) {
             return entries.get(index);
         }
+        
+        private void populateEntries(Nbcatalog nbcatalog){
+            Nbcategory[] cats = nbcatalog.getNbcategory();
+            for(int categoryNum = 0; categoryNum < cats.length; categoryNum++) {
+                Nbcategory category = cats[categoryNum];
+                if(category.getShowSpec().equals("true") && firstTime){
+                    Nbcategory enclCat = new Nbcategory();
+                    String specname = category.getSpec();
+                    enclCat.setId(specname); 
+                    enclCat.setDescription(java.util.ResourceBundle.getBundle("org/netbeans/modules/j2ee/blueprints/BundleBpcatalog").getString(getCatKeyName(specname)));
+                    enclCat.setCategoryName(java.util.ResourceBundle.getBundle("org/netbeans/modules/j2ee/blueprints/BundleBpcatalog").getString(getCatKeyDesc(specname)));
+                    entries.add(enclCat);
+                    firstTime = false;
+                }
+                entries.add(category);
+                
+                Nbsolution[] solutions = category.getNbsolution();
+                for(int solutionNum=0; solutionNum < solutions.length; solutionNum++){
+                    entries.add(solutions[solutionNum]);
+                }
+            }
+        }
+        
     }
     
     /**
@@ -626,20 +595,20 @@ public class BluePrintsPanel extends javax.swing.JPanel {
             ResourceBundle bundleBpcatalog = java.util.ResourceBundle.getBundle("org/netbeans/modules/j2ee/blueprints/BundleBpcatalog");
             String catName=null;
             String fullName=null;
-            if(value instanceof Category) {
-                Category category = (Category)value;
+            if(value instanceof Nbcategory) {
+                Nbcategory category = (Nbcategory)value;
                 label.setIcon(categoryIcon);
-                // construct key : "category/CATEGORY-ID/category-name"
-                String catKey = "category/" + category.getId().trim() + "/category-name";
+                
                 try {
-                    catName = bundleBpcatalog.getString(catKey);
+                    // construct key : "category/CATEGORY-ID/category-name"
+                    catName = bundleBpcatalog.getString(getCatKeyName(category.getId()));
                 } catch (Exception e) {
                     catName = category.getCategoryName().trim();
                 }
                 label.setText(catName);
             }
-            else if(value instanceof Solution) {
-                Solution solution = (Solution)value;
+            else if(value instanceof Nbsolution) {
+                Nbsolution solution = (Nbsolution)value;
                 label.setIcon(articleIcon);
                 // construct key : "solution/SOLUTION-ID/full-name"
                 String solKey = "solution/" + solution.getId().trim() + "/full-name";
@@ -655,4 +624,16 @@ public class BluePrintsPanel extends javax.swing.JPanel {
             return result;
         }
     }
+    
+    private static String getCatKeyName(String catName){
+        String nameKey = "category/" + catName.trim() + "/category-name"; //NOI18N
+        return nameKey;
+    }
+    
+    private static String getCatKeyDesc(String catDesc){
+        String descKey = "category/" + catDesc.trim() + "/description"; //NOI18N
+        return descKey;
+    }
+    
 }
+

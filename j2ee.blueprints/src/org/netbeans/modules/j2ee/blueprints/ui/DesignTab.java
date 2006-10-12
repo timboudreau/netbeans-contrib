@@ -20,9 +20,9 @@
 package org.netbeans.modules.j2ee.blueprints.ui;
 
 import java.net.URL;
-import org.netbeans.modules.j2ee.blueprints.catalog.bpcatalogxmlparser.Category;
-import org.netbeans.modules.j2ee.blueprints.catalog.bpcatalogxmlparser.Solution;
-import org.netbeans.modules.j2ee.blueprints.catalog.bpcatalogxmlparser.Writeup;
+import org.netbeans.modules.j2ee.blueprints.catalog.bpcatalogxmlparser.Nbcategory;
+import org.netbeans.modules.j2ee.blueprints.catalog.bpcatalogxmlparser.Nbsolution;
+import org.netbeans.modules.j2ee.blueprints.catalog.bpcatalogxmlparser.Nbwriteup;
 
 /**
  * Tab Panel containing a browser with the design view for this article.
@@ -71,13 +71,13 @@ public class DesignTab
     }
     
     public void updateTab() {
-        Category category = bluePrintsPanel.getSelectedCategory();
-        Solution solution = bluePrintsPanel.getSelectedArticle();
+        Nbcategory category = bluePrintsPanel.getSelectedCategory();
+        Nbsolution solution = bluePrintsPanel.getSelectedArticle();
         if(solution != null) {
-            Writeup writeup = solution.getWriteup();
-            if(writeup.getDesigndocPath() != null) {
+            Nbwriteup writeup = solution.getNbwriteup();
+            if((writeup.getDesigndocPath() != null) && (! writeup.getDesigndocPath().trim().equals(""))){
                 String designURLString = BluePrintsPanel.CATALOG_RESOURCES_URL
-                    + "/web/" + writeup.getDesigndocPath(); // NOI18N
+                    + "/" + writeup.getDesigndocPath(); // NOI18N
                 BpcatalogLocalizedResource htmlrsc =
                         new BpcatalogLocalizedResource(designURLString, "html");
                 URL designURL = htmlrsc.getResourceURL();

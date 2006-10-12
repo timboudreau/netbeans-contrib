@@ -20,8 +20,8 @@
 package org.netbeans.modules.j2ee.blueprints.ui;
 
 import java.net.URL;
-import org.netbeans.modules.j2ee.blueprints.catalog.bpcatalogxmlparser.Category;
-import org.netbeans.modules.j2ee.blueprints.catalog.bpcatalogxmlparser.Solution;
+import org.netbeans.modules.j2ee.blueprints.catalog.bpcatalogxmlparser.Nbcategory;
+import org.netbeans.modules.j2ee.blueprints.catalog.bpcatalogxmlparser.Nbsolution;
 
 /**
  * Tab Panel containing a browser with the contents of the article.
@@ -70,8 +70,8 @@ public class CategoryTab
     }
     
     public void updateTab() {
-        Category category = bluePrintsPanel.getSelectedCategory();
-        Solution solution = bluePrintsPanel.getSelectedArticle();
+        Nbcategory category = bluePrintsPanel.getSelectedCategory();
+        Nbsolution solution = bluePrintsPanel.getSelectedArticle();
         if(solution == null) {
             String articleURLString = BluePrintsPanel.CATALOG_RESOURCES_URL 
                 + "/descriptions/category-" + category.getId() + ".html"; // NOI18N
