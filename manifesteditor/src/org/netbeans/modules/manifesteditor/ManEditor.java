@@ -18,8 +18,8 @@
  */
 package org.netbeans.modules.manifesteditor;
 
+import java.awt.BorderLayout;
 import java.awt.EventQueue;
-import java.awt.FlowLayout;
 import java.awt.Image;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -31,6 +31,8 @@ import javax.swing.Action;
 import javax.swing.JComponent;
 import javax.swing.JEditorPane;
 import javax.swing.JPanel;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 import javax.swing.text.Document;
 import org.netbeans.core.spi.multiview.CloseOperationState;
 import org.netbeans.core.spi.multiview.MultiViewDescription;
@@ -59,7 +61,7 @@ public class ManEditor extends DataEditorSupport
 implements OpenCookie, EditorCookie, EditCookie {
     private static Logger LOG = Logger.getLogger(ManEditor.class.getName());
     
-    private MultiViewDescription[] descriptions = {
+    final MultiViewDescription[] descriptions = {
         new Text(this), new Visual(this)
     };
     
@@ -134,9 +136,9 @@ implements OpenCookie, EditorCookie, EditCookie {
         }
         
     }
-    private static final class Visual extends JPanel
+    static final class Visual extends JPanel
     implements MultiViewDescription, MultiViewElement, ExplorerManager.Provider,
-    PropertyChangeListener {
+    PropertyChangeListener, DocumentListener {
         private ExplorerManager em;
         private ManEditor support;
         private PropertySheet sheet;
@@ -172,14 +174,14 @@ implements OpenCookie, EditorCookie, EditCookie {
             em.addPropertyChangeListener(this);
             
             ChoiceView view = new ChoiceView();
-            this.setLayout(new FlowLayout());
-            this.add(view);
+            this.setLayout(new BorderLayout());
+            this.add(BorderLayout.CENTER, view);
             sheet = new PropertySheet();
-            Manifest mf;
             try {
-                mf = new Manifest(support.getInputStream());
+                Manifest mf = new Manifest(support.getInputStream());
                 em.setRootContext(ManNode.createManifestModel(mf));
                 em.setSelectedNodes(new Node[] { em.getRootContext().getChildren().getNodes(true)[0] });
+                support.openDocument().addDocumentListener(this);
             } catch (Exception ex) {
                 LOG.log(Level.WARNING, null, ex);
             }
@@ -238,6 +240,27 @@ implements OpenCookie, EditorCookie, EditCookie {
 
         public void propertyChange(PropertyChangeEvent evt) {
             sheet.setNodes(em.getSelectedNodes());
+        }
+
+        public void insertUpdate(DocumentEvent e) {
+            refresh();
+        }
+
+        public void removeUpdate(DocumentEvent e) {
+            refresh();
+        }
+
+        public void changedUpdate(DocumentEvent e) {
+            refresh();
+        }
+        
+        public void refresh() {
+            try {
+                Manifest mf = new Manifest(support.getInputStream());
+                ManNode.refresh(em.getRootContext(), mf);
+            } catch (Exception ex) {
+                LOG.log(Level.WARNING, null, ex);
+            }
         }
     }
     

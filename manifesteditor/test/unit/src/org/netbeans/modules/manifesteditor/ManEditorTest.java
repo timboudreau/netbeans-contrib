@@ -19,11 +19,14 @@
 
 package org.netbeans.modules.manifesteditor;
 
+import java.io.IOException;
+import javax.swing.text.Document;
 import org.netbeans.junit.NbTestCase;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
 import org.openide.filesystems.LocalFileSystem;
 import org.openide.loaders.DataObject;
+import org.openide.nodes.Node;
 
 /** That the behaviour of whole editor support.
  *
@@ -49,6 +52,10 @@ public class ManEditorTest extends NbTestCase {
         initMimeType();
     }
     
+    protected boolean runInEQ() {
+        return true;
+    }
+    
     protected void setUp() throws Exception {
         LocalFileSystem lfs = new LocalFileSystem();
         lfs.setRootDirectory(getWorkDir());
@@ -65,7 +72,23 @@ public class ManEditorTest extends NbTestCase {
     protected void tearDown() throws Exception {
     }
     
-    public void testCanReadAndWrite() {
+    public void testCanReadAndWrite() throws Exception {
+        Document d = support.openDocument();
         
+        assertEquals(ManEditor.Visual.class, support.descriptions[1].createElement().getClass());
+        ManEditor.Visual v = (ManEditor.Visual)support.descriptions[1].createElement();
+        
+        assertEquals("Just main section", 1, v.getExplorerManager().getRootContext().getChildren().getNodes().length);
+        Node.PropertySet[] sets = v.getExplorerManager().getRootContext().getChildren().getNodes()[0].getPropertySets();
+        assertEquals("One", 1, sets.length);
+        Node.Property[] props = sets[0].getProperties();
+        assertEquals("No property", 0, props.length);
+        
+        d.insertString(0, "Main-Class: x.java\n", null);
+
+        props = sets[0].getProperties();
+        assertEquals("One property", 1, props.length);
+        assertEquals("Main-Class", props[0].getName());
+        assertEquals("x.java", props[0].getValue());
     }
 }

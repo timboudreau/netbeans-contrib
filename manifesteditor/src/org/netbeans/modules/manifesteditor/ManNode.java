@@ -35,6 +35,7 @@ import org.openide.util.NbBundle;
  */
 class ManNode extends AbstractNode {
     private Attributes attrs;
+    private boolean sheet;
     
     private ManNode(String name, Attributes attrs) {
         super(Children.LEAF);
@@ -50,14 +51,27 @@ class ManNode extends AbstractNode {
     }
     
     public static Node createManifestModel(Manifest mf) {
+        return new AbstractNode(new Entries(attributes(mf)));
+    }
+
+    private static Map<String, Attributes> attributes(final Manifest mf) {
         Map<String, Attributes> en;
         en = new LinkedHashMap<String, Attributes>();
         en.put("Main", mf.getMainAttributes());
         en.putAll(mf.getEntries());
-        return new AbstractNode(new Entries(en));
+        return en;
+    }
+    
+    public static void refresh(Node n, Manifest mf) {
+        assert n.getChildren() instanceof Entries;
+        
+        Entries e = (Entries)n.getChildren();
+        e.refresh(attributes(mf));
     }
 
     protected synchronized Sheet createSheet() {
+        this.sheet = true;
+        
         Sheet sheet = new Sheet();
         Sheet.Set ps = new Sheet.Set();
         ps.setName("Attributes");
@@ -72,6 +86,10 @@ class ManNode extends AbstractNode {
         return sheet;
     }
     
+    public synchronized void refresh(Attributes attrs) {
+        this.attrs = attrs;
+        refreshSheet(getSheet().get("Attributes"));
+    }
     
     private void refreshSheet(Sheet.Set set) {
         assert Thread.holdsLock(this);
@@ -100,6 +118,18 @@ class ManNode extends AbstractNode {
 
         protected Node[] createNodes(String key) {
             return new Node[] { new ManNode(key, entries.get(key)) };
+        }
+        
+        public void refresh(java.util.Map<String,Attributes> entries) {
+            this.entries = entries;
+            setKeys(entries.keySet());
+            
+            if (isInitialized()) {
+                for (Node n : getNodes()) {
+                    ManNode m = (ManNode)n;
+                    m.refresh(entries.get(m.getName()));
+                }
+            } 
         }
     }
     
