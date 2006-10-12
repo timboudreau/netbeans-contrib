@@ -92,7 +92,7 @@ public class GenerateReportAction extends CookieAction {
                         if(generate){
                             dmProps.setAVKOn(false);
                             support.generateReport();
-                            dmProps.refreshServerInstance();
+                            dmProps.getInstanceProperties().refreshServerInstance();
                         }
                     }
                 });

@@ -138,7 +138,7 @@ public class AVKSupport implements InstrumentAVK {
         try{
             setTopManagerStatus(bundle.getString("MSG_Stop")); //NOI18N
             stopServer(dmProps, this.sunDm);
-            dmProps.refreshServerInstance();
+            dmProps.getInstanceProperties().refreshServerInstance();
             instrument(dmProps);
             startAfterInstrument(dmProps);
         }catch(Exception ex){
@@ -150,7 +150,7 @@ public class AVKSupport implements InstrumentAVK {
         try{
             setTopManagerStatus(bundle.getString("MSG_Start")); //NOI18N
             startServer(dmProps, this.sunDm);
-            dmProps.refreshServerInstance();
+            dmProps.getInstanceProperties().refreshServerInstance();
             setTopManagerStatus(bundle.getString("MSG_AVK_Running")); //NOI18N
         }catch(Exception ex){
             throw ex;
@@ -241,7 +241,7 @@ public class AVKSupport implements InstrumentAVK {
     }
     
     private File getAVKJarLocation(){
-        File f = InstalledFileLocator.getDefault().locate("javke/lib/javke.jar", null, true);
+        File f = InstalledFileLocator.getDefault().locate("javke142/lib/javke.jar", null, true);
         return f;
     }
     

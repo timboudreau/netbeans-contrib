@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<metaDD>
+	<meta-element>
+		<dtd-name>exception</dtd-name>
+		<bean-name>AppVerificationException</bean-name>
+	</meta-element>
+</metaDD>

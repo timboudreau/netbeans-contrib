@@ -15,7 +15,19 @@
 <li>Validate the packaging of WAR files, check method signatures, and generate report with inconsistencies.</li>
 <li>Validate the correct execution of Web and EJB components through introspection and instrumentation.</li>
 </ul>
-<p>To use the AVK plugin in the IDE, perform the following steps:</p>
+<p><b>Steps for using AVK plug-in when your project uses Sun Java System Application Server 9.0 as runtime</b></p>
+<ol>
+<li>In the IDE, create a project or open an existing project.<br>
+For more information, see <a href="nbdocs:/org/netbeans/modules/usersguide/project/proj_quickref.html">Project Tasks: Quick Reference</a>.</li>
+<li>In the Projects window, select the project node, right-click and choose Verify Project.<br>The Choose Verification dialog box opens.</li>
+<li>Select the Dynamic Verification radio button and click OK. <br> The IDE deploys your project to the application server, starts the verification process, and brings up 'AVK Session' window in the editor pane showing the dynamic verification reports. <br> The reports in this window get automatically updated as you access your application.</li>
+<li>If your project has a web component then your application is launched in the browser. Otherwise, execute a sample manually outside the IDE.</li>
+<li>You will notice that the reports are automatically updated in 'AVK Session' window.
+Note that 'Right Click' > 'Go To Source' on any 'Servlet Name' or 'Method Name' will open the appropriate source code.
+'Right Click > 'Show Exception' on any exception of the unsuccessfully called Servet/EJB will show the exception stack trace on the output panel.
+</li>
+</ol>
+<p><b>Steps for using AVK plug-in when your project uses Sun Java System Application Server 8.x as runtime</b></p>
 <ol>
 <li>In the IDE, create a project or open an existing project.<br>
 For more information, see <a href="nbdocs:/org/netbeans/modules/usersguide/project/proj_quickref.html">Project Tasks: Quick Reference</a>.</li>

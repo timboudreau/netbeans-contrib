@@ -7,6 +7,7 @@
            <folder name="Actions">
                        <file name="AVK1.instance">
                                <attr name="instanceClass" stringvalue="org.netbeans.modules.j2ee.sun.ide.avk.actions.GenerateReportAction"/>
+                               <attr name="8.x" stringvalue="true"/><!-- need to show only for 8.x servers, not glassFish -->
                            </file>
            </folder>
            <folder name="AVKImplementation">

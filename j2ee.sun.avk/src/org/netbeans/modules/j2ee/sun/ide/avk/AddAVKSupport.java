@@ -24,14 +24,20 @@
 
 package org.netbeans.modules.j2ee.sun.ide.avk;
 
+import java.io.File;
 import java.net.URL;
 import java.awt.Dialog;
 import java.util.ResourceBundle;
+import org.netbeans.api.project.FileOwnerQuery;
+import org.netbeans.api.project.Project;
+import org.netbeans.modules.j2ee.sun.ide.avk.actions.StartInstrumentation;
+import org.openide.nodes.Node;
 
 import org.openide.util.HelpCtx;
 import org.openide.DialogDescriptor;
 import org.openide.DialogDisplayer;
 import org.openide.NotifyDescriptor;
+import org.openide.util.Lookup;
 import org.openide.util.RequestProcessor;
 import org.openide.filesystems.FileObject;
 import org.openide.awt.HtmlBrowser.URLDisplayer;
@@ -58,6 +64,10 @@ public class AddAVKSupport {
     boolean verify = false;
      
     private RequestProcessor processor = new RequestProcessor("instrument"); //NOI18N 
+    
+    public static final String APPSERVER_VERSION_UNKNOWN = "unknown"; // NOI18N
+    public static final String APPSERVER_VERSION_9 = "9.0"; // NOI18N
+    public static final String APPSERVER_VERSION_8_x = "8.x"; // NOI18N
     
     /** Creates new AddAVKSupport */
     public AddAVKSupport(){
@@ -281,9 +291,16 @@ public class AddAVKSupport {
     private void instrument(final DeploymentManager dm, final J2eeModuleProvider modProvider){
         processor.post(new Runnable() {
             public void run() {
-                AVKSupport avkSupport = new AVKSupport((SunDeploymentManagerInterface)dm);
-                avkSupport.setAVK(true);
-                launchApp(dm, getContextRoot(modProvider));
+                SunDeploymentManagerInterface sdm = (SunDeploymentManagerInterface)dm;
+                String appServerVersion = getAppServerVersion(sdm.getPlatformRoot());
+                if(APPSERVER_VERSION_9.equals(appServerVersion)) {
+                   StartInstrumentation.getInstance().start(getProject(modProvider));
+                } else {
+                    
+                    AVKSupport avkSupport = new AVKSupport((SunDeploymentManagerInterface)dm);
+                    avkSupport.setAVK(true);
+                    launchApp(dm, getContextRoot(modProvider));
+                }
             }
         });
     }
@@ -323,6 +340,37 @@ public class AddAVKSupport {
                 URLDisplayer.getDefault().showURL(new URL(contextRoot));
             }
         }catch(Exception ex){}
+    }
+    
+    /** 
+     * This code is copied from serverplugins/sun/appsrv81/src/org/netbeans/modules/j2ee/sun/ide/j2ee/PlatformImpl.java
+     */
+    public  String getAppServerVersion(File asInstallRoot) {
+        String version = APPSERVER_VERSION_UNKNOWN;    // NOI18N
+
+        if(asInstallRoot != null && asInstallRoot.exists()) {
+            File sunDomain11Dtd = new File(asInstallRoot, "lib/dtds/sun-domain_1_1.dtd"); // NOI18N
+            //now test for AS 9 (J2EE 5.0) which should work for this plugin
+            File as9 = new File((asInstallRoot)+"/lib/dtds/sun-web-app_2_5-0.dtd");
+            if(as9.exists()){
+                version = APPSERVER_VERSION_9;
+
+            } else    if(sunDomain11Dtd.exists()) {
+                version = APPSERVER_VERSION_8_x;
+            }
+        }
+        return version;
+    }
+    
+    private Project getProject(J2eeModuleProvider modProvider) {
+        Project project = null;
+        try {
+            FileObject archive = modProvider.getJ2eeModule().getArchive();
+            project = FileOwnerQuery.getOwner(archive);
+        } catch(Exception ex) {
+            ex.printStackTrace();
+        }
+        return project;
     }
     
 }

@@ -19,33 +19,71 @@ Microsystems, Inc. All Rights Reserved.
 -->
 
 <project name="avk-plugin" default="netbeans" basedir=".">
-  <import file="../../../nbbuild/templates/projectized.xml"/>
+    <import file="../../../nbbuild/templates/projectized.xml"/>
 
-  <target name="nbm" depends="init,netbeans" description="Build NBM archive.">
+    <target name="nbm" depends="init,netbeans" description="Build NBM archive.">
         <mkdir dir="build"/>
         <makenbm file="build/${nbm}"
-                 productdir="${cluster}"
-                 module="${module.jar}"
-                 homepage="${nbm.homepage}"
-                 distribution="http://${dist.base}/${nbm}"
-                 needsrestart="${nbm.needs.restart}"
-                 releasedate="${nbm.release.date}"
-		 moduleauthor="${nbm.module.author}">
-            <license>
-                <file location="../../external/javke1.4.2_fcs-netbeanslicense.txt"/>
+            productdir="${cluster}"
+            module="${module.jar}"
+            homepage="${nbm.homepage}"
+            distribution="http://${dist.base}/${nbm}"
+            needsrestart="${nbm.needs.restart}"
+            releasedate="${nbm.release.date}"
+            moduleauthor="${nbm.module.author}">
+            <license name="avk-plugin-license.txt">
+                <file location="../../external/JavaAVK_Plugin5_SLA&amp;Entitlement(20060507).txt"/>
             </license>
         </makenbm>
     </target>
    
     
-        <target name="files-init" depends="basic-init">
-         <unzip src="../../external/javke1.4.2_fcs-netbeans.zip" dest="${netbeans.dest.dir}/${cluster.dir}"/>
+    <target name="files-init" depends="basic-init">
+        <unzip src="../../external/javke1.4.2_fcs-netbeans.zip" dest="${netbeans.dest.dir}/${cluster.dir}"/>
+        <delete dir="${netbeans.dest.dir}/${cluster.dir}/javke142"/>
+        <move file="${netbeans.dest.dir}/${cluster.dir}/javke" tofile="${netbeans.dest.dir}/${cluster.dir}/javke142"/>
+         
+        <unzip src="../../external/javke5_fcs-netbeans.zip" dest="${netbeans.dest.dir}/${cluster.dir}"/>
+        <delete dir="${netbeans.dest.dir}/${cluster.dir}/javke5"/>
+        <move file="${netbeans.dest.dir}/${cluster.dir}/javke" tofile="${netbeans.dest.dir}/${cluster.dir}/javke5"/>
 
         <patternset id="module.files">
             <include name="${module.jar}"/>
             <include name="${javahelp.jar}" if="has.javahelp"/>
             <include name="${nb.system.dir}/Modules/${code.name.base.dashes}.xml"/>
-            <include name="javke/**"/>           
+            <include name="javke5/**"/>           
+            <include name="javke142/**"/>
         </patternset>
     </target>
+    
+    <target name="compile" depends="dd2beansgen,projectized-common.compile"/>
+
+    <target name="s2binit" depends="build-init">
+        <taskdef name="schema2beans" classname="org.netbeans.modules.s2banttask.Schema2BeansAntTask">
+            <classpath>
+                <pathelement path="${schema2beans/rt.dir}/modules/org-netbeans-modules-schema2beans.jar" />
+                <pathelement path="${nb_all}/schema2beans/dev/schema2beansdev.jar" />
+                <pathelement path="${nb_all}/schema2beans/anttask/s2banttask.jar"/>
+            </classpath>
+        </taskdef>
+    </target>
+
+    <target name="dd2beansgen" depends="s2binit">
+        <schema2beans schema="${netbeans.dest.dir}/${cluster.dir}/javke5/dtds/application-verification_1_4.dtd"
+        package="org.netbeans.modules.j2ee.sun.ide.avk.report.model"
+        mddFile="./src/org/netbeans/modules/j2ee/sun/ide/avk/report/model/app_verification.mdd"
+        schemaType="dtd"
+        useInterfaces="true"
+        rootDir="./build/classes"/>
+
+        <javac srcdir="./build/classes" destdir="./build/classes">
+            <classpath>
+                <pathelement path="${schema2beans/rt.dir}/modules/org-netbeans-modules-schema2beans.jar" />
+                <pathelement path="${nb_all}/schema2beans/dev/schema2beansdev.jar" />
+                <pathelement path="${nb_all}/schema2beans/anttask/s2banttask.jar"/>
+            </classpath>
+        </javac>
+            
+    </target>
+    
 </project>
