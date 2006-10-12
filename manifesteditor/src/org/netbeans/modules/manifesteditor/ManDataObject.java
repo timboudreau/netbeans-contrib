@@ -22,20 +22,37 @@ import java.io.IOException;
 import org.openide.filesystems.FileObject;
 import org.openide.loaders.DataObjectExistsException;
 import org.openide.loaders.MultiDataObject;
-import org.openide.nodes.CookieSet;
 import org.openide.nodes.Node;
-import org.openide.text.DataEditorSupport;
+import org.openide.nodes.Node.Cookie;
+import org.openide.util.Lookup;
+import org.openide.util.lookup.AbstractLookup;
+import org.openide.util.lookup.InstanceContent;
 
-public class ManDataObject extends MultiDataObject {
+public class ManDataObject extends MultiDataObject 
+implements Lookup.Provider {
+    private InstanceContent ic;
+    private AbstractLookup lookup;
     
     public ManDataObject(FileObject pf, ManDataLoader loader) throws DataObjectExistsException, IOException {
         super(pf, loader);
-        CookieSet cookies = getCookieSet();
-        cookies.add(ManEditor.create(this));
+        
+        ic = new InstanceContent();
+        lookup = new AbstractLookup(ic);
+        ic.add(ManEditor.create(this));
+        ic.add(this);
     }
     
     protected Node createNodeDelegate() {
         return new ManDataNode(this);
+    }
+
+    public Lookup getLookup() {
+        return lookup;
+    }
+
+    @Override
+    public <T extends Cookie> T getCookie(Class<T> type) {
+        return lookup.lookup(type);
     }
     
 }

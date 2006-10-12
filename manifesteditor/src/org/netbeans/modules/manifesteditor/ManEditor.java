@@ -19,11 +19,15 @@
 package org.netbeans.modules.manifesteditor;
 
 import java.awt.EventQueue;
+import java.awt.FlowLayout;
 import java.awt.Image;
-import java.beans.BeanInfo;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.io.IOException;
+import java.util.jar.Manifest;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.Action;
-import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JEditorPane;
 import javax.swing.JPanel;
@@ -36,8 +40,12 @@ import org.netbeans.core.spi.multiview.MultiViewFactory;
 import org.openide.cookies.EditCookie;
 import org.openide.cookies.EditorCookie;
 import org.openide.cookies.OpenCookie;
+import org.openide.explorer.ExplorerManager;
+import org.openide.explorer.propertysheet.PropertySheet;
+import org.openide.explorer.view.ChoiceView;
 import org.openide.filesystems.FileLock;
 import org.openide.filesystems.FileObject;
+import org.openide.nodes.Node;
 import org.openide.text.CloneableEditor;
 import org.openide.text.CloneableEditorSupport;
 import org.openide.text.DataEditorSupport;
@@ -49,8 +57,10 @@ import org.openide.windows.TopComponent;
 
 public class ManEditor extends DataEditorSupport 
 implements OpenCookie, EditorCookie, EditCookie {
+    private static Logger LOG = Logger.getLogger(ManEditor.class.getName());
+    
     private MultiViewDescription[] descriptions = {
-        new Text(this), new Visual()
+        new Text(this), new Visual(this)
     };
     
     
@@ -124,8 +134,16 @@ implements OpenCookie, EditorCookie, EditCookie {
         }
         
     }
-    private static final class Visual implements MultiViewDescription, MultiViewElement {
-       // private Node node;
+    private static final class Visual extends JPanel
+    implements MultiViewDescription, MultiViewElement, ExplorerManager.Provider,
+    PropertyChangeListener {
+        private ExplorerManager em;
+        private ManEditor support;
+        private PropertySheet sheet;
+        
+        public Visual(ManEditor ed) {
+            support = ed;
+        }
         
         public int getPersistenceType() {
             return TopComponent.PERSISTENCE_ONLY_OPENED;
@@ -149,20 +167,32 @@ implements OpenCookie, EditorCookie, EditCookie {
 
         public MultiViewElement createElement() {
             assert EventQueue.isDispatchThread();
+
+            em = new ExplorerManager();
+            em.addPropertyChangeListener(this);
             
-            
+            ChoiceView view = new ChoiceView();
+            this.setLayout(new FlowLayout());
+            this.add(view);
+            sheet = new PropertySheet();
+            Manifest mf;
+            try {
+                mf = new Manifest(support.getInputStream());
+                em.setRootContext(ManNode.createManifestModel(mf));
+                em.setSelectedNodes(new Node[] { em.getRootContext().getChildren().getNodes(true)[0] });
+            } catch (Exception ex) {
+                LOG.log(Level.WARNING, null, ex);
+            }
             
             return this;
         }
 
-        JButton b = new JButton ("Ahoj");
         public JComponent getVisualRepresentation() {
-            return b;
+            return sheet;
         }
 
-        JButton c = new JButton ("Ahoj");
         public JComponent getToolbarRepresentation() {
-            return c;
+            return this;
         }
 
         public Action[] getActions() {
@@ -200,6 +230,14 @@ implements OpenCookie, EditorCookie, EditCookie {
 
         public CloseOperationState canCloseElement() {
             return CloseOperationState.STATE_OK;
+        }
+
+        public ExplorerManager getExplorerManager() {
+            return em;
+        }
+
+        public void propertyChange(PropertyChangeEvent evt) {
+            sheet.setNodes(em.getSelectedNodes());
         }
     }
     

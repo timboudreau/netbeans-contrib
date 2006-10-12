@@ -69,5 +69,28 @@ public class ManNodeTest extends NbTestCase {
 
         assertEquals("1st is named", "Main Attributes", n.getChildren().getNodes(true)[0].getDisplayName());
         assertEquals("2nd is named", "Section for file.f", n.getChildren().getNodes(true)[1].getDisplayName());
+
+        {
+            Node.PropertySet[] pss = n.getChildren().getNodes(true)[0].getPropertySets();
+            assertEquals("One", 1, pss.length);
+            assertEquals("Attributes", pss[0].getName());
+
+            Node.Property[] props = pss[0].getProperties();
+            assertEquals("One property", 1, props.length);
+            assertEquals("Main-Class", props[0].getName());
+            assertEquals("x.jarda", props[0].getValue());
+        }            
+
+        {
+            Node.PropertySet[] pss = n.getChildren().getNodes(true)[1].getPropertySets();
+            assertEquals("One", 1, pss.length);
+            assertEquals("Attributes", pss[0].getName());
+
+            Node.Property[] props = pss[0].getProperties();
+            assertEquals("One property", 1, props.length);
+            assertEquals("Value", props[0].getName());
+            assertEquals("nic", props[0].getValue());
+        }            
+        
     }
 }
