@@ -1,6 +1,9 @@
 Manifest-Version: 1.0
 OpenIDE-Module: org.netbeans.modules.tomcat5.bundled/1
+OpenIDE-Module-Public-Packages: -
 OpenIDE-Module-Layer: org/netbeans/modules/tomcat5/bundled/layer.xml
 OpenIDE-Module-Localizing-Bundle: org/netbeans/modules/tomcat5/bundled/Bundle.properties
-OpenIDE-Module-Specification-Version: 1.7
+OpenIDE-Module-Specification-Version: 1.6.21
+OpenIDE-Module-Implementation-Version: @BUILD_NUMBER_SUBST@
+OpenIDE-Module-Module-Dependencies: org.netbeans.modules.tomcat5/1
 

@@ -25,9 +25,9 @@ Microsystems, Inc. All Rights Reserved.
         <unzip src="../../external/${tomcat.filename}.zip" dest="${cluster}"/>
         <!-- monitor -->
         <copy file="${schema2beans/rt.dir}/modules/org-netbeans-modules-schema2beans.jar"
-            tofile="${cluster}/jakarta-tomcat-5.5.9/common/lib/org-netbeans-modules-schema2beans.jar"/>
+            tofile="${cluster}/apache-tomcat-5.5.17/common/lib/org-netbeans-modules-schema2beans.jar"/>
         <copy file="${monitor.dir}/modules/ext/org-netbeans-modules-web-httpmonitor.jar"
-            tofile="${cluster}/jakarta-tomcat-5.5.9/common/lib/org-netbeans-modules-web-httpmonitor.jar"/>
+            tofile="${cluster}/apache-tomcat-5.5.17/common/lib/org-netbeans-modules-web-httpmonitor.jar"/>
         <chmod perm="ugo+x">
             <fileset dir="${cluster}/${tomcat.filename}/bin">
                 <include name="*.sh"/>
@@ -63,7 +63,7 @@ Microsystems, Inc. All Rights Reserved.
                 <text>For the integration module:</text>
                 <file location="${license.file}"/>
                 <text>For Tomcat:</text>
-                <file location="../../external/jakarta-tomcat-5.5.9-license.txt"/>
+                <file location="../../external/apache-tomcat-5.5.17-license.txt"/>
             </license>
             <signature keystore="${keystore}" storepass="${storepass}" alias="${nbm_alias}"/>
         </makenbm>
