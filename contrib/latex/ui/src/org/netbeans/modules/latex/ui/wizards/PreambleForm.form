@@ -10,7 +10,7 @@
           <ComponentRef name="documentClassCombo"/>
         </Property>
         <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
-          <ResourceString bundle="org/netbeans/modules/latex/wizards/Bundle.properties" key="LBL_documentclass" replaceFormat="java.util.ResourceBundle.getBundle(&quot;{bundleNameSlashes}&quot;).getString(&quot;{key}&quot;)"/>
+          <ResourceString bundle="org/netbeans/modules/latex/ui/wizards/Bundle.properties" key="LBL_documentclass" replaceFormat="java.util.ResourceBundle.getBundle(&quot;{bundleNameSlashes}&quot;).getString(&quot;{key}&quot;)"/>
         </Property>
       </Properties>
       <Constraints>
@@ -22,7 +22,7 @@
     <Component class="javax.swing.JLabel" name="jLabel2">
       <Properties>
         <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
-          <ResourceString bundle="org/netbeans/modules/latex/wizards/Bundle.properties" key="LBL_fontsize" replaceFormat="java.util.ResourceBundle.getBundle(&quot;{bundleNameSlashes}&quot;).getString(&quot;{key}&quot;)"/>
+          <ResourceString bundle="org/netbeans/modules/latex/ui/wizards/Bundle.properties" key="LBL_fontsize" replaceFormat="java.util.ResourceBundle.getBundle(&quot;{bundleNameSlashes}&quot;).getString(&quot;{key}&quot;)"/>
         </Property>
       </Properties>
       <Constraints>
@@ -34,7 +34,7 @@
     <Component class="javax.swing.JLabel" name="jLabel3">
       <Properties>
         <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
-          <ResourceString bundle="org/netbeans/modules/latex/wizards/Bundle.properties" key="LBL_papersize" replaceFormat="java.util.ResourceBundle.getBundle(&quot;{bundleNameSlashes}&quot;).getString(&quot;{key}&quot;)"/>
+          <ResourceString bundle="org/netbeans/modules/latex/ui/wizards/Bundle.properties" key="LBL_papersize" replaceFormat="java.util.ResourceBundle.getBundle(&quot;{bundleNameSlashes}&quot;).getString(&quot;{key}&quot;)"/>
         </Property>
       </Properties>
       <Constraints>
@@ -46,7 +46,7 @@
     <Component class="javax.swing.JLabel" name="jLabel4">
       <Properties>
         <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
-          <ResourceString bundle="org/netbeans/modules/latex/wizards/Bundle.properties" key="LBL_inputencoding" replaceFormat="java.util.ResourceBundle.getBundle(&quot;{bundleNameSlashes}&quot;).getString(&quot;{key}&quot;)"/>
+          <ResourceString bundle="org/netbeans/modules/latex/ui/wizards/Bundle.properties" key="LBL_inputencoding" replaceFormat="java.util.ResourceBundle.getBundle(&quot;{bundleNameSlashes}&quot;).getString(&quot;{key}&quot;)"/>
         </Property>
       </Properties>
       <Constraints>
@@ -99,7 +99,7 @@
     <Component class="javax.swing.JButton" name="jButton1">
       <Properties>
         <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
-          <ResourceString bundle="org/netbeans/modules/latex/wizards/Bundle.properties" key="LBL_addnew" replaceFormat="java.util.ResourceBundle.getBundle(&quot;{bundleNameSlashes}&quot;).getString(&quot;{key}&quot;)"/>
+          <ResourceString bundle="org/netbeans/modules/latex/ui/wizards/Bundle.properties" key="LBL_addnew" replaceFormat="java.util.ResourceBundle.getBundle(&quot;{bundleNameSlashes}&quot;).getString(&quot;{key}&quot;)"/>
         </Property>
       </Properties>
       <Constraints>
@@ -111,7 +111,7 @@
     <Component class="javax.swing.JButton" name="jButton2">
       <Properties>
         <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
-          <ResourceString bundle="org/netbeans/modules/latex/wizards/Bundle.properties" key="LBL_addnew" replaceFormat="java.util.ResourceBundle.getBundle(&quot;{bundleNameSlashes}&quot;).getString(&quot;{key}&quot;)"/>
+          <ResourceString bundle="org/netbeans/modules/latex/ui/wizards/Bundle.properties" key="LBL_addnew" replaceFormat="java.util.ResourceBundle.getBundle(&quot;{bundleNameSlashes}&quot;).getString(&quot;{key}&quot;)"/>
         </Property>
       </Properties>
       <Events>
@@ -126,7 +126,7 @@
     <Component class="javax.swing.JButton" name="jButton3">
       <Properties>
         <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
-          <ResourceString bundle="org/netbeans/modules/latex/wizards/Bundle.properties" key="LBL_addnew" replaceFormat="java.util.ResourceBundle.getBundle(&quot;{bundleNameSlashes}&quot;).getString(&quot;{key}&quot;)"/>
+          <ResourceString bundle="org/netbeans/modules/latex/ui/wizards/Bundle.properties" key="LBL_addnew" replaceFormat="java.util.ResourceBundle.getBundle(&quot;{bundleNameSlashes}&quot;).getString(&quot;{key}&quot;)"/>
         </Property>
       </Properties>
       <Constraints>
@@ -138,7 +138,7 @@
     <Component class="javax.swing.JButton" name="jButton4">
       <Properties>
         <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
-          <ResourceString bundle="org/netbeans/modules/latex/wizards/Bundle.properties" key="LBL_addnew" replaceFormat="java.util.ResourceBundle.getBundle(&quot;{bundleNameSlashes}&quot;).getString(&quot;{key}&quot;)"/>
+          <ResourceString bundle="org/netbeans/modules/latex/ui/wizards/Bundle.properties" key="LBL_addnew" replaceFormat="java.util.ResourceBundle.getBundle(&quot;{bundleNameSlashes}&quot;).getString(&quot;{key}&quot;)"/>
         </Property>
       </Properties>
       <Constraints>
@@ -150,7 +150,7 @@
     <Component class="javax.swing.JLabel" name="jLabel5">
       <Properties>
         <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
-          <ResourceString bundle="org/netbeans/modules/latex/wizards/Bundle.properties" key="LBL_author" replaceFormat="java.util.ResourceBundle.getBundle(&quot;{bundleNameSlashes}&quot;).getString(&quot;{key}&quot;)"/>
+          <ResourceString bundle="org/netbeans/modules/latex/ui/wizards/Bundle.properties" key="LBL_author" replaceFormat="java.util.ResourceBundle.getBundle(&quot;{bundleNameSlashes}&quot;).getString(&quot;{key}&quot;)"/>
         </Property>
       </Properties>
       <Constraints>
@@ -162,7 +162,7 @@
     <Component class="javax.swing.JLabel" name="jLabel6">
       <Properties>
         <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
-          <ResourceString bundle="org/netbeans/modules/latex/wizards/Bundle.properties" key="LBL_title" replaceFormat="java.util.ResourceBundle.getBundle(&quot;{bundleNameSlashes}&quot;).getString(&quot;{key}&quot;)"/>
+          <ResourceString bundle="org/netbeans/modules/latex/ui/wizards/Bundle.properties" key="LBL_title" replaceFormat="java.util.ResourceBundle.getBundle(&quot;{bundleNameSlashes}&quot;).getString(&quot;{key}&quot;)"/>
         </Property>
       </Properties>
       <Constraints>
@@ -215,7 +215,7 @@
           <ComponentRef name="optionsList"/>
         </Property>
         <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
-          <ResourceString bundle="org/netbeans/modules/latex/wizards/Bundle.properties" key="LBL_options" replaceFormat="java.util.ResourceBundle.getBundle(&quot;{bundleNameSlashes}&quot;).getString(&quot;{key}&quot;)"/>
+          <ResourceString bundle="org/netbeans/modules/latex/ui/wizards/Bundle.properties" key="LBL_options" replaceFormat="java.util.ResourceBundle.getBundle(&quot;{bundleNameSlashes}&quot;).getString(&quot;{key}&quot;)"/>
         </Property>
       </Properties>
       <Constraints>

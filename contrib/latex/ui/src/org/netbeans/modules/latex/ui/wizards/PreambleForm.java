@@ -71,13 +71,13 @@ public class PreambleForm extends javax.swing.JPanel {
         setLayout(new java.awt.GridBagLayout());
 
         jLabel1.setLabelFor(documentClassCombo);
-        jLabel1.setText(java.util.ResourceBundle.getBundle("org/netbeans/modules/latex/wizards/Bundle").getString("LBL_documentclass"));
+        jLabel1.setText(java.util.ResourceBundle.getBundle("org/netbeans/modules/latex/ui/wizards/Bundle").getString("LBL_documentclass"));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
         gridBagConstraints.insets = new java.awt.Insets(0, 0, 11, 6);
         add(jLabel1, gridBagConstraints);
 
-        jLabel2.setText(java.util.ResourceBundle.getBundle("org/netbeans/modules/latex/wizards/Bundle").getString("LBL_fontsize"));
+        jLabel2.setText(java.util.ResourceBundle.getBundle("org/netbeans/modules/latex/ui/wizards/Bundle").getString("LBL_fontsize"));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 1;
@@ -85,7 +85,7 @@ public class PreambleForm extends javax.swing.JPanel {
         gridBagConstraints.insets = new java.awt.Insets(0, 0, 11, 6);
         add(jLabel2, gridBagConstraints);
 
-        jLabel3.setText(java.util.ResourceBundle.getBundle("org/netbeans/modules/latex/wizards/Bundle").getString("LBL_papersize"));
+        jLabel3.setText(java.util.ResourceBundle.getBundle("org/netbeans/modules/latex/ui/wizards/Bundle").getString("LBL_papersize"));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 2;
@@ -93,7 +93,7 @@ public class PreambleForm extends javax.swing.JPanel {
         gridBagConstraints.insets = new java.awt.Insets(0, 0, 11, 6);
         add(jLabel3, gridBagConstraints);
 
-        jLabel4.setText(java.util.ResourceBundle.getBundle("org/netbeans/modules/latex/wizards/Bundle").getString("LBL_inputencoding"));
+        jLabel4.setText(java.util.ResourceBundle.getBundle("org/netbeans/modules/latex/ui/wizards/Bundle").getString("LBL_inputencoding"));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 3;
@@ -135,12 +135,12 @@ public class PreambleForm extends javax.swing.JPanel {
         gridBagConstraints.insets = new java.awt.Insets(0, 6, 11, 0);
         add(inputEncoding, gridBagConstraints);
 
-        jButton1.setText(java.util.ResourceBundle.getBundle("org/netbeans/modules/latex/wizards/Bundle").getString("LBL_addnew"));
+        jButton1.setText(java.util.ResourceBundle.getBundle("org/netbeans/modules/latex/ui/wizards/Bundle").getString("LBL_addnew"));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.insets = new java.awt.Insets(0, 0, 11, 0);
         add(jButton1, gridBagConstraints);
 
-        jButton2.setText(java.util.ResourceBundle.getBundle("org/netbeans/modules/latex/wizards/Bundle").getString("LBL_addnew"));
+        jButton2.setText(java.util.ResourceBundle.getBundle("org/netbeans/modules/latex/ui/wizards/Bundle").getString("LBL_addnew"));
         jButton2.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jButton2ActionPerformed(evt);
@@ -153,21 +153,21 @@ public class PreambleForm extends javax.swing.JPanel {
         gridBagConstraints.insets = new java.awt.Insets(0, 0, 11, 0);
         add(jButton2, gridBagConstraints);
 
-        jButton3.setText(java.util.ResourceBundle.getBundle("org/netbeans/modules/latex/wizards/Bundle").getString("LBL_addnew"));
+        jButton3.setText(java.util.ResourceBundle.getBundle("org/netbeans/modules/latex/ui/wizards/Bundle").getString("LBL_addnew"));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 2;
         gridBagConstraints.gridy = 2;
         gridBagConstraints.insets = new java.awt.Insets(0, 0, 11, 0);
         add(jButton3, gridBagConstraints);
 
-        jButton4.setText(java.util.ResourceBundle.getBundle("org/netbeans/modules/latex/wizards/Bundle").getString("LBL_addnew"));
+        jButton4.setText(java.util.ResourceBundle.getBundle("org/netbeans/modules/latex/ui/wizards/Bundle").getString("LBL_addnew"));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 2;
         gridBagConstraints.gridy = 3;
         gridBagConstraints.insets = new java.awt.Insets(0, 0, 11, 0);
         add(jButton4, gridBagConstraints);
 
-        jLabel5.setText(java.util.ResourceBundle.getBundle("org/netbeans/modules/latex/wizards/Bundle").getString("LBL_author"));
+        jLabel5.setText(java.util.ResourceBundle.getBundle("org/netbeans/modules/latex/ui/wizards/Bundle").getString("LBL_author"));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 4;
@@ -175,7 +175,7 @@ public class PreambleForm extends javax.swing.JPanel {
         gridBagConstraints.insets = new java.awt.Insets(0, 0, 11, 6);
         add(jLabel5, gridBagConstraints);
 
-        jLabel6.setText(java.util.ResourceBundle.getBundle("org/netbeans/modules/latex/wizards/Bundle").getString("LBL_title"));
+        jLabel6.setText(java.util.ResourceBundle.getBundle("org/netbeans/modules/latex/ui/wizards/Bundle").getString("LBL_title"));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 5;
@@ -210,7 +210,7 @@ public class PreambleForm extends javax.swing.JPanel {
         add(jScrollPane1, gridBagConstraints);
 
         jLabel7.setLabelFor(optionsList);
-        jLabel7.setText(java.util.ResourceBundle.getBundle("org/netbeans/modules/latex/wizards/Bundle").getString("LBL_options"));
+        jLabel7.setText(java.util.ResourceBundle.getBundle("org/netbeans/modules/latex/ui/wizards/Bundle").getString("LBL_options"));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 6;
