@@ -7,9 +7,6 @@
             <properties>
                 <property-file>user.build.properties</property-file>
                 <property-file>build.properties</property-file>
-                <property-file>nbproject/private/bootclasspath.properties</property-file>
-                <!-- Fallback: -->
-                <property name="nbjdk.bootclasspath">${java.home}/../jre/lib/rt.jar</property>
             </properties>
             <folders>
                 <source-folder>
@@ -183,7 +180,6 @@
                 <package-root>${src.dir}</package-root>
                 <classpath mode="compile">${cp}</classpath>
                 <classpath mode="execute">${run.cp}</classpath>
-                <classpath mode="boot">${nbjdk.bootclasspath}</classpath>
                 <built-to>${classes.dir}</built-to>
                 <built-to>${jar}</built-to>
                 <javadoc-built-to>${javadoc.dir}</javadoc-built-to>
@@ -194,7 +190,6 @@
                 <unit-tests/>
                 <classpath mode="compile">${test.cp}</classpath>
                 <classpath mode="execute">${test.run.cp}</classpath>
-                <classpath mode="boot">${nbjdk.bootclasspath}</classpath>
                 <built-to>${test.classes.dir}</built-to>
                 <source-level>1.5</source-level>
             </compilation-unit>

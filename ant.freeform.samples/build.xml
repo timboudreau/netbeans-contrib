@@ -34,7 +34,7 @@ Microsystems, Inc. All Rights Reserved.
                 <exclude name="user.build.properties"/>
                 <exclude name="**/.exists"/>
             </fileset>
-            <zipfileset dir="src/org/netbeans/modules/ant/freeform/jdkselection" includes="jdk.xml" prefix="nbproject/"/>
+            <zipfileset dir="../../../java/freeform/src/org/netbeans/modules/java/freeform/jdkselection" includes="jdk.xml" prefix="nbproject/"/>
         </zip>
         <zip zipfile="${build.classes.dir}/org/netbeans/modules/ant/freeform/samples/AnagramFreeformProject.zip" compress="true">
             <fileset dir="templates/anagram">
@@ -45,7 +45,7 @@ Microsystems, Inc. All Rights Reserved.
                 <exclude name="lib/build/"/>
                 <exclude name="lib/user.build.properties"/>
             </fileset>
-            <zipfileset dir="src/org/netbeans/modules/ant/freeform/jdkselection" includes="jdk.xml" prefix="nbproject/"/>
+            <zipfileset dir="../../../java/freeform/src/org/netbeans/modules/java/freeform/jdkselection" includes="jdk.xml" prefix="nbproject/"/>
         </zip>
     </target>
     

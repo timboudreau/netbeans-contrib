@@ -7,7 +7,6 @@
             <tocitem text="Skeletal" target="org.netbeans.modules.ant.freeform.samples.template-skeletal"/>
             <tocitem text="Anagram Sample" target="org.netbeans.modules.ant.freeform.samples.template-anagram"/>
         </tocitem>
-        <tocitem text="Java Platform Selection" target="org.netbeans.modules.ant.freeform.samples.jdk"/>
         <tocitem text="Custom Context Commands" target="org.netbeans.modules.ant.freeform.samples.custom-commands"/>
         <tocitem text="Project Format Reference" target="org.netbeans.modules.ant.freeform.samples.format-intro">
             <tocitem text="Format Overview" target="org.netbeans.modules.ant.freeform.samples.format-overview"/>
