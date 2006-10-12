@@ -21,6 +21,7 @@
 package org.netbeans.modules.buildmonitor;
 
 import java.util.Locale;
+import org.openide.ErrorManager;
 import org.openide.util.NbBundle;
 import org.openide.util.Utilities;
 import javax.swing.*;
@@ -51,6 +52,9 @@ public class Status {
     
     public static final String CRUISECONTROL_SUCCESS = ", passed";
     public static final String CRUISECONTROL_FAILED = ", FAILED!";
+    public static final String HUDSON_SUCCESS = "(SUCCESS)";
+    public static final String HUDSON_FAILURE = "(FAILURE)";
+    public static final String HUDSON_UNSTABLE = "(UNSTABLE)";
     
     Icon getIcon() {
 	return icon;
@@ -61,11 +65,11 @@ public class Status {
     }
     
     public static Status lookup(String text) {
-        if (SUCCESS.name.equals(text) || text.endsWith(CRUISECONTROL_SUCCESS))
+        if (SUCCESS.name.equals(text) || text.endsWith(CRUISECONTROL_SUCCESS) || text.endsWith(HUDSON_SUCCESS))
             return SUCCESS;
-        if (FAILED.name.equals(text) || text.endsWith(CRUISECONTROL_FAILED))
+        if (FAILED.name.equals(text) || text.endsWith(CRUISECONTROL_FAILED) || text.endsWith(HUDSON_FAILURE))
             return FAILED;
-        if (TESTS_FAILED.name.equals(text))
+        if (TESTS_FAILED.name.equals(text) || text.endsWith(HUDSON_UNSTABLE))
             return TESTS_FAILED;
         if (text.toLowerCase(Locale.US).indexOf("succe") != -1) {
             return SUCCESS;
@@ -73,6 +77,8 @@ public class Status {
         if (text.toLowerCase(Locale.US).indexOf("fail") != -1) {
             return FAILED;
         }
+        ErrorManager.getDefault().log(ErrorManager.INFORMATIONAL, 
+                                      "BuildMonitor: unable to parse \"" + text + "\"");
         return NO_STATUS_AVAIL;
     }
 

@@ -290,8 +290,9 @@ public class BuildMonitor implements Serializable, HelpCtx.Provider {
             String text = buffer.toString();
             if (rawName.equalsIgnoreCase("item") || rawName.equalsIgnoreCase("entry")) { //NOI18N
                 inItem = false;
-                // only first item is read, since it has the most recent status
-                skipRemainingItems = true;
+                if (lastStatus != Status.NO_STATUS_AVAIL) // latest status not available during Hudson builds
+                    // only first item is read, since it has the most recent status
+                    skipRemainingItems = true;
                 // XXX would more simply throw a StopException
             }
             else if (rawName.equalsIgnoreCase("title")) { //NOI18N
