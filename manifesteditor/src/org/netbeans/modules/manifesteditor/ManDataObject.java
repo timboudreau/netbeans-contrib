@@ -20,8 +20,10 @@ package org.netbeans.modules.manifesteditor;
 
 import java.io.IOException;
 import org.openide.filesystems.FileObject;
+import org.openide.loaders.DataNode;
 import org.openide.loaders.DataObjectExistsException;
 import org.openide.loaders.MultiDataObject;
+import org.openide.nodes.Children;
 import org.openide.nodes.Node;
 import org.openide.nodes.Node.Cookie;
 import org.openide.util.Lookup;
@@ -43,7 +45,9 @@ implements Lookup.Provider {
     }
     
     protected Node createNodeDelegate() {
-        return new ManDataNode(this);
+        DataNode n = new DataNode(this, Children.LEAF);
+        n.setIconBaseWithExtension("org/netbeans/modules/manifesteditor/manifest.png");
+        return n;
     }
 
     public Lookup getLookup() {

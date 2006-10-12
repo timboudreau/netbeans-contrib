@@ -44,8 +44,10 @@ final class ManNode extends AbstractNode {
         
         if ("Main".equals(name)) {
             setDisplayName(NbBundle.getMessage(ManNode.class, "CTL_MainAttributes"));
+            setIconBaseWithExtension("org/netbeans/modules/manifesteditor/manifest.png");
         } else {
             setDisplayName(NbBundle.getMessage(ManNode.class, "CTL_Attributes", name));
+            setIconBaseWithExtension("org/netbeans/modules/manifesteditor/section.png");
         }
         
         this.attrs = attrs;
