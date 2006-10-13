@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+
+<fontscolors>
+    <fontcolor name="whitespace" default="whitespace"/>
+    <fontcolor name="comment" default="comment"/>
+    <fontcolor name="keyword" default="keyword"/>
+    <fontcolor name="identifier" default="identifier"/>
+    <fontcolor name="number" default="number"/>
+    <fontcolor name="operator" foreColor="ffff9933" default="operator"/>
+    <fontcolor name="separator" foreColor="ff0000ff"/>
+    <fontcolor name="error" default="error"/>
+</fontscolors>
