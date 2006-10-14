@@ -21,6 +21,19 @@ Microsystems, Inc. All Rights Reserved.
 
     <import file="../../nbbuild/templates/projectized.xml"/>
 
+    <available file="${basedir}/release/modules/ext/saxon8.jar" property="has-saxon"/>
+
+    <target name="compile" depends="download-saxon,projectized-common.compile"/>
+
+    <target name="download-saxon" unless="has-saxon" description="Download Saxon">
+        <echo message="Downloading Saxon 8 XML library"/>
+        <mkdir dir="${basedir}/release/modules/ext"/>
+        <get dest="${java.io.tmpdir}/saxon-dist.zip" src="http://superb-west.dl.sourceforge.net/sourceforge/saxon/saxonb8-8j.zip"/>
+        <mkdir dir="${java.io.tmpdir}/saxon-unpack"/>
+        <unzip overwrite="true" src="${java.io.tmpdir}/saxon-dist.zip" dest="${java.io.tmpdir}"/>
+        <copy file="${java.io.tmpdir}/saxon8.jar" tofile="${basedir}/release/modules/ext/saxon8.jar"/>
+    </target>
+
     <target name="external">
         <ant dir="${nb_all}/libs/external"/>
         <property file="${nb_all}/libs/public.properties"/>

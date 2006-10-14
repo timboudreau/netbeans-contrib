@@ -24,6 +24,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URL;
+import java.util.HashSet;
+import java.util.Set;
 import javax.xml.parsers.SAXParserFactory;
 import javax.xml.transform.ErrorListener;
 import javax.xml.transform.Result;
@@ -36,8 +38,10 @@ import javax.xml.transform.sax.SAXSource;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 import org.openide.DialogDisplayer;
+import org.openide.ErrorManager;
 import org.openide.NotifyDescriptor;
 import org.openide.awt.HtmlBrowser;
+import org.openide.awt.StatusDisplayer;
 import org.openide.filesystems.FileLock;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
@@ -49,9 +53,12 @@ import org.openide.util.actions.CookieAction;
 import org.openide.windows.IOProvider;
 import org.openide.windows.InputOutput;
 import org.openide.windows.OutputWriter;
+import org.xml.sax.Attributes;
+import org.xml.sax.ContentHandler;
 import org.xml.sax.EntityResolver;
 import org.xml.sax.ErrorHandler;
 import org.xml.sax.InputSource;
+import org.xml.sax.Locator;
 import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
 import org.xml.sax.XMLReader;
@@ -59,7 +66,7 @@ import org.xml.sax.XMLReader;
 /**
  * Converts a DocBook XML file (currently, Slides only) to HTML.
  */
-public class ToHtmlAction extends CookieAction implements ErrorListener, ErrorHandler {
+public class ToHtmlAction extends CookieAction {
     
     private static final String XSL_SLIDES = "http://docbook.sourceforge.net/release/slides/current/xsl/xhtml/plain.xsl";
     private static final String XSL_ARTICLE = "http://docbook.sourceforge.net/release/xsl/current/xhtml/docbook.xsl";
@@ -72,17 +79,35 @@ public class ToHtmlAction extends CookieAction implements ErrorListener, ErrorHa
         return CookieAction.MODE_EXACTLY_ONE;
     }
     
-    private OutputWriter err;
-    
     protected void performAction(Node[] nodes) {
         final DocBookDataObject o = (DocBookDataObject)nodes[0].getCookie(DocBookDataObject.class);
-        RequestProcessor.getDefault().post(new Runnable() {
-            public void run() {
-                process(o);
-            }
-        });
+        RequestProcessor.getDefault().post(new Processor (o));
     }
     
+    
+    private static class Processor implements Runnable, ErrorListener, ErrorHandler {
+        private final DocBookDataObject o;
+        Processor (DocBookDataObject o) {
+            this.o = o;
+        }
+        
+        InputOutput io;
+        OutputWriter err;
+        OutputWriter out;
+        public void run() {
+            io = IOProvider.getDefault().getIO(NbBundle.getMessage(ToHtmlAction.class, "LBL_tab_db_conv"), false);            
+            err = io.getErr();
+            out = io.getOut();
+            try {
+                out.reset();
+                process (o);
+            } catch (IOException ioe) {
+                ErrorManager.getDefault().notify(ioe);
+            } finally {
+                out.close();
+            }
+        }
+        
     private void process(DocBookDataObject o) {
         FileObject fo = o.getPrimaryFile();
         File f = FileUtil.toFile(fo);
@@ -92,16 +117,12 @@ public class ToHtmlAction extends CookieAction implements ErrorListener, ErrorHa
             return;
         }
         String mime = fo.getMIMEType();
+        io.select();
         if (mime.equals(DocBookDataLoader.MIME_SLIDES)) {
             String name = fo.getName();
-            InputOutput io = IOProvider.getDefault().getIO(NbBundle.getMessage(ToHtmlAction.class, "LBL_tab_db_conv"), false);
-            io.select();
-            err = io.getErr();
-            OutputWriter out = io.getOut();
             try {
                 // XXX #45604: throws an NPE later: out.reset();
-                err.reset();
-                err.println("Initializing...");
+                out.println("Initializing...");
                 FileObject folder = fo.getParent().getFileObject(name);
                 if (folder == null) {
                     folder = fo.getParent().createFolder(name);
@@ -110,6 +131,8 @@ public class ToHtmlAction extends CookieAction implements ErrorListener, ErrorHa
                 if (dummy == null) {
                     dummy = folder.createData("dummy.html");
                 }
+                out.println ("Will convert " + name + " to " + dummy.getPath());
+                
                 File dummyF = FileUtil.toFile(dummy);
                 assert dummyF != null;
                 SAXParserFactory saxpf = SAXParserFactory.newInstance();
@@ -121,7 +144,7 @@ public class ToHtmlAction extends CookieAction implements ErrorListener, ErrorHa
                 InputSource styleSource = resolver.resolveEntity(null, XSL_SLIDES);
                 assert styleSource != null;
                 Source style = new SAXSource(reader, styleSource);
-                TransformerFactory tf = TransformerFactory.newInstance();
+                TransformerFactory tf = new net.sf.saxon.TransformerFactoryImpl();
                 tf.setURIResolver(new EntityResolver2URIResolver(resolver));
                 err.println("Loading stylesheet...");
                 Transformer t = tf.newTransformer(style);
@@ -139,7 +162,7 @@ public class ToHtmlAction extends CookieAction implements ErrorListener, ErrorHa
                 Source source = new SAXSource(reader, new InputSource(fo.getURL().toExternalForm()));
                 Result result = new StreamResult(dummyF);
                 t.setErrorListener(this);
-                err.println("Processing...");
+                out.println("Processing...");
                 t.transform(source, result);
                 dummy.delete();
                 folder.refresh();
@@ -150,25 +173,26 @@ public class ToHtmlAction extends CookieAction implements ErrorListener, ErrorHa
                 if (index != null) {
                     HtmlBrowser.URLDisplayer.getDefault().showURL(index.getURL());
                 }
-                err.println("Done.");
+                out.println("Done.");
             } catch (Exception e) {
                 e.printStackTrace(err);
-            } finally {
-                err.close();
-                out.close();
-                err = null;
             }
         } else if (mime.equals(DocBookDataLoader.MIME_DOCBOOK)) {
             String name = fo.getName();
-            InputOutput io = IOProvider.getDefault().getIO(NbBundle.getMessage(ToHtmlAction.class, "LBL_tab_db_conv"), false);
-            io.select();
-            err = io.getErr();
             try {
-                err.reset();
-                FileObject out = fo.getParent().getFileObject(name, "html");
-                if (out == null) {
-                    out = fo.getParent().createData(name, "html");
+                out.reset();
+                out.println("Initializing...");
+                FileObject dir = fo.getParent().getFileObject("dist");
+                if (dir == null) {
+                    dir = fo.getParent().createFolder("dist");
+                } else if (!dir.isFolder()) {
+                    throw new IOException (dir.getName() + " is not a folder");
                 }
+                FileObject outFile = dir.getFileObject(name, "html");
+                if (outFile == null) {
+                    outFile = dir.createData(name, "html");
+                }
+                out.println ("Will convert " + name + " to " + outFile.getPath());
                 SAXParserFactory saxpf = SAXParserFactory.newInstance();
                 saxpf.setNamespaceAware(true);
                 XMLReader reader = saxpf.newSAXParser().getXMLReader();
@@ -178,18 +202,22 @@ public class ToHtmlAction extends CookieAction implements ErrorListener, ErrorHa
                 InputSource styleSource = resolver.resolveEntity(null, XSL_ARTICLE);
                 assert styleSource != null;
                 Source style = new SAXSource(reader, styleSource);
-                TransformerFactory tf = TransformerFactory.newInstance();
+                TransformerFactory tf = new net.sf.saxon.TransformerFactoryImpl();
                 tf.setURIResolver(new EntityResolver2URIResolver(resolver));
                 Transformer t = tf.newTransformer(style);
                 t.setParameter("output.indent", "yes");
+                t.setParameter("graphics.dir", "graphics");
                 saxpf.setValidating(true);
                 reader = saxpf.newSAXParser().getXMLReader();
                 reader.setErrorHandler(this);
-                reader.setEntityResolver(resolver); // XXX include EntityCatalog.default too?
-                Source source = new SAXSource(reader, new InputSource(fo.getURL().toExternalForm()));
-                FileLock l = out.lock();
+                reader.setEntityResolver(new ER (resolver, FileUtil.toFile(fo).getParentFile()));
+                InputSource docbook = new InputSource(fo.getURL().toExternalForm());
+                Source source = new SAXSource(reader, docbook);
+                
+                FileLock l = outFile.lock();
+                out.println ("Transforming XML...");
                 try {
-                    OutputStream outS = out.getOutputStream(l);
+                    OutputStream outS = outFile.getOutputStream(l);
                     try {
                         Result result = new StreamResult(outS);
                         t.setErrorListener(this);
@@ -200,15 +228,52 @@ public class ToHtmlAction extends CookieAction implements ErrorListener, ErrorHa
                 } finally {
                     l.releaseLock();
                 }
-                HtmlBrowser.URLDisplayer.getDefault().showURL(out.getURL());
-                err.println("Done.");
+                copyGraphics (fo.getParent(), dir, io);
+                HtmlBrowser.URLDisplayer.getDefault().showURL(outFile.getURL());
+                out.println("Done.");
             } catch (Exception e) {
-                e.printStackTrace(err);
-            } finally {
-                err = null;
+                if (err != null) {
+                    err.println ("Failed.");
+                    e.printStackTrace(err);
+                } else {
+                    ErrorManager.getDefault().notify(e);
+                }
             }
         } else {
-            assert false : mime;
+            //mime type can be bad if content is malformed
+            StatusDisplayer.getDefault().setStatusText("Could not render " + 
+                    fo.getPath());
+        }
+    }
+    
+    private static void copyGraphics (FileObject root, FileObject destFolder, InputOutput io) throws IOException {
+        Set s = new HashSet();
+        s.add ("png");
+        s.add ("gif");
+        s.add ("jpg");
+        s.add ("jpeg");
+        copyGraphics (root, destFolder, s, io);
+    }
+    
+    private static void copyGraphics (FileObject root, FileObject destFolder, Set endings, InputOutput io) throws IOException {
+        FileObject[] kids = root.getChildren();
+        for (int i=0; i < kids.length; i++) {
+            FileObject curr = kids[i];
+            if (curr.isFolder() && !"dist".equals(curr.getName())) {
+                copyGraphics (curr, destFolder, endings, io);
+            } else if (curr.isData()) {
+                String ext = curr.getExt().toLowerCase();
+                if (endings.contains(ext)) {
+                    if (destFolder.getFileObject (curr.getName(), curr.getExt()) != null) {
+                        io.getErr().println ("  Not copying " + curr.getNameExt() + " to " +
+                                destFolder.getPath() + " - there is already a " +
+                                "file there");
+                    }  else {
+                        io.getOut().println("  Copy " + curr.getName() + " to " + destFolder.getPath());
+                        FileUtil.copyFile(curr, destFolder, curr.getName());
+                    }
+                }
+            }
         }
     }
     
@@ -244,14 +309,6 @@ public class ToHtmlAction extends CookieAction implements ErrorListener, ErrorHa
         }
     }
     
-    public String getName() {
-        return NbBundle.getMessage(ToHtmlAction.class, "LBL_action");
-    }
-    
-    public HelpCtx getHelpCtx() {
-        return HelpCtx.DEFAULT_HELP;
-    }
-    
     public void fatalError(TransformerException exception) throws TransformerException {
         throw exception;
     }
@@ -278,10 +335,20 @@ public class ToHtmlAction extends CookieAction implements ErrorListener, ErrorHa
         // XXX show location etc.
         err.println(exception.getMessage());
     }
+    } //End Processor
 
     protected boolean asynchronous() {
         return false;
     }
+
+    public String getName() {
+        return NbBundle.getMessage(ToHtmlAction.class, "LBL_action");
+    }
+    
+    public HelpCtx getHelpCtx() {
+        return HelpCtx.DEFAULT_HELP;
+    }
+    
     
     private static final class EntityResolver2URIResolver implements URIResolver {
         private final EntityResolver resolver;
@@ -289,6 +356,7 @@ public class ToHtmlAction extends CookieAction implements ErrorListener, ErrorHa
             this.resolver = resolver;
         }
         public Source resolve(String href, String base) throws TransformerException {
+            System.err.println("DO RESOLVE HREF " + href + " BASE " + base);
             try {
                 String abs = new URL(new URL(base), href).toExternalForm();
                 InputSource s = resolver.resolveEntity(null, abs);
@@ -306,5 +374,60 @@ public class ToHtmlAction extends CookieAction implements ErrorListener, ErrorHa
             }
         }
     }
+
     
+    private static final class ER implements EntityResolver {
+        private final EntityResolver toProxy;
+        private final File dir;
+        ER (EntityResolver toProxy, File dir) {
+            this.dir = dir;
+            this.toProxy = toProxy;
+        }
+        
+        public InputSource resolveEntity(String publicId, String systemId) throws SAXException, IOException {
+            InputSource result = toProxy.resolveEntity (publicId, systemId);
+            System.err.println("RESOLVE ENTITY " + publicId + "  SYSTEM " + systemId + " returns " + result);
+            return result;
+        }
+        
+    }
+    
+    private static final class CH implements ContentHandler {
+        public void setDocumentLocator(Locator locator) {
+        }
+
+        public void startDocument() throws SAXException {
+            System.err.println("Start document");
+        }
+
+        public void endDocument() throws SAXException {
+        }
+
+        public void startPrefixMapping(String prefix, String uri) throws SAXException {
+        }
+
+        public void endPrefixMapping(String prefix) throws SAXException {
+        }
+
+        public void startElement(String uri, String localName, String qName, Attributes atts) throws SAXException {
+            System.err.println("StartElement " + uri + " local name " + qName + " atts " + atts);
+        }
+
+        public void endElement(String uri, String localName, String qName) throws SAXException {
+        }
+
+        public void characters(char[] ch, int start, int length) throws SAXException {
+            System.err.println("CHARACTERS " + new String (ch, start, length));
+        }
+
+        public void ignorableWhitespace(char[] ch, int start, int length) throws SAXException {
+        }
+
+        public void processingInstruction(String target, String data) throws SAXException {
+        }
+
+        public void skippedEntity(String name) throws SAXException {
+        }
+        
+    }
 }

@@ -28,7 +28,7 @@ Microsystems, Inc. All Rights Reserved.
                     <build-prerequisite/>
                     <compile-dependency/>
                     <run-dependency>
-               <release-version>1</release-version>
+                        <release-version>1</release-version>
                         <specification-version>1.13</specification-version>
                     </run-dependency>
                 </dependency>
@@ -97,6 +97,14 @@ Microsystems, Inc. All Rights Reserved.
                     <run-dependency/>
                 </dependency>
                 <dependency>
+                    <code-name-base>org.openide.modules</code-name-base>
+                    <build-prerequisite/>
+                    <compile-dependency/>
+                    <run-dependency>
+                        <specification-version>7.2</specification-version>
+                    </run-dependency>
+                </dependency>
+                <dependency>
                     <code-name-base>org.openide.nodes</code-name-base>
                     <build-prerequisite/>
                     <compile-dependency/>
@@ -130,6 +138,10 @@ Microsystems, Inc. All Rights Reserved.
                 </dependency>
             </module-dependencies>
             <public-packages/>
+            <class-path-extension>
+                <runtime-relative-path>ext/saxon8.jar</runtime-relative-path>
+                <binary-origin>release/modules/ext/saxon8.jar</binary-origin>
+            </class-path-extension>
         </data>
     </configuration>
 </project>

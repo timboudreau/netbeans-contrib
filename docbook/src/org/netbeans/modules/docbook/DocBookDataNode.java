@@ -51,7 +51,7 @@ public class DocBookDataNode extends DataNode {
         } else if (mime.equals(DocBookDataLoader.MIME_SLIDES)) {
             return NbBundle.getMessage(DocBookDataNode.class, "HINT_file_slides");
         } else {
-            assert false : mime;
+            //Mime type can be wrong if the document is malformed
             return super.getShortDescription();
         }
     }
