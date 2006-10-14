@@ -233,7 +233,14 @@ class Processor implements Runnable, ErrorListener, ErrorHandler {
             } else if (curr.isData()) {
                 String ext = curr.getExt().toLowerCase();
                 if (endings.contains(ext)) {
-                    if (destFolder.getFileObject (curr.getName(), curr.getExt()) != null) {
+                    boolean canCopy = destFolder.getFileObject (curr.getName(), curr.getExt()) == null;
+                    if (!canCopy) {
+                        FileObject other = destFolder.getFileObject(curr.getName(), curr.getExt());
+                        long otherTime = other.lastModified().getTime();
+                        long myTime = curr.lastModified().getTime();
+                        canCopy = myTime > otherTime;
+                    }
+                    if (!canCopy) {
                         status.warn ("  Not copying " + curr.getNameExt() + " to " +
                                 destFolder.getPath() + " - there is already a " +
                                 "file there");

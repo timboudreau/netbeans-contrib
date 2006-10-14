@@ -18,12 +18,35 @@
  */
 package org.netbeans.api.docbook;
 
+import java.awt.Rectangle;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.io.IOException;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import javax.swing.JEditorPane;
+import javax.swing.SwingUtilities;
+import javax.swing.Timer;
+import javax.swing.text.BadLocationException;
+import javax.swing.text.Element;
+import javax.swing.text.StyledDocument;
 import org.openide.ErrorManager;
+import org.openide.cookies.EditCookie;
+import org.openide.cookies.EditorCookie;
+import org.openide.cookies.OpenCookie;
+import org.openide.filesystems.FileObject;
+import org.openide.filesystems.FileUtil;
+import org.openide.loaders.DataObject;
+import org.openide.loaders.DataObjectNotFoundException;
 import org.openide.windows.IOProvider;
 import org.openide.windows.InputOutput;
+import org.openide.windows.OutputEvent;
+import org.openide.windows.OutputListener;
 import org.openide.windows.OutputWriter;
+import org.openide.windows.TopComponent;
 
 
 /**
@@ -93,7 +116,16 @@ public final class OutputWindowStatus extends Renderer.JobStatus {
 //        assert running;
         InputOutput io = getIO();
         OutputWriter out = io.getErr();
-        out.println (msg);
+        OutputListener ol = getListener(msg);
+        try {
+            if (ol != null) {
+                out.println (msg, ol);
+            } else {
+                out.println (msg);
+            }
+        } catch (IOException ioe) {
+            ErrorManager.getDefault().notify (ioe);
+        }
         if (other != null) {
             other.warn (msg);
         }
@@ -118,6 +150,172 @@ public final class OutputWindowStatus extends Renderer.JobStatus {
     private volatile boolean running = false;
     public boolean isRunning() {
         return running;
+    }
+
+
+    private static final Pattern errorLinesPattern =
+            Pattern.compile("Error.*?file:/(.*?);.*?Line#:\\s(.*?);.*?Column#:\\s([0-9]*)", 0);
+
+    private OutputListener getListener (String str) {
+        Matcher m = errorLinesPattern.matcher(str);
+        if (m.lookingAt()) {
+            String file = m.group(1);
+            String lineString = m.group(2);
+            String colString = m.group(3);
+            int line;
+            int col;
+            try {
+                line = Integer.parseInt(lineString);
+                col = Integer.parseInt(colString);
+            } catch (NumberFormatException nfe) {
+                System.err.println("BAD NUMBER '" + lineString + "' or '" + colString + "'");
+                return null;
+            }
+            return new OL (file, line, col);
+        } else {
+            System.err.println("Did not match " + str);
+        }
+        return null;
+    }
+
+    private static final class OL implements OutputListener, ActionListener, PropertyChangeListener {
+        private final String file;
+        private final int line;
+        private final int column;
+        public OL (String file, int line, int column) {
+            this.file = file.replace('/', File.separatorChar);
+            this.line = line;
+            this.column = column;
+        }
+
+        public void outputLineSelected(OutputEvent ev) {
+        }
+
+        public void outputLineAction(OutputEvent ev) {
+            File f = new File (file);
+            if (f.exists()) {
+                FileObject fob = FileUtil.toFileObject (f);
+                try {
+                    DataObject dob = DataObject.find (fob);
+                    EditorCookie eck = (EditorCookie) dob.getCookie(EditorCookie.class);
+                    if (eck == null) {
+                        boolean needTimer = false;
+                        OpenCookie ck = (OpenCookie) dob.getCookie(OpenCookie.class);
+                        if (ck == null) {
+                            EditCookie ec = (EditCookie) dob.getCookie(EditCookie.class);
+                            if (ec != null) {
+                                startTimer (dob);
+                                ec.edit();
+                            }
+                        } else {
+                            startTimer (dob);
+                            ck.open();
+                        }
+                    } else {
+                        handleEditorCookie (eck);
+                    }
+                } catch (DataObjectNotFoundException donfe) {
+                    //do nothing
+                }
+            }
+        }
+
+        public void outputLineCleared(OutputEvent ev) {
+            if (timer != null && timer.isRunning()) done();
+        }
+
+        private Timer timer = null;
+        private DataObject dob;
+        private void startTimer(DataObject dob) {
+            if (timer != null && timer.isRunning()) {
+                return;
+            } else {
+                this.dob = dob;
+                timer = new Timer (2000, this);
+                timer.setRepeats(false);
+                timer.start();
+            }
+            dob.addPropertyChangeListener(this);
+        }
+
+        private void handleEditorCookie(EditorCookie eck) {
+            JEditorPane[] panes = eck.getOpenedPanes();
+            JEditorPane pane;
+            if (panes.length > 0) {
+                pane = panes[0];
+            } else {
+                eck.open();
+                try {
+                    eck.openDocument();
+                } catch (IOException ex) {
+                    ErrorManager.getDefault().notify (ex);
+                    return;
+                }
+                panes = eck.getOpenedPanes();
+                if (panes.length == 0) {
+                    return;
+                }
+                pane = panes[0];
+            }
+            TopComponent tc = (TopComponent) SwingUtilities.getAncestorOfClass(
+                    TopComponent.class, pane);
+            if (tc != null) {
+                tc.open();
+                tc.requestActive();
+            }
+            StyledDocument doc = eck.getDocument();
+            Element root = doc.getDefaultRootElement();
+            int lineCount = root.getElementCount();
+            if (line >= lineCount) {
+                return;
+            }
+            Element lineEl = root.getElement(line);
+            int offset = lineEl.getStartOffset();
+            if (offset + column < doc.getLength()) {
+                offset += column;
+            }
+            pane.setSelectionStart(offset);
+            pane.setSelectionEnd (offset);
+            try {
+                Rectangle r = pane.modelToView(offset);
+                if (r != null) {
+                    pane.scrollRectToVisible(r);
+                }
+                pane.requestFocus();
+            } catch (BadLocationException ex) {
+                //Can happen if document changed under us
+                ErrorManager.getDefault().notify (
+                        ErrorManager.INFORMATIONAL, ex);
+            }
+        }
+
+        private void done() {
+            if (timer != null) {
+                timer.stop();
+                timer = null;
+            }
+            if (dob != null) {
+                dob.removePropertyChangeListener(this);
+            }
+        }
+
+        public void actionPerformed(ActionEvent e) {
+            EditorCookie ck = (EditorCookie) dob.getCookie (EditorCookie.class);
+            if (ck != null) {
+                handleEditorCookie (ck);
+            }
+            done();
+        }
+
+        public void propertyChange(PropertyChangeEvent evt) {
+            if (DataObject.PROP_COOKIE.equals(evt.getPropertyName())) {
+                EditorCookie ck = (EditorCookie) dob.getCookie (EditorCookie.class);
+                if (ck != null) {
+                    done();
+                    handleEditorCookie (ck);
+                }
+            }
+        }
     }
 
 }
