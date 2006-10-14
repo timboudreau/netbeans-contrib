@@ -21,39 +21,122 @@ package org.netbeans.modules.docbook;
 
 import java.awt.Image;
 import java.beans.BeanInfo;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
+import java.util.Arrays;
+import org.netbeans.api.docbook.MainFileProvider;
+import org.netbeans.api.project.FileOwnerQuery;
+import org.netbeans.api.project.Project;
+import org.openide.cookies.OpenCookie;
+import org.openide.cookies.SaveCookie;
+import org.openide.filesystems.FileObject;
 import org.openide.loaders.*;
 import org.openide.nodes.*;
 import org.openide.util.NbBundle;
 import org.openide.util.Utilities;
+import org.openide.util.WeakListeners;
+import org.openide.util.lookup.AbstractLookup;
+import org.openide.util.lookup.InstanceContent;
 
 public class DocBookDataNode extends DataNode {
+    private final InstanceContent content;
+    public DocBookDataNode(DocBookDataObject obj, InstanceContent content) {
+        super(obj, Children.LEAF, new AbstractLookup (content));
+        this.content = content;
+        content.set (Arrays.asList (new Object[] {
+                obj, new RendererImpl (obj),
+                obj.getCookie (OpenCookie.class),
+                new Notifier (obj),
+        }), null);
+        SaveCookie ck = (SaveCookie) obj.getCookie(SaveCookie.class);
+        if (ck != null) {
+            content.add (ck);
+        }
+        pcl = new PCL();
+        obj.addPropertyChangeListener(WeakListeners.propertyChange(pcl, obj));
+    }
 
-    public DocBookDataNode(DocBookDataObject obj) {
-        super(obj, Children.LEAF);
+    private PropertyChangeListener pcl;
+
+    private class PCL implements PropertyChangeListener {
+        public void propertyChange(PropertyChangeEvent evt) {
+            boolean ck = DataObject.PROP_COOKIE.equals(evt.getPropertyName());
+            if (ck) {
+                SaveCookie save = (SaveCookie)
+                        getDataObject().getCookie(SaveCookie.class);
+                if (save == null) {
+                    SaveCookie old = (SaveCookie) getLookup().lookup(SaveCookie.class);
+                    if (old != null) {
+                        content.remove(old);
+                    }
+                } else {
+                    SaveCookie old = (SaveCookie) getLookup().lookup(SaveCookie.class);
+                    if (old != save && old != null) {
+                        content.remove(old);
+                    }
+                    content.add(save);
+                }
+            }
+        }
     }
 
     public Image getIcon(int type) {
         if (type == BeanInfo.ICON_COLOR_16x16 || type == BeanInfo.ICON_MONO_16x16) {
-            return Utilities.loadImage("org/netbeans/modules/docbook/docbook.png", true);
+            return Utilities.loadImage("org/netbeans/modules/docbook/docbook.png", true); //NOI18N
         } else {
             return null;
         }
     }
-    
+
     public Image getOpenedIcon(int type) {
         return getIcon(type);
     }
-    
+
     public String getShortDescription() {
         String mime = getDataObject().getPrimaryFile().getMIMEType();
         if (mime.equals(DocBookDataLoader.MIME_DOCBOOK)) {
-            return NbBundle.getMessage(DocBookDataNode.class, "HINT_file_docbook_xml");
+            return NbBundle.getMessage(DocBookDataNode.class, "HINT_file_docbook_xml"); //NOI18N
         } else if (mime.equals(DocBookDataLoader.MIME_SLIDES)) {
-            return NbBundle.getMessage(DocBookDataNode.class, "HINT_file_slides");
+            return NbBundle.getMessage(DocBookDataNode.class, "HINT_file_slides"); //NOI18N
         } else {
             //Mime type can be wrong if the document is malformed
             return super.getShortDescription();
         }
     }
-    
+
+    private boolean isMainFile() {
+        FileObject fob = getDataObject().getPrimaryFile();
+        Project p = FileOwnerQuery.getOwner(fob);
+        boolean result = p != null;
+        if (result) {
+            MainFileProvider prov = (MainFileProvider)
+                    p.getLookup().lookup(MainFileProvider.class);
+            result = prov != null;
+            if (result) {
+                result = prov.isMainFile(fob);
+            }
+        }
+        return result;
+    }
+
+    void change() {
+        fireDisplayNameChange(null, getDisplayName());
+    }
+
+    public String getHtmlDisplayName() {
+        return isMainFile() ? "<b>" + getDisplayName() : null; //NOI18N
+    }
+
+    private static final class Notifier implements MainFileProvider.Notifier {
+        private DocBookDataObject obj;
+        Notifier (DocBookDataObject obj) {
+            this.obj = obj;
+        }
+
+        public void change() {
+            DocBookDataNode n =
+                    (DocBookDataNode) obj.getNodeDelegate();
+            n.change();
+        }
+    }
 }

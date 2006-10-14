@@ -16,37 +16,17 @@
  * Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
  * Microsystems, Inc. All Rights Reserved.
  */
+package org.netbeans.api.docbook;
 
-package org.netbeans.modules.docbook;
-
-import org.openide.cookies.*;
 import org.openide.filesystems.FileObject;
-import org.openide.loaders.*;
-import org.openide.nodes.*;
-import org.openide.util.HelpCtx;
-import org.openide.util.lookup.InstanceContent;
 
-public class DocBookDataObject extends MultiDataObject {
-
-    public DocBookDataObject(FileObject pf, DocBookDataLoader loader) throws DataObjectExistsException {
-        super(pf, loader);
-        getCookieSet().add(new DocBookEditorSupport(this));
+/**
+ *
+ * @author Tim Boudreau
+ */
+public interface MainFileProvider {
+    public boolean isMainFile (FileObject ob);
+    public interface Notifier {
+        public void change();
     }
-
-    public HelpCtx getHelpCtx() {
-        return HelpCtx.DEFAULT_HELP;
-    }
-    
-    protected Node createNodeDelegate() {
-        return new DocBookDataNode(this, new InstanceContent());
-    }
-    
-    final void addSaveCookie(SaveCookie save) {
-        getCookieSet().add(save);
-    }
-     
-    final void removeSaveCookie(SaveCookie save) {
-        getCookieSet().remove(save);
-    }
-    
 }
