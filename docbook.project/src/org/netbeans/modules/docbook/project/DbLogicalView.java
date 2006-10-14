@@ -54,13 +54,14 @@ public class DbLogicalView extends AbstractNode {
                 "org/netbeans/modules/docbook/project/docbook.png"); //NOI18N
         notifyMainNameChanged();
     }
-    
+
     private DbFileFilterNode lnode = null;
     void notifyMainNameChanged() {
         DbProject proj = getLookup().lookup (DbProject.class);
         FileObject fob = proj.getMainFile();
         if (lnode != null) {
             lnode.removeNodeListener (nl);
+            lnode = null;
         }
         if (fob != null) {
             try {
@@ -68,12 +69,14 @@ public class DbLogicalView extends AbstractNode {
                 Node n = dob.getNodeDelegate();
                 lnode = new DbFileFilterNode(n, proj);
                 lnode.addNodeListener(nl);
+                nl.propertyChange(new PropertyChangeEvent (lnode, 
+                        Node.PROP_DISPLAY_NAME, null, null));
             } catch (Exception e) {
                 ErrorManager.getDefault().notify(e);
             }
         }
     }
-    
+
     private NL nl = new NL();
     private class NL extends NodeAdapter {
         public void nodeDestroyed(NodeEvent ev) {
@@ -98,7 +101,7 @@ public class DbLogicalView extends AbstractNode {
         a = (Action[]) l.toArray (a);
         return a;
     }
-    
+
     private class SetMainProjectAction extends AbstractAction {
         public SetMainProjectAction() {
             putValue (NAME, "Set Main Project");
@@ -120,5 +123,5 @@ public class DbLogicalView extends AbstractNode {
             });
         }
     }
-    
+
 }
