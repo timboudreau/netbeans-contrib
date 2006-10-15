@@ -24,12 +24,15 @@ import java.beans.BeanInfo;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.Arrays;
+import java.util.Collections;
 import org.netbeans.api.docbook.MainFileProvider;
 import org.netbeans.api.project.FileOwnerQuery;
 import org.netbeans.api.project.Project;
+import org.openide.ErrorManager;
 import org.openide.cookies.OpenCookie;
 import org.openide.cookies.SaveCookie;
 import org.openide.filesystems.FileObject;
+import org.openide.filesystems.FileStateInvalidException;
 import org.openide.loaders.*;
 import org.openide.nodes.*;
 import org.openide.util.NbBundle;
@@ -54,6 +57,7 @@ public class DocBookDataNode extends DataNode {
         }
         pcl = new PCL();
         obj.addPropertyChangeListener(WeakListeners.propertyChange(pcl, obj));
+        setIconBaseWithExtension("org/netbeans/modules/docbook/docbook.png");
     }
 
     private PropertyChangeListener pcl;
@@ -80,14 +84,36 @@ public class DocBookDataNode extends DataNode {
         }
     }
 
-    public Image getIcon(int type) {
-        if (type == BeanInfo.ICON_COLOR_16x16 || type == BeanInfo.ICON_MONO_16x16) {
-            return Utilities.loadImage("org/netbeans/modules/docbook/docbook.png", true); //NOI18N
-        } else {
-            return null;
+    public String getDisplayName() {
+        String result = super.getDisplayName();
+        FileObject ob = getDataObject().getPrimaryFile();
+        try {
+            String name = ob.getFileSystem().getStatus().annotateName(
+                result, Collections.singleton(ob));
+            return name;
+        } catch (FileStateInvalidException e) {
+            ErrorManager.getDefault().notify (e);
+            return result;
         }
     }
 
+//    public Image getIcon(int type) {
+//        if (type == BeanInfo.ICON_COLOR_16x16 || type == BeanInfo.ICON_MONO_16x16) {
+//            Image result = Utilities.loadImage(
+//                    "org/netbeans/modules/docbook/docbook.png", true); //NOI18N
+//            FileObject ob = getDataObject().getPrimaryFile();
+//            try {
+//                result = ob.getFileSystem().getStatus().annotateIcon(result, type,
+//                        Collections.singleton(ob));
+//            } catch (FileStateInvalidException ex) {
+//                ErrorManager.getDefault().notify (ex);
+//            }
+//            return result;
+//        } else {
+//            return null;
+//        }
+//    }
+//
     public Image getOpenedIcon(int type) {
         return getIcon(type);
     }
@@ -124,7 +150,13 @@ public class DocBookDataNode extends DataNode {
     }
 
     public String getHtmlDisplayName() {
-        return isMainFile() ? "<b>" + getDisplayName() : null; //NOI18N
+        String result = super.getHtmlDisplayName();
+        boolean main = isMainFile();
+        if (main) {
+            return result == null ? "<b>" + getDisplayName() : "<b>" + result;
+        } else {
+            return result;
+        }
     }
 
     private static final class Notifier implements MainFileProvider.Notifier {

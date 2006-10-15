@@ -34,6 +34,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
 import javax.swing.AbstractAction;
+import javax.swing.BorderFactory;
 import javax.swing.DefaultListCellRenderer;
 import javax.swing.DefaultListModel;
 import javax.swing.DefaultListSelectionModel;
@@ -86,7 +87,7 @@ public final class DocBookNavigatorPanel implements NavigatorPanel {
     public DocBookNavigatorPanel() {}
     
     public String getDisplayName() {
-        return "DocBook"; // XXX I18N
+        return "Titled Sections"; // XXX I18N
     }
     
     public String getDisplayHint() {
@@ -123,6 +124,8 @@ public final class DocBookNavigatorPanel implements NavigatorPanel {
                     return b;
                 }
             };
+            ((JScrollPane)panel).setBorder (BorderFactory.createEmptyBorder());
+            ((JScrollPane)panel).setViewportBorder (panel.getBorder());
         }
         return panel;
     }
@@ -145,7 +148,6 @@ public final class DocBookNavigatorPanel implements NavigatorPanel {
     }
     
     private void display(Collection/*<DataObject>*/ selectedFiles) {
-        listModel.clear();
         // Show list of targets for selected file:
         if (selectedFiles.size() == 1) {
             final DataObject d = (DataObject) selectedFiles.iterator().next();
@@ -157,6 +159,7 @@ public final class DocBookNavigatorPanel implements NavigatorPanel {
                         final Item[] items = parse(src, d);
                         EventQueue.invokeLater(new Runnable() {
                             public void run() {
+                                listModel.clear();
                                 for (int i = 0; i < items.length; i++) {
                                     listModel.addElement(items[i]);
                                 }
@@ -168,6 +171,8 @@ public final class DocBookNavigatorPanel implements NavigatorPanel {
                     }
                 }
             });
+        } else {
+            listModel.clear();
         }
     }
     
