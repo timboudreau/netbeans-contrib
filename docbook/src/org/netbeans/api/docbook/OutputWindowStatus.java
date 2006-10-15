@@ -70,6 +70,7 @@ public final class OutputWindowStatus extends Renderer.JobStatus {
     private synchronized InputOutput getIO() {
         if (io == null) {
             io = IOProvider.getDefault().getIO(displayName, false);
+            io.select();
         }
         return io;
     }
@@ -241,7 +242,7 @@ public final class OutputWindowStatus extends Renderer.JobStatus {
         private void handleEditorCookie(EditorCookie eck) {
             JEditorPane[] panes = eck.getOpenedPanes();
             JEditorPane pane;
-            if (panes.length > 0) {
+            if (panes != null && panes.length > 0) {
                 pane = panes[0];
             } else {
                 eck.open();
