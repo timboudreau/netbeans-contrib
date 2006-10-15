@@ -43,4 +43,13 @@ Microsystems, Inc. All Rights Reserved.
             </folder>
         </folder>
     </folder>
+    <folder name="Editors">
+        <folder name="text">
+            <folder name="x-docbook+xml">
+                <folder name="popup">
+                    <file name="org-netbeans-modules-docbook-project-SetMainFileAction.instance"/>
+                </folder>
+            </folder>
+        </folder>
+    </folder>
 </filesystem>
