@@ -19,13 +19,44 @@
 
 package org.netbeans.modules.docbook;
 
+import java.awt.Graphics2D;
+import java.awt.Image;
+import java.awt.MediaTracker;
+import java.awt.datatransfer.Clipboard;
+import java.awt.datatransfer.DataFlavor;
+import java.awt.datatransfer.Transferable;
+import java.awt.datatransfer.UnsupportedFlavorException;
+import java.awt.event.InputEvent;
+import java.awt.geom.AffineTransform;
+import java.awt.image.BufferedImage;
+import java.awt.image.RenderedImage;
 import java.io.IOException;
+import java.io.OutputStream;
+import java.util.Arrays;
+import javax.imageio.ImageIO;
+import javax.swing.Icon;
+import javax.swing.JComponent;
+import javax.swing.JEditorPane;
+import javax.swing.SwingUtilities;
+import javax.swing.TransferHandler;
+import javax.swing.text.Document;
+import org.netbeans.api.progress.ProgressHandle;
+import org.netbeans.api.progress.ProgressHandleFactory;
+import org.openide.DialogDisplayer;
+import org.openide.ErrorManager;
+import org.openide.NotifyDescriptor;
+import org.openide.awt.StatusDisplayer;
 
 import org.openide.cookies.*;
 import org.openide.filesystems.FileLock;
 import org.openide.filesystems.FileObject;
+import org.openide.loaders.DataObject;
+import org.openide.text.CloneableEditor;
+import org.openide.text.CloneableEditorSupport;
+import org.openide.text.CloneableEditorSupport.Pane;
 import org.openide.text.DataEditorSupport;
 import org.openide.windows.CloneableOpenSupport;
+import org.openide.windows.TopComponent;
 
 public class DocBookEditorSupport extends DataEditorSupport implements EditorCookie, OpenCookie, CloseCookie, PrintCookie {
 
@@ -45,7 +76,7 @@ public class DocBookEditorSupport extends DataEditorSupport implements EditorCoo
         }
         return true;
     }
-    
+
     protected void notifyUnmodified() {
         DocBookDataObject obj = (DocBookDataObject)getDataObject();
         SaveCookie save = (SaveCookie)obj.getCookie(SaveCookie.class);
@@ -55,34 +86,40 @@ public class DocBookEditorSupport extends DataEditorSupport implements EditorCoo
         }
         super.notifyUnmodified();
     }
-    
+
     private class Save implements SaveCookie {
         public void save() throws IOException {
             saveDocument();
             getDataObject().setModified(false);
         }
     }
-    
+
     private static class DocBookEnv extends DataEditorSupport.Env {
-        
+
         private static final long serialVersionUID = 1L;
-        
+
         public DocBookEnv(DocBookDataObject obj) {
             super(obj);
         }
-        
+
         protected FileObject getFile() {
             return getDataObject().getPrimaryFile();
         }
-        
+
         protected FileLock takeLock() throws IOException {
             return ((DocBookDataObject)getDataObject()).getPrimaryEntry().takeLock();
         }
-        
+
         public CloneableOpenSupport findCloneableOpenSupport() {
             return (DocBookEditorSupport)getDataObject().getCookie(DocBookEditorSupport.class);
         }
-        
+
     }
-    
+
+    protected void initializeCloneableEditor(CloneableEditor editor) {
+        super.initializeCloneableEditor(editor);
+        editor.getEditorPane().setTransferHandler(new TextAndImageTransferHandler(
+                editor.getEditorPane()));
+    }
+
 }
