@@ -17,6 +17,7 @@ import java.nio.channels.FileChannel;
 import java.nio.charset.CharacterCodingException;
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
+import java.util.Collections;
 import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -26,7 +27,10 @@ import org.openide.filesystems.FileChangeListener;
 import org.openide.filesystems.FileEvent;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileRenameEvent;
+import org.openide.filesystems.FileStateInvalidException;
+import org.openide.filesystems.FileSystem;
 import org.openide.filesystems.FileUtil;
+import org.openide.loaders.DataNode;
 import org.openide.loaders.DataObject;
 import org.openide.nodes.FilterNode;
 import org.openide.nodes.Node;
@@ -48,11 +52,13 @@ public class DbFileFilterNode extends FilterNode implements FileChangeListener, 
         FileObject fob = ob.getPrimaryFile();
         fob.addFileChangeListener(WeakListeners.create(
                 FileChangeListener.class, this, fob));
+        setName (ob.getName());
     }
 
     private String cachedName = null;
     private final Object lock = new Object();
     public String getDisplayName() {
+        String nm = super.getDisplayName();
         if (cachedName == null) {
             synchronized (lock) {
                 if (task == null) {
@@ -61,16 +67,50 @@ public class DbFileFilterNode extends FilterNode implements FileChangeListener, 
             }
             return super.getDisplayName();
         } else {
-            return NO_NAME.equals(cachedName) ?
-                super.getDisplayName() : cachedName;
+            String result = NO_NAME.equals(cachedName) ?
+                nm : cachedName;
+            FileObject ob = ((DataNode) getOriginal()).getDataObject().getPrimaryFile();
+            try {
+                String nue = ob.getFileSystem().getStatus().annotateName(nm,
+                        Collections.singleton(ob));
+                result = nue.replace(nm, result);
+            } catch (FileStateInvalidException ex) {
+                ErrorManager.getDefault().notify(ex);
+            }
+            return result;
         }
     }
 
     public String getHtmlDisplayName() {
-        if (getOriginal().getHtmlDisplayName() != null) {
-            return "<b>" + getDisplayName(); //NOI18N
+        FileObject ob = ((DataNode) getOriginal()).getDataObject().getPrimaryFile();
+        String origHtml = getOriginal().getHtmlDisplayName();
+        String result = null;
+        boolean main = ob.equals(project.getMainFile());
+        if (main || origHtml != null) {
+            result = getDisplayName(); //NOI18N
         }
-        return null;
+        if (result != null) {
+            try {
+                 FileSystem.Status stat =
+                     ob.getFileSystem().getStatus();
+                 if (stat instanceof FileSystem.HtmlStatus) {
+                     FileSystem.HtmlStatus hstat = (FileSystem.HtmlStatus) stat;
+
+                     result = hstat.annotateNameHtml (
+                         result, Collections.singleton(ob));
+
+                     if (main) result = "<b>" + result;
+
+                     //Make sure the super string was really modified
+                     if (!super.getDisplayName().equals(result)) {
+                         return result;
+                     }
+                 }
+            } catch (FileStateInvalidException ex) {
+                ErrorManager.getDefault().notify(ex);
+            }
+        }
+        return result;
     }
 
     void cancel() {
@@ -120,12 +160,13 @@ public class DbFileFilterNode extends FilterNode implements FileChangeListener, 
 
     private static final CharsetDecoder decoder =
             Charset.defaultCharset().newDecoder();
-    private static final Pattern pat = Pattern.compile(".*<title>(.*?)</title>", //NOI18N
-            Pattern.CASE_INSENSITIVE | Pattern.DOTALL);
+
+    private static final Pattern TITLE_PATTERN =
+            Pattern.compile("<title>\\s*(.*?)\\s*</title>"); //NOI18N
 
     //<?xml version="1.0" encoding="UTF-8"?>
     private static final String CONTENT_TYPE_PATTERN =
-            ".*<\\?xml.*?encoding=\"(.*?)\".*?>"; //NOI18N
+            ".*<\\?xml.*?\\s*encoding=\\s*\\\"(.*?)\\\".*?>"; //NOI18N
 
     private static final Pattern encodingPattern =
             Pattern.compile(CONTENT_TYPE_PATTERN,
@@ -159,9 +200,9 @@ public class DbFileFilterNode extends FilterNode implements FileChangeListener, 
                     }
 //                    CharSequence contents = decode(buf);
                     CharSequence contents = decoder.decode(buf);
-                    Matcher matcher = pat.matcher(contents);
+                    Matcher matcher = TITLE_PATTERN.matcher(contents);
                     String old = getDisplayName();
-                    if (matcher.lookingAt()) {
+                    if (matcher.find()) {
                         String nm = matcher.group(1).trim();
                         if (nm.length() > 0) {
                             cachedName = nm;

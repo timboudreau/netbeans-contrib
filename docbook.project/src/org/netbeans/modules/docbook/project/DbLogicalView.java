@@ -28,6 +28,7 @@ import javax.swing.Action;
 import org.netbeans.api.project.Project;
 import org.netbeans.api.project.ui.OpenProjects;
 import org.openide.ErrorManager;
+import org.openide.actions.FileSystemAction;
 import org.openide.actions.NewTemplateAction;
 import org.openide.filesystems.FileObject;
 import org.openide.loaders.DataObject;
@@ -36,8 +37,6 @@ import org.openide.nodes.AbstractNode;
 import org.openide.nodes.Node;
 import org.openide.nodes.NodeAdapter;
 import org.openide.nodes.NodeEvent;
-import org.openide.nodes.NodeMemberEvent;
-import org.openide.nodes.NodeReorderEvent;
 import org.openide.util.actions.SystemAction;
 import org.openide.util.lookup.Lookups;
 
@@ -69,7 +68,7 @@ public class DbLogicalView extends AbstractNode {
                 Node n = dob.getNodeDelegate();
                 lnode = new DbFileFilterNode(n, proj);
                 lnode.addNodeListener(nl);
-                nl.propertyChange(new PropertyChangeEvent (lnode, 
+                nl.propertyChange(new PropertyChangeEvent (lnode,
                         Node.PROP_DISPLAY_NAME, null, null));
             } catch (Exception e) {
                 ErrorManager.getDefault().notify(e);
@@ -96,8 +95,13 @@ public class DbLogicalView extends AbstractNode {
         List l = new ArrayList (Arrays.asList(a));
         l.add (0, SystemAction.get(NewTemplateAction.class));
         l.add (1, null);
+        l.add (2, SystemAction.get (org.openide.actions.FindAction.class));
+        l.add (null);
         l.add (new SetMainProjectAction());
         l.add (new CloseProjectAction());
+        l.add (null);
+        l.add (SystemAction.get(FileSystemAction.class));
+
         a = (Action[]) l.toArray (a);
         return a;
     }

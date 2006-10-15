@@ -50,18 +50,15 @@ public class DbLogicalViewChildren extends Children.Keys implements FileChangeLi
     public void addNotify() {
         setKeys (Collections.singleton("Please wait..."));
         updateChildren();
+        proj.getProjectDirectory().addFileChangeListener(this);
     }
 
     private void updateChildren() {
         synchronized (lock) {
             if (task == null) {
                 setTask(proj.rp.post(new Updater()));
-            } else {
-                task.cancel();
-                setTask (proj.rp.post(new Updater()));
             }
         }
-        proj.getProjectDirectory().addFileChangeListener(this);
     }
 
     public void removeNotify() {

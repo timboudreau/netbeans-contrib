@@ -20,6 +20,7 @@ package org.netbeans.modules.docbook.project;
 
 import org.netbeans.spi.project.ui.LogicalViewProvider;
 import org.openide.ErrorManager;
+import org.openide.loaders.DataObject;
 import org.openide.loaders.DataObjectNotFoundException;
 import org.openide.nodes.AbstractNode;
 import org.openide.nodes.Children;
@@ -36,7 +37,7 @@ public class DbLogicalViewProvider implements LogicalViewProvider {
     public DbLogicalViewProvider(DbProject project) {
         this.project = project;
     }
-    
+
     void notifyChange() {
         if (nd instanceof DbLogicalView) {
             ((DbLogicalView) nd).notifyMainNameChanged();
@@ -57,7 +58,19 @@ public class DbLogicalViewProvider implements LogicalViewProvider {
     }
 
     public Node findPath(Node root, Object target) {
+        System.err.println("GOT A " + target + " of " + target.getClass());
+        DataObject ob = target instanceof DataObject ?
+            (DataObject) target : null;
+
+        if (ob != null) {
+            Node[] n = root.getChildren().getNodes(true);
+            for (int i = 0; i < n.length; i++) {
+                if (n[i].getCookie(DataObject.class) == ob) {
+                    return n[i];
+                }
+            }
+        }
         return null;
     }
-    
+
 }
