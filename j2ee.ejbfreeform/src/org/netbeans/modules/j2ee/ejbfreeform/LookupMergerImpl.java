@@ -24,11 +24,8 @@ import java.util.List;
 
 import org.netbeans.api.java.project.JavaProjectConstants;
 import org.netbeans.api.project.ant.AntArtifact;
-
+import org.netbeans.spi.project.LookupMerger;
 import org.netbeans.spi.project.ant.AntArtifactProvider;
-
-import org.netbeans.modules.ant.freeform.spi.LookupMerger;
-
 import org.openide.util.Lookup;
 
 /**
@@ -41,15 +38,12 @@ public class LookupMergerImpl implements LookupMerger {
     
     public LookupMergerImpl() { }
     
-    public Class[] getMergeableClasses() {
-        return new Class[] { AntArtifactProvider.class };
+    public Class getMergeableClass() {
+        return AntArtifactProvider.class;
     }
-    
-    public Object merge(Lookup lookup, Class clazz) {
-        if (clazz == AntArtifactProvider.class) {
-            return new AntArtifactProviderImpl(lookup);
-        }
-        throw new IllegalArgumentException("Merging of " + clazz + " is not supported"); // NOI18N
+
+    public Object merge(Lookup lookup) {
+        return new AntArtifactProviderImpl(lookup);
     }
     
     private static class AntArtifactProviderImpl implements AntArtifactProvider {
