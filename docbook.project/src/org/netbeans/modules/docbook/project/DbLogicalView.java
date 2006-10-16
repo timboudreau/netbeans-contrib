@@ -66,7 +66,7 @@ public class DbLogicalView extends AbstractNode {
             try {
                 DataObject dob = DataObject.find (fob);
                 Node n = dob.getNodeDelegate();
-                lnode = new DbFileFilterNode(n, proj);
+                lnode = new DbFileFilterNode(n, proj, fob.getParent());
                 lnode.addNodeListener(nl);
                 nl.propertyChange(new PropertyChangeEvent (lnode,
                         Node.PROP_DISPLAY_NAME, null, null));

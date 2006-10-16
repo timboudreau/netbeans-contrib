@@ -50,6 +50,7 @@ import org.openide.filesystems.FileSystem;
 import org.openide.filesystems.FileUtil;
 import org.openide.loaders.DataNode;
 import org.openide.loaders.DataObject;
+import org.openide.loaders.DataObjectNotFoundException;
 import org.openide.nodes.FilterNode;
 import org.openide.nodes.Node;
 import org.openide.util.RequestProcessor;
@@ -63,8 +64,8 @@ public class DbFileFilterNode extends FilterNode implements FileChangeListener, 
     private final DbProject project;
     private RequestProcessor.Task task;
     /** Creates a new instance of DocbookFileNode */
-    public DbFileFilterNode(Node orig, DbProject project) {
-        super (orig);
+    public DbFileFilterNode(Node orig, DbProject project, FileObject parentFolder) throws DataObjectNotFoundException {
+        super (orig, new ImageChildren (parentFolder));
         this.project = project;
         DataObject ob = (DataObject) orig.getLookup().lookup (DataObject.class);
         FileObject fob = ob.getPrimaryFile();

@@ -91,7 +91,7 @@ public class DbLogicalViewChildren extends Children.Keys implements FileChangeLi
             FileObject ob = (FileObject) key;
             try {
                 DataObject dob = DataObject.find(ob);
-                result = new DbFileFilterNode (dob.getNodeDelegate(), proj);
+                result = new DbFileFilterNode (dob.getNodeDelegate(), proj, ob.getParent());
             } catch (DataObjectNotFoundException ex) {
                 ex.printStackTrace();
                 result = new AbstractNode (Children.LEAF);
