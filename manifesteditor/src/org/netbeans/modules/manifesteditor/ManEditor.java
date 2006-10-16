@@ -235,11 +235,11 @@ implements OpenCookie, EditorCookie, EditCookie {
         }
 
         public Action[] getActions() {
-            return new Action[0];
+            return support.getDataObject().getNodeDelegate().getActions(false);
         }
 
         public Lookup getLookup() {
-            return Lookup.EMPTY;
+            return ((ManDataObject)support.getDataObject()).getNodeDelegate().getLookup();
         }
 
         public void componentOpened() {
@@ -442,6 +442,10 @@ implements OpenCookie, EditorCookie, EditCookie {
             tc.setName(this.getName());
             tc.setDisplayName(this.getDisplayName());
             tc.setHtmlDisplayName(this.getHtmlDisplayName());
+        }
+
+        public Lookup getLookup() {
+            return ((ManDataObject)((ManEditor)cloneableEditorSupport()).getDataObject()).getNodeDelegate().getLookup();
         }
     }
 }
