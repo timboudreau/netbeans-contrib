@@ -1,0 +1,16 @@
+<xsl:comment>blackberry-pre-debug</xsl:comment>
+    <target name="blackberry-load-setings" if="blackberry.settings.trigger">
+        <loadproperties srcfile="${{platform.home}}/bin/Settings.rc">
+            <filterchain>
+                <containsregex pattern="^JDWPPort="/>
+            </filterchain>
+        </loadproperties>
+    </target>
+    <target name="blackberry-pre-debug" depends="blackberry-load-setings" if="blackberry.trigger">
+        <copy todir="${{platform.home}}/simulator">
+            <fileset dir="${{dist.dir}}" includes="${{name}}.*"/>
+        </copy>
+        <condition property="jpda.port" value="${{JDWPPort}}" else="8000">
+            <isset property="JDWPPort"/>
+        </condition>
+    </target>

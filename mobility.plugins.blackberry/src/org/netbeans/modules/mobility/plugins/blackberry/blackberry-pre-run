@@ -1,0 +1,6 @@
+<xsl:comment>blackberry-pre-run</xsl:comment>
+    <target name="blackberry-pre-run" if="blackberry.trigger">
+        <copy todir="${{platform.home}}/simulator">
+            <fileset dir="${{dist.dir}}" includes="${{name}}.*"/>
+        </copy>
+    </target>

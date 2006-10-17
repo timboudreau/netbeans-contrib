@@ -1,0 +1,5 @@
+<xsl:comment>blackberry-init</xsl:comment>
+    <target name="blackberry-init">
+        <available file="${{platform.home}}/bin/rapc.exe" property="blackberry.trigger"/>
+        <available file="${{platform.home}}/bin/Settings.rc" property="blackberry.settings.trigger"/>
+    </target>

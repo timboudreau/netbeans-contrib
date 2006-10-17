@@ -1,0 +1,12 @@
+<xsl:comment>clean-blackberry</xsl:comment>
+    <target name="clean-blackberry" if="blackberry.trigger">
+        <delete file="${{dist.dir}}/${{name}}.cod" failonerror="false"/>
+        <delete file="${{dist.dir}}/${{name}}.cso" failonerror="false"/>
+        <delete file="${{dist.dir}}/${{name}}.debug" failonerror="false"/>
+        <delete failonerror="false">
+            <fileset dir="${{platform.home}}/simulator">
+                <include name="**/${{name}}.*"/>
+            </fileset>
+        </delete>
+    </target>
+

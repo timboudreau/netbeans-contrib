@@ -1,0 +1,10 @@
+<xsl:comment>create-cod</xsl:comment>
+    <target name="create-cod" if="blackberry.trigger">
+        <exec dir="${{dist.dir}}" executable="${{platform.home}}/bin/rapc.exe" failonerror="true">
+            <arg value="import=${{platform.bootclasspath}}"/>
+            <arg value="codename=${{name}}"/>
+            <arg value="-midlet"/>
+            <arg value="jad=${{basedir}}/${{dist.dir}}/${{dist.jad}}"/>
+            <arg value="${{basedir}}/${{dist.dir}}/${{dist.jar}}"/>
+        </exec>
+    </target>

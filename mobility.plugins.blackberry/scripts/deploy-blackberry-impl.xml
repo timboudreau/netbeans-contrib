@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+The contents of this file are subject to the terms of the Common Development
+and Distribution License (the License). You may not use this file except in
+compliance with the License.
+
+You can obtain a copy of the License at http://www.netbeans.org/cddl.html
+or http://www.netbeans.org/cddl.txt.
+
+When distributing Covered Code, include this CDDL Header Notice in each file
+and include the License file at http://www.netbeans.org/cddl.txt.
+If applicable, add the following below the CDDL Header, with the fields
+enclosed by brackets [] replaced by your own identifying information:
+"Portions Copyrighted [year] [name of copyright owner]"
+
+The Original Software is NetBeans. The Initial Developer of the Original
+Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
+Microsystems, Inc. All Rights Reserved.
+-->
+<project default="deploy-blackberry">
+    <target name="init">
+        <property name="deployment.blackberry.usb" value="true"/>
+        <condition property="deployment.blackberry.cmd1" value="-u">
+            <istrue value="${deployment.blackberry.usb}"/>
+        </condition> 
+        <property name="deployment.blackberry.cmd1" value=""/>
+        <condition property="deployment.blackberry.cmd2" value="-p${deployment.blackberry.portpin}">
+            <and>
+                <isset property="deployment.blackberry.portpin"/>
+                <not>
+                    <equals arg1="${deployment.blackberry.portpin}" arg2=""/>
+                </not>
+            </and>    
+        </condition>
+        <property name="deployment.blackberry.cmd2" value=""/>
+        <condition property="deployment.blackberry.cmd3" value="-b${deployment.blackberry.baudrate}">
+            <and>
+                <isset property="deployment.blackberry.baudrate"/>
+                <not>
+                    <equals arg1="${deployment.blackberry.baudrate}" arg2=""/>
+                </not>
+            </and>    
+        </condition>
+        <property name="deployment.blackberry.cmd3" value=""/>
+        <condition property="deployment.blackberry.cmd4" value="-p${deployment.blackberry.password}">
+            <and>
+                <isset property="deployment.blackberry.password"/>
+                <not>
+                    <equals arg1="${deployment.blackberry.password}" arg2=""/>
+                </not>
+            </and>    
+        </condition>
+        <property name="deployment.blackberry.cmd4" value=""/>
+        <!-- fail unless="deployment.cod">Property deployment.cod is not set.</fail -->
+    </target>
+    
+    <target name="search-javaloader" unless="deployment.blackberry.javaloader.executable">
+        <loadfile property="platform.homes.path" srcfile="${user.properties.file}">
+            <filterchain>
+                <containsregex pattern="^platforms\..+\.home=(.+)" replace="\1"/>
+                <tokenfilter>
+                    <filetokenizer/>
+                    <replaceregex pattern="[\r\n]+" replace=":" flags="g"/>
+                </tokenfilter>
+            </filterchain>
+        </loadfile>
+        <whichresource property="deployment.blackberry.javaloader.url" resource="bin/JavaLoader.exe" classpath="${platform.homes.path}"/>
+        <tempfile property="temp.file" destdir="${java.io.tmpdir}"/>
+        <echo file="${temp.file}" message="${deployment.blackberry.javaloader.url}"/>
+        <loadfile property="deployment.blackberry.javaloader.executable" srcfile="${temp.file}">
+            <filterchain>
+                <replaceregex pattern="^file:[/]*" replace=""/>
+                <replaceregex pattern="%20" replace=" " flags="g"/>
+            </filterchain>
+        </loadfile>
+        <delete file="${temp.file}"/>
+    </target>
+    
+    <target name="build-cod" depends="init,search-javaloader">
+        <dirname property="rim.platform.dir" file="${deployment.blackberry.javaloader.executable}"/>
+        <exec dir="${java.io.tmpdir}" executable="${rim.platform.dir}/rapc.exe" failonerror="true">
+            <arg value="import=${rim.platform.dir}/../lib/net_rim_api.jar"/>
+            <arg value="codename=${name}"/>
+            <arg value="-midlet"/>
+            <arg value="jad=${basedir}/${dist.dir}/${dist.jad}"/>
+            <arg value="${basedir}/${dist.dir}/${dist.jar}"/>
+        </exec>
+        <property name="deployment.cod" location="${java.io.tmpdir}/${name}.cod"/>
+    </target>
+    
+    <target name="deploy-blackberry" depends="init,search-javaloader,build-cod">
+        <fail unless="deployment.blackberry.javaloader.executable">RIM BlackBerry JDE was not found in installed emulator platforms.</fail>
+        <fail unless="deployment.cod">Property deployment.cod not set.</fail>
+        <exec executable="${deployment.blackberry.javaloader.executable}">
+            <arg value="${deployment.blackberry.cmd1}"/>
+            <arg value="${deployment.blackberry.cmd2}"/>
+            <arg value="${deployment.blackberry.cmd3}"/>
+            <arg value="${deployment.blackberry.cmd4}"/>
+            <arg value="load"/>
+            <arg file="${deployment.cod}"/>
+        </exec>
+        <delete file="${deployment.cod}"/>
+    </target>
+</project>
