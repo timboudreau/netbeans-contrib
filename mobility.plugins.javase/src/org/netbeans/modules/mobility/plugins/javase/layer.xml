@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE filesystem PUBLIC "-//NetBeans//DTD Filesystem 1.1//EN" "http://www.netbeans.org/dtds/filesystem-1_1.dtd">
+<filesystem>
+    <folder name="Buildsystem">
+        <folder name="org.netbeans.modules.kjava.j2meproject">
+            <folder name="nbproject">
+                <folder name="build-impl.xml">
+                    <folder name="init-subtargets">
+                        <attr name="cldc-init/j2se-init" boolvalue="true"/>
+                        <file name="j2se-init" url="j2se-init"/>
+                    </folder>
+                    <folder name="run-subtargets">
+                        <file name="j2se-run" url="j2se-run"/>
+                    </folder>
+<!--                    
+                    <folder name="debug-subtargets">
+                        <file name="cldc-debug" url="buildscript/cldc-debug"/>
+                    </folder>
+-->
+                </folder>    
+            </folder>  
+       </folder>
+    </folder>    
+    <folder name="Customizer">
+        <folder name="org.netbeans.modules.kjava.j2meproject">
+            <folder name="Platform">
+                <attr name="CLDC/J2SE" boolvalue="true"/>
+                <file name="J2SE">
+                    <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.mobility.plugins.javase.Bundle"/>
+                    <attr name="customizerPanelClass" newvalue="org.netbeans.modules.mobility.plugins.javase.JavaSePlatformCustomzier"/>
+                </file>
+            </folder>
+        </folder>
+    </folder>
+</filesystem>

@@ -1,0 +1,5 @@
+<xsl:comment>j2se-run</xsl:comment>
+
+    <target name="j2se-run" if="j2se-platform.trigger">
+        <java classpath="${{dist.dir}}/${{dist.jar}}" classname="${{run.cmd.options}}"/>
+    </target>

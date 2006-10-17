@@ -1,0 +1,8 @@
+<xsl:comment>j2se-init</xsl:comment>
+
+    <target name="j2se-init">
+        <property name="run.cmd.options" value=""/>
+        <condition property="j2se-platform.trigger">
+            <equals arg1="J2SE" arg2="${{platform.trigger}}" casesensitive="false"/>
+        </condition>
+    </target>
