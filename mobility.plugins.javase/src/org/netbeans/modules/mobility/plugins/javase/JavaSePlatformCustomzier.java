@@ -16,6 +16,7 @@ import org.netbeans.spi.mobility.project.ui.customizer.VisualPropertyGroup;
 import org.netbeans.spi.mobility.project.ui.customizer.support.VisualPropertySupport;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
+import org.openide.util.NbBundle;
 
 /**
  *
@@ -38,13 +39,42 @@ public class JavaSePlatformCustomzier extends JPanel implements CustomizerPanel,
      */
     // <editor-fold defaultstate="collapsed" desc=" Generated Code ">//GEN-BEGIN:initComponents
     private void initComponents() {
+        java.awt.GridBagConstraints gridBagConstraints;
 
-        setLayout(new java.awt.BorderLayout());
+        jLabel1 = new javax.swing.JLabel();
+        jTextField1 = new javax.swing.JTextField();
+        jPanel1 = new javax.swing.JPanel();
+
+        setLayout(new java.awt.GridBagLayout());
+
+        jLabel1.setLabelFor(jTextField1);
+        org.openide.awt.Mnemonics.setLocalizedText(jLabel1, NbBundle.getMessage(JavaSePlatformCustomzier.class, "LBL_MAinClass")); // NOI18N
+        add(jLabel1, new java.awt.GridBagConstraints());
+
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.weightx = 1.0;
+        gridBagConstraints.insets = new java.awt.Insets(0, 5, 0, 0);
+        add(jTextField1, gridBagConstraints);
+
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 1;
+        gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
+        gridBagConstraints.gridheight = java.awt.GridBagConstraints.REMAINDER;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.weightx = 1.0;
+        gridBagConstraints.weighty = 1.0;
+        add(jPanel1, gridBagConstraints);
 
     }// </editor-fold>//GEN-END:initComponents
     
     
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JLabel jLabel1;
+    private javax.swing.JPanel jPanel1;
+    private javax.swing.JTextField jTextField1;
     // End of variables declaration//GEN-END:variables
 
     public void initValues(ProjectProperties props, String configuration) {
@@ -53,18 +83,8 @@ public class JavaSePlatformCustomzier extends JPanel implements CustomizerPanel,
     }
 
     public void initGroupValues(boolean useDefault) {
-//        JavaPlatform jp = JavaPlatformManager.getDefault().getDefaultPlatform();
-//        FileObject fo = (FileObject)jp.getInstallFolders().iterator().next();
-//        FileObject roots[] = jp.getBootstrapLibraries().getRoots();
-//        StringBuffer cp = new StringBuffer();
-//        for (FileObject r : roots) {
-//            FileObject root = FileUtil.getArchiveFile(r);
-//            if (root == null) root = r;
-//            String path = FileUtil.getRelativePath(fo, root);
-//            if (cp.length() > 0) cp.append(':');
-//            cp.append(path == null ? root.getPath() : path);
-//        }
-        props.put(VisualPropertySupport.translatePropertyName(cfg, DefaultPropertiesDescriptor.PLATFORM_BOOTCLASSPATH, useDefault), "${sun.boot.class.path}"); //cp.toString());
+        props.put(VisualPropertySupport.translatePropertyName(cfg, DefaultPropertiesDescriptor.PLATFORM_BOOTCLASSPATH, useDefault), "${sun.boot.class.path}");
+        VisualPropertySupport.getDefault(props).register(jTextField1, JavaSEPropertiesDescriptor.MAIN_CLASS, useDefault);
     }
 
     public String[] getGroupPropertyNames() {
