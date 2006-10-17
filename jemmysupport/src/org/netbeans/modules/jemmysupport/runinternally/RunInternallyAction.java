@@ -362,7 +362,7 @@ public class RunInternallyAction extends NodeAction {
             String qaFunctionalPath = nbProject.evaluator().getProperty("test.qa-functional.src.dir"); //NOI18N
             FileObject qaFunctionalFo = nbProject.getHelper().resolveFileObject(qaFunctionalPath);
             // if FileObject under test/qa-functional/src
-            if(qaFunctionalPath != null && FileUtil.isParentOf(qaFunctionalFo, fo)) {
+            if(qaFunctionalFo != null && FileUtil.isParentOf(qaFunctionalFo, fo)) {
                 FileObject buildXmlFo = findTestBuildXml(project);
                 return targetExists(buildXmlFo, "internal-execution"); //NOI18N
             }
