@@ -170,6 +170,11 @@ public final class TodoNavigatorPanel extends FileChangeAdapter implements Navig
     }
 
     private void display(Collection/*<DataObject>*/ selectedFiles) {
+        if (selecton == null && listeningTo != null) {
+            //XXX it appears that panelActivated and panelDeactivated may be
+            //called asymetrically
+            listeningTo.removeFileChangeListener (this);
+        }
         // Show list of targets for selected file:
         if (selectedFiles.size() == 1) {
             final DataObject d = (DataObject) selectedFiles.iterator().next();
