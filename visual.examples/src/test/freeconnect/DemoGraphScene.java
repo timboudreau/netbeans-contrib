@@ -23,7 +23,6 @@ import org.netbeans.api.visual.graph.GraphScene;
 import org.netbeans.api.visual.router.Router;
 import org.netbeans.api.visual.router.RouterFactory;
 import org.netbeans.api.visual.widget.ConnectionWidget;
-import org.netbeans.api.visual.widget.FreeConnectionWidget;
 import org.netbeans.api.visual.widget.LayerWidget;
 import org.netbeans.api.visual.widget.Widget;
 import org.netbeans.api.visual.widget.general.IconNodeWidget;
@@ -83,7 +82,7 @@ public class DemoGraphScene extends GraphScene.StringGraph {
     }
     
     protected Widget attachEdgeWidget(String edge) {
-        FreeConnectionWidget connection = new FreeConnectionWidget(this);
+        ConnectionWidget connection = new ConnectionWidget(this);
         connection.setRouter(router);
         connection.setToolTipText("Double-click for Add/Remove Control Point");
         connection.setTargetAnchorShape(AnchorShape.TRIANGLE_FILLED);
