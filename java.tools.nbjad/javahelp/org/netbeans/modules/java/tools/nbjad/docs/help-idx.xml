@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+    Document   : help-toc.xml
+    Created on : Oct 19 2006
+    Author     : 
+    Description:
+        Purpose of the document follows.
+-->
+
+<index version="2.0">	
+  <indexitem text="Line Tools Module" target="homeID" />	
+</index>

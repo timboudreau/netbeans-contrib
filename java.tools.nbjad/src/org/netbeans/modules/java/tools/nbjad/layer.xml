@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE filesystem PUBLIC "-//NetBeans//DTD Filesystem 1.1//EN" "http://www.netbeans.org/dtds/filesystem-1_1.dtd">
+<filesystem>
+    <folder name="Actions">
+        <folder name="Tools">
+            <file name="org-netbeans-modules-java-tools-nbjad-actions-DecompileAction.instance"/>
+        </folder>
+    </folder>
+    <folder name="Loaders">
+        <folder name="application">
+            <folder name="x-java-class">
+                <folder name="Actions">
+                    <attr name="ToolsAction.instance/org-netbeans-modules-java-tools-nbjad-actions-separatorBefore.instance" boolvalue="true"/>
+                    <file name="org-netbeans-modules-java-tools-nbjad-actions-separatorBefore.instance">
+                        <attr name="instanceClass" stringvalue="javax.swing.JSeparator"/>
+                    </file>
+                    <attr name="org-netbeans-modules-java-tools-nbjad-actions-separatorBefore.instance/org-netbeans-modules-java-tools-nbjad-actions-DecompileAction.shadow" boolvalue="true"/>
+                    <file name="org-netbeans-modules-java-tools-nbjad-actions-DecompileAction.shadow">
+                        <attr name="originalFile" stringvalue="Actions/Tools/org-netbeans-modules-java-tools-nbjad-actions-DecompileAction.instance"/>
+                    </file>
+                    <attr name="org-netbeans-modules-java-tools-nbjad-actions-DecompileAction.shadow/org-netbeans-modules-java-tools-nbjad-actions-separatorAfter.instance" boolvalue="true"/>
+                    <file name="org-netbeans-modules-java-tools-nbjad-actions-separatorAfter.instance">
+                        <attr name="instanceClass" stringvalue="javax.swing.JSeparator"/>
+                    </file>
+                    <attr name="org-netbeans-modules-java-tools-nbjad-actions-separatorAfter.instance/PropertiesAction.instance" boolvalue="true"/>
+                </folder>
+            </folder>
+        </folder>
+    </folder>
+    <folder name="Menu">
+        <folder name="View">
+            <attr name="org-netbeans-core-multiview-EditorsAction.instance/org-netbeans-modules-java-tools-nbjad-actions-separatorBefore.instance" boolvalue="true"/>
+            <file name="org-netbeans-modules-java-tools-nbjad-actions-separatorBefore.instance">
+                <attr name="instanceClass" stringvalue="javax.swing.JSeparator"/>
+            </file>
+            <attr name="org-netbeans-modules-java-tools-nbjad-actions-separatorBefore.instance/org-netbeans-modules-java-tools-nbjad-actions-DecompileAction.shadow" boolvalue="true"/>
+            <file name="org-netbeans-modules-java-tools-nbjad-actions-DecompileAction.shadow">
+                <attr name="originalFile" stringvalue="Actions/Tools/org-netbeans-modules-java-tools-nbjad-actions-DecompileAction.instance"/>
+            </file>
+            <attr name="org-netbeans-modules-java-tools-nbjad-actions-DecompileAction.shadow/org-netbeans-modules-java-tools-nbjad-actions-separatorAfter.instance" boolvalue="true"/>
+            <file name="org-netbeans-modules-java-tools-nbjad-actions-separatorAfter.instance">
+                <attr name="instanceClass" stringvalue="javax.swing.JSeparator"/>
+            </file>
+            <attr name="org-netbeans-modules-java-tools-nbjad-actions-separatorAfter.instance/org-netbeans-modules-editor-NbCodeFoldingAction.instance" boolvalue="true"/>
+        </folder>
+    </folder>
+    
+    <folder name="Shortcuts">
+        <file name="D-F9.shadow">
+            <attr name="originalFile" stringvalue="Actions/Tools/org-netbeans-modules-java-tools-nbjad-actions-DecompileAction.instance"/>
+        </file>        
+    </folder>
+    
+    <folder name="Services">
+        <file name="org-netbeans-modules-java-tools-nbjad-NbjadSettings.settings" url="NbjadSettings.xml"/>        
+    </folder>
+    
+    <folder name="UI">
+        <folder name="Services">
+            <folder name="IDEConfiguration">
+                <folder name="ServerAndExternalToolSettings">                    
+                    <file name="org-netbeans-modules-java-tools-nbjad-NbjadSettings.shadow">
+                        <attr name="originalFile" stringvalue="Services/org-netbeans-modules-java-tools-nbjad-NbjadSettings.settings"/>
+                    </file>
+                </folder>
+            </folder>
+        </folder>
+    </folder>
+    
+    <folder name="OptionsDialog">
+        <file name="org-netbeans-modules-java-tools-nbjad-NbjadOptionsCategory.instance"/>
+    </folder>
+    
+    <folder name="Services">
+        <folder name="JavaHelp">
+            <file name="org-netbeans-modules-java-tools-nbjad-help-set.xml" url="help-set.xml"/>
+            <attr name="org-netbeans-modules-usersguide-below-regular.txt/org-netbeans-modules-java-tools-nbjad-help-set.xml" boolvalue="true"/>
+        </folder>
+    </folder>
+</filesystem>

@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<Form version="1.0" type="org.netbeans.modules.form.forminfo.JPanelFormInfo">
+  <Properties>
+    <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
+      <Color blue="ff" green="ff" id="white" palette="1" red="ff" type="palette"/>
+    </Property>
+  </Properties>
+  <AuxValues>
+    <AuxValue name="FormSettings_generateMnemonicsCode" type="java.lang.Boolean" value="true"/>
+    <AuxValue name="FormSettings_layoutCodeTarget" type="java.lang.Integer" value="2"/>
+    <AuxValue name="FormSettings_listenerGenerationStyle" type="java.lang.Integer" value="0"/>
+    <AuxValue name="FormSettings_variablesLocal" type="java.lang.Boolean" value="false"/>
+    <AuxValue name="FormSettings_variablesModifier" type="java.lang.Integer" value="2"/>
+    <AuxValue name="designerSize" type="java.awt.Dimension" value="-84,-19,0,5,115,114,0,18,106,97,118,97,46,97,119,116,46,68,105,109,101,110,115,105,111,110,65,-114,-39,-41,-84,95,68,20,2,0,2,73,0,6,104,101,105,103,104,116,73,0,5,119,105,100,116,104,120,112,0,0,1,-6,0,0,2,-75"/>
+  </AuxValues>
+
+  <Layout class="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout"/>
+  <SubComponents>
+    <Component class="javax.swing.JLabel" name="jadLocationLabel">
+      <Properties>
+        <Property name="text" type="java.lang.String" value="Location of Jad executable:"/>
+      </Properties>
+      <Constraints>
+        <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout" value="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout$GridBagConstraintsDescription">
+          <GridBagConstraints gridX="0" gridY="0" gridWidth="1" gridHeight="1" fill="0" ipadX="0" ipadY="0" insetsTop="5" insetsLeft="5" insetsBottom="0" insetsRight="0" anchor="17" weightX="0.0" weightY="0.0"/>
+        </Constraint>
+      </Constraints>
+    </Component>
+    <Component class="javax.swing.JTextField" name="jadLocationTextField">
+      <Properties>
+        <Property name="toolTipText" type="java.lang.String" value="Specify the location of Jad executable."/>
+      </Properties>
+      <Events>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jadLocationTextFieldActionPerformed"/>
+      </Events>
+      <Constraints>
+        <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout" value="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout$GridBagConstraintsDescription">
+          <GridBagConstraints gridX="1" gridY="0" gridWidth="1" gridHeight="1" fill="2" ipadX="0" ipadY="0" insetsTop="5" insetsLeft="5" insetsBottom="0" insetsRight="5" anchor="18" weightX="1.0" weightY="0.0"/>
+        </Constraint>
+      </Constraints>
+    </Component>
+    <Component class="javax.swing.JLabel" name="jadOptionsLabel">
+      <Properties>
+        <Property name="text" type="java.lang.String" value="Options:"/>
+      </Properties>
+      <Constraints>
+        <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout" value="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout$GridBagConstraintsDescription">
+          <GridBagConstraints gridX="0" gridY="1" gridWidth="1" gridHeight="1" fill="0" ipadX="0" ipadY="0" insetsTop="5" insetsLeft="5" insetsBottom="0" insetsRight="0" anchor="17" weightX="0.0" weightY="0.0"/>
+        </Constraint>
+      </Constraints>
+    </Component>
+    <Component class="javax.swing.JTextField" name="jadOptionsTextField">
+      <Constraints>
+        <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout" value="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout$GridBagConstraintsDescription">
+          <GridBagConstraints gridX="1" gridY="1" gridWidth="1" gridHeight="1" fill="2" ipadX="0" ipadY="0" insetsTop="5" insetsLeft="5" insetsBottom="0" insetsRight="5" anchor="18" weightX="1.0" weightY="0.0"/>
+        </Constraint>
+      </Constraints>
+    </Component>
+    <Container class="javax.swing.JScrollPane" name="jScrollPane1">
+      <AuxValues>
+        <AuxValue name="autoScrollPane" type="java.lang.Boolean" value="true"/>
+      </AuxValues>
+      <Constraints>
+        <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout" value="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout$GridBagConstraintsDescription">
+          <GridBagConstraints gridX="0" gridY="2" gridWidth="2" gridHeight="1" fill="1" ipadX="0" ipadY="0" insetsTop="5" insetsLeft="5" insetsBottom="0" insetsRight="5" anchor="18" weightX="1.0" weightY="1.0"/>
+        </Constraint>
+      </Constraints>
+
+      <Layout class="org.netbeans.modules.form.compat2.layouts.support.JScrollPaneSupportLayout"/>
+      <SubComponents>
+        <Component class="javax.swing.JTextArea" name="jTextArea1">
+          <Properties>
+            <Property name="columns" type="int" value="80"/>
+            <Property name="editable" type="boolean" value="false"/>
+            <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
+              <Font name="Monospaced" size="13" style="0"/>
+            </Property>
+            <Property name="lineWrap" type="boolean" value="true"/>
+            <Property name="rows" type="int" value="8"/>
+            <Property name="text" type="java.lang.String" value="Available Options:&#xa;         -a           - generate JVM instructions as comments (annotate)&#xa;         -af          - output fully qualified names when annotating&#xa;         -b           - generate redundant braces (braces)&#xa;         -clear       - clear all prefixes, including the default ones&#xa;         -dead        - try to decompile dead parts of code (if there are any)&#xa;         -dis         - disassembler only (disassembler)&#xa;         -f           - generate fully qualified names (fullnames)&#xa;         -ff          - output fields before methods (fieldsfirst)&#xa;         -i           - print default initializers for fields (definits)&#xa;         -l&lt;num&gt;      - split strings into pieces of max &lt;num&gt; chars (splitstr)&#xa;         -lnc         - output original line numbers as comments (lnc)&#xa;         -lradix&lt;num&gt; - display long integers using the specified radix&#xa;         -nl          - split strings on newline characters (splitstr)&#xa;         -noconv      - don&apos;t convert Java identifiers into valid ones (noconv)&#xa;         -nocast      - don&apos;t generate auxiliary casts&#xa;         -noclass     - don&apos;t convert .class operators&#xa;         -nocode      - don&apos;t generate the source code for methods&#xa;         -noctor      - suppress the empty constructors&#xa;         -nodos       - turn off check for class files written in DOS mode&#xa;         -nofd        - don&apos;t disambiguate fields with the same names (nofldis)&#xa;         -noinner     - turn off the support of inner classes&#xa;         -nolvt       - ignore Local Variable Table entries (nolvt)&#xa;         -nonlb       - don&apos;t insert a newline before opening brace (nonlb)&#xa;         -pa &lt;pfx&gt;    - prefix for all packages in generated source files&#xa;         -pc &lt;pfx&gt;    - prefix for classes with numerical names (default: _cls)&#xa;         -pe &lt;pfx&gt;    - prefix for unused exception names (default: _ex)&#xa;         -pf &lt;pfx&gt;    - prefix for fields with numerical names (default: _fld)&#xa;         -pi&lt;num&gt;     - pack imports into one line using .* (packimports)&#xa;         -pl &lt;pfx&gt;    - prefix for locals with numerical names (default: _lcl)&#xa;         -pm &lt;pfx&gt;    - prefix for methods with numerical names (default: _mth)&#xa;         -pp &lt;pfx&gt;    - prefix for method parms with numerical names (default:_prm)&#xa;         -pv&lt;num&gt;     - pack fields with the same types into one line (packfields)&#xa;         -radix&lt;num&gt;  - display integers using the specified radix (8, 10, or 16)&#xa;         -safe        - generate additional casts to disambiguate methods/fields&#xa;         -space       - output space between keyword (if, while, etc) and expression&#xa;         -stat        - show the total number of processed classes/methods/fields&#xa;         -t&lt;num&gt;      - use &lt;num&gt; spaces for indentation (default: 4)&#xa;         -t           - use tabs instead of spaces for indentation&#xa;         -8           - convert Unicode strings into ANSI strings (ansi)"/>
+            <Property name="wrapStyleWord" type="boolean" value="true"/>
+          </Properties>
+        </Component>
+      </SubComponents>
+    </Container>
+  </SubComponents>
+</Form>
