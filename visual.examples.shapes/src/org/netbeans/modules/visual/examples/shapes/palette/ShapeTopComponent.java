@@ -23,39 +23,31 @@ import org.netbeans.api.visual.widget.general.IconNodeWidget;
 import org.netbeans.core.spi.multiview.CloseOperationState;
 import org.netbeans.core.spi.multiview.MultiViewElement;
 import org.netbeans.core.spi.multiview.MultiViewElementCallback;
+import org.netbeans.modules.visual.examples.shapes.GraphSceneImpl;
 import org.netbeans.modules.visual.examples.shapes.assistant.AssistantModel;
 import org.netbeans.modules.visual.examples.shapes.assistant.AssistantModel;
 import org.netbeans.modules.visual.examples.shapes.assistant.AssistantView;
 import org.netbeans.modules.visual.examples.shapes.assistant.ModelHelper;
+import org.netbeans.modules.visual.examples.shapes.navigator.ShapeNavigatorHint;
 import org.netbeans.spi.palette.PaletteController;
+import org.openide.ErrorManager;
 import org.openide.loaders.MultiDataObject;
+import org.openide.util.Lookup;
 import org.openide.util.NbBundle;
 import org.openide.util.lookup.Lookups;
 import org.openide.windows.TopComponent;
+import org.openide.windows.WindowManager;
 
 /**
  * Top component which displays something.
  */
 public final class ShapeTopComponent extends TopComponent implements MultiViewElement {
     
-    //** The cache of displayers */
-    private Map displayers = new HashMap();
-    
-    final Scene scene = new Scene();
-    
-    private static PaletteController controller;
-    
     private static ShapeTopComponent instance;
     /** path to the icon used by the component and its open action */
 //    static final String ICON_PATH = "SET/PATH/TO/ICON/HERE";
     
     private static final String PREFERRED_ID = "ShapeTopComponent";
-    
-    private IconNodeWidget lenny;
-    private IconNodeWidget barney;
-    
-    public JComponent myScene;
-    private LayerWidget mainLayer;
     
     //For multiview implementation:
     private transient MultiViewElementCallback callback;
@@ -64,21 +56,25 @@ public final class ShapeTopComponent extends TopComponent implements MultiViewEl
 
     private AssistantModel localmodel;
     
-    public ShapeTopComponent() {
-        
-        cos = null;
-    }
+    private static PaletteController controller;
+    private transient Lookup lookup;
+    
+    private transient Scene scene;
+    private transient JComponent sceneView;
+    private transient JComponent satelliteView;
     
     public ShapeTopComponent(MultiDataObject.Entry entry, CloseOperationState cos) {
         this.entry = entry;
         this.cos = cos;
     }
     
-    public ShapeTopComponent(JComponent sceneView) {
-        myScene = sceneView;
-                
-        cos = null;
+    public ShapeTopComponent() {
+        scene = new GraphSceneImpl ();
+        sceneView = scene.getView();
+        satelliteView = scene.createSatelliteView();
         
+        cos = null;
+                
         localmodel = ModelHelper.returnAssistantModel();
         
         initComponents();
@@ -87,9 +83,15 @@ public final class ShapeTopComponent extends TopComponent implements MultiViewEl
         setToolTipText(NbBundle.getMessage(ShapeTopComponent.class, "HINT_ShapeTopComponent"));
         
         controller = Utils.getPalette();
-        associateLookup( Lookups.fixed( new Object[] {controller} ) );
         
+        lookup = Lookups.fixed( new Object[] {controller, new ShapeNavigatorHint () } );
         
+        associateLookup( lookup );
+    }
+    
+    public JComponent getNavigatorView () {
+        System.out.println("NAVIGATOR:" + satelliteView);
+        return satelliteView;
     }
     
     /** This method is called from within the constructor to
@@ -99,15 +101,13 @@ public final class ShapeTopComponent extends TopComponent implements MultiViewEl
      */
     // <editor-fold defaultstate="collapsed" desc=" Generated Code ">//GEN-BEGIN:initComponents
     private void initComponents() {
-        jScrollPane1 = new JScrollPane(myScene);
+
+        jScrollPane1 = new JScrollPane(sceneView);
         jPanel1 = new AssistantView(localmodel);
 
         setLayout(new java.awt.BorderLayout());
-
         add(jScrollPane1, java.awt.BorderLayout.CENTER);
-
         add(jPanel1, java.awt.BorderLayout.NORTH);
-
     }// </editor-fold>//GEN-END:initComponents
     
     
@@ -128,24 +128,28 @@ public final class ShapeTopComponent extends TopComponent implements MultiViewEl
         return instance;
     }
     
+    public Lookup getLookup () {
+        return lookup;
+    }
+    
     /**
      * Obtain the ShapeTopComponent instance. Never call {@link #getDefault} directly!
      */
-//    public static synchronized ShapeTopComponent findInstance() {
-//        TopComponent win = WindowManager.getDefault().findTopComponent(PREFERRED_ID);
-//        if (win == null) {
-//            ErrorManager.getDefault().log(ErrorManager.WARNING, "Cannot find Shape component. It will not be located properly in the window system.");
-//            return getDefault();
-//        }
-//        if (win instanceof ShapeTopComponent) {
-//            return (ShapeTopComponent)win;
-//        }
-//        ErrorManager.getDefault().log(ErrorManager.WARNING, "There seem to be multiple components with the '" + PREFERRED_ID + "' ID. That is a potential source of errors and unexpected behavior.");
-//        return getDefault();
-//    }
-//
+    public static synchronized ShapeTopComponent findInstance() {
+        TopComponent win = WindowManager.getDefault().findTopComponent(PREFERRED_ID);
+        if (win == null) {
+            ErrorManager.getDefault().log(ErrorManager.WARNING, "Cannot find Shape component. It will not be located properly in the window system.");
+            return getDefault();
+        }
+        if (win instanceof ShapeTopComponent) {
+            return (ShapeTopComponent)win;
+        }
+        ErrorManager.getDefault().log(ErrorManager.WARNING, "There seem to be multiple components with the '" + PREFERRED_ID + "' ID. That is a potential source of errors and unexpected behavior.");
+        return getDefault();
+    }
+
     public int getPersistenceType() {
-        return TopComponent.PERSISTENCE_ALWAYS;
+        return TopComponent.PERSISTENCE_NEVER;
     }
     
     public void componentOpened() {

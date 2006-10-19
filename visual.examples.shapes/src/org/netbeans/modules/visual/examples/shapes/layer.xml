@@ -99,4 +99,13 @@ Microsystems, Inc. All Rights Reserved.
             <file name="Item4.shape" url="items/id4.shape"/>
         </folder>
     </folder>
+    <folder name="Navigator">
+        <folder name="Panels">
+            <folder name="text">
+                <folder name="shape">
+                    <file name="org-netbeans-modules-visual-examples-shapes-navigator-SatelliteNavigatorPanel.instance"/>
+                </folder>
+            </folder>
+        </folder>
+    </folder>
 </filesystem>

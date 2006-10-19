@@ -106,7 +106,6 @@ public class GraphSceneImpl extends GraphScene.StringGraph implements ActionList
     private static final String ACTION_SHOW = "show";
     
     JComponent comp = this.createView();
-    JComponent compSatelite = this.createSatelliteView();
     
     public AssistantModel model = ModelHelper.returnAssistantModel();
     
@@ -240,11 +239,6 @@ public class GraphSceneImpl extends GraphScene.StringGraph implements ActionList
             }
             
         }));
-        
-        shapeTopComponent = new ShapeTopComponent(comp);
-        shapeTopComponent.add(compSatelite, BorderLayout.WEST);
-        shapeTopComponent.open();
-        shapeTopComponent.requestActive();
         
         model.setContext("started");
     }

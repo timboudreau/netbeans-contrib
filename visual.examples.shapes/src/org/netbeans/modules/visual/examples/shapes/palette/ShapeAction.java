@@ -30,10 +30,9 @@ public class ShapeAction extends AbstractAction  {
     }
     
     public void actionPerformed(ActionEvent evt) {
-        
-        new GraphSceneImpl();
-        
+        ShapeTopComponent tc = ShapeTopComponent.findInstance ();
+        tc.open();
+        tc.requestActive();
     }
-    
     
 }
