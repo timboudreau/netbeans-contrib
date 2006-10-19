@@ -169,7 +169,7 @@ Microsystems, Inc. All Rights Reserved.
             </public-packages>
             <class-path-extension>
                 <runtime-relative-path>ext/saxon8.jar</runtime-relative-path>
-                <binary-origin>release/modules/ext/saxon8.jar</binary-origin>
+                <binary-origin>build/saxon8.jar</binary-origin>
             </class-path-extension>
         </data>
     </configuration>
