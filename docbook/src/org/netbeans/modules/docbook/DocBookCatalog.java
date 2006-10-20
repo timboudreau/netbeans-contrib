@@ -39,23 +39,27 @@ import org.xml.sax.SAXException;
 
 public class DocBookCatalog implements CatalogProvider {
     
-    private static final Map/*<String,String>*/ PUBLIC_2_SYSTEM = new HashMap();
+    //maps are package private for unit tests
+    
+    static final Map/*<String,String>*/ PUBLIC_2_SYSTEM = new HashMap();
     static {
         PUBLIC_2_SYSTEM.put("-//Norman Walsh//DTD Slides XML V" + Config.SLIDES_VERSION + "//EN",
                             "nbres:/org/netbeans/modules/docbook/lib/slides-" + Config.SLIDES_VERSION + "/schema/dtd/slides.dtd");
         PUBLIC_2_SYSTEM.put("-//OASIS//DTD DocBook XML V" + Config.DOCBOOK_XML_VERSION + "//EN",
                             "nbres:/org/netbeans/modules/docbook/lib/docbook-xml-" + Config.DOCBOOK_XML_VERSION + "/docbookx.dtd");
+        PUBLIC_2_SYSTEM.put("-//OASIS//DTD DocBook XML V4.4//EN",
+                            "nbres:/org/netbeans/modules/docbook/lib/docbook-xml-" + Config.DOCBOOK_XML_VERSION + "/docbookx.dtd");
         // XXX slides-full.dtd
     }
     
-    private static final Map/*<String,String>*/ SYSTEM_2_SYSTEM = new HashMap();
+    static final Map/*<String,String>*/ SYSTEM_2_SYSTEM = new HashMap();
     static {
-        SYSTEM_2_SYSTEM.put("http://docbook.sourceforge.net/release/slides/current/",
-                            "nbres:/org/netbeans/modules/docbook/lib/slides-" + Config.SLIDES_VERSION + "/");
         SYSTEM_2_SYSTEM.put("http://docbook.sourceforge.net/release/xsl/current/",
                             "nbres:/org/netbeans/modules/docbook/lib/docbook-xsl-" + Config.DOCBOOK_XSL_VERSION + "/");
         SYSTEM_2_SYSTEM.put("http://www.oasis-open.org/docbook/xml/" + Config.DOCBOOK_XML_VERSION + "/",
                             "nbres:/org/netbeans/modules/docbook/lib/docbook-xml-" + Config.DOCBOOK_XML_VERSION + "/");
+        SYSTEM_2_SYSTEM.put("http://docbook.sourceforge.net/release/xsl/current/fo/docbook.xsl",
+                            "nbres:/org/netbeans/modules/docbook/lib/slides-" + Config.SLIDES_VERSION + "/");
     }
     
     public Class provideClass() throws IOException, ClassNotFoundException {

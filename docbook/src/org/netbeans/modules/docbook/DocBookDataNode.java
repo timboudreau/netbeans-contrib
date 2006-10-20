@@ -50,6 +50,7 @@ public class DocBookDataNode extends DataNode {
                 obj, new RendererImpl (obj),
                 obj.getCookie (OpenCookie.class),
                 new Notifier (obj),
+                new ParsingServiceImpl (obj),
         }), null);
         SaveCookie ck = (SaveCookie) obj.getCookie(SaveCookie.class);
         if (ck != null) {

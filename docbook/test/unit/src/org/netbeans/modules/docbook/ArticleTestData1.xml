@@ -1,0 +1,763 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE article PUBLIC "-//OASIS//DTD DocBook XML V4.4//EN" "http://www.oasis-open.org/docbook/xml/4.4/docbookx.dtd"[
+    <!ENTITY ms "NetBeans Module System">
+]>
+
+<article>
+    <articleinfo>
+        <title>Not Just An IDE</title>
+        <subtitle>Working with the NetBeans Platform</subtitle>
+        <author>
+            <personname>
+                <firstname>Tim </firstname>
+                <surname>Boudreau</surname>
+            </personname>
+
+        </author>
+        <authorblurb>
+            <title>About The Author</title>
+            <para>Tim Boudreau has been working on NetBeans since 1999, on the
+            NetBeans platform development team and in a variety of other roles.
+            He currently spends most of his time teaching NetBeans module
+            development to developers around the world, and continues to do
+            module development and other development projects.  He is a frequent
+            speaker at JavaONE&trade; and other conferences.</para>
+        </authorblurb>
+        <abstract>
+            <para>
+                This article covers the basics of NetBeans module development
+                and using &ms;, and makes a general case for modular software
+                development as a methodology for improving quality and
+                productivity.
+            </para>
+        </abstract>
+    </articleinfo>
+    <para>
+        You're probably familiar with the NetBeans&trade; IDE as a development tool.
+        It is also a platform for building modular applications &mdash; even
+        non-GUI applications.  The NetBeans Platform is the underpinnings of
+        the IDE &mdash; think of it as a &ldquo;generic desktop application&rdquo;.
+        Underneath that sits the &ms; &mdash; the engine which
+        launches NetBeans, discovers components dynamically and resolves dependencies
+        between modules.  It is &ms; which makes it
+        possible to download new modules and hot-deploy and hot-redeploy modules at
+        runtime.  A module is simply a JAR file with some manifest entries that
+        allow &ms; to recognize it.  All of the APIs you can write to in NetBeans
+        live inside modules.  These are divided along functional lines.  So if
+        you want to change the statusbar text at runtime, you will use a class called
+        <code>StatusDisplayer</code>.  <code>StatusDisplayer</code> is part of
+        the <firstterm>UI Utilities API</firstterm>, and that API lives in a
+        module (a JAR file) which your code can depend on.
+        Building on the NetBeans Platform is essentially
+        writing code that interacts with these APIs, and those APIs are implemented
+        in modules just like the ones you will create.
+    </para>
+    <section>
+        <title>The Case for Modular Development</title>
+        <para>
+            Dynamically linking applications at runtime is an age-old problem.
+            The historical solution to this problem is the familiar one,
+            linking to libraries in native applications &mdash; or finding JAR
+            files on the classpath in Java applications.  These approaches work,
+            but they have some drawbacks:  First, there is no version management.
+            An application linking itself together at runtime has no idea what
+            versions of the libraries it needs - and no way to know if it is
+            linking with a version which is old or incompatible (perhaps you
+            have heard the term <emphasis>DLL Hell</emphasis>).  Second, this
+            scenario covers using a library at runtime, but it makes no provision
+            for an application which is truly assembled at runtime &mdash; one
+            which discovers its libraries on the fly, and may want to unload
+            and update such libraries.
+        </para>
+        <para>
+            The &ms; solves these problems.  It is a runtime container specifically
+            designed for applications which discover (and can update) their components
+            at runtime, and it specifically handles inter-library dependencies very
+            explicitly - so the application cannot be started in a state where its
+            dependencies are not satisfied.
+        </para>
+        <para>
+            Of course, not everyone is writing
+            an application that <emphasis>needs</emphasis> to assemble itself at
+            runtime.
+            My point here is that &ms; may be relevant to you even if you are
+            not writing such an application.  There are benefits to modular
+            development that go well beyond the capabilities of a runtime
+            container.  Consider how NetBeans itself is developed &mdash; by a
+            community of hundreds of people that spans several continents,
+            time zones, and teams.  Our experience is that there are extraordinary
+            benefits to modular development that have nothing to do with the
+            runtime capabilities of &ms;.  They have much more to do with engineering
+            culture and sustainability of the product.  In other words, these are
+            benefits that may not apply to a one-off bit of coding, but show up
+            over time &mdash; benefits that improve the probability of shipping
+            a 2.0 after a 1.0, a 3.0 after the 2.0 and so forth.  These are:
+            <itemizedlist>
+                <listitem><para>
+                    <emphasis>Avoiding code-entropy</emphasis>&mdash;
+                    Many projects start out well designed
+                    and that design gradually decays as features are added &mdash;
+                    the system becomes more tightly coupled as expedient implementation
+                    of features creates new dependencies between parts of the
+                    application.  This means it gets harder and harder to fix bugs
+                    over time, because as the code becomes more coupled, fixing a
+                    bug in one place is more likely to create a bug somewhere else.
+<!--                    <emphasis>How NetBeans solves it:</emphasis> Nothing will
+                    stop someone from making a mess if they really want to.
+                    But by using an infrastructure where the natural way of
+                    doing things is to build real contracts between components of
+                    a system &mdash; an environment where you can do a dirty hack
+                    if you must, but you will be painfully aware of it&mdash;is
+                    often exactly the influence needed to encourage an engineering
+                    culture that encourages healthy design. -->
+                </para></listitem>
+                <listitem><para>
+                    <emphasis>Enforcing API design</emphasis>&mdash;
+                    A module in &ms; cannot reference classes
+                    in another module without declaring a dependency on that other
+                    module, <emphasis>and that other module agreeing that the
+                    classes referenced are ones that are actual API</emphasis>.  A
+                    NetBeans module by default has no API - other modules can't
+                    see its classes.  Modules that have APIs specifically say
+                    what packages they are exporting.  Other modules can only
+                    reference classes from other modules if those classes are
+                    in packages the other module says it exports.  In practice
+                    what this means is that contracts between components in the
+                    system must be planned out, not just developed in an ad-hoc
+                    way.  While ad-hoc development may be slightly faster, over
+                    the long haul, when you factor in the cost of maintaining that
+                    code (usually this is much more expensive than writing it in
+                    the first place), having a system that makes it hard to write
+                    dirty hacks and more pleasant to create good contracts between
+                    components pays off.
+<!--                    <emphasis>How NetBeans solves it:</emphasis> You can use
+                    <firstterm>implementation dependencies</firstterm> to access
+                    all classes in another module &mdash; but you can't create the
+                    equivalent of <code>java.lang.String</code> calling
+                    <code>org.omg.corba.*</code> innocently &mdash; it is easier,
+                    less embarrassing and more natural to create proper design
+                    contracts across the system.  There are no silver bullets,
+                    but it helps quite a bit. -->
+                </para></listitem>
+                <listitem><para>
+                    <emphasis>Design hygene</emphasis> &mdash;
+                    Since a module can hide most of its packages,
+                    this has the side effect that you can essentially have
+                    <emphasis>public classes that are only public within the
+                    JAR they live in</emphasis>.  Think about this for a minute &mdash;
+                    how many times have you piled an enormous number of unrelated
+                    classes into one package, so those classes could use package-privateness
+                    to hide their implementation details from the outside world?
+                    If you can have public non-API classes (classes that can only
+                    be seen inside their own JAR), you can write <emphasis>much</emphasis>
+                    cleaner APIs - even provide packages that are pure API.  Any
+                    API designed in this way has a better chance of being understandable
+                    to the people who will have to use it.
+                </para></listitem>
+                <listitem><para>
+                    <emphasis>Comfort in deployment</emphasis> &mdash;
+                    With &ms; you know that your application
+                    can never be started if it cannot satisfy its dependencies.
+                    This translates into greater peace of mind when you release a
+                    new version of your software.  Of course, you'll want to make it
+                    easy for a user to satisfy those dependencies, and hopefully you're
+                    shipping something that is compatible with itself. But in
+                    terms of upgrades, not to mention nasty situations where some
+                    other application has put, say, a buggy XML parser on all
+                    applications&lsquo; boot classpath, you know ahead of time that
+                    your application will not have a problem.
+                </para></listitem>
+            </itemizedlist>
+        </para>
+    </section>
+    <section>
+        <title>Why Build on NetBeans?</title>
+        <para>
+            Whether or not you are convinced of the benefits of modular
+            development in general, the NetBeans platform can save a huge
+            amount of time for anyone developing a Swing application.  In any
+            desktop application, there is a certain amount of &ldquo;plumbing&rdquo;
+            that must be written &mdash; wiring up menu items and toolbar buttons
+            to actions, persisting settings, window management, data presentation,
+            access to resources,
+            saving state on shutdown, and much more.  None of these things are
+            the business logic of the application &mdash; they are the
+            price of writing a desktop application.  This is stuff that is
+            neither fun nor interesting to write, and can additionally be a
+            source of bugs that drains off development time better spent working on
+            logic that is the meat and potatoes of what the application <emphasis>does</emphasis>.
+        </para>
+        <para>
+            With the NetBeans Platform, you get to reuse all of this logic &mdash;
+            and you are reusing an implementation of it that has years of
+            engineering and quality assurance invested in it.  The lead developer
+            of a team that had recently adopted the NetBeans Platform several
+            years ago <ulink url="http://openide.netbeans.org/servlets/ReadMsg?list=dev&amp;msgNo=6410">
+            the following to say</ulink>, a one month into migrating to the
+            NetBeans Platform.<footnote id="ewarna_testimonial">Posted by Niclas Hedman of EWarna
+            to the dev@openide.netbeans.org mailing list, 21 May 2002</footnote>
+            While this was said a while ago, the Platform
+            has only improved since then:
+        </para>
+        <blockquote><emphasis>
+            We estimate that we will manage to release a product by July, that is:
+            <orderedlist>
+                <listitem><para>Faster time-to-market</para></listitem>
+                <listitem><para>More features</para></listitem>
+                <listitem><para>More stable</para></listitem>
+                <listitem><para>Lower R&amp;D cost</para></listitem>
+                <listitem><para>Higher end-customer value</para></listitem>
+                <listitem><para>More extendible</para></listitem>
+                <listitem><para>Easier long-term maintenance</para></listitem>
+            </orderedlist>
+            <para>
+                After the July release, we believe that we can exponentially
+                increase our features, since existing developers are now
+                high on the learning curve and can mentor new developers
+                joining us later. In fact, the previous gloomy outlook of
+                supporting all the features requested by the
+                upper-management, are now turned into optimistic enthusiasm
+                to make the &ldquo;Best Color Physics Software for the
+                Textile industry in the world.&rdquo; and perhaps the
+                &ldquo;Color Physics&rdquo; will be dropped when we include
+                all the non-color related features, and perhaps
+                &ldquo;Textile industry&rdquo; will be dropped when we
+                support all color sensitive industries, such as plastics,
+                printing, paint and food. Future will tell...
+            </para><para>
+            To all people out there, who are considering using NetBeans
+            for non-IDE application, I can only RECOMMEND, the
+            strongest, the OpenIDE Platform.
+            </para><para>
+                To all the NetBeans developers, working at Sun Microsystems,
+                privately, or elsewhere, thanks for bringing the world the
+                most complete Client side framework I have ever seen.
+            </para>
+        </emphasis>
+        </blockquote>
+        <para>
+            This is not empty hyperbole (nor was it solicited).  The NetBeans
+            Platform can make
+            the difference between wondering how you will ever get a project
+            finished and being able to outpace competitors with the speed of
+            it.
+        </para>
+    </section>
+    <section>
+        <title>Getting Started in Module Development</title>
+        <para>
+            Getting started with NetBeans module development is easy.  There is
+            not a great deal of difference between developing modules to install
+            in the IDE, developing modules to use in a standalone GUI application,
+            or developing modules for use in a non-GUI application that uses
+            &ms;.  The only difference between all these things is which other
+            modules will be included in the application.  The NetBeans IDE
+            contains specific support that makes it easy to build modules and
+            applications, and then run, debug and deploy them.  And since all of
+            this module building support uses Ant scripts to do the work, setting
+            up automated builds and other team support is easy - all the metadata
+            are human readable and can be put in a version control system such
+            as CVS or Subversion.  NetBeans 5.0 contains three module templates
+            that can be used to create skelton module.
+        </para>
+        <figure id="creating_a_new_module_in_the_netbeans_ide">
+            <title>Creating A New Module in the NetBeans IDE</title>
+            <titleabbrev>Creating A Module</titleabbrev>
+            <mediaobject>
+                <imageobject>
+                    <imagedata fileref="creating_a_new_module_in_the_netbeans_ide.png"/>
+                </imageobject>
+            </mediaobject>
+        </figure>
+        <para>
+            These templates are:
+            <orderedlist>
+                <listitem>
+                    <para>
+                        <emphasis>Module Project</emphasis> &mdash;
+                        Create an ordinary single module, with build script and
+                        manifest.  This type of module may be standalone or
+                        part of a <indexterm>suite</indexterm> of modules.
+                    </para>
+                </listitem>
+                <listitem>
+                    <para>
+                        <emphasis>Module Suite Project</emphasis>&mdash;
+                        A container for a collection of modules which are
+                        deployed together, and which may have interdependencies.
+                        Often when implementing a single unit of functionality,
+                        it is desirable to separate the implementation into
+                        separate modules which perform different functions.
+                    </para>
+                </listitem>
+                <listitem>
+                    <para>
+                        <emphasis>Library Wrapper Module</emphasis>&mdash;
+                        A wrapper module which allows you to embed any regular
+                        JAR library in the &ms; and call it.  This will generate
+                        a wrapper module that contains no logic, but simply
+                        exposes the packages in the library via its manifest, so
+                        that other modules may call them.
+                    </para>
+                </listitem>
+            </orderedlist>
+        </para>
+        <figure id="setting_up_the_module_name_and_location">
+            <title>Setting Up The Module Name and Location</title>
+            <titleabbrev>Setting Up The Module Name and Location</titleabbrev>
+            <mediaobject>
+                <imageobject>
+                    <imagedata fileref="setting_up_the_module_name_and_location.png"/>
+                </imageobject>
+            </mediaobject>
+        </figure>
+        <para>
+            The next step in the New Module Wizard is very straightforward &mdash;
+            you define where on disk to put the module you are creating, and
+            whether or not it should be part of an existing suite of modules
+            (you can always add it to a suite later).
+        </para>
+        <para>
+            After this, you simply provide some basic parameters that will
+            identify your module.  Each module has a unique ID &mdash; this is
+            a string, and by convention should match the base Java package
+            of your module, to avoid name collisions.  If your module exposes
+            an API, other modules will use this name to say they depend on
+            yours and should be granted access to your module's public classes.
+            The module display name property simply provides a human-friendly
+            name for your module.
+        </para>
+
+        <figure id="defining_module_properties">
+            <title>Defining Module Properties</title>
+            <titleabbrev>Defining Module Properties</titleabbrev>
+            <mediaobject>
+                <imageobject>
+                    <imagedata fileref="defining_module_properties.png"/>
+                </imageobject>
+            </mediaobject>
+        </figure>
+        <section>
+            <title>Expressing Dependencies Between Modules</title>
+            <para>
+                It would not be much fun to develop modules if you needed to
+                dig up the programmatic code name of a module in order to
+                use its classes.  The NetBeans IDE makes this easy.  Your
+                module&ldquo;s dependencies are a property of your module
+                project, which can be found in its properties dialog.
+            </para>
+            <figure id="module_properties_menu">
+                <title>Module Properties Menu</title>
+                <titleabbrev>Module Properties Menu</titleabbrev>
+                <mediaobject>
+                    <imageobject>
+                        <imagedata fileref="module_properties_menu.png"/>
+                    </imageobject>
+                </mediaobject>
+            </figure>
+            <para>
+                Since dependencies are between Java classes, and you are
+                probably reading the JavaDoc&trade; documentation to find out
+                about them, you can simply add new dependencies by class name.
+                Just open the module properties dialog, and click
+                Library | Add Dependency.  You will see a dialog like the one
+                <remark> XXX fix title reference</remark>
+                below.
+            </para>
+
+            <figure id="adding_dependencies">
+                <title>Adding Dependencies</title>
+                <titleabbrev>Adding Dependencies</titleabbrev>
+                <mediaobject>
+                    <imageobject>
+                        <imagedata fileref="adding_dependencies.png"/>
+                    </imageobject>
+                </mediaobject>
+            </figure>
+            <section><title>Making Modular Development Easy</title>
+                <para>
+                    The point here is that developing in a modular environment
+                    requires some additional bookkeeping &mdash; one module must
+                    say what other module it wants to use, can specify the minimum version
+                    it wants, etc.  Such bookkeeping should not mean laborious work
+                    for the programmer.  The NetBeans IDE's support for developing
+                    modules takes care of the bookkeeping quite completely, and
+                    provides a GUI for adjusting dependencies which uses the elements
+                    a developer needs to know about anyway &mdash; Java classes.
+                </para>
+            </section>
+            <section id="not_just_for_guis">
+                <title>Not Just for IDE plug-ins, or even GUI Applications</title>
+                <para>
+                    As mentioned above, there is little difference between writing modules
+                    that enhance the NetBeans IDE, writing a GUI application or writing
+                    a non-GUI application.  This too is a function of dependencies &mdash;
+                    by leaving the IDE modules out, and adding your own
+                    modules, you create a NetBeans Platform-based application &mdash; one
+                    which uses the infrastructure and GUI of the platform, without any
+                    IDE-specific appearance or functionality.  By leaving out even the
+                    core UI modules and just reusing the boostrap and module system
+                    infrastructure, you can create a modular application with no UI
+                    whatsoever.
+                </para>
+                <para>
+                    Again, this is something that the NetBeans IDE makes simple.
+                    You can, of course, use any IDE to develop NetBeans-based applications.
+                    The NetBeans IDE simply makes it easier.  Creating the skeleton of an
+                    application is as simple as creating a new Module Suite using the
+                    project template shown in the screen shot above.  Deciding whether
+                    it will be a plug-in for the IDE, or separate application is a
+                    configuration step which can be changed at any time.  The UI for
+                    this is part of the properties dialog of the module suite.  The
+                    first step is specifying if the suite is to be a standalone
+                    application (with its own splash screen, name and other
+                    customizations), or just a set of modules to drop into the IDE.
+                </para>
+
+                <figure id="creating_a_standalone_application">
+                    <title>Creating a Standalone Application</title>
+                    <titleabbrev>Creating a Standalone Application</titleabbrev>
+                    <mediaobject>
+                        <imageobject>
+                            <imagedata fileref="creating_a_standalone_application.png"/>
+                        </imageobject>
+                    </mediaobject>
+                </figure>
+                <para>
+                    The next step is deciding what modules should and should not be
+                    part of the application.  By default you are building against the
+                    copy of NetBeans you are running, but you can also build against
+                    a different copy of NetBeans, such as the plain platform
+                    distribution.  The GUI for deciding what modules are used is also
+                    part of the suite properties dialog.  When you generate a zip or
+                    Java Webstart distribution of your application (one click on the
+                    suite's popup menu will do that), this GUI also determines what
+                    modules will be packaged into your distribution.  The UI for this
+                    is the Libraries pane of the properties dialog.
+                </para>
+
+                <figure id="choosing_components_of_an_application">
+                    <title>Choosing Components of an Application</title>
+                    <titleabbrev>Choosing Components of an Application</titleabbrev>
+                    <mediaobject>
+                        <imageobject>
+                            <imagedata fileref="choosing_components_of_an_application.png"/>
+                        </imageobject>
+                    </mediaobject>
+                </figure>
+            </section>
+        </section>
+    </section>
+    <section><title>Building the Examples</title>
+    <para>
+        NetBeans comes with some example module code built in.  In the
+        <guilabel>New Project Wizard</guilabel>, there is a category called
+        <guilabel>Samples</guilabel>.  In it you can find two sample
+        applications built on NetBeans.
+    </para>
+    <section><title>The Paint Application Sample App</title>
+    <para>
+        In the <guilabel>NetBeans Module Projects</guilabel> category you can
+        see a sample called <guilabel>Paint Application</guilabel>.  This is a
+        prebuilt application consisting of three modules.  The wizard allows
+        you to unpack it onto disk, build, run, debug and modify it.
+    </para>
+
+ <figure id="creating_the_paint_application_sample_app">
+     <title>Creating the Paint Application Sample App</title>
+     <titleabbrev>Creating the Paint Application Sample App</titleabbrev>
+     <mediaobject>
+        <imageobject>
+            <imagedata fileref="creating_the_paint_application_sample_app.png"/>
+        </imageobject>
+    </mediaobject>
+ </figure>
+    <para>
+        The application's functionality is simple &mdash; it allows the user to
+        draw on the screen with the mouse, and save the result as a <code>PNG</code>
+        format image file.  What is immediately noticable is that, while its
+        UI is simple, it is quite a polished application &mdash; it has a splash
+        screen, can save settings on exit, supports editing multiple documents
+        with drag-and-drop windows, is fully localized, has menus and toolbars
+        that are well designed and well behaved.  And the initial version of this
+        application took all of 45 minutes to write!  If you look at the code,
+        you will see that the entire application's logic is only <emphasis>four</emphasis>
+        Java classes, and two of those are trivial <code>Action</code> implementations
+        for creating new documents and saving.
+    </para>
+    <para>
+        The Paint Application sample consists of three modules.  They are:
+        <itemizedlist>
+            <listitem>
+                <para>
+                    <emphasis>The Module Suite</emphasis>&mdash;This contains no
+                    code.  It simply allows the modules it &ldquot;contains&rdquo;
+                    to depend on each other and be deployed as a unit.
+                </para>
+            </listitem>
+            <listitem>
+                <para>
+                    <emphasis>The Paint Module</emphasis>&mdash;This is where
+                    the business logic lives.  It contains the actions and GUI
+                    components that you see in the application's main window.
+                </para>
+            </listitem>
+            <listitem>
+                <para>
+                    <emphasis>The ColorChooser Wrapper Module</emphasis>&mdash;
+                    This is a no-code wrapper module for a popup color chooser
+                    component (available from
+                    <ulink url="http://colorchooser.dev.java.net">colorchooser.dev.java.net</ulink>)
+                    which is used on the toolbar in the application.
+                </para>
+            </listitem>
+        </itemizedlist>
+        Dependencies between components are uni-directional &mdash; the Paint
+        Module depends on the color chooser library;  the color chooser library
+        knows nothing about the Paint module.  Generally it is worth thinking
+        about dependency relationships between pieces of a system before
+        starting to code.  Occasionally it will appear, in development, that
+        circular dependencies (one JAR depends on second JAR's classe, and that second JAR
+        depends on the first one).  Such situations usually mean there is a
+        third piece which is the common functionality both need, which should
+        be factored out into a single module both of the others depend on.
+    </para>
+
+     <figure id="structure_of_the_paint_sample_application">
+         <title>Structure Of The Paint Sample Application</title>
+         <titleabbrev>Structure Of The Paint Sample Application</titleabbrev>
+         <mediaobject>
+            <imageobject>
+                <imagedata fileref="structure_of_the_paint_sample_application.png"/>
+            </imageobject>
+        </mediaobject>
+     </figure>
+
+
+     <figure id="running_the_paint_application_sample_">
+         <title>Running The Paint Application Sample </title>
+         <titleabbrev>Running The Paint Application Sample </titleabbrev>
+         <mediaobject>
+            <imageobject>
+                <imagedata fileref="running_the_paint_application_sample_.png"/>
+            </imageobject>
+        </mediaobject>
+     </figure>
+
+    </section>
+    </section>
+    <section><title>Modular Development In Action</title>
+        <para>
+            To really get a sense of the power of the modular development
+            paradigm, and what you can do with the NetBeans Platform, there is
+            a much enlarged and enhanced version of the original Paint
+            Application tutorial. Its source code can be found at
+            <ulink url="http://imagine.dev.java.net">imagine.dev.java.net</ulink>.
+            It takes the painting application design to an extreme of creating
+            an application with the potential to include functionality similar
+            to that of GIMP or Photoshop&trade;.  It starts from the same premise
+            as the original paint application, still uses the color chooser
+            control and has a class called <code>PaintCanvas</code> which is
+            reminiscent of the Paint Sample Application, but it goes much farther
+            in having a powerful user interface, and provides its own APIs to
+            allow additional tools to be plugged in.
+        </para>
+        <section><title>Imagine&mdash;a Modular Demonstration Application</title>
+        <para>
+            Imagine is an image editor.  Much like other image editors, it uses
+            a model in which an image is constructed of image <firstterm>layers</firstterm>, each of
+            which is independently editable.  It has a palette of
+            <firstterm>tools</firstterm> which can be selected in order to
+            use them to edit the image.  And it has a number of windows in its
+            UI, including a layers view, a customizer for the selected tool,
+            a menu for effects that can be applied to a selection or a layer,
+            the image editor itself, and an edit history browser window.
+        </para>
+
+         <figure id="imagine_in_action">
+             <title>Imagine in Action</title>
+             <titleabbrev>Imagine in Action</titleabbrev>
+             <mediaobject>
+                <imageobject>
+                    <imagedata fileref="imagine_in_action.png"/>
+                </imageobject>
+            </mediaobject>
+         </figure>
+
+        <para>While this application is not ready to replace your favorite
+            image editor tomorrow, it is designed for extensibility, so that
+            features can be plugged in separately.  And more importantly, it is
+            designed so that its component parts have well defined contracts
+            between them.  It will be harder for a change in one part of the
+            application to break another part of the application.  This is particularly
+            useful in the case that it would be developed by people who are not
+            physically in the same place.  Building in an environment that
+            encourages healthy architectural practices has benefits for the
+            application's maintainability.
+        </para>
+        <para>
+            The way that Imagine breaks up into modules is the interesting part.
+            Each piece of UI you see &mdash; each window component (and,
+            incidentally, the effects menu), is implemented in a separate
+            module.  Now, were this a production application, it might not be
+            broken up to quite this degree, but it demonstrates the power of
+            this approach very well.  The editor in the center of the window comes
+            from one module &mdash; it can be removed from the system and the
+            system will still function (though it won't do very much);  more
+            importantly, it could be replaced by a totally different editor that
+            operated on, say, SVG &mdash; and with the exception of the raster-based
+            tools, the rest of the application would not need to change one
+            bit.  The tools palette lives in a separate module;  it contributes the
+            selected tool to a global selection context which the editor
+            component listens to.  The tool customizer is another module &mdash;
+            one which, like the editor, listens to the global selection and
+            if a tool appears in it, displays its customizer.  The effects
+            menu is implemented in yet another module, which locates all
+            registered effects and provides a ui for them.  The editor window
+            contributes the current image and its layers to the global selection;
+            the layers window listens for this and displays the layers of the
+            current editor.  And so forth...
+        </para>
+         <figure id="modules_of_the_imagine_image_editor">
+             <title>Modules of the Imagine Image Editor</title>
+             <titleabbrev>Modules of the Imagine Image Editor</titleabbrev>
+             <mediaobject>
+                <imageobject>
+                    <imagedata fileref="modules_of_the_imagine_image_editor.png"/>
+                </imageobject>
+            </mediaobject>
+         </figure>
+        <para>
+            The truly interesting thing to notice is that <emphasis>none of the
+            modules I have just mentioned depend on (use classes from) each
+            other.</emphasis>  There is a single module called Paint API which
+            defines Java classes such as <code>Tool</code>, <code>Layer</code>,
+            <code>Layers</code>, and <code>Effect</code>.  Each of the other
+            modules either provides or consumes instances of these classes;  the
+            communication mechanism is the global selection, which uses a
+            NetBeans API class/concept called <code>Lookup</code> (which is
+            essentially a <code>Map</code> where the keys are <code>Class</code> objects
+            and the values are one or more instances of the <code>Class</code>
+            key.  All of these modules simply depend on the Paint API module's
+            classes.  So any piece can be completely replaced without the
+            other parts of the application being disturbed in the slightest.
+        </para>
+
+ <figure id="classes_in_the_paint_api">
+     <title>Classes In The Paint API</title>
+     <titleabbrev>Classes In The Paint API</titleabbrev>
+     <mediaobject>
+        <imageobject>
+            <imagedata fileref="classes_in_the_paint_api.png"/>
+        </imageobject>
+    </mediaobject>
+ </figure>
+        <para>
+            If someone develops additional tools or effects, they can be distributed as a
+            new module.  There is no need for recompiling the entire application.
+            The NetBeans Platform even includes the optional <guilabel>Update Center</guilabel>
+            module (autoupdate), which will let you deliver new modules and new
+            versions of modules as simply as by putting some files on a web server.
+        </para>
+        </section>
+
+        <section>
+            <title>
+                Role-based Deployment with Java WebStart&trade;
+            </title>
+            <para>Where this sort of thing gets really exciting is when it
+                comes to applications that are used by multiple types of users.
+                The showcase for this approach (and originator of it) is
+                Nokia NetAct &mdash; an application for managing cellular
+                networks.  The way it works is this:  You have an activity
+                which is information-based and involves many people.  Those
+                people will have different roles and needs.  Rather than optimize
+                the application for one set of users, or create multiple
+                similar applications for different roles, you create one
+                application, with different sets of modules to provide the
+                UI for varying roles.  Then deploy it using Java WebStart (JNLP),
+                on an application server.  The user logs in to a web page;
+                since they have authenticated, the server knows who they are
+                and what their job is.  The user clicks a link that starts the
+                application via Java WebStart.  <emphasis>Depending on who they
+                are, they will be delivered a different set of modules</emphasis>.
+                The underlying APIs and business logic may be the same across
+                all users, but the user interface pieces and what functionality
+                users have access to will vary depending on what they need to
+                do their job.
+            </para>
+            <para>
+                A similar scenario is one where an organization needs to produce
+                many different versions of an application with slight differences.
+                For example, imagine an application used for both individuals and
+                businesses to calculate or pay their taxes.  Much of the logic
+                underlying either a business's or individual's work will be the
+                same.  These should be provided in modules common to the whole
+                application.  There will be differences in the user interface, and
+                in what functionality is made available.  Imagine deploying such
+                applications, sharing all the code that should be shared between
+                them, with no nasty hacks, no duplication, no extra testing needed,
+                because the architecture you're building on is <emphasis>designed</emphasis>
+                for this sort of scenario!
+            </para>
+        </section>
+    </section>
+    <section><title>Resources</title>
+        <para>It is my hope that this article has whetted your appetite to
+        learn more about the NetBeans Platform and get some of the benefits
+        of it in your own code.  There are many sources of further information
+        available on the web:
+        <itemizedlist>
+        <listitem>
+            <para>
+                <emphasis><ulink url="http://platform.netbeans.org">The NetBeans
+                Platform Web Site</ulink></emphasis>&mdash; is the main entry point for
+                NetBeans development on the web, linking to all other development documentation.
+                The <ulink url="http://platform.netbeans.org/tutorials/index.html">tutorials section</ulink>
+                is particularly useful.
+            </para>
+        </listitem>
+        <listitem>
+            <para>
+                <emphasis><ulink url="http://www.netbeans.org/download/dev/javadoc/">The
+                NetBeans API Documentation</ulink></emphasis>&mdash;This is the comprehensive
+                set of all documentation for all classes in public APIs in NetBeans.
+            </para>
+        </listitem>
+        <listitem>
+            <para>
+                <emphasis><ulink url="http://wiki.netbeans.info/wiki/view/NetBeansDeveloperFAQ">The 
+                NetBeans Developer FAQ</ulink></emphasis>&mdash; This is
+                a comprehensive knowledge base of NetBeans development information.
+                In addition to <emphasis>frequently</emphasis> asked questions, it
+                contains many tips, tricks and otherwise hard-to-find information,
+                along with simple descriptions of common API classes and where
+                to start to do various tasks.  Since it is a wiki, if you get an
+                answer to a question that is useful to you, you are encouraged
+                to add it to the FAQ.
+            </para>
+        </listitem>
+        <listitem>
+            <para>
+                <emphasis><ulink url="http://www.netbeans.org/community/lists/top.html#top">The 
+                <code>dev@openide.netbeans.org</code> mailing list</ulink></emphasis>&mdash; This list
+                is the place to ask questions &mdash; you will reach the entire
+                NetBeans development team at Sun, plus thousands of developers who
+                are building their own modules and NetBeans-based applications.
+            </para>
+        </listitem>
+        <listitem>
+            <para>
+                <emphasis>The NetBeans Source Code</emphasis>&mdash; While you don't
+                need the sources to develop your own code, it can be an invaluable
+                source of examples of how to do things right &mdash; simply find a 
+                module that does more or less what you need to do and see how it
+                works.  All sources are available via anonymous CVS: 
+                <code>cvs -d:pserver:anoncvs@cvs.netbeans.org:/cvs co standard_nowww</code>
+                will download the basic sources.
+            </para>
+        </listitem>
+        </itemizedlist>
+        </para>
+    </section>
+</article>

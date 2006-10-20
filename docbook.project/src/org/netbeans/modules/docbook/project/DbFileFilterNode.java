@@ -27,40 +27,30 @@
 
 package org.netbeans.modules.docbook.project;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.nio.ByteBuffer;
-import java.nio.channels.FileChannel;
-import java.nio.charset.CharacterCodingException;
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
 import java.util.Collections;
-import java.util.Locale;
-import java.util.regex.Matcher;
+import java.util.regex.MatchResult;
 import java.util.regex.Pattern;
+import org.netbeans.api.docbook.Callback;
+import org.netbeans.api.docbook.ParsingService;
+import org.netbeans.api.docbook.PatternCallback;
 import org.openide.ErrorManager;
-import org.openide.filesystems.FileAttributeEvent;
-import org.openide.filesystems.FileChangeListener;
-import org.openide.filesystems.FileEvent;
 import org.openide.filesystems.FileObject;
-import org.openide.filesystems.FileRenameEvent;
 import org.openide.filesystems.FileStateInvalidException;
 import org.openide.filesystems.FileSystem;
-import org.openide.filesystems.FileUtil;
 import org.openide.loaders.DataNode;
 import org.openide.loaders.DataObject;
 import org.openide.loaders.DataObjectNotFoundException;
 import org.openide.nodes.FilterNode;
 import org.openide.nodes.Node;
 import org.openide.util.RequestProcessor;
-import org.openide.util.WeakListeners;
 
 /**
  *
  * @author Tim Boudreau
  */
-public class DbFileFilterNode extends FilterNode implements FileChangeListener, Runnable {
+public class DbFileFilterNode extends FilterNode {
     private final DbProject project;
     private RequestProcessor.Task task;
     /** Creates a new instance of DocbookFileNode */
@@ -68,25 +58,26 @@ public class DbFileFilterNode extends FilterNode implements FileChangeListener, 
         super (orig, new ImageChildren (parentFolder));
         this.project = project;
         DataObject ob = (DataObject) orig.getLookup().lookup (DataObject.class);
-        FileObject fob = ob.getPrimaryFile();
-        fob.addFileChangeListener(WeakListeners.create(
-                FileChangeListener.class, this, fob));
+//        FileObject fob = ob.getPrimaryFile();
+//        fob.addFileChangeListener(WeakListeners.create(
+//                FileChangeListener.class, this, fob));
         setName (ob.getName());
     }
 
     private String cachedName = null;
     private final Object lock = new Object();
     public String getDisplayName() {
+        String result;
         String nm = super.getDisplayName();
+        String cachedName;
+        synchronized (lock) {
+            cachedName = this.cachedName;
+        }
         if (cachedName == null) {
-            synchronized (lock) {
-                if (task == null) {
-                    task = project.rp.post (this);
-                }
-            }
-            return super.getDisplayName();
+            enqueue();
+            result = super.getDisplayName();
         } else {
-            String result = NO_NAME.equals(cachedName) ?
+            result = NO_NAME.equals(cachedName) ?
                 nm : cachedName;
             FileObject ob = ((DataNode) getOriginal()).getDataObject().getPrimaryFile();
             try {
@@ -96,8 +87,8 @@ public class DbFileFilterNode extends FilterNode implements FileChangeListener, 
             } catch (FileStateInvalidException ex) {
                 ErrorManager.getDefault().notify(ex);
             }
-            return result;
         }
+        return result;
     }
 
     public String getHtmlDisplayName() {
@@ -115,10 +106,11 @@ public class DbFileFilterNode extends FilterNode implements FileChangeListener, 
                  if (stat instanceof FileSystem.HtmlStatus) {
                      FileSystem.HtmlStatus hstat = (FileSystem.HtmlStatus) stat;
 
+                     String old = result;
                      result = hstat.annotateNameHtml (
                          result, Collections.singleton(ob));
 
-                     if (main) result = "<b>" + result;
+                     if (main) result = "<b>" + (result == null ? old : result);
 
                      //Make sure the super string was really modified
                      if (!super.getDisplayName().equals(result)) {
@@ -132,46 +124,88 @@ public class DbFileFilterNode extends FilterNode implements FileChangeListener, 
         return result;
     }
 
-    void cancel() {
-        synchronized (lock) {
-            if (task != null) {
-                task.cancel();
-                task = null;
+    private volatile boolean enqueued = false;
+    private void enqueue() {
+        if (!enqueued) {
+            ParsingService serv = ((DataNode) getOriginal()).getLookup().lookup(ParsingService.class);
+            if (serv != null) {
+                serv.register(nameUpdater);
+                enqueued = true;
             }
         }
     }
+    
+    void detach() {
+        ParsingService serv = ((DataNode) getOriginal()).getLookup().lookup(ParsingService.class);
+        if (serv != null) {
+            serv.unregister(nameUpdater);
+            enqueued = false;
+        }
+    }
 
-    void updateName() {
-        synchronized (lock) {
-            if (task == null) {
-                task = project.rp.post (this);
+    private Callback <Pattern> nameUpdater = new NameUpdater();
+    private class NameUpdater extends PatternCallback {
+        public NameUpdater () {
+            super (TITLE_PATTERN);
+        }
+
+        public boolean process(FileObject f, MatchResult match, CharSequence content) {
+            String s = match.group(1).trim();
+            String old;
+            synchronized (lock) {
+                old = cachedName;
+                cachedName = s;
             }
+            if (!s.equals(old)) {
+                fireDisplayNameChange(old, s);
+            }
+            enqueued = false;
+            return false;
         }
     }
 
-    public void fileFolderCreated(FileEvent fe) {
-    }
+//    void cancel() {
+//        synchronized (lock) {
+//            if (task != null) {
+//                task.cancel();
+//                task = null;
+//            }
+//        }
+//    }
+//
+//    void updateName() {
+//        synchronized (lock) {
+//            if (task == null) {
+//                task = project.rp.post (this);
+//            }
+//        }
+//    }
+//
+//    public void fileFolderCreated(FileEvent fe) {
+//    }
+//
+//    public void fileDataCreated(FileEvent fe) {
+//    }
+//
+//    public void fileChanged(FileEvent fe) {
+//        updateName();
+//    }
+//
+//    public void fileDeleted(FileEvent fe) {
+//        try {
+//            destroy();
+//        } catch (IOException ex) {
+//            ErrorManager.getDefault().notify (ex);
+//        }
+//    }
+//
+//    public void fileRenamed(FileRenameEvent fe) {
+//    }
+//
+//    public void fileAttributeChanged(FileAttributeEvent fe) {
+//    }
 
-    public void fileDataCreated(FileEvent fe) {
-    }
-
-    public void fileChanged(FileEvent fe) {
-        updateName();
-    }
-
-    public void fileDeleted(FileEvent fe) {
-        try {
-            destroy();
-        } catch (IOException ex) {
-            ErrorManager.getDefault().notify (ex);
-        }
-    }
-
-    public void fileRenamed(FileRenameEvent fe) {
-    }
-
-    public void fileAttributeChanged(FileAttributeEvent fe) {
-    }
+    private static final String NO_NAME = "Unknown"; //NOI18N
 
     public String getShortDescription() {
         return super.getDisplayName();
@@ -181,7 +215,8 @@ public class DbFileFilterNode extends FilterNode implements FileChangeListener, 
             Charset.defaultCharset().newDecoder();
 
     private static final Pattern TITLE_PATTERN =
-            Pattern.compile("<title>\\s*(.*?)\\s*</title>"); //NOI18N
+            Pattern.compile("<title>\\s*(.*)\\s*</title>"); //NOI18N
+
 
     //<?xml version="1.0" encoding="UTF-8"?>
     private static final String CONTENT_TYPE_PATTERN =
@@ -191,6 +226,7 @@ public class DbFileFilterNode extends FilterNode implements FileChangeListener, 
             Pattern.compile(CONTENT_TYPE_PATTERN,
             Pattern.CASE_INSENSITIVE | Pattern.DOTALL);
 
+    /*
     public void run() {
         synchronized (lock) {
             task = null;
@@ -241,8 +277,6 @@ public class DbFileFilterNode extends FilterNode implements FileChangeListener, 
         }
     }
 
-    private static final String NO_NAME = "Unknown"; //NOI18N
-
     private CharSequence decode (ByteBuffer buf) throws CharacterCodingException {
         CharsetDecoder decoder = this.decoder;
 
@@ -266,4 +300,5 @@ public class DbFileFilterNode extends FilterNode implements FileChangeListener, 
         }
         return seq;
     }
+    */
 }

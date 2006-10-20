@@ -1,0 +1,104 @@
+Index: build.xml
+===================================================================
+RCS file: /cvs/contrib/docbook/build.xml,v
+retrieving revision 1.15
+diff -u -r1.15 build.xml
+--- build.xml	19 Oct 2006 20:54:17 -0000	1.15
++++ build.xml	20 Oct 2006 04:40:21 -0000
+@@ -28,6 +28,9 @@
+         <unzip src="${nb_all}/libs/external/docbook-xsl-${libs.docbook-xsl.version}.zip" dest="build/docbook-libs"/>
+         <unzip src="${nb_all}/libs/external/slides-${libs.docbook-slides.version}.zip" dest="build/docbook-libs"/>
+         <unzip src="${nb_all}/libs/external/docbook-xml-${libs.docbook-xml.version}.zip" dest="build/docbook-libs/docbook-xml-${libs.docbook-xml.version}"/>
++
++<!--        <unzip src="${nb_all}/libs/external/docbook-xsl-${libs.docbook-slides.version}.zip" dest="build/docbook-libs"/> -->
++
+         <property name="browser.dir" location="build/docbook-libs/slides-${libs.docbook-slides.version}/browser"/>
+         <fileset id="browser.files.list" dir="${browser.dir}">
+             <exclude name="**/ChangeLog"/>
+@@ -35,6 +38,7 @@
+         <pathconvert property="browser.files" refid="browser.files.list" pathsep="," dirsep="/">
+             <map from="${browser.dir}${file.separator}" to=""/>
+         </pathconvert>
++
+         <property name="graphics.dir" location="build/docbook-libs/slides-${libs.docbook-slides.version}/graphics"/>
+         <fileset id="graphics.files.list" dir="${graphics.dir}">
+             <exclude name="**/ChangeLog"/>
+@@ -42,12 +46,42 @@
+         <pathconvert property="graphics.files" refid="graphics.files.list" pathsep="," dirsep="/">
+             <map from="${graphics.dir}${file.separator}" to=""/>
+         </pathconvert>
++<!--
++        <property name="fop.dir" location="build/docbook-libs/docbook-xsl-${libs.docbook-slides.version}/fo"/>
++        <fileset id="fop.files.list" dir="${fop.dir}">
++            <exclude name="**/ChangeLog"/>
++        </fileset>
++        <pathconvert property="fop.files" refid="fop.files.list" pathsep="," dirsep="/">
++            <map from="${fop.dir}${file.separator}" to=""/>
++        </pathconvert>
++
++        <property name="common.dir" location="build/docbook-libs/docbook-xsl-${libs.docbook-slides.version}/common"/>
++        <fileset id="common.files.list" dir="${common.dir}">
++            <exclude name="**/ChangeLog"/>
++        </fileset>
++        <pathconvert property="common.files" refid="common.files.list" pathsep="," dirsep="/">
++            <map from="${common.dir}${file.separator}" to=""/>
++        </pathconvert>
++
++        <property name="highlighting.dir" location="build/docbook-libs/docbook-xsl-${libs.docbook-slides.version}/highlighting"/>
++        <fileset id="highlighting.files.list" dir="${highlighting.dir}">
++            <exclude name="**/ChangeLog"/>
++        </fileset>
++        <pathconvert property="highlighting.files" refid="highlighting.files.list" pathsep="," dirsep="/">
++            <map from="${highlighting.dir}${file.separator}" to=""/>
++        </pathconvert>
++-->
+         <propertyfile file="build/docbook-libs/config.properties" comment="org.netbeans.modules.docbook configuration">
+             <entry key="docbook-xsl.version" value="${libs.docbook-xsl.version}"/>
+             <entry key="slides.version" value="${libs.docbook-slides.version}"/>
+             <entry key="docbook-xml.version" value="${libs.docbook-xml.version}"/>
+             <entry key="browser.files" value="${browser.files}"/>
+             <entry key="graphics.files" value="${graphics.files}"/>
++<!--
++            <entry key="fop.files" value="${fop.files}"/>
++            <entry key="common.files" value="${common.files}"/>
++            <entry key="highlighting.files" value="${highlighting.files}"/>
++-->
+         </propertyfile>
+     </target>
+ 
+@@ -69,23 +103,30 @@
+                 <include name="docbook-xml-${libs.docbook-xml.version}/*.dtd"/>
+                 <include name="docbook-xml-${libs.docbook-xml.version}/*.mod"/>
+                 <include name="docbook-xml-${libs.docbook-xml.version}/ent/*.ent"/>
++
++<!--                <include name="docbook-xsl-${libs.docbook-xsl.version}/highlighting/"/>
++                <include name="docbook-xsl-${libs.docbook-xsl.version}/common"/>
++                <include name="docbook-xsl-${libs.docbook-xsl.version}/fo"/>
++-->
+                 <exclude name="**/ChangeLog"/>
+             </zipfileset>
+         </jarwithmoduleattributes>
+     </target>
+ 
+-    <target name="init" depends="projectized.init">
+-        <mkdir dir="build"/>
+-        <get dest="build/saxon-dist.zip" src="http://superb-west.dl.sourceforge.net/sourceforge/saxon/saxonb8-8j.zip" usetimestamp="true"/>
+-        <unzip src="build/saxon-dist.zip" dest="build">
++    <target name="init" depends="projectized.init" unless="hasSaxon">
++        <mkdir dir="ext"/>
++        <get dest="ext/saxon-dist.zip" src="http://superb-west.dl.sourceforge.net/sourceforge/saxon/saxonb8-8j.zip" usetimestamp="true"/>
++        <unzip src="ext/saxon-dist.zip" dest="build">
+             <patternset>
+                 <include name="saxon8.jar"/>
+             </patternset>
+         </unzip>
+     </target>
+ 
++    <available file="${basedir}/release/modules/ext/saxon8.jar" property="hasSaxon"/>
++
+     <target name="netbeans-extra" depends="init">
+-        <copy file="build/saxon8.jar" todir="${cluster}/modules/ext"/>
++        <copy file="${basedir}/ext/saxon8.jar" todir="${cluster}/modules/ext"/>
+     </target>
+ 
+     <target name="nbm" depends="init,netbeans,-nbm-prompt-for-storepass" description="Build NBM archive.">

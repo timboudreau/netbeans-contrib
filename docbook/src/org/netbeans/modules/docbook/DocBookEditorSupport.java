@@ -117,7 +117,19 @@ public class DocBookEditorSupport extends DataEditorSupport implements EditorCoo
     }
 
     protected void initializeCloneableEditor(CloneableEditor editor) {
-        super.initializeCloneableEditor(editor);
+        try {
+            super.initializeCloneableEditor(editor);
+        } catch (IllegalStateException ise) {
+            //Normal during restart if module has created a dataobject, then 
+            //immediately been unloaded and reloaded.  The editor toolbar
+            //tries to get info from a node whose dataobject was destroyed
+            //when the module was unloaded.  Bug is in the Ant Debugger module,
+            //which is receiving property changes and not checking validity.
+            
+            //No worries about initialization not having completed - this 
+            //editor is going to be replaced completely anyway, it's being
+            //initialized for nothing.
+        }
         editor.getEditorPane().setTransferHandler(new TextAndImageTransferHandler(
                 editor.getEditorPane()));
     }

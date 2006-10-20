@@ -43,22 +43,19 @@ import javax.swing.JList;
 import javax.swing.JScrollPane;
 import javax.swing.KeyStroke;
 import javax.swing.ListSelectionModel;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.parsers.SAXParser;
-import javax.xml.parsers.SAXParserFactory;
+import org.netbeans.api.docbook.ContentHandlerCallback;
+import org.netbeans.api.docbook.ParseJob;
+import org.netbeans.api.docbook.ParsingService;
 import org.netbeans.api.xml.services.UserCatalog;
 import org.netbeans.spi.navigator.NavigatorPanel;
-import org.netbeans.spi.xml.cookies.DataObjectAdapters;
-import org.openide.ErrorManager;
 import org.openide.awt.MouseUtils;
 import org.openide.cookies.LineCookie;
-import org.openide.filesystems.FileUtil;
+import org.openide.filesystems.FileObject;
 import org.openide.loaders.DataObject;
 import org.openide.text.Line;
 import org.openide.util.Lookup;
 import org.openide.util.LookupEvent;
 import org.openide.util.LookupListener;
-import org.openide.util.RequestProcessor;
 import org.xml.sax.Attributes;
 import org.xml.sax.InputSource;
 import org.xml.sax.Locator;
@@ -141,38 +138,54 @@ public final class DocBookNavigatorPanel implements NavigatorPanel {
     public void panelDeactivated() {
         selection.removeLookupListener(selectionListener);
         selection = null;
+        setCurrent (null);
     }
     
     public Lookup getLookup() {
         return null;
     }
     
+    public void setItems (List <Item> items) {
+        int ix = listSelectionModel.getLeadSelectionIndex();
+        listModel.clear();
+        if (items != null) {
+            for (Item item : items) {
+                listModel.addElement (item);
+            }
+            if (items.size() > ix && ix > 0) {
+                listSelectionModel.setLeadSelectionIndex(ix);
+            }
+        }
+    }
+    
+    ContentCallback callback;
+    DataObject current;
     private void display(Collection/*<DataObject>*/ selectedFiles) {
         // Show list of targets for selected file:
         if (selectedFiles.size() == 1) {
-            final DataObject d = (DataObject) selectedFiles.iterator().next();
-            final InputSource src = DataObjectAdapters.inputSource(d);
-            // Parse asynch, since it can take a second or two for a big file.
-            RequestProcessor.getDefault().post(new Runnable() {
-                public void run() {
-                    try {
-                        final Item[] items = parse(src, d);
-                        EventQueue.invokeLater(new Runnable() {
-                            public void run() {
-                                listModel.clear();
-                                for (int i = 0; i < items.length; i++) {
-                                    listModel.addElement(items[i]);
-                                }
-                            }
-                        });
-                    } catch (Exception e) { // IOException, SAXParseException
-                        ErrorManager.getDefault().log(ErrorManager.WARNING,
-                            "Could not parse " + FileUtil.getFileDisplayName(d.getPrimaryFile()) + ": " + e.toString());
-                    }
-                }
-            });
+            setCurrent ((DataObject) selectedFiles.iterator().next());
         } else {
-            listModel.clear();
+            setCurrent (null);
+        }
+    }
+    
+    void setCurrent (DataObject obj) {
+        if (obj != current) {
+            if (current != null && callback != null) {
+                ParsingService serv = current.getNodeDelegate().getLookup().lookup(
+                    ParsingService.class);
+                serv.unregister(callback);
+            }
+            current = obj;
+            if (current != null) {
+                callback = new ContentCallback(obj);
+                ParsingService serv = current.getNodeDelegate().getLookup().lookup(
+                    ParsingService.class);
+                serv.register(callback);
+            } else {
+                callback = null;
+                setItems (null);
+            }
         }
     }
     
@@ -205,94 +218,128 @@ public final class DocBookNavigatorPanel implements NavigatorPanel {
         "id", // NOI18N
     });
     
-    static Item[] parse(InputSource src, final DataObject d) throws IOException, SAXException, ParserConfigurationException {
-        final List/*<Item>*/ items = new ArrayList();
-        SAXParserFactory factory = SAXParserFactory.newInstance();
-        SAXParser parser = factory.newSAXParser();
-        class Handler extends DefaultHandler {
-            private Locator locator;
-            // XXX besides line, need to know file: if a complex doc includes others w/
-            // entity refs, need to jump to subfiles!
-            private int line = -1;
-            private String element = null;
-            private StringBuffer text = null;
-            public void setDocumentLocator(Locator l) {
-                locator = l;
-            }
-            // Better style would perhaps be to have include/exclude lists
-            // which would be pairs of NS-qualified element name plus attr name... TBD.
-            public void startElement(String uri, String localname, String qname, Attributes attr) throws SAXException {
-                text = null;
-                if (HEADERS.contains(qname.toLowerCase(Locale.ENGLISH))) {
-                    text = new StringBuffer();
-                    line = locator.getLineNumber();
-                    element = null;
-                    //System.err.println("HEADERS match on " + qname + " at " + line);
-                } else if (TITLES.contains(qname.toLowerCase(Locale.ENGLISH))) {
-                    if (element != null) {
-                        text = new StringBuffer();
-                        //System.err.println("TITLES match on " + qname + " inside " + element + " at line " + line);
-                    }
-                } else {
-                    line = locator.getLineNumber();
-                    element = qname;
-                    //System.err.println("plain element " + element + " at " + line);
-                    for (int i = 0; i < attr.getLength(); i++) {
-                        String name = attr.getQName(i);
-                        if (NAMES.contains(name.toLowerCase(Locale.ENGLISH))) {
-                            //System.err.println("NAMES match on " + name + " in " + element + " at " + line);
-                            items.add(new Item(attr.getValue(i), element, name, line, d));
-                            break;
-                        }
-                    }
-                }
-            }
-            public void endElement(String uri, String localname, String qname) throws SAXException {
-                if (text != null) {
-                    //System.err.println("ending " + qname + " in " + element + " with " + text + " at " + line);
-                    assert line != -1;
-                    if (element == null) {
-                        element = qname;
-                    }
-                    items.add(new Item(text.toString(), element, qname, line, d));
-                    text = null;
-                    element = null;
-                    line = -1;
-                }
-            }
-            public void characters(char[] ch, int start, int length) throws SAXException {
-                if (text != null) {
-                    text.append(ch, start, length);
-                }
-            }
-            public InputSource resolveEntity(String publicId, String systemId) throws SAXException {
-                InputSource known;
-                try {
-                    known = UserCatalog.getDefault().getEntityResolver().resolveEntity(publicId, systemId);
-                } catch (IOException e) {
-                    throw new SAXException(e);
-                }
-                if (known != null) {
-                    // In our IDE catalog, cool.
-                    //System.err.println("known match on " + publicId + " / " + systemId + ": " + known.getSystemId());
-                    return known;
-                } else if (systemId.startsWith("http")) { // NOI18N
-                    // Do not load any remote entities or DTDs, too slow.
-                    //System.err.println("No known match for remote " + publicId + " / " + systemId);
-                    return new InputSource(new StringReader(""));
-                } else {
-                    // Maybe a local file: URL or similar.
-                    return null;
-                }
-            }
-            /*
-            public void skippedEntity(String name) throws SAXException {
-                System.err.println("skipped: " + name);
-            }
-             */
+    private ParseJob job;
+    class ContentCallback <T extends Handler> extends ContentHandlerCallback <T> implements Runnable {
+        ContentCallback(DataObject d) {
+            super (new Handler(d));
         }
-        parser.parse(src, new Handler());
-        return (Item[]) items.toArray(new Item[items.size()]);
+
+        protected void done(FileObject f, ParseJob job) {
+            if (job.equals(DocBookNavigatorPanel.this.job)) { //XXX test listening to file
+                DocBookNavigatorPanel.this.job = null;
+                EventQueue.invokeLater(this);
+            }
+            System.err.println("CONTENT CALLBACK DONE " + this);
+        }
+        
+        public void run() {
+            List items = ((Handler) getProcessor()).items;
+            setItems (items);
+        }
+
+        protected void start(FileObject f, ParseJob job) {
+            ((Handler) getProcessor()).clear();
+            System.err.println("CONTENT CALLBACK START " + this);
+            DocBookNavigatorPanel.this.job = job;
+            super.start(f, job);
+        }
+    }
+    
+    class Handler extends DefaultHandler {
+        private Locator locator;
+        // XXX besides line, need to know file: if a complex doc includes others w/
+        // entity refs, need to jump to subfiles!
+        private int line = -1;
+        private String element = null;
+        private StringBuffer text = null;
+        List <Item> items = new ArrayList (20);
+        private DataObject d;
+        public Handler (DataObject d) {
+            this.d = d;
+        }
+        
+        void clear() {
+            synchronized (this) {
+                items.clear();
+            }
+        }
+        
+        public void setDocumentLocator(Locator l) {
+            locator = l;
+        }
+        // Better style would perhaps be to have include/exclude lists
+        // which would be pairs of NS-qualified element name plus attr name... TBD.
+        public void startElement(String uri, String localname, String qname, Attributes attr) throws SAXException {
+            text = null;
+            if (HEADERS.contains(qname.toLowerCase(Locale.ENGLISH))) {
+                text = new StringBuffer();
+                line = locator.getLineNumber();
+                element = null;
+                //System.err.println("HEADERS match on " + qname + " at " + line);
+            } else if (TITLES.contains(qname.toLowerCase(Locale.ENGLISH))) {
+                if (element != null) {
+                    text = new StringBuffer();
+                    //System.err.println("TITLES match on " + qname + " inside " + element + " at line " + line);
+                }
+            } else {
+                line = locator.getLineNumber();
+                element = qname;
+                //System.err.println("plain element " + element + " at " + line);
+                for (int i = 0; i < attr.getLength(); i++) {
+                    String name = attr.getQName(i);
+                    if (NAMES.contains(name.toLowerCase(Locale.ENGLISH))) {
+                        //System.err.println("NAMES match on " + name + " in " + element + " at " + line);
+                        synchronized (this) {
+                            items.add(new Item(attr.getValue(i), element, name, line, d));
+                        }
+                        break;
+                    }
+                }
+            }
+        }
+        public void endElement(String uri, String localname, String qname) throws SAXException {
+            if (text != null) {
+                //System.err.println("ending " + qname + " in " + element + " with " + text + " at " + line);
+                assert line != -1;
+                if (element == null) {
+                    element = qname;
+                }
+                items.add(new Item(text.toString(), element, qname, line, d));
+                text = null;
+                element = null;
+                line = -1;
+            }
+        }
+        public void characters(char[] ch, int start, int length) throws SAXException {
+            if (text != null) {
+                text.append(ch, start, length);
+            }
+        }
+        public InputSource resolveEntity(String publicId, String systemId) throws SAXException {
+            InputSource known;
+            try {
+                known = UserCatalog.getDefault().getEntityResolver().resolveEntity(publicId, systemId);
+            } catch (IOException e) {
+                throw new SAXException(e);
+            }
+            if (known != null) {
+                // In our IDE catalog, cool.
+                //System.err.println("known match on " + publicId + " / " + systemId + ": " + known.getSystemId());
+                return known;
+            } else if (systemId.startsWith("http")) { // NOI18N
+                // Do not load any remote entities or DTDs, too slow.
+                //System.err.println("No known match for remote " + publicId + " / " + systemId);
+                return new InputSource(new StringReader(""));
+            } else {
+                // Maybe a local file: URL or similar.
+                return null;
+            }
+        }
+        /*
+        public void skippedEntity(String name) throws SAXException {
+            System.err.println("skipped: " + name);
+        }
+         */
     }
     
     static final class Item {

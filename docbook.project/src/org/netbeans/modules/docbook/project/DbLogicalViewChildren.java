@@ -69,7 +69,7 @@ public class DbLogicalViewChildren extends Children.Keys implements FileChangeLi
         Node[] n = getNodes();
         for (int i = 0; i < n.length; i++) {
             if (n[i] instanceof DbFileFilterNode) {
-                ((DbFileFilterNode) n[i]).cancel();
+                ((DbFileFilterNode) n[i]).detach();
             }
         }
         setKeys (Collections.EMPTY_SET);

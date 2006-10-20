@@ -171,6 +171,18 @@ Microsystems, Inc. All Rights Reserved.
                 <runtime-relative-path>ext/saxon8.jar</runtime-relative-path>
                 <binary-origin>build/saxon8.jar</binary-origin>
             </class-path-extension>
+<!--            <class-path-extension>
+                <runtime-relative-path>ext/batik.jar</runtime-relative-path>
+                <binary-origin>release/modules/ext/batik.jar</binary-origin>
+            </class-path-extension>
+            <class-path-extension>
+                <runtime-relative-path>ext/fop.jar</runtime-relative-path>
+                <binary-origin>release/modules/ext/fop.jar</binary-origin>
+            </class-path-extension>
+            <class-path-extension>
+                <runtime-relative-path>ext/avalon-framework-cvs-20020806.jar</runtime-relative-path>
+                <binary-origin>release/modules/ext/avalon-framework-cvs-20020806.jar</binary-origin>
+            </class-path-extension>-->
         </data>
     </configuration>
 </project>
