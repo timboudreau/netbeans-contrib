@@ -27,7 +27,9 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import org.netbeans.modules.java.tools.nbjad.NbjadSettings;
+import org.openide.DialogDisplayer;
 import org.openide.ErrorManager;
+import org.openide.NotifyDescriptor;
 import org.openide.cookies.OpenCookie;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileStateInvalidException;
@@ -49,19 +51,19 @@ import org.openide.windows.InputOutput;
  * @author Sandip V. Chitale (Sandip.Chitale@Sun.Com)
  */
 public final class DecompileAction extends CookieAction {
-    
+
     private static Date latestFileDate = new Date();
-    
+
     private static String nbjadOutputDirectory=
             System.getProperty("org.netbeans.modules.java.tools.nbjad.output.directory",
             System.getProperty("user.home") + File.separator + ".nbjad");
-    
+
     private NbjadSettings settings;
-    
+
     public DecompileAction() {
         settings =(NbjadSettings)SharedClassObject.findObject(NbjadSettings.class, true);
     }
-    
+
     protected void performAction(Node[] activatedNodes) {
         DataObject dataObject = (DataObject) activatedNodes[0].getCookie(DataObject.class);
         if (dataObject != null) {
@@ -78,10 +80,10 @@ public final class DecompileAction extends CookieAction {
                     ErrorManager.getDefault().log("Could not create NBJAD output directory: " + nbjadOutputDirectory);
                     return;
                 }
-                
+
                 // Output directory FileObject
                 FileObject nbjadOutputDirectoryFileObject = FileUtil.toFileObject(nbjadOutputDirectoryFile);
-                
+
                 try {
                     // Check for Jar file system
                     FileSystem fileSystem = fileObject.getFileSystem();
@@ -119,15 +121,14 @@ public final class DecompileAction extends CookieAction {
                             jadCommand.addAll(Arrays.asList(jadOptions.split(" ")));
                         }
                         jadCommand.add(file.getAbsolutePath());
-                                                
+
                         FilterProcess filterProcess =
-                                new FilterProcess((String[])jadCommand.toArray(new String[0]));                        
+                                new FilterProcess((String[])jadCommand.toArray(new String[0]));
                         PrintWriter in = filterProcess.exec();
                         in.close();
-                        
+
                         if (filterProcess.waitFor() == 0) {
-                            
-                            InputOutput io = IOProvider.getDefault().getIO("Decompile: " + fileObject.getNameExt(), true);                        
+                            InputOutput io = IOProvider.getDefault().getIO("Decompile: " + fileObject.getNameExt(), true);
                             PrintWriter pw = new PrintWriter(io.getOut());
                             pw.println(jadCommand);
                             String[] linesText = filterProcess.getStdOutOutput();
@@ -145,22 +146,24 @@ public final class DecompileAction extends CookieAction {
                             }
                         }
                         filterProcess.destroy();
-                        
+
                         // Open newser files
                         openNewFilesIn(nbjadOutputDirectoryFileObject, nbjadOutputDirectoryFile);
                     } catch (IOException fe) {
-                        ErrorManager.getDefault().notify(ErrorManager.ERROR, fe);
+                        DialogDisplayer.getDefault().notify(
+                                new NotifyDescriptor.Message(fe.getMessage() +
+                                "\nMake sure you have configured the location of Jad correctly using Tools:Options:Decompile panel."));
                     }
                 }
             }
         }
     }
-    
+
     private static void openNewFilesIn(FileObject nbjadOutputDirectoryFileObject, File nbjadOutputDirectoryFile) {
         openNewFilesIn(nbjadOutputDirectoryFileObject, nbjadOutputDirectoryFile, latestFileDate);
         latestFileDate = new Date(System.currentTimeMillis());
     }
-    
+
     private static void openNewFilesIn(FileObject root, File directory, Date laterThan) {
         File[] files = directory.listFiles();
         for (int i = 0; i < files.length; i++) {
@@ -188,15 +191,15 @@ public final class DecompileAction extends CookieAction {
             }
         }
     }
-    
+
     protected int mode() {
         return CookieAction.MODE_EXACTLY_ONE;
     }
-    
+
     public String getName() {
         return NbBundle.getMessage(DecompileAction.class, "CTL_DecompileAction");
     }
-    
+
     protected boolean enable(Node[] activatedNodes) {
         if (activatedNodes != null && activatedNodes.length > 0) {
             DataObject dataObject = (DataObject) activatedNodes[0].getCookie(DataObject.class);
@@ -209,21 +212,21 @@ public final class DecompileAction extends CookieAction {
         }
         return false;
     }
-    
+
     protected Class[] cookieClasses() {
         return new Class[] {
             DataObject.class
         };
     }
-    
+
     protected String iconResource() {
         return "org/netbeans/modules/java/tools/nbjad/actions/nbjad.gif";
     }
-    
+
     public HelpCtx getHelpCtx() {
         return HelpCtx.DEFAULT_HELP;
     }
-    
+
     protected boolean asynchronous() {
         return false;
     }
