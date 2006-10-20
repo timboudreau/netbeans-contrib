@@ -12,9 +12,10 @@
             <tr><th>Action</th><th>Key binding</th><th>Icon</th></tr>
             <tr><td>Decompile</td><td><code>Ctrl-F9</code></td><td><img alt="Decompile" src="nbjad.gif"></td></tr>
         </table>
-        <h2>How to configure Jar</h2>
+        <h2>How to configure Jad</h2>
         Download the Jad decompiler from http://www.kpdus.com/jad.html, install
         it and configure the location in the <b>Tools:Options:Decompile</b>panel.
+        Make sure you read and follow the Jad license.
         <h2>How it works</h2>
         When the <b>View:Decompile</b> action or the <b>Decompile</b> action in
         the pop up menu is invoked on the selected <code>.class</code> file node
@@ -81,13 +82,14 @@ The following additonal options can be specified using the
             If the <code>.class</code> file is inside a <code>jar</code> file it is
             first copied to the disk under the
             <code>System.getProperty("user.home") + File.separator + ".nbjad"</code>
-            folder.
+            folder. The copied file is marked for deletion on vm exit.
         </p>
         <p>
             The decompiled <code>.java</code> file is output to a folder, consistent
             with the package specified in the <code>.class</code>, under the
             <code>System.getProperty("user.home") + File.separator + ".nbjad"</code>.
-            folder. The output <code>.java</code> file is opened.
+            folder. The output <code>.java</code> file is opened in a Netbeans Java
+            Editor tab.
         </p>
     </body>
 </html>
