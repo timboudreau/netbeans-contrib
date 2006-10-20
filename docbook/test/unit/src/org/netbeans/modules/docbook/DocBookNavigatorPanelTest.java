@@ -21,13 +21,17 @@ package org.netbeans.modules.docbook;
 
 import java.io.IOException;
 import java.io.StringReader;
-import junit.framework.Assert;
+import java.util.List;
+import javax.xml.parsers.SAXParser;
+import javax.xml.parsers.SAXParserFactory;
 import org.netbeans.api.xml.services.UserCatalog;
-//import org.netbeans.junit.MockServices;
 import org.netbeans.junit.NbTestCase;
+import org.netbeans.modules.docbook.DocBookNavigatorPanel.Handler;
+import org.netbeans.modules.docbook.DocBookNavigatorPanel.Item;
 import org.xml.sax.EntityResolver;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
+import org.xml.sax.XMLReader;
 
 /**
  * Test functionality of {@link XMLNavigatorPanel}.
@@ -41,8 +45,7 @@ public class DocBookNavigatorPanelTest extends NbTestCase {
     
     protected void setUp() throws Exception {
         super.setUp();
-        //unit tests cannot find MockServices?
-//        MockServices.setServices(new Class[] {TestCatalog.class});
+        
     }
     
     public void testParseDocBook() throws Exception {
@@ -67,7 +70,17 @@ public class DocBookNavigatorPanelTest extends NbTestCase {
     }
     
     private static DocBookNavigatorPanel.Item[] parse(String xml) throws Exception {
-        return DocBookNavigatorPanel.parse(new InputSource(new StringReader(xml)), null);
+        Handler handler = new DocBookNavigatorPanel.Handler(null);
+        SAXParserFactory f = SAXParserFactory.newInstance();
+        SAXParser parser = f.newSAXParser();
+        XMLReader reader = parser.getXMLReader();
+        
+        reader.setContentHandler(handler);
+        EntityResolver resolver = new TestCatalog();
+        reader.setEntityResolver(resolver);
+        reader.parse(new InputSource(new StringReader(xml)));
+        List <Item> l = handler.items;
+        return (Item[]) l.toArray(new Item[0]);
     }
     
     private static String itemsSummary(DocBookNavigatorPanel.Item[] items) {

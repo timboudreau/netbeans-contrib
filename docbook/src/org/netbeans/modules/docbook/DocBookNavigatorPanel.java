@@ -245,7 +245,7 @@ public final class DocBookNavigatorPanel implements NavigatorPanel {
         }
     }
     
-    class Handler extends DefaultHandler {
+    static class Handler extends DefaultHandler {
         private Locator locator;
         // XXX besides line, need to know file: if a complex doc includes others w/
         // entity refs, need to jump to subfiles!
