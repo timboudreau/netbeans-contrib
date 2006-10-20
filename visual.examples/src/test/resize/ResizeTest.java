@@ -44,7 +44,7 @@ public class ResizeTest extends Scene {
         createLabel (100, 100).setBorder (BorderFactory.createResizeBorder (5));
         createLabel (200, 200).setBorder (BorderFactory.createResizeBorder (8, Color.BLACK, true));
         createLabel (300, 300).setBorder (BorderFactory.createBevelBorder (true));
-        createLabel (400, 400).setBorder (BorderFactory.createImageBorder (new Insets (5, 5, 5, 5), Utilities.loadImage ("../resources/shadow_normal.png"))); // NOI18N
+        createLabel (400, 400).setBorder (BorderFactory.createImageBorder (new Insets (5, 5, 5, 5), Utilities.loadImage ("test/resources/shadow_normal.png"))); // NOI18N
     }
 
     public LabelWidget createLabel (int x, int y) {
@@ -52,6 +52,8 @@ public class ResizeTest extends Scene {
         label.setOpaque (true);
         label.setBackground (Color.WHITE);
         label.setCheckClipping (true);
+        label.setAlignment (LabelWidget.Alignment.CENTER);
+        label.setVerticalAlignment (LabelWidget.VerticalAlignment.CENTER);
         label.setPreferredLocation (new Point (x, y));
         label.getActions ().addAction (resizeAction);
         label.getActions ().addAction (moveAction);
