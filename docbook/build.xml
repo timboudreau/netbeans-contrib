@@ -74,18 +74,22 @@ Microsystems, Inc. All Rights Reserved.
         </jarwithmoduleattributes>
     </target>
 
+    <available file="ext/saxon8.jar" property="has-saxon"/>
+
     <target name="init" depends="projectized.init">
+        <copy file="ext/saxon8.jar" todir="${cluster}/modules/ext"/>
+    </target>
+
+    <target name="download-saxon" unless="has-saxon">
         <mkdir dir="build"/>
-        <get dest="build/saxon-dist.zip" src="http://superb-west.dl.sourceforge.net/sourceforge/saxon/saxonb8-8j.zip" usetimestamp="true"/>
-        <unzip src="build/saxon-dist.zip" dest="build">
+        <mkdir dir="ext"/>
+        <get dest="ext/saxon-dist.zip" src="http://superb-west.dl.sourceforge.net/sourceforge/saxon/saxonb8-8j.zip" usetimestamp="true"/>
+        <unzip src="ext/saxon-dist.zip" dest="ext">
             <patternset>
                 <include name="saxon8.jar"/>
             </patternset>
         </unzip>
-    </target>
-
-    <target name="netbeans-extra" depends="init">
-        <copy file="build/saxon8.jar" todir="${cluster}/modules/ext"/>
+        <delete file="ext/saxon-dist.zip"/>
     </target>
 
     <target name="nbm" depends="init,netbeans,-nbm-prompt-for-storepass" description="Build NBM archive.">
