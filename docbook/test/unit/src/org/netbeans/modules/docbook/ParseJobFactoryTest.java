@@ -1,4 +1,22 @@
 /*
+ * The contents of this file are subject to the terms of the Common Development
+ * and Distribution License (the License). You may not use this file except in
+ * compliance with the License.
+ *
+ * You can obtain a copy of the License at http://www.netbeans.org/cddl.html
+ * or http://www.netbeans.org/cddl.txt.
+ *
+ * When distributing Covered Code, include this CDDL Header Notice in each file
+ * and include the License file at http://www.netbeans.org/cddl.txt.
+ * If applicable, add the following below the CDDL Header, with the fields
+ * enclosed by brackets [] replaced by your own identifying information:
+ * "Portions Copyrighted [year] [name of copyright owner]"
+ *
+ * The Original Software is NetBeans. The Initial Developer of the Original
+ * Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
+ * Microsystems, Inc. All Rights Reserved.
+ */
+/*
  * ParseJobFactoryTest.java
  * JUnit based test
  *
@@ -128,7 +146,6 @@ public class ParseJobFactoryTest extends TestCase {
 
     public void testSanity() throws Exception {
         System.out.println("testSanity");
-        System.err.println("XML PATH " + xml.getPath());
 
         PCallbackImpl pcallback = new PCallbackImpl();
         assertFalse (pcallback.isCancelled());
@@ -155,6 +172,45 @@ public class ParseJobFactoryTest extends TestCase {
         ccallback.assertCalled("startElement");
         ccallback.assertCalled("endElement");
     }
+
+    public void testOldCallbackIsNotRerunEternally() throws Exception {
+        System.out.println("testOldCallbackIsNotRerunEternally");
+
+        PCallbackImpl pcallback = new PCallbackImpl();
+        assertFalse (pcallback.isCancelled());
+        System.err.println("enqueuing pjob");
+        ParseJob pjob = service.enqueue(pcallback);
+        System.err.println("pjob enqueued");
+//        assertTrue (pjob.isEnqueued());
+
+        CHCallbackImpl ccallback = new CHCallbackImpl();
+        assertFalse (ccallback.isCancelled());
+        System.err.println("enqueueing cjob");
+        ParseJob cjob = service.enqueue(ccallback);
+        System.err.println("cjob enqueued");
+//        assertTrue (cjob.isEnqueued());
+
+        Thread.currentThread().sleep (12000);
+        System.err.println("Start wait ");
+        pjob.waitFinished();
+        cjob.waitFinished();
+        System.err.println("end wait");
+
+        ccallback.clear();
+        pcallback.clear();
+
+        PCallbackImpl pcallback2 = new PCallbackImpl();
+        CHCallbackImpl ccallback2 = new CHCallbackImpl();
+        ParseJob pjob2 = service.enqueue(pcallback);
+        ParseJob cjob2 = service.enqueue(ccallback);
+        pjob2.waitFinished();
+        cjob2.waitFinished();
+        Thread.currentThread().sleep (12000);
+
+        ccallback.assertEmpty();
+        pcallback.assertNotMatched();
+    }
+
 
 //    public void testEnqueue() {
 //        System.out.println("enqueue");
@@ -256,9 +312,19 @@ public class ParseJobFactoryTest extends TestCase {
             return processReturnValue;
         }
 
+        public void clear() {
+            l.clear();
+            count = 0;
+        }
+
         public void assertMatched() {
             assertTrue (!l.isEmpty());
         }
+
+        public void assertNotMatched() {
+            assertFalse (!l.isEmpty());
+        }
+
 
         private class W {
             public FileObject ob;
@@ -298,6 +364,10 @@ public class ParseJobFactoryTest extends TestCase {
         public void assertEmpty() {
             h.assertEmpty();
         }
+        
+        public void clear() {
+            h.clear();
+        }
     }
 
     private static class H implements ContentHandler, DTDHandler, ErrorHandler {
@@ -307,6 +377,10 @@ public class ParseJobFactoryTest extends TestCase {
             Object o = m.remove (method);
             assertNotNull (method + " was not called", o);
             return o;
+        }
+        
+        public void clear() {
+            m.clear();
         }
 
         public void assertNotEmpty() {
@@ -343,10 +417,6 @@ public class ParseJobFactoryTest extends TestCase {
             System.err.println("CALLED: " + method);
             m.put (method, args);
             System.out.println("CALLED: " + method + " with " + Arrays.asList (args));
-        }
-
-        public void clear() {
-            m.clear();
         }
 
         public void setDocumentLocator(Locator locator) {

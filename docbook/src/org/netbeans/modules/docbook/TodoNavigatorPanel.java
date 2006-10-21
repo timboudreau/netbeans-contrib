@@ -213,7 +213,7 @@ public final class TodoNavigatorPanel extends FileChangeAdapter implements Navig
         item.open();
     }
 
-    private static final Pattern TODO_PATTERN =
+    static final Pattern TODO_PATTERN =
         Pattern.compile (
         "\\[content\\]|" +
         "\\[more content\\]|" +

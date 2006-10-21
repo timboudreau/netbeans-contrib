@@ -81,7 +81,6 @@ Microsystems, Inc. All Rights Reserved.
     </target>
 
     <target name="download-saxon" unless="has-saxon">
-        <mkdir dir="build"/>
         <mkdir dir="ext"/>
         <get dest="ext/saxon-dist.zip" src="http://superb-west.dl.sourceforge.net/sourceforge/saxon/saxonb8-8j.zip" usetimestamp="true"/>
         <unzip src="ext/saxon-dist.zip" dest="ext">

@@ -285,7 +285,7 @@ public class AddChapterAction extends AbstractAction implements ContextAwareActi
         }
     }
 
-    private static final Pattern DOCTYPE = Pattern.compile (
+    static final Pattern DOCTYPE = Pattern.compile (
         "<?.*?\\s*?<!DOCTYPE\\s(.*?)\\s*PUBLIC\\s*\"(.*?)\"\\s*\"(.*?)\"\\s*?(\\[\\s*((.*\\n)*)\\s*\\])*\\s*>");
 
     private static final Pattern ENTITIES = Pattern.compile (
