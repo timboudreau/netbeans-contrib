@@ -84,7 +84,7 @@ public final class TodoNavigatorPanel extends FileChangeAdapter implements Navig
     private Lookup.Result selection;
     private final LookupListener selectionListener = new LookupListener() {
         public void resultChanged(LookupEvent ev) {
-            Lookup.Result selection = (Lookup.Result) ev.getSource();
+            Lookup.Result selection = ev == null ? null : (Lookup.Result) ev.getSource();
             if (selection == TodoNavigatorPanel.this.selection) {
                 display(selection.allInstances());
             }
