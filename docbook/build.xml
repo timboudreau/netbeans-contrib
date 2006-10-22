@@ -78,6 +78,7 @@ Microsystems, Inc. All Rights Reserved.
 
     <target name="init" depends="projectized.init">
         <copy file="ext/saxon8.jar" todir="${cluster}/modules/ext"/>
+        <copy file="ext/saxon8.jar" todir="build"/> <!--XXX find what wants this -->
     </target>
 
     <target name="download-saxon" unless="has-saxon">

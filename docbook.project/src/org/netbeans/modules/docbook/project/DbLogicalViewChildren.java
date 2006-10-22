@@ -21,7 +21,8 @@ package org.netbeans.modules.docbook.project;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
-import org.openide.ErrorManager;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.openide.filesystems.FileAttributeEvent;
 import org.openide.filesystems.FileChangeListener;
 import org.openide.filesystems.FileEvent;
@@ -31,7 +32,6 @@ import org.openide.loaders.DataObject;
 import org.openide.loaders.DataObjectNotFoundException;
 import org.openide.nodes.AbstractNode;
 import org.openide.nodes.Children;
-import org.openide.nodes.FilterNode;
 import org.openide.nodes.Node;
 import org.openide.util.RequestProcessor;
 
@@ -41,6 +41,7 @@ import org.openide.util.RequestProcessor;
  */
 public class DbLogicalViewChildren extends Children.Keys implements FileChangeListener {
     private final DbProject proj;
+    private static final Logger log = Logger.getLogger(DbLogicalViewChildren.class.getName());
     final Object lock = new Object();
     public DbLogicalViewChildren(DbProject proj) {
         this.proj = proj;
@@ -93,10 +94,9 @@ public class DbLogicalViewChildren extends Children.Keys implements FileChangeLi
                 DataObject dob = DataObject.find(ob);
                 result = new DbFileFilterNode (dob.getNodeDelegate(), proj, ob.getParent());
             } catch (DataObjectNotFoundException ex) {
-                ex.printStackTrace();
+                log.log(Level.WARNING, null, ex);
                 result = new AbstractNode (Children.LEAF);
                 result.setDisplayName(ob.getName());
-                ErrorManager.getDefault().notify(ex);
             }
         }
         return new Node[] { result };

@@ -50,6 +50,8 @@ import org.netbeans.api.docbook.ContentHandlerCallback;
 import org.netbeans.api.docbook.ParseJob;
 import org.netbeans.api.docbook.ParsingService;
 import org.netbeans.api.docbook.PatternCallback;
+import org.netbeans.modules.docbook.parsing.ParseJobFactory;
+import org.netbeans.modules.docbook.parsing.ParsingServiceImpl;
 import org.openide.filesystems.FileLock;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;

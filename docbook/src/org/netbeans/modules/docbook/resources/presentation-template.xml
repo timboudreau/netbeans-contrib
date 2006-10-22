@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE slides PUBLIC "-//Norman Walsh//DTD Slides XML V3.3.1//EN" "http://docbook.sourceforge.net/release/slides/3.3.1/schema/dtd/slides.dtd">
+<slides>
+
+    <slidesinfo>
+        <title>XXX</title>
+        <subtitle>XXX</subtitle>
+        <date>XXX</date>
+        <author>
+            <firstname>XXX</firstname>
+            <surname>XXX</surname>
+        </author>
+        <copyright>
+            <year>XXX</year>
+            <holder>XXX</holder>
+        </copyright>
+        <abstract>
+            <para>
+                XXX
+            </para>
+        </abstract>
+    </slidesinfo>
+
+    <foil>
+        <title>Introduction</title>
+        <para>
+            XXX
+        </para>
+    </foil>
+
+</slides>

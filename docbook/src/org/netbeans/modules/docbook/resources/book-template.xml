@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.4//EN" "http://www.oasis-open.org/docbook/xml/4.4/docbookx.dtd"[
+    <!ENTITY chapterOne SYSTEM "chapterOne.xml">
+]>
+
+<book>
+    <bookinfo>
+        <title>Death Is Bad</title>
+        <subtitle>Why?</subtitle>
+        <author>
+            <personname>
+                <firstname>Joe</firstname>
+                <surname>Blow</surname>
+            </personname>
+        </author>
+    </bookinfo>
+    <chapter>
+        <title>An Inline Chapter</title>
+        <para>
+            This is a chapter with one paragraph.
+        </para>
+    </chapter>
+    &chapterOne;
+</book>

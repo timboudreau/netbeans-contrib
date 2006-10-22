@@ -127,7 +127,6 @@ public class DocBookEditorSupport extends DataEditorSupport implements EditorCoo
             editor.getEditorPane().setTransferHandler(new TextAndImageTransferHandler(
                     editor.getEditorPane()));
             refreshAnnotations();
-            Thread.dumpStack(); 
         } catch (IllegalStateException ise) {
             //Normal during restart if module has created a dataobject, then
             //immediately been unloaded and reloaded.  The editor toolbar
@@ -270,7 +269,7 @@ public class DocBookEditorSupport extends DataEditorSupport implements EditorCoo
         private Ann createAnnotation (String text, int lineNumber, int col, boolean warn) {
             LineCookie ck = dob.getCookie (LineCookie.class);
             if (ck != null) {
-                Line l = ck.getLineSet().getCurrent(lineNumber - 1);
+                Line l = ck.getLineSet().getCurrent(lineNumber);
                 Ann ann = new Ann (text, warn, l);
                 annotations.add (ann);
                 ann.attach (l);

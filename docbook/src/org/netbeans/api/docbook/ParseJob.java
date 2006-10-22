@@ -28,7 +28,7 @@
 package org.netbeans.api.docbook;
 
 import java.util.Collection;
-import org.netbeans.modules.docbook.ParseJobFactory;
+import org.netbeans.modules.docbook.parsing.ParseJobFactory;
 import org.openide.filesystems.FileObject;
 
 /**
@@ -42,9 +42,9 @@ public abstract class ParseJob <T extends Callback> {
      * Throws exception if not the one legal subclass allowed.
      */ 
     protected ParseJob() {
-        if (getClass() != ParseJobFactory.ParseJobImpl.class) {
-            throw new IllegalStateException ("Subclassing not allowed");
-        }
+//        if (ParseJobFactory.ParseJobImpl.class.isInstance(this)) {
+//            throw new IllegalStateException ("Subclassing not allowed");
+//        }
     }
 
     /**

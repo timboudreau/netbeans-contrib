@@ -20,7 +20,7 @@ package org.netbeans.api.docbook;
 
 import java.util.regex.MatchResult;
 import java.util.regex.Pattern;
-import org.netbeans.modules.docbook.ParseJobFactory;
+import org.netbeans.modules.docbook.parsing.ParseJobFactory;
 import org.openide.filesystems.FileObject;
 
 

@@ -28,6 +28,7 @@ import java.util.Collections;
 import org.netbeans.api.docbook.MainFileProvider;
 import org.netbeans.api.project.FileOwnerQuery;
 import org.netbeans.api.project.Project;
+import org.netbeans.modules.docbook.parsing.ParsingServiceImpl;
 import org.openide.ErrorManager;
 import org.openide.cookies.OpenCookie;
 import org.openide.cookies.SaveCookie;
@@ -58,7 +59,7 @@ public class DocBookDataNode extends DataNode {
         }
         pcl = new PCL();
         obj.addPropertyChangeListener(WeakListeners.propertyChange(pcl, obj));
-        setIconBaseWithExtension("org/netbeans/modules/docbook/docbook.png");
+        setIconBaseWithExtension("org/netbeans/modules/docbook/resources/docbook.png");
     }
 
     private PropertyChangeListener pcl;

@@ -1,0 +1,173 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+The contents of this file are subject to the terms of the Common Development
+and Distribution License (the License). You may not use this file except in
+compliance with the License.
+
+You can obtain a copy of the License at http://www.netbeans.org/cddl.html
+or http://www.netbeans.org/cddl.txt.
+
+When distributing Covered Code, include this CDDL Header Notice in each file
+and include the License file at http://www.netbeans.org/cddl.txt.
+If applicable, add the following below the CDDL Header, with the fields
+enclosed by brackets [] replaced by your own identifying information:
+"Portions Copyrighted [year] [name of copyright owner]"
+
+The Original Software is NetBeans. The Initial Developer of the Original
+Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
+Microsystems, Inc. All Rights Reserved.
+-->
+<!DOCTYPE filesystem PUBLIC "-//NetBeans//DTD Filesystem 1.1//EN" "http://www.netbeans.org/dtds/filesystem-1_1.dtd">
+<filesystem>
+    <folder name="Services">
+        <!--
+        <folder name="Hidden">
+            <file name="org-netbeans-modules-docbook-catalog.instance">
+                <attr name="instanceClass" stringvalue="org.netbeans.modules.docbook.DocBookCatalog"/>
+                <attr name="instanceOf" stringvalue="org.netbeans.modules.xml.catalog.spi.CatalogProvider"/>
+            </file>
+        </folder>
+        -->
+  <folder name="MIMEResolver">
+            <file name="org-netbeans-modules-docbook-resolver.xml" url="resolver.xml">
+                <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.docbook.Bundle"/>
+                <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/docbook/docbook.png"/>
+            </file>
+        </folder>
+    </folder>
+    <folder name="Plugins">
+        <folder name="XML">
+            <folder name="UserCatalogs">
+                <file name="org-netbeans-modules-docbook-catalog.instance">
+                    <attr name="instanceClass" stringvalue="org.netbeans.modules.docbook.DocBookCatalog$Reader"/>
+                    <attr name="instanceOf" stringvalue="org.netbeans.modules.xml.catalog.spi.CatalogReader"/>
+                </file>
+            </folder>
+        </folder>
+    </folder>
+    <folder name="Templates">
+        <folder name="Documents">
+            <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.docbook.Bundle"/>
+            <attr name="templateWizardURL" urlvalue="nbresloc:/org/netbeans/modules/docbook/document-templates-desc.html"/>
+            <file name="docbook-article.xml" url="article-template.xml">
+                <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.docbook.Bundle"/>
+                <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/docbook/docbook.png"/>
+                <attr name="templateWizardURL" urlvalue="nbresloc:/org/netbeans/modules/docbook/article-template-desc.html"/>
+                <attr name="template" boolvalue="true"/>
+            </file>
+            <file name="docbook-slides.xml" url="presentation-template.xml">
+                <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.docbook.Bundle"/>
+                <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/docbook/docbook.png"/>
+                <attr name="templateWizardURL" urlvalue="nbresloc:/org/netbeans/modules/docbook/presentation-template-desc.html"/>
+                <attr name="template" boolvalue="true"/>
+            </file>
+            <file name="docbook-book.xml" url="book-template.xml">
+                <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.docbook.Bundle"/>
+                <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/docbook/docbook.png"/>
+                <attr name="templateWizardURL" urlvalue="nbresloc:/org/netbeans/modules/docbook/book-template-desc.html"/>
+                <attr name="template" boolvalue="true"/>
+            </file>
+        </folder>
+    </folder>
+    <folder name="Navigator">
+        <folder name="Panels">
+            <file name="org-netbeans-modules-docbook-DocBookNavigatorPanel.instance"/>
+            <file name="org-netbeans-modules-docbook-TodoNavigatorPanel.instance"/>
+            <folder name="text">
+                <folder name="x-docbook+xml">
+                    <file name="org-netbeans-modules-docbook-DocBookNavigatorPanel.shadow">
+                        <attr name="originalFile" stringvalue="Navigator/Panels/org-netbeans-modules-docbook-DocBookNavigatorPanel.instance"/>
+                    </file>
+                    <file name="TodoPanel.shadow">
+                        <attr name="originalFile" stringvalue="Navigator/Panels/org-netbeans-modules-docbook-TodoNavigatorPanel.instance"/>
+                    </file>
+                </folder>
+                <folder name="x-docbook-slides+xml">
+                    <file name="org-netbeans-modules-docbook-DocBookNavigatorPanel.shadow">
+                        <attr name="originalFile" stringvalue="Navigator/Panels/org-netbeans-modules-docbook-DocBookNavigatorPanel.instance"/>
+                    </file>
+                    <file name="TodoPanel.shadow">
+                        <attr name="originalFile" stringvalue="Navigator/Panels/org-netbeans-modules-docbook-TodoNavigatorPanel.instance"/>
+                    </file>
+                </folder>
+            </folder>
+        </folder>
+    </folder>
+
+    <folder name="Loaders">
+        <folder name="text">
+            <folder name="x-docbook+xml">
+                <folder name="Actions">
+                    <file name="org-openide-actions-OpenAction.instance"/>
+                    <attr name="org-openide-actions-OpenAction.instance/org-netbeans-modules-docbook-ToHtmlAction.instance" boolvalue="true"/>
+
+                    <file name="org-netbeans-modules-docbook-ToHtmlAction.instance"/>
+                    <attr name="org-netbeans-modules-docbook-ToHtmlAction.instance/org-openide-actions-FileSystemAction.instance" boolvalue="true"/>
+
+                    <file name="org-openide-actions-FileSystemAction.instance"/>
+                    <attr name="org-openide-actions-FileSystemAction.instance/sep-1.instance" boolvalue="true"/>
+                    <file name="sep-1.instance">
+                        <attr name="instanceClass" stringvalue="javax.swing.JSeparator"/>
+                    </file>
+                    <attr name="sep-1.instance/org-openide-actions-CutAction.instance" boolvalue="true"/>
+                    <file name="org-openide-actions-CutAction.instance"/>
+                    <attr name="org-openide-actions-CutAction.instance/org-openide-actions-CopyAction.instance" boolvalue="true"/>
+                    <file name="org-openide-actions-CopyAction.instance"/>
+                    <attr name="org-openide-actions-CopyAction.instance/sep-2.instance" boolvalue="true"/>
+                    <file name="sep-2.instance">
+                        <attr name="instanceClass" stringvalue="javax.swing.JSeparator"/>
+                    </file>
+                    <attr name="sep-2.instance/org-openide-actions-DeleteAction.instance" boolvalue="true"/>
+                    <file name="org-openide-actions-DeleteAction.instance"/>
+                    <attr name="org-openide-actions-DeleteAction.instance/org-openide-actions-RenameAction.instance" boolvalue="true"/>
+                    <file name="org-openide-actions-RenameAction.instance"/>
+                    <attr name="org-openide-actions-RenameAction.instance/sep-3.instance" boolvalue="true"/>
+                    <file name="sep-3.instance">
+                        <attr name="instanceClass" stringvalue="javax.swing.JSeparator"/>
+                    </file>
+
+
+                    <attr name="sep-3.instance/org-openide-actions-SaveAsTemplateAction.instance" boolvalue="true"/>
+                    <file name="org-openide-actions-SaveAsTemplateAction.instance"/>
+                    <attr name="org-openide-actions-SaveAsTemplateAction.instance/sep-4.instance" boolvalue="true"/>
+
+                    <file name="org-netbeans-modules-docbook-AddChapterAction.instance"/>
+                    <attr name="org-openide-actions-SaveAsTemplateAction.instance/org-netbeans-modules-docbook-AddChapterAction.instance" boolvalue="true"/>
+
+                    <attr name="org-openide-actions-SaveAsTemplateAction.instance/org-netbeans-modules-docbook-ValidationAction.instance" boolvalue="true"/>
+                    <file name="org-netbeans-modules-docbook-ValidationAction.instance"/>
+                    <attr name="org-netbeans-modules-docbook-ValidationAction.instance/org-netbeans-modules-docbook-AddChapterAction.instance" boolvalue="true"/>
+
+                    <file name="sep-4.instance">
+                        <attr name="instanceClass" stringvalue="javax.swing.JSeparator"/>
+                    </file>
+                    <attr name="sep-4.instance/org-openide-actions-ToolsAction.instance" boolvalue="true"/>
+                    <file name="org-openide-actions-ToolsAction.instance"/>
+                    <attr name="org-openide-actions-ToolsAction.instance/org-openide-actions-PropertiesAction.instance" boolvalue="true"/>
+                    <file name="org-openide-actions-PropertiesAction.instance"/>
+
+                </folder>
+            </folder>
+        </folder>
+    </folder>
+
+    <folder name="Editors">
+        <folder name="text">
+            <folder name="x-docbook+xml">
+                <file name="abbreviations.xml" url="abbreviations.xml"/>
+                <file name="keybindings.xml" url="keybindings.xml"/>
+                <file name="macros.xml" url="macros.xml"/>
+                <folder name="popup">
+                    <file name="org-netbeans-modules-docbook-ValidationAction.instance"/>
+                    <file name="org-netbeans-modules-docbook-AddChapterAction.instance"/>
+                    <file name="org-netbeans-modules-docbook-ToHtmlAction.instance"/>
+                </folder>
+            </folder>
+            <folder name="xml"/>
+        </folder>
+        <folder name="AnnotationTypes">
+            <file name="org-netbeans-modules-docbook-error.xml" url="docbookErrorAnnotationType.xml"/>
+            <file name="org-netbeans-modules-docbook-warning.xml" url="docbookWarningAnnotationType.xml"/>
+        </folder>
+    </folder>
+</filesystem>
