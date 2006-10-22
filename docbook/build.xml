@@ -74,12 +74,11 @@ Microsystems, Inc. All Rights Reserved.
         </jarwithmoduleattributes>
     </target>
 
-    <available file="ext/saxon8.jar" property="has-saxon"/>
-
-    <target name="init" depends="projectized.init">
+    <target name="init" depends="projectized.init,download-saxon">
         <copy file="ext/saxon8.jar" todir="${cluster}/modules/ext"/>
-        <copy file="ext/saxon8.jar" todir="build"/> <!--XXX find what wants this -->
     </target>
+
+    <available file="ext/saxon8.jar" property="has-saxon"/>
 
     <target name="download-saxon" unless="has-saxon">
         <mkdir dir="ext"/>
@@ -95,14 +94,17 @@ Microsystems, Inc. All Rights Reserved.
     <target name="nbm" depends="init,netbeans,-nbm-prompt-for-storepass" description="Build NBM archive.">
         <mkdir dir="build"/>
         <get src="http://www.mozilla.org/MPL/MPL-1.0.txt" dest="build/MPL-1.0.txt" usetimestamp="true"/>
+        <property name="nbm.target.cluster" value=""/> <!-- fallback -->
         <makenbm file="build/${nbm}"
                  productdir="${cluster}"
                  module="${module.jar}"
                  homepage="${nbm.homepage}"
-                 distribution="http://${dist.base}/${nbm}"
+                 distribution="${nbm.distribution}"
                  needsrestart="${nbm.needs.restart}"
+                 global="${nbm.is.global}"
+                 targetcluster="${nbm.target.cluster}"
                  releasedate="${nbm.release.date}"
-		 moduleauthor="${nbm.module.author}">
+                 moduleauthor="${nbm.module.author}">
             <signature keystore="${keystore}" storepass="${storepass}" alias="${nbm_alias}"/>
             <license>
                 <text>For the module itself:</text>
