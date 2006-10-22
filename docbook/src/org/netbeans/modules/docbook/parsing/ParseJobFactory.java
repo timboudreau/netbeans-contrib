@@ -319,7 +319,7 @@ public class ParseJobFactory implements QueueWorkProcessor <FileObject, ParseJob
                     if (b.indexOf("<?xml") >= 0) {
                         //XXX can have multiple processing instructions - find
                         //last <?.*>
-                        insertPos = b.indexOf (">");
+                        insertPos = b.indexOf ("?>") + 2;
                         if (insertPos < 0) {
                             insertPos = 0;
                         }
@@ -333,7 +333,7 @@ public class ParseJobFactory implements QueueWorkProcessor <FileObject, ParseJob
                     if (b.indexOf("<?xml") >= 0) {
                         //XXX can have multiple processing instructions - find
                         //last <?.*>
-                        insertPos = b.indexOf (">");
+                        insertPos = b.indexOf ("?>" + 2);
                         if (insertPos < 0) {
                             insertPos = 0;
                         }
