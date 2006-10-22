@@ -1,6 +1,7 @@
 * Upgrade to DocBook 5
 Still in beta.
 How to make code completion work w/o DTD?
+(Maybe use new Schema-based CC in NB 5.5/6; Schema for DB is unofficial but probably sufficient for CC.)
 ** Automatic background validation using RELAXNG (JAXP) and Schematron (Skeleton)
 How to run Skeleton?
 
