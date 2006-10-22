@@ -268,10 +268,10 @@ public class ParseJobFactory implements QueueWorkProcessor <FileObject, ParseJob
                 reader.parse(new InputSource (new StringReader(seq.toString())));
                 System.err.println("PARSE Succeeded");
             } catch (FileNotFoundException e) {
-                Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).log(Level.INFO,
+                Logger.getLogger(ParseJobFactory.class.getName()).log(Level.INFO,
                         "FNFE resolving entities?", e);
             } catch (SAXException e) {
-                Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).log(Level.INFO,
+                Logger.getLogger(ParseJobFactory.class.getName()).log(Level.INFO,
                         "Error during SAX parsing of " + file.getPath(),
                         e);
             } finally {
