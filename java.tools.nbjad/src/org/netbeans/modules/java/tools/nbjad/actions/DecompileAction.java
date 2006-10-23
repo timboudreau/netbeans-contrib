@@ -91,23 +91,59 @@ public final class DecompileAction extends CookieAction {
                     // Check for Jar file system
                     FileSystem fileSystem = fileObject.getFileSystem();
                     if (fileSystem instanceof JarFileSystem) {
-                        try {
-                            // Copy contents of .class file in jar file to output directory
-                            fileObject =
-                                    FileUtil.copyFile(fileObject,
-                                    nbjadOutputDirectoryFileObject,
-                                    fileObject.getName(),
-                                    fileObject.getExt());
-                            // Make sure file is queued for clean up on exiting IDE
-                            FileUtil.toFile(fileObject).deleteOnExit();
-                        } catch (IOException ex) {
-                            ErrorManager.getDefault().log("Could not create physical class file on disk.");
+                        // Need to handle inner classes
+                        String fileObjectName = fileObject.getName();
+                        String fileObjectExt  = fileObject.getExt();
+                        
+                        int dollarAt = fileObjectName.indexOf('$');
+                        if (dollarAt != -1) {
+                            // Strip dollar sign if inner class
+                            fileObjectName = fileObjectName.substring(0, dollarAt);
+                        }
+                        
+                        // Get parent folder so that we can copy all inner classes
+                        //
+                        FileObject folderFileObject = fileObject.getParent();                        
+                        FileObject[] childrenFileObjects = folderFileObject.getChildren();
+                        for (int i = 0; i < childrenFileObjects.length; i++) {
+                            FileObject aSibling = childrenFileObjects[i];
+                            if (aSibling.isData() &&                                        // is a file
+                                    aSibling.getExt().equals(fileObjectExt) &&              // is .classs
+                                    (aSibling.getName().equals(fileObjectName) ||           // top level
+                                    aSibling.getName().startsWith(fileObjectName + '$'))) { // inner class
+                                try {
+                                    // Copy contents of .class file in jar file to output directory
+                                    FileObject copiedFileObject =
+                                            FileUtil.copyFile(aSibling,
+                                            nbjadOutputDirectoryFileObject,
+                                            aSibling.getName(),
+                                            aSibling.getExt());
+                                    // Make sure file is queued for clean up on exiting IDE
+                                    FileUtil.toFile(copiedFileObject).deleteOnExit();
+                                    // Top level class
+                                    if (aSibling.getName().equals(fileObjectName)) {
+                                        // That is the one we decompile
+                                        fileObject = copiedFileObject;
+                                    }
+                                } catch (IOException ex) {
+                                    ErrorManager.getDefault().log("Could not create physical class file on disk.");
+                                    return;
+                                }
+                            }
+                        }
+                        if (fileObject.getFileSystem() instanceof JarFileSystem) {
+                            // Could not copy .class file from jar to 
+                            DialogDisplayer.getDefault().notify(
+                                new NotifyDescriptor.Message("Could not copy '"
+                                    + fileObject.getPath()
+                                    + "' to '" + nbjadOutputDirectoryFileObject.getPath() + "'." ));
                             return;
                         }
                     }
                 } catch (FileStateInvalidException fsie) {
                     ErrorManager.getDefault().log(fsie.getMessage());
                 }
+                
                 // Now get the java.io.File for the class file
                 File file = FileUtil.toFile(fileObject);
                 if (file != null) {
