@@ -62,18 +62,17 @@ public class BuildStatus extends JButton implements PropertyChangeListener {
     private BuildMonitor monitor;
     private JPopupMenu popupMenu;
 
-    /** Creates a new instance of BuildStatus */
     public BuildStatus(BuildMonitor monitor) {
-	super(monitor.getName(), monitor.getStatus().getIcon());
+        super(monitor.getName(), monitor.getStatus().getIcon());
         this.monitor = monitor;
-	setBorderPainted(false);
-	setFocusPainted(false);
+        setBorderPainted(false);
+        setFocusPainted(false);
         setMargin(new java.awt.Insets(0,0,0,0));
-        if (monitor.getStatus() == Status.NO_STATUS_AVAIL)
+        if (monitor.getStatus() == Status.NO_STATUS_AVAIL) {
             setContentAreaFilled(false);
+        }
         setToolTipText(monitor.getStatusDescription());
         setActions();
-	monitor.addPropertyChangeListener(this);
     }
     
     private void setActions() {
@@ -101,21 +100,31 @@ public class BuildStatus extends JButton implements PropertyChangeListener {
         enableActions();
     }
     
+    public void addNotify() {
+        super.addNotify();
+        monitor.addPropertyChangeListener(this);
+    }
+
+    public void removeNotify() {
+        super.removeNotify();
+        monitor.removePropertyChangeListener(this);
+    }
+
     /**
      * Monitor has signaled a status change.
      */
     public void propertyChange(PropertyChangeEvent e) {
-	BuildMonitor monitor = (BuildMonitor)e.getSource();
+        BuildMonitor monitor = (BuildMonitor)e.getSource();
         final String name = monitor.getName();
-	final Icon icon = monitor.getStatus().getIcon();
-	EventQueue.invokeLater(new Runnable() {
-	    public void run() {
+        final Icon icon = monitor.getStatus().getIcon();
+        EventQueue.invokeLater(new Runnable() {
+            public void run() {
                 setName(name);
-		setIcon(icon);
-		repaint();
+                setIcon(icon);
+                repaint();
                 enableActions();
-	    }
-	});
+            }
+        });
     }
     
     private void enableActions() {
@@ -277,4 +286,5 @@ public class BuildStatus extends JButton implements PropertyChangeListener {
     private static String getString(String key) {
         return NbBundle.getMessage(BuildStatus.class, key);
     }
+
 }
