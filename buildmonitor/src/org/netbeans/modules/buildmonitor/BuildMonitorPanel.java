@@ -43,15 +43,15 @@ import org.openide.loaders.DataObject;
  */
 public class BuildMonitorPanel extends JPanel implements FileChangeListener {
     private static final BuildMonitorPanel instance = new BuildMonitorPanel();
-    
+
     public static BuildMonitorPanel getInstance() {
-	return instance;
+        return instance;
     }
 
     private final FileObject dir;
-    
+
     private BuildMonitorPanel() {
-	super();
+        super();
         FileSystem dfs = Repository.getDefault().getDefaultFileSystem();
         dir = dfs.findResource("Services/BuildMonitor"); //NOI18N
         if (dir != null) {
@@ -60,51 +60,51 @@ public class BuildMonitorPanel extends JPanel implements FileChangeListener {
             buildPanel();
         } // else something broken...
     }
-    
+
     private void buildPanel() {
-	DataFolder monitorFolder = DataFolder.findFolder(dir);
- 	DataObject[] children = monitorFolder.getChildren();
+        DataFolder monitorFolder = DataFolder.findFolder(dir);
+        DataObject[] children = monitorFolder.getChildren();
         for (int i = 0; i < children.length; i++) {
             DataObject dataObject = children[i];
             InstanceCookie ic = (InstanceCookie)dataObject.getCookie(InstanceCookie.class);
-	    if (ic == null)
-		continue;
-	    try {
-		BuildMonitor monitor = (BuildMonitor)ic.instanceCreate();
-		BuildStatus status = new BuildStatus(monitor);
-		add(status);
-		if (i+1 < children.length)
-		    add(Box.createHorizontalStrut(10));
-	    } catch (Exception e) {
-		ErrorManager.getDefault().notify(e);
-	    }
+            if (ic == null)
+                continue;
+            try {
+                BuildMonitor monitor = (BuildMonitor)ic.instanceCreate();
+                BuildStatus status = new BuildStatus(monitor);
+                add(status);
+                if (i+1 < children.length)
+                    add(Box.createHorizontalStrut(10));
+            } catch (Exception e) {
+                ErrorManager.getDefault().notify(e);
+            }
         }
-	
+
         revalidate();
         repaint();
     }
-    
+
     private void rebuildPanel() {
-	EventQueue.invokeLater(new Runnable() {
-	    public void run() {
-		removeAll();
-		buildPanel();
-	    }
-	});
+        EventQueue.invokeLater(new Runnable() {
+            public void run() {
+                removeAll();
+                buildPanel();
+            }
+        });
     }
 
     public void fileDeleted(FileEvent fe) {
-	rebuildPanel();
+        rebuildPanel();
     }
-    
+
     public void fileAttributeChanged(FileAttributeEvent fe) {
-	rebuildPanel();
+        rebuildPanel();
     }
 
     public void fileRenamed(FileRenameEvent fe) {
         rebuildPanel();
     }
-    
+
     public void fileChanged(FileEvent fe) {
         rebuildPanel();
     }
