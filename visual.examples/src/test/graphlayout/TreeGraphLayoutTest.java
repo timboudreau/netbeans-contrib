@@ -12,11 +12,12 @@
  */
 package test.graphlayout;
 
-import test.general.StringGraphScene;
-import test.SceneSupport;
-import org.netbeans.api.visual.action.WidgetAction;
-import org.netbeans.api.visual.widget.Widget;
+import org.netbeans.api.visual.action.ActionFactory;
+import org.netbeans.api.visual.action.EditProvider;
 import org.netbeans.api.visual.graph.layout.TreeGraphLayout;
+import org.netbeans.api.visual.widget.Widget;
+import test.SceneSupport;
+import test.general.StringGraphScene;
 
 /**
  * @author David Kaspar
@@ -24,15 +25,11 @@ import org.netbeans.api.visual.graph.layout.TreeGraphLayout;
 public class TreeGraphLayoutTest extends StringGraphScene {
 
     public TreeGraphLayoutTest () {
-        getActions ().addAction (new WidgetAction.Adapter () {
-            public State mouseClicked (Widget widget, WidgetMouseEvent event) {
-                if (event.getClickCount () == 2) {
-                    new TreeGraphLayout<String,String> (TreeGraphLayoutTest.this, 100, 100, 50, 50, true).layout ("root");
-                    return State.CONSUMED;
-                }
-                return super.mouseClicked (widget, event);
+        getActions ().addAction (ActionFactory.createEditAction (new EditProvider() {
+            public void edit (Widget widget) {
+                new TreeGraphLayout<String, String> (TreeGraphLayoutTest.this, 100, 100, 50, 50, true).layout ("root");
             }
-        });
+        }));
     }
 
     public static void main (String[] args) {

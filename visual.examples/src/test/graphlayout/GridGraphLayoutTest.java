@@ -1,0 +1,62 @@
+/*
+ *                 Sun Public License Notice
+ *
+ * The contents of this file are subject to the Sun Public License
+ * Version 1.0 (the "License"). You may not use this file except in
+ * compliance with the License. A copy of the License is available at
+ * http://www.sun.com/
+ *
+ * The Original Code is NetBeans. The Initial Developer of the Original
+ * Code is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
+ * Microsystems, Inc. All Rights Reserved.
+ */
+package test.graphlayout;
+
+import org.netbeans.api.visual.graph.layout.GridGraphLayout;
+import org.netbeans.api.visual.layout.LayoutFactory;
+import test.SceneSupport;
+import test.general.StringGraphScene;
+
+/**
+ * @author David Kaspar
+ */
+public class GridGraphLayoutTest extends StringGraphScene {
+
+    private int edgeID = 1;
+
+    public GridGraphLayoutTest () {
+        initializeGraph ();
+        LayoutFactory.createSceneGraphLayout (this, new GridGraphLayout<String,String> ()).invokeLayout ();
+    }
+    
+    private void addEdge (String sourceNode, String targetNode) {
+        String id = "edge" + (edgeID ++);
+        addEdge (id);
+        setEdgeSource (id, sourceNode);
+        setEdgeTarget (id, targetNode);
+    }
+
+    private void initializeGraph () {
+        addNode ("1");
+        addNode ("2");
+        addNode ("3");
+        addNode ("4");
+        addNode ("5");
+        addNode ("6");
+        addNode ("7");
+
+        addEdge ("1", "2");
+        addEdge ("1", "3");
+        addEdge ("1", "4");
+        addEdge ("2", "4");
+        addEdge ("3", "5");
+        addEdge ("2", "5");
+        addEdge ("3", "6");
+        addEdge ("3", "4");
+    }
+
+    public static void main (String[] args) {
+        SceneSupport.show (new GridGraphLayoutTest ());
+    }
+
+}

@@ -12,6 +12,8 @@
  */
 package test.vmd;
 
+import org.netbeans.api.visual.action.ActionFactory;
+import org.netbeans.api.visual.action.EditProvider;
 import org.netbeans.api.visual.vmd.VMDGraphScene;
 import org.netbeans.api.visual.vmd.VMDNodeWidget;
 import org.netbeans.api.visual.vmd.VMDPinWidget;
@@ -20,9 +22,9 @@ import org.openide.util.Utilities;
 import test.SceneSupport;
 
 import java.awt.*;
-import java.util.List;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 
 /**
  * @author David Kaspar
@@ -41,7 +43,7 @@ public class VMDTest {
     private static int edgeID = 1;
 
     public static void main (String[] args) {
-        VMDGraphScene scene = new VMDGraphScene ();
+        final VMDGraphScene scene = new VMDGraphScene ();
 
         String mobile = createNode (scene, 100, 100, IMAGE_LIST, "menu", "List", null);
         createPin (scene, mobile, "start", IMAGE_ITEM, "Start", "Element");
@@ -73,6 +75,12 @@ public class VMDTest {
         categories.put ("Elements", Arrays.asList (scene.findWidget ("game"), scene.findWidget ("options"), scene.findWidget ("help"), scene.findWidget ("exit")));
         categories.put ("Commands", Arrays.asList (scene.findWidget ("listCommand1"), scene.findWidget ("listCommand2")));
         widget.sortPins (categories);
+
+        scene.getActions ().addAction (ActionFactory.createEditAction (new EditProvider() {
+            public void edit (Widget widget) {
+                scene.layoutScene ();
+            }
+        }));
 
         SceneSupport.show (scene);
     }
