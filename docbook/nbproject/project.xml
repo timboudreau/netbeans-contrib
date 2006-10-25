@@ -167,10 +167,6 @@ Microsystems, Inc. All Rights Reserved.
             <public-packages>
                 <package>org.netbeans.api.docbook</package>
             </public-packages>
-            <class-path-extension>
-                <runtime-relative-path>ext/saxon8.jar</runtime-relative-path>
-                <binary-origin>ext/saxon8.jar</binary-origin>
-            </class-path-extension>
 <!--            <class-path-extension>
                 <runtime-relative-path>ext/batik.jar</runtime-relative-path>
                 <binary-origin>release/modules/ext/batik.jar</binary-origin>

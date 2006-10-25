@@ -22,6 +22,8 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.util.HashSet;
 import java.util.Set;
 import javax.xml.parsers.SAXParserFactory;
@@ -36,17 +38,13 @@ import javax.xml.transform.stream.StreamResult;
 import org.netbeans.api.docbook.OutputWindowStatus;
 import org.netbeans.api.docbook.Renderer;
 import org.openide.DialogDisplayer;
-import org.openide.ErrorManager;
 import org.openide.NotifyDescriptor;
 import org.openide.NotifyDescriptor.Message;
 import org.openide.awt.HtmlBrowser.URLDisplayer;
 import org.openide.filesystems.FileLock;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
-import org.openide.util.NbBundle;
-import org.openide.windows.IOProvider;
-import org.openide.windows.InputOutput;
-import org.openide.windows.OutputWriter;
+import org.openide.modules.InstalledFileLocator;
 import org.xml.sax.EntityResolver;
 import org.xml.sax.ErrorHandler;
 import org.xml.sax.InputSource;
@@ -113,7 +111,7 @@ class Processor implements Runnable, ErrorListener, ErrorHandler {
                 InputSource styleSource = resolver.resolveEntity(null, XSL_SLIDES);
                 assert styleSource != null;
                 Source style = new SAXSource(reader, styleSource);
-                TransformerFactory tf = new net.sf.saxon.TransformerFactoryImpl();
+                TransformerFactory tf = createSaxonTransformerFactory();
                 tf.setURIResolver(new EntityResolver2URIResolver(resolver));
                 status.progress("Loading stylesheet...");
                 Transformer t = tf.newTransformer(style);
@@ -178,7 +176,7 @@ class Processor implements Runnable, ErrorListener, ErrorHandler {
                     InputSource styleSource = resolver.resolveEntity(null, XSL_ARTICLE);
                     assert styleSource != null;
                     Source style = new SAXSource(reader, styleSource);
-                    TransformerFactory tf = new net.sf.saxon.TransformerFactoryImpl();
+                    TransformerFactory tf = createSaxonTransformerFactory();
                     tf.setURIResolver(new EntityResolver2URIResolver(resolver));
                     Transformer t = tf.newTransformer(style);
                     t.setParameter("output.indent", "yes");
@@ -311,4 +309,12 @@ class Processor implements Runnable, ErrorListener, ErrorHandler {
     public void warning(SAXParseException exception) throws SAXException {
         status.warn(exception.getMessage());
     }
+
+    private static TransformerFactory createSaxonTransformerFactory() throws Exception {
+        File f = InstalledFileLocator.getDefault().locate("modules/ext/saxon8.jar", "org.netbeans.modules.docbook", false);
+        ClassLoader loader = new URLClassLoader(new URL[] {f.toURI().toURL()});
+        Class c = Class.forName("net.sf.saxon.TransformerFactoryImpl", true, loader);
+        return (TransformerFactory) c.newInstance();
+    }
+
 }
