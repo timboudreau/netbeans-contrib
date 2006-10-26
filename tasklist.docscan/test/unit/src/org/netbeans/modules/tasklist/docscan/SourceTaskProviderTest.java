@@ -71,7 +71,7 @@ public class SourceTaskProviderTest extends TestCase {
      *        see if the source scanner handles comments correctly
     */
     public void testSourceScanner() throws Exception {
-        Settings settings = (Settings)Settings.findObject(Settings.class, true);
+        Settings settings = Settings.getDefault();
         settings.setSkipComments(true);
 	    assertTrue("Skip Comments bean doesn't work", settings.getSkipComments());
 
@@ -191,7 +191,7 @@ public class SourceTaskProviderTest extends TestCase {
     */
     public void testDuplicates27459() throws Exception {
 
-       Settings settings = (Settings)Settings.findObject(Settings.class, true);
+       Settings settings = Settings.getDefault();
        settings.setSkipComments(true);
        assertTrue("Skip Comments bean doesn't work", settings.getSkipComments());
 

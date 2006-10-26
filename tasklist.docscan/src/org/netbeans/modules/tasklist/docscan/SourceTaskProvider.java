@@ -91,15 +91,15 @@ public final class SourceTaskProvider extends DocumentSuggestionProvider
 
     public void notifyPrepare() {
         // Cache.load(); too slow call it here
-        settings = (Settings)Settings.findObject(Settings.class, true);
+        settings = Settings.getDefault();
     }
 
     public void notifyRun() {
-        settings().addPropertyChangeListener(this);
+        // TODO propagate to consumers ()
     }
 
     public void notifyStop() {
-        settings().removePropertyChangeListener(this);
+        // TODO propagate to consumers ()
     }
 
     public void propertyChange(PropertyChangeEvent ev) {
@@ -390,7 +390,7 @@ public final class SourceTaskProvider extends DocumentSuggestionProvider
     private Settings settings() {
         if (settings == null) {
             // FIXME manifests missing prepare event
-            settings = (Settings)Settings.findObject(Settings.class, true);
+            settings = Settings.getDefault();
         }
         return settings;
     }

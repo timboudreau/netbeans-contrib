@@ -20,35 +20,45 @@
 
 package org.netbeans.modules.tasklist.docscan;
 
+import java.lang.String;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.util.prefs.BackingStoreException;
+import java.util.prefs.Preferences;
 import org.netbeans.modules.tasklist.client.SuggestionPriority;
-import org.openide.options.SystemOption;
+import org.netbeans.modules.tasklist.docscan.TaskTag;
+import org.openide.nodes.BeanNode;
 import org.openide.util.NbBundle;
 import org.openide.util.HelpCtx;
+import org.openide.util.NbPreferences;
 
 
 /** Settings for the tasklist module.
  */
 
-public final class Settings extends SystemOption {
-
-    /** serial uid */
-    static final long serialVersionUID = -29424677132370773L;
-
-    // Option labels
+public final class Settings  {
+    private static final Settings INSTANCE = new Settings();
     public static final String PROP_SCAN_SKIP = "skipComments";	//NOI18N
     public static final String PROP_SCAN_TAGS = "taskTags";		//NOI18N
     static final String PROP_MODIFICATION_TIME = "modificationTime";  // NOI18N
-
     /** Defines how many suggestions make sence. */
     public static final String PROP_USABILITY_LIMIT = "usabilityLimit";  // NOI18N
     private final static int DEFAULT_USABILITY_LIMIT = 300;
 
+    private TaskTags tags = null;
+    
+    private Settings() {}
 
     /** Return the signleton */
     public static Settings getDefault() {
-        return (Settings) findObject(Settings.class, true);
+        return INSTANCE;
     }
 
+    private  static Preferences getPreferences() {
+        return NbPreferences.forModule(Settings.class);
+    }    
 
     /**
      * Get the display name.
@@ -72,102 +82,103 @@ public final class Settings extends SystemOption {
      */
     public boolean getSkipComments() {
         // XXX I did a spectacularly poor job naming this method.
-        // I never skip comments, I skip non-comments.
-        Boolean b = (Boolean) getProperty(PROP_SCAN_SKIP);
-
-        /*
-	// Default to on
-	return (b != Boolean.FALSE);
-        */
-
-        // Default to off (null != Boolean.TRUE)
-        return (b == Boolean.TRUE);
+        return getPreferences().getBoolean(PROP_SCAN_SKIP, false);
     }
 
     /** Sets the skip-outside-of-comments property
      * @param doSkip True iff you want to skip tasks outside of comments
      */
     public void setSkipComments(boolean doSkip) {
-        Boolean b = doSkip ? Boolean.TRUE : Boolean.FALSE;
-        putProperty(PROP_SCAN_SKIP, b, true);
+        getPreferences().putBoolean(PROP_SCAN_SKIP, doSkip);
         modified();
-        //firePropertyChange(PROP_SCAN_SKIP, null, b);
     }
 
 
     public void setUsabilityLimit(int limit) {
         if (limit > 1000) limit = 1000;
         if (limit <=0) limit = DEFAULT_USABILITY_LIMIT;
-        putProperty(PROP_USABILITY_LIMIT, new Integer(limit));
+        getPreferences().putInt(PROP_USABILITY_LIMIT, limit);
     }
 
     public int getUsabilityLimit() {
-        Integer limit = (Integer) getProperty(PROP_USABILITY_LIMIT);
-        if (limit == null) {
-            return DEFAULT_USABILITY_LIMIT;
-        } else {
-            return limit.intValue();
-        }
+        return getPreferences().getInt(PROP_USABILITY_LIMIT, DEFAULT_USABILITY_LIMIT);
     }
 
     public TaskTags getTaskTags() {
         if (tags == null) {
-            TaskTags d = (TaskTags) getProperty(PROP_SCAN_TAGS);
-            if (d != null) {
-                tags = d;
-            } else {
-                tags = new TaskTags();
-                tags.setTags(new TaskTag[]{
-                    new TaskTag("@todo", SuggestionPriority.MEDIUM),
-                    new TaskTag("TODO", SuggestionPriority.MEDIUM),
-                    new TaskTag("FIXME", SuggestionPriority.MEDIUM),
-                    new TaskTag("XXX", SuggestionPriority.MEDIUM),
-                    new TaskTag("PENDING", SuggestionPriority.MEDIUM),
-                    // XXX CVS merge conflict: overlaps with skipNonComments settings
-                    new TaskTag("<<<<<<<", SuggestionPriority.HIGH),
-
-                    // Additional candidates: HACK, WORKAROUND, REMOVE, OLD
-                });
-                ;
-            }
+            tags = initTaskTags();
         }
         return tags;
     }
-
-    private TaskTags tags = null;
-
+    
     /** Sets the skip-outside-of-comments property
      * @param doSkip True iff you want to skip tasks outside of comments
      */
     public void setTaskTags(TaskTags scanTasks) {
         tags = scanTasks;
-        putProperty(PROP_SCAN_TAGS, tags, true);
+        storeTaskTags(scanTasks);
         modified();
-        //firePropertyChange(PROP_SCAN_TAGS, null, b);
     }
-
-
+    
+    private static TaskTags initTaskTags() {
+        TaskTags retval = new TaskTags();
+        try {
+            Preferences pNode = getPreferences();
+            String[] keys = pNode.keys();
+            List l = new ArrayList();
+            for (int i = 0; i < keys.length; i++) {
+                String k = keys[i];
+                if (k != null && k.startsWith("Tag")) {//NOI18N
+                    l.add(new TaskTag(k.substring("Tag".length()),//NOI18N
+                            SuggestionPriority.getPriority(pNode.getInt(k, 3))));
+                }
+            }
+            retval.setTags((TaskTag[])l.toArray(new TaskTag[l.size()]));
+        } catch (BackingStoreException ex) {
+            Logger.getLogger(Settings.class.getName()).log(Level.INFO, null, ex);
+        }
+        if (retval.getTags().length == 0) {
+            retval.setTags(new TaskTag[]{
+                new TaskTag("@todo", SuggestionPriority.MEDIUM),
+                        new TaskTag("TODO", SuggestionPriority.MEDIUM),
+                        new TaskTag("FIXME", SuggestionPriority.MEDIUM),
+                        new TaskTag("XXX", SuggestionPriority.MEDIUM),
+                        new TaskTag("PENDING", SuggestionPriority.MEDIUM),
+                        // XXX CVS merge conflict: overlaps with skipNonComments settings
+                        new TaskTag("<<<<<<<", SuggestionPriority.HIGH),                        
+                        // Additional candidates: HACK, WORKAROUND, REMOVE, OLD
+            });
+        }
+        return retval;
+    }
+    
+    private static void storeTaskTags(TaskTags tags) {
+        Preferences pNode = getPreferences();
+        TaskTag[] tts = tags.getTags();
+        for (int i = 0; i < tts.length; i++) {
+            TaskTag taskTag = tts[i];
+            getPreferences().putInt("Tag"+taskTag.getToken(),taskTag.getPriority().intValue());
+        }
+    }
+    
     /**
      * Last modification time is stored as hidden property.
      */
     public long getModificationTime() {
-        Long time = (Long) getProperty(PROP_MODIFICATION_TIME);
-        if (time == null) {
-            return 0;
-        } else {
-            return time.longValue();
-        }
+        return getPreferences().getLong(PROP_MODIFICATION_TIME,0);
     }
 
     /** for deserialization purposes only */
     public void setModificationTime(long time) {
-        putProperty(PROP_MODIFICATION_TIME, new Long(time));
+        getPreferences().putLong(PROP_MODIFICATION_TIME,time);
     }
 
     // update modification time
     private void modified() {
-        if (this.isReadExternal() == false) {
-            putProperty(PROP_MODIFICATION_TIME, new Long(System.currentTimeMillis()));
-        }
+        getPreferences().putLong(PROP_MODIFICATION_TIME, System.currentTimeMillis());
     }
+    
+    private static BeanNode createViewNode() throws java.beans.IntrospectionException {
+        return new BeanNode(Settings.getDefault());
+    }                 
 }
