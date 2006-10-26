@@ -21,11 +21,10 @@ package org.netbeans.modules.lexer.editorbridge.calc.lang;
 
 import java.util.HashMap;
 import java.util.Map;
-import org.netbeans.api.lexer.InputAttributes;
-import org.netbeans.api.lexer.LanguagePath;
 import org.netbeans.api.lexer.Token;
 import org.netbeans.spi.lexer.Lexer;
 import org.netbeans.spi.lexer.LexerInput;
+import org.netbeans.spi.lexer.LexerRestartInfo;
 import org.netbeans.spi.lexer.TokenFactory;
 
 
@@ -50,11 +49,10 @@ public final class CalcLexer implements Lexer<CalcTokenId> {
     
     private TokenFactory<CalcTokenId> tokenFactory;
 
-    CalcLexer(LexerInput input, TokenFactory<CalcTokenId> tokenFactory, Object state,
-    LanguagePath languagePath, InputAttributes inputAttributes) {
-        this.input = input;
-        this.tokenFactory = tokenFactory;
-        assert (state == null); // passed argument always null
+    CalcLexer(LexerRestartInfo<CalcTokenId> info) {
+        this.input = info.input();
+        this.tokenFactory = info.tokenFactory();
+        assert (info.state() == null); // passed argument always null
     }
     
     public Token<CalcTokenId> nextToken() {

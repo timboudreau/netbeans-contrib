@@ -19,7 +19,20 @@
 
 package org.netbeans.modules.lexer.editorbridge.calc.lang;
 
+import java.util.Collection;
+import java.util.EnumSet;
+import java.util.HashMap;
+import java.util.Map;
+import org.netbeans.api.lexer.InputAttributes;
+import org.netbeans.api.lexer.Language;
+import org.netbeans.api.lexer.LanguagePath;
+import org.netbeans.api.lexer.Token;
 import org.netbeans.api.lexer.TokenId;
+import org.netbeans.modules.lexer.editorbridge.calc.CalcDataLoader;
+import org.netbeans.spi.lexer.LanguageEmbedding;
+import org.netbeans.spi.lexer.LanguageHierarchy;
+import org.netbeans.spi.lexer.Lexer;
+import org.netbeans.spi.lexer.LexerRestartInfo;
 
 /**
  * Calc token id definition.
@@ -63,6 +76,42 @@ public enum CalcTokenId implements TokenId {
 
     public String primaryCategory() {
         return primaryCategory;
+    }
+
+    private static final Language<CalcTokenId> language = new LanguageHierarchy<CalcTokenId>() {
+        protected Collection<CalcTokenId> createTokenIds() {
+            return EnumSet.allOf(CalcTokenId.class);
+        }
+        
+        protected Map<String,Collection<CalcTokenId>> createTokenCategories() {
+            Map<String,Collection<CalcTokenId>> cats = new HashMap<String,Collection<CalcTokenId>>();
+
+            // Incomplete literals 
+            cats.put("incomplete", EnumSet.of(CalcTokenId.ML_COMMENT_INCOMPLETE));
+            // Additional literals being a lexical error
+            cats.put("error", EnumSet.of(CalcTokenId.ML_COMMENT_INCOMPLETE));
+            
+            return cats;
+        }
+
+        public Lexer<CalcTokenId> createLexer(LexerRestartInfo<CalcTokenId> info) {
+            return new CalcLexer(info);
+        }
+
+        public LanguageEmbedding embedding(
+        Token<CalcTokenId> token, boolean tokenComplete,
+        LanguagePath languagePath, InputAttributes inputAttributes) {
+            return null; // No embedding
+        }
+
+        public String mimeType() {
+            return CalcDataLoader.CALC_MIME_TYPE;
+        }
+        
+    }.language();
+
+    public static final Language<CalcTokenId> language() {
+        return language;
     }
 
 }
