@@ -19,22 +19,33 @@
 
 package org.netbeans.module.copyfqn.actions;
 
+import com.sun.source.tree.ClassTree;
+import com.sun.source.tree.Tree;
+import com.sun.source.util.TreePath;
+import com.sun.source.util.Trees;
 import java.awt.Toolkit;
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.StringSelection;
+import java.awt.datatransfer.Transferable;
+import java.io.IOException;
 import java.util.List;
-import javax.swing.JEditorPane;
-import org.netbeans.jmi.javamodel.Array;
-import org.netbeans.jmi.javamodel.Element;
-import org.netbeans.jmi.javamodel.JavaClass;
-import org.netbeans.jmi.javamodel.MultipartId;
-import org.netbeans.jmi.javamodel.PrimitiveType;
-import org.netbeans.jmi.javamodel.Resource;
-import org.netbeans.jmi.javamodel.Type;
-import org.netbeans.modules.java.JavaDataObject;
-import org.netbeans.modules.javacore.api.JavaModel;
-import org.openide.ErrorManager;
-import org.openide.cookies.EditorCookie;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.lang.model.element.Element;
+import javax.lang.model.element.ElementKind;
+import javax.lang.model.element.ExecutableElement;
+import javax.lang.model.element.Modifier;
+import javax.lang.model.element.PackageElement;
+import javax.lang.model.element.TypeElement;
+import javax.lang.model.element.VariableElement;
+import javax.swing.text.Document;
+import javax.swing.text.JTextComponent;
+import org.netbeans.api.java.source.CancellableTask;
+import org.netbeans.api.java.source.CompilationController;
+import org.netbeans.api.java.source.JavaSource;
+import org.netbeans.api.java.source.JavaSource.Phase;
+import org.netbeans.editor.Registry;
+import org.openide.awt.StatusDisplayer;
 import org.openide.filesystems.FileObject;
 import org.openide.loaders.DataObject;
 import org.openide.nodes.Node;
@@ -43,7 +54,6 @@ import org.openide.util.Lookup;
 import org.openide.util.NbBundle;
 import org.openide.util.actions.CookieAction;
 import org.openide.util.datatransfer.ExClipboard;
-import org.openide.windows.TopComponent;
 
 /**
  * This action copies the fully qualified name of the Java Class under the caret
@@ -54,94 +64,156 @@ import org.openide.windows.TopComponent;
  */
 public final class CopyFQNAction extends CookieAction {
     private Clipboard clipboard;
-
+    
     public CopyFQNAction() {
         clipboard = (ExClipboard) Lookup.getDefault().lookup(ExClipboard.class);
         if (clipboard == null) {
             clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
         }
     }
-
+    
     protected void performAction(Node[] activatedNodes) {
         if (activatedNodes.length > 0) {
+            setClipboardContents((String) null);
+            
+            // Get data object
             DataObject dataObject = (DataObject) activatedNodes[0].getLookup().lookup(DataObject.class);
-            if (dataObject instanceof JavaDataObject) {
-                FileObject fileObject = dataObject.getPrimaryFile();
-
-                // start a read transaction
-                JavaModel.getJavaRepository().beginTrans(false);
-                Resource resource = null;
-                try {
-                    JavaModel.setClassPath(fileObject);
-                    resource = JavaModel.getResource(fileObject);
-                    EditorCookie ec = (EditorCookie) activatedNodes[0].getCookie(EditorCookie.class);
-                    if (ec != null) {
-                        JEditorPane[] panes = ec.getOpenedPanes();
-                        if (panes != null) {
-                            TopComponent activetc = TopComponent.getRegistry().getActivated();
-                            for (int i = 0; i < panes.length; i++) {
-                                if (activetc.isAncestorOf(panes[i])) {
-                                    int dot = panes[i].getCaret().getDot();
-                                    Element element = resource.getElementByOffset(dot);
-                                    Type type = null;
-                                    if (element instanceof JavaClass) {
-                                        type = ((JavaClass)element);
-                                    } else if (element instanceof MultipartId) {
-                                        type = ((MultipartId)element).getType();
+            if (dataObject != null) {
+                
+                // Get file object
+                final FileObject fileObject = dataObject.getPrimaryFile();
+                if (fileObject != null) {
+                    
+                    // Get JavaSource
+                    JavaSource javaSource = JavaSource.forFileObject(fileObject);
+                    if (javaSource == null) {
+                        // may be a class file? Can we handle it?
+                        Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).log(Level.WARNING, "Not a java file " + fileObject.getPath());
+                    } else {
+                        try {
+                            javaSource.runUserActionTask(new CancellableTask<CompilationController>() {
+                                public void cancel() {}
+                                public void run(CompilationController compilationController) throws IOException {
+                                    // Move to resolved phase
+                                    compilationController.toPhase(Phase.ELEMENTS_RESOLVED);
+                                    
+                                    // Get document if open
+                                    Document document = compilationController.getDocument();
+                                    if (document != null) {
+                                        
+                                        // Is the current editor fod this document
+                                        JTextComponent editor = Registry.getMostActiveComponent();
+                                        if (editor.getDocument() == document) {
+                                            
+                                            // Get Caret position
+                                            int dot = editor.getCaret().getDot();
+                                            
+                                            // Find the TreePath for the caret position
+                                            TreePath tp = compilationController.getTreeUtilities().pathFor(dot);
+                                            
+                                            // Get Element
+                                            Element element = compilationController.getTrees().getElement(tp);
+                                            
+                                            if (element instanceof TypeElement) {
+                                                setClipboardContents(((TypeElement) element).getQualifiedName().toString());
+                                                return;
+                                            } if (element instanceof VariableElement) {
+                                                setClipboardContents(((VariableElement) element).asType().toString());
+                                                return;
+                                            } else if (element instanceof ExecutableElement) {
+                                                // Method
+                                                if (element.getKind() == ElementKind.METHOD) {
+                                                    setClipboardContents(((ExecutableElement) element).getReturnType().toString());
+                                                } else if (element.getKind() == ElementKind.CONSTRUCTOR) { // CTOR - use enclosing class name
+                                                    setClipboardContents(((TypeElement)((ExecutableElement) element).getEnclosingElement()).getQualifiedName().toString());
+                                                }
+                                                return;
+                                            }
+                                        }
                                     }
-                                    while (type instanceof Array) {
-                                        type = ((Array) type).getType();
-                                    }
-                                    if (type != null && !(type instanceof PrimitiveType)) {
-                                        clipboard.setContents(new StringSelection(type.getName()), null);
-                                        return;
-                                    }
+                                    
+                                    // Just use (preferably public) Class in the file
+                                    setClipboardContents(compilationController);
                                 }
-                            }
+                            }, true);
+                        } catch (IOException e) {
+                            Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).log(
+                                    Level.WARNING, e.getMessage(), e);
                         }
                     }
-
-                    List javaClasses = resource.getClassifiers();
-                    if (javaClasses != null && javaClasses.size()>0) {
-                        clipboard.setContents(new StringSelection(((JavaClass)javaClasses.get(0)).getName()), null);
-                        return;
-                    }
-                } finally {
-                    // end transaction in finally block to make
-                    // sure that the lock is released under any circumstances
-                    JavaModel.getJavaRepository().endTrans();
                 }
-            } else {
-                ErrorManager.getDefault().log(NbBundle.getBundle(CopyFQNAction.class).getString("MSG_NoJavaNodeSelected")); // NOI18N
             }
         }
     }
-
+    
+    private void setClipboardContents(CompilationController compilationController) {
+        List<? extends Tree> typeDeclsTrees = compilationController.getCompilationUnit().getTypeDecls();
+        ClassTree firstClassTree = null;
+        for (Tree tree : typeDeclsTrees) {
+            if (tree instanceof ClassTree) {
+                ClassTree classTree = (ClassTree) tree;
+                // Prefer public class
+                if (classTree.getModifiers().getFlags().contains(Modifier.PUBLIC) ) {
+                    setClipboardContents(compilationController, classTree);
+                    return;
+                }
+                firstClassTree = (ClassTree) tree;
+            }
+        }
+        if (firstClassTree != null) {
+            setClipboardContents(compilationController, firstClassTree);
+            return;
+        }
+    }
+    
+    private void setClipboardContents(CompilationController compilationController, ClassTree classTree) {
+        Trees trees = compilationController.getTrees();
+        TreePath treePath = trees.getPath(compilationController.getCompilationUnit(),
+                classTree);
+        if (treePath != null) {
+            TypeElement typeElement = (TypeElement) trees.getElement(treePath);
+            if (typeElement != null) {
+                setClipboardContents(typeElement.getQualifiedName().toString());
+            }
+        }
+    }
+    
+    private void setClipboardContents(String content) {
+        if (clipboard != null) {
+            if (content == null) {
+                StatusDisplayer.getDefault().setStatusText("");
+                clipboard.setContents(null, null);
+            } else {
+                StatusDisplayer.getDefault().setStatusText("Clipboard: " + content);
+                clipboard.setContents(new StringSelection(content), null);
+            }
+        }
+    }
+    
     protected int mode() {
         return CookieAction.MODE_EXACTLY_ONE;
     }
-
+    
     public String getName() {
         return NbBundle.getMessage(CopyFQNAction.class, "CTL_CopyFQNAction");
     }
-
+    
     protected Class[] cookieClasses() {
         return new Class[] {
-            JavaDataObject.class
+            DataObject.class
         };
     }
-
+    
     protected String iconResource() {
         return "org/netbeans/module/copyfqn/actions/fqn.gif";
     }
-
+    
     public HelpCtx getHelpCtx() {
         return HelpCtx.DEFAULT_HELP;
     }
-
+    
     protected boolean asynchronous() {
         return false;
     }
-
 }
 
