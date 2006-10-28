@@ -28,6 +28,10 @@ is done automatically.
 
 $err.getDefault().getInstance($name) => java.util.logging.Logger.getLogger($name)
     :: $err instanceof org.openide.ErrorManager;
+// XXX should rather use Logger.getLogger(ThisClass.class.getName()).log(...)
+// If that is impossible, should use
+// Logger.getLogger(getClass().getName()).log(...)
+// as a fallback (and print a warning).
 $err.getDefault().notify($err.INFORMATIONAL, $throwable) =>
         Logger.getAnonymousLogger().log(Level.WARNING, null, $throwable)
     :: $err instanceof org.openide.ErrorManager;
@@ -51,7 +55,7 @@ $err.notify($throwable) => ErrorManager.getDefault().notify($throwable)
 
 
 /*
-$err.getDefault() => java.util.logging.Level.getAnnonymousLogger() :: $err instanceof java.util.logging.Logger;
+$err.getDefault() => java.util.logging.Logger.getAnonymousLogger() :: $err instanceof java.util.logging.Logger;
 $err.notify($err.INFORMATIONAL, $ex) => $err.log(Level.WARNING, null, $ex) :: $err instanceof java.util.logging.Logger;
 
 $err.INFORMATIONAL => java.util.logging.Level.WARNING :: $err instanceof java.util.logging.Logger;
