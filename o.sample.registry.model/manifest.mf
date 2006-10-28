@@ -1,0 +1,6 @@
+Manifest-Version: 1.0
+OpenIDE-Module: org.sample.registry.model
+OpenIDE-Module-Layer: org/sample/registry/model/layer.xml
+OpenIDE-Module-Localizing-Bundle: org/sample/registry/model/Bundle.properties
+OpenIDE-Module-Specification-Version: 1.0
+
