@@ -1,5 +1,5 @@
 Manifest-Version: 1.0
-OpenIDE-Module: org.netbeans.module.copyfqn/1
+OpenIDE-Module: org.netbeans.module.copyfqn/2
 OpenIDE-Module-Layer: org/netbeans/module/copyfqn/layer.xml
 OpenIDE-Module-Localizing-Bundle: org/netbeans/module/copyfqn/Bundle.properties
 OpenIDE-Module-Requires: org.netbeans.api.javahelp.Help
