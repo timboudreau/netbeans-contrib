@@ -84,6 +84,10 @@ public class WhichElementStatusElementProvider implements StatusLineElementProvi
             iconLabel.setIcon(icon);
         }
         
+        void setIconToolTip(String text) {
+            iconLabel.setToolTipText(text);
+        }
+        
         void setText(String text) {
             whichElementTextField.setText(text);
         }

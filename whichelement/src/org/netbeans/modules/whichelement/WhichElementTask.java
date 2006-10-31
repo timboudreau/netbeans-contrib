@@ -20,6 +20,7 @@
 package org.netbeans.modules.whichelement;
 
 import com.sun.source.util.TreePath;
+import java.security.spec.EllipticCurve;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.Iterator;
@@ -55,60 +56,66 @@ import org.openide.windows.WindowManager;
  * @author Sandip V. Chitale (Sandip.Chitale@Sun.Com)
  */
 public class WhichElementTask implements CancellableTask<CompilationInfo> {
-
+    
     private WhichElementJavaSourceTaskFactory whichElementJavaSourceTaskFactory;
     private FileObject fileObject;
     private boolean canceled;
     private WhichElementStatusElementProvider.WhichElementPanel whichElementPanel;
-
-
+    
+    
     WhichElementTask(WhichElementJavaSourceTaskFactory whichElementJavaSourceTaskFactory,FileObject fileObject) {
         this.whichElementJavaSourceTaskFactory = whichElementJavaSourceTaskFactory;
         this.fileObject = fileObject;
-
+        
         StatusLineElementProvider statusLineElementProvider = (StatusLineElementProvider) Lookup.getDefault().lookup(WhichElementStatusElementProvider.class);
         if (statusLineElementProvider != null) {
             whichElementPanel = (WhichElementStatusElementProvider.WhichElementPanel) statusLineElementProvider.getStatusLineElement();
         }
     }
     private static final EnumSet<Modifier> NO_MODIFIERS = EnumSet.noneOf(Modifier.class);
-
+    
     public void run(CompilationInfo compilationInfo) {
         // Find the TreePath for the caret position
         TreePath tp =
                 compilationInfo.getTreeUtilities().pathFor(whichElementJavaSourceTaskFactory.getLastPosition(fileObject));
-
+        
         // if cencelled, return
         if (isCancelled()) {
             return;
         }
-
+        
         // Get Element
         Element element = compilationInfo.getTrees().getElement(tp);
-
+        
         // if cencelled, return
         if (isCancelled()) {
             return;
         }
-
+        
         String status = "";
+        String iconToolTip = "";
         Icon icon = UiUtils.getElementIcon(ElementKind.PARAMETER, NO_MODIFIERS);
-
+        
         if (element != null) {
             String modifiers = element.getModifiers().toString();
             if (modifiers.startsWith("[") && modifiers.endsWith("]")) {
                 modifiers = modifiers.substring(1, modifiers.length() -1).replaceAll(",", "").trim();
             }
-
+            iconToolTip =  modifiers + (modifiers.length() > 0 ? " " : "");            
+            icon = UiUtils.getElementIcon(element.getKind(), element.getModifiers());
+            
             if (element instanceof PackageElement) {
                 PackageElement packageElement = (PackageElement) element;
                 status = packageElement.toString();
+                iconToolTip += element.getKind().name().toLowerCase();
             } else if (element instanceof TypeElement) {
                 TypeElement typeElement = (TypeElement) element;
-                status = typeElement.getQualifiedName().toString() + (modifiers.length() > 0 ? ":" : "") + modifiers;
+                status = typeElement.getQualifiedName().toString();
+                iconToolTip += element.getKind().name().toLowerCase();
             } else if (element instanceof VariableElement) {
                 VariableElement variableElement = (VariableElement) element;
-                status = variableElement.toString() + ":" + modifiers + (modifiers.length() > 0 ? " " : "") + variableElement.asType().toString();
+                status = variableElement.toString() + ":" + variableElement.asType().toString();
+                iconToolTip += element.getKind().name().toLowerCase();
             } else if (element instanceof ExecutableElement) {
                 ExecutableElement executableElement = (ExecutableElement) element;
                 // Method
@@ -117,28 +124,26 @@ public class WhichElementTask implements CancellableTask<CompilationInfo> {
                             + "."
                             + executableElement.toString()
                             + ":"
-                            + modifiers
-                            + (modifiers.length() > 0 ? " " : "")
                             + executableElement.getReturnType().toString();
+                    iconToolTip += element.getKind().name().toLowerCase();
                 } else if (element.getKind() == ElementKind.CONSTRUCTOR) { // CTOR - use enclosing class name
                     status = executableElement.getEnclosingElement().toString()
                             + "."
-                            + executableElement.toString()
-                            + (modifiers.length() > 0 ? ":" : "")
-                            + modifiers;
+                            + executableElement.toString();
+                    iconToolTip += element.getKind().name().toLowerCase();
                 }
             }
-            icon = UiUtils.getElementIcon(element.getKind(), element.getModifiers());
         }
-
+        
         // Set the info
         if (whichElementPanel != null) {
             whichElementPanel.setIcon(icon);
+            whichElementPanel.setIconToolTip(iconToolTip);
             whichElementPanel.setText(status);
             whichElementPanel.setToolTipText(status);
         }
     }
-
+    
     /**
      * After this method is called the task if running should exit the run
      * method immediately.
@@ -146,7 +151,7 @@ public class WhichElementTask implements CancellableTask<CompilationInfo> {
     public final synchronized void cancel() {
         canceled = true;
     }
-
+    
     protected final synchronized boolean isCancelled() {
         return canceled;
     }
