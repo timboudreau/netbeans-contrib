@@ -55,7 +55,21 @@ public class WhichElementStatusElementProvider implements StatusLineElementProvi
         WhichElementPanel() {
             super(new FlowLayout(FlowLayout.LEADING, 0,0));
             
-            iconLabel = new JLabel();
+            iconLabel = new JLabel(){
+                Point tooltipLocation;
+                
+                // Consider the font's size to compute the location of the
+                // tooltip
+                public void addNotify() {
+                    super.addNotify();
+                    tooltipLocation = new Point(0, -2 * getFont().getSize());
+                }
+                
+                public Point getToolTipLocation(MouseEvent event) {
+                    return tooltipLocation;
+                }
+            };
+            
             add(iconLabel, BorderLayout.WEST);
             
             // Create the text field
