@@ -153,11 +153,27 @@ public final class Settings  {
     }
     
     private static void storeTaskTags(TaskTags tags) {
+        removeTaskTags();
         Preferences pNode = getPreferences();
         TaskTag[] tts = tags.getTags();
         for (int i = 0; i < tts.length; i++) {
             TaskTag taskTag = tts[i];
-            getPreferences().putInt("Tag"+taskTag.getToken(),taskTag.getPriority().intValue());
+            getPreferences().putInt("Tag"+taskTag.getToken(),taskTag.getPriority().intValue());//NOI18N
+        }
+    }
+    
+    private static void removeTaskTags() {
+        Preferences pNode = getPreferences();        
+        try {
+            String[] keys = pNode.keys();            
+            for (int i = 0; i < keys.length; i++) {
+                String k = keys[i];                
+                if (k != null && k.startsWith("Tag")) {//NOI18N
+                    getPreferences().remove(k);
+                }
+            }            
+        } catch (BackingStoreException ex) {
+            Logger.getLogger(Settings.class.getName()).log(Level.INFO, null, ex);        
         }
     }
     
