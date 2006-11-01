@@ -40,10 +40,8 @@ import org.netbeans.api.project.FileOwnerQuery;
 import org.netbeans.api.project.Project;
 import org.netbeans.api.project.ProjectUtils;
 import org.netbeans.api.queries.FileBuiltQuery;
-import org.netbeans.jmi.javamodel.JavaClass;
-import org.netbeans.jmi.javamodel.Resource;
 import org.netbeans.modules.apisupport.project.NbModuleProject;
-import org.netbeans.modules.javacore.api.JavaModel;
+import org.netbeans.modules.jemmysupport.Utils;
 import org.netbeans.spi.project.ActionProvider;
 import org.openide.ErrorManager;
 import org.openide.awt.StatusDisplayer;
@@ -225,22 +223,7 @@ public class RunInternallyAction extends NodeAction {
         if(dObj == null) {
             return null;
         }
-        FileObject fObj = dObj.getPrimaryFile();
-        // following code taken from org.netbeans.modules.java.j2seproject.J2SEProjectUtil.hasMainMethod()
-        JavaModel.getJavaRepository().beginTrans(false);
-        try {
-            JavaModel.setClassPath(fObj);
-            Resource res = JavaModel.getResource(fObj);
-            if(res == null) {
-                return null;
-            }
-            if(!res.getMain().isEmpty()) {
-                return ((JavaClass)res.getMain().get(0)).getName();
-            }
-        } finally {
-            JavaModel.getJavaRepository().endTrans();
-        }
-        return null;
+        return Utils.hasMainMethod(dObj.getPrimaryFile());
     }
     
     private Object compileLock = new Object();

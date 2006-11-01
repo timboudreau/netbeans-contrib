@@ -20,7 +20,6 @@
 package org.netbeans.modules.jemmysupport.generator;
 
 import org.openide.loaders.DataObject;
-import org.openide.loaders.DataFolder;
 import org.openide.nodes.FilterNode;
 import org.openide.nodes.Node;
 
@@ -42,8 +41,7 @@ final class DataFolderFilterNode extends FilterNode {
             super(node);
         }
         
-        protected Node[] createNodes(Object key) {
-            Node node = (Node)key;
+        protected Node[] createNodes(Node node) {
             // without filtering
             // return new Node[] { copyNode(n) };
   
