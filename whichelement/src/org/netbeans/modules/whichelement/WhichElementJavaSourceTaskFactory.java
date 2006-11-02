@@ -21,8 +21,8 @@ package org.netbeans.modules.whichelement;
 
 import org.netbeans.api.java.source.CancellableTask;
 import org.netbeans.api.java.source.CompilationInfo;
-import org.netbeans.api.java.source.JavaSource;
 import org.netbeans.api.java.source.JavaSource.Phase;
+import org.netbeans.api.java.source.JavaSource.Priority;
 import org.netbeans.api.java.source.support.CaretAwareJavaSourceTaskFactory;
 import org.openide.filesystems.FileObject;
 
@@ -32,12 +32,9 @@ import org.openide.filesystems.FileObject;
  * @author Sandip V. Chitale (Sandip.Chitale@Sun.Com)
  */
 public class WhichElementJavaSourceTaskFactory extends CaretAwareJavaSourceTaskFactory {
-    public JavaSource.Priority getPriority() {
-        return JavaSource.Priority.LOW;
-    }
-
-    public Phase getPhase() {
-        return Phase.RESOLVED;
+    
+    public WhichElementJavaSourceTaskFactory() {
+        super(Phase.RESOLVED, Priority.LOW);
     }
 
     public CancellableTask<CompilationInfo> createTask(FileObject fileObject) {
