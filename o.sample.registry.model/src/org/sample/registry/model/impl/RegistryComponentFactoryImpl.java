@@ -37,27 +37,39 @@ public class RegistryComponentFactoryImpl implements RegistryComponentFactory {
     public RegistryComponentFactoryImpl(RegistryModelImpl model) {
         this.model = model;
     }
-
+    
     public RegistryComponent create(Element element, RegistryComponent context) {
-        return new CreateVisitor().create(element, context);
+        if (context == null) {
+            if (areSameQName(RegistryQNames.REGISTRY, element)) {
+                return new RegistryImpl(model, element);
+            } else {
+                return null;
+            }
+        } else {
+            return new CreateVisitor().create(element, context);
+        }
     }
     
     public ServiceType createServiceType() {
         return new ServiceTypeImpl(model);
     }
-
+    
     public ServiceProvider createServiceProvider() {
         return new ServiceProviderImpl(model);
     }
-
+    
     public Service createService() {
         return new ServiceImpl(model);
     }
-
+    
     public Registry createRegistry() {
         return new RegistryImpl(model);
     }
-
+    
+    public static boolean areSameQName(RegistryQNames q, Element e) {
+        return q.getQName().equals(AbstractDocumentComponent.getQName(e));
+    }
+    
     public static class CreateVisitor extends RegistryVisitor.Default {
         Element element;
         RegistryComponent created;
@@ -72,10 +84,6 @@ public class RegistryComponentFactoryImpl implements RegistryComponentFactory {
             return areSameQName(q, element);
         }
         
-        private boolean areSameQName(RegistryQNames q, Element e) {
-            return q.getQName().equals(AbstractDocumentComponent.getQName(e));
-        }
-
         public void visit(Registry context) {
             if (isElementQName(RegistryQNames.ENTRIES)) {
                 created = new EntriesImpl((RegistryModelImpl) context.getModel(), element);
@@ -86,19 +94,19 @@ public class RegistryComponentFactoryImpl implements RegistryComponentFactory {
         
         public void visit(Entries context) {
             if (isElementQName(RegistryQNames.SERVICE)) {
-                new ServiceImpl((RegistryModelImpl)context.getModel(), element);
+                created = new ServiceImpl((RegistryModelImpl)context.getModel(), element);
             }
         }
         
         public void visit(KnownTypes context) {
-            if (isElementQName(RegistryQNames.KNOWN_TYPES)) {
-                new ServiceImpl((RegistryModelImpl)context.getModel(), element);
+            if (isElementQName(RegistryQNames.TYPE)) {
+                created = new ServiceTypeImpl((RegistryModelImpl)context.getModel(), element);
             }
         }
         
         public void visit(Service context) {
             if (isElementQName(RegistryQNames.SERVICE_PROVIDER)) {
-                new ServiceProviderImpl((RegistryModelImpl)context.getModel(), element);
+                created = new ServiceProviderImpl((RegistryModelImpl)context.getModel(), element);
             }
         }
         

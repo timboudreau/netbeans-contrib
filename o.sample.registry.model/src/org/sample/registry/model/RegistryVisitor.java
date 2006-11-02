@@ -50,7 +50,6 @@ public interface RegistryVisitor {
             visitChild();
         }
         protected void visitChild() {
-            visitChild();
         }
     }
     

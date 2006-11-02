@@ -18,6 +18,8 @@
  */
 package org.sample.registry.model.impl;
 
+import java.util.Set;
+import javax.xml.namespace.QName;
 import org.netbeans.modules.xml.xam.ComponentUpdater;
 import org.netbeans.modules.xml.xam.ModelSource;
 import org.netbeans.modules.xml.xam.dom.AbstractDocumentModel;
@@ -45,14 +47,23 @@ public class RegistryModelImpl extends AbstractDocumentModel<RegistryComponent> 
     }
 
     public RegistryComponent createComponent(RegistryComponent parent, Element element) {
-        return factory.create(element, parent);
+        return getFactory().create(element, parent);
     }
 
     public Registry createRootComponent(Element root) {
-        return new RegistryImpl(this, root);
+        Registry newRegistry = (Registry) getFactory().create(root, null);
+        if (newRegistry != null) {
+            registry = newRegistry;
+        }
+        return newRegistry;
     }
 
     public RegistryComponentFactory getFactory() {
         return factory;
     }
+    
+    public Set<QName> getQNames() {
+        return RegistryQNames.getMappedQNames();
+    }
+        
 }

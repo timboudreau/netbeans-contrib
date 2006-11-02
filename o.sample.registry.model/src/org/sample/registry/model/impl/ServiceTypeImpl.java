@@ -23,6 +23,7 @@ import org.sample.registry.model.RegistryComponent;
 import org.sample.registry.model.RegistryModel;
 import org.sample.registry.model.RegistryVisitor;
 import org.sample.registry.model.ServiceType;
+import org.sample.registry.model.impl.RegistryQNames;
 import org.w3c.dom.Element;
 
 public class ServiceTypeImpl extends RegistryComponentImpl.Named
@@ -37,15 +38,15 @@ public class ServiceTypeImpl extends RegistryComponentImpl.Named
     }
     
     public String getDefinition() {
-        return getText();
+        return getChildElementText(RegistryQNames.DEFINITION.getQName());
     }
     
     public void setDefinition(String definition) {
-        setText(DEFINITION_PROPERTY, definition);
+        setChildElementText(DEFINITION_PROPERTY, definition, RegistryQNames.DEFINITION.getQName());
     }
     
     public String getDocumentation() {
-        return getText();
+        return getChildElementText(RegistryQNames.DOCUMENTATION.getQName());
     }
     
     public void setDocumentation(String documentation) {

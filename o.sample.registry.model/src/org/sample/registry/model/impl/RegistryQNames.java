@@ -18,13 +18,15 @@
  */
 package org.sample.registry.model.impl;
 
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
 import javax.xml.namespace.QName;
 
 public enum RegistryQNames {
     REGISTRY("registry"),
     ENTRIES("entries"),
     SERVICE("service"),
-    LOCATION("location"),
     SERVICE_PROVIDER("provider"),
     URL("url"),
     KNOWN_TYPES("known-types"),
@@ -32,9 +34,22 @@ public enum RegistryQNames {
     DEFINITION("definition"),
     DOCUMENTATION("documentation");
     
-    public static final String REGISTRY_NS = "http://org.samples.org/registry";
+    public static final String REGISTRY_NS = "http://www.samples.org/registry";
     public static final String REGISTRY_PREFIX = "reg";
     
+    private static Set<QName> mappedQNames = new HashSet<QName>();
+    static {
+        mappedQNames.add(REGISTRY.getQName());
+        mappedQNames.add(ENTRIES.getQName());
+        mappedQNames.add(SERVICE.getQName());
+        mappedQNames.add(SERVICE_PROVIDER.getQName());
+        //mappedQNames.add(URL.getQName());
+        mappedQNames.add(KNOWN_TYPES.getQName());
+        mappedQNames.add(TYPE.getQName());
+        //mappedQNames.add(DEFINITION.getQName());
+        //mappedQNames.add(DOCUMENTATION.getQName());
+    }
+
     private QName qname;
     
     RegistryQNames(String localName) {
@@ -51,5 +66,9 @@ public enum RegistryQNames {
     
     public String getQualifiedName() {
         return qname.getPrefix() + ":" + qname.getLocalPart();
+    }
+    
+    public static Set<QName> getMappedQNames() {
+        return Collections.unmodifiableSet(mappedQNames);
     }
 }

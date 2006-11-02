@@ -19,6 +19,7 @@
 package org.sample.registry.model.impl;
 
 import java.util.List;
+import javax.xml.namespace.QName;
 import org.netbeans.modules.xml.xam.Nameable;
 import org.netbeans.modules.xml.xam.dom.AbstractDocumentComponent;
 import org.netbeans.modules.xml.xam.dom.Attribute;
@@ -74,4 +75,5 @@ public abstract class RegistryComponentImpl extends AbstractDocumentComponent<Re
             super.setAttribute(Nameable.NAME_PROPERTY, RegistryAttributes.NAME, name);
         }
     }
+    
 }

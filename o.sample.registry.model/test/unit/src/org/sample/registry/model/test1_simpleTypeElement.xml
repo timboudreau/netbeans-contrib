@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<registry xmlns="http://www.samples.org/registry">
+    <entries>
+        <service name='service1' type='financial-processor'>
+            <provider name='acme.com'>
+                <url>http://www.acme.com/finance</url>
+            </provider>
+        </service>
+    </entries>
+    <known-types>
+        <type name='financial-processor' >
+            <definition>http://www.acme.org/processor</definition>
+            <documentation>http://acme.finance/processor/fp.wsdl</documentation>
+        </type>
+    </known-types>
+</registry>

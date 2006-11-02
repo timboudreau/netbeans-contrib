@@ -20,15 +20,26 @@ package org.sample.registry.model;
 
 import org.netbeans.modules.xml.xam.AbstractModelFactory;
 import org.netbeans.modules.xml.xam.ModelSource;
+import org.sample.registry.model.impl.RegistryModelImpl;
 
-public class RegistryModelFactory extends AbstractModelFactory {    
+public class RegistryModelFactory extends AbstractModelFactory<RegistryModel> {    
     /** Creates a new instance of RegistryModelFactory */
-    public RegistryModelFactory() {
+    private RegistryModelFactory() {
     }
 
-    protected RegistryModel createModel(ModelSource source) {
-        //TODO
-        return null;
+    private static RegistryModelFactory instance;
+    public static RegistryModelFactory getInstance() {
+        if (instance == null) {
+            instance = new RegistryModelFactory();
+        }
+        return instance;
     }
     
+    protected RegistryModel createModel(ModelSource source) {
+        return new RegistryModelImpl(source);
+    }
+
+    public RegistryModel getModel(ModelSource source) {
+        return (RegistryModel) super.getModel(source);
+    }
 }

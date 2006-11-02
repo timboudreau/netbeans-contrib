@@ -33,11 +33,11 @@ public class ServiceProviderImpl extends RegistryComponentImpl.Named implements 
     }
 
     public String getURL() {
-        return getText();
+        return getChildElementText(RegistryQNames.URL.getQName());
     }
     
     public void setURL(String url) {
-        setText(URL_PROPERTY, url);
+        setChildElementText(URL_PROPERTY, url, RegistryQNames.URL.getQName());
     }
 
     public void accept(RegistryVisitor visitor) {
