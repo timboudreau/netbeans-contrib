@@ -119,14 +119,6 @@ Microsystems, Inc. All Rights Reserved.
                         <release-version>2-3</release-version>
                     </run-dependency>
                 </dependency>
-                <dependency>
-                    <code-name-base>org.netbeans.modules.editor.plain.lib</code-name-base>
-                    <build-prerequisite/>
-                    <compile-dependency/>
-                    <run-dependency>
-                        <release-version>1</release-version>
-                    </run-dependency>
-                </dependency>
                 </module-dependencies>
             <public-packages/>
         </data>
