@@ -3,6 +3,7 @@ package ramos.localhistory.ui;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
+
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.beans.IntrospectionException;
@@ -17,7 +18,9 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.List;
 import java.util.TreeSet;
 import javax.swing.AbstractAction;
 import javax.swing.ActionMap;
@@ -79,6 +82,8 @@ public final class LocalHistoryTopComponent extends TopComponent
   private static final String COLOR = "    ";
   /** path to the icon used by the component and its open action */
   static final String ICON_PATH = "ramos/localhistory/resources/clock.png";
+  
+  private int max;
   public  LocalHistoryTopComponent() {
     //initComponents();
     //toolbar
@@ -183,13 +188,15 @@ public final class LocalHistoryTopComponent extends TopComponent
   public static synchronized LocalHistoryTopComponent findInstance() {
     TopComponent win = WindowManager.getDefault().findTopComponent(PREFERRED_ID);
     if(win == null) {
-      ErrorManager.getDefault().log(ErrorManager.WARNING, "Cannot find LocalHistory component. It will not be located properly in the window system.");
+      ErrorManager.getDefault().log(ErrorManager.WARNING, 
+         "Cannot find LocalHistory component. It will not be located properly in the window system.");
       return getDefault();
     }
     if(win instanceof LocalHistoryTopComponent) {
       return (LocalHistoryTopComponent)win;
     } else {
-      ErrorManager.getDefault().log(ErrorManager.WARNING, "There seem to be multiple components with the 'LocalHistoryTopComponent' ID. That is a potential source of errors and unexpected behavior.");
+      ErrorManager.getDefault().log(ErrorManager.WARNING, 
+         "There seem to be multiple components with the 'LocalHistoryTopComponent' ID. That is a potential source of errors and unexpected behavior.");
       return getDefault();
     }
   }
@@ -211,19 +218,19 @@ public final class LocalHistoryTopComponent extends TopComponent
   protected String preferredID() {
     return PREFERRED_ID;
   }
-  public Collection<VersionNode> fillNodeList(File file) {
-    FileObject theDir = Repository.getDefault().getDefaultFileSystem().getRoot().getFileObject("local history");
-    FileObject files[] = theDir.getChildren();
+  private TreeSet<VersionNode> revisionsSet = new TreeSet<VersionNode>(COMPARATOR);
+  public Collection<VersionNode> fillRevisionsList(File projectFile) {
+    FileObject localHistoryRepository = Repository.getDefault().getDefaultFileSystem().getRoot().getFileObject("local history");
+    FileObject localHistoryFiles[] = localHistoryRepository.getChildren();
     
-    String path = file.getAbsolutePath();
-    TreeSet<VersionNode> listFN = new TreeSet<VersionNode>(COMPARATOR);
-    FileObject arr$[] = files;
-    int len$ = arr$.length;
-    for(int i$ = 0; i$ < len$; i$++) {
-      final FileObject fo = arr$[i$];
-      if(fo.isFolder() || fo.getAttribute(PATH) == null || !fo.getAttribute(PATH).equals(path)) continue;
+    String projectFilePath = projectFile.getAbsolutePath();
+    revisionsSet.clear();
+    
+    for(FileObject fo : localHistoryFiles) {
+      
+      if(fo.isFolder() || fo.getAttribute(PATH) == null || !fo.getAttribute(PATH).equals(projectFilePath)) continue;
       try {
-        if (!old(fo)) listFN.add(new VersionNode(fo));
+        if (!old(fo)) revisionsSet.add(new VersionNode(fo));
       } catch(DataObjectNotFoundException ex) {
         ex.printStackTrace();
       }
@@ -232,12 +239,12 @@ public final class LocalHistoryTopComponent extends TopComponent
     //look if size > max.rev.count
     //if so
     //for(int i = 0; i < delta; I++){
-    //VersionNode n = listFN.last();
-    //listFN.remove(n);
+    //VersionNode n = revisionsSet.last();
+    //revisionsSet.remove(n);
     //n.getoriginal().delete;
     //n = null;
     //}
-    return listFN;
+    return revisionsSet;
   }
   final static String NEW = "new";
   private static String getMimeType(FileObject fo){
@@ -272,8 +279,8 @@ public final class LocalHistoryTopComponent extends TopComponent
     diffLabel.setText(" 0 difference(s)  ");
     currentFile = file;
     //String path = file.getAbsolutePath();
-    FileObject theDir = Repository.getDefault().getDefaultFileSystem().getRoot().getFileObject("local history");
-    FileObject files[] = theDir.getChildren();
+    //FileObject theDir = Repository.getDefault().getDefaultFileSystem().getRoot().getFileObject("local history");
+    //FileObject files[] = theDir.getChildren();
     
     
     //      TreeSet<FilterNode> listFN = new TreeSet<FilterNode>(COMPARATOR);
@@ -291,7 +298,7 @@ public final class LocalHistoryTopComponent extends TopComponent
     //      }
     //      if (listFN.size() == 0){ Toolkit.getDefaultToolkit().beep(); return;}
     
-    Node array[] = (Node[])collection.toArray(new Node[collection.size()]);
+    Node array[] = getAsNodeArray(collection);
     Children children = new Children.Array();
     children.add(array);
     FilterNode filterRoot = null;
@@ -307,7 +314,8 @@ public final class LocalHistoryTopComponent extends TopComponent
     StreamSource stream1 = StreamSource.createSource(OLD,
        CURRENT_VERSION_TITLE,
        mimeType,currentFile);
-    StreamSource stream2 = StreamSource.createSource(NEW,           CURRENT_VERSION_TITLE,
+    StreamSource stream2 = StreamSource.createSource(NEW, 
+       CURRENT_VERSION_TITLE,
        mimeType,currentFile);
     DiffView diff = null;
     try {
@@ -324,85 +332,28 @@ public final class LocalHistoryTopComponent extends TopComponent
     oldDiff = diffComp;
     //split.setRightComponent(diffComp);
     
-    LocalHistoryTopComponent.this.revalidate();
+    revalidate();
     split.setDividerLocation(140);
     //      DiffProvider dp = Lookup.getDefault().lookup(DiffProvider.class);
     //      Difference[] diffs = dp.computeDiff(null,null);
     //      diffs[0].getFirstLineDiffs()[0].
+    deleteOld();
   }
   final static String PATH = "path";
   final static String LOCAL_HISTORY = "local history";
-  public void setFile(final File file) {
-    try {
-      SaveCookie sc = (SaveCookie) DataObject.find(FileUtil.toFileObject(file)).
-         getCookie(SaveCookie.class);
-      if (sc != null) sc.save();
-    } catch (IOException ex) {
-      ex.printStackTrace();
-    }
-    diffFiles = null;
-    updateRevertEnable();
-    diffLabel.setText(" 0 difference(s)  ");
-    currentFile = file;
-    String path = file.getAbsolutePath();
-    FileObject theDir = Repository.getDefault().getDefaultFileSystem().getRoot().getFileObject(LOCAL_HISTORY);
-    FileObject files[] = theDir.getChildren();
-    
-    
-    TreeSet<VersionNode> listFN = new TreeSet<VersionNode>(COMPARATOR);
-    FileObject arr$[] = files;
-    int len$ = arr$.length;
-    for(int i$ = 0; i$ < len$; i$++) {
-      final FileObject fo = arr$[i$];
-      if(fo.isFolder() || fo.getAttribute(PATH) == null || !fo.getAttribute(PATH).equals(path)) continue;
-      try {
-        listFN.add(new VersionNode(fo));
-      } catch(DataObjectNotFoundException ex) {
-        ex.printStackTrace();
-      }
-      
-    }
-    
-    Node array[] = (Node[])listFN.toArray(new Node[listFN.size()]);
-    Children children = new Children.Array();
-    children.add(array);
-    FilterNode filterRoot = null;
-    try {
-      filterRoot = new FilterNode(new MyFileVersionRoot(), children);
-    } catch (IntrospectionException ex) {
-      ex.printStackTrace();
-    }
-    manager.setRootContext(filterRoot);
-     FileObject fo = FileUtil.toFileObject(currentFile);
-    String mimeType = getMimeType(fo);
-    //String mimeType = FileUtil.toFileObject(currentFile).getMIMEType();
-    //String title = "Current Version";
-    StreamSource stream1 = StreamSource.createSource(OLD,
-       CURRENT_VERSION_TITLE,
-       mimeType,currentFile);
-    StreamSource stream2 = StreamSource.createSource(NEW,
-       CURRENT_VERSION_TITLE,
-       mimeType,currentFile);
-    DiffView diff = null;
-    try {
-      diff = Diff.getDefault().createDiff(stream1,stream2);
-      diffListener.setDiffView(diff);
-      
-    } catch (IOException ex) {
-      ex.printStackTrace();
-    }
-    Component diffComp = diff.getComponent();//NPE?
-    
-    if (oldDiff != null) diffContainer.remove(oldDiff);
-    diffContainer.add(diffComp,BorderLayout.CENTER);
-    oldDiff = diffComp;
-    //split.setRightComponent(diffComp);
-    
-    LocalHistoryTopComponent.this.revalidate();
-    split.setDividerLocation(140);
-    //      DiffProvider dp = Lookup.getDefault().lookup(DiffProvider.class);
-    //      Difference[] diffs = dp.computeDiff(null,null);
-    //      diffs[0].getFirstLineDiffs()[0].
+  
+  private Node[] getAsNodeArray(final Collection<VersionNode> listFN) {
+    //could cut here and delete "old" files in a thread
+//    VersionNode[] ret = null;
+    VersionNode array[] = (VersionNode[])listFN.toArray(new VersionNode[listFN.size()]);
+//    if (array.length <= max){
+//      
+//      ret =  array;
+//    }else{
+//      ret = new VersionNode[max];
+//      System.arraycopy(array, 0, ret, 0, max);
+//    }
+    return array;
   }
   
   public ExplorerManager getExplorerManager() {
@@ -516,7 +467,8 @@ public final class LocalHistoryTopComponent extends TopComponent
         diffFiles = null;
         final Node[] selNodes = (Node[]) evt.getNewValue();
         final FileObject currentFileObject = FileUtil.toFileObject(currentFile);
-        final String mime = currentFileObject.getMIMEType();
+        //final String mime = currentFileObject.getMIMEType();
+        final String mime = getMimeType(currentFileObject);
         Node selectedNode1 = selNodes[0];
         //System.out.println("selectedNode1 "+selectedNode1);
         DataObject dataObject = (DataObject) selectedNode1.getLookup().lookup(DataObject.class);
@@ -577,9 +529,15 @@ public final class LocalHistoryTopComponent extends TopComponent
   private void updateRevertEnable() {
     revertAction.setEnabled(diffFiles!=null);
   }
-  
+  private List<FileObject> oldies = new ArrayList<FileObject>();
   private boolean old(FileObject fo) {
+    //could collect them and delete them at the end ina thread
     return false;
+  }
+  
+  private void deleteOld() {
+    //delete fos in oldies list
+    //throw new UnsupportedOperationException("Not yet implemented");
   }
   private static class AnnotationPropertyTemplate extends Property{
     AnnotationPropertyTemplate(){
@@ -590,7 +548,7 @@ public final class LocalHistoryTopComponent extends TopComponent
     }
     
     public Object getValue() throws IllegalAccessException, InvocationTargetException {
-      return null;
+      return "<template>";
     }
     
     public boolean canWrite() {
@@ -626,7 +584,7 @@ public final class LocalHistoryTopComponent extends TopComponent
         lock.releaseLock();
         Listener.getInstance().makeLocalHistoryCopy(
            DataObject.find(diffFiles[1]),
-           "reverted from "+diffFiles[0].lastModified().toString());
+           "reverted to "+diffFiles[0].lastModified().toString());
         //dataObject.setModified(false);
         
       } catch (FileNotFoundException ex) {
@@ -634,7 +592,8 @@ public final class LocalHistoryTopComponent extends TopComponent
       } catch (IOException ex) {
         ex.printStackTrace();
       }
-      setFile(currentFile);
+      
+      reloadHistory();
     }
     
     public Object getValue(String key) {
@@ -651,7 +610,8 @@ public final class LocalHistoryTopComponent extends TopComponent
   private final RefreshHistory refreshAction = new RefreshHistory();
   private final class RefreshHistory extends AbstractAction {
     public void actionPerformed(ActionEvent e) {
-      setFile(currentFile);
+      
+      reloadHistory();
     }
     public Object getValue(String key) {
       if (key.equals(AbstractAction.NAME)) return "Refresh History";
@@ -660,6 +620,13 @@ public final class LocalHistoryTopComponent extends TopComponent
     }
   }
   
+  public void reloadHistory() {
+    Collection<VersionNode> collection =
+       fillRevisionsList(currentFile);
+    setFile(currentFile, collection);
+    
+    
+  }
   
 }
 
