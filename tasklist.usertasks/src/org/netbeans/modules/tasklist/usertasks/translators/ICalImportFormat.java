@@ -53,6 +53,7 @@ import net.fortuna.ical4j.model.property.Categories;
 import net.fortuna.ical4j.model.property.DateProperty;
 import net.fortuna.ical4j.model.property.PercentComplete;
 import net.fortuna.ical4j.model.property.Priority;
+import net.fortuna.ical4j.util.CompatibilityHints;
 
 import org.netbeans.modules.tasklist.core.export.ExportImportFormat;
 import org.netbeans.modules.tasklist.core.export.ExportImportProvider;
@@ -144,6 +145,12 @@ public class ICalImportFormat implements ExportImportFormat {
      */
     public static void read(final UserTaskList utl, InputStream is) throws 
         IOException, ParserException {
+        CompatibilityHints.setHintEnabled(
+                CompatibilityHints.KEY_RELAXED_UNFOLDING, true);
+        CompatibilityHints.setHintEnabled(
+                CompatibilityHints.KEY_RELAXED_VALIDATION, true);
+        CompatibilityHints.setHintEnabled(
+                CompatibilityHints.KEY_RELAXED_PARSING, true);
         CalendarBuilder cb = new MyCalendarBuilder();
         
         // <Dep> used for reading dependencies
@@ -227,7 +234,6 @@ public class ICalImportFormat implements ExportImportFormat {
             return;
         }
         
-        System.setProperty("ical4j.unfolding.relaxed", "true"); // NOI18N
         CalendarBuilder cb = new MyCalendarBuilder();
         
         try {
@@ -423,9 +429,9 @@ public class ICalImportFormat implements ExportImportFormat {
         
         prop = pl.getProperty("X-NETBEANS-DUETIME"); // NOI18N
         if (prop != null) {
-            Date d = null;
+            java.util.Date d = null;
             try {
-                d = new Date(Long.parseLong(prop.getValue()));
+                d = new java.util.Date(Long.parseLong(prop.getValue()));
                 ut.setDueDate(d);
             } catch (NumberFormatException e) {
                 UTUtils.LOGGER.log(Level.SEVERE, "", e); // NOI18N

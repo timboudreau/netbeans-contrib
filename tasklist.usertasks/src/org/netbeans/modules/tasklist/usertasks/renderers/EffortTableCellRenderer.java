@@ -3,7 +3,7 @@ package org.netbeans.modules.tasklist.usertasks.renderers;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Font;
-import org.netbeans.modules.tasklist.usertasks.Settings;
+import org.netbeans.modules.tasklist.usertasks.options.Settings;
 import org.netbeans.modules.tasklist.usertasks.model.Duration;
 import org.netbeans.modules.tasklist.usertasks.model.UserTask;
 
@@ -46,8 +46,8 @@ public class EffortTableCellRenderer extends DurationTableCellRenderer {
             return null;
         } else {
             return new Duration(ut.getEffort(),
-                Settings.getDefault().getHoursPerDay(), 
-                Settings.getDefault().getDaysPerWeek());
+                Settings.getDefault().getMinutesPerDay(), 
+                Settings.getDefault().getDaysPerWeek(), true);
         }
     }
 }

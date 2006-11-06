@@ -24,7 +24,7 @@ import java.awt.Component;
 import java.awt.Font;
 import java.util.Date;
 import javax.swing.JTable;
-import org.netbeans.modules.tasklist.usertasks.Settings;
+import org.netbeans.modules.tasklist.usertasks.options.Settings;
 import org.netbeans.modules.tasklist.usertasks.UserTaskTreeTableNode;
 import org.netbeans.modules.tasklist.usertasks.model.Duration;
 import org.netbeans.modules.tasklist.usertasks.model.UserTask;
@@ -51,8 +51,8 @@ public class DueDateTableCellRenderer extends DateTableCellRenderer {
             return null;
         } else {
             return new Duration(ut.getEffort(),
-                Settings.getDefault().getHoursPerDay(), 
-                Settings.getDefault().getDaysPerWeek());
+                Settings.getDefault().getMinutesPerDay(), 
+                Settings.getDefault().getDaysPerWeek(), true);
         }
     }
 

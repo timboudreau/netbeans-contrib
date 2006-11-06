@@ -24,6 +24,7 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
+import javax.swing.SwingUtilities;
 
 /**
  * This "advanced" class provides filtering and sorting of nodes
@@ -306,6 +307,7 @@ public abstract class AdvancedTreeTableNode<T>
     
     /**
      * Fires the appropriate events if the object in this node has changed.
+     * WARNING: This method could only be called from the Swing Event Thread!
      */
     @SuppressWarnings("unchecked")
     protected void fireObjectChanged() {

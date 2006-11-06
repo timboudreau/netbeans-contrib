@@ -69,6 +69,7 @@ import org.netbeans.modules.tasklist.usertasks.actions.UTDeleteAction;
 import org.netbeans.modules.tasklist.usertasks.actions.UTPasteAction;
 import org.netbeans.modules.tasklist.usertasks.filter.UserTaskFilter;
 import org.netbeans.modules.tasklist.usertasks.model.StartedUserTask;
+import org.netbeans.modules.tasklist.usertasks.options.Settings;
 import org.netbeans.modules.tasklist.usertasks.translators.HistoryTextExportFormat;
 import org.netbeans.modules.tasklist.usertasks.translators.HtmlExportFormat;
 import org.netbeans.modules.tasklist.usertasks.translators.ICalExportFormat;
@@ -135,17 +136,20 @@ FilteredTopComponent {
         Settings.getDefault().addPropertyChangeListener(
             new PropertyChangeListener() {
                 public void propertyChange(PropertyChangeEvent e) {
-                    if (e.getPropertyName() != Settings.PROP_HOURS_PER_DAY &&
-                        e.getPropertyName() != Settings.PROP_DAYS_PER_WEEK)
-                        return;
-                    
-                    UserTaskView[] all;
-                    synchronized(UserTaskView.class) {
-                        all = UserTaskViewRegistry.
-                                getInstance().getAll();
-                    }
-                    for (int i = 0; i < all.length; i++) {
-                        all[i].repaint();
+                    String n = e.getPropertyName();
+                    if (n == Settings.PROP_WORKING_DAY_END ||
+                            n == Settings.PROP_WORKING_DAY_END ||
+                            n == Settings.PROP_PAUSE_START ||
+                            n == Settings.PROP_PAUSE_END ||
+                            n == Settings.PROP_WORKING_DAYS) {
+                        UserTaskView[] all;
+                        synchronized(UserTaskView.class) {
+                            all = UserTaskViewRegistry.
+                                    getInstance().getAll();
+                        }
+                        for (int i = 0; i < all.length; i++) {
+                            all[i].repaint();
+                        }
                     }
                 }
             }
@@ -228,9 +232,6 @@ FilteredTopComponent {
     
     public void componentActivated() {
         super.componentActivated();
-        assert initialized : 
-            "#37438 dangling componentActivated event, no componentOpened()" +  // NOI18N
-            " called at " + this; // NOI18N
 
         RemoveFilterAction removeFilter =
             (RemoveFilterAction) SystemAction.get(RemoveFilterAction.class);
@@ -725,13 +726,6 @@ FilteredTopComponent {
         getUserTaskList().destroy();
         
         UserTaskViewRegistry.getInstance().viewClosed(this);
-    }
-
-    protected void componentDeactivated() {
-        super.componentDeactivated();
-        assert initialized : 
-            "#37438 dangling componentDeactivated event, " + // NOI18N
-                "no componentOpened() called at " + this; // NOI18N
     }
 
     /**

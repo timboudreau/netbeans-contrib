@@ -25,9 +25,8 @@ import java.awt.event.KeyEvent;
 import javax.swing.ImageIcon;
 import javax.swing.KeyStroke;
 import javax.swing.event.ListSelectionEvent;
-import org.netbeans.modules.tasklist.usertasks.UserTaskViewRegistry;
+import javax.swing.tree.TreePath;
 import org.netbeans.modules.tasklist.usertasks.model.UserTask;
-import org.netbeans.modules.tasklist.usertasks.UserTaskNode;
 import org.netbeans.modules.tasklist.usertasks.model.UserTaskObjectList;
 import org.netbeans.modules.tasklist.usertasks.UserTaskView;
 import org.openide.util.NbBundle;
@@ -57,6 +56,8 @@ public class MoveUpAction extends UTViewAction {
         Object es = utv.getTreeTable().getExpandedNodesAndSelection();
         ut.moveUp();
         utv.getTreeTable().setExpandedNodesAndSelection(es);
+        TreePath tp = utv.getTreeTable().findPath(ut);
+        utv.getTreeTable().scrollTo(tp);
     }
 
     public void valueChanged(ListSelectionEvent e) {

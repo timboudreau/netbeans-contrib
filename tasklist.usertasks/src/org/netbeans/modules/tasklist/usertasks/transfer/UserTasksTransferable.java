@@ -65,11 +65,11 @@ public final class UserTasksTransferable implements Transferable {
             UnsupportedFlavorException, IOException {
         if (flavor.equals(DataFlavor.stringFlavor)) {
             StringBuffer sb = new StringBuffer();
-            String lf = System.getProperty("line.delimiter"); // NOI18N
+            String lf = System.getProperty("line.separator"); // NOI18N
             for (int i = 0; i < tasks.length; i++) {
                 if (i != 0)
                     sb.append(lf);
-                sb.append(tasks[i].getSummary());
+                sb.append("- ").append(tasks[i].getSummary()); // NOI18N
             }
             return sb.toString();
         } else if (flavor.equals(USER_TASKS_FLAVOR)) {

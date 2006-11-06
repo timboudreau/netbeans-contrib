@@ -51,7 +51,7 @@ import org.netbeans.modules.tasklist.core.export.ExportImportProvider;
 import org.netbeans.modules.tasklist.core.export.SaveFilePanel;
 import org.netbeans.modules.tasklist.core.util.ExtensionFileFilter;
 import org.netbeans.modules.tasklist.core.util.SimpleWizardPanel;
-import org.netbeans.modules.tasklist.usertasks.Settings;
+import org.netbeans.modules.tasklist.usertasks.options.Settings;
 import org.netbeans.modules.tasklist.usertasks.UserTaskView;
 import org.netbeans.modules.tasklist.usertasks.UserTaskViewRegistry;
 import org.netbeans.modules.tasklist.usertasks.model.Duration;

@@ -39,6 +39,7 @@ import java.util.logging.Level;
 
 import javax.swing.event.EventListenerList;
 import javax.swing.tree.TreePath;
+import org.netbeans.modules.tasklist.usertasks.options.Settings;
 import org.netbeans.modules.tasklist.usertasks.util.UTListTreeAbstraction;
 import org.netbeans.modules.tasklist.usertasks.util.UTUtils;
 

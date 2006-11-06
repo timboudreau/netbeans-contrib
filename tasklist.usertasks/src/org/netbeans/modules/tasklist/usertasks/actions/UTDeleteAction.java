@@ -124,6 +124,8 @@ implements ListSelectionListener {
             tt.clearSelection();
             for (int i = 0; i < tasks.length; i++) {
                 UserTask item = tasks[i].getUserTask();
+                if (item.isStarted())
+                    item.stop();
                 UserTaskList utl = item.getList();
                 item.destroy();
                 if (item.getParent() != null)

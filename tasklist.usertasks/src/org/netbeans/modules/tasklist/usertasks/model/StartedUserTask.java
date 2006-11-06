@@ -6,7 +6,7 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.EventListenerList;
 import org.netbeans.modules.tasklist.core.util.ActivityListener;
-import org.netbeans.modules.tasklist.usertasks.Settings;
+import org.netbeans.modules.tasklist.usertasks.options.Settings;
 
 /**
  * Started user task.

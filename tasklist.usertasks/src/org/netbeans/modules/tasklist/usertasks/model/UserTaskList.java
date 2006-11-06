@@ -41,6 +41,7 @@ import javax.swing.SwingUtilities;
 import javax.swing.Timer;
 import net.fortuna.ical4j.data.ParserException;
 import net.fortuna.ical4j.model.ValidationException;
+import org.netbeans.modules.tasklist.usertasks.options.Settings;
 import org.netbeans.modules.tasklist.usertasks.translators.ICalExportFormat;
 import org.netbeans.modules.tasklist.usertasks.translators.ICalImportFormat;
 import org.netbeans.modules.tasklist.usertasks.util.UTUtils;
@@ -345,10 +346,12 @@ public class UserTaskList implements Timeout, ObjectList.Owner {
             // NOTE the exception text should be localized!
             DialogDisplayer.getDefault().notify(new Message(e.getMessage(),
                NotifyDescriptor.ERROR_MESSAGE));
+            UTUtils.LOGGER.log(Level.SEVERE, "", e); // NOI18N
         } catch (IOException e) {
             // NOTE the exception text should be localized!
             DialogDisplayer.getDefault().notify(new Message(e.getMessage(),
                NotifyDescriptor.ERROR_MESSAGE));
+            UTUtils.LOGGER.log(Level.SEVERE, "", e); // NOI18N
         }
 
         ret.needSave = false;

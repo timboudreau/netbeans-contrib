@@ -7,6 +7,8 @@ compliance with the License.
 You can obtain a copy of the License at http://www.netbeans.org/cddl.html
 or http://www.netbeans.org/cddl.txt.
 
+
+
 When distributing Covered Code, include this CDDL Header Notice in each file
 and include the License file at http://www.netbeans.org/cddl.txt.
 If applicable, add the following below the CDDL Header, with the fields
@@ -22,7 +24,8 @@ Microsystems, Inc. All Rights Reserved.
 ]>
 
 <api-answers
-  question-version="1.26"
+  question-version="1.29"
+  module="User Tasks"
   author="lebedkov@netbeans.org"
 >
 
@@ -31,9 +34,9 @@ Microsystems, Inc. All Rights Reserved.
 
 <!--
         <question id="arch-overall" when="init">
-            Describe the overall architecture.
+            Describe the overall architecture. 
             <hint>
-            What will be API for
+            What will be API for 
             <a href="http://openide.netbeans.org/tutorial/api-design.html#design.apiandspi">
                 clients and what support API</a>? 
             What parts will be pluggable?
@@ -190,7 +193,12 @@ Microsystems, Inc. All Rights Reserved.
   uses CR+LF as it's end-of-line marker on any platform including Linux. The 
   code in User Tasks uses platform dependant end-of-line markers instead. It 
   allows adding an .ics file as text to a CVS repository. Exporting as iCal 2.0
-  uses CR+LF as end-of-line marker on any platform.
+  uses CR+LF as end-of-line marker on any platform. Default task list 
+  (opened through "Window"/"User Tasks") resides in 
+  <api name="tasklist-ics" category="stable" group="java.io.File" 
+  type="export">{userdir}{/}tasklist.ics</api>
+  (this can be changed in the options dialog). Opened .ics files will be 
+  automatically saved if they are changed.
   </p>
  </answer>
 
@@ -589,11 +597,6 @@ Microsystems, Inc. All Rights Reserved.
    <li><api name="netbeans.user" type="import" category="stable" group="property">used to store user's task list</api></li>   
    <li><api name="line.separator" type="import" category="stable" group="property">used during XML export</api></li>
    <li><api name="user.name" type="import" category="stable" group="property">used to fill the owner property of a task</api></li>
-   <li><api name="ical4j.unfolding.relaxed" type="import" category="third" group="property" url="http://ical4j.sourceforge.net/"> 
-        is set to true to allow to parse files that are incompatible with
-        <api name="RFC-2445" category="standard" type="import" group="dtd"/>
-   </api>
-   </li>
   </ul>
  </answer>
 
@@ -611,7 +614,11 @@ Microsystems, Inc. All Rights Reserved.
 -->
  <answer id="exec-reflection">
   <p>
-   Yes. org.netbeans.api.javahelp.Help.showHelp is called through reflection API.
+    Yes.
+    <api type="import" group="java" name="javaHelpIntegrationAPI" 
+     category="private" url="http://www.netbeans.org/download/dev/javadoc/org-netbeans-modules-javahelp/overview-summary.html">
+     org.netbeans.api.javahelp.Help.showHelp is called through reflection API.
+    </api>
   </p>
  </answer>
 
@@ -716,6 +723,13 @@ Microsystems, Inc. All Rights Reserved.
             
             category="stable" type="export" group="dtd"/>
     </li>
+    <li>
+     <api category="private" group="java" name="exportImportProvider" 
+      type="import">User Tasks views implement
+      org.netbeans.modules.tasklist.core.export.ExportImportProvider.
+      This interface provides access to additional export and import formats.
+     </api>
+    </li>
    </ul>
  </answer>
 
@@ -735,7 +749,17 @@ Microsystems, Inc. All Rights Reserved.
         </question>
 -->
  <answer id="lookup-lookup">
-  <p>System class loader is found using the default Lookup.</p>
+  <ul>
+    <li>System class loader is found using the default Lookup.</li>
+    <li>
+     <api category="private" group="lookup" name="nodes" type="export"> 
+      User Tasks views have ExplorerUtils.createLookup() as their Lookup
+      with current selected tasks accessible as org.openide.nodes.Node's.
+      getCookie(UserTask.class) for these nodes is defined to return the task
+      associated with the node.
+     </api>
+    </li>
+  </ul>
  </answer>
 
 
@@ -1039,8 +1063,6 @@ Microsystems, Inc. All Rights Reserved.
   </p>
  </answer>
 
-
-
 <!--
         <question id="security-grant" when="final">
             Does your code grant additional rights to some other code?
@@ -1092,6 +1114,126 @@ Microsystems, Inc. All Rights Reserved.
   <p>
    XXX no answer for compat-deprecation
   </p>
+ </answer>
+
+
+
+<!--
+        <question id="resources-preferences" when="final">
+            Does your module uses preferences via Preferences API? Does your module use NbPreferences or
+            or regular JDK Preferences ? Does it read, write or both ? 
+            Does it share preferences with other modules ? If so, then why ?
+            <hint>
+                You may use
+                <pre xml:space="preserve">
+                    &lt;api type="export" group="preferences"
+                    name="preference node's absolute path name" category="private" url="http://..."&gt;
+                    description of individual keys, where it is used, what it
+                    influence, whether the module reads/write it, etc.
+                    &lt;/api&gt;            
+                </pre>
+            </hint>
+        </question>
+-->
+ <answer id="resources-preferences">
+<api group="preferences" name="org.netbeans.modules.usertasks" type="export" category="private" url="">
+The module uses NbPreferences.
+      <table>
+          <tbody>
+              <tr>
+                  <th>key</th>
+                  <th>description</th>
+                  <th>read</th>
+                  <th>write</th>
+              </tr>
+              <tr>
+                  <td>append</td>
+                  <td>Should newly created task be appended (false = the task
+will be prepended).</td>
+                  <td>x</td>
+                  <td>x</td>
+              </tr>
+              <tr>
+                  <td>filename</td>
+                  <td>Filename for the default user task list. {userdir} and
+{/} variables could be used to ensure platform independant behaviour.</td>
+                  <td>x</td>
+                  <td>x</td>
+              </tr>
+              <tr>
+                  <td>hoursPerDay</td>
+                  <td>Number of working hours per day.</td>
+                  <td>x</td>
+                  <td>x</td>
+              </tr>
+              <tr>
+                  <td>daysPerWeek</td>
+                  <td>Number of working days per week.</td>
+                  <td>x</td>
+                  <td>x</td>
+              </tr>
+              <tr>
+                  <td>collectWorkPeriods</td>
+                  <td>Whether work periods should be collected. Work periods
+are saved in the corresponding .ics file.</td>
+                  <td>x</td>
+                  <td>x</td>
+              </tr>
+              <tr>
+                  <td>detectInactivity</td>
+                  <td>Whether user's inactivity should be detected. Current
+task will be suspended till another event will be sent to the Swing event queue.
+</td>
+                  <td>x</td>
+                  <td>x</td>
+              </tr>
+              <tr>
+                  <td>autoSwitchToComputed</td>
+                  <td>If true automatically Switch "Spent Time", "Effort" and 
+"Percent Complete" to "Computed" if a subtask is added.</td>
+                  <td>x</td>
+                  <td>x</td>
+              </tr>
+              <tr>
+                  <td>lastUsedExportFolder</td>
+                  <td>Last used folder for export.</td>
+                  <td>x</td>
+                  <td>x</td>
+              </tr>
+              <tr>
+                  <td>dayStart</td>
+                  <td>Offset in minutes for the start of working day.</td>
+                  <td>x</td>
+                  <td>x</td>
+              </tr>
+              <tr>
+                  <td>pauseStart</td>
+                  <td>Offset in minutes for the start of the pause.</td>
+                  <td>x</td>
+                  <td>x</td>
+              </tr>
+              <tr>
+                  <td>pauseEnd</td>
+                  <td>Offset in minutes for the end of the pause.</td>
+                  <td>x</td>
+                  <td>x</td>
+              </tr>
+              <tr>
+                  <td>dayEnd</td>
+                  <td>Offset in minutes for the end of working day.</td>
+                  <td>x</td>
+                  <td>x</td>
+              </tr>
+              <tr>
+                  <td>weekDay0-weekDay6</td>
+                  <td>True for a working day, false for a free one
+                        (weekDay0 stays for "monday").</td>
+                  <td>x</td>
+                  <td>x</td>
+              </tr>
+          </tbody>
+      </table>
+  </api>
  </answer>
 
 </api-answers>

@@ -29,6 +29,7 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
 import org.netbeans.modules.tasklist.usertasks.model.Duration;
+import org.netbeans.modules.tasklist.usertasks.options.Settings;
 import org.netbeans.modules.tasklist.usertasks.util.DurationFormat;
 
 /**
@@ -90,8 +91,8 @@ public class DurationPanel extends javax.swing.JPanel implements
      */
     public void setDuration(int minutes) {
         dur = new Duration(minutes,
-                Settings.getDefault().getHoursPerDay(),
-                Integer.MAX_VALUE);
+                Settings.getDefault().getMinutesPerDay(),
+                Settings.getDefault().getDaysPerWeek(), true);
         
         jTextField.setText(short_.format(dur));
     }
@@ -120,10 +121,8 @@ public class DurationPanel extends javax.swing.JPanel implements
         if (d == null)
             return 0;
         
-        int hpd = Settings.getDefault().getHoursPerDay();
-        int dpw = Settings.getDefault().getDaysPerWeek();
-        return ((d.weeks * dpw + d.days) * hpd + d.hours) * 60 +
-                d.minutes;
+        return d.toMinutes(Settings.getDefault().getMinutesPerDay(),
+                Settings.getDefault().getDaysPerWeek(), true);
     }
     
     public void stateChanged(javax.swing.event.ChangeEvent e) {

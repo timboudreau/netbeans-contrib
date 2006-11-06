@@ -40,4 +40,45 @@ public class Duration {
         this.weeks = minutes;
     }
 
+    /**
+     * Constructor. 
+     * 
+     * @param minutes duration in minutes
+     * @param minutesPerDay working minutes per day
+     * @param daysPerWeek working days per week
+     * @param ignored will be ignored
+     */
+    public Duration(int minutes, int minutesPerDay, int daysPerWeek,
+            boolean ignored) {
+        this.minutes = minutes % minutesPerDay;
+        this.hours = this.minutes / 60;
+        this.minutes = this.minutes % 60;
+        
+        this.days = minutes / minutesPerDay;
+        this.weeks = minutes / daysPerWeek;
+        this.days = this.days % daysPerWeek;
+    }
+
+    /**
+     * Converts the value to minutes.
+     * 
+     * @param hoursPerDay hours per day
+     * @param daysPerWeek days per week 
+     */
+    public int toMinutes(int hoursPerDay, int daysPerWeek) {
+        return ((weeks * daysPerWeek + days) * hoursPerDay + hours) * 60 +
+                minutes;
+    }
+
+    /**
+     * Converts the value to minutes.
+     * 
+     * @param minutesPerDay minutes per day
+     * @param daysPerWeek days per week 
+     * @param ignore will be ignored
+     */
+    public int toMinutes(int minutesPerDay, int daysPerWeek, boolean ignore) {
+        return (weeks * daysPerWeek + days) * minutesPerDay + hours * 60 +
+                minutes;
+    }
 }

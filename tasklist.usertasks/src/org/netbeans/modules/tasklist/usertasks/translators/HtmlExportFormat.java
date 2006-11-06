@@ -34,7 +34,7 @@ import org.netbeans.modules.tasklist.core.export.ExportImportProvider;
 import org.netbeans.modules.tasklist.core.export.SaveFilePanel;
 import org.netbeans.modules.tasklist.core.util.ExtensionFileFilter;
 import org.netbeans.modules.tasklist.core.util.SimpleWizardPanel;
-import org.netbeans.modules.tasklist.usertasks.Settings;
+import org.netbeans.modules.tasklist.usertasks.options.Settings;
 import org.netbeans.modules.tasklist.usertasks.util.UTUtils;
 import org.openide.WizardDescriptor;
 import org.openide.awt.HtmlBrowser;
@@ -45,6 +45,7 @@ import org.openide.util.NbBundle;
  */
 public class HtmlExportFormat extends XmlExportFormat {
     private static String[] LAYOUTS = {
+        "usertasks-simple-html.xsl", // NOI18N
         "usertasks-effort-html.xsl", // NOI18N
         "usertasks-planning-html.xsl", // NOI18N
         "usertasks-table-html.xsl", // NOI18N
@@ -78,6 +79,8 @@ public class HtmlExportFormat extends XmlExportFormat {
 
         XslTemplatesPanel templatesPanel = new XslTemplatesPanel();
         templatesPanel.setAvailableLayouts(new String[] {
+            NbBundle.getMessage(
+                XmlExportFormat.class, "Simple"), // NOI18N
             NbBundle.getMessage(
                 XmlExportFormat.class, "Effort"), // NOI18N
             NbBundle.getMessage(

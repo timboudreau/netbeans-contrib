@@ -45,6 +45,7 @@ import org.netbeans.api.javahelp.Help;
 
 import org.netbeans.modules.tasklist.usertasks.dependencies.DependenciesPanel;
 import org.netbeans.modules.tasklist.usertasks.model.Duration;
+import org.netbeans.modules.tasklist.usertasks.options.Settings;
 import org.netbeans.modules.tasklist.usertasks.renderers.PriorityListCellRenderer;
 import org.netbeans.modules.tasklist.usertasks.util.UTUtils;
 import org.openide.awt.Mnemonics;
@@ -274,8 +275,8 @@ public class EditTaskPanel extends JPanel implements ActionListener {
             dlm.addElement(
                 df.format(new Date(wp.getStart())) + ", " + // NOI18N
                 durf.format(new Duration(wp.getDuration(), 
-                    Settings.getDefault().getHoursPerDay(),
-                    Settings.getDefault().getDaysPerWeek()
+                    Settings.getDefault().getMinutesPerDay(),
+                    Settings.getDefault().getDaysPerWeek(), true
                 ))
             );
         }
@@ -284,8 +285,8 @@ public class EditTaskPanel extends JPanel implements ActionListener {
         jLabelSpentTimeToday.setText(
                 durf.format(
                 new Duration(item.getSpentTimeToday(),
-                Settings.getDefault().getHoursPerDay(),
-                Settings.getDefault().getDaysPerWeek())));
+                Settings.getDefault().getMinutesPerDay(),
+                Settings.getDefault().getDaysPerWeek(), true)));
     }
     
     /**

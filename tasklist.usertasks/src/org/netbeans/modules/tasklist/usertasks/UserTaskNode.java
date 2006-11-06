@@ -48,6 +48,7 @@ import org.netbeans.modules.tasklist.usertasks.actions.GoToUserTaskAction;
 import org.netbeans.modules.tasklist.usertasks.actions.NewTaskAction;
 import org.netbeans.modules.tasklist.usertasks.actions.PauseAction;
 import org.netbeans.modules.tasklist.usertasks.actions.PurgeTasksAction;
+import org.netbeans.modules.tasklist.usertasks.actions.ScheduleAction;
 import org.netbeans.modules.tasklist.usertasks.actions.ShowTaskAction;
 import org.netbeans.modules.tasklist.usertasks.actions.StartTaskAction;
 import org.netbeans.modules.tasklist.usertasks.editors.DateEditor;
@@ -151,6 +152,7 @@ public final class UserTaskNode extends AbstractNode {
                 null,
                 SystemAction.get(FilterAction.class),
                 SystemAction.get(PurgeTasksAction.class),
+                SystemAction.get(ScheduleAction.class),
                 null,
                 SystemAction.get(ExpandAllUserTasksAction.class),
                 SystemAction.get(CollapseAllAction.class),
@@ -185,6 +187,7 @@ public final class UserTaskNode extends AbstractNode {
                 null,
                 SystemAction.get(PurgeTasksAction.class),
                 SystemAction.get(ClearCompletedAction.class),
+                SystemAction.get(ScheduleAction.class),
                 null,
                 SystemAction.get(ExpandAllUserTasksAction.class),
                 SystemAction.get(CollapseAllAction.class),
@@ -242,7 +245,6 @@ public final class UserTaskNode extends AbstractNode {
             
             p = new PropertySupport.Reflection(item, Integer.TYPE, "getEffort", "setEffort"); // NOI18N
             p.setName("effort"); // NOI18N
-            p.setValue("canEditAsText", Boolean.FALSE); // NOI18N
             p.setDisplayName(NbBundle.getMessage(UserTaskNode.class, "LBL_effortProperty")); // NOI18N
             p.setShortDescription(NbBundle.getMessage(UserTaskNode.class, "HNT_effortProperty")); // NOI18N
             p.setPropertyEditorClass(DurationPropertyEditor.class);
@@ -266,7 +268,6 @@ public final class UserTaskNode extends AbstractNode {
 
             p = new PropertySupport.Reflection(item, Integer.TYPE, "getSpentTime", "setSpentTime"); // NOI18N
             p.setName("spentTime"); // NOI18N
-            p.setValue("canEditAsText", Boolean.FALSE); // NOI18N
             p.setDisplayName(NbBundle.getMessage(UserTaskNode.class, "LBL_spentTimeProperty")); // NOI18N
             p.setShortDescription(NbBundle.getMessage(UserTaskNode.class, "HNT_spentTimeProperty")); // NOI18N
             p.setPropertyEditorClass(DurationPropertyEditor.class);

@@ -29,7 +29,7 @@ import javax.swing.DefaultCellEditor;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JComboBox;
 import javax.swing.JTable;
-import org.netbeans.modules.tasklist.usertasks.Settings;
+import org.netbeans.modules.tasklist.usertasks.options.Settings;
 import org.netbeans.modules.tasklist.usertasks.model.Duration;
 import org.netbeans.modules.tasklist.usertasks.model.UserTask;
 import org.netbeans.modules.tasklist.usertasks.util.DurationFormat;
@@ -104,13 +104,13 @@ public class EffortTableCellEditor extends DefaultCellEditor {
         DurationFormat df = new DurationFormat(DurationFormat.Type.LONG);
         texts = new ArrayList<String>(durations.size());
         Settings s = Settings.getDefault();
-        int hpd = s.getHoursPerDay();
+        int mpd = s.getMinutesPerDay();
         int dpw = s.getDaysPerWeek();
         for (int dur: durations) {
-            texts.add(df.format(new Duration(dur, hpd, dpw)));
+            texts.add(df.format(new Duration(dur, mpd, dpw, true)));
         }
         
-        this.dur = new Duration(durations.get(index), hpd, dpw);
+        this.dur = new Duration(durations.get(index), mpd, dpw, true);
                 
         ((JComboBox) editorComponent).setModel(
                 new DefaultComboBoxModel(
@@ -142,10 +142,9 @@ public class EffortTableCellEditor extends DefaultCellEditor {
         if (d == null)
             return durations.get(index);
         else {
-            int hpd = Settings.getDefault().getHoursPerDay();
+            int mpd = Settings.getDefault().getMinutesPerDay();
             int dpw = Settings.getDefault().getDaysPerWeek();
-            return ((d.weeks * dpw + d.days) * hpd + d.hours) * 60 +
-                    d.minutes;
+            return d.toMinutes(mpd, dpw, true);
         }
     }
 }

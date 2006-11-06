@@ -7,7 +7,7 @@ import java.text.MessageFormat;
 
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableColumnModel;
-import org.netbeans.modules.tasklist.usertasks.Settings;
+import org.netbeans.modules.tasklist.usertasks.options.Settings;
 import org.netbeans.modules.tasklist.usertasks.model.Duration;
 import org.netbeans.modules.tasklist.usertasks.util.DurationFormat;
 
@@ -60,7 +60,7 @@ public class DurationTableCellRenderer extends DefaultTableCellRenderer {
             return null;
         else
             return new Duration(((Integer) obj).intValue(),
-                Settings.getDefault().getHoursPerDay(), 
-                    Settings.getDefault().getDaysPerWeek());
+                    Settings.getDefault().getMinutesPerDay(), 
+                    Settings.getDefault().getDaysPerWeek(), true);
     }
 }

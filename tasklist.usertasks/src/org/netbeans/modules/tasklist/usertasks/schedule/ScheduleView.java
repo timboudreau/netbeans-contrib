@@ -35,6 +35,7 @@ import org.netbeans.modules.tasklist.usertasks.model.Duration;
 import org.netbeans.modules.tasklist.usertasks.model.UserTaskObjectList;
 import org.netbeans.modules.tasklist.usertasks.model.UserTask;
 import org.netbeans.modules.tasklist.usertasks.model.UserTaskList;
+import org.netbeans.modules.tasklist.usertasks.options.Settings;
 
 /**
  * Schedule component.
@@ -137,8 +138,8 @@ public class ScheduleView extends JComponent {
             UserTask ut = list.getUserTask(i);
             
             Duration dur = new Duration(ut.getEffort(), 
-                Settings.getDefault().getHoursPerDay(), 
-                Integer.MAX_VALUE);
+                Settings.getDefault().getMinutesPerDay(), 
+                Integer.MAX_VALUE, true);
             int duration = dur.days;
             if (dur.hours != 0 || dur.minutes != 0)
                 duration++;

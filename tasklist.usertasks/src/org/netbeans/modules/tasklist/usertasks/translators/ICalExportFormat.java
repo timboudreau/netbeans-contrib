@@ -71,7 +71,7 @@ import org.netbeans.modules.tasklist.core.export.SaveFilePanel;
 import org.netbeans.modules.tasklist.core.util.ExtensionFileFilter;
 import org.netbeans.modules.tasklist.core.util.ObjectList;
 import org.netbeans.modules.tasklist.core.util.SimpleWizardPanel;
-import org.netbeans.modules.tasklist.usertasks.Settings;
+import org.netbeans.modules.tasklist.usertasks.options.Settings;
 import org.netbeans.modules.tasklist.usertasks.UserTaskViewRegistry;
 import org.netbeans.modules.tasklist.usertasks.model.UserTask;
 import org.netbeans.modules.tasklist.usertasks.model.UserTaskList;

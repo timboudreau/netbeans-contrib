@@ -21,6 +21,7 @@ package org.netbeans.modules.tasklist.usertasks.options;
 
 import java.beans.PropertyChangeListener;
 import javax.swing.JComponent;
+import org.netbeans.modules.tasklist.usertasks.util.UTUtils;
 import org.netbeans.spi.options.OptionsPanelController;
 import org.openide.util.HelpCtx;
 import org.openide.util.Lookup;
@@ -57,7 +58,8 @@ public class UTPanelController extends OptionsPanelController {
     }
 
     public boolean isValid() {
-        return true;
+        UTUtils.LOGGER.fine("isValid"); // NOI18N
+        return panel.isContentValid();
     }
 
     public boolean isChanged() {
