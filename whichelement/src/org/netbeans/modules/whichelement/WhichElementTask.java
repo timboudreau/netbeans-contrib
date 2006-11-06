@@ -21,6 +21,7 @@ package org.netbeans.modules.whichelement;
 
 import com.sun.source.util.TreePath;
 import java.security.spec.EllipticCurve;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.Iterator;
@@ -72,14 +73,14 @@ public class WhichElementTask implements CancellableTask<CompilationInfo> {
             whichElementPanel = (WhichElementStatusElementProvider.WhichElementPanel) statusLineElementProvider.getStatusLineElement();
         }
     }
-    private static final EnumSet<Modifier> NO_MODIFIERS = EnumSet.noneOf(Modifier.class);
+    private static final Collection<Modifier> NO_MODIFIERS = Collections.<Modifier>emptySet();
     
     public void run(CompilationInfo compilationInfo) {
         // Find the TreePath for the caret position
         TreePath tp =
                 compilationInfo.getTreeUtilities().pathFor(whichElementJavaSourceTaskFactory.getLastPosition(fileObject));
         
-        // if cencelled, return
+        // if cancelled, return
         if (isCancelled()) {
             return;
         }
@@ -87,7 +88,7 @@ public class WhichElementTask implements CancellableTask<CompilationInfo> {
         // Get Element
         Element element = compilationInfo.getTrees().getElement(tp);
         
-        // if cencelled, return
+        // if cancelled, return
         if (isCancelled()) {
             return;
         }
