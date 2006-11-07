@@ -1,0 +1,29 @@
+
+
+########### tokens #############################################################
+
+TOKEN:text: ( [^"<"]* )
+
+TOKEN:comment: ( "<!--" - "-->" )
+
+TOKEN:element: ( "<" "/"? [^ " " ">" "\t" "\n" "\r"]+ ):<IN_ELEMENT>
+
+<IN_ELEMENT> {
+
+    TOKEN:attribute-name: ( [^ " " ">" "=" "\t" "\n" "\r"]+ ):<IN_ATTRIBUTE>
+    TOKEN:whitespace: ( [" " "\t" "\n" "\r"]* )
+    TOKEN:element: ( "/"? ">" ):<DEFAULT>
+}
+
+<IN_ATTRIBUTE> {
+    TOKEN:operator: ( "=" ):<IN_ATTRIBUTE2>
+    TOKEN:whitespace: ( [" " "\t" "\n" "\r"]* )
+    TOKEN:element: ( "/"? ">" ):<DEFAULT>
+    TOKEN:attribute-name: ( [^ " " ">" "=" "\t" "\n" "\r"]+ )
+}
+
+<IN_ATTRIBUTE2> {
+    TOKEN:attribute-value: ( "\"" [^ "\""]* "\"" ):<IN_ELEMENT>
+    TOKEN:whitespace: ( [" " "\t" "\n" "\r"]* )
+}
+

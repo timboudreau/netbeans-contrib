@@ -1,0 +1,52 @@
+
+
+########### tokens #############################################################
+
+TOKEN:keyword: (
+    "ABSOLUTE" | "ACTION" | "ACTOR" | "ADD" | "AFTER" | "ALIAS,ALL" | "ALLOCATE" | "ALTER" | "AND" | "ANY" | "ARE" | "AS" | "ASC" |
+    "ASSERTION" | "ASYNC" | "AT" | "ATTRIBUTES" | "AUTHORIZATION" | "AVG" | "BEFORE" | "BEGIN" | "BETWEEN" | "BIT" | "BIT_LENGTH" |
+    "BOOLEAN" | "BOTH" | "BREADTH" | "BY" | "CASCADE" | "CASCADED" | "CASE" | "CAST" | "CATALOG" | "CHAR" | "CHAR_LENGTH" | "CHARACTER" |
+    "CHARACTER_LENGTH" | "CHECK" | "CLASS" | "CLOSE" | "COALESCE" | "COLLATE" | "COLLATION" | "COLUMN" | "COMMIT" | "COMPLETION" |
+    "CONNECT" | "CONNECTION" | "CONSTRAINT" | "CONSTRAINTS" | "CONSTRUCTOR" | "CONTINUE" | "CONVERT" | "CORRESPONDING" | "COUNT" |
+    "CREATE" | "CROSS" | "CURRENT" | "CURRENT_DATE" | "CURRENT_PATH" | "CURRENT_TIME" | "CURRENT_TIMESTAMP" | "CURRENT_USER" | "CURSOR" |
+    "CYCLE" | "DATA" | "DATE" | "DAY" | "DEALLOCATE" | "DEC" | "DECIMAL" | "DECLARE" | "DEFAULT" | "DEFERRABLE" | "DEFERRED" | "DELETE" |
+    "DEPTH" | "DESC" | "DESCRIBE" | "DESCRIPTOR" | "DESIGNATOR" | "DESTROY" | "DESTRUCTOR" | "DIAGNOSTICS" | "DICTIONARY" | "DISCONNECT" |
+    "DISTINCT" | "DOMAIN" | "DOUBLE" | "DROP" | "EACH" | "ELEMENT" | "ELSE" | "END" | "END-EXEC" | "EQUALS" | "ESCAPE" | "EXCEPT" |
+    "EXCEPTION" | "EXEC" | "EXECUTE" | "EXISTS" | "EXTERNAL" | "EXTRACT" | "FACTOR" | "FALSE" | "FETCH" | "FIRST" | "FLOAT" | "FOR" |
+    "FOREIGN" | "FOUND" | "FROM" | "FULL" | "FUNCTION" | "GENERAL" | "GET" | "GLOBAL" | "GO" | "GOTO" | "GRANT" | "GROUP" | "HAVING" |
+    "HOUR" | "IDENTITY" | "IGNORE" | "IMMEDIATE" | "IN" | "INDICATOR" | "INITIALLY" | "INNER" | "INOUT" | "INPUT" | "INSENSITIVE" |
+    "INSERT" | "INSTEAD" | "INT" | "INTEGER" | "INTERSECT" | "INTERVAL" | "INTO" | "IS" | "ISOLATION" | "JOIN" | "KEY" | "LANGUAGE" |
+    "LAST" | "LEADING" | "LEFT" | "LESS" | "LEVEL" | "LIKE" | "LIMIT" | "LIST" | "LOCAL" | "LOWER" | "MATCH" | "MAX" | "MIN" | "MINUTE" |
+    "MODIFY" | "MODULE" | "MONTH" | "MOVE" | "MULTISET" | "NAMES" | "NATIONAL" | "NATURAL" | "NCHAR" | "NEW" | "NEW_TABLE" | "NEXT" |
+    "NO" | "NONE" | "NOT" | "NULL" | "NULLIF" | "NUMERIC" | "OCTET_LENGTH" | "OF" | "OFF" | "OID" | "OLD" | "OLD_TABLE" | "ON" | "ONLY" |
+    "OPEN" | "OPERATION" | "OPERATOR" | "OPERATORS" | "OPTION" | "OR" | "ORDER" | "OUT" | "OUTER" | "OUTPUT" | "OVERLAPS" | "PAD" |
+    "PARAMETERS" | "PARTIAL" | "PATH" | "PENDANT" | "POSITION" | "POSTFIX" | "PRECISION" | "PREFIX" | "PREORDER" | "PREPARE" | "PRESERVE" |
+    "PRIMARY" | "PRIOR" | "PRIVATE" | "PRIVILEGES" | "PROCEDURE" | "PROTECTED" | "PUBLIC" | "READ" | "REAL" | "RECURSIVE" | "REFERENCES" |
+    "REFERENCING" | "RELATIVE" | "REPRESENTATION" | "RESTRICT" | "REVOKE" | "RIGHT" | "ROLE" | "ROLLBACK" | "ROUTINE" | "ROW" | "ROWS" |
+    "SAVEPOINT" | "SCHEMA" | "SCROLL" | "SEARCH" | "SECOND" | "SECTION" | "SELECT" | "SENSITIVE" | "SEQUENCE" | "SESSION" | "SESSION_USER" |
+    "SET" | "SIMILAR" | "SIZE" | "SMALLINT" | "SOME" | "SPACE" | "SPECIFIC" | "SQL" | "SQLCODE" | "SQLERROR" | "SQLEXCEPTION" | "SQLSTATE" |
+    "SQLWARNING" | "START" | "STATE" | "STRUCTURE" | "SUBSTRING" | "SUM" | "SYMBOL" | "SYSTEM_USER" | "TABLE" | "TEMPLATE" | "TEMPORARY" |
+    "TERM" | "TEST" | "THAN" | "THEN" | "THERE" | "TIME" | "TIMESTAMP" | "TIMEZONE_HOUR" | "TIMEZONE_MINUTE" | "TO" | "TRAILING" |
+    "TRANSACTION" | "TRANSLATE" | "TRANSLATION" | "TRIGGER" | "TRIM" | "TRUE" | "TYPE" | "UNDER" | "UNION" | "UNIQUE" | "UNKNOWN" |
+    "UPDATE" | "UPPER" | "USAGE" | "USER" | "USING" | "VALUE" | "VALUES" | "VARCHAR" | "VARIABLE" | "VARIANT" | "VARYING" | "VIEW" |
+    "VIRTUAL" | "VISIBLE" | "WAIT" | "WHEN" | "WHENEVER" | "WHERE" | "WITH" | "WITHOUT" | "WORK" | "WRITE" | "YEAR" | "ZONE"
+)
+TOKEN:identifier:( ["a"-"z" "A"-"Z" "_"] ["a"-"z" "A"-"Z" "0"-"9" "_"]* )
+TOKEN:identifier:( "\"" [^ "\""]* "\"" )
+TOKEN:string:( "\'" [^ "\'"]* "\'" )
+TOKEN:number:( ( ["0"-"9"]+ ("." ["0"-"9"]*)? | "." ["0"-"9"]+) "E" ("+" | "-" )? ["0"-"9"]+ )
+TOKEN:number:( ["0"-"9"]+ ("." ["0"-"9"]*)? |
+               "." ["0"-"9"]+)
+TOKEN:operator:( "," | "*" | ";" | "(" | ")" | "<" | ">" | "=" | "-" | "+" | "/" )
+TOKEN:whitespace: ([" " "\t" "\n" "\r"]+)
+TOKEN:comment:( "/*" - "*/" )
+TOKEN:line-comment:( "--" [^ "\n" "\r"]* ["\n" "\r"]+ )
+
+
+########### colors #############################################################
+
+COLOR:line-comment {
+    default-coloring:"comment";
+}
+
+

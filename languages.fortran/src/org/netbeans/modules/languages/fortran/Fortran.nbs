@@ -1,0 +1,199 @@
+
+
+########### tokens #############################################################
+
+TOKEN:keyword:(
+    "include" |
+    "program" |
+    "module" |
+    "subroutine" |
+    "function" |
+    "contains" |
+    "use" |
+    "call" |
+    "return" |
+    "implicit" |
+    "explicit" |
+    "none" |
+    "data" |
+    "parameter" |
+    "allocate" |
+    "allocatable" |
+    "allocated" |
+    "deallocate" |
+    "integer" |
+    "real" |
+    "double" |
+    "precision" |
+    "complex" |
+    "logical" |
+    "character" |
+    "dimension" |
+    "kind" |
+    "case" |
+    "select" |
+    "default" |
+    "continue" |
+    "cycle" |
+    "do" |
+    "while" |
+    "else" |
+    "if" |
+    "elseif" |
+    "then" |
+    "elsewhere" |
+    "end" |
+    "endif" |
+    "enddo" |
+    "forall" |
+    "where" |
+    "exit" |
+    "goto" |
+    "pause" |
+    "stop" |
+    "backspace" |
+    "close" |
+    "endfile" |
+    "inquire" |
+    "open" |
+    "print" |
+    "read" |
+    "rewind" |
+    "write" |
+    "format" |
+    "aimag" |
+    "aint" |
+    "amax0" |
+    "amin0" |
+    "anint" |
+    "ceiling" |
+    "cmplx" |
+    "conjg" |
+    "dble" |
+    "dcmplx" |
+    "dfloat" |
+    "dim" |
+    "dprod" |
+    "float" |
+    "floor" |
+    "ifix" |
+    "imag" |
+    "int" |
+    "logical" |
+    "modulo" |
+    "nint" |
+    "real" |
+    "sign" |
+    "sngl" |
+    "transfer" |
+    "zext" |
+    "abs" |
+    "acos" |
+    "aimag" |
+    "aint" |
+    "alog" |
+    "alog10" |
+    "amax0" |
+    "amax1" |
+    "amin0" |
+    "amin1" |
+    "amod" |
+    "anint" |
+    "asin" |
+    "atan" |
+    "atan2" |
+    "cabs" |
+    "ccos" |
+    "char" |
+    "clog" |
+    "cmplx" |
+    "conjg" |
+    "cos" |
+    "cosh" |
+    "csin" |
+    "csqrt" |
+    "dabs" |
+    "dacos" |
+    "dasin" |
+    "datan" |
+    "datan2" |
+    "dble" |
+    "dcos" |
+    "dcosh" |
+    "ddim" |
+    "dexp" |
+    "dim" |
+    "dint" |
+    "dlog" |
+    "dlog10" |
+    "dmax1" |
+    "dmin1" |
+    "dmod" |
+    "dnint" |
+    "dprod" |
+    "dreal" |
+    "dsign" |
+    "dsin" |
+    "dsinh" |
+    "dsqrt" |
+    "dtan" |
+    "dtanh" |
+    "exp" |
+    "float" |
+    "iabs" |
+    "ichar" |
+    "idim" |
+    "idint" |
+    "idnint" |
+    "ifix" |
+    "index" |
+    "int" |
+    "isign" |
+    "len" |
+    "lge" |
+    "lgt" |
+    "lle" |
+    "llt" |
+    "log" |
+    "log10" |
+    "max" |
+    "max0" |
+    "max1" |
+    "min" |
+    "min0" |
+    "min1" |
+    "mod" |
+    "nint" |
+    "real" |
+    "sign" |
+    "sin" |
+    "sinh" |
+    "sngl" |
+    "sqrt" |
+    "tan" |
+    "tanh" |
+    ".false." |
+    ".true."
+)
+TOKEN:string:( "\"" [^ "\""]* "\"" )
+TOKEN:string:( "\'" [^ "\'"]* "\'" )
+TOKEN:operator: (
+    [ "?" ":" "<" ">" "/" "*" "-" "+" "." "," "=" "{" "}" ";"
+      "(" ")" "[" "]" "!" "@" "#" "$" "%" "^" "&" "~" "|" "\\"
+    ]
+)
+TOKEN:identifier:( ["a"-"z" "A"-"Z" "_"] ["a"-"z" "A"-"Z" "0"-"9" "_"]* )
+TOKEN:number:( ( ["0"-"9"]+ ("." ["0"-"9"]*)? | "." ["0"-"9"]+) ("E" ("+" | "-" )? ["0"-"9"]+)? )
+TOKEN:whitespace: ( [" " "\t" "\n" "\r"]* )
+TOKEN:line-comment:( ["\n" "\r"]+ "*" [^ "\n" "\r"]* )
+TOKEN:line-comment:( ["\n" "\r"]+ "!" [^ "\n" "\r"]* )
+TOKEN:line-comment:( ["\n" "\r"]+ "C" [^ "\n" "\r"]* )
+TOKEN:line-comment:( ["\n" "\r"]+ "D" [^ "\n" "\r"]* )
+
+
+########### colors #############################################################
+
+COLOR:line-comment {
+    default-coloring:"comment";
+}
+

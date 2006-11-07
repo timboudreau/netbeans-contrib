@@ -1,0 +1,50 @@
+
+
+########### tokens #############################################################
+
+TOKEN:comment: ( "(*" - "*)" )
+TOKEN:line-comment: ( "---" [^ "\n" "\r"]* )
+TOKEN:keyword: ( 
+    "do" |
+    "else" |
+    "enter" | 
+    "exit" |
+    "inner" |
+    "leave" |
+    "none" |
+    "repeat" |
+    "restart" |
+    "suspend" |
+    "then" |
+    "this" |
+    "(if" |
+    "if)" |
+    "(for" |
+    "for)" 
+)
+TOKEN:operator: ( [
+    "<" ">" "/" "*" "-" "+" "." "," "=" "{" "}" 
+    "(" ")" "[" "]" "!" "@" "#" "$" "%" "^" "&" "~" "|" "\\" ";"
+] )
+TOKEN:string: ( "\'" [^ "\'" "\n" "\r"]* "\'" )
+TOKEN:number: ( ["0" - "9"] ["0" - "9" "."]* )
+TOKEN:identifier: ( 
+    ["a" - "z" "A" - "Z"]
+    [^ " " "\t" "\n" "\r" "<" ">" "/" "*" "-" "+" "." "," "=" "{" "}" 
+       "(" ")" "[" "]" "!" "@" "#" "$" "%" "^" "&" "~" "|" "\\" ";"
+    ]* 
+)
+TOKEN:whitespace:( [" " "\t" "\n" "\r"]+ )
+
+
+########### color ##############################################################
+
+COLOR:line-comment {
+    default-coloring:"comment";
+}
+
+########### code folding #######################################################
+
+#FOLD_START:Block:( <operator,"("> <operator,"#"> )
+#FOLD_END:Block:( <operator,"#"> <operator,")"> )
+
