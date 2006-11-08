@@ -161,7 +161,7 @@ public class XTestWizardIterator implements TemplateWizard.Iterator {
     
     /** Returns type of project. It was copied from NbModuleProject. */
     private static NbModuleTypeProvider.NbModuleType getModuleType(NbModuleProject nbProject) {
-        Element data = nbProject.getHelper().getPrimaryConfigurationData(true);
+        Element data = nbProject.getPrimaryConfigurationData();
         if (Util.findElement(data, "suite-component", NbModuleProjectType.NAMESPACE_SHARED) != null) { // NOI18N
             return NbModuleTypeProvider.SUITE_COMPONENT;
         } else if (Util.findElement(data, "standalone", NbModuleProjectType.NAMESPACE_SHARED) != null) { // NOI18N
