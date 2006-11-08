@@ -1,0 +1,31 @@
+.t.e.s.t. Number literals
+INT_LITERAL     "1", la=1
+WHITESPACE      " ", la=1
+INT_LITERAL     "19", la=1
+WHITESPACE      " ", la=1
+FLOAT_LITERAL   "1e5", la=1
+WHITESPACE      " ", la=1
+FLOAT_LITERAL   "1.0e7", la=1
+WHITESPACE      " ", la=1
+FLOAT_LITERAL   ".5e15", la=1
+WHITESPACE      " ", la=1
+----- EOF -----
+
+.t.e.s.t. Incomplete block comment
+BLOCK_COMMENT_INCOMPLETE  "/* Incomplete comment", la=1
+----- EOF -----
+
+.t.e.s.t. Mixed tokens
+INT_LITERAL     "1", la=1
+WHITESPACE      " ", la=1
+PLUS            "+"
+WHITESPACE      " ", la=1
+INT_LITERAL     "2", la=1
+WHITESPACE      " ", la=1
+MINUS           "-"
+WHITESPACE      " ", la=1
+INT_LITERAL     "5", la=1
+WHITESPACE      " ", la=1
+LINE_COMMENT    "// Test line-comment", la=1
+----- EOF -----
+

@@ -19,10 +19,14 @@ Microsystems, Inc. All Rights Reserved.
         <folder name="text">
             <folder name="x-calc">
                 <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.lexer.editorbridge.calc.resources.Bundle"/>
-                <file name="EditorKit.instance">
-                    <attr name="instanceClass" stringvalue="org.netbeans.modules.lexer.editorbridge.calc.CalcKit"/>
+                <file name="language.instance">
+                    <attr name="instanceCreate" methodvalue="org.netbeans.modules.lexer.editorbridge.calc.CalcTokenId.language"/>
+                    <attr name="instanceOf" stringvalue="org.netbeans.api.lexer.Language"/>
                 </file>
-                <file name="Settings.settings" url="CalcOptions.settings"/>
+                <file name="EditorKit.instance">
+                    <attr name="instanceCreate" methodvalue="org.netbeans.modules.lexer.editorbridge.LexerEditorKit.create"/>
+                    <attr name="instanceClass" stringvalue="org.netbeans.modules.lexer.editorbridge.LexerEditorKit"/>
+                </file>
                 <folder name="Defaults">
                     <file name="keybindings.xml" url="CalcKeyBindings.xml"/>
                 </folder>
@@ -43,7 +47,7 @@ Microsystems, Inc. All Rights Reserved.
             <file name="calc.calc" url="calc.template">
                <attr name="template" boolvalue="true" />
                <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.lexer.editorbridge.calc.Bundle"/>
-               <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/lexer/editorbridge/calc/resources/CalcObject.png"/>
+               <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/lexer/editorbridge/calc/resources/calcObject.png"/>
             </file>
         </folder>
     </folder>
@@ -52,7 +56,7 @@ Microsystems, Inc. All Rights Reserved.
         <folder name="MIMEResolver">
             <file name="calc.xml" url="resolver.xml">
                <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.lexer.editorbridge.calc.Bundle"/>
-                <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/lexer/editorbridge/calc/resources/CalcObject.png"/>
+                <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/lexer/editorbridge/calc/resources/calcObject.png"/>
             </file>
         </folder>
     </folder>

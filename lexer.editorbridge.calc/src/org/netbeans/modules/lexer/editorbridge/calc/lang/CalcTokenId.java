@@ -44,8 +44,8 @@ import org.netbeans.spi.lexer.LexerRestartInfo;
 public enum CalcTokenId implements TokenId {
 
     WHITESPACE(null, "whitespace"),
-    SL_COMMENT(null, "comment"),
-    ML_COMMENT(null, "comment"),
+    LINE_COMMENT(null, "comment"),
+    BLOCK_COMMENT(null, "comment"),
     E("e", "keyword"),
     PI("pi", "keyword"),
     IDENTIFIER(null, null),
@@ -58,7 +58,7 @@ public enum CalcTokenId implements TokenId {
     LPAREN("(", "separator"),
     RPAREN(")", "separator"),
     ERROR(null, "error"),
-    ML_COMMENT_INCOMPLETE(null, "comment");
+    BLOCK_COMMENT_INCOMPLETE(null, "comment");
 
 
     private final String fixedText;
@@ -87,9 +87,9 @@ public enum CalcTokenId implements TokenId {
             Map<String,Collection<CalcTokenId>> cats = new HashMap<String,Collection<CalcTokenId>>();
 
             // Incomplete literals 
-            cats.put("incomplete", EnumSet.of(CalcTokenId.ML_COMMENT_INCOMPLETE));
+            cats.put("incomplete", EnumSet.of(CalcTokenId.BLOCK_COMMENT_INCOMPLETE));
             // Additional literals being a lexical error
-            cats.put("error", EnumSet.of(CalcTokenId.ML_COMMENT_INCOMPLETE));
+            cats.put("error", EnumSet.of(CalcTokenId.BLOCK_COMMENT_INCOMPLETE));
             
             return cats;
         }

@@ -76,7 +76,7 @@ public final class CalcLexer implements Lexer<CalcTokenId> {
                                     case '\r': input.consumeNewline();
                                     case '\n':
                                     case EOF:
-                                        return token(CalcTokenId.SL_COMMENT);
+                                        return token(CalcTokenId.LINE_COMMENT);
                                 }
                         case '*': // in multi-line comment
                             while (true) {
@@ -84,12 +84,12 @@ public final class CalcLexer implements Lexer<CalcTokenId> {
                                 while (ch == '*') {
                                     ch = input.read();
                                     if (ch == '/')
-                                        return token(CalcTokenId.ML_COMMENT);
+                                        return token(CalcTokenId.BLOCK_COMMENT);
                                     else if (ch == EOF)
-                                        return token(CalcTokenId.ML_COMMENT_INCOMPLETE);
+                                        return token(CalcTokenId.BLOCK_COMMENT_INCOMPLETE);
                                 }
                                 if (ch == EOF)
-                                    return token(CalcTokenId.ML_COMMENT_INCOMPLETE);
+                                    return token(CalcTokenId.BLOCK_COMMENT_INCOMPLETE);
                             }
                     } // end of switch()
                     input.backup(1);

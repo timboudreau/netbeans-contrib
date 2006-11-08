@@ -1,0 +1,12 @@
+.t.e.s.t. Number literals
+1 19 1e5 1.0e7 .5e15 
+.e.o.f.
+
+
+.t.e.s.t. Incomplete block comment
+/* Incomplete comment
+.e.o.f.
+
+
+.t.e.s.t. Mixed tokens
+1 + 2 - 5 // Test line-comment
