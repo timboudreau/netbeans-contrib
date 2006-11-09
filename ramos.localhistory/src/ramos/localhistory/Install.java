@@ -19,8 +19,6 @@
  */
 package ramos.localhistory;
 
-import org.openide.filesystems.Repository;
-
 import org.openide.loaders.DataLoaderPool;
 import org.openide.loaders.DataObject;
 
@@ -33,24 +31,25 @@ import org.openide.modules.ModuleInstall;
  * @author $author$
  * @version $Revision$
  */
-public class Install extends ModuleInstall {
-   /**
-    * DOCUMENT ME!
-    */
-   public void restored() {
-      DataObject.getRegistry().addChangeListener(Listener.getInstance());
-      DataLoaderPool.getDefault().addOperationListener(Listener.getInstance());
+public class Install
+  extends ModuleInstall {
+  /**
+   * DOCUMENT ME!
+   */
+  public void restored() {
+    DataObject.getRegistry()
+              .addChangeListener(LocalHistoryRepository.getInstance());
+    DataLoaderPool.getDefault()
+                  .addOperationListener(LocalHistoryRepository.getInstance());
+  }
 
-      //Repository.getDefault().getDefaultFileSystem().addFileChangeListener(Listener.getInstance());
-   }
-
-   /**
-    * DOCUMENT ME!
-    */
-   public void uninstalled() {
-      DataObject.getRegistry().removeChangeListener(Listener.getInstance());
-      DataLoaderPool.getDefault().removeOperationListener(Listener.getInstance());
-
-      //Repository.getDefault().getDefaultFileSystem().removeFileChangeListener(Listener.getInstance());
-   }
+  /**
+   * DOCUMENT ME!
+   */
+  public void uninstalled() {
+    DataObject.getRegistry()
+              .removeChangeListener(LocalHistoryRepository.getInstance());
+    DataLoaderPool.getDefault()
+                  .removeOperationListener(LocalHistoryRepository.getInstance());
+  }
 }
