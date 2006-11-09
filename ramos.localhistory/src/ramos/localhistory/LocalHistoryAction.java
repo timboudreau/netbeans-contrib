@@ -33,7 +33,7 @@ import org.openide.util.NbBundle;
 import org.openide.util.actions.CookieAction;
 
 import ramos.localhistory.ui.LocalHistoryTopComponent;
-import ramos.localhistory.ui.VersionNode;
+import ramos.localhistory.VersionNode;
 
 import java.awt.event.ActionEvent;
 
@@ -139,11 +139,11 @@ public final class LocalHistoryAction
     final LocalHistoryTopComponent localHistoryTopComponent =
       LocalHistoryTopComponent.findInstance();
     File file = FileUtil.toFile(fileObject);
-    Collection<VersionNode> collection =
-      localHistoryTopComponent.fillRevisionsList(file);
+    Collection<VersionNode> versionNodesCollection =
+      LocalHistoryRepository.getInstance().fillRevisionsList(file);
 
-    if (collection.size() != 0) {
-      localHistoryTopComponent.setFile(file, collection);
+    if (versionNodesCollection.size() != 0) {
+      localHistoryTopComponent.setFileForHistory(file, versionNodesCollection);
       localHistoryTopComponent.open();
       localHistoryTopComponent.requestActive();
       localHistoryTopComponent.setDisplayName(
@@ -162,9 +162,6 @@ public final class LocalHistoryAction
    */
   private boolean enable(final DataObject dataObject) {
     assert dataObject != null;
-
-    //DataObject dataObject = n.getLookup().lookup(DataObject.class);
-    //System.out.println("dataObject ="+dataObject);
     return ((dataObject != null) && dataObject.getPrimaryFile()
                                               .isData());
   }
