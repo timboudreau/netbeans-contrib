@@ -17,7 +17,7 @@ Description: Platform for building rich desktop applications in Java
 
 Package: netbeans
 Architecture: all
-Depends: sun-java5-bin, netbeans-platform (=5.5), ant (>=1.6.5), libjgoodies-forms-java
+Depends: sun-java5-bin, netbeans-platform (=5.5), ant (>=1.6.5), libjgoodies-forms-java (>=1.0.5), libjsch-java (>=1.0.24)
 Recommends:  ant-optional, ant-doc, tomcat5.5
 Suggests: ant-optional, ant-doc, tomcat5.5
 Description: IDE to support development of applications in Java

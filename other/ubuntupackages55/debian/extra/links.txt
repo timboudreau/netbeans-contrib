@@ -2,3 +2,4 @@
 /usr/share/ant/lib              ide7/ant/lib
 /usr/share/ant/etc              ide7/ant/etc
 /usr/share/java/forms.jar       ide7/modules/ext/forms-1.0.5.jar
+/usr/share/java/jsch.jar        ide7/modules/ext/jsch-0.1.24.jar
