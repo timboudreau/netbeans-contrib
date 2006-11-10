@@ -266,7 +266,11 @@ public class ChooserComponentUI extends BasicFileChooserUI {
     }
     
     private void updateFromHistory() {
-        String name = box.getSelectedItem().toString();
+        Object item = box.getSelectedItem();
+        if (item == null) {
+            return;
+        }
+        String name = item.toString();
         if (!name.endsWith(File.separator)) {
             name += File.separatorChar;
         }
