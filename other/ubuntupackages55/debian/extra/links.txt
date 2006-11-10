@@ -1,0 +1,4 @@
+/usr/share/ant/bin          ide7/ant/bin
+/usr/share/ant/lib          ide7/ant/lib
+/usr/share/ant/etc          ide7/ant/etc
+/usr/share/tomcat5.5        enterprise3/apache-tomcat-5.5.17

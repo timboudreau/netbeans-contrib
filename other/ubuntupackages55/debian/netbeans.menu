@@ -1,0 +1,7 @@
+?package(netbeans):\
+  needs="X11"\
+  section="Apps/Programming"\
+  title="NetBeans"\
+  longtitle="Integrated Development Environment"\
+  command="/usr/bin/netbeans"\
+  icon="/usr/share/netbeans/nb5.5/netbeans.png"
