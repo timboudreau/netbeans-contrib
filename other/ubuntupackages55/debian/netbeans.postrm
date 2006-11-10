@@ -24,6 +24,10 @@ case "$1" in
         #    find /usr/share/netbeans/$c -name \*.jar -exec rm {} \;
         #done
 
+	if [ -h /usr/share/netbeans/enterprise3/apache-tomcat-5.5.17 ] ; then
+	    rm /usr/share/netbeans/enterprise3/apache-tomcat-5.5.17
+	fi
+
         ;;
 
     *)
