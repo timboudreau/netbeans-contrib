@@ -200,6 +200,10 @@ NAVIGATOR:unpairedEndTag {
 
 ########### other ##############################################################
 
+COMPLETE "\":\""
+COMPLETE "':'"
+
+
 HYPERLINK:attribute-value:org.netbeans.modules.languages.html.HTML.hyperlink
 
 MARK:unpairedStartTag {
