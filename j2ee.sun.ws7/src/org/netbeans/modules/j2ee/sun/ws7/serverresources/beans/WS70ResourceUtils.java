@@ -85,6 +85,7 @@ import org.netbeans.modules.j2ee.deployment.plugins.api.InstanceProperties;
 public class WS70ResourceUtils implements WS70WizardConstants{
     
     static final ResourceBundle bundle = ResourceBundle.getBundle("org.netbeans.modules.j2ee.sun.ws7.serverresources.beans.Bundle");// NOI18N
+    private static String MAIL_PROP_PREFIX="mail."; //NOI18N // To FIX issue# 89106.
     
     /**
      * Creates a new instance of WS70ResourceUtils
@@ -107,6 +108,17 @@ public class WS70ResourceUtils implements WS70WizardConstants{
             WS70MailResource mailres = resources.getWS70MailResource(0);
             HashMap attrMap = new HashMap();
             jndiName = mailres.getJndiName();
+// START- FIX issue# 89106. attributes in mail-resource are now replaced with name/value pair as property element.       
+            ArrayList mailresProps = new ArrayList();
+            mailresProps.add(MAIL_PROP_PREFIX+WS70WizardConstants.__Host+"="+mailres.getHost());
+            mailresProps.add(MAIL_PROP_PREFIX+WS70WizardConstants.__MailUser+"="+mailres.getUser());
+            mailresProps.add(MAIL_PROP_PREFIX+WS70WizardConstants.__From+"="+mailres.getFrom());
+            mailresProps.add(WS70WizardConstants.__StoreProtocol+"="+ mailres.getStoreProtocol());
+            mailresProps.add(WS70WizardConstants.__StoreProtocolClass+"="+ mailres.getStoreProtocolClass());
+            mailresProps.add(WS70WizardConstants.__TransportProtocol+"="+ mailres.getTransportProtocol());
+            mailresProps.add(WS70WizardConstants.__TransportProtocolClass+"="+ mailres.getTransportProtocolClass());
+
+/*
             attrMap.put(WS70WizardConstants.__Host, mailres.getHost());
             attrMap.put(WS70WizardConstants.__User, mailres.getUser());
             attrMap.put(WS70WizardConstants.__From, mailres.getFrom());
@@ -114,6 +126,8 @@ public class WS70ResourceUtils implements WS70WizardConstants{
             attrMap.put(WS70WizardConstants.__StoreProtocolClass, mailres.getStoreProtocolClass());
             attrMap.put(WS70WizardConstants.__TransportProtocol, mailres.getTransportProtocol());
             attrMap.put(WS70WizardConstants.__TransportProtocolClass, mailres.getTransportProtocolClass());
+ **/
+// END- FIX issue# 89106.
             attrMap.put(WS70WizardConstants.__Enabled, mailres.getEnabled());
             attrMap.put(WS70WizardConstants.__Description, mailres.getDescription());
 
@@ -127,6 +141,9 @@ public class WS70ResourceUtils implements WS70WizardConstants{
                     NbBundle.getMessage(WS70ResourceUtils.class, "MSG_Updating_Resource", jndiName)); 
                 dm.setResource(ResourceType.MAIL, config, jndiName, attrMap, false);
             }
+// START- FIX issue# 89106.            
+            dm.setUserResourceProp(config, WS70WizardConstants.__MailResource, jndiName, "property", mailresProps, false);
+// END- FIX issue# 89106.            
             ErrorManager.getDefault().log(ErrorManager.USER, 
                 NbBundle.getMessage(WS70ResourceUtils.class, "MSG_DeployConfig"));
              

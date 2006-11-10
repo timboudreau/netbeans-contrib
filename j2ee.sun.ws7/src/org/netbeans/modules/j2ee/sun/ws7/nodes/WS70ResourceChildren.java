@@ -113,10 +113,12 @@ public class WS70ResourceChildren extends Children.Keys implements Node.Cookie{
                             WS70Resource resource = null;                         
                             resource = new WS70Resource(manager, configName, (HashMap)res[i], resType);                            
                             HashMap properties = null;
-                            if(!resType.eqauls(ResourceType.MAIL)){
+                            // START- FIX issue# 89106. mail-resource now also has property element in it.
+                            //if(!resType.eqauls(ResourceType.MAIL)){
                                 properties = (HashMap) ((WS70SunDeploymentManager)manager).getUserResourceProps
                                                             (configName, resType.toString(), resource.getJndiName(), Constants.RES_PROPERTY);    
-                            }
+                            //}
+                            // END-FIX issue# 89106.
                             
                             if(properties!=null){
                                 resource.setProperties(Constants.RES_PROPERTY, properties);
