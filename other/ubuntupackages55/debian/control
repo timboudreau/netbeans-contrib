@@ -2,7 +2,7 @@ Source: netbeans
 Section: devel
 Priority: optional
 Maintainer: Trung Duc Tran <ttran@netbeans.org>
-Build-Depends: debhelper (>= 5)
+Build-Depends: debhelper (>= 4)
 Standards-Version: 3.7.2
 
 Package: netbeans-platform
