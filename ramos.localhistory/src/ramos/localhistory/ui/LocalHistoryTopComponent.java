@@ -35,6 +35,7 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import javax.swing.AbstractAction;
 import javax.swing.ActionMap;
@@ -57,6 +58,7 @@ import org.openide.ErrorManager;
 import org.openide.cookies.SaveCookie;
 import org.openide.explorer.ExplorerManager;
 import org.openide.explorer.ExplorerUtils;
+import org.openide.explorer.view.BeanTreeView;
 import org.openide.explorer.view.TreeTableView;
 //import org.openide.explorer.view.BeanTreeView;
 import org.openide.filesystems.FileObject;
@@ -68,6 +70,7 @@ import org.openide.nodes.Children;
 import org.openide.nodes.FilterNode;
 import org.openide.nodes.Node;
 import org.openide.nodes.Node.Property;
+import org.openide.nodes.PropertySupport;
 import org.openide.text.CloneableEditorSupport;
 import org.openide.util.Lookup;
 import org.openide.util.NbBundle;
@@ -94,68 +97,88 @@ public final class LocalHistoryTopComponent extends TopComponent
   final static String PATH = "path";
   final static String LOCAL_HISTORY = "local history";
   final static String NEW = "new";
-  //private FileObject[] diffFiles;
+
   private int max;
   private final RevertAction revertAction = new RevertAction();
   private final RefreshHistory refreshAction = new RefreshHistory();
   
   private VersionNode reverter = null;
   private static LocalHistoryTopComponent instance;
-  private final ExplorerManager manager = new ExplorerManager();
+  private final ExplorerManager manager;
   private Lookup lookup;
-  //   private final BeanTreeView view = new BeanTreeView();
-  private final TreeTableView view = new TreeTableView();
-  //private JPanel diffContainer = new JPanel();
+  
   private File currentFile = null;
   private Component oldDiff = null;
-  private PrevNextDiffListener diffListener = new PrevNextDiffListener();
-  private JSplitPane historyDiffSplit = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
-  private JPanel dummyRightComponent = new JPanel();
+  private PrevNextDiffListener diffListener;
+  private JSplitPane historyDiffSplit;
   
-  //   private static final String DIFF_VIEW = "Diff View";
-  //   private static final String HISTORY_VIEW = "History View";
-  //   private static final Border DIFF_BORDER = BorderFactory.createCompoundBorder(
-  //       BorderFactory.createTitledBorder(DIFF_VIEW),
-  //       BorderFactory.createLineBorder(Color.gray));
-  //   private static final Border HISTORY_BORDER = BorderFactory.createCompoundBorder(
-  //       BorderFactory.createTitledBorder(HISTORY_VIEW),
-  //       BorderFactory.createLineBorder(Color.gray));
   //toolbar
-  JPanel diffContainer = new JPanel(new BorderLayout());
-  private JLabel diffLabel = new JLabel(" 0 difference(s)");
-  //private JPanel toolPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-  private Box toolPanel = Box.createHorizontalBox();
-  private JButton prev = new JButton(new ImageIcon(
-     Utilities.loadImage("ramos/localhistory/resources/diff-prev.png")));
-  private JButton next = new JButton(new ImageIcon(
-     Utilities.loadImage("ramos/localhistory/resources/diff-next.png")));
+  private JPanel diffContainer;
+  private JLabel diffLabel;
+  
   private List<FileObject> oldies = new ArrayList<FileObject>();
   public  LocalHistoryTopComponent() {
-    //initComponents();
     //toolbar
     //make color labels
-    // <editor-fold defaultstate="collapsed" desc="layouting">
-    Border border = BorderFactory.createEtchedBorder();
-    JLabel deleteColor = new JLabel(COLOR);
-    deleteColor.setBorder(border);
-    deleteColor.setBackground(Color.decode("#FFA0B4"));
-    deleteColor.setOpaque(true);
-    JLabel addColor = new JLabel(COLOR);
-    addColor.setBorder(border);
-    addColor.setBackground(Color.decode("#B4FFB4"));
-    addColor.setOpaque(true);
-    JLabel changedColor = new JLabel(COLOR);
-    changedColor.setBackground(Color.decode("#A0C8FF"));
-    changedColor.setOpaque(true);
-    changedColor.setBorder(border);
+    Border colorBorder = BorderFactory.createEtchedBorder();
+    JLabel deleteColor = createColorLabel("#FFA0B4",colorBorder);
+    JLabel addColor = createColorLabel("#B4FFB4",colorBorder);
+    JLabel changedColor = createColorLabel("#A0C8FF",colorBorder);
     JLabel delete = new JLabel("  removed   ");
     JLabel added = new JLabel("  added    ");
     JLabel changed = new JLabel("  changed   ");
+    diffListener = new PrevNextDiffListener();
+    JButton prev = createButton(PREV,"ramos/localhistory/resources/diff-prev.png");
+    JButton next = createButton(NEXT,"ramos/localhistory/resources/diff-next.png");
+    diffLabel = new JLabel(" 0 difference(s)");
+    Box toolPanel = createToolPanel(deleteColor, addColor, changedColor, delete, 
+       added, changed, prev, next);
+    //diffContainer.setBorder(DIFF_BORDER);
+    historyDiffSplit = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
+    diffContainer = new JPanel(new BorderLayout());
+    JPanel dummyRightComponent = new JPanel();
+    diffContainer.add(dummyRightComponent,BorderLayout.CENTER);
+    diffContainer.add(toolPanel,BorderLayout.NORTH);
+    BeanTreeView view = createView();
+    historyDiffSplit.setLeftComponent(view);
+    historyDiffSplit.setRightComponent(diffContainer);
+    add(historyDiffSplit);
+    //view.setBorder(HISTORY_BORDER);
+    setName(NbBundle.getMessage(LocalHistoryTopComponent.class,
+       "CTL_LocalHistoryTopComponent"));
+    setToolTipText(NbBundle.getMessage(LocalHistoryTopComponent.class,
+       "HINT_LocalHistoryTopComponent"));
+    manager = new ExplorerManager();
+    manager.addVetoableChangeListener(new ShowDiffAtSelection());
+    ActionMap map = createActionMap();
+    lookup = ExplorerUtils.createLookup(manager, map);
+    setLayout(new BoxLayout(this,BoxLayout.Y_AXIS));//could not remove this
+    setIcon(Utilities.loadImage(ICON_PATH));
+  }
+
+  private BeanTreeView createView() {
+    TreeTableView view = new TreeTableView();
+    VersionPropertyTemplate vpt = new VersionPropertyTemplate();
+    vpt.setValue("TreeColumnTTV",Boolean.TRUE);
+    vpt.setValue("SortingColumnTTV",Boolean.TRUE);
+    vpt.setValue("ComparableColumnTTV",Boolean.TRUE);
+    AnnotationPropertyTemplate apt = new AnnotationPropertyTemplate();
+    apt.setValue("ComparableColumnTTV",Boolean.TRUE);
+    Property[] cols = new Property[]{vpt,apt};
+    view.setProperties(cols);
+    view.setRootVisible(false);
+    return view;
+  }
+  
+  private Box createToolPanel(final JLabel deleteColor, final JLabel addColor, 
+     final JLabel changedColor, final JLabel delete, final JLabel added, 
+     final JLabel changed, final JButton prev, final JButton next) {
     //toolPanel.setBorder(null);
     //      JPanel revertPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
     //      revertPanel.setBorder(BorderFactory.createLineBorder(Color.BLACK));
     //      revertPanel.add(new JButton(revertAction));
     //      revertPanel.add(Box.createGlue());
+    Box toolPanel = Box.createHorizontalBox();
     toolPanel.setBorder(BorderFactory.createEmptyBorder(4,4,4,4));
     toolPanel.add(new JButton(revertAction));
     toolPanel.add(Box.createGlue());
@@ -167,49 +190,20 @@ public final class LocalHistoryTopComponent extends TopComponent
     toolPanel.add(changed);
     toolPanel.add(addColor);
     toolPanel.add(added);
-    
     toolPanel.add(diffLabel);
     toolPanel.add(prev);
     toolPanel.add(Box.createHorizontalStrut(2));
     toolPanel.add(next);
-    prev.setActionCommand(PREV);
-    next.setActionCommand(NEXT);
-    prev.addActionListener(diffListener);
-    next.addActionListener(diffListener);
-    next.setMargin(new java.awt.Insets(2,3,2,3));
-    prev.setMargin(new java.awt.Insets(2,3,2,3));
-    //prev.setBorder(BorderFactory.createEmptyBorder(2,2,2,2));
-    //prev.setHorizontalAlignment(JButton.LEADING); // optional
-    //prev.setBorderPainted(false);
-    prev.setContentAreaFilled(false);
-    next.setContentAreaFilled(false);
-    //      next.setBorder(null);
-    //      prev.setBorder(null);
-    //diffContainer.setBorder(DIFF_BORDER);
-    diffContainer.add(dummyRightComponent,BorderLayout.CENTER);
-    diffContainer.add(toolPanel,BorderLayout.NORTH);
-    // </editor-fold>
-    
-    
-    this.add(historyDiffSplit);
-    //view.setBorder(HISTORY_BORDER);
-    setName(NbBundle.getMessage(LocalHistoryTopComponent.class,
-       "CTL_LocalHistoryTopComponent"));
-    setToolTipText(NbBundle.getMessage(LocalHistoryTopComponent.class,
-       "HINT_LocalHistoryTopComponent"));
+    return toolPanel;
+  }
+  
+  private ActionMap createActionMap() {
     ActionMap map = getActionMap();
     map.put(DefaultEditorKit.copyAction, ExplorerUtils.actionCopy(manager));
     map.put(DefaultEditorKit.cutAction, ExplorerUtils.actionCut(manager));
     map.put(DefaultEditorKit.pasteAction, ExplorerUtils.actionPaste(manager));
     map.put("delete", ExplorerUtils.actionDelete(manager, true)); // or false
-    lookup = ExplorerUtils.createLookup(manager, map);
-    manager.addVetoableChangeListener(new ShowDiffAtSelection());
-    setLayout(new BoxLayout(this,BoxLayout.Y_AXIS));//could not remove this
-    view.setProperties(new Property[]{new AnnotationPropertyTemplate()});
-    view.setRootVisible(false);
-    historyDiffSplit.setLeftComponent(view);
-    historyDiffSplit.setRightComponent(diffContainer);
-    setIcon(Utilities.loadImage(ICON_PATH));
+    return map;
   }
   
   public Lookup getLookup() {
@@ -396,6 +390,25 @@ public final class LocalHistoryTopComponent extends TopComponent
     //throw new UnsupportedOperationException("Not yet implemented");
   }
   
+  //************ convenience gui methods ****************//
+  private JButton createButton(String actionCommand, String iconURL){
+    JButton button = new JButton(new ImageIcon(Utilities.loadImage(iconURL)));
+    button.setActionCommand(actionCommand);
+    button.addActionListener(diffListener);
+    button.setMargin(new java.awt.Insets(2,3,2,3));
+    //prev.setBorder(BorderFactory.createEmptyBorder(2,2,2,2));
+    //prev.setHorizontalAlignment(JButton.LEADING); // optional
+    //prev.setBorderPainted(false);
+    button.setContentAreaFilled(false);
+    return button;
+  }
+  private JLabel createColorLabel(String hexColor, Border colorBorder){
+    JLabel deleteColor = new JLabel(COLOR);
+    deleteColor.setBorder(colorBorder);
+    deleteColor.setBackground(Color.decode(hexColor));
+    deleteColor.setOpaque(true);
+    return deleteColor;
+  }
   //************** inner classes ************************//
   
   static class MyFileVersionRoot extends BeanNode{
@@ -448,6 +461,7 @@ public final class LocalHistoryTopComponent extends TopComponent
     public void vetoableChange(final PropertyChangeEvent evt)
        throws PropertyVetoException {
       if (ExplorerManager.PROP_SELECTED_NODES.equals(evt.getPropertyName())) {
+        
         //reset (was here!)
         Node[] selNodes = (Node[]) evt.getNewValue();
         Node selectedNode1 = selNodes[0];
@@ -487,31 +501,57 @@ public final class LocalHistoryTopComponent extends TopComponent
     
   }
   
-  
-  private static class AnnotationPropertyTemplate extends Property{
-    AnnotationPropertyTemplate(){
-      super(String.class);
+  private static class VersionPropertyTemplate extends PropertySupport{
+     VersionPropertyTemplate(){
+      super("Version",VersionNode.class,"Version","Version",true,true);
     }
-    public boolean canRead() {
-      return true;
+    public Object getValue() throws IllegalAccessException, InvocationTargetException {
+      return "TreeColumnTTV";
+    }
+
+    public void setValue(Object val) throws IllegalAccessException, IllegalArgumentException, InvocationTargetException {
     }
     
+  }
+  private static class AnnotationPropertyTemplate extends PropertySupport{
+    AnnotationPropertyTemplate(){
+      super(ANNOTATION,String.class,ANNOTATION,ANNOTATION,true,true);
+    }
+//    public boolean canRead() {
+//      //System.out.println("canRead");
+//      return true;
+//    }
+//    
     public Object getValue() throws IllegalAccessException,
        InvocationTargetException {
+      //System.out.println("getValue");
       return "<template>";
     }
-    
-    public boolean canWrite() {
-      return true;
-    }
-    
+//    
+//    public boolean canWrite() {
+//      //System.out.println("canWrite");
+//      return true;
+//    }
+//    
     public void setValue(Object object) throws IllegalAccessException,
        IllegalArgumentException, InvocationTargetException {
+      //System.out.println("setValue");
     }
+//    
+//    public String getName() {
+//      //System.out.println("getName");
+//      return ANNOTATION;
+//    }
+
+//    public Object getValue(String attributeName) {
+//      Object retValue;
+//      System.out.println("getValue "+attributeName);
+//      System.out.println("super =:"+super.getValue(attributeName));
+//      retValue = super.getValue(attributeName);
+//      if (attributeName.equals("InvisibleInTreeTableView")) return Boolean.FALSE;// || attributeName.equals("DescendingOrderTTV")) return Boolean.TRUE;
+//      else return Boolean.TRUE;
+//    }
     
-    public String getName() {
-      return ANNOTATION;
-    }
     
     
   }
