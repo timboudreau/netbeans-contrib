@@ -33,7 +33,6 @@ import org.openide.util.NbBundle;
 import org.openide.util.actions.CookieAction;
 
 import ramos.localhistory.ui.LocalHistoryTopComponent;
-import ramos.localhistory.VersionNode;
 
 import java.awt.event.ActionEvent;
 
@@ -105,7 +104,8 @@ public final class LocalHistoryAction
    */
   protected void initialize() {
     super.initialize();
-    // see org.openide.util.actions.SystemAction.iconResource() javadoc for more details
+    // see org.openide.util.actions.SystemAction.iconResource() 
+    //javadoc for more details
     putValue("noIconInMenu", Boolean.TRUE);
   }
 
