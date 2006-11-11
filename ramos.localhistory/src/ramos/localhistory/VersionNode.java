@@ -19,7 +19,10 @@
  */
 package ramos.localhistory;
 
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
 import java.lang.reflect.InvocationTargetException;
+import java.util.zip.GZIPInputStream;
 import org.openide.actions.DeleteAction;
 
 import org.openide.filesystems.FileLock;
@@ -53,7 +56,7 @@ import javax.swing.Action;
 
 
 public class VersionNode
-   extends FilterNode {
+   extends FilterNode implements Comparable{
   private static final String ICON_PATH =
      "ramos/localhistory/resources/clock.png";
   private static final String ANNOTATION = "Annotation";
@@ -64,15 +67,21 @@ public class VersionNode
     super(DataObject.find(fo).getNodeDelegate());
     this.fileCopy = fo;
   }
-  
+  public String getHtmlDisplayName() {
+    return fileCopy.lastModified().toString();
+   
+  }
   @Override
   public String getDisplayName() {
-    return getName();
+    return String.valueOf(fileCopy.lastModified().getTime());
+    //return getName();
+   // return fileCopy.lastModified().toString();
   }
   
   @Override
   public String getName() {
-    return fileCopy.lastModified().toString();
+    //return String.valueOf(fileCopy.lastModified().getTime());
+        return fileCopy.lastModified().toString();
   }
   
   @Override
@@ -93,6 +102,7 @@ public class VersionNode
   
   @Override
   public Node.PropertySet[] getPropertySets() {
+    //System.out.println("getPropertySets");
     PropertySet[] retValue = new PropertySet[1];
     final ReadWrite prop =
        new AnnotationProperty(ANNOTATION, String.class, ANNOTATION, ANNOTATION);
@@ -122,9 +132,20 @@ public class VersionNode
   
   public Reader getReader()
      throws IOException {
-    File file = FileUtil.toFile(fileCopy);
-    
-    return new FileReader(file);
+    Reader retValue;
+    if (fileCopy.getExt().equals("gz")){
+      //System.out.println("is gz");
+      BufferedReader br =
+         new BufferedReader(
+         new InputStreamReader(
+         new GZIPInputStream(fileCopy.getInputStream())));
+      retValue = br;
+    }else{
+      //System.out.println("normal old");
+      File file = FileUtil.toFile(fileCopy);
+      retValue = new BufferedReader(new FileReader(file));
+    }
+    return retValue;
   }
   
   public void revert(final FileObject current) {
@@ -156,13 +177,32 @@ public class VersionNode
       ex.printStackTrace();
     }
   }
+  
+  public int compareTo(Object o) {
+    System.out.println("compareTo");
+    VersionNode vn = (VersionNode)o;
+    return fileCopy.lastModified().compareTo(vn.fileCopy.lastModified());
+  }
+  
+  public Object getValue(String attributeName) {
+    System.out.println("getValue "+attributeName);
+    Object retValue;
+    
+    retValue = super.getValue(attributeName);
+    return retValue;
+  }
+  
+  
+  
+  
   private class AnnotationProperty extends PropertySupport.ReadWrite{
-    AnnotationProperty(String name,Class type,String displayName, 
+    AnnotationProperty(String name,Class type,String displayName,
        String shortDescription){
       super(name, type, displayName, shortDescription);
     }
-    public Object getValue() throws IllegalAccessException, 
+    public Object getValue() throws IllegalAccessException,
        InvocationTargetException {
+      //System.out.println("getValue");
       String retValue = "";
       String attr = (String) fileCopy.getAttribute(ANNOTATION);
       
@@ -173,14 +213,33 @@ public class VersionNode
       return retValue;
     }
     
-    public void setValue(Object value) throws IllegalAccessException, 
+    public void setValue(Object value) throws IllegalAccessException,
        IllegalArgumentException, InvocationTargetException {
+      //System.out.println("setValue");
       try {
         fileCopy.setAttribute(ANNOTATION, value);
       } catch (final IOException ex) {
         ex.printStackTrace();
       }
+      
+    }
+    @Override public Object getValue(String attr){
+      Object retValue = super.getValue(attr);
+      if (attr.equals("htmlDisplayValue"))
+        try {
+          String converted = (String)getValue();
+          converted = converted.replaceAll("<","&lt;");
+          converted = converted.replaceAll(">","&gt;");
+          retValue =  "<html>"+converted+"</html>";
+        } catch (InvocationTargetException ex) {
+          ex.printStackTrace();
+        } catch (IllegalAccessException ex) {
+          ex.printStackTrace();
+        }
+      return retValue;
     }
     
+    
   }
+  
 }
