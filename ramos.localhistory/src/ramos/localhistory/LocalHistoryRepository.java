@@ -19,6 +19,10 @@
  */
 package ramos.localhistory;
 
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.util.zip.GZIPOutputStream;
+import org.openide.filesystems.FileLock;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileStateInvalidException;
 import org.openide.filesystems.FileUtil;
@@ -51,6 +55,7 @@ import javax.swing.event.ChangeListener;
 /**
  *
  * @author Ramon Ramos
+ * TODO: no lh copies after refactorings?
  */
 public class LocalHistoryRepository
    implements ChangeListener, OperationListener {
@@ -172,17 +177,32 @@ public class LocalHistoryRepository
     FileObject fileObject = dataObject.getPrimaryFile();
     final File file = FileUtil.toFile(fileObject);
     String filename = filenameFromPath(file);
-    filename += String.valueOf(new Date().getTime());
+    filename += String.valueOf(new Date().getTime()+".gz");
     lastModifiedRecord.put(dataObject, fileObject.lastModified());
-    
+    //File copiedFile = new File(FileUtil.toFile(LHRepositoryDir),filename);
     try {
-      FileObject copied = fileObject.copy(LHRepositoryDir, filename, EMPTY);
+      FileObject copied = LHRepositoryDir.createData(filename);
+      //copiedFile.createNewFile();
+      //FileObject copied = FileUtil.toFileObject(copiedFile);
+      //FileObject copied = fileObject.copy(LHRepositoryDir, filename, EMPTY);
       copied.setAttribute(PATH, file.getAbsolutePath());
-      
       //copiedList.add(copied);
       if (comment != null) {
         copied.setAttribute("Annotation", comment);
       }
+      
+      System.out.println("copied: "+copied);
+      System.out.println(copied.getAttribute(PATH));
+      //System.out.println(copiedFile.getAbsolutePath());
+      //FileOutputStream fos = new FileOutputStream(copiedFile);
+      FileLock lock = copied.lock();
+      GZIPOutputStream gzip = new GZIPOutputStream(copied.getOutputStream(lock));
+      FileUtil.copy(new FileInputStream(file),gzip);
+      //      gzip.flush();
+      //      gzip.finish();
+      gzip.close();
+      lock.releaseLock();
+      
     } catch (final IOException ex) {
       ex.printStackTrace();
     }
