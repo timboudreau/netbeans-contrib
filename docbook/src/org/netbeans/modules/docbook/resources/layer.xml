@@ -153,7 +153,7 @@ Microsystems, Inc. All Rights Reserved.
 
     <folder name="Editors">
         <folder name="text">
-            <folder name="x-docbook+xml">
+            <folder name="xml">
                 <file name="abbreviations.xml" url="abbreviations.xml"/>
                 <file name="keybindings.xml" url="keybindings.xml"/>
                 <file name="macros.xml" url="macros.xml"/>

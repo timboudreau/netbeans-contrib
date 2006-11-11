@@ -6,4 +6,37 @@
         &lt;emphasis&gt;${title}&lt;/emphasis&gt;&amp;mdash;
     &lt;/para&gt;
 &lt;/listitem&gt;</abbrev>
+    <abbrev key="vle" xml:space="preserve">    &lt;varlistentry&gt;
+        &lt;term&gt;&lt;emphasis&gt;
+            ${term}
+        &lt;/emphasis&gt;&lt;/term&gt;
+    &lt;listitem&gt;
+        &lt;para&gt;
+                |
+        &lt;/para&gt;
+    &lt;/listitem&gt;
+    &lt;/varlistentry&gt;
+</abbrev>
+    <abbrev key="cl" xml:space="preserve">&lt;classname&gt;${c}&lt;/classname&gt;</abbrev>
+    <abbrev key="lim" xml:space="preserve">            &lt;listitem&gt;
+                &lt;para&gt;
+                    &lt;emphasis&gt;${info}
+                    &lt;/emphasis&gt;&amp;mdash;
+                    |
+                &lt;/para&gt;
+            &lt;/listitem&gt;
+</abbrev>
+    <abbrev key="vlist" xml:space="preserve">&lt;variablelist&gt;
+    &lt;varlistentry&gt;
+        &lt;term&gt;&lt;emphasis&gt;
+            ${term}
+        &lt;/emphasis&gt;&lt;/term&gt;
+    &lt;listitem&gt;
+        &lt;para&gt;
+                |
+        &lt;/para&gt;
+    &lt;/listitem&gt;
+    &lt;/varlistentry&gt;
+&lt;/variablelist&gt;</abbrev>
+    <abbrev key="mmt" xml:space="preserve">&lt;methodname&gt;${name}&lt;/methodname&gt;</abbrev>
 </abbrevs>
