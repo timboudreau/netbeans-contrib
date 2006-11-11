@@ -38,6 +38,7 @@ public class RunDialog extends javax.swing.JFrame {
         "test.controlpoint.AddRemoveControlPointTest",
         "test.custom.CustomWidgetTest",
         "test.devolve.DevolveTest",
+        "test.expand.MouseOverExpandTest",
         "test.general.GraphSceneTest",
         "test.freeconnect.FreeConnectTest",
         "test.graph.LoopEdgeTest",
