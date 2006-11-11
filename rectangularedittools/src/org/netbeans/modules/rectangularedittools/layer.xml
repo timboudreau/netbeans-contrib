@@ -15,6 +15,9 @@
             <file name="org-netbeans-modules-rectangularedittools-actions-RectangularDeleteAction.instance">
                 <attr name="instanceClass" stringvalue="org.netbeans.modules.rectangularedittools.actions.RectangularDeleteAction"/>
             </file>
+            <file name="org-netbeans-modules-rectangularedittools-actions-RectangularClearAction.instance">
+                <attr name="instanceClass" stringvalue="org.netbeans.modules.rectangularedittools.actions.RectangularClearAction"/>
+            </file>
             <file name="org-netbeans-modules-rectangularedittools-actions-RectangularReplaceAction.instance">
                 <attr name="instanceClass" stringvalue="org.netbeans.modules.rectangularedittools.actions.RectangularReplaceAction"/>
             </file>
@@ -39,8 +42,12 @@
                 <file name="org-netbeans-modules-rectangularedittools-actions-RectangularDeleteAction.shadow">
                     <attr name="originalFile" stringvalue="Actions/Edit/org-netbeans-modules-rectangularedittools-actions-RectangularDeleteAction.instance"/>
                 </file>
-                <attr name="org-netbeans-modules-rectangularedittools-actions-RectangularDeleteAction.shadow/org-netbeans-modules-rectangularedittools-actions-RectangularEditAction.shadow" boolvalue="true"/>
-                <file name="org-netbeans-modules-rectangularedittools-actions-RectangularEditAction.shadow">
+                <attr name="org-netbeans-modules-rectangularedittools-actions-RectangularDeleteAction.shadow/org-netbeans-modules-rectangularedittools-actions-RectangularClearAction.shadow" boolvalue="true"/>
+                <file name="org-netbeans-modules-rectangularedittools-actions-RectangularClearAction.shadow">
+                    <attr name="originalFile" stringvalue="Actions/Edit/org-netbeans-modules-rectangularedittools-actions-RectangularClearAction.instance"/>
+                </file>
+                <attr name="org-netbeans-modules-rectangularedittools-actions-RectangularClearAction.shadow/org-netbeans-modules-rectangularedittools-actions-RectangularReplaceAction.shadow" boolvalue="true"/>
+                <file name="org-netbeans-modules-rectangularedittools-actions-RectangularReplaceAction.shadow">
                     <attr name="originalFile" stringvalue="Actions/Edit/org-netbeans-modules-rectangularedittools-actions-RectangularReplaceAction.instance"/>
                 </file>
             </folder>
@@ -64,7 +71,11 @@
             <file name="org-netbeans-modules-rectangularedittools-actions-RectangularDeleteAction.shadow">
                 <attr name="originalFile" stringvalue="Actions/Edit/org-netbeans-modules-rectangularedittools-actions-RectangularDeleteAction.instance"/>
             </file>
-            <attr name="org-netbeans-modules-rectangularedittools-actions-RectangularDeleteAction.shadow/org-netbeans-modules-rectangularedittools-actions-RectangularReplaceAction.shadow" boolvalue="true"/>
+            <attr name="org-netbeans-modules-rectangularedittools-actions-RectangularDeleteAction.shadow/org-netbeans-modules-rectangularedittools-actions-RectangularClearAction.shadow" boolvalue="true"/>
+            <file name="org-netbeans-modules-rectangularedittools-actions-RectangularClearAction.shadow">
+                <attr name="originalFile" stringvalue="Actions/Edit/org-netbeans-modules-rectangularedittools-actions-RectangularClearAction.instance"/>
+            </file>
+            <attr name="org-netbeans-modules-rectangularedittools-actions-RectangularClearAction.shadow/org-netbeans-modules-rectangularedittools-actions-RectangularReplaceAction.shadow" boolvalue="true"/>
             <file name="org-netbeans-modules-rectangularedittools-actions-RectangularReplaceAction.shadow">
                 <attr name="originalFile" stringvalue="Actions/Edit/org-netbeans-modules-rectangularedittools-actions-RectangularReplaceAction.instance"/>
             </file>

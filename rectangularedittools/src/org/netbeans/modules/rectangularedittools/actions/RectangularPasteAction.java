@@ -71,7 +71,7 @@ public class RectangularPasteAction extends AbstractRectangularAction {
         return false;
     }
 
-    protected String getReplacementText() {
+    protected String getReplacementText(int rectangleWidth) {
         // Get the contents from the current clipboard if it's text
         Clipboard cb = getExClipboard();
         try {

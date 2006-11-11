@@ -74,17 +74,6 @@ public abstract class AbstractRectangularAction extends CookieAction {
             return;
         }
 
-        String replacementText = getReplacementText();
-        if (replacementText == null) {
-            return;
-        }
-
-        // Tokenize text by newline
-        String newline = "\n";
-        StringTokenizer replaceRows = new StringTokenizer(replacementText, newline);
-        int numReplaceRows = replaceRows.countTokens();
-        boolean replaceMultipleRows = numReplaceRows > 1;
-
         // lock the document to capture all changes as a single Undoable change
         if (doc instanceof BaseDocument) {
             ((BaseDocument)doc).atomicLock();
@@ -128,7 +117,6 @@ public abstract class AbstractRectangularAction extends CookieAction {
             int endLineEndOffset = endLineElement.getEndOffset();
             int endLineLength = endLineEndOffset - endLineStartOffset;
 
-            String replacementLine = replacementText;
 
             // the length of the not-selected prefix in every line:
             int prefixLen = selectionStart - startLineStartOffset;
@@ -144,6 +132,19 @@ public abstract class AbstractRectangularAction extends CookieAction {
                 beep();
                 return;
             }
+
+            String replacementText = getReplacementText(rectangleWidth);
+            if (replacementText == null) {
+                return;
+            }
+
+            // Tokenize text by newline
+            String newline = "\n";
+            StringTokenizer replaceRows = new StringTokenizer(replacementText, newline);
+            int numReplaceRows = replaceRows.countTokens();
+            boolean replaceMultipleRows = numReplaceRows > 1;
+
+            String replacementLine = replacementText;
 
             try {
                 // Collect the string to replace
@@ -290,7 +291,7 @@ public abstract class AbstractRectangularAction extends CookieAction {
         Toolkit.getDefaultToolkit().beep();
     }
 
-    protected String getReplacementText() {
+    protected String getReplacementText(int rectangleWidth) {
         return "";
     }
 

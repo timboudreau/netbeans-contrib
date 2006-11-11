@@ -19,22 +19,20 @@
 
 package org.netbeans.modules.rectangularedittools.actions;
 
-import javax.swing.JOptionPane;
 import org.openide.util.NbBundle;
-import org.openide.windows.WindowManager;
 
 /**
  *
  * @author Sandip V. Chitale (Sandip.Chitale@Sun.Com)
  */
-public class RectangularReplaceAction extends AbstractRectangularAction {
+public class RectangularClearAction extends AbstractRectangularAction {
 
     public String getName() {
-        return NbBundle.getMessage(RectangularReplaceAction.class, "CTL_RectangularReplaceAction"); // NOI18N
+        return NbBundle.getMessage(RectangularCutAction.class, "CTL_RectangularClearAction"); // NOI18N
     }
 
     protected String iconResource() {
-        return "org/netbeans/modules/rectangularedittools/actions/rectangularreplace.gif"; // NOI18N
+        return "org/netbeans/modules/rectangularedittools/actions/rectangularclear.gif"; // NOI18N
     }
 
     protected boolean isReplacingAction() {
@@ -46,10 +44,9 @@ public class RectangularReplaceAction extends AbstractRectangularAction {
     }
 
     protected String getReplacementText(int rectangleWidth) {
-        return JOptionPane.showInputDialog(
-                WindowManager.getDefault().getMainWindow(),
-                "Rectangular Replace",
-                "Enter the replacement text:",
-                JOptionPane.PLAIN_MESSAGE);
+        if (rectangleWidth == 0) {
+            return "";
+        }
+        return String.format("%" + rectangleWidth + "s", new Object[] {" "});
     }
 }
