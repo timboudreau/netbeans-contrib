@@ -22,6 +22,7 @@ package ramos.localhistory;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.lang.reflect.InvocationTargetException;
+import java.text.DateFormat;
 import java.util.zip.GZIPInputStream;
 import org.openide.actions.DeleteAction;
 
@@ -61,27 +62,32 @@ public class VersionNode
      "ramos/localhistory/resources/clock.png";
   private static final String ANNOTATION = "Annotation";
   private FileObject fileCopy;
+  private String htmlDisplayName;
+  private String displayName;
   
   public VersionNode(final FileObject fo)
      throws DataObjectNotFoundException {
     super(DataObject.find(fo).getNodeDelegate());
-    this.fileCopy = fo;
+    fileCopy = fo;
+    htmlDisplayName = DateFormat.getDateTimeInstance(DateFormat.LONG,DateFormat.MEDIUM).format(fileCopy.lastModified());
+    displayName = String.valueOf(fileCopy.lastModified().getTime());
   }
   public String getHtmlDisplayName() {
-    return fileCopy.lastModified().toString();
-   
+    return htmlDisplayName;
+    //return fileCopy.lastModified().toString();
+    
   }
   @Override
   public String getDisplayName() {
-    return String.valueOf(fileCopy.lastModified().getTime());
+    return displayName;
     //return getName();
-   // return fileCopy.lastModified().toString();
+    // return fileCopy.lastModified().toString();
   }
   
   @Override
   public String getName() {
     //return String.valueOf(fileCopy.lastModified().getTime());
-        return fileCopy.lastModified().toString();
+    return fileCopy.lastModified().toString();
   }
   
   @Override
@@ -191,6 +197,32 @@ public class VersionNode
     retValue = super.getValue(attributeName);
     return retValue;
   }
+  
+  /**
+   * Delegates to original, if no special lookup provided in constructor,
+   * Otherwise it delegates to the lookup. Never override this method
+   * if the lookup is provided in constructor.
+   *
+   * @param type the class to look for
+   * @return instance of that class or null if this class of cookie
+   *    is not supported
+   * @see Node#getCookie
+   */
+//  public Node.Cookie getCookie(Class type) {
+//    System.out.println("getCookie "+type);
+//    Cookie retValue = null;
+//    if (type.equals(DataObject.class)){
+//      try {
+//        retValue = DataObject.find(FileUtil.toFileObject(new File((String) fileCopy.getAttribute("path"))));
+//      } catch (DataObjectNotFoundException ex) {
+//        ex.printStackTrace();
+//      }
+//    }else{
+//      retValue = super.getCookie(type);
+//      //System.out.println("super.getCookie "+retValue);
+//    }
+//    return retValue;
+//  }
   
   
   
