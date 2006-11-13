@@ -82,23 +82,29 @@
         </folder>
         <attr name="Rectangle/File" boolvalue="true"/>
     </folder>
-    <!--
     <folder name="Shortcuts">
-        <file name="O-S-X.shadow">
+        <file name="D-O-X.shadow">
             <attr name="originalFile" stringvalue="Actions/Edit/org-netbeans-modules-rectangularedittools-actions-RectangularCutAction.instance"/>
         </file>
-        <file name="O-UP.shadow">
+        <file name="D-O-C.shadow">
             <attr name="originalFile" stringvalue="Actions/Edit/org-netbeans-modules-rectangularedittools-actions-RectangularCopyAction.instance"/>
         </file>
-        <file name="O-DOWN.shadow">
+        <file name="D-O-V.shadow">
             <attr name="originalFile" stringvalue="Actions/Edit/org-netbeans-modules-rectangularedittools-actions-RectangularPasteAction.instance"/>
         </file>
-        <file name="O-S-UP.shadow">
+        <file name="D-O-MINUS.shadow">
             <attr name="originalFile" stringvalue="Actions/Edit/org-netbeans-modules-rectangularedittools-actions-RectangularDeleteAction.instance"/>
         </file>
-        <file name="O-S-DOWN.shadow">
-            <attr name="originalFile" stringvalue="Actions/Edit/org-netbeans-modules-rectangularedittools-actions-RectangularEditAction.instance"/>
+        <file name="D-O-SPACE.shadow">
+            <attr name="originalFile" stringvalue="Actions/Edit/org-netbeans-modules-rectangularedittools-actions-RectangularClearAction.instance"/>
+        </file>
+        <file name="D-O-R.shadow">
+            <attr name="originalFile" stringvalue="Actions/Edit/org-netbeans-modules-rectangularedittools-actions-RectangularReplaceAction.instance"/>
         </file>
     </folder>
-    -->
+    <folder name="Services">
+        <folder name="JavaHelp">
+            <file name="rectangularedittools-helpset.xml" url="rectangularedittools-helpset.xml"/>
+        </folder>
+    </folder>
 </filesystem>

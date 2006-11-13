@@ -1,0 +1,156 @@
+<html>
+    <head>
+        <title>About Rectangular Edit Tools</title>
+        <link rel="stylesheet" href="nbdocs:/org/netbeans/modules/usersguide/ide.css" type="text/css">
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    </head>
+    <body>
+        <h2>About Rectangular Edit Tools</h2>
+        <p>This module installs the following actions in <font face="courier new,courier,monospace">Edit:Rectangle Menu </font> and <font face="courier new,courier,monospace">Rectangle </font> toolbar.</p>
+        <p>
+            <table style="WIDTH: 800px; HEIGHT: 142px" cellspacing="5" cellpadding="1" border="0">
+                <tbody>
+                    <tr>
+                        <td>
+                            <p align="center"><strong>Action</strong></p>
+                        </td>
+                        <td>
+                            <p align="center"><strong>Icon</strong></p>
+                        </td>
+                        <td>
+                            <p align="center"><strong>Description</strong></p>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Rectangular Cut ( <code>Ctrl+Alt+X</code> )</td>
+                        <td><img alt="Rectangular Cut" hspace="0" src="rectangularcut.gif" align="baseline" border="0" /></td>
+                        <td>Cuts the contents of rectangle defined by the selection</td>
+                    </tr>
+                    <tr>
+                        <td>Rectangular Copy ( <code>Ctrl+Alt+C</code> )</td>
+                        <td><img alt="Rectangular Copy" hspace="0" src="rectangularcopy.gif" align="baseline" border="0" /></td>
+                        <td>Copies the contents of rectangle defined by the selection</td>
+                    </tr>
+                    <tr>
+                        <td>Rectangular Paste ( <code>Ctrl+Alt+V</code> )</td>
+                        <td><img alt="Rectangular Paste" hspace="0" src="rectangularpaste.gif" align="baseline" border="0" /></td>
+                        <td>Pastes the contents of rectangle defined by the selection</td>
+                    </tr>
+                    <tr>
+                        <td>Rectangular Delete ( <code>Ctrl+Alt+Minus</code> )</td>
+                        <td><img alt="Rectangular Delete" hspace="0" src="rectangulardelete.gif" align="baseline" border="0" /></td>
+                        <td>Deletes the contents of rectangle defined by the selection</td>
+                    </tr>
+                    <tr>
+                        <td>Rectangular Clear ( <code>Ctrl+Alt+Space</code> )</td>
+                        <td><img alt="Rectangular Clear" hspace="0" src="rectangularclear.gif" align="baseline" border="0" /></td>
+                        <td>Replace the contents of rectangle defined by the selection with spaces</td>
+                    </tr>
+                    <tr>
+                        <td>Rectangular Replace ( <code>Ctrl+Alt+R</code> )</td>
+                        <td><img alt="Rectangular Replace" hspace="0" src="rectangularreplace.gif" align="baseline" border="0" /></td>
+                        <td>Replace the contents of rectangle defined by the selection with user specified string</td>
+                    </tr>
+                </tbody>
+            </table>
+        </p>
+        <p><em>Note: The leading column of the rectangle defined by the selection has to be less than the trailing column.</em></p>
+        <h4>Example</h4>
+        <table style="WIDTH: 800px; TEXT-ALIGN: left" cellspacing="5" cellpadding="2" border="0">
+            <tbody>
+                <tr>
+                    <td style="FONT-WEIGHT: bold; VERTICAL-ALIGN: top; TEXT-ALIGN: center"><font >Text and Selection<br /></font></td>
+                    <td style="FONT-WEIGHT: bold; VERTICAL-ALIGN: top; TEXT-ALIGN: center"><font >Action</font></td>
+                    <td style="FONT-WEIGHT: bold; VERTICAL-ALIGN: top; TEXT-ALIGN: center"><font >Text in editor</font></td>
+                    <td style="FONT-WEIGHT: bold; VERTICAL-ALIGN: top; TEXT-ALIGN: center"><font >Clipboard<br /></font></td>
+                </tr>
+                <tr>
+                    <td style="VERTICAL-ALIGN: top">
+                        <pre><font >0123456789<br />01</font><font ><font style="BACKGROUND-COLOR: #d5d5d5">23456789<br />0123456789<br />0123456</font>789<br />0123456789<br /></font></pre>
+                    </td>
+                    <td style="VERTICAL-ALIGN: top"><font >&nbsp;<img alt="Rectangular Cut" hspace="0" src="rectangularcut.gif" align="baseline" border="0" />&nbsp;Rectangular Cut</font></td>
+                    <td style="VERTICAL-ALIGN: top">
+                        <pre><font >0123456789<br />01789<br />01789<br />01789<br />0123456789</font></pre>
+                    </td>
+                    <td style="VERTICAL-ALIGN: top">
+                        <pre><font >2345<br />2345<br />2345<br /></font></pre>
+                    </td>
+                </tr>
+                <tr>
+                    <td style="VERTICAL-ALIGN: top">
+                        <pre><font >0123456789<br />01</font><font ><font style="BACKGROUND-COLOR: #d5d5d5">23456789<br />0123456789<br />0123456</font>789<br />0123456789</font></pre>
+                    </td>
+                    <td style="VERTICAL-ALIGN: top"><font >&nbsp;<img alt="Rectangular Copy" hspace="0" src="rectangularcopy.gif" align="baseline" border="0" />&nbsp;Rectangular Copy<br /></font></td>
+                    <td style="VERTICAL-ALIGN: top">
+                        <pre><font >0123456789<br />0123456789<br />0123456789<br />0123456789<br />0123456789</font></pre>
+                    </td>
+                    <td style="VERTICAL-ALIGN: top">
+                        <pre><font >2345<br />2345<br />2345</font></pre>
+                    </td>
+                </tr>
+                <tr>
+                    <td style="VERTICAL-ALIGN: top">
+                        <pre><font >0123456789<br />01</font><font ><font style="BACKGROUND-COLOR: #d5d5d5">23456789<br />0123456789<br />0123456</font>789<br />0123456789</font></pre>
+                    </td>
+                    <td style="VERTICAL-ALIGN: top"><font >&nbsp;<img alt="Rectangular Paste" hspace="0" src="rectangularpaste.gif" align="baseline" border="0" />&nbsp;Rectangular Paste with text in clipboard<br /><br /></font>
+                        <pre><font >--<br />++++<br />*****<br /><br /></font></pre>
+                    </td>
+                    <td style="VERTICAL-ALIGN: top">
+                        <pre><font >0123456789<br />01--789<br />01++++789<br />01*****789<br />0123456789</font></pre>
+                    </td>
+                    <td style="VERTICAL-ALIGN: top">
+                        <pre><font >--<br />++++<br />*****</font></pre>
+                    </td>
+                </tr>
+                <tr>
+                    <td style="VERTICAL-ALIGN: top">
+                        <pre><font >0123456789<br />01</font><font ><font style="BACKGROUND-COLOR: #d5d5d5">23456789<br />0123456789<br />0123456</font>789<br />0123456789</font></pre>
+                    </td>
+                    <td style="VERTICAL-ALIGN: top"><font >&nbsp;<img alt="Rectangular Delete" hspace="0" src="rectangulardelete.gif" align="baseline" border="0" />&nbsp;Rectangular Delete<br /></font></td>
+                    <td style="VERTICAL-ALIGN: top">
+                        <pre><font >0123456789<br />01789<br />01789<br />01789<br />0123456789</font></pre>
+                    </td>
+                    <td style="VERTICAL-ALIGN: top"><font >No change</font></td>
+                </tr>
+                <tr>
+                    <td style="VERTICAL-ALIGN: top">
+                        <pre><font >0123456789<br />01</font><font ><font style="BACKGROUND-COLOR: #d5d5d5">23456789<br />0123456789<br />0123456</font>789<br />0123456789</font></pre>
+                    </td>
+                    <td style="VERTICAL-ALIGN: top"><font >&nbsp;<img alt="Rectangular Clear" hspace="0" src="rectangularclear.gif" align="baseline" border="0" />&nbsp;Rectangular Clear<br /></font></td>
+                    <td style="VERTICAL-ALIGN: top">
+                        <pre><font >0123456789<br />01     789<br />01     789<br />01     789<br />0123456789</font></pre>
+                    </td>
+                    <td style="VERTICAL-ALIGN: top"><font >No change</font></td>
+                </tr>
+                <tr>
+                    <td style="VERTICAL-ALIGN: top">
+                        <pre><font >0123456789<br />01</font><font ><font style="BACKGROUND-COLOR: #d5d5d5">23456789<br />0123456789<br />0123456</font>789<br />0123456789</font></pre>
+                    </td>
+                    <td style="VERTICAL-ALIGN: top"><font >&nbsp;&nbsp;<img alt="Rectangular Replace" hspace="0" src="rectangularreplace.gif" align="baseline" border="0" />&nbsp;Rectangular Replace with user sepcified text<br /><br />---<br /></font></td>
+                    <td style="VERTICAL-ALIGN: top">
+                        <pre><font >0123456789<br />01---789<br />01---789<br />01---789<br />0123456789</font></pre>
+                    </td>
+                    <td style="VERTICAL-ALIGN: top"><font >No change<br /></font></td>
+                </tr>
+            </tbody>
+        </table>
+        <p>Sources: http://www.netbeans.org/source/browse/contrib/RectangularEditTools </p>
+        <p>TODO</p>
+        <ul>
+            <li>Rectangular selection highlight </li>
+        </ul>
+        <p><strong>DISCLAIMER:</strong> This module is experimental. So no guarantees. Use the module at your own risk.&nbsp;</p>
+    </body>
+</html>
+<!--
+Tip: to create a link which will open in an external web browser, try:
+<object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer">
+    <param name="content" value="http://www.netbeans.org/">
+    <param name="text" value="<html><u>http://www.netbeans.org/</u></html>">
+    <param name="textFontSize" value="medium">
+    <param name="textColor" value="blue">
+</object>
+To create a link to a help set from another module, you need to know the code name base and path, e.g.:
+<a href="nbdocs://org.netbeans.modules.usersguide/org/netbeans/modules/usersguide/configure/configure_options.html">Using the Options Window</a>
+(This link will behave sanely if that module is disabled or missing.)
+-->
