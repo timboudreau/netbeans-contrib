@@ -49,7 +49,7 @@ public class RectangularPasteAction extends AbstractRectangularAction {
                 return false;
             }
             try {
-            enabled = (clipboard.getData(DataFlavor.stringFlavor) != null);
+                enabled = (clipboard.getData(DataFlavor.stringFlavor) != null);
             } catch (IOException ex) {
                 enabled = false;
             } catch (UnsupportedFlavorException ex) {
