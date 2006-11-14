@@ -21,6 +21,7 @@ package org.netbeans.modules.genericnavigator;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
+import java.awt.EventQueue;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
@@ -29,6 +30,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.lang.ref.Reference;
 import java.lang.ref.WeakReference;
+import java.lang.reflect.InvocationTargetException;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.nio.channels.FileChannel;
@@ -261,7 +263,7 @@ public class GenericNavPanel implements NavigatorPanel, Runnable, ListSelectionL
                         }
                     }
                 }
-            } catch (IOException ex) {
+            } catch (Exception ex) {
                 ErrorManager.getDefault().notify (ex);
             };
         }
@@ -282,14 +284,24 @@ public class GenericNavPanel implements NavigatorPanel, Runnable, ListSelectionL
         }
     }
 
-    private CharSequence getFileData(DataObject dob) throws IOException {
+    private CharSequence getFileData(DataObject dob) throws IOException, InterruptedException, InvocationTargetException {
         if (dob != null) {
             if (last != null && last.lookup(DataObject.class) != null) {
-                EditorCookie ck = (EditorCookie) dob.getCookie(EditorCookie.class);
-                if (ck != null && ck.getOpenedPanes() != null && ck.getOpenedPanes().length > 0) {
-                    JEditorPane pane = ck.getOpenedPanes()[0];
-                    setDocumentToListenTo (pane.getDocument());
-                    return pane.getText();
+                final EditorCookie ck = (EditorCookie) dob.getCookie(EditorCookie.class);
+                final JEditorPane[] pane = new JEditorPane[1];
+                if (ck != null) {
+                    EventQueue.invokeAndWait(new Runnable() {
+                        public void run() {
+                            JEditorPane[] panes = ck.getOpenedPanes();
+                            if (panes != null && panes.length > 0) {
+                                pane[0] = panes[0];
+                            }
+                        }
+                    });
+                }
+                if (pane[0] != null) {
+                    setDocumentToListenTo(pane[0].getDocument());
+                    return pane[0].getText();
                 } else {
                     FileObject fob = dob.getPrimaryFile();
                     File f = FileUtil.toFile (fob);
