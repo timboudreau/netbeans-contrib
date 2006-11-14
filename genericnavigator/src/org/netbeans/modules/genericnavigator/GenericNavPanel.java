@@ -222,6 +222,9 @@ public class GenericNavPanel implements NavigatorPanel, Runnable, ListSelectionL
                 mimeType = dob.getPrimaryFile().getMIMEType();
             }
         }
+        if (mimeType == null) {
+            return null;
+        }
         PatternItem[] items = PatternItem.getDefaultItems(mimeType);
         if (items.length > 0) {
             return items[0];

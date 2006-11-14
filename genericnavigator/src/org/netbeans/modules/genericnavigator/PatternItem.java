@@ -451,9 +451,7 @@ outer:  for (int i=0; tok.hasMoreTokens(); i++) {
     }
 
     public static PatternItem[] getDefaultItems(String mimetype) {
-        if (mimetype == null) {
-            Thread.dumpStack();
-        }
+        assert mimetype != null;
         List result = (List) patternItems.get(mimetype);
         if (result == null) {
             DataObject[] obs;
