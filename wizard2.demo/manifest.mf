@@ -1,0 +1,6 @@
+Manifest-Version: 1.0
+OpenIDE-Module: org.netbeans.modules.wizard2.demo
+OpenIDE-Module-Layer: org/netbeans/modules/wizard2/demo/layer.xml
+OpenIDE-Module-Localizing-Bundle: org/netbeans/modules/wizard2/demo/Bundle.properties
+OpenIDE-Module-Specification-Version: 1.0
+

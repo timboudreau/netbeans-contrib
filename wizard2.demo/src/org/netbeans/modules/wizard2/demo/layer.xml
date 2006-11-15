@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE filesystem PUBLIC "-//NetBeans//DTD Filesystem 1.1//EN" "http://www.netbeans.org/dtds/filesystem-1_1.dtd">
+<filesystem>    
+    <folder name="Templates">
+        <folder name="WizardDemo">
+            <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.wizard2.demo.Bundle"/>
+            <file name="something.html" url="description.html">
+                <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.wizard2.demo.Bundle"/>
+                <attr name="instantiatingIterator" methodvalue="org.netbeans.modules.wizard2.WizardFactory.createWrapperWizard"/>
+                <attr name="instantiatingWizardURL" urlvalue="nbresloc:/org/netbeans/modules/wizard2/demo/description.html"/>
+                <attr name="wizard" methodvalue="org.netbeans.modules.wizard2.demo.Main.createWizard"/>
+                <attr name="template" boolvalue="true"/>
+            </file>
+            
+            <file name="two.html" url="description.html">
+                <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.wizard2.demo.Bundle"/>
+                <attr name="instantiatingIterator" methodvalue="org.netbeans.modules.wizard2.WizardFactory.createWrapperWizard"/>
+                <attr name="instantiatingWizardURL" urlvalue="nbresloc:/org/netbeans/modules/wizard2/demo/description.html"/>
+                <attr name="wizard" methodvalue="wizardpagedemo.e4.Main.createWizard"/>
+                <attr name="template" boolvalue="true"/>
+            </file>
+            
+            <file name="three.html" url="description.html">
+                <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.wizard2.demo.Bundle"/>
+                <attr name="instantiatingIterator" methodvalue="org.netbeans.modules.wizard2.WizardFactory.createWrapperWizard"/>
+                <attr name="instantiatingWizardURL" urlvalue="nbresloc:/org/netbeans/modules/wizard2/demo/description.html"/>
+                <attr name="wizard" methodvalue="wizarddemo.NewPetWizard.makeWizard"/>
+                <attr name="template" boolvalue="true"/>
+            </file>
+            
+            <file name="four.html" url="description.html">
+                <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.wizard2.demo.Bundle"/>
+                <attr name="instantiatingIterator" methodvalue="org.netbeans.modules.wizard2.WizardFactory.createWrapperWizard"/>
+                <attr name="instantiatingWizardURL" urlvalue="nbresloc:/org/netbeans/modules/wizard2/demo/description.html"/>
+                <attr name="wizard" methodvalue="org.netbeans.modules.wizard2.demo.filecreation.FileLocationPage.makeWizard"/>
+                <attr name="template" boolvalue="true"/>
+            </file>
+            
+        </folder>
+    </folder>
+</filesystem>
