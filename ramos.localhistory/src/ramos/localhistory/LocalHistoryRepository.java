@@ -20,7 +20,6 @@
 package ramos.localhistory;
 
 import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.util.zip.GZIPOutputStream;
 import org.openide.filesystems.FileLock;
 import org.openide.filesystems.FileObject;
@@ -180,6 +179,8 @@ public class LocalHistoryRepository
     filename += String.valueOf(new Date().getTime()+".gz");
     lastModifiedRecord.put(dataObject, fileObject.lastModified());
     //File copiedFile = new File(FileUtil.toFile(LHRepositoryDir),filename);
+    FileLock lock = null;
+    GZIPOutputStream gzip = null;
     try {
       FileObject copied = LHRepositoryDir.createData(filename);
       //copiedFile.createNewFile();
@@ -195,16 +196,19 @@ public class LocalHistoryRepository
       System.out.println(copied.getAttribute(PATH));
       //System.out.println(copiedFile.getAbsolutePath());
       //FileOutputStream fos = new FileOutputStream(copiedFile);
-      FileLock lock = copied.lock();
-      GZIPOutputStream gzip = new GZIPOutputStream(copied.getOutputStream(lock));
+      lock = copied.lock();
+      gzip = new GZIPOutputStream(copied.getOutputStream(lock));
       FileUtil.copy(new FileInputStream(file),gzip);
-      //      gzip.flush();
-      //      gzip.finish();
-      gzip.close();
-      lock.releaseLock();
       
-    } catch (final IOException ex) {
+    } catch (IOException ex) {
       ex.printStackTrace();
+    }finally{
+      try {
+        if (gzip != null) gzip.close();
+      } catch (IOException ex) {
+        ex.printStackTrace();
+      }
+      if (lock!=null) lock.releaseLock();
     }
   }
   
@@ -214,7 +218,7 @@ public class LocalHistoryRepository
    * @param ev DOCUMENT ME!
    */
   public void operationCopy(final OperationEvent.Copy ev) {
-    if (!isSystemFileSystem(ev.getObject()) && !noText(ev)) {
+    if (!isSystemFileSystem(ev.getObject()) && !blackList(ev)) {
       //System.out.println("operationCopy");
       handleLocalHistory(ev.getObject());
       makeLocalHistoryCopy(ev.getObject(),
@@ -222,14 +226,30 @@ public class LocalHistoryRepository
     }
   }
   
-  private boolean noText(final OperationEvent e) {
-    String ext = e.getObject()
-       .getPrimaryFile()
-       .getExt();
+  private boolean blackList(final OperationEvent e) {
+    return blackList(e.getObject().getPrimaryFile());
+  }
+  private boolean blackList(final FileObject e) {
+    //return false;
+    String ext = e.getExt();
     
-    return (ext.equalsIgnoreCase("jar") || ext.equalsIgnoreCase("nbm") ||
-       ext.equalsIgnoreCase("zip") || ext.equalsIgnoreCase("btd") ||
-       ext.equalsIgnoreCase("gif") || ext.equalsIgnoreCase("png"));
+    return (
+       e.isFolder() ||
+       e.getPath().contains("/build/classes/") || 
+       e.getPath().contains("/build/cluster/") || 
+       e.getPath().contains("/build/testuserdir/") || 
+       e.getPath().contains("/build/updates/") || 
+       ext.equalsIgnoreCase("gif") || 
+       ext.equalsIgnoreCase("jar") || 
+       ext.equalsIgnoreCase("nbm") ||
+       ext.equalsIgnoreCase("zip") || 
+       ext.equalsIgnoreCase("btd") ||
+       ext.equalsIgnoreCase("png") ||
+       ext.equalsIgnoreCase("class")
+       );
+  }
+  private boolean blackList(final DataObject e) {
+    return blackList(e.getPrimaryFile());
   }
   
   /**
@@ -238,7 +258,7 @@ public class LocalHistoryRepository
    * @param ev DOCUMENT ME!
    */
   public void operationCreateFromTemplate(final OperationEvent.Copy ev) {
-    if (!isSystemFileSystem(ev.getObject()) && !noText(ev)) {
+    if (!isSystemFileSystem(ev.getObject()) && !blackList(ev)) {
       //System.out.println("operationCreateFromTemplate");
       handleLocalHistory(ev.getObject());
       makeLocalHistoryCopy(ev.getObject(),
@@ -294,7 +314,7 @@ public class LocalHistoryRepository
    * @param ev DOCUMENT ME!
    */
   public void operationMove(final OperationEvent.Move ev) {
-    if (!isSystemFileSystem(ev.getObject()) && !noText(ev)) {
+    if (!isSystemFileSystem(ev.getObject()) && !blackList(ev)) {
       //System.out.println("operationCopy");
       handleLocalHistory(ev.getObject());
       makeLocalHistoryCopy(ev.getObject(),
@@ -352,7 +372,7 @@ public class LocalHistoryRepository
    * @param ev DOCUMENT ME!
    */
   public void operationRename(final OperationEvent.Rename ev) {
-    if (!isSystemFileSystem(ev.getObject()) && !noText(ev)) {
+    if (!isSystemFileSystem(ev.getObject()) && !blackList(ev)) {
       //System.out.println("operationCopy");
       handleLocalHistory(ev.getObject());
       makeLocalHistoryCopy(ev.getObject(),
@@ -409,7 +429,9 @@ public class LocalHistoryRepository
        .getModified();
     
     for (final DataObject dataObject : dataObjects) {
-      handleLocalHistory(dataObject);
+      if (!blackList(dataObject)) {
+        handleLocalHistory(dataObject);
+      }
     }
   }
   
