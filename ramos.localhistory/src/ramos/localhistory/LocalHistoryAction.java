@@ -162,8 +162,9 @@ public final class LocalHistoryAction
    */
   private boolean enable(final DataObject dataObject) {
     assert dataObject != null;
-    return ((dataObject != null) && dataObject.getPrimaryFile()
-                                              .isData());
+    return ((dataObject != null) && 
+       dataObject.getPrimaryFile().isData()) && 
+       !LocalHistoryRepository.blackList(dataObject.getPrimaryFile());
   }
 
   /**

@@ -194,7 +194,7 @@ public class LocalHistoryRepository
         copied.setAttribute("Annotation", comment);
       }
       
-      System.out.println("copied: "+copied);
+      System.out.println("copied: "+copied+" mime: "+copied.getMIMEType());
       System.out.println(copied.getAttribute(PATH));
       //System.out.println(copiedFile.getAbsolutePath());
       //FileOutputStream fos = new FileOutputStream(copiedFile);
@@ -228,14 +228,14 @@ public class LocalHistoryRepository
     }
   }
   
-  private boolean blackList(final OperationEvent e) {
+  static boolean blackList(final OperationEvent e) {
     return blackList(e.getObject().getPrimaryFile());
   }
-  private boolean blackList(final File file) {
+  static boolean blackList(final File file) {
     return blackList(FileUtil.toFileObject(file));
   }
   
-  private boolean blackList(final FileObject f) {
+  static boolean blackList(final FileObject f) {
   
    File _f = FileUtil.toFile(f);
    if (_f != null && SharabilityQuery.getSharability(_f) ==
@@ -249,10 +249,13 @@ public class LocalHistoryRepository
    //would like to have a(nother) way to differentiate between binary files and text files
    return !f.getMIMEType().equals("content/unknown") || unknownAndBinary(f);//
   }
-  private boolean unknownAndBinary(FileObject file){
+  private static String[] unknownAndBinaries = new String[]{"jar","zip","nbm"};
+  private static boolean unknownAndBinary(FileObject file){
     String ext = file.getExt();
-    return ext.equalsIgnoreCase("jar") ||
-      ext.equalsIgnoreCase("zip");//
+    for (String elem : unknownAndBinaries) {
+      if (elem.equalsIgnoreCase(ext)) return true;
+    }
+   return false;
     
   }
  
