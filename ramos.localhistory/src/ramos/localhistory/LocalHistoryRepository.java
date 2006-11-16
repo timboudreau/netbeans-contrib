@@ -91,6 +91,7 @@ public class LocalHistoryRepository
   
   public Collection<VersionNode> fillRevisionsList(final File projectFile) {
     TreeSet<VersionNode> revisionsSet = new TreeSet<VersionNode>(COMPARATOR);
+    if (blackList(projectFile)) return revisionsSet;
     FileObject[] localHistoryFiles = LHRepositoryDir.getChildren();
     
     String projectFilePath = projectFile.getAbsolutePath();
@@ -230,6 +231,10 @@ public class LocalHistoryRepository
   private boolean blackList(final OperationEvent e) {
     return blackList(e.getObject().getPrimaryFile());
   }
+  private boolean blackList(final File file) {
+    return blackList(FileUtil.toFileObject(file));
+  }
+  
   private boolean blackList(final FileObject f) {
   
    File _f = FileUtil.toFile(f);
