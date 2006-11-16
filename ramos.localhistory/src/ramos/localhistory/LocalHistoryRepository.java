@@ -21,6 +21,7 @@ package ramos.localhistory;
 
 import java.io.FileInputStream;
 import java.util.zip.GZIPOutputStream;
+import org.netbeans.api.queries.SharabilityQuery;
 import org.openide.filesystems.FileLock;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileStateInvalidException;
@@ -229,25 +230,22 @@ public class LocalHistoryRepository
   private boolean blackList(final OperationEvent e) {
     return blackList(e.getObject().getPrimaryFile());
   }
-  private boolean blackList(final FileObject e) {
-    //return false;
-    String ext = e.getExt();
-    
-    return (
-       e.isFolder() ||
-       e.getPath().contains("/build/classes/") || 
-       e.getPath().contains("/build/cluster/") || 
-       e.getPath().contains("/build/testuserdir/") || 
-       e.getPath().contains("/build/updates/") || 
-       ext.equalsIgnoreCase("gif") || 
-       ext.equalsIgnoreCase("jar") || 
-       ext.equalsIgnoreCase("nbm") ||
-       ext.equalsIgnoreCase("zip") || 
-       ext.equalsIgnoreCase("btd") ||
-       ext.equalsIgnoreCase("png") ||
-       ext.equalsIgnoreCase("class")
-       );
+  private boolean blackList(final FileObject f) {
+  
+   File _f = FileUtil.toFile(f);
+   if (_f != null && SharabilityQuery.getSharability(_f) ==
+                     SharabilityQuery.NOT_SHARABLE) {
+     return true;
+   }
+    if (f.getMIMEType().startsWith("text/")) {
+     return false;
+   }
+   //want to allow unrecognized plain text files
+   //would like to have a(nother) way to differentiate between binary files and text files
+   return !f.getMIMEType().equals("content/unknown");
   }
+ 
+  
   private boolean blackList(final DataObject e) {
     return blackList(e.getPrimaryFile());
   }
