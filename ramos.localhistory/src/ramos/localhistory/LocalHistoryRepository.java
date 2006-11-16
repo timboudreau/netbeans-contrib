@@ -242,7 +242,13 @@ public class LocalHistoryRepository
    }
    //want to allow unrecognized plain text files
    //would like to have a(nother) way to differentiate between binary files and text files
-   return !f.getMIMEType().equals("content/unknown");
+   return !f.getMIMEType().equals("content/unknown") || unknownAndBinary(f);//
+  }
+  private boolean unknownAndBinary(FileObject file){
+    String ext = file.getExt();
+    return ext.equalsIgnoreCase("jar") ||
+      ext.equalsIgnoreCase("zip");//
+    
   }
  
   
