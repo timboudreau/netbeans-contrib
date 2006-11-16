@@ -87,7 +87,8 @@ public class VersionNode
   @Override
   public String getName() {
     //return String.valueOf(fileCopy.lastModified().getTime());
-    return fileCopy.lastModified().toString();
+    //return fileCopy.lastModified().toString();
+    return htmlDisplayName;
   }
   
   @Override
@@ -111,7 +112,7 @@ public class VersionNode
     //System.out.println("getPropertySets");
     PropertySet[] retValue = new PropertySet[1];
     final ReadWrite prop =
-       new AnnotationProperty(ANNOTATION, String.class, ANNOTATION, ANNOTATION);
+       new AnnotationProperty(ANNOTATION, String.class, ANNOTATION, null);
     
     retValue[0] =
        new PropertySet() {
@@ -124,7 +125,8 @@ public class VersionNode
   }
   
   public String getShortDescription() {
-    return "an older version";
+    //return "an older version";
+    return null;
   }
   
   public Image getIcon(final int type) {
@@ -155,43 +157,50 @@ public class VersionNode
   }
   
   public void revert(final FileObject current) {
+    
+    InputStream is = null;
+    OutputStream os = null;
+    FileLock lock = null;
     try {
       FileObject source = fileCopy;
+      
       FileObject target = current;
-      FileLock lock = target.lock();
-      InputStream is = source.getInputStream();
-      OutputStream os = target.getOutputStream(lock);
+      lock = target.lock();
+      if (source.getExt().equals("gz")){
+        is = new GZIPInputStream(source.getInputStream());
+      } else {
+        is = source.getInputStream();
+      }
+      os = target.getOutputStream(lock);
       FileUtil.copy(is, os);
-      is.close();
-      os.close();
-      lock.releaseLock();
       
       String annotation = (String) source.getAttribute(ANNOTATION);
-      
-      if (annotation == null) {
-        annotation = "";
-      }
-      
+      String newAnnotation = "reverted to " + getName();
+      if (annotation != null) newAnnotation += " <" + annotation + ">";
       LocalHistoryRepository.getInstance()
-         .makeLocalHistoryCopy(
-         DataObject.find(target),
-         "reverted to " + source.lastModified().toString() + " <" + annotation +
-         ">");
+         .makeLocalHistoryCopy(DataObject.find(target),newAnnotation);
     } catch (final FileNotFoundException ex) {
       ex.printStackTrace();
     } catch (final IOException ex) {
       ex.printStackTrace();
+    }finally{
+      try {
+        if (is != null) is.close();
+        if (os != null) os.close();
+      } catch (IOException ex) {
+      }
+      if (lock != null) lock.releaseLock();
     }
   }
   
   public int compareTo(Object o) {
-    System.out.println("compareTo");
+    //System.out.println("compareTo");
     VersionNode vn = (VersionNode)o;
     return fileCopy.lastModified().compareTo(vn.fileCopy.lastModified());
   }
   
   public Object getValue(String attributeName) {
-    System.out.println("getValue "+attributeName);
+    //System.out.println("getValue "+attributeName);
     Object retValue;
     
     retValue = super.getValue(attributeName);
@@ -208,21 +217,21 @@ public class VersionNode
    *    is not supported
    * @see Node#getCookie
    */
-//  public Node.Cookie getCookie(Class type) {
-//    System.out.println("getCookie "+type);
-//    Cookie retValue = null;
-//    if (type.equals(DataObject.class)){
-//      try {
-//        retValue = DataObject.find(FileUtil.toFileObject(new File((String) fileCopy.getAttribute("path"))));
-//      } catch (DataObjectNotFoundException ex) {
-//        ex.printStackTrace();
-//      }
-//    }else{
-//      retValue = super.getCookie(type);
-//      //System.out.println("super.getCookie "+retValue);
-//    }
-//    return retValue;
-//  }
+  //  public Node.Cookie getCookie(Class type) {
+  //    System.out.println("getCookie "+type);
+  //    Cookie retValue = null;
+  //    if (type.equals(DataObject.class)){
+  //      try {
+  //        retValue = DataObject.find(FileUtil.toFileObject(new File((String) fileCopy.getAttribute("path"))));
+  //      } catch (DataObjectNotFoundException ex) {
+  //        ex.printStackTrace();
+  //      }
+  //    }else{
+  //      retValue = super.getCookie(type);
+  //      //System.out.println("super.getCookie "+retValue);
+  //    }
+  //    return retValue;
+  //  }
   
   
   
