@@ -45,6 +45,7 @@ import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JSplitPane;
 import javax.swing.border.Border;
@@ -97,7 +98,8 @@ public final class LocalHistoryTopComponent extends TopComponent
   final static String PATH = "path";
   final static String LOCAL_HISTORY = "local history";
   final static String NEW = "new";
-
+  final static String TREE_NAME = "Version";
+  
   private int max;
   private final RevertAction revertAction = new RevertAction();
   private final RefreshHistory refreshAction = new RefreshHistory();
@@ -131,7 +133,7 @@ public final class LocalHistoryTopComponent extends TopComponent
     JButton prev = createButton(PREV,"ramos/localhistory/resources/diff-prev.png");
     JButton next = createButton(NEXT,"ramos/localhistory/resources/diff-next.png");
     diffLabel = new JLabel(" 0 difference(s)");
-    Box toolPanel = createToolPanel(deleteColor, addColor, changedColor, delete, 
+    Box toolPanel = createToolPanel(deleteColor, addColor, changedColor, delete,
        added, changed, prev, next);
     //diffContainer.setBorder(DIFF_BORDER);
     historyDiffSplit = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
@@ -155,12 +157,12 @@ public final class LocalHistoryTopComponent extends TopComponent
     setLayout(new BoxLayout(this,BoxLayout.Y_AXIS));//could not remove this
     setIcon(Utilities.loadImage(ICON_PATH));
   }
-
+  
   private BeanTreeView createView() {
     TreeTableView view = new TreeTableView();
     VersionPropertyTemplate vpt = new VersionPropertyTemplate();
     vpt.setValue("TreeColumnTTV",Boolean.TRUE);
-    vpt.setValue("SortingColumnTTV",Boolean.TRUE);
+    //vpt.setValue("SortingColumnTTV",Boolean.TRUE);
     vpt.setValue("ComparableColumnTTV",Boolean.TRUE);
     AnnotationPropertyTemplate apt = new AnnotationPropertyTemplate();
     apt.setValue("ComparableColumnTTV",Boolean.TRUE);
@@ -170,8 +172,8 @@ public final class LocalHistoryTopComponent extends TopComponent
     return view;
   }
   
-  private Box createToolPanel(final JLabel deleteColor, final JLabel addColor, 
-     final JLabel changedColor, final JLabel delete, final JLabel added, 
+  private Box createToolPanel(final JLabel deleteColor, final JLabel addColor,
+     final JLabel changedColor, final JLabel delete, final JLabel added,
      final JLabel changed, final JButton prev, final JButton next) {
     //toolPanel.setBorder(null);
     //      JPanel revertPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
@@ -199,9 +201,6 @@ public final class LocalHistoryTopComponent extends TopComponent
   
   private ActionMap createActionMap() {
     ActionMap map = getActionMap();
-    map.put(DefaultEditorKit.copyAction, ExplorerUtils.actionCopy(manager));
-    map.put(DefaultEditorKit.cutAction, ExplorerUtils.actionCut(manager));
-    map.put(DefaultEditorKit.pasteAction, ExplorerUtils.actionPaste(manager));
     map.put("delete", ExplorerUtils.actionDelete(manager, true)); // or false
     return map;
   }
@@ -299,17 +298,21 @@ public final class LocalHistoryTopComponent extends TopComponent
       updateRevertEnable();
       currentFile = file;
       //explorer view
-      setUpExplorerView(versionNodesCollection);
       //diff view
-      FileObject fo = FileUtil.toFileObject(currentFile);
-      String mimeType = getMimeType(fo);
-      StreamSource stream1 = StreamSource.createSource(OLD,
-         CURRENT_VERSION_TITLE,
-         mimeType,currentFile);
-      StreamSource stream2 = StreamSource.createSource(NEW,
-         CURRENT_VERSION_TITLE,
-         mimeType,currentFile);
-      setUpDiffView(stream1, stream2, 140);
+      
+      //begin
+      //      FileObject fo = FileUtil.toFileObject(currentFile);
+      //      String mimeType = getMimeType(fo);
+      //      StreamSource stream1 = StreamSource.createSource(OLD,
+      //         CURRENT_VERSION_TITLE,
+      //         mimeType,currentFile);
+      //      StreamSource stream2 = StreamSource.createSource(NEW,
+      //         CURRENT_VERSION_TITLE,
+      //         mimeType,currentFile);
+      //end
+      //setUpDiffView(stream1, stream2, 140);
+      historyDiffSplit.setDividerLocation(140);
+      setUpExplorerView(versionNodesCollection);
       
       deleteOld();
     } catch (IOException ex) {
@@ -330,6 +333,15 @@ public final class LocalHistoryTopComponent extends TopComponent
       ex.printStackTrace();
     }
     manager.setRootContext(filterRoot);
+    if (versionNodesArray.length > 0){
+      Node firstSelectedNode = versionNodesArray[versionNodesArray.length-1];
+      try {
+        manager.setSelectedNodes(new Node[]{firstSelectedNode});
+      } catch (PropertyVetoException ex) {
+        ex.printStackTrace();
+      }
+    }
+    
   }
   
   private void save(final File file) throws IOException,
@@ -369,12 +381,24 @@ public final class LocalHistoryTopComponent extends TopComponent
     oldDiff = diffComp;
     LocalHistoryTopComponent.this.revalidate();
     historyDiffSplit.setDividerLocation(dividerLocation);
+    
   }
   
   public void reloadHistory() {
     Collection<VersionNode> versionNodesCollection =
        LocalHistoryRepository.getInstance().fillRevisionsList(currentFile);
-    setFileForHistory(currentFile, versionNodesCollection);
+    if (versionNodesCollection.size() != 0) {
+      setFileForHistory(currentFile, versionNodesCollection);
+      //      localHistoryTopComponent.setFileForHistory(file, versionNodesCollection);
+      //      localHistoryTopComponent.open();
+      //      localHistoryTopComponent.requestActive();
+      //      localHistoryTopComponent.setDisplayName(
+      //          "Local History of " + fileObject.getNameExt());
+    } else {
+      this.close();
+      JOptionPane.showMessageDialog(null, "No revisions in local history");
+    }
+    
   }
   
   
@@ -416,7 +440,7 @@ public final class LocalHistoryTopComponent extends TopComponent
       super(X);
     }
     public String getName() {
-      return "Version";
+      return TREE_NAME;
     }
   }
   
@@ -453,7 +477,7 @@ public final class LocalHistoryTopComponent extends TopComponent
   }
   
   private class ShowDiffAtSelection implements VetoableChangeListener {
-    
+     
     /**
      * call when nodes in the history list are selected. triggers display of diff.
      * @param evt
@@ -502,13 +526,13 @@ public final class LocalHistoryTopComponent extends TopComponent
   }
   
   private static class VersionPropertyTemplate extends PropertySupport{
-     VersionPropertyTemplate(){
-      super("Version",VersionNode.class,"Version","Version",true,true);
+    VersionPropertyTemplate(){
+      super(TREE_NAME,VersionNode.class,TREE_NAME,TREE_NAME,true,true);
     }
     public Object getValue() throws IllegalAccessException, InvocationTargetException {
-      return "TreeColumnTTV";
+      return null;
     }
-
+    
     public void setValue(Object val) throws IllegalAccessException, IllegalArgumentException, InvocationTargetException {
     }
     
@@ -517,40 +541,18 @@ public final class LocalHistoryTopComponent extends TopComponent
     AnnotationPropertyTemplate(){
       super(ANNOTATION,String.class,ANNOTATION,ANNOTATION,true,true);
     }
-//    public boolean canRead() {
-//      //System.out.println("canRead");
-//      return true;
-//    }
-//    
+    
     public Object getValue() throws IllegalAccessException,
        InvocationTargetException {
-      //System.out.println("getValue");
-      return "<template>";
+      
+      return null;
     }
-//    
-//    public boolean canWrite() {
-//      //System.out.println("canWrite");
-//      return true;
-//    }
-//    
+    
     public void setValue(Object object) throws IllegalAccessException,
        IllegalArgumentException, InvocationTargetException {
-      //System.out.println("setValue");
+      
     }
-//    
-//    public String getName() {
-//      //System.out.println("getName");
-//      return ANNOTATION;
-//    }
-
-//    public Object getValue(String attributeName) {
-//      Object retValue;
-//      System.out.println("getValue "+attributeName);
-//      System.out.println("super =:"+super.getValue(attributeName));
-//      retValue = super.getValue(attributeName);
-//      if (attributeName.equals("InvisibleInTreeTableView")) return Boolean.FALSE;// || attributeName.equals("DescendingOrderTTV")) return Boolean.TRUE;
-//      else return Boolean.TRUE;
-//    }
+    
     
     
     
