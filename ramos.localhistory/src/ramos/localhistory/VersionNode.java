@@ -20,15 +20,22 @@
 package ramos.localhistory;
 
 import java.io.BufferedReader;
+import java.io.FileOutputStream;
 import java.io.InputStreamReader;
 import java.lang.reflect.InvocationTargetException;
 import java.text.DateFormat;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
 import java.util.zip.GZIPInputStream;
 import org.openide.actions.DeleteAction;
+import org.openide.filesystems.FileChangeAdapter;
+import org.openide.filesystems.FileEvent;
 
 import org.openide.filesystems.FileLock;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
+import org.openide.filesystems.Repository;
 
 import org.openide.loaders.DataObject;
 import org.openide.loaders.DataObjectNotFoundException;
@@ -68,6 +75,7 @@ public class VersionNode
   public VersionNode(final FileObject fo)
      throws DataObjectNotFoundException {
     super(DataObject.find(fo).getNodeDelegate());
+    handleDeleteIfSecondaries(fo);
     fileCopy = fo;
     htmlDisplayName = DateFormat.getDateTimeInstance(DateFormat.LONG,DateFormat.MEDIUM).format(fileCopy.lastModified());
     displayName = String.valueOf(fileCopy.lastModified().getTime());
@@ -155,16 +163,17 @@ public class VersionNode
     }
     return retValue;
   }
-  
+  //TODO: reorganize revert method
   public void revert(final FileObject current) {
     
+    //primary
     InputStream is = null;
     OutputStream os = null;
     FileLock lock = null;
+    FileObject source = fileCopy;
+    FileObject target = current;
     try {
-      FileObject source = fileCopy;
       
-      FileObject target = current;
       lock = target.lock();
       if (source.getExt().equals("gz")){
         is = new GZIPInputStream(source.getInputStream());
@@ -173,12 +182,9 @@ public class VersionNode
       }
       os = target.getOutputStream(lock);
       FileUtil.copy(is, os);
+//      System.out.println("revert: "+source+" mime: "+source.getMIMEType());
+//      System.out.println(source.getAttribute("path"));
       
-      String annotation = (String) source.getAttribute(ANNOTATION);
-      String newAnnotation = "reverted to " + getName();
-      if (annotation != null) newAnnotation += " <" + annotation + ">";
-      LocalHistoryRepository.getInstance()
-         .makeLocalHistoryCopy(DataObject.find(target),newAnnotation);
     } catch (final FileNotFoundException ex) {
       ex.printStackTrace();
     } catch (final IOException ex) {
@@ -191,8 +197,98 @@ public class VersionNode
       }
       if (lock != null) lock.releaseLock();
     }
+    Set files = null;
+    try {
+      files = DataObject.find(current).files();
+    } catch (DataObjectNotFoundException ex) {
+      ex.printStackTrace();
+    }
+    //secondaries
+    int i = 1;
+    Object value;
+    while ((value = fileCopy.getAttribute("secondary"+i)) != null){
+      //revert secondaries.path to secondaries
+      String filenameOfSecondaryCopy = (String)value;
+      //get FO
+      FileObject dir = Repository.getDefault()
+         .getDefaultFileSystem()
+         .getRoot()
+         .getFileObject("local history");
+      FileObject secondaryCopy = dir.getFileObject(filenameOfSecondaryCopy);
+      String pathOfSecondary = (String) secondaryCopy.getAttribute("path");
+      InputStream secondaryCopyInputStream = null;
+      OutputStream secondaryOutputStream = null;
+      try {
+        if (secondaryCopy.getExt().equals("gz")){
+          secondaryCopyInputStream = new GZIPInputStream(secondaryCopy.getInputStream());
+        } else {
+          secondaryCopyInputStream = secondaryCopy.getInputStream();
+        }
+        secondaryOutputStream = new FileOutputStream(pathOfSecondary);
+        FileUtil.copy(secondaryCopyInputStream, secondaryOutputStream);
+//        System.out.println("revert: "+secondaryCopy+" mime: "+secondaryCopy.getMIMEType());
+//        System.out.println(secondaryCopy.getAttribute("path"));
+      } catch (FileNotFoundException ex) {
+        ex.printStackTrace();
+      } catch (IOException ex) {
+        ex.printStackTrace();
+      }finally{
+        try {
+          if (secondaryCopyInputStream != null) secondaryCopyInputStream.close();
+          if (secondaryOutputStream != null) secondaryOutputStream.close();
+        } catch (IOException ex) {
+        }
+        
+      }
+      i++;
+    }
+    String annotation = (String) source.getAttribute(ANNOTATION);
+    String newAnnotation = "reverted to " + getName();
+    if (annotation != null) newAnnotation += " <" + annotation + ">";
+    try {
+      LocalHistoryRepository.getInstance()
+         .makeLocalHistoryCopy(DataObject.find(target),newAnnotation);
+    } catch (DataObjectNotFoundException ex) {
+      ex.printStackTrace();
+    }
+    
+    
   }
-  
+  private List secondaries = new ArrayList(3);
+  private void handleDeleteIfSecondaries(final FileObject fo) {
+    
+    if (fo.getAttribute("secondary1")!= null) {
+      Object value;
+      int j = 1;
+      while ((value = fo.getAttribute("secondary"+j)) != null){
+        secondaries.add(value);
+        j++;
+      }
+      fo.addFileChangeListener(new FileChangeAdapter(){
+        public void fileDeleted(FileEvent fe) {
+//          System.out.println(fe.getFile()+" was deleted");
+          //delete also secondaries
+          for (Object value : secondaries) {
+            //revert secondaries.path to secondaries
+            String filenameOfSecondaryCopy = (String)value;
+            //get FO
+            FileObject dir = Repository.getDefault()
+               .getDefaultFileSystem()
+               .getRoot()
+               .getFileObject("local history");
+            FileObject secondaryCopy = dir.getFileObject(filenameOfSecondaryCopy);
+            try {
+              secondaryCopy.delete();
+              //System.out.println(secondaryCopy+" was deleted too");
+            } catch (IOException ex) {
+              ex.printStackTrace();
+            }
+          }
+        }
+      });
+    }
+    
+  }
   public int compareTo(Object o) {
     //System.out.println("compareTo");
     VersionNode vn = (VersionNode)o;
@@ -264,6 +360,10 @@ public class VersionNode
       }
       
     }
+    //had to use a workaround to avoid showing "null" as annotation value 
+    //in tree table view, when popup editor is called, as htmlDisplayValue is 
+    //shown then, instead of the plain value as it should when htmlDisplayValue 
+    //is null.
     @Override public Object getValue(String attr){
       Object retValue = super.getValue(attr);
       if (attr.equals("htmlDisplayValue"))
@@ -279,7 +379,6 @@ public class VersionNode
         }
       return retValue;
     }
-    
     
   }
   

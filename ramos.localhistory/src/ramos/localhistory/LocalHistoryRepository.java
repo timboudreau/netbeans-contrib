@@ -20,6 +20,8 @@
 package ramos.localhistory;
 
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.InputStream;
 import java.util.zip.GZIPOutputStream;
 import org.netbeans.api.queries.SharabilityQuery;
 import org.openide.filesystems.FileLock;
@@ -175,33 +177,55 @@ public class LocalHistoryRepository
   protected void makeLocalHistoryCopy(
      final DataObject dataObject,
      final String comment) {
-    FileObject fileObject = dataObject.getPrimaryFile();
-    final File file = FileUtil.toFile(fileObject);
-    String filename = filenameFromPath(file);
-    filename += String.valueOf(new Date().getTime()+".gz");
-    lastModifiedRecord.put(dataObject, fileObject.lastModified());
-    //File copiedFile = new File(FileUtil.toFile(LHRepositoryDir),filename);
+    long timestamp = new Date().getTime();
+   
+    FileObject primaryFileObject = dataObject.getPrimaryFile();
+    final File primaryFile = FileUtil.toFile(primaryFileObject);
+    String filenameOfCopy = filenameFromPath(primaryFile);
+    filenameOfCopy += String.valueOf(timestamp+".gz");
+    lastModifiedRecord.put(dataObject, primaryFileObject.lastModified());
+    FileObject copied = null;
+    try {
+      //File copiedFile = new File(FileUtil.toFile(LHRepositoryDir),filenameOfCopy);
+      copied = doCopying(new FileInputStream(primaryFile),  filenameOfCopy, primaryFile.getAbsolutePath(), comment);
+    } catch (FileNotFoundException ex) {
+      ex.printStackTrace();
+    }
+     // iterate over dataobject.files()
+    //set "secondaries1" and up attribute of primary to list of secondaries
+    int i = 1;
+    for (Object elem : dataObject.files()) {
+      FileObject aSecondaryFileObject = (FileObject)elem;
+      if (!primaryFileObject.equals(aSecondaryFileObject)){
+        File secondaryFile = FileUtil.toFile(aSecondaryFileObject);
+        String filenameOfSecondaryCopy = filenameFromPath(secondaryFile);
+        filenameOfSecondaryCopy += String.valueOf(timestamp+".gz");
+        try {
+          doCopying(new FileInputStream(secondaryFile),filenameOfSecondaryCopy,secondaryFile.getAbsolutePath(),null);
+          copied.setAttribute("secondary"+i,filenameOfSecondaryCopy);
+          i++;
+        } catch (IOException ex) {
+          ex.printStackTrace();
+        }
+      }
+    }
+  }
+  
+  private FileObject doCopying(InputStream is, String filenameOfCopy, String path, String comment){
     FileLock lock = null;
     GZIPOutputStream gzip = null;
+    FileObject copied = null;
     try {
-      FileObject copied = LHRepositoryDir.createData(filename);
-      //copiedFile.createNewFile();
-      //FileObject copied = FileUtil.toFileObject(copiedFile);
-      //FileObject copied = fileObject.copy(LHRepositoryDir, filename, EMPTY);
-      copied.setAttribute(PATH, file.getAbsolutePath());
-      //copiedList.add(copied);
+      copied = LHRepositoryDir.createData(filenameOfCopy);
+      copied.setAttribute(PATH, path);
       if (comment != null) {
         copied.setAttribute("Annotation", comment);
       }
-      
-      System.out.println("copied: "+copied+" mime: "+copied.getMIMEType());
-      System.out.println(copied.getAttribute(PATH));
-      //System.out.println(copiedFile.getAbsolutePath());
-      //FileOutputStream fos = new FileOutputStream(copiedFile);
       lock = copied.lock();
       gzip = new GZIPOutputStream(copied.getOutputStream(lock));
-      FileUtil.copy(new FileInputStream(file),gzip);
-      
+      FileUtil.copy(is,gzip);
+            //System.out.println("copied: "+copied+" mime: "+copied.getMIMEType());
+    //System.out.println(copied.getAttribute(PATH));
     } catch (IOException ex) {
       ex.printStackTrace();
     }finally{
@@ -212,8 +236,8 @@ public class LocalHistoryRepository
       }
       if (lock!=null) lock.releaseLock();
     }
+    return copied;
   }
-  
   /**
    * DOCUMENT ME!
    *
@@ -236,18 +260,18 @@ public class LocalHistoryRepository
   }
   
   static boolean blackList(final FileObject f) {
-  
-   File _f = FileUtil.toFile(f);
-   if (_f != null && SharabilityQuery.getSharability(_f) ==
-                     SharabilityQuery.NOT_SHARABLE) {
-     return true;
-   }
+    
+    File _f = FileUtil.toFile(f);
+    if (_f != null && SharabilityQuery.getSharability(_f) ==
+       SharabilityQuery.NOT_SHARABLE) {
+      return true;
+    }
     if (f.getMIMEType().startsWith("text/")) {
-     return false;
-   }
-   //want to allow unrecognized plain text files
-   //would like to have a(nother) way to differentiate between binary files and text files
-   return !f.getMIMEType().equals("content/unknown") || unknownAndBinary(f);//
+      return false;
+    }
+    //want to allow unrecognized plain text files
+    //would like to have a(nother) way to differentiate between binary files and text files
+    return !f.getMIMEType().equals("content/unknown") || unknownAndBinary(f);//
   }
   private static String[] unknownAndBinaries = new String[]{"jar","zip","nbm"};
   private static boolean unknownAndBinary(FileObject file){
@@ -255,10 +279,10 @@ public class LocalHistoryRepository
     for (String elem : unknownAndBinaries) {
       if (elem.equalsIgnoreCase(ext)) return true;
     }
-   return false;
+    return false;
     
   }
- 
+  
   
   private boolean blackList(final DataObject e) {
     return blackList(e.getPrimaryFile());
