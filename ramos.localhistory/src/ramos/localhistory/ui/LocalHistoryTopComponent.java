@@ -35,7 +35,6 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import javax.swing.AbstractAction;
 import javax.swing.ActionMap;
@@ -49,7 +48,6 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JSplitPane;
 import javax.swing.border.Border;
-import javax.swing.text.DefaultEditorKit;
 import javax.swing.text.Document;
 
 import org.netbeans.api.diff.Diff;
@@ -200,8 +198,11 @@ public final class LocalHistoryTopComponent extends TopComponent
   }
   
   private ActionMap createActionMap() {
+    return createActionMap(true);
+  }
+  private ActionMap createActionMap(boolean delete) {
     ActionMap map = getActionMap();
-    map.put("delete", ExplorerUtils.actionDelete(manager, true)); // or false
+    if (delete) map.put("delete", ExplorerUtils.actionDelete(manager, true)); // or false
     return map;
   }
   
@@ -291,6 +292,7 @@ public final class LocalHistoryTopComponent extends TopComponent
   public void setFileForHistory(final File file,
      final Collection<VersionNode> versionNodesCollection) {
     //save
+    
     try {
       save(file);
       //diffFiles = null;
@@ -433,6 +435,8 @@ public final class LocalHistoryTopComponent extends TopComponent
     deleteColor.setOpaque(true);
     return deleteColor;
   }
+  
+  
   //************** inner classes ************************//
   
   static class MyFileVersionRoot extends BeanNode{
@@ -477,7 +481,7 @@ public final class LocalHistoryTopComponent extends TopComponent
   }
   
   private class ShowDiffAtSelection implements VetoableChangeListener {
-     
+    
     /**
      * call when nodes in the history list are selected. triggers display of diff.
      * @param evt
