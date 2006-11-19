@@ -37,6 +37,11 @@
         </folder>
     </folder>
      -->
+    <folder name="OptionsDialog">
+        <folder name="Advanced">
+            <file name="ramos-localhistory-ui-LocalHistoryAdvancedOption.instance"/>
+        </folder>
+    </folder>
     <folder name="Windows2">
         <folder name="Components">
             <file name="DeletedFilesTopComponent.settings" url="DeletedFilesTopComponentSettings.xml"/>
