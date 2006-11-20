@@ -19,9 +19,14 @@
 package test.graphlayout;
 
 import org.netbeans.api.visual.graph.layout.GridGraphLayout;
+import org.netbeans.api.visual.graph.layout.GraphLayoutListener;
+import org.netbeans.api.visual.graph.layout.UniversalGraph;
 import org.netbeans.api.visual.layout.LayoutFactory;
+import org.netbeans.api.visual.layout.SceneLayout;
 import test.SceneSupport;
 import test.general.StringGraphScene;
+
+import java.awt.*;
 
 /**
  * @author David Kaspar
@@ -32,7 +37,12 @@ public class GridGraphLayoutTest extends StringGraphScene {
 
     public GridGraphLayoutTest () {
         initializeGraph ();
-        LayoutFactory.createSceneGraphLayout (this, new GridGraphLayout<String,String> ()).invokeLayout ();
+
+        GridGraphLayout<String, String> graphLayout = new GridGraphLayout<String, String> ();
+        graphLayout.addGraphLayoutListener (new MyListener ());
+
+        SceneLayout sceneGraphLayout = LayoutFactory.createSceneGraphLayout (this, graphLayout);
+        sceneGraphLayout.invokeLayout ();
     }
 
     private void addEdge (String sourceNode, String targetNode) {
@@ -63,6 +73,22 @@ public class GridGraphLayoutTest extends StringGraphScene {
 
     public static void main (String[] args) {
         SceneSupport.show (new GridGraphLayoutTest ());
+    }
+
+    private static class MyListener implements GraphLayoutListener<String, String> {
+
+        public void graphLayoutStarted (UniversalGraph<String, String> graph) {
+            System.out.println ("Layout started");
+        }
+
+        public void graphLayoutFinished (UniversalGraph<String, String> graph) {
+            System.out.println ("Layout finished");
+        }
+
+        public void nodeLocationChanged (UniversalGraph<String, String> graph, String node, Point previousPreferredLocation, Point newPreferredLocation) {
+            System.out.println ("Node location changed: " + node + " -> " + newPreferredLocation);
+        }
+
     }
 
 }
