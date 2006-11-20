@@ -38,6 +38,12 @@ import org.openide.util.Lookup;
 import org.openide.util.actions.NodeAction;
 
 public final class CvsRootSelectorAction extends NodeAction {
+
+    public CvsRootSelectorAction() {
+        setIcon(null);
+        putValue("noIconInMenu", Boolean.TRUE); // NOI18N
+    }
+
     public String getName() {
         return "Change CVSROOT...";
     }

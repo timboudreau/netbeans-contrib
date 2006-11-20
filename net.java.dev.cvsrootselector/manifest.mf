@@ -2,5 +2,5 @@ Manifest-Version: 1.0
 OpenIDE-Module: net.java.dev.cvsrootselector
 OpenIDE-Module-Layer: net/java/dev/cvsrootselector/resources/mf-layer.xml
 OpenIDE-Module-Localizing-Bundle: net/java/dev/cvsrootselector/resources/Bundle.properties
-OpenIDE-Module-Specification-Version: 1.0
+OpenIDE-Module-Specification-Version: 1.1
 

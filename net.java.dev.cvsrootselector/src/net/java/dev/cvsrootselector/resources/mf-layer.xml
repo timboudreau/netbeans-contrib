@@ -29,12 +29,13 @@
         </folder>
     </folder>
     <folder name="Menu">
-        <folder name="CVS">
-            <attr name="org-netbeans-modules-versioning-system-cvss-ui-actions-project-AddToRepositoryAction.shadow/CvsRootSelectorAction.shadow" boolvalue="true"/>
+        <folder name="Versioning">
             <file name="CvsRootSelectorAction.shadow">
                 <attr name="originalFile" stringvalue="Actions/Repository/net-java-dev-cvsrootselector-CvsRootSelectorAction.instance"/>
             </file>
-            <attr name="CvsRootSelectorAction.shadow/org-netbeans-modules-versioning-system-cvss-ui-actions-project-UpdateWithDependenciesAction.shadow" boolvalue="true"/>
+            <file name="Separator1.instance">
+                <attr name="instanceClass" stringvalue="javax.swing.JSeparator"/>
+            </file>
         </folder>
     </folder>
 </filesystem>
