@@ -11,6 +11,7 @@ package org.netbeans.modules.languages.html;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileWriter;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.MalformedURLException;
@@ -65,6 +66,18 @@ public class HTML {
         Map m = (Map) tags.get (tagName);
         if (m == null) return false;
         return "D".equals (m.get ("Depr."));
+    }
+
+    public static boolean isEndTagRequired (SToken t) {
+        return isEndTagRequired (t.getIdentifier ().toLowerCase ());
+    }
+
+    static boolean isEndTagRequired (String tagName) {
+        Map tags = getTags ();
+        Map m = (Map) tags.get (tagName);
+        if (m == null) return false;
+        return !"O".equals (m.get ("End Tag")) &&
+               !"F".equals (m.get ("End Tag"));
     }
 
     private static List tags = null;
@@ -138,7 +151,7 @@ public class HTML {
     
     public static ASTNode process (ASTNode n) {
         List l = new ArrayList ();
-        resolve (n, new Stack (), l);
+        resolve (n, new Stack (), l, true);
         return ASTNode.create (n.getMimeType (), n.getNT (), n.getRule (), n.getParent (), l, n.getOffset ());
     }
     
@@ -148,7 +161,8 @@ public class HTML {
     private static ASTNode create (ASTNode n, String nt) {
         return ASTNode.create (n.getMimeType (), nt, n.getRule (), n.getParent (), n.getChildren (), n.getOffset ());
     }
-    private static void resolve (ASTNode n, Stack s, List l) {
+    
+    private static void resolve (ASTNode n, Stack s, List l, boolean findUnpairedTags) {
         Iterator it = n.getChildren ().iterator ();
         while (it.hasNext ()) {
             Object o = it.next ();
@@ -165,10 +179,13 @@ public class HTML {
                     if (name == null) 
                         name = "";
                     else
-                        name.toLowerCase ();
+                        name = name.toLowerCase ();
                     s.add (name);
                     s.add (new Integer (l.size ()));
-                    l.add (create (node, "unpairedStartTag"));
+                    if (findUnpairedTags && isEndTagRequired (name))
+                        l.add (create (node, "unpairedStartTag"));
+                    else
+                        l.add (create (node, "startTag"));
                 }
                 continue;
             } else
@@ -177,7 +194,7 @@ public class HTML {
                 if (name == null) 
                     name = "";
                 else
-                    name.toLowerCase ();
+                    name = name.toLowerCase ();
                 int indexS = s.lastIndexOf (name);
                 if (indexS >= 0) {
                     int indexL = ((Integer) s.get (indexS + 1)).intValue ();
@@ -201,7 +218,7 @@ public class HTML {
                 continue;
             } else
             if (node.getNT ().equals ("tags")) {
-                resolve (node, s, l);
+                resolve (node, s, l, findUnpairedTags);
                 continue;
             }
             l.add (node);
@@ -255,7 +272,16 @@ public class HTML {
                 l.getSkipTokenTypes ()
             );
             ASTNode node = l.getAnalyser ().read (ti, false);
-            node = process (node);
+            List rl = new ArrayList ();
+            resolve (node, new Stack (), rl, false);
+            node = ASTNode.create (
+                node.getMimeType (), 
+                node.getNT (), 
+                node.getRule (), 
+                node.getParent (), 
+                rl, 
+                node.getOffset ()
+            );
             in.close ();
             System.out.println("parse " + resourceName + " " + (System.currentTimeMillis () - start));
             return node;
@@ -299,6 +325,21 @@ public class HTML {
                 }
             }
         }
+        try {
+            FileWriter fw = new FileWriter ("c:\\tags.xml");
+            it = result.keySet ().iterator ();
+            while (it.hasNext ()) {
+                String tagName = (String) it.next ();
+                Map params = (Map) result.get (tagName);
+                boolean deprecated = "D".equals (params.get ("Depr."));
+                String description = (String) params.get ("Description");
+                String endTag = (String) params.get ("End Tag");
+                fw.write ("\t<node key = \"" + tagName + "\"\tcontext = \"TAG\"\tdeprecated = \"" + deprecated + "\"\tendTag = \"" + endTag + "\"\tdescription = \"" + description + "\"/>\n");
+            }
+            fw.close ();
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
         return result;
     }
     
@@ -308,11 +349,79 @@ public class HTML {
         if (attributesMap == null) {
             ASTNode n = parseHTML ("index/attributes.html");
             if (n != null)
-                attributesMap = readTags (n);
+                attributesMap = readAttributes (n);
             else
                 attributesMap = new HashMap ();
         }
         return attributesMap;
+    }
+    
+    private static Map readAttributes (ASTNode node) {
+        Map result = new HashMap ();
+        node = getFirstTag (node, "html");
+        node = getFirstTag (node, "body");
+        node = getFirstTag (node, "table");
+        Iterator it = getTags (node, "tr").iterator ();
+        while (it.hasNext ()) {
+            ASTNode tr = (ASTNode) it.next ();
+            String name = null;
+            Map params = new HashMap ();
+            Iterator it2 = getTags (tr, "td").iterator ();
+            while (it2.hasNext ()) {
+                ASTNode td = (ASTNode) it2.next ();
+                String title = getAttributeValue (td, "title");
+                String url = getAttributeValue (
+                    td.getNode ("tag"),
+                    "href"
+                ), value = null;
+                if (!title.equals ("Related Elements")) {
+                    if (url != null) {
+                        value = td.getNode ("tag").getNode ("etext").
+                            getTokenType ("html-text").getIdentifier ().toLowerCase ();
+                        params.put (title + "_URL", url);
+                    } else
+                        value = td.getNode ("etext").getAsText ();
+                    if (value.equals ("&nbsp;"))
+                        value = "";
+                } else {
+                    List l = td.getChildren ();
+                    Iterator ii = l.iterator ();
+                    while (ii.hasNext ()) {
+                        Object elem = ii.next ();
+                        if (!(elem instanceof ASTNode)) continue;
+                        if (!((ASTNode) elem).getNT ().equals ("tag")) continue;
+                        if (value == null)
+                            value = ((ASTNode) elem).getNode ("etext").getAsText ();
+                        else
+                            value += "," + ((ASTNode) elem).getNode ("etext").getAsText ();
+                    }
+                }
+                params.put (title, value);
+                if (title.equals ("Name")) {
+                    name = value;
+                    result.put (name, params);
+                }
+            }
+            //System.out.println(name + " : " + params);
+        }
+        
+        try {
+            FileWriter fw = new FileWriter ("c:\\attribs.xml");
+            it = result.keySet ().iterator ();
+            while (it.hasNext ()) {
+                String tagName = (String) it.next ();
+                Map params = (Map) result.get (tagName);
+                boolean deprecated = "D".equals (params.get ("Depr."));
+                String description = (String) params.get ("Comment");
+                String endTag = (String) params.get ("End Tag");
+                String context = (String) params.get ("Related Elements");
+                fw.write ("\t<node key = \"" + tagName + "\"\tcontext = \"" + context + "\"\tdeprecated = \"" + deprecated + "\"\tdescription = \"" + description + "\"/>\n");
+            }
+            fw.close ();
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return result;
     }
     
     private static String getAttributeValue (ASTNode node, String attributeName) {
