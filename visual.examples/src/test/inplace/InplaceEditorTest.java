@@ -23,9 +23,10 @@ import org.netbeans.api.visual.action.TextFieldInplaceEditor;
 import org.netbeans.api.visual.action.WidgetAction;
 import org.netbeans.api.visual.graph.GraphScene;
 import org.netbeans.api.visual.layout.LayoutFactory;
-import org.netbeans.api.visual.widget.LabelWidget;
+import org.netbeans.api.visual.widget.EventProcessingType;
 import org.netbeans.api.visual.widget.LayerWidget;
 import org.netbeans.api.visual.widget.Widget;
+import org.netbeans.api.visual.widget.LabelWidget;
 import org.netbeans.api.visual.widget.general.IconNodeWidget;
 import org.openide.util.Utilities;
 import test.SceneSupport;
@@ -46,9 +47,11 @@ public class InplaceEditorTest extends GraphScene.StringGraph {
 
     public InplaceEditorTest () {
         addChild (mainLayer = new LayerWidget (this));
+        setKeyEventProcessingType (EventProcessingType.FOCUSED_WIDGET_AND_ITS_CHILDREN_AND_ITS_PARENTS);
 
         getActions ().addAction (ActionFactory.createZoomAction ());
         getActions ().addAction (ActionFactory.createPanAction ());
+        getActions ().addAction (ActionFactory.createCycleObjectSceneFocusAction ());
 
         editorAction = ActionFactory.createInplaceEditorAction (new LabelTextFieldEditor ());
     }
@@ -78,20 +81,6 @@ public class InplaceEditorTest extends GraphScene.StringGraph {
     }
 
     private class LabelTextFieldEditor implements TextFieldInplaceEditor {
-
-// NOTE - this will be supported by InplaceEditor itself
-//        public State keyPressed (Widget widget, WidgetKeyEvent event) {
-//            if (! isEditorVisible ()) {
-//                if (event.getKeyCode () == KeyEvent.VK_F2) {
-//                    Object object = findObject (widget);
-//                    if (object != null  &&  getSelectedObjects ().contains (object))
-//                        if (openEditor (widget))
-//                            return State.createLocked (widget, this);
-//                }
-//            }
-//
-//            return super.keyPressed (widget, event);
-//        }
 
         public boolean isEnabled (Widget widget) {
             return true;
