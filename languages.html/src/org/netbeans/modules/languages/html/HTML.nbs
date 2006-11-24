@@ -172,6 +172,10 @@ COLOR:html-end_element_end {
 COLOR:html-attribute-value {
     default-coloring:"string";
 }
+COLOR:attribute {
+    strike-through-color:"black";
+    condition:org.netbeans.modules.languages.html.HTML.isDeprecatedAttribute;
+}
 
 
 ########### code folding #######################################################
