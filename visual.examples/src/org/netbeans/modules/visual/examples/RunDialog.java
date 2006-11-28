@@ -54,6 +54,7 @@ public class RunDialog extends javax.swing.JFrame {
         "test.graphlayout.TreeGraphLayoutTest",
         "test.huge.HugeTest",
         "test.keyboard.KeyboardTest",
+        "test.layout.FillLayoutWidgetTest",
         "test.inplace.InplaceEditorTest",
         "test.justify.JustifyTest",
         "test.list.ListTest",
