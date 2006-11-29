@@ -439,7 +439,7 @@ public final class LocalHistoryTopComponent extends TopComponent
   
   //************** inner classes ************************//
   
-  static class MyFileVersionRoot extends BeanNode{
+  static class MyFileVersionRoot extends /* why??? */BeanNode<String> {
     public MyFileVersionRoot() throws IntrospectionException{
       super(X);
     }
@@ -529,30 +529,30 @@ public final class LocalHistoryTopComponent extends TopComponent
     
   }
   
-  private static class VersionPropertyTemplate extends PropertySupport{
+  private static class VersionPropertyTemplate extends PropertySupport<VersionNode> {
     VersionPropertyTemplate(){
       super(TREE_NAME,VersionNode.class,TREE_NAME,TREE_NAME,true,true);
     }
-    public Object getValue() throws IllegalAccessException, InvocationTargetException {
+    public VersionNode getValue() throws IllegalAccessException, InvocationTargetException {
       return null;
     }
     
-    public void setValue(Object val) throws IllegalAccessException, IllegalArgumentException, InvocationTargetException {
+    public void setValue(VersionNode val) throws IllegalAccessException, IllegalArgumentException, InvocationTargetException {
     }
     
   }
-  private static class AnnotationPropertyTemplate extends PropertySupport{
+  private static class AnnotationPropertyTemplate extends PropertySupport<String> {
     AnnotationPropertyTemplate(){
       super(ANNOTATION,String.class,ANNOTATION,ANNOTATION,true,true);
     }
     
-    public Object getValue() throws IllegalAccessException,
+    public String getValue() throws IllegalAccessException,
        InvocationTargetException {
       
       return null;
     }
     
-    public void setValue(Object object) throws IllegalAccessException,
+    public void setValue(String object) throws IllegalAccessException,
        IllegalArgumentException, InvocationTargetException {
       
     }

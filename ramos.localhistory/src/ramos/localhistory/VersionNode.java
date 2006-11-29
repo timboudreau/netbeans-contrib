@@ -120,7 +120,7 @@ public class VersionNode
     //System.out.println("getPropertySets");
     PropertySet[] retValue = new PropertySet[1];
     final ReadWrite prop =
-       new AnnotationProperty(ANNOTATION, String.class, ANNOTATION, null);
+       new AnnotationProperty(ANNOTATION, ANNOTATION, null);
     
     retValue[0] =
        new PropertySet() {
@@ -254,7 +254,7 @@ public class VersionNode
     
     
   }
-  private List secondaries = new ArrayList(3);
+  private List<Object> secondaries = new ArrayList<Object>(3);
   private void handleDeleteIfSecondaries(final FileObject fo) {
     
     if (fo.getAttribute("secondary1")!= null) {
@@ -332,12 +332,11 @@ public class VersionNode
   
   
   
-  private class AnnotationProperty extends PropertySupport.ReadWrite{
-    AnnotationProperty(String name,Class type,String displayName,
-       String shortDescription){
-      super(name, type, displayName, shortDescription);
+  private class AnnotationProperty extends PropertySupport.ReadWrite<String> {
+    AnnotationProperty(String name, String displayName, String shortDescription){
+      super(name, String.class, displayName, shortDescription);
     }
-    public Object getValue() throws IllegalAccessException,
+    public String getValue() throws IllegalAccessException,
        InvocationTargetException {
       //System.out.println("getValue");
       String retValue = "";
@@ -350,7 +349,7 @@ public class VersionNode
       return retValue;
     }
     
-    public void setValue(Object value) throws IllegalAccessException,
+    public void setValue(String value) throws IllegalAccessException,
        IllegalArgumentException, InvocationTargetException {
       //System.out.println("setValue");
       try {

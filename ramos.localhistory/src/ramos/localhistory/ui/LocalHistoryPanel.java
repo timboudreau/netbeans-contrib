@@ -160,7 +160,7 @@ final class LocalHistoryPanel extends javax.swing.JPanel {
   private static class MyVerifier extends InputVerifier{
     public boolean verify(JComponent input) {
       JTextField tf = (JTextField) input;
-      if (tf.getText().isEmpty()) return true;
+      if (tf.getText().length() == 0) return true;
       try {
         Integer.parseInt(tf.getText());
       } catch (NumberFormatException ex) {

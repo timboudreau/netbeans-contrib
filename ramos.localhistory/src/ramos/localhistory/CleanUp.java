@@ -122,7 +122,7 @@ public class CleanUp {
     end-for
 
      */
-    Enumeration<FileObject> files = theDir.getData(false);
+    Enumeration<? extends FileObject> files = theDir.getData(false);
 
     while (files.hasMoreElements()) {
       FileObject fo = files.nextElement();
