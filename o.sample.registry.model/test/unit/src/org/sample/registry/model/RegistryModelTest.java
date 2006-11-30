@@ -1,8 +1,9 @@
 package org.sample.registry.model;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 import junit.framework.*;
-import org.netbeans.modules.xml.xam.dom.AbstractDocumentModel;
 
 public class RegistryModelTest extends TestCase {
     
@@ -36,11 +37,33 @@ public class RegistryModelTest extends TestCase {
         model.startTransaction();
         sp.setURL(newValue);
         model.endTransaction();
-        //Util.dumpToFile(((AbstractDocumentModel)model).getBaseDocument(), new File("C:/temp/test.xml"));
         
         model = Util.dumpAndReloadModel(model);
         service = model.getRootComponent().getEntries().getServices().iterator().next();
         assertEquals(newValue, service.getProvider().getURL());
+
+        Service s1 = model.getFactory().createService();
+        s1.setName("s1");
+        ServiceProvider sp1 = model.getFactory().createServiceProvider();
+        sp1.setName("sp1");
+        s1.setProvider(sp1);
+        
+        model.startTransaction();
+        model.getRootComponent().getEntries().addService(s1);
+        model.endTransaction();
+
+        model = Util.dumpAndReloadModel(model);
+        List<Service> services = new ArrayList<Service>(model.getRootComponent().getEntries().getServices());
+        assertEquals("sp1", services.get(1).getProvider().getName());
+        
+        model.startTransaction();
+        services.get(1).getProvider().setURL(newValue);
+        model.endTransaction();
+        Util.dumpToFile(model, new File("c:/temp/test.xml"));
+        
+        model = Util.dumpAndReloadModel(model);
+        services = new ArrayList<Service>(model.getRootComponent().getEntries().getServices());
+        assertEquals(newValue, services.get(1).getProvider().getURL());
     }
     
 }
