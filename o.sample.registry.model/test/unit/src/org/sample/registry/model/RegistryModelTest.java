@@ -59,7 +59,7 @@ public class RegistryModelTest extends TestCase {
         model.startTransaction();
         services.get(1).getProvider().setURL(newValue);
         model.endTransaction();
-        Util.dumpToFile(model, new File("c:/temp/test.xml"));
+        //Util.dumpToFile(model, new File("c:/temp/test.xml"));
         
         model = Util.dumpAndReloadModel(model);
         services = new ArrayList<Service>(model.getRootComponent().getEntries().getServices());
