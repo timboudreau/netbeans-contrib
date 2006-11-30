@@ -26,13 +26,11 @@ import org.netbeans.modules.j2ee.dd.api.ejb.DDProvider;
 import org.netbeans.modules.j2ee.dd.api.webservices.Webservices;
 import org.netbeans.modules.j2ee.deployment.devmodules.api.J2eeModule;
 import org.netbeans.modules.schema2beans.BaseBean;
-import org.netbeans.modules.websvc.spi.webservices.WebServicesConstants;
 import org.netbeans.spi.project.support.ant.AntProjectHelper;
 import org.netbeans.spi.project.support.ant.PropertyEvaluator;
 import org.openide.DialogDisplayer;
 import org.openide.NotifyDescriptor;
 import org.openide.filesystems.FileObject;
-import org.openide.filesystems.FileUtil;
 import org.openide.util.NbBundle;
 
 /**
@@ -145,7 +143,7 @@ public class EJBFreeformModule implements J2eeModule {
                     NotifyDescriptor.ERROR_MESSAGE));
             return null;
         }
-        return getEjbModule().getMetaInf().getFileObject(WebServicesConstants.WEBSERVICES_DD, "xml");
+        return getEjbModule().getMetaInf().getFileObject("webservices", "xml"); //NOI18N
     }
     
     private FileObject getFileObject(String propname) {
