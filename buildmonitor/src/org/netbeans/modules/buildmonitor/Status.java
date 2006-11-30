@@ -21,34 +21,31 @@
 package org.netbeans.modules.buildmonitor;
 
 import java.util.Locale;
+import javax.swing.Icon;
+import javax.swing.ImageIcon;
 import org.openide.ErrorManager;
 import org.openide.util.NbBundle;
 import org.openide.util.Utilities;
-import javax.swing.*;
 
 /**
  * Typesafe enum for build status states.
  *
- * @author tball
+ * @author Tom Ball, Jesse Glick
  */
-public class Status {
+public enum Status {
     /** Build succeeded and passed all tests. */
-    public static final Status SUCCESS =
-	new Status("LBL_SUCCESS", "org/netbeans/modules/buildmonitor/resources/build_passed.gif");     //NOI18N
+    SUCCESS("LBL_SUCCESS", "org/netbeans/modules/buildmonitor/resources/build_passed.gif"),     //NOI18N
 
     /** Build failed. */
-    public static final Status FAILED =
-	new Status("LBL_FAILED", "org/netbeans/modules/buildmonitor/resources/build_failed.gif");      //NOI18N
+    FAILED("LBL_FAILED", "org/netbeans/modules/buildmonitor/resources/build_failed.gif"),      //NOI18N
     
     /** Build succeeded, but one or more tests failed. */
-    public static final Status TESTS_FAILED = 
-	new Status("LBL_TEST_FAILED", "org/netbeans/modules/buildmonitor/resources/tests_failed.gif"); //NOI18N
+    TESTS_FAILED("LBL_TEST_FAILED", "org/netbeans/modules/buildmonitor/resources/tests_failed.gif"), //NOI18N
     
     /** No status available from build.  It may be too soon, or the
      *  URL isn't currently accessible. 
      */
-    public static final Status NO_STATUS_AVAIL = 
-	new Status("LBL_NO_STATUS", "org/netbeans/modules/buildmonitor/resources/no_status.gif");      //NOI18N
+    NO_STATUS_AVAIL("LBL_NO_STATUS", "org/netbeans/modules/buildmonitor/resources/no_status.gif");      //NOI18N
     
     public static final String CRUISECONTROL_SUCCESS = ", passed";
     public static final String CRUISECONTROL_FAILED = ", FAILED!";
@@ -60,16 +57,12 @@ public class Status {
 	return icon;
     }
     
-    String getName() {
-        return name;
-    }
-    
     public static Status lookup(String text) {
-        if (SUCCESS.name.equals(text) || text.endsWith(CRUISECONTROL_SUCCESS) || text.endsWith(HUDSON_SUCCESS))
+        if (SUCCESS.displayName.equals(text) || text.endsWith(CRUISECONTROL_SUCCESS) || text.endsWith(HUDSON_SUCCESS))
             return SUCCESS;
-        if (FAILED.name.equals(text) || text.endsWith(CRUISECONTROL_FAILED) || text.endsWith(HUDSON_FAILURE))
+        if (FAILED.displayName.equals(text) || text.endsWith(CRUISECONTROL_FAILED) || text.endsWith(HUDSON_FAILURE))
             return FAILED;
-        if (TESTS_FAILED.name.equals(text) || text.endsWith(HUDSON_UNSTABLE))
+        if (TESTS_FAILED.displayName.equals(text) || text.endsWith(HUDSON_UNSTABLE))
             return TESTS_FAILED;
         if (text.toLowerCase(Locale.US).indexOf("succe") != -1) {
             return SUCCESS;
@@ -82,15 +75,11 @@ public class Status {
         return NO_STATUS_AVAIL;
     }
 
-    private final String name;
-    private final ImageIcon icon;
+    private final String displayName;
+    private final Icon icon;
     private Status(String nameKey, String iconResource) {
-	this.name = NbBundle.getBundle(Status.class).getString(nameKey);
-	this.icon = new ImageIcon(Utilities.loadImage(iconResource), name);
-    }
-
-    public String toString() {
-        return getName();
+	displayName = NbBundle.getMessage(BuildMonitor.class, nameKey);
+	icon = new ImageIcon(Utilities.loadImage(iconResource), displayName);
     }
     
 }

@@ -23,12 +23,13 @@ import java.awt.EventQueue;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.beans.IntrospectionException;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.net.URL;
+import java.util.prefs.BackingStoreException;
+import java.util.prefs.NodeChangeEvent;
+import java.util.prefs.NodeChangeListener;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.Icon;
@@ -38,18 +39,11 @@ import org.openide.DialogDisplayer;
 import org.openide.NotifyDescriptor;
 import org.openide.awt.HtmlBrowser;
 import org.openide.explorer.propertysheet.PropertySheet;
-import org.openide.filesystems.FileChangeAdapter;
-import org.openide.filesystems.FileChangeListener;
-import org.openide.filesystems.FileEvent;
-import org.openide.filesystems.FileObject;
-import org.openide.filesystems.FileStateInvalidException;
-import org.openide.filesystems.FileSystem;
-import org.openide.filesystems.FileUtil;
-import org.openide.filesystems.Repository;
-import org.openide.loaders.DataObject;
-import org.openide.loaders.DataObjectNotFoundException;
+import org.openide.nodes.BeanNode;
 import org.openide.nodes.Node;
+import org.openide.util.Exceptions;
 import org.openide.util.NbBundle;
+import org.openide.util.WeakListeners;
 
 /**
  * A button which displays the name of the build, listens to a BuildMonitor
@@ -114,13 +108,11 @@ public class BuildStatus extends JButton implements PropertyChangeListener {
      * Monitor has signaled a status change.
      */
     public void propertyChange(PropertyChangeEvent e) {
-        BuildMonitor monitor = (BuildMonitor)e.getSource();
-        final String name = monitor.getName();
-        final Icon icon = monitor.getStatus().getIcon();
         EventQueue.invokeLater(new Runnable() {
             public void run() {
-                setName(name);
-                setIcon(icon);
+                setText(monitor.getName());
+                setIcon(monitor.getStatus().getIcon());
+                setToolTipText(monitor.getStatusDescription());
                 repaint();
                 enableActions();
             }
@@ -166,65 +158,43 @@ public class BuildStatus extends JButton implements PropertyChangeListener {
      */
     private final Action configureAction = new AbstractAction(getString("ACT_CONFIGURE")) { // NOI18N
         public void actionPerformed(ActionEvent e) {
-            String path = monitor.getConfigPath();
-            if (path == null) {
-                return; // old userdir, probably
-            }
-            FileObject conf = Repository.getDefault().getDefaultFileSystem().findResource(path);
-            if (conf == null) {
-                return; // ???
-            }
-            final Node representation;
             try {
-                representation = DataObject.find(conf).getNodeDelegate();
-            } catch (DataObjectNotFoundException x) {
-                x.printStackTrace();
-                return;
+                Node representation = new BeanNode<BuildMonitor>(monitor);
+                PropertySheet ps = new PropertySheet();
+                ps.setNodes(new Node[] {representation});
+                DialogDisplayer.getDefault().notify(new NotifyDescriptor.Message(ps));
+            } catch (IntrospectionException x) {
+                Exceptions.printStackTrace(x);
             }
-            PropertySheet ps = new PropertySheet();
-            ps.setNodes(new Node[] {representation});
-            DialogDisplayer.getDefault().notify(new NotifyDescriptor.Message(ps));
         }
     };
 
     /**
      * Action to delete this monitor.
      */
-    private final Action deleteAction = new AbstractAction(getString("ACT_DELETE")) { // NOI18N
-        private final FileObject dir;
-        private final FileChangeListener l = new FileChangeAdapter() {
-            public void fileDataCreated(FileEvent fe) {
-                refreshEnablement();
-            }
-            public void fileDeleted(FileEvent fe) {
-                refreshEnablement();
-            }
-        };
-        {
-            dir = Repository.getDefault().getDefaultFileSystem().findResource("Services/BuildMonitor");
-            if (dir != null) {
-                refreshEnablement();
-                dir.addFileChangeListener(FileUtil.weakFileChangeListener(l, dir));
-            }
+    private final Action deleteAction = new DeleteAction();
+    private final class DeleteAction extends AbstractAction implements NodeChangeListener { // NOI18N
+        DeleteAction() {
+            super(getString("ACT_DELETE"));
+            refreshEnablement();
+            BuildMonitorPanel.ROOT.addNodeChangeListener(WeakListeners.create(NodeChangeListener.class, this, BuildMonitorPanel.ROOT));
+        }
+        public void childAdded(NodeChangeEvent ev) {
+            refreshEnablement();
+        }
+        public void childRemoved(NodeChangeEvent ev) {
+            refreshEnablement();
         }
         /** Do not permit last build monitor to be deleted because then we would have no New action! */
         private void refreshEnablement() {
-            setEnabled(dir.getChildren().length > 1);
+            try {
+                setEnabled(BuildMonitorPanel.ROOT.childrenNames().length > 1);
+            } catch (BackingStoreException x) {
+                Exceptions.printStackTrace(x);
+            }
         }
         public void actionPerformed(ActionEvent e) {
-            String path = monitor.getConfigPath();
-            if (path == null) {
-                return;
-            }
-            FileObject conf = Repository.getDefault().getDefaultFileSystem().findResource(path);
-            if (conf == null) {
-                return;
-            }
-            try {
-                conf.delete();
-            } catch (IOException x) {
-                x.printStackTrace();
-            }
+            monitor.delete();
         }
     };
 
@@ -233,10 +203,6 @@ public class BuildStatus extends JButton implements PropertyChangeListener {
      */
     private static final Action newAction = new AbstractAction(getString("ACT_NEW")) { // NOI18N
         public void actionPerformed(ActionEvent e) {
-            final FileObject dir = Repository.getDefault().getDefaultFileSystem().findResource("Services/BuildMonitor");
-            if (dir == null) {
-                return; // ???
-            }
             NotifyDescriptor.InputLine line = new NotifyDescriptor.InputLine(getString("BuildStatus.new.name.text"), getString("BuildStatus.new.title"));
             if (DialogDisplayer.getDefault().notify(line) != NotifyDescriptor.OK_OPTION) {
                 return;
@@ -246,30 +212,22 @@ public class BuildStatus extends JButton implements PropertyChangeListener {
             if (DialogDisplayer.getDefault().notify(line) != NotifyDescriptor.OK_OPTION) {
                 return;
             }
-            final String url = line.getInputText();
             try {
-                final URL u = new URL(url);
-                dir.getFileSystem().runAtomicAction(new FileSystem.AtomicAction() {
-                    public void run() throws IOException {
-                        FileObject nue = dir.createData(FileUtil.findFreeFileName(dir, name.replaceAll("[^a-zA-Z0-9_-]", "_"), "settings"), "settings");
-                        nue.setAttribute("name", name);
-                        nue.setAttribute("url", u);
-                        nue.setAttribute("minutes", new Integer(30));
-                        InputStream is = BuildStatus.class.getResourceAsStream("resources/buildMonitor.xml");
-                        try {
-                            OutputStream os = nue.getOutputStream();
-                            try {
-                                FileUtil.copy(is, os);
-                            } finally {
-                                os.close();
-                            }
-                        } finally {
-                            is.close();
+                String id = name.replaceAll("[^a-zA-Z0-9_-]", "_");
+                if (BuildMonitorPanel.ROOT.nodeExists(id)) {
+                    for (int i = 2; ; i++) {
+                        String alt = id + "_" + i;
+                        if (!BuildMonitorPanel.ROOT.nodeExists(alt)) {
+                            id = alt;
+                            break;
                         }
                     }
-                });
-            } catch (IOException x) {
-                x.printStackTrace();
+                }
+                BuildMonitor m = BuildMonitor.create(BuildMonitorPanel.ROOT.node(id));
+                m.setName(name);
+                m.setURL(new URL(line.getInputText()));
+            } catch (Exception x) {
+                Exceptions.printStackTrace(x);
             }
         }
     };

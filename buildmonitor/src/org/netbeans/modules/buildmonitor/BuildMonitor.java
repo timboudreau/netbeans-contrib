@@ -25,17 +25,17 @@ import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.Serializable;
 import java.net.InetSocketAddress;
 import java.net.MalformedURLException;
 import java.net.Proxy;
 import java.net.SocketAddress;
 import java.net.URL;
 import java.net.URLConnection;
+import java.util.prefs.BackingStoreException;
+import java.util.prefs.Preferences;
 import javax.swing.Timer;
 import org.openide.ErrorManager;
-import org.openide.filesystems.FileObject;
-import org.openide.util.HelpCtx;
+import org.openide.util.Exceptions;
 import org.openide.util.NbBundle;
 import org.openide.util.RequestProcessor;
 import org.openide.xml.XMLUtil;
@@ -51,55 +51,59 @@ import org.xml.sax.helpers.DefaultHandler;
  * notifying listeners of any changes.  The status file format is defined by
  * CruiseControl.
  *
- * @author Tom Ball
+ * @author Tom Ball, Jesse Glick
  */
-public class BuildMonitor implements Serializable, HelpCtx.Provider {
+public class BuildMonitor {
+    
+    private static final String KEY_URL = "url";
+    private static final String KEY_NAME = "name";
+    private static final String KEY_INTERVAL = "interval";
+    
     private URL buildStatusURL;
     private int pollMinutes;
     private String name;
-    private transient PropertyChangeSupport pcs;
-    private transient Timer timer;
+    private PropertyChangeSupport pcs;
+    private Timer timer;
     
     // from build status file
-    private transient String title;
-    private transient URL buildLink;
-    private transient String buildDescription;
-    private transient Status lastStatus;
-    private transient String lastStatusText;
-    private transient URL statusLink;
-    private transient String statusDescription;
-    private transient String guid;
-    private transient String pubDate;
-    private String configPath;
+    private String title;
+    private URL buildLink;
+    private String buildDescription;
+    private Status lastStatus;
+    private String lastStatusText;
+    private URL statusLink;
+    private String statusDescription;
+    private String guid;
+    private String pubDate;
+    private Preferences node;
     
     static RequestProcessor WORKER = new RequestProcessor("build status updater");
 
-    private static final long serialVersionUID = 5735178156173098330L;
-    
-    public static BuildMonitor create(FileObject fo) throws IOException {
-        URL url;
-	Object o = fo.getAttribute("url"); // NOI18N
-	if (o instanceof String) {
-	    url = new URL((String)o);
-	} else {
-	    url = (URL)o;
-	}
-	String name = (String)fo.getAttribute("name"); //NOI18N
-        Integer minutesAttr = (Integer)fo.getAttribute("minutes"); //NOI18N
-        int minutes = minutesAttr != null ? minutesAttr.intValue() : 30;
-        BuildMonitor monitor = new BuildMonitor(name, url, minutes, fo.getPath());
-	return monitor;
+    public static BuildMonitor create(Preferences node) throws MalformedURLException {
+        String u = node.get(KEY_URL, null);
+        URL url = u != null ? new URL(u) : null;
+	String name = node.get(KEY_NAME, node.name());
+        int minutes = node.getInt(KEY_INTERVAL, 30);
+        return new BuildMonitor(name, url, minutes, node);
     }
     
-    private BuildMonitor(String name, URL url, int minutes, String configPath) {
+    private BuildMonitor(String name, URL url, int minutes, Preferences node) {
         this.pcs = new PropertyChangeSupport(this);
 	this.name = name;
 	buildStatusURL = url;
 	pollMinutes = minutes;
 	lastStatus = Status.NO_STATUS_AVAIL;
-        this.configPath = configPath;
+        this.node = node;
         updateBuildStatus();
         startTimer();
+    }
+    
+    public void delete() {
+        try {
+            node.removeNode();
+        } catch (BackingStoreException x) {
+            Exceptions.printStackTrace(x);
+        }
     }
 
     private void startTimer() {
@@ -118,6 +122,7 @@ public class BuildMonitor implements Serializable, HelpCtx.Provider {
     
     public void setName(String newName) {
         name = newName;
+        node.put(KEY_NAME, newName);
         firePropertyChange("name", name); //NOI18N
     }
     
@@ -131,7 +136,9 @@ public class BuildMonitor implements Serializable, HelpCtx.Provider {
     
     public void setURL(URL url) {
         buildStatusURL = url;
+        node.put(KEY_URL, url.toExternalForm());
         firePropertyChange("url", url); //NOI18N
+        updateBuildStatus();
     }
     
     public int getPollMinutes() {
@@ -140,7 +147,8 @@ public class BuildMonitor implements Serializable, HelpCtx.Provider {
     
     public void setPollMinutes(int poll) {
         pollMinutes = poll;
-        firePropertyChange("pollMinutes", new Integer(pollMinutes)); //NOI18N
+        node.putInt(KEY_INTERVAL, poll);
+        firePropertyChange("pollMinutes", pollMinutes); //NOI18N
     }
 
     public String getTitle() {
@@ -173,14 +181,6 @@ public class BuildMonitor implements Serializable, HelpCtx.Provider {
         return pubDate;
     }
 
-    String getConfigPath() {
-        return configPath;
-    }
-
-    public org.openide.util.HelpCtx getHelpCtx() {
-        return HelpCtx.DEFAULT_HELP;
-    }
-    
     public void addPropertyChangeListener(PropertyChangeListener listener) {
         pcs.addPropertyChangeListener(listener);
     }
@@ -347,10 +347,4 @@ public class BuildMonitor implements Serializable, HelpCtx.Provider {
 	}
     }
 
-    private void readObject (java.io.ObjectInputStream ois) throws java.io.IOException, ClassNotFoundException {
-        ois.defaultReadObject();
-        pcs = new PropertyChangeSupport(this);
-        updateBuildStatus();
-        startTimer();
-    }
 }

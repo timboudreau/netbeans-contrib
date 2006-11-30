@@ -20,71 +20,79 @@
 package org.netbeans.modules.buildmonitor;
 
 import java.awt.EventQueue;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.prefs.BackingStoreException;
+import java.util.prefs.NodeChangeEvent;
+import java.util.prefs.NodeChangeListener;
+import java.util.prefs.Preferences;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JPanel;
-import org.openide.ErrorManager;
-import org.openide.cookies.InstanceCookie;
-import org.openide.filesystems.FileAttributeEvent;
-import org.openide.filesystems.FileChangeListener;
-import org.openide.filesystems.FileEvent;
-import org.openide.filesystems.FileObject;
-import org.openide.filesystems.FileRenameEvent;
-import org.openide.filesystems.FileSystem;
-import org.openide.filesystems.FileUtil;
-import org.openide.filesystems.Repository;
-import org.openide.loaders.DataFolder;
-import org.openide.loaders.DataObject;
+import org.openide.util.Exceptions;
+import org.openide.util.NbPreferences;
+import org.openide.util.WeakListeners;
 
 /**
  * Displays one or more BuildStatus objects in the status bar.
  *
- * @author Tom Ball
+ * @author Tom Ball, Jesse Glick
  */
-public class BuildMonitorPanel extends JPanel implements FileChangeListener {
+public class BuildMonitorPanel extends JPanel implements NodeChangeListener {
+    
+    static final Preferences ROOT = NbPreferences.forModule(BuildMonitor.class);
+    
+    private static BuildMonitor createDefaultMonitor() {
+        Preferences node = ROOT.node("nbdev");
+        BuildMonitor m;
+        try {
+            m = BuildMonitor.create(node);
+            m.setURL(new URL("http://deadlock.nbextras.org/hudson/job/trunk/rssAll"));
+        } catch (MalformedURLException x) {
+            throw new AssertionError(x);
+        }
+        m.setName("NB trunk");
+        return m;
+    }
+    
     private static final BuildMonitorPanel instance = new BuildMonitorPanel();
 
     public static BuildMonitorPanel getInstance() {
         return instance;
     }
 
-    private final FileObject dir;
-
     private BuildMonitorPanel() {
-        super();
-        FileSystem dfs = Repository.getDefault().getDefaultFileSystem();
-        dir = dfs.findResource("Services/BuildMonitor"); //NOI18N
-        if (dir != null) {
-            setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
-            dir.addFileChangeListener(FileUtil.weakFileChangeListener(this, dir));
-            buildPanel();
-        } // else something broken...
+        setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
+        ROOT.addNodeChangeListener(WeakListeners.create(NodeChangeListener.class, this, ROOT));
+        buildPanel();
     }
 
     private void buildPanel() {
-        DataFolder monitorFolder = DataFolder.findFolder(dir);
-        DataObject[] children = monitorFolder.getChildren();
-        for (int i = 0; i < children.length; i++) {
-            DataObject dataObject = children[i];
-            InstanceCookie ic = (InstanceCookie)dataObject.getCookie(InstanceCookie.class);
-            if (ic == null)
-                continue;
-            try {
-                BuildMonitor monitor = (BuildMonitor)ic.instanceCreate();
-                BuildStatus status = new BuildStatus(monitor);
-                add(status);
-                if (i+1 < children.length)
-                    add(Box.createHorizontalStrut(10));
-            } catch (Exception e) {
-                ErrorManager.getDefault().notify(e);
+        try {
+            String[] ids = ROOT.childrenNames();
+            if (ids.length == 0) {
+                add(new BuildStatus(createDefaultMonitor()));
+            } else {
+                for (int i = 0; i < ids.length; i++) {
+                    try {
+                        add(new BuildStatus(BuildMonitor.create(ROOT.node(ids[i]))));
+                        if (i + 1 < ids.length) {
+                            add(Box.createHorizontalStrut(10));
+                        }
+                    } catch (MalformedURLException x) {
+                        Exceptions.printStackTrace(x);
+                    }
+                }
             }
+        } catch (BackingStoreException x) {
+            Exceptions.printStackTrace(x);
         }
 
         revalidate();
         repaint();
     }
 
-    private void rebuildPanel() {
+    public void rebuildPanel() {
         EventQueue.invokeLater(new Runnable() {
             public void run() {
                 removeAll();
@@ -92,25 +100,13 @@ public class BuildMonitorPanel extends JPanel implements FileChangeListener {
             }
         });
     }
-
-    public void fileDeleted(FileEvent fe) {
+    
+    public void childAdded(NodeChangeEvent ev) {
         rebuildPanel();
     }
-
-    public void fileAttributeChanged(FileAttributeEvent fe) {
+    
+    public void childRemoved(NodeChangeEvent ev) {
         rebuildPanel();
     }
-
-    public void fileRenamed(FileRenameEvent fe) {
-        rebuildPanel();
-    }
-
-    public void fileChanged(FileEvent fe) {
-        rebuildPanel();
-    }
-
-    public void fileFolderCreated(FileEvent fe) {}
-    public void fileDataCreated(FileEvent fe) {
-        rebuildPanel();
-    }
+    
 }

@@ -20,10 +20,8 @@
 package org.netbeans.modules.buildmonitor;
 
 import java.net.URL;
+import java.util.prefs.Preferences;
 import org.netbeans.junit.NbTestCase;
-import org.openide.filesystems.FileObject;
-import org.openide.filesystems.FileSystem;
-import org.openide.filesystems.FileUtil;
 
 public class BuildMonitorTest extends NbTestCase {
 
@@ -44,14 +42,18 @@ public class BuildMonitorTest extends NbTestCase {
             LOCK.wait();
         }
     }
+    
+    private BuildMonitor createMonitor(String resource, String name) throws Exception {
+        Preferences p = Preferences.userNodeForPackage(BuildMonitorTest.class).node(getName());
+        BuildMonitor m = BuildMonitor.create(p);
+        m.setURL(BuildMonitorTest.class.getResource(resource));
+        m.setName(name);
+        waitBM();
+        return m;
+    }
 
     public void testHudsonSuccessParsing() throws Exception {
-        FileSystem fs = FileUtil.createMemoryFileSystem();
-        FileObject fo = fs.getRoot().createData("foo.instance");
-        fo.setAttribute("url", BuildMonitorTest.class.getResource("hudson-success.xml"));
-        fo.setAttribute("name", "Hudson Success");
-        BuildMonitor m = BuildMonitor.create(fo);
-        waitBM();
+        BuildMonitor m = createMonitor("hudson-success.xml", "Hudson Success");
         assertEquals(Status.SUCCESS, m.getStatus());
         assertEquals(new URL("http://deadlock.nbextras.org:80/job/kukaczka/14/"), m.getStatusLink());
         assertEquals("kukaczka all builds", m.getTitle());
@@ -59,14 +61,7 @@ public class BuildMonitorTest extends NbTestCase {
     }
 
     public void testHudsonFailureParsing() throws Exception {
-        FileSystem fs = FileUtil.createMemoryFileSystem();
-        FileObject fo = fs.getRoot().createData("foo.instance");
-        fo.setAttribute("url", BuildMonitorTest.class.getResource("hudson-failure.xml"));
-        fo.setAttribute("name", "Hudson Failure");
-        fo.setAttribute("minutes", new Integer(15));
-        BuildMonitor m = BuildMonitor.create(fo);
-        waitBM();
-        assertEquals(15, m.getPollMinutes());
+        BuildMonitor m = createMonitor("hudson-failure.xml", "Hudson Failure");
         assertEquals("Hudson Failure", m.getName());
         assertEquals(Status.FAILED, m.getStatus());
         assertEquals(new URL("http://deadlock.nbextras.org:80/job/trunk/7/"), m.getStatusLink());
@@ -74,15 +69,10 @@ public class BuildMonitorTest extends NbTestCase {
     }
 
     public void testHudsonProgressParsing() throws Exception {
-        FileSystem fs = FileUtil.createMemoryFileSystem();
-        FileObject fo = fs.getRoot().createData("foo.instance");
-        fo.setAttribute("url", BuildMonitorTest.class.getResource("hudson-progress.xml"));
-        fo.setAttribute("name", "Hudson Progres");
-        BuildMonitor m = BuildMonitor.create(fo);
-        waitBM();
-        assertEquals(Status.NO_STATUS_AVAIL, m.getStatus());
-        assertEquals(new URL("http://deadlock.nbextras.org:80/job/trunk/8/"), m.getStatusLink());
-        assertEquals("trunk #8 ()", m.getStatusDescription());
+        BuildMonitor m = createMonitor("hudson-progress.xml", "Hudson Progress");
+        assertEquals("picks up old failure status even though a new build is running", Status.FAILED, m.getStatus());
+        assertEquals("points to the previous build, not the running one", new URL("http://deadlock.nbextras.org:80/job/trunk/7/"), m.getStatusLink());
+        assertEquals("points to the previous build, not the running one", "trunk #7 (FAILURE)", m.getStatusDescription());
     }
 
 }
