@@ -1,7 +1,8 @@
 package org.sample.registry.model;
 
+import java.io.File;
 import junit.framework.*;
-import org.netbeans.modules.xml.xam.dom.DocumentModel;
+import org.netbeans.modules.xml.xam.dom.AbstractDocumentModel;
 
 public class RegistryModelTest extends TestCase {
     
@@ -35,6 +36,7 @@ public class RegistryModelTest extends TestCase {
         model.startTransaction();
         sp.setURL(newValue);
         model.endTransaction();
+        //Util.dumpToFile(((AbstractDocumentModel)model).getBaseDocument(), new File("C:/temp/test.xml"));
         
         model = Util.dumpAndReloadModel(model);
         service = model.getRootComponent().getEntries().getServices().iterator().next();

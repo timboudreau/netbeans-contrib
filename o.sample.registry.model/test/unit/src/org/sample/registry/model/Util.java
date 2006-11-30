@@ -90,6 +90,10 @@ public class Util {
         out.close();
     }
     
+    public static void dumpToFile(DocumentModel model, File f) throws Exception {
+        dumpToFile(((AbstractDocumentModel)model).getBaseDocument(), f);
+    }
+    
     public static void dumpToFile(Document doc, File f) throws Exception {
         OutputStream out = new BufferedOutputStream(new FileOutputStream(f));
         PrintWriter w = new PrintWriter(out);
