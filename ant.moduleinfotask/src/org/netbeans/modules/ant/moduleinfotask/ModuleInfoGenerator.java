@@ -28,6 +28,7 @@ import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
@@ -57,9 +58,9 @@ public class ModuleInfoGenerator {
             FileWriter fos = new FileWriter(htmlFile);
             out = new PrintWriter(fos);
             
-            HashMap cnToDisplayName = new HashMap();
-            TreeMap publicPackageTocCn = new TreeMap();
-            TreeMap reverseDependenciesMap = new TreeMap();
+            Map<String, String> cnToDisplayName = new HashMap<String, String>();
+            Map<String, String> publicPackageTocCn = new TreeMap<String, String>();
+            TreeMap<String, Set<String>> reverseDependenciesMap = new TreeMap<String, Set<String>>();
             for (int i = 0; i < moduleInfos.length; i ++) {
                 cnToDisplayName.put(moduleInfos[i].getCodeName(), moduleInfos[i].getDisplayName());
                 String publicPackagesAttr = ((String)moduleInfos[i].getAttribute("OpenIDE-Module-Public-Packages"));
@@ -204,7 +205,7 @@ public class ModuleInfoGenerator {
                 out.println("<table width=\"100%\" style=\"border: 1px solid black;\">");
                 String dependee = (String) iter.next();
                 String dependeeDisplayName = (String) cnToDisplayName.get(dependee);
-                TreeSet dependenciesSet = (TreeSet) reverseDependenciesMap.get(dependee);
+                Set<String> dependenciesSet = reverseDependenciesMap.get(dependee);
                 if (dependenciesSet != null) {
                     out.println(
                     "<tr valign=\"top\"><td width=\"300\"><nobr>"
@@ -300,27 +301,24 @@ public class ModuleInfoGenerator {
     }
     
     private static ModuleInfo[] getModuleInfos() {
-        Lookup.Template templ = new Lookup.Template(ModuleInfo.class);
-        Lookup.Result result = Lookup.getDefault().lookup(templ);
-        Collection modules = result.allInstances(); // Collection<ModuleInfo>
+        Lookup.Template<ModuleInfo> templ = new Lookup.Template<ModuleInfo>(ModuleInfo.class);
+        Lookup.Result<ModuleInfo> result = Lookup.getDefault().lookup(templ);
+        Collection<? extends ModuleInfo> modules = result.allInstances(); // Collection<ModuleInfo>
         ModuleInfo[] moduleInfos = (ModuleInfo[])modules.toArray(new ModuleInfo[0]);
         Arrays.sort(moduleInfos, moduleInfoComparator);
         return moduleInfos;
     }
     
-    private static class ModuleInfoComparator implements Comparator {
-        public int compare(Object o1, Object o2) {
-            if (o1 instanceof ModuleInfo && o2 instanceof ModuleInfo) {
-                return ((ModuleInfo)o1).getDisplayName().compareToIgnoreCase(((ModuleInfo)o2).getDisplayName());
-            }
-            return 0;
+    private static class ModuleInfoComparator implements Comparator<ModuleInfo> {
+        public int compare(ModuleInfo o1, ModuleInfo o2) {
+                return o1.getDisplayName().compareToIgnoreCase(o2.getDisplayName());
         }
     }
     
-    private static void addReverseDependency(TreeMap reverseDependenciesMap, String dependee, String dependent) {
-        TreeSet dependencies = (TreeSet) reverseDependenciesMap.get(dependee);
+    private static void addReverseDependency(Map<String, Set<String>> reverseDependenciesMap, String dependee, String dependent) {
+        Set<String> dependencies = reverseDependenciesMap.get(dependee);
         if (dependencies == null) {
-            dependencies = new TreeSet();
+            dependencies = new TreeSet<String>();
             reverseDependenciesMap.put(dependee, dependencies);
         }
         if (!dependencies.contains(dependent)) {
