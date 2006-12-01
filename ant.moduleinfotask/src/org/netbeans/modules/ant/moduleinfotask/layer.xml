@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE filesystem PUBLIC "-//NetBeans//DTD Filesystem 1.1//EN" "http://www.netbeans.org/dtds/filesystem-1_1.dtd">
+<filesystem>
+    <folder name="Actions">
+        <folder name="Tools">
+            <file name="org-netbeans-modules-ant-moduleinfotask-ui-ModuleInfoAction.instance">
+                <attr name="instanceClass" stringvalue="org.netbeans.modules.ant.moduleinfotask.ui.ModuleInfoAction"/>
+            </file>
+        </folder>
+    </folder>
+    <folder name="Menu">
+        <folder name="Tools">
+            <attr name="Separator1.instance/org-netbeans-modules-ant-moduleinfotask-ui-ModuleInfoAction.shadow" boolvalue="true"/>
+            <file name="org-netbeans-modules-ant-moduleinfotask-ui-ModuleInfoAction.shadow">
+                <attr name="originalFile" stringvalue="Actions/Tools/org-netbeans-modules-ant-moduleinfotask-ui-ModuleInfoAction.instance"/>
+            </file>
+            <attr name="org-netbeans-modules-ant-moduleinfotask-ui-ModuleInfoAction.shadow/Separator2.instance" boolvalue="true"/>
+        </folder>
+    </folder>
+    <folder name="Toolbars">
+        <folder name="Tools">
+            <attr name="Separator1.instance/org-netbeans-modules-ant-moduleinfotask-ui-ModuleInfoAction.shadow" boolvalue="true"/>
+            <file name="org-netbeans-modules-ant-moduleinfotask-ui-ModuleInfoAction.shadow">
+                <attr name="originalFile" stringvalue="Actions/Tools/org-netbeans-modules-ant-moduleinfotask-ui-ModuleInfoAction.instance"/>
+            </file>
+            <attr name="org-netbeans-modules-ant-moduleinfotask-ui-ModuleInfoAction.shadow/Separator2.instance" boolvalue="true"/>
+        </folder>
+    </folder>
+</filesystem>

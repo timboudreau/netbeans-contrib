@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="moduleinfoproject" default="moduleinfotarget" basedir=".">
+    <target name="moduleinfotarget">
+        <moduleinfotask htmloutputfile="c:/tmp/moduleinfo.html"/>
+    </target>
+</project>

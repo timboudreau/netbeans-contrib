@@ -1,0 +1,6 @@
+Manifest-Version: 1.0
+OpenIDE-Module: org.netbeans.modules.ant.moduleinfotask
+OpenIDE-Module-Layer: org/netbeans/modules/ant/moduleinfotask/layer.xml
+OpenIDE-Module-Localizing-Bundle: org/netbeans/modules/ant/moduleinfotask/Bundle.properties
+OpenIDE-Module-Specification-Version: 1.0
+
