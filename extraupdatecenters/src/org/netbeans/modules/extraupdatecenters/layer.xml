@@ -22,37 +22,42 @@ Microsystems, Inc. All Rights Reserved.
     <folder name="AutoupdateType">
       <attr name="autoupdate_xml_type.settings/maven.settings" boolvalue="true" />
 
-      <file name="maven.settings" url="maven.settings">
+      <file name="maven.settings" url="uc.xml">
         <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.extraupdatecenters.Bundle"/>
         <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/updatecenters/resources/updateAction.gif"/>
         <attr name="url_key" stringvalue="MavenURL"/>
         <attr name="enabled" boolvalue="true"/>
       </file>
-      <file name="maven2.settings" url="maven2.settings">
+      <file name="maven2.settings" url="uc.xml">
         <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.extraupdatecenters.Bundle"/>
         <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/updatecenters/resources/updateAction.gif"/>
         <attr name="url_key" stringvalue="Maven2URL"/>
         <attr name="enabled" boolvalue="true"/>
       </file>
-      <file name="sc.settings" url="sc.settings">
+      <file name="sc.settings" url="uc.xml">
         <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.extraupdatecenters.Bundle"/>
         <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/updatecenters/resources/updateAction.gif"/>
         <attr name="url_key" stringvalue="SCURL"/>
         <attr name="enabled" boolvalue="true"/>
       </file>
-      <file name="nbextras.settings" url="nbextras_autoupdate.settings">
+      <file name="nbextras.settings" url="uc.xml">
         <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.extraupdatecenters.Bundle"/>
         <attr name="url_key" stringvalue="URL_nbextras"/>
         <attr name="enabled" boolvalue="true"/>
       </file>
-      <file name="nbxdoclet.settings" url="zajo.settings">
+      <file name="nbxdoclet.settings" url="uc.xml">
         <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.extraupdatecenters.Bundle"/>
         <attr name="url_key" stringvalue="URL_zajo"/>
         <attr name="enabled" boolvalue="true"/>
       </file>
-      <file name="ramon.settings" url="ramon.settings">
+      <file name="ramon.settings" url="uc.xml">
         <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.extraupdatecenters.Bundle"/>
         <attr name="url_key" stringvalue="URL_ramon"/>
+        <attr name="enabled" boolvalue="true"/>
+      </file>
+      <file name="deadlock.settings" url="uc.xml">
+        <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.extraupdatecenters.Bundle"/>
+        <attr name="url_key" stringvalue="URL_deadlock"/>
         <attr name="enabled" boolvalue="true"/>
       </file>
     </folder>
