@@ -36,6 +36,9 @@ Microsystems, Inc. All Rights Reserved.
             <file name="org-netbeans-modules-codetemplatetools-actions-ShowTemplatesAction.instance">
                 <attr name="instanceClass" stringvalue="org.netbeans.modules.codetemplatetools.actions.ShowTemplatesAction"/>
             </file>
+            <file name="org-netbeans-modules-codetemplatetools-actions-ExpandTemplateAction.instance">                
+                <attr name="instanceClass" stringvalue="org.netbeans.modules.codetemplatetools.actions.ExpandTemplateAction"/>                
+            </file>
             <file name="org-netbeans-modules-codetemplatetools-actions-SurroundWithAction.instance">
                 <attr name="instanceClass" stringvalue="org.netbeans.modules.codetemplatetools.actions.SurroundWithAction"/>                
             </file>
@@ -65,6 +68,11 @@ Microsystems, Inc. All Rights Reserved.
                 <attr name="instanceClass" stringvalue="javax.swing.JSeparator"/>
             </file>
             <attr name="org-netbeans-modules-codetemplatetools-actions-separatorBefore.instance/org-netbeans-modules-codetemplatetools-actions-SurroundWithAction.shadow" boolvalue="true"/>
+            <attr name="org-netbeans-modules-codetemplatetools-actions-separatorBefore.instance/org-netbeans-modules-codetemplatetools-actions-ExpandTemplateAction.shadow" boolvalue="true"/>
+            <file name="org-netbeans-modules-codetemplatetools-actions-ExpandTemplateAction.shadow">
+                <attr name="originalFile" stringvalue="Actions/Edit/org-netbeans-modules-codetemplatetools-actions-ExpandTemplateAction.instance"/>
+            </file>
+            <attr name="org-netbeans-modules-codetemplatetools-actions-ExpandTemplateAction.shadow/org-netbeans-modules-codetemplatetools-actions-SurroundWithAction.shadow" boolvalue="true"/>
             <file name="org-netbeans-modules-codetemplatetools-actions-SurroundWithAction.shadow">
                 <attr name="originalFile" stringvalue="Actions/Edit/org-netbeans-modules-codetemplatetools-actions-SurroundWithAction.instance"/>
             </file>
@@ -170,15 +178,18 @@ Microsystems, Inc. All Rights Reserved.
         </folder>
     </folder>
     <folder name="Shortcuts">
-        <file name="C-J R X.shadow">
+        <file name="D-J R X.shadow">
             <attr name="originalFile" stringvalue="Actions/Edit/org-netbeans-modules-codetemplatetools-actions-CutToRegisterAction.instance"/>
         </file>
-        <file name="C-J R C.shadow">
+        <file name="D-J R C.shadow">
             <attr name="originalFile" stringvalue="Actions/Edit/org-netbeans-modules-codetemplatetools-actions-CopyToRegisterAction.instance"/>
         </file>
-        <file name="C-J R V.shadow">
+        <file name="D-J R V.shadow">
             <attr name="originalFile" stringvalue="Actions/Edit/org-netbeans-modules-codetemplatetools-actions-PasteFromRegisterAction.instance"/>
         </file>
+        <file name="D-J SPACE.shadow">
+            <attr name="originalFile" stringvalue="Actions/Edit/org-netbeans-modules-codetemplatetools-actions-ExpandTemplateAction.instance"/>
+        </file>        
     </folder>
     <folder name="Services">
         <folder name="JavaHelp">

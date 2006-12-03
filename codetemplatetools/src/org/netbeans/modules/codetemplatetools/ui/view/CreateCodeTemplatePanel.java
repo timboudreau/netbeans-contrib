@@ -34,7 +34,6 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
-import org.netbeans.lib.editor.codetemplates.CodeTemplateInsertHandler;
 import org.netbeans.lib.editor.codetemplates.api.CodeTemplate;
 import org.netbeans.lib.editor.codetemplates.spi.CodeTemplateParameter;
 import org.netbeans.modules.codetemplatetools.SelectionCodeTemplateProcessor;
@@ -48,7 +47,7 @@ import org.openide.windows.WindowManager;
  */
 public class CreateCodeTemplatePanel extends javax.swing.JPanel {
     
-    public static void createCodeTemplate(JEditorPane editorPane) {
+    public static void createCodeTemplate(JEditorPane editorPane) {        
         JDialog dialog = new JDialog(WindowManager.getDefault().getMainWindow(),
         "Create Template",
         true);
