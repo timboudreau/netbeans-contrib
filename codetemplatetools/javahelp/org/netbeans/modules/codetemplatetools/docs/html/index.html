@@ -41,18 +41,14 @@
             </li>
             <li>Click on Save to save the Code Template </li>
         </ul>
-        <p><img alt="createtemplate.jpg"
-            src="createtemplate.jpg">
-        </p>
-        <p></p>
+        <p><img alt="createtemplate.jpg" src="createtemplate.jpg"></p>        
         <h3>To insert a Code Template </h3>
         <ul>
             <li>Invoke  <img alt="Show Templates ..." src="templates.gif"/> <b>Show Templates...</b> action </li>
             <li>Select a template from the list and preview it </li>
             <li>Click on Insert to insert the selected Code Template </li>
         </ul>
-        <p><img alt="templates.jpg"
-            src="templates.jpg">
+        <p><img alt="templates.jpg" src="templates.jpg">
         </p>
         <p>NOTE: The templates which use the ${selection} parameter are shown with <img alt="Templates with ${selection} parameter" src="templateforselection.gif"/> icon.</p>
         <h3>Surround With Menu</h3>
@@ -62,7 +58,12 @@
             <li>Invoke <img alt="Show Templates ..." src="templates.gif"/> <b>Show Templates...</b> action </li>
             <li>Click on <img alt="Create Template..." src="newtemplate.gif"/> <b>New...</b> to create a template. </li>
         </ul>
+        <h3>To expand a Code Template </h3>
+        <ul>
+            <li>Invoke <b>Expand Template</b> action (<code>Ctrl+J SPACE</code>)</li>
+        </ul>
         <p>
+        With caret after the word matching the Code Template name, invoking the <b>Expand Template</b> action expands the Code Template.
         </p>
         <h3>To modify or delete a Code Template </h3>
         <ul>
@@ -70,6 +71,18 @@
             <li>Select a template from the list and preview it </li>
             <li>Click on <b>Modify...</b> to modify the selected template </li>
             <li>Click on <b>Delete...</b> to delete the selected template </li>
+        </ul>
+        <h3>To import Code Templates</h3>
+        <ul>
+            <li>Invoke <img alt="Show Templates ..." src="templates.gif"/> <b>Show Templates...</b> action </li>
+            <li>Click on <b>Import...</b> to import code templates</li>
+            <li>Select the xml file containing code templates. The xml file format is same as the <code>.netbeans/&lt;nb-version&gt;/Editors/text/x-java/abbreviations.xml</code>. For example:</li>
+            <pre>
+&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+&lt;!DOCTYPE abbrevs PUBLIC "-//NetBeans//DTD Editor Abbreviations settings 1.0//EN" "http://www.netbeans.org/dtds/EditorAbbreviations-1_0.dtd"&gt;
+&lt;abbrevs&gt;
+    &lt;abbrev key="ps" xml:space="preserve"&gt;PrintStream&lt;/abbrev&gt;
+&lt;/abbrevs&gt;</pre>
         </ul>
         <h3>To use Registers </h3>
         <ul>
