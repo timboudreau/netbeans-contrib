@@ -19,6 +19,7 @@
 package org.netbeans.modules.showtodos;
 
 import java.awt.Color;
+import java.awt.Font;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
@@ -350,7 +351,13 @@ public class HighlightTodos implements PropertyChangeListener {
 
             if ((pos >= blocks[curInd]) && (pos < blocks[curInd + 1])) {
                 if (coloring == null) {
-                    coloring = new Coloring(null,
+                    Font font = ctx.getFont();
+
+                    if (font != null) {
+                        font = font.deriveFont(Font.BOLD);
+                    }
+
+                    coloring = new Coloring(font,
                             ShowTodosOptions.getDefault().getHighlightingColor(), null);
                 }
 
