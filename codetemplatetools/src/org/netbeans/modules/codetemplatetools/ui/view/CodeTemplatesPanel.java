@@ -173,6 +173,9 @@ public class CodeTemplatesPanel extends javax.swing.JPanel {
         JFileChooser jFileChooser = new JFileChooser();
         jFileChooser.addChoosableFileFilter(new FileFilter() {
             public boolean accept(File f) {
+                if (f.isDirectory()) {
+                    return true;
+                }
                 if (f.getName().toLowerCase().endsWith(".xml")) {
                     return true;
                 }
