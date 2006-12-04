@@ -19,30 +19,41 @@
 package org.netbeans.modules.codetemplatetools.ui.view;
 
 import java.awt.Window;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 import javax.swing.AbstractListModel;
 import javax.swing.JDialog;
 import javax.swing.JEditorPane;
+import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
+import javax.swing.filechooser.FileFilter;
 import javax.swing.text.Document;
 import org.netbeans.lib.editor.codetemplates.api.CodeTemplate;
 import org.netbeans.lib.editor.codetemplates.api.CodeTemplateManager;
 import org.netbeans.modules.editor.options.BaseOptions;
+import org.openide.ErrorManager;
 import org.openide.windows.WindowManager;
+import org.openide.xml.XMLUtil;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.w3c.dom.Text;
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
 
 /**
  *
  * @author Sandip V. Chitale (Sandip.Chitale@Sun.Com)
  */
 public class CodeTemplatesPanel extends javax.swing.JPanel {
-    
+
     public static void promptAndInsertCodeTemplate(JEditorPane editorPane) {
         JDialog dialog = new JDialog(WindowManager.getDefault().getMainWindow(),
         "Templates",
@@ -51,73 +62,32 @@ public class CodeTemplatesPanel extends javax.swing.JPanel {
         dialog.setContentPane(new CodeTemplatesPanel(editorPane));
         dialog.setBounds(200,200, 600, 450);
         dialog.setVisible(true);
-        
+
     }
-    
+
     private JEditorPane editorPane;
-    
+
     /** Creates new form CodeTemplatesPanel */
     public CodeTemplatesPanel(JEditorPane editorPane) {
         initComponents();
         this.editorPane = editorPane;
         loadModel();
-        mimeTypeLabel.setText("Mime type: " + editorPane.getContentType());
+        mimeTypeLabel.setText(editorPane.getContentType());
         templatesList.setCellRenderer(new CodeTemplateListCellRenderer());
-        templatesList.addListSelectionListener(new ListSelectionListener() {
-            public void valueChanged(ListSelectionEvent e) {
-                CodeTemplate selectedCodeTemplate = (CodeTemplate) templatesList.getSelectedValue();
-                showCodeTemplate(selectedCodeTemplate);
-                adjustButtonState();
-            }
-        });
-        
+
         templateTextEditorPane.setContentType(editorPane.getContentType());
-        
-        insertButon.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                insertTemplate();
-            }
-        });
-        
+
         newButton.setIcon(Icons.NEW_TEMPLATE_ICON);
-        
-        newButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                CreateCodeTemplatePanel.createCodeTemplate(CodeTemplatesPanel.this.editorPane);
-                // New templates may have been added.
-                loadModel();
-            }
-        });
-        
-        modifyButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                CreateCodeTemplatePanel.modifyCodeTemplate(CodeTemplatesPanel.this.editorPane, (CodeTemplate) templatesList.getSelectedValue());
-                // Templates may have been modified.
-                loadModel();
-            }
-        });
-        
-        deleteButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                deleteTemplate((CodeTemplate) templatesList.getSelectedValue());
-            }
-        });        
-        
-        closeButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                close();
-            }
-        });
-        
+
         adjustButtonState();
     }
-    
+
     public void addNotify() {
         super.addNotify();
-        
+
         SwingUtilities.getRootPane(this).setDefaultButton(insertButon);
     }
-    
+
     private void loadModel() {
         Document doc = editorPane.getDocument();
         CodeTemplateManager codeTemplateManager = CodeTemplateManager.get(doc);
@@ -126,7 +96,7 @@ public class CodeTemplatesPanel extends javax.swing.JPanel {
         CodeTemplateListModel codeTemplateListModel = new CodeTemplateListModel(codeTemplates);
         templatesList.setModel(codeTemplateListModel);
     }
-    
+
     private void insertTemplate() {
         CodeTemplate selectedCodeTemplate = (CodeTemplate) templatesList.getSelectedValue();
         if (selectedCodeTemplate != null) {
@@ -134,7 +104,7 @@ public class CodeTemplatesPanel extends javax.swing.JPanel {
         }
         done();
     }
-    
+
     private void deleteTemplate(CodeTemplate template) {
         if (template == null) {
             return;
@@ -149,23 +119,23 @@ public class CodeTemplatesPanel extends javax.swing.JPanel {
                     JOptionPane.OK_CANCEL_OPTION) != JOptionPane.OK_OPTION) {
             return;
         }
-        
+
         Class kitClass = editorPane.getEditorKit().getClass();
         BaseOptions baseOptions = (BaseOptions) BaseOptions.getOptions(kitClass);
         Map abbreviationsMap = baseOptions.getAbbrevMap();
         if (abbreviationsMap == null) {
             // ?
             return;
-        } 
+        }
         abbreviationsMap.remove(templateName);
         baseOptions.setAbbrevMap(abbreviationsMap);
         loadModel();
     }
-    
+
     private void close() {
         done();
     }
-    
+
     private void done() {
         Window window = SwingUtilities.getWindowAncestor(this);
         if (window != null) {
@@ -173,13 +143,13 @@ public class CodeTemplatesPanel extends javax.swing.JPanel {
             window.dispose();
         }
     }
-    
+
     private void adjustButtonState() {
         insertButon.setEnabled(editorPane.isEditable() && templatesList.getSelectedIndex() != -1);
         deleteButton.setEnabled(templatesList.getSelectedIndex() != -1);
         modifyButton.setEnabled(templatesList.getSelectedIndex() != -1);
     }
-    
+
     private void showCodeTemplate(CodeTemplate codeTemplate) {
         if (codeTemplate == null) {
             templateTextEditorPane.setText("");
@@ -187,7 +157,103 @@ public class CodeTemplatesPanel extends javax.swing.JPanel {
             templateTextEditorPane.setText(codeTemplate.getParametrizedText());
         }
     }
+
+    /** Elements */
+    private static final String TAG_ROOT = "abbrevs"; //NOI18N
+    private static final String TAG_ABBREV = "abbrev"; //NOI18N
     
+    /** Attributes */
+    private static final String ATTR_KEY = "key"; //NOI18N
+    private static final String ATTR_ACTION = "action"; //NOI18N
+    private static final String ATTR_REMOVE = "remove"; //NOI18N
+    private static final String ATTR_XML_SPACE = "xml:space"; //NOI18N    
+    private static final String VALUE_XML_SPACE = "preserve"; //NOI18N
+    
+    private void importTemplates() {
+        JFileChooser jFileChooser = new JFileChooser();
+        jFileChooser.addChoosableFileFilter(new FileFilter() {
+            public boolean accept(File f) {
+                if (f.getName().toLowerCase().endsWith(".xml")) {
+                    return true;
+                }
+                return false;
+            }
+            public String getDescription() {
+                return "Abbreviations file";
+            }
+        });
+        if (jFileChooser.showOpenDialog(WindowManager.getDefault().getMainWindow()) == JFileChooser.APPROVE_OPTION) {
+            File file = jFileChooser.getSelectedFile();
+            try {
+                InputSource inputSource = new InputSource(new FileReader(file));
+                org.w3c.dom.Document doc = XMLUtil.parse(inputSource, false, false, null, null);
+                Element rootElement = doc.getDocumentElement();
+
+                if (!TAG_ROOT.equals(rootElement.getTagName())) {
+                    // Wrong root element
+                    return;
+                }
+                Map properties = new HashMap();
+                Map mapa = new HashMap();
+
+                NodeList abbr = rootElement.getElementsByTagName(TAG_ABBREV);
+                int len = abbr.getLength();
+                for (int i=0; i < len; i++){
+                    Node node = abbr.item(i);
+                    Element FCElement = (Element)node;
+
+                    if (FCElement == null){
+                        continue;
+                    }
+
+                    String key       = FCElement.getAttribute(ATTR_KEY);
+                    String delete    = FCElement.getAttribute(ATTR_REMOVE);
+                    String expanded  = "";
+
+                    if (! Boolean.valueOf(delete).booleanValue()){
+                        NodeList textList = FCElement.getChildNodes();
+                        if (textList.getLength() > 0) {
+                            Node subNode = textList.item(0);
+                            if (subNode instanceof Text) {
+                                Text textNode = (Text) subNode;
+                                expanded = textNode.getData();
+                            }
+                        }
+                    }
+
+                    properties.put(key, expanded);
+                }
+
+                if (properties.size()>0){
+                    // create updated map
+                    mapa.putAll(properties);
+
+                    // remove all deleted values
+                    for( Iterator i = properties.keySet().iterator(); i.hasNext(); ) {
+                        String key = (String)i.next();
+                        if(((String)properties.get(key)).length() == 0){
+                            mapa.remove(key);
+                        }
+                    }
+                }
+                
+                // remove all deleted values
+                for( Iterator i = mapa.keySet().iterator(); i.hasNext(); ) {
+                    String key = (String)i.next();
+                    String value = (String) mapa.get(key);
+                    CreateCodeTemplatePanel.saveTemplate(editorPane, key, value, true);
+                }
+                loadModel();
+            } catch (FileNotFoundException ex) {
+                ErrorManager.getDefault().notify(ex);
+            } catch (IOException ex) {
+                ErrorManager.getDefault().notify(ex);
+            } catch (SAXException ex) {
+                ErrorManager.getDefault().notify(ex);
+            } 
+        }
+    }
+
     /** This method is called from within the constructor to
      * initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is
@@ -198,12 +264,14 @@ public class CodeTemplatesPanel extends javax.swing.JPanel {
         java.awt.GridBagConstraints gridBagConstraints;
 
         templatesLabel = new javax.swing.JLabel();
+        mimeTypeLabelLabel = new javax.swing.JLabel();
         mimeTypeLabel = new javax.swing.JLabel();
         templatesScrollPane = new javax.swing.JScrollPane();
         templatesList = new javax.swing.JList();
         newButton = new javax.swing.JButton();
         modifyButton = new javax.swing.JButton();
         deleteButton = new javax.swing.JButton();
+        importButton = new javax.swing.JButton();
         templateTextLabel = new javax.swing.JLabel();
         templateTextScrollPane = new javax.swing.JScrollPane();
         templateTextEditorPane = new javax.swing.JEditorPane();
@@ -223,19 +291,32 @@ public class CodeTemplatesPanel extends javax.swing.JPanel {
         gridBagConstraints.insets = new java.awt.Insets(5, 5, 0, 5);
         add(templatesLabel, gridBagConstraints);
 
+        mimeTypeLabelLabel.setDisplayedMnemonic('y');
+        mimeTypeLabelLabel.setText("Mime Type:");
         gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 1;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.EAST;
+        gridBagConstraints.insets = new java.awt.Insets(5, 5, 0, 5);
+        add(mimeTypeLabelLabel, gridBagConstraints);
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 2;
         gridBagConstraints.gridy = 0;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.insets = new java.awt.Insets(5, 5, 0, 5);
         add(mimeTypeLabel, gridBagConstraints);
 
         templatesList.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
+        templatesList.addListSelectionListener(new javax.swing.event.ListSelectionListener() {
+            public void valueChanged(javax.swing.event.ListSelectionEvent evt) {
+                templatesListValueChanged(evt);
+            }
+        });
         templatesScrollPane.setViewportView(templatesList);
 
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 1;
-        gridBagConstraints.gridheight = 3;
+        gridBagConstraints.gridwidth = 2;
+        gridBagConstraints.gridheight = 4;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
         gridBagConstraints.weightx = 1.0;
@@ -244,8 +325,13 @@ public class CodeTemplatesPanel extends javax.swing.JPanel {
 
         newButton.setMnemonic('N');
         newButton.setText("New...");
+        newButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                newButtonActionPerformed(evt);
+            }
+        });
         gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridx = 2;
         gridBagConstraints.gridy = 1;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTH;
@@ -255,8 +341,13 @@ public class CodeTemplatesPanel extends javax.swing.JPanel {
         modifyButton.setMnemonic('M');
         modifyButton.setText("Modify...");
         modifyButton.setToolTipText("Modify selected template");
+        modifyButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                modifyButtonActionPerformed(evt);
+            }
+        });
         gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridx = 2;
         gridBagConstraints.gridy = 2;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTH;
@@ -266,19 +357,39 @@ public class CodeTemplatesPanel extends javax.swing.JPanel {
         deleteButton.setMnemonic('D');
         deleteButton.setText("Delete...");
         deleteButton.setToolTipText("Delete selected template");
+        deleteButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                deleteButtonActionPerformed(evt);
+            }
+        });
         gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridx = 2;
         gridBagConstraints.gridy = 3;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTH;
         gridBagConstraints.insets = new java.awt.Insets(5, 5, 0, 5);
         add(deleteButton, gridBagConstraints);
 
+        importButton.setText("Import...");
+        importButton.setToolTipText("IMport Code Templates");
+        importButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                importButtonActionPerformed(evt);
+            }
+        });
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 2;
+        gridBagConstraints.gridy = 4;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTH;
+        gridBagConstraints.insets = new java.awt.Insets(5, 5, 0, 5);
+        add(importButton, gridBagConstraints);
+
         templateTextLabel.setDisplayedMnemonic('T');
         templateTextLabel.setText("Template Text");
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 4;
+        gridBagConstraints.gridy = 5;
         gridBagConstraints.gridwidth = 2;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
         gridBagConstraints.insets = new java.awt.Insets(5, 5, 0, 5);
@@ -289,8 +400,8 @@ public class CodeTemplatesPanel extends javax.swing.JPanel {
 
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 5;
-        gridBagConstraints.gridwidth = 2;
+        gridBagConstraints.gridy = 6;
+        gridBagConstraints.gridwidth = 3;
         gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
         gridBagConstraints.weightx = 1.0;
@@ -303,29 +414,74 @@ public class CodeTemplatesPanel extends javax.swing.JPanel {
         insertButon.setMnemonic('I');
         insertButon.setText("Insert");
         insertButon.setToolTipText("Insert selected template");
+        insertButon.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                insertButonActionPerformed(evt);
+            }
+        });
         buttonsPanel.add(insertButon);
 
         closeButton.setMnemonic('C');
         closeButton.setText("Close");
+        closeButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                closeButtonActionPerformed(evt);
+            }
+        });
         buttonsPanel.add(closeButton);
 
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 6;
-        gridBagConstraints.gridwidth = 2;
+        gridBagConstraints.gridy = 7;
+        gridBagConstraints.gridwidth = 3;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
         gridBagConstraints.insets = new java.awt.Insets(5, 5, 5, 5);
         add(buttonsPanel, gridBagConstraints);
-
     }// </editor-fold>//GEN-END:initComponents
-    
+
+    private void templatesListValueChanged(javax.swing.event.ListSelectionEvent evt) {//GEN-FIRST:event_templatesListValueChanged
+        CodeTemplate selectedCodeTemplate = (CodeTemplate) templatesList.getSelectedValue();
+        showCodeTemplate(selectedCodeTemplate);
+        adjustButtonState();
+    }//GEN-LAST:event_templatesListValueChanged
+
+    private void closeButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_closeButtonActionPerformed
+        close();
+    }//GEN-LAST:event_closeButtonActionPerformed
+
+    private void insertButonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_insertButonActionPerformed
+        insertTemplate();
+    }//GEN-LAST:event_insertButonActionPerformed
+
+    private void importButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_importButtonActionPerformed
+        importTemplates();
+    }//GEN-LAST:event_importButtonActionPerformed
+
+    private void deleteButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_deleteButtonActionPerformed
+        deleteTemplate((CodeTemplate) templatesList.getSelectedValue());
+    }//GEN-LAST:event_deleteButtonActionPerformed
+
+    private void modifyButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_modifyButtonActionPerformed
+        CreateCodeTemplatePanel.modifyCodeTemplate(CodeTemplatesPanel.this.editorPane, (CodeTemplate) templatesList.getSelectedValue());
+        // Templates may have been modified.
+        loadModel();
+    }//GEN-LAST:event_modifyButtonActionPerformed
+
+    private void newButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_newButtonActionPerformed
+        CreateCodeTemplatePanel.createCodeTemplate(CodeTemplatesPanel.this.editorPane);
+        // New templates may have been added.
+        loadModel();
+    }//GEN-LAST:event_newButtonActionPerformed
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JPanel buttonsPanel;
     private javax.swing.JButton closeButton;
     private javax.swing.JButton deleteButton;
+    private javax.swing.JButton importButton;
     private javax.swing.JButton insertButon;
     private javax.swing.JLabel mimeTypeLabel;
+    private javax.swing.JLabel mimeTypeLabelLabel;
     private javax.swing.JButton modifyButton;
     private javax.swing.JButton newButton;
     private javax.swing.JEditorPane templateTextEditorPane;
@@ -335,18 +491,18 @@ public class CodeTemplatesPanel extends javax.swing.JPanel {
     private javax.swing.JList templatesList;
     private javax.swing.JScrollPane templatesScrollPane;
     // End of variables declaration//GEN-END:variables
-    
+
     private static class CodeTemplateListModel extends AbstractListModel {
         private CodeTemplate[] codeTemplates;
-        
+
         CodeTemplateListModel(CodeTemplate[] codeTemplates) {
             this.codeTemplates = codeTemplates;
         }
-        
+
         public int getSize() {
             return codeTemplates.length;
         }
-        
+
         public Object getElementAt(int index) {
             return codeTemplates[index];
         }

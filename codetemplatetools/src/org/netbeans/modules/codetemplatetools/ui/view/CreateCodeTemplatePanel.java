@@ -33,7 +33,6 @@ import javax.swing.event.CaretListener;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.text.BadLocationException;
-import javax.swing.text.Document;
 import org.netbeans.lib.editor.codetemplates.api.CodeTemplate;
 import org.netbeans.lib.editor.codetemplates.spi.CodeTemplateParameter;
 import org.netbeans.modules.codetemplatetools.SelectionCodeTemplateProcessor;
@@ -215,33 +214,41 @@ public class CreateCodeTemplatePanel extends javax.swing.JPanel {
         try {
             String templateName = templateNameTextField.getText().trim();
             String templateText = templateTextEditorPane.getText();
-            if (templateName.length() == 0) {
-                return;
-            }
-            Class kitClass = editorPane.getEditorKit().getClass();
-            BaseOptions baseOptions = (BaseOptions) BaseOptions.getOptions(kitClass);
-            Map abbreviationsMap = baseOptions.getAbbrevMap();
-            if (abbreviationsMap == null) {
-                abbreviationsMap = new HashMap();
-            } else {
-                if (!modifying) {
-                    String existingTemplateText = (String) abbreviationsMap.get(templateName);
-                    if (existingTemplateText != null) {
-                        if  (JOptionPane.showConfirmDialog(WindowManager.getDefault().getMainWindow(),
-                        "Code Template " + templateName + " already exists. Overwrite?",
-                        "Overwrite exiting Code Template",
-                        JOptionPane.OK_CANCEL_OPTION) != JOptionPane.OK_OPTION) {
-                            return;
-                        }
-                        // fall through
-                    }
-                }
-            }
-            abbreviationsMap.put(templateName, templateText);
-            baseOptions.setAbbrevMap(abbreviationsMap);
+            saveTemplate(editorPane, templateName, templateText, modifying);
         } finally {
             done();
         }
+    }
+    
+    static void saveTemplate(JEditorPane editorPane, String templateName, String templateText) {
+        saveTemplate(editorPane, templateName, templateText, true);
+    }
+    
+    static void saveTemplate(JEditorPane editorPane, String templateName, String templateText, boolean modifying) {
+        if (templateName.length() == 0) {
+            return;
+        }
+        Class kitClass = editorPane.getEditorKit().getClass();
+        BaseOptions baseOptions = (BaseOptions) BaseOptions.getOptions(kitClass);
+        Map abbreviationsMap = baseOptions.getAbbrevMap();
+        if (abbreviationsMap == null) {
+            abbreviationsMap = new HashMap();
+        } else {
+            if (!modifying) {
+                String existingTemplateText = (String) abbreviationsMap.get(templateName);
+                if (existingTemplateText != null) {
+                    if  (JOptionPane.showConfirmDialog(WindowManager.getDefault().getMainWindow(),
+                    "Code Template " + templateName + " already exists. Overwrite?",
+                    "Overwrite exiting Code Template",
+                    JOptionPane.OK_CANCEL_OPTION) != JOptionPane.OK_OPTION) {
+                        return;
+                    }
+                    // fall through
+                }
+            }
+        }
+        abbreviationsMap.put(templateName, templateText);
+        baseOptions.setAbbrevMap(abbreviationsMap);
     }
     
     private void cancel() {
