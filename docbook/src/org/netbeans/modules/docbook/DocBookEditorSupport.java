@@ -76,7 +76,7 @@ public class DocBookEditorSupport extends DataEditorSupport implements EditorCoo
 
     protected void notifyUnmodified() {
         DocBookDataObject obj = (DocBookDataObject)getDataObject();
-        SaveCookie save = (SaveCookie)obj.getCookie(SaveCookie.class);
+        SaveCookie save = obj.getCookie(SaveCookie.class);
         if (save != null) {
             obj.removeSaveCookie(save);
             obj.setModified(false);
@@ -117,7 +117,7 @@ public class DocBookEditorSupport extends DataEditorSupport implements EditorCoo
         }
 
         public CloneableOpenSupport findCloneableOpenSupport() {
-            return (DocBookEditorSupport)getDataObject().getCookie(DocBookEditorSupport.class);
+            return getDataObject().getCookie(DocBookEditorSupport.class);
         }
     }
 
@@ -162,13 +162,12 @@ public class DocBookEditorSupport extends DataEditorSupport implements EditorCoo
 
     Set <Ann> annotations = Collections.synchronizedSet(new HashSet <Ann> ());
 
-    private JList list = new JList();
-    private JSplitPane split = new JSplitPane();
-    private JScrollPane scroll = new JScrollPane (list);
+    private JList list;
+    private JSplitPane split;
+    private JScrollPane scroll;
+    @Override
     protected Component wrapEditorComponent(final Component editorComponent) {
-        split.setTopComponent(editorComponent);
-        split.setBottomComponent(scroll);
-        split.setOrientation(JSplitPane.VERTICAL_SPLIT);
+        list = new JList();
         list.setModel (new DefaultListModel());
         list.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         list.setCellRenderer (new Ren());
@@ -185,8 +184,13 @@ public class DocBookEditorSupport extends DataEditorSupport implements EditorCoo
                 }
             }
         });
+        scroll = new JScrollPane(list);
         scroll.setBorder (BorderFactory.createEmptyBorder());
         scroll.setViewportBorder(BorderFactory.createEmptyBorder());
+        split = new JSplitPane();
+        split.setTopComponent(editorComponent);
+        split.setBottomComponent(scroll);
+        split.setOrientation(JSplitPane.VERTICAL_SPLIT);
         split.setDividerLocation (500);
         return split;
     }
@@ -233,7 +237,7 @@ public class DocBookEditorSupport extends DataEditorSupport implements EditorCoo
         }
 
         public void run() {
-            Ann[] anns = (Ann[]) editor.annotations.toArray (new Ann[0]);
+            Ann[] anns = editor.annotations.toArray(new Ann[0]);
             DefaultListModel mdl = (DefaultListModel) editor.list.getModel();
             mdl.clear();
             System.err.println("ADD " + anns.length + " to list model ");
