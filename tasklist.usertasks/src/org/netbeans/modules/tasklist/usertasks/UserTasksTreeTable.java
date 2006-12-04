@@ -22,6 +22,7 @@ package org.netbeans.modules.tasklist.usertasks;
 import com.toedter.calendar.JDateChooserCellEditor;
 import java.awt.Graphics;
 import java.awt.Point;
+import java.awt.event.MouseEvent;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
@@ -29,6 +30,7 @@ import java.util.logging.Level;
 
 import javax.swing.Action;
 import javax.swing.ImageIcon;
+import javax.swing.JPopupMenu;
 import javax.swing.ListSelectionModel;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
@@ -60,26 +62,24 @@ import org.netbeans.modules.tasklist.usertasks.transfer.MyTransferHandler;
 import org.netbeans.modules.tasklist.usertasks.treetable.AdvancedTreeTableNode;
 import org.netbeans.modules.tasklist.usertasks.treetable.DefaultMutableTreeTableNode;
 import org.netbeans.modules.tasklist.usertasks.treetable.DefaultTreeTableModel;
-import org.netbeans.modules.tasklist.usertasks.treetable.NodesTreeTable;
 import org.netbeans.modules.tasklist.usertasks.treetable.SortingHeaderRenderer;
 import org.netbeans.modules.tasklist.usertasks.treetable.TreeTable;
 import org.netbeans.modules.tasklist.usertasks.treetable.TreeTableDragGestureRecognizer;
 import org.netbeans.modules.tasklist.usertasks.util.UTUtils;
-import org.openide.explorer.ExplorerManager;
-import org.openide.filesystems.FileObject;
-import org.openide.filesystems.FileUtil;
+import org.openide.awt.MouseUtils;
 import org.openide.nodes.Node;
 import org.openide.util.actions.SystemAction;
 import org.netbeans.modules.tasklist.usertasks.model.UserTask;
 import org.netbeans.modules.tasklist.usertasks.model.UserTaskList;
 import org.netbeans.modules.tasklist.usertasks.renderers.OwnerTableCellRenderer;
+import org.openide.util.Utilities;
 
 /**
  * TT for user tasks
  *
  * @author tl
  */
-public class UserTasksTreeTable extends NodesTreeTable {
+public class UserTasksTreeTable extends TreeTable {
     private UserTask selected;
     
     /**
@@ -89,10 +89,11 @@ public class UserTasksTreeTable extends NodesTreeTable {
      * @param utl list with user tasks
      * @param filter used filter or null
      */
-    public UserTasksTreeTable(ExplorerManager em, UserTaskList utl,
+    public UserTasksTreeTable(UserTaskList utl,
     Filter filter) {
-        super(em, new DefaultTreeTableModel(
+        super(new DefaultTreeTableModel(
             new DefaultMutableTreeTableNode(), new String[] {""})); // NOI18N
+        setAutoscrolls(false);
         setTreeTableModel(
             new UserTasksTreeTableModel(utl, getSortingModel(), filter));
         setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
@@ -139,6 +140,32 @@ public class UserTasksTreeTable extends NodesTreeTable {
                 }
             }
         );
+        
+        addMouseListener(new MouseUtils.PopupMouseAdapter() {
+            public void showPopup(MouseEvent e) {
+                int row = rowAtPoint(e.getPoint());
+                int col = columnAtPoint(e.getPoint());
+                Action[] actions;
+
+                if (row < 0 || col < 0) {
+                    actions = getFreeSpaceActions();
+                } else {
+                    if (!getSelectionModel().isSelectedIndex(row)) {
+                        setRowSelectionInterval(row, row);
+                    }
+                    Node n = createNode(getNodeForRow(row));
+
+                    if (n == null)
+                        return;
+                    actions = n.getActions(false);
+                }
+                JPopupMenu pm = Utilities.actionsToPopup(actions,
+                        UserTasksTreeTable.this);
+
+                if (pm != null)
+                    pm.show(UserTasksTreeTable.this, e.getX(), e.getY());
+            }
+        });
         
         setColumnsConfig(createDefaultColumnsConfig());
         TreeTableDragGestureRecognizer.enableDnD(this);
@@ -288,7 +315,7 @@ public class UserTasksTreeTable extends NodesTreeTable {
     
     public javax.swing.Action[] getFreeSpaceActions() {
         return new Action[] {
-            SystemAction.get(NewTaskAction.class),
+            // TODO: new SystemAction.get(NewTaskAction.class),
             null,
             SystemAction.get(FilterAction.class),
             null,
@@ -333,9 +360,10 @@ public class UserTasksTreeTable extends NodesTreeTable {
                 if (result.length() == 0)
                     result = null;
             } else if (node instanceof UserTaskListTreeTableNode) {
-                FileObject fo = ((UserTaskListTreeTableNode) node).
-                    getUserTaskList().getFile();
-                result = FileUtil.getFileDisplayName(fo);
+                // todo FileObject fo = ((UserTaskListTreeTableNode) node).
+                //    getUserTaskList().getFile();
+                // result = FileUtil.getFileDisplayName(fo);
+                result = "todo";
             }
         }
         return result;

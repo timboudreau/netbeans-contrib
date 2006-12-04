@@ -19,13 +19,13 @@
 
 package org.netbeans.modules.tasklist.usertasks.filter;
 
+import java.io.Serializable;
 import org.netbeans.modules.tasklist.core.filter.AppliedFilterCondition;
 import org.netbeans.modules.tasklist.core.filter.BooleanFilterCondition;
 import org.netbeans.modules.tasklist.core.filter.DateFilterCondition;
 import org.netbeans.modules.tasklist.core.filter.Filter;
 import org.netbeans.modules.tasklist.core.filter.FilterConvertor;
 import org.netbeans.modules.tasklist.core.filter.IntegerFilterCondition;
-import org.netbeans.modules.tasklist.core.filter.PriorityCondition;
 import org.netbeans.modules.tasklist.core.filter.StringFilterCondition;
 import org.netbeans.modules.tasklist.core.filter.SuggestionProperty;
 
@@ -83,7 +83,7 @@ public class UserTaskFilter extends Filter {
         if (property.equals(UserTaskProperties.PROP_SUMMARY)) {
             return applyConditions(property, StringFilterCondition.createConditions());
         } else if (property.equals(UserTaskProperties.PROP_PRIORITY)) {
-            return applyConditions(property, PriorityCondition.createConditions());
+            return applyConditions(property, UTPriorityCondition.createConditions());
         } else if (property.equals(UserTaskProperties.PROP_CATEGORY)) {
             return applyConditions(property, StringFilterCondition.createConditions());
         } else if (property.equals(UserTaskProperties.PROP_DETAILS)) {
@@ -122,7 +122,7 @@ public class UserTaskFilter extends Filter {
     }
     
 
-    private static class Convertor extends FilterConvertor {        
+    public static class Convertor extends FilterConvertor {        
         public Convertor() {
             super("UserTaskFilter"); // NOI18N
         }

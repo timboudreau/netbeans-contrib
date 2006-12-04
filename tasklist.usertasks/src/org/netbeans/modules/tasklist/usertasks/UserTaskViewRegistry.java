@@ -27,7 +27,7 @@ import java.util.List;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.EventListenerList;
-import org.netbeans.modules.tasklist.usertasks.model.UserTaskList;
+import org.netbeans.modules.tasklist.usertasks.util.AWTThreadAnnotation;
 import org.openide.DialogDisplayer;
 import org.openide.NotifyDescriptor;
 import org.openide.NotifyDescriptor.Message;
@@ -71,11 +71,12 @@ public class UserTaskViewRegistry {
      *
      * @return the default view or null if an error occured
      */
+    @AWTThreadAnnotation
     public UserTaskView getDefault() {
 	if (defview == null) {
             try {
                 defview = new UserTaskView(
-                    UserTaskList.getDefault(), true);
+                        UserTaskView.getDefaultFile(), true);
                 defview.showInMode();
             } catch (IOException ioe) {
                 DialogDisplayer.getDefault().notify(new Message(
@@ -142,7 +143,7 @@ public class UserTaskViewRegistry {
         while (it.hasNext()) {
             WeakReference wr = (WeakReference) it.next();
 	    UserTaskView tlv = (UserTaskView) wr.get();
-            if (tlv != null && tlv.getUserTaskList().getFile() == file) 
+            if (tlv != null && tlv.getAutoSaver().getFile() == file) 
                 return tlv;
         }
         return null;
@@ -232,6 +233,7 @@ public class UserTaskViewRegistry {
             }
         }
     }
+    
     /** 
      * Creates a new instance of UserTaskViewRegistry 
      */

@@ -44,7 +44,6 @@ import net.fortuna.ical4j.data.ParserException;
 import net.fortuna.ical4j.model.Calendar;
 import net.fortuna.ical4j.model.CategoryList;
 import net.fortuna.ical4j.model.Component;
-import net.fortuna.ical4j.model.Date;
 import net.fortuna.ical4j.model.Parameter;
 import net.fortuna.ical4j.model.ParameterList;
 import net.fortuna.ical4j.model.Property;
@@ -278,10 +277,6 @@ public class ICalImportFormat implements ExportImportFormat {
         if (prop != null)
             ut.setPercentComplete(((PercentComplete) prop).getPercentage());
         
-        prop = pl.getProperty("X-NETBEANS-PROGRESS-COMPUTED"); // NOI18N
-        if (prop != null)
-            ut.setProgressComputed(prop.getValue().equals("yes"));
-        
         prop = pl.getProperty("X-NETBEANS-OWNER"); // NOI18N
         if (prop != null)
             ut.setOwner(prop.getValue());
@@ -307,10 +302,6 @@ public class ICalImportFormat implements ExportImportFormat {
             }
         }
         
-        prop = pl.getProperty("X-NETBEANS-EFFORT-COMPUTED"); // NOI18N
-        if (prop != null)
-            ut.setEffortComputed(prop.getValue().equals("yes")); // NOI18N
-
         prop = pl.getProperty("X-NETBEANS-SPENT-TIME"); // NOI18N
         if (prop != null) {
             try {
@@ -319,10 +310,6 @@ public class ICalImportFormat implements ExportImportFormat {
                 UTUtils.LOGGER.log(Level.SEVERE, "", e); // NOI18N
             }
         }
-        
-        prop = pl.getProperty("X-NETBEANS-SPENT-TIME-COMPUTED"); // NOI18N
-        if (prop != null)
-            ut.setSpentTimeComputed(prop.getValue().equals("yes")); // NOI18N
         
         prop = pl.getProperty(Property.CATEGORIES);
         if (prop != null) {
@@ -396,6 +383,28 @@ public class ICalImportFormat implements ExportImportFormat {
                     UTUtils.LOGGER.log(Level.SEVERE, "", e); // NOI18N
                 }
             }
+        }
+        
+        if (pl.getProperty("X-NETBEANS-PROGRESS-COMPUTED") !=   // NOI18N
+                null &&
+                pl.getProperty("X-NETBEANS-PROGRESS-COMPUTED"). // NOI18N
+                getValue().equals("yes") &&  // NOI18N
+                pl.getProperty("X-NETBEANS-EFFORT-COMPUTED") !=  // NOI18N
+                null &&
+                pl.getProperty("X-NETBEANS-EFFORT-COMPUTED"). // NOI18N
+                getValue().equals("yes") &&  // NOI18N
+                pl.getProperty("X-NETBEANS-SPENT-TIME-COMPUTED") !=  // NOI18N
+                null &&
+                pl.getProperty("X-NETBEANS-SPENT-TIME-COMPUTED"). // NOI18N
+                getValue().equals("yes")  // NOI18N
+                ) {
+            ut.setValuesComputed(true);
+        } else {
+            prop = pl.getProperty("X-NETBEANS-VALUES-COMPUTED"); // NOI18N
+            if (prop != null)
+                ut.setValuesComputed(prop.getValue().equals("yes")); // NOI18N
+            else
+                ut.setValuesComputed(false);
         }
 //            } else if ("X-NETBEANS-STARTTIME".equals(name)) { // NOI18N  
 //                long start = Long.MAX_VALUE;

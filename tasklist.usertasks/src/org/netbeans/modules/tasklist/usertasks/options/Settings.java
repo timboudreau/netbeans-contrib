@@ -61,7 +61,6 @@ public class Settings {
      */
     public static final String PROP_WORKING_DAYS = "workingDays"; // NOI18N
         
-    
     /** default working days. */
     private static boolean[] DEF_WORKING_DAYS = {
         true, true, true, true, true, false, false};

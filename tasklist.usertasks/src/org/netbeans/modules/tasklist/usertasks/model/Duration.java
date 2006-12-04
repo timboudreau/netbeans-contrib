@@ -1,8 +1,5 @@
 package org.netbeans.modules.tasklist.usertasks.model;
 
-import java.text.MessageFormat;
-import org.openide.util.NbBundle;
-
 /**
  * A duration class.
  */
@@ -55,7 +52,7 @@ public class Duration {
         this.minutes = this.minutes % 60;
         
         this.days = minutes / minutesPerDay;
-        this.weeks = minutes / daysPerWeek;
+        this.weeks = this.days / daysPerWeek;
         this.days = this.days % daysPerWeek;
     }
 
@@ -80,5 +77,13 @@ public class Duration {
     public int toMinutes(int minutesPerDay, int daysPerWeek, boolean ignore) {
         return (weeks * daysPerWeek + days) * minutesPerDay + hours * 60 +
                 minutes;
+    }
+
+    public boolean equals(Object obj) {
+        if (!(obj instanceof Duration))
+            return false;
+        Duration d = (Duration) obj;
+        return d.weeks == weeks && d.days == days && d.hours == hours &&
+                d.minutes == minutes;
     }
 }

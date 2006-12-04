@@ -241,6 +241,8 @@ public class HistoryTextExportFormat implements ExportImportFormat {
         StreamResult result = new StreamResult(panel.getFile());
         try {
             tr.transform(source, result);
+            Settings.getDefault().setLastUsedExportFolder(
+                    panel.getFile().getParentFile());
         } catch (TransformerException ex) {
             String msg = NbBundle.getMessage(HistoryTextExportFormat.class, 
                     "CannotWriteFile",  // NOI18N
@@ -390,9 +392,9 @@ public class HistoryTextExportFormat implements ExportImportFormat {
         if (info.object instanceof UserTask) {
             fillDataCell(td, ((UserTask) info.object).getSummary(), level);
         } else if (info.object instanceof UserTaskList) {
-            fillDataCell(td, FileUtil.getFileDisplayName(
+            /* TODO fillDataCell(td, FileUtil.getFileDisplayName(
                     ((UserTaskList) info.object).getFile()),
-                    level);
+                    level);*/
         } else {
             fillDataCell(td, loc("AllTaskLists"), level); // NOI18N
         }

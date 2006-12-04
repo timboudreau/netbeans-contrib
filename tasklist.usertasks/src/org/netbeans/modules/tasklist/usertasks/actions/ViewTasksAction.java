@@ -21,6 +21,7 @@ package org.netbeans.modules.tasklist.usertasks.actions;
 
 import org.netbeans.modules.tasklist.usertasks.UserTaskView;
 import org.netbeans.modules.tasklist.usertasks.UserTaskViewRegistry;
+import org.netbeans.modules.tasklist.usertasks.util.AWTThreadAnnotation;
 import org.openide.util.HelpCtx;
 import org.openide.util.NbBundle;
 import org.openide.util.actions.CallableSystemAction;
@@ -43,6 +44,7 @@ public class ViewTasksAction extends CallableSystemAction {
         return false;
     }
 
+    @AWTThreadAnnotation
     static void show() {
         UserTaskView view = UserTaskViewRegistry.getInstance().getDefault();
         if (view != null) {

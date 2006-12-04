@@ -225,6 +225,7 @@ public class MyTransferHandler extends TransferHandler {
 
         if (exportSuccess && action == MOVE && transferredTasks != null) {
             UserTasksTreeTable tt = (UserTasksTreeTable) comp;
+            tt.clearSelection();
             TreePath next = null;
             for (int i = 0; i < transferredTasks.length; i++) {
                 UserTask ut = transferredTasks[i];

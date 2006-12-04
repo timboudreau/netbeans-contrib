@@ -20,7 +20,10 @@
 package org.netbeans.modules.tasklist.usertasks.translators;
 
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.logging.Level;
@@ -36,6 +39,8 @@ import org.netbeans.modules.tasklist.core.util.ExtensionFileFilter;
 import org.netbeans.modules.tasklist.core.util.SimpleWizardPanel;
 import org.netbeans.modules.tasklist.usertasks.options.Settings;
 import org.netbeans.modules.tasklist.usertasks.util.UTUtils;
+import org.openide.DialogDisplayer;
+import org.openide.NotifyDescriptor;
 import org.openide.WizardDescriptor;
 import org.openide.awt.HtmlBrowser;
 import org.openide.util.NbBundle;
@@ -51,6 +56,28 @@ public class HtmlExportFormat extends XmlExportFormat {
         "usertasks-table-html.xsl", // NOI18N
         "usertasks-tree-html.xsl" // NOI18N
     };
+
+    /**
+     * Copies a resource to a file.
+     * 
+     * @param from see Class.getResourceAsStream
+     * @param to destination
+     */
+    private static void copyResourceToFile(String from, File to) 
+            throws IOException {
+        InputStream is = TextExportFormat.class.getResourceAsStream(from);
+        try {
+            OutputStream os = new FileOutputStream(to);
+            try {
+                UTUtils.copyStream(is, os);
+            } finally {
+                os.close();
+            }
+        } finally {
+            is.close();
+        }
+    }
+    
     private String res = "usertasks-effort-html.xsl"; // NOI18N
     
     /** 
@@ -161,10 +188,22 @@ public class HtmlExportFormat extends XmlExportFormat {
             wd.getProperty(getClass().getName() + 
                 ".TemplatesPanel"); // NOI18N
         this.res = LAYOUTS[templatesPanel.getLayoutIndex()];
+        File dir = chooseFilePanel.getFile().getParentFile();
         super.doExportImport(provider, wd);
+        try {
+            copyResourceToFile(
+                    "/org/netbeans/modules/tasklist/core/task.gif", // NOI18N
+                    new File(dir, "undone.gif")); // NOI18N
+            copyResourceToFile(
+                    "/org/netbeans/modules/tasklist/core/doneItem.gif", // NOI18N
+                    new File(dir, "done.gif")); // NOI18N
+        } catch (IOException ex) {
+            NotifyDescriptor nd = new NotifyDescriptor.Message(ex.getMessage(),
+                    NotifyDescriptor.Message.ERROR_MESSAGE);
+            DialogDisplayer.getDefault().notify(nd);
+        }
         if (templatesPanel.getOpenFile()) {
             showFileInBrowser(chooseFilePanel.getFile());
         }
     }
-    
 }

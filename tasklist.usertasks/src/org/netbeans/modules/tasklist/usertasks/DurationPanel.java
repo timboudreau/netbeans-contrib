@@ -19,14 +19,15 @@
 
 package org.netbeans.modules.tasklist.usertasks;
 
-import java.beans.PropertyEditor;
-import java.text.MessageFormat;
+import java.awt.Component;
+import java.awt.event.ActionListener;
 import java.text.ParseException;
-import javax.swing.JSpinner;
-import javax.swing.SpinnerNumberModel;
-import javax.swing.event.ChangeListener;
-import javax.swing.event.DocumentEvent;
-import javax.swing.event.DocumentListener;
+import javax.swing.ComboBoxEditor;
+import javax.swing.DefaultComboBoxModel;
+import javax.swing.DefaultListCellRenderer;
+import javax.swing.JComboBox;
+import javax.swing.JList;
+import javax.swing.text.JTextComponent;
 
 import org.netbeans.modules.tasklist.usertasks.model.Duration;
 import org.netbeans.modules.tasklist.usertasks.options.Settings;
@@ -37,11 +38,34 @@ import org.netbeans.modules.tasklist.usertasks.util.DurationFormat;
  *
  * @author tl
  */
-public class DurationPanel extends javax.swing.JPanel implements
-        ChangeListener {
+public class DurationPanel extends JComboBox {
     private static final long serialVersionUID = 1;
     
-    private PropertyEditor pe;
+    /**
+     * This array must be sorted.
+     */
+    private static final int[] DURATIONS = new int[] {
+        0,
+        5,
+        10,
+        15,
+        20,
+        30,
+        45,
+        60,
+        90,
+        120,
+        150,
+        180,
+        240,
+        300,
+        360,
+        420,
+        480,
+        12 * 60,
+        8 * 60 * 2
+    };
+    
     private DurationFormat short_ = new DurationFormat(
             DurationFormat.Type.SHORT);
     private DurationFormat long_ = new DurationFormat(DurationFormat.Type.LONG);
@@ -51,37 +75,76 @@ public class DurationPanel extends javax.swing.JPanel implements
      * Creates new form DurationPanel
      */
     public DurationPanel() {
-        initComponents();
-        setOpaque(false);
-        jTextField.getDocument().addDocumentListener(new DocumentListener() {
-            public void changedUpdate(DocumentEvent e) {
-                stateChanged(null);
+        final ComboBoxEditor def = getEditor();
+        setEditor(new ComboBoxEditor() {
+            public void addActionListener(ActionListener l) {
+                def.addActionListener(l);
             }
-            public void insertUpdate(DocumentEvent e) {
-                stateChanged(null);
+            public Component getEditorComponent() {
+                return def.getEditorComponent();
             }
-            public void removeUpdate(DocumentEvent e) {
-                stateChanged(null);
+            public Object getItem() {
+                String text = ((JTextComponent) getEditorComponent()).getText();
+                Duration d = null;
+                try {
+                    d = short_.parse(text);
+                } catch (ParseException ex) {
+                    // ignore
+                }
+                if (d == null) {
+                    try {
+                        d = long_.parse(text);
+                    } catch (ParseException ex) {
+                        // ignore
+                    }
+                }
+                if (d == null)
+                    d = dur;
+                if (d == null)
+                    return 0;
+
+                return d.toMinutes(Settings.getDefault().getMinutesPerDay(),
+                        Settings.getDefault().getDaysPerWeek(), true);
+            }
+            public void removeActionListener(ActionListener l) {
+                def.removeActionListener(l);
+            }
+            public void selectAll() {
+                def.selectAll();
+            }
+            public void setItem(Object anObject) {
+                String text = "";
+                if (anObject != null) {
+                    int m = ((Integer) anObject).intValue();
+                    int mpd = Settings.getDefault().getMinutesPerDay();
+                    int dpw = Settings.getDefault().getDaysPerWeek();
+                    Duration d = new Duration(m, mpd, dpw, true);
+                    text = long_.format(d);
+                }
+                ((JTextComponent) getEditorComponent()).setText(text);
             }
         });
-    }
-    
-    public void setEnabled(boolean b) {
-        super.setEnabled(b);
-        jTextField.setEnabled(b);
-    }
-    
-    /**
-     * Sets new property editor.
-     *
-     * @param pe a property editor or null
-     */
-    public void setPropertyEditor(PropertyEditor pe) {
-        this.pe = pe;
-        if (pe != null) {
-            Integer v = (Integer) pe.getValue();
-            setDuration(v == null ? 0 : v.intValue());
+        setEditable(true);
+        DefaultComboBoxModel m = new DefaultComboBoxModel();
+        for (int d: DURATIONS) {
+            m.addElement(d);
         }
+        setModel(m);
+        setRenderer(new DefaultListCellRenderer() {
+            public Component getListCellRendererComponent(
+                   JList list, Object value, int index, boolean isSelected,
+                   boolean cellHasFocus) {
+                super.getListCellRendererComponent(list, value, index, 
+                        isSelected, cellHasFocus);
+                int m = ((Integer) value).intValue();
+                int mpd = Settings.getDefault().getMinutesPerDay();
+                int dpw = Settings.getDefault().getDaysPerWeek();
+                // UTUtils.LOGGER.fine("mpd=" + mpd + ", dpw=" + dpw);
+                Duration d = new Duration(m, mpd, dpw, true);
+                setText(long_.format(d));
+                return this;
+            }
+        });
     }
     
     /**
@@ -90,11 +153,22 @@ public class DurationPanel extends javax.swing.JPanel implements
      * @param minutes new duration in minutes
      */
     public void setDuration(int minutes) {
-        dur = new Duration(minutes,
-                Settings.getDefault().getMinutesPerDay(),
-                Settings.getDefault().getDaysPerWeek(), true);
-        
-        jTextField.setText(short_.format(dur));
+        int index = getModel().getSize();
+        for (int i = getModel().getSize() - 1; i >= 0; i--) {
+            int dur = ((Integer) getModel().getElementAt(i)).intValue();
+            if (minutes > dur) {
+                index = i + 1;
+                break;
+            }
+        }
+        int dur = ((Integer) getModel().getElementAt(index - 1)).intValue();
+        if (dur == minutes) {
+            setSelectedIndex(index - 1);
+        } else {
+            ((DefaultComboBoxModel) getModel()).insertElementAt(minutes,
+                    index);
+            setSelectedIndex(index);
+        }
     }
     
     /**
@@ -103,54 +177,6 @@ public class DurationPanel extends javax.swing.JPanel implements
      * @return duration in minutes
      */
     public int getDuration() {
-        Duration d = null;
-        try {
-            d = short_.parse(jTextField.getText());
-        } catch (ParseException ex) {
-            // ignore
-        }
-        if (d == null) {
-            try {
-                d = long_.parse(jTextField.getText());
-            } catch (ParseException ex) {
-                // ignore
-            }
-        }
-        if (d == null)
-            d = dur;
-        if (d == null)
-            return 0;
-        
-        return d.toMinutes(Settings.getDefault().getMinutesPerDay(),
-                Settings.getDefault().getDaysPerWeek(), true);
+        return ((Integer) getSelectedItem()).intValue();
     }
-    
-    public void stateChanged(javax.swing.event.ChangeEvent e) {
-        if (pe != null) {
-            pe.setValue(new Integer(getDuration()));
-        }
-    }
-    
-    /** This method is called from within the constructor to
-     * initialize the form.
-     * WARNING: Do NOT modify this code. The content of this method is
-     * always regenerated by the Form Editor.
-     */
-    // <editor-fold defaultstate="collapsed" desc=" Generated Code ">//GEN-BEGIN:initComponents
-    private void initComponents() {
-        java.awt.GridBagConstraints gridBagConstraints;
-
-        jTextField = new javax.swing.JTextField();
-
-        setLayout(new java.awt.BorderLayout());
-
-        jTextField.setColumns(10);
-        add(jTextField, java.awt.BorderLayout.CENTER);
-    }// </editor-fold>//GEN-END:initComponents
-    
-    
-    // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JTextField jTextField;
-    // End of variables declaration//GEN-END:variables
-    
 }

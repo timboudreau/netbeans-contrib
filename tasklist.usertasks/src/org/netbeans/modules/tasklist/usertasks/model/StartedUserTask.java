@@ -7,6 +7,8 @@ import javax.swing.event.ChangeListener;
 import javax.swing.event.EventListenerList;
 import org.netbeans.modules.tasklist.core.util.ActivityListener;
 import org.netbeans.modules.tasklist.usertasks.options.Settings;
+import org.openide.awt.StatusDisplayer;
+import org.openide.util.NbBundle;
 
 /**
  * Started user task.
@@ -115,6 +117,9 @@ public class StartedUserTask {
                 long lastActivity = ActivityListener.getLastActivityMillis();
                 long cur = System.currentTimeMillis();
                 if ((cur - lastActivity) < INACTIVITY_DURATION) {
+                    StatusDisplayer.getDefault().setStatusText(
+                            NbBundle.getMessage(StartedUserTask.class,
+                            "ActivityDetected"));
                     state = STATE_WORKING;
                     
                     startedAt = lastActivity;
@@ -137,7 +142,9 @@ public class StartedUserTask {
                     ActivityListener.getLastActivityMillis()) > INACTIVITY_DURATION &&
                     Settings.getDefault().getDetectInactivity()) { // NOI18N
                     state = STATE_SUSPENDED;
-
+                    StatusDisplayer.getDefault().setStatusText(
+                            NbBundle.getMessage(StartedUserTask.class, 
+                            "InactivityDetected"));
                 }
                 
                 started.setSpentTime(initialSpentTime + diff);                    
@@ -210,7 +217,7 @@ public class StartedUserTask {
                 if (task == null) {
                     throw new InternalError("no task is running"); // NOI18N
                 } else {
-                    task.setSpentTimeComputed(false);
+                    task.setValuesComputed(false);
                     started = task;
                     startedAt = System.currentTimeMillis();
                     initialSpentTime = task.getSpentTime();

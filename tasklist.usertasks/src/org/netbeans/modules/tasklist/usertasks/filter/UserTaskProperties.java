@@ -25,7 +25,11 @@ import java.util.Date;
 import org.netbeans.modules.tasklist.core.TaskProperties;
 import org.netbeans.modules.tasklist.core.filter.SuggestionProperty;
 import org.netbeans.modules.tasklist.usertasks.model.UserTask;
+import org.netbeans.modules.tasklist.usertasks.util.UTUtils;
 
+/**
+ * @author unknown 
+ */
 public class UserTaskProperties extends TaskProperties {
     public static final String PROPID_PRIORITY = "priority"; // NOI18N
     public static final String PROPID_SUMMARY = "summary"; // NOI18N
@@ -45,137 +49,138 @@ public class UserTaskProperties extends TaskProperties {
     public static final String PROPID_COMPLETED_DATE = "completedDate"; // NOI18N
     public static final String PROPID_START = "start"; // NOI18N
     public static final String PROPID_SPENT_TIME_TODAY = "spentTimeToday"; // NOI18N
-
-  public static SuggestionProperty PROP_SUMMARY = 
-    new SuggestionProperty(PROPID_SUMMARY, String.class) { 
-      public Object getValue(Object obj) {return ((UserTask) obj).getSummary(); }
+    
+    public static SuggestionProperty PROP_SUMMARY =
+            new SuggestionProperty(PROPID_SUMMARY, String.class) {
+        public Object getValue(Object obj) {return ((UserTask) obj).getSummary(); }
     };
-
-  public static SuggestionProperty PROP_PRIORITY = 
-    new SuggestionProperty(PROPID_PRIORITY, String.class) {   
-      public Object getValue(Object obj) {
-          return new Integer(((UserTask) obj).getPriority()); 
-      }
+    
+    public static SuggestionProperty PROP_PRIORITY =
+            new SuggestionProperty(PROPID_PRIORITY, String.class) {
+        public Object getValue(Object obj) {
+            // UTUtils.LOGGER.fine(obj.getClass().getName());
+            return new Integer(((UserTask) obj).getPriority());
+        }
     };
-
-  public static SuggestionProperty PROP_DETAILS = 
-    new SuggestionProperty(PROPID_DETAILS, String.class) {   
-      public Object getValue(Object obj) {return ((UserTask) obj).getDetails(); }
+    
+    public static SuggestionProperty PROP_DETAILS =
+            new SuggestionProperty(PROPID_DETAILS, String.class) {
+        public Object getValue(Object obj) {return ((UserTask) obj).getDetails(); }
     };
-
+    
     public static final SuggestionProperty PROP_CATEGORY =
-        new SuggestionProperty(PROPID_CATEGORY, String.class) {
-            public Object getValue(Object obj) {
-                return ((UserTask) obj).getCategory();
-            }
-        };
-
+            new SuggestionProperty(PROPID_CATEGORY, String.class) {
+        public Object getValue(Object obj) {
+            return ((UserTask) obj).getCategory();
+        }
+    };
+    
     public static final SuggestionProperty PROP_FILENAME =
-        new SuggestionProperty(PROPID_FILENAME, String.class) {
-            public Object getValue(Object obj) {
-                URL url = ((UserTask) obj).getUrl();
-                if (url == null)
-                    return ""; // NOI18N
-                else
-                    return url.toExternalForm();
-            }
-        };
-
+            new SuggestionProperty(PROPID_FILENAME, String.class) {
+        public Object getValue(Object obj) {
+            URL url = ((UserTask) obj).getUrl();
+            if (url == null)
+                return ""; // NOI18N
+            else
+                return url.toExternalForm();
+        }
+    };
+    
     public static final SuggestionProperty PROP_LINE_NUMBER =
-        new SuggestionProperty(PROPID_LINE_NUMBER, Integer.class) {
-            public Object getValue(Object obj) {
-                return new Integer(((UserTask) obj).getLineNumber() + 1);
-            }
-        };
-
+            new SuggestionProperty(PROPID_LINE_NUMBER, Integer.class) {
+        public Object getValue(Object obj) {
+            return new Integer(((UserTask) obj).getLineNumber() + 1);
+        }
+    };
+    
     public static final SuggestionProperty PROP_CREATED_DATE =
-        new SuggestionProperty(PROPID_CREATED_DATE, Date.class) {
-            public Object getValue(Object obj) {
-                return new Date(((UserTask) obj).getCreatedDate());
-            }
-        };
-
+            new SuggestionProperty(PROPID_CREATED_DATE, Date.class) {
+        public Object getValue(Object obj) {
+            return new Date(((UserTask) obj).getCreatedDate());
+        }
+    };
+    
     public static final SuggestionProperty PROP_LAST_EDITED_DATE =
-        new SuggestionProperty(PROPID_LAST_EDITED_DATE, Date.class) {
-            public Object getValue(Object obj) {
-                return new Date(((UserTask) obj).getLastEditedDate());
-            }
-        };
-
+            new SuggestionProperty(PROPID_LAST_EDITED_DATE, Date.class) {
+        public Object getValue(Object obj) {
+            return new Date(((UserTask) obj).getLastEditedDate());
+        }
+    };
+    
     public static final SuggestionProperty PROP_COMPLETED_DATE =
-        new SuggestionProperty(PROPID_COMPLETED_DATE, Date.class) {
+            new SuggestionProperty(PROPID_COMPLETED_DATE, Date.class) {
         public Object getValue(Object obj) {
             return new Date(((UserTask) obj).getCompletedDate());
         }
     };
-        
+    
     public static final SuggestionProperty PROP_DUE_DATE =
-        new SuggestionProperty(PROPID_DUE_DATE, Date.class) {
-            public Object getValue(Object obj) {
-                return ((UserTask) obj).getDueDate();
-            }
-        };
-
+            new SuggestionProperty(PROPID_DUE_DATE, Date.class) {
+        public Object getValue(Object obj) {
+            return ((UserTask) obj).getDueDate();
+        }
+    };
+    
     public static final SuggestionProperty PROP_DONE =
-        new SuggestionProperty(PROPID_DONE, Boolean.class) {
-            public Object getValue(Object obj) {
-                return Boolean.valueOf(((UserTask) obj).isDone());
-            }
-        };
-
+            new SuggestionProperty(PROPID_DONE, Boolean.class) {
+        public Object getValue(Object obj) {
+            return Boolean.valueOf(((UserTask) obj).isDone());
+        }
+    };
+    
     public static final SuggestionProperty PROP_PERCENT_COMPLETE =
-        new SuggestionProperty(PROPID_PERCENT_COMPLETE, Integer.class) {
-            public Object getValue(Object obj) {
-                return new Integer(((UserTask) obj).getPercentComplete());
-            }
-        };
-
+            new SuggestionProperty(PROPID_PERCENT_COMPLETE, Integer.class) {
+        public Object getValue(Object obj) {
+            return new Integer(((UserTask) obj).getPercentComplete());
+        }
+    };
+    
     public static final SuggestionProperty PROP_EFFORT =
-        new SuggestionProperty(PROPID_EFFORT, Integer.class) {
-            public Object getValue(Object obj) {
-                return new Integer(((UserTask) obj).getEffort());
-            }
-        };
-
+            new SuggestionProperty(PROPID_EFFORT, Integer.class) {
+        public Object getValue(Object obj) {
+            return new Integer(((UserTask) obj).getEffort());
+        }
+    };
+    
     public static final SuggestionProperty PROP_REMAINING_EFFORT =
-        new SuggestionProperty(PROPID_REMAINING_EFFORT, Integer.class) {
-            public Object getValue(Object obj) {
-                return new Integer(((UserTask) obj).getRemainingEffort());
-            }
-        };
-
+            new SuggestionProperty(PROPID_REMAINING_EFFORT, Integer.class) {
+        public Object getValue(Object obj) {
+            return new Integer(((UserTask) obj).getRemainingEffort());
+        }
+    };
+    
     public static final SuggestionProperty PROP_SPENT_TIME =
-        new SuggestionProperty(PROPID_SPENT_TIME, Integer.class) {
-            public Object getValue(Object obj) {
-                return new Integer(((UserTask) obj).getSpentTime());
-            }
-        };
-
+            new SuggestionProperty(PROPID_SPENT_TIME, Integer.class) {
+        public Object getValue(Object obj) {
+            return new Integer(((UserTask) obj).getSpentTime());
+        }
+    };
+    
     public static final SuggestionProperty PROP_SPENT_TIME_TODAY =
-        new SuggestionProperty(PROPID_SPENT_TIME_TODAY, Integer.class) {
-            public Object getValue(Object obj) {
-                return new Integer(((UserTask) obj).getSpentTimeToday());
-            }
-        };
-
+            new SuggestionProperty(PROPID_SPENT_TIME_TODAY, Integer.class) {
+        public Object getValue(Object obj) {
+            return new Integer(((UserTask) obj).getSpentTimeToday());
+        }
+    };
+    
     public static final SuggestionProperty PROP_OWNER =
-        new SuggestionProperty(PROPID_OWNER, String.class) {
-            public Object getValue(Object obj) {
-                return ((UserTask) obj).getOwner();
-            }
-        };
-
+            new SuggestionProperty(PROPID_OWNER, String.class) {
+        public Object getValue(Object obj) {
+            return ((UserTask) obj).getOwner();
+        }
+    };
+    
     public static final SuggestionProperty PROP_START =
-        new SuggestionProperty(PROPID_START, Date.class) {
-            public Object getValue(Object obj) {
-                long start = ((UserTask) obj).getStart();
-                if (start == -1)
-                    return null;
-                else
-                    return new Date(start);
-            }
-        };
-
+            new SuggestionProperty(PROPID_START, Date.class) {
+        public Object getValue(Object obj) {
+            long start = ((UserTask) obj).getStart();
+            if (start == -1)
+                return null;
+            else
+                return new Date(start);
+        }
+    };
+    
     public static SuggestionProperty getProperty(String propID) {
         if (propID.equals(PROPID_CATEGORY)) {
             return PROP_CATEGORY;
@@ -205,13 +210,13 @@ public class UserTaskProperties extends TaskProperties {
             return PROP_DETAILS;
         } else if (propID.equals(PROPID_OWNER)) {
             return PROP_OWNER;
-        } else if (propID.equals(PROPID_PRIORITY)) { 
+        } else if (propID.equals(PROPID_PRIORITY)) {
             return PROP_PRIORITY;
-        } else if (propID.equals(PROPID_SUMMARY)) { 
+        } else if (propID.equals(PROPID_SUMMARY)) {
             return PROP_SUMMARY;
-        } else if (propID.equals(PROPID_DETAILS)) { 
+        } else if (propID.equals(PROPID_DETAILS)) {
             return PROP_DETAILS;
-        } else if (propID.equals(PROPID_START)) { 
+        } else if (propID.equals(PROPID_START)) {
             return PROP_START;
         } else if (propID.equals(PROPID_SPENT_TIME_TODAY)) {
             return PROP_SPENT_TIME_TODAY;

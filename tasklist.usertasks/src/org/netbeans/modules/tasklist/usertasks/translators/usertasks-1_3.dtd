@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+The contents of this file are subject to the terms of the Common Development
+and Distribution License (the License). You may not use this file except in
+compliance with the License.
+
+You can obtain a copy of the License at http://www.netbeans.org/cddl.html
+or http://www.netbeans.org/cddl.txt.
+
+When distributing Covered Code, include this CDDL Header Notice in each file
+and include the License file at http://www.netbeans.org/cddl.txt.
+If applicable, add the following below the CDDL Header, with the fields
+enclosed by brackets [] replaced by your own identifying information:
+"Portions Copyrighted [year] [name of copyright owner]"
+
+The Original Software is NetBeans. The Initial Developer of the Original
+Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
+Microsystems, Inc. All Rights Reserved.
+-->
+
+<!--
+    Description: export format for user tasks
+-->
+
+<!ELEMENT tasks (task)*>
+
+<!--
+    due, created, completed, start and modified - date format: YYYY-MM-DDThh:mm:ssTZD
+        (see http://www.w3.org/TR/NOTE-datetime)
+    line - 1 = the first line in a file
+    effort - effort in minutes
+    spent - spent time in minutes
+    
+    progress-computed, effort-computed and spent-time-computed will be ignored
+    and only here for backward compatibility (see the new attribute
+    values-computed)
+-->
+<!ELEMENT task (summary, details?, work-periods?, (task)*)>
+<!ATTLIST task
+    priority (high|medium-high|medium|medium-low|low)  "medium"
+    category CDATA #IMPLIED
+    progress CDATA #REQUIRED
+    progress-computed (yes|no) "no"
+    effort CDATA #REQUIRED
+    effort-computed (yes|no) "no"
+    due CDATA #IMPLIED
+    file CDATA #IMPLIED
+    line CDATA #IMPLIED
+    created CDATA #REQUIRED
+    modified CDATA #REQUIRED
+    completed CDATA #IMPLIED
+    spent-time CDATA #REQUIRED
+    spent-time-computed (yes|no) "no"
+    owner CDATA #IMPLIED
+    start CDATA #IMPLIED
+    values-computed (yes|no) "no"
+>
+
+<!ELEMENT details (#PCDATA)>
+<!ELEMENT work-periods (period)+>
+
+<!ELEMENT period EMPTY>
+
+<!--
+    duration - duration of a work period in minutes
+-->
+<!ATTLIST period
+    start CDATA #REQUIRED
+    duration CDATA #REQUIRED
+>

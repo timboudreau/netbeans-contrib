@@ -21,43 +21,6 @@ Microsystems, Inc. All Rights Reserved.
 
     <import file="../../nbbuild/templates/projectized.xml"/>
 
-    <target name="nbm" depends="init,netbeans" description="Build NBM archive.">
-        <mkdir dir="build"/>
-        <property name="nbm.target.cluster" value=""/> <!-- fallback -->
-        <makenbm file="build/${nbm}"
-                 productdir="${cluster}"
-                 module="${module.jar}"
-                 homepage="${nbm.homepage}"
-                 distribution="http://${dist.base}/${nbm}"
-                 needsrestart="${nbm.needs.restart}"
-                 releasedate="${nbm.release.date}"
-		 moduleauthor="${nbm.module.author}"
-                 global="${nbm.is.global}"
-                 targetcluster="${nbm.target.cluster}">
-            <license>
-                <text>For the User Tasks module itself:</text>
-                <file location="${license.file}"/>
-                <text>For the bundled JCalendar runtime library:</text>
-                <file location="../external/jcalendar-license.txt"/>
-                <text>For the bundled iCal4j library:</text>
-                <file location="../external/ical4j-license.txt"/>
-            </license>
-            <signature keystore="${keystore}" storepass="${storepass}" alias="${nbm_alias}"/>
-        </makenbm>
-    </target>
-    
-    <target name="netbeans-extra" depends="release"/>
-
-    <target name="release" depends="init">
-        <mkdir dir="${cluster}/modules/ext"/>
-        <copy todir="${cluster}/modules/ext">
-            <fileset dir="../external/">
-                <include name="jcalendar*.jar"/>
-                <include name="ical4j*.jar"/>
-            </fileset>
-        </copy>
-    </target>
-    
     <target name="changelog">
     </target>
     
@@ -79,5 +42,4 @@ Microsystems, Inc. All Rights Reserved.
             </fileset>
         </pmd>
     </target>
-
 </project>

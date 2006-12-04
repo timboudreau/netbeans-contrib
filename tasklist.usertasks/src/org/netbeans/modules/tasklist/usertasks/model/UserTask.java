@@ -35,7 +35,6 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ResourceBundle;
-import java.util.logging.Level;
 
 import javax.swing.event.EventListenerList;
 import javax.swing.tree.TreePath;
@@ -49,7 +48,6 @@ import org.openide.nodes.Node.Cookie;
 import org.openide.text.Line;
 import org.openide.util.NbBundle;
 import org.netbeans.modules.tasklist.core.util.ObjectList;
-import org.netbeans.modules.tasklist.usertasks.*;
 import org.netbeans.modules.tasklist.usertasks.annotations.UTAnnotation;
 import org.netbeans.modules.tasklist.usertasks.util.UnaryFunction;
 
@@ -271,15 +269,16 @@ ObjectList.Owner {
     public static final String PROP_START = "start"; // NOI18N
     public static final String PROP_SPENT_TIME_TODAY = "spentTimeToday"; // NOI18N
     
-    /** last modified. long as returned by System.currentTimeMillise() */
+    /** last modified. long as returned by System.currentTimeMillis() */
     public static final String PROP_LAST_EDITED_DATE = 
             "lastEditedDate"; // NOI18N
-
+    
+    /** see setValuesComputed */
+    public static final String PROP_VALUES_COMPUTED = 
+            "valuesComputed"; // NOI18N
+    
     // ATTENTION: if you add new fields here do not forget to update copyFrom
     
-    /** <UserTaskListener> */
-    protected EventListenerList listeners = new EventListenerList();
-
     /**
      * When false, don't update the "last modified" date. 
      * Used by the restore code.
@@ -328,8 +327,10 @@ ObjectList.Owner {
     /**
      * true means progress will be computed automatically as a weighted average 
      * of the subtasks. If a task has no children it means 0%
+     * true means that the effort will be computed automatically as them sum of the
+     * subtask efforts. If a task has no children it means 0
      */
-    private boolean percentComputed = false;
+    private boolean valuesComputed = false;
     
     private Date dueDate;
     private boolean dueAlarmSent;
@@ -338,18 +339,11 @@ ObjectList.Owner {
     private long created;
     private long lastEditedDate;
 
-    /**
-     * true means that the effort will be computed automatically as them sum of the
-     * subtask efforts. If a task has no children it means 0
-     */
-    private boolean effortComputed = false;
-    
     /** in minutes */
     private int effort = 60;
     
     /** Time spent on this task */
     private int spentTime = 0;
-    private boolean spentTimeComputed;
     
     private PropertyChangeListener lineListener;
 
@@ -437,9 +431,7 @@ ObjectList.Owner {
                 switch (ev.getType()) {
                     case ObjectList.Event.EVENT_ADDED:
                         if (Settings.getDefault().getAutoSwitchToComputed()) {
-                            setProgressComputed(true);
-                            setEffortComputed(true);
-                            setSpentTimeComputed(true);
+                            setValuesComputed(true);
                         }
                         structureChanged();
                         break;
@@ -448,8 +440,7 @@ ObjectList.Owner {
                         break;
                     }
                     case ObjectList.Event.EVENT_REORDERED:
-                        if (UserTask.this.list != null)
-                            UserTask.this.list.markChanged();
+                        structureChanged();
                         break;
                     case ObjectList.Event.EVENT_STRUCTURE_CHANGED:
                         structureChanged();
@@ -459,17 +450,13 @@ ObjectList.Owner {
                 }
             }
             public void structureChanged() {
-                if (isProgressComputed()) {
+                if (isValuesComputed()) {
                     setProgress_(computeProgress());
-                }
-                if (isEffortComputed()) {
                     setEffort_(computeEffort());
-                }
-                if (isSpentTimeComputed()) {
                     setSpentTime_(computeSpentTime());
                 }
                 if (UserTask.this.list != null) {
-                    UserTask.this.list.markChanged();
+                    UserTask.this.list.fireChange();
                 }
             }
         });
@@ -632,12 +619,12 @@ ObjectList.Owner {
      */
     public void setSpentTime(int spentTime) {
         assert spentTime >= 0;
-        if (spentTimeComputed)
-            setSpentTimeComputed(false);
+        if (valuesComputed)
+            setValuesComputed(false);
     
         setSpentTime_(spentTime);
 
-        if (isProgressComputed() && getSubtasks().size() == 0)
+        if (isValuesComputed() && getSubtasks().size() == 0)
             setProgress_(computeProgress());
     }
     
@@ -656,40 +643,41 @@ ObjectList.Owner {
                 new Integer(old), new Integer(spentTime));
             if (getParent() != null) {
                 UserTask p = (UserTask) getParent();
-                if (p.isSpentTimeComputed())
-                    p.setSpentTime_(p.computeSpentTime());
-                if (p.isSpentTimeComputed())
+                if (p.isValuesComputed())
                     p.setSpentTime_(p.computeSpentTime());
             }
         }
     }
     
     /**
-     * Sets whether the spent time of this task should be computed
+     * Sets whether the spent time, progress and effort of this task 
+     * should be computed
      *
-     * @param v true = the spent time will be computed
+     * @param v true = the spent time, progress and effort will be computed
      */
-    public void setSpentTimeComputed(boolean v) {
-        if (this.spentTimeComputed != v) {
+    public void setValuesComputed(boolean v) {
+        if (this.valuesComputed != v) {
             if (isStarted())
                 stop();
-            this.spentTimeComputed = v;
-            firePropertyChange("spentTimeComputed", Boolean.valueOf(!v), // NOI18N
-                Boolean.valueOf(v));
+            this.valuesComputed = v;
+            firePropertyChange(PROP_VALUES_COMPUTED, 
+                    Boolean.valueOf(!v), Boolean.valueOf(v));
             if (v) {
                 setSpentTime_(computeSpentTime());
+                setProgress_(computeProgress());
+                setProgress_(computeProgress());
             }
         }
     }
     
     /**
-     * Getter for property spentTimeComputed.
+     * Getter for property valuesComputed.
      *
-     * @return true = the spent time will be computed as the sum of the 
-     * subtask values
+     * @return true = the spent time, effort and progress 
+     * will be computed as the sum of the subtask values
      */
-    public boolean isSpentTimeComputed() {
-        return spentTimeComputed;
+    public boolean isValuesComputed() {
+        return valuesComputed;
     }
     
     /**
@@ -701,7 +689,7 @@ ObjectList.Owner {
      * @return spent time in minutes
      */
     int computeSpentTime() {
-        assert spentTimeComputed;
+        assert valuesComputed;
 
         int sum = 0;
         Iterator it = getSubtasks().iterator();        
@@ -760,7 +748,7 @@ ObjectList.Owner {
      * @return true = this task could be started
      */
     public boolean isStartable() {
-        return !isSpentTimeComputed() && !isDone() && areDependenciesDone();
+        return !isValuesComputed() && !isDone() && areDependenciesDone();
     }
     
     /**
@@ -918,10 +906,10 @@ ObjectList.Owner {
      * @return computed percentage
      */
     private float computeProgress() {
-        assert percentComputed;
+        assert valuesComputed;
         
         if (getSubtasks().size() == 0) {
-            if (isSpentTimeComputed() || isEffortComputed())
+            if (isValuesComputed())
                 return 100.0f;
             
             float p = (((float) getSpentTime()) / getEffort()) * 100.0f;
@@ -946,32 +934,6 @@ ObjectList.Owner {
         return p;
     }
 
-    /**
-     * Returns true if progress of this task will be computed automatically
-     * from the progress of subtasks
-     *
-     * @return true = automatically computed
-     */
-    public boolean isProgressComputed() {
-        return percentComputed;
-    }
-
-    /**
-     * Sets whether the progress of this task should be computed
-     *
-     * @param v true = the progress will be computed
-     */
-    public void setProgressComputed(boolean v) {
-        if (this.percentComputed != v) {
-            this.percentComputed = v;
-            firePropertyChange("progressComputed", Boolean.valueOf(!v), // NOI18N
-                Boolean.valueOf(v));
-            if (v) {
-                setProgress_(computeProgress());
-            }
-        }
-    }
-    
     /** 
      * Sets the percentage complete for this task. Will also
      * update the done flag for this task. 
@@ -990,8 +952,8 @@ ObjectList.Owner {
      */
     public void setProgress(float progress) {
         assert progress >= 0 && progress <= 100;
-        if (percentComputed)
-            setProgressComputed(false);
+        if (valuesComputed)
+            setValuesComputed(false);
         
         setProgress_(progress);
         
@@ -1036,7 +998,7 @@ ObjectList.Owner {
                 new Float(old), new Float(progress));
             if (getParent() != null) {
                 UserTask p = (UserTask) getParent();
-                if (p.isProgressComputed())
+                if (p.isValuesComputed())
                     p.setProgress_(p.computeProgress());
             }
         }
@@ -1382,13 +1344,11 @@ ObjectList.Owner {
         }
 
         progress = from.progress;
-        percentComputed = from.percentComputed;
+        valuesComputed = from.valuesComputed;
         category = from.category;
         created = from.created;
         effort = from.effort;
-        effortComputed = from.effortComputed;
         spentTime = from.spentTime;
-        spentTimeComputed = from.spentTimeComputed;
         dependencies.clear();
         dependencies.addAll(from.dependencies);
         owner = from.owner;
@@ -1426,31 +1386,6 @@ ObjectList.Owner {
     }
     
     /**
-     * Getter for property effortComputed.
-     *
-     * @return true = effort will be computed as the sum of the subtask efforts
-     */
-    public boolean isEffortComputed() {
-        return effortComputed;
-    }
-    
-    /**
-     * Setter for property effortComputed.
-     *
-     * @param effortComputed New value of property effortComputed.
-     */
-    public void setEffortComputed(boolean effortComputed) {
-        if (this.effortComputed != effortComputed) {
-            this.effortComputed = effortComputed;
-            firePropertyChange("effortComputed", Boolean.valueOf(!effortComputed), // NOI18N
-                Boolean.valueOf(effortComputed));
-            if (effortComputed) {
-                setEffort_(computeEffort());
-            }
-        }
-    }
-    
-    /**
      * Computes "effort" property as the sum of the subtask efforts.
      * This method should only be called if effortComputed == true
      *
@@ -1459,7 +1394,7 @@ ObjectList.Owner {
      * @return effort in minutes
      */
     int computeEffort() {
-        assert effortComputed;
+        assert valuesComputed;
         
         Iterator it = getSubtasks().iterator();
         int sum = 0;
@@ -1477,12 +1412,12 @@ ObjectList.Owner {
      */
     public void setEffort(int effort) {
         assert effort >= 0;
-        if (effortComputed)
-            setEffortComputed(false);
+        if (valuesComputed)
+            setValuesComputed(false);
     
         setEffort_(effort);
 
-        if (isProgressComputed() && getSubtasks().size() == 0)
+        if (isValuesComputed() && getSubtasks().size() == 0)
             setProgress_(computeProgress());
     }
 
@@ -1496,14 +1431,17 @@ ObjectList.Owner {
         int old = this.effort;
         
         if (this.effort != effort) {
+            int oldre = getRemainingEffort();
             this.effort = effort;
             firePropertyChange("effort",  // NOI18N
                 new Integer(old), new Integer(effort));
+            firePropertyChange("remainingEffort",
+                    oldre, getRemainingEffort());
             if (getParent() != null) {
                 UserTask p = (UserTask) getParent();
-                if (p.isEffortComputed())
+                if (p.isValuesComputed())
                     p.setEffort_(p.computeEffort());
-                if (p.isProgressComputed())
+                if (p.isValuesComputed())
                     p.setProgress_(p.computeProgress());
             }
         }
@@ -1534,7 +1472,7 @@ ObjectList.Owner {
     }
     
     /**
-     * Fires a PropertyChangeEvent
+     * Fires a PropertyChangeEvent. Also fires an event for PROP_DEEP_CHANGE
      *
      * @param propertyName changed property
      * @param oldValue old value (may be null)
@@ -1543,7 +1481,7 @@ ObjectList.Owner {
     protected void firePropertyChange(String propertyName, Object oldValue, Object newValue) {
         supp.firePropertyChange(propertyName, oldValue, newValue);
         if (list != null)
-            list.markChanged();
+            list.fireChange();
     }
     
     /**
@@ -1831,7 +1769,7 @@ ObjectList.Owner {
      */
     public int getSpentTimeToday() {
         int sum = 0;
-        if (isSpentTimeComputed()) {
+        if (isValuesComputed()) {
             for (int i = 0; i < getSubtasks().size(); i++) {
                 UserTask ut = (UserTask) getSubtasks().get(i);
                 sum += ut.getSpentTimeToday();

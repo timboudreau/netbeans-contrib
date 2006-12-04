@@ -26,6 +26,7 @@ import javax.swing.tree.TreePath;
 import org.netbeans.modules.tasklist.usertasks.UserTaskTreeTableNode;
 import org.netbeans.modules.tasklist.usertasks.UserTaskView;
 import org.netbeans.modules.tasklist.usertasks.model.UserTask;
+import org.netbeans.modules.tasklist.usertasks.util.UTUtils;
 import org.openide.util.NbBundle;
 
 /**
@@ -92,6 +93,9 @@ public class MoveRightAction extends UTViewAction {
             if (last instanceof UserTaskTreeTableNode) {
                 UserTaskTreeTableNode n = (UserTaskTreeTableNode) last;
                 TreeNode parent = n.getParent();
+                if (parent == null)
+                    UTUtils.LOGGER.fine(n.getUserTask() + 
+                            " does not have a parent"); // NOI18N
                 int index = parent.getIndex(n);
                 setEnabled(index != 0);
             } else {

@@ -22,7 +22,6 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.ListIterator;
 import java.util.Vector;
-import org.netbeans.modules.tasklist.usertasks.*;
 
 /**
  * The TimeoutProvider class implements a way to let object that implements
@@ -30,7 +29,7 @@ import org.netbeans.modules.tasklist.usertasks.*;
  *
  * @author Trond Norbye
  */
-class TimeoutProvider implements Runnable {
+public class TimeoutProvider implements Runnable {
     /** An inner class used to stash away all of the data */
     private class Entry {
         /** Create a new Entry instance 
@@ -67,7 +66,7 @@ class TimeoutProvider implements Runnable {
      * Get the one and only instance of the TimeoutProvider
      * @return the handle to the TimeoutProvider
      */
-    static TimeoutProvider getInstance() { 
+    public static TimeoutProvider getInstance() { 
 	if (instance == null) {
 	    instance = new TimeoutProvider();
 	}
@@ -80,7 +79,7 @@ class TimeoutProvider implements Runnable {
      * @param userRef the owners reference (null == all timeouts belonging to
      *                to this object)
      */
-    void cancel(Timeout owner, Object userRef) {
+    public void cancel(Timeout owner, Object userRef) {
 	synchronized (alarms) {
 	    ListIterator i = alarms.listIterator(0);
 
@@ -104,7 +103,7 @@ class TimeoutProvider implements Runnable {
      * @param userRef an object the user would like to get back with the timeout
      * @param timeout the time this object should time out
      */
-    void add(Timeout owner, Object userRef, long timeout) {
+    public void add(Timeout owner, Object userRef, long timeout) {
 	synchronized (alarms) {
 	    ListIterator i = alarms.listIterator(0);
 	    boolean done = false;

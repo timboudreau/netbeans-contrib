@@ -27,9 +27,13 @@ import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
+import java.io.OutputStream;
 import java.io.Serializable;
 import java.net.URL;
 import java.util.HashMap;
@@ -40,13 +44,13 @@ import javax.swing.Action;
 import javax.swing.ActionMap;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
-import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JToolBar;
 import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
 import javax.swing.border.EmptyBorder;
 import javax.swing.tree.TreePath;
+import net.fortuna.ical4j.data.ParserException;
 import org.netbeans.modules.tasklist.core.export.ExportImportFormat;
 import org.netbeans.modules.tasklist.core.export.ExportImportProvider;
 import org.netbeans.modules.tasklist.core.filter.Filter;
@@ -78,12 +82,12 @@ import org.netbeans.modules.tasklist.usertasks.translators.TextExportFormat;
 import org.netbeans.modules.tasklist.usertasks.translators.XmlExportFormat;
 import org.netbeans.modules.tasklist.core.table.ChooseColumnsPanel;
 import org.netbeans.modules.tasklist.usertasks.treetable.TreeTableModel;
+import org.netbeans.modules.tasklist.usertasks.util.AWTThreadAnnotation;
 import org.netbeans.modules.tasklist.usertasks.util.UTUtils;
 import org.openide.actions.FindAction;
+import org.openide.actions.SaveAction;
 import org.openide.awt.MouseUtils;
 import org.openide.cookies.InstanceCookie;
-import org.openide.explorer.ExplorerManager;
-import org.openide.explorer.ExplorerUtils;
 import org.openide.filesystems.FileChangeListener;
 import org.openide.filesystems.FileEvent;
 import org.openide.filesystems.FileObject;
@@ -97,14 +101,16 @@ import org.openide.util.HelpCtx;
 import org.openide.util.NbBundle;
 import org.openide.util.Utilities;
 import org.openide.util.actions.SystemAction;
+import org.openide.util.lookup.Lookups;
 import org.openide.windows.Mode;
 import org.openide.windows.TopComponent;
 import org.openide.windows.WindowManager;
 import org.netbeans.modules.tasklist.usertasks.model.UserTask;
 import org.netbeans.modules.tasklist.usertasks.model.UserTaskList;
 import org.netbeans.modules.tasklist.usertasks.treetable.TreeTable;
-import org.openide.nodes.Node;
-import org.openide.util.Lookup;
+import org.openide.DialogDisplayer;
+import org.openide.NotifyDescriptor;
+import org.openide.NotifyDescriptor.Message;
 
 /** 
  * View showing the user tasks.
@@ -112,24 +118,24 @@ import org.openide.util.Lookup;
  * @author Tor Norbye
  * @author tl
  */
-public class UserTaskView extends TopComponent implements
-ExplorerManager.Provider, ExportImportProvider, FileChangeListener,
-FilteredTopComponent {    
+public class UserTaskView extends TopComponent implements ExportImportProvider, 
+        FileChangeListener, FilteredTopComponent {    
     // List category
     private final static String USER_CATEGORY = "usertasks"; // NOI18N    
     
     private static final String DEFAULT_FILTER_NAME = 
-        NbBundle.getMessage(UserTaskView.class, 
-        "default-filter-name"); // NOI18N
+            NbBundle.getMessage(UserTaskView.class, 
+            "default-filter-name"); // NOI18N
 
     private static final long serialVersionUID = 1;
 
     private static final Image ICON = Utilities.loadImage(
         "org/netbeans/modules/tasklist/usertasks/actions/taskView.gif"); // NOI18N
     
-    private static int nextViewId = 0;
-    
     static {
+        UTUtils.dumpClassLoaders(UserTaskView.class.getClassLoader());
+        UTUtils.dumpClassLoaders(Thread.currentThread().getContextClassLoader());
+        
         // repaint the view if the number of working hours per day has
         // changed (spent time, rem. effort and effort columns should be
         // repainted)
@@ -156,13 +162,92 @@ FilteredTopComponent {
         );
     }
     
+    /**
+     * Reads an ics file. Shows error messages if it cannot be read.
+     *
+     * @param fo an .ics file
+     */
+    @AWTThreadAnnotation
+    private static UserTaskList readDocument(FileObject fo) throws IOException {
+        if (!fo.isValid()) 
+            throw new IOException(
+                NbBundle.getMessage(UserTaskList.class,
+                    "FileNotValid", FileUtil.getFileDisplayName(fo))); // NOI18N
+        InputStream is = fo.getInputStream();
+        UserTaskList ret = null;
+        try {
+            long m = System.currentTimeMillis();
+            ICalImportFormat io = new ICalImportFormat();
+
+            ret = new UserTaskList();
+            try {
+                io.read(ret, is);
+            } catch (ParserException e) {
+                // NOTE the exception text should be localized!
+                DialogDisplayer.getDefault().notify(new Message(e.getMessage(),
+                   NotifyDescriptor.ERROR_MESSAGE));
+                UTUtils.LOGGER.log(Level.SEVERE, "", e); // NOI18N
+            } catch (IOException e) {
+                // NOTE the exception text should be localized!
+                DialogDisplayer.getDefault().notify(new Message(e.getMessage(),
+                   NotifyDescriptor.ERROR_MESSAGE));
+                UTUtils.LOGGER.log(Level.SEVERE, "", e); // NOI18N
+            }
+
+            UTUtils.LOGGER.fine("File " + fo + " read in " + // NOI18N
+                (System.currentTimeMillis() - m) + "ms"); // NOI18N
+        } finally {
+            try {
+                is.close();
+            } catch (IOException e) {
+                UTUtils.LOGGER.log(Level.WARNING, 
+                        "closing file failed", e); // NOI18N
+            }
+        }
+        return ret;
+    }
+    
+    /**
+     * Returns the default task list file. Copies template file to the
+     * default location if the file does not exist.
+     *
+     * @return default task list file
+     */
+    public static FileObject getDefaultFile() throws IOException {
+        String name = Settings.getDefault().getExpandedFilename();
+        File f = FileUtil.normalizeFile(new File(name));
+       
+        FileObject fo = FileUtil.toFileObject(f);
+        if (fo == null) {
+            File dir = f.getParentFile();
+            if (!dir.exists() && !dir.mkdirs()) {
+                throw new IOException(
+                    NbBundle.getMessage(UserTaskList.class,
+                        "CannotCreateDir", dir.getAbsolutePath())); // NOI18N
+            }
+            OutputStream os = new FileOutputStream(f);
+            try {
+                InputStream is = UserTaskList.class.getResourceAsStream(
+                        "/org/netbeans/modules/tasklist/usertasks/tasklist.ics"); // NOI18N
+                try {
+                    UTUtils.copyStream(is, os);
+                } finally {
+                    is.close();
+                }
+            } finally {
+                os.close();
+            }
+            fo = FileUtil.toFileObject(f);
+        }
+        return fo;
+    }
+    
     private UserTasksTreeTable tt;
     private JScrollPane scrollPane;
     private boolean initialized = false;
     private UserTaskList tasklist = null;
     private FilterRepository filters = null;
     private Filter activeFilter = null;
-    private ExplorerManager manager;
     private boolean default_;
     
     /** View specific action for moving the selected task up. */
@@ -177,6 +262,9 @@ FilteredTopComponent {
     /** View specific action for moving the selected task left. */
     public MoveRightAction moveRightAction;
     
+    private AutoSaver autoSaver;
+    private FileObject file;
+    
     /** 
      * Construct a new UserTaskView.  
      * NOTE: this is used by the window
@@ -188,17 +276,23 @@ FilteredTopComponent {
     /**
      * Constructor.
      *
-     * @param title view title
-     * @param category view's category. This value will be used as the name
-     * for a subdirectory of "SystemFileSystem/TaskList/" for columns settings
+     * @param fo .ics file
+     * @param default_ true for the global "User Tasks" view
      */
-    public UserTaskView(UserTaskList tasklist, boolean default_) {
-        this.default_ = default_;
-        setList(tasklist);
-        
-        init();
+    @AWTThreadAnnotation
+    public UserTaskView(FileObject fo, boolean default_) {
+        init(fo, default_);
     }
 
+    /**
+     * Returns the AutoSaver object associated with this view.
+     *
+     * @return AutoSaver
+     */
+    public AutoSaver getAutoSaver() {
+        return autoSaver;
+    }
+    
     /**
      * Returns the component representing the tasks.
      *
@@ -215,7 +309,8 @@ FilteredTopComponent {
      */
     public Action[] getToolBarActions() {
         return new Action[] {
-            SystemAction.get(NewTaskAction.class),
+            SystemAction.get(SaveAction.class),
+            new NewTaskAction(this),
             new GoToUserTaskAction(this),
             null,
             SystemAction.get(FilterAction.class),
@@ -296,7 +391,8 @@ FilteredTopComponent {
      * @throws IOException
      * @throws ClassNotFoundException  
      */    
-    public void readExternal(ObjectInput objectInput) throws IOException, java.lang.ClassNotFoundException {
+    public void readExternal(ObjectInput objectInput) throws IOException, 
+            java.lang.ClassNotFoundException {
         readExternalCore(objectInput);
         int ver = objectInput.read();
 
@@ -306,11 +402,9 @@ FilteredTopComponent {
 
             if (urlString != null) {
                 URL url = new URL(urlString);
-                FileObject fo = URLMapper.findFileObject(url);
-                if (fo != null) {
-                    UserTaskList utl = UserTaskList.readDocument(fo);
-                    setList(utl);
-                    init();
+                file = URLMapper.findFileObject(url);
+                if (file != null) {
+                    init(file, false);
                 } else {
                     Runnable r = new Runnable() {
                         public void run() {
@@ -320,9 +414,7 @@ FilteredTopComponent {
                     SwingUtilities.invokeLater(r);
                 }
             } else {
-                default_ = true;
-                setList(UserTaskList.getDefault());
-                init();
+                init(getDefaultFile(), true);
                 UserTaskViewRegistry.getInstance().setDefaultView(this);
             }
         }
@@ -415,7 +507,7 @@ FilteredTopComponent {
         objectOutput.write(4); // SERIAL VERSION
 
         // Write out the UID of the currently selected task, or null if none
-        objectOutput.writeObject(null); // Not yet implemented
+        objectOutput.writeObject(null); // Unused. Was never implemented
 
         // Here I should record a few things; in particular, sorting order, view
         // preferences, etc.
@@ -423,12 +515,10 @@ FilteredTopComponent {
         // byte so we can do the right thing later without corrupting the userdir
         objectOutput.write(6); // SERIAL VERSION
 
-        UserTaskList tl = (UserTaskList)getUserTaskList();
+        UserTaskList tl = getUserTaskList();
         if (!default_) {
-            FileObject fo = tl.getFile();
-        
             // Write out the name of the tasklist
-            URL url = URLMapper.findURL(fo, URLMapper.EXTERNAL);
+            URL url = URLMapper.findURL(file, URLMapper.EXTERNAL);
             String urlString = url.toExternalForm();
             objectOutput.writeObject(urlString);
         } else {
@@ -477,32 +567,18 @@ FilteredTopComponent {
         
         objectOutput.writeObject(m);
 
-        tl.save(); // Only does something if the list has changed...        
+        if (autoSaver.isModified())
+            autoSaver.save(); // Only does something if the list has changed...        
     }
 
-    /**
-     * Start showing new tasklist.
-     *
-     * @param list new tree
-     */
-    private void setList(UserTaskList list) {
-        tasklist = list;
-        if (tt != null) {
-            tt.setTreeTableModel(
-                new UserTasksTreeTableModel(tasklist, tt.getSortingModel(), 
-                getFilter()));
-        }
-        updateNameAndToolTip();
-    }
-    
     /**
      * Updates the name of this TC and the tooltip 
      * corresponding to the FileObject.
      */
     private void updateNameAndToolTip() {
-        setToolTipText(FileUtil.getFileDisplayName(tasklist.getFile()));
+        setToolTipText(FileUtil.getFileDisplayName(file));
         if (!default_) {
-            setName(tasklist.getFile().getNameExt());
+            setName(file.getNameExt());
         } else {
             setName(NbBundle.getMessage(UserTaskView.class, "TaskViewName")); // NOI18N
         }
@@ -522,11 +598,7 @@ FilteredTopComponent {
     }
 
     protected java.lang.String preferredID() {
-        // although TC.preferredId says that the return value of
-        // preferredID must not be unique it does not seem to work
-        // so viewId is used to identify the views
-        // + viewId; 
-        return "org.netbeans.modules.tasklist.usertasks.Window";// NOI18N
+        return "org.netbeans.modules.tasklist.usertasks.Window"; // NOI18N
     }    
 
     protected void setFiltered() {
@@ -601,12 +673,32 @@ FilteredTopComponent {
     }    
     
     /**
-     * Common part for all constructors
+     * Common part for all constructors.
+     *
+     * file and default_ variable should be initialized before calling this.
      */
-    private void init() {
+    @AWTThreadAnnotation
+    private void init(FileObject file, boolean default_) {
         assert SwingUtilities.isEventDispatchThread();
+        
+        this.file = file;
+        this.default_ = default_;
             
-        tasklist.getFile().addFileChangeListener(this);
+        try {
+            tasklist = readDocument(file);
+            this.autoSaver = new AutoSaver(tasklist, file);
+        } catch (IOException e) {
+            NotifyDescriptor nd = new NotifyDescriptor.Message(
+                    NbBundle.getMessage(TaskListDataObject.class, 
+                    "ErrorReadingFile", e.getMessage())); // NOI18N
+            DialogDisplayer.getDefault().notify(nd);
+        }
+        
+        updateNameAndToolTip();
+        
+        new DueTasksNotifier(tasklist);
+        
+        file.addFileChangeListener(this);
         
         setIcon(ICON);
         
@@ -615,10 +707,7 @@ FilteredTopComponent {
         JPanel centerPanel = new JPanel();
         centerPanel.setLayout(new BorderLayout());
         
-        manager = new ExplorerManager();
-        
-        tt = new UserTasksTreeTable(
-            manager, getUserTaskList(), getFilter());
+        tt = new UserTasksTreeTable(getUserTaskList(), getFilter());
 
         configureActions();
         
@@ -634,13 +723,14 @@ FilteredTopComponent {
                 TreePath path = new TreePath(tt.getTreeTableModel().getRoot());
                 tt.scrollTo(path);
                 
+                /** todo
                 Node n = getExplorerManager().getSelectedNodes()[0];
                 
                 Action[] actions = n.getActions(false);
                 JPopupMenu pm = Utilities.actionsToPopup(actions,
                     e.getComponent());
                 if(pm != null)
-                    pm.show(e.getComponent(), e.getX(), e.getY());
+                    pm.show(e.getComponent(), e.getX(), e.getY());*/
             }
         });
         
@@ -658,10 +748,9 @@ FilteredTopComponent {
         add(toolbar, BorderLayout.WEST);
 
         tt.select(new TreePath(tt.getTreeTableModel().getRoot()));
-    }
-
-    public ExplorerManager getExplorerManager() {
-        return manager;
+        
+        associateLookup(Lookups.fixed(new UserTaskViewNode(this),
+                getActionMap()));
     }
 
     /**
@@ -830,7 +919,7 @@ FilteredTopComponent {
         if (view.getClientProperty("isSliding") == Boolean.TRUE)
      **/
     
-    /** 
+    /*
      * debug Ctrl+C,V,X
      *
     private void debugCopyPaste() {
@@ -901,10 +990,5 @@ FilteredTopComponent {
         FilterAction filter = (FilterAction) 
             FilterAction.get(FilterAction.class);
         map.put(find.getActionMapKey(), filter);
-
-        // following line tells the top component which lookup should be 
-        // associated with it
-        Lookup lookup = ExplorerUtils.createLookup(manager, map);
-        associateLookup(lookup);
     }
 }

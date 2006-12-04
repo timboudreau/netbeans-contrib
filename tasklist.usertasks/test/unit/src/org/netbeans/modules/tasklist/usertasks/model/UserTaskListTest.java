@@ -59,12 +59,6 @@ public class UserTaskListTest extends NbTestCase {
         return new NbTestSuite(UserTaskListTest.class);
     }
 
-    protected void setUp () throws Exception {
-    }
-
-    protected void tearDown () throws Exception {
-    }
-
     /**
      * Save to/restore from .ics.
      *
@@ -135,9 +129,7 @@ public class UserTaskListTest extends NbTestCase {
         ut.setDone(true);
         assertEquals(15, ut2.getLastEditedDate());
         
-        ut.setProgressComputed(true);
-        ut.setEffortComputed(true);
-        ut.setSpentTimeComputed(true);
+        ut.setValuesComputed(true);
         ut3.setDone(true);
         assertEquals(15, ut2.getLastEditedDate());
     }
@@ -159,7 +151,7 @@ public class UserTaskListTest extends NbTestCase {
         ut.getSubtasks().add(ut2);
         ut.getSubtasks().add(ut3);
         ut3.setDone(true);
-        ut.setProgressComputed(true);
+        ut.setValuesComputed(true);
         
         ut.setLastEditedDate(15000);
         ut2.setLastEditedDate(15000);
@@ -210,7 +202,6 @@ public class UserTaskListTest extends NbTestCase {
         assertTrue(utl.getSubtasks().size() == 0);
     }
     
-    /** This is just a dummy place holder test */
     public void testUserTaskList() throws Exception {
         UserTaskList list = (UserTaskList)openList("tasklist.ics"); // NOI18N
         List subtasks = list.getSubtasks();
@@ -228,7 +219,9 @@ public class UserTaskListTest extends NbTestCase {
     }
 
 
-   /** Test the import/export feature */
+    /** 
+     * Test the import/export feature 
+     */
     public void testSimpleICalImportExport() throws Exception {
         String contents = "BEGIN:VCALENDAR\r\nPRODID:-//NetBeans tasklist//NONSGML 1.0//EN\r\nVERSION:2.0\r\n\r\nBEGIN:VTODO\r\nUID:nb1031618664570.1@proto/192.129.100.100\r\nCREATED:20020910T004424Z\r\nSUMMARY:This is a test task\r\nPERCENT-COMPLETE:0\r\nEND:VTODO\r\n\r\nEND:VCALENDAR\r\n"; // NOI18N
         ByteArrayInputStream reader = new ByteArrayInputStream(contents.getBytes()); 
@@ -312,5 +305,4 @@ public class UserTaskListTest extends NbTestCase {
         UserTaskList list = UserTaskList.readDocument(fo);
         return list;
     }
-
 }

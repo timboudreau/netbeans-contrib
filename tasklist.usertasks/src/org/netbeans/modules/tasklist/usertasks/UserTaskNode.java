@@ -113,18 +113,23 @@ public final class UserTaskNode extends AbstractNode {
         item.addPropertyChangeListener(new PropertyChangeListener() {
             public void propertyChange(PropertyChangeEvent e) {
                 String n = e.getPropertyName();
-                if (n == "progress") { // NOI18N
+                if (n == UserTask.PROP_PROGRESS) { // NOI18N
                     int old = Math.round(((Float) e.getOldValue()).floatValue());
                     int new_ = Math.round(((Float) e.getNewValue()).floatValue());
                     UserTaskNode.this.firePropertyChange(
-                        "percentComplete", new Integer(old), new Integer(new_)); // NOI18N
-                } else if (n == "line" || n == "started") { // NOI18N
+                        "percentComplete", // NOI18N
+                        new Integer(old), new Integer(new_));
+                } else if (n == UserTask.PROP_LINE || 
+                        n == "started") { // NOI18N 
                     // nothing
+                    // TODO: strange property "started"??
                 } else {
                     UserTaskNode.this.firePropertyChange(e.getPropertyName(),
                         e.getOldValue(), e.getNewValue());
                 }
-                if (n == "started" || n == "spentTimeComputed" || n == "line") { // NOI18N
+                if (n == "started" || // NOI18N
+                        n == UserTask.PROP_VALUES_COMPUTED || 
+                        n == UserTask.PROP_LINE) { // NOI18N
                     fireCookieChange();
                 }
             }
@@ -144,7 +149,7 @@ public final class UserTaskNode extends AbstractNode {
                 SwingUtilities.getAncestorOfClass(UserTaskView.class, tt);
         if (empty) {
             return new Action[] {
-                SystemAction.get(NewTaskAction.class),
+                // TODO: SystemAction.get(NewTaskAction.class),
                 null,
                 PauseAction.getInstance(),
                 null,
@@ -162,7 +167,7 @@ public final class UserTaskNode extends AbstractNode {
             };
         } else {
             return new Action[] {
-                SystemAction.get(NewTaskAction.class),
+                // TODO: SystemAction.get(NewTaskAction.class),
                 //SystemAction.get(ShowScheduleViewAction.class),
                 null,
                 new StartTaskAction(utv),
@@ -237,10 +242,10 @@ public final class UserTaskNode extends AbstractNode {
             ss.put(p);
             
             p = new PropertySupport.Reflection(item, Boolean.TYPE, 
-                "isProgressComputed", "setProgressComputed"); // NOI18N
-            p.setName("progressComputed"); // NOI18N
-            p.setDisplayName(org.openide.util.NbBundle.getMessage(UserTaskNode.class, "LBL_computeProgress")); // NOI18N
-            p.setShortDescription(org.openide.util.NbBundle.getMessage(UserTaskNode.class, "HNT_progressComputed")); // NOI18N
+                "isValuesComputed", "setValuesComputed"); // NOI18N
+            p.setName("valuesComputed"); // NOI18N
+            p.setDisplayName(org.openide.util.NbBundle.getMessage(UserTaskNode.class, "LBL_valuesComputed")); // NOI18N
+            p.setShortDescription(org.openide.util.NbBundle.getMessage(UserTaskNode.class, "HNT_valuesComputed")); // NOI18N
             ss.put(p);
             
             p = new PropertySupport.Reflection(item, Integer.TYPE, "getEffort", "setEffort"); // NOI18N
@@ -250,13 +255,6 @@ public final class UserTaskNode extends AbstractNode {
             p.setPropertyEditorClass(DurationPropertyEditor.class);
             ss.put(p);
 
-            p = new PropertySupport.Reflection(item, Boolean.TYPE, 
-                "isEffortComputed", "setEffortComputed"); // NOI18N
-            p.setName("effortComputed"); // NOI18N
-            p.setDisplayName(org.openide.util.NbBundle.getMessage(UserTaskNode.class, "LBL_computeEffort")); // NOI18N
-            p.setShortDescription(org.openide.util.NbBundle.getMessage(UserTaskNode.class, "HNT_effortComputed")); // NOI18N
-            ss.put(p);
-            
             p = new PropertySupport.Reflection(item, Integer.TYPE, "getRemainingEffort", null); // NOI18N
             p.setName("remainingEffort"); // NOI18N
             p.setValue("canEditAsText", Boolean.FALSE); // NOI18N
@@ -273,13 +271,6 @@ public final class UserTaskNode extends AbstractNode {
             p.setPropertyEditorClass(DurationPropertyEditor.class);
             ss.put(p);
 
-            p = new PropertySupport.Reflection(item, Boolean.TYPE, 
-                "isSpentTimeComputed", "setSpentTimeComputed"); // NOI18N
-            p.setName("spentTimeComputed"); // NOI18N
-            p.setDisplayName(org.openide.util.NbBundle.getMessage(UserTaskNode.class, "LBL_spentTimeComputed")); // NOI18N
-            p.setShortDescription(org.openide.util.NbBundle.getMessage(UserTaskNode.class, "HNT_spentTimeComputed")); // NOI18N
-            ss.put(p);
-            
             p = new PropertySupport.Reflection(item, Integer.TYPE, "getSpentTimeToday", null); // NOI18N
             p.setName("spentTimeToday"); // NOI18N
             p.setDisplayName(NbBundle.getMessage(UserTaskNode.class, "LBL_spentTimeTodayProperty")); // NOI18N

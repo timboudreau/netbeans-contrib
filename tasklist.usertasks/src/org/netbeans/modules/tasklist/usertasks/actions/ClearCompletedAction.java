@@ -77,7 +77,7 @@ public class ClearCompletedAction extends NodeAction {
      * @param ut a task
      */
     private void clearCompleted(UserTask ut) {
-        if (!ut.isProgressComputed())
+        if (!ut.isValuesComputed())
             ut.setDone(false);
         Iterator it = ut.getSubtasks().iterator();
         while (it.hasNext()) {

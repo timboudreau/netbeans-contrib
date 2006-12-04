@@ -38,6 +38,7 @@ import org.openide.util.NbBundle;
  *
  * @author Tor Norbye
  * @author Trond Norbye
+ * @author tl
  */
 public class TaskListDataObject extends MultiDataObject implements OpenCookie {
 
@@ -78,16 +79,8 @@ public class TaskListDataObject extends MultiDataObject implements OpenCookie {
                 findView(getPrimaryEntry().getFile());
         if (view == null) {
             FileObject fo = getPrimaryEntry().getFile();
-            try {
-                UserTaskList tl = UserTaskList.readDocument(fo);
-                view = new UserTaskView(tl, false);
-                view.showInMode();
-            } catch (IOException e) {
-                NotifyDescriptor nd = new NotifyDescriptor.Message(
-                        NbBundle.getMessage(TaskListDataObject.class, 
-                        "ErrorReadingFile", e.getMessage())); // NOI18N
-                DialogDisplayer.getDefault().notify(nd);
-            }
+            view = new UserTaskView(fo, false);
+            view.showInMode();
         } else {
             // This view already exists, show it...
             view.showInMode();

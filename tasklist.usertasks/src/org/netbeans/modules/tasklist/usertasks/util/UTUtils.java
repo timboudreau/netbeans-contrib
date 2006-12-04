@@ -22,6 +22,9 @@ package org.netbeans.modules.tasklist.usertasks.util;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
@@ -61,9 +64,24 @@ public final class UTUtils {
     public static final Logger LOGGER = TLUtils.getLogger(UTUtils.class);
     
     static {
-        LOGGER.setLevel(Level.OFF);
+        LOGGER.setLevel(Level.FINE);
     }
 
+    /**
+     * Copies the content of one stream to another.
+     *
+     * @param is input stream
+     * @param os output stream
+     */
+    public static void copyStream(InputStream is, OutputStream os) 
+    throws IOException {
+        byte[] buffer = new byte[1024];
+        int read;
+        while ((read = is.read(buffer)) != -1) {
+            os.write(buffer, 0, read);
+        }
+    }
+    
     /**
      * Creates a tag in another one.
      *
@@ -131,7 +149,8 @@ public final class UTUtils {
         return sb.toString();
     }
     
-    /** Create the default toolbar representation of an array of actions.
+    /** 
+     * Create the default toolbar representation of an array of actions.
      * Null items in the array will add a separator to the toolbar.
      *
      * @param actions actions to show in the generated toolbar
@@ -420,5 +439,18 @@ public final class UTUtils {
             r += values[i];
         }
         return r;
+    }
+    
+    /**
+     * Dumps the hierarchy of class loaders.
+     * 
+     * @param cl a class loader or null
+     */
+    public static void dumpClassLoaders(ClassLoader cl) {
+        while (cl != null) {
+            UTUtils.LOGGER.fine(cl.getClass().getName() + 
+                    " " + cl.toString()); // NOI18N
+            cl = cl.getParent();
+        }
     }
 }

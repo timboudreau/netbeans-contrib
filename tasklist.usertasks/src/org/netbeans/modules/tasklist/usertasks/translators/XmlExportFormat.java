@@ -199,22 +199,19 @@ public class XmlExportFormat implements ExportImportFormat {
         node.setAttribute("progress", // NOI18N
             String.valueOf(task.getPercentComplete()));
         
-        if (task.isProgressComputed()) {
+        if (task.isValuesComputed()) {
+            // for backward compatibility only
             node.setAttribute("progress-computed", "yes"); // NOI18N
+            node.setAttribute("effort-computed", "yes"); // NOI18N
+            node.setAttribute("spent-time-computed", "yes"); // NOI18N
+            
+            node.setAttribute("values-computed", "yes"); // NOI18N
         }
 
         node.setAttribute("effort", String.valueOf(task.getEffort())); // NOI18N
         
-        if (task.isEffortComputed()) {
-            node.setAttribute("effort-computed", "yes"); // NOI18N
-        }
-        
         node.setAttribute("spent-time", // NOI18N
             String.valueOf(task.getSpentTime()));
-        
-        if (task.isSpentTimeComputed()) {
-            node.setAttribute("spent-time-computed", "yes"); // NOI18N
-        }
         
         if (task.getDueDate() != null) {
             node.setAttribute("due", dateToString(task.getDueDate())); // NOI18N

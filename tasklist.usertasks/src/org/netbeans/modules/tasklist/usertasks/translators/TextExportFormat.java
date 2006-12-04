@@ -20,9 +20,11 @@
 package org.netbeans.modules.tasklist.usertasks.translators;
 
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.logging.Level;
-import java.util.prefs.Preferences;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerException;
@@ -64,12 +66,6 @@ public class TextExportFormat extends XmlExportFormat {
     }
     
     public org.openide.WizardDescriptor getWizard() {
-        Preferences p = Preferences.userNodeForPackage(TextExportFormat.class);
-        String file = p.get("TextExportFormat.file", // NOI18N
-                new File(System.getProperty("user.home"), // NOI18N
-                "tasklist.txt").getAbsolutePath()); // NOI18N
-        boolean open = p.getBoolean("TextExportFormat.open", true);
-        
         SaveFilePanel chooseFilePanel = new SaveFilePanel();
         SimpleWizardPanel chooseFileWP = new SimpleWizardPanel(chooseFilePanel);
         chooseFilePanel.setWizardPanel(chooseFileWP);
@@ -78,8 +74,9 @@ public class TextExportFormat extends XmlExportFormat {
                 NbBundle.getMessage(XmlExportFormat.class, 
                     "TextFilter"), // NOI18N
                 new String[] {".txt"})); // NOI18N
-        chooseFilePanel.setFile(new File(file)); // NOI18N
-        chooseFilePanel.setOpenFileCheckBox(open);
+        chooseFilePanel.setFile(new File(
+                Settings.getDefault().getLastUsedExportFolder(), 
+                "tasklist.txt")); // NOI18N
         chooseFileWP.setContentHighlightedIndex(0);
         chooseFilePanel.setOpenFileCheckBoxVisible(true);
 
@@ -111,8 +108,7 @@ public class TextExportFormat extends XmlExportFormat {
      * @param file file to be opened
      */
     private static void openFileInIde(File file) {
-        try
-        {
+        try {
             FileObject fo = FileUtil.toFileObject(file);
             if (fo != null) {
                 DataObject do_ = DataObject.find(fo);
@@ -153,22 +149,18 @@ public class TextExportFormat extends XmlExportFormat {
                     "XSL-Transformer cannot be created", e); // NOI18N
             return null;
         }
-   }
+    }
     
     public void doExportImport(ExportImportProvider provider, 
     WizardDescriptor wd) {
-        SaveFilePanel chooseFilePanel = (SaveFilePanel)
-            wd.getProperty(CHOOSE_FILE_PANEL_PROP);
+        SaveFilePanel panel = (SaveFilePanel)
+                wd.getProperty(CHOOSE_FILE_PANEL_PROP);
         super.doExportImport(provider, wd);
-        if (chooseFilePanel.getOpenExportedFile()) {
-            openFileInIde(chooseFilePanel.getFile());
+        File dir = panel.getFile().getParentFile();
+        Settings.getDefault().setLastUsedExportFolder(dir);
+        if (panel.getOpenExportedFile()) {
+            openFileInIde(panel.getFile());
         }
-        
-        Preferences p = Preferences.userNodeForPackage(TextExportFormat.class);
-        p.put("TextExportFormat.file", // NOI18N
-                chooseFilePanel.getFile().getAbsolutePath());
-        p.putBoolean("TextExportFormat.open", 
-                chooseFilePanel.getOpenExportedFile());
     }
     
 }

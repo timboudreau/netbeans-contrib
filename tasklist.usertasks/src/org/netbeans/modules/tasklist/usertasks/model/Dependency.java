@@ -19,9 +19,6 @@
 
 package org.netbeans.modules.tasklist.usertasks.model;
 
-import org.netbeans.modules.tasklist.usertasks.*;
-
-
 /**
  * Dependency for a task
  *

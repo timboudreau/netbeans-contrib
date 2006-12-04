@@ -32,10 +32,15 @@ Microsystems, Inc. All Rights Reserved.
             <head>
                 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
                 <title>Task List</title>
+                <style type="text/css">
+                    ul { list-style-type: none }
+                </style>
             </head>
             <body style="font-family: sans-serif">
                 <h1>Task List</h1>
-                <xsl:apply-templates/>
+                <ul>
+                    <xsl:apply-templates/>
+                </ul>
                 <p/>
                 <hr/>
                 <p><a href="http://validator.w3.org/check/referer">Valid XHTML 1.0!</a> This page was created by the <a href="http://www.netbeans.org">NetBeans</a> 
@@ -44,20 +49,11 @@ Microsystems, Inc. All Rights Reserved.
         </html>
     </xsl:template>
     
-    <xsl:template match="tasks/task">
-        <xsl:apply-templates select="." mode="textonly"/>
-        <xsl:if test="count(task) != 0">
-            <ul style="list-style-type: none">
-                <xsl:apply-templates select="task"/>
-            </ul>
-        </xsl:if>
-    </xsl:template>
-    
     <xsl:template match="task">
         <li>
             <xsl:apply-templates select="." mode="textonly"/>
             <xsl:if test="count(task) != 0">
-                <ul style="list-style-type: none">
+                <ul>
                     <xsl:apply-templates select="task"/>
                 </ul>
             </xsl:if>
@@ -67,18 +63,13 @@ Microsystems, Inc. All Rights Reserved.
     <xsl:template match="task" mode="textonly">
         <xsl:choose>
             <xsl:when test="@progress = 100">
-                <span style="font-size: larger; color: green">&#x2714;</span>
-            </xsl:when>
-            <xsl:when test="@progress = 0">
-                <span style="font-size: larger; color: red">&#x2714;</span>
+                <img src="done.gif" alt="Done"/>
             </xsl:when>
             <xsl:otherwise>
-                <span style="font-size: larger; color: red">&#x27a0;</span>
+                <img src="undone.gif" alt="Undone"/>
             </xsl:otherwise>
         </xsl:choose>
-        <span>
-            <xsl:value-of select="summary"/>
-        </span>
+        <xsl:value-of select="summary"/>
         <xsl:if test="details != ''">
             <br/>
             (<xsl:value-of select="details"/>)

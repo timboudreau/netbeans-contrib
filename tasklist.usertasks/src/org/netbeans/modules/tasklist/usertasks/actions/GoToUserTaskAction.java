@@ -19,6 +19,8 @@
 package org.netbeans.modules.tasklist.usertasks.actions;
 
 import java.awt.event.ActionEvent;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.net.MalformedURLException;
 import java.net.URL;
 import javax.swing.ImageIcon;
@@ -31,6 +33,7 @@ import org.openide.awt.HtmlBrowser;
 import org.openide.text.Line;
 import org.openide.util.NbBundle;
 import org.openide.util.Utilities;
+import org.openide.util.WeakListeners;
 
 
 /**
@@ -40,7 +43,10 @@ import org.openide.util.Utilities;
  * @author Tor Norbye
  * @author tl
  */
-public class GoToUserTaskAction extends UTViewAction {
+public class GoToUserTaskAction extends UTViewAction 
+        implements PropertyChangeListener {
+    private UserTask last;
+    
     /**
      * Constructor.
      * 
@@ -63,8 +69,23 @@ public class GoToUserTaskAction extends UTViewAction {
     }
 
     public void valueChanged(ListSelectionEvent e) {
+        if (last != null)
+            last.removePropertyChangeListener(this);
         UserTask ut = getSingleSelectedTask();
         setEnabled(ut != null && 
                 (ut.getLine() != null || ut.getUrl() != null));
+        last = ut;
+        if (last != null)
+            last.addPropertyChangeListener(this);
+    }
+
+    public void propertyChange(PropertyChangeEvent evt) {
+        if (evt.getPropertyName() == UserTask.PROP_URL ||
+                evt.getPropertyName() == UserTask.PROP_LINE_NUMBER ||
+                evt.getPropertyName() == UserTask.PROP_LINE) {
+            UserTask ut = getSingleSelectedTask();
+            setEnabled(ut != null && 
+                    (ut.getLine() != null || ut.getUrl() != null));
+        }
     }
 }

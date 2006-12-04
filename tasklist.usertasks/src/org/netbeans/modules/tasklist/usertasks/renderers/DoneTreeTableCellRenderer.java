@@ -52,7 +52,7 @@ public class DoneTreeTableCellRenderer extends BooleanTableCellRenderer {
         
         if (node instanceof UserTaskTreeTableNode) {
             UserTask ut = ((UserTaskTreeTableNode) node).getUserTask(); 
-            setEnabled(!ut.isProgressComputed() && ut.areDependenciesDone());
+            setEnabled(!ut.isValuesComputed() && ut.areDependenciesDone());
         }
         return this;
     }

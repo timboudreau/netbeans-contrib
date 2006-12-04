@@ -142,7 +142,7 @@ public class SpentTimesUserTaskProcessor implements UnaryFunction {
         UserTaskInfo info = (UserTaskInfo) obj;
         info.spentTimes = new long[periods.size() - 1];
         if ((info.object instanceof UserTask) && 
-                !((UserTask) info.object).isSpentTimeComputed()) {
+                !((UserTask) info.object).isValuesComputed()) {
             for (WorkPeriod wp: ((UserTask) info.object).getWorkPeriods()) {
                 for (int i = 0; i < periods.size() - 1; i++) {
                     long ov = overlap(wp.getStart(), wp.getStart() + 

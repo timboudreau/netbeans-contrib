@@ -19,17 +19,29 @@
 
 package org.netbeans.modules.tasklist.usertasks.model;
 
+import junit.framework.Test;
+
+import org.netbeans.junit.NbTestCase;
+import org.netbeans.junit.NbTestSuite;
+
 /**
- * This is the "callback" interface from the TimeoutProvider class...
- * @author Trond Norbye
+ * Tests for Duration.
+ * 
+ * @author tl
  */
-public interface Timeout {
-    /**
-     * Callback function for the TimeoutProvider to call when the timeout
-     * expired. This function will block the TimeoutProviders thread, so
-     * it should be used for a timeconsuming task (one should probably
-     * reschedule oneself with the SwingUtilities.invokeLater() ???)
-     * @param o the object provided as a user reference
-     */
-    void timeoutExpired(Object o);
-};
+public class DurationTest extends NbTestCase {
+    public DurationTest (String name) {
+        super (name);
+    }
+
+    public static Test suite () {
+        return new NbTestSuite(TaskListTest.class);
+    }
+
+    public void testDummy() throws Exception {
+        Duration d = new Duration(8 * 60, 8 * 60, 7, true);
+        assertTrue(d.equals(new Duration(0, 1, 0, 0)));
+        d = new Duration(60, 8 * 60, 5, true);
+        assertTrue(d.equals(new Duration(0, 0, 1, 0)));
+    }
+}

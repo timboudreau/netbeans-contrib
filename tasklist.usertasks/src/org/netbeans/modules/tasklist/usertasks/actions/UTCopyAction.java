@@ -26,6 +26,7 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.tree.TreePath;
 import org.netbeans.modules.tasklist.usertasks.UserTaskListTreeTableNode;
 import org.netbeans.modules.tasklist.usertasks.UserTaskView;
+import org.netbeans.modules.tasklist.usertasks.util.UTUtils;
 
 /**
  * Copy.
@@ -52,6 +53,7 @@ public final class UTCopyAction extends UTViewAction {
                 break;
             }
         }
+        UTUtils.LOGGER.fine("enabled=" + enabled);
         setEnabled(enabled);
     }
 

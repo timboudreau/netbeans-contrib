@@ -19,44 +19,16 @@
 
 package org.netbeans.modules.tasklist.usertasks.model;
 
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.io.BufferedOutputStream;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
-import java.io.Writer;
-import java.net.URISyntaxException;
-import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
-import java.util.logging.Level;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
+import javax.swing.event.EventListenerList;
 
-import javax.swing.SwingUtilities;
-import javax.swing.Timer;
-import net.fortuna.ical4j.data.ParserException;
-import net.fortuna.ical4j.model.ValidationException;
-import org.netbeans.modules.tasklist.usertasks.options.Settings;
-import org.netbeans.modules.tasklist.usertasks.translators.ICalExportFormat;
-import org.netbeans.modules.tasklist.usertasks.translators.ICalImportFormat;
-import org.netbeans.modules.tasklist.usertasks.util.UTUtils;
-import org.openide.DialogDescriptor;
-import org.openide.DialogDisplayer;
-import org.openide.NotifyDescriptor;
-import org.openide.NotifyDescriptor.Message;
-import org.openide.filesystems.FileLock;
-import org.openide.filesystems.FileObject;
-import org.openide.filesystems.FileUtil;
-import org.openide.util.NbBundle;
 import org.netbeans.modules.tasklist.core.util.ObjectList;
-
-import org.netbeans.modules.tasklist.usertasks.*;
-
+import org.netbeans.modules.tasklist.usertasks.DueTasksNotifier;
 
 /**
  * This class represents the tasklist itself
@@ -65,7 +37,7 @@ import org.netbeans.modules.tasklist.usertasks.*;
  * @author Trond Norbye
  * @author tl
  */
-public class UserTaskList implements Timeout, ObjectList.Owner {    
+public class UserTaskList implements ObjectList.Owner {    
     /**
      * Callback for the UserTaskList.process method
      */
@@ -77,172 +49,25 @@ public class UserTaskList implements Timeout, ObjectList.Owner {
          */
         public void process(UserTask ut);
     }
-
-    /**
-     * Callback for finding the next timeout
-     */
-    private static class FindNextTimeoutUserTaskProcessor implements
-    UserTaskProcessor {
-        private long nextTimeout = Long.MAX_VALUE;
-        
-        /** Task for the next timeout */
-        public UserTask ref = null;
-        
-        public void process(UserTask t) {
-            long n = t.getDueTime();
-            if (n != Long.MAX_VALUE && !t.isDueAlarmSent() && !t.isDone() &&
-                n > System.currentTimeMillis() && n < nextTimeout) {
-                nextTimeout = n;
-                ref = t;
-            }
-        }
-    }
-    
-    private static class ShowExpiredUserTaskProcessor implements
-        UserTaskProcessor {
-        public void process(UserTask t) {
-            long n = t.getDueTime();
-            if (n != Long.MAX_VALUE && !t.isDueAlarmSent() &&
-                !t.isDone() && 
-                n <= System.currentTimeMillis()) {
-                showExpiredTask(t);
-            }
-        }
-
-        /**
-         * Present the user with a dialog that shows information of the task that
-         * expired... 
-         *
-         * @param task the task to show
-         */
-        private void showExpiredTask(UserTask task) {
-            task.setDueAlarmSent(true);
-
-            final UserTask t = task;
-            SwingUtilities.invokeLater(new Runnable() {
-                public void run() {
-                    UserTaskDuePanel panel = new UserTaskDuePanel(t);
-
-                    String title = NbBundle.getMessage(UserTaskList.class, "TaskDueLabel"); // NOI18N
-                    DialogDescriptor d = new DialogDescriptor(panel, title);                
-                    d.setModal(true);
-                    d.setMessageType(NotifyDescriptor.PLAIN_MESSAGE);
-                    d.setOptions(new Object[] {DialogDescriptor.OK_OPTION});
-                    java.awt.Dialog dlg = DialogDisplayer.getDefault().createDialog(d);
-                    dlg.pack();
-                    dlg.setVisible(true);
-                }
-            });
-        }
-    }
-    
-    private static UserTaskList tasklist = null;
-    
-    /**
-     * Copies the content of one stream to another.
-     *
-     * @param is input stream
-     * @param os output stream
-     */
-    private static void copyStream(InputStream is, OutputStream os) 
-    throws IOException {
-        byte[] buffer = new byte[1024];
-        int read;
-        while ((read = is.read(buffer)) != -1) {
-            os.write(buffer, 0, read);
-        }
-    }
-    
-    /**
-     * Returns the default task list
-     *
-     * @return default task list
-     */
-    public static UserTaskList getDefault() throws IOException {
-        if (tasklist != null) 
-            return tasklist;
-                
-        File f = getDefaultFile();
-        FileObject fo = FileUtil.toFileObject(f);
-        if (fo != null) 
-            return readDocument(fo);
-
-        File dir = f.getParentFile();
-        if (!dir.exists() && !dir.mkdirs()) {
-            throw new IOException(
-                NbBundle.getMessage(UserTaskList.class,
-                    "CannotCreateDir", dir.getAbsolutePath())); // NOI18N
-        }
-        OutputStream os = new FileOutputStream(f);
-        try {
-            InputStream is = UserTaskList.class.getResourceAsStream(
-                    "/org/netbeans/modules/tasklist/usertasks/tasklist.ics"); // NOI18N
-            try {
-                copyStream(is, os);
-            } finally {
-                is.close();
-            }
-        } finally {
-            os.close();
-        }
-
-        tasklist = readDocument(FileUtil.toFileObject(f));
-        return tasklist;
-    }
     
     private UserTaskObjectList tasks;
 
-    /** Has the options set changed such that we need to save */
-    protected boolean needSave = false;
-    protected boolean dontSave = false;
-    
     /** 
      * this value is used by ICalImport/ExportFormat to store additional
      * not editable parameters
      */
     public Object userObject;
     
-    /** File being shown in this tasklist */
-    private FileObject file = null;
-    
-    /** The current timeout */
-    private long currentTimeout;
+    private DueTasksNotifier dueTasksNotifier;
+
+    /** <ChangeListener> */
+    private EventListenerList listeners = new EventListenerList();
     
     /**
-     * During loading of a tasklist I may encounter items that have expired
-     * while the IDE was shut down. Since the load-function turns off the 
-     * effect of markChanged, I need to store this information in another
-     * variable, and save the tasklist when the load is finished..
-     */
-    private boolean expiredTask;
-    
-    /** Timer which keeps track of outstanding save requests - that way
-     * deleting multiple items for example will not cause multiple saves. */
-    private Timer runTimer = null;
-
-
-    // User can work on one task at time (simplification) ~~~~~~~~~~~~~~~
-
-    /**
-     * Creates a new instance of TaskList
+     * Creates a new instance.
      */
     public UserTaskList() {
         tasks = new UserTaskObjectList(this);
-        tasks.addListener(new ObjectList.Listener() {
-            public void listChanged(ObjectList.Event ev) {
-                markChanged();
-            }
-        });
-        
-        expiredTask = false;
-        currentTimeout = Long.MAX_VALUE;
-    }
-    
-    /** 
-     * Location of the tasklist 
-     */
-    public FileObject getFile() {
-        return file;
     }
     
     /**
@@ -309,96 +134,6 @@ public class UserTaskList implements Timeout, ObjectList.Owner {
         }
     }
     
-    /** Write items out to disk */
-    public void save() {
-        if (!needSave || dontSave) {
-            return;
-        }
-
-        // Write out items to disk
-        scheduleWrite();
-    }
-    
-    /**
-     * Returns the default .ics file.
-     *
-     * @return default ics file
-     */
-    private static File getDefaultFile() {
-        String name = Settings.getDefault().getExpandedFilename();
-        File fname = FileUtil.normalizeFile(new File(name));
-        return fname;
-    }
-    
-    /**
-     * Reads an ics file
-     *
-     * @param is an .ics file
-     */
-    private static UserTaskList readDocument(InputStream is) throws IOException {
-        ICalImportFormat io = new ICalImportFormat();
-
-        UserTaskList ret = new UserTaskList();
-        ret.dontSave = true;
-        try {
-            io.read(ret, is);
-        } catch (ParserException e) {
-            // NOTE the exception text should be localized!
-            DialogDisplayer.getDefault().notify(new Message(e.getMessage(),
-               NotifyDescriptor.ERROR_MESSAGE));
-            UTUtils.LOGGER.log(Level.SEVERE, "", e); // NOI18N
-        } catch (IOException e) {
-            // NOTE the exception text should be localized!
-            DialogDisplayer.getDefault().notify(new Message(e.getMessage(),
-               NotifyDescriptor.ERROR_MESSAGE));
-            UTUtils.LOGGER.log(Level.SEVERE, "", e); // NOI18N
-        }
-
-        ret.needSave = false;
-        ret.dontSave = false;        
-
-        ret.orderNextTimeout();
-        
-        if (ret.expiredTask) {
-            // One (or more) tasks expired while the IDE was closed...
-            // save the list as soon as possible...
-            ret.expiredTask = true;
-            ret.markChanged();
-        }
-        return ret;
-    }
-    
-    /**
-     * Reads an ics file
-     *
-     * @param fo an .ics file
-     */
-    public static UserTaskList readDocument(FileObject fo) throws IOException {
-        if (fo.isValid()) {
-            InputStream is = fo.getInputStream();
-            UserTaskList ret = null;
-            try {
-                long m = System.currentTimeMillis();
-                ret = readDocument(is);
-                UTUtils.LOGGER.fine("File " + fo + " read in " + // NOI18N
-                    (System.currentTimeMillis() - m) + "ms"); // NOI18N
-            } finally {
-                try {
-                    is.close();
-                } catch (IOException e) {
-                    UTUtils.LOGGER.log(Level.WARNING, 
-                            "closing file failed", e); // NOI18N
-                }
-            }
-            ret.file = fo;
-            return ret;
-        } else {
-            throw new IOException(
-                NbBundle.getMessage(UserTaskList.class,
-                    "FileNotValid", FileUtil.getFileDisplayName(fo))); // NOI18N
-        }
-    }
-
     // Look up a particular item by uid
     public UserTask findItem(Iterator tasks, String uid) {
         while (tasks.hasNext()) {
@@ -431,156 +166,12 @@ public class UserTaskList implements Timeout, ObjectList.Owner {
     }
         
     /** 
-     * Schedule a document save 
-     */
-    private void scheduleWrite() {
-        // Stop our current timer; the previous node has not
-        // yet been scanned; too brief an interval
-	if (runTimer != null) {
-	    runTimer.stop();
-	    runTimer = null;
-	}
-	runTimer = new Timer(300, // 0.3 second delay
-		     new ActionListener() {
-			 public void actionPerformed(ActionEvent evt) {
-                             runTimer = null;
-                             
-                             // Write out items to disk
-                             try {
-                                 writeDocument();
-                             } catch (IOException ioe) {
-                                 ioe.printStackTrace();
-                                 DialogDisplayer.getDefault().notify(new Message(
-                                    ioe, NotifyDescriptor.ERROR_MESSAGE));
-                             }
-                             needSave = false;
-			 }
-		     });
-	runTimer.setRepeats(false);
-	runTimer.setCoalesce(true);
-	runTimer.start();
-    }
-
-    /** 
-     * Write the list to iCal.
-     */
-    private void writeDocument() throws IOException {
-        if (this.file == null)
-            return;
-        
-        ICalExportFormat io = new ICalExportFormat();
-        
-        FileLock lock = this.file.lock();
-        try {
-            Writer w = new OutputStreamWriter(new BufferedOutputStream(
-                    file.getOutputStream(lock)), "UTF-8");;
-            try {
-                io.writeList(this, w, false);
-            } catch (ParseException e) {
-                e.printStackTrace();
-                throw new IOException(e.getMessage());
-            } catch (URISyntaxException e) {
-                e.printStackTrace();
-                throw new IOException(e.getMessage());
-            } catch (ValidationException e) {
-                e.printStackTrace();
-                throw new IOException(e.getMessage());
-            } finally {
-                try {
-                    w.close();
-                } catch (IOException e) {
-                    UTUtils.LOGGER.log(Level.WARNING, 
-                            "failed closing file", e);
-                }
-            }
-        } finally {
-            lock.releaseLock();
-        }
-
-        // Remove permissions for others on the file when on Unix
-        // varieties
-        if (new File("/bin/chmod").exists()) { // NOI18N
-            try {
-                Runtime.getRuntime().exec(
-                     new String[] {"/bin/chmod", "go-rwx",  // NOI18N
-                         FileUtil.toFile(this.file).getAbsolutePath()});
-            } catch (Exception e) {
-                // Silently accept
-                UTUtils.LOGGER.log(Level.INFO, 
-                        "chmod call failed", e); // NOI18N
-            }
-        }
-
-        needSave = false;
-    }
-    
-    /**
-     * Order a timeout for the next due date
-     */
-    void orderNextTimeout() {
-        ShowExpiredUserTaskProcessor se =
-            new ShowExpiredUserTaskProcessor();
-        processDepthFirst(se, getSubtasks());
-        
-        FindNextTimeoutUserTaskProcessor p = 
-            new FindNextTimeoutUserTaskProcessor();
-        processDepthFirst(p, getSubtasks());
-        
-        if (p.ref != null && p.ref.getDueTime() != Long.MAX_VALUE && 
-            !p.ref.isDueAlarmSent() && !p.ref.isDone() &&
-            p.ref.getDueTime() != currentTimeout) {
-            // cancel the previous ordered timeout, and add the new one
-            if (currentTimeout != Long.MAX_VALUE) {
-                TimeoutProvider.getInstance().cancel(this, null);
-            }
-            TimeoutProvider.getInstance().add(this, p.ref, p.ref.getDueTime());
-            currentTimeout = p.ref.getDueTime();
-        }
-    }
-    
-    public String toString() {
-        return "UserTaskList(" + file + ")"; // NOI18N
-    }
-    
-    /**
-     * Callback function for the TimeoutProvider to call when the timeout
-     * expired. This function will block the TimeoutProviders thread, so
-     * it should be used for a timeconsuming task (one should probably
-     * reschedule oneself with the SwingUtilities.invokeLater() ???)
-     * @param o the object provided as a user reference
-     */
-    public void timeoutExpired(Object o) {
-        // order the next timeout for this list
-        orderNextTimeout();
-    }
-
-    protected void setNeedSave(boolean b) {
-        needSave = b;
-    }
-
-    protected void setDontSave(boolean b) {
-        dontSave = b;
-    }
-
-    /** 
      * Returns top-level tasks holded by this list. 
      *
      * @return list of top-level tasks
      */
     public final UserTaskObjectList getSubtasks() {
         return tasks;
-    }
-
-    /**
-     * Notify the task list that some aspect of it has been changed, so
-     * it should save itself soon. Eventually calls save 
-     */
-    public void markChanged() {
-        if (dontSave)
-            return;
-        orderNextTimeout();
-        needSave = true;
-        save();
     }
 
     public ObjectList getObjectList() {
@@ -622,7 +213,46 @@ public class UserTaskList implements Timeout, ObjectList.Owner {
         }
     }
     
-    /** For debugging purposes, only. Writes directly to serr. 
+    /**
+     * Adds a change listener. The listener will be notified whenever some
+     * change occures to a task at any level in this task list.
+     *
+     * @param l a listener
+     */
+    public void addChangeListener(ChangeListener l) {
+        listeners.add(ChangeListener.class, l);
+    }
+    
+    /**
+     * Removes a change listener.
+     *
+     * @param l a listener.
+     */
+    public void removeChangeListener(ChangeListener l) {
+        listeners.remove(ChangeListener.class, l);
+    }
+    
+    /**
+     * Fires a ChangeEvent
+     */
+    void fireChange() {
+        // Guaranteed to return a non-null array
+        Object[] list = listeners.getListenerList();
+
+        // Process the listeners last to first, notifying
+        // those that are interested in this event
+        ChangeEvent changeEvent = null;
+        for (int i = list.length - 2; i >= 0; i -= 2) {
+            if (list[i] == ChangeListener.class) {
+                // Lazily create the event:
+                if (changeEvent == null)
+                    changeEvent = new ChangeEvent(this);
+                ((ChangeListener) list[i+1]).stateChanged(changeEvent);
+            }
+        }
+    }
+    
+    /* For debugging purposes, only. Writes directly to serr. 
     public void print() {
         System.err.println("\nTask List:\n-------------");
         Iterator it = tasks.iterator();

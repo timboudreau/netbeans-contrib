@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+    Document   : filters-1_0.dtd
+    Created on : April 20, 2004, 12:14 PM
+    Author     : or141057
+    Description:
+        DTD schema for saved filter conditions
+-->
+
+<!-- BEWARE: The actual contents of settings is not checked against -->
+<!-- this DTD so it is possible that this file and the reality go -->
+<!-- out of. Check the code when in doubt. -->
+    
+
+<!ELEMENT BooleanCondition EMPTY >
+<!ATTLIST BooleanCondition 
+    id CDATA #REQUIRED>
+
+<!ELEMENT StringCondition EMPTY >
+<!ATTLIST StringCondition
+    id CDATA #REQUIRED
+    constant CDATA #REQUIRED>
+
+<!ELEMENT IntegerCondition EMPTY >
+<!ATTLIST IntegerCondition 
+    id CDATA #REQUIRED
+    constant CDATA #REQUIRED>
+
+<!ELEMENT PriorityCondition EMPTY >
+<!ATTLIST PriorityCondition
+    priorities CDATA #REQUIRED>
+
+<!ELEMENT DateCondition EMPTY >
+<!ATTLIST DateCondition
+    id CDATA #REQUIRED
+    date CDATA #REQUIRED>
+
+

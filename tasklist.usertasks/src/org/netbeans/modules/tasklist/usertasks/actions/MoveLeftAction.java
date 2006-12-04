@@ -21,7 +21,6 @@ package org.netbeans.modules.tasklist.usertasks.actions;
 
 import java.awt.event.ActionEvent;
 import javax.swing.event.ListSelectionEvent;
-import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 import org.netbeans.modules.tasklist.usertasks.UserTaskListTreeTableNode;
 import org.netbeans.modules.tasklist.usertasks.UserTaskTreeTableNode;

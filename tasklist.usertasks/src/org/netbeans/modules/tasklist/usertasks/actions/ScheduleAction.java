@@ -80,7 +80,7 @@ public final class ScheduleAction extends CallableSystemAction {
                 public Object compute(Object obj) {
                     if (obj instanceof UserTask) {
                         UserTask ut = (UserTask) obj;
-                        if (!ut.isEffortComputed() && !ut.isDone()) {
+                        if (!ut.isValuesComputed() && !ut.isDone()) {
                             tasks.add(ut);
                         }
                     } 

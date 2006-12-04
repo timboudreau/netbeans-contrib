@@ -25,6 +25,8 @@ import org.netbeans.modules.tasklist.usertasks.*;
 
 /**
  * List of UserTasks
+ *
+ * @author tl
  */
 public class UserTaskObjectList extends ObjectList<UserTask> {
     private ObjectList.Owner parent;

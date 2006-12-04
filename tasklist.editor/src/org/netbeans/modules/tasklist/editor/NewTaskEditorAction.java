@@ -60,9 +60,6 @@ public class NewTaskEditorAction extends BaseAction {
         if (target == null)
             return;
 
-        // TODO test shows the componnet far from caret
-        //EditorView.show(new JLabel("HOHOHOHOH"));
-
         BaseDocument doc = (BaseDocument) target.getDocument();
         Caret caret = target.getCaret();
 
@@ -82,7 +79,8 @@ public class NewTaskEditorAction extends BaseAction {
             return;
         }
 
-        Line lineObj = NbEditorUtilities.getLine((Document) doc, caret.getDot(), false);
+        Line lineObj = NbEditorUtilities.getLine(
+                (Document) doc, caret.getDot(), false);
         NewTaskAction.performAction(lineObj);
     }
 

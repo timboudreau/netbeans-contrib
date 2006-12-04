@@ -71,7 +71,8 @@ Microsystems, Inc. All Rights Reserved.
  <answer id="arch-quality">
   <p>
    There are (although not so many) unit and functional tests that could
-   be run automatically.
+   be run automatically. Line coverage of unit test is now (Nov. 2006) about
+   14%.
   </p>
  </answer>
 
@@ -90,9 +91,7 @@ Microsystems, Inc. All Rights Reserved.
 -->
  <answer id="arch-time">
   <p>
-   The module is currently (Jan. 2006) available as beta. If no significant 
-   bugs or architecture flaws will be found it will be available in 3 months 
-   on the stable AUC.
+   The module is currently (Nov. 2006) available from the stable AUC. 
   </p>
  </answer>
 
@@ -172,7 +171,8 @@ Microsystems, Inc. All Rights Reserved.
  <answer id="compat-i18n">
   <p>
    All texts are properly internationalized. The code cannot deal with
-   calendars other than gregorian.
+   calendars other than gregorian. XSL templates would be really hard to 
+   translate.
   </p>
  </answer>
 
@@ -221,7 +221,7 @@ Microsystems, Inc. All Rights Reserved.
  <answer id="compat-version">
   <p>
    The module maintains backward compatibility for serialized
-   top components. Usage of org.openide.options.SystemOption for storing 
+   top components. Usage of NbPreferences for storing 
    setting means compatibility with earlier and future versions of the module.
    Unknown or unsupported components and properties from
    <api name="RFC-2445" category="standard" type="import" group="dtd"/>
@@ -246,7 +246,7 @@ Microsystems, Inc. All Rights Reserved.
 -->
  <answer id="dep-jre">
   <p>
-   1.4
+   1.5
   </p>
  </answer>
 
@@ -376,24 +376,7 @@ Microsystems, Inc. All Rights Reserved.
         </question>
 -->
  <answer id="deploy-jar">
-  <ul>
-   <li>
-        <api 
-        name="location-of-jcalendar" 
-        group="java.io.File" 
-        category="private"  
-        type="export"
-        >modules/ext/jcalendar.jar</api>
-   </li>
-   <li>
-        <api 
-        name="location-of-ical4j" 
-        group="java.io.File" 
-        category="private"  
-        type="export"
-        >modules/ext/ical4j.jar</api>   
-    </li>
-  </ul>
+     Only module jar file.
  </answer>
 
 
@@ -614,11 +597,7 @@ Microsystems, Inc. All Rights Reserved.
 -->
  <answer id="exec-reflection">
   <p>
-    Yes.
-    <api type="import" group="java" name="javaHelpIntegrationAPI" 
-     category="private" url="http://www.netbeans.org/download/dev/javadoc/org-netbeans-modules-javahelp/overview-summary.html">
-     org.netbeans.api.javahelp.Help.showHelp is called through reflection API.
-    </api>
+    No.
   </p>
  </answer>
 
@@ -805,7 +784,7 @@ Microsystems, Inc. All Rights Reserved.
 -->
  <answer id="perf-exit">
   <p>
-   Top component settings and module settings are serialized on exit.
+   Top component settings are stored are serialized on exit.
   </p>
  </answer>
 
@@ -847,7 +826,7 @@ Microsystems, Inc. All Rights Reserved.
 -->
  <answer id="perf-mem">
   <p>
-   XXX no answer for perf-mem
+   TODO no answer for perf-mem
   </p>
  </answer>
 
@@ -1112,7 +1091,7 @@ Microsystems, Inc. All Rights Reserved.
 -->
  <answer id="compat-deprecation">
   <p>
-   XXX no answer for compat-deprecation
+   n/a
   </p>
  </answer>
 

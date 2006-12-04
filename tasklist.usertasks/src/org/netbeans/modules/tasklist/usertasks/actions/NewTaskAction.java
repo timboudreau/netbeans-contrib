@@ -25,14 +25,20 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.net.URL;
 import javax.swing.JButton;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.tree.TreePath;
 
 import org.netbeans.modules.tasklist.usertasks.EditTaskPanel;
+import org.netbeans.modules.tasklist.usertasks.UserTaskListTreeTableNode;
+import org.netbeans.modules.tasklist.usertasks.actions.UTViewAction;
+import org.netbeans.modules.tasklist.usertasks.util.AWTThreadAnnotation;
 import org.netbeans.modules.tasklist.usertasks.util.UTUtils;
 import org.netbeans.modules.tasklist.usertasks.UserTaskViewRegistry;
 import org.netbeans.modules.tasklist.usertasks.model.UserTask;
 import org.netbeans.modules.tasklist.usertasks.model.UserTaskList;
 import org.netbeans.modules.tasklist.usertasks.UserTaskListNode;
 import org.netbeans.modules.tasklist.usertasks.UserTaskNode;
+import org.netbeans.modules.tasklist.usertasks.UserTaskTreeTableNode;
 import org.netbeans.modules.tasklist.usertasks.UserTaskView;
 import org.openide.DialogDescriptor;
 import org.openide.DialogDisplayer;
@@ -46,7 +52,6 @@ import org.openide.text.DataEditorSupport;
 import org.openide.text.Line;
 import org.openide.util.HelpCtx;
 import org.openide.util.NbBundle;
-import org.openide.util.actions.NodeAction;
 
 /**
  * Action which brings up a dialog where you can create
@@ -56,34 +61,40 @@ import org.openide.util.actions.NodeAction;
  * @author Trond Norbye
  * @author tl
  */
-public class NewTaskAction extends NodeAction {
-
+public class NewTaskAction extends UTViewAction {
     private static final long serialVersionUID = 1;
 
-    private DialogDescriptor dd;
-    private EditTaskPanel panel;
-    private Dialog dialog;
-    private JButton addAnotherButton;
+    private static DialogDescriptor dd;
+    private static EditTaskPanel panel;
+    private static Dialog dialog;
+    private static JButton addAnotherButton;
     
-    private UserTaskView utv;
-    private UserTask parent;
-    private UserTaskList utl;
-    private URL url;
-    private int lineNumber;
-    private boolean associate;
-    
-    protected boolean enable(Node[] node) {
-        return node.length == 1 && 
-            (node[0] instanceof UserTaskNode || 
-            node[0] instanceof UserTaskListNode);
+    /**
+     * Constructor.
+     *
+     * @param utv a user task view.
+     */
+    public NewTaskAction(UserTaskView utv) {
+        super(utv, "newTask");
     }
-
+    
+    public void valueChanged(ListSelectionEvent e) {
+        TreePath[] paths = utv.getTreeTable().getSelectedPaths();
+        boolean enabled = false;
+        if (paths.length == 1) {
+            Object last = paths[0].getLastPathComponent();
+            enabled = last instanceof UserTaskTreeTableNode ||
+                    last instanceof UserTaskListTreeTableNode;
+        }
+        setEnabled(enabled);
+    }
+    
     /**
      * Creates a panel for editing a task
      *
      * @return created panel
      */
-    private EditTaskPanel getEditTaskPanel() {
+    private static EditTaskPanel getEditTaskPanel() {
         if (panel == null) {
             panel = new EditTaskPanel(false);
             panel.setPreferredSize(new Dimension(600,500));
@@ -96,7 +107,7 @@ public class NewTaskAction extends NodeAction {
      *
      * @return the created dialog
      */
-    private Dialog getDialog() {
+    private static Dialog getDialog() {
         if (dialog == null) {
             dialog = DialogDisplayer.getDefault().createDialog(
                 getDialogDescriptor());
@@ -110,13 +121,14 @@ public class NewTaskAction extends NodeAction {
      *
      * @return created dialog descriptor
      */
-    private DialogDescriptor getDialogDescriptor() {
+    private static DialogDescriptor getDialogDescriptor() {
         if (dd == null) {
             dd = new DialogDescriptor(getEditTaskPanel(),
                  NbBundle.getMessage(NewTaskAction.class,
-                                     "TITLE_add_todo")); // NOI18N
+                 "TITLE_add_todo")); // NOI18N
             dd.setModal(true);
-            dd.setHelpCtx(new HelpCtx("org.netbeans.modules.tasklist.usertasks.NewTaskDialog")); // NOI18N
+            dd.setHelpCtx(new HelpCtx(
+                    "org.netbeans.modules.tasklist.usertasks.NewTaskDialog")); // NOI18N
             dd.setMessageType(NotifyDescriptor.PLAIN_MESSAGE);
 
             // dialog buttons
@@ -132,55 +144,29 @@ public class NewTaskAction extends NodeAction {
                 DialogDescriptor.OK_OPTION,
                 DialogDescriptor.CANCEL_OPTION
             });
-            dd.setButtonListener(new ActionListener() {
-                public void actionPerformed(ActionEvent e) {
-                    Object src = e.getSource();
-                    if (src == addAnotherButton) {
-                        addAnotherTask();
-                    }
-                }
-            });
         }
         return dd;
     }
     
-    /**
-     * Will be called if the user pressed "Add Another" button
-     */
-    private void addAnotherTask() {
-        UserTask ut = new UserTask("", utl); // NOI18N
-        panel.fillObject(ut);
-
-        // See if the user wants to append or prepend
-        boolean append = panel.getAppend();
-        if (parent != null) {
-            if (append)
-                parent.getSubtasks().add(ut);
-            else
-                parent.getSubtasks().add(0, ut);
+    public void actionPerformed(ActionEvent e) {
+        TreePath[] tp = utv.getTreeTable().getSelectedPaths();
+        final UserTask parent;
+        final UserTaskList utl;
+        Object last = tp[0].getLastPathComponent();
+        if (last instanceof UserTaskTreeTableNode) {
+            parent = ((UserTaskTreeTableNode) last).getUserTask();
+            utl = parent.getList();
         } else {
-            if (append)
-                utl.getSubtasks().add(ut);
-            else
-                utl.getSubtasks().add(0, ut);
+            parent = null;
+            utl = ((UserTaskListTreeTableNode) last).
+                    getUserTaskList();
         }
-
-        // After the add - view the todo list as well!
-        utv.showInMode();
-        utv.select(ut);
-        utv.scrollTo(ut);
-
-        ut = new UserTask("", utl); // NOI18N
-        panel.fillPanel(ut);
-        panel.focusSummary();
-    }
-    
-    protected void performAction(Node[] nodes) {
+        
         // Get the current filename and line number so we can initialize
         // the filename:linenumber columns
         
         // First try to get the editor window itself; if you right click
-        // on a node in the Todo Window, that node becomes the activated
+        // on a node in the User Tasks Window, that node becomes the activated
         // node (which is good - it makes the properties window show the
         // todo item's properties, etc.) but that means that we can't
         // find the editor position via the normal means.
@@ -188,35 +174,95 @@ public class NewTaskAction extends NodeAction {
         // ask for its nodes.
         
         // find cursor position
-        Line cursor = UTUtils.findCursorPosition(nodes);
+        Line cursor = UTUtils.findCursorPosition(null); // TODO: null
         if (cursor == null) {
             Node[] editorNodes = UTUtils.getEditorNodes();
             if (editorNodes != null)
                 cursor = UTUtils.findCursorPosition(editorNodes);
         }
+        int lineNumber;
+        URL url;
         if (cursor != null) {
-            this.lineNumber = cursor.getLineNumber();
-            this.url = UTUtils.getExternalURLForLine(cursor);
+            lineNumber = cursor.getLineNumber();
+            url = UTUtils.getExternalURLForLine(cursor);
         } else {
-            this.url = null;
-            this.lineNumber = -1;
+            url = null;
+            lineNumber = -1;
         }
-        
-        // find parent task
-        if (nodes[0] instanceof UserTaskNode) {
-            parent = ((UserTaskNode) nodes[0]).getTask();
-            utl = parent.getList();
-        } else {
-            parent = null;
-            utl = ((UserTaskListNode) nodes[0]).getUserTaskList();
-        }
-        
-        associate = false;
         
         // After the add - view the todo list as well!
-        utv = UserTaskViewRegistry.getInstance().getCurrent();
+        final UserTaskView utv = UserTaskViewRegistry.getInstance().getCurrent();
 
-        performTheAction();
+        UserTask ut = new UserTask("", utl); // NOI18N
+
+        final EditTaskPanel panel = getEditTaskPanel();
+        panel.fillPanel(ut);
+        panel.setAssociatedFilePos(false);
+        panel.setUrl(url);
+        panel.setLineNumber(lineNumber);
+        panel.focusSummary();
+        
+        Dialog d = getDialog();
+        addAnotherButton.setEnabled(true);
+        d.setVisible(true);
+
+        DialogDescriptor dd = getDialogDescriptor();
+        dd.setButtonListener(new ActionListener() {
+                public void actionPerformed(ActionEvent e) {
+                    Object src = e.getSource();
+                    if (src == addAnotherButton) {
+                        UserTask ut = new UserTask("", utl); // NOI18N
+                        panel.fillObject(ut);
+
+                        // See if the user wants to append or prepend
+                        boolean append = panel.getAppend();
+                        if (parent != null) {
+                            if (append)
+                                parent.getSubtasks().add(ut);
+                            else
+                                parent.getSubtasks().add(0, ut);
+                        } else {
+                            if (append)
+                                utl.getSubtasks().add(ut);
+                            else
+                                utl.getSubtasks().add(0, ut);
+                        }
+
+                        // After the add - view the todo list as well!
+                        utv.showInMode();
+                        utv.select(ut);
+                        utv.scrollTo(ut);
+
+                        ut = new UserTask("", utl); // NOI18N
+                        panel.fillPanel(ut);
+                        panel.focusSummary();
+                    }
+                }
+            });
+            
+        if (dd.getValue() == NotifyDescriptor.OK_OPTION) {
+            panel.fillObject(ut);
+
+            // See if the user wants to append or prepend
+            boolean append = panel.getAppend();
+            if (parent != null) {
+            	if (append)
+                    parent.getSubtasks().add(ut);
+            	else
+                    parent.getSubtasks().add(0, ut);
+            } else {
+            	if (append)
+                    utl.getSubtasks().add(ut);
+            	else
+                    utl.getSubtasks().add(0, ut);
+            }
+
+            assert utv != null;
+            
+            utv.showInMode();
+            utv.select(ut);
+            utv.scrollTo(ut);
+        }
     }
 
     /**
@@ -224,9 +270,8 @@ public class NewTaskAction extends NodeAction {
      *
      * @param line the associated line
      */
+    @AWTThreadAnnotation
     public static void performAction(Line line) {
-        NewTaskAction nta = (NewTaskAction) NewTaskAction.get(NewTaskAction.class);
-
         DataObject dob = DataEditorSupport.findDataObject(line);
         if (dob == null)
             return;
@@ -236,43 +281,36 @@ public class NewTaskAction extends NodeAction {
         if (url == null)
             return;
 
-        nta.associate = true;
-        nta.url = url;
-        nta.lineNumber = line.getLineNumber();
-        
         // After the add - view the todo list as well!
-        nta.utv = UserTaskViewRegistry.getInstance().getLastActivated();
-        if (nta.utv == null) {
-            nta.utv = UserTaskViewRegistry.getInstance().getDefault();
-            nta.utv.showInMode();
+        UserTaskView utv = UserTaskViewRegistry.getInstance().getLastActivated();
+        if (utv == null) {
+            utv = UserTaskViewRegistry.getInstance().getDefault();
+            utv.showInMode();
         }    
-        nta.utl = nta.utv.getUserTaskList();
+        UserTaskList utl = utv.getUserTaskList();
         
         // find parent task
-        Node[] nodes = nta.utv.getExplorerManager().getSelectedNodes();
+        /* TODO: Node[] nodes = utv.getExplorerManager().getSelectedNodes();*/
+        UserTask parent = null;
+        /* TODO
         if (nodes.length > 0 && nodes[0] instanceof UserTaskNode) {
-            nta.parent = ((UserTaskNode) nodes[0]).getTask();
+            parent = ((UserTaskNode) nodes[0]).getTask();
         } else {
-            nta.parent = null;
-        }
+            parent = null;
+        }*/
         
-        nta.performTheAction();
-    }
-    
-    /**
-     * Performs the action
-     */
-    private void performTheAction() {
-        UserTask ut = new UserTask("", utl); // NOI18N
+        UserTask ut = new UserTask(line.getText(), utl); // NOI18N
 
         EditTaskPanel panel = getEditTaskPanel();
         panel.fillPanel(ut);
-        panel.setAssociatedFilePos(associate);
+        panel.setAssociatedFilePos(true);
         panel.setUrl(url);
-        panel.setLineNumber(lineNumber);
+        panel.setLineNumber(line.getLineNumber());
         panel.focusSummary();
         
-        getDialog().setVisible(true);
+        Dialog d = getDialog();
+        addAnotherButton.setEnabled(false);
+        d.setVisible(true);
 
         if (getDialogDescriptor().getValue() == NotifyDescriptor.OK_OPTION) {
             panel.fillObject(ut);
@@ -307,14 +345,4 @@ public class NewTaskAction extends NodeAction {
     protected String iconResource() {
         return "org/netbeans/modules/tasklist/usertasks/actions/newTask.gif"; // NOI18N
     }
-    
-    public HelpCtx getHelpCtx() {
-        return HelpCtx.DEFAULT_HELP;
-        // If you will provide context help then use:
-        // return new HelpCtx (NewTodoItemAction.class);
-    }
-    
-    protected boolean asynchronous() {
-        return false;
-    }    
 }
