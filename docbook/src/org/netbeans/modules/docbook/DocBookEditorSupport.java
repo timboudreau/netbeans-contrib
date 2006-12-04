@@ -281,6 +281,7 @@ public class DocBookEditorSupport extends DataEditorSupport implements EditorCoo
         private boolean shouldHaveId (String localName) {
             return "section".equals(localName) ||
                     "chapter".equals(localName) ||
+                    "appendix".equals(localName) ||
                     "figure".equals(localName);
         }
 

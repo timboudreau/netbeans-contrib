@@ -58,6 +58,14 @@ Microsystems, Inc. All Rights Reserved.
         <ext name="xml"/>
         <resolver mime="text/x-docbook+xml">
             <xml-rule>
+                <element name="appendix"/>
+            </xml-rule>
+        </resolver>
+    </file>
+    <file>
+        <ext name="xml"/>
+        <resolver mime="text/x-docbook+xml">
+            <xml-rule>
                 <element name="section"/>
             </xml-rule>
         </resolver>

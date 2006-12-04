@@ -245,7 +245,13 @@ class Processor implements Runnable, ErrorListener, ErrorHandler {
                     }  else {
                         status.progress("  Copy " + 
                                 curr.getName() + " to " + destFolder.getPath());
-                        FileUtil.copyFile(curr, destFolder, curr.getName());
+                        try {
+                            FileUtil.copyFile(curr, destFolder, curr.getName());
+                        } catch (IOException ioe) {
+                            //only warn if two files are clobbering each
+                            //other - we can still build
+                            status.warn (ioe.getMessage());
+                        }
                     }
                 }
             }

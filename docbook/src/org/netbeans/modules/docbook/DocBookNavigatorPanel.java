@@ -300,6 +300,8 @@ public final class DocBookNavigatorPanel implements NavigatorPanel {
         public void endElement(String uri, String localname, String qname) throws SAXException {
             if (text != null) {
                 //System.err.println("ending " + qname + " in " + element + " with " + text + " at " + line);
+                System.err.println("URI " + uri + " for " + localname + " qname " + qname);
+                System.err.println("In: " + locator.getSystemId() + " -- " + locator.getPublicId());
                 assert line != -1;
                 if (element == null) {
                     element = qname;
@@ -315,31 +317,6 @@ public final class DocBookNavigatorPanel implements NavigatorPanel {
                 text.append(ch, start, length);
             }
         }
-        public InputSource resolveEntity(String publicId, String systemId) throws SAXException {
-            InputSource known;
-            try {
-                known = UserCatalog.getDefault().getEntityResolver().resolveEntity(publicId, systemId);
-            } catch (IOException e) {
-                throw new SAXException(e);
-            }
-            if (known != null) {
-                // In our IDE catalog, cool.
-                //System.err.println("known match on " + publicId + " / " + systemId + ": " + known.getSystemId());
-                return known;
-            } else if (systemId.startsWith("http")) { // NOI18N
-                // Do not load any remote entities or DTDs, too slow.
-                //System.err.println("No known match for remote " + publicId + " / " + systemId);
-                return new InputSource(new StringReader(""));
-            } else {
-                // Maybe a local file: URL or similar.
-                return null;
-            }
-        }
-        /*
-        public void skippedEntity(String name) throws SAXException {
-            System.err.println("skipped: " + name);
-        }
-         */
     }
     
     static final class Item {
