@@ -54,7 +54,6 @@ public final class SurroundWithAction extends CookieAction {
     private SurroundWithTemplatesMenu surroundWithTemplatesMenu;
     
     protected void performAction(Node[] activatedNodes) {
-        EditorCookie c = (EditorCookie) activatedNodes[0].getCookie(EditorCookie.class);
     }
     
     public JMenuItem getMenuPresenter() {
@@ -94,8 +93,6 @@ public final class SurroundWithAction extends CookieAction {
         }
         
         public void menuSelected(MenuEvent e) {
-            // Build the sub menu
-            
             // Clean
             removeAll();
 
@@ -130,14 +127,14 @@ public final class SurroundWithAction extends CookieAction {
         
         InsertCodeTemplateAction(JTextComponent textComponent, CodeTemplate codeTemplate) {
             super(codeTemplate.getAbbreviation(), Icons.TEMPLATE_FOR_SELECTION_ICON);
-            setEnabled(textComponent.isEditable());
             this.textComponent = textComponent;
             this.codeTemplate = codeTemplate;
+            setEnabled(textComponent.isEditable() && textComponent.getSelectedText() != null);
         }
         
         public void actionPerformed(ActionEvent e) {
             if (textComponent.isEditable()) {
-            codeTemplate.insert(textComponent);
+                codeTemplate.insert(textComponent);
             } else {
                 Toolkit.getDefaultToolkit().beep();
             }
