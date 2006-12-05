@@ -62,6 +62,7 @@
           </Properties>
           <Events>
             <EventHandler event="valueChanged" listener="javax.swing.event.ListSelectionListener" parameters="javax.swing.event.ListSelectionEvent" handler="templatesListValueChanged"/>
+            <EventHandler event="keyTyped" listener="java.awt.event.KeyListener" parameters="java.awt.event.KeyEvent" handler="templatesListKeyTyped"/>
           </Events>
         </Component>
       </SubComponents>
@@ -112,6 +113,7 @@
     </Component>
     <Component class="javax.swing.JButton" name="importButton">
       <Properties>
+        <Property name="mnemonic" type="int" value="112"/>
         <Property name="text" type="java.lang.String" value="Import..."/>
         <Property name="toolTipText" type="java.lang.String" value="IMport Code Templates"/>
       </Properties>

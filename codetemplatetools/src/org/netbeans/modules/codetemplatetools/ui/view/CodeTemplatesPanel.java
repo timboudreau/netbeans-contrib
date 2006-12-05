@@ -18,7 +18,9 @@
  */
 package org.netbeans.modules.codetemplatetools.ui.view;
 
+import java.awt.Toolkit;
 import java.awt.Window;
+import java.awt.event.InputEvent;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
@@ -32,6 +34,8 @@ import javax.swing.JDialog;
 import javax.swing.JEditorPane;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
+import javax.swing.KeyStroke;
+import javax.swing.ListModel;
 import javax.swing.SwingUtilities;
 import javax.swing.filechooser.FileFilter;
 import javax.swing.text.Document;
@@ -300,6 +304,7 @@ public class CodeTemplatesPanel extends javax.swing.JPanel {
         gridBagConstraints.anchor = java.awt.GridBagConstraints.EAST;
         gridBagConstraints.insets = new java.awt.Insets(5, 5, 0, 5);
         add(mimeTypeLabelLabel, gridBagConstraints);
+
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 2;
         gridBagConstraints.gridy = 0;
@@ -313,6 +318,12 @@ public class CodeTemplatesPanel extends javax.swing.JPanel {
                 templatesListValueChanged(evt);
             }
         });
+        templatesList.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyTyped(java.awt.event.KeyEvent evt) {
+                templatesListKeyTyped(evt);
+            }
+        });
+
         templatesScrollPane.setViewportView(templatesList);
 
         gridBagConstraints = new java.awt.GridBagConstraints();
@@ -333,6 +344,7 @@ public class CodeTemplatesPanel extends javax.swing.JPanel {
                 newButtonActionPerformed(evt);
             }
         });
+
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 2;
         gridBagConstraints.gridy = 1;
@@ -349,6 +361,7 @@ public class CodeTemplatesPanel extends javax.swing.JPanel {
                 modifyButtonActionPerformed(evt);
             }
         });
+
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 2;
         gridBagConstraints.gridy = 2;
@@ -365,6 +378,7 @@ public class CodeTemplatesPanel extends javax.swing.JPanel {
                 deleteButtonActionPerformed(evt);
             }
         });
+
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 2;
         gridBagConstraints.gridy = 3;
@@ -373,6 +387,7 @@ public class CodeTemplatesPanel extends javax.swing.JPanel {
         gridBagConstraints.insets = new java.awt.Insets(5, 5, 0, 5);
         add(deleteButton, gridBagConstraints);
 
+        importButton.setMnemonic('p');
         importButton.setText("Import...");
         importButton.setToolTipText("IMport Code Templates");
         importButton.addActionListener(new java.awt.event.ActionListener() {
@@ -380,6 +395,7 @@ public class CodeTemplatesPanel extends javax.swing.JPanel {
                 importButtonActionPerformed(evt);
             }
         });
+
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 2;
         gridBagConstraints.gridy = 4;
@@ -422,6 +438,7 @@ public class CodeTemplatesPanel extends javax.swing.JPanel {
                 insertButonActionPerformed(evt);
             }
         });
+
         buttonsPanel.add(insertButon);
 
         closeButton.setMnemonic('C');
@@ -431,6 +448,7 @@ public class CodeTemplatesPanel extends javax.swing.JPanel {
                 closeButtonActionPerformed(evt);
             }
         });
+
         buttonsPanel.add(closeButton);
 
         gridBagConstraints = new java.awt.GridBagConstraints();
@@ -441,7 +459,53 @@ public class CodeTemplatesPanel extends javax.swing.JPanel {
         gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
         gridBagConstraints.insets = new java.awt.Insets(5, 5, 5, 5);
         add(buttonsPanel, gridBagConstraints);
+
     }// </editor-fold>//GEN-END:initComponents
+
+    private void templatesListKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_templatesListKeyTyped
+        ListModel listModel = templatesList.getModel();
+        if (listModel instanceof CodeTemplateListModel) {
+            CodeTemplateListModel codeTemplateListModel = (CodeTemplateListModel) listModel;
+            if (evt.getModifiers() == 0 || evt.getModifiers() == InputEvent.SHIFT_MASK) {
+                char typedChar = Character.toLowerCase(evt.getKeyChar());
+                int selectedIndex = templatesList.getSelectedIndex();
+                int size = codeTemplateListModel.getSize();
+                int select = -1;
+                for (int i = ++selectedIndex; i < size; i++) {
+                    CodeTemplate codeTemplate = (CodeTemplate) codeTemplateListModel.getElementAt(i);
+                    char firstChar = codeTemplate.getAbbreviation().toLowerCase().charAt(0);
+                    if (firstChar < typedChar) {
+                        continue;
+                    } else if (codeTemplate.getAbbreviation().toLowerCase().charAt(0) == typedChar) {
+                        select = i;
+                        break;
+                    } else {
+                        break;
+                    }
+                }
+                if (select == -1) {
+                    for (int i = 0; i < selectedIndex; i++) {
+                        CodeTemplate codeTemplate = (CodeTemplate) codeTemplateListModel.getElementAt(i);
+                        char firstChar = codeTemplate.getAbbreviation().toLowerCase().charAt(0);
+                        if (firstChar < typedChar) {
+                            continue;
+                        } else if (codeTemplate.getAbbreviation().toLowerCase().charAt(0) == typedChar) {
+                            select = i;
+                            break;
+                        } else {
+                            break;
+                        }
+                    }
+                }
+                if (select != -1) {
+                    templatesList.setSelectedIndex(select);
+                    templatesList.scrollRectToVisible(templatesList.getCellBounds(select, select));
+                    return;
+                }
+                Toolkit.getDefaultToolkit().beep();
+            }
+        }
+    }//GEN-LAST:event_templatesListKeyTyped
 
     private void templatesListValueChanged(javax.swing.event.ListSelectionEvent evt) {//GEN-FIRST:event_templatesListValueChanged
         CodeTemplate selectedCodeTemplate = (CodeTemplate) templatesList.getSelectedValue();
