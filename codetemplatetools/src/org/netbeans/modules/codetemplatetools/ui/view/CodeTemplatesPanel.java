@@ -39,6 +39,7 @@ import javax.swing.ListModel;
 import javax.swing.SwingUtilities;
 import javax.swing.filechooser.FileFilter;
 import javax.swing.text.Document;
+import javax.swing.text.Position;
 import org.netbeans.lib.editor.codetemplates.api.CodeTemplate;
 import org.netbeans.lib.editor.codetemplates.api.CodeTemplateManager;
 import org.netbeans.modules.editor.options.BaseOptions;
@@ -260,7 +261,7 @@ public class CodeTemplatesPanel extends javax.swing.JPanel {
             } 
         }
     }
-
+    
     /** This method is called from within the constructor to
      * initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is
@@ -274,7 +275,38 @@ public class CodeTemplatesPanel extends javax.swing.JPanel {
         mimeTypeLabelLabel = new javax.swing.JLabel();
         mimeTypeLabel = new javax.swing.JLabel();
         templatesScrollPane = new javax.swing.JScrollPane();
-        templatesList = new javax.swing.JList();
+        templatesList = new javax.swing.JList() {
+            public int getNextMatch(String prefix, int startIndex, Position.Bias bias) {
+                ListModel listModel = getModel();
+                if (listModel instanceof CodeTemplateListModel) {
+                    prefix = prefix.toLowerCase();
+                    CodeTemplateListModel codeTemplateListModel = (CodeTemplateListModel) listModel;
+                    int size = codeTemplateListModel.getSize();
+                    int select = -1;
+                    for (int i = startIndex; i < size; i++) {
+                        CodeTemplate codeTemplate = (CodeTemplate) codeTemplateListModel.getElementAt(i);
+                        if (codeTemplate.getAbbreviation().toLowerCase().startsWith(prefix)) {
+                            select = i;
+                            break;
+                        }
+                    }
+                    if (select == -1) {
+                        for (int i = 0; i < startIndex; i++) {
+                            CodeTemplate codeTemplate = (CodeTemplate) codeTemplateListModel.getElementAt(i);
+                            if (codeTemplate.getAbbreviation().toLowerCase().startsWith(prefix)) {
+                                select = i;
+                                break;
+                            }
+                        }
+                    }
+                    if (select != -1) {
+                        return select;
+                    }
+                }
+                Toolkit.getDefaultToolkit().beep();
+                return -1;
+            }
+        };
         newButton = new javax.swing.JButton();
         modifyButton = new javax.swing.JButton();
         deleteButton = new javax.swing.JButton();
@@ -316,11 +348,6 @@ public class CodeTemplatesPanel extends javax.swing.JPanel {
         templatesList.addListSelectionListener(new javax.swing.event.ListSelectionListener() {
             public void valueChanged(javax.swing.event.ListSelectionEvent evt) {
                 templatesListValueChanged(evt);
-            }
-        });
-        templatesList.addKeyListener(new java.awt.event.KeyAdapter() {
-            public void keyTyped(java.awt.event.KeyEvent evt) {
-                templatesListKeyTyped(evt);
             }
         });
 
@@ -461,51 +488,6 @@ public class CodeTemplatesPanel extends javax.swing.JPanel {
         add(buttonsPanel, gridBagConstraints);
 
     }// </editor-fold>//GEN-END:initComponents
-
-    private void templatesListKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_templatesListKeyTyped
-        ListModel listModel = templatesList.getModel();
-        if (listModel instanceof CodeTemplateListModel) {
-            CodeTemplateListModel codeTemplateListModel = (CodeTemplateListModel) listModel;
-            if (evt.getModifiers() == 0 || evt.getModifiers() == InputEvent.SHIFT_MASK) {
-                char typedChar = Character.toLowerCase(evt.getKeyChar());
-                int selectedIndex = templatesList.getSelectedIndex();
-                int size = codeTemplateListModel.getSize();
-                int select = -1;
-                for (int i = ++selectedIndex; i < size; i++) {
-                    CodeTemplate codeTemplate = (CodeTemplate) codeTemplateListModel.getElementAt(i);
-                    char firstChar = codeTemplate.getAbbreviation().toLowerCase().charAt(0);
-                    if (firstChar < typedChar) {
-                        continue;
-                    } else if (codeTemplate.getAbbreviation().toLowerCase().charAt(0) == typedChar) {
-                        select = i;
-                        break;
-                    } else {
-                        break;
-                    }
-                }
-                if (select == -1) {
-                    for (int i = 0; i < selectedIndex; i++) {
-                        CodeTemplate codeTemplate = (CodeTemplate) codeTemplateListModel.getElementAt(i);
-                        char firstChar = codeTemplate.getAbbreviation().toLowerCase().charAt(0);
-                        if (firstChar < typedChar) {
-                            continue;
-                        } else if (codeTemplate.getAbbreviation().toLowerCase().charAt(0) == typedChar) {
-                            select = i;
-                            break;
-                        } else {
-                            break;
-                        }
-                    }
-                }
-                if (select != -1) {
-                    templatesList.setSelectedIndex(select);
-                    templatesList.scrollRectToVisible(templatesList.getCellBounds(select, select));
-                    return;
-                }
-                Toolkit.getDefaultToolkit().beep();
-            }
-        }
-    }//GEN-LAST:event_templatesListKeyTyped
 
     private void templatesListValueChanged(javax.swing.event.ListSelectionEvent evt) {//GEN-FIRST:event_templatesListValueChanged
         CodeTemplate selectedCodeTemplate = (CodeTemplate) templatesList.getSelectedValue();

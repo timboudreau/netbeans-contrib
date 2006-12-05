@@ -62,8 +62,10 @@
           </Properties>
           <Events>
             <EventHandler event="valueChanged" listener="javax.swing.event.ListSelectionListener" parameters="javax.swing.event.ListSelectionEvent" handler="templatesListValueChanged"/>
-            <EventHandler event="keyTyped" listener="java.awt.event.KeyListener" parameters="java.awt.event.KeyEvent" handler="templatesListKeyTyped"/>
           </Events>
+          <AuxValues>
+            <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="new javax.swing.JList() {&#xa;    public int getNextMatch(String prefix, int startIndex, Position.Bias bias) {&#xa;        ListModel listModel = getModel();&#xa;        if (listModel instanceof CodeTemplateListModel) {&#xa;            prefix = prefix.toLowerCase();&#xa;            CodeTemplateListModel codeTemplateListModel = (CodeTemplateListModel) listModel;&#xa;            int size = codeTemplateListModel.getSize();&#xa;            int select = -1;&#xa;            for (int i = startIndex; i &lt; size; i++) {&#xa;                CodeTemplate codeTemplate = (CodeTemplate) codeTemplateListModel.getElementAt(i);&#xa;                if (codeTemplate.getAbbreviation().toLowerCase().startsWith(prefix)) {&#xa;                    select = i;&#xa;                    break;&#xa;                }&#xa;            }&#xa;            if (select == -1) {&#xa;                for (int i = 0; i &lt; startIndex; i++) {&#xa;                    CodeTemplate codeTemplate = (CodeTemplate) codeTemplateListModel.getElementAt(i);&#xa;                    if (codeTemplate.getAbbreviation().toLowerCase().startsWith(prefix)) {&#xa;                        select = i;&#xa;                        break;&#xa;                    }&#xa;                }&#xa;            }&#xa;            if (select != -1) {&#xa;                return select;&#xa;            }&#xa;        }&#xa;        Toolkit.getDefaultToolkit().beep();&#xa;        return -1;&#xa;    }&#xa;};"/>
+          </AuxValues>
         </Component>
       </SubComponents>
     </Container>
