@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+The contents of this file are subject to the terms of the Common Development
+and Distribution License (the License). You may not use this file except in
+compliance with the License.
+
+ You can obtain a copy of the License at http://www.netbeans.org/cddl.html
+or http://www.netbeans.org/cddl.txt.
+
+When distributing Covered Code, include this CDDL Header Notice in each file
+and include the License file at http://www.netbeans.org/cddl.txt.
+If applicable, add the following below the CDDL Header, with the fields
+enclosed by brackets [] replaced by your own identifying information:
+"Portions Copyrighted [year] [name of copyright owner]"
+
+ The Original Software is NetBeans. The Initial Developer of the Original
+Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
+ Microsystems, Inc. All Rights Reserved.
+-->
+
+<project name="jnpc" default="all" basedir=".">
+    
+    <target name="deploy_on_glassfish">
+        
+        <condition property="ext" value=".bat" else ="">
+            <os family="windows"/>
+        </condition>
+        <echo message="AS_ADMIN_PASSWORD=${password}" file="pspasswd.txt"/>
+        <property name="executable" value="asadmin${ext}"/>
+        
+        <echo message="user is ${user}"/>
+        <echo message="password is ${password}"/>
+        <echo message="pwd file::  ${basedir}/pspasswd.txt"/>
+        
+        <exec executable="${executable}" dir="${glassfish.home}/bin" resolveexecutable="true">
+            <arg line="deploy  --port ${port} -u ${user} --passwordfile ${basedir}/pspasswd.txt ${prepared.war.filename} "/>
+            
+        </exec>       
+        <echo message="deploy  --port ${port} -u ${user} --passwordfile ${basedir}/pspasswd.txt ${prepared.war.filename}"></echo>
+        <delete file="pspasswd1.txt"/>
+        
+    </target>
+    
+    <target name="undeploy_on_glassfish">
+        
+        <condition property="ext" value=".bat" else ="">
+            <os family="windows"/>
+        </condition>
+        
+        <echo message="AS_ADMIN_PASSWORD=${password}" file="pspasswd.txt"/>
+        <property name="executable" value="asadmin${ext}"/>
+        <exec executable="${executable}" dir="${glassfish.home}/bin" resolveexecutable="true">
+            <arg line="undeploy  --port ${port} -u ${user} --passwordfile ${basedir}/pspasswd.txt ${portlet-app-name} "/>
+        </exec>
+        <delete file="pspasswd.txt"/>
+    </target>
+
+        
+  <!-- Configure the directory into which the web application is built -->
+  <property name="build"    value="${basedir}/build"/>
+
+ 
+  <!-- Configure properties to access the Manager application -->
+  <property name="url"      value="http://${host}:${port}/manager"/>
+  <property name="username" value="${username}"/>
+  <property name="password" value="${password}"/>
+
+  <!-- Configure the custom Ant tasks for the Manager application -->
+  <taskdef name="deploy" classname="org.apache.catalina.ant.DeployTask">
+      <classpath>
+          <pathelement location="${taskjar}"/>
+      </classpath>
+  </taskdef>
+  
+  <taskdef name="reload"    classname="org.apache.catalina.ant.ReloadTask">
+      <classpath>
+          <pathelement location="${taskjar}"/>
+      </classpath>
+  </taskdef>
+  
+  <taskdef name="undeploy"  classname="org.apache.catalina.ant.UndeployTask">
+      <classpath>
+          <pathelement location="${taskjar}"/>
+      </classpath>
+      
+  </taskdef>
+ 
+  <!-- Executable Targets -->
+  <target name="compile" description="Compile web application">
+    <!-- ... construct web application in ${build} subdirectory, and
+            generated a ${path}.war ... -->
+  </target>
+
+  <target name="deploy" description="Install web application">
+    <deploy url="${url}" username="${username}" password="${password}"
+            path="${path}" war="${war}"/>
+  </target>
+  
+  <target name="reload" description="Reload web application"
+          depends="compile">
+    <reload  url="${url}" username="${username}" password="${password}"
+            path="${path}"/>
+  </target>
+
+  <target name="undeploy" description="Remove web application">
+    <undeploy url="${url}" username="${username}" password="${password}"
+            path="${path}"/>
+  </target>
+  
+      
+</project>
