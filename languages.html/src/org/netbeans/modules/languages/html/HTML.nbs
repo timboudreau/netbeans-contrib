@@ -130,7 +130,6 @@ etext = <html-text> etext1;
 etext1 = <html-text> etext1;
 etext1 = ;
 
-
 ########### indentation ########################################################
 
 REFORMAT:startTag:"i++"
@@ -208,7 +207,7 @@ COMPLETE "\":\""
 COMPLETE "':'"
 
 
-HYPERLINK:attribute-value:org.netbeans.modules.languages.html.HTML.hyperlink
+#HYPERLINK:attribute-value:org.netbeans.modules.languages.html.HTML.hyperlink
 
 MARK:unpairedStartTag {
     type:"Warning";

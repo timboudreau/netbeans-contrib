@@ -30,23 +30,23 @@ public class HTML {
     private static final String HTML401 = "org/netbeans/modules/languages/html/HTML401.xml";
     
     
-    public static Runnable hyperlink (PTPath path) {
-        SToken t = (SToken) path.getLeaf ();
-        String s = t.getIdentifier ();
-        s = s.substring (1, s.length () - 1).trim ();
-        if (!s.endsWith (")")) return null;
-        s = s.substring (0, s.length () - 1).trim ();
-        if (!s.endsWith ("(")) return null;
-        s = s.substring (0, s.length () - 1).trim ();
-        final Line l = (Line) DatabaseManager.get (s);
-        if (l != null)
-            return new Runnable () {
-                public void run () {
-                    l.show (l.SHOW_SHOW);
-                }
-            };
-        return null;
-    }
+//    public static Runnable hyperlink (PTPath path) {
+//        SToken t = (SToken) path.getLeaf ();
+//        String s = t.getIdentifier ();
+//        s = s.substring (1, s.length () - 1).trim ();
+//        if (!s.endsWith (")")) return null;
+//        s = s.substring (0, s.length () - 1).trim ();
+//        if (!s.endsWith ("(")) return null;
+//        s = s.substring (0, s.length () - 1).trim ();
+//        final Line l = (Line) DatabaseManager.get (s);
+//        if (l != null)
+//            return new Runnable () {
+//                public void run () {
+//                    l.show (l.SHOW_SHOW);
+//                }
+//            };
+//        return null;
+//    }
 
     public static boolean isDeprecatedTag (PTPath path) {
         SToken t = (SToken) path.getLeaf ();
