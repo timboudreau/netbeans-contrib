@@ -79,10 +79,12 @@ public enum CalcTokenId implements TokenId {
     }
 
     private static final Language<CalcTokenId> language = new LanguageHierarchy<CalcTokenId>() {
+        @Override
         protected Collection<CalcTokenId> createTokenIds() {
             return EnumSet.allOf(CalcTokenId.class);
         }
         
+        @Override
         protected Map<String,Collection<CalcTokenId>> createTokenCategories() {
             Map<String,Collection<CalcTokenId>> cats = new HashMap<String,Collection<CalcTokenId>>();
 
@@ -94,17 +96,19 @@ public enum CalcTokenId implements TokenId {
             return cats;
         }
 
-        public Lexer<CalcTokenId> createLexer(LexerRestartInfo<CalcTokenId> info) {
+        @Override
+        protected Lexer<CalcTokenId> createLexer(LexerRestartInfo<CalcTokenId> info) {
             return new CalcLexer(info);
         }
 
-        public LanguageEmbedding embedding(
-        Token<CalcTokenId> token, boolean tokenComplete,
-        LanguagePath languagePath, InputAttributes inputAttributes) {
+        @Override
+        protected LanguageEmbedding embedding(
+        Token<CalcTokenId> token, LanguagePath languagePath, InputAttributes inputAttributes) {
             return null; // No embedding
         }
 
-        public String mimeType() {
+        @Override
+        protected String mimeType() {
             return CalcDataLoader.CALC_MIME_TYPE;
         }
         
