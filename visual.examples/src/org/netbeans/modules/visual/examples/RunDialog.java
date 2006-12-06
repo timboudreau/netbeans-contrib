@@ -72,6 +72,7 @@ public class RunDialog extends javax.swing.JFrame {
         "test.tool.ToolTest",
         "test.vmd.VMDCollisionTest",
         "test.vmd.VMDTest",
+        "test.zoom.FitToViewTest",
     };
 
     /** Creates new form RunDialog */
