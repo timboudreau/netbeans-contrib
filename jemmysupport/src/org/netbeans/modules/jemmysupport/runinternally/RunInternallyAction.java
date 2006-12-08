@@ -29,6 +29,7 @@ import java.util.Iterator;
 import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.lang.model.element.TypeElement;
 import javax.swing.SwingUtilities;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -36,12 +37,13 @@ import org.apache.tools.ant.module.api.AntProjectCookie;
 import org.apache.tools.ant.module.api.support.ActionUtils;
 import org.apache.tools.ant.module.api.support.TargetLister;
 import org.netbeans.api.java.classpath.ClassPath;
+import org.netbeans.api.java.source.ElementHandle;
+import org.netbeans.api.java.source.SourceUtils;
 import org.netbeans.api.project.FileOwnerQuery;
 import org.netbeans.api.project.Project;
 import org.netbeans.api.project.ProjectUtils;
 import org.netbeans.api.queries.FileBuiltQuery;
 import org.netbeans.modules.apisupport.project.NbModuleProject;
-import org.netbeans.modules.jemmysupport.Utils;
 import org.netbeans.spi.project.ActionProvider;
 import org.openide.ErrorManager;
 import org.openide.awt.StatusDisplayer;
@@ -75,6 +77,12 @@ public class RunInternallyAction extends NodeAction {
      * @param nodes selected nodes
      */
     protected void performAction(Node[] nodes) {
+        // It can happen that selected class was modified but action status 
+        // is changed only when selection changes.
+        if(!enable(nodes)) {
+            setEnabled(false);
+            return;
+        }
         // release lock (it may be locked from previous run)
         synchronized (compileLock) {
             try {
@@ -220,10 +228,18 @@ public class RunInternallyAction extends NodeAction {
      */
     private String getSelectedMainClass(Lookup context) {
         DataObject dObj = getSelectedDataObject(context);
-        if(dObj == null) {
-            return null;
+        if(dObj != null) {
+            try {
+                // inspired in org.netbeans.modules.java.j2seproject.J2SEProjectUtil.hasMainMethod()
+                Collection<ElementHandle<TypeElement>> mainClasses = SourceUtils.getMainClasses(dObj.getPrimaryFile());
+                if(!mainClasses.isEmpty()) {
+                    return mainClasses.iterator().next().getQualifiedName();
+                }
+            } catch (IllegalArgumentException e) {
+                // not a java source
+            }
         }
-        return Utils.hasMainMethod(dObj.getPrimaryFile());
+        return null;
     }
     
     private Object compileLock = new Object();
