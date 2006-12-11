@@ -227,6 +227,9 @@ public class DocBookEditorSupport extends DataEditorSupport implements EditorCoo
         }
 
         protected void start(FileObject f, ParseJob job) {
+            for (Ann ann : editor.annotations) {
+                ann.detach();
+            }
             editor.annotations.clear();
             editor.setJob (job);
         }
