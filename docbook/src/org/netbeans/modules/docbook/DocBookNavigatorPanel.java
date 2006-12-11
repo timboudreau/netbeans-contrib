@@ -229,7 +229,6 @@ public final class DocBookNavigatorPanel implements NavigatorPanel {
                 DocBookNavigatorPanel.this.job = null;
                 EventQueue.invokeLater(this);
             }
-            System.err.println("CONTENT CALLBACK DONE " + this);
         }
         
         public void run() {
@@ -239,7 +238,6 @@ public final class DocBookNavigatorPanel implements NavigatorPanel {
 
         protected void start(FileObject f, ParseJob job) {
             ((Handler) getProcessor()).clear();
-            System.err.println("CONTENT CALLBACK START " + this);
             DocBookNavigatorPanel.this.job = job;
             super.start(f, job);
         }
@@ -275,20 +273,16 @@ public final class DocBookNavigatorPanel implements NavigatorPanel {
                 text = new StringBuffer();
                 line = locator.getLineNumber();
                 element = null;
-                //System.err.println("HEADERS match on " + qname + " at " + line);
             } else if (TITLES.contains(qname.toLowerCase(Locale.ENGLISH))) {
                 if (element != null) {
                     text = new StringBuffer();
-                    //System.err.println("TITLES match on " + qname + " inside " + element + " at line " + line);
                 }
             } else {
                 line = locator.getLineNumber();
                 element = qname;
-                //System.err.println("plain element " + element + " at " + line);
                 for (int i = 0; i < attr.getLength(); i++) {
                     String name = attr.getQName(i);
                     if (NAMES.contains(name.toLowerCase(Locale.ENGLISH))) {
-                        //System.err.println("NAMES match on " + name + " in " + element + " at " + line);
                         synchronized (this) {
                             items.add(new Item(attr.getValue(i), element, name, line, d));
                         }
@@ -299,9 +293,6 @@ public final class DocBookNavigatorPanel implements NavigatorPanel {
         }
         public void endElement(String uri, String localname, String qname) throws SAXException {
             if (text != null) {
-                //System.err.println("ending " + qname + " in " + element + " with " + text + " at " + line);
-                System.err.println("URI " + uri + " for " + localname + " qname " + qname);
-                System.err.println("In: " + locator.getSystemId() + " -- " + locator.getPublicId());
                 assert line != -1;
                 if (element == null) {
                     element = qname;

@@ -34,15 +34,12 @@ final class EntityResolver2URIResolver implements URIResolver {
         this.resolver = resolver;
     }
     public Source resolve(String href, String base) throws TransformerException {
-        System.err.println("DO RESOLVE HREF " + href + " BASE " + base);
         try {
             String abs = new URL(new URL(base), href).toExternalForm();
             InputSource s = resolver.resolveEntity(null, abs);
             if (s != null) {
-                //err.println(href + " in " + base + " -> " + s.getSystemId());
                 return new StreamSource(s.getSystemId());
             }  else {
-                //err.println(href + " in " + base + " -> zip");
                 return null;
             }
         }  catch (SAXException e) {

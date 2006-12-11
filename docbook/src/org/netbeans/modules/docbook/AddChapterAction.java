@@ -73,7 +73,6 @@ public class AddChapterAction extends AbstractAction implements ContextAwareActi
     public void actionPerformed(ActionEvent e) {
         DataObject ob = (DataObject) lkp.lookup (DataObject.class);
         if (ob != null) {
-            System.err.println("Adding chapter");
             addChapter (ob);
         }
     }
@@ -89,7 +88,6 @@ public class AddChapterAction extends AbstractAction implements ContextAwareActi
     }
 
     private void addChapter (DataObject ob) {
-        System.err.println("add Chapter");
         FileObject file = ob.getPrimaryFile();
         new WaitWriter (ob);
     }
@@ -104,19 +102,15 @@ public class AddChapterAction extends AbstractAction implements ContextAwareActi
                 EditCookie eck = null;
                 ck = (OpenCookie) ob.getCookie(OpenCookie.class);
                 eck = (EditCookie) ob.getCookie (EditCookie.class);
-                System.err.println("Cookie was null, will open and wait");
                 if (ck != null || eck != null) {
                     ob.addPropertyChangeListener(this);
                     if (ck != null) {
-                        System.err.println("Calling opencookie");
                         ck.open();
                     } else {
-                        System.err.println("calling editcookie");
                         eck.edit();
                     }
                 }
             } else {
-                System.err.println("Got a cookie right off");
                 handle (cookie);
             }
         }
@@ -125,7 +119,6 @@ public class AddChapterAction extends AbstractAction implements ContextAwareActi
             if (DataObject.PROP_COOKIE.equals(evt.getPropertyName())) {
                 EditorCookie cookie = (EditorCookie) ob.getCookie (EditorCookie.class);
                 if (cookie != null) {
-                    System.err.println("got cookie chabnge");
                     ob.removePropertyChangeListener(this);
                     handle (cookie);
                 }
@@ -135,7 +128,6 @@ public class AddChapterAction extends AbstractAction implements ContextAwareActi
         private void handle (final EditorCookie ck) {
             RequestProcessor.getDefault().post (new Runnable() {
                 public void run() {
-                    System.err.println("DoHandle in rp");
                     doHandle (ck);
                 }
             });
@@ -143,20 +135,13 @@ public class AddChapterAction extends AbstractAction implements ContextAwareActi
 
         private void doHandle (EditorCookie ck) {
             ob.removePropertyChangeListener(this);
-            System.err.println("Handle");
             ck.open();
             try {
-                System.err.println("Waiting for document");
                 StyledDocument d = ck.openDocument();
-                System.err.println("got document");
                 try {
                     StringBuilder b = new StringBuilder (d.getText(0, d.getLength()));
-                    System.err.println("Create matcher");
                     Matcher m = DOCTYPE.matcher(b);
-                    System.err.println("Got matcher " );
-                    System.err.println("Matches? " + m.matches());
                     boolean hit = m.lookingAt();
-                    System.err.println("HIT ? " + hit + " on " + b);
                     if (hit) {
                         String rootElement = m.group(1);
                         String publicOne = m.group(2);
@@ -169,7 +154,6 @@ public class AddChapterAction extends AbstractAction implements ContextAwareActi
                             while (em.find()) {
                                 Entity entity = new Entity (em.start(), em.group(1), em.group(2), em.end());
                                 entityNames.add (em.group(1).trim());
-                                System.err.println("Create entity " + entity);
                                 entities.add (entity);
                             }
                         }
@@ -184,7 +168,6 @@ public class AddChapterAction extends AbstractAction implements ContextAwareActi
                             insertPoint = start + 1;
                         }
 
-                        System.err.println("Entities: " + entities);
                         AddChapterPanel pnl = new AddChapterPanel();
                         DialogDescriptor dd =
                             new DialogDescriptor(pnl, "Add Chapter");
@@ -223,15 +206,12 @@ public class AddChapterAction extends AbstractAction implements ContextAwareActi
                             Matcher mat = p.matcher (b);
                             int pos = -1;
 
-                            System.err.println("Known Entity Names " + entityNames);
                             while (mat.find()) {
                                 String nm = mat.group(1);
-                                System.err.println("FOund used entity " + nm + " known " + entityNames.contains(nm));
                                 if (entityNames.contains(nm)) {
                                     //found a spot where another chapter is
                                     //defined
                                     pos = m.end() + 1;
-                                    System.err.println("Found insertion point for entity use at " + pos);
                                     break;
                                 }
                             }

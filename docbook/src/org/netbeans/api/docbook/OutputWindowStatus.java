@@ -142,6 +142,7 @@ public final class OutputWindowStatus extends Renderer.JobStatus {
 
     private void end() {
         io.getOut().close();
+        io.getErr().close();
         synchronized (this) {
             io = null;
         }

@@ -243,10 +243,8 @@ public class DocBookEditorSupport extends DataEditorSupport implements EditorCoo
             Ann[] anns = editor.annotations.toArray(new Ann[0]);
             DefaultListModel mdl = (DefaultListModel) editor.list.getModel();
             mdl.clear();
-            System.err.println("ADD " + anns.length + " to list model ");
             Arrays.sort (anns);
             for (int i = 0; i < anns.length; i++) {
-                System.err.println("Add to model " + anns[i]);
                 mdl.addElement(anns[i]);
             }
         }
