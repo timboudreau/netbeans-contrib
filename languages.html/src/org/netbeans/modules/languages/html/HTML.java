@@ -50,8 +50,7 @@ public class HTML {
 //        return null;
 //    }
 
-    public static boolean isDeprecatedTag (Cookie cookie) {
-        
+    public static boolean isDeprecatedTag (PTPath path) {
         SToken t = (SToken) path.getLeaf ();
         String tagName = t.getIdentifier ().toLowerCase ();
         return "true".equals (getLibrary ().getProperty ("TAG", tagName, "deprecated"));
