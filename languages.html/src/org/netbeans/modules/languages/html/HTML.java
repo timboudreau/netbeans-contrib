@@ -10,9 +10,11 @@
 package org.netbeans.modules.languages.html;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Stack;
+import org.netbeans.modules.languages.Cookie;
 import org.netbeans.modules.languages.fold.DatabaseManager;
 import org.netbeans.modules.languages.LibrarySupport;
 import org.netbeans.modules.languages.parser.ASTNode;
@@ -48,7 +50,8 @@ public class HTML {
 //        return null;
 //    }
 
-    public static boolean isDeprecatedTag (PTPath path) {
+    public static boolean isDeprecatedTag (Cookie cookie) {
+        
         SToken t = (SToken) path.getLeaf ();
         String tagName = t.getIdentifier ().toLowerCase ();
         return "true".equals (getLibrary ().getProperty ("TAG", tagName, "deprecated"));
@@ -123,6 +126,7 @@ public class HTML {
 //    private static List attributes = null;
     
     public static List attributes (PTPath path) {
+        if (path.size () < 2) return Collections.EMPTY_LIST;
         ASTNode n = (ASTNode) path.get (path.size () - 2);
         n = n.getParent ("startTag");
         List r = getLibrary ().getItems (n.getTokenTypeIdentifier ("html-element_name"));
@@ -137,6 +141,7 @@ public class HTML {
     //private static List attributeDescriptions = null;
     
     public static List attributeDescriptions (PTPath path) {
+        if (path.size () < 2) return Collections.EMPTY_LIST;
         ASTNode n = (ASTNode) path.get (path.size () - 2);
         n = n.getParent ("startTag");
         String tagName = n.getTokenTypeIdentifier ("html-element_name");

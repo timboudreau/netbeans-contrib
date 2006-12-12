@@ -32,7 +32,7 @@ TOKEN:html-end_element_start: ( "</" ):<IN_ELEMENT_START>
     TOKEN:html-attribute-value: ( "\"JAVASCRIPT\"" ):<IN_JAVASCRIPT>
     TOKEN:html-attribute-value: ( "\"" [^ "\"" "\n" "\r"]* "\"" )    
     TOKEN:html-attribute-name: ( ["a"-"z" "A"-"Z"]["a"-"z" "A"-"Z" "0"-"9" "-" "_" ":"]* )
-    TOKEN:html-whitespace: ( [" " "\t" "\n" "\r"]+ )
+    TOKEN:html-whitespace2: ( [" " "\t" "\n" "\r"]+ )
 }
 
 <IN_STYLE_ELEMENT> {
@@ -41,7 +41,7 @@ TOKEN:html-end_element_start: ( "</" ):<IN_ELEMENT_START>
     TOKEN:html-attribute-value: ( "\"text/css\"" ):<IN_CSS>
 #    TOKEN:html-attribute-value: ( "\"" [^ "\""]* "\"" )
     TOKEN:html-attribute-name: ( ["a"-"z" "A"-"Z"]["a"-"z" "A"-"Z" "0"-"9" "-" "_" ":"]* )
-    TOKEN:html-whitespace: ( [" " "\t" "\n" "\r"]+ )
+    TOKEN:html-whitespace2: ( [" " "\t" "\n" "\r"]+ )
 }
 
 <IN_JAVASCRIPT> {
@@ -50,7 +50,7 @@ TOKEN:html-end_element_start: ( "</" ):<IN_ELEMENT_START>
     TOKEN:html-operator: ( "=" )
     TOKEN:html-attribute-value: ( "\"" [^ "\"" "\n" "\r"]* "\"" )
     TOKEN:html-attribute-name: ( ["a"-"z" "A"-"Z"]["a"-"z" "A"-"Z" "0"-"9" "-" "_" ":"]* )
-    TOKEN:html-whitespace: ( [" " "\t" "\n" "\r"]* )
+    TOKEN:html-whitespace2: ( [" " "\t" "\n" "\r"]* )
 }
 
 <IN_CSS> {
@@ -59,13 +59,13 @@ TOKEN:html-end_element_start: ( "</" ):<IN_ELEMENT_START>
     TOKEN:html-operator: ( "=" )
     TOKEN:html-attribute-value: ( "\"" [^ "\"" "\n" "\r"]* "\"" )
     TOKEN:html-attribute-name: ( ["a"-"z" "A"-"Z"]["a"-"z" "A"-"Z" "0"-"9" "-" "_" ":"]* )
-    TOKEN:html-whitespace: ( [" " "\t" "\n" "\r"]+ )
+    TOKEN:html-whitespace2: ( [" " "\t" "\n" "\r"]+ )
 }
 
 <IN_ELEMENT> {
     TOKEN:html-attribute-name: ( ["a"-"z" "A"-"Z"]["a"-"z" "A"-"Z" "0"-"9" "-" "_" ":"]* ):<IN_ATTRIBUTE>
     TOKEN:html-attribute-value: ( "\"" [^ "\"" "\n" "\r"]* "\"" )
-    TOKEN:html-whitespace: ( [" " "\t" "\n" "\r"]+ )
+    TOKEN:html-whitespace2: ( [" " "\t" "\n" "\r"]+ )
     TOKEN:html-element_end: ( ">" ):<DEFAULT>
     TOKEN:html-end_element_end: ( "/>" ):<DEFAULT>
 }
@@ -74,7 +74,7 @@ TOKEN:html-end_element_start: ( "</" ):<IN_ELEMENT_START>
 
 <IN_ATTRIBUTE> {
     TOKEN:html-operator: ( "=" ):<IN_ATTRIBUTE2>
-    TOKEN:html-whitespace: ( [" " "\t" "\n" "\r"]+ )
+    TOKEN:html-whitespace2: ( [" " "\t" "\n" "\r"]+ )
     TOKEN:html-element_end: ( ">" ):<DEFAULT>
     TOKEN:html-end_element_end: ( "/>" ):<DEFAULT>
     TOKEN:html-attribute-name: ( ["a"-"z" "A"-"Z"]["a"-"z" "A"-"Z" "0"-"9" "-" "_" ":"]* )
@@ -87,7 +87,7 @@ TOKEN:html-end_element_start: ( "</" ):<IN_ELEMENT_START>
     TOKEN:html-attribute-value: ( "\"" [^ "\"" "\n" "\r"]* "\"" ):<IN_ELEMENT>
     TOKEN:html-attribute-value: ( "\'" [^ "\"" "\n" "\r"]* "\'" ):<IN_ELEMENT>
     TOKEN:html-attribute-value: ( ["0"-"9" "a"-"z" "A"-"Z" "-" "_"]+ ):<IN_ELEMENT>
-    TOKEN:html-whitespace: ( [" " "\t" "\n" "\r"]+ )
+    TOKEN:html-whitespace2: ( [" " "\t" "\n" "\r"]+ )
 }
 
 #embeded languages ###
@@ -109,6 +109,7 @@ IMPORT:css {
 ########### grammar ############################################################
 
 SKIP:html-whitespace
+SKIP:html-whitespace2
 SKIP:html-comment
 SKIP:html-error
 
@@ -235,12 +236,20 @@ COMPLETION:html-element_name {
     text1:org.netbeans.modules.languages.html.HTML.tags; 
     description1:org.netbeans.modules.languages.html.HTML.tagDescriptions; 
 }
+COMPLETION:html-element_start {
+    text1:org.netbeans.modules.languages.html.HTML.tags; 
+    description1:org.netbeans.modules.languages.html.HTML.tagDescriptions; 
+}
 MARK:html-attribute-name {
     type:"Deprecation";
     message:"Deprecated attribute.";
     condition:org.netbeans.modules.languages.html.HTML.isDeprecatedAttribute;
 }
 COMPLETION:html-attribute-name {
+    text1:org.netbeans.modules.languages.html.HTML.attributes; 
+    description1:org.netbeans.modules.languages.html.HTML.attributeDescriptions; 
+}
+COMPLETION:html-whitespace2 {
     text1:org.netbeans.modules.languages.html.HTML.attributes; 
     description1:org.netbeans.modules.languages.html.HTML.attributeDescriptions; 
 }
