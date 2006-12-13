@@ -20,11 +20,8 @@
 package org.netbeans.modules.whichelement;
 
 import com.sun.source.util.TreePath;
-import java.security.spec.EllipticCurve;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.EnumSet;
-import java.util.Iterator;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.ExecutableElement;
@@ -33,19 +30,12 @@ import javax.lang.model.element.PackageElement;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
 import javax.swing.Icon;
-import javax.swing.JOptionPane;
-import javax.swing.JTextField;
-import javax.swing.text.JTextComponent;
 import org.netbeans.api.java.source.CancellableTask;
 import org.netbeans.api.java.source.CompilationInfo;
 import org.netbeans.api.java.source.UiUtils;
-import org.netbeans.editor.Registry;
-import org.netbeans.editor.Utilities;
-import org.openide.awt.StatusDisplayer;
 import org.openide.awt.StatusLineElementProvider;
 import org.openide.filesystems.FileObject;
 import org.openide.util.Lookup;
-import org.openide.windows.WindowManager;
 
 /**
  * This task is called every time the caret position changes in a Java editor.
@@ -61,18 +51,13 @@ public class WhichElementTask implements CancellableTask<CompilationInfo> {
     private WhichElementJavaSourceTaskFactory whichElementJavaSourceTaskFactory;
     private FileObject fileObject;
     private boolean canceled;
-    private WhichElementStatusElementProvider.WhichElementPanel whichElementPanel;
-    
+    WhichElementStatusElementProvider.WhichElementPanel whichElementPanel;
     
     WhichElementTask(WhichElementJavaSourceTaskFactory whichElementJavaSourceTaskFactory,FileObject fileObject) {
         this.whichElementJavaSourceTaskFactory = whichElementJavaSourceTaskFactory;
         this.fileObject = fileObject;
-        
-        StatusLineElementProvider statusLineElementProvider = (StatusLineElementProvider) Lookup.getDefault().lookup(WhichElementStatusElementProvider.class);
-        if (statusLineElementProvider != null) {
-            whichElementPanel = (WhichElementStatusElementProvider.WhichElementPanel) statusLineElementProvider.getStatusLineElement();
-        }
     }
+    
     private static final Collection<Modifier> NO_MODIFIERS = Collections.<Modifier>emptySet();
     
     public void run(CompilationInfo compilationInfo) {
@@ -136,13 +121,25 @@ public class WhichElementTask implements CancellableTask<CompilationInfo> {
             }
         }
         
+        WhichElementStatusElementProvider.WhichElementPanel localWhichElementPanel = getWhichElementPanel();
+        
         // Set the info
-        if (whichElementPanel != null) {
-            whichElementPanel.setIcon(icon);
-            whichElementPanel.setIconToolTip(iconToolTip);
-            whichElementPanel.setText(status);
-            whichElementPanel.setToolTipText(status);
+        if (localWhichElementPanel != null) {
+            localWhichElementPanel.setIcon(icon);
+            localWhichElementPanel.setIconToolTip(iconToolTip);
+            localWhichElementPanel.setText(status);
+            localWhichElementPanel.setToolTipText(status);
         }
+    }
+    
+    private WhichElementStatusElementProvider.WhichElementPanel getWhichElementPanel() {
+        if (whichElementPanel == null) {
+            StatusLineElementProvider statusLineElementProvider = (StatusLineElementProvider) Lookup.getDefault().lookup(WhichElementStatusElementProvider.class);
+            if (statusLineElementProvider != null) {
+                whichElementPanel = (WhichElementStatusElementProvider.WhichElementPanel) statusLineElementProvider.getStatusLineElement();
+            }
+        }
+        return whichElementPanel;
     }
     
     /**
