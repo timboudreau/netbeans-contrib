@@ -171,7 +171,6 @@ public class DocBookEditorSupport extends DataEditorSupport implements EditorCoo
         list.setModel (new DefaultListModel());
         list.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         list.setCellRenderer (new Ren());
-        list.setPrototypeCellValue(new Ann ("xyz", true, null));
         list.addMouseListener(new MouseAdapter() {
             public void mouseClicked (MouseEvent me) {
                 if (!me.isPopupTrigger()) {
