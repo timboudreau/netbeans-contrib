@@ -274,7 +274,7 @@ public class DocBookEditorSupport extends DataEditorSupport implements EditorCoo
         private Ann createAnnotation (String text, int lineNumber, int col, boolean warn) {
             LineCookie ck = dob.getCookie (LineCookie.class);
             if (ck != null) {
-                Line l = ck.getLineSet().getCurrent(lineNumber);
+                Line l = ck.getLineSet().getCurrent(lineNumber - 1);
                 Ann ann = new Ann (text, warn, l);
                 annotations.add (ann);
                 ann.attach (l);
@@ -306,14 +306,6 @@ public class DocBookEditorSupport extends DataEditorSupport implements EditorCoo
         public void fatalError(SAXParseException e) throws SAXException {
             createAnnotation (e.getLocalizedMessage(), e.getLineNumber(),
                     e.getColumnNumber(), false);
-        }
-
-        private void createAnnotation (SAXParseException e, boolean warn) {
-            String s = e.getLocalizedMessage();
-            if (s == null) s = e.getMessage();
-            if (s == null) s = "Parse error at line " + e.getLineNumber();
-            createAnnotation (s, e.getLineNumber(),
-                    e.getColumnNumber(), warn);
         }
 
         public boolean equals (Object o) {
