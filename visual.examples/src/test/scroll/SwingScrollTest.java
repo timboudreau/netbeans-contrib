@@ -40,8 +40,8 @@ public class SwingScrollTest extends Scene {
         SwingScrollWidget scroll = new SwingScrollWidget (this);
         scroll.setBorder (BorderFactory.createResizeBorder (8, Color.BLUE, false));
         scroll.setPreferredLocation (new Point (50, 50));
-        scroll.setMinimumBounds (new Rectangle (100, 200));
-        scroll.setMaximumBounds (new Rectangle (500, 500));
+        scroll.setMinimumSize (new Dimension (100, 200));
+        scroll.setMaximumSize (new Dimension (500, 500));
         layer.addChild (scroll);
 
         Widget view = new Widget (this);

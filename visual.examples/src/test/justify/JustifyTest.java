@@ -36,7 +36,7 @@ public class JustifyTest extends Scene {
 
     public JustifyTest () {
         Widget r = creeateVerticalBox ();
-        r.setMinimumBounds (new Rectangle (200, 200));
+        r.setMinimumSize (new Dimension (200, 200));
         addChild (r);
 
         Widget h1 = creeateHorizontalBox ();
