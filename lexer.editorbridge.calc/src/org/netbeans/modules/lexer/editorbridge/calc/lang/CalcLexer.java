@@ -181,4 +181,7 @@ public final class CalcLexer implements Lexer<CalcTokenId> {
             : tokenFactory.createToken(id);
     }
 
+    public void release() {
+    }
+
 }
