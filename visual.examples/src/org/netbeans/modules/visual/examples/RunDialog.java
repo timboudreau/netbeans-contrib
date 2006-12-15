@@ -41,6 +41,7 @@ public class RunDialog extends javax.swing.JFrame {
         "test.component.ComponentTest",
         "test.connect.ConnectScene",
         "test.connectionlabels.ConnectionLabelsTest",
+        "test.constraint.ConstraintsTest",
         "test.controlpoint.AddRemoveControlPointTest",
         "test.convolve.ConvolveTest",
         "test.custom.CustomWidgetTest",
