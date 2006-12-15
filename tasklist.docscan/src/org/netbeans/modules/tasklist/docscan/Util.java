@@ -32,10 +32,6 @@ final class Util {
         return NbBundle.getBundle(Util.class).getString(key);
     }
 
-    public static char getChar(String key) {
-        return NbBundle.getBundle(Util.class).getString(key).charAt(0);
-    }
-
     public static String getMessage(String key, Object obj) {
         return NbBundle.getMessage(Util.class,key, obj);
     }

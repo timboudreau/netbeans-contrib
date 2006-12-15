@@ -56,6 +56,7 @@ import org.netbeans.modules.tasklist.core.filter.Filter;
 import org.netbeans.modules.tasklist.suggestions.*;
 import org.netbeans.modules.tasklist.core.filter.FilterRepository;
 import org.netbeans.modules.tasklist.core.filter.FiltersPanel;
+import org.openide.awt.Mnemonics;
 import org.openide.util.Cancellable;
 
 
@@ -658,8 +659,8 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
 
     private void showFolderSelectorPopup() {
         JPopupMenu popup = new JPopupMenu();
-        JMenuItem choose = new JMenuItem(Util.getString("select-folder"));
-        choose.setMnemonic(Util.getChar("select-folder_mne"));
+        JMenuItem choose = new JMenuItem();
+        Mnemonics.setLocalizedText(choose, Util.getString("Lbl_select-folder"));
         choose.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 handleSelectFolder();
