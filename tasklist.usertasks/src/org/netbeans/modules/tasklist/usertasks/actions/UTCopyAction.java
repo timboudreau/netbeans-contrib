@@ -53,7 +53,7 @@ public final class UTCopyAction extends UTViewAction {
                 break;
             }
         }
-        UTUtils.LOGGER.fine("enabled=" + enabled);
+        // DEBUG UTUtils.LOGGER.fine("enabled=" + enabled);
         setEnabled(enabled);
     }
 

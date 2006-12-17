@@ -31,17 +31,17 @@ import java.net.URL;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
+import java.util.Collections;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ResourceBundle;
-
 import javax.swing.event.EventListenerList;
 import javax.swing.tree.TreePath;
 import org.netbeans.modules.tasklist.usertasks.options.Settings;
 import org.netbeans.modules.tasklist.usertasks.util.UTListTreeAbstraction;
 import org.netbeans.modules.tasklist.usertasks.util.UTUtils;
-
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.URLMapper;
 import org.openide.nodes.Node.Cookie;
@@ -65,7 +65,7 @@ ObjectList.Owner {
     /**
      * A period spent working on a task.
      */
-    public static class WorkPeriod {
+    public static class WorkPeriod implements Comparable {
         private long start;
         private int duration;
         
@@ -82,6 +82,19 @@ ObjectList.Owner {
 
         public Object clone() throws CloneNotSupportedException {
             return new WorkPeriod(start, duration);
+        }
+        
+        /**
+         * Checks whether this period intersects another one.
+         * 
+         * @param wp a work period
+         * @return true = two periods intersect 
+         */
+        public boolean intersects(WorkPeriod wp) {
+            long wpend = wp.start + wp.duration * 60 * 1000;
+            long end = start + duration * 60 * 1000;
+            return (duration + wp.duration) * 60 * 1000 >
+                    Math.max(end, wpend) - Math.min(start, wp.start);
         }
         
         /**
@@ -123,6 +136,18 @@ ObjectList.Owner {
             today.set(Calendar.SECOND, 0);
             today.set(Calendar.MILLISECOND, 0);
             return today.getTimeInMillis() <= start;
+        }
+    
+        public int compareTo(Object obj) {
+            if (!(obj instanceof WorkPeriod))
+                return -1;
+            WorkPeriod wp = (WorkPeriod) obj;
+            if (this.start < wp.start)
+                return -1;
+            else if (this.start > wp.start)
+                return 1;
+            else
+                return 0;
         }
     }
     
@@ -430,9 +455,6 @@ ObjectList.Owner {
             public void listChanged(ObjectList.Event ev) {
                 switch (ev.getType()) {
                     case ObjectList.Event.EVENT_ADDED:
-                        if (Settings.getDefault().getAutoSwitchToComputed()) {
-                            setValuesComputed(true);
-                        }
                         structureChanged();
                         break;
                     case ObjectList.Event.EVENT_REMOVED: {
@@ -493,6 +515,21 @@ ObjectList.Owner {
 
         addPropertyChangeListener(this);
     }
+
+    /**
+     * Merges 
+     * 
+     * @param wps sorted array 
+     */
+    private void merge(ObjectList<WorkPeriod> wps) {
+        for (int i = 0; i < wps.size() - 1; i++) {
+            WorkPeriod a = wps.get(i);
+            WorkPeriod b = wps.get(i + 1);
+            if (a.intersects(b)) {
+                
+            }
+        }
+    }
     
     /**
      * Returns work periods for this task.
@@ -500,7 +537,18 @@ ObjectList.Owner {
      * @return <WorkPeriod>
      */
     public ObjectList<WorkPeriod> getWorkPeriods() {
-        return workPeriods;
+        /*if (isValuesComputed()) {
+            ObjectList r = new ObjectList<WorkPeriod>();
+            UserTaskObjectList st = getSubtasks();
+            for (int i = 0; i < st.size(); i++) {
+                r.addAll(st.getUserTask(i).getWorkPeriods());
+            }
+            Collections.sort(r);
+            merge(r);
+            return r;
+        } else { TODO: future implementation */
+            return workPeriods;
+        /*}*/
     }
     
     /**
@@ -665,7 +713,8 @@ ObjectList.Owner {
             if (v) {
                 setSpentTime_(computeSpentTime());
                 setProgress_(computeProgress());
-                setProgress_(computeProgress());
+                setEffort_(computeEffort());
+                /* TODO: future implementation workPeriods.clear(); */
             }
         }
     }

@@ -433,6 +433,15 @@ public class ICalExportFormat implements ExportImportFormat {
         setXProperty(pl, "X-NETBEANS-VALUES-COMPUTED", "yes",  // NOI18N
             task.isValuesComputed());
         
+        
+        // these 3 will be set for backwards compatibility only
+        setXProperty(pl, "X-NETBEANS-PROGRESS-COMPUTED", "yes",  // NOI18N
+            task.isValuesComputed());
+        setXProperty(pl, "X-NETBEANS-EFFORT-COMPUTED", "yes",  // NOI18N
+            task.isValuesComputed());
+        setXProperty(pl, "X-NETBEANS-SPENT-TIME-COMPUTED", "yes",  // NOI18N
+            task.isValuesComputed());
+        
         setXProperty(pl, "X-NETBEANS-EFFORT",  // NOI18N
             Integer.toString(task.getEffort()), true);
 

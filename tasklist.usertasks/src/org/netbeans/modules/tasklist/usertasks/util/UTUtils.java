@@ -64,7 +64,7 @@ public final class UTUtils {
     public static final Logger LOGGER = TLUtils.getLogger(UTUtils.class);
     
     static {
-        LOGGER.setLevel(Level.FINE);
+        LOGGER.setLevel(Level.OFF);
     }
 
     /**
@@ -442,15 +442,17 @@ public final class UTUtils {
     }
     
     /**
+     * DEBUG:
+     * 
      * Dumps the hierarchy of class loaders.
      * 
      * @param cl a class loader or null
-     */
+     * 
     public static void dumpClassLoaders(ClassLoader cl) {
         while (cl != null) {
             UTUtils.LOGGER.fine(cl.getClass().getName() + 
                     " " + cl.toString()); // NOI18N
             cl = cl.getParent();
         }
-    }
+    }*/
 }

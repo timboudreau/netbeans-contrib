@@ -19,17 +19,9 @@
 
 package org.netbeans.modules.tasklist.usertasks.translators;
 
-import com.sun.corba.se.internal.iiop.ORB;
-import java.io.BufferedWriter;
-import java.io.ByteArrayInputStream;
 import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.StringReader;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.nio.ByteBuffer;
-import java.nio.channels.WritableByteChannel;
 import java.text.DateFormat;
 import java.text.MessageFormat;
 import java.util.Calendar;
@@ -66,11 +58,9 @@ import org.openide.DialogDisplayer;
 import org.openide.NotifyDescriptor;
 import org.openide.WizardDescriptor;
 import org.openide.awt.HtmlBrowser;
-import org.openide.filesystems.FileUtil;
 import org.openide.util.NbBundle;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-import org.xml.sax.SAXException;
 
 /**
  * Export spent times for a time period.

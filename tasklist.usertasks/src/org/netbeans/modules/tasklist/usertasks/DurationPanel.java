@@ -39,7 +39,7 @@ import org.netbeans.modules.tasklist.usertasks.util.DurationFormat;
  * @author tl
  */
 public class DurationPanel extends JComboBox {
-    private static final long serialVersionUID = 1;
+    private static final long serialVersionUID = 2;
     
     /**
      * This array must be sorted.
@@ -141,7 +141,10 @@ public class DurationPanel extends JComboBox {
                 int dpw = Settings.getDefault().getDaysPerWeek();
                 // UTUtils.LOGGER.fine("mpd=" + mpd + ", dpw=" + dpw);
                 Duration d = new Duration(m, mpd, dpw, true);
-                setText(long_.format(d));
+                String txt = long_.format(d);
+                if (txt.length() == 0)
+                    txt = " "; // NOI18N
+                setText(txt);
                 return this;
             }
         });
@@ -153,22 +156,18 @@ public class DurationPanel extends JComboBox {
      * @param minutes new duration in minutes
      */
     public void setDuration(int minutes) {
-        int index = getModel().getSize();
-        for (int i = getModel().getSize() - 1; i >= 0; i--) {
-            int dur = ((Integer) getModel().getElementAt(i)).intValue();
-            if (minutes > dur) {
-                index = i + 1;
-                break;
-            }
+        int[] v = new int[getModel().getSize()];
+        for (int i = 0; i < v.length; i++) {
+            v[i] = (Integer) getModel().getElementAt(i);
         }
-        int dur = ((Integer) getModel().getElementAt(index - 1)).intValue();
-        if (dur == minutes) {
-            setSelectedIndex(index - 1);
-        } else {
+
+        int index = java.util.Arrays.binarySearch(v, minutes);
+        if (index < 0) {
+            index = -index - 1;
             ((DefaultComboBoxModel) getModel()).insertElementAt(minutes,
                     index);
-            setSelectedIndex(index);
         }
+        setSelectedIndex(index);
     }
     
     /**

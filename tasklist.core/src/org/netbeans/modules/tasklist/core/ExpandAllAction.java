@@ -52,4 +52,9 @@ public final class ExpandAllAction extends CallableSystemAction {
         // If you will provide context help then use:
         // return new HelpCtx (MyAction.class);
     }
+    
+    @Override
+    protected boolean asynchronous() {
+        return false;
+    }
 }

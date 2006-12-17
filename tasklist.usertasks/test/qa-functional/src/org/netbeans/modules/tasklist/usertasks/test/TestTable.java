@@ -140,10 +140,10 @@ public class TestTable extends JellyTestCase {
         Action ea = new Action(null, "Expand All"); // NOI18N
         ea.performPopup(t);
         
-        t.addRowSelectionInterval(6, 8);
-        t.addRowSelectionInterval(10, 10);
+        t.addRowSelectionInterval(5, 7);
+        t.addRowSelectionInterval(9, 9);
         
-        Rectangle r = t.getCellRect(6, 0, false);
+        Rectangle r = t.getCellRect(5, 0, false);
         t.clickForPopup(r.x, r.y);
         
         new EventTool().waitNoEvent(1500);
@@ -157,7 +157,7 @@ public class TestTable extends JellyTestCase {
         
         new EventTool().waitNoEvent(1500);
         
-        assertEquals(7, t.getSelectedRow());
+        assertEquals(6, t.getSelectedRow());
     }
     
     /**

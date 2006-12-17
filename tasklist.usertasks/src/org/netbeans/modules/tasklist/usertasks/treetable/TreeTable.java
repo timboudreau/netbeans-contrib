@@ -277,8 +277,17 @@ public class TreeTable extends JTable {
      * Collapses all nodes
      */
     public void collapseAll() {
-        TreePath root = new TreePath(tree.getModel().getRoot());
-        collapseAllUnder(root);
+        Object root = tree.getModel().getRoot();
+        TreePath rootPath = new TreePath(root);
+        if (getTree().isRootVisible())
+            collapseAllUnder(rootPath);
+        else {
+            int n = tree.getModel().getChildCount(root);
+            for (int i = 0; i < n; i++) {
+                collapseAllUnder(rootPath.pathByAddingChild(
+                        tree.getModel().getChild(root, i)));
+            }
+        }
     }
     
     /**
@@ -969,9 +978,7 @@ public class TreeTable extends JTable {
 	    Component component = super.getTableCellEditorComponent
 		(table, value, isSelected, r, c);
 	    JTree t = getTree();
-	    boolean rv = t.isRootVisible();
-	    int offsetRow = rv ? r : r - 1;
-	    Rectangle bounds = t.getRowBounds(offsetRow);
+	    Rectangle bounds = t.getRowBounds(r);
 	    int offset = bounds.x;
             Rectangle cb = TreeTable.this.getCellRect(r, c, false);
             offset += cb.x;

@@ -146,7 +146,6 @@ ListDataListener {
         jTextFieldFile.setText(s.getFilename());
         jCheckBoxDetectInactivity.setSelected(s.getDetectInactivity());
         jCheckBoxAutoSwitchToComputed.setSelected(s.getAutoSwitchToComputed());
-        Preferences p = Settings.getPreferences();
         cbDayStart.setTime(s.getWorkingDayStart());
         cbPauseStart.setTime(s.getPauseStart());
         cbPauseEnd.setTime(s.getPauseEnd());
@@ -180,15 +179,14 @@ ListDataListener {
         s.setFilename(jTextFieldFile.getText());
         s.setDetectInactivity(jCheckBoxDetectInactivity.isSelected());
         s.setAutoSwitchToComputed(jCheckBoxAutoSwitchToComputed.isSelected());
-        Preferences p = Settings.getPreferences();
-        p.putInt("dayStart", cbDayStart.getTime());
-        p.putInt("pauseStart", cbPauseStart.getTime());
-        p.putInt("pauseEnd", cbPauseEnd.getTime());
-        p.putInt("dayEnd", cbDayEnd.getTime());
+        s.setWorkingDayStart(cbDayStart.getTime());
+        s.setPauseStart(cbPauseStart.getTime());
+        s.setPauseEnd(cbPauseEnd.getTime());
+        s.setWorkingDayEnd(cbDayEnd.getTime());
         DefaultCheckListModel m = 
                 (DefaultCheckListModel) clWorkingDays.getModel();
         for (int i = 0; i < 7; i++) {
-            p.putBoolean("weekDay" + i, m.isChecked(i));
+            s.setWorkingDay(i, m.isChecked(i));
         }
     }
 

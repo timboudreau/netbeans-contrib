@@ -111,11 +111,10 @@ public class UserTaskTest extends TestCase {
         UserTask a = new UserTask("A", list);
         list.getSubtasks().add(a);
         
-        Settings.getDefault().setAutoSwitchToComputed(true);
         a.start();
         
         UserTask b = new UserTask("B", list);
-        a.getSubtasks().add(b);
+        a.setValuesComputed(true);
         
         assertFalse(a.isStarted());
     }

@@ -1,9 +1,11 @@
 package org.netbeans.modules.tasklist.usertasks.actions;
 
 import java.awt.event.ActionEvent;
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
 import javax.swing.AbstractAction;
+import javax.swing.SwingUtilities;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.tree.TreePath;
@@ -12,6 +14,7 @@ import org.netbeans.modules.tasklist.usertasks.UserTasksTreeTable;
 import org.netbeans.modules.tasklist.usertasks.model.UserTask;
 import org.netbeans.modules.tasklist.usertasks.model.UserTaskList;
 import org.netbeans.modules.tasklist.usertasks.treetable.TreeTableNode;
+import org.netbeans.modules.tasklist.usertasks.util.UTUtils;
 import org.openide.DialogDisplayer;
 import org.openide.NotifyDescriptor;
 import org.openide.util.NbBundle;
@@ -91,6 +94,25 @@ implements ListSelectionListener {
     }
 
     public void actionPerformed(ActionEvent event) {
+        try {
+            SwingUtilities.invokeAndWait(new Runnable() {
+                public void run() {
+                    actionPerformed();
+                }
+            });
+        } catch (InterruptedException ex) {
+            UTUtils.LOGGER.log(java.util.logging.Level.SEVERE,
+                    ex.getMessage(), ex);
+        } catch (InvocationTargetException ex) {
+            UTUtils.LOGGER.log(java.util.logging.Level.SEVERE,
+                    ex.getMessage(), ex);
+        }
+    }
+    
+    /**
+     * Performs the action. 
+     */
+    private void actionPerformed() {
         int[] rows = tt.getSelectedRows();
         if (rows.length == 0)
             return;

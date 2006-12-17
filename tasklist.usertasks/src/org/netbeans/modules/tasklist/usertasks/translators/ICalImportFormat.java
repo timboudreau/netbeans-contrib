@@ -131,12 +131,6 @@ public class ICalImportFormat implements ExportImportFormat {
     }
     
     /**
-     * Constructor
-     */
-    public ICalImportFormat() {
-    }
-    
-    /**
      * Reads an .ics file from the specified stream.
      *
      * @param utl a task list
@@ -385,7 +379,8 @@ public class ICalImportFormat implements ExportImportFormat {
             }
         }
         
-        if (pl.getProperty("X-NETBEANS-PROGRESS-COMPUTED") !=   // NOI18N
+        if (pl.getProperty("X-NETBEANS-VALUES-COMPUTED") == null &&
+                pl.getProperty("X-NETBEANS-PROGRESS-COMPUTED") !=   // NOI18N
                 null &&
                 pl.getProperty("X-NETBEANS-PROGRESS-COMPUTED"). // NOI18N
                 getValue().equals("yes") &&  // NOI18N

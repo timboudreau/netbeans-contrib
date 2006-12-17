@@ -21,11 +21,13 @@ package org.netbeans.modules.tasklist.usertasks.actions;
 
 import java.awt.Dialog;
 import java.awt.Dimension;
+import java.awt.event.ActionEvent;
+import javax.swing.event.ListSelectionEvent;
 
 import org.netbeans.modules.tasklist.usertasks.EditTaskPanel;
+import org.netbeans.modules.tasklist.usertasks.UserTaskView;
 import org.netbeans.modules.tasklist.usertasks.util.UTUtils;
 import org.netbeans.modules.tasklist.usertasks.model.UserTask;
-import org.netbeans.modules.tasklist.usertasks.UserTaskNode;
 import org.openide.DialogDescriptor;
 import org.openide.DialogDisplayer;
 import org.openide.NotifyDescriptor;
@@ -33,29 +35,29 @@ import org.openide.nodes.Node;
 import org.openide.text.Line;
 import org.openide.util.HelpCtx;
 import org.openide.util.NbBundle;
-import org.openide.util.actions.NodeAction;
 
 /**
  * Show a given task to the user
  *
  * @author Tor Norbye
  * @author Trond Norbye
+ * @author tl
  */
-public class ShowTaskAction extends NodeAction {
-    private static final long serialVersionUID = 1;
+public class ShowTaskAction extends UTViewAction {
+    private static final long serialVersionUID = 2;
 
-    protected boolean enable(Node[] node) {
-        return ((node != null) && (node.length == 1) &&
-            node[0] instanceof UserTaskNode);
+    /**
+     * Constructor.
+     * 
+     * @param utv view for this action 
+     */
+    public ShowTaskAction(UserTaskView utv) {
+        super(utv, NbBundle.getMessage(ShowTaskAction.class, "LBL_ShowTodo"));
     }
-
-    protected boolean asynchronous() {
-        return false;
-    }
-
-    protected void performAction(Node[] node) {
+    
+    public void actionPerformed(ActionEvent ae) {
         // safe - see enable-check above
-        UserTask item = ((UserTaskNode) node[0]).getTask();         
+        UserTask item = getSingleSelectedTask();
         
         EditTaskPanel panel = new EditTaskPanel(true);
         panel.setPreferredSize(new Dimension(600, 500));
@@ -63,7 +65,7 @@ public class ShowTaskAction extends NodeAction {
         
         // find cursor position
         if (item.getUrl() == null) {
-            Line cursor = UTUtils.findCursorPosition(node);
+            Line cursor = UTUtils.findCursorPosition(null);
             if (cursor == null) {
                 Node[] editorNodes = UTUtils.getEditorNodes();
                 if (editorNodes != null)
@@ -93,13 +95,7 @@ public class ShowTaskAction extends NodeAction {
         }
     }
 
-    public String getName() {
-        return NbBundle.getMessage(ShowTaskAction.class, "LBL_ShowTodo"); // NOI18N
-    }
-
-    public HelpCtx getHelpCtx() {
-        return HelpCtx.DEFAULT_HELP;
-        // If you will provide context help then use:
-        // return new HelpCtx (NewTodoItemAction.class);
+    public void valueChanged(ListSelectionEvent e) {
+        setEnabled(getSingleSelectedTask() != null);
     }
 }

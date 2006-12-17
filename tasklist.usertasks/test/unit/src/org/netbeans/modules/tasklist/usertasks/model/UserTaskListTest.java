@@ -22,6 +22,7 @@ package org.netbeans.modules.tasklist.usertasks.model;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.InputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.util.List;
@@ -132,6 +133,33 @@ public class UserTaskListTest extends NbTestCase {
         ut.setValuesComputed(true);
         ut3.setDone(true);
         assertEquals(15, ut2.getLastEditedDate());
+    }
+    
+    /**
+     * ValuesComputed should be saved properly.
+     */
+    public void testValuesComputed() throws Exception {
+        // utl 
+        //  |-ut
+        //    |-ut2
+        //      |-ut3
+        UserTaskList utl = new UserTaskList();
+        UserTask ut = new UserTask("test", utl);
+        UserTask ut2 = new UserTask("test2", utl);
+        UserTask ut3 = new UserTask("test2", utl);
+        utl.getSubtasks().add(ut);
+        ut.getSubtasks().add(ut2);
+        ut2.getSubtasks().add(ut3);
+        ut.setValuesComputed(true);
+        
+        utl = saveAndLoad(utl);
+        ut = utl.getSubtasks().get(0);
+        ut2 = ut.getSubtasks().get(0);
+        ut3 = ut2.getSubtasks().get(0);
+        
+        assertTrue(ut.isValuesComputed());
+        assertFalse(ut2.isValuesComputed());
+        assertFalse(ut3.isValuesComputed());
     }
     
     /**
@@ -302,7 +330,10 @@ public class UserTaskListTest extends NbTestCase {
             e.printStackTrace();
             throw e;
         }
-        UserTaskList list = UserTaskList.readDocument(fo);
+        InputStream is = fo.getInputStream();
+        UserTaskList list = new UserTaskList();
+        ICalImportFormat.read(list, fo.getInputStream());
+        is.close();
         return list;
     }
 }

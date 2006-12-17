@@ -22,16 +22,18 @@ package org.netbeans.modules.tasklist.usertasks;
 import com.toedter.calendar.JDateChooserCellEditor;
 import java.awt.Graphics;
 import java.awt.Point;
+import java.awt.event.ActionEvent;
+import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Level;
-
 import javax.swing.Action;
 import javax.swing.ImageIcon;
 import javax.swing.JPopupMenu;
+import javax.swing.JScrollPane;
 import javax.swing.ListSelectionModel;
+import javax.swing.SwingUtilities;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.TableColumnModel;
@@ -40,14 +42,29 @@ import org.netbeans.modules.tasklist.core.export.ExportAction;
 import org.netbeans.modules.tasklist.core.export.ImportAction;
 import org.netbeans.modules.tasklist.core.filter.Filter;
 import org.netbeans.modules.tasklist.core.filter.FilterAction;
+import org.netbeans.modules.tasklist.core.filter.RemoveFilterAction;
 import org.netbeans.modules.tasklist.usertasks.actions.CollapseAllAction;
 import org.netbeans.modules.tasklist.usertasks.actions.ExpandAllUserTasksAction;
-import org.netbeans.modules.tasklist.usertasks.actions.NewTaskAction;
+import org.netbeans.modules.tasklist.usertasks.actions.GoToUserTaskAction;
+import org.netbeans.modules.tasklist.usertasks.actions.PauseAction;
+import org.netbeans.modules.tasklist.usertasks.actions.ScheduleAction;
+import org.netbeans.modules.tasklist.usertasks.actions.StartTaskAction;
 import org.netbeans.modules.tasklist.usertasks.editors.CategoryTableCellEditor;
 import org.netbeans.modules.tasklist.usertasks.editors.EffortTableCellEditor;
 import org.netbeans.modules.tasklist.usertasks.editors.OwnerTableCellEditor;
 import org.netbeans.modules.tasklist.usertasks.editors.PercentsTableCellEditor;
 import org.netbeans.modules.tasklist.usertasks.editors.PriorityTableCellEditor;
+import org.netbeans.modules.tasklist.usertasks.renderers.PriorityTableCellRenderer;
+import org.netbeans.modules.tasklist.usertasks.renderers.SummaryTreeCellRenderer;
+import org.netbeans.modules.tasklist.usertasks.treetable.DefaultMutableTreeTableNode;
+import org.netbeans.modules.tasklist.usertasks.treetable.DefaultTreeTableModel;
+import org.netbeans.modules.tasklist.usertasks.treetable.TreeTable;
+import org.netbeans.modules.tasklist.usertasks.treetable.TreeTableDragGestureRecognizer;
+import org.netbeans.modules.tasklist.usertasks.util.UTUtils;
+import org.openide.awt.MouseUtils;
+import org.openide.nodes.Node;
+import org.netbeans.modules.tasklist.usertasks.model.UserTask;
+import org.netbeans.modules.tasklist.usertasks.model.UserTaskList;
 import org.netbeans.modules.tasklist.usertasks.renderers.CategoryTableCellRenderer;
 import org.netbeans.modules.tasklist.usertasks.renderers.DateTableCellRenderer;
 import org.netbeans.modules.tasklist.usertasks.renderers.DoneTreeTableCellRenderer;
@@ -55,24 +72,17 @@ import org.netbeans.modules.tasklist.usertasks.renderers.DueDateTableCellRendere
 import org.netbeans.modules.tasklist.usertasks.renderers.DurationTableCellRenderer;
 import org.netbeans.modules.tasklist.usertasks.renderers.EffortTableCellRenderer;
 import org.netbeans.modules.tasklist.usertasks.renderers.LineTableCellRenderer;
+import org.netbeans.modules.tasklist.usertasks.renderers.OwnerTableCellRenderer;
 import org.netbeans.modules.tasklist.usertasks.renderers.PercentsTableCellRenderer;
-import org.netbeans.modules.tasklist.usertasks.renderers.PriorityTableCellRenderer;
-import org.netbeans.modules.tasklist.usertasks.renderers.SummaryTreeCellRenderer;
 import org.netbeans.modules.tasklist.usertasks.transfer.MyTransferHandler;
 import org.netbeans.modules.tasklist.usertasks.treetable.AdvancedTreeTableNode;
-import org.netbeans.modules.tasklist.usertasks.treetable.DefaultMutableTreeTableNode;
-import org.netbeans.modules.tasklist.usertasks.treetable.DefaultTreeTableModel;
 import org.netbeans.modules.tasklist.usertasks.treetable.SortingHeaderRenderer;
-import org.netbeans.modules.tasklist.usertasks.treetable.TreeTable;
-import org.netbeans.modules.tasklist.usertasks.treetable.TreeTableDragGestureRecognizer;
-import org.netbeans.modules.tasklist.usertasks.util.UTUtils;
-import org.openide.awt.MouseUtils;
-import org.openide.nodes.Node;
-import org.openide.util.actions.SystemAction;
-import org.netbeans.modules.tasklist.usertasks.model.UserTask;
-import org.netbeans.modules.tasklist.usertasks.model.UserTaskList;
-import org.netbeans.modules.tasklist.usertasks.renderers.OwnerTableCellRenderer;
+import org.openide.actions.CopyAction;
+import org.openide.actions.CutAction;
+import org.openide.actions.DeleteAction;
+import org.openide.actions.PasteAction;
 import org.openide.util.Utilities;
+import org.openide.util.actions.SystemAction;
 
 /**
  * TT for user tasks
@@ -81,6 +91,7 @@ import org.openide.util.Utilities;
  */
 public class UserTasksTreeTable extends TreeTable {
     private UserTask selected;
+    private UserTaskView utv;
     
     /**
      * Creates a new instance of UserTasksTreeTable
@@ -89,13 +100,15 @@ public class UserTasksTreeTable extends TreeTable {
      * @param utl list with user tasks
      * @param filter used filter or null
      */
-    public UserTasksTreeTable(UserTaskList utl,
+    public UserTasksTreeTable(UserTaskView utv, UserTaskList utl,
     Filter filter) {
         super(new DefaultTreeTableModel(
             new DefaultMutableTreeTableNode(), new String[] {""})); // NOI18N
-        setAutoscrolls(false);
+        this.utv = utv;
+        // this disables automatic scrolling if using keyboard
+        // setAutoscrolls(false);
         setTreeTableModel(
-            new UserTasksTreeTableModel(utl, getSortingModel(), filter));
+                new UserTasksTreeTableModel(utl, getSortingModel(), filter));
         setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
         setShowHorizontalLines(true);
         setShowVerticalLines(true);
@@ -103,9 +116,11 @@ public class UserTasksTreeTable extends TreeTable {
         getTree().setCellRenderer(new SummaryTreeCellRenderer());
         getTree().setShowsRootHandles(true);
         getTree().setToggleClickCount(3);
+        getTree().setRootVisible(false);
         
         setAutoCreateColumnsFromModel(false);
         
+        /* DEBUG
         if (UTUtils.LOGGER.isLoggable(Level.FINER)) {
             getSelectionModel().addListSelectionListener(
                 new ListSelectionListener() {
@@ -120,6 +135,7 @@ public class UserTasksTreeTable extends TreeTable {
                 }
             );
         }
+         */
         
         getSelectionModel().addListSelectionListener(
             new ListSelectionListener() {
@@ -147,18 +163,14 @@ public class UserTasksTreeTable extends TreeTable {
                 int col = columnAtPoint(e.getPoint());
                 Action[] actions;
 
-                if (row < 0 || col < 0) {
-                    actions = getFreeSpaceActions();
-                } else {
-                    if (!getSelectionModel().isSelectedIndex(row)) {
-                        setRowSelectionInterval(row, row);
-                    }
-                    Node n = createNode(getNodeForRow(row));
-
-                    if (n == null)
-                        return;
-                    actions = n.getActions(false);
+                if (row < 0 || col < 0)
+                    return;
+                
+                if (!getSelectionModel().isSelectedIndex(row)) {
+                    setRowSelectionInterval(row, row);
                 }
+                actions = getActions_();
+
                 JPopupMenu pm = Utilities.actionsToPopup(actions,
                         UserTasksTreeTable.this);
 
@@ -167,9 +179,40 @@ public class UserTasksTreeTable extends TreeTable {
             }
         });
         
+        addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                if (e.getClickCount() == 2) {
+                    int row = rowAtPoint(e.getPoint());
+                    if (!getSelectionModel().isSelectedIndex(row)) {
+                        setRowSelectionInterval(row, row);
+                    }
+                    UserTasksTreeTable.this.utv.showTaskAction.
+                            actionPerformed(new ActionEvent(
+                            UserTasksTreeTable.this.utv.getTreeTable(), 0, ""));
+                }
+            }
+        });
+        
         setColumnsConfig(createDefaultColumnsConfig());
         TreeTableDragGestureRecognizer.enableDnD(this);
         setTransferHandler(new MyTransferHandler());
+    }
+
+    @Override
+    protected void configureEnclosingScrollPane() {
+        super.configureEnclosingScrollPane();
+        final JScrollPane sp = (JScrollPane) SwingUtilities.getAncestorOfClass(
+                JScrollPane.class, this);
+        sp.addMouseListener(new MouseUtils.PopupMouseAdapter() {
+            public void showPopup(MouseEvent e) {
+                JPopupMenu pm = Utilities.actionsToPopup(getActions_(),
+                        UserTasksTreeTable.this);
+
+                if (pm != null)
+                    pm.show(sp, e.getX(), e.getY());
+            }
+        });
     }
 
     /**
@@ -197,17 +240,11 @@ public class UserTasksTreeTable extends TreeTable {
     }
     
     public Node createNode(Object obj) {
-        if (obj instanceof UserTaskListTreeTableNode) {
-            UserTaskListTreeTableNode n = (UserTaskListTreeTableNode) obj;
-            UserTaskList utl = n.getUserTaskList();
-            return new UserTaskListNode(utl, this);
-        } else {
-            UserTaskList utl = ((UserTasksTreeTableModel) getTreeTableModel()).
-                getUserTaskList();
-            UserTaskTreeTableNode node = (UserTaskTreeTableNode) obj;
-            UserTask ut = node.getUserTask();
-            return new UserTaskNode(node, ut, utl, this);
-        }
+        UserTaskList utl = ((UserTasksTreeTableModel) getTreeTableModel()).
+            getUserTaskList();
+        UserTaskTreeTableNode node = (UserTaskTreeTableNode) obj;
+        UserTask ut = node.getUserTask();
+        return new UserTaskNode(node, ut, utl, this);
     }
 
     public void createDefaultColumnsFromModel() {
@@ -313,17 +350,44 @@ public class UserTasksTreeTable extends TreeTable {
         return new TreePath(n.getPathToRoot());
     }
     
-    public javax.swing.Action[] getFreeSpaceActions() {
+    public javax.swing.Action[] getActions_() {
         return new Action[] {
-            // TODO: new SystemAction.get(NewTaskAction.class),
+            utv.newTaskAction,
+            //SystemAction.get(ShowScheduleViewAction.class),
+            null,
+            new StartTaskAction(utv),
+            PauseAction.getInstance(),
+            null,
+            utv.showTaskAction,
+            new GoToUserTaskAction(utv),
+            null,
+            SystemAction.get(CutAction.class),
+            SystemAction.get(CopyAction.class),
+            SystemAction.get(PasteAction.class),
+            null,
+            SystemAction.get(DeleteAction.class),
+            null,
+            utv.moveUpAction,
+            utv.moveDownAction,
+            utv.moveLeftAction,
+            utv.moveRightAction,
             null,
             SystemAction.get(FilterAction.class),
+            SystemAction.get(RemoveFilterAction.class),
+            null,
+            utv.purgeTasksAction,
+            utv.clearCompletedAction,
+            SystemAction.get(ScheduleAction.class),
             null,
             SystemAction.get(ExpandAllUserTasksAction.class),
             SystemAction.get(CollapseAllAction.class),
             null,
             SystemAction.get(ImportAction.class),
             SystemAction.get(ExportAction.class),
+
+            // Property: node specific, but by convention last in menu
+            null,
+            utv.propertiesAction
         };
     }    
 

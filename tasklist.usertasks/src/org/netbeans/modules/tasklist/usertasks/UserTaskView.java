@@ -24,7 +24,6 @@ import java.awt.Image;
 import java.awt.Point;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
-import java.awt.event.MouseEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
@@ -81,12 +80,15 @@ import org.netbeans.modules.tasklist.usertasks.translators.ICalImportFormat;
 import org.netbeans.modules.tasklist.usertasks.translators.TextExportFormat;
 import org.netbeans.modules.tasklist.usertasks.translators.XmlExportFormat;
 import org.netbeans.modules.tasklist.core.table.ChooseColumnsPanel;
+import org.netbeans.modules.tasklist.usertasks.actions.ClearCompletedAction;
+import org.netbeans.modules.tasklist.usertasks.actions.PurgeTasksAction;
+import org.netbeans.modules.tasklist.usertasks.actions.ShowTaskAction;
+import org.netbeans.modules.tasklist.usertasks.actions.UTPropertiesAction;
 import org.netbeans.modules.tasklist.usertasks.treetable.TreeTableModel;
 import org.netbeans.modules.tasklist.usertasks.util.AWTThreadAnnotation;
 import org.netbeans.modules.tasklist.usertasks.util.UTUtils;
 import org.openide.actions.FindAction;
 import org.openide.actions.SaveAction;
-import org.openide.awt.MouseUtils;
 import org.openide.cookies.InstanceCookie;
 import org.openide.filesystems.FileChangeListener;
 import org.openide.filesystems.FileEvent;
@@ -133,8 +135,9 @@ public class UserTaskView extends TopComponent implements ExportImportProvider,
         "org/netbeans/modules/tasklist/usertasks/actions/taskView.gif"); // NOI18N
     
     static {
-        UTUtils.dumpClassLoaders(UserTaskView.class.getClassLoader());
-        UTUtils.dumpClassLoaders(Thread.currentThread().getContextClassLoader());
+        // DEBUG:
+        // UTUtils.dumpClassLoaders(UserTaskView.class.getClassLoader());
+        // UTUtils.dumpClassLoaders(Thread.currentThread().getContextClassLoader());
         
         // repaint the view if the number of working hours per day has
         // changed (spent time, rem. effort and effort columns should be
@@ -194,6 +197,8 @@ public class UserTaskView extends TopComponent implements ExportImportProvider,
                 UTUtils.LOGGER.log(Level.SEVERE, "", e); // NOI18N
             }
 
+            if (UTUtils.LOGGER.isLoggable(Level.FINE))
+                Thread.dumpStack();
             UTUtils.LOGGER.fine("File " + fo + " read in " + // NOI18N
                 (System.currentTimeMillis() - m) + "ms"); // NOI18N
         } finally {
@@ -262,6 +267,21 @@ public class UserTaskView extends TopComponent implements ExportImportProvider,
     /** View specific action for moving the selected task left. */
     public MoveRightAction moveRightAction;
     
+    /** View specific action for purging completed tasks. */
+    public PurgeTasksAction purgeTasksAction;
+    
+    /** View specific action for clearing completion status. */
+    public ClearCompletedAction clearCompletedAction;
+    
+    /** View specific action for creating a sub-task. */
+    public NewTaskAction newTaskAction;
+    
+    /** View specific action for editing a task. */
+    public ShowTaskAction showTaskAction;
+    
+    /** "Show properties" action. */
+    public UTPropertiesAction propertiesAction;
+    
     private AutoSaver autoSaver;
     private FileObject file;
     
@@ -310,7 +330,7 @@ public class UserTaskView extends TopComponent implements ExportImportProvider,
     public Action[] getToolBarActions() {
         return new Action[] {
             SystemAction.get(SaveAction.class),
-            new NewTaskAction(this),
+            newTaskAction,
             new GoToUserTaskAction(this),
             null,
             SystemAction.get(FilterAction.class),
@@ -707,7 +727,7 @@ public class UserTaskView extends TopComponent implements ExportImportProvider,
         JPanel centerPanel = new JPanel();
         centerPanel.setLayout(new BorderLayout());
         
-        tt = new UserTasksTreeTable(getUserTaskList(), getFilter());
+        tt = new UserTasksTreeTable(this, getUserTaskList(), getFilter());
 
         configureActions();
         
@@ -715,24 +735,6 @@ public class UserTaskView extends TopComponent implements ExportImportProvider,
             JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, 
             JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
         scrollPane.setBorder(new EmptyBorder(0, 0, 0, 0));
-        
-        scrollPane.addMouseListener(new MouseUtils.PopupMouseAdapter() {
-            public void showPopup(MouseEvent e) {
-                UserTasksTreeTable tt = getTreeTable();
-                tt.getSelectionModel().setSelectionInterval(0, 0);
-                TreePath path = new TreePath(tt.getTreeTableModel().getRoot());
-                tt.scrollTo(path);
-                
-                /** todo
-                Node n = getExplorerManager().getSelectedNodes()[0];
-                
-                Action[] actions = n.getActions(false);
-                JPopupMenu pm = Utilities.actionsToPopup(actions,
-                    e.getComponent());
-                if(pm != null)
-                    pm.show(e.getComponent(), e.getX(), e.getY());*/
-            }
-        });
         
         ChooseColumnsPanel.installChooseColumnsButton(scrollPane);
         
@@ -747,7 +749,8 @@ public class UserTaskView extends TopComponent implements ExportImportProvider,
         toolbar.setBorder(new RightSideBorder());
         add(toolbar, BorderLayout.WEST);
 
-        tt.select(new TreePath(tt.getTreeTableModel().getRoot()));
+        if (tt.getRowCount() > 0)
+            tt.getSelectionModel().setSelectionInterval(0, 0);
         
         associateLookup(Lookups.fixed(new UserTaskViewNode(this),
                 getActionMap()));
@@ -966,6 +969,11 @@ public class UserTaskView extends TopComponent implements ExportImportProvider,
         moveDownAction = new MoveDownAction(this);
         moveLeftAction = new MoveLeftAction(this);
         moveRightAction = new MoveRightAction(this);
+        purgeTasksAction = new PurgeTasksAction(this);
+        clearCompletedAction = new ClearCompletedAction(this);
+        newTaskAction = new NewTaskAction(this);
+        showTaskAction = new ShowTaskAction(this);
+        propertiesAction = new UTPropertiesAction(this);
         
         getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).
                 put(KeyStroke.getKeyStroke(KeyEvent.VK_UP, 
@@ -973,6 +981,9 @@ public class UserTaskView extends TopComponent implements ExportImportProvider,
         getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).
                 put(KeyStroke.getKeyStroke(KeyEvent.VK_DOWN, 
                 InputEvent.CTRL_MASK), "moveDown");  // NOI18N
+        getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).
+                put(KeyStroke.getKeyStroke(KeyEvent.VK_INSERT, 0), 
+                "newTask");  // NOI18N
         
         ActionMap map = getActionMap();
         map.put(javax.swing.text.DefaultEditorKit.copyAction, 
@@ -985,6 +996,7 @@ public class UserTaskView extends TopComponent implements ExportImportProvider,
         map.put("delete", new UTDeleteAction(tt));  // NOI18N
         map.put("moveUp", moveUpAction); // NOI18N
         map.put("moveDown", moveDownAction); // NOI18N
+        map.put("newTask", newTaskAction); // NOI18N
 
         FindAction find = (FindAction) FindAction.get(FindAction.class);
         FilterAction filter = (FilterAction) 

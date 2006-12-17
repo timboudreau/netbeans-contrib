@@ -41,15 +41,11 @@ import org.netbeans.modules.tasklist.core.export.ExportAction;
 import org.netbeans.modules.tasklist.core.export.ImportAction;
 import org.netbeans.modules.tasklist.core.filter.FilterAction;
 import org.netbeans.modules.tasklist.core.filter.RemoveFilterAction;
-import org.netbeans.modules.tasklist.usertasks.actions.ClearCompletedAction;
 import org.netbeans.modules.tasklist.usertasks.actions.CollapseAllAction;
 import org.netbeans.modules.tasklist.usertasks.actions.ExpandAllUserTasksAction;
 import org.netbeans.modules.tasklist.usertasks.actions.GoToUserTaskAction;
-import org.netbeans.modules.tasklist.usertasks.actions.NewTaskAction;
 import org.netbeans.modules.tasklist.usertasks.actions.PauseAction;
-import org.netbeans.modules.tasklist.usertasks.actions.PurgeTasksAction;
 import org.netbeans.modules.tasklist.usertasks.actions.ScheduleAction;
-import org.netbeans.modules.tasklist.usertasks.actions.ShowTaskAction;
 import org.netbeans.modules.tasklist.usertasks.actions.StartTaskAction;
 import org.netbeans.modules.tasklist.usertasks.editors.DateEditor;
 import org.netbeans.modules.tasklist.usertasks.editors.DurationPropertyEditor;
@@ -61,7 +57,6 @@ import org.netbeans.modules.tasklist.usertasks.util.UTUtils;
 import org.openide.actions.CopyAction;
 import org.openide.actions.CutAction;
 import org.openide.actions.PasteAction;
-import org.openide.actions.PropertiesAction;
 import org.openide.nodes.AbstractNode;
 import org.openide.nodes.Children;
 import org.openide.nodes.PropertySupport;
@@ -98,7 +93,7 @@ public final class UserTaskNode extends AbstractNode {
      * for root tasks
      * @param tt TreeTable
      */
-    UserTaskNode(UserTaskTreeTableNode node, UserTask item, UserTaskList utl,
+    public UserTaskNode(UserTaskTreeTableNode node, UserTask item, UserTaskList utl,
     UserTasksTreeTable tt) {
         super(Children.LEAF);
         assert item != null;
@@ -156,7 +151,7 @@ public final class UserTaskNode extends AbstractNode {
                 SystemAction.get(PasteAction.class),
                 null,
                 SystemAction.get(FilterAction.class),
-                SystemAction.get(PurgeTasksAction.class),
+                utv.purgeTasksAction,
                 SystemAction.get(ScheduleAction.class),
                 null,
                 SystemAction.get(ExpandAllUserTasksAction.class),
@@ -167,13 +162,13 @@ public final class UserTaskNode extends AbstractNode {
             };
         } else {
             return new Action[] {
-                // TODO: SystemAction.get(NewTaskAction.class),
+                utv.newTaskAction,
                 //SystemAction.get(ShowScheduleViewAction.class),
                 null,
                 new StartTaskAction(utv),
                 PauseAction.getInstance(),
                 null,
-                SystemAction.get(ShowTaskAction.class),
+                utv.showTaskAction,
                 new GoToUserTaskAction(utv),
                 null,
                 SystemAction.get(CutAction.class),
@@ -190,8 +185,8 @@ public final class UserTaskNode extends AbstractNode {
                 SystemAction.get(FilterAction.class),
                 SystemAction.get(RemoveFilterAction.class),
                 null,
-                SystemAction.get(PurgeTasksAction.class),
-                SystemAction.get(ClearCompletedAction.class),
+                utv.purgeTasksAction,
+                utv.clearCompletedAction,
                 SystemAction.get(ScheduleAction.class),
                 null,
                 SystemAction.get(ExpandAllUserTasksAction.class),
@@ -202,7 +197,7 @@ public final class UserTaskNode extends AbstractNode {
 
                 // Property: node specific, but by convention last in menu
                 null,
-                SystemAction.get(PropertiesAction.class)
+                utv.propertiesAction
             };
         }
     }
@@ -415,7 +410,7 @@ public final class UserTaskNode extends AbstractNode {
     }    
     
     public javax.swing.Action getPreferredAction() {
-        return SystemAction.get(ShowTaskAction.class);
+        return null; // TODO SystemAction.get(ShowTaskAction.class);
     }
     
     public boolean canRename() {
@@ -601,10 +596,7 @@ public final class UserTaskNode extends AbstractNode {
                 ut.setLine(item.getLine());
                 ut.setPriority(item.getPriority());
             }
-            if (target instanceof UserTaskNode)
-                ((UserTaskNode) target).pasteTask(ut);
-            else
-                ((UserTaskListNode) target).pasteTask(ut);
+            ((UserTaskNode) target).pasteTask(ut);
         }
     }
 }

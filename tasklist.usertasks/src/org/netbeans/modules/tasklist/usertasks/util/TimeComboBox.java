@@ -27,6 +27,7 @@ import java.text.FieldPosition;
 import java.text.MessageFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import javax.swing.ComboBoxEditor;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.DefaultListCellRenderer;
@@ -122,22 +123,17 @@ public class TimeComboBox extends JComboBox {
      * @param minutes minutes (e.g. 100 for 01:40)
      */
     public void setTime(int minutes) {
-        int v = minutes;
-        int index = getModel().getSize();
-        for (int i = getModel().getSize() - 1; i >= 0; i--) {
-            int dur = ((Integer) getModel().getElementAt(i)).intValue();
-            if (v > dur) {
-                index = i + 1;
-                break;
-            }
+        int[] v = new int[getModel().getSize()];
+        for (int i = 0; i < v.length; i++) {
+            v[i] = (Integer) getModel().getElementAt(i);
         }
-        int dur = ((Integer) getModel().getElementAt(index - 1)).intValue();
-        if (dur == v) {
-            setSelectedIndex(index - 1);
-        } else {
-            ((DefaultComboBoxModel) getModel()).insertElementAt(new Integer(v),
-                    index);
-            setSelectedIndex(index);
+
+        int index = Arrays.binarySearch(v, minutes);
+        if (index < 0) {
+            index = -index - 1;
+            ((DefaultComboBoxModel) getModel()).insertElementAt(
+                    new Integer(minutes), index);
         }
+        setSelectedIndex(index);
     }
 }

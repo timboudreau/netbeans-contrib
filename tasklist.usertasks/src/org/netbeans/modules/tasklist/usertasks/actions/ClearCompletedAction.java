@@ -19,55 +19,32 @@
 
 package org.netbeans.modules.tasklist.usertasks.actions;
 
+import java.awt.event.ActionEvent;
 import java.util.Iterator;
+import javax.swing.event.ListSelectionEvent;
 
 import org.netbeans.modules.tasklist.usertasks.model.UserTask;
-import org.netbeans.modules.tasklist.usertasks.model.UserTaskList;
-import org.netbeans.modules.tasklist.usertasks.UserTaskListNode;
-import org.netbeans.modules.tasklist.usertasks.UserTaskNode;
+import org.netbeans.modules.tasklist.usertasks.UserTaskView;
 import org.openide.DialogDisplayer;
 import org.openide.NotifyDescriptor;
-import org.openide.nodes.Node;
-import org.openide.util.HelpCtx;
 import org.openide.util.NbBundle;
-import org.openide.util.actions.NodeAction;
 
 /** 
  * Clears "percent complete" properties of all subtasks recursively.
+ * 
+ * @author tl
  */
-public class ClearCompletedAction extends NodeAction {
-    private static final long serialVersionUID = 1;
+public class ClearCompletedAction extends UTViewAction {
+    private static final long serialVersionUID = 2;
 
-    protected boolean enable(Node[] node) {
-        return node.length == 1 && 
-            (node[0] instanceof UserTaskNode || 
-            node[0] instanceof UserTaskListNode);
-    }
-     
-    protected boolean asynchronous() {
-        return false;
-    }
-    
-    protected void performAction(Node[] nodes) {
-        NotifyDescriptor nd = new NotifyDescriptor.Confirmation(
-            NbBundle.getMessage(PurgeTasksAction.class, "ClearCompletedQuestion"), // NOI18N
-            NbBundle.getMessage(PurgeTasksAction.class, "ClearCompletedTitle"), // NOI18N
-            NotifyDescriptor.OK_CANCEL_OPTION
-        );
-        if (DialogDisplayer.getDefault().notify(nd) == NotifyDescriptor.OK_OPTION) {
-            if (nodes[0] instanceof UserTaskNode) {
-                UserTask ptsk = ((UserTaskNode) nodes[0]).getTask();
-                clearCompleted(ptsk);
-            } else {
-                UserTaskList utl = 
-                    ((UserTaskListNode) nodes[0]).getUserTaskList();
-                Iterator it = utl.getSubtasks().iterator();
-                while (it.hasNext()) {
-                    UserTask ut = (UserTask) it.next();
-                    clearCompleted(ut);
-                }
-            }
-        }
+    /**
+     * Constructor.
+     * 
+     * @param utv view associated with this task. 
+     */
+    public ClearCompletedAction(UserTaskView utv) {
+        super(utv, NbBundle.getMessage(ClearCompletedAction.class, 
+                "ClearCompleted")); // NOI18N
     }
     
     /**
@@ -85,20 +62,31 @@ public class ClearCompletedAction extends NodeAction {
         }
     }
     
-    public String getName() {
-        return NbBundle.getMessage(NewTaskAction.class, 
-                                   "ClearCompleted"); // NOI18N
+    public void actionPerformed(ActionEvent arg0) {
+        NotifyDescriptor nd = new NotifyDescriptor.Confirmation(
+            NbBundle.getMessage(PurgeTasksAction.class, "ClearCompletedQuestion"), // NOI18N
+            NbBundle.getMessage(PurgeTasksAction.class, "ClearCompletedTitle"), // NOI18N
+            NotifyDescriptor.OK_CANCEL_OPTION
+        );
+        if (DialogDisplayer.getDefault().notify(nd) == NotifyDescriptor.OK_OPTION) {
+            clearCompleted(getSingleSelectedTask());
+            /*if (nodes[0] instanceof UserTaskNode) {
+                UserTask ptsk = ((UserTaskNode) nodes[0]).getTask();
+                clearCompleted(ptsk);
+            } else {
+                UserTaskList utl = 
+                    ((UserTaskListNode) nodes[0]).getUserTaskList();
+                Iterator it = utl.getSubtasks().iterator();
+                while (it.hasNext()) {
+                    UserTask ut = (UserTask) it.next();
+                    clearCompleted(ut);
+                }
+            }todo */
+        }
     }
-    
-    /* Only in context menu
-    protected String iconResource() {
-        return "org/netbeans/modules/tasklist/core/newTask.gif"; // NOI18N
-    }
-     */
-    
-    public HelpCtx getHelpCtx() {
-        return HelpCtx.DEFAULT_HELP;
-        // If you will provide context help then use:
-        // return new HelpCtx (PurgeTodoItemsAction.class);
+
+    public void valueChanged(ListSelectionEvent arg0) {
+        // todo does not work for the task list node
+        setEnabled(getSingleSelectedTask() != null);
     }
 }

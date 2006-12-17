@@ -39,6 +39,7 @@ import org.netbeans.modules.tasklist.usertasks.*;
 import org.netbeans.modules.tasklist.usertasks.model.UserTask;
 import org.netbeans.modules.tasklist.usertasks.model.UserTaskList;
 import org.netbeans.modules.tasklist.usertasks.model.UserTaskObjectList;
+import org.netbeans.modules.tasklist.usertasks.options.Settings;
 import org.netbeans.modules.tasklist.usertasks.renderers.UserTaskIconProvider;
 import org.netbeans.modules.tasklist.usertasks.treetable.AdvancedTreeTableNode;
 import org.netbeans.modules.tasklist.usertasks.util.UTUtils;
@@ -143,21 +144,14 @@ public class MyTransferHandler extends TransferHandler {
         
         Object obj = tp.getLastPathComponent();
         UserTaskObjectList list = null;
-        UserTask target = null;
-        if (obj instanceof UserTaskTreeTableNode) {
-            target = ((UserTaskTreeTableNode) obj).getUserTask();
-            list = target.getSubtasks();
-            if (transferredTasks != null) {
-                for (int i = 0; i < transferredTasks.length; i++) {
-                    if (transferredTasks[i].isAncestorOf(target)) {
-                        return false;
-                    }
+        UserTask target = ((UserTaskTreeTableNode) obj).getUserTask();
+        list = target.getSubtasks();
+        if (transferredTasks != null) {
+            for (int i = 0; i < transferredTasks.length; i++) {
+                if (transferredTasks[i].isAncestorOf(target)) {
+                    return false;
                 }
             }
-        } else if (obj instanceof UserTaskListTreeTableNode) {
-            UserTaskList utl = ((UserTaskListTreeTableNode) obj).
-                    getUserTaskList();
-            list = utl.getSubtasks();
         }
         
         List<UserTask> tasks_ = new ArrayList<UserTask>(Arrays.asList(tasks));
@@ -173,6 +167,9 @@ public class MyTransferHandler extends TransferHandler {
             return false;
 
         list.addAll(tasks_);
+        if (Settings.getDefault().getAutoSwitchToComputed()) {
+            target.setValuesComputed(true);
+        }
 
         UserTasksTreeTable uttt = (UserTasksTreeTable) comp;
         if (target != null) {

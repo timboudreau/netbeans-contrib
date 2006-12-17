@@ -89,10 +89,10 @@ public class AutoSaver {
         this.file = file;
         this.utl.addChangeListener(new ChangeListener() {
             public void stateChanged(ChangeEvent ev) {
+                do_.setModified(true);
                 if (modified != true) {
                     UTUtils.LOGGER.fine("modified = true"); // NOI18N
                     modified = true;
-                    do_.setModified(true);
                     fireChange();
                 }
                 if (enabled)
