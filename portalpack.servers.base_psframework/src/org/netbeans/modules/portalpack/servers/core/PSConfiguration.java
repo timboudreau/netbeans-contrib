@@ -54,8 +54,8 @@ public class PSConfiguration implements DeploymentConfiguration, XpathListener {
     }
     
     public String getContextPath() throws ConfigurationException {
+        return "";
         // TODO: replace this with reading the context path from the server specific DD
-        return "/mypath";
     }
     
     public void setContextPath(String contextPath) throws ConfigurationException {
