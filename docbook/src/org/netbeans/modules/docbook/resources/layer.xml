@@ -170,4 +170,7 @@ Microsystems, Inc. All Rights Reserved.
             <file name="org-netbeans-modules-docbook-warning.xml" url="docbookWarningAnnotationType.xml"/>
         </folder>
     </folder>
+    <folder name="docbook">
+        <file name="docbook.css" url="docbook.css"/>
+    </folder>
 </filesystem>

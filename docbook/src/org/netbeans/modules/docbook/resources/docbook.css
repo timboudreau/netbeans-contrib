@@ -1,0 +1,32 @@
+    .sidebar {
+        border-top: solid 1px #CABC7C;
+        border-left: solid 1px #CABC7C;
+        border-right: solid 1px #CABC7C;
+        border-bottom: solid 1px #CABC7C;
+        margin-bottom: 10px;
+        background-color: #F4F9FB;
+        padding-top: 0px;
+        padding-left: 5px;
+        padding-right: 5px;
+        position: relative;
+    }
+    
+    .classname {
+        font: bold;
+    }
+    
+    .remark {
+        border-top: solid 1px #CABC7C;
+        border-left: solid 1px #CABC7C;
+        border-right: solid 1px #CABC7C;
+        border-bottom: solid 1px #CABC7C;
+        margin-bottom: 10px;
+        background-color: #FFCCCC;
+        foreground-color: #770000;
+        padding-top: 0px;
+        padding-left: 5px;
+        padding-right: 5px;
+        font-family: sans-serif;
+        font-style: italic;
+    }
+}

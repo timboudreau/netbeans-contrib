@@ -18,14 +18,22 @@
  */
 package org.netbeans.modules.docbook;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.nio.channels.FileChannel;
+import java.nio.charset.Charset;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.regex.Pattern;
 import javax.xml.parsers.SAXParserFactory;
 import javax.xml.transform.ErrorListener;
 import javax.xml.transform.Result;
@@ -37,6 +45,7 @@ import javax.xml.transform.sax.SAXSource;
 import javax.xml.transform.stream.StreamResult;
 import org.netbeans.api.docbook.OutputWindowStatus;
 import org.netbeans.api.docbook.Renderer;
+import org.netbeans.api.project.FileOwnerQuery;
 import org.openide.DialogDisplayer;
 import org.openide.NotifyDescriptor;
 import org.openide.NotifyDescriptor.Message;
@@ -44,7 +53,10 @@ import org.openide.awt.HtmlBrowser.URLDisplayer;
 import org.openide.filesystems.FileLock;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
+import org.openide.filesystems.FileUtil;
+import org.openide.filesystems.Repository;
 import org.openide.modules.InstalledFileLocator;
+import org.openide.util.NbBundle;
 import org.xml.sax.EntityResolver;
 import org.xml.sax.ErrorHandler;
 import org.xml.sax.InputSource;
@@ -188,7 +200,8 @@ class Processor implements Runnable, ErrorListener, ErrorHandler {
                     Source source = new SAXSource(reader, docbook);
 
                     FileLock l = outFile.lock();
-                    status.progress("Transforming XML...");
+                    status.progress(NbBundle.getMessage(Processor.class, 
+                            "MSG_START"));
                     try {
                         OutputStream outS = outFile.getOutputStream(l);
                         try {
@@ -202,8 +215,10 @@ class Processor implements Runnable, ErrorListener, ErrorHandler {
                         l.releaseLock();
                     }
                     copyGraphics (fo.getParent(), dir, status);
+                    insertCss (outFile);
                     URLDisplayer.getDefault().showURL(outFile.getURL());
-                    status.finished("Done.", FileUtil.toFile(outFile));
+                    status.finished(NbBundle.getMessage(Processor.class, 
+                            "MSG_DONE"), FileUtil.toFile(outFile)); //NOI18N
                 }  catch (Exception e) {
                     status.failed(e);
                 }
@@ -211,6 +226,71 @@ class Processor implements Runnable, ErrorListener, ErrorHandler {
                 //mime type can be bad if content is malformed
                 status.failed(new IllegalStateException ("Content malformed"));
             }
+    }
+    
+    private void insertCss (FileObject file) throws IOException {
+        if (file.getSize() > Integer.MAX_VALUE) {
+            //Ahem, not likely
+            status.warn(NbBundle.getMessage(Processor.class, 
+                    "WARN_FILE_TOO_LARGE")); //NOI18N
+            return;
+        }
+        status.progress(NbBundle.getMessage(Processor.class, "ADD_CSS")); //NOI18N
+        FileObject css = getCss (file);
+        if (css != null) {
+            String csstext = "<head><style type=\"text/css\">" +  //NOI18N
+                    readFile (css.getInputStream(), (int) css.getSize()) +
+                    "</style>"; //NOI18N
+            String book = readFile (file.getInputStream(), (int) file.getSize());
+            
+            String newContent = book.replace("<head>", csstext); //NOI18N
+            if (book.equals(newContent)) {
+                status.warn(NbBundle.getMessage(Processor.class, "MSG_HEAD_MISSING")); //NOI18N
+            }
+            
+            FileLock lock = file.lock();
+            OutputStream out = file.getOutputStream(lock);
+            try {
+                ByteArrayInputStream bytes = new ByteArrayInputStream (
+                        newContent.getBytes(Charset.forName("UTF-8"))); //NOI18N
+                FileUtil.copy (bytes, out);
+            } finally {
+                out.close();
+                lock.releaseLock();
+            }
+            status.progress(NbBundle.getMessage(Processor.class, 
+                    "ADD_CSS_COMPLETE")); //NOI18N
+        } else {
+            status.warn(NbBundle.getMessage(Processor.class, "MSG_CSS_MISSING")); //NOI18N
+        }
+    }
+    
+    private FileObject getCss(FileObject outFile) {
+        //Pending - find the owning project and see if there is a 
+        //project css file - make something like o.n.a.d.ProjectCssProvider
+        FileObject fld = Repository.getDefault().getDefaultFileSystem().
+                getRoot().getFileObject ("docbook");
+        if (fld != null) {
+            FileObject css = fld.getFileObject ("docbook.css"); //NOI18N
+            return css;
+        } else {
+            return null;
+        }
+    }
+    
+    private String readFile(InputStream in, int len) throws IOException {
+        ByteArrayOutputStream bytes = new ByteArrayOutputStream ((int) 
+            len);
+        try {
+            FileUtil.copy(in, bytes);
+            byte[] arr = bytes.toByteArray();
+            String s = new String (arr, 0, arr.length, 
+                    Charset.forName("UTF-8")); //NOI18N
+            
+            return s;
+        } finally {
+            in.close();
+        }
     }
 
     private static void copyGraphics(FileObject root, FileObject destFolder, Renderer.JobStatus status) throws IOException {
