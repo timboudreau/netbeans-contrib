@@ -19,6 +19,10 @@
 
 package org.netbeans.modules.tasklist.providers;
 
+import java.io.BufferedInputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.Reader;
 import java.lang.reflect.InvocationTargetException;
 import org.openide.filesystems.FileObject;
 import org.openide.ErrorManager;
@@ -74,11 +78,30 @@ final class JavaSuggestionContext {
         String result = null; // NOI18N
         if (!findMethods()) {
             try {
-                DataObject do_ = DataObject.find(fo);
-                result = new SuggestionContext(do_).getCharSequence().toString();
-            } catch (DataObjectNotFoundException e) {
+                char[] buf = new char[1024*64];
+                StringBuffer sb = new StringBuffer();
+                Reader r = new InputStreamReader(new BufferedInputStream(fo.getInputStream()));
+                int len;
+                try {
+                    while (true) {
+                        len = r.read(buf);
+                        if (len == -1) break;
+                        sb.append(buf, 0, len);
+                    }
+                    result = sb.toString();
+                } finally {
+                    r.close();
+                }
+            } catch (IOException e) {
                 ErrorManager.getDefault().notify(e);
             }
+
+//            try {
+//                DataObject do_ = DataObject.find(fo);
+//                result = new SuggestionContext(do_).getCharSequence().toString();
+//            } catch (DataObjectNotFoundException e) {
+//                ErrorManager.getDefault().notify(e);
+//            }
         } else {
             try {
                 String encoding = (String) org_netbeans_modules_java_Util_getFileEncoding.
