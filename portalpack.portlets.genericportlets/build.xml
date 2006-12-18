@@ -28,7 +28,7 @@ Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
     <import file="../../../nbbuild/templates/projectized.xml"/>
     
     <target name="compile" depends="projectized-common.compile">
-    
+        
         <property name="build.templates.projects.dir" value="${build.classes.dir}/templates/projects"/>
         <property name="src.templates.projects.dir" value="${src.dir}/templates/projects"/>
     
@@ -51,6 +51,7 @@ Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
     <target name="netbeans-extra" depends="release"/>
 
     <target name="release" depends="init">
+        
         <mkdir dir="${cluster}/modules/ext/portalpack/jdom"/>
         <mkdir dir="${cluster}/modules/ext/portalpack/velocity"/>
         
@@ -75,5 +76,25 @@ Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
         
     </target>
 
+     <target name="nbm" depends="init,netbeans" description="Build NBM archive.">
+        <mkdir dir="build"/>
+        <makenbm file="build/${nbm}"
+                 productdir="${cluster}"
+                 module="${module.jar}"
+                 homepage="${nbm.homepage}"
+                 distribution="${nbm.distribution}"
+                 needsrestart="${nbm.needs.restart}"
+                 global="${nbm.is.global}"
+                 releasedate="${nbm.release.date}"
+		 moduleauthor="${nbm.module.author}">
+            <license file="${basedir}/../../LICENSE"/>
+            <!-- <license name="${basedir}/../../LICENSE">
+                <text>For the integration module:</text>
+                <file location="${basedir}/../../LICENSE"/>
+
+             </license> -->
+            <signature keystore="${keystore}" storepass="${storepass}" alias="${nbm_alias}"/>
+        </makenbm>
+    </target>
    
 </project>
