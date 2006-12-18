@@ -37,4 +37,25 @@ Microsystems, Inc. All Rights Reserved.
         todir="${cluster}/modules/ext/portalpack"/> 
      </target>  
      
+     <target name="nbm" depends="init,netbeans" description="Build NBM archive.">
+        <mkdir dir="build"/>
+        <makenbm file="build/${nbm}"
+                 productdir="${cluster}"
+                 module="${module.jar}"
+                 homepage="${nbm.homepage}"
+                 distribution="${nbm.distribution}"
+                 needsrestart="${nbm.needs.restart}"
+                 global="${nbm.is.global}"
+                 releasedate="${nbm.release.date}"
+		 moduleauthor="${nbm.module.author}">
+            <license file="${basedir}/../../LICENSE"/>
+            <!-- <license name="${basedir}/../../LICENSE">
+                <text>For the integration module:</text>
+                <file location="${basedir}/../../LICENSE"/>
+
+             </license> -->
+            <signature keystore="${keystore}" storepass="${storepass}" alias="${nbm_alias}"/>
+        </makenbm>
+    </target>
+     
 </project>
