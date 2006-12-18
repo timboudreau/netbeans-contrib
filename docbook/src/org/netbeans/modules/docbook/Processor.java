@@ -252,7 +252,7 @@ class Processor implements Runnable, ErrorListener, ErrorHandler {
             OutputStream out = file.getOutputStream(lock);
             try {
                 ByteArrayInputStream bytes = new ByteArrayInputStream (
-                        newContent.getBytes(Charset.forName("UTF-8"))); //NOI18N
+                        newContent.getBytes("UTF-8")); //NOI18N
                 FileUtil.copy (bytes, out);
             } finally {
                 out.close();
@@ -284,8 +284,7 @@ class Processor implements Runnable, ErrorListener, ErrorHandler {
         try {
             FileUtil.copy(in, bytes);
             byte[] arr = bytes.toByteArray();
-            String s = new String (arr, 0, arr.length, 
-                    Charset.forName("UTF-8")); //NOI18N
+            String s = new String (arr, "UTF-8"); //NOI18N
             
             return s;
         } finally {
