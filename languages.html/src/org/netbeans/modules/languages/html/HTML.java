@@ -143,7 +143,7 @@ public class HTML {
         ASTNode n = (ASTNode) cookie.getPTPath ().getRoot ();
         List l = new ArrayList ();
         resolve (n, new Stack (), l, true);
-        return ASTNode.create (n.getMimeType (), n.getNT (), n.getRule (), n.getParent (), l, n.getOffset ());
+        return ASTNode.create (n.getMimeType (), n.getNT (), n.getRule (), l, n.getOffset ());
     }
     
     
@@ -165,8 +165,25 @@ public class HTML {
         return library;
     }
     
-    private static ASTNode create (ASTNode n, String nt) {
-        return ASTNode.create (n.getMimeType (), nt, n.getRule (), n.getParent (), n.getChildren (), n.getOffset ());
+    private static ASTNode clone (String mimeType, String nt, int rule, int offset, List children) {
+        Iterator it = children.iterator ();
+        List l = new ArrayList ();
+        while (it.hasNext ()) {
+            Object o = it.next ();
+            if (o instanceof SToken)
+                l.add (o);
+            else
+                l.add (clone ((ASTNode) o));
+        }
+        return ASTNode.create (mimeType, nt, rule, l, offset);
+    }
+    
+    private static ASTNode clone (ASTNode n) {
+        return clone (n.getMimeType (), n.getNT (), n.getRule (), n.getOffset (), n.getChildren ());
+    }
+    
+    private static ASTNode clone (ASTNode n, String nt) {
+        return clone (n.getMimeType (), nt, n.getRule (), n.getOffset (), n.getChildren ());
     }
     
     private static void resolve (ASTNode n, Stack s, List l, boolean findUnpairedTags) {
@@ -180,7 +197,7 @@ public class HTML {
             ASTNode node = (ASTNode) o;
             if (node.getNT ().equals ("startTag")) {
                 if (node.getTokenType ("html-end_element_end") != null) {
-                    l.add (create (node, "simpleTag"));
+                    l.add (clone (node, "simpleTag"));
                 } else {
                     String name = node.getTokenTypeIdentifier ("html-element_name");
                     if (name == null) 
@@ -190,9 +207,9 @@ public class HTML {
                     s.add (name);
                     s.add (new Integer (l.size ()));
                     if (findUnpairedTags && isEndTagRequired (name))
-                        l.add (create (node, "unpairedStartTag"));
+                        l.add (clone (node, "unpairedStartTag"));
                     else
-                        l.add (create (node, "startTag"));
+                        l.add (clone (node, "startTag"));
                 }
                 continue;
             } else
@@ -206,29 +223,28 @@ public class HTML {
                 if (indexS >= 0) {
                     int indexL = ((Integer) s.get (indexS + 1)).intValue ();
                     List ll = l.subList (indexL, l.size ());
-                    ll.set (0, create ((ASTNode) ll.get (0), "startTag"));
+                    ll.set (0, clone ((ASTNode) ll.get (0), "startTag"));
                     List ll1 = new ArrayList (ll);
                     ll1.add (node);
-                    ASTNode tag = ASTNode.create (
+                    ASTNode tag = clone (
                         node.getMimeType (),
                         "tag",
                         node.getRule (),
-                        node.getParent (),
-                        ll1,
-                        ((ASTNode) ll1.get (0)).getOffset ()
+                        ((ASTNode) ll1.get (0)).getOffset (),
+                        ll1
                     );
                     ll.clear ();
                     s.subList (indexS, s.size ()).clear ();
                     l.add (tag);
                 } else
-                    l.add (create (node, "unpairedEndTag"));
+                    l.add (clone (node, "unpairedEndTag"));
                 continue;
             } else
             if (node.getNT ().equals ("tags")) {
                 resolve (node, s, l, findUnpairedTags);
                 continue;
             }
-            l.add (node);
+            l.add (clone (node));
         }
     }
 }
