@@ -37,15 +37,12 @@ import org.openide.filesystems.FileSystem;
 import org.openide.filesystems.FileStateInvalidException;
 import org.openide.filesystems.FileUtil;
 import org.openide.filesystems.Repository;
-import org.openide.loaders.DataObject;
-import org.openide.loaders.DataObjectNotFoundException;
 import org.openide.util.Lookup;
 import org.openide.util.RequestProcessor;
 import org.openide.util.io.NbObjectInputStream;
 import org.openide.util.io.NbObjectOutputStream;
 
 import org.netbeans.modules.vcscore.VcsAttributes;
-import org.netbeans.modules.vcscore.turbo.Turbo;
 
 /** Miscelaneous stuff.
  * 
@@ -57,9 +54,6 @@ public class VcsUtilities {
     private static final String GET_BUNDLE = "getBundle(";
     private static final String RESOURCE_MSG = "ResourceMsg";
 
-    private static final String SYSTEM_ENV_PREFIX = "Env-";
-
-    //private static HashMap systemEnvVariables = null;
     //private static final Object systemEnvVariablesLock = new Object();
     
     private static ClassLoader sfsClassLoader = null;
@@ -970,30 +964,7 @@ public class VcsUtilities {
      * Get just the system environment variables.
      */
     public static Map getSystemEnvVars() {
-        /*
-        if (systemEnvVariables == null) {
-            synchronized (systemEnvVariablesLock) {
-                if (systemEnvVariables == null) {
-         */
-        // Do not cache the system properties. Get the fresh set every time.
-        // We can not listen on properties changes, therefore we must obtain
-        // the fresh set again and again.
-                    HashMap systemEnvVariables = new HashMap();
-                    for (Enumeration en = System.getProperties().propertyNames(); en.hasMoreElements(); ) {
-                        String key = (String) en.nextElement();
-                        if (key.startsWith(SYSTEM_ENV_PREFIX)) {
-                            String value = (String) System.getProperty(key);
-                            if (value != null) {
-                                systemEnvVariables.put(key.substring(SYSTEM_ENV_PREFIX.length()), value);
-                            }
-                        }
-                    }
-                    /*
-                }
-            }
-        }
-                     */
-        return systemEnvVariables;
+        return new HashMap(System.getenv());
     }
     
     /**

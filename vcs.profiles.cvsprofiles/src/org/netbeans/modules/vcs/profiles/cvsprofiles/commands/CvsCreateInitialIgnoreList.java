@@ -100,10 +100,10 @@ public class CvsCreateInitialIgnoreList extends Object implements VcsAdditionalC
     }
     
     private void addHomeIgnoreList(ArrayList ignoreList) {
-        String homeStr = System.getProperty("Env-HOME");
+        String homeStr = System.getenv("HOME");
         if (homeStr == null && org.openide.util.Utilities.isWindows()) {
-            String homeDrive = System.getProperty("Env-HOMEDRIVE");
-            String homeDir = System.getProperty("Env-HOMEPATH");
+            String homeDrive = System.getenv("HOMEDRIVE");
+            String homeDir = System.getenv("HOMEPATH");
             if (homeDrive != null && homeDir != null) {
                 homeStr = homeDrive + homeDir;
             }
@@ -117,7 +117,7 @@ public class CvsCreateInitialIgnoreList extends Object implements VcsAdditionalC
     }
     
     private void addEnvironmentIgnoreList(ArrayList ignoreList) {
-        String line = System.getProperty("env-cvsignore"); // NOI18N
+        String line = System.getenv("cvsignore"); // NOI18N
         if (line != null) {
             StringTokenizer tk = new StringTokenizer(line);
             while (tk.hasMoreTokens()) {

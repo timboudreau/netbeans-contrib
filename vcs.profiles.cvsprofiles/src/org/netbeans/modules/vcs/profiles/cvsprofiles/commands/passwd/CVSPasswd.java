@@ -124,10 +124,10 @@ public class CVSPasswd extends Object {
      * @return the home directory
      */
     public String getHome() {
-        String home = System.getProperty("Env-HOME");
+        String home = System.getenv("HOME");
         if (home == null && Utilities.isWindows()) {
-            String homePath = System.getProperty("env-homepath");
-            String homeDrive = System.getProperty("env-homedrive");
+            String homePath = System.getenv("homepath");
+            String homeDrive = System.getenv("homedrive");
             if (homePath != null && homeDrive != null) {
                 home = homeDrive + homePath;
             }

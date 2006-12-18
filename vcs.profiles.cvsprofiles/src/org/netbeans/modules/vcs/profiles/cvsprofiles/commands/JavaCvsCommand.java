@@ -184,19 +184,19 @@ public class JavaCvsCommand implements VcsAdditionalCommand {
     }
     
     /**
-     * We have environment variables with Env- prefix in NetBeans.
-     * JavaCVS library uses cvs.* system properties instead.
-     * Therefore we need to transfer env-cvs* into cvs.*
+     * Converts system env vars to properties used by JavaCVS.
+     * JavaCVS library uses cvs.* system properties instead of
+     * environment variables.
      * cvs.passfile is defined in a special way from home property.
      */
     private static void transferEnvironment() {
         // CVS_PASSFILE
-        String cvsPassfile = System.getProperty("env-cvs_passfile");
+        String cvsPassfile = System.getenv("cvs_passfile");
         if (cvsPassfile == null) {
-            String home = System.getProperty("Env-HOME");
+            String home = System.getenv("HOME");
             if (home == null && org.openide.util.Utilities.isWindows()) {
-                String drive = System.getProperty("Env-HOMEDRIVE");
-                String path = System.getProperty("Env-HOMEPATH");
+                String drive = System.getenv("HOMEDRIVE");
+                String path = System.getenv("HOMEPATH");
                 if (drive != null && path != null) {
                     home = drive + path;
                 }
@@ -209,17 +209,17 @@ public class JavaCvsCommand implements VcsAdditionalCommand {
             System.setProperty("cvs.passfile", cvsPassfile);
         }
         // CVSROOT
-        String cvsRoot = System.getProperty("env-cvsroot");
+        String cvsRoot = System.getenv("cvsroot");
         if (cvsRoot != null) {
             System.setProperty("cvs.root", cvsRoot);
         }
         // CVSEDITOR, EDITOR, VISUAL
-        String cvsEditor = System.getProperty("env-cvseditor");
+        String cvsEditor = System.getenv("cvseditor");
         if (cvsEditor == null) {
-            cvsEditor = System.getProperty("env-editor");
+            cvsEditor = System.getenv("editor");
         }
         if (cvsEditor == null) {
-            cvsEditor = System.getProperty("env-visual");
+            cvsEditor = System.getenv("visual");
         }
         if (cvsEditor != null) {
             System.setProperty("cvs.editor", cvsEditor);

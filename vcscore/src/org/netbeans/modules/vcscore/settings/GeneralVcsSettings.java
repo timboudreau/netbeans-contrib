@@ -146,10 +146,10 @@ public class GeneralVcsSettings extends SystemOption {
     }
 
     public File getHome() {
-        String home = System.getProperty("Env-HOME");
+        String home = System.getenv("HOME");
         if (home == null && org.openide.util.Utilities.isWindows()) {
-            String homeDrive = System.getProperty("Env-HOMEDRIVE");
-            String homeDir = System.getProperty("Env-HOMEPATH");
+            String homeDrive = System.getenv("HOMEDRIVE");
+            String homeDir = System.getenv("HOMEPATH");
             if (homeDrive != null && homeDir != null) {
                 home = homeDrive + homeDir;
             }
@@ -157,29 +157,9 @@ public class GeneralVcsSettings extends SystemOption {
         if (home == null) {
             home = System.getProperty("user.home");
             File fhome = new File(home);
-            setHome(fhome);
             return fhome;
         }
         return new File(home);
-    }
-    
-    public void setHome(File home) {
-        if (home == null) return ;
-        String homepath = home.getAbsolutePath();
-        System.setProperty("Env-HOME", homepath); //NOI18N
-        System.setProperty("env-home", homepath); //NOI18N
-        if (org.openide.util.Utilities.isWindows()) {
-            int index = homepath.indexOf(':');
-            if (index > 0) {
-                String homeDrive = homepath.substring(0, index + 1);
-                String homeDir = (index + 1 < homepath.length()) ? homepath.substring(index + 1) : "\\"; //NOI18N
-                System.setProperty("Env-HOMEDRIVE", homeDrive); //NOI18N
-                System.setProperty("env-homedrive", homeDrive); //NOI18N
-                System.setProperty("Env-HOMEPATH", homeDir); //NOI18N
-                System.setProperty("env-homepath", homeDir); //NOI18N
-            }
-        }
-        firePropertyChange(PROP_HOME, null, home);
     }
     
     /**
