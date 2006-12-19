@@ -31,6 +31,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.WeakHashMap;
+import org.openide.util.Exceptions;
 import org.openide.util.Utilities;
 
 // XXX public method to recalculate w/ all upstream from scratch? or discard caches?
@@ -173,7 +174,11 @@ public abstract class Value<T,X extends Throwable> {
         }
         for (Map.Entry<ValueEvent,ValueListener[]> entry : changes.entrySet()) {
             for (ValueListener l : entry.getValue()) {
-                l.valueChanged(entry.getKey());
+                try {
+                    l.valueChanged(entry.getKey());
+                } catch (Exception x) {
+                    Exceptions.printStackTrace(x);
+                }
             }
         }
     }
