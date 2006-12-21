@@ -92,11 +92,11 @@ public class PCConfigPanel extends ConfigPanel {
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(jSeparator1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 433, Short.MAX_VALUE)
+            .add(jSeparator1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 490, Short.MAX_VALUE)
             .add(layout.createSequentialGroup()
                 .addContainerGap()
                 .add(jLabel2)
-                .addContainerGap(393, Short.MAX_VALUE))
+                .addContainerGap(406, Short.MAX_VALUE))
             .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
                 .addContainerGap()
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
@@ -119,7 +119,7 @@ public class PCConfigPanel extends ConfigPanel {
                                     .add(org.jdesktop.layout.GroupLayout.LEADING, homeTf, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 299, Short.MAX_VALUE))
                                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                                 .add(homeChooseButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 36, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))))
-                .addContainerGap(15, Short.MAX_VALUE))
+                .addContainerGap(19, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
@@ -145,7 +145,7 @@ public class PCConfigPanel extends ConfigPanel {
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
                     .add(jLabel5)
                     .add(adminConsoleUriTf, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(15, Short.MAX_VALUE))
+                .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
 
@@ -210,7 +210,7 @@ public class PCConfigPanel extends ConfigPanel {
         
       /// DeploymentFactoryManager.getInstance().getDisconnectedDeploymentManager("test").
        portalUri.setText("/portletdriver/ospc");
-       adminConsoleUriTf.setText("/portletdriver/dt");
+       adminConsoleUriTf.setText("/portletdriver/admin");
        hostTf.setText("localhost");
         
     }
@@ -231,6 +231,14 @@ public class PCConfigPanel extends ConfigPanel {
 
     public void read(org.openide.WizardDescriptor wizardDescriptor) {
         WizardPropertyReader reader = new WizardPropertyReader(wizardDescriptor);
+        String domainDir = reader.getDomainDir();
+        String pcHome = homeTf.getText();
+        if(pcHome == null || pcHome.trim().length() == 0)
+        {
+            File pcHomeFile = new File(domainDir,"portlet-container");
+            if(pcHomeFile.exists())
+                homeTf.setText(pcHomeFile.getAbsolutePath());
+        }
         
     }
 
