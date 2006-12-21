@@ -72,6 +72,12 @@ public class SunAppServerConfigPanel extends ConfigPanel implements SunAppServer
         jLabel1.setText(org.openide.util.NbBundle.getMessage(SunAppServerConfigPanel.class, "LBL_APPSERVER_HOME"));
         jLabel1.getAccessibleContext().setAccessibleName(org.openide.util.NbBundle.getMessage(SunAppServerConfigPanel.class, "LBL_APPSERVER_HOME"));
 
+        homeTf.addFocusListener(new java.awt.event.FocusAdapter() {
+            public void focusLost(java.awt.event.FocusEvent evt) {
+                homeTfFocusLost(evt);
+            }
+        });
+
         homeButton.setText("...");
         homeButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -183,10 +189,35 @@ public class SunAppServerConfigPanel extends ConfigPanel implements SunAppServer
         );
     }// </editor-fold>//GEN-END:initComponents
 
+    private void homeTfFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_homeTfFocusLost
+        _performHomeTfFocusLost();
+    }//GEN-LAST:event_homeTfFocusLost
+
+    private void _performHomeTfFocusLost() {
+// TODO add your handling code here:
+        String home = homeTf.getText();
+        String domain = domainTf.getText();
+        if(domain == null || domain.trim().length() == 0)
+        {
+            if(home == null || home.trim().length() == 0)
+            {
+                //do nothing
+            }
+            else{
+                if(new File(home + File.separator + "domains" + File.separator + "domain1").exists())
+                {
+                    domainDirTf.setText(home + File.separator + "domains" + File.separator + "domain1");
+                    populateAllDefaultValues();
+                }
+            }
+        }else
+            fireChangeEvent();
+    }
+
     public void initData()
     {
         userNameTf.setText("admin");
-    }
+        domainTf.setEnabled(false);    }
     private void domainDirTfFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_domainDirTfFocusLost
 // TODO add your handling code here:
         logger.info("Focus lost.................");
@@ -197,10 +228,10 @@ public class SunAppServerConfigPanel extends ConfigPanel implements SunAppServer
 // TODO add your handling code here:
         
         String home = homeTf.getText();
-        String domain = domainDirTf.getText();
+        String domainDir = domainDirTf.getText();
         DirectoryChooser chooser = new DirectoryChooser();
         
-        if(domain == null || domain.trim().length() == 0)
+        if(domainDir == null || domainDir.trim().length() == 0)
         {
             if(home == null || home.trim().length() == 0)
                 chooser.open(System.getProperty("user.home"));
@@ -210,12 +241,19 @@ public class SunAppServerConfigPanel extends ConfigPanel implements SunAppServer
                     chooser.open(home + File.separator + "domains" + File.separator + "domain1");
                 }else if(new File(home,"domains").exists())
                     chooser.open(home + File.separator + "domains");
-                else
-                    chooser.open(home);
+                else{
+                    if(new File(home).exists())
+                       chooser.open(home);
+                    else 
+                       chooser.open(System.getProperty("user.home")); 
+                }
             }
         }
         else{
-            chooser.open(domain);
+            if(new File(domainDir).exists())
+                chooser.open(domainDir);
+            else
+                chooser.open(System.getProperty("user.home")); 
         }
         String dir = chooser.getSelectedDir();
         domainDirTf.setText(dir);
@@ -226,7 +264,7 @@ public class SunAppServerConfigPanel extends ConfigPanel implements SunAppServer
     private void homeButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_homeButtonActionPerformed
 // TODO add your handling code here:
         
-        String domainDir = domainTf.getText();
+        String domainDir = domainDirTf.getText();
         DirectoryChooser chooser = new DirectoryChooser();
         String home = homeTf.getText();
         if(home == null || home.trim().length() == 0)
@@ -235,13 +273,21 @@ public class SunAppServerConfigPanel extends ConfigPanel implements SunAppServer
                 chooser.open(System.getProperty("user.home"));
             else
             {
-                chooser.open(domainDir);
+                if(new File(domainDir).exists())
+                    chooser.open(domainDir);
+                else
+                    chooser.open(System.getProperty("user.home"));
             }
         }
-        else
-            chooser.open(home);
+        else{
+            if(new File(home).exists())
+                chooser.open(home);
+            else
+                chooser.open(System.getProperty("user.home"));
+        }
         String dir = chooser.getSelectedDir();
         homeTf.setText(dir);
+        _performHomeTfFocusLost();
     }//GEN-LAST:event_homeButtonActionPerformed
 
     
@@ -327,6 +373,16 @@ public class SunAppServerConfigPanel extends ConfigPanel implements SunAppServer
 
     public boolean validate(Object wizardDescriptor) {
         
+        String home = homeTf.getText();
+        String ext = "";
+        if (org.openide.util.Utilities.isWindows()){
+            ext = ".bat";
+        }
+        if(!new File(home,"bin" + File.separator + "asadmin"+ext).exists())
+        {
+            setErrorMessage("Not a valid Home");
+            return false;
+        }
         logger.info("Validate......................>>>>>>>***************");
         String domainDir = domainDirTf.getText();
         SunAppConfigUtil configUtil = null;

@@ -125,6 +125,9 @@
       </AuxValues>
     </Component>
     <Component class="javax.swing.JTextField" name="homeTf">
+      <Events>
+        <EventHandler event="focusLost" listener="java.awt.event.FocusListener" parameters="java.awt.event.FocusEvent" handler="homeTfFocusLost"/>
+      </Events>
     </Component>
     <Component class="javax.swing.JButton" name="homeButton">
       <Properties>
