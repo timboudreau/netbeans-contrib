@@ -71,6 +71,7 @@ public class RunDialog extends javax.swing.JFrame {
         "test.scroll.ScrollTest",
         "test.scroll.SwingScrollTest",
         "test.swingborder.SwingBorderTest",
+        "test.tool.CtrlKeySwitchToolTest",
         "test.tool.ToolTest",
         "test.vmd.VMDCollisionTest",
         "test.vmd.VMDTest",
