@@ -77,6 +77,7 @@ public final class NetbeansNewPortletClassVisualPanel1 extends JPanel implements
         viewCB.setSelected(true);
         org.openide.awt.Mnemonics.setLocalizedText(viewCB, org.openide.util.NbBundle.getMessage(NetbeansNewPortletClassVisualPanel1.class, "LBL_VIEW"));
         viewCB.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        viewCB.setEnabled(false);
         viewCB.setMargin(new java.awt.Insets(0, 0, 0, 0));
 
         editCB.setSelected(true);
@@ -109,7 +110,7 @@ public final class NetbeansNewPortletClassVisualPanel1 extends JPanel implements
                     .add(pnameTf, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 194, Short.MAX_VALUE)
                     .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
                         .add(viewCB)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 25, Short.MAX_VALUE)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 28, Short.MAX_VALUE)
                         .add(editCB)
                         .add(33, 33, 33)
                         .add(helpCB))
