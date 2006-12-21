@@ -42,8 +42,8 @@ public class JNPCConfigPanelManagerImpl implements PSConfigPanelManager, ServerC
 
     public InstallPanel[] getInstallPanels(String psVersion) {
         
-        return new InstallPanel[]{new InstallPanel(new PCConfigPanel()),
-                                  new InstallPanel(getServerConfigPanel())};
+        return new InstallPanel[]{new InstallPanel(getServerConfigPanel()),
+                                  new InstallPanel(new PCConfigPanel())};
         
     }
 
