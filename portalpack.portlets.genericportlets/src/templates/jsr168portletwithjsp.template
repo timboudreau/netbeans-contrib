@@ -27,7 +27,7 @@ public class $CLASS_NAME extends GenericPortlet {
     public void doView(RenderRequest request,RenderResponse response) throws PortletException,IOException {
         response.setContentType("text/html");        
         PortletRequestDispatcher dispatcher =
-                getPortletContext().getRequestDispatcher("/view.jsp");
+                getPortletContext().getRequestDispatcher("/WEB-INF/jsp/view.jsp");
         dispatcher.include(request, response);
 
     }
@@ -35,7 +35,7 @@ public class $CLASS_NAME extends GenericPortlet {
     public void doEdit(RenderRequest request,RenderResponse response) throws PortletException,IOException {
         response.setContentType("text/html");        
         PortletRequestDispatcher dispatcher =
-                getPortletContext().getRequestDispatcher("/edit.jsp");
+                getPortletContext().getRequestDispatcher("/WEB-INF/jsp/edit.jsp");
         dispatcher.include(request, response);
 
     }
@@ -43,7 +43,7 @@ public class $CLASS_NAME extends GenericPortlet {
     public void doHelp(RenderRequest request, RenderResponse response) throws PortletException, IOException {
         response.setContentType("text/html");        
         PortletRequestDispatcher dispatcher =
-                getPortletContext().getRequestDispatcher("/help.jsp");
+                getPortletContext().getRequestDispatcher("/WEB-INF/jsp/help.jsp");
         dispatcher.include(request, response);
     }
 
