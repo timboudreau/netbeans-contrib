@@ -274,4 +274,6 @@ COMPLETION:html-whitespace2 {
 PROPERTIES {
     processAST:org.netbeans.modules.languages.html.HTML.process;
     ignoreCase:"true";
+    highlight:"css-230,255,230";
+    highlight1:"js-230,230,255";
 }
