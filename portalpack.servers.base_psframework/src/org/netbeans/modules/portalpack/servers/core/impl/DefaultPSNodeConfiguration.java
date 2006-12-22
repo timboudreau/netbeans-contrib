@@ -19,6 +19,7 @@
 
 package org.netbeans.modules.portalpack.servers.core.impl;
 
+import javax.swing.Action;
 import org.netbeans.modules.portalpack.servers.core.api.*;
 import org.netbeans.modules.portalpack.servers.core.nodes.ChannelChildrenNode;
 import org.netbeans.modules.portalpack.servers.core.nodes.actions.AddChannelToSelected;
@@ -131,6 +132,18 @@ public class DefaultPSNodeConfiguration implements PSNodeConfiguration {
     }
 
     public Node[] getCustomChildrenForRootNode(PSDeploymentManager dm, String baseDn, String key) {
+        return null;
+    }
+
+    public boolean showTopChannelsNode() {
+        return true;
+    }
+
+    public Action[] getTopChannelsActions() {
+        return null;
+    }
+
+    public Node[] getCustomChildrenForTopChannelsNode(PSDeploymentManager dm, String baseDn, String key) {
         return null;
     }
 }

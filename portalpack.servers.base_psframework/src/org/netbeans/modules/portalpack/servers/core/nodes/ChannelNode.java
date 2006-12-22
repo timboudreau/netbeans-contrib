@@ -106,8 +106,12 @@ public class ChannelNode extends BaseNode implements Node.Cookie {
     public javax.swing.Action[] getActions(boolean context) {
    
         if(manager != null)
-            return manager.getPSNodeConfiguration().getChannelActions(ccNode.getChannelFilterType());
-        
+        {
+            if(ccNode.getChannelFilterType().equals(ChannelChildrenNode.TOP_CHANNELS))
+                return manager.getPSNodeConfiguration().getTopChannelsActions();
+            else
+                return manager.getPSNodeConfiguration().getChannelActions(ccNode.getChannelFilterType());
+        }
         javax.swing.Action[]  newActions = new javax.swing.Action[1] ;
         newActions[0]=(null);
         

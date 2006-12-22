@@ -36,6 +36,8 @@ public interface PSNodeConfiguration {
 
     public boolean showContainerNodes();
     
+    public boolean showTopChannelsNode();
+    
     public Action[] getChannelActions(String channelType);
 
     public Action[] getDnActions();
@@ -44,9 +46,13 @@ public interface PSNodeConfiguration {
 
     public Action[] getContainerActions();
     
+    public Action[] getTopChannelsActions();
+    
     public Node[] getCustomChildrenForDnNode(PSDeploymentManager dm,String baseDn,String key);
 
     public Node[] getCustomChildrenForContainerNode(PSDeploymentManager dm,String baseDn,String key);
+    
+    public Node[] getCustomChildrenForTopChannelsNode(PSDeploymentManager dm,String baseDn,String key);
     
     public Node[] getCustomChildrenForPortletNode(PSDeploymentManager dm,String baseDn,String key);
     

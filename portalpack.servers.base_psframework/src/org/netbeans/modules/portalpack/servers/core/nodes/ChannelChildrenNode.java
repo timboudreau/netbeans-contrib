@@ -58,7 +58,8 @@ public class ChannelChildrenNode extends Children.Keys {
     
     public static final String SELECTED_TYPE = "selected";
     public static final String EXISTING_TYPE = "existing";
-    public static String AVAILABLE_TYPE = "available";
+    public static final String AVAILABLE_TYPE = "available";
+    public static final String TOP_CHANNELS = "topchannels";
     
     private volatile String channelType = SELECTED_TYPE;
     
@@ -97,6 +98,39 @@ public class ChannelChildrenNode extends Children.Keys {
                     
                     logger.log(Level.FINEST,"Base DN for this child node is ::"+baseDN);
                     
+                    if(containerName == null)
+                    {
+                        Set set = null;
+                        channelType = TOP_CHANNELS;
+                        try {
+                            set = handler.getExistingChannels(baseDN,new Boolean(true));
+                        } catch (Exception e) {
+                            logger.log(Level.SEVERE,org.openide.util.NbBundle.getMessage(ChannelChildrenNode.class, "MSG_ERROR"),e);
+                            return;
+                        }
+                        
+                         if(set == null)
+                        {
+                            ArrayList customList = new ArrayList();
+                            customList.add("top_channels_custom_node");
+                            setKeys(customList);
+                            return;
+                        }
+                        
+                        List list = new ArrayList();
+                        //remove all parent channels as adding those channel will cause deadlock
+                        for(Iterator it=set.iterator();it.hasNext();)
+                        {
+                           String temp = (String)it.next();
+                           list.add(temp);
+                           
+                        }
+                    
+                        list.add("top_channels_custom_node");
+                        setKeys(list);
+                        return;
+                        
+                    }
                     if(channelType.equals(EXISTING_TYPE))
                     {
                         Set set = null;
@@ -209,6 +243,13 @@ public class ChannelChildrenNode extends Children.Keys {
        if(key.equals("custom_node"))
        {
             Node[] nds = manager.getPSNodeConfiguration().getCustomChildrenForChannelNode(manager,baseDN,(String)key);
+            if(nds != null && nds.length != 0)
+            {
+               return nds;
+            }
+            return new Node[0];
+       }else if(key.equals("top_channels_custom_node")){
+            Node[] nds = manager.getPSNodeConfiguration().getCustomChildrenForTopChannelsNode(manager,baseDN,(String)key);
             if(nds != null && nds.length != 0)
             {
                return nds;

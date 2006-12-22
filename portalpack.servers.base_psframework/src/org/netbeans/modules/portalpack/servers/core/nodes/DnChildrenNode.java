@@ -19,6 +19,7 @@
 
 package org.netbeans.modules.portalpack.servers.core.nodes;
 
+import java.util.ArrayList;
 import org.netbeans.modules.portalpack.servers.core.api.PSDeploymentManager;
 import org.netbeans.modules.portalpack.servers.core.common.enterprise.NodeTypeConstants;
 import org.netbeans.modules.portalpack.servers.core.util.NetbeanConstants;
@@ -102,28 +103,31 @@ public class DnChildrenNode extends Children.Keys {
                     }
                     
                     logger.log(Level.FINEST,"Map :::: "+nodeDataMap);
-                    TreeSet list = new TreeSet();
-                    if(baseDN != null){
-                        list.add("portlet_list");
-                        
-                        //check if providers are required to be shown
-                        if(manager.getPSNodeConfiguration().showContainerNodes())
-                            list.add("providers");
-                        
-                        list.add("custom_node");
-                    }else{
-                        list.add(NodeTypeConstants.GLOBAL);
-                        list.add("custom_node");
-                    }
+                    ArrayList list = new ArrayList();
+                    
                     if(baseDN== null || !baseDN.equals(NodeTypeConstants.GLOBAL)) {
                         Set set = nodeDataMap.keySet();
                         
                         for(Iterator it = set.iterator();it.hasNext();) {
                             list.add(it.next());
-                        }
-                        
+                        }  
                     }
                     
+                    if(baseDN != null){
+                        list.add("portlet_list");
+                        
+                        //check if providers are required to be shown
+                        if(manager.getPSNodeConfiguration().showContainerNodes())
+                            list.add("containers");
+                        
+                        if(manager.getPSNodeConfiguration().showTopChannelsNode())
+                            list.add("topchannels");
+                        
+                        list.add("custom_node");
+                    }else{
+                        list.add(0,NodeTypeConstants.GLOBAL);
+                        list.add("custom_node");
+                    }         
                     setKeys(list);
                 }
                 
@@ -160,8 +164,11 @@ public class DnChildrenNode extends Children.Keys {
         } else if (key.equals(NodeTypeConstants.GLOBAL)) {
             DnNode node = new DnNode(manager,lookup,(String)key,"global");
             return new Node[]{node};
-        }else if(key.equals("providers")) {
+        }else if(key.equals("containers")) {
             ContainersHolderNode holderNode = new ContainersHolderNode(manager,lookup,baseDN);
+            return new Node[]{holderNode};
+        }else if(key.equals("topchannels")){
+            ChannelHolderNode holderNode= new ChannelHolderNode(manager,lookup,null,baseDN);   
             return new Node[]{holderNode};
         }else if(key.equals("custom_node")) {
             if(baseDN != null) {

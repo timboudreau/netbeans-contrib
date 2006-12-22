@@ -54,12 +54,24 @@ public class ChannelHolderNode extends BaseNode implements Node.Cookie {
     }
     
     public javax.swing.Action[] getActions(boolean context) {
-        return new SystemAction[] {
-            SystemAction.get(RefreshPortletsAction.class),
-            SystemAction.get(ShowExistingChannelAction.class),
-            SystemAction.get(ShowAvailableChannelAction.class),
-            SystemAction.get(ShowSelectedChannelAction.class)
-        };
+         //here key is container name. if containername == null means topLevel channels node.
+         if(key != null)
+         {       
+            return new SystemAction[] {
+           
+                SystemAction.get(RefreshPortletsAction.class),
+                SystemAction.get(ShowExistingChannelAction.class),
+                SystemAction.get(ShowAvailableChannelAction.class),
+                SystemAction.get(ShowSelectedChannelAction.class)
+            };
+         }else{
+             
+            return new SystemAction[] {
+           
+                SystemAction.get(RefreshPortletsAction.class),
+                SystemAction.get(ShowExistingChannelAction.class),
+            }; 
+         }
     }
     
     public String getKey() {
