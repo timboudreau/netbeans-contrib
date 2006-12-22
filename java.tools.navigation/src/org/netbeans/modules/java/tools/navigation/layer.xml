@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE filesystem PUBLIC "-//NetBeans//DTD Filesystem 1.1//EN" "http://www.netbeans.org/dtds/filesystem-1_1.dtd">
+<filesystem>
+    <folder name="Actions">
+        <folder name="Navigation">
+            <file name="org-netbeans-modules-java-tools-navigation-ShowJavaStructureAtCaretAction.instance"/>
+            <file name="org-netbeans-modules-java-tools-navigation-ShowJavaStructureAction.instance"/>
+        </folder>
+    </folder>
+    <folder name="Menu">
+        <folder name="View">
+            <attr name="Separator3.instance/org-netbeans-modules-java-tools-navigation-ShowJavaStructureAction.shadow" boolvalue="true"/>
+            <file name="org-netbeans-modules-java-tools-navigation-ShowJavaStructureAction.shadow">
+                <attr name="originalFile" stringvalue="Actions/Navigation/org-netbeans-modules-java-tools-navigation-ShowJavaStructureAction.instance"/>
+            </file>
+            <attr name="org-netbeans-modules-java-tools-navigation-ShowJavaStructureAction.shadow/org-netbeans-modules-java-tools-navigation-separatorAfter.instance" boolvalue="true"/>
+            <attr name="org-netbeans-modules-java-tools-navigation-ShowJavaStructureAction.shadow/org-netbeans-modules-java-tools-navigation-ShowJavaStructureAtCaretAction.shadow" boolvalue="true"/>
+            <file name="org-netbeans-modules-java-tools-navigation-ShowJavaStructureAtCaretAction.shadow">
+                <attr name="originalFile" stringvalue="Actions/Navigation/org-netbeans-modules-java-tools-navigation-ShowJavaStructureAtCaretAction.instance"/>
+            </file>
+            <attr name="org-netbeans-modules-java-tools-navigation-ShowJavaStructureAtCaretAction.shadow/org-netbeans-modules-java-tools-navigation-separatorAfter.instance" boolvalue="true"/>
+            <file name="org-netbeans-modules-java-tools-navigation-separatorAfter.instance">
+                <attr name="instanceClass" stringvalue="javax.swing.JSeparator"/>
+            </file>
+            <attr name="org-netbeans-modules-java-tools-navigation-separatorAfter.instance/ToggleFullScreenAction.shadow" boolvalue="true"/>
+        </folder>
+    </folder>
+    <folder name="Toolbars">
+        <folder name="Edit">
+            <attr name="org-openide-actions-FindAction.instance/org-netbeans-modules-java-tools-navigation-ShowJavaStructureAction.shadow" boolvalue="true"/>
+            <file name="org-netbeans-modules-java-tools-navigation-ShowJavaStructureAction.shadow">
+                <attr name="originalFile" stringvalue="Actions/Navigation/org-netbeans-modules-java-tools-navigation-ShowJavaStructureAction.instance"/>
+            </file>
+            <attr name="org-netbeans-modules-java-tools-navigation-ShowJavaStructureAction.shadow/org-netbeans-modules-java-tools-navigation-ShowJavaStructureAtCaretAction.shadow" boolvalue="true"/>
+            <file name="org-netbeans-modules-java-tools-navigation-ShowJavaStructureAtCaretAction.shadow">
+                <attr name="originalFile" stringvalue="Actions/Navigation/org-netbeans-modules-java-tools-navigation-ShowJavaStructureAtCaretAction.instance"/>
+            </file>
+        </folder>
+    </folder>
+    <folder name="Shortcuts">
+        <file name="D-S-S.shadow">
+            <attr name="originalFile" stringvalue="Actions/Navigation/org-netbeans-modules-java-tools-navigation-ShowJavaStructureAction.instance"/>
+        </file>
+        <file name="D-O-S-S.shadow">
+            <attr name="originalFile" stringvalue="Actions/Navigation/org-netbeans-modules-java-tools-navigation-ShowJavaStructureAtCaretAction.instance"/>
+        </file>
+    </folder>
+</filesystem>
