@@ -21,6 +21,7 @@ package org.netbeans.modules.portalpack.servers.core.nodes;
 
 import org.netbeans.modules.portalpack.servers.core.api.PSDeploymentManager;
 import org.netbeans.modules.portalpack.servers.core.common.enterprise.NodeTypeConstants;
+import org.netbeans.modules.portalpack.servers.core.nodes.actions.AddChannelAction;
 import org.netbeans.modules.portalpack.servers.core.nodes.actions.CreateContainerAction;
 import org.netbeans.modules.portalpack.servers.core.nodes.actions.RefreshPortletsAction;
 import org.netbeans.modules.portalpack.servers.core.nodes.actions.RefreshCookie;
@@ -69,7 +70,7 @@ public class ChannelHolderNode extends BaseNode implements Node.Cookie {
             return new SystemAction[] {
            
                 SystemAction.get(RefreshPortletsAction.class),
-                SystemAction.get(ShowExistingChannelAction.class),
+                SystemAction.get(AddChannelAction.class),
             }; 
          }
     }

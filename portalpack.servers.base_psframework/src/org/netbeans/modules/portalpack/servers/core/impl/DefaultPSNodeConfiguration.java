@@ -19,12 +19,15 @@
 
 package org.netbeans.modules.portalpack.servers.core.impl;
 
+import java.awt.event.ActionEvent;
+import java.beans.PropertyChangeListener;
 import javax.swing.Action;
 import org.netbeans.modules.portalpack.servers.core.api.*;
 import org.netbeans.modules.portalpack.servers.core.nodes.ChannelChildrenNode;
 import org.netbeans.modules.portalpack.servers.core.nodes.actions.AddChannelToSelected;
 import org.netbeans.modules.portalpack.servers.core.nodes.actions.AddPortletAction;
 import org.netbeans.modules.portalpack.servers.core.nodes.actions.CreateContainerAction;
+import org.netbeans.modules.portalpack.servers.core.nodes.actions.DeleteChannelAction;
 import org.netbeans.modules.portalpack.servers.core.nodes.actions.DeleteChannelFromSelected;
 import org.netbeans.modules.portalpack.servers.core.nodes.actions.DeleteContainerAction;
 import org.netbeans.modules.portalpack.servers.core.nodes.actions.ShowAdminToolAction;
@@ -114,6 +117,13 @@ public class DefaultPSNodeConfiguration implements PSNodeConfiguration {
             newActions[1] = (SystemAction.get(DeleteChannelFromSelected.class));
         return newActions;
     }
+    
+    public Action[] getTopChannelsActions() {
+        javax.swing.Action[] newActions = new javax.swing.Action[2];
+        newActions[0] = null;
+      //  newActions[1] = SystemAction.get(DeleteChannelAction.class);
+        return newActions;
+    }
 
     public Node[] getCustomChildrenForDnNode(PSDeploymentManager dm, String baseDn, String key) {
         return null;
@@ -139,9 +149,7 @@ public class DefaultPSNodeConfiguration implements PSNodeConfiguration {
         return true;
     }
 
-    public Action[] getTopChannelsActions() {
-        return null;
-    }
+    
 
     public Node[] getCustomChildrenForTopChannelsNode(PSDeploymentManager dm, String baseDn, String key) {
         return null;

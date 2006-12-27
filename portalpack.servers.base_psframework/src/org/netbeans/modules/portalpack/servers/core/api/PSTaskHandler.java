@@ -31,6 +31,10 @@ import javax.management.MBeanException;
 public interface PSTaskHandler {
     public void createChannel(String dn, String portletName, String channelName) throws MBeanException, Exception;
 
+    //This is called from "Add Channel" action. It handles UI for AddChannelAction and delegates the request to create
+    //channel to create a channel.
+    public void addChannel(String dn) throws Exception;
+    
     public String deploy(String warfile, String serveruri) throws Exception;
 
     public String[] getPortlets(String dn);

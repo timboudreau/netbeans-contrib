@@ -108,4 +108,8 @@ public class DefaultPSTaskHandler implements PSTaskHandler {
     public String constructAdminToolURL() {
         return "http://localhost";
     }
+
+    public void addChannel(String dn) throws Exception{
+        //empty implementation.
+    }
 }
