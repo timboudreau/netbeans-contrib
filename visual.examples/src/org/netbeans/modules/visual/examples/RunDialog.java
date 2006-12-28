@@ -47,6 +47,7 @@ public class RunDialog extends javax.swing.JFrame {
         "test.convolve.ConvolveTest",
         "test.custom.CustomWidgetTest",
         "test.devolve.DevolveTest",
+        "test.enable.EnableTest",
         "test.expand.MouseOverExpandTest",
         "test.expand.ProxyAnchorExpandTest",
         "test.general.GraphSceneTest",
