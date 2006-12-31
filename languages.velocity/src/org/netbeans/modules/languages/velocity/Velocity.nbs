@@ -1,0 +1,143 @@
+# The contents of this file are subject to the terms of the Common Development
+# and Distribution License (the License). You may not use this file except in
+# compliance with the License.
+#
+# You can obtain a copy of the License at http://www.netbeans.org/cddl.html
+# or http://www.netbeans.org/cddl.txt.
+#
+# When distributing Covered Code, include this CDDL Header Notice in each file
+# and include the License file at http://www.netbeans.org/cddl.txt.
+# If applicable, add the following below the CDDL Header, with the fields
+# enclosed by brackets [] replaced by your own identifying information:
+# "Portions Copyrighted [year] [name of copyright owner]"
+#
+# The Original Software is NetBeans. The Initial Developer of the Original
+# Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
+# Microsystems, Inc. All Rights Reserved.
+
+########### tokens #############################################################
+
+TOKEN:vm_comment:( "#*" - "*#" )
+TOKEN:vm_comment:( "##" [^ "\n" "\r"]+ )
+TOKEN:vm_keyword:( 
+    "#set" |
+    "#foreach" |
+    "#if" |
+    "#elseif" |
+    "#parse" |
+    "#macro" |
+    "#include"
+):<IN_VM>
+TOKEN:vm_keyword:( 
+    "#end" |
+    "#else" |
+    "#stop"
+)
+TOKEN:vm_identifier:( 
+    "$" "!"? "{"?
+    ["a"-"z" "A"-"Z"] ["a"-"z" "A"-"Z" "0"-"9" "-" "_"]* "}"?
+)
+TOKEN:vm_identifier:( 
+    "$" "{"?
+    ["a"-"z" "A"-"Z"] ["a"-"z" "A"-"Z" "0"-"9" "-" "_"]* 
+    "." ["a"-"z" "A"-"Z"] ["a"-"z" "A"-"Z" "0"-"9" "-" "_"]* "}"?
+)
+TOKEN:vm_identifier:( 
+    "$"  "{"?
+    ["a"-"z" "A"-"Z"] ["a"-"z" "A"-"Z" "0"-"9" "-" "_"]* 
+    "." ["a"-"z" "A"-"Z"] ["a"-"z" "A"-"Z" "0"-"9" "-" "_"]* 
+    "("
+):<IN_PARAMS>
+<IN_PARAMS> {
+    TOKEN:vm_string: (
+        "\"" ( 
+            [^ "\\" "\"" "\n" "\r"] |
+            ("\\" (
+                . |
+                (["0"-"7"] ["0"-"7"] ["0"-"7"]) |
+                ("x" ["0"-"9" "a"-"f" "A"-"F"] ["0"-"9" "a"-"f" "A"-"F"]) |
+                ("u" ["0"-"9" "a"-"f" "A"-"F"] ["0"-"9" "a"-"f" "A"-"F"] ["0"-"9" "a"-"f" "A"-"F"] ["0"-"9" "a"-"f" "A"-"F"])
+            ))
+        )* 
+        "\""
+    )
+    TOKEN:vm_number: (
+        ["0"-"9"] ['l' 'L']? |
+        ["1"-"9"] ["0"-"9"]* ['l' 'L']? |
+        "0" ["0"-"7"]+ ['l' 'L']? |
+        "0" ["x" "X"] ["0"-"9" "a"-"f" "A"-"F"]+ ['l' 'L']? |
+        ["0"-"9"]+ "." ["0"-"9"]* (["e" "E"] ["+" "-"]? ["0"-"9"]+)? ["f" "F" "d" "D"]? |
+        "." ["0"-"9"]+ (["e" "E"] ["+" "-"]? ["0"-"9"]+)? ["f" "F" "d" "D"]? |
+        ["0"-"9"]+ ["e" "E"] ["+" "-"]? ["0"-"9"]+ ["f" "F" "d" "D"]? |
+        ["0"-"9"]+ (["e" "E"] ["+" "-"]? ["0"-"9"]+)? ["f" "F" "d" "D"]
+    )
+    TOKEN:vm_identifier:( "$"? ["a"-"z" "A"-"Z"] ["a"-"z" "A"-"Z" "0"-"9" "-" "_"]* )
+    TOKEN:vm_operator:( "," )
+    TOKEN:vm_operator:( ")" "}"? ):<DEFAULT>
+}
+<IN_VM1> {
+    TOKEN:vm_whitespace:( [" " "\t" "\n" "\r"]+ )
+    TOKEN:vm_operator:( "(" ):<IN_VM2+DEFAULT>
+}
+<IN_VM2> {
+    TOKEN:vm_identifier:( "$"? ["a"-"z" "A"-"Z"] ["a"-"z" "A"-"Z" "0"-"9" "-" "_"]* ):<IN_VM>
+    TOKEN:vm_operator:( "." | "(" | ")" | "[" | "]" | "=" | "," )
+    TOKEN:vm_whitespace:( " " | "\t" )
+    TOKEN:vm_eol:( ["\n" "\r"]+ ):<DEFAULT>
+    TOKEN:vm_string: (
+        "\"" ( 
+            [^ "\\" "\"" "\n" "\r"] |
+            ("\\" (
+                . |
+                (["0"-"7"] ["0"-"7"] ["0"-"7"]) |
+                ("x" ["0"-"9" "a"-"f" "A"-"F"] ["0"-"9" "a"-"f" "A"-"F"]) |
+                ("u" ["0"-"9" "a"-"f" "A"-"F"] ["0"-"9" "a"-"f" "A"-"F"] ["0"-"9" "a"-"f" "A"-"F"] ["0"-"9" "a"-"f" "A"-"F"])
+            ))
+        )* 
+        "\""
+    )
+    TOKEN:vm_number: (
+        ["0"-"9"] ['l' 'L']? |
+        ["1"-"9"] ["0"-"9"]* ['l' 'L']? |
+        "0" ["0"-"7"]+ ['l' 'L']? |
+        "0" ["x" "X"] ["0"-"9" "a"-"f" "A"-"F"]+ ['l' 'L']? |
+        ["0"-"9"]+ "." ["0"-"9"]* (["e" "E"] ["+" "-"]? ["0"-"9"]+)? ["f" "F" "d" "D"]? |
+        "." ["0"-"9"]+ (["e" "E"] ["+" "-"]? ["0"-"9"]+)? ["f" "F" "d" "D"]? |
+        ["0"-"9"]+ ["e" "E"] ["+" "-"]? ["0"-"9"]+ ["f" "F" "d" "D"]? |
+        ["0"-"9"]+ (["e" "E"] ["+" "-"]? ["0"-"9"]+)? ["f" "F" "d" "D"]
+    )
+    TOKEN:vm_comment:( "##" [^ " " "\t" "\n" "\r"]+ ):<DEFAULT>
+}
+
+TOKEN:text:( [^ "#" "$"]+ )
+TOKEN:text:( "#" )
+TOKEN:text:( "$" )
+
+COLOR:vm_comment {
+    background_color:"#e6ffe6";
+}
+COLOR:vm_keyword {
+    background_color:"#e6ffe6";
+}
+COLOR:vm_number {
+    background_color:"#e6ffe6";
+}
+COLOR:vm_string {
+    background_color:"#e6ffe6";
+}
+COLOR:vm_whitespace {
+    background_color:"#e6ffe6";
+}
+COLOR:vm_identifier {
+    background_color:"#e6ffe6";
+}
+COLOR:vm_operator {
+    background_color:"#e6ffe6";
+}
+
+#IMPORT:html {
+#    mimeType:"text/html2";
+#    state: "DEFAULT";
+#}
+
+
