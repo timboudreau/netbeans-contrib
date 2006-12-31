@@ -116,16 +116,16 @@ TOKEN:identifier:( ["a"-"z" "A"-"Z" "_"] ["a"-"z" "A"-"Z" "0"-"9" "_"]* )
 TOKEN:number:( ( ["0"-"9"]+ ("." ["0"-"9"]*)? | "." ["0"-"9"]+) ("E" ("+" | "-" )? ["0"-"9"]+)? )
 TOKEN:whitespace: ( [" " "\t" "\n" "\r"]* )
 TOKEN:comment:( "/*" - "*/" )
-TOKEN:line-comment:( "%" [^ "\n" "\r"]* ["\n" "\r"]+ )
+TOKEN:line_comment:( "%" [^ "\n" "\r"]* ["\n" "\r"]+ )
 
 
 ########### colors #############################################################
 
-COLOR:line-comment {
-    default-coloring:"comment";
+COLOR:line_comment {
+    default_coloring:"comment";
 }
 
 COLOR:list {
-    default-coloring:"string";
+    default_coloring:"string";
 }
 

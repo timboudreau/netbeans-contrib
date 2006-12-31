@@ -2,4 +2,4 @@ Manifest-Version: 1.0
 OpenIDE-Module: org.netbeans.modules.languages.sql
 OpenIDE-Module-Layer: org/netbeans/modules/languages/sql/layer.xml
 OpenIDE-Module-Localizing-Bundle: org/netbeans/modules/languages/sql/Bundle.properties
-OpenIDE-Module-Specification-Version: 1.0
+OpenIDE-Module-Specification-Version: 1.1

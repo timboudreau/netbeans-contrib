@@ -57,13 +57,13 @@ TOKEN:number:( ["0"-"9"]+ ("." ["0"-"9"]*)? |
 TOKEN:operator:( "," | "*" | ";" | "(" | ")" | "<" | ">" | "=" | "-" | "+" | "/" )
 TOKEN:whitespace: ([" " "\t" "\n" "\r"]+)
 TOKEN:comment:( "/*" - "*/" )
-TOKEN:line-comment:( "--" [^ "\n" "\r"]* ["\n" "\r"]+ )
+TOKEN:line_comment:( "--" [^ "\n" "\r"]* ["\n" "\r"]+ )
 
 
 ########### colors #############################################################
 
-COLOR:line-comment {
-    default-coloring:"comment";
+COLOR:line_comment {
+    default_coloring:"comment";
 }
 
 

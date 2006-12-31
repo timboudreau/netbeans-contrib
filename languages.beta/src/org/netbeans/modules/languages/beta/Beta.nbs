@@ -20,7 +20,7 @@
 ########### tokens #############################################################
 
 TOKEN:comment: ( "(*" - "*)" )
-TOKEN:line-comment: ( "---" [^ "\n" "\r"]* )
+TOKEN:line_comment: ( "---" [^ "\n" "\r"]* )
 TOKEN:keyword: ( 
     "do" |
     "else" |
@@ -56,8 +56,8 @@ TOKEN:whitespace:( [" " "\t" "\n" "\r"]+ )
 
 ########### color ##############################################################
 
-COLOR:line-comment {
-    default-coloring:"comment";
+COLOR:line_comment {
+    default_coloring:"comment";
 }
 
 ########### code folding #######################################################

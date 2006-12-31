@@ -50,7 +50,7 @@ TOKEN:comment:("/*"):<IN_COMMENT>
     TOKEN:comment: ("*/"):<DEFAULT>
 }
 
-TOKEN:line-comment: ("//"[^"\n""\r"]*)
+TOKEN:line_comment: ("//"[^"\n""\r"]*)
 TOKEN:keyword: (
     "abstract" |
     "assert" |
@@ -147,7 +147,7 @@ TOKEN:identifier: (
 
 SKIP:whitespace
 SKIP:comment
-SKIP:line-comment
+SKIP:line_comment
 SKIP:comment_keyword
 
 
@@ -456,20 +456,20 @@ TryStatementFinally = ;
 ########### colors #############################################################
 
 COLOR:separator {
-    color-name: "operator";
+    color_name: "operator";
 }
 
 COLOR:method_name {
-    color-name: "method";
-    default-coloring: "default";
-    font-type: "bold";
+    color_name: "method";
+    default_coloring: "default";
+    font_type: "bold";
 }
 
 COLOR:comment_keyword {
-    color-name: "comment_keyword";
-    default-coloring: "comment";
-    font-type: "bold+italic";
-    underline-color:"gray";
+    color_name: "comment_keyword";
+    default_coloring: "comment";
+    font_type: "bold+italic";
+    underline_color:"gray";
 }
 
 MARK:ERROR {
@@ -491,19 +491,19 @@ FOLD:block:"{...}"
 ########### navigator ##########################################################
 
 NAVIGATOR:method {
-    display-name: "$method_name$ ($parametersList$)";
+    display_name: "$method_name$ ($parametersList$)";
     tooltip: "$modifiers$ $type$ $method_name$ ($parametersList$) $throws$";
     icon: "/org/netbeans/modules/languages/resources/method.gif";
 }
 
 NAVIGATOR:variable {
-    display-name: "$name$ $type$";
+    display_name: "$name$ $type$";
     tooltip: "$modifiers$ $type$ $name$ $type$ $initValue$";
     icon: "/org/netbeans/modules/languages/resources/variable.gif";
 }
 
 NAVIGATOR:constructor {
-    display-name: "$name$ ($parametersList$)";
+    display_name: "$name$ ($parametersList$)";
     tooltip: "$modifiers$ $name$ ($parametersList$) $throws$";
     icon: "/org/netbeans/modules/languages/resources/constructor.gif";
 }

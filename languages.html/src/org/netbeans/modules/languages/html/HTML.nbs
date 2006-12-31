@@ -19,98 +19,98 @@
 
 ########### tokens #############################################################
 
-TOKEN:html-text: ( [^"<" " " "\t" "\n" "\r"]+ )
-TOKEN:html-whitespace: ( [" " "\t" "\n" "\r"]+ )
-TOKEN:html-comment: ( "<!--" - "-->" )
+TOKEN:html_text: ( [^"<" " " "\t" "\n" "\r"]+ )
+TOKEN:html_whitespace: ( [" " "\t" "\n" "\r"]+ )
+TOKEN:html_comment: ( "<!--" - "-->" )
 
 
 #element start ###
 
-TOKEN:html-element_start: ( "<" ):<IN_ELEMENT_START>
-TOKEN:html-end_element_start: ( "</" ):<IN_ELEMENT_START>
+TOKEN:html_element_start: ( "<" ):<IN_ELEMENT_START>
+TOKEN:html_end_element_start: ( "</" ):<IN_ELEMENT_START>
 
 #element name ###
 
-<IN_ELEMENT_START>:TOKEN:html-element_name: ( "SCRIPT" ):<IN_SCRIPT_ELEMENT>
-<IN_ELEMENT_START>:TOKEN:html-element_name: ( "script" ):<IN_SCRIPT_ELEMENT>
-<IN_ELEMENT_START>:TOKEN:html-element_name: ( "STYLE" ):<IN_STYLE_ELEMENT>
-<IN_ELEMENT_START>:TOKEN:html-element_name: ( "style" ):<IN_STYLE_ELEMENT>
-<IN_ELEMENT_START>:TOKEN:html-element_name: ( "!"? ["a"-"z" "A"-"Z"]["a"-"z" "A"-"Z" "0"-"9"]* ):<IN_ELEMENT>
+<IN_ELEMENT_START>:TOKEN:html_element_name: ( "SCRIPT" ):<IN_SCRIPT_ELEMENT>
+<IN_ELEMENT_START>:TOKEN:html_element_name: ( "script" ):<IN_SCRIPT_ELEMENT>
+<IN_ELEMENT_START>:TOKEN:html_element_name: ( "STYLE" ):<IN_STYLE_ELEMENT>
+<IN_ELEMENT_START>:TOKEN:html_element_name: ( "style" ):<IN_STYLE_ELEMENT>
+<IN_ELEMENT_START>:TOKEN:html_element_name: ( "!"? ["a"-"z" "A"-"Z"]["a"-"z" "A"-"Z" "0"-"9"]* ):<IN_ELEMENT>
 
 #attributes ###
 
 <IN_SCRIPT_ELEMENT> {
-    TOKEN:html-element_end: ( ">" ):<DEFAULT>
-    TOKEN:html-end_element_end: ( "/>" ):<DEFAULT>
-    TOKEN:html-operator: ( "=" )
-    TOKEN:html-attribute-value: ( "\"text/javascript\"" ):<IN_JAVASCRIPT>
-    TOKEN:html-attribute-value: ( "\"javascript\"" ):<IN_JAVASCRIPT>
-    TOKEN:html-attribute-value: ( "\"JavaScript\"" ):<IN_JAVASCRIPT>
-    TOKEN:html-attribute-value: ( "\"JAVASCRIPT\"" ):<IN_JAVASCRIPT>
-    TOKEN:html-attribute-value: ( "\"" [^ "\"" "\n" "\r"]* "\"" )    
-    TOKEN:html-attribute-name: ( ["a"-"z" "A"-"Z"]["a"-"z" "A"-"Z" "0"-"9" "-" "_" ":"]* )
-    TOKEN:html-whitespace2: ( [" " "\t" "\n" "\r"]+ )
+    TOKEN:html_element_end: ( ">" ):<DEFAULT>
+    TOKEN:html_end_element_end: ( "/>" ):<DEFAULT>
+    TOKEN:html_operator: ( "=" )
+    TOKEN:html_attribute_value: ( "\"text/javascript\"" ):<IN_JAVASCRIPT>
+    TOKEN:html_attribute_value: ( "\"javascript\"" ):<IN_JAVASCRIPT>
+    TOKEN:html_attribute_value: ( "\"JavaScript\"" ):<IN_JAVASCRIPT>
+    TOKEN:html_attribute_value: ( "\"JAVASCRIPT\"" ):<IN_JAVASCRIPT>
+    TOKEN:html_attribute_value: ( "\"" [^ "\"" "\n" "\r"]* "\"" )    
+    TOKEN:html_attribute_name: ( ["a"-"z" "A"-"Z"]["a"-"z" "A"-"Z" "0"-"9" "-" "_" ":"]* )
+    TOKEN:html_whitespace2: ( [" " "\t" "\n" "\r"]+ )
 }
 
 <IN_STYLE_ELEMENT> {
-    TOKEN:html-element_end: ( "/"? ">" ):<DEFAULT>
-    TOKEN:html-operator: ( "=" )
-    TOKEN:html-attribute-value: ( "\"text/css\"" ):<IN_CSS>
-#    TOKEN:html-attribute-value: ( "\"" [^ "\""]* "\"" )
-    TOKEN:html-attribute-name: ( ["a"-"z" "A"-"Z"]["a"-"z" "A"-"Z" "0"-"9" "-" "_" ":"]* )
-    TOKEN:html-whitespace2: ( [" " "\t" "\n" "\r"]+ )
+    TOKEN:html_element_end: ( "/"? ">" ):<DEFAULT>
+    TOKEN:html_operator: ( "=" )
+    TOKEN:html_attribute_value: ( "\"text/css\"" ):<IN_CSS>
+#    TOKEN:html_attribute_value: ( "\"" [^ "\""]* "\"" )
+    TOKEN:html_attribute_name: ( ["a"-"z" "A"-"Z"]["a"-"z" "A"-"Z" "0"-"9" "-" "_" ":"]* )
+    TOKEN:html_whitespace2: ( [" " "\t" "\n" "\r"]+ )
 }
 
 <IN_JAVASCRIPT> {
-    TOKEN:html-element_end: ( ">" ):<JAVASCRIPT>
-    TOKEN:html-end_element_end: ( "/>" ):<DEFAULT>
-    TOKEN:html-operator: ( "=" )
-    TOKEN:html-attribute-value: ( "\"" [^ "\"" "\n" "\r"]* "\"" )
-    TOKEN:html-attribute-name: ( ["a"-"z" "A"-"Z"]["a"-"z" "A"-"Z" "0"-"9" "-" "_" ":"]* )
-    TOKEN:html-whitespace2: ( [" " "\t" "\n" "\r"]* )
+    TOKEN:html_element_end: ( ">" ):<JAVASCRIPT>
+    TOKEN:html_end_element_end: ( "/>" ):<DEFAULT>
+    TOKEN:html_operator: ( "=" )
+    TOKEN:html_attribute_value: ( "\"" [^ "\"" "\n" "\r"]* "\"" )
+    TOKEN:html_attribute_name: ( ["a"-"z" "A"-"Z"]["a"-"z" "A"-"Z" "0"-"9" "-" "_" ":"]* )
+    TOKEN:html_whitespace2: ( [" " "\t" "\n" "\r"]* )
 }
 
 <IN_CSS> {
-    TOKEN:html-element_end: ( ">" ):<CSS>
-    TOKEN:html-end_element_end: ( "/>" ):<DEFAULT>
-    TOKEN:html-operator: ( "=" )
-    TOKEN:html-attribute-value: ( "\"" [^ "\"" "\n" "\r"]* "\"" )
-    TOKEN:html-attribute-name: ( ["a"-"z" "A"-"Z"]["a"-"z" "A"-"Z" "0"-"9" "-" "_" ":"]* )
-    TOKEN:html-whitespace2: ( [" " "\t" "\n" "\r"]+ )
+    TOKEN:html_element_end: ( ">" ):<CSS>
+    TOKEN:html_end_element_end: ( "/>" ):<DEFAULT>
+    TOKEN:html_operator: ( "=" )
+    TOKEN:html_attribute_value: ( "\"" [^ "\"" "\n" "\r"]* "\"" )
+    TOKEN:html_attribute_name: ( ["a"-"z" "A"-"Z"]["a"-"z" "A"-"Z" "0"-"9" "-" "_" ":"]* )
+    TOKEN:html_whitespace2: ( [" " "\t" "\n" "\r"]+ )
 }
 
 <IN_ELEMENT> {
-    TOKEN:html-attribute-name: ( ["a"-"z" "A"-"Z"]["a"-"z" "A"-"Z" "0"-"9" "-" "_" ":"]* ):<IN_ATTRIBUTE>
-    TOKEN:html-attribute-value: ( "\"" [^ "\"" "\n" "\r"]* "\"" )
-    TOKEN:html-whitespace2: ( [" " "\t" "\n" "\r"]+ )
-    TOKEN:html-element_end: ( ">" ):<DEFAULT>
-    TOKEN:html-end_element_end: ( "/>" ):<DEFAULT>
+    TOKEN:html_attribute_name: ( ["a"-"z" "A"-"Z"]["a"-"z" "A"-"Z" "0"-"9" "-" "_" ":"]* ):<IN_ATTRIBUTE>
+    TOKEN:html_attribute_value: ( "\"" [^ "\"" "\n" "\r"]* "\"" )
+    TOKEN:html_whitespace2: ( [" " "\t" "\n" "\r"]+ )
+    TOKEN:html_element_end: ( ">" ):<DEFAULT>
+    TOKEN:html_end_element_end: ( "/>" ):<DEFAULT>
 }
 
 #attribute + "=" ? ###
 
 <IN_ATTRIBUTE> {
-    TOKEN:html-operator: ( "=" ):<IN_ATTRIBUTE2>
-    TOKEN:html-whitespace2: ( [" " "\t" "\n" "\r"]+ )
-    TOKEN:html-element_end: ( ">" ):<DEFAULT>
-    TOKEN:html-end_element_end: ( "/>" ):<DEFAULT>
-    TOKEN:html-attribute-name: ( ["a"-"z" "A"-"Z"]["a"-"z" "A"-"Z" "0"-"9" "-" "_" ":"]* )
-    TOKEN:html-attribute-value: ( "\"" [^ "\"" "\n" "\r"]* "\"" )
+    TOKEN:html_operator: ( "=" ):<IN_ATTRIBUTE2>
+    TOKEN:html_whitespace2: ( [" " "\t" "\n" "\r"]+ )
+    TOKEN:html_element_end: ( ">" ):<DEFAULT>
+    TOKEN:html_end_element_end: ( "/>" ):<DEFAULT>
+    TOKEN:html_attribute_name: ( ["a"-"z" "A"-"Z"]["a"-"z" "A"-"Z" "0"-"9" "-" "_" ":"]* )
+    TOKEN:html_attribute_value: ( "\"" [^ "\"" "\n" "\r"]* "\"" )
 }
 
 #attribute value ###
 
 <IN_ATTRIBUTE2> {
-    TOKEN:html-attribute-value: ( "\"" [^ "\"" "\n" "\r"]* "\"" ):<IN_ELEMENT>
-    TOKEN:html-attribute-value: ( "\'" [^ "\"" "\n" "\r"]* "\'" ):<IN_ELEMENT>
-    TOKEN:html-attribute-value: ( ["0"-"9" "a"-"z" "A"-"Z" "-" "_"]+ ):<IN_ELEMENT>
-    TOKEN:html-whitespace2: ( [" " "\t" "\n" "\r"]+ )
+    TOKEN:html_attribute_value: ( "\"" [^ "\"" "\n" "\r"]* "\"" ):<IN_ELEMENT>
+    TOKEN:html_attribute_value: ( "\'" [^ "\"" "\n" "\r"]* "\'" ):<IN_ELEMENT>
+    TOKEN:html_attribute_value: ( ["0"-"9" "a"-"z" "A"-"Z" "-" "_"]+ ):<IN_ELEMENT>
+    TOKEN:html_whitespace2: ( [" " "\t" "\n" "\r"]+ )
 }
 
 #embeded languages ###
 
-<JAVASCRIPT>:TOKEN:html-end_element_start: ( "</" ):<IN_ELEMENT_START>
-<CSS>:TOKEN:html-end_element_start: ( "</" ):<IN_ELEMENT_START>
+<JAVASCRIPT>:TOKEN:html_end_element_start: ( "</" ):<IN_ELEMENT_START>
+<CSS>:TOKEN:html_end_element_start: ( "</" ):<IN_ELEMENT_START>
 
 IMPORT:js {
     mimeType:"text/javascript";
@@ -125,27 +125,27 @@ IMPORT:css {
 
 ########### grammar ############################################################
 
-SKIP:html-whitespace
-SKIP:html-whitespace2
-SKIP:html-comment
-SKIP:html-error
+SKIP:html_whitespace
+SKIP:html_whitespace2
+SKIP:html_comment
+SKIP:html_error
 
 S = tags;
 tags = startTag tags;
 tags = endTag tags;
 tags = etext tags;
 tags = ; 
-startTag = <html-element_start> <html-element_name> attributes ( <html-element_end> | <html-end_element_end> );
-endTag = <html-end_element_start> <html-element_name> attributes <html-element_end>;
+startTag = <html_element_start> <html_element_name> attributes ( <html_element_end> | <html_end_element_end> );
+endTag = <html_end_element_start> <html_element_name> attributes <html_element_end>;
 attributes = attribute attributes1;
 attributes = ;
 attributes1 = attribute attributes1;
 attributes1 = ;
-attribute = <html-attribute-name>;
-attribute = <html-attribute-value>;
-attribute = <html-attribute-name> <html-operator,'='> <html-attribute-value>;
-etext = <html-text> etext1;
-etext1 = <html-text> etext1;
+attribute = <html_attribute_name>;
+attribute = <html_attribute_value>;
+attribute = <html_attribute_name> <html_operator,'='> <html_attribute_value>;
+etext = <html_text> etext1;
+etext1 = <html_text> etext1;
 etext1 = ;
 
 ########### indentation ########################################################
@@ -156,12 +156,12 @@ REFORMAT:simpleTag:"i"
 REFORMAT:etext:"i"
 REFORMAT:text:" "
 #REFORMAT:element:"i"
-REFORMAT:html-comment:"i"
+REFORMAT:html_comment:"i"
 REFORMAT:unpairedStartTag:"i"
-#REFORMAT:html-attribute-name:" "
-REFORMAT:html-operator:""
-REFORMAT:html-attribute-value:""
-REFORMAT:html-element_end:""
+#REFORMAT:html_attribute_name:" "
+REFORMAT:html_operator:""
+REFORMAT:html_attribute_value:""
+REFORMAT:html_element_end:""
 REFORMAT:attributes:">b "
 REFORMAT:attribute:"b"
 
@@ -169,51 +169,51 @@ REFORMAT:attribute:"b"
 ########### colors #############################################################
 
 #COLOR:element {
-#    default-coloring:"keyword";
+#    default_coloring:"keyword";
 #}
-COLOR:html-element_start {
-    default-coloring:"keyword";
+COLOR:html_element_start {
+    default_coloring:"keyword";
 }
-COLOR:html-end_element_start {
-    default-coloring:"keyword";
+COLOR:html_end_element_start {
+    default_coloring:"keyword";
 }
-COLOR:html-element_name {
-    default-coloring:"keyword";
+COLOR:html_element_name {
+    default_coloring:"keyword";
 }
-COLOR:html-element_end {
-    default-coloring:"keyword";
+COLOR:html_element_end {
+    default_coloring:"keyword";
 }
-COLOR:html-end_element_end {
-    default-coloring:"keyword";
+COLOR:html_end_element_end {
+    default_coloring:"keyword";
 }
-COLOR:html-attribute-value {
-    default-coloring:"string";
+COLOR:html_attribute_value {
+    default_coloring:"string";
 }
 COLOR:attribute {
-    strike-through-color:"black";
+    strike_through_color:"black";
     condition:org.netbeans.modules.languages.html.HTML.isDeprecatedAttribute;
 }
 
 
 ########### code folding #######################################################
 
-FOLD:tag:"<$startTag.html-element_name$>...</$startTag.html-element_name$>"
+FOLD:tag:"<$startTag.html_element_name$>...</$startTag.html_element_name$>"
 
 
 ########### navigator ##########################################################
 
 NAVIGATOR:tag {
-    display-name: "$startTag.html-element_name$";
+    display_name: "$startTag.html_element_name$";
     tooltip: "$$";
     icon: "/org/netbeans/modules/languages/html/htmlTag.png";
 }
 NAVIGATOR:unpairedStartTag {
-    display-name: "$html-element_name$";
+    display_name: "$html_element_name$";
     tooltip: "$$";
     icon: "/org/netbeans/modules/languages/html/htmlTag.png";
 }
 NAVIGATOR:unpairedEndTag {
-    display-name: "$html-element_name$";
+    display_name: "$html_element_name$";
     tooltip: "$$";
     icon: "/org/netbeans/modules/languages/html/htmlTag.png";
 }
@@ -225,7 +225,7 @@ COMPLETE "\":\""
 COMPLETE "':'"
 
 
-#HYPERLINK:attribute-value:org.netbeans.modules.languages.html.HTML.hyperlink
+#HYPERLINK:attribute_value:org.netbeans.modules.languages.html.HTML.hyperlink
 
 MARK:unpairedStartTag {
     type:"Warning";
@@ -235,7 +235,7 @@ MARK:unpairedEndTag {
     type:"Error";
     message:"Unpaired end tag.";
 }
-MARK:html-ERROR {
+MARK:html_ERROR {
     type:"Error";
     message:"Unpaired end tag.";
 }
@@ -244,29 +244,29 @@ MARK:error {
     message:"Unexpected character.";
 }
 
-MARK:html-element_name {
+MARK:html_element_name {
     type:"Deprecation";
     message:"Deprecated tag.";
     condition:org.netbeans.modules.languages.html.HTML.isDeprecatedTag;
 }
-COMPLETION:html-element_name {
+COMPLETION:html_element_name {
     text1:org.netbeans.modules.languages.html.HTML.tags; 
     description1:org.netbeans.modules.languages.html.HTML.tagDescriptions; 
 }
-COMPLETION:html-element_start {
+COMPLETION:html_element_start {
     text1:org.netbeans.modules.languages.html.HTML.tags; 
     description1:org.netbeans.modules.languages.html.HTML.tagDescriptions; 
 }
-MARK:html-attribute-name {
+MARK:html_attribute_name {
     type:"Deprecation";
     message:"Deprecated attribute.";
     condition:org.netbeans.modules.languages.html.HTML.isDeprecatedAttribute;
 }
-COMPLETION:html-attribute-name {
+COMPLETION:html_attribute_name {
     text1:org.netbeans.modules.languages.html.HTML.attributes; 
     description1:org.netbeans.modules.languages.html.HTML.attributeDescriptions; 
 }
-COMPLETION:html-whitespace2 {
+COMPLETION:html_whitespace2 {
     text1:org.netbeans.modules.languages.html.HTML.attributes; 
     description1:org.netbeans.modules.languages.html.HTML.attributeDescriptions; 
 }

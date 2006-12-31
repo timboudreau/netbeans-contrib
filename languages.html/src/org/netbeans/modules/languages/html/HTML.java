@@ -150,9 +150,9 @@ public class HTML {
     // private methods .........................................................
 
     private static String tagName (TokenSequence ts) {
-        while (!ts.token ().id ().name ().equals ("html-element_name"))
+        while (!ts.token ().id ().name ().equals ("html_element_name"))
             if (!ts.movePrevious ()) break;
-        if (!ts.token ().id ().name ().equals ("html-element_name")) 
+        if (!ts.token ().id ().name ().equals ("html_element_name")) 
             return null;
         return ts.token ().text ().toString ();
     }
@@ -196,10 +196,10 @@ public class HTML {
             }
             ASTNode node = (ASTNode) o;
             if (node.getNT ().equals ("startTag")) {
-                if (node.getTokenType ("html-end_element_end") != null) {
+                if (node.getTokenType ("html_end_element_end") != null) {
                     l.add (clone (node, "simpleTag"));
                 } else {
-                    String name = node.getTokenTypeIdentifier ("html-element_name");
+                    String name = node.getTokenTypeIdentifier ("html_element_name");
                     if (name == null) 
                         name = "";
                     else
@@ -214,7 +214,7 @@ public class HTML {
                 continue;
             } else
             if (node.getNT ().equals ("endTag")) {
-                String name = node.getTokenTypeIdentifier ("html-element_name");
+                String name = node.getTokenTypeIdentifier ("html_element_name");
                 if (name == null) 
                     name = "";
                 else
