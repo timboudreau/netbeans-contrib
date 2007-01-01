@@ -19,21 +19,15 @@ Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
 Microsystems, Inc. All Rights Reserved.
 -->
 <filesystem>
-    <folder name="Editors">
-        <folder name="text">
-            <folder name="x-java">
-                <folder name="Hints">
-                    <file name="org-netbeans-modules-javahints-JavaHintsProvider.instance"/>
-                </folder>
-                <folder name="UpToDateStatusProvider">
-                    <file name="org-netbeans-modules-java-JavaUpToDateStatusProviderCreator.instance_hidden"/>
-                </folder>
+    
+    <folder name="org-netbeans-modules-java-hints">
+        <folder name="rules">
+            <folder name="errors">
+<!--                <file name="org-netbeans-modules-javahints-DeclarationFixer.instance" />-->
+                <file name="org-netbeans-modules-javahints-RemoveUselessCastCreator.instance" />
+                <file name="org-netbeans-modules-javahints-MakeVariableFinal.instance" />
             </folder>
         </folder>
-    </folder>
-    
-    <folder name="EditorHints">
-        <file name="org-netbeans-modules-javahints-JavaProviderDescription.instance"/>
     </folder>
 
 </filesystem>
