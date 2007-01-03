@@ -25,6 +25,7 @@ import java.util.List;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.text.Document;
+import org.netbeans.modules.portalpack.portlets.genericportlets.core.util.CoreUtil;
 import org.openide.WizardDescriptor;
 import javax.swing.JPanel;
 
@@ -36,6 +37,10 @@ public final class NetbeansNewPortletClassVisualPanel1 extends JPanel implements
         this.panel = panel;
         initComponents();
         pnameTf.getDocument().addDocumentListener(this);
+        portletTitleTf.getDocument().addDocumentListener(this);
+        portletShortTitleTf.getDocument().addDocumentListener(this);
+        portletDisplayNameTf.getDocument().addDocumentListener(this);
+        portletDescTf.getDocument().addDocumentListener(this);
     }
     
     public String getName() {
@@ -175,12 +180,34 @@ public final class NetbeansNewPortletClassVisualPanel1 extends JPanel implements
     boolean valid(WizardDescriptor wizardDescriptor)
     {
         String portalName = pnameTf.getText();
-        if(portalName == null || portalName.trim().length() == 0)
+        if(!CoreUtil.validateString(portalName,false))
         {
             wizardDescriptor.putProperty("WizardPanel_errorMessage",
-                    "Portlet Name can not be null");
-            return false;
+                    org.openide.util.NbBundle.getMessage(NetbeansNewPortletClassVisualPanel1.class, "MSG_INVALID_PORTLET_NAME"));
+            return false; 
+        }else if(!CoreUtil.validateString(portletTitleTf.getText(),true)){
+            wizardDescriptor.putProperty("WizardPanel_errorMessage",
+                    org.openide.util.NbBundle.getMessage(NetbeansNewPortletClassVisualPanel1.class, "MSG_INVALID_PORTLET_TITLE"));
+            return false; 
+        }else if(portletShortTitleTf.getText() != null &&
+                    portletShortTitleTf.getText().trim().length() != 0 &&
+                    !CoreUtil.validateString(portletShortTitleTf.getText(),true)){
+            wizardDescriptor.putProperty("WizardPanel_errorMessage",
+                    org.openide.util.NbBundle.getMessage(NetbeansNewPortletClassVisualPanel1.class, "MSG_INVALID_PORTLET_SHORT_TITLE"));
+            return false; 
+        }else if(!CoreUtil.validateXmlString(portletDisplayNameTf.getText().trim()))
+        {
+            wizardDescriptor.putProperty("WizardPanel_errorMessage",
+                    org.openide.util.NbBundle.getMessage(NetbeansNewPortletClassVisualPanel1.class, "MSG_INVALID_PORTLET_DISPLAY_NAME"));
+            return false; 
+        }else if(!CoreUtil.validateXmlString(portletDescTf.getText().trim()))
+        {
+            wizardDescriptor.putProperty("WizardPanel_errorMessage",
+                    org.openide.util.NbBundle.getMessage(NetbeansNewPortletClassVisualPanel1.class, "MSG_INVALID_PORTLET_DESC"));
+            return false; 
         }
+        
+        
         wizardDescriptor.putProperty("WizardPanel_errorMessage", "");
         
         return true;
@@ -190,11 +217,11 @@ public final class NetbeansNewPortletClassVisualPanel1 extends JPanel implements
         String portalName =  pnameTf.getText();
         
         PortletContext context = new PortletContext();
-        context.setPortletName(pnameTf.getText());
-        context.setPortletDescription(portletDescTf.getText());
-        context.setPortletDisplayName(portletDisplayNameTf.getText());
-        context.setPortletTitle(portletTitleTf.getText());
-        context.setPortletShortTitle(portletShortTitleTf.getText());
+        context.setPortletName(pnameTf.getText().trim());
+        context.setPortletDescription(portletDescTf.getText().trim());
+        context.setPortletDisplayName(portletDisplayNameTf.getText().trim());
+        context.setPortletTitle(portletTitleTf.getText().trim());
+        context.setPortletShortTitle(portletShortTitleTf.getText().trim());
         
         List modeList = new ArrayList();
             
@@ -211,9 +238,7 @@ public final class NetbeansNewPortletClassVisualPanel1 extends JPanel implements
         
         
     }
-    
-    
-    
+        
     // Implementation of DocumentListener --------------------------------------
     
     public void changedUpdate(DocumentEvent e) {

@@ -91,4 +91,33 @@ public class CoreUtil {
         return true;
     }
     
+    public static boolean validateString(String name, boolean allowSpaces) {
+        if(name == null || name.trim().length() == 0){
+            return false;
+        }
+        String value = name.trim();
+        for(int i=0; i<value.length(); i++) {
+            char c = value.charAt(i);
+            if(!Character.isLetterOrDigit(c) && !((c == '_') || (allowSpaces && c == ' '))){
+                return false;
+            }
+        }
+        return true;
+    }
+    
+    public static boolean validateXmlString(String name) {
+        if(name == null || name.trim().length() == 0){
+            return true;
+        }
+        String value = name.trim();
+        for(int i=0; i<value.length(); i++) {
+            char c = value.charAt(i);
+            if((c == '<') || (c == '>')) {
+                return false;
+            }
+        }
+        return true;
+    }
+    
+    
 }
