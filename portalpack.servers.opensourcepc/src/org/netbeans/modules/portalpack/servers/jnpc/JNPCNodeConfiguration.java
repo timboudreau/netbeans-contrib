@@ -55,6 +55,10 @@ public class JNPCNodeConfiguration extends DefaultPSNodeConfiguration{
         return false;
     }
     
+    public boolean showTopChannelsNode() {
+        return false;
+    }  
+    
     public Action[] getDnActions() {
         
         javax.swing.Action[]  newActions = new javax.swing.Action[1] ;
