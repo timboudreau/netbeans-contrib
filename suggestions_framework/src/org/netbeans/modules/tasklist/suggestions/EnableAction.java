@@ -72,7 +72,7 @@ public final class EnableAction extends CallableSystemAction
     */
     public JMenuItem getMenuPresenter () {
 	JMenu mainItem = new JMenuPlus();
-        Actions.setMenuText(mainItem, getName(), true);
+        Mnemonics.setLocalizedText(mainItem, getName());
         //mainItem.setIcon (SystemAction.get(
 	//		   EnableAction.class).getIcon());
         //HelpCtx.setHelpIDString (mainItem,
@@ -86,7 +86,7 @@ public final class EnableAction extends CallableSystemAction
     */
     public JMenuItem getPopupPresenter() {
 	JMenu mainItem = new JMenuPlus();
-        Actions.setMenuText(mainItem, getName(), true); 
+        Mnemonics.setLocalizedText(mainItem, getName()); 
         //HelpCtx.setHelpIDString (mainItem,
 	//			 EnableAction.class.getName());
         mainItem.addMenuListener(new MainItemListener());

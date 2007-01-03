@@ -42,6 +42,7 @@ import org.openide.util.HelpCtx;
 import org.openide.util.NbBundle;
 import org.openide.util.actions.NodeAction;
 import org.netbeans.modules.tasklist.core.*;
+import org.openide.awt.Mnemonics;
 
 /**
  * Automatically fix a task for which a fix-method has been registered
@@ -114,20 +115,19 @@ public final class FixAction extends NodeAction {
                 }
 
                 JButton fixButton = new JButton();
-                Actions.setMenuText(fixButton,
-                   NbBundle.getMessage(FixAction.class, "FixIt"), true); // NOI18N
+                Mnemonics.setLocalizedText(fixButton, NbBundle.getMessage(FixAction.class, "FixIt"));
                 
                 JButton fixAllButton = null;
                 JButton skipButton = null;
                 if (node.length > 1) {
                     fixAllButton = new JButton();
-                    Actions.setMenuText(fixAllButton,
+                    Mnemonics.setLocalizedText(fixAllButton,
                                         NbBundle.getMessage(FixAction.class,
-                                                       "FixAll"), true); // NOI18N
+                                                       "FixAll"));
                     skipButton = new JButton();
-                    Actions.setMenuText(skipButton,
+                    Mnemonics.setLocalizedText(skipButton,
                                         NbBundle.getMessage(FixAction.class,
-                                                       "Skip"), true); // NOI18N
+                                                       "Skip"));
                     fixAllButton.getAccessibleContext().setAccessibleDescription(
                         NbBundle.getMessage(FixAction.class,
                                           "ACSD_FixAll")); // NOI18N
@@ -136,8 +136,8 @@ public final class FixAction extends NodeAction {
                                           "ACSD_Skip")); // NOI18N
                 }
                 JButton cancelButton = new JButton();
-                Actions.setMenuText(cancelButton,
-                   NbBundle.getMessage(FixAction.class, "Cancel"), true); // NOI18N
+                Mnemonics.setLocalizedText(cancelButton,
+                   NbBundle.getMessage(FixAction.class, "Cancel"));
 
                 if (confirmation instanceof Component) {
                     ((Component)confirmation).getAccessibleContext().
@@ -198,7 +198,7 @@ public final class FixAction extends NodeAction {
                 dlg.setModal(true);
                 final Dialog dialog = DialogDisplayer.getDefault().createDialog(dlg);
                 dialog.pack();
-                dialog.show();
+                dialog.setVisible(true);
                 Object pressedButton = dlg.getValue();
 
                 if (tlv != null) {
@@ -359,24 +359,24 @@ public final class FixAction extends NodeAction {
         }
         if (haveModified) {
                 JButton openFiles = new JButton();
-                Actions.setMenuText(openFiles,
+                Mnemonics.setLocalizedText(openFiles,
                    NbBundle.getMessage(FixAction.class, 
-                                       "ShowFiles"), true); // NOI18N
+                                       "ShowFiles"));
                 
                 JButton selectFiles = new JButton();
-                Actions.setMenuText(selectFiles,
+                Mnemonics.setLocalizedText(selectFiles,
                    NbBundle.getMessage(FixAction.class, 
-                                       "SelectFiles"), true); // NOI18N
+                                       "SelectFiles"));
                 
                 JButton saveFiles = new JButton();
-                Actions.setMenuText(saveFiles,
+                Mnemonics.setLocalizedText(saveFiles,
                    NbBundle.getMessage(FixAction.class, 
-                                       "SaveAllFiles"), true); // NOI18N
+                                       "SaveAllFiles"));
                 
                 JButton cancelButton = new JButton();
-                Actions.setMenuText(cancelButton,
+                Mnemonics.setLocalizedText(cancelButton,
                    NbBundle.getMessage(FixAction.class, 
-                                       "Cancel"), true); // NOI18N
+                                       "Cancel"));
                 
                 String title = NbBundle.getMessage(FixAction.class, 
                                                    "FixSavesTitle");
@@ -409,7 +409,7 @@ public final class FixAction extends NodeAction {
                 final Dialog dialog = 
                     DialogDisplayer.getDefault().createDialog(dlg);
                 dialog.pack();
-                dialog.show();
+                dialog.setVisible(true);
                 Object pressedButton = dlg.getValue();
 
                 if (pressedButton == openFiles) {
