@@ -24,13 +24,14 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Stack;
+
 import org.netbeans.api.lexer.Token;
 import org.netbeans.api.lexer.TokenSequence;
-import org.netbeans.modules.languages.Cookie;
-import org.netbeans.modules.languages.LibrarySupport;
-import org.netbeans.modules.languages.SyntaxCookie;
-import org.netbeans.modules.languages.parser.ASTNode;
-import org.netbeans.modules.languages.parser.SToken;
+import org.netbeans.api.languages.Cookie;
+import org.netbeans.api.languages.SyntaxCookie;
+import org.netbeans.api.languages.ASTNode;
+import org.netbeans.api.languages.SToken;
+import org.netbeans.api.languages.LibrarySupport;
 
 
 /**

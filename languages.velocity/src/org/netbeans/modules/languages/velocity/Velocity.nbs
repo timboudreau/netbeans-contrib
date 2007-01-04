@@ -75,13 +75,28 @@ TOKEN:vm_identifier:(
     TOKEN:vm_operator:( "," )
     TOKEN:vm_operator:( ")" "}"? ):<DEFAULT>
 }
-<IN_VM1> {
+<IN_VM> {
     TOKEN:vm_whitespace:( [" " "\t" "\n" "\r"]+ )
-    TOKEN:vm_operator:( "(" ):<IN_VM2+DEFAULT>
+    TOKEN:vm_operator {
+        pattern:( "(" );
+        end_state:"IN_VM2";
+        counter:"i++";
+    }
 }
 <IN_VM2> {
-    TOKEN:vm_identifier:( "$"? ["a"-"z" "A"-"Z"] ["a"-"z" "A"-"Z" "0"-"9" "-" "_"]* ):<IN_VM>
+    TOKEN:vm_identifier:( "$"? ["a"-"z" "A"-"Z"] ["a"-"z" "A"-"Z" "0"-"9" "-" "_"]* )
     TOKEN:vm_operator:( "." | "(" | ")" | "[" | "]" | "=" | "," )
+    TOKEN:vm_operator {
+        pattern:( "(" );
+        end_state:"IN_VM2";
+        counter:"i++";
+    }
+    TOKEN:vm_operator {
+        pattern:( ")" );
+        end_state:"IN_VM2";
+        end_state2:"DEFAULT";
+        counter:"i--";
+    }
     TOKEN:vm_whitespace:( " " | "\t" )
     TOKEN:vm_eol:( ["\n" "\r"]+ ):<DEFAULT>
     TOKEN:vm_string: (

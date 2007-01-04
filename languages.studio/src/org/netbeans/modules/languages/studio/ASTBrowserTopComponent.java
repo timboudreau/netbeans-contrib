@@ -19,12 +19,12 @@
 
 package org.netbeans.modules.languages.studio;
 
+import org.netbeans.api.languages.ASTNode;
+import org.netbeans.api.languages.PTPath;
+import org.netbeans.api.languages.ParseException;
+import org.netbeans.api.languages.ParserManager;
+import org.netbeans.api.languages.SToken;
 import org.netbeans.modules.editor.NbEditorDocument;
-import org.netbeans.modules.languages.ParserManager;
-import org.netbeans.modules.languages.parser.ASTNode;
-import org.netbeans.modules.languages.parser.PTPath;
-import org.netbeans.modules.languages.parser.ParseException;
-import org.netbeans.modules.languages.parser.SToken;
 import org.openide.ErrorManager;
 import org.openide.cookies.EditorCookie;
 import org.openide.nodes.Node;

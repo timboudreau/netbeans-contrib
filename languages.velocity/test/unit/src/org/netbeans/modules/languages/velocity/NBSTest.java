@@ -7,8 +7,7 @@
  * and open the template in the editor.
  */
 
-package org.netbeans.modules.languages.html;
-
+package org.netbeans.modules.languages.velocity;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -17,10 +16,7 @@ import java.util.Map;
 import junit.framework.TestCase;
 
 import org.netbeans.api.languages.ParseException;
-import org.netbeans.api.languages.ParseException;
 import org.netbeans.modules.languages.Language;
-import org.netbeans.modules.languages.Language;
-import org.netbeans.modules.languages.NBSLanguageReader;
 import org.netbeans.modules.languages.NBSLanguageReader;
 import org.netbeans.modules.languages.parser.AnalyserAnalyser;
 import org.netbeans.modules.languages.parser.Petra;
@@ -37,9 +33,9 @@ public class NBSTest extends TestCase {
     }
     
     public void testFirst () {
-        InputStream is = getClass ().getClassLoader ().getResourceAsStream ("org/netbeans/modules/languages/html/HTML.nbs");
+        InputStream is = getClass ().getClassLoader ().getResourceAsStream ("org/netbeans/modules/languages/velocity/Velocity.nbs");
         try {
-            Language l = NBSLanguageReader.readLanguage ("test", is, "test/html");
+            Language l = NBSLanguageReader.readLanguage ("test", is, "test/x-velocity");
             List r = l.getAnalyser ().getRules ();
             AnalyserAnalyser.printRules (r, null);
             Map f = Petra.first2 (r);

@@ -10,6 +10,7 @@
 package org.netbeans.modules.languages.java;
 
 
+import org.netbeans.api.languages.ParseException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
@@ -19,7 +20,7 @@ import junit.framework.TestCase;
 import org.netbeans.modules.languages.Language;
 import org.netbeans.modules.languages.NBSLanguageReader;
 import org.netbeans.modules.languages.parser.AnalyserAnalyser;
-import org.netbeans.modules.languages.parser.ParseException;
+import org.netbeans.api.languages.ParseException;
 import org.netbeans.modules.languages.parser.Petra;
 
 

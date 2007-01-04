@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import javax.swing.DefaultListModel;
+import org.netbeans.api.languages.LanguagesManager;
 
 import org.openide.ErrorManager;
 import org.openide.cookies.OpenCookie;
@@ -35,8 +36,6 @@ import org.openide.filesystems.FileSystem;
 import org.openide.filesystems.Repository;
 import org.openide.loaders.DataObject;
 import org.openide.loaders.DataObjectNotFoundException;
-
-import org.netbeans.modules.languages.LanguagesManager;
 
 
 /**

@@ -19,6 +19,12 @@
 
 package org.netbeans.modules.languages.studio;
 
+import org.netbeans.api.languages.ASTNode;
+import org.netbeans.api.languages.Highlighting;
+import org.openide.ErrorManager;
+import org.openide.cookies.EditorCookie;
+import org.openide.windows.TopComponent;
+
 import java.awt.Color;
 import java.util.Iterator;
 import javax.swing.JEditorPane;
@@ -28,11 +34,6 @@ import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
 import javax.swing.text.SimpleAttributeSet;
 import javax.swing.text.StyleConstants;
-import org.netbeans.modules.languages.Highlighting;
-import org.netbeans.modules.languages.parser.ASTNode;
-import org.openide.ErrorManager;
-import org.openide.cookies.EditorCookie;
-import org.openide.windows.TopComponent;
 
 
 /**
