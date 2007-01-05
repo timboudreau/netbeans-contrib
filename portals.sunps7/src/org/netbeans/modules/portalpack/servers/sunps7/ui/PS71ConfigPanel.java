@@ -19,20 +19,26 @@
 
 package org.netbeans.modules.portalpack.servers.sunps7.ui;
 
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 import org.netbeans.modules.portalpack.servers.core.api.ConfigPanel;
 import org.netbeans.modules.portalpack.servers.core.util.PSConfigObject;
 import java.io.File;
+import javax.swing.InputVerifier;
+import javax.swing.JComponent;
+import javax.swing.JTextField;
 import org.netbeans.modules.portalpack.servers.core.WizardPropertyReader;
-import org.netbeans.modules.portalpack.servers.core.util.DirectoryChooser;
+import org.netbeans.modules.portalpack.servers.core.util.Util;
 import org.netbeans.modules.portalpack.servers.sunps7.PS71ServerConstant;
 
 import org.openide.WizardDescriptor;
+import org.openide.util.NbBundle;
 
 /**
  *
  * @author  Satya
  */
-public class PS71ConfigPanel extends ConfigPanel{
+public class PS71ConfigPanel extends ConfigPanel implements DocumentListener{
 
 
     private boolean isCustomizedMode = false;
@@ -44,6 +50,16 @@ public class PS71ConfigPanel extends ConfigPanel{
         initData();
         //remove this line later
         populateDummyData();
+        hostTf.setInputVerifier(new HostNameInputVerifier());
+        
+        //add DocumentListeners
+        portalIdTf.getDocument().addDocumentListener(this);
+        instanceIdTf.getDocument().addDocumentListener(this);
+        adminUserTf.getDocument().addDocumentListener(this);
+        portTf.getDocument().addDocumentListener(this);
+        adminPortTf.getDocument().addDocumentListener(this);
+        portalUriTf.getDocument().addDocumentListener(this);
+        connectorPortTf.getDocument().addDocumentListener(this);
 
     }
 
@@ -274,7 +290,7 @@ public class PS71ConfigPanel extends ConfigPanel{
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(jLabel2)
                     .add(connectorPortTf, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(23, Short.MAX_VALUE))
+                .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
 
@@ -282,7 +298,7 @@ public class PS71ConfigPanel extends ConfigPanel{
 
 
     public void read(WizardDescriptor wizardDescriptor) {
-        System.out.println("read is claossssssssssssse");
+       // System.out.println("read is claossssssssssssse");
 
     }
 
@@ -351,6 +367,53 @@ public class PS71ConfigPanel extends ConfigPanel{
     //}
 
     public boolean validate(Object wizardDescriptor) {
+        
+        if(portalIdTf.getText() == null || portalIdTf.getText().trim().length() == 0)
+        {
+            setErrorMessage(NbBundle.getMessage(PS71ConfigPanel.class,"MSG_INVALID_PORTAL_ID"));
+            return false;
+        }
+        if(instanceIdTf.getText() == null || instanceIdTf.getText().trim().length() == 0)
+        {
+            setErrorMessage(NbBundle.getMessage(PS71ConfigPanel.class,"MSG_INVALID_INSTANCE_ID"));
+            return false;
+        }
+        if(adminUserTf.getText() == null || adminUserTf.getText().trim().length() == 0)
+        {
+            setErrorMessage(NbBundle.getMessage(PS71ConfigPanel.class,"MSG_INVALID_ADMIN_USER"));
+            return false;
+        }
+        
+        if(portalUriTf.getText() == null || portalUriTf.getText().trim().length() == 0)
+        {
+            setErrorMessage(NbBundle.getMessage(PS71ConfigPanel.class,"MSG_INVALID_PORTAL_URI"));
+            return false;
+        }
+        
+        if(hostTf.getText() == null || hostTf.getText().trim().length() == 0)
+        {
+             setErrorMessage(NbBundle.getMessage(PS71ConfigPanel.class,"MSG_INVALID_HOST"));
+             return false;
+        }
+        
+        if(!Util.isValidPort(portTf.getText()))
+        {
+             setErrorMessage(NbBundle.getMessage(PS71ConfigPanel.class,"MSG_INVALID_PORT"));
+             return false;
+        }
+        
+        if(!Util.isValidPort(adminPortTf.getText()))
+        {
+             setErrorMessage(NbBundle.getMessage(PS71ConfigPanel.class,"MSG_INVALID_ADMIN_PORT"));
+             return false;
+        }
+        
+        if(!Util.isValidPort(connectorPortTf.getText()))
+        {
+             setErrorMessage(NbBundle.getMessage(PS71ConfigPanel.class,"MSG_INVALID_CONNECTOR_PORT"));
+             return false;
+        }
+        setErrorMessage("");
         return true;
     }
 
@@ -503,8 +566,45 @@ public class PS71ConfigPanel extends ConfigPanel{
 
      public String getDescription()
      {
-         return "Sun PS";
+         return NbBundle.getMessage(PS71ConfigPanel.class,"LBL_SUN_PS");
      }
+
+    public void insertUpdate(DocumentEvent e) {
+        updateText();
+    }
+
+    public void removeUpdate(DocumentEvent e) {
+        updateText();
+    }
+
+    public void changedUpdate(DocumentEvent e) {
+        updateText();
+    }
+    
+    private void updateText()
+    {
+        fireChangeEvent();
+    }
+     
+     class HostNameInputVerifier extends InputVerifier {
+         public boolean verify(JComponent input) {
+               JTextField tf = (JTextField) input;
+               String value = tf.getText();
+               if(!Util.isIp(value))
+               {
+                   if(!Util.isHostValid(value))
+                   {
+                       setErrorMessage(NbBundle.getMessage(PS71ConfigPanel.class,"LBL_INVALID_HOST"));
+                       fireChangeEvent(); 
+                       return false;
+                   }
+               }
+               setErrorMessage("");
+               fireChangeEvent();
+               return true;
+         }
+     }
+ 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JTextField adminPortTf;

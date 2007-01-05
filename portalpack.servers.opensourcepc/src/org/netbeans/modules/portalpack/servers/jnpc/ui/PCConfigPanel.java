@@ -22,22 +22,31 @@ package org.netbeans.modules.portalpack.servers.jnpc.ui;
 import java.io.File;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 import org.netbeans.modules.portalpack.servers.core.WizardPropertyReader;
 import org.netbeans.modules.portalpack.servers.core.api.ConfigPanel;
 import org.netbeans.modules.portalpack.servers.core.util.DirectoryChooser;
 import org.netbeans.modules.portalpack.servers.core.util.PSConfigObject;
+import org.netbeans.modules.portalpack.servers.core.util.Util;
 import org.netbeans.modules.portalpack.servers.jnpc.common.JNPCConstants;
 import org.openide.WizardDescriptor;
+import org.openide.util.NbBundle;
 
 /**
  *
- * @author  root
+ * @author  Satya
  */
-public class PCConfigPanel extends ConfigPanel {
+public class PCConfigPanel extends ConfigPanel implements DocumentListener{
+    
     /** Creates new form PCConfigPanel */
     public PCConfigPanel() {
         initComponents();
         initData();
+        
+        portalUri.getDocument().addDocumentListener(this);
+        adminConsoleUriTf.getDocument().addDocumentListener(this);
+        
     }
     
     /** This method is called from within the constructor to
@@ -84,6 +93,12 @@ public class PCConfigPanel extends ConfigPanel {
 
         jLabel2.setFont(new java.awt.Font("Tahoma", 1, 11));
         jLabel2.setText(org.openide.util.NbBundle.getMessage(PCConfigPanel.class, "LBL_HOST"));
+
+        hostTf.addFocusListener(new java.awt.event.FocusAdapter() {
+            public void focusLost(java.awt.event.FocusEvent evt) {
+                hostTfFocusLost(evt);
+            }
+        });
 
         jLabel5.setFont(new java.awt.Font("Tahoma", 1, 11));
         jLabel5.setText(org.openide.util.NbBundle.getMessage(PCConfigPanel.class, "LBL_ADMIN_URI"));
@@ -149,6 +164,11 @@ public class PCConfigPanel extends ConfigPanel {
         );
     }// </editor-fold>//GEN-END:initComponents
 
+    private void hostTfFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_hostTfFocusLost
+// TODO add your handling code here:
+        fireChangeEvent();
+    }//GEN-LAST:event_hostTfFocusLost
+
     private void homeTfFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_homeTfFocusLost
 // TODO add your handling code here:
         fireChangeEvent();
@@ -164,7 +184,7 @@ public class PCConfigPanel extends ConfigPanel {
         File lib = new File(homeDir,"lib");
         if(!config.exists() || !lib.exists())
         {           
-            setErrorMessage("Not a valid portlet container home");
+            setErrorMessage(NbBundle.getMessage(PCConfigPanel.class,"MSG_INVALID_PC_HOME"));
             return false;
         }else{
             
@@ -173,6 +193,7 @@ public class PCConfigPanel extends ConfigPanel {
         }
         
     }
+    
     private void homeChooseButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_homeChooseButtonActionPerformed
 // TODO add your handling code here:
         DirectoryChooser chooser = new DirectoryChooser();
@@ -258,11 +279,53 @@ public class PCConfigPanel extends ConfigPanel {
     }
 
     public boolean validate(Object wizardDescriptor) {
-        return validatePCHome();
+        
+        if(!validatePCHome())
+            return false;
+        
+        if(!Util.isIp(hostTf.getText().trim()))
+        {
+            if(!Util.isHostValid(hostTf.getText().trim()))
+            {
+                setErrorMessage(NbBundle.getMessage(PCConfigPanel.class,"MSG_NOT_A_VALID_HOST"));
+                return false;
+            }
+        }
+        
+        if(portalUri.getText() == null || portalUri.getText().trim().length() == 0)
+        {
+            setErrorMessage(NbBundle.getMessage(PCConfigPanel.class,"MSG_NOT_A_VALID_PORTAL_URI"));
+            return false;
+        }
+        
+        if(adminConsoleUriTf.getText() == null || adminConsoleUriTf.getText().trim().length() == 0)
+        {
+            setErrorMessage(NbBundle.getMessage(PCConfigPanel.class,"MSG_NOT_A_VALID_ADMIN_URI"));
+            return false;
+        }
+        setErrorMessage("");
+        return true;
     }
 
     public String getDescription() {
         return "OS PC";
+    }
+
+    public void insertUpdate(DocumentEvent e) {
+        updateText();
+    }
+
+    public void removeUpdate(DocumentEvent e) {
+        updateText();
+    }
+
+    public void changedUpdate(DocumentEvent e) {
+        updateText();
+    }
+    
+    public void updateText()
+    {
+        fireChangeEvent();
     }
     
 }
