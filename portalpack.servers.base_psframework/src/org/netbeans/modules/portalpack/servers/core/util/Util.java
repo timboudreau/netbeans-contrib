@@ -19,6 +19,9 @@
 
 package org.netbeans.modules.portalpack.servers.core.util;
 
+import java.net.InetAddress;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.SwingUtilities;
 import org.openide.DialogDisplayer;
 import org.openide.NotifyDescriptor;
@@ -30,6 +33,7 @@ import org.openide.awt.StatusDisplayer;
  */
 public class Util {
     
+    private static Logger logger = Logger.getLogger(NetbeanConstants.PORTAL_LOGGER);
     /** Creates a new instance of Util */
     public Util() {
     }
@@ -98,4 +102,47 @@ public class Util {
         });
         
     }
+   
+    public static boolean isHostValid(String host)
+    {
+        if(host == null || host.trim().length() == 0)
+        {
+           return false; 
+        }
+        
+        try{
+            InetAddress.getByName(host).getHostName();
+        }catch(Exception ex){
+            logger.log(Level.SEVERE,"Error",ex);
+            return false;
+        }
+        return true;
+    }
+    
+    public static boolean isIp(String value)
+    {
+        if(value == null || value.trim().length() == 0 || value.length() < 7)
+            return false;
+        
+        for(int i=0;i<value.length();i++)
+        {
+            char c = value.charAt(i);
+            if(c == '.' || Character.isDigit(c))
+                continue;
+            else
+                return false;
+        }
+        return true;
+    }
+    
+    public static boolean isValidPort(String port)
+    {
+        try{
+            Integer.parseInt(port);
+        }catch(Exception e){
+            return false;
+        }
+        return true;
+    }
+    
 }

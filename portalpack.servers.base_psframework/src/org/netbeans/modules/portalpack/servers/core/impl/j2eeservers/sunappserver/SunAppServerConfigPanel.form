@@ -183,6 +183,9 @@
       </Properties>
     </Component>
     <Component class="javax.swing.JTextField" name="userNameTf">
+      <Events>
+        <EventHandler event="focusLost" listener="java.awt.event.FocusListener" parameters="java.awt.event.FocusEvent" handler="userNameTfFocusLost"/>
+      </Events>
     </Component>
     <Component class="javax.swing.JLabel" name="jLabel5">
       <Properties>
@@ -207,6 +210,9 @@
       </Properties>
     </Component>
     <Component class="javax.swing.JTextField" name="adminPortTf">
+      <Events>
+        <EventHandler event="focusLost" listener="java.awt.event.FocusListener" parameters="java.awt.event.FocusEvent" handler="adminPortTfFocusLost"/>
+      </Events>
     </Component>
     <Component class="javax.swing.JLabel" name="jLabel7">
       <Properties>
@@ -219,6 +225,9 @@
       </Properties>
     </Component>
     <Component class="javax.swing.JTextField" name="portTf">
+      <Events>
+        <EventHandler event="focusLost" listener="java.awt.event.FocusListener" parameters="java.awt.event.FocusEvent" handler="portTfFocusLost"/>
+      </Events>
     </Component>
   </SubComponents>
 </Form>

@@ -22,13 +22,20 @@ package org.netbeans.modules.portalpack.servers.core.impl.j2eeservers.sunappserv
 import java.io.File;
 import java.io.IOException;
 import java.util.logging.Logger;
+import javax.swing.InputVerifier;
+import javax.swing.JComponent;
+import javax.swing.JTextField;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 import org.jdom.JDOMException;
 import org.netbeans.modules.portalpack.servers.core.WizardPropertyReader;
 import org.netbeans.modules.portalpack.servers.core.api.ConfigPanel;
 import org.netbeans.modules.portalpack.servers.core.util.DirectoryChooser;
 import org.netbeans.modules.portalpack.servers.core.util.NetbeanConstants;
 import org.netbeans.modules.portalpack.servers.core.util.PSConfigObject;
+import org.netbeans.modules.portalpack.servers.core.util.Util;
 import org.openide.WizardDescriptor;
+import org.openide.util.NbBundle;
 
 /**
  *
@@ -37,10 +44,16 @@ import org.openide.WizardDescriptor;
 public class SunAppServerConfigPanel extends ConfigPanel implements SunAppServerConstants{
     
     private static Logger logger = Logger.getLogger(NetbeanConstants.PORTAL_LOGGER);
+    
     /** Creates new form SunAppServerConfigPanel */
     public SunAppServerConfigPanel() {
         initComponents();
         initData();
+        
+        portTf.setInputVerifier(new NumericInputVerifier());
+        adminPortTf.setInputVerifier(new NumericInputVerifier());
+        userNameTf.setInputVerifier(new NullValueInputVerifier());
+        
     }
     
     /** This method is called from within the constructor to
@@ -107,14 +120,32 @@ public class SunAppServerConfigPanel extends ConfigPanel implements SunAppServer
         jLabel4.setFont(new java.awt.Font("Tahoma", 1, 11));
         jLabel4.setText(org.openide.util.NbBundle.getMessage(SunAppServerConfigPanel.class, "LBL_USER_NAME"));
 
+        userNameTf.addFocusListener(new java.awt.event.FocusAdapter() {
+            public void focusLost(java.awt.event.FocusEvent evt) {
+                userNameTfFocusLost(evt);
+            }
+        });
+
         jLabel5.setFont(new java.awt.Font("Tahoma", 1, 11));
         jLabel5.setText(org.openide.util.NbBundle.getMessage(SunAppServerConfigPanel.class, "LBL_PASSWORD"));
 
         jLabel6.setFont(new java.awt.Font("Tahoma", 1, 11));
         jLabel6.setText(org.openide.util.NbBundle.getMessage(SunAppServerConfigPanel.class, "LBL_ADMIN_PORT"));
 
+        adminPortTf.addFocusListener(new java.awt.event.FocusAdapter() {
+            public void focusLost(java.awt.event.FocusEvent evt) {
+                adminPortTfFocusLost(evt);
+            }
+        });
+
         jLabel7.setFont(new java.awt.Font("Tahoma", 1, 11));
         jLabel7.setText(org.openide.util.NbBundle.getMessage(SunAppServerConfigPanel.class, "LBL_PORT"));
+
+        portTf.addFocusListener(new java.awt.event.FocusAdapter() {
+            public void focusLost(java.awt.event.FocusEvent evt) {
+                portTfFocusLost(evt);
+            }
+        });
 
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
         this.setLayout(layout);
@@ -188,6 +219,21 @@ public class SunAppServerConfigPanel extends ConfigPanel implements SunAppServer
                 .addContainerGap())
         );
     }// </editor-fold>//GEN-END:initComponents
+
+    private void adminPortTfFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_adminPortTfFocusLost
+// TODO add your handling code here:
+        fireChangeEvent();
+    }//GEN-LAST:event_adminPortTfFocusLost
+
+    private void portTfFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_portTfFocusLost
+// TODO add your handling code here:
+        fireChangeEvent();
+    }//GEN-LAST:event_portTfFocusLost
+
+    private void userNameTfFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_userNameTfFocusLost
+// TODO add your handling code here:
+        fireChangeEvent();
+    }//GEN-LAST:event_userNameTfFocusLost
 
     private void homeTfFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_homeTfFocusLost
         _performHomeTfFocusLost();
@@ -407,6 +453,23 @@ public class SunAppServerConfigPanel extends ConfigPanel implements SunAppServer
          
          setErrorMessage("");
          
+         if(!Util.isValidPort(portTf.getText()))
+         {
+             setErrorMessage(NbBundle.getMessage(SunAppServerConfigPanel.class,"MSG_INVALID_PORT"));
+             return false;
+         }
+         
+         if(!Util.isValidPort(adminPortTf.getText()))
+         {
+             setErrorMessage(NbBundle.getMessage(SunAppServerConfigPanel.class,"MSG_INVALID_ADMIN_PORT"));
+             return false;
+         }
+         
+         if(userNameTf.getText() == null || userNameTf.getText().trim().length() == 0)
+         {
+             setErrorMessage(NbBundle.getMessage(SunAppServerConfigPanel.class,"MSG_INVALID_ADMIN_USER"));
+             return false;
+         }
          if(portTf.getText() == null || portTf.getText().trim().length() == 0 
                 || adminPortTf.getText() == null || adminPortTf.getText().trim().length() == 0
                 || domainTf.getText() == null || domainTf.getText().trim().length() == 0)
@@ -414,6 +477,7 @@ public class SunAppServerConfigPanel extends ConfigPanel implements SunAppServer
              setErrorMessage("Please enter a valid entry for 'port'/'admin port'/'domain'");
              return false;
          }
+         setErrorMessage("");
         return true;
     }
 
@@ -426,6 +490,31 @@ public class SunAppServerConfigPanel extends ConfigPanel implements SunAppServer
             return "";
         else return txt.trim();
     }
+    
+    class NumericInputVerifier extends InputVerifier {
+         public boolean verify(JComponent input) {
+               JTextField tf = (JTextField) input;
+               try{
+                 Integer.parseInt(tf.getText());
+               }catch(Exception e){
+                   fireChangeEvent();
+                   return false;
+               }
+               return true;
+         }
+     }
+    
+     class NullValueInputVerifier extends InputVerifier {
+         public boolean verify(JComponent input) {
+               JTextField tf = (JTextField) input;
+               if(tf.getText().trim().length() == 0)
+               {
+                   fireChangeEvent();
+                   return false;
+               }
+               return true;
+         }
+     }
     
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JTextField adminPortTf;
