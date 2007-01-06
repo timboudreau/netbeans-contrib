@@ -28,11 +28,11 @@ public class FindStoredObjectTest {
     public static void main (String[] args) {
         ObjectScene scene = new ObjectScene ();
 
-        scene.addObject (new Obj (1), null);
-        scene.addObject (new Obj (2), null);
-        scene.addObject (new Obj (3), null);
-        scene.addObject (new Obj (4), null);
-        scene.addObject (new Obj (5), null);
+        scene.addObject (new Obj (1));
+        scene.addObject (new Obj (2));
+        scene.addObject (new Obj (3));
+        scene.addObject (new Obj (4));
+        scene.addObject (new Obj (5));
 
         System.out.println ("Searching for stored obj 5:");
         System.out.println ("found: " + scene.findStoredObject (new Obj (5)));
