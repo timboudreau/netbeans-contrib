@@ -18,7 +18,7 @@ Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
 Microsystems, Inc. All Rights Reserved.
 -->
 
-<project name="libs/ical4j" default="netbeans" basedir=".">
+<project name="libs/commons_lang" default="netbeans" basedir=".">
 
     <import file="../../nbbuild/templates/projectized.xml"/>
 
@@ -28,8 +28,7 @@ Microsystems, Inc. All Rights Reserved.
         <mkdir dir="${cluster}/modules/ext"/>
         <copy todir="${cluster}/modules/ext">
             <fileset dir="../external">
-                <include name="ical4j-*.jar"/>
-                <include name="commons-logging-api-1.1.jar"/>
+                <include name="commons-lang-2.1.jar"/>
             </fileset>
         </copy>
     </target>
@@ -50,10 +49,8 @@ Microsystems, Inc. All Rights Reserved.
             <license>
                 <text>For the integration module:</text>
                 <file location="${license.file}"/>
-                <text>For the ical4j library:</text>
-                <file location="../external/ical4j-1.0-beta1-license.txt"/>
-                <text>For the commons-logging-api library:</text>
-                <file location="../external/commons-logging-api-1.1-license.txt"/>
+                <text>For the Commons-Lang library:</text>
+                <file location="../external/commons-lang-2.1-license.txt"/>
             </license>
             <signature keystore="${keystore}" storepass="${storepass}" alias="${nbm_alias}"/>
         </makenbm>

@@ -22,7 +22,17 @@ Microsystems, Inc. All Rights Reserved.
     <configuration>
         <data xmlns="http://www.netbeans.org/ns/nb-module-project/2">
             <code-name-base>org.netbeans.libs.ical4j</code-name-base>
-            <module-dependencies/>
+            <module-dependencies>
+                <dependency>
+                    <code-name-base>org.netbeans.libs.commons_lang</code-name-base>
+                    <build-prerequisite/>
+                    <compile-dependency/>
+                    <run-dependency>
+                        <release-version>1</release-version>
+                        <implementation-version/>
+                    </run-dependency>
+                </dependency>
+            </module-dependencies>
             <public-packages>
                 <subpackages>net.fortuna.ical4j.data</subpackages>
                 <subpackages>net.fortuna.ical4j.filter</subpackages>
@@ -34,8 +44,8 @@ Microsystems, Inc. All Rights Reserved.
                 <subpackages>net.fortuna.ical4j.util</subpackages>
             </public-packages>
             <class-path-extension>
-                <runtime-relative-path>ext/ical4j-0.9.20.jar</runtime-relative-path>
-                <binary-origin>../external/ical4j-0.9.20.jar</binary-origin>
+                <runtime-relative-path>ext/ical4j-1.0-beta1.jar</runtime-relative-path>
+                <binary-origin>../external/ical4j-1.0-beta1.jar</binary-origin>
             </class-path-extension>
             <class-path-extension>
                 <runtime-relative-path>ext/commons-logging-api-1.1.jar</runtime-relative-path>
