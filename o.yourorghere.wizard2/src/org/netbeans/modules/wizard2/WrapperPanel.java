@@ -60,7 +60,7 @@ class WrapperPanel implements WizardDescriptor.Panel, WizardObserver, WizardDesc
                     "undetermined step is not possible");
         }
         System.err.println("MY ID IS " + id);
-        wizard.addWizardListener(this);
+        wizard.addWizardObserver(this);
     }
     
     private int stepNumber() {

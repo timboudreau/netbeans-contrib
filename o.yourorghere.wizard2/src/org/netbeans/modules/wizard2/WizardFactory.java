@@ -24,6 +24,10 @@ import org.netbeans.spi.wizard.*;
 public class WizardFactory {
     private WizardFactory () {}
     private static final String KEY_WIZARD = "wizard";
+    public static final String KEY_TARGET_NAME = "_#targetName";
+    public static final String KEY_TARGET_FOLDER = "_#targetFolder";
+    public static final String KEY_TEMPLATE = "_#template";
+    public static final String KEY_TEMPLATE_FOLDER = "_#templateFolder";
     
     public static WizardDescriptor.InstantiatingIterator createWrapperWizard (FileObject f) {
         Wizard wiz = (Wizard) f.getAttribute(KEY_WIZARD);

@@ -25,11 +25,17 @@ import javax.swing.event.ChangeListener;
 import javax.swing.event.ChangeListener;
 import org.netbeans.api.progress.ProgressHandle;
 import org.netbeans.api.progress.ProgressHandle;
+import org.netbeans.modules.wizard.InstructionsPanel;
 import org.netbeans.spi.wizard.*;
 import org.netbeans.modules.wizard.MergeMap;
-import org.netbeans.spi.wizard.DeferredWizardResult.ResultProgressHandle;
+import org.netbeans.spi.wizard.ResultProgressHandle;
 import org.openide.WizardDescriptor;
 import org.openide.WizardDescriptor.Panel;
+import org.openide.filesystems.FileObject;
+import org.openide.loaders.DataFolder;
+import org.openide.loaders.DataObject;
+import org.openide.loaders.TemplateWizard;
+import org.openide.util.Exceptions;
 /**
  *
  * @author Tim Boudreau
@@ -62,7 +68,7 @@ class WrapperIterator implements WizardDescriptor.InstantiatingIterator, WizardO
         this.wizard = wizard;
         this.vpanels = vpanels;
         this.asynchVpanels = asynchVpanels;
-        wizard.addWizardListener(this);
+        wizard.addWizardObserver(this);
     }
     
     public Set instantiate() throws IOException {
@@ -84,13 +90,38 @@ class WrapperIterator implements WizardDescriptor.InstantiatingIterator, WizardO
     
     public void initialize(WizardDescriptor desc) {
         this.descriptor = desc;
+        Map m = fetchLegacySettingsMap(desc);
         if (settings == null) {
             String first = wizard.getAllSteps()[0];
-            settings = new MergeMap (first, fetchLegacySettingsMap(desc));
+            settings = new MergeMap (first, m);
         }
         descriptor.putProperty("WizardPanel_errorMessage", wizard.getProblem()); //NOI18N
         descriptor.putProperty("WizardPanel_autoWizardStyle", Boolean.TRUE); //NOI18N
         String title = wizard.getTitle();
+        if (desc instanceof TemplateWizard) {
+            DataFolder targetFolder = null;
+            try {
+                targetFolder = ((TemplateWizard)desc).getTargetFolder();
+            } catch (IOException ioe) {
+                Exceptions.printStackTrace(ioe);
+            }
+            String targetName = ((TemplateWizard)desc).getTargetName();
+            DataObject template = ((TemplateWizard)desc).getTemplate();
+            DataFolder templateFolder = ((TemplateWizard)desc).getTemplatesFolder();
+            if (targetName != null) {
+                m.put (WizardFactory.KEY_TARGET_NAME, targetName);
+            }
+            if (targetFolder != null) {
+                m.put (WizardFactory.KEY_TARGET_FOLDER, targetFolder.getPrimaryFile());
+            }
+            if (template != null) {
+                m.put (WizardFactory.KEY_TEMPLATE, template.getPrimaryFile());
+            }
+            if (templateFolder != null) {
+                m.put (WizardFactory.KEY_TEMPLATE_FOLDER, 
+                        templateFolder.getPrimaryFile());
+            }
+        }
         if (title != null) {
             desc.setTitle(title);
         }
@@ -201,7 +232,7 @@ class WrapperIterator implements WizardDescriptor.InstantiatingIterator, WizardO
         String prev = wizard.getPreviousStep();
         wizard.navigatingTo(prev, settings);
         WrapperPanel wp = (WrapperPanel) current();
-        wp.forwardInto(settings, settings);
+        wp.backInto(settings, settings);
     }
     
     private boolean firing = false;
@@ -271,6 +302,7 @@ class WrapperIterator implements WizardDescriptor.InstantiatingIterator, WizardO
             WrapperHandle wh;
             def.start(settings, wh = new WrapperHandle (handle));
             result = wh.result;
+            //XXX handle summary
             if (result instanceof Set) {
                 return (Set) result;
             } else {
@@ -287,7 +319,7 @@ class WrapperIterator implements WizardDescriptor.InstantiatingIterator, WizardO
         }
     }
     
-    private static final class WrapperHandle extends ResultProgressHandle {
+    private static final class WrapperHandle implements ResultProgressHandle {
         private final ProgressHandle h;
         private boolean started = false;
         WrapperHandle (ProgressHandle h) {
@@ -331,6 +363,7 @@ class WrapperIterator implements WizardDescriptor.InstantiatingIterator, WizardO
                 h.start();;
                 h.finish();
             }
+            started = false;
         }
 
         public void failed(String msg, boolean foo) {
@@ -341,6 +374,19 @@ class WrapperIterator implements WizardDescriptor.InstantiatingIterator, WizardO
             } else {
                 h.finish();
             }
+            started = false;
+        }
+        
+        public boolean isRunning() {
+            return started;
+        }
+    
+        public void setBusy(String arg0) {
+            throw new UnsupportedOperationException("Not supported yet.");
+        }
+
+        public void addProgressComponents(InstructionsPanel arg0) {
+            throw new UnsupportedOperationException("Not supported yet.");
         }
     }
     
