@@ -39,7 +39,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Level;
 import javax.swing.Action;
-
 import javax.swing.ActionMap;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
@@ -70,6 +69,7 @@ import org.netbeans.modules.tasklist.usertasks.actions.UTCopyAction;
 import org.netbeans.modules.tasklist.usertasks.actions.UTCutAction;
 import org.netbeans.modules.tasklist.usertasks.actions.UTDeleteAction;
 import org.netbeans.modules.tasklist.usertasks.actions.UTPasteAction;
+import org.netbeans.modules.tasklist.usertasks.actions.UTSaveAction;
 import org.netbeans.modules.tasklist.usertasks.filter.UserTaskFilter;
 import org.netbeans.modules.tasklist.usertasks.model.StartedUserTask;
 import org.netbeans.modules.tasklist.usertasks.options.Settings;
@@ -83,6 +83,7 @@ import org.netbeans.modules.tasklist.core.table.ChooseColumnsPanel;
 import org.netbeans.modules.tasklist.usertasks.actions.ClearCompletedAction;
 import org.netbeans.modules.tasklist.usertasks.actions.PurgeTasksAction;
 import org.netbeans.modules.tasklist.usertasks.actions.ShowTaskAction;
+import org.netbeans.modules.tasklist.usertasks.actions.UTPasteAtTopLevelAction;
 import org.netbeans.modules.tasklist.usertasks.actions.UTPropertiesAction;
 import org.netbeans.modules.tasklist.usertasks.treetable.TreeTableModel;
 import org.netbeans.modules.tasklist.usertasks.util.AWTThreadAnnotation;
@@ -99,7 +100,9 @@ import org.openide.filesystems.Repository;
 import org.openide.filesystems.URLMapper;
 import org.openide.loaders.DataObject;
 import org.openide.loaders.DataObjectNotFoundException;
+import org.openide.nodes.Node;
 import org.openide.util.HelpCtx;
+import org.openide.util.Lookup;
 import org.openide.util.NbBundle;
 import org.openide.util.Utilities;
 import org.openide.util.actions.SystemAction;
@@ -163,53 +166,6 @@ public class UserTaskView extends TopComponent implements ExportImportProvider,
                 }
             }
         );
-    }
-    
-    /**
-     * Reads an ics file. Shows error messages if it cannot be read.
-     *
-     * @param fo an .ics file
-     */
-    @AWTThreadAnnotation
-    private static UserTaskList readDocument(FileObject fo) throws IOException {
-        if (!fo.isValid()) 
-            throw new IOException(
-                NbBundle.getMessage(UserTaskList.class,
-                    "FileNotValid", FileUtil.getFileDisplayName(fo))); // NOI18N
-        InputStream is = fo.getInputStream();
-        UserTaskList ret = null;
-        try {
-            long m = System.currentTimeMillis();
-            ICalImportFormat io = new ICalImportFormat();
-
-            ret = new UserTaskList();
-            try {
-                io.read(ret, is);
-            } catch (ParserException e) {
-                // NOTE the exception text should be localized!
-                DialogDisplayer.getDefault().notify(new Message(e.getMessage(),
-                   NotifyDescriptor.ERROR_MESSAGE));
-                UTUtils.LOGGER.log(Level.SEVERE, "", e); // NOI18N
-            } catch (IOException e) {
-                // NOTE the exception text should be localized!
-                DialogDisplayer.getDefault().notify(new Message(e.getMessage(),
-                   NotifyDescriptor.ERROR_MESSAGE));
-                UTUtils.LOGGER.log(Level.SEVERE, "", e); // NOI18N
-            }
-
-            if (UTUtils.LOGGER.isLoggable(Level.FINE))
-                Thread.dumpStack();
-            UTUtils.LOGGER.fine("File " + fo + " read in " + // NOI18N
-                (System.currentTimeMillis() - m) + "ms"); // NOI18N
-        } finally {
-            try {
-                is.close();
-            } catch (IOException e) {
-                UTUtils.LOGGER.log(Level.WARNING, 
-                        "closing file failed", e); // NOI18N
-            }
-        }
-        return ret;
     }
     
     /**
@@ -282,7 +238,12 @@ public class UserTaskView extends TopComponent implements ExportImportProvider,
     /** "Show properties" action. */
     public UTPropertiesAction propertiesAction;
     
-    private AutoSaver autoSaver;
+    /** "Save" */
+    public UTSaveAction saveAction;
+    
+    /** "Paste at the Top Level" */
+    public UTPasteAtTopLevelAction pasteAtTopLevelAction;
+            
     private FileObject file;
     
     /** 
@@ -305,12 +266,12 @@ public class UserTaskView extends TopComponent implements ExportImportProvider,
     }
 
     /**
-     * Returns the AutoSaver object associated with this view.
-     *
-     * @return AutoSaver
+     * Returns the file shown in this view.
+     * 
+     * @return file 
      */
-    public AutoSaver getAutoSaver() {
-        return autoSaver;
+    public FileObject getFile() {
+        return file;
     }
     
     /**
@@ -329,7 +290,7 @@ public class UserTaskView extends TopComponent implements ExportImportProvider,
      */
     public Action[] getToolBarActions() {
         return new Action[] {
-            SystemAction.get(SaveAction.class),
+            saveAction,
             newTaskAction,
             new GoToUserTaskAction(this),
             null,
@@ -423,7 +384,7 @@ public class UserTaskView extends TopComponent implements ExportImportProvider,
             if (urlString != null) {
                 URL url = new URL(urlString);
                 file = URLMapper.findFileObject(url);
-                if (file != null) {
+                if (file != null && file.isValid()) {
                     init(file, false);
                 } else {
                     Runnable r = new Runnable() {
@@ -586,9 +547,6 @@ public class UserTaskView extends TopComponent implements ExportImportProvider,
         m.put("selectedNodes", tt.writeReplaceExpandedNodes(tt.getSelectedPaths())); // NOI18N
         
         objectOutput.writeObject(m);
-
-        if (autoSaver.isModified())
-            autoSaver.save(); // Only does something if the list has changed...        
     }
 
     /**
@@ -701,12 +659,19 @@ public class UserTaskView extends TopComponent implements ExportImportProvider,
     private void init(FileObject file, boolean default_) {
         assert SwingUtilities.isEventDispatchThread();
         
+        TaskListDataObject do_ = null;
+        try {
+            do_ = (TaskListDataObject) DataObject.find(file);
+        } catch (DataObjectNotFoundException e) {
+            UTUtils.LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            return;
+        }
+        
         this.file = file;
         this.default_ = default_;
             
         try {
-            tasklist = readDocument(file);
-            this.autoSaver = new AutoSaver(tasklist, file);
+            tasklist = do_.getUserTaskList();
         } catch (IOException e) {
             NotifyDescriptor nd = new NotifyDescriptor.Message(
                     NbBundle.getMessage(TaskListDataObject.class, 
@@ -729,6 +694,9 @@ public class UserTaskView extends TopComponent implements ExportImportProvider,
         
         tt = new UserTasksTreeTable(this, getUserTaskList(), getFilter());
 
+        associateLookup(Lookups.fixed(do_, do_.getNodeDelegate(),
+                getActionMap()));
+        
         configureActions();
         
         scrollPane = new JScrollPane(tt,
@@ -750,10 +718,7 @@ public class UserTaskView extends TopComponent implements ExportImportProvider,
         add(toolbar, BorderLayout.WEST);
 
         if (tt.getRowCount() > 0)
-            tt.getSelectionModel().setSelectionInterval(0, 0);
-        
-        associateLookup(Lookups.fixed(new UserTaskViewNode(this),
-                getActionMap()));
+            tt.getSelectionModel().setSelectionInterval(0, 0);        
     }
 
     /**
@@ -761,8 +726,10 @@ public class UserTaskView extends TopComponent implements ExportImportProvider,
      */
     protected void loadFilters() {
         FileSystem fs = Repository.getDefault().getDefaultFileSystem();
-        FileObject fo = fs.findResource("TaskList/" + USER_CATEGORY + "/filters.settings"); // NOI18N
-        assert fo != null : "Missing config TaskList/" + USER_CATEGORY + "/filters.settings";  // NOI18N
+        FileObject fo = fs.findResource("TaskList/" + // NOI18N
+                USER_CATEGORY + "/filters.settings"); // NOI18N
+        assert fo != null : "Missing config TaskList/" + // NOI18N
+                USER_CATEGORY + "/filters.settings";  // NOI18N
         
         try {
             DataObject dobj = DataObject.find(fo);
@@ -809,7 +776,9 @@ public class UserTaskView extends TopComponent implements ExportImportProvider,
     }
 
 
-    /** Called when the window is closed. Cleans up. */
+    /** 
+     * Called when the window is closed. Cleans up. 
+     */
     protected void componentClosed() {
         UserTask started = StartedUserTask.getInstance().getStarted();
         if (started != null && started.getList() == getUserTaskList())
@@ -974,6 +943,14 @@ public class UserTaskView extends TopComponent implements ExportImportProvider,
         newTaskAction = new NewTaskAction(this);
         showTaskAction = new ShowTaskAction(this);
         propertiesAction = new UTPropertiesAction(this);
+        pasteAtTopLevelAction = new UTPasteAtTopLevelAction(this);
+        
+        try {
+            saveAction = new UTSaveAction(DataObject.find(file));
+        } catch (DataObjectNotFoundException e) {
+            UTUtils.LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            return;
+        }
         
         getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).
                 put(KeyStroke.getKeyStroke(KeyEvent.VK_UP, 
@@ -983,7 +960,10 @@ public class UserTaskView extends TopComponent implements ExportImportProvider,
                 InputEvent.CTRL_MASK), "moveDown");  // NOI18N
         getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).
                 put(KeyStroke.getKeyStroke(KeyEvent.VK_INSERT, 0), 
-                "newTask");  // NOI18N
+                "newTask");  // NOI18N        
+        getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).
+                put((KeyStroke) saveAction.getValue(Action.ACCELERATOR_KEY), 
+                "save");  // NOI18N
         
         ActionMap map = getActionMap();
         map.put(javax.swing.text.DefaultEditorKit.copyAction, 
@@ -997,6 +977,7 @@ public class UserTaskView extends TopComponent implements ExportImportProvider,
         map.put("moveUp", moveUpAction); // NOI18N
         map.put("moveDown", moveDownAction); // NOI18N
         map.put("newTask", newTaskAction); // NOI18N
+        map.put("save", saveAction); // NOI18N
 
         FindAction find = (FindAction) FindAction.get(FindAction.class);
         FilterAction filter = (FilterAction) 

@@ -52,7 +52,7 @@ Microsystems, Inc. All Rights Reserved.
    <testbag testattribs="stable" executor="ide" name="QA functional tests">
         <testset dir="qa-functional/src">
             <patternset>
-                <include name="org/netbeans/modules/tasklist/usertasks/test/TestTable.class"/>
+                <include name="org/netbeans/modules/tasklist/usertasks/test/Test*.class"/>
             </patternset>
         </testset>
     </testbag>

@@ -22,44 +22,41 @@ package org.netbeans.modules.tasklist.usertasks.actions;
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.Transferable;
 import java.awt.event.ActionEvent;
+import javax.swing.AbstractAction;
 import javax.swing.TransferHandler;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.tree.TreePath;
 import org.netbeans.modules.tasklist.usertasks.UserTaskListTreeTableNode;
 import org.netbeans.modules.tasklist.usertasks.UserTaskTreeTableNode;
 import org.netbeans.modules.tasklist.usertasks.UserTaskView;
+import org.netbeans.modules.tasklist.usertasks.transfer.MyTransferHandler;
+import org.openide.util.NbBundle;
 
 /**
- * Paste.
+ * Paste at the top level.
  *
  * @author tl
  */
-public final class UTPasteAction extends UTViewAction {
+public final class UTPasteAtTopLevelAction extends AbstractAction {
+    private UserTaskView utv;
+    
     /**
      * Constructor.
      * 
      * @param utv a user task view.
      */
-    public UTPasteAction(UserTaskView utv) {
-        super(utv, javax.swing.text.DefaultEditorKit.pasteAction);
+    public UTPasteAtTopLevelAction(UserTaskView utv) {
+        super(NbBundle.getMessage(UTPasteAtTopLevelAction.class, 
+                "PasteAtTopLevel")); // NOI18N
+        this.utv = utv;
+        setEnabled(true);
     }
     
-    public void valueChanged(ListSelectionEvent e) {
-        TreePath[] paths = utv.getTreeTable().getSelectedPaths();
-        if (paths.length == 1) {
-            Object last = paths[0].getLastPathComponent();
-            setEnabled(last instanceof UserTaskTreeTableNode ||
-                    last instanceof UserTaskListTreeTableNode);
-        } else {
-            setEnabled(false);
-        }
-    }
-
     public void actionPerformed(ActionEvent e) {
         TransferHandler th = utv.getTreeTable().getTransferHandler();
         Clipboard clipboard = utv.getToolkit().getSystemClipboard();
         Transferable t = clipboard.getContents(this);
         if (t != null)
-            th.importData(utv.getTreeTable(), t);
+            ((MyTransferHandler) th).importData(utv.getTreeTable(), t, true);
     }
 }

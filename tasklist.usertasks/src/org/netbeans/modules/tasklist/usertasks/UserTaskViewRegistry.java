@@ -143,7 +143,7 @@ public class UserTaskViewRegistry {
         while (it.hasNext()) {
             WeakReference wr = (WeakReference) it.next();
 	    UserTaskView tlv = (UserTaskView) wr.get();
-            if (tlv != null && tlv.getAutoSaver().getFile() == file) 
+            if (tlv != null && tlv.getFile() == file) 
                 return tlv;
         }
         return null;

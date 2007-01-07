@@ -21,7 +21,10 @@ package org.netbeans.modules.tasklist.usertasks.actions;
 
 import java.awt.event.ActionEvent;
 import javax.swing.event.ListSelectionEvent;
+import javax.swing.tree.TreePath;
+import org.netbeans.modules.tasklist.usertasks.UserTaskTreeTableNode;
 import org.netbeans.modules.tasklist.usertasks.UserTaskView;
+import org.netbeans.modules.tasklist.usertasks.model.UserTask;
 import org.openide.DialogDisplayer;
 import org.openide.NotifyDescriptor;
 import org.openide.util.NbBundle;
@@ -45,27 +48,35 @@ public class PurgeTasksAction extends UTViewAction {
                 "LBL_PurgeTodo")); // NOI18N
     }
     
-    public void actionPerformed(ActionEvent arg0) {
+    public void actionPerformed(ActionEvent e) {
         NotifyDescriptor nd = new NotifyDescriptor.Confirmation(
             NbBundle.getMessage(PurgeTasksAction.class, "PurgeTasks"), // NOI18N
             NbBundle.getMessage(PurgeTasksAction.class, "PurgeTasksTitle"), // NOI18N
             NotifyDescriptor.OK_CANCEL_OPTION
         );
         if (DialogDisplayer.getDefault().notify(nd) == NotifyDescriptor.OK_OPTION) {
-            getSingleSelectedTask().purgeCompleted();
-            /* TODO: if (nodes[0] instanceof UserTaskNode) {
-                UserTask ptsk = ((UserTaskNode) nodes[0]).getTask();
-                ptsk.purgeCompleted();
-            } else {
-                UserTaskList utl = 
-                    ((UserTaskListNode) nodes[0]).getUserTaskList();
-                utl.getSubtasks().purgeCompletedItems();
-            }*/
+            TreePath[] tp = utv.getTreeTable().getSelectedPaths();
+            UserTask[] uts = new UserTask[tp.length];
+            for (int i = 0; i < tp.length; i++) {
+                UserTaskTreeTableNode n = (UserTaskTreeTableNode) 
+                        tp[i].getLastPathComponent();
+                uts[i] = n.getUserTask();
+            }
+            uts = UserTask.reduce(uts);
+            for (int i = 0; i < uts.length; i++) {
+                uts[i].purgeCompleted();
+                if (uts[i].isDone()) {
+                    if (uts[i].getParent() != null)
+                        uts[i].getParent().getSubtasks().remove(uts[i]);
+                    else
+                        uts[i].getList().getSubtasks().remove(uts[i]);
+                }
+            }
         }
     }
 
     public void valueChanged(ListSelectionEvent e) {
-        // TODO: does not work for the top node
-        setEnabled(getSingleSelectedTask() != null);
+        TreePath[] tp = utv.getTreeTable().getSelectedPaths();
+        setEnabled(tp.length > 0);
     }
 }

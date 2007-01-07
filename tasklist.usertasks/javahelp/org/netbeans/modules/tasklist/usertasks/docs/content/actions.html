@@ -7,6 +7,8 @@
 
 
 
+
+  
   
   
   
@@ -18,6 +20,8 @@
 
 
 
+
+  
   
   
   
@@ -34,7 +38,9 @@
 
 
 
+
 <h2>Available Actions</h2>
+
 
 
 
@@ -48,7 +54,9 @@
 
 
 
+
   <tbody>
+
 
 
 
@@ -62,7 +70,9 @@
 
 
 
+
       <td style="vertical-align: top;">
+      
       
       
       
@@ -75,50 +85,68 @@
 
 
 
+
       <img src="images/save.png" alt="Save" style="width: 16px; height: 16px;"> - Save (Ctrl+S)<br>
+
       <img src="images/newTask.gif" alt="New Task" style="width: 16px; height: 16px;"> - New Subtask... (Insert)<br>
+
 
 
       <img src="images/showSource.gif" alt="Go To Source" style="width: 16px; height: 16px;"> - Go To Source<br>
 
 
+
       <img src="images/filterAction.gif" title="" alt="Search/Filter..." style="width: 16px; height: 16px;"> - Search/Filter...<br>
+
 
 
       <img src="images/removefilter.png" title="" alt="Remove Filter" style="width: 16px; height: 16px;"> - Remove Filter<br>
 
 
+
       <img src="images/startTask.gif" alt="Start a task" style="width: 16px; height: 16px;"> - Start<br>
+
 
 
       <img src="images/pause.gif" title="" alt="Pause" style="width: 16px; height: 16px;"> - Pause<br>
 
 
+
       <img src="images/moveUp.gif" title="" alt="Move Up" style="width: 16px; height: 16px;"> - Move Up<br>
+
 
 
       <img src="images/moveDown.gif" title="" alt="Move Down" style="width: 16px; height: 16px;"> - Move Down
       
       
-      <h3></h3>
-
-
-      
       
       <h3></h3>
 
 
+
+      
       
       
       <h3></h3>
 
 
+
+      
       
       
       <h3></h3>
+
+
+
+      
+      
+      
+      <h3></h3>
+
 
 
       </td>
+
 
 
 
@@ -131,6 +159,7 @@
       
       
       
+      
       <h3>Task's local menu</h3>
 
 
@@ -138,12 +167,15 @@
 
 
 
+
       
       
       
       
       
-      <h3><img style="width: 211px; height: 482px;" src="images/menu.png" alt="Local Menu"></h3>
+      
+      <h3><img style="width: 211px; height: 501px;" src="images/menu.png" alt="Local Menu"></h3>
+
 
 
 
@@ -151,6 +183,7 @@
 
 
       </td>
+
 
 
 
@@ -174,6 +207,8 @@
 
 
 
+
+  
   
   
   
@@ -187,7 +222,9 @@
 
 
 
+
 <br>
+
 <h3>Save (<img src="images/save.png" alt="Save" style="width: 16px; height: 16px;">)<br>
 
 
@@ -195,8 +232,11 @@
 
 
 
+
 </h3>
+
 saves the task list.<br>
+
 
 
 
@@ -210,7 +250,9 @@ saves the task list.<br>
 
 
 
+
 </h3>
+
 
 
 
@@ -225,7 +267,9 @@ the task.<br>
 
 
 
+
 <h3>New Task List...</h3>
+
 
 
 
@@ -239,7 +283,9 @@ creates a new task list in the file system.<br>
 
 
 
+
 <h3>Start (<img src="images/startTask.gif" alt="Start a task" style="width: 16px; height: 16px;">)</h3>
+
 
 
 
@@ -258,7 +304,9 @@ set to the name of the current user if it was empty.
 
 
 
+
 </h3>
+
 
 
 
@@ -272,7 +320,9 @@ stops the task if it is currently running.<br>
 
 
 
+
 <h3>Show Task</h3>
+
 
 
 
@@ -286,7 +336,9 @@ shows a dialog where the task's properties could be edited.<br>
 
 
 
+
 <h3>Go To Source (<img src="images/showSource.gif" alt="Go To Source" style="width: 16px; height: 16px;">)<br>
+
 
 
 
@@ -300,7 +352,9 @@ shows a dialog where the task's properties could be edited.<br>
 
 
 
-shows the file assciated with this task in the editor.<br>
+
+shows the file associated with this task in the editor.<br>
+
 
 
 
@@ -308,6 +362,7 @@ shows the file assciated with this task in the editor.<br>
 
 
 <h3>Cut, Copy, Paste, Delete </h3>
+
 
 
 
@@ -324,6 +379,9 @@ copy, paste or delete.<br>
 
 
 
+
+<h3>Paste at Top Level </h3>
+Pastes the content of the clipboard at the topmost level in the task list independent of the current selection.
 <h3>Move Up (<img src="images/moveUp.gif" title="" alt="Move Up" style="width: 16px; height: 16px;">)/Move
 Down (<img src="images/moveDown.gif" title="" alt="Move Down" style="width: 16px; height: 16px;">)<br>
 
@@ -332,7 +390,9 @@ Down (<img src="images/moveDown.gif" title="" alt="Move Down" style="width: 16px
 
 
 
+
 </h3>
+
 
 
 
@@ -343,7 +403,9 @@ move the selected task up or down.<br>
 
 
 
-<h3>Move Left/Move Right<br>
+
+<h3>Unindent/Indent<br>
+
 
 
 
@@ -357,7 +419,9 @@ move the selected task up or down.<br>
 
 
 
+
 move the selected task left or right (changes nesting).<br>
+
 
 
 
@@ -368,12 +432,13 @@ move the selected task left or right (changes nesting).<br>
 
 
 
+
 You can import certain <a href="translators.html">types
 of data</a>
-into the tasklist
+into the task list
 as well. Currently only iCalendar and xCalendar files
-are supported, but we hope to support at least ASCII
-todo files soon.<br>
+are supported.<br>
+
 
 
 
@@ -381,6 +446,7 @@ todo files soon.<br>
 
 
 <h3>Export </h3>
+
 
 
 
@@ -396,6 +462,7 @@ of your task list. <br>
 
 
 
+
 <h3>Search/Filter... (<img src="images/filterAction.gif" title="" alt="Search/Filter..." style="width: 16px; height: 16px;">)<br>
 
 
@@ -403,7 +470,9 @@ of your task list. <br>
 
 
 
+
 </h3>
+
 
 
 
@@ -419,7 +488,9 @@ defined.<br>
 
 
 
+
 <h3>Remove Filter (<img src="images/removefilter.png" title="" alt="Remove Filter" style="width: 16px; height: 16px;">)<br>
+
 
 
 
@@ -433,7 +504,9 @@ defined.<br>
 
 
 
+
 removes the currently active filter.<br>
+
 
 
 
@@ -442,6 +515,7 @@ removes the currently active filter.<br>
 
 <span style="font-weight: bold;"></span>
 <h3>Purge Completed</h3>
+
 
 
 
@@ -459,7 +533,9 @@ action.
 
 
 
+
 </h3>
+
 
 
 
@@ -469,7 +545,9 @@ action.
 clears the completion status by all subtasks of the currently selected
 task. This action is very useful for working with checklists.<br>
 
+
 <h3>Schedule<br>
+
 
 
 
@@ -478,7 +556,9 @@ task. This action is very useful for working with checklists.<br>
 
 </h3>
 
+
 schedules all undone tasks in all open user task lists.<br>
+
 
 
 
@@ -490,7 +570,9 @@ schedules all undone tasks in all open user task lists.<br>
 
 
 
+
 </h3>
+
 
 
 
@@ -499,9 +581,13 @@ schedules all undone tasks in all open user task lists.<br>
 
 You can quickly expand/collapse all the tasks shown in a tasklist
 by selecting the "Expand/Collapse All" context menu item.<br>
+
 <br>
+
 <h3>Export/Import</h3>
+
 exports the whole task list or imports data from an external file.<br>
+
 
 
 
@@ -515,7 +601,9 @@ exports the whole task list or imports data from an external file.<br>
 
 
 
+
 shows a property with task's properties.<br>
+
 
 
 
@@ -530,7 +618,9 @@ Further information at <a href="http://tasklist.netbeans.org/"><code>http://task
 
 
 
+
 <br>
+
 
 
 

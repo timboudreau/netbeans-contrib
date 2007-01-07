@@ -1284,7 +1284,7 @@ ObjectList.Owner {
      * list of subtasks will be cloned as well 
      */
     public Object clone() {
-        UserTask t = new UserTask("", list); // NOI18N
+        UserTask t = new UserTask("", null); // NOI18N
         t.copyFrom(this);
         return t;
     }
@@ -1388,6 +1388,7 @@ ObjectList.Owner {
         while (it.hasNext()) {
             UserTask task = (UserTask)it.next();
             UserTask mycopy = (UserTask)task.clone();
+            mycopy.list = list;
             mycopy.parent = this;
             subtasks.add(mycopy);
         }
@@ -1676,7 +1677,6 @@ ObjectList.Owner {
      * membership relations (parent).
      */
     public UserTask cloneTask() {
-        // Does not work well as we subclass a suggestion that is 1:1 to its agent 
         UserTask clone = (UserTask) clone();
         clone.parent = null;
         return clone;

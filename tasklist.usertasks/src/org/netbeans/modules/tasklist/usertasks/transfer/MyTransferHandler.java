@@ -80,12 +80,6 @@ public class MyTransferHandler extends TransferHandler {
     
     private UserTask[] transferredTasks;
     
-    /** 
-     * Creates a new instance of MyTransferHandler 
-     */
-    public MyTransferHandler() {
-    }
-
     public int getSourceActions(JComponent c) {
 	return MOVE | COPY;
     }
@@ -130,7 +124,16 @@ public class MyTransferHandler extends TransferHandler {
         return false;
     }
 
-    public boolean importData(JComponent comp, Transferable t) {
+    /**
+     * Imports data.
+     * 
+     * @param comp TreeTable
+     * @param t dragged data
+     * @param topLevel true = the tasks will be pasted at top level. Otherwise
+     * current selected node will be the parent. 
+     */
+    public boolean importData(JComponent comp, Transferable t, 
+            boolean topLevel) {
         // dragged tasks
         UserTask[] tasks = getTasks(t);
         if (tasks == null)
@@ -138,15 +141,22 @@ public class MyTransferHandler extends TransferHandler {
         
         // target
         UserTasksTreeTable tt = (UserTasksTreeTable) comp;
-        TreePath tp = tt.getSelectedPath();
-        if (tp == null)
-            return false;
-        
-        Object obj = tp.getLastPathComponent();
+        UserTask target = null;
         UserTaskObjectList list = null;
-        UserTask target = ((UserTaskTreeTableNode) obj).getUserTask();
-        list = target.getSubtasks();
-        if (transferredTasks != null) {
+
+        TreePath tp = tt.getSelectedPath();
+        if (!topLevel && tp != null && tp.getLastPathComponent() 
+                instanceof UserTaskTreeTableNode) {
+            UserTaskTreeTableNode obj = 
+                    (UserTaskTreeTableNode) tp.getLastPathComponent();
+            target = obj.getUserTask();
+            list = target.getSubtasks();
+        } else {
+            list = ((UserTasksTreeTableModel) tt.getTreeTableModel()).
+                    getUserTaskList().getSubtasks();
+        }
+        
+        if (transferredTasks != null && target != null) {
             for (int i = 0; i < transferredTasks.length; i++) {
                 if (transferredTasks[i].isAncestorOf(target)) {
                     return false;
@@ -167,7 +177,7 @@ public class MyTransferHandler extends TransferHandler {
             return false;
 
         list.addAll(tasks_);
-        if (Settings.getDefault().getAutoSwitchToComputed()) {
+        if (target != null && Settings.getDefault().getAutoSwitchToComputed()) {
             target.setValuesComputed(true);
         }
 
@@ -183,6 +193,10 @@ public class MyTransferHandler extends TransferHandler {
         uttt.scrollTo(paths[0]);
         
         return true;
+    }
+    
+    public boolean importData(JComponent comp, Transferable t) {
+        return importData(comp, t, false);
     }
 
     protected void exportDone(JComponent source, Transferable data, int action) {

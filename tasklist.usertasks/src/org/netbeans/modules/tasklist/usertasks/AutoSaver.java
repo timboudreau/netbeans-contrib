@@ -143,7 +143,7 @@ public class AutoSaver {
                     save();
                 } catch (IOException ioe) {
                     DialogDisplayer.getDefault().notify(new Message(ioe,
-                                                                    NotifyDescriptor.ERROR_MESSAGE));
+                            NotifyDescriptor.ERROR_MESSAGE));
                 }
             }
         };
@@ -172,7 +172,7 @@ public class AutoSaver {
         FileLock lock = this.file.lock();
         try {
             Writer w = new OutputStreamWriter(new BufferedOutputStream(
-                    file.getOutputStream(lock)), "UTF-8");;
+                    file.getOutputStream(lock)), "UTF-8"); // NOI18N
             try {
                 io.writeList(utl, w, false);
             } catch (ParseException e) {
@@ -186,7 +186,7 @@ public class AutoSaver {
                     w.close();
                 } catch (IOException e) {
                     UTUtils.LOGGER.log(Level.WARNING, 
-                            "failed closing file", e);
+                            "failed closing file", e); // NOI18N
                 }
             }
         } finally {
@@ -210,7 +210,7 @@ public class AutoSaver {
         if (modified != false) {
             modified = false;
             do_.setModified(false);
-            UTUtils.LOGGER.fine("modified = true"); // NOI18N
+            UTUtils.LOGGER.fine("modified = false"); // NOI18N
             fireChange();
         }
     }

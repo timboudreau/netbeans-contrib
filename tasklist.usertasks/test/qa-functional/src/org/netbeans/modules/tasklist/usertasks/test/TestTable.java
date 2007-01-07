@@ -39,8 +39,6 @@ import org.netbeans.jemmy.operators.JButtonOperator;
 import org.netbeans.jemmy.operators.JPopupMenuOperator;
 import org.netbeans.jemmy.operators.JTableOperator;
 import org.netbeans.junit.NbTestSuite;
-import org.netbeans.modules.tasklist.usertasks.UserTaskTreeTableNode;
-import org.netbeans.modules.tasklist.usertasks.treetable.TreeTable;
 
 /**
  * Tests for the TreeTable

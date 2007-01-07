@@ -68,6 +68,11 @@ public class UserTaskList implements ObjectList.Owner {
      */
     public UserTaskList() {
         tasks = new UserTaskObjectList(this);
+        tasks.addListener(new ObjectList.Listener() {
+            public void listChanged(ObjectList.Event ev) {
+                UserTaskList.this.fireChange();
+            }
+        });
     }
     
     /**

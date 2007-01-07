@@ -364,6 +364,7 @@ public class UserTasksTreeTable extends TreeTable {
             SystemAction.get(CutAction.class),
             SystemAction.get(CopyAction.class),
             SystemAction.get(PasteAction.class),
+            utv.pasteAtTopLevelAction,
             null,
             SystemAction.get(DeleteAction.class),
             null,
@@ -423,26 +424,16 @@ public class UserTasksTreeTable extends TreeTable {
                 result = UTUtils.prepareForTooltip(result);
                 if (result.length() == 0)
                     result = null;
-            } else if (node instanceof UserTaskListTreeTableNode) {
-                // todo FileObject fo = ((UserTaskListTreeTableNode) node).
-                //    getUserTaskList().getFile();
-                // result = FileUtil.getFileDisplayName(fo);
-                result = "todo";
             }
         }
         return result;
     }
 
-    public void setColumnModel(TableColumnModel columnModel) {
-        //if (UTUtils.LOGGER.isLoggable(Level.FINE))
-        //    Thread.dumpStack();
-        
-        super.setColumnModel(columnModel);
-    }
-
+    /* DEBUG
     public void paint(Graphics g) {
         super.paint(g); 
     }
+     */
 }
 
 

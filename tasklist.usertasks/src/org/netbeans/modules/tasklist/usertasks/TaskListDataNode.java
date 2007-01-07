@@ -23,17 +23,23 @@ package org.netbeans.modules.tasklist.usertasks;
 import org.openide.loaders.DataNode;
 import org.openide.nodes.Children;
 
-/** A node to represent this object.
+/** 
+ * A node to represent this object.
  *
  * @author Tor Norbye
+ * @author tl
  */
 public class TaskListDataNode extends DataNode {
+    private static final String ICON =
+            "org/netbeans/modules/tasklist/usertasks/tasklistfile.gif";  // NOI18N
 
+    /**
+     * Constructor.
+     * 
+     * @param obj a task list file 
+     */
     public TaskListDataNode(TaskListDataObject obj) {
 	super(obj, Children.LEAF);
         setIconBaseWithExtension(ICON);
     }
-
-    private static final String ICON =
-        "org/netbeans/modules/tasklist/usertasks/tasklistfile.gif";  // NOI18N
 }

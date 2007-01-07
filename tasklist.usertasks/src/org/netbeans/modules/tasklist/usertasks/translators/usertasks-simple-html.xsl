@@ -70,9 +70,5 @@ Microsystems, Inc. All Rights Reserved.
             </xsl:otherwise>
         </xsl:choose>
         <xsl:value-of select="summary"/>
-        <xsl:if test="details != ''">
-            <br/>
-            (<xsl:value-of select="details"/>)
-        </xsl:if>
     </xsl:template>
 </xsl:stylesheet> 

@@ -24,13 +24,12 @@
 package org.netbeans.modules.tasklist.usertasks.treetable;
 
 import javax.swing.JTextField;
-
 import javax.swing.DefaultCellEditor;
-
 import java.awt.Component;
 import java.awt.Graphics;
 import java.awt.Rectangle;
 import java.awt.event.InputEvent;
+import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.io.Serializable;
@@ -41,7 +40,6 @@ import java.util.List;
 import java.util.logging.Level;
 import javax.swing.Icon;
 import javax.swing.InputMap;
-
 import javax.swing.JTable;
 import javax.swing.JTree;
 import javax.swing.KeyStroke;
@@ -992,7 +990,10 @@ public class TreeTable extends JTable {
 	 * return true if the click count >= 3, or the event is null.
 	 */
 	public boolean isCellEditable(EventObject e) {
-	    if (e instanceof MouseEvent) {
+            /* DEBUG if (UTUtils.LOGGER.isLoggable(Level.FINE))
+                Thread.dumpStack();
+            UTUtils.LOGGER.fine(e.toString());*/
+            if (e instanceof MouseEvent) {
 		MouseEvent me = (MouseEvent)e;
                 
 		// If the modifiers are not 0 (or the left mouse button),
@@ -1033,7 +1034,7 @@ public class TreeTable extends JTable {
 	    if (e == null) {
 		return true;
 	    }
-	    return false;
+	    return super.isCellEditable(e);
 	}
     }
 
