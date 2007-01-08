@@ -28,6 +28,7 @@ Microsystems, Inc. All Rights Reserved.
                 <runtime-relative-path>ext/portalpack/jmxremote_optional.jar</runtime-relative-path>
                 <binary-origin>../../external/jmxremote_optional.jar</binary-origin>
             </class-path-extension>
+            <!--
             <class-path-extension>
                 <runtime-relative-path>ext/portalpack/jmxremote.jar</runtime-relative-path>
                 <binary-origin>../../external/jmxremote.jar</binary-origin>
@@ -36,6 +37,7 @@ Microsystems, Inc. All Rights Reserved.
                 <runtime-relative-path>ext/portalpack/jmxr.jar</runtime-relative-path>
                 <binary-origin>../../external/jmx.jar</binary-origin>
             </class-path-extension>
+            -->
             <module-dependencies>
                 <dependency>
                     <code-name-base>org.apache.tools.ant.module</code-name-base>
