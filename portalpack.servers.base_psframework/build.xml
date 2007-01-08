@@ -29,7 +29,6 @@ Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
 
     <target name="release" depends="init">
         <mkdir dir="${cluster}/modules/ext/portalpack/jdom"/>
-        <mkdir dir="${cluster}/modules/ext/portalpack/velocity"/>
         
         <copy file="../../external/jdom/jaxen-core.jar"
         todir="${cluster}/modules/ext/portalpack/jdom"/>
