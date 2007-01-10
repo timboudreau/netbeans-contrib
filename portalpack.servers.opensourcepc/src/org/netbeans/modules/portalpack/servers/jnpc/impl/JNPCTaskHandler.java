@@ -55,21 +55,27 @@ import org.openide.filesystems.FileUtil;
  * @author root
  */
 public class JNPCTaskHandler extends DefaultPSTaskHandler{
-    
+
     private static Logger logger = Logger.getLogger(NetbeanConstants.PORTAL_LOGGER);
     private static ExtendedClassLoader loader;
     private PSDeploymentManager dm;
     private PSConfigObject psconfig;
+    
+    private static String PORTLET_ADMIN_INTERFACE = "com.sun.portal.portletadmin.mbeans.PortletAdmin";
+    private static String PORTLET_REGISTRY_CONTEXT_FACTORY_OLD = "com.sun.portal.portletadmin.PortletRegistryContextFactory";
+    private static String PORTLET_REGISTRY_CONTEXT_OLD = "com.sun.portal.portletadmin.PortletRegistryContext";
+    private static String PORTLET_REGISTRY_CONTEXT_FACTORY_NEW = "com.sun.portal.portletcontainer.context.registry.PortletRegistryContextFactory";
+    private static String PORTLET_REGISTRY_CONTEXT_NEW = "com.sun.portal.portletcontainer.context.registry.PortletRegistryContext";
     //private FileObject taskFile;
-    
+
     private ServerDeployHandler deployerHandler;
-    
-    
+
+
     /** Creates a new instance of JNPCTaskHandler */
     public JNPCTaskHandler(PSDeploymentManager dm) {
         this.dm = dm;
         this.psconfig = dm.getPSConfig();
-        
+
         if(loader == null)
         {
             try {
@@ -80,16 +86,16 @@ public class JNPCTaskHandler extends DefaultPSTaskHandler{
         }
         deployerHandler = ServerDeployerHandlerFactory.getServerDeployerHandler(dm);
     }
-    
-           
+
+
     public String deploy(String warfile, String serveruri) throws Exception {
-        
+
         try{
             Thread.currentThread().setContextClassLoader(loader);
-            Class clazz = loader.loadClass("com.sun.portal.portletadmin.mbeans.PortletAdmin");
+            Class clazz = loader.loadClass(PORTLET_ADMIN_INTERFACE);
             Object ob = clazz.newInstance();
-            
-            System.setProperty("com.sun.portal.portletcontainer.dir",psconfig.getPSHome());
+
+            //System.setProperty("com.sun.portal.portletcontainer.dir",psconfig.getPSHome());
             Method method = clazz.getMethod("deploy",new Class[]{String.class,Properties.class,Properties.class});
 
             Boolean isDeployed = (Boolean)method.invoke(ob, new Object[]{warfile,new Properties(),new Properties()});
@@ -97,15 +103,15 @@ public class JNPCTaskHandler extends DefaultPSTaskHandler{
             {
                 if(!isDeployed.booleanValue())
                     throw new Exception(org.openide.util.NbBundle.getMessage(JNPCTaskHandler.class, "Deployment_failed"));
-                
+
             }else{
                     logger.log(Level.INFO,org.openide.util.NbBundle.getMessage(JNPCTaskHandler.class, "Problem_preparing_war"));
             }
-            
+
         }catch(Exception e){
             throw e;
         }
-                
+
         File warFileObj = new File(warfile);
         String massagedWar = psconfig.getPSHome() + File.separator + "war" + File.separator + warFileObj.getName();
         deployerHandler.deploy(massagedWar);
@@ -120,42 +126,42 @@ public class JNPCTaskHandler extends DefaultPSTaskHandler{
         }*/
         return org.openide.util.NbBundle.getMessage(JNPCTaskHandler.class, "Deployed_Successfully");
     }
-    
+
      private int runProcess(String str, boolean wait) throws Exception {
         final Process child = Runtime.getRuntime().exec(str);
-        
-        
+
+
         LogManager manager = new LogManager(dm);
         manager.openServerLog(child,str + System.currentTimeMillis());
         if (wait)
             child.waitFor();
-        
+
         return child.exitValue();
-        
+
     }
-      
+
     private int runProcess(String[] cmdArray, boolean wait) throws Exception {
         final Process child = Runtime.getRuntime().exec(cmdArray);
-        
-        
+
+
         LogManager manager = new LogManager(dm);
         manager.openServerLog(child,"" + System.currentTimeMillis());
         if (wait)
             child.waitFor();
-        
+
         return child.exitValue();
-        
+
     }
-       
+
 
     public void undeploy(String portletAppName, String dn) throws Exception {
-        
+
         try{
             Thread.currentThread().setContextClassLoader(loader);
-            Class clazz = loader.loadClass("com.sun.portal.portletadmin.mbeans.PortletAdmin");
+            Class clazz = loader.loadClass(PORTLET_ADMIN_INTERFACE);
             Object ob = clazz.newInstance();
-            
-            System.setProperty("com.sun.portal.portletcontainer.dir",psconfig.getPSHome());
+
+            //System.setProperty("com.sun.portal.portletcontainer.dir",psconfig.getPSHome());
             Method method = clazz.getMethod("undeploy",new Class[]{String.class});
 
             Boolean isUnDeployed = (Boolean)method.invoke(ob, new Object[]{portletAppName});
@@ -165,17 +171,17 @@ public class JNPCTaskHandler extends DefaultPSTaskHandler{
                 {
                     throw new Exception(org.openide.util.NbBundle.getMessage(JNPCTaskHandler.class, "UNDEPLOYMENT_FAILED"));
                 }
-                    
+
             }
             else
             {
                 logger.log(Level.INFO,org.openide.util.NbBundle.getMessage(JNPCTaskHandler.class, "PROBLEM_IN_UNREGISTER"));
             }
-            
+
         }catch(Exception e){
             throw e;
         }
-        
+
         deployerHandler.undeploy(portletAppName);
         /*if(psconfig.getServerType().equals(ServerConstants.SUN_APP_SERVER_9)){
             SunAppServerDeployerUtil handler = new SunAppServerDeployerUtil(dm);
@@ -185,21 +191,30 @@ public class JNPCTaskHandler extends DefaultPSTaskHandler{
             TomcatDeployerUtil handler = new TomcatDeployerUtil(dm,taskFile);
             handler.undeployOnTomcat(portletAppName);
         }*/
-        
+
     }
-    
-    
-    
+
+
+
 
     public String[] getPortlets(String dn)  {
-        
+
         try{
             Thread.currentThread().setContextClassLoader(loader);
-            Class clazz = loader.loadClass("com.sun.portal.portletadmin.PortletRegistryContextFactory");
+            Class clazz = null;
+            try {
+                clazz = loader.loadClass(PORTLET_REGISTRY_CONTEXT_FACTORY_NEW);
+            } catch (ClassNotFoundException ex) {
+                clazz = loader.loadClass(PORTLET_REGISTRY_CONTEXT_FACTORY_OLD);
+            }
             Method method = clazz.getMethod("getPortletRegistryContext",new Class[]{});
             Object portletRegistryContextObj = method.invoke(null,new Object[]{});
-            
-            Class registryContextClazz = loader.loadClass("com.sun.portal.portletadmin.PortletRegistryContext");
+            Class registryContextClazz = null;
+            try {
+                registryContextClazz = loader.loadClass(PORTLET_REGISTRY_CONTEXT_NEW);
+            } catch (ClassNotFoundException ex) {
+                registryContextClazz = loader.loadClass(PORTLET_REGISTRY_CONTEXT_OLD);
+            }
             Method getPortletsMethod = registryContextClazz.getMethod("getAvailablePortlets",new Class[]{});
 
             List list = (List) getPortletsMethod.invoke(portletRegistryContextObj,new Object[]{});
@@ -212,14 +227,14 @@ public class JNPCTaskHandler extends DefaultPSTaskHandler{
             logger.log(Level.SEVERE,"Error getting portlet lists ",e);
             return new String[]{};
         }
-        
+
     }
-    
+
    public ExtendedClassLoader initClassLoader() throws MalformedURLException
    {
-       System.setProperty("com.sun.portal.portletcontainer.dir",psconfig.getPSHome());
+       //System.setProperty("com.sun.portal.portletcontainer.dir",psconfig.getPSHome());
         ExtendedClassLoader loader = new ExtendedClassLoader(this.getClass().getClassLoader());
-        
+
         File libDir = new File(psconfig.getPSHome() + File.separator + "lib");
         File[] files = libDir.listFiles(new FilenameFilter() {
             public boolean accept(File dir, String name) {
@@ -230,7 +245,7 @@ public class JNPCTaskHandler extends DefaultPSTaskHandler{
                 return false;
             }
         });
-        
+
         for(int i=0;i<files.length;i++)
 
         {
@@ -239,28 +254,28 @@ public class JNPCTaskHandler extends DefaultPSTaskHandler{
         }
         return loader;
    }
-   
+
 
     public String constructPortletViewURL(String dn, String portlet) {
-        
+
         String  contextUri = psconfig.getPortalUri();
         if(contextUri.startsWith("/"))
         {
            if(contextUri.length() > 1)
                contextUri = contextUri.substring(1);
         }
-        
+
         if(contextUri.endsWith("/"))
         {
             if(contextUri.length() > 1)
                contextUri = contextUri.substring(0,contextUri.length() - 1);
         }
-        
+
         return "http://"+psconfig.getHost()+":"+psconfig.getPort()+"/"+contextUri +"?pc.portletId=" + portlet;
     }
-   
+
     public String constructAdminToolURL(){
-        
+
         String  contextUri = psconfig.getProperty(JNPCConstants.ADMIN_CONSOLE_URI);
         if(contextUri.startsWith("/"))
         {
@@ -268,8 +283,8 @@ public class JNPCTaskHandler extends DefaultPSTaskHandler{
                contextUri = contextUri.substring(1);
         }
         return "http://"+psconfig.getHost() + ":"+psconfig.getPort()+"/"+contextUri;
-    }   
+    }
 
-    
-   
+
+
 }
