@@ -35,14 +35,16 @@ import org.netbeans.modules.portalpack.servers.jnpc.impl.JNPCTaskHandler;
  */
 public class JNPCDeploymentManager extends PSDeploymentManager {
      
-  
+    private JNPCTaskHandler taskHandler;
     
     public JNPCDeploymentManager(String uri,String psVersion)
     {
         super(uri,psVersion);
     }
     public PSTaskHandler getTaskHandler() {
-        return new JNPCTaskHandler(this);
+        if(taskHandler == null)
+            taskHandler = new JNPCTaskHandler(this);
+        return taskHandler;
     }
 
     public PSConfigPanelManager getPSConfigPanelManager() {
