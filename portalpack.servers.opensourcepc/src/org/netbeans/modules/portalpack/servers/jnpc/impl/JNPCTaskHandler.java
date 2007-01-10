@@ -233,7 +233,7 @@ public class JNPCTaskHandler extends DefaultPSTaskHandler{
    public ExtendedClassLoader initClassLoader() throws MalformedURLException
    {
        //System.setProperty("com.sun.portal.portletcontainer.dir",psconfig.getPSHome());
-        ExtendedClassLoader loader = new ExtendedClassLoader();
+        ExtendedClassLoader loader = new ExtendedClassLoader(getClass().getClassLoader());
 
         File libDir = new File(psconfig.getPSHome() + File.separator + "lib");
         File[] files = libDir.listFiles(new FilenameFilter() {
