@@ -148,6 +148,10 @@ etext = <html_text> etext1;
 etext1 = <html_text> etext1;
 etext1 = ;
 
+AST {
+    process:org.netbeans.modules.languages.html.HTML.process;
+}
+
 ########### indentation ########################################################
 
 REFORMAT:startTag:"i++"
@@ -272,7 +276,6 @@ COMPLETION:html_whitespace2 {
 }
 
 PROPERTIES {
-    processAST:org.netbeans.modules.languages.html.HTML.process;
     ignoreCase:"true";
     highlight:"css-230,255,230";
     highlight1:"js-230,230,255";
