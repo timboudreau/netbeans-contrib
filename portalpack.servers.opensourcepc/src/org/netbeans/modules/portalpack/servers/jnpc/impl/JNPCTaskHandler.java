@@ -57,7 +57,7 @@ import org.openide.filesystems.FileUtil;
 public class JNPCTaskHandler extends DefaultPSTaskHandler{
 
     private static Logger logger = Logger.getLogger(NetbeanConstants.PORTAL_LOGGER);
-    private static ExtendedClassLoader loader;
+    private ExtendedClassLoader loader;
     private PSDeploymentManager dm;
     private PSConfigObject psconfig;
     
@@ -233,7 +233,7 @@ public class JNPCTaskHandler extends DefaultPSTaskHandler{
    public ExtendedClassLoader initClassLoader() throws MalformedURLException
    {
        //System.setProperty("com.sun.portal.portletcontainer.dir",psconfig.getPSHome());
-        ExtendedClassLoader loader = new ExtendedClassLoader(this.getClass().getClassLoader());
+        ExtendedClassLoader loader = new ExtendedClassLoader();
 
         File libDir = new File(psconfig.getPSHome() + File.separator + "lib");
         File[] files = libDir.listFiles(new FilenameFilter() {
