@@ -47,8 +47,8 @@ import org.openide.filesystems.FileObject;
  * This task is called every time the caret position changes in a Java editor.
  * <p>
  * The task finds the TreePath of the Tree under the caret, converts it to
- * an Element and then shows the information about the element in a text
- * field in the IDE status bar.
+ * an Element and then shows the declartion of the element in Declaration window
+ * and javadoc in the Javadoc window.
  *
  * @author Sandip V. Chitale (Sandip.Chitale@Sun.Com)
  */
