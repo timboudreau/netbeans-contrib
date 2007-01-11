@@ -36,6 +36,8 @@ import org.openide.filesystems.FileStateInvalidException;
 import org.openide.filesystems.FileSystem;
 import org.openide.filesystems.FileUtil;
 import org.openide.filesystems.JarFileSystem;
+import org.openide.filesystems.Repository;
+import org.openide.loaders.DataFolder;
 import org.openide.loaders.DataObject;
 import org.openide.loaders.DataObjectNotFoundException;
 import org.openide.nodes.Node;
@@ -86,6 +88,8 @@ public final class DecompileAction extends CookieAction {
                 
                 // Output directory FileObject
                 FileObject nbjadOutputDirectoryFileObject = FileUtil.toFileObject(nbjadOutputDirectoryFile);
+                
+                addToFavorites(nbjadOutputDirectoryFileObject);
                 
                 try {
                     // Check for Jar file system
@@ -259,6 +263,30 @@ public final class DecompileAction extends CookieAction {
                     }
                 }
             }
+        }
+    }
+    
+    private void addToFavorites(FileObject nbjadOutputDirectoryFileObject) {
+         try {
+            FileObject favoritesFileObject = FileUtil.createFolder (
+                Repository.getDefault().getDefaultFileSystem().getRoot(), 
+                "Favorites" // NOI18N
+            );
+            
+            if (favoritesFileObject == null) {
+                return;
+            }
+            
+            FileObject nbjadOutputDirectoryFileObjectShadow = favoritesFileObject.getFileObject(nbjadOutputDirectoryFileObject.getNameExt(), "shadow");
+            if (nbjadOutputDirectoryFileObjectShadow == null) {
+                DataFolder favoritesFolder = DataFolder.findFolder(favoritesFileObject);
+
+                DataFolder nbjadOutputDirectoryDataFolder = (DataFolder) DataFolder.find(nbjadOutputDirectoryFileObject);
+                if (nbjadOutputDirectoryDataFolder != null) {
+                    nbjadOutputDirectoryDataFolder.createShadow(favoritesFolder);
+                }            
+            }
+        } catch (IOException ex) {
         }
     }
     
