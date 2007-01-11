@@ -128,7 +128,6 @@ IMPORT:css {
 SKIP:html_whitespace
 SKIP:html_whitespace2
 SKIP:html_comment
-SKIP:html_error
 
 S = tags;
 tags = startTag tags;
