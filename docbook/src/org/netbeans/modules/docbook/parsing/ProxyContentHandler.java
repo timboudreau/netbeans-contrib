@@ -44,7 +44,7 @@ final class ProxyContentHandler extends DefaultHandler implements ContentHandler
     private final FileObject ob;
     private int activeCount;
     private final boolean dtdInserted;
-    ProxyContentHandler(Collection <ParseJobImpl<Callback<ContentHandler>>> jobs, FileObject ob, boolean dtdInserted) {
+    ProxyContentHandler(Collection<? extends ParseJobImpl<Callback<ContentHandler>>> jobs, FileObject ob, boolean dtdInserted) {
         this.jobs = (ParseJobImpl<Callback<ContentHandler>>[]) jobs.toArray (new ParseJobImpl[jobs.size()]);
         fails = new boolean[this.jobs.length];
         activeCount = this.jobs.length;

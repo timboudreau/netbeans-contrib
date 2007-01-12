@@ -219,7 +219,7 @@ public final class DocBookNavigatorPanel implements NavigatorPanel {
     });
     
     private ParseJob job;
-    class ContentCallback <T extends Handler> extends ContentHandlerCallback <T> implements Runnable {
+    class ContentCallback <T extends Handler> extends ContentHandlerCallback implements Runnable {
         ContentCallback(DataObject d) {
             super (new Handler(d));
         }

@@ -217,7 +217,7 @@ public class DocBookEditorSupport extends DataEditorSupport implements EditorCoo
         }
     }
 
-    private static final class AnnotationCallback extends ContentHandlerCallback <H> implements Runnable {
+    private static final class AnnotationCallback extends ContentHandlerCallback implements Runnable {
         private final DocBookEditorSupport editor;
 
         public AnnotationCallback (DocBookEditorSupport editor, DocBookDataObject dob) {

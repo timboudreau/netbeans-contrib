@@ -27,7 +27,7 @@ import org.openide.filesystems.FileObject;
 /**
  * Callback implementation which provides a regexp pattern.
  */ 
-public abstract class PatternCallback<T extends Pattern> extends Callback {
+public abstract class PatternCallback extends Callback<Pattern> {
     public PatternCallback(Pattern pattern) {
         super (pattern);
         if (pattern == null) {

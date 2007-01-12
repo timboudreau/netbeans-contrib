@@ -27,8 +27,8 @@ import org.xml.sax.ContentHandler;
  * and/or ErrorHandler, it will also receive notifications for those
  * classes' events.
  */ 
-public abstract class ContentHandlerCallback<T extends ContentHandler> extends Callback {
-    public ContentHandlerCallback(ContentHandler handler) {
+public abstract class ContentHandlerCallback<T extends ContentHandler> extends Callback<T> {
+    public ContentHandlerCallback(T handler) {
         super (handler);
         if (handler == null) {
             throw new NullPointerException("Handler null");

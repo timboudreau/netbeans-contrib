@@ -149,7 +149,7 @@ public class ParseJobFactory implements QueueWorkProcessor <FileObject, ParseJob
     }
 
     private Collection<ParseJob> doCreateJobs(FileObject file, Collection<Callback> callbacks) {
-        List result = new ArrayList (callbacks.size());
+        List<ParseJob> result = new ArrayList<ParseJob>(callbacks.size());
         for (Callback callback : callbacks) {
             result.add (createJob (file, callback));
         }
@@ -157,7 +157,11 @@ public class ParseJobFactory implements QueueWorkProcessor <FileObject, ParseJob
     }
 
     public static void dequeueAll (FileObject obj) {
-        List <ParseJob> jobs = INSTANCE.queue.remove(obj).drain(ParseJob.class);
+        Drainable<ParseJob> d = INSTANCE.queue.remove(obj);
+        if (d == null) {
+            return;
+        }
+        List <ParseJob> jobs = d.drain(ParseJob.class);
         for (ParseJob job : jobs) {
             ParseJobImpl pji = (ParseJobImpl) job;
             pji.callback.cancel();
@@ -189,11 +193,9 @@ public class ParseJobFactory implements QueueWorkProcessor <FileObject, ParseJob
     public void process(FileObject file, Drainable <ParseJob> work) throws Exception {
         System.err.println("QUEUE RUNNING");
 
-        List  regexJobs =
-                work.drain (PatternParseJobImpl.class);
+        List<PatternParseJobImpl> regexJobs = work.drain(PatternParseJobImpl.class);
 
-        List xmlJobs = //XXX get the generic sig conversion right
-                work.drain (ContentHandlerParseJobImpl.class);
+        List<ContentHandlerParseJobImpl> xmlJobs = work.drain(ContentHandlerParseJobImpl.class);
 
         //Get the file contents
         CharSequence seq = getContent (file);
@@ -205,9 +207,9 @@ public class ParseJobFactory implements QueueWorkProcessor <FileObject, ParseJob
         processXMLJobs (file, xmlJobs, seq, dtdInserted);
     }
 
-    private void processPatternJobs (FileObject file, List <ParseJobImpl<Callback<Pattern>>> regexJobs,
+    private void processPatternJobs(FileObject file, List<? extends ParseJobImpl<Callback<Pattern>>> regexJobs,
             CharSequence seq, boolean dtdInserted) throws Exception {
-        for (Iterator <ParseJobImpl <Callback<Pattern>>> i=regexJobs.iterator(); i.hasNext();) {
+        for (Iterator<? extends ParseJobImpl<Callback<Pattern>>> i=regexJobs.iterator(); i.hasNext();) {
             ParseJobImpl <Callback<Pattern>> p = i.next();
             System.err.println("RUN " + p);
             p.setRunning(true);
@@ -239,7 +241,7 @@ public class ParseJobFactory implements QueueWorkProcessor <FileObject, ParseJob
         }
     }
 
-    private void processXMLJobs (FileObject file, List <ParseJobImpl<Callback<ContentHandler>>> xmlJobs,
+    private void processXMLJobs(FileObject file, List<? extends ParseJobImpl<Callback<ContentHandler>>> xmlJobs,
             CharSequence seq, boolean dtdInserted) throws Exception {
         System.err.println("RUN XML JOBS: " + xmlJobs);
         //Now do the XML reader based ones
