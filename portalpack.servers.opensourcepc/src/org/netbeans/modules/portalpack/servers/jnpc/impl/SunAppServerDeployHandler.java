@@ -52,10 +52,9 @@ public class SunAppServerDeployHandler implements ServerDeployHandler{
     
      private void deployOnGlassFish(String warFile) throws Exception
     {
-        String passwordFile = ".pcpwd.txt";
-        File file = new File(passwordFile);
-        if(file.exists())
-            file.delete();
+        File file = File.createTempFile("pcpwd",".tmp");
+        file.deleteOnExit();
+        
         FileOutputStream fout = null;
         try {
              fout = new FileOutputStream(file);
@@ -64,6 +63,9 @@ public class SunAppServerDeployHandler implements ServerDeployHandler{
             throw ex;
         } catch(IOException ex){
             throw ex;
+        }finally{
+            fout.flush();
+            fout.close();
         }
         
         Command cmd = new Command();
@@ -78,7 +80,7 @@ public class SunAppServerDeployHandler implements ServerDeployHandler{
         cmd.add("-u");
         cmd.add(psconfig.getProperty(SunAppServerConstants.SERVER_USER));
         cmd.add("--passwordfile");
-        cmd.add(passwordFile);
+        cmd.add(file.getAbsolutePath());
         cmd.add(warFile);
                 
         logger.info(cmd.toString());
@@ -87,9 +89,10 @@ public class SunAppServerDeployHandler implements ServerDeployHandler{
             runProcess(cmd.getCmdArray(),true);
         } catch (Exception ex) {
             throw ex;
+        }finally{
+            file.delete();
         }
-        logger.info("Password file: "+passwordFile);
-        file.delete();
+        logger.info("Password file: "+file.getAbsolutePath());
         
     }
      
