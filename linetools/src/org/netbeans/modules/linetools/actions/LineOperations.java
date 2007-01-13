@@ -718,7 +718,6 @@ public class LineOperations {
                         }
 
                         String linesText = doc.getText(start, (end - start));
-                        System.out.println(linesText);
 
                         linesText = cycle(linesText, cycleString);
 
