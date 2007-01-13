@@ -41,8 +41,8 @@ public class FilterProcess {
     
     private PrintWriter printWriter;
     
-    private List filterProcessStdOut;
-    private List filterProcessStdErr;
+    private List<String> filterProcessStdOut;
+    private List<String> filterProcessStdErr;
     
     public FilterProcess(String[] filterCommand) {
         this(filterCommand, 100);
@@ -58,7 +58,7 @@ public class FilterProcess {
         filterProcess = Runtime.getRuntime().exec(filterCommand);
         
         // Setup STDOUT Reading
-        filterProcessStdOut = new ArrayList();
+        filterProcessStdOut = new ArrayList<String>();
         Thread filterProcessStdOutReader = new Thread(
                 new InputStreamReaderThread(filterProcess.getInputStream(),
                     filterProcessStdOut),
@@ -66,7 +66,7 @@ public class FilterProcess {
         filterProcessStdOutReader.start();
         
         // Setup STDERR Reading
-        filterProcessStdErr = new ArrayList(expectedNumberOfOutputLines);
+        filterProcessStdErr = new ArrayList<String>(expectedNumberOfOutputLines);
         Thread filterProcessStdErrReader = new Thread(
                 new InputStreamReaderThread(filterProcess.getErrorStream(),
                     filterProcessStdErr),
@@ -115,9 +115,9 @@ public class FilterProcess {
     
     static class InputStreamReaderThread implements Runnable {
         private InputStream is;
-        private List output;
+        private List<String> output;
         
-        InputStreamReaderThread(InputStream is, List output) {
+        InputStreamReaderThread(InputStream is, List<String> output) {
             this.is = is;
             this.output = output;
         }
@@ -125,7 +125,7 @@ public class FilterProcess {
         public void run() {
             try {
                 BufferedReader br = new BufferedReader(new InputStreamReader(is));
-                String line=null;
+                String line;
                 while ((line = br.readLine()) != null) {
                     output.add(line);
                 }

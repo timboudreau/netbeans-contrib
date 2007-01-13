@@ -48,7 +48,7 @@ public abstract class AbstractLineAction extends CookieAction {
             }
         }
     }
-    
+
     protected boolean enable(Node[] activatedNodes) {
         if (activatedNodes == null || activatedNodes.length == 0) {
             return false;
@@ -70,23 +70,23 @@ public abstract class AbstractLineAction extends CookieAction {
         }
         return false;
     }
-    
+
     protected abstract void doLineOperation(JTextComponent textComponent);
-    
+
     protected int mode() {
         return CookieAction.MODE_EXACTLY_ONE;
     }
-    
+
     protected Class[] cookieClasses() {
         return new Class[] {
             EditorCookie.class
         };
     }
-    
+
     public HelpCtx getHelpCtx() {
         return HelpCtx.DEFAULT_HELP;
     }
-    
+
     protected boolean asynchronous() {
         return false;
     }

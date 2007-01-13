@@ -20,7 +20,6 @@
 package org.netbeans.modules.linetools.actions;
 
 import javax.swing.JEditorPane;
-import javax.swing.text.JTextComponent;
 import org.openide.cookies.EditorCookie;
 import org.openide.nodes.Node;
 import org.openide.util.HelpCtx;

@@ -20,11 +20,17 @@
 package org.netbeans.modules.linetools.actions;
 
 import java.awt.Toolkit;
+import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.text.Collator;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Comparator;
+import java.util.Iterator;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Set;
 import java.util.TreeSet;
 import javax.swing.JEditorPane;
 import javax.swing.text.BadLocationException;
@@ -45,8 +51,14 @@ import org.openide.windows.InputOutput;
  */
 public class LineOperations {
     
+    public  static final String FILE_SEPARATORS = "/\\";
+    private static final String DOT = ".";
+    private static final String DASH = "-";
+    public  static final String FILE_SEPARATOR_DOT = File.separatorChar + DOT;
+    public  static final String FILE_SEPARATOR_DOT_DASH = FILE_SEPARATOR_DOT + DASH;
+    public  static final String FILE_SEPARATORS_DOT_DASH = FILE_SEPARATORS + DOT + DASH;
+    
     static void exchangeDotAndMark(JEditorPane textComponent) {
-        Document doc = textComponent.getDocument();
         Caret caret = textComponent.getCaret();
         // check if there is a selection
         if (caret.isSelectionVisible()) {
@@ -428,7 +440,7 @@ public class LineOperations {
                     }
                     
                     if (isRemoveDuplicateLines()) {
-                        linesText = (String[]) new TreeSet(Arrays.asList(linesText)).toArray(new String[0]);
+                        linesText = (String[]) new TreeSet<String>(Arrays.asList(linesText)).toArray(new String[0]);
                     }
                     
                     if (descending) {
@@ -461,17 +473,6 @@ public class LineOperations {
         }
     }
     
-    private static class ReverseComparator implements Comparator {
-        private Comparator delegateCompartor;
-        
-        private ReverseComparator(Comparator comparator) {
-            delegateCompartor = comparator;
-        }
-        public int compare(Object o1, Object o2) {
-            return (-1 * delegateCompartor.compare(o1, o2));
-        }
-    }
-    
     /**
      * Holds value of property removeDuplicateLines.
      */
@@ -493,7 +494,7 @@ public class LineOperations {
         LineOperations.removeDuplicateLines = removeDuplicateLines;
     }
     
-    private static ReverseComparator REVERSE_STRING_COMPARATOR = new ReverseComparator(Collator.getInstance());
+    private static Comparator<String> REVERSE_STRING_COMPARATOR = Collections.reverseOrder();
     
     static void filter(JTextComponent textComponent) {
         Caret caret = textComponent.getCaret();
@@ -668,7 +669,150 @@ public class LineOperations {
             beep();
         }
     }
-    
+
+    static final void cycle(JTextComponent textComponent, String cycleString) {
+        if (textComponent.isEditable()) {
+            Document doc = textComponent.getDocument();
+            if (doc instanceof BaseDocument) {
+                ((BaseDocument)doc).atomicLock();
+            }
+            try {
+                Element rootElement = doc.getDefaultRootElement();
+
+                Caret caret = textComponent.getCaret();
+                boolean selection = false;
+                boolean backwardSelection = false;
+                int start = textComponent.getCaretPosition();
+                int end = start;
+
+                // check if there is a selection
+                if (caret.isSelectionVisible()) {
+                    int selStart = caret.getDot();
+                    int selEnd = caret.getMark();
+                    start = Math.min(selStart, selEnd);
+                    end =   Math.max(selStart, selEnd);
+                    selection = true;
+                    backwardSelection = (selStart >= selEnd);
+                }
+
+
+                int zeroBaseStartLineNumber = rootElement.getElementIndex(start);
+                int zeroBaseEndLineNumber = rootElement.getElementIndex(end);
+
+                if (zeroBaseStartLineNumber == -1) {
+                    // could not get line number
+                    beep();
+                    return;
+                } else {
+                    try {
+                        // get line text
+                        Element startLineElement = rootElement.getElement(zeroBaseStartLineNumber);
+                        int startLineStartOffset = startLineElement.getStartOffset();
+
+                        Element endLineElement = rootElement.getElement(zeroBaseEndLineNumber);
+                        int endLineEndOffset = endLineElement.getEndOffset();
+
+                        if (!selection) {
+                            start = startLineStartOffset;
+                            end = endLineEndOffset;
+                        }
+
+                        String linesText = doc.getText(start, (end - start));
+                        System.out.println(linesText);
+
+                        linesText = cycle(linesText, cycleString);
+
+                        // replace the line or selection
+                        doc.remove(start, Math.min(doc.getLength(),end) - start);
+
+                        // insert the text before the previous line
+                        doc.insertString(start, linesText, null);
+
+                        if (selection) {
+                            if (backwardSelection) {
+                                caret.setDot(start);
+                                caret.moveDot(end);
+                            } else {
+                                caret.setDot(end);
+                                caret.moveDot(start);
+                            }
+                        } else {
+                            // set caret position
+                            textComponent.setCaretPosition(start);
+                        }
+                    } catch (BadLocationException ex) {
+                        ErrorManager.getDefault().notify(ex);
+                    }
+                }
+            } finally {
+                if (doc instanceof BaseDocument) {
+                    ((BaseDocument)doc).atomicUnlock();
+                }
+            }
+        } else {
+            beep();
+        }
+    }
+
+    public static String cycle(String target, String cycleChars) {
+        if (target == null) {
+            return null;
+        }
+
+        if (cycleChars == null) {
+            return target;
+        }
+
+        Set<Character> cycleSet = getCharSet(cycleChars);
+        if (cycleSet.size() <= 1){
+            return target;
+        }
+
+        Set<Character> set = getCharSet(target);
+        set.retainAll(cycleSet);
+        switch (set.size()) {
+            case 0:
+                return target;
+            case 1:
+                char from = set.iterator().next();
+                List<Character> cycleList = new ArrayList<Character>(cycleSet);
+                char to = cycleList.get((cycleList.indexOf(from) + 1)%cycleList.size());
+                return target.replace(from,to);
+            default:
+                char first = set.iterator().next();
+                cycleSet.remove(first);
+                Iterator<Character> cycleSetIterator = cycleSet.iterator();
+                while(cycleSetIterator.hasNext()) {
+                    target = target.replace(cycleSetIterator.next(), first);
+                }
+                return target;
+        }
+    }
+
+    private static Set<Character> getCharSet(String target) {
+        if (target == null) {
+            return null;
+        }
+
+        if (target.length() == 0) {
+            return new LinkedHashSet<Character>();
+        }
+
+        if (target.length() == 1) {
+            return new LinkedHashSet<Character>(Collections.<Character>singleton(target.charAt(0)));
+        }
+
+        char[] targetarray = target.toCharArray();
+        Character[] targetArray = new Character[targetarray.length];
+        for (int i = 0; i < targetarray.length; i++) {
+            targetArray[i] = targetarray[i];
+        }
+
+        Set<Character> targetCharsSet = new LinkedHashSet<Character>(Arrays.<Character>asList(targetArray));
+
+        return targetCharsSet;
+    }
+
     private static void beep() {
         Toolkit.getDefaultToolkit().beep();
     }
