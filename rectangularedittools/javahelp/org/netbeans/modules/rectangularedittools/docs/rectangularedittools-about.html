@@ -44,12 +44,22 @@
                     <tr>
                         <td>Rectangular Clear ( <code>Ctrl+Alt+Space</code> )</td>
                         <td><img alt="Rectangular Clear" hspace="0" src="rectangularclear.gif" align="baseline" border="0" /></td>
-                        <td>Replace the contents of rectangle defined by the selection with spaces</td>
+                        <td>Replace the contents of rectangle defined by the selection with spaces. Retains selection.</td>
                     </tr>
                     <tr>
                         <td>Rectangular Replace ( <code>Ctrl+Alt+R</code> )</td>
                         <td><img alt="Rectangular Replace" hspace="0" src="rectangularreplace.gif" align="baseline" border="0" /></td>
                         <td>Replace the contents of rectangle defined by the selection with user specified string</td>
+                    </tr>
+                    <tr>
+                        <td>Rectangular Uppercase</td>
+                        <td><img alt="Rectangular Uppercase" hspace="0" src="rectangularuppercase.gif" align="baseline" border="0" /></td>
+                        <td>Replace the contents of rectangle defined by the selection with uppercase form. Retains selection.</td>
+                    </tr>
+                    <tr>
+                        <td>Rectangular Lowercase</td>
+                        <td><img alt="Rectangular Lowercase" hspace="0" src="rectangularlowercase.gif" align="baseline" border="0" /></td>
+                        <td>Replace the contents of rectangle defined by the selection with lowercase form. Retains selection.</td>
                     </tr>
                 </tbody>
             </table>
@@ -92,7 +102,7 @@
                     <td style="VERTICAL-ALIGN: top">
                         <pre><font >0123456789<br />01</font><font ><font style="BACKGROUND-COLOR: #d5d5d5">23456789<br />0123456789<br />0123456</font>789<br />0123456789</font></pre>
                     </td>
-                    <td style="VERTICAL-ALIGN: top"><font >&nbsp;<img alt="Rectangular Paste" hspace="0" src="rectangularpaste.gif" align="baseline" border="0" />&nbsp;Rectangular Paste with text in clipboard<br /><br /></font>
+                    <td style="VERTICAL-ALIGN: top"><font >&nbsp;<img alt="Rectangular Paste" hspace="0" src="rectangularpaste.gif" align="baseline" border="0" />&nbsp;Rectangular Paste with text in clipboard<br /></font>
                         <pre><font >--<br />++++<br />*****<br /><br /></font></pre>
                     </td>
                     <td style="VERTICAL-ALIGN: top">
@@ -118,19 +128,39 @@
                     </td>
                     <td style="VERTICAL-ALIGN: top"><font >&nbsp;<img alt="Rectangular Clear" hspace="0" src="rectangularclear.gif" align="baseline" border="0" />&nbsp;Rectangular Clear<br /></font></td>
                     <td style="VERTICAL-ALIGN: top">
-                        <pre><font >0123456789<br />01     789<br />01     789<br />01     789<br />0123456789</font></pre>
+                        <pre><font >0123456789<br />01</font><font ><font style="BACKGROUND-COLOR: #d5d5d5">     789<br />01     789<br />01     </font>789<br />0123456789</font></pre>
                     </td>
                     <td style="VERTICAL-ALIGN: top"><font >No change</font></td>
                 </tr>
                 <tr>
                     <td style="VERTICAL-ALIGN: top">
-                        <pre><font >0123456789<br />01</font><font ><font style="BACKGROUND-COLOR: #d5d5d5">23456789<br />0123456789<br />0123456</font>789<br />0123456789</font></pre>
+                        <pre><font >0123456789<br />01</font><font><font style="BACKGROUND-COLOR: #d5d5d5">23456789<br />0123456789<br />0123456</font>789<br />0123456789</font></pre>
                     </td>
-                    <td style="VERTICAL-ALIGN: top"><font >&nbsp;&nbsp;<img alt="Rectangular Replace" hspace="0" src="rectangularreplace.gif" align="baseline" border="0" />&nbsp;Rectangular Replace with user sepcified text<br /><br />---<br /></font></td>
+                    <td style="VERTICAL-ALIGN: top"><font >&nbsp;&nbsp;<img alt="Rectangular Replace" hspace="0" src="rectangularreplace.gif" align="baseline" border="0" />&nbsp;Rectangular Replace with user specified text<br /><br /><pre>---</pre><br /></font></td>
                     <td style="VERTICAL-ALIGN: top">
                         <pre><font >0123456789<br />01---789<br />01---789<br />01---789<br />0123456789</font></pre>
                     </td>
-                    <td style="VERTICAL-ALIGN: top"><font >No change<br /></font></td>
+                    <td style="VERTICAL-ALIGN: top"><font>No change<br /></font></td>
+                </tr>
+                <tr>
+                    <td style="VERTICAL-ALIGN: top">
+                        <pre><font >aBcDeFgHiJ<br />aB</font><font><font style="BACKGROUND-COLOR: #d5d5d5">cDeFgHiJ<br />aBcDeFgHiJ<br />aBcDeFg</font>HiJ<br />aBcDeFgHiJ</font></pre>
+                    </td>
+                    <td style="VERTICAL-ALIGN: top"><font >&nbsp;&nbsp;<img alt="Rectangular Uppercase="0" src="rectangularuppercase.gif" align="baseline" border="0" />&nbsp;Uppercase selected rectangular text</font></td>
+                    <td style="VERTICAL-ALIGN: top">
+                        <pre><font >aBcDeFgHiJ<br />aB</font><font><font style="BACKGROUND-COLOR: #d5d5d5">CDEFGHiJ<br />aBCDEFGHiJ<br />aBCDEFG</font>HiJ<br />aBcDeFgHiJ</font></pre>
+                    </td>
+                    <td style="VERTICAL-ALIGN: top"><font >No change</font></td>
+                </tr>
+                <tr>
+                    <td style="VERTICAL-ALIGN: top">
+                        <pre><font >aBcDeFgHiJ<br />aB</font><font ><font style="BACKGROUND-COLOR: #d5d5d5">cDeFgHiJ<br />aBcDeFgHiJ<br />aBcDeFg</font>HiJ<br />aBcDeFgHiJ</font></pre>
+                    </td>
+                    <td style="VERTICAL-ALIGN: top"><font >&nbsp;&nbsp;<img alt="Rectangular Lowercase="0" src="rectangularlowercase.gif" align="baseline" border="0" />&nbsp;Lowercase selected rectangular text</font></td>
+                    <td style="VERTICAL-ALIGN: top">
+                        <pre><font >aBcDeFgHiJ<br />aB</font><font><font style="BACKGROUND-COLOR: #d5d5d5">cdefgHiJ<br />aBcdefgHiJ<br />aBcdefg</font>HiJ<br />aBcDeFgHiJ</font></pre>
+                    </td>
+                    <td style="VERTICAL-ALIGN: top"><font >No change</font></td>
                 </tr>
             </tbody>
         </table>

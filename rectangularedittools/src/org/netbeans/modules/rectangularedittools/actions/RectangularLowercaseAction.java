@@ -25,14 +25,14 @@ import org.openide.util.NbBundle;
  *
  * @author Sandip V. Chitale (Sandip.Chitale@Sun.Com)
  */
-public class RectangularClearAction extends AbstractRectangularAction {
+public final class RectangularLowercaseAction extends AbstractRectangularAction {
 
     public String getName() {
-        return NbBundle.getMessage(RectangularCutAction.class, "CTL_RectangularClearAction"); // NOI18N
+        return NbBundle.getMessage(RectangularLowercaseAction.class, "CTL_RectangularLowercaseAction");
     }
 
     protected String iconResource() {
-        return "org/netbeans/modules/rectangularedittools/actions/rectangularclear.gif"; // NOI18N
+        return "org/netbeans/modules/rectangularedittools/actions/rectangularlowercase.gif";
     }
 
     protected boolean isReplacingAction() {
@@ -42,15 +42,24 @@ public class RectangularClearAction extends AbstractRectangularAction {
     protected boolean isCopyingAction() {
         return false;
     }
-    
+
+    protected boolean isPostProcessingAction() {
+        return true;
+    }
+
     protected boolean isRetainSelection() {
         return true;
     }
 
     protected String getReplacementText(int rectangleWidth) {
-        if (rectangleWidth == 0) {
-            return "";
+        return null;
+    }
+
+    protected String getPostProcessedText(String originalText) {
+        if (originalText == null) {
+            return null;
         }
-        return String.format("%" + rectangleWidth + "s", new Object[] {" "});
+        return originalText.toLowerCase();
     }
 }
+

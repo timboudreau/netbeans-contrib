@@ -9,6 +9,7 @@
             <file name="org-netbeans-modules-rectangularedittools-actions-RectangularCopyAction.instance">
                 <attr name="instanceClass" stringvalue="org.netbeans.modules.rectangularedittools.actions.RectangularCopyAction"/>
             </file>
+            <file name="org-netbeans-modules-rectangularedittools-actions-RectangularLowercaseAction.instance"/>
             <file name="org-netbeans-modules-rectangularedittools-actions-RectangularPasteAction.instance">
                 <attr name="instanceClass" stringvalue="org.netbeans.modules.rectangularedittools.actions.RectangularPasteAction"/>
             </file>
@@ -21,6 +22,7 @@
             <file name="org-netbeans-modules-rectangularedittools-actions-RectangularReplaceAction.instance">
                 <attr name="instanceClass" stringvalue="org.netbeans.modules.rectangularedittools.actions.RectangularReplaceAction"/>
             </file>
+            <file name="org-netbeans-modules-rectangularedittools-actions-RectangularUppercaseAction.instance"/>
         </folder>
     </folder>
     <folder name="Menu">
@@ -35,6 +37,9 @@
                     <attr name="originalFile" stringvalue="Actions/Edit/org-netbeans-modules-rectangularedittools-actions-RectangularCopyAction.instance"/>
                 </file>
                 <attr name="org-netbeans-modules-rectangularedittools-actions-RectangularCopyAction.shadow/org-netbeans-modules-rectangularedittools-actions-RectangularPasteAction.shadow" boolvalue="true"/>
+                <file name="org-netbeans-modules-rectangularedittools-actions-RectangularLowercaseAction.shadow">
+                    <attr name="originalFile" stringvalue="Actions/Edit/org-netbeans-modules-rectangularedittools-actions-RectangularLowercaseAction.instance"/>
+                </file>
                 <file name="org-netbeans-modules-rectangularedittools-actions-RectangularPasteAction.shadow">
                     <attr name="originalFile" stringvalue="Actions/Edit/org-netbeans-modules-rectangularedittools-actions-RectangularPasteAction.instance"/>
                 </file>
@@ -50,6 +55,11 @@
                 <file name="org-netbeans-modules-rectangularedittools-actions-RectangularReplaceAction.shadow">
                     <attr name="originalFile" stringvalue="Actions/Edit/org-netbeans-modules-rectangularedittools-actions-RectangularReplaceAction.instance"/>
                 </file>
+                <attr name="org-netbeans-modules-rectangularedittools-actions-RectangularReplaceAction.shadow/org-netbeans-modules-rectangularedittools-actions-RectangularUppercaseAction.shadow" boolvalue="true"/>
+                <file name="org-netbeans-modules-rectangularedittools-actions-RectangularUppercaseAction.shadow">
+                    <attr name="originalFile" stringvalue="Actions/Edit/org-netbeans-modules-rectangularedittools-actions-RectangularUppercaseAction.instance"/>
+                </file>
+                <attr name="org-netbeans-modules-rectangularedittools-actions-RectangularUppercaseAction.shadow/org-netbeans-modules-rectangularedittools-actions-RectangularLowercaseAction.shadow" boolvalue="true"/>
             </folder>
         </folder>
     </folder>
@@ -64,6 +74,9 @@
                 <attr name="originalFile" stringvalue="Actions/Edit/org-netbeans-modules-rectangularedittools-actions-RectangularCopyAction.instance"/>
             </file>
             <attr name="org-netbeans-modules-rectangularedittools-actions-RectangularCopyAction.shadow/org-netbeans-modules-rectangularedittools-actions-RectangularPasteAction.shadow" boolvalue="true"/>
+            <file name="org-netbeans-modules-rectangularedittools-actions-RectangularLowercaseAction.shadow">
+                <attr name="originalFile" stringvalue="Actions/Edit/org-netbeans-modules-rectangularedittools-actions-RectangularLowercaseAction.instance"/>
+            </file>
             <file name="org-netbeans-modules-rectangularedittools-actions-RectangularPasteAction.shadow">
                 <attr name="originalFile" stringvalue="Actions/Edit/org-netbeans-modules-rectangularedittools-actions-RectangularPasteAction.instance"/>
             </file>
@@ -79,6 +92,11 @@
             <file name="org-netbeans-modules-rectangularedittools-actions-RectangularReplaceAction.shadow">
                 <attr name="originalFile" stringvalue="Actions/Edit/org-netbeans-modules-rectangularedittools-actions-RectangularReplaceAction.instance"/>
             </file>
+            <attr name="org-netbeans-modules-rectangularedittools-actions-RectangularReplaceAction.shadow/org-netbeans-modules-rectangularedittools-actions-RectangularUppercaseAction.shadow" boolvalue="true"/>
+            <file name="org-netbeans-modules-rectangularedittools-actions-RectangularUppercaseAction.shadow">
+                <attr name="originalFile" stringvalue="Actions/Edit/org-netbeans-modules-rectangularedittools-actions-RectangularUppercaseAction.instance"/>
+            </file>
+            <attr name="org-netbeans-modules-rectangularedittools-actions-RectangularUppercaseAction.shadow/org-netbeans-modules-rectangularedittools-actions-RectangularLowercaseAction.shadow" boolvalue="true"/>
         </folder>
         <attr name="Rectangle/File" boolvalue="true"/>
     </folder>

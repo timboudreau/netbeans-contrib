@@ -24,7 +24,6 @@ import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.StringSelection;
 import java.util.StringTokenizer;
 import javax.swing.JEditorPane;
-import javax.swing.text.AbstractDocument;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Caret;
 import javax.swing.text.Document;
@@ -84,11 +83,13 @@ public abstract class AbstractRectangularAction extends CookieAction {
             int selectionStart = textComponent.getCaretPosition();
             int selectionEnd = selectionStart;
             int selectionLength = 0;
+            boolean backwardSelection = false;
 
             // check if there is a selection and normalize it
             if (caret.isSelectionVisible()) {
                 int selStart = caret.getDot();
                 int selEnd = caret.getMark();
+                backwardSelection = selStart > selEnd;
                 selectionStart = Math.min(selStart, selEnd);
                 selectionEnd =   Math.max(selStart, selEnd);
             } else {
@@ -117,7 +118,6 @@ public abstract class AbstractRectangularAction extends CookieAction {
             int endLineEndOffset = endLineElement.getEndOffset();
             int endLineLength = endLineEndOffset - endLineStartOffset;
 
-
             // the length of the not-selected prefix in every line:
             int prefixLen = selectionStart - startLineStartOffset;
 
@@ -134,15 +134,16 @@ public abstract class AbstractRectangularAction extends CookieAction {
             }
 
             String replacementText = getReplacementText(rectangleWidth);
-            if (replacementText == null) {
-                return;
-            }
 
-            // Tokenize text by newline
             String newline = "\n";
-            StringTokenizer replaceRows = new StringTokenizer(replacementText, newline);
-            int numReplaceRows = replaceRows.countTokens();
-            boolean replaceMultipleRows = numReplaceRows > 1;
+            boolean replaceMultipleRows = false;
+            StringTokenizer replaceRows = null;
+
+            if (replacementText != null) {
+                // Tokenize text by newline
+                replaceRows = new StringTokenizer(replacementText, newline);
+                replaceMultipleRows = replaceRows.countTokens() > 1;
+            }
 
             String replacementLine = replacementText;
 
@@ -170,18 +171,29 @@ public abstract class AbstractRectangularAction extends CookieAction {
                                 replacement.append(doc.getText(lineStartOffset, prefixLen));
                             }
 
-                            // append the replacement
-                            if (replaceMultipleRows) {
-                                if (replaceRows.hasMoreTokens()) {
-                                    // get next replacement text
-                                    replacementLine = replaceRows.nextToken();
-                                } else {
-                                    // ran out of replacement text, use ""
-                                    replacementLine = "";
+                            if (replacementText == null) {
+                                if (isPostProcessingAction()) {
+                                    int textToReplaceWidth = Math.min(lineLength - prefixLen, rectangleWidth);
+                                    if (textToReplaceWidth > 0) {
+                                        replacementLine = getPostProcessedText(doc.getText(lineStartOffset + prefixLen, textToReplaceWidth));
+                                        replacement.append(replacementLine);
+                                    }
                                 }
-                                replacementTextWidth = replacementLine.length();
+                            } else {
+                                // append the replacement
+                                if (replaceMultipleRows) {
+                                    if (replaceRows.hasMoreTokens()) {
+                                        // get next replacement text
+                                        replacementLine = replaceRows.nextToken();
+                                    } else {
+                                        // ran out of replacement text, use ""
+                                        replacementLine = "";
+                                    }
+                                    replacementTextWidth = replacementLine.length();
+                                }
+
+                                replacement.append(replacementLine);
                             }
-                            replacement.append(replacementLine);
 
                             // compute suffix length
                             int suffixPos = lineStartOffset + prefixLen + rectangleWidth;
@@ -228,6 +240,17 @@ public abstract class AbstractRectangularAction extends CookieAction {
                     Clipboard cb = getExClipboard();
                     cb.setContents(new StringSelection(selectedRect.toString()), null);
                 }
+                
+                if (isRetainSelection()) {
+                    // select moved lines
+                    if (backwardSelection) {
+                        caret.setDot(selectionEnd);
+                        caret.moveDot(selectionStart);
+                    } else {
+                        caret.setDot(selectionStart);
+                        caret.moveDot(selectionEnd);
+                    }
+                }
             } catch(BadLocationException e) {
                 // should not happen
                 beep();
@@ -244,6 +267,14 @@ public abstract class AbstractRectangularAction extends CookieAction {
     protected abstract boolean isReplacingAction();
 
     protected abstract boolean isCopyingAction();
+
+    protected boolean isRetainSelection() {
+        return false;
+    }
+    
+    protected boolean isPostProcessingAction() {
+        return false;
+    }
 
     protected boolean requiresSelection() {
         // cut/copy/delete and replace action require selection
@@ -293,6 +324,10 @@ public abstract class AbstractRectangularAction extends CookieAction {
 
     protected String getReplacementText(int rectangleWidth) {
         return "";
+    }
+
+    protected String getPostProcessedText(String originalText) {
+        return originalText;
     }
 
     protected static void setCaretPosition(JTextComponent textComponent, int pos) throws BadLocationException {
