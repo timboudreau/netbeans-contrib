@@ -226,6 +226,7 @@ NAVIGATOR:unpairedEndTag {
 
 COMPLETE "\":\""
 COMPLETE "':'"
+COMPLETE org.netbeans.modules.languages.html.HTML.complete
 
 INDENT org.netbeans.modules.languages.html.HTML.indent
 

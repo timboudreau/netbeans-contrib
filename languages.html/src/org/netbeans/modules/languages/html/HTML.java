@@ -49,6 +49,23 @@ public class HTML {
     private static final String HTML401 = "org/netbeans/modules/languages/html/HTML401.xml";
     
     
+    // tag completion ..........................................................
+    
+    public static String complete (Cookie cookie) {
+        TokenSequence ts = cookie.getTokenSequence ();
+        System.out.println(ts.token ().text ().toString ());
+        if (!ts.token ().text ().toString ().equals (">")) return null;
+        do {
+            if (!ts.movePrevious ()) return null;
+        } while (!ts.token ().id ().name ().equals ("html_element_name"));
+        String tagName = ts.token ().text ().toString ();
+        String et = getLibrary ().getProperty ("TAG", tagName, "endTag");
+        if (!ts.movePrevious ()) return null;
+        if (!ts.token ().text ().toString ().equals ("<")) return null;
+        return "</" + tagName + ">";
+    }
+    
+    
     // indent ..................................................................
     
     public static void indent (Cookie cookie) {
