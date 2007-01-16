@@ -28,9 +28,10 @@ import org.openide.util.HelpCtx;
 import org.openide.util.Lookup;
 import org.openide.util.NbBundle;
 import org.openide.util.actions.CookieAction;
-
 import javax.swing.Action;
 import javax.swing.JEditorPane;
+import javax.swing.SwingUtilities;
+import org.openide.util.Exceptions;
 
 
 /**
@@ -159,7 +160,20 @@ public final class FormatAction extends CookieAction {
 	 *
 	 * @return <code>true</code> if the node has an opened editor pane.
 	 */
-	private static boolean isOpened(Node node) {
+	private static boolean isOpened(final Node node) {
+            if (!SwingUtilities.isEventDispatchThread()) {
+                final boolean[] result = new boolean[1];
+                try {
+                    SwingUtilities.invokeAndWait(new Runnable() {
+                        public void run() {
+                            result[0] = isOpened(node);
+                        }
+                    });
+                } catch (Exception e) {
+                    Exceptions.printStackTrace(e);
+                }
+                return result[0];
+            }
 		boolean open = false;
 		EditorCookie cookie = (EditorCookie) node.getCookie(EditorCookie.class);
 

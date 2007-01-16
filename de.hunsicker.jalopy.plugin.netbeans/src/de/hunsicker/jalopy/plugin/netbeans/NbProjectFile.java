@@ -22,16 +22,15 @@ package de.hunsicker.jalopy.plugin.netbeans;
 import de.hunsicker.jalopy.plugin.Editor;
 import de.hunsicker.jalopy.plugin.Project;
 import de.hunsicker.jalopy.plugin.ProjectFile;
-
 import org.openide.cookies.EditorCookie;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
 import org.openide.loaders.DataObject;
 import org.openide.nodes.Node;
-
 import java.io.File;
-
 import javax.swing.JEditorPane;
+import javax.swing.SwingUtilities;
+import org.openide.util.Exceptions;
 
 
 /**
@@ -71,6 +70,19 @@ final class NbProjectFile implements ProjectFile {
 	 * {@inheritDoc}
 	 */
 	public Editor getEditor() {
+            if (!SwingUtilities.isEventDispatchThread()) {
+                final Editor[] result = new Editor[1];
+                try {
+                    SwingUtilities.invokeAndWait(new Runnable() {
+                        public void run() {
+                            result[0] = getEditor();
+                        }
+                    });
+                } catch (Exception e) {
+                    Exceptions.printStackTrace(e);
+                }
+                return result[0];
+            }
 
 		EditorCookie cookie =
 			(EditorCookie) this.node.getCookie(EditorCookie.class);
@@ -121,6 +133,19 @@ final class NbProjectFile implements ProjectFile {
 	 * {@inheritDoc}
 	 */
 	public boolean isOpened() {
+            if (!SwingUtilities.isEventDispatchThread()) {
+                final boolean[] result = new boolean[1];
+                try {
+                    SwingUtilities.invokeAndWait(new Runnable() {
+                        public void run() {
+                            result[0] = isOpened();
+                        }
+                    });
+                } catch (Exception e) {
+                    Exceptions.printStackTrace(e);
+                }
+                return result[0];
+            }
 
 		EditorCookie cookie =
 			(EditorCookie) this.node.getCookie(EditorCookie.class);
