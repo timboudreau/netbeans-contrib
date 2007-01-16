@@ -69,55 +69,61 @@ public class HighlighterSupport {
     }
     
     private static void refresh (final Document doc, final int offset) {
-        Iterator it = TopComponent.getRegistry ().getOpened ().iterator ();
-        while (it.hasNext ()) {
-            TopComponent tc = (TopComponent) it.next ();
-            EditorCookie ec = (EditorCookie) tc.getLookup ().lookup (EditorCookie.class);
-            if (ec == null) continue;
-            JEditorPane[] eps = ec.getOpenedPanes ();
-            int i, k = eps.length;
-            for (i = 0; i < k; i++) {
-                if (eps [i].getDocument () == doc) {
-                    final JEditorPane ep = eps [i];
-                    SwingUtilities.invokeLater (new Runnable () {
-                        public void run () {
-                            try {
-                                ep.scrollRectToVisible (ep.modelToView (offset));
-                            } catch (BadLocationException ex) {
-                                ErrorManager.getDefault ().notify (ex);
-                            }
-                            ep.repaint ();
+        SwingUtilities.invokeLater(new Runnable() {
+            public void run() {
+                Iterator it = TopComponent.getRegistry ().getOpened ().iterator ();
+                while (it.hasNext ()) {
+                    TopComponent tc = (TopComponent) it.next ();
+                    EditorCookie ec = (EditorCookie) tc.getLookup ().lookup (EditorCookie.class);
+                    if (ec == null) continue;
+                    JEditorPane[] eps = ec.getOpenedPanes ();
+                    int i, k = eps.length;
+                    for (i = 0; i < k; i++) {
+                        if (eps [i].getDocument () == doc) {
+                            final JEditorPane ep = eps [i];
+                            SwingUtilities.invokeLater (new Runnable () {
+                                public void run () {
+                                    try {
+                                        ep.scrollRectToVisible (ep.modelToView (offset));
+                                    } catch (BadLocationException ex) {
+                                        ErrorManager.getDefault ().notify (ex);
+                                    }
+                                    ep.repaint ();
+                                }
+                            });
+                            return;
                         }
-                    });
-                    return;
+                    }
                 }
             }
-        }
-        return;
+        });
     }
     
-    private static void refresh (Document doc) {
-        Iterator it = TopComponent.getRegistry ().getOpened ().iterator ();
-        while (it.hasNext ()) {
-            TopComponent tc = (TopComponent) it.next ();
-            EditorCookie ec = (EditorCookie) tc.getLookup ().lookup (EditorCookie.class);
-            if (ec == null) continue;
-            JEditorPane[] eps = ec.getOpenedPanes ();
-            if (eps == null) continue;
-            int i, k = eps.length;
-            for (i = 0; i < k; i++) {
-                if (eps [i].getDocument () == doc) {
-                    final JEditorPane ep = eps [i];
-                    SwingUtilities.invokeLater (new Runnable () {
-                        public void run () {
-                            ep.repaint ();
+    private static void refresh (final Document doc) {
+        SwingUtilities.invokeLater(new Runnable() {
+            public void run() {
+                Iterator it = TopComponent.getRegistry ().getOpened ().iterator ();
+                while (it.hasNext ()) {
+                    TopComponent tc = (TopComponent) it.next ();
+                    EditorCookie ec = (EditorCookie) tc.getLookup ().lookup (EditorCookie.class);
+                    if (ec == null) continue;
+                    JEditorPane[] eps = ec.getOpenedPanes ();
+                    if (eps == null) continue;
+                    int i, k = eps.length;
+                    for (i = 0; i < k; i++) {
+                        if (eps [i].getDocument () == doc) {
+                            final JEditorPane ep = eps [i];
+                            SwingUtilities.invokeLater (new Runnable () {
+                                public void run () {
+                                    ep.repaint ();
+                                }
+                            });
+                            return;
                         }
-                    });
-                    return;
+                    }
                 }
             }
-            return;
-        }
+        });
     }
     
     public void removeHighlight () {

@@ -31,7 +31,6 @@ import org.openide.nodes.Node;
 import org.openide.util.NbBundle;
 import org.openide.windows.TopComponent;
 import org.openide.windows.WindowManager;
-
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
@@ -59,6 +58,7 @@ import java.util.Map;
 import javax.swing.JEditorPane;
 import javax.swing.JScrollPane;
 import javax.swing.JTree;
+import javax.swing.SwingUtilities;
 
 
 /**
@@ -219,11 +219,15 @@ final class ASTBrowserTopComponent extends TopComponent {
     
     
     private void refresh () {
-        ASTNode nr = getCurrentRootNode ();
-        if (nr == rootNode) return;
-        rootNode = nr;
-        DefaultTreeModel model = new DefaultTreeModel (new TNode (null, rootNode));
-        tree.setModel (model);
+        SwingUtilities.invokeLater(new Runnable() {
+            public void run() {
+                ASTNode nr = getCurrentRootNode ();
+                if (nr == rootNode) return;
+                rootNode = nr;
+                DefaultTreeModel model = new DefaultTreeModel (new TNode (null, rootNode));
+                tree.setModel (model);
+            }
+        });
     }
     
     private ASTNode getCurrentRootNode () {

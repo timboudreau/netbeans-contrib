@@ -19,6 +19,7 @@
 
 package org.netbeans.modules.languages.studio;
 
+import javax.swing.SwingUtilities;
 import org.netbeans.api.lexer.Token;
 import org.netbeans.api.lexer.TokenHierarchy;
 import org.netbeans.api.lexer.TokenSequence;
@@ -29,7 +30,6 @@ import org.openide.util.NbBundle;
 import org.openide.util.RequestProcessor;
 import org.openide.windows.TopComponent;
 import org.openide.windows.WindowManager;
-
 import java.util.Enumeration;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
@@ -257,19 +257,23 @@ final class TokensBrowserTopComponent extends TopComponent {
     }
     
     private void refresh () {
-        AbstractDocument doc = getCurrentDocument ();
-        DefaultListModel model = new DefaultListModel ();
-        if (doc != null)
-            try {
-                doc.readLock ();
-                TokenHierarchy tokenHierarchy = TokenHierarchy.get (doc);
-                TokenSequence ts = tokenHierarchy.tokenSequence ();
-                while (ts.moveNext ())
-                    model.addElement (new MToken (ts));
-            } finally {
-                doc.readUnlock ();
+        SwingUtilities.invokeLater(new Runnable() {
+            public void run() {
+                AbstractDocument doc = getCurrentDocument ();
+                DefaultListModel model = new DefaultListModel ();
+                if (doc != null)
+                    try {
+                        doc.readLock ();
+                        TokenHierarchy tokenHierarchy = TokenHierarchy.get (doc);
+                        TokenSequence ts = tokenHierarchy.tokenSequence ();
+                        while (ts.moveNext ())
+                            model.addElement (new MToken (ts));
+                    } finally {
+                        doc.readUnlock ();
+                    }
+                list.setModel (model);
             }
-        list.setModel (model);
+        });
     }
     
     
