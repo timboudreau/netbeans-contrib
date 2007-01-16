@@ -329,6 +329,24 @@ final class TokensBrowserTopComponent extends TopComponent {
     }
 
     private static class Renderer extends DefaultListCellRenderer {
+        
+        private String e (String t) {
+            StringBuilder sb = new StringBuilder ();
+            int i, k = t.length ();
+            for (i = 0; i < k; i++) {
+                if (t.charAt (i) == '\t')
+                    sb.append ("\\t");
+                else
+                if (t.charAt (i) == '\r')
+                    sb.append ("\\r");
+                else
+                if (t.charAt (i) == '\n')
+                    sb.append ("\\n");
+                else
+                    sb.append (t.charAt (i));
+            }
+            return sb.toString ();
+        }
 
         public Component getListCellRendererComponent(
             JList list,
@@ -352,7 +370,7 @@ final class TokensBrowserTopComponent extends TopComponent {
                 append ('<').
                 append (t.type).
                 append (",\"").
-                append (t.identifier).
+                append (e (t.identifier)).
                 append ("\">");
             setText (sb.toString ());
 
