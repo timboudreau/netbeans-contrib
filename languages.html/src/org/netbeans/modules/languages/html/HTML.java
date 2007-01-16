@@ -24,6 +24,9 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Stack;
+import javax.swing.text.BadLocationException;
+import javax.swing.text.Document;
+import javax.swing.text.StyledDocument;
 
 import org.netbeans.api.lexer.Token;
 import org.netbeans.api.lexer.TokenSequence;
@@ -32,6 +35,8 @@ import org.netbeans.api.languages.SyntaxCookie;
 import org.netbeans.api.languages.ASTNode;
 import org.netbeans.api.languages.SToken;
 import org.netbeans.api.languages.LibrarySupport;
+import org.openide.ErrorManager;
+import org.openide.text.NbDocument;
 
 
 /**
@@ -43,6 +48,75 @@ public class HTML {
 //    private static final String HTML40DOC = "modules/ext/html40.zip";
     private static final String HTML401 = "org/netbeans/modules/languages/html/HTML401.xml";
     
+    
+    // indent ..................................................................
+    
+    public static void indent (Cookie cookie) {
+        TokenSequence ts = cookie.getTokenSequence ();
+        Document doc = cookie.getDocument ();
+        int indent;
+        Token t;
+        do {
+            ts.movePrevious ();
+            t = ts.token ();
+        } while (t.text ().toString ().trim ().length () == 0);
+        String text = t.text ().toString ();
+        String type = t.id ().name ();
+        int ln = NbDocument.findLineNumber ((StyledDocument) doc, ts.offset ());
+        int start = NbDocument.findLineOffset ((StyledDocument) doc, ln);
+        if (text.equals (">") || text.equals ("/>")) {
+            do {
+                if (!ts.movePrevious ()) break;
+                t = ts.token ();
+            } while (!t.text ().toString ().equals ("<"));
+            indent = getIndent (ts, doc);
+        } else
+        if (type.equals ("html_attribute_value") || 
+            type.equals ("html_attribute_name") ||
+            type.equals ("html_element_name") ||
+            type.equals ("html_operator")
+        ) {
+            do {
+                if (!ts.movePrevious ()) break;
+                t = ts.token ();
+            } while (
+                !t.text ().toString ().equals ("<") &&
+                ts.offset () > start
+            );
+            if (t.text ().toString ().equals ("<"))
+                indent = getIndent (ts, doc) + 4;
+            else {
+                ts.moveNext ();
+                indent = getIndent (ts, doc);
+            }
+        } else
+        if (text.equals ("<")) {
+            indent = getIndent (ts, doc) + 4;
+        } else
+            indent = getIndent (ts, doc);
+        indent (doc, cookie.getJTextComponent ().getCaret ().getDot (), indent);
+    }
+    
+    private static int getIndent (TokenSequence ts, Document doc) {
+        int ln = NbDocument.findLineNumber ((StyledDocument) doc, ts.offset ());
+        int start = NbDocument.findLineOffset ((StyledDocument) doc, ln);
+        ts.move (start);
+        if (ts.token ().id ().name ().indexOf ("whitespace") >= 0)
+            ts.moveNext ();
+        return ts.offset () - start;
+    }
+    
+    private static void indent (Document doc, int offset, int i) {
+        StringBuilder sb = new StringBuilder ();
+        while (i > 0) {
+            sb.append (' ');i--;
+        }
+        try {
+            doc.insertString (offset, sb.toString (), null);
+        } catch (BadLocationException ex) {
+            ErrorManager.getDefault ().notify (ex);
+        }
+    }
     
 //    public static Runnable hyperlink (PTPath path) {
 //        SToken t = (SToken) path.getLeaf ();
@@ -107,7 +181,7 @@ public class HTML {
         String tagName = tagName (cookie.getTokenSequence ());
         if (tagName == null) return Collections.EMPTY_LIST;
         List r = getLibrary ().getItems (tagName);
-        System.out.println("attributes " + r);
+        //S ystem.out.println("attributes " + r);
         return r;
     }
 
@@ -127,7 +201,7 @@ public class HTML {
                 description + "</font></html>"
             );
         }
-        System.out.println("attributeDescriptions " + attributeDescriptions);
+        //S ystem.out.println("attributeDescriptions " + attributeDescriptions);
         return attributeDescriptions;
     }
     

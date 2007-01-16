@@ -227,6 +227,7 @@ NAVIGATOR:unpairedEndTag {
 COMPLETE "\":\""
 COMPLETE "':'"
 
+INDENT org.netbeans.modules.languages.html.HTML.indent
 
 #HYPERLINK:attribute_value:org.netbeans.modules.languages.html.HTML.hyperlink
 
