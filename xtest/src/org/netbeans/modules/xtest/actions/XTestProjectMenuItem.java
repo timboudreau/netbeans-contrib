@@ -13,17 +13,21 @@
  * "Portions Copyrighted [year] [name of copyright owner]"
  *
  * The Original Software is NetBeans. The Initial Developer of the Original
- * Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
+ * Software is Sun Microsystems, Inc. Portions Copyright 1997-2007 Sun
  * Microsystems, Inc. All Rights Reserved.
  */
 package org.netbeans.modules.xtest.actions;
 
 import java.awt.event.ActionEvent;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.io.IOException;
+import java.net.ServerSocket;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.Properties;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
@@ -34,8 +38,9 @@ import javax.swing.JSeparator;
 import org.apache.tools.ant.module.api.AntProjectCookie;
 import org.apache.tools.ant.module.api.support.ActionUtils;
 import org.apache.tools.ant.module.api.support.TargetLister;
+import org.netbeans.api.debugger.jpda.DebuggerStartException;
+import org.netbeans.api.debugger.jpda.JPDADebugger;
 import org.netbeans.api.project.Project;
-import org.openide.ErrorManager;
 import org.openide.awt.Actions;
 import org.openide.awt.Mnemonics;
 import org.openide.filesystems.FileObject;
@@ -62,10 +67,12 @@ import org.openide.execution.ExecutorTask;
  *  --------------------------
  *  Build unit Tests
  *  Run unit Tests
+ *  Debug unit Tests
  *  Measure unit Test Coverage
  *  --------------------------
  *  Build qa-functional Tests
  *  Run qa-functional Tests
+ *  Debug qa-functional Tests
  *  Measure qa-functional Test Coverage
  * </pre>
  *
@@ -75,6 +82,7 @@ import org.openide.execution.ExecutorTask;
  */
 public final class XTestProjectMenuItem extends AbstractAction implements Presenter.Popup, ContextAwareAction {
     
+    private static final Logger LOGGER = Logger.getLogger(XTestProjectMenuItem.class.getName());
     private static final String NAME = NbBundle.getBundle(XTestProjectMenuItem.class).getString("CTL_MenuItem_XTest");
     private Lookup context;
 
@@ -149,7 +157,7 @@ public final class XTestProjectMenuItem extends AbstractAction implements Presen
         String[] testTypes = findTestTypes(project);
         if(testTypes.length > 0) {
             actions.add(createAction(NbBundle.getMessage(XTestProjectMenuItem.class, "CTL_MenuItem_Clean"),
-                                     project, "", new String[] {"realclean"}, false));
+                                     project, null, new String[] {"realclean"}, false));
             actions.add(null);
         } else {
             // hide XTest submenu
@@ -159,16 +167,24 @@ public final class XTestProjectMenuItem extends AbstractAction implements Presen
             // and open new file wizard Testing Tools|XTest Infrastructure (enable it always)
         }
         for(int i=0;i<testTypes.length;i++) {
+            Properties props = new Properties();
+            props.setProperty("xtest.testtype", testTypes[i]); // NOI18N
+            Properties propsDebug = new Properties();
+            propsDebug.setProperty("xtest.testtype", testTypes[i]); // NOI18N
+            propsDebug.setProperty("xtest.debug.port", "8765"); // NOI18N
             // "Build "+testTypes[i]+" Tests"
             actions.add(createAction(NbBundle.getMessage(XTestProjectMenuItem.class, "CTL_MenuItem_BuildTests", testTypes[i]), // NOI18N
-                                     project, testTypes[i], new String[] {"buildtests"}, false)); // NOI18N
+                                     project, props, new String[] {"buildtests"}, false)); // NOI18N
             // "Run "+testTypes[i]+" Tests"
             actions.add(createAction(NbBundle.getMessage(XTestProjectMenuItem.class, "CTL_MenuItem_RunTests", testTypes[i]), // NOI18N
-                                     project, testTypes[i], new String[] {"runtests"}, true)); // NOI18N
+                                     project, props, new String[] {"runtests"}, true)); // NOI18N
+            // "Debug "+testTypes[i]+" Tests"
+            actions.add(createAction(NbBundle.getMessage(XTestProjectMenuItem.class, "CTL_MenuItem_DebugTests", testTypes[i]), // NOI18N
+                                     project, propsDebug, new String[] {"runtests"}, true)); // NOI18N
             if(targetExists(findTestBuildXml(project), "coverage")) { //NOI18N
                 // "Measure "+testTypes[i]+" Tests Coverage"
                 actions.add(createAction(NbBundle.getMessage(XTestProjectMenuItem.class, "CTL_MenuItem_MeasureCoverage", testTypes[i]), // NOI18N
-                                         project, testTypes[i], new String[] {"coverage"}, true)); // NOI18N
+                                         project, props, new String[] {"coverage"}, true)); // NOI18N
             }
             // add separator
             if(testTypes.length-1 > i) {
@@ -179,7 +195,7 @@ public final class XTestProjectMenuItem extends AbstractAction implements Presen
     }
     
     private AbstractAction createAction(String displayName, final Project project, 
-            final String testType, final String[] targets, final boolean showResults) {
+            final Properties props, final String[] targets, final boolean showResults) {
         
         return new AbstractAction(displayName) {
             /** Enabled only if one project is selected and test/build.xml exists. */
@@ -193,9 +209,16 @@ public final class XTestProjectMenuItem extends AbstractAction implements Presen
             
             /** Run given target and show test results if requested. */
             public void actionPerformed(ActionEvent ignore) {
-                Properties props = new Properties();
-                props.setProperty("xtest.testtype", testType); // NOI18N
                 try {
+                    // start thread for attaching debugger when port is set
+                    AttachRunnable attachRunnable = null;
+                    if(props != null && props.getProperty("xtest.debug.port") != null) { // NOI18N
+                        attachRunnable = new AttachRunnable();
+                        Thread attachDebuggerThread = new Thread(attachRunnable);
+                        attachDebuggerThread.start();
+                    }
+                    final AttachRunnable attachRunnableFinal = attachRunnable;
+                    // run given target
                     ExecutorTask task = ActionUtils.runTarget(findTestBuildXml(project), targets, props);
                     task.addTaskListener(new TaskListener() {
                         public void taskFinished(Task task) {
@@ -206,10 +229,15 @@ public final class XTestProjectMenuItem extends AbstractAction implements Presen
                                     showTestResults(project);
                                 }
                             }
+                            // stop thread for attaching debugger
+                            if(attachRunnableFinal != null) {
+                                LOGGER.fine("Setting attachRunnableFinal.finish=true"); // NOI18N
+                                attachRunnableFinal.finish = true;
+                            }
                         }
                     });
                 } catch (IOException e) {
-                    ErrorManager.getDefault().notify(e);
+                    LOGGER.log(Level.SEVERE, e.getMessage(), e);
                 }
             }
         };
@@ -224,7 +252,7 @@ public final class XTestProjectMenuItem extends AbstractAction implements Presen
         try {
             d = DataObject.find(buildXml);
         } catch (DataObjectNotFoundException ex) {
-            ErrorManager.getDefault().notify(ex);
+            LOGGER.log(Level.SEVERE, ex.getMessage(), ex);
             return false;
         }
         AntProjectCookie apc = (AntProjectCookie)d.getCookie(AntProjectCookie.class);
@@ -271,7 +299,7 @@ public final class XTestProjectMenuItem extends AbstractAction implements Presen
             try {
                 HtmlBrowser.URLDisplayer.getDefault().showURL(resultsFO.getURL());
             } catch (FileStateInvalidException ex) {
-                ErrorManager.getDefault().notify(ex);
+                LOGGER.log(Level.SEVERE, ex.getMessage(), ex);
             }
         }
     }
@@ -297,5 +325,56 @@ public final class XTestProjectMenuItem extends AbstractAction implements Presen
         String [] result = (String[])testTypes.toArray(new String[testTypes.size()]);
         Arrays.sort(result);
         return result;
+    }
+    
+    /** Runnable used in createAction method to wait for debugger session. */
+    private static class AttachRunnable implements Runnable, PropertyChangeListener {
+        public boolean finish = false;
+        
+        public void run() {
+            finish = false;
+            try {
+                JPDADebugger jpdaDebugger = null;
+                while(!finish && jpdaDebugger == null) {
+                    try {
+                        LOGGER.fine("Creating ServerSocket"); // NOI18N
+                        ServerSocket socket = new ServerSocket(8765);
+                        socket.close();
+                        LOGGER.fine("ServerSocket ready"); // NOI18N
+                        Thread.sleep(500);
+                    } catch (IOException ioe) {
+                        // BindException: Address already in use/debugger started
+                        try{
+                            LOGGER.fine("ATTACHING"); // NOI18N
+                            jpdaDebugger = JPDADebugger.attach("localhost", 8765, new Object[0]); // NOI18N
+                            jpdaDebugger.addPropertyChangeListener(JPDADebugger.PROP_STATE, this);
+                            LOGGER.fine("waiting for debugger to finish"); // NOI18N
+                            synchronized(this) {
+                                wait();
+                            }
+                            Thread.sleep(1000);
+                            // debugger finished - continue in cycle, i.e.
+                            // wait for another VM in case of unit tests
+                            jpdaDebugger.removePropertyChangeListener(this);
+                            jpdaDebugger = null;
+                        } catch (DebuggerStartException e) {
+                            LOGGER.log(Level.INFO, e.getMessage(), e);
+                        }
+                    }
+                }
+            } catch (InterruptedException ie) {
+                // ignore
+            }
+            LOGGER.fine("EXITING attachRunnable"); // NOI18N
+        }
+        
+        public void propertyChange(PropertyChangeEvent event) {
+            if(Integer.valueOf(event.getNewValue().toString()).intValue() == JPDADebugger.STATE_DISCONNECTED) {
+                LOGGER.fine("DISCONNECTED => notifying."); // NOI18N
+                synchronized(this) {
+                    notifyAll();
+                }
+            }
+        }
     }
 }
