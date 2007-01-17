@@ -48,9 +48,8 @@ public class EnterKeyTest {
                 dialog.dispose ();
             }
         });
-
-
         dialog.add (button, BorderLayout.SOUTH);
+
         dialog.setVisible (true);
     }
 
