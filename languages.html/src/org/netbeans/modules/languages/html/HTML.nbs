@@ -256,11 +256,9 @@ MARK:html_element_name {
 }
 COMPLETION:html_element_name {
     text1:org.netbeans.modules.languages.html.HTML.tags; 
-    description1:org.netbeans.modules.languages.html.HTML.tagDescriptions; 
 }
 COMPLETION:html_element_start {
     text1:org.netbeans.modules.languages.html.HTML.tags; 
-    description1:org.netbeans.modules.languages.html.HTML.tagDescriptions; 
 }
 MARK:html_attribute_name {
     type:"Deprecation";
@@ -269,11 +267,9 @@ MARK:html_attribute_name {
 }
 COMPLETION:html_attribute_name {
     text1:org.netbeans.modules.languages.html.HTML.attributes; 
-    description1:org.netbeans.modules.languages.html.HTML.attributeDescriptions; 
 }
 COMPLETION:html_whitespace2 {
     text1:org.netbeans.modules.languages.html.HTML.attributes; 
-    description1:org.netbeans.modules.languages.html.HTML.attributeDescriptions; 
 }
 
 PROPERTIES {
