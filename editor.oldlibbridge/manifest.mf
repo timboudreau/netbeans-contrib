@@ -1,0 +1,7 @@
+Manifest-Version: 1.0
+OpenIDE-Module: org.netbeans.modules.editor.oldlibbridge/1
+OpenIDE-Module-Layer: org/netbeans/modules/editor/oldlibbridge/layer.xml
+OpenIDE-Module-Install: org/netbeans/modules/editor/oldlibbridge/Installer.class
+OpenIDE-Module-Localizing-Bundle: org/netbeans/modules/editor/oldlibbridge/Bundle.properties
+OpenIDE-Module-Provides: org.netbeans.modules.editor.oldlibbridge
+
