@@ -21,6 +21,7 @@ package org.netbeans.modules.languages.html;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Stack;
@@ -35,6 +36,7 @@ import org.netbeans.api.languages.SyntaxCookie;
 import org.netbeans.api.languages.ASTNode;
 import org.netbeans.api.languages.SToken;
 import org.netbeans.api.languages.LibrarySupport;
+import org.netbeans.api.languages.support.CompletionSupport;
 import org.openide.ErrorManager;
 import org.openide.text.NbDocument;
 
@@ -153,9 +155,66 @@ public class HTML {
 //        return null;
 //    }
 
+    
+    // completion ..............................................................
+    
+    public static List tags (Cookie cookie) {
+        if (cookie instanceof SyntaxCookie) return Collections.EMPTY_LIST;
+        List tags = getLibrary ().getItems ("TAG");
+        List items = new ArrayList (tags.size ());
+        Iterator it = tags.iterator ();
+        while (it.hasNext ()) {
+            String tag = (String) it.next ();
+            String description = getLibrary ().getProperty 
+                ("TAG", tag, "description");
+            items.add (CompletionSupport.createCompletionItem (
+                tag,
+                "<html><b><font color=blue>" + tag.toUpperCase () + 
+                ": </font></b><font color=black> " + 
+                description + "</font></html>"
+            ));
+        }
+        return items;
+    }
+
+    public static List attributes (Cookie cookie) {
+        if (cookie instanceof SyntaxCookie) return Collections.EMPTY_LIST;
+        String tagName = tagName (cookie.getTokenSequence ());
+        if (tagName == null) return Collections.EMPTY_LIST;
+        List r = getLibrary ().getItems (tagName);
+        if (r == null) return Collections.EMPTY_LIST;
+        //S ystem.out.println("attributes " + r);
+        List items = new ArrayList (r.size ());
+        Iterator it = r.iterator ();
+        while (it.hasNext ()) {
+            String tag = (String) it.next ();
+            String description = getLibrary ().getProperty 
+                (tagName, tag, "description");
+            items.add (CompletionSupport.createCompletionItem (
+                tag,
+                "<html><b><font color=blue>" + tag.toUpperCase () + 
+                ": </font></b><font color=black> " + 
+                description + "</font></html>"
+            ));
+        }
+        //S ystem.out.println("attributeDescriptions " + attributeDescriptions);
+        return items;
+    }
+    
+
+    // marks ...................................................................
+    
+    public static boolean isDeprecatedAttribute (Cookie cookie) {
+        TokenSequence ts = cookie.getTokenSequence ();
+        String attribName = ts.token ().text ().toString ().toLowerCase ();
+        String tagName = tagName (cookie.getTokenSequence ());
+        if (tagName == null) return false;
+        return "true".equals (getLibrary ().getProperty (tagName, attribName, "deprecated"));
+    }
+
     public static boolean isDeprecatedTag (Cookie cookie) {
         Token t = cookie.getTokenSequence ().token ();
-        String tagName = t.id ().name ().toLowerCase ();
+        String tagName = t.text ().toString ().toLowerCase ();
         return "true".equals (getLibrary ().getProperty ("TAG", tagName, "deprecated"));
     }
 
@@ -167,68 +226,6 @@ public class HTML {
     static boolean isEndTagRequired (String tagName) {
         String v = getLibrary ().getProperty ("TAG", tagName, "endTag");
         return !"O".equals (v) && !"F".equals (v);
-    }
-
-    public static List tags (Cookie cookie) {
-        return getLibrary ().getItems ("TAG");
-    }
-
-    private static List tagDescriptions = null;
-    
-    public static List tagDescriptions (Cookie cookie) {
-        if (tagDescriptions == null) {
-            List tags = getLibrary ().getItems ("TAG");
-            tagDescriptions = new ArrayList (tags.size ());
-            Iterator it = tags.iterator ();
-            while (it.hasNext ()) {
-                String tag = (String) it.next ();
-                String description = getLibrary ().getProperty 
-                    ("TAG", tag, "description");
-                tagDescriptions.add (
-                    "<html><b><font color=blue>" + tag.toUpperCase () + 
-                    ": </font></b><font color=black> " + 
-                    description + "</font></html>"
-                );
-            }
-        }
-        return tagDescriptions;
-    }
-
-    public static List attributes (Cookie cookie) {
-        String tagName = tagName (cookie.getTokenSequence ());
-        if (tagName == null) return Collections.EMPTY_LIST;
-        List r = getLibrary ().getItems (tagName);
-        //S ystem.out.println("attributes " + r);
-        return r;
-    }
-
-    public static List attributeDescriptions (Cookie cookie) {
-        String tagName = tagName (cookie.getTokenSequence ());
-        if (tagName == null) return Collections.EMPTY_LIST;
-        List as = getLibrary ().getItems (tagName);
-        List attributeDescriptions = new ArrayList (as.size ());
-        Iterator it = as.iterator ();
-        while (it.hasNext ()) {
-            String tag = (String) it.next ();
-            String description = getLibrary ().getProperty 
-                (tagName, tag, "description");
-            attributeDescriptions.add (
-                "<html><b><font color=blue>" + tag.toUpperCase () + 
-                ": </font></b><font color=black> " + 
-                description + "</font></html>"
-            );
-        }
-        //S ystem.out.println("attributeDescriptions " + attributeDescriptions);
-        return attributeDescriptions;
-    }
-    
-
-    public static boolean isDeprecatedAttribute (Cookie cookie) {
-        TokenSequence ts = cookie.getTokenSequence ();
-        String attribName = ts.token ().text ().toString ().toLowerCase ();
-        String tagName = tagName (cookie.getTokenSequence ());
-        if (tagName == null) return false;
-        return "true".equals (getLibrary ().getProperty (tagName, attribName, "deprecated"));
     }
     
     public static ASTNode process (SyntaxCookie cookie) {
@@ -246,7 +243,7 @@ public class HTML {
             if (!ts.movePrevious ()) break;
         if (!ts.token ().id ().name ().equals ("html_element_name")) 
             return null;
-        return ts.token ().text ().toString ();
+        return ts.token ().text ().toString ().toLowerCase ();
     }
     
     private static LibrarySupport library;

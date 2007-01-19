@@ -196,6 +196,10 @@ COLOR:attribute {
     strike_through_color:"black";
     condition:org.netbeans.modules.languages.html.HTML.isDeprecatedAttribute;
 }
+COLOR:tag {
+    strike_through_color:"blue";
+    condition:org.netbeans.modules.languages.html.HTML.isDeprecatedTag;
+}
 
 
 ########### code folding #######################################################
@@ -250,20 +254,20 @@ MARK:error {
 }
 
 MARK:html_element_name {
-    type:"Deprecation";
+    type:"Deprecation2";
     message:"Deprecated tag.";
     condition:org.netbeans.modules.languages.html.HTML.isDeprecatedTag;
+}
+MARK:html_attribute_name {
+    type:"Deprecation2";
+    message:"Deprecated attribute.";
+    condition:org.netbeans.modules.languages.html.HTML.isDeprecatedAttribute;
 }
 COMPLETION:html_element_name {
     text1:org.netbeans.modules.languages.html.HTML.tags; 
 }
 COMPLETION:html_element_start {
     text1:org.netbeans.modules.languages.html.HTML.tags; 
-}
-MARK:html_attribute_name {
-    type:"Deprecation";
-    message:"Deprecated attribute.";
-    condition:org.netbeans.modules.languages.html.HTML.isDeprecatedAttribute;
 }
 COMPLETION:html_attribute_name {
     text1:org.netbeans.modules.languages.html.HTML.attributes; 
