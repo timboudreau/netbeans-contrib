@@ -16,7 +16,6 @@
  * Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
  * Microsystems, Inc. All Rights Reserved.
  */
-
 package org.netbeans.modules.visual.examples;
 
 import java.awt.event.KeyEvent;
@@ -40,6 +39,7 @@ public class RunDialog extends javax.swing.JFrame {
         "test.card.CardContainerWidget",
         "test.component.ComponentTest",
         "test.connect.ConnectScene",
+        "test.connect.ExtendedConnectTest",
         "test.connectionlabels.ConnectionLabelsTest",
         "test.constraint.ConstraintsTest",
         "test.context.ContextTest",
@@ -79,6 +79,7 @@ public class RunDialog extends javax.swing.JFrame {
         "test.swingborder.SwingBorderTest",
         "test.tool.CtrlKeySwitchToolTest",
         "test.tool.ToolTest",
+        "test.visibility.VisibilityTest",
         "test.vmd.VMDCollisionTest",
         "test.vmd.VMDTest",
         "test.zoom.FitToViewTest",
