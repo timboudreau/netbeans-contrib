@@ -26,13 +26,9 @@ import java.io.StringBufferInputStream;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.jdom.Attribute;
-import org.jdom.Document;
-import org.jdom.Element;
-import org.jdom.JDOMException;
-import org.jdom.input.SAXBuilder;
-import org.jdom.xpath.XPath;
+
 import org.netbeans.modules.portalpack.servers.core.util.NetbeanConstants;
+import org.w3c.dom.Document;
 import org.xml.sax.EntityResolver;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
@@ -58,7 +54,7 @@ public class TomcatConfigUtil {
     private Document doc;
     
     /** Creates a new instance of TomcatConfigUtil */
-    public TomcatConfigUtil(File catalinaBase) throws JDOMException, IOException {
+    public TomcatConfigUtil(File catalinaBase) throws SAXException,IOException {
         
         File xmlRoot;
         if(File.pathSeparatorChar == ':')
@@ -75,6 +71,7 @@ public class TomcatConfigUtil {
     
       public String getDomainName()
     {
+       /* commented as this is not currently being used   
         String domain = "";
         if(doc == null)
               return "";
@@ -93,11 +90,13 @@ public class TomcatConfigUtil {
          // System.out.println("elm"+attr.getValue());
      
         return domain.trim();
+        */
+        return ""; //dummy return
     }
     
-    public static Document createDocumentFromXml(File file) throws JDOMException, IOException
+    public static Document createDocumentFromXml(File file) throws IOException
     {
-        
+        /* commented as not being used
         SAXBuilder saxBuilder = new SAXBuilder(false);
         saxBuilder.setEntityResolver(new EntityResolver(){
             public InputSource resolveEntity(String publicId, String systemId) throws SAXException, IOException {
@@ -107,11 +106,13 @@ public class TomcatConfigUtil {
         });
      
         org.jdom.Document jdomDocument = saxBuilder.build(file);
-        return jdomDocument;
+        return jdomDocument;*/
+        return null; //dummy return
     }
     
     
      public  String getShutdownPort() {
+         /* commented as not being used currently
         String port;
         
         if(doc == null)
@@ -127,12 +128,13 @@ public class TomcatConfigUtil {
               return "";
           port = attr.getValue();
         
-        return port;
+        return port;*/
+         return ""; //dummy return
               
     }
      
     public String getHttpPort(){
-    
+      /* commented as not being used currently
         String port = "";
         int defCon = -1;
         if(doc == null) return "";
@@ -159,8 +161,9 @@ public class TomcatConfigUtil {
         port = ((Element)list.get(defCon)).getAttributeValue(ATTR_PORT);
       
         if(port == null) return "0";
-        return port;
-      
+        return port; */
+       
+        return ""; //dummy return
     }
     
     

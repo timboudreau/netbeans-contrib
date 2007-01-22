@@ -33,10 +33,7 @@ import org.openide.windows.IOProvider;
 import org.openide.windows.InputOutput;
 
 
-/**
- *
- */
-public class LogManager {
+public class ProcessLogManager {
     private ServerLog serverLog;    
     
     private Object serverLogLock = new Object();
@@ -45,16 +42,16 @@ public class LogManager {
     
     
     /** Creates a new instance of LogManager */
-    public LogManager(PSDeploymentManager manager) {
+    public ProcessLogManager(PSDeploymentManager manager) {
         this.manager = manager;
     }
     
-    // ------- server log (output) ---------------------------------------------
+    // ------- process log (output) ---------------------------------------------
     
     /**
-     * Open the server log (output).
+     * Open the process log (output).
      */
-    public void openServerLog(final Process process,final String displayName) {
+    public void openProcessLog(final Process process,LogSupport logSupport,final String displayName) {
         
         assert process != null;
         synchronized(serverLogLock) {
@@ -68,7 +65,7 @@ public class LogManager {
                 new InputStreamReader(process.getInputStream()),
                 new InputStreamReader(process.getErrorStream()),
                 true,
-                false, new ServerLogSupport());
+                false, logSupport);
             serverLog.start();
         }
         
@@ -84,13 +81,11 @@ public class LogManager {
             }
         }.start();
     }
-    
-    
-      
+          
     /**
-     * Stop the server log thread, if started.
+     * Stop the process log thread, if started.
      */
-    public void closeServerLog() {
+    public void closeProcessLog() {
         synchronized(serverLogLock) {
             if (serverLog != null) {
                 serverLog.interrupt();
@@ -99,4 +94,13 @@ public class LogManager {
         }
     }
     
+    public boolean isDone()
+    {
+        if(serverLog == null)
+            return true;
+        if(serverLog.isRunning())
+            return false;
+        else
+            return true;
+    }   
 }

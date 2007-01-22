@@ -23,7 +23,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.logging.Logger;
 import javax.swing.JTextField;
-import org.jdom.JDOMException;
 import org.netbeans.api.java.platform.JavaPlatform;
 import org.netbeans.api.java.platform.JavaPlatformManager;
 import org.netbeans.api.java.platform.Specification;
@@ -35,6 +34,7 @@ import org.netbeans.modules.portalpack.servers.core.util.PSConfigObject;
 import org.openide.WizardDescriptor;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
+import org.xml.sax.SAXException;
 
 /**
  *
@@ -282,7 +282,7 @@ public class TomcatConfigPanel extends ConfigPanel implements TomcatConstant{
         TomcatConfigUtil configUtil = null;
         try {
             configUtil = new TomcatConfigUtil(new File(catalinaBase));
-        } catch (JDOMException ex) {
+        } catch (SAXException ex) {
             
             setErrorMessage("Not a valid server.xml");
             fireChangeEvent();
@@ -358,7 +358,7 @@ public class TomcatConfigPanel extends ConfigPanel implements TomcatConstant{
         TomcatConfigUtil configUtil = null;
         try {
             configUtil = new TomcatConfigUtil(new File(catalinaBase));
-        } catch (JDOMException ex) {
+        } catch (SAXException ex) {
             
             setErrorMessage("Not a valid server.xml");
             

@@ -25,14 +25,18 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.netbeans.modules.j2ee.deployment.plugins.api.UISupport;
 import org.netbeans.modules.portalpack.servers.core.api.PSDeploymentManager;
 import org.netbeans.modules.portalpack.servers.core.common.LogManager;
+import org.netbeans.modules.portalpack.servers.core.common.ProcessLogManager;
 import org.netbeans.modules.portalpack.servers.core.impl.j2eeservers.sunappserver.SunAppServerConstants;
 import org.netbeans.modules.portalpack.servers.core.util.Command;
 import org.netbeans.modules.portalpack.servers.core.util.NetbeanConstants;
 import org.netbeans.modules.portalpack.servers.core.util.PSConfigObject;
 import org.netbeans.modules.portalpack.servers.jnpc.ServerDeployHandler;
+import org.netbeans.modules.portalpack.servers.jnpc.common.SUNASProcessLogSupport;
 import org.openide.filesystems.FileObject;
+import org.openide.util.NbBundle;
 
 /**
  *
@@ -42,12 +46,14 @@ public class SunAppServerDeployHandler implements ServerDeployHandler{
     private static Logger logger = Logger.getLogger(NetbeanConstants.PORTAL_LOGGER);
     private PSConfigObject psconfig;
     private PSDeploymentManager dm;
+    private String uri;
     /**
      * Creates a new instance of SunAppServerDeployHandler
      */
     public SunAppServerDeployHandler(PSDeploymentManager dm) {
         this.dm = dm;
         this.psconfig = dm.getPSConfig();
+        this.uri = dm.getUri();
     }
     
      private void deployOnGlassFish(String warFile) throws Exception
@@ -88,7 +94,7 @@ public class SunAppServerDeployHandler implements ServerDeployHandler{
             
             runProcess(cmd.getCmdArray(),true);
         } catch (Exception ex) {
-            throw ex;
+            throw new Exception(NbBundle.getMessage(SunAppServerDeployHandler.class,"MSG_DEPLOY_ON_GLASSFISH_FAILED"));
         }finally{
             file.delete();
         }
@@ -134,7 +140,7 @@ public class SunAppServerDeployHandler implements ServerDeployHandler{
             
             runProcess(cmd.getCmdArray(),true);
         } catch (Exception ex) {
-            throw ex;
+            throw new Exception(NbBundle.getMessage(SunAppServerDeployHandler.class,"MSG_UNDEPLOY_ON_GLASSFISH_FAILED"));
         }
         logger.info("Password file: "+passwordFile);
         file.delete();
@@ -144,14 +150,19 @@ public class SunAppServerDeployHandler implements ServerDeployHandler{
     private int runProcess(String[] cmdArray, boolean wait) throws Exception {
         final Process child = Runtime.getRuntime().exec(cmdArray);
         
-        
-        LogManager manager = new LogManager(dm);
-        manager.openServerLog(child,"" + System.currentTimeMillis());
+        SUNASProcessLogSupport logSupport = new SUNASProcessLogSupport();
+        ProcessLogManager manager = new ProcessLogManager(dm);
+        manager.openProcessLog(child,logSupport, "" + System.currentTimeMillis());
         if (wait)
             child.waitFor();
-        
-        return child.exitValue();
-        
+        while(!manager.isDone() && !logSupport.isErrorInOutput() && !logSupport.hasSuccess())
+        {
+            Thread.currentThread().sleep(10);
+        }
+        if(!logSupport.isErrorInOutput())
+           return child.exitValue();
+        else
+           throw new Exception("Command failed");
     }
 
     public boolean deploy(String warFile) throws Exception {
@@ -159,7 +170,7 @@ public class SunAppServerDeployHandler implements ServerDeployHandler{
             deployOnGlassFish(warFile);
         }catch(Exception e){
             logger.log(Level.SEVERE, "Error",e);
-            return false;
+            throw e;
         }
         return true;
     }
@@ -169,13 +180,17 @@ public class SunAppServerDeployHandler implements ServerDeployHandler{
             unDeployFromGlassFish(appName);
         }catch(Exception e){
             logger.log(Level.SEVERE, "Error",e);
-            return false;
+            throw e;
         }
         return true;
     }
 
     public boolean install() throws Exception {
         return true;
+    }
+    
+     private void writeErrorToOutput(String uri,Exception e) {
+        e.printStackTrace(UISupport.getServerIO(uri).getErr());
     }
    
 }

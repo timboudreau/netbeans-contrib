@@ -19,7 +19,9 @@
 
 package org.netbeans.modules.portalpack.servers.core.ui;
 
-
+import javax.swing.JOptionPane;
+import org.netbeans.modules.portalpack.servers.core.util.Util;
+import org.openide.util.NbBundle;
 
 /**
 
@@ -281,6 +283,13 @@ public class CreateContainerChannelPanel extends javax.swing.JDialog {
         name = nameTf.getText();
 
         type = (String)typeCombo.getSelectedItem();
+        
+        if(!Util.validateString(name,false))
+        {
+            JOptionPane.showMessageDialog(this,NbBundle.getMessage(CreateContainerChannelPanel.class,
+                                            "MSG_INVALID_NAME"));
+            return;
+        }
 
         this.dispose();
 

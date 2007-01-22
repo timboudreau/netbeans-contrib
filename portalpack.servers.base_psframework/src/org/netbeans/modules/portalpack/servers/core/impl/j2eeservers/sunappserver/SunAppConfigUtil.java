@@ -25,17 +25,20 @@ import java.io.IOException;
 import java.io.StringBufferInputStream;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathExpressionException;
+import javax.xml.xpath.XPathFactory;
 
-import org.jdom.Attribute;
 
-import org.jdom.Document;
-import org.jdom.JDOMException;
-import org.jdom.input.SAXBuilder;
-import org.jdom.xpath.XPath;
 import org.netbeans.modules.portalpack.servers.core.util.NetbeanConstants;
+import org.w3c.dom.Document;
 import org.xml.sax.EntityResolver;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
+
 
 public class SunAppConfigUtil {
     
@@ -44,7 +47,7 @@ public class SunAppConfigUtil {
     /**
      * Creates a new instance of SunAppConfigUtil
      */
-    public SunAppConfigUtil(File domainDir) throws JDOMException, IOException {
+    public SunAppConfigUtil(File domainDir) throws IOException, SAXException, ParserConfigurationException {
         
         File xmlRoot;
         if(File.pathSeparatorChar == ':')
@@ -59,6 +62,7 @@ public class SunAppConfigUtil {
               new InputSource(new FileInputStream(xmlRoot));
           
           doc = createDocumentFromXml(xmlRoot);   
+          
     }
       
     static File[] getRegisterableDefaultDomains(File location) {
@@ -120,17 +124,14 @@ public class SunAppConfigUtil {
         String port = "";
         if(doc == null)
               return "";
-        Attribute attr;
         try {
-            attr = (Attribute) XPath.selectSingleNode(doc, "/domain/configs/config[@name='server-config']/http-service/http-listener[@security-enabled='false'][@default-virtual-server='server']/@port");
-        } catch (JDOMException ex) {
-            ex.printStackTrace();
-            return "";
+            
+            port = getXPath().evaluate("/domain/configs/config[@name='server-config']/http-service/http-listener[@security-enabled='false'][@default-virtual-server='server']/@port",doc);
+        } catch (XPathExpressionException ex) {
+            logger.log(Level.SEVERE,"ParseError",ex);
         }
-          if(attr == null)
-              return "";
-          port = attr.getValue();
-          if(port == null)
+     
+        if(port == null)
               return "";
          
         return port.trim();
@@ -141,19 +142,15 @@ public class SunAppConfigUtil {
         String port = "";
         if(doc == null)
               return "";
-        Attribute attr;
-        try {
-            attr = (Attribute) XPath.selectSingleNode(doc, "/domain/configs/config[@name='server-config']/http-service/http-listener[@security-enabled='false'][@default-virtual-server='__asadmin']/@port");
-        } catch (JDOMException ex) {
-            ex.printStackTrace();
-            return "";
+        
+         try {
+            port = getXPath().evaluate("/domain/configs/config[@name='server-config']/http-service/http-listener[@security-enabled='false'][@default-virtual-server='__asadmin']/@port",doc);
+         } catch (XPathExpressionException ex) {
+            logger.log(Level.SEVERE,"ParseError",ex);
         }
-          if(attr == null)
+         if(port == null)
               return "";
-          port = attr.getValue();
-          if(port == null)
-              return "";
-        return port.trim();
+         return port.trim();
     }
     
     public static File domainFile(File domainDir) {
@@ -168,38 +165,40 @@ public class SunAppConfigUtil {
         String domain = "";
         if(doc == null)
               return "";
-        Attribute attr;
-        try {
-            attr = (Attribute) XPath.selectSingleNode(doc, "/domain/property[@name='administrative.domain.name']/@value");
-        } catch (JDOMException ex) {
-            ex.printStackTrace();
-            return "";
+        try {        
+            domain = getXPath().evaluate("/domain/property[@name='administrative.domain.name']/@value",doc);
+        } catch (XPathExpressionException ex) {
+            logger.log(Level.SEVERE,"ParseError",ex);
         }
-          if(attr == null)
-              return "";
-          domain = attr.getValue();
-          if(domain == null)
+       
+         if(domain == null)
               return "";
          
         return domain.trim();
     }
     
-    public static Document createDocumentFromXml(File file) throws JDOMException, IOException
+    private XPath getXPath()
+    {
+        XPathFactory xpathFactory = XPathFactory.newInstance();
+        XPath xpath = xpathFactory.newXPath();
+        return xpath;
+    }
+    public static Document createDocumentFromXml(File file) throws SAXException, IOException, ParserConfigurationException
     {
         
-        SAXBuilder saxBuilder = new SAXBuilder(false);
-        saxBuilder.setEntityResolver(new EntityResolver(){
-            public InputSource resolveEntity(String publicId, String systemId) throws SAXException, IOException {
+        DocumentBuilderFactory builderFactory = DocumentBuilderFactory.newInstance();
+        DocumentBuilder builder = builderFactory.newDocumentBuilder();
+        builder.setEntityResolver( new EntityResolver() {
+            public InputSource resolveEntity(String publicId, String systemId) throws SAXException,IOException {
                 return new InputSource(new StringBufferInputStream(""));
             }
-            
         });
-     
-        org.jdom.Document jdomDocument = saxBuilder.build(file);
-        return jdomDocument;
+            
+        Document document = builder.parse(file);
+        return document;
     }
     
-    public static void main(String[] args) throws JDOMException, IOException
+    public static void main(String[] args) throws SAXException, IOException, ParserConfigurationException
     {    
         System.out.println(new SunAppConfigUtil(new  File(args[0])).getPort());
         System.out.println(new SunAppConfigUtil(new  File(args[0])).getAdminPort());

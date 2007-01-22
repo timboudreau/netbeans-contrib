@@ -35,7 +35,7 @@ import org.netbeans.modules.j2ee.deployment.plugins.api.UISupport;
 
 
 /**
- * Tomcat server log reads from the Tomcat standard and error output and 
+ * Server log reads from the standard and error output and 
  * writes to output window.
  */ 
 class ServerLog extends Thread {
@@ -48,11 +48,11 @@ class ServerLog extends Thread {
     private final boolean autoFlush;
     private final boolean takeFocus;
     private volatile boolean done = false;
-    private ServerLogSupport logSupport;
+    private LogSupport logSupport;
     private String displayName;
 
     /**
-     *  server log reads from the Tomcat standard and error output and 
+     *  server log reads from the standard and error output and 
      * writes to output window
      * @param displayName output window display name.
      * @param in  standard output reader.
@@ -62,7 +62,7 @@ class ServerLog extends Thread {
      *        changed?
      */
     public ServerLog(String url, String displayName, Reader in, Reader err, boolean autoFlush,
-            boolean takeFocus) {
+            boolean takeFocus,LogSupport logSupport) {
         super("PS ServerLog - Thread"); // NOI18N
         setDaemon(true);
         inReader = new BufferedReader(in);
@@ -80,11 +80,11 @@ class ServerLog extends Thread {
         writer = io.getOut();
         errorWriter = io.getErr();
         io.select();
-        logSupport = new ServerLogSupport();
+        this.logSupport = logSupport;
     }
 
     private void processLine(String line) {
-        ServerLogSupport.LineInfo lineInfo = logSupport.analyzeLine(line);
+        LogSupport.LineInfo lineInfo = logSupport.analyzeLine(line);
         if (lineInfo.isError()) {
             if (lineInfo.isAccessible()) {
                 try {
@@ -170,104 +170,12 @@ class ServerLog extends Thread {
         done = true;
     }
     
-    /**
-     * Support class for Tomcat server output log line analyzation and for 
-     * creating links in the output window.
-     */
-    static class ServerLogSupport extends LogSupport {
-        private String prevMessage;
-        private GlobalPathRegistry globalPathRegistry = GlobalPathRegistry.getDefault();
-        
-        public LineInfo analyzeLine(String logLine) {
-            String path = null;
-            int line = -1;
-            String message = null;
-            boolean error = false;
-            boolean accessible = false;
-
-            logLine = logLine.trim();
-            int lineLenght = logLine.length();
-
-            // look for unix file links (e.g. /foo/bar.java:51: 'error msg')
-            if (logLine.startsWith("/")) {
-                error = true;
-                int colonIdx = logLine.indexOf(':');
-                if (colonIdx > -1) {
-                    path = logLine.substring(0, colonIdx);
-                    accessible = true;
-                    if (lineLenght > colonIdx) {
-                        int nextColonIdx = logLine.indexOf(':', colonIdx + 1);
-                        if (nextColonIdx > -1) {
-                            String lineNum = logLine.substring(colonIdx + 1, nextColonIdx);
-                            try {
-                                line = Integer.valueOf(lineNum).intValue();
-                            } catch(NumberFormatException nfe) { // ignore it
-                            }
-                            if (lineLenght > nextColonIdx) {
-                                message = logLine.substring(nextColonIdx + 1, lineLenght); 
-                            }
-                        }
-                    }
-                }
-            }
-            // look for windows file links (e.g. c:\foo\bar.java:51: 'error msg')
-            else if (lineLenght > 3 && Character.isLetter(logLine.charAt(0))
-                        && (logLine.charAt(1) == ':') && (logLine.charAt(2) == '\\')) {
-                error = true;
-                int secondColonIdx = logLine.indexOf(':', 2);
-                if (secondColonIdx > -1) {
-                    path = logLine.substring(0, secondColonIdx);
-                    accessible = true;
-                    if (lineLenght > secondColonIdx) {
-                        int thirdColonIdx = logLine.indexOf(':', secondColonIdx + 1);
-                        if (thirdColonIdx > -1) {
-                            String lineNum = logLine.substring(secondColonIdx + 1, thirdColonIdx);
-                            try {
-                                line = Integer.valueOf(lineNum).intValue();
-                            } catch(NumberFormatException nfe) { // ignore it
-                            }
-                            if (lineLenght > thirdColonIdx) {
-                                message = logLine.substring(thirdColonIdx + 1, lineLenght);
-                            }
-                        }
-                    }
-                }
-            }
-            // look for stacktrace links (e.g. at java.lang.Thread.run(Thread.java:595)
-            //                                 at t.HyperlinkTest$1.run(HyperlinkTest.java:24))
-            else if (logLine.startsWith("at ") && lineLenght > 3) {
-                error = true;
-                int parenthIdx = logLine.indexOf('(');
-                if (parenthIdx > -1) {
-                    String classWithMethod = logLine.substring(3, parenthIdx);
-                    int lastDotIdx = classWithMethod.lastIndexOf('.');
-                    if (lastDotIdx > -1) {  
-                        int lastParenthIdx = logLine.lastIndexOf(')');
-                        int lastColonIdx = logLine.lastIndexOf(':');
-                        if (lastParenthIdx > -1 && lastColonIdx > -1) {
-                            String lineNum = logLine.substring(lastColonIdx + 1, lastParenthIdx);
-                            try {
-                                line = Integer.valueOf(lineNum).intValue();
-                            } catch(NumberFormatException nfe) { // ignore it
-                            }
-                            message = prevMessage;
-                        }
-                        int firstDolarIdx = classWithMethod.indexOf('$'); // > -1 for inner classes
-                        String className = classWithMethod.substring(0, firstDolarIdx > -1 ? firstDolarIdx : lastDotIdx);
-                        path = className.replace('.','/') + ".java"; // NOI18N
-                        accessible = globalPathRegistry.findResource(path) != null;
-                    }
-                }
-            }
-            // every other message treat as normal info message
-            else {
-                prevMessage = logLine;
-            }
-            return new LineInfo(path, line, message, error, accessible);
-        }
+    public boolean isDone()
+    {
+        return done;
     }
-
-    public org.netbeans.modules.portalpack.servers.core.common.ServerLog.ServerLogSupport getLogSupport() {
+    
+    public org.netbeans.modules.portalpack.servers.core.common.LogSupport getLogSupport() {
         return logSupport;
     }
 }

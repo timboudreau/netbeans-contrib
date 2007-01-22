@@ -23,22 +23,6 @@ Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
     <configuration>
         <data xmlns="http://www.netbeans.org/ns/nb-module-project/2">
             <code-name-base>org.netbeans.modules.portalpack.servers.base_psframework</code-name-base>
-            <class-path-extension>
-                <runtime-relative-path>ext/portalpack/jdom/jaxen-core.jar</runtime-relative-path>
-                <binary-origin>../../external/jdom/jaxen-core.jar</binary-origin>
-            </class-path-extension>
-            <class-path-extension>
-                <runtime-relative-path>ext/portalpack/jdom/jaxen-jdom.jar</runtime-relative-path>
-                <binary-origin>../../external/jdom/jaxen-jdom.jar</binary-origin>
-            </class-path-extension>
-            <class-path-extension>
-                <runtime-relative-path>ext/portalpack/jdom/jdom.jar</runtime-relative-path>
-                <binary-origin>../../external/jdom/jdom.jar</binary-origin>
-            </class-path-extension>
-            <class-path-extension>
-                <runtime-relative-path>ext/portalpack/jdom/saxpath.jar</runtime-relative-path>
-                <binary-origin>../../external/jdom/saxpath.jar</binary-origin>
-            </class-path-extension>
             <module-dependencies>
                 <dependency>
                     <code-name-base>org.apache.tools.ant.module</code-name-base>
@@ -307,22 +291,6 @@ Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
                 </dependency>
             </module-dependencies>
             <public-packages>
-                <package>com.werken.saxpath</package>
-                <package>org.jaxen</package>
-                <package>org.jaxen.expr</package>
-                <package>org.jaxen.expr.iter</package>
-                <package>org.jaxen.function</package>
-                <package>org.jaxen.function.ext</package>
-                <package>org.jaxen.jdom</package>
-                <package>org.jaxen.pattern</package>
-                <package>org.jaxen.util</package>
-                <package>org.jdom</package>
-                <package>org.jdom.adapters</package>
-                <package>org.jdom.filter</package>
-                <package>org.jdom.input</package>
-                <package>org.jdom.output</package>
-                <package>org.jdom.transform</package>
-                <package>org.jdom.xpath</package>
                 <package>org.netbeans.modules.portalpack.servers.core</package>
                 <package>org.netbeans.modules.portalpack.servers.core.api</package>
                 <package>org.netbeans.modules.portalpack.servers.core.common</package>

@@ -47,7 +47,7 @@ import org.openide.windows.*;
  *
  * @author  Stepan Herold
  */
-public class LogSupport {
+public abstract class LogSupport {
     private Map/*<Link, Link>*/ links = Collections.synchronizedMap(new HashMap());
     private Annotation errAnnot;
     
@@ -69,6 +69,11 @@ public class LogSupport {
         return newLink;
     }
 
+    public abstract LineInfo analyzeLine(String logLine);
+    public boolean hasError()
+    {
+        return false;
+    }
     /**
      * Detach error annotation.
      */

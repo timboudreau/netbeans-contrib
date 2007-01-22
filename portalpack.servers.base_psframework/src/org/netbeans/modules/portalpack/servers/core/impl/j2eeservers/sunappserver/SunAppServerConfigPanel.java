@@ -27,7 +27,6 @@ import javax.swing.JComponent;
 import javax.swing.JTextField;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
-import org.jdom.JDOMException;
 import org.netbeans.modules.portalpack.servers.core.WizardPropertyReader;
 import org.netbeans.modules.portalpack.servers.core.api.ConfigPanel;
 import org.netbeans.modules.portalpack.servers.core.util.DirectoryChooser;
@@ -36,6 +35,7 @@ import org.netbeans.modules.portalpack.servers.core.util.PSConfigObject;
 import org.netbeans.modules.portalpack.servers.core.util.Util;
 import org.openide.WizardDescriptor;
 import org.openide.util.NbBundle;
+import org.xml.sax.SAXParseException;
 
 /**
  *
@@ -343,8 +343,7 @@ public class SunAppServerConfigPanel extends ConfigPanel implements SunAppServer
         SunAppConfigUtil configUtil = null;
         try {
             configUtil = new SunAppConfigUtil(new File(domainDir));
-        } catch (JDOMException ex) {
-            
+        } catch (SAXParseException ex) {      
             setErrorMessage("Not a valid domain.xml");
             fireChangeEvent();
             clearDomainXmlData();
@@ -434,7 +433,7 @@ public class SunAppServerConfigPanel extends ConfigPanel implements SunAppServer
         SunAppConfigUtil configUtil = null;
         try {
             configUtil = new SunAppConfigUtil(new File(domainDir));
-        } catch (JDOMException ex) {
+        } catch (SAXParseException ex) {
             
             setErrorMessage("Not a valid domain.xml");
             clearDomainXmlData();

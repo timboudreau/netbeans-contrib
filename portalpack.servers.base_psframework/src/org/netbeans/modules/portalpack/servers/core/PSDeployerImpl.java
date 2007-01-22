@@ -143,15 +143,17 @@ public class PSDeployerImpl implements PSDeployer, Runnable{
         
         if(cmdType.equals(PSCommandType.DISTRIBUTE))
         {
+           // selectIOTab(dm.getUri());
             try {
                 dm.getTaskHandler().deploy(file.getAbsolutePath(),dm.getUri());    
                 writeToOutput(dm.getUri(),org.openide.util.NbBundle.getMessage(PSDeployerImpl.class, "MSG_DEPLOYED"));
                
             } catch (Exception ex) {
                 logger.log(Level.SEVERE,org.openide.util.NbBundle.getMessage(PSDeployerImpl.class, "MSG_DEPLOYMENT_ERROR"),ex);
-                
-                writeToOutput(dm.getUri(),ex.getMessage());
-                 pes.fireHandleProgressEvent(null,
+                writeErrorStackToOutput(dm.getUri(),ex);
+                writeErrorToOutput(dm.getUri(),org.openide.util.NbBundle.getMessage(PSDeployerImpl.class,"MSG_DEPLOYMENT_FAILED")
+                                         + " : " +ex.getMessage());
+                pes.fireHandleProgressEvent(null,
                                new Status(ActionType.EXECUTE, cmdType,
                                            org.openide.util.NbBundle.getMessage(PSDeployerImpl.class, "MSG_DEPLOYMENT_FAILED"),
                                            StateType.FAILED));
@@ -170,6 +172,21 @@ public class PSDeployerImpl implements PSDeployer, Runnable{
     {
         msg = org.openide.util.NbBundle.getMessage(PSDeployerImpl.class, "MSG_PORTALPACK")+msg;
         UISupport.getServerIO(uri).getOut().println(msg);
+    }
+    
+    private void writeErrorToOutput(String uri,String msg)
+    {
+        msg = org.openide.util.NbBundle.getMessage(PSDeployerImpl.class, "MSG_PORTALPACK")+msg;
+        UISupport.getServerIO(uri).getErr().println(msg);
+    }
+    
+    private void writeErrorStackToOutput(String uri,Exception e) {
+        e.printStackTrace(UISupport.getServerIO(uri).getErr());
+    }
+    
+    private void selectIOTab(String uri)
+    {
+        UISupport.getServerIO(uri).select();
     }
 
     public ProgressObject startModule(TargetModuleID[] module) {
@@ -192,11 +209,13 @@ public class PSDeployerImpl implements PSDeployer, Runnable{
 
           RequestProcessor.getDefault().post(new Runnable() {
             public void run () {
+                
+              //  selectIOTab(dm.getUri());
                 try {
-              
                     dm.getTaskHandler().undeploy(portletAppName,dn);
                     writeToOutput(dm.getUri(),portletAppName +org.openide.util.NbBundle.getMessage(PSDeployerImpl.class, "MSG_UNDEPLOYED_SUCCESSFULLY"));
                 } catch (Exception ex) {
+                    writeErrorStackToOutput(dm.getUri(),ex);
                     logger.log(Level.SEVERE,org.openide.util.NbBundle.getMessage(PSDeployerImpl.class, "MSG_UNDEPLYOMENT_FAILED")+portletAppName,ex);
                     writeToOutput(dm.getUri(),portletAppName + org.openide.util.NbBundle.getMessage(PSDeployerImpl.class, "MSG_UNDEPLYOMENT_FAILED"));
                     pes.fireHandleProgressEvent(null,

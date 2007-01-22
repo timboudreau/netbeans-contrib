@@ -34,6 +34,7 @@ import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.apache.tools.ant.module.api.support.ActionUtils;
+import org.netbeans.modules.j2ee.deployment.plugins.api.UISupport;
 import org.netbeans.modules.portalpack.servers.core.api.PSDeploymentManager;
 import org.netbeans.modules.portalpack.servers.core.common.ExtendedClassLoader;
 import org.netbeans.modules.portalpack.servers.core.common.LogManager;
@@ -66,16 +67,18 @@ public class JNPCTaskHandler extends DefaultPSTaskHandler{
     private static String PORTLET_REGISTRY_CONTEXT_OLD = "com.sun.portal.portletadmin.PortletRegistryContext";
     private static String PORTLET_REGISTRY_CONTEXT_FACTORY_NEW = "com.sun.portal.portletcontainer.context.registry.PortletRegistryContextFactory";
     private static String PORTLET_REGISTRY_CONTEXT_NEW = "com.sun.portal.portletcontainer.context.registry.PortletRegistryContext";
+    private static String PORTLET_REGISTRY_CACHE = "com.sun.portal.portletadmin.PortletRegistryCache";
     //private FileObject taskFile;
 
     private ServerDeployHandler deployerHandler;
+    private String uri;
 
 
     /** Creates a new instance of JNPCTaskHandler */
     public JNPCTaskHandler(PSDeploymentManager dm) {
         this.dm = dm;
         this.psconfig = dm.getPSConfig();
-
+        this.uri = dm.getUri();
         if(loader == null)
         {
             try {
@@ -89,16 +92,49 @@ public class JNPCTaskHandler extends DefaultPSTaskHandler{
 
 
     public String deploy(String warfile, String serveruri) throws Exception {
+        
+        _deployOnPC(warfile);
 
+        File warFileObj = new File(warfile);
+        String massagedWar = psconfig.getPSHome() + File.separator + "war" + File.separator + warFileObj.getName();
+        
+        try{
+            deployerHandler.deploy(massagedWar);
+        }catch(Exception e){
+            try{
+                String fileName = warFileObj.getName();
+                String appName = fileName.substring(0,fileName.indexOf("."));
+                _undeployFromPC(appName,false);
+            }catch(Exception ex){
+               // ex.printStackTrace();
+            }
+            //writeErrorToOutput(uri,e);
+            throw e;
+        }
+        return org.openide.util.NbBundle.getMessage(JNPCTaskHandler.class, "Deployed_Successfully");
+    }
+
+    private void _deployOnPC(final String warfile) throws Exception {
+
+        ClassLoader contextClassLoader = Thread.currentThread().getContextClassLoader();
         try{
             Thread.currentThread().setContextClassLoader(loader);
+            updateCache();
             Class clazz = loader.loadClass(PORTLET_ADMIN_INTERFACE);
             Object ob = clazz.newInstance();
-
             //System.setProperty("com.sun.portal.portletcontainer.dir",psconfig.getPSHome());
-            Method method = clazz.getMethod("deploy",new Class[]{String.class,Properties.class,Properties.class});
-
-            Boolean isDeployed = (Boolean)method.invoke(ob, new Object[]{warfile,new Properties(),new Properties()});
+            Method method = null;
+            Boolean isDeployed = Boolean.FALSE;
+            try{
+                method = clazz.getMethod("deploy",new Class[]{String.class,Properties.class,Properties.class,Boolean.class});
+                isDeployed = (Boolean)method.invoke(ob, new Object[]{warfile,new Properties(),new Properties(),Boolean.FALSE});
+            }catch(NoSuchMethodException e){
+                method = clazz.getMethod("deploy",new Class[]{String.class,Properties.class,Properties.class,});
+                isDeployed = (Boolean)method.invoke(ob, new Object[]{warfile,new Properties(),new Properties()});
+            }catch(Exception ex){
+                throw ex;
+            }
+            
             if(isDeployed != null)
             {
                 if(!isDeployed.booleanValue())
@@ -109,27 +145,16 @@ public class JNPCTaskHandler extends DefaultPSTaskHandler{
             }
 
         }catch(Exception e){
+            writeErrorToOutput(uri,e);
             throw e;
+        }finally{
+            
+            Thread.currentThread().setContextClassLoader(contextClassLoader);
         }
-
-        File warFileObj = new File(warfile);
-        String massagedWar = psconfig.getPSHome() + File.separator + "war" + File.separator + warFileObj.getName();
-        deployerHandler.deploy(massagedWar);
-       /* if(psconfig.getServerType().equals(ServerConstants.SUN_APP_SERVER_9))
-        {
-            SunAppServerDeployerUtil handler = new SunAppServerDeployerUtil(dm);
-            handler.deployOnGlassFish(psconfig.getPSHome() + File.separator + "war" + File.separator + warFileObj.getName());
-        }
-        else{
-            TomcatDeployerUtil handler = new TomcatDeployerUtil(dm,taskFile);
-            handler.deployOnTomcat(psconfig.getPSHome() + File.separator + "war" + File.separator + warFileObj.getName());
-        }*/
-        return org.openide.util.NbBundle.getMessage(JNPCTaskHandler.class, "Deployed_Successfully");
     }
 
      private int runProcess(String str, boolean wait) throws Exception {
         final Process child = Runtime.getRuntime().exec(str);
-
 
         LogManager manager = new LogManager(dm);
         manager.openServerLog(child,str + System.currentTimeMillis());
@@ -155,32 +180,8 @@ public class JNPCTaskHandler extends DefaultPSTaskHandler{
 
 
     public void undeploy(String portletAppName, String dn) throws Exception {
-
-        try{
-            Thread.currentThread().setContextClassLoader(loader);
-            Class clazz = loader.loadClass(PORTLET_ADMIN_INTERFACE);
-            Object ob = clazz.newInstance();
-
-            //System.setProperty("com.sun.portal.portletcontainer.dir",psconfig.getPSHome());
-            Method method = clazz.getMethod("undeploy",new Class[]{String.class});
-
-            Boolean isUnDeployed = (Boolean)method.invoke(ob, new Object[]{portletAppName});
-            if(isUnDeployed != null)
-            {
-                if(!isUnDeployed.booleanValue())
-                {
-                    throw new Exception(org.openide.util.NbBundle.getMessage(JNPCTaskHandler.class, "UNDEPLOYMENT_FAILED"));
-                }
-
-            }
-            else
-            {
-                logger.log(Level.INFO,org.openide.util.NbBundle.getMessage(JNPCTaskHandler.class, "PROBLEM_IN_UNREGISTER"));
-            }
-
-        }catch(Exception e){
-            throw e;
-        }
+      
+        _undeployFromPC(portletAppName,true);
 
         deployerHandler.undeploy(portletAppName);
         /*if(psconfig.getServerType().equals(ServerConstants.SUN_APP_SERVER_9)){
@@ -194,14 +195,59 @@ public class JNPCTaskHandler extends DefaultPSTaskHandler{
 
     }
 
+    private void _undeployFromPC(final String portletAppName,boolean logError) throws Exception {
+        
+        ClassLoader contextClassLoader = Thread.currentThread().getContextClassLoader();
+        try{
+            Thread.currentThread().setContextClassLoader(loader);
+            updateCache();
+            Class clazz = loader.loadClass(PORTLET_ADMIN_INTERFACE);
+            Object ob = clazz.newInstance();
+           
+            //System.setProperty("com.sun.portal.portletcontainer.dir",psconfig.getPSHome());
+            
+            Method method = null;
+            Boolean isUnDeployed = Boolean.FALSE;
+            try{
+                method = clazz.getMethod("undeploy",new Class[]{String.class,Boolean.class});
+                isUnDeployed = (Boolean)method.invoke(ob, new Object[]{portletAppName,Boolean.FALSE});
+            }catch(NoSuchMethodException e){
+                method = clazz.getMethod("undeploy",new Class[]{String.class});
+                isUnDeployed = (Boolean)method.invoke(ob, new Object[]{portletAppName});
+            }catch(Exception e){
+                throw e;
+            }
+            
+            if(isUnDeployed != null)
+            {
+                if(!isUnDeployed.booleanValue())
+                {
+                    throw new Exception(org.openide.util.NbBundle.getMessage(JNPCTaskHandler.class, "UNDEPLOYMENT_FAILED"));
+                }
+            }
+            else
+            {
+                logger.log(Level.INFO,org.openide.util.NbBundle.getMessage(JNPCTaskHandler.class, "PROBLEM_IN_UNREGISTER"));
+            }
 
+        }catch(Exception e){
+            if(logError)
+                writeErrorToOutput(uri,e);
+            throw e;
+        }finally{
+           
+            Thread.currentThread().setContextClassLoader(contextClassLoader);
+        }
+    }
 
 
     public String[] getPortlets(String dn)  {
 
+        ClassLoader contextClassLoader = Thread.currentThread().getContextClassLoader();
         try{
             Thread.currentThread().setContextClassLoader(loader);
             Class clazz = null;
+            updateCache();
             try {
                 clazz = loader.loadClass(PORTLET_REGISTRY_CONTEXT_FACTORY_NEW);
             } catch (ClassNotFoundException ex) {
@@ -225,12 +271,29 @@ public class JNPCTaskHandler extends DefaultPSTaskHandler{
                 return (String [])list.toArray(new String[0]);
         }catch(Exception e){
             logger.log(Level.SEVERE,"Error getting portlet lists ",e);
+            writeErrorToOutput(uri,e);
             return new String[]{};
+        }finally{
+            updateCache();
+            Thread.currentThread().setContextClassLoader(contextClassLoader);
         }
 
     }
+    
+    
+   private void updateCache()
+   {
+       try{
+             Class cacheClazz = loader.loadClass(PORTLET_REGISTRY_CACHE);
+             Method m = cacheClazz.getMethod("init",new Class[]{});
+             m.invoke(null,null);
+        }catch(Exception e){
+            e.printStackTrace();
+                //ignore exception incase of class not found.
+        }
+   }
 
-   public ExtendedClassLoader initClassLoader() throws MalformedURLException
+   private ExtendedClassLoader initClassLoader() throws MalformedURLException
    {
        //System.setProperty("com.sun.portal.portletcontainer.dir",psconfig.getPSHome());
         ExtendedClassLoader loader = new ExtendedClassLoader(getClass().getClassLoader());
@@ -285,6 +348,7 @@ public class JNPCTaskHandler extends DefaultPSTaskHandler{
         return "http://"+psconfig.getHost() + ":"+psconfig.getPort()+"/"+contextUri;
     }
 
-
-
+    private void writeErrorToOutput(String uri,Exception e) {
+        e.printStackTrace(UISupport.getServerIO(uri).getErr());
+    }
 }

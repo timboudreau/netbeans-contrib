@@ -32,12 +32,22 @@ import org.netbeans.modules.portalpack.servers.core.ui.InstallPanel;
  */
 public class PS71DeploymentManager extends PSDeploymentManager{
 
+    private PSTaskHandler taskHandler;
     public PS71DeploymentManager(String uri,String psVersion){
         super(uri,psVersion);
     }
 
     public PSTaskHandler getTaskHandler() {
-        return new PSCommandHandler(getUri());
+        
+        if(taskHandler == null)
+        {
+           synchronized(this)
+           {
+               if(taskHandler == null)
+                    taskHandler = new PSCommandHandler(getUri());
+           }
+        }
+        return taskHandler;
     }
 
     public PSConfigPanelManager getPSConfigPanelManager() {
