@@ -34,6 +34,7 @@ public class RunDialog extends javax.swing.JFrame {
         "javaone.demo5.ManyObjectsDemo",
         "javaone.demo6.LODDemo",
         "test.alignwith.AlignWithTest",
+        "test.anchor.InvalidAnchorNegativeTest",
         "test.animator.AnimatorTest",
         "test.animator.ColorAnimatorTest",
         "test.card.CardContainerWidget",
