@@ -70,6 +70,7 @@ public class ComponentTest extends Scene {
 
     public static void main (String[] args) {
         SceneSupport.show (new ComponentTest ());
+        // TODO - call detach method on all ComponentWidget to prevent memory leaks
     }
 
 }
