@@ -18,29 +18,30 @@
  */
 package org.netbeans.modules.apisupport.metainfservices;
 
+import com.sun.source.tree.ClassTree;
+import com.sun.source.tree.Tree;
+import com.sun.source.tree.TreeVisitor;
 import java.awt.Dialog;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.lang.reflect.Modifier;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import org.netbeans.api.java.project.JavaProjectConstants;
+import org.netbeans.api.java.source.CancellableTask;
+import org.netbeans.api.java.source.CompilationController;
+import org.netbeans.api.java.source.CompilationInfo;
+import org.netbeans.api.java.source.JavaSource;
 import org.netbeans.api.project.FileOwnerQuery;
 import org.netbeans.api.project.Project;
-import org.netbeans.api.project.ProjectManager;
 import org.netbeans.api.project.ProjectUtils;
 import org.netbeans.api.project.SourceGroup;
 import org.netbeans.api.project.Sources;
-import org.netbeans.jmi.javamodel.JavaClass;
-import org.netbeans.jmi.javamodel.Resource;
-import org.netbeans.modules.javacore.api.JavaModel;
-import org.netbeans.modules.javacore.internalapi.JavaMetamodel;
 import org.openide.DialogDisplayer;
 import org.openide.ErrorManager;
 import org.openide.NotifyDescriptor;
@@ -55,38 +56,28 @@ import org.openide.util.NbBundle;
 import org.openide.util.actions.CookieAction;
 
 public final class ExportAction extends CookieAction {
+
     
     protected void performAction(Node[] activatedNodes) {
-        DataObject obj = activatedNodes[0].getLookup().lookup(DataObject.class);
-        if (obj == null) {
-            return;
-        }
+        try     {
+            FileObject fo = activatedNodes[0].getLookup().lookup(org.openide.filesystems.FileObject.class);
 
-        JavaClass clazz = null;
-        List<String> allInterfaces = new ArrayList<String>();
-
-        JavaMetamodel.getDefaultRepository().beginTrans(false);
-        try {
-            Resource r = JavaModel.getResource(obj.getPrimaryFile());
-            if (r != null) {
-                Iterator it = r.getClassifiers().iterator();
-                while (it.hasNext()) {
-                    clazz = (JavaClass)it.next();
-                    if (!clazz.isInterface() && Modifier.isPublic(clazz.getModifiers())) {
-                        break;
-                    }
-                    clazz = null;
-                }
+            if (fo == null) {
+                return;
             }
+            MyTask task = new ExportAction.MyTask();
+            JavaSource source = JavaSource.forFileObject(fo);
 
-            findInterfaces(clazz, allInterfaces);
-            Collections.sort(allInterfaces);
-        } finally {
-            JavaMetamodel.getDefaultRepository().endTrans();
+            source.runUserActionTask(task, true);
         }
+        catch (IOException ex) {
+            java.util.logging.Logger.getLogger("global").log(java.util.logging.Level.SEVERE,
+                                                             ex.getMessage(), ex);
+        }
+/*
 
         FileObject target = null;
-        Project p = FileOwnerQuery.getOwner(obj.getPrimaryFile());
+        Project p = FileOwnerQuery.getOwner(fo.getPrimaryFile());
 
         if (p != null) {
             Sources s = ProjectUtils.getSources(p);
@@ -99,7 +90,7 @@ public final class ExportAction extends CookieAction {
 
         if (clazz == null || target == null) {
             NotifyDescriptor d = new NotifyDescriptor.Message(
-                NbBundle.getMessage(ExportAction.class, "MSG_CannotFindClass", obj.getPrimaryFile().getPath()),
+                NbBundle.getMessage(ExportAction.class, "MSG_CannotFindClass", fo.getPrimaryFile().getPath()),
                 NotifyDescriptor.WARNING_MESSAGE
             );
             DialogDisplayer.getDefault().notify(d);
@@ -121,7 +112,7 @@ public final class ExportAction extends CookieAction {
             } catch (IOException ex) {
                 ErrorManager.getDefault().notify(ex);
             }
-        }
+        }*/
     }
 
     @SuppressWarnings("unchecked")
@@ -156,8 +147,9 @@ public final class ExportAction extends CookieAction {
             lock.releaseLock();
         }
     }
-
+/*
     static void findInterfaces(JavaClass clazz, List<String> all) {
+        
         if (clazz == null) {
             return;
         }
@@ -179,7 +171,7 @@ public final class ExportAction extends CookieAction {
             JavaClass c = (JavaClass)it.next();
             findInterfaces(c, all);
         }
-    }
+    }*/
 
     
     protected int mode() {
@@ -209,6 +201,50 @@ public final class ExportAction extends CookieAction {
     protected boolean asynchronous() {
         return false;
     }
-    
+
+    private static final class MyTask implements CancellableTask<CompilationController> {
+        List<String> allInterfaces = new ArrayList<String>();
+        
+        public void cancel() {
+        }
+
+        public void run(CompilationController cont) throws Exception {
+            cont.toPhase(JavaSource.Phase.ELEMENTS_RESOLVED);
+            System.err.println("cont: " + cont);
+            System.err.println("cmpu: " + cont.getCompilationUnit());
+            for (Tree t : cont.getCompilationUnit().getTypeDecls()) {
+                if (t.getKind() == Tree.Kind.CLASS) {
+                    ClassTree clazz = (ClassTree)t;
+                   // findInterfaces(clazz);
+                    System.err.println("extends: " + clazz.getExtendsClause());
+                    System.err.println("impl   : " + clazz.getImplementsClause());
+                }
+            }
+            /*
+            JavaClass clazz = null;
+            List<String> allInterfaces = new ArrayList<String>();
+
+            JavaMetamodel.getDefaultRepository().beginTrans(false);
+            try {
+                Resource r = JavaModel.getResource(fo.getPrimaryFile());
+                if (r != null) {
+                    Iterator it = r.getClassifiers().iterator();
+                    while (it.hasNext()) {
+                        clazz = (JavaClass)it.next();
+                        if (!clazz.isInterface() && Modifier.isPublic(clazz.getModifiers())) {
+                            break;
+                        }
+                        clazz = null;
+                    }
+                }
+
+                findInterfaces(clazz, allInterfaces);
+                Collections.sort(allInterfaces);
+            } finally {
+                JavaMetamodel.getDefaultRepository().endTrans();
+            }
+*/
+        }
+    }
 }
 
