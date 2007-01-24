@@ -20,6 +20,7 @@ package org.netbeans.modules.apisupport.metainfservices;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import javax.swing.JPanel;
 import javax.swing.event.TableModelEvent;
@@ -43,7 +44,7 @@ implements TableModelListener{
         return "Select Inteface to Export";
     }
 
-    final void fillTable(List<String> interfaces) {
+    final void fillTable(Collection<String> interfaces) {
         DefaultTableModel t = (DefaultTableModel)table.getModel();
         if (t.getRowCount() > 0) {
             return;
@@ -97,6 +98,7 @@ implements TableModelListener{
      */
     // <editor-fold defaultstate="collapsed" desc=" Generated Code ">//GEN-BEGIN:initComponents
     private void initComponents() {
+
         jScrollPane2 = new javax.swing.JScrollPane();
         table = new javax.swing.JTable();
         description = new javax.swing.JTextArea();
@@ -105,6 +107,7 @@ implements TableModelListener{
         generatedLabel = new javax.swing.JLabel();
 
         jScrollPane2.setFocusCycleRoot(true);
+
         table.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
 
@@ -148,22 +151,22 @@ implements TableModelListener{
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
+            .add(layout.createSequentialGroup()
                 .addContainerGap()
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
-                    .add(jScrollPane1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 496, Short.MAX_VALUE)
-                    .add(org.jdesktop.layout.GroupLayout.LEADING, generatedLabel)
-                    .add(jScrollPane2, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 496, Short.MAX_VALUE)
-                    .add(description))
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jScrollPane2, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 496, Short.MAX_VALUE)
+                    .add(org.jdesktop.layout.GroupLayout.TRAILING, description)
+                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jScrollPane1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 496, Short.MAX_VALUE)
+                    .add(generatedLabel))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(layout.createSequentialGroup()
                 .addContainerGap()
-                .add(description, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 126, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                .add(15, 15, 15)
-                .add(jScrollPane2, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 142, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                .add(description, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(jScrollPane2, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 202, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(generatedLabel)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)

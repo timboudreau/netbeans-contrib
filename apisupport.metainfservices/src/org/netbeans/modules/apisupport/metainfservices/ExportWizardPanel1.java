@@ -93,7 +93,7 @@ public class ExportWizardPanel1 implements WizardDescriptor.Panel {
     public void readSettings(Object settings) {
         WizardDescriptor wd = (WizardDescriptor)settings;
         String impl = (String)wd.getProperty("implName"); // NOI18N
-        List<String> interfaces = (List<String>)wd.getProperty("interfaceNames"); // NOI18N
+        Collection<String> interfaces = (Collection<String>)wd.getProperty("interfaceNames"); // NOI18N
         target = (FileObject)wd.getProperty("target"); // NOI18N
 
         if (component != null) {
