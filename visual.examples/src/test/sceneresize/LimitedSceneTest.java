@@ -46,7 +46,7 @@ public class LimitedSceneTest {
         scene.addChild (connLayer);
 
         LabelWidget source = createLabel (mainLayer, "Source - scene is limited", 50, -20, Color.GREEN);
-        LabelWidget target = createLabel (mainLayer, "Target - scene does not expand to negative values", 550, -20, Color.GREEN);
+        LabelWidget target = createLabel (mainLayer, "Target - scene does not expand to negative values", 550, 0, Color.GREEN);
         createLabel (mainLayer, "Line must be routed around bottom side", 250, -20, Color.RED);
 
         ConnectionWidget conn = new ConnectionWidget (scene);
