@@ -94,18 +94,22 @@ implements ListSelectionListener {
     }
 
     public void actionPerformed(ActionEvent event) {
-        try {
-            SwingUtilities.invokeAndWait(new Runnable() {
-                public void run() {
-                    actionPerformed();
-                }
-            });
-        } catch (InterruptedException ex) {
-            UTUtils.LOGGER.log(java.util.logging.Level.SEVERE,
-                    ex.getMessage(), ex);
-        } catch (InvocationTargetException ex) {
-            UTUtils.LOGGER.log(java.util.logging.Level.SEVERE,
-                    ex.getMessage(), ex);
+        if (SwingUtilities.isEventDispatchThread())
+            actionPerformed();
+        else {
+            try {
+                SwingUtilities.invokeAndWait(new Runnable() {
+                    public void run() {
+                        actionPerformed();
+                    }
+                });
+            } catch (InterruptedException ex) {
+                UTUtils.LOGGER.log(java.util.logging.Level.SEVERE,
+                        ex.getMessage(), ex);
+            } catch (InvocationTargetException ex) {
+                UTUtils.LOGGER.log(java.util.logging.Level.SEVERE,
+                        ex.getMessage(), ex);
+            }
         }
     }
     

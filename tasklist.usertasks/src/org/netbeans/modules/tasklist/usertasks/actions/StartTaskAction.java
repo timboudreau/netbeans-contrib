@@ -22,9 +22,12 @@ package org.netbeans.modules.tasklist.usertasks.actions;
 import java.awt.event.ActionEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import javax.swing.AbstractAction;
 import javax.swing.ImageIcon;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.tree.TreePath;
+import org.netbeans.modules.tasklist.core.util.ObjectListEvent;
+import org.netbeans.modules.tasklist.core.util.ObjectListListener;
 import org.netbeans.modules.tasklist.usertasks.UserTaskTreeTableNode;
 import org.netbeans.modules.tasklist.usertasks.model.StartedUserTask;
 import org.netbeans.modules.tasklist.usertasks.model.UserTask;
@@ -38,7 +41,7 @@ import org.openide.util.Utilities;
  * @author tl
  */
 public class StartTaskAction extends UTViewAction implements 
-        PropertyChangeListener {
+        PropertyChangeListener, ObjectListListener {
     private UserTask ut;
     
     /**
@@ -63,29 +66,36 @@ public class StartTaskAction extends UTViewAction implements
     public void valueChanged(ListSelectionEvent e) {
         if (ut != null) {
             ut.removePropertyChangeListener(this);
+            ut.getDependencies().removeListener(this);
             ut = null;
         }
         
         TreePath[] paths = utv.getTreeTable().getSelectedPaths();
-        boolean en = false;
         if (paths.length == 1) {
             Object last = paths[0].getLastPathComponent();
             if (last instanceof UserTaskTreeTableNode) {
                 UserTask ut = ((UserTaskTreeTableNode) last).getUserTask();
-                // TODO: ut.getDependencies().addListener()...
-                en = ut.isStartable() && !ut.isStarted();
                 this.ut = ut;
                 this.ut.addPropertyChangeListener(this);
+                this.ut.getDependencies().addListener(this);
             }
         }
-        setEnabled(en);
+        updateEnabled();
     }
 
+    private void updateEnabled() {
+        setEnabled(ut != null && ut.isStartable() && !ut.isStarted());
+    }
+    
     public void propertyChange(PropertyChangeEvent evt) {
         if (evt.getPropertyName() == "started" || 
                 evt.getPropertyName() == "spentTimeComputed" ||
                 evt.getPropertyName() == "progress") {
             setEnabled(ut.isStartable() && !ut.isStarted());
         }
+    }
+
+    public void listChanged(ObjectListEvent e) {
+        updateEnabled();
     }
 }

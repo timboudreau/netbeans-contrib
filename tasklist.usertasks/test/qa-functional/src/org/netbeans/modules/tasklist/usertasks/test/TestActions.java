@@ -19,22 +19,35 @@
 
 package org.netbeans.modules.tasklist.usertasks.test;
 
+import java.awt.Component;
+import java.awt.Container;
 import java.awt.Rectangle;
+import javax.swing.JButton;
+import javax.swing.JComponent;
+import javax.swing.JToolBar;
+import javax.swing.JToolBar;
 import javax.swing.JTree;
 import javax.swing.table.TableCellRenderer;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 import org.netbeans.jellytools.FilesTabOperator;
 import org.netbeans.jellytools.JellyTestCase;
+import org.netbeans.jellytools.NbDialogOperator;
 import org.netbeans.jellytools.TopComponentOperator;
 import org.netbeans.jellytools.actions.OpenAction;
 import org.netbeans.jellytools.nodes.Node;
+import org.netbeans.jemmy.ComponentChooser;
 import org.netbeans.jemmy.EventTool;
+import org.netbeans.jemmy.operators.ComponentOperator;
 import org.netbeans.jemmy.operators.DialogOperator;
 import org.netbeans.jemmy.operators.JButtonOperator;
+import org.netbeans.jemmy.operators.JComponentOperator;
 import org.netbeans.jemmy.operators.JPopupMenuOperator;
+import org.netbeans.jemmy.operators.JTabbedPaneOperator;
 import org.netbeans.jemmy.operators.JTableOperator;
 import org.netbeans.jemmy.operators.JTextFieldOperator;
+import org.netbeans.jemmy.util.NameComponentChooser;
+import org.netbeans.jemmy.util.PropChooser;
 import org.netbeans.junit.NbTestSuite;
 
 /**
@@ -108,6 +121,80 @@ public class TestActions extends JellyTestCase {
 
         assertEquals(2, getLevel(t, 7));
         assertEquals(3, getLevel(t, 8));
+    }
+    
+    /**
+     * Test for the "Start" action. It should be disabled if a dependancy on
+     * another task is added and re-enabled if this dependancy is removed.
+     */
+    public void testStartWithDeps() {
+        TopComponentOperator tc = openIcsFile("testStartWithDeps.ics"); // NOI18N
+        JTableOperator t = new JTableOperator(tc, 0);
+        
+        t.selectCell(0, 2);
+        Rectangle r = t.getCellRect(0, 2, false);
+        t.clickForPopup(r.x, r.y);
+        JPopupMenuOperator pm = new JPopupMenuOperator();
+        pm.pushMenuNoBlock("Show Task"); // NOI18N
+        
+        NbDialogOperator dop = new NbDialogOperator("Show Task"); // NOI18N
+        JTabbedPaneOperator tpop = new JTabbedPaneOperator(dop, 0);
+        tpop.setSelectedIndex(2);        
+        JComponentOperator pop = new JComponentOperator(
+                (JComponent) tpop.getSelectedComponent());
+        new JButtonOperator(pop, "Add").push();
+        NbDialogOperator addop = new NbDialogOperator(
+                "Add Dependency"); // NOI18N
+        JTree tree = (JTree) ComponentOperator.findComponent(
+                (Container) addop.getSource(), 
+                new ComponentChooser() {
+            public boolean checkComponent(Component arg0) {
+                return arg0 instanceof JTree;
+            }
+
+            public String getDescription() {
+                return "";
+            }
+        });
+        tree.setSelectionRow(1);
+        addop.ok();
+        dop.ok();
+        
+        JComponentOperator tb = new JComponentOperator(
+                tc, new PropChooser(new String[] {"getClass"},
+                new Object[] {JToolBar.class}));
+
+        JButtonOperator start = new JButtonOperator(tb, new ComponentChooser() {
+            public boolean checkComponent(Component c) {
+                if (c instanceof JButton) {
+                   String s = ((JButton) c).getToolTipText();
+                   return "Start".equals(s);
+                }
+                return false;
+            }
+
+            public String getDescription() {
+                return "";
+            }
+        });
+        assertTrue(!start.isEnabled());
+
+        t.selectCell(0, 2);
+        r = t.getCellRect(0, 2, false);
+        t.clickForPopup(r.x, r.y);
+        pm = new JPopupMenuOperator();
+        pm.pushMenuNoBlock("Show Task"); // NOI18N
+        
+        dop = new NbDialogOperator("Show Task"); // NOI18N
+        tpop = new JTabbedPaneOperator(dop, 0);
+        tpop.setSelectedIndex(2);        
+        pop = new JComponentOperator(
+                (JComponent) tpop.getSelectedComponent());
+        new JButtonOperator(pop, "Remove").push();
+        addop = new NbDialogOperator("Question"); // NOI18N
+        addop.yes();
+        dop.ok();
+        assertTrue(start.isEnabled());
     }
     
     /**

@@ -44,6 +44,7 @@ ListSelectionListener {
      */
     public UTViewAction(UserTaskView utv, String name) {
         super(name);
+        putValue(AbstractAction.SHORT_DESCRIPTION, name);
         this.utv = utv;
         utv.getTreeTable().getSelectionModel().addListSelectionListener(this);
         this.valueChanged(null);

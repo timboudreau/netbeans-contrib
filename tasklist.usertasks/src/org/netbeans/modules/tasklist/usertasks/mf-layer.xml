@@ -86,6 +86,10 @@ Microsystems, Inc. All Rights Reserved.
                     <attr name="hint.originalPublicID"
                         stringvalue="-//NetBeans org.netbeans.modules.tasklist//DTD UTPriorityCondition 1.0//EN"/>
                 </file>
+                <file name="DTD_DurationFilterCondition_1_0" url="filter/conditions-1_0.dtd">
+                    <attr name="hint.originalPublicID"
+                        stringvalue="-//NetBeans org.netbeans.modules.tasklist//DTD DurationFilterCondition 1.0//EN"/>
+                </file>
             </folder>
         </folder>
 
@@ -104,6 +108,12 @@ Microsystems, Inc. All Rights Reserved.
                     <attr name="settings.instanceClass" stringvalue="org.netbeans.modules.tasklist.usertasks.filter.UTPriorityCondition"/>
                     <attr name="settings.instanceOf" stringvalue="org.netbeans.modules.tasklist.usertasks.filter.UTPriorityCondition"/>
                 </file>
+                <file name="DTD_DurationFilterCondition_1_0.instance">
+                    <attr name="instanceCreate" methodvalue="org.netbeans.api.settings.Factory.create"/>
+                    <attr name="settings.convertor" methodvalue="org.netbeans.modules.tasklist.usertasks.filter.DurationFilterCondition$Convertor.create"/>
+                    <attr name="settings.instanceClass" stringvalue="org.netbeans.modules.tasklist.usertasks.filter.DurationFilterCondition"/>
+                    <attr name="settings.instanceOf" stringvalue="org.netbeans.modules.tasklist.usertasks.filter.DurationFilterCondition"/>
+                </file>
             </folder>
         </folder>
 
@@ -121,6 +131,10 @@ Microsystems, Inc. All Rights Reserved.
                                     <file name="UTPriorityCondition">
                                         <attr name="settings.providerPath"
                                             stringvalue="xml/lookups/NetBeans_org_netbeans_modules_tasklist/DTD_UTPriorityCondition_1_0.instance"/>
+                                    </file>
+                                    <file name="DurationFilterCondition">
+                                        <attr name="settings.providerPath"
+                                            stringvalue="xml/lookups/NetBeans_org_netbeans_modules_tasklist/DTD_DurationFilterCondition_1_0.instance"/>
                                     </file>
                                 </folder>
                             </folder>

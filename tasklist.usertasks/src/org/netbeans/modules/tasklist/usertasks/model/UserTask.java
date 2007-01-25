@@ -31,15 +31,11 @@ import java.net.URL;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Collections;
-import java.util.Collections;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ResourceBundle;
-import javax.swing.event.EventListenerList;
 import javax.swing.tree.TreePath;
-import org.netbeans.modules.tasklist.usertasks.options.Settings;
 import org.netbeans.modules.tasklist.usertasks.util.UTListTreeAbstraction;
 import org.netbeans.modules.tasklist.usertasks.util.UTUtils;
 import org.openide.filesystems.FileObject;
@@ -48,6 +44,8 @@ import org.openide.nodes.Node.Cookie;
 import org.openide.text.Line;
 import org.openide.util.NbBundle;
 import org.netbeans.modules.tasklist.core.util.ObjectList;
+import org.netbeans.modules.tasklist.core.util.ObjectListEvent;
+import org.netbeans.modules.tasklist.core.util.ObjectListListener;
 import org.netbeans.modules.tasklist.usertasks.annotations.UTAnnotation;
 import org.netbeans.modules.tasklist.usertasks.util.UnaryFunction;
 
@@ -60,8 +58,8 @@ import org.netbeans.modules.tasklist.usertasks.util.UnaryFunction;
  * @author Trond Norbye
  * @author tl
  */
-public final class UserTask implements Cloneable, Cookie, PropertyChangeListener,
-ObjectList.Owner {
+public final class UserTask implements Cloneable, Cookie, 
+        PropertyChangeListener {
     /**
      * A period spent working on a task.
      */
@@ -389,7 +387,7 @@ ObjectList.Owner {
     private int linenumber = -1;
     // </editor-fold>                        
     
-    private List<Dependency> dependencies = new ArrayList<Dependency>();
+    private ObjectList<Dependency> dependencies = new ObjectList<Dependency>();
     private String owner = ""; // NOI18N
     private long completedDate = 0;
     
@@ -435,8 +433,8 @@ ObjectList.Owner {
         assert details != null : "details == null"; // NOI18N
         assert category != null : "category == null"; // NOI18N
 
-        workPeriods.addListener(new ObjectList.Listener() {
-            public void listChanged(ObjectList.Event event) {
+        workPeriods.addListener(new ObjectListListener() {
+            public void listChanged(ObjectListEvent event) {
                 firePropertyChange(PROP_WORK_PERIODS, null, null);
             }
         });
@@ -451,20 +449,20 @@ ObjectList.Owner {
         };
         
         subtasks = new UserTaskObjectList(this);
-        subtasks.addListener(new ObjectList.Listener() {
-            public void listChanged(ObjectList.Event ev) {
+        subtasks.addListener(new ObjectListListener() {
+            public void listChanged(ObjectListEvent ev) {
                 switch (ev.getType()) {
-                    case ObjectList.Event.EVENT_ADDED:
+                    case ObjectListEvent.EVENT_ADDED:
                         structureChanged();
                         break;
-                    case ObjectList.Event.EVENT_REMOVED: {
+                    case ObjectListEvent.EVENT_REMOVED: {
                         structureChanged();
                         break;
                     }
-                    case ObjectList.Event.EVENT_REORDERED:
+                    case ObjectListEvent.EVENT_REORDERED:
                         structureChanged();
                         break;
-                    case ObjectList.Event.EVENT_STRUCTURE_CHANGED:
+                    case ObjectListEvent.EVENT_STRUCTURE_CHANGED:
                         structureChanged();
                         break;
                     default:
@@ -906,7 +904,7 @@ ObjectList.Owner {
      * @return true iff percents complete equals 100
      */
     public boolean isDone() {
-        return Math.abs(getPercentComplete() - 100.0f) < 1e-6;
+        return Math.abs(100.0f - getProgress()) < 1e-6;
     }
 
     /** 
@@ -927,7 +925,11 @@ ObjectList.Owner {
      * @return 0..100 - value in percents
      */
     public int getPercentComplete() {
-        return Math.round(progress);
+        int p = Math.round(progress);
+        if (p == 100 && Math.abs(100.0f - progress) > 1e-6)
+            return 99;
+        else
+            return p;
     }
     
     /**
@@ -972,7 +974,7 @@ ObjectList.Owner {
         int full = 0;
         while (it.hasNext()) {
             UserTask child = (UserTask) it.next();
-            sum += child.getPercentComplete() * child.getEffort();
+            sum += child.getProgress() * child.getEffort();
             full += 100 * child.getEffort();
         }
         
@@ -1295,7 +1297,7 @@ ObjectList.Owner {
      *
      * @return dependencies. List<Dependency>
      */
-    public List<Dependency> getDependencies() {
+    public ObjectList<Dependency> getDependencies() {
         return dependencies;
     }
     
@@ -1722,8 +1724,6 @@ ObjectList.Owner {
     /**
      * Listen to changes in bean properties.
      * @param l listener to be notified of changes
-     *
-     * @since 1.11
      */
     public final void addPropertyChangeListener(PropertyChangeListener l) {
         supp.removePropertyChangeListener(l);
@@ -1734,17 +1734,11 @@ ObjectList.Owner {
      * Stop listening to changes in bean properties.
      *
      * @param l listener who will no longer be notified of changes
-     *
-     * @since 1.11
      */
     public final void removePropertyChangeListener(PropertyChangeListener l) {
         supp.removePropertyChangeListener(l);
     }
 
-    public ObjectList getObjectList() {
-        return getSubtasks();
-    }    
-    
     /**
      * Will be called from UserTaskList.destroy()
      */

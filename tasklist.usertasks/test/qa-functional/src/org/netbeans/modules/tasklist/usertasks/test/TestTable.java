@@ -53,12 +53,6 @@ public class TestTable extends JellyTestCase {
         return suite;
     }
     
-    public void setUp() {                
-    }
-    
-    public void tearDown() {
-    }
-    
     public static void main(java.lang.String[] args) {
         junit.textui.TestRunner.run(suite());
     }

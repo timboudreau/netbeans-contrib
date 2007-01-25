@@ -39,7 +39,7 @@ public class DurationFilterCondition extends OneOfFilterCondition {
     public static final int LESSOREQUALS = 3;
     public static final int GREATERTHAN = 4;
     public static final int GREATEROREQUALS = 5;
-       
+    
     /**
      * Creates an array of filter conditions for the specified property
      *
@@ -77,31 +77,28 @@ public class DurationFilterCondition extends OneOfFilterCondition {
     public DurationFilterCondition(int id) {
         super(NAME_KEYS, id);
     }
-
+    
     /**
      * Copy constructor.
      */
     public DurationFilterCondition( final DurationFilterCondition rhs) {
-      super(rhs);
-      this.constant = rhs.constant;
+        super(rhs);
+        this.constant = rhs.constant;
     }
-
+    
     public Object clone() {
-      return new DurationFilterCondition(this);
+        return new DurationFilterCondition(this);
     }
-
+    
     public JComponent createConstantComponent() {
         DurationPanel dp = new DurationPanel();
+        dp.setOpaque(false);
         dp.setDuration(constant);
-        dp.setBorder(BorderFactory.createCompoundBorder(
-            UIManager.getBorder("TextField.border"), // NOI18N
-            BorderFactory.createEmptyBorder(2, 2, 2, 2)
-        ));
         dp.setToolTipText(NbBundle.getMessage(
-            DurationFilterCondition.class, "duration_desc")); // NOI18N
+                DurationFilterCondition.class, "duration_desc")); // NOI18N
         return dp;
     }
-
+    
     public void getConstantFrom(JComponent cmp) {
         DurationPanel dp = (DurationPanel) cmp;
         constant = dp.getDuration();
@@ -110,21 +107,49 @@ public class DurationFilterCondition extends OneOfFilterCondition {
     public boolean isTrue(Object obj) {
         int n = ((Integer) obj).intValue();
         switch (getId()) {
-            case EQUALS:
-                return constant == n;
-            case NOTEQUALS:
-                return constant != n;
-            case LESSTHAN:
-                return n < constant;
-            case LESSOREQUALS:
-                return n <= constant;
-            case GREATERTHAN:
-                return n > constant;
-            case GREATEROREQUALS:
-                return n >= constant;
-            default:
-                throw new InternalError("wrong id"); // NOI18N
+        case EQUALS:
+            return constant == n;
+        case NOTEQUALS:
+            return constant != n;
+        case LESSTHAN:
+            return n < constant;
+        case LESSOREQUALS:
+            return n <= constant;
+        case GREATERTHAN:
+            return n > constant;
+        case GREATEROREQUALS:
+            return n >= constant;
+        default:
+            throw new InternalError("wrong id"); // NOI18N
         }
-    }    
-
+    }
+    
+    private static class Convertor extends OneOfFilterCondition.Convertor {
+        private static final String ELEM_DATE_CONDITION = "DurationCondition";
+        private static final String ATTR_DATE = "duration";
+        
+        public Convertor() {
+            super(ELEM_DATE_CONDITION, NAME_KEYS);
+        }
+        
+        public static DurationFilterCondition.Convertor create() {
+            return new DurationFilterCondition.Convertor();
+        }
+        
+        protected Object readElement(org.w3c.dom.Element element)
+                throws java.io.IOException, java.lang.ClassNotFoundException {
+            DurationFilterCondition cond = new DurationFilterCondition(EQUALS);
+            super.readCondition(element, cond);
+            cond.constant = Integer.parseInt(element.getAttribute(ATTR_DATE));
+            return cond;
+        }
+        
+        protected void writeElement(org.w3c.dom.Document document,
+                org.w3c.dom.Element element, Object obj)
+                throws java.io.IOException, org.w3c.dom.DOMException {
+            DurationFilterCondition cond = (DurationFilterCondition)obj;
+            super.writeElement(document, element, cond);
+            element.setAttribute(ATTR_DATE, Integer.toString(cond.constant));
+        }
+    }
 }

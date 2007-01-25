@@ -80,7 +80,8 @@ public class DueTasksNotifier implements Timeout {
                 public void run() {
                     UserTaskDuePanel panel = new UserTaskDuePanel(t);
 
-                    String title = NbBundle.getMessage(UserTaskList.class, "TaskDueLabel"); // NOI18N
+                    String title = NbBundle.getMessage(UserTaskList.class, 
+                            "TaskDueLabel"); // NOI18N
                     DialogDescriptor d = new DialogDescriptor(panel, title);                
                     d.setModal(true);
                     d.setMessageType(NotifyDescriptor.PLAIN_MESSAGE);

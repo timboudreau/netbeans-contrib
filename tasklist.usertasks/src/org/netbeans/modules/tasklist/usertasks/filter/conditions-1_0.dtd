@@ -36,4 +36,10 @@
     id CDATA #REQUIRED
     date CDATA #REQUIRED>
 
+<!ELEMENT DurationFilterCondition EMPTY >
+<!ATTLIST DurationFilterCondition
+    duration CDATA #REQUIRED>
+
+
+
 

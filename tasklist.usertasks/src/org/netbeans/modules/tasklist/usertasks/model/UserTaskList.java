@@ -26,8 +26,8 @@ import java.util.Set;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.EventListenerList;
-
-import org.netbeans.modules.tasklist.core.util.ObjectList;
+import org.netbeans.modules.tasklist.core.util.ObjectListEvent;
+import org.netbeans.modules.tasklist.core.util.ObjectListListener;
 import org.netbeans.modules.tasklist.usertasks.DueTasksNotifier;
 
 /**
@@ -37,7 +37,7 @@ import org.netbeans.modules.tasklist.usertasks.DueTasksNotifier;
  * @author Trond Norbye
  * @author tl
  */
-public class UserTaskList implements ObjectList.Owner {    
+public class UserTaskList {    
     /**
      * Callback for the UserTaskList.process method
      */
@@ -68,8 +68,8 @@ public class UserTaskList implements ObjectList.Owner {
      */
     public UserTaskList() {
         tasks = new UserTaskObjectList(this);
-        tasks.addListener(new ObjectList.Listener() {
-            public void listChanged(ObjectList.Event ev) {
+        tasks.addListener(new ObjectListListener() {
+            public void listChanged(ObjectListEvent ev) {
                 UserTaskList.this.fireChange();
             }
         });
@@ -179,10 +179,6 @@ public class UserTaskList implements ObjectList.Owner {
         return tasks;
     }
 
-    public ObjectList getObjectList() {
-        return tasks;
-    }
-    
     /**
      * Should be called after closing a view. Removes all annotations.
      */

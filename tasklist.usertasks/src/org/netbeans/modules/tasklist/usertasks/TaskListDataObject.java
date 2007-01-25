@@ -71,6 +71,16 @@ ChangeListener {
     }
 
     /**
+     * Releases internal reference to the UserTaskList object.
+     */
+    public void release() {
+        if (utl != null) {
+            utl.removeChangeListener(this);
+            utl = null;
+        }
+    }
+    
+    /**
      * Returns the task list contained in the file.
      * 
      * @return task list 

@@ -26,11 +26,11 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
 import org.netbeans.modules.tasklist.usertasks.*;
-
 import org.openide.util.NbBundle;
 import org.openide.util.datatransfer.ExTransferable;
 import org.openide.util.datatransfer.MultiTransferObject;
 import org.netbeans.modules.tasklist.usertasks.model.UserTask;
+import org.openide.util.io.ReaderInputStream;
 
 /** 
  * Transferable for user tasks.
@@ -58,27 +58,41 @@ public final class UserTasksTransferable implements Transferable {
 
     public boolean isDataFlavorSupported(DataFlavor flavor) {
         return flavor.equals(DataFlavor.stringFlavor) ||
-                flavor.equals(USER_TASKS_FLAVOR);
+                flavor.equals(USER_TASKS_FLAVOR) || 
+                flavor.equals(DataFlavor.getTextPlainUnicodeFlavor());
     }
 
     public Object getTransferData(DataFlavor flavor) throws 
             UnsupportedFlavorException, IOException {
         if (flavor.equals(DataFlavor.stringFlavor)) {
-            StringBuffer sb = new StringBuffer();
-            String lf = System.getProperty("line.separator"); // NOI18N
-            for (int i = 0; i < tasks.length; i++) {
-                if (i != 0)
-                    sb.append(lf);
-                sb.append("- ").append(tasks[i].getSummary()); // NOI18N
-            }
-            return sb.toString();
+            return toString(tasks);
         } else if (flavor.equals(USER_TASKS_FLAVOR)) {
             return tasks;
+        } else if (flavor.equals(DataFlavor.getTextPlainUnicodeFlavor())) {
+            String charset = DataFlavor.getTextPlainUnicodeFlavor().
+                    getParameter("charset");
+            if (charset == null)
+                return new ReaderInputStream(
+                        new StringReader(toString(tasks)));
+            else
+                return new ReaderInputStream(
+                        new StringReader(toString(tasks)), charset);
         } else {
             throw new UnsupportedFlavorException(flavor);
         }
     }
 
+    private String toString(UserTask[] tasks) {
+        StringBuffer sb = new StringBuffer();
+        String lf = System.getProperty("line.separator"); // NOI18N
+        for (int i = 0; i < tasks.length; i++) {
+            if (i != 0)
+                sb.append(lf);
+            sb.append("- ").append(tasks[i].getSummary()); // NOI18N
+        }
+        return sb.toString();
+    }
+    
     public DataFlavor[] getTransferDataFlavors() {
         return new DataFlavor[] {
             DataFlavor.stringFlavor,

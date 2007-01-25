@@ -23,12 +23,13 @@ import java.awt.Dialog;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
 import java.net.URL;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.KeyStroke;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.tree.TreePath;
-
 import org.netbeans.modules.tasklist.usertasks.EditTaskPanel;
 import org.netbeans.modules.tasklist.usertasks.actions.UTViewAction;
 import org.netbeans.modules.tasklist.usertasks.options.Settings;
@@ -77,6 +78,8 @@ public class NewTaskAction extends UTViewAction {
         putValue(SMALL_ICON, new ImageIcon(Utilities.loadImage(
                 "org/netbeans/modules/tasklist/usertasks/" + // NOI18N
                 "actions/newTask.gif"))); // NOI18N
+        putValue(UTViewAction.ACCELERATOR_KEY, 
+                KeyStroke.getKeyStroke(KeyEvent.VK_INSERT, 0));
         setEnabled(true);
     }
     

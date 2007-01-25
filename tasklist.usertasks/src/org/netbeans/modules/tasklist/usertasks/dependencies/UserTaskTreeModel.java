@@ -21,6 +21,7 @@ package org.netbeans.modules.tasklist.usertasks.dependencies;
 
 import javax.swing.tree.TreeModel;
 import org.netbeans.modules.tasklist.core.util.ObjectList;
+import org.netbeans.modules.tasklist.usertasks.model.UserTask;
 import org.netbeans.modules.tasklist.usertasks.model.UserTaskList;
 
 /**
@@ -41,11 +42,11 @@ public class UserTaskTreeModel implements TreeModel {
     }
 
     public boolean isLeaf(Object node) {
-        return ((ObjectList.Owner) node).getObjectList().size() == 0;
+        return extractObjectList(node).size() == 0;
     }
 
     public int getChildCount(Object parent) {
-        return ((ObjectList.Owner) parent).getObjectList().size();
+        return extractObjectList(parent).size();
     }
 
     public void valueForPathChanged(javax.swing.tree.TreePath path, Object newValue) {
@@ -58,7 +59,7 @@ public class UserTaskTreeModel implements TreeModel {
     }
 
     public Object getChild(Object parent, int index) {
-        return ((ObjectList.Owner) parent).getObjectList().get(index);
+        return extractObjectList(parent).get(index);
     }
 
     public Object getRoot() {
@@ -67,5 +68,17 @@ public class UserTaskTreeModel implements TreeModel {
 
     public int getIndexOfChild(Object parent, Object child) {
         return -1;
+    }
+    
+    /**
+     * Extracts children from a node.
+     * 
+     * @param node a node 
+     */
+    private ObjectList extractObjectList(Object node) {
+        if (node instanceof UserTaskList)
+            return ((UserTaskList) node).getSubtasks();
+        else
+            return ((UserTask) node).getSubtasks();
     }
 }

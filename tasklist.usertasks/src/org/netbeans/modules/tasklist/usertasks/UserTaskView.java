@@ -48,7 +48,6 @@ import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
 import javax.swing.border.EmptyBorder;
 import javax.swing.tree.TreePath;
-import net.fortuna.ical4j.data.ParserException;
 import org.netbeans.modules.tasklist.core.export.ExportImportFormat;
 import org.netbeans.modules.tasklist.core.export.ExportImportProvider;
 import org.netbeans.modules.tasklist.core.filter.Filter;
@@ -89,7 +88,6 @@ import org.netbeans.modules.tasklist.usertasks.treetable.TreeTableModel;
 import org.netbeans.modules.tasklist.usertasks.util.AWTThreadAnnotation;
 import org.netbeans.modules.tasklist.usertasks.util.UTUtils;
 import org.openide.actions.FindAction;
-import org.openide.actions.SaveAction;
 import org.openide.cookies.InstanceCookie;
 import org.openide.filesystems.FileChangeListener;
 import org.openide.filesystems.FileEvent;
@@ -100,9 +98,7 @@ import org.openide.filesystems.Repository;
 import org.openide.filesystems.URLMapper;
 import org.openide.loaders.DataObject;
 import org.openide.loaders.DataObjectNotFoundException;
-import org.openide.nodes.Node;
 import org.openide.util.HelpCtx;
-import org.openide.util.Lookup;
 import org.openide.util.NbBundle;
 import org.openide.util.Utilities;
 import org.openide.util.actions.SystemAction;
@@ -115,7 +111,7 @@ import org.netbeans.modules.tasklist.usertasks.model.UserTaskList;
 import org.netbeans.modules.tasklist.usertasks.treetable.TreeTable;
 import org.openide.DialogDisplayer;
 import org.openide.NotifyDescriptor;
-import org.openide.NotifyDescriptor.Message;
+import org.openide.cookies.SaveCookie;
 
 /** 
  * View showing the user tasks.
@@ -272,6 +268,50 @@ public class UserTaskView extends TopComponent implements ExportImportProvider,
      */
     public FileObject getFile() {
         return file;
+    }
+    
+    public boolean canClose() {
+        if (!super.canClose())
+            return false;
+        DataObject do_;
+        try {
+            do_ = DataObject.find(file);
+        } catch (DataObjectNotFoundException e) {
+            UTUtils.LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            return false;
+        }
+        SaveCookie sc = do_.getCookie(SaveCookie.class);
+        if (sc == null)
+            return true;
+        
+        String save = NbBundle.getMessage(UserTaskView.class, "Save");
+        String discard = NbBundle.getMessage(UserTaskView.class, "Discard");
+        String cancel = NbBundle.getMessage(UserTaskView.class, "Cancel");
+        
+        NotifyDescriptor d = new NotifyDescriptor(
+                NbBundle.getMessage(UserTaskView.class, 
+                "FileWasModified", // NOI18N
+                FileUtil.getFileDisplayName(file)), 
+                NbBundle.getMessage(UserTaskView.class, 
+                "Question"), // NOI18N
+                NotifyDescriptor.YES_NO_CANCEL_OPTION,
+                NotifyDescriptor.QUESTION_MESSAGE,
+                new Object[] {save, discard, cancel}, save);
+        Object ret = DialogDisplayer.getDefault().notify(d);
+        if (ret.equals(save)) {
+            try {
+                sc.save();
+                return true;
+            } catch (IOException e) {
+                UTUtils.LOGGER.log(Level.SEVERE, e.getMessage(), e);
+                return false;
+            }
+        } else if (ret.equals(discard)) {
+            do_.setModified(false);
+            return true;
+        } else {
+            return false;
+        }
     }
     
     /**
@@ -787,6 +827,13 @@ public class UserTaskView extends TopComponent implements ExportImportProvider,
         getUserTaskList().destroy();
         
         UserTaskViewRegistry.getInstance().viewClosed(this);
+        
+        try {
+            TaskListDataObject do_ = (TaskListDataObject) DataObject.find(file);
+            do_.release();
+        } catch (DataObjectNotFoundException e) {
+            UTUtils.LOGGER.log(Level.SEVERE, e.getMessage(), e);
+        }
     }
 
     /**
@@ -959,7 +1006,7 @@ public class UserTaskView extends TopComponent implements ExportImportProvider,
                 put(KeyStroke.getKeyStroke(KeyEvent.VK_DOWN, 
                 InputEvent.CTRL_MASK), "moveDown");  // NOI18N
         getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).
-                put(KeyStroke.getKeyStroke(KeyEvent.VK_INSERT, 0), 
+                put((KeyStroke) newTaskAction.getValue(Action.ACCELERATOR_KEY), 
                 "newTask");  // NOI18N        
         getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).
                 put((KeyStroke) saveAction.getValue(Action.ACCELERATOR_KEY), 

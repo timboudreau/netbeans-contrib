@@ -29,7 +29,7 @@ import org.netbeans.modules.tasklist.usertasks.*;
  * @author tl
  */
 public class UserTaskObjectList extends ObjectList<UserTask> {
-    private ObjectList.Owner parent;
+    private Object parent;
 
     /**
      * Creates a new instance of UserTaskObjectList
@@ -37,7 +37,7 @@ public class UserTaskObjectList extends ObjectList<UserTask> {
      * @param parent parent for all tasks in this collection. UserTask or
      * UserTaskList
      */
-    public UserTaskObjectList(ObjectList.Owner parent) {
+    public UserTaskObjectList(Object parent) {
         assert parent instanceof UserTask || parent instanceof UserTaskList;
         this.parent = parent;
     }
@@ -52,15 +52,6 @@ public class UserTaskObjectList extends ObjectList<UserTask> {
         return (UserTask) get(index);
     }
     
-    /**
-     * Returns the parent of this tasks or null.
-     *
-     * @return owner of this list. UserTask or UserTaskList
-     */
-    public ObjectList.Owner getOwner() {
-        return parent;
-    }
-
     /**
      * Searches an element with ==.
      *
@@ -102,7 +93,7 @@ public class UserTaskObjectList extends ObjectList<UserTask> {
      * Removes completed tasks (recursively).
      */
     public void purgeCompletedItems() {
-        if (size() == 0 )
+        if (size() == 0)
             return;
 
         Iterator it = iterator();
