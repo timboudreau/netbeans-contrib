@@ -1,0 +1,48 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<!--       
+*     Copyright � 2005 Sun Microsystems, Inc. All rights reserved.
+*     Use is subject to license terms.
+-->
+<html>
+<head>
+  <meta content="text/html; charset=ISO-8859-1"
+ http-equiv="content-type">
+  <title>Meta-Lists</title>
+  <link rel="StyleSheet" href="nbdocs:/org/netbeans/modules/usersguide/ide.css" type="text/css">
+</head>
+<body>
+<h2>Meta-Lists</h2>
+<p><small><a href="#seealso">See Also</a></small></p> 
+Some rules need to match several statements at a time; one example are
+rules to translate references of one variable-arguments method (new to
+Java 5) to another such method. <b>Meta-lists</b>
+are similar to meta-variables but have both a beginning and ending '$',
+such as "<code><b>$list$</b></code>" or "<code><b>$args$</b></code>",
+and match on zero or more statements. Here is an example which
+finds blocks which define a local variable to hold a method's result
+value only to immediately return it, and so it eliminates the temporary
+variable:<br>
+<pre style="margin-left: 10px;">{ $stmts$; $type $value = $expr; return $value; } =&gt; <br>    { $stmts$; return $value; }<br></pre>
+
+        <table>
+            <tr> 
+                <th colspan=2 align=left><a name="seealso">See Also</a></th>
+            </tr>
+            <tr><td width="23"></td>
+                <td><a href="rule-language.html">Rule Language</a><br></td>
+            </tr>
+            <tr><td></td>
+                <td><a href="../jackpot-about.html">About Jackpot</a><br></td>
+            </tr>
+        </table>
+        <hr>
+        <small>
+            <a href="../credits.html">Legal Notices</a> 
+            <table cellpadding="20" border="0"> 
+                <tr><td>&nbsp;</td></tr> 
+                <tr><td>&nbsp;</td></tr> 
+                <tr><td>&nbsp;</td></tr> 
+            </table> 
+        </small>
+</body>
+</html>

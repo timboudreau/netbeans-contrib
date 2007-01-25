@@ -1,0 +1,69 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<!--       
+*     Copyright � 2005 Sun Microsystems, Inc. All rights reserved.
+*     Use is subject to license terms.
+-->
+<html>
+<head>
+  <meta content="text/html; charset=ISO-8859-1"
+ http-equiv="content-type">
+  <title>Guard Expressions</title>
+  <link rel="StyleSheet" href="nbdocs:/org/netbeans/modules/usersguide/ide.css" type="text/css">
+</head>
+<body>
+<h2>Guard Expressions</h2>
+<p><small><a href="#seealso">See Also</a></small></p> 
+One thing not obvious from the above section is how Jackpot matches
+some nodes but not others. For example, the "<code>$a &amp;&amp; false =&gt; false;</code>"
+rule should only match boolean expressions, but <code><b>$a</b></code>
+is not typed to be boolean. The answer is that the type of <code><b>$a</b></code>
+is inferred by the expression; in other words, since only boolean nodes
+are valid in that expression, those are the only nodes which are
+tested. <br>
+<br>
+The issue arises with expressions which can accept multiple types, but
+you only want to match specific ones. For example, suppose you
+want to replace use of the deprecated <code>java.awt.Component.enable()</code>
+method with <code>java.awt.Component.setEnabled(true)</code>:<br>
+<pre style="margin-left: 10px;"><code>java.awt.Component.enable() =&gt; java.awt.Component.setEnabled(true);</code></pre>
+This doesn't work since <code>Component</code>
+is an abstract class; we want it to fix all <code>Component</code> subclass
+references. So we use a meta-variable (remember, there is nothing
+special about meta-variable names. I picked <code><b>$C</b></code> only
+because 'C' is the first character of <code>Component</code>):<br>
+<pre style="margin-left: 10px;"><code>$C.enable() =&gt; $C.setEnabled(true);</code></pre>
+The problem now is that my project has non-<code>Component</code> classes which have an
+<code>enable()</code> method, since it
+is a common name. What we want is a rule that matches only those
+expressions where <code>enable()</code>
+is invoked on a <code>Component</code>
+instance. <br>
+<br>
+Rules optionally constrain possible matches using a <b>guard expression</b>, which is a boolean
+expression that accepts or rejects possible matches. A guard
+expression is separated from the rule body by the <b><i>::</i></b>
+(pronounced "where") token. Here is our complete rule:<br>
+<pre style="margin-left: 10px;"><code>$C.enable() =&gt; $C.setEnabled(true) :: $C instanceof java.awt.Component;</code><br></pre>
+
+        <table>
+            <tr> 
+                <th colspan=2 align=left><a name="seealso">See Also</a></th>
+            </tr>
+            <tr><td width="23"></td>
+                <td><a href="rule-language.html">Rule Language</a><br></td>
+            </tr>
+            <tr><td></td>
+                <td><a href="../jackpot-about.html">About Jackpot</a><br></td>
+            </tr>
+        </table>
+        <hr>
+        <small>
+            <a href="../credits.html">Legal Notices</a> 
+            <table cellpadding="20" border="0"> 
+                <tr><td>&nbsp;</td></tr> 
+                <tr><td>&nbsp;</td></tr> 
+                <tr><td>&nbsp;</td></tr> 
+            </table> 
+        </small>
+</body>
+</html>

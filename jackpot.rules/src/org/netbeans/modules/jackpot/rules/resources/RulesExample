@@ -1,0 +1,10 @@
+/* Block comment. */
+mapclass pkg.OldClass => pkg.NewClass;
+
+// line comment
+$a + 0 => $a;
+new java.lang.Boolean($b) => java.lang.Boolean.valueOf($b);
+{ $p$; $v = $e; return $v; } => { $p$; return $e; }
+
+$cls => comment("Entity bean class") :: 
+    $cls instanceof javax.ejb.EntityBean;

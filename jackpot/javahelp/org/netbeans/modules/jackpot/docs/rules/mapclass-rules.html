@@ -1,0 +1,51 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<!--       
+*     Copyright � 2005 Sun Microsystems, Inc. All rights reserved.
+*     Use is subject to license terms.
+-->
+<html>
+<head>
+  <meta content="text/html; charset=ISO-8859-1"
+ http-equiv="content-type">
+  <title>mapclass Rules</title>
+  <link rel="StyleSheet" href="nbdocs:/org/netbeans/modules/usersguide/ide.css" type="text/css">
+</head>
+<body>
+<h2><big><code>mapclass</code></big> Rules</h2>
+<p><small><a href="#seealso">See Also</a></small></p> 
+One important use of Jackpot is for migrating API usage; in other
+words, converting source code that references one API to another.
+The "<code>enable() =&gt; setEnabled(true)</code>" example above
+demonstrates how to move use of one method to another, but sometimes
+whole classes get renamed or moved. To avoid having to write a
+rule for each field in such a class, a <code><b>mapclass</b></code>
+statement is used instead. Its syntax is simple:<br>
+<pre style="margin-left: 10px;">mapclass <i>&lt;fully_qualified_old_class&gt;</i> =&gt; <i>&lt;fully_qualified_new_class&gt;</i>;<br></pre>
+<b>Note:</b> since the Jackpot
+engine compares symbols when mapping classes, both the old and new
+classes have to be in the project source or classpath so they can be
+resolved. If either class cannot be resolved, then this rule will
+not find any matches.<br>
+
+        <table>
+            <tr> 
+                <th colspan=2 align=left><a name="seealso">See Also</a></th>
+            </tr>
+            <tr><td width="23"></td>
+                <td><a href="rule-language.html">Rule Language</a><br></td>
+            </tr>
+            <tr><td></td>
+                <td><a href="../jackpot-about.html">About Jackpot</a><br></td>
+            </tr>
+        </table>
+        <hr>
+        <small>
+            <a href="../credits.html">Legal Notices</a> 
+            <table cellpadding="20" border="0"> 
+                <tr><td>&nbsp;</td></tr> 
+                <tr><td>&nbsp;</td></tr> 
+                <tr><td>&nbsp;</td></tr> 
+            </table> 
+        </small>
+</body>
+</html>

@@ -1,0 +1,61 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<!--       
+*     Copyright � 2005 Sun Microsystems, Inc. All rights reserved.
+*     Use is subject to license terms.
+-->
+<html>
+<head>
+  <meta content="text/html; charset=ISO-8859-1"
+ http-equiv="content-type">
+  <title>Meta-Variables</title>
+  <link rel="StyleSheet" href="nbdocs:/org/netbeans/modules/usersguide/ide.css" type="text/css">
+</head>
+<body>
+<h2>Meta-Variables</h2>
+<p><small><a href="#seealso">See Also</a></small></p> 
+Most rules are more complex, however, because they need to applied to
+many different nodes with shared characteristics. These rules use<b> meta-variables</b> to provide
+wildcard-like matching to the source model's nodes.
+Meta-variables are regular Java identifiers preceeded by a '$'
+character, such as <code><b>$a</b></code>
+or <code><b>$anotherMetaVariable</b></code>
+(even <code><b>$1</b></code>
+and <code><b>$_</b></code>
+are valid, but may be hard to read if you don't use Perl or AWK
+much). Here are some rules that use meta-variables:<br>
+<pre style="margin-left: 10px;">$a &amp;&amp; false =&gt; false;       // unnecessary test<br>!($a &lt;= $b) =&gt; $a &gt; $b;     // overly complex boolean expression<br>do $a; while(false) =&gt; $a;  // eliminate unnecessary do-while loop<br></pre>
+Since Jackpot works on source tree nodes instead of source text, rules
+can be applied to parts of an expression. This allows them to
+combine to automatically make more powerful rules. For example,
+if we apply the above rules to:<br>
+<pre style="margin-left: 10px;">do {<br>    someMethod();<br>} while (isAnotherMethod() &amp;&amp; this == null);<br></pre>
+It will be turned into:<br>
+<pre style="margin-left: 10px;">do {<br>    someMethod();<br>} while (isAnotherMethod() &amp;&amp; <b>false</b>);  // this == null =&gt; false;<br></pre>
+which simplifies to:<br>
+<pre style="margin-left: 10px;">do {<br>    someMethod();<br>} while (<b>false</b>);                       // $a &amp;&amp; false =&gt; false;<br></pre>
+and simpler:<br>
+<pre style="margin-left: 10px;">{<br>    someMethod();                      // do $a; while(false) =&gt; $a;<br>}<br></pre>
+which Jackpot then "de-blocks" to:<br>
+<pre style="margin-left: 10px;">someMethod();<br></pre>
+        <table>
+            <tr> 
+                <th colspan=2 align=left><a name="seealso">See Also</a></th>
+            </tr>
+            <tr><td width="23"></td>
+                <td><a href="rule-language.html">Rule Language</a><br></td>
+            </tr>
+            <tr><td></td>
+                <td><a href="../jackpot-about.html">About Jackpot</a><br></td>
+            </tr>
+        </table>
+        <hr>
+        <small>
+            <a href="../credits.html">Legal Notices</a> 
+            <table cellpadding="20" border="0"> 
+                <tr><td>&nbsp;</td></tr> 
+                <tr><td>&nbsp;</td></tr> 
+                <tr><td>&nbsp;</td></tr> 
+            </table> 
+        </small>
+</body>
+</html>

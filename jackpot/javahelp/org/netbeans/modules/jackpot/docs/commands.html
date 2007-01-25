@@ -1,0 +1,104 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<!--       
+*     Copyright � 2005 Sun Microsystems, Inc. All rights reserved.
+*     Use is subject to license terms.
+-->
+<html>
+    <head>
+        <title>Jackpot Commands</title>
+        <link rel="stylesheet" href="nbdocs:/org/netbeans/modules/usersguide/ide.css" type="text/css">
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    </head>
+    <body>
+        <h2>Jackpot Commands</h2>
+        <p>
+           <small><a href="#seealso">See Also</a></small>
+        </p> 
+        <p>
+            Jackpot has two types of commands (actions):  queries and
+            transformations.  A query is a command which searches for 
+            patterns in code and reports any matches.  A transformation
+            extends a query to modify any found matches.
+        </p>
+        <p><b>NOTE:</b> the Early Access releases of Jackpot provide query
+            and transformer demonstrations, to demonstrate the Jackpot rule language
+            and API.  More useful commands will be included when Jackpot releases.
+        </p>
+        <p>
+            The Jackpot module is distributed with the following query
+            commands:
+            <ul>
+                <li>Bad finally Blocks:  locates try blocks with finally 
+                    clauses which contain throws or return statements.</li>
+                <li>Constructors Calling Public Methods:  scans for constructors
+                    which invoke public methods which can be overridden.  This is
+                    considered an error because the object may be only partially
+                    initialized when referenced by a subclass.</li>
+                <li>Find Unused Variables:  finds variables which are not 
+                    referenced by any source files within the queried project(s).</li>
+                <li>Statistics: a simple counter of classes, methods, fields, 
+                    statements, and AST nodes.</li>
+                <li>Find EJB Classes: reports which classes implement EJB
+                    interfaces.</li>
+            </ul>
+        </p>
+        <p>
+            The Jackpot module is distributed with the following transformation
+            commands:
+            <ul>
+                <li>Add Conditionals: replaces simple if/then/else statements 
+                    with conditional expression statements.</li>
+                <li>Add Deprecated Annotations: adds "@Deprecated" annotations 
+                    to methods and fields which are deprecated (unless their 
+                    class is deprecated).</li>
+                <li>Add Override Annotations: adds an "@Override" annotation to 
+                    each method which overrides a superclass method.  The 
+                    <b>javac</b> compiler will then verify that contract with
+                    each build.</li>
+                <li>Change Copyright: replaces the copyright comment at the top 
+                    of Java source files.
+                <li>Cleanup: removes common code redundancy, simplifying the 
+                    source without changing its functionality.</li>
+                <li>Convert SwingUtilities Methods: changes references to the 
+                    SwingUtilities methods that were moved to the EventQueue in 
+                    Java 1.3.</li>
+                <li>Minimize Field Access and Minimize Method Access: 
+                    restricts field and method access as much as possible given their
+                    current usage by other classes.</li>
+                <li>Remove Conditionals: replaces conditional expression 
+                    statements with equivalent if/then/else statements.</li>
+                <li>Remove Unnecessary Casts: eliminates cast expressions when
+                    the expression being cast is already that type.</li>
+                <li>Simplify Boolean Expressions: converts complex boolean 
+                    expressions into their simpler equivalents, without 
+                    changing the expression's logic.</li>
+                <li>Simplify Loops: finds unnecessarily complicated code in 
+                    loops, if statements and blocks and simplifies it without 
+                    changing its semantics.</li>
+                <li>StringTokenizer To Scanner: converts StringTokenizer 
+                    references to use Java 5's Scanner class.</li>
+                <li>Tail Merge: finds common statements at the end (tail) of an
+                    if statement's then and else clauses, then pulls the common
+                    statements out so they follow the if statement.</li>
+            </ul>
+        </p>
+        <table>
+            <tr> 
+                <th colspan=2 align=left><a name="seealso">See Also</a></th>
+            </tr>
+            <tr> 
+                <td width="23"></td>
+                <td><a href="jackpot-about.html">About Jackpot</a><br></td>
+            </tr>
+        </table>
+        <hr>
+        <small>
+            <a href="credits.html">Legal Notices</a> 
+            <table cellpadding="20" border="0"> 
+                <tr><td>&nbsp;</td></tr> 
+                <tr><td>&nbsp;</td></tr> 
+                <tr><td>&nbsp;</td></tr> 
+            </table> 
+        </small>
+    </body>
+</html>

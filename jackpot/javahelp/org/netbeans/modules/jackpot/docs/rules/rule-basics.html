@@ -1,0 +1,52 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<!--       
+*     Copyright � 2005 Sun Microsystems, Inc. All rights reserved.
+*     Use is subject to license terms.
+-->
+<html>
+<head>
+  <meta content="text/html; charset=ISO-8859-1"
+ http-equiv="content-type">
+  <title>Rule Basics</title>
+  <link rel="StyleSheet" href="nbdocs:/org/netbeans/modules/usersguide/ide.css" type="text/css">
+</head>
+<body>
+<h2>Rule Basics</h2>
+<p><small><a href="#seealso">See Also</a></small></p> 
+A rule has two required parts: a pattern and a replacement
+action. These are separated by the <code><b>=&gt;</b></code>
+(pronounced "such that") token, as shown:<br>
+<pre style="margin-left: 10px;"><i>&lt;pattern&gt;</i> <code><b>=&gt;</b></code> <i>&lt;replacement&gt;</i> ;<br></pre>
+A pattern is a Java expression or statement that Jackpot should
+match. The replacement action is normally (but not always) a
+similar pattern to replace the found pattern. This is perhaps the
+simplest rule (but not very useful):<br>
+<pre style="margin-left: 10px;"><code>false =&gt; true; // replace all false constants with true<br></code></pre>
+Here are slightly more useful rules from Jackpot's Cleanup command;
+since "this" in Java can never be equal to null, such tests can be
+replaced by the equivalent boolean constant:<br>
+<pre style="margin-left: 10px;">this == null =&gt; false;<br>this != null =&gt; true;<br></pre>
+And this is a deprecated variable cleanup rule:<br>
+<pre style="margin-left: 10px;">java.awt.Frame.CROSSHAIR_CURSOR=&gt;java.awt.Cursor.CROSSHAIR_CURSOR;<br></pre>
+        <table>
+            <tr> 
+                <th colspan=2 align=left><a name="seealso">See Also</a></th>
+            </tr>
+            <tr><td width="23"></td>
+                <td><a href="rule-language.html">Rule Language</a><br></td>
+            </tr>
+            <tr><td></td>
+                <td><a href="../jackpot-about.html">About Jackpot</a><br></td>
+            </tr>
+        </table>
+        <hr>
+        <small>
+            <a href="../credits.html">Legal Notices</a> 
+            <table cellpadding="20" border="0"> 
+                <tr><td>&nbsp;</td></tr> 
+                <tr><td>&nbsp;</td></tr> 
+                <tr><td>&nbsp;</td></tr> 
+            </table> 
+        </small>
+</body>
+</html>

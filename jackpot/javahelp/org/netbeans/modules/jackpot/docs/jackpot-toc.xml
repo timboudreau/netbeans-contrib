@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE toc PUBLIC "-//Sun Microsystems Inc.//DTD JavaHelp TOC Version 2.0//EN" "http://java.sun.com/products/javahelp/toc_2_0.dtd">
+<toc version="2.0">
+    <tocitem text="Jackpot">
+        <tocitem text="About Jackpot" target="org.netbeans.modules.jackpot.about"/>
+        <tocitem text="Commands" target="org.netbeans.modules.jackpot.commands"/>
+        <tocitem text="Rule Language" target="org.netbeans.modules.jackpot.rules.rule-language">
+            <tocitem text="Rule Basics" target="org.netbeans.modules.jackpot.rules.rule-basics"/>
+            <tocitem text="Meta-Variables" target="org.netbeans.modules.jackpot.rules.meta-variables"/>
+            <tocitem text="Guard Expressions" target="org.netbeans.modules.jackpot.rules.guard-expressions"/>
+            <tocitem text="Meta-Lists" target="org.netbeans.modules.jackpot.rules.meta-lists"/>
+            <tocitem text="mapclass Rules" target="org.netbeans.modules.jackpot.rules.mapclass-rules"/>
+            <tocitem text="Built-In Replacement Actions" target="org.netbeans.modules.jackpot.rules.replacement-actions"/>
+            <tocitem text="Built-In Guard Expressions" target="org.netbeans.modules.jackpot.rules.builtin-guards"/>
+            <tocitem text="Miscellaneous Built-In Expressions" target="org.netbeans.modules.jackpot.rules.misc-builtins"/>
+        </tocitem>
+    </tocitem>
+</toc>

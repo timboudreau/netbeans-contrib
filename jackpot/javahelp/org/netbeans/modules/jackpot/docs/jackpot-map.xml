@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE map PUBLIC "-//Sun Microsystems Inc.//DTD JavaHelp Map Version 2.0//EN" "http://java.sun.com/products/javahelp/map_2_0.dtd">
+<map version="2.0">
+    <mapID target="org.netbeans.modules.jackpot.about" url="jackpot-about.html"/>
+    <mapID target="org.netbeans.modules.jackpot.commands" url="commands.html"/>
+    <mapID target="org.netbeans.modules.jackpot.rules.builtin-guards" url="rules/builtin-guards.html"/>
+    <mapID target="org.netbeans.modules.jackpot.rules.guard-expressions" url="rules/guard-expressions.html"/>
+    <mapID target="org.netbeans.modules.jackpot.rules.mapclass-rules" url="rules/mapclass-rules.html"/>
+    <mapID target="org.netbeans.modules.jackpot.rules.meta-lists" url="rules/meta-lists.html"/>
+    <mapID target="org.netbeans.modules.jackpot.rules.meta-variables" url="rules/meta-variables.html"/>
+    <mapID target="org.netbeans.modules.jackpot.rules.misc-builtins" url="rules/misc-builtins.html"/>
+    <mapID target="org.netbeans.modules.jackpot.rules.replacement-actions" url="rules/replacement-actions.html"/>
+    <mapID target="org.netbeans.modules.jackpot.rules.rule-basics" url="rules/rule-basics.html"/>
+    <mapID target="org.netbeans.modules.jackpot.rules.rule-language" url="rules/rule-language.html"/>
+</map>

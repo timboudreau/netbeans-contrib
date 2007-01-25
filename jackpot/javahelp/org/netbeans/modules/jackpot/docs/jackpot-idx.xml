@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE index PUBLIC "-//Sun Microsystems Inc.//DTD JavaHelp Index Version 2.0//EN" "http://java.sun.com/products/javahelp/index_2_0.dtd">
+<index version="2.0">
+    <indexitem text="About Jackpot" target="org.netbeans.modules.jackpot.about"/>
+    <indexitem text="Commands" target="org.netbeans.modules.jackpot.commands"/>
+    <indexitem text="Jackpot Rule Language" target="org.netbeans.modules.jackpot.rules.rule-language" />
+    <indexitem text="Rule Basics" target="org.netbeans.modules.jackpot.rules.rule-basics"/>
+    <indexitem text="Meta-Variables" target="org.netbeans.modules.jackpot.rules.meta-variables"/>
+    <indexitem text="Guard Expressions" target="org.netbeans.modules.jackpot.rules.guard-expressions"/>
+    <indexitem text="Meta-Lists" target="org.netbeans.modules.jackpot.rules.meta-lists"/>
+    <indexitem text="mapclass Rules" target="org.netbeans.modules.jackpot.rules.mapclass-rules"/>
+    <indexitem text="Built-In Replacement Actions" target="org.netbeans.modules.jackpot.rules.replacement-actions"/>
+    <indexitem text="Built-In Guard Expressions" target="org.netbeans.modules.jackpot.rules.builtin-guards"/>
+    <indexitem text="Miscellaneous Built-In Expressions" target="org.netbeans.modules.jackpot.rules.misc-builtins"/>
+</index>
