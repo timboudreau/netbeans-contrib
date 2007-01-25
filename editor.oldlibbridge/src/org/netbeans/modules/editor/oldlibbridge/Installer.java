@@ -1,7 +1,7 @@
 package org.netbeans.modules.editor.oldlibbridge;
 
 import java.util.logging.Logger;
-import org.netbeans.editor.Registry;
+import org.netbeans.modules.editor.lib2.DocumentsRegistry;
 import org.openide.modules.ModuleInstall;
 
 /**
@@ -18,7 +18,7 @@ public class Installer extends ModuleInstall {
     public void restored() {
 //        LOG.warning("Highlighting is " + (HIGHLIGHTING ? "on" : "off") + ".");
 //        if (HIGHLIGHTING) {
-            Registry.addChangeListener(HighlightingDrawLayer.INJECTOR);
+            DocumentsRegistry.addPropertyChangeListener(HighlightingDrawLayer.INJECTOR);
 //        }
     }
     
