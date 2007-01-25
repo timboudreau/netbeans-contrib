@@ -14,12 +14,4 @@ Microsystems, Inc. All Rights Reserved.
 
 <project basedir="." default="netbeans" name="jackpot-module/rules">
     <import file="../../nbbuild/templates/projectized.xml"/>
-
-    <target name="jar">
-        <copy todir="${cluster}/modules">
-            <fileset dir="../external/modules">
-                <include name="org-netbeans-modules-jackpot-rules.jar"/>
-            </fileset>
-        </copy>
-    </target>
 </project>
