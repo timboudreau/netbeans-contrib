@@ -127,7 +127,8 @@ public class Highlighting extends AbstractHighlightsContainer implements TokenHi
     // ----------------------------------------------------------------------
 
     private int [] findFirstSentence(TokenSequence<? extends TokenId> seq) {
-        if (seq.moveFirst()) {
+        seq.moveStart();
+        if (seq.moveNext()) {
             int start = seq.offset();
             do {
                 if (seq.token().id() == JavadocTokenId.DOT) {
