@@ -145,6 +145,14 @@
             <attr name="originalFile" stringvalue="Actions/Edit/org-netbeans-modules-linetools-actions-CycleSlashBackslashDotDashAction.instance"/>
         </file>
     </folder>
+    <folder name="Editors">
+        <folder name="SideBar">
+            <file name="org-netbeans-modules-linetools-actions-CharSideBar$Factory.instance">
+                <attr name="position" stringvalue="South"/>
+                <attr name="scrollable" boolvalue="false"/>
+            </file>
+        </folder>
+    </folder>
     <folder name="Services">
         <folder name="JavaHelp">
           <file name="org-netbeans-modules-linetools-help-set.xml" url="help-set.xml"/>

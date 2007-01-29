@@ -15,6 +15,10 @@
             <tr><td>Copy line (or lines spanned by selection) down</td><td><code>Alt+Shift+Down</code></td><td><img alt="Copy line up" src="copylinedown.gif"></td></tr>
             <tr><td>Exchange Mark and Dot</td><td><code>Alt+Shift+X</code></td><td>&nbsp;</td></tr>
             <tr><td>Cycle Slash Backslash Dot Dash</td><td><code>Ctrl+Alt+O</code></td><td><img alt="Cycle Slash Backslash Dot Dash" src="cycle.gif"></td></tr>
+            <tr><td>From Char</td><td><code>Ctrl+Alt+,</code> On MacOS <code>Ctrl+Option+,</code></td><td>&nbsp;</td></tr>
+            <tr><td>After Char</td><td><code>Ctrl+Alt+Shift+,</code> On MacOS <code>Ctrl+Option+Shift+,</code></td><td>&nbsp;</td></tr>
+            <tr><td>Upto Char</td><td><code>Ctrl+Alt+Shift+.</code> On MacOS <code>Ctrl+Option+.</code></td><td>&nbsp;</td></tr>
+            <tr><td>To Char</td><td><code>Ctrl+Alt+.</code> On MacOS <code>Ctrl+Option+Shift+.</code></td><td>&nbsp;</td></tr>
             <tr><td>Sort lines spanned by selection in ascending order</td><td>&nbsp;</td><td><img alt="Sort lines ascending" src="sortlinesascending.gif"></td></tr>
             <tr><td>Sort lines spanned by selection in descending order</td><td>&nbsp;</td><td><img alt="Sort lines descending" src="sortlinesdescending.gif"></td></tr>
             <tr><td>Remove duplicate lines while sorting</td><td>&nbsp;</td><td><img alt="Remove duplicate lines" src="removeduplicatelines.gif"></td></tr>
@@ -22,5 +26,66 @@
             <tr><td>Filter selected lines using an external program - send output to Output window</td><td>&nbsp;</td><td><img alt="Filter lines to output window" src="filteroutput.gif"></td></tr>
         </table>
         <p>The caret position, the selection and the order of start and end of the selection is maintained when moving/copying the lines.
+
+        <h2>Char Actions</h2>
+            <p>
+                You can use the Char actions to either deleting text (Delete key),
+                or modifying the text - uppercase (Alt+u u) or lowercase (Alt+u l).
+                These actions work somewhat like the t, T, f and F commands of Vi.
+                You can type a numeric prefix <code>nn</code>, to find the nnth occurence of the char.
+                If you are trying to operate on a digit you have to type <code>ENTER</code> key.
+            </p>
+            <p>With the following text on the current line and caret at |
+            <pre>
+
+abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ|
+            </pre>
+            invoking From Char <code>Ctrl+Alt+,</code> On MacOS <code>Ctrl+Option+,</code>, specifying <code>c</code> and <b>Match Case</b> selected results in:
+            <pre>
+
+abcdefghijklmnopqrstuvwxyzAB|<font style="BACKGROUND-COLOR: #d5d5d5">CDEFGHIJKLMNOPQRSTUVWXYZ</font>
+            </pre>
+            invoking From Char <code>Ctrl+Alt+,</code> On MacOS <code>Ctrl+Option+,</code>, specifying <code>c</code> and <b>Match Case</b> unselected results in:
+            <pre>
+
+ab|<font style="BACKGROUND-COLOR: #d5d5d5">cdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ</font>
+            </pre>
+            invoking After Char <code>Ctrl+Alt+Shift+,</code> On MacOS <code>Ctrl+Option+Shift+,</code>, specifying <code>c</code> and <b>Match Case</b> selected results in:
+            <pre>
+
+abcdefghijklmnopqrstuvwxyzABC|<font style="BACKGROUND-COLOR: #d5d5d5">DEFGHIJKLMNOPQRSTUVWXYZ</font>
+            </pre>
+            invoking After Char <code>Ctrl+Alt+Shift+,</code> On MacOS <code>Ctrl+Option+Shift+,</code>, specifying <code>c</code> and <b>Match Case</b> unselected results in:
+            <pre>
+
+abc|<font style="BACKGROUND-COLOR: #d5d5d5">defghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ</font>
+            </pre>
+            </p>
+            <p> With the following text on the current line and caret at |
+            <pre>
+
+|ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz
+            </pre>
+            invoking Upto Char <code>Ctrl+Alt+Shift+.</code> On MacOS <code>Ctrl+Option+.</code>, specifying <code>v</code> and <b>Match Case</b> selected results in:
+            <pre>
+
+<font style="BACKGROUND-COLOR: #d5d5d5">ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstu</font>|vwxyz
+            </pre>
+            invoking Upto Char <code>Ctrl+Alt+Shift+.</code> On MacOS <code>Ctrl+Option+.</code>, specifying <code>v</code> and <b>Match Case</b> unselected results in:
+            <pre>
+
+<font style="BACKGROUND-COLOR: #d5d5d5">ABCDEFGHIJKLMNOPQRSTU</font>|VWXYZabcdefghijklmnopqrstuvwxyz
+            </pre>
+            invoking To Char <code>Ctrl+Alt+.</code> On MacOS <code>Ctrl+Option+Shift+.</code>, specifying <code>v</code> and <b>Match Case</b> selected results in:
+            <pre>
+
+<font style="BACKGROUND-COLOR: #d5d5d5">ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuv</font>|wxyz
+            </pre>
+            invoking To Char <code>Ctrl+Alt+.</code> On MacOS <code>Ctrl+Option+Shift+.</code>, specifying <code>v</code> and <b>Match Case</b> unselected results in:
+            <pre>
+
+<font style="BACKGROUND-COLOR: #d5d5d5">ABCDEFGHIJKLMNOPQRSTUV</font>|WXYZabcdefghijklmnopqrstuvwxyz
+            </pre>
+            </p>
     </body>
 </html>
