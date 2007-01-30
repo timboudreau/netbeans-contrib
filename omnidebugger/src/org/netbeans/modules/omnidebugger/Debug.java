@@ -26,7 +26,6 @@ import java.io.PrintStream;
 import java.net.URI;
 import java.net.URL;
 import java.util.Enumeration;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
@@ -42,19 +41,13 @@ import org.netbeans.spi.project.support.ant.PropertyEvaluator;
 import org.netbeans.spi.project.support.ant.PropertyProvider;
 import org.netbeans.spi.project.support.ant.PropertyUtils;
 import org.openide.ErrorManager;
-import org.openide.cookies.SourceCookie;
 import org.openide.execution.ExecutorTask;
 import org.openide.filesystems.FileLock;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
 import org.openide.loaders.DataObject;
-import org.openide.loaders.DataObjectNotFoundException;
 import org.openide.modules.InstalledFileLocator;
 import org.openide.nodes.Node;
-import org.openide.src.ClassElement;
-import org.openide.src.Identifier;
-import org.openide.src.Import;
-import org.openide.src.SourceElement;
 import org.openide.windows.TopComponent;
 import org.openide.xml.XMLUtil;
 import org.w3c.dom.Document;
@@ -67,13 +60,11 @@ import org.w3c.dom.Element;
 class Debug {
     
     private Debug() {}
+
+    private enum ClassKind {NONE, MAIN, MAIN_WITH_GUI, JUNIT}
     
-    private static final int KIND_NONE = 0;
-    private static final int KIND_MAIN = 1;
-    private static final int KIND_MAIN_WITH_GUI = 2;
-    private static final int KIND_JUNIT = 3;
-    
-    private static int getKind(FileObject clazz) {
+    private static ClassKind getKind(FileObject clazz) {
+        /*
         SourceCookie sc;
         try {
             sc = (SourceCookie) DataObject.find(clazz).getCookie(SourceCookie.class);
@@ -116,10 +107,13 @@ class Debug {
         } else {
             return KIND_NONE;
         }
+         */
+        // XXX use Retouche somehow
+        return ClassKind.MAIN;
     }
     
     public static boolean enabled(FileObject clazz) {
-        if (getKind(clazz) == KIND_NONE) {
+        if (getKind(clazz) == ClassKind.NONE) {
             return false;
         }
         if (ClassPath.getClassPath(clazz, ClassPath.EXECUTE) == null) {
@@ -152,7 +146,7 @@ class Debug {
     private static FileObject getWorkingDir(FileObject clazz) throws IOException {
         Project prj = FileOwnerQuery.getOwner(clazz);
         if (prj != null) {
-            CacheDirectoryProvider cdp = (CacheDirectoryProvider) prj.getLookup().lookup(CacheDirectoryProvider.class);
+            CacheDirectoryProvider cdp = prj.getLookup().lookup(CacheDirectoryProvider.class);
             if (cdp != null) {
                 return cdp.getCacheDirectory();
             }
@@ -162,8 +156,8 @@ class Debug {
     
     private static FileObject createBuildXml(FileObject dir, FileObject clazz, String clazzname, ClassPath cp) throws IOException {
         Project prj = FileOwnerQuery.getOwner(clazz);
-        int kind = getKind(clazz);
-        assert kind != KIND_NONE;
+        ClassKind kind = getKind(clazz);
+        assert kind != ClassKind.NONE;
         Document doc = createScript(clazz, kind, cp, clazzname, dir, prj);
         FileObject buildXml = FileUtil.createData(dir, "omnidebug.xml"); // NOI18N
         FileLock lock = buildXml.lock();
@@ -181,7 +175,7 @@ class Debug {
         return buildXml;
     }
     
-    private static Document createScript(FileObject clazz, int kind, ClassPath cp, String clazzname, FileObject dir, Project prj) {
+    private static Document createScript(FileObject clazz, ClassKind kind, ClassPath cp, String clazzname, FileObject dir, Project prj) {
         Document doc = XMLUtil.createDocument("project", "antlib:org.apache.tools.ant", null, null); // NOI18N
         Element root = doc.getDocumentElement();
         root.setAttribute("default", "debug"); // NOI18N
@@ -200,7 +194,7 @@ class Debug {
         java.setAttribute("fork", "true"); // NOI18N
         java.setAttribute("classname", "com.lambda.Debugger.Debugger"); // NOI18N
         java.setAttribute("dir", FileUtil.toFile(dir).getAbsolutePath()); // NOI18N
-        if (kind == KIND_JUNIT) {
+        if (kind == ClassKind.JUNIT) {
             Element arg = doc.createElement("arg"); // NOI18N
             java.appendChild(arg);
             arg.setAttribute("value", "junit.textui.TestRunner"); // NOI18N
@@ -224,9 +218,7 @@ class Debug {
         File debuggerJar = InstalledFileLocator.getDefault().locate("modules/ext/omni-debugger.jar", "org.netbeans.modules.omnidebugger", false); // NOI18N
         assert debuggerJar != null;
         pathelement.setAttribute("location", debuggerJar.getAbsolutePath()); // NOI18N
-        Iterator roots = cp.entries().iterator();
-        while (roots.hasNext()) {
-            ClassPath.Entry entry = (ClassPath.Entry) roots.next();
+        for (ClassPath.Entry entry : cp.entries()) {
             URL r = entry.getURL();
             URL _r = FileUtil.getArchiveFile(r);
             if (_r != null && r.equals(FileUtil.getArchiveRoot(_r))) {
@@ -239,7 +231,7 @@ class Debug {
                 pathelement.setAttribute("location", path); // NOI18N
             }
         }
-        if (kind == KIND_MAIN_WITH_GUI) {
+        if (kind == ClassKind.MAIN_WITH_GUI) {
             Element sysproperty = doc.createElement("sysproperty"); // NOI18N
             java.appendChild(sysproperty);
             sysproperty.setAttribute("key", "DONT_SHOW"); // NOI18N
@@ -247,16 +239,14 @@ class Debug {
         }
         java.appendChild(doc.createComment(" Also permitted: -DPAUSED (start but do not record); or -DDONT_START (just show control window) ")); // XXX I18N
         // Also try to copy system properties where possible. Just guessing at syntax project uses.
-        Iterator/*<Map.Entry<String,String>>*/ properties = evaluatorFor(prj).getProperties().entrySet().iterator();
-        while (properties.hasNext()) {
-            Map.Entry entry = (Map.Entry) properties.next();
-            String k = (String) entry.getKey();
+        for (Map.Entry<String,String> entry : evaluatorFor(prj).getProperties().entrySet()) {
+            String k = entry.getKey();
             String name;
-            if (kind == KIND_JUNIT && k.startsWith("test-unit-sys-prop.")) { // NOI18N
+            if (kind == ClassKind.JUNIT && k.startsWith("test-unit-sys-prop.")) { // NOI18N
                 name = k.substring("test-unit-sys-prop.".length()); // NOI18N
-            } else if (kind == KIND_JUNIT && k.startsWith("test-sys-prop.")) { // NOI18N
+            } else if (kind == ClassKind.JUNIT && k.startsWith("test-sys-prop.")) { // NOI18N
                 name = k.substring("test-sys-prop.".length()); // NOI18N
-            } else if (kind != KIND_JUNIT && k.startsWith("run-sys-prop.")) { // NOI18N
+            } else if (kind != ClassKind.JUNIT && k.startsWith("run-sys-prop.")) { // NOI18N
                 name = k.substring("run-sys-prop.".length()); // NOI18N
             } else {
                 name = null;
@@ -265,7 +255,7 @@ class Debug {
                 Element sysproperty = doc.createElement("sysproperty"); // NOI18N
                 java.appendChild(sysproperty);
                 sysproperty.setAttribute("key", name); // NOI18N
-                sysproperty.setAttribute("value", (String) entry.getValue()); // NOI18N
+                sysproperty.setAttribute("value", entry.getValue()); // NOI18N
             }
         }
         return doc;
@@ -306,7 +296,7 @@ class Debug {
             "DontRecordMethod:	\"java.lang.Object	 new\"\n" + // NOI18N
             "UserSelectedField:	\"com.lambda.Debugger.DemoThing	 name\"\n"; // NOI18N
 
-    private static void writeDefaults(FileObject dir, int kind, ClassPath cp, Project prj) throws IOException {
+    private static void writeDefaults(FileObject dir, ClassKind kind, ClassPath cp, Project prj) throws IOException {
         /* XXX would be OK but need to replace existing SourceDirectory and OnlyInstrument directives
         FileObject defFile = dir.getFileObject(".debuggerDefaults"); // NOI18N
         if (defFile != null) {
@@ -322,15 +312,12 @@ class Debug {
             try {
                 PrintStream ps = new PrintStream(os);
                 ps.print(DEFAULT_DEFAULTS);
-                Set/*<String>*/ sourceDirectories = new TreeSet();
-                Set/*<String>*/ onlyInstruments = new TreeSet();
-                Iterator roots = cp.entries().iterator();
-                while (roots.hasNext()) {
-                    ClassPath.Entry entry = (ClassPath.Entry) roots.next();
+                Set<String> sourceDirectories = new TreeSet<String>();
+                Set<String> onlyInstruments = new TreeSet<String>();
+                for (ClassPath.Entry entry : cp.entries()) {
                     URL root = entry.getURL();
-                    FileObject[] sourceRoots = SourceForBinaryQuery.findSourceRoots(root).getRoots();
-                    for (int i = 0; i < sourceRoots.length; i++) {
-                        File sourceRootF = FileUtil.toFile(sourceRoots[i]);
+                    for (FileObject sourceRoot : SourceForBinaryQuery.findSourceRoots(root).getRoots()) {
+                        File sourceRootF = FileUtil.toFile(sourceRoot);
                         if (sourceRootF != null) {
                             String path = sourceRootF.getAbsolutePath();
                             if (!path.endsWith(File.separator)) {
@@ -339,36 +326,34 @@ class Debug {
                             // Make all source roots in exec CP available for browsing.
                             sourceDirectories.add(path);
                         }
-                        if (prj != null && FileOwnerQuery.getOwner(sourceRoots[i]) != prj) {
+                        if (prj != null && FileOwnerQuery.getOwner(sourceRoot) != prj) {
                             // Sources not in same project. Probably prefer not to instrument.
                             continue;
                         }
-                        Enumeration files = sourceRoots[i].getChildren(true);
+                        Enumeration<? extends FileObject> files = sourceRoot.getChildren(true);
                         while (files.hasMoreElements()) {
-                            FileObject file = (FileObject) files.nextElement();
+                            FileObject file = files.nextElement();
                             if (file.isData() && file.hasExt("java")) { // NOI18N
-                                String name = FileUtil.getRelativePath(sourceRoots[i], file).replace('/', '.');
+                                String name = FileUtil.getRelativePath(sourceRoot, file).replace('/', '.');
                                 assert name.endsWith(".java");
                                 onlyInstruments.add(name.substring(0, name.length() - 5));
                             }
                         }
                     }
                 }
-                if (kind == KIND_JUNIT) {
+                if (kind == ClassKind.JUNIT) {
                     // Want to instrument System.exit and System.out.print commands, both in this package.
                     // No need to instrument e.g. scanning for test methods, which is in junit.framework.
                     onlyInstruments.add("junit.textui."); // NOI18N
                 }
                 // Also instrument any package corresponding to an open file, since you are probably debugging them:
-                Iterator/*<TopComponent>*/ opened = TopComponent.getRegistry().getOpened().iterator();
-                while (opened.hasNext()) {
-                    TopComponent tc = (TopComponent) opened.next();
+                for (TopComponent tc : TopComponent.getRegistry().getOpened()) {
                     Node[] nodes = tc.getActivatedNodes();
                     if (nodes == null) {
                         continue;
                     }
-                    for (int i = 0; i < nodes.length; i++) {
-                        DataObject d = (DataObject) nodes[i].getCookie(DataObject.class);
+                    for (Node node : nodes) {
+                        DataObject d = node.getCookie(DataObject.class);
                         if (d != null) {
                             FileObject f = d.getPrimaryFile();
                             if (f.hasExt("java")) { // NOI18N
@@ -383,13 +368,11 @@ class Debug {
                     }
                 }
                 // Write out all such directives in sorted order:
-                Iterator it = sourceDirectories.iterator();
-                while (it.hasNext()) {
-                    ps.println("SourceDirectory:	\"" + (String) it.next() + "\""); // NOI18N
+                for (String sourcedir : sourceDirectories) {
+                    ps.println("SourceDirectory:	\"" + sourcedir + "\""); // NOI18N
                 }
-                it = onlyInstruments.iterator();
-                while (it.hasNext()) {
-                    ps.println("OnlyInstrument:		\"" + (String) it.next() + "\""); // NOI18N
+                for (String pkg : onlyInstruments) {
+                    ps.println("OnlyInstrument:		\"" + pkg + "\""); // NOI18N
                 }
             } finally {
                 os.close();
@@ -407,11 +390,10 @@ class Debug {
         if (basedir == null) {
             return PropertyUtils.sequentialPropertyEvaluator(null, new PropertyProvider[0]);
         }
-        return PropertyUtils.sequentialPropertyEvaluator(null, new PropertyProvider[] {
+        return PropertyUtils.sequentialPropertyEvaluator(null,
             PropertyUtils.propertiesFilePropertyProvider(PropertyUtils.resolveFile(basedir, "nbproject/private/private.properties")), // NOI18N
             PropertyUtils.propertiesFilePropertyProvider(PropertyUtils.resolveFile(basedir, "nbproject/project.properties")), // NOI18N
-            PropertyUtils.propertiesFilePropertyProvider(PropertyUtils.resolveFile(basedir, "build.properties")), // NOI18N
-        });
+            PropertyUtils.propertiesFilePropertyProvider(PropertyUtils.resolveFile(basedir, "build.properties"))); // NOI18N
     }
     
 }

@@ -68,9 +68,8 @@ public class DebugProjectAction implements ProjectActionPerformer {
             return null;
         }
         Sources s = ProjectUtils.getSources(project);
-        SourceGroup[] javaRoots = s.getSourceGroups(JavaProjectConstants.SOURCES_TYPE_JAVA);
-        for (int i = 0; i < javaRoots.length; i++) {
-            FileObject f = javaRoots[i].getRootFolder().getFileObject(clazz.replace('.', '/') + ".java"); // NOI18N
+        for (SourceGroup g : s.getSourceGroups(JavaProjectConstants.SOURCES_TYPE_JAVA)) {
+            FileObject f = g.getRootFolder().getFileObject(clazz.replace('.', '/') + ".java"); // NOI18N
             if (f != null) {
                 return f;
             }

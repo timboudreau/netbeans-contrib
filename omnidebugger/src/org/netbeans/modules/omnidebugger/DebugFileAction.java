@@ -69,11 +69,11 @@ public class DebugFileAction extends AbstractAction implements ContextAwareActio
         private final FileObject selection;
         
         public ContextAction(Lookup context) {
-            DataObject d = (DataObject) context.lookup(DataObject.class);
+            DataObject d = context.lookup(DataObject.class);
             if (d != null) {
                 selection = d.getPrimaryFile();
             } else {
-                selection = (FileObject) context.lookup(FileObject.class);
+                selection = context.lookup(FileObject.class);
             }
         }
 
