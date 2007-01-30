@@ -95,7 +95,7 @@ Microsystems, Inc. All Rights Reserved.
                 <dirset dir="${netbeans.dest.dir}" includes="${zip.platform.clusters.duplicates}"/>
             </path>
         </pathconvert>
-        <property name="platform.cluster" location="${install}/platform6"/> <!-- XXX better to avoid hardcoding -->
+        <property name="platform.cluster" location="${install}/${bluej_platform_cluster}"/> <!-- XXX better to avoid hardcoding -->
         <property name="run.exe" location="${platform.cluster}\lib\nbexec.exe"/>
         <property name="run.sh" location="${platform.cluster}/lib/nbexec"/>
         <property name="branding.token" value="-"/> <!-- fallback value if not set -->

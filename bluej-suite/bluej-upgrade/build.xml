@@ -19,6 +19,7 @@ Microsystems, Inc. All Rights Reserved.
 -->
 
 <project name="ide/bluej-suite/bluej-upgrade" default="netbeans" basedir=".">
+    <loadproperties srcfile="../external-references.properties"/>
 
     <target name="compile" depends="projectized-common.compile">
         <echo message="${build.classes.dir}"/>
@@ -26,6 +27,6 @@ Microsystems, Inc. All Rights Reserved.
               tofile="${build.classes.dir}/org/netbeans/bluej/license/LICENSE.txt" failonerror="true"/>
     </target>
 
-    <import file="../../../nbbuild/templates/projectized.xml"/>
+    <import file="${nb_all_3_level}/nbbuild/templates/projectized.xml"/>
 
 </project>

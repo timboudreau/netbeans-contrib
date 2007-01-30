@@ -27,7 +27,6 @@ import org.openide.util.actions.CallableSystemAction;
 public final class BlueJViewAction extends CallableSystemAction {
 
     public BlueJViewAction() {
-        putValue(Action.ACCELERATOR_KEY, "B");
     }
 
     public void performAction() {

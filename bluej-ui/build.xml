@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project basedir="." default="netbeans" name="ide/bluejbranding">
+<project basedir="." default="netbeans" name="ide/bluejui">
     <description>Builds, tests, and runs the project org.netbeans.bluej.branding</description>
-    <import file="../../nbbuild/templates/projectized.xml"/>
+    <loadproperties srcfile="../bluej-suite/external-references.properties"/>
+    <import file="${nb_all_2_level}/nbbuild/templates/projectized.xml"/>
     <target name="branding" depends="init" if="branding.token">
-        <taskdef name="branding" classname="org.netbeans.nbbuild.Branding" classpath="../../nbbuild/nbantext.jar"/>
+        <taskdef name="branding" classname="org.netbeans.nbbuild.Branding" classpath="${nb_all_2_level}/nbbuild/nbantext.jar"/>
         <property name="branding.dir" location="branding"/>
         <mkdir dir="${cluster}"/>
         <branding cluster="${cluster}" overrides="${branding.dir}" token="${branding.token}"/>

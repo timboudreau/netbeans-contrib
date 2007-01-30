@@ -102,8 +102,8 @@ case "`uname`" in
     Darwin*)
         launchNbexec \
             --jdkhome "$netbeans_jdkhome" \
-            -J-Dcom.apple.mrj.application.apple.menu.about.name="NetBeans BlueJ 5.0 Beta" \
-            -J-Xdock:name="NetBeans BlueJ 5.0 Beta" \
+            -J-Dcom.apple.mrj.application.apple.menu.about.name="NetBeans IDE 5.0 BlueJ Edition" \
+            -J-Xdock:name="NetBeans IDE 5.0 BlueJ Edition" \
             "-J-Xdock:icon=$progdir/../nbbluej5.0/nbbluej.icns" \
             --branding nbbluej \
             --clusters "$netbeans_clusters" \
