@@ -418,7 +418,7 @@ final class ASTBrowserTopComponent extends TopComponent {
             if (path == null) return;
             TreeNode tNode = (TreeNode) tree.getModel ().getRoot ();
             List treePath = new ArrayList ();
-            Iterator it = path.iterator ();
+            Iterator it = path.listIterator ();
             if (!it.hasNext ()) return;
             it.next ();
             treePath.add (tNode);
