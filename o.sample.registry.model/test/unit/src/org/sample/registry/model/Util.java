@@ -15,6 +15,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
@@ -24,12 +25,40 @@ import javax.swing.text.Document;
 import org.netbeans.modules.xml.xam.ModelSource;
 import org.netbeans.modules.xml.xam.dom.AbstractDocumentModel;
 import org.netbeans.modules.xml.xam.dom.DocumentModel;
+import org.openide.filesystems.FileObject;
+import org.openide.filesystems.Repository;
 
 /**
  *
  * @author nn136682
  */
 public class Util {
+    static {
+        //JEditorPane.registerEditorKitForContentType(SchemaDataLoader.MIME_TYPE, XMLKit.class.getName());
+        registerXMLKit();
+    }
+    
+    public static void registerXMLKit() {
+        String[] path = new String[] { "Editors", "text", "x-xml" };
+        FileObject target = Repository.getDefault().getDefaultFileSystem().getRoot();
+        try {
+            for (int i=0; i<path.length; i++) {
+                FileObject f = target.getFileObject(path[i]);
+                if (f == null) {
+                    f = target.createFolder(path[i]);
+                }
+                target = f;
+            }
+            String name = "EditorKit.instance";
+            if (target.getFileObject(name) == null) {
+                FileObject f = target.createData(name);
+                f.setAttribute("instanceClass", "org.netbeans.modules.xml.text.syntax.XMLKit");
+            }
+        } catch(IOException ioe) {
+            ioe.printStackTrace();
+        }
+    }
+
     public static Document getResourceAsDocument(String path) throws Exception {
         InputStream in = Util.class.getResourceAsStream(path);
         return loadDocument(in);
