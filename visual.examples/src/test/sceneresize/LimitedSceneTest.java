@@ -19,6 +19,7 @@
 package test.sceneresize;
 
 import org.netbeans.api.visual.anchor.AnchorFactory;
+import org.netbeans.api.visual.anchor.AnchorShape;
 import org.netbeans.api.visual.border.BorderFactory;
 import org.netbeans.api.visual.widget.ConnectionWidget;
 import org.netbeans.api.visual.widget.LabelWidget;
@@ -38,6 +39,8 @@ public class LimitedSceneTest {
     public static void main (String[] args) {
         Scene scene = new Scene ();
         scene.setMaximumBounds (new Rectangle (0, 0, Integer.MAX_VALUE, Integer.MAX_VALUE));
+        scene.getActions ().addAction (ActionFactory.createZoomAction ());
+        scene.getActions ().addAction (ActionFactory.createPanAction ());
 
         LayerWidget mainLayer = new LayerWidget (scene);
         scene.addChild (mainLayer);
@@ -52,6 +55,8 @@ public class LimitedSceneTest {
         ConnectionWidget conn = new ConnectionWidget (scene);
         conn.setSourceAnchor (AnchorFactory.createRectangularAnchor (source));
         conn.setTargetAnchor (AnchorFactory.createRectangularAnchor (target));
+        conn.setSourceAnchorShape (AnchorShape.TRIANGLE_HOLLOW);
+        conn.setTargetAnchorShape (AnchorShape.TRIANGLE_HOLLOW);
         conn.setRouter (RouterFactory.createOrthogonalSearchRouter (mainLayer, connLayer));
         connLayer.addChild (conn);
 
