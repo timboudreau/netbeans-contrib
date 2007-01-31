@@ -13,7 +13,7 @@
  * "Portions Copyrighted [year] [name of copyright owner]"
  *
  * The Original Software is NetBeans. The Initial Developer of the Original
- * Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
+ * Software is Sun Microsystems, Inc. Portions Copyright 1997-2007 Sun
  * Microsystems, Inc. All Rights Reserved.
  */
 
@@ -30,8 +30,8 @@ import org.netbeans.api.project.Sources;
 import org.netbeans.spi.project.ui.support.MainProjectSensitiveActions;
 import org.netbeans.spi.project.ui.support.ProjectActionPerformer;
 import org.netbeans.spi.project.ui.support.ProjectSensitiveActions;
-import org.openide.ErrorManager;
 import org.openide.filesystems.FileObject;
+import org.openide.util.Exceptions;
 import org.openide.util.Utilities;
 
 /**
@@ -88,7 +88,7 @@ public class DebugProjectAction implements ProjectActionPerformer {
         try {
             Debug.start(findMainClass(project));
         } catch (IOException x) {
-            ErrorManager.getDefault().notify(x);
+            Exceptions.printStackTrace(x);
         }
     }
     

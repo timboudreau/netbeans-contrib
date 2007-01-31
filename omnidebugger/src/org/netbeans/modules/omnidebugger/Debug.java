@@ -13,12 +13,15 @@
  * "Portions Copyrighted [year] [name of copyright owner]"
  *
  * The Original Software is NetBeans. The Initial Developer of the Original
- * Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
+ * Software is Sun Microsystems, Inc. Portions Copyright 1997-2007 Sun
  * Microsystems, Inc. All Rights Reserved.
  */
 
 package org.netbeans.modules.omnidebugger;
 
+import com.sun.source.tree.CompilationUnitTree;
+import com.sun.source.tree.ImportTree;
+import com.sun.source.tree.Tree;
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -29,9 +32,17 @@ import java.util.Enumeration;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.lang.model.element.ElementKind;
+import javax.lang.model.element.ExecutableElement;
+import javax.lang.model.element.TypeElement;
 import org.apache.tools.ant.module.api.support.ActionUtils;
 import org.netbeans.api.java.classpath.ClassPath;
 import org.netbeans.api.java.queries.SourceForBinaryQuery;
+import org.netbeans.api.java.source.CancellableTask;
+import org.netbeans.api.java.source.CompilationController;
+import org.netbeans.api.java.source.JavaSource;
 import org.netbeans.api.project.FileOwnerQuery;
 import org.netbeans.api.project.Project;
 import org.netbeans.api.project.ProjectUtils;
@@ -40,7 +51,6 @@ import org.netbeans.spi.project.CacheDirectoryProvider;
 import org.netbeans.spi.project.support.ant.PropertyEvaluator;
 import org.netbeans.spi.project.support.ant.PropertyProvider;
 import org.netbeans.spi.project.support.ant.PropertyUtils;
-import org.openide.ErrorManager;
 import org.openide.execution.ExecutorTask;
 import org.openide.filesystems.FileLock;
 import org.openide.filesystems.FileObject;
@@ -48,6 +58,7 @@ import org.openide.filesystems.FileUtil;
 import org.openide.loaders.DataObject;
 import org.openide.modules.InstalledFileLocator;
 import org.openide.nodes.Node;
+import org.openide.util.Exceptions;
 import org.openide.windows.TopComponent;
 import org.openide.xml.XMLUtil;
 import org.w3c.dom.Document;
@@ -63,53 +74,47 @@ class Debug {
 
     private enum ClassKind {NONE, MAIN, MAIN_WITH_GUI, JUNIT}
     
-    private static ClassKind getKind(FileObject clazz) {
-        /*
-        SourceCookie sc;
+    private static ClassKind getKind(FileObject source) {
+        final ClassKind[] result = new ClassKind[] {ClassKind.NONE};
         try {
-            sc = (SourceCookie) DataObject.find(clazz).getCookie(SourceCookie.class);
-        } catch (DataObjectNotFoundException e) {
-            throw new AssertionError(e);
-        }
-        if (sc == null) {
-            return KIND_NONE;
-        }
-        SourceElement se = sc.getSource();
-        ClassElement[] clazzes = se.getClasses();
-        if (clazzes.length == 0) {
-            return KIND_NONE;
-        }
-        ClassElement base = clazzes[0];
-        while (true) {
-            Identifier supeName = base.getSuperclass();
-            if (supeName == null) {
-                break;
-            }
-            String name = supeName.getFullName();
-            if (name.equals("junit.framework.TestCase")) { // NOI18N
-                return KIND_JUNIT;
-            }
-            ClassElement supe = ClassElement.forName(name, clazz);
-            if (supe == null) {
-                break;
-            }
-            base = supe;
-        }
-        if (clazzes[0].hasMainMethod()) {
-            Import[] imports = se.getImports();
-            for (int i = 0; i < imports.length; i++) {
-                String name = imports[i].getIdentifier().getFullName();
-                if (name.startsWith("java.awt.") || name.startsWith("javax.swing.")) { // NOI18N
-                    return KIND_MAIN_WITH_GUI;
+            JavaSource.forFileObject(source).runUserActionTask(new CancellableTask<CompilationController>() {
+                public void run(CompilationController controller) throws Exception {
+                    controller.toPhase(JavaSource.Phase.RESOLVED);
+                    CompilationUnitTree compunit = controller.getCompilationUnit();
+                    for (Tree t : compunit.getTypeDecls()) {
+                        TypeElement clazz = (TypeElement) controller.getTrees().getElement(controller.getTrees().getPath(compunit, t));
+                        TypeElement testCase = controller.getElements().getTypeElement("junit.framework.TestCase");
+                        if (testCase != null) {
+                            if (controller.getTypes().isSubtype(clazz.asType(), testCase.asType())) {
+                                result[0] = ClassKind.JUNIT;
+                                return;
+                            }
+                        }
+                        for (javax.lang.model.element.Element child : clazz.getEnclosedElements()) {
+                            if (child.getKind() == ElementKind.METHOD) {
+                                ExecutableElement method = (ExecutableElement) child;
+                                if (method.getSimpleName().contentEquals("main")) {
+                                    for (ImportTree imprt : compunit.getImports()) {
+                                        String name = imprt.getQualifiedIdentifier().toString();
+                                        if (name.startsWith("java.awt.") || name.startsWith("javax.swing.")) {
+                                            result[0] = ClassKind.MAIN_WITH_GUI;
+                                            return;
+                                        }
+                                    }
+                                    result[0] = ClassKind.MAIN;
+                                    return;
+                                }
+                            }
+                        }
+                    }
                 }
-            }
-            return KIND_MAIN;
-        } else {
-            return KIND_NONE;
+                public void cancel() {}
+            }, true);
+        } catch (IOException x) {
+            Exceptions.printStackTrace(x);
         }
-         */
-        // XXX use Retouche somehow
-        return ClassKind.MAIN;
+        Logger.getLogger(Debug.class.getName()).log(Level.FINE, "Got {0} from {1}", new Object[] {result[0], source});
+        return result[0];
     }
     
     public static boolean enabled(FileObject clazz) {
@@ -133,10 +138,9 @@ class Debug {
         FileBuiltQuery.Status status = FileBuiltQuery.getStatus(clazz);
         if (status != null && !status.isBuilt()) {
             // #72385: not yet compiled?
-            IOException e = new IOException("uncompiled: " + clazz); // NOI18N
-            String msg = "You must compile " + FileUtil.getFileDisplayName(clazz) + " before debugging."; // XXX I18N
-            ErrorManager.getDefault().annotate(e, ErrorManager.USER, null, msg, null, null);
-            throw e;
+            throw Exceptions.attachLocalizedMessage(new IOException("uncompiled: " + clazz),
+                    // XXX I18N
+                    "You must compile " + FileUtil.getFileDisplayName(clazz) + " before debugging.");
         }
         FileObject dir = getWorkingDir(clazz);
         FileObject buildXml = createBuildXml(dir, clazz, sourceCP.getResourceName(clazz, '.', false), cp);
