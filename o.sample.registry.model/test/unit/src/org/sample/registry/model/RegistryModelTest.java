@@ -66,4 +66,16 @@ public class RegistryModelTest extends TestCase {
         assertEquals(newValue, services.get(1).getProvider().getURL());
     }
     
+    public void testSetPropertyNull() throws Exception {
+        RegistryModel model = Util.loadRegistryModel("test1.xml");
+        Registry root = model.getRootComponent();
+        Entries entries = root.getEntries();
+        Service service = entries.getServices().iterator().next();
+        ServiceProvider sp = service.getProvider();
+        assertEquals(1, sp.getPeer().getElementsByTagName("url").getLength());
+        model.startTransaction();
+        sp.setURL(null);
+        model.endTransaction();
+        assertEquals(0, sp.getPeer().getElementsByTagName("url").getLength());
+    }
 }
