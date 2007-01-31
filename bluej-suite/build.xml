@@ -4,10 +4,8 @@
 <!-- If you delete this file and reopen the project it will be recreated. -->
 <project name="bluej-suite" basedir=".">
     <description>Builds the module suite bluej-suite.</description>
-    <loadproperties srcfile="external-references.properties"/>
     <import file="nbproject/build-impl.xml"/>
-
- 
+    <loadproperties srcfile="external-references.properties"/>
     <!-- custom build target -->
     <target name="build" depends="suite.build">
         <!-- this was necessary only because the three projects were not registered in project.xml of this suite
@@ -15,12 +13,12 @@
         <ant antfile="../bluej-ui/build.xml" target="netbeans" inheritAll="false"/>
         <ant antfile="bluej-welcome/build.xml" target="netbeans" inheritAll="false"/>
         -->
-        <copy todir="${cluster}">
+        <!--copy todir="${cluster}">
             <fileset dir="${platform.location}/extra">
                 <include name="**/*bluej*"/>
             </fileset>
-        </copy>
-        <delete dir="${platform.location}/extra"/>
+        </copy-->
+        <!--delete dir="${platform.location}/extra"/-->
         <copy todir="${cluster}">
             <fileset dir="changing-defaults"/>
         </copy>
@@ -80,10 +78,10 @@
     <target name="build-zip" depends="build">
         <mkdir dir="dist"/>
         <zip destfile="dist/${app.name}.zip">
-            <zipfileset dir="${cluster}" prefix="${mycluster}">
+            <zipfileset dir="${cluster}" prefix="${bluej_cluster}">
                 <exclude name="**/lib/nbbluej"/>
             </zipfileset>
-            <zipfileset dir="${cluster}" filemode="755" prefix="${mycluster}">
+            <zipfileset dir="${cluster}" filemode="755" prefix="${bluej_cluster}">
                 <include name="**/lib/nbbluej"/>
             </zipfileset>
         </zip>
@@ -204,5 +202,4 @@
     </target>
     
     <target name="all" depends="build-zip,l10n-kit,installers,ml-build"/>
-    
 </project>
