@@ -13,7 +13,7 @@
  * "Portions Copyrighted [year] [name of copyright owner]"
  *
  * The Original Software is NetBeans. The Initial Developer of the Original
- * Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
+ * Software is Sun Microsystems, Inc. Portions Copyright 1997-2007 Sun
  * Microsystems, Inc. All Rights Reserved.
  */
 
@@ -26,7 +26,6 @@ import com.sun.source.util.Trees;
 import java.awt.Toolkit;
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.StringSelection;
-import java.awt.datatransfer.Transferable;
 import java.io.IOException;
 import java.util.List;
 import java.util.logging.Level;
@@ -35,7 +34,6 @@ import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.Modifier;
-import javax.lang.model.element.PackageElement;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
 import javax.swing.text.Document;
@@ -49,6 +47,7 @@ import org.openide.awt.StatusDisplayer;
 import org.openide.filesystems.FileObject;
 import org.openide.loaders.DataObject;
 import org.openide.nodes.Node;
+import org.openide.util.Exceptions;
 import org.openide.util.HelpCtx;
 import org.openide.util.Lookup;
 import org.openide.util.NbBundle;
@@ -66,7 +65,7 @@ public final class CopyFQNAction extends CookieAction {
     private Clipboard clipboard;
     
     public CopyFQNAction() {
-        clipboard = (ExClipboard) Lookup.getDefault().lookup(ExClipboard.class);
+        clipboard = Lookup.getDefault().lookup(ExClipboard.class);
         if (clipboard == null) {
             clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
         }
@@ -77,7 +76,7 @@ public final class CopyFQNAction extends CookieAction {
             setClipboardContents((String) null);
             
             // Get data object
-            DataObject dataObject = (DataObject) activatedNodes[0].getLookup().lookup(DataObject.class);
+            DataObject dataObject = activatedNodes[0].getLookup().lookup(DataObject.class);
             if (dataObject != null) {
                 
                 // Get file object
@@ -88,7 +87,7 @@ public final class CopyFQNAction extends CookieAction {
                     JavaSource javaSource = JavaSource.forFileObject(fileObject);
                     if (javaSource == null) {
                         // may be a class file? Can we handle it?
-                        Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).log(Level.WARNING, "Not a java file " + fileObject.getPath());
+                        Logger.getLogger(CopyFQNAction.class.getName()).log(Level.WARNING, "Not a java file " + fileObject.getPath());
                     } else {
                         try {
                             javaSource.runUserActionTask(new CancellableTask<CompilationController>() {
@@ -137,8 +136,7 @@ public final class CopyFQNAction extends CookieAction {
                                 }
                             }, true);
                         } catch (IOException e) {
-                            Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).log(
-                                    Level.WARNING, e.getMessage(), e);
+                            Exceptions.printStackTrace(e);
                         }
                     }
                 }
