@@ -19,9 +19,18 @@
 
 package org.netbeans.modules.languages.studio;
 
+import java.lang.UnsupportedOperationException;
+import javax.swing.JTree;
 import javax.swing.SwingUtilities;
+import javax.swing.event.TreeSelectionEvent;
+import javax.swing.event.TreeSelectionListener;
+import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.DefaultTreeCellRenderer;
+import javax.swing.tree.TreeNode;
+import javax.swing.tree.TreePath;
 import org.netbeans.api.lexer.Token;
 import org.netbeans.api.lexer.TokenHierarchy;
+import org.netbeans.api.lexer.TokenSequence;
 import org.netbeans.api.lexer.TokenSequence;
 import org.openide.ErrorManager;
 import org.openide.cookies.EditorCookie;
@@ -34,11 +43,8 @@ import java.util.Enumeration;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.text.AbstractDocument;
-import javax.swing.border.Border;
 import javax.swing.event.CaretEvent;
 import javax.swing.event.CaretListener;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
@@ -48,13 +54,11 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.Serializable;
 import java.lang.ref.WeakReference;
-import javax.swing.DefaultListCellRenderer;
-import javax.swing.DefaultListModel;
+import java.util.ConcurrentModificationException;
 import javax.swing.JEditorPane;
-import javax.swing.JList;
 import javax.swing.JScrollPane;
-import javax.swing.ListModel;
-import javax.swing.UIManager;
+import javax.swing.tree.DefaultTreeModel;
+
 
 /**
  * Top component which displays something.
@@ -65,7 +69,7 @@ final class TokensBrowserTopComponent extends TopComponent {
     private static final long   serialVersionUID = 1L;
     private static TokensBrowserTopComponent instance;
     
-    private JList               list;
+    private JTree               tree;
     private Listener            listener;
     private HighlighterSupport  highlighting = new HighlighterSupport (Color.yellow);
     private boolean             listen = true;
@@ -78,15 +82,15 @@ final class TokensBrowserTopComponent extends TopComponent {
     private TokensBrowserTopComponent () {
         initComponents ();
         setLayout (new BorderLayout ());
-        list = new JList ();
-        list.setCellRenderer (new Renderer ());
-        list.addListSelectionListener (new ListSelectionListener () {
-            public void valueChanged (ListSelectionEvent e) {
+        tree = new JTree ();
+        tree.setCellRenderer (new Renderer ());
+        tree.addTreeSelectionListener (new TreeSelectionListener () {
+            public void valueChanged (TreeSelectionEvent e) {
                 if (!listen) return;
                 mark ();
             }
         });
-        list.addFocusListener (new FocusListener () {
+        tree.addFocusListener (new FocusListener () {
             public void focusGained (FocusEvent e) {
                 mark ();
             }
@@ -94,7 +98,8 @@ final class TokensBrowserTopComponent extends TopComponent {
                 mark ();
             }
         });
-        add (new JScrollPane (list), BorderLayout.CENTER);
+        tree.setRootVisible (false);
+        add (new JScrollPane (tree), BorderLayout.CENTER);
         setName (NbBundle.getMessage (TokensBrowserTopComponent.class, "CTL_TokensBrowserTopComponent"));
         setToolTipText (NbBundle.getMessage (TokensBrowserTopComponent.class, "HINT_TokensBrowserTopComponent"));
 //        setIcon(Utilities.loadImage(ICON_PATH, true));
@@ -187,15 +192,15 @@ final class TokensBrowserTopComponent extends TopComponent {
     
     private void mark () {
         Node[] ns = TopComponent.getRegistry ().getActivatedNodes ();
-        if (ns.length == 1 && list.isFocusOwner ()) {
+        if (ns.length == 1 && tree.isFocusOwner ()) {
             EditorCookie editorCookie = (EditorCookie) ns [0].getLookup ().
                 lookup (EditorCookie.class);
             if (editorCookie != null) {
-                MToken t = (MToken) list.getSelectedValue ();
+                THNode t = (THNode) tree.getLastSelectedPathComponent ();
                 if (t != null) {
                     highlighting.highlight (
                         editorCookie.getDocument (), 
-                        t.offset
+                        t.getOffset ()
                     );
                     return;
                 }
@@ -204,6 +209,16 @@ final class TokensBrowserTopComponent extends TopComponent {
         highlighting.removeHighlight ();
     }
     
+    private JEditorPane getCurrentEditor () {
+        Node[] ns = TopComponent.getRegistry ().getActivatedNodes ();
+        if (ns.length != 1) return null;
+        EditorCookie editorCookie = (EditorCookie) ns [0].getLookup ().
+            lookup (EditorCookie.class);
+        if (editorCookie == null) return null;
+        if (editorCookie.getOpenedPanes () == null) return null;
+        if (editorCookie.getOpenedPanes ().length < 1) return null;
+        return editorCookie.getOpenedPanes () [0];
+    }
     
     private AbstractDocument getCurrentDocument () {
         Node[] ns = TopComponent.getRegistry ().getActivatedNodes ();
@@ -247,7 +262,6 @@ final class TokensBrowserTopComponent extends TopComponent {
         task = RequestProcessor.getDefault ().post (
             new Runnable () {
                 public void run () {
-                    System.out.println("refresh");
                     refresh ();
                     task = null;
                 }
@@ -260,35 +274,191 @@ final class TokensBrowserTopComponent extends TopComponent {
         SwingUtilities.invokeLater(new Runnable() {
             public void run() {
                 AbstractDocument doc = getCurrentDocument ();
-                DefaultListModel model = new DefaultListModel ();
+                TokenSequence ts = null;
                 if (doc != null)
                     try {
                         doc.readLock ();
                         TokenHierarchy tokenHierarchy = TokenHierarchy.get (doc);
-                        TokenSequence ts = tokenHierarchy.tokenSequence ();
-                        while (ts.moveNext ())
-                            model.addElement (new MToken (ts));
+                        ts = tokenHierarchy.tokenSequence ();
                     } finally {
                         doc.readUnlock ();
                     }
-                list.setModel (model);
+                if (ts == null)
+                    tree.setModel (new DefaultTreeModel (new DefaultMutableTreeNode ()));
+                else
+                    tree.setModel (new DefaultTreeModel (new TSNode (null, ts, null, 0, 0)));
+                JEditorPane editor = getCurrentEditor ();
+                if (editor != null) {
+                    int position = getCurrentEditor ().getCaret ().getDot ();
+                    selectPath (position);
+                }
             }
         });
+    }
+    
+    private void selectPath (int offset) {
+        listen = false;
+        TSNode n = (TSNode) tree.getModel ().getRoot ();
+        TreePath path = new TreePath (n);
+        path = findPath (path, offset);
+        tree.setSelectionPath (path);
+        tree.scrollPathToVisible (path);
+        listen = true;
+    }
+    
+    private TreePath findPath (TreePath path, int offset) {
+        THNode parent = (THNode) path.getLastPathComponent ();
+        Enumeration en = parent.children ();
+        while (en.hasMoreElements ()) {
+            THNode n = (THNode) en.nextElement ();
+            if (n.getOffset () + n.getToken ().length () > offset) {
+                if (n.isLeaf ())
+                    return new MPath (path, n);
+                return findPath (new MPath (path, n), offset);
+            }
+        }
+        return path;
     }
     
     
     // innerclasses ............................................................
     
-    private static class MToken {
-        String type;
-        String identifier;
-        int offset;
+    static interface THNode extends TreeNode {
+        Token getToken ();
+        int getOffset ();
+        int getIndex ();
+    }
+    
+    static class MPath extends TreePath {
+        MPath (TreePath path, Object e) {
+            super (path, e);
+        }
+    }
+    
+    static class TSNode implements THNode {
         
-        MToken (TokenSequence ts) {
-            Token t = ts.token ();
-            type = t.id ().name ();
-            identifier = t.text ().toString ();
-            offset = ts.offset ();
+        private TSNode          parent;
+        private TokenSequence   ts;
+        private Token           token;
+        private int             offset;
+        private int             index;
+        
+        TSNode (TSNode parent, TokenSequence ts, Token token, int offset, int index) {
+            this.parent = parent;
+            this.ts = ts;
+            this.token = token;
+            this.offset = offset;
+            this.index = index;
+        }
+
+        public TreeNode getChildAt (int index) {
+            ts.moveIndex (index);
+            ts.moveNext ();
+            TokenSequence ts2 = ts.embedded ();
+            if (ts2 != null)
+                return new TSNode (this, ts2, ts.token (), ts.offset (), ts.index ());
+            return new TNode (this, ts.token (), index, ts.offset ());
+        }
+
+        public int getChildCount () {
+            return ts.tokenCount ();
+        }
+
+        public TreeNode getParent () {
+            return parent;
+        }
+
+        public int getIndex (TreeNode node) {
+            return ((THNode) node).getIndex ();
+        }
+
+        public boolean getAllowsChildren () {
+            return true;
+        }
+
+        public boolean isLeaf () {
+            return false;
+        }
+
+        public Enumeration children () {
+            return new Enumeration() {
+                private int i = 0;
+                
+                public boolean hasMoreElements () {
+                    return i < getChildCount ();
+                }
+
+                public Object nextElement() {
+                    return getChildAt (i++);
+                }
+            };
+        }
+        
+        public Token getToken () {
+            return token;
+        }
+        
+        public int getOffset () {
+            return offset;
+        }
+        
+        public int getIndex () {
+            return index;
+        }
+    }
+    
+    static class TNode implements THNode {
+        
+        private TSNode          parent;
+        private Token           token;
+        private int             index;
+        private int             offset;
+        
+        TNode (TSNode parent, Token token, int index, int offset) {
+            this.parent = parent;
+            this.token = token;
+            this.index = index;
+            this.offset = offset;
+        }
+
+        public TreeNode getChildAt (int index) {
+            throw new UnsupportedOperationException ();
+        }
+
+        public int getChildCount () {
+            throw new UnsupportedOperationException ();
+        }
+
+        public TreeNode getParent() {
+            return parent;
+        }
+
+        public int getIndex (TreeNode node) {
+            throw new UnsupportedOperationException ();
+        }
+
+        public boolean getAllowsChildren () {
+            return false;
+        }
+
+        public boolean isLeaf () {
+            return true;
+        }
+
+        public Enumeration children () {
+            throw new UnsupportedOperationException ();
+        }
+        
+        public Token getToken () {
+            return token;
+        }
+        
+        public int getOffset () {
+            return offset;
+        }
+        
+        public int getIndex () {
+            return index;
         }
     }
     
@@ -309,28 +479,16 @@ final class TokensBrowserTopComponent extends TopComponent {
     class CListener implements CaretListener {
         public void caretUpdate (CaretEvent e) {
             int position = e.getDot ();
-            ListModel m = list.getModel ();
-            if (!(m instanceof DefaultListModel)) return;
-            DefaultListModel model = (DefaultListModel) m;
-            MToken last = null;
-            listen = false;
-            Enumeration en = model.elements ();
-            while (en.hasMoreElements ()) {
-                MToken t = (MToken) en.nextElement ();
-                if (t.offset > position) {
-                    list.setSelectedValue (last, true);
-                    listen = true;
-                    return;
-                }
-                last = t;
+            try {
+                selectPath (position);
+            } catch (ConcurrentModificationException ex) {
             }
-            listen = true;
         }
     }
 
-    private static class Renderer extends DefaultListCellRenderer {
+    private static class Renderer extends DefaultTreeCellRenderer {
         
-        private String e (String t) {
+        private String e (CharSequence t) {
             StringBuilder sb = new StringBuilder ();
             int i, k = t.length ();
             for (i = 0; i < k; i++) {
@@ -347,50 +505,35 @@ final class TokensBrowserTopComponent extends TopComponent {
             }
             return sb.toString ();
         }
-
-        public Component getListCellRendererComponent(
-            JList list,
-            Object value,
-            int index,
-            boolean isSelected,
-            boolean cellHasFocus)
-        {
-            setComponentOrientation(list.getComponentOrientation());
-            if (isSelected) {
-                setBackground(list.getSelectionBackground());
-                setForeground(list.getSelectionForeground());
-            }
-            else {
-                setBackground(list.getBackground());
-                setForeground(list.getForeground());
-            }
-
-            MToken t = (MToken) value;
+        
+        public Component getTreeCellRendererComponent (
+            JTree       tree, 
+            Object      value,
+            boolean     sel,
+            boolean     expanded,
+            boolean     leaf, 
+            int         row,
+            boolean     hasFocus
+        ) {
+            if (!(value instanceof THNode))
+                return super.getTreeCellRendererComponent (
+                    tree, value, sel, expanded, leaf, row, hasFocus
+                );
+            THNode node = (THNode) value;
+            Token token = node.getToken ();
+            if (token == null)
+                return super.getTreeCellRendererComponent (
+                    tree, value, sel, expanded, leaf, row, hasFocus
+                );
             StringBuilder sb = new StringBuilder ().
                 append ('<').
-                append (t.type).
+                append (token.id ().name ()).
                 append (",\"").
-                append (e (t.identifier)).
+                append (e (token.text ())).
                 append ("\">");
-            setText (sb.toString ());
-
-            setEnabled(list.isEnabled());
-            setFont(list.getFont());
-
-            Border border = null;
-            if (cellHasFocus) {
-                if (isSelected) {
-                    border = UIManager.getBorder("List.focusSelectedCellHighlightBorder");
-                }
-                if (border == null) {
-                    border = UIManager.getBorder("List.focusCellHighlightBorder");
-                }
-            } else {
-                border = noFocusBorder;
-            }
-            setBorder(border);
-
-            return this;
+            return super.getTreeCellRendererComponent (
+                tree, sb.toString (), sel, expanded, leaf, row, hasFocus
+            );
         }
     }
     

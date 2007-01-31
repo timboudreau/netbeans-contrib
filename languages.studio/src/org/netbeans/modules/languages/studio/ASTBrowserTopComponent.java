@@ -440,11 +440,13 @@ final class ASTBrowserTopComponent extends TopComponent {
     private static class Renderer extends DefaultTreeCellRenderer {
         
         public Component getTreeCellRendererComponent (
-            JTree tree, Object value,
-            boolean sel,
-            boolean expanded,
-            boolean leaf, int row,
-            boolean hasFocus
+            JTree       tree, 
+            Object      value,
+            boolean     sel,
+            boolean     expanded,
+            boolean     leaf, 
+            int         row,
+            boolean     hasFocus
         ) {
             if (value instanceof ASTLeaf)
                 return super.getTreeCellRendererComponent (
