@@ -4,6 +4,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import junit.framework.*;
+import org.netbeans.modules.xml.xdm.nodes.NodeImpl;
 
 public class RegistryModelTest extends TestCase {
     
@@ -77,5 +78,12 @@ public class RegistryModelTest extends TestCase {
         sp.setURL(null);
         model.endTransaction();
         assertEquals(0, sp.getPeer().getElementsByTagName("url").getLength());
+        assertNull(sp.getURL());
+        
+        model.startTransaction();
+        sp.setURL("");
+        model.endTransaction();
+        assertEquals(2, ((NodeImpl)sp.getPeer().getElementsByTagName("url").item(0)).getTokens().size());
+        this.assertEquals("", sp.getURL());
     }
 }
