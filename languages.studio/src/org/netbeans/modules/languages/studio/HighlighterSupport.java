@@ -81,17 +81,12 @@ public class HighlighterSupport {
                     for (i = 0; i < k; i++) {
                         if (eps [i].getDocument () == doc) {
                             final JEditorPane ep = eps [i];
-                            SwingUtilities.invokeLater (new Runnable () {
-                                public void run () {
-                                    try {
-                                        ep.scrollRectToVisible (ep.modelToView (offset));
-                                    } catch (BadLocationException ex) {
-                                        ErrorManager.getDefault ().notify (ex);
-                                    }
-                                    ep.repaint ();
-                                }
-                            });
-                            return;
+                            try {
+                                ep.scrollRectToVisible (ep.modelToView (offset));
+                            } catch (BadLocationException ex) {
+                                ErrorManager.getDefault ().notify (ex);
+                            }
+                            ep.repaint ();
                         }
                     }
                 }
