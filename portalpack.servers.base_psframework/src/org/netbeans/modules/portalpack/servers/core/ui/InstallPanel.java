@@ -37,22 +37,34 @@ import org.openide.util.HelpCtx;
  *
  * @author Satya
  */
-public class InstallPanel implements WizardDescriptor.Panel,ChangeListener{
+public class InstallPanel implements WizardDescriptor.Panel,WizardDescriptor.ValidatingPanel, WizardDescriptor.FinishablePanel,ChangeListener{
     
     public ConfigPanel component;
     
     private static Logger logger = Logger.getLogger(NetbeanConstants.PORTAL_LOGGER);
     private Object wizardDescriptor;
     private String className;
+    private boolean isFinishPanel = false;
     
     public InstallPanel(String className) {
         this.className = className;
         
     }
     
+    public InstallPanel(String className,boolean isFinishPanel) {
+        this.className = className;
+        this.isFinishPanel = isFinishPanel;
+        
+    }
     public InstallPanel(ConfigPanel component)
     {
         this.component = component;
+        component.addChangeListener(this);
+    }
+    public InstallPanel(ConfigPanel component,boolean isFinishPanel)
+    {
+        this.component = component;
+        this.isFinishPanel = isFinishPanel;
         component.addChangeListener(this);
     }
 
@@ -92,12 +104,21 @@ public class InstallPanel implements WizardDescriptor.Panel,ChangeListener{
     }
     
     public boolean isFinishPanel() {
-        return true;
+        return isFinishPanel;
     }
     
-    public boolean validate() throws WizardValidationException {
+    public void validate() throws WizardValidationException {
         getComponent();
-        return component.validate(wizardDescriptor);
+        if(!component.validate(wizardDescriptor))
+        {
+            Object ob = ((WizardDescriptor)wizardDescriptor).getProperty("WizardPanel_errorMessage");
+            String errMsg = null;
+            if(ob == null)
+                errMsg = "";
+            else
+                errMsg = ob.toString();               
+            throw new WizardValidationException(component,errMsg,errMsg);                                              
+        }
     }
     
     public HelpCtx getHelp() {
@@ -114,12 +135,12 @@ public class InstallPanel implements WizardDescriptor.Panel,ChangeListener{
     
     public boolean isValid() {
         try{
-            return validate();
-           
+            validate();          
         }catch(Exception e)
         {
             return false;
         }
+        return true;
     }
     
     public ConfigPanel createConfigPanel() {

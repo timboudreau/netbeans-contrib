@@ -297,7 +297,11 @@ public class JNPCTaskHandler extends DefaultPSTaskHandler{
    {
        //System.setProperty("com.sun.portal.portletcontainer.dir",psconfig.getPSHome());
         ExtendedClassLoader loader = new ExtendedClassLoader(getClass().getClassLoader());
-
+        
+        File configDir = new File(psconfig.getPSHome() + File.separator + "config");
+        logger.info(configDir.getAbsolutePath());
+        loader.addURL(configDir);
+        
         File libDir = new File(psconfig.getPSHome() + File.separator + "lib");
         File[] files = libDir.listFiles(new FilenameFilter() {
             public boolean accept(File dir, String name) {
@@ -308,7 +312,7 @@ public class JNPCTaskHandler extends DefaultPSTaskHandler{
                 return false;
             }
         });
-
+        
         for(int i=0;i<files.length;i++)
 
         {

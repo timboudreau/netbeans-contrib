@@ -20,6 +20,9 @@
 package org.netbeans.modules.portalpack.servers.core.util;
 
 import java.net.InetAddress;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.StringTokenizer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.SwingUtilities;
@@ -158,4 +161,37 @@ public class Util {
         }
         return true;
     }
+    
+    public static String encodeClassPath(String[] strs)
+     {
+         if(strs == null || strs.length == 0)
+             return "";
+
+         StringBuffer sb = new StringBuffer();
+         for(int i=0;i<strs.length;i++)
+         {
+             sb.append(strs[i]).append(";");
+
+         }
+         return sb.toString();
+     }
+    
+     public static String[] decodeClassPath(String str)
+     {
+         if(str == null || str.length() == 0)
+             return new String[]{};
+         List classPathList = new ArrayList();
+         StringTokenizer st = new StringTokenizer(str,";");
+
+         while(st.hasMoreTokens())
+         {
+             String temp = st.nextToken();
+             if(temp != null || temp.trim().equals(""))
+                 classPathList.add(temp);
+         }
+
+         return (String[])classPathList.toArray(new String[0]);
+
+     }
+
 }

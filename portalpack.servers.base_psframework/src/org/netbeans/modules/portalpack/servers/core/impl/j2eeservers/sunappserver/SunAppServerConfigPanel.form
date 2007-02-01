@@ -210,9 +210,9 @@
       </Properties>
     </Component>
     <Component class="javax.swing.JTextField" name="adminPortTf">
-      <Events>
-        <EventHandler event="focusLost" listener="java.awt.event.FocusListener" parameters="java.awt.event.FocusEvent" handler="adminPortTfFocusLost"/>
-      </Events>
+      <AuxValues>
+        <AuxValue name="JavaCodeGenerator_InitCodePost" type="java.lang.String" value="Document textDocOne1 = adminPortTf.getDocument();&#xa;DocumentFilter filterOne1 = &#xa;        new org.netbeans.modules.portalpack.servers.core.ui.IntegerDocumentFilter();&#xa;((AbstractDocument)&#xa;          textDocOne1).setDocumentFilter(filterOne1);&#xa;adminPortTf.setDocument(textDocOne1);"/>
+      </AuxValues>
     </Component>
     <Component class="javax.swing.JLabel" name="jLabel7">
       <Properties>
@@ -225,9 +225,9 @@
       </Properties>
     </Component>
     <Component class="javax.swing.JTextField" name="portTf">
-      <Events>
-        <EventHandler event="focusLost" listener="java.awt.event.FocusListener" parameters="java.awt.event.FocusEvent" handler="portTfFocusLost"/>
-      </Events>
+      <AuxValues>
+        <AuxValue name="JavaCodeGenerator_InitCodePost" type="java.lang.String" value="Document textDocOne = portTf.getDocument();&#xa;DocumentFilter filterOne = &#xa;        new org.netbeans.modules.portalpack.servers.core.ui.IntegerDocumentFilter();&#xa;((AbstractDocument)&#xa;          textDocOne).setDocumentFilter(filterOne);&#xa;portTf.setDocument(textDocOne);"/>
+      </AuxValues>
     </Component>
   </SubComponents>
 </Form>

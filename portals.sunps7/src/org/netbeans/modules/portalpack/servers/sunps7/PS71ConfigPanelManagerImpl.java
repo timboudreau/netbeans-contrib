@@ -39,7 +39,7 @@ public class PS71ConfigPanelManagerImpl implements PSConfigPanelManager{
 
     public InstallPanel[] getInstallPanels(String psVersion) {
          InstallPanel[] installPanels = new InstallPanel[1];
-         installPanels[0] = new InstallPanel(new PS71ConfigPanel());
+         installPanels[0] = new InstallPanel(new PS71ConfigPanel(),true);
         // installPanels[1] = new InstallPanel(new PSConfigServerPanel());
          return installPanels;
     }

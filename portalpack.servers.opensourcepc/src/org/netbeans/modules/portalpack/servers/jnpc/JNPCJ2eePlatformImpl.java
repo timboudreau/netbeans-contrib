@@ -26,17 +26,16 @@ import java.util.List;
 import org.netbeans.modules.portalpack.servers.core.PSJ2eePlatformImpl;
 import org.netbeans.modules.portalpack.servers.core.api.PSDeploymentManager;
 import org.netbeans.modules.portalpack.servers.core.util.PSConfigObject;
+import org.netbeans.modules.portalpack.servers.core.util.Util;
 
 /**
  *
  * @author satya
  */
 public class JNPCJ2eePlatformImpl extends PSJ2eePlatformImpl{
-    
     /** Creates a new instance of JNPCJ2eePlatformImpl */
     public JNPCJ2eePlatformImpl(PSDeploymentManager dm) {
         super(dm);
-        
     }
     
     protected List getCustomLibraries() {
@@ -58,7 +57,24 @@ public class JNPCJ2eePlatformImpl extends PSJ2eePlatformImpl{
                 }
             }
          }
+         
+
+         String[] encClassPaths = Util.decodeClassPath(psconfig.getClassPath());
+         for(int i=0;i<encClassPaths.length;i++)
+         {
+             File classpathJar = new File(encClassPaths[i]);
+             if(classpathJar.exists())
+             {
+                try {
+                    classPath.add(fileToUrl(classpathJar));
+                } catch (MalformedURLException ex) {
+                    ex.printStackTrace();
+                }
+             }
+         }
          return classPath;     
     }
+    
+    
     
 }

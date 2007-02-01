@@ -27,6 +27,9 @@ import javax.swing.JComponent;
 import javax.swing.JTextField;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
+import javax.swing.text.AbstractDocument;
+import javax.swing.text.Document;
+import javax.swing.text.DocumentFilter;
 import org.netbeans.modules.portalpack.servers.core.WizardPropertyReader;
 import org.netbeans.modules.portalpack.servers.core.api.ConfigPanel;
 import org.netbeans.modules.portalpack.servers.core.util.DirectoryChooser;
@@ -49,9 +52,6 @@ public class SunAppServerConfigPanel extends ConfigPanel implements SunAppServer
     public SunAppServerConfigPanel() {
         initComponents();
         initData();
-        
-        portTf.setInputVerifier(new NumericInputVerifier());
-        adminPortTf.setInputVerifier(new NumericInputVerifier());
         userNameTf.setInputVerifier(new NullValueInputVerifier());
         
     }
@@ -132,20 +132,22 @@ public class SunAppServerConfigPanel extends ConfigPanel implements SunAppServer
         jLabel6.setFont(new java.awt.Font("Tahoma", 1, 11));
         jLabel6.setText(org.openide.util.NbBundle.getMessage(SunAppServerConfigPanel.class, "LBL_ADMIN_PORT"));
 
-        adminPortTf.addFocusListener(new java.awt.event.FocusAdapter() {
-            public void focusLost(java.awt.event.FocusEvent evt) {
-                adminPortTfFocusLost(evt);
-            }
-        });
+        Document textDocOne1 = adminPortTf.getDocument();
+        DocumentFilter filterOne1 =
+        new org.netbeans.modules.portalpack.servers.core.ui.IntegerDocumentFilter();
+        ((AbstractDocument)
+            textDocOne1).setDocumentFilter(filterOne1);
+        adminPortTf.setDocument(textDocOne1);
 
         jLabel7.setFont(new java.awt.Font("Tahoma", 1, 11));
         jLabel7.setText(org.openide.util.NbBundle.getMessage(SunAppServerConfigPanel.class, "LBL_PORT"));
 
-        portTf.addFocusListener(new java.awt.event.FocusAdapter() {
-            public void focusLost(java.awt.event.FocusEvent evt) {
-                portTfFocusLost(evt);
-            }
-        });
+        Document textDocOne = portTf.getDocument();
+        DocumentFilter filterOne =
+        new org.netbeans.modules.portalpack.servers.core.ui.IntegerDocumentFilter();
+        ((AbstractDocument)
+            textDocOne).setDocumentFilter(filterOne);
+        portTf.setDocument(textDocOne);
 
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
         this.setLayout(layout);
@@ -220,16 +222,6 @@ public class SunAppServerConfigPanel extends ConfigPanel implements SunAppServer
         );
     }// </editor-fold>//GEN-END:initComponents
 
-    private void adminPortTfFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_adminPortTfFocusLost
-// TODO add your handling code here:
-        fireChangeEvent();
-    }//GEN-LAST:event_adminPortTfFocusLost
-
-    private void portTfFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_portTfFocusLost
-// TODO add your handling code here:
-        fireChangeEvent();
-    }//GEN-LAST:event_portTfFocusLost
-
     private void userNameTfFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_userNameTfFocusLost
 // TODO add your handling code here:
         fireChangeEvent();
@@ -266,7 +258,6 @@ public class SunAppServerConfigPanel extends ConfigPanel implements SunAppServer
         domainTf.setEnabled(false);    }
     private void domainDirTfFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_domainDirTfFocusLost
 // TODO add your handling code here:
-        logger.info("Focus lost.................");
         populateAllDefaultValues();
     }//GEN-LAST:event_domainDirTfFocusLost
 
@@ -344,19 +335,25 @@ public class SunAppServerConfigPanel extends ConfigPanel implements SunAppServer
         try {
             configUtil = new SunAppConfigUtil(new File(domainDir));
         } catch (SAXParseException ex) {      
-            setErrorMessage("Not a valid domain.xml");
+            setErrorMessage(NbBundle.getMessage(SunAppServerConfigPanel.class,"INVALID_DOMAIN_XML"));
             fireChangeEvent();
             clearDomainXmlData();
             return;
         } catch (IOException ex) {
             
-            setErrorMessage("Not a valid domain dir");
+            setErrorMessage(NbBundle.getMessage(SunAppServerConfigPanel.class,"INVALID_DOMAIN_DIR"));
             fireChangeEvent();
             clearDomainXmlData();
             return;
+        }catch(SunAppConfigUtil.ReadAccessDeniedException e){
+            setErrorMessage(NbBundle.getMessage(SunAppServerConfigPanel.class,"READ_ACCESS_DENIED"));
+            fireChangeEvent();
+            clearDomainXmlData();
+            return;
+            
         }catch(Exception e){
             
-            setErrorMessage("Not a valid domain dir");
+            setErrorMessage(NbBundle.getMessage(SunAppServerConfigPanel.class,"INVALID_DOMAIN_DIR"));
             clearDomainXmlData();
             fireChangeEvent();
             return;
@@ -400,8 +397,7 @@ public class SunAppServerConfigPanel extends ConfigPanel implements SunAppServer
     }
 
     public void read(WizardDescriptor wizardDescriptor) {
-      //  wd = wizardDescriptor;
-        logger.info("Inside read of SunAppServerConfigPanel.......");
+     
     }
 
     public void store(WizardDescriptor d) {
@@ -425,27 +421,31 @@ public class SunAppServerConfigPanel extends ConfigPanel implements SunAppServer
         }
         if(!new File(home,"bin" + File.separator + "asadmin"+ext).exists())
         {
-            setErrorMessage("Not a valid Home");
+            setErrorMessage(NbBundle.getMessage(SunAppServerConfigPanel.class,"INVALID_HOME"));
             return false;
         }
-        logger.info("Validate......................>>>>>>>***************");
+       
         String domainDir = domainDirTf.getText();
         SunAppConfigUtil configUtil = null;
         try {
             configUtil = new SunAppConfigUtil(new File(domainDir));
         } catch (SAXParseException ex) {
             
-            setErrorMessage("Not a valid domain.xml");
+            setErrorMessage(NbBundle.getMessage(SunAppServerConfigPanel.class,"INVALID_DOMAIN_XML"));
             clearDomainXmlData();
             return false;
         } catch (IOException ex) {
             
-            setErrorMessage("Not a valid domain dir");
+            setErrorMessage(NbBundle.getMessage(SunAppServerConfigPanel.class,"INVALID_DOMAIN_DIR"));
+            clearDomainXmlData();
+            return false;
+        } catch(SunAppConfigUtil.ReadAccessDeniedException e){
+            setErrorMessage(NbBundle.getMessage(SunAppServerConfigPanel.class,"READ_ACCESS_DENIED"));
             clearDomainXmlData();
             return false;
         }catch(Exception e){
             
-            setErrorMessage("Not a valid domain dir");
+            setErrorMessage(NbBundle.getMessage(SunAppServerConfigPanel.class,"INVALID_DOMAIN_DIR"));
             clearDomainXmlData();
             return false;
         }
@@ -473,7 +473,7 @@ public class SunAppServerConfigPanel extends ConfigPanel implements SunAppServer
                 || adminPortTf.getText() == null || adminPortTf.getText().trim().length() == 0
                 || domainTf.getText() == null || domainTf.getText().trim().length() == 0)
          {
-             setErrorMessage("Please enter a valid entry for 'port'/'admin port'/'domain'");
+             setErrorMessage(NbBundle.getMessage(SunAppServerConfigPanel.class,"ENTER_VALID_PORT_ADMIN_PORT_DOMAIN"));
              return false;
          }
          setErrorMessage("");
@@ -489,19 +489,6 @@ public class SunAppServerConfigPanel extends ConfigPanel implements SunAppServer
             return "";
         else return txt.trim();
     }
-    
-    class NumericInputVerifier extends InputVerifier {
-         public boolean verify(JComponent input) {
-               JTextField tf = (JTextField) input;
-               try{
-                 Integer.parseInt(tf.getText());
-               }catch(Exception e){
-                   fireChangeEvent();
-                   return false;
-               }
-               return true;
-         }
-     }
     
      class NullValueInputVerifier extends InputVerifier {
          public boolean verify(JComponent input) {

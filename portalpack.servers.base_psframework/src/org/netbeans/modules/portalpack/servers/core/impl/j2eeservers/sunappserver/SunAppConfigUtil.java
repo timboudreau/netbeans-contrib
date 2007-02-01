@@ -47,7 +47,7 @@ public class SunAppConfigUtil {
     /**
      * Creates a new instance of SunAppConfigUtil
      */
-    public SunAppConfigUtil(File domainDir) throws IOException, SAXException, ParserConfigurationException {
+    public SunAppConfigUtil(File domainDir) throws IOException, SAXException, ParserConfigurationException,ReadAccessDeniedException {
         
         File xmlRoot;
         if(File.pathSeparatorChar == ':')
@@ -56,7 +56,13 @@ public class SunAppConfigUtil {
             xmlRoot = new File(domainDir.getAbsolutePath() + "\\config\\domain.xml");//NOI18N
         String port = null;
        
-         
+         if(xmlRoot.exists())
+         {
+            if(!xmlRoot.canRead())
+            {
+                throw new ReadAccessDeniedException();
+            }
+         }
           logger.log(Level.FINEST,"XmlRoot is :: "+xmlRoot);
           InputSource inputSource = 
               new InputSource(new FileInputStream(xmlRoot));
@@ -200,8 +206,13 @@ public class SunAppConfigUtil {
     
     public static void main(String[] args) throws SAXException, IOException, ParserConfigurationException
     {    
-        System.out.println(new SunAppConfigUtil(new  File(args[0])).getPort());
-        System.out.println(new SunAppConfigUtil(new  File(args[0])).getAdminPort());
+       // System.out.println(new SunAppConfigUtil(new  File(args[0])).getPort());
+       // System.out.println(new SunAppConfigUtil(new  File(args[0])).getAdminPort());
+    }
+    
+    class ReadAccessDeniedException extends Exception
+    {
+        
     }
     
 }

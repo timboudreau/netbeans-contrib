@@ -23,6 +23,7 @@ import org.netbeans.modules.portalpack.servers.core.api.ConfigPanel;
 import org.netbeans.modules.portalpack.servers.core.api.PSConfigPanelManager;
 import org.netbeans.modules.portalpack.servers.core.impl.j2eeservers.sunappserver.SunAppServerConfigPanel;
 import org.netbeans.modules.portalpack.servers.core.impl.j2eeservers.tomcat.TomcatConfigPanel;
+import org.netbeans.modules.portalpack.servers.core.impl.j2eeservers.ui.ClasspathConfigPanel;
 import org.netbeans.modules.portalpack.servers.core.impl.j2eeservers.ui.DefaultServerConfigPanel;
 import org.netbeans.modules.portalpack.servers.core.ui.InstallPanel;
 import org.netbeans.modules.portalpack.servers.jnpc.ui.PCConfigPanel;
@@ -43,7 +44,7 @@ public class JNPCConfigPanelManagerImpl implements PSConfigPanelManager, ServerC
     public InstallPanel[] getInstallPanels(String psVersion) {
         
         return new InstallPanel[]{new InstallPanel(getServerConfigPanel()),
-                                  new InstallPanel(new PCConfigPanel())};
+                                  new InstallPanel(new PCConfigPanel(),true)};
         
     }
 
@@ -51,7 +52,7 @@ public class JNPCConfigPanelManagerImpl implements PSConfigPanelManager, ServerC
         
         
         return new ConfigPanel[]{new PCConfigPanel(),
-                                    getServerConfigPanel()};
+                                    getServerConfigPanel(),new ClasspathConfigPanel()};
         
     }
     
