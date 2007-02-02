@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+The contents of this file are subject to the terms of the Common Development
+and Distribution License (the License). You may not use this file except in
+compliance with the License.
+
+You can obtain a copy of the License at http://www.netbeans.org/cddl.html
+or http://www.netbeans.org/cddl.txt.
+
+When distributing Covered Code, include this CDDL Header Notice in each file
+and include the License file at http://www.netbeans.org/cddl.txt.
+If applicable, add the following below the CDDL Header, with the fields
+enclosed by brackets [] replaced by your own identifying information:
+"Portions Copyrighted [year] [name of copyright owner]"
+
+The Original Software is NetBeans. The Initial Developer of the Original
+Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
+Microsystems, Inc. All Rights Reserved.
+-->
+<!DOCTYPE filesystem PUBLIC "-//NetBeans//DTD Filesystem 1.1//EN" "http://www.netbeans.org/dtds/filesystem-1_1.dtd">
+<filesystem>
+   <!-- <folder name="Actions">
+        <folder name="Build">
+            <file name="org-netbeans-modules-erd-SomeAction.instance"/>
+        </folder>
+        <folder name="Edit">
+            <file name="org-netebans-modules-erd-action-OpenERDAction.instance">
+                <attr name="instanceClass" stringvalue="org.netbeans.modules.erd.action.OpenERDAction"/>
+            </file>
+        </folder>
+    </folder>-->
+    <!--<folder name="Loaders">
+        <folder name="text">
+            <folder name="x-dbschema">
+                <folder name="Actions">
+                    <file name="org-netbeans-modules-erd-SomeAction.shadow">
+                        <attr name="originalFile" stringvalue="Actions/Build/org-netbeans-modules-erd-SomeAction.instance"/>
+                    </file>
+                    <attr name="org-netbeans-modules-erd-SomeAction.shadow/org-openide-actions-FileSystemAction.instance" boolvalue="true"/>
+                </folder>
+            </folder>
+            <folder name="x-erd">
+                <folder name="Actions">
+                    <file name="org-netebans-modules-erd-action-OpenERDAction.shadow">
+                        <attr name="originalFile" stringvalue="Actions/Edit/org-netebans-modules-erd-action-OpenERDAction.instance"/>
+                    </file>
+                    <attr name="org-netebans-modules-erd-action-OpenERDAction.shadow/org-openide-actions-OpenAction.instance" boolvalue="true"/>
+                    <file name="org-openide-actions-OpenAction.instance"/>
+                    <attr name="org-openide-actions-OpenAction.instance/org-openide-actions-FileSystemAction.instance" boolvalue="true"/>
+                    <file name="org-openide-actions-FileSystemAction.instance"/>
+                    <attr name="org-openide-actions-FileSystemAction.instance/sep-1.instance" boolvalue="true"/>
+                    <file name="sep-1.instance">
+                        <attr name="instanceClass" stringvalue="javax.swing.JSeparator"/>
+                    </file>
+                    <attr name="sep-1.instance/org-openide-actions-CutAction.instance" boolvalue="true"/>
+                    <file name="org-openide-actions-CutAction.instance"/>
+                    <attr name="org-openide-actions-CutAction.instance/org-openide-actions-CopyAction.instance" boolvalue="true"/>
+                    <file name="org-openide-actions-CopyAction.instance"/>
+                    <attr name="org-openide-actions-CopyAction.instance/sep-2.instance" boolvalue="true"/>
+                    <file name="sep-2.instance">
+                        <attr name="instanceClass" stringvalue="javax.swing.JSeparator"/>
+                    </file>
+                    <attr name="sep-2.instance/org-openide-actions-DeleteAction.instance" boolvalue="true"/>
+                    <file name="org-openide-actions-DeleteAction.instance"/>
+                    <attr name="org-openide-actions-DeleteAction.instance/org-openide-actions-RenameAction.instance" boolvalue="true"/>
+                    <file name="org-openide-actions-RenameAction.instance"/>
+                    <attr name="org-openide-actions-RenameAction.instance/sep-3.instance" boolvalue="true"/>
+                    <file name="sep-3.instance">
+                        <attr name="instanceClass" stringvalue="javax.swing.JSeparator"/>
+                    </file>
+                    <attr name="sep-3.instance/org-openide-actions-SaveAsTemplateAction.instance" boolvalue="true"/>
+                    <file name="org-openide-actions-SaveAsTemplateAction.instance"/>
+                    <attr name="org-openide-actions-SaveAsTemplateAction.instance/sep-4.instance" boolvalue="true"/>
+                    <file name="sep-4.instance">
+                        <attr name="instanceClass" stringvalue="javax.swing.JSeparator"/>
+                    </file>
+                    <attr name="sep-4.instance/org-openide-actions-ToolsAction.instance" boolvalue="true"/>
+                    <file name="org-openide-actions-ToolsAction.instance"/>
+                    <attr name="org-openide-actions-ToolsAction.instance/org-openide-actions-PropertiesAction.instance" boolvalue="true"/>
+                    <file name="org-openide-actions-PropertiesAction.instance"/>
+                </folder>
+            </folder>
+        </folder>
+    </folder>-->
+    <folder name="Menu">
+        <folder name="Window">
+            <file name="ERDAction.shadow">
+                <attr name="originalFile" stringvalue="Actions/Window/org-netbeans-modules-erd-action-ERDAction.instance"/>
+            </file>
+        </folder>
+    </folder>
+    <folder name="Services">
+        <folder name="MIMEResolver">
+            <file name="ERDResolver.xml" url="ERDResolver.xml">
+                <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.erd.Bundle"/>
+            </file>
+        </folder>
+    </folder>
+    <folder name="Templates">
+        <!--<folder name="Other">
+            <file name="ERDTemplate.erd" url="ERDTemplate.erd">
+                <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.erd.Bundle"/>
+                <attr name="template" boolvalue="true"/>
+            </file>
+        </folder>
+        <folder name="Persistence">
+            <file name="eRD">
+                <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.erd.Bundle"/>
+                <attr name="instantiatingIterator" newvalue="org.netbeans.modules.erd.wizard2.ERDWizardIterator"/>
+                <attr name="template" boolvalue="true"/>
+                <attr name="templateWizardURL" urlvalue="nbresloc:/org/netbeans/modules/erd/wizard2/eRD.html"/>
+            </file>
+        </folder>-->
+    <folder name="Persistence">
+      <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.erd.Bundle"/>
+      <attr name="templateWizardURL" urlvalue="nbresloc:/org/netbeans/modules/dbschema/jdbcimpl/resources/Databases.html"/>
+
+      <file name="ERD.erd" url="templates/ERD.erd">
+         <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.erd.Bundle"/>
+         <attr name="template" boolvalue="true"/>
+         <attr name="templateWizardURL" urlvalue="nbresloc:/org/netbeans/modules/dbschema/jdbcimpl/resources/DBSchema.html"/>
+         <attr name="templateWizardIterator" methodvalue="org.netbeans.modules.erd.wizard.ERDWizard.singleton"/>
+         <attr name="templateCategory" stringvalue="web-types,ejb-types,persistence"/>
+      </file>
+      <attr name="Database Schema.dbschema/JDBC Form Wizard.java" boolvalue="true"/>
+    </folder>
+    </folder>
+   <!-- <folder name="Windows2">
+        <folder name="Components">
+            <file name="ERDTopComponent.settings" url="ERDTopComponentSettings.xml"/>
+        </folder>
+        <folder name="Modes">
+            <folder name="editor">
+                <file name="ERDTopComponent.wstcref" url="ERDTopComponentWstcref.xml"/>
+            </folder>
+        </folder>
+    </folder>-->
+</filesystem>
