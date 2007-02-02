@@ -673,8 +673,8 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
         if (it.hasNext() || selectedFolder != null) popup.addSeparator();
 
         if (selectedFolder != null) {
-            JMenuItem item = new JMenuItem("0 " + createLabel(selectedFolder));
-            item.setMnemonic(KeyEvent.VK_0);
+            JMenuItem item = new JMenuItem();
+            Mnemonics.setLocalizedText(item, "&0 " + createLabel(selectedFolder));  // NOI18N
             item.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
                     if (getAllFiles().isSelected()) return;
@@ -684,13 +684,12 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
             popup.add(item);
         }
 
-        int[] mnemonics = new int[] {0, KeyEvent.VK_1, KeyEvent.VK_2, KeyEvent.VK_3, KeyEvent.VK_4, KeyEvent.VK_5};
         while (it.hasNext()) {
             final FileObject fo = (FileObject) it.next();
             if (fo == null || fo.isValid() == false) continue;
             if (fo.equals(selectedFolder)) continue;
-            JMenuItem item = new JMenuItem(i + " " + createLabel(fo));    // NOI18N
-            item.setMnemonic(mnemonics[i]);
+            JMenuItem item = new JMenuItem();
+            Mnemonics.setLocalizedText(item, "&" + i + " " + createLabel(fo));    // NOI18N
             item.addActionListener(new RecentActionListener(fo));
             popup.add(item);
             i++;
