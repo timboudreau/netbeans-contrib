@@ -1,0 +1,211 @@
+/*
+ * The contents of this file are subject to the terms of the Common Development
+ * and Distribution License (the License). You may not use this file except in
+ * compliance with the License.
+ *
+ * You can obtain a copy of the License at http://www.netbeans.org/cddl.html
+ * or http://www.netbeans.org/cddl.txt.
+ *
+ * When distributing Covered Code, include this CDDL Header Notice in each file
+ * and include the License file at http://www.netbeans.org/cddl.txt.
+ * If applicable, add the following below the CDDL Header, with the fields
+ * enclosed by brackets [] replaced by your own identifying information:
+ * "Portions Copyrighted [year] [name of copyright owner]"
+ *
+ * The Original Software is NetBeans. The Initial Developer of the Original
+ * Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
+ * Microsystems, Inc. All Rights Reserved.
+ */
+
+package org.netbeans.modules.erd.graphics;
+
+
+
+
+import java.awt.Color;
+import java.awt.Point;
+import java.awt.Rectangle;
+import java.util.ArrayList;
+import org.netbeans.api.visual.widget.ConnectionWidget;
+import org.netbeans.api.visual.widget.LayerWidget;
+import org.netbeans.api.visual.widget.Widget;
+import org.netbeans.api.visual.anchor.*;
+import org.netbeans.api.visual.graph.GraphPinScene;
+import org.netbeans.api.visual.router.CollisionsCollector;
+import org.netbeans.api.visual.router.CollisionsCollector;
+import javax.swing.*;
+import org.netbeans.api.visual.action.ActionFactory;
+import org.netbeans.api.visual.action.MoveProvider;
+import org.netbeans.api.visual.action.ResizeStrategy;
+import org.netbeans.api.visual.action.WidgetAction;
+import org.netbeans.api.visual.vmd.VMDNodeWidget;
+import org.netbeans.modules.erd.model.ERDDocument;
+import org.netbeans.api.visual.anchor.*;
+import org.netbeans.api.visual.graph.layout.GraphLayout;
+import org.netbeans.api.visual.graph.layout.GridGraphLayout;
+import org.netbeans.api.visual.layout.SceneLayout;
+import org.netbeans.modules.erd.model.ERDComponent;
+import org.netbeans.modules.erd.model.component.TableDescriptor;
+import org.netbeans.api.visual.graph.layout.GraphLayoutListener;
+import org.netbeans.api.visual.graph.layout.UniversalGraph;
+import org.netbeans.api.visual.layout.LayoutFactory;
+import org.netbeans.api.visual.widget.SwingScrollWidget;
+import org.netbeans.api.visual.border.BorderFactory;
+import org.netbeans.api.visual.router.RouterFactory;
+import org.netbeans.modules.erd.graphics.ResizeStrategyImpl;
+import org.netbeans.modules.erd.graphics.TableWidget;
+import org.netbeans.modules.erd.graphics.TableWidget;
+import org.netbeans.modules.erd.graphics.TableWidget;
+import org.netbeans.modules.erd.model.ERDDocumentAwareness;
+
+
+
+
+
+
+
+
+public class ERDScene extends GraphPinScene<String, String, String>  implements ERDDocumentAwareness{
+    
+    public static final String PIN_ID_DEFAULT_SUFFIX = "#default"; // NOI18N
+    
+    private LayerWidget backgroundLayer = new LayerWidget(this);
+    private LayerWidget mainLayer = new LayerWidget(this);
+    private LayerWidget connectionLayer = new LayerWidget(this);
+    private LayerWidget upperLayer = new LayerWidget(this);
+    
+   // private CollisionsCollector collisionsCollector;
+    private ERDDocument document;
+    
+    private GridGraphLayout<String,String> graphLayout;
+    private SceneLayout sceneLayout;
+    private WidgetAction moveAction ;
+    private MoveProviderImpl moveHelper;
+    private ResizeStrategy resizeStrategy=new ResizeStrategyImpl();
+    private LayerWidget[] layers;
+    
+    public ERDScene(ERDDocument document) {
+        this.document=document;
+        
+        this.moveHelper=new MoveProviderImpl(document,this);
+        addChild(backgroundLayer);
+        addChild(mainLayer);
+        addChild(connectionLayer);
+        addChild(upperLayer);
+        moveAction= ActionFactory.createMoveAction(null,moveHelper);
+       // collisionsCollector = new
+        //        WidgetsCollisionCollector(mainLayer, connectionLayer);
+        layers=new LayerWidget[2];
+        layers[0]=mainLayer;
+        layers[1]=connectionLayer;
+        graphLayout = new GridGraphLayout<String, String> ().setChecker(true);
+        graphLayout.addGraphLayoutListener(moveHelper);
+        
+        sceneLayout = new SceneLayout(this) {
+            protected void performLayout() {
+                graphLayout.layoutGraph(ERDScene.this);
+            }
+        };
+        
+       
+        
+        
+    }
+    
+    
+     public void setERDDocument (ERDDocument designDocument){
+        layoutScene();  
+     }
+    
+    public void layoutScene() {
+        if(document.getIsDefaultLayout())
+            sceneLayout.invokeLayout();
+        document.setIsDefaultLayout(false);
+    }
+    
+    
+    protected Widget attachNodeWidget(String node) {
+        
+        
+        TableWidget table = new TableWidget(this);
+        SwingScrollWidget widget=new SwingScrollWidget(this,table);
+       // widget.setBorder(BorderFactory.createResizeBorder(8, Color.BLUE, false));
+        widget.setCheckClipping(true);
+        
+        // widget.setPreferredBounds(clientArea);
+        // widget.setPreferredLocation (new Point (50, 50));
+        // widget.setMinimumBounds (new Rectangle (100, 200));
+        // widget.setMaximumBounds (new Rectangle (500, 500));
+        
+        widget.getView().setLayout(LayoutFactory.createVerticalLayout());;
+        addSceneListener((SceneListener)table.getView());
+        mainLayer.addChild(widget);
+        
+        //widget.getActions ().addAction (createObjectHoverAction ());
+        //widget.getHeader ().getActions ().addAction (createObjectHoverAction ());
+        widget.getView().getActions().addAction(createObjectHoverAction());
+        widget.getView().getActions().addAction(createSelectAction());
+        widget.getActions().addAction(ActionFactory.createResizeAction(resizeStrategy,null));
+        widget.getActions().addAction(moveAction);
+        
+        return widget;
+    }
+    
+    protected Widget attachPinWidget(String node, String pin) {
+        if (pin.endsWith(PIN_ID_DEFAULT_SUFFIX))
+            return null;
+        
+        ColumnWidget widget = new ColumnWidget(this);
+        TableWidget table=(TableWidget)((SwingScrollWidget) findWidget(node)).getView();
+        table.attachPinWidget(widget);
+        widget.getActions().addAction(createObjectHoverAction());
+        widget.getActions().addAction(createSelectAction());
+        
+        return widget;
+    }
+    
+    protected Widget attachEdgeWidget(String edge) {
+        ConnectionWidget connectionWidget = new ConnectionWidget(this);
+        connectionWidget.setRouter( RouterFactory.createOrthogonalSearchRouter(layers));
+       // connectionWidget.setSourceAnchorShape(new OneManyAnchor(12,true,true));
+       // connectionWidget.setTargetAnchorShape(AnchorShape.TRIANGLE_FILLED);
+        connectionWidget.setControlPointShape(PointShape.SQUARE_FILLED_SMALL);
+        connectionWidget.setEndPointShape(PointShape.SQUARE_FILLED_BIG);
+        connectionLayer.addChild(connectionWidget);
+        
+        connectionWidget.getActions().addAction(createObjectHoverAction());
+        connectionWidget.getActions().addAction(createSelectAction());
+        // connectionWidget.getActions ().addAction (moveControlPointAction);
+        
+        return connectionWidget;
+    }
+    
+    protected void attachEdgeSourceAnchor(String edge, String oldSourcePin, String sourcePin) {
+        ((ConnectionWidget) findWidget(edge)).setSourceAnchor(getPinAnchor(sourcePin));
+    }
+    
+    protected void attachEdgeTargetAnchor(String edge, String oldTargetPin, String targetPin) {
+        ((ConnectionWidget) findWidget(edge)).setTargetAnchor(getPinAnchor(targetPin));
+    }
+    
+    
+    private Anchor getPinAnchor(String pin) {
+        SwingScrollWidget nodeWidget = (SwingScrollWidget) findWidget(getPinNode(pin));
+        Widget pinMainWidget = findWidget(pin);
+        Anchor anchor;
+        if (pinMainWidget != null) {
+            anchor = AnchorFactory.createDirectionalAnchor(pinMainWidget, AnchorFactory.DirectionalAnchorKind.HORIZONTAL,3) ;
+            anchor = ((TableWidget)nodeWidget.getView()).createAnchorPin(anchor);
+        } else
+            anchor =((TableWidget)nodeWidget.getView()).getNodeAnchor();
+        return anchor;
+    }
+    
+    
+    
+    
+    
+    
+    
+    
+}
