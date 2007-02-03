@@ -31,26 +31,26 @@ TOKEN:html_end_element_start: ( "</" ):<IN_ELEMENT_START>
 
 #element name ###
 
-<IN_ELEMENT_START>:TOKEN:html_element_name: ( "SCRIPT" ):<IN_SCRIPT_ELEMENT>
-<IN_ELEMENT_START>:TOKEN:html_element_name: ( "script" ):<IN_SCRIPT_ELEMENT>
-<IN_ELEMENT_START>:TOKEN:html_element_name: ( "STYLE" ):<IN_STYLE_ELEMENT>
-<IN_ELEMENT_START>:TOKEN:html_element_name: ( "style" ):<IN_STYLE_ELEMENT>
+#<IN_ELEMENT_START>:TOKEN:html_element_name: ( "SCRIPT" ):<IN_SCRIPT_ELEMENT>
+#<IN_ELEMENT_START>:TOKEN:html_element_name: ( "script" ):<IN_SCRIPT_ELEMENT>
+#<IN_ELEMENT_START>:TOKEN:html_element_name: ( "STYLE" ):<IN_STYLE_ELEMENT>
+#<IN_ELEMENT_START>:TOKEN:html_element_name: ( "style" ):<IN_STYLE_ELEMENT>
 <IN_ELEMENT_START>:TOKEN:html_element_name: ( "!"? ["a"-"z" "A"-"Z"]["a"-"z" "A"-"Z" "0"-"9"]* ):<IN_ELEMENT>
 
 #attributes ###
 
-<IN_SCRIPT_ELEMENT> {
-    TOKEN:html_element_end: ( ">" ):<DEFAULT>
-    TOKEN:html_end_element_end: ( "/>" ):<DEFAULT>
-    TOKEN:html_operator: ( "=" )
-    TOKEN:html_attribute_value: ( "\"text/javascript\"" ):<IN_JAVASCRIPT>
-    TOKEN:html_attribute_value: ( "\"javascript\"" ):<IN_JAVASCRIPT>
-    TOKEN:html_attribute_value: ( "\"JavaScript\"" ):<IN_JAVASCRIPT>
-    TOKEN:html_attribute_value: ( "\"JAVASCRIPT\"" ):<IN_JAVASCRIPT>
-    TOKEN:html_attribute_value: ( "\"" [^ "\"" "\n" "\r"]* "\"" )    
-    TOKEN:html_attribute_name: ( ["a"-"z" "A"-"Z"]["a"-"z" "A"-"Z" "0"-"9" "-" "_" ":"]* )
-    TOKEN:html_whitespace2: ( [" " "\t" "\n" "\r"]+ )
-}
+#<IN_SCRIPT_ELEMENT> {
+#    TOKEN:html_element_end: ( ">" ):<DEFAULT>
+#    TOKEN:html_end_element_end: ( "/>" ):<DEFAULT>
+#    TOKEN:html_operator: ( "=" )
+#    TOKEN:html_attribute_value: ( "\"text/javascript\"" ):<IN_JAVASCRIPT>
+#    TOKEN:html_attribute_value: ( "\"javascript\"" ):<IN_JAVASCRIPT>
+#    TOKEN:html_attribute_value: ( "\"JavaScript\"" ):<IN_JAVASCRIPT>
+#    TOKEN:html_attribute_value: ( "\"JAVASCRIPT\"" ):<IN_JAVASCRIPT>
+#    TOKEN:html_attribute_value: ( "\"" [^ "\"" "\n" "\r"]* "\"" )    
+#    TOKEN:html_attribute_name: ( ["a"-"z" "A"-"Z"]["a"-"z" "A"-"Z" "0"-"9" "-" "_" ":"]* )
+#    TOKEN:html_whitespace2: ( [" " "\t" "\n" "\r"]+ )
+#}
 
 <IN_STYLE_ELEMENT> {
     TOKEN:html_element_end: ( "/"? ">" ):<DEFAULT>
@@ -109,18 +109,18 @@ TOKEN:html_end_element_start: ( "</" ):<IN_ELEMENT_START>
 
 #embeded languages ###
 
-<JAVASCRIPT>:TOKEN:html_end_element_start: ( "</" ):<IN_ELEMENT_START>
-<CSS>:TOKEN:html_end_element_start: ( "</" ):<IN_ELEMENT_START>
+#<JAVASCRIPT>:TOKEN:html_end_element_start: ( "</" ):<IN_ELEMENT_START>
+#<CSS>:TOKEN:html_end_element_start: ( "</" ):<IN_ELEMENT_START>
 
-IMPORT:js {
-    mimeType:"text/javascript";
-    state: "JAVASCRIPT";
-}
+#IMPORT:js {
+#    mimeType:"text/javascript";
+#    state: "JAVASCRIPT";
+#}
 
-IMPORT:css {
-    mimeType:"text/css2";
-    state: "CSS";
-}
+#IMPORT:css {
+#    mimeType:"text/css2";
+#    state: "CSS";
+#}
 
 
 ########### grammar ############################################################

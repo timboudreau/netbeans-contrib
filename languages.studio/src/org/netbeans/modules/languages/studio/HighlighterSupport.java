@@ -21,10 +21,10 @@ package org.netbeans.modules.languages.studio;
 
 import org.netbeans.api.languages.ASTNode;
 import org.netbeans.api.languages.Highlighting;
+import org.netbeans.api.languages.SToken;
 import org.openide.ErrorManager;
 import org.openide.cookies.EditorCookie;
 import org.openide.windows.TopComponent;
-
 import java.awt.Color;
 import java.util.Iterator;
 import javax.swing.JEditorPane;
@@ -43,7 +43,7 @@ public class HighlighterSupport {
     private Color       color;
     private Document    highlightedDocument;
     private ASTNode     highlightedNode;
-    private int         highlightedTokenOffset = -1;
+    private SToken      highlightedToken;
     
     
     public HighlighterSupport (Color c) {
@@ -59,13 +59,13 @@ public class HighlighterSupport {
         refresh (doc, node.getOffset ());
     }
     
-    public void highlight (Document doc, int tokenOffset) {
+    public void highlight (Document doc, SToken token) {
         removeHighlightIn ();
         Highlighting.getHighlighting (highlightedDocument = doc).highlight (
-            highlightedTokenOffset = tokenOffset, 
+            highlightedToken = token, 
             getHighlightAS ()
         );
-        refresh (doc, tokenOffset);
+        refresh (doc, token.getOffset ());
     }
     
     private static void refresh (final Document doc, final int offset) {
@@ -135,10 +135,10 @@ public class HighlighterSupport {
             highlightedNode = null;
             highlightedDocument = null;
         }
-        if (highlightedTokenOffset != -1) {
+        if (highlightedToken != null) {
             Highlighting.getHighlighting (highlightedDocument).removeHighlight 
-                (highlightedTokenOffset);
-            highlightedTokenOffset = -1;
+                (highlightedToken);
+            highlightedToken = null;
             highlightedDocument = null;
         }
     }

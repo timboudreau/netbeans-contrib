@@ -202,7 +202,7 @@ final class ASTBrowserTopComponent extends TopComponent {
                         } else {
                             highlighting.highlight (
                                 editorCookie.getDocument (), 
-                                ((ASTLeaf) tn).getToken ().getOffset ()
+                                ((ASTLeaf) tn).getToken ()
                             );
                         }
                         return;

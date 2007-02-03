@@ -28,6 +28,7 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
+import org.netbeans.api.languages.SToken;
 import org.netbeans.api.lexer.Token;
 import org.netbeans.api.lexer.TokenHierarchy;
 import org.netbeans.api.lexer.TokenSequence;
@@ -197,10 +198,18 @@ final class TokensBrowserTopComponent extends TopComponent {
                 lookup (EditorCookie.class);
             if (editorCookie != null) {
                 THNode t = (THNode) tree.getLastSelectedPathComponent ();
+                if (t == null) return;
+                Token token = t.getToken ();
+                if (token == null) return;
+                SToken stoken = SToken.create (
+                    token.id ().name (), 
+                    token.text ().toString (), 
+                    t.getOffset ()
+                );
                 if (t != null) {
                     highlighting.highlight (
                         editorCookie.getDocument (), 
-                        t.getOffset ()
+                        stoken
                     );
                     return;
                 }
@@ -527,6 +536,8 @@ final class TokensBrowserTopComponent extends TopComponent {
                 );
             StringBuilder sb = new StringBuilder ().
                 append ('<').
+                append (node.getOffset ()).
+                append (",\"").
                 append (token.id ().name ()).
                 append (",\"").
                 append (e (token.text ())).
