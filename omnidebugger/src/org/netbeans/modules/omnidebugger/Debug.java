@@ -83,6 +83,9 @@ class Debug {
                     CompilationUnitTree compunit = controller.getCompilationUnit();
                     for (Tree t : compunit.getTypeDecls()) {
                         TypeElement clazz = (TypeElement) controller.getTrees().getElement(controller.getTrees().getPath(compunit, t));
+                        if (clazz == null) {
+                            return; // ???
+                        }
                         TypeElement testCase = controller.getElements().getTypeElement("junit.framework.TestCase");
                         if (testCase != null) {
                             if (controller.getTypes().isSubtype(clazz.asType(), testCase.asType())) {
