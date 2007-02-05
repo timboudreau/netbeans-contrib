@@ -45,7 +45,7 @@ public final class AddPortletAction extends CookieAction {
         for(int i=0;i<nodes.length;i++) {
             String containerNamePrefix = "";
             
-            ContainerNode cookie = (ContainerNode)nodes[i].getCookie(ContainersHolderNode.class);
+            ContainerNode cookie = null;//(ContainerNode)nodes[i].getCookie(ContainersHolderNode.class);
             if(cookie == null) {
                 cookie = (ContainerNode)nodes[i].getCookie(ContainerNode.class);
                 containerNamePrefix = cookie.getKey() + "/";

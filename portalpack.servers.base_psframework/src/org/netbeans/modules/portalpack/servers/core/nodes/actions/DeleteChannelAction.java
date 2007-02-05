@@ -55,7 +55,7 @@ public class DeleteChannelAction extends CookieAction {
             return;
         
         for(int i=0;i<nodes.length;i++) {
-            ChannelNode cookie = (ChannelNode)nodes[i].getCookie(ChannelHolderNode.class);
+            ChannelNode cookie = null;//(ChannelNode)nodes[i].getCookie(ChannelHolderNode.class);
                 
             if(cookie == null)
                 return;
