@@ -1,0 +1,185 @@
+<?xml version="1.0" ?>
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" attributeFormDefault="unqualified">
+    <!--****************************************************-->
+    <xsd:include schemaLocation="oracle-webservices-types-10_0.xsd"/>
+    <!--****************************************************-->
+    <xsd:complexType name="service-ref-mapping">
+        <xsd:annotation>
+            <xsd:documentation>This type defines runtime and deployment time generated settings for
+                a web service reference. In the simplest case, there is no runtime information
+                required for a service ref. </xsd:documentation>
+        </xsd:annotation>
+        <xsd:sequence>
+            <xsd:element name="service-impl-class" type="xsd:string" minOccurs="0">
+                <xsd:annotation>
+                    <xsd:documentation>This type defines a deployment time generated name of a
+                        'service' implementation</xsd:documentation>
+                </xsd:annotation>
+            </xsd:element>
+            <xsd:element name="wsdl-file" type="wsdl-file" minOccurs="0"/>
+            <xsd:element name="wsdl-location" type="wsdl-location" minOccurs="0"/>
+            <xsd:element name="service-qname" type="fully-qualified-nameType" minOccurs="0">
+                <xsd:annotation>
+                    <xsd:documentation>This is a deployment time derived information capturing the
+                        webservice QName . </xsd:documentation>
+                </xsd:annotation>
+            </xsd:element>
+            <xsd:element name="type-mappings" type="type-mappings-type" minOccurs="0" maxOccurs="1"/>
+            <xsd:element name="stub-property" type="propertyType" minOccurs="0" maxOccurs="unbounded">
+                <xsd:annotation>
+                    <xsd:documentation>This type defines user provided stub property values
+                        applicable to all ports .Note: a similar property valuues specified again
+                        inside the 'port-info' tag for a particular port , will overrite the
+                        property value set here.This is just a convenient way to specify the
+                        property without specfying the port name </xsd:documentation>
+                </xsd:annotation>
+            </xsd:element>
+            <xsd:element name="call-property" type="propertyType" minOccurs="0" maxOccurs="unbounded">
+                <xsd:annotation>
+                    <xsd:documentation>This type defines user provided call property values
+                        applicable to all ports .Note: a similar property values specified again
+                        inside the 'port-info' tag for a particular port , will overrite the
+                        property value set here.This is just a convenient way to specify the
+                        property without specifying the port name. </xsd:documentation>
+                </xsd:annotation>
+            </xsd:element>
+            <xsd:element name="port-info" type="port-infoType" minOccurs="0" maxOccurs="unbounded"/>
+        </xsd:sequence>
+        <xsd:attribute name="name" type="xsd:string" use="required"/>
+    </xsd:complexType>
+    <!--****************************************************-->
+    <xsd:complexType name="propertyType">
+        <xsd:annotation>
+            <xsd:documentation>This type defines a JAXRPC property value that should be set on a
+                Call object or a Stub object before it's returned to the web service client.The
+                property name can be any property supported by the JAXRPC Call or Stub
+                implementation.See javadoc for javax.xml.rpc.Call and javax.xml.rpc.Stub for the
+                allowed property types </xsd:documentation>
+        </xsd:annotation>
+        <xsd:sequence>
+            <xsd:element name="name" type="xsd:string"/>
+            <xsd:element name="value" type="xsd:string"/>
+        </xsd:sequence>
+    </xsd:complexType>
+    <!--****************************************************-->
+    <xsd:complexType name="fully-qualified-nameType">
+        <xsd:attribute name="namespaceURI" type="xsd:anyURI" use="required"/>
+        <xsd:attribute name="localpart" type="xsd:string" use="required"/>
+    </xsd:complexType>
+    <!--****************************************************-->
+    <xsd:complexType name="port-infoType">
+        <xsd:annotation>
+            <xsd:documentation>This type defines a port within a service-reference. Either
+                service-endpoint-interface or wsdl-port can be specified. When both are specified,
+                wsdl-port represents the port the container will choose for container-managed port
+                selection.If none of wsdl-port or service-endpoint-interface are specified , the
+                property values are set for all available ports. </xsd:documentation>
+        </xsd:annotation>
+        <xsd:sequence>
+            <xsd:element name="wsdl-port" type="fully-qualified-nameType" minOccurs="0"/>
+            <xsd:element name="service-endpoint-interface" type="xsd:string" minOccurs="0"/>
+            <xsd:element name="stub-property" type="propertyType" minOccurs="0" maxOccurs="unbounded"/>
+            <xsd:element name="call-property" type="propertyType" minOccurs="0" maxOccurs="unbounded"/>
+            <xsd:element name="runtime" type="clientPortRuntimeType" minOccurs="0" maxOccurs="1">
+                <xsd:annotation>
+                    <xsd:documentation>This element contains client side quality of service runtime
+                        information that is applicable to all of the operations provided by the
+                        referenced web service. Each child element will contain configuration for a
+                        specific feature. </xsd:documentation>
+                </xsd:annotation>
+            </xsd:element>
+            <xsd:element name="operations" type="clientOperationsType" minOccurs="0" maxOccurs="1">
+                <xsd:annotation>
+                    <xsd:documentation>This element contains a sequence elements, one for each
+                        operation. Each of these child elements will contain client side quality of
+                        service configuration for a single operation provided by referenced web
+                        service. </xsd:documentation>
+                </xsd:annotation>
+            </xsd:element>
+        </xsd:sequence>
+    </xsd:complexType>
+    <!--****************************************************-->
+    <xsd:complexType name="wsdl-file">
+        <xsd:annotation>
+            <xsd:documentation>This type defines a deployment time generated i nformation . The
+                'final-location' attribute points to the copy of the WSDL document associated with
+                the service-ref in the standard deployment descriptor. </xsd:documentation>
+        </xsd:annotation>
+        <xsd:attribute name="final-location" type="xsd:anyURI" use="required"/>
+    </xsd:complexType>
+    <!--****************************************************-->
+    <xsd:complexType name="wsdl-location">
+        <xsd:annotation>
+            <xsd:documentation>This type defines a user provided valid URL pointing to a WSDL
+                document. It is optional. If specified, the WSDL document at this URL will be used
+                during deployment instead of the WSDL document associated with the service-ref in
+                the standard deployment descriptor. Examples include :
+                http://hostname:port/myservice/myport?WSDL and file:/home/user1/myfinalwsdl.wsdl. </xsd:documentation>
+        </xsd:annotation>
+        <xsd:simpleContent>
+            <xsd:extension base="xsd:string">
+                <xsd:attribute name="wsdl-override-last-modified" type="xsd:string" use="optional">
+                    <xsd:annotation>
+                        <xsd:documentation>This attribute is a deployment time generated information
+                            corresponding to the time when the wsdl file was last modified. </xsd:documentation>
+                    </xsd:annotation>
+                </xsd:attribute>
+            </xsd:extension>
+        </xsd:simpleContent>
+    </xsd:complexType>
+    <!--****************************************************-->
+    <xsd:complexType name="clientOperationsType">
+        <xsd:sequence>
+            <xsd:annotation>
+                <xsd:documentation>This type describes a sequence of operation elements. Each
+                    operation provided by this web service reference may have a corresponding
+                    operation element. These elements are used to specify client side quality of
+                    service configuration. </xsd:documentation>
+            </xsd:annotation>
+            <xsd:element name="operation" type="clientOperationType" minOccurs="0" maxOccurs="unbounded">
+                <xsd:annotation>
+                    <xsd:documentation>This element is used to specify client side quality of
+                        service configuration for a particular operation provided by the referenced
+                        web service. </xsd:documentation>
+                </xsd:annotation>
+            </xsd:element>
+        </xsd:sequence>
+    </xsd:complexType>
+    <!--****************************************************-->
+    <xsd:complexType name="clientOperationType">
+        <xsd:annotation>
+            <xsd:documentation>This type is used to specify client side quality of service
+                configuration for a particular operation provided by the referenced web service. </xsd:documentation>
+        </xsd:annotation>
+        <xsd:sequence>
+            <xsd:element name="runtime" type="clientOperationRuntimeType" minOccurs="0" maxOccurs="1">
+                <xsd:annotation>
+                    <xsd:documentation>This element contains client side quality of service
+                        configuration. Each child element will contain configuration for one of the
+                        quality of services features (e.g. security and/or reliability). </xsd:documentation>
+                </xsd:annotation>
+            </xsd:element>
+        </xsd:sequence>
+        <xsd:attribute name="name" type="xsd:string" use="required">
+            <xsd:annotation>
+                <xsd:documentation>This attribute is used to associate the contained quality of
+                    service configuration to a specific operation. The value of the attribute must
+                    match the operation name from the WSDL. </xsd:documentation>
+            </xsd:annotation>
+        </xsd:attribute>
+        <xsd:attribute name="inputName" type="xsd:string" use="optional">
+            <xsd:annotation>
+                <xsd:documentation>This attribute contains the input name of the operation from the
+                    WSDL. It is only required if the name attirbute cannot be used to uniquely
+                    identify the operation. </xsd:documentation>
+            </xsd:annotation>
+        </xsd:attribute>
+        <xsd:attribute name="outputName" type="xsd:string" use="optional">
+            <xsd:annotation>
+                <xsd:documentation>This attribute contains the output name of the operation from the
+                    WSDL. It is only required if the name and input attirbute cannot be used to
+                    uniquely identify the operation. </xsd:documentation>
+            </xsd:annotation>
+        </xsd:attribute>
+    </xsd:complexType>
+</xsd:schema>

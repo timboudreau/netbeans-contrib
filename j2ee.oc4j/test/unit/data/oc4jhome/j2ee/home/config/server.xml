@@ -1,0 +1,40 @@
+<?xml version="1.0"?>
+
+<application-server  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://xmlns.oracle.com/oracleas/schema/application-server-10_1.xsd"  application-directory="../applications"
+ check-for-updates="adminClientOnly"
+ deployment-directory="../application-deployments"
+ connector-directory="../connectors"
+ schema-major-version="10" schema-minor-version="0" >
+	<shared-library name="global.libraries" version="1.0" library-compatible="true">
+		<code-source path="../applib"/>
+	</shared-library>
+	<shared-library name="global.tag.libraries" version="1.0" library-compatible="true">
+		<code-source path="../../home/jsp/lib/taglib/"/>
+		<code-source path="../../../j2ee/home/jsp/lib/taglib/"/>
+		<code-source path="../../../lib/dsv2.jar"/>
+		<import-shared-library name="oracle.xml"/>
+		<import-shared-library name="oracle.jdbc"/>
+		<import-shared-library name="oracle.cache"/>
+		<import-shared-library name="soap"/>
+	</shared-library>
+	<shared-library name="oracle.persistence" version="1.0" library-compatible="true">
+		<code-source path="../../../toplink/jlib/toplink-essentials.jar"/>
+		<import-shared-library name="oracle.jdbc"/>
+	</shared-library>
+	<rmi-config path="./rmi.xml" />
+	<!-- <jms-config path="../jms.xml" /> -->
+	<javacache-config path="../../../javacache/admin/javacache.xml" />
+	<j2ee-logging-config path="./j2ee-logging.xml" />
+	<log>
+		<file path="../log/server.log" />
+	</log>
+	<java-compiler name="javac" in-process="false" options="-J-Xmx1024m -encoding UTF8" extdirs="/usr/local/jdks/jdk1.6.0/jre/lib/ext:/usr/java/packages/lib/ext" />
+	<global-application name="default" path="application.xml" parent="system" start="true" />
+	<application name="javasso" path="../../home/applications/javasso.ear" parent="default" start="false" />
+	<application name="ascontrol" path="../../home/applications/ascontrol.ear" parent="system" start="true" />
+	<global-web-app-config path="global-web-application.xml" />
+	<transaction-manager-config path="transaction-manager.xml" />
+	<web-site default="true" path="./default-web-site.xml" />
+        <web-site default="false" path="./secure-web-site.xml" />
+	<cluster  id="120521094135935" />
+</application-server>

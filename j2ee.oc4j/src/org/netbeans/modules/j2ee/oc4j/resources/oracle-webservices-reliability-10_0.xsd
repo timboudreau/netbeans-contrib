@@ -1,0 +1,130 @@
+<?xml version="1.0"?>
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" attributeFormDefault="unqualified">
+    <!-- server port config -->
+    <xsd:complexType name="reliability-serverType">
+        <xsd:sequence>
+            <xsd:element name="repository" type="server-repositoryType"/>
+            <xsd:element name="ack-interval" type="ack-intervalType" minOccurs="0"/>
+            <xsd:element name="order-interval" type="order-intervalType" minOccurs="0"/>
+            <xsd:element name="cleanup-interval" type="cleanup-intervalType" minOccurs="0"/>
+            <xsd:element name="ack-limit" type="ack-limitType" minOccurs="0"/>
+            <xsd:element name="max-age" type="max-ageType" minOccurs="0"/>
+        </xsd:sequence>
+    </xsd:complexType>
+    <xsd:complexType name="server-repositoryType">
+        <xsd:attribute name="name" type="xsd:string"/>
+        <xsd:attribute name="type" type="xsd:string"/>
+        <xsd:attribute name="jndiLocation" type="xsd:string"/>
+    </xsd:complexType>
+    <xsd:complexType name="client-repositoryType">
+        <xsd:attribute name="name" type="xsd:string"/>
+        <xsd:attribute name="type" type="xsd:string" use="required"/>
+        <xsd:attribute name="connection-driver" type="xsd:string"/>
+        <xsd:attribute name="username" type="xsd:string"/>
+        <xsd:attribute name="password" type="xsd:string"/>
+        <xsd:attribute name="url" type="xsd:string"/>
+        <xsd:attribute name="jndiLocation" type="xsd:string"/>
+    </xsd:complexType>
+    <xsd:complexType name="ack-intervalType">
+        <xsd:attribute name="value" type="xsd:integer"/>
+    </xsd:complexType>
+    <xsd:complexType name="order-intervalType">
+        <xsd:attribute name="value" type="xsd:integer"/>
+    </xsd:complexType>
+    <xsd:complexType name="cleanup-intervalType">
+        <xsd:attribute name="value" type="xsd:integer"/>
+    </xsd:complexType>
+    <xsd:complexType name="ack-limitType">
+        <xsd:attribute name="value" type="xsd:integer"/>
+    </xsd:complexType>
+    <xsd:complexType name="max-ageType">
+        <xsd:attribute name="value" type="xsd:integer"/>
+    </xsd:complexType>
+    <xsd:element name="reliability" type="reliability-serverType"/>
+    <!-- server operation level type -->
+    <xsd:complexType name="reliability-server-operationType">
+        <xsd:sequence>
+            <xsd:element name="duplication-elimination-required" type="duplication-elimination-requiredType"/>
+            <xsd:element name="guaranteed-delivery-required" type="guaranteed-delivery-requiredType"/>
+        </xsd:sequence>
+    </xsd:complexType>
+    <xsd:complexType name="duplication-elimination-requiredType">
+        <xsd:attribute name="value" type="xsd:boolean"/>
+    </xsd:complexType>
+    <xsd:complexType name="guaranteed-delivery-requiredType">
+        <xsd:attribute name="value" type="xsd:boolean"/>
+    </xsd:complexType>
+    <xsd:element name="reliability-operation" type="reliability-server-operationType"/>
+    <!-- client port config -->
+    <xsd:element name="reliability-client" type="reliability-clientType"/>
+    <xsd:complexType name="reliability-clientType">
+        <xsd:sequence>
+            <xsd:element name="repository" type="client-repositoryType"/>
+            <xsd:element name="retry-interval" type="retry-intervalType" minOccurs="0"/>
+            <xsd:element name="retry-limit" type="retry-limitType" minOccurs="0"/>
+            <xsd:element name="poll-interval" type="poll-intervalType" minOccurs="0"/>
+            <xsd:element name="cleanup-interval" type="cleanup-intervalType" minOccurs="0"/>
+            <xsd:element name="max-age" type="max-ageType" minOccurs="0"/>
+            <xsd:element name="standalone-listener-port" type="standalone-listener-portType" minOccurs="0"/>
+            <xsd:element name="async-poll-reply-to-url" type="async-poll-reply-to-urlType" minOccurs="0"/>
+        </xsd:sequence>
+    </xsd:complexType>
+    <xsd:complexType name="retry-intervalType">
+        <xsd:attribute name="value" type="xsd:integer"/>
+    </xsd:complexType>
+    <xsd:complexType name="poll-intervalType">
+        <xsd:attribute name="value" type="xsd:integer"/>
+    </xsd:complexType>
+    <xsd:complexType name="retry-limitType">
+        <xsd:attribute name="value" type="xsd:integer"/>
+    </xsd:complexType>
+    <xsd:complexType name="standalone-listener-portType">
+        <xsd:attribute name="value" type="xsd:string"/>
+    </xsd:complexType>
+    <xsd:complexType name="async-poll-reply-to-urlType">
+        <xsd:attribute name="value" type="xsd:anyURI"/>
+    </xsd:complexType>
+    <!-- client operation config -->
+    <xsd:element name="reliability-client-operation" type="reliability-client-operationType"/>
+    <xsd:complexType name="reliability-client-operationType">
+        <xsd:sequence>
+            <xsd:element name="guaranteed-delivery">
+                <xsd:complexType>
+                    <xsd:attribute name="enabled" type="xsd:boolean"/>
+                </xsd:complexType>
+            </xsd:element>
+            <xsd:element name="duplicate-elimination">
+                <xsd:complexType>
+                    <xsd:attribute name="enabled" type="xsd:boolean"/>
+                </xsd:complexType>
+            </xsd:element>
+            <xsd:element name="group-max-idle-time" type="group-max-idle-timeType" minOccurs="0" />
+            <xsd:element name="group-expiry-time" type="group-expiry-timeType" minOccurs="0" />
+            <xsd:element name="expiry" type="expiryType" minOccurs="0"/>
+            <xsd:element name="reply-pattern" type="reply-patternsType" minOccurs="1"/>
+            <xsd:element name="reply-to-url" type="reply-to-urlType" minOccurs="0"/>
+        </xsd:sequence>
+    </xsd:complexType>
+        <xsd:complexType name="expiryType">
+        <xsd:attribute name="value" type="xsd:integer"/>
+    </xsd:complexType>
+    <xsd:complexType name="group-max-idle-timeType">
+        <xsd:attribute name="value" type="xsd:integer"/>
+    </xsd:complexType>
+    <xsd:complexType name="group-expiry-timeType">
+        <xsd:attribute name="value" type="xsd:integer"/>
+    </xsd:complexType>
+    <xsd:complexType name="reply-to-urlType">
+        <xsd:attribute name="value" type="xsd:anyURI"/>
+    </xsd:complexType>
+    <xsd:complexType name="reply-patternsType">
+        <xsd:attribute name="value" type="reply-patterns"/>
+    </xsd:complexType>    
+    <xsd:simpleType name="reply-patterns">
+        <xsd:restriction base="xsd:string">
+            <xsd:enumeration value="Callback"/>
+            <xsd:enumeration value="Response"/>
+            <xsd:enumeration value="Polling"/>
+        </xsd:restriction>
+    </xsd:simpleType>
+</xsd:schema>

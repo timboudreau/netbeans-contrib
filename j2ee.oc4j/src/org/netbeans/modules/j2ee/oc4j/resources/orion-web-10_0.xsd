@@ -1,0 +1,1132 @@
+<?xml version="1.0"?>
+<xsd:schema xmlns:oc4j="http://xmlns.oracle.com/oracleas/schema/oc4j-10_0.xsd" xmlns:xsd="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" attributeFormDefault="unqualified">
+	<!--****************************************************-->
+	<xsd:import namespace="http://xmlns.oracle.com/oracleas/schema/oc4j-10_0.xsd" schemaLocation="oc4j-10_0.xsd"/>
+	<!--****************************************************-->
+	<!--****************************************************-->
+	<xsd:include schemaLocation="service-ref-mapping-10_0.xsd"/>
+	<!--****************************************************-->
+	<xsd:element name="auth-constraint">
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element ref="description" minOccurs="0"/>
+				<xsd:element ref="role-name" minOccurs="0" maxOccurs="unbounded"/>
+			</xsd:sequence>
+			<xsd:attribute name="id" type="xsd:ID"/>
+		</xsd:complexType>
+	</xsd:element>
+	<!--****************************************************-->
+	<xsd:element name="auth-method">
+		<xsd:complexType>
+			<xsd:simpleContent>
+				<xsd:extension base="xsd:string">
+					<xsd:attribute name="id" type="xsd:ID"/>
+				</xsd:extension>
+			</xsd:simpleContent>
+		</xsd:complexType>
+	</xsd:element>
+	<!--****************************************************-->
+	<xsd:element name="classpath">
+		<xsd:complexType>
+			<xsd:simpleContent>
+				<xsd:extension base="xsd:string">
+					<xsd:attribute name="path" type="xsd:string" use="required"/>
+				</xsd:extension>
+			</xsd:simpleContent>
+		</xsd:complexType>
+	</xsd:element>
+	<!--****************************************************-->
+	<xsd:element name="context-attribute">
+		<xsd:complexType>
+			<xsd:simpleContent>
+				<xsd:extension base="xsd:string">
+					<xsd:attribute name="name" type="xsd:string" use="required"/>
+					<xsd:attribute name="value" type="xsd:string" use="required"/>
+				</xsd:extension>
+			</xsd:simpleContent>
+		</xsd:complexType>
+	</xsd:element>
+	<!--****************************************************-->
+	<xsd:element name="context-param">
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element ref="param-name"/>
+				<xsd:element ref="param-value"/>
+				<xsd:element ref="description" minOccurs="0"/>
+			</xsd:sequence>
+			<xsd:attribute name="id" type="xsd:ID"/>
+		</xsd:complexType>
+	</xsd:element>
+	<!--****************************************************-->
+	<xsd:element name="context-param-mapping">
+		<xsd:complexType>
+			<xsd:simpleContent>
+				<xsd:extension base="xsd:string">
+					<xsd:attribute name="name" type="xsd:string" use="required"/>
+				</xsd:extension>
+			</xsd:simpleContent>
+		</xsd:complexType>
+	</xsd:element>
+	<!--****************************************************-->
+	<xsd:element name="description">
+		<xsd:complexType>
+			<xsd:simpleContent>
+				<xsd:extension base="xsd:string">
+					<xsd:attribute name="id" type="xsd:ID"/>
+				</xsd:extension>
+			</xsd:simpleContent>
+		</xsd:complexType>
+	</xsd:element>
+	<!--****************************************************-->
+	<xsd:element name="display-name">
+		<xsd:complexType>
+			<xsd:simpleContent>
+				<xsd:extension base="xsd:string">
+					<xsd:attribute name="id" type="xsd:ID"/>
+				</xsd:extension>
+			</xsd:simpleContent>
+		</xsd:complexType>
+	</xsd:element>
+	<!--****************************************************-->
+	<xsd:element name="distributable">
+		<xsd:complexType>
+			<xsd:attribute name="id" type="xsd:ID"/>
+		</xsd:complexType>
+	</xsd:element>
+	<!--****************************************************-->
+	<xsd:element name="ejb-link">
+		<xsd:complexType>
+			<xsd:simpleContent>
+				<xsd:extension base="xsd:string">
+					<xsd:attribute name="id" type="xsd:ID"/>
+				</xsd:extension>
+			</xsd:simpleContent>
+		</xsd:complexType>
+	</xsd:element>
+	<!--****************************************************-->
+	<xsd:element name="ejb-local-ref">
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element ref="description" minOccurs="0"/>
+				<xsd:element ref="ejb-ref-name"/>
+				<xsd:element ref="ejb-ref-type"/>
+				<xsd:element ref="local-home"/>
+				<xsd:element ref="local"/>
+				<xsd:element ref="ejb-link" minOccurs="0"/>
+			</xsd:sequence>
+			<xsd:attribute name="id" type="xsd:ID"/>
+		</xsd:complexType>
+	</xsd:element>
+	<!--****************************************************-->
+	<xsd:element name="ejb-ref">
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element ref="description" minOccurs="0"/>
+				<xsd:element ref="ejb-ref-name"/>
+				<xsd:element ref="ejb-ref-type"/>
+				<xsd:element ref="home"/>
+				<xsd:element ref="remote"/>
+				<xsd:element ref="ejb-link" minOccurs="0"/>
+			</xsd:sequence>
+			<xsd:attribute name="id" type="xsd:ID"/>
+		</xsd:complexType>
+	</xsd:element>
+	<!--****************************************************-->
+	<xsd:element name="ejb-ref-mapping">
+		<xsd:complexType>
+			<xsd:simpleContent>
+				<xsd:extension base="xsd:string">
+					<xsd:attribute name="location" type="xsd:string" use="required"/>
+					<xsd:attribute name="name" type="xsd:string" use="required"/>
+				</xsd:extension>
+			</xsd:simpleContent>
+		</xsd:complexType>
+	</xsd:element>
+	<!--****************************************************-->
+	<xsd:element name="ejb-ref-name">
+		<xsd:complexType>
+			<xsd:simpleContent>
+				<xsd:extension base="xsd:string">
+					<xsd:attribute name="id" type="xsd:ID"/>
+				</xsd:extension>
+			</xsd:simpleContent>
+		</xsd:complexType>
+	</xsd:element>
+	<!--****************************************************-->
+	<xsd:element name="ejb-ref-type">
+		<xsd:complexType>
+			<xsd:simpleContent>
+				<xsd:extension base="xsd:string">
+					<xsd:attribute name="id" type="xsd:ID"/>
+				</xsd:extension>
+			</xsd:simpleContent>
+		</xsd:complexType>
+	</xsd:element>
+	<!--****************************************************-->
+	<xsd:simpleType name="encodingType">
+		<xsd:restriction base="xsd:string">
+			<xsd:pattern value="[^s]+"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+	<!--****************************************************-->
+	<xsd:element name="env-entry">
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element ref="description" minOccurs="0"/>
+				<xsd:element ref="env-entry-name"/>
+				<xsd:element ref="env-entry-value" minOccurs="0"/>
+				<xsd:element ref="env-entry-type"/>
+			</xsd:sequence>
+			<xsd:attribute name="id" type="xsd:ID"/>
+		</xsd:complexType>
+	</xsd:element>
+	<!--****************************************************-->
+	<xsd:element name="env-entry-mapping">
+		<xsd:complexType>
+			<xsd:simpleContent>
+				<xsd:extension base="xsd:string">
+					<xsd:attribute name="name" type="xsd:string" use="required"/>
+				</xsd:extension>
+			</xsd:simpleContent>
+		</xsd:complexType>
+	</xsd:element>
+	<!--****************************************************-->
+	<xsd:element name="env-entry-name">
+		<xsd:complexType>
+			<xsd:simpleContent>
+				<xsd:extension base="xsd:string">
+					<xsd:attribute name="id" type="xsd:ID"/>
+				</xsd:extension>
+			</xsd:simpleContent>
+		</xsd:complexType>
+	</xsd:element>
+	<!--****************************************************-->
+	<xsd:element name="env-entry-type">
+		<xsd:complexType>
+			<xsd:simpleContent>
+				<xsd:extension base="xsd:string">
+					<xsd:attribute name="id" type="xsd:ID"/>
+				</xsd:extension>
+			</xsd:simpleContent>
+		</xsd:complexType>
+	</xsd:element>
+	<!--****************************************************-->
+	<xsd:element name="env-entry-value">
+		<xsd:complexType>
+			<xsd:simpleContent>
+				<xsd:extension base="xsd:string">
+					<xsd:attribute name="id" type="xsd:ID"/>
+				</xsd:extension>
+			</xsd:simpleContent>
+		</xsd:complexType>
+	</xsd:element>
+	<!--****************************************************-->
+	<xsd:element name="error-code">
+		<xsd:complexType>
+			<xsd:simpleContent>
+				<xsd:extension base="xsd:string">
+					<xsd:attribute name="id" type="xsd:ID"/>
+				</xsd:extension>
+			</xsd:simpleContent>
+		</xsd:complexType>
+	</xsd:element>
+	<!--****************************************************-->
+	<xsd:element name="error-page">
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:choice>
+					<xsd:element ref="error-code"/>
+					<xsd:element ref="exception-type"/>
+				</xsd:choice>
+				<xsd:element ref="location"/>
+			</xsd:sequence>
+			<xsd:attribute name="id" type="xsd:ID"/>
+		</xsd:complexType>
+	</xsd:element>
+	<!--****************************************************-->
+	<xsd:element name="exception-type">
+		<xsd:complexType>
+			<xsd:simpleContent>
+				<xsd:extension base="xsd:string">
+					<xsd:attribute name="id" type="xsd:ID"/>
+				</xsd:extension>
+			</xsd:simpleContent>
+		</xsd:complexType>
+	</xsd:element>
+	<!--****************************************************-->
+	<xsd:element name="expiration-setting">
+		<xsd:complexType>
+			<xsd:simpleContent>
+				<xsd:extension base="xsd:string">
+					<xsd:attribute name="expires" type="xsd:string" default="0"/>
+					<xsd:attribute name="url-pattern" type="xsd:string" use="required"/>
+				</xsd:extension>
+			</xsd:simpleContent>
+		</xsd:complexType>
+	</xsd:element>
+	<!--****************************************************-->
+	<xsd:element name="extension">
+		<xsd:complexType>
+			<xsd:simpleContent>
+				<xsd:extension base="xsd:string">
+					<xsd:attribute name="id" type="xsd:ID"/>
+				</xsd:extension>
+			</xsd:simpleContent>
+		</xsd:complexType>
+	</xsd:element>
+	<!--****************************************************-->
+	<xsd:element name="filter">
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element ref="icon" minOccurs="0"/>
+				<xsd:element ref="filter-name"/>
+				<xsd:element ref="display-name" minOccurs="0"/>
+				<xsd:element ref="description" minOccurs="0"/>
+				<xsd:element ref="filter-class"/>
+				<xsd:element ref="init-param" minOccurs="0" maxOccurs="unbounded"/>
+			</xsd:sequence>
+			<xsd:attribute name="id" type="xsd:ID"/>
+		</xsd:complexType>
+	</xsd:element>
+	<!--****************************************************-->
+	<xsd:element name="filter-class">
+		<xsd:complexType>
+			<xsd:simpleContent>
+				<xsd:extension base="xsd:string">
+					<xsd:attribute name="id" type="xsd:ID"/>
+				</xsd:extension>
+			</xsd:simpleContent>
+		</xsd:complexType>
+	</xsd:element>
+	<!--****************************************************-->
+	<xsd:element name="filter-mapping">
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element ref="filter-name"/>
+				<xsd:choice>
+					<xsd:element ref="url-pattern"/>
+					<xsd:element ref="servlet-name"/>
+				</xsd:choice>
+			</xsd:sequence>
+			<xsd:attribute name="id" type="xsd:ID"/>
+		</xsd:complexType>
+	</xsd:element>
+	<!--****************************************************-->
+	<xsd:element name="filter-name">
+		<xsd:complexType>
+			<xsd:simpleContent>
+				<xsd:extension base="xsd:string">
+					<xsd:attribute name="id" type="xsd:ID"/>
+				</xsd:extension>
+			</xsd:simpleContent>
+		</xsd:complexType>
+	</xsd:element>
+	<!--****************************************************-->
+	<xsd:element name="form-error-page">
+		<xsd:complexType>
+			<xsd:simpleContent>
+				<xsd:extension base="xsd:string">
+					<xsd:attribute name="id" type="xsd:ID"/>
+				</xsd:extension>
+			</xsd:simpleContent>
+		</xsd:complexType>
+	</xsd:element>
+	<!--****************************************************-->
+	<xsd:element name="form-login-config">
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element ref="form-login-page"/>
+				<xsd:element ref="form-error-page"/>
+			</xsd:sequence>
+			<xsd:attribute name="id" type="xsd:ID"/>
+		</xsd:complexType>
+	</xsd:element>
+	<!--****************************************************-->
+	<xsd:element name="form-login-page">
+		<xsd:complexType>
+			<xsd:simpleContent>
+				<xsd:extension base="xsd:string">
+					<xsd:attribute name="id" type="xsd:ID"/>
+				</xsd:extension>
+			</xsd:simpleContent>
+		</xsd:complexType>
+	</xsd:element>
+	<!--****************************************************-->
+	<xsd:element name="group">
+		<xsd:complexType>
+			<xsd:simpleContent>
+				<xsd:extension base="xsd:string">
+					<xsd:attribute name="name" type="xsd:string" use="required"/>
+				</xsd:extension>
+			</xsd:simpleContent>
+		</xsd:complexType>
+	</xsd:element>
+	<!--****************************************************-->
+	<xsd:element name="home">
+		<xsd:complexType>
+			<xsd:simpleContent>
+				<xsd:extension base="xsd:string">
+					<xsd:attribute name="id" type="xsd:ID"/>
+				</xsd:extension>
+			</xsd:simpleContent>
+		</xsd:complexType>
+	</xsd:element>
+	<!--****************************************************-->
+	<xsd:element name="http-method">
+		<xsd:complexType>
+			<xsd:simpleContent>
+				<xsd:extension base="xsd:string">
+					<xsd:attribute name="id" type="xsd:ID"/>
+				</xsd:extension>
+			</xsd:simpleContent>
+		</xsd:complexType>
+	</xsd:element>
+	<!--****************************************************-->
+	<xsd:element name="icon">
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element ref="small-icon" minOccurs="0"/>
+				<xsd:element ref="large-icon" minOccurs="0"/>
+			</xsd:sequence>
+			<xsd:attribute name="id" type="xsd:ID"/>
+		</xsd:complexType>
+	</xsd:element>
+	<!--****************************************************-->
+	<xsd:element name="init-param">
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element ref="param-name"/>
+				<xsd:element ref="param-value"/>
+				<xsd:element ref="description" minOccurs="0"/>
+			</xsd:sequence>
+			<xsd:attribute name="id" type="xsd:ID"/>
+		</xsd:complexType>
+	</xsd:element>
+	<!--****************************************************-->
+	<xsd:element name="jazn-web-app">
+		<xsd:complexType>
+			<xsd:simpleContent>
+				<xsd:extension base="xsd:string">
+					<xsd:attribute name="auth-method" default="BASIC">
+                                		<xsd:simpleType>
+                                        		<xsd:restriction base="xsd:NMTOKEN">
+                                                		<xsd:enumeration value="BASIC"/>
+                                                		<xsd:enumeration value="SSO"/>
+                                        		</xsd:restriction>
+                                		</xsd:simpleType>
+                        		</xsd:attribute>        
+					<xsd:attribute name="runas-mode" type="oc4j:oc4j-trueFalseType" default="false"/>
+					<xsd:attribute name="doasprivileged-mode" type="oc4j:oc4j-trueFalseType" default="true"/>
+				</xsd:extension>
+			</xsd:simpleContent>
+		</xsd:complexType>
+	</xsd:element>
+	<!--****************************************************-->
+	<xsd:element name="jsp-file">
+		<xsd:complexType>
+			<xsd:simpleContent>
+				<xsd:extension base="xsd:string">
+					<xsd:attribute name="id" type="xsd:ID"/>
+				</xsd:extension>
+			</xsd:simpleContent>
+		</xsd:complexType>
+	</xsd:element>
+	<!--****************************************************-->
+	<xsd:element name="large-icon">
+		<xsd:complexType>
+			<xsd:simpleContent>
+				<xsd:extension base="xsd:string">
+					<xsd:attribute name="id" type="xsd:ID"/>
+				</xsd:extension>
+			</xsd:simpleContent>
+		</xsd:complexType>
+	</xsd:element>
+	<!--****************************************************-->
+	<xsd:element name="listener">
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element ref="listener-class"/>
+			</xsd:sequence>
+			<xsd:attribute name="id" type="xsd:ID"/>
+		</xsd:complexType>
+	</xsd:element>
+	<!--****************************************************-->
+	<xsd:element name="listener-class">
+		<xsd:complexType>
+			<xsd:simpleContent>
+				<xsd:extension base="xsd:string">
+					<xsd:attribute name="id" type="xsd:ID"/>
+				</xsd:extension>
+			</xsd:simpleContent>
+		</xsd:complexType>
+	</xsd:element>
+	<!--****************************************************-->
+	<xsd:element name="load-on-startup">
+		<xsd:complexType>
+			<xsd:simpleContent>
+				<xsd:extension base="xsd:string">
+					<xsd:attribute name="id" type="xsd:ID"/>
+				</xsd:extension>
+			</xsd:simpleContent>
+		</xsd:complexType>
+	</xsd:element>
+	<!--****************************************************-->
+	<xsd:element name="local">
+		<xsd:complexType>
+			<xsd:simpleContent>
+				<xsd:extension base="xsd:string">
+					<xsd:attribute name="id" type="xsd:ID"/>
+				</xsd:extension>
+			</xsd:simpleContent>
+		</xsd:complexType>
+	</xsd:element>
+	<!--****************************************************-->
+	<xsd:element name="local-home">
+		<xsd:complexType>
+			<xsd:simpleContent>
+				<xsd:extension base="xsd:string">
+					<xsd:attribute name="id" type="xsd:ID"/>
+				</xsd:extension>
+			</xsd:simpleContent>
+		</xsd:complexType>
+	</xsd:element>
+	<!--****************************************************-->
+	<xsd:element name="locale-encoding-mapping-list">
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element ref="locale-encoding-mapping" maxOccurs="unbounded"/>
+			</xsd:sequence>
+			<xsd:attribute name="id" type="xsd:ID"/>
+		</xsd:complexType>
+	</xsd:element>
+	<!--****************************************************-->
+	<xsd:element name="locale-encoding-mapping">
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element name="locale" type="xsd:string"/>
+				<xsd:element name="encoding" type="encodingType"/>
+			</xsd:sequence>
+			<xsd:attribute name="id" type="xsd:ID"/>
+		</xsd:complexType>
+	</xsd:element>
+	<!--****************************************************-->
+	<xsd:element name="location">
+		<xsd:complexType>
+			<xsd:simpleContent>
+				<xsd:extension base="xsd:string">
+					<xsd:attribute name="id" type="xsd:ID"/>
+				</xsd:extension>
+			</xsd:simpleContent>
+		</xsd:complexType>
+	</xsd:element>
+	<!--****************************************************-->
+	<xsd:element name="login-config">
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element ref="auth-method" minOccurs="0"/>
+				<xsd:element ref="realm-name" minOccurs="0"/>
+				<xsd:element ref="form-login-config" minOccurs="0"/>
+			</xsd:sequence>
+			<xsd:attribute name="id" type="xsd:ID"/>
+		</xsd:complexType>
+	</xsd:element>
+	<!--****************************************************-->
+	<xsd:element name="lookup-context">
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element ref="context-attribute" maxOccurs="unbounded"/>
+			</xsd:sequence>
+			<xsd:attribute name="location" type="xsd:string" use="required"/>
+		</xsd:complexType>
+	</xsd:element>
+	<!--****************************************************-->
+	<xsd:element name="mime-mapping">
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element ref="extension"/>
+				<xsd:element ref="mime-type"/>
+			</xsd:sequence>
+			<xsd:attribute name="id" type="xsd:ID"/>
+		</xsd:complexType>
+	</xsd:element>
+	<!--****************************************************-->
+	<xsd:element name="mime-mappings">
+		<xsd:complexType>
+			<xsd:simpleContent>
+				<xsd:extension base="xsd:string">
+					<xsd:attribute name="path" type="xsd:string"  use="required"/>
+				</xsd:extension>
+			</xsd:simpleContent>
+		</xsd:complexType>
+	</xsd:element>
+	<!--****************************************************-->
+	<xsd:element name="mime-type">
+		<xsd:complexType>
+			<xsd:simpleContent>
+				<xsd:extension base="xsd:string">
+					<xsd:attribute name="id" type="xsd:ID"/>
+				</xsd:extension>
+			</xsd:simpleContent>
+		</xsd:complexType>
+	</xsd:element>
+	<!--****************************************************-->
+	<xsd:element name="orion-web-app">
+		<xsd:complexType>
+			<xsd:choice maxOccurs="unbounded">
+				<xsd:element ref="classpath" minOccurs="0" maxOccurs="unbounded"/>
+				<xsd:element ref="context-param-mapping" minOccurs="0" maxOccurs="unbounded"/>
+				<xsd:element ref="mime-mappings" minOccurs="0" maxOccurs="unbounded"/>
+				<xsd:element ref="virtual-directory" minOccurs="0" maxOccurs="unbounded"/>
+				<xsd:element name="access-mask" type="oc4j:oc4j-access-mask" minOccurs="0"/>
+				<xsd:element ref="servlet-chaining" minOccurs="0" maxOccurs="unbounded"/>
+				<xsd:element ref="request-tracker" minOccurs="0" maxOccurs="unbounded"/>
+				<xsd:element ref="session-tracking" minOccurs="0"/>
+				<xsd:element ref="resource-ref-mapping" minOccurs="0" maxOccurs="unbounded"/>
+				<xsd:element ref="resource-env-ref-mapping" minOccurs="0" maxOccurs="unbounded"/>
+				<xsd:element ref="security-role-mapping" minOccurs="0" maxOccurs="unbounded"/>
+				<xsd:element ref="env-entry-mapping" minOccurs="0" maxOccurs="unbounded"/>
+				<xsd:element ref="ejb-ref-mapping" minOccurs="0" maxOccurs="unbounded"/>
+                                <xsd:element name="service-ref-mapping" type="service-ref-mapping" minOccurs="0" maxOccurs="unbounded"/>
+ 
+				<xsd:element ref="expiration-setting" minOccurs="0" maxOccurs="unbounded"/>
+				<xsd:element ref="web-app" minOccurs="0"/>
+				<xsd:element ref="jazn-web-app" minOccurs="0"/>
+				<xsd:element ref="web-app-class-loader" minOccurs="0"/>
+			</xsd:choice>
+			<xsd:attribute name="always-redeploy" type="oc4j:oc4j-trueFalseType" default="false"/>
+			<xsd:attribute name="autojoin-session" type="oc4j:oc4j-trueFalseType" default="true"/>
+			<xsd:attribute name="default-buffer-size" type="xsd:nonNegativeInteger" default="2048"/>
+			<xsd:attribute name="default-charset" type="xsd:string" default="iso-8859-1"/>
+			<xsd:attribute name="default-mime-type" type="xsd:string"/>
+			<xsd:attribute name="deployment-time" type="xsd:string"/>
+			<xsd:attribute name="deployment-version" type="xsd:string"/>
+			<xsd:attribute name="development" type="oc4j:oc4j-trueFalseType" default="false"/>
+			<xsd:attribute name="directory-browsing" type="oc4j:oc4j-allowDenyType" default="deny"/>
+			<xsd:attribute name="enable-jsp-dispatcher-shortcut" type="oc4j:oc4j-trueFalseType" default="true"/>
+			<xsd:attribute name="file-modification-check-interval" type="xsd:string" default="1000"/>
+			<xsd:attribute name="jsp-cache-directory" type="xsd:string"/>
+			<xsd:attribute name="jsp-cache-tlds" type="oc4j:oc4j-jspCacheTldsType" default="standard"/>
+			<xsd:attribute name="jsp-taglib-locations" type="xsd:string"/>
+			<xsd:attribute name="jsp-print-null" type="oc4j:oc4j-trueFalseType" default="true"/>
+			<xsd:attribute name="jsp-timeout" type="xsd:nonNegativeInteger" default="0"/>
+			<xsd:attribute name="persistence-path" type="xsd:string"/>
+			<xsd:attribute name="servlet-webdir" type="xsd:string" default="/servlet/"/>
+			<xsd:attribute name="simple-jsp-mapping" type="oc4j:oc4j-trueFalseType" default="false"/>
+			<xsd:attribute name="source-directory" type="xsd:string"/>
+                        <xsd:attribute name="context-root" type="xsd:string"/>
+			<xsd:attribute name="temporary-directory" type="xsd:string" default="./temp"/>
+			<xsd:attributeGroup ref="oc4j:oc4j-schemaVersionAttributeType"/>
+		</xsd:complexType>
+	</xsd:element>
+	<!--****************************************************-->
+	<xsd:element name="param-name">
+		<xsd:complexType>
+			<xsd:simpleContent>
+				<xsd:extension base="xsd:string">
+					<xsd:attribute name="id" type="xsd:ID"/>
+				</xsd:extension>
+			</xsd:simpleContent>
+		</xsd:complexType>
+	</xsd:element>
+	<!--****************************************************-->
+	<xsd:element name="param-value">
+		<xsd:complexType>
+			<xsd:simpleContent>
+				<xsd:extension base="xsd:string">
+					<xsd:attribute name="id" type="xsd:ID"/>
+				</xsd:extension>
+			</xsd:simpleContent>
+		</xsd:complexType>
+	</xsd:element>
+	<!--****************************************************-->
+	<xsd:element name="realm-name">
+		<xsd:complexType>
+			<xsd:simpleContent>
+				<xsd:extension base="xsd:string">
+					<xsd:attribute name="id" type="xsd:ID"/>
+				</xsd:extension>
+			</xsd:simpleContent>
+		</xsd:complexType>
+	</xsd:element>
+	<!--****************************************************-->
+	<xsd:element name="remote">
+		<xsd:complexType>
+			<xsd:simpleContent>
+				<xsd:extension base="xsd:string">
+					<xsd:attribute name="id" type="xsd:ID"/>
+				</xsd:extension>
+			</xsd:simpleContent>
+		</xsd:complexType>
+	</xsd:element>
+	<!--****************************************************-->
+	<xsd:element name="request-tracker">
+		<xsd:complexType>
+			<xsd:simpleContent>
+				<xsd:extension base="xsd:string">
+					<xsd:attribute name="servlet-name" type="xsd:string" use="required"/>
+				</xsd:extension>
+			</xsd:simpleContent>
+		</xsd:complexType>
+	</xsd:element>
+	<!--****************************************************-->
+	<xsd:element name="res-auth">
+		<xsd:complexType>
+			<xsd:simpleContent>
+				<xsd:extension base="xsd:string">
+					<xsd:attribute name="id" type="xsd:ID"/>
+				</xsd:extension>
+			</xsd:simpleContent>
+		</xsd:complexType>
+	</xsd:element>
+	<!--****************************************************-->
+	<xsd:element name="res-ref-name">
+		<xsd:complexType>
+			<xsd:simpleContent>
+				<xsd:extension base="xsd:string">
+					<xsd:attribute name="id" type="xsd:ID"/>
+				</xsd:extension>
+			</xsd:simpleContent>
+		</xsd:complexType>
+	</xsd:element>
+	<!--****************************************************-->
+	<xsd:element name="res-sharing-scope">
+		<xsd:complexType>
+			<xsd:simpleContent>
+				<xsd:extension base="xsd:string">
+					<xsd:attribute name="id" type="xsd:ID"/>
+				</xsd:extension>
+			</xsd:simpleContent>
+		</xsd:complexType>
+	</xsd:element>
+	<!--****************************************************-->
+	<xsd:element name="res-type">
+		<xsd:complexType>
+			<xsd:simpleContent>
+				<xsd:extension base="xsd:string">
+					<xsd:attribute name="id" type="xsd:ID"/>
+				</xsd:extension>
+			</xsd:simpleContent>
+		</xsd:complexType>
+	</xsd:element>
+	<!--****************************************************-->
+	<xsd:element name="resource-env-ref">
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element ref="description" minOccurs="0"/>
+				<xsd:element ref="resource-env-ref-name"/>
+				<xsd:element ref="resource-env-ref-type"/>
+			</xsd:sequence>
+			<xsd:attribute name="id" type="xsd:ID"/>
+		</xsd:complexType>
+	</xsd:element>
+	<!--****************************************************-->
+	<xsd:element name="resource-env-ref-name">
+		<xsd:complexType>
+			<xsd:simpleContent>
+				<xsd:extension base="xsd:string">
+					<xsd:attribute name="id" type="xsd:ID"/>
+				</xsd:extension>
+			</xsd:simpleContent>
+		</xsd:complexType>
+	</xsd:element>
+	<!--****************************************************-->
+	<xsd:element name="resource-env-ref-mapping">
+		<xsd:complexType>
+			<xsd:simpleContent>
+				<xsd:extension base="xsd:string">
+					<xsd:attribute name="name" type="xsd:string" use="required"/>
+					<xsd:attribute name="location" type="xsd:string" use="required"/>
+				</xsd:extension>
+			</xsd:simpleContent>
+		</xsd:complexType>
+	</xsd:element>
+	<!--****************************************************-->
+	<xsd:element name="resource-env-ref-type">
+		<xsd:complexType>
+			<xsd:simpleContent>
+				<xsd:extension base="xsd:string">
+					<xsd:attribute name="id" type="xsd:ID"/>
+				</xsd:extension>
+			</xsd:simpleContent>
+		</xsd:complexType>
+	</xsd:element>
+	<!--****************************************************-->
+	<xsd:element name="resource-ref">
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element ref="description" minOccurs="0"/>
+				<xsd:element ref="res-ref-name"/>
+				<xsd:element ref="res-type"/>
+				<xsd:element ref="res-auth"/>
+				<xsd:element ref="res-sharing-scope" minOccurs="0"/>
+			</xsd:sequence>
+			<xsd:attribute name="id" type="xsd:ID"/>
+		</xsd:complexType>
+	</xsd:element>
+	<!--****************************************************-->
+	<xsd:element name="resource-ref-mapping">
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element ref="lookup-context" minOccurs="0"/>
+			</xsd:sequence>
+			<xsd:attribute name="location" type="xsd:string" use="required"/>
+			<xsd:attribute name="name" type="xsd:string" use="required"/>
+		</xsd:complexType>
+	</xsd:element>
+	<!--****************************************************-->
+	<xsd:element name="role-link">
+		<xsd:complexType>
+			<xsd:simpleContent>
+				<xsd:extension base="xsd:string">
+					<xsd:attribute name="id" type="xsd:ID"/>
+				</xsd:extension>
+			</xsd:simpleContent>
+		</xsd:complexType>
+	</xsd:element>
+	<!--****************************************************-->
+	<xsd:element name="role-name">
+		<xsd:complexType>
+			<xsd:simpleContent>
+				<xsd:extension base="xsd:string">
+					<xsd:attribute name="id" type="xsd:ID"/>
+				</xsd:extension>
+			</xsd:simpleContent>
+		</xsd:complexType>
+	</xsd:element>
+	<!--****************************************************-->
+	<xsd:element name="run-as">
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element ref="description" minOccurs="0"/>
+				<xsd:element ref="role-name"/>
+			</xsd:sequence>
+			<xsd:attribute name="id" type="xsd:ID"/>
+		</xsd:complexType>
+	</xsd:element>
+	<!--****************************************************-->
+	<xsd:element name="security-constraint">
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element ref="display-name" minOccurs="0"/>
+				<xsd:element ref="web-resource-collection" maxOccurs="unbounded"/>
+				<xsd:element ref="auth-constraint" minOccurs="0"/>
+				<xsd:element ref="user-data-constraint" minOccurs="0"/>
+			</xsd:sequence>
+			<xsd:attribute name="id" type="xsd:ID"/>
+		</xsd:complexType>
+	</xsd:element>
+	<!--****************************************************-->
+	<xsd:element name="security-role">
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element ref="description" minOccurs="0"/>
+				<xsd:element ref="role-name"/>
+			</xsd:sequence>
+			<xsd:attribute name="id" type="xsd:ID"/>
+		</xsd:complexType>
+	</xsd:element>
+	<!--****************************************************-->
+	<xsd:element name="security-role-mapping">
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element ref="group" minOccurs="0" maxOccurs="unbounded"/>
+				<xsd:element ref="user" minOccurs="0" maxOccurs="unbounded"/>
+			</xsd:sequence>
+			<xsd:attribute name="impliesAll" type="oc4j:oc4j-trueFalseType" default="false"/>
+			<xsd:attribute name="name" type="xsd:string" use="required"/>
+		</xsd:complexType>
+	</xsd:element>
+	<!--****************************************************-->
+	<xsd:element name="security-role-ref">
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element ref="description" minOccurs="0"/>
+				<xsd:element ref="role-name"/>
+				<xsd:element ref="role-link" minOccurs="0"/>
+			</xsd:sequence>
+			<xsd:attribute name="id" type="xsd:ID"/>
+		</xsd:complexType>
+	</xsd:element>
+	<!--****************************************************-->
+	<xsd:element name="servlet">
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element ref="icon" minOccurs="0"/>
+				<xsd:element ref="servlet-name"/>
+				<xsd:element ref="display-name" minOccurs="0"/>
+				<xsd:element ref="description" minOccurs="0"/>
+				<xsd:choice>
+					<xsd:element ref="servlet-class"/>
+					<xsd:element ref="jsp-file"/>
+				</xsd:choice>
+				<xsd:element ref="init-param" minOccurs="0" maxOccurs="unbounded"/>
+				<xsd:element ref="load-on-startup" minOccurs="0"/>
+				<xsd:element ref="run-as" minOccurs="0"/>
+				<xsd:element ref="security-role-ref" minOccurs="0" maxOccurs="unbounded"/>
+			</xsd:sequence>
+			<xsd:attribute name="id" type="xsd:ID"/>
+		</xsd:complexType>
+	</xsd:element>
+	<!--****************************************************-->
+	<xsd:element name="servlet-chaining">
+		<xsd:complexType>
+			<xsd:simpleContent>
+				<xsd:extension base="xsd:string">
+					<xsd:attribute name="mime-type" type="xsd:string" use="required"/>
+					<xsd:attribute name="servlet-name" type="xsd:string" use="required"/>
+				</xsd:extension>
+			</xsd:simpleContent>
+		</xsd:complexType>
+	</xsd:element>
+	<!--****************************************************-->
+	<xsd:element name="servlet-class">
+		<xsd:complexType>
+			<xsd:simpleContent>
+				<xsd:extension base="xsd:string">
+					<xsd:attribute name="id" type="xsd:ID"/>
+				</xsd:extension>
+			</xsd:simpleContent>
+		</xsd:complexType>
+	</xsd:element>
+	<!--****************************************************-->
+	<xsd:element name="servlet-mapping">
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element ref="servlet-name"/>
+				<xsd:element ref="url-pattern"/>
+			</xsd:sequence>
+			<xsd:attribute name="id" type="xsd:ID"/>
+		</xsd:complexType>
+	</xsd:element>
+	<!--****************************************************-->
+	<xsd:element name="servlet-name">
+		<xsd:complexType>
+			<xsd:simpleContent>
+				<xsd:extension base="xsd:string">
+					<xsd:attribute name="id" type="xsd:ID"/>
+				</xsd:extension>
+			</xsd:simpleContent>
+		</xsd:complexType>
+	</xsd:element>
+	<!--****************************************************-->
+	<xsd:element name="session-config">
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element ref="session-timeout" minOccurs="0"/>
+			</xsd:sequence>
+			<xsd:attribute name="id" type="xsd:ID"/>
+		</xsd:complexType>
+	</xsd:element>
+	<!--****************************************************-->
+	<xsd:element name="session-timeout">
+		<xsd:complexType>
+			<xsd:simpleContent>
+				<xsd:extension base="xsd:string">
+					<xsd:attribute name="id" type="xsd:ID"/>
+				</xsd:extension>
+			</xsd:simpleContent>
+		</xsd:complexType>
+	</xsd:element>
+	<!--****************************************************-->
+	<xsd:element name="session-tracker">
+		<xsd:complexType>
+			<xsd:simpleContent>
+				<xsd:extension base="xsd:string">
+					<xsd:attribute name="servlet-name" type="xsd:string" use="required"/>
+				</xsd:extension>
+			</xsd:simpleContent>
+		</xsd:complexType>
+	</xsd:element>
+	<!--****************************************************-->
+	<xsd:element name="session-tracking">
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element ref="session-tracker" minOccurs="0" maxOccurs="unbounded"/>
+			</xsd:sequence>
+			<xsd:attribute name="cookie-domain" type="xsd:string"/>
+			<xsd:attribute name="cookie-path" type="xsd:string"/>
+			<xsd:attribute name="cookies"  default="enabled">
+				<xsd:simpleType>
+					<xsd:restriction base="xsd:NMTOKEN">
+						<xsd:enumeration value="enabled"/>
+						<xsd:enumeration value="disabled"/>
+					</xsd:restriction>
+                                                
+				</xsd:simpleType>
+			</xsd:attribute>	
+			<xsd:attribute name="cookie-max-age" type="xsd:nonNegativeInteger"/>
+		</xsd:complexType>
+	</xsd:element>
+	<!--****************************************************-->
+	<xsd:element name="small-icon">
+		<xsd:complexType>
+			<xsd:simpleContent>
+				<xsd:extension base="xsd:string">
+					<xsd:attribute name="id" type="xsd:ID"/>
+				</xsd:extension>
+			</xsd:simpleContent>
+		</xsd:complexType>
+	</xsd:element>
+	<!--****************************************************-->
+	<xsd:element name="taglib">
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element ref="taglib-uri"/>
+				<xsd:element ref="taglib-location"/>
+			</xsd:sequence>
+			<xsd:attribute name="id" type="xsd:ID"/>
+		</xsd:complexType>
+	</xsd:element>
+	<!--****************************************************-->
+	<xsd:element name="taglib-location">
+		<xsd:complexType>
+			<xsd:simpleContent>
+				<xsd:extension base="xsd:string">
+					<xsd:attribute name="id" type="xsd:ID"/>
+				</xsd:extension>
+			</xsd:simpleContent>
+		</xsd:complexType>
+	</xsd:element>
+	<!--****************************************************-->
+	<xsd:element name="taglib-uri">
+		<xsd:complexType>
+			<xsd:simpleContent>
+				<xsd:extension base="xsd:string">
+					<xsd:attribute name="id" type="xsd:ID"/>
+				</xsd:extension>
+			</xsd:simpleContent>
+		</xsd:complexType>
+	</xsd:element>
+	<!--****************************************************-->
+	<xsd:element name="transport-guarantee">
+		<xsd:complexType>
+			<xsd:simpleContent>
+				<xsd:extension base="xsd:string">
+					<xsd:attribute name="id" type="xsd:ID"/>
+				</xsd:extension>
+			</xsd:simpleContent>
+		</xsd:complexType>
+	</xsd:element>
+	<!--****************************************************-->
+	<xsd:element name="url-pattern">
+		<xsd:complexType>
+			<xsd:simpleContent>
+				<xsd:extension base="xsd:string">
+					<xsd:attribute name="id" type="xsd:ID"/>
+				</xsd:extension>
+			</xsd:simpleContent>
+		</xsd:complexType>
+	</xsd:element>
+	<!--****************************************************-->
+	<xsd:element name="user">
+		<xsd:complexType>
+			<xsd:simpleContent>
+				<xsd:extension base="xsd:string">
+					<xsd:attribute name="name" type="xsd:string" use="required"/>
+				</xsd:extension>
+			</xsd:simpleContent>
+		</xsd:complexType>
+	</xsd:element>
+	<!--****************************************************-->
+	<xsd:element name="user-data-constraint">
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element ref="description" minOccurs="0"/>
+				<xsd:element ref="transport-guarantee"/>
+			</xsd:sequence>
+			<xsd:attribute name="id" type="xsd:ID"/>
+		</xsd:complexType>
+	</xsd:element>
+	<!--****************************************************-->
+	<xsd:element name="virtual-directory">
+		<xsd:complexType>
+			<xsd:simpleContent>
+				<xsd:extension base="xsd:string">
+					<xsd:attribute name="real-path" type="xsd:string" use="required"/>
+					<xsd:attribute name="virtual-path" type="xsd:string" use="required"/>
+				</xsd:extension>
+			</xsd:simpleContent>
+		</xsd:complexType>
+	</xsd:element>
+	<!--****************************************************-->
+	<xsd:element name="web-app">
+		<xsd:complexType>
+			<xsd:choice maxOccurs="unbounded">
+				<xsd:element ref="icon" minOccurs="0"/>
+				<xsd:element ref="display-name" minOccurs="0"/>
+				<xsd:element ref="description" minOccurs="0"/>
+				<xsd:element ref="distributable" minOccurs="0"/>
+				<xsd:element ref="context-param" minOccurs="0" maxOccurs="unbounded"/>
+				<xsd:element ref="filter" minOccurs="0" maxOccurs="unbounded"/>
+				<xsd:element ref="filter-mapping" minOccurs="0" maxOccurs="unbounded"/>
+				<xsd:element ref="listener" minOccurs="0" maxOccurs="unbounded"/>
+				<xsd:element ref="servlet" minOccurs="0" maxOccurs="unbounded"/>
+				<xsd:element ref="servlet-mapping" minOccurs="0" maxOccurs="unbounded"/>
+				<xsd:element ref="session-config" minOccurs="0"/>
+				<xsd:element ref="mime-mapping" minOccurs="0" maxOccurs="unbounded"/>
+				<xsd:element ref="welcome-file-list" minOccurs="0"/>
+				<xsd:element ref="error-page" minOccurs="0" maxOccurs="unbounded"/>
+				<xsd:element ref="taglib" minOccurs="0" maxOccurs="unbounded"/>
+				<xsd:element ref="resource-env-ref" minOccurs="0" maxOccurs="unbounded"/>
+				<xsd:element ref="resource-ref" minOccurs="0" maxOccurs="unbounded"/>
+				<xsd:element ref="security-constraint" minOccurs="0" maxOccurs="unbounded"/>
+				<xsd:element ref="login-config" minOccurs="0"/>
+				<xsd:element ref="security-role" minOccurs="0" maxOccurs="unbounded"/>
+				<xsd:element ref="env-entry" minOccurs="0" maxOccurs="unbounded"/>
+				<xsd:element ref="ejb-ref" minOccurs="0" maxOccurs="unbounded"/>
+				<xsd:element ref="ejb-local-ref" minOccurs="0" maxOccurs="unbounded"/>
+				<xsd:element ref="locale-encoding-mapping-list" minOccurs="0" maxOccurs="unbounded"/>
+			</xsd:choice>
+			<xsd:attribute name="id" type="xsd:ID"/>
+		</xsd:complexType>
+	</xsd:element>
+	<!--****************************************************-->
+	<xsd:element name="web-app-class-loader">
+		<xsd:complexType>
+			<xsd:attribute name="search-local-classes-first" type="oc4j:oc4j-trueFalseType" default="false"/>
+			<xsd:attribute name="include-war-manifest-class-path" type="oc4j:oc4j-trueFalseType" default="true"/>
+		</xsd:complexType>
+	</xsd:element>
+	<!--****************************************************-->
+	<xsd:element name="web-resource-collection">
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element ref="web-resource-name"/>
+				<xsd:element ref="description" minOccurs="0"/>
+				<xsd:element ref="url-pattern" minOccurs="0" maxOccurs="unbounded"/>
+				<xsd:element ref="http-method" minOccurs="0" maxOccurs="unbounded"/>
+			</xsd:sequence>
+			<xsd:attribute name="id" type="xsd:ID"/>
+		</xsd:complexType>
+	</xsd:element>
+	<!--****************************************************-->
+	<xsd:element name="web-resource-name">
+		<xsd:complexType>
+			<xsd:simpleContent>
+				<xsd:extension base="xsd:string">
+					<xsd:attribute name="id" type="xsd:ID"/>
+				</xsd:extension>
+			</xsd:simpleContent>
+		</xsd:complexType>
+	</xsd:element>
+	<!--****************************************************-->
+	<xsd:element name="welcome-file">
+		<xsd:complexType>
+			<xsd:simpleContent>
+				<xsd:extension base="xsd:string">
+					<xsd:attribute name="id" type="xsd:ID"/>
+				</xsd:extension>
+			</xsd:simpleContent>
+		</xsd:complexType>
+	</xsd:element>
+	<!--****************************************************-->
+	<xsd:element name="welcome-file-list">
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element ref="welcome-file" maxOccurs="unbounded"/>
+			</xsd:sequence>
+			<xsd:attribute name="id" type="xsd:ID"/>
+		</xsd:complexType>
+	</xsd:element>
+	<!--****************************************************-->
+</xsd:schema>

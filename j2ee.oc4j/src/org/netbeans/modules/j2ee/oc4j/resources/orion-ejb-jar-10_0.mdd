@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<metaDD>
+    <meta-element>
+        <dtd-name>clientOperationInterceptorContainerType</dtd-name>
+        <user-code>
+        public ClientOperationInterceptorContainerType(Vector comparators, Version runtimeVersion) {
+            super(comparators, runtimeVersion);
+        }
+        </user-code>
+    </meta-element>
+    <meta-element>
+        <dtd-name>clientPortInterceptorContainerType</dtd-name>
+        <user-code>
+        public ClientPortInterceptorContainerType(Vector comparators, Version runtimeVersion) {
+            super(comparators, runtimeVersion);
+        }
+        </user-code>
+    </meta-element>
+</metaDD>

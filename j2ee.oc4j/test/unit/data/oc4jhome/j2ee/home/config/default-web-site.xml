@@ -1,0 +1,30 @@
+<?xml version="1.0" standalone='yes'?>
+
+<web-site 
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+  xsi:noNamespaceSchemaLocation="http://xmlns.oracle.com/oracleas/schema/web-site-10_0.xsd"
+  protocol="http"
+  port="8888"
+  display-name="OC4J 10g (10.1.3) Default Web Site"
+  schema-major-version="10"
+  schema-minor-version="0"
+>
+
+  <default-web-app application="default" name="defaultWebApp" />
+  <web-app application="system" name="dms0" root="/dmsoc4j" access-log="false" />
+  <web-app application="system" name="dms0" root="/dms0" access-log="false" />
+<!--
+  <web-app application="system" name="admin_web" root="/adminoc4j" />
+-->
+  <web-app application="system" name="JMXSoapAdapter-web" root="/JMXSoapAdapter" />
+  <web-app application="default" name="jmsrouter_web" root="/jmsrouter" load-on-startup="true" />
+  <web-app application="javasso" name="javasso-web" root="/jsso" load-on-startup="false" />
+  <web-app application="ascontrol" name="ascontrol" root="/em" load-on-startup="true" ohs-routing="false" />
+
+  <!-- Access Log, where requests are logged to -->
+  <access-log path="../log/default-web-access.log" split="day" />
+  <!-- Uncomment this if you want to use ODL logging capabilities
+  <odl-access-log path="../log/default-web-access" max-file-size="1000" max-directory-size="10000"/>
+  -->
+
+</web-site>

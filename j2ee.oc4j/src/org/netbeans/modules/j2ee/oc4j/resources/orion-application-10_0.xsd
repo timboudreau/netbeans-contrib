@@ -1,0 +1,653 @@
+<?xml version="1.0"?>
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+    xmlns:oc4j="http://xmlns.oracle.com/oracleas/schema/oc4j-10_0.xsd"
+    elementFormDefault="qualified"
+    attributeFormDefault="unqualified">
+    <!--****************************************************-->
+    <xsd:import namespace="http://xmlns.oracle.com/oracleas/schema/oc4j-10_0.xsd" schemaLocation="oc4j-10_0.xsd"/>
+    <!--****************************************************-->
+    <xsd:element name="argument">
+        <xsd:complexType>
+            <xsd:simpleContent>
+                <xsd:extension base="xsd:string">
+                    <xsd:attribute name="value" type="xsd:string"/>
+                </xsd:extension>
+            </xsd:simpleContent>
+        </xsd:complexType>
+    </xsd:element>
+    <!--****************************************************-->
+    <xsd:element name="arguments">
+        <xsd:complexType>
+            <xsd:sequence>
+                <xsd:element ref="argument" minOccurs="0" maxOccurs="unbounded"/>
+            </xsd:sequence>
+        </xsd:complexType>
+    </xsd:element>
+    <!--****************************************************-->
+    <xsd:element name="client-module">
+        <xsd:complexType>
+            <xsd:sequence>
+                <xsd:element ref="arguments" minOccurs="0"/>
+            </xsd:sequence>
+            <xsd:attribute name="auto-start" type="oc4j:oc4j-trueFalseType" default="false"/>
+            <xsd:attribute name="deployment-time" type="xsd:string"/>
+            <xsd:attribute name="path" type="xsd:string"/>
+            <xsd:attribute name="user" type="xsd:string"/>
+        </xsd:complexType>
+    </xsd:element>
+    <!--****************************************************-->
+    <xsd:element name="connectors">
+        <xsd:complexType>
+            <xsd:simpleContent>
+                <xsd:extension base="xsd:string">
+                    <xsd:attribute name="path" type="xsd:string"/>
+                </xsd:extension>
+            </xsd:simpleContent>
+        </xsd:complexType>
+    </xsd:element>
+    <!--****************************************************-->
+    <xsd:element name="data-sources">
+        <xsd:complexType>
+            <xsd:simpleContent>
+                <xsd:extension base="xsd:string">
+                    <xsd:attribute name="path" type="xsd:string"/>
+                </xsd:extension>
+            </xsd:simpleContent>
+        </xsd:complexType>
+    </xsd:element>
+    <!--****************************************************-->
+    <xsd:element name="description" type="xsd:string"/>
+    <!--****************************************************-->
+    <xsd:element name="ejb-module">
+        <xsd:complexType>
+            <xsd:simpleContent>
+                <xsd:extension base="xsd:string">
+                    <xsd:attribute name="id" type="xsd:string"/>
+                    <xsd:attribute name="path" type="xsd:string"/>
+                    <xsd:attribute name="remote" type="oc4j:oc4j-trueFalseType" default="false"/>
+                </xsd:extension>
+            </xsd:simpleContent>
+        </xsd:complexType>
+    </xsd:element>
+    <!--****************************************************-->
+    <xsd:element name="file">
+        <xsd:complexType>
+            <xsd:simpleContent>
+                <xsd:extension base="xsd:string">
+                    <xsd:attribute name="path" type="xsd:string"/>
+                </xsd:extension>
+            </xsd:simpleContent>
+        </xsd:complexType>
+    </xsd:element>
+    <!--****************************************************-->
+    <xsd:element name="group">
+        <xsd:complexType>
+            <xsd:simpleContent>
+                <xsd:extension base="xsd:string">
+                    <xsd:attribute name="name" type="xsd:string"/>
+                </xsd:extension>
+            </xsd:simpleContent>
+        </xsd:complexType>
+    </xsd:element>
+    <!--****************************************************-->
+    <xsd:element name="jazn">
+        <xsd:complexType>
+            <xsd:sequence>
+                <xsd:element ref="property" minOccurs="0" maxOccurs="unbounded"/>
+                <xsd:element ref="jazn-web-app" minOccurs="0"/>
+            </xsd:sequence>
+            <xsd:attribute name="provider" default="XML">
+                <xsd:simpleType>
+                    <xsd:restriction base="xsd:NMTOKEN">
+                        <xsd:enumeration value="XML"/>
+                        <xsd:enumeration value="LDAP"/>
+                    </xsd:restriction>
+                </xsd:simpleType>
+            </xsd:attribute>
+            <xsd:attribute name="location" type="xsd:string"/>
+            <xsd:attribute name="default-realm" type="xsd:string"/>
+            <xsd:attribute name="persistence" default="VM_EXIT">
+                <xsd:simpleType>
+                    <xsd:restriction base="xsd:NMTOKEN">
+                        <xsd:enumeration value="NONE"/>
+                        <xsd:enumeration value="ALL"/>
+                        <xsd:enumeration value="VM_EXIT"/>
+                    </xsd:restriction>
+                </xsd:simpleType>
+            </xsd:attribute>
+            <xsd:attribute name="config" type="xsd:string"/>
+        </xsd:complexType>
+    </xsd:element>
+    <!--****************************************************-->
+    <xsd:element name="jazn-web-app">
+        <xsd:complexType>
+            <xsd:simpleContent>
+                <xsd:extension base="xsd:string">
+                    <xsd:attribute name="auth-method" type="xsd:string"/>
+                    <xsd:attribute name="runas-mode" type="oc4j:oc4j-trueFalseType" default="false"/>
+                    <xsd:attribute name="doasprivileged-mode" type="oc4j:oc4j-trueFalseType" default="true"/>
+                </xsd:extension>
+            </xsd:simpleContent>
+        </xsd:complexType>
+    </xsd:element>
+    <!--****************************************************-->
+    <xsd:element name="jazn-loginconfig">
+      <xsd:complexType>
+        <xsd:sequence>
+          <xsd:element ref="application" minOccurs="0" maxOccurs="unbounded"/>
+        </xsd:sequence>
+      </xsd:complexType>
+    </xsd:element>
+    <!--****************************************************-->
+    <xsd:element name="application">
+      <xsd:complexType>
+        <xsd:sequence>
+          <xsd:element name="name" type="xsd:string" />
+          <xsd:element ref="login-modules" />
+        </xsd:sequence>
+        <xsd:attribute name="Key" type="KeyType" fixed="name"/>
+      </xsd:complexType>
+    </xsd:element>
+    <!--****************************************************-->
+    <xsd:element name="login-modules">
+      <xsd:complexType>
+        <xsd:sequence>
+          <xsd:element ref="login-module" minOccurs="1" maxOccurs="unbounded"/>
+        </xsd:sequence>
+      </xsd:complexType>
+    </xsd:element>
+    <!--****************************************************-->
+    <xsd:element name="login-module">
+      <xsd:complexType>
+        <xsd:sequence >
+          <xsd:element name="class" type="xsd:string" />
+          <xsd:element name="control-flag" type="xsd:string" />
+          <xsd:element ref="options" minOccurs="0" maxOccurs="1"/>
+        </xsd:sequence>
+        <xsd:attribute name="Key" type="KeyType" fixed="class control-flag"/>
+      </xsd:complexType>
+    </xsd:element>
+    <!--****************************************************-->
+    <xsd:element name="options">
+      <xsd:complexType>
+        <xsd:sequence>
+          <xsd:element ref="option" minOccurs="1" maxOccurs="unbounded"/>
+        </xsd:sequence>
+      </xsd:complexType>
+    </xsd:element>
+    <!--****************************************************-->
+    <xsd:element name="option">
+      <xsd:complexType>
+        <xsd:sequence >
+          <xsd:element name="name" type="xsd:string" />
+          <xsd:element name="value" type="xsd:string" />
+        </xsd:sequence>
+        <xsd:attribute name="Key" type="KeyType" fixed="name value"/>
+      </xsd:complexType>
+    </xsd:element>
+    <!--****************************************************-->
+    <xsd:simpleType name="KeyType">
+      <xsd:list itemType="xsd:string"/>
+    </xsd:simpleType>
+    <!--****************************************************-->
+    <xsd:element name="jmx-mbean">
+        <xsd:complexType>
+            <xsd:sequence>
+                <xsd:element ref="description" minOccurs="0"/>
+                <xsd:element ref="attribute" minOccurs="0" maxOccurs="unbounded"/>
+            </xsd:sequence>
+            <xsd:attribute name="objectname" type="xsd:string"/>
+            <xsd:attribute name="class" type="xsd:string"/>
+        </xsd:complexType>
+    </xsd:element>
+
+    <xsd:element name="attribute">
+        <xsd:complexType>
+            <xsd:sequence>
+                <xsd:element ref="value" maxOccurs="unbounded"/>
+            </xsd:sequence>
+            <xsd:attribute name="name" type="xsd:string"/>
+        </xsd:complexType>
+    </xsd:element>
+ 
+    <xsd:element name="value" type="xsd:string"/>
+    <!--****************************************************-->
+    <xsd:element name="library">
+        <xsd:complexType>
+            <xsd:simpleContent>
+                <xsd:extension base="xsd:string">
+                    <xsd:attribute name="path" type="xsd:string"/>
+                </xsd:extension>
+            </xsd:simpleContent>
+        </xsd:complexType>
+    </xsd:element>
+    <!--****************************************************-->
+    <xsd:element name="log">
+        <xsd:complexType>
+            <xsd:sequence>
+                <xsd:element ref="file" minOccurs="0" maxOccurs="unbounded"/>
+                <xsd:element ref="mail" minOccurs="0" maxOccurs="unbounded"/>
+                <xsd:element ref="odl" minOccurs="0" maxOccurs="unbounded"/>
+            </xsd:sequence>
+        </xsd:complexType>
+    </xsd:element>
+    <!--****************************************************-->
+    <xsd:element name="mail">
+        <xsd:complexType>
+            <xsd:simpleContent>
+                <xsd:extension base="xsd:string">
+                    <xsd:attribute name="address" type="xsd:string"/>
+                </xsd:extension>
+            </xsd:simpleContent>
+        </xsd:complexType>
+    </xsd:element>
+    <!--****************************************************-->
+    <xsd:element name="mail-session">
+        <xsd:complexType>
+            <xsd:sequence>
+                <xsd:element ref="description" minOccurs="0"/>
+                <xsd:element ref="property" minOccurs="0" maxOccurs="unbounded"/>
+            </xsd:sequence>
+            <xsd:attribute name="location" type="xsd:string"/>
+            <xsd:attribute name="smtp-host" type="xsd:string"/>
+            <xsd:attribute name="username" type="xsd:string"/>
+            <xsd:attribute name="password" type="xsd:string"/>
+        </xsd:complexType>
+    </xsd:element>
+    <!--****************************************************-->
+    <xsd:element name="namespace-access">
+        <xsd:complexType>
+            <xsd:sequence>
+                <xsd:element ref="read-access"/>
+                <xsd:element ref="write-access"/>
+            </xsd:sequence>
+        </xsd:complexType>
+    </xsd:element>
+    <!--****************************************************-->
+    <xsd:element name="namespace-resource">
+        <xsd:complexType>
+            <xsd:sequence>
+                <xsd:element ref="security-role-mapping"/>
+            </xsd:sequence>
+            <xsd:attribute name="root" type="xsd:string" use="required"/>
+        </xsd:complexType>
+    </xsd:element>
+    <!--****************************************************-->
+    <xsd:element name="odl">
+        <xsd:complexType>
+            <xsd:simpleContent>
+                <xsd:extension base="xsd:string">
+                    <xsd:attribute name="path" type="xsd:string" use="required"/>
+                    <xsd:attribute name="max-file-size" type="xsd:string"/>
+                    <xsd:attribute name="max-directory-size" type="xsd:string"/>
+                </xsd:extension>
+            </xsd:simpleContent>
+        </xsd:complexType>
+    </xsd:element>
+    <!--****************************************************-->
+    <xsd:element name="orion-application">
+        <xsd:complexType>
+            <xsd:choice maxOccurs="unbounded">
+                <xsd:element ref="ejb-module" minOccurs="0" maxOccurs="unbounded"/>
+                <xsd:element ref="web-module" minOccurs="0" maxOccurs="unbounded"/>
+                <xsd:element ref="client-module" minOccurs="0" maxOccurs="unbounded"/>
+                <xsd:element ref="security-role-mapping" minOccurs="0" maxOccurs="unbounded"/>
+                <xsd:element ref="persistence" minOccurs="0"/>
+                <xsd:element ref="library" minOccurs="0" maxOccurs="unbounded"/>
+                <xsd:element ref="imported-shared-libraries" minOccurs="0"/>
+                <xsd:element ref="principals" minOccurs="0"/>
+                <xsd:element ref="mail-session" minOccurs="0" maxOccurs="unbounded"/>
+                <xsd:element ref="user-manager" minOccurs="0"/>
+                <xsd:element ref="log" minOccurs="0"/>
+                <xsd:element ref="jazn" minOccurs="0"/>
+                <xsd:element ref="jazn-loginconfig" minOccurs="0" maxOccurs="1"/>
+                <xsd:element ref="data-sources" minOccurs="0"/>
+                <xsd:element ref="connectors" minOccurs="0"/>
+                <xsd:element ref="resource-provider" minOccurs="0" maxOccurs="unbounded"/>
+                <xsd:element ref="namespace-access" minOccurs="0"/>
+                <xsd:element ref="jmx-mbean" minOccurs="0" maxOccurs="unbounded"/>
+            </xsd:choice>
+            <xsd:attribute name="batch-compile" type="oc4j:oc4j-trueFalseType" default="true">
+                <xsd:annotation>
+                    <xsd:documentation>
+                      Controls whether container generated code for EJB modules is compiled all together (true), or one module at a time (false). 
+                      Useful when dealing with applications with many EJB modules where physical memory is being exceeded during the compile phase.
+                    </xsd:documentation>
+                </xsd:annotation>     
+            </xsd:attribute>   
+            <xsd:attribute name="autocreate-tables" type="oc4j:oc4j-trueFalseType" default="true"/>
+            <xsd:attribute name="autodelete-tables" type="oc4j:oc4j-trueFalseType" default="false"/>
+            <xsd:attribute name="deployment-version" type="xsd:string"/>
+            <xsd:attribute name="default-data-source" type="xsd:string"/>
+            <xsd:attribute name="treat-zero-as-null" type="oc4j:oc4j-trueFalseType" default="false">
+                <xsd:annotation>
+                    <xsd:documentation>Should it be here..? Reflecting Code</xsd:documentation>
+                </xsd:annotation>
+            </xsd:attribute>
+            <xsd:attribute name="prepend-deployment-name" type="oc4j:oc4j-trueFalseType" default="false">
+                <xsd:annotation>
+                    <xsd:documentation>Should it be here..? Reflecting Code</xsd:documentation>
+                </xsd:annotation>
+            </xsd:attribute>
+            <xsd:attribute name="see-parent-data-sources" type="oc4j:oc4j-trueFalseType" default="false">
+                <xsd:annotation>
+                    <xsd:documentation>Should it be here..? Reflecting Code</xsd:documentation>
+                </xsd:annotation>
+            </xsd:attribute>
+            <xsd:attribute name="taskmanager-interval" type="xsd:long">
+                <xsd:annotation>
+                    <xsd:documentation>Should it be here..? Reflecting Code</xsd:documentation>
+                </xsd:annotation>
+            </xsd:attribute>
+            <xsd:attributeGroup ref="oc4j:oc4j-schemaVersionAttributeType"/>
+        </xsd:complexType>
+    </xsd:element>
+    <!--****************************************************-->
+    <xsd:element name="password-manager">
+        <xsd:complexType>
+            <xsd:sequence>
+                <xsd:element ref="principals" minOccurs="0"/>
+                <xsd:element ref="jazn" minOccurs="0"/>
+                <xsd:element ref="user-manager" minOccurs="0"/>
+            </xsd:sequence>
+        </xsd:complexType>
+    </xsd:element>
+    <!--****************************************************-->
+    <xsd:element name="persistence">
+        <xsd:complexType>
+            <xsd:simpleContent>
+                <xsd:extension base="xsd:string">
+                    <xsd:attribute name="path" type="xsd:string"/>
+                </xsd:extension>
+            </xsd:simpleContent>
+        </xsd:complexType>
+    </xsd:element>
+    <!--****************************************************-->
+    <xsd:element name="principals">
+        <xsd:complexType>
+            <xsd:simpleContent>
+                <xsd:extension base="xsd:string">
+                    <xsd:attribute name="path" type="xsd:string"/>
+                </xsd:extension>
+            </xsd:simpleContent>
+        </xsd:complexType>
+    </xsd:element>
+    <!--****************************************************-->
+    <xsd:element name="property">
+        <xsd:complexType>
+            <xsd:simpleContent>
+                <xsd:extension base="xsd:string">
+                    <xsd:attribute name="name" type="xsd:string"/>
+                    <xsd:attribute name="value" type="xsd:string"/>
+                </xsd:extension>
+            </xsd:simpleContent>
+        </xsd:complexType>
+    </xsd:element>
+    <!--****************************************************-->
+    <xsd:element name="read-access">
+        <xsd:complexType>
+            <xsd:sequence>
+                <xsd:element ref="namespace-resource"/>
+            </xsd:sequence>
+        </xsd:complexType>
+    </xsd:element>
+    <!--****************************************************-->
+    <xsd:element name="resource-provider">
+        <xsd:complexType>
+            <xsd:sequence>
+                <xsd:element ref="description" minOccurs="0"/>
+                <xsd:element ref="property" maxOccurs="unbounded"/>
+            </xsd:sequence>
+            <xsd:attribute name="class" type="xsd:string"/>
+            <xsd:attribute name="name" type="xsd:string"/>
+        </xsd:complexType>
+    </xsd:element>
+    <!--****************************************************-->
+    <xsd:element name="security-role-mapping">
+        <xsd:complexType>
+            <xsd:sequence>
+                <xsd:element ref="group" minOccurs="0" maxOccurs="unbounded"/>
+                <xsd:element ref="user" minOccurs="0" maxOccurs="unbounded"/>
+            </xsd:sequence>
+            <xsd:attribute name="impliesAll" type="xsd:string"/>
+            <xsd:attribute name="name" type="xsd:string"/>
+        </xsd:complexType>
+    </xsd:element>
+    <!--****************************************************-->
+    <xsd:element name="user">
+        <xsd:complexType>
+            <xsd:simpleContent>
+                <xsd:extension base="xsd:string">
+                    <xsd:attribute name="name" type="xsd:string"/>
+                </xsd:extension>
+            </xsd:simpleContent>
+        </xsd:complexType>
+    </xsd:element>
+    <!--****************************************************-->
+    <xsd:element name="user-manager">
+        <xsd:complexType>
+            <xsd:sequence>
+                <xsd:element ref="description" minOccurs="0"/>
+                <xsd:element ref="property" minOccurs="0" maxOccurs="unbounded"/>
+            </xsd:sequence>
+            <xsd:attribute name="class" type="xsd:string"/>
+            <xsd:attribute name="display-name" type="xsd:string"/>
+        </xsd:complexType>
+    </xsd:element>
+    <!--****************************************************-->
+    <xsd:element name="web-module">
+        <xsd:complexType>
+            <xsd:simpleContent>
+                <xsd:extension base="xsd:string">
+                    <xsd:attribute name="id" type="xsd:string"/>
+                    <xsd:attribute name="path" type="xsd:string"/>
+                </xsd:extension>
+            </xsd:simpleContent>
+        </xsd:complexType>
+    </xsd:element>
+    <!--****************************************************-->
+    <xsd:element name="write-access">
+        <xsd:complexType>
+            <xsd:sequence>
+                <xsd:element ref="namespace-resource"/>
+            </xsd:sequence>
+        </xsd:complexType>
+    </xsd:element>
+    <!--****************************************************-->
+    <xsd:element name="imported-shared-libraries">
+        <xsd:complexType>
+            <xsd:choice minOccurs="0" maxOccurs="unbounded">
+                <xsd:element name="import-shared-library" type="oc4j:oc4j-importSharedLibrary" minOccurs="0" maxOccurs="unbounded"/>
+                <xsd:element name="remove-inherited" minOccurs="0">
+                    <xsd:complexType>
+                        <xsd:simpleContent>
+                            <xsd:extension base="xsd:string">
+                                <xsd:attribute name="name" type="xsd:string" use="required"/>
+                            </xsd:extension>
+                        </xsd:simpleContent>
+                    </xsd:complexType>
+                </xsd:element>
+            </xsd:choice>
+        </xsd:complexType>
+    </xsd:element>
+    <!--****************************************************-->
+    <xsd:element name="cluster">
+        <xsd:annotation>
+            <xsd:documentation>This element represents the clustering configuration for an enterprise application
+                deployed within OC4J. This element is used to configure both StatefulSessionBean
+                and Servlet state replication.
+                Child applications inherit clustering configuration from their parent applications.
+                If nothing is specified within this element, the default behavior is to use multicast
+                on the default multicast port.
+
+                Attributes:
+                  enabled -
+                    Clustering configuration can be enabled or disabled with this attribute
+                  group-name -
+                    The name to use when establishing the replication group channels. If nothing
+                    is supplied, the name of the enterprise application is used and new channels
+                    are created for each enterprise application. If a value is specified for
+                    this attribute, then this application and all child applications will use
+                    the channels associated with this group name.
+                  allow-colocation -
+                    The number of VM's to which a state should be replicated (chosen randomly from the list
+                    of valid group members).
+                  cache-miss-delay -
+                    How long to wait in process for another group member to respond with a session should
+                    the session not be found locally. For a complete miss (i.e. the session no longer exists)
+                    the call (or request) will pause for the entire amount.
+            </xsd:documentation>
+        </xsd:annotation>
+        <xsd:complexType>
+            <xsd:choice minOccurs="0">
+                <xsd:element name="property-config">
+                    <xsd:annotation>
+                        <xsd:documentation>
+                            This element allows for the specification of a raw javagroups property string
+                            or a URL to a javagroups configuration file. OC4J will not alter either of
+                            these values, it merely passes them along to the javagroups library. While
+                            usage of these tags is supported, OC4J does not try to validate or ensure
+                            correct operation based upon the contents of the passed values.
+                        </xsd:documentation>
+                    </xsd:annotation>
+                    <xsd:complexType>
+                        <xsd:choice>
+                            <xsd:element name="property-string"/>
+                            <xsd:element name="url"/>
+                        </xsd:choice>
+                    </xsd:complexType>
+                </xsd:element>
+                <xsd:element name="protocol">
+                    <xsd:complexType>
+                        <xsd:choice>
+                            <xsd:element name="multicast">
+                                <xsd:complexType>
+                                    <xsd:attribute name="ip" type="xsd:string" default="230.230.0.1"/>
+                                    <xsd:attribute name="port" type="xsd:positiveInteger" default="45566"/>
+                                    <xsd:attribute name="bind_addr" type="xsd:string"/>
+                                </xsd:complexType>
+                            </xsd:element>
+                            <xsd:element name="peer">
+                                <xsd:annotation>
+                                    <xsd:documentation>
+                                        This element configures OC4J to use peer-to-peer communication for replication.
+                                        The list of peers that will be used is not strictly limited to the nodes listed here,
+                                        the complete list of peers used will be the transitive closure of all active
+                                        peers who know about each other.
+                                        Attributes
+                                          start-port -
+                                            The initial port to try to allocate for usage by this cluster configuration for
+                                            peer communication. If this port cannot be used, the port value is incremented and
+                                            the attempt is made again. This continues until a valid port is found.
+                                          range -
+                                            How many times to increment the port value while looking for a potential peer node
+                                          timeout -
+                                            How long to wait for a response from a peer while looking for a potential peer node
+                                          bind_addr -
+                                            Used to bind a transport to a specific interface
+                                    </xsd:documentation>
+                                </xsd:annotation>
+                                <xsd:complexType>
+                                    <xsd:choice maxOccurs="unbounded">
+                                        <xsd:element name="node">
+                                            <xsd:complexType>
+                                                <xsd:attribute name="host" type="xsd:string" use="required"/>
+                                                <xsd:attribute name="port" type="xsd:positiveInteger" default="7800"/>
+                                            </xsd:complexType>
+                                        </xsd:element>
+                                        <xsd:element name="opmn-discovery">
+                                        </xsd:element>
+                                    </xsd:choice>
+                                    <xsd:attribute name="start-port" type="xsd:positiveInteger" default="7800"/>
+                                    <xsd:attribute name="range" type="xsd:positiveInteger" default="5"/>
+                                    <xsd:attribute name="timeout" type="xsd:positiveInteger" default="3000"/>
+                                    <xsd:attribute name="bind_addr" type="xsd:string"/>
+                                </xsd:complexType>
+                            </xsd:element>
+                            <xsd:element name="database">
+                                <xsd:annotation>
+                                    <xsd:documentation>
+                                        This element configures OC4J to use the database for replication.
+                                        All replicated objects will be send to the database based on the policy used.
+                                    </xsd:documentation>
+                                </xsd:annotation>
+                                <xsd:complexType>
+                                    <xsd:attribute name="data-source" type="xsd:string"/>
+                                </xsd:complexType>
+                            </xsd:element>
+                        </xsd:choice>
+                    </xsd:complexType>
+                </xsd:element>
+                <xsd:element name="replication-policy">
+                    <xsd:annotation>
+                        <xsd:documentation>
+						    This defines the replication policy to be used by the protocol.
+                            TThe replication is not finalized yet ...
+                        </xsd:documentation>
+                    </xsd:annotation>
+                    <xsd:complexType>
+                        <xsd:attribute name="trigger" type="replicationTriggerType" default="onRequestEnd"/>
+                        <xsd:attribute name="scope" type="replicationScopeType" default="modifiedAttributes"/>
+                    </xsd:complexType>
+              </xsd:element>
+            </xsd:choice>
+            <xsd:attribute name="enabled" type="xsd:boolean" default="true"/>
+            <xsd:attribute name="group-name" type="xsd:string"/>
+            <xsd:attribute name="allow-colocation" type="xsd:boolean" default="true"/>
+            <xsd:attribute name="write-quota" type="xsd:positiveInteger" default="1"/>
+            <xsd:attribute name="cache-miss-delay" type="xsd:positiveInteger" default="1000"/>
+        </xsd:complexType>
+    </xsd:element>
+    <!--****************************************************-->
+    <xsd:simpleType name="replicationTriggerType">
+        <xsd:restriction base="xsd:string">
+            <xsd:enumeration value="onRequestEnd">
+                <xsd:annotation>
+                    <xsd:documentation>
+									Data will be flushed each time a request is completed (all the changes will be batched when the call complete).
+				                    - This is the default for ejb session replication (it used to be called endOfCall in the old model)
+                    </xsd:documentation>
+                </xsd:annotation>
+            </xsd:enumeration>
+            <xsd:enumeration value="onSetAttribute">
+                <xsd:annotation>
+                    <xsd:documentation>
+									Data will be flushed each time an attribute is changed via HttpSession.setAttribute().
+									- This is the default for http session replication
+				                    - This is not available for ejb session replication
+                    </xsd:documentation>
+                </xsd:annotation>
+            </xsd:enumeration>
+            <xsd:enumeration value="onShutdown">
+                <xsd:annotation>
+                    <xsd:documentation>
+									Data will be flushed each time the application is shutdown. This can be caused because of a stop call on the application or a vm termination.
+									(it used to be called VMTermination in the old model)
+                    </xsd:documentation>
+                </xsd:annotation>
+            </xsd:enumeration>
+        </xsd:restriction>
+    </xsd:simpleType>
+    <!--****************************************************-->
+    <xsd:simpleType name="replicationScopeType">
+        <xsd:restriction base="xsd:string">
+            <xsd:enumeration value="allAttributes">
+                <xsd:annotation>
+                    <xsd:documentation>
+									All attributes of the session will be replicated.  For each request the entire session is replicated, this allows code to modify attributes in the session without having to explicitely call HttpSession.setAttribute().
+				                    - This is the default for ejb session replication
+                    </xsd:documentation>
+                </xsd:annotation>
+            </xsd:enumeration>
+            <xsd:enumeration value="modifiedAttributes">
+                <xsd:annotation>
+                    <xsd:documentation>
+									Only attributes that have been modified and explicitely set by the Session.SetAttribute() method will be replicated.
+									- This is the default for http session replication
+				                    - This is not available for ejb session replication
+                    </xsd:documentation>
+                </xsd:annotation>
+            </xsd:enumeration>
+        </xsd:restriction>
+    </xsd:simpleType>
+</xsd:schema>

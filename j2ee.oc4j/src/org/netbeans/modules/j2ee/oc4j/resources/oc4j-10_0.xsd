@@ -1,0 +1,90 @@
+<?xml version="1.0"?>
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+    targetNamespace="http://xmlns.oracle.com/oracleas/schema/oc4j-10_0.xsd"
+    elementFormDefault="qualified"
+    attributeFormDefault="unqualified">
+
+    <!--****************************************************-->
+    <xsd:simpleType name="oc4j-trueFalseType">
+        <xsd:annotation>
+            <xsd:documentation>This type defines two different values which can designate boolean values. </xsd:documentation>
+        </xsd:annotation>
+        <xsd:restriction base="xsd:string">
+            <xsd:enumeration value="true"/>
+            <xsd:enumeration value="false"/>
+        </xsd:restriction>
+    </xsd:simpleType>
+    <!--****************************************************-->
+    <xsd:simpleType name="oc4j-allowDenyType">
+        <xsd:annotation>
+            <xsd:documentation>This type defines two different values which can designate "allow" or "deny" values. </xsd:documentation>
+        </xsd:annotation>
+        <xsd:restriction base="xsd:string">
+            <xsd:enumeration value="allow"/>
+            <xsd:enumeration value="deny"/>
+        </xsd:restriction>
+    </xsd:simpleType>
+    <!--****************************************************-->
+    <xsd:simpleType name="oc4j-jspCacheTldsType">
+        <xsd:annotation>
+            <xsd:documentation>This type defines values that are valid for jsp-cache-tlds. </xsd:documentation>
+        </xsd:annotation>
+        <xsd:restriction base="xsd:string">
+            <xsd:enumeration value="on"/>
+            <xsd:enumeration value="true"/>
+            <xsd:enumeration value="standard"/>
+            <xsd:enumeration value="off"/>
+            <xsd:enumeration value="false"/>
+        </xsd:restriction>
+    </xsd:simpleType>
+    <!--****************************************************-->
+    <xsd:attributeGroup name="oc4j-schemaVersionAttributeType">
+        <xsd:annotation>
+            <xsd:documentation>This type defines two different attributes which are intended to be used in the
+                root elemment of a schema document to define version 10.0 of the schema document.
+            </xsd:documentation>
+        </xsd:annotation>
+        <xsd:attribute name="schema-major-version" type="xsd:integer" fixed="10"/>
+        <xsd:attribute name="schema-minor-version" type="xsd:integer" default="0"/>
+    </xsd:attributeGroup>
+    <!--****************************************************-->
+    <xsd:complexType name="oc4j-valueAttributeRequiredType">
+        <xsd:attribute name="value" type="xsd:string" use="required"/>
+    </xsd:complexType>
+    <!--****************************************************-->
+    <xsd:attributeGroup name="oc4j-keyValueAttributeType">
+        <xsd:attribute name="key" type="xsd:string"/>
+        <xsd:attribute name="value" type="xsd:string" use="required"/>
+    </xsd:attributeGroup>
+    <!--****************************************************-->
+    <xsd:attributeGroup name="oc4j-nameValueAttributeType">
+        <xsd:attribute name="name" type="xsd:string" use="required"/>
+        <xsd:attribute name="value" type="xsd:string" use="required"/>
+    </xsd:attributeGroup>
+    <!--****************************************************-->
+    <xsd:attributeGroup name="oc4j-jmsConnectionAttributeType">
+        <xsd:attribute name="name" type="xsd:string">
+            <xsd:annotation>
+                <xsd:documentation>
+                </xsd:documentation>
+            </xsd:annotation>
+        </xsd:attribute>
+        <xsd:attribute name="location" type="xsd:string" use="required"/>
+        <xsd:attribute name="host" type="xsd:string" default="[ALL]"/>
+        <xsd:attribute name="port" type="xsd:string" default="9127"/>
+        <xsd:attribute name="username" type="xsd:string"/>
+        <xsd:attribute name="password" type="xsd:string"/>
+        <xsd:attribute name="clientID" type="xsd:string"/>
+    </xsd:attributeGroup>
+    <!--****************************************************-->
+    <xsd:complexType name="oc4j-importSharedLibrary">
+        <xsd:simpleContent>
+            <xsd:extension base="xsd:string">
+                <xsd:attribute name="name" type="xsd:string" use="required"/>
+                <xsd:attribute name="min-version" type="xsd:string"/>
+                <xsd:attribute name="max-version" type="xsd:string"/>
+            </xsd:extension>
+        </xsd:simpleContent>
+    </xsd:complexType>
+
+</xsd:schema>

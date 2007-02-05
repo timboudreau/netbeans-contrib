@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE filesystem PUBLIC "-//NetBeans//DTD Filesystem 1.1//EN" "http://www.netbeans.org/dtds/filesystem-1_1.dtd">
+<filesystem>
+    <folder name="J2EE">
+        <folder name="DeploymentPlugins">
+            <folder name="OC4J">
+                <file name="Descriptor" url="nbdep.xml"/>
+                <file name="Factory.instance">
+                    <attr name="instanceCreate" methodvalue="org.netbeans.modules.j2ee.oc4j.OC4JDeploymentFactory.create"/>
+                    <attr name="instanceClass" stringvalue="org.netbeans.modules.j2ee.oc4j.OC4JDeploymentFactory"/>
+                    <attr name="instanceOf" stringvalue="javax.enterprise.deploy.spi.factories.DeploymentFactory"/>
+                </file>
+                <file name="RegistryNodeFactory.instance">
+                    <attr name="instanceClass" stringvalue="org.netbeans.modules.j2ee.oc4j.nodes.OC4JRegistryNodeFactory"/>
+                    <attr name="instanceOf" stringvalue="org.netbeans.modules.j2ee.deployment.plugins.api.RegistryNodeFactory"/>
+                </file>
+                <file name="J2eePlatformFactory.instance">
+                    <attr name="instanceCreate" newvalue="org.netbeans.modules.j2ee.oc4j.ide.OC4JJ2eePlatformFactory"/>
+                    <attr name="instanceClass" stringvalue="org.netbeans.modules.j2ee.oc4j.ide.OC4JJ2eePlatformFactory"/>
+                    <attr name="instanceOf" stringvalue="org.netbeans.modules.j2ee.deployment.plugins.api.J2eePlatformFactory"/>
+                </file>
+                <file name="OptionalFactory.instance">
+                    <attr name="instanceCreate" newvalue="org.netbeans.modules.j2ee.oc4j.OC4JOptionalFactory"/>
+                    <attr name="instanceClass" stringvalue="org.netbeans.modules.j2ee.oc4j.OC4JOptionalFactory"/>
+                    <attr name="instanceOf" stringvalue="org.netbeans.modules.j2ee.deployment.plugins.api.OptionalDeploymentManagerFactory"/>
+                </file>
+                <file name="ConfigurationSupportImpl.instance">
+                    <attr name="instanceClass" stringvalue="org.netbeans.modules.j2ee.oc4j.config.ConfigurationSupportImpl"/>
+                    <attr name="instanceOf" stringvalue="org.netbeans.modules.j2ee.deployment.plugins.api.ConfigurationSupport"/>
+                </file>
+                
+                <folder name="DeploymentFileNames">
+                    <folder name="WAR">
+                        <file name="WEB-INF\orion-web.xml"/>
+                    </folder>
+                    <folder name="EJB">
+                        <file name="META-INF\orion-ejb-jar.xml"/>
+                    </folder>
+                    <folder name="EAR">
+                        <file name="META-INF\orion-application.xml"/>
+                    </folder>
+                </folder>
+                
+                
+            </folder>
+        </folder>
+    </folder>
+    
+</filesystem>
+

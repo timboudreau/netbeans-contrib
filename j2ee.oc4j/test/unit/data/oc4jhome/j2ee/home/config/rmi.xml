@@ -1,0 +1,38 @@
+<?xml version="1.0" standalone='yes'?>
+
+<rmi-server 
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:noNamespaceSchemaLocation="http://xmlns.oracle.com/oracleas/schema/rmi-server-10_0.xsd"
+  port="23791"
+  ssl-port = "23943"
+  schema-major-version="10"
+  schema-minor-version="0"
+>
+
+  <!-- A remote server connection example -->
+  <!-- <server host="the.remote.server.com" username="adminUser" password="123abc" /> -->
+
+  <!-- path to the log-file where RMI-events/errors are stored -->
+  <log>
+    <file path="../log/rmi.log" />
+    <!-- Uncomment this if you want to use ODL logging capabilities
+    <odl path="../log/rmi/" max-file-size="1000" max-directory-size="10000"/>
+    -->
+  </log>
+
+  <!-- by default, rmi connection access is granted to all addresses -->
+  <!-- <access-mask default="allow"/> -->
+
+  <!-- by default, subject/identity propagation (from client) is denied to all addresses -->
+  <!-- <subject-propagation-mask default="deny"/> -->
+
+    <!-- another example of a mask configuration - to demonstrate usage syntax only -->
+    <!-- access-mask default="allow">
+        <host-access domain="untrustedhostname" mode="deny" />
+        <ip-access ip="192.168.1.100" mode="deny" />
+    </access-mask -->
+
+  <!-- An ssl configuration example (allowing for anonymous ssl clients) -->
+  <ssl-config/>
+
+</rmi-server>

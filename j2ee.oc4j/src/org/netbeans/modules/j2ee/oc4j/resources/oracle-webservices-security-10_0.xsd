@@ -1,0 +1,340 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+            elementFormDefault="qualified" attributeFormDefault="unqualified"
+            version="1.0">
+ <xsd:simpleType name="password-type-enum">
+  <xsd:restriction base="xsd:string">
+   <xsd:enumeration value="PLAINTEXT"/>
+   <xsd:enumeration value="DIGEST"/>
+  </xsd:restriction>
+ </xsd:simpleType>
+ <xsd:simpleType name="signature-method-enum">
+  <xsd:restriction base="xsd:string">
+   <xsd:enumeration value="RSA-SHA1"/>
+   <xsd:enumeration value="RSA-MD5"/>
+   <xsd:enumeration value="DSA-SHA1"/>
+  </xsd:restriction>
+ </xsd:simpleType>
+ <xsd:simpleType name="encryption-method-enum">
+  <xsd:restriction base="xsd:string">
+   <xsd:enumeration value="3DES"/>
+   <xsd:enumeration value="AES-128"/>
+   <xsd:enumeration value="AES-256"/>
+  </xsd:restriction>
+ </xsd:simpleType>
+ <xsd:simpleType name="keytransport-method-enum">
+  <xsd:restriction base="xsd:string">
+   <xsd:enumeration value="RSA-OAEP-MGF1P"/>
+   <xsd:enumeration value="RSA-1_5"/>
+  </xsd:restriction>
+ </xsd:simpleType>
+ <xsd:simpleType name="encrypt-mode-enum">
+  <xsd:restriction base="xsd:string">
+   <xsd:enumeration value="CONTENT"/>
+   <xsd:enumeration value="ELEMENT"/>
+  </xsd:restriction>
+ </xsd:simpleType>
+ <xsd:complexType name="nonce-config-type">
+  <xsd:attribute name="clock-skew" type="xsd:integer" default="0"/>
+  <xsd:attribute name="cache-ttl" type="xsd:integer" default="300"/>
+ </xsd:complexType>
+ <xsd:complexType name="security-config-type">
+  <xsd:sequence>
+   <xsd:element name="key-store" type="key-store-config-type" minOccurs="0"/>
+   <xsd:element name="signature-key" type="key-config-type" minOccurs="0"/>
+   <xsd:element name="encryption-key" type="key-config-type" minOccurs="0"/>
+   <xsd:element name="nonce-config" type="nonce-config-type" minOccurs="0"/>
+   <xsd:element name="inbound" type="inbound-config-type" minOccurs="0"/>
+   <xsd:element name="outbound" type="outbound-config-type" minOccurs="0"/>
+   <xsd:element name="property" type="property-config-type" minOccurs="0"
+                maxOccurs="unbounded"/>
+  </xsd:sequence>
+ </xsd:complexType>
+ <xsd:complexType name="security-operation-config-type">
+  <xsd:sequence>
+   <xsd:element name="inbound" type="inbound-config-type" minOccurs="0"/>
+   <xsd:element name="outbound" type="outbound-config-type" minOccurs="0"/>
+  </xsd:sequence>
+ </xsd:complexType>
+ <xsd:element name="security-global" type="security-config-type"/>
+ <xsd:element name="security-port" type="security-config-type"/>
+ <xsd:element name="security-operation" type="security-operation-config-type"/> 
+ <xsd:complexType name="inbound-config-type">
+  <xsd:sequence>
+   <xsd:element name="verify-username-token"
+                type="verify-username-token-config-type" minOccurs="0"/>
+   <xsd:element name="verify-x509-token" type="verify-x509-token-config-type"
+                minOccurs="0"/>
+   <xsd:element name="verify-saml-token" type="verify-saml-token-config-type"
+                minOccurs="0"/>
+   <xsd:element name="verify-signature" type="verify-signature-config-type"
+                minOccurs="0"/>
+   <xsd:element name="decrypt" type="decrypt-config-type" minOccurs="0"/>
+  </xsd:sequence>
+ </xsd:complexType>
+ <xsd:complexType name="outbound-config-type">
+  <xsd:sequence>
+   <xsd:choice>
+    <xsd:element name="username-token" type="username-token-config-type"/>
+    <xsd:element name="x509-token" type="x509-token-config-type"/>
+    <xsd:element name="saml-token" type="saml-token-config-type"/>
+   </xsd:choice>
+   <xsd:element name="signature" type="signature-config-type" minOccurs="0"/>
+   <xsd:element name="encrypt" type="encrypt-config-type" minOccurs="0"/>
+  </xsd:sequence>
+ </xsd:complexType>
+ <xsd:complexType name="signature-config-type">
+  <xsd:sequence>
+   <xsd:element name="signature-method" default="RSA-SHA1">
+    <xsd:simpleType>
+     <xsd:restriction base="xsd:string">
+      <xsd:enumeration value="RSA-SHA1"/>
+      <xsd:enumeration value="RSA-MD5"/>
+      <xsd:enumeration value="DSA-SHA1"/>
+     </xsd:restriction>
+    </xsd:simpleType>
+   </xsd:element>
+   <xsd:element name="tbs-elements" type="sign-elements-config-type"/> 
+   <xsd:element name="add-timestamp" type="timestamp-config-type"
+                minOccurs="0"/>
+   <xsd:element name="property" type="property-config-type" minOccurs="0"
+                maxOccurs="unbounded"/>
+  </xsd:sequence>
+ </xsd:complexType>
+ <xsd:complexType name="encrypt-config-type">
+  <xsd:sequence>
+   <xsd:choice>
+    <xsd:element name="recipient-key" type="key-config-type"/>
+    <xsd:element name="use-request-cert" type="xsd:boolean"/>
+   </xsd:choice>
+   <xsd:element name="encryption-method" default="AES-128">
+    <xsd:simpleType>
+     <xsd:restriction base="xsd:string">
+      <xsd:enumeration value="3DES"/>
+      <xsd:enumeration value="AES-128"/>
+      <xsd:enumeration value="AES-256"/>
+     </xsd:restriction>
+    </xsd:simpleType>
+   </xsd:element>
+   <xsd:element name="keytransport-method" default="RSA-1_5">
+    <xsd:simpleType>
+     <xsd:restriction base="xsd:string">
+      <xsd:enumeration value="RSA-OAEP-MGF1P"/>
+      <xsd:enumeration value="RSA-1_5"/>
+     </xsd:restriction>
+    </xsd:simpleType>
+   </xsd:element>
+   <xsd:element name="tbe-elements" type="encrypt-elements-config-type"/>
+   <xsd:element name="property" type="property-config-type" minOccurs="0"
+                maxOccurs="unbounded"/>
+  </xsd:sequence>
+ </xsd:complexType>
+ <xsd:complexType name="verify-signature-config-type">
+  <xsd:sequence>
+   <xsd:element name="signature-methods" type="signature-methods-config-type"  minOccurs="0"/>
+   <xsd:element name="tbs-elements" type="sign-elements-config-type"/> 
+   <xsd:element name="verify-timestamp" type="timestamp-config-type"
+                minOccurs="0"/>
+   <xsd:element name="property" type="property-config-type" minOccurs="0"
+                maxOccurs="unbounded"/>
+  </xsd:sequence>
+ </xsd:complexType>
+ <xsd:complexType name="decrypt-config-type">
+  <xsd:sequence>
+   <xsd:element name="encryption-methods"
+                type="encryption-methods-config-type"  minOccurs="0"/>
+   <xsd:element name="keytransport-methods"
+                type="keytransport-methods-config-type"  minOccurs="0"/>
+   <xsd:element name="tbe-elements" type="encrypt-elements-config-type"/>
+   <xsd:element name="property" type="property-config-type" minOccurs="0"
+                maxOccurs="unbounded"/>
+  </xsd:sequence>
+ </xsd:complexType>
+ <xsd:complexType name="property-config-type">
+  <xsd:attribute name="name" type="xsd:string" use="required"/>
+  <xsd:attribute name="value" type="xsd:string" use="required"/>
+ </xsd:complexType>
+ <xsd:complexType name="key-store-config-type">
+  <xsd:attribute name="store-pass" type="xsd:string" use="optional"/>
+  <xsd:attribute name="path" type="xsd:string"/>
+  <xsd:attribute name="type" type="xsd:string" use="optional"/>
+  <xsd:attribute name="name" type="xsd:string" use="optional"/>
+ </xsd:complexType>
+ <xsd:complexType name="key-config-type">
+  <xsd:attribute name="alias" type="xsd:string" use="required"/>
+  <xsd:attribute name="key-pass" type="xsd:string" use="optional"/>
+ </xsd:complexType>
+ <xsd:complexType name="signature-methods-config-type">
+  <xsd:sequence>
+   <xsd:element name="signature-method" default="RSA-SHA1" maxOccurs="3">
+    <xsd:simpleType>
+     <xsd:restriction base="xsd:string">
+      <xsd:enumeration value="RSA-SHA1"/>
+      <xsd:enumeration value="RSA-MD5"/>
+      <xsd:enumeration value="DSA-SHA1"/>
+     </xsd:restriction>
+    </xsd:simpleType>
+   </xsd:element>
+  </xsd:sequence>
+ </xsd:complexType>
+ <xsd:complexType name="encryption-methods-config-type">
+  <xsd:sequence>
+   <xsd:element name="encryption-method" default="AES-128" maxOccurs="3">
+    <xsd:simpleType>
+     <xsd:restriction base="xsd:string">
+      <xsd:enumeration value="3DES"/>
+      <xsd:enumeration value="AES-128"/>
+      <xsd:enumeration value="AES-256"/>
+     </xsd:restriction>
+    </xsd:simpleType>
+   </xsd:element>
+  </xsd:sequence>
+ </xsd:complexType>
+ <xsd:complexType name="keytransport-methods-config-type">
+  <xsd:sequence>
+   <xsd:element name="keytransport-method" default="RSA-1_5" maxOccurs="2">
+    <xsd:simpleType>
+     <xsd:restriction base="xsd:string">
+      <xsd:enumeration value="RSA-OAEP-MGF1P"/>
+      <xsd:enumeration value="RSA-1_5"/>
+     </xsd:restriction>
+    </xsd:simpleType>
+   </xsd:element>
+  </xsd:sequence>
+ </xsd:complexType>
+ <xsd:complexType name="username-token-config-type">
+  <xsd:sequence>
+   <xsd:element name="property" type="property-config-type" minOccurs="0"
+                maxOccurs="unbounded"/>
+  </xsd:sequence>
+  <xsd:attribute name="name" type="xsd:string" use="required"/>
+  <xsd:attribute name="password" type="xsd:string" use="optional"/>
+  <xsd:attribute name="password-type" type="password-type-enum" use="optional"
+                 default="PLAINTEXT"/>
+  <xsd:attribute name="cbhandler-name" type="xsd:string" use="optional"/>
+  <xsd:attribute name="add-nonce" type="xsd:boolean" use="optional"
+                 default="false"/>
+  <xsd:attribute name="add-created" type="xsd:boolean" use="optional"
+                 default="false"/>
+ </xsd:complexType>
+ <xsd:complexType name="verify-username-token-config-type">
+  <xsd:sequence>
+   <xsd:element name="property" type="property-config-type" minOccurs="0"
+                maxOccurs="unbounded"/>
+  </xsd:sequence>
+  <xsd:attribute name="password-type" type="password-type-enum" use="optional"/>
+  <xsd:attribute name="require-nonce" type="xsd:boolean" default="false" use="optional"/>
+  <xsd:attribute name="require-created" type="xsd:boolean" default="false" use="optional"/>
+ </xsd:complexType>
+ <xsd:complexType name="verify-x509-token-config-type">
+  <xsd:sequence>
+   <xsd:element name="property" type="property-config-type" minOccurs="0"
+                maxOccurs="unbounded"/>
+  </xsd:sequence>
+ </xsd:complexType>
+ <xsd:complexType name="x509-token-config-type">
+  <xsd:sequence>
+   <xsd:element name="property" type="property-config-type" minOccurs="0"
+                maxOccurs="unbounded"/>
+  </xsd:sequence>
+  <xsd:attribute name="cbhandler-name" type="xsd:string" use="optional"/>
+ </xsd:complexType>
+ <xsd:complexType name="timestamp-config-type">
+  <xsd:attribute name="expiry" type="xsd:long" default="28800"/>
+  <xsd:attribute name="created" type="xsd:boolean" default="true"/>
+ </xsd:complexType>
+ <xsd:complexType name="encrypt-elements-config-type">
+  <xsd:sequence>
+   <xsd:element name="tbe-element" maxOccurs="unbounded">
+    <xsd:complexType>
+     <xsd:attribute name="name-space" type="xsd:anyURI" use="required"/>
+     <xsd:attribute name="local-part" type="xsd:string" use="required"/>
+     <xsd:attribute name="mode" type="encrypt-mode-enum" use="optional"
+                    default="CONTENT"/>
+    </xsd:complexType>
+   </xsd:element>
+  </xsd:sequence>
+ </xsd:complexType>
+ <xsd:complexType name="sign-elements-config-type">
+  <xsd:sequence>
+   <xsd:element name="tbs-element" maxOccurs="unbounded">
+    <xsd:complexType>
+     <xsd:attribute name="name-space" type="xsd:anyURI" use="required"/>
+     <xsd:attribute name="local-part" type="xsd:string" use="required"/>
+    </xsd:complexType>
+   </xsd:element>
+  </xsd:sequence>
+ </xsd:complexType>
+ <xsd:complexType name="saml-token-config-type">
+  <xsd:sequence>
+   <xsd:element name="subject-confirmation-method"
+                type="subject-confirmation-method-config-type" minOccurs="0"/>
+   <xsd:element name="attribute" type="attribute-config-type" minOccurs="0"/>
+   <xsd:element name="property" type="property-config-type" minOccurs="0"
+                maxOccurs="unbounded"/>
+   <xsd:element name="saml-authority" type="saml-authority-config-type"
+                minOccurs="0"/>
+  </xsd:sequence>
+  <xsd:attribute name="name-format" type="name-identifier-format-enum"
+                 default="UNSPECIFIED"/>
+  <xsd:attribute name="name" type="xsd:string" use="optional"/>
+  <xsd:attribute name="cbhandler-name" type="xsd:string" use="optional"/>
+  <xsd:attribute name="issuer-name" type="xsd:string" use="optional"/>
+ </xsd:complexType>
+ <xsd:complexType name="verify-saml-token-config-type">
+  <xsd:sequence>
+   <xsd:element name="subject-confirmation-methods"
+                type="subject-confirmation-methods-config-type" minOccurs="0"/>
+   <xsd:element name="property" type="property-config-type" minOccurs="0"
+                maxOccurs="unbounded"/>
+  </xsd:sequence>
+ </xsd:complexType>
+ <xsd:complexType name="subject-confirmation-methods-config-type">
+  <xsd:sequence>
+   <xsd:element name="confirmation-method" default="SENDER-VOUCHES"
+                maxOccurs="3">
+    <xsd:simpleType>
+     <xsd:restriction base="xsd:string">
+      <xsd:enumeration value="SENDER-VOUCHES"/>
+      <xsd:enumeration value="SENDER-VOUCHES-UNSIGNED"/>
+      <xsd:enumeration value="HOLDER-OF-KEY"/>
+     </xsd:restriction>
+    </xsd:simpleType>
+   </xsd:element>
+  </xsd:sequence>
+ </xsd:complexType>
+ <xsd:complexType name="subject-confirmation-method-config-type">
+  <xsd:sequence>
+   <xsd:element name="confirmation-method" default="SENDER-VOUCHES">
+    <xsd:simpleType>
+     <xsd:restriction base="xsd:string">
+      <xsd:enumeration value="SENDER-VOUCHES"/>
+      <xsd:enumeration value="SENDER-VOUCHES-UNSIGNED"/>
+      <xsd:enumeration value="HOLDER-OF-KEY"/>
+     </xsd:restriction>
+    </xsd:simpleType>
+   </xsd:element>
+  </xsd:sequence>
+ </xsd:complexType>
+ <xsd:complexType name="attribute-config-type">
+  <xsd:attribute name="path" type="xsd:string"/>
+ </xsd:complexType>
+ <xsd:simpleType name="name-identifier-format-enum">
+  <xsd:restriction base="xsd:string">
+   <xsd:enumeration value="UNSPECIFIED"/>
+   <xsd:enumeration value="EMAIL"/>
+   <xsd:enumeration value="X509-SUBJECT-NAME"/>
+   <xsd:enumeration value="WINDOWS-DOMAIN-NAME"/>
+  </xsd:restriction>
+ </xsd:simpleType>
+ <xsd:complexType name="saml-authority-config-type">
+  <xsd:sequence>
+   <xsd:element name="property" type="property-config-type" minOccurs="0"
+                maxOccurs="unbounded"/>
+  </xsd:sequence>
+  <xsd:attribute name="endpoint-address" type="xsd:string" use="required"/>
+  <xsd:attribute name="auth-user-name" type="xsd:string" use="optional"/>
+  <xsd:attribute name="auth-password" type="xsd:string" use="optional"/>
+  <xsd:attribute name="require-signature" type="xsd:boolean" use="optional"/>
+ </xsd:complexType>
+</xsd:schema>

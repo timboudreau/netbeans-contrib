@@ -1,0 +1,145 @@
+<?xml version="1.0"?>
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" attributeFormDefault="unqualified">
+    <!-- =================================================================== -->
+    <xsd:include schemaLocation="oracle-webservices-availability-10_0.xsd"/>
+    <xsd:include schemaLocation="oracle-webservices-auditing-10_0.xsd"/>
+    <xsd:include schemaLocation="oracle-webservices-logging-10_0.xsd"/>
+    <xsd:include schemaLocation="oracle-webservices-reliability-10_0.xsd"/>
+    <xsd:include schemaLocation="oracle-webservices-security-10_0.xsd"/>
+    <!-- =================================================================== -->
+    <!-- =================================================================== -->
+    <!-- SERVER -->
+    <!-- =================================================================== -->
+    <!-- =================================================================== -->
+    <xsd:complexType name="serverGlobalInterceptorContainerType">
+        <xsd:all>
+            <xsd:element name="security" type="security-config-type" minOccurs="0"/>
+        </xsd:all>
+    </xsd:complexType>
+    <!-- =================================================================== -->
+    <xsd:complexType name="serverGlobalRuntimeType">
+        <xsd:complexContent>
+            <xsd:extension base="serverGlobalInterceptorContainerType"/>
+        </xsd:complexContent>
+    </xsd:complexType>
+    <!-- =================================================================== -->
+    <xsd:complexType name="serverPortInterceptorContainerType">
+        <xsd:all>
+            <xsd:element name="availability" type="availabilityType" minOccurs="0"/>
+            <xsd:element name="security" type="security-config-type" minOccurs="0"/>
+            <xsd:element name="reliability" type="reliability-serverType" minOccurs="0"/>
+            <xsd:element name="logging" type="loggingPortType" minOccurs="0"/>
+        </xsd:all>
+    </xsd:complexType>
+    <!-- =================================================================== -->
+    <xsd:complexType name="serverPortRuntimeType">
+        <xsd:complexContent>
+            <xsd:extension base="serverPortInterceptorContainerType">
+                <xsd:attribute name="enabled" type="xsd:string" use="optional"/>
+            </xsd:extension>
+        </xsd:complexContent>
+    </xsd:complexType>
+    <!-- =================================================================== -->
+    <xsd:complexType name="serverOperationInterceptorContainerType">
+        <xsd:all>
+            <xsd:element name="security" type="security-operation-config-type" minOccurs="0"/>
+            <xsd:element name="auditing" type="auditingType" minOccurs="0"/>
+            <xsd:element name="reliability" type="reliability-server-operationType" minOccurs="0"/>
+            <xsd:element name="logging" type="loggingOperationType" minOccurs="0"/>
+        </xsd:all>
+    </xsd:complexType>
+    <!-- =================================================================== -->
+    <xsd:complexType name="serverOperationRuntimeType">
+        <xsd:complexContent>
+            <xsd:extension base="serverOperationInterceptorContainerType"/>
+        </xsd:complexContent>
+    </xsd:complexType>
+    <!-- =================================================================== -->
+    <!-- CLIENT -->
+    <!-- =================================================================== -->
+    <!-- =================================================================== -->
+    <xsd:complexType name="clientGlobalInterceptorContainerType">
+        <xsd:all>
+            <xsd:element name="security" type="security-config-type" minOccurs="0"/>
+        </xsd:all>
+    </xsd:complexType>
+    <!-- =================================================================== -->
+    <xsd:complexType name="clientGlobalRuntimeType">
+        <xsd:complexContent>
+            <xsd:extension base="clientGlobalInterceptorContainerType"/>
+        </xsd:complexContent>
+    </xsd:complexType>
+    <!-- =================================================================== -->
+    <xsd:complexType name="clientPortInterceptorContainerType">
+        <xsd:all>
+            <xsd:element name="security" type="security-config-type" minOccurs="0"/>
+            <xsd:element name="reliability" type="reliability-clientType" minOccurs="0"/>
+        </xsd:all>
+    </xsd:complexType>
+    <!-- =================================================================== -->
+    <xsd:complexType name="clientPortRuntimeType">
+        <xsd:complexContent>
+            <xsd:extension base="clientPortInterceptorContainerType">
+                <xsd:attribute name="enabled" type="xsd:string" use="optional"/>
+            </xsd:extension>
+        </xsd:complexContent>
+    </xsd:complexType>
+    <!-- =================================================================== -->
+    <xsd:complexType name="clientOperationInterceptorContainerType">
+        <xsd:all>
+            <xsd:element name="security" type="security-operation-config-type" minOccurs="0"/>
+            <xsd:element name="auditing" type="auditingType" minOccurs="0"/>
+            <xsd:element name="reliability" type="reliability-client-operationType" minOccurs="0"/>
+        </xsd:all>
+    </xsd:complexType>
+    <!-- =================================================================== -->
+    <xsd:complexType name="clientOperationRuntimeType">
+        <xsd:complexContent>
+            <xsd:extension base="clientOperationInterceptorContainerType"/>
+        </xsd:complexContent>
+    </xsd:complexType>
+    <!-- =================================================================== -->
+    <!-- =================================================================== -->
+    <!-- COMMON -->
+    <!-- =================================================================== -->
+    <xsd:complexType name="type-mappings-type">
+        <xsd:sequence>
+            <xsd:element name="type-mapping" type="type-mapping-type" minOccurs="0" maxOccurs="unbounded">
+                <xsd:annotation>
+                    <xsd:documentation> This element describes a java to xml type mapping. </xsd:documentation>
+                </xsd:annotation>
+            </xsd:element>
+        </xsd:sequence>
+    </xsd:complexType>
+    <!-- =================================================================== -->
+    <xsd:complexType name="type-mapping-type">
+        <xsd:all minOccurs="0">
+            <xsd:element name="serializer" type="serializer-type" minOccurs="0">
+                <xsd:annotation>
+                    <xsd:documentation> This element is used to specify a serializer which
+                        implements a java to xml type mapping serialization and deserialization. </xsd:documentation>
+                </xsd:annotation>
+            </xsd:element>
+        </xsd:all>
+        <xsd:attribute name="java-class" type="xsd:string"/>
+        <xsd:attribute name="xml-type" type="xsd:QName"/>
+    </xsd:complexType>
+    <!-- =================================================================== -->
+    <xsd:complexType name="serializer-type">
+        <xsd:sequence>
+            <xsd:element name="init-param" type="init-param-type" minOccurs="0" maxOccurs="unbounded">
+                <xsd:annotation>
+                    <xsd:documentation> This element is used to specify a init parameter for
+                        serializer. </xsd:documentation>
+                </xsd:annotation>
+            </xsd:element>
+        </xsd:sequence>
+        <xsd:attribute name="class" type="xsd:string"/>
+    </xsd:complexType>
+    <!-- =================================================================== -->
+    <xsd:complexType name="init-param-type">
+        <xsd:attribute name="name" type="xsd:string"/>
+        <xsd:attribute name="value" type="xsd:string"/>
+    </xsd:complexType>
+    <!-- =================================================================== -->
+</xsd:schema>
