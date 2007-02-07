@@ -1,0 +1,6 @@
+Manifest-Version: 1.0
+OpenIDE-Module: org.netbeans.modules.visual.experimental
+OpenIDE-Module-Layer: org/netbeans/modules/visual/experimental/resources/layer.xml
+OpenIDE-Module-Localizing-Bundle: org/netbeans/modules/visual/experimental/resources/Bundle.properties
+OpenIDE-Module-Specification-Version: 1.0
+
