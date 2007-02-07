@@ -18,7 +18,6 @@
  */
 package beans2nbm.gen;
 
-import java.io.BufferedOutputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;

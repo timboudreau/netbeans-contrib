@@ -46,6 +46,7 @@ import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 import org.netbeans.api.wizard.WizardDisplayer;
 import org.netbeans.spi.wizard.DeferredWizardResult;
+import org.netbeans.spi.wizard.ResultProgressHandle;
 import org.netbeans.spi.wizard.Summary;
 import org.netbeans.spi.wizard.Wizard;
 import org.netbeans.spi.wizard.WizardException;
@@ -120,12 +121,12 @@ public class Main {
         }
     }
     
-    private static class BackgroundBuilder extends DeferredWizardResult {
+    public static class BackgroundBuilder extends DeferredWizardResult {
         public BackgroundBuilder() {
             super (false);
         }
         
-        public void start(final Map map, final DeferredWizardResult.ResultProgressHandle progress) {
+        public void start(final Map map, final ResultProgressHandle progress) {
             final int total = 15;
             progress.setProgress("Building NBM", 1, total);
             

@@ -68,7 +68,6 @@ public class JarInfo {
             }
             checker = new Checker(observer);
         }
-        assert EventQueue.isDispatchThread();
         observer.start();
         Thread t = new Thread (new Checker(observer), "Jar scan thread " + (ct++));
         t.start();
@@ -191,6 +190,9 @@ public class JarInfo {
         public void run() {
             try {
                 go(this);
+                synchronized (observer) {
+                    observer.notifyAll();
+                }
             } finally {
                 done = true;
                 SwingUtilities.invokeLater(new Runnable() {
