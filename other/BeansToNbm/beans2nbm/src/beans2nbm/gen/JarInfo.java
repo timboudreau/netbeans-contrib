@@ -56,6 +56,12 @@ public class JarInfo {
         return problem;
     }
     
+    public void scanImmediate(ScanObserver observer) {
+        checker = new Checker (observer);
+        observer.start();
+        checker.run();
+    }
+    
     private Checker checker = null;
     public void scan (ScanObserver observer) {
         if (initialized) {

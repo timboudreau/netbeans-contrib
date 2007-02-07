@@ -21,7 +21,12 @@ package beans2nbm.ant;
 import beans2nbm.Main;
 import beans2nbm.gen.JarInfo;
 import beans2nbm.gen.JarInfo.ScanObserver;
+import java.io.BufferedInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -77,15 +82,7 @@ public class GenNbmTask extends Task {
         
         JarInfo info = new JarInfo ((String) map.get("jarFileName"));
         O o = new O();
-        info.scan(o);
-        synchronized (o) {
-            try         {
-                log("Enter wait on ScanObserver");
-                o.wait(30000);
-            } catch (InterruptedException ex) {
-                throw new BuildException (ex);
-            }
-        }
+        info.scanImmediate(o);
         if (o.failMsg != null) {
             throw new BuildException (o.failMsg);
         }
@@ -99,14 +96,6 @@ public class GenNbmTask extends Task {
         Main.BackgroundBuilder builder = new Main.BackgroundBuilder ();
         R r = new R();
         builder.start(map, r);
-        synchronized (r) {
-            try {
-                log("Enter wait on Handle");
-                r.wait (120000);
-            } catch (Exception e) {
-                throw new BuildException (e);
-            }
-        }
         if (r.failMsg != null) {
             throw new BuildException (r.failMsg);
         }
@@ -178,18 +167,84 @@ public class GenNbmTask extends Task {
         }
     }
     
-    public void setDestFolder  (File val) { map.put ("destFolder", val == null ? null : val.getAbsolutePath()); }
+    public void setDestFolder  (File val) { 
+        System.err.println("setDestFolder " + val);
+        if (!val.exists()) {
+            File base = super.getOwningTarget().getProject().getBaseDir();
+            val = new File (base, val.getPath());
+        }
+        map.put ("destFolder", val == null ? null : val.getAbsolutePath()); 
+    }
+
+    public void setDocsJar  (File val) { 
+        System.err.println("setDocsJar " + val);
+        if (!val.exists()) {
+            File base = super.getOwningTarget().getProject().getBaseDir();
+            val = new File (base, val.getPath());
+        }
+        map.put ("docsJar", val == null ? null : val.getAbsolutePath()); 
+    }
+    
+    public void setSourceJar  (File val) {
+        System.err.println("setSourceJar " + val);
+        if (!val.exists()) {
+            File base = super.getOwningTarget().getProject().getBaseDir();
+            val = new File (base, val.getPath());
+        }        
+        map.put ("sourceJar", val == null ? null : val.getAbsolutePath()); 
+    }
+    
     public void setDestFileName  (String val) { map.put ("destFileName", val); }
     public void setDescription  (String val) { map.put ("description", val); }
     public void setVersion  (String val) { map.put ("libversion", val); }
     public void setHomepage  (String val) { map.put ("homepage", val); }
     public void setCodeName  (String val) { map.put ("codeName", val); }
-    public void setJarFileName  (String val) { map.put ("jarFileName", val); }
+    
+    public void setJarFileName  (File val) { 
+        System.err.println("setSourceJar " + val);
+        if (!val.exists()) {
+            File base = super.getOwningTarget().getProject().getBaseDir();
+            val = new File (base, val.getPath());
+        }        
+        map.put ("jarFileName", val.getAbsolutePath()); 
+    }
+    
     public void setAuthor  (String val) { map.put ("author", val); }
-    public void setDocsJar  (File val) { map.put ("docsJar", val == null ? null : val.getAbsolutePath()); }
-    public void setSourceJar  (File val) { map.put ("sourceJar", val == null ? null : val.getAbsolutePath()); }
     public void setDisplayName  (String val) { map.put ("displayName", val); }
-    public void setLicense  (String val) { map.put ("license", val); }
+    public void setLicense  (String val) {
+        InputStream stream = GenNbmTask.class.getResourceAsStream("/beans2nbm/ui/resources/" + val.toLowerCase() + ".txt");
+        if (stream != null) {
+            try {
+                val = read (stream);
+            } catch (IOException ioe) {
+                log (ioe, 0);
+            }
+        } else {
+            File f = new File (val);
+            if (!f.exists()) {
+                f = new File (getProject().getBaseDir(), f.getPath());
+                if (!f.exists()) {
+                    f = null;
+                }
+            }
+            if (f != null) {
+                try {
+                InputStream fis = new BufferedInputStream (
+                        new FileInputStream(f));
+                    try {
+                        val = read (fis);
+                    } catch (IOException ioe) {
+                        log (ioe, 0);
+                    } finally {
+                        fis.close();
+                    }
+                } catch (IOException ioe) {
+                    log (ioe, 0);
+                }
+            }
+        }
+        map.put ("license", val); 
+    }
     public void setMinJDK  (String val) { map.put ("javaVersion", val); }
     public File getDestFolder  () { 
         String s = (String) map.get  ("destFolder");
@@ -213,4 +268,26 @@ public class GenNbmTask extends Task {
     public String getDisplayName  () { return (String) map.get  ("displayName"); }
     public String getLicense  () { return (String) map.get  ("license"); }
     public String getMinJDK  () { return (String) map.get  ("javaVersion"); }
+    
+    public static String read(InputStream is) throws IOException {
+        ByteArrayOutputStream os = new ByteArrayOutputStream (1024);
+        final byte[] BUFFER = new byte[4096];
+        int len;
+
+        try {
+            for (;;) {
+                len = is.read(BUFFER);
+
+                if (len == -1) {
+                    break;
+                }
+
+                os.write(BUFFER, 0, len);
+            }
+            byte[] b = os.toByteArray();
+            return new String (b, "UTF-8");
+        } finally {
+            is.close();
+        }
+    }
 }
