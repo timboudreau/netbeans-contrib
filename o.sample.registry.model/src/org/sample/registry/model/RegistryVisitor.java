@@ -18,6 +18,9 @@
  */
 package org.sample.registry.model;
 
+import org.sample.registry.model.v09.Registry09;
+import org.sample.registry.model.v09.Service09;
+
 public interface RegistryVisitor {
 
     void visit(Registry component);
@@ -26,12 +29,17 @@ public interface RegistryVisitor {
     void visit(Service component);
     void visit(ServiceProvider component);
     void visit(ServiceType component);
+    void visit(Registry09 component);
+    void visit(Service09 component);
 
     /**
      * Default shallow visitor.
      */
     public static class Default implements RegistryVisitor {
         public void visit(Registry component) {
+            visitChild();
+        }
+        public void visit(Registry09 component) {
             visitChild();
         }
         public void visit(Entries component) {
@@ -41,6 +49,9 @@ public interface RegistryVisitor {
             visitChild();
         }
         public void visit(Service component) {
+            visitChild();
+        }
+        public void visit(Service09 component) {
             visitChild();
         }
         public void visit(ServiceProvider component) {

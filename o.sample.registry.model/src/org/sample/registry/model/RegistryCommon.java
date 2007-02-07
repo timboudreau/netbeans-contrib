@@ -18,11 +18,11 @@
  */
 package org.sample.registry.model;
 
-import org.netbeans.modules.xml.xam.dom.DocumentModel;
+import org.netbeans.modules.xml.xam.Nameable;
 
-public interface RegistryModel extends DocumentModel<RegistryComponent> {
+/**
+ * Common interface for all version root component.
+ */
+public interface RegistryCommon extends RegistryComponent, Nameable<RegistryComponent> {
     
-    RegistryCommon getRootComponent();
-    
-    RegistryComponentFactory getFactory();
 }

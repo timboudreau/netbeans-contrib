@@ -16,7 +16,7 @@ public class SyncUpdateTest extends TestCase {
     
     public void testSyncSimpleTypeElement() throws Exception {
         RegistryModel model = Util.loadRegistryModel("test1.xml");
-        ServiceType type = model.getRootComponent().getKnownTypes().getKnownTypes().get(0);
+        ServiceType type = ((Registry)model.getRootComponent()).getKnownTypes().getKnownTypes().get(0);
         assertEquals("http://www.finance.org/processor", type.getDefinition());
         
         Util.setDocumentContentTo(model, "test1_simpleTypeElement.xml");

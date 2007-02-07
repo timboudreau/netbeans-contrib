@@ -20,7 +20,6 @@ package org.sample.registry.model.impl;
 
 import org.netbeans.modules.xml.xam.AbstractComponent;
 import org.netbeans.modules.xml.xam.AbstractReference;
-import org.netbeans.modules.xml.xam.Referenceable;
 import org.sample.registry.model.ReferenceableRegistryComponent;
 import org.sample.registry.model.RegistryComponent;
 
@@ -35,8 +34,18 @@ public class Reference<T extends ReferenceableRegistryComponent> extends Abstrac
         super(referencedType, container, refString);
     }
     
-    public T get() {
-        return null;
+    protected RegistryComponent getReferencingComponent() {
+        return (RegistryComponent) super.getParent();
     }
     
+    public T get() {
+        if (getReferenced() == null) {
+            T ref = new FindByNameAndTypeVisitor<T>().find(
+                getReferencingComponent().getModel().getRootComponent(), refString, getType());
+            if (ref != null) {
+                setReferenced(ref);
+            }
+        }
+        return getReferenced();
+    }
 }

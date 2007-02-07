@@ -19,7 +19,7 @@
 package org.sample.registry.model.impl;
 
 import org.sample.registry.model.ReferenceableRegistryComponent;
-import org.sample.registry.model.Registry;
+import org.sample.registry.model.RegistryCommon;
 import org.sample.registry.model.RegistryVisitor;
 import org.sample.registry.model.Service;
 
@@ -38,7 +38,7 @@ public class FindByNameAndTypeVisitor<T extends ReferenceableRegistryComponent>
     public FindByNameAndTypeVisitor() {
     }
 
-    public T find(Registry registry, String name, Class<T> type) {
+    public T find(RegistryCommon registry, String name, Class<T> type) {
         if (name == null || type == null) {
             return null;
         }

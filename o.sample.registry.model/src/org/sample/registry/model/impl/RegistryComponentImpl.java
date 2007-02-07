@@ -19,6 +19,7 @@
 package org.sample.registry.model.impl;
 
 import java.util.List;
+import javax.xml.XMLConstants;
 import javax.xml.namespace.QName;
 import org.netbeans.modules.xml.xam.Nameable;
 import org.netbeans.modules.xml.xam.dom.AbstractDocumentComponent;
@@ -40,7 +41,12 @@ public abstract class RegistryComponentImpl extends AbstractDocumentComponent<Re
     }
 
     static public Element createElementNS(RegistryModel model, RegistryQNames rq) {
-        return model.getDocument().createElementNS(rq.getQName().getNamespaceURI(), rq.getQualifiedName());
+        QName q = rq.getQName();
+        /*if (XMLConstants.NULL_NS_URI.equals(q.getNamespaceURI())) {
+            return model.getDocument().createElement(q.getLocalPart());
+        } else*/ {
+            return model.getDocument().createElementNS(q.getNamespaceURI(), rq.getQualifiedName());
+        }
     }
     
     protected Object getAttributeValueOf(Attribute attr, String stringValue) {

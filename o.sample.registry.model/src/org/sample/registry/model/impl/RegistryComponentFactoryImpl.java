@@ -18,7 +18,6 @@
  */
 package org.sample.registry.model.impl;
 
-import java.util.List;
 import org.netbeans.modules.xml.xam.dom.AbstractDocumentComponent;
 import org.sample.registry.model.Entries;
 import org.sample.registry.model.KnownTypes;
@@ -29,6 +28,8 @@ import org.sample.registry.model.RegistryVisitor;
 import org.sample.registry.model.Service;
 import org.sample.registry.model.ServiceProvider;
 import org.sample.registry.model.ServiceType;
+import org.sample.registry.model.v09.Registry09;
+import org.sample.registry.model.v09.Service09;
 import org.w3c.dom.Element;
 
 public class RegistryComponentFactoryImpl implements RegistryComponentFactory {
@@ -42,6 +43,8 @@ public class RegistryComponentFactoryImpl implements RegistryComponentFactory {
         if (context == null) {
             if (areSameQName(RegistryQNames.REGISTRY, element)) {
                 return new RegistryImpl(model, element);
+            } else if (areSameQName(RegistryQNames.REGISTRY_09, element)) {
+                return new org.sample.registry.model.v09.impl.RegistryImpl(model, element);
             } else {
                 return null;
             }
@@ -62,8 +65,16 @@ public class RegistryComponentFactoryImpl implements RegistryComponentFactory {
         return new ServiceImpl(model);
     }
     
+    public Service09 createService09() {
+        return new org.sample.registry.model.v09.impl.ServiceImpl(model);
+    }
+    
     public Registry createRegistry() {
         return new RegistryImpl(model);
+    }
+    
+    public Registry09 createRegistry09() {
+        return new org.sample.registry.model.v09.impl.RegistryImpl(model);
     }
     
     public static boolean areSameQName(RegistryQNames q, Element e) {
@@ -92,6 +103,13 @@ public class RegistryComponentFactoryImpl implements RegistryComponentFactory {
             }
         }
         
+        public void visit(Registry09 context) {
+            if (isElementQName(RegistryQNames.SERVICE_09)) {
+                created = new org.sample.registry.model.v09.impl.ServiceImpl(
+                        (RegistryModelImpl) context.getModel(), element);
+            }
+        }
+
         public void visit(Entries context) {
             if (isElementQName(RegistryQNames.SERVICE)) {
                 created = new ServiceImpl((RegistryModelImpl)context.getModel(), element);

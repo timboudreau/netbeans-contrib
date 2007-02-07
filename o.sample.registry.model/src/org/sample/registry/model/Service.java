@@ -20,14 +20,12 @@ package org.sample.registry.model;
 
 import org.netbeans.modules.xml.xam.Nameable;
 import org.sample.registry.model.impl.Reference;
-import org.sample.registry.model.impl.RegistryAttributes;
-import org.sample.registry.model.impl.RegistryQNames;
 
 public interface Service extends ReferenceableRegistryComponent, Nameable<RegistryComponent> 
 {
-    public static final String SERVICE_TYPE_PROPERTY = RegistryAttributes.TYPE.getName();
-    public static final String CAPACITY_PROPERTY = RegistryAttributes.CAPACITY.getName();
-    public static final String SERVICE_PROVIDER_PROPERTY = RegistryQNames.SERVICE_PROVIDER.getLocalName();
+    public static final String SERVICE_TYPE_PROPERTY = "type";
+    public static final String CAPACITY_PROPERTY = "capacity";
+    public static final String SERVICE_PROVIDER_PROPERTY = "provider";
     
     Reference<ServiceType> getServiceType();
     void setServiceType(Reference<ServiceType> type);

@@ -18,13 +18,10 @@
  */
 package org.sample.registry.model;
 
-import org.netbeans.modules.xml.xam.Nameable;
-import org.sample.registry.model.impl.RegistryQNames;
-
-public interface Registry extends RegistryComponent, Nameable<RegistryComponent> {
+public interface Registry extends RegistryCommon {
     
-    public static final String ENTRIES_PROPERTY = RegistryQNames.ENTRIES.getLocalName();
-    public static final String KNOWN_TYPES_PROPERTY = RegistryQNames.KNOWN_TYPES.getLocalName();
+    public static final String ENTRIES_PROPERTY = "entries";
+    public static final String KNOWN_TYPES_PROPERTY = "known-types";
     
     Entries getEntries();
     void setEntries(Entries entries);

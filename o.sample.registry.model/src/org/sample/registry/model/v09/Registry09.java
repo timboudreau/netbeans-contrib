@@ -16,13 +16,23 @@
  * Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
  * Microsystems, Inc. All Rights Reserved.
  */
-package org.sample.registry.model;
+package org.sample.registry.model.v09;
 
-import org.netbeans.modules.xml.xam.dom.DocumentModel;
+import java.util.Collection;
+import org.sample.registry.model.Entries;
+import org.sample.registry.model.RegistryCommon;
 
-public interface RegistryModel extends DocumentModel<RegistryComponent> {
+/**
+ *
+ * @author Nam Nguyen
+ */
+public interface Registry09 extends RegistryCommon {
+    public static String SERVICE_PROPERTY = Entries.SERVICE_PROPERTY;
     
-    RegistryCommon getRootComponent();
-    
-    RegistryComponentFactory getFactory();
+    /**
+     * Accessing method for member 'services'
+     */
+    Collection<Service09> getServices();
+    void removeService(Service09 service);
+    void addService(Service09 service);
 }

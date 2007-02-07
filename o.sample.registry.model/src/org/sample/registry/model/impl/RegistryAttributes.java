@@ -18,12 +18,14 @@
  */
 package org.sample.registry.model.impl;
 
+import org.netbeans.modules.xml.xam.Named;
 import org.netbeans.modules.xml.xam.dom.Attribute;
+import org.sample.registry.model.Service;
 
 public enum RegistryAttributes implements Attribute {
-    CAPACITY("capacity", Integer.class),
-    NAME("name"),
-    TYPE("type");
+    CAPACITY(Service.CAPACITY_PROPERTY, Integer.class),
+    NAME(Named.NAME_PROPERTY),
+    TYPE(Service.SERVICE_TYPE_PROPERTY);
 
     private String name;
     private Class type;

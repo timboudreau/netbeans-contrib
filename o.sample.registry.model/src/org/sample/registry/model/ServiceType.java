@@ -18,13 +18,10 @@
  */
 package org.sample.registry.model;
 
-import org.netbeans.modules.xml.xam.NamedReferenceable;
-import org.sample.registry.model.impl.RegistryQNames;
-
 public interface ServiceType extends ReferenceableRegistryComponent {
     
-    public static final String DEFINITION_PROPERTY = RegistryQNames.DEFINITION.getLocalName();
-    public static final String DOCUMENTATION_PROPERTY = RegistryQNames.DOCUMENTATION.getLocalName();
+    public static final String DEFINITION_PROPERTY = "definition";
+    public static final String DOCUMENTATION_PROPERTY = "documentation";
     
     String getDefinition();
     void setDefinition(String definition);

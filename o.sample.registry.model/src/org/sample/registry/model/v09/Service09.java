@@ -16,13 +16,21 @@
  * Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
  * Microsystems, Inc. All Rights Reserved.
  */
-package org.sample.registry.model;
+package org.sample.registry.model.v09;
 
-import org.netbeans.modules.xml.xam.dom.DocumentModel;
+import org.netbeans.modules.xml.xam.Nameable;
+import org.sample.registry.model.ReferenceableRegistryComponent;
+import org.sample.registry.model.RegistryComponent;
+import org.sample.registry.model.ServiceType;
+import org.sample.registry.model.impl.RegistryAttributes;
 
-public interface RegistryModel extends DocumentModel<RegistryComponent> {
-    
-    RegistryCommon getRootComponent();
-    
-    RegistryComponentFactory getFactory();
+/**
+ *
+ * @author Nam Nguyen
+ */
+public interface Service09 extends ReferenceableRegistryComponent, Nameable<RegistryComponent> {
+    public static final String CAPACITY_PROPERTY = RegistryAttributes.CAPACITY.getName();
+
+    Integer getCapacity();
+    void setCapacity(Integer capacity);
 }

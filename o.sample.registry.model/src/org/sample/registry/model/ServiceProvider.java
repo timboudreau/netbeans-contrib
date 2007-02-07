@@ -19,10 +19,9 @@
 package org.sample.registry.model;
 
 import org.netbeans.modules.xml.xam.Nameable;
-import org.sample.registry.model.impl.RegistryQNames;
 
 public interface ServiceProvider extends RegistryComponent, Nameable<RegistryComponent> {
-    public static final String URL_PROPERTY = RegistryQNames.URL.getLocalName();
+    public static final String URL_PROPERTY = "url";
     
     String getURL();
     void setURL(String url);

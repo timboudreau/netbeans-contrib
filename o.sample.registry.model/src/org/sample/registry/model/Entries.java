@@ -19,10 +19,9 @@
 package org.sample.registry.model;
 
 import java.util.Collection;
-import org.sample.registry.model.impl.RegistryQNames;
 
 public interface Entries extends RegistryComponent {
-    public static String SERVICE_PROPERTY = RegistryQNames.SERVICE.getLocalName();
+    public static String SERVICE_PROPERTY = "service";
 
     /**
      * Accessing method for member 'services'

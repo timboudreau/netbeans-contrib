@@ -19,14 +19,13 @@
 package org.sample.registry.model;
 
 import java.util.List;
-import org.sample.registry.model.impl.RegistryQNames;
 
 /**
  *
  * @author Nam Nguyen
  */
 public interface KnownTypes extends RegistryComponent {
-    public static String TYPE_PROPERTY = RegistryQNames.TYPE.getLocalName();
+    public static String TYPE_PROPERTY = "type";
     
     /**
      * Accessing methods for member 'knownTypes'

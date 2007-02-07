@@ -18,14 +18,17 @@
  */
 package org.sample.registry.model;
 
-import java.util.List;
+import org.sample.registry.model.v09.Registry09;
+import org.sample.registry.model.v09.Service09;
 import org.w3c.dom.Element;
 
 public interface RegistryComponentFactory {
     RegistryComponent create(Element element, RegistryComponent context);
     
     Registry createRegistry();
+    Registry09 createRegistry09();
     Service createService();
+    Service09 createService09();
     ServiceProvider createServiceProvider();
     ServiceType createServiceType();
 }

@@ -24,6 +24,7 @@ import org.netbeans.modules.xml.xam.ComponentUpdater;
 import org.netbeans.modules.xml.xam.ModelSource;
 import org.netbeans.modules.xml.xam.dom.AbstractDocumentModel;
 import org.sample.registry.model.Registry;
+import org.sample.registry.model.RegistryCommon;
 import org.sample.registry.model.RegistryComponent;
 import org.sample.registry.model.RegistryComponentFactory;
 import org.sample.registry.model.RegistryModel;
@@ -31,14 +32,14 @@ import org.w3c.dom.Element;
 
 public class RegistryModelImpl extends AbstractDocumentModel<RegistryComponent> implements RegistryModel {
     private RegistryComponentFactory factory;
-    private Registry registry;
+    private RegistryCommon registry;
     
     public RegistryModelImpl(ModelSource source) {
         super(source);
         factory = new RegistryComponentFactoryImpl(this);
     }
     
-    public Registry getRootComponent() {
+    public RegistryCommon getRootComponent() {
         return registry;
     }
 
@@ -50,8 +51,8 @@ public class RegistryModelImpl extends AbstractDocumentModel<RegistryComponent> 
         return getFactory().create(element, parent);
     }
 
-    public Registry createRootComponent(Element root) {
-        Registry newRegistry = (Registry) getFactory().create(root, null);
+    public RegistryCommon createRootComponent(Element root) {
+        RegistryCommon newRegistry = (RegistryCommon) getFactory().create(root, null);
         if (newRegistry != null) {
             registry = newRegistry;
         }
