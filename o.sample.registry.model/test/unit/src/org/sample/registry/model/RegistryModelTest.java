@@ -4,11 +4,12 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import junit.framework.*;
+import org.netbeans.junit.NbTestCase;
 import org.netbeans.modules.xml.xdm.nodes.NodeImpl;
 import org.sample.registry.model.v09.Registry09;
 import org.sample.registry.model.v09.Service09;
 
-public class RegistryModelTest extends TestCase {
+public class RegistryModelTest extends NbTestCase {
     
     public RegistryModelTest(String testName) {
         super(testName);
@@ -64,7 +65,7 @@ public class RegistryModelTest extends TestCase {
         model.startTransaction();
         services.get(1).getProvider().setURL(newValue);
         model.endTransaction();
-        //Util.dumpToFile(model, new File("c:/temp/test.xml"));
+        //Util.dumpToFile(model, new File(getWorkDir(), "test1.xml"));
         
         model = Util.dumpAndReloadModel(model);
         root = (Registry) model.getRootComponent();
@@ -103,7 +104,7 @@ public class RegistryModelTest extends TestCase {
         service.setName("service2");
         model.endTransaction();
         
-        Util.dumpToFile(model, new File("c:/temp/test1.xml"));
+        //Util.dumpToFile(model, new File(getWorkDir(), "test1.xml"));
         assertNull(service.getPeer().getNamespaceURI());
         assertNull(service.getPeer().getPrefix());
     }

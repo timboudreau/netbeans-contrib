@@ -1,8 +1,9 @@
 package org.sample.registry.model;
 
 import junit.framework.*;
+import org.netbeans.junit.NbTestCase;
 
-public class SyncUpdateTest extends TestCase {
+public class SyncUpdateTest extends NbTestCase {
     
     public SyncUpdateTest(String testName) {
         super(testName);
