@@ -103,30 +103,43 @@ public class DeclarationAndJavadocTask implements CancellableTask<CompilationInf
                 if (tree == null) {
                     FileObject fileObject = SourceUtils.getFile(element, compilationInfo.getClasspathInfo());
                     if (fileObject != null) {
-                        final ElementHandle elementHandle = ElementHandle.create(element);
-                        JavaSource javaSource = JavaSource.forFileObject(fileObject);
-                        try {
-                            javaSource.runUserActionTask(new CancellableTask<CompilationController>() {
-                                public void cancel() {}
-                                public void run(CompilationController compilationController) throws IOException {
-                                    // Move to resolved phase
-                                    compilationController.toPhase(Phase.ELEMENTS_RESOLVED);
-                                    Element element = elementHandle.resolve(compilationController);
-                                    if (element != null) {
-                                        Tree tree = compilationController.getTrees().getTree(element);
-                                        if (tree != null) {
-                                            String declaration = tree.toString();
-                                            if (element.getKind() ==  ElementKind.CONSTRUCTOR) {
-                                                String constructorName = element.getEnclosingElement().getSimpleName().toString();
-                                                declaration = declaration.replaceAll(Pattern.quote("<init>"), Matcher.quoteReplacement(constructorName));
+                        switch (element.getKind()) {
+                        case PACKAGE:
+                        case CLASS:
+                        case INTERFACE:
+                        case ENUM:
+                        case METHOD:
+                        case CONSTRUCTOR:
+                        case INSTANCE_INIT:
+                        case STATIC_INIT:
+                        case FIELD:
+                        case ENUM_CONSTANT:
+                            final ElementHandle elementHandle = ElementHandle.create(element);
+                            JavaSource javaSource = JavaSource.forFileObject(fileObject);
+                            try {
+                                javaSource.runUserActionTask(new CancellableTask<CompilationController>() {
+                                    public void cancel() {}
+                                    public void run(CompilationController compilationController) throws IOException {
+                                        // Move to resolved phase
+                                        compilationController.toPhase(Phase.ELEMENTS_RESOLVED);
+                                        Element element = elementHandle.resolve(compilationController);
+                                        if (element != null) {
+                                            Tree tree = compilationController.getTrees().getTree(element);
+                                            if (tree != null) {
+                                                String declaration = tree.toString();
+                                                if (element.getKind() ==  ElementKind.CONSTRUCTOR) {
+                                                    String constructorName = element.getEnclosingElement().getSimpleName().toString();
+                                                    declaration = declaration.replaceAll(Pattern.quote("<init>"), Matcher.quoteReplacement(constructorName));
+                                                }
+                                                setDeclaration(declaration);
                                             }
-                                            setDeclaration(declaration);
                                         }
                                     }
-                                }
-                            }, true);
-                        } catch (IOException ex) {
-                            Logger.global.log(Level.WARNING, ex.getMessage(), ex);;
+                                }, true);
+                            } catch (IOException ex) {
+                                Logger.global.log(Level.WARNING, ex.getMessage(), ex);;
+                            }
+                            break;
                         }
                     }
                 } else {
