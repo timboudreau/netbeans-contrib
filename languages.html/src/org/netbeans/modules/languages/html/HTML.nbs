@@ -117,24 +117,15 @@ SKIP:javascript
 IMPORT:js {
     mimeType:"text/javascript";
     token: "javascript";
+    background_color:"#E6E6FF";
 }
 <CSS>:TOKEN:css: ( [^"<"]+ )
 SKIP:css
 IMPORT:css {
     mimeType:"text/css2";
     token: "css";
+    background_color:"#E6FFE6";
 }
-
-
-#IMPORT:js {
-#    mimeType:"text/javascript";
-#    state: "JAVASCRIPT";
-#}
-
-#IMPORT:css {
-#    mimeType:"text/css2";
-#    state: "CSS";
-#}
 
 
 ########### grammar ############################################################
@@ -292,6 +283,4 @@ COMPLETION:html_whitespace2 {
 
 PROPERTIES {
     ignoreCase:"true";
-    highlight:"css-230,255,230";
-    highlight1:"js-230,230,255";
 }
