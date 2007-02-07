@@ -3,7 +3,7 @@
                       xmlns:oc4j="http://xmlns.oracle.com/oracleas/schema/oc4j-10_0.xsd"
                       elementFormDefault="qualified">
      <!--****************************************************-->
-    <xsd:import namespace="http://xmlns.oracle.com/oracleas/schema/oc4j-10_0.xsd" schemaLocation="http://xmlns.oracle.com/oracleas/schema/oc4j-10_0.xsd"/>
+    <xsd:import namespace="http://xmlns.oracle.com/oracleas/schema/oc4j-10_0.xsd" schemaLocation="oc4j-10_0.xsd"/>
     <!--****************************************************-->
 	<xsd:element name="connection-factory">
 		<xsd:annotation>
