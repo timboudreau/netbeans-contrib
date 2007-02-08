@@ -35,10 +35,12 @@ import beans2nbm.ui.LocateJarPage;
 import beans2nbm.ui.OutputLocationPage;
 import beans2nbm.ui.SelectBeansPage;
 import java.io.BufferedOutputStream;
+import java.io.CharConversionException;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.prefs.Preferences;
@@ -262,10 +264,90 @@ public class Main {
                 ioe.printStackTrace();
                 progress.failed(ioe.getMessage(), true);
             }
-            progress.finished(Summary.create ("Created " + 
-                    f.getPath() + " successfully.", f));
+            String summaryInfo = "Created " + 
+                    f.getPath() + " successfully.\n\nYou can also generate " +
+                    "new versions of this module via an Ant script, using the " +
+                    "JAR file you are running in order to see this wizard, e.g:\n\n" 
+                    + getAntInstructions(map) + "\n\nThe sourceJar and " +
+                    "docsJar attributes are optional.  License may be any of " +
+                    "the ones named in this wizard (apache, artistic, bsd," +
+                    "cddl, gpl, lgpl), or a path to a file containing a " +
+                    "license, or the license text itself.\n\nRemember always to " +
+                    "increment the version number when you release a new " +
+                    "version.";
+            
+            //May not be present
+            summaryInfo = summaryInfo.replace("sourceJar=\"\"" , "");
+            summaryInfo = summaryInfo.replace("docsJar=\"\"", "");
+            
+            progress.finished(Summary.create (summaryInfo, f));
         }
     }
+    
+    private static String getAntInstructions (Map map) {
+        String s = BASE;
+        map = new HashMap (map);
+        for (Iterator i = map.keySet().iterator(); i.hasNext();) {
+            Object key = i.next();
+            Object val = map.get(key);
+            if (val instanceof String) {
+                try {
+                    val = XMLUtil.toAttributeValue(val.toString());
+                    map.put (key, val);
+                } catch (CharConversionException cce) {
+                    continue;
+                }
+            }
+        }
+        String destFolder = (String) map.get ("destFolder");
+        String destFileName = (String) map.get ("destFileName");
+        String description = (String) map.get ("description");
+        String version = (String) map.get ("libversion");
+        String homepage = (String) map.get ("homepage");
+        String codeName = (String) map.get ("codeName");
+        String jarFileName = (String) map.get ("jarFileName");
+        String author = (String) map.get ("author");
+        String docsJar = (String) map.get ("docsJar");
+        String sourceJar = (String) map.get ("sourceJar");
+        String displayName = (String) map.get ("displayName");
+        String license = (String) map.get ("license");
+        String minJDK = (String) map.get ("javaVersion");
+        String licenseFile = (String) map.get ("licenseFile");
+        String licenseName = (String) map.get ("licenseName");
+        if (licenseName != null) {
+            license = licenseName;
+        } else if (licenseFile != null) {
+            license = licenseFile;
+        } else {
+            license = "path/to/license.txt";
+        }
+
+        s = s.replace("#DEST_FOLDER", destFolder);
+        s = s.replace("#NBM_NAME", destFileName);
+        s = s.replace("#DESCRIPTION", description);
+        s = s.replace("#CODENAME", codeName);
+        s = s.replace("#JARFILENAME", jarFileName);
+        s = s.replace("#AUTHOR", author);
+        s = s.replace("#MIN_JDK", minJDK);
+        s = s.replace("#SOURCE_JAR", sourceJar == null ? "sourceJar.jar" : sourceJar);
+        s = s.replace("#DOCS_JAR", docsJar == null ? "docsJar.jar" : docsJar);
+        s = s.replace("#DISPLAY_NAME", displayName);
+        s = s.replace("#LICENSE", license);
+        s = s.replace("#CODENAME", codeName);
+        s = s.replace("#VERSION", version);
+        s = s.replace("#HOMEPAGE", homepage);
+        return s;
+    }
+    
+    private static final String BASE = 
+        "<target name=\"nbm\" description=\"Generate a NetBeans Module\">\n" +
+        "  <taskdef classpath=\"lib/beans2nbm.jar\" classname=\"beans2nbm.ant.GenNbmTask\"\n" +
+        "  name=\"nbm\"/>\n\n" +
+        "  <nbm destFolder=\"#DEST_FOLDER\" destFileName=\"#NBM_NAME\"\n" + 
+        "    description=\"#DESCRIPTION\" version=\"1.0\" homepage=\"#HOMEPAGE\"\n" +
+        "    codeName=\"#CODENAME\" jarFileName=\"#JARFILENAME\" \n"+
+        "    author=\"#AUTHOR\" displayName=\"#DISPLAY_NAME\" license=\"#LICENSE\"\n" +
+        "    minJDK=\"#MIN_JDK\" sourceJar=\"#SOURCE_JAR\" docsJar=\"#DOCS_JAR\"/>\n</target>";
  
     private static class WRP implements WizardResultProducer {
         public Object finish(Map map) throws WizardException {

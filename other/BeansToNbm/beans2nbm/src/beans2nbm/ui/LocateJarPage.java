@@ -60,7 +60,7 @@ public static String getStep() {
     protected String validateContents(Component component, Object event) {
         String s = jTextField1.getText();
         if (s.trim().length() == 0) {
-            return "Enter or browse for a JAR file containing JavaBeans";
+            return "Type path to or browse for a JAR file";
         }
         File f = new File (s);
         if (!f.exists()) {

@@ -234,6 +234,8 @@ public class AuthorInfoPage extends WizardPage {
         }
         if (jfc.showOpenDialog(this) == jfc.APPROVE_OPTION) {
             jComboBox1.setSelectedItem("Custom");
+            putWizardData("licenseFile", jfc.getSelectedFile().getPath());
+            putWizardData ("licenseName", null);
             loadLicense (jfc.getSelectedFile());
         }
     }//GEN-LAST:event_browseButtonActionPerformed
@@ -273,6 +275,10 @@ static {
             if (filename == null) {
                 licenseField.setText("");
             } else {
+                putWizardData("licenseFile", null);
+                int pix = filename.lastIndexOf(".");
+                String lname = filename.substring (0, pix);
+                putWizardData ("licenseName", lname.toLowerCase());
                 loadLicense (filename);
             }
         }

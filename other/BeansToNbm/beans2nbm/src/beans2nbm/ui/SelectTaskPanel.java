@@ -110,9 +110,11 @@ public String getID() {
         libModule = new javax.swing.JRadioButton();
         lafModule = new javax.swing.JRadioButton();
 
+        setBorder(javax.swing.BorderFactory.createEmptyBorder(5, 5, 5, 5));
+        setMinimumSize(new java.awt.Dimension(500, 400));
+        setPreferredSize(new java.awt.Dimension(500, 375));
         setLayout(new java.awt.GridBagLayout());
 
-        setBorder(javax.swing.BorderFactory.createEmptyBorder(5, 5, 5, 5));
         buttonGroup1.add(beanModule);
         beanModule.setText("Create a Module that adds some Swing/AWT components to the palette");
         beanModule.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
@@ -146,7 +148,6 @@ public String getID() {
         gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
         gridBagConstraints.insets = new java.awt.Insets(30, 0, 0, 0);
         add(lafModule, gridBagConstraints);
-
     }// </editor-fold>//GEN-END:initComponents
     
     
