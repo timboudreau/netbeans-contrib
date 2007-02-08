@@ -39,7 +39,11 @@ public class ZeroManyAnchor implements AnchorShape{
             this.size = 10;
            
         }
-
+        
+        public double getCutDistance (){
+            return 0;
+        }
+        
         public boolean isLineOriented () {
             return true;
         }

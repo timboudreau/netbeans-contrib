@@ -40,6 +40,10 @@ public class OneOneAnchor implements AnchorShape{
         public boolean isLineOriented () {
             return true;
         }
+        
+        public double getCutDistance (){
+            return 0;
+        }
 
         public int getRadius () {
             return (int) Math.ceil(1.5f * size);

@@ -38,6 +38,10 @@ public class OneManyAnchor implements AnchorShape{
             this.size = size;
            
         }
+        
+        public double getCutDistance (){
+            return 0;
+        }
 
         public boolean isLineOriented () {
             return true;
