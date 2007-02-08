@@ -88,9 +88,10 @@ public class GenNbmTask extends Task {
         }
         List l = info.getBeans();
         if (l.isEmpty()) {
-            throw new BuildException ("No JavaBeans found.  Make sure" +
-                    " the JAR manifest has the appropriate" +
-                    " Java-Bean sections.");
+            log ("JAR contains no Java-Bean: sections in its manifest." +
+                    "  No components will be added to the component" +
+                    "palette;  only the library will be added to the " +
+                    "list of registered libraries in NetBeans.");
         }
         map.put("jarInfo", info);
         Main.BackgroundBuilder builder = new Main.BackgroundBuilder ();
