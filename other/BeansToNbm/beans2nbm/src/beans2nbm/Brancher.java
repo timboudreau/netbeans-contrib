@@ -39,15 +39,11 @@ public class Brancher extends WizardBranchController {
 
     private final WizardResultProducer wrp;
     protected Wizard getWizardForStep(String step, Map settings) {
-        System.err.println("GetWizardForStep " + step + ":" + settings);
         if (Boolean.TRUE.equals(settings.get("beansModule"))) {
-            System.err.println("Return beans module");
             return getBeansModuleWizard();
         } else if (Boolean.TRUE.equals(settings.get("libsModule"))) {
-            System.err.println("return lib module");
             return getLibModuleWizard();
         } else {
-            System.err.println("return null");
             return null;
         }
     }
