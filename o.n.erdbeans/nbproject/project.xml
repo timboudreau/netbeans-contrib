@@ -23,14 +23,6 @@ Microsystems, Inc. All Rights Reserved.
         <data xmlns="http://www.netbeans.org/ns/nb-module-project/2">
             <code-name-base>org.netbeans.erdbeans</code-name-base>
             <standalone/>
-            <class-path-extension>
-                <runtime-relative-path>ext/org-netbeans-modules-j2ee-common.jar</runtime-relative-path>
-                <binary-origin>lib/org-netbeans-modules-j2ee-common.jar</binary-origin>
-            </class-path-extension>
-            <class-path-extension>
-                <runtime-relative-path>ext/org-netbeans-modules-j2eeserver.jar</runtime-relative-path>
-                <binary-origin>lib/org-netbeans-modules-j2eeserver.jar</binary-origin>
-            </class-path-extension>
             <module-dependencies>
                 <dependency>
                     <code-name-base>org.jdesktop.layout</code-name-base>
@@ -83,6 +75,24 @@ Microsystems, Inc. All Rights Reserved.
                     <run-dependency>
                         <release-version>1</release-version>
                         <implementation-version/>
+                    </run-dependency>
+                </dependency>
+                <dependency>
+                    <code-name-base>org.netbeans.modules.j2ee.common</code-name-base>
+                    <build-prerequisite/>
+                    <compile-dependency/>
+                    <run-dependency>
+                        <release-version>1</release-version>
+                        <implementation-version/>
+                    </run-dependency>
+                </dependency>
+                <dependency>
+                    <code-name-base>org.netbeans.modules.j2eeserver</code-name-base>
+                    <build-prerequisite/>
+                    <compile-dependency/>
+                    <run-dependency>
+                        <release-version>4</release-version>
+                        <specification-version>1.21.0.1</specification-version>
                     </run-dependency>
                 </dependency>
                 <dependency>
