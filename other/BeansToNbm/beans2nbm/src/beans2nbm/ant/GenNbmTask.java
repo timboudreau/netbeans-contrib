@@ -92,8 +92,9 @@ public class GenNbmTask extends Task {
                     "  No components will be added to the component" +
                     "palette;  only the library will be added to the " +
                     "list of registered libraries in NetBeans.");
+        } else {
+            map.put("jarInfo", info);
         }
-        map.put("jarInfo", info);
         Main.BackgroundBuilder builder = new Main.BackgroundBuilder ();
         R r = new R();
         builder.start(map, r);
