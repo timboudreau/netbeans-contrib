@@ -20,6 +20,7 @@ package beans2nbm.ui;
 
 import java.awt.Component;
 import java.awt.EventQueue;
+import java.awt.Font;
 import java.io.BufferedInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -34,6 +35,7 @@ import javax.swing.BoundedRangeModel;
 import javax.swing.JComboBox;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
+import javax.swing.UIManager;
 import javax.swing.text.JTextComponent;
 import org.netbeans.spi.wizard.WizardPage;
 
@@ -102,9 +104,9 @@ public class AuthorInfoPage extends WizardPage {
         jComboBox1 = new javax.swing.JComboBox();
         jLabel1 = new javax.swing.JLabel();
 
+        setBorder(javax.swing.BorderFactory.createEmptyBorder(12, 12, 12, 12));
         setLayout(new java.awt.GridBagLayout());
 
-        setBorder(javax.swing.BorderFactory.createEmptyBorder(12, 12, 12, 12));
         authorLabel.setLabelFor(authorField);
         authorLabel.setText("Author");
         gridBagConstraints = new java.awt.GridBagConstraints();
@@ -120,7 +122,6 @@ public class AuthorInfoPage extends WizardPage {
                 authorFieldFocusGained(evt);
             }
         });
-
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
         gridBagConstraints.gridy = 0;
@@ -146,7 +147,6 @@ public class AuthorInfoPage extends WizardPage {
                 authorFieldFocusGained(evt);
             }
         });
-
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
         gridBagConstraints.gridy = 1;
@@ -169,6 +169,7 @@ public class AuthorInfoPage extends WizardPage {
         add(licenseLabel, gridBagConstraints);
 
         licenseField.setColumns(20);
+        licenseField.setFont(UIManager.getFont ("Label.font") == null ? new Font ("SansSerif", 12, Font.BOLD) : UIManager.getFont("Label.font"));
         licenseField.setLineWrap(true);
         licenseField.setRows(5);
         licenseField.setWrapStyleWord(true);
@@ -194,7 +195,6 @@ public class AuthorInfoPage extends WizardPage {
                 browseButtonActionPerformed(evt);
             }
         });
-
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 5;
         gridBagConstraints.gridy = 4;
@@ -208,7 +208,6 @@ public class AuthorInfoPage extends WizardPage {
                 jComboBox1ActionPerformed(evt);
             }
         });
-
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
         gridBagConstraints.gridy = 4;
@@ -223,7 +222,6 @@ public class AuthorInfoPage extends WizardPage {
         gridBagConstraints.gridy = 4;
         gridBagConstraints.insets = new java.awt.Insets(0, 0, 0, 5);
         add(jLabel1, gridBagConstraints);
-
     }// </editor-fold>//GEN-END:initComponents
 
     private JFileChooser jfc = null;

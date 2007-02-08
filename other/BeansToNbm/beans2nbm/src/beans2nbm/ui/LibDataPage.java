@@ -19,6 +19,8 @@
 package beans2nbm.ui;
 
 import java.awt.Component;
+import java.awt.Font;
+import javax.swing.UIManager;
 import javax.swing.text.JTextComponent;
 import org.netbeans.spi.wizard.WizardPage;
 
@@ -124,9 +126,9 @@ public class LibDataPage extends WizardPage {
         jLabel1 = new javax.swing.JLabel();
         jComboBox1 = new javax.swing.JComboBox();
 
+        setBorder(javax.swing.BorderFactory.createEmptyBorder(12, 12, 12, 12));
         setLayout(new java.awt.GridBagLayout());
 
-        setBorder(javax.swing.BorderFactory.createEmptyBorder(12, 12, 12, 12));
         libNameLabel.setLabelFor(displayNameField);
         libNameLabel.setText("Library Display Name");
         gridBagConstraints = new java.awt.GridBagConstraints();
@@ -143,7 +145,6 @@ public class LibDataPage extends WizardPage {
                 displayNameFieldFocusGained(evt);
             }
         });
-
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
         gridBagConstraints.gridy = 0;
@@ -163,6 +164,7 @@ public class LibDataPage extends WizardPage {
         add(descriptionLabel, gridBagConstraints);
 
         descriptionField.setColumns(20);
+        descriptionField.setFont(UIManager.getFont ("Label.font") == null ? new Font ("SansSerif", 12, Font.BOLD) : UIManager.getFont("Label.font"));
         descriptionField.setLineWrap(true);
         descriptionField.setRows(5);
         descriptionField.setToolTipText("Will be shown in the Module Manager dialog in the IDE");
@@ -195,7 +197,6 @@ public class LibDataPage extends WizardPage {
                 displayNameFieldFocusGained(evt);
             }
         });
-
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
         gridBagConstraints.gridy = 1;
@@ -220,7 +221,6 @@ public class LibDataPage extends WizardPage {
                 displayNameFieldFocusGained(evt);
             }
         });
-
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
         gridBagConstraints.gridy = 2;
@@ -245,7 +245,6 @@ public class LibDataPage extends WizardPage {
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.insets = new java.awt.Insets(0, 0, 5, 0);
         add(jComboBox1, gridBagConstraints);
-
     }// </editor-fold>//GEN-END:initComponents
 
     private void displayNameFieldFocusGained(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_displayNameFieldFocusGained

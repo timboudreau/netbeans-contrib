@@ -70,6 +70,9 @@
         <Component class="javax.swing.JTextArea" name="descriptionField">
           <Properties>
             <Property name="columns" type="int" value="20"/>
+            <Property name="font" type="java.awt.Font" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
+              <Connection code="UIManager.getFont (&quot;Label.font&quot;) == null ? new Font (&quot;SansSerif&quot;, 12, Font.BOLD) : UIManager.getFont(&quot;Label.font&quot;)" type="code"/>
+            </Property>
             <Property name="lineWrap" type="boolean" value="true"/>
             <Property name="rows" type="int" value="5"/>
             <Property name="toolTipText" type="java.lang.String" value="Will be shown in the Module Manager dialog in the IDE"/>
