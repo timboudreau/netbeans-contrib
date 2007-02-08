@@ -30,6 +30,7 @@ public class Installer extends ModuleInstall {
         // By default, do nothing.
         // Put your startup code here.
         System.setProperty("no.set.rowheight", Boolean.TRUE.toString());
+        System.setProperty("project.tab.no.selection", "true");
         OpenedBluejProjects.getInstance().addNotify();
     }
 
