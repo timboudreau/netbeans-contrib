@@ -83,12 +83,7 @@ public enum RegistryQNames {
     }
     
     public String getQualifiedName() {
-        String p = qname.getPrefix();
-        if (qname.getPrefix() == null || qname.getPrefix().equals("")) {
-            return qname.getLocalPart();
-        } else {
-            return qname.getPrefix() + ":" + qname.getLocalPart();
-        }
+        return qname.getPrefix() + ":" + qname.getLocalPart();
     }
     
     public static Set<QName> getMappedQNames() {
