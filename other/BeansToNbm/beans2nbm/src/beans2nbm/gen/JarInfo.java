@@ -18,15 +18,16 @@
  */
 package beans2nbm.gen;
 
-import java.awt.EventQueue;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.jar.Attributes;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
@@ -88,7 +89,10 @@ public class JarInfo {
     }
     
     public List getBeans() {
-        return initialized ? beans : Collections.EMPTY_LIST;
+        if (!initialized) {
+            go (null);
+        }
+        return beans;
     }
     
     public List getEntries() {
@@ -104,7 +108,9 @@ public class JarInfo {
             jar = new JarFile (f, true);
         } catch (IOException ioe) {
             problem = ioe.getMessage();
-            checker.enqueueNotify(Integer.MIN_VALUE, problem);
+            if (checker != null) {
+                checker.enqueueNotify(Integer.MIN_VALUE, problem);
+            }
             return false;
         }
         return true;
@@ -112,11 +118,17 @@ public class JarInfo {
     
     private void go (Checker checker) {
         if (init(checker)) {
-            checker.enqueueNotify(25, null);
+            if (checker != null) {
+                checker.enqueueNotify(25, null);
+            }
             if (findBeans((checker))) {
-                checker.enqueueNotify(50, null);
+                if (checker != null) {
+                    checker.enqueueNotify(50, null);
+                }
                 if (findEntries(checker)) {
-                    checker.enqueueNotify(100, null);
+                    if (checker != null) {
+                        checker.enqueueNotify(100, null);
+                    }
                     initialized = true;
                 }
             }
@@ -150,6 +162,22 @@ public class JarInfo {
         return true;
     }
     
+    public String[] getBeansWithoutEntries() {
+        if (entries == null) {
+            findEntries (null);
+        }
+        Set paths = new HashSet();
+        for (Iterator i=entries.iterator(); i.hasNext();) {
+            JarEntry entry = (JarEntry) i.next();
+            paths.add(entry.getName());
+        }
+        Set beans = new HashSet(this.beans);
+        beans.removeAll (paths);
+        String[] result = new String [beans.size()];
+        result = (String[]) beans.toArray (result);
+        return result;
+    }
+    
     private List entries = null;
     private boolean findEntries (Checker checker) {
 //        assert jar != null;
@@ -160,7 +188,7 @@ public class JarInfo {
             for (Enumeration en=jar.entries(); en.hasMoreElements();) {
                 JarEntry entry = (JarEntry) en.nextElement();
                 ix++;
-                if (ix == 30) {
+                if (ix == 30 && checker != null) {
                     //fudge the scroll bar on a magic number...
                     checker.enqueueNotify(75, null);
                 }
@@ -171,7 +199,9 @@ public class JarInfo {
         } catch (RuntimeException ioe) {
             ioe.printStackTrace();
             problem = ioe.getMessage();
-            checker.enqueueNotify(Integer.MIN_VALUE, problem);
+            if (checker != null) {
+                checker.enqueueNotify(Integer.MIN_VALUE, problem);
+            }
             return false;
         }
         return true;

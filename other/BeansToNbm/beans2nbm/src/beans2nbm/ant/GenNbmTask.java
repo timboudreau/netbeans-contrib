@@ -32,8 +32,10 @@ import java.util.List;
 import java.util.Map;
 import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.Task;
+import org.apache.tools.ant.TaskContainer;
 import org.netbeans.modules.wizard.InstructionsPanel;
 import org.netbeans.spi.wizard.ResultProgressHandle;
+import org.netbeans.spi.wizard.Summary;
 
 /**
  *
@@ -70,7 +72,7 @@ public class GenNbmTask extends Task {
         }
         
         if (getSourceJar() == null) {
-            log("Source JAR not specified.  It is not" +
+            log("Source JAR/ZIP not specified.  It is not" +
                     " a requirement, but it helps people to debug.  Please" +
                     " consider including one.");
         }
@@ -79,14 +81,22 @@ public class GenNbmTask extends Task {
                     " a requirement, but it helps use components.  Please" +
                     " consider including one.");
         }
-        
-        JarInfo info = new JarInfo ((String) map.get("jarFileName"));
-        O o = new O();
-        info.scanImmediate(o);
-        if (o.failMsg != null) {
-            throw new BuildException (o.failMsg);
+        JarInfo info = (JarInfo) map.get("jarInfo");
+        boolean infoCreated = info == null;
+        if (info == null) {
+            info = new JarInfo ((String) map.get("jarFileName"));
+        }
+        if (infoCreated) {
+            O o = new O();
+            info.scanImmediate(o);
+            if (o.failMsg != null) {
+                throw new BuildException (o.failMsg);
+            }
+        } else {
+            log ("Using supplied list of JavaBeans;  JAR Manifest ignored");
         }
         List l = info.getBeans();
+        log ("Beans: " + l);
         if (l.isEmpty()) {
             log ("JAR contains no Java-Bean: sections in its manifest." +
                     "  No components will be added to the component" +
@@ -95,11 +105,42 @@ public class GenNbmTask extends Task {
         } else {
             map.put("jarInfo", info);
         }
+        String[] missing = info.getBeansWithoutEntries();
+        if (missing.length > 0) {
+            StringBuffer b = new StringBuffer();
+            for (int i = 0; i < missing.length; i++) {
+                b.append (missing[i]);
+                if (i != missing.length - 1) {
+                    b.append (", ");
+                }
+            }
+            throw new BuildException ("The following bean entries were declared " +
+                    "but are not actually present in " + map.get("jarFileName") 
+                    + ": " + b);
+        }
         Main.BackgroundBuilder builder = new Main.BackgroundBuilder ();
         R r = new R();
         builder.start(map, r);
         if (r.failMsg != null) {
             throw new BuildException (r.failMsg);
+        }
+    }
+    
+    public void addText(String txt) {
+        //whitespace -- ignore
+    }
+    
+    public void addBean (String path) {
+        path = path.trim();
+        log("addBean string " + path);
+        JarInfo info = (JarInfo) map.get("jarInfo");
+        if (info == null) {
+            info = new JarInfo((String) map.get("jarFileName"));
+            map.put ("jarInfo", info);
+        }
+        List l = info.getBeans();
+        if (!l.contains(path)) {
+            info.getBeans().add (path);
         }
     }
     
@@ -119,7 +160,6 @@ public class GenNbmTask extends Task {
 
         String failMsg;
         public void fail(String msg) {
-            Thread.dumpStack();
             failMsg = msg;
             synchronized (this) {
                 notifyAll();
@@ -127,7 +167,7 @@ public class GenNbmTask extends Task {
         }
 
         public void done() {
-            log("Completed scan");
+            log("Completed scan, found ");
         }
     }
     
@@ -137,8 +177,6 @@ public class GenNbmTask extends Task {
         }
 
         public void setProgress(String description, int currentStep, int totalSteps) {
-            log(description + " step " + currentStep + 
-                    " of " + totalSteps);
         }
 
         public void setBusy(String description) {
@@ -147,6 +185,9 @@ public class GenNbmTask extends Task {
         public void finished(Object result) {
             synchronized (this) {
                 notifyAll();
+            }
+            while (result instanceof Summary) {
+                result = ((Summary) result).getResult();
             }
             log("Created " + result);
         }
@@ -170,7 +211,6 @@ public class GenNbmTask extends Task {
     }
     
     public void setDestFolder  (File val) { 
-        System.err.println("setDestFolder " + val);
         if (!val.exists()) {
             File base = super.getOwningTarget().getProject().getBaseDir();
             val = new File (base, val.getPath());
@@ -179,7 +219,6 @@ public class GenNbmTask extends Task {
     }
 
     public void setDocsJar  (File val) { 
-        System.err.println("setDocsJar " + val);
         if (!val.exists()) {
             File base = super.getOwningTarget().getProject().getBaseDir();
             val = new File (base, val.getPath());
@@ -188,7 +227,6 @@ public class GenNbmTask extends Task {
     }
     
     public void setSourceJar  (File val) {
-        System.err.println("setSourceJar " + val);
         if (!val.exists()) {
             File base = super.getOwningTarget().getProject().getBaseDir();
             val = new File (base, val.getPath());
@@ -203,7 +241,6 @@ public class GenNbmTask extends Task {
     public void setCodeName  (String val) { map.put ("codeName", val); }
     
     public void setJarFileName  (File val) { 
-        System.err.println("setSourceJar " + val);
         if (!val.exists()) {
             File base = super.getOwningTarget().getProject().getBaseDir();
             val = new File (base, val.getPath());
@@ -290,6 +327,22 @@ public class GenNbmTask extends Task {
             return new String (b, "UTF-8");
         } finally {
             is.close();
+        }
+    }
+
+    public Bean createBean() {
+        return new Bean(this);
+    }
+    
+    public static class Bean {
+        public String text;
+        private final GenNbmTask task;
+        Bean (GenNbmTask task) {
+            this.task = task;
+        }
+        public void addText (String text) {
+            this.text = text;
+            task.addBean (text);
         }
     }
 }
