@@ -47,8 +47,8 @@ public class ModuleInfoModel implements FileModel {
     
     private String getDateString() {
         int y = date.getYear() + 1900;
-        int m = date.getMonth();
-        int d = date.getDay();
+        int m = date.getMonth() + 1;
+        int d = date.getDay() + 1;
         return y + "/" + twoDigit (m) + "/" + twoDigit (d);
     }
     
