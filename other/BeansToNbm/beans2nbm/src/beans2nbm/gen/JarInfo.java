@@ -43,7 +43,7 @@ public class JarInfo {
     /** Creates a new instance of JarInfo */
     public JarInfo(String filespec) {
         if (filespec == null || filespec.trim().length() == 0) {
-            throw new NullPointerException();
+            throw new NullPointerException("Null JAR name");
         }
         f = new File (filespec);
     }

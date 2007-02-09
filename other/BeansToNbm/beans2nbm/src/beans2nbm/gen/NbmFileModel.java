@@ -53,7 +53,8 @@ public class NbmFileModel implements FileModel {
         int start = classname.lastIndexOf('/');
         int end = classname.lastIndexOf('.');
         if (start == -1 || end == -1) {
-            throw new IllegalArgumentException (classname);
+            throw new IllegalArgumentException ("Not a valid class name" 
+                    + classname);
         }
         return classname.substring(start, end);
     }

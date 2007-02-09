@@ -151,8 +151,8 @@ public class Main {
             
             File outDir = new File (destFolder);
             if (!outDir.isDirectory()) {
-//                throw new WizardException ("Couldn't write to " + destFolder);
-                throw new IllegalArgumentException ();
+                throw new IllegalArgumentException (destFolder + " does not " +
+                        "exist or is not a directory");
             }
             File f = new File (outDir, destFileName);
             if (f.exists()) {
