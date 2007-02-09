@@ -89,10 +89,18 @@ public class JarInfo {
     }
     
     public List getBeans() {
-        if (!initialized) {
+        if (!initialized && beans == null) {
             go (null);
         }
         return beans;
+    }
+    
+    private boolean dontScan = false;
+    public void setDontScan (boolean val) {
+        dontScan = val;
+        if (beans == null) {
+            beans = new ArrayList();
+        }
     }
     
     public List getEntries() {
@@ -117,6 +125,9 @@ public class JarInfo {
     }
     
     private void go (Checker checker) {
+        if (dontScan) {
+            return;
+        }
         if (init(checker)) {
             if (checker != null) {
                 checker.enqueueNotify(25, null);
@@ -181,7 +192,7 @@ public class JarInfo {
     private List entries = null;
     private boolean findEntries (Checker checker) {
 //        assert jar != null;
-        if (jar == null) throw new NullPointerException();
+        if (jar == null) init (null);
         entries = new ArrayList();
         try {
             int ix = 0;

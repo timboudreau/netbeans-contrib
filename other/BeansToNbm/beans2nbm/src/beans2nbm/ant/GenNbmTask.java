@@ -136,6 +136,7 @@ public class GenNbmTask extends Task {
         JarInfo info = (JarInfo) map.get("jarInfo");
         if (info == null) {
             info = new JarInfo((String) map.get("jarFileName"));
+            info.setDontScan (true);
             map.put ("jarInfo", info);
         }
         List l = info.getBeans();
