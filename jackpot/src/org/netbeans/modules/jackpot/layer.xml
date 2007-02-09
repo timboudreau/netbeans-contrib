@@ -134,6 +134,12 @@ Microsystems, Inc. All Rights Reserved.
                 <attr name="command" stringvalue="org.netbeans.modules.jackpot.cmds.FindSelfAssignments"/>
                 <attr name="description" stringvalue="Reports variables which are assigned to themselves, such as 'this.message = message;' in a constructor.  This is at best a useless statement, but more often is an error caused by a typing mistake."/>
             </file>
+            <attr name="FindSelfAssignments.settings/log4j.rules" boolvalue="true"/>
+            <file name="log4j.rules" url="resources/log4j.rules">
+                <attr name="inspector" stringvalue="Find Apache Log4J references"/>
+                <attr name="transformer" stringvalue="Convert to use java.util.logging instead."/>
+                <attr name="description" stringvalue="Updates log4j usage to the java.util.logging package introduced in Java 1.4."/>
+            </file>
         </folder>
         <folder name="QuerySets">
             <file name="Default.queryset" url="resources/Default.queryset">
