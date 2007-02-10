@@ -84,11 +84,11 @@ public final class AsynchListModel <T extends Object> implements GenerifiedListM
         if (this.contents.isEmpty() != nue.isEmpty()) {
             replace = true;
         }
-        replace = true; //FIXME !!
         if (!replace) {
             //XXX check if defensive copy of contents is really needed.
             Diff diff = ListDiff.createDiff (this.contents, 
                     nue);
+            System.err.println("DIFF: " + diff);
             updateOnEventQueue (diff);
         } else {
             Runnable r = new Runnable() {
