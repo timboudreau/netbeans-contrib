@@ -93,7 +93,10 @@ public class ElementScanningTask implements CancellableTask<CompilationInfo>{
         }
         
         List <Description> contents = new ArrayList <Description> (100);
-        find (rootDescription, contents);
+        //leave out root
+        for (Description d : rootDescription.subs) {
+            find (d, contents);
+        }
         
         if ( !canceled ) {
             ui.setContents( contents, false );
@@ -130,8 +133,8 @@ public class ElementScanningTask implements CancellableTask<CompilationInfo>{
         
         public Void visitType(TypeElement e, Description p) {
             if ( !canceled  && !info.getElementUtilities().isSynthetic(e) ) {            
-                
                 Description d = new Description();
+                d.parent = p;
                 d.fileObject = p.fileObject;
                 d.kind = e.getKind();
                 d.modifiers = e.getModifiers();
@@ -155,6 +158,7 @@ public class ElementScanningTask implements CancellableTask<CompilationInfo>{
             if ( !canceled && !info.getElementUtilities().isSynthetic(e) && 
                 ( e.getKind() == ElementKind.FIELD || e.getKind() == ElementKind.ENUM_CONSTANT ) ) {
                 Description d = new Description();
+                d.parent = p;
                 d.fileObject = p.fileObject;
                 d.kind = e.getKind();
                 d.modifiers = e.getModifiers();
@@ -174,6 +178,7 @@ public class ElementScanningTask implements CancellableTask<CompilationInfo>{
         public Void visitExecutable(ExecutableElement e, Description p) {
             if ( !canceled  && !info.getElementUtilities().isSynthetic(e) ) {
                 Description d = new Description();                
+                d.parent = p;
                 d.fileObject = p.fileObject;
                 d.kind = e.getKind();
                 d.modifiers = e.getModifiers();

@@ -33,6 +33,7 @@ public class Description {
     List<Description> subs; 
     String htmlHeader;
     long pos;
+    Description parent = null;
 
     Description( ) {
         System.err.println("create a description");
@@ -79,9 +80,31 @@ public class Description {
     }
     
     public String toString() {
-        return htmlHeader;
+        StringBuilder sb = new StringBuilder("<html>");
+        Description d = this;
+        while (d != null && d.parent != null && d.parent.parent != null && d.parent.parent.parent != null) {
+            sb.insert (6, '.');
+            sb.insert(6, truncate(d.parent.name));
+            d = d.parent;
+        }
+        sb.append (htmlHeader);
+        return sb.toString();
     }
 
+    private static String truncate (String s) {
+        if (s == null) {
+            return "";
+        }
+        StringBuilder sb = new StringBuilder (s.length());
+        char[] c = s.toCharArray();
+        for (int i = 0; i < c.length; i++) {
+            if (i == 0 || Character.isUpperCase(c[i])) {
+                sb.append (c[i]);
+            }
+        }
+        return sb.toString();
+    }
+    
     public int hashCode() {
         int hash = 7;
         hash = 29 * hash + (this.name != null ? this.name.hashCode() : 0);

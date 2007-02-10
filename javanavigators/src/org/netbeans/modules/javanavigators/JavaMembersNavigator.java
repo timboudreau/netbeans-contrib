@@ -21,6 +21,7 @@ import javax.swing.JScrollPane;
 import javax.swing.SwingUtilities;
 import javax.swing.border.Border;
 import org.netbeans.spi.navigator.NavigatorPanel;
+import org.openide.awt.HtmlRenderer;
 import org.openide.util.Lookup;
 import org.openide.util.NbBundle;
 import org.openide.windows.TopComponent;
@@ -93,6 +94,7 @@ public class JavaMembersNavigator implements NavigatorPanel {
         result.add (scroll, BorderLayout.CENTER);
         list.setModel (DataGatheringTaskFactory.getModel());
         list.getSelectionModel().addListSelectionListener(new ListListener(list));
+        list.setCellRenderer (HtmlRenderer.createRenderer());
         return result;
     }
     
