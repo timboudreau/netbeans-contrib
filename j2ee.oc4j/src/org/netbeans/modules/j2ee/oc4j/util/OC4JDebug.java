@@ -29,8 +29,7 @@ public class OC4JDebug {
     private static boolean isEnabled = System.getProperty(PROPERTY) != null;   // NOI18N
     
     public static boolean isEnabled() {
-        //return isEnabled;
-        return true;
+        return isEnabled;
     }
     
     public static void log(String className, String msg) {
