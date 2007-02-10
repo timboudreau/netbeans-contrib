@@ -10,18 +10,30 @@
 package org.netbeans.modules.javanavigators;
 
 import java.awt.BorderLayout;
+import java.awt.Point;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.lang.ref.Reference;
 import java.lang.ref.SoftReference;
+import java.util.Comparator;
 import javax.swing.BorderFactory;
 import javax.swing.DefaultListModel;
+import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JComponent;
 import javax.swing.JList;
+import javax.swing.JMenuItem;
 import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
+import javax.swing.ListModel;
 import javax.swing.SwingUtilities;
 import javax.swing.border.Border;
 import org.netbeans.spi.navigator.NavigatorPanel;
 import org.openide.awt.HtmlRenderer;
+import org.openide.awt.Mnemonics;
 import org.openide.util.Lookup;
 import org.openide.util.NbBundle;
 import org.openide.windows.TopComponent;
@@ -32,17 +44,16 @@ import org.openide.windows.TopComponent;
  */
 public class JavaMembersNavigator implements NavigatorPanel {
     private Reference <JPanel> pnl = null;
-    /** Creates a new instance of JavaMembersNavigator */
     public JavaMembersNavigator() {
     }
     
     public String getDisplayName() {
         return NbBundle.getMessage (JavaMembersNavigator.class,
-                "LBL_MEMBERS_NAVIGATOR");
+                "LBL_MEMBERS_NAVIGATOR"); //NOI18n
     }
 
     public String getDisplayHint() {
-        throw new UnsupportedOperationException("Not supported yet.");
+        return null; //FIXME
     }
 
     public JComponent getComponent(boolean create) {
@@ -60,7 +71,6 @@ public class JavaMembersNavigator implements NavigatorPanel {
 
     private Lookup ctx = Lookup.EMPTY;
     public void panelActivated(Lookup context) {
-        System.err.println("panel activated");
         DataGatheringTaskFactory.getDefault().activate();
         ctx = context;
         JList list = getList(true);
@@ -68,7 +78,6 @@ public class JavaMembersNavigator implements NavigatorPanel {
     }
 
     public void panelDeactivated() {
-        System.err.println("panel deactivated");
         DataGatheringTaskFactory.getDefault().deactivate();
         ctx = Lookup.EMPTY;
         JList list = getList(false);
@@ -95,6 +104,7 @@ public class JavaMembersNavigator implements NavigatorPanel {
         list.setModel (DataGatheringTaskFactory.getModel());
         list.getSelectionModel().addListSelectionListener(new ListListener(list));
         list.setCellRenderer (HtmlRenderer.createRenderer());
+        list.addMouseListener (new ML());
         return result;
     }
     
@@ -126,6 +136,49 @@ public class JavaMembersNavigator implements NavigatorPanel {
                 tc.putClientProperty ("dontActivate", prev); //NOI18N
             }
             super.removeNotify();
+        }
+    }
+    
+    private static class ML extends MouseAdapter implements ActionListener {
+        private static final String ACTION_POSITION_SORT = "pos"; //NOI18N
+        public static final String ACTION_ALPHA_SORT = "alpha"; //NOI18N
+        private AsynchListModel <Description> m;
+        public void mouseClicked(MouseEvent e) {
+            if (e.getClickCount() == 1 && e.getButton() == MouseEvent.BUTTON3) {
+                JList l = (JList) e.getSource();
+                ListModel m = l.getModel();
+                if (!(m instanceof AsynchListModel)) {
+                    return;
+                }
+                this.m = (AsynchListModel <Description>) m;
+                JPopupMenu menu = new JPopupMenu();
+                JCheckBoxMenuItem pos = new JCheckBoxMenuItem ();
+                Mnemonics.setLocalizedText(pos, NbBundle.getMessage (
+                        JavaMembersNavigator.class,
+                        "LBL_POS_SORT")); //NOI18N
+                JCheckBoxMenuItem alpha = new JCheckBoxMenuItem ();
+                alpha.setSelected (this.m.getComparator() == 
+                        Description.ALPHA_COMPARATOR);
+                pos.setSelected (!alpha.isSelected());
+                Mnemonics.setLocalizedText(alpha, NbBundle.getMessage (
+                        JavaMembersNavigator.class,
+                        "LBL_ALPHA_SORT")); //NOI18N
+                menu.add (alpha);
+                menu.add (pos);
+                pos.setActionCommand(ACTION_POSITION_SORT);
+                alpha.setActionCommand (ACTION_ALPHA_SORT);
+                pos.addActionListener (this);
+                alpha.addActionListener (this);
+                Point p = e.getPoint();
+                menu.show(l, p.x, p.y);
+            }
+        }
+    
+        public void actionPerformed(ActionEvent e) {
+            Comparator <Description> c = ACTION_ALPHA_SORT.equals(
+                e.getActionCommand()) ?
+                Description.ALPHA_COMPARATOR : Description.POSITION_COMPARATOR;
+            m.setComparator (c);
         }
     }
 }

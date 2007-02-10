@@ -79,25 +79,29 @@ public final class AsynchListModel <T extends Object> implements GenerifiedListM
      * java.util.List storage that backs this model will be invokeLatered
      * on the event thread.
      */
-    public void setContents (final List <T> contents, boolean replace) {
-        System.err.println("setContents " + contents + " lcount " + listeners.size());
-        if (this.contents.isEmpty() != contents.isEmpty()) {
+    public void setContents (final List <T> nue, boolean replace) {
+        System.err.println("setContents " + nue + " lcount " + listeners.size());
+        if (this.contents.isEmpty() != nue.isEmpty()) {
             replace = true;
         }
+        replace = true; //FIXME !!
         if (!replace) {
             //XXX check if defensive copy of contents is really needed.
             Diff diff = ListDiff.createDiff (this.contents, 
-                    contents);
+                    nue);
             updateOnEventQueue (diff);
         } else {
             Runnable r = new Runnable() {
                 public void run() {
                     int sz = AsynchListModel.this.contents.size();
                     AsynchListModel.this.contents.clear();
-                    AsynchListModel.this.contents.addAll (contents);
+                    AsynchListModel.this.contents.addAll (nue);
+                    if (comparator != null) {
+                        Collections.sort (AsynchListModel.this.contents, comparator);
+                    }
                     ListDataEvent evt = new ListDataEvent (AsynchListModel.this,
                             ListDataEvent.CONTENTS_CHANGED,
-                            0, Math.max (sz, contents.size()));
+                            0, Math.max (sz, nue.size()));
                     ListDataListener[] l = (ListDataListener[]) listeners.toArray (
                             new ListDataListener[0]);
                     for (int i = 0; i < l.length; i++) {
@@ -108,7 +112,7 @@ public final class AsynchListModel <T extends Object> implements GenerifiedListM
             EventQueue.invokeLater (r);
         }
     }
-
+    
     public int getSize() {
         return contents.size();
     }
