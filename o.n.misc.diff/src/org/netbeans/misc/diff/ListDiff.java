@@ -40,7 +40,7 @@ public final class ListDiff implements Diff {
     /**
      * Create a diff of two lists
      */
-    public static Diff createDiff (List old, Listnue) {
+    public static Diff createDiff (List old, List nue) {
         return new ListDiff ( old, nue );
     }
 

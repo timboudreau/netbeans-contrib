@@ -40,7 +40,7 @@ final class ParallelIterator {
     /**
      * The modified list
      */
-    private final Listnue;
+    private final List nue;
     /**
      * The iterator of the original list
      */
