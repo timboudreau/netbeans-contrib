@@ -50,7 +50,6 @@ public class DataGatheringTaskFactory extends LookupBasedJavaSourceTaskFactory {
     }
     
     protected CancellableTask<CompilationInfo> createTask(FileObject file) {
-        System.err.println("create task " + file.getPath() + " active = " + active);
         active = true;
         assert getDefault() == this;
         return active ? new ElementScanningTask( model ) : EMPTY_TASK;

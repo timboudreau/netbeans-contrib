@@ -137,6 +137,10 @@ public final class AsynchListModel <T extends Object> implements GenerifiedListM
         return !listeners.isEmpty();
     }
     
+    public void fire (Diff diff) {
+        updateOnEventQueue (diff);
+    }
+    
     private void updateOnEventQueue (Diff diff) {
         EventQueue.invokeLater (new Firer(diff));
     }

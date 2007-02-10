@@ -17,10 +17,12 @@ import com.sun.source.util.Trees;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.ExecutableElement;
+import javax.lang.model.element.Modifier;
 import javax.lang.model.element.PackageElement;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.TypeParameterElement;
@@ -37,6 +39,7 @@ import javax.lang.model.util.ElementScanner6;
 import org.netbeans.api.java.source.CancellableTask;
 import org.netbeans.api.java.source.CompilationInfo;
 import org.netbeans.api.java.source.ElementHandle;
+import org.netbeans.api.java.source.UiUtils;
 
 /** XXX Remove the ElementScanner class from here it should be wenough to
  * consult the Elements class. It should also permit for showing inherited members.
@@ -45,11 +48,11 @@ import org.netbeans.api.java.source.ElementHandle;
  */
 public class ElementScanningTask implements CancellableTask<CompilationInfo>{
     
-    private GenerifiedListModel ui;
+    private GenerifiedListModel <Description> ui;
     private FindChildrenElementVisitor scanner;
     private volatile boolean canceled;
     
-    public ElementScanningTask( GenerifiedListModel ui ) {
+    public ElementScanningTask( GenerifiedListModel <Description> ui ) {
         this.ui = ui;
     }
     
@@ -144,6 +147,7 @@ public class ElementScanningTask implements CancellableTask<CompilationInfo>{
                 d.pos = getPosition( e );
                 d.htmlHeader = createHtmlHeader( e, 
                         info.getElements().isDeprecated(e) );                
+                d.icon = UiUtils.getElementIcon(e.getKind(), e.getModifiers());
                 
                 if ( d.pos == -1 ) {
                     return null;
@@ -166,6 +170,7 @@ public class ElementScanningTask implements CancellableTask<CompilationInfo>{
                 d.name = e.getSimpleName().toString();
                 d.pos = getPosition( e );
                 d.htmlHeader = createHtmlHeader( e, info.getElements().isDeprecated(e) ); 
+                d.icon = UiUtils.getElementIcon(e.getKind(), e.getModifiers());
                 if ( d.pos == -1 ) {
                     return null;
                 }
@@ -189,6 +194,7 @@ public class ElementScanningTask implements CancellableTask<CompilationInfo>{
                     return null;
                 }
                 d.htmlHeader = createHtmlHeader(e, info.getElements().isDeprecated(e));
+                d.icon = UiUtils.getElementIcon(e.getKind(), e.getModifiers());
                 super.visitExecutable(e, d);
                 p.subs.add(d);            
             }
@@ -220,6 +226,21 @@ public class ElementScanningTask implements CancellableTask<CompilationInfo>{
         private String createHtmlHeader( ExecutableElement e, boolean isDeprecated ) {
             
             StringBuilder sb = new StringBuilder();
+            if (info.getElementUtilities().overridesMethod(e)) {
+                System.err.println("got one!");
+                sb.append ("<b>");
+            }
+                        
+            Set <Modifier> mods = e.getModifiers();
+//            boolean statik = mods.contains(Modifier.STATIC);
+//            if (statik) {
+//                sb.append ("<u>");
+//            }
+            boolean phynal = mods.contains(Modifier.FINAL);
+            if (phynal) {
+                sb.append ("<i>"); //FIXME
+            }
+            
             if ( isDeprecated ) {
                 sb.append("<s>"); // NOI18N
             }
@@ -267,6 +288,17 @@ public class ElementScanningTask implements CancellableTask<CompilationInfo>{
             if ( isDeprecated ) {
                 sb.append("<s>"); // NOI18N
             }
+            
+            Set <Modifier> mods = e.getModifiers();
+//            boolean statik = mods.contains(Modifier.STATIC);
+//            if (statik) {
+//                sb.append ("<u>");
+//            }
+            boolean phynal = mods.contains(Modifier.FINAL);
+            if (phynal) {
+                sb.append ("<i>"); //FIXME
+            }
+            
             sb.append(e.getSimpleName());
             if ( isDeprecated ) {
                 sb.append("</s>"); // NOI18N
@@ -286,6 +318,17 @@ public class ElementScanningTask implements CancellableTask<CompilationInfo>{
             if ( isDeprecated ) {
                 sb.append("<s>"); // NOI18N
             }
+            
+            Set <Modifier> mods = e.getModifiers();
+//            boolean statik = mods.contains(Modifier.STATIC);
+//            if (statik) {
+//                sb.append ("<u>");
+//            }
+            boolean phynal = mods.contains(Modifier.FINAL);
+            if (phynal) {
+                sb.append ("<i>"); //FIXME
+            }
+            
             sb.append(e.getSimpleName());
             if ( isDeprecated ) {
                 sb.append("</s>"); // NOI18N

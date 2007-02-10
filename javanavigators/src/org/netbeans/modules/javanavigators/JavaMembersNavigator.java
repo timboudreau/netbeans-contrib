@@ -103,7 +103,7 @@ public class JavaMembersNavigator implements NavigatorPanel {
         result.add (scroll, BorderLayout.CENTER);
         list.setModel (DataGatheringTaskFactory.getModel());
         list.getSelectionModel().addListSelectionListener(new ListListener(list));
-        list.setCellRenderer (HtmlRenderer.createRenderer());
+        list.setCellRenderer (new CellRenderer());
         list.addMouseListener (new ML());
         return result;
     }

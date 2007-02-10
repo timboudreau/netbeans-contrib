@@ -15,6 +15,7 @@ import java.util.Set;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.Modifier;
+import javax.swing.Icon;
 import org.netbeans.api.java.source.ElementHandle;
 import org.openide.filesystems.FileObject;
 
@@ -34,6 +35,7 @@ public class Description {
     String htmlHeader;
     long pos;
     Description parent = null;
+    Icon icon;
 
     Description( ) {
         System.err.println("create a description");

@@ -4,6 +4,7 @@ package org.netbeans.modules.javanavigators;
 import java.util.Comparator;
 import java.util.List;
 import javax.swing.ListModel;
+import org.netbeans.misc.diff.Diff;
 
 /**
  * A sortable ListModel with a generic type, and some collections support
@@ -36,4 +37,6 @@ public interface GenerifiedListModel <T> extends ListModel {
     public Comparator <T> getComparator();
     
     public void setContents (List <T> list, boolean replace);
+    
+    public void fire (Diff diff);
 }
