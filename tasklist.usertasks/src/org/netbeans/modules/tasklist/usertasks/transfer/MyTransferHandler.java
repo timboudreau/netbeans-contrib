@@ -21,10 +21,12 @@ package org.netbeans.modules.tasklist.usertasks.transfer;
 
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.DataFlavor;
+import java.awt.datatransfer.StringSelection;
 import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.UnsupportedFlavorException;
 import java.io.IOException;
 import java.io.StringReader;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
@@ -50,6 +52,17 @@ import org.netbeans.modules.tasklist.usertasks.util.UTUtils;
  * @author tl
  */
 public class MyTransferHandler extends TransferHandler {
+    private static DataFlavor X_MOZ_URL;
+    
+    static {
+        try {
+            X_MOZ_URL = new DataFlavor(
+                    "text/x-moz-url; class=\"[B\""); // NOI18N
+        } catch (ClassNotFoundException e) {
+            UTUtils.LOGGER.log(Level.WARNING, e.getMessage(), e);
+        }
+    }
+    
     /**
      * Extracts tasks from a Transferable.
      *
@@ -65,6 +78,31 @@ public class MyTransferHandler extends TransferHandler {
                 for (int i = 0; i < tasks.length; i++) {
                     tasks[i] = tasks[i].cloneTask();
                 }
+            } else if (t.isDataFlavorSupported(X_MOZ_URL)) {
+                byte[] d = (byte[]) t.getTransferData(X_MOZ_URL);
+                String s = new String(d, "UTF-16LE"); // NOI18N
+                /* DEBUG
+                for (int i = 0; i < s.length(); i++) {
+                    UTUtils.LOGGER.fine(Integer.toString(s.charAt(i)));
+                }*/
+                int index = s.indexOf("\n");
+                String url, title;
+                if (index < 0)
+                    index = s.indexOf(" ");
+                if (index < 0)
+                    index = s.indexOf("\u0000");
+                if (index >= 0) {
+                    url = s.substring(0, index);
+                    title = s.substring(index + 1).trim();
+                } else {
+                    url = s;
+                    title = null;
+                }
+                
+                // DEBUG UTUtils.LOGGER.fine("'" + url + "'"); // NOI18N
+                UserTask ut = new UserTask(title == null ? url : title, null);
+                ut.setUrl(new URL(url.trim()));
+                tasks = new UserTask[] {ut};
             } else if (t.isDataFlavorSupported(DataFlavor.stringFlavor)) {
                 String text = (String) t.getTransferData(
                         DataFlavor.stringFlavor);
@@ -81,7 +119,7 @@ public class MyTransferHandler extends TransferHandler {
     private UserTask[] transferredTasks;
     
     public int getSourceActions(JComponent c) {
-	return MOVE | COPY;
+	return COPY_OR_MOVE;
     }
 
     protected Transferable createTransferable(JComponent c) {
@@ -117,7 +155,8 @@ public class MyTransferHandler extends TransferHandler {
         for (int i = 0; i < transferFlavors.length; i++) {
             if (transferFlavors[i].equals(
                     UserTasksTransferable.USER_TASKS_FLAVOR) ||
-                    transferFlavors[i].equals(DataFlavor.stringFlavor)) {
+                    transferFlavors[i].equals(DataFlavor.stringFlavor) ||
+                    transferFlavors[i].equals(X_MOZ_URL)) {
                 return true;
             }
         }
@@ -134,6 +173,13 @@ public class MyTransferHandler extends TransferHandler {
      */
     public boolean importData(JComponent comp, Transferable t, 
             boolean topLevel) {
+        if (UTUtils.LOGGER.isLoggable(Level.FINE)) {
+            DataFlavor[] dfs = t.getTransferDataFlavors();
+            for (DataFlavor df: dfs) {
+                UTUtils.LOGGER.fine(df.getMimeType());
+            }
+        }
+        
         // dragged tasks
         UserTask[] tasks = getTasks(t);
         if (tasks == null)
@@ -176,7 +222,10 @@ public class MyTransferHandler extends TransferHandler {
         if (tasks_.size() == 0)
             return false;
 
-        list.addAll(tasks_);
+        if (Settings.getDefault().getAppend())
+            list.addAll(tasks_);
+        else
+            list.addAll(0, tasks_);
         if (target != null && Settings.getDefault().getAutoSwitchToComputed()) {
             target.setValuesComputed(true);
         }
@@ -200,7 +249,7 @@ public class MyTransferHandler extends TransferHandler {
     }
 
     protected void exportDone(JComponent source, Transferable data, int action) {
-        if (action == MOVE && transferredTasks != null) {
+        /*if (action == MOVE && transferredTasks != null) {
             UserTasksTreeTable tt = (UserTasksTreeTable) source;
             
             // TODO: any delete in the tree leads to
@@ -217,7 +266,7 @@ public class MyTransferHandler extends TransferHandler {
             }
             
             tt.select(sel);
-        }
+        }*/
         transferredTasks = null;
     }
 

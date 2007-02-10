@@ -23,6 +23,7 @@ import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.UnsupportedFlavorException;
 import java.io.IOException;
+import java.io.Serializable;
 import java.io.StringReader;
 import java.io.StringWriter;
 import org.netbeans.modules.tasklist.usertasks.*;
@@ -38,14 +39,16 @@ import org.openide.util.io.ReaderInputStream;
  * @author Tor Norbye
  * @author tl
  */
-public final class UserTasksTransferable implements Transferable {
+public final class UserTasksTransferable implements Transferable, Serializable {
+    private static final long serialVersionUID = 1;
+    
     /** Flavor for tasks on the clipboard */    
     public static final DataFlavor USER_TASKS_FLAVOR = new DataFlavor(
         DataFlavor.javaJVMLocalObjectMimeType, 
         NbBundle.getMessage(UserTasksTransferable.class, 
             "UserTasks")); // NOI18N
 
-    private UserTask[] tasks;
+    private transient UserTask[] tasks;
     
     /** 
      * Construct a task transfer object 

@@ -84,4 +84,9 @@ public final class PriorityTableCellRenderer extends DefaultTableCellRenderer {
         }
         return this;
     }
+
+    // overriden for performance reasons
+    @Override
+    protected void setValue(Object arg0) {
+    }
 }

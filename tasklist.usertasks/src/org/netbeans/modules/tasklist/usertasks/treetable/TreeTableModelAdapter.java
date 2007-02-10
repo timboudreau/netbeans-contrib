@@ -23,13 +23,16 @@
  */
 package org.netbeans.modules.tasklist.usertasks.treetable;
 
+import java.util.logging.Level;
 import javax.swing.JTree;
+import javax.swing.SwingUtilities;
 import javax.swing.event.TreeExpansionEvent;
 import javax.swing.event.TreeExpansionListener;
 import javax.swing.event.TreeModelEvent;
 import javax.swing.event.TreeModelListener;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.tree.TreePath;
+import org.netbeans.modules.tasklist.usertasks.util.UTUtils;
 
 /**
  * This is a wrapper class takes a TreeTableModel and implements
@@ -41,6 +44,7 @@ import javax.swing.tree.TreePath;
  *
  * @author Philip Milne
  * @author Scott Violet
+ * @author tl
  */
 public class TreeTableModelAdapter extends AbstractTableModel {
 
@@ -48,27 +52,41 @@ public class TreeTableModelAdapter extends AbstractTableModel {
 
     JTree tree;
     TreeTableModel treeTableModel;
+    private TreeExpansionListener tel;
+    private TreeModelListener tml;
     
     public TreeTableModelAdapter(TreeTableModel treeTableModel, JTree tree) {
         this.tree = tree;
         this.treeTableModel = treeTableModel;
         
-        tree.addTreeExpansionListener(new TreeExpansionListener() {
+        tel = new TreeExpansionListener() {
             // Don't use fireTableRowsInserted() here; the selection model
             // would get updated twice.
             public void treeExpanded(TreeExpansionEvent event) {
                 fireTableDataChanged();
+                /** this code seems better, but does not work 
+                 * (e.g. for Expand All)
+                JTree tree = (JTree) event.getSource();
+                int row = tree.getRowForPath(event.getPath());
+                int n = tree.getModel().getChildCount(
+                        event.getPath().getLastPathComponent());
+                if (n != 0)
+                    fireTableRowsInserted(row + 1, row + n);
+                 */
             }
             public void treeCollapsed(TreeExpansionEvent event) {
-                fireTableDataChanged();
+                JTree tree = (JTree) event.getSource();
+                int row = tree.getRowForPath(event.getPath());
+                int n = tree.getModel().getChildCount(
+                        event.getPath().getLastPathComponent());
+                if (n != 0)
+                    fireTableRowsDeleted(row + 1, row + n);
             }
-        });
+        };
+        tree.addTreeExpansionListener(tel);
         
-        // Install a TreeModelListener that can update the table when
-        // tree changes. We use delayedFireTableDataChanged as we can
-        // not be guaranteed the tree will have finished processing
-        // the event before us.
-        treeTableModel.addTreeModelListener(new TreeModelListener() {
+        
+        tml = new TreeModelListener() {
             public void treeNodesChanged(TreeModelEvent e) {
                 TreePath tp = e.getTreePath();
                 if (TreeTableModelAdapter.this.tree.isExpanded(tp)) {
@@ -78,8 +96,10 @@ public class TreeTableModelAdapter extends AbstractTableModel {
                     Object last = tp.getLastPathComponent();
                     for (int i = 0; i < childIndices.length; i++) {
                         TreePath childPath = tp.pathByAddingChild(
-                            TreeTableModelAdapter.this.treeTableModel.getChild(last, childIndices[i]));
-                        int row = TreeTableModelAdapter.this.tree.getRowForPath(childPath);
+                            TreeTableModelAdapter.this.treeTableModel.getChild(
+                            last, childIndices[i]));
+                        int row = TreeTableModelAdapter.this.tree.getRowForPath(
+                                childPath);
                         if (row < firstRow) 
                             firstRow = row;
                         if (row > lastRow)    
@@ -100,7 +120,22 @@ public class TreeTableModelAdapter extends AbstractTableModel {
             public void treeStructureChanged(TreeModelEvent e) {
                 delayedFireTableDataChanged();
             }
-        });
+        };
+        
+        // Install a TreeModelListener that can update the table when
+        // tree changes. We use delayedFireTableDataChanged as we can
+        // not be guaranteed the tree will have finished processing
+        // the event before us.
+        treeTableModel.addTreeModelListener(tml);
+    }
+    
+    /**
+     * This method must always be called if this object is removed from a 
+     * TreeTable 
+     */
+    public void unregister() {
+        tree.removeTreeExpansionListener(tel);
+        treeTableModel.removeTreeModelListener(tml);
     }
     
     // Wrappers, implementing TableModel interface.
@@ -157,6 +192,19 @@ public class TreeTableModelAdapter extends AbstractTableModel {
         });*/
     }
 
+    /**
+     * Invokes fireTableRowsInserted after all the pending events have been
+     * processed. SwingUtilities.invokeLater is used to handle this.
+     */
+    protected void delayedFireTableRowsInserted(final int first, 
+            final int last) {
+        SwingUtilities.invokeLater(new Runnable() {
+            public void run() {
+                fireTableRowsInserted(first, last);
+            }
+        });
+    }
+    
     /**
      * Invokes fireTableRowsUpdated after all the pending events have been
      * processed. SwingUtilities.invokeLater is used to handle this.

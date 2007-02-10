@@ -25,6 +25,7 @@ import java.beans.PropertyChangeSupport;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.Reader;
+import java.io.Serializable;
 import java.io.Writer;
 import java.net.InetAddress;
 import java.net.URL;
@@ -58,7 +59,7 @@ import org.netbeans.modules.tasklist.usertasks.util.UnaryFunction;
  * @author Trond Norbye
  * @author tl
  */
-public final class UserTask implements Cloneable, Cookie, 
+public final class UserTask implements Cloneable, Cookie,
         PropertyChangeListener {
     /**
      * A period spent working on a task.

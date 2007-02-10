@@ -4,7 +4,6 @@ import java.awt.Component;
 import java.awt.FontMetrics;
 import java.awt.Insets;
 import java.text.MessageFormat;
-
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableColumnModel;
 import org.netbeans.modules.tasklist.usertasks.options.Settings;
@@ -62,5 +61,10 @@ public class DurationTableCellRenderer extends DefaultTableCellRenderer {
             return new Duration(((Integer) obj).intValue(),
                     Settings.getDefault().getMinutesPerDay(), 
                     Settings.getDefault().getDaysPerWeek(), true);
+    }
+
+    // overriden for performance reasons
+    @Override
+    protected void setValue(Object value) {
     }
 }

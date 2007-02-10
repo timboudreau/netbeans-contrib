@@ -39,12 +39,6 @@ import org.netbeans.modules.tasklist.usertasks.treetable.TreeTable;
 public class DueDateTableCellRenderer extends DateTableCellRenderer {
     private Font boldFont, normalFont;
     
-    /**
-     * Constructor
-     */
-    public DueDateTableCellRenderer() {
-    }
-
     protected Duration getDuration(Object obj) {
         UserTask ut = (UserTask) obj;
         if (ut == null) {
@@ -68,24 +62,23 @@ public class DueDateTableCellRenderer extends DateTableCellRenderer {
         setForeground(null);
         super.getTableCellRendererComponent(table, value, isSelected, hasFocus, 
             row, column);
-        if (node instanceof UserTaskTreeTableNode) {
-            UserTaskTreeTableNode n = (UserTaskTreeTableNode) node;
-            UserTask ut = (UserTask) n.getUserTask();
-            Date due = ut.getDueDate();
-            boolean overdue = false;
-            if (!ut.isDone()) {
-                if (due != null &&
-                    due.getTime() < System.currentTimeMillis())
-                    overdue = true;
-            } else {
-                if (due != null &&
-                        due.getTime() < ut.getCompletedDate())
-                    overdue = true;
-            }
-            setFont(overdue ? boldFont : normalFont);
-            if (!isSelected && overdue)
-                setForeground(Color.RED);
+        UserTaskTreeTableNode n = (UserTaskTreeTableNode) node;
+        UserTask ut = (UserTask) n.getUserTask();
+        Date due = ut.getDueDate();
+        boolean overdue = false;
+        if (!ut.isDone()) {
+            if (due != null &&
+                due.getTime() < System.currentTimeMillis())
+                overdue = true;
+        } else {
+            if (due != null &&
+                    due.getTime() < ut.getCompletedDate())
+                overdue = true;
         }
+        setFont(overdue ? boldFont : normalFont);
+        if (!isSelected && overdue)
+            setForeground(Color.RED);
+
         return this;
     }
 }

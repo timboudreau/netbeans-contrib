@@ -441,6 +441,26 @@ public final class UTUtils {
         return r;
     }
     
+
+    /**
+     * For debug purposes.
+     * Converts an array to a String.
+     * 
+     * @param objs an array with objects
+     * @return string with format [obj1, obj2, ...] 
+     */
+    public static String toString(Object[] objs) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("[");
+        for (Object a: objs) {
+            if (sb.length() != 1)
+                sb.append(", ");
+            sb.append(a);
+        }
+        sb.append("]");
+        return sb.toString();
+    }
+    
     /**
      * DEBUG:
      * 

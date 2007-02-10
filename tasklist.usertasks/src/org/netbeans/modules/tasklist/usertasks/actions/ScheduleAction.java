@@ -32,6 +32,7 @@ import org.netbeans.modules.tasklist.usertasks.UserTaskView;
 import org.netbeans.modules.tasklist.usertasks.UserTaskViewRegistry;
 import org.netbeans.modules.tasklist.usertasks.model.UserTask;
 import org.netbeans.modules.tasklist.usertasks.model.UserTaskList;
+import org.netbeans.modules.tasklist.usertasks.schedule.ScheduleUtils;
 import org.netbeans.modules.tasklist.usertasks.util.UTListTreeAbstraction;
 import org.netbeans.modules.tasklist.usertasks.util.UTUtils;
 import org.netbeans.modules.tasklist.usertasks.util.UnaryFunction;
@@ -49,53 +50,55 @@ import org.openide.util.actions.CallableSystemAction;
 public final class ScheduleAction extends CallableSystemAction {
     private static final long serialVersionUID = 1;
     
-    private static final boolean[] WORKING_DAYS = {
-        true, true, true, true, true, false, false
-    };
-
+    /**
+     * Loads a message.
+     * 
+     * @param key key in Bundle.properties
+     * @return the message
+     */
+    private static String loc(String key) {
+        return NbBundle.getMessage(ScheduleAction.class, key); 
+    }
+    
     /**
      * Schedule tasks.
      */
     public void performAction() {
+        // warn the user
         String currentUser = System.getProperty("user.name"); // NOI18N
         String message = NbBundle.getMessage(ScheduleAction.class,
                 "AreYouSureToSchedule", currentUser); // NOI18N
-        String title = NbBundle.getMessage(ScheduleAction.class,
-                "Warning"); // NOI18N
+        String title = loc("Warning"); // NOI18N
         NotifyDescriptor desc = new NotifyDescriptor.Confirmation(
                 message, title, NotifyDescriptor.YES_NO_OPTION);
         if (!NotifyDescriptor.YES_OPTION.equals(
                 DialogDisplayer.getDefault().notify(desc)))
             return;
         
-        UserTaskView[] views = UserTaskViewRegistry.getInstance().getAll();
+        UserTaskView view = UserTaskViewRegistry.getInstance().getCurrent();
         final List<UserTask> tasks = new ArrayList<UserTask>();
         Set<String> users = new HashSet<String>();
-        for (int i = 0; i < views.length; i++) {
-            UserTaskList utl = views[i].getUserTaskList();
-            users.addAll(Arrays.asList(utl.getOwners()));
-            
-            UTListTreeAbstraction tree = new UTListTreeAbstraction(utl);
-            UnaryFunction f = new UnaryFunction() {
-                public Object compute(Object obj) {
-                    if (obj instanceof UserTask) {
-                        UserTask ut = (UserTask) obj;
-                        if (!ut.isValuesComputed() && !ut.isDone()) {
-                            tasks.add(ut);
-                        }
-                    } 
-                    return null;
-                }
-            };
-            UTUtils.processDepthFirst(tree, f);
-        }
-        Collections.sort(tasks, new Comparator() {
-            public int compare(Object o1, Object o2) {
-                UserTask ut1 = (UserTask) o1;
-                UserTask ut2 = (UserTask) o2;
-                return ut1.getPriority() - ut2.getPriority();
+
+        UserTaskList utl = view.getUserTaskList();
+        users.addAll(Arrays.asList(utl.getOwners()));
+
+        // find all tasks with not computed values
+        UTListTreeAbstraction tree = new UTListTreeAbstraction(utl);
+        UnaryFunction f = new UnaryFunction() {
+            public Object compute(Object obj) {
+                if (obj instanceof UserTask) {
+                    UserTask ut = (UserTask) obj;
+                    if (!ut.isValuesComputed() && !ut.isDone()) {
+                        tasks.add(ut);
+                    }
+                } 
+                return null;
             }
-        });
+        };
+        UTUtils.processDepthFirst(tree, f);
+
+        // sort them on priority
+        ScheduleUtils.createPriorityListByPriority(tasks);
         
         users.add(currentUser);
         
@@ -219,8 +222,7 @@ public final class ScheduleAction extends CallableSystemAction {
     }
     
     public String getName() {
-        return NbBundle.getMessage(ScheduleAction.class, 
-                "Schedule"); // NOI18N
+        return loc("Schedule"); // NOI18N
     }
 
     public HelpCtx getHelpCtx() {

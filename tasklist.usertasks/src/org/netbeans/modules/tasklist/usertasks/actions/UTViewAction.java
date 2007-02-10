@@ -57,7 +57,9 @@ ListSelectionListener {
      */
     protected UserTask getSingleSelectedTask() {
         TreePath[] tp = utv.getTreeTable().getSelectedPaths();
-        if (tp.length == 1) {
+        
+        // tp[0] is sometimes null if "Expand All" is called...
+        if (tp.length == 1 && tp[0] != null) {
             Object last = tp[0].getLastPathComponent();
             if (last instanceof UserTaskTreeTableNode) {
                 return ((UserTaskTreeTableNode) last).getUserTask();

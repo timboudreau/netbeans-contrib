@@ -32,12 +32,6 @@ import org.netbeans.modules.tasklist.usertasks.treetable.TreeTable;
  * @author tl
  */
 public class DoneTreeTableCellRenderer extends BooleanTableCellRenderer {
-    /**
-     * Creates a new instance of DoneTreeTableCellRenderer
-     */
-    public DoneTreeTableCellRenderer() {
-    }
-
     @Override
     public java.awt.Component getTableCellRendererComponent(
             JTable table, 
@@ -50,10 +44,9 @@ public class DoneTreeTableCellRenderer extends BooleanTableCellRenderer {
         if (value == null)
             return cmp;
         
-        if (node instanceof UserTaskTreeTableNode) {
-            UserTask ut = ((UserTaskTreeTableNode) node).getUserTask(); 
-            setEnabled(!ut.isValuesComputed() && ut.areDependenciesDone());
-        }
+        UserTask ut = ((UserTaskTreeTableNode) node).getUserTask(); 
+        setEnabled(!ut.isValuesComputed() && ut.areDependenciesDone());
+        
         return this;
     }
 }

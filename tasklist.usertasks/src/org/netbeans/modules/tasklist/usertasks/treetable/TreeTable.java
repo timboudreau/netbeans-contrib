@@ -55,6 +55,7 @@ import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableColumnModel;
+import javax.swing.table.TableModel;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.tree.DefaultTreeModel;
@@ -158,7 +159,16 @@ public class TreeTable extends JTable {
         imp2.put(KeyStroke.getKeyStroke("COPY"), "none"); // NOI18N
         imp2.put(KeyStroke.getKeyStroke("PASTE"), "none"); // NOI18N
         imp2.put(KeyStroke.getKeyStroke("CUT"), "none"); // NOI18N
-        
+        imp2.put(KeyStroke.getKeyStroke(KeyEvent.VK_RIGHT, 0), 
+                "expand"); // NOI18N
+        imp2.put(KeyStroke.getKeyStroke(KeyEvent.VK_LEFT, 0), 
+                "collapse"); // NOI18N
+
+        getActionMap().put("expand", // NOI18N
+                new ExpandCollapseAction(true, this));
+        getActionMap().put("collapse", // NOI18N
+                new ExpandCollapseAction(false, this));
+                
         // copied from TTV
         getSortingModel().addChangeListener(new ChangeListener() {
             public void stateChanged(ChangeEvent e) {
@@ -405,7 +415,9 @@ public class TreeTable extends JTable {
      */
     public void setTreeTableModel(TreeTableModel treeTableModel) {
         this.treeTableModel = treeTableModel;
-        setModel(new TreeTableModelAdapter(treeTableModel, tree));
+        if (getModel() instanceof TreeTableModelAdapter)
+            ((TreeTableModelAdapter) getModel()).unregister();
+        super.setModel(new TreeTableModelAdapter(treeTableModel, tree));
         tree.setModel(treeTableModel);
     }
     
@@ -425,6 +437,7 @@ public class TreeTable extends JTable {
      */
     public Object getNodeForRow(int row) {
         TreePath tp = tree.getPathForRow(row);
+        // debug UTUtils.LOGGER.fine(row + " -> " + tp);
         return tp.getLastPathComponent();
     }
     
@@ -1150,6 +1163,7 @@ public class TreeTable extends JTable {
 	 */
 	class ListSelectionHandler implements ListSelectionListener {
 	    public void valueChanged(ListSelectionEvent e) {
+                UTUtils.LOGGER.fine("changed"); // NOI18N
 		updateSelectedPathsFromSelectedRows();
 	    }
 	}

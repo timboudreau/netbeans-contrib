@@ -19,20 +19,12 @@
 
 package org.netbeans.modules.tasklist.usertasks.editors;
 
-import java.awt.Component;
-import java.beans.FeatureDescriptor;
 import java.beans.PropertyEditorSupport;
-import java.text.MessageFormat;
 import java.text.ParseException;
-import javax.swing.border.EmptyBorder;
-import org.netbeans.modules.tasklist.usertasks.DurationPanel;
 import org.netbeans.modules.tasklist.usertasks.options.Settings;
 import org.netbeans.modules.tasklist.usertasks.model.Duration;
 import org.netbeans.modules.tasklist.usertasks.util.DurationFormat;
-import org.openide.explorer.propertysheet.ExPropertyEditor;
 import org.openide.explorer.propertysheet.PropertyEnv;
-import org.openide.nodes.Node;
-import org.openide.util.NbBundle;
 
 /**
  * PropertyEditor for duration in minutes.
@@ -40,7 +32,6 @@ import org.openide.util.NbBundle;
  * @author tl
  */
 public class DurationPropertyEditor extends PropertyEditorSupport {
-    /* see http://www.netbeans.org/issues/show_bug.cgi?id=87729
      private static final int[] DURATIONS = new int[] {
         0,
         5,
@@ -63,9 +54,10 @@ public class DurationPropertyEditor extends PropertyEditorSupport {
         8 * 60 * 2
     };
     private static String[] TAGS;
-     */
+     
     private static final DurationFormat FORMAT = new DurationFormat(
             DurationFormat.Type.SHORT);
+    private DurationFormat LONG = new DurationFormat(DurationFormat.Type.LONG);
 
     public String getAsText() {
         Integer value = (Integer) getValue();
@@ -78,50 +70,36 @@ public class DurationPropertyEditor extends PropertyEditorSupport {
     }
 
     public void setAsText(String text) throws IllegalArgumentException {
+        Duration d = null;
         try {
-            Duration d = FORMAT.parse(text);
-            setValue(new Integer(d.toMinutes(
-                    Settings.getDefault().getMinutesPerDay(), 
-                    Settings.getDefault().getDaysPerWeek(), true)));
+            d = FORMAT.parse(text);
         } catch (ParseException ex) {
-            throw new IllegalArgumentException(ex);
+            try {
+                d = LONG.parse(text);
+            } catch (ParseException e) {
+                throw new IllegalArgumentException(e);
+            }
         }
+        
+        setValue(new Integer(d.toMinutes(
+                Settings.getDefault().getMinutesPerDay(), 
+                Settings.getDefault().getDaysPerWeek(), true)));
     }
 
-    /* this may be used later if we have better editor for durations
-    public boolean supportsCustomEditor () {
-        return true;
-    }
-
-    public Component getCustomEditor() {
-        int duration = ((Integer) getValue()).intValue();
-	DurationPanel dp = new DurationPanel();
-        dp.setPropertyEditor(this);
-        dp.setBorder(new EmptyBorder(11, 11, 12, 12));
-        if (!editable)
-            dp.setEnabled(false);
-        return dp;
+    public void attachEnv(PropertyEnv env) {        
+        env.getFeatureDescriptor().setValue( "canEditAsText", Boolean.TRUE );
     }
     
-    public void attachEnv(PropertyEnv env) {        
-        FeatureDescriptor desc = env.getFeatureDescriptor();
-        if (desc instanceof Node.Property){
-            Node.Property prop = (Node.Property)desc;
-            editable = prop.canWrite();
-        }
-    }
-    */
-
-    /* see http://www.netbeans.org/issues/show_bug.cgi?id=87729
-     public String[] getTags() {
+    public String[] getTags() {
         if (TAGS == null) {
-            int hpd = Settings.getDefault().getHoursPerDay(); 
+            int mpd = Settings.getDefault().getMinutesPerDay(); 
             int dpw = Settings.getDefault().getDaysPerWeek();
             TAGS = new String[DURATIONS.length];
             for (int i = 0; i < TAGS.length; i++) {
-                TAGS[i] = FORMAT.format(new Duration(DURATIONS[i], hpd, dpw));
+                TAGS[i] = FORMAT.format(new Duration(
+                        DURATIONS[i], mpd, dpw, false));
             }
         }
         return TAGS;
-    }*/
+    }
 }

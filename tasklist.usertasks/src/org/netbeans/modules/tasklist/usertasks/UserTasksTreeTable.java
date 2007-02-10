@@ -22,18 +22,26 @@ package org.netbeans.modules.tasklist.usertasks;
 import com.toedter.calendar.JDateChooserCellEditor;
 import java.awt.Graphics;
 import java.awt.Point;
+import java.awt.datatransfer.DataFlavor;
+import java.awt.datatransfer.StringSelection;
+import java.awt.datatransfer.Transferable;
+import java.awt.dnd.DropTarget;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Iterator;
 import java.util.List;
 import javax.swing.Action;
 import javax.swing.ImageIcon;
+import javax.swing.JComponent;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.ListSelectionModel;
 import javax.swing.SwingUtilities;
+import javax.swing.TransferHandler;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.TableColumnModel;
@@ -65,6 +73,8 @@ import org.openide.awt.MouseUtils;
 import org.openide.nodes.Node;
 import org.netbeans.modules.tasklist.usertasks.model.UserTask;
 import org.netbeans.modules.tasklist.usertasks.model.UserTaskList;
+import org.netbeans.modules.tasklist.usertasks.model.UserTaskObjectList;
+import org.netbeans.modules.tasklist.usertasks.options.Settings;
 import org.netbeans.modules.tasklist.usertasks.renderers.CategoryTableCellRenderer;
 import org.netbeans.modules.tasklist.usertasks.renderers.DateTableCellRenderer;
 import org.netbeans.modules.tasklist.usertasks.renderers.DoneTreeTableCellRenderer;
@@ -195,8 +205,10 @@ public class UserTasksTreeTable extends TreeTable {
         });
         
         setColumnsConfig(createDefaultColumnsConfig());
+        
         TreeTableDragGestureRecognizer.enableDnD(this);
         setTransferHandler(new MyTransferHandler());
+        setAutoscrolls(true);
     }
 
     @Override
@@ -429,11 +441,11 @@ public class UserTasksTreeTable extends TreeTable {
         return result;
     }
 
-    /* DEBUG
+    /* DEBUG*/
     public void paint(Graphics g) {
         super.paint(g); 
     }
-     */
+     /* */
 }
 
 

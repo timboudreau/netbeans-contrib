@@ -81,12 +81,6 @@ public class HistoryTextExportFormat implements ExportImportFormat {
         return NbBundle.getMessage(HistoryTextExportFormat.class, key);
     }
     
-    /**
-     * Creates a new instance.
-     */
-    public HistoryTextExportFormat() {
-    }
-
     public String getName() {
         return loc("SpentTimes"); // NOI18N
     }
@@ -246,20 +240,13 @@ public class HistoryTextExportFormat implements ExportImportFormat {
     }
 
     /**
-     * Creates an UTInfo for all open user task lists.
+     * Creates an UTInfo for the current task list.
      *
      * @return UTInfo
      */
     private UserTaskInfo createInfos() {
-        UserTaskInfo all = new UserTaskInfo();
-        
-        UserTaskView[] utv = UserTaskViewRegistry.getInstance().getAll();
-        for (int i = 0; i < utv.length; i++) {
-            UserTaskInfo res = createInfo(utv[i].getUserTaskList());
-            all.children.add(res);
-        }
-        
-        return all;
+        return createInfo(UserTaskViewRegistry.getInstance().getCurrent().
+                getUserTaskList());
     }
     
     /**
@@ -357,7 +344,10 @@ public class HistoryTextExportFormat implements ExportImportFormat {
             td2.setAttribute("class", "data"); // NOI18N
         }
 
-        createTableRow(info, tbody, new int[1], 0);
+        int[] row = new int[1];
+        for (int i = 0; i < info.children.size(); i++) {
+            createTableRow(info.children.get(i), tbody, row, 0);
+        }
 
         UTUtils.appendElement(body, "hr"); // NOI18N
         createFooter(body);
@@ -442,7 +432,7 @@ public class HistoryTextExportFormat implements ExportImportFormat {
         UTUtils.appendText(style, 
                 "tr.even { background-color: #eeeeee }\n"); // NOI18N
         UTUtils.appendText(style,
-                "td.summary { text-align: left }\n"); // NOI18N
+                "td.summary { text-align: left; width: 400px; }\n"); // NOI18N
         UTUtils.appendText(style,
                 "td.data { text-align: center }"); // NOI18N
         return style;

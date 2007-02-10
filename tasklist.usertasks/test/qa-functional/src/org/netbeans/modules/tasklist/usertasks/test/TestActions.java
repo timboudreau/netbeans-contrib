@@ -109,15 +109,15 @@ public class TestActions extends JellyTestCase {
         new EventTool().waitNoEvent(1500);
         
         assertEquals(9, t.getRowCount());
-        assertEquals("D", getSummary(t, 0));
-        assertEquals("E", getSummary(t, 1));
-        assertEquals("F", getSummary(t, 2));
-        assertEquals("G", getSummary(t, 3));
-        assertEquals("C", getSummary(t, 4));
-        assertEquals("A", getSummary(t, 5));
-        assertEquals("B", getSummary(t, 6));
-        assertEquals("H", getSummary(t, 7));
-        assertEquals("I", getSummary(t, 8));
+        assertEquals("H", getSummary(t, 0));
+        assertEquals("I", getSummary(t, 1));
+        assertEquals("D", getSummary(t, 2));
+        assertEquals("E", getSummary(t, 3));
+        assertEquals("F", getSummary(t, 4));
+        assertEquals("G", getSummary(t, 5));
+        assertEquals("C", getSummary(t, 6));
+        assertEquals("A", getSummary(t, 7));
+        assertEquals("B", getSummary(t, 8));
 
         assertEquals(2, getLevel(t, 7));
         assertEquals(3, getLevel(t, 8));

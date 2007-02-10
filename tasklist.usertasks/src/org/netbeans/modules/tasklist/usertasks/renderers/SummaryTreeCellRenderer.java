@@ -58,12 +58,7 @@ public class SummaryTreeCellRenderer extends DefaultTreeCellRenderer {
             normalFont = tree.getFont();
             boldFont = normalFont.deriveFont(Font.BOLD);
         }
-        if (value instanceof UserTaskListTreeTableNode) {
-            icon.setImage(UserTaskIconProvider.getUserTaskListImage());
-            setText(NbBundle.getMessage(SummaryTreeCellRenderer.class, 
-                "TaskList")); // NOI18N
-            setFont(normalFont);
-        } else {
+        if (value instanceof UserTaskTreeTableNode) {
             UserTaskTreeTableNode utl = (UserTaskTreeTableNode) value;
             UserTask ut = utl.getUserTask();
             setFont(ut.isStarted() ? boldFont : normalFont);

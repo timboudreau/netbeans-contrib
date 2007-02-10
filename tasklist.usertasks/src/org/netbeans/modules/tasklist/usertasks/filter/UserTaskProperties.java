@@ -28,7 +28,10 @@ import org.netbeans.modules.tasklist.usertasks.model.UserTask;
 import org.netbeans.modules.tasklist.usertasks.util.UTUtils;
 
 /**
+ * Properties for a UserTask.
+ * 
  * @author unknown 
+ * @author tl
  */
 public class UserTaskProperties extends TaskProperties {
     public static final String PROPID_PRIORITY = "priority"; // NOI18N

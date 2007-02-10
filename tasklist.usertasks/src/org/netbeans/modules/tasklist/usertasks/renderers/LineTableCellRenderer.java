@@ -6,24 +6,14 @@ import javax.swing.table.DefaultTableCellRenderer;
  * Cell renderer for line numbers
  */
 public class LineTableCellRenderer extends DefaultTableCellRenderer {
-    /**
-     * Creates a new instance of LineTableCellRenderer
-     */
-    public LineTableCellRenderer() {
-    }
-    
-    public java.awt.Component getTableCellRendererComponent(
-        javax.swing.JTable table, Object value, boolean isSelected, 
-        boolean hasFocus, int row, int column) {
-        super.getTableCellRendererComponent(
-            table, value, isSelected, hasFocus, row, column);
+    @Override
+    protected void setValue(Object value) {
         if (value == null)
-            return this;
+            return;
         int n = ((Integer) value).intValue();
         if (n == 0)
             setText(""); // NOI18N
         else
             setText(Integer.toString(n));
-        return this;
-    }    
+    }
 }

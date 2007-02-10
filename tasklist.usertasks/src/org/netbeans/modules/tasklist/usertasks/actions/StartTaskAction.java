@@ -60,6 +60,8 @@ public class StartTaskAction extends UTViewAction implements
     public void actionPerformed(ActionEvent e) {
         if (StartedUserTask.getInstance().getStarted() != null)
             StartedUserTask.getInstance().start(null);
+        if (ut.getOwner().trim().length() == 0)
+            ut.setOwner(System.getProperty("user.name"));
         ut.start();
     }
 

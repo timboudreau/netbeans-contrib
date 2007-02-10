@@ -169,8 +169,6 @@ ChangeListener {
                 UTUtils.LOGGER.log(Level.SEVERE, "", e); // NOI18N
             }
 
-            if (UTUtils.LOGGER.isLoggable(Level.FINE))
-                Thread.dumpStack();
             UTUtils.LOGGER.fine("File " + fo + " read in " + // NOI18N
                     (System.currentTimeMillis() - m) + "ms"); // NOI18N
         } finally {
@@ -185,8 +183,6 @@ ChangeListener {
     }
 
     public void stateChanged(ChangeEvent e) {
-        if (UTUtils.LOGGER.isLoggable(Level.FINE))
-            Thread.dumpStack();
         setModified(true);
     }
 }

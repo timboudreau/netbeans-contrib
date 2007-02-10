@@ -19,12 +19,9 @@
 
 package org.netbeans.modules.tasklist.usertasks.renderers;
 
-import java.awt.Component;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-
 import javax.swing.table.DefaultTableCellRenderer;
-import org.netbeans.modules.tasklist.usertasks.DateSelectionPanel;
 
 /**
  * A table cell renderer for the Date class.
@@ -52,12 +49,8 @@ public class DateTableCellRenderer extends DefaultTableCellRenderer {
         }*/
     }
 
-    public Component getTableCellRendererComponent(javax.swing.JTable table, 
-        Object value, boolean isSelected, boolean hasFocus, 
-        int row, int column) {
-        super.getTableCellRendererComponent(table, value, isSelected, hasFocus, 
-            row, column);
-        
+    @Override
+    protected void setValue(Object value) {
         if (value instanceof Date) {
             setText(format.format((Date) value));
         } else if (value instanceof Long) {
@@ -69,6 +62,5 @@ public class DateTableCellRenderer extends DefaultTableCellRenderer {
         } else {
             setText(""); // NOI18N
         }
-        return this;
-    }    
+    }
 }
