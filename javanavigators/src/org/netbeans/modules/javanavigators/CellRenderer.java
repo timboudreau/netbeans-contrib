@@ -20,6 +20,7 @@
 package org.netbeans.modules.javanavigators;
 
 import java.awt.Component;
+import javax.swing.JComponent;
 import javax.swing.JList;
 import javax.swing.ListCellRenderer;
 import org.openide.awt.HtmlRenderer;
@@ -43,6 +44,7 @@ public class CellRenderer implements ListCellRenderer {
         if (arg1 instanceof Description) {
             Description d = (Description) arg1;
             htmlRenderer.setIcon(d.icon);
+            ((JComponent)result).setToolTipText(d.javadoc);
         }
         return result;
     }

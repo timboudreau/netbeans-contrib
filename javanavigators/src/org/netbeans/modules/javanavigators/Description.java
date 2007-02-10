@@ -45,48 +45,35 @@ public class Description {
     long pos;
     Description parent = null;
     Icon icon;
+    String javadoc;
 
     Description( ) {
-        System.err.println("create a description");
     }
 
     @Override
     public boolean equals(Object o) {
 
         if ( o == null ) {
-            //System.out.println("- f nul");
             return false;
         }
 
         if ( !(o instanceof Description)) {
-            // System.out.println("- not a desc");
             return false;
         }
 
         Description d = (Description)o;
 
         if ( kind != d.kind ) {
-            // System.out.println("- kind");
             return false;
         }
 
         if (((name == null) != (d.name == null)) || (name != null && !name.equals(d.name)) ) {
-            // System.out.println("- name");
             return false;
         }
 
         if ( ((elementHandle != null) != (d.elementHandle != null)) || (elementHandle != null && !elementHandle.signatureEquals(d.elementHandle)) ) {
             return false;
         }
-
-        /*
-        if ( !modifiers.equals(d.modifiers)) {
-            // E.println("- modifiers");
-            return false;
-        }
-        */
-
-        // System.out.println("Equals called");            
         return true;
     }
     

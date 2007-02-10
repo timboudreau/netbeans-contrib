@@ -66,7 +66,6 @@ public class ElementScanningTask implements CancellableTask<CompilationInfo>{
     }
     
     public void cancel() {
-        System.err.println("Element task canceled");
         canceled = true;
         if ( scanner != null ) {
             scanner.cancel();
@@ -77,7 +76,6 @@ public class ElementScanningTask implements CancellableTask<CompilationInfo>{
         
         canceled = false; // Task shared for one file needs reset first
         
-        //System.out.println("The task is running" + info.getFileObject().getNameExt() + "=====================================" ) ;
         
         Description rootDescription = new Description( );
         rootDescription.fileObject = info.getFileObject();
@@ -88,7 +86,6 @@ public class ElementScanningTask implements CancellableTask<CompilationInfo>{
         List<? extends Tree> typeDecls = cuTree.getTypeDecls();
         List<Element> elements = new ArrayList<Element>( typeDecls.size() );
         TreePath cuPath = new TreePath( cuTree );
-        System.err.println("task running");
         for( Tree t : typeDecls ) {
             TreePath p = new TreePath( cuPath, t );
             Element e = info.getTrees().getElement( p );
@@ -135,7 +132,6 @@ public class ElementScanningTask implements CancellableTask<CompilationInfo>{
         }
         
         void cancel() {
-            System.err.println("visitor cancelled");
             canceled = true;
         }
         
@@ -156,6 +152,7 @@ public class ElementScanningTask implements CancellableTask<CompilationInfo>{
                 d.pos = getPosition( e );
                 d.htmlHeader = createHtmlHeader( e, 
                         info.getElements().isDeprecated(e) );                
+                d.javadoc = splitUp (info.getElements().getDocComment(e));
                 d.icon = UiUtils.getElementIcon(e.getKind(), e.getModifiers());
                 
                 if ( d.pos == -1 ) {
@@ -180,6 +177,7 @@ public class ElementScanningTask implements CancellableTask<CompilationInfo>{
                 d.pos = getPosition( e );
                 d.htmlHeader = createHtmlHeader( e, info.getElements().isDeprecated(e) ); 
                 d.icon = UiUtils.getElementIcon(e.getKind(), e.getModifiers());
+                d.javadoc = splitUp (info.getElements().getDocComment(e));
                 if ( d.pos == -1 ) {
                     return null;
                 }
@@ -199,6 +197,7 @@ public class ElementScanningTask implements CancellableTask<CompilationInfo>{
                 d.elementHandle = ElementHandle.create(e);
                 d.name = e.getSimpleName().toString();
                 d.pos = getPosition( e );
+                d.javadoc = splitUp (info.getElements().getDocComment(e));
                 if ( d.pos == -1 ) {
                     return null;
                 }
@@ -208,6 +207,11 @@ public class ElementScanningTask implements CancellableTask<CompilationInfo>{
                 p.subs.add(d);            
             }
             return null;
+        }
+        
+        private String splitUp (String s) {
+            return s == null ? null : "<html>" + s.replace("\n\n", "<P>").replace (
+                    "\n", "<br>");
         }
         
         
@@ -236,7 +240,6 @@ public class ElementScanningTask implements CancellableTask<CompilationInfo>{
             
             StringBuilder sb = new StringBuilder();
             if (info.getElementUtilities().overridesMethod(e)) {
-                System.err.println("got one!");
                 sb.append ("<b>");
             }
                         
@@ -345,8 +348,6 @@ public class ElementScanningTask implements CancellableTask<CompilationInfo>{
             // sb.append(print(e.asType()));            
             List<? extends TypeParameterElement> typeParams = e.getTypeParameters();
             
-            //System.out.println("Element " + e + "type params" + typeParams.size() );
-            
             if ( typeParams != null && !typeParams.isEmpty() ) {
                 sb.append("&lt;"); // NOI18N
                 
@@ -361,7 +362,6 @@ public class ElementScanningTask implements CancellableTask<CompilationInfo>{
                         }
                     }
                     catch ( NullPointerException npe ) {
-                        System.err.println("El " + e );
                         npe.printStackTrace();
                     }                    
                     if ( it.hasNext() ) {

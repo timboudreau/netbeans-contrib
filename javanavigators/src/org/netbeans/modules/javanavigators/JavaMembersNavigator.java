@@ -19,7 +19,9 @@
 package org.netbeans.modules.javanavigators;
 
 import java.awt.BorderLayout;
+import java.awt.Container;
 import java.awt.Point;
+import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
@@ -103,7 +105,7 @@ public class JavaMembersNavigator implements NavigatorPanel {
         JPanel result = new Pnl();
         Border empty = BorderFactory.createEmptyBorder();
         result.setLayout (new BorderLayout());
-        JList list = new JList();
+        JList list = new OffsetTooltipJList();
         JScrollPane scroll = new JScrollPane (list);
         list.setBorder (empty);
         scroll.setBorder (empty);
@@ -188,6 +190,31 @@ public class JavaMembersNavigator implements NavigatorPanel {
                 e.getActionCommand()) ?
                 Description.ALPHA_COMPARATOR : Description.POSITION_COMPARATOR;
             m.setComparator (c);
+        }
+    }
+    
+    private static final class OffsetTooltipJList extends JList {
+        public Point getToolTipLocation(MouseEvent e) {
+            Point result = super.getToolTipLocation(e);
+            if (result == null) {
+                result = e.getPoint();
+            }
+            Rectangle r = getBounds();
+            Container c = getTopLevelAncestor();
+            if (c != null) {
+                r = SwingUtilities.convertRectangle(this, r, c);
+                int cw = c.getWidth();
+                int availRight = r.x;
+                int availLeft = cw - (r.x + r.width);
+                if (availRight > availLeft) {
+                    result.x += r.width - result.x;
+                } else {
+                    //FIXME: Really need to compute rectangle needed for
+                    //tooltip here
+                    result.x -= r.width;
+                }
+            }
+            return result;
         }
     }
 }

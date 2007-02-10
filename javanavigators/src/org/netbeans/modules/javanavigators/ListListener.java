@@ -62,7 +62,6 @@ class ListListener implements ListSelectionListener {
     private void open (Description d) {
         assert d.fileObject != null;
         assert d.elementHandle != null;
-        System.err.println("Open " + d);
         UiUtils.open (d.fileObject, d.elementHandle);
         try {
         DataObject dob = DataObject.find (d.fileObject);

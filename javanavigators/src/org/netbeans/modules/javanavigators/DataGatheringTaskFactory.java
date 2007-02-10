@@ -46,13 +46,11 @@ public class DataGatheringTaskFactory extends LookupBasedJavaSourceTaskFactory {
     
     volatile boolean active = false;
     void activate() {
-        System.err.println("activated");
         active = true;
         setLookup (Utilities.actionsGlobalContext());
     }
     
     void deactivate() {
-        System.err.println("deactivated");
         active = false;
         setLookup (Lookup.EMPTY);
         model.setContents(Collections.<Description>emptyList(), true);
