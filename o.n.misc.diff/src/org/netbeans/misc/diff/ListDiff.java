@@ -32,45 +32,27 @@ import java.util.*;
  *
  * @author Tim Boudreau
  */
-public final class ListDiff implements Diff {
-    private final List old;
-    private final List nue;
-    private List changes = null;
+final class ListDiff <T> extends Diff <T> {
+    private final List <T> old;
+    private final List <T> nue;
+    List <Change> changes = null;
 
-    /**
-     * Create a diff of two lists
-     */
-    public static Diff createDiff (List old, List nue) {
-        return new ListDiff ( old, nue );
-    }
-
-    /**
-     * Create a diff of two lists with the specified contents.  Principally useful to indicate a change in a list where
-     * the equality of the objects has not changed, but some property of some objects in the list has.
-     */
-    public static Diff createFixed (List old, List nue, List changes) {
-        assert old != null && nue != null && changes != null;
-        ListDiff result = new ListDiff ( old, nue );
-        result.changes = changes;
-        return result;
-    }
-
-    private ListDiff (List old, List nue) {
+    ListDiff (List <T> old, List <T> nue) {
         this.old = old;
         this.nue = nue;
     }
 
-    public List getOld () {
+    public List <T> getOld () {
         return old;
     }
 
-    public List getNew () {
+    public List <T> getNew () {
         return nue;
     }
 
-    public List getChanges () {
+    public List <Change> getChanges () {
         if ( changes == null ) {
-            changes = new ParallelIterator ( old, nue ).getChanges ();
+            changes = new ParallelIterator <T> ( old, nue ).getChanges ();
         }
         return changes;
     }

@@ -32,43 +32,43 @@ import java.util.*;
  *
  * @author Tim Boudreau
  */
-final class ParallelIterator {
+final class ParallelIterator <T extends Object> {
     /**
      * The original list
      */
-    private final List old;
+    private final List <T> old;
     /**
      * The modified list
      */
-    private final List nue;
+    private final List <T> nue;
     /**
      * The iterator of the original list
      */
-    private Iterator oi;
+    private Iterator <T> oi;
     /**
      * The iterator of the new list
      */
-    private Iterator ni;
+    private Iterator <T> ni;
     /**
      * A HashSet of the old list's contents for fast containment checks
      */
-    private Set h_old = null;
+    private Set <T> h_old = null;
     /**
      * A HashSet of the new list's contents for fast containment checks
      */
-    private Set h_new = null;
+    private Set <T> h_new = null;
     /**
      * The list of changes
      */
-    private final List changes = new ArrayList ( 5 );
+    private final List <Change> changes = new ArrayList <Change> ( 5 );
     /**
      * Most recently read item from the old array
      */
-    private Object lastOld;
+    private T lastOld;
     /**
      * Most recently read item from the new array
      */
-    private Object lastNue;
+    private T lastNue;
     /**
      * Flag used to determine if we're processing the final old item
      */
@@ -92,7 +92,7 @@ final class ParallelIterator {
     private ListDiffChange currChange = null;
 
 
-    ParallelIterator (List old, List nue) {
+    ParallelIterator (List <T> old, List <T> nue) {
         this.old = old;
         this.nue = nue;
         oi = old.iterator ();
@@ -151,7 +151,7 @@ final class ParallelIterator {
      * Called when an item has been processed with that item.  Will fetch the next item into lastOld/lastNew or null it
      * out if done.
      */
-    private void handled (Object o, List src) {
+    private void handled (T o, List <T> src) {
         if ( src == old ) {
             lastOld = null;
             if ( oi.hasNext () ) {
@@ -259,8 +259,8 @@ final class ParallelIterator {
      */
     private void ensureSets () {
         if ( h_old == null ) {
-            h_old = new HashSet ( old );
-            h_new = new HashSet ( nue );
+            h_old = new HashSet <T> ( old );
+            h_new = new HashSet <T> ( nue );
             if ( h_old.size () != old.size () ) {
                 throw new IllegalStateException ( "Duplicate elements - " +
                         "size of list does not match size of equivalent " +
@@ -279,10 +279,10 @@ final class ParallelIterator {
      * If there are duplicate elements either the list, an exception will be thrown.  Get a diagnostic string saying
      * what was duplicated, for debugging.
      */
-    private String identifyDuplicates (List l) {
-        HashMap map = new HashMap ();
-        for ( Iterator i = l.iterator (); i.hasNext (); ) {
-            Object o = i.next ();
+    private String identifyDuplicates (List <T> l) {
+        HashMap <T, Integer> map = new HashMap <T, Integer> ();
+        for ( Iterator <T> i = l.iterator (); i.hasNext (); ) {
+            T o = i.next ();
             Integer count = (Integer) map.get ( o );
             if ( count == null ) {
                 count = new Integer ( 1 );
@@ -292,8 +292,8 @@ final class ParallelIterator {
             map.put ( o, count );
         }
         StringBuffer sb = new StringBuffer ( "Duplicates: " ); //NOI18N
-        for ( Iterator i = map.keySet ().iterator (); i.hasNext (); ) {
-            Object key = i.next ();
+        for ( Iterator <T> i = map.keySet ().iterator (); i.hasNext (); ) {
+            T key = i.next ();
             Integer ct = (Integer) map.get ( key );
             if ( ct.intValue () > 1 ) {
                 sb.append ( "[" + ct.intValue () + //NOI18N
@@ -331,7 +331,7 @@ final class ParallelIterator {
     /**
      * Get the list of changes
      */
-    List getChanges () {
+    List <Change> getChanges () {
         if ( oi != null ) go ();
         return changes;
     }

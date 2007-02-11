@@ -24,22 +24,26 @@ import java.util.List;
  *
  * @author Tim Boudreau
  */
-public final class SimpleDiff implements Diff {
-    private List old;
-    private List nue;
-    private List changes;
+public final class SimpleDiff <T> extends Diff <T> {
+    private List <T> old;
+    private List <T> nue;
+    private List <Change> changes;
     public SimpleDiff() {
         //do nothing
     }
     
     /** Create a diff with initial lists */
-    public SimpleDiff (List old, List nue) {
+    public SimpleDiff (List <T> old, List <T> nue) {
         this.old = old;
         this.nue = nue;
     }
     
+    public SimpleDiff (List <T> list) {
+        this (list, list);
+    }
+    
     /** Create a diff with initial lists and a single change */
-    public SimpleDiff (List old, List nue, int start, int end, int type) {
+    public SimpleDiff (List <T> old, List <T> nue, int start, int end, int type) {
         this (old, nue);
         add (start, end, type);
     }
@@ -51,26 +55,26 @@ public final class SimpleDiff implements Diff {
     
     /** Set the pre-change list's contents.  This method will not copy 
      * the list */
-    public void setOld (List old) {
+    public void setOld (List <T> old) {
         setOld (old, false);
     }
     
     /** Set the post-change lists's contents.  This method will not copy the
      * list */
-    public void setNew (List nue) {
+    public void setNew (List <T> nue) {
         setNew (old, false);
     }
     
     /** Set the pre-change list's contents.  If the copy argument is true,
      * a copy of the passed in list, not the original, will be saved */
-    public void setOld (List old, boolean copy) {
-        this.old = copy ? new ArrayList (old) : old;
+    public void setOld (List <T> old, boolean copy) {
+        this.old = copy ? new ArrayList <T> (old) : old;
     }
     
     /** Set the pre-change list's contents.  If the copy argument is true,
      * a copy of the passed in list, not the original, will be saved */
-    public void setNew (List nue, boolean copy) {
-        this.nue= copy ? new ArrayList (nue) : nue;
+    public void setNew (List <T> nue, boolean copy) {
+        this.nue= copy ? new ArrayList <T> (nue) : nue;
     }
 
     /**
@@ -87,15 +91,15 @@ public final class SimpleDiff implements Diff {
         changes.add (new C (change));
     }
 
-    public List getChanges() {
-        return Collections.unmodifiableList(changes);
+    public List <Change> getChanges() {
+        return Collections.<Change>unmodifiableList(changes);
     }
 
-    public List getOld() {
+    public List <T> getOld() {
         return old;
     }
 
-    public List getNew() {
+    public List <T> getNew() {
         return nue;
     }
     

@@ -27,7 +27,7 @@ import javax.swing.event.*;
  * @author Tim Boudreau
  * @see Diff
  */
-public final class ListDiffChange implements Change {
+final class ListDiffChange implements Change {
 
     private final int type;
     private final int start;
