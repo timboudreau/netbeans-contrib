@@ -26,7 +26,6 @@ import javax.swing.event.ListDataListener;
 import javax.swing.event.ListDataListener;
 import org.netbeans.misc.diff.Change;
 import org.netbeans.misc.diff.Diff;
-import org.netbeans.misc.diff.ListDiff;
 
 /**
  * A thread-safe ListModel which is backed by a typed java.util.List.  To change
@@ -65,7 +64,7 @@ public final class AsynchListModel <T extends Object> implements GenerifiedListM
             List <T> nue = new ArrayList <T> (contents);
             if (comparator != null) {
                 Collections.sort (nue, comparator);
-                Diff diff = ListDiff.createDiff(contents, nue);
+                Diff <T> diff = Diff.<T>create(contents, nue);
                 updateOnEventQueue (diff);
             }
         }
@@ -92,15 +91,13 @@ public final class AsynchListModel <T extends Object> implements GenerifiedListM
      * on the event thread.
      */
     public void setContents (final List <T> nue, boolean replace) {
-        System.err.println("setContents " + nue + " lcount " + listeners.size());
         if (this.contents.isEmpty() != nue.isEmpty()) {
             replace = true;
         }
         if (!replace) {
             //XXX check if defensive copy of contents is really needed.
-            Diff diff = ListDiff.createDiff (this.contents, 
+            Diff <T> diff = Diff.<T>create (this.contents, 
                     nue);
-            System.err.println("DIFF: " + diff);
             updateOnEventQueue (diff);
         } else {
             Runnable r = new Runnable() {
@@ -149,17 +146,17 @@ public final class AsynchListModel <T extends Object> implements GenerifiedListM
         return !listeners.isEmpty();
     }
     
-    public void fire (Diff diff) {
+    public void fire (Diff <T> diff) {
         updateOnEventQueue (diff);
     }
     
-    private void updateOnEventQueue (Diff diff) {
+    private void updateOnEventQueue (Diff <T> diff) {
         EventQueue.invokeLater (new Firer(diff));
     }
     
     private final class Firer implements Runnable {
-        private final Diff diff;
-        Firer (Diff diff) {
+        private final Diff <T> diff;
+        Firer (Diff <T> diff) {
             this.diff = diff;
         }
         

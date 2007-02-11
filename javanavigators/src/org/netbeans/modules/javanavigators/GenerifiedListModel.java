@@ -54,5 +54,5 @@ public interface GenerifiedListModel <T> extends ListModel {
     
     public void setContents (List <T> list, boolean replace);
     
-    public void fire (Diff diff);
+    public void fire (Diff <T> diff);
 }
