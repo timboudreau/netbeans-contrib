@@ -73,8 +73,9 @@ public class MyTransferHandler extends TransferHandler {
         try {
             if (t.isDataFlavorSupported(UserTasksTransferable.
                     USER_TASKS_FLAVOR)) {
-                tasks = (UserTask[]) t.getTransferData(
+                ArrayList list = (ArrayList) t.getTransferData(
                         UserTasksTransferable.USER_TASKS_FLAVOR);
+                tasks = (UserTask[]) list.toArray(new UserTask[list.size()]);
                 for (int i = 0; i < tasks.length; i++) {
                     tasks[i] = tasks[i].cloneTask();
                 }
@@ -214,7 +215,7 @@ public class MyTransferHandler extends TransferHandler {
         Iterator<UserTask> it = tasks_.iterator();
         while (it.hasNext()) {
             UserTask ut = it.next();
-            if (list.identityIndexOf(ut) >= 0) {
+            if (UTUtils.identityIndexOf(list, ut) >= 0) {
                 it.remove();
             }
         }
@@ -249,7 +250,7 @@ public class MyTransferHandler extends TransferHandler {
     }
 
     protected void exportDone(JComponent source, Transferable data, int action) {
-        /*if (action == MOVE && transferredTasks != null) {
+        if (action == MOVE && transferredTasks != null) {
             UserTasksTreeTable tt = (UserTasksTreeTable) source;
             
             // TODO: any delete in the tree leads to
@@ -266,7 +267,7 @@ public class MyTransferHandler extends TransferHandler {
             }
             
             tt.select(sel);
-        }*/
+        }
         transferredTasks = null;
     }
 

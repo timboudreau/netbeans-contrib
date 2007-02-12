@@ -6,15 +6,30 @@ UID:nb1145554971896.272@timpc/127.0.0.1
 CREATED:20060420T174251Z
 SUMMARY:NetBeans 6.0+ (1.30.?????)
 PERCENT-COMPLETE:1
-X-NETBEANS-EFFORT:10570
+X-NETBEANS-EFFORT:10690
 X-NETBEANS-SPENT-TIME:315
-LAST-MODIFIED:20070210T115959Z
+LAST-MODIFIED:20070212T191141Z
 X-NETBEANS-PROGRESS-COMPUTED:yes
 X-NETBEANS-EFFORT-COMPUTED:yes
 X-NETBEANS-SPENT-TIME-COMPUTED:yes
 COMPLETED:20060428T145235Z
 DTSTAMP:20060420T174251Z
 X-NETBEANS-VALUES-COMPUTED:yes
+END:VTODO
+BEGIN:VTODO
+DTSTAMP:20070211T202146Z
+UID:nb1171225306778.462@timpc2/127.0.0.1
+CREATED:20070211T202146Z
+SUMMARY:http://www.manageability.org/blog/stuff/open-source-project-task-
+ management-java/view
+PERCENT-COMPLETE:0
+X-NETBEANS-EFFORT:60
+X-NETBEANS-SPENT-TIME:0
+LAST-MODIFIED:20070211T202153Z
+URL:http://www.manageability.org/blog/stuff/open-source-project-task-mana
+ gement-java/view
+X-NETBEANS-LINE:1
+RELATED-TO:nb1145554971896.272@timpc/127.0.0.1
 END:VTODO
 BEGIN:VTODO
 DTSTAMP:20070210T103301Z
@@ -461,10 +476,10 @@ DTSTAMP:20061114T205131Z
 UID:nb1163537491604.289@timpc2/127.0.0.1
 CREATED:20061114T205131Z
 SUMMARY:Compare to similar software
-PERCENT-COMPLETE:9
-X-NETBEANS-EFFORT:1440
+PERCENT-COMPLETE:8
+X-NETBEANS-EFFORT:1500
 X-NETBEANS-SPENT-TIME:24
-LAST-MODIFIED:20070208T183544Z
+LAST-MODIFIED:20070212T191141Z
 RELATED-TO:nb1145554971896.272@timpc/127.0.0.1
 X-NETBEANS-PROGRESS-COMPUTED:yes
 X-NETBEANS-EFFORT-COMPUTED:yes
@@ -705,10 +720,25 @@ X-NETBEANS-VALUES-COMPUTED:yes
 X-NETBEANS-PROGRESS-COMPUTED:yes
 X-NETBEANS-EFFORT-COMPUTED:yes
 X-NETBEANS-SPENT-TIME-COMPUTED:yes
-X-NETBEANS-EFFORT:780
+X-NETBEANS-EFFORT:840
 X-NETBEANS-SPENT-TIME:0
-LAST-MODIFIED:20070206T184105Z
+LAST-MODIFIED:20070212T191141Z
 RELATED-TO:nb1163537491604.289@timpc2/127.0.0.1
+END:VTODO
+BEGIN:VTODO
+DTSTAMP:20070212T191136Z
+UID:nb1171307496120.466@timpc2/127.0.0.1
+CREATED:20070212T191136Z
+SUMMARY:http://www.freedownloadscenter.com/Business/Project_Management/A_
+ VIP_Task_Manager_Standard_Edition.html
+PERCENT-COMPLETE:0
+X-NETBEANS-EFFORT:60
+X-NETBEANS-SPENT-TIME:0
+LAST-MODIFIED:20070212T191141Z
+URL:http://www.freedownloadscenter.com/Business/Project_Management/A_VIP_
+ Task_Manager_Standard_Edition.html
+X-NETBEANS-LINE:18
+RELATED-TO:nb1170784227818.440@timpc2/127.0.0.1
 END:VTODO
 BEGIN:VTODO
 DTSTAMP:20061123T205805Z
@@ -1240,9 +1270,9 @@ UID:nb1137857799682.30@timpc/127.0.0.1
 CREATED:20060121T153639Z
 SUMMARY:NetBeans 6.0/promo-H (1.29.?????) Beta in May 2007
 PERCENT-COMPLETE:94
-X-NETBEANS-EFFORT:16470
-X-NETBEANS-SPENT-TIME:12220
-LAST-MODIFIED:20070210T165658Z
+X-NETBEANS-EFFORT:16650
+X-NETBEANS-SPENT-TIME:12832
+LAST-MODIFIED:20070212T201216Z
 X-NETBEANS-PROGRESS-COMPUTED:yes
 X-NETBEANS-EFFORT-COMPUTED:yes
 X-NETBEANS-SPENT-TIME-COMPUTED:yes
@@ -1264,8 +1294,9 @@ X-NETBEANS-EFFORT-COMPUTED:yes
 X-NETBEANS-SPENT-TIME-COMPUTED:yes
 X-NETBEANS-EFFORT:60
 X-NETBEANS-SPENT-TIME:195
-LAST-MODIFIED:20070210T160450Z
+LAST-MODIFIED:20070212T191057Z
 RELATED-TO:nb1137857799682.30@timpc/127.0.0.1
+CATEGORIES:feature
 END:VTODO
 BEGIN:VTODO
 DTSTAMP:20061219T175813Z
@@ -1317,6 +1348,7 @@ X-NETBEANS-SPENT-TIME:688
 LAST-MODIFIED:20070210T155237Z
 RELATED-TO:nb1137857799682.30@timpc/127.0.0.1
 CATEGORIES:bugfix
+COMPLETED:20070210T170822Z
 END:VTODO
 BEGIN:VTODO
 DTSTAMP:20061225T145454Z
@@ -1974,9 +2006,9 @@ UID:nb1145736734171.295@timpc/127.0.0.1
 CREATED:20060422T201214Z
 SUMMARY:Since last commit
 PERCENT-COMPLETE:100
-X-NETBEANS-EFFORT:315
-X-NETBEANS-SPENT-TIME:308
-LAST-MODIFIED:20070210T160455Z
+X-NETBEANS-EFFORT:180
+X-NETBEANS-SPENT-TIME:46
+LAST-MODIFIED:20070212T201216Z
 RELATED-TO:nb1137857799682.30@timpc/127.0.0.1
 X-NETBEANS-PROGRESS-COMPUTED:yes
 X-NETBEANS-EFFORT-COMPUTED:yes
@@ -1984,131 +2016,164 @@ X-NETBEANS-SPENT-TIME-COMPUTED:yes
 DTSTAMP:20060422T201214Z
 X-NETBEANS-VALUES-COMPUTED:yes
 CATEGORIES:feature
+COMPLETED:20070210T170822Z
 END:VTODO
 BEGIN:VTODO
-DTSTAMP:20070203T153217Z
-UID:nb1170516737739.479@timpc2/127.0.0.1
-CREATED:20070203T153217Z
-SUMMARY:Support for dropping URLs from Firefox
+DTSTAMP:20070212T191048Z
+UID:nb1171311136987.475@timpc2/127.0.0.1
+CREATED:20070212T191048Z
+SUMMARY:drag&Drop always copy tasks on windows & 1.6
 PERCENT-COMPLETE:100
-X-NETBEANS-EFFORT:20
-X-NETBEANS-SPENT-TIME:36
-LAST-MODIFIED:20070203T160855Z
-RELATED-TO:nb1145736734171.295@timpc/127.0.0.1
-COMPLETED:20070203T160855Z
-X-NETBEANS-WORK-PERIOD;X-NETBEANS-START=20070203T163240Z:36
-END:VTODO
-BEGIN:VTODO
-DTSTAMP:20070203T105458Z
-UID:nb1170500098199.474@timpc2/127.0.0.1
-CREATED:20070203T105458Z
-SUMMARY:Owner is not filled if a task is started
-PERCENT-COMPLETE:100
-X-NETBEANS-EFFORT:5
+X-NETBEANS-EFFORT:60
 X-NETBEANS-SPENT-TIME:0
 CATEGORIES:bugfix
-LAST-MODIFIED:20070203T105526Z
-COMPLETED:20070203T105526Z
+LAST-MODIFIED:20070212T201205Z
+COMPLETED:20070212T201205Z
 RELATED-TO:nb1145736734171.295@timpc/127.0.0.1
 END:VTODO
 BEGIN:VTODO
-DTSTAMP:20070203T104858Z
-UID:nb1170499738898.473@timpc2/127.0.0.1
-CREATED:20070203T104858Z
-SUMMARY:Use the "Append instead of prepend" option for pasting
-PERCENT-COMPLETE:100
-X-NETBEANS-EFFORT:15
-X-NETBEANS-SPENT-TIME:2
-LAST-MODIFIED:20070203T105238Z
-RELATED-TO:nb1145736734171.295@timpc/127.0.0.1
-CATEGORIES:feature
-COMPLETED:20070203T105238Z
-X-NETBEANS-WORK-PERIOD;X-NETBEANS-START=20070203T114925Z:2
-END:VTODO
-BEGIN:VTODO
-DTSTAMP:20070203T103532Z
-UID:nb1170498932165.469@timpc2/127.0.0.1
-CREATED:20070203T103532Z
-SUMMARY:Shortcut for "Add Another"
-PERCENT-COMPLETE:100
-X-NETBEANS-EFFORT:15
-X-NETBEANS-SPENT-TIME:2
-LAST-MODIFIED:20070203T103816Z
-RELATED-TO:nb1145736734171.295@timpc/127.0.0.1
-CATEGORIES:feature
-COMPLETED:20070203T103816Z
-X-NETBEANS-WORK-PERIOD;X-NETBEANS-START=20070203T113553Z:2
-END:VTODO
-BEGIN:VTODO
-DTSTAMP:20070203T101340Z
-UID:nb1170497620751.423@timpc2/127.0.0.1
-CREATED:20070203T101340Z
-SUMMARY:Filter for dates should always return false if the date is undefi
- ned
-PERCENT-COMPLETE:100
-X-NETBEANS-EFFORT:20
-X-NETBEANS-SPENT-TIME:0
-LAST-MODIFIED:20070203T103715Z
-RELATED-TO:nb1145736734171.295@timpc/127.0.0.1
-COMPLETED:20070203T101731Z
-CATEGORIES:feature
-END:VTODO
-BEGIN:VTODO
-DTSTAMP:20070130T075441Z
-UID:nb1170144836467.408@timpc2/127.0.0.1
-CREATED:20070130T075441Z
-SUMMARY:Export spent times only for the current task list
-PERCENT-COMPLETE:100
-X-NETBEANS-EFFORT:60
-X-NETBEANS-SPENT-TIME:18
-CATEGORIES:feature
-LAST-MODIFIED:20070130T081356Z
-COMPLETED:20070130T081351Z
-RELATED-TO:nb1145736734171.295@timpc/127.0.0.1
-X-NETBEANS-WORK-PERIOD;X-NETBEANS-START=20070130T085455Z:18
-END:VTODO
-BEGIN:VTODO
-DTSTAMP:20070130T110934Z
-UID:nb1170515320773.478@timpc2/127.0.0.1
-CREATED:20070130T110934Z
-SUMMARY:Improve duration parsing in the property sheet
-PERCENT-COMPLETE:100
-X-NETBEANS-EFFORT:60
-X-NETBEANS-SPENT-TIME:9
-LAST-MODIFIED:20070203T182734Z
-RELATED-TO:nb1145736734171.295@timpc/127.0.0.1
-COMPLETED:20070203T151756Z
-CATEGORIES:feature
-X-NETBEANS-WORK-PERIOD;X-NETBEANS-START=20070203T160842Z:9
-END:VTODO
-BEGIN:VTODO
-DTSTAMP:20070123T223758Z
-UID:nb1171047642828.452@timpc2/127.0.0.1
-CREATED:20070123T223758Z
-SUMMARY:Open/close a node using keyboard
+DTSTAMP:20070212T191024Z
+UID:nb1171311136987.476@timpc2/127.0.0.1
+CREATED:20070212T191024Z
+SUMMARY:AssertionError if time is set to a past value
+DESCRIPTION:java.lang.AssertionError\n            at org.netbeans.modules
+ .tasklist.usertasks.model.UserTask.setSpentTime(UserTask.java:668)\n    
+         at org.netbeans.modules.tasklist.usertasks.model.StartedUserTask
+ .updateSpentTime(StartedUserTask.java:243)\n            at org.netbeans.
+ modules.tasklist.usertasks.model.StartedUserTask.start(StartedUserTask.j
+ ava:186)\n            at org.netbeans.modules.tasklist.usertasks.model.U
+ serTask.stop(UserTask.java:763)\n            at org.netbeans.modules.tas
+ klist.usertasks.model.UserTask.setProgress(UserTask.java:1013)\n        
+     at org.netbeans.modules.tasklist.usertasks.model.UserTask.setPercent
+ Complete(UserTask.java:996)\n            at org.netbeans.modules.tasklis
+ t.usertasks.model.UserTask.setDone(UserTask.java:918)\n            at or
+ g.netbeans.modules.tasklist.usertasks.UserTaskTreeTableNode.setValueAt(U
+ serTaskTreeTableNode.java:196)\n            at org.netbeans.modules.task
+ list.usertasks.treetable.DefaultTreeTableModel.setValueAt(DefaultTreeTab
+ leModel.java:96)\n            at org.netbeans.modules.tasklist.usertasks
+ .treetable.TreeTableModelAdapter.setValueAt(TreeTableModelAdapter.java:1
+ 80)\n            at javax.swing.JTable.setValueAt(JTable.java:2676)\n   
+          at javax.swing.JTable.editingStopped(JTable.java:4675)\n       
+      at javax.swing.AbstractCellEditor.fireEditingStopped(AbstractCellEd
+ itor.java:125)\n            at javax.swing.DefaultCellEditor$EditorDeleg
+ ate.stopCellEditing(DefaultCellEditor.java:330)\n            at javax.sw
+ ing.DefaultCellEditor.stopCellEditing(DefaultCellEditor.java:215)\n     
+        at javax.swing.DefaultCellEditor$EditorDelegate.actionPerformed(D
+ efaultCellEditor.java:347)\n            at javax.swing.AbstractButton.fi
+ reActionPerformed(AbstractButton.java:1995)\n            at javax.swing.
+ AbstractButton$Handler.actionPerformed(AbstractButton.java:2318)\n      
+       at javax.swing.DefaultButtonModel.fireActionPerformed(DefaultButto
+ nModel.java:387)\n            at javax.swing.JToggleButton$ToggleButtonM
+ odel.setPressed(JToggleButton.java:291)\n            at javax.swing.plaf
+ .basic.BasicButtonListener.mouseReleased(BasicButtonListener.java:236)\n
+             at java.awt.Component.processMouseEvent(Component.java:6038)
+ \n            at javax.swing.JComponent.processMouseEvent(JComponent.jav
+ a:3260)\n            at java.awt.Component.processEvent(Component.java:5
+ 803)\n            at java.awt.Container.processEvent(Container.java:2058
+ )\n            at java.awt.Component.dispatchEventImpl(Component.java:44
+ 10)\n            at java.awt.Container.dispatchEventImpl(Container.java:
+ 2116)\n            at java.awt.Component.dispatchEvent(Component.java:42
+ 40)\n            at javax.swing.plaf.basic.BasicTableUI$Handler.repostEv
+ ent(BasicTableUI.java:924)\n            at javax.swing.plaf.basic.BasicT
+ ableUI$Handler.mouseReleased(BasicTableUI.java:1138)\n            at jav
+ a.awt.AWTEventMulticaster.mouseReleased(AWTEventMulticaster.java:273)\n 
+            at java.awt.AWTEventMulticaster.mouseReleased(AWTEventMultica
+ ster.java:272)\n            at java.awt.AWTEventMulticaster.mouseRelease
+ d(AWTEventMulticaster.java:272)\n            at java.awt.AWTEventMultica
+ ster.mouseReleased(AWTEventMulticaster.java:272)\n            at java.aw
+ t.Component.processMouseEvent(Component.java:6038)\n            at javax
+ .swing.JComponent.processMouseEvent(JComponent.java:3260)\n            a
+ t java.awt.Component.processEvent(Component.java:5803)\n            at j
+ ava.awt.Container.processEvent(Container.java:2058)\n            at java
+ .awt.Component.dispatchEventImpl(Component.java:4410)\n            at ja
+ va.awt.Container.dispatchEventImpl(Container.java:2116)\n\n            a
+ t java.awt.Component.dispatchEvent(Component.java:4240)\n\n            a
+ t java.awt.LightweightDispatcher.retargetMouseEvent(Container.java:4322)
+ \n\n            at java.awt.LightweightDispatcher.processMouseEvent(Cont
+ ainer.java:3986)\n\n            at java.awt.LightweightDispatcher.dispat
+ chEvent(Container.java:3916)\n\n            at java.awt.Container.dispat
+ chEventImpl(Container.java:2102)\n\n            at java.awt.Window.dispa
+ tchEventImpl(Window.java:2429)\n\n            at java.awt.Component.disp
+ atchEvent(Component.java:4240)\n\n[catch] at java.awt.EventQueue.dispatc
+ hEvent(EventQueue.java:599)\n\n            at java.awt.EventDispatchThre
+ ad.pumpOneEventForFilters(EventDispatchThread.java:273)\n\n            a
+ t java.awt.EventDispatchThread.pumpEventsForFilter(EventDispatchThread.j
+ ava:183)\n\n            at java.awt.EventDispatchThread.pumpEventsForHie
+ rarchy(EventDispatchThread.java:173)\n\n            at java.awt.EventDis
+ patchThread.pumpEvents(EventDispatchThread.java:168)\n\n            at j
+ ava.awt.EventDispatchThread.pumpEvents(EventDispatchThread.java:160)\n\n
+             at java.awt.EventDispatchThread.run(EventDispatchThread.java
+ :121)
 PERCENT-COMPLETE:100
 X-NETBEANS-EFFORT:60
-X-NETBEANS-SPENT-TIME:235
-CATEGORIES:feature
-LAST-MODIFIED:20070210T103257Z
+X-NETBEANS-SPENT-TIME:7
+CATEGORIES:bugfix
+LAST-MODIFIED:20070212T201216Z
+COMPLETED:20070212T192340Z
 RELATED-TO:nb1145736734171.295@timpc/127.0.0.1
-COMPLETED:20070210T103257Z
-X-NETBEANS-WORK-PERIOD;X-NETBEANS-START=20070209T200052Z:150
-X-NETBEANS-WORK-PERIOD;X-NETBEANS-START=20070209T232110Z:59
-X-NETBEANS-WORK-PERIOD;X-NETBEANS-START=20070210T110558Z:26
+X-NETBEANS-WORK-PERIOD;X-NETBEANS-START=20070212T201433Z:1
+X-NETBEANS-WORK-PERIOD;X-NETBEANS-START=20070212T201618Z:7
 END:VTODO
 BEGIN:VTODO
-DTSTAMP:20070210T154518Z
-UID:nb1171123493417.471@timpc2/127.0.0.1
-CREATED:20070210T154518Z
-SUMMARY:Cut leads to an exception on Windows under JDK 1.6
+DTSTAMP:20070212T190922Z
+UID:nb1171311136988.477@timpc2/127.0.0.1
+CREATED:20070212T190922Z
+SUMMARY:ClassCastException on Windows & JDK 1.6
+DESCRIPTION:java.lang.ClassCastException: [Lorg.netbeans.modules.tasklist
+ .usertasks.model.UserTask\; cannot be cast to java.io.InputStream\n\n   
+          at sun.awt.datatransfer.DataTransferer.translateTransferable(Da
+ taTransferer.java:1172)\n\n            at sun.awt.windows.WDataTransfere
+ r.translateTransferable(WDataTransferer.java:163)\n\n            at sun.
+ awt.windows.WClipboard.setContentsNative(WClipboard.java:73)\n\n        
+     at sun.awt.datatransfer.SunClipboard.setContents(SunClipboard.java:9
+ 3)\n\n            at org.netbeans.modules.tasklist.usertasks.transfer.My
+ TransferHandler.exportToClipboard(MyTransferHandler.java:281)\n\n       
+      at org.netbeans.modules.tasklist.usertasks.actions.UTCutAction.acti
+ onPerformed(UTCutAction.java:61)\n\n            at org.openide.util.acti
+ ons.CallbackSystemAction$DelegateAction$1.run(CallbackSystemAction.java:
+ 545)\n\n            at org.netbeans.modules.openide.util.ActionsBridge.d
+ oPerformAction(ActionsBridge.java:55)\n\n            at org.openide.util
+ .actions.CallbackSystemAction$DelegateAction.actionPerformed(CallbackSys
+ temAction.java:549)\n\n            at javax.swing.AbstractButton.fireAct
+ ionPerformed(AbstractButton.java:1995)\n\n            at javax.swing.Abs
+ tractButton$Handler.actionPerformed(AbstractButton.java:2318)\n\n       
+      at javax.swing.DefaultButtonModel.fireActionPerformed(DefaultButton
+ Model.java:387)\n\n            at javax.swing.DefaultButtonModel.setPres
+ sed(DefaultButtonModel.java:242)\n\n            at javax.swing.AbstractB
+ utton.doClick(AbstractButton.java:357)\n\n            at javax.swing.pla
+ f.basic.BasicMenuItemUI.doClick(BasicMenuItemUI.java:1170)\n\n          
+   at javax.swing.plaf.basic.BasicMenuItemUI$Handler.mouseReleased(BasicM
+ enuItemUI.java:1211)\n\n            at java.awt.Component.processMouseEv
+ ent(Component.java:6038)\n\n            at javax.swing.JComponent.proces
+ sMouseEvent(JComponent.java:3260)\n\n            at java.awt.Component.p
+ rocessEvent(Component.java:5803)\n\n            at java.awt.Container.pr
+ ocessEvent(Container.java:2058)\n\n            at java.awt.Component.dis
+ patchEventImpl(Component.java:4410)\n\n            at java.awt.Container
+ .dispatchEventImpl(Container.java:2116)\n\n            at java.awt.Compo
+ nent.dispatchEvent(Component.java:4240)\n\n            at java.awt.Light
+ weightDispatcher.retargetMouseEvent(Container.java:4322)\n\n            
+ at java.awt.LightweightDispatcher.processMouseEvent(Container.java:3986)
+ \n\n            at java.awt.LightweightDispatcher.dispatchEvent(Containe
+ r.java:3916)\n\n            at java.awt.Container.dispatchEventImpl(Cont
+ ainer.java:2102)\n\n            at java.awt.Window.dispatchEventImpl(Win
+ dow.java:2429)\n\n            at java.awt.Component.dispatchEvent(Compon
+ ent.java:4240)\n\n[catch] at java.awt.EventQueue.dispatchEvent(EventQueu
+ e.java:599)\n\n            at java.awt.EventDispatchThread.pumpOneEventF
+ orFilters(EventDispatchThread.java:273)\n\n            at java.awt.Event
+ DispatchThread.pumpEventsForFilter(EventDispatchThread.java:183)\n\n    
+         at java.awt.EventDispatchThread.pumpEventsForHierarchy(EventDisp
+ atchThread.java:173)\n\n            at java.awt.EventDispatchThread.pump
+ Events(EventDispatchThread.java:168)\n\n            at java.awt.EventDis
+ patchThread.pumpEvents(EventDispatchThread.java:160)\n\n            at j
+ ava.awt.EventDispatchThread.run(EventDispatchThread.java:121)
 PERCENT-COMPLETE:100
 X-NETBEANS-EFFORT:60
-X-NETBEANS-SPENT-TIME:6
-LAST-MODIFIED:20070210T160455Z
-COMPLETED:20070210T160455Z
+X-NETBEANS-SPENT-TIME:39
+CATEGORIES:bugfix
+LAST-MODIFIED:20070212T201216Z
+COMPLETED:20070212T201203Z
 RELATED-TO:nb1145736734171.295@timpc/127.0.0.1
-X-NETBEANS-WORK-PERIOD;X-NETBEANS-START=20070210T164538Z:6
+X-NETBEANS-WORK-PERIOD;X-NETBEANS-START=20070212T203207Z:39
 END:VTODO
 BEGIN:VTODO
 UID:nb1137857813768.38@timpc/127.0.0.1
@@ -3417,13 +3482,139 @@ CREATED:20061104T200412Z
 SUMMARY:Improve scheduling (use due dates and dependencies)
 PERCENT-COMPLETE:0
 X-NETBEANS-EFFORT:60
-X-NETBEANS-SPENT-TIME:20
+X-NETBEANS-SPENT-TIME:586
 CATEGORIES:feature
-LAST-MODIFIED:20070210T155345Z
+LAST-MODIFIED:20070211T220252Z
 URL:http://www.ctl.ua.edu/math103/scheduling/schedmnu.htm
 X-NETBEANS-LINE:1
 RELATED-TO:nb1137857799682.30@timpc/127.0.0.1
 X-NETBEANS-WORK-PERIOD;X-NETBEANS-START=20070203T192728Z:20
+X-NETBEANS-WORK-PERIOD;X-NETBEANS-START=20070211T133651Z:566
+END:VTODO
+BEGIN:VTODO
+DTSTAMP:20070203T153217Z
+UID:nb1171127572176.475@timpc2/127.0.0.1
+CREATED:20070203T153217Z
+SUMMARY:Support for dropping URLs from Firefox
+PERCENT-COMPLETE:100
+X-NETBEANS-EFFORT:20
+X-NETBEANS-SPENT-TIME:36
+LAST-MODIFIED:20070210T171252Z
+COMPLETED:20070203T160855Z
+RELATED-TO:nb1137857799682.30@timpc/127.0.0.1
+X-NETBEANS-WORK-PERIOD;X-NETBEANS-START=20070203T163240Z:36
+END:VTODO
+BEGIN:VTODO
+DTSTAMP:20070203T105458Z
+UID:nb1171127572176.476@timpc2/127.0.0.1
+CREATED:20070203T105458Z
+SUMMARY:Owner is not filled if a task is started
+PERCENT-COMPLETE:100
+X-NETBEANS-EFFORT:5
+X-NETBEANS-SPENT-TIME:0
+CATEGORIES:bugfix
+LAST-MODIFIED:20070203T105526Z
+COMPLETED:20070203T105526Z
+RELATED-TO:nb1137857799682.30@timpc/127.0.0.1
+END:VTODO
+BEGIN:VTODO
+DTSTAMP:20070203T104858Z
+UID:nb1171127572176.477@timpc2/127.0.0.1
+CREATED:20070203T104858Z
+SUMMARY:Use the "Append instead of prepend" option for pasting
+PERCENT-COMPLETE:100
+X-NETBEANS-EFFORT:15
+X-NETBEANS-SPENT-TIME:2
+CATEGORIES:feature
+LAST-MODIFIED:20070210T171252Z
+COMPLETED:20070203T105238Z
+RELATED-TO:nb1137857799682.30@timpc/127.0.0.1
+X-NETBEANS-WORK-PERIOD;X-NETBEANS-START=20070203T114925Z:2
+END:VTODO
+BEGIN:VTODO
+DTSTAMP:20070203T103532Z
+UID:nb1171127572176.478@timpc2/127.0.0.1
+CREATED:20070203T103532Z
+SUMMARY:Shortcut for "Add Another"
+PERCENT-COMPLETE:100
+X-NETBEANS-EFFORT:15
+X-NETBEANS-SPENT-TIME:2
+CATEGORIES:feature
+LAST-MODIFIED:20070210T171252Z
+COMPLETED:20070203T103816Z
+RELATED-TO:nb1137857799682.30@timpc/127.0.0.1
+X-NETBEANS-WORK-PERIOD;X-NETBEANS-START=20070203T113553Z:2
+END:VTODO
+BEGIN:VTODO
+DTSTAMP:20070203T101340Z
+UID:nb1171127572176.479@timpc2/127.0.0.1
+CREATED:20070203T101340Z
+SUMMARY:Filter for dates should always return false if the date is undefi
+ ned
+PERCENT-COMPLETE:100
+X-NETBEANS-EFFORT:20
+X-NETBEANS-SPENT-TIME:0
+CATEGORIES:feature
+LAST-MODIFIED:20070203T103715Z
+COMPLETED:20070203T101731Z
+RELATED-TO:nb1137857799682.30@timpc/127.0.0.1
+END:VTODO
+BEGIN:VTODO
+DTSTAMP:20070130T075441Z
+UID:nb1171127572176.480@timpc2/127.0.0.1
+CREATED:20070130T075441Z
+SUMMARY:Export spent times only for the current task list
+PERCENT-COMPLETE:100
+X-NETBEANS-EFFORT:60
+X-NETBEANS-SPENT-TIME:18
+CATEGORIES:feature
+LAST-MODIFIED:20070210T171252Z
+COMPLETED:20070130T081351Z
+RELATED-TO:nb1137857799682.30@timpc/127.0.0.1
+X-NETBEANS-WORK-PERIOD;X-NETBEANS-START=20070130T085455Z:18
+END:VTODO
+BEGIN:VTODO
+DTSTAMP:20070130T110934Z
+UID:nb1171127572176.481@timpc2/127.0.0.1
+CREATED:20070130T110934Z
+SUMMARY:Improve duration parsing in the property sheet
+PERCENT-COMPLETE:100
+X-NETBEANS-EFFORT:60
+X-NETBEANS-SPENT-TIME:9
+CATEGORIES:feature
+LAST-MODIFIED:20070210T171252Z
+COMPLETED:20070203T151756Z
+RELATED-TO:nb1137857799682.30@timpc/127.0.0.1
+X-NETBEANS-WORK-PERIOD;X-NETBEANS-START=20070203T160842Z:9
+END:VTODO
+BEGIN:VTODO
+DTSTAMP:20070123T223758Z
+UID:nb1171127572176.482@timpc2/127.0.0.1
+CREATED:20070123T223758Z
+SUMMARY:Open/close a node using keyboard
+PERCENT-COMPLETE:100
+X-NETBEANS-EFFORT:60
+X-NETBEANS-SPENT-TIME:235
+CATEGORIES:feature
+LAST-MODIFIED:20070210T171252Z
+COMPLETED:20070210T103257Z
+RELATED-TO:nb1137857799682.30@timpc/127.0.0.1
+X-NETBEANS-WORK-PERIOD;X-NETBEANS-START=20070209T200052Z:150
+X-NETBEANS-WORK-PERIOD;X-NETBEANS-START=20070209T232110Z:59
+X-NETBEANS-WORK-PERIOD;X-NETBEANS-START=20070210T110558Z:26
+END:VTODO
+BEGIN:VTODO
+DTSTAMP:20070210T154518Z
+UID:nb1171127572176.483@timpc2/127.0.0.1
+CREATED:20070210T154518Z
+SUMMARY:Cut leads to an exception on Windows under JDK 1.6
+PERCENT-COMPLETE:100
+X-NETBEANS-EFFORT:60
+X-NETBEANS-SPENT-TIME:6
+LAST-MODIFIED:20070210T171252Z
+COMPLETED:20070210T160455Z
+RELATED-TO:nb1137857799682.30@timpc/127.0.0.1
+X-NETBEANS-WORK-PERIOD;X-NETBEANS-START=20070210T164538Z:6
 END:VTODO
 BEGIN:VTODO
 UID:nb1144698808218.599@timpc/127.0.0.1

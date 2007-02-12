@@ -52,20 +52,6 @@ public class UserTaskObjectList extends ObjectList<UserTask> {
         return (UserTask) get(index);
     }
     
-    /**
-     * Searches an element with ==.
-     *
-     * @param ut a task
-     * @return index of the task or -1
-     */
-    public int identityIndexOf(UserTask ut) {
-        for (int i = 0; i < size(); i++) {
-            if (get(i) == ut)
-                return i;
-        }
-        return -1;
-    }
-    
     public void add(int index, UserTask element) {
         UserTask ut = (UserTask) element;
         if (ut.getParent() != null)

@@ -98,7 +98,7 @@ public final class ScheduleAction extends CallableSystemAction {
         UTUtils.processDepthFirst(tree, f);
 
         // sort them on priority
-        ScheduleUtils.createPriorityListByPriority(tasks);
+        ScheduleUtils.createPriorityListBackflow(tasks);
         
         users.add(currentUser);
         

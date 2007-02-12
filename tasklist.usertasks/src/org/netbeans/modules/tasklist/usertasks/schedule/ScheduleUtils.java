@@ -19,11 +19,14 @@
 
 package org.netbeans.modules.tasklist.usertasks.schedule;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import org.netbeans.modules.tasklist.core.util.ObjectList;
 import org.netbeans.modules.tasklist.usertasks.model.Dependency;
 import org.netbeans.modules.tasklist.usertasks.model.UserTask;
+import org.netbeans.modules.tasklist.usertasks.util.UTUtils;
 
 /**
  * Some utility methods for scheduling.
@@ -68,6 +71,118 @@ public class ScheduleUtils {
                 return ut2.getEffort() - ut1.getEffort();
             }
         });
+    }
+       
+    /**
+     * Holds a UserTask and it's critical time 
+     */
+    private static class UserTaskAndCriticalTime {
+        /** a task */
+        public UserTask ut;
+        
+        /** critical time */
+        public float ct;
+    }
+    
+    /**
+     * Schedule tasks with higher critical times first.
+     * Critical-Path Algorithm (CPA).
+     * see http://www.ctl.ua.edu/math103/scheduling/scheduling_algorithms.htm#
+     * Scheduling%20Algorithms
+     * 
+     * @param tasks list of tasks 
+     */
+    public static void createPriorityListBackflow(List<UserTask> tasks) {
+        // convert data to call backflow
+        boolean[][] deps = new boolean[tasks.size()][tasks.size()];
+        for (int i = 0; i < tasks.size(); i++) {
+            ObjectList<Dependency> ds = tasks.get(i).getDependencies();
+            for (int j = 0; j < ds.size(); j++) {
+                Dependency d = ds.get(j);
+                if (d.getType() == Dependency.END_BEGIN) {
+                    UserTask don = d.getDependsOn();
+                    int index = -1;
+                    for (int k = 0; k < tasks.size(); k++) {
+                        if (tasks.get(k) == don) {
+                            index = k;
+                            break;
+                        }
+                    }
+                    assert index >= 0;
+                    deps[i][index] = true;
+                }
+            }
+        }
+        float[] durations = new float[tasks.size()];
+        for (int i = 0; i < tasks.size(); i++) {
+            durations[i] = tasks.get(i).getEffort() * 
+                    tasks.get(i).getProgress() / 100.0f;
+        }
+        float[] ct = backflow(deps, durations);
+        
+        // sorting using critical times
+        UserTaskAndCriticalTime[] v = new UserTaskAndCriticalTime[tasks.size()];
+        for (int i = 0; i < v.length; i++) {
+            UserTaskAndCriticalTime utct = new UserTaskAndCriticalTime();
+            utct.ut = tasks.get(i);
+            utct.ct = ct[i];
+            v[i] = utct;
+        }        
+        Arrays.sort(v, new Comparator() {
+            public int compare(Object o1, Object o2) {
+                UserTaskAndCriticalTime ut1 = (UserTaskAndCriticalTime) o1;
+                UserTaskAndCriticalTime ut2 = (UserTaskAndCriticalTime) o2;
+                return Float.compare(ut2.ct, ut1.ct);
+            }
+        });
+        
+        // writing results back
+        tasks.clear();        
+        for (int i = 0; i < v.length; i++) {
+            tasks.add(v[i].ut);
+        }
+    }
+       
+    /**
+     * Backflow algorithm.
+     * http://www.ctl.ua.edu/math103/scheduling/cpaprelim.htm#The%20Backflow%20Algorithm 
+     * 
+     * @param deps dependencies between tasks. Square matrix with 
+     *     deps[i][j] = true if task[i] depends on task[j]
+     * @param durations durations of tasks
+     * @return critical times
+     */
+    public static float[] backflow(boolean[][] deps, float[] durations) {
+        assert deps.length == durations.length;
+        
+        int n = durations.length;
+        if (n == 0)
+            return new float[0];
+        
+        float[] ct = new float[n];
+        Arrays.fill(ct, -1);
+        
+        for (int i = 0; i < n; i++) {
+            backflow2(ct, deps, durations, i);
+        }
+        
+        return ct;
+    }
+    
+    private static void backflow2(float[] ct, boolean[][] deps, float[] durations,
+            int knot) {
+        if (ct[knot] >= 0)
+            return;
+        
+        float max = 0;
+        for (int i = 0; i < durations.length; i++) {
+            if (deps[i][knot]) {
+                backflow2(ct, deps, durations, i);
+                if (ct[i] > max)
+                    max = ct[i];
+            }
+        }
+        ct[knot] = max + durations[knot];
     }
     
     /**

@@ -462,6 +462,21 @@ public final class UTUtils {
     }
     
     /**
+     * Searches for an element using ==.
+     *
+     * @param values list of values
+     * @param value a value
+     * @return index of the value or -1
+     */
+    public static<T> int identityIndexOf(List<T> values, T value) {
+        for (int i = 0; i < values.size(); i++) {
+            if (values.get(i) == value)
+                return i;
+        }
+        return -1;
+    }
+    
+    /**
      * DEBUG:
      * 
      * Dumps the hierarchy of class loaders.

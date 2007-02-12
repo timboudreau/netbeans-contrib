@@ -28,6 +28,7 @@ import org.netbeans.modules.tasklist.usertasks.UserTaskView;
 import org.netbeans.modules.tasklist.usertasks.model.UserTask;
 import org.netbeans.modules.tasklist.usertasks.model.UserTaskObjectList;
 import org.netbeans.modules.tasklist.usertasks.treetable.AdvancedTreeTableNode;
+import org.netbeans.modules.tasklist.usertasks.util.UTUtils;
 import org.openide.util.NbBundle;
 
 /**
@@ -72,7 +73,7 @@ public class MoveLeftAction extends UTViewAction {
 
         // moving the task
         UserTask ut = n.getUserTask();
-        int index = ut.getParentObjectList().identityIndexOf(ut);
+        int index = UTUtils.identityIndexOf(ut.getParentObjectList(), ut);
         while (ut.getParentObjectList().size() > index + 1) {
             ut.getSubtasks().add(ut.getParentObjectList().remove(index + 1));
         }
@@ -84,7 +85,8 @@ public class MoveLeftAction extends UTViewAction {
         else
             newParentList = ((UserTaskListTreeTableNode) newParent).
                     getUserTaskList().getSubtasks();
-        int parentIndex = newParentList.identityIndexOf(parent.getUserTask());
+        int parentIndex = UTUtils.identityIndexOf(
+                newParentList, parent.getUserTask());
         newParentList.add(parentIndex + 1, ut);
         
         // expanding and selecting nodes

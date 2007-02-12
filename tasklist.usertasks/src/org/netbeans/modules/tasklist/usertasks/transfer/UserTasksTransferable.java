@@ -26,11 +26,14 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.io.StringReader;
 import java.io.StringWriter;
+import java.util.ArrayList;
+import java.util.Arrays;
 import org.netbeans.modules.tasklist.usertasks.*;
 import org.openide.util.NbBundle;
 import org.openide.util.datatransfer.ExTransferable;
 import org.openide.util.datatransfer.MultiTransferObject;
 import org.netbeans.modules.tasklist.usertasks.model.UserTask;
+import org.netbeans.modules.tasklist.usertasks.util.UTUtils;
 import org.openide.util.io.ReaderInputStream;
 
 /** 
@@ -44,7 +47,8 @@ public final class UserTasksTransferable implements Transferable, Serializable {
     
     /** Flavor for tasks on the clipboard */    
     public static final DataFlavor USER_TASKS_FLAVOR = new DataFlavor(
-        DataFlavor.javaJVMLocalObjectMimeType, 
+        DataFlavor.javaJVMLocalObjectMimeType + "; class=" + 
+        java.util.ArrayList.class.getName(), 
         NbBundle.getMessage(UserTasksTransferable.class, 
             "UserTasks")); // NOI18N
 
@@ -70,7 +74,9 @@ public final class UserTasksTransferable implements Transferable, Serializable {
         if (flavor.equals(DataFlavor.stringFlavor)) {
             return toString(tasks);
         } else if (flavor.equals(USER_TASKS_FLAVOR)) {
-            return tasks;
+            ArrayList al = new ArrayList();
+            al.addAll(Arrays.asList(tasks));
+            return al;
         } else if (flavor.equals(DataFlavor.getTextPlainUnicodeFlavor())) {
             String charset = DataFlavor.getTextPlainUnicodeFlavor().
                     getParameter("charset");

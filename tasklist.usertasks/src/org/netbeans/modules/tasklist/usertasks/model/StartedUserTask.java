@@ -116,6 +116,11 @@ public class StartedUserTask {
             case STATE_SUSPENDED: {
                 long lastActivity = ActivityListener.getLastActivityMillis();
                 long cur = System.currentTimeMillis();
+
+                // summer time and similar
+                if (lastActivity > cur)
+                    lastActivity = cur;                                    
+                
                 if ((cur - lastActivity) < INACTIVITY_DURATION) {
                     StatusDisplayer.getDefault().setStatusText(
                             NbBundle.getMessage(StartedUserTask.class,
@@ -137,7 +142,13 @@ public class StartedUserTask {
             }
             case STATE_WORKING: {
                 long now = System.currentTimeMillis();
+
+                // summer time and similar
+                if (startedAt > now)
+                    startedAt = now;
+                    
                 int diff = (int) ((now - startedAt) / (60 * 1000));
+
                 if ((System.currentTimeMillis() - 
                     ActivityListener.getLastActivityMillis()) > INACTIVITY_DURATION &&
                     Settings.getDefault().getDetectInactivity()) { // NOI18N
@@ -181,6 +192,11 @@ public class StartedUserTask {
                         " should be stopped first"); // NOI18N
                 } else {
                     long now = System.currentTimeMillis();
+
+                    // summer time and similar
+                    if (startedAt > now)
+                        startedAt = now;
+                    
                     int diff = (int) ((now - startedAt) / (60 * 1000));
                     
                     updateSpentTime(diff);
@@ -200,6 +216,11 @@ public class StartedUserTask {
                 } else {
                     long lastActivity = ActivityListener.getLastActivityMillis();
                     long now = System.currentTimeMillis();
+
+                    // summer time and similar
+                    if (lastActivity > now)
+                        lastActivity = now;
+                    
                     int diff = (int) ((now - lastActivity) / (60 * 1000));
                     
                     workPeriod = null;
