@@ -36,5 +36,7 @@ Microsystems, Inc. All Rights Reserved.
     <property name="xtest.attribs" value="stable,validation"/>
     -->
 
+    <!-- Points to your NetBeans user directory. Optional for IDE tests.  -->
+    <property name="netbeans.user" location="__NETBEANS_USER__"/>
 </project>
 
