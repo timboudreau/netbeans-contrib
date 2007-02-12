@@ -26,22 +26,22 @@ import org.apache.tools.ant.*;
 /**
  * This is a special ant task for generating an html document with modules
  * dependencies crossreference.
- * 
+ *
  * @author Sandip Chitale
  */
 public class ModuleInfoTask extends Task {
-    
+
     private File htmlFile;
     public void setHtmlOutputFile(File f) {
         htmlFile = f;
     }
-    
-    public void execute() throws BuildException {        
+
+    public void execute() throws BuildException {
         if (htmlFile == null) {
             throw new BuildException("Please specify the html output file.");
         }
         log("Generating module info to " + htmlFile.getAbsolutePath());
         ModuleInfoGenerator.generateHTML(htmlFile);
         log("Generating module info....Done.");
-    }        
+    }
 }

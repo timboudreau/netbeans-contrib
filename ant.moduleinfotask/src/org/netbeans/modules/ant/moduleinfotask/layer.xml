@@ -17,6 +17,11 @@
             <attr name="org-netbeans-modules-ant-moduleinfotask-ui-ModuleInfoAction.shadow/Separator2.instance" boolvalue="true"/>
         </folder>
     </folder>
+    <folder name="Services">
+        <folder name="JavaHelp">
+            <file name="moduleinfotask-helpset.xml" url="moduleinfotask-helpset.xml"/>
+        </folder>
+    </folder>
     <folder name="Toolbars">
         <folder name="Tools">
             <attr name="Separator1.instance/org-netbeans-modules-ant-moduleinfotask-ui-ModuleInfoAction.shadow" boolvalue="true"/>

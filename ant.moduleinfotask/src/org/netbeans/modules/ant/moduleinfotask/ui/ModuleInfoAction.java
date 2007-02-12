@@ -20,21 +20,9 @@
 package org.netbeans.modules.ant.moduleinfotask.ui;
 
 import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.util.Iterator;
-import java.util.Properties;
 import java.util.ResourceBundle;
-import java.util.Set;
 import javax.swing.JFileChooser;
 import org.netbeans.modules.ant.moduleinfotask.ModuleInfoGenerator;
-import org.openide.ErrorManager;
-import org.openide.filesystems.FileObject;
-import org.openide.filesystems.FileUtil;
-import org.openide.modules.Dependency;
-import org.openide.modules.InstalledFileLocator;
-import org.openide.modules.ModuleInfo;
 import org.openide.util.HelpCtx;
 import org.openide.util.NbBundle;
 import org.openide.util.actions.CallableSystemAction;
@@ -48,31 +36,31 @@ import org.openide.windows.WindowManager;
  */
 public final class ModuleInfoAction extends CallableSystemAction {
     private static ResourceBundle bundle = NbBundle.getBundle(ModuleInfoAction.class);
-    
-    public void performAction() {        
+
+    public void performAction() {
         JFileChooser fd = new JFileChooser();
         fd.setSelectedFile(new File(bundle.getString("DEFAULT_HTML_OUTPUT_FILE_NAME")));
-        
+
         switch (fd.showSaveDialog(WindowManager.getDefault().getMainWindow())) {
             case JFileChooser.APPROVE_OPTION:
                 ModuleInfoGenerator.generateHTML(fd.getSelectedFile());
                 break;
         }
     }
-    
+
     public String getName() {
         return bundle.getString("LBL_Generate_Module_Info");
     }
-    
+
     public String iconResource() {
         return "org/netbeans/modules/ant/moduleinfotask/ui/module.gif"; // NOI18N
     }
-    
+
     public HelpCtx getHelpCtx() {
         return HelpCtx.DEFAULT_HELP;
-    }    
-    
+    }
+
     protected boolean asynchronous() {
         return false;
-    }            
+    }
 }
