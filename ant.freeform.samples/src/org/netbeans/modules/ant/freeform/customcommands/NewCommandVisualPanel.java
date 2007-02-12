@@ -25,10 +25,13 @@ import java.awt.event.ItemListener;
 import javax.swing.Action;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.DefaultListCellRenderer;
+import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JPanel;
+import javax.swing.ListCellRenderer;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
+import javax.swing.plaf.UIResource;
 import org.openide.ErrorManager;
 import org.openide.awt.Mnemonics;
 import org.openide.cookies.InstanceCookie;
@@ -136,8 +139,16 @@ public final class NewCommandVisualPanel extends JPanel {
         }
     }
     
-    private static final class MenuListCellRenderer extends DefaultListCellRenderer {
+    private static final class MenuListCellRenderer extends JLabel implements ListCellRenderer, UIResource {
+        
+        public MenuListCellRenderer () {
+            setOpaque(true);
+        }
+        
         public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
+            // #93658: GTK needs name to render cell renderer "natively"
+            setName("ComboBox.listRenderer"); // NOI18N
+            
             String menu = (String) value;
             DataObject d;
             try {
@@ -145,8 +156,27 @@ public final class NewCommandVisualPanel extends JPanel {
             } catch (DataObjectNotFoundException e) {
                 throw new AssertionError(e);
             }
-            return super.getListCellRendererComponent(list, findName(d), index, isSelected, cellHasFocus);
+            
+            setText(findName(d));
+            
+            if ( isSelected ) {
+                setBackground(list.getSelectionBackground());
+                setForeground(list.getSelectionForeground());             
+            }
+            else {
+                setBackground(list.getBackground());
+                setForeground(list.getForeground());
+            }
+            
+            return this;
         }
+        
+        // #93658: GTK needs name to render cell renderer "natively"
+        public String getName() {
+            String name = super.getName();
+            return name == null ? "ComboBox.renderer" : name;  // NOI18N
+        }
+        
     }
 
     public String getName() {
