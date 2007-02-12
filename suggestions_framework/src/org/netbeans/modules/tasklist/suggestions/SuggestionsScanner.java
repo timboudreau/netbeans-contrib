@@ -25,7 +25,6 @@ import org.openide.awt.StatusDisplayer;
 import org.openide.util.NbBundle;
 import org.openide.util.Lookup;
 import org.openide.util.Cancellable;
-import org.openide.util.Utilities;
 import org.openide.cookies.EditorCookie;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
@@ -46,7 +45,6 @@ import javax.swing.*;
 import java.util.*;
 import java.lang.ref.WeakReference;
 import java.lang.ref.Reference;
-import java.lang.ref.SoftReference;
 import java.lang.reflect.InvocationTargetException;
 
 /**
@@ -373,7 +371,7 @@ public final class SuggestionsScanner implements Cancellable {
 
         if (scanned.contains(dobj)) return;
 
-        EditorCookie edit =
+        final EditorCookie edit =
                 (EditorCookie) dobj.getCookie(EditorCookie.class);
         if (edit == null) return;
 
@@ -381,7 +379,7 @@ public final class SuggestionsScanner implements Cancellable {
         if (VisibilityQuery.getDefault().isVisible(fo) == false) return; // ignore backups etc
         String extension = fo.getExt();
         boolean directAccess = "java".equals(extension) || "properties".equals(extension);  // #38476
-        boolean isPrimed = edit.getDocument() == null && directAccess == false;
+        final boolean isPrimed = edit.getDocument() == null && directAccess == false;
 
         SuggestionContext env = SPIHole.createSuggestionContext(dobj);
 
@@ -402,8 +400,23 @@ public final class SuggestionsScanner implements Cancellable {
         // does not release documents on unless one explicitly
         // call close() that as side effect closes all components.
         // So call close() is we are likely only document users
-        if (isPrimed && edit.getOpenedPanes() == null && workaround38476 == false) {
-            edit.close();
+        Runnable r = new Runnable() {
+                public void run() {
+                    if (isPrimed && edit.getOpenedPanes() == null && workaround38476 == false) {
+                        edit.close();
+                    }
+                }
+            };
+        if( SwingUtilities.isEventDispatchThread() ) {
+            r.run();
+        } else {
+            try {
+                SwingUtilities.invokeAndWait( r );
+            } catch( InvocationTargetException itE ) {
+                //ignore
+            } catch( InterruptedException iE ) {
+                //ignore
+            }
         }
 
         if (progressMonitor != null) {
