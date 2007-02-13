@@ -21,11 +21,13 @@ package org.netbeans.modules.j2ee.oc4j.ide;
 
 import java.io.File;
 import java.io.InputStream;
+import java.lang.Thread.UncaughtExceptionHandler;
 import java.util.ArrayList;
 import java.util.List;
 import javax.enterprise.deploy.shared.ActionType;
 import javax.enterprise.deploy.shared.CommandType;
 import javax.enterprise.deploy.shared.StateType;
+import javax.swing.JOptionPane;
 import org.netbeans.api.java.platform.JavaPlatform;
 import org.netbeans.modules.j2ee.deployment.plugins.api.InstanceProperties;
 import org.netbeans.modules.j2ee.oc4j.OC4JDeploymentManager;
@@ -73,7 +75,7 @@ class OC4JStartRunnable implements Runnable {
         // Save the current time so that we can deduct that the startup
         // Failed due to timeout
         long start = System.currentTimeMillis();
-        
+               
         Process serverProcess = createProcess();
         
         if (serverProcess == null) {
@@ -84,8 +86,8 @@ class OC4JStartRunnable implements Runnable {
         
         // create a logger to the server's output stream so that a user
         // can observe the progress
-        new OC4JLogger(new InputStream[] {serverProcess.getInputStream()
-                ,serverProcess.getErrorStream()}, dm.getUri());
+        OC4JLogger.getInstance(dm.getUri()).readInputStreams(new InputStream[] {
+            serverProcess.getInputStream(), serverProcess.getErrorStream()});
         
         // Waiting for server to start
         while (System.currentTimeMillis() - start < TIMEOUT) {

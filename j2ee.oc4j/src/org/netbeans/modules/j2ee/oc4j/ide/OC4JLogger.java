@@ -24,6 +24,8 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.HashMap;
+import java.util.Map;
 import org.netbeans.modules.j2ee.deployment.plugins.api.UISupport;
 import org.openide.ErrorManager;
 import org.openide.util.RequestProcessor;
@@ -45,6 +47,11 @@ public class OC4JLogger {
     private static final int delay = 1000;
     
     /**
+     * Singleton model pattern
+     */
+    private static Map<String, OC4JLogger> instances = new HashMap<String, OC4JLogger>();
+    
+    /**
      * The I/O window where to output the changes
      */
     private InputOutput io;
@@ -52,20 +59,9 @@ public class OC4JLogger {
     /**
      * Creates and starts a new instance of OC4JLogger
      *
-     * @param file the file for which to track changes
-     * @param ioPanelName the I/O window where to output the changes
+     * @param uri the uri of the server
      */
-    public OC4JLogger(File[] files, String uri) {
-        this(getInputStreamsFromFiles(files), uri);
-    }
-    
-    /**
-     * Creates and starts a new instance of OC4JLogger
-     *
-     * @param file the input stream for which to track changes
-     * @param ioPanelName the I/O window where to output the changes
-     */
-    public OC4JLogger(InputStream[] inputStreams, String uri) {
+    private OC4JLogger(String uri) {
         io = UISupport.getServerIO(uri);
         
         if (io == null) {
@@ -80,16 +76,53 @@ public class OC4JLogger {
         }
         
         io.select();
-        
-        for(InputStream inputStream : inputStreams) {
-            RequestProcessor.getDefault().post(new OC4JLoggerRunnable(inputStream));
-        }
     }
     
+    /**
+     * Returns uri specific instance of OC4JLogger
+     *
+     * @param uri the uri of the server
+     * @return uri specific instamce of OC4JLogger
+     */
+    public static OC4JLogger getInstance(String uri) {
+        if (!instances.containsKey(uri))
+            instances.put(uri, new OC4JLogger(uri));
+        
+        return instances.get(uri);
+    }
+    
+    /**
+     * Reads a newly included InputSreams
+     *
+     * @param inputStreams InputStreams to read
+     */
+    public void readInputStreams(InputStream[] inputStreams) {
+        for(InputStream inputStream : inputStreams)
+            RequestProcessor.getDefault().post(new OC4JLoggerRunnable(inputStream));
+    }
+    
+    /**     
+     * Reads a newly included Files
+     * 
+     * @param files Files to read
+     */
+    public void readFiles(File[] files) {
+        for(InputStream inputStream : getInputStreamsFromFiles(files))
+            RequestProcessor.getDefault().post(new OC4JLoggerRunnable(inputStream));
+    }
+    
+    /**
+     * Writes a message into output
+     * 
+     * @param s message to write
+     */
     public synchronized void write(String s) {
         io.getOut().println(s);
     }
     
+    /**
+     * Selects output panel
+     */
     public synchronized void selectIO() {
         io.select();
     }

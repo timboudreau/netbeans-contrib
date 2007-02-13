@@ -82,8 +82,8 @@ class OC4JStopRunnable implements Runnable {
         
         // create a logger to the server's output stream so that a user
         // can observe the progress
-        new OC4JLogger(new InputStream[] {serverProcess.getInputStream()
-                , serverProcess.getErrorStream()}, dm.getUri());
+        OC4JLogger.getInstance(dm.getUri()).readInputStreams(new InputStream[] {
+            serverProcess.getInputStream(), serverProcess.getErrorStream()});
         
         // Waiting for server to start
         while (System.currentTimeMillis() - start < TIMEOUT) {

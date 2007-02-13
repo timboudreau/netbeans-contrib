@@ -53,6 +53,7 @@ import javax.management.MBeanServerConnection;
 import javax.management.remote.JMXConnector;
 import javax.management.remote.JMXConnectorFactory;
 import javax.management.remote.JMXServiceURL;
+import javax.swing.JOptionPane;
 import org.netbeans.modules.j2ee.dd.api.application.Application;
 import org.netbeans.modules.j2ee.dd.api.application.DDProvider;
 import org.netbeans.modules.j2ee.dd.api.application.Module;
@@ -62,7 +63,9 @@ import org.netbeans.modules.j2ee.oc4j.config.EjbDeploymentConfiguration;
 import org.netbeans.modules.j2ee.oc4j.config.WarDeploymentConfiguration;
 import org.netbeans.modules.j2ee.oc4j.config.gen.OrionWebApp;
 import org.netbeans.modules.j2ee.oc4j.ide.OC4JDeploymentStatus;
+import org.netbeans.modules.j2ee.oc4j.ide.OC4JErrorManager;
 import org.netbeans.modules.j2ee.oc4j.ide.OC4JJ2eePlatformImpl;
+import org.netbeans.modules.j2ee.oc4j.ide.OC4JLogger;
 import org.netbeans.modules.j2ee.oc4j.util.OC4JPluginProperties;
 import org.netbeans.modules.j2ee.oc4j.util.OC4JDebug;
 import org.openide.ErrorManager;
@@ -97,7 +100,7 @@ public class OC4JDeploymentManager implements DeploymentManager, ProgressObject,
     private MBeanServerConnection jmxConnection;
     private InstanceProperties instanceProperties;
     private OC4JJ2eePlatformImpl oc4jPlatform;
-       
+    
     public OC4JDeploymentManager(String uri, String uname, String passwd) {
         this.uri = uri;
         this.uname = uname;
@@ -122,6 +125,7 @@ public class OC4JDeploymentManager implements DeploymentManager, ProgressObject,
     
     public ProgressObject distribute(Target[] target, File file, File file2) throws IllegalStateException {
         loadOC4JDeploymentManager();
+        
         module_id = new OC4JTargetModuleID(target[0], file.getName());
         this.file = file;
         InstanceProperties ip = getProperties().getInstanceProperties();
@@ -149,14 +153,15 @@ public class OC4JDeploymentManager implements DeploymentManager, ProgressObject,
                     ErrorManager.getDefault().log("Cannot file META-INF/application.xml in " + file); // NOI18N
                 }
             }
-        }catch(Exception e){
+        } catch (Exception e){
             ErrorManager.getDefault().notify(ErrorManager.INFORMATIONAL, e);
         }
+        
         command = COMMAND.DEPLOY;
         fireHandleProgressEvent(null, new OC4JDeploymentStatus(ActionType.EXECUTE, CommandType.DISTRIBUTE, StateType.RUNNING, NbBundle.getMessage(OC4JDeploymentManager.class, "MSG_DEPLOYING", file.getAbsolutePath())));
         RequestProcessor.getDefault().post(this, 0, Thread.NORM_PRIORITY);
-        return this;
         
+        return this;
     }
     
     public DeploymentConfiguration createConfiguration(DeployableObject deployableObject) throws InvalidModuleException {
@@ -175,10 +180,12 @@ public class OC4JDeploymentManager implements DeploymentManager, ProgressObject,
     
     public ProgressObject redeploy(TargetModuleID[] targetModuleID, InputStream inputStream, InputStream inputStream2) throws UnsupportedOperationException, IllegalStateException {
         updateDeploymentManager();
+        
         if (!isConnected) {
             throw new IllegalStateException(NbBundle.getMessage(
                     OC4JDeploymentManager.class, "MSG_ERROR_DISC_MANAGER"));   // NOI18N
         }
+        
         loader.updateLoader();
         
         try {
@@ -190,10 +197,12 @@ public class OC4JDeploymentManager implements DeploymentManager, ProgressObject,
     
     public ProgressObject distribute(Target[] target, InputStream inputStream, InputStream inputStream2) throws IllegalStateException {
         updateDeploymentManager();
+        
         if (!isConnected) {
             throw new IllegalStateException(NbBundle.getMessage(
                     OC4JDeploymentManager.class, "MSG_ERROR_DISC_MANAGER"));   // NOI18N
         }
+        
         loader.updateLoader();
         
         try {
@@ -205,10 +214,12 @@ public class OC4JDeploymentManager implements DeploymentManager, ProgressObject,
     
     public ProgressObject undeploy(TargetModuleID[] targetModuleID) throws IllegalStateException {
         updateDeploymentManager();
+        
         if (!isConnected) {
             throw new IllegalStateException(NbBundle.getMessage(
                     OC4JDeploymentManager.class, "MSG_ERROR_DISC_MANAGER"));   // NOI18N
         }
+        
         loader.updateLoader();
         
         try {
@@ -220,10 +231,12 @@ public class OC4JDeploymentManager implements DeploymentManager, ProgressObject,
     
     public ProgressObject redeploy(TargetModuleID[] targetModuleID, File file, File file2) throws UnsupportedOperationException, IllegalStateException {
         updateDeploymentManager();
+        
         if (!isConnected) {
             throw new IllegalStateException(NbBundle.getMessage(
                     OC4JDeploymentManager.class, "MSG_ERROR_DISC_MANAGER"));   // NOI18N
         }
+        
         loader.updateLoader();
         
         try {
@@ -235,10 +248,12 @@ public class OC4JDeploymentManager implements DeploymentManager, ProgressObject,
     
     public ProgressObject stop(TargetModuleID[] targetModuleID) throws IllegalStateException {
         updateDeploymentManager();
+        
         if (!isConnected) {
             throw new IllegalStateException(NbBundle.getMessage(
                     OC4JDeploymentManager.class, "MSG_ERROR_DISC_MANAGER"));   // NOI18N
         }
+        
         loader.updateLoader();
         
         try {
@@ -250,39 +265,47 @@ public class OC4JDeploymentManager implements DeploymentManager, ProgressObject,
     
     public ProgressObject start(TargetModuleID[] targetModuleID) throws IllegalStateException {
         loadOC4JDeploymentManager();
+        
         modules = targetModuleID;
         command = COMMAND.START;
         fireHandleProgressEvent(null, new OC4JDeploymentStatus(ActionType.EXECUTE, CommandType.START, StateType.RUNNING, NbBundle.getMessage(OC4JDeploymentManager.class, "MSG_STARTING_APP")));
         RequestProcessor.getDefault().post(this, 0, Thread.NORM_PRIORITY);
+        
         return this;
     }
     
     public void setLocale(java.util.Locale locale) throws UnsupportedOperationException {
         updateDeploymentManager();
+        
         dm.setLocale(locale);
     }
     
     public boolean isLocaleSupported(java.util.Locale locale) {
         updateDeploymentManager();
+        
         return dm.isLocaleSupported(locale);
     }
     
     public TargetModuleID[] getAvailableModules(ModuleType moduleType, Target[] target) throws TargetException, IllegalStateException {
         updateDeploymentManager();
+        
         return dm.getAvailableModules(moduleType, target);
     }
     
     public TargetModuleID[] getNonRunningModules(ModuleType moduleType, Target[] target) throws TargetException, IllegalStateException {
         updateDeploymentManager();
+        
         return dm.getNonRunningModules(moduleType, target);
     }
     
     public TargetModuleID[] getRunningModules(ModuleType moduleType, Target[] target) throws TargetException, IllegalStateException {
         updateDeploymentManager();
+        
         if (!isConnected) {
             throw new IllegalStateException(NbBundle.getMessage(
                     OC4JDeploymentManager.class, "MSG_ERROR_DISC_MANAGER"));   // NOI18N
         }
+        
         loader.updateLoader();
         
         try {
@@ -294,11 +317,13 @@ public class OC4JDeploymentManager implements DeploymentManager, ProgressObject,
     
     public void setDConfigBeanVersion(DConfigBeanVersionType dConfigBeanVersionType) throws DConfigBeanVersionUnsupportedException {
         updateDeploymentManager();
+        
         dm.setDConfigBeanVersion(dConfigBeanVersionType);
     }
     
     public boolean isDConfigBeanVersionSupported(DConfigBeanVersionType dConfigBeanVersionType) {
         updateDeploymentManager();
+        
         return dm.isDConfigBeanVersionSupported(dConfigBeanVersionType);
     }
     
@@ -310,35 +335,41 @@ public class OC4JDeploymentManager implements DeploymentManager, ProgressObject,
     
     public boolean isRedeploySupported() {
         updateDeploymentManager();
+        
         return dm.isRedeploySupported();
     }
     
     public java.util.Locale getCurrentLocale() {
         updateDeploymentManager();
+        
         return dm.getCurrentLocale();
     }
     
     public DConfigBeanVersionType getDConfigBeanVersion() {
         updateDeploymentManager();
+        
         return dm.getDConfigBeanVersion();
     }
     
     public java.util.Locale getDefaultLocale() {
         updateDeploymentManager();
+        
         return dm.getDefaultLocale();
     }
     
     public java.util.Locale[] getSupportedLocales() {
         updateDeploymentManager();
+        
         return dm.getSupportedLocales();
     }
     
     public Target[] getTargets() {
         updateDeploymentManager();
+        
         OC4JDebug.log(getClass().getName(), "getTargets for Deployment Maneger");
         try{
             return dm.getTargets();
-        } catch(Exception e) {
+        } catch(Throwable e) {
             
         }
         return null;
@@ -374,6 +405,7 @@ public class OC4JDeploymentManager implements DeploymentManager, ProgressObject,
     
     private void updateDeploymentManager() {
         loadDeploymentFactory();
+        
         if(loader != null) {
             loader.updateLoader();
             try {
@@ -385,8 +417,11 @@ public class OC4JDeploymentManager implements DeploymentManager, ProgressObject,
                     throw new DeploymentManagerCreationException("Server is OFF");
                 dm = dmF.getDeploymentManager(URI_PREFIX + uri, uname, passwd);
                 isConnected = true;
-            } catch (DeploymentManagerCreationException e) {
+            } catch (Exception e) {
+                OC4JErrorManager.getInstance(this).error(uri, e, OC4JErrorManager.GENERIC_FAILURE);
+                
                 isConnected = false;
+                
                 try {
                     dm = dmF.getDisconnectedDeploymentManager(uri);
                 } catch (DeploymentManagerCreationException ex) {
@@ -436,8 +471,10 @@ public class OC4JDeploymentManager implements DeploymentManager, ProgressObject,
      */
     private void invoke(String methodName, Class[] paramNames, Object[] args) throws Exception {
         loader.updateLoader();
+        
         Method m = oc4jDM.getClass().getMethod(methodName, paramNames);
         m.invoke(oc4jDM, args);
+        
         loader.restoreLoader();
     }
     
@@ -457,7 +494,7 @@ public class OC4JDeploymentManager implements DeploymentManager, ProgressObject,
                 }
             } catch(Exception e) {
                 fireHandleProgressEvent(module_id, new OC4JDeploymentStatus(ActionType.EXECUTE, CommandType.DISTRIBUTE, StateType.FAILED, NbBundle.getMessage(OC4JDeploymentManager.class, "MSG_DEPLOY_FAILED")));
-                ErrorManager.getDefault().notify(ErrorManager.ERROR, e);
+                OC4JErrorManager.getInstance(this).error(uri, e, OC4JErrorManager.GENERIC_FAILURE);
             }
             fireHandleProgressEvent(module_id, new OC4JDeploymentStatus(ActionType.EXECUTE, CommandType.DISTRIBUTE, StateType.COMPLETED, NbBundle.getMessage(OC4JDeploymentManager.class, "MSG_DEPLOYED")));
             break;
@@ -469,7 +506,7 @@ public class OC4JDeploymentManager implements DeploymentManager, ProgressObject,
                     invoke("startApplication", new Class[] {String.class}, new Object[] {module.getModuleID()});
                 } catch(Exception e) {
                     fireHandleProgressEvent(module_id, new OC4JDeploymentStatus(ActionType.EXECUTE, CommandType.DISTRIBUTE, StateType.FAILED, NbBundle.getMessage(OC4JDeploymentManager.class, "MSG_DEPLOY_FAILED")));
-                    ErrorManager.getDefault().notify(ErrorManager.ERROR, e);
+                    OC4JErrorManager.getInstance(this).error(uri, e, OC4JErrorManager.GENERIC_FAILURE);
                 }
             }
             fireHandleProgressEvent(module_id, new OC4JDeploymentStatus(ActionType.EXECUTE, CommandType.START, StateType.COMPLETED, NbBundle.getMessage(OC4JDeploymentManager.class, "MSG_STARTING_APP")));
@@ -482,6 +519,7 @@ public class OC4JDeploymentManager implements DeploymentManager, ProgressObject,
      */
     public MBeanServerConnection getJMXConnector() {
         loader.updateLoader();
+        
         if(jmxConnection == null) {
             try {
                 if(!OC4JPluginProperties.isRunning(getInstanceProperties().getProperty(OC4JPluginProperties.PROPERTY_HOST), getInstanceProperties().getProperty(InstanceProperties.HTTP_PORT_NUMBER)))
@@ -501,12 +539,13 @@ public class OC4JDeploymentManager implements DeploymentManager, ProgressObject,
                 JMXConnector connection = JMXConnectorFactory.newJMXConnector(serviceUrl, env);
                 connection.connect();
                 jmxConnection = connection.getMBeanServerConnection();
-            } catch(Exception ex) {
-                // nothing to do
+            } catch(Exception e) {
+                OC4JErrorManager.getInstance(this).error(uri, e, OC4JErrorManager.GENERIC_FAILURE);
             } finally {
                 loader.restoreLoader();
             }
         }
+        
         return jmxConnection;
     }
     
