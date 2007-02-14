@@ -40,12 +40,17 @@ import javax.xml.xpath.XPathFactory;
 import org.netbeans.api.db.explorer.DatabaseException;
 import org.netbeans.api.db.explorer.JDBCDriver;
 import org.netbeans.api.db.explorer.JDBCDriverManager;
+import org.netbeans.modules.j2ee.dd.api.web.DDProvider;
+import org.netbeans.modules.j2ee.dd.api.web.Servlet;
+import org.netbeans.modules.j2ee.dd.api.web.WebApp;
 import org.netbeans.modules.j2ee.deployment.plugins.api.InstanceProperties;
 import org.netbeans.modules.j2ee.oc4j.OC4JDeploymentManager;
 import org.netbeans.modules.j2ee.oc4j.ide.OC4JErrorManager;
+import org.netbeans.modules.web.api.webmodule.WebModule;
 import org.openide.DialogDisplayer;
 import org.openide.ErrorManager;
 import org.openide.NotifyDescriptor;
+import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
@@ -377,5 +382,27 @@ public class OC4JPluginUtils {
         }
         
         return true;
+    }
+    
+    public static boolean isJSFInWebModule(WebModule wm) {
+        // The JavaEE 5 introduce web modules without deployment descriptor. In such wm can not be jsf used.
+        FileObject dd = wm.getDeploymentDescriptor();
+        return (dd != null && getActionServlet(dd) != null);
+    }
+    
+    public static Servlet getActionServlet(FileObject dd) {
+        if (dd == null) {
+            return null;
+        }
+        try {
+            WebApp webApp = DDProvider.getDefault().getDDRoot(dd);
+            
+            // Try to find according the servlet class name. The javax.faces.webapp.FacesServlet is final, so
+            // it can not be extended.
+            return (Servlet) webApp
+                    .findBeanByName("Servlet", "ServletClass", "javax.faces.webapp.FacesServlet"); //NOI18N;
+        } catch (java.io.IOException e) {
+            return null;
+        }
     }
 }

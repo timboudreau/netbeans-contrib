@@ -54,6 +54,7 @@ import javax.management.remote.JMXConnector;
 import javax.management.remote.JMXConnectorFactory;
 import javax.management.remote.JMXServiceURL;
 import javax.swing.JOptionPane;
+import org.netbeans.api.java.classpath.ClassPath;
 import org.netbeans.modules.j2ee.dd.api.application.Application;
 import org.netbeans.modules.j2ee.dd.api.application.DDProvider;
 import org.netbeans.modules.j2ee.dd.api.application.Module;
@@ -68,8 +69,11 @@ import org.netbeans.modules.j2ee.oc4j.ide.OC4JJ2eePlatformImpl;
 import org.netbeans.modules.j2ee.oc4j.ide.OC4JLogger;
 import org.netbeans.modules.j2ee.oc4j.util.OC4JPluginProperties;
 import org.netbeans.modules.j2ee.oc4j.util.OC4JDebug;
+import org.netbeans.modules.j2ee.oc4j.util.OC4JPluginUtils;
+import org.netbeans.modules.web.api.webmodule.WebModule;
 import org.openide.ErrorManager;
 import org.openide.filesystems.FileObject;
+import org.openide.filesystems.FileUtil;
 import org.openide.filesystems.JarFileSystem;
 import org.openide.util.NbBundle;
 import org.openide.util.RequestProcessor;
@@ -483,6 +487,22 @@ public class OC4JDeploymentManager implements DeploymentManager, ProgressObject,
         case DEPLOY:
             fireHandleProgressEvent(module_id, new OC4JDeploymentStatus(ActionType.EXECUTE, CommandType.DISTRIBUTE, StateType.RUNNING, NbBundle.getMessage(OC4JDeploymentManager.class, "MSG_DEPLOYING", file.getAbsolutePath())));
             String moduleID = module_id.getModuleID();
+            
+            // When JSF support included checks if there are libs on classpath
+            WebModule w = WebModule.getWebModule(FileUtil.toFileObject(file));
+            
+            if (null != w && OC4JPluginUtils.isJSFInWebModule(w)) {
+                ClassPath cp = ClassPath.getClassPath(w.getDocumentBase(), ClassPath.COMPILE);
+                
+                // Checks JSF and JSTL
+                if (null == cp.findResource("javax/faces/FacesException.class")
+                        || null == cp.findResource("javax/servlet/jsp/jstl/core/Config.class")) {
+                    fireHandleProgressEvent(module_id, new OC4JDeploymentStatus(ActionType.EXECUTE, CommandType.DISTRIBUTE, StateType.FAILED, NbBundle.getMessage(OC4JDeploymentManager.class, "MSG_DEPLOY_FAILED")));
+                    OC4JErrorManager.getInstance(this).reaction("com.evermind.server.http.deployment.WARAnnotationParser");
+                    return;
+                }
+            }
+            
             try{
                 invoke("deploy", new Class[] {String.class, String.class, Map.class, boolean.class}, // NOI18N
                         new Object[] {file.getAbsolutePath(), moduleID, new HashMap(), true});
@@ -492,10 +512,12 @@ public class OC4JDeploymentManager implements DeploymentManager, ProgressObject,
                             new Class[] {String.class, String.class},
                             new Object[] {moduleID, ip.getInstanceProperties().getProperty(OC4JPluginProperties.PROPERTY_WEB_SITE) + "-web-site"});  // NOI18N
                 }
-            } catch(Exception e) {
+            } catch (Exception e) {
                 fireHandleProgressEvent(module_id, new OC4JDeploymentStatus(ActionType.EXECUTE, CommandType.DISTRIBUTE, StateType.FAILED, NbBundle.getMessage(OC4JDeploymentManager.class, "MSG_DEPLOY_FAILED")));
                 OC4JErrorManager.getInstance(this).error(uri, e, OC4JErrorManager.GENERIC_FAILURE);
+                return;
             }
+            
             fireHandleProgressEvent(module_id, new OC4JDeploymentStatus(ActionType.EXECUTE, CommandType.DISTRIBUTE, StateType.COMPLETED, NbBundle.getMessage(OC4JDeploymentManager.class, "MSG_DEPLOYED")));
             break;
         case START:
@@ -507,8 +529,10 @@ public class OC4JDeploymentManager implements DeploymentManager, ProgressObject,
                 } catch(Exception e) {
                     fireHandleProgressEvent(module_id, new OC4JDeploymentStatus(ActionType.EXECUTE, CommandType.DISTRIBUTE, StateType.FAILED, NbBundle.getMessage(OC4JDeploymentManager.class, "MSG_DEPLOY_FAILED")));
                     OC4JErrorManager.getInstance(this).error(uri, e, OC4JErrorManager.GENERIC_FAILURE);
+                    return;
                 }
             }
+            
             fireHandleProgressEvent(module_id, new OC4JDeploymentStatus(ActionType.EXECUTE, CommandType.START, StateType.COMPLETED, NbBundle.getMessage(OC4JDeploymentManager.class, "MSG_STARTING_APP")));
             break;
         }

@@ -60,6 +60,8 @@ public class OC4JItemNode extends AbstractNode {
     
     private static final String HTTP_HEADER = "http://";
     
+    private static final int TIMEOUT = 30000;
+    
     private OC4JItemNode(Children children, final TargetModuleID module, final Lookup lookup, ItemType type) {
         super(children);
         this.type = type;
@@ -79,28 +81,32 @@ public class OC4JItemNode extends AbstractNode {
                     if(module == null || lookup == null)
                         return null;
                     
-                    OC4JDeploymentManager dm = lookup.lookup(OC4JDeploymentManager.class);
-                    String app = null;
-                    
-                    if(module.getWebURL() != null)
-                        app = module.getWebURL();
-                    
-                    for(TargetModuleID id:module.getChildTargetModuleID()) {
-                        if(id.getWebURL() != null) {
-                            app = id.getWebURL();
-                            break;
+                    try {
+                        OC4JDeploymentManager dm = lookup.lookup(OC4JDeploymentManager.class);
+                        String app = null;
+                        
+                        if(module.getWebURL() != null)
+                            app = module.getWebURL();
+                        
+                        for(TargetModuleID id:module.getChildTargetModuleID()) {
+                            if(id.getWebURL() != null) {
+                                app = id.getWebURL();
+                                break;
+                            }
                         }
-                    }
-                    
-                    InstanceProperties ip = dm.getInstanceProperties();
-                    
-                    String host = ip.getProperty(OC4JPluginProperties.PROPERTY_HOST);
-                    String httpPort = ip.getProperty(InstanceProperties.HTTP_PORT_NUMBER);
-                    
-                    if(app == null || host == null || httpPort == null)
+                        
+                        InstanceProperties ip = dm.getInstanceProperties();
+                        
+                        String host = ip.getProperty(OC4JPluginProperties.PROPERTY_HOST);
+                        String httpPort = ip.getProperty(InstanceProperties.HTTP_PORT_NUMBER);
+                        
+                        if(app == null || host == null || httpPort == null)
+                            return null;
+                        
+                        return HTTP_HEADER + host + ":" + httpPort + app;
+                    } catch (Throwable t) {
                         return null;
-                    
-                    return HTTP_HEADER + host + ":" + httpPort + app;
+                    }
                 }
             });
             getCookieSet().add(new UndeployModuleCookie() {
@@ -114,14 +120,16 @@ public class OC4JItemNode extends AbstractNode {
                     Runnable r = new Runnable() {
                         public void run() {
                             isRunning = true;
-                            int time = 0;
+                            
+                            // Save the current time so that we can deduct that the undeploy
+                            // failed due to timeout
+                            long start = System.currentTimeMillis();
                             
                             ProgressObject o = dm.undeploy(new TargetModuleID[] {module});
                             
-                            while(!o.getDeploymentStatus().isCompleted() && time < 30000) {
+                            while(!o.getDeploymentStatus().isCompleted() && System.currentTimeMillis() - start < TIMEOUT) {
                                 try {
                                     Thread.sleep(2000);
-                                    time += 2000;
                                 } catch(InterruptedException ex) {
                                     // Nothing to do
                                 }
@@ -173,7 +181,7 @@ public class OC4JItemNode extends AbstractNode {
             return UISupport.getIcon(ServerIcon.EAR_OPENED_FOLDER);
         } else if(this.type.equals(ItemType.J2EE_APPLICATION) ||
                 this.type.equals(ItemType.J2EE_APPLICATION_SYSTEM) ||
-                this.type.equals(ItemType.JDBC_RESOURCES) || 
+                this.type.equals(ItemType.JDBC_RESOURCES) ||
                 this.type.equals(ItemType.CONNECTION_POOLS)) {
             return getIcon(type);
         } else {

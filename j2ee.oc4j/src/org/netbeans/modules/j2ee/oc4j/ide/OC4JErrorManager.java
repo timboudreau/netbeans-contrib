@@ -19,7 +19,9 @@
 
 package org.netbeans.modules.j2ee.oc4j.ide;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.logging.ErrorManager;
 import javax.swing.JOptionPane;
@@ -73,12 +75,17 @@ public class OC4JErrorManager extends ErrorManager {
      * Do a reaction if any exists
      *
      * @param clazz class name what be searched for a reaction
+     * @return true if reaction is successfull or false if not
      */
-    public synchronized void reaction(String clazz) {
+    public synchronized boolean reaction(String clazz) {
         ClassReaction c = ClassReaction.lookup(clazz);
         
-        if (null != c)
+        if (null != c) {
             c.react(dm);
+            return true;
+        }
+        
+        return false;
     }
     
     /**
@@ -90,6 +97,8 @@ public class OC4JErrorManager extends ErrorManager {
      */
     @Override
     public synchronized void error(String s, Exception e, int code) {
+        List<String> buffer = new ArrayList<String>();
+        
         if (OC4JDebug.isEnabled())
             write(s);
         
@@ -103,8 +112,10 @@ public class OC4JErrorManager extends ErrorManager {
             if (OC4JDebug.isEnabled())
                 write(st.toString());
             
-            // Do a reaction if available
-            reaction(st.getClassName());
+            // Do a reaction if available and if it wasn't done before
+            if(!buffer.contains(st.getClassName()))
+                if (reaction(st.getClassName()))
+                    buffer.add(st.getClassName());
         }
     }
     
@@ -112,6 +123,7 @@ public class OC4JErrorManager extends ErrorManager {
     static {
         new AuthenticateReaction();
         new MissingDriverReaction();
+        new MissingJSFReaction();
     }
     
     private static class AuthenticateReaction extends ClassReaction {
@@ -130,7 +142,7 @@ public class OC4JErrorManager extends ErrorManager {
                 ip.setProperty(InstanceProperties.PASSWORD_ATTR, password);
         }
     }
-       
+    
     private static class MissingDriverReaction extends ClassReaction {
         
         public MissingDriverReaction() {
@@ -140,6 +152,18 @@ public class OC4JErrorManager extends ErrorManager {
         public void react(OC4JDeploymentManager manager) {
             JOptionPane.showMessageDialog(null, NbBundle.getMessage(OC4JErrorManager.class, "MSG_MissingDriver"),
                     NbBundle.getMessage(OC4JErrorManager.class, "MSG_MissingDriverTitle"), JOptionPane.INFORMATION_MESSAGE);
+        }
+    }
+    
+    private static class MissingJSFReaction extends ClassReaction {
+        
+        public MissingJSFReaction() {
+            super("com.evermind.server.http.deployment.WARAnnotationParser");
+        }
+        
+        public void react(OC4JDeploymentManager manager) {
+            JOptionPane.showMessageDialog(null, NbBundle.getMessage(OC4JErrorManager.class, "MSG_MissingJSF"),
+                    NbBundle.getMessage(OC4JErrorManager.class, "MSG_MissingJSFTitle"), JOptionPane.INFORMATION_MESSAGE);
         }
     }
     
