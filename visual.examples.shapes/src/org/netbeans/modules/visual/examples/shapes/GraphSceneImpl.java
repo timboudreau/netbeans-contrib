@@ -182,7 +182,7 @@ public class GraphSceneImpl extends GraphScene.StringGraph implements ActionList
         getActions().addAction(ActionFactory.createPanAction());
         getActions().addAction(ActionFactory.createAcceptAction(new AcceptProvider() {
             
-            public boolean isAcceptable(Widget widget, Point point, Transferable transferable) {
+            public ConnectorState isAcceptable(Widget widget, Point point, Transferable transferable) {
                 
                 MyItemData data = null;
                 
