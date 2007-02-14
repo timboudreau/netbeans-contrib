@@ -19,9 +19,8 @@
 
 package org.netbeans.modules.languages.studio;
 
-import org.netbeans.api.languages.ASTNode;
+import org.netbeans.api.languages.ASTItem;
 import org.netbeans.api.languages.Highlighting;
-import org.netbeans.api.languages.SToken;
 import org.openide.ErrorManager;
 import org.openide.cookies.EditorCookie;
 import org.openide.windows.TopComponent;
@@ -42,30 +41,20 @@ public class HighlighterSupport {
     
     private Color       color;
     private Document    highlightedDocument;
-    private ASTNode     highlightedNode;
-    private SToken      highlightedToken;
+    private ASTItem     highlightedItem;
     
     
     public HighlighterSupport (Color c) {
         color = c;
     }
     
-    public void highlight (Document doc, ASTNode node) {
+    public void highlight (Document doc, ASTItem item) {
         removeHighlightIn ();
         Highlighting.getHighlighting (highlightedDocument = doc).highlight (
-            highlightedNode = node, 
+            highlightedItem = item, 
             getHighlightAS ()
         );
-        refresh (doc, node.getOffset ());
-    }
-    
-    public void highlight (Document doc, SToken token) {
-        removeHighlightIn ();
-        Highlighting.getHighlighting (highlightedDocument = doc).highlight (
-            highlightedToken = token, 
-            getHighlightAS ()
-        );
-        refresh (doc, token.getOffset ());
+        refresh (doc, item.getOffset ());
     }
     
     private static void refresh (final Document doc, final int offset) {
@@ -77,6 +66,7 @@ public class HighlighterSupport {
                     EditorCookie ec = (EditorCookie) tc.getLookup ().lookup (EditorCookie.class);
                     if (ec == null) continue;
                     JEditorPane[] eps = ec.getOpenedPanes ();
+                    if (eps == null) continue;
                     int i, k = eps.length;
                     for (i = 0; i < k; i++) {
                         if (eps [i].getDocument () == doc) {
@@ -129,16 +119,10 @@ public class HighlighterSupport {
     }
     
     private void removeHighlightIn () {
-        if (highlightedNode != null) {
+        if (highlightedItem != null) {
             Highlighting.getHighlighting (highlightedDocument).removeHighlight 
-                (highlightedNode);
-            highlightedNode = null;
-            highlightedDocument = null;
-        }
-        if (highlightedToken != null) {
-            Highlighting.getHighlighting (highlightedDocument).removeHighlight 
-                (highlightedToken);
-            highlightedToken = null;
+                (highlightedItem);
+            highlightedItem = null;
             highlightedDocument = null;
         }
     }

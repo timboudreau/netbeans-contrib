@@ -19,11 +19,13 @@
 
 package org.netbeans.modules.languages.studio;
 
+import org.netbeans.api.languages.ASTItem;
+import org.netbeans.api.languages.ASTItem;
 import org.netbeans.api.languages.ASTNode;
-import org.netbeans.api.languages.PTPath;
+import org.netbeans.api.languages.ASTPath;
 import org.netbeans.api.languages.ParseException;
 import org.netbeans.api.languages.ParserManager;
-import org.netbeans.api.languages.SToken;
+import org.netbeans.api.languages.ASTToken;
 import org.netbeans.modules.editor.NbEditorDocument;
 import org.openide.ErrorManager;
 import org.openide.cookies.EditorCookie;
@@ -65,8 +67,6 @@ import javax.swing.SwingUtilities;
  * Top component which displays something.
  */
 final class ASTBrowserTopComponent extends TopComponent {
-    
-    private static boolean compact = false;
     
     private static final long   serialVersionUID = 1L;
     private static ASTBrowserTopComponent instance;
@@ -190,21 +190,14 @@ final class ASTBrowserTopComponent extends TopComponent {
                 EditorCookie editorCookie = (EditorCookie) ns [0].getLookup ().
                     lookup (EditorCookie.class);
                 if (editorCookie != null) {
-                    TreeNode tn = (TreeNode) tree.getLastSelectedPathComponent ();
+                    TNode tn = (TNode) tree.getLastSelectedPathComponent ();
                     if (tn != null) {
-                        if (tn instanceof TNode) {
-                            ASTNode n = ((TNode) tn).getASTNode ();
-                            if (n == null) return;
-                            highlighting.highlight (
-                                editorCookie.getDocument (), 
-                                ((TNode) tn).getASTNode ()
-                            );
-                        } else {
-                            highlighting.highlight (
-                                editorCookie.getDocument (), 
-                                ((ASTLeaf) tn).getToken ()
-                            );
-                        }
+                        ASTItem item = tn.getASTItem ();
+                        if (item == null) return;
+                        highlighting.highlight (
+                            editorCookie.getDocument (), 
+                            item
+                        );
                         return;
                     }
                 }
@@ -265,61 +258,43 @@ final class ASTBrowserTopComponent extends TopComponent {
     static class TNode implements TreeNode {
         
         private TNode       parent;
-        private ASTNode     astNode;
+        private ASTItem     astItem;
         private List        children;
         private Map         map;
         
-        TNode (TNode parent, ASTNode astNode) {
+        TNode (TNode parent, ASTItem astItem) {
             this.parent = parent;
-            this.astNode = astNode;
+            this.astItem = astItem;
         }
         
         private void initChildren () {
             if (children != null) return;
             children = new ArrayList ();
             map = new HashMap ();
-            if (astNode == null) return;
-            List chList = astNode.getChildren();
-            
-            if (compact) {
-                while (true) {
-                    if (chList == null) {
-                        break;
-                    }
-                    if (chList.size() != 1) {
-                        break;
-                    }
-                    if (!(chList.get(0) instanceof ASTNode)) {
-                        break;
-                    }
-                    ASTNode node = (ASTNode) chList.get(0);
-                    chList = node.getChildren();
-                }
-            }
+            if (astItem == null) return;
+            List<ASTItem> chList = astItem.getChildren ();
             
             if (chList != null) {
-                Iterator it = chList.iterator ();
+                Iterator<ASTItem> it = chList.iterator ();
                 while (it.hasNext ()) {
-                    Object e = (Object) it.next ();
-                    TreeNode tn = null;
-                    if (e instanceof SToken)
-                        tn = new ASTLeaf (this, (SToken) e);
-                    else
-                        tn = new TNode (this, (ASTNode) e);
+                    ASTItem item = it.next ();
+                    TreeNode tn = new TNode (this, item);
                     children.add (tn);
-                    map.put (e, tn);
+                    map.put (item, tn);
                 }
             }
         }
         
         String getName () {
-            if (astNode == null)
+            if (astItem == null)
                 return "No syntax definition.";
-            return astNode.getNT ();
+            if (astItem instanceof ASTNode)
+                return ((ASTNode) astItem).getNT ();
+            return astItem.toString ();
         }
         
-        ASTNode getASTNode () {
-            return astNode;
+        ASTItem getASTItem () {
+            return astItem;
         }
         
         TreeNode getTreeNode (Object o) {
@@ -351,7 +326,9 @@ final class ASTBrowserTopComponent extends TopComponent {
         }
 
         public boolean isLeaf () {
-            return false;
+            if (astItem == null)
+                return false;
+            return astItem.getChildren ().isEmpty ();
         }
 
         public Enumeration children () {
@@ -368,53 +345,10 @@ final class ASTBrowserTopComponent extends TopComponent {
         }
     }
     
-    static class ASTLeaf implements TreeNode {
-        
-        private TNode parent;
-        private SToken token;
-        
-        ASTLeaf (TNode parent, SToken token) {
-            this.parent = parent;
-            this.token = token;
-        }
-        
-        public TreeNode getChildAt (int childIndex) {
-            throw new ArrayIndexOutOfBoundsException ();
-        }
-
-        public int getChildCount () {
-            return 0;
-        }
-
-        public TreeNode getParent () {
-            return parent;
-        }
-
-        public int getIndex (TreeNode node) {
-            throw new ArrayIndexOutOfBoundsException ();
-        }
-
-        public boolean getAllowsChildren () {
-            return false;
-        }
-
-        public boolean isLeaf () {
-            return true;
-        }
-        
-        SToken getToken () {
-            return token;
-        }
-
-        public Enumeration children () {
-            throw new ArrayIndexOutOfBoundsException ();
-        }
-    }
-    
     class CListener implements CaretListener {
         public void caretUpdate (CaretEvent e) {
             if (rootNode == null) return;
-            PTPath path = rootNode.findPath (e.getDot ());
+            ASTPath path = rootNode.findPath (e.getDot ());
             if (path == null) return;
             TreeNode tNode = (TreeNode) tree.getModel ().getRoot ();
             List treePath = new ArrayList ();
@@ -430,10 +364,8 @@ final class ASTBrowserTopComponent extends TopComponent {
             TreePath treePath2 = new TreePath (treePath.toArray ());
             DefaultTreeModel model = new DefaultTreeModel ((TreeNode) tree.getModel ().getRoot ());
             tree.setModel (model);
-            if (!compact) {
-                tree.setSelectionPath (treePath2);
-                tree.scrollPathToVisible (treePath2);
-            }
+            tree.setSelectionPath (treePath2);
+            tree.scrollPathToVisible (treePath2);
         }
     }
 
@@ -448,20 +380,10 @@ final class ASTBrowserTopComponent extends TopComponent {
             int         row,
             boolean     hasFocus
         ) {
-            if (value instanceof ASTLeaf)
-                return super.getTreeCellRendererComponent (
-                    tree, 
-                    ((ASTLeaf) value).getToken ().toString (), 
-                    sel, expanded, leaf, row, hasFocus
-                );
-            if (value instanceof TNode)
-                return super.getTreeCellRendererComponent (
-                    tree, 
-                    ((TNode) value).getName (), 
-                    sel, expanded, leaf, row, hasFocus
-                );
             return super.getTreeCellRendererComponent (
-                tree, value, sel, expanded, leaf, row, hasFocus
+                tree, 
+                ((TNode) value).getName (), 
+                sel, expanded, leaf, row, hasFocus
             );
         }
     }
