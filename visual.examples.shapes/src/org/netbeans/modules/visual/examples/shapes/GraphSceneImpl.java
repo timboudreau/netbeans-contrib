@@ -208,11 +208,11 @@ public class GraphSceneImpl extends GraphScene.StringGraph implements ActionList
                             AffineTransform.getTranslateInstance(point.getLocation().getX(),
                             point.getLocation().getY()),
                             null);
-                    return true;
+                    return ConnectorState.ACCEPT;
                     
                 } else   {
                     StatusDisplayer.getDefault().setStatusText(data.getComment() + " is a node.");
-                    return false;
+                    return ConnectorState.REJECT_AND_STOP;
                 }
                 
             }
