@@ -28,4 +28,15 @@ Microsystems, Inc. All Rights Reserved.
             <classpath refid="cp"/>
         </java>
     </target>
+
+    <target name="debug" depends="netbeans">
+        <java fork="true" classname="org.netbeans.modules.visual.examples.RunDialog">
+            <classpath path="build/classes"/>
+            <classpath path="../lib/build/classes"/>
+            <classpath refid="cp"/>
+            <jvmarg value="-Xdebug"/>
+	    <jvmarg value="-Xnoagent"/>
+	    <jvmarg value="-Xrunjdwp:transport=dt_socket,suspend=n,server=y,address=3456"/>
+        </java>
+    </target>
 </project>
