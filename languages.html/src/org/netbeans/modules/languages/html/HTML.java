@@ -28,13 +28,13 @@ import java.util.Stack;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
 import javax.swing.text.StyledDocument;
-
+import org.netbeans.api.languages.ASTItem;
 import org.netbeans.api.lexer.Token;
 import org.netbeans.api.lexer.TokenSequence;
 import org.netbeans.api.languages.Cookie;
 import org.netbeans.api.languages.SyntaxCookie;
 import org.netbeans.api.languages.ASTNode;
-import org.netbeans.api.languages.SToken;
+import org.netbeans.api.languages.ASTToken;
 import org.netbeans.api.languages.LibrarySupport;
 import org.netbeans.api.languages.support.CompletionSupport;
 import org.openide.ErrorManager;
@@ -141,7 +141,7 @@ public class HTML {
     }
     
 //    public static Runnable hyperlink (PTPath path) {
-//        SToken t = (SToken) path.getLeaf ();
+//        ASTToken t = (ASTToken) path.getLeaf ();
 //        String s = t.getIdentifier ();
 //        s = s.substring (1, s.length () - 1).trim ();
 //        if (!s.endsWith (")")) return null;
@@ -262,8 +262,8 @@ public class HTML {
         List l = new ArrayList ();
         while (it.hasNext ()) {
             Object o = it.next ();
-            if (o instanceof SToken)
-                l.add (o);
+            if (o instanceof ASTToken)
+                l.add (clone ((ASTToken) o));
             else
                 l.add (clone ((ASTNode) o));
         }
@@ -274,19 +274,39 @@ public class HTML {
         return clone (n.getMimeType (), n.getNT (), n.getRule (), n.getOffset (), n.getChildren ());
     }
     
+    private static ASTToken clone (ASTToken token) {
+        List<ASTItem> children = new ArrayList ();
+        Iterator<ASTItem> it = token.getChildren ().iterator ();
+        while (it.hasNext ()) {
+            ASTItem item = it.next ();
+            if (item instanceof ASTNode)
+                children.add (clone ((ASTNode) item));
+            else
+                children.add (clone ((ASTToken) item));
+        }
+        return ASTToken.create (
+            token.getMimeType (),
+            token.getType (),
+            token.getIdentifier (),
+            token.getOffset (),
+            token.getLength (),
+            children
+        );
+    }
+    
     private static ASTNode clone (ASTNode n, String nt) {
         return clone (n.getMimeType (), nt, n.getRule (), n.getOffset (), n.getChildren ());
     }
     
     private static void resolve (ASTNode n, Stack s, List l, boolean findUnpairedTags) {
-        Iterator it = n.getChildren ().iterator ();
+        Iterator<ASTItem> it = n.getChildren ().iterator ();
         while (it.hasNext ()) {
-            Object o = it.next ();
-            if (o instanceof SToken) {
-                l.add (o);
+            ASTItem item = it.next ();
+            if (item instanceof ASTToken) {
+                l.add (clone ((ASTToken) item));
                 continue;
             }
-            ASTNode node = (ASTNode) o;
+            ASTNode node = (ASTNode) item;
             if (node.getNT ().equals ("startTag")) {
                 if (node.getTokenType ("html_end_element_end") != null) {
                     l.add (clone (node, "simpleTag"));

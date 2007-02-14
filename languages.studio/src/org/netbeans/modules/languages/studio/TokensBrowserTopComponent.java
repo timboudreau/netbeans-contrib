@@ -28,7 +28,7 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
-import org.netbeans.api.languages.SToken;
+import org.netbeans.api.languages.ASTToken;
 import org.netbeans.api.lexer.Token;
 import org.netbeans.api.lexer.TokenHierarchy;
 import org.netbeans.api.lexer.TokenSequence;
@@ -201,7 +201,8 @@ final class TokensBrowserTopComponent extends TopComponent {
                 if (t == null) return;
                 Token token = t.getToken ();
                 if (token == null) return;
-                SToken stoken = SToken.create (
+                ASTToken stoken = ASTToken.create (
+                    t.getMimeType (),
                     token.id ().name (), 
                     token.text ().toString (), 
                     t.getOffset ()
@@ -321,6 +322,8 @@ final class TokensBrowserTopComponent extends TopComponent {
         while (en.hasMoreElements ()) {
             THNode n = (THNode) en.nextElement ();
             if (n.getOffset () + n.getToken ().length () > offset) {
+                if (offset < n.getOffset ()) 
+                    return path;
                 if (n.isLeaf ())
                     return new MPath (path, n);
                 return findPath (new MPath (path, n), offset);
@@ -334,6 +337,7 @@ final class TokensBrowserTopComponent extends TopComponent {
     
     static interface THNode extends TreeNode {
         Token getToken ();
+        String getMimeType ();
         int getOffset ();
         int getIndex ();
     }
@@ -366,7 +370,7 @@ final class TokensBrowserTopComponent extends TopComponent {
             TokenSequence ts2 = ts.embedded ();
             if (ts2 != null)
                 return new TSNode (this, ts2, ts.token (), ts.offset (), ts.index ());
-            return new TNode (this, ts.token (), index, ts.offset ());
+            return new TNode (this, ts.token (), getMimeType (), index, ts.offset ());
         }
 
         public int getChildCount () {
@@ -375,6 +379,10 @@ final class TokensBrowserTopComponent extends TopComponent {
 
         public TreeNode getParent () {
             return parent;
+        }
+        
+        public String getMimeType () {
+            return ts.language ().mimeType ();
         }
 
         public int getIndex (TreeNode node) {
@@ -420,12 +428,14 @@ final class TokensBrowserTopComponent extends TopComponent {
         
         private TSNode          parent;
         private Token           token;
+        private String          mimeType;
         private int             index;
         private int             offset;
         
-        TNode (TSNode parent, Token token, int index, int offset) {
+        TNode (TSNode parent, Token token, String mimeType, int index, int offset) {
             this.parent = parent;
             this.token = token;
+            this.mimeType = mimeType;
             this.index = index;
             this.offset = offset;
         }
@@ -460,6 +470,10 @@ final class TokensBrowserTopComponent extends TopComponent {
         
         public Token getToken () {
             return token;
+        }
+        
+        public String getMimeType () {
+            return mimeType;
         }
         
         public int getOffset () {
