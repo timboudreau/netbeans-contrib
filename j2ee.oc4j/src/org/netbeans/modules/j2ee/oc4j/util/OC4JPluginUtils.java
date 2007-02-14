@@ -362,7 +362,7 @@ public class OC4JPluginUtils {
         return url;
     }
     
-    public static void checkClass(String clazz, OC4JDeploymentManager dm) {
+    public static boolean checkClass(String clazz, OC4JDeploymentManager dm) {
         // Creating a class loader to check if there is a driver on the server
         List<URL> l = dm.getProperties().getClasses();
         URL[] urls = l.toArray(new URL[] {});
@@ -373,6 +373,9 @@ public class OC4JPluginUtils {
             Class.forName(clazz, true, c);
         } catch (ClassNotFoundException e) {
             OC4JErrorManager.getInstance(dm).error(clazz, e, OC4JErrorManager.GENERIC_FAILURE);
+            return false;
         }
+        
+        return true;
     }
 }
