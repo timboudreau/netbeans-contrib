@@ -70,6 +70,18 @@ public class OC4JErrorManager extends ErrorManager {
     }
     
     /**
+     * Do a reaction if any exists
+     *
+     * @param clazz class name what be searched for a reaction
+     */
+    public synchronized void reaction(String clazz) {
+        ClassReaction c = ClassReaction.lookup(clazz);
+        
+        if (null != c)
+            c.react(dm);
+    }
+    
+    /**
      * Parses exception's stack trace and try to performs reaction
      *
      * @param s debug message string
@@ -91,10 +103,8 @@ public class OC4JErrorManager extends ErrorManager {
             if (OC4JDebug.isEnabled())
                 write(st.toString());
             
-            ClassReaction c = ClassReaction.lookup(st.getClassName());
-            
-            if(null != c)
-                c.react(dm);
+            // Do a reaction if available
+            reaction(st.getClassName());
         }
     }
     
@@ -103,6 +113,7 @@ public class OC4JErrorManager extends ErrorManager {
         new AuthenticateReaction();
         new MissingDriverReaction();
     }
+    
     private static class AuthenticateReaction extends ClassReaction {
         
         public AuthenticateReaction() {
@@ -119,7 +130,7 @@ public class OC4JErrorManager extends ErrorManager {
                 ip.setProperty(InstanceProperties.PASSWORD_ATTR, password);
         }
     }
-    
+       
     private static class MissingDriverReaction extends ClassReaction {
         
         public MissingDriverReaction() {

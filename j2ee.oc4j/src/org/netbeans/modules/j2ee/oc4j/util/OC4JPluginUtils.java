@@ -26,6 +26,7 @@ import java.io.FileWriter;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
@@ -40,6 +41,8 @@ import org.netbeans.api.db.explorer.DatabaseException;
 import org.netbeans.api.db.explorer.JDBCDriver;
 import org.netbeans.api.db.explorer.JDBCDriverManager;
 import org.netbeans.modules.j2ee.deployment.plugins.api.InstanceProperties;
+import org.netbeans.modules.j2ee.oc4j.OC4JDeploymentManager;
+import org.netbeans.modules.j2ee.oc4j.ide.OC4JErrorManager;
 import org.openide.DialogDisplayer;
 import org.openide.ErrorManager;
 import org.openide.NotifyDescriptor;
@@ -311,7 +314,7 @@ public class OC4JPluginUtils {
     public static String getServerRoot(String instanceURL) {
         InstanceProperties ip = InstanceProperties.getInstanceProperties(instanceURL);
         String serverRoot = ip.getProperty(OC4JPluginProperties.PROPERTY_OC4J_HOME);
-                
+        
         return serverRoot;
     }
     
@@ -357,5 +360,19 @@ public class OC4JPluginUtils {
             url = FileUtil.getArchiveRoot(url);
         }
         return url;
+    }
+    
+    public static void checkClass(String clazz, OC4JDeploymentManager dm) {
+        // Creating a class loader to check if there is a driver on the server
+        List<URL> l = dm.getProperties().getClasses();
+        URL[] urls = l.toArray(new URL[] {});
+        ClassLoader c = new URLClassLoader(urls);
+        
+        // Driver check
+        try {
+            Class.forName(clazz, true, c);
+        } catch (ClassNotFoundException e) {
+            OC4JErrorManager.getInstance(dm).error(clazz, e, OC4JErrorManager.GENERIC_FAILURE);
+        }
     }
 }
