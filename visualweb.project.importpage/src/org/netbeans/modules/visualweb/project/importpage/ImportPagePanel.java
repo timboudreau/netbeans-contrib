@@ -691,7 +691,10 @@ public class ImportPagePanel extends JPanel implements DocumentListener, ActionL
         
         if (!Character.isJavaIdentifierStart(name.charAt(0))) {
             errorLabel.setText(NbBundle.getMessage(ImportPagePanel.class, "WrongFirstLetter")); // NOI18N
-            descriptor.setValid(false);
+            
+            if (descriptor != null) {
+                descriptor.setValid(false);
+            }
             
             return;
         }
@@ -701,7 +704,9 @@ public class ImportPagePanel extends JPanel implements DocumentListener, ActionL
             
             if (!Character.isJavaIdentifierPart(c)) {
                 errorLabel.setText(NbBundle.getMessage(ImportPagePanel.class, "WrongPageName")); // NOI18N
+            if (descriptor != null) {
                 descriptor.setValid(false);
+            }
                 
                 return;
             }
@@ -709,7 +714,9 @@ public class ImportPagePanel extends JPanel implements DocumentListener, ActionL
         
         if ((project != null) && isUsedName(name, project)) {
             errorLabel.setText(NbBundle.getMessage(ImportPagePanel.class, "NameUsed", name)); // NOI18N
-            descriptor.setValid(false);
+            if (descriptor != null) {
+                descriptor.setValid(false);
+            }
             
             return;
         }
