@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE filesystem PUBLIC "-//NetBeans//DTD Filesystem 1.1//EN" "http://www.netbeans.org/dtds/filesystem-1_1.dtd">
+<filesystem>
+    <folder name="Actions">
+        <folder name="Build">
+            <file name="org-netbeans-modules-flyingsaucer-ViewWithFlyingSaucer.instance"/>
+        </folder>
+    </folder>
+    <folder name="Menu">
+        <folder name="View">
+            <file name="org-netbeans-modules-flyingsaucer-ChooseURLAction.instance"/>
+        </folder>
+    </folder>
+    <folder name="Editors">
+        <folder name="text">
+            <folder name="html">
+                <folder name="Popup">
+                    <attr name="format/org-netbeans-modules-flyingsaucer-ViewWithFlyingSaucer.shadow" boolvalue="true"/>
+                    <file name="org-netbeans-modules-flyingsaucer-ViewWithFlyingSaucer.shadow">
+                        <attr name="originalFile" stringvalue="Actions/Build/org-netbeans-modules-flyingsaucer-ViewWithFlyingSaucer.instance"/>
+                    </file>
+                    <attr name="org-netbeans-modules-flyingsaucer-ViewWithFlyingSaucer.shadow/SeparatorAfterFormat.instance" boolvalue="true"/>
+                </folder>
+            </folder>
+        </folder>
+    </folder>
+    <folder name="Loaders">
+        <folder name="text">
+            <folder name="html">
+                <folder name="Actions">
+                    <attr name="ViewAction.instance/org-netbeans-modules-flyingsaucer-ViewWithFlyingSaucer.shadow" boolvalue="true"/>
+                    <file name="org-netbeans-modules-flyingsaucer-ViewWithFlyingSaucer.shadow">
+                        <attr name="originalFile" stringvalue="Actions/Build/org-netbeans-modules-flyingsaucer-ViewWithFlyingSaucer.instance"/>
+                    </file>
+                    <attr name="org-netbeans-modules-flyingsaucer-ViewWithFlyingSaucer.shadow/html-project-separator-1.instance" boolvalue="true"/>
+                </folder>
+            </folder>
+        </folder>
+    </folder>
+</filesystem>
