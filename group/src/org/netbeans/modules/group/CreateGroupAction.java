@@ -13,7 +13,7 @@
  * "Portions Copyrighted [year] [name of copyright owner]"
  *
  * The Original Software is NetBeans. The Initial Developer of the Original
- * Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
+ * Software is Sun Microsystems, Inc. Portions Copyright 1997-2007 Sun
  * Microsystems, Inc. All Rights Reserved.
  */
 
@@ -28,7 +28,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import org.openide.ErrorManager;
-
+import org.openide.awt.Mnemonics;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileStateInvalidException;
 import org.openide.loaders.DataFolder;
@@ -189,8 +189,8 @@ public class CreateGroupAction extends CookieAction {
             setLayout (lay);
 
             // label and text field with mnemonic
-            JLabel label = new JLabel (NbBundle.getBundle (CreateGroupAction.class).getString ("CTL_Group_Name"));
-            label.setDisplayedMnemonic (NbBundle.getBundle (CreateGroupAction.class).getString ("CTL_Group_Name_MNEM").charAt (0));
+            JLabel label = new JLabel();
+            Mnemonics.setLocalizedText(label, NbBundle.getBundle (CreateGroupAction.class).getString ("CTL_Group_Name"));
 
             text = new JTextField ();
             text.getAccessibleContext().setAccessibleDescription(NbBundle.getBundle (CreateGroupAction.class).getString ("ACS_TextField"));
