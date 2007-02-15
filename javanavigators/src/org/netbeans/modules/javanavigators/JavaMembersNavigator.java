@@ -85,7 +85,9 @@ public class JavaMembersNavigator implements NavigatorPanel {
         DataGatheringTaskFactory.getDefault().activate();
         ctx = context;
         JList list = getList(true);
-        list.setModel (DataGatheringTaskFactory.getModel());
+        if (list != null) {
+            list.setModel (DataGatheringTaskFactory.getModel());
+        }
     }
 
     public void panelDeactivated() {
