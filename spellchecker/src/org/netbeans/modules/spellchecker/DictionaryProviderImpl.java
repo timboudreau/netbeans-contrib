@@ -68,7 +68,7 @@ public class DictionaryProviderImpl implements DictionaryProvider {
         Iterator suffixes = getLocalizingSuffixes(locale);
         
         while (suffixes.hasNext()) {
-            Dictionary current = (Dictionary) dictionaries.get(suffixes.next());
+            Dictionary current = dictionaries.get(suffixes.next());
             
             if (current != null)
                 return current;
@@ -85,7 +85,7 @@ public class DictionaryProviderImpl implements DictionaryProvider {
             InstalledFileLocator.getDefault().locate("modules/dict", null, false),
         };
         
-        Collection locales = new HashSet();
+        Collection<Locale> locales = new HashSet<Locale>();
         
         for (int dirCntr = 0; dirCntr < dirs.length; dirCntr++) {
             if (dirs[dirCntr] == null)
@@ -130,7 +130,7 @@ public class DictionaryProviderImpl implements DictionaryProvider {
                 locales.add(new Locale(language, country, variant));
             }
         }
-        return (Locale[] )locales.toArray(new Locale[locales.size()]);
+        return locales.toArray(new Locale[locales.size()]);
     }
     
     private synchronized Dictionary createDictionary(Locale locale) {
@@ -161,6 +161,7 @@ public class DictionaryProviderImpl implements DictionaryProvider {
             String currentSuffix = (String) suffixes.next();
             
             File file = InstalledFileLocator.getDefault().locate("modules/dict/dictionary" + currentSuffix + ".txt", null, false);
+            
             if (file != null) {
                 streams.add(file.toURL());
                 return currentSuffix;

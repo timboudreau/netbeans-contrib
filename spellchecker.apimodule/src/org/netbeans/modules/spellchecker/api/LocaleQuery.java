@@ -13,17 +13,15 @@
  * "Portions Copyrighted [year] [name of copyright owner]"
  *
  * The Original Software is NetBeans. The Initial Developer of the Original
- * Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
+ * Software is Sun Microsystems, Inc. Portions Copyright 1997-2007 Sun
  * Microsystems, Inc. All Rights Reserved.
  */
 package org.netbeans.modules.spellchecker.api;
 
-import java.util.Collection;
 import java.util.Locale;
 import org.netbeans.modules.spellchecker.spi.LocaleQueryImplementation;
 import org.openide.filesystems.FileObject;
 import org.openide.util.Lookup;
-import org.openide.util.Lookup.Template;
 
 /**
  *
@@ -35,7 +33,7 @@ public final class LocaleQuery {
     }
 
     public static Locale findLocale(FileObject file) {
-        for (/*@SuppressWarnings("unchecked") */LocaleQueryImplementation i : (Collection<LocaleQueryImplementation>)Lookup.getDefault().lookup(new Template(LocaleQueryImplementation.class)).allInstances()) {
+        for (LocaleQueryImplementation i : Lookup.getDefault().lookupAll(LocaleQueryImplementation.class)) {
             Locale l = i.findLocale(file);
 
             if (l != null)

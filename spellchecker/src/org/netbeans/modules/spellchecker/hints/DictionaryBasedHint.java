@@ -13,17 +13,17 @@
  * "Portions Copyrighted [year] [name of copyright owner]"
  *
  * The Original Software is NetBeans. The Initial Developer of the Original
- * Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
+ * Software is Sun Microsystems, Inc. Portions Copyright 1997-2007 Sun
  * Microsystems, Inc. All Rights Reserved.
  */
 package org.netbeans.modules.spellchecker.hints;
 
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
+import javax.swing.text.Position;
 import javax.swing.text.StyledDocument;
-import org.netbeans.modules.editor.highlights.spi.Highlight;
-import org.netbeans.modules.editor.hints.spi.Hint;
-import org.netbeans.modules.editor.hints.spi.ChangeInfo;
+import org.netbeans.spi.editor.hints.ChangeInfo;
+import org.netbeans.spi.editor.hints.Fix;
 import org.openide.ErrorManager;
 import org.openide.text.NbDocument;
 
@@ -31,21 +31,18 @@ import org.openide.text.NbDocument;
  *
  * @author Jan Lahoda
  */
-public class DictionaryBasedHint extends Hint {
+public final class DictionaryBasedHint implements Fix {
 
     private String original;
     private Document doc;
     private String proposal;
-    private Highlight bounds;
+    private Position[] span;
     
-    /**
-     * Creates a new instance of DictionaryBasedHint 
-     */
-    public DictionaryBasedHint(String original, String proposal, Document doc, Highlight bounds) {
+    public DictionaryBasedHint(String original, String proposal, Document doc, Position[] span) {
         this.original = original;
         this.doc = doc;
         this.proposal = proposal;
-        this.bounds = bounds;
+        this.span = span;
     }
 
     public String getText() {
@@ -57,8 +54,8 @@ public class DictionaryBasedHint extends Hint {
             NbDocument.runAtomicAsUser((StyledDocument) doc, new Runnable() {
                 public void run() {
                     try {
-                        doc.remove(bounds.getStart(), bounds.getEnd() - bounds.getStart());
-                        doc.insertString(bounds.getStart(), proposal, null);
+                        doc.remove(span[0].getOffset(), span[1].getOffset() - span[0].getOffset());
+                        doc.insertString(span[0].getOffset(), proposal, null);
                     } catch (BadLocationException e) {
                         ErrorManager.getDefault().notify(e);
                     }
@@ -71,8 +68,4 @@ public class DictionaryBasedHint extends Hint {
 	return null;
     }
 
-    public int getType() {
-        return ERROR;
-    }
-    
 }

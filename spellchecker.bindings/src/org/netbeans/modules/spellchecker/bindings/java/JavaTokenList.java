@@ -21,7 +21,10 @@ package org.netbeans.modules.spellchecker.bindings.java;
 import java.util.regex.Pattern;
 import javax.swing.event.ChangeListener;
 import javax.swing.text.BadLocationException;
-import org.netbeans.editor.BaseDocument;
+import javax.swing.text.Document;
+import org.netbeans.api.java.lexer.JavaTokenId;
+import org.netbeans.api.lexer.TokenHierarchy;
+import org.netbeans.api.lexer.TokenSequence;
 import org.netbeans.editor.TokenContextPath;
 import org.netbeans.editor.TokenID;
 import org.netbeans.editor.TokenProcessor;
@@ -35,10 +38,10 @@ import org.openide.ErrorManager;
  */
 public class JavaTokenList implements TokenList {
 
-    private BaseDocument doc;
+    private Document doc;
 
     /** Creates a new instance of JavaTokenList */
-    public JavaTokenList(BaseDocument doc) {
+    public JavaTokenList(Document doc) {
         this.doc = doc;
     }
 
@@ -59,7 +62,7 @@ public class JavaTokenList implements TokenList {
     public boolean nextWord() {
         boolean hasNext = nextWordImpl();
 
-        while (hasNext && currentWordOffset < startOffset) {
+        while (hasNext && (currentWordOffset + currentWord.length()) < startOffset) {
             hasNext = nextWordImpl();
         }
 
@@ -67,49 +70,22 @@ public class JavaTokenList implements TokenList {
     }
 
     private int[] findNextJavaDocComment() throws BadLocationException {
-        final int[] span = new int[] {-1, -1};
-
-        doc.getSyntaxSupport().tokenizeText(new TokenProcessor() {
-            private int bufferStart;
-            public int eot(int offset) {
-                return 500;
+        TokenHierarchy h  = TokenHierarchy.get(doc);
+        TokenSequence  ts = h.tokenSequence(JavaTokenId.language());
+        
+        if (ts == null) {
+            return new int[] {-1, -1};
+        }
+        
+        int diff = ts.move(nextBlockStart);
+        
+        while (ts.moveNext()) {
+            if (ts.token().id() == JavaTokenId.JAVADOC_COMMENT) {
+                return new int[] {ts.offset(), ts.offset() + ts.token().length()};
             }
-            public void nextBuffer(char[] buffer, int offset, int len, int startPos, int preScan, boolean lastBuffer) {
-//                System.err.println("nextBuffer:");
-//                System.err.println("offset=" + offset);
-//                System.err.println("len=" + len);
-//                System.err.println("startPos= " + startPos);
-//                System.err.println("preScan=" + preScan);
-//                System.err.println("lastBuffer= " + lastBuffer);
-                bufferStart = startPos - offset;
-            }
-            public boolean token(TokenID tokenID, TokenContextPath tokenContextPath, int tokenBufferOffset, int tokenLength) {
-                try {
-                    if (tokenID == JavaTokenContext.BLOCK_COMMENT) {
-//                        System.err.println("block comment:");
-//                        System.err.println("tokenBufferOffset=" + tokenBufferOffset);
-//                        System.err.println("tokenLength=" + tokenLength);
-                        int start = tokenBufferOffset + bufferStart;
-                        int end = start + tokenLength;
-                        String pattern = doc.getText(start, end - start);
-
-//                        System.err.println("pattern = " + pattern);
-                        if (pattern.startsWith("/**")) {
-                            span[0] = start;
-                            span[1] = end;
-                            return false;
-                        }
-                    }
-                    
-                    return true;
-                } catch (BadLocationException e) {
-                    ErrorManager.getDefault().notify(ErrorManager.INFORMATIONAL, e);
-                    return false;
-                }
-            }
-        }, nextBlockStart, doc.getLength(), false);
-
-        return span;
+        } while (ts.moveNext());
+        
+        return new int[] {-1, -1};
     }
     
     private void handleJavadocTag(CharSequence tag) {

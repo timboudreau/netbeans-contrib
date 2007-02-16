@@ -13,7 +13,7 @@
  * "Portions Copyrighted [year] [name of copyright owner]"
  *
  * The Original Software is NetBeans. The Initial Developer of the Original
- * Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
+ * Software is Sun Microsystems, Inc. Portions Copyright 1997-2007 Sun
  * Microsystems, Inc. All Rights Reserved.
  */
 package org.netbeans.modules.spellchecker;
@@ -23,7 +23,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.URL;
@@ -329,7 +328,7 @@ public class TrieDictionary implements Dictionary {
     }
     
     private static int encodeOneLayer(ByteArray array, int currentPointer, int currentChar, SortedSet<String> data) {
-        Map<Character, SortedSet<String>> char2Words = new TreeMap();
+        Map<Character, SortedSet<String>> char2Words = new TreeMap<Character, SortedSet<String>>();
         boolean representsFullWord = !data.isEmpty() && data.first().length() <= currentChar;
         Iterator<String> dataIt = data.iterator();
 

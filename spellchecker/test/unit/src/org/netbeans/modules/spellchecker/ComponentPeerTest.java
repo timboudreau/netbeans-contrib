@@ -13,7 +13,7 @@
  * "Portions Copyrighted [year] [name of copyright owner]"
  *
  * The Original Software is NetBeans. The Initial Developer of the Original
- * Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
+ * Software is Sun Microsystems, Inc. Portions Copyright 1997-2007 Sun
  * Microsystems, Inc. All Rights Reserved.
  */
 package org.netbeans.modules.spellchecker;
@@ -27,6 +27,7 @@ import java.util.Locale;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import javax.swing.JEditorPane;
+import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -57,7 +58,8 @@ public class ComponentPeerTest extends NbTestCase {
         FileObject dataDir = UnitUtilities.makeScratchDir(this);
         assertNotNull(dataDir);
         
-        FileObject dataFile = dataDir.createData("test", "txt");
+        final FileObject dataFile = dataDir.createData("test", "txt");
+        final DataObject dataDirDO = DataObject.find(dataFile);
         
         final TokenListImpl i = new TokenListImpl();
         ComponentPeer.ACCESSOR = new LookupAccessor() {
@@ -69,14 +71,24 @@ public class ComponentPeerTest extends NbTestCase {
             }
         };
         
-        JTextComponent pane = new JEditorPane();
-        
-        pane.setText("text text text");
-        pane.getDocument().putProperty(Document.StreamDescriptionProperty, DataObject.find(dataFile));
-        
         i.latch = new CountDownLatch(1);
         
-        ComponentPeer.assureInstalled(pane);
+        SwingUtilities.invokeAndWait(new Runnable() {
+            public void run() {
+                JTextComponent pane = new JEditorPane();
+                
+                pane.getDocument().putProperty(Document.StreamDescriptionProperty, dataDirDO);
+                
+                ComponentPeer.assureInstalled(pane);
+                
+                JFrame f = new JFrame();
+                
+                f.add(pane);
+                f.setVisible(true);
+                
+                pane.setText("text text text");
+            }
+        });
         
         assertTrue(i.latch.await(10, TimeUnit.SECONDS));
         
@@ -117,12 +129,18 @@ public class ComponentPeerTest extends NbTestCase {
                     
                     JTextComponent pane = new JEditorPane();
                     
-                    pane.setText("text text text");
                     pane.getDocument().putProperty(Document.StreamDescriptionProperty, DataObject.find(dataFile));
                     
                     i[0].latch = new CountDownLatch(1);
                     
                     ComponentPeer.assureInstalled(pane);
+                    
+                    JFrame f = new JFrame();
+                    
+                    f.add(pane);
+                    f.setVisible(true);
+                    
+                    pane.setText("text text text");
                     
                     assertTrue(i[0].latch.await(10, TimeUnit.SECONDS));
                     
@@ -134,6 +152,11 @@ public class ComponentPeerTest extends NbTestCase {
                     
                     pane = null;
                     i[0] = null;
+                    
+                    Thread.sleep(50);
+                    
+                    f.setVisible(false);
+                    f.dispose();
                 } catch (Exception e) {
                     exc[0] = e;
                 }
@@ -143,13 +166,19 @@ public class ComponentPeerTest extends NbTestCase {
         
         if (exc[0] != null)
             throw exc[0];
+        
         SwingUtilities.invokeAndWait(new Runnable() {
             public void run() {
-                JEditorPane p = new JEditorPane();
+                JFrame f = new JFrame();
                 
-                p.setVisible(true);
-                p.setVisible(false);
-                
+                f.setVisible(true);
+                try {
+                    Thread.sleep(50);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                f.setVisible(false);
+                f.dispose();
             }
         });
         
@@ -213,13 +242,6 @@ public class ComponentPeerTest extends NbTestCase {
             }
         }
         
-    }
-    
-    protected boolean runInEQ() {
-        if ("testTokenListUpdates".equals(getName()))
-            return true;
-        
-        return false;
     }
 
 }

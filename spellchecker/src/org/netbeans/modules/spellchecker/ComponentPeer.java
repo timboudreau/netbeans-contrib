@@ -13,7 +13,7 @@
  * "Portions Copyrighted [year] [name of copyright owner]"
  *
  * The Original Software is NetBeans. The Initial Developer of the Original
- * Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
+ * Software is Sun Microsystems, Inc. Portions Copyright 1997-2007 Sun
  * Microsystems, Inc. All Rights Reserved.
  */
 package org.netbeans.modules.spellchecker;
@@ -25,39 +25,46 @@ import java.awt.Point;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
-import java.util.WeakHashMap;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.JViewport;
 import javax.swing.SwingUtilities;
+import javax.swing.event.CaretEvent;
+import javax.swing.event.CaretListener;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
+import javax.swing.text.AttributeSet;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
 import javax.swing.text.JTextComponent;
 import javax.swing.text.Position;
 import org.netbeans.api.editor.mimelookup.MimeLookup;
-import org.netbeans.editor.Coloring;
-import org.netbeans.modules.editor.highlights.spi.DefaultHighlight;
-import org.netbeans.modules.editor.highlights.spi.Highlight;
-import org.netbeans.modules.editor.highlights.spi.Highlighter;
-import org.netbeans.modules.spellchecker.hints.DictionaryBasedHintsProvider;
+import org.netbeans.api.editor.mimelookup.MimePath;
+import org.netbeans.api.editor.settings.AttributesUtilities;
+import org.netbeans.api.editor.settings.EditorStyleConstants;
+import org.netbeans.api.timers.TimesCollector;
 import org.netbeans.modules.spellchecker.spi.dictionary.Dictionary;
 import org.netbeans.modules.spellchecker.api.LocaleQuery;
+import org.netbeans.modules.spellchecker.hints.DictionaryBasedHint;
 import org.netbeans.modules.spellchecker.spi.dictionary.DictionaryProvider;
+import org.netbeans.modules.spellchecker.spi.dictionary.ValidityType;
 import org.netbeans.modules.spellchecker.spi.language.TokenList;
 import org.netbeans.modules.spellchecker.spi.language.TokenListProvider;
-import org.openide.ErrorManager;
+import org.netbeans.spi.editor.highlighting.support.OffsetsBag;
+import org.netbeans.spi.editor.hints.ErrorDescription;
+import org.netbeans.spi.editor.hints.ErrorDescriptionFactory;
+import org.netbeans.spi.editor.hints.Fix;
+import org.netbeans.spi.editor.hints.HintsController;
+import org.netbeans.spi.editor.hints.Severity;
 import org.openide.filesystems.FileObject;
 import org.openide.loaders.DataObject;
-import org.openide.text.NbDocument;
+import org.openide.util.Exceptions;
 import org.openide.util.Lookup;
-import org.openide.util.Lookup.Template;
 import org.openide.util.RequestProcessor;
 import org.openide.util.WeakListeners;
 
@@ -65,8 +72,10 @@ import org.openide.util.WeakListeners;
  *
  * @author Jan Lahoda
  */
-public class ComponentPeer implements PropertyChangeListener, DocumentListener, ChangeListener {
+public class ComponentPeer implements PropertyChangeListener, DocumentListener, ChangeListener, CaretListener {
 
+    private static final Logger LOG = Logger.getLogger(ComponentPeer.class.getName());
+    
     public static void assureInstalled(JTextComponent pane) {
         if (pane.getClientProperty(ComponentPeer.class) == null) {
             pane.putClientProperty(ComponentPeer.class, new ComponentPeer(pane));
@@ -87,20 +96,23 @@ public class ComponentPeer implements PropertyChangeListener, DocumentListener, 
 
     private JTextComponent pane;
     private Document doc;
-    private List<Highlight> currentHighlights;
-
-    private static Map<Document, List<Highlight>> doc2Highlights = new WeakHashMap<Document, List<Highlight>>();
 
     private RequestProcessor.Task checker = RequestProcessor.getDefault().create(new Runnable() {
         public void run() {
             try {
                 process();
             } catch (BadLocationException e) {
-                ErrorManager.getDefault().notify(e);
+                Exceptions.printStackTrace(e);
             }
         }
     });
 
+    private RequestProcessor.Task computeHint = RequestProcessor.getDefault().create(new Runnable() {
+        public void run() {
+            computeHint();
+        }
+    });
+    
     private void reschedule() {
         cancel();
         checker.schedule(100);
@@ -115,6 +127,7 @@ public class ComponentPeer implements PropertyChangeListener, DocumentListener, 
         this.pane = pane;
 //        reschedule();
         pane.addPropertyChangeListener(this);
+        pane.addCaretListener(this);
         doc = pane.getDocument();
         doc.addDocumentListener(this);
     }
@@ -187,11 +200,10 @@ public class ComponentPeer implements PropertyChangeListener, DocumentListener, 
             return ;
         }
         
-        List<Highlight> localHighlights = new ArrayList<Highlight>();
+        final OffsetsBag localHighlights = new OffsetsBag(doc);
+        long startTime = System.currentTimeMillis();
         
         try {
-            long startTime = System.currentTimeMillis();
-            
             resume();
             
             final TokenList l = getTokenList();
@@ -208,12 +220,6 @@ public class ComponentPeer implements PropertyChangeListener, DocumentListener, 
             
             final int[] span = getCurrentVisibleSpan();
 
-//            System.err.println("span=" + span[0] + "-" + span[1]);
-//
-//            DefaultHighlight spanHL = new DefaultHighlight(new Coloring(null, null, Color.ORANGE), doc.createPosition(span[0]), doc.createPosition(span[1]));
-//
-//            Highlighter.getDefault().setHighlights(file, "spellchecker-span", Collections.singletonList(spanHL));
-
             if (span == null || span[0] == (-1)) {
                 //not initialized yet:
                 doUpdateCurrentVisibleSpan();
@@ -223,7 +229,6 @@ public class ComponentPeer implements PropertyChangeListener, DocumentListener, 
             l.setStartOffset(span[0]);
 
             final boolean[] cont = new boolean [1];
-            final Position[] bounds = new Position[2];
             final CharSequence[] word = new CharSequence[1];
             
             while (!isCanceled()) {
@@ -239,15 +244,8 @@ public class ComponentPeer implements PropertyChangeListener, DocumentListener, 
                                 cont[0] = false;
                                 return ;
                             }
-                            try {
-                                word[0] = l.getCurrentWordText();
-                                //XXX: maybe very slow, creating positions for all words:
-                                bounds[0] = NbDocument.createPosition(doc, l.getCurrentWordStartOffset(), Position.Bias.Forward);
-                                bounds[1] = NbDocument.createPosition(doc, l.getCurrentWordStartOffset() + word[0].length(), Position.Bias.Backward);
-                            } catch (BadLocationException e) {
-                                ErrorManager.getDefault().notify(ErrorManager.INFORMATIONAL, e);
-                                cont[0] = false;
-                            }
+                            
+                            word[0] = l.getCurrentWordText();
                         }
                     }
                 });
@@ -255,60 +253,37 @@ public class ComponentPeer implements PropertyChangeListener, DocumentListener, 
                 if (!cont[0])
                     break;
                 
+                LOG.log(Level.FINER, "going to test word: {0}", word[0]);
+                
                 if (word[0].length() < 2) {
                     //ignore single letter words
+                    LOG.log(Level.FINER, "too short");
                     continue;
                 }
                 
-                Highlight h = null;
+                ValidityType validity = d.validateWord(word[0]);
+                
+                LOG.log(Level.FINER, "validity: {0}", validity);
 
-//                System.err.println("word=" + word[0]);
-                switch (d.validateWord(word[0])) {
+                switch (validity) {
                     case PREFIX_OF_VALID:
                     case BLACKLISTED:
                     case INVALID:
-                        h = new DefaultHighlight(ERROR, bounds[0], bounds[1]);
-                }
-                
-                if (h != null) {
-                    localHighlights.add(h);
+                        doc.render(new Runnable() {
+                            public void run() {
+                                if (!isCanceled()) {
+                                    localHighlights.addHighlight(l.getCurrentWordStartOffset(), l.getCurrentWordStartOffset() + word[0].length(), ERROR);
+                                }
+                            }
+                        });
                 }
             }
         } finally {
-            setHighlights(file, localHighlights);
-//            System.err.println("Spellchecker time: " + (System.currentTimeMillis() - startTime));
-        }
-    }
-
-    private void setHighlights(FileObject file, List<Highlight> newHighlights) {
-        Document doc = getDocument();
-        
-        synchronized (ComponentPeer.class) {
-            List<Highlight> all = doc2Highlights.get(doc);
-            
-            if (all == null) {
-                doc2Highlights.put(doc, all = new ArrayList<Highlight>());
-            } else {
-                if (currentHighlights != null)
-                    all.removeAll(currentHighlights);
+            if (!isCanceled()) {
+                SpellcheckerHighlightLayerFactory.getBag(pane).setHighlights(localHighlights);
+                TimesCollector.getDefault().reportTime(file, "spellchecker", "Spellchecker", System.currentTimeMillis() - startTime);
             }
-            
-            all.addAll(newHighlights);
-
-            currentHighlights =  newHighlights;
-            
-            Highlighter.getDefault().setHighlights(file, "spellchecker", all);
-            DictionaryBasedHintsProvider.create().modified(doc);
         }
-    }
-
-    public static synchronized List<Highlight> getHighlightsCopy(Document doc) {
-        List<Highlight> all = doc2Highlights.get(doc);
-
-        if (all == null)
-            return Collections.emptyList();
-
-        return new ArrayList(all);
     }
 
     public static Dictionary getDictionary(Document doc) {
@@ -336,7 +311,7 @@ public class ComponentPeer implements PropertyChangeListener, DocumentListener, 
 
     private boolean cancel = false;
 
-    private static final Coloring ERROR = new Coloring(null, 0, null, null, null, null, Color.RED);
+    private static final AttributeSet ERROR = AttributesUtilities.createImmutable(EditorStyleConstants.WaveUnderlineColor, Color.RED);
 
     private static FileObject getFile(Document doc) {
         DataObject file = (DataObject) doc.getProperty(Document.StreamDescriptionProperty);
@@ -385,9 +360,100 @@ public class ComponentPeer implements PropertyChangeListener, DocumentListener, 
         }
     }
     
+    public void caretUpdate(CaretEvent e) {
+        synchronized (this) {
+            lastCaretPosition = e.getDot();
+        }
+        
+        LOG.fine("scheduling hints computation");
+        
+        computeHint.schedule(100);
+    }
+    
+    private int lastCaretPosition = -1;
+            
+    private void computeHint() {
+        LOG.entering(ComponentPeer.class.getName(), "computeHint");
+        
+        final Dictionary d = ComponentPeer.getDictionary(doc);
+        
+        if (d == null) {
+            LOG.fine("dictionary == null");
+            LOG.exiting(ComponentPeer.class.getName(), "computeHint");
+            return ;
+        }
+        
+        final TokenList l = getTokenList();
+        
+        if (l == null) {
+            //nothing to do:
+            LOG.fine("token list == null");
+            LOG.exiting(ComponentPeer.class.getName(), "computeHint");
+            return ;
+        }
+        
+        final int[] lastCaretPositionCopy = new int[1];
+        final Position[] span = new Position[2];
+        final CharSequence[]   word = new CharSequence[1];
+        
+        synchronized (this) {
+            lastCaretPositionCopy[0] = lastCaretPosition;
+        }
+        
+        doc.render(new Runnable() {
+            public void run() {
+                LOG.log(Level.FINE, "lastCaretPosition={0}", lastCaretPositionCopy[0]);
+                l.setStartOffset(lastCaretPositionCopy[0]);
+                
+                if (!l.nextWord()) {
+                    LOG.log(Level.FINE, "l.nextWord() == false");
+                    return ;
+                }
+                
+                int currentWSO = l.getCurrentWordStartOffset();
+                CharSequence w = l.getCurrentWordText();
+                int length     = w.length();
+                
+                LOG.log(Level.FINE, "currentWSO={0}, w={1}, length={2}", new Object[] {currentWSO, w, length});
+                
+                if (currentWSO <= lastCaretPositionCopy[0] && (currentWSO + length) >= lastCaretPositionCopy[0]) {
+                    ValidityType validity = d.validateWord(w);
+                    
+                    if (validity == ValidityType.BLACKLISTED || validity == ValidityType.INVALID) {
+                        try {
+                            span[0] = doc.createPosition(currentWSO);
+                            span[1] = doc.createPosition(currentWSO + length);
+                            word[0] = w;
+                        } catch (BadLocationException e) {
+                            LOG.log(Level.INFO, null, e);
+                        }
+                    }
+                }
+            }
+        });
+        
+        List<Fix> result = new ArrayList<Fix>();
+        
+        LOG.log(Level.FINE, "word={0}", word[0]);
+        
+        if (span[0] != null && span[1] != null) {
+            for (String proposal : d.findProposals(word[0])) {
+                result.add(new DictionaryBasedHint(word[0].toString(), proposal, doc, span));
+            }
+            
+            if (!result.isEmpty()) {
+                HintsController.setErrors(doc, ComponentPeer.class.getName(), Collections.singletonList(ErrorDescriptionFactory.createErrorDescription(Severity.HINT, "Missspelled word", result, doc, span[0], span[1])));
+            } else {
+                HintsController.setErrors(doc, ComponentPeer.class.getName(), Collections.<ErrorDescription>emptyList());
+            }
+        } else {
+            HintsController.setErrors(doc, ComponentPeer.class.getName(), Collections.<ErrorDescription>emptyList());
+        }
+    }
+            
     public static LookupAccessor ACCESSOR = new LookupAccessor() {
         public Dictionary lookupDictionary(Locale locale) {
-            for (DictionaryProvider p : (Collection<DictionaryProvider>)Lookup.getDefault().lookup(new Template(DictionaryProvider.class)).allInstances()) {
+            for (DictionaryProvider p : Lookup.getDefault().lookupAll(DictionaryProvider.class)) {
                 Dictionary d = p.getDictionary(locale);
                 
                 if (d != null)
@@ -404,7 +470,7 @@ public class ComponentPeer implements PropertyChangeListener, DocumentListener, 
                 mimeType = (String) mimeTypeObj;
             }
             
-            for (TokenListProvider p : (Collection<TokenListProvider>) MimeLookup.getMimeLookup(mimeType).lookup(new Template(TokenListProvider.class)).allInstances()) {
+            for (TokenListProvider p : MimeLookup.getLookup(MimePath.get(mimeType)).lookupAll(TokenListProvider.class)) {
                 TokenList l = p.findTokenList(doc);
                 
                 if (l != null)

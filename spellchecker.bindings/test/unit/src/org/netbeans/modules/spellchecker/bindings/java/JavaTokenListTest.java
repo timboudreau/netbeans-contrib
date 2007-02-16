@@ -23,13 +23,13 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import javax.swing.text.Document;
+import javax.swing.text.PlainDocument;
+import org.netbeans.api.java.lexer.JavaTokenId;
+import org.netbeans.api.lexer.Language;
 import org.netbeans.editor.BaseDocument;
 import org.netbeans.editor.BaseKit;
 import org.netbeans.editor.Syntax;
 import org.netbeans.editor.SyntaxSupport;
-import org.netbeans.editor.ext.java.JCFinder;
-import org.netbeans.editor.ext.java.JavaSyntax;
-import org.netbeans.editor.ext.java.JavaSyntaxSupport;
 import org.netbeans.junit.NbTestCase;
 import org.netbeans.modules.spellchecker.spi.language.TokenList;
 
@@ -99,8 +99,25 @@ public class JavaTokenListTest extends NbTestCase {
         assertFalse(JavaTokenList.isIdentifierLike("data"));
     }
 
+    public void testPositions() throws Exception {
+        Document doc = new PlainDocument();
+        
+        doc.putProperty(Language.class, JavaTokenId.language());
+        
+        doc.insertString(0, "/**tes test <pre>testt</pre> <a href='testtt'>testttt</a> testttttt*/", null);
+        
+        TokenList l = new JavaTokenList(doc);
+        
+        l.setStartOffset(9);
+        assertTrue(l.nextWord());
+        assertEquals(7, l.getCurrentWordStartOffset());
+        assertTrue("test".equals(l.getCurrentWordText().toString()));
+    }
+    
     private void tokenListTest(String documentContent, String... golden) throws Exception {
-        BaseDocument doc = new BaseDocument(TestJavaKit.class, true);
+        Document doc = new PlainDocument();
+        
+        doc.putProperty(Language.class, JavaTokenId.language());
         
         doc.insertString(0, documentContent, null);
         
@@ -117,7 +134,9 @@ public class JavaTokenListTest extends NbTestCase {
     }
 
     private void tokenListTestWithWriting(String documentContent, int offset, String text, int startOffset, String... golden) throws Exception {
-        BaseDocument doc = new BaseDocument(TestJavaKit.class, true);
+        Document doc = new PlainDocument();
+        
+        doc.putProperty(Language.class, JavaTokenId.language());
         
         doc.insertString(0, documentContent, null);
         
@@ -136,22 +155,6 @@ public class JavaTokenListTest extends NbTestCase {
         }
 
         assertEquals(Arrays.asList(golden), words);
-    }
-
-    public static final class TestJavaKit extends BaseKit {
-
-        public SyntaxSupport createSyntaxSupport(BaseDocument doc) {
-            return new JavaSyntaxSupport(doc) {
-                protected JCFinder getFinder() {
-                    return null;
-                }
-            };
-        }
-
-        public Syntax createSyntax(Document doc) {
-            return new JavaSyntax("1.5");
-        }
-
     }
 
 }

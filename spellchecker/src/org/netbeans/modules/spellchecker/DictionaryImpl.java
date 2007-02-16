@@ -19,9 +19,6 @@
 package org.netbeans.modules.spellchecker;
 
 import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -33,9 +30,6 @@ import java.util.List;
 import java.util.Locale;
 import org.netbeans.modules.spellchecker.spi.dictionary.Dictionary;
 import org.netbeans.modules.spellchecker.spi.dictionary.ValidityType;
-import org.openide.ErrorManager;
-
-import org.openide.modules.InstalledFileLocator;
 
 /**
  *
@@ -81,9 +75,9 @@ public class DictionaryImpl implements Dictionary {
             }
         }
         
-        Collections.sort(getDictionary(), new Comparator() {
-            public int compare(Object obj1, Object obj2) {
-                return ((String) obj1).compareToIgnoreCase((String) obj2);
+        Collections.sort(getDictionary(), new Comparator<String>() {
+            public int compare(String s1, String s2) {
+                return s1.compareToIgnoreCase(s2);
             }
         });
         
@@ -134,7 +128,7 @@ public class DictionaryImpl implements Dictionary {
     }
     
     public ValidityType findWord(String word) {
-        String str = (String) getDictionary().get(findLesser(word.toLowerCase()));
+        String str = getDictionary().get(findLesser(word.toLowerCase()));
 //            System.err.println("str=" + str);
         if (str.startsWith(word.toLowerCase())) {
             if (str.length() == word.length())
@@ -193,12 +187,9 @@ public class DictionaryImpl implements Dictionary {
         }
     }
     
-    private static class SimilarComparator implements Comparator {
+    private static class SimilarComparator implements Comparator<Pair> {
         
-        public int compare(Object o1, Object o2) {
-            Pair p1 = (Pair) o1;
-            Pair p2 = (Pair) o2;
-            
+        public int compare(Pair p1, Pair p2) {
             if (p1.distance < p2.distance)
                 return (-1);
             
@@ -213,7 +204,7 @@ public class DictionaryImpl implements Dictionary {
     private static int MINIMAL_SIMILAR_COUNT = 3;
     
     public List<String> getSimilarWords(String word) {
-        List proposal = dynamicProgramming(word, dictionaryText, 5);
+        List<Pair> proposal = dynamicProgramming(word, dictionaryText, 5);
         List<String> result   = new ArrayList<String>();
         
         //future:
@@ -240,8 +231,8 @@ public class DictionaryImpl implements Dictionary {
         return result;
     }
     
-    private static List/*<String>*/ dynamicProgramming(String pattern, CharSequence text, int distance) {
-        List/*<String>*/ result = new ArrayList/*<String>*/();
+    private static List<Pair> dynamicProgramming(String pattern, CharSequence text, int distance) {
+        List<Pair> result = new ArrayList<Pair>();
         pattern = pattern.toLowerCase();
         
         int[] old = new int[pattern.length() + 1];

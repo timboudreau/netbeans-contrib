@@ -14,7 +14,7 @@
  *
  * The Original Software is the LaTeX module.
  * The Initial Developer of the Original Software is David Kaspar.
- * Portions created by David Kaspar are Copyright (C) 2004-2006.
+ * Portions created by David Kaspar are Copyright (C) 2004-2007.
  * All Rights Reserved.
  *
  * Contributor(s): David Kaspar.
@@ -167,7 +167,7 @@ public class DictionaryInstallerPanel extends javax.swing.JPanel {
     
     public void initValues () {
         tDictionary.setText (System.getProperty ("user.home")); // NOI18N
-        Set set = Charset.availableCharsets ().keySet ();
+        Set<String> set = Charset.availableCharsets ().keySet ();
         cEncoding.setModel(new javax.swing.DefaultComboBoxModel(set.toArray (new String[set.size ()])));
         cEncoding.setSelectedItem ("ISO-8859-1"); // NOI18N
         tLocale.setText (""); // NOI18N
