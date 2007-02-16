@@ -7,15 +7,11 @@
 package org.netbeans.modules.mobility.plugins.javase;
 
 import javax.swing.JPanel;
-import org.netbeans.api.java.platform.JavaPlatform;
-import org.netbeans.api.java.platform.JavaPlatformManager;
 import org.netbeans.api.mobility.project.ui.customizer.ProjectProperties;
 import org.netbeans.modules.mobility.project.DefaultPropertiesDescriptor;
 import org.netbeans.spi.mobility.project.ui.customizer.CustomizerPanel;
 import org.netbeans.spi.mobility.project.ui.customizer.VisualPropertyGroup;
 import org.netbeans.spi.mobility.project.ui.customizer.support.VisualPropertySupport;
-import org.openide.filesystems.FileObject;
-import org.openide.filesystems.FileUtil;
 import org.openide.util.NbBundle;
 
 /**
@@ -83,7 +79,8 @@ public class JavaSePlatformCustomzier extends JPanel implements CustomizerPanel,
     }
 
     public void initGroupValues(boolean useDefault) {
-        props.put(VisualPropertySupport.translatePropertyName(cfg, DefaultPropertiesDescriptor.PLATFORM_BOOTCLASSPATH, useDefault), "${sun.boot.class.path}");
+        props.put(VisualPropertySupport.translatePropertyName(cfg, DefaultPropertiesDescriptor.PLATFORM_BOOTCLASSPATH, useDefault), "${sun.boot.class.path}"); //NOI18N
+        props.put(VisualPropertySupport.translatePropertyName(cfg, DefaultPropertiesDescriptor.PLATFORM_TYPE, useDefault), "jdk"); //NOI18N
         VisualPropertySupport.getDefault(props).register(jTextField1, JavaSEPropertiesDescriptor.MAIN_CLASS, useDefault);
     }
 
