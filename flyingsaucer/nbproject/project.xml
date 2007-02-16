@@ -4,54 +4,57 @@
     <configuration>
         <data xmlns="http://www.netbeans.org/ns/nb-module-project/2">
             <code-name-base>org.netbeans.modules.flyingsaucer</code-name-base>
-            <standalone/>
             <class-path-extension>
                 <runtime-relative-path>ext/Xilize.jar</runtime-relative-path>
-                <binary-origin>modules/ext/Xilize.jar</binary-origin>
+                <binary-origin>${flyingsaucer.home}/lib/Xilize.jar</binary-origin>
             </class-path-extension>
             <class-path-extension>
                 <runtime-relative-path>ext/looks-2.0.4.jar</runtime-relative-path>
-                <binary-origin>modules/ext/looks-2.0.4.jar</binary-origin>
+                <binary-origin>${flyingsaucer.home}/lib/looks-2.0.4.jar</binary-origin>
             </class-path-extension>
             <class-path-extension>
                 <runtime-relative-path>ext/itext-paulo-155.jar</runtime-relative-path>
-                <binary-origin>modules/ext/itext-paulo-155.jar</binary-origin>
+                <binary-origin>${flyingsaucer.home}/lib/itext-paulo-155.jar</binary-origin>
             </class-path-extension>
             <class-path-extension>
                 <runtime-relative-path>ext/minium.jar</runtime-relative-path>
-                <binary-origin>modules/ext/minium.jar</binary-origin>
+                <binary-origin>${flyingsaucer.home}/lib/minium.jar</binary-origin>
             </class-path-extension>
             <class-path-extension>
                 <runtime-relative-path>ext/cssparser-0-9-4-fs.jar</runtime-relative-path>
-                <binary-origin>modules/ext/cssparser-0-9-4-fs.jar</binary-origin>
+                <binary-origin>${flyingsaucer.home}/lib/cssparser-0-9-4-fs.jar</binary-origin>
             </class-path-extension>
             <class-path-extension>
                 <runtime-relative-path>ext/core-renderer.jar</runtime-relative-path>
-                <binary-origin>../build/core-renderer.jar</binary-origin>
+                <binary-origin>${flyingsaucer.home}/build/core-renderer.jar</binary-origin>
             </class-path-extension>
             <class-path-extension>
                 <runtime-relative-path>ext/about.jar</runtime-relative-path>
-                <binary-origin>../build/about.jar</binary-origin>
+                <binary-origin>${flyingsaucer.home}/build/about.jar</binary-origin>
             </class-path-extension>
             <class-path-extension>
                 <runtime-relative-path>ext/filebrowser.jar</runtime-relative-path>
-                <binary-origin>../build/filebrowser.jar</binary-origin>
+                <binary-origin>${flyingsaucer.home}/build/filebrowser.jar</binary-origin>
             </class-path-extension>
             <class-path-extension>
                 <runtime-relative-path>ext/browser.jar</runtime-relative-path>
-                <binary-origin>../build/browser.jar</binary-origin>
+                <binary-origin>${flyingsaucer.home}/build/browser.jar</binary-origin>
             </class-path-extension>
             <class-path-extension>
                 <runtime-relative-path>ext/svg.jar</runtime-relative-path>
-                <binary-origin>../build/svg.jar</binary-origin>
+                <binary-origin>${flyingsaucer.home}/build/svg.jar</binary-origin>
+            </class-path-extension>
+            <class-path-extension>
+                <runtime-relative-path>ext/svgSalamander.jar</runtime-relative-path>
+                <binary-origin>${flyingsaucer.home}/lib/svgSalamander.jar</binary-origin>
             </class-path-extension>
             <class-path-extension>
                 <runtime-relative-path>ext/docbook.jar</runtime-relative-path>
-                <binary-origin>../build/docbook.jar</binary-origin>
+                <binary-origin>${flyingsaucer.home}/build/docbook.jar</binary-origin>
             </class-path-extension>
             <class-path-extension>
                 <runtime-relative-path>ext/photogallery.jar</runtime-relative-path>
-                <binary-origin>../build/photogallery.jar</binary-origin>
+                <binary-origin>${flyingsaucer.home}/build/photogallery.jar</binary-origin>
             </class-path-extension>
             <module-dependencies>
                 <dependency>
@@ -120,42 +123,6 @@
                 </dependency>
             </module-dependencies>
             <public-packages/>
-            <!--<public-packages>
-                <package>org.xhtmlrenderer</package>
-                <package>org.xhtmlrenderer.context</package>
-                <package>org.xhtmlrenderer.css.constants</package>
-                <package>org.xhtmlrenderer.css.extend</package>
-                <package>org.xhtmlrenderer.css.extend.lib</package>
-                <package>org.xhtmlrenderer.css.impl</package>
-                <package>org.xhtmlrenderer.css.newmatch</package>
-                <package>org.xhtmlrenderer.css.sheet</package>
-                <package>org.xhtmlrenderer.css.sheet.factory</package>
-                <package>org.xhtmlrenderer.css.style</package>
-                <package>org.xhtmlrenderer.css.style.derived</package>
-                <package>org.xhtmlrenderer.css.util</package>
-                <package>org.xhtmlrenderer.css.value</package>
-                <package>org.xhtmlrenderer.demo.aboutbox</package>
-                <package>org.xhtmlrenderer.demo.browser</package>
-                <package>org.xhtmlrenderer.demo.browser.actions</package>
-                <package>org.xhtmlrenderer.demo.docbook</package>
-                <package>org.xhtmlrenderer.demo.filebrowser</package>
-                <package>org.xhtmlrenderer.demo.photogallery</package>
-                <package>org.xhtmlrenderer.demo.svg</package>
-                <package>org.xhtmlrenderer.event</package>
-                <package>org.xhtmlrenderer.extend</package>
-                <package>org.xhtmlrenderer.layout</package>
-                <package>org.xhtmlrenderer.layout.content</package>
-                <package>org.xhtmlrenderer.pdf</package>
-                <package>org.xhtmlrenderer.render</package>
-                <package>org.xhtmlrenderer.resource</package>
-                <package>org.xhtmlrenderer.simple</package>
-                <package>org.xhtmlrenderer.simple.extend</package>
-                <package>org.xhtmlrenderer.swing</package>
-                <package>org.xhtmlrenderer.table</package>
-                <package>org.xhtmlrenderer.test</package>
-                <package>org.xhtmlrenderer.tool</package>
-                <package>org.xhtmlrenderer.util</package>
-            </public-packages> -->
         </data>
     </configuration>
 </project>
