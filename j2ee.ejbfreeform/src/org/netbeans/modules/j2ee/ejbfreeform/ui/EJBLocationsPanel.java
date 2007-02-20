@@ -19,6 +19,8 @@
 
 package org.netbeans.modules.j2ee.ejbfreeform.ui;
 
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.FilenameFilter;
 import java.io.IOException;
@@ -27,14 +29,12 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import javax.swing.JComponent;
 import javax.swing.JFileChooser;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import org.netbeans.api.project.Project;
 import org.netbeans.api.queries.CollocationQuery;
-import org.netbeans.modules.ant.freeform.spi.ProjectPropertiesPanel;
 import org.netbeans.modules.ant.freeform.spi.support.Util;
 import org.netbeans.modules.j2ee.dd.api.ejb.DDProvider;
 import org.netbeans.modules.j2ee.dd.api.ejb.EjbJar;
@@ -582,64 +582,35 @@ public class EJBLocationsPanel extends javax.swing.JPanel implements HelpCtx.Pro
         return Util.relativizeLocation(baseFolder, nbProjectFolder, normalizedLocation);
     }
     
-    public static class Panel implements ProjectPropertiesPanel {
-        
-        private Project project;
-        private AntProjectHelper projectHelper;
-        private PropertyEvaluator projectEvaluator;
-        private AuxiliaryConfiguration aux;
-        private EJBLocationsPanel panel;
-        
-        public Panel(Project project, AntProjectHelper projectHelper, PropertyEvaluator projectEvaluator, AuxiliaryConfiguration aux) {
-            this.project = project;
-            this.projectHelper = projectHelper;
-            this.projectEvaluator = projectEvaluator;
-            this.aux = aux;
-        }
-        
-        public void storeValues() {
-            if (panel == null) {
-                return;
-            }
-            AuxiliaryConfiguration aux = Util.getAuxiliaryConfiguration(projectHelper);
-            EJBProjectGenerator.putEJBModules(projectHelper, aux, panel.getEJBModules());
-            EJBProjectGenerator.putServerID(projectHelper, panel.getSelectedServerID());
-            EJBProjectGenerator.putResourceFolder(projectHelper, panel.getResourcesFolder());
-            
-            String j2eeLevel = ((EJBProjectGenerator.EJBModule)panel.getEJBModules().get(0)).j2eeSpecLevel;
-            EJBProjectGenerator.putJ2EELevel(projectHelper, j2eeLevel);
-            
-            // update the DD to 2.1 if it is 2.0 and the user switched to J2EE 1.4
-            FileObject ejbJarXml = findEbjJarXml(panel.getConfigFilesLocation());
-            try {
-                if (j2eeLevel.equals("1.4") && !new BigDecimal(EjbJar.VERSION_2_1).equals(getEjbJarXmlVersion(ejbJarXml))) { // NOI18N
-                    EjbJar root = DDProvider.getDefault().getDDRoot(ejbJarXml);
-                    root.setVersion(new BigDecimal(EjbJar.VERSION_2_1));
-                    root.write(ejbJarXml);
+    ActionListener getCustomizerOkListener() {
+        return new ActionListener() {
+            public void actionPerformed(ActionEvent arg0) {
+                
+                AuxiliaryConfiguration aux = Util.getAuxiliaryConfiguration(projectHelper);
+                EJBProjectGenerator.putEJBModules(projectHelper, aux, getEJBModules());
+                EJBProjectGenerator.putServerID(projectHelper, getSelectedServerID());
+                EJBProjectGenerator.putResourceFolder(projectHelper, getResourcesFolder());
+                
+                String j2eeLevel = ((EJBProjectGenerator.EJBModule)getEJBModules().get(0)).j2eeSpecLevel;
+                EJBProjectGenerator.putJ2EELevel(projectHelper, j2eeLevel);
+                
+                // update the DD to 2.1 if it is 2.0 and the user switched to J2EE 1.4
+                FileObject ejbJarXml = findEbjJarXml(getConfigFilesLocation());
+                try {
+                    if (j2eeLevel.equals("1.4") && !new BigDecimal(EjbJar.VERSION_2_1).equals(getEjbJarXmlVersion(ejbJarXml))) { // NOI18N
+                        EjbJar root = DDProvider.getDefault().getDDRoot(ejbJarXml);
+                        root.setVersion(new BigDecimal(EjbJar.VERSION_2_1));
+                        root.write(ejbJarXml);
+                    }
+                } catch (IOException e) {
+                    final ErrorManager errorManager = ErrorManager.getDefault();
+                    String message = NbBundle.getMessage(EJBLocationsPanel.class, "MSG_EjbJarXmlCorrupted");
+                    errorManager.notify(errorManager.annotate(e, message));
                 }
             }
-            catch (IOException e) {
-                final ErrorManager errorManager = ErrorManager.getDefault();
-                String message = NbBundle.getMessage(EJBLocationsPanel.class, "MSG_EjbJarXmlCorrupted");
-                errorManager.notify(errorManager.annotate(e, message));
-            }
-        }
-        
-        public String getDisplayName() {
-            return NbBundle.getMessage(EJBLocationsPanel.class, "LBL_ProjectCustomizer_Category_EJB");
-        }
-        
-        public JComponent getComponent() {
-            if (panel == null) {
-                panel = new EJBLocationsPanel(null, project, projectHelper, projectEvaluator, aux);
-            }
-            return panel;
-        }
-        
-        public int getPreferredPosition() {
-            return 40; // before Java sources panel
-        }
+        };
     }
+        
     
     private void initServerInstances() {
         String[] servInstIDs = Deployment.getDefault().getServerInstanceIDs();

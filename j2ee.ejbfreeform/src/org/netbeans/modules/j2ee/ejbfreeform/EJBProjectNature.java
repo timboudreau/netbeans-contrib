@@ -20,33 +20,21 @@
 package org.netbeans.modules.j2ee.ejbfreeform;
 
 import java.io.IOException;
-import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.WeakHashMap;
 import org.netbeans.api.java.classpath.ClassPath;
 import org.netbeans.api.project.Project;
-import org.netbeans.modules.ant.freeform.spi.HelpIDFragmentProvider;
 import org.netbeans.modules.ant.freeform.spi.ProjectNature;
-import org.netbeans.modules.ant.freeform.spi.ProjectPropertiesPanel;
 import org.netbeans.modules.ant.freeform.spi.TargetDescriptor;
 import org.netbeans.modules.j2ee.api.ejbjar.EjbJar;
 import org.netbeans.modules.j2ee.dd.api.ejb.DDProvider;
-import org.netbeans.modules.j2ee.deployment.devmodules.spi.J2eeModuleProvider;
-import org.netbeans.modules.j2ee.ejbfreeform.ui.EJBLocationsPanel;
 import org.netbeans.modules.j2ee.spi.ejbjar.support.J2eeProjectView;
-import org.netbeans.modules.j2ee.spi.ejbjar.support.EjbEnterpriseReferenceContainerSupport;
 import org.netbeans.spi.project.AuxiliaryConfiguration;
-import org.netbeans.spi.project.support.ant.AntProjectEvent;
 import org.netbeans.spi.project.support.ant.AntProjectHelper;
-import org.netbeans.spi.project.support.ant.AntProjectListener;
 import org.netbeans.spi.project.support.ant.PropertyEvaluator;
-import org.netbeans.spi.project.ui.PrivilegedTemplates;
-import org.netbeans.spi.project.ui.ProjectOpenedHook;
-import org.netbeans.spi.project.ui.RecommendedTemplates;
 import org.openide.ErrorManager;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
@@ -55,10 +43,7 @@ import org.openide.loaders.DataObjectNotFoundException;
 import org.openide.nodes.Node;
 import org.openide.nodes.NodeNotFoundException;
 import org.openide.nodes.NodeOp;
-import org.openide.util.Lookup;
 import org.openide.util.NbBundle;
-import org.openide.util.lookup.Lookups;
-import org.openide.util.lookup.ProxyLookup;
 
 /**
  * @author David Konecny
@@ -73,32 +58,10 @@ public class EJBProjectNature implements ProjectNature {
     public static final String EL_EJB = "ejb-data"; // NOI18N
     public static final String STYLE_CONFIG_FILES = "configFiles"; // NOI18N
     public static final String STYLE_EJBS = "ejbs"; // NOI18N
-
-    private static final String HELP_ID_FRAGMENT = "ejb"; // NOI18N
-    
-    private static final WeakHashMap/*<Project,WeakReference<Lookup>>*/ lookupCache = new WeakHashMap();
     
     public EJBProjectNature() {}
 
-    public Lookup getLookup(Project project, AntProjectHelper projectHelper, PropertyEvaluator projectEvaluator, AuxiliaryConfiguration aux) {
-        WeakReference wr = (WeakReference)lookupCache.get(project);
-        Lookup lookup = wr != null ? (Lookup)wr.get() : null;
-        if (lookup == null) {
-            lookup = new ProjectLookup(project, projectHelper, projectEvaluator, aux);
-            lookupCache.put(project, new WeakReference(lookup));
-        }
-        return lookup;
-    }
-    
-    public Set getCustomizerPanels(Project project, AntProjectHelper projectHelper, PropertyEvaluator projectEvaluator, AuxiliaryConfiguration aux) {
-        HashSet l = new HashSet();
-        if (!isMyProject(aux)) {
-            return l;
-        }
-        ProjectPropertiesPanel ejb = new EJBLocationsPanel.Panel(project, projectHelper, projectEvaluator, aux);
-        l.add(ejb);
-        return l;
-    }
+   
     
     public List getExtraTargets(Project project, AntProjectHelper projectHelper, PropertyEvaluator projectEvaluator, AuxiliaryConfiguration aux) {
         ArrayList l = new ArrayList();
@@ -175,7 +138,7 @@ public class EJBProjectNature implements ProjectNature {
         }
     }
 
-    private static boolean isMyProject(AuxiliaryConfiguration aux) {
+    public static boolean isMyProject(AuxiliaryConfiguration aux) {
         return (aux.getConfigurationFragment(EL_EJB, NS_EJB, true) != null) ||
                (aux.getConfigurationFragment(EL_EJB, NS_EJB_2, true) != null);
     }
@@ -186,123 +149,5 @@ public class EJBProjectNature implements ProjectNature {
             NbBundle.getMessage(EJBProjectNature.class, "ACSD_TargetMappingPanel_Deploy")); // NOI18N
     }
     
-    private static Lookup initLookup(Project project, AntProjectHelper projectHelper, PropertyEvaluator projectEvaluator, AuxiliaryConfiguration aux) {
-        
-        EJBFreeformProvider ejbFFProvider = new EJBFreeformProvider(project, projectHelper, projectEvaluator);
-        EJBFreeformModule ejbFFModule = new EJBFreeformModule(project, projectHelper, projectEvaluator);
-        ejbFFProvider.setJ2eeModule(ejbFFModule);
-                
-        return Lookups.fixed(new Object[] {
-            ejbFFProvider,
-            ejbFFModule,
-            new EJBModules(project, projectHelper, projectEvaluator), // EJBModuleProvider, ClassPathProvider
-            new PrivilegedTemplatesImpl(), // List of templates in New action popup
-            EjbEnterpriseReferenceContainerSupport.createEnterpriseReferenceContainer(project, projectHelper),
-            new EjbFreeFormActionProvider(project, projectHelper, aux),
-            new ProjectOpenedHookImpl(project),
-            new LookupMergerImpl(),
-            new HelpIDFragmentProviderImpl(),
-        });
-    }
-    
-    private static final class HelpIDFragmentProviderImpl implements HelpIDFragmentProvider {
-        public String getHelpIDFragment() {
-            return HELP_ID_FRAGMENT;
-        }
-    }
-    
-    private static final class ProjectLookup extends ProxyLookup implements AntProjectListener {
-
-        private AntProjectHelper helper;
-        private PropertyEvaluator evaluator;
-        private Project project;
-        private AuxiliaryConfiguration aux;
-        private boolean isMyProject;
-        
-        public ProjectLookup(Project project, AntProjectHelper helper, PropertyEvaluator evaluator, AuxiliaryConfiguration aux) {
-            super(new Lookup[0]);
-            this.project = project;
-            this.helper = helper;
-            this.evaluator = evaluator;
-            this.aux = aux;
-            this.isMyProject = isMyProject(aux);
-            updateLookup();
-            helper.addAntProjectListener(this);
-        }
-        
-        private void updateLookup() {
-            Lookup l = Lookup.EMPTY;
-            if (isMyProject) {
-                l = initLookup(project, helper, evaluator, aux);
-            }
-            setLookups(new Lookup[]{l});
-        }
-        
-        public void configurationXmlChanged(AntProjectEvent ev) {
-            if (isMyProject(aux) != isMyProject) {
-                isMyProject = !isMyProject;
-                updateLookup();
-            }
-        }
-        
-        public void propertiesChanged(AntProjectEvent ev) {
-            // ignore
-        }
-        
-    }
-    
-    private static final class ProjectOpenedHookImpl extends ProjectOpenedHook {
-        
-        private Project project;
-        
-        public ProjectOpenedHookImpl(Project project) {
-            this.project = project;
-        }
-        
-        protected void projectOpened() {
-            // initialize the server configuration
-            J2eeModuleProvider j2eeModule = (J2eeModuleProvider)project.getLookup().lookup(J2eeModuleProvider.class);
-            j2eeModule.getConfigSupport().ensureConfigurationReady();
-        }
-
-        protected void projectClosed() {
-        }
-    }
-
-    private static final class PrivilegedTemplatesImpl implements PrivilegedTemplates, RecommendedTemplates {
-        
-        private static final String[] PRIVILEGED_NAMES = new String[] {
-            "Templates/J2EE/Session", // NOI18N
-            "Templates/J2EE/Entity",  // NOI18N
-            "Templates/J2EE/ServiceLocator.java", // NOI18N
-            "Templates/Classes/Class.java" // NOI18N
-        };
-        
-        private static final String[] RECOMENDED_TYPES = new String[] {
-            "java-classes",         // NOI18N
-            "ejb-types",            // NOI18N
-            "ejb-types_2_1",        // NOI18N
-            "j2ee-types",           // NOI18N
-            "java-beans",           // NOI18N
-            "oasis-XML-catalogs",   // NOI18N
-            "XML",                  // NOI18N
-            "wsdl",                 // NOI18N
-            "ant-script",           // NOI18N
-            "ant-task",             // NOI18N
-            "junit",                // NOI18N
-            "simple-files"          // NOI18N
-        };
-        
-        public String[] getPrivilegedTemplates() {
-            return PRIVILEGED_NAMES;
-        }
-
-        public String[] getRecommendedTypes() {
-            return RECOMENDED_TYPES;
-        }
-     
-    
-    
-    }
     
 }

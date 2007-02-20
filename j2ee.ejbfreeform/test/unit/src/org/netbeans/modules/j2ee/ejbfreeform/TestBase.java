@@ -32,6 +32,7 @@ import org.openide.filesystems.LocalFileSystem;
 import org.openide.filesystems.MultiFileSystem;
 import org.openide.filesystems.Repository;
 import org.openide.filesystems.XMLFileSystem;
+import org.openide.modules.ModuleInfo;
 import org.openide.util.Lookup;
 import org.openide.util.lookup.InstanceContent;
 import org.openide.util.lookup.Lookups;
@@ -44,7 +45,7 @@ import org.openide.util.lookup.ProxyLookup;
 public class TestBase extends NbTestCase {
     
     static {
-        System.setProperty("org.openide.util.Lookup", Lkp.class.getName());
+//        System.setProperty("org.openide.util.Lookup", Lkp.class.getName());
     }
     
     protected File egdir;
@@ -60,6 +61,7 @@ public class TestBase extends NbTestCase {
     
     protected void setUp() throws Exception {
         super.setUp();
+        Lookup.getDefault().lookup(ModuleInfo.class);
         clearWorkDir();
         scratchF = getWorkDir();
         mkdir("system/J2EE/InstalledServers");
@@ -100,64 +102,64 @@ public class TestBase extends NbTestCase {
         new File(scratchF, path.replace('/', File.separatorChar)).mkdirs();
     }
     
-    private static final class Repo extends Repository {
-        
-        public Repo() throws Exception {
-            super(mksystem());
-        }
-        
-        private static FileSystem mksystem() throws Exception {
-            LocalFileSystem lfs = new LocalFileSystem();
-            lfs.setRootDirectory(new File(System.getProperty("SYSTEMDIR")));
-            //get layer for the generic server
-            java.net.URL layerFile = Repo.class.getClassLoader().getResource("org/netbeans/modules/j2ee/genericserver/resources/layer.xml");
-            assert layerFile != null;
-            XMLFileSystem layer = new XMLFileSystem(layerFile);
-            FileSystem layers [] = new FileSystem [] {lfs, layer};
-            MultiFileSystem mfs = new MultiFileSystem(layers);
-            return mfs;
-        }
-        
-    }
-    
-    public static final class Lkp extends ProxyLookup {
-        
-        public Lkp() {
-            super(new Lookup[] {
-                Lookups.fixed(new Object[] {"repo", new DummyJavaPlatformProvider()}, new Conv()),
-                Lookups.metaInfServices(Lkp.class.getClassLoader()),
-                Lookups.singleton(Lkp.class.getClassLoader())
-            });
-        }
-        
-        private static final class Conv implements InstanceContent.Convertor {
-            public Conv() {}
-            public Object convert(Object obj) {
-                if (obj instanceof JavaPlatformProvider) {
-                    return obj;
-                }
-                assert obj == "repo";
-                try {
-                    return new Repo();
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    return null;
-                }
-            }
-            public String displayName(Object obj) {
-                return obj.toString();
-            }
-            public String id(Object obj) {
-                return obj.toString();
-            }
-            public Class type(Object obj) {
-                if (obj instanceof JavaPlatformProvider) {
-                    return JavaPlatformProvider.class;
-                }
-                assert obj == "repo";
-                return Repository.class;
-            }
-        }
-    }
+//    private static final class Repo extends Repository {
+//        
+//        public Repo() throws Exception {
+//            super(mksystem());
+//        }
+//        
+//        private static FileSystem mksystem() throws Exception {
+//            LocalFileSystem lfs = new LocalFileSystem();
+//            lfs.setRootDirectory(new File(System.getProperty("SYSTEMDIR")));
+//            //get layer for the generic server
+//            java.net.URL layerFile = Repo.class.getClassLoader().getResource("org/netbeans/modules/j2ee/genericserver/resources/layer.xml");
+//            assert layerFile != null;
+//            XMLFileSystem layer = new XMLFileSystem(layerFile);
+//            FileSystem layers [] = new FileSystem [] {lfs, layer};
+//            MultiFileSystem mfs = new MultiFileSystem(layers);
+//            return mfs;
+//        }
+//        
+//    }
+//    
+//    public static final class Lkp extends ProxyLookup {
+//        
+//        public Lkp() {
+//            super(new Lookup[] {
+//                Lookups.fixed(new Object[] {"repo", new DummyJavaPlatformProvider()}, new Conv()),
+//                Lookups.metaInfServices(Lkp.class.getClassLoader()),
+//                Lookups.singleton(Lkp.class.getClassLoader())
+//            });
+//        }
+//        
+//        private static final class Conv implements InstanceContent.Convertor {
+//            public Conv() {}
+//            public Object convert(Object obj) {
+//                if (obj instanceof JavaPlatformProvider) {
+//                    return obj;
+//                }
+//                assert obj == "repo";
+//                try {
+//                    return new Repo();
+//                } catch (Exception e) {
+//                    e.printStackTrace();
+//                    return null;
+//                }
+//            }
+//            public String displayName(Object obj) {
+//                return obj.toString();
+//            }
+//            public String id(Object obj) {
+//                return obj.toString();
+//            }
+//            public Class type(Object obj) {
+//                if (obj instanceof JavaPlatformProvider) {
+//                    return JavaPlatformProvider.class;
+//                }
+//                assert obj == "repo";
+//                return Repository.class;
+//            }
+//        }
+//    }
 
 }

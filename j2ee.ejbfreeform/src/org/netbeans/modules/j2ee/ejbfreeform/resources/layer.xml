@@ -35,4 +35,16 @@ Microsystems, Inc. All Rights Reserved.
 
         </folder>
     </folder>
+    <folder name="Projects">
+        <folder name="org-netbeans-modules-ant-freeform">
+            <folder name="Lookup">
+                <file name="org-netbeans-modules-j2ee-ejbfreeform-LookupProviderImpl.instance"/>
+            </folder>
+            <folder name="Customizer">
+                <file name="org-netbeans-modules-j2ee-ejbfreeform-ui-EjbLocationsCategoryProvider.instance"/>
+                <attr name="org-netbeans-modules-j2ee-ejbfreeform-ui-EjbLocationsCategoryProvider.instance/org-netbeans-modules-java-freeform-ui-SourceFoldersCategoryProvider.instance" boolvalue="true"/>
+            </folder>
+        </folder>
+    </folder>
+    
 </filesystem>
