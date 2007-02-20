@@ -168,6 +168,11 @@ public class OC4JDeploymentManager implements DeploymentManager, ProgressObject,
         return this;
     }
     
+    public ProgressObject distribute(Target[] target, ModuleType type,
+            InputStream inputStream, InputStream inputStream2) throws IllegalStateException {
+        return distribute(target, inputStream, inputStream2);
+    }
+    
     public DeploymentConfiguration createConfiguration(DeployableObject deployableObject) throws InvalidModuleException {
         ModuleType type = deployableObject.getType();
         if (type == ModuleType.WAR) {
