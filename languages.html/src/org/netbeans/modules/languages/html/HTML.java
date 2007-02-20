@@ -232,7 +232,7 @@ public class HTML {
     }
     
     public static ASTNode process (SyntaxCookie cookie) {
-        ASTNode n = (ASTNode) cookie.getPTPath ().getRoot ();
+        ASTNode n = (ASTNode) cookie.getASTPath ().getRoot ();
         List l = new ArrayList ();
         resolve (n, new Stack (), l, true);
         return ASTNode.create (n.getMimeType (), n.getNT (), n.getRule (), l, n.getOffset ());
