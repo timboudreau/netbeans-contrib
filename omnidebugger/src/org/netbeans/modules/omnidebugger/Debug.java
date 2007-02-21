@@ -77,7 +77,11 @@ class Debug {
     private static ClassKind getKind(FileObject source) {
         final ClassKind[] result = new ClassKind[] {ClassKind.NONE};
         try {
-            JavaSource.forFileObject(source).runUserActionTask(new CancellableTask<CompilationController>() {
+            JavaSource src = JavaSource.forFileObject(source);
+            if (src == null) {
+                return ClassKind.NONE;
+            }
+            src.runUserActionTask(new CancellableTask<CompilationController>() {
                 public void run(CompilationController controller) throws Exception {
                     controller.toPhase(JavaSource.Phase.RESOLVED);
                     CompilationUnitTree compunit = controller.getCompilationUnit();
