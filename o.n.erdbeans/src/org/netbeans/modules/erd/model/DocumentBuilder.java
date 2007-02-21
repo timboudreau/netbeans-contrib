@@ -102,7 +102,7 @@ public class DocumentBuilder {
        else 
           return  precision.toString();
    }
-   private void handleFK(TableElement te){
+  /* private void handleFK(TableElement te){
         
         ForeignKeyElement[] fk=te.getForeignKeys();
         for(int i=0;i<fk.length;i++){
@@ -120,7 +120,7 @@ public class DocumentBuilder {
         }
         
         
-    }
+    }*/
    
    
     public String createUniqueName(String part1,String part2){
@@ -133,6 +133,7 @@ public class DocumentBuilder {
            if(column!=null){
               TableElement childKey=keys[i].getDeclaringTable();
               TableElement parentKey=keys[i].getReferencedTable();
+             // boolean compoundParentPK= parentKey.getPrimaryKey().getColumns().length>1 ? true : false;
               String uniqueName=createUniqueName(getName(childKey), getName(parentKey));
               ERDComponent connection=document.createComponent(uniqueName,ConnectionDescriptor.NAME);
               
@@ -161,7 +162,7 @@ public class DocumentBuilder {
         //   if(column!=null)
          //     name=column.getName().getName();
            
-           if(column!=null)
+           if(column!=null && keys.getColumns().length==1)
                return  true;
               
             

@@ -20,9 +20,12 @@
 package org.netbeans.modules.erd.io;
 
 import java.io.IOException;
+import org.openide.actions.CopyAction;
+import org.openide.actions.CutAction;
 import org.openide.actions.EditAction;
 import org.openide.actions.FileSystemAction;
 import org.openide.actions.OpenAction;
+import org.openide.actions.PasteAction;
 import org.openide.actions.PropertiesAction;
 import org.openide.actions.SaveAction;
 import org.openide.actions.ToolsAction;
@@ -62,12 +65,25 @@ public class ERDDataLoader extends UniFileLoader {
     
     protected SystemAction[] defaultActions() {
 		// TODO Auto-generated method stub
-		return new SystemAction[] {
+	return new SystemAction[]{
+                SystemAction.get (OpenAction.class),
+                SystemAction.get (EditAction.class),
+                SystemAction.get (SaveAction.class),
+                SystemAction.get (FileSystemAction.class),
+                null,
+                SystemAction.get (ToolsAction.class),
+                SystemAction.get (PropertiesAction.class),
+                SystemAction.get (CopyAction.class),
+                SystemAction.get (CutAction.class),
+                SystemAction.get (PasteAction.class)        
+        };
+        
+       /* return new SystemAction[] {
 				SystemAction.get(OpenAction.class),
 				SystemAction.get(EditAction.class)
                
 				
-		};
+		};*/
 	}
     
     
