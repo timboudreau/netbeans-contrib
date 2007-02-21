@@ -18,12 +18,15 @@
  */
 package test.alignwith;
 
-import org.netbeans.api.visual.action.*;
+import org.netbeans.api.visual.action.ActionFactory;
+import org.netbeans.api.visual.action.SelectProvider;
+import org.netbeans.api.visual.action.TextFieldInplaceEditor;
+import org.netbeans.api.visual.action.WidgetAction;
+import org.netbeans.api.visual.border.BorderFactory;
 import org.netbeans.api.visual.widget.LabelWidget;
 import org.netbeans.api.visual.widget.LayerWidget;
 import org.netbeans.api.visual.widget.Scene;
 import org.netbeans.api.visual.widget.Widget;
-import org.netbeans.api.visual.border.BorderFactory;
 import test.SceneSupport;
 
 import java.awt.*;
@@ -31,14 +34,15 @@ import java.awt.*;
 /**
  * @author David Kaspar
  */
-public class AlignWithTest extends Scene {
+public class AlignWithResizeTest extends Scene {
 
     private LayerWidget mainLayer;
     private WidgetAction moveAction;
+    private WidgetAction resizeAction;
     private WidgetAction renameAction;
     private WidgetAction eatAction;
 
-    public AlignWithTest () {
+    public AlignWithResizeTest () {
         setBackground (Color.WHITE);
 
         mainLayer = new LayerWidget (this);
@@ -47,14 +51,17 @@ public class AlignWithTest extends Scene {
         LayerWidget interractionLayer = new LayerWidget (this);
         addChild (interractionLayer);
 
+        resizeAction = ActionFactory.createAlignWithResizeAction (mainLayer, interractionLayer, null);
         moveAction = ActionFactory.createAlignWithMoveAction (mainLayer, interractionLayer, null);
         renameAction = ActionFactory.createInplaceEditorAction (new RenameEditor ());
         eatAction = ActionFactory.createSelectAction (new EatEventSelectProvider ());
 
         getActions ().addAction (ActionFactory.createSelectAction (new CreateProvider ()));
 
-        createLabel ("Click on the scene to create a new label", new Point (10, 20));
-        createLabel ("Drag a label to move it and try to align it with other ones", new Point (10, 40));
+        createLabel ("Click on the scene to create a new label", new Point (10, 40));
+        createLabel ("Drag a label to move it", new Point (20, 80));
+        createLabel ("Drag a label border to resize it", new Point (30, 120));
+        createLabel ("Try to align it with other ones", new Point (40, 160));
     }
 
     private void createLabel (String label, Point location) {
@@ -63,11 +70,12 @@ public class AlignWithTest extends Scene {
 
         widget.setOpaque (true);
         widget.setBackground (Color.LIGHT_GRAY);
-        widget.setBorder (BorderFactory.createBevelBorder (true));
+        widget.setBorder (BorderFactory.createResizeBorder (8));
         widget.setPreferredLocation (location);
 
         widget.getActions ().addAction (eatAction);
         widget.getActions ().addAction (renameAction);
+        widget.getActions ().addAction (resizeAction);
         widget.getActions ().addAction (moveAction);
 
         mainLayer.addChild (widget);
@@ -121,7 +129,7 @@ public class AlignWithTest extends Scene {
     }
 
     public static void main (String[] args) {
-        SceneSupport.show (new AlignWithTest ());
+        SceneSupport.show (new AlignWithResizeTest ());
     }
 
 }
