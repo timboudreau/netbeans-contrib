@@ -117,7 +117,7 @@ final public class ERDTopComponent extends CloneableTopComponent implements Clon
     
    public void setDocumentInAWT(ERDDataObject dataObject){
     if(dataObject!=null){
-      view=createView(dataObject);
+      view=createView();
       scroll.setViewportView (view); 
       removeAll();
       add (scroll, BorderLayout.CENTER);
@@ -136,7 +136,7 @@ final public class ERDTopComponent extends CloneableTopComponent implements Clon
    
    
    
-   private JComponent createView(ERDDataObject dataObject){
+   public JComponent createView(){
      /*  Scene scene=DocumentLoad.load(dataObject);
        
        

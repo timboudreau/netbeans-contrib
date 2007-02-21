@@ -19,9 +19,13 @@
 package org.netbeans.modules.erd.editor;
 
 
+import java.awt.Component;
 import java.awt.EventQueue;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.print.PageFormat;
 import java.awt.print.Pageable;
+import java.awt.print.Printable;
 import java.awt.print.PrinterAbortException;
 import java.awt.print.PrinterException;
 import java.awt.print.PrinterJob;
@@ -37,13 +41,15 @@ import org.openide.windows.CloneableOpenSupport;
 import org.openide.windows.CloneableTopComponent;
 import org.openide.windows.TopComponent;
 import java.io.*;
+import javax.swing.JComponent;
 import javax.swing.JEditorPane;
 import javax.swing.SwingUtilities;
 import org.netbeans.modules.erd.io.ERDDataObject;
 import org.netbeans.modules.erd.model.DocumentSerializer;
+import org.openide.DialogDisplayer;
+import org.openide.NotifyDescriptor;
 import org.openide.text.CloneableEditorSupport.Pane;
 import org.openide.text.NbDocument;
-import org.openide.text.NbDocument.Printable;
 import org.openide.text.PrintSettings;
 import org.openide.util.Exceptions;
 import org.openide.util.NbBundle;
@@ -63,6 +69,12 @@ public class ERDEditorSupport extends CloneableOpenSupport implements  OpenCooki
     
     private TopComponent topComponent;
     private ShowingType showingType;
+    /** Lock used for access to <code>printing</code> variable. */
+    private final Object LOCK_PRINTING = new Object();
+    /** Helper variable to prevent multiple cocurrent printing of this
+     * instance. */
+    private boolean printing;
+    
     
     public ERDEditorSupport(ERDDataObject dataObject) {
         super( new Env(dataObject));
@@ -76,11 +88,11 @@ public class ERDEditorSupport extends CloneableOpenSupport implements  OpenCooki
         
         documentSerializer.saveDocument();
         notifyUnmodified();
-           
+        
     }
     
     public boolean notifyModified() {
-       
+        
         if (dataObject.getCookie(SaveCookie.class) == null) {
             dataObject.addSaveCookie(saveCookie);
             dataObject.setModified(true);
@@ -90,7 +102,7 @@ public class ERDEditorSupport extends CloneableOpenSupport implements  OpenCooki
     }
     
     protected void notifyUnmodified() {
-      
+        
         SaveCookie save = (SaveCookie)dataObject.getCookie(SaveCookie.class);
         if (save != null) {
             dataObject.removeSaveCookie(save);
@@ -102,17 +114,17 @@ public class ERDEditorSupport extends CloneableOpenSupport implements  OpenCooki
     protected boolean notifyClosed() {
         boolean can=canClose();
         if(can){
-          topComponent = null;
-          //super.close();
-          dataObject.notifyClosed();
+            topComponent = null;
+            //super.close();
+            dataObject.notifyClosed();
         }
-       return can;
+        return can;
     }
     
     public void open() {
         showingType = ShowingType.OPEN;
-        super.open ();
-     
+        super.open();
+        
     }
     
     public void edit() {
@@ -121,50 +133,123 @@ public class ERDEditorSupport extends CloneableOpenSupport implements  OpenCooki
     }
     
     
-    public void setMVTC(TopComponent mvtc) {
-        this.topComponent = mvtc;
+    public void setMVTC(TopComponent tc) {
+        this.topComponent = tc;
     }
     
     
     public void print() {
-       
+        
+        synchronized (LOCK_PRINTING) {
+            if (printing) {
+                return;
+            }
+            
+            printing = true;
+        }
+        
+
+        
+        try {
+            PrinterJob job = PrinterJob.getPrinterJob();
+            ERDTopComponent tc=(ERDTopComponent)topComponent;
+            
+            Printable o =new ERDPrintable(tc.createView());
+            
+            
+           PageFormat pf = PrintSettings.getPageFormat(job);
+           job.setPrintable((Printable) o, pf);
+           
+            
+            if (job.printDialog()) {
+                job.print();
+            }
+        }  catch (PrinterAbortException e) { // user exception
+            notifyProblem(e, "CTL_Printer_Abort"); // NOI18N
+        }catch (PrinterException e) {
+            notifyProblem(e, "EXC_Printer_Problem"); // NOI18N
+        } finally {
+            synchronized (LOCK_PRINTING) {
+                printing = false;
+            }
+        }
     }
-  
+    
+    
+   static class ERDPrintable implements Printable {
+        private JComponent mComponent;
+        
+        public ERDPrintable(JComponent c) {
+            mComponent = c;
+        }
+        
+        public int print(Graphics g, PageFormat pageFormat, int pageIndex) {
+            if (pageIndex > 0)
+                return NO_SUCH_PAGE;
+            Graphics2D g2 = (Graphics2D) g;
+           g2.translate(pageFormat.getImageableX(), pageFormat.getImageableY());
+     //       boolean wasBuffered = disableDoubleBuffering(mComponent);
+            mComponent.paint(g2);
+      //      restoreDoubleBuffering(mComponent, wasBuffered);
+            return PAGE_EXISTS;
+        }
+        
+        private boolean disableDoubleBuffering(Component c) {
+            if (c instanceof JComponent == false)
+                return false;
+            JComponent jc = (JComponent) c;
+            boolean wasBuffered = jc.isDoubleBuffered();
+            jc.setDoubleBuffered(false);
+            return wasBuffered;
+        }
+        
+        private void restoreDoubleBuffering(Component c, boolean wasBuffered) {
+            if (c instanceof JComponent)
+                ((JComponent) c).setDoubleBuffered(wasBuffered);
+        }
+    }
+    
+    
+    private static void notifyProblem(Exception e, String key) {
+        String msg = NbBundle.getMessage(CloneableEditorSupport.class, key, e.getLocalizedMessage());
+        Exceptions.attachLocalizedMessage(e, msg);
+        DialogDisplayer.getDefault().notifyLater(new NotifyDescriptor.Exception(e));
+    }
     
     private synchronized PropertyChangeSupport getPropertyChangeSupport() {
         if (propertyChangeSupport == null) {
             propertyChangeSupport = new PropertyChangeSupport(this);
         }
-
+        
         return propertyChangeSupport;
     }
     
-     public final void addPropertyChangeListener(java.beans.PropertyChangeListener l) {
+    public final void addPropertyChangeListener(java.beans.PropertyChangeListener l) {
         getPropertyChangeSupport().addPropertyChangeListener(l);
     }
     
-     /** Constructs message that should be used to name the editor component.
-    *
-    * @return name of the editor
-    */
-    protected String messageName () {
+    /** Constructs message that should be used to name the editor component.
+     *
+     * @return name of the editor
+     */
+    protected String messageName() {
         if (! dataObject.isValid()) return ""; // NOI18N
-
+        
         return addFlagsToName(dataObject.getNodeDelegate().getDisplayName());
     }
     
-     protected String messageOpening () {
-        return NbBundle.getMessage (DataObject.class , "CTL_ObjectOpen", // NOI18N
-            dataObject.getPrimaryFile().getNameExt(),
-            FileUtil.getFileDisplayName(dataObject.getPrimaryFile())
-        );
+    protected String messageOpening() {
+        return NbBundle.getMessage(DataObject.class , "CTL_ObjectOpen", // NOI18N
+                dataObject.getPrimaryFile().getNameExt(),
+                FileUtil.getFileDisplayName(dataObject.getPrimaryFile())
+                );
     }
     
     
-   
+    
     private String addFlagsToName(String name) {
         int version = 3;
-        if (isModified ()) {
+        if (isModified()) {
             if (!dataObject.getPrimaryFile().canWrite()) {
                 version = 2;
             } else {
@@ -175,28 +260,28 @@ public class ERDEditorSupport extends CloneableOpenSupport implements  OpenCooki
                 version = 0;
             }
         }
-
-        return NbBundle.getMessage (DataObject.class, "LAB_EditorName",
-		new Integer (version), name );
+        
+        return NbBundle.getMessage(DataObject.class, "LAB_EditorName",
+                new Integer(version), name );
     }
     
     
-     protected String messageOpened () {
-        return NbBundle.getMessage (DataObject.class, "CTL_ObjectOpened", // NOI18N
-            dataObject.getPrimaryFile().getNameExt(),
-            FileUtil.getFileDisplayName(dataObject.getPrimaryFile())
-        );
+    protected String messageOpened() {
+        return NbBundle.getMessage(DataObject.class, "CTL_ObjectOpened", // NOI18N
+                dataObject.getPrimaryFile().getNameExt(),
+                FileUtil.getFileDisplayName(dataObject.getPrimaryFile())
+                );
     }
     
     
     final Env cesEnv() {
         return (Env) env;
     }
-     
+    
     public boolean isModified() {
         return cesEnv().isModified();
-    } 
-     
+    }
+    
     protected CloneableTopComponent createCloneableTopComponent() {
         //CloneableTopComponent tc = super.createCloneableTopComponent();
         ERDTopComponent component=new ERDTopComponent(dataObject,this);
@@ -211,8 +296,8 @@ public class ERDEditorSupport extends CloneableOpenSupport implements  OpenCooki
         getPropertyChangeSupport().removePropertyChangeListener(l);
     }
     
-   
-    protected String messageToolTip () {
+    
+    protected String messageToolTip() {
         // update tooltip
         return FileUtil.getFileDisplayName(dataObject.getPrimaryFile());
     }
@@ -223,18 +308,18 @@ public class ERDEditorSupport extends CloneableOpenSupport implements  OpenCooki
             return;
         
         Runnable run=new Runnable() {
-            public void run () {
-                String displayName = messageName ();
-                if (! displayName.equals (tc.getDisplayName ()))
-                    tc.setDisplayName (displayName);
-                tc.setToolTipText (dataObject.getPrimaryFile ().getPath ());
+            public void run() {
+                String displayName = messageName();
+                if (! displayName.equals(tc.getDisplayName()))
+                    tc.setDisplayName(displayName);
+                tc.setToolTipText(dataObject.getPrimaryFile().getPath());
             }
         };
         
-        if (SwingUtilities.isEventDispatchThread ())
-            run.run ();
+        if (SwingUtilities.isEventDispatchThread())
+            run.run();
         else
-            SwingUtilities.invokeLater (run);
+            SwingUtilities.invokeLater(run);
         
         
         
@@ -242,12 +327,12 @@ public class ERDEditorSupport extends CloneableOpenSupport implements  OpenCooki
     
     
     
-    protected String messageSave () {
-        return NbBundle.getMessage (
-            DataObject.class,
-            "MSG_SaveFile", // NOI18N
-            dataObject.getPrimaryFile().getNameExt()
-        );
+    protected String messageSave() {
+        return NbBundle.getMessage(
+                DataObject.class,
+                "MSG_SaveFile", // NOI18N
+                dataObject.getPrimaryFile().getNameExt()
+                );
     }
     
     private class Save implements SaveCookie {
@@ -279,11 +364,11 @@ public class ERDEditorSupport extends CloneableOpenSupport implements  OpenCooki
         startLoadingDesign();
         
         openCloneableTopComponent();
-       
+        
     }
     
     public void startLoadingDesign() {
-       
+        
         RequestProcessor.getDefault().post(new Runnable() {
             public void run() {
                 loadDesignData();
@@ -314,7 +399,7 @@ public class ERDEditorSupport extends CloneableOpenSupport implements  OpenCooki
         }
         
         protected FileLock takeLock() throws IOException {
-            return ((ERDDataObject) getDataObject ()).getPrimaryEntry ().takeLock ();
+            return ((ERDDataObject) getDataObject()).getPrimaryEntry().takeLock();
         }
         
         public CloneableOpenSupport findCloneableOpenSupport() {
