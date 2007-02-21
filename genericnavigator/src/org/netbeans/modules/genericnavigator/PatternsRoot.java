@@ -402,7 +402,7 @@ public class PatternsRoot extends AbstractNode {
         public Image getIcon(int ignored) {
             Image fldImage;
             fldImage = (Image) UIManager.get("Nb.Explorer.Folder.icon"); //NOI18N
-            return fldImage;
+            return fldImage != null ? fldImage : super.getIcon(ignored);
         }
 
         public Image getOpenedIcon(int ignored) {
