@@ -13,7 +13,7 @@ enclosed by brackets [] replaced by your own identifying information:
 "Portions Copyrighted [year] [name of copyright owner]"
 
 The Original Software is NetBeans. The Initial Developer of the Original
-Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
+Software is Sun Microsystems, Inc. Portions Copyright 1997-2007 Sun
 Microsystems, Inc. All Rights Reserved.
 -->
 <!DOCTYPE filesystem PUBLIC "-//NetBeans//DTD Filesystem 1.0//EN" "http://www.netbeans.org/dtds/filesystem-1_0.dtd">
@@ -58,6 +58,41 @@ Microsystems, Inc. All Rights Reserved.
       <file name="deadlock.settings" url="uc.xml">
         <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.extraupdatecenters.Bundle"/>
         <attr name="url_key" stringvalue="URL_deadlock"/>
+        <attr name="enabled" boolvalue="true"/>
+      </file>
+      <file name="efh.settings" url="uc.xml">
+        <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.extraupdatecenters.Bundle"/>
+        <attr name="url_key" stringvalue="URL_efh"/>
+        <attr name="enabled" boolvalue="true"/>
+      </file>
+      <file name="geertjan.settings" url="uc.xml">
+        <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.extraupdatecenters.Bundle"/>
+        <attr name="url_key" stringvalue="URL_geertjan"/>
+        <attr name="enabled" boolvalue="true"/>
+      </file>
+      <file name="hmichel.settings" url="uc.xml">
+        <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.extraupdatecenters.Bundle"/>
+        <attr name="url_key" stringvalue="URL_hmichel"/>
+        <attr name="enabled" boolvalue="true"/>
+      </file>
+      <file name="liguorien.settings" url="uc.xml">
+        <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.extraupdatecenters.Bundle"/>
+        <attr name="url_key" stringvalue="URL_liguorien"/>
+        <attr name="enabled" boolvalue="true"/>
+      </file>
+      <file name="findbugs.settings" url="uc.xml">
+        <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.extraupdatecenters.Bundle"/>
+        <attr name="url_key" stringvalue="URL_findbugs"/>
+        <attr name="enabled" boolvalue="true"/>
+      </file>
+      <file name="catlans.settings" url="uc.xml">
+        <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.extraupdatecenters.Bundle"/>
+        <attr name="url_key" stringvalue="URL_catlans"/>
+        <attr name="enabled" boolvalue="true"/>
+      </file>
+      <file name="napkin.settings" url="uc.xml">
+        <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.extraupdatecenters.Bundle"/>
+        <attr name="url_key" stringvalue="URL_napkin"/>
         <attr name="enabled" boolvalue="true"/>
       </file>
     </folder>
