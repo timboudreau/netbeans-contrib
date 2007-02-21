@@ -238,6 +238,10 @@ public class WS70SunDeploymentManager implements DeploymentManager{
         }
         return null;
     }
+    
+    public ProgressObject distribute(Target[] target, ModuleType moduleType, InputStream inputStream, InputStream inputStream0) throws IllegalStateException {
+        return distribute(target, inputStream, inputStream0);
+    }
 
     public Locale getCurrentLocale() {                                
         return Locale.getDefault();
@@ -757,5 +761,4 @@ public class WS70SunDeploymentManager implements DeploymentManager{
             throw ex;
         }                             
     }
-
 }
