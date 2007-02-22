@@ -18,7 +18,7 @@ public class Installer extends ModuleInstall {
     public void restored() {
 //        LOG.warning("Highlighting is " + (HIGHLIGHTING ? "on" : "off") + ".");
 //        if (HIGHLIGHTING) {
-            DocumentsRegistry.addPropertyChangeListener(HighlightingDrawLayer.INJECTOR);
+//            DocumentsRegistry.addPropertyChangeListener(HighlightingDrawLayer.INJECTOR);
 //        }
     }
     
