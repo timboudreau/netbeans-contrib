@@ -1,0 +1,51 @@
+<html>
+    <head>
+        <title>About System FileSystem and META-INF services Browser</title>
+        <link rel="stylesheet" href="nbdocs:/org/netbeans/modules/usersguide/ide.css" type="text/css">
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    </head>
+    <body>
+        <h2>About System FileSystem and META-INF services Browser</h2>
+        <p>
+            This modules displays the System FileSystem and META-INF services in a window. To show the
+            System FileSystem Browser select <b>Window:System FileSystem  and META-INF services Browser</b>
+            menu item.
+        </p>
+        <p>
+            The special features of System FileSystem and META-INF services Browser are:
+            <ul>
+                <li>the attributes of the file or the folder as a child node</li>
+                <li>the popup menu shows the actions that show the documentation
+                related to the node or it's parents in browser. The documentation
+                may be API, Architecture Descriptions, FAQ, File format documents
+                etc.
+                </li>
+                <li>the registered META-INF services</li>
+            </ul>
+        </p>
+        <p>
+            The popup actions are configured using the <code>FolderLookup</code>
+            mechanism under the special folder called
+            <code>org.netbeans.modules.sfsbrowser</code> in the System FileSystem.
+            The actions can be generic or configured based on the platform cluster
+            name in the <code>netbeans.home</code> directory. That way the actions
+            can be made sensitive to the NetBeans platform you are running.
+        </p>
+        <p>
+            TODO: Make System FileSystem browser dynamic i.e. respond to changes
+            in System FileSystem.
+        </p>
+    </body>
+</html>
+<!--
+Tip: to create a link which will open in an external web browser, try:
+<object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer">
+    <param name="content" value="http://www.netbeans.org/">
+    <param name="text" value="<html><u>http://www.netbeans.org/</u></html>">
+    <param name="textFontSize" value="medium">
+    <param name="textColor" value="blue">
+</object>
+To create a link to a help set from another module, you need to know the code name base and path, e.g.:
+<a href="nbdocs://org.netbeans.modules.usersguide/org/netbeans/modules/usersguide/configure/configure_options.html">Using the Options Window</a>
+(This link will behave sanely if that module is disabled or missing.)
+-->
