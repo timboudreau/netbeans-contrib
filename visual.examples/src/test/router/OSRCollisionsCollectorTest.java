@@ -12,7 +12,7 @@ import java.awt.*;
 import java.util.Arrays;
 
 /**
- * This test describes issue #. It should route the connection correctly. The bug happens when the connection is router as directly (not orthogonally).
+ * This test describes issue #96462. It should route the connection correctly. The bug happens when the connection is router as directly (not orthogonally).
  *
  * @author David Kaspar
  */
