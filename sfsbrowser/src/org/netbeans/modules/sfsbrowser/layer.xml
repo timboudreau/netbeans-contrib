@@ -68,6 +68,12 @@
             </file>
         </folder>
         <folder name="Modules">
+            <file name="HarnessREADME.instance">
+                <attr name="instanceClass" stringvalue="javax.swing.Action"/>
+                <attr name="instanceCreate" methodvalue="org.netbeans.modules.sfsbrowser.ShowURLActionFactory.create"/>
+                <attr name="url" stringvalue="http://www.netbeans.org/source/browse/*checkout*/apisupport/harness/release/README"/>
+                <attr name="displayName" stringvalue="Modules Development Harness README"/>
+            </file>
             <file name="APIDescription.instance">
                 <attr name="instanceClass" stringvalue="javax.swing.Action"/>
                 <attr name="instanceCreate" methodvalue="org.netbeans.modules.sfsbrowser.ShowURLActionFactory.create"/>

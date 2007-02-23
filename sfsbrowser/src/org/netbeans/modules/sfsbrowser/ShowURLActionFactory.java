@@ -40,7 +40,7 @@ import org.openide.awt.StatusDisplayer;
 import org.openide.filesystems.FileObject;
 
 /**
- * The action shows the System FileSystem and META-INF/services Browser window.
+ * Factory for creating actions to show URLs in the Browser.
  * 
  * @author Sandip Chitale (Sandip.Chitale@Sun.Com)
  */

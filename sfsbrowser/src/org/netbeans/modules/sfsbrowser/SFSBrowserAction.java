@@ -27,7 +27,7 @@ import org.openide.util.Utilities;
 import org.openide.windows.TopComponent;
 
 /**
- * Action which shows System FileSystem Browser window.
+ * Action which shows System FileSystem and META-INF/services Browser window.
  * 
  * @author Sandip V. Chitale (Sandip.Chitale@Sun.Com)
  */
