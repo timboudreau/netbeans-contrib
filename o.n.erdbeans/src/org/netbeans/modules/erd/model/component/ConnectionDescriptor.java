@@ -18,14 +18,17 @@
  */
 
 package org.netbeans.modules.erd.model.component;
+import java.awt.Image;
 import java.util.HashMap;
 import org.netbeans.api.visual.anchor.AnchorShape;
+import org.netbeans.api.visual.anchor.AnchorShapeFactory;
 import org.netbeans.api.visual.widget.ConnectionWidget;
 import org.netbeans.modules.erd.graphics.ERDScene;
 import org.netbeans.modules.erd.graphics.OneManyAnchor;
 import org.netbeans.modules.erd.graphics.OneOneAnchor;
 import org.netbeans.modules.erd.graphics.ZeroManyAnchor;
 import org.netbeans.modules.erd.model.ComponentDescriptor;
+import org.openide.util.Utilities;
 
 public class ConnectionDescriptor extends ComponentDescriptor{
     public final static String NAME="CONNECTION#COMPONENT";
@@ -33,14 +36,14 @@ public class ConnectionDescriptor extends ComponentDescriptor{
     public final static String ONE_ONE="ONE_ONE";
     public final static String ZERO_MANY="ZERO_MANY";
     public enum PROPERTY {SOURCE,TARGET,RELATION};
-    
+    private static Image oneToMany=Utilities.loadImage("org/netbeans/modules/erd/resources/erd_icon.png");
     
     
     private static HashMap<String, AnchorShape> anchors ;  
 
     static {
          anchors= new HashMap<String, AnchorShape> ();
-         anchors.put(ONE_MANY, new OneManyAnchor());
+         anchors.put(ONE_MANY, AnchorShapeFactory.createImageAnchorShape(oneToMany,false));
          anchors.put(ONE_ONE, new OneOneAnchor());
          anchors.put(ZERO_MANY, new ZeroManyAnchor());
     }

@@ -144,7 +144,7 @@ public class ERDScene extends GraphPinScene<String, String, String>  implements 
         //widget.getActions ().addAction (createObjectHoverAction ());
         //widget.getHeader ().getActions ().addAction (createObjectHoverAction ());
         widget.getView().getActions().addAction(createObjectHoverAction());
-        widget.getView().getActions().addAction(createSelectAction());
+        widget.getActions().addAction(createSelectAction());
         widget.getActions().addAction(ActionFactory.createResizeAction(resizeStrategy,null));
         widget.getActions().addAction(moveAction);
         
