@@ -1,0 +1,312 @@
+# The contents of this file are subject to the terms of the Common Development
+# and Distribution License (the License). You may not use this file except in
+# compliance with the License.
+#
+# You can obtain a copy of the License at http://www.netbeans.org/cddl.html
+# or http://www.netbeans.org/cddl.txt.
+#
+# When distributing Covered Code, include this CDDL Header Notice in each file
+# and include the License file at http://www.netbeans.org/cddl.txt.
+# If applicable, add the following below the CDDL Header, with the fields
+# enclosed by brackets [] replaced by your own identifying information:
+# "Portions Copyrighted [year] [name of copyright owner]"
+#
+# The Original Software is NetBeans. The Initial Developer of the Original
+# Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
+# Microsystems, Inc. All Rights Reserved.
+
+
+
+########### tokens #############################################################
+TOKEN:line_comment: ( "#" [^ "\n" "\r"]* )
+
+TOKEN:operator: (
+    "+" |
+    "-" |
+    "|" |
+    "&" |
+    "$" |
+    "!" |
+    "@" |
+    "=" |
+    "." |
+    "*" |
+    "/" |
+    "%" |
+    ">" |
+    ">>" |
+    "++" |
+    "--" |
+    "+=" |
+    "-=" |
+    "*=" |
+    "/=" |
+    "%=" |
+    "-and" |
+    "-or" |
+    "-not" |
+    "-band" |
+    "-bor" |
+    "-bnot" |
+    "-match" |
+    "-nomatch" |
+    "-imatch" |
+    "-inomatch" |
+    "-like" |
+    "-notlike" |
+    "-ilike" |
+    "-inotlike" |
+    "-lt" |
+    "-le" |
+    "-eq" |
+    "-nq" |
+    "-ge" |
+    "-gt" |
+    "-ilt" |
+    "-ile" |
+    "-ieq" |
+    "-inq" |
+    "-ige" |
+    "-igt"
+)
+
+TOKEN:separator: (
+    "{" |
+    "}" |
+    "(" |
+    ")" |
+    "[" |
+    "]" |
+    "," |
+    ";"
+)
+
+TOKEN:ps_command: (
+    "Add-Content" |
+    "Add-History" |
+    "Add-Member" |
+    "Add-PSSnapin" |
+    "Clear-Content" |
+    "Clear-Item" |
+    "Clear-ItemProperty" |
+    "Clear-Variable" |
+    "Compare-Object" |
+    "ConvertFrom-SecureString" |
+    "Convert-Path" |
+    "ConvertTo-Html" |
+    "ConvertTo-SecureString" |
+    "Copy-Item" |
+    "Copy-ItemProperty" |
+    "Export-Alias" |
+    "Export-Clixml" |
+    "Export-Console" |
+    "Export-Csv" |
+    "ForEach-Object" |
+    "Format-Custom" |
+    "Format-List" |
+    "Format-Table" |
+    "Format-Wide" |
+    "Get-Acl" |
+    "Get-Alias" |
+    "Get-AuthenticodeSignature" |
+    "Get-ChildItem" |
+    "Get-Command" |
+    "Get-Content" |
+    "Get-Credential" |
+    "Get-Culture" |
+    "Get-Date" |
+    "Get-EventLog" |
+    "Get-ExecutionPolicy" |
+    "Get-Help" |
+    "Get-History" |
+    "Get-Host" |
+    "Get-Item" |
+    "Get-ItemProperty" |
+    "Get-Location" |
+    "Get-Member" |
+    "Get-PfxCertificate" |
+    "Get-Process" |
+    "Get-PSDrive" |
+    "Get-PSProvider" |
+    "Get-PSSnapin" |
+    "Get-Service" |
+    "Get-TraceSource" |
+    "Get-UICulture" |
+    "Get-Unique" |
+    "Get-Variable" |
+    "Get-WmiObject" |
+    "Group-Object" |
+    "Import-Alias" |
+    "Import-Clixml" |
+    "Import-Csv" |
+    "Invoke-Expression" |
+    "Invoke-History" |
+    "Invoke-Item" |
+    "Join-Path" |
+    "Measure-Command" |
+    "Measure-Object" |
+    "Move-Item" |
+    "Move-ItemProperty" |
+    "New-Alias" |
+    "New-Item" |
+    "New-ItemProperty" |
+    "New-Object" |
+    "New-PSDrive" |
+    "New-Service" |
+    "New-TimeSpan" |
+    "New-Variable" |
+    "Out-Default" |
+    "Out-File" |
+    "Out-Host" |
+    "Out-Null" |
+    "Out-Printer" |
+    "Out-String" |
+    "Pop-Location" |
+    "Push-Location" |
+    "Read-Host" |
+    "Remove-Item" |
+    "Remove-ItemProperty" |
+    "Remove-PSDrive" |
+    "Remove-PSSnapin" |
+    "Remove-Variable" |
+    "Rename-Item" |
+    "Rename-ItemProperty" |
+    "Resolve-Path" |
+    "Restart-Service" |
+    "Resume-Service" |
+    "Select-Object" |
+    "Select-String" |
+    "Set-Acl" |
+    "Set-Alias" |
+    "Set-AuthenticodeSignature" |
+    "Set-Content" |
+    "Set-Date" |
+    "Set-ExecutionPolicy" |
+    "Set-Item" |
+    "Set-ItemProperty" |
+    "Set-Location" |
+    "Set-PSDebug" |
+    "Set-Service" |
+    "Set-TraceSource" |
+    "Set-Variable" |
+    "Sort-Object" |
+    "Split-Path" |
+    "Start-Service" |
+    "Start-Sleep" |
+    "Start-Transcript" |
+    "Stop-Process" |
+    "Stop-Service" |
+    "Stop-Transcript" |
+    "Suspend-Service" |
+    "Tee-Object" |
+    "Test-Path" |
+    "Trace-Command" |
+    "Update-FormatData" |
+    "Update-TypeData" |
+    "Where-Object" |
+    "Write-Debug" |
+    "Write-Error" |
+    "Write-Host" |
+    "Write-Output" |
+    "Write-Progress" |
+    "Write-Verbose" |
+    "Write-Warning"
+)
+
+TOKEN:keyword:(
+    "break" |
+    "continue" |
+    "do" |
+    "elseif" |
+    "else" |
+    "exit" |
+    "fi" |
+    "for" |
+    "foreach" |
+    "function" |
+    "if" |
+    "in" |
+    "return" |
+    "switch"|
+    "trap" |
+    "while"
+)
+
+TOKEN:label:( ":" ["a" - "z"]+ )
+
+TOKEN:ps_number: (["0"-"9"] ["0"-"9" "."]*)
+
+TOKEN:whitespace: ([" " "\t" "\n" "\r"]+)
+
+TOKEN:ps_class:( ["A"-"Z"] ["a"-"z" "A"-"Z" "0"-"9" "-"]* )
+
+TOKEN:ps_variable:( "$" ["a"-"z"] ["a"-"z" "A"-"Z" "0"-"9" "-"]* )
+
+TOKEN:ps_identifier:( ["a"-"z"] ["a"-"z" "A"-"Z" "0"-"9" "-"]* )
+
+TOKEN:ps_flag:( "-" ["a"-"z" "A"-"Z"] ["a"-"z" "A"-"Z" "0"-"9" "-"]* )
+
+TOKEN:ps_string: (
+    "\""
+        ( [^ "\"" "\n" "\r"] |
+          ("\\" ["r" "n" "t" "\\" "\'" "\""])
+        )*
+    "\""
+)
+
+TOKEN:ps_string: (
+    "\'"
+        ( [^ "\'" "\n" "\r"] |
+          ("\\" ["r" "n" "t" "\\" "\'" "\""])
+        )*
+    "\'"
+)
+
+########### navigator ##########################################################
+
+NAVIGATOR:label {
+    display_name: "$label$";
+}
+
+########### colors ##########################################################
+
+COLOR:separator {
+    default_coloring:"operator";
+    foreground_color:"gray";
+}
+
+COLOR:ps_command {
+    default_coloring:"keyword";
+    foreground_color:"gray";
+    font_type:"bold";
+}
+
+#COLOR:ps_string {
+#    default_coloring:"string";
+#    foreground_color:"red";
+#}
+
+#COLOR:ps_number {
+#    default_coloring:"number";
+#    foreground_color:"red";
+#}
+
+COLOR:ps_class {
+    default_coloring:"identifier";
+    foreground_color:"gray";
+}
+
+COLOR:ps_variable {
+    default_coloring:"identifier";
+    font_type:"bold";
+}
+
+COLOR:ps_identifier {
+    default_coloring:"identifier";
+}
+
+COLOR:ps_flag {
+    default_coloring:"identifier";
+    foreground_color:"gray";
+    font_type:"italic";
+}
