@@ -194,7 +194,7 @@ public final class LinkWithEditorActions {
         if ((selectedDataObject != null) &&
               selectedDataObject.equals(workingDocDataObject)) {
           mydoc = selectedDoc;
-          selectInAction.actionPerformed(null);
+          selectInAction.actionPerformed(new ActionEvent(this, ActionEvent.ACTION_PERFORMED, getClass().getSimpleName()));
           org.netbeans.editor.Registry.getMostActiveComponent().requestFocus();
         } else {
           //System.out.println("returning4? "+this);
