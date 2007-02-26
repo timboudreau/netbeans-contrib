@@ -65,10 +65,11 @@ public class OC4JNativeDataSourcesChildren extends Children.Keys implements Refr
                         if(pool.length() > 0)
                             continue;
                         
+                        String name = (String) server.getAttribute(elem, "dataSourceName");
                         String jndiName = (String) server.getAttribute(elem, "jndiName");
                         String url = (String) server.getAttribute(elem, "url");
-                        Node node = new OC4JItemNode(lookup, Children.LEAF, jndiName, OC4JItemNode.ItemType.JDBC_RESOURCES);
-                        node.setShortDescription(url);
+                        Node node = new OC4JItemNode(lookup, Children.LEAF, name, OC4JItemNode.ItemType.JDBC_NATIVE_DATASOURCES);
+                        node.setShortDescription(jndiName + " -> " + url);
                         
                         keys.add(node);
                     }

@@ -66,9 +66,10 @@ public class OC4JManagedDataSourcesChildren extends Children.Keys implements Ref
                         if(pool.length() == 0)
                             continue;
                         
+                        String name = (String) server.getAttribute(elem, "dataSourceName");
                         String jndiName = (String) server.getAttribute(elem, "jndiName");
-                        Node node = new OC4JItemNode(lookup, Children.LEAF, jndiName, OC4JItemNode.ItemType.JDBC_RESOURCES);
-                        node.setShortDescription(NbBundle.getMessage(OC4JManagedDataSourcesChildren.class, "TXT_ConnectionPool")+pool);
+                        Node node = new OC4JItemNode(lookup, Children.LEAF, name, OC4JItemNode.ItemType.JDBC_MANAGED_DATASOURCES);
+                        node.setShortDescription(jndiName + " -> " + NbBundle.getMessage(OC4JManagedDataSourcesChildren.class, "TXT_ConnectionPool")+pool);
                         
                         keys.add(node);
                     }

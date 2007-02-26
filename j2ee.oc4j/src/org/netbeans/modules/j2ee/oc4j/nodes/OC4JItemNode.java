@@ -22,12 +22,14 @@ package org.netbeans.modules.j2ee.oc4j.nodes;
 import java.awt.Image;
 import javax.enterprise.deploy.spi.TargetModuleID;
 import javax.enterprise.deploy.spi.status.ProgressObject;
+import javax.management.MBeanServerConnection;
 import org.netbeans.api.progress.ProgressHandle;
 import org.netbeans.api.progress.ProgressHandleFactory;
 import org.netbeans.modules.j2ee.deployment.plugins.api.InstanceProperties;
 import org.netbeans.modules.j2ee.deployment.plugins.api.UISupport;
 import org.netbeans.modules.j2ee.deployment.plugins.api.UISupport.ServerIcon;
 import org.netbeans.modules.j2ee.oc4j.OC4JDeploymentManager;
+import org.netbeans.modules.j2ee.oc4j.config.OC4JDatasourceManager;
 import org.netbeans.modules.j2ee.oc4j.nodes.actions.OpenURLAction;
 import org.netbeans.modules.j2ee.oc4j.nodes.actions.OpenURLActionCookie;
 import org.netbeans.modules.j2ee.oc4j.nodes.actions.RefreshModulesAction;
@@ -62,7 +64,7 @@ public class OC4JItemNode extends AbstractNode {
     
     private static final int TIMEOUT = 30000;
     
-    private OC4JItemNode(Children children, final TargetModuleID module, final Lookup lookup, ItemType type) {
+    private OC4JItemNode(Children children, final TargetModuleID module, final Lookup lookup, final ItemType type) {
         super(children);
         this.type = type;
         
@@ -148,6 +150,45 @@ public class OC4JItemNode extends AbstractNode {
                     return isRunning;
                 }
             });
+        } else if (type.equals(ItemType.JDBC_NATIVE_DATASOURCES) ||
+                type.equals(ItemType.JDBC_MANAGED_DATASOURCES) ||
+                type.equals(ItemType.CONNECTION_POOLS)) {
+            getCookieSet().add(new UndeployModuleCookie() {
+                private boolean isRunning = false;
+                
+                public Task undeploy() {
+                    final OC4JDeploymentManager dm = lookup.lookup(OC4JDeploymentManager.class);
+                    final ProgressHandle handle = ProgressHandleFactory.createHandle(NbBundle.getMessage(OC4JItemNode.class,
+                            "LBL_UndeployProgress", getDisplayName()));
+                    
+                    Runnable r = new Runnable() {
+                        public void run() {
+                            isRunning = true;
+                            
+                            OC4JDatasourceManager dsManager = new OC4JDatasourceManager(dm);
+                            
+                            // Undeploying
+                            if(type.equals(ItemType.JDBC_NATIVE_DATASOURCES)) {
+                                dsManager.undeployNativeDataSource(getDisplayName());
+                            } else if (type.equals(ItemType.JDBC_MANAGED_DATASOURCES)) {
+                                dsManager.undeployManagedDataSource(getDisplayName());
+                            } else if (type.equals(ItemType.CONNECTION_POOLS)) {
+                                dsManager.undeployConnectionPool(getDisplayName());
+                            }
+                            
+                            handle.finish();
+                            isRunning = false;
+                        }
+                    };
+                    
+                    handle.start();
+                    return RequestProcessor.getDefault().post(r);
+                }
+                
+                public synchronized boolean isRunning() {
+                    return isRunning;
+                }
+            });
         }
     }
     
@@ -167,7 +208,8 @@ public class OC4JItemNode extends AbstractNode {
         } else if(this.type.equals(ItemType.J2EE_APPLICATION) ||
                 this.type.equals(ItemType.J2EE_APPLICATION_SYSTEM)) {
             return UISupport.getIcon(ServerIcon.EAR_ARCHIVE);
-        } else if(this.type.equals(ItemType.JDBC_RESOURCES)) {
+        } else if(this.type.equals(ItemType.JDBC_MANAGED_DATASOURCES) ||
+                this.type.equals(ItemType.JDBC_NATIVE_DATASOURCES)) {
             return Utilities.loadImage(JDBC_RESOURCE_ICON);
         } else if(this.type.equals(ItemType.CONNECTION_POOLS)) {
             return Utilities.loadImage(CONNECTION_POOL_ICON);
@@ -181,7 +223,8 @@ public class OC4JItemNode extends AbstractNode {
             return UISupport.getIcon(ServerIcon.EAR_OPENED_FOLDER);
         } else if(this.type.equals(ItemType.J2EE_APPLICATION) ||
                 this.type.equals(ItemType.J2EE_APPLICATION_SYSTEM) ||
-                this.type.equals(ItemType.JDBC_RESOURCES) ||
+                this.type.equals(ItemType.JDBC_MANAGED_DATASOURCES) ||
+                this.type.equals(ItemType.JDBC_NATIVE_DATASOURCES) ||
                 this.type.equals(ItemType.CONNECTION_POOLS)) {
             return getIcon(type);
         } else {
@@ -204,6 +247,12 @@ public class OC4JItemNode extends AbstractNode {
         } else if(type.equals(ItemType.J2EE_APPLICATION)) {
             actions = new SystemAction[] {
                 SystemAction.get(OpenURLAction.class),
+                SystemAction.get(UndeployModuleAction.class)
+            };
+        } else if(type.equals(ItemType.JDBC_NATIVE_DATASOURCES) ||
+                type.equals(ItemType.JDBC_MANAGED_DATASOURCES) ||
+                type.equals(ItemType.CONNECTION_POOLS)) {
+            actions = new SystemAction[] {
                 SystemAction.get(UndeployModuleAction.class)
             };
         }
@@ -232,7 +281,8 @@ public class OC4JItemNode extends AbstractNode {
         public static ItemType J2EE_APPLICATION = new ItemType();
         public static ItemType J2EE_APPLICATION_SYSTEM = new ItemType();
         public static ItemType REFRESHABLE_FOLDER = new ItemType();
-        public static ItemType JDBC_RESOURCES = new ItemType();
+        public static ItemType JDBC_MANAGED_DATASOURCES = new ItemType();
+        public static ItemType JDBC_NATIVE_DATASOURCES = new ItemType();
         public static ItemType CONNECTION_POOLS = new ItemType();
         
         private ItemType() {}

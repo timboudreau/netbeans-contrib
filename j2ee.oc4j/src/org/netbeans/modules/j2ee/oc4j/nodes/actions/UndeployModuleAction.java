@@ -41,15 +41,18 @@ public class UndeployModuleAction extends NodeAction {
             
             if (uCookie != null) {
                 final Task t = uCookie.undeploy();
-                final Node pNode = node.getParentNode();
+                final Node pNode = node.getParentNode().getParentNode();
                 
                 RequestProcessor.getDefault().post(new Runnable() {
                     public void run() {
                         t.waitFinished();
                         if(pNode != null) {
-                            RefreshModulesCookie cookie = pNode.getCookie(RefreshModulesCookie.class);
-                            if (cookie != null) {
-                                cookie.refresh();
+                            Node[] nodes = pNode.getChildren().getNodes();
+                            for (Node node : nodes) {
+                                RefreshModulesCookie cookie = node.getCookie(RefreshModulesCookie.class);
+                                if (cookie != null) {
+                                    cookie.refresh();
+                                }
                             }
                         }
                     }
