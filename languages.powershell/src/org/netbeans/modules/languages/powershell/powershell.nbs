@@ -262,6 +262,137 @@ TOKEN:ps_string: (
     "\'"
 )
 
+########### grammar ############################################################
+
+###  SKIP:whitespace
+###  SKIP:line_comment
+
+###  S = (statementListRule)+;
+
+###  statementListRule = statementRule [ "|" statementRule ]*;
+
+###  statementBlockRule = "{" statementListRule "}";
+
+###  statementRule = ifStatementRule | switchStatementRule | foreachStatementRule |
+###      forWhileStatementRule | doWhileStatementRule |
+###      functionDeclarationRule | parameterDeclarationRule |
+###      flowControlStatementRule | trapStatementRule |
+###      finallyStatementRule | pipelineRule;
+
+###  pipelineRule = assignmentStatement | firstPipelineElement [ "|" cmdletCall ]*;
+
+###  assignmentStatementRule = lvalueExpression AssignmentOperatorToken pipelineRule;
+
+###  lvalueExpression = lvalue [? |? lvalue]*;
+
+###  lvalue =  simpleLvalue propertyOrArrayReferenceOperator*;
+
+###  simpleLvalue = AttributeSpecificationToken* variableToken;
+
+###  firstPipelineElement = expressionRule | cmdletCall;
+
+###  cmdletCall = [ "&" | "." | empty ] [ name | expressionRule ]
+###      [ parameterToken | parameterArgumentToken | postfixOperatorRule | redirectionRule ]*;
+
+###  redirectionRule = redirectionOperatorToken propertyOrArrayReferenceRule;
+
+###  ifStatementRule = "if" "(" pipelineRule ")" statementBlockRule  [
+###      "elseif" "(" pipelineRule ")" statementBlockRule
+###      ]* [
+###      "else" statementBlockRule
+###      ]?;
+###  switchStatementRule = "switch" ["-regex" | "-wildcard" | "-exact" ]?
+###      ["-casesensitive"]?
+###      ["-file" propertyOrArrayReferenceRule | "(" pipelineRule ")" ]
+###      "{" [
+###      [
+###      "default" |
+###      ParameterArgumentToken |
+###      propertyOrArrayReferenceRule |
+###      statementBlockRule
+###      ]
+###      statementBlockRule
+###      ]+ "}";
+
+###  foreachStatementRule = LoopLabelToken? "foreach"
+###      "(" variableToken  "in" pipelineRule ")"
+###      statementBlockRule;
+
+###  forWhileStatementRule =
+###      LoopLabelToken? "while" "(" pipelineRule ")" statementBlockRule |
+###      LoopLabelToken? "for" "(" pipelineRule? ";"
+###      pipelineRule? ";" pipelineRule? ")" statementBlockRule;
+
+###  doWhileStatementRule =
+###      LoopLabelToken? "do" statementBlockRule ["while" | "until"] "(" pipelineRule ")";
+
+###  trapStatementRule = "trap" AttributeSpecificationToken?
+###      statementBlockRule;
+
+###  finallyStatementRule = "finally" statementBlockRule;
+
+###  flowControlStatementRule =
+###      ["break" | "continue"] [propertyNameToken | propertyOrArrayReferenceRule]? |
+###      "return" pipelineRule;
+
+###  functionDeclarationRule = FunctionDeclarationToken
+###      ParameterArgumentToken [ "(" parameterDeclarationExpressionRule ")" ] cmdletBodyRule;
+
+###  cmdletBodyRule =  "{" [ "(" parameterDeclarationExpressionRule ")" ] (
+###      [ "begin" statementBlock | "process" statementBlock | "end" statementBlock ]* |
+###      statementList "}";
+
+###  parameterDeclarationRule =
+###      ParameterDeclarationToken "(" parameterDeclarationExpressionRule ")";
+
+###  parameterDeclarationExpressionRule = parameterWithIntializer [ CommaToken parameterWithIntializer ]*;
+
+###  parameterWithIntializer = simpleLvalue [ "="  expressionRule ];
+
+###  expressionRule = logicalExpressionRule;
+
+###  logicalExpressionRule = bitwiseExpressionRule
+###      [LogicalOperatorToken bitwiseExpressionRule]*;
+
+###  bitwiseExpressionRule = comparisonExpressionRule
+###      [ BitwiseOperatorToken comparisonExpressionRule ]*;
+
+###  comparisonExpressionRule = addExpressionRule
+###      [ ComparisonOperatorToken addExpressionRule ]*;
+
+###  addExpressionRule = multiplyExpressionRule
+###      [ AdditionOperatorToken multiplyExpressionRule ]*;
+
+###  multiplyExpressionRule = formatExpressionRule
+###      [ MultiplyOperatorToken formatExpressionRule ];
+
+###  formatExpressionRule = rangeExpressionRule
+###      [ FormatOperatorToken rangeExpressionRule ]*;
+
+###  rangeExpressionRule = arrayLiteralRule
+###      [ RangeOperatorToken arrayLiteralRule ]*;
+
+###  arrayLiteralRule = postfixOperatorRule [ CommaToken postfixOperatorRule ]*;
+
+###  postfixOperatorRule = lvalueExpression PrePostfixOperatorToken |
+###      propertyOrArrayReferenceRule;
+
+###  propertyOrArrayReferenceRule = valueRule propertyOrArrayReferenceOperator*;
+
+###  propertyOrArrayReferenceOperator = "[" expressionRule "]" ] |
+###      "." [
+###      PropertyNameToken parseCallRule? |
+###      valueRule
+###      ];
+
+###  parseCallRule = "(" arrayLiteralRule ")";
+
+###  valueRule =   "(" assignmentStatementRule ")" |
+###      "$(" statementListRule ")" |
+###      "@(" statementListRule ")" |
+###      cmdletBodyRule |
+###      "@{" hashLiteralRule "}";
+
 ########### navigator ##########################################################
 
 NAVIGATOR:label {
@@ -286,10 +417,10 @@ COLOR:ps_command {
 #    foreground_color:"red";
 #}
 
-#COLOR:ps_number {
-#    default_coloring:"number";
-#    foreground_color:"red";
-#}
+COLOR:ps_number {
+    default_coloring:"number";
+    foreground_color:"red";
+}
 
 COLOR:ps_class {
     default_coloring:"identifier";

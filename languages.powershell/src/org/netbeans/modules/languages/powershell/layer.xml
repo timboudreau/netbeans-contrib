@@ -19,20 +19,37 @@ Microsystems, Inc. All Rights Reserved.
 -->
 <!DOCTYPE filesystem PUBLIC "-//NetBeans//DTD Filesystem 1.1//EN" "http://www.netbeans.org/dtds/filesystem-1_1.dtd">
 <filesystem>
-     <folder name="Services">
-        <folder name="MIMEResolver">
-            <file name="powershell.xml" url="powershell.xml">
-                <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.languages.powershell.Bundle"/>
-            </file>
+    <folder name="Actions">
+        <folder name="Run">
+            <file name="org-netbeans-modules-languages-powershell-RunPowershellScript.instance"/>            
         </folder>
     </folder>
     <folder name="Editors">
         <folder name="text">
             <folder name="x-ps1">
+                <folder name="Toolbars">
+                    <folder name="Default">
+                        <attr name="stop-macro-recording/SeparatorPs.instance" boolvalue="true"/>
+                        <file name="SeparatorPs.instance">
+                            <attr name="instanceClass" stringvalue="javax.swing.JSeparator"/>
+                        </file>                        
+                        <attr name="SeparatorPs.instance/org-netbeans-modules-languages-powershell-RunPowershellScript.shadow" boolvalue="true"/>
+                        <file name="org-netbeans-modules-languages-powershell-RunPowershellScript.shadow">
+                            <attr name="originalFile" stringvalue="Actions/Run/org-netbeans-modules-languages-powershell-RunPowershellScript.instance"/>
+                        </file> 
+                    </folder>
+                </folder>
                 <file name="language.nbs" url="powershell.nbs">
                     <attr name="icon" stringvalue="org/netbeans/modules/languages/powershell/powershell.gif"/>
                 </file>
             </folder>
+        </folder>
+    </folder>
+    <folder name="Services">
+        <folder name="MIMEResolver">
+            <file name="powershell.xml" url="powershell.xml">
+                <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.languages.powershell.Bundle"/>
+            </file>
         </folder>
     </folder>
     <folder name="Templates">
