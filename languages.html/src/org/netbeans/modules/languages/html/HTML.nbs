@@ -114,16 +114,14 @@ TOKEN:html_end_element_start: ( "</" ):<IN_ELEMENT_START>
 
 <JAVASCRIPT>:TOKEN:javascript: ( [^"<"]+ )
 SKIP:javascript
-IMPORT:js {
+IMPORT:javascript {
     mimeType:"text/javascript";
-    token: "javascript";
     background_color:"#E6E6FF";
 }
 <CSS>:TOKEN:css: ( [^"<"]+ )
 SKIP:css
 IMPORT:css {
     mimeType:"text/css2";
-    token: "css";
     background_color:"#E6FFE6";
 }
 

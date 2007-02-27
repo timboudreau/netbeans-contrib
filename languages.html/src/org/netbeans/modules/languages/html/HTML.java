@@ -31,8 +31,8 @@ import javax.swing.text.StyledDocument;
 import org.netbeans.api.languages.ASTItem;
 import org.netbeans.api.lexer.Token;
 import org.netbeans.api.lexer.TokenSequence;
-import org.netbeans.api.languages.Cookie;
-import org.netbeans.api.languages.SyntaxCookie;
+import org.netbeans.api.languages.Context;
+import org.netbeans.api.languages.SyntaxContext;
 import org.netbeans.api.languages.ASTNode;
 import org.netbeans.api.languages.ASTToken;
 import org.netbeans.api.languages.LibrarySupport;
@@ -53,8 +53,8 @@ public class HTML {
     
     // tag completion ..........................................................
     
-    public static String complete (Cookie cookie) {
-        TokenSequence ts = cookie.getTokenSequence ();
+    public static String complete (Context context) {
+        TokenSequence ts = context.getTokenSequence ();
         ts.moveNext ();
         Token t = ts.token ();
         if (t == null) return null;
@@ -72,9 +72,9 @@ public class HTML {
     
     // indent ..................................................................
     
-    public static void indent (Cookie cookie) {
-        TokenSequence ts = cookie.getTokenSequence ();
-        Document doc = cookie.getDocument ();
+    public static void indent (Context context) {
+        TokenSequence ts = context.getTokenSequence ();
+        Document doc = context.getDocument ();
         int indent;
         Token t;
         do {
@@ -115,7 +115,7 @@ public class HTML {
             indent = getIndent (ts, doc) + 4;
         } else
             indent = getIndent (ts, doc);
-        indent (doc, cookie.getJTextComponent ().getCaret ().getDot (), indent);
+        indent (doc, context.getJTextComponent ().getCaret ().getDot (), indent);
     }
     
     private static int getIndent (TokenSequence ts, Document doc) {
@@ -161,8 +161,8 @@ public class HTML {
     
     // completion ..............................................................
     
-    public static List tags (Cookie cookie) {
-        if (cookie instanceof SyntaxCookie) return Collections.EMPTY_LIST;
+    public static List tags (Context context) {
+        if (context instanceof SyntaxContext) return Collections.EMPTY_LIST;
         List tags = getLibrary ().getItems ("TAG");
         List items = new ArrayList (tags.size ());
         Iterator it = tags.iterator ();
@@ -180,9 +180,9 @@ public class HTML {
         return items;
     }
 
-    public static List attributes (Cookie cookie) {
-        if (cookie instanceof SyntaxCookie) return Collections.EMPTY_LIST;
-        String tagName = tagName (cookie.getTokenSequence ());
+    public static List attributes (Context context) {
+        if (context instanceof SyntaxContext) return Collections.EMPTY_LIST;
+        String tagName = tagName (context.getTokenSequence ());
         if (tagName == null) return Collections.EMPTY_LIST;
         List r = getLibrary ().getItems (tagName);
         if (r == null) return Collections.EMPTY_LIST;
@@ -207,22 +207,22 @@ public class HTML {
 
     // marks ...................................................................
     
-    public static boolean isDeprecatedAttribute (Cookie cookie) {
-        TokenSequence ts = cookie.getTokenSequence ();
+    public static boolean isDeprecatedAttribute (Context context) {
+        TokenSequence ts = context.getTokenSequence ();
         String attribName = ts.token ().text ().toString ().toLowerCase ();
-        String tagName = tagName (cookie.getTokenSequence ());
+        String tagName = tagName (context.getTokenSequence ());
         if (tagName == null) return false;
         return "true".equals (getLibrary ().getProperty (tagName, attribName, "deprecated"));
     }
 
-    public static boolean isDeprecatedTag (Cookie cookie) {
-        Token t = cookie.getTokenSequence ().token ();
+    public static boolean isDeprecatedTag (Context context) {
+        Token t = context.getTokenSequence ().token ();
         String tagName = t.text ().toString ().toLowerCase ();
         return "true".equals (getLibrary ().getProperty ("TAG", tagName, "deprecated"));
     }
 
-    public static boolean isEndTagRequired (Cookie cookie) {
-        Token t = cookie.getTokenSequence ().token ();
+    public static boolean isEndTagRequired (Context context) {
+        Token t = context.getTokenSequence ().token ();
         return isEndTagRequired (t.id ().name ().toLowerCase ());
     }
 
@@ -231,11 +231,11 @@ public class HTML {
         return !"O".equals (v) && !"F".equals (v);
     }
     
-    public static ASTNode process (SyntaxCookie cookie) {
-        ASTNode n = (ASTNode) cookie.getASTPath ().getRoot ();
+    public static ASTNode process (SyntaxContext context) {
+        ASTNode n = (ASTNode) context.getASTPath ().getRoot ();
         List l = new ArrayList ();
         resolve (n, new Stack (), l, true);
-        return ASTNode.create (n.getMimeType (), n.getNT (), n.getRule (), l, n.getOffset ());
+        return ASTNode.create (n.getMimeType (), n.getNT (), l, n.getOffset ());
     }
     
     
@@ -257,7 +257,7 @@ public class HTML {
         return library;
     }
     
-    private static ASTNode clone (String mimeType, String nt, int rule, int offset, List children) {
+    private static ASTNode clone (String mimeType, String nt, int offset, List children) {
         Iterator it = children.iterator ();
         List l = new ArrayList ();
         while (it.hasNext ()) {
@@ -267,11 +267,11 @@ public class HTML {
             else
                 l.add (clone ((ASTNode) o));
         }
-        return ASTNode.create (mimeType, nt, rule, l, offset);
+        return ASTNode.create (mimeType, nt, l, offset);
     }
     
     private static ASTNode clone (ASTNode n) {
-        return clone (n.getMimeType (), n.getNT (), n.getRule (), n.getOffset (), n.getChildren ());
+        return clone (n.getMimeType (), n.getNT (), n.getOffset (), n.getChildren ());
     }
     
     private static ASTToken clone (ASTToken token) {
@@ -295,7 +295,7 @@ public class HTML {
     }
     
     private static ASTNode clone (ASTNode n, String nt) {
-        return clone (n.getMimeType (), nt, n.getRule (), n.getOffset (), n.getChildren ());
+        return clone (n.getMimeType (), nt, n.getOffset (), n.getChildren ());
     }
     
     private static void resolve (ASTNode n, Stack s, List l, boolean findUnpairedTags) {
@@ -341,7 +341,6 @@ public class HTML {
                     ASTNode tag = clone (
                         node.getMimeType (),
                         "tag",
-                        node.getRule (),
                         ((ASTNode) ll1.get (0)).getOffset (),
                         ll1
                     );
