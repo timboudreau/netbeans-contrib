@@ -21,6 +21,7 @@ package org.netbeans.modules.erd.model;
 
 
 
+import java.awt.Graphics2D;
 import java.util.ArrayList;
 import javax.swing.*;
 import java.util.Collection;
@@ -39,18 +40,42 @@ public class ERDController  {
 
     private ERDDocument document;
     private ERDScene scene;
+    private static final float ZOOM_FACTOR = 1.2f;
 
+    
+    private int zoom = 0;
     
 
     private volatile long eventID = 0;
-
+    
+    
     public ERDController (ERDDocument document) {
         this.document = document;
         scene = new ERDScene (document);
+        
     }
 
     public void writeAccess (Runnable runnable) {
         runnable.run ();
+    }
+    
+    public void paint(Graphics2D graphics2D){
+        scene.paint(graphics2D);
+    }
+    
+    public void zoomIn () {
+        scene.setZoomFactor((float) Math.pow (ZOOM_FACTOR, ++zoom));
+        scene.validate();
+        
+    }
+
+    public void zoomOut () {
+        scene.setZoomFactor((float) Math.pow (ZOOM_FACTOR, --zoom));
+        scene.validate();
+    }
+    
+    public void invokeLayout(){
+        scene.invokeLayout();
     }
 
     public void notifyEventFired (final ERDEvent event) {

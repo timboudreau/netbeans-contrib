@@ -20,6 +20,7 @@ package org.netbeans.modules.erd.editor;
 
 import org.netbeans.modules.erd.util.LoadingPanel;
 import java.awt.BorderLayout;
+import java.awt.Graphics2D;
 import java.io.ObjectStreamException;
 import java.io.Serializable;
 import javax.swing.JComponent;
@@ -28,6 +29,7 @@ import javax.swing.JScrollPane;
 import javax.swing.SwingUtilities;
 import org.netbeans.modules.dbschema.SchemaElement;
 import org.netbeans.modules.erd.*;
+import org.netbeans.modules.erd.graphics.ERDToolBar;
 import org.netbeans.modules.erd.io.ERDDataObject;
 import org.netbeans.modules.erd.model.ERDController;
 import org.netbeans.modules.erd.model.ERDDocument;
@@ -60,14 +62,21 @@ final public class ERDTopComponent extends CloneableTopComponent implements Clon
     private ERDDataObject dataObject;
     private ERDDocument document;
     private ERDEditorSupport editorSupport;
+    private ERDToolBar toolBar;
+    private ERDController controller;
+    
     public ERDTopComponent(ERDDataObject dataObject,ERDEditorSupport editorSupport) {
         this.editorSupport=editorSupport;
         scroll=new JScrollPane(view);
+       // peer.setLayout(new BorderLayout());
+        toolBar=new ERDToolBar(this);
+        
         dataObject.addDesignDocumentAwareness(this);
         this.dataObject=dataObject;
         
                
         setLayout(new BorderLayout());
+        add(toolBar,BorderLayout.NORTH);
         setName("");
         setToolTipText("");
         loadingPanel = new LoadingPanel ("Loading Document"); // NOI18N
@@ -81,8 +90,13 @@ final public class ERDTopComponent extends CloneableTopComponent implements Clon
    
     
      
-    
-   
+    public void invokeLayout(){
+        controller.invokeLayout();
+    }
+            
+    public void print(Graphics2D graphics2D){
+        controller.paint(graphics2D);
+    }
     
     public int getPersistenceType() {
         return TopComponent.PERSISTENCE_NEVER;
@@ -114,6 +128,16 @@ final public class ERDTopComponent extends CloneableTopComponent implements Clon
         return editorSupport.notifyClosed();
     }
     
+    
+   public void zoomIn () {
+       controller.zoomIn();
+        
+        
+    }
+
+    public void zoomOut () {
+        controller.zoomOut();
+    }
     
    public void setDocumentInAWT(ERDDataObject dataObject){
     if(dataObject!=null){
@@ -153,7 +177,7 @@ final public class ERDTopComponent extends CloneableTopComponent implements Clon
 
             public void run() {
                 document = newDesignDocument;
-                ERDController controller = document != null ? document.getListenerManager().getController()
+                controller = document != null ? document.getListenerManager().getController()
                                                             : null;
 
                 view = controller != null ? controller.createView()
@@ -166,6 +190,7 @@ final public class ERDTopComponent extends CloneableTopComponent implements Clon
                     scroll.getHorizontalScrollBar().setBlockIncrement(256);
                     scroll.getVerticalScrollBar().setUnitIncrement(64);
                     scroll.getVerticalScrollBar().setBlockIncrement(256);
+                    add(toolBar, BorderLayout.NORTH);
                     add(scroll, BorderLayout.CENTER);
                 } else
                     add(new LoadingPanel("Luke"), BorderLayout.CENTER);

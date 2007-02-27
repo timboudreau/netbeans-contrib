@@ -84,6 +84,8 @@ public class ERDScene extends GraphPinScene<String, String, String>  implements 
     private ResizeStrategy resizeStrategy=new ResizeStrategyImpl();
     private LayerWidget[] layers;
     
+    
+    
     public ERDScene(ERDDocument document) {
         this.document=document;
         
@@ -123,6 +125,9 @@ public class ERDScene extends GraphPinScene<String, String, String>  implements 
         document.setIsDefaultLayout(false);
     }
     
+    public void invokeLayout(){
+       sceneLayout.invokeLayout();
+    }
     
     protected Widget attachNodeWidget(String node) {
         

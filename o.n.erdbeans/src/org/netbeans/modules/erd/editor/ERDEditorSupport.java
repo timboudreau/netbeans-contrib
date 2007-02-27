@@ -154,7 +154,7 @@ public class ERDEditorSupport extends CloneableOpenSupport implements  OpenCooki
             PrinterJob job = PrinterJob.getPrinterJob();
             ERDTopComponent tc=(ERDTopComponent)topComponent;
             
-            Printable o =new ERDPrintable(tc.createView());
+            Printable o =new ERDPrintable(tc);
             
             
            PageFormat pf = PrintSettings.getPageFormat(job);
@@ -177,9 +177,9 @@ public class ERDEditorSupport extends CloneableOpenSupport implements  OpenCooki
     
     
    static class ERDPrintable implements Printable {
-        private JComponent mComponent;
+        private ERDTopComponent mComponent;
         
-        public ERDPrintable(JComponent c) {
+        public ERDPrintable(ERDTopComponent c) {
             mComponent = c;
         }
         
@@ -187,25 +187,8 @@ public class ERDEditorSupport extends CloneableOpenSupport implements  OpenCooki
             if (pageIndex > 0)
                 return NO_SUCH_PAGE;
             Graphics2D g2 = (Graphics2D) g;
-           g2.translate(pageFormat.getImageableX(), pageFormat.getImageableY());
-     //       boolean wasBuffered = disableDoubleBuffering(mComponent);
-            mComponent.paint(g2);
-      //      restoreDoubleBuffering(mComponent, wasBuffered);
+            mComponent.print(g2);
             return PAGE_EXISTS;
-        }
-        
-        private boolean disableDoubleBuffering(Component c) {
-            if (c instanceof JComponent == false)
-                return false;
-            JComponent jc = (JComponent) c;
-            boolean wasBuffered = jc.isDoubleBuffered();
-            jc.setDoubleBuffered(false);
-            return wasBuffered;
-        }
-        
-        private void restoreDoubleBuffering(Component c, boolean wasBuffered) {
-            if (c instanceof JComponent)
-                ((JComponent) c).setDoubleBuffered(wasBuffered);
         }
     }
     
