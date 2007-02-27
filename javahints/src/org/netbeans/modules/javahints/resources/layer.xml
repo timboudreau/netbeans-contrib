@@ -27,6 +27,7 @@ Microsystems, Inc. All Rights Reserved.
                 <file name="org-netbeans-modules-javahints-RemoveUselessCastCreator.instance" />
                 <file name="org-netbeans-modules-javahints-MakeVariableFinal.instance" />
                 <file name="org-netbeans-modules-javahints-SuppressWarningsFixer.instance" />
+                <file name="org-netbeans-modules-javahints-TypoDetector.instance" />
             </folder>
             <folder name="hints">
                 <file name="org-netbeans-modules-javahints-WrongPackageSuggestion.instance" />
