@@ -59,11 +59,30 @@ import java.util.*;
  *     }
  * }
  * </pre>
+ * Note that the start/end offsets of Change objects in a diff take into account
+ * earlier changes.  In other words, if element 1 of a list was changed and
+ * element 0 of a list was removed, there will be a deletion at index 0 and
+ * then a change at <i>index 0</i> (the former index 1, offset by the number of
+ * elements deleted before it).
+ * <p>
+ * Note that there often may be a number of possible sets of transformations
+ * which will transform one list into another - for example, a change is legally
+ * considered a deletion and an insertion.  The way in which the differences
+ * between two lists will be interpreted is algorithm dependent - a Diff which
+ * fulfils the above contract is considered valid regardless of what set of
+ * changes it uses to acheive the required transformation.
+ * <p>
+ * (To debug and validate that all diffs created obey the above contract upon
+ * their creation, run with assertions enabled and the system property
+ * <code>org.netbeans.misc.diff.validate</code> set to true).
+ * 
  * @param T The type the lists to be diffed will have
  * @author Tim Boudreau
  * @see Change
  */
 public abstract class Diff <T> {
+    private static boolean VALIDATE = Boolean.getBoolean (
+            "org.netbeans.misc.diff.validate");
     /**
      * Get a list of Change objects in the order they need to be applied to construct the result of
      * <code>getNew()</code> by applying these changes to <code>getOld()</code>.
@@ -84,7 +103,7 @@ public abstract class Diff <T> {
     public abstract List <T> getNew ();
     
     /**
-     * Create a diff of two lists using the iterative algorithm
+     * Create a diff of two lists using the iterative algorithm.
      * @param T the type of the lists
      * @param old The former list contents
      * @param nue The current list contents
@@ -92,7 +111,9 @@ public abstract class Diff <T> {
      */
     public static <T> Diff <T> create (List <T> old, 
             List <T> nue) {
-        return new ListDiff <T> ( old, nue );
+        Diff result = new ListDiff <T> ( old, nue );
+        if (VALIDATE) assert validDiff (result);
+        return result;
     }
     
     /**
@@ -104,72 +125,108 @@ public abstract class Diff <T> {
      * @return A diff
      */ 
     public static <T> Diff <T> create (List <T> old, List <T> nue, Algorithm algorithm) {
+        Diff result;
         switch (algorithm) {
             case ITERATIVE :
-                return create (old, nue);
+                result = create (old, nue);
+                break;
             case LONGEST_COMMON_SEQUENCE :
-                return new ListMatcherAdapter (old, nue);
+                result = new ListMatcherAdapter (old, nue);
+                break;
             default :
                 throw new AssertionError();
         }
+        if (VALIDATE && !validDiff (result)) {
+            throw new IllegalStateException ("Invalid diff " + result);
+        }
+        return result;
     }
     
     /**
      * Create a Longest Common Sequence diff using the passed instance of 
      * Measure to compare the lists.
-     */ 
-    public static <T> Diff <T> create (List <T> old, List <T> nue, Measure measure) {
-        return new ListMatcherAdapter (old, nue, measure);
-    }
-    
-
-    /**
-     * Create a diff of two lists with the specified contents.  Principally useful to indicate a change in a list where
-     * the equality of the objects has not changed, but some property of some objects in the list has.
      * @param T the type of the lists
      * @param old The former list contents
      * @param nue The current list contents
-     * @param changes A list of Change objects
-     * @return A diff
+     * @param measure Object which compares elements from the two lists
+     * @return a diff
+     */ 
+    public static <T> Diff <T> create (List <T> old, List <T> nue, Measure measure) {
+        Diff result = new ListMatcherAdapter (old, nue, measure);
+        if (VALIDATE && !validDiff (result)) {
+            throw new IllegalStateException ("Invalid diff " + result);
+        }
+        return result;
+    }
+
+    /**
+     * Create a Diff with a predefined list of changes.
+     * 
+     * @param old The original contents
+     * @param nue The new contents
+     * @param changes A list of changes
+     * @return 
      */
     public static <T> Diff <T> createPredefined (List <T> old, 
-            List <T> nue, List <Change> changes) {
-        assert old != null && nue != null && changes != null;
+                List <T> nue, List <Change> changes) {
+        if (old == null) {
+            throw new NullPointerException ("Old list null");
+        }
+        if (nue == null) {
+            throw new NullPointerException ("New list null");
+        }
+        if (changes == null) {
+            throw new NullPointerException ("Change list null");
+        }
         ListDiff <T> result = new ListDiff <T> ( old, nue );
         result.changes = changes;
+        //Always validate manually created diffs
+        if (!validDiff (result)) {
+            throw new IllegalStateException ("Invalid diff " + result);
+        }
         return result;
     }
     
-    /**
-     * 
-     * @param list 
-     * @param changes 
-     * @return 
-     */
-    public static <T> Diff <T> createPredefined (List <T> list, 
-            List <Change> changes) {
-        
-        assert list != null && changes != null;
-        ListDiff <T> result = new ListDiff <T> ( list, list );
-        result.changes = changes;
-        return result;
-    }
-
-    /**
-     * Create a diff containing a single difference in a list
-     * 
-     * @param list 
-     * @param start 
-     * @param end 
-     * @param changeType 
-     * @return 
-     */
-    public static <T> Diff <T> create (List <T> list, int start, 
-            int end, int changeType) {
-        
-        SimpleDiff <T> result = new SimpleDiff <T> (list, list, start, end, 
-                changeType);
-
+    private static final boolean validDiff (Diff diff) {
+        List <String> list = new ArrayList<String>(diff.getOld());
+        List <String> target = diff.getNew();
+        List <Change> changes = diff.getChanges();
+        for (Iterator <Change> iter=changes.iterator(); iter.hasNext();) {
+            Change change = iter.next();
+            int start = change.getStart();
+            int end = change.getEnd();
+            switch (change.getType()) {
+            case Change.CHANGE :
+                for (int i=start; i <= end; i++) {
+                    list.set(i, target.get(i));
+                }
+                break;
+            case Change.INSERT :
+                for (int i=end; i >= start; i--) {
+                    Object o = target.get(i);
+                    list.add(start, (String) o);
+                }
+                break;
+            case Change.DELETE :
+                for (int i=end; i >= start; i--) {
+                    list.remove(i);
+                }
+                break;
+            }
+        }
+        int max = target.size();
+        boolean result = max == list.size();
+        if (result) {
+            for (int i=0; i < max; i++) {
+                result &= (target.get(i) == null) == (list.get(i) == null);
+                if (result && target.get(i) != null) {
+                    result &= target.get(i).equals(list.get(i));
+                }
+                if (!result) {
+                    break;
+                }
+            }
+        }
         return result;
     }
     

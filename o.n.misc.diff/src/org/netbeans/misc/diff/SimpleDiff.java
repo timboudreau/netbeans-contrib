@@ -24,7 +24,7 @@ import java.util.List;
  *
  * @author Tim Boudreau
  */
-public final class SimpleDiff <T> extends Diff <T> {
+final class SimpleDiff <T> extends Diff <T> {
     private List <T> old;
     private List <T> nue;
     private List <Change> changes;
