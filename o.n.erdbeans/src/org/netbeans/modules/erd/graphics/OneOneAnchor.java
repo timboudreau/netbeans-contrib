@@ -33,7 +33,7 @@ public class OneOneAnchor implements AnchorShape{
          * @param output if true, then it is output triangle
          */
         public OneOneAnchor() {
-            this.size = 40;
+            this.size = 10;
             
         }
 
@@ -50,20 +50,17 @@ public class OneOneAnchor implements AnchorShape{
         }
 
         public void paint (Graphics2D graphics, boolean source) {
-                 GeneralPath generalPath = new GeneralPath ();
-                float side = size * 0.3f;
-                //generalPath.moveTo (0.0f, 0.0f);
-                
+                GeneralPath generalPath = new GeneralPath ();
+                float side = size * 0.5f;
                 generalPath.moveTo (0,0 );
-                generalPath.lineTo (size,0 );
-                generalPath.lineTo (size,-side );
-                generalPath.lineTo (size,+side );
-                generalPath.moveTo (30,0 );
-                generalPath.lineTo (30,-side );
-                generalPath.lineTo (30,+side );
-               // generalPath.moveTo (size-side,0 );
-               // generalPath.lineTo (size,-size );
-                //graphics.draw
+                generalPath.lineTo (-4+size,0 );
+                //generalPath.moveTo (-size,0 );
+                generalPath.lineTo (size-4,-side );
+                generalPath.lineTo (size-4,+side );
+                generalPath.moveTo (2,0 );
+                generalPath.lineTo (2,-side );
+                generalPath.lineTo (2,+side );
                 graphics.draw (generalPath);
+        
         }
 }

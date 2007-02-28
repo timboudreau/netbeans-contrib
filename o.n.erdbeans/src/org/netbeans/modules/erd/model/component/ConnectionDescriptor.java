@@ -43,7 +43,7 @@ public class ConnectionDescriptor extends ComponentDescriptor{
 
     static {
          anchors= new HashMap<String, AnchorShape> ();
-         anchors.put(ONE_MANY, AnchorShapeFactory.createImageAnchorShape(oneToMany,false));
+         anchors.put(ONE_MANY, new OneManyAnchor());
          anchors.put(ONE_ONE, new OneOneAnchor());
          anchors.put(ZERO_MANY, new ZeroManyAnchor());
     }

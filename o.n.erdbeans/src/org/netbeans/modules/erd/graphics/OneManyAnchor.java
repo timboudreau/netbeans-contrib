@@ -24,49 +24,51 @@ import org.netbeans.api.visual.anchor.AnchorShape;
 public class OneManyAnchor implements AnchorShape{
     
     private int size;
-        private boolean filled;
-        private boolean output;
-
+    private boolean filled;
+    private boolean output;
+    
+    
+    
+    public OneManyAnchor() {
+        this(4)    ;
+    }
+    
+    
+    public OneManyAnchor(int size) {
+        this.size = size;
+        
+    }
+    
+    public double getCutDistance(){
+        return 0;
+    }
+    
+    public boolean isLineOriented() {
+        return true;
+    }
+    
+    public int getRadius() {
+        return (int) Math.ceil(1.5f * size);
+    }
+    
+    public void paint(Graphics2D graphics, boolean source) {
+        GeneralPath generalPath = new GeneralPath();
+        float side = size * 0.05f+5;
+        
+        generalPath.moveTo(0.0f, 0.0f);
+        generalPath.lineTo(size, 0);
+        generalPath.moveTo(size, 0);
+        generalPath.lineTo(size-10, 0);
+        generalPath.moveTo(size, 0);
+        generalPath.lineTo(-side, -size);
+        generalPath.moveTo(size,0 );
+        generalPath.lineTo(-side, +size);
+        generalPath.moveTo(size,0 );
+        generalPath.lineTo(size,size );
+        generalPath.moveTo(size,0 );
+        generalPath.lineTo(size,-size );
         
         
-        public OneManyAnchor() {
-          this(15)    ;
-        }
-        
-        
-        public OneManyAnchor(int size) {
-            this.size = size;
-           
-        }
-        
-        public double getCutDistance (){
-            return 0;
-        }
-
-        public boolean isLineOriented () {
-            return true;
-        }
-
-        public int getRadius () {
-            return (int) Math.ceil(1.5f * size);
-        }
-
-        public void paint (Graphics2D graphics, boolean source) {
-                 GeneralPath generalPath = new GeneralPath ();
-            float side = size * 0.3f;
-           
-                generalPath.moveTo (0.0f, 0.0f);
-                generalPath.lineTo (size, 0);
-                generalPath.moveTo (size, 0);
-                generalPath.lineTo (-side, -size);
-                generalPath.moveTo (size,0 );
-                generalPath.lineTo (-side, +size);
-                generalPath.moveTo (size,0 );
-                generalPath.lineTo (size,size );
-                generalPath.moveTo (size,0 );
-                generalPath.lineTo (size,-size );
-                
-            
-                graphics.draw (generalPath);
-        }
+        graphics.draw(generalPath);
+    }
 }

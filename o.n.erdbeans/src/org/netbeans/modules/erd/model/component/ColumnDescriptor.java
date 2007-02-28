@@ -34,7 +34,7 @@ public class ColumnDescriptor extends ComponentDescriptor{
     private static final Image FOREIGN_KEY_IMAGE = Utilities.loadImage ("org/netbeans/modules/erd/resources/key_f.png"); // NOI18N
     private static final Image PRIMARY_KEY_IMAGE = Utilities.loadImage ("org/netbeans/modules/erd/resources/key_p.png"); // NOI18N
     private static final Image PF_KEY_IMAGE = Utilities.loadImage ("org/netbeans/modules/erd/resources/key_pf.png"); // NOI18N
-    
+    private static int size=16;
     
     public final static TypeID type=new TypeID(TypeID.TYPE.COMPONENT,NAME);
     
@@ -66,14 +66,17 @@ public class ColumnDescriptor extends ComponentDescriptor{
             return "("+precision+")";
         }
     }
-    private String createLabel() {
+    private String createLabel(boolean noIcon) {
+        String space="";
+        if(noIcon)
+            space="    ";
         String columnName=getProperty(PROPERTY.COLUMN_NAME);
         String precision=getProperty(PROPERTY.PRECISION);
         
         
         String sqlType=getProperty(PROPERTY.SQL_TYPE);
         
-        String label=columnName+": "+sqlType+" "+getPrecision();
+        String label=space+columnName+": "+sqlType+" "+getPrecision();
         return label;
     }
     
@@ -86,7 +89,7 @@ public class ColumnDescriptor extends ComponentDescriptor{
         
         
         List<Image> list=getImage(isFK,isPK);
-        ((ColumnWidget) scene.addPin (table, pinId)).setProperties (createLabel(), list,columnType);
+        ((ColumnWidget) scene.addPin (table, pinId)).setProperties (createLabel(list.isEmpty()), list,columnType);
         
     }
     

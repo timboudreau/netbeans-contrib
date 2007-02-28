@@ -26,51 +26,58 @@ import org.netbeans.api.visual.anchor.AnchorShape;
 
 
 public class ZeroManyAnchor implements AnchorShape{
-     private int size;
+    private int size;
+    
+    
+    /**
+     * Creates a triangular anchor shape.
+     * @param size the size of triangle
+     * @param filled if true, then the triangle is filled
+     * @param output if true, then it is output triangle
+     */
+    public ZeroManyAnchor() {
+        this.size = 4;
         
-
-        /**
-         * Creates a triangular anchor shape.
-         * @param size the size of triangle
-         * @param filled if true, then the triangle is filled
-         * @param output if true, then it is output triangle
-         */
-        public ZeroManyAnchor() {
-            this.size = 10;
-           
-        }
+    }
+    
+    public double getCutDistance(){
+        return 0;
+    }
+    
+    public boolean isLineOriented() {
+        return true;
+    }
+    
+    public int getRadius() {
+        return (int) Math.ceil(1.5f * size);
+    }
+    
+    public void paint(Graphics2D graphics, boolean source) {
+        GeneralPath generalPath = new GeneralPath();
         
-        public double getCutDistance (){
-            return 0;
-        }
+        generalPath.moveTo(0.0f, 0.0f);
+        Ellipse2D ellipse=new Ellipse2D.Float(3,-3,6,6);
+        graphics.draw(ellipse);
         
-        public boolean isLineOriented () {
-            return true;
-        }
-
-        public int getRadius () {
-            return (int) Math.ceil(1.5f * size);
-        }
-
-        public void paint (Graphics2D graphics, boolean source) {
-             GeneralPath generalPath = new GeneralPath ();
-                float side = size * 0.3f;
-                 generalPath.moveTo (0.0f, 0.0f);
-                Ellipse2D ellipse=new Ellipse2D.Float(10,-10,20,20);
-                graphics.draw(ellipse);
-               
-                generalPath.lineTo (size, 0);
-                generalPath.moveTo (size, 0);
-                generalPath.lineTo (-side, -size);
-                generalPath.moveTo (size,0 );
-                generalPath.lineTo (-side, +size);
-                generalPath.moveTo (size,0 );
-                generalPath.lineTo (size,size );
-                generalPath.moveTo (size,0 );
-                generalPath.lineTo (size,-size );
-                
-               
-                graphics.draw (generalPath);
-        }
-   
+        
+        
+        float side = size * 0.05f+5;
+        
+        generalPath.moveTo(0.0f, 0.0f);
+        generalPath.lineTo(size, 0);
+        generalPath.moveTo(size, 0);
+        generalPath.lineTo(size-10, 0);
+        generalPath.moveTo(size, 0);
+        generalPath.lineTo(-side, -size);
+        generalPath.moveTo(size,0 );
+        generalPath.lineTo(-side, +size);
+        generalPath.moveTo(size,0 );
+        // generalPath.lineTo(size,size );
+        // generalPath.moveTo(size,0 );
+        // generalPath.lineTo(size,-size );
+        
+        
+        graphics.draw(generalPath);
+    }
+    
 }
