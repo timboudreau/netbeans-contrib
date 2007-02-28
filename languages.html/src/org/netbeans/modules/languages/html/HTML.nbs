@@ -207,7 +207,11 @@ COLOR:tag {
 
 ########### code folding #######################################################
 
-FOLD:tag:"<$startTag.html_element_name$>...</$startTag.html_element_name$>"
+FOLD:tag {
+    fold_display_name:"<$startTag.html_element_name$>...</$startTag.html_element_name$>";
+    expand_type_action_name:"Expand HTML Tag";
+    collapse_type_action_name:"Collapse HTML Tag";
+}
 
 
 ########### navigator ##########################################################
