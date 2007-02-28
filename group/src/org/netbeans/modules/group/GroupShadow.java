@@ -13,16 +13,16 @@
  * "Portions Copyrighted [year] [name of copyright owner]"
  *
  * The Original Software is NetBeans. The Initial Developer of the Original
- * Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
+ * Software is Sun Microsystems, Inc. Portions Copyright 1997-2007 Sun
  * Microsystems, Inc. All Rights Reserved.
  */
 
 
 package org.netbeans.modules.group;
 
-import java.beans.PropertyChangeEvent;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
@@ -33,16 +33,11 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import org.openide.ErrorManager;
-import org.openide.actions.DeleteAction;
-import org.openide.actions.PropertiesAction;
-import org.openide.actions.ToolsAction;
 import org.openide.filesystems.FileChangeAdapter;
 import org.openide.filesystems.FileEvent;
 import org.openide.filesystems.FileLock;
 import org.openide.filesystems.FileObject;
-import org.openide.filesystems.FileSystem;
 import org.openide.filesystems.FileUtil;
-import org.openide.filesystems.Repository;
 import org.openide.loaders.DataFolder;
 import org.openide.loaders.DataLoader;
 import org.openide.loaders.DataObject;
@@ -313,6 +308,23 @@ public class GroupShadow extends DataObject
             br = new BufferedReader(new InputStreamReader(fo.getInputStream()));
             String line;
             while ((line = br.readLine()) != null) {
+                File f = new File(line);
+                /* convert relative to absolute files */
+                if (!f.isAbsolute()) {
+                    /* I would prefer this but it does not work for "../foo" */
+                    // f = FileUtil.toFile(fo.getParent().getFileObject(line));
+                    File parentFolder = FileUtil.toFile(fo.getParent());
+                    /* use this node's parent as starting reference for the path */
+                    f = new File(parentFolder, line).getAbsoluteFile();
+                }
+                try {
+                    /* also "foo/../bar" is problematic, so canonicalize */
+                    f = f.getCanonicalFile();
+                } catch (IOException ex) {
+                    ErrorManager.getDefault().notify(ErrorManager.INFORMATIONAL, ex);
+                }
+                line = f.getAbsolutePath();
+                line = line.replace('\\', '/');
                 list.add(line);
             }
         } finally {
@@ -356,6 +368,34 @@ public class GroupShadow extends DataObject
                     fo.getOutputStream(lock)));
             for (Iterator i = list.iterator(); i.hasNext(); ) {
                 String line = (String) i.next();
+                File f = new File(line);
+                FileObject link = FileUtil.toFileObject(f);
+                /* try to convert into a relative file */
+                if (f.isAbsolute()) {
+                    FileObject parent = fo.getParent();
+                    /* this is simple if this node's parent is the parent of the file */
+                    if (FileUtil.isParentOf(parent, link)) {
+                        line = FileUtil.getRelativePath(parent, link);
+                    } else {
+                        /* otherwise check if this node and the file have the same root */
+                        FileObject root = fo.getFileSystem().getRoot();
+                        if (root.equals(link.getFileSystem().getRoot())) {
+                            /* step up the parents of this node */
+                            StringBuffer lineBuf = new StringBuffer(80);
+                            while (!root.equals(parent)) {
+                                parent = parent.getParent();
+                                /* prefix "../" for every step */
+                                lineBuf.append("../");                  //NOI18N
+                                /* break if a parent of the file is found is found */
+                                if (FileUtil.isParentOf(parent, link)) {
+                                    lineBuf.append(FileUtil.getRelativePath(parent, link));
+                                    line = lineBuf.toString();
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                }
                 bw.write(line); 
                 bw.newLine();
             }
