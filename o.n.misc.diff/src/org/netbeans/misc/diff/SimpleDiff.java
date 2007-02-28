@@ -115,7 +115,7 @@ public final class SimpleDiff <T> extends Diff <T> {
         return sb.toString();
     }
     
-    private static final class C implements Change {
+    static final class C implements Change {
         private final int start;
         private final int end;
         private final int type;
@@ -123,7 +123,8 @@ public final class SimpleDiff <T> extends Diff <T> {
             this.start = start;
             this.end = end;
             this.type = type;
-            assert start > end : "Start must be greater than end";
+            assert start <= end : "Start must be <= than end. Start: " + 
+                    start + " end " + end;
             assert type == CHANGE || type == DELETE || type == INSERT : 
                 "Unknown change type: " + type;
         }

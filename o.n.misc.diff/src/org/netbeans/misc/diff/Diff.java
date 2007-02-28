@@ -59,48 +59,94 @@ import java.util.*;
  *     }
  * }
  * </pre>
+ * @param T The type the lists to be diffed will have
  * @author Tim Boudreau
  * @see Change
  */
-public abstract class Diff <T extends Object> {
+public abstract class Diff <T> {
     /**
      * Get a list of Change objects in the order they need to be applied to construct the result of
      * <code>getNew()</code> by applying these changes to <code>getOld()</code>.
+     * @return A list of Change objects
      */
     public abstract List <Change> getChanges ();
 
     /**
      * Get the former contents.
+     * @return the list
      */
     public abstract List <T> getOld ();
 
     /**
      * Get the current contents.
+     * @return The list
      */
     public abstract List <T> getNew ();
     
     /**
-     * Create a diff of two lists
+     * Create a diff of two lists using the iterative algorithm
+     * @param T the type of the lists
+     * @param old The former list contents
+     * @param nue The current list contents
+     * @return A diff
      */
-    public static <T extends Object> Diff <T> create (List <T> old, 
+    public static <T> Diff <T> create (List <T> old, 
             List <T> nue) {
         return new ListDiff <T> ( old, nue );
     }
+    
+    /**
+     * Create a diff of two lists using the specified algorithm.
+     * @param T the type of the lists
+     * @param old The former list contents
+     * @param nue The current list contents
+     * @param algorithm The algorithm to use for performing the diff
+     * @return A diff
+     */ 
+    public static <T> Diff <T> create (List <T> old, List <T> nue, Algorithm algorithm) {
+        switch (algorithm) {
+            case ITERATIVE :
+                return create (old, nue);
+            case LONGEST_COMMON_SEQUENCE :
+                return new ListMatcherAdapter (old, nue);
+            default :
+                throw new AssertionError();
+        }
+    }
+    
+    /**
+     * Create a Longest Common Sequence diff using the passed instance of 
+     * Measure to compare the lists.
+     */ 
+    public static <T> Diff <T> create (List <T> old, List <T> nue, Measure measure) {
+        return new ListMatcherAdapter (old, nue, measure);
+    }
+    
 
     /**
      * Create a diff of two lists with the specified contents.  Principally useful to indicate a change in a list where
      * the equality of the objects has not changed, but some property of some objects in the list has.
+     * @param T the type of the lists
+     * @param old The former list contents
+     * @param nue The current list contents
+     * @param changes A list of Change objects
+     * @return A diff
      */
-    public static <T extends Object> Diff <T> createPredefined (List <T> old, 
+    public static <T> Diff <T> createPredefined (List <T> old, 
             List <T> nue, List <Change> changes) {
-        
         assert old != null && nue != null && changes != null;
         ListDiff <T> result = new ListDiff <T> ( old, nue );
         result.changes = changes;
         return result;
     }
     
-    public static <T extends Object> Diff <T> createPredefined (List <T> list, 
+    /**
+     * 
+     * @param list 
+     * @param changes 
+     * @return 
+     */
+    public static <T> Diff <T> createPredefined (List <T> list, 
             List <Change> changes) {
         
         assert list != null && changes != null;
@@ -109,12 +155,39 @@ public abstract class Diff <T extends Object> {
         return result;
     }
 
-    public static <T extends Object> Diff <T> create (List <T> list, int start, 
+    /**
+     * Create a diff containing a single difference in a list
+     * 
+     * @param list 
+     * @param start 
+     * @param end 
+     * @param changeType 
+     * @return 
+     */
+    public static <T> Diff <T> create (List <T> list, int start, 
             int end, int changeType) {
         
         SimpleDiff <T> result = new SimpleDiff <T> (list, list, start, end, 
                 changeType);
 
         return result;
+    }
+    
+    /**
+     * Algorithm used for diffing the lists.
+     * 
+     */
+    public static enum Algorithm {
+        /**
+         * An algorithm based on iterating the two lists in parallel, pausing
+         * one iterator when a difference is encountered.  Useful for lists with
+         * small interspersed insertions or deletions.  This algorithm does not
+         * tolerate duplicate elements in the lists.
+         */
+        ITERATIVE,
+        /**
+         * Implementation of the longest common sequence diff algorithm
+         */
+        LONGEST_COMMON_SEQUENCE,
     }
 }

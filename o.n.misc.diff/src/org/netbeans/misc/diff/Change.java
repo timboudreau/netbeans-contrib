@@ -49,6 +49,7 @@ public interface Change {
 
     /**
      * Get the change type
+     * @return the type of change
      */
     int getType ();
 
