@@ -23,9 +23,15 @@ package org.netbeans.modules.erd.graphics;
 
 
 import java.awt.Color;
+import java.awt.Graphics2D;
+import java.awt.Image;
+import java.awt.Paint;
 import java.awt.Point;
 import java.awt.Rectangle;
+import java.awt.TexturePaint;
+import java.awt.image.BufferedImage;
 import java.util.ArrayList;
+import java.util.Collections;
 import org.netbeans.api.visual.widget.ConnectionWidget;
 import org.netbeans.api.visual.widget.LayerWidget;
 import org.netbeans.api.visual.widget.Widget;
@@ -36,6 +42,7 @@ import org.netbeans.api.visual.router.CollisionsCollector;
 import javax.swing.*;
 import org.netbeans.api.visual.action.ActionFactory;
 import org.netbeans.api.visual.action.MoveProvider;
+import org.netbeans.api.visual.action.PopupMenuProvider;
 import org.netbeans.api.visual.action.ResizeStrategy;
 import org.netbeans.api.visual.action.WidgetAction;
 import org.netbeans.api.visual.vmd.VMDNodeWidget;
@@ -52,11 +59,16 @@ import org.netbeans.api.visual.layout.LayoutFactory;
 import org.netbeans.api.visual.widget.SwingScrollWidget;
 import org.netbeans.api.visual.border.BorderFactory;
 import org.netbeans.api.visual.router.RouterFactory;
+import org.netbeans.modules.erd.actions.PngAction;
 import org.netbeans.modules.erd.graphics.ResizeStrategyImpl;
 import org.netbeans.modules.erd.graphics.TableWidget;
 import org.netbeans.modules.erd.graphics.TableWidget;
 import org.netbeans.modules.erd.graphics.TableWidget;
 import org.netbeans.modules.erd.model.ERDDocumentAwareness;
+import org.openide.actions.RedoAction;
+import org.openide.actions.UndoAction;
+import org.openide.util.Utilities;
+import org.openide.util.actions.SystemAction;
 
 
 
@@ -66,6 +78,7 @@ import org.netbeans.modules.erd.model.ERDDocumentAwareness;
 
 
 public class ERDScene extends GraphPinScene<String, String, String>  implements ERDDocumentAwareness{
+    
     
     public static final String PIN_ID_DEFAULT_SUFFIX = "#default"; // NOI18N
     
@@ -83,10 +96,13 @@ public class ERDScene extends GraphPinScene<String, String, String>  implements 
     private MoveProviderImpl moveHelper;
     private ResizeStrategy resizeStrategy=new ResizeStrategyImpl();
     private LayerWidget[] layers;
-    
+    private WidgetAction popupMenuAction;
     
     
     public ERDScene(ERDDocument document) {
+        
+        setOpaque (true);
+        setBackground (PAINT_BACKGROUND);
         this.document=document;
         
         this.moveHelper=new MoveProviderImpl(document,this);
@@ -95,8 +111,9 @@ public class ERDScene extends GraphPinScene<String, String, String>  implements 
         addChild(connectionLayer);
         addChild(upperLayer);
         moveAction= ActionFactory.createMoveAction(null,moveHelper);
-       // collisionsCollector = new
-        //        WidgetsCollisionCollector(mainLayer, connectionLayer);
+         popupMenuAction = ActionFactory.createPopupMenuAction (new ERDPopupMenuProvider ());
+        getActions ().addAction (popupMenuAction);
+       
         layers=new LayerWidget[2];
         layers[0]=mainLayer;
         layers[1]=connectionLayer;
@@ -207,8 +224,35 @@ public class ERDScene extends GraphPinScene<String, String, String>  implements 
     }
     
     
+    private class ERDPopupMenuProvider implements PopupMenuProvider {
+
+        public JPopupMenu getPopupMenu (Widget widget, Point localLocation) {
+            JComponent component = ERDScene.this.getView ();
+
+            
+                return Utilities.actionsToPopup (new Action[]{
+                    SystemAction.get (PngAction.class)
+                    
+                }, component);
+
+           
+           
+            
+        }
+    }
     
-    
+     private static Paint PAINT_BACKGROUND;
+     static {
+        Image sourceImage = Utilities.loadImage ("org/netbeans/modules/vmd/flow/resources/paper_grid.png"); // NOI18N
+        int width = sourceImage.getWidth (null);
+        int height = sourceImage.getHeight (null);
+        BufferedImage image = new BufferedImage (width, height, BufferedImage.TYPE_INT_RGB);
+        Graphics2D graphics = image.createGraphics ();
+        graphics.drawImage (sourceImage, 0, 0, null);
+        graphics.dispose ();
+        PAINT_BACKGROUND = new TexturePaint (image, new Rectangle (0, 0, width, height));
+//        PAINT_BACKGROUND = Color.WHITE;
+    }
     
     
     

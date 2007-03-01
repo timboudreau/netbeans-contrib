@@ -82,7 +82,30 @@ Microsystems, Inc. All Rights Reserved.
             </folder>
         </folder>
     </folder>-->
+    <!--<folder name="Actions">
+        <folder name="Build">
+            <file name="org-netbeans-modules-erd-actions-PngAction.instance"/>
+        </folder>
+    </folder>-->
+    <!--<folder name="Editors">
+        <folder name="text">
+            <folder name="x-erd">
+                <folder name="Popup">
+                    <file name="org-netbeans-modules-erd-actions-PngAction.shadow">
+                        <attr name="originalFile" stringvalue="Actions/Build/org-netbeans-modules-erd-actions-PngAction.instance"/>
+                    </file>
+                    <attr name="org-netbeans-modules-erd-actions-PngAction.shadow/goto" boolvalue="true"/>
+                </folder>
+            </folder>
+        </folder>
+    </folder>-->
     <folder name="Menu">
+        <folder name="File">
+            <file name="org-netbeans-modules-erd-actions-PngAction.shadow">
+                <attr name="originalFile" stringvalue="Actions/Build/org-netbeans-modules-erd-actions-PngAction.instance"/>
+            </file>
+            <attr name="org-netbeans-modules-erd-actions-PngAction.shadow/org-netbeans-modules-project-ui-NewProject.shadow" boolvalue="true"/>
+        </folder>
         <folder name="Window">
             <file name="ERDAction.shadow">
                 <attr name="originalFile" stringvalue="Actions/Window/org-netbeans-modules-erd-action-ERDAction.instance"/>
