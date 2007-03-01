@@ -27,6 +27,8 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.swing.JComponent;
@@ -51,7 +53,7 @@ import org.openide.util.actions.Presenter;
 public class BrowseSubmenu implements Presenter.Menu {
 
     /** Tuples of display label, URL format; use @FILEPATH@, @DIRPATH@, @JAVABASENAME@, @CNBDASHES@ */
-    private static final String[][] LINKS = {
+    private static final String[][] LINKS_FILE = {
         {"Source (ViewCVS)", "http://www.netbeans.org/nonav/source/browse/~checkout~/@FILEPATH@?content-type=text/plain"},
         {"Source (ViewCVS)", "http://www.netbeans.org/nonav/source/browse/@DIRPATH@/"},
         {"Source (OpenGrok)", "http://deadlock.nbextras.org/opengrok/xref/@FILEPATH@"},
@@ -62,6 +64,10 @@ public class BrowseSubmenu implements Presenter.Menu {
         {"Source (Hudson trunk)", "http://deadlock.nbextras.org/hudson/job/trunk/ws/@DIRPATH@/"},
         {"Javadoc (official)", "http://www.netbeans.org/download/dev/javadoc/@CNBDASHES@/@JAVABASENAME@.html"},
         {"Javadoc (Hudson javadoc-nbms)", "http://deadlock.nbextras.org/hudson/job/javadoc-nbms/javadoc/@CNBDASHES@/@JAVABASENAME@.html"},
+    };
+    private static final String[][] LINKS_PRJ = {
+        {"Javadoc (official)", "http://www.netbeans.org/download/dev/javadoc/@CNBDASHES@/"},
+        {"Javadoc (Hudson javadoc-nbms)", "http://deadlock.nbextras.org/hudson/job/javadoc-nbms/javadoc/@CNBDASHES@/"},
     };
 
     /** Default constructor for layer */
@@ -74,6 +80,7 @@ public class BrowseSubmenu implements Presenter.Menu {
     private static final class Menu extends JMenu implements DynamicMenuContent {
 
         public JComponent[] getMenuPresenters() {
+            List<String[]> labelsAndUrls = new ArrayList<String[]>();
             DataObject d = Utilities.actionsGlobalContext().lookup(DataObject.class);
             if (d != null) {
                 FileObject f = d.getPrimaryFile();
@@ -86,8 +93,7 @@ public class BrowseSubmenu implements Presenter.Menu {
                         String tag = slurp(dir.getFileObject("CVS/Tag"));
                         String branch = (tag != null && tag.startsWith("T")) ? tag.substring(1) : null;
                          */
-                        JMenu menu = new JMenu("Browse cvs.netbeans.org");
-                        for (String[] data : LINKS) {
+                        for (String[] data : LINKS_FILE) {
                             String label = data[0];
                             String url = data[1];
                             if (url.contains("@FILEPATH@")) {
@@ -120,25 +126,41 @@ public class BrowseSubmenu implements Presenter.Menu {
                                     url = url.replace("@CNBDASHES@", ProjectUtils.getInformation(p).getName().replace('.', '-'));
                                 }
                             }
-                            JMenuItem mi = new JMenuItem(label);
-                            final URL u;
-                            try {
-                                u = new URL(url);
-                            } catch (MalformedURLException x) {
-                                throw new AssertionError(x);
-                            }
-                            mi.addActionListener(new ActionListener() {
-                                public void actionPerformed(ActionEvent ev) {
-                                    HtmlBrowser.URLDisplayer.getDefault().showURL(u);
-                                }
-                            });
-                            menu.add(mi);
+                            labelsAndUrls.add(new String[] {label, url});
                         }
-                        return new JComponent[] {menu};
+                    }
+                }
+            } else {
+                Project p = Utilities.actionsGlobalContext().lookup(Project.class);
+                if (p != null) {
+                    for (String[] data : LINKS_PRJ) {
+                        String label = data[0];
+                        String url = data[1];
+                        labelsAndUrls.add(new String[] {data[0], data[1].replace("@CNBDASHES@", ProjectUtils.getInformation(p).getName().replace('.', '-'))});
                     }
                 }
             }
-            return new JComponent[0];
+            if (labelsAndUrls.isEmpty()) {
+                return new JComponent[0];
+            } else {
+                JMenu menu = new JMenu("Browse cvs.netbeans.org");
+                for (String[] labelAndUrl : labelsAndUrls) {
+                    JMenuItem mi = new JMenuItem(labelAndUrl[0]);
+                    final URL u;
+                    try {
+                        u = new URL(labelAndUrl[1]);
+                    } catch (MalformedURLException x) {
+                        throw new AssertionError(x);
+                    }
+                    mi.addActionListener(new ActionListener() {
+                        public void actionPerformed(ActionEvent ev) {
+                            HtmlBrowser.URLDisplayer.getDefault().showURL(u);
+                        }
+                    });
+                    menu.add(mi);
+                }
+                return new JComponent[] {menu};
+            }
         }
 
         private static String slurp(FileObject f) {
