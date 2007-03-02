@@ -33,6 +33,7 @@ public class RunDialog extends javax.swing.JFrame {
         "javaone.demo4.GraphDemo",
         "javaone.demo5.ManyObjectsDemo",
         "javaone.demo6.LODDemo",
+        "test.alignwith.AlignWithMoveGuideLinesTest",
         "test.alignwith.AlignWithTest",
         "test.alignwith.AlignWithResizeTest",
         "test.anchor.ImageAnchorShapeTest",
