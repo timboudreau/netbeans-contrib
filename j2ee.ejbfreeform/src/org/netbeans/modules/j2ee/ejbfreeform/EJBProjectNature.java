@@ -83,7 +83,8 @@ public class EJBProjectNature implements ProjectNature {
         return resultSet;
     }
     
-    public Node createSourceFolderView(Project project, FileObject folder, String style, String name, String displayName) throws IllegalArgumentException {
+    public Node createSourceFolderView(Project project, FileObject folder, String includes, String excludes, String style, String name, String displayName) throws IllegalArgumentException {
+        // XXX consider using includes/excludes
         if (style.equals(STYLE_CONFIG_FILES)) {
             EjbJar ejbJar = EjbJar.getEjbJar(folder);
             assert ejbJar != null;

@@ -35,8 +35,6 @@ import org.w3c.dom.Element;
  */
 public class EJBProjectGenerator {
 
-    public static final String NS_GENERAL = "http://www.netbeans.org/ns/freeform-project/1"; // NOI18N
-    
     //    /** Keep root elements in the order specified by project's XML schema. */
     private static final String[] rootElementsOrder = new String[]{"name", "properties", "folders", "ide-actions", "export", "view", "subprojects"}; // NOI18N
     private static final String[] viewElementsOrder = new String[]{"items", "context-menu"}; // NOI18N
@@ -51,21 +49,21 @@ public class EJBProjectGenerator {
      * @param soruces list of pairs[relative path, display name]
      */
     public static void putEJBSourceFolder(AntProjectHelper helper, List/*<String>*/ sources) {
-        Element data = helper.getPrimaryConfigurationData(true);
+        Element data = Util.getPrimaryConfigurationData(helper);
         Document doc = data.getOwnerDocument();
-        Element foldersEl = Util.findElement(data, "folders", NS_GENERAL); // NOI18N
+        Element foldersEl = Util.findElement(data, "folders", Util.NAMESPACE); // NOI18N
         if (foldersEl == null) {
-            foldersEl = doc.createElementNS(NS_GENERAL, "folders"); // NOI18N
+            foldersEl = doc.createElementNS(Util.NAMESPACE, "folders"); // NOI18N
             Util.appendChildElement(data, foldersEl, rootElementsOrder);
         }
-        Element viewEl = Util.findElement(data, "view", NS_GENERAL); // NOI18N
+        Element viewEl = Util.findElement(data, "view", Util.NAMESPACE); // NOI18N
         if (viewEl == null) {
-            viewEl = doc.createElementNS(NS_GENERAL, "view"); // NOI18N
+            viewEl = doc.createElementNS(Util.NAMESPACE, "view"); // NOI18N
             Util.appendChildElement(data, viewEl, rootElementsOrder);
         }
-        Element itemsEl = Util.findElement(viewEl, "items", NS_GENERAL); // NOI18N
+        Element itemsEl = Util.findElement(viewEl, "items", Util.NAMESPACE); // NOI18N
         if (itemsEl == null) {
-            itemsEl = doc.createElementNS(NS_GENERAL, "items"); // NOI18N
+            itemsEl = doc.createElementNS(Util.NAMESPACE, "items"); // NOI18N
             Util.appendChildElement(viewEl, itemsEl, viewElementsOrder);
         }
 
@@ -74,14 +72,14 @@ public class EJBProjectGenerator {
             String path = (String)it1.next();
             assert it1.hasNext();
             String dispname = (String)it1.next();
-            Element sourceFolderEl = doc.createElementNS(NS_GENERAL, "source-folder"); // NOI18N
-            Element el = doc.createElementNS(NS_GENERAL, "label"); // NOI18N
+            Element sourceFolderEl = doc.createElementNS(Util.NAMESPACE, "source-folder"); // NOI18N
+            Element el = doc.createElementNS(Util.NAMESPACE, "label"); // NOI18N
             el.appendChild(doc.createTextNode(dispname));
             sourceFolderEl.appendChild(el);
-            el = doc.createElementNS(NS_GENERAL, "type"); // NOI18N
+            el = doc.createElementNS(Util.NAMESPACE, "type"); // NOI18N
             el.appendChild(doc.createTextNode("configFilesRoot"));
             sourceFolderEl.appendChild(el);
-            el = doc.createElementNS(NS_GENERAL, "location"); // NOI18N
+            el = doc.createElementNS(Util.NAMESPACE, "location"); // NOI18N
             el.appendChild(doc.createTextNode(path));
             sourceFolderEl.appendChild(el);
             Util.appendChildElement(foldersEl, sourceFolderEl, folderElementsOrder);
@@ -89,7 +87,7 @@ public class EJBProjectGenerator {
             addSourceFolderViewItem(doc, itemsEl, EJBProjectNature.STYLE_CONFIG_FILES, "Configuration Files", path);
         }
         
-        helper.putPrimaryConfigurationData(data, true);
+        Util.putPrimaryConfigurationData(helper, data);
     }
     
     // #82897: putting Enterprise Beans node to view section needs to be done separately
@@ -97,16 +95,16 @@ public class EJBProjectGenerator {
         // TODO: ma154696: add support for multiple source roots?
         // now I get only first one, have to check impact of more roots 
         // to Enterprise beans node (which one to put into view items
-        Element data = helper.getPrimaryConfigurationData(true);
+        Element data = Util.getPrimaryConfigurationData(helper);
         Document doc = data.getOwnerDocument();
-        Element foldersEl = Util.findElement(data, "folders", NS_GENERAL); // NOI18N
-        Element viewEl = Util.findElement(data, "view", NS_GENERAL); // NOI18N
-        Element itemsEl = Util.findElement(viewEl, "items", NS_GENERAL); // NOI18N
+        Element foldersEl = Util.findElement(data, "folders", Util.NAMESPACE); // NOI18N
+        Element viewEl = Util.findElement(data, "view", Util.NAMESPACE); // NOI18N
+        Element itemsEl = Util.findElement(viewEl, "items", Util.NAMESPACE); // NOI18N
         List sourceRootNames = getSourceFolders(doc, foldersEl, "java"); // NOI18N
         if (sourceRootNames.size() > 0) {
             addSourceFolderViewItem(doc, itemsEl, EJBProjectNature.STYLE_EJBS, "Enterprise Beans", (String) sourceRootNames.get(0)); // NOI18N
         }
-        helper.putPrimaryConfigurationData(data, true);
+        Util.putPrimaryConfigurationData(helper, data);
     }
     
     /**
@@ -119,12 +117,12 @@ public class EJBProjectGenerator {
      */
     private static void addSourceFolderViewItem(Document doc, Element itemsEl, String style, String label, String path) {
         // creates source-folder element for
-        Element sourceFolderEl = doc.createElementNS(NS_GENERAL, "source-folder"); // NOI18N
+        Element sourceFolderEl = doc.createElementNS(Util.NAMESPACE, "source-folder"); // NOI18N
         sourceFolderEl.setAttribute("style", style); // NOI18N
-        Element el = doc.createElementNS(NS_GENERAL, "label"); // NOI18N
+        Element el = doc.createElementNS(Util.NAMESPACE, "label"); // NOI18N
         el.appendChild(doc.createTextNode(label));
         sourceFolderEl.appendChild(el);
-        el = doc.createElementNS(NS_GENERAL, "location"); // NOI18N
+        el = doc.createElementNS(Util.NAMESPACE, "location"); // NOI18N
         el.appendChild(doc.createTextNode(path));
         sourceFolderEl.appendChild(el);
         itemsEl.insertBefore(sourceFolderEl, itemsEl.getFirstChild());
@@ -139,15 +137,15 @@ public class EJBProjectGenerator {
      */
     private static void putProperty(Document doc, Element parent, String key, String value) {
         // TODO: ma154696: check NodeList length
-        Element props = Util.findElement(parent, "properties", EJBProjectGenerator.NS_GENERAL); // NOI18N
+        Element props = Util.findElement(parent, "properties", Util.NAMESPACE); // NOI18N
         if (props == null) {
             // create the <properties> element if it doesn't exist, which it should (#56344)
-            props = doc.createElementNS(NS_GENERAL, "properties");
+            props = doc.createElementNS(Util.NAMESPACE, "properties");
             Util.appendChildElement(parent, props, rootElementsOrder);
         }
         Element property = findPropertyElement(props, key);
         if (property == null) {
-            property = doc.createElementNS(NS_GENERAL, "property"); // NOI18N
+            property = doc.createElementNS(Util.NAMESPACE, "property"); // NOI18N
             property.setAttribute("name", key); // NOI18N
             props.appendChild(property);
         } else {
@@ -160,7 +158,7 @@ public class EJBProjectGenerator {
     private static Element findPropertyElement(Element parent, String key) {
         for (Iterator i = Util.findSubElements(parent).iterator(); i.hasNext();) {
             Element element = (Element)i.next();
-            if (element.getLocalName().equals("property") && element.getNamespaceURI().equals(NS_GENERAL)) { // NOI18N
+            if (element.getLocalName().equals("property") && element.getNamespaceURI().equals(Util.NAMESPACE)) { // NOI18N
                 if (element.getAttribute("name").equals(key)) // NOI18N
                     return element;
             }
@@ -169,32 +167,32 @@ public class EJBProjectGenerator {
     }
     
     public static void putResourceFolder(AntProjectHelper helper, List/*<String>*/ resources) {
-        Element data = helper.getPrimaryConfigurationData(true);
+        Element data = Util.getPrimaryConfigurationData(helper);
         Document doc = data.getOwnerDocument();
         String value = (String)resources.get(0) != null ? (String)resources.get(0) : ""; // NOI18N
         putProperty(doc, data, EjbFreeformProperties.RESOURCE_DIR, value);
-        helper.putPrimaryConfigurationData(data, true);
+        Util.putPrimaryConfigurationData(helper, data);
     }
     
     public static void putServerInstanceID(AntProjectHelper helper, String instanceID) {
-        Element data = helper.getPrimaryConfigurationData(true);
+        Element data = Util.getPrimaryConfigurationData(helper);
         Document doc = data.getOwnerDocument();
         putProperty(doc, data, EjbFreeformProperties.J2EE_SERVER_INSTANCE, instanceID);
-        helper.putPrimaryConfigurationData(data, true);
+        Util.putPrimaryConfigurationData(helper, data);
     }
     
     public static void putServerID(AntProjectHelper helper, String serverID) {
-        Element data = helper.getPrimaryConfigurationData(true);
+        Element data = Util.getPrimaryConfigurationData(helper);
         Document doc = data.getOwnerDocument();
         putProperty(doc, data, EjbFreeformProperties.J2EE_SERVER_TYPE, serverID);
-        helper.putPrimaryConfigurationData(data, true);
+        Util.putPrimaryConfigurationData(helper, data);
     }
     
     public static void putJ2EELevel(AntProjectHelper helper, String j2eeLevel) {
-        Element data = helper.getPrimaryConfigurationData(true);
+        Element data = Util.getPrimaryConfigurationData(helper);
         Document doc = data.getOwnerDocument();
         putProperty(doc, data, EjbFreeformProperties.J2EE_PLATFORM, j2eeLevel);
-        helper.putPrimaryConfigurationData(data, true);
+        Util.putPrimaryConfigurationData(helper, data);
     }
     
     private static List/*<String>*/ getSourceFolders(Document doc, Element parent, String type) {
@@ -203,8 +201,8 @@ public class EJBProjectGenerator {
         List sourceFolderElements = Util.findSubElements(parent);
         for (int i = 0; i < sourceFolderElements.size(); i++) {
             Element subElement = (Element) sourceFolderElements.get(i);
-            Element locationEl = Util.findElement(subElement, "location", EJBProjectGenerator.NS_GENERAL);
-            Element typeEl = Util.findElement(subElement, "type", EJBProjectGenerator.NS_GENERAL);
+            Element locationEl = Util.findElement(subElement, "location", Util.NAMESPACE);
+            Element typeEl = Util.findElement(subElement, "type", Util.NAMESPACE);
             if (typeEl != null) {
                 if (typeEl.getChildNodes().item(0).getNodeValue().equals(type)) {
                     result.add(locationEl.getChildNodes().item(0).getNodeValue());
@@ -291,12 +289,12 @@ public class EJBProjectGenerator {
                 if (need2) {
                     // Have to upgrade.
                     aux.removeConfigurationFragment(EJBProjectNature.EL_EJB, EJBProjectNature.NS_EJB, true);
-                    data = helper.getPrimaryConfigurationData(true).getOwnerDocument().
+                    data = Util.getPrimaryConfigurationData(helper).getOwnerDocument().
                             createElementNS(EJBProjectNature.NS_EJB_2, EJBProjectNature.EL_EJB);
                 } // else can use it as is
             } else {
                 // Create /1 or /2 data acc. to need.
-                data = helper.getPrimaryConfigurationData(true).getOwnerDocument().
+                data = Util.getPrimaryConfigurationData(helper).getOwnerDocument().
                     createElementNS(namespace, EJBProjectNature.EL_EJB);
             }
         }

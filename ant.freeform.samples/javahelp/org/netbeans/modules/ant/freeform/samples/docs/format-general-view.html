@@ -30,6 +30,19 @@
             Shows the subdir <code>docs</code> in a plain tree. Again the label is optional.
         </p>
         <pre>
+&lt;source-folder style="packages"&gt;
+    &lt;label&gt;Sources&lt;/label&gt;
+    &lt;location&gt;${src.dir}&lt;/location&gt;
+    &lt;includes&gt;${my.packages}&lt;/includes&gt;
+&lt;/source-folder&gt;
+        </pre>
+        <p>
+            (NetBeans 6.0+ only, with <code>/2</code> namespace.)
+            Shows a package list view of <code>${src.dir}</code>. Only classes matching the
+            pattern given by <code>${my.packages}</code> (Ant format) will be shown.
+            Similar to includes and/or excludes in <code>source-folder</code>.
+        </p>
+        <pre>
 &lt;source-file&gt;
     &lt;label&gt;Build Script&lt;/label&gt;
     &lt;location&gt;build.xml&lt;/location&gt;

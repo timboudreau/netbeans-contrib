@@ -52,6 +52,23 @@
             against the project directory, just as they would be from a <code>build.xml</code> at top
             level using <code>basedir="."</code> (or no explicit basedir).
         </p>
+        <p>
+            In NetBeans 6.0+, if you use the <code>/2</code> schema (a different namespace), you can also specify
+            optional includes and/or excludes (in the usual Ant patternset format), e.g.:
+        </p>
+        <pre>
+&lt;source-folder&gt;
+    &lt;label&gt;Main Java Sources&lt;/label&gt;
+    &lt;type&gt;java&lt;/type&gt;
+    &lt;location&gt;${home}/java&lt;/location&gt;
+    &lt;includes&gt;packageOfInterest/&lt;/includes&gt;
+    &lt;excludes&gt;**/unusedPackages/&lt;/excludes&gt;
+&lt;/source-folder&gt;
+        </pre>
+        <p>
+            The above declaration will show any subpackages of <code>packageOfInterest</code> which do not
+            contain <code>unusedPackages</code> as a package component.
+        </p>
         <pre>
 &lt;build-folder&gt;
     &lt;location&gt;${build}&lt;/location&gt;
