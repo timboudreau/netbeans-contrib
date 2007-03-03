@@ -175,6 +175,16 @@ Microsystems, Inc. All Rights Reserved.
                     <file name="org-netbeans-modules-codetemplatetools-SelectionCodeTemplateProcessor$Factory.instance"/>
                 </folder>
             </folder>
+            <folder name="x-nbs">
+                <folder name="CodeTemplateProcessorFactories">
+                    <file name="org-netbeans-modules-codetemplatetools-SelectionCodeTemplateProcessor$Factory.instance"/>
+                </folder>
+            </folder>
+            <folder name="x-ps1">
+                <folder name="CodeTemplateProcessorFactories">
+                    <file name="org-netbeans-modules-codetemplatetools-SelectionCodeTemplateProcessor$Factory.instance"/>
+                </folder>
+            </folder>
         </folder>
     </folder>
     <folder name="Shortcuts">

@@ -30,13 +30,22 @@
             <li>Supports additonal parameters:
                 <ul>
                     <li><code>${selection}</code> - If the text editor had
-                    any selection, that selection will be inserted at the location of
-                    ${selection} parameter. Use ${selection editable=false} to prevent
+                        any selection, that selection will be inserted at the location of
+                        ${selection} parameter. Use ${selection editable=false} to prevent
                     editing of inserted text.</li>
-                    <li> <code>${clipboard-content}</code> - If the clipboard had
-                    any text, that text will be inserted at the location of
-                    ${clipboard-content} parameter. Use ${clipboard-content editable=false}
+                    <li><code>${clipboard-content}</code> - If the clipboard had
+                        any text, that text will be inserted at the location of
+                        ${clipboard-content} parameter. Use ${clipboard-content editable=false}
                     to prevent editing of inserted text</li>
+                    <li><code>${input-<I>parameterName</I> prompt="prompt string" defaultValue="value1" valuesSeparator="," enumeratedValues="value1,value2,value3" suggestedValues="value1,value2,value3"}</code>
+                        - The user will be be prompted to enter the value of the
+                        parameter. The parameter name part (excluding the <code>input-</code> prefix
+                        is used as the default prompt and default value. The values of <code>input-</code>...
+                        parameters can be strictly constrained using the <CODE>enumeratedValues</CODE> hint.
+                        The values of <code>input-</code>... parameters can be loosely constrained using the
+                        <code>suggestedValues</code> hint. The values separator can be specified using
+                        <code>valuesSeparator</code> hint. 
+                    </li>
                 </ul>
             </li>
             <li>Click on Save to save the Code Template </li>
@@ -63,7 +72,7 @@
             <li>Invoke <b>Expand Template</b> action (<code>Ctrl+J SPACE</code>)</li>
         </ul>
         <p>
-        With caret after the word matching the Code Template name, invoking the <b>Expand Template</b> action expands the Code Template.
+            With caret after the word matching the Code Template name, invoking the <b>Expand Template</b> action expands the Code Template.
         </p>
         <h3>To modify or delete a Code Template </h3>
         <ul>
@@ -82,20 +91,20 @@
 &lt;!DOCTYPE abbrevs PUBLIC "-//NetBeans//DTD Editor Abbreviations settings 1.0//EN" "http://www.netbeans.org/dtds/EditorAbbreviations-1_0.dtd"&gt;
 &lt;abbrevs&gt;
     &lt;abbrev key="ps" xml:space="preserve"&gt;PrintStream&lt;/abbrev&gt;
-&lt;/abbrevs&gt;</pre>
+            &lt;/abbrevs&gt;</pre>
         </ul>
         <h3>To use Registers </h3>
         <ul>
             <li>Select text in editor </li>
             <li>Invoke <b>Cut to Register...</b> ( <code>Ctrl+J R X</code> ), select the
-            Register from the dialog and click Ok. The selection is cut to selected
+                Register from the dialog and click Ok. The selection is cut to selected
             Register. </li>
             <li>Invoke <b>Copy to Register...</b> ( <code>Ctrl+J R C</code> ), select the
-            Register from the dialog and click Ok. The selection is copied to
+                Register from the dialog and click Ok. The selection is copied to
             selected Register. </li>
             <li>Invoke <b>Paste from Register...</b> ( <code>Ctrl+J R V</code> ), select the
-            Register from the dialog and click Ok. The contents of the selected
-            Register are inserted as if it were a template. That way the magic of
+                Register from the dialog and click Ok. The contents of the selected
+                Register are inserted as if it were a template. That way the magic of
             parameter substitution can happen.</li>
         </ul>
         <p>
