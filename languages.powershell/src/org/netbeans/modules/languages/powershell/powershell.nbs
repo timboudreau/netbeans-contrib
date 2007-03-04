@@ -15,45 +15,21 @@
 # Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
 # Microsystems, Inc. All Rights Reserved.
 
-
-
 ########### tokens #############################################################
-TOKEN:ps_line_comment: ( "#" [^ "\n" "\r"]* )
-
-TOKEN:ps_operator: (
-    "++"
-    | "--"
-    | "+="
-    | "-="
-    | "*="
-    | "/="
-    | "%="
-    | "+"
-    | "-"
-    | "||"
-    | "|"
-    | "&&"
-    | "&"
-    | "$"
-    | "!"
-    | "@"
-    | "="
-    | ".."
-    | "."
-    | "*"
-    | "/"
-    | "%"
-    | "1>>"
-    | "2>&"
-    | "2>>"
-    | "2>"
-    | ">>"
-    | ">"
-    | "<<"
-    | "<"
-    | "::"
-    | ":"
-    | "-lt"
+TOKEN:ps_line_comment:( "#" [^ "\n" "\r"]* )
+TOKEN:ps_prefix_postfix_operator:( "++" | "--" )
+TOKEN:ps_format_operator: ( "-f" )
+TOKEN:ps_assignment_operator: ( "=" | "+=" | "-=" | "*=" | "/=" | "%=" )
+TOKEN:ps_unary_operator: ( "!" | "-not" | "-bnot" )
+TOKEN:ps_additive_operator: ( "+" | "-" )
+TOKEN:ps_logical_operator: ( "-and" | "-or" )
+TOKEN:ps_bitwise_operator: ( "-band" | "-bor" )
+TOKEN:ps_multiplicative_operator: ( "*" | "/" )
+TOKEN:ps_redirectiron_operator: ( "1>>" | "2>&" | "2>>" | "2>" | ">>" | ">" | "<<" | "<" )
+TOKEN:ps_dereference_operator: ( "." | "::" | "[" | "]" | "@" | ":")
+TOKEN:ps_range_operator: ( ".." )
+TOKEN:ps_comparison_operator: (
+    "-lt"
     | "-le"
     | "-eq"
     | "-nq"
@@ -101,19 +77,11 @@ TOKEN:ps_operator: (
     | "-replace"
     | "-ireplace"
     | "-creplace"
-
 )
 
-TOKEN:ps_separator: (
-      "{" 
-    | "}" 
-    | "(" 
-    | ")" 
-    | "[" 
-    | "]" 
-    | "," 
-    | ";"
-)
+TOKEN:ps_statement_separator: ( ";" | "&&" | "||" |  "|" )
+
+TOKEN:ps_separator: ( "{" | "}"  | "(" | ")" | "\\")
 
 TOKEN:ps_command: (
     "Add-Content" 
@@ -171,7 +139,7 @@ TOKEN:ps_command: (
     | "Get-WmiObject" 
     | "Group-Object" 
     | "Import-Alias" 
-    | "Import-Clixml" 
+    | "Import-Clixml"
     | "Import-Csv" 
     | "Invoke-Expression" 
     | "Invoke-History" 
@@ -248,11 +216,13 @@ TOKEN:ps_command: (
 )
 
 TOKEN:ps_keyword:(
-    "break" 
+    "begin" 
+    | "break" 
     | "continue" 
     | "do" 
     | "elseif" 
     | "else" 
+    | "end" 
     | "exit" 
     | "fi" 
     | "for" 
@@ -268,206 +238,107 @@ TOKEN:ps_keyword:(
 )
 
 TOKEN:ps_label:( ":" ["a" - "z"]+ )
+TOKEN:ps_number:(["0"-"9"] ["0"-"9" "."]*)
+TOKEN:ps_expandable_string:( "\"" ( [^ "\"" "\n" "\r"] | ("\\" ["r" "n" "t" "\\" "\'" "\""]) )* "\"" )
 
-TOKEN:ps_number: (["0"-"9"] ["0"-"9" "."]*)
+TOKEN:ps_string:( "\'" ( [^ "\'" "\n" "\r"] | ("\\" ["r" "n" "t" "\\" "\'" "\""]) )* "\'" )
 
-TOKEN:ps_expandable_string: (
-    "\""
-        ( [^ "\"" "\n" "\r"] |
-          ("\\" ["r" "n" "t" "\\" "\'" "\""])
-        )*
-    "\""
-)
+TOKEN:ps_whitespace:( [" " "\t" "\n" "\r"]+ )
 
-TOKEN:ps_string: (
-    "\'"
-        ( [^ "\'" "\n" "\r"] |
-          ("\\" ["r" "n" "t" "\\" "\'" "\""])
-        )*
-    "\'"
-)
+TOKEN:ps_variable:( "$" "{" ["a"-"z" "_"] ["a"-"z" "A"-"Z" "0"-"9" "-" "_"]* "}" | "$" ["a"-"z" "_"] ["a"-"z" "A"-"Z" "0"-"9" "-" "_"]* )
 
-TOKEN:ps_whitespace: ([" " "\t" "\n" "\r"]+)
+TOKEN:ps_flag:( "-" ["a"-"z" "A"-"Z" "_"] ["a"-"z" "A"-"Z" "0"-"9" "-" "_"]* )
 
-TOKEN:ps_variable:(
-    "$" "{" ["a"-"z"] ["a"-"z" "A"-"Z" "0"-"9" "-"]* "}" |
-    "$" ["a"-"z"] ["a"-"z" "A"-"Z" "0"-"9" "-"]* 
-)
+TOKEN:ps_class:( ["A"-"Z" "_"] ["a"-"z" "A"-"Z" "0"-"9" "-" "_"]* )
 
-TOKEN:ps_flag:( "-" ["a"-"z" "A"-"Z"] ["a"-"z" "A"-"Z" "0"-"9" "-"]* )
+TOKEN:ps_identifier:( ["a"-"z" "_"] ["a"-"z" "A"-"Z" "0"-"9" "-" "_"]* )
 
-TOKEN:ps_class:( ["A"-"Z"] ["a"-"z" "A"-"Z" "0"-"9" "-"]* )
-
-TOKEN:ps_identifier:( ["a"-"z"] ["a"-"z" "A"-"Z" "0"-"9" "-"]* )
-
-########### grammar ############################################################
-
-#*# SKIP:ps_whitespace
-#*# SKIP:ps_line_comment
-#*#
-#*# S = (statementListRule)+;
-#*#
-#*# statementListRule = statementRule [ "|" statementRule ]*;
-#*#
-#*# statementBlockRule = "{" statementListRule "}";
-#*#
-#*# statementRule =
-#*#     ifStatementRule |
-#*#     witchStatementRule |
-#*#     foreachStatementRule |
-#*#     forWhileStatementRule |
-#*#     doWhileStatementRule |
-#*#     functionDeclarationRule |
-#*#     parameterDeclarationRule |
-#*#     flowControlStatementRule |
-#*#     trapStatementRule |
-#*#     finallyStatementRule |
-#*#     pipelineRule;
-#*#
-#*# pipelineRule = assignmentStatement | firstPipelineElement [ "|" cmdletCall ]*;
-#*#
-#*# assignmentStatementRule = lvalueExpression AssignmentOperatorToken pipelineRule;
-#*#
-#*# lvalueExpression = lvalue [? |? lvalue]*;
-#*#
-#*# lvalue =  simpleLvalue propertyOrArrayReferenceOperator*;
-#*#
-#*# simpleLvalue = AttributeSpecificationToken* variableToken;
-#*#
-#*# firstPipelineElement = expressionRule | cmdletCall;
-#*#
-#*# cmdletCall = [ "&" | "." | empty ] [ name | expressionRule ]
-#*#     [ parameterToken | parameterArgumentToken | postfixOperatorRule | redirectionRule ]*;
-#*#
-#*# redirectionRule = redirectionOperatorToken propertyOrArrayReferenceRule;
-#*#
-#*# ifStatementRule = "if" "(" pipelineRule ")" statementBlockRule  [
-#*#     "elseif" "(" pipelineRule ")" statementBlockRule
-#*#     ]* [
-#*#     "else" statementBlockRule
-#*#     ]?;
-#*#
-#*# switchStatementRule = "switch" ["-regex" | "-wildcard" | "-exact" ]?
-#*#     ["-casesensitive"]?
-#*#     ["-file" propertyOrArrayReferenceRule | "(" pipelineRule ")" ]
-#*#     "{" [
-#*#     [
-#*#     "default" |
-#*#     ParameterArgumentToken |
-#*#     propertyOrArrayReferenceRule |
-#*#     statementBlockRule
-#*#     ]
-#*#     statementBlockRule
-#*#     ]+ "}";
-#*#
-#*# foreachStatementRule = LoopLabelToken? "foreach"
-#*#     "(" variableToken  "in" pipelineRule ")"
-#*#     statementBlockRule;
-#*#
-#*# forWhileStatementRule =
-#*#     LoopLabelToken? "while" "(" pipelineRule ")" statementBlockRule |
-#*#     LoopLabelToken? "for" "(" pipelineRule? ";"
-#*#     pipelineRule? ";" pipelineRule? ")" statementBlockRule;
-#*#
-#*# doWhileStatementRule =
-#*#     LoopLabelToken? "do" statementBlockRule ["while" | "until"] "(" pipelineRule ")";
-#*#
-#*# trapStatementRule = "trap" AttributeSpecificationToken?
-#*#     statementBlockRule;
-#*#
-#*# finallyStatementRule = "finally" statementBlockRule;
-#*#
-#*# flowControlStatementRule =
-#*#     ["break" | "continue"] [propertyNameToken | propertyOrArrayReferenceRule]? |
-#*#     "return" pipelineRule;
-#*#
-#*# functionDeclarationRule = FunctionDeclarationToken
-#*#     ParameterArgumentToken [ "(" parameterDeclarationExpressionRule ")" ] cmdletBodyRule;
-#*#
-#*# cmdletBodyRule =  "{" [ "(" parameterDeclarationExpressionRule ")" ] (
-#*#     [ "begin" statementBlock | "process" statementBlock | "end" statementBlock ]* |
-#*#     statementList "}";
-#*#
-#*# parameterDeclarationRule =
-#*#     ParameterDeclarationToken "(" parameterDeclarationExpressionRule ")";
-#*#
-#*# parameterDeclarationExpressionRule = parameterWithIntializer [ CommaToken parameterWithIntializer ]*;
-#*#
-#*# parameterWithIntializer = simpleLvalue [ "="  expressionRule ];
-#*#
-#*# expressionRule = logicalExpressionRule;
-#*#
-#*# logicalExpressionRule = bitwiseExpressionRule
-#*#     [LogicalOperatorToken bitwiseExpressionRule]*;
-#*#
-#*# bitwiseExpressionRule = comparisonExpressionRule
-#*#     [ BitwiseOperatorToken comparisonExpressionRule ]*;
-#*#
-#*# comparisonExpressionRule = addExpressionRule
-#*#     [ ComparisonOperatorToken addExpressionRule ]*;
-#*#
-#*# addExpressionRule = multiplyExpressionRule
-#*#     [ AdditionOperatorToken multiplyExpressionRule ]*;
-#*#
-#*# multiplyExpressionRule = formatExpressionRule
-#*#     [ MultiplyOperatorToken formatExpressionRule ];
-#*#
-#*# formatExpressionRule = rangeExpressionRule
-#*#     [ FormatOperatorToken rangeExpressionRule ]*;
-#*#
-#*# rangeExpressionRule = arrayLiteralRule
-#*#     [ RangeOperatorToken arrayLiteralRule ]*;
-#*#
-#*# arrayLiteralRule = postfixOperatorRule [ CommaToken postfixOperatorRule ]*;
-#*#
-#*# postfixOperatorRule = lvalueExpression PrePostfixOperatorToken |
-#*#     propertyOrArrayReferenceRule;
-#*#
-#*# propertyOrArrayReferenceRule = valueRule propertyOrArrayReferenceOperator*;
-#*#
-#*# propertyOrArrayReferenceOperator = "[" expressionRule "]" ] |
-#*#     "." [
-#*#     PropertyNameToken parseCallRule? |
-#*#     valueRule
-#*#     ];
-#*#
-#*# parseCallRule = "(" arrayLiteralRule ")";
-#*#
-#*# valueRule =   "(" assignmentStatementRule ")" |
-#*#     "$(" statementListRule ")" |
-#*#     "@(" statementListRule ")" |
-#*#     cmdletBodyRule |
-#*#     "@{" hashLiteralRule "}";
-#*#
-#*# variableToken = <ps_identifier> | <ps_class> ;
-
-########### navigator ##########################################################
-
-########### colors ##########################################################
+########### colors #############################################################
 COLOR:ps_line_comment {
     default_coloring:"line_comment";
+    foreground_color:"0xB22222";
 }
 
-COLOR:ps_operator {
+COLOR:ps_prefix_postfix_operator {
     default_coloring:"operator";
     foreground_color:"gray";
+}
+
+COLOR:ps_format_operator {
+    default_coloring:"operator";
+    foreground_color:"gray";
+    font_type:"italic";
+}
+
+COLOR:ps_assignment_operator {
+    default_coloring:"operator";
+    foreground_color:"gray";
+}
+
+COLOR:ps_unary_operator {
+    default_coloring:"operator";
+    foreground_color:"gray";
+}
+
+COLOR:ps_additive_operator {
+    default_coloring:"operator";
+    foreground_color:"gray";
+}
+
+COLOR:ps_logical_operator {
+    default_coloring:"operator";
+    foreground_color:"gray";
+}
+
+COLOR:ps_bitwise_operator {
+    default_coloring:"operator";
+    foreground_color:"gray";
+}
+
+COLOR:ps_multiplicative_operator {
+    default_coloring:"operator";
+    foreground_color:"gray";
+}
+
+COLOR:ps_redirectiron_operator {
+    default_coloring:"operator";
+    foreground_color:"gray";
+}
+
+COLOR:ps_dereference_operator {
+    default_coloring:"operator";
+    foreground_color:"gray";
+}
+
+COLOR:ps_range_operator {
+    default_coloring:"operator";
+    foreground_color:"gray";
+}
+
+COLOR:ps_comparison_operator {
+    default_coloring:"operator";
+    foreground_color:"gray";
+}
+
+COLOR:ps_statement_separator {
+    default_coloring:"operator";
+    foreground_color:"0xB22222";
+    font_type:"bold";
 }
 
 COLOR:ps_separator {
     default_coloring:"operator";
-    foreground_color:"gray";
+    foreground_color:"0xB22222";
 }
 
 COLOR:ps_command {
     default_coloring:"keyword";
-    foreground_color:"gray";
-    font_type:"bold";
+    foreground_color:"0x1E7AAB";
 }
 
 COLOR:ps_keyword {
     default_coloring:"keyword";
-    foreground_color:"gray";
-    font_type:"bold";
+    foreground_color:"0x8BC9FF";
 }
 
 COLOR:ps_label {
@@ -476,17 +347,19 @@ COLOR:ps_label {
 
 COLOR:ps_expandable_string {
     default_coloring:"string";
+    foreground_color:"0xBC8F8F";
     font_type:"bold";
 }
 
 COLOR:ps_string {
     default_coloring:"string";
-    font_type:"italics";
+    foreground_color:"0x008080"; 
+    font_type:"bold-italics";
 }
 
 COLOR:ps_number {
     default_coloring:"number";
-    foreground_color:"red";
+    foreground_color:"red"; 
     font_type:"bold";
 }
 
@@ -513,3 +386,77 @@ COLOR:ps_class {
 COLOR:ps_identifier {
     default_coloring:"identifier";
 }
+
+# COLOR:ps_attribute_specification {
+#     default_coloring:"identifier";
+# }
+
+########### grammar ############################################################
+
+# SKIP:ps_whitespace
+# SKIP:ps_line_comment
+
+# statementListRule                   = statementRule ( PS_STATEMENTSEPARATOR_TOKEN statementRule )*;
+# statementBlockRule                  = '{' statementListRule '}';
+# statementRule                       = ifStatementRule | foreachStatementRule | forWhileStatementRule | doWhileStatementRule | functionDeclarationRule | parameterDeclarationRule | flowControlStatementRule | trapStatementRule | finallyStatementRule | pipelineRule;
+# pipelineRule                        = assignmentStatement | firstPipelineElement ( '|' cmdletCall )*;# assignmentStatementRule             = lvalueExpression PS_ASSIGNMENTOPERATOR_TOKEN pipelineRule;
+# lvalueExpression                    = lvalue;
+# lvalue                              = simpleLvalue propertyOrArrayReferenceOperator*;
+# simpleLvalue                        = PS_ATTRIBUTESPECIFICATION_TOKEN* PS_VARIABLE_TOKEN;
+# firstPipelineElement                = expressionRule | cmdletCall;
+# cmdletCall                          = [ '&' | '.' | empty ] [ name | expressionRule ] ( PS_PARAMETER_TOKEN | PS_PARAMETERARGUMENT_TOKEN | postfixOperatorRule | redirectionRule )*;
+# redirectionRule                     = PS_REDIRECTIONOPERATOR_TOKEN propertyOrArrayReferenceRule;
+# ifStatementRule                     = 'if' '(' pipelineRule ')' statementBlockRule  ( 'elseif' '(' pipelineRule ')' statementBlockRule )* [ 'else' statementBlockRule ];
+# foreachStatementRule                = (PS_LOOPLABEL_TOKEN)? 'foreach' '(' PS_VARIABLE_TOKEN  'in' pipelineRule ')' statementBlockRule;
+# forWhileStatementRule               = (PS_LOOPLABEL_TOKEN)? 'while' '(' pipelineRule ')' statementBlockRule | [ PS_LOOPLABEL_TOKEN ] 'for' '(' ( pipelineRule )? ';' ( pipelineRule)? ';' (pipelineRule)? ')' statementBlockRule;
+# doWhileStatementRule                = (PS_LOOPLABEL_TOKEN)? 'do' statementBlockRule ['while' | 'until'] '(' pipelineRule ')';
+# trapStatementRule                   = 'trap' PS_ATTRIBUTESPECIFICATION_TOKEN? statementBlockRule;
+# finallyStatementRule                = 'finally' statementBlockRule;
+# flowControlStatementRule            = ['break' | 'continue'] [ PS_PROPERTYNAME_TOKEN | propertyOrArrayReferenceRule] | 'return' pipelineRule;
+# functionDeclarationRule             = PS_FUNCTIONDECLARATION_TOKEN PS_PARAMETERARGUMENT_TOKEN [ '(' parameterDeclarationExpressionRule ')' ] cmdletBodyRule;
+# cmdletBodyRule                      =  '{' [ '(' parameterDeclarationExpressionRule ')' ] ( 'begin' statementBlock | 'process' statementBlock | 'end' statementBlock )* | statementList '}';
+# parameterDeclarationRule            = PS_PARAMETERDECLARATION_TOKEN '(' parameterDeclarationExpressionRule ')';
+# parameterDeclarationExpressionRule  = parameterWithIntializer ( PS_COMMA_TOKEN parameterWithIntializer )*;
+# parameterWithIntializer             = simpleLvalue [ '='  expressionRule ];
+# expressionRule                      = logicalExpressionRule;
+# logicalExpressionRule               = bitwiseExpressionRule ( PS_LOGICALOPERATOR_TOKEN bitwiseExpressionRule )*;
+# bitwiseExpressionRule               = comparisonExpressionRule ( PS_BITWISEOPERATOR_TOKEN comparisonExpressionRule )*;
+# comparisonExpressionRule            = addExpressionRule ( PS_COMPARISONOPERATOR_TOKEN addExpressionRule )*;
+# addExpressionRule                   = multiplyExpressionRule ( PS_ADDITIONOPERATOR_TOKEN multiplyExpressionRule )*;
+# multiplyExpressionRule              = formatExpressionRule [ PS_MULTIPLYOPERATOR_TOKEN formatExpressionRule ];
+# formatExpressionRule                = rangeExpressionRule ( PS_FORMATOPERATOR_TOKEN rangeExpressionRule )*;
+# rangeExpressionRule                 = arrayLiteralRule ( PS_RANGEOPERATOR_TOKEN arrayLiteralRule )*;
+# arrayLiteralRule                    = postfixOperatorRule ( PS_COMMA_TOKEN postfixOperatorRule )*;
+# postfixOperatorRule                 = lvalueExpression PS_PREPOSTFIXOPERATOR_TOKEN | propertyOrArrayReferenceRule;
+# propertyOrArrayReferenceRule        = valueRule propertyOrArrayReferenceOperator*;
+# propertyOrArrayReferenceOperator    = '[' expressionRule ']' [ | '.' [ PS_PROPERTYNAME_TOKEN (parseCallRule)? | valueRule ] ];
+# parseCallRule                       = '(' arrayLiteralRule ')';
+# valueRule                           = '(' (assignmentStatementRule ')' | '$(' statementListRule ')' | '@(' statementListRule ')' | cmdletBodyRule ) '}';
+
+########### folds ##############################################################
+
+# FOLD:cmdletBodyRule:"{...}"
+# FOLD:ps_line_comment:"{...}"
+
+
+########### marks ##############################################################
+
+#  MARK:ERROR {
+#      type:"Error";
+#      message:"Syntax error.";
+#  }
+
+#  MARK:error {
+#      type:"Error";
+#      message:"Unexpected character.";
+#  }
+
+########### navigation #########################################################
+
+########### indents ############################################################
+
+#  INDENT "(:)"
+#  INDENT "{:}"
+#  INDENT "[:]"
+#  INDENT "\\s*(((if|while)\\s*\\(|else\\s*|else\\s+if\\s*\\(|for\\s*\\(.*\\))[^{;]*)"
+
