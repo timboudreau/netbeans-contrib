@@ -56,7 +56,7 @@ import org.openide.modules.InstalledFileLocator;
 import org.openide.util.NbBundle;
 import org.netbeans.modules.apisupport.project.NbModuleProject;
 import org.netbeans.modules.apisupport.project.NbModuleProjectType;
-import org.netbeans.modules.apisupport.project.NbModuleTypeProvider;
+import org.netbeans.modules.apisupport.project.spi.NbModuleProvider;
 import org.netbeans.modules.apisupport.project.Util;
 import org.w3c.dom.Element;
 
@@ -160,14 +160,14 @@ public class XTestWizardIterator implements TemplateWizard.Iterator {
     }
     
     /** Returns type of project. It was copied from NbModuleProject. */
-    private static NbModuleTypeProvider.NbModuleType getModuleType(NbModuleProject nbProject) {
+    private static NbModuleProvider.NbModuleType getModuleType(NbModuleProject nbProject) {
         Element data = nbProject.getPrimaryConfigurationData();
         if (Util.findElement(data, "suite-component", NbModuleProjectType.NAMESPACE_SHARED) != null) { // NOI18N
-            return NbModuleTypeProvider.SUITE_COMPONENT;
+            return NbModuleProvider.SUITE_COMPONENT;
         } else if (Util.findElement(data, "standalone", NbModuleProjectType.NAMESPACE_SHARED) != null) { // NOI18N
-            return NbModuleTypeProvider.STANDALONE;
+            return NbModuleProvider.STANDALONE;
         } else {
-            return NbModuleTypeProvider.NETBEANS_ORG;
+            return NbModuleProvider.NETBEANS_ORG;
         }
     }
     
@@ -305,7 +305,7 @@ public class XTestWizardIterator implements TemplateWizard.Iterator {
         }
         if(project instanceof NbModuleProject) {
             NbModuleProject nbProject = (NbModuleProject)project;
-            if(getModuleType(nbProject).equals(NbModuleTypeProvider.NETBEANS_ORG)) {
+            if(getModuleType(nbProject).equals(NbModuleProvider.NETBEANS_ORG)) {
                 String relativePath = nbProject.getPathWithinNetBeansOrg();
                 String nbAllRelativePath = "../..";
                 int fromIndex = 0;
