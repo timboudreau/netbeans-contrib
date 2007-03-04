@@ -81,7 +81,7 @@ TOKEN:ps_comparison_operator: (
 
 TOKEN:ps_statement_separator: ( ";" | "&&" | "||" |  "|" )
 
-TOKEN:ps_separator: ( "{" | "}"  | "(" | ")" | "\\")
+TOKEN:ps_separator: ( "{" | "}"  | "(" | ")" | "\\" | "," )
 
 TOKEN:ps_command: (
     "Add-Content" 
