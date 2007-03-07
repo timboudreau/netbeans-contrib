@@ -69,7 +69,7 @@ public class JavaMembersNavigator implements NavigatorPanel {
 
     public JComponent getComponent(boolean create) {
         JPanel result = pnl == null ? null : pnl.get();
-        if (create && pnl == null) {
+        if (create && result == null) {
             result = createPanel();
             pnl = new SoftReference <JPanel> (result);
         }
