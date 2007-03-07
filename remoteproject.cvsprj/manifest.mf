@@ -1,0 +1,6 @@
+Manifest-Version: 1.0
+OpenIDE-Module: org.netbeans.modules.remoteproject.cvsprj
+OpenIDE-Module-Localizing-Bundle: org/netbeans/modules/remoteproject/cvsprj/Bundle.properties
+OpenIDE-Module-Provides: org.netbeans.modules.remoteproject.cvs
+OpenIDE-Module-Specification-Version: 1.0
+

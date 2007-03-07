@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE filesystem PUBLIC "-//NetBeans//DTD Filesystem 1.1//EN" "http://www.netbeans.org/dtds/filesystem-1_1.dtd">
+<filesystem>
+    <folder name="Templates">
+        <folder name="Project">
+            <folder name="RemoteProjects">
+                <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.remoteprojectdemo.Bundle"/>
+                <file name="Wizard.txt">
+                    <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/remoteprojectdemo/icon.png"/>
+                    <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.remoteprojectdemo.Bundle"/>
+                    <attr name="instantiatingIterator" methodvalue="org.netbeans.api.remoteproject.Factory.createIterator"/>
+                    <attr name="instantiatingWizardURL" urlvalue="nbresloc:/org/netbeans/modules/remoteprojectdemo/wizard.html"/>
+                    <attr name="template" boolvalue="true"/>
+                    <attr name="cvsroot" stringvalue="cvs.netbeans.org"/>
+                    <attr name="what" stringvalue="treefs"/>
+                    <attr name="system" stringvalue="cvs"/>
+                </file>
+            </folder>
+        </folder>
+    </folder>
+</filesystem>
