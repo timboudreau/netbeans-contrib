@@ -74,6 +74,8 @@ public class RunDialog extends javax.swing.JFrame {
         "test.inplace.JustifyAlignmentTest",
         "test.inplace.RequestFocusTest",
         "test.justify.JustifyTest",
+        "test.layout.FillLayoutWidgetTest",
+        "test.layout.MinMaxSerialLayoutTest",
         "test.list.ListTest",
         "test.listeners.ObjectSceneListenerTest",
         "test.lod.LevelOfDetailsTest",
