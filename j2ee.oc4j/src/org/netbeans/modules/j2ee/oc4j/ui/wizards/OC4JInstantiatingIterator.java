@@ -194,13 +194,17 @@ public class OC4JInstantiatingIterator implements WizardDescriptor.Instantiating
         }
     }
     
-    private String host = "localhost";
     private int httpPort;
     private int adminPort;
+    private String host;
     private String userName;
     private String password;
     private String oc4jHomeLocation;
     private String webSite;
+    
+    public void setHost(String host) {
+        this.host = host;
+    }
     
     public void setHttpPort(int httpPort) {
         this.httpPort = httpPort;

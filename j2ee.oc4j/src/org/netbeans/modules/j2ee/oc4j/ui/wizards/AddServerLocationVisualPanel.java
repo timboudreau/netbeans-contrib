@@ -28,7 +28,9 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
+import org.netbeans.modules.j2ee.oc4j.OC4JDeploymentFactory;
 import org.openide.util.NbBundle;
+import org.openide.util.NbPreferences;
 
 /**
  * @author pblaha
@@ -52,6 +54,15 @@ public class AddServerLocationVisualPanel extends javax.swing.JPanel {
                 fireChangeEvent();
             }                    
         });
+        
+        initData();
+    }
+    
+    private void initData() {
+        String root = NbPreferences.forModule(OC4JDeploymentFactory.class).get(OC4JDeploymentFactory.PROP_SERVER_ROOT, "");
+        
+        if (root.length() != 0)
+            oc4jHomeTextField.setText(root);
     }
     
     public String getOC4JHomeLocation() {

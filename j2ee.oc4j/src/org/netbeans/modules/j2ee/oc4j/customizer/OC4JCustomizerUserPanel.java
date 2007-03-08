@@ -58,6 +58,13 @@ public class OC4JCustomizerUserPanel extends javax.swing.JPanel {
             usersComboBox.addItem(item);
         }
         
+        if (OC4JPluginUtils.isLocalServer(ip)) {
+            usersComboBox.setEditable(false);
+        } else {
+            usersComboBox.addItem(ip.getProperty(InstanceProperties.USERNAME_ATTR));
+            usersComboBox.setEditable(true);
+        }
+        
         usersComboBox.setSelectedItem(ip.getProperty(InstanceProperties.USERNAME_ATTR));
     }
     

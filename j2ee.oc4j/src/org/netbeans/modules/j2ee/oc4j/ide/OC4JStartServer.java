@@ -73,7 +73,7 @@ public class OC4JStartServer extends StartServer implements ProgressObject {
     }
     
     public boolean supportsStartDebugging(Target target) {
-        return true;
+        return OC4JPluginUtils.isLocalServer(ip);
     }
     
     public InstanceProperties getInstanceProperties() {
@@ -139,7 +139,7 @@ public class OC4JStartServer extends StartServer implements ProgressObject {
     }
     
     public boolean supportsStartDeploymentManager() {
-        return true;
+        return OC4JPluginUtils.isLocalServer(ip);
     }
     
     public ProgressObject stopDeploymentManager() {
@@ -216,7 +216,7 @@ public class OC4JStartServer extends StartServer implements ProgressObject {
     }
     
     public boolean isStopSupported() {
-        return true;
+        return OC4JPluginUtils.isLocalServer(ip);
     }
     
     public void stop() throws OperationUnsupportedException {

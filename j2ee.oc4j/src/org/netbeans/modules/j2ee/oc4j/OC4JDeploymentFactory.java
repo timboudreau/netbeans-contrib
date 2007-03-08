@@ -25,6 +25,11 @@ import javax.enterprise.deploy.spi.exceptions.DeploymentManagerCreationException
 import javax.enterprise.deploy.spi.factories.DeploymentFactory;
 import org.openide.util.NbBundle;
 import java.util.HashMap;
+import org.netbeans.modules.j2ee.deployment.plugins.api.InstanceProperties;
+import org.netbeans.modules.j2ee.oc4j.util.OC4JDebug;
+import org.netbeans.modules.j2ee.oc4j.util.OC4JPluginProperties;
+import org.openide.ErrorManager;
+import org.openide.util.NbPreferences;
 
 /**
  *
@@ -32,44 +37,129 @@ import java.util.HashMap;
  */
 public class OC4JDeploymentFactory implements DeploymentFactory {
     
-    public static final String URI_PREFIX = "oc4j"; // NOI18N
-    private static DeploymentFactory instance;
-    private HashMap/*<String, DeploymentFactory*/ oc4jFactories = new HashMap();
+    /**
+     *  oc4j URI prefix
+     */
+    public static final String URI_PREFIX = "deployer:oc4j"; // NOI18N
     
-    public static synchronized DeploymentFactory create() {
-        if (instance == null) {
+    /**
+     * oc4j server root property
+     */
+    public static final String PROP_SERVER_ROOT = "oc4j_server_root"; // NOI18N
+    
+    private static OC4JDeploymentFactory instance;
+    
+    private HashMap<String, DeploymentFactory> factories = new HashMap<String, DeploymentFactory>();
+    private HashMap<String, DeploymentManager> managers = new HashMap<String, DeploymentManager>();
+    
+    /**
+     * Returns default instance of OC4JDeploymentFactory
+     *
+     * @return DeploymentFactory
+     */
+    public static synchronized DeploymentFactory getDefault() {
+        if (instance == null)
             instance = new OC4JDeploymentFactory();
-            DeploymentFactoryManager.getInstance().registerDeploymentFactory(instance);
-        }
+        
         return instance;
     }
     
+    /**
+     *
+     * @param uri
+     * @return
+     */
     public boolean handlesURI(String uri) {
         return uri != null && uri.startsWith(URI_PREFIX);
     }
     
+    /**
+     *
+     * @param uri
+     * @param uname
+     * @param passwd
+     * @return
+     * @throws javax.enterprise.deploy.spi.exceptions.DeploymentManagerCreationException
+     */
     public DeploymentManager getDeploymentManager(String uri, String uname, String passwd) throws DeploymentManagerCreationException {
-        if (!handlesURI(uri)) {
+        if (!handlesURI(uri))
             throw new DeploymentManagerCreationException("Invalid URI:" + uri); // NOI18N
+        
+        DeploymentManager manager = managers.get(uri);
+        
+        if (null == manager) {
+            manager = new OC4JDeploymentManager(uri);
+            managers.put(uri, manager);
         }
         
-        return new OC4JDeploymentManager(uri, uname, passwd);
-        
+        return manager;
     }
     
+    /**
+     *
+     * @param uri
+     * @return
+     * @throws javax.enterprise.deploy.spi.exceptions.DeploymentManagerCreationException
+     */
     public DeploymentManager getDisconnectedDeploymentManager(String uri) throws DeploymentManagerCreationException {
-        if (!handlesURI(uri)) {
-            throw new DeploymentManagerCreationException("Invalid URI:" + uri); // NOI18N
-        }
-        return new OC4JDeploymentManager(uri, null, null);
+        return getDeploymentManager(uri, null, null);
+    }
+    
+    public DeploymentFactory getOC4JDeploymentFactory(String uri) {
+        if (OC4JDebug.isEnabled())
+            System.out.println("loadDeploymentFactory");
         
+        DeploymentFactory factory = factories.get(uri);
+        
+        if (null == factory) {
+            InstanceProperties ip = InstanceProperties.getInstanceProperties(uri);
+            
+            String serverRoot = null;
+            
+            if (null != ip)
+                serverRoot = ip.getProperty(OC4JPluginProperties.PROPERTY_OC4J_HOME);
+            
+            if (null == serverRoot)
+                serverRoot = NbPreferences.forModule(OC4JDeploymentFactory.class).get(PROP_SERVER_ROOT, "");
+            
+            if (OC4JDebug.isEnabled())
+                System.out.println("loadDeplomentFactory: serverRoot=" + serverRoot);
+
+            OC4JClassLoader.getInstance(serverRoot).updateLoader();
+            
+            try {
+                factory = (DeploymentFactory) OC4JClassLoader.getInstance(serverRoot).loadClass(
+                        "oracle.oc4j.admin.deploy.spi.factories.Oc4jDeploymentFactory"). // NOI18N
+                        newInstance();
+            } catch (ClassNotFoundException e) {
+                ErrorManager.getDefault().notify(ErrorManager.ERROR, e);
+            } catch (InstantiationException e) {
+                ErrorManager.getDefault().notify(ErrorManager.ERROR, e);
+            } catch (IllegalAccessException e) {
+                ErrorManager.getDefault().notify(ErrorManager.ERROR, e);
+            } finally {
+                OC4JClassLoader.getInstance(serverRoot).restoreLoader();
+            }
+            
+            factories.put(uri, factory);
+        }
+        
+        return factory;
     }
     
+    /**
+     *
+     * @return
+     */
     public String getProductVersion() {
-        return "0.1"; // NOI18N
+        return "0.2"; // NOI18N
     }
     
+    /**
+     *
+     * @return
+     */
     public String getDisplayName() {
         return NbBundle.getMessage(OC4JDeploymentFactory.class, "TXT_DisplayName"); // NOI18N
-    } 
+    }
 }

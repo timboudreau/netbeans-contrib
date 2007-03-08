@@ -6,7 +6,7 @@
             <folder name="OC4J">
                 <file name="Descriptor" url="nbdep.xml"/>
                 <file name="Factory.instance">
-                    <attr name="instanceCreate" methodvalue="org.netbeans.modules.j2ee.oc4j.OC4JDeploymentFactory.create"/>
+                    <attr name="instanceCreate" methodvalue="org.netbeans.modules.j2ee.oc4j.OC4JDeploymentFactory.getDefault"/>
                     <attr name="instanceClass" stringvalue="org.netbeans.modules.j2ee.oc4j.OC4JDeploymentFactory"/>
                     <attr name="instanceOf" stringvalue="javax.enterprise.deploy.spi.factories.DeploymentFactory"/>
                 </file>

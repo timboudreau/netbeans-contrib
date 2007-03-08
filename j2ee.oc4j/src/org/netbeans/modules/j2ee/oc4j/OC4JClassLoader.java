@@ -37,10 +37,16 @@ public class OC4JClassLoader extends URLClassLoader {
     
     private ClassLoader oldLoader;
     private String serverRoot;
-    private static Map instances = new HashMap();
     
+    private static Map<String, OC4JClassLoader> instances = new HashMap<String, OC4JClassLoader>();
+    
+    /**
+     * 
+     * @param serverRoot 
+     * @return 
+     */
     public static OC4JClassLoader getInstance(String serverRoot) {
-        OC4JClassLoader instance = (OC4JClassLoader) instances.get(serverRoot);
+        OC4JClassLoader instance = instances.get(serverRoot);
         if (instance == null) {
             instance = new OC4JClassLoader(serverRoot);
             instances.put(serverRoot, instance);
@@ -56,10 +62,33 @@ public class OC4JClassLoader extends URLClassLoader {
         try{
             URL[] urls = new URL[] {
                 new File(serverRoot + "/j2ee/home/lib/adminclient.jar").toURI().toURL(),             // NOI18N
+                new File(serverRoot + "/j2ee/home/oc4jclient.jar").toURI().toURL(),             // NOI18N
+                new File(serverRoot + "/webservices/lib/wsserver.jar").toURI().toURL(),                   // NOI18N
                 new File(serverRoot + "/j2ee/home/lib/ejb.jar").toURI().toURL(),                   // NOI18N
-                new File(serverRoot + "/j2ee/home/lib/javax77.jar").toURI().toURL(),                   // NOI18N
-                new File(serverRoot + "/j2ee/home/lib/javax88.jar").toURI().toURL(),                   // NOI18N
-                new File(serverRoot + "/j2ee/home/lib/oc4j-internal.jar").toURI().toURL()           // NOI18N
+                new File(serverRoot + "/j2ee/home/lib/mx4j-jmx.jar").toURI().toURL(),                   // NOI18N
+                new File(serverRoot + "/j2ee/home/lib/jmxri.jar").toURI().toURL(),           // NOI18N
+                new File(serverRoot + "/j2ee/home/lib/jmx_remote_api.jar").toURI().toURL(),           // NOI18N
+                new File(serverRoot + "/j2ee/home/lib/jaas.jar").toURI().toURL(),           // NOI18N
+                new File(serverRoot + "/lib/xmlparserv2.jar").toURI().toURL(),           // NOI18N
+                new File(serverRoot + "/oracle/lib/xmlparserv2.jar").toURI().toURL(),           // NOI18N
+                new File(serverRoot + "/j2ee/home/lib/javax77.jar").toURI().toURL(),           // NOI18N
+                new File(serverRoot + "/j2ee/home/lib/javax88.jar").toURI().toURL(),           // NOI18N
+                new File(serverRoot + "/diagnostics/lib/ojdl.jar").toURI().toURL(),           // NOI18N
+                new File(serverRoot + "/oracle/lib/dms.jar").toURI().toURL(),           // NOI18N
+                new File(serverRoot + "/oracle/jlib/dms.jar").toURI().toURL(),           // NOI18N
+                new File(serverRoot + "/lib/dms.jar").toURI().toURL(),           // NOI18N
+                new File(serverRoot + "/jlib/dms.jar").toURI().toURL(),           // NOI18N
+                new File(serverRoot + "/j2ee/home/lib/jta.jar").toURI().toURL(),        // NOI18N
+                new File(serverRoot + "/j2ee/home/lib/jms.jar").toURI().toURL(),        // NOI18N
+                new File(serverRoot + "/j2ee/home/lib/connector.jar").toURI().toURL(),        // NOI18N
+                new File(serverRoot + "/opmn/lib/optic.jar").toURI().toURL(),        // NOI18N
+                new File(serverRoot + "/oracle/jlib/oraclepki.jar").toURI().toURL(),        // NOI18N
+                new File(serverRoot + "/jlib/oraclepki.jar").toURI().toURL(),        // NOI18N
+                new File(serverRoot + "/oracle/jlib/ojpse.jar").toURI().toURL(),
+                new File(serverRoot + "/oracle/jdbc/lib/ojdbc14d ms.jar").toURI().toURL(),        // NOI18N// NOI18N
+                new File(serverRoot + "/oracle/jdbc/lib/ocrs12.jar").toURI().toURL(),        // NOI18N
+                new File(serverRoot + "/oracle/rdbms/jlib/aqapi.jar").toURI().toURL(),        // NOI18N                
+                new File(serverRoot + "/jlib/ojpse.jar").toURI().toURL()           // NOI18N
             };
             for (int i = 0; i < urls.length; i++) {
                 addURL(urls[i]);
@@ -78,14 +107,14 @@ public class OC4JClassLoader extends URLClassLoader {
         return super.getResources(name);
     }
     
-    public void updateLoader() {
+    public synchronized void updateLoader() {
         if (!Thread.currentThread().getContextClassLoader().equals(this)) {
             oldLoader = Thread.currentThread().getContextClassLoader();
             Thread.currentThread().setContextClassLoader(this);
         }
     }
     
-    public void restoreLoader() {
+    public synchronized void restoreLoader() {
         if (oldLoader != null) {
             Thread.currentThread().setContextClassLoader(oldLoader);
             oldLoader = null;

@@ -53,7 +53,6 @@ import javax.management.MBeanServerConnection;
 import javax.management.remote.JMXConnector;
 import javax.management.remote.JMXConnectorFactory;
 import javax.management.remote.JMXServiceURL;
-import javax.swing.JOptionPane;
 import org.netbeans.api.java.classpath.ClassPath;
 import org.netbeans.modules.j2ee.dd.api.application.Application;
 import org.netbeans.modules.j2ee.dd.api.application.DDProvider;
@@ -66,7 +65,6 @@ import org.netbeans.modules.j2ee.oc4j.config.gen.OrionWebApp;
 import org.netbeans.modules.j2ee.oc4j.ide.OC4JDeploymentStatus;
 import org.netbeans.modules.j2ee.oc4j.ide.OC4JErrorManager;
 import org.netbeans.modules.j2ee.oc4j.ide.OC4JJ2eePlatformImpl;
-import org.netbeans.modules.j2ee.oc4j.ide.OC4JLogger;
 import org.netbeans.modules.j2ee.oc4j.util.OC4JPluginProperties;
 import org.netbeans.modules.j2ee.oc4j.util.OC4JDebug;
 import org.netbeans.modules.j2ee.oc4j.util.OC4JPluginUtils;
@@ -83,43 +81,76 @@ import org.openide.util.RequestProcessor;
  * @author pblaha
  */
 public class OC4JDeploymentManager implements DeploymentManager, ProgressObject, Runnable {
-    static enum COMMAND { DEPLOY, START }
-    static final String URI_PREFIX = "deployer:"; // NOI18N
+    
+    private static enum COMMAND { DEPLOY, START }
     
     private String uri;
-    private String uname;
-    private String passwd;
+    
+    private Object oc4jPropDm;
+    private DeploymentManager oc4jDm;
     private OC4JPluginProperties ip;
-    private DeploymentFactory dmF;
-    private DeploymentManager dm;
-    private Object oc4jDM;
-    private OC4JClassLoader loader;
-    private boolean isConnected;
-    private Vector listeners = new Vector();
-    private DeploymentStatus deploymentStatus;
-    private OC4JTargetModuleID module_id;
-    private File file;
-    private TargetModuleID[] modules;
-    private COMMAND command;
-    private MBeanServerConnection jmxConnection;
     private InstanceProperties instanceProperties;
     private OC4JJ2eePlatformImpl oc4jPlatform;
     
-    public OC4JDeploymentManager(String uri, String uname, String passwd) {
+    private OC4JTargetModuleID module_id;
+    private MBeanServerConnection jmxConnection;
+    private Vector listeners = new Vector();
+    private TargetModuleID[] modules;
+    private DeploymentStatus deploymentStatus;
+    private File file;
+    private COMMAND command;
+    private boolean connected = false;
+    
+    /**
+     * Creates an instance of OC4JDeploymentManager
+     *
+     * @param uri uri of the oc4j server
+     */
+    public OC4JDeploymentManager(String uri) {
         this.uri = uri;
-        this.uname = uname;
-        this.passwd = passwd;
+        
         ip = new OC4JPluginProperties(this);
     }
     
+    /**
+     * Return URI
+     *
+     * @return uri of the oc4j server
+     */
     public String getUri() {
         return uri;
     }
     
+    /**
+     *
+     * @return
+     */
+    public String getUsername() {
+        return getInstanceProperties().getProperty(InstanceProperties.USERNAME_ATTR);
+    }
+    
+    /**
+     *
+     * @return
+     */
+    public String getPassword() {
+        return getInstanceProperties().getProperty(InstanceProperties.PASSWORD_ATTR);
+    }
+    
+    /**
+     * Returns OC4JPluginProperties
+     *
+     * @return OC4JPluginProperties
+     */
     public OC4JPluginProperties getProperties() {
         return ip;
     }
     
+    /**
+     * Returns InstanceProperties
+     *
+     * @return InstanceProperties
+     */
     public InstanceProperties getInstanceProperties() {
         if (instanceProperties == null)
             instanceProperties = InstanceProperties.getInstanceProperties(getUri());
@@ -127,8 +158,18 @@ public class OC4JDeploymentManager implements DeploymentManager, ProgressObject,
         return instanceProperties;
     }
     
+    /**
+     * Distributes application into the server
+     *
+     * @param target server target
+     * @param file distributed file
+     * @param file2 deployment descriptor
+     * @return ProgressObject
+     * @throws java.lang.IllegalStateException
+     */
     public ProgressObject distribute(Target[] target, File file, File file2) throws IllegalStateException {
-        loadOC4JDeploymentManager();
+        // release proprietary objects
+        releaseProprietaryObjects();
         
         module_id = new OC4JTargetModuleID(target[0], file.getName());
         this.file = file;
@@ -168,11 +209,27 @@ public class OC4JDeploymentManager implements DeploymentManager, ProgressObject,
         return this;
     }
     
+    /**
+     * Distributes application into the server
+     *
+     * @param target server target
+     * @param type type of the module
+     * @param inputStream application file input stream
+     * @param inputStream2 deployment descriptor input stream
+     * @return ProgressObject
+     * @throws java.lang.IllegalStateException
+     */
     public ProgressObject distribute(Target[] target, ModuleType type,
             InputStream inputStream, InputStream inputStream2) throws IllegalStateException {
         return distribute(target, inputStream, inputStream2);
     }
     
+    /**
+     *
+     * @param deployableObject
+     * @return
+     * @throws javax.enterprise.deploy.spi.exceptions.InvalidModuleException
+     */
     public DeploymentConfiguration createConfiguration(DeployableObject deployableObject) throws InvalidModuleException {
         ModuleType type = deployableObject.getType();
         if (type == ModuleType.WAR) {
@@ -187,93 +244,153 @@ public class OC4JDeploymentManager implements DeploymentManager, ProgressObject,
         
     }
     
+    /**
+     *
+     * @param targetModuleID
+     * @param inputStream
+     * @param inputStream2
+     * @return
+     * @throws java.lang.UnsupportedOperationException
+     * @throws java.lang.IllegalStateException
+     */
     public ProgressObject redeploy(TargetModuleID[] targetModuleID, InputStream inputStream, InputStream inputStream2) throws UnsupportedOperationException, IllegalStateException {
-        updateDeploymentManager();
-        
-        if (!isConnected) {
+        if (!isConnected()) {
             throw new IllegalStateException(NbBundle.getMessage(
                     OC4JDeploymentManager.class, "MSG_ERROR_DISC_MANAGER"));   // NOI18N
         }
         
-        loader.updateLoader();
+        // release proprietary objects
+        releaseProprietaryObjects();
+        
+        DeploymentManager manager = getOC4JDeploymentManager();
+        
+        OC4JClassLoader.getInstance(getProperties().getOC4JHomeLocation()).updateLoader();
         
         try {
-            return dm.redeploy(targetModuleID, inputStream, inputStream2);
+            return manager.redeploy(targetModuleID, inputStream, inputStream2);
         } finally {
-            loader.restoreLoader();
+            OC4JClassLoader.getInstance(getProperties().getOC4JHomeLocation()).restoreLoader();
         }
     }
     
+    /**
+     *
+     * @param target
+     * @param inputStream
+     * @param inputStream2
+     * @return
+     * @throws java.lang.IllegalStateException
+     */
     public ProgressObject distribute(Target[] target, InputStream inputStream, InputStream inputStream2) throws IllegalStateException {
-        updateDeploymentManager();
-        
-        if (!isConnected) {
+        if (!isConnected()) {
             throw new IllegalStateException(NbBundle.getMessage(
                     OC4JDeploymentManager.class, "MSG_ERROR_DISC_MANAGER"));   // NOI18N
         }
         
-        loader.updateLoader();
+        // release proprietary objects
+        releaseProprietaryObjects();
+        
+        DeploymentManager manager = getOC4JDeploymentManager();
+        
+        OC4JClassLoader.getInstance(getProperties().getOC4JHomeLocation()).updateLoader();
         
         try {
-            return dm.distribute(target, inputStream, inputStream2);
+            return manager.distribute(target, inputStream, inputStream2);
         } finally {
-            loader.restoreLoader();
+            OC4JClassLoader.getInstance(getProperties().getOC4JHomeLocation()).restoreLoader();
         }
     }
     
+    /**
+     *
+     * @param targetModuleID
+     * @return
+     * @throws java.lang.IllegalStateException
+     */
     public ProgressObject undeploy(TargetModuleID[] targetModuleID) throws IllegalStateException {
-        updateDeploymentManager();
-        
-        if (!isConnected) {
+        if (!isConnected()) {
             throw new IllegalStateException(NbBundle.getMessage(
                     OC4JDeploymentManager.class, "MSG_ERROR_DISC_MANAGER"));   // NOI18N
         }
         
-        loader.updateLoader();
+        // release proprietary objects
+        releaseProprietaryObjects();
+        
+        DeploymentManager manager = getOC4JDeploymentManager();
+        
+        OC4JClassLoader.getInstance(getProperties().getOC4JHomeLocation()).updateLoader();
         
         try {
-            return dm.undeploy(targetModuleID);
+            return manager.undeploy(targetModuleID);
         } finally {
-            loader.restoreLoader();
+            OC4JClassLoader.getInstance(getProperties().getOC4JHomeLocation()).restoreLoader();
         }
     }
     
+    /**
+     *
+     * @param targetModuleID
+     * @param file
+     * @param file2
+     * @return
+     * @throws java.lang.UnsupportedOperationException
+     * @throws java.lang.IllegalStateException
+     */
     public ProgressObject redeploy(TargetModuleID[] targetModuleID, File file, File file2) throws UnsupportedOperationException, IllegalStateException {
-        updateDeploymentManager();
-        
-        if (!isConnected) {
+        if (!isConnected()) {
             throw new IllegalStateException(NbBundle.getMessage(
                     OC4JDeploymentManager.class, "MSG_ERROR_DISC_MANAGER"));   // NOI18N
         }
         
-        loader.updateLoader();
+        // release proprietary objects
+        releaseProprietaryObjects();
+        
+        DeploymentManager manager = getOC4JDeploymentManager();
+        
+        OC4JClassLoader.getInstance(getProperties().getOC4JHomeLocation()).updateLoader();
         
         try {
-            return dm.redeploy(targetModuleID, file, file2);
+            return manager.redeploy(targetModuleID, file, file2);
         } finally {
-            loader.restoreLoader();
+            OC4JClassLoader.getInstance(getProperties().getOC4JHomeLocation()).restoreLoader();
         }
     }
     
+    /**
+     *
+     * @param targetModuleID
+     * @return
+     * @throws java.lang.IllegalStateException
+     */
     public ProgressObject stop(TargetModuleID[] targetModuleID) throws IllegalStateException {
-        updateDeploymentManager();
-        
-        if (!isConnected) {
+        if (!isConnected()) {
             throw new IllegalStateException(NbBundle.getMessage(
                     OC4JDeploymentManager.class, "MSG_ERROR_DISC_MANAGER"));   // NOI18N
         }
         
-        loader.updateLoader();
+        // release proprietary objects
+        releaseProprietaryObjects();
+        
+        DeploymentManager manager = getOC4JDeploymentManager();
+        
+        OC4JClassLoader.getInstance(getProperties().getOC4JHomeLocation()).updateLoader();
         
         try {
-            return dm.stop(targetModuleID);
+            return manager.stop(targetModuleID);
         } finally {
-            loader.restoreLoader();
+            OC4JClassLoader.getInstance(getProperties().getOC4JHomeLocation()).restoreLoader();
         }
     }
     
+    /**
+     *
+     * @param targetModuleID
+     * @return
+     * @throws java.lang.IllegalStateException
+     */
     public ProgressObject start(TargetModuleID[] targetModuleID) throws IllegalStateException {
-        loadOC4JDeploymentManager();
+        // release proprietary objects
+        releaseProprietaryObjects();
         
         modules = targetModuleID;
         command = COMMAND.START;
@@ -283,180 +400,252 @@ public class OC4JDeploymentManager implements DeploymentManager, ProgressObject,
         return this;
     }
     
+    /**
+     *
+     * @param locale
+     * @throws java.lang.UnsupportedOperationException
+     */
     public void setLocale(java.util.Locale locale) throws UnsupportedOperationException {
-        updateDeploymentManager();
-        
-        dm.setLocale(locale);
+        getOC4JDeploymentManager().setLocale(locale);
     }
     
+    /**
+     *
+     * @param locale
+     * @return
+     */
     public boolean isLocaleSupported(java.util.Locale locale) {
-        updateDeploymentManager();
-        
-        return dm.isLocaleSupported(locale);
+        return getOC4JDeploymentManager().isLocaleSupported(locale);
     }
     
+    /**
+     *
+     * @param moduleType
+     * @param target
+     * @return
+     * @throws javax.enterprise.deploy.spi.exceptions.TargetException
+     * @throws java.lang.IllegalStateException
+     */
     public TargetModuleID[] getAvailableModules(ModuleType moduleType, Target[] target) throws TargetException, IllegalStateException {
-        updateDeploymentManager();
-        
-        return dm.getAvailableModules(moduleType, target);
-    }
-    
-    public TargetModuleID[] getNonRunningModules(ModuleType moduleType, Target[] target) throws TargetException, IllegalStateException {
-        updateDeploymentManager();
-        
-        return dm.getNonRunningModules(moduleType, target);
-    }
-    
-    public TargetModuleID[] getRunningModules(ModuleType moduleType, Target[] target) throws TargetException, IllegalStateException {
-        updateDeploymentManager();
-        
-        if (!isConnected) {
+        if (!isConnected()) {
             throw new IllegalStateException(NbBundle.getMessage(
                     OC4JDeploymentManager.class, "MSG_ERROR_DISC_MANAGER"));   // NOI18N
         }
         
-        loader.updateLoader();
+        // release proprietary objects
+        releaseProprietaryObjects();
+        
+        DeploymentManager manager = getOC4JDeploymentManager();
+        
+        OC4JClassLoader.getInstance(getProperties().getOC4JHomeLocation()).updateLoader();
         
         try {
-            return dm.getRunningModules(moduleType, target);
+            return manager.getAvailableModules(moduleType, target);
         } finally {
-            loader.restoreLoader();
-        }
-    }
-    
-    public void setDConfigBeanVersion(DConfigBeanVersionType dConfigBeanVersionType) throws DConfigBeanVersionUnsupportedException {
-        updateDeploymentManager();
-        
-        dm.setDConfigBeanVersion(dConfigBeanVersionType);
-    }
-    
-    public boolean isDConfigBeanVersionSupported(DConfigBeanVersionType dConfigBeanVersionType) {
-        updateDeploymentManager();
-        
-        return dm.isDConfigBeanVersionSupported(dConfigBeanVersionType);
-    }
-    
-    public void release() {
-        if(dm != null) {
-            dm.release();
-        }
-    }
-    
-    public boolean isRedeploySupported() {
-        updateDeploymentManager();
-        
-        return dm.isRedeploySupported();
-    }
-    
-    public java.util.Locale getCurrentLocale() {
-        updateDeploymentManager();
-        
-        return dm.getCurrentLocale();
-    }
-    
-    public DConfigBeanVersionType getDConfigBeanVersion() {
-        updateDeploymentManager();
-        
-        return dm.getDConfigBeanVersion();
-    }
-    
-    public java.util.Locale getDefaultLocale() {
-        updateDeploymentManager();
-        
-        return dm.getDefaultLocale();
-    }
-    
-    public java.util.Locale[] getSupportedLocales() {
-        updateDeploymentManager();
-        
-        return dm.getSupportedLocales();
-    }
-    
-    public Target[] getTargets() {
-        updateDeploymentManager();
-        
-        OC4JDebug.log(getClass().getName(), "getTargets for Deployment Maneger");
-        try{
-            return dm.getTargets();
-        } catch(Throwable e) {
-            
-        }
-        return null;
-    }
-    
-    private void loadDeploymentFactory() {
-        if (OC4JDebug.isEnabled()) {
-            System.out.println("loadDeploymentFactory");
-        }
-        String serverRoot = ip.getInstanceProperties().getProperty(OC4JPluginProperties.PROPERTY_OC4J_HOME);
-        if (dmF == null && serverRoot != null) {
-            loader = OC4JClassLoader.getInstance(serverRoot);
-            if (OC4JDebug.isEnabled()) {
-                System.out.println("loadDeplomentFactory: serverRoot=" + serverRoot);
-            }
-            loader.updateLoader();
-            
-            try {
-                dmF = (DeploymentFactory) loader.loadClass(
-                        "oracle.oc4j.admin.deploy.spi.factories.Oc4jDeploymentFactory"). // NOI18N
-                        newInstance();
-            } catch (ClassNotFoundException e) {
-                ErrorManager.getDefault().notify(ErrorManager.ERROR, e);
-            } catch (InstantiationException e) {
-                ErrorManager.getDefault().notify(ErrorManager.ERROR, e);
-            } catch (IllegalAccessException e) {
-                ErrorManager.getDefault().notify(ErrorManager.ERROR, e);
-            } finally {
-                loader.restoreLoader();
-            }
-        }
-    }
-    
-    private void updateDeploymentManager() {
-        loadDeploymentFactory();
-        
-        if(loader != null) {
-            loader.updateLoader();
-            try {
-                if (dm != null) {
-                    dm.release();
-                }
-                if(!OC4JPluginProperties.isRunning(getInstanceProperties().getProperty(OC4JPluginProperties.PROPERTY_HOST),
-                        getInstanceProperties().getProperty(InstanceProperties.HTTP_PORT_NUMBER)))
-                    throw new DeploymentManagerCreationException("Server is OFF");
-                dm = dmF.getDeploymentManager(URI_PREFIX + uri, uname, passwd);
-                isConnected = true;
-            } catch (Exception e) {
-                OC4JErrorManager.getInstance(this).error(uri, e, OC4JErrorManager.GENERIC_FAILURE);
-                
-                isConnected = false;
-                
-                try {
-                    dm = dmF.getDisconnectedDeploymentManager(uri);
-                } catch (DeploymentManagerCreationException ex) {
-                    ErrorManager.getDefault().notify(ErrorManager.ERROR, ex);
-                }
-            } finally {
-                loader.restoreLoader();
-            }
+            OC4JClassLoader.getInstance(getProperties().getOC4JHomeLocation()).restoreLoader();
         }
     }
     
     /**
-     *  Loads proprietary deployment manager
+     *
+     * @param moduleType
+     * @param target
+     * @return
+     * @throws javax.enterprise.deploy.spi.exceptions.TargetException
+     * @throws java.lang.IllegalStateException
      */
-    private void loadOC4JDeploymentManager() {
-        String serverRoot = null;
-        serverRoot = ip.getInstanceProperties().getProperty(OC4JPluginProperties.PROPERTY_OC4J_HOME);
-        if (oc4jDM == null && serverRoot != null) {
-            loader = OC4JClassLoader.getInstance(serverRoot);
-            loader.updateLoader();
+    public TargetModuleID[] getNonRunningModules(ModuleType moduleType, Target[] target) throws TargetException, IllegalStateException {
+        if (!isConnected()) {
+            throw new IllegalStateException(NbBundle.getMessage(
+                    OC4JDeploymentManager.class, "MSG_ERROR_DISC_MANAGER"));   // NOI18N
+        }
+        
+        // release proprietary objects
+        releaseProprietaryObjects();
+        
+        DeploymentManager manager = getOC4JDeploymentManager();
+        
+        OC4JClassLoader.getInstance(getProperties().getOC4JHomeLocation()).updateLoader();
+        
+        try {
+            return manager.getNonRunningModules(moduleType, target);
+        } finally {
+            OC4JClassLoader.getInstance(getProperties().getOC4JHomeLocation()).restoreLoader();
+        }
+    }
+    
+    /**
+     *
+     * @param moduleType
+     * @param target
+     * @return
+     * @throws javax.enterprise.deploy.spi.exceptions.TargetException
+     * @throws java.lang.IllegalStateException
+     */
+    public TargetModuleID[] getRunningModules(ModuleType moduleType, Target[] target) throws TargetException, IllegalStateException {
+        if (!isConnected()) {
+            throw new IllegalStateException(NbBundle.getMessage(
+                    OC4JDeploymentManager.class, "MSG_ERROR_DISC_MANAGER"));   // NOI18N
+        }
+        
+        // release proprietary objects
+        releaseProprietaryObjects();
+        
+        DeploymentManager manager = getOC4JDeploymentManager();
+        
+        OC4JClassLoader.getInstance(getProperties().getOC4JHomeLocation()).updateLoader();
+        
+        try {
+            return manager.getRunningModules(moduleType, target);
+        } finally {
+            OC4JClassLoader.getInstance(getProperties().getOC4JHomeLocation()).restoreLoader();
+        }
+    }
+    
+    /**
+     *
+     * @param dConfigBeanVersionType
+     * @throws javax.enterprise.deploy.spi.exceptions.DConfigBeanVersionUnsupportedException
+     */
+    public void setDConfigBeanVersion(DConfigBeanVersionType dConfigBeanVersionType) throws DConfigBeanVersionUnsupportedException {
+        getOC4JDeploymentManager().setDConfigBeanVersion(dConfigBeanVersionType);
+    }
+    
+    /**
+     *
+     * @param dConfigBeanVersionType
+     * @return
+     */
+    public boolean isDConfigBeanVersionSupported(DConfigBeanVersionType dConfigBeanVersionType) {
+        return getOC4JDeploymentManager().isDConfigBeanVersionSupported(dConfigBeanVersionType);
+    }
+    
+    /**
+     *
+     * @param connected
+     */
+    public void setConnected(boolean connected) {
+        this.connected = connected;
+    }
+    
+    /**
+     *
+     * @return
+     */
+    public boolean isConnected() {
+        return connected;
+    }
+    
+    /**
+     *
+     */
+    public void release() {
+        releaseProprietaryObjects();
+    }
+    
+    /**
+     *
+     * @return
+     */
+    public boolean isRedeploySupported() {
+        return getOC4JDeploymentManager().isRedeploySupported();
+    }
+    
+    /**
+     *
+     * @return
+     */
+    public java.util.Locale getCurrentLocale() {
+        return getOC4JDeploymentManager().getCurrentLocale();
+    }
+    
+    /**
+     *
+     * @return
+     */
+    public DConfigBeanVersionType getDConfigBeanVersion() {
+        return getOC4JDeploymentManager().getDConfigBeanVersion();
+    }
+    
+    /**
+     *
+     * @return
+     */
+    public java.util.Locale getDefaultLocale() {
+        return getOC4JDeploymentManager().getDefaultLocale();
+    }
+    
+    /**
+     *
+     * @return
+     */
+    public java.util.Locale[] getSupportedLocales() {
+        return getOC4JDeploymentManager().getSupportedLocales();
+    }
+    
+    /**
+     *
+     * @return
+     */
+    public Target[] getTargets() {
+        OC4JDebug.log(getClass().getName(), "getTargets for Deployment Maneger");
+        
+        // release proprietary objects
+        releaseProprietaryObjects();
+        
+        try{
+            return getOC4JDeploymentManager().getTargets();
+        } catch(Exception e) {
+            OC4JErrorManager.getInstance(this).error(uri, e, OC4JErrorManager.GENERIC_FAILURE);
+        }
+        
+        return null;
+    }
+    
+    /**
+     *  Gets deployment manager
+     */
+    private synchronized DeploymentManager getOC4JDeploymentManager() {
+        if (null == oc4jDm) {
+            OC4JDeploymentFactory factory = (OC4JDeploymentFactory) OC4JDeploymentFactory.getDefault();
+            
             try {
-                Class cls = loader.loadClass("oracle.oc4j.admin.deploy.api.J2EEDeploymentManager");
+                if(!OC4JPluginProperties.isRunning(getInstanceProperties().getProperty(OC4JPluginProperties.PROPERTY_HOST), getInstanceProperties().getProperty(InstanceProperties.HTTP_PORT_NUMBER)))
+                    throw new DeploymentManagerCreationException(uri);
+                
+                DeploymentFactory propFactory = factory.getOC4JDeploymentFactory(uri);
+                
+                OC4JClassLoader.getInstance(getProperties().getOC4JHomeLocation()).updateLoader();
+                
+                oc4jDm = propFactory.getDeploymentManager(uri, getUsername(), getPassword());
+                
+                setConnected(true);
+            } catch (Exception e) {
+                OC4JErrorManager.getInstance(this).error(uri, e, OC4JErrorManager.GENERIC_FAILURE);
+                
+                setConnected(false);
+            } finally {
+                OC4JClassLoader.getInstance(getProperties().getOC4JHomeLocation()).restoreLoader();
+            }
+        }
+        
+        return oc4jDm;
+    }
+    
+    /**
+     *  Gets proprietary deployment manager
+     */
+    private synchronized Object getOC4JProprietaryDeploymentManager() {
+        if (null == oc4jPropDm) {
+            OC4JClassLoader.getInstance(getProperties().getOC4JHomeLocation()).updateLoader();
+            
+            try {
+                Class cls =  OC4JClassLoader.getInstance(getProperties().getOC4JHomeLocation()).
+                        loadClass("oracle.oc4j.admin.deploy.api.J2EEDeploymentManager");
                 Class partypes[] = {String.class, String.class, String.class};
                 Constructor ct = cls.getConstructor(partypes);
-                Object arglist[] = {URI_PREFIX + uri, uname, passwd};
-                oc4jDM = ct.newInstance(arglist);
+                Object arglist[] = {uri, getUsername(), getPassword()};
+                oc4jPropDm = ct.newInstance(arglist);
             } catch (NoSuchMethodException e) {
                 ErrorManager.getDefault().notify(ErrorManager.ERROR, e);
             } catch (ClassNotFoundException e) {
@@ -467,24 +656,28 @@ public class OC4JDeploymentManager implements DeploymentManager, ProgressObject,
                 ErrorManager.getDefault().notify(ErrorManager.ERROR, e);
             } catch (InvocationTargetException e) {
                 ErrorManager.getDefault().notify(ErrorManager.ERROR, e);
-            }catch (Exception e) {
+            } catch (Exception e) {
                 ErrorManager.getDefault().notify(ErrorManager.ERROR, e);
             } finally {
-                loader.restoreLoader();
+                OC4JClassLoader.getInstance(getProperties().getOC4JHomeLocation()).restoreLoader();
             }
         }
+        
+        return oc4jPropDm;
     }
     
     /**
      *  Invokes methods from proprietary deployment manager
      */
     private void invoke(String methodName, Class[] paramNames, Object[] args) throws Exception {
-        loader.updateLoader();
+        Object manager = getOC4JProprietaryDeploymentManager();
         
-        Method m = oc4jDM.getClass().getMethod(methodName, paramNames);
-        m.invoke(oc4jDM, args);
+        OC4JClassLoader.getInstance(getProperties().getOC4JHomeLocation()).updateLoader();
         
-        loader.restoreLoader();
+        Method m = manager.getClass().getMethod(methodName, paramNames);
+        m.invoke(manager, args);
+        
+        OC4JClassLoader.getInstance(getProperties().getOC4JHomeLocation()).restoreLoader();
     }
     
     public void run() {
@@ -545,9 +738,11 @@ public class OC4JDeploymentManager implements DeploymentManager, ProgressObject,
     
     /**
      *  JSR-77 implementation
+     *
+     * @return
      */
     public MBeanServerConnection getJMXConnector() {
-        loader.updateLoader();
+        OC4JClassLoader.getInstance(getProperties().getOC4JHomeLocation()).updateLoader();
         
         if(jmxConnection == null) {
             try {
@@ -571,13 +766,33 @@ public class OC4JDeploymentManager implements DeploymentManager, ProgressObject,
             } catch(Exception e) {
                 OC4JErrorManager.getInstance(this).error(uri, e, OC4JErrorManager.GENERIC_FAILURE);
             } finally {
-                loader.restoreLoader();
+                OC4JClassLoader.getInstance(getProperties().getOC4JHomeLocation()).restoreLoader();
             }
         }
         
         return jmxConnection;
     }
     
+    /**
+     * Releases all proprietary objects to be refreshed
+     */
+    public void releaseProprietaryObjects() {
+        if (null != oc4jDm) {
+            oc4jDm.release();
+            oc4jDm = null;
+        }
+        
+        if (null != oc4jPropDm)
+            oc4jPropDm = null;
+        
+        if (null != jmxConnection)
+            jmxConnection = null;
+    }
+    
+    /**
+     *
+     * @return
+     */
     public OC4JJ2eePlatformImpl getOC4JPlatform() {
         if (oc4jPlatform == null) {
             oc4jPlatform = (OC4JJ2eePlatformImpl) new OC4JJ2eePlatformImpl(this);
@@ -585,43 +800,84 @@ public class OC4JDeploymentManager implements DeploymentManager, ProgressObject,
         return oc4jPlatform;
     }
     
+    /**
+     *
+     * @param pl
+     */
     public void addProgressListener(ProgressListener pl) {
         listeners.add(pl);
     }
     
+    /**
+     *
+     * @param pl
+     */
     public void removeProgressListener(ProgressListener pl) {
         listeners.remove(pl);
     }
     
+    /**
+     *
+     * @throws javax.enterprise.deploy.spi.exceptions.OperationUnsupportedException
+     */
     public void stop() throws OperationUnsupportedException {
         throw new OperationUnsupportedException("");
     }
     
+    /**
+     *
+     * @return
+     */
     public boolean isStopSupported() {
         return false;
     }
     
+    /**
+     *
+     * @throws javax.enterprise.deploy.spi.exceptions.OperationUnsupportedException
+     */
     public void cancel() throws OperationUnsupportedException {
         throw new OperationUnsupportedException("");
     }
     
+    /**
+     *
+     * @return
+     */
     public boolean isCancelSupported() {
         return false;
     }
     
+    /**
+     *
+     * @param targetModuleID
+     * @return
+     */
     public ClientConfiguration getClientConfiguration(TargetModuleID targetModuleID) {
         return null;
     }
     
+    /**
+     *
+     * @return
+     */
     public TargetModuleID[] getResultTargetModuleIDs() {
         return new TargetModuleID[]{ module_id };
     }
     
+    /**
+     *
+     * @return
+     */
     public DeploymentStatus getDeploymentStatus() {
         return deploymentStatus;
     }
     
-    /** Report event to any registered listeners. */
+    /** Report event to any registered listeners.
+     *
+     * @param targetModuleID
+     * @param deploymentStatus
+     */
     public void fireHandleProgressEvent(TargetModuleID targetModuleID, DeploymentStatus deploymentStatus) {
         this.deploymentStatus = deploymentStatus;
         Vector targets = null;

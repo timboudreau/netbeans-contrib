@@ -20,6 +20,9 @@
 package org.netbeans.modules.j2ee.oc4j.ui.wizards;
 
 import java.awt.Component;
+import java.net.InetAddress;
+import java.net.InetSocketAddress;
+import java.net.UnknownHostException;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
@@ -50,13 +53,16 @@ public class AddServerPropertiesPanel implements WizardDescriptor.Panel, ChangeL
     public boolean isValid() {
         AddServerPropertiesVisualPanel panel = (AddServerPropertiesVisualPanel)getComponent();
         
-        if(!OC4JPluginUtils.isUserActivated(instantiatingIterator.getOC4JHomeLocation(), "oc4jadmin")) {
-            panel.setInitialization(true);
-            wizard.putProperty(PROP_ERROR_MESSAGE,NbBundle.getMessage(AddServerPropertiesPanel.class, "MSG_Initialization"));
-            return false;
+        if (panel.getType().equals(AddServerPropertiesVisualPanel.LOCAL)) {
+            if(!OC4JPluginUtils.isUserActivated(instantiatingIterator.getOC4JHomeLocation(), "oc4jadmin")) {
+                panel.setInitialization(true);
+                wizard.putProperty(PROP_ERROR_MESSAGE,NbBundle.getMessage(AddServerPropertiesPanel.class, "MSG_Initialization"));
+                return false;
+            }
         }
         
-        if(panel.getUser().length() == 0 ||
+        if(panel.getHost().length() == 0 ||
+                panel.getUser().length() == 0 ||
                 panel.getPassword().length() == 0 ||
                 panel.getWebSite().length() == 0 ) {
             wizard.putProperty(PROP_ERROR_MESSAGE,NbBundle.getMessage(AddServerPropertiesPanel.class, "MSG_MissingData"));
@@ -67,18 +73,37 @@ public class AddServerPropertiesPanel implements WizardDescriptor.Panel, ChangeL
             new Integer(panel.getPort());
             new Integer(panel.getAdminPort());
             
-            if(OC4JPluginProperties.isRunning("localhost", panel.getPort())
-                    && !OC4JPluginProperties.isRunning("localhost", panel.getAdminPort())
-                    || !OC4JPluginProperties.isRunning("localhost", panel.getPort())
-                    && OC4JPluginProperties.isRunning("localhost", panel.getAdminPort()))
+            String host = panel.getHost();
+            
+            if(OC4JPluginProperties.isRunning(host, panel.getPort())
+                    && !OC4JPluginProperties.isRunning(host, panel.getAdminPort())
+                    || !OC4JPluginProperties.isRunning(host, panel.getPort())
+                    && OC4JPluginProperties.isRunning(host, panel.getAdminPort()))
                 throw new NumberFormatException();
-
+            
         } catch(NumberFormatException ex) {
-            wizard.putProperty(PROP_ERROR_MESSAGE,NbBundle.getMessage(AddServerPropertiesPanel.class, "MSG_WrongPort"));
+            wizard.putProperty(PROP_ERROR_MESSAGE,NbBundle.getMessage(AddServerPropertiesPanel.class,
+                    "MSG_WrongPort", panel.getHost()));
             return false;
         }
         
+        if (panel.getType().equals(AddServerPropertiesVisualPanel.REMOTE)) {
+            try {
+                InetAddress ia = InetAddress.getByName(panel.getHost());
+                new InetSocketAddress(ia, Integer.parseInt(panel.getAdminPort()));
+            } catch (UnknownHostException uhe) {
+                wizard.putProperty(PROP_ERROR_MESSAGE, NbBundle.getMessage(AddServerPropertiesPanel.class,
+                        "MSG_UnknownHost",panel.getHost()));
+                return false;
+            } catch (IllegalArgumentException iae) {
+                wizard.putProperty(PROP_ERROR_MESSAGE, NbBundle.getMessage(AddServerPropertiesPanel.class,
+                        "Msg_ValidPortNumber"));
+                return false;
+            }
+        }
+        
         wizard.putProperty(PROP_ERROR_MESSAGE,null);
+        instantiatingIterator.setHost(panel.getHost());
         instantiatingIterator.setPassword(panel.getPassword());
         instantiatingIterator.setUserName(panel.getUser());
         instantiatingIterator.setWebSite(panel.getWebSite());

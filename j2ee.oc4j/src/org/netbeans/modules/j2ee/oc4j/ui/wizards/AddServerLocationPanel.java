@@ -29,7 +29,9 @@ import java.util.Iterator;
 import java.util.Set;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+import org.netbeans.modules.j2ee.oc4j.OC4JDeploymentFactory;
 import org.openide.util.NbBundle;
+import org.openide.util.NbPreferences;
 
 /**
  * @author pblaha
@@ -81,6 +83,7 @@ public class AddServerLocationPanel implements WizardDescriptor.Panel, ChangeLis
         } else {
             wizard.putProperty(PROP_ERROR_MESSAGE, null);
             instantiatingIterator.setOC4JHomeLocation(locationStr);
+            NbPreferences.forModule(OC4JDeploymentFactory.class).put(OC4JDeploymentFactory.PROP_SERVER_ROOT, locationStr);
             return true;
         }
     }
