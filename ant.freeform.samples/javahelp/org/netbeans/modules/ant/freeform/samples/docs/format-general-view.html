@@ -43,6 +43,18 @@
             Similar to includes and/or excludes in <code>source-folder</code>.
         </p>
         <pre>
+&lt;source-folder style="subproject"&gt;
+    &lt;location&gt;mylib&lt;/location&gt;
+&lt;/source-folder&gt;
+        </pre>
+        <p>
+            (NetBeans 6.0+ only.)
+            Shows a node corresponding to the project located at <code>mylib</code>.
+            The user can open that project from the context menu.
+            (The label is optional, defaulting to the project's display name.)
+            See also <a href="format-general-subprojects.html">subprojects</a>.
+        </p>
+        <pre>
 &lt;source-file&gt;
     &lt;label&gt;Build Script&lt;/label&gt;
     &lt;location&gt;build.xml&lt;/location&gt;
