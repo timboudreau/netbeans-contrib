@@ -20,9 +20,7 @@
 package org.netbeans.modules.java.tools.navigation;
 
 import org.netbeans.api.java.source.ElementHandle;
-
 import org.openide.filesystems.FileObject;
-
 import javax.swing.Icon;
 
 /**

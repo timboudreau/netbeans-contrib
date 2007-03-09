@@ -21,7 +21,6 @@ package org.netbeans.modules.java.tools.navigation;
 
 import org.openide.util.HelpCtx;
 import org.openide.util.actions.CookieAction;
-
 import java.awt.Toolkit;
 
 /**

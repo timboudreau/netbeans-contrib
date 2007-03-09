@@ -19,50 +19,11 @@
 
 package org.netbeans.modules.java.tools.navigation;
 
-import com.sun.source.tree.CompilationUnitTree;
-import com.sun.source.tree.Tree;
-import com.sun.source.util.Trees;
-
-import org.netbeans.api.java.source.CancellableTask;
-import org.netbeans.api.java.source.ClasspathInfo;
-import org.netbeans.api.java.source.CompilationController;
-import org.netbeans.api.java.source.ElementHandle;
-import org.netbeans.api.java.source.JavaSource;
-import org.netbeans.api.java.source.JavaSource.Phase;
-import org.netbeans.api.java.source.SourceUtils;
-import org.netbeans.api.java.source.UiUtils;
-
-import org.openide.ErrorManager;
-
 import org.openide.filesystems.FileObject;
-
 import org.openide.loaders.DataObject;
-
 import org.openide.nodes.Node;
-
 import org.openide.util.NbBundle;
-import org.openide.util.actions.CookieAction;
-
-import java.io.IOException;
-
-import java.util.Collection;
-import java.util.Collections;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Set;
-
-import javax.lang.model.element.Element;
-import javax.lang.model.element.ElementKind;
-import javax.lang.model.element.TypeElement;
-import javax.lang.model.type.DeclaredType;
-import javax.lang.model.type.NoType;
-import javax.lang.model.type.TypeMirror;
 import static javax.lang.model.util.ElementFilter.*;
-
-import javax.swing.JDialog;
-import javax.swing.JScrollPane;
-import javax.swing.JTree;
-import javax.swing.tree.DefaultMutableTreeNode;
 
 /**
  *

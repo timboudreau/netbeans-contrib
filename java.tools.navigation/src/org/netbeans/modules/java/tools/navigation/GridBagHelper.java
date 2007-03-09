@@ -19,13 +19,11 @@
 
 package org.netbeans.modules.java.tools.navigation;
 
-/**
- *
- * Author: Sandip Chitale (Sandip.Chitale@Sun.Com)
- */
-import java.awt.*;
-import java.awt.event.*;
-
+import java.awt.Component;
+import java.awt.Container;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
 
 /**
  *

@@ -86,8 +86,7 @@ public final class ShowJavaStructureAtCaretAction
 
                 if (javaSource == null) {
                     // may be a class file? Can we handle it?
-                    Logger.getLogger(Logger.GLOBAL_LOGGER_NAME)
-                          .log(Level.WARNING,
+                    Logger.global.log(Level.WARNING,
                         "Not a java file " + fileObject.getPath());
                 } else {
                     try {
@@ -190,8 +189,7 @@ public final class ShowJavaStructureAtCaretAction
                                 }
                             }, true);
                     } catch (IOException e) {
-                        Logger.getLogger(Logger.GLOBAL_LOGGER_NAME)
-                              .log(Level.WARNING, e.getMessage(), e);
+                        Logger.global.log(Level.WARNING, e.getMessage(), e);
                     }
                 }
             }

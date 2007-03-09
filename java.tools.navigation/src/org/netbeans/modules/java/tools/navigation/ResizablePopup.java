@@ -19,13 +19,10 @@
 package org.netbeans.modules.java.tools.navigation;
 
 import org.openide.windows.WindowManager;
-
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.Toolkit;
-
 import javax.swing.JDialog;
-
 
 /**
  *
