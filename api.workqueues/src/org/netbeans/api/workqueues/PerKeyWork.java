@@ -36,14 +36,14 @@ import java.util.logging.Level;
  * @author Tim Boudreau
  */
 final class PerKeyWork<Target, WorkType> implements Delayed, Drainable <WorkType> {
-    private final long expTime = System.currentTimeMillis()  + DELAY;
-    static long DELAY = 250;
+    private final long expTime;
 
     private final ConcurrentLinkedQueue<WorkType> q = new ConcurrentLinkedQueue<WorkType>();
 
     private final Target key;
 
-    public PerKeyWork(Target key, WorkType firstItem) {
+    public PerKeyWork(Target key, WorkType firstItem, long delay) {
+        expTime = System.currentTimeMillis()  + delay;
         this.key = key;
         q.offer(firstItem);
     }

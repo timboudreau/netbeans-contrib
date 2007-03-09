@@ -67,18 +67,25 @@ import java.util.logging.Logger;
  * @author Tim Boudreau
  */
 public final class Dispatcher <Target, WorkType> {
-    private final DelayQueue<PerKeyWork<Target,WorkType>> delayed =
-            new DelayQueue<PerKeyWork<Target,WorkType>>();
-
+    private final DelayQueue<PerKeyWork<Target,WorkType>> delayed;
+            
     private final ExecutorService serv = Executors.newFixedThreadPool(1);
     private final QueueWorkProcessor<Target,WorkType> processor;
     private Future future;
     private volatile boolean started = false;
     static final Logger log = Logger.getLogger(Dispatcher.class.getName());
-
+    private static final long DEFAULT_DELAY = 250;
+    private final long delay;
+    
     /** Creates a new instance of DelayQueueQueue */
     public Dispatcher(QueueWorkProcessor<Target,WorkType> p) {
+        this (p, DEFAULT_DELAY);
+    }
+    
+    public Dispatcher(QueueWorkProcessor<Target,WorkType> p, long delay) {
+        this.delay = delay;
         this.processor = p;
+        delayed = new DelayQueue<PerKeyWork<Target,WorkType>>();
     }
 
     /**
@@ -124,7 +131,7 @@ public final class Dispatcher <Target, WorkType> {
                         "will be created");
             }
         }
-        PerKeyWork<Target,WorkType> entry = new PerKeyWork<Target,WorkType>(key, content);
+        PerKeyWork<Target,WorkType> entry = new PerKeyWork<Target,WorkType>(key, content, delay);
         delayed.offer(entry);
         log.log(Level.FINE, "Created a new entry for " + key + ": " + entry);
         if (!started) {
