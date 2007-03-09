@@ -50,7 +50,7 @@ public class DevolveTest extends GraphScene.StringGraph {
 
         addChild (mainLayer = new LayerWidget (this));
 
-        devolveLayout = LayoutFactory.createDevolveWidgetLayout (mainLayer, LayoutFactory.createHorizontalLayout (), true);
+        devolveLayout = LayoutFactory.createDevolveWidgetLayout (mainLayer, LayoutFactory.createHorizontalFlowLayout (), true);
 
         getActions ().addAction (ActionFactory.createZoomAction ());
         getActions ().addAction (ActionFactory.createPanAction ());

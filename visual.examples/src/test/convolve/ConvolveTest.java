@@ -62,7 +62,7 @@ public class ConvolveTest extends Scene {
 
     private void createNormalWidget (int x, int y, String text) {
         Widget widget = new Widget (this);
-        widget.setLayout (LayoutFactory.createVerticalLayout ());
+        widget.setLayout (LayoutFactory.createVerticalFlowLayout ());
         widget.setPreferredLocation (new Point (x, y));
 
         widget.getActions ().addAction (ActionFactory.createMoveAction ());
@@ -74,7 +74,7 @@ public class ConvolveTest extends Scene {
 
     private void createConvolveWidget (Kernel kernel, int x, int y, String text) {
         ConvolveWidget convolve = new ConvolveWidget (this, new ConvolveOp (kernel));
-        convolve.setLayout (LayoutFactory.createVerticalLayout ());
+        convolve.setLayout (LayoutFactory.createVerticalFlowLayout ());
         convolve.setPreferredLocation (new Point (x, y));
 
         convolve.getActions ().addAction (ActionFactory.createMoveAction ());

@@ -45,7 +45,7 @@ public class SwingScrollTest extends Scene {
         layer.addChild (scroll);
 
         Widget view = new Widget (this);
-        view.setLayout (LayoutFactory.createVerticalLayout ());
+        view.setLayout (LayoutFactory.createVerticalFlowLayout ());
 
         view.addChild (new LabelWidget (this, "Shrink the area for showing scroll bars"));
         view.addChild (new LabelWidget (this, "Drag scroll bars to move the view"));

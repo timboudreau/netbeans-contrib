@@ -42,13 +42,13 @@ public class UMLClassWidget extends Widget {
 
     public UMLClassWidget (Scene scene) {
         super (scene);
-        setLayout (LayoutFactory.createVerticalLayout ());
+        setLayout (LayoutFactory.createVerticalFlowLayout ());
         setBorder (BorderFactory.createLineBorder ());
         setOpaque (true);
         setCheckClipping (true);
 
         Widget classWidget = new Widget (scene);
-        classWidget.setLayout (LayoutFactory.createHorizontalLayout ());
+        classWidget.setLayout (LayoutFactory.createHorizontalFlowLayout ());
         classWidget.setBorder (BORDER_4);
 
         ImageWidget classImage = new ImageWidget (scene);
@@ -63,7 +63,7 @@ public class UMLClassWidget extends Widget {
         addChild (new SeparatorWidget (scene, SeparatorWidget.Orientation.HORIZONTAL));
 
         members = new Widget (scene);
-        members.setLayout (LayoutFactory.createVerticalLayout ());
+        members.setLayout (LayoutFactory.createVerticalFlowLayout ());
         members.setOpaque (false);
         members.setBorder (BORDER_4);
         addChild (members);
@@ -71,7 +71,7 @@ public class UMLClassWidget extends Widget {
         addChild (new SeparatorWidget (scene, SeparatorWidget.Orientation.HORIZONTAL));
 
         operations = new Widget (scene);
-        operations.setLayout (LayoutFactory.createVerticalLayout ());
+        operations.setLayout (LayoutFactory.createVerticalFlowLayout ());
         operations.setOpaque (false);
         operations.setBorder (BORDER_4);
         addChild (operations);
@@ -88,7 +88,7 @@ public class UMLClassWidget extends Widget {
     public Widget createMember (String member) {
         Scene scene = getScene ();
         Widget widget = new Widget (scene);
-        widget.setLayout (LayoutFactory.createHorizontalLayout ());
+        widget.setLayout (LayoutFactory.createHorizontalFlowLayout ());
 
         ImageWidget imageWidget = new ImageWidget (scene);
         imageWidget.setImage (IMAGE_MEMBER);
@@ -104,7 +104,7 @@ public class UMLClassWidget extends Widget {
     public Widget createOperation (String operation) {
         Scene scene = getScene ();
         Widget widget = new Widget (scene);
-        widget.setLayout (LayoutFactory.createHorizontalLayout ());
+        widget.setLayout (LayoutFactory.createHorizontalFlowLayout ());
 
         ImageWidget imageWidget = new ImageWidget (scene);
         imageWidget.setImage (IMAGE_OPERATION);

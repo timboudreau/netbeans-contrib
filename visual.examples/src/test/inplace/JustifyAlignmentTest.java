@@ -41,7 +41,7 @@ public class JustifyAlignmentTest {
         Scene scene = new Scene ();
         LayerWidget layer = new LayerWidget (scene);
         scene.addChild (layer);
-        layer.setLayout (LayoutFactory.createVerticalLayout (LayoutFactory.SerialAlignment.JUSTIFY, 8));
+        layer.setLayout (LayoutFactory.createVerticalFlowLayout (LayoutFactory.SerialAlignment.JUSTIFY, 8));
 
         layer.addChild (new LabelWidget (scene, "Following labels are aligned to the right. Each label has its own expansion mode."));
         createLabel (layer, "LEFT ONLY - This expands to the left only", EnumSet.<InplaceEditorProvider.ExpansionDirection>of (InplaceEditorProvider.ExpansionDirection.LEFT));

@@ -19,7 +19,7 @@ public class ComponentModeTest {
     public static void main (String[] args) {
         final Scene scene = new Scene ();
         scene.setBorder (BorderFactory.createEmptyBorder (10));
-        scene.setLayout (LayoutFactory.createVerticalLayout (LayoutFactory.SerialAlignment.JUSTIFY, 10));
+        scene.setLayout (LayoutFactory.createVerticalFlowLayout (LayoutFactory.SerialAlignment.JUSTIFY, 10));
 
 
         JTextField textField = new JTextField ("Text for editing - try to edit me. When the JTextField component is hidden, then the Widget just renders it.");

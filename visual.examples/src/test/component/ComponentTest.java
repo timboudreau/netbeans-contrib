@@ -51,7 +51,7 @@ public class ComponentTest extends Scene {
 
     private Widget createMoveableComponent (Component component) {
         Widget widget = new Widget (this);
-        widget.setLayout (LayoutFactory.createVerticalLayout ());
+        widget.setLayout (LayoutFactory.createVerticalFlowLayout ());
         widget.setBorder (BorderFactory.createLineBorder ());
         widget.getActions ().addAction (moveAction);
 

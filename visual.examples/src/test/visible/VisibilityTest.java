@@ -49,9 +49,9 @@ public class VisibilityTest {
         scene.addChild (status);
 
         createChildrenSet (scene, LayoutFactory.createAbsoluteLayout (), 100, 100);
-        createChildrenSet (scene, LayoutFactory.createHorizontalLayout (), 100, 200);
-        createChildrenSet (scene, LayoutFactory.createVerticalLayout (), 100, 300);
-        createChildrenSet (scene, LayoutFactory.createFillLayout (), 100, 400);
+        createChildrenSet (scene, LayoutFactory.createHorizontalFlowLayout (), 100, 200);
+        createChildrenSet (scene, LayoutFactory.createVerticalFlowLayout (), 100, 300);
+        createChildrenSet (scene, LayoutFactory.createOverlayLayout (), 100, 400);
 
         SceneSupport.show (scene);
     }

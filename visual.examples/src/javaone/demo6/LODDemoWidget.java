@@ -41,15 +41,15 @@ public class LODDemoWidget extends LevelOfDetailsWidget {
 
         if (level > 1) {
             Widget vbox = new Widget (scene);
-            vbox.setLayout(LayoutFactory.createVerticalLayout (LayoutFactory.SerialAlignment.JUSTIFY, 1));
+            vbox.setLayout(LayoutFactory.createVerticalFlowLayout (LayoutFactory.SerialAlignment.JUSTIFY, 1));
             addChild (vbox);
 
             Widget hbox1 = new Widget (scene);
-            hbox1.setLayout(LayoutFactory.createHorizontalLayout (LayoutFactory.SerialAlignment.JUSTIFY, 1));
+            hbox1.setLayout(LayoutFactory.createHorizontalFlowLayout (LayoutFactory.SerialAlignment.JUSTIFY, 1));
             vbox.addChild(hbox1);
 
             Widget hbox2 = new Widget (scene);
-            hbox2.setLayout(LayoutFactory.createHorizontalLayout (LayoutFactory.SerialAlignment.JUSTIFY, 1));
+            hbox2.setLayout(LayoutFactory.createHorizontalFlowLayout (LayoutFactory.SerialAlignment.JUSTIFY, 1));
             vbox.addChild(hbox2);
 
             hbox1.addChild(new LODDemoWidget (scene, level - 1, zoom * ZOOM_MULT));

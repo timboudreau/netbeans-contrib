@@ -33,7 +33,7 @@ public class ColorAnimatorTest {
 
     public static void main (String[] args) {
         Scene scene = new Scene ();
-        scene.setLayout (LayoutFactory.createVerticalLayout ());
+        scene.setLayout (LayoutFactory.createVerticalFlowLayout ());
 
         for (int a = 0; a < 10; a ++)
             scene.addChild (new MyLabelWidget (scene));

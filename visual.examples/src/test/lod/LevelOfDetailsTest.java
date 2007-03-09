@@ -39,7 +39,7 @@ public class LevelOfDetailsTest {
     public static void main (String[] args) {
         Scene scene = new Scene ();
         scene.setZoomFactor(0.2);
-        scene.setLayout (LayoutFactory.createVerticalLayout (LayoutFactory.SerialAlignment.LEFT_TOP, 0));
+        scene.setLayout (LayoutFactory.createVerticalFlowLayout (LayoutFactory.SerialAlignment.LEFT_TOP, 0));
         scene.getActions().addAction(ActionFactory.createZoomAction (1.1, false));
         scene.getActions().addAction(ActionFactory.createPanAction ());
         WidgetAction hover = ActionFactory.createHoverAction (new TwoStateHoverProvider () {
@@ -53,7 +53,7 @@ public class LevelOfDetailsTest {
         
         Widget root = new LevelOfDetailsWidget (scene, 0.21, 0.3, Double.MAX_VALUE, Double.MAX_VALUE);
         root.setBorder (BorderFactory.createLineBorder (10));
-        root.setLayout (LayoutFactory.createVerticalLayout (LayoutFactory.SerialAlignment.JUSTIFY, 4));
+        root.setLayout (LayoutFactory.createVerticalFlowLayout (LayoutFactory.SerialAlignment.JUSTIFY, 4));
         scene.addChild (root);
         
         for (int a = 0; a < 10; a ++) {
@@ -61,7 +61,7 @@ public class LevelOfDetailsTest {
             
             Widget row = new LevelOfDetailsWidget (scene, 0.3, 0.5, Double.MAX_VALUE, Double.MAX_VALUE);
             row.setBorder(BorderFactory.createLineBorder (4));
-            row.setLayout (LayoutFactory.createHorizontalLayout (LayoutFactory.SerialAlignment.JUSTIFY, 4));
+            row.setLayout (LayoutFactory.createHorizontalFlowLayout (LayoutFactory.SerialAlignment.JUSTIFY, 4));
             row.getActions().addAction(hover);
             root.addChild (row);
             

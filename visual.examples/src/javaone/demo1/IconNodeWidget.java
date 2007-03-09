@@ -36,7 +36,7 @@ public class IconNodeWidget extends Widget {
         super (scene);
 
         setOpaque (true);
-        setLayout (LayoutFactory.createVerticalLayout (LayoutFactory.SerialAlignment.CENTER, 4)); // use vertical layout
+        setLayout (LayoutFactory.createVerticalFlowLayout (LayoutFactory.SerialAlignment.CENTER, 4)); // use vertical layout
 
         addChild (new ImageWidget (scene, Utilities.loadImage (icon))); // add image sub-widget
         addChild (new LabelWidget (scene, label)); // add label sub-widget

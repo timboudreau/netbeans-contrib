@@ -55,7 +55,7 @@ public class ProxyAnchorExpandTest extends Scene {
         outerWidget.setBackground (Color.WHITE);
         outerWidget.setBorder (BorderFactory.createLineBorder (10));
         outerWidget.setPreferredLocation (new Point (100, 100));
-        outerWidget.setLayout (LayoutFactory.createVerticalLayout (LayoutFactory.SerialAlignment.CENTER, 4));
+        outerWidget.setLayout (LayoutFactory.createVerticalFlowLayout (LayoutFactory.SerialAlignment.CENTER, 4));
 
         outerWidget.addChild (new LabelWidget (this, "The anchor switches based on a state in StateModel used by ProxyAnchor."));
         outerWidget.addChild (new LabelWidget (this, "ConnectionWidget has the same anchors assigned all the time."));

@@ -41,7 +41,7 @@ public class InvokeInplaceEditorTest {
     public static void main (String[] args) {
         Scene scene = new Scene ();
         scene.setBorder (BorderFactory.createEmptyBorder (8, 8, 8, 8));
-        scene.setLayout (LayoutFactory.createVerticalLayout (LayoutFactory.SerialAlignment.LEFT_TOP, 8));
+        scene.setLayout (LayoutFactory.createVerticalFlowLayout (LayoutFactory.SerialAlignment.LEFT_TOP, 8));
 
         final LabelWidget label = new LabelWidget (scene, "To invoke in-place editor programatically, press button below");
         final WidgetAction inplaceEditorAction = ActionFactory.createInplaceEditorAction (new TextFieldInplaceEditor() {

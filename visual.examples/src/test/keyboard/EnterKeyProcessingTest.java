@@ -35,7 +35,7 @@ public class EnterKeyProcessingTest {
     
     public static void main(String[] args) {
         Scene scene = new Scene();
-        scene.setLayout(LayoutFactory.createVerticalLayout());
+        scene.setLayout(LayoutFactory.createVerticalFlowLayout ());
         WidgetAction action = new KeyEventLoggerAction();
         
         LabelWidget label1 = new LabelWidget(scene, "First non-editable label. Should not receive any key event.");

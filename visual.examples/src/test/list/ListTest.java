@@ -22,8 +22,8 @@ import org.netbeans.api.visual.action.*;
 import org.netbeans.api.visual.graph.GraphPinScene;
 import org.netbeans.api.visual.widget.LayerWidget;
 import org.netbeans.api.visual.widget.Widget;
-import org.netbeans.api.visual.widget.general.ListItemWidget;
-import org.netbeans.api.visual.widget.general.ListWidget;
+import org.netbeans.modules.visual.experimental.widget.general.ListItemWidget;
+import org.netbeans.modules.visual.experimental.widget.general.ListWidget;
 import org.openide.util.Utilities;
 import test.SceneSupport;
 

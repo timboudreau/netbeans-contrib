@@ -35,7 +35,7 @@ public class LODDemo {
         scene.getActions().addAction(ActionFactory.createZoomAction (1.2, false));
         scene.getActions().addAction(ActionFactory.createPanAction ());
 
-        scene.setLayout (LayoutFactory.createVerticalLayout (LayoutFactory.SerialAlignment.LEFT_TOP, 0));
+        scene.setLayout (LayoutFactory.createVerticalFlowLayout (LayoutFactory.SerialAlignment.LEFT_TOP, 0));
         scene.addChild(new LabelWidget (scene, "Zoom inside the rectangle"));
 
         scene.addChild (new LODDemoWidget (scene, 5, 0.5));

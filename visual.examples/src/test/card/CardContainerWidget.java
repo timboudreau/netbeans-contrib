@@ -41,7 +41,7 @@ public class CardContainerWidget extends Widget {
     public CardContainerWidget (Scene scene) {
         super (scene);
 
-        setLayout (LayoutFactory.createVerticalLayout ());
+        setLayout (LayoutFactory.createVerticalFlowLayout ());
 
         LabelWidget switchButton = new LabelWidget (scene, "Click me to switch card.");
         switchButton.setOpaque (true);

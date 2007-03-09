@@ -106,7 +106,7 @@ public class InplaceEditorTest extends GraphScene.StringGraph {
         scene.addNode ("to edit");
         scene.addNode ("it");
 
-        LayoutFactory.createDevolveWidgetLayout (scene.mainLayer, LayoutFactory.createHorizontalLayout (), true).invokeLayout ();
+        LayoutFactory.createDevolveWidgetLayout (scene.mainLayer, LayoutFactory.createHorizontalFlowLayout (), true).invokeLayout ();
 
         SceneSupport.show (scene);
     }

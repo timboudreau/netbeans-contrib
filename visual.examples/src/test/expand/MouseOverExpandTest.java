@@ -76,7 +76,7 @@ public class MouseOverExpandTest extends Scene {
 
         public ExpandableWidget (Scene scene) {
             super (scene);
-            setLayout (LayoutFactory.createVerticalLayout ());
+            setLayout (LayoutFactory.createVerticalFlowLayout ());
             setOpaque (true);
             setBackground (Color.WHITE);
             setBorder (BorderFactory.createLineBorder (10));
@@ -84,7 +84,7 @@ public class MouseOverExpandTest extends Scene {
             addChild (new LabelWidget (scene, "Move mouse cursor over the rectangle to EXPAND it."));
 
             detailsWidget = new Widget (scene);
-            detailsWidget.setLayout (LayoutFactory.createVerticalLayout ());
+            detailsWidget.setLayout (LayoutFactory.createVerticalFlowLayout ());
             detailsWidget.addChild (new LabelWidget (scene, "Drag the rectangle to MOVE it."));
             detailsWidget.addChild (new LabelWidget (scene, "Move mouse cursor out of the rectangle to COLLAPSE it."));
             detailsWidget.setCheckClipping (true); // required to hide the content of details widget beyond its border

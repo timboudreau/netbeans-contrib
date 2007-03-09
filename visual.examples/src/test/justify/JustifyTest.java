@@ -84,14 +84,14 @@ public class JustifyTest extends Scene {
     private Widget creeateVerticalBox () {
         Widget vbox = new Widget (this);
         vbox.setBorder (BorderFactory.createLineBorder (1, Color.GREEN));
-        vbox.setLayout (LayoutFactory.createVerticalLayout ());
+        vbox.setLayout (LayoutFactory.createVerticalFlowLayout ());
         return vbox;
     }
 
     private Widget creeateHorizontalBox () {
         Widget hbox = new Widget (this);
         hbox.setBorder (BorderFactory.createLineBorder (1, Color.BLUE));
-        hbox.setLayout (LayoutFactory.createHorizontalLayout ());
+        hbox.setLayout (LayoutFactory.createHorizontalFlowLayout ());
         return hbox;
     }
 
