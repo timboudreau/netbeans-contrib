@@ -44,13 +44,17 @@ import javax.lang.model.type.WildcardType;
  */
 class Utils {
     static String format(Element element) {
+        return format(element, false);
+    }
+
+    static String format(Element element, boolean forSignature) {
         StringBuilder stringBuilder = new StringBuilder();
-        format(element, stringBuilder);
+        format(element, stringBuilder, forSignature);
 
         return stringBuilder.toString();
     }
 
-    static void format(Element element, StringBuilder stringBuilder) {
+    static void format(Element element, StringBuilder stringBuilder, boolean forSignature) {
         if (element == null) {
             return;
         }
@@ -62,14 +66,34 @@ class Utils {
         case PACKAGE:
 
             PackageElement packageElement = (PackageElement) element;
-            stringBuilder.append(packageElement.getQualifiedName());
+            stringBuilder.append("package " + packageElement.getQualifiedName());
 
             break;
 
         case CLASS:
         case INTERFACE:
         case ENUM:
-
+            if (forSignature) {
+                stringBuilder.append(toString(modifiers));
+                if (modifiers.size() > 0) {
+                    if (stringBuilder.length() > 0) {
+                        stringBuilder.append(" ");
+                    }
+                }
+            }
+            
+            switch (element.getKind()) {
+                case CLASS:
+                    stringBuilder.append("class ");
+                    break;
+                case INTERFACE:
+                    stringBuilder.append("interface ");
+                    break;
+                case ENUM:
+                    stringBuilder.append("enum ");
+                    break;
+            }
+            
             TypeElement typeElement = (TypeElement) element;
             stringBuilder.append(JavaStructureOptions.isShowFQN()
                 ? typeElement.getQualifiedName().toString()
@@ -77,14 +101,24 @@ class Utils {
 
             formatTypeParameters(typeElement.getTypeParameters(), stringBuilder);
 
-            if (modifiers.size() > 0) {
-                stringBuilder.append(":");
-                stringBuilder.append(toString(modifiers));
+            if (!forSignature) {
+                if (modifiers.size() > 0) {
+                    stringBuilder.append(" : ");
+                    stringBuilder.append(toString(modifiers));
+                }
             }
 
             break;
 
         case CONSTRUCTOR:
+            if (forSignature) {
+                stringBuilder.append(toString(modifiers));
+                if (modifiers.size() > 0) {
+                    if (stringBuilder.length() > 0) {
+                        stringBuilder.append(" ");
+                    }
+                }
+            }
 
             ExecutableElement constructorElement = (ExecutableElement) element;
             stringBuilder.append(constructorElement.getEnclosingElement()
@@ -99,16 +133,45 @@ class Utils {
                 stringBuilder.append(" throws ");
                 formatTypeMirrors(thrownTypesMirrors, stringBuilder);
             }
-
-            if (modifiers.size() > 0) {
-                stringBuilder.append(":");
-                stringBuilder.append(toString(modifiers));
+            if (!forSignature) {
+                if (modifiers.size() > 0) {
+                    stringBuilder.append(":");
+                    stringBuilder.append(toString(modifiers));
+                }
             }
 
             break;
 
         case METHOD:
             ExecutableElement methodElement = (ExecutableElement) element;
+            TypeMirror returnTypeMirror = methodElement.getReturnType();
+            List<?extends TypeParameterElement> typeParameters = methodElement.getTypeParameters();
+
+            if (forSignature) {
+                stringBuilder.append(toString(modifiers));
+                
+                if (modifiers.size() > 0) {
+                    if (stringBuilder.length() > 0) {
+                        stringBuilder.append(" ");
+                    }
+                }
+
+                if ((typeParameters != null) && (typeParameters.size() > 0)) {
+                    formatTypeParameters(typeParameters, stringBuilder);
+                    if (stringBuilder.length() > 0) {
+                        stringBuilder.append(" ");
+                    }
+                }
+
+
+
+                formatTypeMirror(returnTypeMirror, stringBuilder);
+            }
+
+            if (stringBuilder.length() > 0) {
+                    stringBuilder.append(" ");
+            }
+
             stringBuilder.append(methodElement.getSimpleName().toString());
             stringBuilder.append("(");
             formatVariableElements(methodElement.getParameters(),
@@ -121,31 +184,28 @@ class Utils {
                 formatTypeMirrors(thrownTypesMirrorsByMethod, stringBuilder);
             }
 
-            stringBuilder.append(":");
-
-            if (modifiers.size() > 0) {
-                stringBuilder.append(toString(modifiers));
-            }
-
-            TypeMirror returnTypeMirror = methodElement.getReturnType();
-
-            if (modifiers.size() > 0) {
-                stringBuilder.append(" ");
-            }
-
-            formatTypeMirror(returnTypeMirror, stringBuilder);
-
-            List<?extends TypeParameterElement> typeParameters = methodElement.getTypeParameters();
-
-            if ((typeParameters != null) && (typeParameters.size() > 0)) {
+            if (!forSignature) {
                 stringBuilder.append(":");
-                formatTypeParameters(typeParameters, stringBuilder);
-            }
 
-            if (JavaStructureOptions.isShowInherited()) {
-                stringBuilder.append(" [");
-                stringBuilder.append(element.getEnclosingElement());
-                stringBuilder.append("]");
+                if (modifiers.size() > 0) {
+                    stringBuilder.append(toString(modifiers));
+                    if (modifiers.size() > 0) {
+                        stringBuilder.append(" ");
+                    }
+                }
+
+                formatTypeMirror(returnTypeMirror, stringBuilder);
+
+                if ((typeParameters != null) && (typeParameters.size() > 0)) {
+                    stringBuilder.append(":");
+                    formatTypeParameters(typeParameters, stringBuilder);
+                }
+
+                if (JavaStructureOptions.isShowInherited()) {
+                    stringBuilder.append(" [");
+                    stringBuilder.append(element.getEnclosingElement());
+                    stringBuilder.append("]");
+                }
             }
 
             break;
@@ -180,21 +240,39 @@ class Utils {
 
         case FIELD:
             VariableElement fieldElement = (VariableElement) element;
-            stringBuilder.append(fieldElement.getSimpleName().toString());
-
-            stringBuilder.append(":");
-            if (modifiers.size() > 0) {
+            if (forSignature) {
                 stringBuilder.append(toString(modifiers));
+
+                if (stringBuilder.length() > 0) {
+                    stringBuilder.append(" ");
+                }
+
+                formatTypeMirror(fieldElement.asType(), stringBuilder);
             }
-            if (modifiers.size() > 0) {
+
+            if (stringBuilder.length() > 0) {
                 stringBuilder.append(" ");
             }
-            formatTypeMirror(fieldElement.asType(), stringBuilder);
 
-            if (JavaStructureOptions.isShowInherited()) {
-                stringBuilder.append(" [");
-                stringBuilder.append(element.getEnclosingElement());
-                stringBuilder.append("]");
+            stringBuilder.append(fieldElement.getSimpleName().toString());
+
+            if (!forSignature) {
+                stringBuilder.append(":");
+                if (modifiers.size() > 0) {
+                    stringBuilder.append(toString(modifiers));
+                }
+
+                if (stringBuilder.length() > 0) {
+                    stringBuilder.append(" ");
+                }
+
+                formatTypeMirror(fieldElement.asType(), stringBuilder);
+
+                if (JavaStructureOptions.isShowInherited()) {
+                    stringBuilder.append(" [");
+                    stringBuilder.append(element.getEnclosingElement());
+                    stringBuilder.append("]");
+                }
             }
 
             break;
@@ -327,7 +405,7 @@ class Utils {
                     stringBuilder.append(", ");
                 }
 
-                format(typeParameterElement, stringBuilder);
+                format(typeParameterElement, stringBuilder, false);
             }
 
             stringBuilder.append(">");
@@ -350,7 +428,7 @@ class Utils {
                 stringBuilder.append(", ");
             }
 
-           format(variableElement, stringBuilder);
+           format(variableElement, stringBuilder, false);
         }
 
         if (varArgs) {

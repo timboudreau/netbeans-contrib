@@ -163,17 +163,6 @@
         </Container>
       </SubComponents>
     </Container>
-    <Component class="javax.swing.JTextField" name="signatureTextField">
-      <Properties>
-        <Property name="editable" type="boolean" value="false"/>
-        <Property name="toolTipText" type="java.lang.String" value="Show signature. Allows copying of signature to Clipboard. Use HOME/UP/DOWN/END to select."/>
-      </Properties>
-      <Constraints>
-        <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout" value="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout$GridBagConstraintsDescription">
-          <GridBagConstraints gridX="0" gridY="3" gridWidth="2" gridHeight="1" fill="2" ipadX="0" ipadY="0" insetsTop="5" insetsLeft="5" insetsBottom="0" insetsRight="5" anchor="10" weightX="1.0" weightY="0.0"/>
-        </Constraint>
-      </Constraints>
-    </Component>
     <Component class="javax.swing.JSeparator" name="separator1">
       <Constraints>
         <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout" value="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout$GridBagConstraintsDescription">
@@ -337,6 +326,23 @@
       <Constraints>
         <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout" value="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout$GridBagConstraintsDescription">
           <GridBagConstraints gridX="0" gridY="6" gridWidth="2" gridHeight="1" fill="2" ipadX="0" ipadY="0" insetsTop="5" insetsLeft="5" insetsBottom="0" insetsRight="5" anchor="18" weightX="1.0" weightY="0.0"/>
+        </Constraint>
+      </Constraints>
+    </Component>
+    <Component class="javax.swing.JEditorPane" name="signatureEditorPane">
+      <Properties>
+        <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
+          <Border info="org.netbeans.modules.form.compat2.border.LineBorderInfo">
+            <LineBorder>
+              <Color PropertyName="color" blue="b9" green="9d" id="Nb.ScrollPane.Border.color" palette="3" red="7f" type="palette"/>
+            </LineBorder>
+          </Border>
+        </Property>
+        <Property name="contentType" type="java.lang.String" value="text/x-java"/>
+      </Properties>
+      <Constraints>
+        <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout" value="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout$GridBagConstraintsDescription">
+          <GridBagConstraints gridX="0" gridY="3" gridWidth="1" gridHeight="1" fill="2" ipadX="0" ipadY="0" insetsTop="5" insetsLeft="5" insetsBottom="0" insetsRight="5" anchor="18" weightX="1.0" weightY="0.0"/>
         </Constraint>
       </Constraints>
     </Component>

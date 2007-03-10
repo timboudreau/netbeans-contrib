@@ -263,7 +263,7 @@ public class JavaStructureModel extends DefaultTreeModel {
         private Set<Modifier> modifiers;
         private String name = "";
         private String label = "";
-        private String tooltip = "";
+        private String tooltip = null;
         private Icon icon = null;
         private String javaDoc = "";
 
@@ -278,7 +278,7 @@ public class JavaStructureModel extends DefaultTreeModel {
             setIcon(UiUtils.getElementIcon(element.getKind(),
                     element.getModifiers()));
             setLabel(Utils.format(element));
-            setToolTip(Utils.format(element));
+            setToolTip(Utils.format(element, true));
             Doc doc = compilationInfo.getElementUtilities().javaDocFor(element);
             if (doc != null) {
                 StringBuilder stringBuilder = new StringBuilder();

@@ -61,7 +61,6 @@ public class JavaStructurePanel extends javax.swing.JPanel {
     private FileObject fileObject;
     private JavaStructureModel javaStructureModel;
 
-    /** Creates new form JavaStructurePanel */
     public JavaStructurePanel(FileObject fileObject, Element[] elements, CompilationInfo compilationInfo) {
         this.fileObject = fileObject;
         initComponents();
@@ -140,7 +139,12 @@ public class JavaStructurePanel extends javax.swing.JPanel {
                 KeyStroke.getKeyStroke(KeyEvent.VK_END, 0, true),
                 JComponent.WHEN_FOCUSED);
 
-        signatureTextField.registerKeyboardAction(
+        signatureEditorPane.putClientProperty(
+            "HighlightsLayerExcludes", // NOI18N
+            "^org\\.netbeans\\.modules\\.editor\\.lib2\\.highlighting\\.CaretRowHighlighting$" // NOI18N
+        );
+
+        signatureEditorPane.registerKeyboardAction(
                 new ActionListener() {
                     public void actionPerformed(ActionEvent actionEvent) {
                         firstRow();
@@ -149,7 +153,7 @@ public class JavaStructurePanel extends javax.swing.JPanel {
                 KeyStroke.getKeyStroke(KeyEvent.VK_HOME, 0, true),
                 JComponent.WHEN_FOCUSED);
 
-        signatureTextField.registerKeyboardAction(
+        signatureEditorPane.registerKeyboardAction(
                 new ActionListener() {
                     public void actionPerformed(ActionEvent actionEvent) {
                         previousRow();
@@ -158,7 +162,7 @@ public class JavaStructurePanel extends javax.swing.JPanel {
                 KeyStroke.getKeyStroke(KeyEvent.VK_UP, 0, true),
                 JComponent.WHEN_FOCUSED);
 
-        signatureTextField.registerKeyboardAction(
+        signatureEditorPane.registerKeyboardAction(
                 new ActionListener() {
                     public void actionPerformed(ActionEvent actionEvent) {
                         nextRow();
@@ -167,7 +171,7 @@ public class JavaStructurePanel extends javax.swing.JPanel {
                 KeyStroke.getKeyStroke(KeyEvent.VK_DOWN, 0, true),
                 JComponent.WHEN_FOCUSED);
 
-        signatureTextField.registerKeyboardAction(
+        signatureEditorPane.registerKeyboardAction(
                 new ActionListener() {
                     public void actionPerformed(ActionEvent actionEvent) {
                         lastRow();
@@ -516,12 +520,15 @@ public class JavaStructurePanel extends javax.swing.JPanel {
     }
 
     private void showSignature() {
-        signatureTextField.setText("");
+        signatureEditorPane.setText("");
+        signatureEditorPane.setToolTipText(null);
         TreePath treePath = javaFileStructureTree.getSelectionPath();
         if (treePath != null) {
             Object node = treePath.getLastPathComponent();
             if (node instanceof JavaToolsJavaElement) {
-                signatureTextField.setText(((JavaToolsJavaElement)node).getLabel());
+                signatureEditorPane.setText(((JavaToolsJavaElement)node).getTooltip());
+                signatureEditorPane.setCaretPosition(0);
+                signatureEditorPane.setToolTipText(((JavaToolsJavaElement)node).getTooltip());                
             }
         }
     }
@@ -636,7 +643,6 @@ public class JavaStructurePanel extends javax.swing.JPanel {
         javaFileStructureTree = new javax.swing.JTree();
         javaDocScrollPane = new javax.swing.JScrollPane();
         javaDocPane = new javax.swing.JEditorPane();
-        signatureTextField = new javax.swing.JTextField();
         separator1 = new javax.swing.JSeparator();
         filterToolbarPanel = new javax.swing.JPanel();
         showFQNToggleButton = new javax.swing.JToggleButton();
@@ -650,6 +656,7 @@ public class JavaStructurePanel extends javax.swing.JPanel {
         showPrivateToggleButton = new javax.swing.JToggleButton();
         showStaticToggleButton = new javax.swing.JToggleButton();
         helpLabel = new javax.swing.JLabel();
+        signatureEditorPane = new javax.swing.JEditorPane();
 
         setBackground(new java.awt.Color(247, 247, 255));
         setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
@@ -734,17 +741,6 @@ public class JavaStructurePanel extends javax.swing.JPanel {
         gridBagConstraints.weighty = 1.0;
         gridBagConstraints.insets = new java.awt.Insets(5, 5, 0, 5);
         add(splitPane, gridBagConstraints);
-
-        signatureTextField.setEditable(false);
-        signatureTextField.setToolTipText("Show signature. Allows copying of signature to Clipboard. Use HOME/UP/DOWN/END to select.");
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 3;
-        gridBagConstraints.gridwidth = 2;
-        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        gridBagConstraints.weightx = 1.0;
-        gridBagConstraints.insets = new java.awt.Insets(5, 5, 0, 5);
-        add(signatureTextField, gridBagConstraints);
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 4;
@@ -794,7 +790,7 @@ public class JavaStructurePanel extends javax.swing.JPanel {
 
         showEnumConstantsToggleButton.setIcon(JavaStructureIcons.ENUM_CONSTANTS_ICON);
         showEnumConstantsToggleButton.setSelected(true);
-        showEnumConstantsToggleButton.setToolTipText(org.openide.util.NbBundle.getBundle(JavaStructurePanel.class).getString("TOOLTIP_showEnumConstantsToggleButton")); // NOI18N
+        showEnumConstantsToggleButton.setToolTipText(org.openide.util.NbBundle.getBundle(JavaStructurePanel.class).getString("TOOLTIP_showFieldsToggleButton")); // NOI18N
         showEnumConstantsToggleButton.setFocusPainted(false);
         showEnumConstantsToggleButton.setMargin(new java.awt.Insets(2, 2, 2, 2));
         filterToolbarPanel.add(showEnumConstantsToggleButton);
@@ -846,6 +842,17 @@ public class JavaStructurePanel extends javax.swing.JPanel {
         gridBagConstraints.weightx = 1.0;
         gridBagConstraints.insets = new java.awt.Insets(5, 5, 0, 5);
         add(helpLabel, gridBagConstraints);
+
+        signatureEditorPane.setBorder(javax.swing.BorderFactory.createLineBorder(javax.swing.UIManager.getDefaults().getColor("Nb.ScrollPane.Border.color")));
+        signatureEditorPane.setContentType("text/x-java");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 3;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints.weightx = 1.0;
+        gridBagConstraints.insets = new java.awt.Insets(5, 5, 0, 5);
+        add(signatureEditorPane, gridBagConstraints);
     }// </editor-fold>//GEN-END:initComponents
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
@@ -871,7 +878,7 @@ public class JavaStructurePanel extends javax.swing.JPanel {
     public javax.swing.JToggleButton showPrivateToggleButton;
     public javax.swing.JToggleButton showProtectedToggleButton;
     public javax.swing.JToggleButton showStaticToggleButton;
-    public javax.swing.JTextField signatureTextField;
+    public javax.swing.JEditorPane signatureEditorPane;
     public javax.swing.JSplitPane splitPane;
     // End of variables declaration//GEN-END:variables
 
