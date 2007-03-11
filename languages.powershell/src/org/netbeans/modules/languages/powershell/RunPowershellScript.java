@@ -24,17 +24,17 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
-import javax.swing.AbstractAction;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.text.JTextComponent;
+import org.netbeans.editor.BaseAction;
+import org.netbeans.modules.editor.NbEditorUtilities;
 import org.openide.ErrorManager;
 import org.openide.awt.Actions;
 import org.openide.execution.NbProcessDescriptor;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
-import org.openide.loaders.DataObject;
-import org.openide.util.Lookup;
 import org.openide.util.NbBundle;
 import org.openide.util.Utilities;
 import org.openide.util.actions.Presenter;
@@ -44,43 +44,40 @@ import org.openide.util.actions.Presenter;
  *
  * @author Sandip V. Chitale (Sandip.Chitale@Sun.Com)
  */
-public class RunPowershellScript extends AbstractAction implements Presenter.Toolbar, ActionListener {
-    
+public class RunPowershellScript extends BaseAction implements Presenter.Toolbar, ActionListener {
+
     private static final String ICON_PATH = "org/netbeans/modules/languages/powershell/powershell.gif";
     private static final Icon ICON = new ImageIcon(Utilities.loadImage(ICON_PATH));
-    
+
     public RunPowershellScript() {
         super(NbBundle.getMessage(RunPowershellScript.class, "CTL_RunPowershellScript"));
         putValue(SMALL_ICON, ICON);
     }
-    
-    public void actionPerformed(ActionEvent actionEvent) {
-        Lookup lookup = Utilities.actionsGlobalContext();
-        DataObject dataObject = lookup.lookup(DataObject.class);
-        if (dataObject != null) {
-            FileObject fileObject = dataObject.getPrimaryFile();
-            if (fileObject != null && fileObject.getMIMEType().equals("text/x-ps1")){
-                File file = FileUtil.toFile(fileObject);
-                if (file != null) {                    
-                    try {
-                        NbProcessDescriptor nbProcessDescriptor = new NbProcessDescriptor("cmd.exe",
-                                "/c start C:\\WINDOWS\\system32\\windowspowershell\\v1.0\\powershell.exe -NoLogo -Command \". '" + file.getAbsolutePath() + "'\"");
-                        Process process = nbProcessDescriptor.exec();
-                        process.waitFor();
-                    } catch (IOException ex) {
-                        ErrorManager.getDefault().notify(ErrorManager.ERROR, ex);
-                    } catch (InterruptedException ex) {
-                        ErrorManager.getDefault().notify(ex);
-                    }
+
+    public void actionPerformed(ActionEvent actionEvent, JTextComponent textComponent) {
+        FileObject fileObject = NbEditorUtilities.getFileObject(textComponent.getDocument());
+        if (fileObject != null && fileObject.getMIMEType().equals("text/x-ps1")){
+            File file = FileUtil.toFile(fileObject);
+            if (file != null) {
+                try {
+                    NbProcessDescriptor nbProcessDescriptor = new NbProcessDescriptor("cmd.exe",
+                            "/c start C:\\WINDOWS\\system32\\windowspowershell\\v1.0\\powershell.exe -NoLogo -Command \". '" + file.getAbsolutePath() + "'\"");
+                    Process process = nbProcessDescriptor.exec();
+                    process.waitFor();
+                } catch (IOException ex) {
+                    ErrorManager.getDefault().notify(ErrorManager.ERROR, ex);
+                } catch (InterruptedException ex) {
+                    ErrorManager.getDefault().notify(ex);
                 }
             }
         }
     }
-    
+
     public Component getToolbarPresenter() {
         JButton button = new JButton();
         Actions.connect(button, this);
         return button;
     }
+
 }
 
