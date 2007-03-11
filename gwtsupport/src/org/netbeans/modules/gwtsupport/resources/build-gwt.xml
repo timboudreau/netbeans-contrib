@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- You may freely edit this file. See commented blocks below for -->
+<!-- some examples of how to customize the build. -->
+<!-- (If you delete it and reopen the project it will be recreated.) -->
+<project name="__PROJECT_NAME__-gwt" default="-post-compile" basedir="..">
+    <description>Generates Javascript for __PROJECT_NAME__.</description>
+
+    <target name="-post-compile">
+        <java classpath="${run.classpath}" classname="com.google.gwt.dev.GWTCompiler" fork="true">
+            <arg value="-out"/>
+            <arg path="${build.www.dir}/"/>
+            <arg value="${application.args}"/>
+        </java>
+    </target>
+    
+</project>

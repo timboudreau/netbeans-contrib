@@ -1,0 +1,27 @@
+/*
+ * __NAME__.java
+ *
+ * Created on __DATE__, __TIME__
+ *
+ * To change this template, choose Tools | Template Manager
+ * and open the template in the editor.
+ */
+
+package Templates.Classes;
+
+import com.google.gwt.core.client.EntryPoint;
+
+/**
+ *
+ * @author __USER__
+ */
+public class Class implements EntryPoint {
+
+    /** Creates a new instance of __NAME__ */
+    public Class() {
+    }
+
+    public void onModuleLoad() {
+    }
+
+}
