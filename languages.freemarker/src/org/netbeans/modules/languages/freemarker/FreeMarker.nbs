@@ -127,29 +127,29 @@ TOKEN:text:( [^ "#" "$"]+ )
 TOKEN:text:( "#" )
 TOKEN:text:( "$" )
 
-COLOR:vm_comment {
+COLOR:vm_comment: {
     background_color:"#e6ffe6";
 }
-COLOR:vm_keyword {
+COLOR:vm_keyword: {
     background_color:"#e6ffe6";
 }
-COLOR:vm_number {
+COLOR:vm_number: {
     background_color:"#e6ffe6";
 }
-COLOR:vm_string {
+COLOR:vm_string: {
     background_color:"#e6ffe6";
 }
-COLOR:vm_whitespace {
+COLOR:vm_whitespace: {
     background_color:"#e6ffe6";
 }
-COLOR:vm_identifier {
+COLOR:vm_identifier: {
     background_color:"#e6ffe6";
 }
-COLOR:vm_operator {
+COLOR:vm_operator: {
     background_color:"#e6ffe6";
 }
 
-#IMPORT:html {
+#IMPORT:html: {
 #    mimeType:"text/html2";
 #    state: "DEFAULT";
 #}

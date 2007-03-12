@@ -56,7 +56,7 @@ TOKEN:whitespace:( [" " "\t" "\n" "\r"]+ )
 
 ########### color ##############################################################
 
-COLOR:line_comment {
+COLOR:line_comment: {
     default_coloring:"comment";
 }
 

@@ -646,6 +646,6 @@ TOKEN:line_comment:( "*" [^ "\n" "\r"]* ["\n" "\r"]+ )
 
 ########### colors #############################################################
 
-COLOR:line_comment {
+COLOR:line_comment: {
     default_coloring:"comment";
 }

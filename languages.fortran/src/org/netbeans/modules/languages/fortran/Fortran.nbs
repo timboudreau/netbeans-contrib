@@ -210,7 +210,7 @@ TOKEN:line_comment:( ["\n" "\r"]+ "D" [^ "\n" "\r"]* )
 
 ########### colors #############################################################
 
-COLOR:line_comment {
+COLOR:line_comment: {
     default_coloring:"comment";
 }
 

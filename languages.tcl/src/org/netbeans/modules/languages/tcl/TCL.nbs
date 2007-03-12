@@ -448,11 +448,11 @@ TOKEN:whitespace: ( [" " "\t" "\n" "\r"]* )
 
 ########### definition of colors ##################################################################
 
-COLOR:line_comment {
+COLOR:line_comment: {
     default_coloring: "comment";
 }
 
-COLOR:function {
+COLOR:function: {
     foreground_color: "#804000";
 }
 

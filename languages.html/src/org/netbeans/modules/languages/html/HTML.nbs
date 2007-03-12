@@ -114,13 +114,13 @@ TOKEN:html_end_element_start: ( "</" ):<IN_ELEMENT_START>
 
 <JAVASCRIPT>:TOKEN:javascript: ( [^"<"]+ )
 SKIP:javascript
-IMPORT:javascript {
+IMPORT:javascript: {
     mimeType:"text/javascript";
     background_color:"#E6E6FF";
 }
 <CSS>:TOKEN:css: ( [^"<"]+ )
 SKIP:css
-IMPORT:css {
+IMPORT:css: {
     mimeType:"text/css2";
     background_color:"#E6FFE6";
 }
@@ -174,32 +174,32 @@ REFORMAT:attribute:"b"
 
 ########### colors #############################################################
 
-#COLOR:element {
+#COLOR:element: {
 #    default_coloring:"keyword";
 #}
-COLOR:html_element_start {
+COLOR:html_element_start: {
     default_coloring:"keyword";
 }
-COLOR:html_end_element_start {
+COLOR:html_end_element_start: {
     default_coloring:"keyword";
 }
-COLOR:html_element_name {
+COLOR:html_element_name: {
     default_coloring:"keyword";
 }
-COLOR:html_element_end {
+COLOR:html_element_end: {
     default_coloring:"keyword";
 }
-COLOR:html_end_element_end {
+COLOR:html_end_element_end: {
     default_coloring:"keyword";
 }
-COLOR:html_attribute_value {
+COLOR:html_attribute_value: {
     default_coloring:"string";
 }
-COLOR:attribute {
+COLOR:attribute: {
     strike_through_color:"black";
     condition:org.netbeans.modules.languages.html.HTML.isDeprecatedAttribute;
 }
-COLOR:tag {
+COLOR:tag: {
     strike_through_color:"blue";
     condition:org.netbeans.modules.languages.html.HTML.isDeprecatedTag;
 }
@@ -207,7 +207,7 @@ COLOR:tag {
 
 ########### code folding #######################################################
 
-FOLD:tag {
+FOLD:tag: {
     fold_display_name:"<$startTag.html_element_name$>...</$startTag.html_element_name$>";
     expand_type_action_name:"Expand HTML Tag";
     collapse_type_action_name:"Collapse HTML Tag";
@@ -216,17 +216,17 @@ FOLD:tag {
 
 ########### navigator ##########################################################
 
-NAVIGATOR:tag {
+NAVIGATOR:tag: {
     display_name: "$startTag.html_element_name$";
     tooltip: "$$";
     icon: "/org/netbeans/modules/languages/html/htmlTag.png";
 }
-NAVIGATOR:unpairedStartTag {
+NAVIGATOR:unpairedStartTag: {
     display_name: "$html_element_name$";
     tooltip: "$$";
     icon: "/org/netbeans/modules/languages/html/htmlTag.png";
 }
-NAVIGATOR:unpairedEndTag {
+NAVIGATOR:unpairedEndTag: {
     display_name: "$html_element_name$";
     tooltip: "$$";
     icon: "/org/netbeans/modules/languages/html/htmlTag.png";
@@ -241,45 +241,45 @@ COMPLETE org.netbeans.modules.languages.html.HTML.complete
 
 INDENT org.netbeans.modules.languages.html.HTML.indent
 
-#HYPERLINK:attribute_value:org.netbeans.modules.languages.html.HTML.hyperlink
+#HYPERLINK:attribute_value: org.netbeans.modules.languages.html.HTML.hyperlink
 
-MARK:unpairedStartTag {
+MARK:unpairedStartTag: {
     type:"Warning";
     message:"Unfinished tag.";
 }
-MARK:unpairedEndTag {
+MARK:unpairedEndTag: {
     type:"Error";
     message:"Unpaired end tag.";
 }
-MARK:html_ERROR {
+MARK:html_ERROR: {
     type:"Error";
     message:"Unpaired end tag.";
 }
-MARK:error {
+MARK:error: {
     type:"Error";
     message:"Unexpected character.";
 }
 
-MARK:html_element_name {
+MARK:html_element_name: {
     type:"Deprecation2";
     message:"Deprecated tag.";
     condition:org.netbeans.modules.languages.html.HTML.isDeprecatedTag;
 }
-MARK:html_attribute_name {
+MARK:html_attribute_name: {
     type:"Deprecation2";
     message:"Deprecated attribute.";
     condition:org.netbeans.modules.languages.html.HTML.isDeprecatedAttribute;
 }
-COMPLETION:html_element_name {
+COMPLETION:html_element_name: {
     text1:org.netbeans.modules.languages.html.HTML.tags; 
 }
-COMPLETION:html_element_start {
+COMPLETION:html_element_start: {
     text1:org.netbeans.modules.languages.html.HTML.tags; 
 }
-COMPLETION:html_attribute_name {
+COMPLETION:html_attribute_name: {
     text1:org.netbeans.modules.languages.html.HTML.attributes; 
 }
-COMPLETION:html_whitespace2 {
+COMPLETION:html_whitespace2: {
     text1:org.netbeans.modules.languages.html.HTML.attributes; 
 }
 
