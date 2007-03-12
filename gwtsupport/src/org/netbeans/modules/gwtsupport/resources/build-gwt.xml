@@ -4,13 +4,43 @@
 <!-- (If you delete it and reopen the project it will be recreated.) -->
 <project name="__PROJECT_NAME__-gwt" default="-post-compile" basedir="..">
     <description>Generates Javascript for __PROJECT_NAME__.</description>
-
+    <property file="./nbproject/gwt.properties"/>
     <target name="-post-compile">
-        <java classpath="${run.classpath}" classname="com.google.gwt.dev.GWTCompiler" fork="true">
+        <java classpath="${javac.classpath}:${src.dir}" classname="com.google.gwt.dev.GWTCompiler" fork="true">
             <arg value="-out"/>
-            <arg path="${build.www.dir}/"/>
-            <arg value="${application.args}"/>
+            <arg path="${build.web.dir}/"/>
+            <arg value="${gwt.module}"/>
         </java>
     </target>
     
+    <target name="debug" description="Debug project in IDE." depends="init,compile,compile-jsps,-do-compile-single-jsp,dist" if="netbeans.home">
+        <nbdeploy debugmode="true" clientUrlPart="${client.urlPart}"/>
+        <antcall target="connect-debugger"/>
+        <antcall target="debug-display-browser"/>
+        <antcall target="debug-connect-gwt-shell"/>
+    </target>
+    
+    <target name="debug-connect-gwt-shell" if="netbeans.home" depends="init">
+        <nbjpdastart transport="dt_socket" addressproperty="jpda.address.gwt" name="com.google.gwt.dev.GWTShell" stopclassname="">
+            <classpath>
+                <path path="${javac.classpath}:${src.dir}:${build.classes.dir}"/>
+            </classpath>
+        </nbjpdastart>
+        <java fork="true" classname="com.google.gwt.dev.GWTShell">
+            <jvmarg value="-Xdebug"/>
+            <jvmarg value="-Xnoagent"/>
+            <jvmarg value="-Djava.compiler=none"/>
+            <jvmarg value="-Xrunjdwp:transport=dt_socket,address=${jpda.address.gwt}"/>
+            <jvmarg value="-XstartOnFirstThread"/>
+            <classpath>
+                <path path="${src.dir}:${javac.classpath}:${build.classes.dir}"/>
+            </classpath>
+            <syspropertyset>
+                <propertyref prefix="run-sys-prop."/>
+                <mapper type="glob" from="run-sys-prop.*" to="*"/>
+            </syspropertyset>
+            <arg value="-noserver"/>
+            <arg value="${client.url}"/>
+        </java>
+    </target>
 </project>
