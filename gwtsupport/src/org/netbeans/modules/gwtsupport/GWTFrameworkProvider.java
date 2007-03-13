@@ -131,6 +131,11 @@ public class GWTFrameworkProvider extends WebFrameworkProvider {
                 assert gwtRtLib != null;
                 cpe.addArchiveFile(gwtRtLib);
                 
+                FileObject gwtServletLib = FileUtil.toFileObject(
+                        FileUtil.normalizeFile(new File(gwtFolder, "gwt-servlet.jar")));
+                
+                cpe.addArchiveFile(gwtServletLib);
+                
                 // CREATE ENTRY POINT CLASS
                 FileObject src = nbprj.getParent().getFileObject("src/java");//properties.getProperty("src.dir"));
                 
@@ -391,7 +396,7 @@ public class GWTFrameworkProvider extends WebFrameworkProvider {
             return null;
         }
         
-        final Library lib = LibraryManager.getDefault().getLibrary(LIB_GWT_NAME);
+        Library lib = LibraryManager.getDefault().getLibrary(LIB_GWT_NAME);
         final List<URL> src = lib == null ? Collections.<URL>emptyList() : (List<URL>) lib.getContent("src");
         List<URL> _javadoc = lib == null ? Collections.<URL>emptyList() : (List<URL>) lib.getContent("javadoc");
         final File gwtJavadoc = FileUtil.normalizeFile(new File(new File(gwtFolder, "doc"), "javadoc"));
@@ -440,6 +445,11 @@ public class GWTFrameworkProvider extends WebFrameworkProvider {
         } finally {
             lock.releaseLock();
         }
+        
+        if (lib == null){
+            lib = LibraryManager.getDefault().getLibrary(LIB_GWT_NAME);
+        }
+        
         return lib;
     }
     
