@@ -308,8 +308,10 @@ final class TokensBrowserTopComponent extends TopComponent {
     }
     
     private void selectPath (int offset) {
+        Object root = tree.getModel ().getRoot ();
+        if (!(root instanceof TSNode)) return;
         listen = false;
-        TSNode n = (TSNode) tree.getModel ().getRoot ();
+        TSNode n = (TSNode) root;
         TreePath path = new TreePath (n);
         path = findPath (path, offset);
         tree.setSelectionPath (path);
