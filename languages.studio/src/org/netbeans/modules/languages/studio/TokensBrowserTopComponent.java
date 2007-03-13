@@ -289,6 +289,7 @@ final class TokensBrowserTopComponent extends TopComponent {
                     try {
                         doc.readLock ();
                         TokenHierarchy tokenHierarchy = TokenHierarchy.get (doc);
+                        if (tokenHierarchy == null) return;
                         ts = tokenHierarchy.tokenSequence ();
                     } finally {
                         doc.readUnlock ();
