@@ -22,7 +22,6 @@ import com.sun.source.util.TreePath;
 import java.beans.PropertyVetoException;
 import java.io.File;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -33,11 +32,11 @@ import org.netbeans.api.java.source.CompilationInfo;
 import org.netbeans.api.java.source.JavaSource;
 import org.netbeans.api.java.source.JavaSource.Phase;
 import org.netbeans.api.java.source.SourceUtilsTestUtil;
+import org.netbeans.api.java.source.TestUtilities;
 import org.netbeans.api.lexer.Language;
 import org.netbeans.junit.NbTestCase;
 import org.netbeans.spi.editor.hints.Fix;
 import org.openide.cookies.EditorCookie;
-import org.openide.filesystems.FileLock;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
 import org.openide.filesystems.LocalFileSystem;
@@ -98,8 +97,11 @@ public class TypoDetectorTest extends NbTestCase {
         FileObject cache = workFO.createFolder("cache");
         
         FileObject data = FileUtil.createData(sourceRoot, fileName);
+        File dataFile = FileUtil.toFile(data);
         
-        writeIntoFile(data, code);
+        assertNotNull(dataFile);
+        
+        TestUtilities.copyStringToFile(dataFile, code);
         
         SourceUtilsTestUtil.prepareTest(sourceRoot, buildRoot, cache);
         
@@ -163,18 +165,6 @@ public class TypoDetectorTest extends NbTestCase {
             }
             Repository.getDefault().addFileSystem(lfs);
             return lfs.getRoot();
-        }
-    }
-    
-    private void writeIntoFile(FileObject file, String what) throws Exception {
-        FileLock lock = file.lock();
-        OutputStream out = file.getOutputStream(lock);
-        
-        try {
-            out.write(what.getBytes());
-        } finally {
-            out.close();
-            lock.releaseLock();
         }
     }
     
