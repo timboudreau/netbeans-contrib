@@ -20,6 +20,7 @@
 package org.netbeans.modules.portalpack.servers.core.api;
 
 import java.util.*;
+import org.netbeans.modules.j2ee.deployment.plugins.api.FindJSPServlet;
 /**
  *
  * @author Satya
@@ -40,6 +41,19 @@ public abstract class PSStartServerInf {
         fireStartStopEvent(StartStopEvent.AFTER_STOP);
     }
     
+    public final void startDebug() throws Exception
+    {
+        fireStartStopEvent(StartStopEvent.BEFORE_START);
+        doStartDebug();
+        fireStartStopEvent(StartStopEvent.AFTER_START);
+    }
+
+    public final void stopDebug() throws Exception
+    {
+        fireStartStopEvent(StartStopEvent.BEFORE_START);
+        doStopDebug();
+        fireStartStopEvent(StartStopEvent.AFTER_START);
+    }
     public void addListener(ServerStartStopListener listener)
     {
         if(listeners == null)
@@ -71,8 +85,12 @@ public abstract class PSStartServerInf {
         }
     }
     
-    
     public abstract void doStartServer() throws Exception;
     public abstract void doStopServer() throws Exception;
+    public abstract void doStartDebug() throws Exception;
+    public abstract void doStopDebug() throws Exception;
+    public abstract int  getDebugPort(); 
+    //Implement this menthod to make debugger find the generated jsps
+    public abstract FindJSPServlet getFindJSPServlet(PSDeploymentManager dm);  
        
 }

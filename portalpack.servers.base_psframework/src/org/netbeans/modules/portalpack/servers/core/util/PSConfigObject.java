@@ -19,6 +19,7 @@
 
 package org.netbeans.modules.portalpack.servers.core.util;
 
+import java.beans.PropertyChangeListener;
 import org.netbeans.modules.portalpack.servers.core.PSConfigCallBackHandler;
 import java.io.File;
 import java.util.Enumeration;
@@ -325,7 +326,7 @@ public class PSConfigObject {
  //comment end
     
     
-    private void saveProperties() {
+    public void saveProperties() {
         InstanceProperties ip = InstanceProperties.getInstanceProperties(uri);
         ip.setProperty("PS_HOME",getPSHome());
         ip.setProperty("ADMIN_USER",getAdminUser());
@@ -498,6 +499,12 @@ public class PSConfigObject {
         saveProperties();
        // save();
         
+    }
+
+    public void addPropertyChangeListener(PropertyChangeListener propertyChangeListener)
+    {
+        InstanceProperties ip = InstanceProperties.getInstanceProperties(uri);
+        ip.addPropertyChangeListener(propertyChangeListener);
     }
    
 }

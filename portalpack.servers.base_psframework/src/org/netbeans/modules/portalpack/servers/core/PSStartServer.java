@@ -62,12 +62,26 @@ public  class PSStartServer extends StartServer  implements ProgressObject, Runn
         startServerHandler = ((PSDeploymentManager)dm).getStartServerHandler();
     }
     public ProgressObject startDebugging(Target target) {
-        
-        return null;
+        if(dm.isLocalServer()){
+            cmdType = PSCommandType.STARTTARGETDEBUG;
+            pes.fireHandleProgressEvent(null,
+                    new Status(ActionType.EXECUTE, CommandType.START,
+                    NbBundle.getMessage(PSStartServer.class, "MSG_STARTING_ADMIN_SERVER"),
+                    StateType.RUNNING));
+            
+            logger.log(Level.FINEST,"Starting .....................deployment manager.........");
+            RequestProcessor.getDefault().post(this, 0, Thread.NORM_PRIORITY);
+            return this;
+        }else{
+            return null;
+        }
     }
     
     public boolean isDebuggable(Target target) {
-        return false;
+        if(dm.isRunning() && startServerHandler.getDebugPort() != 0) //to cross check if the debug implementation is done or not
+          return true;
+        else
+          return false;
     }
     
     /**
@@ -81,7 +95,11 @@ public  class PSStartServer extends StartServer  implements ProgressObject, Runn
     }
     
     public ServerDebugInfo getDebugInfo(Target target) {
-        return null;
+       int debugPort = startServerHandler.getDebugPort();
+       if(debugPort == 0)
+           return null;
+       return new ServerDebugInfo(dm.getPSConfig().getHost(),debugPort);
+       // return null;
     }
     /* return true if admin server can be started through this spi */
     public boolean supportsStartDeploymentManager() {
@@ -196,10 +214,13 @@ public  class PSStartServer extends StartServer  implements ProgressObject, Runn
         return false;
     }
     public boolean supportsStartDebugging(Target t){
-        if(t==null){
+      //  if(t==null){
+        //    return false;
+        //}
+        if(startServerHandler.getDebugPort() != 0)
+            return true;
+        else
             return false;
-        }
-        return true;
     }
     
     // Ruunable run implementation
@@ -244,13 +265,29 @@ public  class PSStartServer extends StartServer  implements ProgressObject, Runn
             }
         }else if(cmdType.equals(PSCommandType.STARTTARGET)) {
             
-            logger.log(Level.INFO,org.openide.util.NbBundle.getMessage(PSStartServer.class, "MSG_TARGET_STARTED"));
+            //logger.log(Level.INFO,org.openide.util.NbBundle.getMessage(PSStartServer.class, "MSG_TARGET_STARTED"));
             
         }else if(cmdType.equals(PSCommandType.STOPTARGET)) {
            
             
         }else if(cmdType.equals(PSCommandType.STARTTARGETDEBUG)) {
-            
+            logger.log(Level.FINEST,"Just before starting debug server ****");
+            try{
+                 
+                //start admin server
+                writeToOutput(org.openide.util.NbBundle.getMessage(PSStartServer.class, "MSG_STARTING_ADMIN_SERVER"));
+                startServerHandler.startDebug(); 
+                pes.fireHandleProgressEvent(null,
+                        new Status(ActionType.EXECUTE, cmdType,
+                        NbBundle.getMessage(PSStartServer.class,"MSG_ADMIN_SERVER_STARTED"),
+                        StateType.COMPLETED));
+            }catch(Exception ex){
+                pes.fireHandleProgressEvent(null,
+                        new Status(ActionType.EXECUTE, cmdType,
+                        ex.getLocalizedMessage(),
+                        StateType.FAILED));
+                
+            }
         }
     }
     

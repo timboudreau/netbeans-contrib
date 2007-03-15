@@ -50,7 +50,7 @@ public abstract class ShowBaseChannelsAction extends CookieAction {
                      return;
             }catch(Exception e)
             {
-                logger.log(Level.SEVERE,org.openide.util.NbBundle.getMessage(ShowBaseChannelsAction.class, "MSG_ERROR"),e);
+                logger.log(Level.SEVERE,"Error",e);
                 return;
             }
             

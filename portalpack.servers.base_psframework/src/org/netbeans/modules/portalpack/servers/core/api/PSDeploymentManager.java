@@ -19,6 +19,8 @@
 
 package org.netbeans.modules.portalpack.servers.core.api;
 
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import org.netbeans.modules.portalpack.servers.core.*;
 import org.netbeans.modules.portalpack.servers.core.PSDeployer;
 import org.netbeans.modules.portalpack.servers.core.common.LogManager;
@@ -28,6 +30,8 @@ import org.netbeans.modules.portalpack.servers.core.util.NetbeanConstants;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.enterprise.deploy.model.DeployableObject;
@@ -41,7 +45,10 @@ import javax.enterprise.deploy.spi.exceptions.DConfigBeanVersionUnsupportedExcep
 import javax.enterprise.deploy.spi.exceptions.InvalidModuleException;
 import javax.enterprise.deploy.spi.exceptions.TargetException;
 import javax.enterprise.deploy.spi.status.ProgressObject;
-import org.netbeans.modules.j2ee.deployment.plugins.api.InstanceProperties;
+import org.openide.ErrorManager;
+import org.openide.filesystems.FileLock;
+import org.openide.filesystems.FileObject;
+import org.openide.filesystems.FileUtil;
 
 /**
  * @author Satya
@@ -67,7 +74,22 @@ public abstract class PSDeploymentManager implements DeploymentManager {
         }catch(Exception e){
             port = 80;
         }
-        logManager = new LogManager(this);      
+        logManager = new LogManager(this);
+      
+        psconfig.addPropertyChangeListener(new PropertyChangeListener() {
+            public void propertyChange(PropertyChangeEvent evt) {
+                String name = evt.getPropertyName();
+                    if(name.equalsIgnoreCase("PORTAL_URI"))
+                    {    // update Ant deployment properties file if it exists
+                        try {
+                            storeAntDeploymentProperties(getAntDeploymentPropertiesFile(), false);
+                        } catch(IOException ioe) {
+                            ErrorManager.getDefault().notify(ErrorManager.INFORMATIONAL, ioe);
+                        }
+                    }
+                }
+            }
+        );
     }
     
     public PSConfigObject getPSConfig()
@@ -98,8 +120,8 @@ public abstract class PSDeploymentManager implements DeploymentManager {
         PSDeployer depl = new PSDeployerImpl(this,host,port);
         ProgressObject po = depl.deploy(target[0],file,file2);
        
-        if(file != null)
-            logger.log(Level.INFO,org.openide.util.NbBundle.getMessage(PSDeploymentManager.class, "MSG_FILE")+file.getAbsolutePath()+org.openide.util.NbBundle.getMessage(PSDeploymentManager.class, "MSG_DEPLOYED"));
+       //if(file != null)
+       //     logger.log(Level.INFO,"File "+file.getAbsolutePath()+" deployed successfully.");
         
         return po;
     }
@@ -220,7 +242,7 @@ public abstract class PSDeploymentManager implements DeploymentManager {
         try{
             port = Integer.parseInt(psconfig.getAdminPort());
         }catch(Exception e){
-            logger.log(Level.SEVERE,org.openide.util.NbBundle.getMessage(PSDeploymentManager.class, "MSG_INVALID_ADMIN_PORT")+psconfig.getAdminPort(),e);
+            logger.log(Level.SEVERE,"Invalid Admin Port : "+psconfig.getAdminPort(),e);
         }
         
         String host = psconfig.getHost();
@@ -251,7 +273,7 @@ public abstract class PSDeploymentManager implements DeploymentManager {
         try{
             port = Integer.parseInt(psconfig.getPort());
         }catch(Exception e){
-            logger.log(Level.SEVERE,org.openide.util.NbBundle.getMessage(PSDeploymentManager.class, "MSG_INVALID_PORT"),e);
+            logger.log(Level.SEVERE,"Invalid Port: "+psconfig.getPort(),e);
         }
         
         String host = psconfig.getHost();
@@ -266,7 +288,51 @@ public abstract class PSDeploymentManager implements DeploymentManager {
             return false;
         }
     }
+
+    public File getAntDeploymentPropertiesFile() {
+        return new File(System.getProperty("netbeans.user"), getInstanceID() + ".properties"); // NOI18N
+    }
     
+    public void storeAntDeploymentProperties(File file, boolean create) throws IOException {
+        if (!create && !file.exists()) {
+            return;
+        }
+        Properties antProps = new Properties();
+        antProps.setProperty("ps.client.url", getTaskHandler().getClientURL()); // NOI18N
+        antProps.setProperty("client.url", getTaskHandler().getClientURL());
+        file.createNewFile();
+        FileObject fo = FileUtil.toFileObject(file);
+        FileLock lock = null;
+        try {
+            lock = fo.lock();
+            OutputStream os = fo.getOutputStream(lock);
+            try {
+                antProps.store(os,"");
+            } finally {
+                if (null != os) {
+                    os.close();
+                }
+            }
+        } finally {
+            if (null != lock) {
+                lock.releaseLock();
+            }
+        }
+    }
+    
+    private String getInstanceID()
+    {
+        if(getPSConfig().getIntanceId() == null || getPSConfig().getIntanceId().length() == 0)
+        {
+            String host = getPSConfig().getHost().replace(".","_");
+            String instanceID = getPSVersion()+"_"+host+"_"+getPSConfig().getPort();
+            getPSConfig().setInstanceId(instanceID);
+            getPSConfig().saveProperties();           
+            return instanceID;
+        }
+        return getPSConfig().getIntanceId();
+    }
+
     //custom methods 
     public ProgressObject undeploy(String portletAppName,String dn)
     {    

@@ -19,6 +19,8 @@
 
 package org.netbeans.modules.portalpack.servers.core.impl;
 
+import org.netbeans.modules.j2ee.deployment.plugins.api.FindJSPServlet;
+import org.netbeans.modules.portalpack.servers.core.api.PSDeploymentManager;
 import org.netbeans.modules.portalpack.servers.core.api.PSStartServerInf;
 
 /**
@@ -38,6 +40,20 @@ public class DefaultStartServerImpl  extends PSStartServerInf {
     public void doStopServer() throws Exception {
         
         System.out.println("StartServer is not implemented yet...");
+    }
+
+    public void doStartDebug() throws Exception {
+    }
+
+    public void doStopDebug() throws Exception {
+    }
+
+    public int getDebugPort(){
+        return 0;
+    }
+
+    public FindJSPServlet getFindJSPServlet(PSDeploymentManager dm) {
+        return null;
     }
     
 }

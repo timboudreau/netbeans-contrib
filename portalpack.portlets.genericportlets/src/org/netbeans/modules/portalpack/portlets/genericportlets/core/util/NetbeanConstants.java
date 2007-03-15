@@ -43,6 +43,7 @@ public class NetbeanConstants {
     
     public final static String J2EE_1_3 = "J2EE 1.3";
     public final static String J2EE_1_4 = "J2EE 1.4";
+    public final static String J2EE_1_5 = "Java EE 5";
     
     static{
         String userBase = System.getProperty("netbeans.user");

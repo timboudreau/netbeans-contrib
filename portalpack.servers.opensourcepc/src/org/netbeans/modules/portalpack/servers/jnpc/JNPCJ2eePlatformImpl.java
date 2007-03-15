@@ -22,7 +22,10 @@ package org.netbeans.modules.portalpack.servers.jnpc;
 import java.io.File;
 import java.net.MalformedURLException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import org.netbeans.modules.j2ee.deployment.devmodules.api.J2eeModule;
 import org.netbeans.modules.portalpack.servers.core.PSJ2eePlatformImpl;
 import org.netbeans.modules.portalpack.servers.core.api.PSDeploymentManager;
 import org.netbeans.modules.portalpack.servers.core.util.PSConfigObject;
@@ -38,6 +41,13 @@ public class JNPCJ2eePlatformImpl extends PSJ2eePlatformImpl{
         super(dm);
     }
     
+    public Set getSupportedSpecVersions() {
+        Set result = new HashSet();
+        result.add(J2eeModule.J2EE_13);
+        result.add(J2eeModule.J2EE_14);
+        result.add(J2eeModule.JAVA_EE_5);
+        return result;
+    }
     protected List getCustomLibraries() {
          List classPath = new ArrayList();
          

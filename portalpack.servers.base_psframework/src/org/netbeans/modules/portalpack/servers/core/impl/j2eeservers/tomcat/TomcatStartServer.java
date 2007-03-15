@@ -20,6 +20,7 @@
 package org.netbeans.modules.portalpack.servers.core.impl.j2eeservers.tomcat;
 
 import java.io.File;
+import org.netbeans.modules.j2ee.deployment.plugins.api.FindJSPServlet;
 import org.netbeans.modules.j2ee.deployment.plugins.api.UISupport;
 import org.netbeans.modules.portalpack.servers.core.PSLogViewer;
 import org.netbeans.modules.portalpack.servers.core.api.PSDeploymentManager;
@@ -166,6 +167,20 @@ public class TomcatStartServer extends PSStartServerInf implements TomcatConstan
         }catch(Exception ex){
             ErrorManager.getDefault().notify(ErrorManager.WARNING, ex);
         }
+    }
+
+    public void doStartDebug() throws Exception {
+    }
+
+    public void doStopDebug() throws Exception {
+    }
+
+    public int getDebugPort() {
+        return 0;
+    }
+
+    public FindJSPServlet getFindJSPServlet(PSDeploymentManager dm) {
+        return null;
     }
     
 }

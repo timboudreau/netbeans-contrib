@@ -30,9 +30,13 @@ Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
     <target name="compile" depends="projectized-common.compile">
         
         <property name="build.templates.projects.dir" value="${build.classes.dir}/templates/projects"/>
+        <property name="build.templates.dir" value="${build.classes.dir}/templates"/>
         <property name="src.templates.projects.dir" value="${src.dir}/templates/projects"/>
     
         <delete file="${build.templates.projects.dir}/JSR168PortletApplication.zip" quiet="true"></delete>
+        
+        <delete dir="${build.templates.dir}/lib"/>
+        <mkdir dir="${build.templates.dir}/lib"/>
         
         <copy file="../../external/portlet/portlet-api-1.0.jar"
         todir="${src.templates.projects.dir}/JSR168PortletApplication/lib"/>
@@ -40,6 +44,13 @@ Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
         todir="${src.templates.projects.dir}/JSR168PortletApplication/lib"/>
         <copy file="../../external/portlet/portlet.tld"
         todir="${src.templates.projects.dir}/JSR168PortletApplication/web/WEB-INF"/>
+        
+        <copy file="../../external/portlet/portlet-api-1.0.jar"
+        todir="${build.templates.dir}/lib"/>
+        <copy file="../../external/portlet/portlettaglib-1.0.jar"
+        todir="${build.templates.dir}/lib"/>
+        <copy file="../../external/portlet/portlet.tld"
+        todir="${build.templates.dir}/lib"/>
         
          <zip destfile="${build.templates.projects.dir}/JSR168PortletApplication.zip" basedir="${src.templates.projects.dir}/JSR168PortletApplication"/>
          <delete file="${src.templates.projects.dir}/JSR168PortletApplication/lib/portlet-api-1.0.jar" quiet="true"></delete>

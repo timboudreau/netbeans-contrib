@@ -44,6 +44,7 @@ public class SunAppConfigUtil {
     
     private Document doc;
     private static Logger logger = Logger.getLogger(NetbeanConstants.PORTAL_LOGGER);
+    static final String DEBUG_OPTIONS_ADDRESS = "address="; //NOI18N
     /**
      * Creates a new instance of SunAppConfigUtil
      */
@@ -183,6 +184,29 @@ public class SunAppConfigUtil {
         return domain.trim();
     }
     
+    public String getDebugAddress()
+    {
+        String debugOptionsVal = null;
+        if(doc == null)
+            return "0";
+        try{
+            debugOptionsVal = getXPath().evaluate("/domain/configs/config[@name='server-config']/java-config/@debug-options",doc);
+        }catch(XPathExpressionException ex){
+            logger.log(Level.SEVERE,"ParseError",ex);
+            debugOptionsVal = null;
+        }
+        if(debugOptionsVal != null){
+            debugOptionsVal = debugOptionsVal.substring(debugOptionsVal.indexOf(DEBUG_OPTIONS_ADDRESS)+DEBUG_OPTIONS_ADDRESS.length(), debugOptionsVal.length());
+            int hasMore = debugOptionsVal.indexOf(","); //NOI18N
+            if(hasMore != -1){ 
+                debugOptionsVal = debugOptionsVal.substring(0, hasMore);
+            }
+        }
+        else
+            return "0";
+        
+        return debugOptionsVal;
+    }
     private XPath getXPath()
     {
         XPathFactory xpathFactory = XPathFactory.newInstance();
@@ -203,6 +227,7 @@ public class SunAppConfigUtil {
         Document document = builder.parse(file);
         return document;
     }
+    
     
     public static void main(String[] args) throws SAXException, IOException, ParserConfigurationException
     {    

@@ -117,7 +117,7 @@ public final class CreateContainerAction extends CookieAction {
                 }
                 
                 if(selectedList.contains(containerName)) {
-                    logger.log(Level.WARNING,org.openide.util.NbBundle.getMessage(CreateContainerAction.class, "MSG_Container_is_already_prsenet_in_selected_List"));
+                    logger.log(Level.WARNING,"Container "+containerName + " is already present in the selected list.");
                     return;
                 }
                 //Add to available list

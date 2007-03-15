@@ -19,6 +19,7 @@
 
 package org.netbeans.modules.portalpack.servers.core;
 
+import org.netbeans.modules.j2ee.deployment.plugins.api.FindJSPServlet;
 import org.netbeans.modules.portalpack.servers.core.api.PSDeploymentManager;
 import org.netbeans.modules.portalpack.servers.core.api.PSStartServerInf;
 import org.netbeans.modules.portalpack.servers.core.common.LogManager;
@@ -129,6 +130,20 @@ public class WS70StartServer extends PSStartServerInf{
         }catch(Exception ex){
             ErrorManager.getDefault().notify(ErrorManager.WARNING, ex);
         }
+    }
+
+    public void doStartDebug() throws Exception {
+    }
+
+    public void doStopDebug() throws Exception {
+    }
+
+    public int getDebugPort() {
+        return 0;
+    }
+
+    public FindJSPServlet getFindJSPServlet(PSDeploymentManager dm) {
+        return null;
     }
     
     

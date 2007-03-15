@@ -141,7 +141,7 @@ public class JNPCTaskHandler extends DefaultPSTaskHandler{
                     throw new Exception(org.openide.util.NbBundle.getMessage(JNPCTaskHandler.class, "Deployment_failed"));
 
             }else{
-                    logger.log(Level.INFO,org.openide.util.NbBundle.getMessage(JNPCTaskHandler.class, "Problem_preparing_war"));
+                    logger.log(Level.INFO,"Problem Preparing war file");
             }
 
         }catch(Exception e){
@@ -227,7 +227,7 @@ public class JNPCTaskHandler extends DefaultPSTaskHandler{
             }
             else
             {
-                logger.log(Level.INFO,org.openide.util.NbBundle.getMessage(JNPCTaskHandler.class, "PROBLEM_IN_UNREGISTER"));
+                logger.log(Level.INFO,"Problem unregistering application from the portlet container");
             }
 
         }catch(Exception e){
@@ -325,7 +325,7 @@ public class JNPCTaskHandler extends DefaultPSTaskHandler{
 
     public String constructPortletViewURL(String dn, String portlet) {
 
-        String  contextUri = psconfig.getPortalUri();
+        String  contextUri = psconfig.getProperty(JNPCConstants.PORTLET_URI);
         if(contextUri.startsWith("/"))
         {
            if(contextUri.length() > 1)
@@ -344,6 +344,16 @@ public class JNPCTaskHandler extends DefaultPSTaskHandler{
     public String constructAdminToolURL(){
 
         String  contextUri = psconfig.getProperty(JNPCConstants.ADMIN_CONSOLE_URI);
+        if(contextUri.startsWith("/"))
+        {
+           if(contextUri.length() > 1)
+               contextUri = contextUri.substring(1);
+        }
+        return "http://"+psconfig.getHost() + ":"+psconfig.getPort()+"/"+contextUri;
+    }
+
+    public String getClientURL(){
+        String  contextUri = psconfig.getPortalUri();
         if(contextUri.startsWith("/"))
         {
            if(contextUri.length() > 1)

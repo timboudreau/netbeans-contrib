@@ -149,7 +149,7 @@ public class PSDeployerImpl implements PSDeployer, Runnable{
                 writeToOutput(dm.getUri(),org.openide.util.NbBundle.getMessage(PSDeployerImpl.class, "MSG_DEPLOYED"));
                
             } catch (Exception ex) {
-                logger.log(Level.SEVERE,org.openide.util.NbBundle.getMessage(PSDeployerImpl.class, "MSG_DEPLOYMENT_ERROR"),ex);
+                logger.log(Level.SEVERE,"Deployment Error",ex);
                 writeErrorStackToOutput(dm.getUri(),ex);
                 writeErrorToOutput(dm.getUri(),org.openide.util.NbBundle.getMessage(PSDeployerImpl.class,"MSG_DEPLOYMENT_FAILED")
                                          + " : " +ex.getMessage());
@@ -216,7 +216,7 @@ public class PSDeployerImpl implements PSDeployer, Runnable{
                     writeToOutput(dm.getUri(),portletAppName +org.openide.util.NbBundle.getMessage(PSDeployerImpl.class, "MSG_UNDEPLOYED_SUCCESSFULLY"));
                 } catch (Exception ex) {
                     writeErrorStackToOutput(dm.getUri(),ex);
-                    logger.log(Level.SEVERE,org.openide.util.NbBundle.getMessage(PSDeployerImpl.class, "MSG_UNDEPLYOMENT_FAILED")+portletAppName,ex);
+                    logger.log(Level.SEVERE,"Deployment failed for application "+portletAppName,ex);
                     writeToOutput(dm.getUri(),portletAppName + org.openide.util.NbBundle.getMessage(PSDeployerImpl.class, "MSG_UNDEPLYOMENT_FAILED"));
                     pes.fireHandleProgressEvent(null,
                                 new Status(ActionType.EXECUTE, cmdType,

@@ -54,7 +54,8 @@ public class WebDescriptorGenerator {
       if(portletXml.exists())
         return portletXml;
 
-      FileWriter writer = new FileWriter(portletXml);
+      FileOutputStream outputStream = new FileOutputStream(portletXml);
+      OutputStreamWriter writer = new OutputStreamWriter(outputStream,"UTF-8");
       mergeTemplate(ConfigConstants.PORTLET_XML_TEMPLATE,values, writer);
       return portletXml;
 
@@ -66,7 +67,8 @@ public class WebDescriptorGenerator {
       if(portletXml.exists())
         return portletXml;
 
-      FileWriter writer = new FileWriter(portletXml);
+      FileOutputStream outputStream = new FileOutputStream(portletXml);
+      OutputStreamWriter writer = new OutputStreamWriter(outputStream,"UTF-8");
       mergeTemplate(ConfigConstants.PORTLET_XML_TEMPLATE,values, writer);
       return portletXml;
 
@@ -77,7 +79,7 @@ public class WebDescriptorGenerator {
 
         VelocityContext context = VTResourceLoader.getContext(values);
              
-            Template template = Velocity.getTemplate(templateFile);
+            Template template = Velocity.getTemplate(templateFile,"UTF-8");
             if (template == null) {
                 throw new IllegalStateException(" no template defined ");
             }
@@ -91,7 +93,7 @@ public class WebDescriptorGenerator {
   {
       XMLOutputter outputter = new XMLOutputter();
       try {
-          Writer writer = new FileWriter(new File(filePath));
+          OutputStreamWriter writer = new OutputStreamWriter(new FileOutputStream(new File(filePath)),"UTF-8");
           outputter.output(doc,writer);
       } catch (IOException e) {
           logger.log(Level.SEVERE,"error",e);

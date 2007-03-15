@@ -26,6 +26,8 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.xml.parsers.ParserConfigurationException;
+import org.netbeans.modules.j2ee.deployment.plugins.api.FindJSPServlet;
 import org.netbeans.modules.j2ee.deployment.plugins.api.UISupport;
 import org.netbeans.modules.portalpack.servers.core.PSLogViewer;
 import org.netbeans.modules.portalpack.servers.core.api.PSDeploymentManager;
@@ -35,6 +37,7 @@ import org.netbeans.modules.portalpack.servers.core.util.NetbeanConstants;
 import org.netbeans.modules.portalpack.servers.core.util.PSConfigObject;
 import org.openide.ErrorManager;
 import org.openide.windows.OutputWriter;
+import org.xml.sax.SAXException;
 
 /**
  *
@@ -113,6 +116,30 @@ public class SunAppServerStartServer extends PSStartServerInf{
         return command.toString();
     }
     
+
+    private String makeStartDebugCommand() {
+        
+        StringBuffer command = new StringBuffer();
+        command.append(psconfig.getServerHome())
+                .append(File.separator)
+                .append("bin")
+                .append(File.separator)
+                .append("asadmin");
+        if (org.openide.util.Utilities.isWindows()){
+            command.append(".bat");
+        }
+        
+        command.append(" ")
+               .append("start-domain")
+               .append(" ")
+               .append(" --debug=true")
+               .append(" ")
+               .append(psconfig.getDefaultDomain());
+
+        
+        System.out.println("Return ::::"+command.toString());
+        return command.toString();
+    }
     
     private void viewAdminLogs(){
         String uri = dm.getUri();
@@ -144,6 +171,44 @@ public class SunAppServerStartServer extends PSStartServerInf{
         }catch(Exception ex){
             ErrorManager.getDefault().notify(ErrorManager.WARNING, ex);
         }
+    }
+
+    public void doStartDebug() throws Exception {
+        runProcess(makeStartDebugCommand(), true); //NO I18N
+        viewAdminLogs();
+    }
+
+    public void doStopDebug() throws Exception {
+        doStopServer();
+    }
+
+    public int getDebugPort(){
+        try {
+            SunAppConfigUtil appConfigUtil = new SunAppConfigUtil(new File(psconfig.getDomainDir()));
+            String debugAddress = appConfigUtil.getDebugAddress();
+            return Integer.parseInt(debugAddress.trim());
+        } catch (SunAppConfigUtil.ReadAccessDeniedException ex) {
+            logger.log(Level.SEVERE,"Error",ex);
+            return 0;
+        } catch (SAXException ex) {
+            logger.log(Level.SEVERE,"Error",ex);
+            return 0;
+        } catch (ParserConfigurationException ex) {
+            logger.log(Level.SEVERE,"Error",ex);
+            return 0;
+        } catch (IOException ex) {
+            logger.log(Level.SEVERE,"Error",ex);
+            return 0;
+        } catch(Exception ex){
+            logger.log(Level.SEVERE,"Error",ex);
+            return 0;
+        }
+        
+        
+    }
+
+    public FindJSPServlet getFindJSPServlet(PSDeploymentManager dm) {
+        return new SunAppFindJSPServletImpl(dm);
     }
     
 }

@@ -45,7 +45,7 @@ public final class ShowAdminToolAction extends CookieAction {
                 try{
                     if(manager == null)
                     {
-                        logger.log(Level.WARNING,org.openide.util.NbBundle.getMessage(ShowAdminToolAction.class, "MSG_Deployment_manager_is_null"));
+                        logger.log(Level.WARNING,"Deployment Manager is Null");
                         return;
                     }
                     
@@ -53,7 +53,7 @@ public final class ShowAdminToolAction extends CookieAction {
                     HtmlBrowser.URLDisplayer.getDefault().showURL(new URL(portalUrl)); 
                 }
                 catch (Exception e){
-                    logger.log(Level.SEVERE,org.openide.util.NbBundle.getMessage(ShowAdminToolAction.class, "MSG_ERROR"),e);
+                    logger.log(Level.SEVERE,"Error",e);
                            
                     return;//nothing much to do
                 }

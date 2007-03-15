@@ -55,20 +55,21 @@ Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
                     <file name="JSR-168 Portlet Application" url="nbresloc:templates/projects/JSR168PortletApplication.zip">
                         <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.portalpack.portlets.genericportlets.apptype.jsr168.Bundle"/>
                         <attr name="instantiatingIterator" methodvalue="org.netbeans.modules.portalpack.portlets.genericportlets.apptype.jsr168.PortletApplicationWizardIterator.createIterator"/>
+                        <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/portalpack/portlets/genericportlets/resources/portletapp.gif"/>
                         <attr name="instantiatingWizardURL" urlvalue="nbresloc:org/netbeans/modules/portalpack/portlets/genericportlets/apptype/jsr168/PortletApplicationDescription.html"/>
                         <attr name="template" boolvalue="true"/>
                     </file>
-                    <!--
+                    
                     <file name="JSR-168 Portlet Application From Existing Sources"  url="nbresloc:templates/projects/JSR168PortletApplication.zip">
                         <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.portalpack.portlets.genericportlets.apptype.jsr168.existingsrc.Bundle"/>
                         <attr name="instantiatingIterator" methodvalue="org.netbeans.modules.portalpack.portlets.genericportlets.apptype.jsr168.existingsrc.ExistingSourcePortletAppWizardIterator.getIterator"/>
+                        <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/portalpack/portlets/genericportlets/resources/portletapp.gif"/>
                         <attr name="instantiatingWizardURL" urlvalue="nbresloc:org/netbeans/modules/portalpack/portlets/genericportlets/apptype/jsr168/existingsrc/ExistingSourcePortletAppDescription.html"/>
                         <attr name="template" boolvalue="true"/>
                     </file>
-                    -->
+                    
                 </folder>
-            </folder>
-                          
+            </folder>                    
         </folder>
         
        <folder name="velocity"> 
@@ -84,6 +85,12 @@ Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
              <file name="web-24.xml" url="nbresloc:templates/web-24.xml"/>
              <file name="context.xml" url="nbresloc:templates/context.xml"/>
         </folder>
+      </folder>
+      
+      <folder name="portlet-libraries">
+          <file name="portlet-api-1.0.jar" url="nbresloc:templates/lib/portlet-api-1.0.jar"/> 
+          <file name="portlettaglib-1.0.jar" url="nbresloc:templates/lib/portlettaglib-1.0.jar"/> 
+          <file name="portlet.tld" url="nbresloc:templates/lib/portlet.tld"/> 
       </folder>
     
 </filesystem>

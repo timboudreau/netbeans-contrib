@@ -67,6 +67,8 @@ public class PCConfigPanel extends ConfigPanel implements DocumentListener{
         hostTf = new javax.swing.JTextField();
         jLabel5 = new javax.swing.JLabel();
         adminConsoleUriTf = new javax.swing.JTextField();
+        jLabel6 = new javax.swing.JLabel();
+        portletUriTf = new javax.swing.JTextField();
 
         setFont(new java.awt.Font("Tahoma", 1, 11));
         jLabel1.setFont(new java.awt.Font("Tahoma", 1, 11));
@@ -103,6 +105,9 @@ public class PCConfigPanel extends ConfigPanel implements DocumentListener{
         jLabel5.setFont(new java.awt.Font("Tahoma", 1, 11));
         jLabel5.setText(org.openide.util.NbBundle.getMessage(PCConfigPanel.class, "LBL_ADMIN_URI"));
 
+        jLabel6.setFont(new java.awt.Font("Tahoma", 1, 11));
+        jLabel6.setText(org.openide.util.NbBundle.getBundle(PCConfigPanel.class).getString("LBL_PORTLET_URI"));
+
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
@@ -127,7 +132,8 @@ public class PCConfigPanel extends ConfigPanel implements DocumentListener{
                                 .add(jLabel1))
                             .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING, false)
                                 .add(org.jdesktop.layout.GroupLayout.LEADING, adminConsoleUriTf)
-                                .add(org.jdesktop.layout.GroupLayout.LEADING, portalUri, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 173, Short.MAX_VALUE))
+                                .add(org.jdesktop.layout.GroupLayout.LEADING, portalUri, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 173, Short.MAX_VALUE)
+                                .add(org.jdesktop.layout.GroupLayout.LEADING, portletUriTf))
                             .add(layout.createSequentialGroup()
                                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING, false)
                                     .add(org.jdesktop.layout.GroupLayout.LEADING, hostTf)
@@ -135,6 +141,10 @@ public class PCConfigPanel extends ConfigPanel implements DocumentListener{
                                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                                 .add(homeChooseButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 36, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))))
                 .addContainerGap(19, Short.MAX_VALUE))
+            .add(layout.createSequentialGroup()
+                .addContainerGap()
+                .add(jLabel6, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 75, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(405, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
@@ -160,7 +170,11 @@ public class PCConfigPanel extends ConfigPanel implements DocumentListener{
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
                     .add(jLabel5)
                     .add(adminConsoleUriTf, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .add(14, 14, 14)
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                    .add(portletUriTf, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                    .add(jLabel6))
+                .addContainerGap(15, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
 
@@ -215,8 +229,10 @@ public class PCConfigPanel extends ConfigPanel implements DocumentListener{
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
+    private javax.swing.JLabel jLabel6;
     private javax.swing.JSeparator jSeparator1;
     private javax.swing.JTextField portalUri;
+    private javax.swing.JTextField portletUriTf;
     // End of variables declaration//GEN-END:variables
 
     public void initData()
@@ -230,8 +246,9 @@ public class PCConfigPanel extends ConfigPanel implements DocumentListener{
       ///  InstanceProperties intProps = InstanceProperties.getInstanceProperties(instances[1]);
         
       /// DeploymentFactoryManager.getInstance().getDisconnectedDeploymentManager("test").
-       portalUri.setText("/portletdriver/ospc");
+       portalUri.setText("/portletdriver/dt");
        adminConsoleUriTf.setText("/portletdriver/admin");
+       portletUriTf.setText("/portletdriver/ospc");
        hostTf.setText("localhost");
         
     }
@@ -243,6 +260,7 @@ public class PCConfigPanel extends ConfigPanel implements DocumentListener{
         homeTf.setText(object.getPSHome());
         hostTf.setText(object.getHost());
         adminConsoleUriTf.setText(object.getProperty(JNPCConstants.ADMIN_CONSOLE_URI));
+        portletUriTf.setText(object.getProperty(JNPCConstants.PORTLET_URI));
         
         homeTf.setEnabled(false);
         hostTf.setEnabled(false);
@@ -275,6 +293,7 @@ public class PCConfigPanel extends ConfigPanel implements DocumentListener{
         wr.setPortalUri(portalUri.getText());
         wr.setHost(hostTf.getText());
         wr.setProperty(JNPCConstants.ADMIN_CONSOLE_URI,adminConsoleUriTf.getText());
+        wr.setProperty(JNPCConstants.PORTLET_URI,portletUriTf.getText());
       //  wr.setPortalUri("/pcdriver");
     }
 
@@ -301,6 +320,12 @@ public class PCConfigPanel extends ConfigPanel implements DocumentListener{
         if(adminConsoleUriTf.getText() == null || adminConsoleUriTf.getText().trim().length() == 0)
         {
             setErrorMessage(NbBundle.getMessage(PCConfigPanel.class,"MSG_NOT_A_VALID_ADMIN_URI"));
+            return false;
+        }
+
+        if(portletUriTf.getText() == null || portletUriTf.getText().trim().length() == 0)
+        {
+            setErrorMessage(NbBundle.getMessage(PCConfigPanel.class,"MSG_NOT_A_VALID_PORTLET_URI"));
             return false;
         }
         setErrorMessage("");

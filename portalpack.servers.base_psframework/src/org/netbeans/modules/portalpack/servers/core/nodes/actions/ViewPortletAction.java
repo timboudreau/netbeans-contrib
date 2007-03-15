@@ -54,7 +54,7 @@ public final class ViewPortletAction extends CookieAction {
             try {
                 HtmlBrowser.URLDisplayer.getDefault().showURL(new URL(portalUrl)); 
             } catch (MalformedURLException ex) {
-                logger.log(Level.SEVERE,org.openide.util.NbBundle.getMessage(ViewPortletAction.class, "MSG_ERROR"),ex);
+                logger.log(Level.SEVERE,"Error",ex);
             } 
         }
     }

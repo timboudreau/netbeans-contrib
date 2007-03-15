@@ -17,20 +17,22 @@
   * Microsystems, Inc. All Rights Reserved.
   */
 
-package org.netbeans.modules.portalpack.servers.jnpc.common;
+package org.netbeans.modules.portalpack.portlets.genericportlets.core.exceptions;
 
 /**
  *
- * @author root
+ * @author Satyaranjan
  */
-public class JNPCConstants {
+public class GenericPortletException extends Exception{
     
-    public static String OS_PC_1_0 = "OS_PC_1_0";
-    public static String OS_PC_1_0_URI_PREFIX = "os:pc_1_0";
+    /** Creates a new instance of GenericPortletException */
+    public GenericPortletException() {
+        super();
+    }
     
-    //config parameters
-    public static String ADMIN_CONSOLE_URI = "ADMIN_CONSOLE_URI";
-    public static String SETUP_DONE = "SETUP_DONE";
-
-    public static String PORTLET_URI = "OSPC_PORTLET_URI";
+    public GenericPortletException(String msg)
+    {
+        super(msg);
+    }
+    
 }

@@ -55,7 +55,7 @@ public final class ViewChannelsAction extends CookieAction {
             try{
                 authlessUser = manager.getTaskHandler().getAuthlessUser(cookie.getDn());
             }catch(Exception e){
-                logger.log(Level.SEVERE,org.openide.util.NbBundle.getMessage(ViewChannelsAction.class, "MSG_Error_getting_Authless_user_for")+cookie.getDn(),e);
+                logger.log(Level.SEVERE,"Error getting authless user for dn "+cookie.getDn(),e);
             }
             
             String portalUrl = null;

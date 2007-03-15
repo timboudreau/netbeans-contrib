@@ -44,6 +44,8 @@ public interface PSTaskHandler {
     public String constructPortletViewURL(String dn,String portlet);
     
     public String constructAdminToolURL();
+
+    public String getClientURL();
        
     public String[] getExistingProviders(String dn) throws Exception;
     

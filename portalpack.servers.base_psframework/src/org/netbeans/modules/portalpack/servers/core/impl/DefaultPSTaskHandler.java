@@ -112,4 +112,8 @@ public class DefaultPSTaskHandler implements PSTaskHandler {
     public void addChannel(String dn) throws Exception{
         //empty implementation.
     }
+
+    public String getClientURL() {
+        return constructAdminToolURL();
+    }
 }

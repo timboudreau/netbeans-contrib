@@ -42,7 +42,7 @@ public class ActionUtil {
             try {
                 selectedList = handler.getSelectedChannels(dn,container);
             } catch (Exception ex) {
-                logger.log(Level.SEVERE,org.openide.util.NbBundle.getMessage(ActionUtil.class, "MSG_ERROR"),ex);
+                logger.log(Level.SEVERE,"Error",ex);
                 JOptionPane.showMessageDialog(WindowManager.getDefault().getMainWindow(),org.openide.util.NbBundle.getMessage(ActionUtil.class, "MSG_COULD_NOT_BE_ADDED_TO_THE_SELECTED_LIST"));
                 return;
             }
@@ -59,7 +59,7 @@ public class ActionUtil {
                 
                 availableList = handler.getAvailableChannels(dn,container);
             } catch (Exception ex) {
-                logger.log(Level.SEVERE,org.openide.util.NbBundle.getMessage(ActionUtil.class, "MSG_ERROR"),ex);
+                logger.log(Level.SEVERE,"Error",ex);
                 JOptionPane.showMessageDialog(WindowManager.getDefault().getMainWindow(),org.openide.util.NbBundle.getMessage(ActionUtil.class, "MSG_COULD_NOT_BE_ADDED_TO_AVAILABLE_LIST"));
                 return;
             }
@@ -71,7 +71,7 @@ public class ActionUtil {
                 
                 handler.setAvailableChannels(dn,availableList,container);
             } catch (Exception ex) {
-                logger.log(Level.SEVERE,org.openide.util.NbBundle.getMessage(ActionUtil.class, "MSG_ERROR"),ex);
+                logger.log(Level.SEVERE,"Error",ex);
                  JOptionPane.showMessageDialog(WindowManager.getDefault().getMainWindow(),org.openide.util.NbBundle.getMessage(ActionUtil.class, "MSG_COULD_NOT_BE_ADDED_TO_AVAILABLE_LIST"));
             }
             
@@ -84,7 +84,7 @@ public class ActionUtil {
                 
                 handler.setSelectedChannels(dn,selectedList,container);
             } catch (Exception ex) {
-                logger.log(Level.SEVERE,org.openide.util.NbBundle.getMessage(ActionUtil.class, "MSG_ERROR"),ex);
+                logger.log(Level.SEVERE,"Error",ex);
                  JOptionPane.showMessageDialog(WindowManager.getDefault().getMainWindow(),org.openide.util.NbBundle.getMessage(ActionUtil.class, "MSG_COULD_NOT_BE_ADDED_TO_THE_SELECTED_LIST"));
             }
     }
@@ -98,7 +98,7 @@ public class ActionUtil {
                 
                 selectedList = handler.getSelectedChannels(dn,container);
             } catch (Exception ex) {
-                logger.log(Level.SEVERE,org.openide.util.NbBundle.getMessage(ActionUtil.class, "MSG_ERROR"),ex);
+                logger.log(Level.SEVERE,"Error",ex);
                 JOptionPane.showMessageDialog(WindowManager.getDefault().getMainWindow(),org.openide.util.NbBundle.getMessage(ActionUtil.class, "MSG_COULD_NOT_BE_ADDED_TO_THE_SELECTED_LIST"));
                 return;
             }
@@ -112,7 +112,7 @@ public class ActionUtil {
                 
                 handler.setSelectedChannels(dn,selectedList,container);
             } catch (Exception ex) {
-                logger.log(Level.SEVERE,org.openide.util.NbBundle.getMessage(ActionUtil.class, "MSG_ERROR"),ex);
+                logger.log(Level.SEVERE,"Error",ex);
                  JOptionPane.showMessageDialog(WindowManager.getDefault().getMainWindow(),org.openide.util.NbBundle.getMessage(ActionUtil.class, "MSG_COULD_NOT_BE_REMOVED_FROM_SELECTED_LIST"));
             }
            
@@ -123,7 +123,7 @@ public class ActionUtil {
                 
                 availableList = handler.getAvailableChannels(dn,container);
             } catch (Exception ex) {
-                logger.log(Level.SEVERE,org.openide.util.NbBundle.getMessage(ActionUtil.class, "MSG_ERROR"),ex);
+                logger.log(Level.SEVERE,"Error",ex);
                 JOptionPane.showMessageDialog(WindowManager.getDefault().getMainWindow(),org.openide.util.NbBundle.getMessage(ActionUtil.class, "MSG_COULD_NOT_BE_REMOVED_FROM_AVAILABLE_LIST"));
                 return;
             }
@@ -135,7 +135,7 @@ public class ActionUtil {
                 
                 handler.setAvailableChannels(dn,availableList,container);
             } catch (Exception ex) {
-                logger.log(Level.SEVERE,org.openide.util.NbBundle.getMessage(ActionUtil.class, "MSG_ERROR"),ex);
+                logger.log(Level.SEVERE,"Error",ex);
                  JOptionPane.showMessageDialog(WindowManager.getDefault().getMainWindow(),org.openide.util.NbBundle.getMessage(ActionUtil.class, "MSG_COULD_NOT_BE_REMOVED_FROM_AVAILABLE_LIST"));
             }
     }

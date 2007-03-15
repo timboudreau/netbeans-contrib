@@ -19,7 +19,17 @@
 
 package org.netbeans.modules.portalpack.portlets.genericportlets.core.util;
 
+import java.io.File;
+import java.io.IOException;
+import java.io.StringBufferInputStream;
 import java.util.StringTokenizer;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import org.w3c.dom.Document;
+import org.xml.sax.EntityResolver;
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
 
 /**
  *
@@ -119,5 +129,19 @@ public class CoreUtil {
         return true;
     }
     
+     public static Document createDocumentFromXml(File file) throws SAXException, IOException, ParserConfigurationException
+    {
+        
+        DocumentBuilderFactory builderFactory = DocumentBuilderFactory.newInstance();
+        DocumentBuilder builder = builderFactory.newDocumentBuilder();
+        builder.setEntityResolver( new EntityResolver() {
+            public InputSource resolveEntity(String publicId, String systemId) throws SAXException,IOException {
+                return new InputSource(new StringBufferInputStream(""));
+            }
+        });
+            
+        Document document = builder.parse(file);
+        return document;
+    }
     
 }

@@ -19,7 +19,10 @@
 
 package org.netbeans.modules.portalpack.servers.jnpc;
 
+import javax.enterprise.deploy.spi.DeploymentManager;
+import org.netbeans.modules.j2ee.deployment.plugins.api.FindJSPServlet;
 import org.netbeans.modules.portalpack.servers.core.api.PSConfigPanelManager;
+import org.netbeans.modules.portalpack.servers.core.api.PSDeploymentManager;
 import org.netbeans.modules.portalpack.servers.core.api.PSOptionalFactory;
 import org.netbeans.modules.portalpack.servers.jnpc.common.JNPCConstants;
 
@@ -38,6 +41,11 @@ public class JNPCOptionalFactory extends PSOptionalFactory {
 
     public String getPSVersion() {
         return JNPCConstants.OS_PC_1_0;
-    }    
+    }  
+  
+
+    public FindJSPServlet getFindJSPServlet(DeploymentManager dm) {
+        return ((PSDeploymentManager)dm).getStartServerHandler().getFindJSPServlet((PSDeploymentManager)dm);
+    }
     
 }

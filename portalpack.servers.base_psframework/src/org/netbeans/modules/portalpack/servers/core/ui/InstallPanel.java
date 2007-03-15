@@ -122,7 +122,7 @@ public class InstallPanel implements WizardDescriptor.Panel,WizardDescriptor.Val
     }
     
     public HelpCtx getHelp() {
-        return HelpCtx.DEFAULT_HELP;
+        return new HelpCtx(InstallPanel.class);
     }
     
     public Component getComponent() {

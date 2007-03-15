@@ -23,10 +23,14 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.netbeans.modules.j2ee.deployment.plugins.api.UISupport;
+import org.netbeans.modules.portalpack.servers.core.JSR88DeploymentHandler;
 import org.netbeans.modules.portalpack.servers.core.api.PSDeploymentManager;
+import org.netbeans.modules.portalpack.servers.core.common.DeploymentException;
+import org.netbeans.modules.portalpack.servers.core.common.ExtendedClassLoader;
 import org.netbeans.modules.portalpack.servers.core.common.LogManager;
 import org.netbeans.modules.portalpack.servers.core.common.ProcessLogManager;
 import org.netbeans.modules.portalpack.servers.core.impl.j2eeservers.sunappserver.SunAppServerConstants;
@@ -47,6 +51,7 @@ public class SunAppServerDeployHandler implements ServerDeployHandler{
     private PSConfigObject psconfig;
     private PSDeploymentManager dm;
     private String uri;
+    private ExtendedClassLoader loader;
     /**
      * Creates a new instance of SunAppServerDeployHandler
      */
@@ -81,6 +86,7 @@ public class SunAppServerDeployHandler implements ServerDeployHandler{
         }
         cmd.add(psconfig.getServerHome() + File.separator + "bin" + File.separator + "asadmin" + ext);
         cmd.add("deploy");
+        cmd.add("--precompilejsp=false");
         cmd.add("--port");
         cmd.add(psconfig.getAdminPort());
         cmd.add("-u");
@@ -167,7 +173,8 @@ public class SunAppServerDeployHandler implements ServerDeployHandler{
 
     public boolean deploy(String warFile) throws Exception {
         try{
-            deployOnGlassFish(warFile);
+           deployOnGlassFish(warFile);
+           //_deploy(warFile);
         }catch(Exception e){
             logger.log(Level.SEVERE, "Error",e);
             throw e;
@@ -177,7 +184,8 @@ public class SunAppServerDeployHandler implements ServerDeployHandler{
 
     public boolean undeploy(String appName) throws Exception {
         try{
-            unDeployFromGlassFish(appName);
+           unDeployFromGlassFish(appName);
+            //_undeploy(appName);
         }catch(Exception e){
             logger.log(Level.SEVERE, "Error",e);
             throw e;
@@ -193,4 +201,85 @@ public class SunAppServerDeployHandler implements ServerDeployHandler{
         e.printStackTrace(UISupport.getServerIO(uri).getErr());
     }
    
+    public void _deploy(String warFile) throws DeploymentException
+    {
+        Properties props = new Properties();
+        props.put("jsr88.dm.id","deployer:Sun:AppServer::" + psconfig.getHost() + ":" + psconfig.getAdminPort());
+        props.put("jsr88.dm.user",psconfig.getAdminUser());
+        props.put("jsr88.dm.passwd",psconfig.getAdminPassWord());
+        props.put("jsr88.df.classname","com.sun.enterprise.deployapi.SunDeploymentFactory");
+        
+        ClassLoader ld = getServerClassLoader(new File(psconfig.getServerHome()));
+         
+        JSR88DeploymentHandler deploymentHandler = new JSR88DeploymentHandler(ld,props,UISupport.getServerIO(uri));
+        String warFileName = new File(warFile).getName();
+        String contextName = warFileName.substring(0,warFileName.length()-4);
+        deploymentHandler.runApp(warFile,contextName);
+        deploymentHandler.releaseDeploymentManager();
+    }
+    
+    public void _undeploy(String appName) throws DeploymentException
+    {
+        Properties props = new Properties();
+        props.put("jsr88.dm.id","deployer:Sun:AppServer::" + psconfig.getHost() + ":" + psconfig.getAdminPort());
+        props.put("jsr88.dm.user",psconfig.getAdminUser());
+        props.put("jsr88.dm.passwd",psconfig.getAdminPassWord());
+        props.put("jsr88.df.classname","com.sun.enterprise.deployapi.SunDeploymentFactory");
+        
+        ClassLoader ld = getServerClassLoader(new File(psconfig.getServerHome()));
+         
+        JSR88DeploymentHandler deploymentHandler = new JSR88DeploymentHandler(ld,props,UISupport.getServerIO(uri));
+        
+        deploymentHandler.undeployApp(appName);
+        deploymentHandler.releaseDeploymentManager();
+    }
+    
+    private static void updatePluginLoader(File platformLocation, ExtendedClassLoader loader) throws Exception{
+        try {
+            java.io.File f = platformLocation;
+            if (null == f || !f.exists()){
+                return;
+            }
+            String installRoot = f.getAbsolutePath();
+            f = new File(installRoot+"/lib/appserv-admin.jar");//NOI18N
+	    loader.addURL(f);
+	    f = new File(installRoot+"/lib/appserv-ext.jar");//NOI18N
+	    loader.addURL(f);
+	    f = new File(installRoot+"/lib/appserv-rt.jar");//NOI18N
+	    loader.addURL(f);
+	    f = new File(installRoot+"/lib/appserv-cmp.jar");//NOI18N
+	    loader.addURL(f);
+	    f = new File(installRoot+"/lib/commons-logging.jar");//NOI18N
+	    loader.addURL(f);
+	    f = new File(installRoot+"/lib/admin-cli.jar");//NOI18N
+	    loader.addURL(f);
+	    f = new File(installRoot+"/lib/common-laucher.jar");//NOI18N
+	    loader.addURL(f);
+	    f = new File(installRoot+"/lib/j2ee.jar");//NOI18N
+	    loader.addURL(f);
+	    f = new File(installRoot+"/lib/install/applications/jmsra/imqjmsra.jar");//NOI18N
+	    loader.addURL(f);
+	    
+	} catch (Exception ex2) {
+	    throw new Exception(ex2.getLocalizedMessage());
+	}
+    }
+    
+    private synchronized ClassLoader getServerClassLoader(File platformLocation) {
+	
+	if(loader==null){        
+	    try {
+                loader = new ExtendedClassLoader(new Empty().getClass().getClassLoader());
+                updatePluginLoader(platformLocation, loader);
+	    } catch (Exception ex2) {
+		org.openide.ErrorManager.getDefault().notify(ex2);
+	    }
+        }
+	
+	return loader;
+    }
+    
+    static class Empty{
+        
+    }
 }

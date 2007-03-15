@@ -105,7 +105,7 @@ public class ChannelChildrenNode extends Children.Keys {
                         try {
                             set = handler.getExistingChannels(baseDN,new Boolean(true));
                         } catch (Exception e) {
-                            logger.log(Level.SEVERE,org.openide.util.NbBundle.getMessage(ChannelChildrenNode.class, "MSG_ERROR"),e);
+                            logger.log(Level.SEVERE,"Error",e);
                             return;
                         }
                         
@@ -138,7 +138,7 @@ public class ChannelChildrenNode extends Children.Keys {
                             set = handler.getAssignableChannels(baseDN,containerName);
                             
                         }catch(Exception e){
-                            logger.log(Level.SEVERE,org.openide.util.NbBundle.getMessage(ChannelChildrenNode.class, "MSG_ERROR"),e);
+                            logger.log(Level.SEVERE,"Error",e);
                             return;
                         }
                         
@@ -198,7 +198,7 @@ public class ChannelChildrenNode extends Children.Keys {
                         try{
                             selList = handler.getSelectedChannels(baseDN,containerName);
                         }catch(Exception e){
-                            logger.log(Level.SEVERE,org.openide.util.NbBundle.getMessage(ChannelChildrenNode.class, "MSG_ERROR"),e);
+                            logger.log(Level.SEVERE,"Error",e);
                             return;
                         }
                     
