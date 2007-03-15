@@ -19,11 +19,13 @@
 
 package org.netbeans.modules.profiles;
 
+import java.awt.Dialog;
 import javax.swing.*;
 import java.awt.event.*;
 import java.lang.ref.WeakReference;
 import javax.swing.text.DefaultEditorKit;
 import java.beans.*;
+import java.lang.ref.Reference;
 import org.openide.loaders.DataObject;
 
 import org.openide.util.*;
@@ -40,7 +42,7 @@ import org.openide.nodes.*;
 
 public class ProfilesManager extends JPanel
 implements ExplorerManager.Provider, Lookup.Provider {
-    private static WeakReference dialogRef; // is weak reference necessary?
+    private static Reference<Dialog> dialogRef; // is weak reference necessary?
 
     private ExplorerManager explorerManager;
     private Lookup lookup;
@@ -48,9 +50,9 @@ implements ExplorerManager.Provider, Lookup.Provider {
     // ------------
 
     public static void showProfilesManager() {
-        java.awt.Dialog dialog = null;
+        Dialog dialog = null;
         if (dialogRef != null)
-            dialog = (JDialog) dialogRef.get();
+            dialog = dialogRef.get();
         if (dialog == null) {
             JButton closeButton = new JButton();
             org.openide.awt.Mnemonics.setLocalizedText(
@@ -65,7 +67,7 @@ implements ExplorerManager.Provider, Lookup.Provider {
                 null,
                 null);
             dialog = DialogDisplayer.getDefault().createDialog(dd);
-            dialogRef = new WeakReference(dialog);
+            dialogRef = new WeakReference<Dialog>(dialog);
         }
         dialog.setVisible(true);
     }
@@ -307,7 +309,7 @@ implements ExplorerManager.Provider, Lookup.Provider {
         
         Node[] nodes = explorerManager.getSelectedNodes();
         if (nodes.length == 1) {
-            DataObject obj = (DataObject)nodes[0].getCookie (DataObject.class);
+            DataObject obj = nodes[0].getCookie(DataObject.class);
             if (obj != null) {
                 org.openide.filesystems.FileObject fo = obj.getPrimaryFile();
                 if (fo.hasExt("profile")) {
@@ -354,7 +356,7 @@ implements ExplorerManager.Provider, Lookup.Provider {
     private void activateProfileActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_activateProfileActionPerformed
         Node[] nodes = explorerManager.getSelectedNodes();
         if (nodes.length == 1) {
-            DataObject obj = (DataObject)nodes[0].getCookie (DataObject.class);
+            DataObject obj = nodes[0].getCookie(DataObject.class);
             if (obj != null) {
                 org.openide.filesystems.FileObject fo = obj.getPrimaryFile();
                 if (fo.hasExt("profile")) {
@@ -388,7 +390,7 @@ implements ExplorerManager.Provider, Lookup.Provider {
         if (parent == null)
             return;
 
-        Index indexCookie = (Index) parent.getCookie(Index.class);
+        Index indexCookie = parent.getCookie(Index.class);
         if (indexCookie == null)
             return;
 
@@ -416,7 +418,7 @@ implements ExplorerManager.Provider, Lookup.Provider {
     private void updateInfoLabel(org.openide.nodes.Node[] nodes) {
         boolean enable = false;
         if (nodes.length == 1) {
-            DataObject obj = (DataObject)nodes[0].getCookie (DataObject.class);
+            DataObject obj = nodes[0].getCookie(DataObject.class);
             if (obj != null) {
                 org.openide.filesystems.FileObject fo = obj.getPrimaryFile();
                 if (fo.hasExt("profile")) {
