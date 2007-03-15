@@ -25,11 +25,11 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
+import java.net.URL;
 import java.util.*;
 import java.util.jar.*;
 import org.openide.filesystems.*;
+import org.xml.sax.SAXException;
 
 
 /** Utility methods to work with profiles.
@@ -101,27 +101,24 @@ final class Profiles extends Object {
         }
     }
     
+    private static FS INSTANCE;
+    // public for Lookup
+    public static final class FS extends MultiFileSystem {
+        public FS() {
+            INSTANCE = this;
+        }
+        void activate(URL u) throws SAXException {
+            setDelegates(new XMLFileSystem(u));
+        }
+    }
+    
     /** Activates given profile in the current session.
      */
-    public static void activateProfile (java.net.URL profile) throws Exception {
+    public static void activateProfile(URL profile) throws Exception {
         if (profile.equals (previousProfile)) {
             return;
         }
-        
-        org.netbeans.core.startup.layers.SystemFileSystem sfs;
-        sfs = (org.netbeans.core.startup.layers.SystemFileSystem)Repository.getDefault().getDefaultFileSystem();
-        org.netbeans.core.startup.layers.ModuleLayeredFileSystem layer = sfs.getUserLayer();
-        
-        
-        if (previousProfile != null) {
-            layer.removeURLs (Collections.singleton (previousProfile));
-        }
-        
-        previousProfile = profile;
-        
-        if (profile != null) {
-            layer.addURLs (Collections.singleton(profile));
-        }
+        INSTANCE.activate(profile);
     }
     
     /** generates profile.
@@ -133,9 +130,16 @@ final class Profiles extends Object {
         FileObject res = FileUtil.createData(targetDir, profileName + ".profile"); // NOI18N
         FileObject resDir = FileUtil.createFolder(targetDir, profileName);
         FileLock lock = res.lock ();
-        java.io.OutputStream os = res.getOutputStream(lock);
-        writeOut (root, acceptor, os, resDir);
-        os.close ();
+        try {
+            OutputStream os = res.getOutputStream(lock);
+            try {
+                writeOut(root, acceptor, os, resDir);
+            } finally {
+                os.close();
+            }
+        } finally {
+            lock.releaseLock();
+        }
         
         return res; 
     }
@@ -290,7 +294,7 @@ final class Profiles extends Object {
                 wr.write("</folder>"); // NOI18N
                 wr.write('\n'); // NOI18N
             } else {
-                FileObject file = (FileObject)child;
+                FileObject file = child;
                 wr.write(space(depth));
                 wr.write("<file name=\""); // NOI18N
                 wr.write(org.openide.xml.XMLUtil.toAttributeValue(child.getNameExt()));
