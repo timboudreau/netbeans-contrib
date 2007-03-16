@@ -109,16 +109,22 @@ TOKEN:html_end_element_start: ( "</" ):<IN_ELEMENT_START>
 
 #embeded languages ###
 
-<JAVASCRIPT>:TOKEN:html_end_element_start: ( "</" ):<IN_ELEMENT_START>
-<CSS>:TOKEN:html_end_element_start: ( "</" ):<IN_ELEMENT_START>
+TOKEN:javascript: {
+    start_state:"JAVASCRIPT";
+    call:org.netbeans.modules.languages.html.HTML.readJavaScript;
+    end_state:"DEFAULT";
+}
+TOKEN:css: {
+    start_state:"CSS";
+    call:org.netbeans.modules.languages.html.HTML.readCSS;
+    end_state:"DEFAULT";
+}
 
-<JAVASCRIPT>:TOKEN:javascript: ( [^"<"]+ )
 SKIP:javascript
 IMPORT:javascript: {
     mimeType:"text/javascript";
     background_color:"#E6E6FF";
 }
-<CSS>:TOKEN:css: ( [^"<"]+ )
 SKIP:css
 IMPORT:css: {
     mimeType:"text/css2";

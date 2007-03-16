@@ -29,6 +29,7 @@ import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
 import javax.swing.text.StyledDocument;
 import org.netbeans.api.languages.ASTItem;
+import org.netbeans.api.languages.CharInput;
 import org.netbeans.api.lexer.Token;
 import org.netbeans.api.lexer.TokenSequence;
 import org.netbeans.api.languages.Context;
@@ -50,6 +51,71 @@ public class HTML {
 //    private static final String HTML40DOC = "modules/ext/html40.zip";
     private static final String HTML401 = "org/netbeans/modules/languages/html/HTML401.xml";
     
+    
+    public static Object[] readJavaScript (CharInput input) {
+        while (!input.eof ()) {
+            while (input.next () != '<' && !input.eof ())
+                input.read ();
+            int start = input.getIndex ();
+            input.read ();
+            if (input.next () != '/') continue;
+            input.read ();
+            if (Character.toLowerCase (input.next ()) != 's') continue;
+            input.read ();
+            if (Character.toLowerCase (input.next ()) != 'c') continue;
+            input.read ();
+            if (Character.toLowerCase (input.next ()) != 'r') continue;
+            input.read ();
+            if (Character.toLowerCase (input.next ()) != 'i') continue;
+            input.read ();
+            if (Character.toLowerCase (input.next ()) != 'p') continue;
+            input.read ();
+            if (Character.toLowerCase (input.next ()) != 't') continue;
+            input.read ();
+            while (Character.isWhitespace (input.next ()))
+                input.read ();
+            if (input.next () != '>') continue;
+            input.read ();
+            input.setIndex (start);
+            break;
+        }
+        return new Object[] {
+            ASTToken.create ("text/html", "javascript", "", 0),
+            "DEFAULT"
+        };
+    }
+    
+    public static Object[] readCSS (CharInput input) {
+        while (!input.eof ()) {
+            while (input.next () != '<' && !input.eof ())
+                input.read ();
+            int start = input.getIndex ();
+            input.read ();
+            if (input.next () != '/') continue;
+            input.read ();
+            if (Character.toLowerCase (input.next ()) != 's') continue;
+            input.read ();
+            if (Character.toLowerCase (input.next ()) != 't') continue;
+            input.read ();
+            if (Character.toLowerCase (input.next ()) != 'y') continue;
+            input.read ();
+            if (Character.toLowerCase (input.next ()) != 'l') continue;
+            input.read ();
+            if (Character.toLowerCase (input.next ()) != 'e') continue;
+            input.read ();
+            while (Character.isWhitespace (input.next ()))
+                input.read ();
+            if (input.next () != '>') continue;
+            input.read ();
+            input.setIndex (start);
+            break;
+        }
+        return new Object[] {
+            ASTToken.create ("text/html", "css", "", 0),
+            "DEFAULT"
+        };
+    }
+
     
     // tag completion ..........................................................
     
