@@ -21,13 +21,14 @@ package org.netbeans.modules.languages.studio;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import javax.swing.DefaultListModel;
-import org.netbeans.api.languages.LanguagesManager;
 
 import org.openide.ErrorManager;
 import org.openide.cookies.OpenCookie;
@@ -50,8 +51,7 @@ public class LanguagesManagerPanel extends javax.swing.JPanel {
     /** Creates new form LanguagesManagerPanel */
     public LanguagesManagerPanel () {
         initComponents ();
-        LanguagesManager lm = LanguagesManager.getDefault ();
-        Set mimeTypes = lm.getSupportedMimeTypes ();
+        Set mimeTypes = getSupportedMimeTypes ();
         List names = new ArrayList ();
         Iterator it = mimeTypes.iterator ();
         while (it.hasNext ()) {
@@ -214,6 +214,26 @@ public class LanguagesManagerPanel extends javax.swing.JPanel {
             ErrorManager.getDefault ().notify (ex);
         }
     }//GEN-LAST:event_bEditActionPerformed
+    
+    private static Set<String> getSupportedMimeTypes () {
+        Set<String> result = new HashSet<String> ();
+        FileSystem fs = Repository.getDefault ().getDefaultFileSystem ();
+        FileObject root = fs.findResource ("Editors");
+        Enumeration e1 = root.getChildren (false);
+        while (e1.hasMoreElements ()) {
+            FileObject f1 = (FileObject) e1.nextElement ();
+            if (f1.isData ()) continue;
+            Enumeration e2 = f1.getChildren (false);
+            while (e2.hasMoreElements ()) {
+                FileObject f2 = (FileObject) e2.nextElement ();
+                if (f2.isData ()) continue;
+                FileObject fo = f2.getFileObject ("language.nbs");
+                if (fo == null) continue;
+                result.add (f1.getName () + '/' + f2.getName ());
+            }
+        }
+        return result;
+    }
     
     
     // Variables declaration - do not modify//GEN-BEGIN:variables
