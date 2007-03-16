@@ -245,6 +245,8 @@ final class ASTBrowserTopComponent extends TopComponent {
         Document doc = editorCookie.getDocument ();
         if (doc == null || !(doc instanceof NbEditorDocument)) return null;
         String mimeType = (String) doc.getProperty ("mimeType");
+        ParserManager parserManager = ParserManager.get ((NbEditorDocument) doc);
+        if (parserManager == null) return null;
         try {
             return ParserManager.get ((NbEditorDocument) doc).getAST ();
         } catch (ParseException ex) {
