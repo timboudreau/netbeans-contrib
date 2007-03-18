@@ -19,36 +19,30 @@
 
 package org.netbeans.modules.sfsbrowser;
 
-import java.awt.EventQueue;
 import java.awt.event.ActionEvent;
 import java.net.MalformedURLException;
 import java.net.URL;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
-import org.omg.CORBA.Context;
-import org.omg.CORBA.ContextList;
-import org.omg.CORBA.ExceptionList;
-import org.omg.CORBA.NVList;
-import org.omg.CORBA.NamedValue;
-import org.omg.CORBA.Policy;
-import org.omg.CORBA.Request;
-import org.omg.CORBA.SetOverrideType;
-import org.omg.SendingContext.RunTime;
 import org.openide.ErrorManager;
 import org.openide.awt.HtmlBrowser;
-import org.openide.awt.StatusDisplayer;
 import org.openide.filesystems.FileObject;
 
 /**
  * Factory for creating actions to show URLs in the Browser.
- * 
+ *
  * @author Sandip Chitale (Sandip.Chitale@Sun.Com)
  */
 public final class ShowURLActionFactory {
-    
+
     private ShowURLActionFactory() {
     }
-    
+
+    /**
+     *
+     * @param file
+     * @return
+     */
     public static Action create(FileObject file) {
         try {
             String urlString = (String) file.getAttribute("url");
@@ -62,10 +56,10 @@ public final class ShowURLActionFactory {
             return null;
         }
     }
-    
+
     static class ShowURLAction extends AbstractAction {
         private URL url;
-        
+
         ShowURLAction(String name, URL url) {
             super(name);
             this.url = url;
@@ -74,11 +68,11 @@ public final class ShowURLActionFactory {
                 putValue(LONG_DESCRIPTION, url.toExternalForm());
             }
         }
-        
+
         public void actionPerformed(ActionEvent e) {
             if (url != null) {
                 HtmlBrowser.URLDisplayer.getDefault().showURL(url);
             }
-        }        
+        }
     }
 }

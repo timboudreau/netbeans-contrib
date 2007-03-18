@@ -28,6 +28,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Serializable;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.net.JarURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -38,8 +40,11 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.Set;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
@@ -54,10 +59,14 @@ import org.netbeans.spi.java.classpath.support.ClassPathSupport;
 import org.openide.ErrorManager;
 import org.openide.awt.StatusDisplayer;
 import org.openide.cookies.EditorCookie;
+import org.openide.cookies.EditorCookie;
 import org.openide.cookies.InstanceCookie;
+import org.openide.cookies.OpenCookie;
 import org.openide.explorer.ExplorerManager;
 import org.openide.explorer.view.BeanTreeView;
 import org.openide.filesystems.FileObject;
+import org.openide.filesystems.FileStateInvalidException;
+import org.openide.filesystems.FileSystem;
 import org.openide.filesystems.MultiFileSystem;
 import org.openide.filesystems.Repository;
 import org.openide.loaders.DataFolder;
@@ -70,6 +79,7 @@ import org.openide.nodes.FilterNode;
 import org.openide.nodes.Node;
 import org.openide.nodes.NodeNotFoundException;
 import org.openide.nodes.NodeOp;
+import org.openide.util.Exceptions;
 import org.openide.util.Lookup;
 import org.openide.util.NbBundle;
 import org.openide.util.Utilities;
@@ -79,7 +89,7 @@ import org.openide.windows.WindowManager;
 /**
  * Top component which displays System FileSystem and META-INF/services Browser
  * window.
- * 
+ *
  * @author Sandip V. Chitale (Sandip.Chitale@Sun.Com)
  */
 final class SFSBrowserTopComponent extends TopComponent {
@@ -367,6 +377,29 @@ final class SFSBrowserTopComponent extends TopComponent {
                                     select(originalFileSansExt);
                                 }
                             });
+                        }
+                    }
+                    List delegates = getDelegates(multiFileSystem, fileObject);
+                    if (delegates.size() > 0) {
+                        FileObject delegateFileObject = (FileObject) delegates.get(0);
+                        if (delegateFileObject.isValid()) {
+                            try {
+                                DataObject delegateDataObject = DataObject.find(delegateFileObject);
+                                if (delegateDataObject != null &&
+                                        (delegateDataObject.getCookie(OpenCookie.class) != null ||
+                                         delegateDataObject.getCookie(EditorCookie.class) != null
+                                        )) {
+                                    try {
+                                        actions.add(new OpenDelegateAction(delegateFileObject,
+                                                delegateFileObject.getFileSystem().getDisplayName()));
+                                    }
+                                    catch (FileStateInvalidException ex) {
+                                        Exceptions.printStackTrace(ex);
+                                    }
+                                }
+                            } catch (DataObjectNotFoundException ex) {
+                                Exceptions.printStackTrace(ex);
+                            }
                         }
                     }
                 }
@@ -718,7 +751,7 @@ final class SFSBrowserTopComponent extends TopComponent {
 
         ServiceImplNode(String serviceImpl) {
             super(Children.LEAF);
-            setDisplayName(serviceImpl);           
+            setDisplayName(serviceImpl);
             setIconBaseWithExtension("org/netbeans/modules/sfsbrowser/provider.gif");
         }
 
@@ -774,6 +807,85 @@ final class SFSBrowserTopComponent extends TopComponent {
                         ErrorManager.getDefault().notify(ErrorManager.INFORMATIONAL, ex);
                     }
                 }
+            }
+        }
+    }
+
+    private static class OpenDelegateAction extends AbstractAction {
+        private FileObject fileObject;
+
+        OpenDelegateAction(FileObject fileObject, String fileSystemName) {
+            super("Open " + fileObject.getPath() + " in " + fileSystemName); // TODO I18N
+            this.fileObject = fileObject;
+        }
+
+        public void actionPerformed(ActionEvent e) {
+            try {
+                org.openide.loaders.DataObject dataObject = org.openide.loaders.DataObject.find(fileObject);
+
+                if (dataObject != null) {
+                    org.openide.cookies.OpenCookie openCookie = dataObject.getCookie(org.openide.cookies.OpenCookie.class);
+
+                    if (openCookie == null) {
+                        org.openide.cookies.EditorCookie editorCookie = dataObject.getCookie(org.openide.cookies.EditorCookie.class);
+
+                        if (editorCookie != null) {
+                            editorCookie.open();
+                        }
+                    } else {
+                        openCookie.open();
+                    }
+                }
+            } catch (DataObjectNotFoundException ex) {
+                Exceptions.printStackTrace(ex);
+            }
+        }
+    }
+
+    private static List getDelegates(MultiFileSystem multiFileSystem, FileObject fileObject) {
+        List delegates = new LinkedList();
+        getDelegates(multiFileSystem, fileObject, delegates);
+        Collections.reverse(delegates);
+        return delegates;
+    }
+
+    private static Method method;
+    static {
+        try {
+            method = MultiFileSystem.class.getDeclaredMethod("delegates", String.class);
+            method.setAccessible(true);
+        } catch (NoSuchMethodException nsme) {
+            // ignore
+        }
+    }
+
+    private static void getDelegates(MultiFileSystem multiFileSystem, FileObject fileObject, List delegatesSet) {
+        if (method != null) {
+            try         {
+                java.util.Enumeration<org.openide.filesystems.FileObject> delegates = (java.util.Enumeration<org.openide.filesystems.FileObject>) method.invoke(multiFileSystem,
+                        fileObject.getPath());
+
+                while (delegates.hasMoreElements()) {
+                    org.openide.filesystems.FileObject delegate = delegates.nextElement();
+
+                    if (delegate.isValid()) {
+                        delegatesSet.add(delegate);
+                        org.openide.filesystems.FileSystem fileSystem = delegate.getFileSystem();
+
+                        if (fileSystem instanceof org.openide.filesystems.MultiFileSystem) {
+                            getDelegates((org.openide.filesystems.MultiFileSystem) fileSystem,
+                                    delegate);
+                        }
+                    }
+                }
+            } catch (FileStateInvalidException ex) {
+                Exceptions.printStackTrace(ex);
+            } catch (IllegalAccessException ex) {
+                // ignore
+            } catch (IllegalArgumentException ex) {
+                // ignore
+            } catch (InvocationTargetException ex) {
+                // ignore
             }
         }
     }

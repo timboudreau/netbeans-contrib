@@ -28,11 +28,14 @@ import org.openide.windows.TopComponent;
 
 /**
  * Action which shows System FileSystem and META-INF/services Browser window.
- * 
+ *
  * @author Sandip V. Chitale (Sandip.Chitale@Sun.Com)
  */
 public class SFSBrowserAction extends AbstractAction {
 
+    /**
+     *
+     */
     public SFSBrowserAction() {
         super(NbBundle.getMessage(SFSBrowserAction.class, "CTL_SFSBrowserAction"));
         putValue(SMALL_ICON, new ImageIcon(Utilities.loadImage(SFSBrowserTopComponent.ICON_PATH, true)));
