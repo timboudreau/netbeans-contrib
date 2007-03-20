@@ -125,6 +125,10 @@ public abstract class PSDeploymentManager implements DeploymentManager {
         
         return po;
     }
+    
+    public ProgressObject distribute(Target[] target,ModuleType moduleType,InputStream in1, InputStream in2) throws IllegalStateException{
+        return null;
+    }
 
     public DeploymentConfiguration createConfiguration(DeployableObject deployableObject) throws InvalidModuleException {
         logger.log(Level.FINEST,"Inside createConfiguration..");
