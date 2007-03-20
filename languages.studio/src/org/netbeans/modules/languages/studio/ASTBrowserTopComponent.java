@@ -81,7 +81,6 @@ final class ASTBrowserTopComponent extends TopComponent {
         initComponents ();
         setLayout (new BorderLayout ());
         tree = new JTree ();
-        tree.setCellRenderer (new Renderer ());
         tree.addTreeSelectionListener (new TreeSelectionListener () {
             public void valueChanged (TreeSelectionEvent e) {
                 mark ();
@@ -97,6 +96,7 @@ final class ASTBrowserTopComponent extends TopComponent {
         });
         tree.setShowsRootHandles (true);
         tree.setModel (new DefaultTreeModel (new TNode (null, null)));
+        tree.setCellRenderer (new Renderer ());
         add (new JScrollPane (tree), BorderLayout.CENTER);
         setName (NbBundle.getMessage (ASTBrowserTopComponent.class, "CTL_ASTBrowserTopComponent"));
         setToolTipText (NbBundle.getMessage (ASTBrowserTopComponent.class, "HINT_ASTBrowserTopComponent"));
