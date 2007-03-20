@@ -274,8 +274,9 @@ public class HTML {
     // marks ...................................................................
     
     public static boolean isDeprecatedAttribute (Context context) {
-        TokenSequence ts = context.getTokenSequence ();
-        String attribName = ts.token ().text ().toString ().toLowerCase ();
+        Token t = context.getTokenSequence ().token ();
+        if (t == null) return false;
+        String attribName = t.text ().toString ().toLowerCase ();
         String tagName = tagName (context.getTokenSequence ());
         if (tagName == null) return false;
         return "true".equals (getLibrary ().getProperty (tagName, attribName, "deprecated"));
@@ -283,12 +284,14 @@ public class HTML {
 
     public static boolean isDeprecatedTag (Context context) {
         Token t = context.getTokenSequence ().token ();
+        if (t == null) return false;
         String tagName = t.text ().toString ().toLowerCase ();
         return "true".equals (getLibrary ().getProperty ("TAG", tagName, "deprecated"));
     }
 
     public static boolean isEndTagRequired (Context context) {
         Token t = context.getTokenSequence ().token ();
+        if (t == null) return false;
         return isEndTagRequired (t.id ().name ().toLowerCase ());
     }
 
