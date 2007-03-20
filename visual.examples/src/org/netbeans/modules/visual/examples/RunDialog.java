@@ -92,6 +92,7 @@ public class RunDialog extends javax.swing.JFrame {
         "test.sceneresize.SceneResizeTest",
         "test.scroll.ScrollTest",
         "test.scroll.SwingScrollTest",
+        "test.swing.JButtonWidgetTest",
         "test.swingborder.SwingBorderTest",
         "test.tool.CtrlKeySwitchToolTest",
         "test.tool.ToolTest",
