@@ -36,10 +36,8 @@ import java.nio.CharBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.charset.CharacterCodingException;
 import java.nio.charset.Charset;
-import java.nio.charset.CharsetDecoder;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
@@ -63,6 +61,7 @@ import javax.swing.event.DocumentListener;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.text.Document;
+import org.netbeans.api.queries.FileEncodingQuery;
 import org.netbeans.spi.navigator.NavigatorPanel;
 import org.openide.ErrorManager;
 import org.openide.cookies.EditorCookie;
@@ -70,6 +69,7 @@ import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
 import org.openide.loaders.DataObject;
 import org.openide.loaders.DataObjectNotFoundException;
+import org.openide.util.Exceptions;
 import org.openide.util.Lookup;
 import org.openide.util.LookupEvent;
 import org.openide.util.LookupListener;
@@ -93,10 +93,7 @@ public class GenericNavPanel implements NavigatorPanel, Runnable, ListSelectionL
     private JComboBox box = new JComboBox();
     private JPanel pnl = new JPanel();
     private RequestProcessor.Task task = null;
-    private volatile boolean active;
     private Lookup last = null;
-    private static final ByteBuffer buf = ByteBuffer.allocate(8192);
-    private static final CharsetDecoder decoder = Charset.defaultCharset().newDecoder();
     private JPanel innerPanel = new JPanel();
     static final Set<GenericNavPanel> cache = new WeakSet<GenericNavPanel>();
 
@@ -124,10 +121,6 @@ public class GenericNavPanel implements NavigatorPanel, Runnable, ListSelectionL
         }
     }
 
-    public void requestFocus() {
-        jl.requestFocus();
-    }
-
     public String getDisplayName() {
         return getString ("NavPanel.lbl"); //NOI18N
     }
@@ -140,7 +133,7 @@ public class GenericNavPanel implements NavigatorPanel, Runnable, ListSelectionL
         return pnl;
     }
 
-    Lookup.Result res;
+    Lookup.Result<DataObject> res;
     public void panelActivated(Lookup lookup) {
         mdl.clear();
         synchronized (this) {
@@ -150,20 +143,18 @@ public class GenericNavPanel implements NavigatorPanel, Runnable, ListSelectionL
                 task.schedule(200);
             }
             last = lookup;
-            res = last.lookup(new Lookup.Template(DataObject.class));
+            res = last.lookupResult(DataObject.class);
             res.addLookupListener(this);
         }
-        active = true;
     }
     private String mimeType = null;
 
     public void panelDeactivated() {
         Lookup lkp = Utilities.actionsGlobalContext();
         if (lkp.lookup(DataObject.class) != null) {
-            String mimeType = ((DataObject) lkp.lookup(DataObject.class)).getPrimaryFile().getMIMEType();
+            String mimeType = lkp.lookup(DataObject.class).getPrimaryFile().getMIMEType();
             LOGGER.log(Level.FINE, "panel deactivated: {0}", mimeType);
         }
-        active = false;
         synchronized (this) {
             if (task != null) {
                 task.cancel();
@@ -217,7 +208,7 @@ public class GenericNavPanel implements NavigatorPanel, Runnable, ListSelectionL
             }
         }
         if (mimeType == null && last != null) {
-            DataObject dob = (DataObject) last.lookup(DataObject.class);
+            DataObject dob = last.lookup(DataObject.class);
             if (dob != null) {
                 mimeType = dob.getPrimaryFile().getMIMEType();
             }
@@ -239,7 +230,7 @@ public class GenericNavPanel implements NavigatorPanel, Runnable, ListSelectionL
     }
 
     private void scanFile(List</*XXX should be NavigationItem*/Object> l, Lookup lkp) {
-        DataObject ob = (DataObject) lkp.lookup(DataObject.class);
+        DataObject ob = lkp.lookup(DataObject.class);
         LOGGER.log(Level.FINE, "object of type {0}", ob.getPrimaryFile().getMIMEType());
         if (ob != null) {
             try {
@@ -277,7 +268,7 @@ public class GenericNavPanel implements NavigatorPanel, Runnable, ListSelectionL
 
     private Reference <Document> doc = null;
     private void setDocumentToListenTo(Document d) {
-        Document old = doc == null ? null : (Document) doc.get();
+        Document old = doc == null ? null : doc.get();
         if (old != null) {
             old.removeDocumentListener(this);
         }
@@ -287,10 +278,10 @@ public class GenericNavPanel implements NavigatorPanel, Runnable, ListSelectionL
         }
     }
 
-    private CharSequence getFileData(DataObject dob) throws IOException, InterruptedException, InvocationTargetException {
+    private String getFileData(DataObject dob) throws IOException, InterruptedException, InvocationTargetException {
         if (dob != null) {
             if (last != null && last.lookup(DataObject.class) != null) {
-                final EditorCookie ck = (EditorCookie) dob.getCookie(EditorCookie.class);
+                final EditorCookie ck = dob.getCookie(EditorCookie.class);
                 final JEditorPane[] pane = new JEditorPane[1];
                 if (ck != null) {
                     EventQueue.invokeAndWait(new Runnable() {
@@ -321,11 +312,14 @@ public class GenericNavPanel implements NavigatorPanel, Runnable, ListSelectionL
                         ch.read(buf);
                         ch.close();
                         buf.flip();
-                        CharBuffer seq = decode(buf);
-
-                        String sq = Utilities.replaceString(seq.toString(),
-                                "\r\n", "\n"); //NOI18N
-                        return sq;
+                        CharBuffer decoded;
+                        try {
+                            decoded = FileEncodingQuery.getEncoding(fob).newDecoder().decode(buf);
+                        } catch (CharacterCodingException x) {
+                            // Fall back to a "safe" though perhaps inaccurate encoding.
+                            decoded = Charset.forName("ISO-8859-1").newDecoder().decode(buf);
+                        }
+                        return decoded.toString().replace("\r\n", "\n");
                     } catch (FileNotFoundException fnfe) {
                         //Timing issue:  If the user selects a file and chooses
                         //Delete before we've read it, the file may not 
@@ -338,34 +332,6 @@ public class GenericNavPanel implements NavigatorPanel, Runnable, ListSelectionL
         return " "; //NOI18N
     }
     
-    private CharBuffer decode (ByteBuffer buf) {
-        CharsetDecoder decoder = GenericNavPanel.decoder;
-        try {
-            return decode (buf, decoder);
-        } catch (CharacterCodingException e) {
-            if (Charset.defaultCharset().equals(Charset.forName("UTF-8"))) { //NOI18N
-                try {
-                    decoder = Charset.forName("UTF-8").newDecoder(); //NOI18N
-                    return decode (buf, decoder);
-                } catch (CharacterCodingException e1) {
-                    
-                }
-            }
-            decoder = Charset.forName("US-ASCII").newDecoder(); //NOI18N
-            try {
-                return decode (buf, decoder);
-            } catch (CharacterCodingException e2) {
-                //should never get here
-                return buf.asCharBuffer();
-            }
-        }
-            
-    }
-    
-    private CharBuffer decode (ByteBuffer buf, CharsetDecoder decoder) throws CharacterCodingException {
-        return decoder.decode(buf);
-    }
-
     public void valueChanged(ListSelectionEvent e) {
         int ix = jl.getSelectionModel().getLeadSelectionIndex();
         if (ix != -1 && ix < jl.getModel().getSize()) {
@@ -374,10 +340,10 @@ public class GenericNavPanel implements NavigatorPanel, Runnable, ListSelectionL
                 NavigationItem item = (NavigationItem) o;
                 try {
                     DataObject dob = DataObject.find(FileUtil.toFileObject(item.file));
-                    EditorCookie ck = (EditorCookie) dob.getCookie (EditorCookie.class);
+                    EditorCookie ck = dob.getCookie(EditorCookie.class);
                     if (ck != null) {
                         JEditorPane[] ed = ck.getOpenedPanes();
-                        if (ed != null || ed.length > 0) {
+                        if (ed != null && ed.length > 0) {
                             ed[0].setSelectionStart(item.offset);
                             ed[0].setSelectionEnd(item.end);
                             TopComponent tc = (TopComponent)
@@ -402,15 +368,14 @@ public class GenericNavPanel implements NavigatorPanel, Runnable, ListSelectionL
         DefaultComboBoxModel mdl = new DefaultComboBoxModel (items);
         box.setModel (mdl);
         box.setEnabled (items.length > 1);
-        if (new HashSet(Arrays.asList(items)).contains(o)) {
+        if (Arrays.asList(items).contains(o)) {
             box.setSelectedItem(o);
         }
     }
 
     public synchronized void resultChanged(LookupEvent lookupEvent) {
-        DataObject dob = (DataObject) last.lookup(DataObject.class);
-        FileObject fob = dob.getPrimaryFile();
-        mimeType = fob.getMIMEType();
+        DataObject dob = last.lookup(DataObject.class);
+        mimeType = dob != null ? dob.getPrimaryFile().getMIMEType() : null;
         refresh();
         //XXX this is a mess
         pnl.doLayout();
