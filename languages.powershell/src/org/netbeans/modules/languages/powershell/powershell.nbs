@@ -254,136 +254,136 @@ TOKEN:ps_class:( ["A"-"Z" "_"] ["a"-"z" "A"-"Z" "0"-"9" "-" "_"]* )
 TOKEN:ps_identifier:( ["a"-"z" "_"] ["a"-"z" "A"-"Z" "0"-"9" "-" "_"]* )
 
 ########### colors #############################################################
-COLOR:ps_line_comment {
+COLOR:ps_line_comment: {
     default_coloring:"line_comment";
     foreground_color:"0xB22222";
 }
 
-COLOR:ps_prefix_postfix_operator {
+COLOR:ps_prefix_postfix_operator:{
     default_coloring:"operator";
     foreground_color:"gray";
 }
 
-COLOR:ps_format_operator {
+COLOR:ps_format_operator:{
     default_coloring:"operator";
     foreground_color:"gray";
     font_type:"italic";
 }
 
-COLOR:ps_assignment_operator {
+COLOR:ps_assignment_operator:{
     default_coloring:"operator";
     foreground_color:"gray";
 }
 
-COLOR:ps_unary_operator {
+COLOR:ps_unary_operator:{
     default_coloring:"operator";
     foreground_color:"gray";
 }
 
-COLOR:ps_additive_operator {
+COLOR:ps_additive_operator:{
     default_coloring:"operator";
     foreground_color:"gray";
 }
 
-COLOR:ps_logical_operator {
+COLOR:ps_logical_operator:{
     default_coloring:"operator";
     foreground_color:"gray";
 }
 
-COLOR:ps_bitwise_operator {
+COLOR:ps_bitwise_operator:{
     default_coloring:"operator";
     foreground_color:"gray";
 }
 
-COLOR:ps_multiplicative_operator {
+COLOR:ps_multiplicative_operator:{
     default_coloring:"operator";
     foreground_color:"gray";
 }
 
-COLOR:ps_redirectiron_operator {
+COLOR:ps_redirectiron_operator:{
     default_coloring:"operator";
     foreground_color:"gray";
 }
 
-COLOR:ps_dereference_operator {
+COLOR:ps_dereference_operator:{
     default_coloring:"operator";
     foreground_color:"gray";
 }
 
-COLOR:ps_range_operator {
+COLOR:ps_range_operator:{
     default_coloring:"operator";
     foreground_color:"gray";
 }
 
-COLOR:ps_comparison_operator {
+COLOR:ps_comparison_operator:{
     default_coloring:"operator";
     foreground_color:"gray";
 }
 
-COLOR:ps_statement_separator {
+COLOR:ps_statement_separator:{
     default_coloring:"operator";
     foreground_color:"0xB22222";
     font_type:"bold";
 }
 
-COLOR:ps_separator {
+COLOR:ps_separator:{
     default_coloring:"operator";
     foreground_color:"0xB22222";
 }
 
-COLOR:ps_command {
+COLOR:ps_command:{
     default_coloring:"keyword";
     foreground_color:"0x1E7AAB";
 }
 
-COLOR:ps_keyword {
+COLOR:ps_keyword:{
     default_coloring:"keyword";
     foreground_color:"0x8BC9FF";
 }
 
-COLOR:ps_label {
+COLOR:ps_label:{
     default_coloring:"identifier";
 }
 
-COLOR:ps_expandable_string {
+COLOR:ps_expandable_string:{
     default_coloring:"string";
     foreground_color:"0xBC8F8F";
     font_type:"bold";
 }
 
-COLOR:ps_string {
+COLOR:ps_string:{
     default_coloring:"string";
     foreground_color:"0x008080"; 
     font_type:"bold-italics";
 }
 
-COLOR:ps_number {
+COLOR:ps_number:{
     default_coloring:"number";
     foreground_color:"red"; 
     font_type:"bold";
 }
 
-COLOR:ps_whitespace {
+COLOR:ps_whitespace:{
     default_coloring:"whitespace";
 }
 
-COLOR:ps_variable {
+COLOR:ps_variable:{
     default_coloring:"identifier";
     font_type:"bold";
 }
 
-COLOR:ps_flag {
+COLOR:ps_flag:{
     default_coloring:"identifier";
     foreground_color:"gray";
     font_type:"italic";
 }
 
-COLOR:ps_class {
+COLOR:ps_class:{
     default_coloring:"identifier";
     foreground_color:"gray";
 }
 
-COLOR:ps_identifier {
+COLOR:ps_identifier:{
     default_coloring:"identifier";
 }
 
