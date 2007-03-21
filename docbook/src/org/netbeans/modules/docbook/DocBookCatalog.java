@@ -41,7 +41,7 @@ public class DocBookCatalog implements CatalogProvider {
     
     //maps are package private for unit tests
     
-    static final Map/*<String,String>*/ PUBLIC_2_SYSTEM = new HashMap();
+    static final Map<String,String> PUBLIC_2_SYSTEM = new HashMap<String,String>();
     static {
         PUBLIC_2_SYSTEM.put("-//Norman Walsh//DTD Slides XML V" + Config.SLIDES_VERSION + "//EN",
                             "nbres:/org/netbeans/modules/docbook/lib/slides-" + Config.SLIDES_VERSION + "/schema/dtd/slides.dtd");
@@ -52,7 +52,7 @@ public class DocBookCatalog implements CatalogProvider {
         // XXX slides-full.dtd
     }
     
-    static final Map/*<String,String>*/ SYSTEM_2_SYSTEM = new HashMap();
+    static final Map<String,String> SYSTEM_2_SYSTEM = new HashMap<String,String>();
     static {
         SYSTEM_2_SYSTEM.put("http://docbook.sourceforge.net/release/xsl/current/",
                             "nbres:/org/netbeans/modules/docbook/lib/docbook-xsl-" + Config.DOCBOOK_XSL_VERSION + "/");
