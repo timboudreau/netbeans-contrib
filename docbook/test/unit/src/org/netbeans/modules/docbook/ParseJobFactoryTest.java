@@ -16,12 +16,6 @@
  * Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
  * Microsystems, Inc. All Rights Reserved.
  */
-/*
- * ParseJobFactoryTest.java
- * JUnit based test
- *
- * Created on October 18, 2006, 7:33 PM
- */
 
 package org.netbeans.modules.docbook;
 
@@ -33,6 +27,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.lang.reflect.Method;
 import java.net.URISyntaxException;
+import java.net.URL;
 import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -45,6 +40,7 @@ import junit.framework.TestCase;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.MissingResourceException;
 import java.util.regex.Pattern;
 import org.netbeans.api.docbook.ContentHandlerCallback;
 import org.netbeans.api.docbook.ParseJob;
@@ -105,7 +101,11 @@ public class ParseJobFactoryTest extends TestCase {
     }
 
     private static String resUrl (String loc) {
-        return ParseJobFactory.class.getResource (loc).toString();
+        URL u = ParseJobFactoryTest.class.getResource(loc);
+        if (u == null) {
+            throw new MissingResourceException(loc, null, null);
+        }
+        return u.toString();
     }
 
     File dataDir;

@@ -51,10 +51,9 @@ Microsystems, Inc. All Rights Reserved.
         </propertyfile>
     </target>
 
-    <target name="jar" depends="init,compile,jar-prep,external">
-        <jarwithmoduleattributes jarfile="${cluster}/${module.jar}" compress="${build.package.compress}" index="${build.package.index}" manifest="${manifest.mf}">
-            <fileset dir="${build.classes.dir}"/>
-            <zipfileset prefix="org/netbeans/modules/docbook/lib" dir="build/docbook-libs">
+    <target name="compile" depends="projectized-common.compile,external">
+        <copy todir="${build.classes.dir}/org/netbeans/modules/docbook/lib">
+            <fileset dir="build/docbook-libs">
                 <include name="config.properties"/>
                 <include name="slides-${libs.docbook-slides.version}/VERSION"/>
                 <include name="slides-${libs.docbook-slides.version}/schema/dtd/slides.dtd"/>
@@ -70,8 +69,8 @@ Microsystems, Inc. All Rights Reserved.
                 <include name="docbook-xml-${libs.docbook-xml.version}/*.mod"/>
                 <include name="docbook-xml-${libs.docbook-xml.version}/ent/*.ent"/>
                 <exclude name="**/ChangeLog"/>
-            </zipfileset>
-        </jarwithmoduleattributes>
+            </fileset>
+        </copy>
     </target>
 
     <target name="init" depends="projectized.init,prepare-saxon">
@@ -84,7 +83,7 @@ Microsystems, Inc. All Rights Reserved.
     
     <target name="-download-saxon" unless="download-saxon">
         <mkdir dir="ext"/>
-        <get dest="ext/saxon-dist.zip" src="http://superb-west.dl.sourceforge.net/sourceforge/saxon/saxonb8-8j.zip"/>
+        <get dest="ext/saxon-dist.zip" src="${saxon.dist}"/>
     </target>
     <target name="-download-mpl" unless="download-mpl">
         <mkdir dir="ext"/>
