@@ -1,6 +1,6 @@
 Manifest-Version: 1.0
-OpenIDE-Module: org.netbeans.services/1
-OpenIDE-Module-Layer: org/netbeans/services/resources/layer.xml
-OpenIDE-Module-Localizing-Bundle: org/netbeans/services/Bundle.properties
+OpenIDE-Module: org.netbeans.servicestab
+OpenIDE-Module-Layer: org/netbeans/modules/servicestab/resources/layer.xml
+OpenIDE-Module-Localizing-Bundle: org/netbeans/modules/servicestab/Bundle.properties
 OpenIDE-Module-Specification-Version: 1.0
 
