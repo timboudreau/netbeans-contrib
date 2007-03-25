@@ -27,15 +27,12 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
+import java.util.SortedSet;
 import java.util.TreeSet;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import javax.swing.JEditorPane;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Caret;
@@ -43,8 +40,6 @@ import javax.swing.text.Document;
 import javax.swing.text.Element;
 import javax.swing.text.JTextComponent;
 import org.netbeans.editor.BaseDocument;
-import org.netbeans.editor.FindSupport;
-import org.netbeans.editor.SettingsNames;
 import org.openide.DialogDisplayer;
 import org.openide.ErrorManager;
 import org.openide.NotifyDescriptor;
@@ -445,16 +440,32 @@ public class LineOperations {
                         linesText[i] = doc.getText(lineStartOffset, (lineEndOffset - lineStartOffset));
                     }
 
-                    if (isRemoveDuplicateLines()) {
-                        linesText = (String[]) new TreeSet<String>(Arrays.asList(linesText)).toArray(new String[0]);
-                    }
-
+                    Comparator comparator = null;
                     if (descending) {
-                        Arrays.sort(linesText, REVERSE_STRING_COMPARATOR);
+                        if (matchCase) {
+                            comparator = REVERSE_STRING_COMPARATOR;
+                        } else {
+                            comparator = REVERSE_STRING_COMPARATOR_CASE_INSENSITIVE;
+                        }
                     } else {
-                        Arrays.sort(linesText);
+                        if (matchCase) {
+                        } else {
+                            comparator = String.CASE_INSENSITIVE_ORDER;
+                        }
                     }
-
+                    
+                    if (isRemoveDuplicateLines()) {
+                        SortedSet<String> uniqifySet = new TreeSet<String>(matchCase ? null : String.CASE_INSENSITIVE_ORDER);
+                        uniqifySet.addAll(Arrays.asList(linesText));
+                        linesText = uniqifySet.toArray(new String[0]);
+                    }
+                    
+                    if (comparator == null) {
+                            Arrays.sort(linesText);
+                    } else {
+                        Arrays.sort(linesText, comparator);
+                    }
+                    
                     StringBuffer sb = new StringBuffer();
                     for (int i = 0; i < linesText.length; i++) {
                         sb.append(linesText[i]);
@@ -500,7 +511,28 @@ public class LineOperations {
         LineOperations.removeDuplicateLines = removeDuplicateLines;
     }
 
+    private static boolean matchCase = true;
+
+    /**
+     * Return wheather the sorting shoul be done in a case sensitive fashion.
+     * @return
+     */
+    public static boolean isMatchCase() {
+        return matchCase;
+    }
+
+    /**
+     * Set wheather the sorting shoul be done in a case sensitive fashion.
+     *
+     * @param matchCase
+     */
+    public static void setMatchCase(boolean matchCase) {
+        LineOperations.matchCase = matchCase;
+    }
+
     private static Comparator<String> REVERSE_STRING_COMPARATOR = Collections.reverseOrder();
+    private static Comparator<String> REVERSE_STRING_COMPARATOR_CASE_INSENSITIVE = Collections.reverseOrder(String.CASE_INSENSITIVE_ORDER);
+
 
     static void filter(JTextComponent textComponent) {
         Caret caret = textComponent.getCaret();
