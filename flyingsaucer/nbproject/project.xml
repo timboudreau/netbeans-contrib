@@ -4,58 +4,6 @@
     <configuration>
         <data xmlns="http://www.netbeans.org/ns/nb-module-project/2">
             <code-name-base>org.netbeans.modules.flyingsaucer</code-name-base>
-            <class-path-extension>
-                <runtime-relative-path>ext/Xilize.jar</runtime-relative-path>
-                <binary-origin>${flyingsaucer.home}/lib/Xilize.jar</binary-origin>
-            </class-path-extension>
-            <class-path-extension>
-                <runtime-relative-path>ext/looks-2.0.4.jar</runtime-relative-path>
-                <binary-origin>${flyingsaucer.home}/lib/looks-2.0.4.jar</binary-origin>
-            </class-path-extension>
-            <class-path-extension>
-                <runtime-relative-path>ext/itext-paulo-155.jar</runtime-relative-path>
-                <binary-origin>${flyingsaucer.home}/lib/itext-paulo-155.jar</binary-origin>
-            </class-path-extension>
-            <class-path-extension>
-                <runtime-relative-path>ext/minium.jar</runtime-relative-path>
-                <binary-origin>${flyingsaucer.home}/lib/minium.jar</binary-origin>
-            </class-path-extension>
-            <class-path-extension>
-                <runtime-relative-path>ext/cssparser-0-9-4-fs.jar</runtime-relative-path>
-                <binary-origin>${flyingsaucer.home}/lib/cssparser-0-9-4-fs.jar</binary-origin>
-            </class-path-extension>
-            <class-path-extension>
-                <runtime-relative-path>ext/core-renderer.jar</runtime-relative-path>
-                <binary-origin>${flyingsaucer.home}/build/core-renderer.jar</binary-origin>
-            </class-path-extension>
-            <class-path-extension>
-                <runtime-relative-path>ext/about.jar</runtime-relative-path>
-                <binary-origin>${flyingsaucer.home}/build/about.jar</binary-origin>
-            </class-path-extension>
-            <class-path-extension>
-                <runtime-relative-path>ext/filebrowser.jar</runtime-relative-path>
-                <binary-origin>${flyingsaucer.home}/build/filebrowser.jar</binary-origin>
-            </class-path-extension>
-            <class-path-extension>
-                <runtime-relative-path>ext/browser.jar</runtime-relative-path>
-                <binary-origin>${flyingsaucer.home}/build/browser.jar</binary-origin>
-            </class-path-extension>
-            <class-path-extension>
-                <runtime-relative-path>ext/svg.jar</runtime-relative-path>
-                <binary-origin>${flyingsaucer.home}/build/svg.jar</binary-origin>
-            </class-path-extension>
-            <class-path-extension>
-                <runtime-relative-path>ext/svgSalamander.jar</runtime-relative-path>
-                <binary-origin>${flyingsaucer.home}/lib/svgSalamander.jar</binary-origin>
-            </class-path-extension>
-            <class-path-extension>
-                <runtime-relative-path>ext/docbook.jar</runtime-relative-path>
-                <binary-origin>${flyingsaucer.home}/build/docbook.jar</binary-origin>
-            </class-path-extension>
-            <class-path-extension>
-                <runtime-relative-path>ext/photogallery.jar</runtime-relative-path>
-                <binary-origin>${flyingsaucer.home}/build/photogallery.jar</binary-origin>
-            </class-path-extension>
             <module-dependencies>
                 <dependency>
                     <code-name-base>org.openide.awt</code-name-base>
@@ -123,6 +71,58 @@
                 </dependency>
             </module-dependencies>
             <public-packages/>
+            <class-path-extension>
+                <runtime-relative-path>ext/Xilize.jar</runtime-relative-path>
+                <binary-origin>${flyingsaucer.home}/lib/Xilize.jar</binary-origin>
+            </class-path-extension>
+            <class-path-extension>
+                <runtime-relative-path>ext/looks-2.0.4.jar</runtime-relative-path>
+                <binary-origin>${flyingsaucer.home}/lib/looks-2.0.4.jar</binary-origin>
+            </class-path-extension>
+            <class-path-extension>
+                <runtime-relative-path>ext/itext-paulo-155.jar</runtime-relative-path>
+                <binary-origin>${flyingsaucer.home}/lib/itext-paulo-155.jar</binary-origin>
+            </class-path-extension>
+            <class-path-extension>
+                <runtime-relative-path>ext/minium.jar</runtime-relative-path>
+                <binary-origin>${flyingsaucer.home}/lib/minium.jar</binary-origin>
+            </class-path-extension>
+            <class-path-extension>
+                <runtime-relative-path>ext/cssparser-0-9-4-fs.jar</runtime-relative-path>
+                <binary-origin>${flyingsaucer.home}/lib/cssparser-0-9-4-fs.jar</binary-origin>
+            </class-path-extension>
+            <class-path-extension>
+                <runtime-relative-path>ext/core-renderer.jar</runtime-relative-path>
+                <binary-origin>${flyingsaucer.home}/build/core-renderer.jar</binary-origin>
+            </class-path-extension>
+            <class-path-extension>
+                <runtime-relative-path>ext/about.jar</runtime-relative-path>
+                <binary-origin>${flyingsaucer.home}/build/about.jar</binary-origin>
+            </class-path-extension>
+            <class-path-extension>
+                <runtime-relative-path>ext/filebrowser.jar</runtime-relative-path>
+                <binary-origin>${flyingsaucer.home}/build/filebrowser.jar</binary-origin>
+            </class-path-extension>
+            <class-path-extension>
+                <runtime-relative-path>ext/browser.jar</runtime-relative-path>
+                <binary-origin>${flyingsaucer.home}/build/browser.jar</binary-origin>
+            </class-path-extension>
+            <class-path-extension>
+                <runtime-relative-path>ext/svg.jar</runtime-relative-path>
+                <binary-origin>${flyingsaucer.home}/build/svg.jar</binary-origin>
+            </class-path-extension>
+            <class-path-extension>
+                <runtime-relative-path>ext/svgSalamander.jar</runtime-relative-path>
+                <binary-origin>${flyingsaucer.home}/lib/svgSalamander.jar</binary-origin>
+            </class-path-extension>
+            <class-path-extension>
+                <runtime-relative-path>ext/docbook.jar</runtime-relative-path>
+                <binary-origin>${flyingsaucer.home}/build/docbook.jar</binary-origin>
+            </class-path-extension>
+            <class-path-extension>
+                <runtime-relative-path>ext/photogallery.jar</runtime-relative-path>
+                <binary-origin>${flyingsaucer.home}/build/photogallery.jar</binary-origin>
+            </class-path-extension>
         </data>
     </configuration>
 </project>
