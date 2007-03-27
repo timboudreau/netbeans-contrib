@@ -403,7 +403,8 @@ public class PortletApplicationPanelVisual extends JPanel implements DocumentLis
     }
     
     boolean valid(WizardDescriptor wizardDescriptor) {
-        
+
+        if(wizardDescriptor == null) return true;
         boolean selected = isCreatePortlet.isSelected();
         if(!selected){
             wizardDescriptor.putProperty("WizardPanel_errorMessage", "");
