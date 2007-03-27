@@ -70,24 +70,31 @@ public class PortletApplicationPanelVisual extends JPanel implements DocumentLis
         portletShortTitleTf.getDocument().addDocumentListener(this);
         pkgTf.getDocument().addDocumentListener(this);
     }
-   
-    
+     
     private void initData()
     {
-        portletClassNameTf.setEnabled(false);
+        /*portletClassNameTf.setEnabled(false);
         portletNameTf.setEnabled(false);
         portletTitleTf.setEnabled(false);
         portletDescTf.setEnabled(false);
         portletDisplayNameTf.setEnabled(false);
         portletShortTitleTf.setEnabled(false);
-        pkgTf.setEnabled(false);
+        pkgTf.setEnabled(false);*/
         isCreatePortlet.setEnabled(true);
         isCreatePortlet.setSelected(false);
-        isCreateJsps.setEnabled(false);
+        enableCheckBoxes(false);
+        //make editable false
+        /*portletClassNameTf.setEditable(false);
+        portletNameTf.setEditable(false);
+        portletTitleTf.setEditable(false);
+        portletDescTf.setEditable(false);
+        portletDisplayNameTf.setEditable(false);
+        portletShortTitleTf.setEditable(false);
+        pkgTf.setEditable(false);*/
+        enableTextComponents(false);
         
         if(wm != null)
-        {
-            
+        {         
             Project project = FileOwnerQuery.getOwner(wm.getDocumentBase());
             Sources sources = (Sources)project.getLookup().lookup(Sources.class);
             SourceGroup[] groups = sources.getSourceGroups(JavaProjectConstants.SOURCES_TYPE_JAVA);
@@ -96,13 +103,12 @@ public class PortletApplicationPanelVisual extends JPanel implements DocumentLis
                  srcCombo.addItem(new CustomSourceGroup(groups[i]));
         }else{
              srcCombo.setEnabled(false);
+             srcCombo.setEditable(false);
         }
       //  Project project = FileOwnerQuery.getOwner(wm.getDocumentBase());
       //  Sources sources = (Sources)project.getLookup().lookup(Sources.class);
      //   SourceGroup[] groups = sources.getSourceGroups(JavaProjectConstants.SOURCES_TYPE_JAVA);
-        
-        
-        
+            
     }
     
     class CustomSourceGroup
@@ -122,7 +128,7 @@ public class PortletApplicationPanelVisual extends JPanel implements DocumentLis
             return srcGroup.getRootFolder();
                  
         }
-}
+    }
     /** This method is called from within the constructor to
      * initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is
@@ -334,27 +340,29 @@ public class PortletApplicationPanelVisual extends JPanel implements DocumentLis
     private void isCreatePortletStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_isCreatePortletStateChanged
 // TODO add your handling code here:
         boolean selected = isCreatePortlet.isSelected();
+        
         if(!selected){
-            portletClassNameTf.setEnabled(false);
+        /*    portletClassNameTf.setEnabled(false);
             portletNameTf.setEnabled(false);
             portletDescTf.setEnabled(false);
             portletDisplayNameTf.setEnabled(false);
             portletTitleTf.setEnabled(false);
             portletShortTitleTf.setEnabled(false);
-            pkgTf.setEnabled(false);
-            isCreateJsps.setEnabled(false);
-            if(srcCombo.isVisible())
-                srcCombo.setEnabled(false);
+            pkgTf.setEnabled(false);*/
+            enableTextComponents(selected);
+            enableCheckBoxes(false);
+            srcCombo.setEnabled(false);
         }else{
-            portletClassNameTf.setEnabled(true);
+            /*portletClassNameTf.setEnabled(true);
             portletNameTf.setEnabled(true);
             portletDescTf.setEnabled(true);
             portletDisplayNameTf.setEnabled(true);
             portletTitleTf.setEnabled(true);
             portletShortTitleTf.setEnabled(true);
-            pkgTf.setEnabled(true);
-            isCreateJsps.setEnabled(true);
-            if(srcCombo.isVisible() && wm != null)
+            pkgTf.setEnabled(true);*/
+            enableTextComponents(selected);
+            enableCheckBoxes(true);
+            if(wm != null)
                 srcCombo.setEnabled(true);
         }
         
@@ -576,17 +584,38 @@ public class PortletApplicationPanelVisual extends JPanel implements DocumentLis
      */
     public void enableComponents(boolean enable)
     {
-        portletClassNameTf.setEnabled(enable);
-        portletNameTf.setEnabled(enable);
-        portletTitleTf.setEnabled(enable);
-        portletDescTf.setEnabled(enable);
-        portletDisplayNameTf.setEnabled(enable);
-        portletShortTitleTf.setEnabled(enable);
-        pkgTf.setEnabled(enable);
-        isCreatePortlet.setEnabled(enable);
-        isCreateJsps.setEnabled(enable);
-        srcCombo.setEnabled(enable);
+        if(!enable)
+        {
+            enableTextComponents(false);
+            enableCheckBoxes(false);
+        }
+        else if(enable && isCreatePortlet.isSelected())
+        {
+            enableTextComponents(true);
+            enableCheckBoxes(true);
+        }
+        else if(enable && !isCreatePortlet.isSelected())
+        {
+            enableTextComponents(false);
+            enableCheckBoxes(false);
+        }
         
+        isCreatePortlet.setEnabled(enable);
+       /// isCreateJsps.setEnabled(enable);
+        if(wm != null)
+            srcCombo.setEnabled(enable);
+      
+    }
+    
+    private void enableCheckBoxes(boolean enable)
+    {
+        isCreateJsps.setEnabled(enable);
+        editCheckbox.setEnabled(enable);
+        helpCheckbox.setEnabled(enable);
+        
+    }
+    private void enableTextComponents(boolean enable)
+    {  
         portletClassNameTf.setEditable(enable);
         portletNameTf.setEditable(enable);
         portletTitleTf.setEditable(enable);
@@ -594,6 +623,14 @@ public class PortletApplicationPanelVisual extends JPanel implements DocumentLis
         portletDisplayNameTf.setEditable(enable);
         portletShortTitleTf.setEditable(enable);
         pkgTf.setEditable(enable);
+        
+        portletClassNameTf.setEnabled(enable);
+        portletNameTf.setEnabled(enable);
+        portletTitleTf.setEnabled(enable);
+        portletDescTf.setEnabled(enable);
+        portletDisplayNameTf.setEnabled(enable);
+        portletShortTitleTf.setEnabled(enable);
+        pkgTf.setEnabled(enable);
       
     }
    

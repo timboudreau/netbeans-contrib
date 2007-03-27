@@ -61,7 +61,7 @@ public class PortletProjectUtil {
         
         String pkg = orgPkg.replace(".",File.separator);
         File srcFolder = FileUtil.toFile(subfolder);
-        File newPkgDir = new File(srcFolder,"java" + File.separator + pkg);
+        File newPkgDir = new File(srcFolder,File.separator + pkg);
         
         boolean created = newPkgDir.mkdirs();
         
