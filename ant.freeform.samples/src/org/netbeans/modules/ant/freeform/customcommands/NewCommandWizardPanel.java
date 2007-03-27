@@ -20,12 +20,9 @@
 package org.netbeans.modules.ant.freeform.customcommands;
 
 import java.awt.Component;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import org.openide.WizardDescriptor;
+import org.openide.util.ChangeSupport;
 import org.openide.util.HelpCtx;
 
 public class NewCommandWizardPanel implements WizardDescriptor.Panel {
@@ -55,26 +52,15 @@ public class NewCommandWizardPanel implements WizardDescriptor.Panel {
                 component.getPosition() >= 0;
     }
     
-    private final List/*<ChangeListener>*/ listeners = new ArrayList();
+    private final ChangeSupport cs = new ChangeSupport(this);
     public final void addChangeListener(ChangeListener l) {
-        synchronized (listeners) {
-            listeners.add(l);
-        }
+        cs.addChangeListener(l);
     }
     public final void removeChangeListener(ChangeListener l) {
-        synchronized (listeners) {
-            listeners.remove(l);
-        }
+        cs.removeChangeListener(l);
     }
     final void fireChangeEvent() {
-        Iterator it;
-        synchronized (listeners) {
-            it = new ArrayList(listeners).iterator();
-        }
-        ChangeEvent ev = new ChangeEvent(this);
-        while (it.hasNext()) {
-            ((ChangeListener) it.next()).stateChanged(ev);
-        }
+        cs.fireChange();
     }
     
     public void readSettings(Object settings) {}
