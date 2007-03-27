@@ -27,8 +27,8 @@ import java.util.logging.*;
  * Print the level and text of the LogRecord.  This class is
  * based on java.util.logging.SimpleFormatter.
  */
-public class LogFormatter extends Formatter {
-    protected String lineSeparator;
+class LogFormatter extends Formatter {
+    String lineSeparator;
 
     public LogFormatter() {
 	super();

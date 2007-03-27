@@ -19,31 +19,25 @@
 
 package org.netbeans.modules.jackpot.cmds;
 
-import org.netbeans.api.java.source.query.ElementReferenceList;
-import org.netbeans.api.java.source.query.ReferenceFinder;
-import com.sun.source.tree.*;
-import com.sun.source.util.TreeScanner;
 import java.util.LinkedList;
-import javax.lang.model.element.*;
-import javax.lang.model.type.TypeMirror;
-import javax.lang.model.util.Types;
-import org.netbeans.api.java.source.query.QueryEnvironment;
-import org.netbeans.api.java.source.transform.Transformer;
-import org.netbeans.api.java.source.query.ElementReferenceList;
-import org.netbeans.api.java.source.query.ReferenceFinder;
-import java.util.EnumSet;
 import java.util.Set;
-import static org.netbeans.api.java.source.query.UseFinder.*;
-import static javax.lang.model.element.ElementKind.*;
+import javax.lang.model.element.Element;
+import javax.lang.model.util.Types;
+import org.netbeans.api.jackpot.QueryContext;
+import org.netbeans.api.jackpot.TreePathTransformer;
+import org.netbeans.api.java.source.ClassIndex;
+import org.netbeans.api.java.source.CompilationInfo;
+import org.netbeans.api.java.source.JavaSource;
 
 /**
  * Minimizes field access modifiers based on project usage.
  */
-public class MinimizeFieldAccess extends Transformer<Void,Object>{
+public class MinimizeFieldAccess extends TreePathTransformer<Void,Object> {
     private Types types;
+    private ClassIndex index;
+    /* FIXME:
     private ReferenceFinder referenceMap;
-    
-    { queryDescription = "Minimize Field Access"; }
+     */
     
     // properties set by PropertySheetInfo
     private boolean ignorePackagePrivate;
@@ -62,9 +56,15 @@ public class MinimizeFieldAccess extends Transformer<Void,Object>{
     }
     
     @Override
-    public void attach(QueryEnvironment env) {
-	super.attach(env);
-        types = env.getTypes();
+    public void init(QueryContext context, JavaSource javaSource) {
+        super.init(context, javaSource);
+        index = javaSource.getClasspathInfo().getClassIndex();
+    }
+    
+    @Override
+    public void attach(CompilationInfo info) {
+	super.attach(info);
+        types = info.getTypes();
     }
     
     @Override
@@ -72,7 +72,14 @@ public class MinimizeFieldAccess extends Transformer<Void,Object>{
         super.release();
         types = null;
     }
+    
+    @Override
+    public void destroy() {
+        super.destroy();
+        index = null;
+    }
 
+    /* FIXME:
     @Override
     public void apply() {
         Tree root = getRootNode();
@@ -170,8 +177,7 @@ public class MinimizeFieldAccess extends Transformer<Void,Object>{
         
         if (!flags.equals(newFlags)) {
             ModifiersTree newMods = make.Modifiers(newFlags, mods.getAnnotations());
-            changes.rewrite(mods, newMods);
-            addResult(sym, newMods, resultNote(flags, newFlags));
+            addChange(new TreePath(getCurrentPath(), mods), newMods, resultNote(flags, newFlags));
         }
         return null;
     }
@@ -211,7 +217,7 @@ public class MinimizeFieldAccess extends Transformer<Void,Object>{
         else
             buf.append("package-private");
     }
-
+*/
     /**
      * Lightweight Set implementation, which is just a linked-list
      * without duplicates.

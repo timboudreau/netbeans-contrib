@@ -19,45 +19,84 @@
 
 package org.netbeans.modules.jackpot.cmds;
 
-import org.netbeans.api.java.source.query.QueryEnvironment;
-import org.netbeans.api.java.source.transform.Transformer;
+import com.sun.source.tree.AnnotationTree;
+import com.sun.source.tree.ExpressionTree;
 import com.sun.source.tree.MethodTree;
 import com.sun.source.tree.ModifiersTree;
+import com.sun.source.util.TreePath;
+import com.sun.source.util.Trees;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import javax.lang.model.element.ExecutableElement;
-import javax.lang.model.type.DeclaredType;
-import javax.lang.model.type.TypeMirror;
+import javax.lang.model.element.TypeElement;
+import javax.lang.model.util.Elements;
+import org.netbeans.api.jackpot.ConversionOperations;
+import org.netbeans.api.jackpot.TreePathTransformer;
+import org.netbeans.api.java.source.CompilationInfo;
+import org.netbeans.api.java.source.ElementUtilities;
+import org.netbeans.api.java.source.TreeMaker;
 
 /**
  * Add java.lang.Override annotations to those elements that do override
  * their parent class's declaration.
  */
-public class AddOverrides extends Transformer<Void,Object> {
-    TypeMirror overrideType;
-        
-    { queryDescription = "Overriding members"; }
+public class AddOverrides extends TreePathTransformer<Void,Object>  {
+    Elements elements;
+    ElementUtilities elementUtils;
+    TreeMaker make;
+    Trees trees;
+    ConversionOperations ops;
+    TypeElement override;
     
     @Override
-    public void attach(QueryEnvironment env) {
-	super.attach(env);
-	overrideType = env.getElements().getTypeElement("java.lang.Override").asType();
+    public void attach(CompilationInfo info) {
+	super.attach(info);
+        elements = info.getElements();
+        elementUtils = info.getElementUtilities();
+        trees = info.getTrees();
+	override = elements.getTypeElement("java.lang.Override");
+        make = getWorkingCopy().getTreeMaker();
+        ops = new ConversionOperations(getWorkingCopy());
     }
     
     @Override
     public void release() {
         super.release();
-        overrideType = null;
+        elements = null;
+        make = null;
+        trees = null;
+        ops = null;
+        override = null;
     }
     
+    /**
+     * Check each method to see if it overrides a superclass method, and if so
+     * add an @Override annotation.
+     * 
+     * @param tree the method to inspect
+     * @param p unused parameter
+     * @return null
+     */
     @Override
     public Void visitMethod(MethodTree tree, Object p) {
 	super.visitMethod(tree, p);
-        ExecutableElement ee = (ExecutableElement)getElement(tree);
-        ModifiersTree mods = tree.getModifiers();
-	if (ee != null && env.getElementUtilities().overridesMethod(ee) && !hasAnnotation(tree.getModifiers(), overrideType)) {
-	    ModifiersTree newMods = addAnnotation(mods, (DeclaredType)overrideType);
-	    changes.rewrite(mods, newMods);
-	    addResult(newMods);
-	}
+        ExecutableElement element = 
+            (ExecutableElement)trees.getElement(getCurrentPath());
+        if (element != null && elementUtils.overridesMethod(element) &&
+                AddDeprecateds.needsAnnotation(element, override, elements))
+            addOverridesAnnotation(element, tree.getModifiers());
         return null;
+    }
+    
+    private void addOverridesAnnotation(ExecutableElement element, ModifiersTree modifiers) {
+        List<? extends ExpressionTree> args = Collections.emptyList();
+        AnnotationTree ann = make.Annotation(make.QualIdent(override), args);
+        List<AnnotationTree> newAnns = new ArrayList<AnnotationTree>();
+        newAnns.addAll(modifiers.getAnnotations());
+        newAnns.add(ann);
+        ModifiersTree newMods = make.Modifiers(modifiers, newAnns);
+        ops.copyComments(modifiers, newMods);
+        addChange(new TreePath(getCurrentPath(), modifiers), newMods);
     }
 }

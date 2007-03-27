@@ -6,10 +6,19 @@
             <code-name-base>org.netbeans.modules.jackpot.rules</code-name-base>
             <module-dependencies>
                 <dependency>
-                    <code-name-base>org.netbeans.jackpot</code-name-base>
+                    <code-name-base>org.netbeans.libs.javacapi</code-name-base>
                     <build-prerequisite/>
                     <compile-dependency/>
                     <run-dependency>
+                        <specification-version>0.5</specification-version>
+                    </run-dependency>
+                </dependency>
+                <dependency>
+                    <code-name-base>org.netbeans.libs.javacimpl</code-name-base>
+                    <build-prerequisite/>
+                    <compile-dependency/>
+                    <run-dependency>
+                        <release-version>1</release-version>
                         <implementation-version/>
                     </run-dependency>
                 </dependency>
@@ -35,8 +44,16 @@
                     <build-prerequisite/>
                     <compile-dependency/>
                     <run-dependency>
-                        <release-version>2</release-version>
+                        <release-version>1</release-version>
                         <implementation-version/>
+                    </run-dependency>
+                </dependency>
+                <dependency>
+                    <code-name-base>org.netbeans.modules.java.source</code-name-base>
+                    <build-prerequisite/>
+                    <compile-dependency/>
+                    <run-dependency>
+                        <specification-version>0.4</specification-version>
                     </run-dependency>
                 </dependency>
                 <dependency>
@@ -136,7 +153,9 @@
                     </run-dependency>
                 </dependency>
             </module-dependencies>
-            <public-packages/>
+            <public-packages>
+                <package>org.netbeans.api.java.source</package>
+            </public-packages>
         </data>
     </configuration>
 </project>

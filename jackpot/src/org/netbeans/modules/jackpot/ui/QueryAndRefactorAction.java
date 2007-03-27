@@ -28,27 +28,25 @@ import java.util.HashSet;
 import java.util.ResourceBundle;
 import java.util.Set;
 import org.netbeans.api.project.FileOwnerQuery;
-import org.netbeans.modules.java.source.engine.BuildErrorsException;
 import org.netbeans.modules.jackpot.Inspection;
 import org.netbeans.modules.jackpot.JackpotModule;
 import org.netbeans.api.project.Project;
 import org.netbeans.api.project.ProjectInformation;
 import org.netbeans.api.project.ProjectUtils;
-import org.netbeans.modules.java.source.engine.EmptyScriptException;
-import org.netbeans.modules.java.source.engine.RulesParseException;
-import org.netbeans.modules.jackpot.ModuleContext;
+import org.netbeans.modules.jackpot.engine.BuildErrorsException;
+import org.netbeans.spi.jackpot.EmptyScriptException;
+import org.netbeans.spi.jackpot.ScriptParsingException;
 import org.openide.ErrorManager;
 import org.openide.awt.StatusDisplayer;
 import org.openide.loaders.DataObject;
 import org.openide.nodes.Node;
-import org.openide.util.Cancellable;
 import org.openide.util.HelpCtx;
 import org.openide.util.NbBundle;
 import org.openide.util.actions.NodeAction;
 import org.openide.windows.InputOutput;
 import org.openide.windows.OutputWriter;
 
-public class QueryAndRefactorAction extends NodeAction implements Cancellable {
+public class QueryAndRefactorAction extends NodeAction {
     Project[] projects;
     Inspection[] inspections;
     String querySetName;
@@ -79,13 +77,6 @@ public class QueryAndRefactorAction extends NodeAction implements Cancellable {
             sb.append(info.getDisplayName());
         }
         return sb.toString();
-    }
-    
-    public boolean cancel() {
-        if (t != null)
-            t.stop();
-        t = null;
-        return true;
     }
     
     public String getName() {
@@ -151,7 +142,7 @@ public class QueryAndRefactorAction extends NodeAction implements Cancellable {
             StatusDisplayer.getDefault().setStatusText("");
             try {
                 JackpotModule module = JackpotModule.getInstance();
-                module.createEngine(projects, QueryAndRefactorAction.this);
+                module.createEngine(projects);
                 if (inspections.length == 1)
                     module.runCommand(inspections[0]);
                 else
@@ -159,7 +150,7 @@ public class QueryAndRefactorAction extends NodeAction implements Cancellable {
             } catch (EmptyScriptException e) {
                 String msg = NbBundle.getMessage(QueryAndRefactorAction.class, "MSG_NoRules");
                 StatusDisplayer.getDefault().setStatusText(msg);
-            } catch (RulesParseException rpe) {
+            } catch (ScriptParsingException rpe) {
                 printParseException(rpe.getMessage());
             } catch (BuildErrorsException bee) {
                 String msg = getBuildErrorsMsg(bee);
@@ -175,7 +166,7 @@ public class QueryAndRefactorAction extends NodeAction implements Cancellable {
     private void printParseException(String errorText) {
         try {
             BufferedReader in = new BufferedReader(new StringReader(errorText));
-            InputOutput log = ModuleContext.getLogWindow();
+            InputOutput log = JackpotModule.getLogWindow();
             log.select();
             OutputWriter out = log.getOut();
             String line;

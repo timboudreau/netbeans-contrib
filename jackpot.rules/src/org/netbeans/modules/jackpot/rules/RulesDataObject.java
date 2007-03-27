@@ -20,19 +20,25 @@
 package org.netbeans.modules.jackpot.rules;
 
 import java.io.IOException;
-import org.netbeans.api.java.source.transform.Transformer;
+import org.netbeans.api.jackpot.Query;
+import org.netbeans.spi.jackpot.QueryCookie;
 import org.openide.cookies.InstanceCookie;
 import org.openide.filesystems.FileObject;
 import org.openide.loaders.*;
 import org.openide.nodes.CookieSet;
 import org.openide.nodes.Node;
 import org.openide.text.DataEditorSupport;
-import org.openide.util.NotImplementedException;
 
 /**
  * RulesDataObject: a DataObject representing Jackpot rules files.
  */
 public class RulesDataObject extends MultiDataObject {
+    /**
+     * Creates a new RulesDataObject
+     * @param file the associated file object
+     * @param loader the MultiFileLoader
+     * @throws org.openide.loaders.DataObjectExistsException 
+     */
     public RulesDataObject(final FileObject file, MultiFileLoader loader)
       throws DataObjectExistsException {
         super(file, loader);
@@ -40,13 +46,18 @@ public class RulesDataObject extends MultiDataObject {
         cookies.add((Node.Cookie) DataEditorSupport.create(this, getPrimaryEntry(), cookies));
         cookies.add(new InstanceCookie() {
             public Class instanceClass() throws IOException,ClassNotFoundException {
-                return Transformer.class;
+                return Query.class;
             }
             public Object instanceCreate() throws IOException,ClassNotFoundException {
                 return RulesDataObject.this;
             }
             public String instanceName() {
                 return file.getName();
+            }
+        });
+        cookies.add(new QueryCookie() {
+            public Query getQuery(String queryDescription) throws Exception {
+                return QueryFactory.getQuery(getPrimaryFile(), queryDescription);
             }
         });
     }

@@ -19,39 +19,68 @@
 
 package org.netbeans.modules.jackpot.cmds;
 
-import org.netbeans.api.java.source.query.UseFinder;
-import org.netbeans.api.java.source.query.Query;
-import org.netbeans.api.java.source.query.SearchResult;
-import org.netbeans.api.java.source.query.QueryEnvironment;
-import org.netbeans.api.java.source.query.Finder;
-import org.netbeans.api.java.source.query.SetUseFinder;
-import org.netbeans.api.java.source.query.UseFinder;
-import com.sun.source.tree.*;
-import javax.lang.model.element.*;
-import javax.lang.model.type.*;
+import com.sun.source.tree.CatchTree;
+import com.sun.source.tree.MethodTree;
+import com.sun.source.tree.VariableTree;
+import com.sun.source.util.TreePath;
+import com.sun.source.util.Trees;
 import javax.lang.model.util.Types;
 import java.util.Set;
+import javax.lang.model.element.Element;
+import javax.lang.model.element.ElementKind;
+import javax.lang.model.element.Modifier;
+import javax.lang.model.element.TypeElement;
+import javax.lang.model.type.PrimitiveType;
+import javax.lang.model.type.TypeKind;
+import javax.lang.model.type.TypeMirror;
+import org.netbeans.api.jackpot.QueryContext;
+import org.netbeans.api.jackpot.QueryOperations;
+import org.netbeans.api.jackpot.TreePathQuery;
+import org.netbeans.api.java.source.ClassIndex;
+import org.netbeans.api.java.source.CompilationInfo;
+import org.netbeans.api.java.source.ElementUtilities;
+import org.netbeans.api.java.source.JavaSource;
 
-public class FindUnusedVariables extends Query<Void,Object> {
+/**
+ * Reports all public and protected variables which are not referenced by 
+ * code other than the variable's initialization expression.  
+ * <p>
+ * Note:  this query can only find references within the set of open
+ * projects, so it is important to run this query with all client code available
+ * before deciding to delete an unused variable.  Another restriction is that
+ * this query currently doesn't test for access via the Java Reflection API.
+ * 
+ * @author Tom Ball
+ */
+public class FindUnusedVariables extends TreePathQuery<Void,Object> {
     private static final String serialVersionUIDName = "serialVersionUID";
     PrimitiveType longType;
     TypeMirror serializableType;
     Types types;
-    
-    { queryDescription = "Unused Public Variables"; }
+    Trees trees;
+    QueryOperations ops;
+    ElementUtilities elementUtils;
+    private ClassIndex index;
     
     /** user-set property */
     public boolean ignoreStatics;
     
-    public static final int FOO = 1;
+    @Override
+    public void init(QueryContext context, JavaSource javaSource) {
+        super.init(context, javaSource);
+        index = javaSource.getClasspathInfo().getClassIndex();
+    }
     
     @Override
-    public void attach(QueryEnvironment env) {
-        super.attach(env);
-        longType = env.getTypes().getPrimitiveType(TypeKind.LONG);
+    public void attach(CompilationInfo info) {
+        super.attach(info);
+        longType = info.getTypes().getPrimitiveType(TypeKind.LONG);
 	serializableType = 
-            env.getElements().getTypeElement("java.io.Serializable").asType();
-        types = env.getTypes();
+            info.getElements().getTypeElement("java.io.Serializable").asType();
+        types = info.getTypes();
+        trees = info.getTrees();
+        ops = new QueryOperations(info);
+        elementUtils = info.getElementUtilities();
     }
     
     @Override
@@ -61,56 +90,72 @@ public class FindUnusedVariables extends Query<Void,Object> {
         serializableType = null;
         types = null;
     }
-
+    
     @Override
-    public void apply(Tree t) {
-        SearchResult allPublic = new Finder(queryDescription, this) {
-            @Override
-            public Void visitVariable(VariableTree tree, Object p) {
-                super.visitVariable(tree, p);
-                if (shouldTest(tree))
-                    add(getElement(tree), tree, null, 0);
-                return null;
-            }
-            @Override
-            public Void visitMethod(MethodTree tree, Object p) {
-                // ignore parameters
-                scan(tree.getBody(), p);
-                return null;
-            }
-            @Override
-            public Void visitCatch(CatchTree tree, Object p) {
-                // ignore parameters
-                scan(tree.getBlock(), p);
-                return null;
-            }
-        }.find(t);
-        SetUseFinder suf = new SetUseFinder(env) {
-            protected boolean acceptable(Element sym, int flags) {
-                // return true if there are no world, package, or class uses.
-                return (flags & ALL_USES) == 0;
-            }
-        };
-        suf.computeSummary(allPublic, env.getRootNode());
-        setResult(allPublic);
+    public void destroy() {
+        super.destroy();
+        index = null;
+    }
+
+    /**
+     * Check all variable declarations for references.
+     * 
+     * @param tree the variable declaration
+     * @param p unused
+     * @return null
+     */
+    @Override
+    public Void visitVariable(VariableTree tree, Object p) {
+        super.visitVariable(tree, p);
+        if (shouldTest(tree))
+            if (noPublicUses(tree))
+                addResult();
+        return null;
+    }
+    /**
+     * Ignore method parameters when searching variable declarations.
+     * 
+     * @param tree the method tree
+     * @param p unused
+     * @return void
+     */
+    @Override
+    public Void visitMethod(MethodTree tree, Object p) {
+        // ignore parameters
+        scan(tree.getBody(), p);
+        return null;
     }
     
-    static final int ALL_USES = 
-            UseFinder.GETUSE | 
-            UseFinder.GETUSE << UseFinder.PACKAGESHIFT |
-            UseFinder.GETUSE << UseFinder.CLASSSHIFT;
+    /**
+     * Ignore expression declarations in catch blocks.
+     * 
+     * @param tree the catch tree
+     * @param p unused
+     * @return void
+     */
+    @Override
+    public Void visitCatch(CatchTree tree, Object p) {
+        // ignore parameters
+        scan(tree.getBlock(), p);
+        return null;
+    }
     
+    private boolean noPublicUses(VariableTree tree) {
+        return false; //FIXME
+    }
+
     private boolean shouldTest(VariableTree tree) {
-        boolean ignore = ignoreStatics && isConstant(tree);
+        boolean ignore = ignoreStatics && ops.isConstant(getCurrentPath());
         return !ignore && !isSerialVersionUID(tree) && !isEnum(tree);
     }
     
     private boolean isEnum(VariableTree tree) {
-	return getElement(tree).getKind() == ElementKind.ENUM_CONSTANT;
+        TreePath path = getCurrentPath();
+	return trees.getElement(path).getKind() == ElementKind.ENUM_CONSTANT;
     }
 
     private boolean isSerialVersionUID(VariableTree tree) {
-        Element sym = getElement(tree);
+        Element sym = trees.getElement(getCurrentPath());
         return serialVersionUIDName.equals(tree.getName().toString()) && 
             sym.asType().equals(longType) && 
             isConstantField(tree) &&
@@ -127,7 +172,7 @@ public class FindUnusedVariables extends Query<Void,Object> {
         Set<Modifier> flags = tree.getModifiers().getFlags();
         boolean isStaticFinal = 
             flags.contains(Modifier.STATIC) && flags.contains(Modifier.FINAL);
-        Element owner = elements.enclosingTypeElement(getElement(tree));
+        Element owner = elementUtils.enclosingTypeElement(trees.getElement(getCurrentPath()));
         boolean isInterfaceField = owner.getKind() == ElementKind.INTERFACE;
         return isStaticFinal || isInterfaceField;
     }

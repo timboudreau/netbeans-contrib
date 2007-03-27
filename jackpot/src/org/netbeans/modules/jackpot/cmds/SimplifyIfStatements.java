@@ -19,50 +19,82 @@
 
 package org.netbeans.modules.jackpot.cmds;
 
-import org.netbeans.api.java.source.transform.Transformer;
-import com.sun.source.tree.*;
+import com.sun.source.tree.IfTree;
+import com.sun.source.tree.StatementTree;
+import com.sun.source.tree.Tree;
+import org.netbeans.api.jackpot.ConversionOperations;
+import org.netbeans.api.jackpot.QueryOperations;
+import org.netbeans.api.jackpot.TreePathTransformer;
+import org.netbeans.api.java.source.CompilationInfo;
 
-public class SimplifyIfStatements extends Transformer<Void,Object> {
+/**
+ * Simplify if statements for the following cases:
+ * <ul>
+ * <li>for "<code>if(true)</code>" statements (or their equivalents), replace the if
+ * statement with its then statement.</li>
+ * <li>for "<code>if(false)</code>" statements (or their equivalents), replace the if
+ * statement with its else statement.</li>
+ * <li>for if statements where the then statement doesn't continue to the
+ * following statement (such as "<code>if (cond) return;</code> or 
+ * <code>if (cond) { doSomething(); break; }</code>)", move the else statement to
+ * follow the if statement.</li>
+ * <li>for if statements where the else statement doesn't continue to the following
+ * statement, invert the condition, switch the then and else statements, and then
+ * move the else statement to follow the if statement.</li>
+ * 
+ * @author James Gosling, Tom Ball
+ */
+public class SimplifyIfStatements extends TreePathTransformer<Void,Object> {
     
-    { queryDescription = "Complex if statements"; }
+    private ConversionOperations ops;
     
+    @Override
+    public void attach(CompilationInfo info) {
+	super.attach(info);
+        ops = new ConversionOperations(getWorkingCopy());
+    }
+    
+    /**
+     * Test if statements for simplication.
+     * 
+     * @param tree the if statement to inspect
+     * @param p unused
+     * @return null
+     */
     @Override
     public Void visitIf(IfTree tree, Object p) {
         super.visitIf(tree, p);
         StatementTree newTree = tree;
-        if(sideEffectFree(tree.getCondition())) {
-            Object bool = eval(tree.getCondition());
+        if(QueryOperations.sideEffectFree(tree.getCondition())) {
+            Object bool = ops.eval(tree.getCondition());
             if(bool == Boolean.TRUE) {
                 newTree = tree.getThenStatement();
-                addResult(newTree, "Eliminated 'if(true)'");
-                changes.rewrite(tree, newTree);
+                addChange(getCurrentPath(), newTree, "Eliminated 'if(true)'");
                 return null;
             }
             if(bool == Boolean.FALSE) {
                 newTree = tree.getElseStatement();
-                addResult(newTree, "Eliminated 'if(false)'");
-                changes.rewrite(tree, newTree);
+                addChange(getCurrentPath(), newTree, "Eliminated 'if(false)'");
                 return null;
             }
         }
         String resultMsg = null;
         if(tree.getElseStatement()!=null && nonFlowExit(tree.getThenStatement())) {
-            newTree = If(tree.getCondition(),tree.getThenStatement(),null);
-            newTree = block(newTree,tree.getElseStatement());
+            newTree = ops.If(tree.getCondition(),tree.getThenStatement(),null);
+            newTree = ops.block(newTree,tree.getElseStatement());
             resultMsg = "Flattened 'if()nonflow'";
         } else if(tree.getThenStatement()==null) {
-            if(tree.getElseStatement()==null && sideEffectFree(tree.getCondition()))
+            if(tree.getElseStatement()==null && ops.sideEffectFree(tree.getCondition()))
                 newTree=tree;
             else
-                newTree = If(not(tree.getCondition()),tree.getElseStatement());
+                newTree = ops.If(ops.not(tree.getCondition()),tree.getElseStatement(),null);
         } else if(nonFlowExit(tree.getElseStatement())) {
-            newTree = If(not(tree.getCondition()),tree.getElseStatement(),null);
-            newTree = block(newTree,tree.getThenStatement());
+            newTree = ops.If(ops.not(tree.getCondition()),tree.getElseStatement(),null);
+            newTree = ops.block(newTree,tree.getThenStatement());
             resultMsg = "Flattened 'if()... else nonflow'";
         }
         if (newTree != tree) {
-            changes.rewrite(tree, newTree);
-            addResult(newTree, resultMsg);
+            addChange(getCurrentPath(), newTree, resultMsg);
         }
         return null;
     }

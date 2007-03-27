@@ -19,17 +19,34 @@
 
 package org.netbeans.modules.jackpot.cmds;
 
-import org.netbeans.api.java.source.transform.Transformer;
 import com.sun.source.tree.*;
 import com.sun.source.util.TreeScanner;
 import java.util.List;
 import java.util.logging.Logger;
+import org.netbeans.api.jackpot.ConversionOperations;
+import org.netbeans.api.jackpot.TreePathTransformer;
+import org.netbeans.api.java.source.CompilationInfo;
+import org.netbeans.api.java.source.TreeMaker;
 
-public class SimplifyLoops extends Transformer<Void,Object> {
-    static final Logger logger = Logger.getLogger("org.netbeans.jackpot");
+public class SimplifyLoops extends TreePathTransformer<Void,Object> {
+    static final Logger logger = Logger.getLogger("org.netbeans.modules.jackpot");
+    private TreeMaker make;
+    private ConversionOperations ops;
     
-    { queryDescription = "Complex while loops"; }
-    
+    @Override
+    public void attach(CompilationInfo info) {
+        super.attach(info);
+        make = getWorkingCopy().getTreeMaker();
+        ops = new ConversionOperations(getWorkingCopy());
+    }
+
+    @Override
+    public void release() {
+        make = null;
+        ops = null;
+        super.release();
+    }
+        
     @Override
     public Void visitWhileLoop(WhileLoopTree tree, Object p) {
         pushLoop(tree);
@@ -37,10 +54,10 @@ public class SimplifyLoops extends Transformer<Void,Object> {
         popLoop(tree);
         String resultMsg = null;
         ExpressionTree cond = tree.getCondition();
-        if(eval(cond)==Boolean.TRUE)
+        if(ops.eval(cond)==Boolean.TRUE)
             splitter.split(tree.getStatement());
         else { splitter.body = tree.getStatement(); splitter.postBody = null; }
-        StatementTree first = getStatement(0,statement(splitter.body));
+        StatementTree first = getStatement(0,ops.statement(splitter.body));
         if(first instanceof IfTree) {
             int parenCount = 0;
             while (cond instanceof ParenthesizedTree) {
@@ -50,38 +67,56 @@ public class SimplifyLoops extends Transformer<Void,Object> {
             IfTree ist = (IfTree) first;
             if(getStatement(0,ist.getThenStatement()) instanceof BreakTree) {
                 // while (true) { if(b) break; ... }
-                splitter.body = block(ist.getElseStatement(),sublist(statement(splitter.body),1));
-                cond = and(cond,not(ist.getCondition()));
+                splitter.body = ops.block(ist.getElseStatement(),ops.sublist(ops.statement(splitter.body),1));
+                cond = ops.and(cond, ops.not(ist.getCondition()));
                 resultMsg = "Eliminated 'if break'";
                 logger.info("SimplifyLoops: aR "+cond);
             } else if(getStatement(0,ist.getElseStatement()) instanceof BreakTree) {
                 // while (true) { if(b) xxx; else break; ... }
-                splitter.body = block(ist.getThenStatement(),sublist(statement(splitter.body),1));
-                cond = and(cond,ist.getCondition());
+                splitter.body = ops.block(ist.getThenStatement(),ops.sublist(ops.statement(splitter.body),1));
+                cond = ops.and(cond,ist.getCondition());
                 resultMsg = "Eliminated 'else break'";
                 logger.info("SimplifyLoops: aR2 "+cond);
             }
             while(parenCount-- > 0)
                 cond = make.Parenthesized(cond);
         }
-        StatementTree last = lastStatement(statement(splitter.body));
+        StatementTree last = lastStatement(ops.statement(splitter.body));
         if(last instanceof ContinueTree && ((ContinueTree)last).getLabel()==null) {
-            splitter.body = sublist(statement(splitter.body),0,blockLength(splitter.body)-1);
+            splitter.body = ops.sublist(ops.statement(splitter.body),0,ops.blockLength(splitter.body)-1);
             resultMsg = "Removed trailing continue";
         }
         if(splitter.body != tree.getStatement() || 
            !cond.toString().equals(tree.getCondition().toString()) ||
            splitter.postBody != null) {
-            StatementTree newTree = make.WhileLoop(cond,statement(splitter.body));
+            StatementTree newTree = make.WhileLoop(cond,ops.statement(splitter.body));
             if(splitter.postBody != null) {
                 resultMsg = "while split body";
-                newTree = block(newTree,statement(splitter.postBody));
+                newTree = ops.block(newTree,ops.statement(splitter.postBody));
                 logger.info("SimplifyLoops: aR3 "+cond);
             }
-            changes.rewrite(tree, newTree);
-            addResult(newTree, resultMsg);
+            addChange(getCurrentPath(), newTree, resultMsg);
         }
         return null;
+    }
+    
+    private static StatementTree getStatement(int index, StatementTree a) {
+        if (a != null)
+            if (a instanceof BlockTree) {
+            java.util.List<? extends StatementTree> stats = ((BlockTree)a).getStatements();
+            return index < stats.size() ? stats.get(index) : null;
+            } else
+                return index != 0 ? null : a;
+        return null;
+    }
+    
+    private static StatementTree lastStatement(StatementTree a) {
+        if(a instanceof BlockTree) {
+            java.util.List<? extends StatementTree> stats = ((BlockTree)a).getStatements();
+            int n = stats.size();
+            return n > 0 ? stats.get(n - 1) : a;
+        } else
+            return a;
     }
     
     @Override
@@ -121,7 +156,7 @@ public class SimplifyLoops extends Transformer<Void,Object> {
         CharSequence label = resolvelabel(tree.getLabel());
         if (label != tree.getLabel()) {
             ContinueTree newTree = make.Continue(label);
-            changes.rewrite(tree, newTree);
+            addChange(getCurrentPath(), newTree);
         }
         return null;
     }
@@ -131,7 +166,7 @@ public class SimplifyLoops extends Transformer<Void,Object> {
         CharSequence label = resolvelabel(tree.getLabel());
         if (label != tree.getLabel()) {
             BreakTree newTree = make.Break(label);
-            changes.rewrite(tree, newTree);
+            addChange(getCurrentPath(), newTree);
         }
         return null;
     }
@@ -143,8 +178,8 @@ public class SimplifyLoops extends Transformer<Void,Object> {
         mylabel.pop();
         if(!mylabel.used) {
             StatementTree newTree = tree.getStatement();
-            changes.rewrite(tree, newTree);
-            addResult(newTree, "Removed unnecessary label: " + tree.getLabel());
+            addChange(getCurrentPath(), newTree,
+                      "Removed unnecessary label: " + tree.getLabel());
         } else {
             Tree.Kind kind = tree.getStatement().getKind();
             switch(kind) {
@@ -155,9 +190,9 @@ public class SimplifyLoops extends Transformer<Void,Object> {
                     StatementTree b2;
                     if(body.getKind() != kind && (b2=(StatementTree)getStatement(0,body))!=null && b2.getKind()==kind) {
                         //  loop broke into a block; move the label into the block
-                        StatementTree newTree = block(make.LabeledStatement(tree.getLabel(),b2),sublist(body,1));
-                        changes.rewrite(tree, newTree);
-                        addResult(newTree, "Moved label into block: " + tree.getLabel());
+                        StatementTree newTree = ops.block(make.LabeledStatement(tree.getLabel(),b2),ops.sublist(body,1));
+                        addChange(getCurrentPath(), newTree,
+                                  "Moved label into block: " + tree.getLabel());
                     }
                     break;
             }
@@ -237,11 +272,11 @@ public class SimplifyLoops extends Transformer<Void,Object> {
             int ex = howExits(t.getElseStatement());
             if((tx & (FLOWEXIT | CONTINUEEXIT)) == 0) {
                 postBody = t.getThenStatement();
-                body = block(If(t.getCondition(),make.Break(null)),t.getElseStatement());
+                body = ops.block(ops.If(t.getCondition(),make.Break(null),null),t.getElseStatement());
             } else
                 if((ex & (FLOWEXIT | CONTINUEEXIT)) == 0) {
                     postBody = t.getElseStatement();
-                    body = block(If(not(t.getCondition()),make.Break(null)),t.getThenStatement());
+                    body = ops.block(ops.If(ops.not(t.getCondition()),make.Break(null),null),t.getThenStatement());
                 } else {
                 body = t;
                 postBody = null;
@@ -254,7 +289,7 @@ public class SimplifyLoops extends Transformer<Void,Object> {
             List<? extends StatementTree> stats = tree.getStatements();
             if(stats.isEmpty())
                 return null;
-            int len = blockLength(tree);
+            int len = ops.blockLength(tree);
             if(len == 1) {
                 stats.get(0).accept(this, p);
                 return null;
@@ -269,8 +304,8 @@ public class SimplifyLoops extends Transformer<Void,Object> {
                         body = splitTree;
                         postBody = null;
                         splitTree.accept(this, p);
-                        body = block(sublist(tree,0,splitPos),statement(body));
-                        postBody = block(statement(postBody),sublist(tree,splitPos+1,len-splitPos-1));
+                        body = ops.block(ops.sublist(tree,0,splitPos),ops.statement(body));
+                        postBody = ops.block(ops.statement(postBody),ops.sublist(tree,splitPos+1,len-splitPos-1));
                     }
                 }
             } else {
@@ -284,13 +319,13 @@ public class SimplifyLoops extends Transformer<Void,Object> {
                     if ((howExits(ifst.getThenStatement()) & (CONTINUEEXIT | FLOWEXIT))==0 &&
                             !(ifst.getThenStatement() instanceof BreakTree)) {
                         postBody = ifst.getThenStatement();
-                        int plen = blockLength(postBody);
-                        Tree plast = getStatement(plen-1,statement(postBody));
+                        int plen = ops.blockLength(postBody);
+                        Tree plast = getStatement(plen-1,ops.statement(postBody));
                         if(plast instanceof BreakTree && ((BreakTree)plast).getLabel()==null)
-                            postBody = sublist(statement(postBody),0,plen-1);
-                        body = block(sublist(tree,0,splitPos),
-                                block(If(ifst.getCondition(),make.Break(null)),
-                                sublist(tree,splitPos+1,len-splitPos-1)));
+                            postBody = ops.sublist(ops.statement(postBody),0,plen-1);
+                        body = ops.block(ops.sublist(tree,0,splitPos),
+                                ops.block(ops.If(ifst.getCondition(),make.Break(null),null),
+                                ops.sublist(tree,splitPos+1,len-splitPos-1)));
                         logger.info("SimplifyLoops: extracted" + postBody + " from loop");
                     }
                 }

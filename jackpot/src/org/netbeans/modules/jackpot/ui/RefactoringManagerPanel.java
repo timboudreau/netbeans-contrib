@@ -34,6 +34,7 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.AbstractTableModel;
 import org.netbeans.modules.jackpot.*;
+import org.netbeans.spi.jackpot.QueryCookie;
 import org.openide.*;
 import org.openide.filesystems.*;
 import org.openide.loaders.*;
@@ -607,10 +608,14 @@ public class RefactoringManagerPanel extends JPanel {
             ErrorManager.getDefault().notify(ErrorManager.INFORMATIONAL, donfe);
         }
         assert sourceDO != null : "DataObject not found for FileObject " + sourceFO;
-        DataObject command = null;
-	File commandFile = FileUtil.toFile(sourceFO);
-	if (commandFile != null)
-	    InspectionsList.instance().importRuleFile(commandFile.getPath());
+        QueryCookie cookie = sourceDO.getCookie(QueryCookie.class);
+        if (cookie == null) {
+            String msg = MessageFormat.format(getString("MSG_NotQueryFile"), file.getName());
+            NotifyDescriptor d = new NotifyDescriptor.Message(msg, NotifyDescriptor.ERROR_MESSAGE);
+            DialogDisplayer.getDefault().notify(d);
+            return;
+        }
+        InspectionsList.instance().importScript(sourceFO);
     }
     
     private void doImport(Inspection[] nodes) {

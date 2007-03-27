@@ -19,14 +19,18 @@
 
 package org.netbeans.modules.jackpot.cmds;
 
+import com.sun.source.tree.AssignmentTree;
 import com.sun.source.tree.ExpressionTree;
 import com.sun.source.tree.IdentifierTree;
 import com.sun.source.tree.MemberSelectTree;
 import com.sun.source.tree.Tree;
-import org.netbeans.api.java.source.query.Query;
+import com.sun.source.util.TreePath;
+import com.sun.source.util.Trees;
 import javax.lang.model.element.Element;
-import com.sun.source.tree.AssignmentTree;
+import org.netbeans.api.jackpot.TreePathQuery;
+import org.netbeans.api.java.source.CompilationInfo;
 import org.openide.util.NbBundle;
+
 
 /**
  * Report statement which assign a variable to itself.  For example,
@@ -41,21 +45,38 @@ import org.openide.util.NbBundle;
  * initialize, change the assignment to <code>this.message = msg;</code>, or
  * delete the assignment statement since it does nothing.
  */
-public class FindSelfAssignments extends Query<Void,Object> {
+public class FindSelfAssignments extends TreePathQuery<Void,Object> {
+    private Trees trees;
+
+    @Override
+    public void attach(CompilationInfo info) {
+        super.attach(info);
+        trees = info.getTrees();
+    }
     
+    /**
+     * Check self-assignments, which generally are mistakes.
+     * @param tree the assignment tree
+     * @param p unused
+     * @return null
+     */
     @Override
     public Void visitAssignment(AssignmentTree tree, Object p) {
         boolean match = false;
         Tree lhs = tree.getVariable();
-        Element lhsElement = getElement(lhs);
+        TreePath lhsPath = new TreePath(getCurrentPath(), lhs);
+        Element lhsElement = trees.getElement(lhsPath);
         if (lhsElement != null) { // true for method invocations and array elements
             Tree rhs = tree.getExpression();
-            Element rhsElement = getElement(rhs);
+            TreePath rhsPath = new TreePath(getCurrentPath(), rhs);
+            Element rhsElement = trees.getElement(new TreePath(getCurrentPath(), rhs));
             if (lhsElement == rhsElement) {
                 if (lhs instanceof MemberSelectTree && rhs instanceof MemberSelectTree) {
                     // check for foo.mumble == bar.mumble
-                    lhsElement = getElement(((MemberSelectTree)lhs).getExpression());
-                    rhsElement = getElement(((MemberSelectTree)rhs).getExpression());
+                    TreePath expressionPath = new TreePath(lhsPath, ((MemberSelectTree)lhs).getExpression());
+                    lhsElement = trees.getElement(expressionPath);
+                    expressionPath = new TreePath(rhsPath, ((MemberSelectTree)rhs).getExpression());
+                    rhsElement = trees.getElement(expressionPath);
                     match = lhsElement == rhsElement;
                 }
                 else if (lhs instanceof MemberSelectTree && rhs instanceof IdentifierTree)
@@ -70,7 +91,7 @@ public class FindSelfAssignments extends Query<Void,Object> {
         }
         if (match) {
             String msg = NbBundle.getMessage(FindSelfAssignments.class, "FindSelfAssignments.found", lhs.toString());
-            addResult(getCurrentElement(), tree, msg);
+            addResult(msg);
         }
         return super.visitAssignment(tree, p);
     }

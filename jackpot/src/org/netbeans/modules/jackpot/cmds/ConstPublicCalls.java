@@ -22,13 +22,13 @@ package org.netbeans.modules.jackpot.cmds;
 import com.sun.source.util.Trees;
 import java.util.List;
 import javax.lang.model.type.TypeKind;
-import org.netbeans.api.java.source.query.CallGraph;
-import org.netbeans.api.java.source.query.Query;
-import org.netbeans.api.java.source.query.QueryEnvironment;
 import com.sun.source.tree.*;
 import javax.lang.model.element.*;
 import javax.lang.model.type.TypeMirror;
 import java.util.Set;
+import org.netbeans.api.jackpot.TreePathQuery;
+import org.netbeans.api.java.source.CompilationInfo;
+import org.netbeans.api.java.source.ElementUtilities;
 
 /**
  * Find any "dangerous" method calls made by an incompletely initialized
@@ -38,21 +38,21 @@ import java.util.Set;
  *     or its superclasses; or
  * 2.  any method call where "this" is passed as a parameter.
  */
-public class ConstPublicCalls extends Query<Void,Object> {
+public class ConstPublicCalls extends TreePathQuery<Void,Object> {
     private TypeMirror objectType;
     private TypeMirror voidType;
     private TypeMirror objectInputStreamType;
     private Trees trees;
+    private ElementUtilities elementUtils;
 
-    { queryDescription = "Constructors that call public methods"; }
-    
     @Override
-    public void attach(QueryEnvironment env) {
-        super.attach(env);
-        objectType = env.getElements().getTypeElement("java.lang.Object").asType();
-        voidType = env.getTypes().getNoType(TypeKind.VOID);
-        objectInputStreamType = env.getElements().getTypeElement("java.io.ObjectInputStream").asType();
-        trees = env.getTrees();
+    public void attach(CompilationInfo info) {
+        super.attach(info);
+        objectType = info.getElements().getTypeElement("java.lang.Object").asType();
+        voidType = info.getTypes().getNoType(TypeKind.VOID);
+        objectInputStreamType = info.getElements().getTypeElement("java.io.ObjectInputStream").asType();
+        trees = info.getTrees();
+        elementUtils = info.getElementUtilities();
     }
     
     @Override
@@ -66,11 +66,12 @@ public class ConstPublicCalls extends Query<Void,Object> {
 
     @Override
     public Void visitMethod(MethodTree tree, Object p) {
-	ExecutableElement sym = (ExecutableElement)getElement(tree);
-        final TypeElement cls = elements.enclosingTypeElement(sym);
+	ExecutableElement sym = (ExecutableElement)trees.getElement(getCurrentPath());
+        final TypeElement cls = elementUtils.enclosingTypeElement(sym);
 	if (isFinal(cls))
 	    return null;
 	if (isConstructor(sym) || isClone(sym) || isReadObject(sym)) {
+            /* FIXME
 	    CallGraph cg = new CallGraph(sym, env) {
                 public boolean acceptCall(Element e, Tree t) {
                     // accept if a class member...
@@ -100,6 +101,7 @@ public class ConstPublicCalls extends Query<Void,Object> {
 	    }
 	    if (note.length() > 0)
 		addResult(sym, note);
+             */
 	}
         return null;
     }

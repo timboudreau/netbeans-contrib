@@ -19,30 +19,23 @@
 
 package org.netbeans.modules.jackpot.cmds;
 
-import org.netbeans.api.java.source.ElementUtilities;
-import org.netbeans.api.java.source.query.ElementReferenceList;
-import org.netbeans.api.java.source.query.ReferenceFinder;
-import org.netbeans.api.java.source.query.QueryEnvironment;
-import org.netbeans.api.java.source.transform.Transformer;
-import com.sun.source.tree.*;
-import com.sun.source.util.TreeScanner;
-import javax.lang.model.element.*;
-import javax.lang.model.type.TypeMirror;
-import javax.lang.model.util.Types;
 import java.util.EnumSet;
 import java.util.Set;
-
-import static org.netbeans.api.java.source.query.UseFinder.*;
+import javax.lang.model.element.Modifier;
+import javax.lang.model.util.Types;
+import org.netbeans.api.jackpot.TreePathTransformer;
+import org.netbeans.api.java.source.CompilationInfo;
+import org.netbeans.api.java.source.ElementUtilities;
 
 /**
  * Minimizes method access modifiers based on project usage.
  */
-public class MinimizeMethodAccess extends Transformer<Void,Object> {
+public class MinimizeMethodAccess extends TreePathTransformer<Void,Object> {
     private Types types;
     private ElementUtilities elements;
+    /*FIXME:
     private ReferenceFinder referenceMap;
-    
-    { queryDescription = "Minimize Method Access"; }
+     */
 
     // property set by PropertySheetInfo
     private boolean convertPackagePrivate = true;
@@ -54,10 +47,10 @@ public class MinimizeMethodAccess extends Transformer<Void,Object> {
     }
     
     @Override
-    public void attach(QueryEnvironment env) {
-	super.attach(env);
-        types = env.getTypes();
-        elements = env.getElementUtilities();
+    public void attach(CompilationInfo info) {
+	super.attach(info);
+        types = info.getTypes();
+        elements = info.getElementUtilities();
     }
     
     @Override
@@ -67,6 +60,7 @@ public class MinimizeMethodAccess extends Transformer<Void,Object> {
         elements = null;
     }
 
+    /* FIXME:
     @Override
     public void apply() {
         Tree root = getRootNode();
@@ -205,12 +199,13 @@ public class MinimizeMethodAccess extends Transformer<Void,Object> {
             if (parentMethod == null || // true if method doesn't override
                     access(newFlags) >= access(parentMethod.getModifiers())) {
                 ModifiersTree newMods = make.Modifiers(newFlags, mods.getAnnotations());
-                changes.rewrite(mods, newMods);
-                addResult(sym, newMods, MinimizeFieldAccess.resultNote(flags, newFlags));
+                addChange(new TreePath(getCurrentPath(), mods), newMods, 
+                          MinimizeFieldAccess.resultNote(flags, newFlags));
             }
         }
         return null;
     }
+     */
 
     /** Returns a comparable int corresponding to the flags' access level */
     private int access(Set<Modifier> flags) {

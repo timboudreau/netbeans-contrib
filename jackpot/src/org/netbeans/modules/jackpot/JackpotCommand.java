@@ -24,12 +24,10 @@ import java.beans.PropertyChangeSupport;
 import java.util.Collection;
 import java.util.Iterator;
 import org.openide.ErrorManager;
-import org.openide.cookies.InstanceCookie;
 import org.openide.filesystems.*;
 import org.openide.loaders.*;
 import org.openide.modules.ModuleInfo;
 import org.openide.util.Lookup;
-import org.openide.util.NbBundle;
 import java.io.*;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -54,7 +52,7 @@ public class JackpotCommand implements Serializable {
 	try {
             DataFolder directory = InspectionsList.instance().getInspectionsFolder();
 	    FileObject dir = directory.getPrimaryFile();
-	    String name = makeName(dir, command);
+	    String name = makeSettingsName(dir, command);
             JackpotCommand cmd = new JackpotCommand();
 	    InstanceDataObject ido = 
 		InstanceDataObject.create(directory, name, cmd, getModuleInfo());
@@ -65,6 +63,25 @@ public class JackpotCommand implements Serializable {
 		new URL("nbresloc:/org/netbeans/modules/jackpot/resources/refactoring.png"));
 	    cmd.setFileObject(newFO);
 	    return ido;
+	} catch (Exception e) {
+	    ErrorManager.getDefault().notify(e);
+	}
+	return null;
+    }
+    
+    static DataObject importFile(FileObject fo) {
+	try {
+            DataFolder directory = InspectionsList.instance().getInspectionsFolder();
+	    FileObject dir = directory.getPrimaryFile();
+	    String newName = makeUniqueEntry(dir, fo.getName(), fo.getExt());
+            FileObject newFO = FileUtil.copyFile(fo, dir, newName);
+            JackpotCommand cmd = new JackpotCommand();
+	    newFO.setAttribute("inspector", newName); //NOI18N
+	    newFO.setAttribute("command", fo.getNameExt()); // NOI18N
+	    newFO.setAttribute("SystemFileSystem.icon",
+		new URL("nbresloc:/org/netbeans/modules/jackpot/resources/refactoring.png"));
+	    cmd.setFileObject(newFO);
+	    return DataObject.find(newFO);
 	} catch (Exception e) {
 	    ErrorManager.getDefault().notify(e);
 	}
@@ -164,18 +181,23 @@ public class JackpotCommand implements Serializable {
 	support.firePropertyChange("FileObject", old, fileObject);
     }
 
-    private static String makeName(FileObject dir, String command) throws IOException {
+    private static String makeSettingsName(FileObject dir, String command) throws IOException {
 	int i = command.lastIndexOf(File.separatorChar) + 1;
         if (i == 0)
             // may be URL
             i = command.lastIndexOf('/') + 1;
 	int j = command.lastIndexOf('.');
 	String name = command.substring(i, j);
-	FileObject existing = dir.getFileObject(name, "settings");
+        return makeUniqueEntry(dir, name, "settings");
+    }
+    
+    private static String makeUniqueEntry(FileObject dir, String name, String ext) {
+	FileObject existing = dir.getFileObject(name, ext);
+        String entry = name;
 	int n = 1;
 	while (existing != null) {
-	    name = command.substring(i, j) + '_' + n++;
-	    existing = dir.getFileObject(name, "settings");
+	    name = entry + '_' + n++;
+	    existing = dir.getFileObject(name, ext);
 	}
 	return name;
     }

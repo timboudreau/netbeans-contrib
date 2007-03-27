@@ -19,38 +19,48 @@
 
 package org.netbeans.modules.jackpot.cmds;
 
-import org.netbeans.api.java.source.query.NodeScanner;
 import com.sun.source.tree.ClassTree;
 import com.sun.source.tree.NewClassTree;
 import com.sun.source.tree.ReturnTree;
 import com.sun.source.tree.ThrowTree;
 import com.sun.source.tree.TryTree;
-import org.netbeans.api.java.source.query.Query;
-import org.netbeans.api.java.source.query.NodeScanner;
+import com.sun.source.util.TreePath;
+import com.sun.source.util.TreePathScanner;
+import org.netbeans.api.jackpot.TreePathQuery;
 
 /**
  * Reports try statements which have finally blocks that have throws or
- * return statements, which is considered wrong.
+ * return statements, which is considered a poor practice.
  */
-public class BadFinallyBlocks extends Query<Void,Object> {
+public class BadFinallyBlocks extends TreePathQuery<Void,Object> {
     
+    /**
+     * Check <code>finally</code> blocks for throws and return statements.  
+     * A <code>finally</code> block doesn't have its own <code>Tree</code> 
+     * type, so <code>TryTree</code> nodes are visited.
+     * 
+     * @param tree the <code>try</code> statement to inspect
+     * @param p unused
+     * @return null
+     */
     @Override
     public Void visitTry(TryTree tree, Object p) {
 	super.visitTry(tree, p);
 	if (tree.getFinallyBlock() != null) {
-	    NodeScanner<Void,Object> scanner = new NodeScanner<Void,Object>() {
+	    TreePathScanner<Void,Object> scanner = new TreePathScanner<Void,Object>() {
                 @Override
 		public Void visitReturn(ReturnTree tree, Object p) {
-		    addResult(currentSym, tree, "return in finally block");
+		    addResult("return in finally block");
                     return null;
 		}
                 @Override
 		public Void visitThrow(ThrowTree tree, Object p) {
-		    addResult(currentSym, tree, "throw in finally block");
+		    addResult("throw in finally block");
                     return null;
 		}
 
-                /* Issue 82412: don't scan class or new class declarations, as 
+                /** 
+                 * Don't scan class or new class declarations, as 
                  * any return or throw statements in them are valid.
                  */
                 @Override
@@ -62,10 +72,8 @@ public class BadFinallyBlocks extends Query<Void,Object> {
                     return null;
                 }
 	    };
-            scanner.attach(env);
-	    scanner.setCurrentElement(currentSym);
-	    tree.getFinallyBlock().accept(scanner, p);
-            scanner.release();
+            TreePath scanPath = new TreePath(getCurrentPath(), tree.getFinallyBlock());
+            scanner.scan(scanPath, p);
 	}
         return null;
     }

@@ -21,22 +21,33 @@ package org.netbeans.modules.jackpot.cmds;
 
 import com.sun.source.tree.*;
 import com.sun.source.util.TreeScanner;
-import org.netbeans.api.java.source.query.Query;
 import org.openide.util.NbBundle;
 import java.io.*;
 import java.text.ChoiceFormat;
 import java.text.MessageFormat;
+import org.netbeans.api.jackpot.QueryContext;
+import org.netbeans.api.jackpot.TreePathQuery;
+import org.netbeans.api.java.source.JavaSource;
+import org.openide.windows.IOProvider;
+import org.openide.windows.InputOutput;
 
 /**
  * Reports basic usage numbers for the current session.
  */
-public class StatsReporter extends Query<Void,Object> {
+public class StatsReporter extends TreePathQuery {
     private TreeCounter counter;
 
     @Override
-    public void apply() {
-        apply(getRootNode());
-        PrintWriter log = env.getOutputWriter(getString("StatsReporter.title")); //NOI18N
+    public void init(QueryContext context, JavaSource source) {
+        counter = new TreeCounter();
+    }
+    
+    @Override
+    public void release() {
+        String title = getString("StatsReporter.title");  //NOI18N
+        InputOutput io = IOProvider.getDefault().getIO(title, true);
+        io.select();
+        PrintWriter log = io.getOut();
         log.println(statLine(counter.sourceFiles, "StatsReporter.sources"));     //NOI18N
         log.println(statLine(counter.classes, "StatsReporter.classes"));         //NOI18N
         log.println(statLine(counter.methods, "StatsReporter.methods"));         //NOI18N
@@ -49,14 +60,6 @@ public class StatsReporter extends Query<Void,Object> {
         log = null;
     }
     
-    @Override
-    public void apply(Tree t) {
-	if(t != null) {
-            counter = new TreeCounter();
-	    t.accept(counter, null);
-        }
-    }
-
     private static String getString(String key) {
         return NbBundle.getBundle(StatsReporter.class).getString(key);
     }

@@ -31,25 +31,10 @@ import java.io.ObjectStreamException;
 import java.text.ChoiceFormat;
 import java.text.MessageFormat;
 import java.util.ResourceBundle;
-import javax.lang.model.element.Element;
-import javax.lang.model.element.PackageElement;
-import javax.lang.model.element.TypeElement;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.MutableTreeNode;
 import javax.swing.tree.TreePath;
-import org.netbeans.modules.java.source.engine.JackpotEngine;
-import org.netbeans.api.java.source.query.Query;
-import org.netbeans.api.java.source.query.QueryResult;
-import org.netbeans.api.java.source.query.ResultTableModel;
-import org.netbeans.api.java.source.query.SearchResult;
-import org.netbeans.api.java.source.query.SourceSelection;
-import org.netbeans.api.java.source.transform.Change;
-import org.netbeans.api.java.source.transform.ChangeList;
-import org.netbeans.api.java.source.transform.ChangeSet;
-import org.netbeans.api.java.source.transform.TransformResult;
-import org.netbeans.api.java.source.transform.Transformer;
-import org.netbeans.api.java.source.transform.TransformerResult;
 import org.netbeans.modules.jackpot.JackpotModule;
 import org.openide.ErrorManager;
 import org.openide.util.NbBundle;
@@ -57,23 +42,26 @@ import org.openide.util.Utilities;
 import org.openide.windows.TopComponent;
 import org.openide.windows.WindowManager;
 import java.awt.EventQueue;
-import java.io.BufferedReader;
-import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.Reader;
 import java.io.StringReader;
 import java.lang.ref.WeakReference;
+import java.util.List;
 import javax.swing.*;
-import javax.swing.text.StyledDocument;
+import javax.swing.text.Position.Bias;
 import javax.swing.tree.TreeModel;
 import org.netbeans.api.diff.Diff;
+import org.netbeans.api.java.source.ModificationResult;
+import org.netbeans.modules.jackpot.engine.Result;
 import org.openide.cookies.EditorCookie;
 import org.openide.filesystems.FileObject;
-import org.openide.filesystems.FileUtil;
 import org.openide.loaders.DataObject;
 import org.openide.text.Annotation;
+import org.openide.text.CloneableEditorSupport;
 import org.openide.text.Line;
-import org.openide.text.NbDocument;
+import org.openide.text.PositionRef;
 
 /**
  * Query Results window singleton.
@@ -82,6 +70,7 @@ public class QueryResultsView extends TopComponent {
     private JTree tree;
     private JScrollPane scrollPane;
     private boolean hasTransformerResults;
+    private ModificationResult modifications;
     private JackpotSelectAnnotation currentSelection;
     private static Image png = Utilities.loadImage("org/netbeans/modules/jackpot/resources/QueryRefactor.png");
     private static ImageIcon icon = new ImageIcon(png);
@@ -131,7 +120,6 @@ public class QueryResultsView extends TopComponent {
      *
      * @return  singleton - instance of this class
      */
-    
     public static QueryResultsView getSingleton() {
         QueryResultsView view;
         
@@ -163,25 +151,15 @@ public class QueryResultsView extends TopComponent {
         currentSelection = new JackpotSelectAnnotation();
     }
     
-    public void setResults(ResultTableModel[] results) {
-        ResultNode root = new ResultNode(results, false, null);
-        int totalResults = 0;
-        int nchild = 0;
-        for (int i = 0; i < results.length; i++) {
-            int n = results[i].getResultCount();
-            if (n > 0) {
-                ResultNode child = createResultsTree(results[i]);
-                root.insert(child, nchild++);
-                totalResults += n;
-            }
+    public void setResults(ModificationResult mods, List<Result> results) {
+        ResultNode root = new ResultNode(mods, false, null);
+        for (Result result : results) {
+            ResultNode child = createResultsTree(result);
+            root.add(child);
+            if (result.isTransformerResult())
+                hasTransformerResults = true;
         }
-        root.setLabel(makeResultsLabel(totalResults));
-        setRoot(root, true);
-    }
-    
-    public void setResults(ResultTableModel results) {
-        ResultNode root = createResultsTree(results);
-        root.setLabel(makeResultsLabel(results.getResultCount()));
+        root.setLabel(makeResultsLabel(results.size()));
         setRoot(root, true);
     }
     
@@ -204,42 +182,17 @@ public class QueryResultsView extends TopComponent {
         });
     }
     
-    private ResultNode createResultsTree(ResultTableModel results) {
-        final ResultNode root = new ResultNode(results, false, icon);
-        root.setLabel(makeHeading(results.getQuery()));
-        int n = results.getResultCount();
-        for (int i = 0; i < n; i++) {
-            QueryResult qr = results.getResult(i);
-            boolean isTransformer = qr instanceof TransformerResult;
-            ResultNode child = new ResultNode(qr, isTransformer, null);
-            root.insert(child, i);
-            if (isTransformer) {
-                hasTransformerResults = true;
-                Change change = ((TransformerResult)qr).getChanges();
-                if (change instanceof ChangeList) {
-                    ChangeList chList = (ChangeList)change;
-                    child.setLabel(chList.getRefactoringName());
-                    int nchildren = 0;
-                    for (Change ch : chList) {
-                        ResultNode subChild = new ResultNode(ch, true, null);
-                        child.insert(subChild, nchildren++);
-                        Element element = qr.getSourceSelection().getElement();
-                        subChild.setLabel(makeElementLabel(element));
-                    }
-                } else {
-                    Element element = qr.getSourceSelection().getElement();
-                    child.setLabel(makeElementLabel(element));
-                }
-            } else {
-                Element element = qr.getSourceSelection().getElement();
-                String label = makeElementLabel(element) + ": " + qr.getNote();
-                child.setLabel(label);
-            }
-        }
-        return root;
+    private ResultNode createResultsTree(Result qr) {
+        ResultNode node = new ResultNode(qr, qr.isTransformerResult(), null);
+        String label = qr.getLabel();
+        String note = qr.getNote();
+        if (note != null)
+            label += ": " + note;
+        node.setLabel(label);
+        return node;
     }
     
-    private void updateTree(final MutableTreeNode root, final boolean rootVisible) {
+    private void updateTree(final ResultNode root, final boolean rootVisible) {
         // add panel with appropriate content
         tree = new JTree(root);
         tree.setRootVisible(rootVisible);
@@ -251,11 +204,14 @@ public class QueryResultsView extends TopComponent {
                     TreePath path = tree.getPathForLocation(e.getX(), e.getY());
                     if (path != null) {
                         ResultNode node = (ResultNode) path.getLastPathComponent();
-                        Object result = node.getUserObject();
-                        if (result instanceof TransformerResult)
-                            displayTransformResult((TransformerResult)result);
-                        else if (result instanceof QueryResult)
-                            displayCommandResult((QueryResult)result);
+                        Object obj = node.getUserObject();
+                        if (obj instanceof Result) {
+                            Result result = (Result)obj;
+                            if (result.isTransformerResult())
+                                displayTransformResult(result, (ModificationResult)root.getUserObject());
+                            else
+                                displayCommandResult((Result)result);
+                        }
                     }
                 }
             }
@@ -290,102 +246,19 @@ public class QueryResultsView extends TopComponent {
         validate();
     }
     
-    private String makeElementLabel(Element element) {
-        String cls = null;
-        String pkg = "";
-        Element e = element;
-        while (e != null) {
-            if (e instanceof TypeElement) {
-                String s = e.getSimpleName().toString();
-                cls = cls == null ? s : s + '.' + cls;
-            }
-            if (e instanceof PackageElement) {
-                pkg = "(" + ((PackageElement)e).getQualifiedName().toString() + ")";
-                break;
-            }
-            e = e.getEnclosingElement();
-        }
-        String name = element.getSimpleName().toString();
-        String fullname = cls != null ? cls + '.' + name : name;
-        return pkg.length() > 0 ? fullname + ' ' + pkg : fullname;
-    }
-    
-    private String makeHeading(Query query) {
-        if (query == null) // shouldn't happen, but true for Finders
-            return NbBundle.getBundle(QueryResultsView.class).getString("LBL_QueryResults");
-        StringBuffer sb = new StringBuffer("<html>");
-        sb.append(query.getQueryDescription());
-        if (query instanceof Transformer) {
-            sb.append("<font color=\"#a9a9a9\"> =&gt; ");
-            sb.append(((Transformer)query).getRefactoringDescription());
-            sb.append("</font>");
-        }
-        sb.append("</html>");
-        return sb.toString();
-    }
-    
     private void doRefactoring() {
         ResultNode root = (ResultNode)tree.getModel().getRoot();
-        if (anyNodesDeselected(root)) {
-            JackpotEngine engine = JackpotModule.getInstance().getEngine();
-            engine.undo(true);
-            refactorNode(root, engine);
+        ModificationResult mods = (ModificationResult)root.getUserObject();
+        try {
+            mods.commit();
+        } catch (IOException e) {
+            ErrorManager.getDefault().notify(e);
         }
-        // Save changes and release engine instance.
         JackpotModule.getInstance().releaseEngine();
-        // Release tree model
         setRoot(new ResultNode(null, false, null), false);
         close();
     }
-    
-    private void refactorNode(ResultNode node, JackpotEngine engine) {
-        if (node.isSelected()) {
-            // some changes need to be applied
-            Object obj = node.getUserObject();
-            if (obj instanceof ResultTableModel[]) {
-                int n = node.getChildCount();
-                for (int i = 0; i < n; i++)
-                    refactorNode((ResultNode)node.getChildAt(i), engine);
-            }
-            else if (obj instanceof TransformResult) {
-                TransformResult results = (TransformResult)obj;
-                ChangeSet changes = results.getChangeSet();
-                updateChangeSet(changes, node);
-                engine.applyChanges(changes);
-            }
-            // ignore SearchResults since they don't contain changes
-            else if (!(obj instanceof SearchResult))
-                throw new AssertionError("unknown node type: " + obj.getClass().getName());
-        }
-    }
-    
-    /**
-     * Returns true if any ResultNodes were unchecked, indicating that some of
-     * the changes need to be backed out.
-     */
-    private boolean anyNodesDeselected(ResultNode node) {
-        if (!node.isSelected())
-            return true;
-        int n = node.getChildCount();
-        for (int i = 0; i < n; i++)
-            if (anyNodesDeselected((ResultNode)node.getChildAt(i)))
-                return true;
-        return false;
-    }
-    
-    private void updateChangeSet(ChangeSet changes, ResultNode node) {
-        if (!node.isSelected())  {
-            Object o = node.getUserObject();
-            if (o instanceof TransformerResult) {
-                TransformerResult tr = (TransformerResult)o;
-                changes.remove(tr.getChanges());
-            }
-        } 
-        int n = node.getChildCount();
-        for (int i = 0; i < n; i++)
-            updateChangeSet(changes, (ResultNode)node.getChildAt(i));
-    }
-    
+
     private void incrementSelection() {
         //FIXME:
     }
@@ -413,22 +286,17 @@ public class QueryResultsView extends TopComponent {
     /**
      * Open transformer result in Diff window.
      */
-    
-    private void displayTransformResult(TransformerResult result) {
+    private void displayTransformResult(Result result, ModificationResult mods) {
+
         Reader oldSource = null;
-        Reader newSource = null;
-        
         try {
-            SourceSelection oldSrc = result.getOriginalSourceSelection();
-            SourceSelection newSrc = result.getSourceSelection();
-            String oldPath = oldSrc.getSourceFileName();
-            String oldTitle = oldPath.substring(oldPath.lastIndexOf('/') + 1);
-            String newPath = newSrc.getSourceFileName();
-            String newTitle = newPath.substring(newPath.lastIndexOf('/') + 1);
-            String tabTitle = NbBundle.getMessage(QueryResultsView.class, "LBL_DiffTitle", oldTitle);
-            
-            oldSource = new StringReader(oldSrc.getSource());
-            newSource = new StringReader(newSrc.getSource());
+            String oldTitle = NbBundle.getMessage(QueryResultsView.class, "LBL_Original");
+            String newTitle = NbBundle.getMessage(QueryResultsView.class, "LBL_Changed");
+            String tabTitle = NbBundle.getMessage(QueryResultsView.class, "LBL_DiffTitle", 
+                                                  result.getFileObject().getNameExt());
+            oldSource = new InputStreamReader(result.getFileObject().getInputStream());
+            String newSrc = mods.getResultingSource(result.getFileObject());
+            Reader newSource = new StringReader(newSrc);
             final java.awt.Component c = Diff.getDefault().createDiff(tabTitle,
                     oldTitle,
                     oldSource,
@@ -458,43 +326,36 @@ public class QueryResultsView extends TopComponent {
             try {
                 if (oldSource != null)
                     oldSource.close();
-                if (newSource != null)
-                    newSource.close();
             } catch (IOException e) {
             }
         }
     }
-    
+
     /**
      * Open operator result in Editor window.
      */
     
-    private void displayCommandResult(QueryResult result) {
-        SourceSelection src = result.getSourceSelection();
-        
+    private void displayCommandResult(Result result) {
         try {
-            FileObject file = FileUtil.toFileObject(new File(src.getSourceFileName()));
-            
+            FileObject file = result.getFileObject();
             if (file == null)
                 return;
             DataObject dob = DataObject.find(file);
-            EditorCookie ed = (EditorCookie)dob.getCookie(EditorCookie.class);
-            
-            if (ed != null) {
-                StyledDocument doc = ed.openDocument();
-                int pos = docOffsetFromFileOffset(src.getStartOffset(), src.getSource());
-                int line = NbDocument.findLineNumber(doc, pos);
-                int column = NbDocument.findLineColumn(doc, pos);
-                int endPos = docOffsetFromFileOffset(src.getEndOffset(), src.getSource());
-                int endLine = NbDocument.findLineNumber(doc, endPos);
-                int endColumn = NbDocument.findLineColumn(doc, endPos);
-                Line l = ed.getLineSet().getOriginal(line);
+            CloneableEditorSupport ces = (CloneableEditorSupport)dob.getCookie(EditorCookie.class);
+            if (ces != null) {
+                PositionRef start = ces.createPositionRef(result.getStartPos(), Bias.Forward);
+                PositionRef end = ces.createPositionRef(result.getEndPos(), Bias.Forward);
+                int line = start.getLine();
+                int column = start.getColumn();
+                int endLine = end.getLine();
+                int endColumn = end.getColumn();
+                Line l = ces.getLineSet().getOriginal(line);
+                
                 /*
                  * multi-line annotations are not supported, so truncate selection
                  * to end of first line if necessary.
                  */
-                int maxColumn = (endLine == line) ? endColumn
-                        : l.getText().length();
+                int maxColumn = (endLine == line) ? endColumn : l.getText().length();
                 Line.Part part = l.createPart(column, maxColumn - column);
                 
                 currentSelection.setNote(result.getNote());
@@ -513,33 +374,7 @@ public class QueryResultsView extends TopComponent {
      * have the same offsets for both file and documents, while DOS formatted
      * files will have a smaller document offset (except for the first line).
      */
-    private static int docOffsetFromFileOffset(int pos, String src) {
-        try {
-            assert pos < src.length();
-            if (pos == 0 || src.length() == 0)
-                return 0;
-            BufferedReader br = new BufferedReader(new StringReader(src.substring(0, pos)));
-            int offset = 0;
-            String line;
-            while ((line = br.readLine()) != null)
-                offset += line.length() + 1;  // include one for the line-ending "char"
-            offset--;                         // except for the last, partial, line
-            return offset;
-        } catch (IOException e) {
-            throw new AssertionError();  // should never happen with StringReader...
-        }
-    }
-    
-    protected void componentClosed() {
-        currentSelection.detach();
-        JackpotModule module = JackpotModule.getInstance();
-        if (module.isRunning())
-            // user hit the window's close button, so discard this query.
-            module.abortEngine();
-    }
-
-    
-    static class JackpotSelectAnnotation extends Annotation {
+    private static class JackpotSelectAnnotation extends Annotation {
         private String note;
         
         public void setNote(String note) {

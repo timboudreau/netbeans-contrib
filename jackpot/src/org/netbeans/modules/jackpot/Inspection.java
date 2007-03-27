@@ -25,9 +25,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
-import org.netbeans.modules.java.source.engine.JackpotEngine;
-import org.netbeans.api.java.source.query.Query;
-import org.netbeans.modules.java.source.engine.PropertySheetInfo;
+import org.netbeans.api.jackpot.Query;
+import org.netbeans.modules.jackpot.engine.PropertySheetInfo;
+import org.netbeans.spi.jackpot.QueryCookie;
 import org.openide.ErrorManager;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
@@ -114,13 +114,11 @@ public final class Inspection {
     
     public Query getQuery() throws Exception {
         JackpotModule module = JackpotModule.getInstance();
-        assert module.isRunning();
-        JackpotEngine engine = module.getEngine();
         String cmd = getCommand();
         if (cmd.endsWith(".rules"))
-            return engine.createScript(getInspector(), getTransformer(), cmd);
+            return module.createScript(getInspector(), cmd);
         else
-            return engine.createCommand(getInspector(), getTransformer(), cmd);
+            return module.createCommand(cmd);
     }
 
     public JComponent getOptionsPanel() {
@@ -151,7 +149,7 @@ public final class Inspection {
         out.close();
     }
 
-    private Class getCommandClass() throws ClassNotFoundException {
+    private Class getCommandClass() {
         String className = (String)fo.getAttribute("command");
         if (className != null) {
             Class cls;
@@ -161,7 +159,17 @@ public final class Inspection {
                 if (cls.getName().equals(className))
                     return cls;
             }
-            return Class.forName(className, true, getClass().getClassLoader());
+            try {
+                return Class.forName(className, true, getClass().getClassLoader());
+            } catch (ClassNotFoundException e) {
+                try {
+                    // it's not a class, see if the associate DataObject supports queries
+                    QueryCookie cookie = getDataObject().getCookie(QueryCookie.class);
+                    return cookie.getQuery(className).getClass();
+                } catch (Exception ex) {
+                    return null;
+                }
+            }
         }
         return null;
     }

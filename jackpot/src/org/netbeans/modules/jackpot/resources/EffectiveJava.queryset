@@ -2,6 +2,6 @@
 <queryset>
    <inspection file="BadFinallyBlocks.settings"/>
    <inspection file="ConstructorsCallingPublicMethods.settings"/>
-   <inspection file="MinimizeFieldAccess.settings"/>
-   <inspection file="MinimizeMethodAccess.settings"/>
+   <!-- inspection file="MinimizeFieldAccess.settings"/ -->
+   <!-- inspection file="MinimizeMethodAccess.settings"/ -->
 </queryset>

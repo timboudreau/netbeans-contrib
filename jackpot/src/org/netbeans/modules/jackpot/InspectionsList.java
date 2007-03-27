@@ -22,25 +22,17 @@ package org.netbeans.modules.jackpot;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Vector;
 import javax.swing.AbstractListModel;
-import javax.swing.ListModel;
-import javax.swing.table.AbstractTableModel;
-import javax.swing.table.TableModel;
-import org.netbeans.api.java.source.query.Query;
-import org.netbeans.api.java.source.transform.Transformer;
-import org.netbeans.modules.jackpot.ui.RefactoringManagerPanel;
+import org.netbeans.api.jackpot.Query;
+import org.netbeans.api.jackpot.Transformer;
 import org.openide.ErrorManager;
 import org.openide.cookies.InstanceCookie;
-import org.openide.filesystems.FileLock;
 import org.openide.filesystems.FileObject;
-import org.openide.filesystems.FileUtil;
 import org.openide.filesystems.Repository;
 import org.openide.loaders.DataFolder;
 import org.openide.loaders.DataObject;
-import org.openide.util.NbBundle;
 
 /**
  * The list of all inspections, as stored in the system filesystem in
@@ -75,8 +67,8 @@ public class InspectionsList extends AbstractListModel {
         return add(dao, query, refactoring, description);
     }
     
-    public Inspection importRuleFile(String path) throws IOException {
-        DataObject dao = JackpotCommand.create(path);
+    public Inspection importScript(FileObject fo) throws IOException {
+        DataObject dao = JackpotCommand.importFile(fo);
         return add(dao, dao.getName(), "", "");
     }
     

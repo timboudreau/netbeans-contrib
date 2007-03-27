@@ -23,9 +23,8 @@ import java.io.IOException;
 import java.util.Enumeration;
 import javax.swing.Icon;
 import javax.swing.tree.*;
-import org.netbeans.api.java.source.query.QueryResult;
-import org.netbeans.api.java.source.transform.Change;
-import org.netbeans.api.java.source.transform.ChangeList;
+import org.netbeans.api.java.source.ModificationResult;
+import org.netbeans.modules.jackpot.engine.Result;
 import org.openide.text.PositionBounds;
 
 /**
@@ -98,6 +97,10 @@ public class ResultNode extends DefaultMutableTreeNode {
 
     public void setSelected(boolean isSelected) {
         this.isSelected = isSelected;
+        Result r = (Result)getUserObject();
+        ResultNode root = (ResultNode)getRoot();
+        ModificationResult mods = (ModificationResult)root.getUserObject();
+        selectResults(isSelected, r, mods);
         if ((selectionMode == DIG_IN_SELECTION) && (children != null)) {
             Enumeration e = children.elements();      
             while (e.hasMoreElements()) {
@@ -105,6 +108,19 @@ public class ResultNode extends DefaultMutableTreeNode {
                 node.setSelected(isSelected);
             }
         }
+    }
+    
+    private void selectResults(boolean selected, Result r, ModificationResult mods) {
+        int start = r.getStartPos();
+        int end = r.getEndPos();
+         for (ModificationResult.Difference diff : mods.getDifferences(r.getFileObject()))
+             if (overlaps(start, end, diff.getStartPosition().getOffset()) ||
+                 overlaps(start, end, diff.getEndPosition().getOffset()))
+                 diff.exclude(!selected);
+    }
+    
+    private boolean overlaps(int start, int end, int offset) {
+        return start >= offset && end <= offset;
     }
     
     public boolean isRefactoring() {

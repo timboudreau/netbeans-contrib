@@ -19,39 +19,47 @@
 
 package org.netbeans.modules.jackpot.cmds;
 
-import org.netbeans.api.java.source.transform.Transformer;
-import com.sun.source.tree.*;
+import com.sun.source.tree.IfTree;
+import com.sun.source.tree.StatementTree;
+import org.netbeans.api.jackpot.ConversionOperations;
+import org.netbeans.api.jackpot.TreeMatcher;
+import org.netbeans.api.jackpot.TreePathTransformer;
+import org.netbeans.api.java.source.CompilationInfo;
 
-public class TailMerge extends Transformer<Void,Object> {
+public class TailMerge extends TreePathTransformer<Void,Object> {
+    private ConversionOperations ops;
     
-    { queryDescription = "Results of tail merging"; }
+    @Override
+    public void attach(CompilationInfo info) {
+        super.attach(info);
+        ops = new ConversionOperations(getWorkingCopy());
+    }
     
     @Override
     public Void visitIf(IfTree tree, Object p) {
         /* First we try merging before applying merging to child nodes.
            If that doesn't yield anything, apply merging to children and try again */
-        StatementTree thenpart = (StatementTree)deblock(tree.getThenStatement());
-        StatementTree elsepart = (StatementTree)deblock(tree.getElseStatement());
-        int elselen = blockLength(elsepart);
+        StatementTree thenpart = (StatementTree)ops.deblock(tree.getThenStatement());
+        StatementTree elsepart = (StatementTree)ops.deblock(tree.getElseStatement());
+        int elselen = ops.blockLength(elsepart);
         if(elselen != 0) {
-            int thenlen = blockLength(thenpart);
+            int thenlen = ops.blockLength(thenpart);
             if(thenlen!=0) {
                 int tlen = elselen<thenlen ? elselen : thenlen;
                 int matchlen = 0;
                 while(matchlen<tlen) {
-                    StatementTree T = getStatement(thenlen-matchlen-1,thenpart);
-                    StatementTree E = getStatement(elselen-matchlen-1,elsepart);
-                    if(!matches(T,E)) break;
+                    StatementTree T = ops.getStatement(thenlen-matchlen-1,thenpart);
+                    StatementTree E = ops.getStatement(elselen-matchlen-1,elsepart);
+                    if(!TreeMatcher.matches(T,E)) break;
                     matchlen++;
                 }
                 if(matchlen > 0) {
-                    StatementTree newIf = If(tree.getCondition(),
-                                    sublist(thenpart,0,thenlen-matchlen),
-                                    sublist(elsepart,0,elselen-matchlen));
-                    StatementTree newTree = block(newIf, sublist(thenpart,thenlen-matchlen,matchlen));
-                    copyCommentTo(tree,newTree);
-                    addResult(newTree);
-                    changes.rewrite(tree, newTree);
+                    StatementTree newIf = ops.If(tree.getCondition(),
+                                    ops.sublist(thenpart,0,thenlen-matchlen),
+                                    ops.sublist(elsepart,0,elselen-matchlen));
+                    StatementTree newTree = ops.block(newIf, ops.sublist(thenpart,thenlen-matchlen,matchlen));
+                    ops.copyComments(tree,newTree);
+                    addChange(getCurrentPath(), newTree);
                     return null;
                 }
             }
