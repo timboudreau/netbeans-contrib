@@ -13,6 +13,9 @@ import javax.portlet.PortletPreferences;
 import javax.portlet.WindowState;
 import java.io.IOException;
 import java.io.PrintWriter;
+#if($pc.getHasJsps())
+import javax.portlet.PortletRequestDispatcher;
+#end
 
 public class $CLASS_NAME extends GenericPortlet {
 
@@ -24,38 +27,52 @@ public class $CLASS_NAME extends GenericPortlet {
 #if($mode == 'VIEW')
 
     public void doView(RenderRequest request,RenderResponse response) throws PortletException,IOException {
-          
-            //Uncomment below lines to see the output
-            //response.setContentType("text/html");
-            //PrintWriter writer = response.getWriter(); 
-            //writer.println("View Mode");
-
+#if($pc.getHasJsps())          
+        response.setContentType("text/html");        
+        PortletRequestDispatcher dispatcher =
+        getPortletContext().getRequestDispatcher("/WEB-INF/jsp/$pc.getViewJsp()");
+        dispatcher.include(request, response);
+#else
+        //Uncomment below lines to see the output
+        //response.setContentType("text/html");
+        //PrintWriter writer = response.getWriter(); 
+        //writer.println("View Mode");
+#end
     }
 #end
 #if($mode == 'EDIT')
 
     public void doEdit(RenderRequest request,RenderResponse response) throws PortletException,IOException {
-    
-            //Uncomment below lines to see the output
-            //response.setContentType("text/html");
-            //PrintWriter writer = response.getWriter(); 
-            //writer.println("Edit Mode");
-
+    #if($pc.getHasJsps())          
+        response.setContentType("text/html");        
+        PortletRequestDispatcher dispatcher =
+        getPortletContext().getRequestDispatcher("/WEB-INF/jsp/$pc.getEditJsp()");
+        dispatcher.include(request, response);
+#else
+        //Uncomment below lines to see the output
+        //response.setContentType("text/html");
+        //PrintWriter writer = response.getWriter(); 
+        //writer.println("Edit Mode");
+#end
     }
 #end
 #if($mode == 'HELP')
 
     public void doHelp(RenderRequest request, RenderResponse response) throws PortletException,IOException {
 
-            //Uncomment below lines to see the output
-            //response.setContentType("text/html");
-            //PrintWriter writer = response.getWriter(); 
-            //writer.println("Help Mode");
-
+#if($pc.getHasJsps())          
+        response.setContentType("text/html");        
+        PortletRequestDispatcher dispatcher =
+        getPortletContext().getRequestDispatcher("/WEB-INF/jsp/$pc.getHelpJsp()");
+        dispatcher.include(request, response);
+#else
+        //Uncomment below lines to see the output
+        //response.setContentType("text/html");
+        //PrintWriter writer = response.getWriter(); 
+        //writer.println("Help Mode");
+#end
     }
 #end
 #end
 
 }
-
-

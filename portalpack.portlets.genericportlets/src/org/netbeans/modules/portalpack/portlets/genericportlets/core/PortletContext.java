@@ -35,6 +35,11 @@ public class PortletContext {
     private String shortTitle;
     
     private String[] modes;
+    
+    private String viewJsp;
+    private String editJsp;
+    private String helpJsp;
+    private boolean hasJsp = false;
    
     /** Creates a new instance of PortletContext */
     public PortletContext() {
@@ -116,4 +121,34 @@ public class PortletContext {
     {
         return modes;
     }
+    
+    public void setHasJsps(boolean hasJsp)
+    {
+        this.hasJsp = hasJsp;
+    }
+    
+    public boolean getHasJsps()
+    {
+        return hasJsp;
+    }
+    
+    public String getViewJsp()
+    {
+        if(viewJsp == null)
+            return portletName + "_" + "view.jsp";
+        return viewJsp;
+    }
+    public String getEditJsp()
+    {
+        if(editJsp == null)
+            return portletName + "_" + "edit.jsp";   
+        return editJsp;
+    }
+    public String getHelpJsp()
+    {  
+        if(helpJsp == null)
+            return portletName + "_" + "help.jsp";
+        return helpJsp;
+    }
+    
 }

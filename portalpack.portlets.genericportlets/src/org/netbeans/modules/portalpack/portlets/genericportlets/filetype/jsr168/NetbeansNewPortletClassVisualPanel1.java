@@ -68,6 +68,7 @@ public final class NetbeansNewPortletClassVisualPanel1 extends JPanel implements
         editCB = new javax.swing.JCheckBox();
         helpCB = new javax.swing.JCheckBox();
         jLabel6 = new javax.swing.JLabel();
+        isCreateJsps = new javax.swing.JCheckBox();
 
         org.openide.awt.Mnemonics.setLocalizedText(jLabel1, org.openide.util.NbBundle.getMessage(NetbeansNewPortletClassVisualPanel1.class, "LBL_PORTLET_NAME"));
 
@@ -97,6 +98,10 @@ public final class NetbeansNewPortletClassVisualPanel1 extends JPanel implements
 
         org.openide.awt.Mnemonics.setLocalizedText(jLabel6, org.openide.util.NbBundle.getMessage(NetbeansNewPortletClassVisualPanel1.class, "LBL_PORTLET_MODE"));
 
+        org.openide.awt.Mnemonics.setLocalizedText(isCreateJsps, org.openide.util.NbBundle.getBundle(NetbeansNewPortletClassVisualPanel1.class).getString("LBL_CREATE_JSPS"));
+        isCreateJsps.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        isCreateJsps.setMargin(new java.awt.Insets(0, 0, 0, 0));
+
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
@@ -115,7 +120,7 @@ public final class NetbeansNewPortletClassVisualPanel1 extends JPanel implements
                     .add(pnameTf, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 194, Short.MAX_VALUE)
                     .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
                         .add(viewCB)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 28, Short.MAX_VALUE)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 36, Short.MAX_VALUE)
                         .add(editCB)
                         .add(33, 33, 33)
                         .add(helpCB))
@@ -123,14 +128,17 @@ public final class NetbeansNewPortletClassVisualPanel1 extends JPanel implements
                     .add(portletDescTf, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 194, Short.MAX_VALUE)
                     .add(portletDisplayNameTf, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 194, Short.MAX_VALUE)
                     .add(org.jdesktop.layout.GroupLayout.TRAILING, portletTitleTf, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 194, Short.MAX_VALUE))
-                .add(118, 118, 118))
+                .add(17, 17, 17)
+                .add(isCreateJsps)
+                .add(28, 28, 28))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(layout.createSequentialGroup()
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(jLabel1)
-                    .add(pnameTf, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                    .add(pnameTf, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                    .add(isCreateJsps))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(portletDisplayNameTf, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
@@ -161,6 +169,7 @@ public final class NetbeansNewPortletClassVisualPanel1 extends JPanel implements
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JCheckBox editCB;
     private javax.swing.JCheckBox helpCB;
+    private javax.swing.JCheckBox isCreateJsps;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
@@ -222,6 +231,7 @@ public final class NetbeansNewPortletClassVisualPanel1 extends JPanel implements
         context.setPortletDisplayName(portletDisplayNameTf.getText().trim());
         context.setPortletTitle(portletTitleTf.getText().trim());
         context.setPortletShortTitle(portletShortTitleTf.getText().trim());
+        context.setHasJsps(isCreateJsps.isSelected());
         
         List modeList = new ArrayList();
             

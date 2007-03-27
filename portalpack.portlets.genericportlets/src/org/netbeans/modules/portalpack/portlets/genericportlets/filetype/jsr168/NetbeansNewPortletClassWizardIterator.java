@@ -40,6 +40,7 @@ import org.netbeans.api.project.SourceGroup;
 import org.netbeans.api.project.Sources;
 import org.netbeans.modules.portalpack.portlets.genericportlets.core.util.NetbeanConstants;
 import org.netbeans.modules.portalpack.portlets.genericportlets.core.util.NetbeansUtil;
+import org.netbeans.modules.portalpack.portlets.genericportlets.frameworks.util.PortletProjectUtil;
 import org.netbeans.spi.java.project.support.ui.templates.JavaTemplates;
 import org.netbeans.spi.project.ui.templates.support.Templates;
 import org.openide.WizardDescriptor;
@@ -50,6 +51,10 @@ import org.openide.loaders.DataFolder;
 import org.openide.loaders.DataObject;
 import org.openide.loaders.TemplateWizard;
 
+/**
+ * 
+ * @author Satyaranjan
+ */
 public final class NetbeansNewPortletClassWizardIterator implements WizardDescriptor.InstantiatingIterator {
     
     private static Logger logger = Logger.getLogger(NetbeanConstants.PORTAL_LOGGER);
@@ -59,6 +64,9 @@ public final class NetbeansNewPortletClassWizardIterator implements WizardDescri
     private WizardDescriptor.Panel[] panels;
     private WizardDescriptor.Panel packageChooserPanel;
     
+    /**
+     * 
+     */
     public NetbeansNewPortletClassWizardIterator() {
         
     }
@@ -135,7 +143,10 @@ public final class NetbeansNewPortletClassWizardIterator implements WizardDescri
         PortletContext context = (PortletContext)wizard.getProperty("context");
         logger.log(Level.FINEST,"DisplayName:::::::::::::::::: " +context.getPortletDisplayName());
         
-        
+        if(context.getHasJsps())
+        {
+            PortletProjectUtil.createJSPs(FileUtil.toFileObject(new File(component.getWebInfDir())),context);
+        }
         ResultContext retVal = new ResultContext();
         try {
             component.doCreateClass(projPath,projName,targetDir,className,context,new AppContext(),retVal);

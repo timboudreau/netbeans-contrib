@@ -84,6 +84,9 @@ Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
         todir="${cluster}/modules/ext/portalpack/velocity"/>
         <copy file="../../external/velocity/velocity-1.4.jar"
         todir="${cluster}/modules/ext/portalpack/velocity"/>
+
+        <copy file="../../external/portlet/portlet-api-1.0.jar"
+        todir="${cluster}/modules/ext/portalpack/"/>
         
     </target>
 

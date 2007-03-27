@@ -26,6 +26,9 @@ import java.util.StringTokenizer;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
+import org.openide.DialogDisplayer;
+import org.openide.NotifyDescriptor;
+import org.openide.util.NbBundle;
 import org.w3c.dom.Document;
 import org.xml.sax.EntityResolver;
 import org.xml.sax.InputSource;
@@ -37,8 +40,16 @@ import org.xml.sax.SAXException;
  */
 public class CoreUtil {
     
+    /**
+     * 
+     */
     public static final String CORE_LOGGER = "PORTAL_PLUGIN_CORE";
     
+    /**
+     * 
+     * @param name 
+     * @return 
+     */
     public static boolean validateJavaTypeName(String name) {
         if (name == null) {
             return false;
@@ -65,6 +76,11 @@ public class CoreUtil {
                 }*/
     }
     
+    /**
+     * 
+     * @param name 
+     * @return 
+     */
     public static boolean validatePackageName(String name)
     {
         if (name == null || name.trim().equals("")) {
@@ -87,6 +103,11 @@ public class CoreUtil {
               
     }
     
+    /**
+     * 
+     * @param name 
+     * @return 
+     */
     public static boolean isIdentifier(String name){
         if (name.length()==0)return false;
         if (!Character.isJavaIdentifierStart(name.charAt(0))){
@@ -101,6 +122,12 @@ public class CoreUtil {
         return true;
     }
     
+    /**
+     * 
+     * @param name 
+     * @param allowSpaces 
+     * @return 
+     */
     public static boolean validateString(String name, boolean allowSpaces) {
         if(name == null || name.trim().length() == 0){
             return false;
@@ -115,6 +142,11 @@ public class CoreUtil {
         return true;
     }
     
+    /**
+     * 
+     * @param name 
+     * @return 
+     */
     public static boolean validateXmlString(String name) {
         if(name == null || name.trim().length() == 0){
             return true;
@@ -129,6 +161,14 @@ public class CoreUtil {
         return true;
     }
     
+     /**
+      * 
+      * @param file 
+      * @return 
+      * @throws org.xml.sax.SAXException 
+      * @throws java.io.IOException 
+      * @throws javax.xml.parsers.ParserConfigurationException 
+      */
      public static Document createDocumentFromXml(File file) throws SAXException, IOException, ParserConfigurationException
     {
         
@@ -144,4 +184,25 @@ public class CoreUtil {
         return document;
     }
     
+    /**
+     * 
+     * @param fileName 
+     * @return 
+     */
+    public static boolean checkIfFileNeedsTobeOverwritten(String fileName) {
+        String message =  fileName + "  " + NbBundle.getBundle(CoreUtil.class).getString("MSG_ALREADY_EXISTS");
+        
+        NotifyDescriptor nd = new NotifyDescriptor(message,NbBundle.getBundle(CoreUtil.class).getString("LBL_Overwrite_Warning"),NotifyDescriptor.YES_NO_CANCEL_OPTION,NotifyDescriptor.WARNING_MESSAGE,new Object[]{NotifyDescriptor.YES_OPTION,
+        NotifyDescriptor.NO_OPTION},NotifyDescriptor.NO_OPTION);
+        Object ob = DialogDisplayer.getDefault().notify(nd);
+        if(ob == NotifyDescriptor.YES_OPTION) {
+            //logger.finest("Yes to all option...");
+            return true;
+        } else if(ob == NotifyDescriptor.NO_OPTION) {
+            //logger.finest("No Option.....");
+            return false;
+        } else{
+            return false;
+        }
+    }
 }
