@@ -127,7 +127,7 @@ IMPORT:javascript: {
 }
 SKIP:css
 IMPORT:css: {
-    mimeType:"text/css2";
+    mimeType:"text/x-css";
     background_color:"#E6FFE6";
 }
 
