@@ -290,8 +290,12 @@ final class ASTBrowserTopComponent extends TopComponent {
         String getName () {
             if (astItem == null)
                 return "No syntax definition.";
-            if (astItem instanceof ASTNode)
-                return ((ASTNode) astItem).getNT ();
+            if (astItem instanceof ASTNode) {
+                String nt = ((ASTNode) astItem).getNT ();
+                if (nt.equals ("S"))
+                    nt += " (" + astItem.getMimeType () + ")";
+                return nt;
+            }
             return astItem.toString ();
         }
         
