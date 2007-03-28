@@ -1,0 +1,284 @@
+/*
+ * The contents of this file are subject to the terms of the Common Development
+ * and Distribution License (the License). You may not use this file except in
+ * compliance with the License.
+ *
+ * You can obtain a copy of the License at http://www.netbeans.org/cddl.html
+ * or http://www.netbeans.org/cddl.txt.
+ *
+ * When distributing Covered Code, include this CDDL Header Notice in each file
+ * and include the License file at http://www.netbeans.org/cddl.txt.
+ * If applicable, add the following below the CDDL Header, with the fields
+ * enclosed by brackets [] replaced by your own identifying information:
+ * "Portions Copyrighted [year] [name of copyright owner]"
+ *
+ * The Original Software is NetBeans. The Initial Developer of the Original
+ * Software is Sun Microsystems, Inc. Portions Copyright 1997-2007 Sun
+ * Microsystems, Inc. All Rights Reserved.
+ */
+
+package org.netbeans.modules.j2ee.hk2.nodes;
+
+import java.awt.Image;
+import javax.enterprise.deploy.spi.TargetModuleID;
+import javax.enterprise.deploy.spi.status.ProgressObject;
+import org.netbeans.api.progress.ProgressHandle;
+import org.netbeans.api.progress.ProgressHandleFactory;
+import org.netbeans.modules.j2ee.deployment.plugins.api.InstanceProperties;
+import org.netbeans.modules.j2ee.deployment.plugins.api.UISupport;
+import org.netbeans.modules.j2ee.deployment.plugins.api.UISupport.ServerIcon;
+
+
+import org.netbeans.modules.j2ee.hk2.Hk2DeploymentManager;
+import org.netbeans.modules.j2ee.hk2.ide.Hk2PluginProperties;
+import org.netbeans.modules.j2ee.hk2.ide.Hk2TargetModuleID;
+import org.netbeans.modules.j2ee.hk2.nodes.actions.OpenURLAction;
+import org.netbeans.modules.j2ee.hk2.nodes.actions.OpenURLActionCookie;
+import org.netbeans.modules.j2ee.hk2.nodes.actions.RefreshModulesAction;
+import org.netbeans.modules.j2ee.hk2.nodes.actions.RefreshModulesCookie;
+import org.netbeans.modules.j2ee.hk2.nodes.actions.Refreshable;
+import org.netbeans.modules.j2ee.hk2.nodes.actions.UndeployModuleAction;
+import org.netbeans.modules.j2ee.hk2.nodes.actions.UndeployModuleCookie;
+
+import org.openide.filesystems.Repository;
+import org.openide.loaders.DataFolder;
+import org.openide.nodes.AbstractNode;
+import org.openide.nodes.Children;
+import org.openide.nodes.Node;
+import org.openide.util.Lookup;
+import org.openide.util.NbBundle;
+import org.openide.util.RequestProcessor;
+import org.openide.util.RequestProcessor.Task;
+import org.openide.util.Utilities;
+import org.openide.util.actions.SystemAction;
+
+/**
+ *  extensible node.
+ *
+ */
+public class Hk2ItemNode extends AbstractNode {
+    
+    private ItemType type;
+    
+    private static final String HTTP_HEADER = "http://";
+    
+    private static final int TIMEOUT = 30000;
+    
+    private Hk2ItemNode(Children children, final TargetModuleID module, final Lookup lookup, final ItemType type) {
+        super(children);
+        this.type = type;
+        
+        if(type.equals(ItemType.J2EE_APPLICATION_FOLDER) ||
+                type.equals(ItemType.REFRESHABLE_FOLDER)) {
+            getCookieSet().add(new RefreshModulesCookie() {
+                public void refresh() {
+                    Children children = getChildren();
+                    if(children instanceof Refreshable)
+                        ((Refreshable)children).updateKeys();
+                }
+            });
+        } else if(type.equals(ItemType.J2EE_APPLICATION)) {
+            getCookieSet().add(new OpenURLActionCookie() {
+                public String getWebURL() {
+                    if(module == null || lookup == null)
+                        return null;
+                    
+                    try {
+                        Hk2DeploymentManager dm = (Hk2DeploymentManager)lookup.lookup(Hk2DeploymentManager.class);
+                        String app =  module.getModuleID();
+                        
+
+                        
+                        InstanceProperties ip = dm.getInstanceProperties();
+                        
+                        String host = ip.getProperty(Hk2PluginProperties.PROPERTY_HOST);
+                        String httpPort = ip.getProperty(InstanceProperties.HTTP_PORT_NUMBER);
+                        if(app == null || host == null || httpPort == null)
+                            return null;
+                        
+                        return HTTP_HEADER + host + ":" + httpPort + "/"+app;
+                    } catch (Throwable t) {
+                        return null;
+                    }
+                }
+            });
+            getCookieSet().add(new UndeployModuleCookie() {
+                private boolean isRunning = false;
+                
+                public Task undeploy() {
+                    final Hk2DeploymentManager dm = 
+                            (Hk2DeploymentManager)lookup.lookup(Hk2DeploymentManager.class);
+                    final ProgressHandle handle = ProgressHandleFactory.createHandle(NbBundle.getMessage(Hk2ItemNode.class,
+                            "LBL_UndeployProgress", ((Hk2TargetModuleID)module).getModuleID()));
+                    
+                    Runnable r = new Runnable() {
+                        public void run() {
+                            isRunning = true;
+                            
+                            // Save the current time so that we can deduct that the undeploy
+                            // failed due to timeout
+                            long start = System.currentTimeMillis();
+                            
+                            ProgressObject o = dm.undeploy(new TargetModuleID[] {module});
+                            
+                            while(!o.getDeploymentStatus().isCompleted() && System.currentTimeMillis() - start < TIMEOUT) {
+//                                System.out.println("o.getDeploymentStatus()"+o.getDeploymentStatus());
+                                try {
+                                    Thread.sleep(500);
+                                } catch(InterruptedException ex) {
+                                    // Nothing to do
+                                }
+                            }
+                            handle.progress(o.getDeploymentStatus().getMessage());
+                            handle.finish();
+                            isRunning = false;
+                        }
+                    };
+                    
+                    handle.start();
+                    return RequestProcessor.getDefault().post(r);
+                }
+                
+                public synchronized boolean isRunning() {
+                    return isRunning;
+                }
+            });
+        } else if (type.equals(ItemType.JDBC_NATIVE_DATASOURCES) ||
+                type.equals(ItemType.JDBC_MANAGED_DATASOURCES) ||
+                type.equals(ItemType.CONNECTION_POOLS)) {
+            getCookieSet().add(new UndeployModuleCookie() {
+                private boolean isRunning = false;
+                
+                public Task undeploy() {
+                    final Hk2DeploymentManager dm =(Hk2DeploymentManager) lookup.lookup(Hk2DeploymentManager.class);
+                    final ProgressHandle handle = ProgressHandleFactory.createHandle(NbBundle.getMessage(Hk2ItemNode.class,
+                            "LBL_UndeployProgress", getDisplayName()));
+                    
+                    Runnable r = new Runnable() {
+                        public void run() {
+                            isRunning = true;
+                            
+//////      ludo                      Hk2DatasourceManager dsManager = new Hk2DatasourceManager(dm);
+//////                            
+//////                            // Undeploying
+//////                            if(type.equals(ItemType.JDBC_NATIVE_DATASOURCES)) {
+//////                                dsManager.undeployNativeDataSource(getDisplayName());
+//////                            } else if (type.equals(ItemType.JDBC_MANAGED_DATASOURCES)) {
+//////                                dsManager.undeployManagedDataSource(getDisplayName());
+//////                            } else if (type.equals(ItemType.CONNECTION_POOLS)) {
+//////                                dsManager.undeployConnectionPool(getDisplayName());
+//////                            }
+//////                            
+                            handle.finish();
+                            isRunning = false;
+                        }
+                    };
+                    
+                    handle.start();
+                    return RequestProcessor.getDefault().post(r);
+                }
+                
+                public synchronized boolean isRunning() {
+                    return isRunning;
+                }
+            });
+        }
+    }
+    
+    public Hk2ItemNode(Lookup lookup, TargetModuleID module, ItemType type) {
+        this(Children.LEAF, module, lookup, type);
+        String s =((Hk2TargetModuleID)module).getModuleID();
+        setDisplayName(s);//Hk2PluginUtils.getName(module));
+    }
+    
+    public Hk2ItemNode(Lookup lookup, Children children, String name, ItemType type) {
+        this(children, null, lookup, type);
+        setDisplayName(name);
+    }
+    
+    public Image getIcon(int type) {
+        if(this.type.equals(ItemType.J2EE_APPLICATION_FOLDER)) {
+            return UISupport.getIcon(ServerIcon.EAR_FOLDER);
+        } else if(this.type.equals(ItemType.J2EE_APPLICATION) ||
+                this.type.equals(ItemType.J2EE_APPLICATION_SYSTEM)) {
+            return UISupport.getIcon(ServerIcon.EAR_ARCHIVE);
+        } else if(this.type.equals(ItemType.JDBC_MANAGED_DATASOURCES) ||
+                this.type.equals(ItemType.JDBC_NATIVE_DATASOURCES)) {
+            return Utilities.loadImage(JDBC_RESOURCE_ICON);
+        } else if(this.type.equals(ItemType.CONNECTION_POOLS)) {
+            return Utilities.loadImage(CONNECTION_POOL_ICON);
+        } else {
+            return getIconDelegate().getIcon(type);
+        }
+    }
+    
+    public Image getOpenedIcon(int type) {
+        if(this.type.equals(ItemType.J2EE_APPLICATION_FOLDER)) {
+            return UISupport.getIcon(ServerIcon.EAR_OPENED_FOLDER);
+        } else if(this.type.equals(ItemType.J2EE_APPLICATION) ||
+                this.type.equals(ItemType.J2EE_APPLICATION_SYSTEM) ||
+                this.type.equals(ItemType.JDBC_MANAGED_DATASOURCES) ||
+                this.type.equals(ItemType.JDBC_NATIVE_DATASOURCES) ||
+                this.type.equals(ItemType.CONNECTION_POOLS)) {
+            return getIcon(type);
+        } else {
+            return getIconDelegate().getOpenedIcon(type);
+        }
+    }
+    
+    private Node getIconDelegate() {
+        return DataFolder.findFolder(Repository.getDefault().getDefaultFileSystem().getRoot()).getNodeDelegate();
+    }
+    
+    public javax.swing.Action[] getActions(boolean context) {
+        SystemAction[] actions = new SystemAction[] {};
+        
+        if(type.equals(ItemType.J2EE_APPLICATION_FOLDER)
+                || type.equals(ItemType.REFRESHABLE_FOLDER)) {
+            actions = new SystemAction[] {
+                SystemAction.get(RefreshModulesAction.class)
+            };
+        } else if(type.equals(ItemType.J2EE_APPLICATION)) {
+            actions = new SystemAction[] {
+                SystemAction.get(OpenURLAction.class),
+                SystemAction.get(UndeployModuleAction.class)
+            };
+        } else if(type.equals(ItemType.JDBC_NATIVE_DATASOURCES) ||
+                type.equals(ItemType.JDBC_MANAGED_DATASOURCES) ||
+                type.equals(ItemType.CONNECTION_POOLS)) {
+            actions = new SystemAction[] {
+                SystemAction.get(UndeployModuleAction.class)
+            };
+        }
+        
+        return actions;
+    }
+    
+    /* Creates and returns the instance of the node
+     * representing the status 'WAIT' of the node.
+     * It is used when it spent more time to create elements hierarchy.
+     * @return the wait node.
+     */
+    public static Node createWaitNode() {
+        AbstractNode n = new AbstractNode(Children.LEAF);
+        n.setName(NbBundle.getMessage(Hk2ItemNode.class, "LBL_WaitNode_DisplayName")); //NOI18N
+        n.setIconBaseWithExtension("org/openide/src/resources/wait.gif"); // NOI18N
+        return n;
+    }
+    
+    private static final String JDBC_RESOURCE_ICON = "org/netbeans/modules/j2ee/hk2/resources/JDBCResource.gif";
+    private static final String CONNECTION_POOL_ICON = "org/netbeans/modules/j2ee/hk2/resources/ConnectionPool.gif";
+    
+    public static class ItemType {
+        
+        public static ItemType J2EE_APPLICATION_FOLDER = new ItemType();
+        public static ItemType J2EE_APPLICATION = new ItemType();
+        public static ItemType J2EE_APPLICATION_SYSTEM = new ItemType();
+        public static ItemType REFRESHABLE_FOLDER = new ItemType();
+        public static ItemType JDBC_MANAGED_DATASOURCES = new ItemType();
+        public static ItemType JDBC_NATIVE_DATASOURCES = new ItemType();
+        public static ItemType CONNECTION_POOLS = new ItemType();
+        
+        private ItemType() {}
+    }
+}
