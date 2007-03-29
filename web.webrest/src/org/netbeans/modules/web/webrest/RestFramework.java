@@ -80,7 +80,7 @@ public class RestFramework extends WebFrameworkProvider {
     public boolean isInWebModule(WebModule wm) {
         Project project = getProject(wm);
         RestSupport rs = project.getLookup().lookup(RestSupport.class);
-        return rs.isReady();
+        return rs.isRestSupportOn();
     }
     
     public File[] getConfigurationFiles(WebModule wm) {
