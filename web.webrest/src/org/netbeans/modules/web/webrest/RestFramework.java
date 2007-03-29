@@ -66,12 +66,10 @@ public class RestFramework extends WebFrameworkProvider {
         Project project = getProject(wm);
         RestSupport rs = project.getLookup().lookup(RestSupport.class);
         if (rs != null) {
-            if (rs.needsSwdpLibrary(project)) {
-                try {
-                    rs.ensureRestDevelopmentReady();
-                } catch(IOException ioe) {
-                    ErrorManager.getDefault().notify(ErrorManager.INFORMATIONAL, ioe);
-                }
+            try {
+               rs.ensureRestDevelopmentReady();
+            } catch(IOException ioe) {
+               ErrorManager.getDefault().notify(ErrorManager.INFORMATIONAL, ioe);
             }
         }
         return Collections.EMPTY_SET;
