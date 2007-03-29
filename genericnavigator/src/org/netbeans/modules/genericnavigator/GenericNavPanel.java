@@ -69,7 +69,6 @@ import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
 import org.openide.loaders.DataObject;
 import org.openide.loaders.DataObjectNotFoundException;
-import org.openide.util.Exceptions;
 import org.openide.util.Lookup;
 import org.openide.util.LookupEvent;
 import org.openide.util.LookupListener;
@@ -363,8 +362,10 @@ public class GenericNavPanel implements NavigatorPanel, Runnable, ListSelectionL
 
     void refresh() {
         Object o = box.getSelectedItem();
+        if (mimeType == null) {
+            return;
+        }
         PatternItem[] items = PatternItem.getDefaultItems(mimeType);
-        boolean showCombo = items.length > 1;
         DefaultComboBoxModel mdl = new DefaultComboBoxModel (items);
         box.setModel (mdl);
         box.setEnabled (items.length > 1);
