@@ -24,6 +24,8 @@ import java.util.Collections;
 import java.util.Set;
 import org.netbeans.api.project.FileOwnerQuery;
 import org.netbeans.api.project.Project;
+import org.netbeans.api.project.libraries.Library;
+import org.netbeans.modules.j2ee.deployment.devmodules.spi.J2eeModuleProvider;
 import org.netbeans.modules.web.api.webmodule.WebModule;
 import org.netbeans.modules.web.spi.webmodule.FrameworkConfigurationPanel;
 import org.netbeans.modules.web.spi.webmodule.WebFrameworkProvider;
@@ -44,7 +46,7 @@ public class RestFramework extends WebFrameworkProvider {
                 NbBundle.getMessage(RestFramework.class, "LBL_RestFrameworkDesc"));
     }
     
-    private Project getProject(WebModule wm) {
+    public static Project getProject(WebModule wm) {
         FileObject fo = wm.getDeploymentDescriptor();
         Project project = null;
         if (fo != null) {
@@ -56,13 +58,21 @@ public class RestFramework extends WebFrameworkProvider {
         return project;
     }
     
+    public String getTargeServerInstanceID(Project project) {
+        return project.getLookup().lookup(J2eeModuleProvider.class).getServerInstanceID();
+    }
+
     public Set extend(WebModule wm) {
         Project project = getProject(wm);
         RestSupport rs = project.getLookup().lookup(RestSupport.class);
-        try {
-            rs.ensureRestDevelopmentReady();
-        } catch(IOException ioe) {
-            ErrorManager.getDefault().notify(ErrorManager.INFORMATIONAL, ioe);
+        if (rs != null) {
+            if (rs.needsSwdpLibrary(project)) {
+                try {
+                    rs.ensureRestDevelopmentReady();
+                } catch(IOException ioe) {
+                    ErrorManager.getDefault().notify(ErrorManager.INFORMATIONAL, ioe);
+                }
+            }
         }
         return Collections.EMPTY_SET;
     }
