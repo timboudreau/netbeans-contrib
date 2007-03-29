@@ -24,8 +24,8 @@
 package org.netbeans.modules.j2ee.sun.ws7.j2ee;
 
 import javax.enterprise.deploy.spi.DeploymentManager;
-import org.netbeans.modules.j2ee.deployment.plugins.api.J2eePlatformFactory;
-import org.netbeans.modules.j2ee.deployment.plugins.api.J2eePlatformImpl;
+import org.netbeans.modules.j2ee.deployment.plugins.spi.J2eePlatformFactory;
+import org.netbeans.modules.j2ee.deployment.plugins.spi.J2eePlatformImpl;
 import org.netbeans.modules.j2ee.sun.ws7.dm.WS70SunDeploymentManager;
 import org.openide.util.NbBundle;
 /**

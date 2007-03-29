@@ -19,30 +19,39 @@
 
 package org.netbeans.modules.j2ee.ejbfreeform;
 
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeSupport;
+import java.io.File;
 import java.util.Iterator;
 import org.netbeans.api.project.Project;
+import org.netbeans.modules.j2ee.dd.api.common.RootInterface;
 import org.netbeans.modules.j2ee.dd.api.ejb.EjbJar;
 import org.netbeans.modules.j2ee.dd.api.ejb.DDProvider;
 import org.netbeans.modules.j2ee.dd.api.webservices.Webservices;
 import org.netbeans.modules.j2ee.deployment.devmodules.api.J2eeModule;
+import org.netbeans.modules.j2ee.deployment.devmodules.spi.J2eeModuleImplementation;
 import org.netbeans.modules.schema2beans.BaseBean;
 import org.netbeans.spi.project.support.ant.AntProjectHelper;
 import org.netbeans.spi.project.support.ant.PropertyEvaluator;
 import org.openide.DialogDisplayer;
 import org.openide.NotifyDescriptor;
 import org.openide.filesystems.FileObject;
+import org.openide.filesystems.FileUtil;
 import org.openide.util.NbBundle;
+import org.openide.util.WeakListeners;
 
 /**
  *
  * @author martin
  */
-public class EJBFreeformModule implements J2eeModule {
+public class EJBFreeformModule implements J2eeModuleImplementation, PropertyChangeListener {
     
     private Project project;
     private AntProjectHelper helper;
     private PropertyEvaluator evaluator;
     private org.netbeans.modules.j2ee.api.ejbjar.EjbJar ejbImpl;
+    private PropertyChangeSupport propertyChangeSupport;
     
     /** Creates a new instance of EJBFreeformModule */
     public EJBFreeformModule(Project project, AntProjectHelper helper, PropertyEvaluator evaluator) {
@@ -64,26 +73,13 @@ public class EJBFreeformModule implements J2eeModule {
     public void setUrl(String url) {
     }
     
-    public BaseBean getDeploymentDescriptor(String location) {
+    public RootInterface getDeploymentDescriptor(String location) {
         if (J2eeModule.EJBJAR_XML.equals(location)){
-            EjbJar webApp = getEjbJar();
-            if (webApp != null) {
-                //PENDING find a better way to get the BB from WApp and remove the HACK from DDProvider!!
-                return DDProvider.getDefault().getBaseBean(webApp);
-            }
+            return getEjbJar();
         } else if(J2eeModule.EJBSERVICES_XML.equals(location)){
-            Webservices webServices = getWebservices();
-            if(webServices != null){
-                return DDProvider.getDefault().getBaseBean(webServices);
-            }
+            return getWebservices();
         }
         return null;
-    }
-    
-    public void removeVersionListener(org.netbeans.modules.j2ee.deployment.devmodules.api.J2eeModule.VersionListener listener) {
-    }
-    
-    public void addVersionListener(org.netbeans.modules.j2ee.deployment.devmodules.api.J2eeModule.VersionListener listener) {
     }
     
     public String getUrl() {
@@ -155,4 +151,59 @@ public class EJBFreeformModule implements J2eeModule {
         return null;
     }
 
+    public File getDeploymentConfigurationFile(String name) {
+        FileObject moduleFolder = org.netbeans.modules.j2ee.api.ejbjar.EjbJar.getEjbJars(project)[0].getMetaInf();
+        File configFolder = FileUtil.toFile(moduleFolder);
+        return new File(configFolder, name);
+    }
+
+    public void addPropertyChangeListener(PropertyChangeListener listener) {
+        getPropertyChangeSupport().addPropertyChangeListener(listener);
+    }
+
+    public void removePropertyChangeListener(PropertyChangeListener listener) {
+        synchronized (this) {
+            if (propertyChangeSupport == null) {
+                return;
+            }
+        }
+        propertyChangeSupport.removePropertyChangeListener(listener);
+    }
+    
+    private PropertyChangeSupport getPropertyChangeSupport() {
+        EjbJar ejbJar = getEjbJar();
+        synchronized (this) {
+            if (propertyChangeSupport == null) {
+                propertyChangeSupport = new PropertyChangeSupport(this);
+                if (ejbJar != null) {
+                    PropertyChangeListener l = (PropertyChangeListener) WeakListeners.create(PropertyChangeListener.class, this, ejbJar);
+                    ejbJar.addPropertyChangeListener(l);
+                }
+            }
+            return propertyChangeSupport;
+        }
+    }
+
+    public File getResourceDirectory() {
+        return getFile(EjbFreeformProperties.RESOURCE_DIR);
+    }
+    
+    private File getFile(String propname) {
+        String prop = evaluator.getProperty(propname);
+        if (prop != null) {
+            return helper.resolveFile(prop);
+        }
+        return null;
+    }
+
+    public void propertyChange(PropertyChangeEvent evt) {
+        if (EjbFreeformProperties.RESOURCE_DIR.equals(evt.getPropertyName())) {
+            String oldValue = (String) evt.getOldValue();
+            String newValue = (String) evt.getNewValue();
+            getPropertyChangeSupport().firePropertyChange(
+                    J2eeModule.PROP_RESOURCE_DIRECTORY, 
+                    oldValue == null ? null : new File(oldValue),
+                    newValue == null ? null : new File(newValue));
+        }
+    }
 }

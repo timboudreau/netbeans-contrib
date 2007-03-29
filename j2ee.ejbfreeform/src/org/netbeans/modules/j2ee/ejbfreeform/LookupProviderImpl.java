@@ -61,9 +61,9 @@ public class LookupProviderImpl implements LookupProvider {
     
     private static Lookup initLookup(Project project, AntProjectHelper projectHelper, PropertyEvaluator projectEvaluator, AuxiliaryConfiguration aux) {
         
-        EJBFreeformProvider ejbFFProvider = new EJBFreeformProvider(project, projectHelper, projectEvaluator);
         EJBFreeformModule ejbFFModule = new EJBFreeformModule(project, projectHelper, projectEvaluator);
-        ejbFFProvider.setJ2eeModule(ejbFFModule);
+        projectEvaluator.addPropertyChangeListener(ejbFFModule);
+        EJBFreeformProvider ejbFFProvider = new EJBFreeformProvider(project, projectHelper, projectEvaluator, ejbFFModule);
                 
         return Lookups.fixed(new Object[] {
             ejbFFProvider,

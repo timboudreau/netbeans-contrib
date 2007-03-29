@@ -25,7 +25,7 @@ import javax.enterprise.deploy.spi.factories.DeploymentFactory;
 import javax.enterprise.deploy.spi.DeploymentManager;
 import javax.enterprise.deploy.spi.Target;
 
-import org.netbeans.modules.j2ee.deployment.plugins.api.RegistryNodeFactory;
+import org.netbeans.modules.j2ee.deployment.plugins.spi.RegistryNodeFactory;
 import org.netbeans.modules.j2ee.sun.ws7.nodes.WS70ManagerNode;
 import org.netbeans.modules.j2ee.sun.ws7.nodes.WS70TargetNode;
 

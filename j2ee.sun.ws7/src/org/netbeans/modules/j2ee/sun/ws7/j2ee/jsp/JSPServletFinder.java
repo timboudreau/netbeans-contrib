@@ -23,7 +23,7 @@ import java.io.File;
 import java.lang.reflect.Method;
 import javax.enterprise.deploy.spi.DeploymentManager;
 import javax.enterprise.deploy.spi.Target;
-import org.netbeans.modules.j2ee.deployment.plugins.api.FindJSPServlet;
+import org.netbeans.modules.j2ee.deployment.plugins.spi.FindJSPServlet;
 
 import org.netbeans.modules.j2ee.sun.ws7.dm.WS70SunDeploymentManager;
 import org.netbeans.modules.j2ee.sun.ws7.dm.WS70SunDeploymentFactory;

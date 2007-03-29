@@ -32,7 +32,7 @@ import org.openide.ErrorManager;
 import org.openide.util.actions.SystemAction;
 import org.netbeans.modules.j2ee.deployment.plugins.api.UISupport;
 
-import org.netbeans.modules.j2ee.deployment.plugins.api.J2eePlatformImpl;
+import org.netbeans.modules.j2ee.deployment.plugins.spi.J2eePlatformImpl;
 import org.netbeans.modules.j2ee.sun.ws7.nodes.actions.ViewAdminConsoleAction;
 import org.netbeans.modules.j2ee.sun.ws7.nodes.actions.ViewAdminServerLogAction;
 import org.netbeans.modules.j2ee.sun.ws7.dm.WS70SunDeploymentManager;

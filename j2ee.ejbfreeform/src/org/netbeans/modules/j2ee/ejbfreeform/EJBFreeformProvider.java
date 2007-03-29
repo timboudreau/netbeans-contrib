@@ -31,6 +31,7 @@ import org.netbeans.modules.j2ee.api.ejbjar.EjbJar;
 import org.netbeans.modules.j2ee.deployment.common.api.EjbChangeDescriptor;
 import org.netbeans.modules.j2ee.deployment.devmodules.api.J2eeModule;
 import org.netbeans.modules.j2ee.deployment.devmodules.api.ModuleChangeReporter;
+import org.netbeans.modules.j2ee.deployment.devmodules.spi.J2eeModuleFactory;
 import org.netbeans.modules.j2ee.deployment.devmodules.spi.J2eeModuleProvider;
 import org.netbeans.spi.project.support.ant.AntProjectHelper;
 import org.netbeans.spi.project.support.ant.PropertyEvaluator;
@@ -44,45 +45,29 @@ import org.openide.filesystems.FileUtil;
  * @author Martin Adamek
  */
 public class EJBFreeformProvider extends J2eeModuleProvider implements ModuleChangeReporter, 
-        EjbChangeDescriptor, PropertyChangeListener {
+        EjbChangeDescriptor {
     
     private Project project;
     private AntProjectHelper helper;
     private PropertyEvaluator evaluator;
-    private EJBFreeformModule ejbModule;
+    private J2eeModule j2eeModule;
     
     /** Creates a new instance of EJBFreeformProvider */
-    public EJBFreeformProvider(Project project, AntProjectHelper helper, PropertyEvaluator evaluator) {
+    public EJBFreeformProvider(Project project, AntProjectHelper helper, PropertyEvaluator evaluator, EJBFreeformModule ejbFreeMod) {
         this.project = project;
         this.helper = helper;
         this.evaluator = evaluator;
-        evaluator.addPropertyChangeListener(this);
+        j2eeModule = J2eeModuleFactory.createJ2eeModule(ejbFreeMod);
     }
     
     // from J2eeModuleProvider
-    
-    
-    
-    public File getDeploymentConfigurationFile(String name) {
-        FileObject moduleFolder = EjbJar.getEjbJars(project)[0].getMetaInf();
-        File configFolder = FileUtil.toFile(moduleFolder);
-        return new File(configFolder, name);
-    }
-    
-    public FileObject findDeploymentConfigurationFile(String name) {
-        return EjbJar.getEjbJars(project)[0].getMetaInf().getFileObject(name);
-    }
     
     public ModuleChangeReporter getModuleChangeReporter() {
         return this;
     }
     
-    void setJ2eeModule(EJBFreeformModule ejbFreeMod) {
-        ejbModule = ejbFreeMod;
-    }
-    
     public J2eeModule getJ2eeModule() {
-        return ejbModule;
+        return j2eeModule;
     }
     
     //  from ModuleChangeReporter
@@ -103,10 +88,6 @@ public class EJBFreeformProvider extends J2eeModuleProvider implements ModuleCha
     
     public boolean ejbsChanged() {
         return false;
-    }
-    
-    public File getEnterpriseResourceDirectory() {
-        return getFile(EjbFreeformProperties.RESOURCE_DIR);
     }
     
     public boolean useDefaultServer() {
@@ -145,19 +126,5 @@ public class EJBFreeformProvider extends J2eeModuleProvider implements ModuleCha
             return helper.resolveFile(prop);
         }
         return null;
-    }
-    
-    public void propertyChange(PropertyChangeEvent evt) {
-//        if (EjbFreeformProperties.RESOURCE_DIR.equals(evt.getPropertyName())) {
-//            String oldValue = (String)evt.getOldValue();
-//            String newValue = (String)evt.getNewValue();
-//            firePropertyChange(
-//                    PROP_ENTERPRISE_RESOURCE_DIRECTORY, 
-//                    oldValue == null ? null : new File(oldValue),
-//                    newValue == null ? null : new File(newValue));
-//        }
-        // TODO: temporary fix to work-around the above code where evt.getPropertyName() 
-        //       always returns null
-        firePropertyChange(PROP_ENTERPRISE_RESOURCE_DIRECTORY, null, getEnterpriseResourceDirectory());
     }
 }
