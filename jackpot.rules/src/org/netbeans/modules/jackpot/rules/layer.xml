@@ -54,27 +54,6 @@
                 <attr name="SystemFileSystem.icon" urlvalue="nbresloc:org/netbeans/modules/jackpot/rules/resources/Rule_file_16.png"/>
                 <attr name="templateCategory" stringvalue="simple-files"/>
             </file>
-            <file name="Query.java" url="templates/Query.template">
-                <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.jackpot.rules.Bundle"/>
-                <attr name="template" boolvalue="true"/>
-                <attr name="templateWizardURL" urlvalue="nbresloc:/org/netbeans/modules/jackpot/rules/templates/Query.html"/>
-                <attr name="templateWizardIterator" methodvalue="org.netbeans.modules.java.ui.wizard.JavaWizardIterator.singleton"/>
-                <attr name="SystemFileSystem.icon" urlvalue="nbresloc:org/netbeans/modules/java/resources/class.gif"/>
-            </file>
-            <file name="Transformer.java" url="templates/Transformer.template">
-                <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.jackpot.rules.Bundle"/>
-                <attr name="template" boolvalue="true"/>
-                <attr name="templateWizardURL" urlvalue="nbresloc:/org/netbeans/modules/jackpot/rules/templates/Transformer.html"/>
-                <attr name="templateWizardIterator" methodvalue="org.netbeans.modules.java.ui.wizard.JavaWizardIterator.singleton"/>
-                <attr name="SystemFileSystem.icon" urlvalue="nbresloc:org/netbeans/modules/java/resources/class.gif"/>
-            </file>
-           <!--file name="newQuery">
-                <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/jackpot/rules/newquery/QueryRefactor.png"/>
-                <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.jackpot.rules.Bundle"/>
-                <attr name="instantiatingIterator" newvalue="org.netbeans.modules.jackpot.rules.newquery.NewQueryWizardIterator"/>
-                <attr name="template" boolvalue="true"/>
-                <attr name="templateWizardURL" urlvalue="nbresloc:/org/netbeans/modules/jackpot/rules/newquery/newQuery.html"/>
-            </file -->
         </folder>
     </folder>
 

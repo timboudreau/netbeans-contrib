@@ -218,4 +218,23 @@ Microsystems, Inc. All Rights Reserved.
              <file name="jackpot-query-results.settings" url="resources/jackpot-query-results.settings"/>
          </folder>
      </folder>
+     
+    <folder name="Templates">
+        <folder name="Jackpot">
+            <file name="Query.java" url="templates/Query.template">
+                <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.jackpot.Bundle"/>
+                <attr name="template" boolvalue="true"/>
+                <attr name="templateWizardURL" urlvalue="nbresloc:/org/netbeans/modules/jackpot/templates/Query.html"/>
+                <attr name="templateWizardIterator" methodvalue="org.netbeans.modules.java.ui.wizard.JavaWizardIterator.singleton"/>
+                <attr name="SystemFileSystem.icon" urlvalue="nbresloc:org/netbeans/modules/java/resources/class.gif"/>
+            </file>
+            <file name="Transformer.java" url="templates/Transformer.template">
+                <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.jackpot.Bundle"/>
+                <attr name="template" boolvalue="true"/>
+                <attr name="templateWizardURL" urlvalue="nbresloc:/org/netbeans/modules/jackpot/templates/Transformer.html"/>
+                <attr name="templateWizardIterator" methodvalue="org.netbeans.modules.java.ui.wizard.JavaWizardIterator.singleton"/>
+                <attr name="SystemFileSystem.icon" urlvalue="nbresloc:org/netbeans/modules/java/resources/class.gif"/>
+            </file>
+        </folder>
+    </folder>
 </filesystem>
