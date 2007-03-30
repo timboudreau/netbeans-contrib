@@ -135,7 +135,7 @@ public class Hk2StartRunnable implements Runnable {
     private NbProcessDescriptor createProcessDescriptor() {
 
         String startScript = System.getProperty("java.home")+"/bin/java" ; 
-        String jarlocation = ip.getProperty(Hk2PluginProperties.PROPERTY_HK2_HOME) +"/lib/glassfish.jar";
+        String jarlocation = ip.getProperty(Hk2PluginProperties.PROPERTY_HK2_HOME) +"/lib/glassfish-10.0-SNAPSHOT.jar";
         if (!new File(jarlocation).exists()){
             fireStartProgressEvent(StateType.FAILED, createProgressMessage("MSG_START_SERVER_FAILED_FNF")); //NOI18N
             return null;
