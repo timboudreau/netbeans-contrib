@@ -1,0 +1,47 @@
+/*
+ * __NAME__.java
+ *
+ * Created on __DATE__, __TIME__
+ *
+ * To change this template, choose Tools | Template Manager
+ * and open the template in the editor.
+ */
+
+package Templates.Other;
+
+import org.netbeans.api.jackpot.TreePathQuery;
+
+/**
+ *
+ * @author __USER__
+ */
+public class __NAME__ extends TreePathQuery {
+
+    //Query lifecycle methods here.
+    
+    /* private com.sun.source.util.Trees trees;
+     *
+     * @Override
+     * public void attach(CompilationInfo info) {
+     *     super.attach(info);
+     *     trees = info.getTrees();
+     * }
+     *
+     * @Override
+     * public void release() {
+     *     trees = null;
+     *     super.release();
+     * }
+     */
+
+    //Visitor methods here.
+     
+    /* @Override
+     * public Void visitMethod(MethodTree tree, Object p) {
+     *     super.visitMethod(tree, p);
+     *     if (tree.getName().toString().equals("foo"))
+     *         addResult(getCurrentPath(), "found foo");
+     *     return null;
+     * }
+     */
+}

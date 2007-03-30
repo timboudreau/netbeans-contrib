@@ -85,11 +85,13 @@ public class CouldBeStatic extends TreePathQuery<Void,Object> {
     public void release() {
         elementUtils = null;
         trees = null;
+        super.release();
     }
     
     @Override 
     public void destroy() {
         index = null;
+        super.destroy();
     }
     
     /**
