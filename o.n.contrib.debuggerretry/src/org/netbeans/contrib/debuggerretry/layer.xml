@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE filesystem PUBLIC "-//NetBeans//DTD Filesystem 1.1//EN" "http://www.netbeans.org/dtds/filesystem-1_1.dtd">
+<filesystem>
+    <folder name="Actions">
+        <folder name="Debug">
+            <file name="org-netbeans-contrib-debuggerretry-RetryAction.instance"/>
+        </folder>
+    </folder>
+    <folder name="Menu">
+        <folder name="RunProject">
+            <attr name="org-netbeans-modules-debugger-ui-actions-RunIntoMethodAction.shadow/org-netbeans-contrib-debuggerretry-RetryAction.shadow" boolvalue="true"/>
+            <file name="org-netbeans-contrib-debuggerretry-RetryAction.shadow">
+                <attr name="originalFile" stringvalue="Actions/Debug/org-netbeans-contrib-debuggerretry-RetryAction.instance"/>
+            </file>
+            <attr name="org-netbeans-contrib-debuggerretry-RetryAction.shadow/Separator3.instance" boolvalue="true"/>
+        </folder>
+    </folder>
+    <folder name="Shortcuts">
+        <file name="DS-F6.shadow">
+            <attr name="originalFile" stringvalue="Actions/Debug/org-netbeans-contrib-debuggerretry-RetryAction.instance"/>
+        </file>
+    </folder>
+    <folder name="Toolbars">
+        <folder name="Debug">
+            <attr name="org-netbeans-modules-debugger-ui-actions-RunToCursorAction.shadow/org-netbeans-contrib-debuggerretry-RetryAction.shadow" boolvalue="true"/>
+            <file name="org-netbeans-contrib-debuggerretry-RetryAction.shadow">
+                <attr name="originalFile" stringvalue="Actions/Debug/org-netbeans-contrib-debuggerretry-RetryAction.instance"/>
+            </file>
+            <attr name="org-netbeans-contrib-debuggerretry-RetryAction.shadow/org-netbeans-modules-debugger-ui-actions-FixAction.shadow" boolvalue="true"/>
+        </folder>
+    </folder>
+</filesystem>
