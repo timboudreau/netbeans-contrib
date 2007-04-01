@@ -23,24 +23,139 @@ TOKEN:text: ( [^"<"]* )
 
 TOKEN:comment: ( "<!--" - "-->" )
 
-TOKEN:element: ( "<" "/"? [^ " " ">" "\t" "\n" "\r"]+ ):<IN_ELEMENT>
+TOKEN:element_start: ( "<" ):<IN_ELEMENT_START>
+TOKEN:end_element_start: ( "</" ):<IN_ELEMENT_START>
+<IN_ELEMENT_START>:TOKEN:element_name: ( ["a"-"z" "A"-"Z" "?" "!"]["a"-"z" "A"-"Z" "0"-"9" "-" "_" ":"]* ):<IN_ELEMENT>
 
 <IN_ELEMENT> {
 
-    TOKEN:attribute_name: ( [^ " " ">" "=" "\t" "\n" "\r"]+ ):<IN_ATTRIBUTE>
+    TOKEN:attribute_name: ( ["a"-"z" "A"-"Z"]["a"-"z" "A"-"Z" "0"-"9" "-" "_" ":"]* ):<IN_ATTRIBUTE>
     TOKEN:whitespace: ( [" " "\t" "\n" "\r"]* )
-    TOKEN:element: ( "/"? ">" ):<DEFAULT>
+    TOKEN:element_end: ( "?"? ">" ):<DEFAULT>
+    TOKEN:end_element_end: ( "/>" ):<DEFAULT>
 }
 
 <IN_ATTRIBUTE> {
     TOKEN:operator: ( "=" ):<IN_ATTRIBUTE2>
     TOKEN:whitespace: ( [" " "\t" "\n" "\r"]* )
-    TOKEN:element: ( "/"? ">" ):<DEFAULT>
+    TOKEN:element_end: ( "?"? ">" ):<DEFAULT>
+    TOKEN:end_element_end: ( "/>" ):<DEFAULT>
     TOKEN:attribute_name: ( [^ " " ">" "=" "\t" "\n" "\r"]+ )
 }
 
 <IN_ATTRIBUTE2> {
-    TOKEN:attribute_value: ( "\"" [^ "\""]* "\"" ):<IN_ELEMENT>
+    TOKEN:attribute_value: ( "\"" [^ "\"" "\n" "\r"]* "\"" ):<IN_ELEMENT>
+    TOKEN:attribute_value: ( "\'" [^ "\'" "\n" "\r"]* "\'" ):<IN_ELEMENT>
     TOKEN:whitespace: ( [" " "\t" "\n" "\r"]* )
 }
 
+########### grammar ############################################################
+
+SKIP:whitespace
+SKIP:comment
+
+S = startTag S;
+S = endTag S;
+S = etext S;
+S = ; 
+startTag = <element_start> <element_name> attributes ( <element_end> | <end_element_end> );
+endTag = <end_element_start> <element_name> attributes <element_end>;
+attributes = attribute attributes1;
+attributes = ;
+attributes1 = attribute attributes1;
+attributes1 = ;
+attribute = <attribute_name>;
+attribute = <attribute_value>;
+attribute = <attribute_name> <operator,'='> <attribute_value>;
+etext = <text> etext1;
+etext1 = <text> etext1;
+etext1 = ;
+
+AST {
+    process:org.netbeans.modules.languages.xml.XML.process;
+}
+
+
+########### colors #############################################################
+
+#COLOR:element: {
+#    default_coloring:"keyword";
+#}
+COLOR:element_start: {
+    default_coloring:"keyword";
+}
+COLOR:end_element_start: {
+    default_coloring:"keyword";
+}
+COLOR:element_name: {
+    default_coloring:"keyword";
+}
+COLOR:element_end: {
+    default_coloring:"keyword";
+}
+COLOR:end_element_end: {
+    default_coloring:"keyword";
+}
+COLOR:attribute_value: {
+    default_coloring:"string";
+}
+
+
+########### code folding #######################################################
+
+FOLD:tag: {
+    fold_display_name:"<$startTag.element_name$>...</$startTag.element_name$>";
+    expand_type_action_name:"Expand XML Tag";
+    collapse_type_action_name:"Collapse XML Tag";
+}
+
+
+########### navigator ##########################################################
+
+NAVIGATOR:tag: {
+    display_name: "$startTag.element_name$";
+    tooltip: "$$";
+    icon: "/org/netbeans/modules/languages/html/htmlTag.png";
+}
+NAVIGATOR:unpairedStartTag: {
+    display_name: "$element_name$";
+    tooltip: "$$";
+    icon: "/org/netbeans/modules/languages/html/htmlTag.png";
+}
+NAVIGATOR:unpairedEndTag: {
+    display_name: "$element_name$";
+    tooltip: "$$";
+    icon: "/org/netbeans/modules/languages/html/htmlTag.png";
+}
+
+
+########### other ##############################################################
+
+COMPLETE "\":\""
+COMPLETE "':'"
+COMPLETE org.netbeans.modules.languages.xml.XML.complete
+
+INDENT org.netbeans.modules.languages.xml.XML.indent
+
+#HYPERLINK:attribute_value: org.netbeans.modules.languages.html.HTML.hyperlink
+
+MARK:unpairedStartTag: {
+    type:"Warning";
+    message:"Unfinished tag.";
+}
+MARK:unpairedEndTag: {
+    type:"Error";
+    message:"Unpaired end tag.";
+}
+MARK:ERROR: {
+    type:"Error";
+    message:"Unpaired end tag.";
+}
+MARK:error: {
+    type:"Error";
+    message:"Unexpected character.";
+}
+
+PROPERTIES {
+    ignoreCase:"true";
+}
