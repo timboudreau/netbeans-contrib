@@ -27,6 +27,10 @@ import org.openide.filesystems.FileObject;
  * A QueryContext is the environment that a Query is executed in, which
  * provides methods for communicating with the user through query results,
  * status bar and log messages, and errors.
+ * <p>
+ * <em>Note:</em> Query developers should never implement QueryContext.
+ * The Jackpot module creates the QueryContext instance which the Query
+ * will reference during its execution.
  * 
  * @author Tom Ball
  */
