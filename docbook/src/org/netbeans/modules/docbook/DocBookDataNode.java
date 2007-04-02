@@ -20,7 +20,6 @@
 package org.netbeans.modules.docbook;
 
 import java.awt.Image;
-import java.beans.BeanInfo;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.Arrays;
@@ -34,26 +33,28 @@ import org.openide.cookies.OpenCookie;
 import org.openide.cookies.SaveCookie;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileStateInvalidException;
-import org.openide.loaders.*;
-import org.openide.nodes.*;
+import org.openide.loaders.DataNode;
+import org.openide.loaders.DataObject;
+import org.openide.nodes.Children;
 import org.openide.util.NbBundle;
-import org.openide.util.Utilities;
 import org.openide.util.WeakListeners;
 import org.openide.util.lookup.AbstractLookup;
 import org.openide.util.lookup.InstanceContent;
 
-public class DocBookDataNode extends DataNode {
+class DocBookDataNode extends DataNode {
     private final InstanceContent content;
     public DocBookDataNode(DocBookDataObject obj, InstanceContent content) {
         super(obj, Children.LEAF, new AbstractLookup (content));
+        OpenCookie oc = obj.getCookie(OpenCookie.class);
+        assert oc != null : obj + " has no OpenCookie; DBES=" + obj.getCookie(DocBookEditorSupport.class);
         this.content = content;
-        content.set (Arrays.asList (new Object[] {
+        content.set(Arrays.asList(
                 obj, new RendererImpl (obj),
-                obj.getCookie (OpenCookie.class),
+                oc,
                 new Notifier (obj),
-                new ParsingServiceImpl (obj),
-        }), null);
-        SaveCookie ck = (SaveCookie) obj.getCookie(SaveCookie.class);
+                new ParsingServiceImpl (obj)
+                ), null);
+        SaveCookie ck = obj.getCookie(SaveCookie.class);
         if (ck != null) {
             content.add (ck);
         }
@@ -68,15 +69,14 @@ public class DocBookDataNode extends DataNode {
         public void propertyChange(PropertyChangeEvent evt) {
             boolean ck = DataObject.PROP_COOKIE.equals(evt.getPropertyName());
             if (ck) {
-                SaveCookie save = (SaveCookie)
-                        getDataObject().getCookie(SaveCookie.class);
+                SaveCookie save = getDataObject().getCookie(SaveCookie.class);
                 if (save == null) {
-                    SaveCookie old = (SaveCookie) getLookup().lookup(SaveCookie.class);
+                    SaveCookie old = getLookup().lookup(SaveCookie.class);
                     if (old != null) {
                         content.remove(old);
                     }
                 } else {
-                    SaveCookie old = (SaveCookie) getLookup().lookup(SaveCookie.class);
+                    SaveCookie old = getLookup().lookup(SaveCookie.class);
                     if (old != save && old != null) {
                         content.remove(old);
                     }
@@ -137,8 +137,7 @@ public class DocBookDataNode extends DataNode {
         Project p = FileOwnerQuery.getOwner(fob);
         boolean result = p != null;
         if (result) {
-            MainFileProvider prov = (MainFileProvider)
-                    p.getLookup().lookup(MainFileProvider.class);
+            MainFileProvider prov = p.getLookup().lookup(MainFileProvider.class);
             result = prov != null;
             if (result) {
                 result = prov.isMainFile(fob);
