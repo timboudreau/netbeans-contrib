@@ -230,8 +230,8 @@ public class GenericNavPanel implements NavigatorPanel, Runnable, ListSelectionL
 
     private void scanFile(List</*XXX should be NavigationItem*/Object> l, Lookup lkp) {
         DataObject ob = lkp.lookup(DataObject.class);
-        LOGGER.log(Level.FINE, "object of type {0}", ob.getPrimaryFile().getMIMEType());
         if (ob != null) {
+            LOGGER.log(Level.FINE, "object of type {0}", ob.getPrimaryFile().getMIMEType());
             try {
                 CharSequence sq = getFileData(ob);
                 if (sq == null || sq.length() < 5) {
