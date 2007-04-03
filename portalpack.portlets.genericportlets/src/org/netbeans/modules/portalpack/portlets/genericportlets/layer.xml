@@ -23,10 +23,12 @@ Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
     <folder name="Templates">
             
             <folder name="JSP_Servlet">
-                <file name="JSR-168Portlet" url="JSR-168Portlet">
+                <file name="JSR-168Portlet" url="templates/JSR168Portlet">
                     <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.portalpack.portlets.genericportlets.Bundle"/>
                     <attr name="instantiatingIterator" newvalue="org.netbeans.modules.portalpack.portlets.genericportlets.filetype.jsr168.NetbeansNewPortletClassWizardIterator"/>
                     <attr name="template" boolvalue="true"/>
+                    <attr name="templateCategory" stringvalue="web-types"/>
+                    <attr name="SystemFileSystem.icon" urlvalue="nbresloc:org/netbeans/modules/portalpack/portlets/genericportlets/resources/portletapp.gif"/>
                     <attr name="templateWizardURL" urlvalue="nbresloc:org/netbeans/modules/portalpack/portlets/genericportlets/filetype/jsr168/netbeansNewPortletClass.html"/>
                 </file>
                 
@@ -95,7 +97,7 @@ Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
     
     <folder name="org-netbeans-api-project-libraries">
         <folder name="Libraries">
-             <file name="portlet10lib.xml" url="nbresloc:/org/netbeans/modules/portalpack/portlets/genericportlets/resources/portlet10lib.xml"/>
+             <file name="portlet10lib.xml" url="portlet10lib.xml"/>
         </folder>
     </folder>
     
