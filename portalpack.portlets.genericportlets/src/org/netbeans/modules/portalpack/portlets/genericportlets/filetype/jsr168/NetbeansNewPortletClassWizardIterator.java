@@ -82,7 +82,7 @@ public final class NetbeansNewPortletClassWizardIterator implements WizardDescri
         if (panels == null) {
             packageChooserPanel = JavaTemplates.createPackageChooser(project,groups,new NetbeansNewPortletClassWizardPanel1());
             panels = new WizardDescriptor.Panel[] {
-                packageChooserPanel
+                packageChooserPanel, new NewJSR168FileAdvanceWizardPanel()
                         
             };
             

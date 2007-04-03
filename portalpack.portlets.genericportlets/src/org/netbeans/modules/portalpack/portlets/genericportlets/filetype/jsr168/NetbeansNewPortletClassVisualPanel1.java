@@ -54,6 +54,7 @@ public final class NetbeansNewPortletClassVisualPanel1 extends JPanel implements
      */
     // <editor-fold defaultstate="collapsed" desc=" Generated Code ">//GEN-BEGIN:initComponents
     private void initComponents() {
+
         jLabel1 = new javax.swing.JLabel();
         pnameTf = new javax.swing.JTextField();
         jLabel2 = new javax.swing.JLabel();
@@ -68,39 +69,34 @@ public final class NetbeansNewPortletClassVisualPanel1 extends JPanel implements
         editCB = new javax.swing.JCheckBox();
         helpCB = new javax.swing.JCheckBox();
         jLabel6 = new javax.swing.JLabel();
-        isCreateJsps = new javax.swing.JCheckBox();
 
-        org.openide.awt.Mnemonics.setLocalizedText(jLabel1, org.openide.util.NbBundle.getMessage(NetbeansNewPortletClassVisualPanel1.class, "LBL_PORTLET_NAME"));
+        org.openide.awt.Mnemonics.setLocalizedText(jLabel1, org.openide.util.NbBundle.getMessage(NetbeansNewPortletClassVisualPanel1.class, "LBL_PORTLET_NAME")); // NOI18N
 
-        org.openide.awt.Mnemonics.setLocalizedText(jLabel2, org.openide.util.NbBundle.getMessage(NetbeansNewPortletClassVisualPanel1.class, "LBL_PORTLET_DISPLAY_NAME"));
+        org.openide.awt.Mnemonics.setLocalizedText(jLabel2, org.openide.util.NbBundle.getMessage(NetbeansNewPortletClassVisualPanel1.class, "LBL_PORTLET_DISPLAY_NAME")); // NOI18N
 
-        org.openide.awt.Mnemonics.setLocalizedText(jLabel3, org.openide.util.NbBundle.getMessage(NetbeansNewPortletClassVisualPanel1.class, "LBL_PORTLET_DESC"));
+        org.openide.awt.Mnemonics.setLocalizedText(jLabel3, org.openide.util.NbBundle.getMessage(NetbeansNewPortletClassVisualPanel1.class, "LBL_PORTLET_DESC")); // NOI18N
 
-        org.openide.awt.Mnemonics.setLocalizedText(jLabel4, org.openide.util.NbBundle.getMessage(NetbeansNewPortletClassVisualPanel1.class, "LBL_PORTLET_TITLE"));
+        org.openide.awt.Mnemonics.setLocalizedText(jLabel4, org.openide.util.NbBundle.getMessage(NetbeansNewPortletClassVisualPanel1.class, "LBL_PORTLET_TITLE")); // NOI18N
 
-        org.openide.awt.Mnemonics.setLocalizedText(jLabel5, org.openide.util.NbBundle.getMessage(NetbeansNewPortletClassVisualPanel1.class, "LBL_PORTLET_SHORT_TITLE"));
+        org.openide.awt.Mnemonics.setLocalizedText(jLabel5, org.openide.util.NbBundle.getMessage(NetbeansNewPortletClassVisualPanel1.class, "LBL_PORTLET_SHORT_TITLE")); // NOI18N
 
         viewCB.setSelected(true);
-        org.openide.awt.Mnemonics.setLocalizedText(viewCB, org.openide.util.NbBundle.getMessage(NetbeansNewPortletClassVisualPanel1.class, "LBL_VIEW"));
+        org.openide.awt.Mnemonics.setLocalizedText(viewCB, org.openide.util.NbBundle.getMessage(NetbeansNewPortletClassVisualPanel1.class, "LBL_VIEW")); // NOI18N
         viewCB.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         viewCB.setEnabled(false);
         viewCB.setMargin(new java.awt.Insets(0, 0, 0, 0));
 
         editCB.setSelected(true);
-        org.openide.awt.Mnemonics.setLocalizedText(editCB, org.openide.util.NbBundle.getMessage(NetbeansNewPortletClassVisualPanel1.class, "LB_EDIT"));
+        org.openide.awt.Mnemonics.setLocalizedText(editCB, org.openide.util.NbBundle.getMessage(NetbeansNewPortletClassVisualPanel1.class, "LB_EDIT")); // NOI18N
         editCB.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         editCB.setMargin(new java.awt.Insets(0, 0, 0, 0));
 
         helpCB.setSelected(true);
-        org.openide.awt.Mnemonics.setLocalizedText(helpCB, org.openide.util.NbBundle.getMessage(NetbeansNewPortletClassVisualPanel1.class, "LBL_HELP"));
+        org.openide.awt.Mnemonics.setLocalizedText(helpCB, org.openide.util.NbBundle.getMessage(NetbeansNewPortletClassVisualPanel1.class, "LBL_HELP")); // NOI18N
         helpCB.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         helpCB.setMargin(new java.awt.Insets(0, 0, 0, 0));
 
-        org.openide.awt.Mnemonics.setLocalizedText(jLabel6, org.openide.util.NbBundle.getMessage(NetbeansNewPortletClassVisualPanel1.class, "LBL_PORTLET_MODE"));
-
-        org.openide.awt.Mnemonics.setLocalizedText(isCreateJsps, org.openide.util.NbBundle.getBundle(NetbeansNewPortletClassVisualPanel1.class).getString("LBL_CREATE_JSPS"));
-        isCreateJsps.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        isCreateJsps.setMargin(new java.awt.Insets(0, 0, 0, 0));
+        org.openide.awt.Mnemonics.setLocalizedText(jLabel6, org.openide.util.NbBundle.getMessage(NetbeansNewPortletClassVisualPanel1.class, "LBL_PORTLET_MODE")); // NOI18N
 
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
         this.setLayout(layout);
@@ -128,17 +124,14 @@ public final class NetbeansNewPortletClassVisualPanel1 extends JPanel implements
                     .add(portletDescTf, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 194, Short.MAX_VALUE)
                     .add(portletDisplayNameTf, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 194, Short.MAX_VALUE)
                     .add(org.jdesktop.layout.GroupLayout.TRAILING, portletTitleTf, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 194, Short.MAX_VALUE))
-                .add(17, 17, 17)
-                .add(isCreateJsps)
-                .add(28, 28, 28))
+                .add(120, 120, 120))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(layout.createSequentialGroup()
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(jLabel1)
-                    .add(pnameTf, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(isCreateJsps))
+                    .add(pnameTf, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(portletDisplayNameTf, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
@@ -169,7 +162,6 @@ public final class NetbeansNewPortletClassVisualPanel1 extends JPanel implements
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JCheckBox editCB;
     private javax.swing.JCheckBox helpCB;
-    private javax.swing.JCheckBox isCreateJsps;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
@@ -225,13 +217,16 @@ public final class NetbeansNewPortletClassVisualPanel1 extends JPanel implements
         
         String portalName =  pnameTf.getText();
         
-        PortletContext context = new PortletContext();
+        PortletContext context = (PortletContext)d.getProperty("context");
+        
+        if(context == null)
+            context = new PortletContext();
+        
         context.setPortletName(pnameTf.getText().trim());
         context.setPortletDescription(portletDescTf.getText().trim());
         context.setPortletDisplayName(portletDisplayNameTf.getText().trim());
         context.setPortletTitle(portletTitleTf.getText().trim());
         context.setPortletShortTitle(portletShortTitleTf.getText().trim());
-        context.setHasJsps(isCreateJsps.isSelected());
         
         List modeList = new ArrayList();
             
@@ -246,6 +241,11 @@ public final class NetbeansNewPortletClassVisualPanel1 extends JPanel implements
             
         d.putProperty("context",context);
         
+        
+    }
+    
+    public void readSettings(WizardDescriptor settings)
+    {
         
     }
         
@@ -291,5 +291,6 @@ public final class NetbeansNewPortletClassVisualPanel1 extends JPanel implements
         }
         panel.fireChangeEvent(); // Notify that the panel changed
     }
+   
 }
 

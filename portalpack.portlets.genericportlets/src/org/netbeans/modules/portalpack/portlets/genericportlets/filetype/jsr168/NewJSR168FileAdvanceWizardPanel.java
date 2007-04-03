@@ -28,13 +28,17 @@ import javax.swing.event.ChangeListener;
 import org.openide.WizardDescriptor;
 import org.openide.util.HelpCtx;
 
-public class NetbeansNewPortletClassWizardPanel1 implements WizardDescriptor.Panel {
+/**
+ *
+ * @author Satyaranjan
+ */
+public class NewJSR168FileAdvanceWizardPanel implements WizardDescriptor.Panel {
     
-    /**
+   /**
      * The visual component that displays this panel. If you need to access the
      * component from this class, just use getComponent().
      */
-    private NetbeansNewPortletClassVisualPanel1 component;
+    private NewJSR168FileAdvanceVisualPanel component;
     private WizardDescriptor wizardDescriptor;
     
     // Get the visual component for the panel. In this template, the component
@@ -43,7 +47,7 @@ public class NetbeansNewPortletClassWizardPanel1 implements WizardDescriptor.Pan
     // create only those which really need to be visible.
     public Component getComponent() {
         if (component == null) {
-            component = new NetbeansNewPortletClassVisualPanel1(this);
+            component = new NewJSR168FileAdvanceVisualPanel(this);
         }
         return component;
     }
@@ -104,6 +108,5 @@ public class NetbeansNewPortletClassWizardPanel1 implements WizardDescriptor.Pan
         WizardDescriptor d = (WizardDescriptor) settings;
         component.store(d);
     }
-    
-}
 
+}
