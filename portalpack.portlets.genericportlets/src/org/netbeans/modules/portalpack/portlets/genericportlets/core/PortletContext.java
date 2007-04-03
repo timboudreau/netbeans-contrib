@@ -134,21 +134,67 @@ public class PortletContext {
     
     public String getViewJsp()
     {
-        if(viewJsp == null)
+        if(viewJsp == null || viewJsp.trim().length() == 0)
             return portletName + "_" + "view.jsp";
         return viewJsp;
     }
     public String getEditJsp()
     {
-        if(editJsp == null)
+        if(editJsp == null || editJsp.trim().length() == 0)
             return portletName + "_" + "edit.jsp";   
         return editJsp;
     }
     public String getHelpJsp()
     {  
-        if(helpJsp == null)
+        if(helpJsp == null || helpJsp.trim().length() == 0)
             return portletName + "_" + "help.jsp";
         return helpJsp;
     }
+    public void setViewJsp(String viewJsp)
+    {
+        if(viewJsp != null && viewJsp.trim().length() != 0 && !viewJsp.endsWith(".jsp") && !viewJsp.endsWith(".JSP"))
+            viewJsp += ".jsp";
+        this.viewJsp = viewJsp;
+    }
+    public void setEditJsp(String editJsp)
+    {
+         if(editJsp != null && editJsp.trim().length() != 0 && !editJsp.endsWith(".jsp") && !editJsp.endsWith(".JSP"))
+            editJsp += ".jsp";
+        this.editJsp = editJsp;
+    }
+    public void setHelpJsp(String helpJsp)
+    {
+        if(helpJsp != null && helpJsp.trim().length() != 0 && !helpJsp.endsWith(".jsp") && !helpJsp.endsWith(".JSP"))
+            helpJsp += ".jsp";
+        this.helpJsp = helpJsp;
+    }
+    public boolean isViewMode()
+    {
+        for(int i=0;i<modes.length;i++)
+        {
+            if(modes[i].equalsIgnoreCase("VIEW"))
+                return true;
+        }
+        return false;
+    }
     
+    public boolean isEditMode()
+    {
+        for(int i=0;i<modes.length;i++)
+        {
+            if(modes[i].equalsIgnoreCase("EDIT"))
+                return true;
+        }
+        return false;
+    }
+    
+    public boolean isHelpMode()
+    {
+        for(int i=0;i<modes.length;i++)
+        {
+            if(modes[i].equalsIgnoreCase("HELP"))
+                return true;
+        }
+        return false;
+    }
 }
