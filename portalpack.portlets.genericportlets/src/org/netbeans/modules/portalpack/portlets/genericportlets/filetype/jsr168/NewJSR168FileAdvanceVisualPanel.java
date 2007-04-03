@@ -1,21 +1,9 @@
 /*
- * The contents of this file are subject to the terms of the Common Development
- * and Distribution License (the License). You may not use this file except in
- * compliance with the License.
+ * NewJsr168AdvanceVisualPanel.java
  *
- * You can obtain a copy of the License at http://www.netbeans.org/cddl.html
- * or http://www.netbeans.org/cddl.txt.
- *
- * When distributing Covered Code, include this CDDL Header Notice in each file
- * and include the License file at http://www.netbeans.org/cddl.txt.
- * If applicable, add the following below the CDDL Header, with the fields
- * enclosed by brackets [] replaced by your own identifying information:
- * "Portions Copyrighted [year] [name of copyright owner]"
- *
- * The Original Software is NetBeans. The Initial Developer of the Original
- * Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
- * Microsystems, Inc. All Rights Reserved.
+ * Created on April 3, 2007, 2:42 PM
  */
+
 package org.netbeans.modules.portalpack.portlets.genericportlets.filetype.jsr168;
 
 import javax.swing.JTextField;
@@ -31,6 +19,7 @@ import org.openide.util.NbBundle;
  * @author  Satyaranjan
  */
 public class NewJSR168FileAdvanceVisualPanel extends javax.swing.JPanel implements DocumentListener{
+    
     private boolean isView;
     private boolean isEdit;
     private boolean isHelp;
@@ -53,27 +42,21 @@ public class NewJSR168FileAdvanceVisualPanel extends javax.swing.JPanel implemen
     // <editor-fold defaultstate="collapsed" desc=" Generated Code ">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        jLabel1 = new javax.swing.JLabel();
+        lblView = new javax.swing.JLabel();
         viewJspTf = new javax.swing.JTextField();
-        jLabel2 = new javax.swing.JLabel();
+        lblEdit = new javax.swing.JLabel();
         editJspTf = new javax.swing.JTextField();
-        jLabel3 = new javax.swing.JLabel();
+        lblHelp = new javax.swing.JLabel();
         helpJspTf = new javax.swing.JTextField();
         isCreateJsps = new javax.swing.JCheckBox();
 
-        jLabel1.setText(org.openide.util.NbBundle.getMessage(NewJSR168FileAdvanceVisualPanel.class, "NewJSR168FileAdvanceVisualPanel.jLabel1.text")); // NOI18N
+        lblView.setText(org.openide.util.NbBundle.getBundle(NewJSR168FileAdvanceVisualPanel.class).getString("NewJSR168FileAdvanceVisualPanel.lblView.text")); // NOI18N
 
-        viewJspTf.setText(org.openide.util.NbBundle.getMessage(NewJSR168FileAdvanceVisualPanel.class, "NewJSR168FileAdvancePanel.viewJspTf.text")); // NOI18N
+        lblEdit.setText(org.openide.util.NbBundle.getBundle(NewJSR168FileAdvanceVisualPanel.class).getString("NewJSR168FileAdvanceVisualPanel.lblEdit.text")); // NOI18N
 
-        jLabel2.setText(org.openide.util.NbBundle.getMessage(NewJSR168FileAdvanceVisualPanel.class, "NewJSR168FileAdvanceVisualPanel.jLabel2.text")); // NOI18N
+        lblHelp.setText(org.openide.util.NbBundle.getBundle(NewJSR168FileAdvanceVisualPanel.class).getString("NewJSR168FileAdvancePanel.lblHelp.text")); // NOI18N
 
-        editJspTf.setText(org.openide.util.NbBundle.getMessage(NewJSR168FileAdvanceVisualPanel.class, "NewJSR168FileAdvancePanel.editJspTf.text")); // NOI18N
-
-        jLabel3.setText(org.openide.util.NbBundle.getMessage(NewJSR168FileAdvanceVisualPanel.class, "NewJSR168FileAdvanceVisualPanel.jLabel3.text")); // NOI18N
-
-        helpJspTf.setText(org.openide.util.NbBundle.getMessage(NewJSR168FileAdvanceVisualPanel.class, "NewJSR168FileAdvancePanel.helpJspTf.text")); // NOI18N
-
-        isCreateJsps.setText(org.openide.util.NbBundle.getMessage(NewJSR168FileAdvanceVisualPanel.class, "NewJSR168FileAdvanceVisualPanel.isCreateJsps.text")); // NOI18N
+        isCreateJsps.setText(org.openide.util.NbBundle.getBundle(NewJSR168FileAdvanceVisualPanel.class).getString("LBL_CREATE_JSPS")); // NOI18N
         isCreateJsps.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         isCreateJsps.setMargin(new java.awt.Insets(0, 0, 0, 0));
         isCreateJsps.addItemListener(new java.awt.event.ItemListener() {
@@ -82,62 +65,72 @@ public class NewJSR168FileAdvanceVisualPanel extends javax.swing.JPanel implemen
             }
         });
 
-        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
+        org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
+            layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+            .add(layout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jLabel1)
-                    .addComponent(jLabel3)
-                    .addComponent(jLabel2))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addComponent(editJspTf, javax.swing.GroupLayout.DEFAULT_SIZE, 212, Short.MAX_VALUE)
-                    .addComponent(helpJspTf)
-                    .addComponent(viewJspTf))
-                .addGap(26, 26, 26)
-                .addComponent(isCreateJsps)
-                .addContainerGap(77, Short.MAX_VALUE))
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                    .add(lblView)
+                    .add(lblEdit)
+                    .add(lblHelp))
+                .add(17, 17, 17)
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING, false)
+                    .add(viewJspTf)
+                    .add(helpJspTf)
+                    .add(editJspTf, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 217, Short.MAX_VALUE))
+                .add(20, 20, 20)
+                .add(isCreateJsps)
+                .addContainerGap(61, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
+            layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+            .add(layout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel1)
-                    .addComponent(viewJspTf, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(isCreateJsps))
-                .addGap(9, 9, 9)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel2)
-                    .addComponent(editJspTf, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel3)
-                    .addComponent(helpJspTf, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(20, Short.MAX_VALUE))
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                    .add(lblView)
+                    .add(viewJspTf, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                    .add(isCreateJsps))
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                    .add(lblEdit)
+                    .add(editJspTf, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                    .add(lblHelp)
+                    .add(helpJspTf, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
 
-private void isCreateJspsItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_isCreateJspsItemStateChanged
-    // TODO add your handling code here:
-    enableTextComponents(isCreateJsps.isSelected());
-}//GEN-LAST:event_isCreateJspsItemStateChanged
+    private void isCreateJspsItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_isCreateJspsItemStateChanged
+// TODO add your handling code here:
+        enableTextComponents(isCreateJsps.isSelected());
+    }//GEN-LAST:event_isCreateJspsItemStateChanged
     
-    public void initData()
+    
+    // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JTextField editJspTf;
+    private javax.swing.JTextField helpJspTf;
+    private javax.swing.JCheckBox isCreateJsps;
+    private javax.swing.JLabel lblEdit;
+    private javax.swing.JLabel lblHelp;
+    private javax.swing.JLabel lblView;
+    private javax.swing.JTextField viewJspTf;
+    // End of variables declaration//GEN-END:variables
+     public void initData()
     {
         enableTextComponents(false);
     }
-    
+
     private void enableTextComponents(boolean enable)
     {
-        
+
         viewJspTf.setEnabled(enable && isView);
         editJspTf.setEnabled(enable && isEdit);
         helpJspTf.setEnabled(enable && isHelp);
-        
+
         viewJspTf.setEditable(enable && isView);
         editJspTf.setEditable(enable && isEdit);
         helpJspTf.setEditable(enable && isHelp);
@@ -150,7 +143,7 @@ private void isCreateJspsItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-F
             return false;
         }else
         {
-            
+
         }
         if((editJspTf.getText() == null || editJspTf.getText().trim().length()==0) && (isEdit && isCreateJsps.isSelected()))
         {
@@ -158,32 +151,32 @@ private void isCreateJspsItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-F
             return false;
         }else
         {
-            
+
         }
          if((helpJspTf.getText() == null || helpJspTf.getText().trim().length()==0) && (isHelp && isCreateJsps.isSelected()))
         {
             wizardDescriptor.putProperty("WizardPanel_errorMessage",NbBundle.getMessage(NewJSR168FileAdvanceVisualPanel.class, "INVALID_HELP_JSP_NAME"));
             return false;
         }else{
-            
+
         }
         wizardDescriptor.putProperty("WizardPanel_errorMessage","");
         return true;
     }
-    
+
     public void readSettings(WizardDescriptor wizardDescriptor)
     {
        // enableTextComponents(false);
         PortletContext context = (PortletContext)(wizardDescriptor.getProperty("context"));
         if(context != null)
         {
-             
+
              if(context.isViewMode())
              {
                     viewJspTf.setText(context.getViewJsp());
                     isView = true;
                     enableTextField(viewJspTf, isView && isCreateJsps.isSelected());
-                   
+
              }else{
                  isView = false;
                  enableTextField(viewJspTf,false);
@@ -202,20 +195,20 @@ private void isCreateJspsItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-F
                     helpJspTf.setText(context.getHelpJsp());
                     isHelp = true;
                     enableTextField(helpJspTf, isHelp && isCreateJsps.isSelected());
-                   
+
              }else{
                  isHelp = false;
                  enableTextField(helpJspTf,false);
              }
         }
     }
-    
+
     private void enableTextField(JTextField jt,boolean enable)
     {
         jt.setEditable(enable);
         jt.setEnabled(enable);
     }
-    
+
     public void store(WizardDescriptor wizardDescriptor)
     {
         PortletContext context = (PortletContext)(wizardDescriptor.getProperty("context"));
@@ -229,38 +222,31 @@ private void isCreateJspsItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-F
         context.setHelpJsp(helpJspTf.getText().trim());
         wizardDescriptor.putProperty("context",context);
     }
-    
-    // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JTextField editJspTf;
-    private javax.swing.JTextField helpJspTf;
-    private javax.swing.JCheckBox isCreateJsps;
-    private javax.swing.JLabel jLabel1;
-    private javax.swing.JLabel jLabel2;
-    private javax.swing.JLabel jLabel3;
-    private javax.swing.JTextField viewJspTf;
-    // End of variables declaration//GEN-END:variables
-    
-    
+
+    // Variables declaration - do not modify                     
+    // End of variables declaration                   
+
+
      // Implementation of DocumentListener --------------------------------------
-    
+
     public void changedUpdate(DocumentEvent e) {
         updateTexts(e);
-        
+
     }
-    
+
     public void insertUpdate(DocumentEvent e) {
         updateTexts(e);
-     
+
     }
-    
+
     public void removeUpdate(DocumentEvent e) {
         updateTexts(e);
-       
+
     }
-    
+
     /** Handles changes in the Project name and project directory, */
     private void updateTexts(DocumentEvent e) {
-        
+
         Document doc = e.getDocument();
         panel.fireChangeEvent(); // Notify that the panel changed
     }
