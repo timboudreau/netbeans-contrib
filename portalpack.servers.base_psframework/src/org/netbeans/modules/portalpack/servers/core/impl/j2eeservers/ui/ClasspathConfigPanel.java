@@ -44,6 +44,7 @@ public class ClasspathConfigPanel extends ConfigPanel{
 
     private DefaultListModel  classPathListModel;
     private boolean isCustomizeMode = false;
+    private String dirPath = System.getProperty("user.home");
     /** Creates new form PSConfigServerPanel */
     public ClasspathConfigPanel() {
         initComponents();
@@ -131,7 +132,12 @@ public class ClasspathConfigPanel extends ConfigPanel{
 
     private void addClassPathButtonActionPerformed(java.awt.event.ActionEvent evt) {                                                   
 // TODO add your handling code here:
-        JFileChooser fileChooser = new JFileChooser();
+        File dir = new File(dirPath);
+        if(!dir.exists())
+            dirPath = System.getProperty("user.home");
+        
+        JFileChooser fileChooser = new JFileChooser(dirPath);
+        fileChooser.setMultiSelectionEnabled(true);
         fileChooser.setFileFilter(new FileFilter(){
             public boolean accept(File f) {
                 if(f.getName().endsWith(".jar"))
@@ -147,13 +153,19 @@ public class ClasspathConfigPanel extends ConfigPanel{
 
         });
 
-
         int returnVal = fileChooser.showOpenDialog(null);
         if (returnVal == JFileChooser.APPROVE_OPTION) {
 
-            File file = fileChooser.getSelectedFile();
-
-            classPathListModel.addElement(file.getAbsolutePath());
+            File[] files = fileChooser.getSelectedFiles();          
+            for(int i=0;i<files.length;i++){
+                classPathListModel.addElement(files[i].getAbsolutePath());
+                if(i == files.length - 1)
+                {
+                    File parentFile = files[i].getParentFile();
+                    if(parentFile != null)
+                        dirPath = parentFile.getAbsolutePath();
+                }
+            }
         }
     }       
     
