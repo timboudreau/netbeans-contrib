@@ -154,8 +154,19 @@
                 </dependency>
             </module-dependencies>
             <public-packages>
-                <package>org.netbeans.api.java.source</package>
             </public-packages>
+            <test-dependencies>
+                <test-type>
+                    <name>unit</name>
+                    <test-dependency>
+                        <code-name-base>org.netbeans.modules.jackpot</code-name-base>
+                        <recursive/>
+                    </test-dependency>
+                    <test-dependency>
+                        <code-name-base>org.netbeans.modules.masterfs</code-name-base>
+                    </test-dependency>
+                </test-type>
+            </test-dependencies>
         </data>
     </configuration>
 </project>

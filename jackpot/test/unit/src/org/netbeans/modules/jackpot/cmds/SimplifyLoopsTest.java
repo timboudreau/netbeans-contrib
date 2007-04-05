@@ -22,7 +22,6 @@ package org.netbeans.modules.jackpot.cmds;
 import java.io.File;
 import org.netbeans.api.jackpot.test.TestUtilities;
 import org.netbeans.junit.NbTestCase;
-import org.openide.filesystems.FileObject;
 
 /**
  * Verifies that SimplifyBooleanExpressions.rules doesn't modify a conditional expression.
@@ -37,8 +36,7 @@ public class SimplifyLoopsTest extends NbTestCase {
     }
 
     protected void setUp() throws Exception {
-        super.setUp();
-        clearWorkDir();
+        TestUtilities.makeScratchDir(this);
         System.setProperty("netbeans.user", getWorkDir().getAbsolutePath());
     }
 

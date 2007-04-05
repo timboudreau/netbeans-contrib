@@ -27,6 +27,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URL;
 import java.util.List;
 import org.netbeans.api.java.source.ModificationResult;
 import org.netbeans.junit.NbTestCase;
@@ -40,7 +41,7 @@ import org.openide.filesystems.LocalFileSystem;
 import org.openide.filesystems.Repository;
 
 /**
- * Utilities to aid unit testing Jackpot Query and Transformer classes.
+ * Utilities to aid unit testing Jackpot rule files, Query and Transformer classes.
  *
  * @author Jaroslav Tulach
  * @author Tom Ball
@@ -55,54 +56,50 @@ public final class TestUtilities {
      *
      * @param from   the source text to be transformed.
      * @param result the expected text after transformation.
-     * @param clazz  the transformation class to use.
+     * @param rules  one or more rules that define the transformation to use.
      * @throws TransformationException if the transformed text doesn't match the result.
      * @throws java.lang.Exception 
      */
-     public static void assertTransform(String from, String result, Class clazz) throws TransformationException, Exception {
-        File src = copyStringToFile(getClassName(from), from);
-        String className = clazz.getName();
-        apply(tempDirectory, className);
+     public static void assertTransform(String from, String result, String rules) throws TransformationException, Exception {
+        File src = copyStringToFilename(null, from);
+        File rulesFile = copyStringToFilename("test.rules", rules);
+        apply(tempDirectory, rulesFile.getPath());
 
         String txt = copyFileToString(src);
         if (!txt.equals(result))
             throw new TransformationException("expected: \"" + result + "\" got: \"" + txt + "\"");
     }
-     
-     private static String getClassName(String src) {
-         return null; // FIXME
-     }
 
     /**
-     * Applies a Query class to a directory of source files.
+     * Applies a rule file to a directory of source files.
      * 
      * @param  dir the directory containing the source files to be modified.
-     * @param  queryName the query to apply to the source files.
-     * @return the matches found
-     * @throws BuildErrorsException 
-     *         If any errors are found when building the source files.
-     * @throws Exception
-     *         If any changes were made to the source files after applying the 
-     *         Query class.
-     */
-    public static List<Result> applyQuery(File dir, String queryName) 
-            throws BuildErrorsException, Exception {
-        return apply(dir, queryName);
-    }
-
-    /**
-     * Applies a Transformer class to a directory of source files.
-     * 
-     * @param  dir the directory containing the source files to be modified.
-     * @param  transformerName the transformer to apply to the source files.
+     * @param  rules the rule file to apply to the source files.
      * @return the number of matches found
      * @throws BuildErrorsException 
      *         If any errors are found when building the source files.
      * @throws java.lang.Exception 
      */
-    public static int applyTransformer(File dir, String transformerName) 
+    public static int applyRules(File dir, URL rules) 
             throws BuildErrorsException, Exception {
-        return apply(dir, transformerName).size();
+        return applyRules(dir, rules, false);
+    }
+
+    /**
+     * Applies a rule file to a directory of source files.
+     * 
+     * @param  dir the directory containing the source files to be modified.
+     * @param  rules the rule file to apply to the source files.
+     * @param  allowErrors true if the rules should still be applied if there are build errors.
+     * @return the number of matches found
+     * @throws BuildErrorsException 
+     *         If any errors are found when building the source files.
+     * @throws java.lang.Exception 
+     */
+    public static int applyRules(File dir, URL rules, boolean allowErrors) 
+            throws BuildErrorsException, Exception {
+        File rulesFile = copyResourceToFile(rules);
+        return apply(dir, rulesFile.getPath()).size();
     }
 
     private static List<Result> apply(File dir, String cmd) 
@@ -111,7 +108,7 @@ public final class TestUtilities {
         CommandLineQueryContext context = new CommandLineQueryContext();
         Engine eng = new Engine(context, dir.getPath(), System.getProperty("java.class.path"), null);
 
-        ModificationResult result = eng.runCommand("q", cmd);
+        ModificationResult result = eng.runScript("q", cmd);
         result.commit();
         return context.getResults();
     }
@@ -131,7 +128,7 @@ public final class TestUtilities {
             throw new EOFException("truncated file");
         return new String (data);
     }
-
+    
     /**
      * Makes a directory set up as a Repository-registered FileSystem.
      * @param test the unit test instance
@@ -181,10 +178,25 @@ public final class TestUtilities {
         return f;
     }
 
-    private final static File copyStringToFile(String filename, String res) throws Exception {
+    private final static File copyStringToFilename(String filename, String res) throws Exception {
         File f = new File(tempDirectory, filename);
         f.deleteOnExit ();
         return copyStringToFile(f, res);
+    }
+
+    private final static File copyResourceToFile(URL u) throws Exception {
+        String name = u.getFile();
+        int i = name.lastIndexOf('.');
+        String suffix = i >= 0 ? name.substring(i) : ".xml";
+        File f = File.createTempFile("res", suffix);
+        f.deleteOnExit ();
+       
+        FileOutputStream os = new FileOutputStream(f);
+        InputStream is = u.openStream();
+        FileUtil.copy(is, os);
+        os.close ();
+            
+        return f;
     }
 
     private static File tempDirectory;

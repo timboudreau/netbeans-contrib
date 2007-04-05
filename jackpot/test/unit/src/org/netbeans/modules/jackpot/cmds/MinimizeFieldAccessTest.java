@@ -27,6 +27,10 @@ public class MinimizeFieldAccessTest extends NbTestCase {
         super(testName);
     }
     
+    protected void setUp() throws Exception {
+        TestUtilities.makeScratchDir(this);
+    }
+    
     /**
      * Verify that public constants referenced from another package are ignored.
      */

@@ -26,6 +26,10 @@ public class MinimizeMethodAccessTest extends NbTestCase {
     public MinimizeMethodAccessTest(String testName) {
         super(testName);
     }
+    
+    protected void setUp() throws Exception {
+        TestUtilities.makeScratchDir(this);
+    }
 
     /**
      * Verify that implemented methods are not minimized.
@@ -36,7 +40,7 @@ public class MinimizeMethodAccessTest extends NbTestCase {
         File src = new File(getWorkDir(), "MyTableModel.java");
         FileUtil.copy(new FileInputStream(orig), new FileOutputStream(src));
         
-        if (TestUtilities.applyTransformer(src, transformer) != 0)
+        if (TestUtilities.applyTransformer(getWorkDir(), transformer) != 0)
             fail("transformation failed: too many modifications");
     }
     
