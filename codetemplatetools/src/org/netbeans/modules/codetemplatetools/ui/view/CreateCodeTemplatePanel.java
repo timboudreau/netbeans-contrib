@@ -250,6 +250,23 @@ public class CreateCodeTemplatePanel extends javax.swing.JPanel {
         abbreviationsMap.put(templateName, templateText);
         baseOptions.setAbbrevMap(abbreviationsMap);
     }
+
+    // Batch save all the given abbreviations into the map for the given editor's mimetype
+    static void saveTemplates(JEditorPane editorPane, Map<String,String> abbrevs) {
+        if (abbrevs.size() == 0) {
+            return;
+        }
+        Class kitClass = editorPane.getEditorKit().getClass();
+        BaseOptions baseOptions = (BaseOptions) BaseOptions.getOptions(kitClass);
+        Map abbreviationsMap = baseOptions.getAbbrevMap();
+        if (abbreviationsMap == null) {
+            abbreviationsMap = abbrevs;
+        } else {
+            abbreviationsMap.putAll(abbrevs);
+        }
+        baseOptions.setAbbrevMap(abbreviationsMap);
+    }
+    
     
     private void cancel() {
         done();

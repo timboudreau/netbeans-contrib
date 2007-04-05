@@ -176,6 +176,7 @@ public class CodeTemplatesPanel extends javax.swing.JPanel {
     
     private void importTemplates() {
         JFileChooser jFileChooser = new JFileChooser();
+        jFileChooser.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
         jFileChooser.addChoosableFileFilter(new FileFilter() {
             public boolean accept(File f) {
                 if (f.isDirectory()) {
@@ -190,12 +191,18 @@ public class CodeTemplatesPanel extends javax.swing.JPanel {
                 return "Abbreviations file";
             }
         });
+        
         if (jFileChooser.showOpenDialog(WindowManager.getDefault().getMainWindow()) == JFileChooser.APPROVE_OPTION) {
             File file = jFileChooser.getSelectedFile();
             try {
-                InputSource inputSource = new InputSource(new FileReader(file));
-                org.w3c.dom.Document doc = XMLUtil.parse(inputSource, false, false, null, null);
-                Element rootElement = doc.getDocumentElement();
+                Element rootElement = null;
+                if (file.isDirectory() && file.getName().endsWith(".tmbundle")) {
+                    rootElement = new TmBundleImport().importBundle(file);
+                } else {
+                    InputSource inputSource = new InputSource(new FileReader(file));
+                    org.w3c.dom.Document doc = XMLUtil.parse(inputSource, false, false, null, null);
+                    rootElement = doc.getDocumentElement();
+                }
 
                 if (!TAG_ROOT.equals(rootElement.getTagName())) {
                     // Wrong root element
@@ -245,12 +252,16 @@ public class CodeTemplatesPanel extends javax.swing.JPanel {
                     }
                 }
                 
-                // remove all deleted values
-                for( Iterator i = mapa.keySet().iterator(); i.hasNext(); ) {
-                    String key = (String)i.next();
-                    String value = (String) mapa.get(key);
-                    CreateCodeTemplatePanel.saveTemplate(editorPane, key, value, true);
-                }
+                // Write templates out
+                // Don't iterate and save each one, since every individual save
+                // fires changes that cause a lot of work.
+                //for( Iterator i = mapa.keySet().iterator(); i.hasNext(); ) {
+                //    String key = (String)i.next();
+                //    String value = (String) mapa.get(key);
+                //    CreateCodeTemplatePanel.saveTemplate(editorPane, key, value, true);
+                //}
+                // Do a single batch save
+                CreateCodeTemplatePanel.saveTemplates(editorPane, mapa);
                 loadModel();
             } catch (FileNotFoundException ex) {
                 ErrorManager.getDefault().notify(ex);
