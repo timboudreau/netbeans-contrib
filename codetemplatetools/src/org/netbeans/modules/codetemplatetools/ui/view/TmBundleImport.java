@@ -28,8 +28,8 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 
 import org.openide.DialogDisplayer;
+import org.openide.ErrorManager;
 import org.openide.NotifyDescriptor;
-import org.openide.util.Exceptions;
 import org.openide.xml.XMLUtil;
 import org.openide.xml.XMLUtil;
 import org.w3c.dom.Document;
@@ -213,9 +213,9 @@ public class TmBundleImport {
                 return;
             }
         } catch (IOException ioe) {
-            Exceptions.printStackTrace(ioe);
+            ErrorManager.getDefault().notify(ioe);
         } catch (SAXException se) {
-            Exceptions.printStackTrace(se);
+            ErrorManager.getDefault().notify(se);
         }
     }
 
