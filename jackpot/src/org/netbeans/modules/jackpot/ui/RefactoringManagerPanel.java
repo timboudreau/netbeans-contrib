@@ -34,7 +34,6 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.AbstractTableModel;
 import org.netbeans.modules.jackpot.*;
-import org.netbeans.spi.jackpot.QueryCookie;
 import org.openide.*;
 import org.openide.filesystems.*;
 import org.openide.loaders.*;
@@ -601,15 +600,7 @@ public class RefactoringManagerPanel extends JPanel {
         }
         FileObject sourceFO = FileUtil.toFileObject(file);
         assert sourceFO != null : "FileObject not found for file " + file;
-        DataObject sourceDO = null;
-        try {
-            sourceDO = DataObject.find(sourceFO);
-        } catch (DataObjectNotFoundException donfe) {
-            ErrorManager.getDefault().notify(ErrorManager.INFORMATIONAL, donfe);
-        }
-        assert sourceDO != null : "DataObject not found for FileObject " + sourceFO;
-        QueryCookie cookie = sourceDO.getCookie(QueryCookie.class);
-        if (cookie == null) {
+        if (!JackpotModule.getInstance().isQueryScript(sourceFO)) {
             String msg = MessageFormat.format(getString("MSG_NotQueryFile"), file.getName());
             NotifyDescriptor d = new NotifyDescriptor.Message(msg, NotifyDescriptor.ERROR_MESSAGE);
             DialogDisplayer.getDefault().notify(d);

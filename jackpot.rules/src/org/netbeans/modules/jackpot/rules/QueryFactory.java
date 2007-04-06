@@ -30,6 +30,7 @@ import java.security.PermissionCollection;
 import java.security.Permissions;
 import org.netbeans.api.jackpot.Query;
 import org.netbeans.api.java.source.JavaSource;
+import org.netbeans.spi.jackpot.QueryProvider;
 import org.netbeans.spi.jackpot.ScriptParsingException;
 import org.openide.filesystems.FileObject;
 import org.openide.modules.InstalledFileLocator;
@@ -39,12 +40,19 @@ import org.openide.modules.InstalledFileLocator;
  * 
  * @author Tom Ball
  */
-class QueryFactory {
-    /**
-     * Returns a Query class instance from a specified rule file.
-     */
+public class QueryFactory implements QueryProvider {
+    private static QueryFactory instance = new QueryFactory();
+    
+    static QueryFactory getInstance() {
+        return instance;
+    }
+
+    public boolean hasQuery(FileObject script) {
+        return script != null && script.getExt().equals("rules");
+    }
+
     @SuppressWarnings("unchecked")
-    public static Query getQuery(FileObject fobj, String queryDescription) throws Exception {
+    public Query getQuery(FileObject fobj, String queryDescription) throws Exception {
         String classpath = jackpotJarsPath();
         ClassLoader jscl = JavaSource.class.getClassLoader();
         ClassLoader cl = new JackpotClassLoader(jscl);

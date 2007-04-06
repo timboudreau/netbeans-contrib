@@ -32,8 +32,9 @@ public class ArrayBrackets extends NbTestCase {
     public ArrayBrackets(String testName) {
         super(testName);
     }
-
+    
     protected void setUp() throws Exception {
+        TestUtilities.makeScratchDir(this);
     }
 
     protected void tearDown() throws Exception {

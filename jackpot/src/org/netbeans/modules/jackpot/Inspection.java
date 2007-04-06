@@ -27,7 +27,6 @@ import javax.swing.JComponent;
 import javax.swing.JPanel;
 import org.netbeans.api.jackpot.Query;
 import org.netbeans.modules.jackpot.engine.PropertySheetInfo;
-import org.netbeans.spi.jackpot.QueryCookie;
 import org.openide.ErrorManager;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
@@ -115,7 +114,7 @@ public final class Inspection {
     public Query getQuery() throws Exception {
         JackpotModule module = JackpotModule.getInstance();
         String cmd = getCommand();
-        if (cmd.endsWith(".rules"))
+        if (module.isQueryScript(fo))
             return module.createScript(getInspector(), cmd);
         else
             return module.createCommand(cmd);
@@ -163,9 +162,8 @@ public final class Inspection {
                 return Class.forName(className, true, getClass().getClassLoader());
             } catch (ClassNotFoundException e) {
                 try {
-                    // it's not a class, see if the associate DataObject supports queries
-                    QueryCookie cookie = getDataObject().getCookie(QueryCookie.class);
-                    return cookie.getQuery(className).getClass();
+                    // it's not a class, see if any QueryProviders recognize it
+                    return getQuery().getClass();
                 } catch (Exception ex) {
                     return null;
                 }

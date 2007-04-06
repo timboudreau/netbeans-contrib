@@ -40,11 +40,13 @@ import org.netbeans.spi.jackpot.RecursiveRuleException;
 import org.netbeans.modules.jackpot.engine.Result;
 import org.netbeans.modules.jackpot.ui.Hyperlink;
 import org.netbeans.modules.jackpot.ui.QueryResultsView;
+import org.netbeans.spi.jackpot.QueryProvider;
 import org.openide.*;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileStateInvalidException;
 import org.openide.filesystems.FileUtil;
 import org.openide.modules.ModuleInstall;
+import org.openide.util.Lookup;
 import org.openide.util.NbBundle;
 import org.openide.windows.IOProvider;
 import org.openide.windows.InputOutput;
@@ -115,6 +117,27 @@ public class JackpotModule extends ModuleInstall {
      */
     public Query createScript(String queryName, String path) throws Exception {
         return engine.createScript(queryName, path);
+    }
+    
+    /**
+     * Returns true if a file is recognized by any QueryProviders.
+     * 
+     * @param fo the file to test
+     * @return true if the file is a script which can be run as a Query
+     */
+    public boolean isQueryScript(FileObject fo) {
+        Lookup.Template<QueryProvider> template = new Lookup.Template<QueryProvider>(QueryProvider.class);
+        Lookup.Result<QueryProvider> result = Lookup.getDefault().lookup(template);
+        for (Class<? extends QueryProvider> cls : result.allClasses()) {
+            try {
+                QueryProvider qp = cls.newInstance();
+                if (qp.hasQuery(fo))
+                    return true;
+            } catch (Exception e) {
+                return false;
+            }
+        }
+        return false;
     }
     
     /**

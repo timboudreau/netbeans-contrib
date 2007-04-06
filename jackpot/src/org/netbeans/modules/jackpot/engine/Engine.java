@@ -39,14 +39,14 @@ import org.netbeans.api.java.source.JavaSource;
 import org.netbeans.api.java.source.ModificationResult;
 import org.netbeans.api.java.source.WorkingCopy;
 import org.netbeans.spi.jackpot.EmptyScriptException;
-import org.netbeans.spi.jackpot.QueryCookie;
+import org.netbeans.spi.jackpot.QueryProvider;
 import org.netbeans.spi.jackpot.RecursiveRuleException;
 import org.netbeans.spi.jackpot.ScriptParsingException;
 import org.netbeans.spi.java.classpath.PathResourceImplementation;
 import org.openide.ErrorManager;
 import org.openide.filesystems.FileStateInvalidException;
 import org.openide.filesystems.FileUtil;
-import org.openide.loaders.DataObject;
+import org.openide.util.Lookup;
 
 /**
  * Jackpot execution engine.
@@ -252,7 +252,7 @@ public class Engine {
      * @return 
      * @throws java.lang.Exception 
      */
-    public Query createScript(String queryName, String path) throws Exception {
+    public static Query createScript(String queryName, String path) throws Exception {
         if (path.startsWith("file:"))
             path = path.substring(5);
         final InputStream is;
@@ -264,9 +264,14 @@ public class Engine {
             if (fo == null) 
                 throw new FileNotFoundException("cannot access " + path);
         }
-        DataObject dao = DataObject.find(fo);
-        QueryCookie cookie = dao.getCookie(QueryCookie.class);
-        return (Query) cookie.getQuery(queryName);
+        Lookup.Template<QueryProvider> template = new Lookup.Template<QueryProvider>(QueryProvider.class);
+        Lookup.Result<QueryProvider> result = Lookup.getDefault().lookup (template);
+        for (Class<? extends QueryProvider> cls : result.allClasses()) {
+            QueryProvider qp = cls.newInstance();
+            if (qp.hasQuery(fo))
+                return qp.getQuery(fo, queryName);
+        }
+        throw new ScriptParsingException(fo.getName() + " is not a recognized Query script");
     }
 
     /**

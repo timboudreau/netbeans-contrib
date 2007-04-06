@@ -21,7 +21,6 @@ package org.netbeans.modules.jackpot.rules;
 
 import java.io.IOException;
 import org.netbeans.api.jackpot.Query;
-import org.netbeans.spi.jackpot.QueryCookie;
 import org.openide.cookies.InstanceCookie;
 import org.openide.filesystems.FileObject;
 import org.openide.loaders.*;
@@ -53,11 +52,6 @@ public class RulesDataObject extends MultiDataObject {
             }
             public String instanceName() {
                 return file.getName();
-            }
-        });
-        cookies.add(new QueryCookie() {
-            public Query getQuery(String queryDescription) throws Exception {
-                return QueryFactory.getQuery(getPrimaryFile(), queryDescription);
             }
         });
     }

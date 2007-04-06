@@ -26,10 +26,9 @@
       This package defines the SPI used by modules which add support for 
       languages, such as the Jackpot Rules language and JavaScript.  To add
       the ability to define Jackpot queries and transformers in these
-      languages, their modules define a QueryCookie implementation which 
-      returns a Query instance for the associated DataObject.  This package
-      also defines the exceptions which may be thrown during execution of 
-      the returned Query.
+      languages, their modules define a QueryProvider implementation which 
+      returns a Query instance for the script.  This package also defines 
+      the exceptions which may be thrown during execution of the returned Query.
     </p>
     <p>
         <em>Note:</em> this SPI does not allow Jackpot to be extended to 
