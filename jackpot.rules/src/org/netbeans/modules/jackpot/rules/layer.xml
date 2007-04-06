@@ -19,7 +19,6 @@
                 <file name="EditorKit.instance">
                     <attr name="instanceClass" stringvalue="org.netbeans.modules.jackpot.rules.RulesEditorKit"/>
                 </file>
-                <file name="Settings.settings" url="resources/RulesEditorOptions.settings"/>
                 <folder name="NetBeans">
                     <folder name="Defaults">
                         <file name="coloring.xml" url="resources/NetBeans-Rules-fontsColors.xml">
