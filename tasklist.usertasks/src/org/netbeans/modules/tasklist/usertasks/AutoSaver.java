@@ -120,7 +120,9 @@ public class AutoSaver {
     }
     
     /** 
-     * Location of the tasklist 
+     * Location of the tasklist.
+     * 
+     * @return file that will be saved
      */
     public FileObject getFile() {
         return file;
@@ -165,6 +167,8 @@ public class AutoSaver {
     
     /** 
      * Write the list to iCal.
+     * 
+     * @throws java.io.IOException if the file cannot be saved normally
      */
     public void save() throws IOException {
         ICalExportFormat io = new ICalExportFormat();

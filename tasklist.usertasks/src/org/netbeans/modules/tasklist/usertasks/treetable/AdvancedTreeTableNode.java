@@ -24,18 +24,20 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
-import javax.swing.SwingUtilities;
+import org.netbeans.modules.tasklist.usertasks.util.AWTThread;
 
 /**
  * This "advanced" class provides filtering and sorting of nodes
  *
- * T - type of the object in this node
+ * @param T - type of the object in this node
  */
 public abstract class AdvancedTreeTableNode<T>
         extends AbstractTreeTableNode {
     protected FilterIntf filter;
     protected Comparator<AdvancedTreeTableNode> comparator;
     protected DefaultTreeTableModel model;
+    
+    /** an object associated with this node. */
     protected T object;
     
     /** 
@@ -152,6 +154,7 @@ public abstract class AdvancedTreeTableNode<T>
      * Creates a children node
      *
      * @param child child's object
+     * @return created node
      */
     public abstract AdvancedTreeTableNode<?> createChildNode(Object child);
     
@@ -159,6 +162,7 @@ public abstract class AdvancedTreeTableNode<T>
      * Filtering
      *
      * @param child a child object
+     * @return true = the object is accepted
      */
     public boolean accept(Object child) {
         if (getFilter() != null)
@@ -247,17 +251,17 @@ public abstract class AdvancedTreeTableNode<T>
             int ind = getIndexOfObject(obj);
             if (ind >= 0) {
                 AdvancedTreeTableNode rem = 
-                    (AdvancedTreeTableNode) children[ind];
+                        (AdvancedTreeTableNode) children[ind];
                 AdvancedTreeTableNode[] newChildren =
-                    new AdvancedTreeTableNode[children.length - 1];
+                        new AdvancedTreeTableNode[children.length - 1];
                 System.arraycopy(children, 0, newChildren, 0, ind);
                 System.arraycopy(children, ind + 1, newChildren, 
-                    ind, children.length - ind - 1);
+                        ind, children.length - ind - 1);
                 rem.destroy();
                 children = newChildren;
                 model.fireTreeNodesRemoved(model, 
-                    getPathToRoot(), 
-                    new int[] {ind}, new Object[] {rem});
+                        getPathToRoot(), 
+                        new int[] {ind}, new Object[] {rem});
             }
         }
     }
@@ -298,32 +302,38 @@ public abstract class AdvancedTreeTableNode<T>
             System.arraycopy(children, 0, newch, 0, index);
             newch[index] = cn;
             System.arraycopy(children, index, newch, index + 1, 
-                children.length - index);
+                    children.length - index);
             this.children = newch;
             model.fireTreeNodesInserted(model, getPathToRoot(), 
-                new int[] {index}, new Object[] {cn});
+                    new int[] {index}, new Object[] {cn});
         }
     }
-    
+
     /**
      * Fires the appropriate events if the object in this node has changed.
      * WARNING: This method could only be called from the Swing Event Thread!
      */
+    @AWTThread
     @SuppressWarnings("unchecked")
     protected void fireObjectChanged() {
         // TreeNode is not generic => SuppressWarnings
         AdvancedTreeTableNode parent = 
                 (AdvancedTreeTableNode) getParent(); 
-        TreeTableNode[] path = parent.getPathToRoot();
+        if (parent != null) {
+            TreeTableNode[] path = parent.getPathToRoot();
 
-        assert parent.getIndex(this) != -1 : "parent=" + parent + // NOI18N
-            " this=" + this +  // NOI18N
-            " parent.getChildCount=" + parent.getChildCount() +  // NOI18N
-            " parent.getChild(0)=" + parent.getChildAt(0); // NOI18N
-        model.fireTreeNodesChanged(model, path, 
-            new int[] {parent.getIndex(this)}, new Object[] {this});
-            
-        parent.childNodeChanged(this);
+            assert parent.getIndex(this) != -1 : "parent=" + parent + // NOI18N
+                " this=" + this +  // NOI18N
+                " parent.getChildCount=" + parent.getChildCount() +  // NOI18N
+                " parent.getChild(0)=" + parent.getChildAt(0); // NOI18N
+            model.fireTreeNodesChanged(model, path, 
+                new int[] {parent.getIndex(this)}, new Object[] {this});
+
+            parent.childNodeChanged(this);
+        } else {
+            model.fireTreeNodesChanged(model, new Object[0], 
+                    new int[1], new Object[] {this});
+        }
     }
     
     /**
@@ -340,7 +350,14 @@ public abstract class AdvancedTreeTableNode<T>
                 // The object was not removed. The current filter just
                 // does not accept it.
                 fireChildObjectRemoved(child.getObject());
+                return;
             }
+        }
+        
+        if (this.comparator != null) {
+            Arrays.sort((AdvancedTreeTableNode[]) children, 
+                    this.comparator);
+            model.fireTreeStructureChanged(model, getPathToRoot());
         }
     }
 

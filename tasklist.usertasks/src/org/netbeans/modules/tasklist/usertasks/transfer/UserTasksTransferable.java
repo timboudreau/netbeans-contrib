@@ -92,7 +92,7 @@ public final class UserTasksTransferable implements Transferable, Serializable {
     }
 
     private String toString(UserTask[] tasks) {
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
         String lf = System.getProperty("line.separator"); // NOI18N
         for (int i = 0; i < tasks.length; i++) {
             if (i != 0)

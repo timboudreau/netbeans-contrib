@@ -101,22 +101,26 @@ public class ScheduleUtils {
                 Dependency d = ds.get(j);
                 if (d.getType() == Dependency.END_BEGIN) {
                     UserTask don = d.getDependsOn();
-                    int index = -1;
-                    for (int k = 0; k < tasks.size(); k++) {
-                        if (tasks.get(k) == don) {
-                            index = k;
-                            break;
-                        }
+                    int index = UTUtils.identityIndexOf(tasks, don);
+                    if (index >= 0)
+                        deps[i][index] = true;
+                }
+            }
+            
+            // implicit dependencies on subtasks
+            if (tasks.get(i).isValuesComputed()) {
+                for (int j = 0; j < tasks.get(j).getSubtasks().size(); j++) {
+                    UserTask st = tasks.get(j).getSubtasks().get(j);
+                    int index = UTUtils.identityIndexOf(tasks, st);
+                    if (index > 0) {
+                        deps[i][index] = true;
                     }
-                    assert index >= 0;
-                    deps[i][index] = true;
                 }
             }
         }
         float[] durations = new float[tasks.size()];
         for (int i = 0; i < tasks.size(); i++) {
-            durations[i] = tasks.get(i).getEffort() * 
-                    tasks.get(i).getProgress() / 100.0f;
+            durations[i] = tasks.get(i).getRemainingEffort();
         }
         float[] ct = backflow(deps, durations);
         
@@ -200,16 +204,33 @@ public class ScheduleUtils {
                 UserTask t = tasks.get(i);
                 for (int j = i + 1; j < tasks.size(); j++) {
                     UserTask t2 = tasks.get(j);
-                    for (Dependency d: t.getDependencies()) {
-                        if (d.getType() == Dependency.END_BEGIN &&
-                                d.getDependsOn() == t2) {
-                            swapped = true;
-                            tasks.add(i, tasks.remove(j));
-                            break outer;
-                        }
+                    if (depends(t, t2)) {
+                        swapped = true;
+                        tasks.add(i, tasks.remove(j));
+                        break outer;
                     }
                 }
             }
         } while (swapped);
+    }
+    
+    /**
+     * Checks whether one task depends on another one. Implicit dependencies
+     * for subtasks are considered as well.
+     * 
+     * @param t a task
+     * @param t2 another task
+     * @return true if t depends on t2 
+     */
+    private static boolean depends(UserTask t, UserTask t2) {
+        if (t.isValuesComputed() && t2.getParent() == t)
+            return true;
+        for (Dependency d: t.getDependencies()) {
+            if (d.getType() == Dependency.END_BEGIN &&
+                    d.getDependsOn() == t2) {
+                return true;
+            }
+        }
+        return false;
     }
 }

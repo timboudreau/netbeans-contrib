@@ -20,6 +20,11 @@ import org.netbeans.modules.tasklist.usertasks.model.UserTaskList;
  * @author tim
  */
 public class ScheduleUtilsTest extends TestCase {
+    /**
+     * Constructor.
+     * 
+     * @param testName name of the test
+     */
     public ScheduleUtilsTest(String testName) {
         super(testName);
     }
@@ -114,5 +119,57 @@ public class ScheduleUtilsTest extends TestCase {
         assertEquals("C", v.get(1).getSummary());
         assertEquals("A", v.get(2).getSummary());
         assertEquals("D", v.get(3).getSummary());
+    }
+
+    /**
+     * Test for subtasks.
+     * 
+     * A
+     * |--B
+     * |--C
+     * D
+     * |--E
+     * |--F
+     * 
+     * Additionally A depends on D, B on C, F on E and C on D.
+     */
+    public void testSortForDependencies2() {
+        UserTaskList utl = new UserTaskList();
+        UserTask a = new UserTask("a", utl);
+        UserTask b = new UserTask("b", utl);
+        UserTask c = new UserTask("c", utl);
+        UserTask d = new UserTask("d", utl);
+        UserTask e = new UserTask("e", utl);
+        UserTask f = new UserTask("f", utl);
+        
+        a.getSubtasks().add(b);
+        a.getSubtasks().add(c);
+        d.getSubtasks().add(e);
+        d.getSubtasks().add(f);
+        
+        a.setValuesComputed(true);
+        d.setValuesComputed(true);
+        
+        a.getDependencies().add(new Dependency(d, Dependency.END_BEGIN));
+        b.getDependencies().add(new Dependency(c, Dependency.END_BEGIN));
+        f.getDependencies().add(new Dependency(e, Dependency.END_BEGIN));
+        c.getDependencies().add(new Dependency(d, Dependency.END_BEGIN));
+
+        List<UserTask> tasks = new ArrayList<UserTask>();
+        tasks.add(a);
+        tasks.add(b);
+        tasks.add(c);
+        tasks.add(d);
+        tasks.add(e);
+        tasks.add(f);
+        
+        ScheduleUtils.sortForDependencies(tasks);
+        
+        assertEquals(tasks.get(0), e);
+        assertEquals(tasks.get(1), f);
+        assertEquals(tasks.get(2), d);
+        assertEquals(tasks.get(3), c);
+        assertEquals(tasks.get(4), b);
+        assertEquals(tasks.get(5), a);
     }
 }

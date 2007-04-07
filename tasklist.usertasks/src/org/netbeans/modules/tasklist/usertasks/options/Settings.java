@@ -60,6 +60,10 @@ public class Settings {
      * changes
      */
     public static final String PROP_WORKING_DAYS = "workingDays"; // NOI18N
+    
+    /** Automatic scheduling each time the task list changes. */
+    public static final String PROP_AUTO_SCHEDULING = 
+            "autoScheduling"; // NOI18N
         
     /** default working days. */
     private static boolean[] DEF_WORKING_DAYS = {
@@ -75,7 +79,9 @@ public class Settings {
     private int workingDays = -1;
     
     /** 
-     * Return the signleton cppSettings 
+     * Return the signleton settings.
+     * 
+     * @return default instance
      */
     public static Settings getDefault() {
 	return INSTANCE;
@@ -140,6 +146,26 @@ public class Settings {
     public void setAutoSwitchToComputed(boolean b) {
         getPreferences().putBoolean(PROP_AUTO_SWITCH_TO_COMPUTED, b);
         pcs.firePropertyChange(PROP_AUTO_SWITCH_TO_COMPUTED,
+                null, null);
+    }
+
+    /**
+     * Getter for the autoScheduling property.
+     *
+     * @return true if automatic scheduling is enabled
+     */
+    public boolean getAutoScheduling() {
+        return getPreferences().getBoolean(PROP_AUTO_SCHEDULING, false);
+    }
+
+    /** 
+     * Sets the autoScheduling property
+     * 
+     * @param b true if automatic scheduling is enabled
+     */
+    public void setAutoScheduling(boolean b) {
+        getPreferences().putBoolean(PROP_AUTO_SCHEDULING, b);
+        pcs.firePropertyChange(PROP_AUTO_SCHEDULING,
                 null, null);
     }
 

@@ -20,13 +20,9 @@
 package org.netbeans.modules.tasklist.usertasks.util;
 
 import java.awt.Component;
-import java.awt.TextComponent;
 import java.awt.event.ActionListener;
-import java.text.DateFormat;
-import java.text.FieldPosition;
 import java.text.MessageFormat;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import javax.swing.ComboBoxEditor;
 import javax.swing.DefaultComboBoxModel;

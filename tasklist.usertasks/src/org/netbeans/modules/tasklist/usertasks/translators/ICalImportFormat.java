@@ -309,7 +309,7 @@ public class ICalImportFormat implements ExportImportFormat {
         if (prop != null) {
             CategoryList cl = ((Categories) prop).getCategories();
             Iterator it = cl.iterator();
-            StringBuffer category = new StringBuffer(ut.getCategory());
+            StringBuilder category = new StringBuilder(ut.getCategory());
             while (it.hasNext()) {
                 if (category.length() > 0)
                     category.append(", "); // NOI18N

@@ -43,6 +43,11 @@ public class UserTaskDuePanel extends javax.swing.JPanel {
         initA11y();
     }
     
+    /**
+     * Creates a panel for the particular task.
+     * 
+     * @param task due task
+     */
     public UserTaskDuePanel(UserTask task) {
         this();
         detailsArea.setText(task.getDetails());

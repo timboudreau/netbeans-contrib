@@ -21,7 +21,7 @@ package org.netbeans.modules.tasklist.usertasks.actions;
 
 import org.netbeans.modules.tasklist.usertasks.UserTaskView;
 import org.netbeans.modules.tasklist.usertasks.UserTaskViewRegistry;
-import org.netbeans.modules.tasklist.usertasks.util.AWTThreadAnnotation;
+import org.netbeans.modules.tasklist.usertasks.util.AWTThread;
 import org.openide.util.HelpCtx;
 import org.openide.util.NbBundle;
 import org.openide.util.actions.CallableSystemAction;
@@ -31,6 +31,7 @@ import org.openide.util.actions.CallableSystemAction;
  * Show the User TaskList topcomponent
  *
  * @author Tor Norbye
+ * @author tl
  */
 public class ViewTasksAction extends CallableSystemAction {
 
@@ -44,7 +45,7 @@ public class ViewTasksAction extends CallableSystemAction {
         return false;
     }
 
-    @AWTThreadAnnotation
+    @AWTThread
     static void show() {
         UserTaskView view = UserTaskViewRegistry.getInstance().getDefault();
         if (view != null) {
@@ -58,7 +59,7 @@ public class ViewTasksAction extends CallableSystemAction {
     }
     
     protected String iconResource() {
-        return "org/netbeans/modules/tasklist/usertasks/actions/taskView.gif"; // NOI18N
+        return "org/netbeans/modules/tasklist/usertasks/actions/taskView.png"; // NOI18N
     }
     
     public HelpCtx getHelpCtx() {

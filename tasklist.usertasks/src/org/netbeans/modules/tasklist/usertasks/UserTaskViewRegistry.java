@@ -27,7 +27,7 @@ import java.util.List;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.EventListenerList;
-import org.netbeans.modules.tasklist.usertasks.util.AWTThreadAnnotation;
+import org.netbeans.modules.tasklist.usertasks.util.AWTThread;
 import org.openide.DialogDisplayer;
 import org.openide.NotifyDescriptor;
 import org.openide.NotifyDescriptor.Message;
@@ -64,14 +64,14 @@ public class UserTaskViewRegistry {
     
     private WeakReference<UserTaskView> lastActivated = null;
     private EventListenerList listenerList = new EventListenerList();
-            
+
     /** 
      * Returns the view with the default task list. The view will be opened if
      * it was not.
      *
      * @return the default view or null if an error occured
      */
-    @AWTThreadAnnotation
+    @AWTThread
     public UserTaskView getDefault() {
 	if (defview == null) {
             try {

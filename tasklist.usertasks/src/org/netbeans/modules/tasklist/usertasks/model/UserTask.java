@@ -509,7 +509,7 @@ public final class UserTask implements Cloneable, Cookie,
 	String timestamp = Long.toString(System.currentTimeMillis());
         
 	// uid = "nb" + timestamp + "." + (unique++) + "@" + domain; 
-        uid = new StringBuffer(50).append("nb").append(timestamp). // NOI18N
+        uid = new StringBuilder(50).append("nb").append(timestamp). // NOI18N
             append('.').append(unique++).append('@').append(domain).toString();
 
         addPropertyChangeListener(this);
@@ -631,6 +631,10 @@ public final class UserTask implements Cloneable, Cookie,
      */
     void setList(UserTaskList list) {
         this.list = list;
+        
+        for (UserTask ch: this.getSubtasks()) {
+            ch.setList(list);
+        }
     }
     
     /**

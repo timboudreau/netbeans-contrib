@@ -28,11 +28,11 @@ public class UserTaskIconProvider {
             "org/netbeans/modules/tasklist/usertasks/startedBadge.gif"); // NOI18N
 
     private static final Image IMAGE_STARTED = 
-        Utilities.mergeImages(IMAGE, STARTED_BADGE, 8, 8);
+        Utilities.mergeImages(IMAGE, STARTED_BADGE, 8, 6);
     private static final Image DONE_STARTED = 
-        Utilities.mergeImages(DONE, STARTED_BADGE, 8, 8);
+        Utilities.mergeImages(DONE, STARTED_BADGE, 8, 6);
     private static final Image UNMATCHED_STARTED = 
-        Utilities.mergeImages(UNMATCHED, STARTED_BADGE, 8, 8);
+        Utilities.mergeImages(UNMATCHED, STARTED_BADGE, 8, 6);
     
     /**
      * Returns the icon for a task list.

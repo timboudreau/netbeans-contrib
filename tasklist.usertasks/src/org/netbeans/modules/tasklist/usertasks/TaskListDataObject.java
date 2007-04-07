@@ -28,7 +28,7 @@ import javax.swing.event.ChangeListener;
 import net.fortuna.ical4j.data.ParserException;
 import org.netbeans.modules.tasklist.usertasks.model.UserTaskList;
 import org.netbeans.modules.tasklist.usertasks.translators.ICalImportFormat;
-import org.netbeans.modules.tasklist.usertasks.util.AWTThreadAnnotation;
+import org.netbeans.modules.tasklist.usertasks.util.AWTThread;
 import org.netbeans.modules.tasklist.usertasks.util.UTUtils;
 import org.openide.DialogDisplayer;
 import org.openide.NotifyDescriptor;
@@ -79,13 +79,13 @@ ChangeListener {
             utl = null;
         }
     }
-    
+
     /**
      * Returns the task list contained in the file.
      * 
      * @return task list 
      */
-    @AWTThreadAnnotation
+    @AWTThread
     public UserTaskList getUserTaskList() throws IOException {
         if (utl == null) {
             utl = readDocument(getPrimaryFile());
@@ -136,13 +136,13 @@ ChangeListener {
         else
             return super.getCookie(c);
     }
-    
+
     /**
      * Reads an ics file. Shows error messages if it cannot be read.
      *
      * @param fo an .ics file
      */
-    @AWTThreadAnnotation
+    @AWTThread
     private static UserTaskList readDocument(FileObject fo) throws IOException {
         if (!fo.isValid()) 
             throw new IOException(

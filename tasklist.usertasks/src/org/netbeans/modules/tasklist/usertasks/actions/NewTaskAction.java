@@ -33,7 +33,7 @@ import javax.swing.tree.TreePath;
 import org.netbeans.modules.tasklist.usertasks.EditTaskPanel;
 import org.netbeans.modules.tasklist.usertasks.actions.UTViewAction;
 import org.netbeans.modules.tasklist.usertasks.options.Settings;
-import org.netbeans.modules.tasklist.usertasks.util.AWTThreadAnnotation;
+import org.netbeans.modules.tasklist.usertasks.util.AWTThread;
 import org.netbeans.modules.tasklist.usertasks.util.UTUtils;
 import org.netbeans.modules.tasklist.usertasks.UserTaskViewRegistry;
 import org.netbeans.modules.tasklist.usertasks.model.UserTask;
@@ -140,10 +140,6 @@ public class NewTaskAction extends UTViewAction {
             lineNumber = -1;
         }
         
-        // After the add - view the todo list as well!
-        final UserTaskView utv = UserTaskViewRegistry.getInstance().
-                getLastActivated();
-
         UserTask ut = new UserTask("", utl); // NOI18N
 
         final EditTaskPanel panel = getEditTaskPanel();
@@ -249,7 +245,7 @@ public class NewTaskAction extends UTViewAction {
      *
      * @param line the associated line
      */
-    @AWTThreadAnnotation
+    @AWTThread
     public static void performAction(Line line) {
         DataObject dob = DataEditorSupport.findDataObject(line);
         if (dob == null)

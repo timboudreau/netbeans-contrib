@@ -22,8 +22,6 @@ package org.netbeans.modules.tasklist.usertasks.actions;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -43,7 +41,7 @@ import org.openide.util.NbBundle;
 import org.openide.util.actions.CallableSystemAction;
 
 /**
- * Collapses all tasks containing subtasks in the tasklist
+ * Schedules undone tasks.
  * 
  * @author tl
  */
@@ -76,19 +74,24 @@ public final class ScheduleAction extends CallableSystemAction {
             return;
         
         UserTaskView view = UserTaskViewRegistry.getInstance().getCurrent();
+        UserTaskList utl = view.getUserTaskList();
+        schedule(utl);
+    }
+    
+    public static void schedule(UserTaskList utl) {
+        String currentUser = System.getProperty("user.name"); // NOI18N
         final List<UserTask> tasks = new ArrayList<UserTask>();
         Set<String> users = new HashSet<String>();
 
-        UserTaskList utl = view.getUserTaskList();
         users.addAll(Arrays.asList(utl.getOwners()));
 
         // find all tasks with not computed values
         UTListTreeAbstraction tree = new UTListTreeAbstraction(utl);
-        UnaryFunction f = new UnaryFunction() {
+        UnaryFunction f = new UnaryFunction() { 
             public Object compute(Object obj) {
                 if (obj instanceof UserTask) {
                     UserTask ut = (UserTask) obj;
-                    if (!ut.isValuesComputed() && !ut.isDone()) {
+                    if (!ut.isDone()) {
                         tasks.add(ut);
                     }
                 } 
@@ -100,6 +103,8 @@ public final class ScheduleAction extends CallableSystemAction {
         // sort them on priority
         ScheduleUtils.createPriorityListBackflow(tasks);
         
+        ScheduleUtils.sortForDependencies(tasks);
+        
         users.add(currentUser);
         
         String[] users_ = users.toArray(new String[users.size()]);
@@ -110,7 +115,6 @@ public final class ScheduleAction extends CallableSystemAction {
         Arrays.fill(firstFreeTime, time.getTimeInMillis());
         
         Settings s = Settings.getDefault();
-        int daysPerWeek = s.getDaysPerWeek();
         boolean[] wd = s.getWorkingDays();
         
         Calendar cal = Calendar.getInstance();
@@ -125,10 +129,16 @@ public final class ScheduleAction extends CallableSystemAction {
             Calendar start = Calendar.getInstance();
             Calendar due = Calendar.getInstance();
             alignTo15Min(cal);
-            add(cal, ut.getEffort(), start, due, wd);
-            ut.setStart(start.getTimeInMillis());
-            // ut.setDueDate(cal.getTime());
-            firstFreeTime[index] = cal.getTimeInMillis();
+            if (!ut.isValuesComputed()) {
+                int effort;
+                effort = ut.getRemainingEffort();
+                add(cal, effort, start, due, wd);
+                ut.setStart(start.getTimeInMillis());
+                // ut.setDueDate(cal.getTime());
+                firstFreeTime[index] = cal.getTimeInMillis();
+            } else {
+                ut.setStart(start.getTimeInMillis());
+            }
         }
     }
 

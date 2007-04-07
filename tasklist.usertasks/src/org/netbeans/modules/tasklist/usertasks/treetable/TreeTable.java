@@ -110,6 +110,11 @@ public class TreeTable extends JTable {
     private SortingModel sortingModel;
     private boolean paintDisabled;
 
+    /**
+     * Constructor.
+     * 
+     * @param treeTableModel model
+     */
     public TreeTable(TreeTableModel treeTableModel) {
 	super();
         putClientProperty("JTable.autoStartsEdit", Boolean.FALSE); // NOI18N
@@ -255,7 +260,7 @@ public class TreeTable extends JTable {
      * necessary to save the expanded nodes and selection before 
      * a reordering and restore them after such an operation.
      *
-     * @param an object that was returned by getExpandedNodesAndSelection()
+     * @param obj an object that was returned by getExpandedNodesAndSelection()
      */
     public void setExpandedNodesAndSelection(Object obj) {
         TreeTable.ExpandedNodesAndSelection es = 

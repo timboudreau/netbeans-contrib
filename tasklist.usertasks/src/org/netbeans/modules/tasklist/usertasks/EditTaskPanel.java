@@ -349,8 +349,9 @@ public class EditTaskPanel extends JPanel {
         if (ret != null) {
             Calendar c = Calendar.getInstance();
             c.setTime(ret);
-            c.set(Calendar.HOUR_OF_DAY, 0);
-            c.set(Calendar.MINUTE, 0);
+            int min = timeComboBoxDue.getTime();
+            c.set(Calendar.HOUR_OF_DAY, min / 60);
+            c.set(Calendar.MINUTE, min % 60);
             c.set(Calendar.SECOND, 0);
             c.set(Calendar.MILLISECOND, 0);
             ret = c.getTime();
@@ -367,10 +368,11 @@ public class EditTaskPanel extends JPanel {
         long ret;
         if (jDateChooserStart.getDate() != null) {
             ret = jDateChooserStart.getDate().getTime();
+            int min = timeComboBoxStart.getTime();
             Calendar c = Calendar.getInstance();
             c.setTimeInMillis(ret);
-            c.set(Calendar.HOUR_OF_DAY, 0);
-            c.set(Calendar.MINUTE, 0);
+            c.set(Calendar.HOUR_OF_DAY, min / 60);
+            c.set(Calendar.MINUTE, min % 60);
             c.set(Calendar.SECOND, 0);
             c.set(Calendar.MILLISECOND, 0);
             ret = c.getTimeInMillis();
@@ -396,6 +398,18 @@ public class EditTaskPanel extends JPanel {
      * @param d the due date
      */
     private void setDueDate(Date d) {
+        if (d != null) {
+            Calendar c = Calendar.getInstance();
+            c.setTime(d);
+            int min = c.get(Calendar.HOUR_OF_DAY) * 60 + 
+                    c.get(Calendar.MINUTE);
+            c.set(Calendar.HOUR_OF_DAY, 0);
+            c.set(Calendar.MINUTE, 0);
+            c.set(Calendar.SECOND, 0);
+            c.set(Calendar.MILLISECOND, 0);
+            jDateChooserDue.setDate(c.getTime());
+            timeComboBoxDue.setTime(min);
+        }
         jDateChooserDue.setDate(d);
     }
     
@@ -406,9 +420,19 @@ public class EditTaskPanel extends JPanel {
      */
     private void setStart(long d) {
         if (d != -1) {
-            jDateChooserStart.setDate(new Date(d));
+            Calendar c = Calendar.getInstance();
+            c.setTimeInMillis(d);
+            int min = c.get(Calendar.HOUR_OF_DAY) * 60 + 
+                    c.get(Calendar.MINUTE);
+            c.set(Calendar.HOUR_OF_DAY, 0);
+            c.set(Calendar.MINUTE, 0);
+            c.set(Calendar.SECOND, 0);
+            c.set(Calendar.MILLISECOND, 0);
+            jDateChooserStart.setDate(c.getTime());
+            timeComboBoxStart.setTime(min);
         } else {
             jDateChooserStart.setDate(null);
+            timeComboBoxStart.setTime(0);
         }
     }
     
@@ -424,7 +448,7 @@ public class EditTaskPanel extends JPanel {
     /**
      * Sets new URL.
      *
-     * @param URL an URL or null
+     * @param url an URL or null
      */
     public void setUrl(URL url) {
         if (url != null)
@@ -433,6 +457,11 @@ public class EditTaskPanel extends JPanel {
             fileTextField.setText(""); // NOI18N
     }
     
+    /**
+     * Sets whether URL should be associated with the task.
+     * 
+     * @param set true = URL is associated
+     */
     public void setAssociatedFilePos(boolean set) {
         fileCheckBox.setSelected(set);
     }
@@ -509,6 +538,8 @@ public class EditTaskPanel extends JPanel {
         jLabelLastEdited = new javax.swing.JLabel();
         jLabelCompleted = new javax.swing.JLabel();
         jLabelCreated = new javax.swing.JLabel();
+        timeComboBoxStart = new org.netbeans.modules.tasklist.usertasks.util.TimeComboBox();
+        timeComboBoxDue = new org.netbeans.modules.tasklist.usertasks.util.TimeComboBox();
         jPanelDependencies = new javax.swing.JPanel();
         jPanel1 = new javax.swing.JPanel();
         jScrollPane1 = new javax.swing.JScrollPane();
@@ -790,9 +821,13 @@ public class EditTaskPanel extends JPanel {
                 .add(jLabel4))
             .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
             .add(jPanel3Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING, false)
-                .add(jDateChooserDue, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .add(jDateChooserStart, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 148, Short.MAX_VALUE))
-            .addContainerGap(580, Short.MAX_VALUE))
+                .add(org.jdesktop.layout.GroupLayout.TRAILING, jDateChooserDue, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .add(org.jdesktop.layout.GroupLayout.TRAILING, jDateChooserStart, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 152, Short.MAX_VALUE))
+            .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+            .add(jPanel3Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                .add(timeComboBoxStart, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                .add(timeComboBoxDue, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+            .add(433, 433, 433))
         .add(jPanel3Layout.createSequentialGroup()
             .add(jPanel4, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
             .addContainerGap())
@@ -804,14 +839,16 @@ public class EditTaskPanel extends JPanel {
         jPanel3Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
         .add(jPanel3Layout.createSequentialGroup()
             .addContainerGap()
-            .add(jPanel3Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
+            .add(jPanel3Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                 .add(jLabel7)
-                .add(jDateChooserStart, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                .add(jDateChooserStart, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                .add(timeComboBoxStart, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
             .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-            .add(jPanel3Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
+            .add(jPanel3Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                 .add(jLabel4)
-                .add(jDateChooserDue, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-            .add(20, 20, 20)
+                .add(jDateChooserDue, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                .add(timeComboBoxDue, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+            .add(10, 10, 10)
             .add(jCheckBoxCompute)
             .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
             .add(jLabel8)
@@ -1038,6 +1075,8 @@ public class EditTaskPanel extends JPanel {
     private javax.swing.JTextField lineTextField;
     private javax.swing.JLabel prioLabel;
     private javax.swing.JComboBox priorityComboBox;
+    private org.netbeans.modules.tasklist.usertasks.util.TimeComboBox timeComboBoxDue;
+    private org.netbeans.modules.tasklist.usertasks.util.TimeComboBox timeComboBoxStart;
     // End of variables declaration//GEN-END:variables
     // </editor-fold>
 }

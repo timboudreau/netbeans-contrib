@@ -45,6 +45,7 @@ import org.openide.util.actions.SystemAction;
  * can browse, open etc.
  *
  * @author Tor Norbye, Trond Norbye
+ * @author tl
  */
 public final class TaskListLoader extends UniFileLoader {
     
@@ -54,6 +55,9 @@ public final class TaskListLoader extends UniFileLoader {
     /** store the popup menu actions here */
     protected static SystemAction[] standardActions;
 
+    /**
+     * Creates a new loader.
+     */
     public TaskListLoader() {
         super("org.netbeans.modules.tasklist.usertasks.TaskListDataObject"); // NOI18N
 
@@ -64,7 +68,9 @@ public final class TaskListLoader extends UniFileLoader {
     }
 
     /**
-     *  Defer creating the SystemAction array until its actually needed.
+     * Defer creating the SystemAction array until its actually needed.
+     * 
+     * @return returns actions for this file type
      */
     protected SystemAction[] createDefaultActions() {
 	return new SystemAction[] {

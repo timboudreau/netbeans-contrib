@@ -28,6 +28,8 @@ import org.openide.util.actions.BooleanStateAction;
 /**
  * Action which brings up a dialog where you can create
  * a new subtask.
+ * 
+ * @author tl
  */
 public class AsListAction extends BooleanStateAction {
 

@@ -115,7 +115,7 @@ public final class UserTaskNode extends AbstractNode {
                         "percentComplete", // NOI18N
                         new Integer(old), new Integer(new_));
                 } else if (n == UserTask.PROP_LINE || 
-                        n == "started") { // NOI18N 
+                        n == "started" || n == "dueAlarmSent") { // NOI18N 
                     // nothing
                     // TODO: strange property "started"??
                 } else {
@@ -342,7 +342,12 @@ public final class UserTaskNode extends AbstractNode {
             p.setValue("suppressCustomEditor", Boolean.TRUE); // NOI18N
             ss.put(p);
 
-            p = new PropertySupport.Reflection(item, Date.class, "getCreatedDate", null); // NOI18N
+            p = new PropertySupport.Reflection(item, Date.class, "getCreatedDate", null) { // NOI18N
+                public Object getValue () throws
+                    IllegalAccessException, IllegalArgumentException, InvocationTargetException {
+                    return new Date(((UserTask) instance).getCreatedDate());
+                }
+            };
             p.setPropertyEditorClass(DateEditor.class);
             p.setName("created"); // NOI18N
             p.setDisplayName(NbBundle.getMessage(UserTaskNode.class, "LBL_createdProperty")); // NOI18N
@@ -350,7 +355,12 @@ public final class UserTaskNode extends AbstractNode {
             p.setValue("suppressCustomEditor", Boolean.TRUE); // NOI18N
             ss.put(p);
 
-            p = new PropertySupport.Reflection(item, Date.class, "getLastEditedDate", null); // NOI18N
+            p = new PropertySupport.Reflection(item, Date.class, "getLastEditedDate", null) { // NOI18N
+                public Object getValue () throws
+                    IllegalAccessException, IllegalArgumentException, InvocationTargetException {
+                    return new Date(((UserTask) instance).getLastEditedDate());
+                }
+            };
             p.setPropertyEditorClass(DateEditor.class);
             p.setName("edited"); // NOI18N
             p.setDisplayName(NbBundle.getMessage(UserTaskNode.class, "LBL_editedProperty")); // NOI18N
@@ -358,7 +368,16 @@ public final class UserTaskNode extends AbstractNode {
             p.setValue("suppressCustomEditor", Boolean.TRUE); // NOI18N
             ss.put(p);
 
-            p = new PropertySupport.Reflection(item, Date.class, "getCompletedDate", null); // NOI18N
+            p = new PropertySupport.Reflection(item, Date.class, "getCompletedDate", null) { // NOI18N
+                public Object getValue () throws
+                    IllegalAccessException, IllegalArgumentException, InvocationTargetException {
+                    long d = ((UserTask) instance).getCompletedDate();
+                    if (d <= 0)
+                        return null;
+                    else
+                        return new Date(d);
+                }
+            };
             p.setPropertyEditorClass(DateEditor.class);
             p.setName("completedDate"); // NOI18N
             p.setDisplayName(NbBundle.getMessage(UserTaskNode.class, "LBL_completedDateProperty")); // NOI18N

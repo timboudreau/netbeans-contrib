@@ -143,7 +143,7 @@ public class UTPriorityCondition extends FilterCondition {
             UTPriorityCondition cond = (UTPriorityCondition)obj;
             super.writeCondition(document, element, cond);
             
-            StringBuffer str = new StringBuffer(NPRIORITIES);
+            StringBuilder str = new StringBuilder(NPRIORITIES);
             for (int i = 0; i < NPRIORITIES; i++) 
                 str.append(cond.priorities[i] ? '+' : '-');
             element.setAttribute(ATTR_PRIORITIES, str.toString());

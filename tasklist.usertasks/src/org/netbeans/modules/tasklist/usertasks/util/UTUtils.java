@@ -61,6 +61,7 @@ import org.w3c.dom.Text;
  * @author tl
  */
 public final class UTUtils {
+    /** Logger for the "User Tasks" module. */
     public static final Logger LOGGER = TLUtils.getLogger(UTUtils.class);
     
     static {
@@ -137,7 +138,7 @@ public final class UTUtils {
         if (index == -1)
             return text;
         
-        StringBuffer sb = new StringBuffer("<html>"); // NOI18N
+        StringBuilder sb = new StringBuilder("<html>"); // NOI18N
         while (index >= 0) {
             sb.append(text.substring(0, index));
             sb.append("<br>"); // NOI18N
@@ -354,6 +355,7 @@ public final class UTUtils {
      *
      * @param t a tree
      * @param filter Boolean f(Object). Filter function.
+     * @return all elements that pass the filter
      */
     public static <T> List<T> filter(TreeAbstraction<T> t, UnaryFunction filter) {
         List<T> r = new ArrayList<T>();
@@ -442,25 +444,6 @@ public final class UTUtils {
     }
     
 
-    /**
-     * For debug purposes.
-     * Converts an array to a String.
-     * 
-     * @param objs an array with objects
-     * @return string with format [obj1, obj2, ...] 
-     */
-    public static String toString(Object[] objs) {
-        StringBuilder sb = new StringBuilder();
-        sb.append("[");
-        for (Object a: objs) {
-            if (sb.length() != 1)
-                sb.append(", ");
-            sb.append(a);
-        }
-        sb.append("]");
-        return sb.toString();
-    }
-    
     /**
      * Searches for an element using ==.
      *

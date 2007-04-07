@@ -37,7 +37,17 @@ public class DurationFormat {
      * long: 1 week 2 days 5 hours 5 minutes
      * short: 1w 2d 05:05
      */
-    public enum Type {SHORT, LONG};
+    public enum Type {
+        /**
+         * Short format. For example "1w 2d 06:06"
+         */
+        SHORT, 
+        
+        /**
+         * Long format. For example "1 week 2 days 5 hours 5 minutes"
+         */
+        LONG
+    };
 
     private MessageFormat format;
     private Pattern parsePattern;

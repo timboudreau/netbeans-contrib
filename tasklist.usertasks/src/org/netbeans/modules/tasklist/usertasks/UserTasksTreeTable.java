@@ -39,6 +39,7 @@ import javax.swing.ImageIcon;
 import javax.swing.JComponent;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
+import javax.swing.JToolTip;
 import javax.swing.ListSelectionModel;
 import javax.swing.SwingUtilities;
 import javax.swing.TransferHandler;
@@ -106,7 +107,7 @@ public class UserTasksTreeTable extends TreeTable {
     /**
      * Creates a new instance of UserTasksTreeTable
      * 
-     * @param em ExplorerManager associated with this tree table
+     * @param utv view
      * @param utl list with user tasks
      * @param filter used filter or null
      */
@@ -251,6 +252,12 @@ public class UserTasksTreeTable extends TreeTable {
         return ret;
     }
     
+    /**
+     * Creates a org.openide.Node for an object
+     * 
+     * @param obj an object
+     * @return create node
+     */
     public Node createNode(Object obj) {
         UserTaskList utl = ((UserTasksTreeTableModel) getTreeTableModel()).
             getUserTaskList();
@@ -342,6 +349,7 @@ public class UserTasksTreeTable extends TreeTable {
     /**
      * Finds the path to the specified task
      *
+     * @param task the task
      * @return found path or null
      */
     public TreePath findPath(UserTask task) {
@@ -441,11 +449,11 @@ public class UserTasksTreeTable extends TreeTable {
         return result;
     }
 
-    /* DEBUG*/
+    /* DEBUG */
     public void paint(Graphics g) {
         super.paint(g); 
     }
-     /* */
+    /* */
 }
 
 

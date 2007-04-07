@@ -47,6 +47,8 @@ import javax.swing.JToolBar;
 import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
 import javax.swing.border.EmptyBorder;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import javax.swing.tree.TreePath;
 import org.netbeans.modules.tasklist.core.export.ExportImportFormat;
 import org.netbeans.modules.tasklist.core.export.ExportImportProvider;
@@ -63,6 +65,7 @@ import org.netbeans.modules.tasklist.usertasks.actions.MoveRightAction;
 import org.netbeans.modules.tasklist.usertasks.actions.MoveUpAction;
 import org.netbeans.modules.tasklist.usertasks.actions.NewTaskAction;
 import org.netbeans.modules.tasklist.usertasks.actions.PauseAction;
+import org.netbeans.modules.tasklist.usertasks.actions.ScheduleAction;
 import org.netbeans.modules.tasklist.usertasks.actions.StartTaskAction;
 import org.netbeans.modules.tasklist.usertasks.actions.UTCopyAction;
 import org.netbeans.modules.tasklist.usertasks.actions.UTCutAction;
@@ -85,7 +88,7 @@ import org.netbeans.modules.tasklist.usertasks.actions.ShowTaskAction;
 import org.netbeans.modules.tasklist.usertasks.actions.UTPasteAtTopLevelAction;
 import org.netbeans.modules.tasklist.usertasks.actions.UTPropertiesAction;
 import org.netbeans.modules.tasklist.usertasks.treetable.TreeTableModel;
-import org.netbeans.modules.tasklist.usertasks.util.AWTThreadAnnotation;
+import org.netbeans.modules.tasklist.usertasks.util.AWTThread;
 import org.netbeans.modules.tasklist.usertasks.util.UTUtils;
 import org.openide.actions.FindAction;
 import org.openide.cookies.InstanceCookie;
@@ -256,7 +259,7 @@ public class UserTaskView extends TopComponent implements ExportImportProvider,
      * @param fo .ics file
      * @param default_ true for the global "User Tasks" view
      */
-    @AWTThreadAnnotation
+    @AWTThread
     public UserTaskView(FileObject fo, boolean default_) {
         init(fo, default_);
     }
@@ -689,13 +692,13 @@ public class UserTaskView extends TopComponent implements ExportImportProvider,
             new ICalImportFormat()
         };
     }    
-    
+
     /**
      * Common part for all constructors.
      *
      * file and default_ variable should be initialized before calling this.
      */
-    @AWTThreadAnnotation
+    @AWTThread
     private void init(FileObject file, boolean default_) {
         assert SwingUtilities.isEventDispatchThread();
         
@@ -720,8 +723,6 @@ public class UserTaskView extends TopComponent implements ExportImportProvider,
         }
         
         updateNameAndToolTip();
-        
-        new DueTasksNotifier(tasklist);
         
         file.addFileChangeListener(this);
         
@@ -759,6 +760,10 @@ public class UserTaskView extends TopComponent implements ExportImportProvider,
 
         if (tt.getRowCount() > 0)
             tt.getSelectionModel().setSelectionInterval(0, 0);        
+        
+        new DueTasksNotifier(tasklist);
+        
+        tasklist.addChangeListener(new AutoScheduler(tasklist));
     }
 
     /**

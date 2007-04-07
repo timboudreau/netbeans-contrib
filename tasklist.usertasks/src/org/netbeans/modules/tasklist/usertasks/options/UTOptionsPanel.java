@@ -34,6 +34,7 @@ import org.jdesktop.layout.GroupLayout;
 import org.netbeans.modules.tasklist.core.checklist.CheckList;
 import org.netbeans.modules.tasklist.core.checklist.DefaultCheckListModel;
 import org.netbeans.modules.tasklist.usertasks.util.TimeComboBox;
+import org.netbeans.modules.tasklist.usertasks.util.UTUtils;
 import org.openide.DialogDisplayer;
 import org.openide.NotifyDescriptor;
 import org.openide.util.NbBundle;
@@ -156,6 +157,7 @@ ListDataListener {
         for (int i = 0; i < 7; i++) {
             m.setChecked(i, wd[i]);
         }
+        jCheckBoxAutoScheduling.setSelected(s.getAutoScheduling());
         changed = false;
     }
 
@@ -188,6 +190,7 @@ ListDataListener {
         for (int i = 0; i < 7; i++) {
             s.setWorkingDay(i, m.isChecked(i));
         }
+        s.setAutoScheduling(jCheckBoxAutoScheduling.isSelected());
     }
 
     /**
@@ -224,11 +227,12 @@ ListDataListener {
 
         jCheckBoxAppend = new javax.swing.JCheckBox();
         jCheckBoxCollectWorkPeriods = new javax.swing.JCheckBox();
-        jLabel3 = new javax.swing.JLabel();
         jTextFieldFile = new javax.swing.JTextField();
         jPanelWorkingHours = new javax.swing.JPanel();
         jCheckBoxDetectInactivity = new javax.swing.JCheckBox();
         jCheckBoxAutoSwitchToComputed = new javax.swing.JCheckBox();
+        jCheckBoxAutoScheduling = new javax.swing.JCheckBox();
+        jLabel3 = new javax.swing.JLabel();
 
         org.openide.awt.Mnemonics.setLocalizedText(jCheckBoxAppend, org.openide.util.NbBundle.getMessage(UTOptionsPanel.class, "AppendVsPrepend")); // NOI18N
         jCheckBoxAppend.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
@@ -250,9 +254,6 @@ ListDataListener {
             }
         });
 
-        jLabel3.setLabelFor(jTextFieldFile);
-        org.openide.awt.Mnemonics.setLocalizedText(jLabel3, org.openide.util.NbBundle.getMessage(UTOptionsPanel.class, "DefaultUserTasksFile")); // NOI18N
-
         jPanelWorkingHours.setBorder(javax.swing.BorderFactory.createTitledBorder(org.openide.util.NbBundle.getMessage(UTOptionsPanel.class, "Work"))); // NOI18N
         jPanelWorkingHours.setOpaque(false);
 
@@ -260,11 +261,11 @@ ListDataListener {
         jPanelWorkingHours.setLayout(jPanelWorkingHoursLayout);
         jPanelWorkingHoursLayout.setHorizontalGroup(
             jPanelWorkingHoursLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(0, 237, Short.MAX_VALUE)
+            .add(0, 231, Short.MAX_VALUE)
         );
         jPanelWorkingHoursLayout.setVerticalGroup(
             jPanelWorkingHoursLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(0, 194, Short.MAX_VALUE)
+            .add(0, 195, Short.MAX_VALUE)
         );
 
         org.openide.awt.Mnemonics.setLocalizedText(jCheckBoxDetectInactivity, org.openide.util.NbBundle.getBundle(UTOptionsPanel.class).getString("DetectInactivity")); // NOI18N
@@ -287,33 +288,46 @@ ListDataListener {
             }
         });
 
+        org.openide.awt.Mnemonics.setLocalizedText(jCheckBoxAutoScheduling, org.openide.util.NbBundle.getMessage(UTOptionsPanel.class, "AutomaticScheduling")); // NOI18N
+        jCheckBoxAutoScheduling.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        jCheckBoxAutoScheduling.setMargin(new java.awt.Insets(0, 0, 0, 0));
+        jCheckBoxAutoScheduling.setOpaque(false);
+        jCheckBoxAutoScheduling.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jCheckBoxAutoSchedulingActionPerformed(evt);
+            }
+        });
+
+        jLabel3.setLabelFor(jTextFieldFile);
+        org.openide.awt.Mnemonics.setLocalizedText(jLabel3, org.openide.util.NbBundle.getMessage(UTOptionsPanel.class, "DefaultUserTasksFile")); // NOI18N
+
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+            .add(jCheckBoxAppend)
+            .add(jCheckBoxCollectWorkPeriods)
+            .add(jCheckBoxDetectInactivity)
+            .add(jCheckBoxAutoScheduling)
             .add(layout.createSequentialGroup()
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(jCheckBoxAppend)
-                    .add(jCheckBoxCollectWorkPeriods)
-                    .add(jCheckBoxDetectInactivity)
-                    .add(jCheckBoxAutoSwitchToComputed, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 664, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(layout.createSequentialGroup()
-                        .add(jLabel3)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(jTextFieldFile, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 504, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                    .add(jPanelWorkingHours, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .add(jLabel3)
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(jTextFieldFile, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 505, Short.MAX_VALUE))
+            .add(jPanelWorkingHours, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+            .add(jCheckBoxAutoSwitchToComputed, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(layout.createSequentialGroup()
                 .add(jCheckBoxAppend)
-                .add(11, 11, 11)
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(jCheckBoxCollectWorkPeriods)
-                .add(11, 11, 11)
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(jCheckBoxDetectInactivity)
-                .add(11, 11, 11)
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(jCheckBoxAutoSwitchToComputed)
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(jCheckBoxAutoScheduling)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(jLabel3)
@@ -322,6 +336,10 @@ ListDataListener {
                 .add(jPanelWorkingHours, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
+
+private void jCheckBoxAutoSchedulingActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jCheckBoxAutoSchedulingActionPerformed
+        changed = true;
+}//GEN-LAST:event_jCheckBoxAutoSchedulingActionPerformed
 
     private void jCheckBoxAutoSwitchToComputedActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jCheckBoxAutoSwitchToComputedActionPerformed
         changed = true;
@@ -382,6 +400,7 @@ ListDataListener {
         
     // Variables declaration - do not modify//GEN-BEGIN:variables
     public javax.swing.JCheckBox jCheckBoxAppend;
+    public javax.swing.JCheckBox jCheckBoxAutoScheduling;
     public javax.swing.JCheckBox jCheckBoxAutoSwitchToComputed;
     public javax.swing.JCheckBox jCheckBoxCollectWorkPeriods;
     public javax.swing.JCheckBox jCheckBoxDetectInactivity;

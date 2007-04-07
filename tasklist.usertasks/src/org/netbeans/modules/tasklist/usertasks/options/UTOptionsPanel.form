@@ -13,33 +13,31 @@
   <Layout>
     <DimensionLayout dim="0">
       <Group type="103" groupAlignment="0" attributes="0">
-          <Group type="102" attributes="0">
-              <Group type="103" groupAlignment="0" attributes="0">
-                  <Component id="jCheckBoxAppend" min="-2" max="-2" attributes="0"/>
-                  <Component id="jCheckBoxCollectWorkPeriods" min="-2" max="-2" attributes="0"/>
-                  <Component id="jCheckBoxDetectInactivity" min="-2" max="-2" attributes="0"/>
-                  <Component id="jCheckBoxAutoSwitchToComputed" min="-2" pref="664" max="-2" attributes="0"/>
-                  <Group type="102" alignment="0" attributes="0">
-                      <Component id="jLabel3" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace max="-2" attributes="0"/>
-                      <Component id="jTextFieldFile" min="-2" pref="504" max="-2" attributes="0"/>
-                  </Group>
-                  <Component id="jPanelWorkingHours" alignment="0" min="-2" max="-2" attributes="0"/>
-              </Group>
-              <EmptySpace max="32767" attributes="0"/>
+          <Component id="jCheckBoxAppend" min="-2" max="-2" attributes="0"/>
+          <Component id="jCheckBoxCollectWorkPeriods" min="-2" max="-2" attributes="0"/>
+          <Component id="jCheckBoxDetectInactivity" min="-2" max="-2" attributes="0"/>
+          <Component id="jCheckBoxAutoScheduling" alignment="0" min="-2" max="-2" attributes="0"/>
+          <Group type="102" alignment="0" attributes="0">
+              <Component id="jLabel3" min="-2" max="-2" attributes="0"/>
+              <EmptySpace max="-2" attributes="0"/>
+              <Component id="jTextFieldFile" pref="505" max="32767" attributes="0"/>
           </Group>
+          <Component id="jPanelWorkingHours" alignment="0" min="-2" max="-2" attributes="0"/>
+          <Component id="jCheckBoxAutoSwitchToComputed" alignment="0" max="32767" attributes="0"/>
       </Group>
     </DimensionLayout>
     <DimensionLayout dim="1">
       <Group type="103" groupAlignment="0" attributes="0">
           <Group type="102" attributes="0">
               <Component id="jCheckBoxAppend" min="-2" max="-2" attributes="0"/>
-              <EmptySpace min="11" pref="11" max="11" attributes="0"/>
+              <EmptySpace min="-2" max="-2" attributes="0"/>
               <Component id="jCheckBoxCollectWorkPeriods" min="-2" max="-2" attributes="0"/>
-              <EmptySpace min="11" pref="11" max="11" attributes="0"/>
+              <EmptySpace min="-2" max="-2" attributes="0"/>
               <Component id="jCheckBoxDetectInactivity" min="-2" max="-2" attributes="0"/>
-              <EmptySpace min="11" pref="11" max="11" attributes="0"/>
+              <EmptySpace max="-2" attributes="0"/>
               <Component id="jCheckBoxAutoSwitchToComputed" min="-2" max="-2" attributes="0"/>
+              <EmptySpace max="-2" attributes="0"/>
+              <Component id="jCheckBoxAutoScheduling" min="-2" max="-2" attributes="0"/>
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
                   <Component id="jLabel3" alignment="3" min="-2" max="-2" attributes="0"/>
@@ -93,16 +91,6 @@
         <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jCheckBoxCollectWorkPeriodsActionPerformed"/>
       </Events>
     </Component>
-    <Component class="javax.swing.JLabel" name="jLabel3">
-      <Properties>
-        <Property name="labelFor" type="java.awt.Component" editor="org.netbeans.modules.form.ComponentChooserEditor">
-          <ComponentRef name="jTextFieldFile"/>
-        </Property>
-        <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
-          <ResourceString bundle="org/netbeans/modules/tasklist/usertasks/options/Bundle.properties" key="DefaultUserTasksFile" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
-        </Property>
-      </Properties>
-    </Component>
     <Component class="javax.swing.JTextField" name="jTextFieldFile">
     </Component>
     <Container class="javax.swing.JPanel" name="jPanelWorkingHours">
@@ -120,12 +108,12 @@
       <Layout>
         <DimensionLayout dim="0">
           <Group type="103" groupAlignment="0" attributes="0">
-              <EmptySpace min="0" pref="237" max="32767" attributes="0"/>
+              <EmptySpace min="0" pref="231" max="32767" attributes="0"/>
           </Group>
         </DimensionLayout>
         <DimensionLayout dim="1">
           <Group type="103" groupAlignment="0" attributes="0">
-              <EmptySpace min="0" pref="197" max="32767" attributes="0"/>
+              <EmptySpace min="0" pref="196" max="32767" attributes="0"/>
           </Group>
         </DimensionLayout>
       </Layout>
@@ -170,6 +158,35 @@
       <Events>
         <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jCheckBoxAutoSwitchToComputedActionPerformed"/>
       </Events>
+    </Component>
+    <Component class="javax.swing.JCheckBox" name="jCheckBoxAutoScheduling">
+      <Properties>
+        <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
+          <ResourceString bundle="org/netbeans/modules/tasklist/usertasks/options/Bundle.properties" key="AutomaticScheduling" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
+        </Property>
+        <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
+          <Border info="org.netbeans.modules.form.compat2.border.EmptyBorderInfo">
+            <EmptyBorder bottom="0" left="0" right="0" top="0"/>
+          </Border>
+        </Property>
+        <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
+          <Insets value="[0, 0, 0, 0]"/>
+        </Property>
+        <Property name="opaque" type="boolean" value="false"/>
+      </Properties>
+      <Events>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jCheckBoxAutoSchedulingActionPerformed"/>
+      </Events>
+    </Component>
+    <Component class="javax.swing.JLabel" name="jLabel3">
+      <Properties>
+        <Property name="labelFor" type="java.awt.Component" editor="org.netbeans.modules.form.ComponentChooserEditor">
+          <ComponentRef name="jTextFieldFile"/>
+        </Property>
+        <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
+          <ResourceString bundle="org/netbeans/modules/tasklist/usertasks/options/Bundle.properties" key="DefaultUserTasksFile" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
+        </Property>
+      </Properties>
     </Component>
   </SubComponents>
 </Form>

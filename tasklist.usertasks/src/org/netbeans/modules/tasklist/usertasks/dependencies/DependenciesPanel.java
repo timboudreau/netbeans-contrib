@@ -71,7 +71,7 @@ public class DependenciesPanel extends javax.swing.JPanel {
      * @return path to the task. e.g. "A/B/C"
      */
     private String createTaskDescription(UserTask ut, int type) {
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
         while (ut != null) {
             if (sb.length() != 0)
                 sb.insert(0, '/');

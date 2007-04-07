@@ -107,6 +107,7 @@ public class DueTasksNotifier implements Timeout {
     public DueTasksNotifier(UserTaskList utl) {
         this.utl = utl;
         currentTimeout = Long.MAX_VALUE;
+        orderNextTimeout();
         utl.addChangeListener(new ChangeListener() {
             public void stateChanged(ChangeEvent e) {
                 orderNextTimeout();

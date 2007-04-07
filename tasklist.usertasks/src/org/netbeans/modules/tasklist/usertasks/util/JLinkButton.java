@@ -135,7 +135,7 @@ public class JLinkButton extends JButton {
         this(null, icon, url);
     }
 
-    /*
+    /**
      * Constructor.
      * 
      * @param text text of the button
