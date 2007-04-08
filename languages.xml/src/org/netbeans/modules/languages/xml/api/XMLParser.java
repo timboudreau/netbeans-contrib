@@ -9,14 +9,15 @@
 
 package org.netbeans.modules.languages.xml.api;
 
+import org.netbeans.api.languages.Language;
+import org.netbeans.api.languages.LanguageDefinitionNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 
 import org.netbeans.api.languages.ASTNode;
+import org.netbeans.api.languages.LanguagesManager;
 import org.netbeans.api.languages.ParseException;
-import org.netbeans.modules.languages.Language;
-import org.netbeans.modules.languages.LanguagesManager;
-import org.netbeans.modules.languages.parser.LanguageDefinitionNotFoundException;
+import org.netbeans.api.languages.LanguageDefinitionNotFoundException;
 
 /**
  *
@@ -37,7 +38,7 @@ public class XMLParser {
     private Language l;
     
     private XMLParser () throws LanguageDefinitionNotFoundException {
-        l = LanguagesManager.getDefault ().getLanguage ("text/xml2");
+        l = LanguagesManager.get ().getLanguage ("text/xml2");
     }
     
     public XMLRoot parse (InputStream is, String sourceName) throws IOException, ParseException {

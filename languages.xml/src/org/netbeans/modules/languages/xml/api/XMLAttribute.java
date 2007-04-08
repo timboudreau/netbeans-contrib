@@ -21,7 +21,7 @@ public class XMLAttribute {
     
     XMLAttribute (String name, String value) {
         this.name = name;
-        if (value.startsWith("\""))
+        if (value != null && value.startsWith("\""))
             value = value.substring (1, value.length () - 1);
         this.value = value;
     }

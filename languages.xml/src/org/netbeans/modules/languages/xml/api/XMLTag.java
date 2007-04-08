@@ -80,7 +80,7 @@ public class XMLTag extends XMLItem {
                 XMLAttribute attribute = new XMLAttribute (name, value);
                 attributes.add (attribute);
                 if (name != null)
-                    nameToValue.put (name, value);
+                    nameToValue.put (name, attribute.getValue ());
             }
         }
     }
@@ -132,6 +132,32 @@ public class XMLTag extends XMLItem {
         if (!nameToTags.containsKey (name)) 
             return Collections.<XMLTag>emptyList ();
         return Collections.<XMLTag>unmodifiableList (nameToTags.get (name));
+    }
+    
+    private XMLTag startTag;
+    
+    public XMLTag getStartTag () {
+        if (startTag == null) {
+            startTag = new XMLTag (node.getNode("startTag"));
+        }
+        return startTag;
+    }
+    
+    private XMLTag endTag;
+    
+    public XMLTag getEndTag () {
+        if (endTag == null) {
+            endTag = new XMLTag (node.getNode("endTag"));
+        }
+        return endTag;
+    }
+    
+    public int getOffset () {
+        return node.getOffset ();
+    }
+    
+    public int getEndOffset () {
+        return node.getEndOffset ();
     }
 }
 
