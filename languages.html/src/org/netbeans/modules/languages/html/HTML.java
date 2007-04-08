@@ -36,8 +36,8 @@ import org.netbeans.api.languages.Context;
 import org.netbeans.api.languages.SyntaxContext;
 import org.netbeans.api.languages.ASTNode;
 import org.netbeans.api.languages.ASTToken;
+import org.netbeans.api.languages.CompletionItem;
 import org.netbeans.api.languages.LibrarySupport;
-import org.netbeans.api.languages.support.CompletionSupport;
 import org.openide.ErrorManager;
 import org.openide.text.NbDocument;
 
@@ -236,12 +236,7 @@ public class HTML {
             String tag = (String) it.next ();
             String description = getLibrary ().getProperty 
                 ("TAG", tag, "description");
-            items.add (CompletionSupport.createCompletionItem (
-                tag,
-                "<html><b><font color=blue>" + tag.toUpperCase () + 
-                ": </font></b><font color=black> " + 
-                description + "</font></html>"
-            ));
+            items.add (CompletionItem.create (tag.toUpperCase ()));
         }
         return items;
     }
@@ -259,12 +254,7 @@ public class HTML {
             String tag = (String) it.next ();
             String description = getLibrary ().getProperty 
                 (tagName, tag, "description");
-            items.add (CompletionSupport.createCompletionItem (
-                tag,
-                "<html><b><font color=blue>" + tag.toUpperCase () + 
-                ": </font></b><font color=black> " + 
-                description + "</font></html>"
-            ));
+            items.add (CompletionItem.create (tag.toUpperCase ()));
         }
         //S ystem.out.println("attributeDescriptions " + attributeDescriptions);
         return items;
