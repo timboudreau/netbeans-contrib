@@ -34,6 +34,7 @@ import org.openide.cookies.EditorCookie;
 import org.openide.nodes.Node;
 import org.openide.util.HelpCtx;
 import org.openide.util.NbBundle;
+import org.openide.util.Utilities;
 import org.openide.util.actions.CookieAction;
 import org.netbeans.editor.Registry;
 import org.netbeans.lib.editor.codetemplates.api.CodeTemplate;
@@ -120,7 +121,12 @@ public final class SurroundWithAction extends CookieAction {
             super(codeTemplate.getAbbreviation(), Icons.TEMPLATE_FOR_SELECTION_ICON);
             this.textComponent = textComponent;
             this.codeTemplate = codeTemplate;
-            setEnabled(textComponent.isEditable() && textComponent.getSelectedText() != null);
+            if (Utilities.getOperatingSystem() == Utilities.OS_MAC) {
+                // HACK On MacOS the menu items need to be always enabled. why?
+                setEnabled(true);
+            } else {
+                setEnabled(textComponent.isEditable() && textComponent.getSelectedText() != null);
+            }
         }
         
         public void actionPerformed(ActionEvent e) {
