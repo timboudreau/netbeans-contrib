@@ -22,15 +22,14 @@ import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.util.Collection;
 import javax.swing.AbstractAction;
-import javax.swing.Action;
+import javax.swing.JComponent;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
-import javax.swing.event.MenuEvent;
-import javax.swing.event.MenuListener;
 import javax.swing.text.Document;
 import javax.swing.text.JTextComponent;
-import org.netbeans.editor.BaseDocument;
 import org.netbeans.modules.codetemplatetools.SelectionCodeTemplateProcessor;
+import org.openide.awt.DynamicMenuContent;
+import org.openide.awt.Mnemonics;
 import org.openide.cookies.EditorCookie;
 import org.openide.nodes.Node;
 import org.openide.util.HelpCtx;
@@ -57,11 +56,10 @@ public final class SurroundWithAction extends CookieAction {
     }
     
     public JMenuItem getMenuPresenter() {
-        // lazy create menu
-        if (surroundWithTemplatesMenu == null) {
-            surroundWithTemplatesMenu = new SurroundWithTemplatesMenu(this);
-        }
-        return surroundWithTemplatesMenu;
+        JMenu menu = new SurroundWithTemplatesMenu();
+        String label = NbBundle.getMessage(SurroundWithAction.class, "CTL_SurroundWithAction");
+        Mnemonics.setLocalizedText(menu, label);
+        return menu;        
     }
     
     protected int mode() {
@@ -86,17 +84,11 @@ public final class SurroundWithAction extends CookieAction {
         return false;
     }
     
-    private class SurroundWithTemplatesMenu extends JMenu implements MenuListener {
-        public SurroundWithTemplatesMenu(Action action) {
-            super(action);
-            addMenuListener(this);
-        }
-        
-        public void menuSelected(MenuEvent e) {
+    private class SurroundWithTemplatesMenu extends JMenu implements DynamicMenuContent {
+        public JComponent[] getMenuPresenters() {
             // Clean
             removeAll();
 
-            // Build
             JTextComponent textComponent = Registry.getMostActiveComponent();
             if (textComponent != null) {
                 Document document = textComponent.getDocument();
@@ -112,12 +104,11 @@ public final class SurroundWithAction extends CookieAction {
                     }
                 }
             }
+            return new JComponent[] {this};
         }
-        
-        public void menuDeselected(MenuEvent e) {
-        }
-        
-        public void menuCanceled(MenuEvent e) {
+
+        public JComponent[] synchMenuPresenters(JComponent[] items) {
+            return getMenuPresenters();
         }
     }
     
