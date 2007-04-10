@@ -72,6 +72,10 @@ public class CreateCodeTemplatePanel extends javax.swing.JPanel {
         "${" + CodeTemplateParameter.CURSOR_PARAMETER_NAME + "}",
         "${"+ SelectionCodeTemplateProcessor.SELECTION_PARAMETER + " " + CodeTemplateParameter.EDITABLE_HINT_NAME + "=false}",
         "${"+ SelectionCodeTemplateProcessor.CLIPBOARD_CONTENT_PARAMETER + " " + CodeTemplateParameter.EDITABLE_HINT_NAME + "=false}",
+        "${"+ SelectionCodeTemplateProcessor.INPUT_PARAMETER_PREFIX + "-favorite-color" 
+                + " prompt=\"Favorite Color:\" defaultValue=\"Orange\" suggestedValues=\"Orange,Blue,Red,Green,Black,White\"}",
+        "${"+ SelectionCodeTemplateProcessor.INPUT_PARAMETER_PREFIX + "-favorite-weekday" 
+                + " prompt=\"Favorite Weekday:\" defaultValue=\"Friday\" enumeratedValues=\"Monday,Tuesday,Wednesday,Thursday,Friday\" " + CodeTemplateParameter.EDITABLE_HINT_NAME + "=false}",
     };
     
     /** Creates new form CreateCodeTemplatePanel */

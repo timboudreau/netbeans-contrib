@@ -110,20 +110,10 @@ public class CodeTemplatesPanel extends javax.swing.JPanel {
         done();
     }
 
-    private void deleteTemplate(CodeTemplate template) {
-        if (template == null) {
+    private void deleteTemplates(CodeTemplate[] templates) {
+        if (templates == null) {
             return;
-        }
-        String templateName = template.getAbbreviation();
-        if (templateName == null || templateName.length() == 0) {
-            return;
-        }
-        if  (JOptionPane.showConfirmDialog(WindowManager.getDefault().getMainWindow(),
-                    "Delete Code Template : " + templateName + " ?",
-                    "Delete Code Template",
-                    JOptionPane.OK_CANCEL_OPTION) != JOptionPane.OK_OPTION) {
-            return;
-        }
+        }        
 
         Class kitClass = editorPane.getEditorKit().getClass();
         BaseOptions baseOptions = (BaseOptions) BaseOptions.getOptions(kitClass);
@@ -132,7 +122,12 @@ public class CodeTemplatesPanel extends javax.swing.JPanel {
             // ?
             return;
         }
-        abbreviationsMap.remove(templateName);
+        for (CodeTemplate template : templates) {
+            String templateName = template.getAbbreviation();
+            if (templateName != null && templateName.length() > 0) {
+                abbreviationsMap.remove(templateName);
+            }
+        }        
         baseOptions.setAbbrevMap(abbreviationsMap);
         loadModel();
     }
@@ -150,9 +145,10 @@ public class CodeTemplatesPanel extends javax.swing.JPanel {
     }
 
     private void adjustButtonState() {
-        insertButon.setEnabled(editorPane.isEditable() && templatesList.getSelectedIndex() != -1);
-        deleteButton.setEnabled(templatesList.getSelectedIndex() != -1);
-        modifyButton.setEnabled(templatesList.getSelectedIndex() != -1);
+        insertButon.setEnabled(editorPane.isEditable() && templatesList.getSelectedIndices().length == 1);
+        deleteButton.setEnabled(templatesList.getSelectedIndices().length > 0);
+        modifyButton.setEnabled(templatesList.getSelectedIndices().length == 1);
+        templateTextEditorPane.setEnabled(templatesList.getSelectedIndices().length == 1);
     }
 
     private void showCodeTemplate(CodeTemplate codeTemplate) {
@@ -355,7 +351,6 @@ public class CodeTemplatesPanel extends javax.swing.JPanel {
         gridBagConstraints.insets = new java.awt.Insets(5, 5, 0, 5);
         add(mimeTypeLabel, gridBagConstraints);
 
-        templatesList.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
         templatesList.addListSelectionListener(new javax.swing.event.ListSelectionListener() {
             public void valueChanged(javax.swing.event.ListSelectionEvent evt) {
                 templatesListValueChanged(evt);
@@ -501,7 +496,10 @@ public class CodeTemplatesPanel extends javax.swing.JPanel {
     }// </editor-fold>//GEN-END:initComponents
 
     private void templatesListValueChanged(javax.swing.event.ListSelectionEvent evt) {//GEN-FIRST:event_templatesListValueChanged
-        CodeTemplate selectedCodeTemplate = (CodeTemplate) templatesList.getSelectedValue();
+        CodeTemplate selectedCodeTemplate = null;
+        if (templatesList.getSelectedIndices().length == 1) {
+            selectedCodeTemplate = (CodeTemplate) templatesList.getSelectedValue();
+        }
         showCodeTemplate(selectedCodeTemplate);
         adjustButtonState();
     }//GEN-LAST:event_templatesListValueChanged
@@ -519,7 +517,32 @@ public class CodeTemplatesPanel extends javax.swing.JPanel {
     }//GEN-LAST:event_importButtonActionPerformed
 
     private void deleteButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_deleteButtonActionPerformed
-        deleteTemplate((CodeTemplate) templatesList.getSelectedValue());
+        int templateCount = templatesList.getSelectedIndices().length;
+        switch (templateCount) {
+            case 0:
+                return;
+            case 1:
+                String templateName = ((CodeTemplate) templatesList.getSelectedValue()).getAbbreviation();
+                if  (JOptionPane.showConfirmDialog(WindowManager.getDefault().getMainWindow(),
+                    "Delete Code Template : " + templateName + " ?",
+                    "Delete Code Template",
+                    JOptionPane.OK_CANCEL_OPTION) != JOptionPane.OK_OPTION) {
+                    return;
+                }
+                break;
+            default:
+                if  (JOptionPane.showConfirmDialog(WindowManager.getDefault().getMainWindow(),
+                    "Delete " + templateCount + " Code Templates ?",
+                    "Delete Code Templates",
+                    JOptionPane.OK_CANCEL_OPTION) != JOptionPane.OK_OPTION) {
+                    return;
+                }
+                break;
+        }       
+        Object[] selectedObjects =  templatesList.getSelectedValues();
+        CodeTemplate[] selectedTemplates = new CodeTemplate[selectedObjects.length];
+        System.arraycopy(selectedObjects, 0, selectedTemplates, 0, selectedObjects.length);
+        deleteTemplates(selectedTemplates);
     }//GEN-LAST:event_deleteButtonActionPerformed
 
     private void modifyButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_modifyButtonActionPerformed
