@@ -33,6 +33,7 @@ import javax.enterprise.deploy.spi.DConfigBeanRoot;
 import javax.enterprise.deploy.spi.DeploymentConfiguration;
 import javax.enterprise.deploy.spi.exceptions.BeanNotFoundException;
 import javax.enterprise.deploy.spi.exceptions.ConfigurationException;
+import org.netbeans.modules.j2ee.deployment.devmodules.api.J2eeModule;
 import org.openide.ErrorManager;
 import org.openide.filesystems.FileLock;
 import org.openide.filesystems.FileObject;
@@ -45,56 +46,68 @@ import org.openide.filesystems.FileUtil;
  */
 public class Hk2Configuration implements DeploymentConfiguration, XpathListener {
     
-    private DeployableObject deplObj;
+    private J2eeModule j2eeModule;
     private String contextPath;
+    
     /**
      * 
-     * @param deplObj 
+     * @param j2eeModule 
      */
-    public Hk2Configuration (DeployableObject deplObj) {
-        this.deplObj = deplObj;
+    public Hk2Configuration (DeployableObject dObj) {
+        throw new UnsupportedOperationException("JSR-88 support is deprecated.");
+    }
+    
+    /**
+     * 
+     * @param j2eeModule 
+     */
+    public Hk2Configuration (J2eeModule j2eeModule) {
+        this.j2eeModule = j2eeModule;
     }
     
     /**
      * 
      * @param file 
      */
-    public void init(File file) {
-        try {
-            FileObject folder = FileUtil.toFileObject(file.getParentFile());
-            if (folder == null) {
-                ErrorManager.getDefault().log(ErrorManager.INFORMATIONAL, "The parent folder does not exist!"); // NOI18N
-                return;
-            }
-            PrintWriter pw = null;
-            FileLock lock = null;
+    public void init(File[] configFiles) {
+        if(configFiles != null && configFiles.length > 0) {
             try {
-                String name = file.getName();
-                FileObject fo = folder.getFileObject(name);
-                if (fo == null) {
-                    fo = folder.createData(name);
+                File file = configFiles[0];
+                FileObject folder = FileUtil.toFileObject(file.getParentFile());
+                if (folder == null) {
+                    ErrorManager.getDefault().log(ErrorManager.INFORMATIONAL, "The parent folder does not exist!"); // NOI18N
+                    return;
                 }
-                lock = fo.lock();
-                pw = new PrintWriter(new OutputStreamWriter(fo.getOutputStream(lock)));
-                pw.println("<MyServer path=\"/mypath\"/>"); // NOI18N
-            } finally {
-                if (pw != null) {
-                    pw.close();
+                PrintWriter pw = null;
+                FileLock lock = null;
+                try {
+                    String name = file.getName();
+                    FileObject fo = folder.getFileObject(name);
+                    if (fo == null) {
+                        fo = folder.createData(name);
+                    }
+                    lock = fo.lock();
+                    pw = new PrintWriter(new OutputStreamWriter(fo.getOutputStream(lock)));
+                    pw.println("<MyServer path=\"/mypath\"/>"); // NOI18N
+                } finally {
+                    if (pw != null) {
+                        pw.close();
+                    }
+                    if (lock != null) {
+                        lock.releaseLock();
+                    }
                 }
-                if (lock != null) {
-                    lock.releaseLock();
-                }
+            } catch (IOException ex) {
+                ErrorManager.getDefault().notify(ErrorManager.INFORMATIONAL, ex);
             }
-        } catch (IOException ex) {
-            ErrorManager.getDefault().notify(ErrorManager.INFORMATIONAL, ex);
         }
         
         // web.xml represented as DDBean model
-        DDBeanRoot root = deplObj.getDDBeanRoot();
-        if (root != null) {
-            // here we will listen to resource reference changes
-            root.addXpathListener("/web-app/resource-ref", this); // NOI18N
-        }
+//        DDBeanRoot root = j2eeModule.getDDBeanRoot();
+//        if (root != null) {
+//            // here we will listen to resource reference changes
+//            root.addXpathListener("/web-app/resource-ref", this); // NOI18N
+//        }
     }
     
     /**
@@ -102,7 +115,7 @@ public class Hk2Configuration implements DeploymentConfiguration, XpathListener 
      * @return 
      * @throws javax.enterprise.deploy.spi.exceptions.ConfigurationException 
      */
-    public String getContextPath() throws ConfigurationException {
+    public String getContextPath() {
         // TODO: replace this with reading the context path from the server specific DD
         return this.contextPath;
     }
@@ -112,7 +125,7 @@ public class Hk2Configuration implements DeploymentConfiguration, XpathListener 
      * @param contextPath 
      * @throws javax.enterprise.deploy.spi.exceptions.ConfigurationException 
      */
-    public void setContextPath(String contextPath) throws ConfigurationException {
+    public void setContextPath(String contextPath) {
         // TODO: here put the code that will store the context path in the server specific DD
         this.contextPath = contextPath;
     }
@@ -135,7 +148,7 @@ public class Hk2Configuration implements DeploymentConfiguration, XpathListener 
             }
         }
     }
-    
+
     // JSR-88 methods ---------------------------------------------------------
     
     /**
@@ -143,10 +156,11 @@ public class Hk2Configuration implements DeploymentConfiguration, XpathListener 
      * @return 
      */
     public DeployableObject getDeployableObject () {
-        System.out.println("in getDeployableObject" +deplObj);
-        return deplObj;
+//        System.out.println("in getDeployableObject" +deplObj);
+//        return deplObj;
+        throw new UnsupportedOperationException("Support for JSR-88 DeployableObject is deprecated.");
     }
-    
+
     /**
      * 
      * @param os 
@@ -154,7 +168,7 @@ public class Hk2Configuration implements DeploymentConfiguration, XpathListener 
      */
     public void save(OutputStream os) throws ConfigurationException {   
     }
-    
+
     /**
      * 
      * @param dDBeanRoot 
@@ -165,7 +179,7 @@ public class Hk2Configuration implements DeploymentConfiguration, XpathListener 
     throws ConfigurationException {
         return null;
     }
-    
+
     /**
      * 
      * @param dConfigBeanRoot 
@@ -174,7 +188,7 @@ public class Hk2Configuration implements DeploymentConfiguration, XpathListener 
     public void removeDConfigBean (DConfigBeanRoot dConfigBeanRoot) 
     throws BeanNotFoundException {
     }
-    
+
     /**
      * 
      * @param is 
@@ -183,7 +197,7 @@ public class Hk2Configuration implements DeploymentConfiguration, XpathListener 
     public void restore (InputStream is) 
     throws ConfigurationException {
     }
-    
+
     /**
      * 
      * @param is 
@@ -195,7 +209,7 @@ public class Hk2Configuration implements DeploymentConfiguration, XpathListener 
     throws ConfigurationException {
         return null;
     }
-    
+
     /**
      * 
      * @param os 

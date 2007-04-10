@@ -31,8 +31,10 @@ import javax.enterprise.deploy.spi.Target;
 import javax.enterprise.deploy.spi.TargetModuleID;
 import javax.enterprise.deploy.spi.exceptions.OperationUnsupportedException;
 import javax.enterprise.deploy.spi.status.ProgressObject;
+import org.netbeans.modules.j2ee.deployment.devmodules.api.J2eeModule;
 import org.netbeans.modules.j2ee.deployment.plugins.api.AppChangeDescriptor;
-import org.netbeans.modules.j2ee.deployment.plugins.api.IncrementalDeployment;
+import org.netbeans.modules.j2ee.deployment.plugins.spi.IncrementalDeployment;
+import org.netbeans.modules.j2ee.deployment.plugins.spi.config.ModuleConfiguration;
 import org.netbeans.modules.j2ee.hk2.Hk2DeploymentManager;
 import org.netbeans.modules.j2ee.hk2.progress.ProgressEventSupport;
 import org.netbeans.modules.j2ee.hk2.progress.Status;
@@ -42,7 +44,8 @@ import org.openide.util.RequestProcessor;
  *
  * @author ludo
  */
-public class FastDeploy extends IncrementalDeployment{
+public class FastDeploy extends IncrementalDeployment {
+    
     private DeploymentManager dm;
     
     /** Creates a new instance of FastDeploy 
@@ -56,17 +59,16 @@ public class FastDeploy extends IncrementalDeployment{
     /**
      * 
      * @param target 
-     * @param deployableObject 
-     * @param deploymentConfiguration 
+     * @param app 
+     * @param configuration 
      * @param file 
      * @return 
      */
-    public ProgressObject initialDeploy(Target target, DeployableObject deployableObject,
-            DeploymentConfiguration deploymentConfiguration, File file) {
-        System.out.println("initialDeploy deploymentConfiguration=" +deploymentConfiguration);
+    public ProgressObject initialDeploy(Target target, J2eeModule app, ModuleConfiguration configuration, File dir) {
+        System.out.println("initialDeploy ModuleConfiguration = " + configuration);
         
         Hk2ManagerImpl tmi = new Hk2ManagerImpl((Hk2DeploymentManager)dm);
-        tmi.initialDeploy(target,  file);
+        tmi.initialDeploy(target, dir);
         return tmi;
     }
     
@@ -85,19 +87,19 @@ public class FastDeploy extends IncrementalDeployment{
     /**
      * 
      * @param target 
-     * @param deployableObject 
+     * @param deployable 
      * @return 
      */
-    public boolean canFileDeploy(Target target, DeployableObject deployableObject) {
+    public boolean canFileDeploy(Target target, J2eeModule deployable) {
         if (null == target){
             return false;
         }
-        if (null == deployableObject){
+        if (null == deployable){
             return false;
         }
         
-        if (deployableObject.getType() == ModuleType.EAR ||
-                deployableObject.getType() == ModuleType.EJB){
+        if (deployable.getModuleType() == ModuleType.EAR ||
+                deployable.getModuleType() == ModuleType.EJB){
             return false;
         }
         // return dm.isLocal();
@@ -129,11 +131,11 @@ public class FastDeploy extends IncrementalDeployment{
     /**
      * 
      * @param target 
-     * @param deployableObject 
-     * @param deploymentConfiguration 
+     * @param app 
+     * @param configuration
      * @return 
      */
-    public File getDirectoryForNewApplication(Target target, DeployableObject deployableObject, DeploymentConfiguration deploymentConfiguration) {
+    public File getDirectoryForNewApplication(Target target, J2eeModule app, ModuleConfiguration configuration) {
         System.out.println("getDirectoryForNewApplication");
         return null;
     }
@@ -142,11 +144,11 @@ public class FastDeploy extends IncrementalDeployment{
      * 
      * @param file 
      * @param string 
-     * @param deployableObject 
-     * @param deploymentConfiguration 
+     * @param app 
+     * @param configuration 
      * @return 
      */
-    public File getDirectoryForNewModule(File file, String string, DeployableObject deployableObject, DeploymentConfiguration deploymentConfiguration) {
+    public File getDirectoryForNewModule(File file, String string, J2eeModule app, ModuleConfiguration configuration) {
         return null;
     }
     

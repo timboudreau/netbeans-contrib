@@ -27,7 +27,7 @@ import org.netbeans.api.java.platform.JavaPlatform;
 import org.netbeans.api.java.platform.JavaPlatformManager;
 import org.netbeans.modules.j2ee.deployment.common.api.J2eeLibraryTypeProvider;
 import org.netbeans.modules.j2ee.deployment.devmodules.api.J2eeModule;
-import org.netbeans.modules.j2ee.deployment.plugins.api.J2eePlatformImpl;
+import org.netbeans.modules.j2ee.deployment.plugins.spi.J2eePlatformImpl;
 import org.netbeans.modules.j2ee.hk2.ide.Hk2PluginProperties;
 import org.netbeans.spi.project.libraries.LibraryImplementation;
 
@@ -148,10 +148,10 @@ public class Hk2J2eePlatformImpl extends J2eePlatformImpl {
         return JavaPlatformManager.getDefault().getDefaultPlatform();
     }
     
-        /**
-         * 
-         */
-        public void notifyLibrariesChanged() {
+    /**
+     * 
+     */
+    public void notifyLibrariesChanged() {
         initLibraries();
         firePropertyChange(PROP_LIBRARIES, null, libraries.clone());
     }

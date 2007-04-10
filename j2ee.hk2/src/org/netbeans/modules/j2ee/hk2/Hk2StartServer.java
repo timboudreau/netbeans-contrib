@@ -38,7 +38,7 @@ import javax.enterprise.deploy.spi.status.ProgressListener;
 import javax.enterprise.deploy.spi.status.ProgressObject;
 import org.netbeans.modules.j2ee.deployment.plugins.api.InstanceProperties;
 import org.netbeans.modules.j2ee.deployment.plugins.api.ServerDebugInfo;
-import org.netbeans.modules.j2ee.deployment.plugins.api.StartServer;
+import org.netbeans.modules.j2ee.deployment.plugins.spi.StartServer;
 import org.netbeans.modules.j2ee.hk2.ide.Hk2DeploymentStatus;
 import org.netbeans.modules.j2ee.hk2.ide.Hk2PluginProperties;
 import org.netbeans.modules.j2ee.hk2.ide.Hk2StartRunnable;

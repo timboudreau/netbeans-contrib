@@ -17,19 +17,32 @@
  * Microsystems, Inc. All Rights Reserved.
  */
 
-
 package org.netbeans.modules.j2ee.hk2;
 
-import javax.enterprise.deploy.spi.DeploymentManager;
-import org.netbeans.modules.j2ee.deployment.plugins.spi.J2eePlatformFactory;
-import org.netbeans.modules.j2ee.deployment.plugins.spi.J2eePlatformImpl;
+import org.netbeans.modules.j2ee.deployment.common.api.ConfigurationException;
+import org.netbeans.modules.j2ee.deployment.devmodules.api.J2eeModule;
+import org.netbeans.modules.j2ee.deployment.plugins.spi.config.ModuleConfiguration;
+import org.netbeans.modules.j2ee.deployment.plugins.spi.config.ModuleConfigurationFactory;
+import org.openide.ErrorManager;
 
 /**
  *
- * @author Ludo
+ * @author vbk
  */
-public class Hk2J2eePlatformFactory extends J2eePlatformFactory {
-    public J2eePlatformImpl getJ2eePlatformImpl(DeploymentManager dm) {
-        return new Hk2J2eePlatformImpl((Hk2DeploymentManager)dm);
+public class ModConFactory implements ModuleConfigurationFactory {
+    
+    /** Creates a new instance of ModConFactory */
+    public ModConFactory() {
     }
+    
+    public ModuleConfiguration create(J2eeModule module) {
+        ModuleConfiguration retVal = null;
+        try {
+            retVal = new ModuleConfigurationImpl(module);
+        } catch (ConfigurationException ce) {
+            ErrorManager.getDefault().notify(ErrorManager.INFORMATIONAL, ce);
+        }
+        return retVal;
+    }
+    
 }
