@@ -19,44 +19,30 @@
 
 package org.netbeans.modules.jackpot.rules;
 
-import org.netbeans.modules.jackpot.ui.QueryAndRefactorAction;
-import org.openide.actions.*;
+import java.awt.Image;
 import org.openide.loaders.DataNode;
 import org.openide.nodes.Children;
+import org.openide.util.Lookup;
 import org.openide.util.Utilities;
-import org.openide.util.actions.SystemAction;
-import java.awt.Image;
-import javax.swing.Action;
 
 /**
  * RulesDataNode: a node delegate for Jackpot a rules file.
  */
 public class RulesDataNode extends DataNode {
    
+    private static final String IMAGE_ICON_BASE = "org/netbeans/modules/jackpot/rules/resources/Rule_file_16.png";
+    
     public RulesDataNode(RulesDataObject obj) {
         super(obj, Children.LEAF);
+        setIconBaseWithExtension(IMAGE_ICON_BASE);
+    }
+    
+    RulesDataNode(RulesDataObject obj, Lookup lookup) {
+        super(obj, Children.LEAF, lookup);
+        setIconBaseWithExtension(IMAGE_ICON_BASE);
     }
     
     public Image getIcon(int type) {
-        return Utilities.loadImage("org/netbeans/modules/jackpot/rules/resources/Rule_file_16.png");
-    }
-    
-    public Action getPreferredAction() {
-        return SystemAction.get(EditAction.class);
-    } 
-    
-    public Action[] getActions(boolean context) {
-        return new Action [] {
-            SystemAction.get(EditAction.class),
-            SystemAction.get(QueryAndRefactorAction.class),
-            SystemAction.get(CutAction.class),
-            SystemAction.get(CopyAction.class),
-            SystemAction.get(RenameAction.class),
-            SystemAction.get(DeleteAction.class),
-            null,
-            SystemAction.get(ToolsAction.class),
-            null,
-            SystemAction.get(PropertiesAction.class),
-        };
+        return Utilities.loadImage(IMAGE_ICON_BASE);
     }
 }

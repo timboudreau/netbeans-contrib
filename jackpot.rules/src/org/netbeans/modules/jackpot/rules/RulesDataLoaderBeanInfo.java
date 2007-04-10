@@ -21,22 +21,26 @@ package org.netbeans.modules.jackpot.rules;
 
 import java.beans.*;
 import java.awt.Image;
-import org.openide.loaders.MultiFileLoader;
-import org.openide.ErrorManager;
+import org.openide.loaders.UniFileLoader;
 import org.openide.util.Utilities;
 
+/**
+ * BeanInfo class for RulesDataLoader
+ */
 public final class RulesDataLoaderBeanInfo extends SimpleBeanInfo {
 
     public BeanInfo[] getAdditionalBeanInfo () {
         try {
-            return new BeanInfo[] { Introspector.getBeanInfo (MultiFileLoader.class) };
+            return new BeanInfo[] { Introspector.getBeanInfo (UniFileLoader.class) };
         } catch (IntrospectionException ie) {
-	    ErrorManager.getDefault().notify(ie);
-            return null;
+            throw new AssertionError(ie);
         }
     }
 
     public Image getIcon(final int type) {
-        return Utilities.loadImage("org/netbeans/modules/jackpot/rules/resources/Rule_file_16.png"); // NOI18N
+        if (type == BeanInfo.ICON_COLOR_16x16 || type == BeanInfo.ICON_MONO_16x16) {
+            return Utilities.loadImage("org/netbeans/modules/jackpot/rules/resources/Rule_file_16.png"); // NOI18N
+        }
+        return null;
     }
 }

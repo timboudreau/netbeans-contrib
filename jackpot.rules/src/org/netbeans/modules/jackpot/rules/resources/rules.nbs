@@ -1,0 +1,196 @@
+# The contents of this file are subject to the terms of the Common Development
+# and Distribution License (the License). You may not use this file except in
+# compliance with the License.
+#
+# You can obtain a copy of the License at http://www.netbeans.org/cddl.html
+# or http://www.netbeans.org/cddl.txt.
+#
+# When distributing Covered Code, include this CDDL Header Notice in each file
+# and include the License file at http://www.netbeans.org/cddl.txt.
+# If applicable, add the following below the CDDL Header, with the fields
+# enclosed by brackets [] replaced by your own identifying information:
+# "Portions Copyrighted [year] [name of copyright owner]"
+#
+# The Original Software is NetBeans. The Initial Developer of the Original
+# Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
+# Microsystems, Inc. All Rights Reserved.
+
+
+
+########### tokens #############################################################
+
+
+TOKEN:comment:("/*"):<IN_COMMENT>
+
+<IN_COMMENT> {
+
+    TOKEN:comment: ([^"@""*"]+)
+    TOKEN:comment: ("*"[^"/"])
+    TOKEN:comment: ("*/"):<DEFAULT>
+}
+
+TOKEN:line_comment: ("//"[^"\n""\r"]*)
+
+TOKEN:bracket:( "(" | ")" | "<" | ">" | "[" | "]" | "{" | "}" )
+
+TOKEN:rule_operator: ( "=>" | "::" )
+COLOR:rule_operator: {
+    foreground_color: "black";
+    font_type: "bold";
+}
+
+TOKEN:invalid_keyword: (
+    "class" |
+    "enum" |
+    "goto" |
+    "implements" |
+    "import" |
+    "interface" |
+    "package"
+)
+COLOR:invalid_keyword: {
+    foreground_color: "red";
+    font_type: "italic";
+}
+
+TOKEN:keyword: (
+    "abstract" |
+    "assert" |
+    "boolean" |
+    "break" |
+    "byte" |
+    "case" |
+    "catch" |
+    "char" |
+    "const" |
+    "continue" |
+    "default" |
+    "do" |
+    "double" |
+    "else" |
+    "extends" |
+    "false" |
+    "final" |
+    "finally" |
+    "float" |
+    "for" |
+    "if" |
+    "instanceof" |
+    "int" |
+    "long" |
+    "native" |
+    "new" |
+    "private" |
+    "protected" |
+    "public" |
+    "return" |
+    "short" |
+    "static" |
+    "strictfp" |
+    "super" |
+    "switch" |
+    "synchronized" |
+    "this" |
+    "throw" |
+    "throws" |
+    "transient" |
+    "true" |
+    "try" |
+    "void" |
+    "volatile" |
+    "while"
+)
+
+TOKEN:operator: (
+    [ "?" ":" "<" ">" "/" "*" "-" "+" "." "," "=" "{" "}" 
+      "(" ")" "[" "]" "!" "@" "#" "$" "%" "^" "&" "~" "|" "\\" ";"
+    ]
+)
+
+TOKEN:string: (
+    "\""
+        ( [^ "\"" "\n" "\r"] |
+          ("\\" ["r" "n" "t" "\\" "\'" "\""])
+        )*
+    "\""
+)
+
+TOKEN:string: (
+    "\'"
+        ( [^ "\'" "\n" "\r"] |
+          ("\\" ["r" "n" "t" "\\" "\'" "\""])
+        )*
+    "\'"
+)
+
+TOKEN:number: (["0"-"9"] ["0"-"9" "."]*)
+
+TOKEN:whitespace: ([" " "\t" "\n" "\r"]+)
+
+TOKEN:dot: ("."[^"("","" ""\n""\r"]*)
+
+TOKEN:meta_variable: ( "$"
+    ["a"-"z" "A"-"Z"] 
+    [^" " "\t" "\n" "\r" "?" ":" "<" ">" "/" "*" "-" "+" "." "," "=" "{" "}"
+      "(" ")" "[" "]" "!" "@" "#" "$" "%" "^" "&" "~" "|" "\\" ";" 
+    ]*
+)
+COLOR:meta_variable: {
+    foreground_color: "black";
+    font_type: "bold";
+}
+
+TOKEN:meta_list: ( "$"
+    ["a"-"z" "A"-"Z"] 
+    [^" " "\t" "\n" "\r" "?" ":" "<" ">" "/" "*" "-" "+" "." "," "=" "{" "}"
+      "(" ")" "[" "]" "!" "@" "#" "$" "%" "^" "&" "~" "|" "\\" ";" 
+    ]* "$"
+)
+COLOR:meta_list: {
+    foreground_color: "black";
+    font_type: "bold";
+}
+
+TOKEN:identifier: (
+    ["a"-"z" "A"-"Z"] 
+    [^" " "\t" "\n" "\r" "?" ":" "<" ">" "/" "*" "-" "+" "." "," "=" "{" "}"
+      "(" ")" "[" "]" "!" "@" "#" "$" "%" "^" "&" "~" "|" "\\" ";" 
+    ]*
+)
+
+########### colors #######################################################
+
+TOKEN:block_comment: ("/*" - "*/")
+SKIP:block_comment
+FOLD:block_comment: {
+    expand_type_action_name:"Expand Comment Fold";
+    collapse_type_action_name:"Collapse Comment Fold";
+    fold_display_name:"Comment Fold";
+}
+COLOR:block_comment: {
+    foreground_color: "lightGray";
+}
+
+COLOR:dot: {
+    foreground_color: "black";
+}
+
+COLOR:identifier: {
+    foreground_color: "black";
+    font_type: "bold";
+}
+
+COLOR:bracket: {
+    foreground_color: "black";
+    font_type: "bold";
+}
+
+# parser should ignore whitespaces
+SKIP:whitespace
+
+# brace completion
+COMPLETE "(:)"
+COMPLETE "{:}"
+COMPLETE "\":\""
+COMPLETE "':'"
+COMPLETE "[:]"

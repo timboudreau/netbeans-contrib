@@ -19,14 +19,12 @@
 
 package org.netbeans.modules.jackpot.rules;
 
-import java.io.IOException;
-import org.netbeans.api.jackpot.Query;
-import org.openide.cookies.InstanceCookie;
 import org.openide.filesystems.FileObject;
 import org.openide.loaders.*;
 import org.openide.nodes.CookieSet;
 import org.openide.nodes.Node;
 import org.openide.text.DataEditorSupport;
+import org.openide.util.Lookup;
 
 /**
  * RulesDataObject: a DataObject representing Jackpot rules files.
@@ -38,25 +36,18 @@ public class RulesDataObject extends MultiDataObject {
      * @param loader the MultiFileLoader
      * @throws org.openide.loaders.DataObjectExistsException 
      */
-    public RulesDataObject(final FileObject file, MultiFileLoader loader)
+    public RulesDataObject(final FileObject file, RulesDataLoader loader)
       throws DataObjectExistsException {
         super(file, loader);
         CookieSet cookies = getCookieSet();
         cookies.add((Node.Cookie) DataEditorSupport.create(this, getPrimaryEntry(), cookies));
-        cookies.add(new InstanceCookie() {
-            public Class instanceClass() throws IOException,ClassNotFoundException {
-                return Query.class;
-            }
-            public Object instanceCreate() throws IOException,ClassNotFoundException {
-                return RulesDataObject.this;
-            }
-            public String instanceName() {
-                return file.getName();
-            }
-        });
     }
     
     public Node createNodeDelegate() {
-        return new RulesDataNode(this);
+        return new RulesDataNode(this, getLookup());
+    }
+    
+    public Lookup getLookup() {
+        return getCookieSet().getLookup();
     }
 }

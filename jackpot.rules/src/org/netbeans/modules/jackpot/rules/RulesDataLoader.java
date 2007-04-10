@@ -25,7 +25,6 @@ import java.util.Date;
 import java.util.HashMap;
 import org.openide.filesystems.FileObject;
 import org.openide.loaders.DataObjectExistsException;
-import org.openide.loaders.ExtensionList;
 import org.openide.loaders.FileEntry;
 import org.openide.loaders.MultiDataObject;
 import org.openide.loaders.UniFileLoader;
@@ -36,15 +35,20 @@ import org.openide.util.NbBundle;
  * RulesDataLoader: a DataLoader for Jackpot rules files.
  */
 public class RulesDataLoader extends UniFileLoader {
-    public static final String MIME_TYPE = "text/x-rules"; // NOI18N
+    static final String MIME_TYPE = "text/x-rules"; // NOI18N
 
+    /** Create a new rules file data loader. */
     public RulesDataLoader() {
         super("org.netbeans.modules.jackpot.RulesDataObject");
-        ExtensionList list = new ExtensionList();
-        list.addExtension("rules"); //NOI18N
-        list.addMimeType(MIME_TYPE);
-        setExtensions(list);
-        setDisplayName(NbBundle.getMessage(RulesDataLoader.class, "TYPE_JackpotRules"));
+    }
+    
+    protected String defaultDisplayName() {
+        return NbBundle.getMessage(RulesDataLoader.class, "TYPE_JackpotRules");
+    }
+    
+    protected void initialize() {
+        super.initialize();
+        getExtensions().addMimeType(MIME_TYPE);
     }
     
     protected MultiDataObject createMultiObject(FileObject primaryFile)
@@ -54,6 +58,10 @@ public class RulesDataLoader extends UniFileLoader {
 
     protected MultiDataObject.Entry createPrimaryEntry(MultiDataObject obj, FileObject primaryFile) {
         return new RulesFileEntry(obj, primaryFile);
+    }
+    
+    protected String actionsContext() {
+        return "Loaders/" + MIME_TYPE + "/Actions";
     }
 
     /**
