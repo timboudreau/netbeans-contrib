@@ -142,11 +142,11 @@ public class Import {
             FileSystem fs = (FileSystem) Repository.getDefault().getDefaultFileSystem();
             
             String tmpl;
+            // XXX ToDo: These templates are for JSF 1.1 project, should consider JSF 1.2 as well.
             if (context.fragment) {
-                tmpl = "Templates/JsfApps/PageFragment.jspf"; // NOI18N
+                tmpl = "Templates/JSP_Servlet/PageFragment.jspf"; // NOI18N
             } else {
-                tmpl = "Templates/JsfApps/Jsf.jsp"; // NOI18N
-                tmpl = "Templates/JsfApps/Page.jsp"; // NOI18N
+                tmpl = "Templates/JSP_Servlet/Page.jsp"; // NOI18N
             }
             FileObject fo = fs.findResource(tmpl);
             
