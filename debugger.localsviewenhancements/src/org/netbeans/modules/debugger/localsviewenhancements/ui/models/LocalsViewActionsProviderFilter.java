@@ -19,21 +19,24 @@
 
 package org.netbeans.modules.debugger.localsviewenhancements.ui.models;
 
+import java.io.IOException;
+import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import javax.lang.model.element.TypeElement;
 import javax.swing.*;
 import org.netbeans.api.debugger.DebuggerEngine;
 import org.netbeans.api.debugger.DebuggerManager;
-import org.netbeans.api.debugger.Session;
 import org.netbeans.api.debugger.jpda.Field;
 import org.netbeans.api.debugger.jpda.LocalVariable;
 import org.netbeans.api.debugger.jpda.This;
 import org.netbeans.api.debugger.jpda.Variable;
-import org.netbeans.jmi.javamodel.ClassDefinition;
-import org.netbeans.jmi.javamodel.JavaClass;
-import org.netbeans.modules.editor.java.JMIUtils;
-import org.netbeans.modules.javacore.api.JavaModel;
+import org.netbeans.api.java.source.CancellableTask;
+import org.netbeans.api.java.source.CompilationController;
+import org.netbeans.api.java.source.JavaSource;
+import org.netbeans.api.java.source.JavaSource.Phase;
+import org.netbeans.api.java.source.UiUtils;
 import org.netbeans.spi.debugger.jpda.EditorContext;
 import org.netbeans.spi.debugger.jpda.SourcePathProvider;
 import org.netbeans.spi.viewmodel.Models;
@@ -41,7 +44,8 @@ import org.netbeans.spi.viewmodel.NodeActionsProviderFilter;
 import org.netbeans.spi.viewmodel.NodeActionsProvider;
 import org.netbeans.spi.viewmodel.ModelListener;
 import org.netbeans.spi.viewmodel.UnknownTypeException;
-import org.openide.ErrorManager;
+import org.openide.filesystems.FileObject;
+import org.openide.filesystems.URLMapper;
 import org.openide.util.NbBundle;
 
 /**
@@ -170,45 +174,65 @@ public class LocalsViewActionsProviderFilter implements NodeActionsProviderFilte
             return;
         }
         
-        JavaClass clazz = (JavaClass) JavaModel.getDefaultExtent().getType().resolve(typeName.replace('$', '.'));
-        if (clazz == null) {
-            typeName = stripInner(typeName);
-            Session session = DebuggerManager.getDebuggerManager().getCurrentSession();
-            if (session != null) {
-                DebuggerEngine debuggerEngine = session.getCurrentEngine();
-                if (debuggerEngine != null) {
-                    SourcePathProvider sourcePathProvider =
-                            (SourcePathProvider) debuggerEngine.lookupFirst(null, SourcePathProvider.class);
-                    if (sourcePathProvider != null) {
-                        String url = sourcePathProvider.getURL(typeName.replace('.', '/') + ".java", true);
-                        EditorContext editorContext = (EditorContext) DebuggerManager.getDebuggerManager().lookupFirst(null, EditorContext.class);
-                        if (editorContext != null) {
-                            editorContext.showSource(url, 1, null);
+        final String finalTypeName = typeName.replace('$', '.');
+        
+        typeName = stripInner(typeName);
+        
+        typeName = typeName.replace('.', '/') + ".java";
+        
+        DebuggerManager debuggerManager = DebuggerManager.getDebuggerManager();
+        DebuggerEngine debuggerEngine = debuggerManager.getCurrentEngine();
+        List sourcePathProviders = debuggerEngine.lookup(null, SourcePathProvider.class);
+        
+        String url = null;
+        int count = sourcePathProviders.size();
+        for (int i = 0; i < count; i++) {
+            SourcePathProvider sourcePathProvider = (SourcePathProvider) sourcePathProviders.get(i);
+            url = sourcePathProvider.getURL(typeName, false);
+            if (url == null) {
+                url = sourcePathProvider.getURL(typeName, true);
+            }
+            if (url != null) {
+                break;
+            }
+        }
+        
+        if (url != null) {
+            try         {
+                FileObject fileObject = URLMapper.findFileObject(new java.net.URL(url));
+                if (fileObject != null) {
+                    JavaSource javaSource = JavaSource.forFileObject(fileObject);
+                    if (javaSource != null) {
+                         try {
+                            javaSource.runUserActionTask(new CancellableTask<CompilationController>() {
+                                public void cancel() {
+                                }
+
+                                public void run(CompilationController compilationController)
+                                    throws Exception {
+                                    compilationController.toPhase(Phase.RESOLVED);
+                                    TypeElement typeElement = compilationController.getElements().getTypeElement(finalTypeName);
+                                    if (typeElement != null) {
+                                        UiUtils.open(compilationController.getClasspathInfo(), typeElement);
+                                    }
+                                }
+                            }, true);                                                    
+                        } catch (IOException ex) {
                         }
+                        return;
                     }
                 }
             }
-        } else {
-            openElement(clazz);
-        }
-    }
-    
-    private static void openElement(ClassDefinition element) {
-        try {
-            try {
-                JavaModel.getJavaRepository().beginTrans(false);
-                ClassDefinition classDefinition = JMIUtils.getSourceElementIfExists((ClassDefinition) element);
-                if (classDefinition != null) {
-                    element = classDefinition;
-                }
-                JMIUtils.openElement(element);
-            } finally {
-                JavaModel.getJavaRepository().endTrans();
+            catch (MalformedURLException ex) {
+                
             }
-        } catch (javax.jmi.reflect.InvalidObjectException e) {
-            ErrorManager.getDefault().notify(e);
+            EditorContext editorContext = (EditorContext) debuggerManager.lookupFirst(null, EditorContext.class);
+
+            if (editorContext != null) {
+                editorContext.showSource(url, 1, null);
+            }
         }
-    }
+    }       
     
     private static String stripInner(String typeName) {
         if (typeName == null) {
