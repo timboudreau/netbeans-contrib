@@ -29,14 +29,6 @@
             <attr name="org-netbeans-modules-usersguide-below-regular.txt/copyfqn-helpset.xml" boolvalue="true"/>
         </folder>
     </folder>
-    <folder name="Toolbars">
-        <folder name="Edit">
-            <file name="org-netbeans-module-copyfqn-actions-CopyFQNAction.shadow">
-                <attr name="originalFile" stringvalue="Actions/Edit/org-netbeans-module-copyfqn-actions-CopyFQNAction.instance"/>
-            </file>
-            <attr name="org-netbeans-module-copyfqn-actions-CopyFQNAction.shadow/org-openide-actions-CutAction.instance" boolvalue="true"/>
-        </folder>
-    </folder>
     <folder name="Shortcuts">
         <file name="C-J C-C.shadow">
             <attr name="originalFile" stringvalue="Actions/Edit/org-netbeans-module-copyfqn-actions-CopyFQNAction.instance"/>
