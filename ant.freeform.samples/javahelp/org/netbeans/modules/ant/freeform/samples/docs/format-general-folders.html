@@ -54,7 +54,7 @@
         </p>
         <p>
             In NetBeans 6.0+, if you use the <code>/2</code> schema (a different namespace), you can also specify
-            optional includes and/or excludes (in the usual Ant patternset format), e.g.:
+            optional includes and/or excludes (in the usual Ant patternset format) and encoding for given folder, e.g.:
         </p>
         <pre>
 &lt;source-folder&gt;
@@ -63,6 +63,7 @@
     &lt;location&gt;${home}/java&lt;/location&gt;
     &lt;includes&gt;packageOfInterest/&lt;/includes&gt;
     &lt;excludes&gt;**/unusedPackages/&lt;/excludes&gt;
+    &lt;encoding&gt;UTF-16&lt;/encoding&gt;
 &lt;/source-folder&gt;
         </pre>
         <p>
