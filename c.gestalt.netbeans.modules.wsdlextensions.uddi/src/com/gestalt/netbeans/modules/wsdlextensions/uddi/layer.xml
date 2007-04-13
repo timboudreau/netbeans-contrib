@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE filesystem PUBLIC "-//NetBeans//DTD Filesystem 1.1//EN" "http://www.netbeans.org/dtds/filesystem-1_1.dtd">
+<filesystem>
+    <folder name="WSDLEditor">
+        
+        <file name="UDDIWsdlExt.xsd" url="UDDIWsdlExt.xsd">
+            <attr name="namespace" stringvalue="http://schemas.sun.com/jbi/wsdl-extensions/uddi/" />
+            <attr name="prefix" stringvalue="uddi" />
+        </file>
+        
+        <folder name ="Binding">
+            <file name="UDDIBinding">
+                <attr name="xsdFileName" stringvalue="UDDIWsdlExt" />
+                <attr name="element" stringvalue="binding" />
+                <attr name="SystemFileSystem.localizingBundle" stringvalue="com.gestalt.netbeans.modules.wsdlextensions.uddi.Bundle" />
+                <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/com/gestalt/netbeans/modules/wsdlextensions/uddi/resources/binding.png" /> 
+            </file>
+        </folder>
+        
+        <folder name ="BindingOperation">
+            <file name="UDDIOperation">
+                <attr name="xsdFileName" stringvalue="UDDIWsdlExt" />
+                <attr name="element" stringvalue="operation" />
+                <attr name="SystemFileSystem.localizingBundle" stringvalue="com.gestalt.netbeans.modules.wsdlextensions.uddi.Bundle" />
+                <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/com/gestalt/netbeans/modules/wsdlextensions/uddi/resources/operation.png" /> 
+            </file>
+        </folder>
+        
+        <folder name ="BindingOperationInput">
+            <file name="UDDIInMessage">
+                <attr name="xsdFileName" stringvalue="UDDIWsdlExt" />
+                <attr name="element" stringvalue="message" />
+                <attr name="SystemFileSystem.localizingBundle" stringvalue="com.gestalt.netbeans.modules.wsdlextensions.uddi.Bundle" />
+                <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/com/gestalt/netbeans/modules/wsdlextensions/uddi/resources/inMessage.png" /> 
+            </file>
+        </folder>	        
+        
+        <folder name ="BindingOperationOutput">
+            <file name="UDDIOutMessage">
+                <attr name="xsdFileName" stringvalue="UDDIWsdlExt" />
+                <attr name="element" stringvalue="message" />
+                <attr name="SystemFileSystem.localizingBundle" stringvalue="com.gestalt.netbeans.modules.wsdlextensions.uddi.Bundle" />
+                <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/com/gestalt/netbeans/modules/wsdlextensions/uddi/resources/outMessage.png" /> 
+            </file>
+        </folder>	        
+        
+        <folder name ="BindingOperationFault">
+            <file name="UDDIFault">
+                <attr name="xsdFileName" stringvalue="UDDIWsdlExt" />
+                <attr name="element" stringvalue="fault" />
+                <attr name="SystemFileSystem.localizingBundle" stringvalue="com.gestalt.netbeans.modules.wsdlextensions.uddi.Bundle" />
+                <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/com/gestalt/netbeans/modules/wsdlextensions/uddi/resources/fault.png" /> 
+            </file>            
+        </folder>
+        
+        <folder name ="ServicePort">
+            <file name="UDDIPort" >
+                <attr name="xsdFileName" stringvalue="UDDIWsdlExt" />
+                <attr name="element" stringvalue="address" />
+                <attr name="SystemFileSystem.localizingBundle" stringvalue="com.gestalt.netbeans.modules.wsdlextensions.uddi.Bundle" />
+                <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/com/gestalt/netbeans/modules/wsdlextensions/uddi/resources/port.png" /> 
+            </file>
+        </folder>	        
+    </folder>
+    
+    <folder name="SeeBeyondJbiComponents">
+        <!-- JBI Component -->
+        <folder name="UDDI">
+            <attr name="id" stringvalue="com.gestalt.jbi.uddi"/>
+            <attr name="type" stringvalue="Binding"/>
+            <attr name="description" stringvalue="Description of binding component : UDDI"/>
+            <file name="UDDI" >
+                <attr name="namespace" stringvalue="http://schemas.sun.com/jbi/wsdl-extensions/uddi/"/>
+            </file>
+        </folder>
+    </folder>
+    
+</filesystem>
