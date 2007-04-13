@@ -40,10 +40,13 @@ import javax.swing.SwingUtilities;
 import javax.swing.filechooser.FileFilter;
 import javax.swing.text.Document;
 import javax.swing.text.Position;
+import org.netbeans.api.editor.mimelookup.MimeLookup;
+import org.netbeans.api.editor.mimelookup.MimePath;
 import org.netbeans.lib.editor.codetemplates.api.CodeTemplate;
 import org.netbeans.lib.editor.codetemplates.api.CodeTemplateManager;
 import org.netbeans.modules.editor.options.BaseOptions;
 import org.openide.ErrorManager;
+import org.openide.util.Lookup;
 import org.openide.windows.WindowManager;
 import org.openide.xml.XMLUtil;
 import org.w3c.dom.Element;
@@ -175,16 +178,30 @@ public class CodeTemplatesPanel extends javax.swing.JPanel {
         jFileChooser.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
         jFileChooser.addChoosableFileFilter(new FileFilter() {
             public boolean accept(File f) {
-                if (f.isDirectory()) {
-                    return true;
+                if (!f.isDirectory()) {
+                    return false;
                 }
-                if (f.getName().toLowerCase().endsWith(".xml")) {
+                if (f.getName().toLowerCase().endsWith(".tmbundle")) { // NOI18N
                     return true;
                 }
                 return false;
             }
             public String getDescription() {
-                return "Abbreviations file";
+                return "TextMate Bundles (*.tmbundle)";
+            }
+        });
+        jFileChooser.addChoosableFileFilter(new FileFilter() {
+            public boolean accept(File f) {
+                if (f.isDirectory()) {
+                    return true;
+                }
+                if (f.getName().toLowerCase().endsWith(".xml")) { // NOI18N
+                    return true;
+                }
+                return false;
+            }
+            public String getDescription() {
+                return "NetBeans Abbrev files (*.xml)";
             }
         });
         
@@ -192,8 +209,29 @@ public class CodeTemplatesPanel extends javax.swing.JPanel {
             File file = jFileChooser.getSelectedFile();
             try {
                 Element rootElement = null;
-                if (file.isDirectory() && file.getName().endsWith(".tmbundle")) {
-                    rootElement = new TmBundleImport().importBundle(file);
+                if (file.isDirectory() && file.getName().endsWith(".tmbundle")) { // NOI18N
+                    // No generics - still must be compilable on 5.5
+                    String defaultMimeType = editorPane.getEditorKit().getContentType();
+                    Map/*<String,Map<String,String>>*/ propsByMime = new TmBundleImport().importBundle(file, defaultMimeType);
+                    Iterator/*<Map.Entry>*/ it = propsByMime.entrySet().iterator();
+                    while (it.hasNext()) {
+                        Map.Entry entry = (Map.Entry)it.next();
+                        String mimeType = (String)entry.getKey();
+                        Map/*<String,String>*/ props = (Map)entry.getValue();
+                        
+                        Lookup lookup = MimeLookup.getLookup(MimePath.get(mimeType));
+                        BaseOptions baseOptions = lookup.lookup(BaseOptions.class);
+                        Map abbreviationsMap = baseOptions.getAbbrevMap();
+                        if (abbreviationsMap == null) {
+                            abbreviationsMap = props;
+                        } else {
+                            abbreviationsMap.putAll(props);
+                        }
+                        baseOptions.setAbbrevMap(abbreviationsMap);
+                        loadModel();
+                    }
+                        
+                    return;
                 } else {
                     InputSource inputSource = new InputSource(new FileReader(file));
                     org.w3c.dom.Document doc = XMLUtil.parse(inputSource, false, false, null, null);

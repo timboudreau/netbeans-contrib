@@ -18,7 +18,7 @@ public class TmBundleImportTest extends TestCase {
 
     public void testVars() {
         assertEquals("foo ${hello}", TmBundleImport.testConversion("foo ${0:hello}"));
-        assertEquals("foo { ${cursor} } { ${code1} }",
+        assertEquals("foo { ${cursor} } { ${tabStop1 default=\"\"} }",
             TmBundleImport.testConversion("foo { $0 } { $1 }"));
 
         // TM doesn't seem to use this, at least not in the Ruby snippets
@@ -26,8 +26,11 @@ public class TmBundleImportTest extends TestCase {
     }
 
     public void testRegexps() {
-        assertEquals("foo ${cursor}", TmBundleImport.testConversion("foo ${0/foo/bar/}"));
-        assertEquals("foo ${code1}", TmBundleImport.testConversion("foo ${1/foo/bar/}"));
+        // Regexps are disabled for now
+        //assertEquals("foo ${cursor}", TmBundleImport.testConversion("foo ${0/foo/bar/}"));
+        //assertEquals("foo ${tabStop1 default=\"\"}", TmBundleImport.testConversion("foo ${1/foo/bar/}"));
+        assertEquals(null, TmBundleImport.testConversion("foo ${0/foo/bar/}"));
+        assertEquals(null, TmBundleImport.testConversion("foo ${1/foo/bar/}"));
     }
 
     public void testPipes() {
@@ -35,16 +38,16 @@ public class TmBundleImportTest extends TestCase {
     }
 
     public void testEscapes() {
-        assertEquals("$0 ${code1} $2", TmBundleImport.testConversion("\\$0 $1 \\$2"));
+        assertEquals("$0 ${tabStop1 default=\"\"} $2", TmBundleImport.testConversion("\\$0 $1 \\$2"));
     }
 
     public void testCursor() {
         assertEquals("foo { ${cursor} }", TmBundleImport.testConversion("foo { $0 }"));
-        assertEquals("${cursor} ${code1}", TmBundleImport.testConversion("$0 $1"));
+        assertEquals("${cursor} ${tabStop1 default=\"\"}", TmBundleImport.testConversion("$0 $1"));
     }
 
     public void testSelection() {
-        assertEquals("foo { ${selection} }",
+        assertEquals("foo { ${selection line allowSurround} }",
             TmBundleImport.testConversion("foo { $TM_SELECTED_TEXT }"));
     }
 

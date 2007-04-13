@@ -32,8 +32,6 @@ import org.openide.ErrorManager;
 import org.openide.NotifyDescriptor;
 import org.openide.xml.XMLUtil;
 import org.openide.xml.XMLUtil;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -46,22 +44,22 @@ import org.xml.sax.SAXParseException;
  * Import TM bundles  (.tmbundle) into NetBeans live code templates.
  * Special support for Ruby-oriented bundles (for example it knows
  * what the shell command `snippet_paren.rb end` means.)
- * 
+ *
  * @todo i18n
  * @todo progress bar
- * 
+ *
  * @author Tor Norbye
  */
 public class TmBundleImport {
-    private static final String TAG_ROOT = "abbrevs"; //NOI18N
-    private static final String TAG_ABBREV = "abbrev"; //NOI18N
-
-    /** Attributes */
-    private static final String ATTR_KEY = "key"; //NOI18N
-    private static final String ATTR_XML_SPACE = "xml:space"; //NOI18N    
-    private static final String VALUE_XML_SPACE = "preserve"; //NOI18N
-    private Document doc;
-    private Element root;
+    // UUIDs for macros we know about that we have already built in in a better way and importing
+    // would clobber
+    private static String[] handledBetter =
+        new String[] {
+            "0F940CBC-2173-49FF-B6FD-98A62863F8F2", "855FC4EF-7B1E-48EE-AD4E-5ECB8ED79D1C",
+            "855FC4EF-7B1E-48EE-AD4E-5ECB8ED79D1C"
+        };
+    public static final String RUBY_MIME_TYPE = "text/x-ruby"; // application/x-ruby is also used a fair bit.
+    public static final String RHTML_MIME_TYPE = "application/x-httpd-eruby"; // NOI18N
     private int imported;
     private StringBuilder log = new StringBuilder();
     private final String TMKEY = "key"; // NOI18N
@@ -72,17 +70,16 @@ public class TmBundleImport {
     private final String TMSCOPE = "scope"; // NOI18N
     private final String TMTAGTRIGGER = "tabTrigger"; // NOI18N
     private final String TMUUID = "uuid"; // NOI18N
+    private Map /*<String,Map<String,String>>*/ propsByMime =
+        new HashMap /*<String,Map<String,String>>*/();
+    private String defaultMime;
 
     public TmBundleImport() {
-        // Construct a DOM document corresponding to the NetBeans Abbreviations
-        // XXX These parameters may be wrong!
-        doc = XMLUtil.createDocument(TAG_ROOT, null, null, null);
-        //"-//NetBeans//DTD Editor Abbreviations settings 1.0//EN", // NOI18N
-        //"http://www.netbeans.org/dtds/EditorAbbreviations-1_0.dtd"); // NOI18N
-        root = doc.getDocumentElement();
     }
 
-    public Element importBundle(File file) {
+    public Map /*String,Map<String,String>>*/ importBundle(File file, String defaultMime) {
+        this.defaultMime = defaultMime;
+
         File snippets = new File(file, "Snippets");
 
         if (!snippets.exists()) {
@@ -90,6 +87,8 @@ public class TmBundleImport {
 
             return null;
         }
+
+        log.append("IMPORT SUMMARY\n------------------------------\n\n");
 
         // TODO - Macros, binaries, others?
         File[] snippetFiles = snippets.listFiles();
@@ -105,16 +104,17 @@ public class TmBundleImport {
         log.append("Imported " + imported + " snippets.");
 
         JTextArea text = new JTextArea();
-        text.setColumns(70);
+        text.setColumns(60);
         text.setRows(15);
         text.setText(log.toString());
+        text.setCaretPosition(0);
 
         NotifyDescriptor nd =
             new NotifyDescriptor.Message(new JScrollPane(text),
-                NotifyDescriptor.Message.ERROR_MESSAGE);
+                NotifyDescriptor.Message.INFORMATION_MESSAGE);
         DialogDisplayer.getDefault().notify(nd);
 
-        return root;
+        return propsByMime;
     }
 
     /** Get text within an element */
@@ -198,7 +198,12 @@ public class TmBundleImport {
                 String scope = map.get(TMSCOPE);
                 String uuid = map.get(TMUUID);
 
-                // TODO - handle scope != "source.ruby" to do some other mime types - import elsewhere?
+                if (skipKnownRubyTemplates(tabTrigger, content, name, scope, uuid)) {
+                    log.append("Skipping snippet " + tabTrigger + ": it is already builtin\n");
+
+                    return;
+                }
+
                 String netbeansAbbrev = convertTmContent(name, content, log);
 
                 if (netbeansAbbrev == null) {
@@ -206,9 +211,12 @@ public class TmBundleImport {
                     return;
                 }
 
-                addAbbrev(tabTrigger, name, netbeansAbbrev);
+                String mimeType = getMimeType(scope);
+
+                addAbbrev(mimeType, tabTrigger, name, netbeansAbbrev);
             } else {
-                log.append(("Need tabTrigger for \"" + file.getName() + "\" - skipping\n"));
+                log.append(("The snippet \"" + file.getName() +
+                    "\" is bound to another key than Tab - skipping\n"));
 
                 return;
             }
@@ -217,6 +225,44 @@ public class TmBundleImport {
         } catch (SAXException se) {
             ErrorManager.getDefault().notify(se);
         }
+    }
+
+    /** Get a mime type to use for the given TM scope */
+    private String getMimeType(String scope) {
+        if (scope.startsWith("source.ruby")) { // NOI18N
+
+            return RUBY_MIME_TYPE;
+        }
+
+        if (scope.startsWith("text.html.ruby")) { // NOI18N
+
+            return RHTML_MIME_TYPE;
+        }
+
+        if (scope.startsWith("source.yaml")) { // NOI18N
+
+            return "text/x-yaml";
+        }
+
+        // TODO
+        // text.html, (string.quoted.double.ruby|string.interpolated.ruby) - string source.
+        // TODO - TM macros completely unrelated to Ruby - e.g. python etc.
+        return defaultMime;
+    }
+
+    /**
+     * Avoid importing templates that are already built in and handled in a better way than the
+     * importer will
+     */
+    private boolean skipKnownRubyTemplates(String tabTrigger, String content, String name,
+        String scope, String uuid) {
+        for (String id : handledBetter) {
+            if (id.equals(uuid)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /** For unit testing */
@@ -235,7 +281,7 @@ public class TmBundleImport {
 
         // collect { |${1:e}| $0 }   =>    collect { ||${e}|| ${cursor}
 
-        // $num => expr{num}
+        // $num => tabStop$num
         // Tricky:
         // open("path;or;url", "w") do |doc| .. end (ope).plist:   
         //   <string>open(${1:"${2:path/or/url/or/pipe}"}${3/(^[rwab+]+$)|.*/(?1:, ")/}${3:w}${3/(^[rwab+]+$)|.*/(?1:")/}) { |${4:io}| $0 }</string>
@@ -264,9 +310,6 @@ public class TmBundleImport {
 
                 if (Character.isDigit(peek)) {
                     // It's $0, $1, $2, .... these are tabstops.
-                    // I don't really have those in NetBeans; we have vars.
-                    // I might rename them here, to something like ${code1}, ${code2}, etc.
-                    // OR I could just leave the names along
                     i++; // Skip both
                     sb.append('$');
                     sb.append('{');
@@ -297,7 +340,7 @@ public class TmBundleImport {
                         //continue;
                         log.append(
                             "Regular expression substitution not supported; skipping snippet \"" +
-                            name + "\"");
+                            name + "\"\n");
 
                         return null;
                     } else {
@@ -310,7 +353,7 @@ public class TmBundleImport {
 
                     if (content.regionMatches(false, i + 1, SELECTED_TEXT, 0, SELECTED_TEXT.length())) {
                         i += SELECTED_TEXT.length();
-                        sb.append("${selection}");
+                        sb.append("${selection line allowSurround}");
 
                         continue;
                     }
@@ -366,9 +409,9 @@ public class TmBundleImport {
         assert Character.isDigit(digit);
 
         if (digit == '0') {
-            return "cursor";
+            return "cursor"; // NOI18N
         } else {
-            return "code" + digit;
+            return "tabStop" + digit + " default=\"\""; // NOI18N
         }
     }
 
@@ -376,14 +419,15 @@ public class TmBundleImport {
      * @todo Do something about desc?
      * @todo Add a UID to easy in import duplicate avoidance?
      */
-    private void addAbbrev(String key, String desc, String content) {
-        Element element = doc.createElement(TAG_ABBREV);
-        element.setAttribute(ATTR_KEY, key);
-        element.setAttribute(ATTR_XML_SPACE, VALUE_XML_SPACE);
-        element.appendChild(doc.createTextNode(content));
+    private void addAbbrev(String mime, String key, String desc, String content) {
+        Map /*<String,String*/ map = (Map)propsByMime.get(mime);
 
-        root.appendChild(element);
-        root.appendChild(doc.createTextNode("\n"));
+        if (map == null) {
+            map = new HashMap /*<String,String>*/();
+            propsByMime.put(mime, map);
+        }
+
+        map.put(key, content);
 
         imported++;
     }
