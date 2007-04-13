@@ -26,13 +26,21 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintStream;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.jar.JarFile;
 import java.util.logging.Logger;
+import org.netbeans.api.autoupdate.OperationContainer;
+import org.netbeans.api.autoupdate.OperationException;
+import org.netbeans.api.autoupdate.OperationSupport;
+import org.netbeans.api.autoupdate.UpdateManager;
+import org.netbeans.api.autoupdate.UpdateUnit;
 import org.netbeans.api.sendopts.CommandException;
 import org.netbeans.spi.sendopts.Env;
 import org.netbeans.spi.sendopts.Option;
@@ -209,19 +217,18 @@ public class ModuleOptions extends OptionProcessor {
             }
 
             if (optionValues.containsKey(disable)) {
-                for (String name : optionValues.get(disable)) {
-                    changeModuleState(name, false);
-                }
+                changeModuleState(optionValues.get(disable), false);
             }
 
             if (optionValues.containsKey(enable)) {
-                for (String name : optionValues.get(enable)) {
-                    changeModuleState(name, true);
-                }
+                changeModuleState(optionValues.get(disable), true);
+
             }
         } catch (InterruptedException ex) {
             throw initCause(new CommandException(4), ex);
         } catch (IOException ex) {
+            throw initCause(new CommandException(4), ex);
+        } catch (OperationException ex) {
             throw initCause(new CommandException(4), ex);
         }
     }
@@ -317,70 +324,29 @@ public class ModuleOptions extends OptionProcessor {
         LOG.fine("waitFor finished");
     }
 
-    private void changeModuleState(String cnb, boolean enable) throws IOException, CommandException, InterruptedException {
-        {
+    private void changeModuleState(String[] cnbs, boolean enable) throws IOException, CommandException, InterruptedException, OperationException {
+        for (String cnb : cnbs) {
             int slash = cnb.indexOf('/');
             if (slash >= 0) {
                 cnb = cnb.substring(0, slash);
             }
         }
+        
+        Set<String> all = new HashSet<String>(Arrays.asList(cnbs));
 
-        final String codebase = cnb;
-        final FileObject root = Repository.getDefault().getDefaultFileSystem().getRoot();
-        final FileObject dir = FileUtil.createFolder(root, "Modules");
-        final String fn = cnb.replace('.', '-') + ".xml";
-        final FileObject conf = dir.getFileObject(fn);
-
-        if (conf == null) {
-            throw new CommandException(8, NbBundle.getMessage(ModuleOptions.class, "ERR_ModuleNotFound", cnb)); // NOI18N
-        }
-
-        byte[] arr = new byte[(int)conf.getSize()];
-        InputStream is = conf.getInputStream();
-        int len = is.read(arr);
-        if (len != arr.length) {
-            throw new CommandException(8);
-        }
-        is.close();
-
-        String config = new String(arr, "utf-8");
-
-        String what = "<param name=\"enabled\">false</param>"; // NOI18N
-        String with = "<param name=\"enabled\">true</param>"; // NOI18N
-        if (!enable) {
-            String s = what;
-            what = with;
-            with = s;
-        }
-
-        final String newConfig = config.replaceAll(what, with);
-
-        if (config.equals(newConfig)) {
-            throw new CommandException(8, NbBundle.getMessage(ModuleOptions.class, "ERR_ModuleChanged", cnb, config, newConfig)); // NOI18N
-        }
-
-        class Write implements FileSystem.AtomicAction {
-            public void run() throws IOException {
-                FileLock lock = conf.lock();
-                LOG.config("about to write: " + conf);
-                LOG.config(newConfig);
-                OutputStream os = null;
-                try {
-                    os = conf.getOutputStream(lock);
-                    os.write(newConfig.getBytes());
-                } finally {
-                    if (os != null) {
-                        os.close();
-                    }
-                    lock.releaseLock();
+        List<UpdateUnit> units = UpdateManager.getDefault().getUpdateUnits();
+        OperationContainer<OperationSupport> operate = enable ? OperationContainer.createForEnable() : OperationContainer.createForDisable();
+        for (UpdateUnit updateUnit : units) {
+            if (all.contains(updateUnit.getCodeName())) {
+                if (enable) {
+                    operate.add(updateUnit, updateUnit.getAvailableUpdates().get(0));
+                } else {
+                    operate.add(updateUnit, updateUnit.getInstalled());
                 }
-                LOG.config("configuration written to: " + conf);
             }
         }
-        Write w = new Write();
-        conf.getFileSystem().runAtomicAction(w);
-
-        waitFor(cnb, enable);
+        OperationSupport support = operate.getSupport();
+        support.doOperation(null);
     }
 
 }
