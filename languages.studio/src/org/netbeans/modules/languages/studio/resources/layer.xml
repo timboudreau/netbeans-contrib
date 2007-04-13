@@ -68,7 +68,7 @@ Microsystems, Inc. All Rights Reserved.
                 <attr name="template" boolvalue="true" />
                 <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.languages.studio.Bundle"/>
                 <attr name="templateWizardURL" urlvalue="nbresloc:/org/netbeans/modules/languages/studio/resources/NBSTemplateFileDescription.html"/>
-                <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/languages/resources/defaultIcon.jpg"/>
+                <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/languages/resources/defaultIcon.png"/>
                 <attr name="templateCategory" stringvalue="simple-files"/>
             </file>            
         </folder>
