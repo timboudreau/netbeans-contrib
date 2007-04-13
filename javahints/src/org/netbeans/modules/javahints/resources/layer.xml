@@ -29,14 +29,28 @@ Microsystems, Inc. All Rights Reserved.
                 <file name="org-netbeans-modules-javahints-SuppressWarningsFixer.instance" />
                 <file name="org-netbeans-modules-javahints-TypoDetector.instance" />
             </folder>
+
             <folder name="hints">
-                <file name="org-netbeans-modules-javahints-WrongPackageSuggestion.instance" />
-                <file name="org-netbeans-modules-javahints-SuspiciousNamesCombination.instance" />
-                <file name="org-netbeans-modules-javahints-AddOverrideAnnotation.instance" />
+                <folder name="general">
+                    <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.javahints.resources.Bundle"/>
+                    <file name="org-netbeans-modules-javahints-WrongPackageSuggestion.instance" />
+                </folder>    
+                
+                <folder name="typos">
+                    <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.javahints.resources.Bundle"/>                    
+                    <file name="org-netbeans-modules-javahints-SuspiciousNamesCombination.instance" />
+                </folder>
+                
+                <folder name="rules15">
+                    <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.javahints.resources.Bundle"/>                    
+                    <file name="org-netbeans-modules-javahints-AddOverrideAnnotation.instance" />
+                </folder>
             </folder>
+            
             <folder name="suggestions">
                 <file name="org-netbeans-modules-javahints-AssignResultToVariable.instance" />
             </folder>
+            
         </folder>
     </folder>
 
