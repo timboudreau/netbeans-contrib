@@ -24,6 +24,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 import javax.swing.JFileChooser;
+import javax.swing.SwingUtilities;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.DocumentEvent;
@@ -32,10 +33,16 @@ import org.openide.util.NbBundle;
 
 /**
  * @author pblaha
+ * @author peterw99
  */
-public class AddServerLocationVisualPanel extends javax.swing.JPanel {
+public class AddServerLocationVisualPanel extends javax.swing.JPanel implements Retriever.Updater {
+
+    private static final String V3_DOWNLOAD_URL = 
+            "http://download.java.net/maven/glassfish/com/sun/enterprise/glassfish/pe/10.0-SNAPSHOT/pe-10.0-SNAPSHOT.zip";
+    
     private final Set <ChangeListener> listeners = new HashSet<ChangeListener>();
-    private static JFileChooser chooser = null;
+    private Retriever retriever;
+    private volatile String statusText;
 
     /** Creates new form AddServerLocationVisualPanel */
     public AddServerLocationVisualPanel() {
@@ -53,6 +60,7 @@ public class AddServerLocationVisualPanel extends javax.swing.JPanel {
                 fireChangeEvent();
             }                    
         });
+        updateCancelState(false);
     }
     
     /**
@@ -61,6 +69,14 @@ public class AddServerLocationVisualPanel extends javax.swing.JPanel {
      */
     public String getHk2HomeLocation() {
         return hk2HomeTextField.getText();
+    }
+    
+    /**
+     * 
+     * @return
+     */
+    public String getStatusText() {
+        return statusText;
     }
     
     /**
@@ -106,22 +122,17 @@ public class AddServerLocationVisualPanel extends javax.swing.JPanel {
     }
     
     private JFileChooser getJFileChooser(){
-        
-        if (chooser == null) {        
-            chooser = new JFileChooser();
-            chooser.setDialogTitle(NbBundle.getMessage(AddServerLocationVisualPanel.class, "LBL_ChooserName")); //NOI18N
-            chooser.setDialogType(JFileChooser.CUSTOM_DIALOG);
-
-            chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-            chooser.setApproveButtonMnemonic("Choose_Button_Mnemonic".charAt(0)); //NOI18N
-            chooser.setMultiSelectionEnabled(false);
-            chooser.addChoosableFileFilter(new DirFilter());
-            chooser.setAcceptAllFileFilterUsed(false);
-            chooser.setApproveButtonToolTipText(NbBundle.getMessage(AddServerLocationVisualPanel.class, "LBL_ChooserName")); //NOI18N
-
-            chooser.getAccessibleContext().setAccessibleName(NbBundle.getMessage(AddServerLocationVisualPanel.class, "LBL_ChooserName")); //NOI18N
-            chooser.getAccessibleContext().setAccessibleDescription(NbBundle.getMessage(AddServerLocationVisualPanel.class, "LBL_ChooserName")); //NOI18N
-        }
+        JFileChooser chooser = new JFileChooser();
+        chooser.setDialogTitle(NbBundle.getMessage(AddServerLocationVisualPanel.class, "LBL_ChooserName")); //NOI18N
+        chooser.setDialogType(JFileChooser.CUSTOM_DIALOG);
+        chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+        chooser.setApproveButtonMnemonic("Choose_Button_Mnemonic".charAt(0)); //NOI18N
+        chooser.setMultiSelectionEnabled(false);
+        chooser.addChoosableFileFilter(new DirFilter());
+        chooser.setAcceptAllFileFilterUsed(false);
+        chooser.setApproveButtonToolTipText(NbBundle.getMessage(AddServerLocationVisualPanel.class, "LBL_ChooserName")); //NOI18N
+        chooser.getAccessibleContext().setAccessibleName(NbBundle.getMessage(AddServerLocationVisualPanel.class, "LBL_ChooserName")); //NOI18N
+        chooser.getAccessibleContext().setAccessibleDescription(NbBundle.getMessage(AddServerLocationVisualPanel.class, "LBL_ChooserName")); //NOI18N
 
         // set the current directory
         File currentLocation = new File(hk2HomeTextField.getText());
@@ -129,7 +140,6 @@ public class AddServerLocationVisualPanel extends javax.swing.JPanel {
             chooser.setCurrentDirectory(currentLocation.getParentFile());
             chooser.setSelectedFile(currentLocation);
         }
-        
         
         return chooser;
     }
@@ -140,6 +150,7 @@ public class AddServerLocationVisualPanel extends javax.swing.JPanel {
         hk2HomeLbl = new javax.swing.JLabel();
         hk2HomeTextField = new javax.swing.JTextField();
         jButton1 = new javax.swing.JButton();
+        downloadButton = new javax.swing.JButton();
         jPanel1 = new javax.swing.JPanel();
 
         setLayout(new java.awt.GridBagLayout());
@@ -177,6 +188,16 @@ public class AddServerLocationVisualPanel extends javax.swing.JPanel {
         jButton1.getAccessibleContext().setAccessibleName(NbBundle.getMessage(AddServerLocationVisualPanel.class, "LBL_BrowseButton"));
         jButton1.getAccessibleContext().setAccessibleDescription("ACSD_Browse_Button_InstallLoc");
 
+        downloadButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                downloadButtonActionPerformed(evt);
+            }
+        });
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridy = 2;
+        gridBagConstraints.insets = new java.awt.Insets(0, 12, 0, 0);
+        add(downloadButton, gridBagConstraints);
+        
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridwidth = 3;
@@ -190,10 +211,59 @@ public class AddServerLocationVisualPanel extends javax.swing.JPanel {
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {
         String newLoc = browseHomeLocation();
-        if ((newLoc!=null)&&(!newLoc.equals("")))
-        hk2HomeTextField.setText(newLoc);
+        if(newLoc != null && newLoc.length() > 0) {
+            hk2HomeTextField.setText(newLoc);
+        }
+    }
+    
+    private void downloadButtonActionPerformed(java.awt.event.ActionEvent evt) {
+        if(retriever == null) {
+            retriever = new Retriever(new File(hk2HomeTextField.getText()), 
+                    V3_DOWNLOAD_URL, this);
+            new Thread(retriever).start();
+            updateCancelState(true);
+        } else {
+            retriever.stopRetrieval();
+        }
+    }
+    
+    public void removeNotify() {
+        // !PW Is there a better place for this?  If the retriever is still running
+        // the user must have hit cancel on the wizard, so tell the retriever thread
+        // to shut down and clean up.
+        if(retriever != null) {
+            retriever.stopRetrieval();
+        }
+        super.removeNotify();
     }
 
+    // ------------------------------------------------------------------------
+    // Updater implementation
+    // ------------------------------------------------------------------------
+    public void updateStatusText(final String text) {
+        statusText = text;
+        fireChangeEvent();
+    }
+
+    public void clearCancelState() {
+        updateCancelState(false);
+        retriever = null;
+    }
+    
+    private void updateCancelState(boolean state) {
+        final String buttonText = state ? "Cancel Download" : "Download V3 Now...";
+        if(SwingUtilities.isEventDispatchThread()) {
+            downloadButton.setText(buttonText);
+        } else {
+            SwingUtilities.invokeLater(new Runnable() {
+                public void run() {
+                    downloadButton.setText(buttonText);
+                }
+            });
+        }
+    }
+    // ------------------------------------------------------------------------
+    
     private static class DirFilter extends javax.swing.filechooser.FileFilter {
         
         public boolean accept(File f) {
@@ -212,6 +282,7 @@ public class AddServerLocationVisualPanel extends javax.swing.JPanel {
     
     // Variables declaration - do not modify
     private javax.swing.JButton jButton1;
+    private javax.swing.JButton downloadButton;
     private javax.swing.JLabel hk2HomeLbl;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JTextField hk2HomeTextField;

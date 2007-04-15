@@ -91,12 +91,23 @@ public class AddServerLocationPanel implements WizardDescriptor.Panel, ChangeLis
      * @return 
      */
     public boolean isValid() {
-        String locationStr = ((AddServerLocationVisualPanel)getComponent()).getHk2HomeLocation();
- {
-            wizard.putProperty(PROP_ERROR_MESSAGE, null);
-            instantiatingIterator.setHk2HomeLocation(locationStr);
-            return true;
+        AddServerLocationVisualPanel component = (AddServerLocationVisualPanel) getComponent();
+        String locationStr = component.getHk2HomeLocation();
+        locationStr = (locationStr != null) ? locationStr.trim() : null;
+        if(locationStr == null || locationStr.length() ==0) {
+            wizard.putProperty(PROP_ERROR_MESSAGE, "Install location cannot be empty.");
+            return false;
+        } else {
+            String statusText = component.getStatusText();
+            if(statusText != null && statusText.length() > 0) {
+                wizard.putProperty(PROP_ERROR_MESSAGE, statusText);
+                return false;
+            }
         }
+        
+        wizard.putProperty(PROP_ERROR_MESSAGE, null);
+        instantiatingIterator.setHk2HomeLocation(locationStr);
+        return true;
     }
 
     /**
