@@ -51,10 +51,14 @@ public class Retriever implements Runnable {
         "Ready.",
         "Connecting...",
         "Downloading...",
-        "Complete",
-        "{0}: {1}",
-        "Terminated.",
-        "Response from this URL is not a valid WSDL file.",
+//        "Complete",
+//        "{0}: {1}",
+//        "Terminated.",
+//        "Response from this URL is not a valid WSDL file.",
+        "",
+        "",
+        "",
+        ""
     };
     
     public interface Updater {
