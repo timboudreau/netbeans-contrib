@@ -82,6 +82,7 @@ public class EnableDisableTest extends NbTestCase {
         Manifest m = new Manifest ();
         m.getMainAttributes ().putValue (java.util.jar.Attributes.Name.MANIFEST_VERSION.toString (), "1.0");
         m.getMainAttributes ().putValue ("OpenIDE-Module", "org.my.module/3");
+        m.getMainAttributes ().putValue ("OpenIDE-Module-Specification-Version", "3.3");
         File simpleJar = generateJar (new String[0], m);
 
         CommandLine.getDefault().process(new String[] { "--installmodules", simpleJar.toString() }, System.in, os, err, new File("."));
@@ -112,7 +113,7 @@ public class EnableDisableTest extends NbTestCase {
             fail("our module should be found: " + os.toString());
         }
 
-        Matcher mac = Pattern.compile("org.my.module/3 *disabled").matcher(os.toString());
+        Matcher mac = Pattern.compile("org.my.module/3[ 3\\.]*disabled").matcher(os.toString());
         if (!mac.find()) {
             fail("and should be disabled now: " + os.toString());
         }
@@ -129,7 +130,7 @@ public class EnableDisableTest extends NbTestCase {
             fail("our module should be found: " + os.toString());
         }
 
-        mac = Pattern.compile("org.my.module/3 *enabled").matcher(os.toString());
+        mac = Pattern.compile("org.my.module/3[ 3\\.]*enabled").matcher(os.toString());
         if (!mac.find()) {
             fail("and should be disabled now: " + os.toString());
         }

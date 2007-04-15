@@ -221,7 +221,7 @@ public class ModuleOptions extends OptionProcessor {
             }
 
             if (optionValues.containsKey(enable)) {
-                changeModuleState(optionValues.get(disable), true);
+                changeModuleState(optionValues.get(enable), true);
 
             }
         } catch (InterruptedException ex) {
@@ -339,7 +339,7 @@ public class ModuleOptions extends OptionProcessor {
         for (UpdateUnit updateUnit : units) {
             if (all.contains(updateUnit.getCodeName())) {
                 if (enable) {
-                    operate.add(updateUnit, updateUnit.getAvailableUpdates().get(0));
+                    operate.add(updateUnit, updateUnit.getInstalled());
                 } else {
                     operate.add(updateUnit, updateUnit.getInstalled());
                 }
