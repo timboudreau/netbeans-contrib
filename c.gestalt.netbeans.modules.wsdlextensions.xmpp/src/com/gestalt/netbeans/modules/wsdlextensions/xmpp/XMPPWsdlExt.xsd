@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" 
+           xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" 
+           xmlns:xmpp="http://schemas.sun.com/jbi/wsdl-extensions/xmpp/" 
+           targetNamespace="http://schemas.sun.com/jbi/wsdl-extensions/xmpp/">
+    <xs:import namespace="http://schemas.xmlsoap.org/wsdl/"/>
+    <xs:element name="binding" type="xmpp:tBinding">
+        <xs:annotation>
+            <xs:documentation>
+                "binding" indicates a protocol based binding.
+            </xs:documentation>
+        </xs:annotation>
+    </xs:element>
+    <xs:complexType name="tBinding">
+        <xs:complexContent>
+            <xs:extension base="wsdl:tExtensibilityElement"/>
+            <!-- could add more attributes to the binding -->
+        </xs:complexContent>
+    </xs:complexType>
+    <xs:element name="operation" type="xmpp:tOperation"/>
+    <xs:complexType name="tOperation">
+        <xs:annotation>
+            <xs:documentation>
+                "operation" defines the protocol based operation binding details.
+            </xs:documentation>
+        </xs:annotation>
+        <xs:complexContent>
+            <xs:extension base="wsdl:tExtensibilityElement">
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+    <xs:element name="message" type="xmpp:tMessage">
+        <xs:annotation>
+            <xs:documentation>
+                Defines the protocol based operation message details.
+            </xs:documentation>
+        </xs:annotation>
+    </xs:element>
+    <xs:complexType name="tMessage">
+        <xs:complexContent>
+            <xs:extension base="wsdl:tExtensibilityElement">
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+    <xs:element name="fault" type="xmpp:tFault">
+        <xs:annotation>
+            <xs:documentation>
+                Defines the protocol based operation fault details.
+            </xs:documentation>
+        </xs:annotation>
+    </xs:element>
+    <xs:complexType name="tFault">
+        <xs:complexContent>
+            <xs:extension base="wsdl:tExtensibilityElement">
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>        
+    <xs:element name="address" type="xmpp:tAddress">
+        <xs:annotation>
+            <xs:documentation>
+                "address" indicates protocol based service address.
+            </xs:documentation>
+        </xs:annotation>
+    </xs:element>
+    <xs:complexType name="tAddress">
+        <xs:complexContent>
+            <xs:extension base="wsdl:tExtensibilityElement">
+                <xs:attribute name="domain" type="xs:string"/>
+                <xs:attribute name="username" type="xs:string"/>
+                <xs:attribute name="password" type="xs:string"/>
+                <xs:attribute name="resource" type="xs:string"/>
+                <xs:attribute name="port" type="xs:string"/>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+</xs:schema>

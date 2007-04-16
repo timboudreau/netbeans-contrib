@@ -1,0 +1,6 @@
+Manifest-Version: 1.0
+OpenIDE-Module: com.gestalt.netbeans.modules.wsdlextensions.xmpp
+OpenIDE-Module-Layer: com/gestalt/netbeans/modules/wsdlextensions/xmpp/layer.xml
+OpenIDE-Module-Localizing-Bundle: com/gestalt/netbeans/modules/wsdlextensions/xmpp/Bundle.properties
+OpenIDE-Module-Specification-Version: 1.0
+
