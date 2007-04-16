@@ -49,7 +49,7 @@ Microsystems, Inc. All Rights Reserved.
         </testset>
     </testbag>
 
-   <testbag testattribs="stable" executor="code" name="Unit tests" resultsprocessor="unit">
+   <testbag testattribs="unstable" executor="code" name="Unit tests" resultsprocessor="unit">
         <testset dir="unit/src">
             <patternset>
                 <include name="org/netbeans/modules/tasklist/suggestions/*Test.class"/>
