@@ -51,18 +51,15 @@ public class Retriever implements Runnable {
         "Ready.",
         "Connecting...",
         "Downloading...",
-//        "Complete",
-//        "{0}: {1}",
-//        "Terminated.",
-//        "Response from this URL is not a valid WSDL file.",
-        "",
-        "",
-        "",
-        ""
+        "", // "Complete",
+        "{0}: {1}",
+        "", // "Terminated.",
+        "Response from this URL is not a valid WSDL file.",
     };
     
     public interface Updater {
-        public void updateStatusText(String text);
+        public void updateMessageText(String msg);
+        public void updateStatusText(String status);
         public void clearCancelState();
     }
     
@@ -97,13 +94,17 @@ public class Retriever implements Runnable {
         updateStatus(MessageFormat.format(STATUS_MESSAGE[newState], args));
     }
     
-    private void updateStatus(final String text, int count) {
+    private void updateMessage(final String text, int count) {
         final String size = countAsString(count);
-        updateStatus(text + size);
+        updateMessage(text + size);
     }
     
-    private void updateStatus(final String text) {
-        updater.updateStatusText(text);
+    private void updateMessage(final String msg) {
+        updater.updateMessageText(msg);
+    }
+    
+    private void updateStatus(final String status) {
+        updater.updateStatusText(status);
     }
     
     private String countAsString(int c) {
@@ -150,9 +151,10 @@ public class Retriever implements Runnable {
             
             if(!shutdown) {
                 long end = System.currentTimeMillis();
-                updateStatus("Download & Install completed in " + (end - start) + "ms");
+                updateMessage("Download & Install completed in " + (end - start) + "ms");
                 setDownloadState(STATUS_COMPLETE);
             } else {
+                updateMessage("Download cancelled.");
                 setDownloadState(STATUS_TERMINATED);
             }
         } catch(ConnectException ex) {
@@ -188,7 +190,11 @@ public class Retriever implements Runnable {
             final InputStream entryStream = jarStream;
             JarEntry entry;
             while(!shutdown && (entry = (JarEntry) jarStream.getNextEntry()) != null) {
-                final File entryFile = new File(targetFolder, entry.getName());
+                String entryName = stripGlassfish(entry.getName());
+                if(entryName == null || entryName.length() == 0) {
+                    continue;
+                }
+                final File entryFile = new File(targetFolder, entryName);
                 if(entryFile.exists()) {
                     // !PW FIXME entry already exists, offer overwrite option...
                     throw new RuntimeException("Target " + entryFile.getPath() +
@@ -215,7 +221,7 @@ public class Retriever implements Runnable {
                             bytesRead += len;
                             long update = System.currentTimeMillis() / 333;
                             if(update != lastUpdate) {
-                                updateStatus("unzipping " + entry.getName(), bytesRead);
+                                updateMessage("Installing " + entryName, bytesRead);
                                 lastUpdate = update;
                             }
                             os.write(buffer, 0, len);
@@ -237,6 +243,16 @@ public class Retriever implements Runnable {
         }
         
         return shutdown;
+    }
+    
+    private String stripGlassfish(String name) {
+        if(name.startsWith("glassfish")) {
+            name = name.substring(9);
+            if(name.startsWith("/") || name.startsWith("\\")) {
+                name = name.substring(1);
+            }
+        }
+        return name;
     }
     
     private File backupInstallDir(File installDir) throws IOException {

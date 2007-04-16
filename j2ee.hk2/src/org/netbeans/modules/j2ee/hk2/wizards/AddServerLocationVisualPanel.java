@@ -36,7 +36,7 @@ import org.openide.util.NbBundle;
  * @author peterw99
  */
 public class AddServerLocationVisualPanel extends javax.swing.JPanel implements Retriever.Updater {
-
+    
     private static final String V3_DOWNLOAD_URL = 
             "http://download.java.net/maven/glassfish/com/sun/enterprise/glassfish/pe/10.0-SNAPSHOT/pe-10.0-SNAPSHOT.zip";
     
@@ -44,7 +44,6 @@ public class AddServerLocationVisualPanel extends javax.swing.JPanel implements 
     private Retriever retriever;
     private volatile String statusText;
 
-    /** Creates new form AddServerLocationVisualPanel */
     public AddServerLocationVisualPanel() {
         initComponents();
         hk2HomeTextField.setText("/Users/ludo/gfv3/v3");
@@ -61,6 +60,7 @@ public class AddServerLocationVisualPanel extends javax.swing.JPanel implements 
             }                    
         });
         updateCancelState(false);
+        updateMessageText("");
     }
     
     /**
@@ -142,90 +142,7 @@ public class AddServerLocationVisualPanel extends javax.swing.JPanel implements 
         }
         
         return chooser;
-    }
-    
-    private void initComponents() {
-        java.awt.GridBagConstraints gridBagConstraints;
-
-        hk2HomeLbl = new javax.swing.JLabel();
-        hk2HomeTextField = new javax.swing.JTextField();
-        jButton1 = new javax.swing.JButton();
-        downloadButton = new javax.swing.JButton();
-        jPanel1 = new javax.swing.JPanel();
-
-        setLayout(new java.awt.GridBagLayout());
-
-        hk2HomeLbl.setLabelFor(hk2HomeTextField);
-        org.openide.awt.Mnemonics.setLocalizedText(hk2HomeLbl, NbBundle.getMessage(AddServerLocationVisualPanel.class, "LBL_InstallLocation"));
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 1;
-        add(hk2HomeLbl, gridBagConstraints);
-        hk2HomeTextField.setColumns(15);
-        hk2HomeTextField.getAccessibleContext().setAccessibleDescription(
-                NbBundle.getMessage(AddServerLocationVisualPanel.class, "LBL_InstallLocation"));
-        hk2HomeTextField.getAccessibleContext().setAccessibleName(
-                NbBundle.getMessage(AddServerLocationVisualPanel.class, "LBL_InstallLocation"));
-
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridy = 1;
-        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        gridBagConstraints.weightx = 1.0;
-        gridBagConstraints.insets = new java.awt.Insets(0, 12, 0, 0);
-        add(hk2HomeTextField, gridBagConstraints);
-
-        org.openide.awt.Mnemonics.setLocalizedText(jButton1, NbBundle.getMessage(AddServerLocationVisualPanel.class, "LBL_BrowseButton"));
-        jButton1.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton1ActionPerformed(evt);
-            }
-        });
-
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridy = 1;
-        gridBagConstraints.insets = new java.awt.Insets(0, 12, 0, 0);
-        add(jButton1, gridBagConstraints);
-        jButton1.getAccessibleContext().setAccessibleName(NbBundle.getMessage(AddServerLocationVisualPanel.class, "LBL_BrowseButton"));
-        jButton1.getAccessibleContext().setAccessibleDescription("ACSD_Browse_Button_InstallLoc");
-
-        downloadButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                downloadButtonActionPerformed(evt);
-            }
-        });
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridy = 2;
-        gridBagConstraints.insets = new java.awt.Insets(0, 12, 0, 0);
-        add(downloadButton, gridBagConstraints);
-        
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridwidth = 3;
-        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
-        gridBagConstraints.weightx = 1.0;
-        gridBagConstraints.weighty = 1.0;
-        add(jPanel1, gridBagConstraints);
-        jPanel1.getAccessibleContext().setAccessibleName("TITLE_AddServerLocationPanel");
-        jPanel1.getAccessibleContext().setAccessibleDescription("AddServerLocationPanel_Desc");        
-    }
-
-    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {
-        String newLoc = browseHomeLocation();
-        if(newLoc != null && newLoc.length() > 0) {
-            hk2HomeTextField.setText(newLoc);
-        }
-    }
-    
-    private void downloadButtonActionPerformed(java.awt.event.ActionEvent evt) {
-        if(retriever == null) {
-            retriever = new Retriever(new File(hk2HomeTextField.getText()), 
-                    V3_DOWNLOAD_URL, this);
-            new Thread(retriever).start();
-            updateCancelState(true);
-        } else {
-            retriever.stopRetrieval();
-        }
-    }
+    }   
     
     public void removeNotify() {
         // !PW Is there a better place for this?  If the retriever is still running
@@ -236,12 +153,24 @@ public class AddServerLocationVisualPanel extends javax.swing.JPanel implements 
         }
         super.removeNotify();
     }
-
+    
     // ------------------------------------------------------------------------
     // Updater implementation
     // ------------------------------------------------------------------------
-    public void updateStatusText(final String text) {
-        statusText = text;
+    public void updateMessageText(final String msg) {
+        if(SwingUtilities.isEventDispatchThread()) {
+            downloadStatusLabel.setText(msg);
+        } else {
+            SwingUtilities.invokeLater(new Runnable() {
+                public void run() {
+                    downloadStatusLabel.setText(msg);
+                }
+            });
+        }
+    }
+    
+    public void updateStatusText(final String status) {
+        statusText = status;
         fireChangeEvent();
     }
 
@@ -262,6 +191,7 @@ public class AddServerLocationVisualPanel extends javax.swing.JPanel implements 
             });
         }
     }
+    
     // ------------------------------------------------------------------------
     
     private static class DirFilter extends javax.swing.filechooser.FileFilter {
@@ -280,11 +210,106 @@ public class AddServerLocationVisualPanel extends javax.swing.JPanel implements 
         
     }
     
-    // Variables declaration - do not modify
-    private javax.swing.JButton jButton1;
+    /** This method is called from within the constructor to
+     * initialize the form.
+     * WARNING: Do NOT modify this code. The content of this method is
+     * always regenerated by the Form Editor.
+     */
+    // <editor-fold defaultstate="collapsed" desc=" Generated Code ">//GEN-BEGIN:initComponents
+    private void initComponents() {
+
+        hk2HomeLabel = new javax.swing.JLabel();
+        hk2HomeTextField = new javax.swing.JTextField();
+        browseButton = new javax.swing.JButton();
+        downloadButton = new javax.swing.JButton();
+        jPanel1 = new javax.swing.JPanel();
+        downloadStatusLabel = new javax.swing.JLabel();
+
+        hk2HomeLabel.setText(org.openide.util.NbBundle.getMessage(AddServerLocationVisualPanel.class, "LBL_InstallLocation")); // NOI18N
+
+        browseButton.setText(org.openide.util.NbBundle.getMessage(AddServerLocationVisualPanel.class, "LBL_BrowseButton")); // NOI18N
+        browseButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                browseButtonActionPerformed(evt);
+            }
+        });
+
+        downloadButton.setText("[download/cancel]"); // NOI18N
+        downloadButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                downloadButtonActionPerformed(evt);
+            }
+        });
+
+        downloadStatusLabel.setText("[download status]"); // NOI18N
+
+        javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
+        jPanel1.setLayout(jPanel1Layout);
+        jPanel1Layout.setHorizontalGroup(
+            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(downloadStatusLabel, javax.swing.GroupLayout.DEFAULT_SIZE, 496, Short.MAX_VALUE)
+        );
+        jPanel1Layout.setVerticalGroup(
+            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(downloadStatusLabel)
+        );
+
+        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
+        this.setLayout(layout);
+        layout.setHorizontalGroup(
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(layout.createSequentialGroup()
+                .addComponent(hk2HomeLabel)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(hk2HomeTextField, javax.swing.GroupLayout.DEFAULT_SIZE, 280, Short.MAX_VALUE)
+                .addGap(18, 18, 18)
+                .addComponent(browseButton))
+            .addGroup(layout.createSequentialGroup()
+                .addComponent(downloadButton)
+                .addContainerGap())
+            .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+        );
+        layout.setVerticalGroup(
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(layout.createSequentialGroup()
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(hk2HomeLabel)
+                    .addComponent(browseButton)
+                    .addComponent(hk2HomeTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(downloadButton)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(223, Short.MAX_VALUE))
+        );
+    }// </editor-fold>//GEN-END:initComponents
+
+private void downloadButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_downloadButtonActionPerformed
+        if(retriever == null) {
+            retriever = new Retriever(new File(hk2HomeTextField.getText()), 
+                    V3_DOWNLOAD_URL, this);
+            new Thread(retriever).start();
+            updateCancelState(true);
+        } else {
+            retriever.stopRetrieval();
+        }
+}//GEN-LAST:event_downloadButtonActionPerformed
+
+private void browseButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_browseButtonActionPerformed
+        String newLoc = browseHomeLocation();
+        if(newLoc != null && newLoc.length() > 0) {
+            hk2HomeTextField.setText(newLoc);
+        }
+}//GEN-LAST:event_browseButtonActionPerformed
+    
+    
+    // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton browseButton;
     private javax.swing.JButton downloadButton;
-    private javax.swing.JLabel hk2HomeLbl;
-    private javax.swing.JPanel jPanel1;
+    private javax.swing.JLabel downloadStatusLabel;
+    private javax.swing.JLabel hk2HomeLabel;
     private javax.swing.JTextField hk2HomeTextField;
-    // End of variables declaration   
+    private javax.swing.JPanel jPanel1;
+    // End of variables declaration//GEN-END:variables
+    
 }
