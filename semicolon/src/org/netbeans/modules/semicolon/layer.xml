@@ -30,6 +30,11 @@ enclosed by brackets [] replaced by your own identifying information:
                 <attr name="instanceCreate" methodvalue="org.netbeans.modules.semicolon.InsertAtEndOfCurrentLineAction.createSemicolonAction"/>
             </file>
             
+            <file name="LineCompletionActionNL.instance">
+                <attr name="instanceClass" stringvalue="org.netbeans.modules.semicolon.InsertAtEndOfCurrentLineAction"/>
+                <attr name="instanceCreate" methodvalue="org.netbeans.modules.semicolon.InsertAtEndOfCurrentLineAction.createSemicolonNewlineAction"/>
+            </file>
+            
             <file name="DeletePreviousLineAction.instance">
                 <attr name="instanceClass" stringvalue="org.netbeans.modules.semicolon.DeletePreviousLineAction"/>
             </file>
@@ -37,15 +42,23 @@ enclosed by brackets [] replaced by your own identifying information:
             <file name="DeleteNextLineAction.instance">
                 <attr name="instanceClass" stringvalue="org.netbeans.modules.semicolon.DeleteNextLineAction"/>
             </file>
+            
+            <file name="QuoteAction.instance">
+                <attr name="instanceClass" stringvalue="org.netbeans.modules.semicolon.QuoteAction"/>
+            </file>
+            
         </folder>
     </folder>
     
     <folder name="Shortcuts">
-        <file name="D-OPEN_BRACKET.shadow">
+        <file name="ODS-OPEN_BRACKET.shadow">;
             <attr name="originalFile" stringvalue="Actions/Edit/OpenBraceAction.instance"/>
         </file>
         <file name="D-SEMICOLON.shadow">
             <attr name="originalFile" stringvalue="Actions/Edit/LineCompletionAction.instance"/>
+        </file>
+        <file name="DS-SEMICOLON.shadow">
+            <attr name="originalFile" stringvalue="Actions/Edit/LineCompletionActionNL.instance"/>
         </file>
         <file name="OS-J.shadow">
             <attr name="originalFile" stringvalue="Actions/Edit/DeleteNextLineAction.instance"/>
@@ -55,6 +68,9 @@ enclosed by brackets [] replaced by your own identifying information:
         </file>
         <file name="DO-I.shadow">
             <attr name="originalFile" stringvalue="Actions/Edit/AddI18nAction.instance"/>
+        </file>
+        <file name="DS-QUOTE.shadow">
+            <attr name="originalFile" stringvalue="Actions/Edit/QuoteAction.instance"/>
         </file>
     </folder>
 </filesystem>

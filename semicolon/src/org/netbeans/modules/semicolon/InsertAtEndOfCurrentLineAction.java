@@ -14,6 +14,7 @@ package org.netbeans.modules.semicolon;
 import java.awt.Component;
 import java.awt.KeyboardFocusManager;
 import java.awt.event.ActionEvent;
+import java.util.Arrays;
 import javax.swing.AbstractAction;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
@@ -57,11 +58,29 @@ public class InsertAtEndOfCurrentLineAction extends AbstractAction {
                     }
                     pos += 1;
                 }
+                int lineStart = jtc.getSelectionEnd();
+                int firstNonWsChar = lineStart;
+                for (int i = lineStart; i >= 0; i--) {
+                    char curr = d.getText(i, 1).charAt(0);
+                    if (!Character.isWhitespace(curr)) {
+                        firstNonWsChar = i;
+                    }
+                    if (curr == '\n') {
+                        lineStart = i + 1;
+                        break;
+                    }
+                }
+                int whitespaceToInsert = firstNonWsChar - lineStart;
                 if (insertAt >= 0) {
                     String insert = addNewlineAndPositionCaret ? toInsert + '\n'
                             : toInsert;
+                    if (whitespaceToInsert > 0) {
+                        char[] cc = new char[whitespaceToInsert];
+                        Arrays.fill (cc, ' ');
+                        insert += new String(cc);
+                    }
                     d.insertString(insertAt, insert, null); //NOI18N
-                    int caretPos = insertAt + insert.length() + 1;
+                    int caretPos = insertAt + insert.length();
                     if (addNewlineAndPositionCaret && caretPos < d.getLength()) {
                         jtc.setSelectionStart (caretPos);
                     }
@@ -92,6 +111,10 @@ public class InsertAtEndOfCurrentLineAction extends AbstractAction {
     
     public static InsertAtEndOfCurrentLineAction createSemicolonAction() {
         return new InsertAtEndOfCurrentLineAction (";", false, "CTL_LineCompletionAction"); //NOI18N
+    }
+    
+    public static InsertAtEndOfCurrentLineAction createSemicolonNewlineAction() {
+        return new InsertAtEndOfCurrentLineAction (";", true, "CTL_LineCompletionActionNL"); //NOI18N
     }
     
     public static InsertAtEndOfCurrentLineAction createOpenBraceAction() {
