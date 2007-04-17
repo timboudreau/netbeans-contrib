@@ -56,18 +56,18 @@ public class BrowseSubmenu implements Presenter.Menu {
     private static final String[][] LINKS_FILE = {
         {"Source (ViewCVS)", "http://www.netbeans.org/nonav/source/browse/~checkout~/@FILEPATH@?content-type=text/plain"},
         {"Source (ViewCVS)", "http://www.netbeans.org/nonav/source/browse/@DIRPATH@/"},
-        {"Source (OpenGrok)", "http://deadlock.nbextras.org/opengrok/xref/@FILEPATH@"},
-        {"Source (OpenGrok)", "http://deadlock.nbextras.org/opengrok/xref/@DIRPATH@/"},
-        {"Source (Fisheye)", "http://deadlock.nbextras.org/fisheye/browse/~raw,r=HEAD/netbeans/@FILEPATH@"},
-        {"Source (Fisheye)", "http://deadlock.nbextras.org/fisheye/browse/netbeans/@DIRPATH@/"},
-        {"Source (Hudson trunk)", "http://deadlock.nbextras.org/hudson/job/trunk/ws/@FILEPATH@"},
-        {"Source (Hudson trunk)", "http://deadlock.nbextras.org/hudson/job/trunk/ws/@DIRPATH@/"},
+        {"Source (OpenGrok)", "http://deadlock.netbeans.org/opengrok/xref/@FILEPATH@"},
+        {"Source (OpenGrok)", "http://deadlock.netbeans.org/opengrok/xref/@DIRPATH@/"},
+        {"Source (Fisheye)", "http://deadlock.netbeans.org/fisheye/browse/~raw,r=HEAD/netbeans/@FILEPATH@"},
+        {"Source (Fisheye)", "http://deadlock.netbeans.org/fisheye/browse/netbeans/@DIRPATH@/"},
+        {"Source (Hudson trunk)", "http://deadlock.netbeans.org/hudson/job/trunk/ws/@FILEPATH@"},
+        {"Source (Hudson trunk)", "http://deadlock.netbeans.org/hudson/job/trunk/ws/@DIRPATH@/"},
         {"Javadoc (official)", "http://www.netbeans.org/download/dev/javadoc/@CNBDASHES@/@JAVABASENAME@.html"},
-        {"Javadoc (Hudson javadoc-nbms)", "http://deadlock.nbextras.org/hudson/job/javadoc-nbms/javadoc/@CNBDASHES@/@JAVABASENAME@.html"},
+        {"Javadoc (Hudson javadoc-nbms)", "http://deadlock.netbeans.org/hudson/job/javadoc-nbms/javadoc/@CNBDASHES@/@JAVABASENAME@.html"},
     };
     private static final String[][] LINKS_PRJ = {
         {"Javadoc (official)", "http://www.netbeans.org/download/dev/javadoc/@CNBDASHES@/"},
-        {"Javadoc (Hudson javadoc-nbms)", "http://deadlock.nbextras.org/hudson/job/javadoc-nbms/javadoc/@CNBDASHES@/"},
+        {"Javadoc (Hudson javadoc-nbms)", "http://deadlock.netbeans.org/hudson/job/javadoc-nbms/javadoc/@CNBDASHES@/"},
     };
 
     /** Default constructor for layer */

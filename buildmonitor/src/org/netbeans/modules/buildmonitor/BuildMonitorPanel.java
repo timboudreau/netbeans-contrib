@@ -47,7 +47,7 @@ public class BuildMonitorPanel extends JPanel implements NodeChangeListener {
         BuildMonitor m;
         try {
             m = BuildMonitor.create(node);
-            m.setURL(new URL("http://deadlock.nbextras.org/hudson/job/trunk/rssAll"));
+            m.setURL(new URL("http://deadlock.netbeans.org/hudson/job/trunk/rssAll"));
         } catch (MalformedURLException x) {
             throw new AssertionError(x);
         }

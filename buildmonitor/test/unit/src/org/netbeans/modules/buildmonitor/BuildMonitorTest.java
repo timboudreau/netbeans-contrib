@@ -55,7 +55,7 @@ public class BuildMonitorTest extends NbTestCase {
     public void testHudsonSuccessParsing() throws Exception {
         BuildMonitor m = createMonitor("hudson-success.xml", "Hudson Success");
         assertEquals(Status.SUCCESS, m.getStatus());
-        assertEquals(new URL("http://deadlock.nbextras.org:80/job/kukaczka/14/"), m.getStatusLink());
+        assertEquals(new URL("http://deadlock.netbeans.org:80/job/kukaczka/14/"), m.getStatusLink());
         assertEquals("kukaczka all builds", m.getTitle());
         assertEquals("kukaczka #14 (SUCCESS)", m.getStatusDescription());
     }
@@ -64,14 +64,14 @@ public class BuildMonitorTest extends NbTestCase {
         BuildMonitor m = createMonitor("hudson-failure.xml", "Hudson Failure");
         assertEquals("Hudson Failure", m.getName());
         assertEquals(Status.FAILED, m.getStatus());
-        assertEquals(new URL("http://deadlock.nbextras.org:80/job/trunk/7/"), m.getStatusLink());
+        assertEquals(new URL("http://deadlock.netbeans.org:80/job/trunk/7/"), m.getStatusLink());
         assertEquals("trunk #7 (FAILURE)", m.getStatusDescription());
     }
 
     public void testHudsonProgressParsing() throws Exception {
         BuildMonitor m = createMonitor("hudson-progress.xml", "Hudson Progress");
         assertEquals("picks up old failure status even though a new build is running", Status.FAILED, m.getStatus());
-        assertEquals("points to the previous build, not the running one", new URL("http://deadlock.nbextras.org:80/job/trunk/7/"), m.getStatusLink());
+        assertEquals("points to the previous build, not the running one", new URL("http://deadlock.netbeans.org:80/job/trunk/7/"), m.getStatusLink());
         assertEquals("points to the previous build, not the running one", "trunk #7 (FAILURE)", m.getStatusDescription());
     }
 
