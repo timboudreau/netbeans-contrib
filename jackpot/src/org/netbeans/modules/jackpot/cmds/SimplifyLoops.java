@@ -68,7 +68,7 @@ public class SimplifyLoops extends TreePathTransformer<Void,Object> {
             if(getStatement(0,ist.getThenStatement()) instanceof BreakTree) {
                 // while (true) { if(b) break; ... }
                 splitter.body = ops.block(ist.getElseStatement(),ops.sublist(ops.statement(splitter.body),1));
-                cond = ops.and(cond, ops.not(ist.getCondition()));
+                cond = ops.and(cond, ops.not((ExpressionTree)ops.deblock(ist.getCondition())));
                 resultMsg = "Eliminated 'if break'";
                 logger.info("SimplifyLoops: aR "+cond);
             } else if(getStatement(0,ist.getElseStatement()) instanceof BreakTree) {

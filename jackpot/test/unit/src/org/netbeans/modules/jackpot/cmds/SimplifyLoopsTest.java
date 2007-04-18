@@ -69,9 +69,8 @@ public class SimplifyLoopsTest extends NbTestCase {
             "package x.y;\n" +
             "class IfLifting {\n" +
             "    void test() {\n" +
-            "        while(remaining() >= 2 && !((get() == 0) && (get() == 0)))\n" +
+            "        while( remaining() >= 2 && !(get() == 0) || !(get() == 0) )\n" +
             "         {\n" +
-            "               \n" +
             "         }\n" +
             "    }\n" +
             "    int remaining() { return 0; }\n" +
