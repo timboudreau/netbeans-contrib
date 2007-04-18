@@ -217,7 +217,7 @@ final class IssuezillaXMLHandler extends HandlerBase {
             buffer = null;
         } else if (name.equalsIgnoreCase(LONG_DESC)) { 
             //longDescriptionList.add(longDesc);
-        } else if (tagsInLongDesc.contains(name)) {
+        } else if (tagsInLongDesc.contains(name) && longDesc != null) {
             String s = longDescBuffer.toString ();
             if (name.equals (Issue.Description.ISSUE_WHEN)) {
                 longDesc.setIssueWhen (toDate (s));
