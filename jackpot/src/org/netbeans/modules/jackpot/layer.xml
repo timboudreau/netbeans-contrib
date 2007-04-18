@@ -70,7 +70,6 @@ Microsystems, Inc. All Rights Reserved.
                 <attr name="command" stringvalue="org.netbeans.modules.jackpot.cmds.FindUnusedVariables"/>
                 <attr name="description" stringvalue="Finds variables which are not referenced by any source files."/>
             </file>
-            <!-- needs to ported to new API
             <attr name="FindUnusedVariables.settings/AddOverrides.settings" boolvalue="true"/>
             <file name="AddOverrides.settings" url="resources/jackpotCommand.xml">
                 <attr name="inspector" stringvalue="Overridden methods"/>
@@ -85,6 +84,7 @@ Microsystems, Inc. All Rights Reserved.
                 <attr name="command" stringvalue="org.netbeans.modules.jackpot.cmds.MinimizeFieldAccess"/>
                 <attr name="description" stringvalue="Restricts fields' access depending on their usage by other classes."/>
             </file>
+            <!-- needs to be ported to new API
             <attr name="MinimizeFieldAccess.settings/MinimizeMethodAccess.settings" boolvalue="true"/>
             <file name="MinimizeMethodAccess.settings" url="resources/jackpotCommand.xml">
                 <attr name="inspector" stringvalue="Methods whose access can be minimized"/>
@@ -92,9 +92,9 @@ Microsystems, Inc. All Rights Reserved.
                 <attr name="command" stringvalue="org.netbeans.modules.jackpot.cmds.MinimizeMethodAccess"/>
                 <attr name="description" stringvalue="Restricts methods' access depending on their usage by other classes."/>
             </file>
-            <attr name="MinimizeMethodAccess.settings/StringTokenizerToScanner.rules" boolvalue="true"/>
-            -->
-            <attr name="FindUnusedVariables.settings/StringTokenizerToScanner.rules" boolvalue="true"/>
+            <attr name="MinimizeMethodAccess.settings/StringTokenizerToScanner.rules" boolvalue="true"/ -->
+            <attr name="MinimizeFieldAccess.settings/StringTokenizerToScanner.rules" boolvalue="true"/>
+
             <file name="StringTokenizerToScanner.rules" url="resources/StringTokenizerToScanner.rules">
                 <attr name="inspector" stringvalue="StringTokenizer usages"/>
                 <attr name="transformer" stringvalue="Convert to java.util.Scanner"/>

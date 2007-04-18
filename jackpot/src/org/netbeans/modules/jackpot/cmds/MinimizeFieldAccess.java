@@ -19,26 +19,71 @@
 
 package org.netbeans.modules.jackpot.cmds;
 
-import java.util.LinkedList;
+import com.sun.source.tree.AssignmentTree;
+import com.sun.source.tree.ClassTree;
+import com.sun.source.tree.CompoundAssignmentTree;
+import com.sun.source.tree.IdentifierTree;
+import com.sun.source.tree.MemberSelectTree;
+import com.sun.source.tree.ModifiersTree;
+import com.sun.source.tree.Tree;
+import com.sun.source.tree.UnaryTree;
+import com.sun.source.tree.VariableTree;
+import com.sun.source.util.TreePath;
+import com.sun.source.util.TreePathScanner;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.EnumSet;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import javax.lang.model.element.Element;
+import javax.lang.model.element.ElementKind;
+import javax.lang.model.element.Modifier;
+import javax.lang.model.element.NestingKind;
+import javax.lang.model.element.PackageElement;
+import javax.lang.model.element.TypeElement;
+import javax.lang.model.element.VariableElement;
+import javax.lang.model.type.TypeMirror;
 import javax.lang.model.util.Types;
 import org.netbeans.api.jackpot.QueryContext;
+import org.netbeans.api.jackpot.QueryOperations;
 import org.netbeans.api.jackpot.TreePathTransformer;
-import org.netbeans.api.java.source.ClassIndex;
+import org.netbeans.api.java.source.CancellableTask;
+import org.netbeans.api.java.source.CompilationController;
 import org.netbeans.api.java.source.CompilationInfo;
+import org.netbeans.api.java.source.ElementHandle;
 import org.netbeans.api.java.source.JavaSource;
+import org.netbeans.api.java.source.TreePathHandle;
+import org.netbeans.api.java.source.WorkingCopy;
+import org.openide.ErrorManager;
 
 /**
- * Minimizes field access modifiers based on project usage.
+ * Minimizes field access modifiers based on project usage.<p>
+ * This transformer
+ * demonstrates two-pass operation within the Java Source framework.  The first
+ * pass locates all variable declarations and references, and stores them in a
+ * map using persistent tree and element references.  This pass is started 
+ * directly by this transformer in its <code>init()</code> method, which is
+ * invoked prior to transformer execution.  The second pass runs as a
+ * regular transformation, looking up each compilation unit's variables to see
+ * what modifications it needs and applies them.  The ordering of these two 
+ * passes is important, because only modifications made by the regular 
+ * transformation pass are displayed to the user and committed to the source files.
  */
 public class MinimizeFieldAccess extends TreePathTransformer<Void,Object> {
-    private Types types;
-    private ClassIndex index;
-    /* FIXME:
-    private ReferenceFinder referenceMap;
-     */
-    
+    private JavaSource javaSource;
+    private Map<ElementHandle<VariableElement>,VariableReferences> refs;
+
+    private static final int SETUSE = 1;
+    private static final int GETUSE = 2;
+    private static final int CLASSSHIFT = 4;
+    private static final int PACKAGESHIFT = 2;
+    private static final int WORLDSHIFT = 0;
+    private static final int DECLARATION = 1 << 6;
+    private static final int worldMask =   (SETUSE | GETUSE) << WORLDSHIFT;
+    private static final int packageMask = (SETUSE | GETUSE) << PACKAGESHIFT;
+
     // properties set by PropertySheetInfo
     private boolean ignorePackagePrivate;
     private boolean ignoreConstants;
@@ -58,128 +103,88 @@ public class MinimizeFieldAccess extends TreePathTransformer<Void,Object> {
     @Override
     public void init(QueryContext context, JavaSource javaSource) {
         super.init(context, javaSource);
-        index = javaSource.getClasspathInfo().getClassIndex();
-    }
-    
-    @Override
-    public void attach(CompilationInfo info) {
-	super.attach(info);
-        types = info.getTypes();
-    }
-    
-    @Override
-    public void release() {
-        super.release();
-        types = null;
+        this.javaSource = javaSource;
+        refs = new HashMap<ElementHandle<VariableElement>,VariableReferences>();
+        scanFields();
     }
     
     @Override
     public void destroy() {
+        refs = null;
         super.destroy();
-        index = null;
-    }
-
-    /* FIXME:
-    @Override
-    public void apply() {
-        Tree root = getRootNode();
-        Set<Element> vars = findElements(root);
-        referenceMap = ReferenceFinder.findReferences(env, vars, root);
-        apply(root);
-        show(result, getQueryDescription());
-    }
-    
-    private Set<Element> findElements(Tree root) {
-        final Set<Element> vars = new ListSet();
-        root.accept(new TreeScanner<Void,Object>() {
-            @Override 
-            public Void visitVariable(VariableTree t, Object p) {
-                if (isInteresting(t))
-                    vars.add(getElement(t));
-                return super.visitVariable(t, p);
-            }
-        }, null);
-        return vars;
-    }
-    
-    private boolean isInteresting(VariableTree t) {
-        Element sym = getElement(t);
-        ModifiersTree mods = t.getModifiers();
-        Set<Modifier> flags = mods.getFlags();
-        
-        // ignore non-instance variables
-        if (sym == null || !(sym.getEnclosingElement() instanceof TypeElement))
-            return false;  
-        TypeElement owner = (TypeElement)sym.getEnclosingElement();
-        
-        // ignore compiler-generated fields
-        if (isSynthetic(t))
-            return false;
-        
-        // ignore enum fields, whose flags are synthetic
-        if (owner.getKind() == ElementKind.ENUM)
-            return false;  
-        
-        // ignore fields in anonymous classes, since they aren't accessible
-        if (owner.getNestingKind() == NestingKind.ANONYMOUS)
-            return false; 
-        
-        // ignore static constants if possible
-        if (ignoreConstants &&
-            flags.contains(Modifier.STATIC) && flags.contains(Modifier.FINAL))
-            return false;
-        
-        // ignore non-public fields if possible
-        if (ignorePackagePrivate &&
-            !flags.contains(Modifier.PUBLIC) && !flags.contains(Modifier.PROTECTED))
-            return false;
-        return true;
     }
     
     @Override
-    public Void visitVariable(VariableTree t, Object p) {
-        super.visitVariable(t, p);
-        Element sym = getElement(t);
-        if (!referenceMap.hasReferences(sym))  // true if variable isn't "interesting"
-            return null;
-        ElementReferenceList<Element> varRef = referenceMap.get(sym);
-        int usage = varRef.getUsage();
-        TypeElement owner = (TypeElement)sym.getEnclosingElement();
+    public Void visitVariable(VariableTree tree, Object unused) {
+        WorkingCopy wc = getWorkingCopy();
+        VariableElement var = (VariableElement)wc.getTrees().getElement(getCurrentPath());
+        VariableReferences varRefs = var != null ? refs.get(ElementHandle.create(var)) : null;
 
-        ModifiersTree mods = t.getModifiers();
-        Set<Modifier> flags = mods.getFlags();
-        Set<Modifier> newFlags = EnumSet.noneOf(Modifier.class);
-        newFlags.addAll(flags);
+        if (varRefs != null) { // if "interesting" variable
+            Set<Modifier> flags = var.getModifiers();
+            Set<Modifier> newFlags = EnumSet.noneOf(Modifier.class);
+            newFlags.addAll(flags);
 
-        if (flags.contains(Modifier.PUBLIC) && hasPublicUsage(usage)) {
-            // see if public usage is limited to subclasses
-            boolean onlyProtected = true;
-            TypeMirror classType = owner.asType();
-            for (Element e : varRef.getReferences())
-                if (!types.isSubtype(getClassType(e), classType)) {
-                    onlyProtected = false;
-                    break;
+            TypeElement owner = QueryOperations.getDeclaringClass(var);
+            if (flags.contains(Modifier.PUBLIC) && hasPublicUsage(varRefs.usage)) {
+                // see if public usage is limited to subclasses
+                boolean onlyProtected = true;
+                Types types = wc.getTypes();
+                TypeMirror classType = owner.asType();
+                for (Reference r : varRefs.references)
+                    if (!types.isSubtype(getClassType(r.element.resolve(getWorkingCopy())), classType)) {
+                        onlyProtected = false;
+                        break;
+                    }
+                if (onlyProtected) {
+                    newFlags.remove(Modifier.PUBLIC);
+                    newFlags.add(Modifier.PROTECTED);
                 }
-            if (onlyProtected) {
+            }
+            if ((flags.contains(Modifier.PUBLIC) || flags.contains(Modifier.PROTECTED)) 
+                    && !hasPublicUsage(varRefs.usage)) {
                 newFlags.remove(Modifier.PUBLIC);
-                newFlags.add(Modifier.PROTECTED);
+                newFlags.remove(Modifier.PROTECTED);
+            }
+            if (!ignorePackagePrivate && !hasPublicUsage(varRefs.usage) && !hasPackageUsage(varRefs.usage)) {
+                assert !newFlags.contains(Modifier.PUBLIC) && !newFlags.contains(Modifier.PROTECTED);
+                newFlags.add(Modifier.PRIVATE);
+            }
+            if (!flags.equals(newFlags))  {
+                ModifiersTree oldMods = tree.getModifiers();
+                ModifiersTree newMods = wc.getTreeMaker().Modifiers(newFlags, oldMods.getAnnotations());
+                String note = oldMods.toString() + " => " + newMods.toString();
+                addChange(new TreePath(getCurrentPath(), oldMods), newMods, note);
             }
         }
-        if ((flags.contains(Modifier.PUBLIC) || flags.contains(Modifier.PROTECTED)) 
-                && !hasPublicUsage(usage)) {
-            newFlags.remove(Modifier.PUBLIC);
-            newFlags.remove(Modifier.PROTECTED);
+        return super.visitVariable(tree, unused);
+    }
+    
+    private void scanFields() {
+        final ReferenceScanner scanner = new ReferenceScanner();
+        CancellableTask<CompilationController> task = new CancellableTask<CompilationController>() {
+            private boolean cancelled = false;
+            public void run(CompilationController cc) throws IOException {
+                if (!cancelled) {
+                    cc.toPhase(JavaSource.Phase.RESOLVED);
+                    scanner.scan(cc.getCompilationUnit(), cc);
+                }
+            }
+            public void cancel() {
+                cancelled = true;
+            }
+        };
+
+        try {
+            javaSource.runUserActionTask(task, false);
+        } catch (IOException e) {
+            ErrorManager.getDefault().notify(e);
         }
-        if (!ignorePackagePrivate && !hasPublicUsage(usage) && !hasPackageUsage(usage)) {
-            assert !newFlags.contains(Modifier.PUBLIC) && !newFlags.contains(Modifier.PROTECTED);
-            newFlags.add(Modifier.PRIVATE);
-        }
-        
-        if (!flags.equals(newFlags)) {
-            ModifiersTree newMods = make.Modifiers(newFlags, mods.getAnnotations());
-            addChange(new TreePath(getCurrentPath(), mods), newMods, resultNote(flags, newFlags));
-        }
-        return null;
+    }
+    
+    private Element getReferringElement(TreePath path, CompilationInfo info) {
+        Element e = info.getTrees().getElement(path);
+        return e != null ? e : getReferringElement(path.getParentPath(), info);
     }
     
     static TypeMirror getClassType(Element e) {
@@ -196,37 +201,198 @@ public class MinimizeFieldAccess extends TreePathTransformer<Void,Object> {
         return (usage & packageMask) != 0;
     }
     
-    private static final int worldMask =   (SETUSE | GETUSE) << WORLDSHIFT;
-    private static final int packageMask = (SETUSE | GETUSE) << PACKAGESHIFT;
-    
-    static String resultNote(Set<Modifier> oldFlags, Set<Modifier> newFlags) {
-        StringBuffer sb = new StringBuffer();
-        formatFlags(oldFlags, sb);
-        sb.append(" => ");  //NOI18N
-        formatFlags(newFlags, sb);
-        return sb.toString();
-    }
-    
-    static void formatFlags(Set<Modifier> flags, StringBuffer buf) {
-	if (flags.contains(Modifier.PUBLIC)) 
-            buf.append("public");
-        else if (flags.contains(Modifier.PROTECTED)) 
-            buf.append("protected");
-        else if (flags.contains(Modifier.PRIVATE)) 
-            buf.append("private");
-        else
-            buf.append("package-private");
-    }
-*/
     /**
-     * Lightweight Set implementation, which is just a linked-list
-     * without duplicates.
+     * A description of a references to a variable element.
      */
-    static class ListSet extends LinkedList<Element> implements Set<Element> {
-        public boolean add(Element e) {
-            if (contains(e))
+    private static class VariableReferences {
+        VariableElement var;
+        TreePathHandle declaration;
+        int usage;
+        List<Reference> references;
+        
+        // these elements are only valid when the ReferenceScanner is scanning
+        TypeElement cls;
+        PackageElement pkg;
+        
+        VariableReferences(VariableElement var) {
+            this.var = var;
+            cls = QueryOperations.getDeclaringClass(var);
+            pkg = QueryOperations.getDeclaringPackage(cls);
+            references = new ArrayList<Reference>();
+        }
+    }
+    
+    /**
+     * A reference to an element by a single tree node.
+     */
+    private static class Reference {
+        ElementHandle<Element> element;
+        TreePathHandle tree;
+    }
+    
+    /**
+     * A scanner which finds all variable declarations and references in a project.
+     */
+    private class ReferenceScanner extends TreePathScanner<Void,CompilationInfo> {
+        private TypeElement currentClass;
+        private PackageElement currentPackage;
+        
+        private boolean isInteresting(Element sym, CompilationInfo info) {
+            // ignore non-instance variables
+            if (sym == null || !(sym instanceof VariableElement) || !(sym.getEnclosingElement() instanceof TypeElement))
+                return false;  
+            TypeElement owner = (TypeElement)sym.getEnclosingElement();
+
+            // ignore compiler-generated fields
+            if (info.getElementUtilities().isSynthetic(sym))
                 return false;
-            return super.add(e);
+
+            // ignore enum fields, whose flags are synthetic
+            if (owner.getKind() == ElementKind.ENUM)
+                return false;  
+
+            // ignore fields in anonymous classes, since they aren't accessible
+            if (owner.getNestingKind() == NestingKind.ANONYMOUS)
+                return false; 
+
+            // ignore static constants if possible
+            Set<Modifier> flags = sym.getModifiers();
+            if (ignoreConstants &&
+                flags.contains(Modifier.STATIC) && flags.contains(Modifier.FINAL))
+                return false;
+
+            // ignore non-public fields if possible
+            if (ignorePackagePrivate &&
+                !flags.contains(Modifier.PUBLIC) && !flags.contains(Modifier.PROTECTED))
+                return false;
+            return true;
+        }
+
+        private void add(Element e, TreePath path, int usage, CompilationInfo info) {
+            if (!isInteresting(e, info))
+                return;
+            assert e instanceof VariableElement;
+            VariableElement var = (VariableElement)e;
+            TreePathHandle handle = TreePathHandle.create(path, info);
+            VariableReferences uses = refs.get(var);
+            if (uses == null) {
+                uses = new VariableReferences(var);
+                if ((usage & DECLARATION) != 0) {
+                    assert path.getLeaf() instanceof VariableTree;
+                    uses.declaration = handle;
+                }
+                refs.put(ElementHandle.create(var), uses);
+            }
+            Reference ref = new Reference();
+            ref.element = ElementHandle.create(getReferringElement(path, info));
+            ref.tree = handle;
+            uses.references.add(ref);
+            int flags = usage <<
+                    (currentClass == uses.cls   ? CLASSSHIFT
+                   : currentPackage == uses.pkg ? PACKAGESHIFT
+                   : WORLDSHIFT);
+            uses.usage |= flags;
+        }
+
+        @Override
+        public Void visitClass(ClassTree tree, CompilationInfo info) {
+            currentClass = (TypeElement)info.getTrees().getElement(getCurrentPath());
+            currentPackage = info.getElements().getPackageOf(currentClass);
+            super.visitClass(tree, info);
+            currentClass = null;
+            currentPackage = null;
+            return null;
+        }
+
+        @Override
+        public Void visitAssignment(AssignmentTree tree, CompilationInfo info) {
+            Tree lhs = tree.getVariable();
+            if (lhs instanceof MemberSelectTree) {
+                MemberSelectTree t = (MemberSelectTree)lhs;
+                scan(t.getExpression(), info);
+                TreePath path = new TreePath(getCurrentPath(), t);
+                Element e = info.getTrees().getElement(path);
+                add(e, path, SETUSE, info);
+            } else if (lhs instanceof IdentifierTree) {
+                TreePath path = getCurrentPath();
+                Element e = info.getTrees().getElement(path);
+                add(e, path, SETUSE, info);
+            } else
+                scan(lhs, info);
+            return scan(tree.getExpression(), info);
+        }
+
+        @Override
+        public Void visitCompoundAssignment(CompoundAssignmentTree tree, CompilationInfo info) {
+            Tree lhs = tree.getVariable();
+            if (lhs instanceof MemberSelectTree) {
+                MemberSelectTree t = (MemberSelectTree)lhs;
+                scan(t.getExpression(), info);
+                TreePath path = new TreePath(getCurrentPath(), t);
+                Element e = info.getTrees().getElement(path);
+                add(e, path, SETUSE | GETUSE, info);
+            } else if (lhs instanceof IdentifierTree) {
+                TreePath path = new TreePath(getCurrentPath(), lhs);
+                Element e = info.getTrees().getElement(path);
+                add(e, path, SETUSE | GETUSE, info);
+            } else
+                scan(lhs, info);
+            return scan(tree.getExpression(), info);
+        }
+
+        @Override
+        public Void visitUnary(UnaryTree tree, CompilationInfo info) {
+            Tree arg = tree.getExpression();
+            switch (tree.getKind()) {
+              case PREFIX_INCREMENT:
+              case PREFIX_DECREMENT:
+              case POSTFIX_INCREMENT:
+              case POSTFIX_DECREMENT:
+                if (arg instanceof MemberSelectTree) {
+                    MemberSelectTree t = (MemberSelectTree)arg;
+                    scan(t.getExpression(), info);
+                    TreePath path = new TreePath(getCurrentPath(), t);
+                    Element e = info.getTrees().getElement(path);
+                    add(e, path, SETUSE | GETUSE, info);
+                } else if (arg instanceof IdentifierTree) {
+                    TreePath path = new TreePath(getCurrentPath(), arg);
+                    Element e = info.getTrees().getElement(path);
+                    add(e, path, SETUSE | GETUSE, info);
+                } else
+                    scan(arg, info);
+                break;
+              default:
+                scan(arg, info);
+            }
+            return null;
+        }
+
+        @Override
+        public Void visitIdentifier(IdentifierTree tree, CompilationInfo info) {
+            TreePath path = getCurrentPath();
+            Element e = info.getTrees().getElement(path);
+            add(e, path, GETUSE, info);
+            return super.visitIdentifier(tree, info);
+        }
+
+        @Override
+        public Void visitVariable(VariableTree tree, CompilationInfo info) {
+            TreePath path = getCurrentPath();
+            Element e = info.getTrees().getElement(path);
+            int flags = DECLARATION;
+            if (tree.getInitializer() != null)
+                flags |= SETUSE;
+            add(e, path, flags, info);
+            scan(tree.getInitializer(), info);
+            return null;
+        }
+
+        @Override
+        public Void visitMemberSelect(MemberSelectTree tree, CompilationInfo info) {
+            TreePath path = getCurrentPath();
+            Element e = info.getTrees().getElement(path);
+            add(e, path, GETUSE, info);
+            return super.visitMemberSelect(tree, info);
         }
     }
 }
