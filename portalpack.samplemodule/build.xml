@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+The contents of this file are subject to the terms of the Common Development
+and Distribution License (the License). You may not use this file except in
+compliance with the License.
+
+ You can obtain a copy of the License at http://www.netbeans.org/cddl.html
+or http://www.netbeans.org/cddl.txt.
+
+When distributing Covered Code, include this CDDL Header Notice in each file
+and include the License file at http://www.netbeans.org/cddl.txt.
+If applicable, add the following below the CDDL Header, with the fields
+enclosed by brackets [] replaced by your own identifying information:
+"Portions Copyrighted [year] [name of copyright owner]"
+
+ The Original Software is NetBeans. The Initial Developer of the Original
+Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
+ Microsystems, Inc. All Rights Reserved.
+-->
+
+<!-- You may freely edit this file. See harness/README in the NetBeans platform -->
+<!-- for some information on what you could do (e.g. targets to override). -->
+<!-- If you delete this file and reopen the project it will be recreated. -->
+
+<!-- 
+ This is a template build.xml file for all newly created addon modules in portalpack.
+ You can directly overwrite your module's build.xml file with this template file.
+-->
+<project name="org.netbeans.modules.portalpack.samplemodule" default="netbeans" basedir=".">
+    
+    <description>Builds, tests, and runs the project org.netbeans.modules.portalpack.portlets.genericportlets.</description>
+    <import file="../../../nbbuild/templates/projectized.xml"/>
+    
+    <!--
+        Override default compile ant task to do custom things after compilation 
+        before creating module's jar archive.
+        For example; It can be useful when any third party library are required
+        to be packaged in the module's jar file inside module's nbm. So all 
+        required jar libraries can be copied to the build location after compilation.
+    -->
+    <target name="compile" depends="projectized-common.compile">
+        
+        <!--
+        <property name="build.templates.projects.dir" value="${build.classes.dir}/templates/projects"/>
+        <property name="build.templates.dir" value="${build.classes.dir}/templates"/>
+        <property name="src.templates.projects.dir" value="${src.dir}/templates/projects"/>
+        
+        <copy file="../../external/portlet/portlet-api-1.0.jar"
+        todir="${src.templates.projects.dir}/JSR168PortletApplication/lib"/>
+        -->
+    </target>
+    
+    <target name="netbeans-extra" depends="release"/>
+
+    <!-- 
+     Override release target to customize the nbm creation.
+     This is helpful when third party libaries are required to be bundled inside
+     module's nbm. You can copy required jars to the appropriate ${cluster}. The
+     same pattern will follow when the module nbm gets installed. Copy the following
+     target and customize it for your jars.
+    -->
+    <target name="release" depends="init">
+        <!--
+        <mkdir dir="${cluster}/modules/ext/portalpack/jdom"/>
+        
+        <copy file="../../external/jdom/jdom.jar"
+        todir="${cluster}/modules/ext/portalpack/jdom"/> 
+       -->
+    </target>
+
+     <!-- 
+        You can directly copy following target as it's. Incase you want to provide
+        your own license file then you can change it in the following ant target.
+     -->
+     <target name="nbm" depends="init,netbeans" description="Build NBM archive.">
+        <mkdir dir="build"/>
+        <makenbm file="build/${nbm}"
+                 productdir="${cluster}"
+                 module="${module.jar}"
+                 homepage="${nbm.homepage}"
+                 distribution="${nbm.distribution}"
+                 needsrestart="${nbm.needs.restart}"
+                 global="${nbm.is.global}"
+                 releasedate="${nbm.release.date}"
+		 moduleauthor="${nbm.module.author}">
+            <license file="${basedir}/../../LICENSE"/>
+            <signature keystore="${keystore}" storepass="${storepass}" alias="${nbm_alias}"/>
+        </makenbm>
+    </target>
+   
+</project>
