@@ -28,6 +28,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
+import org.netbeans.api.jackpot.Query;
+import org.netbeans.api.jackpot.Transformer;
 import org.netbeans.api.java.source.ModificationResult;
 import org.netbeans.junit.NbTestCase;
 import org.netbeans.modules.jackpot.engine.BuildErrorsException;
@@ -62,7 +64,7 @@ public final class TestUtilities {
      public static void assertTransform(String from, String result, Class clazz) throws TransformationException, Exception {
         File src = copyStringToFile(getClassName(from), from);
         String className = clazz.getName();
-        apply(tempDirectory, className);
+        apply(tempDirectory, Engine.createCommand(className));
 
         String txt = copyFileToString(src);
         if (!txt.equals(result))
@@ -87,7 +89,25 @@ public final class TestUtilities {
      */
     public static List<Result> applyQuery(File dir, String queryName) 
             throws BuildErrorsException, Exception {
-        return apply(dir, queryName);
+        return apply(dir, Engine.createCommand(queryName));
+    }
+    
+    /**
+     * Applies an instance of a Query to a directory of source files.  This
+     * method is useful when testing the query's options.
+     * 
+     * @param  dir the directory containing the source files to be modified.
+     * @param  query the query instance to apply to the source files.
+     * @return the matches found
+     * @throws BuildErrorsException 
+     *         If any errors are found when building the source files.
+     * @throws Exception
+     *         If any changes were made to the source files after applying the 
+     *         Query class.
+     */
+    public static List<Result> applyQuery(File dir, Query query) 
+            throws BuildErrorsException, Exception {
+        return apply(dir, query);
     }
 
     /**
@@ -102,16 +122,32 @@ public final class TestUtilities {
      */
     public static int applyTransformer(File dir, String transformerName) 
             throws BuildErrorsException, Exception {
-        return apply(dir, transformerName).size();
+        return apply(dir, Engine.createCommand(transformerName)).size();
     }
 
-    private static List<Result> apply(File dir, String cmd) 
+    /**
+     * Applies an instance of a Transformer to a directory of source files.  This
+     * method is useful when testing the transformer's options.
+     * 
+     * @param  dir the directory containing the source files to be modified.
+     * @param  transformer the transformer to apply to the source files.
+     * @return the number of matches found
+     * @throws BuildErrorsException 
+     *         If any errors are found when building the source files.
+     * @throws java.lang.Exception 
+     */
+    public static int applyTransformer(File dir, Transformer transformer) 
+            throws BuildErrorsException, Exception {
+        return apply(dir, transformer).size();
+    }
+
+    private static List<Result> apply(File dir, Query query) 
             throws BuildErrorsException, Exception {
         assert dir.isDirectory() : dir.getName() + " is not a directory";
         CommandLineQueryContext context = new CommandLineQueryContext();
         Engine eng = new Engine(context, dir.getPath(), System.getProperty("java.class.path"), null);
 
-        ModificationResult result = eng.runCommand("q", cmd);
+        ModificationResult result = eng.invokeQuery(query);
         result.commit();
         return context.getResults();
     }

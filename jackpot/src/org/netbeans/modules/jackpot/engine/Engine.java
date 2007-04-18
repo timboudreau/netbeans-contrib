@@ -237,7 +237,7 @@ public class Engine {
      * @return 
      * @throws java.lang.Exception 
      */
-    public Query createCommand(String className) throws Exception {
+    public static Query createCommand(String className) throws Exception {
         Class c = createQueryClass(className);
         Object obj = c.newInstance();
         if (!(obj instanceof Query))
@@ -300,8 +300,8 @@ public class Engine {
         }
     }
 
-    private Class createQueryClass(final String className) throws Exception {
-        ClassLoader loader = new ClassLoader(getClass().getClassLoader()) {
+    private static Class createQueryClass(final String className) throws Exception {
+        ClassLoader loader = new ClassLoader(Engine.class.getClassLoader()) {
             public Class findClass(String name) throws ClassNotFoundException {
                 if (name.endsWith(".class")) {
                     try {
