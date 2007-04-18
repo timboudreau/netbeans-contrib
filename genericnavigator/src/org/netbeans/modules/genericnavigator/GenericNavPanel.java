@@ -379,10 +379,14 @@ public class GenericNavPanel implements NavigatorPanel, Runnable, ListSelectionL
         mimeType = dob != null ? dob.getPrimaryFile().getMIMEType() : null;
         refresh();
         //XXX this is a mess
-        pnl.doLayout();
-        pnl.invalidate();
-        pnl.revalidate();
-        pnl.repaint();
+        EventQueue.invokeLater(new Runnable() {
+            public void run() {
+                pnl.doLayout();
+                pnl.invalidate();
+                pnl.revalidate();
+                pnl.repaint();
+            }
+        });
         if (task == null) {
             rp.post (this);
         } else {
