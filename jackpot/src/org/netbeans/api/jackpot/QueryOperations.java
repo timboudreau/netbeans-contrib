@@ -32,14 +32,14 @@ import com.sun.source.tree.StatementTree;
 import com.sun.source.tree.Tree;
 import com.sun.source.tree.TypeCastTree;
 import com.sun.source.tree.UnaryTree;
-import com.sun.source.tree.VariableTree;
 import com.sun.source.util.TreePath;
 import java.util.List;
 import java.util.Set;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.Modifier;
+import javax.lang.model.element.PackageElement;
+import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
-import javax.lang.model.type.PrimitiveType;
 import org.netbeans.api.java.source.CompilationInfo;
 import static com.sun.source.tree.Tree.Kind.*;
 
@@ -263,5 +263,27 @@ public class QueryOperations {
         if (e.asType().toString().equals("java.lang.String"))
             return true;
         return path.getLeaf() instanceof LiteralTree;
+    }
+
+    /**
+     * Returns the class in which this element was declared.
+     * @param e the element
+     * @return its declaring class
+     */
+    public static TypeElement getDeclaringClass(Element e) {
+        if (e == null || e instanceof TypeElement)
+            return (TypeElement)e;
+        return getDeclaringClass(e.getEnclosingElement());
+    }
+
+    /**
+     * Returns the package in which this element's declaring class is a member of.
+     * @param e the element
+     * @return its package
+     */
+    public static PackageElement getDeclaringPackage(Element e) {
+        if (e == null || e instanceof PackageElement)
+            return (PackageElement)e;
+        return getDeclaringPackage(e.getEnclosingElement());
     }
 }

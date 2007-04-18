@@ -190,7 +190,7 @@ public class Engine {
         }
     }
     
-    private ModificationResult invokeQuery(final Query query) throws IOException {
+    public ModificationResult invokeQuery(final Query query) throws IOException {
         try {
             query.init(context, javaSource);
             CancellableTask<WorkingCopy> task = new CancellableTask<WorkingCopy>() {
