@@ -33,7 +33,7 @@
     <template name="SIPTransport">
         <wsdlElement name="BindingOperationInput">
             <extensionElement name="input" >
-                <extensionAttr name="type" defaultValue="sendmessage" />
+                <extensionAttr name="operationtype" defaultValue="sendmessage" />
                 <extensionAttr name="from" defaultValue="" />
                 <extensionAttr name="to" defaultValue="" />
                 <extensionAttr name="message" defaultValue="" />
