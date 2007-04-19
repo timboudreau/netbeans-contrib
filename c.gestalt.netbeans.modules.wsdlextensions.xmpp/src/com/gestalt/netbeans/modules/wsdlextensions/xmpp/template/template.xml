@@ -40,6 +40,9 @@
         </wsdlElement>
         <wsdlElement name="BindingOperationOutput">
             <extensionElement name="output" >
+                <extensionAttr name="to" defaultValue="" />
+                <extensionAttr name="id" defaultValue="" />
+                <extensionAttr name="message" defaultValue="" />
             </extensionElement>
         </wsdlElement>
         <wsdlElement name="ServicePort">
