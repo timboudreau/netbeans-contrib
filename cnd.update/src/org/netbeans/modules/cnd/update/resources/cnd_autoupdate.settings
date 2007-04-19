@@ -20,7 +20,7 @@
 <!DOCTYPE settings PUBLIC "-//NetBeans//DTD Session settings 1.0//EN" "http://www.netbeans.org/dtds/sessionsettings-1_0.dtd">
 
 <settings version="1.0">
-    <module name="org.netbeans.modules.cnd.update/1"/>
+    <module name="org.netbeans.modules.cnd.update/11"/>
     <instanceof class="org.openide.ServiceType"/>
     <instanceof class="org.netbeans.modules.autoupdate.AutoupdateType"/>
     <instanceof class="org.netbeans.modules.autoupdate.XMLAutoupdateType"/>
