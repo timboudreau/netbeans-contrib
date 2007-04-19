@@ -33,7 +33,7 @@ public final class LanguagesManagerAction extends CallableSystemAction {
         LanguagesManagerPanel panel = new LanguagesManagerPanel ();
         DialogDescriptor dialogDescriptor = new DialogDescriptor (
             panel,
-            "Languages Manager"
+            "Languages"
         );
         Dialog dialog = DialogDisplayer.getDefault ().
             createDialog (dialogDescriptor);
