@@ -23,6 +23,9 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
@@ -47,6 +50,10 @@ import org.xml.sax.SAXParseException;
  *
  * @todo i18n
  * @todo progress bar
+ * @todo Support transformations?
+ *   http://macromates.com/textmate/manual/snippets#transformations
+ * @todo Skip abbrevs that cannot be supported for the tabtrigger, such as ":"
+ * @todo Sanitize filename and string name output for UTF-8
  *
  * @author Tor Norbye
  */
@@ -70,9 +77,14 @@ public class TmBundleImport {
     private final String TMSCOPE = "scope"; // NOI18N
     private final String TMTAGTRIGGER = "tabTrigger"; // NOI18N
     private final String TMUUID = "uuid"; // NOI18N
+    private SortedSet<String> builtin = new TreeSet<String>();
+    private SortedSet<String> nonTabSnippets = new TreeSet<String>();
+    private SortedSet<String> regexpSnippets = new TreeSet<String>();
+    private SortedSet<String> shellCmdSnippets = new TreeSet<String>();
     private Map /*<String,Map<String,String>>*/ propsByMime =
         new HashMap /*<String,Map<String,String>>*/();
     private String defaultMime;
+    private java.util.List<String> modified = new java.util.ArrayList<String>();
 
     public TmBundleImport() {
     }
@@ -100,9 +112,52 @@ public class TmBundleImport {
         }
 
         log.append("\n\n");
-        //log.append(NbBundle.getMessage(TmBundleImport.class, "TmImportSummary", imported));
-        log.append("Imported " + imported + " snippets.");
 
+        if (nonTabSnippets.size() > 0) {
+            log.append("The following  " + nonTabSnippets.size() +
+                " snippets were skipped because they were not bound to the Tab key:\n");
+            log.append(nonTabSnippets.toString());
+            log.append("\n");
+        }
+
+        if (builtin.size() > 0) {
+            log.append("The following  " + builtin.size() +
+                " snippets were skipped because they are already included in the IDE:\n");
+            log.append(builtin.toString());
+            log.append("\n");
+        }
+
+        if (regexpSnippets.size() > 0) {
+            log.append("The following  " + regexpSnippets.size() +
+                " snippets were skipped because they use regular expression\n" +
+                "transformations which is not yet supported:\n");
+            log.append(regexpSnippets.toString());
+            log.append("\n");
+        }
+
+        if (shellCmdSnippets.size() > 0) {
+            log.append("The following  " + shellCmdSnippets.size() +
+                " snippets were skipped because they use shell commands " +
+                "which is not yet supported:\n");
+            log.append(shellCmdSnippets.toString());
+            log.append("\n");
+        }
+
+        log.append("\n\n");
+        //log.append(NbBundle.getMessage(TmBundleImport.class, "TmImportSummary", imported));
+        log.append("Imported " + imported + " snippets.\n");
+        int skipped =  nonTabSnippets.size() + builtin.size() + regexpSnippets.size() +
+            shellCmdSnippets.size();
+        log.append("Skipped " + skipped + " snippets.\n");
+
+        if (modified.size() > 0) {
+            log.append("\n\nDetails on modified snippets:\n");
+            for (String info : modified) {
+                log.append(info);
+                log.append("\n");
+            }
+        }
+        
         JTextArea text = new JTextArea();
         text.setColumns(60);
         text.setRows(15);
@@ -199,12 +254,12 @@ public class TmBundleImport {
                 String uuid = map.get(TMUUID);
 
                 if (skipKnownRubyTemplates(tabTrigger, content, name, scope, uuid)) {
-                    log.append("Skipping snippet " + tabTrigger + ": it is already builtin\n");
+                    builtin.add(tabTrigger);
 
                     return;
                 }
 
-                String netbeansAbbrev = convertTmContent(name, content, log);
+                String netbeansAbbrev = convertTmContent(name, content, log, tabTrigger);
 
                 if (netbeansAbbrev == null) {
                     // Couldn't convert - might contain unsuppored syntax
@@ -215,8 +270,13 @@ public class TmBundleImport {
 
                 addAbbrev(mimeType, tabTrigger, name, netbeansAbbrev);
             } else {
-                log.append(("The snippet \"" + file.getName() +
-                    "\" is bound to another key than Tab - skipping\n"));
+                String name = map.get(TMNAME);
+
+                if (name == null) {
+                    name = file.getName();
+                }
+
+                nonTabSnippets.add(name);
 
                 return;
             }
@@ -267,10 +327,11 @@ public class TmBundleImport {
 
     /** For unit testing */
     public static String testConversion(String content) {
-        return convertTmContent(null, content, new StringBuilder());
+        return new TmBundleImport().convertTmContent(null, content, new StringBuilder(), null);
     }
 
-    private static String convertTmContent(String name, String content, StringBuilder log) {
+    private String convertTmContent(String name, String content, StringBuilder log,
+        String tabTrigger) {
         StringBuilder sb = new StringBuilder();
 
         // Convert the abbreviation in content into a NetBeans-style abbreviation
@@ -279,7 +340,7 @@ public class TmBundleImport {
         // changing variable name references,
         // and handling TM-specific stuff like backquotes (execute command), etc.
 
-        // collect { |${1:e}| $0 }   =>    collect { ||${e}|| ${cursor}
+        // collect { |${1:e}| $0 }   =>    collect { ||${1 default="e"}|| ${cursor}
 
         // $num => tabStop$num
         // Tricky:
@@ -322,8 +383,44 @@ public class TmBundleImport {
                     char peek3 = content.charAt(i + 3);
 
                     if (Character.isDigit(peek2) && (peek3 == ':')) {
-                        sb.append("${");
-                        i += 3;
+                        // Change {$1:foo "bar"} to ${1 default="foo \"bar\""},
+                        // but if it contains nested braces, just strip the whole variable
+                        StringBuilder s = new StringBuilder();
+
+                        s.append("${");
+                        i += 4;
+
+                        s.append(peek2);
+                        s.append(" default=\"");
+                        
+                        int nesting = 0;
+                        for (; i < content.length(); i++) {
+                            char k = content.charAt(i);
+                            if (k == '{') {
+                                nesting++;
+                                s = null;
+                            } else if (k == '}') {
+                                if (nesting == 0) {
+                                    break;
+                                }
+                                nesting--;
+                            } else if (k == '"') {
+                                if (s != null) {
+                                    s.append("\\");
+                                }
+                            }
+                            if (s != null) {
+                                s.append(k);
+                            }
+                        }
+                        
+                        if (s != null) {
+                            sb.append(s.toString());
+                            sb.append("\"}");
+                        } else {
+                            modified.add(tabTrigger + ": Stripped out tabStop " + peek2 + " - contains nested evaluation");
+                        }
+                        continue;
                     } else if (Character.isDigit(peek2) && (peek3 == '/')) {
                         //// Regexp
                         //// Strip to the end
@@ -332,15 +429,11 @@ public class TmBundleImport {
                         //for (; i < content.length(); i++) {
                         //    c = content.charAt(i);
                         //    if (c == '}') {
-                        //        sb.append('}');
+                        //        sb.append('}');÷
                         //        break;
                         //    }
                         //}
-                        //log.append("Not yet supported: Stripping out regular expression substitution from the snippet " + name + "\n");
-                        //continue;
-                        log.append(
-                            "Regular expression substitution not supported; skipping snippet \"" +
-                            name + "\"\n");
+                        regexpSnippets.add(tabTrigger);
 
                         return null;
                     } else {
@@ -393,8 +486,7 @@ public class TmBundleImport {
 
                 // Command execution: Not supported!  (But in the Ruby bundle I'm looking at,
                 // this isn't used so shouldn't be a huge problem)
-                log.append("Shell command execution is not supported; skipping snippet \"" + name +
-                    "\"\n");
+                shellCmdSnippets.add(tabTrigger);
 
                 return null;
             } else {

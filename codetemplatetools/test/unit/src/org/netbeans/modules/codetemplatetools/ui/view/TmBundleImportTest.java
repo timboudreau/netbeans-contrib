@@ -17,7 +17,11 @@ public class TmBundleImportTest extends TestCase {
     }
 
     public void testVars() {
-        assertEquals("foo ${hello}", TmBundleImport.testConversion("foo ${0:hello}"));
+        assertEquals("foo ${0 default=\"hello\"}", TmBundleImport.testConversion("foo ${0:hello}"));
+        assertEquals("foo ${0 default=\"hello bar\"}", TmBundleImport.testConversion("foo ${0:hello bar}"));
+        assertEquals("foo ", TmBundleImport.testConversion("foo ${0:hello {bar}}"));
+        // Make sure we strip out empty stuff that was dropped from nested braces
+        assertEquals("foo ${cursor}", TmBundleImport.testConversion("foo $0${1:hello {bar}}"));
         assertEquals("foo { ${cursor} } { ${tabStop1 default=\"\"} }",
             TmBundleImport.testConversion("foo { $0 } { $1 }"));
 
@@ -60,7 +64,7 @@ public class TmBundleImportTest extends TestCase {
     }
 
     public void testComplex() {
-        assertEquals("assert_in_delta(${expected_float}, ${actual_float}, ${2 ** -20})",
+        assertEquals("assert_in_delta(${1 default=\"expected_float\"}, ${2 default=\"actual_float\"}, ${0 default=\"2 ** -20\"})",
             TmBundleImport.testConversion(
                 "assert_in_delta`snippet_paren.rb`${1:expected_float}, ${2:actual_float}, ${0:2 ** -20}`snippet_paren.rb end`"));
     }
