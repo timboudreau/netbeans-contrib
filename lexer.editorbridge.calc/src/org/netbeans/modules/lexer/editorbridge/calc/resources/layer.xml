@@ -26,7 +26,7 @@ Microsystems, Inc. All Rights Reserved.
             <folder name="x-calc">
                 <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.lexer.editorbridge.calc.resources.Bundle"/>
                 <file name="language.instance">
-                    <attr name="instanceCreate" methodvalue="org.netbeans.modules.lexer.editorbridge.calc.CalcTokenId.language"/>
+                    <attr name="instanceCreate" methodvalue="org.netbeans.modules.lexer.editorbridge.calc.lang.CalcTokenId.language"/>
                     <attr name="instanceOf" stringvalue="org.netbeans.api.lexer.Language"/>
                 </file>
                 <file name="EditorKit.instance">
