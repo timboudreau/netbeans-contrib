@@ -47,7 +47,7 @@
             <extensionElement name="address" >
                 <extensionAttr name="proxydomain"  defaultValue="localhost"/>
                 <extensionAttr name="proxyport" defaultValue="5060"/>
-                <extensionAttr name="proxytimeout" defaultValue=""/>
+                <extensionAttr name="proxytimeout" defaultValue="5000"/>
                 <extensionAttr name="username" defaultValue=""/>
                 <extensionAttr name="password" defaultValue=""/>
             </extensionElement>
