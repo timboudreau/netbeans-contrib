@@ -4,7 +4,7 @@
           "http://www.netbeans.org/dtds/annotation-type-1_0.dtd">
 <type name="jackpot-rules-error-annotation"
       description_key="LBL_jackpot-rules-error-annotation"
-      localizing_bundle="org.netbeans.modules.jackpot.ui·Bundle"
+      localizing_bundle="org.netbeans.modules.jackpot.ui.Bundle"
       visible="true" 
       highlight="#FFCCCC"
       glyph="nbresloc:/org/netbeans/modules/jackpot/resources/error-glyph.gif"
