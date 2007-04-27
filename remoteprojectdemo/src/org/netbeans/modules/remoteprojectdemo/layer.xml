@@ -11,10 +11,24 @@
                     <attr name="instantiatingIterator" methodvalue="org.netbeans.api.remoteproject.Factory.createIterator"/>
                     <attr name="instantiatingWizardURL" urlvalue="nbresloc:/org/netbeans/modules/remoteprojectdemo/wizard.html"/>
                     <attr name="template" boolvalue="true"/>
-                    <attr name="cvsroot" stringvalue="cvs.netbeans.org"/>
-                    <attr name="what" stringvalue="treefs"/>
+                    <attr name="cvsroot" stringvalue=":pserver:timboudreau@wizard.dev.java.net:/cvs"/>
+                    <attr name="path" stringvalue="/cvs"/>
+                    <attr name="what" stringvalue="wizard"/>
                     <attr name="system" stringvalue="cvs"/>
                 </file>
+                
+                <file name="Sommer.txt">
+                    <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/remoteprojectdemo/icon.png"/>
+                    <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.remoteprojectdemo.Bundle"/>
+                    <attr name="instantiatingIterator" methodvalue="org.netbeans.api.remoteproject.Factory.createIterator"/>
+                    <attr name="instantiatingWizardURL" urlvalue="nbresloc:/org/netbeans/modules/remoteprojectdemo/wizard.html"/>
+                    <attr name="template" boolvalue="true"/>
+                    <attr name="svnurl" stringvalue="https://sommer.dev.java.net/svn/sommer/trunk"/>
+                    <attr name="system" stringvalue="svn"/>
+                    <attr name="paths" stringvalue="sommer"/>
+                    <attr name="username" stringvalue="timboudreau"/>`
+                </file>
+                
             </folder>
         </folder>
     </folder>
