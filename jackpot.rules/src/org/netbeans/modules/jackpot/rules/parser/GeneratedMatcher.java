@@ -201,6 +201,7 @@ abstract public class GeneratedMatcher extends TreePathTransformer<Void,Object> 
         return null;
     }
     
+    @SuppressWarnings("unchecked")
     public <T extends Tree> T replaceclass(T tree, boolean explicitRef) {
         JCTree t = (JCTree)tree;
 	if(t!=null) {
@@ -286,6 +287,7 @@ abstract public class GeneratedMatcher extends TreePathTransformer<Void,Object> 
 	return st.isErroneous();
     }
     
+    @SuppressWarnings("unchecked")
     private int compare(Object a, Object b) {
         if(a==b) return 0;
         if(a==null) return -1;

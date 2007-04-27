@@ -73,7 +73,7 @@ public class RulesDataLoader extends UniFileLoader {
         }
         
         protected java.text.Format createFormat (FileObject target, String name, String ext) {
-            HashMap map = new HashMap();
+            HashMap<String,Object> map = new HashMap<String,Object>();
             Date now = new Date();
 
             map.put ("NAME", name); // NOI18N
