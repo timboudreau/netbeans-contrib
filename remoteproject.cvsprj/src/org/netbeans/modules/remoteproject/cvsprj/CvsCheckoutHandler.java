@@ -73,6 +73,8 @@ public class CvsCheckoutHandler implements CheckoutHandler {
        
        CheckoutExecutor ce = a.checkout(root, modules, tag, workingDir, true,
                                          group);
+       
+       
        System.err.println("Created Checkout Executor " + ce);
        try {
            Field fld = ExecutorGroup.class.getDeclaredField("progressHandle"); //NOI18N
