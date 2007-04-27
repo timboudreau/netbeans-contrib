@@ -71,13 +71,6 @@ Microsystems, Inc. All Rights Reserved.
                 <attr name="templateWizardURL" urlvalue="nbresloc:/org/netbeans/modules/languages/studio/resources/GLFTemplate.html"/>
                 <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/languages/resources/defaultIcon.png"/>
             </file>
-            <file name="nbsTemplate.nbs" url="NBSTemplate.nbs">
-                <attr name="template" boolvalue="true"/>
-                <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.languages.studio.Bundle"/>
-                <attr name="templateWizardURL" urlvalue="nbresloc:/org/netbeans/modules/languages/studio/resources/NBSTemplateFileDescription.html"/>
-                <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/languages/resources/defaultIcon.png"/>
-                <attr name="templateCategory" stringvalue="simple-files"/>
-            </file>            
         </folder>
     </folder>
 </filesystem>
