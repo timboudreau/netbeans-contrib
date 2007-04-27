@@ -430,7 +430,7 @@ public class ParseJobFactory implements QueueWorkProcessor <FileObject, ParseJob
         return true;
     }
 
-    public abstract class ParseJobImpl <T extends Callback> extends ParseJob <Callback> {
+    public static abstract class ParseJobImpl <T extends Callback> extends ParseJob <Callback> {
         final T callback;
         final FileObject file;
         private volatile boolean cancelled = false;
