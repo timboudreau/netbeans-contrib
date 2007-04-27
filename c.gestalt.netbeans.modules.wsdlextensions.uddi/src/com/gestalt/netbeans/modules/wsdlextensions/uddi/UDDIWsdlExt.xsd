@@ -32,6 +32,7 @@
         </xs:annotation>
         <xs:complexContent>
             <xs:extension base="wsdl:tExtensibilityElement">
+                <xs:attribute name="name" type="xs:string"/>
             </xs:extension>
         </xs:complexContent>
     </xs:complexType>

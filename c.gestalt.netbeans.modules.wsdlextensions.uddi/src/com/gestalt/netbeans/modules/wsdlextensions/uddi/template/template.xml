@@ -33,7 +33,6 @@
     <template name="UDDITransport">
         <wsdlElement name="BindingOperationInput">
             <extensionElement name="input" >
-                <extensionAttr name="operationtype" defaultValue="search" />
                 <extensionAttr name="businessname" defaultValue="" />
                 <extensionAttr name="servicename" defaultValue="" />
             </extensionElement>
@@ -52,7 +51,9 @@
             <extensionElement name="binding" />
         </wsdlElement>
         <wsdlElement name="BindingOperation">
-            <extensionElement name="operation" />
+            <extensionElement name="operation">
+                <extensionAttr name="name" defaultValue="search" />
+            </extensionElement>
         </wsdlElement>
     </template>
 </templateGroup>
