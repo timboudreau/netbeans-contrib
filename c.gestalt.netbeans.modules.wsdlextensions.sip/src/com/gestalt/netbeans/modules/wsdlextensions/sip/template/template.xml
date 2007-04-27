@@ -33,7 +33,6 @@
     <template name="SIPTransport">
         <wsdlElement name="BindingOperationInput">
             <extensionElement name="input" >
-                <extensionAttr name="operationtype" defaultValue="sendmessage" />
                 <extensionAttr name="from" defaultValue="" />
                 <extensionAttr name="to" defaultValue="" />
                 <extensionAttr name="message" defaultValue="" />
@@ -41,6 +40,7 @@
         </wsdlElement>
         <wsdlElement name="BindingOperationOutput">
             <extensionElement name="output" >
+                <extensionAttr name="message" defaultValue="" />
             </extensionElement>
         </wsdlElement>
         <wsdlElement name="ServicePort">
@@ -56,7 +56,9 @@
             <extensionElement name="binding" />
         </wsdlElement>
         <wsdlElement name="BindingOperation">
-            <extensionElement name="operation" />
+            <extensionElement name="operation" >
+                <extensionAttr name="name" defaultValue="sendmessage" />
+            </extensionElement>
         </wsdlElement>
     </template>
 </templateGroup>
