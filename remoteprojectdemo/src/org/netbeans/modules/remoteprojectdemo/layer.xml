@@ -21,7 +21,7 @@
                     <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/remoteprojectdemo/icon.png"/>
                     <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.remoteprojectdemo.Bundle"/>
                     <attr name="instantiatingIterator" methodvalue="org.netbeans.api.remoteproject.Factory.createIterator"/>
-                    <attr name="instantiatingWizardURL" urlvalue="nbresloc:/org/netbeans/modules/remoteprojectdemo/wizard.html"/>
+                    <attr name="instantiatingWizardURL" urlvalue="nbresloc:/org/netbeans/modules/remoteprojectdemo/sommer.html"/>
                     <attr name="template" boolvalue="true"/>
                     <attr name="svnurl" stringvalue="https://sommer.dev.java.net/svn/sommer/trunk"/>
                     <attr name="system" stringvalue="svn"/>
