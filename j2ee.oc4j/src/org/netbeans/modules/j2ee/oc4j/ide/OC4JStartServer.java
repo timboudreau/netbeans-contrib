@@ -37,7 +37,7 @@ import javax.enterprise.deploy.spi.status.ProgressListener;
 import javax.enterprise.deploy.spi.status.ProgressObject;
 import org.netbeans.modules.j2ee.deployment.plugins.api.InstanceProperties;
 import org.netbeans.modules.j2ee.deployment.plugins.api.ServerDebugInfo;
-import org.netbeans.modules.j2ee.deployment.plugins.api.StartServer;
+import org.netbeans.modules.j2ee.deployment.plugins.spi.StartServer;
 import org.netbeans.modules.j2ee.oc4j.OC4JDeploymentManager;
 import org.netbeans.modules.j2ee.oc4j.util.OC4JPluginProperties;
 import org.netbeans.modules.j2ee.oc4j.util.OC4JPluginUtils;

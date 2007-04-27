@@ -19,7 +19,7 @@
 
 package org.netbeans.modules.j2ee.oc4j.nodes;
 
-import org.netbeans.modules.j2ee.deployment.plugins.api.RegistryNodeFactory;
+import org.netbeans.modules.j2ee.deployment.plugins.spi.RegistryNodeFactory;
 import org.openide.nodes.Node;
 import org.openide.util.Lookup;
 

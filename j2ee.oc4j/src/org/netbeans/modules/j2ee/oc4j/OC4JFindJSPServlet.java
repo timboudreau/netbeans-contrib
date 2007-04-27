@@ -22,7 +22,7 @@ package org.netbeans.modules.j2ee.oc4j;
 import java.io.File;
 import javax.enterprise.deploy.shared.ModuleType;
 import javax.enterprise.deploy.spi.TargetModuleID;
-import org.netbeans.modules.j2ee.deployment.plugins.api.FindJSPServlet;
+import org.netbeans.modules.j2ee.deployment.plugins.spi.FindJSPServlet;
 import org.netbeans.modules.j2ee.oc4j.util.OC4JPluginProperties;
 import org.openide.ErrorManager;
 

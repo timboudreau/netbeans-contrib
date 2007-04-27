@@ -24,7 +24,7 @@ import java.util.HashSet;
 import java.util.Set;
 import org.netbeans.modules.j2ee.deployment.common.api.J2eeLibraryTypeProvider;
 import org.netbeans.modules.j2ee.deployment.devmodules.api.J2eeModule;
-import org.netbeans.modules.j2ee.deployment.plugins.api.J2eePlatformImpl;
+import org.netbeans.modules.j2ee.deployment.plugins.spi.J2eePlatformImpl;
 import org.netbeans.modules.j2ee.oc4j.OC4JDeploymentManager;
 import org.netbeans.modules.j2ee.oc4j.util.OC4JPluginProperties;
 import org.netbeans.spi.project.libraries.LibraryImplementation;
