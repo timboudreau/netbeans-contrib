@@ -1,0 +1,6 @@
+Manifest-Version: 1.0
+OpenIDE-Module: org.netbeans.modules.remoteproject.svn
+OpenIDE-Module-Localizing-Bundle: org/netbeans/modules/remoteproject/svn/Bundle.properties
+OpenIDE-Module-Provides: org.netbeans.modules.remoteproject.svn
+OpenIDE-Module-Specification-Version: 1.0
+
