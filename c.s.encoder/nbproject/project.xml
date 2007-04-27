@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://www.netbeans.org/ns/project/1">
+    <type>org.netbeans.modules.apisupport.project</type>
+    <configuration>
+        <data xmlns="http://www.netbeans.org/ns/nb-module-project/3">
+            <code-name-base>com.sun.encoder</code-name-base>
+            <class-path-extension>
+                <runtime-relative-path>ext/encoder/encoderframework.jar</runtime-relative-path>
+                <binary-origin>release/modules/ext/encoder/encoderframework.jar</binary-origin>
+            </class-path-extension>
+            <module-dependencies>
+                <dependency>
+                    <code-name-base>org.openide.util</code-name-base>
+                    <build-prerequisite/>
+                    <compile-dependency/>
+                    <run-dependency>
+                        <specification-version>6.8.11</specification-version>
+                    </run-dependency>
+                </dependency>
+            </module-dependencies>
+            <friend-packages>
+                <friend>com.sun.encoder.custom</friend>
+                <friend>com.sun.encoder.hl7</friend>
+                <friend>org.netbeans.modules.encoder.custom.aip</friend>
+                <friend>org.netbeans.modules.encoder.ui.tester</friend>
+                <package>com.sun.encoder</package>
+                <package>com.sun.encoder.builder</package>
+                <package>com.sun.encoder.builder.provider</package>
+                <package>com.sun.encoder.codegen</package>
+                <package>com.sun.encoder.dt</package>
+                <!-- <package>com.sun.encoder.fog</package>
+                <package>com.sun.encoder.fog.fed</package>
+                <package>com.sun.encoder.fog.provider</package>
+                <package>com.sun.encoder.forest</package>
+                <package>com.sun.encoder.forest.provider</package>
+                <package>com.sun.encoder.forest.provider.xml</package>
+                <package>com.sun.encoder.javac</package>
+                <package>com.sun.encoder.javac.Impl.eclipse</package>
+                <package>com.sun.encoder.javac.Impl.util</package>
+                <package>com.sun.encoder.javac.util</package>
+                <package>com.sun.encoder.jinfo</package>
+                <package>com.sun.encoder.jinfo.provider</package> -->
+                <package>com.sun.encoder.layer</package>
+                <package>com.sun.encoder.layer.provider</package>
+                <package>com.sun.encoder.model</package>
+                <package>com.sun.encoder.model.provider</package>
+                <package>com.sun.encoder.origininfo</package>
+                <package>com.sun.encoder.runtime</package>
+                <package>com.sun.encoder.runtime.provider</package>
+                <package>com.sun.encoder.tools</package>
+                <package>com.sun.encoder.tools.util</package>
+                <package>com.sun.encoder.tools.xml</package>
+                <package>com.sun.encoder.trivial</package>
+                <package>com.sun.encoder.trivial.test</package>
+                <package>com.sun.encoder.util</package>
+            </friend-packages>
+        </data>
+    </configuration>
+</project>
