@@ -59,8 +59,7 @@ import org.netbeans.api.java.source.WorkingCopy;
 import org.openide.ErrorManager;
 
 /**
- * Minimizes field access modifiers based on project usage.<p>
- * This transformer
+ * Minimizes field access modifiers based on project usage.<p> This transformer
  * demonstrates two-pass operation within the Java Source framework.  The first
  * pass locates all variable declarations and references, and stores them in a
  * map using persistent tree and element references.  This pass is started 
@@ -132,7 +131,7 @@ public class MinimizeFieldAccess extends TreePathTransformer<Void,Object> {
                 Types types = wc.getTypes();
                 TypeMirror classType = owner.asType();
                 for (Reference r : varRefs.references)
-                    if (!types.isSubtype(getClassType(r.element.resolve(getWorkingCopy())), classType)) {
+                    if (!types.isSubtype(getClassType(r.element.resolve(wc)), classType)) {
                         onlyProtected = false;
                         break;
                     }

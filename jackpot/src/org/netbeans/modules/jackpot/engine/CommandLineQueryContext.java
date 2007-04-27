@@ -9,11 +9,11 @@
 
 package org.netbeans.modules.jackpot.engine;
 
+import com.sun.source.util.TreePath;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
 import org.netbeans.api.jackpot.QueryContext;
-import org.netbeans.api.java.source.TreePathHandle;
 import org.openide.filesystems.FileObject;
 
 /**
@@ -38,12 +38,12 @@ public class CommandLineQueryContext implements QueryContext {
         return results;
     }
 
-    public void addResult(TreePathHandle path, FileObject file, int start, int end, String label, String note) {
+    public void addResult(TreePath path, FileObject file, int start, int end, String label, String note) {
         Result result = new Result(path, file, start, end, label, note, "");
         results.add(result);
     }
 
-    public void addChange(TreePathHandle path, FileObject file, int start,
+    public void addChange(TreePath path, FileObject file, int start,
                           int end, String label, String note, String newSource) {
         Result result = new Result(path, file, start, end, label, note, newSource);
         results.add(result);

@@ -19,23 +19,64 @@
 
 package org.netbeans.modules.jackpot.cmds;
 
+import com.sun.source.tree.ClassTree;
+import com.sun.source.tree.CompilationUnitTree;
+import com.sun.source.tree.MethodInvocationTree;
+import com.sun.source.tree.MethodTree;
+import com.sun.source.tree.ModifiersTree;
+import com.sun.source.tree.NewClassTree;
+import com.sun.source.util.SourcePositions;
+import com.sun.source.util.TreePath;
+import com.sun.source.util.TreePathScanner;
+import com.sun.source.util.Trees;
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.EnumSet;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import javax.lang.model.element.Element;
+import javax.lang.model.element.ElementKind;
+import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.Modifier;
+import javax.lang.model.element.NestingKind;
+import javax.lang.model.element.PackageElement;
+import javax.lang.model.element.TypeElement;
+import javax.lang.model.type.TypeMirror;
 import javax.lang.model.util.Types;
+import org.netbeans.api.jackpot.QueryContext;
+import org.netbeans.api.jackpot.QueryOperations;
 import org.netbeans.api.jackpot.TreePathTransformer;
+import org.netbeans.api.java.source.CancellableTask;
+import org.netbeans.api.java.source.CompilationController;
 import org.netbeans.api.java.source.CompilationInfo;
+import org.netbeans.api.java.source.ElementHandle;
 import org.netbeans.api.java.source.ElementUtilities;
+import org.netbeans.api.java.source.JavaSource;
+import org.netbeans.api.java.source.TreePathHandle;
+import org.netbeans.api.java.source.WorkingCopy;
+import org.openide.ErrorManager;
 
 /**
- * Minimizes method access modifiers based on project usage.
+ * Minimizes method access modifiers based on project usage.<p> This transformer
+ * demonstrates two-pass operation within the Java Source framework.  The first
+ * pass locates all method declarations and invocations, storing them in a
+ * map using persistent tree and element references.  This first pass is started 
+ * directly by this transformer in its <code>init()</code> method, which is
+ * invoked prior to transformer execution.  The second pass runs as a
+ * regular transformation, looking up each compilation unit's methods to see
+ * what modifications it needs and applies them.  The ordering of these two 
+ * passes is important, because only modifications made by the regular 
+ * transformation pass are displayed to the user and committed to the source files.
  */
 public class MinimizeMethodAccess extends TreePathTransformer<Void,Object> {
-    private Types types;
-    private ElementUtilities elements;
-    /*FIXME:
-    private ReferenceFinder referenceMap;
-     */
+    private JavaSource javaSource;
+    private Map<ElementHandle<ExecutableElement>,MethodReferences> refs;
+
+    private static final int PUBLIC_USE = 1;
+    private static final int PACKAGE_USE = 2;
+    private static final int CLASS_USE = 4;
 
     // property set by PropertySheetInfo
     private boolean convertPackagePrivate = true;
@@ -47,141 +88,65 @@ public class MinimizeMethodAccess extends TreePathTransformer<Void,Object> {
     }
     
     @Override
-    public void attach(CompilationInfo info) {
-	super.attach(info);
-        types = info.getTypes();
-        elements = info.getElementUtilities();
+    public void init(QueryContext context, JavaSource javaSource) {
+        super.init(context, javaSource);
+        this.javaSource = javaSource;
+        refs = new HashMap<ElementHandle<ExecutableElement>,MethodReferences>();
+        scanMethods();
     }
     
     @Override
-    public void release() {
-        super.release();
-        types = null;
-        elements = null;
+    public void destroy() {
+        refs = null;
+        super.destroy();
+    }
+    
+    private void scanMethods() {
+        final ReferenceScanner scanner = new ReferenceScanner();
+        CancellableTask<CompilationController> task = new CancellableTask<CompilationController>() {
+            private boolean cancelled = false;
+            public void run(CompilationController cc) throws IOException {
+                if (!cancelled) {
+                    cc.toPhase(JavaSource.Phase.RESOLVED);
+                    scanner.scan(cc.getCompilationUnit(), cc);
+                }
+            }
+            public void cancel() {
+                cancelled = true;
+            }
+        };
+
+        try {
+            javaSource.runUserActionTask(task, false);
+        } catch (IOException e) {
+            ErrorManager.getDefault().notify(e);
+        }
     }
 
-    /* FIXME:
     @Override
-    public void apply() {
-        Tree root = getRootNode();
-        Set<Element> methods = findElements(root);
-        referenceMap = ReferenceFinder.findReferences(env, methods, root);
-        apply(root);
-        show(result, getQueryDescription());
-    }
-    
-    private Set<Element> findElements(Tree root) {
-        final Set<Element> set = new MinimizeFieldAccess.ListSet();
-        root.accept(new TreeScanner<Void,Object>() {
-            private ClassTree enclosingClass;
-            
-            @Override
-            public Void visitMethod(MethodTree t, Object p) {
-                if (isInteresting(t, enclosingClass))
-                    set.add(getElement(t));
-                return super.visitMethod(t, p);
-            }
-
-            @Override
-            public Void visitClass(ClassTree node, Object p) {
-                ClassTree oldClass = enclosingClass;
-                enclosingClass = node;
-                super.visitClass(node, p);
-                enclosingClass = oldClass;
-                return null;
-            }
-        }, null);
-        return set;
-    }
-    
-    private boolean isInteresting(MethodTree t, ClassTree enclosingClass) {
-        // Ignore compiler-generated methods: synthetic and default constructors.
-        if (isSynthetic(t) || getPos(t) == getPos(enclosingClass))
-            return false;
-
-        ExecutableElement sym = (ExecutableElement)getElement(t);
-        if (sym == null)   // ignore unattributed elements, caused by source errors
-            return false;
-        
-        if (sym.getSimpleName().toString().equals("filter") && 
-                sym.getEnclosingElement().getSimpleName().toString().equals("ReplaceString"))
-            System.out.println();  // elements.implementsMethod() should return true
-        
-        TypeElement owner = (TypeElement)sym.getEnclosingElement();
-        if (owner.getKind() == ElementKind.ENUM)
-            return false;  // ignore enum methods, whose flags are synthetic
-
-        if (owner.getKind() == ElementKind.INTERFACE)
-            return false;  // ignore methods defined in interfaces
-
-        if (owner.getNestingKind() == NestingKind.ANONYMOUS)
-            return false;  // ignore anonymous class methods
-
-        // ignore non-public fields if possible
-        ModifiersTree mods = t.getModifiers();
-        Set<Modifier> flags = mods.getFlags();
-        if (!flags.contains(Modifier.PUBLIC) && 
-            !flags.contains(Modifier.PROTECTED) && 
-            !convertPackagePrivate)
-            return false;
-
-        // ignore public no-arg constructors, which are often invoked by reflection
-        if (sym.getKind() == ElementKind.CONSTRUCTOR && 
-            flags.contains(Modifier.PUBLIC) && 
-            t.getParameters().isEmpty())
-            return false;
-
-        // ignore any methods which override their superclass or implement interface methods.
-        if (elements.overridesMethod(sym) || elements.implementsMethod(sym))
-            return false;
-        
-        // ignore main methods
-        if (flags.contains(Modifier.PUBLIC) && 
-            flags.contains(Modifier.STATIC) &&
-            "void".equals(t.getReturnType().toString()) &&
-            "main".equals(t.getName().toString()))
-            return false;
-
-        return true;
-    }
-
     public Void visitMethod(MethodTree t, Object p) {
         super.visitMethod(t, p);
-        ExecutableElement sym = (ExecutableElement)getElement(t);
-        if (!referenceMap.hasReferences(sym))  // true if method isn't "interesting"
+        WorkingCopy wc = getWorkingCopy();
+        Trees trees = wc.getTrees();
+        ExecutableElement meth = (ExecutableElement)trees.getElement(getCurrentPath());
+        MethodReferences methodRefs = meth != null ? refs.get(ElementHandle.create(meth)) : null;
+        if (methodRefs == null)  // true if method isn't "interesting"
             return null;
-        ElementReferenceList<Element> methodRef = referenceMap.get(sym);
 
-        int usage = methodRef.getUsage();
-        TypeElement owner = (TypeElement)sym.getEnclosingElement();
-
-        ModifiersTree mods = t.getModifiers();
-        Set<Modifier> flags = mods.getFlags();
+        Set<Modifier> flags = meth.getModifiers();
         Set<Modifier> newFlags = EnumSet.noneOf(Modifier.class);
         newFlags.addAll(flags);
-        
-        if (sym.getSimpleName().toString().equals("filter") && 
-                sym.getEnclosingElement().getSimpleName().toString().equals("ReplaceString"))
-            System.out.println(); // shouldn't get here, as this method shouldn't be interesting
-        
-        if (flags.contains(Modifier.PUBLIC) && MinimizeFieldAccess.hasPublicUsage(usage)) {
-            // see if public usage is limited to subclasses
-            boolean onlyProtected = true;
-            TypeMirror classType = owner.asType();
-            for (Element e : methodRef.getReferences())
-                if (!types.isSubtype(MinimizeFieldAccess.getClassType(e), classType)) {
-                    onlyProtected = false;
-                    break;
-                }
-            if (onlyProtected) {
+        TypeElement owner = (TypeElement)meth.getEnclosingElement();
+
+        if (flags.contains(Modifier.PUBLIC)) {
+            if (noPublicUsage(methodRefs))
+                newFlags.remove(Modifier.PUBLIC);
+            else if (onlyProtectedUsage(wc, owner, methodRefs)) {
                 newFlags.remove(Modifier.PUBLIC);
                 newFlags.add(Modifier.PROTECTED);
             }
         }
-        else if ((flags.contains(Modifier.PUBLIC) || 
-                  flags.contains(Modifier.PROTECTED)) && 
-                 !MinimizeFieldAccess.hasPublicUsage(usage)) {
-            newFlags.remove(Modifier.PUBLIC);
+        else if (flags.contains(Modifier.PROTECTED) && !onlyProtectedUsage(wc, owner, methodRefs)) {
             newFlags.remove(Modifier.PROTECTED);
         }
         if (convertPackagePrivate && 
@@ -189,30 +154,206 @@ public class MinimizeMethodAccess extends TreePathTransformer<Void,Object> {
                 !newFlags.contains(Modifier.PROTECTED) &&
                 !flags.contains(Modifier.PRIVATE) && 
                 !flags.contains(Modifier.ABSTRACT) &&
-                !MinimizeFieldAccess.hasPublicUsage(usage) &&
-                !MinimizeFieldAccess.hasPackageUsage(usage))
+                noPublicUsage(methodRefs) &&
+                noPackageUsage(methodRefs))
             newFlags.add(Modifier.PRIVATE);
         
         if (!flags.equals(newFlags)) {
             // Make sure overriding methods don't weaken access.
-            ExecutableElement parentMethod = elements.getOverriddenMethod(sym);
+            ExecutableElement parentMethod = wc.getElementUtilities().getOverriddenMethod(meth);
             if (parentMethod == null || // true if method doesn't override
                     access(newFlags) >= access(parentMethod.getModifiers())) {
-                ModifiersTree newMods = make.Modifiers(newFlags, mods.getAnnotations());
-                addChange(new TreePath(getCurrentPath(), mods), newMods, 
-                          MinimizeFieldAccess.resultNote(flags, newFlags));
+                ModifiersTree mods = t.getModifiers();
+                ModifiersTree newMods = wc.getTreeMaker().Modifiers(newFlags, mods.getAnnotations());
+                StringBuilder sb = new StringBuilder();
+                String s = mods.toString();
+                sb.append(s.length() > 0 ? s : "package-private");
+                sb.append(" => ");
+                s = newMods.toString();
+                sb.append(s.length() > 0 ? s : "package-private");
+                addChange(new TreePath(getCurrentPath(), mods), newMods, sb.toString());
             }
         }
         return null;
     }
+
+    /**
+     * See if usage is limited to subclasses.
      */
+    private boolean onlyProtectedUsage(WorkingCopy wc, Element owner, MethodReferences methodRefs) {
+        Types types = wc.getTypes();
+        TypeMirror classType = owner.asType();
+        for (Reference r : methodRefs.references) {
+            TypeMirror referenceOwner = MinimizeFieldAccess.getClassType(r.element.resolve(wc));
+            if (referenceOwner != classType && !types.isSubtype(referenceOwner, classType)) 
+                return false;
+        }
+        return true;
+    }
+    
+    private static boolean noPublicUsage(MethodReferences mr) {
+        return (mr.usage & PUBLIC_USE) == 0;
+    }
+    
+    private static boolean noPackageUsage(MethodReferences mr) {
+        return (mr.usage & PACKAGE_USE) == 0;
+    }
 
     /** Returns a comparable int corresponding to the flags' access level */
     private int access(Set<Modifier> flags) {
         if (flags.contains(Modifier.PUBLIC))
-            return 3;
+            return 4;
         if (flags.contains(Modifier.PROTECTED))
             return 2;
         return flags.contains(Modifier.PRIVATE) ? 0 : 1;
+    }
+    
+    private Element getReferringElement(TreePath path, CompilationInfo info) {
+        Element e = info.getTrees().getElement(path);
+        return e != null ? e : getReferringElement(path.getParentPath(), info);
+    }
+    
+    /**
+     * A description of a references to a variable element.
+     */
+    private static class MethodReferences {
+        ExecutableElement var;
+        TreePathHandle declaration;
+        int usage;
+        List<Reference> references;
+        
+        // these elements are only valid when the ReferenceScanner is scanning
+        TypeElement cls;
+        PackageElement pkg;
+        
+        MethodReferences(ExecutableElement var) {
+            this.var = var;
+            cls = QueryOperations.getDeclaringClass(var);
+            pkg = QueryOperations.getDeclaringPackage(cls);
+            references = new ArrayList<Reference>();
+        }
+    }
+    
+    /**
+     * A reference to an element by a single tree node.
+     */
+    private static class Reference {
+        ElementHandle<Element> element;
+        TreePathHandle tree;
+    }
+    
+    /**
+     * A scanner which finds all variable declarations and references in a project.
+     */
+    private class ReferenceScanner extends TreePathScanner<Void,CompilationInfo> {
+        private TypeElement currentClass;
+        private PackageElement currentPackage;
+        
+        private boolean isInteresting(Element sym, TreePath path, CompilationInfo info) {
+            if (sym == null || !(sym instanceof ExecutableElement))
+                return false;  
+
+            // ignore compiler-generated methods
+            if (info.getElementUtilities().isSynthetic(sym))
+                return false;
+            SourcePositions srcPos = info.getTrees().getSourcePositions();
+            CompilationUnitTree unit = path.getCompilationUnit();
+            long treePos = srcPos.getStartPosition(unit, path.getLeaf());
+            long parentPos = srcPos.getStartPosition(unit, path.getParentPath().getLeaf());
+            if (treePos == parentPos) // true for default constructors
+                return false;
+
+            // ignore enum and interface methods
+            TypeElement owner = (TypeElement)sym.getEnclosingElement();
+            if (owner.getKind() == ElementKind.ENUM || owner.getKind() == ElementKind.INTERFACE)
+                return false;
+            
+            // ignore methods in anonymous classes, since they aren't accessible
+            if (owner.getNestingKind() == NestingKind.ANONYMOUS)
+                return false; 
+
+            // ignore non-public methods if possible
+            Set<Modifier> flags = sym.getModifiers();
+            if (!convertPackagePrivate &&
+                !flags.contains(Modifier.PUBLIC) && !flags.contains(Modifier.PROTECTED))
+                return false;
+ 
+            // ignore public no-arg constructors, which are often invoked by reflection
+            ExecutableElement ee = (ExecutableElement)sym;
+            if (sym.getKind() == ElementKind.CONSTRUCTOR && 
+                flags.contains(Modifier.PUBLIC) && 
+                ee.getParameters().isEmpty())
+                return false;
+
+            // ignore any methods which override their superclass or implement interface methods.
+            ElementUtilities utils = info.getElementUtilities();
+            if (utils.overridesMethod(ee) || utils.implementsMethod(ee))
+                return false;
+
+            // ignore main methods
+            if (flags.contains(Modifier.PUBLIC) && 
+                flags.contains(Modifier.STATIC) &&
+                "void".equals(ee.getReturnType().toString()) &&
+                "main".equals(ee.getSimpleName().toString()))
+                return false;
+            
+            return true;
+        }
+
+        private void add(CompilationInfo info) {
+            TreePath path = getCurrentPath();
+            Element e = info.getTrees().getElement(path);
+            if (!isInteresting(e, path, info))
+                return;
+            assert e instanceof ExecutableElement;
+            ExecutableElement var = (ExecutableElement)e;
+            TreePathHandle handle = TreePathHandle.create(path, info);
+            MethodReferences uses = refs.get(var);
+            if (uses == null) {
+                uses = new MethodReferences(var);
+                if (path.getLeaf() instanceof MethodTree)
+                    uses.declaration = handle;
+                refs.put(ElementHandle.create(var), uses);
+            }
+            Reference ref = new Reference();
+            ref.element = ElementHandle.create(getReferringElement(path, info));
+            ref.tree = handle;
+            uses.references.add(ref);
+            int flags = currentClass == uses.cls ? CLASS_USE
+                   : currentPackage == uses.pkg ? PACKAGE_USE
+                   : PUBLIC_USE;
+            uses.usage |= flags;
+        }
+
+        @Override
+        public Void visitClass(ClassTree tree, CompilationInfo info) {
+            currentClass = (TypeElement)info.getTrees().getElement(getCurrentPath());
+            currentPackage = info.getElements().getPackageOf(currentClass);
+            super.visitClass(tree, info);
+            currentClass = null;
+            currentPackage = null;
+            return null;
+        }
+        
+        @Override
+        public Void visitMethod(MethodTree tree, CompilationInfo info) {
+            Element e = info.getTrees().getElement(getCurrentPath());
+            add(info);
+            return super.visitMethod(tree, info);
+        }
+        
+        @Override
+        public Void visitMethodInvocation(MethodInvocationTree tree, CompilationInfo info) {
+            Element e = info.getTrees().getElement(getCurrentPath());
+            add(info);
+            return super.visitMethodInvocation(tree, info);
+        }
+        
+        @Override
+        public Void visitNewClass(NewClassTree tree, CompilationInfo info) {
+            Element e = info.getTrees().getElement(getCurrentPath());
+            add(info);
+            return super.visitNewClass(tree, info);
+        }
     }
 }

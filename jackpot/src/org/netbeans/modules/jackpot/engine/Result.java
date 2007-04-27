@@ -19,7 +19,7 @@
 
 package org.netbeans.modules.jackpot.engine;
 
-import org.netbeans.api.java.source.TreePathHandle;
+import com.sun.source.util.TreePath;
 import org.openide.filesystems.FileObject;
 
 /**
@@ -30,7 +30,7 @@ import org.openide.filesystems.FileObject;
  * @author Tom Ball
  */
 public final class Result {
-    TreePathHandle path;
+    TreePath path;
     FileObject file;
     int startPos;
     int endPos;
@@ -48,7 +48,7 @@ public final class Result {
      * @param note an optional note about the match, or null
      * @param newSource the replacement source, or null if not a transformer
      */
-    public Result(TreePathHandle path, FileObject file, int start, int end, 
+    public Result(TreePath path, FileObject file, int start, int end, 
                   String label, String note, String newSource) {
         this.path = path;
         this.file = file;
@@ -63,7 +63,7 @@ public final class Result {
      * Returns a handle to the path of the AST node of this result.
      * @return the tree path handle
      */
-    public TreePathHandle getTreePath() {
+    public TreePath getTreePath() {
         return path;
     }
     

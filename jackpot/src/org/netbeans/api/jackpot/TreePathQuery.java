@@ -117,7 +117,6 @@ public abstract class TreePathQuery<R, P> extends CancellableTreePathScanner<R, 
      *        <code>null</code> if there is no note.
      */
     public final void addResult(TreePath path, String note) {
-        TreePathHandle handle = TreePathHandle.create(path, info);
         CompilationUnitTree unit = path.getCompilationUnit();
         FileObject file = info.getFileObject();
         SourcePositions positions = info.getTrees().getSourcePositions();
@@ -125,7 +124,7 @@ public abstract class TreePathQuery<R, P> extends CancellableTreePathScanner<R, 
         int start = (int)positions.getStartPosition(unit, tree);
         int end = (int)positions.getEndPosition(unit, tree);
         String label = makeLabel(path);
-        context.addResult(handle, file, start, end, label, note);
+        context.addResult(path, file, start, end, label, note);
     }
     
     String makeLabel(TreePath path) {

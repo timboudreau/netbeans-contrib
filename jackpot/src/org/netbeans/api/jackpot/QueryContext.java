@@ -19,8 +19,8 @@
 
 package org.netbeans.api.jackpot;
 
+import com.sun.source.util.TreePath;
 import java.io.PrintWriter;
-import org.netbeans.api.java.source.TreePathHandle;
 import org.openide.filesystems.FileObject;
 
 /**
@@ -41,7 +41,7 @@ public interface QueryContext {
      * extends TreePathScanner, its <code>getCurrentPath()</code> method 
      * returns the correct path for the visitor method which is currently visited.
      * 
-     * @param path a handle to the path to the tree which matches this query.
+     * @param path the path to the tree which matches this query.
      * @param file the source file
      * @param start the begin text position of the matched tree
      * @param end the end text position of the matched tree
@@ -50,7 +50,7 @@ public interface QueryContext {
      *        <code>null</code> if there is no note.
      * @see   com.sun.source.util.TreePathScanner#getCurrentPath
      */
-    void addResult(TreePathHandle path, FileObject file, int start, int end, 
+    void addResult(TreePath path, FileObject file, int start, int end, 
                    String label, String note);
     
     /**
@@ -59,7 +59,7 @@ public interface QueryContext {
      * (which normally has additional formatting), but is a simplified version
      * suitable for displaying in a user interface.
      * 
-     * @param path a handle to the path to the tree which matches this query.
+     * @param path the path to the tree which matches this query.
      * @param file the source file
      * @param start the begin text position of the matched tree
      * @param end the end text position of the matched tree
@@ -69,7 +69,7 @@ public interface QueryContext {
      * @param newSource a simple version of the replacement text
      * @see   com.sun.source.util.TreePathScanner#getCurrentPath
      */
-    void addChange(TreePathHandle path, FileObject file, int start, int end, 
+    void addChange(TreePath path, FileObject file, int start, int end, 
                    String label, String note, String newSource);
 
     /**

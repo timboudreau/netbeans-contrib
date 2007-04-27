@@ -67,7 +67,6 @@ public abstract class TreePathTransformer<R, P> extends TreePathQuery<R, P> impl
      *        <code>null</code> if there is no note.
      */
     public final void addChange(TreePath path, Tree newTree, String note) {
-        TreePathHandle handle = TreePathHandle.create(path, info);
         CompilationUnitTree unit = path.getCompilationUnit();
         FileObject file = info.getFileObject();
         SourcePositions positions = info.getTrees().getSourcePositions();
@@ -77,7 +76,7 @@ public abstract class TreePathTransformer<R, P> extends TreePathQuery<R, P> impl
         String label = makeLabel(path);
         if (note == null || note.length() == 0)
             note = createNote(tree, newTree);
-        context.addChange(handle, file, start, end, label, note, newTree.toString());
+        context.addChange(path, file, start, end, label, note, newTree.toString());
         getWorkingCopy().rewrite(path.getLeaf(), newTree);
     }
     
