@@ -55,7 +55,7 @@ public class OC4JEjbModuleConfiguration extends OC4JModuleConfiguration
     public OC4JEjbModuleConfiguration(J2eeModule j2eeModule) {
         super(j2eeModule);
         
-        orionEjbJarFile = j2eeModule.getDeploymentConfigurationFile("META-INF/orion-ejb-jar.xml");
+        orionEjbJarFile = j2eeModule.getDeploymentConfigurationFile("orion-ejb-jar.xml");
         
         // Initializar orion-ejb.xml
         getOC4JEjbJar();

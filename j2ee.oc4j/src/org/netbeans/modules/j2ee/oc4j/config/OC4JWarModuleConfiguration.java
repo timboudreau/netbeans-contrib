@@ -67,7 +67,7 @@ public class OC4JWarModuleConfiguration extends OC4JModuleConfiguration
         
         orionWebFile = j2eeModule.getDeploymentConfigurationFile("WEB-INF/orion-web.xml");
         
-        // Initializar orion-web.xml
+        // Initialization of the orion-web.xml
         getOrionWebApp();
         
         if (deploymentDescriptorDO == null) {

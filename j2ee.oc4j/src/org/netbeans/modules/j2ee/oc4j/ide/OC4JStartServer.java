@@ -180,7 +180,7 @@ public class OC4JStartServer extends StartServer implements ProgressObject {
     }
     
     public boolean needsStartForTargetList() {
-        return false;
+        return true;
     }
     
     public boolean needsStartForConfigure() {
@@ -188,13 +188,15 @@ public class OC4JStartServer extends StartServer implements ProgressObject {
     }
     
     public boolean needsStartForAdminConfig() {
-        return false;
+        return true;
     }
     
     public boolean isRunning() {
         return OC4JPluginProperties.isRunning(ip.getProperty(OC4JPluginProperties.PROPERTY_HOST),
                 ip.getProperty(InstanceProperties.HTTP_PORT_NUMBER));
     }
+    
+    // ProgressObject implementation
     
     public DeploymentStatus getDeploymentStatus() {
         return deploymentStatus;
@@ -213,13 +215,15 @@ public class OC4JStartServer extends StartServer implements ProgressObject {
     }
     
     public void cancel() throws OperationUnsupportedException {
+        throw new OperationUnsupportedException("");
     }
     
     public boolean isStopSupported() {
-        return OC4JPluginUtils.isLocalServer(ip);
+        return false;
     }
     
     public void stop() throws OperationUnsupportedException {
+        throw new OperationUnsupportedException("");
     }
     
     public void addProgressListener(ProgressListener progressListener) {
@@ -249,7 +253,9 @@ public class OC4JStartServer extends StartServer implements ProgressObject {
         }
     }
     
-    MODE getMode() {
+    // Helper methods
+    
+    protected MODE getMode() {
         return mode;
     }
 }
