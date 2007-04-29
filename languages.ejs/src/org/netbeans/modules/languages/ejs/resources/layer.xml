@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE filesystem PUBLIC "-//NetBeans//DTD Filesystem 1.1//EN" "http://www.netbeans.org/dtds/filesystem-1_1.dtd">
+<filesystem>
+    <folder name="Loaders">
+        <folder name="text">
+            <folder name="x-ejs">
+                <folder name="Actions">
+                    <file name="org-openide-actions-OpenAction.instance"/>
+                    <attr name="org-openide-actions-OpenAction.instance/org-openide-actions-FileSystemAction.instance" boolvalue="true"/>
+                    <file name="org-openide-actions-FileSystemAction.instance"/>
+                    <attr name="org-openide-actions-FileSystemAction.instance/sep-1.instance" boolvalue="true"/>
+                    <file name="sep-1.instance">
+                        <attr name="instanceClass" stringvalue="javax.swing.JSeparator"/>
+                    </file>
+                    <attr name="sep-1.instance/org-openide-actions-CutAction.instance" boolvalue="true"/>
+                    <file name="org-openide-actions-CutAction.instance"/>
+                    <attr name="org-openide-actions-CutAction.instance/org-openide-actions-CopyAction.instance" boolvalue="true"/>
+                    <file name="org-openide-actions-CopyAction.instance"/>
+                    <attr name="org-openide-actions-CopyAction.instance/sep-2.instance" boolvalue="true"/>
+                    <file name="sep-2.instance">
+                        <attr name="instanceClass" stringvalue="javax.swing.JSeparator"/>
+                    </file>
+                    <attr name="sep-2.instance/org-openide-actions-DeleteAction.instance" boolvalue="true"/>
+                    <file name="org-openide-actions-DeleteAction.instance"/>
+                    <attr name="org-openide-actions-DeleteAction.instance/org-openide-actions-RenameAction.instance" boolvalue="true"/>
+                    <file name="org-openide-actions-RenameAction.instance"/>
+                    <attr name="org-openide-actions-RenameAction.instance/sep-3.instance" boolvalue="true"/>
+                    <file name="sep-3.instance">
+                        <attr name="instanceClass" stringvalue="javax.swing.JSeparator"/>
+                    </file>
+                    <attr name="sep-3.instance/org-openide-actions-SaveAsTemplateAction.instance" boolvalue="true"/>
+                    <file name="org-openide-actions-SaveAsTemplateAction.instance"/>
+                    <attr name="org-openide-actions-SaveAsTemplateAction.instance/sep-4.instance" boolvalue="true"/>
+                    <file name="sep-4.instance">
+                        <attr name="instanceClass" stringvalue="javax.swing.JSeparator"/>
+                    </file>
+                    <attr name="sep-4.instance/org-openide-actions-ToolsAction.instance" boolvalue="true"/>
+                    <file name="org-openide-actions-ToolsAction.instance"/>
+                    <attr name="org-openide-actions-ToolsAction.instance/org-openide-actions-PropertiesAction.instance" boolvalue="true"/>
+                    <file name="org-openide-actions-PropertiesAction.instance"/>
+                </folder>
+            </folder>
+        </folder>
+    </folder>
+    <folder name="Services">
+        <folder name="MIMEResolver">
+            <file name="EJSResolver.xml" url="EJSResolver.xml">
+                <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.languages.ejs.resources.Bundle"/>
+            </file>
+        </folder>
+    </folder>
+    <folder name="Templates">
+        <folder name="EJS">
+            <file name="EJSTemplate.ejs" url="EJSTemplate.ejs">
+                <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.languages.ejs.resources.Bundle"/>
+                <attr name="templateCategory" stringvalue="phobos"/>
+                <attr name="template" boolvalue="true"/>
+            </file>
+        </folder>
+    </folder>
+    
+    <folder name="Editors">
+        <!-- schliemann hack - the js language contains some embedded languages which needs to have
+             a language.nbs file in the layer -->
+        <folder name="text">
+            <folder name="x-ejs-string-double">
+                <file name="language.nbs" url="fake.nbs"/>
+            </folder>
+            <folder name="x-ejs-string-single">
+                <file name="language.nbs" url="fake.nbs"/>
+            </folder>
+            <folder name="x-ejs-comment">
+                <file name="language.nbs" url="fake.nbs"/>
+            </folder>
+            <folder name="x-ejs">
+                <file name="language.nbs" url="fake.nbs"/>
+            </folder>
+        </folder>
+        <!-- eof hack -->
+        <folder name="text">
+            <folder name="x-ejs">
+                <folder name="Popup">
+                    <file name="org-netbeans-modules-refactoring-api-ui-WhereUsedAction.instance">
+                         <attr name="instanceCreate" methodvalue="org.netbeans.modules.refactoring.api.ui.RefactoringActionsFactory.whereUsedAction"/>
+                    </file>
+                    <file name="org-netbeans-modules-refactoring-api-ui-RSMEditorAction.instance">
+                         <attr name="instanceCreate" methodvalue="org.netbeans.modules.refactoring.api.ui.RefactoringActionsFactory.editorSubmenuAction"/>
+                    </file>
+                    <file name="SeparatorBeforeWhereUsedAction.instance">
+                        <attr name="instanceClass" stringvalue="javax.swing.JSeparator"/>
+                    </file>
+                    <file name="SeparatorAfterSelectInPopupAction.instance">
+                        <attr name="instanceClass" stringvalue="javax.swing.JSeparator"/>
+                    </file>
+                    <attr name="SeparatorBeforeWhereUsedAction.instance/org-netbeans-modules-refactoring-api-ui-WhereUsedAction.instance" boolvalue="true"/>
+                    <attr name="org-netbeans-modules-refactoring-api-ui-WhereUsedAction.instance/org-netbeans-modules-refactoring-api-ui-RSMEditorAction.instance" boolvalue="true"/>        
+                    <attr name="org-netbeans-modules-refactoring-api-ui-RSMEditorAction.instance/SeparatorAfterSelectInPopupAction.instance" boolvalue="true"/>
+                </folder>
+                <folder name="FoldManager">
+                    <file name="org-netbeans-modules-languages-features-LanguagesFoldManager$Factory.instance"/>
+                </folder>
+                <folder name="SideBar">
+                    <file name="org-netbeans-modules-languages-features-CodeFoldingSideBarFactory.instance"/>
+                    <attr name="org-netbeans-editor-GlyphGutter.instance/org-netbeans-modules-languages-features-CodeFoldingSideBarFactory.instance" boolvalue="true"/>
+                </folder>
+
+                
+                
+                
+                
+                <file name="org-netbeans-spi-palette-PaletteFactory.instance">
+                    <attr name="instanceOf" stringvalue="org.netbeans.spi.palette.PaletteController"/>
+                    <attr name="instanceCreate" methodvalue="org.netbeans.modules.languages.ejs.editor.palette.LayerPaletteFactory.createPalette"/>
+                </file>                
+                <file name="language.instance">
+                    <attr name="instanceCreate" methodvalue="org.netbeans.modules.languages.ejs.lexer.api.EJSTokenId.language"/>
+                    <attr name="instanceOf" stringvalue="org.netbeans.api.lexer.Language"/>
+                </file>
+                
+                <attr name="createDataObject" boolvalue="false"/>
+                <file name="language.nbs" url="EJS.nbs">
+                    <attr name="icon" stringvalue="org/netbeans/modules/languages/ejs/resources/ejs16.gif"/>
+                </file>
+                
+                <folder name="CompletionProviders">
+                    <file name="org-netbeans-modules-editor-html-HTMLCompletionProvider.instance"/>
+                </folder>
+                
+                <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.languages.ejs.resources.Bundle"/>
+                <folder name="FontColors">
+                    <folder name="NetBeans">
+                        <folder name="Defaults">
+                            <file name="coloring.xml" url="fontsColors.xml">
+                                <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.languages.ejs.resources.Bundle"/>
+                            </file>
+                        </folder>
+                    </folder>
+                </folder>
+                
+                <file name="Settings.settings" url="EJSOptions.settings"/>
+                <file name="EditorKit.instance">
+                    <attr name="instanceClass" stringvalue="org.netbeans.modules.languages.ejs.editor.EJSKit"/>
+                </file>
+            
+                <folder name="Keybindings">
+                    <folder name="NetBeans">
+                        <folder name="Defaults">
+                            <file name="keybindings.xml" url="DefaultKeyBindings.xml"/>
+                        </folder>
+                    </folder>
+                </folder>
+                <folder name="Defaults">
+                    <file name="abbreviations.xml" url="DefaultAbbrevs.xml"/>
+                </folder>
+            </folder>
+        </folder>
+    </folder>
+    
+    <folder name="OptionsDialog">
+        <folder name="PreviewExamples">
+            <folder name="text">
+                <file name="x-ejs" url="EJSExample"/>
+            </folder>
+        </folder>
+    </folder>
+    
+</filesystem>
