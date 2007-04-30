@@ -27,6 +27,8 @@ package org.netbeans.modules.remoteproject.svn;
 
 import java.io.File;
 import java.net.MalformedURLException;
+import java.util.ArrayList;
+import java.util.List;
 import org.netbeans.api.progress.ProgressHandle;
 import org.netbeans.api.progress.ProgressHandleFactory;
 import org.netbeans.api.remoteproject.CheckoutHandler;
@@ -63,7 +65,7 @@ public class SvnCheckoutHandler implements CheckoutHandler {
     public static final String ATTR_USER = "username"; //NOI18N
     
     public String checkout(final FileObject template, final FileObject dest,
-                           final ProgressHandle progress) {
+                           final ProgressHandle progress, final String un) {
         String url = (String) template.getAttribute (ATTR_URL);
         if (url == null) {
             throw new NullPointerException ("Attribute 'url' not " + //NOI18N
@@ -73,20 +75,15 @@ public class SvnCheckoutHandler implements CheckoutHandler {
             
         final SVNUrl repository = new SVNUrl (url);
         final File file = FileUtil.toFile (dest);
-//        final boolean atWorkingDirLevel = wizard.isAtWorkingDirLevel();
-//        final String rf = (String) template.getAttribute(ATTR_REPOSITORY_FILES);
-//        if (rf == null) {
-//            throw new NullPointerException ("Attribute 'repositoryFiles' not " + //NOI18N
-//                    "specified on " + template.getPath()); //NOI18N
-//        }
         
         String rev = (String) template.getAttribute(ATTR_REVISION);
         String paths = (String) template.getAttribute (ATTR_PATHS);
         
+        String explicitUsername = (String) template.getAttribute (ATTR_USER);
+        final String username = un == null ? explicitUsername : un;
         
         final RepositoryFile[] repositoryFiles = getRepositoryFiles (repository, 
                 rev, paths);
-//        progress.start();
         
         final ProgressHandle progress2 = ProgressHandleFactory.createHandle("SVN Checkout");        
         
@@ -98,7 +95,11 @@ public class SvnCheckoutHandler implements CheckoutHandler {
             public void perform() {
                 final SvnClient client;
                 try {
-                    client = Subversion.getInstance().getClient(repository);
+                    if (username == null) {
+                        client = Subversion.getInstance().getClient(repository);
+                    } else {
+                        client = Subversion.getInstance().getClient(repository, username, "");
+                    }
                 } catch (SVNClientException ex) {
                     Exceptions.printStackTrace(ex); // should not happen
                     return;
@@ -192,5 +193,28 @@ public class SvnCheckoutHandler implements CheckoutHandler {
             return SVNRevision.HEAD;
         }
         return SvnUtils.getSVNRevision(rev);        
+    }
+
+    public String getUserName(FileObject template) {
+        return (String) template.getAttribute (ATTR_USER);
+    }
+
+    public File[] getCreatedDirs(FileObject template, File destFolder) {
+       String modules = (String) template.getAttribute (ATTR_PATHS);
+       File[] result;
+       if (modules != null) {
+           String[] s = modules.split(" ");
+           List <File> l = new ArrayList<File>(s.length);
+           for (int i = 0; i < s.length; i++) {
+               File f = new File (destFolder, s[i]);
+               if (f.exists() && f.isDirectory()) {
+                   l.add (f);
+               }
+           }
+           result = l.toArray(new File[l.size()]);           
+       } else {
+           result = new File[0];           
+       }
+       return result;
     }
 }

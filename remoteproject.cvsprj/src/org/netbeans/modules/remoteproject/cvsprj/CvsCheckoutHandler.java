@@ -18,6 +18,10 @@ package org.netbeans.modules.remoteproject.cvsprj;
 
 import java.io.File;
 import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import org.netbeans.modules.versioning.system.cvss.executor.CheckoutExecutor;
 import org.openide.filesystems.FileUtil;
 import org.netbeans.api.progress.ProgressHandle;
@@ -42,9 +46,22 @@ public class CvsCheckoutHandler implements CheckoutHandler {
     public boolean canCheckout(FileObject template) {
         return "cvs".equals (template.getAttribute("system")); //NOI18N
     }
+    
+    private String processRoot (String cvsroot, String username) {
+        Pattern p = Pattern.compile("(:.*?:)(.*)(@.*)"); //NOI18N                    
+        Matcher m = p.matcher(cvsroot);
+        if (m.matches()) {
+            String templateUsername = m.group(2);
+            if (!templateUsername.equals(username)) {
+                cvsroot = m.group(1) + username + m.group(3);
+                System.err.println("Rewrote cvsroot to " + cvsroot);
+            }
+        }
+        return cvsroot;
+    }
 
     public String checkout(FileObject template, FileObject dest,
-                           final ProgressHandle progress) {
+                           final ProgressHandle progress, String username) {
         try {
         assert template != null;
         assert dest != null;
@@ -55,8 +72,8 @@ public class CvsCheckoutHandler implements CheckoutHandler {
        String modules = (String) template.getAttribute("what"); //NOI18N
        String tag = (String) template.getAttribute("tag"); //NOI18N
        if (tag == null) tag = "HEAD"; //NOI18N
-       
-       System.err.println("Will check out " + root + " " + modules + " " + tag);
+
+       root = processRoot (root, username);
        
        File f = FileUtil.toFile (dest);
        assert f != null : "Not a normal file: " + dest; //NOI18N
@@ -75,11 +92,9 @@ public class CvsCheckoutHandler implements CheckoutHandler {
                                          group);
        
        
-       System.err.println("Created Checkout Executor " + ce);
        try {
            Field fld = ExecutorGroup.class.getDeclaredField("progressHandle"); //NOI18N
            fld.setAccessible (true);
-           System.err.println("Set progress handle field");
            fld.set(group, progress);
        } catch (Exception e) {
            Exceptions.printStackTrace(e);
@@ -91,5 +106,36 @@ public class CvsCheckoutHandler implements CheckoutHandler {
             Exceptions.printStackTrace(re);
         }
        return null;
+    }
+
+    public String getUserName(FileObject template) {
+        String root = (String) template.getAttribute("cvsroot"); //NOI18N
+        if (root != null) {
+            Pattern p = Pattern.compile(":.*?:(.*)@.*"); //NOI18N                    
+            Matcher m = p.matcher(root);
+            if (m.matches()) {
+                return m.group(1);
+            }
+        }
+        return null;
+    }
+
+    public File[] getCreatedDirs(FileObject template, File destFolder) {
+       String modules = (String) template.getAttribute("what"); //NOI18N
+       File[] result;
+       if (modules != null) {
+           String[] s = modules.split(" ");
+           List <File> l = new ArrayList<File>(s.length);
+           for (int i = 0; i < s.length; i++) {
+               File f = new File (destFolder, s[i]);
+               if (f.exists() && f.isDirectory()) {
+                   l.add (f);
+               }
+           }
+           result = l.toArray(new File[l.size()]);           
+       } else {
+           result = new File[0];           
+       }
+       return result;
     }
 }
