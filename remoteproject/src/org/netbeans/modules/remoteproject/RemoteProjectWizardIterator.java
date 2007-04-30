@@ -19,6 +19,7 @@ package org.netbeans.modules.remoteproject;
 import java.awt.Component;
 import java.io.File;
 import java.io.IOException;
+import java.net.Inet4Address;
 import java.text.MessageFormat;
 import java.util.Collection;
 import java.util.Collections;
@@ -56,7 +57,7 @@ public class RemoteProjectWizardIterator implements WizardDescriptor.ProgressIns
     
     private WizardDescriptor.Panel[] createPanels() {
         return new WizardDescriptor.Panel[] {
-            new RemoteProjectWizardPanel(),
+            new RemoteProjectWizardPanel(Templates.getTemplate(wiz)),
         };
     }
     
@@ -70,6 +71,12 @@ public class RemoteProjectWizardIterator implements WizardDescriptor.ProgressIns
     }
     
     public Set <FileObject> instantiate(ProgressHandle handle) throws IOException {
+//        InetAddress address = InetAddress.getByName("contrib.netbeans.org");
+//        Socket socket = 
+//                SocketFactory.getDefault().createSocket(address, 80);
+//        new SocketAddress()
+//        socket.connect(address, 30);
+//        
         Set <FileObject> resultSet = new LinkedHashSet <FileObject>();
         File dirF = FileUtil.normalizeFile((File) wiz.getProperty("projdir"));
         dirF.mkdirs();
@@ -77,19 +84,15 @@ public class RemoteProjectWizardIterator implements WizardDescriptor.ProgressIns
         final FileObject template = Templates.getTemplate(wiz);
         final FileObject dir = FileUtil.toFileObject(dirF);
         
-        Collection <? extends CheckoutHandler> handlers = 
-                Lookup.getDefault().lookupAll (CheckoutHandler.class);
-        CheckoutHandler handler = null;
-        for (CheckoutHandler h : handlers) {
-            if (h.canCheckout(template)) {
-                handler = h;
-                break;
-            }
-        }
+        CheckoutHandler handler = (CheckoutHandler) wiz.getProperty("checkoutHandler");
+        
         if (handler == null) {
             throw new IOException ("No handler for " + template.getPath());
         }
-        String problem = handler.checkout(template, dir, handle);
+        
+        String username = (String) wiz.getProperty("username");
+        
+        String problem = handler.checkout(template, dir, handle, username);
         if (problem != null) {
             IOException ioe = new IOException (problem);
             Exceptions.attachLocalizedMessage(ioe, problem);
@@ -97,14 +100,19 @@ public class RemoteProjectWizardIterator implements WizardDescriptor.ProgressIns
             return Collections.<FileObject>emptySet();
         }
         if (dir != null) { //will be null in unit test, no masterfs
-            // Always open top dir as a project:
-            resultSet.add(dir);
-            // Look for nested projects to open as well:
-            Enumeration e = dir.getFolders(true);
-            while (e.hasMoreElements()) {
-                FileObject subfolder = (FileObject) e.nextElement();
-                if (ProjectManager.getDefault().isProject(subfolder)) {
-                    resultSet.add(subfolder);
+            File[] f = handler.getCreatedDirs(template, dirF);
+            for (int i=0; i < f.length; i++) {
+                FileObject ob = FileUtil.toFileObject (FileUtil.normalizeFile(f[i]));
+                if (ProjectManager.getDefault().isProject(ob)) {
+                    resultSet.add(ob);
+                }
+                // Look for nested projects to open as well:
+                Enumeration e = ob.getFolders(true);
+                while (e.hasMoreElements()) {
+                    FileObject subfolder = (FileObject) e.nextElement();
+                    if (ProjectManager.getDefault().isProject(subfolder)) {
+                        resultSet.add(subfolder);
+                    }
                 }
             }
 
@@ -117,8 +125,8 @@ public class RemoteProjectWizardIterator implements WizardDescriptor.ProgressIns
     }
     
     public void initialize(WizardDescriptor wiz) {
-        this.wiz = wiz;
         index = 0;
+        this.wiz = wiz;
         panels = createPanels();
         // Make sure list of steps is accurate.
         String[] steps = createSteps();
@@ -133,10 +141,28 @@ public class RemoteProjectWizardIterator implements WizardDescriptor.ProgressIns
             if (c instanceof JComponent) { // assume Swing components
                 JComponent jc = (JComponent) c;
                 // Step #.
-                jc.putClientProperty("WizardPanel_contentSelectedIndex", new Integer(i));
+                jc.putClientProperty("WizardPanel_contentSelectedIndex", new Integer(i)); //NOI18N
                 // Step name (actually the whole list for reference).
-                jc.putClientProperty("WizardPanel_contentData", steps);
+                jc.putClientProperty("WizardPanel_contentData", steps); //NOI18N
             }
+        }
+        final FileObject template = Templates.getTemplate(wiz);
+        CheckoutHandler handler = null;
+        
+        Collection <? extends CheckoutHandler> handlers = 
+                Lookup.getDefault().lookupAll (CheckoutHandler.class);
+        for (CheckoutHandler h : handlers) {
+            if (h.canCheckout(template)) {
+                handler = h;
+                break;
+            }   
+        }
+        wiz.putProperty("checkoutHandler", handler); //NOI18N
+        if (handler == null) {
+            wiz.putProperty("WizardPanel_errorMessage", "No handler for the " +
+                    "version control system specified in this template.");
+        } else {
+            wiz.putProperty("username", handler.getUserName(template));
         }
     }
     

@@ -25,7 +25,9 @@
 
 package org.netbeans.api.remoteproject;
 
+import java.io.File;
 import org.netbeans.api.progress.ProgressHandle;
+import org.openide.WizardDescriptor;
 import org.openide.filesystems.FileObject;
 
 /**
@@ -56,8 +58,14 @@ public interface CheckoutHandler {
      *        appear on the user's disk.  This parameter
      *        needs to be resolvable to a java.io.File
      * @param progress A progress handle to show progress
+     * @param username Optional user id
      * @return null if the checkout is successful, a localized
      *        problem string if it has failed
      */ 
-    public String checkout (FileObject template, FileObject dest, ProgressHandle progress);
+    public String checkout (FileObject template, FileObject dest, 
+            ProgressHandle progress, String username);
+    
+    public String getUserName (FileObject template);
+    
+    public File[] getCreatedDirs(FileObject template, File destFolder);
 }

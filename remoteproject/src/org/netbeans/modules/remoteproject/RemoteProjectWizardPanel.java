@@ -20,10 +20,13 @@ import java.awt.Component;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import org.openide.WizardDescriptor;
 import org.openide.WizardValidationException;
+import org.openide.filesystems.FileObject;
 import org.openide.util.HelpCtx;
 import org.openide.util.NbBundle;
 
@@ -35,9 +38,33 @@ public class RemoteProjectWizardPanel implements WizardDescriptor.Panel,
     
     private WizardDescriptor wizardDescriptor;
     private RemoteProjectPanelVisual component;
+    FileObject template;
     
     /** Creates a new instance of templateWizardPanel */
-    public RemoteProjectWizardPanel() {
+    public RemoteProjectWizardPanel(FileObject template) {
+        setTemplate(template);
+    }
+    
+    String templateUsername = null;
+    void setTemplate (FileObject fob) {
+        template = fob;
+        if (component != null) {
+            String username = (String) fob.getAttribute("username"); //NOI18N
+            if (username == null && "cvs".equals(fob.getAttribute("system"))) { //NOI18N            
+                String cvsroot = (String) fob.getAttribute("cvsroot"); //NOI18N
+                if (cvsroot != null) {
+                    Pattern p = Pattern.compile(":.*?:(.*)@.*"); //NOI18N                    
+                    Matcher m = p.matcher(cvsroot);
+                    if (m.matches()) {
+                        templateUsername = m.group(0);
+                    }
+                }
+            }
+        }
+    }
+    
+    String getTemplateUsername() {
+        return templateUsername;
     }
     
     public Component getComponent() {
@@ -97,5 +124,4 @@ public class RemoteProjectWizardPanel implements WizardDescriptor.Panel,
         getComponent();
         component.validate(wizardDescriptor);
     }
-    
 }

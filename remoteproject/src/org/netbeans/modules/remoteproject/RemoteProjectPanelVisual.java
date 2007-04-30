@@ -29,15 +29,17 @@ import org.openide.filesystems.FileUtil;
 
 public class RemoteProjectPanelVisual extends JPanel implements DocumentListener {
     
-    public static final String PROP_PROJECT_NAME = "projectName";
+    public static final String PROP_PROJECT_NAME = "projectName"; //NOI18N    
     
     private RemoteProjectWizardPanel panel;
     
     public RemoteProjectPanelVisual(RemoteProjectWizardPanel panel) {
         initComponents();
         this.panel = panel;
+        userIdTextField.setText (panel.getTemplateUsername());
         // Register listener on the textFields to make the automatic updates
         projectLocationTextField.getDocument().addDocumentListener(this);
+        userIdTextField.getDocument().addDocumentListener(this);
     }
     
     /** This method is called from within the constructor to
@@ -53,6 +55,8 @@ public class RemoteProjectPanelVisual extends JPanel implements DocumentListener
         browseButton = new javax.swing.JButton();
         createdFolderLabel = new javax.swing.JLabel();
         urlTextField = new javax.swing.JTextField();
+        jLabel1 = new javax.swing.JLabel();
+        userIdTextField = new javax.swing.JTextField();
 
         projectLocationLabel.setLabelFor(projectLocationTextField);
         org.openide.awt.Mnemonics.setLocalizedText(projectLocationLabel, "Project &Location:");
@@ -66,26 +70,30 @@ public class RemoteProjectPanelVisual extends JPanel implements DocumentListener
         });
 
         createdFolderLabel.setLabelFor(urlTextField);
-        org.openide.awt.Mnemonics.setLocalizedText(createdFolderLabel, "&URL");
+        org.openide.awt.Mnemonics.setLocalizedText(createdFolderLabel, "Remote Server");
 
         urlTextField.setEditable(false);
+
+        org.openide.awt.Mnemonics.setLocalizedText(jLabel1, "User ID");
 
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
+            .add(layout.createSequentialGroup()
                 .addContainerGap()
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                     .add(projectLocationLabel)
-                    .add(createdFolderLabel))
+                    .add(createdFolderLabel)
+                    .add(jLabel1))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                     .add(layout.createSequentialGroup()
                         .add(projectLocationTextField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 191, Short.MAX_VALUE)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(browseButton))
-                    .add(urlTextField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 276, Short.MAX_VALUE))
+                    .add(urlTextField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 276, Short.MAX_VALUE)
+                    .add(userIdTextField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 276, Short.MAX_VALUE))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -100,7 +108,11 @@ public class RemoteProjectPanelVisual extends JPanel implements DocumentListener
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(createdFolderLabel)
                     .add(urlTextField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(239, Short.MAX_VALUE))
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.UNRELATED)
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                    .add(jLabel1)
+                    .add(userIdTextField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap(208, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
     
@@ -131,9 +143,11 @@ public class RemoteProjectPanelVisual extends JPanel implements DocumentListener
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton browseButton;
     private javax.swing.JLabel createdFolderLabel;
+    private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel projectLocationLabel;
     private javax.swing.JTextField projectLocationTextField;
     private javax.swing.JTextField urlTextField;
+    private javax.swing.JTextField userIdTextField;
     // End of variables declaration//GEN-END:variables
     
     public void addNotify() {
@@ -167,16 +181,25 @@ public class RemoteProjectPanelVisual extends JPanel implements DocumentListener
         }
         
         wizardDescriptor.putProperty("WizardPanel_errorMessage", "");
+        
+        String s = userIdTextField.getText();
+        if (s.trim().length() == 0) {
+            wizardDescriptor.putProperty("WizardPanel_errorMessage", "Missing " +
+                    "user name.");
+        }
+        
         return true;
     }
     
     void store(WizardDescriptor d) {
         String folder = projectLocationTextField.getText().trim();
-        d.putProperty("projdir", new File(folder));
+        d.putProperty("projdir", new File(folder)); //NOI18N        
+        String userName = userIdTextField.getText();
+        d.putProperty("username", userName); //NOI18N        
     }
     
     void read(WizardDescriptor settings) {
-        File projectLocation = (File) settings.getProperty("projdir");
+        File projectLocation = (File) settings.getProperty("projdir"); //NOI18N        
         if (projectLocation == null || projectLocation.getParentFile() == null || !projectLocation.getParentFile().isDirectory()) {
             projectLocation = ProjectChooser.getProjectsFolder();
         } else {
@@ -186,6 +209,8 @@ public class RemoteProjectPanelVisual extends JPanel implements DocumentListener
         
         this.projectLocationTextField.setText(projectLocation.getPath());
         this.projectLocationTextField.selectAll();
+        String userid = (String) settings.getProperty("username"); //NOI18N        
+        this.userIdTextField.setText (userid);
     }
     
     void validate(WizardDescriptor d) throws WizardValidationException {
@@ -208,13 +233,6 @@ public class RemoteProjectPanelVisual extends JPanel implements DocumentListener
     
     /** Handles changes in the Project name and project directory, */
     private void updateTexts(DocumentEvent e) {
-        Document doc = e.getDocument();
-        
-        if (doc == projectLocationTextField.getDocument()) {
-            // Change in the project name
-            
-            String projectFolder = projectLocationTextField.getText();
-        }
         panel.fireChangeEvent(); // Notify that the panel changed
     }
 }
