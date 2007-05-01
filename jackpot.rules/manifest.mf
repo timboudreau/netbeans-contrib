@@ -6,3 +6,4 @@ OpenIDE-Module-Localizing-Bundle: org/netbeans/modules/jackpot/rules/Bundle.prop
 
 Name: org/netbeans/modules/jackpot/rules/RulesDataLoader.class
 OpenIDE-Module-Class: Loader
+Install-Before: org.netbeans.modules.languages.dataobject.LanguagesDataObject
