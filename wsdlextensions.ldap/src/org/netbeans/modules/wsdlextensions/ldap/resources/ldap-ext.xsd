@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+ The contents of this file are subject to the terms of the Common Development
+ and Distribution License (the License). You may not use this file except in
+ compliance with the License.
+ 
+ You can obtain a copy of the License at http://www.netbeans.org/cddl.html
+ or http://www.netbeans.org/cddl.txt.
+ 
+ When distributing Covered Code, include this CDDL Header Notice in each file
+ and include the License file at http://www.netbeans.org/cddl.txt.
+ If applicable, add the following below the CDDL Header, with the fields
+ enclosed by brackets [] replaced by your own identifying information:
+ "Portions Copyrighted [year] [name of copyright owner]"
+ 
+ The Original Software is NetBeans. The Initial Developer of the Original
+ Software is Sun Microsystems, Inc. Portions Copyright 1997-2007 Sun
+ Microsystems, Inc. All Rights Reserved.
+-->
+
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:ldap="http://schemas.sun.com/jbi/wsdl-extensions/ldap/" targetNamespace="http://schemas.sun.com/jbi/wsdl-extensions/ldap/">
+	<xs:import namespace="http://schemas.xmlsoap.org/wsdl/" schemaLocation="wsdl.xsd"/>
+	<xs:element name="binding" type="ldap:tBinding">
+		<xs:annotation>
+			<xs:documentation>
+	      	"binding" indicates a ldap protocol based binding.
+	      </xs:documentation>
+		</xs:annotation>
+	</xs:element>
+	<xs:complexType name="tBinding">
+		<xs:complexContent>
+			<xs:extension base="wsdl:tExtensibilityElement"/>
+			<!-- could add more attributes to the binding -->
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:element name="operation" type="ldap:tOperation"/>
+	<xs:complexType name="tOperation">
+		<xs:annotation>
+			<xs:documentation>
+	      	"operation" defines the ldap protocol based operation binding details..
+	      </xs:documentation>
+		</xs:annotation>
+	</xs:complexType>
+	
+	<xs:simpleType name="operationTypes">
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="searchRequest"/>
+		</xs:restriction>
+	</xs:simpleType>
+
+	<xs:element name="input" type="ldap:tInput">
+		<xs:annotation>
+			<xs:documentation>
+	      	"input" defines the ldap protocol based operation input binding details
+	      </xs:documentation>
+		</xs:annotation>
+	</xs:element>
+	<xs:complexType name="tInput">
+		<xs:complexContent>
+			<xs:extension base="wsdl:tExtensibilityElement">				
+				<xs:attribute name="operationType" type="ldap:operationTypes" use="required">
+					<xs:annotation>
+						<xs:documentation>Defines the ldap operation type valid values are insert, update, delete etc</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>	
+	<xs:element name="output" type="ldap:tOutput">
+		<xs:annotation>
+			<xs:documentation>
+	      	"output" defines the ldap protocol based operation output binding details
+	      </xs:documentation>
+		</xs:annotation>
+	</xs:element>
+	<xs:complexType name="tOutput">
+		<xs:complexContent>
+			<xs:extension base="wsdl:tExtensibilityElement">
+				<xs:attribute name="returnPartName" type="xs:string" use="optional">
+					<xs:annotation>
+						<xs:documentation>Defines the message part name which is returned. Used in insert operation.</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+				<xs:attribute name="attributes" type="xs:string" use="optional">
+					<xs:annotation>
+						<xs:documentation>Defines list of attributes to be retrieved</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+				</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+
+	<xs:element name="address" type="ldap:tAddress">
+		<xs:annotation>
+			<xs:documentation>
+	      	"address" indicates a ldap protocol based service address.
+	      </xs:documentation>
+		</xs:annotation>
+	</xs:element>
+	<xs:complexType name="tAddress">
+		<xs:complexContent>
+			<xs:extension base="wsdl:tExtensibilityElement">
+				<xs:attribute name="location" type="xs:string" use="required">
+					<xs:annotation>
+						<xs:documentation>Defines the JNDI name of the jdbc database resource.</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+</xs:schema>
