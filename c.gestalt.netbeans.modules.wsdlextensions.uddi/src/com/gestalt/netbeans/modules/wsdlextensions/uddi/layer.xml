@@ -65,11 +65,11 @@
     
     <folder name="SeeBeyondJbiComponents">
         <!-- JBI Component -->
-        <folder name="UDDI">
-            <attr name="id" stringvalue="com.gestalt.jbi.uddi"/>
+        <folder name="gestalt-uddi-binding">
+            <attr name="id" stringvalue="gestalt-uddi-binding"/>
             <attr name="type" stringvalue="Binding"/>
             <attr name="description" stringvalue="Description of binding component : UDDI"/>
-            <file name="UDDI" >
+            <file name="uddi.binding-1.0" >
                 <attr name="namespace" stringvalue="http://schemas.sun.com/jbi/wsdl-extensions/uddi/"/>
             </file>
         </folder>
