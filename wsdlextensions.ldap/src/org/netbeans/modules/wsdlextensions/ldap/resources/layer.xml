@@ -107,7 +107,7 @@
 			<attr name="xsdFileName" stringvalue="ldap-ext"/>
 	        <attr name="element" stringvalue="binding"/>
 	        <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.wsdlextensions.ldap.resources.Bundle"/>
-	        <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/wsdlextensions/ldap/resources/throw16.png"/> 
+	        <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/wsdlextensions/ldap/resources/ldapfile16x16.png"/> 
 	      </file>
 	      </folder>
      
@@ -116,7 +116,7 @@
    			<attr name="xsdFileName" stringvalue="ldap-ext"/>
 	        <attr name="element" stringvalue="operation"/>
 	        <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.wsdlextensions.ldap.resources.Bundle"/>
-	        <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/wsdlextensions/ldap/resources/onalarm16x16.png"/> 
+	        <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/wsdlextensions/ldap/resources/ldapfile16x16.png"/> 
 	      </file>
 	      </folder>
 			
@@ -125,7 +125,7 @@
       			<attr name="xsdFileName" stringvalue="ldap-ext"/>
 		        <attr name="element" stringvalue="input"/>
 		        <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.wsdlextensions.ldap.resources.Bundle"/>
-		        <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/wsdlextensions/ldap/resources/onmessage16x16.png"/> 
+		        <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/wsdlextensions/ldap/resources/ldapfile16x16.png"/> 
 		      </file>
 	      
 	      </folder>	        
@@ -135,7 +135,7 @@
       			<attr name="xsdFileName" stringvalue="ldap-ext"/>
 		        <attr name="element" stringvalue="output"/>
 		        <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.wsdlextensions.ldap.resources.Bundle"/>
-		        <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/wsdlextensions/ldap/resources/scope16x16.png"/> 
+		        <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/wsdlextensions/ldap/resources/ldapfile16x16.png"/> 
 		      </file>
 		      
 	       </folder>	        
@@ -146,7 +146,7 @@
       			<attr name="xsdFileName" stringvalue="ldap-ext"/>
 		        <attr name="element" stringvalue="address"/>
 		        <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.wsdlextensions.ldap.resources.Bundle"/>
-		        <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/wsdlextensions/ldap/resources/while16x16.png"/> 
+		        <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/wsdlextensions/ldap/resources/ldapfile16x16.png"/> 
 		      </file>
 	      </folder>	        
     </folder>
