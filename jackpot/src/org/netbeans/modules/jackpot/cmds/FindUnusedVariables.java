@@ -33,13 +33,10 @@ import javax.lang.model.element.TypeElement;
 import javax.lang.model.type.PrimitiveType;
 import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
-import org.netbeans.api.jackpot.QueryContext;
 import org.netbeans.api.jackpot.QueryOperations;
 import org.netbeans.api.jackpot.TreePathQuery;
-import org.netbeans.api.java.source.ClassIndex;
 import org.netbeans.api.java.source.CompilationInfo;
 import org.netbeans.api.java.source.ElementUtilities;
-import org.netbeans.api.java.source.JavaSource;
 
 /**
  * Reports all public and protected variables which are not referenced by 
@@ -60,16 +57,9 @@ public class FindUnusedVariables extends TreePathQuery<Void,Object> {
     Trees trees;
     QueryOperations ops;
     ElementUtilities elementUtils;
-    private ClassIndex index;
     
     /** user-set property */
     public boolean ignoreStatics;
-    
-    @Override
-    public void init(QueryContext context, JavaSource javaSource) {
-        super.init(context, javaSource);
-        index = javaSource.getClasspathInfo().getClassIndex();
-    }
     
     @Override
     public void attach(CompilationInfo info) {
@@ -89,12 +79,6 @@ public class FindUnusedVariables extends TreePathQuery<Void,Object> {
         longType = null;
         serializableType = null;
         types = null;
-    }
-    
-    @Override
-    public void destroy() {
-        super.destroy();
-        index = null;
     }
 
     /**
@@ -122,8 +106,7 @@ public class FindUnusedVariables extends TreePathQuery<Void,Object> {
     @Override
     public Void visitMethod(MethodTree tree, Object p) {
         // ignore parameters
-        scan(tree.getBody(), p);
-        return null;
+        return scan(tree.getBody(), p);
     }
     
     /**
@@ -136,8 +119,7 @@ public class FindUnusedVariables extends TreePathQuery<Void,Object> {
     @Override
     public Void visitCatch(CatchTree tree, Object p) {
         // ignore parameters
-        scan(tree.getBlock(), p);
-        return null;
+        return scan(tree.getBlock(), p);
     }
     
     private boolean noPublicUses(VariableTree tree) {
