@@ -66,12 +66,10 @@ public class SceneConnectProvider implements ConnectProvider {
     int edgeCounter;
     public void createConnection(Widget sourceWidget, Widget targetWidget) {
         String edge = "edge" + edgeCounter ++;
-        if(isSourceWidget(sourceWidget) && isTargetWidget(sourceWidget,targetWidget).equals(ConnectorState.ACCEPT)){
-            scene.addEdge(edge);
-            scene.setEdgeSource(edge, source);
-            scene.setEdgeTarget(edge, target);
-            scene.validate();
-        }
+        scene.addEdge(edge);
+        scene.setEdgeSource(edge, source);
+        scene.setEdgeTarget(edge, target);
+        scene.validate();
     }
     
 }
