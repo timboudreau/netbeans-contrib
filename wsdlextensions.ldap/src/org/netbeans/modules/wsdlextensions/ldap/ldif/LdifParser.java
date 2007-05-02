@@ -75,6 +75,12 @@ public class LdifParser {
             String ldif = findDefinition(ldifStr);
             ret.add(getObjectClass(ldif));    
             ldifStr = ldifStr.substring(ldif.length());
+
+            if (ldifStr.contains(objClassStr1)) {
+                objClassTag = objClassStr1;
+            } else if (ldifStr.contains(objClassStr2)) {
+                objClassTag = objClassStr2;
+            }
             pos = ldifStr.indexOf(objClassTag);
         }
         
