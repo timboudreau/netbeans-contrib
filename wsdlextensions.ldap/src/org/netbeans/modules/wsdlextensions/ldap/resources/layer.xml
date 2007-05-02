@@ -89,7 +89,7 @@
         </folder>
     </folder>
     <folder name="Templates">
-        <folder name="Other">
+        <folder name="SOA">
             <file name="LTemplate.ldif" url="LTemplate.ldif">
                 <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.wsdlextensions.ldap.resources.Bundle"/>
                 <attr name="template" boolvalue="true"/>
