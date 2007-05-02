@@ -61,7 +61,7 @@
 			<xs:extension base="wsdl:tExtensibilityElement">				
 				<xs:attribute name="operationType" type="ldap:operationTypes" use="required">
 					<xs:annotation>
-						<xs:documentation>Defines the ldap operation type valid values are insert, update, delete etc</xs:documentation>
+						<xs:documentation>Defines the ldap operation type valid values are Search</xs:documentation>
 					</xs:annotation>
 				</xs:attribute>
 			</xs:extension>
@@ -79,7 +79,7 @@
 			<xs:extension base="wsdl:tExtensibilityElement">
 				<xs:attribute name="returnPartName" type="xs:string" use="optional">
 					<xs:annotation>
-						<xs:documentation>Defines the message part name which is returned. Used in insert operation.</xs:documentation>
+						<xs:documentation>Defines the message part name which is returned. Used in Search operation.</xs:documentation>
 					</xs:annotation>
 				</xs:attribute>
 				<xs:attribute name="attributes" type="xs:string" use="optional">

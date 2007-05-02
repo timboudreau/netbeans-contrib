@@ -41,7 +41,7 @@
 		</wsdlElement>
         <wsdlElement name="BindingOperationInput">
             <extensionElement name="input" >
-				<extensionAttr name="operationType" defaultValue="insert" />
+				<extensionAttr name="operationType" defaultValue="searchRequest" />
             </extensionElement>
 		</wsdlElement>
 	   <wsdlElement name="BindingOperationOutput">
