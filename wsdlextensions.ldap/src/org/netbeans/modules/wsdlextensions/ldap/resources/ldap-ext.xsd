@@ -103,7 +103,7 @@
 			<xs:extension base="wsdl:tExtensibilityElement">
 				<xs:attribute name="location" type="xs:string" use="required">
 					<xs:annotation>
-						<xs:documentation>Defines the JNDI name of the jdbc database resource.</xs:documentation>
+						<xs:documentation>Defines LDAP server url address.</xs:documentation>
 					</xs:annotation>
 				</xs:attribute>
 			</xs:extension>

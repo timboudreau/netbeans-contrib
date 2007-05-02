@@ -135,6 +135,19 @@ public class GenerateWSDL {
         return ret;
     }
 
+    private String generateService(int level) {
+        String ret = "";
+        String tag = upInitial(mLdif.getName()) + mFunction;
+        
+        ret += getTab(level) + "<service name=\"" + tag + "Service\">" + "\n";
+        ret += getTab(level + 1) + "<wsdl:port name=\"port1\" binding=\"tns:" + tag + "Binding\">" + "\n";
+        ret += getTab(level + 2) + "<ldap:address location=\"\"/>" + "\n";
+        ret += getTab(level + 1) + "</wsdl:port>" + "\n";
+        ret += getTab(level) + "</service>" + "\n";
+
+        return ret;
+    }
+    
     private String generateDefinition() {
         String ret = "";
         String tag = upInitial(mLdif.getName()) + mFunction;
@@ -153,6 +166,7 @@ public class GenerateWSDL {
         ret += generatePortType(1);
         ret += generateBindings(1);
         ret += generatePLink(1);
+        ret += generateService(1);
         
         ret += "</definitions>" + "\n";
         return ret;
