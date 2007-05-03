@@ -19,6 +19,9 @@
 
 package org.netbeans.modules.jackpot.rules;
 
+import java.io.IOException;
+import org.netbeans.api.jackpot.Query;
+import org.openide.cookies.InstanceCookie;
 import org.openide.filesystems.FileObject;
 import org.openide.loaders.*;
 import org.openide.nodes.CookieSet;
@@ -41,6 +44,17 @@ public class RulesDataObject extends MultiDataObject {
         super(file, loader);
         CookieSet cookies = getCookieSet();
         cookies.add((Node.Cookie) DataEditorSupport.create(this, getPrimaryEntry(), cookies));
+        cookies.add(new InstanceCookie() {
+            public Class instanceClass() throws IOException,ClassNotFoundException {
+                return Query.class;
+            }
+            public Object instanceCreate() throws IOException,ClassNotFoundException {
+                return RulesDataObject.this;
+            }
+            public String instanceName() {
+                return file.getName();
+            }
+        });
     }
     
     public Node createNodeDelegate() {
