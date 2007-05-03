@@ -70,37 +70,37 @@ public class Hk2Configuration implements DeploymentConfiguration, XpathListener 
      * @param file 
      */
     public void init(File[] configFiles) {
-        if(configFiles != null && configFiles.length > 0) {
-            try {
-                File file = configFiles[0];
-                FileObject folder = FileUtil.toFileObject(file.getParentFile());
-                if (folder == null) {
-                    ErrorManager.getDefault().log(ErrorManager.INFORMATIONAL, "The parent folder does not exist!"); // NOI18N
-                    return;
-                }
-                PrintWriter pw = null;
-                FileLock lock = null;
-                try {
-                    String name = file.getName();
-                    FileObject fo = folder.getFileObject(name);
-                    if (fo == null) {
-                        fo = folder.createData(name);
-                    }
-                    lock = fo.lock();
-                    pw = new PrintWriter(new OutputStreamWriter(fo.getOutputStream(lock)));
-                    pw.println("<MyServer path=\"/mypath\"/>"); // NOI18N
-                } finally {
-                    if (pw != null) {
-                        pw.close();
-                    }
-                    if (lock != null) {
-                        lock.releaseLock();
-                    }
-                }
-            } catch (IOException ex) {
-                ErrorManager.getDefault().notify(ErrorManager.INFORMATIONAL, ex);
-            }
-        }
+//        if(configFiles != null && configFiles.length > 0) {
+//            try {
+//                File file = configFiles[0];
+//                FileObject folder = FileUtil.toFileObject(file.getParentFile());
+//                if (folder == null) {
+//                    ErrorManager.getDefault().log(ErrorManager.INFORMATIONAL, "The parent folder does not exist!"); // NOI18N
+//                    return;
+//                }
+//                PrintWriter pw = null;
+//                FileLock lock = null;
+//                try {
+//                    String name = file.getName();
+//                    FileObject fo = folder.getFileObject(name);
+//                    if (fo == null) {
+//                        fo = folder.createData(name);
+//                    }
+//                    lock = fo.lock();
+//                    pw = new PrintWriter(new OutputStreamWriter(fo.getOutputStream(lock)));
+//                    pw.println("<MyServer path=\"/mypath\"/>"); // NOI18N
+//                } finally {
+//                    if (pw != null) {
+//                        pw.close();
+//                    }
+//                    if (lock != null) {
+//                        lock.releaseLock();
+//                    }
+//                }
+//            } catch (IOException ex) {
+//                ErrorManager.getDefault().notify(ErrorManager.INFORMATIONAL, ex);
+//            }
+//        }
         
         // web.xml represented as DDBean model
 //        DDBeanRoot root = j2eeModule.getDDBeanRoot();
