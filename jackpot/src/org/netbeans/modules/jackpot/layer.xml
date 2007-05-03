@@ -28,13 +28,13 @@ Microsystems, Inc. All Rights Reserved.
     
     <folder name="Jackpot">
         <folder name="Inspections">
-            <file name="RemoveUnneededCasts.rules" url="resources/RemoveUnneededCasts.rules">
+            <file name="RemoveUnneededCasts.rules" url="scripts/RemoveUnneededCasts.rules">
                 <attr name="inspector" stringvalue="Unnecessary casts"/>
                 <attr name="transformer" stringvalue="Remove cast"/>
                 <attr name="description" stringvalue="Removes any cast expressions which are not needed, since the expression being cast is already of the correct type."/>
             </file>
             <attr name="RemoveUnneededCasts.rules/SimplifyBooleanExpressions.rules" boolvalue="true"/>
-            <file name="SimplifyBooleanExpressions.rules" url="resources/SimplifyBooleanExpressions.rules">
+            <file name="SimplifyBooleanExpressions.rules" url="scripts/SimplifyBooleanExpressions.rules">
                 <attr name="inspector" stringvalue="Complex boolean expressions"/>
                 <attr name="transformer" stringvalue="Simplify boolean expression"/>
                 <attr name="description" stringvalue="Converts complex boolean expressions into their simpler equivalents"/>
@@ -92,19 +92,19 @@ Microsystems, Inc. All Rights Reserved.
                 <attr name="description" stringvalue="Restricts methods' access depending on their usage by other classes."/>
             </file>
             <attr name="MinimizeMethodAccess.settings/StringTokenizerToScanner.rules" boolvalue="true"/>
-            <file name="StringTokenizerToScanner.rules" url="resources/StringTokenizerToScanner.rules">
+            <file name="StringTokenizerToScanner.rules" url="scripts/StringTokenizerToScanner.rules">
                 <attr name="inspector" stringvalue="StringTokenizer usages"/>
                 <attr name="transformer" stringvalue="Convert to java.util.Scanner"/>
                 <attr name="description" stringvalue="Converts StringTokenizer references to use Java 5's Scanner class."/>
             </file>
             <attr name="StringTokenizerToScanner.rules/StringBufferToStringBuilder.rules" boolvalue="true"/>
-            <file name="StringBufferToStringBuilder.rules" url="resources/StringBufferToStringBuilder.rules">
+            <file name="StringBufferToStringBuilder.rules" url="scripts/StringBufferToStringBuilder.rules">
                 <attr name="inspector" stringvalue="StringBuffer usages"/>
                 <attr name="transformer" stringvalue="Convert to java.lang.StringBuilder"/>
                 <attr name="description" stringvalue="Converts StringBuffer references to use Java 5's StringBuilder class.  The StringBuilder class is faster but is not thread-safe."/>
             </file>
             <attr name="StringBufferToStringBuilder.rules/SwingUtilitiesToEventQueue.rules" boolvalue="true"/>
-            <file name="SwingUtilitiesToEventQueue.rules" url="resources/SwingUtilitiesToEventQueue.rules">
+            <file name="SwingUtilitiesToEventQueue.rules" url="scripts/SwingUtilitiesToEventQueue.rules">
                 <attr name="inspector" stringvalue="SwingUtilities EventQueue methods"/>
                 <attr name="transformer" stringvalue="Use EventQueue equivalent"/>
                 <attr name="description" stringvalue="Updates references to the SwingUtilities methods that were moved to the EventQueue in Java 1.3"/>
@@ -135,7 +135,7 @@ Microsystems, Inc. All Rights Reserved.
                 <attr name="description" stringvalue="Reports variables which are assigned to themselves, such as 'this.message = message;' in a constructor.  This is at best a useless statement, but more often is an error caused by a typing mistake."/>
             </file>
             <attr name="FindSelfAssignments.settings/log4j.rules" boolvalue="true"/>
-            <file name="log4j.rules" url="resources/log4j.rules">
+            <file name="log4j.rules" url="scripts/log4j.rules">
                 <attr name="inspector" stringvalue="Find Apache Log4J references"/>
                 <attr name="transformer" stringvalue="Convert to use java.util.logging instead."/>
                 <attr name="description" stringvalue="Updates log4j usage to the java.util.logging package introduced in Java 1.4."/>
@@ -223,14 +223,14 @@ Microsystems, Inc. All Rights Reserved.
                 <attr name="template" boolvalue="true"/>
                 <attr name="templateWizardURL" urlvalue="nbresloc:/org/netbeans/modules/jackpot/templates/Query.html"/>
                 <attr name="templateWizardIterator" methodvalue="org.netbeans.modules.java.ui.wizard.JavaWizardIterator.singleton"/>
-                <attr name="SystemFileSystem.icon" urlvalue="nbresloc:org/netbeans/modules/java/resources/class.gif"/>
+                <attr name="SystemFileSystem.icon" urlvalue="nbresloc:org/netbeans/modules/jackpot/resources/class.gif"/>
             </file>
             <file name="Transformer.java" url="templates/Transformer.template">
                 <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.jackpot.Bundle"/>
                 <attr name="template" boolvalue="true"/>
                 <attr name="templateWizardURL" urlvalue="nbresloc:/org/netbeans/modules/jackpot/templates/Transformer.html"/>
                 <attr name="templateWizardIterator" methodvalue="org.netbeans.modules.java.ui.wizard.JavaWizardIterator.singleton"/>
-                <attr name="SystemFileSystem.icon" urlvalue="nbresloc:org/netbeans/modules/java/resources/class.gif"/>
+                <attr name="SystemFileSystem.icon" urlvalue="nbresloc:org/netbeans/modules/jackpot/resources/class.gif"/>
             </file>
         </folder>
     </folder>

@@ -1,0 +1,51 @@
+/**
+ *  Converts Log4J calls to similar java.util.logging methods.
+ */
+
+$L.trace($m,$e) => $L.log( org.apache.log4j.Level.TRACE,$m,$e) :: $L instanceof org.apache.log4j.Logger && $m instanceof java.lang.String;
+$L.debug($m,$e) => $L.log( org.apache.log4j.Level.DEBUG,$m,$e) :: $L instanceof org.apache.log4j.Logger && $m instanceof java.lang.String;
+$L.info($m,$e) => $L.log( org.apache.log4j.Level.INFO,$m,$e) :: $L instanceof org.apache.log4j.Logger && $m instanceof java.lang.String;
+$L.warn($m,$e) => $L.log( org.apache.log4j.Level.WARN,$m,$e) :: $L instanceof org.apache.log4j.Logger && $m instanceof java.lang.String;
+$L.error($m,$e) => $L.log( org.apache.log4j.Level.ERROR,$m,$e) :: $L instanceof org.apache.log4j.Logger && $m instanceof java.lang.String;
+$L.fatal($m,$e) => $L.log( org.apache.log4j.Level.FATAL,$m,$e) :: $L instanceof org.apache.log4j.Logger && $m instanceof java.lang.String;
+
+$L.trace($m,$e) => $L.log( org.apache.log4j.Level.TRACE,$m.getMessage(),$e) :: $L instanceof org.apache.log4j.Logger && $m instanceof java.lang.Throwable;
+$L.debug($m,$e) => $L.log( org.apache.log4j.Level.DEBUG,$m.getMessage(),$e) :: $L instanceof org.apache.log4j.Logger && $m instanceof java.lang.Throwable;
+$L.info($m,$e) => $L.log( org.apache.log4j.Level.INFO,$m.getMessage(),$e) :: $L instanceof org.apache.log4j.Logger && $m instanceof java.lang.Throwable;
+$L.warn($m,$e) => $L.log( org.apache.log4j.Level.WARN,$m.getMessage(),$e) :: $L instanceof org.apache.log4j.Logger && $m instanceof java.lang.Throwable;
+$L.error($m,$e) => $L.log( org.apache.log4j.Level.ERROR,$m.getMessage(),$e) :: $L instanceof org.apache.log4j.Logger && $m instanceof java.lang.Throwable;
+$L.fatal($m,$e) => $L.log( org.apache.log4j.Level.FATAL,$m.getMessage(),$e) :: $L instanceof org.apache.log4j.Logger && $m instanceof java.lang.Throwable;
+
+$L.trace($m) => $L.log( org.apache.log4j.Level.TRACE,$m) :: $L instanceof org.apache.log4j.Logger && $m instanceof java.lang.String;
+$L.debug($m) => $L.log( org.apache.log4j.Level.DEBUG,$m) :: $L instanceof org.apache.log4j.Logger && $m instanceof java.lang.String;
+$L.info($m) => $L.log( org.apache.log4j.Level.INFO,$m) :: $L instanceof org.apache.log4j.Logger && $m instanceof java.lang.String;
+$L.warn($m) => $L.log( org.apache.log4j.Level.WARN,$m) :: $L instanceof org.apache.log4j.Logger && $m instanceof java.lang.String;
+$L.error($m) => $L.log( org.apache.log4j.Level.ERROR,$m) :: $L instanceof org.apache.log4j.Logger && $m instanceof java.lang.String;
+$L.fatal($m) => $L.log( org.apache.log4j.Level.FATAL,$m) :: $L instanceof org.apache.log4j.Logger && $m instanceof java.lang.String;
+
+$L.trace($m) => $L.log( org.apache.log4j.Level.TRACE,$m.toString()) :: $L instanceof org.apache.log4j.Logger;
+$L.debug($m) => $L.log( org.apache.log4j.Level.DEBUG,$m.toString()) :: $L instanceof org.apache.log4j.Logger;
+$L.info($m) => $L.log( org.apache.log4j.Level.INFO,$m.toString()) :: $L instanceof org.apache.log4j.Logger;
+$L.warn($m) => $L.log( org.apache.log4j.Level.WARN,$m.toString()) :: $L instanceof org.apache.log4j.Logger;
+$L.error($m) => $L.log( org.apache.log4j.Level.ERROR,$m.toString()) :: $L instanceof org.apache.log4j.Logger;
+$L.fatal($m) => $L.log( org.apache.log4j.Level.FATAL,$m.toString()) :: $L instanceof org.apache.log4j.Logger;
+
+org.apache.log4j.Level.TRACE => java.util.logging.Level.FINER;
+org.apache.log4j.Level.DEBUG => java.util.logging.Level.FINE;
+org.apache.log4j.Level.INFO => java.util.logging.Level.INFO;
+org.apache.log4j.Level.WARN => java.util.logging.Level.WARNING;
+org.apache.log4j.Level.ERROR => java.util.logging.Level.SEVERE;
+org.apache.log4j.Level.FATAL => java.util.logging.Level.SEVERE;
+
+mapclass org.apache.log4j.Level => java.util.logging.Level;
+mapclass org.apache.log4j.Logger => java.util.logging.Logger;
+
+$L.isEnabledFor($C) =>  $L.isLoggable($C) :: $L instanceof org.apache.log4j.Logger;
+$L.isDebugEnabled() =>  $L.isLoggable(org.apache.log4j.Level.DEBUG) :: $L instanceof org.apache.log4j.Logger;
+$L.toLevel($s) => $L.parse($s) :: $L instanceof org.apache.log4j.Level && $s instanceof java.lang.String;
+
+$L.log($l,$m) => $L.finer($m) :: $l instanceof org.apache.log4j.Level.FINER;
+$L.log($l,$m) => $L.finer($m) :: $l instanceof org.apache.log4j.Level.FINE;
+$L.log($l,$m) => $L.info($m) :: $l instanceof org.apache.log4j.Level.INFO;
+$L.log($l,$m) => $L.warning($m) :: $l instanceof org.apache.log4j.Level.WARNING;
+$L.log($l,$m) => $L.severe($m) :: $l instanceof org.apache.log4j.Level.SEVERE;

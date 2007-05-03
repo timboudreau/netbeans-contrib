@@ -1,0 +1,11 @@
+/**
+ * Replaces StringBuffer with StringBuilder when it is appropriate, i.e.
+ * thread-safe calls.
+ * See http://java.sun.com/j2se/1.5.0/docs/api/java/lang/StringBuilder.html
+ */
+
+//mapclass java.lang.StringBuffer => java.lang.StringBuilder;
+
+java.lang.StringBuffer $v = new java.lang.StringBuffer($args$) => 
+    java.lang.StringBuilder $v = new java.lang.StringBuilder($args$) :: 
+        sourceLevel(SourceVersion.RELEASE_5);

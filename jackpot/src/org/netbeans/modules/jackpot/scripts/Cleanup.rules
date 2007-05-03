@@ -1,0 +1,40 @@
+/*
+ * The contents of this file are subject to the terms of the Common Development
+ * and Distribution License (the License). You may not use this file except in
+ * compliance with the License.
+ *
+ * You can obtain a copy of the License at http://www.netbeans.org/cddl.html
+ * or http://www.netbeans.org/cddl.txt.
+ *
+ * When distributing Covered Code, include this CDDL Header Notice in each file
+ * and include the License file at http://www.netbeans.org/cddl.txt.
+ * If applicable, add the following below the CDDL Header, with the fields
+ * enclosed by brackets [] replaced by your own identifying information:
+ * "Portions Copyrighted [year] [name of copyright owner]"
+ *
+ * The Original Software is NetBeans. The Initial Developer of the Original
+ * Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
+ * Microsystems, Inc. All Rights Reserved.
+ */
+
+// Effective Java, Item 4: Avoid creating duplicate objects
+new java.lang.String($s) => $s :: $s instanceof java.lang.String;
+new java.lang.Boolean($b) => java.lang.Boolean.valueOf($b);
+
+// Effective Java, item 29: Minimize the scope of local variables
+{ $p$; $t $v; $intervening$; $v = $e; $q$; } => { $p$; $intervening$; $t $v = $e; $q$; } :: !assignedIn($v, $intervening$);
+
+// Eliminate unnecessary return assignment.
+{ $p$; $t $v = $e; return $v; } => { $p$; return $e; }
+{ $p$; $t $v; $intervening$; $q$; $v = $e; return $v; } => { $p$; $q$; return $e; } :: !assignedIn($v, $intervening$);
+
+// Remove unnecessary null reference test and exception (let VM do it).
+if($v == null) throw new java.lang.NullPointerException(); else $v.$m($args$) => $v.$m($args$);
+if($v == null) throw new java.lang.NullPointerException(); else return $v.$m($args$) => return $v.$m($args$);
+
+// Empty string checks using String.equals() are slower than String.length().
+$s.equals("") => ($s.length() == 0) :: $s instanceof java.lang.String;
+"".equals($s) => ($s != null && $s.length() == 0) :: $s instanceof java.lang.String;
+
+// Calling String.toString() is redundant.
+$s.toString() => $s :: $s instanceof java.lang.String;

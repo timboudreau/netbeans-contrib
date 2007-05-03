@@ -1,0 +1,78 @@
+/*
+ * The contents of this file are subject to the terms of the Common Development
+ * and Distribution License (the License). You may not use this file except in
+ * compliance with the License.
+ *
+ * You can obtain a copy of the License at http://www.netbeans.org/cddl.html
+ * or http://www.netbeans.org/cddl.txt.
+ *
+ * When distributing Covered Code, include this CDDL Header Notice in each file
+ * and include the License file at http://www.netbeans.org/cddl.txt.
+ * If applicable, add the following below the CDDL Header, with the fields
+ * enclosed by brackets [] replaced by your own identifying information:
+ * "Portions Copyrighted [year] [name of copyright owner]"
+ *
+ * The Original Software is NetBeans. The Initial Developer of the Original
+ * Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
+ * Microsystems, Inc. All Rights Reserved.
+ */
+
+/**
+ * Examples of deprecated method migration.
+ */
+
+//java.awt.Component
+$a.getPeer()!=null => $a.isDisplayable() :: $a instanceof java.awt.Component;
+$a.getPeer()==null => !$a.isDisplayable() :: $a instanceof java.awt.Component;
+$a.getPeer()=>comment("FIX: Eliminate peer usage") :: $a instanceof java.awt.Component;
+$a.enable() => $a.setEnabled(true) :: $a instanceof java.awt.Component;
+$a.disable() => $a.setEnabled(false) :: $a instanceof java.awt.Component;
+$a.enable($b) => $a.setEnabled($b) :: $a instanceof java.awt.Component;
+$a.show() => $a.setVisible(true) :: $a instanceof java.awt.Component;
+$a.hide() => $a.setVisible(false) :: $a instanceof java.awt.Component;
+$a.show($b) => $a.setVisible($b) :: $a instanceof java.awt.Component;
+$a.location() => $a.getLocation() :: $a instanceof java.awt.Component;
+$a.getLocation().x => $a.getX() :: $a instanceof java.awt.Component;
+$a.getLocation().y => $a.getY() :: $a instanceof java.awt.Component;
+$a.move($x,$y) => $a.setLocation($x,$y) :: $a instanceof java.awt.Component;
+$a.size() => $a.getSize() :: $a instanceof java.awt.Component;
+$a.getSize().width => $a.getWidth() :: $a instanceof java.awt.Component;
+$a.getSize().height => $a.getHeight() :: $a instanceof java.awt.Component;
+$a.resize($x,$y)=>$a.setSize($x,$y) :: $a instanceof java.awt.Component;
+$a.resize($d)=>$a.setSize($d) :: $a instanceof java.awt.Component;
+$a.bounds()=>$a.getBounds() :: $a instanceof java.awt.Component;
+$a.reshape($x,$y,$width,$height)=>$a.setBounds($x,$y,$width,$height) :: $a instanceof java.awt.Component;
+$a.preferredSize()=>$a.getPreferredSize() :: $a instanceof java.awt.Component;
+$a.minimumSize()=>$a.getMinimumSize() :: $a instanceof java.awt.Component;
+$a.layout()=>$a.doLayout() :: $a instanceof java.awt.Component;
+$a.inside($x,$y)=>$a.contains($x,$y) :: $a instanceof java.awt.Component;
+$a.locate($x,$y)=>$a.getComponentAt($x,$y) :: $a instanceof java.awt.Component;
+$a.deliverEvent($e)=>$a.postEvent($e) :: $a instanceof java.awt.Component;
+$a.postEvent($e)=>$a.dispatchEvent($e) :: $a instanceof java.awt.Component;
+$a.handleEvent($e)=>$a.processEvent($e) :: $a instanceof java.awt.Component;
+//skipped all the deprecated event methods like mouseDown($x,$y)
+
+//Frame
+Frame.DEFAUL$tCURSOR=>Cursor.DEFAUL$tCURSOR;
+Frame.CROSSHAIR_CURSOR=>Cursor.CROSSHAIR_CURSOR;
+$f.getCursorType()=>$f.getCursor().getType() :: $f instanceof java.awt.Frame;
+
+
+//String
+$s.getBytes($a,$b,$c,$d)=>comment("FIX: Use chars, not bytes");
+//new String((byte[])$a,$b,$c,$d)=>comment("FIX: Use chars, not bytes");
+new $t($s)=>$s :: $t instanceof java.lang.String && $s instanceof java.lang.String;
+
+//Container
+$c.countComponents()=>$c.getComponentCount();
+$c.insets()=>$c.getInsets();
+
+//Character
+$t.isSpace($c) => $t.isWhitespace($c) :: $t instanceof java.lang.Character;
+$t.isJavaLetter($c) => $t.isJavaIdentifierStart($c) :: $t instanceof java.lang.Character;
+$t.isJavaLetterOrDigit($c) => $t.isJavaIdentifierPart($c) :: $t instanceof java.lang.Character;
+
+//Boolean
+new $t($b) => $b ? $t.TRUE : $t.FALSE :: $t instanceof java.lang.Boolean;
+true?$a:$b=>$a;
+false?$a:$b=>$b;
