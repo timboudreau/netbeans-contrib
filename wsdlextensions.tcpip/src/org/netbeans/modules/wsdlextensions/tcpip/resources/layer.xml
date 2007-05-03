@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+ The contents of this file are subject to the terms of the Common Development
+ and Distribution License (the License). You may not use this file except in
+ compliance with the License.
+ 
+ You can obtain a copy of the License at http://www.netbeans.org/cddl.html
+ or http://www.netbeans.org/cddl.txt.
+ 
+ When distributing Covered Code, include this CDDL Header Notice in each file
+ and include the License file at http://www.netbeans.org/cddl.txt.
+ If applicable, add the following below the CDDL Header, with the fields
+ enclosed by brackets [] replaced by your own identifying information:
+ "Portions Copyrighted [year] [name of copyright owner]"
+ 
+ The Original Software is NetBeans. The Initial Developer of the Original
+ Software is Sun Microsystems, Inc. Portions Copyright 1997-2007 Sun
+ Microsystems, Inc. All Rights Reserved.
+-->
+
+<!--
+                Sun Public License Notice
+
+The contents of this file are subject to the Sun Public License
+Version 1.0 (the "License"). You may not use this file except in
+compliance with the License. A copy of the License is available at
+http://www.sun.com/
+
+The Original Code is NetBeans. The Initial Developer of the Original
+Code is Sun Microsystems, Inc. Portions Copyright 1997-2004 Sun
+Microsystems, Inc. All Rights Reserved.
+-->
+
+<!--
+                Sun Public License Notice
+
+The contents of this file are subject to the Sun Public License
+Version 1.0 (the "License"). You may not use this file except in
+compliance with the License. A copy of the License is available at
+http://www.sun.com/
+
+The Original Code is NetBeans. The Initial Developer of the Original
+Code is Sun Microsystems, Inc. Portions Copyright 1997-2004 Sun
+Microsystems, Inc. All Rights Reserved.
+-->
+
+<!DOCTYPE filesystem PUBLIC "-//NetBeans//DTD Filesystem 1.1//EN" "http://www.netbeans.org/dtds/filesystem-1_1.dtd">
+<filesystem>
+    <folder name="WSDLEditor">
+        <file name="tcpip-ext.xsd" url="tcpip-ext.xsd">
+            <attr name="namespace" stringvalue="http://cbesb.bostechcorp.com/wsdl/tcpip/1.0" />
+            <attr name="prefix" stringvalue="tcpip" />
+        </file>
+        
+        <folder name ="Binding">
+            <file name="TCPIPBinding">
+                <attr name="xsdFileName" stringvalue="tcpip-ext" />
+                <attr name="element" stringvalue="binding" />
+                <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.wsdlextensions.tcpip.resources.Bundle" />
+                <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/wsdlextensions/tcpip/resources/binding.png" /> 
+            </file>
+        </folder>
+     
+        <folder name ="BindingOperation">
+            <file name="TCPIPBindingOperation">
+                <attr name="xsdFileName" stringvalue="tcpip-ext" />
+                <attr name="element" stringvalue="operation" />
+                <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.wsdlextensions.tcpip.resources.Bundle" />
+                <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/wsdlextensions/tcpip/resources/operation.png" /> 
+            </file>
+        </folder>
+			
+        <folder name ="BindingOperationInput">
+            <file name="TCPIPBindingMessage">
+                <attr name="xsdFileName" stringvalue="tcpip-ext" />
+                <attr name="element" stringvalue="message" />
+                <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.wsdlextensions.tcpip.resources.Bundle" />
+                <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/wsdlextensions/tcpip/resources/message.png" /> 
+            </file>
+        </folder>	        
+	      
+        <folder name ="BindingOperationOutput">
+            <file name="TCPIPBindingMessage">
+                <attr name="xsdFileName" stringvalue="tcpip-ext" />
+                <attr name="element" stringvalue="message" />
+                <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.wsdlextensions.tcpip.resources.Bundle" />
+                <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/wsdlextensions/tcpip/resources/message.png" /> 
+            </file>
+	</folder>	        
+
+        <folder name ="BindingOperationFault">
+            <file name="TCPIPBindingOperationFault">
+                <attr name="xsdFileName" stringvalue="tcpip-ext" />
+                <attr name="element" stringvalue="fault" />
+                <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.wsdlextensions.tcpip.resources.Bundle" />
+                <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/wsdlextensions/tcpip/resources/message.png" /> 
+            </file>
+        </folder>
+
+        <folder name ="ServicePort">
+            <file name="TCPIPServicePort" >
+                <attr name="xsdFileName" stringvalue="tcpip-ext" />
+                <attr name="element" stringvalue="config" />
+                <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.wsdlextensions.tcpip.resources.Bundle" />
+                <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/wsdlextensions/tcpip/resources/address.png" /> 
+            </file>
+        </folder>	        
+    </folder>
+  
+
+    <folder name="SeeBeyondJbiComponents">
+        <!-- JBI Component -->
+        <folder name="bostech-tcpip-binding">
+            <attr name="id" stringvalue="bostech-tcpip-binding"/>
+            <attr name="type" stringvalue="Binding"/>
+            <attr name="description" stringvalue="TCPIP Binding"/>
+            <file name="tcpip.binding-1.0">
+                <attr name="namespace" stringvalue="http://cbesb.bostechcorp.com/wsdl/tcpip/1.0" />
+            </file>
+        </folder>
+    </folder>
+</filesystem>
