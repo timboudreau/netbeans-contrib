@@ -22,6 +22,7 @@ package org.netbeans.modules.j2ee.hk2.wizards;
 import org.openide.WizardDescriptor;
 import org.openide.util.HelpCtx;
 import java.awt.Component;
+import java.io.File;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
@@ -97,6 +98,15 @@ public class AddServerLocationPanel implements WizardDescriptor.Panel, ChangeLis
         if(locationStr == null || locationStr.length() ==0) {
             wizard.putProperty(PROP_ERROR_MESSAGE, "Install location cannot be empty.");
             return false;
+        }
+            
+        File installDir = new File(locationStr);
+        if(!installDir.exists()) {
+            wizard.putProperty(PROP_ERROR_MESSAGE, locationStr + " does not exist.");
+            return false;
+        } else if(!isValidV3Install(installDir)) {
+            wizard.putProperty(PROP_ERROR_MESSAGE, locationStr + " is not a valid V3 install.");
+            return false;
         } else {
             String statusText = component.getStatusText();
             if(statusText != null && statusText.length() > 0) {
@@ -107,6 +117,22 @@ public class AddServerLocationPanel implements WizardDescriptor.Panel, ChangeLis
         
         wizard.putProperty(PROP_ERROR_MESSAGE, null);
         instantiatingIterator.setHk2HomeLocation(locationStr);
+        return true;
+    }
+    
+    private boolean isValidV3Install(File installDir) {
+        File glassfishRef = new File(installDir, "lib" + File.separator + "glassfish-10.0-SNAPSHOT.jar");
+        if(!glassfishRef.exists()) {
+            System.out.println(glassfishRef.getPath() + " does not exist.");
+            return false;
+        }
+        
+        File domainRef = new File(installDir, "domains" + File.separator + "domain1");
+        if(!domainRef.exists()) {
+            System.out.println(domainRef.getPath() + " does not exist.");
+            return false;
+        }
+        
         return true;
     }
 
