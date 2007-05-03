@@ -123,13 +123,16 @@ public class AddServerLocationPanel implements WizardDescriptor.Panel, ChangeLis
     private boolean isValidV3Install(File installDir) {
         File glassfishRef = new File(installDir, "lib" + File.separator + "glassfish-10.0-SNAPSHOT.jar");
         if(!glassfishRef.exists()) {
-            System.out.println(glassfishRef.getPath() + " does not exist.");
+            return false;
+        }
+        
+        File containerRef = new File(installDir, "config" + File.separator + "glassfish.container");
+        if(!containerRef.exists()) {
             return false;
         }
         
         File domainRef = new File(installDir, "domains" + File.separator + "domain1");
         if(!domainRef.exists()) {
-            System.out.println(domainRef.getPath() + " does not exist.");
             return false;
         }
         
