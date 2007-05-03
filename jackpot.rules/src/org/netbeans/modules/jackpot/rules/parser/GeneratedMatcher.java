@@ -717,4 +717,15 @@ abstract public class GeneratedMatcher extends TreePathTransformer<Void,Object> 
 	if(declareChecker==null) declareChecker = new DeclarationChecker();
 	return declareChecker.declaredIn(n,t);
     }
+
+    public boolean referencedIn(CharSequence n, List<? extends Tree> statements) {
+        for (Tree t : statements)
+	    if(referencedIn(n,t)) return true;
+	return false;
+    }
+    private ReferenceChecker referenceChecker;
+    public boolean referencedIn(CharSequence n, Tree t) {
+	if(referenceChecker==null) referenceChecker = new ReferenceChecker();
+	return referenceChecker.referencedIn(n,t);
+    }
 }
