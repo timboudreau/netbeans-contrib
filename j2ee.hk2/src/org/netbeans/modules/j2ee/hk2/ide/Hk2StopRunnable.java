@@ -83,8 +83,11 @@ public class Hk2StopRunnable implements Runnable {
         
         // Waiting for server to start
         while (System.currentTimeMillis() - start < TIMEOUT) {
-            // Send the 'completed' event and return when the server is running
+            // Send the 'completed' event and return when the server is stopped
             if (!startServer.isRunning()) {
+                try {
+                    Thread.sleep(1000);//flush the process
+                } catch (InterruptedException e) {}
                 fireStartProgressEvent(StateType.COMPLETED, createProgressMessage("MSG_SERVER_STOPPED", instanceName)); // NOI18N
                 return;
             }
