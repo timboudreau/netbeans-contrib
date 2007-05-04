@@ -143,9 +143,17 @@ public abstract class TreePathQuery<R, P> extends CancellableTreePathScanner<R, 
             }
             e = e.getEnclosingElement();
         }
-        String name = element.getSimpleName().toString();
-        String fullname = cls != null ? cls + '.' + name : name;
-        return pkg.length() > 0 ? fullname + ' ' + pkg : fullname;
+        StringBuilder sb = new StringBuilder();
+        if (cls != null) {
+            sb.append(cls);
+            sb.append('.');
+        }
+        sb.append(element.getSimpleName());
+        if (pkg.length() > 0) {
+            sb.append(' ');
+            sb.append(pkg);
+        }
+        return sb.toString();
     }
     
     private Element getPathElement(TreePath path) {
