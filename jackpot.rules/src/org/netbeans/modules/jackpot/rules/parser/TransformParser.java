@@ -223,7 +223,6 @@ public class TransformParser extends ScriptParser {
 	    pc.write("import com.sun.tools.javac.tree.JCTree.*;\n"); 
 	    pc.write("import com.sun.tools.javac.util.*;\n"); 
             pc.write("import javax.lang.model.element.*;\n");
-            pc.write("import org.netbeans.api.java.source.TreeMaker;\n");
 	    pc.write("import org.netbeans.api.jackpot.*;\n");
             pc.write("import org.netbeans.modules.jackpot.rules.parser.GeneratedMatcher;\n\n");
 	    pc.write("public class ");
@@ -1031,6 +1030,11 @@ public class TransformParser extends ScriptParser {
 			result = "declaredIn("+arg(mcall.args,0)+","+arg(mcall.args,1)+")";
 			break;
 		    }
+                    else if(nm==referencedInName) {
+			checkLen(mcall.args,2);
+			result = "referencedIn("+arg(mcall.args,0)+","+arg(mcall.args,1)+")";
+			break;
+		    }
 		    Method m = methodRegistry.get(nm.toString());
 		    if(m!=null) {
 			checkLen(mcall.args,1);
@@ -1374,7 +1378,7 @@ public class TransformParser extends ScriptParser {
 	    return;
 	}
 	String tname0 = "T"+ ++tempslot;
-	addDeclaration("JCTree", tname0, "deblock("+prefix+")");
+	addDeclaration("JCTree", tname0, prefix);
 	prefix = tname0;
 	if(couldBeNull) addBoolean(prefix+"!=null");
 	addInt(prefix+".tag", t.tag);
@@ -1773,6 +1777,7 @@ public class TransformParser extends ScriptParser {
     final Name parentName = names.fromString("parent");
     final Name assignedInName = names.fromString("assignedIn");
     final Name declaredInName = names.fromString("declaredIn");
+    final Name referencedInName = names.fromString("referencedIn");
     final Name noteName = names.fromString("note");
     final Name commentName = names.fromString("comment");
     final Name inlineName = names.fromString("inline");

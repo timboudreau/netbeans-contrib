@@ -25,23 +25,29 @@ import com.sun.source.util.TreeScanner;
 
 /**
  * Checks whether a specified variable was referenced in a tree.
+ * 
  * @author Tom Ball
  */
-class ReferenceChecker extends TreeScanner<Boolean,Boolean> {
+class ReferenceChecker extends TreeScanner<Void,Object> {
     String name;
+    boolean referenced;
     public boolean referencedIn(CharSequence n, Tree t) {
         name = n.toString();
-        return scan(t, false);
+        referenced = false;
+        scan(t, false);
+        return referenced;
     }
     @Override
-    public Boolean scan(Tree tree, Boolean assigned) {
-        if (!assigned)
-            assigned = super.scan(tree, false);
-        return assigned;
+    public Void scan(Tree tree, Object unused) {
+        if (!referenced)
+            super.scan(tree, unused);
+        return null;
     }
 
     @Override
-    public Boolean visitIdentifier(IdentifierTree tree, Boolean assigned) {
-        return assigned || tree.getName().toString().equals(name);
+    public Void visitIdentifier(IdentifierTree tree, Object unused) {
+        if (!referenced)
+            referenced = tree.getName().toString().equals(name);
+        return null;
     }
 }    
