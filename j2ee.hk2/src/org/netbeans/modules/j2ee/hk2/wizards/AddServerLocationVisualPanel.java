@@ -46,7 +46,7 @@ public class AddServerLocationVisualPanel extends javax.swing.JPanel implements 
 
     public AddServerLocationVisualPanel() {
         initComponents();
-        hk2HomeTextField.setText("/Users/ludo/gfv3/v3");
+        hk2HomeTextField.setText(System.getProperty("user.home")+"/glassfishV3preview");
         setName(NbBundle.getMessage(AddServerLocationVisualPanel.class, "TITLE_ServerLocation"));
         hk2HomeTextField.getDocument().addDocumentListener(new DocumentListener() {
             public void changedUpdate(DocumentEvent e) {
