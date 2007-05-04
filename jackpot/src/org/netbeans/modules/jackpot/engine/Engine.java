@@ -198,10 +198,12 @@ public class Engine {
                     query.cancel();
                 }
                 public void run(WorkingCopy wc) throws Exception {
-                    wc.toPhase(JavaSource.Phase.RESOLVED);
-                    query.attach(wc);
-                    query.run();
-                    query.release();
+                    JavaSource.Phase result = wc.toPhase(JavaSource.Phase.RESOLVED);
+                    if (result.compareTo(JavaSource.Phase.PARSED) >= 0) {
+                        query.attach(wc);
+                        query.run();
+                        query.release();
+                    }
                 }
             };
             return javaSource.runModificationTask(task);

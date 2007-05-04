@@ -25,7 +25,6 @@ import com.sun.source.util.SourcePositions;
 import com.sun.source.util.TreePath;
 import java.util.ArrayList;
 import java.util.List;
-import org.netbeans.api.java.source.TreePathHandle;
 import org.netbeans.api.java.source.WorkingCopy;
 import org.openide.filesystems.FileObject;
 
