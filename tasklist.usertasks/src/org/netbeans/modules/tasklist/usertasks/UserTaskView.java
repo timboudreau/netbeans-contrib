@@ -19,6 +19,7 @@
 
 package org.netbeans.modules.tasklist.usertasks;
 
+import org.netbeans.modules.tasklist.usertasks.table.UTTreeTableModel;
 import java.awt.BorderLayout;
 import java.awt.Image;
 import java.awt.Point;
@@ -47,8 +48,6 @@ import javax.swing.JToolBar;
 import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
 import javax.swing.border.EmptyBorder;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 import javax.swing.tree.TreePath;
 import org.netbeans.modules.tasklist.core.export.ExportImportFormat;
 import org.netbeans.modules.tasklist.core.export.ExportImportProvider;
@@ -65,7 +64,6 @@ import org.netbeans.modules.tasklist.usertasks.actions.MoveRightAction;
 import org.netbeans.modules.tasklist.usertasks.actions.MoveUpAction;
 import org.netbeans.modules.tasklist.usertasks.actions.NewTaskAction;
 import org.netbeans.modules.tasklist.usertasks.actions.PauseAction;
-import org.netbeans.modules.tasklist.usertasks.actions.ScheduleAction;
 import org.netbeans.modules.tasklist.usertasks.actions.StartTaskAction;
 import org.netbeans.modules.tasklist.usertasks.actions.UTCopyAction;
 import org.netbeans.modules.tasklist.usertasks.actions.UTCutAction;
@@ -82,6 +80,7 @@ import org.netbeans.modules.tasklist.usertasks.translators.ICalImportFormat;
 import org.netbeans.modules.tasklist.usertasks.translators.TextExportFormat;
 import org.netbeans.modules.tasklist.usertasks.translators.XmlExportFormat;
 import org.netbeans.modules.tasklist.core.table.ChooseColumnsPanel;
+import org.netbeans.modules.tasklist.usertasks.actions.AsListAction;
 import org.netbeans.modules.tasklist.usertasks.actions.ClearCompletedAction;
 import org.netbeans.modules.tasklist.usertasks.actions.PurgeTasksAction;
 import org.netbeans.modules.tasklist.usertasks.actions.ShowTaskAction;
@@ -111,6 +110,8 @@ import org.openide.windows.TopComponent;
 import org.openide.windows.WindowManager;
 import org.netbeans.modules.tasklist.usertasks.model.UserTask;
 import org.netbeans.modules.tasklist.usertasks.model.UserTaskList;
+import org.netbeans.modules.tasklist.usertasks.table.UTBasicTreeTableModel;
+import org.netbeans.modules.tasklist.usertasks.table.UTFlatTreeTableModel;
 import org.netbeans.modules.tasklist.usertasks.treetable.TreeTable;
 import org.openide.DialogDisplayer;
 import org.openide.NotifyDescriptor;
@@ -124,6 +125,22 @@ import org.openide.cookies.SaveCookie;
  */
 public class UserTaskView extends TopComponent implements ExportImportProvider, 
         FileChangeListener, FilteredTopComponent {    
+    /**
+     * Event for this property will be fired when the state of this view
+     * has changed.
+     */
+    public static final String PROP_STATE = "state";
+    
+    /** State of the view. */
+    public enum State {
+        /** all tasks with not computed values in a list */
+        FLAT, 
+        /** tasks with subtasks */
+        TREE;
+                
+        private static final long serialVersionUID = 1;
+    }
+    
     // List category
     private final static String USER_CATEGORY = "usertasks"; // NOI18N    
     
@@ -243,7 +260,9 @@ public class UserTaskView extends TopComponent implements ExportImportProvider,
     /** "Paste at the Top Level" */
     public UTPasteAtTopLevelAction pasteAtTopLevelAction;
             
+    private AsListAction asListAction;
     private FileObject file;
+    private State state = State.TREE;
     
     /** 
      * Construct a new UserTaskView.  
@@ -264,6 +283,29 @@ public class UserTaskView extends TopComponent implements ExportImportProvider,
         init(fo, default_);
     }
 
+    /**
+     * Changes the state of the view.
+     * 
+     * @param state state of the view 
+     */
+    public void setState(State state) {
+        if (this.state != state) {
+            State old = this.state;
+            this.state = state;
+            fillTreeTable();
+            firePropertyChange(PROP_STATE, old, state);
+        }
+    }
+    
+    /**
+     * Returns current state of the view.
+     * 
+     * @return state 
+     */
+    public State getState() {
+        return state;
+    }    
+    
     /**
      * Returns the file shown in this view.
      * 
@@ -340,12 +382,13 @@ public class UserTaskView extends TopComponent implements ExportImportProvider,
             SystemAction.get(FilterAction.class),
             SystemAction.get(RemoveFilterAction.class),
             null,
+            asListAction,
+            null,
             new StartTaskAction(this),
             PauseAction.getInstance(),
             null,
             moveUpAction,
             moveDownAction,
-            // SystemAction.get(AsListAction.class)
         };
     }
     
@@ -464,8 +507,18 @@ public class UserTaskView extends TopComponent implements ExportImportProvider,
             }
         }
         if (ver >= 6) {
-            // scroll bars positions
             Map m = (Map) objectInput.readObject();
+
+            // state. 9 April 2007
+            Integer state = (Integer) m.get("state");
+            if (state == null)
+                state = State.TREE.ordinal();
+            if (state == State.TREE.ordinal())
+                setState(State.TREE);
+            else
+                setState(State.FLAT);
+
+            // scroll bars positions
             Point p = (Point) m.get("scrollPosition"); // NOI18N
             if (p != null) {
                 scrollPane.getVerticalScrollBar().setValue(p.y);
@@ -473,19 +526,20 @@ public class UserTaskView extends TopComponent implements ExportImportProvider,
             }
             
             // columns
-            TreeTable.ColumnsConfig cc = (TreeTable.ColumnsConfig) m.get("columns"); // NOI18N
+            TreeTable.ColumnsConfig cc = 
+                    (TreeTable.ColumnsConfig) m.get("columns"); // NOI18N
             if (cc != null) {
                 tt.setColumnsConfig(cc);
             }
             
-            // active filter 25. March 2005
+            // active filter 25 March 2005
             String filter = (String) m.get("filter"); // NOI18N
             if (filter != null) {
                 Filter f = getFilters().getFilterByName(filter);
                 setFilter(f);
             }
             
-            // expanded state 25. March 2005
+            // expanded state 25 March 2005
             Object expn = m.get("expandedNodes"); // NOI18N
             if (expn != null) {
                 tt.setExpandedNodes(tt.readResolveExpandedNodes(expn));
@@ -495,7 +549,7 @@ public class UserTaskView extends TopComponent implements ExportImportProvider,
             Object seln = m.get("selectedNodes"); // NOI18N
             if (seln != null) {
                 tt.select(tt.readResolveExpandedNodes(seln));
-            }
+            }            
         }
     }
 
@@ -527,7 +581,6 @@ public class UserTaskView extends TopComponent implements ExportImportProvider,
         // String: title
         // byte: persistent
 
-        // Write out the UID of the currently selected task, or null if none
         objectOutput.write(4); // SERIAL VERSION
 
         // Write out the UID of the currently selected task, or null if none
@@ -588,6 +641,8 @@ public class UserTaskView extends TopComponent implements ExportImportProvider,
         
         // selected nodes
         m.put("selectedNodes", tt.writeReplaceExpandedNodes(tt.getSelectedPaths())); // NOI18N
+    
+        m.put("state", state.ordinal()); // NOI18N
         
         objectOutput.writeObject(m);
     }
@@ -622,18 +677,26 @@ public class UserTaskView extends TopComponent implements ExportImportProvider,
         return "org.netbeans.modules.tasklist.usertasks.Window"; // NOI18N
     }    
 
-    protected void setFiltered() {
+    private void fillTreeTable() {
         if (getFilter() != null) {
             ((RemoveFilterAction) SystemAction.get(
                 RemoveFilterAction.class)).enable();
         }
 
         TreeTableModel ttm = tt.getTreeTableModel();
-        if (ttm instanceof UserTasksTreeTableModel) {
-            ((UserTasksTreeTableModel) ttm).destroy();
+        if (ttm instanceof UTBasicTreeTableModel) {
+            ((UTBasicTreeTableModel) ttm).destroy();
         }
-        tt.setTreeTableModel(new UserTasksTreeTableModel((UserTaskList) getUserTaskList(), 
-            tt.getSortingModel(), getFilter()));
+        switch (this.state) {
+            case FLAT:
+                this.tt.setTreeTableModel(new UTFlatTreeTableModel(
+                        getUserTaskList(), tt.getSortingModel(), getFilter()));
+                break;
+            default:
+                this.tt.setTreeTableModel(new UTTreeTableModel(
+                        getUserTaskList(), tt.getSortingModel(), getFilter()));
+                break;
+        }
     }
 
     /** 
@@ -901,7 +964,7 @@ public class UserTaskView extends TopComponent implements ExportImportProvider,
         } 
 
         this.activeFilter = filter;
-        setFiltered();
+        fillTreeTable();
     }
 
     public void requestActive() {
@@ -996,6 +1059,7 @@ public class UserTaskView extends TopComponent implements ExportImportProvider,
         showTaskAction = new ShowTaskAction(this);
         propertiesAction = new UTPropertiesAction(this);
         pasteAtTopLevelAction = new UTPasteAtTopLevelAction(this);
+        asListAction = new AsListAction(this);
         
         try {
             saveAction = new UTSaveAction(DataObject.find(file));

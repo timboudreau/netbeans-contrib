@@ -124,7 +124,7 @@ public final class UserTask implements Cloneable, Cookie,
         }
         
         /**
-         * Test whether this period was started today.
+         * Tests whether this period was started today.
          *
          * @return true = yes
          */
@@ -1727,7 +1727,9 @@ public final class UserTask implements Cloneable, Cookie,
     }
 
     /**
-     * Listen to changes in bean properties.
+     * Listen to changes in bean properties. Changes will be fired in the 
+     * same thread in which different methods of UserTasks were called.
+     * 
      * @param l listener to be notified of changes
      */
     public final void addPropertyChangeListener(PropertyChangeListener l) {

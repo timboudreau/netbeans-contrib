@@ -19,6 +19,7 @@
 
 package org.netbeans.modules.tasklist.usertasks.actions;
 
+import org.netbeans.modules.tasklist.usertasks.table.UTTreeTableNode;
 import java.awt.event.ActionEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -28,10 +29,11 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.tree.TreePath;
 import org.netbeans.modules.tasklist.core.util.ObjectListEvent;
 import org.netbeans.modules.tasklist.core.util.ObjectListListener;
-import org.netbeans.modules.tasklist.usertasks.UserTaskTreeTableNode;
+import org.netbeans.modules.tasklist.usertasks.table.UTTreeTableNode;
 import org.netbeans.modules.tasklist.usertasks.model.StartedUserTask;
 import org.netbeans.modules.tasklist.usertasks.model.UserTask;
 import org.netbeans.modules.tasklist.usertasks.UserTaskView;
+import org.netbeans.modules.tasklist.usertasks.table.UTBasicTreeTableNode;
 import org.openide.util.NbBundle;
 import org.openide.util.Utilities;
 
@@ -75,8 +77,8 @@ public class StartTaskAction extends UTViewAction implements
         TreePath[] paths = utv.getTreeTable().getSelectedPaths();
         if (paths.length == 1) {
             Object last = paths[0].getLastPathComponent();
-            if (last instanceof UserTaskTreeTableNode) {
-                UserTask ut = ((UserTaskTreeTableNode) last).getUserTask();
+            if (last instanceof UTBasicTreeTableNode) {
+                UserTask ut = ((UTBasicTreeTableNode) last).getUserTask();
                 this.ut = ut;
                 this.ut.addPropertyChangeListener(this);
                 this.ut.getDependencies().addListener(this);

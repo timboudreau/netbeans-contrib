@@ -19,6 +19,9 @@
 
 package org.netbeans.modules.tasklist.usertasks;
 
+import org.netbeans.modules.tasklist.usertasks.treetable.AdvancedTreeTableNode;
+import org.netbeans.modules.tasklist.usertasks.treetable.AdvancedTreeTableNode;
+import org.netbeans.modules.tasklist.usertasks.table.UTTreeTableNode;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.UnsupportedFlavorException;
@@ -70,6 +73,7 @@ import org.openide.util.datatransfer.MultiTransferObject;
 import org.openide.util.datatransfer.PasteType;
 import org.netbeans.modules.tasklist.usertasks.model.UserTask;
 import org.netbeans.modules.tasklist.usertasks.model.UserTaskList;
+import org.netbeans.modules.tasklist.usertasks.table.UTBasicTreeTableNode;
 import org.openide.actions.DeleteAction;
 import org.openide.nodes.Node;
 
@@ -81,7 +85,7 @@ import org.openide.nodes.Node;
 public final class UserTaskNode extends AbstractNode {
     private UserTask item;
     private UserTaskList utl;
-    private UserTaskTreeTableNode node;
+    private UTBasicTreeTableNode node;
     private UserTasksTreeTable tt;
     
     /**
@@ -93,7 +97,7 @@ public final class UserTaskNode extends AbstractNode {
      * for root tasks
      * @param tt TreeTable
      */
-    public UserTaskNode(UserTaskTreeTableNode node, UserTask item, UserTaskList utl,
+    public UserTaskNode(UTBasicTreeTableNode node, UserTask item, UserTaskList utl,
     UserTasksTreeTable tt) {
         super(Children.LEAF);
         assert item != null;

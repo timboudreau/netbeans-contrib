@@ -19,32 +19,29 @@
 
 package org.netbeans.modules.tasklist.usertasks;
 
+import org.netbeans.modules.tasklist.usertasks.treetable.AdvancedTreeTableNode;
+import org.netbeans.modules.tasklist.usertasks.treetable.AdvancedTreeTableNode;
+import org.netbeans.modules.tasklist.usertasks.table.UTBasicTreeTableNode;
+import org.netbeans.modules.tasklist.usertasks.table.UTTreeTableModel;
+import org.netbeans.modules.tasklist.usertasks.table.UTTreeTableNode;
 import com.toedter.calendar.JDateChooserCellEditor;
 import java.awt.Graphics;
 import java.awt.Point;
-import java.awt.datatransfer.DataFlavor;
-import java.awt.datatransfer.StringSelection;
-import java.awt.datatransfer.Transferable;
-import java.awt.dnd.DropTarget;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Iterator;
 import java.util.List;
 import javax.swing.Action;
 import javax.swing.ImageIcon;
-import javax.swing.JComponent;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
-import javax.swing.JToolTip;
 import javax.swing.ListSelectionModel;
 import javax.swing.SwingUtilities;
-import javax.swing.TransferHandler;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
+import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableColumnModel;
 import javax.swing.tree.TreePath;
 import org.netbeans.modules.tasklist.core.export.ExportAction;
@@ -65,6 +62,7 @@ import org.netbeans.modules.tasklist.usertasks.editors.PercentsTableCellEditor;
 import org.netbeans.modules.tasklist.usertasks.editors.PriorityTableCellEditor;
 import org.netbeans.modules.tasklist.usertasks.renderers.PriorityTableCellRenderer;
 import org.netbeans.modules.tasklist.usertasks.renderers.SummaryTreeCellRenderer;
+import org.netbeans.modules.tasklist.usertasks.table.UTColumns;
 import org.netbeans.modules.tasklist.usertasks.treetable.DefaultMutableTreeTableNode;
 import org.netbeans.modules.tasklist.usertasks.treetable.DefaultTreeTableModel;
 import org.netbeans.modules.tasklist.usertasks.treetable.TreeTable;
@@ -74,17 +72,16 @@ import org.openide.awt.MouseUtils;
 import org.openide.nodes.Node;
 import org.netbeans.modules.tasklist.usertasks.model.UserTask;
 import org.netbeans.modules.tasklist.usertasks.model.UserTaskList;
-import org.netbeans.modules.tasklist.usertasks.model.UserTaskObjectList;
-import org.netbeans.modules.tasklist.usertasks.options.Settings;
-import org.netbeans.modules.tasklist.usertasks.renderers.CategoryTableCellRenderer;
 import org.netbeans.modules.tasklist.usertasks.renderers.DateTableCellRenderer;
 import org.netbeans.modules.tasklist.usertasks.renderers.DoneTreeTableCellRenderer;
 import org.netbeans.modules.tasklist.usertasks.renderers.DueDateTableCellRenderer;
 import org.netbeans.modules.tasklist.usertasks.renderers.DurationTableCellRenderer;
 import org.netbeans.modules.tasklist.usertasks.renderers.EffortTableCellRenderer;
 import org.netbeans.modules.tasklist.usertasks.renderers.LineTableCellRenderer;
-import org.netbeans.modules.tasklist.usertasks.renderers.OwnerTableCellRenderer;
 import org.netbeans.modules.tasklist.usertasks.renderers.PercentsTableCellRenderer;
+import org.netbeans.modules.tasklist.usertasks.renderers.URLTableCellRenderer;
+import org.netbeans.modules.tasklist.usertasks.table.UTFlatTreeTableModel;
+import org.netbeans.modules.tasklist.usertasks.table.UTListFlatTreeTableNode;
 import org.netbeans.modules.tasklist.usertasks.transfer.MyTransferHandler;
 import org.netbeans.modules.tasklist.usertasks.treetable.AdvancedTreeTableNode;
 import org.netbeans.modules.tasklist.usertasks.treetable.SortingHeaderRenderer;
@@ -119,7 +116,7 @@ public class UserTasksTreeTable extends TreeTable {
         // this disables automatic scrolling if using keyboard
         // setAutoscrolls(false);
         setTreeTableModel(
-                new UserTasksTreeTableModel(utl, getSortingModel(), filter));
+                new UTTreeTableModel(utl, getSortingModel(), filter));
         setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
         setShowHorizontalLines(true);
         setShowVerticalLines(true);
@@ -155,8 +152,8 @@ public class UserTasksTreeTable extends TreeTable {
                     UserTask ut = null;
                     if (row >= 0) {
                         Object node = getNodeForRow(row);
-                        if (node instanceof UserTaskTreeTableNode) {
-                            ut = ((UserTaskTreeTableNode) node).getUserTask();
+                        if (node instanceof UTTreeTableNode) {
+                            ut = ((UTTreeTableNode) node).getUserTask();
                         }
                     }
                     if (selected != null && selected.getAnnotation() != null) 
@@ -198,9 +195,11 @@ public class UserTasksTreeTable extends TreeTable {
                     if (!getSelectionModel().isSelectedIndex(row)) {
                         setRowSelectionInterval(row, row);
                     }
-                    UserTasksTreeTable.this.utv.showTaskAction.
-                            actionPerformed(new ActionEvent(
-                            UserTasksTreeTable.this.utv.getTreeTable(), 0, ""));
+                    if (UserTasksTreeTable.this.utv.showTaskAction.isEnabled())
+                        UserTasksTreeTable.this.utv.showTaskAction.
+                                actionPerformed(new ActionEvent(
+                                UserTasksTreeTable.this.utv.getTreeTable(), 0, 
+                                "")); // NOI18N
                 }
             }
         });
@@ -237,17 +236,17 @@ public class UserTasksTreeTable extends TreeTable {
         TreeTable.ColumnsConfig ret = new TreeTable.ColumnsConfig();
         ret.ascending = false;
         ret.columnWidths = new int[] {18, 18, 400, 60, 60, 60, 80, 80, 80};
-        ret.sortedColumn = UserTasksTreeTableModel.PRIORITY;
+        ret.sortedColumn = UTColumns.PRIORITY;
         ret.columns = new int[] {
-            UserTasksTreeTableModel.DONE,
-            UserTasksTreeTableModel.PRIORITY,
-            UserTasksTreeTableModel.SUMMARY,
-            UserTasksTreeTableModel.CATEGORY,
-            UserTasksTreeTableModel.OWNER,
-            UserTasksTreeTableModel.PERCENT_COMPLETE,
-            UserTasksTreeTableModel.EFFORT,
-            UserTasksTreeTableModel.REMAINING_EFFORT,
-            UserTasksTreeTableModel.SPENT_TIME
+            UTColumns.DONE,
+            UTColumns.PRIORITY,
+            UTColumns.SUMMARY,
+            UTColumns.CATEGORY,
+            UTColumns.OWNER,
+            UTColumns.PERCENT_COMPLETE,
+            UTColumns.EFFORT,
+            UTColumns.REMAINING_EFFORT,
+            UTColumns.SPENT_TIME
         };
         return ret;
     }
@@ -259,9 +258,9 @@ public class UserTasksTreeTable extends TreeTable {
      * @return create node
      */
     public Node createNode(Object obj) {
-        UserTaskList utl = ((UserTasksTreeTableModel) getTreeTableModel()).
+        UserTaskList utl = ((UTTreeTableModel) getTreeTableModel()).
             getUserTaskList();
-        UserTaskTreeTableNode node = (UserTaskTreeTableNode) obj;
+        UTBasicTreeTableNode node = (UTBasicTreeTableNode) obj;
         UserTask ut = node.getUserTask();
         return new UserTaskNode(node, ut, utl, this);
     }
@@ -278,72 +277,75 @@ public class UserTasksTreeTable extends TreeTable {
         SortingHeaderRenderer r = new SortingHeaderRenderer();
         r.setIcon(new ImageIcon(
             UserTasksTreeTable.class.getResource("checkbox.gif"))); // NOI18N
-        tcm.getColumn(UserTasksTreeTableModel.DONE).setHeaderRenderer(r);
-        tcm.getColumn(UserTasksTreeTableModel.DONE).setCellRenderer(
+        tcm.getColumn(UTColumns.DONE).setHeaderRenderer(r);
+        tcm.getColumn(UTColumns.DONE).setCellRenderer(
             new DoneTreeTableCellRenderer());
-        tcm.getColumn(UserTasksTreeTableModel.DONE).setMinWidth(17);
+        tcm.getColumn(UTColumns.DONE).setMinWidth(17);
         
-        tcm.getColumn(UserTasksTreeTableModel.PERCENT_COMPLETE).
+        tcm.getColumn(UTColumns.PERCENT_COMPLETE).
             setCellEditor(new PercentsTableCellEditor());
-        tcm.getColumn(UserTasksTreeTableModel.PERCENT_COMPLETE).setCellRenderer(
+        tcm.getColumn(UTColumns.PERCENT_COMPLETE).setCellRenderer(
             new PercentsTableCellRenderer());
 
         DurationTableCellRenderer dr = new DurationTableCellRenderer();
-        tcm.getColumn(UserTasksTreeTableModel.REMAINING_EFFORT).setCellRenderer(dr);
+        tcm.getColumn(UTColumns.REMAINING_EFFORT).setCellRenderer(dr);
 
-        tcm.getColumn(UserTasksTreeTableModel.SPENT_TIME).setCellRenderer(dr);
-        tcm.getColumn(UserTasksTreeTableModel.SPENT_TIME).setCellEditor(
+        tcm.getColumn(UTColumns.SPENT_TIME).setCellRenderer(dr);
+        tcm.getColumn(UTColumns.SPENT_TIME).setCellEditor(
                 new EffortTableCellEditor());
 
-        tcm.getColumn(UserTasksTreeTableModel.LINE_NUMBER).setCellRenderer(
+        tcm.getColumn(UTColumns.LINE_NUMBER).setCellRenderer(
             new LineTableCellRenderer());
 
         DateTableCellRenderer dcr = new DateTableCellRenderer();
-        tcm.getColumn(UserTasksTreeTableModel.CREATED).setCellRenderer(dcr);
+        tcm.getColumn(UTColumns.CREATED).setCellRenderer(dcr);
 
-        tcm.getColumn(UserTasksTreeTableModel.LAST_EDITED).setCellRenderer(dcr);
+        tcm.getColumn(UTColumns.LAST_EDITED).setCellRenderer(dcr);
 
-        tcm.getColumn(UserTasksTreeTableModel.DUE_DATE).setCellRenderer(dcr);
+        tcm.getColumn(UTColumns.DUE_DATE).setCellRenderer(dcr);
 
-        tcm.getColumn(UserTasksTreeTableModel.COMPLETED_DATE)
+        tcm.getColumn(UTColumns.COMPLETED_DATE)
             .setCellRenderer(dcr);
 
-        tcm.getColumn(UserTasksTreeTableModel.CATEGORY).
+        tcm.getColumn(UTColumns.CATEGORY).
             setCellEditor(new CategoryTableCellEditor());
-        tcm.getColumn(UserTasksTreeTableModel.CATEGORY).
-            setCellRenderer(new CategoryTableCellRenderer());
+        tcm.getColumn(UTColumns.CATEGORY).
+            setCellRenderer(new DefaultTableCellRenderer());
         
         SortingHeaderRenderer priorityRenderer = new SortingHeaderRenderer();
         priorityRenderer.setIcon(new ImageIcon(
             UserTasksTreeTable.class.getResource("priority.gif"))); // NOI18N
-        tcm.getColumn(UserTasksTreeTableModel.PRIORITY).setHeaderRenderer(
+        tcm.getColumn(UTColumns.PRIORITY).setHeaderRenderer(
                 priorityRenderer);
-        tcm.getColumn(UserTasksTreeTableModel.PRIORITY).setCellRenderer(
+        tcm.getColumn(UTColumns.PRIORITY).setCellRenderer(
             new PriorityTableCellRenderer());
-        tcm.getColumn(UserTasksTreeTableModel.PRIORITY).setCellEditor(
+        tcm.getColumn(UTColumns.PRIORITY).setCellEditor(
             new PriorityTableCellEditor());
-        tcm.getColumn(UserTasksTreeTableModel.PRIORITY).setCellRenderer(
+        tcm.getColumn(UTColumns.PRIORITY).setCellRenderer(
             new PriorityTableCellRenderer());
         
-        tcm.getColumn(UserTasksTreeTableModel.EFFORT).setCellRenderer(
+        tcm.getColumn(UTColumns.EFFORT).setCellRenderer(
             new EffortTableCellRenderer());
-        tcm.getColumn(UserTasksTreeTableModel.EFFORT).setCellEditor(
+        tcm.getColumn(UTColumns.EFFORT).setCellEditor(
                 new EffortTableCellEditor());
 
-        tcm.getColumn(UserTasksTreeTableModel.OWNER).
+        tcm.getColumn(UTColumns.OWNER).
             setCellEditor(new OwnerTableCellEditor());
-        tcm.getColumn(UserTasksTreeTableModel.OWNER).
-            setCellRenderer(new OwnerTableCellRenderer());
+        tcm.getColumn(UTColumns.OWNER).
+            setCellRenderer(new DefaultTableCellRenderer());
         
-        tcm.getColumn(UserTasksTreeTableModel.DUE_DATE).setCellRenderer(
+        tcm.getColumn(UTColumns.DUE_DATE).setCellRenderer(
             new DueDateTableCellRenderer());
-        tcm.getColumn(UserTasksTreeTableModel.DUE_DATE).setWidth(100);
-        tcm.getColumn(UserTasksTreeTableModel.DUE_DATE).setCellEditor(dc);
+        tcm.getColumn(UTColumns.DUE_DATE).setWidth(100);
+        tcm.getColumn(UTColumns.DUE_DATE).setCellEditor(dc);
         
-        tcm.getColumn(UserTasksTreeTableModel.START).setCellRenderer(dcr);
-        tcm.getColumn(UserTasksTreeTableModel.START).setCellEditor(dc);
+        tcm.getColumn(UTColumns.START).setCellRenderer(dcr);
+        tcm.getColumn(UTColumns.START).setCellEditor(dc);
 
-        tcm.getColumn(UserTasksTreeTableModel.SPENT_TIME_TODAY).setCellRenderer(dr);
+        tcm.getColumn(UTColumns.SPENT_TIME_TODAY).setCellRenderer(dr);
+        
+        tcm.getColumn(UTColumns.FILE_BASE_NAME).setCellRenderer(
+                new URLTableCellRenderer());
     }
 
     /**
@@ -353,21 +355,28 @@ public class UserTasksTreeTable extends TreeTable {
      * @return found path or null
      */
     public TreePath findPath(UserTask task) {
-        List<UserTask> l = new ArrayList<UserTask>();
-        while (task != null) {
-            l.add(0, task);
-            task = task.getParent();
+        if (getTreeTableModel() instanceof UTTreeTableModel) {
+            List<UserTask> l = new ArrayList<UserTask>();
+            while (task != null) {
+                l.add(0, task);
+                task = task.getParent();
+            }
+            AdvancedTreeTableNode n = 
+                (AdvancedTreeTableNode) getTreeTableModel().getRoot();
+
+            for (int i = 0; i < l.size(); i++) {
+                int index = n.getIndexOfObject(l.get(i));
+                if (index == -1)
+                    return null;
+                n = (AdvancedTreeTableNode) n.getChildAt(index);
+            }
+            return new TreePath(n.getPathToRoot());
+        } else {
+            UTListFlatTreeTableNode root =  
+                    (UTListFlatTreeTableNode) getTreeTableModel().getRoot();
+            AdvancedTreeTableNode n = root.findObjectDeep(task);
+            return new TreePath(n.getPathToRoot());
         }
-        AdvancedTreeTableNode n = 
-            (AdvancedTreeTableNode) getTreeTableModel().getRoot();
-        
-        for (int i = 0; i < l.size(); i++) {
-            int index = n.getIndexOfObject(l.get(i));
-            if (index == -1)
-                return null;
-            n = (AdvancedTreeTableNode) n.getChildAt(index);
-        }
-        return new TreePath(n.getPathToRoot());
     }
     
     public javax.swing.Action[] getActions_() {
@@ -413,16 +422,21 @@ public class UserTasksTreeTable extends TreeTable {
     }    
 
     protected Serializable writeReplaceNode(Object node) {
-        return ((UserTaskTreeTableNode) node).getUserTask().getUID();
+        if (node instanceof UTBasicTreeTableNode)
+            return ((UTBasicTreeTableNode) node).getUserTask().getUID();
+        else
+            return null;
     }
 
     protected Object readResolveNode(Object parent, Object node) {
+        if (node == null)
+            return null;
+        
         AdvancedTreeTableNode p = (AdvancedTreeTableNode) parent;
         String uid = (String) node;
         
         for (int i = 0; i < p.getChildCount(); i++) {
-            UserTaskTreeTableNode ch = 
-                (UserTaskTreeTableNode) p.getChildAt(i);
+            UTBasicTreeTableNode ch = (UTBasicTreeTableNode) p.getChildAt(i);
             UserTask ut = ch.getUserTask();
             if (uid.equals(ut.getUID()))
                 return ch;
@@ -439,8 +453,8 @@ public class UserTasksTreeTable extends TreeTable {
         if (row >= 0) {
             Object node = getNodeForRow(row);
 
-            if (node instanceof UserTaskTreeTableNode) {
-                result = ((UserTaskTreeTableNode) node).getUserTask().getDetails();
+            if (node instanceof UTTreeTableNode) {
+                result = ((UTTreeTableNode) node).getUserTask().getDetails();
                 result = UTUtils.prepareForTooltip(result);
                 if (result.length() == 0)
                     result = null;

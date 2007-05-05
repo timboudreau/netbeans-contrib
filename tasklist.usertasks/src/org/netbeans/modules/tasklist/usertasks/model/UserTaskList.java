@@ -251,7 +251,45 @@ public class UserTaskList {
                 ((ChangeListener) list[i+1]).stateChanged(changeEvent);
             }
         }
+    }    
+    
+    /**
+     * Adds a listener to this list. Adding a listener here has the 
+     * same effect as adding the listener to each UserTaskObjectList at
+     * every level.
+     *
+     * @param listener a listener
+     */
+    public void addObjectListListener(ObjectListListener listener) {
+        listeners.add(ObjectListListener.class, listener);
     }
+    
+    /**
+     * Removes a listener.
+     *
+     * @param listener a listener
+     */
+    public void removeObjectListListener(ObjectListListener listener) {
+        listeners.remove(ObjectListListener.class, listener);
+    }
+
+    /**
+     * Fires an event
+     *
+     * @param e an event
+     */
+    public void fireEvent(ObjectListEvent e) {
+        // Guaranteed to return a non-null array
+        Object[] l = listeners.getListenerList();
+        
+        // Process the listeners last to first, notifying
+        // those that are interested in this event
+        for (int i = l.length - 2; i >= 0; i -= 2) {
+            if (l[i] == ObjectListListener.class)
+                ((ObjectListListener) l[i+1]).listChanged(e);
+        }
+    }
+    
     
     /* For debugging purposes, only. Writes directly to serr. 
     public void print() {

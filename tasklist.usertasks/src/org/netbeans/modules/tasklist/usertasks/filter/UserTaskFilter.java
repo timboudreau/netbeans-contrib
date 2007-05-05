@@ -19,7 +19,6 @@
 
 package org.netbeans.modules.tasklist.usertasks.filter;
 
-import java.io.Serializable;
 import org.netbeans.modules.tasklist.core.filter.AppliedFilterCondition;
 import org.netbeans.modules.tasklist.core.filter.BooleanFilterCondition;
 import org.netbeans.modules.tasklist.core.filter.DateFilterCondition;

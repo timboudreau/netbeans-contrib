@@ -19,12 +19,16 @@
 
 package org.netbeans.modules.tasklist.usertasks.actions;
 
+import java.util.ArrayList;
+import java.util.List;
+import org.netbeans.modules.tasklist.usertasks.table.UTTreeTableNode;
 import javax.swing.AbstractAction;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.tree.TreePath;
-import org.netbeans.modules.tasklist.usertasks.UserTaskTreeTableNode;
+import org.netbeans.modules.tasklist.usertasks.table.UTTreeTableNode;
 import org.netbeans.modules.tasklist.usertasks.UserTaskView;
 import org.netbeans.modules.tasklist.usertasks.model.UserTask;
+import org.netbeans.modules.tasklist.usertasks.table.UTBasicTreeTableNode;
 
 /**
  * An action that is aware of selected nodes in a UserTaskView.
@@ -61,11 +65,39 @@ ListSelectionListener {
         // tp[0] is sometimes null if "Expand All" is called...
         if (tp.length == 1 && tp[0] != null) {
             Object last = tp[0].getLastPathComponent();
-            if (last instanceof UserTaskTreeTableNode) {
-                return ((UserTaskTreeTableNode) last).getUserTask();
+            if (last instanceof UTBasicTreeTableNode) {
+                return ((UTBasicTreeTableNode) last).getUserTask();
             }
         }
         return null;
+    }
+    
+    /**
+     * Returns selected tasks. Returns empty list if non-task nodes are selected.
+     * 
+     * @return selected tasks
+     */
+    protected List<UserTask> getSelectedTasks() {
+        List<UserTask> r = new ArrayList();
+        TreePath[] tp = utv.getTreeTable().getSelectedPaths();
+        
+        for (int i = 0; i < tp.length; i++) {
+            TreePath treePath = tp[i];
+            
+            // tp[0] is sometimes null if "Expand All" is called...
+            if (treePath != null && treePath.getLastPathComponent() 
+                    instanceof UTBasicTreeTableNode) {
+                UserTask ut = ((UTBasicTreeTableNode) treePath.
+                        getLastPathComponent()).
+                        getUserTask();
+                r.add(ut);
+            } else {
+                r.clear();
+                break;
+            }
+        }
+
+        return r;
     }
 }
 

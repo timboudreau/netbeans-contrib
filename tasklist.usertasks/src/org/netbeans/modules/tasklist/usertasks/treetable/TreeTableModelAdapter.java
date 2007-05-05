@@ -118,6 +118,7 @@ public class TreeTableModelAdapter extends AbstractTableModel {
             }
             
             public void treeStructureChanged(TreeModelEvent e) {
+                UTUtils.LOGGER.fine("here"); // NOI18N
                 delayedFireTableDataChanged();
             }
         };

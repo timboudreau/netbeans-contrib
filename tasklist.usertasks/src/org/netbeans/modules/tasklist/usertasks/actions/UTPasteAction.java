@@ -19,14 +19,17 @@
 
 package org.netbeans.modules.tasklist.usertasks.actions;
 
+import org.netbeans.modules.tasklist.usertasks.table.UTBasicTreeTableNode;
+import org.netbeans.modules.tasklist.usertasks.table.UTTreeTableNode;
+import org.netbeans.modules.tasklist.usertasks.table.UTListTreeTableNode;
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.Transferable;
 import java.awt.event.ActionEvent;
 import javax.swing.TransferHandler;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.tree.TreePath;
-import org.netbeans.modules.tasklist.usertasks.UserTaskListTreeTableNode;
-import org.netbeans.modules.tasklist.usertasks.UserTaskTreeTableNode;
+import org.netbeans.modules.tasklist.usertasks.table.UTListTreeTableNode;
+import org.netbeans.modules.tasklist.usertasks.table.UTTreeTableNode;
 import org.netbeans.modules.tasklist.usertasks.UserTaskView;
 
 /**
@@ -48,8 +51,8 @@ public final class UTPasteAction extends UTViewAction {
         TreePath[] paths = utv.getTreeTable().getSelectedPaths();
         if (paths.length == 1) {
             Object last = paths[0].getLastPathComponent();
-            setEnabled(last instanceof UserTaskTreeTableNode ||
-                    last instanceof UserTaskListTreeTableNode);
+            setEnabled(last instanceof UTBasicTreeTableNode ||
+                    last instanceof UTListTreeTableNode);
         } else {
             setEnabled(false);
         }

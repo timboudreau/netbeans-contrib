@@ -36,6 +36,7 @@ import javax.swing.table.JTableHeader;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumnModel;
 import org.netbeans.modules.tasklist.core.table.SortingModel;
+import org.netbeans.modules.tasklist.usertasks.util.UTUtils;
 
 /**
  * Cell renderer for sorting column header.
@@ -154,6 +155,7 @@ public class SortingHeaderRenderer extends JPanel implements TableCellRenderer {
             TableColumnModel tcm = header.getColumnModel();
             int modelIndex = tcm.getColumn(column).getModelIndex();
             SortingModel tableModel = ((TreeTable) table).getSortingModel();
+            
             if (tableModel != null) {
                 if (tableModel.getSortedColumn() == modelIndex) {
                     renderer.setIcon(

@@ -21,6 +21,7 @@ package org.netbeans.modules.tasklist.usertasks.model;
 
 import java.util.Iterator;
 import org.netbeans.modules.tasklist.core.util.ObjectList;
+import org.netbeans.modules.tasklist.core.util.ObjectListEvent;
 import org.netbeans.modules.tasklist.usertasks.*;
 
 /**
@@ -45,6 +46,8 @@ public class UserTaskObjectList extends ObjectList<UserTask> {
     /**
      * Returns the user task with the specified index
      *
+     * TODO: use get(int) instead
+     * 
      * @param index index of the task
      * @see #get(int)
      */
@@ -91,4 +94,15 @@ public class UserTaskObjectList extends ObjectList<UserTask> {
                 task.getSubtasks().purgeCompletedItems();
         }
     }
+
+    @Override
+    protected void fireEvent(ObjectListEvent e) {
+        UserTaskList list;
+        if (parent instanceof UserTaskList)
+            list = (UserTaskList) parent;
+        else
+            list = ((UserTask) parent).getList();
+        super.fireEvent(e);
+        list.fireEvent(e);
+    }    
 }

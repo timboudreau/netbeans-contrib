@@ -6,6 +6,8 @@ import java.awt.Font;
 import org.netbeans.modules.tasklist.usertasks.options.Settings;
 import org.netbeans.modules.tasklist.usertasks.model.Duration;
 import org.netbeans.modules.tasklist.usertasks.model.UserTask;
+import org.netbeans.modules.tasklist.usertasks.treetable.AdvancedTreeTableNode;
+import org.netbeans.modules.tasklist.usertasks.treetable.TreeTable;
 
 /**
  * Renderer for the effort
@@ -29,7 +31,10 @@ public class EffortTableCellRenderer extends DurationTableCellRenderer {
         setForeground(null);
         super.getTableCellRendererComponent(table, value, isSelected, hasFocus, 
             row, column);
-        UserTask ut = (UserTask) value;
+        AdvancedTreeTableNode n = (AdvancedTreeTableNode) 
+                ((TreeTable) table).getRenderedNode();
+        UserTask ut = n.getObject() instanceof UserTask ? 
+            (UserTask) n.getObject() : null;
         if (ut != null) {
             boolean b = ut.getEffort() >= ut.getSpentTime() + 
                     ut.getRemainingEffort();
@@ -41,11 +46,11 @@ public class EffortTableCellRenderer extends DurationTableCellRenderer {
     }
 
     protected Duration getDuration(Object obj) {
-        UserTask ut = (UserTask) obj;
-        if (ut == null) {
+        Integer d = (Integer) obj;
+        if (d == null) {
             return null;
         } else {
-            return new Duration(ut.getEffort(),
+            return new Duration(d.intValue(),
                 Settings.getDefault().getMinutesPerDay(), 
                 Settings.getDefault().getDaysPerWeek(), true);
         }

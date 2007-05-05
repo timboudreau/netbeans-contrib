@@ -4,6 +4,8 @@ import java.util.Comparator;
 
 /**
  * Compares strings
+ * 
+ * @author tl
  */
 public class StringIgnoreCaseComparator implements Comparator {
     public int compare(java.lang.Object o1, java.lang.Object o2) {

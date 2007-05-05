@@ -19,6 +19,8 @@
 
 package org.netbeans.modules.tasklist.usertasks.treetable;
 
+import javax.swing.Icon;
+import org.netbeans.modules.tasklist.usertasks.treetable.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -30,6 +32,7 @@ import org.netbeans.modules.tasklist.usertasks.util.AWTThread;
  * This "advanced" class provides filtering and sorting of nodes
  *
  * @param T - type of the object in this node
+ * @author tl
  */
 public abstract class AdvancedTreeTableNode<T>
         extends AbstractTreeTableNode {
@@ -61,6 +64,27 @@ public abstract class AdvancedTreeTableNode<T>
      */
     public T getObject() {
         return object;
+    }
+    
+    /**
+     * Searches in this node and all subnodes at all levels for an object using
+     * == for comparison.
+     * 
+     * @param obj this object should be found
+     * @return found node or null 
+     */
+    public AdvancedTreeTableNode findObjectDeep(Object obj) {
+        if (this.getObject() == obj)
+            return this;
+        else {
+            for (int i = 0; i < getChildCount(); i++) {
+                AdvancedTreeTableNode ch = (AdvancedTreeTableNode) getChildAt(i);
+                AdvancedTreeTableNode n = ch.findObjectDeep(obj);
+                if (n != null)
+                    return n;
+            }
+            return null;
+        }
     }
     
     /**
@@ -363,5 +387,26 @@ public abstract class AdvancedTreeTableNode<T>
 
     public boolean isLeaf() {
         return getChildren().length == 0;
+    }
+
+    public void setValueAt(Object aValue, int column) {
+    }
+    
+    /**
+     * Returns icon for this node.
+     * 
+     * @return icon or null 
+     */
+    public Icon getOpenIcon() {
+        return null;
+    }
+    
+    /**
+     * Returns icon for this node (when the node is closed).
+     * 
+     * @return icon or null 
+     */
+    public Icon getClosedIcon() {
+        return null;
     }
 }

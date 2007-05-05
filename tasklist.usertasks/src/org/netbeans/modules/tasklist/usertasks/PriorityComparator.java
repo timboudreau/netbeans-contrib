@@ -21,7 +21,6 @@ package org.netbeans.modules.tasklist.usertasks;
 
 import java.util.Comparator;
 
-
 /**
  * Compares priority values
  *
@@ -37,6 +36,6 @@ public class PriorityComparator implements Comparator {
           return 1;
         int p1 = ((Integer) o1).intValue();
         int p2 = ((Integer) o2).intValue();
-        return p1 - p2;
+        return p2 - p1;
     }
 }

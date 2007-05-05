@@ -19,13 +19,15 @@
 
 package org.netbeans.modules.tasklist.usertasks.actions;
 
+import org.netbeans.modules.tasklist.usertasks.table.UTListTreeTableNode;
 import java.awt.datatransfer.Clipboard;
 import java.awt.event.ActionEvent;
 import javax.swing.TransferHandler;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.tree.TreePath;
-import org.netbeans.modules.tasklist.usertasks.UserTaskListTreeTableNode;
+import org.netbeans.modules.tasklist.usertasks.table.UTListTreeTableNode;
 import org.netbeans.modules.tasklist.usertasks.UserTaskView;
+import org.netbeans.modules.tasklist.usertasks.table.UTListBasicTreeTableNode;
 
 /**
  * Cut.
@@ -47,7 +49,7 @@ public final class UTCutAction extends UTViewAction {
         boolean enabled = true;
         for (int i = 0; i < paths.length; i++) {
             if (paths[i].getLastPathComponent() instanceof 
-                    UserTaskListTreeTableNode) {
+                    UTListBasicTreeTableNode) {
                 enabled = false;
                 break;
             }

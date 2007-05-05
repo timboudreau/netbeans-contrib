@@ -63,7 +63,8 @@ public class MoveUpAction extends UTViewAction {
     public void valueChanged(ListSelectionEvent e) {
         UserTask ut = getSingleSelectedTask();
         boolean en = false;
-        if (utv.getTreeTable().getSortingModel().getSortedColumn() == -1 &&
+        if (utv.getState() == UserTaskView.State.TREE && 
+                utv.getTreeTable().getSortingModel().getSortedColumn() == -1 &&
                 ut != null) {
             UserTaskObjectList list;
             if (ut.getParent() == null)

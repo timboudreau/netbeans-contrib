@@ -19,10 +19,13 @@
 
 package org.netbeans.modules.tasklist.usertasks.actions;
 
+import java.util.List;
+import org.netbeans.modules.tasklist.usertasks.table.UTBasicTreeTableNode;
+import org.netbeans.modules.tasklist.usertasks.table.UTTreeTableNode;
 import java.awt.event.ActionEvent;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.tree.TreePath;
-import org.netbeans.modules.tasklist.usertasks.UserTaskTreeTableNode;
+import org.netbeans.modules.tasklist.usertasks.table.UTTreeTableNode;
 import org.netbeans.modules.tasklist.usertasks.UserTaskView;
 import org.netbeans.modules.tasklist.usertasks.model.UserTask;
 import org.openide.DialogDisplayer;
@@ -55,13 +58,8 @@ public class PurgeTasksAction extends UTViewAction {
             NotifyDescriptor.OK_CANCEL_OPTION
         );
         if (DialogDisplayer.getDefault().notify(nd) == NotifyDescriptor.OK_OPTION) {
-            TreePath[] tp = utv.getTreeTable().getSelectedPaths();
-            UserTask[] uts = new UserTask[tp.length];
-            for (int i = 0; i < tp.length; i++) {
-                UserTaskTreeTableNode n = (UserTaskTreeTableNode) 
-                        tp[i].getLastPathComponent();
-                uts[i] = n.getUserTask();
-            }
+            List<UserTask> sel = getSelectedTasks();
+            UserTask[] uts = sel.toArray(new UserTask[sel.size()]);
             uts = UserTask.reduce(uts);
             for (int i = 0; i < uts.length; i++) {
                 uts[i].purgeCompleted();
@@ -76,7 +74,7 @@ public class PurgeTasksAction extends UTViewAction {
     }
 
     public void valueChanged(ListSelectionEvent e) {
-        TreePath[] tp = utv.getTreeTable().getSelectedPaths();
-        setEnabled(tp.length > 0);
+        List<UserTask> sel = getSelectedTasks();
+        setEnabled(sel.size() > 0);
     }
 }

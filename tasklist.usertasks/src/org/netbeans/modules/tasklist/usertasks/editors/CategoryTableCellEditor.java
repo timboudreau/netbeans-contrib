@@ -27,6 +27,8 @@ import javax.swing.JComboBox;
 
 import javax.swing.JTable;
 import org.netbeans.modules.tasklist.usertasks.model.UserTask;
+import org.netbeans.modules.tasklist.usertasks.treetable.AdvancedTreeTableNode;
+import org.netbeans.modules.tasklist.usertasks.treetable.TreeTable;
 
 /**
  * TableCellEditor for the category
@@ -50,11 +52,15 @@ public class CategoryTableCellEditor extends DefaultCellEditor {
         retValue = super.getTableCellEditorComponent(table, value, isSelected, 
             row, column);
         
-        UserTask ut = (UserTask) value;
+        String v = (String) value;
         JComboBox cb = (JComboBox) editorComponent;
-        DefaultComboBoxModel m = new DefaultComboBoxModel(ut.getList().getCategories());
+        AdvancedTreeTableNode n = (AdvancedTreeTableNode) ((TreeTable) table).
+                getRenderedNode();
+        UserTask ut = (UserTask) n.getObject();
+        DefaultComboBoxModel m = new DefaultComboBoxModel(
+                ut.getList().getCategories());
         cb.setModel(m);
-        cb.setSelectedItem(ut.getCategory());
+        cb.setSelectedItem(v);
         
         return retValue;
     }

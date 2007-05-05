@@ -19,6 +19,7 @@
 
 package org.netbeans.modules.tasklist.usertasks.renderers;
 
+import org.netbeans.modules.tasklist.usertasks.table.UTTreeTableNode;
 import java.awt.Component;
 import java.awt.Font;
 
@@ -26,13 +27,14 @@ import javax.swing.ImageIcon;
 import javax.swing.JTree;
 import javax.swing.tree.DefaultTreeCellRenderer;
 import org.netbeans.modules.tasklist.usertasks.model.UserTask;
-import org.netbeans.modules.tasklist.usertasks.UserTaskListTreeTableNode;
-import org.netbeans.modules.tasklist.usertasks.UserTaskTreeTableNode;
-
-import org.openide.util.NbBundle;
+import org.netbeans.modules.tasklist.usertasks.table.UTBasicTreeTableNode;
+import org.netbeans.modules.tasklist.usertasks.table.UTTreeTableNode;
+import org.netbeans.modules.tasklist.usertasks.treetable.AdvancedTreeTableNode;
 
 /**
  * Cell renderer for the summary attribute
+ * 
+ * @author tl
  */
 public class SummaryTreeCellRenderer extends DefaultTreeCellRenderer {
     private static final long serialVersionUID = 1;
@@ -58,14 +60,25 @@ public class SummaryTreeCellRenderer extends DefaultTreeCellRenderer {
             normalFont = tree.getFont();
             boldFont = normalFont.deriveFont(Font.BOLD);
         }
-        if (value instanceof UserTaskTreeTableNode) {
-            UserTaskTreeTableNode utl = (UserTaskTreeTableNode) value;
+        if (value instanceof UTBasicTreeTableNode) {
+            UTBasicTreeTableNode utl = (UTBasicTreeTableNode) value;
+            boolean unmatched = utl instanceof UTTreeTableNode &&
+                    ((UTTreeTableNode) utl).isUnmatched();
             UserTask ut = utl.getUserTask();
             setFont(ut.isStarted() ? boldFont : normalFont);
             setText(ut.getSummary());
-            icon.setImage(UserTaskIconProvider.getUserTaskImage(ut, utl.isUnmatched()));
+            setIcon(UserTaskIconProvider.getUserTaskImage(ut, 
+                    unmatched));
+        } else if (value instanceof AdvancedTreeTableNode) {
+            setFont(normalFont);
+            if (expanded)
+                setIcon(((AdvancedTreeTableNode) value).getOpenIcon());
+            else
+                setIcon(((AdvancedTreeTableNode) value).getClosedIcon());                
+        } else {
+            setFont(normalFont);
+            setIcon(null);
         }
-        setIcon(icon);
         return this;
     }
 }

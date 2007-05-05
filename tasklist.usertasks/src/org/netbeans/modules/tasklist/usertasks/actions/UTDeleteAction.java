@@ -1,5 +1,7 @@
 package org.netbeans.modules.tasklist.usertasks.actions;
 
+import org.netbeans.modules.tasklist.usertasks.table.UTBasicTreeTableNode;
+import org.netbeans.modules.tasklist.usertasks.table.UTTreeTableNode;
 import java.awt.event.ActionEvent;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
@@ -9,7 +11,7 @@ import javax.swing.SwingUtilities;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.tree.TreePath;
-import org.netbeans.modules.tasklist.usertasks.UserTaskTreeTableNode;
+import org.netbeans.modules.tasklist.usertasks.table.UTTreeTableNode;
 import org.netbeans.modules.tasklist.usertasks.UserTasksTreeTable;
 import org.netbeans.modules.tasklist.usertasks.model.UserTask;
 import org.netbeans.modules.tasklist.usertasks.model.UserTaskList;
@@ -47,7 +49,7 @@ implements ListSelectionListener {
         boolean e = true;
         for (int i = 0; i < rows.length; i++) {
             Object obj = tt.getNodeForRow(rows[i]);
-            if (!(obj instanceof UserTaskTreeTableNode)) {
+            if (!(obj instanceof UTTreeTableNode)) {
                 e = false;
                 break;
             }
@@ -56,18 +58,18 @@ implements ListSelectionListener {
         setEnabled(e);
     }
     
-    private UserTaskTreeTableNode[] normalize(UserTaskTreeTableNode[] tasks) {
-        List<UserTaskTreeTableNode> ret = 
-                new ArrayList<UserTaskTreeTableNode>();
+    private UTTreeTableNode[] normalize(UTTreeTableNode[] tasks) {
+        List<UTTreeTableNode> ret = 
+                new ArrayList<UTTreeTableNode>();
     outer:
         for (int i = 0; i < tasks.length; i++) {
             for (int j = 0; j < ret.size(); j++) {
-                UserTaskTreeTableNode ut = (UserTaskTreeTableNode) ret.get(j);
+                UTBasicTreeTableNode ut = (UTTreeTableNode) ret.get(j);
                 if (ut.getUserTask().isAncestorOf(tasks[i].getUserTask()))
                     continue outer;
             }
             for (int j = 0; j < ret.size(); ) {
-                UserTaskTreeTableNode ut = (UserTaskTreeTableNode) ret.get(j);
+                UTBasicTreeTableNode ut = (UTTreeTableNode) ret.get(j);
                 if (tasks[i].getUserTask().isAncestorOf(ut.getUserTask()))
                     ret.remove(j);
                 else
@@ -75,10 +77,10 @@ implements ListSelectionListener {
             }
             ret.add(tasks[i]);
         }
-        return ret.toArray(new UserTaskTreeTableNode[ret.size()]);
+        return ret.toArray(new UTTreeTableNode[ret.size()]);
     }
     
-    private boolean doConfirm(UserTaskTreeTableNode[] sel) {
+    private boolean doConfirm(UTTreeTableNode[] sel) {
         String message, title;
         if (sel.length == 1) {
             message = NbBundle.getMessage(UTDeleteAction.class, "MSG_ConfirmDeleteObject", // NOI18N
@@ -121,12 +123,12 @@ implements ListSelectionListener {
         if (rows.length == 0)
             return;
         
-        UserTaskTreeTableNode[] tasks = new UserTaskTreeTableNode[rows.length];
+        UTTreeTableNode[] tasks = new UTTreeTableNode[rows.length];
         boolean e = true;
         for (int i = 0; i < tasks.length; i++) {
             Object obj = tt.getNodeForRow(rows[i]);
-            if (obj instanceof UserTaskTreeTableNode) {
-                tasks[i] = (UserTaskTreeTableNode) obj;
+            if (obj instanceof UTTreeTableNode) {
+                tasks[i] = (UTTreeTableNode) obj;
             } else {
                 e = false;
                 break;
@@ -137,10 +139,10 @@ implements ListSelectionListener {
         
         tasks = normalize(tasks);
         
-        UserTaskTreeTableNode n = tasks[tasks.length - 1];
+        UTBasicTreeTableNode n = tasks[tasks.length - 1];
         TreeTableNode ttn = n.findNextNodeAfterDelete();
-        if (ttn instanceof UserTaskTreeTableNode)
-            n = (UserTaskTreeTableNode) ttn;
+        if (ttn instanceof UTTreeTableNode)
+            n = (UTTreeTableNode) ttn;
         else 
             n = null;
 

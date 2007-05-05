@@ -19,6 +19,7 @@
 
 package org.netbeans.modules.tasklist.usertasks.actions;
 
+import org.netbeans.modules.tasklist.usertasks.table.UTTreeTableNode;
 import java.awt.Dialog;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
@@ -38,7 +39,7 @@ import org.netbeans.modules.tasklist.usertasks.util.UTUtils;
 import org.netbeans.modules.tasklist.usertasks.UserTaskViewRegistry;
 import org.netbeans.modules.tasklist.usertasks.model.UserTask;
 import org.netbeans.modules.tasklist.usertasks.model.UserTaskList;
-import org.netbeans.modules.tasklist.usertasks.UserTaskTreeTableNode;
+import org.netbeans.modules.tasklist.usertasks.table.UTTreeTableNode;
 import org.netbeans.modules.tasklist.usertasks.UserTaskView;
 import org.openide.DialogDescriptor;
 import org.openide.DialogDisplayer;
@@ -104,8 +105,8 @@ public class NewTaskAction extends UTViewAction {
         final UserTask parent;
         final UserTaskList utl;
         Object last = tp.length > 0 ? tp[0].getLastPathComponent() : null;
-        if (last instanceof UserTaskTreeTableNode) {
-            parent = ((UserTaskTreeTableNode) last).getUserTask();
+        if (last instanceof UTTreeTableNode) {
+            parent = ((UTTreeTableNode) last).getUserTask();
             utl = parent.getList();
         } else {
             parent = null;
@@ -268,7 +269,7 @@ public class NewTaskAction extends UTViewAction {
         UserTask parent = null;
         TreePath tp = utv.getTreeTable().getSelectedPath();
         if (tp != null) {
-            parent = ((UserTaskTreeTableNode) tp.getLastPathComponent()).
+            parent = ((UTTreeTableNode) tp.getLastPathComponent()).
                     getUserTask();
         }
         

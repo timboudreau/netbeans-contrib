@@ -27,6 +27,7 @@ import java.beans.PropertyChangeListener;
 import java.io.IOException;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
+import javax.swing.ImageIcon;
 import javax.swing.KeyStroke;
 import org.openide.NotifyDescriptor;
 import org.openide.NotifyDescriptor;
@@ -38,6 +39,7 @@ import org.openide.util.Lookup;
 import org.openide.util.LookupEvent;
 import org.openide.util.LookupListener;
 import org.openide.util.NbBundle;
+import org.openide.util.Utilities;
 import org.openide.util.actions.SystemAction;
 
 /**
@@ -56,10 +58,12 @@ public class UTSaveAction extends AbstractAction
      */
     public UTSaveAction(DataObject do_) {
         this.n = do_;
-        putValue(Action.NAME, SystemAction.get(SaveAction.class).
-                getValue(NAME));
-        putValue(SMALL_ICON, SystemAction.get(SaveAction.class).
-                getValue(SMALL_ICON));
+        putValue(Action.NAME, 
+                NbBundle.getMessage(UTSaveAction.class, "Save")); // NOI18N
+        putValue(Action.SHORT_DESCRIPTION, 
+                NbBundle.getMessage(UTSaveAction.class, "Save")); // NOI18N
+        putValue(SMALL_ICON, new ImageIcon(Utilities.loadImage(
+                "org/netbeans/modules/tasklist/usertasks/actions/save.png"))); // NOI18N
         putValue(ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_S, 
                 InputEvent.CTRL_MASK));
         n.addPropertyChangeListener(this);

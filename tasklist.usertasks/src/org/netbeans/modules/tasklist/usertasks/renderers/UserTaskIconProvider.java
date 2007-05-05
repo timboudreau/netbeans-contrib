@@ -1,6 +1,8 @@
 package org.netbeans.modules.tasklist.usertasks.renderers;
 
 import java.awt.Image;
+import javax.swing.Icon;
+import javax.swing.ImageIcon;
 import org.netbeans.modules.tasklist.usertasks.model.UserTask;
 import org.openide.util.Utilities;
 
@@ -10,29 +12,34 @@ import org.openide.util.Utilities;
  * @author tl
  */
 public class UserTaskIconProvider {
-    private static final Image LIST_IMAGE =
-        Utilities.loadImage(
-            "org/netbeans/modules/tasklist/usertasks/tasklistfile.gif"); // NOI18N
-    private static final Image IMAGE =
-        Utilities.loadImage(
-            "org/netbeans/modules/tasklist/core/task.gif"); // NOI18N
-    private static final Image DONE =
-        Utilities.loadImage(
-            "org/netbeans/modules/tasklist/core/doneItem.gif"); // NOI18N
-    private static final Image UNMATCHED =
-        Utilities.loadImage(
-            "org/netbeans/modules/tasklist/core/unmatched.gif"); // NOI18N
+    private static final ImageIcon LIST_IMAGE =
+            new ImageIcon(Utilities.loadImage(
+            "org/netbeans/modules/tasklist/usertasks/tasklistfile.gif")); // NOI18N
+    private static final ImageIcon IMAGE =
+            new ImageIcon(Utilities.loadImage(
+            "org/netbeans/modules/tasklist/core/task.gif")); // NOI18N
+    private static final ImageIcon DONE =
+            new ImageIcon(Utilities.loadImage(
+            "org/netbeans/modules/tasklist/core/doneItem.gif")); // NOI18N
+    private static final ImageIcon UNMATCHED =
+            new ImageIcon(Utilities.loadImage(
+            "org/netbeans/modules/tasklist/core/unmatched.gif")); // NOI18N
     
     private static final Image STARTED_BADGE =
-        Utilities.loadImage(
+            Utilities.loadImage(
             "org/netbeans/modules/tasklist/usertasks/startedBadge.gif"); // NOI18N
 
-    private static final Image IMAGE_STARTED = 
-        Utilities.mergeImages(IMAGE, STARTED_BADGE, 8, 6);
-    private static final Image DONE_STARTED = 
-        Utilities.mergeImages(DONE, STARTED_BADGE, 8, 6);
-    private static final Image UNMATCHED_STARTED = 
-        Utilities.mergeImages(UNMATCHED, STARTED_BADGE, 8, 6);
+    private static final ImageIcon IMAGE_STARTED = 
+            new ImageIcon(Utilities.mergeImages(
+            IMAGE.getImage(), STARTED_BADGE, 8, 6));
+    private static final ImageIcon DONE_STARTED = 
+            new ImageIcon(
+            Utilities.mergeImages(
+            DONE.getImage(), STARTED_BADGE, 8, 6));
+    private static final ImageIcon UNMATCHED_STARTED = 
+            new ImageIcon(
+            Utilities.mergeImages(
+            UNMATCHED.getImage(), STARTED_BADGE, 8, 6));
     
     /**
      * Returns the icon for a task list.
@@ -40,7 +47,7 @@ public class UserTaskIconProvider {
      * @return the icon
      */
     public static Image getUserTaskListImage() {
-        return LIST_IMAGE;
+        return LIST_IMAGE.getImage();
     }
     
     /**
@@ -51,7 +58,7 @@ public class UserTaskIconProvider {
      * but have children that do
      * @return icon
      */
-    public static Image getUserTaskImage(UserTask ut, boolean unmatched) {
+    public static ImageIcon getUserTaskImage(UserTask ut, boolean unmatched) {
         if (ut.isStarted()) {
             if (unmatched)
                 return UNMATCHED_STARTED;

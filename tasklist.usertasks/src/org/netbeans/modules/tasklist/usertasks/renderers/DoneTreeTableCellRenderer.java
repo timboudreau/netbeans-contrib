@@ -19,9 +19,11 @@
 
 package org.netbeans.modules.tasklist.usertasks.renderers;
 
+import org.netbeans.modules.tasklist.usertasks.table.UTBasicTreeTableNode;
+import org.netbeans.modules.tasklist.usertasks.table.UTTreeTableNode;
 import java.awt.Component;
 import javax.swing.JTable;
-import org.netbeans.modules.tasklist.usertasks.UserTaskTreeTableNode;
+import org.netbeans.modules.tasklist.usertasks.table.UTTreeTableNode;
 import org.netbeans.modules.tasklist.usertasks.model.UserTask;
 import org.netbeans.modules.tasklist.usertasks.treetable.BooleanTableCellRenderer;
 import org.netbeans.modules.tasklist.usertasks.treetable.TreeTable;
@@ -44,7 +46,7 @@ public class DoneTreeTableCellRenderer extends BooleanTableCellRenderer {
         if (value == null)
             return cmp;
         
-        UserTask ut = ((UserTaskTreeTableNode) node).getUserTask(); 
+        UserTask ut = ((UTBasicTreeTableNode) node).getUserTask(); 
         setEnabled(!ut.isValuesComputed() && ut.areDependenciesDone());
         
         return this;

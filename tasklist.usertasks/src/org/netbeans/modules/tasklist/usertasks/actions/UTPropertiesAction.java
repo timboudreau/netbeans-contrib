@@ -19,12 +19,14 @@
 
 package org.netbeans.modules.tasklist.usertasks.actions;
 
+import org.netbeans.modules.tasklist.usertasks.table.UTBasicTreeTableNode;
+import org.netbeans.modules.tasklist.usertasks.table.UTTreeTableNode;
 import java.awt.Dialog;
 import java.awt.event.ActionEvent;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.tree.TreePath;
 import org.netbeans.modules.tasklist.usertasks.UserTaskNode;
-import org.netbeans.modules.tasklist.usertasks.UserTaskTreeTableNode;
+import org.netbeans.modules.tasklist.usertasks.table.UTTreeTableNode;
 import org.netbeans.modules.tasklist.usertasks.UserTaskView;
 import org.openide.DialogDescriptor;
 import org.openide.DialogDisplayer;
@@ -52,7 +54,7 @@ public class UTPropertiesAction extends UTViewAction {
         TreePath[] paths = utv.getTreeTable().getSelectedPaths();
         UserTaskNode[] nodes = new UserTaskNode[paths.length];
         for (int i = 0; i < paths.length; i++) {
-            UserTaskTreeTableNode n = (UserTaskTreeTableNode) paths[i].
+            UTBasicTreeTableNode n = (UTBasicTreeTableNode) paths[i].
                     getLastPathComponent();
             nodes[i] = new UserTaskNode(n, n.getUserTask(), 
                     n.getUserTask().getList(),
@@ -70,6 +72,19 @@ public class UTPropertiesAction extends UTViewAction {
 
     public void valueChanged(ListSelectionEvent e) {
         TreePath[] paths = utv.getTreeTable().getSelectedPaths();
-        setEnabled(paths.length > 0);
+        boolean en;
+        if (paths.length != 0) {
+            en = true;
+            for (int i = 0; i < paths.length; i++) {
+                TreePath treePath = paths[i];
+                if (!(treePath.getLastPathComponent() instanceof UTBasicTreeTableNode)) {
+                    en = false;
+                    break;
+                }
+            }
+        } else {
+            en = false;
+        }
+        setEnabled(en);
     }
 }

@@ -10,6 +10,12 @@
 
 
 
+
+
+
+  
+  
+  
   
   
   
@@ -27,6 +33,12 @@
 
 
 
+
+
+
+  
+  
+  
   
   
   
@@ -49,253 +61,13 @@
 
 
 
+
+
+
 <h2>Available Actions</h2>
 
 
 
-
-
-
-
-
-
-<table style="text-align: left; width: 100%;" border="0" cellpadding="2" cellspacing="2">
-
-
-
-
-
-
-
-
-
-  <tbody>
-
-
-
-
-
-
-
-
-
-    <tr>
-
-
-
-
-
-
-
-
-
-      <td style="vertical-align: top;">
-      
-      
-      
-      
-      
-      
-      
-      
-      <h3>Toolbar</h3>
-
-
-
-
-
-
-
-
-
-      <img src="images/save.png" alt="Save" style="width: 16px; height: 16px;"> - Save (Ctrl+S)<br>
-
-
-
-      <img src="images/newTask.gif" alt="New Task" style="width: 16px; height: 16px;"> - New Subtask... (Insert)<br>
-
-
-
-
-
-      <img src="images/showSource.gif" alt="Go To Source" style="width: 16px; height: 16px;"> - Go To Source<br>
-
-
-
-
-
-      <img src="images/filterAction.gif" title="" alt="Search/Filter..." style="width: 16px; height: 16px;"> - Search/Filter...<br>
-
-
-
-
-
-      <img src="images/removefilter.png" title="" alt="Remove Filter" style="width: 16px; height: 16px;"> - Remove Filter<br>
-
-
-
-
-
-      <img src="images/startTask.gif" alt="Start a task" style="width: 16px; height: 16px;"> - Start<br>
-
-
-
-
-
-      <img src="images/pause.gif" title="" alt="Pause" style="width: 16px; height: 16px;"> - Pause<br>
-
-
-
-
-
-      <img src="images/moveUp.gif" title="" alt="Move Up" style="width: 16px; height: 16px;"> - Move Up<br>
-
-
-
-
-
-      <img src="images/moveDown.gif" title="" alt="Move Down" style="width: 16px; height: 16px;"> - Move Down
-      
-      
-      
-      
-      
-      <h3></h3>
-
-
-
-
-
-      
-      
-      
-      
-      
-      <h3></h3>
-
-
-
-
-
-      
-      
-      
-      
-      
-      <h3></h3>
-
-
-
-
-
-      
-      
-      
-      
-      
-      <h3></h3>
-
-
-
-
-
-      </td>
-
-
-
-
-
-
-
-
-
-      <td style="vertical-align: top;">
-      
-      
-      
-      
-      
-      
-      
-      
-      <h3>Task's local menu</h3>
-
-
-
-
-
-
-
-
-
-      
-      
-      
-      
-      
-      
-      
-      
-      <h3><img style="width: 211px; height: 501px;" src="images/menu.png" alt="Local Menu"></h3>
-
-
-
-
-
-
-
-
-
-      </td>
-
-
-
-
-
-
-
-
-
-      
-
-
-
-
-
-      
-
-
-
-    </tr>
-
-
-
-
-
-
-
-
-
-  
-  
-  
-  
-  
-  
-  
-  
-  </tbody>
-</table>
-
-
-
-
-
-
-
-
-
-<br>
 
 
 
@@ -309,11 +81,20 @@
 
 
 
+
+
+
 </h3>
 
 
 
+
+
+
 saves the task list.<br>
+
+
+
 
 
 
@@ -333,7 +114,13 @@ saves the task list.<br>
 
 
 
+
+
+
 </h3>
+
+
+
 
 
 
@@ -354,7 +141,13 @@ the task.<br>
 
 
 
+
+
+
 <h3>New Task List...</h3>
+
+
+
 
 
 
@@ -374,6 +167,13 @@ creates a new task list in the file system.<br>
 
 
 
+
+
+
+<h3>Display Tasks as List / Display Tasks as Tree</h3>
+switches representation of the task list. Normally tasks are presented
+in a tree where tasks are grouped by categories. "Display Tasks as
+List" shows only tasks that are not groups in a simple table.
 <h3>Start (<img src="images/startTask.gif" alt="Start a task" style="width: 16px; height: 16px;">)</h3>
 
 
@@ -384,12 +184,18 @@ creates a new task list in the file system.<br>
 
 
 
-starts the task. The small icon (<img src="images/startedBadge.gif" alt="Started" style="width: 8px; height: 8px;">)
+
+
+
+starts the task. The small icon (<img src="images/startedBadge.gif" alt="Started" style="width: 9px; height: 9px;">)
 marks the
 task that you are currently working on. Started task will remain
 started after a NetBeans restart. The owner of a started task will be
 set to the name of the current user if it was empty.
-<h3>Pause (<img src="images/pause.gif" title="" alt="Pause" style="width: 16px; height: 16px;">)<br>
+<h3>Pause (<img src="images/pause.gif" alt="Pause" style="width: 16px; height: 16px;">)<br>
+
+
+
 
 
 
@@ -400,6 +206,9 @@ set to the name of the current user if it was empty.
 
 
 </h3>
+
+
+
 
 
 
@@ -419,7 +228,13 @@ stops the task if it is currently running.<br>
 
 
 
+
+
+
 <h3>Show Task</h3>
+
+
+
 
 
 
@@ -439,7 +254,13 @@ shows a dialog where the task's properties could be edited.<br>
 
 
 
-<h3>Go To Source (<img src="images/showSource.gif" alt="Go To Source" style="width: 16px; height: 16px;">)<br>
+
+
+
+<h3>Go To Source (<img src="images/gotosource.png" alt="Go To Source" style="width: 16px; height: 16px;">)<br>
+
+
+
 
 
 
@@ -459,6 +280,9 @@ shows a dialog where the task's properties could be edited.<br>
 
 
 
+
+
+
 shows the file associated with this task in the editor.<br>
 
 
@@ -469,7 +293,13 @@ shows the file associated with this task in the editor.<br>
 
 
 
+
+
+
 <h3>Cut, Copy, Paste, Delete </h3>
+
+
+
 
 
 
@@ -492,12 +322,21 @@ copy, paste or delete.<br>
 
 
 
+
+
+
 <h3>Paste at Top Level </h3>
 
 
+
+
+
 Pastes the content of the clipboard at the topmost level in the task list independent of the current selection.
-<h3>Move Up (<img src="images/moveUp.gif" title="" alt="Move Up" style="width: 16px; height: 16px;">)/Move
-Down (<img src="images/moveDown.gif" title="" alt="Move Down" style="width: 16px; height: 16px;">)<br>
+<h3>Move Up (<img src="images/moveUp.gif" alt="Move Up" style="width: 16px; height: 16px;">)/Move
+Down (<img src="images/moveDown.gif" alt="Move Down" style="width: 16px; height: 16px;">)<br>
+
+
+
 
 
 
@@ -508,6 +347,9 @@ Down (<img src="images/moveDown.gif" title="" alt="Move Down" style="width: 16px
 
 
 </h3>
+
+
+
 
 
 
@@ -524,7 +366,13 @@ move the selected task up or down.<br>
 
 
 
+
+
+
 <h3>Unindent/Indent<br>
+
+
+
 
 
 
@@ -544,6 +392,9 @@ move the selected task up or down.<br>
 
 
 
+
+
+
 move the selected task left or right (changes nesting).<br>
 
 
@@ -551,7 +402,13 @@ move the selected task left or right (changes nesting).<br>
 
 
 
+
+
+
 <h3>Import </h3>
+
+
+
 
 
 
@@ -575,7 +432,13 @@ are supported.<br>
 
 
 
+
+
+
 <h3>Export </h3>
+
+
+
 
 
 
@@ -597,7 +460,13 @@ of your task list. <br>
 
 
 
-<h3>Search/Filter... (<img src="images/filterAction.gif" title="" alt="Search/Filter..." style="width: 16px; height: 16px;">)<br>
+
+
+
+<h3>Search/Filter... (<img src="images/filter.png" alt="Search/Filter..." style="width: 16px; height: 16px;">)<br>
+
+
+
 
 
 
@@ -608,6 +477,9 @@ of your task list. <br>
 
 
 </h3>
+
+
+
 
 
 
@@ -629,7 +501,13 @@ defined.<br>
 
 
 
-<h3>Remove Filter (<img src="images/removefilter.png" title="" alt="Remove Filter" style="width: 16px; height: 16px;">)<br>
+
+
+
+<h3>Remove Filter (<img src="images/removefilter.png" alt="Remove Filter" style="width: 16px; height: 16px;">)<br>
+
+
+
 
 
 
@@ -649,7 +527,13 @@ defined.<br>
 
 
 
+
+
+
 removes the currently active filter.<br>
+
+
+
 
 
 
@@ -661,6 +545,9 @@ removes the currently active filter.<br>
 
 <span style="font-weight: bold;"></span>
 <h3>Purge Completed</h3>
+
+
+
 
 
 
@@ -684,7 +571,13 @@ action.
 
 
 
+
+
+
 </h3>
+
+
+
 
 
 
@@ -700,7 +593,13 @@ task. This action is very useful for working with checklists.<br>
 
 
 
+
+
+
 <h3>Schedule<br>
+
+
+
 
 
 
@@ -715,7 +614,13 @@ task. This action is very useful for working with checklists.<br>
 
 
 
+
+
+
 schedules all undone tasks in the current task list.<br>
+
+
+
 
 
 
@@ -733,7 +638,13 @@ schedules all undone tasks in the current task list.<br>
 
 
 
+
+
+
 </h3>
+
+
+
 
 
 
@@ -748,7 +659,13 @@ by selecting the "Expand/Collapse All" context menu item.<br>
 
 
 
+
+
+
 <br>
+
+
+
 
 
 
@@ -756,7 +673,13 @@ by selecting the "Expand/Collapse All" context menu item.<br>
 
 
 
+
+
+
 exports the whole task list or imports data from an external file.<br>
+
+
+
 
 
 
@@ -776,7 +699,13 @@ exports the whole task list or imports data from an external file.<br>
 
 
 
+
+
+
 shows a window with tasks properties.<br>
+
+
+
 
 
 
@@ -797,7 +726,13 @@ Further information at <a href="http://tasklist.netbeans.org/"><code>http://task
 
 
 
+
+
+
 <br>
+
+
+
 
 
 

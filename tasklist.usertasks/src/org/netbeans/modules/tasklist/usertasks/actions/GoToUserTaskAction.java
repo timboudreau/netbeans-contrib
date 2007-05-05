@@ -21,19 +21,14 @@ package org.netbeans.modules.tasklist.usertasks.actions;
 import java.awt.event.ActionEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.net.MalformedURLException;
-import java.net.URL;
 import javax.swing.ImageIcon;
 import javax.swing.event.ListSelectionEvent;
-import javax.swing.tree.TreePath;
-import org.netbeans.modules.tasklist.usertasks.UserTaskTreeTableNode;
 import org.netbeans.modules.tasklist.usertasks.UserTaskView;
 import org.netbeans.modules.tasklist.usertasks.model.UserTask;
 import org.openide.awt.HtmlBrowser;
 import org.openide.text.Line;
 import org.openide.util.NbBundle;
 import org.openide.util.Utilities;
-import org.openide.util.WeakListeners;
 
 
 /**

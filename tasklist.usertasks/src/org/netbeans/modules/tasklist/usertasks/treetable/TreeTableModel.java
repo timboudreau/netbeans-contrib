@@ -74,12 +74,4 @@ public interface TreeTableModel extends TreeModel {
      * @param column column index
      */
     public void setValueAt(Object aValue, Object node, int column);
-    
-    /**
-     * Sorted column changed.
-     * The model should rearrange the nodes.
-     *
-     * @param sm sorting model
-     */
-    public void sort(SortingModel sm);
 }

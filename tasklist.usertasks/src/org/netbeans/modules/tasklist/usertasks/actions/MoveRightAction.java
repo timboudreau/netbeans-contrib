@@ -19,11 +19,13 @@
 
 package org.netbeans.modules.tasklist.usertasks.actions;
 
+import org.netbeans.modules.tasklist.usertasks.table.UTBasicTreeTableNode;
+import org.netbeans.modules.tasklist.usertasks.table.UTTreeTableNode;
 import java.awt.event.ActionEvent;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
-import org.netbeans.modules.tasklist.usertasks.UserTaskTreeTableNode;
+import org.netbeans.modules.tasklist.usertasks.table.UTTreeTableNode;
 import org.netbeans.modules.tasklist.usertasks.UserTaskView;
 import org.netbeans.modules.tasklist.usertasks.model.UserTask;
 import org.netbeans.modules.tasklist.usertasks.util.UTUtils;
@@ -50,18 +52,18 @@ public class MoveRightAction extends UTViewAction {
     public void actionPerformed(ActionEvent event) {
         // figuring out where we are
         TreePath sel = utv.getTreeTable().getSelectedPath();
-        UserTaskTreeTableNode n = 
-                (UserTaskTreeTableNode) sel.getLastPathComponent();
+        UTBasicTreeTableNode n = 
+                (UTBasicTreeTableNode) sel.getLastPathComponent();
         TreeNode parent = n.getParent();
         int index = parent.getIndex(n);
-        UserTaskTreeTableNode newParent = 
-                (UserTaskTreeTableNode) parent.getChildAt(index - 1);
+        UTTreeTableNode newParent = 
+                (UTTreeTableNode) parent.getChildAt(index - 1);
         TreePath newParentPath = sel.getParentPath().
                 pathByAddingChild(newParent);
         TreePath[] expanded = utv.getTreeTable().getExpandedNodesUnder(sel);
         UserTask[] expandedTasks = new UserTask[expanded.length];
         for (int i = 0; i < expanded.length ; i++) {
-            expandedTasks[i] = ((UserTaskTreeTableNode) 
+            expandedTasks[i] = ((UTTreeTableNode) 
                 expanded[i].getLastPathComponent()).getUserTask();
         }
         utv.getTreeTable().clearSelection();
@@ -90,8 +92,8 @@ public class MoveRightAction extends UTViewAction {
         if (utv.getTreeTable().getSortingModel().getSortedColumn() == -1 &&
                 sel.length == 1) {
             Object last = sel[0].getLastPathComponent();
-            if (last instanceof UserTaskTreeTableNode) {
-                UserTaskTreeTableNode n = (UserTaskTreeTableNode) last;
+            if (last instanceof UTTreeTableNode) {
+                UTBasicTreeTableNode n = (UTTreeTableNode) last;
                 TreeNode parent = n.getParent();
                 if (parent == null)
                     UTUtils.LOGGER.fine(n.getUserTask() + 

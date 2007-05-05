@@ -19,13 +19,15 @@
 
 package org.netbeans.modules.tasklist.usertasks.renderers;
 
+import org.netbeans.modules.tasklist.usertasks.table.UTBasicTreeTableNode;
+import org.netbeans.modules.tasklist.usertasks.table.UTTreeTableNode;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Font;
 import java.util.Date;
 import javax.swing.JTable;
 import org.netbeans.modules.tasklist.usertasks.options.Settings;
-import org.netbeans.modules.tasklist.usertasks.UserTaskTreeTableNode;
+import org.netbeans.modules.tasklist.usertasks.table.UTTreeTableNode;
 import org.netbeans.modules.tasklist.usertasks.model.Duration;
 import org.netbeans.modules.tasklist.usertasks.model.UserTask;
 
@@ -62,22 +64,24 @@ public class DueDateTableCellRenderer extends DateTableCellRenderer {
         setForeground(null);
         super.getTableCellRendererComponent(table, value, isSelected, hasFocus, 
             row, column);
-        UserTaskTreeTableNode n = (UserTaskTreeTableNode) node;
-        UserTask ut = (UserTask) n.getUserTask();
-        Date due = ut.getDueDate();
-        boolean overdue = false;
-        if (!ut.isDone()) {
-            if (due != null &&
-                due.getTime() < System.currentTimeMillis())
-                overdue = true;
-        } else {
-            if (due != null &&
-                    due.getTime() < ut.getCompletedDate())
-                overdue = true;
+        if (node instanceof UTBasicTreeTableNode) {
+            UTBasicTreeTableNode n = (UTBasicTreeTableNode) node;
+            UserTask ut = (UserTask) n.getUserTask();
+            Date due = ut.getDueDate();
+            boolean overdue = false;
+            if (!ut.isDone()) {
+                if (due != null &&
+                    due.getTime() < System.currentTimeMillis())
+                    overdue = true;
+            } else {
+                if (due != null &&
+                        due.getTime() < ut.getCompletedDate())
+                    overdue = true;
+            }
+            setFont(overdue ? boldFont : normalFont);
+            if (!isSelected && overdue)
+                setForeground(Color.RED);
         }
-        setFont(overdue ? boldFont : normalFont);
-        if (!isSelected && overdue)
-            setForeground(Color.RED);
 
         return this;
     }

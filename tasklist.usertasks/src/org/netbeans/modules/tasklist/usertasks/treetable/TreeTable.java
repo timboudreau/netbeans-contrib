@@ -74,10 +74,9 @@ import org.netbeans.modules.tasklist.usertasks.util.UTUtils;
  * by using a JTree as a renderer (and editor) for the cells in a 
  * particular column in the JTable.  
  *
- * @version 1.2 10/27/98
- *
  * @author Philip Milne
  * @author Scott Violet
+ * @author tl
  */
 public class TreeTable extends JTable {
     /**
@@ -106,10 +105,13 @@ public class TreeTable extends JTable {
     
     /** A subclass of JTree. */
     protected TreeTableCellRenderer tree;
+    
     private TreeTableModel treeTableModel;
     private SortingModel sortingModel;
-    private boolean paintDisabled;
-
+    
+    // TODO: memory leak
+    private Object renderedNode;
+    
     /**
      * Constructor.
      * 
@@ -173,17 +175,16 @@ public class TreeTable extends JTable {
                 new ExpandCollapseAction(true, this));
         getActionMap().put("collapse", // NOI18N
                 new ExpandCollapseAction(false, this));
-                
-        // copied from TTV
-        getSortingModel().addChangeListener(new ChangeListener() {
-            public void stateChanged(ChangeEvent e) {
-                Object es = getExpandedNodesAndSelection();
+    }
 
-                getTreeTableModel().sort(getSortingModel());
-                
-                setExpandedNodesAndSelection(es);
-            }
-        });
+    /**
+     * Returnes the node that is currently being rendered. This method could
+     * only be called from a cell renderer to access current node.
+     * 
+     * @return current node 
+     */
+    public Object getRenderedNode() {
+        return renderedNode;
     }
 
     /**
@@ -391,6 +392,13 @@ public class TreeTable extends JTable {
             collapseAllUnder(tp.pathByAddingChild(child));
         }
         tree.collapsePath(tp);
+    }
+
+    @Override
+    public Component prepareRenderer(TableCellRenderer renderer, int row,
+                                     int column) {
+        this.renderedNode = getNodeForRow(row);
+        return super.prepareRenderer(renderer, row, column);
     }
     
     /**
@@ -1168,7 +1176,6 @@ public class TreeTable extends JTable {
 	 */
 	class ListSelectionHandler implements ListSelectionListener {
 	    public void valueChanged(ListSelectionEvent e) {
-                UTUtils.LOGGER.fine("changed"); // NOI18N
 		updateSelectedPathsFromSelectedRows();
 	    }
 	}

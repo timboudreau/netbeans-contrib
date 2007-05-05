@@ -30,6 +30,8 @@ import org.netbeans.modules.tasklist.core.table.SortingModel;
 
 /**
  * Default model for TreeTable
+ * 
+ * @author tl
  */
 public class DefaultTreeTableModel extends DefaultTreeModel implements
 TreeTableModel {
@@ -144,14 +146,27 @@ TreeTableModel {
     
     public void fireTreeNodesChanged(Object source, Object[] path, 
     int[] childIndices, Object[] children) {
-        super.fireTreeNodesChanged(source, path, childIndices, children);
+        // Guaranteed to return a non-null array
+        Object[] listeners = listenerList.getListenerList();
+        TreeModelEvent e = null;
+        // Process the listeners last to first, notifying
+        // those that are interested in this event
+        for (int i = listeners.length-2; i>=0; i-=2) {
+            if (listeners[i]==TreeModelListener.class) {
+                // Lazily create the event:
+                if (e == null) {
+                    TreePath tp = path == null || path.length == 0 ? 
+                        null : new TreePath(path);
+                    e = new TreeModelEvent(source, tp, 
+                                           childIndices, children);
+                }
+                ((TreeModelListener)listeners[i+1]).treeNodesChanged(e);
+            }          
+        }
     }
     
     public void fireTreeStructureChanged(Object source, Object[] path, 
     int[] childIndices, Object[] children) {
         super.fireTreeStructureChanged(source, path, childIndices, children);
-    }    
-    
-    public void sort(SortingModel sm) {
     }    
 }

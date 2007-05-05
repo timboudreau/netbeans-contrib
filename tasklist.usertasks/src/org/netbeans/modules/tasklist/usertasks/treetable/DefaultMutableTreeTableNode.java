@@ -10,6 +10,8 @@ import javax.swing.tree.TreeNode;
 
 /**
  * Default mutable TT node
+ * 
+ * @author tl
  */
 public class DefaultMutableTreeTableNode extends DefaultMutableTreeNode 
         implements TreeTableNode {

@@ -19,45 +19,81 @@
 
 package org.netbeans.modules.tasklist.usertasks.actions;
 
-import org.openide.nodes.Node;
-import org.openide.util.HelpCtx;
+import java.awt.Component;
+import java.awt.event.ActionEvent;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
+import javax.swing.AbstractAction;
+import javax.swing.Icon;
+import javax.swing.ImageIcon;
+import javax.swing.JToggleButton;
+import org.netbeans.modules.tasklist.usertasks.UserTaskView;
+import org.netbeans.modules.tasklist.usertasks.UserTaskViewRegistry;
+import org.openide.awt.Actions;
 import org.openide.util.NbBundle;
+import org.openide.util.Utilities;
+import org.openide.util.actions.Presenter;
 
-import org.openide.util.actions.BooleanStateAction;
 
 /**
- * Action which brings up a dialog where you can create
- * a new subtask.
+ * Changes the state of the view (tree/flat).
  * 
  * @author tl
  */
-public class AsListAction extends BooleanStateAction {
-
+public class AsListAction extends AbstractAction implements Presenter.Toolbar,
+PropertyChangeListener {
     private static final long serialVersionUID = 1;
 
-    protected boolean enable(Node[] node) {
-        return true;
+    /** view for this action */
+    protected UserTaskView utv;
+    
+    public AsListAction(UserTaskView view) {
+        this.utv = view;
+        utv.addPropertyChangeListener(UserTaskView.PROP_STATE, this);
+        updateTexts();
+        putValue(SMALL_ICON, new ImageIcon(Utilities.loadImage(
+                "org/netbeans/modules/tasklist/usertasks/" + // NOI18N
+                "actions/asList.png"))); // NOI18N
+    }
+    
+    public void actionPerformed(ActionEvent ev) {
     }
 
-    protected void performAction(Node[] nodes) {
+    public Component getToolbarPresenter() {
+        final JToggleButton tb = new JToggleButton(
+                (Icon) getValue(SMALL_ICON));
+        tb.addItemListener(new ItemListener() {
+            public void itemStateChanged(ItemEvent e) {
+                utv.setState(tb.isSelected() ?  
+                        UserTaskView.State.TREE : UserTaskView.State.FLAT);
+            }
+        });
+        addPropertyChangeListener(new PropertyChangeListener() {
+            public void propertyChange(PropertyChangeEvent evt) {
+                tb.setToolTipText((String) AsListAction.this.getValue(NAME));
+                tb.setSelected(utv.getState() == UserTaskView.State.TREE);
+            }
+        });
+        tb.setSelected(utv.getState() == UserTaskView.State.TREE);
+        tb.setToolTipText((String) getValue(NAME));
+        tb.setFocusable(false);
+        return tb;
+    }
+    
+    /**
+     * Updates NAME and SHORT_DESCRIPTION. 
+     */
+    private void updateTexts() {
+        String txt = NbBundle.getMessage(AsListAction.class,
+                utv.getState() == UserTaskView.State.FLAT ? 
+                "AsTree" : "AsList"); //NOI18N
+        putValue(NAME, txt);
+        putValue(SHORT_DESCRIPTION, txt);
     }
 
-    public String getName() {
-        return NbBundle.getMessage(AsListAction.class, 
-            "LBL_NewSubtask"); // NOI18N
+    public void propertyChange(PropertyChangeEvent evt) {
+        updateTexts();
     }
-    
-    protected String iconResource() {
-        return "org/netbeans/modules/tasklist/usertasks/actions/asList.png"; // NOI18N
-    }
-    
-    public HelpCtx getHelpCtx() {
-        return HelpCtx.DEFAULT_HELP;
-        // If you will provide context help then use:
-        // return new HelpCtx (NewTodoItemAction.class);
-    }
-    
-    protected boolean asynchronous() {
-        return false;
-    }    
 }

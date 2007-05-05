@@ -19,9 +19,13 @@
 
 package org.netbeans.modules.tasklist.usertasks.transfer;
 
+import org.netbeans.modules.tasklist.usertasks.treetable.AdvancedTreeTableNode;
+import org.netbeans.modules.tasklist.usertasks.treetable.AdvancedTreeTableNode;
+import org.netbeans.modules.tasklist.usertasks.table.UTBasicTreeTableNode;
+import org.netbeans.modules.tasklist.usertasks.table.UTTreeTableModel;
+import org.netbeans.modules.tasklist.usertasks.table.UTTreeTableNode;
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.DataFlavor;
-import java.awt.datatransfer.StringSelection;
 import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.UnsupportedFlavorException;
 import java.io.IOException;
@@ -43,7 +47,9 @@ import org.netbeans.modules.tasklist.usertasks.model.UserTaskList;
 import org.netbeans.modules.tasklist.usertasks.model.UserTaskObjectList;
 import org.netbeans.modules.tasklist.usertasks.options.Settings;
 import org.netbeans.modules.tasklist.usertasks.renderers.UserTaskIconProvider;
+import org.netbeans.modules.tasklist.usertasks.table.UTBasicTreeTableModel;
 import org.netbeans.modules.tasklist.usertasks.treetable.AdvancedTreeTableNode;
+import org.netbeans.modules.tasklist.usertasks.treetable.TreeTableModel;
 import org.netbeans.modules.tasklist.usertasks.util.UTUtils;
 
 /**
@@ -129,8 +135,8 @@ public class MyTransferHandler extends TransferHandler {
         List<UserTask> tasks = new ArrayList<UserTask>();
         for (int i = 0; i < paths.length; i++) {
             Object last = paths[i].getLastPathComponent();
-            if (last instanceof UserTaskTreeTableNode) {
-                tasks.add(((UserTaskTreeTableNode) last).getUserTask());
+            if (last instanceof UTBasicTreeTableNode) {
+                tasks.add(((UTBasicTreeTableNode) last).getUserTask());
             }
         }
         UserTask[] t = tasks.toArray(new UserTask[tasks.size()]);
@@ -148,8 +154,8 @@ public class MyTransferHandler extends TransferHandler {
     }
 
     public Icon getVisualRepresentation(Transferable t) {
-        return new ImageIcon(UserTaskIconProvider.getUserTaskImage(
-                new UserTask("", new UserTaskList()), false));
+        return UserTaskIconProvider.getUserTaskImage(
+                new UserTask("", new UserTaskList()), false);
     }
 
     public boolean canImport(JComponent comp, DataFlavor[] transferFlavors) {
@@ -193,13 +199,14 @@ public class MyTransferHandler extends TransferHandler {
 
         TreePath tp = tt.getSelectedPath();
         if (!topLevel && tp != null && tp.getLastPathComponent() 
-                instanceof UserTaskTreeTableNode) {
-            UserTaskTreeTableNode obj = 
-                    (UserTaskTreeTableNode) tp.getLastPathComponent();
+                instanceof UTBasicTreeTableNode) {
+            UTBasicTreeTableNode obj = 
+                    (UTBasicTreeTableNode) tp.getLastPathComponent();
             target = obj.getUserTask();
             list = target.getSubtasks();
         } else {
-            list = ((UserTasksTreeTableModel) tt.getTreeTableModel()).
+            TreeTableModel m = tt.getTreeTableModel();
+            list = ((UTBasicTreeTableModel) m).
                     getUserTaskList().getSubtasks();
         }
         

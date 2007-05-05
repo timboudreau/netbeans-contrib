@@ -85,17 +85,17 @@ public class SortableTableHeader extends JTableHeader {
             return;
         
         int index = getColumnModel().getColumn(col).getModelIndex();
-        if (sm.getColumnComparator(index) == null)
+        if (!sm.isColumnSortable(index))
             return;
 
         int cur = sm.getSortedColumn();
         if (index == cur) {
-            if (sm.isSortOrderDescending())
-                sm.setSortOrderDescending(false);
+            if (!sm.isSortOrderDescending())
+                sm.setSortOrderDescending(true);
             else
                 sm.setSortedColumn(-1);
         } else {
-            sm.setSortOrderDescending(true);
+            sm.setSortOrderDescending(false);
             sm.setSortedColumn(index);
         }
     }

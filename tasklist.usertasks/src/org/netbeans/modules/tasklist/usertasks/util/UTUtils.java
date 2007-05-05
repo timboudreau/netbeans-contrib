@@ -27,6 +27,11 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Collection;
+import java.util.Comparator;
+import java.util.Iterator;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -164,7 +169,7 @@ public final class UTUtils {
 
         for (i = 0; i < k; i++) {
             if (actions[i] == null) {
-                p.addSeparator(new Dimension(3, 3));
+                p.addSeparator(new Dimension(6, 6));
             } else if (actions[i] instanceof Presenter.Toolbar) {
                 p.add(((Presenter.Toolbar) actions[i]).getToolbarPresenter());
             } else {
@@ -172,6 +177,7 @@ public final class UTUtils {
             }
         }
         
+        /*
         final Dimension D = new Dimension(24, 24);
         for (int j = 0; j < p.getComponentCount(); j++) {
             Component c = p.getComponent(j);
@@ -180,7 +186,7 @@ public final class UTUtils {
                 ((JButton) c).setMinimumSize(D);
                 ((JButton) c).setMaximumSize(D);
             }
-        }
+        }*/
 
         return p;
     }
@@ -460,6 +466,35 @@ public final class UTUtils {
     }
     
     /**
+     * Groups values.
+     * 
+     * @param values values that should be grouped
+     * @param c comparator for values
+     * @return groups 
+     */
+    public static<T> List<List<T>> group(Collection<T> values, Comparator<T> c) {
+        List<List<T>> res = new ArrayList<List<T>>();
+        if (values.size() != 0) {
+            Iterator<T> it = values.iterator();
+            List<T> group = new ArrayList<T>();
+            group.add(it.next());
+            res.add(group);
+            while (it.hasNext()) {
+                T v = it.next();
+                if (c.compare(v, group.get(0)) == 0) {
+                    group.add(v);
+                } else {
+                    group = new ArrayList<T>();
+                    group.add(v);
+                    res.add(group);
+                }
+            }
+        }
+        
+        return res;
+    }
+    
+    /*
      * DEBUG:
      * 
      * Dumps the hierarchy of class loaders.
