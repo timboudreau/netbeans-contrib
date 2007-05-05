@@ -255,9 +255,24 @@ public class ColumnModels {
     public static ColumnModel createLocalsDeclaredInColumn() {
         return new AbstractColumn(Constants.LOCALS_DECLARED_IN_COLUMN_ID,
                 Constants.LOCALS_DECLARED_TYPE_COLUMN_ID,
-                null,
+                Constants.LOCALS_OBJECT_ID_COLUMN_ID,
                 "CTL_LocalsView_Column_Declared_In_Name", // NOI18N
                 "CTL_LocalsView_Column_Declared_In_Desc", // NOI18N
+                String.class,
+                true);
+    }
+    
+    /**
+     * Defines model for one table view column. Can be used together with
+     * {@link org.netbeans.spi.viewmodel.TreeModel} for tree
+     * table view representation.
+     */
+    public static ColumnModel createLocalsObjectIdColumn() {
+        return new AbstractColumn(Constants.LOCALS_OBJECT_ID_COLUMN_ID,
+                Constants.LOCALS_DECLARED_IN_COLUMN_ID,
+                null,
+                "CTL_LocalsView_Column_Object_Id_Name", // NOI18N
+                "CTL_LocalsView_Column_Object_Id_Desc", // NOI18N
                 String.class,
                 true);
     }

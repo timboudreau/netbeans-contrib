@@ -50,4 +50,13 @@ public interface Constants {
      * @see org.netbeans.spi.viewmodel.ColumnModel#getNextColumnID
      */
     public static final String LOCALS_DECLARED_IN_COLUMN_ID = "LocalsDeclaredIn";
+    
+    /**
+     * Locals Object Id column id.
+     *
+     * @see org.netbeans.spi.viewmodel.ColumnModel#getID
+     * @see org.netbeans.spi.viewmodel.ColumnModel#getPreviuosColumnID
+     * @see org.netbeans.spi.viewmodel.ColumnModel#getNextColumnID
+     */
+    public static final String LOCALS_OBJECT_ID_COLUMN_ID = "LocalsObjectId";
 }

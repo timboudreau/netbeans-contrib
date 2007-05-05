@@ -100,6 +100,14 @@ public class TableModels {
                     return ((Field) row).getClassName();
                 }
                 return "";
+            } else if (columnID.equals(Constants.LOCALS_OBJECT_ID_COLUMN_ID)) {
+                 if (row instanceof ObjectVariable) {
+                     long uniqueId = ((ObjectVariable) row).getUniqueID();
+                     if (uniqueId > 0) {
+                        return "#" + String.valueOf(uniqueId);
+                     }
+                }
+                return "";
             }
             
             throw new UnknownTypeException(row);

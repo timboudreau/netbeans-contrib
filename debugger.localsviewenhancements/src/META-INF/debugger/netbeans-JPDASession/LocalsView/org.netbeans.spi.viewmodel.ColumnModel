@@ -1,3 +1,4 @@
 org.netbeans.modules.debugger.localsviewenhancements.ui.models.ColumnModels.createLocalsModifiersColumn()
 org.netbeans.modules.debugger.localsviewenhancements.ui.models.ColumnModels.createLocalsDeclaredTypeColumn()
 org.netbeans.modules.debugger.localsviewenhancements.ui.models.ColumnModels.createLocalsDeclaredInColumn()
+org.netbeans.modules.debugger.localsviewenhancements.ui.models.ColumnModels.createLocalsObjectIdColumn()
