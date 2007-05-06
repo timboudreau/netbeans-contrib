@@ -140,6 +140,12 @@ Microsystems, Inc. All Rights Reserved.
                 <attr name="transformer" stringvalue="Convert to use java.util.logging instead."/>
                 <attr name="description" stringvalue="Updates log4j usage to the java.util.logging package introduced in Java 1.4."/>
             </file>
+            <attr name="log4j.rules/EnhancedFor.rules" boolvalue="true"/>
+            <file name="EnhancedFor.rules" url="scripts/EnhancedFor.rules">
+                <attr name="inspector" stringvalue="Find common for statements"/>
+                <attr name="transformer" stringvalue="Replace with enhanced for statements"/>
+                <attr name="description" stringvalue="Finds common for statements and replaces them with Java 5 enhanced for statements."/>
+            </file>
         </folder>
         <folder name="QuerySets">
             <file name="Cleanup.queryset" url="resources/Cleanup.queryset">
