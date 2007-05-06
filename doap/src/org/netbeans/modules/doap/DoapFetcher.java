@@ -18,9 +18,13 @@ import java.awt.EventQueue;
 import java.awt.Frame;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
+import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.ListIterator;
-import java.util.logging.Logger;
+import org.openrdf.rio.RDFHandlerException;
+import org.openrdf.rio.turtle.TurtleWriter;
 import javax.swing.JFileChooser;
 import org.netbeans.api.progress.ProgressHandle;
 import org.netbeans.api.progress.ProgressHandleFactory;
@@ -29,13 +33,16 @@ import org.openide.NotifyDescriptor;
 import org.openide.awt.StatusDisplayer;
 import org.openide.util.Exceptions;
 import org.openide.util.NbBundle;
+import org.openide.util.NbPreferences;
 import org.openide.util.RequestProcessor;
 import org.openrdf.model.Resource;
 import org.openrdf.model.ValueFactory;
 import org.openrdf.repository.RepositoryException;
 import org.openrdf.repository.sail.SailRepositoryConnection;
-import org.openrdf.rio.RDFFormat;
+import org.openrdf.repository.util.RDFInserter;
 import org.openrdf.rio.RDFParseException;
+import org.openrdf.rio.RDFParser;
+import org.openrdf.rio.rdfxml.RDFXMLParser;
 import org.openrdf.sail.SailInitializationException;
 import org.openrdf.sail.memory.MemoryStore;
 
@@ -73,7 +80,7 @@ final class DoapFetcher implements Runnable {
         } catch (SailInitializationException ex) {
             Exceptions.printStackTrace(ex);
         }
-        System.err.println("finished creating doap fetcher");        
+        System.err.println("finished creating doap fetcher");
     }
     
     //clearly using http://sommer.dev.java.net would be a lot easier. But I need to update it for Sesame 2 beta 3
@@ -97,6 +104,8 @@ final class DoapFetcher implements Runnable {
         System.err.println("using the doap file");
         java.util.ArrayList<org.netbeans.modules.doap.DoapFetcher.RepoInfo> results = new java.util.ArrayList<org.netbeans.modules.doap.DoapFetcher.RepoInfo>();
         try {
+            TurtleWriter wr = new TurtleWriter(System.out);
+            sailconn.export(wr);
             org.openrdf.repository.RepositoryResult<org.openrdf.model.Statement> res = sailconn.getStatements(null, vf.createURI(doap, "repository"), null, false);
             org.openrdf.model.Resource repo = null;
             while (res.hasNext()) {
@@ -113,7 +122,7 @@ final class DoapFetcher implements Runnable {
                 }
                 res = sailconn.getStatements(info.repo, vf.createURI(rdf, "type"), null, false);
                 while (res.hasNext()) {
-                    info.type = (org.openrdf.model.Resource) res.next().getObject();                     
+                    info.type = (org.openrdf.model.Resource) res.next().getObject();
                 }
                 if (info.type.equals(vf.createURI(doap,"CVSRepository"))) {
                     res = sailconn.getStatements(info.repo, vf.createURI(doap,"module"), null, false);
@@ -123,24 +132,52 @@ final class DoapFetcher implements Runnable {
                     res = sailconn.getStatements(info.repo, vf.createURI(doap,"anon-root"), null, false);
                     while(res.hasNext()) {
                         info.anonroot = res.next().getObject().toString();
-                    }                    
+                    }
+                } else  if (info.type.equals(vf.createURI(doap,"SVNRepository"))) {
+                    res = sailconn.getStatements(info.repo, vf.createURI(doap,"module"), null, false);
+                    while(res.hasNext()) {
+                        info.modules.add(res.next().getObject().toString());
+                    }
+                    res = sailconn.getStatements(info.repo, vf.createURI(doap,"location"), null, false);
+                    while(res.hasNext()) {
+                        info.location = res.next().getObject().toString();
+                    }
                 }
                 if (info.location == null) li.remove();
             }
             
         } catch (RepositoryException ex) {
             Exceptions.printStackTrace(ex);
+        } catch (RDFHandlerException ex) {
+            Exceptions.printStackTrace(ex);
         }
+        
         System.err.println("found |results|="+results.size());
         for (RepoInfo info: results) {
-            if (info.type.equals(vf.createURI(doap,"CVSRepository"))) { 
-               File destination= askUserForDestinationDir();
-               System.err.println("creating a CVSCheckoutHandler");
-               System.err.println("anonroot="+info.anonroot);
-               System.err.println("modules="+info.modules.get(0));
-               System.err.println("destinationdir="+destination);
-               return new CvsCheckoutHandler(info.anonroot,info.modules.get(0),"HEAD",destination);                
-            }  
+            if (info.type.equals(vf.createURI(doap,"CVSRepository"))) {
+                System.err.println("creating a CVSCheckoutHandler");
+                System.err.println("anonroot="+info.anonroot);
+                String module =null;
+                if (info.modules != null && info.modules.size() > 0) {
+                    module = info.modules.get(0);
+                    System.err.println("module="+module);
+                }
+                System.err.println("destinationdir="+destination);
+                return new CvsCheckoutHandler(info.anonroot,info.modules.get(0),"HEAD",destination);
+            } else  if (info.type.equals(vf.createURI(doap,"SVNRepository"))) {
+                System.err.println("creating a CVSCheckoutHandler");
+                System.err.println("anonroot="+info.anonroot);
+                String module =null;
+                if (info.modules != null && info.modules.size() > 0) {
+                    module = info.modules.get(0);
+                    System.err.println("modules="+info.modules.get(0));
+                }
+                System.err.println("destinationdir="+destination);
+                //todo: the svn checkout handler should allow more than one module to be checked out...
+                SvnCheckoutHandler h = new SvnCheckoutHandler(info.location, null, null,module,destination);
+                
+                return h;
+            }
         }
         return null;
         
@@ -151,16 +188,40 @@ final class DoapFetcher implements Runnable {
         boolean success = false;
         try {
             assert !java.awt.EventQueue.isDispatchThread();
-            sailconn.add(url, (String)null, RDFFormat.RDFXML);
-            success = true;
-            System.err.println("got the doap");
+            //there is a bug in rio: it does not parse rdf files that are not wrapped with <RDF ...></RDF>
+            //sailconn.add(url, (String)null, RDFFormat.RDFXML);
+            URLConnection conn = url.openConnection();
+            conn.connect();
+            //todo: should get the content encoding
+            RDFXMLParser parser = new RDFXMLParser();
+            parser.setParseStandAloneDocuments(true);
+            RDFInserter inserter = new RDFInserter(sailconn);
+
+            parser.setRDFHandler(inserter);
+
+            parser.setVerifyData(true);
+            parser.setStopAtFirstError(true);
+            parser.setDatatypeHandling(RDFParser.DatatypeHandling.VERIFY);
+
+            InputStream str = conn.getInputStream();
+            URL url = conn.getURL();
+            String base = conn.getURL().toString().substring(0,url.toString().length()-url.getFile().length());
+            parser.parse(str, base);
+
+            success = !sailconn.isEmpty();
+            if (success)
+                System.err.println("got the doap.");
         } catch (IOException ex) {
             Exceptions.printStackTrace(ex);
-        } catch (RDFParseException ex) {
+        } catch (RDFHandlerException ex) {
             Exceptions.printStackTrace(ex);
+        } catch (RDFParseException ex) {
+            NotifyDescriptor.Message msg = new NotifyDescriptor.Message(
+                    NbBundle.getMessage(DoapFetcher.class, "MSG_BAD_DOPE"));
+            DialogDisplayer.getDefault().notify(msg);
         } catch (RepositoryException ex) {
             Exceptions.printStackTrace(ex);
-        } 
+        }
         return success;
     }
     
@@ -179,6 +240,7 @@ final class DoapFetcher implements Runnable {
         }
     }
     
+    File destination;
     private void useTheDoapFile() {
         assert EventQueue.isDispatchThread();
         assert sailconn != null;
@@ -186,8 +248,8 @@ final class DoapFetcher implements Runnable {
         //if they say yes
         boolean userSaidYes = askUserIfProjectShouldBeOpened();
         if (userSaidYes) {
-            File f = askUserForDestinationDir();
-            if (f != null) {
+            destination = askUserForDestinationDir();
+            if (destination != null) {
                 CheckoutHandler handler = createCheckoutHandler();
                 if (handler != null) {
                     ProgressHandle progress = ProgressHandleFactory.createHandle(
@@ -218,9 +280,17 @@ final class DoapFetcher implements Runnable {
         jfc.setDialogTitle(NbBundle.getMessage(DoapFetcher.class,
                 "TTL_DEST_DIR")); //NOI18N
         jfc.setFileSelectionMode(jfc.DIRECTORIES_ONLY);
+        String dir = NbPreferences.forModule(DoapFetcher.class).get("destdir", null);
+        if (dir != null) {
+            File f = new File(dir);
+            if (f.exists() && f.isDirectory()) {
+                jfc.setSelectedFile(f);
+            }
+        }
         File result = null;
         if (jfc.showOpenDialog(Frame.getFrames()[0]) == jfc.APPROVE_OPTION) {
             result = jfc.getSelectedFile();
+            NbPreferences.forModule(DoapFetcher.class).put("destdir", result.getPath());
         }
         return result;
     }

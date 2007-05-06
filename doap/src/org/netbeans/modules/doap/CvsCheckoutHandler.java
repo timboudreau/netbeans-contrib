@@ -60,8 +60,8 @@ final class CvsCheckoutHandler implements CheckoutHandler {
                     group);
             try {
                 Field fld = ExecutorGroup.class.getDeclaredField("progressHandle"); //NOI18N
-                fld.set(group, progress);
                 fld.setAccessible(true);
+                fld.set(group, progress);
             } catch (Exception e) {
                 Exceptions.printStackTrace(e);
                 e.printStackTrace();
