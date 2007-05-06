@@ -1570,6 +1570,10 @@ public class TransformParser extends ScriptParser {
                 }
             }
 	    break;
+        case JCTree.WILDCARD:
+            genMatch(tname+".kind.ordinal()", ((JCWildcard)t).kind.ordinal());
+            genMatch(tname+".inner", ((JCWildcard)t).inner);
+            break;
 	}
     }
     public static String quoteString(String s) {
