@@ -28,6 +28,7 @@ package org.netbeans.modules.doap;
 import java.awt.EventQueue;
 import java.io.File;
 import java.net.MalformedURLException;
+import java.util.ArrayList;
 import org.netbeans.api.progress.ProgressHandle;
 import org.netbeans.api.progress.ProgressHandleFactory;
 import org.netbeans.modules.subversion.RepositoryFile;
@@ -53,10 +54,10 @@ final class SvnCheckoutHandler implements CheckoutHandler {
     private final String url;
     private final String tag;
     private final File dest;
-    private final String paths;
+    private final ArrayList<String> paths;
     private final String rev;
     
-    public SvnCheckoutHandler(String url, String tag, String rev, String paths, File dest) {
+    public SvnCheckoutHandler(String url, String tag, String rev, ArrayList<String> paths, File dest) {
         this.url = url;
         this.tag = tag;
         this.dest = dest;
@@ -136,23 +137,22 @@ final class SvnCheckoutHandler implements CheckoutHandler {
         return null;
     }
     
-    public RepositoryFile[] getRepositoryFiles(SVNUrl repositoryUrl, String rev, String defaultPath) throws MalformedURLException, NumberFormatException {
+    public RepositoryFile[] getRepositoryFiles(SVNUrl repositoryUrl, String rev, ArrayList<String> paths) throws MalformedURLException, NumberFormatException {
         SVNRevision revision = getRevision(rev);
         //        if(defaultPath == null) {
         //            RepositoryFile rf = new RepositoryFile(repositoryUrl, repositoryFile.getFileUrl(), revision);
         //            return new RepositoryFile[] {rf};
         //        }
         
-        if(defaultPath == null || !defaultPath.trim().equals("") ) {
+        if(paths == null ) {
             return new RepositoryFile[] { new RepositoryFile(repositoryUrl, "", revision) } ;
         }
-        String[] paths = defaultPath.split(","); // NOI18N
-        RepositoryFile[] ret = new RepositoryFile[paths.length];
+        RepositoryFile[] ret = new RepositoryFile[paths.size()];
         
-        for (int i = 0; i < paths.length; i++) {
-            String path = paths[i].trim();
-            String repositoryUrlString = repositoryUrl.toString();
-            if(path.startsWith("file://")  ||   // NOI18N
+        for (int i=0; i < paths.size(); i++) {            
+            String path = paths.get(i).trim();
+            String repositoryUrlString = repositoryUrl.toString();            
+            if (path.startsWith("file://")  ||   // NOI18N
                     path.startsWith("http://")  ||   // NOI18N
                     path.startsWith("https://") ||   // NOI18N
                     path.startsWith("svn://")   ||   // NOI18N

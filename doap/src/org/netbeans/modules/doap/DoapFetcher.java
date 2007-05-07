@@ -167,14 +167,12 @@ final class DoapFetcher implements Runnable {
             } else  if (info.type.equals(vf.createURI(doap,"SVNRepository"))) {
                 System.err.println("creating a CVSCheckoutHandler");
                 System.err.println("anonroot="+info.anonroot);
-                String module =null;
                 if (info.modules != null && info.modules.size() > 0) {
-                    module = info.modules.get(0);
                     System.err.println("modules="+info.modules.get(0));
                 }
                 System.err.println("destinationdir="+destination);
                 //todo: the svn checkout handler should allow more than one module to be checked out...
-                SvnCheckoutHandler h = new SvnCheckoutHandler(info.location, null, null,module,destination);
+                SvnCheckoutHandler h = new SvnCheckoutHandler(info.location, null, null, info.modules,destination);
                 
                 return h;
             }
