@@ -17,7 +17,6 @@
 package org.netbeans.modules.editor.bracesmatching;
 
 import javax.swing.text.Document;
-import org.netbeans.modules.editor.bracesmatching.spi.BracesMatchTask;
 import org.netbeans.modules.editor.bracesmatching.spi.CaretContext;
 
 /**
@@ -47,6 +46,5 @@ public abstract class SpiAccessor {
     protected SpiAccessor() {
     }
 
-    public abstract CaretContext createCaretContext(Document document, int offset);
-    public abstract void startMatcher(BracesMatchTask matcher,BracesMatchTaskResult resultImpl);
+    public abstract CaretContext createCaretContext(Document document, int offset, BracesMatchTaskResult result);
 }

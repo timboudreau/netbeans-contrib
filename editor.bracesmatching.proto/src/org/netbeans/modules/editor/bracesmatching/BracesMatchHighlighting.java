@@ -20,7 +20,6 @@ package org.netbeans.modules.editor.bracesmatching;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.util.Collection;
 import java.util.logging.Logger;
 import javax.swing.SwingUtilities;
 import javax.swing.event.ChangeEvent;
@@ -211,14 +210,7 @@ public class BracesMatchHighlighting extends AbstractHighlightsContainer
             
             String mimePath = seq.languagePath().mimePath();
             Lookup lookup = MimeLookup.getLookup(MimePath.parse(mimePath));
-            Collection<? extends BracesMatchProvider> providers = lookup.lookupAll(BracesMatchProvider.class);
-            
-            for(BracesMatchProvider p : providers) {
-                if (p.canMatch(context)) {
-                    provider = p;
-                    break;
-                }
-            }
+            provider = lookup.lookup(BracesMatchProvider.class);
         }
         
         return provider;
@@ -240,17 +232,20 @@ public class BracesMatchHighlighting extends AbstractHighlightsContainer
                 return;
             }
 
-            CaretContext context = SpiAccessor.get().createCaretContext(document, caret.getDot());
+            Result async = new Result();
+            CaretContext context = SpiAccessor.get().createCaretContext(document, caret.getDot(), async);
             BracesMatchProvider provider = findProvider(context);
 
             if (provider != null) {
                 BracesMatchTask matcher = provider.createTask(context);
-                Result async = new Result(matcher);
-
-                if (matcher.isAsynchronous()) {
-                    task = PR.post(async);
-                } else {
-                    async.run();
+                async.initMatcher(matcher);
+                
+                if (matcher.canMatch()) {
+                    if (matcher.isAsynchronous()) {
+                        task = PR.post(async);
+                    } else {
+                        async.run();
+                    }
                 }
             }
         }
@@ -258,16 +253,21 @@ public class BracesMatchHighlighting extends AbstractHighlightsContainer
     
     private final class Result implements Runnable, BracesMatchTaskResult {
 
-        private final BracesMatchTask matcher;
         private final OffsetsBag privateBag; // to make sure that cancelled tasks do not set any highlights
+        private BracesMatchTask matcher;
         
         private int originalTokenStart = -1;
         private int originalTokenEnd = -1;
         private boolean hasMatchingTokens = false;
         
-        public Result(BracesMatchTask matcher) {
-            this.matcher = matcher;
+        public Result() {
             this.privateBag = new OffsetsBag(document, false);
+        }
+        
+        public void initMatcher(BracesMatchTask matcher) {
+            assert matcher != null : "The 'matcher' parameter must not be null."; //NOI18N
+            assert this.matcher == null : "The matcher has already been initialized."; //NOI18N
+            this.matcher = matcher;
         }
         
         // ------------------------------------------------
@@ -276,7 +276,7 @@ public class BracesMatchHighlighting extends AbstractHighlightsContainer
         
         public void run() {
             // Fire up the matching task
-            SpiAccessor.get().startMatcher(matcher, this);
+            matcher.findMatchingTokens();
 
             // If the task was cancelled then exit
             if (Thread.interrupted()) {
