@@ -43,9 +43,9 @@ import org.netbeans.api.editor.settings.FontColorSettings;
 import org.netbeans.api.lexer.TokenHierarchy;
 import org.netbeans.api.lexer.TokenId;
 import org.netbeans.api.lexer.TokenSequence;
-import org.netbeans.modules.editor.bracesmatching.spi.BracesMatchProvider;
-import org.netbeans.modules.editor.bracesmatching.spi.BracesMatchTask;
-import org.netbeans.modules.editor.bracesmatching.spi.CaretContext;
+import org.netbeans.modules.editor.bracesmatching.spi.BracesMatcherFactory;
+import org.netbeans.modules.editor.bracesmatching.spi.BracesMatcher;
+import org.netbeans.modules.editor.bracesmatching.spi.MatcherContext;
 import org.netbeans.spi.editor.highlighting.HighlightsLayerFactory;
 import org.netbeans.spi.editor.highlighting.ZOrder;
 import org.openide.util.Lookup;
@@ -187,8 +187,8 @@ public class BracesMatchHighlighting extends AbstractHighlightsContainer
     // private implementation
     // ------------------------------------------------
     
-    private BracesMatchProvider findProvider(CaretContext context) {
-        BracesMatchProvider provider = null;
+    private BracesMatcherFactory findProvider(MatcherContext context) {
+        BracesMatcherFactory provider = null;
         
         TokenHierarchy<? extends Document> th = TokenHierarchy.get(context.getDocument());
         if (th != null) {
@@ -210,7 +210,7 @@ public class BracesMatchHighlighting extends AbstractHighlightsContainer
             
             String mimePath = seq.languagePath().mimePath();
             Lookup lookup = MimeLookup.getLookup(MimePath.parse(mimePath));
-            provider = lookup.lookup(BracesMatchProvider.class);
+            provider = lookup.lookup(BracesMatcherFactory.class);
         }
         
         return provider;
@@ -233,19 +233,15 @@ public class BracesMatchHighlighting extends AbstractHighlightsContainer
             }
 
             Result async = new Result();
-            CaretContext context = SpiAccessor.get().createCaretContext(document, caret.getDot(), async);
-            BracesMatchProvider provider = findProvider(context);
+            MatcherContext context = SpiAccessor.get().createCaretContext(document, caret.getDot(), async);
+            BracesMatcherFactory provider = findProvider(context);
 
             if (provider != null) {
-                BracesMatchTask matcher = provider.createTask(context);
+                BracesMatcher matcher = provider.createMatcher(context);
                 async.initMatcher(matcher);
                 
                 if (matcher.canMatch()) {
-                    if (matcher.isAsynchronous()) {
-                        task = PR.post(async);
-                    } else {
-                        async.run();
-                    }
+                    task = PR.post(async);
                 }
             }
         }
@@ -254,7 +250,7 @@ public class BracesMatchHighlighting extends AbstractHighlightsContainer
     private final class Result implements Runnable, BracesMatchTaskResult {
 
         private final OffsetsBag privateBag; // to make sure that cancelled tasks do not set any highlights
-        private BracesMatchTask matcher;
+        private BracesMatcher matcher;
         
         private int originalTokenStart = -1;
         private int originalTokenEnd = -1;
@@ -264,7 +260,7 @@ public class BracesMatchHighlighting extends AbstractHighlightsContainer
             this.privateBag = new OffsetsBag(document, false);
         }
         
-        public void initMatcher(BracesMatchTask matcher) {
+        public void initMatcher(BracesMatcher matcher) {
             assert matcher != null : "The 'matcher' parameter must not be null."; //NOI18N
             assert this.matcher == null : "The matcher has already been initialized."; //NOI18N
             this.matcher = matcher;
@@ -276,7 +272,7 @@ public class BracesMatchHighlighting extends AbstractHighlightsContainer
         
         public void run() {
             // Fire up the matching task
-            matcher.findMatchingTokens();
+            matcher.findMatches();
 
             // If the task was cancelled then exit
             if (Thread.interrupted()) {
