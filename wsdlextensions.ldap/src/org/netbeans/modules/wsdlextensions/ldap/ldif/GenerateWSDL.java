@@ -91,23 +91,6 @@ public class GenerateWSDL {
     private String generateBindings(int level) {
         String ret = "";
         String tag = upInitial(mLdif.getName()) + mFunction;
-        String attrs = "";
-        List mays = mLdif.getMay();
-        if (mays != null) {
-            for (int i = 0; i < mays.size(); i++) {
-                attrs += (String) mays.get(i) + ",";
-            }
-        }
-        List musts = mLdif.getMust();
-        if (musts != null) {
-            for (int i = 0; i < musts.size(); i++) {
-                attrs += (String) musts.get(i) + ",";
-            }
-        }
-        
-        if (attrs.length() > 0) {
-            attrs = attrs.substring(0, attrs.length() - 1);
-        }
         
         ret += getTab(level) + "<binding name=\"" + tag + "Binding\" type=\"tns:" + tag + "PortType\">" + "\n";
         ret += getTab(level + 1) + "<ldap:binding/>" + "\n";
@@ -117,7 +100,7 @@ public class GenerateWSDL {
         ret += getTab(level + 3) + "<ldap:input operationType=\"searchRequest\"/>" + "\n";
         ret += getTab(level + 2) + "</wsdl:input>" + "\n";
         ret += getTab(level + 2) + "<wsdl:output name=\"reply\">" + "\n";
-        ret += getTab(level + 3) + "<ldap:output returnPartName=\"reply\" attributes=\"" + attrs + "\"/>" + "\n";
+        ret += getTab(level + 3) + "<ldap:output returnPartName=\"reply\" attributes=\"\"/>" + "\n";
         ret += getTab(level + 2) + "</wsdl:output>" + "\n";
         ret += getTab(level + 1) + "</wsdl:operation>" + "\n";
         ret += getTab(level) + "</binding>" + "\n";
@@ -166,7 +149,6 @@ public class GenerateWSDL {
         ret += generatePortType(1);
         ret += generateBindings(1);
         ret += generatePLink(1);
-        ret += generateService(1);
         
         ret += "</definitions>" + "\n";
         return ret;

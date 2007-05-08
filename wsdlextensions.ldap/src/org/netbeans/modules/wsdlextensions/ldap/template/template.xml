@@ -46,8 +46,8 @@
 		</wsdlElement>
 	   <wsdlElement name="BindingOperationOutput">
             <extensionElement name="output" >
-                <extensionAttr name="returnPartName" defaultValue="Please specify a value" />
-                 <extensionAttr name="attributes" defaultValue="please specify a value" />
+                <extensionAttr name="returnPartName" defaultValue="reply" />
+                 <extensionAttr name="attributes" defaultValue=" " />
             </extensionElement>
         </wsdlElement>
 		<wsdlElement name="ServicePort">
