@@ -48,7 +48,6 @@ import org.netbeans.modules.editor.bracesmatching.spi.BracesMatcher;
 import org.netbeans.modules.editor.bracesmatching.spi.MatcherContext;
 import org.netbeans.spi.editor.highlighting.HighlightsLayerFactory;
 import org.netbeans.spi.editor.highlighting.ZOrder;
-import org.openide.util.Lookup;
 import org.openide.util.RequestProcessor;
 
 /**
@@ -188,7 +187,7 @@ public class BracesMatchHighlighting extends AbstractHighlightsContainer
     // ------------------------------------------------
     
     private BracesMatcherFactory findProvider(MatcherContext context) {
-        BracesMatcherFactory provider = null;
+        MimePath mimePath = null;
         
         TokenHierarchy<? extends Document> th = TokenHierarchy.get(context.getDocument());
         if (th != null) {
@@ -208,12 +207,18 @@ public class BracesMatchHighlighting extends AbstractHighlightsContainer
                 
             } while (embedded != null);
             
-            String mimePath = seq.languagePath().mimePath();
-            Lookup lookup = MimeLookup.getLookup(MimePath.parse(mimePath));
-            provider = lookup.lookup(BracesMatcherFactory.class);
+            String path = seq.languagePath().mimePath();
+            mimePath = MimePath.parse(path);
+        } else {
+            String mimeType = (String) context.getDocument().getProperty("mimeType"); //NOI18N
+            mimePath = mimeType != null ? MimePath.parse(mimeType) : null;
         }
         
-        return provider;
+        if (mimePath == null) {
+            mimePath = MimePath.EMPTY;
+        }
+
+        return MimeLookup.getLookup(mimePath).lookup(BracesMatcherFactory.class);
     }
     
     private void refresh() {
