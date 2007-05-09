@@ -24,6 +24,8 @@ import java.util.List;
 import java.util.Map;
 import javax.swing.JComponent;
 import javax.swing.JScrollPane;
+import java.awt.Dimension;
+import java.awt.Rectangle;
 
 import org.netbeans.api.visual.action.ActionFactory;
 import org.netbeans.api.visual.widget.Widget;
@@ -69,6 +71,8 @@ public class MashupGraphManager {
     private DebugPanel output;
     
     private MashupTopPanel panel;
+    
+    private JScrollPane pane;
     
     private long edgeCounter = 1;
     
@@ -120,6 +124,55 @@ public class MashupGraphManager {
         return this.scene;
     }
     
+    public void fitToPage() {        
+        Rectangle rectangle = new Rectangle(0, 0, 1, 1);
+        for (Widget widget : scene.getChildren())
+            rectangle = rectangle.union(widget.convertLocalToScene(widget.getBounds()));
+        Dimension dim = rectangle.getSize();
+        Dimension viewDim = pane.getViewportBorderBounds().getSize();
+        scene.getSceneAnimator().animateZoomFactor(
+                Math.min((float) viewDim.width / dim.width, 
+                (float) viewDim.height / dim.height));
+        scene.revalidate();
+    }
+    
+    public void expandAll() {
+        Iterator<Widget> it = widgets.iterator();
+        while(it.hasNext()) {
+            Widget wd = it.next();
+            if(wd instanceof EDMNodeWidget) {
+                ((EDMNodeWidget)wd).expandWidget();
+                wd.revalidate();
+            }
+        }
+    }
+    
+    public void collapseAll() {
+        Iterator<Widget> it = widgets.iterator();
+        while(it.hasNext()) {
+            Widget wd = it.next();
+            if(wd instanceof EDMNodeWidget) {
+                ((EDMNodeWidget)wd).collapseWidget();
+                wd.revalidate();
+            }
+        }        
+    }   
+    
+    public void zoomGraph(double zoomFactor) {
+        scene.getSceneAnimator().animateZoomFactor(zoomFactor);
+        scene.revalidate();
+    }
+    
+    public void zoomIn() {
+        scene.getSceneAnimator().animateZoomFactor(scene.getZoomFactor() * 1.1);
+        scene.revalidate();
+    }
+    
+    public void zoomOut() {
+        scene.getSceneAnimator().animateZoomFactor(scene.getZoomFactor() * 0.9);
+        scene.revalidate();
+    }    
+    
     public void generateGraph(SQLDefinition sqlDefinition) {
         removeAllChildren();
         try {
@@ -166,7 +219,9 @@ public class MashupGraphManager {
     }
     
     public JComponent getTopPanel() {
-        JScrollPane pane = new JScrollPane(scene.createView());
+        JComponent comp = scene.getView();
+        comp = (comp == null) ? scene.createView() : scene.getView();
+        pane = new JScrollPane(comp);
         panel.setTopComponent(pane);
         panel.setBottomComponent(output);
         return panel;

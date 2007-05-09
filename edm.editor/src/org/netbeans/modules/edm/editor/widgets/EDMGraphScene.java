@@ -76,7 +76,9 @@ public class EDMGraphScene extends GraphPinScene<String, String, String> {
         getActions ().addAction (ActionFactory.createZoomAction ());
         getActions ().addAction (ActionFactory.createPanAction ());
 
-        sceneLayout = LayoutFactory.createSceneGraphLayout (this, new GridGraphLayout<String, String> ().setChecker (false));
+        sceneLayout = LayoutFactory.createSceneGraphLayout (this, 
+                new GridGraphLayout<String, String> ().
+                setChecker(false).setGaps(50, 50));
     }
 
     /**

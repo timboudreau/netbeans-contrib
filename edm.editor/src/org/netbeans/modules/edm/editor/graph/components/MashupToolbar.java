@@ -17,14 +17,20 @@
 package org.netbeans.modules.edm.editor.graph.components;
 
 import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JToolBar;
 
 import org.netbeans.modules.edm.editor.dataobject.MashupDataObject;
 import org.netbeans.modules.edm.editor.graph.actions.RuntimeInputAction;
 import org.netbeans.modules.edm.editor.graph.actions.AutoLayoutAction;
+import org.netbeans.modules.edm.editor.graph.actions.CollapseAllAction;
 import org.netbeans.modules.edm.editor.graph.actions.EditJoinAction;
 import org.netbeans.modules.edm.editor.graph.actions.EditConnectionAction;
+import org.netbeans.modules.edm.editor.graph.actions.ExpandAllAction;
+import org.netbeans.modules.edm.editor.graph.actions.FitToPageAction;
 import org.netbeans.modules.edm.editor.graph.actions.TestRunAction;
+import org.netbeans.modules.edm.editor.graph.actions.ZoomInAction;
+import org.netbeans.modules.edm.editor.graph.actions.ZoomOutAction;
 
 /**
  *
@@ -43,6 +49,40 @@ public class MashupToolbar extends JToolBar {
     public JToolBar getToolBar() {
         JToolBar toolBar = new JToolBar();
         toolBar.addSeparator();    
+        
+        // Fit to page button.
+        JButton expandButton = new JButton(new ExpandAllAction(mObj));
+        expandButton.setToolTipText("Expand All Widgets");
+        toolBar.add(expandButton);        
+        
+        // Auto layout button.
+        JButton collapseButton = new JButton(new CollapseAllAction(mObj));
+        collapseButton.setToolTipText("Collapse All Widgets");
+        toolBar.add(collapseButton);               
+
+        // Fit to page button.
+        JButton fitButton = new JButton(new FitToPageAction(mObj));
+        fitButton.setToolTipText("Fit to Page");
+        toolBar.add(fitButton);     
+        
+        toolBar.addSeparator();
+        
+        // Zoom in button.
+        JButton zoominButton = new JButton(new ZoomInAction(mObj));
+        zoominButton.setToolTipText("Zoom In");
+        toolBar.add(zoominButton);        
+        
+        // Zoom in button.
+        JButton zoomoutButton = new JButton(new ZoomOutAction(mObj));
+        zoomoutButton.setToolTipText("Zoom Out");
+        toolBar.add(zoomoutButton);                
+        
+        // Fit to page button.
+        JComboBox zoomBox = new ZoomCombo(mObj.getGraphManager());
+        zoomBox.setToolTipText("Zoom graph");
+        toolBar.add(zoomBox);                
+        
+        toolBar.addSeparator();
         
         // Auto layout button.
         JButton layoutButton = new JButton(new AutoLayoutAction(mObj));
@@ -74,5 +114,5 @@ public class MashupToolbar extends JToolBar {
         toolBar.add(runButton);            
         
         return toolBar;
-    }    
+    }  
 }
