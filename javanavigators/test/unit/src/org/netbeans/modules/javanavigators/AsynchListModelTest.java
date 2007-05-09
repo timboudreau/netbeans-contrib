@@ -5,7 +5,6 @@ import java.util.Arrays;
 import java.util.List;
 import javax.swing.event.ListDataEvent;
 import junit.framework.*;
-import javax.swing.ListModel;
 import javax.swing.event.ListDataListener;
 
 /**
@@ -57,13 +56,13 @@ public class AsynchListModelTest extends TestCase {
         AsynchListModel instance = new AsynchListModel();
         assertEquals (0, instance.getSize());
         
-        model.setContents (STUFF_ONE);
+        model.setContents (STUFF_ONE, false);
         assertEquals (0, instance.getSize());
         
         waitForModel();
         assertEquals (STUFF_ONE.size(), model.getSize());
         
-        model.setContents(STUFF_TWO);
+        model.setContents(STUFF_TWO, false);
         waitForModel();
         
         assertEquals (STUFF_TWO.size(), model.getSize());
@@ -84,7 +83,7 @@ public class AsynchListModelTest extends TestCase {
      */
     public void testGetElementAt() {
         System.out.println("getElementAt");
-        model.setContents(STUFF_ONE);
+        model.setContents(STUFF_ONE, false);
         waitForModel();
         for (int i=0; i < STUFF_ONE.size(); i++) {
             assertSame (STUFF_ONE.get(i), model.get(i));
@@ -93,15 +92,15 @@ public class AsynchListModelTest extends TestCase {
     
     public void testEvents() {
         System.out.println("events");
-        model.setContents (STUFF_ONE);
+        model.setContents (STUFF_ONE, false);
         waitForModel();
         l.assertIntervalAdded();
         
-        model.setContents(STUFF_TWO);
+        model.setContents(STUFF_TWO, false);
         waitForModel();
         l.assertIntervalAdded();
         
-        model.setContents(STUFF_THREE);
+        model.setContents(STUFF_THREE, false);
         waitForModel();
         l.assertIntervalRemoved();
         

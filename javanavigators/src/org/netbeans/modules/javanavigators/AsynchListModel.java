@@ -61,11 +61,13 @@ public final class AsynchListModel <T extends Object> implements GenerifiedListM
     public void setComparator (Comparator <T> c) {
         if (c != this.comparator) {
             this.comparator = c;
-            List <T> nue = new ArrayList <T> (contents);
-            if (comparator != null) {
-                Collections.sort (nue, comparator);
-                Diff <T> diff = Diff.<T>create(contents, nue);
-                updateOnEventQueue (diff);
+            if (!contents.isEmpty()) {
+                List <T> nue = new ArrayList <T> (contents);
+                if (comparator != null) {
+                    Collections.sort (nue, comparator);
+                    Diff <T> diff = Diff.<T>create(contents, nue);
+                    updateOnEventQueue (diff);
+                }
             }
         }
     }
@@ -127,7 +129,8 @@ public final class AsynchListModel <T extends Object> implements GenerifiedListM
     }
 
     public Object getElementAt(int index) {
-        return contents.get(index);
+        return index >= 0 && index < contents.size() ? 
+            contents.get(index) : null;
     }
 
     private List <ListDataListener> listeners = 

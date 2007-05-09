@@ -26,7 +26,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
 import java.lang.ref.Reference;
 import java.lang.ref.SoftReference;
 import java.util.Comparator;
@@ -35,7 +34,6 @@ import javax.swing.DefaultListModel;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JComponent;
 import javax.swing.JList;
-import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
@@ -43,10 +41,10 @@ import javax.swing.ListModel;
 import javax.swing.SwingUtilities;
 import javax.swing.border.Border;
 import org.netbeans.spi.navigator.NavigatorPanel;
-import org.openide.awt.HtmlRenderer;
 import org.openide.awt.Mnemonics;
 import org.openide.util.Lookup;
 import org.openide.util.NbBundle;
+import org.openide.util.NbPreferences;
 import org.openide.windows.TopComponent;
 
 /**
@@ -55,6 +53,7 @@ import org.openide.windows.TopComponent;
  */
 public class JavaMembersNavigator implements NavigatorPanel {
     private Reference <JPanel> pnl = null;
+    static final String KEY_SORT_POS = "sortMode";        
     public JavaMembersNavigator() {
     }
     
@@ -118,6 +117,7 @@ public class JavaMembersNavigator implements NavigatorPanel {
         list.getSelectionModel().addListSelectionListener(new ListListener(list));
         list.setCellRenderer (new CellRenderer());
         list.addMouseListener (new ML());
+        new ListDragListener (list);
         return result;
     }
     
@@ -188,10 +188,12 @@ public class JavaMembersNavigator implements NavigatorPanel {
         }
     
         public void actionPerformed(ActionEvent e) {
-            Comparator <Description> c = ACTION_ALPHA_SORT.equals(
-                e.getActionCommand()) ?
+            boolean alphaSort = ACTION_ALPHA_SORT.equals(
+                e.getActionCommand());
+            Comparator <Description> c = alphaSort ?
                 Description.ALPHA_COMPARATOR : Description.POSITION_COMPARATOR;
             m.setComparator (c);
+            NbPreferences.forModule(JavaMembersNavigator.class).putBoolean(KEY_SORT_POS, alphaSort);                    
         }
     }
     

@@ -20,9 +20,12 @@
 package org.netbeans.modules.javanavigators;
 
 import java.awt.Component;
+import javax.swing.BorderFactory;
 import javax.swing.JComponent;
 import javax.swing.JList;
 import javax.swing.ListCellRenderer;
+import javax.swing.UIManager;
+import javax.swing.border.Border;
 import org.openide.awt.HtmlRenderer;
 
 /**
@@ -32,21 +35,78 @@ import org.openide.awt.HtmlRenderer;
 public class CellRenderer implements ListCellRenderer {
     private final HtmlRenderer.Renderer htmlRenderer = 
             HtmlRenderer.createRenderer();
+    private final Border aboveBorder = 
+            BorderFactory.createMatteBorder (1, 0, 0, 0,
+            UIManager.getColor("textText"));
+    private final Border belowBorder = 
+            BorderFactory.createMatteBorder (0, 0, 1, 0,
+            UIManager.getColor("textText"));
+    private final Border emptyBorder = 
+            BorderFactory.createEmptyBorder();
     
     public CellRenderer() {
     }
     
-    public Component getListCellRendererComponent(JList arg0, Object arg1,
-                                                  int arg2, boolean arg3,
-                                                  boolean arg4) {
-        Component result = htmlRenderer.getListCellRendererComponent(arg0, 
-                arg1, arg2, arg3, arg4);
-        if (arg1 instanceof Description) {
-            Description d = (Description) arg1;
+    static final int BORDER_NONE = 0;
+    static final int BORDER_ABOVE = 1;
+    static final int BORDER_BELOW = 2;
+    
+    public Component getListCellRendererComponent(JList list, Object item,
+                                                  int index, boolean selected,
+                                                  boolean lead) {
+        if (dropFeedbackIndex != -1) {
+            selected = false;
+            lead = false;
+        }
+        
+        if (index == draggingIndex) {
+            
+        }
+        
+        htmlRenderer.setHtml(true);
+        Component result = htmlRenderer.getListCellRendererComponent(list, 
+                item, index, selected, lead);
+        
+        if (item instanceof Description) {
+            Description d = (Description) item;
             htmlRenderer.setIcon(d.icon);
-            ((JComponent)result).setToolTipText(d.javadoc);
+//            ((JComponent)result).setToolTipText(d.javadoc);
+        }
+        if (index == dropFeedbackIndex) {
+            switch (borderMode) {
+                case BORDER_NONE :
+                    ((JComponent)result).setBorder(emptyBorder);
+                    break;
+                case BORDER_ABOVE :
+                    ((JComponent)result).setBorder(aboveBorder);
+                    break;
+                case BORDER_BELOW :
+                    ((JComponent)result).setBorder(belowBorder);
+                    break;
+            }
+        } else {
+            ((JComponent)result).setBorder(emptyBorder);
         }
         return result;
     }
-
+    
+    private int dropFeedbackIndex = -1;
+    void setDropFeedbackIndex (int val) {
+        dropFeedbackIndex = val;
+    }
+    
+    private int borderMode = BORDER_NONE;
+    void setBorderMode(int val) {
+        borderMode = val;
+        assert val >= 0 && val <= 2;
+    }
+    
+    void setDraggingIndex (int val) {
+        draggingIndex = val;
+    }
+    private int draggingIndex = -1;
+    
+    int getDraggingIndex() {
+        return draggingIndex;
+    }
 }

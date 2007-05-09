@@ -75,8 +75,7 @@ public class ElementScanningTask implements CancellableTask<CompilationInfo>{
     public void run(CompilationInfo info) throws Exception {
         
         canceled = false; // Task shared for one file needs reset first
-        
-        
+
         Description rootDescription = new Description( );
         rootDescription.fileObject = info.getFileObject();
         rootDescription.subs = new ArrayList<Description>();
@@ -102,6 +101,7 @@ public class ElementScanningTask implements CancellableTask<CompilationInfo>{
         }
         
         List <Description> contents = new ArrayList <Description> (100);
+        
         //leave out root
         for (Description d : rootDescription.subs) {
             find (d, contents);
@@ -113,10 +113,16 @@ public class ElementScanningTask implements CancellableTask<CompilationInfo>{
     }
     
     private void find (Description d, List <Description> descs) {
-        descs.add (d);
-        if (d.subs != null) {
-            for (Description dd : d.subs) {
-                find (dd, descs);
+        //PENDING:  Better way to weed out error nodes?
+        if (d.toString().indexOf("<error>") < 0) { //NOI18N        
+            //Dont show top level class elements
+            if (d.elementHandle.getKind() != ElementKind.CLASS || d.inner) {
+                descs.add (d);
+            }
+            if (d.subs != null) {
+                for (Description dd : d.subs) {
+                    find (dd, descs);
+                }
             }
         }
     }
@@ -154,6 +160,7 @@ public class ElementScanningTask implements CancellableTask<CompilationInfo>{
                         info.getElements().isDeprecated(e) );                
                 d.javadoc = splitUp (info.getElements().getDocComment(e));
                 d.icon = UiUtils.getElementIcon(e.getKind(), e.getModifiers());
+                d.inner = e.getNestingKind().isNested();
                 
                 if ( d.pos == -1 ) {
                     return null;
@@ -332,10 +339,10 @@ public class ElementScanningTask implements CancellableTask<CompilationInfo>{
             }
             
             Set <Modifier> mods = e.getModifiers();
-//            boolean statik = mods.contains(Modifier.STATIC);
-//            if (statik) {
-//                sb.append ("<u>");
-//            }
+            boolean statik = mods.contains(Modifier.STATIC);
+            if (statik) {
+                sb.append ("<font color=#2222C0>");
+            }
             boolean phynal = mods.contains(Modifier.FINAL);
             if (phynal) {
                 sb.append ("<i>"); //FIXME
@@ -356,7 +363,6 @@ public class ElementScanningTask implements CancellableTask<CompilationInfo>{
                     sb.append( tp.getSimpleName() );                    
                     try { // XXX Verry ugly -> file a bug against Javac?
                         List<? extends TypeMirror> bounds = tp.getBounds();
-                        //System.out.println( tp.getSimpleName() + "   bounds size " + bounds.size() );
                         if ( !bounds.isEmpty() ) {
                             sb.append(printBounds(bounds));
                         }

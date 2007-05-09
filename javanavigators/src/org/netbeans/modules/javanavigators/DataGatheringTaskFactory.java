@@ -30,6 +30,7 @@ import org.netbeans.api.java.source.support.LookupBasedJavaSourceTaskFactory;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
 import org.openide.util.Lookup;
+import org.openide.util.NbPreferences;
 import org.openide.util.Utilities;
 
 /**
@@ -42,6 +43,9 @@ public class DataGatheringTaskFactory extends LookupBasedJavaSourceTaskFactory {
     
     public DataGatheringTaskFactory() {
         super (JavaSource.Phase.PARSED, JavaSource.Priority.LOW);
+        boolean alphaSort = NbPreferences.forModule(JavaMembersNavigator.class).getBoolean(JavaMembersNavigator.KEY_SORT_POS, false);
+        model.setComparator(alphaSort ? Description.ALPHA_COMPARATOR :
+            Description.POSITION_COMPARATOR);
     }
     
     volatile boolean active = false;

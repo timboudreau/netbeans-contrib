@@ -46,8 +46,10 @@ public class Description {
     Description parent = null;
     Icon icon;
     String javadoc;
+    boolean inner;
 
     Description( ) {
+
     }
 
     @Override
@@ -77,16 +79,31 @@ public class Description {
         return true;
     }
     
+    public boolean isInner() {
+        return inner || (parent != null && parent.inner);
+    }
+    
+    private String txt;
     public String toString() {
-        StringBuilder sb = new StringBuilder("<html>");
-        Description d = this;
-        while (d != null && d.parent != null && d.parent.parent != null && d.parent.parent.parent != null) {
-            sb.insert (6, '.');
-            sb.insert(6, truncate(d.parent.name));
-            d = d.parent;
+        if (txt == null) {
+            StringBuilder sb = new StringBuilder("<html>"); //NOI18N            
+            Description d = this;
+            while (d != null && d.isInner() && d.parent != null) {
+                if (d.parent.isInner()) {
+                    //Don't show inner class name truncated on inner class constructors
+                    if ((d.elementHandle.getKind() != ElementKind.CONSTRUCTOR || d != this)) {
+                        sb.insert (6, '.');
+                        sb.insert(6, truncate(d.parent.name));
+                    }
+                    d = d.parent;
+                } else {
+                    d = null;
+                }
+            }
+            sb.append (htmlHeader);
+            txt = sb.toString();
         }
-        sb.append (htmlHeader);
-        return sb.toString();
+        return txt;
     }
 
     private static String truncate (String s) {
@@ -96,20 +113,17 @@ public class Description {
         StringBuilder sb = new StringBuilder (s.length());
         char[] c = s.toCharArray();
         for (int i = 0; i < c.length; i++) {
-            if (i == 0 || Character.isUpperCase(c[i])) {
-                sb.append (c[i]);
+            if (i == 0 || 
+                Character.isUpperCase(c[i]) || 
+                !Character.isLetter(c[i])) {
+                    sb.append (c[i]);
             }
         }
         return sb.toString();
     }
     
     long getPosition() {
-        long result = pos;
-        while (parent != null) {
-            result += parent.pos;
-            parent = parent.parent;
-        }
-        return result;
+        return pos;
     }
     
     public int hashCode() {
@@ -134,14 +148,21 @@ public class Description {
                 if ( k2i(d1.kind) != k2i(d2.kind) ) {
                     return k2i(d1.kind) - k2i(d2.kind);
                 } 
-
-                return d1.name.compareTo(d2.name);
+                boolean i1 = d1.inner;
+                boolean i2 = d2.inner;
+                if (i1 != i2) {
+                    return i1 && !i2 ? -1 : 1;
+                } else {
+                    int result = d1.name.compareTo(d2.name);
+                    return result;
+                }
             }
             else {
                 long p1 = d1.getPosition();
                 long p2 = d2.getPosition();
-//                return p1 == p2 ? 0 : p1 < p2 ? -1 : 1;
-                return (int) (p1 - p2);
+                int result = p1 == p2 ? 0 : p1 < p2 ? -1 : 1;
+                return result;
+//                return (int) (p1 - p2);
             }
         }
 
