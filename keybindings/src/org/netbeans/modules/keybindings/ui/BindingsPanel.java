@@ -20,6 +20,7 @@
 package org.netbeans.modules.keybindings.ui;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.FlowLayout;
 import java.awt.GridLayout;
 import java.awt.Insets;
@@ -36,7 +37,10 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
+import java.util.Comparator;
 import java.util.List;
+import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
@@ -131,7 +135,15 @@ public class BindingsPanel extends JPanel {
         
         add(fieldsPanel, BorderLayout.NORTH);
         
-        tableSorter = new TableSorter(new BindingsTableModel(bindings));
+        tableSorter = new TableSorter(new BindingsTableModel(bindings)) {
+
+            protected Comparator getComparator(int column) {
+                if (column == 2) {
+                    return String.CASE_INSENSITIVE_ORDER;
+                }
+                return super.getComparator(column);
+            }            
+        };
         _bindingsTable = new JTable(tableSorter) {
             public java.awt.Point getToolTipLocation(java.awt.event.MouseEvent event) {
                 Point point = event.getPoint();
@@ -328,18 +340,33 @@ public class BindingsPanel extends JPanel {
         SwingUtilities.invokeLater(
                 new Runnable() {
             public void run() {
+                textField.setForeground(null);
                 String prefix = textField.getText();
                 if (prefix.endsWith(" ")) {
                     prefix = prefix.substring(0, prefix.length() -1);
                 }
-                int rowCount = _bindingsTable.getRowCount();
-                for (int i = 0; i < rowCount; i++) {
-                    String cellValue = _bindingsTable.getValueAt(i, columnNumber).toString();
-                    if (cellValue.startsWith(prefix)) {
-                        _bindingsTable.getSelectionModel().setSelectionInterval(i, i);
-                        _bindingsTable.scrollRectToVisible(_bindingsTable.getCellRect(Math.min(i + 10, rowCount - 1) ,  0, true));
-                        break;
+                int flags = 0;
+                if (prefix.length() > 0) {
+                    if (!prefix.endsWith("$")) {
+                        prefix = prefix + ".*";
                     }
+                    if (prefix.toLowerCase().equals(prefix)) {
+                        flags = Pattern.CASE_INSENSITIVE;
+                    }
+                }
+                try {
+                    Pattern pattern = Pattern.compile(prefix, flags);
+                    int rowCount = _bindingsTable.getRowCount();
+                    for (int i = 0; i < rowCount; i++) {
+                        String cellValue = _bindingsTable.getValueAt(i, columnNumber).toString();
+                        if (pattern.matcher(cellValue).matches()) {
+                            _bindingsTable.getSelectionModel().setSelectionInterval(i, i);
+                            _bindingsTable.scrollRectToVisible(_bindingsTable.getCellRect(Math.min(i + 10, rowCount - 1) ,  0, true));
+                            break;
+                        }
+                    }
+                } catch (PatternSyntaxException pse) {
+                    textField.setForeground(Color.red);
                 }
             }
         });
