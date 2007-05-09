@@ -19,8 +19,6 @@ package org.netbeans.modules.runtimetabmenu;
 
 import java.awt.BorderLayout;
 import java.beans.BeanInfo;
-import java.io.IOException;
-import java.io.ObjectInput;
 import java.io.ObjectStreamException;
 import java.io.Serializable;
 import org.openide.explorer.ExplorerManager;
@@ -47,7 +45,6 @@ public class RuntimeNodeTC extends TopComponent implements ExplorerManager.Provi
     private final ExplorerManager mgr = new ExplorerManager();
     RuntimeNodeTC(String path) {
         this (nodeFor(path));
-        System.err.println("Created a tc for " + path);
     }
     
     RuntimeNodeTC(Node node) {
