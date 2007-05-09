@@ -336,7 +336,19 @@ public class ViewPanel extends javax.swing.JPanel implements TreeSelectionListen
         if (classes.getSelectedValue() != null) {
             Class clazz;
             try {
-                clazz = Class.forName(classes.getSelectedValue().toString());
+                String s = classes.getSelectedValue().toString();
+                if (s.indexOf ("<") >= 0) {
+                    StringBuffer sb = new StringBuffer();
+                    for (int i=s.length() - 1; i >= 0; i--) {
+                        char c = s.charAt(i);
+                        if (c == '>' || Character.isWhitespace(c)) {
+                            break;
+                        }
+                        sb.insert(0, c);
+                    }
+                    s = sb.toString();
+                }
+                clazz = Class.forName(s);
                 StringBuffer sb = new StringBuffer();
 
                 Type[] t = clazz.getGenericInterfaces();
