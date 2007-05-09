@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE filesystem PUBLIC "-//NetBeans//DTD Filesystem 1.1//EN" "http://www.netbeans.org/dtds/filesystem-1_1.dtd">
+<filesystem>
+    <folder name="Actions">
+        <folder name="Other">
+            <file name="org-netbeans-modules-runtimetabmenu-ServicesAction.instance"/>
+        </folder>
+    </folder>
+    <folder name="Menu">
+        <folder name="Window">
+            <attr name="ProgressListAction.shadow/org-netbeans-modules-runtimetabmenu-ServicesAction.shadow" boolvalue="true"/>
+            <file name="org-netbeans-modules-runtimetabmenu-ServicesAction.shadow">
+                <attr name="originalFile" stringvalue="Actions/Other/org-netbeans-modules-runtimetabmenu-ServicesAction.instance"/>
+            </file>
+            <attr name="org-netbeans-modules-runtimetabmenu-ServicesAction.shadow/Separator3.instance" boolvalue="true"/>
+        </folder>
+    </folder>
+</filesystem>
