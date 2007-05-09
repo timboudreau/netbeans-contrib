@@ -17,10 +17,10 @@
 package org.netbeans.modules.edm.editor.palette;
 
 import java.util.ArrayList;
-import org.openide.nodes.Children;
+import java.util.List;
+
 import org.openide.nodes.Index;
 import org.openide.nodes.Node;
-
 
 /**
  *
@@ -48,7 +48,7 @@ public class OperatorChildren extends Index.ArrayChildren {
      * @return childrenNodes List<Node>
      */
     protected java.util.List<Node> initCollection() {
-        ArrayList childrenNodes = new ArrayList( items.length );
+        List<Node> childrenNodes = new ArrayList<Node>( items.length );
         for( int i=0; i<items.length; i++ ) {
             if( category.getName().equals( items[i][1] ) ) {
                 Operator item = new Operator();

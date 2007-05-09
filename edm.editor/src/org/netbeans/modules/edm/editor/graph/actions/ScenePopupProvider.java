@@ -76,8 +76,8 @@ public class ScenePopupProvider implements PopupMenuProvider {
         menu.add(showSql);              
         
         // add edit join view action.
-        JMenuItem edit = new JMenuItem("Edit Join View");
-        edit.setAction(new EditJoinAction(mObj, "Edit Join View"));
+        JMenuItem edit = new JMenuItem("Edit Join");
+        edit.setAction(new EditJoinAction(mObj, "Edit Join"));
         menu.add(edit);
         
         // Edit connection action.
@@ -93,8 +93,8 @@ public class ScenePopupProvider implements PopupMenuProvider {
         menu.addSeparator();
         
         // add run action.
-        JMenuItem run = new JMenuItem("Run Collaboration");
-        run.setAction(new TestRunAction(mObj, "Run Collaboration"));
+        JMenuItem run = new JMenuItem("Run");
+        run.setAction(new TestRunAction(mObj, "Run"));
         menu.add(run);   
         
         

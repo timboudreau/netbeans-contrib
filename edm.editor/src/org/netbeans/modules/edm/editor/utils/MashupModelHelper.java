@@ -141,7 +141,7 @@ public class MashupModelHelper {
         TableColumn[] cols = t.getColumns();
         TableColumn tc = null;
         List pks = t.getPrimaryKeyColumnList();
-        List pkCols = new ArrayList();
+        List<String> pkCols = new ArrayList<String>();
         Iterator it = pks.iterator();
         while(it.hasNext()) {
             KeyColumn kc = (KeyColumn)it.next();
@@ -159,7 +159,7 @@ public class MashupModelHelper {
             ForeignKeyImpl fkImpl = new ForeignKeyImpl((SQLDBTable)ffTable, fkCol.getName(), fkCol.getImportKeyName(),
                     fkCol.getImportTableName(), fkCol.getImportSchemaName(), fkCol.getImportCatalogName(), fkCol.getUpdateRule(),
                     fkCol.getDeleteRule(), fkCol.getDeferrability());
-            List fkColumns = new ArrayList();
+            List<String> fkColumns = new ArrayList<String>();
             fkColumns.add(fkCol.getColumnName());
             String catalog = fkCol.getImportCatalogName();
             if (catalog == null) {
@@ -170,7 +170,7 @@ public class MashupModelHelper {
                 schema = "";
             }
             pks = meta.getPrimaryKeys(catalog, schema, fkCol.getImportTableName());
-            List pkColumns = new ArrayList();
+            List<String> pkColumns = new ArrayList<String>();
             Iterator pksIt = pks.iterator();
             while(pksIt.hasNext()) {
                 KeyColumn kc = (KeyColumn)pksIt.next();

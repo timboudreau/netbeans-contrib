@@ -53,7 +53,7 @@ public class MashupToolbar extends JToolBar {
         
         // Edit join view button.
         JButton editButton = new JButton(new EditJoinAction(mObj));
-        editButton.setToolTipText("Edit Join View");
+        editButton.setToolTipText("Edit Join");
         toolBar.add(editButton);
         
         // Edit join view button.
@@ -70,7 +70,7 @@ public class MashupToolbar extends JToolBar {
         
         // Run collaboration button.
         JButton runButton = new JButton(new TestRunAction(mObj));
-        runButton.setToolTipText("Run Collaboration");
+        runButton.setToolTipText("Run");
         toolBar.add(runButton);            
         
         return toolBar;

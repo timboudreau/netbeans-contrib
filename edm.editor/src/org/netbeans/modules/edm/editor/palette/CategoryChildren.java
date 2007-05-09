@@ -16,7 +16,6 @@
 
 package org.netbeans.modules.edm.editor.palette;
 
-import org.openide.nodes.AbstractNode;
 import org.openide.nodes.Children;
 import org.openide.nodes.Node;
 

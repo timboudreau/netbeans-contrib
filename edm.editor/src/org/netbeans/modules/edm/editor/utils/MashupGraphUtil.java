@@ -34,7 +34,13 @@ public class MashupGraphUtil {
             "org/netbeans/modules/edm/editor/resources/SourceTable.png"); // NOI18N
     
     private static final Image COLUMN_IMAGE = Utilities.loadImage(
-            "org/netbeans/modules/edm/editor/resources/columnselection.png"); // NOI18N
+            "org/netbeans/modules/edm/editor/resources/column.gif"); // NOI18N
+    
+    private static final Image PRIMARY_COLUMN_IMAGE = Utilities.loadImage(
+            "org/netbeans/modules/edm/editor/resources/columnPrimary.gif"); // NOI18N
+    
+    private static final Image FOREIGN_COLUMN_IMAGE = Utilities.loadImage(
+            "org/netbeans/modules/edm/editor/resources/columnForeign.gif"); // NOI18N    
     
     private static final Image CONDITION_IMAGE = Utilities.loadImage(
             "org/netbeans/modules/edm/editor/resources/condition.png"); // NOI18N
@@ -49,10 +55,10 @@ public class MashupGraphUtil {
             "org/netbeans/modules/edm/editor/resources/RuntimeInput.png"); // NOI18N
     
     private static final Image RUNTIME_ATTR_IMAGE = Utilities.loadImage(
-            "org/netbeans/modules/edm/editor/resources/properties.png"); // NOI18N
+            "org/netbeans/modules/edm/editor/resources/columnselection.png"); // NOI18N
     
-    private static final Image UNSEL_COL_IMAGE = Utilities.loadImage(
-            "org/netbeans/modules/edm/editor/resources/column.png"); // NOI18N
+    private static final Image FOREIGN_KEY_IMAGE = Utilities.loadImage(
+            "org/netbeans/modules/edm/editor/resources/foreignKey.gif"); // NOI18N     
     
     /** Creates a new instance of MashupGraphUtil */
     private MashupGraphUtil() {
@@ -75,10 +81,6 @@ public class MashupGraphUtil {
         return COLUMN_IMAGE;
     }
 
-    public static Image getUnselectedColumnImage() {
-        return UNSEL_COL_IMAGE;
-    }
-    
     public static Image getConditionImage() {
         return CONDITION_IMAGE;
     }
@@ -94,4 +96,16 @@ public class MashupGraphUtil {
     public static Image getRuntimeAttributeImage() {
         return RUNTIME_ATTR_IMAGE;
     }
+    
+    public static Image getPrimaryKeyColumnImage() {
+        return PRIMARY_COLUMN_IMAGE;
+    }
+
+    public static Image getForeignKeyColumnImage() {
+        return FOREIGN_COLUMN_IMAGE;
+    }    
+    
+    public static Image getForeignKeyImage() {
+        return FOREIGN_KEY_IMAGE;
+    }        
 }

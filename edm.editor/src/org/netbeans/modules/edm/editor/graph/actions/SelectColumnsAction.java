@@ -138,7 +138,7 @@ public class SelectColumnsAction extends AbstractAction {
             }
             if(wantsReload) {
                 mObj.getMashupDataEditorSupport().synchDocument();
-                manager.refreshGraph();
+                manager.updateColumnSelection(dbTable);
                 manager.setLog("Column selection successfully modified.");
             }
         }    
