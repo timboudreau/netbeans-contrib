@@ -27,7 +27,9 @@ import org.netbeans.modules.edm.editor.graph.actions.CollapseAllAction;
 import org.netbeans.modules.edm.editor.graph.actions.EditJoinAction;
 import org.netbeans.modules.edm.editor.graph.actions.EditConnectionAction;
 import org.netbeans.modules.edm.editor.graph.actions.ExpandAllAction;
+import org.netbeans.modules.edm.editor.graph.actions.FitToHeightAction;
 import org.netbeans.modules.edm.editor.graph.actions.FitToPageAction;
+import org.netbeans.modules.edm.editor.graph.actions.FitToWidthAction;
 import org.netbeans.modules.edm.editor.graph.actions.TestRunAction;
 import org.netbeans.modules.edm.editor.graph.actions.ZoomInAction;
 import org.netbeans.modules.edm.editor.graph.actions.ZoomOutAction;
@@ -59,11 +61,23 @@ public class MashupToolbar extends JToolBar {
         JButton collapseButton = new JButton(new CollapseAllAction(mObj));
         collapseButton.setToolTipText("Collapse All Widgets");
         toolBar.add(collapseButton);               
+        
+        toolBar.addSeparator();    
 
         // Fit to page button.
         JButton fitButton = new JButton(new FitToPageAction(mObj));
         fitButton.setToolTipText("Fit to Page");
         toolBar.add(fitButton);     
+        
+        // Fit to width button.
+        JButton fitToWidthButton = new JButton(new FitToWidthAction(mObj));
+        fitToWidthButton.setToolTipText("Fit to Width");
+        toolBar.add(fitToWidthButton);             
+        
+        // Fit to page button.
+        JButton fitToHeightButton = new JButton(new FitToHeightAction(mObj));
+        fitToHeightButton.setToolTipText("Fit to Height");
+        toolBar.add(fitToHeightButton);              
         
         toolBar.addSeparator();
         

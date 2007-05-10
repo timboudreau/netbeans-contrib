@@ -155,7 +155,6 @@ public class MashupDataObject extends MultiDataObject {
     public MashupGraphManager getGraphManager() {
         if(manager == null) {
             manager = new MashupGraphManager(this);
-            manager.refreshGraph();
         }
         return manager;
     }

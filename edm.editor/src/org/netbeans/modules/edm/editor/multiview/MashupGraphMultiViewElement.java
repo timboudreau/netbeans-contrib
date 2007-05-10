@@ -261,7 +261,6 @@ public class MashupGraphMultiViewElement extends TopComponent
             int divLocation = d.height * 3 / 5;
             splitPane.setDividerLocation(divLocation);        
             add(splitPane, BorderLayout.CENTER);
-            add(manager.getSatelliteView(), BorderLayout.WEST);
             return;
         } catch (Exception ex) {
             errorMessage = ex.getMessage();
@@ -286,7 +285,6 @@ public class MashupGraphMultiViewElement extends TopComponent
         manager.refreshGraph();
         setLayout(new BorderLayout());
         add(manager.getTopPanel(), BorderLayout.CENTER);
-        add(manager.getSatelliteView(), BorderLayout.WEST);
         return;
     }
     

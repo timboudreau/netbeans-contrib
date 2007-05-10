@@ -112,29 +112,66 @@ public class MashupGraphManager {
     }
     
     public void refreshGraph() {
-        generateGraph(this.mObj.getModel().getSQLDefinition());
+        if(this.mObj.getModel().isDirty() || pane == null) {
+            generateGraph(this.mObj.getModel().getSQLDefinition());
+        }
         scene.layoutScene();
     }
     
-    public JComponent getSatelliteView() {
-        return scene.createSatelliteView();
+    public JComponent getSatelliteView() throws Exception {
+        if(scene.getView() == null) {
+            scene.revalidate();
+            refreshGraph();
+            if(pane == null) {
+                pane = new JScrollPane(scene.createView());
+            }
+        }
+        JComponent comp = null;
+        try {
+             comp = scene.createSatelliteView();            
+        } catch (Exception ex) {
+            throw ex;
+        }
+        return comp;
     }
     
     public EDMGraphScene getScene() {
         return this.scene;
     }
     
-    public void fitToPage() {        
+    public void fitToPage() {
         Rectangle rectangle = new Rectangle(0, 0, 1, 1);
         for (Widget widget : scene.getChildren())
             rectangle = rectangle.union(widget.convertLocalToScene(widget.getBounds()));
         Dimension dim = rectangle.getSize();
         Dimension viewDim = pane.getViewportBorderBounds().getSize();
         scene.getSceneAnimator().animateZoomFactor(
-                Math.min((float) viewDim.width / dim.width, 
+                Math.min((float) viewDim.width / dim.width,
                 (float) viewDim.height / dim.height));
         scene.revalidate();
     }
+    
+    public void fitToWidth(){
+        Rectangle rectangle = new Rectangle(0, 0, 1, 1);
+        for (Widget widget : scene.getChildren())
+            rectangle = rectangle.union(widget.convertLocalToScene(widget.getBounds()));
+        Dimension dim = rectangle.getSize();
+        Dimension viewDim = pane.getViewportBorderBounds().getSize();
+        scene.getSceneAnimator().animateZoomFactor(
+                (float) viewDim.width / dim.width);
+        scene.revalidate();        
+    }
+    
+    public void fitToHeight(){
+        Rectangle rectangle = new Rectangle(0, 0, 1, 1);
+        for (Widget widget : scene.getChildren())
+            rectangle = rectangle.union(widget.convertLocalToScene(widget.getBounds()));
+        Dimension dim = rectangle.getSize();
+        Dimension viewDim = pane.getViewportBorderBounds().getSize();
+        scene.getSceneAnimator().animateZoomFactor(
+                (float) viewDim.height / dim.height);
+        scene.revalidate();        
+    }    
     
     public void expandAll() {
         Iterator<Widget> it = widgets.iterator();
@@ -155,8 +192,8 @@ public class MashupGraphManager {
                 ((EDMNodeWidget)wd).collapseWidget();
                 wd.revalidate();
             }
-        }        
-    }   
+        }
+    }
     
     public void zoomGraph(double zoomFactor) {
         scene.getSceneAnimator().animateZoomFactor(zoomFactor);
@@ -171,7 +208,7 @@ public class MashupGraphManager {
     public void zoomOut() {
         scene.getSceneAnimator().animateZoomFactor(scene.getZoomFactor() * 0.9);
         scene.revalidate();
-    }    
+    }
     
     public void generateGraph(SQLDefinition sqlDefinition) {
         removeAllChildren();
@@ -213,15 +250,14 @@ public class MashupGraphManager {
     
     public void setDataObject(MashupDataObject mashupDataObject) {
         this.mObj = mashupDataObject;
-        generateGraph(mObj.getModel().getSQLDefinition());
-        scene.validate();
-        scene.layoutScene();
     }
     
     public JComponent getTopPanel() {
-        JComponent comp = scene.getView();
-        comp = (comp == null) ? scene.createView() : scene.getView();
-        pane = new JScrollPane(comp);
+        if(pane == null) {
+            JComponent comp = scene.getView();
+            comp = (comp == null) ? scene.createView() : scene.getView();
+            pane = new JScrollPane(comp);
+        }
         panel.setTopComponent(pane);
         panel.setBottomComponent(output);
         return panel;
