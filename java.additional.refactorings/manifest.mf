@@ -1,0 +1,6 @@
+Manifest-Version: 1.0
+OpenIDE-Module: org.netbeans.modules.java.additional.refactorings
+OpenIDE-Module-Layer: org/netbeans/modules/java/additional/refactorings/layer.xml
+OpenIDE-Module-Localizing-Bundle: org/netbeans/modules/java/additional/refactorings/Bundle.properties
+OpenIDE-Module-Specification-Version: 1.0
+
