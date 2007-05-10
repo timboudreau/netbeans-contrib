@@ -17,6 +17,7 @@
 package org.netbeans.modules.editor.bracesmatching;
 
 import javax.swing.text.Document;
+import javax.swing.text.Position;
 import org.netbeans.modules.editor.bracesmatching.spi.MatcherContext;
 
 /**
@@ -46,5 +47,5 @@ public abstract class SpiAccessor {
     protected SpiAccessor() {
     }
 
-    public abstract MatcherContext createCaretContext(Document document, int offset, BracesMatchTaskResult result);
+    public abstract MatcherContext createCaretContext(Document document, int offset, Position.Bias direction, int lookahead);
 }

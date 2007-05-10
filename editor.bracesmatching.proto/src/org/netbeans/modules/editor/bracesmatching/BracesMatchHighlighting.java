@@ -20,8 +20,8 @@ package org.netbeans.modules.editor.bracesmatching;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.swing.SwingUtilities;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.DocumentEvent;
@@ -29,7 +29,9 @@ import javax.swing.event.DocumentListener;
 import javax.swing.text.AttributeSet;
 import javax.swing.text.Caret;
 import javax.swing.text.Document;
+import javax.swing.text.Element;
 import javax.swing.text.JTextComponent;
+import javax.swing.text.Position;
 import org.netbeans.spi.editor.highlighting.HighlightsChangeEvent;
 import org.netbeans.spi.editor.highlighting.HighlightsChangeListener;
 import org.netbeans.spi.editor.highlighting.HighlightsLayer;
@@ -43,6 +45,7 @@ import org.netbeans.api.editor.settings.FontColorSettings;
 import org.netbeans.api.lexer.TokenHierarchy;
 import org.netbeans.api.lexer.TokenId;
 import org.netbeans.api.lexer.TokenSequence;
+import org.netbeans.lib.editor.util.swing.DocumentUtilities;
 import org.netbeans.modules.editor.bracesmatching.spi.BracesMatcherFactory;
 import org.netbeans.modules.editor.bracesmatching.spi.BracesMatcher;
 import org.netbeans.modules.editor.bracesmatching.spi.MatcherContext;
@@ -120,20 +123,22 @@ public class BracesMatchHighlighting extends AbstractHighlightsContainer
     // ------------------------------------------------
     
     public void highlightChanged(HighlightsChangeEvent event) {
-        final int startOffset = event.getStartOffset();
-        final int endOffset = event.getEndOffset();
-        
-        SwingUtilities.invokeLater(new Runnable() {
-            private boolean inDocumentRender = false;
-            public void run() {
-                if (inDocumentRender) {
-                    fireHighlightsChange(startOffset, endOffset);
-                } else {
-                    inDocumentRender = true;
-                    document.render(this);
-                }
-            }
-        });
+        fireHighlightsChange(event.getStartOffset(), event.getEndOffset());
+// XXX: not neccessary
+//        final int startOffset = event.getStartOffset();
+//        final int endOffset = event.getEndOffset();
+//        
+//        SwingUtilities.invokeLater(new Runnable() {
+//            private boolean inDocumentRender = false;
+//            public void run() {
+//                if (inDocumentRender) {
+//                    fireHighlightsChange(startOffset, endOffset);
+//                } else {
+//                    inDocumentRender = true;
+//                    document.render(this);
+//                }
+//            }
+//        });
     }
 
     // ------------------------------------------------
@@ -186,10 +191,10 @@ public class BracesMatchHighlighting extends AbstractHighlightsContainer
     // private implementation
     // ------------------------------------------------
     
-    private BracesMatcherFactory findProvider(MatcherContext context) {
+    private static BracesMatcherFactory findProvider(Document document, int offset) {
         MimePath mimePath = null;
         
-        TokenHierarchy<? extends Document> th = TokenHierarchy.get(context.getDocument());
+        TokenHierarchy<? extends Document> th = TokenHierarchy.get(document);
         if (th != null) {
             TokenSequence<? extends TokenId> embedded = th.tokenSequence();
             TokenSequence<? extends TokenId> seq = null;
@@ -199,7 +204,7 @@ public class BracesMatchHighlighting extends AbstractHighlightsContainer
                 embedded = null;
                 
                 // Find the token at the caret's position
-                seq.move(context.getCaretOffset());
+                seq.move(offset);
                 if (seq.moveNext()) {
                     // Drill down to the embedded sequence
                     embedded = seq.embedded();
@@ -210,7 +215,7 @@ public class BracesMatchHighlighting extends AbstractHighlightsContainer
             String path = seq.languagePath().mimePath();
             mimePath = MimePath.parse(path);
         } else {
-            String mimeType = (String) context.getDocument().getProperty("mimeType"); //NOI18N
+            String mimeType = (String) document.getProperty("mimeType"); //NOI18N
             mimePath = mimeType != null ? MimePath.parse(mimeType) : null;
         }
         
@@ -237,38 +242,35 @@ public class BracesMatchHighlighting extends AbstractHighlightsContainer
                 return;
             }
 
-            Result async = new Result();
-            MatcherContext context = SpiAccessor.get().createCaretContext(document, caret.getDot(), async);
-            BracesMatcherFactory provider = findProvider(context);
-
-            if (provider != null) {
-                BracesMatcher matcher = provider.createMatcher(context);
-                async.initMatcher(matcher);
-                
-                if (matcher.canMatch()) {
-                    task = PR.post(async);
-                }
-            }
+            PR.post(new Result(document, caret.getDot(), null, bag, bracesMatchColoring, bracesMismatchColoring));
         }
     }
     
-    private final class Result implements Runnable, BracesMatchTaskResult {
+    private static final class Result implements Runnable {
 
-        private final OffsetsBag privateBag; // to make sure that cancelled tasks do not set any highlights
-        private BracesMatcher matcher;
+        private final Document document;
+        private final int caretOffset;
+        private final Position.Bias allowedDirection;
+        private final OffsetsBag highlights;
+        private final AttributeSet matchedColoring;
+        private final AttributeSet mismatchedColoring;
+
+        private boolean inDocumentRender = false;
         
-        private int originalTokenStart = -1;
-        private int originalTokenEnd = -1;
-        private boolean hasMatchingTokens = false;
-        
-        public Result() {
-            this.privateBag = new OffsetsBag(document, false);
-        }
-        
-        public void initMatcher(BracesMatcher matcher) {
-            assert matcher != null : "The 'matcher' parameter must not be null."; //NOI18N
-            assert this.matcher == null : "The matcher has already been initialized."; //NOI18N
-            this.matcher = matcher;
+        public Result(
+            Document document, 
+            int caretOffset, 
+            Position.Bias allowedDirection,
+            OffsetsBag highlights,
+            AttributeSet matchedColoring,
+            AttributeSet mismatchedColoring
+        ) {
+            this.document = document;
+            this.caretOffset = caretOffset;
+            this.allowedDirection = allowedDirection;
+            this.highlights = highlights;
+            this.matchedColoring = matchedColoring;
+            this.mismatchedColoring = mismatchedColoring;
         }
         
         // ------------------------------------------------
@@ -276,39 +278,152 @@ public class BracesMatchHighlighting extends AbstractHighlightsContainer
         // ------------------------------------------------
         
         public void run() {
+            // Read lock the document
+            if (!inDocumentRender) {
+                inDocumentRender = true;
+                document.render(this);
+            }
+
+            BracesMatcherFactory provider = findProvider(document, caretOffset);
+            if (provider == null || Thread.interrupted()) {
+                // no provider, no matcher, nothing to do
+                return;
+            }
+            
+            int [] origin = null;
+            BracesMatcher [] matcher = new BracesMatcher[1];
+            
+            if (allowedDirection == null) {
+                origin = findOrigin(provider, Position.Bias.Backward, matcher);
+                if (origin != null) {
+                    if (origin[1] < caretOffset) {
+                        BracesMatcher [] forwardMatcher = new BracesMatcher[1];
+                        int forwardOrigin [] = findOrigin(provider, Position.Bias.Forward, forwardMatcher);
+                        if (forwardOrigin != null) {
+                            if (forwardOrigin[0] == caretOffset) {
+                                origin = forwardOrigin;
+                                matcher = forwardMatcher;
+                            } else {
+                                origin = null;
+                            }
+                        }
+                    }
+                } else {
+                    origin = findOrigin(provider, Position.Bias.Forward, matcher);
+                }
+            } else {
+                origin = findOrigin(provider, allowedDirection, matcher);
+            }
+            
+            if (origin == null || Thread.interrupted()) {
+                // no original area, nothing to search for
+                return;
+            }
+            
             // Fire up the matching task
-            matcher.findMatches();
+            int [] matches = matcher[0].findMatches();
 
             // If the task was cancelled then exit
             if (Thread.interrupted()) {
                 return;
             }
 
-            if (!hasMatchingTokens) {
-                // mismatch ?
-                if (originalTokenStart != -1 && originalTokenEnd != -1) {
-                    privateBag.addHighlight(originalTokenStart, originalTokenEnd, bracesMismatchColoring);
+            if (highlights != null) {
+                if (matches != null && matches.length >= 2) {
+                    // Highlight the matched origin
+                    highlights.addHighlight(origin[0], origin[1], matchedColoring);
+
+                    // Highlight all the matches
+                    for(int i = 0; i < matches.length / 2; i++) {
+                        highlights.addHighlight(matches[i * 2], matches[i * 2 + 1], matchedColoring);
+                    }
+                } else {
+                    // Highlight the mismatched origin
+                    highlights.addHighlight(origin[0], origin[1], mismatchedColoring);
                 }
             }
+        }
+
+        private int [] findOrigin(BracesMatcherFactory provider, Position.Bias direction, BracesMatcher [] matcher) {
+            Element paragraph = DocumentUtilities.getParagraphElement(document, caretOffset);
+            int lookahead = 0;
             
-            bag.setHighlights(privateBag);
-        }
+            if (direction == Position.Bias.Backward) {
+                lookahead = caretOffset - paragraph.getStartOffset();
+            } else if (direction == Position.Bias.Forward) {
+                lookahead = paragraph.getEndOffset() - caretOffset;
+            }
+            
+            if (lookahead > 0) {
+                MatcherContext context = SpiAccessor.get().createCaretContext(
+                    document, 
+                    caretOffset, 
+                    direction, 
+                    lookahead
+                );
 
-        // ------------------------------------------------
-        // BracesMatchTaskResultImpl implementation
-        // ------------------------------------------------
+                matcher[0] = provider.createMatcher(context);
+                int [] origin = matcher[0].findOrigin();
+                
+                // Check the origin for consistency
+                if (origin != null) {
+                    if (origin.length == 0) {
+                        origin = null;
+                    } else if (origin.length != 2) {
+                        if (LOG.isLoggable(Level.WARNING)) {
+                            LOG.warning("Invalid BracesMatcher implementation, " + //NOI18N
+                                "findOrigin() can only return two offsets. " + //NOI18N
+                                "Offsending BracesMatcher: " + matcher); //NOI18N
+                        }
+                        origin = null;
+                    } else if (origin[0] < 0 || origin[1] > document.getLength() || origin[0] >= origin[1]) {
+                        if (LOG.isLoggable(Level.WARNING)) {
+                            LOG.warning("Invalid origin offsets [" + origin[0] + ", " + origin[1] + "]. " + //NOI18N
+                                "Offsending BracesMatcher: " + matcher); //NOI18N
+                        }
+                        origin = null;
+                    } else {
+                        if (direction == Position.Bias.Backward && 
+                            (origin[1] < caretOffset - lookahead || origin[0] > caretOffset))
+                        {
+                            if (LOG.isLoggable(Level.WARNING)) {
+                                LOG.warning("Origin offsets out of range, " + //NOI18N
+                                    "origin = [" + origin[0] + ", " + origin[1] + "], " + //NOI18N
+                                    "caretOffset = " + caretOffset + 
+                                    ", lookahead = " + lookahead + 
+                                    ", searching backwards. " + //NOI18N
+                                    "Offsending BracesMatcher: " + matcher); //NOI18N
+                            }
+                            origin = null;
+                        } else if (direction == Position.Bias.Forward && 
+                            (origin[1] < caretOffset || origin[0] > caretOffset + lookahead))
+                        {
+                            if (LOG.isLoggable(Level.WARNING)) {
+                                LOG.warning("Origin offsets out of range, " + //NOI18N
+                                    "origin = [" + origin[0] + ", " + origin[1] + "], " + //NOI18N
+                                    "caretOffset = " + caretOffset + 
+                                    ", lookahead = " + lookahead + 
+                                    ", searching forward. " + //NOI18N
+                                    "Offsending BracesMatcher: " + matcher); //NOI18N
+                            }
+                            origin = null;
+                        }
+
+                    }
+                }
+
+                if (origin != null) {
+                    LOG.fine("[" + origin[0] + ", " + origin[1] + "] for caret = " + caretOffset + ", lookahead = " + (direction == Position.Bias.Backward ? "-" : "") + lookahead);
+                } else {
+                    LOG.fine("[null] for caret = " + caretOffset + ", lookahead = " + (direction == Position.Bias.Backward ? "-" : "") + lookahead);
+                }
+                
+                return origin;
+            } else {
+                return null;
+            }
+        }
         
-        public void setOriginalToken(int startOffset, int endOffset) {
-            assert originalTokenStart == -1 && originalTokenEnd == -1 : "There can only be one original token."; //NOI18N
-            privateBag.addHighlight(startOffset, endOffset, bracesMatchColoring);
-            originalTokenStart = startOffset;
-            originalTokenEnd = endOffset;
-        }
-
-        public void addMatchingToken(int startOffset, int endOffset) {
-            privateBag.addHighlight(startOffset, endOffset, bracesMatchColoring);
-            hasMatchingTokens = true;
-        }
     } // End of Result class
     
     public static final class Factory implements HighlightsLayerFactory {
