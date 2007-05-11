@@ -31,7 +31,7 @@ Microsystems, Inc. All Rights Reserved.
   <folder name="MIMEResolver">
             <file name="org-netbeans-modules-docbook-resolver.xml" url="resolver.xml">
                 <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.docbook.Bundle"/>
-                <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/docbook/docbook.png"/>
+                <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/docbook/resources/docbook.png"/>
             </file>
         </folder>
     </folder>
@@ -48,23 +48,23 @@ Microsystems, Inc. All Rights Reserved.
     <folder name="Templates">
         <folder name="Documents">
             <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.docbook.Bundle"/>
-            <attr name="templateWizardURL" urlvalue="nbresloc:/org/netbeans/modules/docbook/document-templates-desc.html"/>
+            <attr name="templateWizardURL" urlvalue="nbresloc:/org/netbeans/modules/docbook/resources/document-templates-desc.html"/>
             <file name="docbook-article.xml" url="article-template.xml">
                 <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.docbook.Bundle"/>
-                <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/docbook/docbook.png"/>
-                <attr name="templateWizardURL" urlvalue="nbresloc:/org/netbeans/modules/docbook/article-template-desc.html"/>
+                <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/docbook/resources/docbook.png"/>
+                <attr name="templateWizardURL" urlvalue="nbresloc:/org/netbeans/modules/docbook/resources/article-template-desc.html"/>
                 <attr name="template" boolvalue="true"/>
             </file>
             <file name="docbook-slides.xml" url="presentation-template.xml">
                 <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.docbook.Bundle"/>
-                <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/docbook/docbook.png"/>
-                <attr name="templateWizardURL" urlvalue="nbresloc:/org/netbeans/modules/docbook/presentation-template-desc.html"/>
+                <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/docbook/resources/docbook.png"/>
+                <attr name="templateWizardURL" urlvalue="nbresloc:/org/netbeans/modules/docbook/resources/presentation-template-desc.html"/>
                 <attr name="template" boolvalue="true"/>
             </file>
             <file name="docbook-book.xml" url="book-template.xml">
                 <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.docbook.Bundle"/>
-                <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/docbook/docbook.png"/>
-                <attr name="templateWizardURL" urlvalue="nbresloc:/org/netbeans/modules/docbook/book-template-desc.html"/>
+                <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/docbook/resources/docbook.png"/>
+                <attr name="templateWizardURL" urlvalue="nbresloc:/org/netbeans/modules/docbook/resources/book-template-desc.html"/>
                 <attr name="template" boolvalue="true"/>
             </file>
         </folder>
