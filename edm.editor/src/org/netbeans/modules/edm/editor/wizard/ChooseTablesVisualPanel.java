@@ -393,7 +393,10 @@ public final class ChooseTablesVisualPanel extends JPanel {
         if(model.getRowCount() != 0) {
             removeButton.setEnabled(true);
             error.setText("");
-            canAdvance = true;
+            if(connectionCombo.getModel().getSize() != 0 &&
+                    connectionCombo.getSelectedItem() != null) {
+                canAdvance = true;    
+            }            
         } else {
             removeButton.setEnabled(false);
             error.setText("No table available for processing.");

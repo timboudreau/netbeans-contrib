@@ -26,6 +26,7 @@ import javax.swing.JComponent;
 import javax.swing.JScrollPane;
 import java.awt.Dimension;
 import java.awt.Rectangle;
+import java.util.WeakHashMap;
 
 import org.netbeans.api.visual.action.ActionFactory;
 import org.netbeans.api.visual.widget.Widget;
@@ -87,7 +88,7 @@ public class MashupGraphManager {
     
     private Map<String, Widget> sqlIdtoWidgetMap = new HashMap<String, Widget>();
     
-    private Map<Widget, SQLObject> widgetToObjectMap = new HashMap<Widget, SQLObject>();
+    private WeakHashMap<Widget, SQLObject> widgetToObjectMap = new WeakHashMap<Widget, SQLObject>();
     
     private Map<String, String> edgeMap = new HashMap<String, String>();
     
@@ -119,9 +120,7 @@ public class MashupGraphManager {
     }
     
     public void refreshGraph() {
-        if(this.mObj.getModel().isDirty() || pane == null) {
-            generateGraph(this.mObj.getModel().getSQLDefinition());
-        }
+        generateGraph(this.mObj.getModel().getSQLDefinition());
         scene.layoutScene();
     }
     
@@ -135,7 +134,7 @@ public class MashupGraphManager {
         }
         JComponent comp = null;
         try {
-             comp = scene.createSatelliteView();            
+            comp = scene.createSatelliteView();
         } catch (Exception ex) {
             throw ex;
         }
@@ -166,7 +165,7 @@ public class MashupGraphManager {
         Dimension viewDim = pane.getViewportBorderBounds().getSize();
         scene.getSceneAnimator().animateZoomFactor(
                 (float) viewDim.width / dim.width);
-        scene.revalidate();        
+        scene.revalidate();
     }
     
     public void fitToHeight(){
@@ -177,8 +176,8 @@ public class MashupGraphManager {
         Dimension viewDim = pane.getViewportBorderBounds().getSize();
         scene.getSceneAnimator().animateZoomFactor(
                 (float) viewDim.height / dim.height);
-        scene.revalidate();        
-    }    
+        scene.revalidate();
+    }
     
     public void expandAll() {
         Iterator<Widget> it = widgets.iterator();
@@ -308,16 +307,18 @@ public class MashupGraphManager {
     
     public void setSelectedNode(Widget wd) {
         SQLObject obj = widgetToObjectMap.get(wd);
-        if(obj instanceof SQLJoinOperator) {
-            WindowManager.getDefault().getRegistry().getActivated().
-                    setActivatedNodes(new Node[]{new JoinNode((SQLJoinOperator)obj)});
-        } else if (obj instanceof SQLDBTable) {
-            WindowManager.getDefault().getRegistry().getActivated().
-                    setActivatedNodes(new Node[]{new TableNode((SQLDBTable)obj)});            
-        } else if (obj instanceof SQLJoinTable) {
-            SQLJoinTable joinTbl = (SQLJoinTable)obj;
-            WindowManager.getDefault().getRegistry().getActivated().
-                    setActivatedNodes(new Node[]{new TableNode(joinTbl.getSourceTable())});            
+        if(obj != null) {
+            if(obj instanceof SQLJoinOperator) {
+                WindowManager.getDefault().getRegistry().getActivated().
+                        setActivatedNodes(new Node[]{new JoinNode((SQLJoinOperator)obj)});
+            } else if (obj instanceof SQLDBTable) {
+                WindowManager.getDefault().getRegistry().getActivated().
+                        setActivatedNodes(new Node[]{new TableNode((SQLDBTable)obj)});
+            } else if (obj instanceof SQLJoinTable) {
+                SQLJoinTable joinTbl = (SQLJoinTable)obj;
+                WindowManager.getDefault().getRegistry().getActivated().
+                        setActivatedNodes(new Node[]{new TableNode(joinTbl.getSourceTable())});
+            }
         }
     }
     
@@ -387,7 +388,7 @@ public class MashupGraphManager {
             widgets.add(conditionPin);
             
             // add popup for join widget.
-            widget.getHeader().getActions().addAction(
+            widget.getActions().addAction(
                     ActionFactory.createPopupMenuAction(new JoinPopupProvider(joinOp, mObj)));
             sqlIdtoWidgetMap.put(joinOp.getId(), widget);
         } else if(model instanceof RuntimeInput) {
@@ -409,14 +410,14 @@ public class MashupGraphManager {
             }
             
             // add popup for runtime inputs.
-            widget.getHeader().getActions().addAction(
+            widget.getActions().addAction(
                     ActionFactory.createPopupMenuAction(new RuntimeModelPopupProvider(rtInput, mObj)));
             sqlIdtoWidgetMap.put(rtInput.getId(), widget);
         } else if (model instanceof SQLDBTable) {
             SQLDBTable tbl = (SQLDBTable) model;
             String tooltip = "URL: " + tbl.getParent().getConnectionDefinition().getConnectionURL();
             widget.setNodeName(model.getDisplayName());
-            widget.getHeader().getActions().addAction(
+            widget.getActions().addAction(
                     ActionFactory.createPopupMenuAction(new TablePopupProvider(tbl, mObj)));
             
             String condition = ((SourceTable)tbl).getExtractionCondition().getConditionText();
@@ -477,7 +478,7 @@ public class MashupGraphManager {
             String tooltip = "URL: " + joinTbl.getSourceTable().
                     getParent().getConnectionDefinition().getConnectionURL();
             widget.setNodeName(joinTbl.getSourceTable().getDisplayName());
-            widget.getHeader().getActions().addAction(
+            widget.getActions().addAction(
                     ActionFactory.createPopupMenuAction(new TablePopupProvider(
                     joinTbl.getSourceTable(), mObj)));
             
