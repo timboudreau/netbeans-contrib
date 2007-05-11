@@ -64,8 +64,6 @@ public class BracesMatchHighlighting extends AbstractHighlightsContainer
     private static final String BRACES_MATCH_COLORING = "braces-match"; //NOI18N
     private static final String BRACES_MISMATCH_COLORING = "braces-mismatch"; //NOI18N
     
-    private final String LOCK = new String("BracesMatchHighlighting-LOCK");
-    
     private final JTextComponent component;
     private final Document document;
     
@@ -76,9 +74,6 @@ public class BracesMatchHighlighting extends AbstractHighlightsContainer
     private final AttributeSet bracesMatchColoring;
     private final AttributeSet bracesMismatchColoring;
 
-    private static final RequestProcessor PR = new RequestProcessor("BracesMatching", 1, true);
-    private RequestProcessor.Task task = null;
-    
     public BracesMatchHighlighting(JTextComponent component, Document document) {
         this.document = document;
         
@@ -190,253 +185,20 @@ public class BracesMatchHighlighting extends AbstractHighlightsContainer
     // private implementation
     // ------------------------------------------------
     
-    private static BracesMatcherFactory findProvider(Document document, int offset) {
-        MimePath mimePath = null;
-        
-        TokenHierarchy<? extends Document> th = TokenHierarchy.get(document);
-        if (th != null) {
-            TokenSequence<? extends TokenId> embedded = th.tokenSequence();
-            TokenSequence<? extends TokenId> seq = null;
-            
-            do {
-                seq = embedded;
-                embedded = null;
-                
-                // Find the token at the caret's position
-                seq.move(offset);
-                if (seq.moveNext()) {
-                    // Drill down to the embedded sequence
-                    embedded = seq.embedded();
-                }
-                
-            } while (embedded != null);
-            
-            String path = seq.languagePath().mimePath();
-            mimePath = MimePath.parse(path);
-        } else {
-            String mimeType = (String) document.getProperty("mimeType"); //NOI18N
-            mimePath = mimeType != null ? MimePath.parse(mimeType) : null;
-        }
-        
-        if (mimePath == null) {
-            mimePath = MimePath.EMPTY;
-        }
-
-        return MimeLookup.getLookup(mimePath).lookup(BracesMatcherFactory.class);
-    }
-    
     private void refresh() {
-        synchronized (LOCK) {
-            // If there is a task running, cacel it
-            if (task != null) {
-                task.cancel();
-                task = null;
-            }
-
-            // Remove all existing highlights
+        Caret caret = this.caret;
+        if (caret == null) {
             bag.clear();
-
-            // If there is no caret, we have nothing to do
-            if (caret == null) {
-                return;
-            }
-
-            task = PR.post(new Result(document, caret.getDot(), null, bag, bracesMatchColoring, bracesMismatchColoring));
+        } else {
+            MasterMatcher.get(document).highlight(
+                caret.getDot(), 
+                component.getClientProperty(MasterMatcher.PROP_ALLOWED_SEARCH_DIRECTION), 
+                bag, 
+                bracesMatchColoring, 
+                bracesMismatchColoring
+            );
         }
     }
-    
-    private static final class Result implements Runnable {
-
-        private final Document document;
-        private final int caretOffset;
-        private final Boolean allowedDirection;
-        private final OffsetsBag highlights;
-        private final AttributeSet matchedColoring;
-        private final AttributeSet mismatchedColoring;
-
-        private boolean inDocumentRender = false;
-        
-        public Result(
-            Document document, 
-            int caretOffset, 
-            Boolean allowedDirection,
-            OffsetsBag highlights,
-            AttributeSet matchedColoring,
-            AttributeSet mismatchedColoring
-        ) {
-            this.document = document;
-            this.caretOffset = caretOffset;
-            this.allowedDirection = allowedDirection;
-            this.highlights = highlights;
-            this.matchedColoring = matchedColoring;
-            this.mismatchedColoring = mismatchedColoring;
-        }
-        
-        // ------------------------------------------------
-        // Runnable implementation
-        // ------------------------------------------------
-        
-        public void run() {
-            // Read lock the document
-            if (!inDocumentRender) {
-                inDocumentRender = true;
-                document.render(this);
-                return;
-            }
-
-            BracesMatcherFactory provider = findProvider(document, caretOffset);
-            if (provider == null || Thread.currentThread().isInterrupted()) {
-                // no provider, no matcher, nothing to do
-                return;
-            }
-            
-            int [] origin = null;
-            BracesMatcher [] matcher = new BracesMatcher[1];
-            
-            if (allowedDirection == null) {
-                origin = findOrigin(provider, true, matcher);
-                if (origin != null) {
-                    if (origin[1] < caretOffset) {
-                        BracesMatcher [] forwardMatcher = new BracesMatcher[1];
-                        int forwardOrigin [] = findOrigin(provider, false, forwardMatcher);
-                        if (forwardOrigin != null) {
-                            if (forwardOrigin[0] == caretOffset) {
-                                origin = forwardOrigin;
-                                matcher = forwardMatcher;
-                            } else {
-                                origin = null;
-                            }
-                        }
-                    }
-                } else {
-                    origin = findOrigin(provider, false, matcher);
-                }
-            } else {
-                origin = findOrigin(provider, allowedDirection, matcher);
-            }
-            
-            if (origin == null || Thread.currentThread().isInterrupted()) {
-                // no original area, nothing to search for
-                return;
-            }
-            
-            // Fire up the matching task
-            int [] matches;
-            
-            try {
-                matches = matcher[0].findMatches();
-            } catch (InterruptedException e) {
-                return;
-            }
-
-            // If the task was cancelled then exit
-            if (Thread.currentThread().isInterrupted()) {
-                return;
-            }
-
-            if (highlights != null) {
-                if (matches != null && matches.length >= 2) {
-                    // Highlight the matched origin
-                    highlights.addHighlight(origin[0], origin[1], matchedColoring);
-
-                    // Highlight all the matches
-                    for(int i = 0; i < matches.length / 2; i++) {
-                        highlights.addHighlight(matches[i * 2], matches[i * 2 + 1], matchedColoring);
-                    }
-                } else {
-                    // Highlight the mismatched origin
-                    highlights.addHighlight(origin[0], origin[1], mismatchedColoring);
-                }
-            }
-        }
-
-        private int [] findOrigin(BracesMatcherFactory provider, boolean backward, BracesMatcher [] matcher) {
-            Element paragraph = DocumentUtilities.getParagraphElement(document, caretOffset);
-            int lookahead = 0;
-            
-            if (backward) {
-                lookahead = caretOffset - paragraph.getStartOffset();
-            } else {
-                lookahead = paragraph.getEndOffset() - caretOffset;
-            }
-            
-            if (lookahead > 0) {
-                MatcherContext context = SpiAccessor.get().createCaretContext(
-                    document, 
-                    caretOffset, 
-                    backward, 
-                    lookahead
-                );
-
-                matcher[0] = provider.createMatcher(context);
-                int [] origin;
-                
-                try {
-                    origin = matcher[0].findOrigin();
-                } catch (InterruptedException e) {
-                    return null;
-                }
-                
-                // Check the origin for consistency
-                if (origin != null) {
-                    if (origin.length == 0) {
-                        origin = null;
-                    } else if (origin.length != 2) {
-                        if (LOG.isLoggable(Level.WARNING)) {
-                            LOG.warning("Invalid BracesMatcher implementation, " + //NOI18N
-                                "findOrigin() can only return two offsets. " + //NOI18N
-                                "Offsending BracesMatcher: " + matcher); //NOI18N
-                        }
-                        origin = null;
-                    } else if (origin[0] < 0 || origin[1] > document.getLength() || origin[0] >= origin[1]) {
-                        if (LOG.isLoggable(Level.WARNING)) {
-                            LOG.warning("Invalid origin offsets [" + origin[0] + ", " + origin[1] + "]. " + //NOI18N
-                                "Offsending BracesMatcher: " + matcher); //NOI18N
-                        }
-                        origin = null;
-                    } else {
-                        if (backward) {
-                            if (origin[1] < caretOffset - lookahead || origin[0] > caretOffset) {
-                                if (LOG.isLoggable(Level.WARNING)) {
-                                    LOG.warning("Origin offsets out of range, " + //NOI18N
-                                        "origin = [" + origin[0] + ", " + origin[1] + "], " + //NOI18N
-                                        "caretOffset = " + caretOffset + 
-                                        ", lookahead = " + lookahead + 
-                                        ", searching backwards. " + //NOI18N
-                                        "Offsending BracesMatcher: " + matcher); //NOI18N
-                                }
-                                origin = null;
-                            }
-                        } else {
-                            if ((origin[1] < caretOffset || origin[0] > caretOffset + lookahead)) {
-                                if (LOG.isLoggable(Level.WARNING)) {
-                                    LOG.warning("Origin offsets out of range, " + //NOI18N
-                                        "origin = [" + origin[0] + ", " + origin[1] + "], " + //NOI18N
-                                        "caretOffset = " + caretOffset + 
-                                        ", lookahead = " + lookahead + 
-                                        ", searching forward. " + //NOI18N
-                                        "Offsending BracesMatcher: " + matcher); //NOI18N
-                                }
-                                origin = null;
-                            }
-                        }
-
-                    }
-                }
-
-                if (origin != null) {
-                    LOG.fine("[" + origin[0] + ", " + origin[1] + "] for caret = " + caretOffset + ", lookahead = " + (backward ? "-" : "") + lookahead);
-                } else {
-                    LOG.fine("[null] for caret = " + caretOffset + ", lookahead = " + (backward ? "-" : "") + lookahead);
-                }
-                
-                return origin;
-            } else {
-                return null;
-            }
-        }
-        
-    } // End of Result class
     
     public static final class Factory implements HighlightsLayerFactory {
         public HighlightsLayer[] createLayers(Context context) {
