@@ -31,7 +31,6 @@ import javax.swing.text.Caret;
 import javax.swing.text.Document;
 import javax.swing.text.Element;
 import javax.swing.text.JTextComponent;
-import javax.swing.text.Position;
 import org.netbeans.spi.editor.highlighting.HighlightsChangeEvent;
 import org.netbeans.spi.editor.highlighting.HighlightsChangeListener;
 import org.netbeans.spi.editor.highlighting.HighlightsLayer;
@@ -250,7 +249,7 @@ public class BracesMatchHighlighting extends AbstractHighlightsContainer
 
         private final Document document;
         private final int caretOffset;
-        private final Position.Bias allowedDirection;
+        private final Boolean allowedDirection;
         private final OffsetsBag highlights;
         private final AttributeSet matchedColoring;
         private final AttributeSet mismatchedColoring;
@@ -260,7 +259,7 @@ public class BracesMatchHighlighting extends AbstractHighlightsContainer
         public Result(
             Document document, 
             int caretOffset, 
-            Position.Bias allowedDirection,
+            Boolean allowedDirection,
             OffsetsBag highlights,
             AttributeSet matchedColoring,
             AttributeSet mismatchedColoring
@@ -295,11 +294,11 @@ public class BracesMatchHighlighting extends AbstractHighlightsContainer
             BracesMatcher [] matcher = new BracesMatcher[1];
             
             if (allowedDirection == null) {
-                origin = findOrigin(provider, Position.Bias.Backward, matcher);
+                origin = findOrigin(provider, true, matcher);
                 if (origin != null) {
                     if (origin[1] < caretOffset) {
                         BracesMatcher [] forwardMatcher = new BracesMatcher[1];
-                        int forwardOrigin [] = findOrigin(provider, Position.Bias.Forward, forwardMatcher);
+                        int forwardOrigin [] = findOrigin(provider, false, forwardMatcher);
                         if (forwardOrigin != null) {
                             if (forwardOrigin[0] == caretOffset) {
                                 origin = forwardOrigin;
@@ -310,7 +309,7 @@ public class BracesMatchHighlighting extends AbstractHighlightsContainer
                         }
                     }
                 } else {
-                    origin = findOrigin(provider, Position.Bias.Forward, matcher);
+                    origin = findOrigin(provider, false, matcher);
                 }
             } else {
                 origin = findOrigin(provider, allowedDirection, matcher);
@@ -351,13 +350,13 @@ public class BracesMatchHighlighting extends AbstractHighlightsContainer
             }
         }
 
-        private int [] findOrigin(BracesMatcherFactory provider, Position.Bias direction, BracesMatcher [] matcher) {
+        private int [] findOrigin(BracesMatcherFactory provider, boolean backward, BracesMatcher [] matcher) {
             Element paragraph = DocumentUtilities.getParagraphElement(document, caretOffset);
             int lookahead = 0;
             
-            if (direction == Position.Bias.Backward) {
+            if (backward) {
                 lookahead = caretOffset - paragraph.getStartOffset();
-            } else if (direction == Position.Bias.Forward) {
+            } else {
                 lookahead = paragraph.getEndOffset() - caretOffset;
             }
             
@@ -365,7 +364,7 @@ public class BracesMatchHighlighting extends AbstractHighlightsContainer
                 MatcherContext context = SpiAccessor.get().createCaretContext(
                     document, 
                     caretOffset, 
-                    direction, 
+                    backward, 
                     lookahead
                 );
 
@@ -396,39 +395,39 @@ public class BracesMatchHighlighting extends AbstractHighlightsContainer
                         }
                         origin = null;
                     } else {
-                        if (direction == Position.Bias.Backward && 
-                            (origin[1] < caretOffset - lookahead || origin[0] > caretOffset))
-                        {
-                            if (LOG.isLoggable(Level.WARNING)) {
-                                LOG.warning("Origin offsets out of range, " + //NOI18N
-                                    "origin = [" + origin[0] + ", " + origin[1] + "], " + //NOI18N
-                                    "caretOffset = " + caretOffset + 
-                                    ", lookahead = " + lookahead + 
-                                    ", searching backwards. " + //NOI18N
-                                    "Offsending BracesMatcher: " + matcher); //NOI18N
+                        if (backward) {
+                            if (origin[1] < caretOffset - lookahead || origin[0] > caretOffset) {
+                                if (LOG.isLoggable(Level.WARNING)) {
+                                    LOG.warning("Origin offsets out of range, " + //NOI18N
+                                        "origin = [" + origin[0] + ", " + origin[1] + "], " + //NOI18N
+                                        "caretOffset = " + caretOffset + 
+                                        ", lookahead = " + lookahead + 
+                                        ", searching backwards. " + //NOI18N
+                                        "Offsending BracesMatcher: " + matcher); //NOI18N
+                                }
+                                origin = null;
                             }
-                            origin = null;
-                        } else if (direction == Position.Bias.Forward && 
-                            (origin[1] < caretOffset || origin[0] > caretOffset + lookahead))
-                        {
-                            if (LOG.isLoggable(Level.WARNING)) {
-                                LOG.warning("Origin offsets out of range, " + //NOI18N
-                                    "origin = [" + origin[0] + ", " + origin[1] + "], " + //NOI18N
-                                    "caretOffset = " + caretOffset + 
-                                    ", lookahead = " + lookahead + 
-                                    ", searching forward. " + //NOI18N
-                                    "Offsending BracesMatcher: " + matcher); //NOI18N
+                        } else {
+                            if ((origin[1] < caretOffset || origin[0] > caretOffset + lookahead)) {
+                                if (LOG.isLoggable(Level.WARNING)) {
+                                    LOG.warning("Origin offsets out of range, " + //NOI18N
+                                        "origin = [" + origin[0] + ", " + origin[1] + "], " + //NOI18N
+                                        "caretOffset = " + caretOffset + 
+                                        ", lookahead = " + lookahead + 
+                                        ", searching forward. " + //NOI18N
+                                        "Offsending BracesMatcher: " + matcher); //NOI18N
+                                }
+                                origin = null;
                             }
-                            origin = null;
                         }
 
                     }
                 }
 
                 if (origin != null) {
-                    LOG.fine("[" + origin[0] + ", " + origin[1] + "] for caret = " + caretOffset + ", lookahead = " + (direction == Position.Bias.Backward ? "-" : "") + lookahead);
+                    LOG.fine("[" + origin[0] + ", " + origin[1] + "] for caret = " + caretOffset + ", lookahead = " + (backward ? "-" : "") + lookahead);
                 } else {
-                    LOG.fine("[null] for caret = " + caretOffset + ", lookahead = " + (direction == Position.Bias.Backward ? "-" : "") + lookahead);
+                    LOG.fine("[null] for caret = " + caretOffset + ", lookahead = " + (backward ? "-" : "") + lookahead);
                 }
                 
                 return origin;
