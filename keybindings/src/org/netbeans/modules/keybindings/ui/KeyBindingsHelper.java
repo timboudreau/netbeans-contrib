@@ -52,10 +52,13 @@ public class KeyBindingsHelper {
             StringBuffer buffer = new StringBuffer();
             buffer.append(actionName);
             removeAmpersand(buffer);
-            masterList.add( new KeyBindingsHelper.MultiKeyBinding(
-                    keyStrokes,
-                    buffer.toString(),
-                    kit));
+            // Separate each KeyStroke.
+            for (int j = 0; j < keyStrokes.length; j++) {
+                masterList.add( new KeyBindingsHelper.MultiKeyBinding(
+                        new KeyStroke[] {keyStrokes[j]},
+                        buffer.toString(),
+                        kit));
+            }
         }
         
         AllOptionsFolder allOptionsFolder = AllOptionsFolder.getDefault();

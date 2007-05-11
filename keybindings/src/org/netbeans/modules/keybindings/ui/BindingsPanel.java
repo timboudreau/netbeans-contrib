@@ -344,14 +344,18 @@ public class BindingsPanel extends JPanel {
                 String prefix = textField.getText();
                 if (prefix.endsWith(" ")) {
                     prefix = prefix.substring(0, prefix.length() -1);
-                }
+                }                
                 int flags = 0;
                 if (prefix.length() > 0) {
-                    if (!prefix.endsWith("$")) {
-                        prefix = prefix + ".*";
-                    }
-                    if (prefix.toLowerCase().equals(prefix)) {
-                        flags = Pattern.CASE_INSENSITIVE;
+                    if (columnNumber == BindingsTableModel.ACTION) {
+                        if (!prefix.endsWith("$")) {
+                            prefix = prefix + ".*";
+                        }
+                        if (prefix.toLowerCase().equals(prefix)) {
+                            flags = Pattern.CASE_INSENSITIVE;
+                        }
+                    } else {
+                        prefix = Pattern.quote(prefix);
                     }
                 }
                 try {
