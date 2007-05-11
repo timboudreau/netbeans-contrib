@@ -1606,7 +1606,7 @@ public class TransformParser extends ScriptParser {
             super(context);
         }
         public Parser newParser(final Scanner S, final TransformParser tp) {
-            return new Parser(this, S, false) {
+            return new Parser(this, S, false, null) {
 		protected JCExpression checkExprStat(JCExpression t) { // be more forgiving
 		    return t;
 		}
