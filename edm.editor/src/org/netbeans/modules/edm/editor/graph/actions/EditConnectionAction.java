@@ -16,7 +16,6 @@
 
 package org.netbeans.modules.edm.editor.graph.actions;
 
-import java.awt.Image;
 import java.awt.event.ActionEvent;
 import javax.swing.AbstractAction;
 import javax.swing.ImageIcon;
@@ -33,10 +32,11 @@ import org.openide.DialogDescriptor;
 import org.openide.DialogDisplayer;
 import org.openide.NotifyDescriptor;
 import org.openide.util.NbBundle;
-import org.openide.util.Utilities;
 
 import org.netbeans.modules.edm.editor.dataobject.MashupDataObject;
 import org.netbeans.modules.edm.editor.graph.MashupGraphManager;
+import org.netbeans.modules.edm.editor.utils.ImageConstants;
+import org.netbeans.modules.edm.editor.utils.MashupGraphUtil;
 import org.netbeans.modules.sql.framework.ui.editor.property.IPropertySheet;
 import org.netbeans.modules.etl.ui.view.DBModelTreeView;
 import org.netbeans.modules.etl.ui.view.ETLCollaborationTopComponent;
@@ -52,18 +52,17 @@ public class EditConnectionAction extends AbstractAction {
     
     private MashupGraphManager manager;
     
-    private static final Image EDIT_IMAGE = Utilities.loadImage(
-            "org/netbeans/modules/edm/editor/resources/DatabaseProperties.png"); // NOI18N
-    
     /** Creates a new instance of EditJoinAction */
     public EditConnectionAction(MashupDataObject dObj) {
-        super("", new ImageIcon(EDIT_IMAGE));
+        super("",new ImageIcon(
+                MashupGraphUtil.getImage(ImageConstants.EDITCONNECTION)));
         mObj = dObj;
         this.manager = dObj.getGraphManager();
     }
     
     public EditConnectionAction(MashupDataObject dObj, String name) {
-        super(name, new ImageIcon(EDIT_IMAGE));
+        super(name,new ImageIcon(
+                MashupGraphUtil.getImage(ImageConstants.EDITCONNECTION)));
         mObj = dObj;
         this.manager = dObj.getGraphManager();
     }

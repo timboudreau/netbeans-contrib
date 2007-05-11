@@ -16,16 +16,16 @@
 
 package org.netbeans.modules.edm.editor.graph.actions;
 
-import java.awt.Image;
 import java.awt.event.ActionEvent;
 import javax.swing.AbstractAction;
 import javax.swing.ImageIcon;
 
-import org.openide.util.Utilities;
 import org.openide.DialogDisplayer;
 import org.openide.NotifyDescriptor;
 
 import org.netbeans.modules.edm.editor.dataobject.MashupDataObject;
+import org.netbeans.modules.edm.editor.utils.ImageConstants;
+import org.netbeans.modules.edm.editor.utils.MashupGraphUtil;
 import org.netbeans.modules.sql.framework.model.SQLConstants;
 import org.netbeans.modules.sql.framework.model.SQLJoinView;
 import org.netbeans.modules.sql.framework.ui.view.join.JoinMainDialog;
@@ -39,17 +39,16 @@ public class EditJoinAction extends AbstractAction {
     
     private MashupDataObject mObj;
     
-    private static final Image EDIT_IMAGE = Utilities.loadImage(
-            "org/netbeans/modules/edm/editor/resources/edit_join.png"); // NOI18N
-    
     /** Creates a new instance of EditJoinAction */
     public EditJoinAction(MashupDataObject dObj) {
-        super("", new ImageIcon(EDIT_IMAGE));
+        super("",new ImageIcon(
+                MashupGraphUtil.getImage(ImageConstants.EDITJOIN)));
         mObj = dObj;
     }
     
     public EditJoinAction(MashupDataObject dObj, String name) {
-        super(name, new ImageIcon(EDIT_IMAGE));
+        super(name,new ImageIcon(
+                MashupGraphUtil.getImage(ImageConstants.EDITJOIN)));
         mObj = dObj;
     }    
     

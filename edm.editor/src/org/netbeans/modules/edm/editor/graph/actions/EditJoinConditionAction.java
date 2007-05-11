@@ -16,12 +16,10 @@
 
 package org.netbeans.modules.edm.editor.graph.actions;
 
-import java.awt.Image;
 import java.awt.event.ActionEvent;
 import javax.swing.AbstractAction;
 import javax.swing.ImageIcon;
 
-import org.openide.util.Utilities;
 import org.openide.DialogDisplayer;
 import org.openide.NotifyDescriptor;
 import org.openide.DialogDescriptor;
@@ -32,6 +30,8 @@ import org.netbeans.modules.sql.framework.ui.graph.IOperatorXmlInfoModel;
 import org.netbeans.modules.sql.framework.ui.view.IGraphViewContainer;
 import org.netbeans.modules.sql.framework.ui.view.conditionbuilder.ConditionBuilderView;
 import org.netbeans.modules.edm.editor.graph.MashupGraphManager;
+import org.netbeans.modules.edm.editor.utils.ImageConstants;
+import org.netbeans.modules.edm.editor.utils.MashupGraphUtil;
 import org.netbeans.modules.sql.framework.model.SQLJoinOperator;
 
 /**
@@ -46,19 +46,18 @@ public class EditJoinConditionAction extends AbstractAction {
     
     private MashupGraphManager manager;
     
-    private static final Image CONDITION_IMAGE = Utilities.loadImage(
-            "org/netbeans/modules/edm/editor/resources/system_condition.png"); // NOI18N
-
     /** Creates a new instance of EditJoinAction */
     public EditJoinConditionAction(MashupDataObject dObj, SQLJoinOperator op) {
-        super("", new ImageIcon(CONDITION_IMAGE));
+        super("",new ImageIcon(
+                MashupGraphUtil.getImage(ImageConstants.JOINCONDITION)));
         mObj = dObj;
         joinOp = op;
         this.manager = dObj.getGraphManager();
     }
     
     public EditJoinConditionAction(MashupDataObject dObj, SQLJoinOperator op, String name) {
-        super(name, new ImageIcon(CONDITION_IMAGE));
+        super(name,new ImageIcon(
+                MashupGraphUtil.getImage(ImageConstants.JOINCONDITION)));
         mObj = dObj;
         joinOp = op;
         this.manager = dObj.getGraphManager();

@@ -33,7 +33,7 @@ public final class EDMFactory {
      * Creates a border used by VMD node.
      * @return the VMD node border
      */
-    public static Border createVMDNodeBorder () {
+    public static Border createEDMNodeBorder () {
         return BORDER_NODE;
     }
 

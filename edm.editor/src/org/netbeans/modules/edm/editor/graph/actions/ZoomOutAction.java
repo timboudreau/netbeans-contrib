@@ -16,14 +16,13 @@
 
 package org.netbeans.modules.edm.editor.graph.actions;
 
-import java.awt.Image;
 import java.awt.event.ActionEvent;
 import javax.swing.AbstractAction;
 import javax.swing.ImageIcon;
 
-import org.openide.util.Utilities;
-
 import org.netbeans.modules.edm.editor.dataobject.MashupDataObject;
+import org.netbeans.modules.edm.editor.utils.ImageConstants;
+import org.netbeans.modules.edm.editor.utils.MashupGraphUtil;
 
 /**
  *
@@ -33,17 +32,16 @@ public class ZoomOutAction extends AbstractAction {
     
     private MashupDataObject mObj;
     
-    private static final Image ZOOM_OUT_IMAGE = Utilities.loadImage(
-            "org/netbeans/modules/edm/editor/resources/zoom_out.png"); // NOI18N
-    
     /** Creates a new instance of EditJoinAction */
     public ZoomOutAction(MashupDataObject dObj) {
-        super("",new ImageIcon(ZOOM_OUT_IMAGE));
+        super("",new ImageIcon(
+                MashupGraphUtil.getImage(ImageConstants.ZOOMOUT)));
         mObj = dObj;
     }
     
     public ZoomOutAction(MashupDataObject dObj, String name) {
-        super(name,new ImageIcon(ZOOM_OUT_IMAGE));
+        super(name,new ImageIcon(
+                MashupGraphUtil.getImage(ImageConstants.ZOOMOUT)));
         mObj = dObj;
     }    
     

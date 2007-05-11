@@ -16,7 +16,6 @@
 
 package org.netbeans.modules.edm.editor.graph.actions;
 
-import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.util.ArrayList;
 import java.util.List;
@@ -31,11 +30,12 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JSeparator;
 
-import org.openide.util.Utilities;
 import org.openide.windows.WindowManager;
 
 import org.netbeans.modules.edm.editor.dataobject.MashupDataObject;
 import org.netbeans.modules.edm.editor.graph.MashupGraphManager;
+import org.netbeans.modules.edm.editor.utils.ImageConstants;
+import org.netbeans.modules.edm.editor.utils.MashupGraphUtil;
 import org.netbeans.modules.sql.framework.model.SQLObject;
 import org.netbeans.modules.sql.framework.ui.view.TableColumnNode;
 import org.netbeans.modules.sql.framework.model.SQLDBColumn;
@@ -54,19 +54,18 @@ public class SelectColumnsAction extends AbstractAction {
     
     private MashupGraphManager manager;
     
-    private static final Image COL_SELECT_IMAGE = Utilities.loadImage(
-            "org/netbeans/modules/edm/editor/resources/columnselection.png"); // NOI18N
-    
     /** Creates a new instance of EditJoinAction */
     public SelectColumnsAction(MashupDataObject dObj, SQLObject obj) {
-        super("", new ImageIcon(COL_SELECT_IMAGE));
+        super("",new ImageIcon(
+                MashupGraphUtil.getImage(ImageConstants.RUNTIMEATTR)));
         mObj = dObj;
         this.manager = dObj.getGraphManager();
         this.obj = obj;
     }
     
     public SelectColumnsAction(MashupDataObject dObj, SQLObject obj, String name) {
-        super(name, new ImageIcon(COL_SELECT_IMAGE));
+        super(name,new ImageIcon(
+                MashupGraphUtil.getImage(ImageConstants.RUNTIMEATTR)));
         mObj = dObj;
         this.manager = dObj.getGraphManager();
         this.obj = obj;

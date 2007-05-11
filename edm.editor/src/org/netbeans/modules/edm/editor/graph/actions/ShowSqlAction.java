@@ -16,14 +16,13 @@
 
 package org.netbeans.modules.edm.editor.graph.actions;
 
-import java.awt.Image;
 import java.awt.event.ActionEvent;
 import javax.swing.AbstractAction;
 import javax.swing.ImageIcon;
 
-import org.openide.util.Utilities;
-
 import org.netbeans.modules.edm.editor.graph.MashupGraphManager;
+import org.netbeans.modules.edm.editor.utils.ImageConstants;
+import org.netbeans.modules.edm.editor.utils.MashupGraphUtil;
 import org.netbeans.modules.sql.framework.evaluators.database.DB;
 import org.netbeans.modules.sql.framework.evaluators.database.DBFactory;
 import org.netbeans.modules.sql.framework.evaluators.database.StatementContext;
@@ -44,18 +43,17 @@ public class ShowSqlAction extends AbstractAction {
     
     private MashupGraphManager manager;
     
-    private static final Image SQL_IMAGE = Utilities.loadImage(
-            "org/netbeans/modules/edm/editor/resources/Show_Sql.png"); // NOI18N
-    
     /** Creates a new instance of EditJoinAction */
     public ShowSqlAction(Object op, MashupGraphManager manager) {
-        super("", new ImageIcon(SQL_IMAGE));
+        super("",new ImageIcon(
+                MashupGraphUtil.getImage(ImageConstants.SHOW_SQL)));
         obj = op;
         this.manager = manager;
     }
     
     public ShowSqlAction(Object op, MashupGraphManager manager, String name) {
-        super(name, new ImageIcon(SQL_IMAGE));
+        super(name,new ImageIcon(
+                MashupGraphUtil.getImage(ImageConstants.SHOW_SQL)));
         obj = op;
         this.manager = manager;
     }
@@ -65,7 +63,7 @@ public class ShowSqlAction extends AbstractAction {
             if(obj instanceof SQLJoinOperator) {
                 DB db = DBFactory.getInstance().getDatabase(DB.AXIONDB);
                 StatementContext context = new StatementContext();
-                StringBuffer buf = new StringBuffer("SELECT ");
+                StringBuilder buf = new StringBuilder("SELECT ");
                 SQLDBTable[] tables = (SQLDBTable[])((SQLJoinOperator)obj).getAllSourceTables().toArray(new SQLDBTable[0]);
                 int i = 0;
                 for(SQLDBTable table : tables) {

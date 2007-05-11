@@ -16,14 +16,13 @@
 
 package org.netbeans.modules.edm.editor.graph.actions;
 
-import java.awt.Image;
 import java.awt.event.ActionEvent;
 import javax.swing.AbstractAction;
 import javax.swing.ImageIcon;
 
-import org.openide.util.Utilities;
-
 import org.netbeans.modules.edm.editor.dataobject.MashupDataObject;
+import org.netbeans.modules.edm.editor.utils.ImageConstants;
+import org.netbeans.modules.edm.editor.utils.MashupGraphUtil;
 import org.netbeans.modules.sql.framework.model.SQLObject;
 import org.netbeans.modules.etl.ui.view.TablePanel;
 import org.netbeans.modules.sql.framework.model.SQLConstants;
@@ -38,17 +37,16 @@ public class RuntimeInputAction extends AbstractAction {
     
     private SQLObject obj;
     
-    private static final Image RUNTIME_INPUT_IMAGE = Utilities.loadImage(
-            "org/netbeans/modules/edm/editor/resources/RuntimeInput.png"); // NOI18N
-    
     /** Creates a new instance of EditJoinAction */
     public RuntimeInputAction(MashupDataObject dObj) {
-        super("", new ImageIcon(RUNTIME_INPUT_IMAGE));
+        super("",new ImageIcon(
+                MashupGraphUtil.getImage(ImageConstants.RUNTIMEINPUT)));
         mObj = dObj;
     }
     
     public RuntimeInputAction(MashupDataObject dObj, String name) {
-        super(name, new ImageIcon(RUNTIME_INPUT_IMAGE));
+        super(name,new ImageIcon(
+                MashupGraphUtil.getImage(ImageConstants.RUNTIMEINPUT)));
         mObj = dObj;
     }
     

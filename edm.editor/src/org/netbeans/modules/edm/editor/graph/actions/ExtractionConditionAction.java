@@ -16,14 +16,13 @@
 
 package org.netbeans.modules.edm.editor.graph.actions;
 
-import java.awt.Image;
 import java.awt.event.ActionEvent;
 import javax.swing.AbstractAction;
 import javax.swing.ImageIcon;
 
-import org.openide.util.Utilities;
-
 import org.netbeans.modules.edm.editor.dataobject.MashupDataObject;
+import org.netbeans.modules.edm.editor.utils.ImageConstants;
+import org.netbeans.modules.edm.editor.utils.MashupGraphUtil;
 import org.netbeans.modules.sql.framework.model.SQLObject;
 import org.netbeans.modules.sql.framework.ui.graph.ICommand;
 
@@ -37,18 +36,17 @@ public class ExtractionConditionAction extends AbstractAction {
     
     private SQLObject obj;
     
-    private static final Image EXTRACTION_IMAGE = Utilities.loadImage(
-            "org/netbeans/modules/edm/editor/resources/filter16.gif"); // NOI18N
-    
     /** Creates a new instance of EditJoinAction */
     public ExtractionConditionAction(MashupDataObject dObj, SQLObject obj) {
-        super("", new ImageIcon(EXTRACTION_IMAGE));
+        super("",new ImageIcon(
+                MashupGraphUtil.getImage(ImageConstants.FILTER)));
         mObj = dObj;
         this.obj = obj;
     }
     
     public ExtractionConditionAction(MashupDataObject dObj, SQLObject obj, String name) {
-        super(name, new ImageIcon(EXTRACTION_IMAGE));
+        super(name,new ImageIcon(
+                MashupGraphUtil.getImage(ImageConstants.FILTER)));
         mObj = dObj;
         this.obj = obj;
     }    

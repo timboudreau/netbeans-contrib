@@ -15,7 +15,6 @@
  */
 package org.netbeans.modules.edm.editor.widgets;
 
-import javax.swing.JComponent;
 import org.netbeans.api.visual.action.ActionFactory;
 import org.netbeans.api.visual.action.WidgetAction;
 import org.netbeans.api.visual.anchor.Anchor;

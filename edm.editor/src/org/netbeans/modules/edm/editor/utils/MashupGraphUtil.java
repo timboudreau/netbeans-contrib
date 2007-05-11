@@ -17,48 +17,47 @@
 package org.netbeans.modules.edm.editor.utils;
 
 import java.awt.Image;
-
-import org.openide.util.Utilities;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.netbeans.modules.sql.framework.model.SQLConstants;
+
 /**
  *
  * @author karthikeyan s
  */
-public class MashupGraphUtil {
+public class MashupGraphUtil {   
     
-    private static final Image JOIN_IMAGE = Utilities.loadImage(
-            "org/netbeans/modules/edm/editor/resources/join_view.png"); // NOI18N
+    private static Map<String, Image> imageMap = new HashMap<String, Image>();
     
-    private static final Image TABLE_IMAGE = Utilities.loadImage(
-            "org/netbeans/modules/edm/editor/resources/SourceTable.png"); // NOI18N
-    
-    private static final Image COLUMN_IMAGE = Utilities.loadImage(
-            "org/netbeans/modules/edm/editor/resources/column.gif"); // NOI18N
-    
-    private static final Image PRIMARY_COLUMN_IMAGE = Utilities.loadImage(
-            "org/netbeans/modules/edm/editor/resources/columnPrimary.gif"); // NOI18N
-    
-    private static final Image FOREIGN_COLUMN_IMAGE = Utilities.loadImage(
-            "org/netbeans/modules/edm/editor/resources/columnForeign.gif"); // NOI18N    
-    
-    private static final Image CONDITION_IMAGE = Utilities.loadImage(
-            "org/netbeans/modules/edm/editor/resources/condition.png"); // NOI18N
-    
-    private static final Image PROPERTIES_IMAGE = Utilities.loadImage(
-            "org/netbeans/modules/edm/editor/resources/properties.png"); // NOI18N
-    
-    private static final Image FILTER_IMAGE = Utilities.loadImage(
-            "org/netbeans/modules/edm/editor/resources/filter16.gif"); // NOI18N
-    
-    private static final Image RUNTIME_INPUT_IMAGE = Utilities.loadImage(
-            "org/netbeans/modules/edm/editor/resources/RuntimeInput.png"); // NOI18N
-    
-    private static final Image RUNTIME_ATTR_IMAGE = Utilities.loadImage(
-            "org/netbeans/modules/edm/editor/resources/columnselection.png"); // NOI18N
-    
-    private static final Image FOREIGN_KEY_IMAGE = Utilities.loadImage(
-            "org/netbeans/modules/edm/editor/resources/foreignKey.gif"); // NOI18N     
+    static {
+        imageMap.put(ImageConstants.COLUMN, ImageConstants.COLUMN_IMAGE);
+        imageMap.put(ImageConstants.CONDITION, ImageConstants.CONDITION_IMAGE);
+        imageMap.put(ImageConstants.PROPERTIES, ImageConstants.PROPERTIES_IMAGE);
+        imageMap.put(ImageConstants.FILTER, ImageConstants.FILTER_IMAGE);
+        imageMap.put(ImageConstants.RUNTIMEATTR, ImageConstants.RUNTIME_ATTR_IMAGE);
+        imageMap.put(ImageConstants.PRIMARYKEYCOL, ImageConstants.PRIMARY_COLUMN_IMAGE);
+        imageMap.put(ImageConstants.FOREIGNKEYCOL, ImageConstants.FOREIGN_COLUMN_IMAGE);
+        imageMap.put(ImageConstants.FOREIGNKEY, ImageConstants.FOREIGN_KEY_IMAGE);
+        imageMap.put(ImageConstants.JOIN, ImageConstants.JOIN_IMAGE);
+        imageMap.put(ImageConstants.RUNTIMEINPUT, ImageConstants.RUNTIME_INPUT_IMAGE);
+        imageMap.put(ImageConstants.TABLE, ImageConstants.TABLE_IMAGE);
+        imageMap.put(ImageConstants.LAYOUT, ImageConstants.LAYOUT_IMAGE);
+        imageMap.put(ImageConstants.COLLAPSEALL, ImageConstants.COLLAPSE_IMAGE);
+        imageMap.put(ImageConstants.EDITCONNECTION, ImageConstants.EDIT_IMAGE);
+        imageMap.put(ImageConstants.EDITJOIN, ImageConstants.EDITJOIN_IMAGE);
+        imageMap.put(ImageConstants.JOINCONDITION, ImageConstants.JOINCONDITION_IMAGE);
+        imageMap.put(ImageConstants.EXPANDALL, ImageConstants.EXPAND_IMAGE);
+        imageMap.put(ImageConstants.FITTOHEIGHT, ImageConstants.FITTOHEIGHT_IMAGE);
+        imageMap.put(ImageConstants.FITTOPAGE, ImageConstants.FITTOPAGE_IMAGE);
+        imageMap.put(ImageConstants.FITTOWIDTH, ImageConstants.FITTOWIDTH_IMAGE);
+        imageMap.put(ImageConstants.REMOVE, ImageConstants.REMOVE_IMAGE);
+        imageMap.put(ImageConstants.OUTPUT, ImageConstants.OUTPUT_IMAGE);
+        imageMap.put(ImageConstants.SHOW_SQL, ImageConstants.SQL_IMAGE);
+        imageMap.put(ImageConstants.RUN, ImageConstants.RUN_IMAGE);
+        imageMap.put(ImageConstants.ZOOMIN, ImageConstants.ZOOM_IN_IMAGE);
+        imageMap.put(ImageConstants.ZOOMOUT, ImageConstants.ZOOM_OUT_IMAGE);
+    }
     
     /** Creates a new instance of MashupGraphUtil */
     private MashupGraphUtil() {
@@ -66,46 +65,18 @@ public class MashupGraphUtil {
     
     public static Image getImageForObject(int type) {
         switch(type) {
-            case SQLConstants.JOIN:
-                return JOIN_IMAGE;
-            case SQLConstants.RUNTIME_INPUT:
-                return RUNTIME_INPUT_IMAGE;
-            case SQLConstants.SOURCE_TABLE:
-            case SQLConstants.JOIN_TABLE:
-                return TABLE_IMAGE;
+        case SQLConstants.JOIN:
+            return imageMap.get(ImageConstants.JOIN);
+        case SQLConstants.RUNTIME_INPUT:
+            return imageMap.get(ImageConstants.RUNTIMEINPUT);
+        case SQLConstants.SOURCE_TABLE:
+        case SQLConstants.JOIN_TABLE:
+            return imageMap.get(ImageConstants.TABLE);
         }
         return null;
     }
     
-    public static Image getColumnImage() {
-        return COLUMN_IMAGE;
+    public static Image getImage(String imageName) {
+        return imageMap.get(imageName);
     }
-
-    public static Image getConditionImage() {
-        return CONDITION_IMAGE;
-    }
-    
-    public static Image getPropertiesImage() {
-        return PROPERTIES_IMAGE;
-    }
-    
-    public static Image getFilterImage() {
-        return FILTER_IMAGE;
-    }
-    
-    public static Image getRuntimeAttributeImage() {
-        return RUNTIME_ATTR_IMAGE;
-    }
-    
-    public static Image getPrimaryKeyColumnImage() {
-        return PRIMARY_COLUMN_IMAGE;
-    }
-
-    public static Image getForeignKeyColumnImage() {
-        return FOREIGN_COLUMN_IMAGE;
-    }    
-    
-    public static Image getForeignKeyImage() {
-        return FOREIGN_KEY_IMAGE;
-    }        
 }

@@ -16,14 +16,13 @@
 
 package org.netbeans.modules.edm.editor.graph.actions;
 
-import java.awt.Image;
 import java.awt.event.ActionEvent;
 import javax.swing.AbstractAction;
 import javax.swing.ImageIcon;
 
-import org.openide.util.Utilities;
-
 import org.netbeans.modules.edm.editor.dataobject.MashupDataObject;
+import org.netbeans.modules.edm.editor.utils.ImageConstants;
+import org.netbeans.modules.edm.editor.utils.MashupGraphUtil;
 
 /**
  *
@@ -33,17 +32,16 @@ public class FitToPageAction extends AbstractAction {
     
     private MashupDataObject mObj;
     
-    private static final Image FITTOPAGE_IMAGE = Utilities.loadImage(
-            "org/netbeans/modules/edm/editor/resources/fit_diagram.png"); // NOI18N
-    
     /** Creates a new instance of EditJoinAction */
     public FitToPageAction(MashupDataObject dObj) {
-        super("", new ImageIcon(FITTOPAGE_IMAGE));
+        super("",new ImageIcon(
+                MashupGraphUtil.getImage(ImageConstants.FITTOPAGE)));
         mObj = dObj;
     }
     
     public FitToPageAction(MashupDataObject dObj, String name) {
-        super(name, new ImageIcon(FITTOPAGE_IMAGE));
+        super(name,new ImageIcon(
+                MashupGraphUtil.getImage(ImageConstants.FITTOPAGE)));
         mObj = dObj;
     }    
     

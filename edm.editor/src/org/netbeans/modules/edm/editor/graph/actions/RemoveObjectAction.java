@@ -16,14 +16,13 @@
 
 package org.netbeans.modules.edm.editor.graph.actions;
 
-import java.awt.Image;
 import java.awt.event.ActionEvent;
 import javax.swing.AbstractAction;
 import javax.swing.ImageIcon;
 
-import org.openide.util.Utilities;
-
 import org.netbeans.modules.edm.editor.dataobject.MashupDataObject;
+import org.netbeans.modules.edm.editor.utils.ImageConstants;
+import org.netbeans.modules.edm.editor.utils.MashupGraphUtil;
 import org.netbeans.modules.sql.framework.model.SQLObject;
 import org.netbeans.modules.sql.framework.model.SourceTable;
 import org.netbeans.modules.sql.framework.model.impl.SQLDefinitionImpl;
@@ -38,18 +37,17 @@ public class RemoveObjectAction extends AbstractAction {
     
     private SQLObject obj;
     
-    private static final Image REMOVE_IMAGE = Utilities.loadImage(
-            "org/netbeans/modules/edm/editor/resources/remove.png"); // NOI18N
-    
     /** Creates a new instance of EditJoinAction */
     public RemoveObjectAction(MashupDataObject dObj, SQLObject obj) {
-        super("", new ImageIcon(REMOVE_IMAGE));
+        super("",new ImageIcon(
+                MashupGraphUtil.getImage(ImageConstants.REMOVE)));
         mObj = dObj;
         this.obj = obj;
     }
     
     public RemoveObjectAction(MashupDataObject dObj, SQLObject obj, String name) {
-        super(name, new ImageIcon(REMOVE_IMAGE));
+        super(name,new ImageIcon(
+                MashupGraphUtil.getImage(ImageConstants.REMOVE)));
         mObj = dObj;
         this.obj = obj;
     }    

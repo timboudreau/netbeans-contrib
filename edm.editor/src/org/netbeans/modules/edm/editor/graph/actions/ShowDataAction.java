@@ -16,21 +16,14 @@
 
 package org.netbeans.modules.edm.editor.graph.actions;
 
-import java.awt.Image;
 import java.awt.event.ActionEvent;
 import javax.swing.AbstractAction;
 import javax.swing.ImageIcon;
 
-import org.openide.util.Utilities;
-
 import org.netbeans.modules.edm.editor.dataobject.MashupDataObject;
 import org.netbeans.modules.edm.editor.graph.MashupGraphManager;
-import org.netbeans.modules.sql.framework.evaluators.database.DB;
-import org.netbeans.modules.sql.framework.evaluators.database.DBFactory;
-import org.netbeans.modules.sql.framework.evaluators.database.StatementContext;
-import org.netbeans.modules.sql.framework.model.SQLConstants;
-import org.netbeans.modules.sql.framework.model.SQLDBModel;
-import org.netbeans.modules.sql.framework.model.SQLJoinView;
+import org.netbeans.modules.edm.editor.utils.ImageConstants;
+import org.netbeans.modules.edm.editor.utils.MashupGraphUtil;
 import org.netbeans.modules.sql.framework.model.SQLObject;
 
 /**
@@ -45,19 +38,18 @@ public class ShowDataAction extends AbstractAction {
     
     private MashupGraphManager manager;
     
-    private static final Image OUTPUT_IMAGE = Utilities.loadImage(
-            "org/netbeans/modules/edm/editor/resources/showOutput.png"); // NOI18N
-    
     /** Creates a new instance of EditJoinAction */
     public ShowDataAction(MashupDataObject dObj, SQLObject obj) {
-        super("", new ImageIcon(OUTPUT_IMAGE));
+        super("",new ImageIcon(
+                MashupGraphUtil.getImage(ImageConstants.OUTPUT)));
         mObj = dObj;
         this.manager = dObj.getGraphManager();
         this.obj = obj;
     }
     
     public ShowDataAction(MashupDataObject dObj, SQLObject obj, String name) {
-        super(name, new ImageIcon(OUTPUT_IMAGE));
+        super(name,new ImageIcon(
+                MashupGraphUtil.getImage(ImageConstants.OUTPUT)));
         mObj = dObj;
         this.manager = dObj.getGraphManager();
         this.obj = obj;

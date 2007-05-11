@@ -16,21 +16,18 @@
 
 package org.netbeans.modules.edm.editor.graph.actions;
 
-import java.awt.Image;
 import java.awt.event.ActionEvent;
 import javax.swing.AbstractAction;
 import javax.swing.ImageIcon;
 
-import org.openide.util.Utilities;
-
 import org.netbeans.modules.edm.editor.dataobject.MashupDataObject;
 import org.netbeans.modules.edm.editor.graph.MashupGraphManager;
+import org.netbeans.modules.edm.editor.utils.ImageConstants;
+import org.netbeans.modules.edm.editor.utils.MashupGraphUtil;
 import org.netbeans.modules.sql.framework.evaluators.database.DB;
 import org.netbeans.modules.sql.framework.evaluators.database.DBFactory;
 import org.netbeans.modules.sql.framework.evaluators.database.StatementContext;
 import org.netbeans.modules.sql.framework.model.SQLConstants;
-import org.netbeans.modules.sql.framework.model.SQLDBTable;
-import org.netbeans.modules.sql.framework.model.SourceTable;
 import org.netbeans.modules.sql.framework.model.SQLDBModel;
 import org.netbeans.modules.sql.framework.model.SQLJoinView;
 
@@ -44,18 +41,17 @@ public class TestRunAction extends AbstractAction {
     
     private MashupGraphManager manager;
     
-    private static final Image RUN_IMAGE = Utilities.loadImage(
-            "org/netbeans/modules/edm/editor/resources/run.png"); // NOI18N
-    
     /** Creates a new instance of EditJoinAction */
     public TestRunAction(MashupDataObject dObj) {
-        super("", new ImageIcon(RUN_IMAGE));
+        super("",new ImageIcon(
+                MashupGraphUtil.getImage(ImageConstants.RUN)));
         mObj = dObj;
         this.manager = dObj.getGraphManager();
     }
     
     public TestRunAction(MashupDataObject dObj, String name) {
-        super(name, new ImageIcon(RUN_IMAGE));
+        super(name,new ImageIcon(
+                MashupGraphUtil.getImage(ImageConstants.RUN)));
         mObj = dObj;
         this.manager = dObj.getGraphManager();
     }

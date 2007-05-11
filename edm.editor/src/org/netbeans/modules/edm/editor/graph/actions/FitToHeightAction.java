@@ -16,14 +16,13 @@
 
 package org.netbeans.modules.edm.editor.graph.actions;
 
-import java.awt.Image;
 import java.awt.event.ActionEvent;
 import javax.swing.AbstractAction;
 import javax.swing.ImageIcon;
 
-import org.openide.util.Utilities;
-
 import org.netbeans.modules.edm.editor.dataobject.MashupDataObject;
+import org.netbeans.modules.edm.editor.utils.ImageConstants;
+import org.netbeans.modules.edm.editor.utils.MashupGraphUtil;
 
 /**
  *
@@ -33,17 +32,16 @@ public class FitToHeightAction extends AbstractAction {
     
     private MashupDataObject mObj;
     
-    private static final Image FITTOHEIGHT_IMAGE = Utilities.loadImage(
-            "org/netbeans/modules/edm/editor/resources/fit_height.png"); // NOI18N
-    
     /** Creates a new instance of EditJoinAction */
     public FitToHeightAction(MashupDataObject dObj) {
-        super("",new ImageIcon(FITTOHEIGHT_IMAGE));
+        super("",new ImageIcon(
+                MashupGraphUtil.getImage(ImageConstants.FITTOHEIGHT)));
         mObj = dObj;
     }
     
     public FitToHeightAction(MashupDataObject dObj, String name) {
-        super(name,new ImageIcon(FITTOHEIGHT_IMAGE));
+        super(name,new ImageIcon(
+                MashupGraphUtil.getImage(ImageConstants.FITTOHEIGHT)));
         mObj = dObj;
     }    
     
