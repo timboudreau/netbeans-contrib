@@ -90,7 +90,7 @@ public final class RetryAction extends CallableSystemAction {
             // ignore the enabled argument, check it with respect to the proper
             // actions manager.
             final boolean en = isDebuggerEnabled();
-            System.out.println(" action state changed: debugger enabled=" + en);
+            //System.out.println(" action state changed: debugger enabled=" + en);
             if (SwingUtilities.isEventDispatchThread()) {
                 RetryAction.this.setEnabled(en);
             } else {
