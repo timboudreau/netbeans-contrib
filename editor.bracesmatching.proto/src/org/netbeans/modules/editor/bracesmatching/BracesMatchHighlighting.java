@@ -242,7 +242,7 @@ public class BracesMatchHighlighting extends AbstractHighlightsContainer
                 return;
             }
 
-            PR.post(new Result(document, caret.getDot(), null, bag, bracesMatchColoring, bracesMismatchColoring));
+            task = PR.post(new Result(document, caret.getDot(), null, bag, bracesMatchColoring, bracesMismatchColoring));
         }
     }
     
@@ -282,10 +282,11 @@ public class BracesMatchHighlighting extends AbstractHighlightsContainer
             if (!inDocumentRender) {
                 inDocumentRender = true;
                 document.render(this);
+                return;
             }
 
             BracesMatcherFactory provider = findProvider(document, caretOffset);
-            if (provider == null || Thread.interrupted()) {
+            if (provider == null || Thread.currentThread().isInterrupted()) {
                 // no provider, no matcher, nothing to do
                 return;
             }
@@ -315,16 +316,22 @@ public class BracesMatchHighlighting extends AbstractHighlightsContainer
                 origin = findOrigin(provider, allowedDirection, matcher);
             }
             
-            if (origin == null || Thread.interrupted()) {
+            if (origin == null || Thread.currentThread().isInterrupted()) {
                 // no original area, nothing to search for
                 return;
             }
             
             // Fire up the matching task
-            int [] matches = matcher[0].findMatches();
+            int [] matches;
+            
+            try {
+                matches = matcher[0].findMatches();
+            } catch (InterruptedException e) {
+                return;
+            }
 
             // If the task was cancelled then exit
-            if (Thread.interrupted()) {
+            if (Thread.currentThread().isInterrupted()) {
                 return;
             }
 
@@ -363,7 +370,13 @@ public class BracesMatchHighlighting extends AbstractHighlightsContainer
                 );
 
                 matcher[0] = provider.createMatcher(context);
-                int [] origin = matcher[0].findOrigin();
+                int [] origin;
+                
+                try {
+                    origin = matcher[0].findOrigin();
+                } catch (InterruptedException e) {
+                    return null;
+                }
                 
                 // Check the origin for consistency
                 if (origin != null) {
