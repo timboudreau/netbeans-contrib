@@ -46,10 +46,10 @@ import org.openide.filesystems.Repository;
 import org.openide.loaders.DataFolder;
 import org.openide.loaders.DataObject;
 import org.openide.loaders.DataObjectNotFoundException;
-import org.openide.loaders.FolderLookup;
 import org.openide.util.Lookup;
 import org.openide.util.NbBundle;
 import org.openide.util.actions.SystemAction;
+import org.openide.util.lookup.Lookups;
 
 public final class ScalaActions implements ActionProvider {
     
@@ -83,29 +83,19 @@ public final class ScalaActions implements ActionProvider {
         actions.add(SystemAction.get(FindAction.class));
         
         // Honor #57874 contract:
-        try {
-            FileSystem sfs = Repository.getDefault().getDefaultFileSystem();
-            FileObject fo = sfs.findResource("Projects/Actions"); // NOI18N
-            if (fo != null) {
-                DataObject dobj = DataObject.find(fo);
-                FolderLookup actionRegistry = new FolderLookup((DataFolder) dobj);
-                Lookup.Template<Object> query = new Lookup.Template<Object>(Object.class);
-                Lookup lookup = actionRegistry.getLookup();
-                Iterator<? extends Object> it = lookup.lookup(query).allInstances().iterator();
-                if (it.hasNext()) {
-                    actions.add(null);
-                }
-                while (it.hasNext()) {
-                    Object next = it.next();
-                    if (next instanceof Action) {
-                        actions.add((Action) next);
-                    } else if (next instanceof JSeparator) {
-                        actions.add(null);
-                    }
-                }
+        Lookup.Template<Object> query = new Lookup.Template<Object>(Object.class);
+        Lookup lookup = Lookups.forPath("Projects/Actions"); // NOI18N
+        Iterator<? extends Object> it = lookup.lookup(query).allInstances().iterator();
+        if (it.hasNext()) {
+            actions.add(null);
+        }
+        while (it.hasNext()) {
+            Object next = it.next();
+            if (next instanceof Action) {
+                actions.add((Action) next);
+            } else if (next instanceof JSeparator) {
+                actions.add(null);
             }
-        } catch (DataObjectNotFoundException ex) {
-            assert false : ex;
         }
         
         actions.add(null);
