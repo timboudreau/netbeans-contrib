@@ -26,6 +26,7 @@ import org.netbeans.junit.NbTestCase;
 import org.netbeans.spi.project.support.ant.AntProjectHelper;
 import org.netbeans.spi.project.support.ant.EditableProperties;
 import org.openide.filesystems.FileObject;
+import org.openide.filesystems.FileUtil;
 
 /**
  * Tests for ScalaProjectGenerator.
@@ -109,6 +110,18 @@ public class ScalaProjectGeneratorTest extends NbTestCase {
         }
         assertEquals("Found unexpected property: " + l,
                 createdProperties.length, props.keySet().size());
+        
+        
+        FileObject build = fo.getFileObject("build.xml");
+
+        try {
+            AntSupport.execute(FileUtil.toFile(build));
+            fail("There should be error:\n" + AntSupport.getStdOut());
+        } catch (AntSupport.ExecutionError err) {
+            if (err.getMessage().indexOf("Scala installation directory") == -1) {
+                fail("There would be the scala warning:\n" + err.getMessage());
+            }
+        }
     }
     
 }

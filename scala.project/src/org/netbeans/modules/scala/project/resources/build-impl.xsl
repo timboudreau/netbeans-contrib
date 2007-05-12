@@ -39,7 +39,9 @@
                 <property file="nbproject/private/private.properties"/>
                 <property file="nbproject/project.properties"/>
                 <property environment="env"/>
-                <property name="scala.home" value="${{env.SCALA_HOME}}"/>
+                <condition property="scala.home" value="${env.SCALA_HOME}">
+                    <isset property="env.SCALA_HOME"/>
+                </condition>
                 <fail unless="scala.home">
             You must set SCALA_HOME or environment property or scala.home
             property in nbproject/private/private.properties to point to
