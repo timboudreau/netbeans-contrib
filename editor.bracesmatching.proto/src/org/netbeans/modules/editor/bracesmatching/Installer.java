@@ -61,8 +61,11 @@ public class Installer extends ModuleInstall {
         public void updateSettingsMap(Class kitClass, java.util.Map settingsMap) {
             if (kitClass == BaseKit.class) {
                 SettingsUtil.updateListSetting(settingsMap,
-                        SettingsNames.CUSTOM_ACTION_LIST,
-                        new Object[] { new BracesMatchAction() }
+                    SettingsNames.CUSTOM_ACTION_LIST,
+                    new Object[] { 
+                        new BracesMatchAction(false), // an ordinary navigation
+                        new BracesMatchAction(true)   // navigates and selects a block
+                    }
                 );
             }
         }

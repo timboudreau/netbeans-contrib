@@ -18,6 +18,8 @@ package org.netbeans.modules.editor.bracesmatching;
 
 import java.lang.ref.Reference;
 import java.lang.ref.WeakReference;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.WeakHashMap;
 import java.util.logging.Level;
@@ -46,7 +48,7 @@ public final class MasterMatcher {
 
     private static final Logger LOG = Logger.getLogger(MasterMatcher.class.getName());
     
-    public static final String PROP_ALLOWED_SEARCH_DIRECTION = "nbeditor-bracesMatching-allowedSearchDirection";
+    public static final String PROP_ALLOWED_SEARCH_DIRECTION = "nbeditor-bracesMatching-allowedSearchDirection"; //NOI18N
             
     public static MasterMatcher get(Document document) {
         synchronized (MM) {
@@ -67,75 +69,78 @@ public final class MasterMatcher {
         AttributeSet mismatchedColoring
     ) {
         synchronized (LOCK) {
-            // If there is a task running, cacel it
             if (task != null) {
-                task.cancel();
-                task = null;
-            } else {
-                // no task, we may have results already
-                if (lastOffset == caretOffset && lastAllowedSearchDirections == allowedSearchDirection) {
-                    highlightAreas(lastOrigin, lastMatches, highlights, matchedColoring, mismatchedColoring);
-                    return;
+                // a task is running, perhaps just add a new job to it
+                if (lastResult.getCaretOffset() == caretOffset && 
+                    lastResult.getAllowedDirection() == allowedSearchDirection
+                ) {
+                    lastResult.addHighlightingJob(highlights, matchedColoring, mismatchedColoring);
+                } else {
+                    // Different request, cancel the current task
+                    task.cancel();
+                    task = null;
                 }
             }
 
-            // Remember the last request
-            lastOffset = caretOffset;
-            lastAllowedSearchDirections = allowedSearchDirection;
-            
-            // Fire up a new task
-            task = PR.post(new Result(documentRef.get(), caretOffset, allowedSearchDirection, highlights, matchedColoring, mismatchedColoring));
+            if (task == null) {
+                // Remember the last request
+                lastResult = new Result(documentRef.get(), caretOffset, allowedSearchDirection);
+                lastResult.addHighlightingJob(highlights, matchedColoring, mismatchedColoring);
+
+                // Fire up a new task
+                task = PR.post(lastResult);
+            }
         }
     }
     
     public void navigate(
         int caretOffset, 
         Object allowedSearchDirection, 
-        Caret caret
+        Caret caret,
+        boolean select
     ) {
         RequestProcessor.Task waitFor = null;
         
         synchronized (LOCK) {
-            if (task == null) {
-                // no task, we may have results already
-                if (lastOffset == caretOffset && lastAllowedSearchDirections == allowedSearchDirection) {
-                    navigateAreas(lastOrigin, lastMatches, caret);
-                    return;
-                } else {
-                    // Remember the last request
-                    lastOffset = caretOffset;
-                    lastAllowedSearchDirections = allowedSearchDirection;
-
-                    // Fire up a new task
-                    task = PR.post(new Result(documentRef.get(), caretOffset, allowedSearchDirection, null, null, null));
+            if (task != null) {
+                // a task is running, perhaps just add a new job to it
+                if (lastResult.getCaretOffset() == caretOffset && 
+                    lastResult.getAllowedDirection() == allowedSearchDirection
+                ) {
+                    lastResult.addNavigationJob(caret, select);
                     waitFor = task;
+                } else {
+                    // Different request, cancel the current task
+                    task.cancel();
+                    task = null;
                 }
-            } else {
+            }
+
+            if (task == null) {
+                // Remember the last request
+                lastResult = new Result(documentRef.get(), caretOffset, allowedSearchDirection);
+                lastResult.addNavigationJob(caret, select);
+
+                // Fire up a new task
+                task = PR.post(lastResult);
                 waitFor = task;
             }
         }
         
-        waitFor.waitFinished();
-        
-        synchronized (LOCK) {
-            if (lastOffset == caretOffset && lastAllowedSearchDirections == allowedSearchDirection) {
-                navigateAreas(lastOrigin, lastMatches, caret);
-            }
-        }        
+        if (waitFor != null) {
+            waitFor.waitFinished();
+        }
     }
     
     private static final Map<Document, MasterMatcher> MM = new WeakHashMap<Document, MasterMatcher>();
-    private static final RequestProcessor PR = new RequestProcessor("EditorBracesMatching", 5, true);
+    private static final RequestProcessor PR = new RequestProcessor("EditorBracesMatching", 5, true); //NOI18N
 
     private final String LOCK = new String("MasterMatcher.LOCK"); //NOI18N
 
     private final Reference<Document> documentRef;
     
     private RequestProcessor.Task task = null;
-    private int lastOffset = -1;
-    private Object lastAllowedSearchDirections;
-    private int [] lastOrigin;
-    private int [] lastMatches;
+    private Result lastResult = null;
     
     private MasterMatcher(Reference<Document> documentRef) {
         this.documentRef = documentRef;
@@ -164,11 +169,15 @@ public final class MasterMatcher {
             highlights.addHighlight(origin[0], origin[1], mismatchedColoring);
         }
     }
-    
+
+    // when navigating: always set the dot after a matching area
+    // when selecting: always select the inside between original and matching areas
+    //                 do not select the areas themselvs
     private static void navigateAreas(
         int [] origin, 
         int [] matches,
-        Caret caret
+        Caret caret,
+        boolean select
     ) {
         if (matches != null && matches.length >= 2) {
             int newDotBackward = Integer.MIN_VALUE;
@@ -180,14 +189,28 @@ public final class MasterMatcher {
                 }
                 
                 if (matches[i * 2] > origin[1] && matches[i * 2] < newDotForward) {
-                    newDotForward = matches[i * 2 + 1];
+                    if (select) {
+                        newDotForward = matches[i * 2];
+                    } else {
+                        newDotForward = matches[i * 2 + 1];
+                    }
                 }
             }
             
             if (newDotBackward != Integer.MIN_VALUE) {
-                caret.setDot(newDotBackward);
+                if (select) {
+                    caret.setDot(origin[0]);
+                    caret.moveDot(newDotBackward);
+                } else {
+                    caret.setDot(newDotBackward);
+                }
             } else if (newDotForward != Integer.MAX_VALUE) {
-                caret.setDot(newDotForward);
+                if (select) {
+                    caret.setDot(origin[1]);
+                    caret.moveDot(newDotForward);
+                } else {
+                    caret.setDot(newDotForward);
+                }
             }
         }
     }
@@ -197,29 +220,59 @@ public final class MasterMatcher {
         private final Document document;
         private final int caretOffset;
         private final Object allowedDirection;
-        private final OffsetsBag highlights;
-        private final AttributeSet matchedColoring;
-        private final AttributeSet mismatchedColoring;
 
         private boolean inDocumentRender = false;
         private boolean interrupted = false;
         private int [] origin = null;
         private int [] matches = null;
+
+        private final List<Object []> highlightingJobs = new ArrayList<Object []>();
+        private final List<Object []> navigationJobs = new ArrayList<Object []>();
         
         public Result(
             Document document, 
             int caretOffset, 
-            Object allowedDirection,
-            OffsetsBag highlights,
-            AttributeSet matchedColoring,
-            AttributeSet mismatchedColoring
+            Object allowedDirection
         ) {
             this.document = document;
             this.caretOffset = caretOffset;
             this.allowedDirection = allowedDirection;
-            this.highlights = highlights;
-            this.matchedColoring = matchedColoring;
-            this.mismatchedColoring = mismatchedColoring;
+        }
+        
+        // Must be called under the MasterMatcher.LOCK
+        public void addHighlightingJob(
+            OffsetsBag highlights,
+            AttributeSet matchedColoring,
+            AttributeSet mismatchedColoring
+        ) {
+            highlightingJobs.add(new Object[] {
+                highlights,
+                matchedColoring,
+                mismatchedColoring
+            });
+        }
+
+        // Must be called under the MasterMatcher.LOCK
+        public void addNavigationJob(Caret caret, boolean select) {
+            navigationJobs.add(new Object [] { caret, select });
+        }
+        
+        public int getCaretOffset() {
+            return caretOffset;
+        }
+        
+        public Object getAllowedDirection() {
+            return allowedDirection;
+        }
+        
+        // Must be called under the MasterMatcher.LOCK
+        public int [] getOrigin() {
+            return origin;
+        }
+        
+        // Must be called under the MasterMatcher.LOCK
+        public int [] getMatches() {
+            return matches;
         }
         
         // ------------------------------------------------
@@ -238,16 +291,16 @@ public final class MasterMatcher {
                         return;
                     }
 
-                    // Store the results
-                    MasterMatcher.this.lastOrigin = origin;
-                    MasterMatcher.this.lastMatches = matches;
-
+                    for (Object[] job : highlightingJobs) {
+                        highlightAreas(origin, matches, (OffsetsBag) job[0], (AttributeSet) job[1], (AttributeSet) job[2]);
+                    }
+                    
+                    for(Object [] job : navigationJobs) {
+                        navigateAreas(origin, matches, (Caret) job[0], (Boolean) job[1]);
+                    }
+                    
                     // Signal that the task is done.
                     MasterMatcher.this.task = null;
-
-                    if (highlights != null) {
-                        highlightAreas(origin, matches, highlights, matchedColoring, mismatchedColoring);
-                    }
                 }
                 
                 return;
@@ -377,8 +430,8 @@ public final class MasterMatcher {
                                 if (LOG.isLoggable(Level.WARNING)) {
                                     LOG.warning("Origin offsets out of range, " + //NOI18N
                                         "origin = [" + origin[0] + ", " + origin[1] + "], " + //NOI18N
-                                        "caretOffset = " + caretOffset + 
-                                        ", lookahead = " + lookahead + 
+                                        "caretOffset = " + caretOffset + //NOI18N
+                                        ", lookahead = " + lookahead + //NOI18N
                                         ", searching backwards. " + //NOI18N
                                         "Offsending BracesMatcher: " + matcher); //NOI18N
                                 }
@@ -389,8 +442,8 @@ public final class MasterMatcher {
                                 if (LOG.isLoggable(Level.WARNING)) {
                                     LOG.warning("Origin offsets out of range, " + //NOI18N
                                         "origin = [" + origin[0] + ", " + origin[1] + "], " + //NOI18N
-                                        "caretOffset = " + caretOffset + 
-                                        ", lookahead = " + lookahead + 
+                                        "caretOffset = " + caretOffset + //NOI18N
+                                        ", lookahead = " + lookahead + //NOI18N
                                         ", searching forward. " + //NOI18N
                                         "Offsending BracesMatcher: " + matcher); //NOI18N
                                 }
@@ -402,9 +455,9 @@ public final class MasterMatcher {
                 }
 
                 if (origin != null) {
-                    LOG.fine("[" + origin[0] + ", " + origin[1] + "] for caret = " + caretOffset + ", lookahead = " + (backward ? "-" : "") + lookahead);
+                    LOG.fine("[" + origin[0] + ", " + origin[1] + "] for caret = " + caretOffset + ", lookahead = " + (backward ? "-" : "") + lookahead); //NOI18N
                 } else {
-                    LOG.fine("[null] for caret = " + caretOffset + ", lookahead = " + (backward ? "-" : "") + lookahead);
+                    LOG.fine("[null] for caret = " + caretOffset + ", lookahead = " + (backward ? "-" : "") + lookahead); //NOI18N
                 }
                 
                 return origin;

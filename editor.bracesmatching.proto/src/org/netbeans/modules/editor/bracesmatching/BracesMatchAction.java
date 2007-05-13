@@ -28,16 +28,28 @@ import javax.swing.text.TextAction;
  */
 public final class BracesMatchAction extends TextAction {
 
+    private final boolean select;
+    
     public BracesMatchAction() {
-        super("match-brace"); //NOI18N
+        this(false);
     }
 
+    public BracesMatchAction(boolean select) {
+        super(select ? "selection-match-brace" : "match-brace"); //NOI18N
+        this.select = select;
+    }
+    
     public void actionPerformed(ActionEvent e) {
         JTextComponent component = getTextComponent(e);
         Document document = component.getDocument();
         Caret caret = component.getCaret();
         
-        MasterMatcher.get(document).navigate(caret.getDot(), component.getClientProperty(MasterMatcher.PROP_ALLOWED_SEARCH_DIRECTION), caret);
+        MasterMatcher.get(document).navigate(
+            caret.getDot(), 
+            component.getClientProperty(MasterMatcher.PROP_ALLOWED_SEARCH_DIRECTION), 
+            caret,
+            select
+        );
     }
 
 }
