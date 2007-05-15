@@ -20,6 +20,12 @@ Microsystems, Inc. All Rights Reserved.
 <!DOCTYPE fontscolors PUBLIC "-//NetBeans//DTD Editor Fonts and Colors settings 1.1//EN" "http://www.netbeans.org/dtds/EditorFontsColors-1_1.dtd">
 
 <fontscolors>
+<!--
+    This should be moved here from ide/defaults
+    <fontcolor name="highlight-match-brace" foreColor="white" bgColor="ffff32d2"/>
+    
+    
     <fontcolor name="braces-match" bgColor="pink"/>
     <fontcolor name="braces-mismatch" bgColor="red"/>
+-->
 </fontscolors>

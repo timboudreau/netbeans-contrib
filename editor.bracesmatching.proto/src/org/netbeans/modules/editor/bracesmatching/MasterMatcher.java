@@ -19,12 +19,14 @@ package org.netbeans.modules.editor.bracesmatching;
 import java.lang.ref.Reference;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.WeakHashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.text.AttributeSet;
+import javax.swing.text.BadLocationException;
 import javax.swing.text.Caret;
 import javax.swing.text.Document;
 import javax.swing.text.Element;
@@ -306,8 +308,8 @@ public final class MasterMatcher {
                 return;
             }
 
-            BracesMatcherFactory provider = findProvider();
-            if (provider == null || Thread.currentThread().isInterrupted()) {
+            Collection<? extends BracesMatcherFactory> factories = findFactories();
+            if (factories.isEmpty() || Thread.currentThread().isInterrupted()) {
                 // no provider, no matcher, nothing to do
                 return;
             }
@@ -316,11 +318,11 @@ public final class MasterMatcher {
                 BracesMatcher [] matcher = new BracesMatcher[1];
 
                 if (allowedDirection == null) {
-                    origin = findOrigin(provider, true, matcher);
+                    origin = findOrigin(factories, true, matcher);
                     if (origin != null) {
                         if (origin[1] < caretOffset) {
                             BracesMatcher [] forwardMatcher = new BracesMatcher[1];
-                            int forwardOrigin [] = findOrigin(provider, false, forwardMatcher);
+                            int forwardOrigin [] = findOrigin(factories, false, forwardMatcher);
                             if (forwardOrigin != null) {
                                 if (forwardOrigin[0] == caretOffset) {
                                     origin = forwardOrigin;
@@ -331,12 +333,12 @@ public final class MasterMatcher {
                             }
                         }
                     } else {
-                        origin = findOrigin(provider, false, matcher);
+                        origin = findOrigin(factories, false, matcher);
                     }
                 } else {
                     // If the allowedDirection was specified, but contains rubbish, default is backward.
                     boolean forward = "forward".equalsIgnoreCase(allowedDirection.toString()); //NOI18N
-                    origin = findOrigin(provider, !forward, matcher);
+                    origin = findOrigin(factories, !forward, matcher);
                 }
 
                 if (origin == null || Thread.currentThread().isInterrupted()) {
@@ -345,13 +347,15 @@ public final class MasterMatcher {
                 }
             
                 matches = matcher[0].findMatches();
+            } catch (BadLocationException ble) {
+                LOG.log(Level.WARNING, null, ble);
             } catch (InterruptedException e) {
                 // We were interrupted, no results
                 interrupted = true;
             }
         }
 
-        private BracesMatcherFactory findProvider() {
+        private Collection<? extends BracesMatcherFactory> findFactories() {
             MimePath mimePath = null;
 
             TokenHierarchy<? extends Document> th = TokenHierarchy.get(document);
@@ -383,10 +387,14 @@ public final class MasterMatcher {
                 mimePath = MimePath.EMPTY;
             }
 
-            return MimeLookup.getLookup(mimePath).lookup(BracesMatcherFactory.class);
+            return MimeLookup.getLookup(mimePath).lookupAll(BracesMatcherFactory.class);
         }
         
-        private int [] findOrigin(BracesMatcherFactory provider, boolean backward, BracesMatcher [] matcher) throws InterruptedException {
+        private int [] findOrigin(
+            Collection<? extends BracesMatcherFactory> factories, 
+            boolean backward, 
+            BracesMatcher [] matcher
+        ) throws InterruptedException {
             Element paragraph = DocumentUtilities.getParagraphElement(document, caretOffset);
             int lookahead = 0;
             
@@ -404,10 +412,23 @@ public final class MasterMatcher {
                     lookahead
                 );
 
-                matcher[0] = provider.createMatcher(context);
-                int [] origin = matcher[0].findOrigin();
+                // Find the first provider that accepts the context
+                for(BracesMatcherFactory factory : factories) {
+                    matcher[0] = factory.createMatcher(context);
+                    if (matcher[0] != null) {
+                        break;
+                    }
+                }
+
+                // Find the original area
+                int [] origin = null;
+                try {
+                    origin = matcher[0].findOrigin();
+                } catch (BadLocationException ble) {
+                    LOG.log(Level.WARNING, null, ble);
+                }
                 
-                // Check the origin for consistency
+                // Check the original area for consistency
                 if (origin != null) {
                     if (origin.length == 0) {
                         origin = null;
@@ -415,13 +436,13 @@ public final class MasterMatcher {
                         if (LOG.isLoggable(Level.WARNING)) {
                             LOG.warning("Invalid BracesMatcher implementation, " + //NOI18N
                                 "findOrigin() can only return two offsets. " + //NOI18N
-                                "Offsending BracesMatcher: " + matcher); //NOI18N
+                                "Offending BracesMatcher: " + matcher); //NOI18N
                         }
                         origin = null;
-                    } else if (origin[0] < 0 || origin[1] > document.getLength() || origin[0] >= origin[1]) {
+                    } else if (origin[0] < 0 || origin[1] > document.getLength() || origin[0] > origin[1]) {
                         if (LOG.isLoggable(Level.WARNING)) {
                             LOG.warning("Invalid origin offsets [" + origin[0] + ", " + origin[1] + "]. " + //NOI18N
-                                "Offsending BracesMatcher: " + matcher); //NOI18N
+                                "Offending BracesMatcher: " + matcher); //NOI18N
                         }
                         origin = null;
                     } else {
@@ -433,7 +454,7 @@ public final class MasterMatcher {
                                         "caretOffset = " + caretOffset + //NOI18N
                                         ", lookahead = " + lookahead + //NOI18N
                                         ", searching backwards. " + //NOI18N
-                                        "Offsending BracesMatcher: " + matcher); //NOI18N
+                                        "Offending BracesMatcher: " + matcher); //NOI18N
                                 }
                                 origin = null;
                             }
@@ -445,7 +466,7 @@ public final class MasterMatcher {
                                         "caretOffset = " + caretOffset + //NOI18N
                                         ", lookahead = " + lookahead + //NOI18N
                                         ", searching forward. " + //NOI18N
-                                        "Offsending BracesMatcher: " + matcher); //NOI18N
+                                        "Offending BracesMatcher: " + matcher); //NOI18N
                                 }
                                 origin = null;
                             }

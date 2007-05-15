@@ -31,6 +31,7 @@ import javax.swing.text.Caret;
 import javax.swing.text.Document;
 import javax.swing.text.Element;
 import javax.swing.text.JTextComponent;
+import javax.swing.text.SimpleAttributeSet;
 import org.netbeans.spi.editor.highlighting.HighlightsChangeEvent;
 import org.netbeans.spi.editor.highlighting.HighlightsChangeListener;
 import org.netbeans.spi.editor.highlighting.HighlightsLayer;
@@ -61,8 +62,8 @@ public class BracesMatchHighlighting extends AbstractHighlightsContainer
 {
     private static final Logger LOG = Logger.getLogger(BracesMatchHighlighting.class.getName());
     
-    private static final String BRACES_MATCH_COLORING = "braces-match"; //NOI18N
-    private static final String BRACES_MISMATCH_COLORING = "braces-mismatch"; //NOI18N
+    private static final String BRACES_MATCH_COLORING = "highlight-match-brace"; //NOI18N    braces-match
+//    private static final String BRACES_MISMATCH_COLORING = "braces-mismatch"; //NOI18N
     
     private final JTextComponent component;
     private final Document document;
@@ -83,7 +84,7 @@ public class BracesMatchHighlighting extends AbstractHighlightsContainer
         // Load the colorings
         FontColorSettings fcs = MimeLookup.getLookup(mimePath).lookup(FontColorSettings.class);
         this.bracesMatchColoring = fcs.getFontColors(BRACES_MATCH_COLORING);
-        this.bracesMismatchColoring = fcs.getFontColors(BRACES_MISMATCH_COLORING);
+        this.bracesMismatchColoring = SimpleAttributeSet.EMPTY; //fcs.getFontColors(BRACES_MISMATCH_COLORING);
         
         // Create and hook up the highlights bag
         this.bag = new OffsetsBag(document, false); // don't merge highlights
