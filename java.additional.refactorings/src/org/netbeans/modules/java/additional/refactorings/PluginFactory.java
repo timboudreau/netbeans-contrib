@@ -17,6 +17,7 @@
  */
 package org.netbeans.modules.java.additional.refactorings;
 
+import org.netbeans.modules.java.additional.refactorings.ExtractMethodPlugin;
 import javax.swing.text.JTextComponent;
 import org.netbeans.modules.refactoring.api.AbstractRefactoring;
 import org.netbeans.modules.refactoring.spi.RefactoringPlugin;
