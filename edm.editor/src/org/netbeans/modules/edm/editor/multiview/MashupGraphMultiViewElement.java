@@ -49,6 +49,7 @@ import org.netbeans.core.api.multiview.MultiViewHandler;
 import org.netbeans.modules.edm.editor.dataobject.MashupDataObject;
 import org.netbeans.modules.edm.editor.dataobject.MashupDataEditorSupport;
 import org.netbeans.modules.edm.editor.graph.MashupGraphManager;
+import org.netbeans.modules.edm.editor.graph.components.EDMNavigatorHint;
 import org.netbeans.modules.edm.editor.graph.components.MashupToolbar;
 import org.netbeans.modules.edm.editor.palette.PaletteSupport;
 
@@ -89,8 +90,8 @@ public class MashupGraphMultiViewElement extends TopComponent
     
     private void initialize() {
         setLayout(new BorderLayout());
+        initializeLookup();        
         initUI();
-        initializeLookup();
     }
     
     private void initializeLookup() {
@@ -129,7 +130,8 @@ public class MashupGraphMultiViewElement extends TopComponent
             getMashupDataObject().getLookup(),
             Lookups.singleton(this),
             new AbstractLookup(nodesHack),
-            Lookups.fixed(new Object[]{PaletteSupport.createPalette()})
+            Lookups.fixed(new Object[]{PaletteSupport.createPalette()}),
+            Lookups.fixed(new Object[]{new EDMNavigatorHint()})
         });
     }
     
@@ -177,8 +179,8 @@ public class MashupGraphMultiViewElement extends TopComponent
     }
     
     @Override
-    public void componentActivated() {
-        super.componentActivated();
+    public void componentActivated() {        
+        super.componentActivated();  
         SaveCookie cookie = (SaveCookie) mObj.getCookie(SaveCookie.class);
         if(cookie != null) {
             getMashupDataObject().getMashupDataEditorSupport().synchDocument();

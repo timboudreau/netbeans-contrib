@@ -65,7 +65,7 @@ public class RemoveObjectAction extends AbstractAction {
             }
             defn.removeObject(obj);
             mObj.getMashupDataEditorSupport().synchDocument();
-            mObj.getGraphManager().setLog("Remove the SQL Object successfully.");
+            mObj.getGraphManager().setLog("Removed the Object successfully.");
             mObj.getGraphManager().refreshGraph();
         } catch (Exception ex) {
             mObj.getGraphManager().setError("Failed to remove the specified object.");

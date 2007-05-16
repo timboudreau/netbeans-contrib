@@ -47,6 +47,6 @@ public class CollapseAllAction extends AbstractAction {
     
     public void actionPerformed(ActionEvent e) {
         mObj.getGraphManager().collapseAll();
-        mObj.getGraphManager().setLog("Collapse all successfully completed.");
+        mObj.getGraphManager().setLog("Collapsed all widgets.");
     }    
 }

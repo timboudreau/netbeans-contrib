@@ -15,9 +15,6 @@
  */
 package org.netbeans.modules.edm.editor.wizard;
 
-import org.netbeans.modules.mashup.db.ui.AxionDBConfiguration;
-import org.netbeans.modules.jdbc.builder.DBMetaData;
-import org.netbeans.modules.sql.framework.common.utils.DBExplorerConnectionUtil;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.io.File;
@@ -33,8 +30,12 @@ import javax.swing.JPanel;
 import javax.swing.ListSelectionModel;
 import javax.swing.SwingUtilities;
 import javax.swing.table.DefaultTableModel;
+
 import org.netbeans.api.db.explorer.ConnectionManager;
 import org.netbeans.api.db.explorer.DatabaseConnection;
+import org.netbeans.modules.mashup.db.ui.AxionDBConfiguration;
+import org.netbeans.modules.jdbc.builder.DBMetaData;
+import org.netbeans.modules.sql.framework.common.utils.DBExplorerConnectionUtil;
 
 /**
  *

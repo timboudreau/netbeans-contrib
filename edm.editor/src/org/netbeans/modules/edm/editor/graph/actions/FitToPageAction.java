@@ -47,6 +47,6 @@ public class FitToPageAction extends AbstractAction {
     
     public void actionPerformed(ActionEvent e) {
         mObj.getGraphManager().fitToPage();
-        mObj.getGraphManager().setLog("Fit to page successfully completed.");
+        mObj.getGraphManager().setLog("Graph successfully fit to page.");
     }    
 }

@@ -58,6 +58,6 @@ public class ExtractionConditionAction extends AbstractAction {
         mObj.getEditorView().execute(ICommand.DATA_EXTRACTION, args);
         mObj.getMashupDataEditorSupport().synchDocument();
         mObj.getGraphManager().refreshGraph();
-        mObj.getGraphManager().setLog("Data Extraction condition modified.");
+        mObj.getGraphManager().setLog("Table Filter condition modified.");
     }    
 }

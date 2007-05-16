@@ -36,6 +36,7 @@ import org.openide.loaders.DataObjectExistsException;
 import org.openide.loaders.MultiDataObject;
 import org.openide.nodes.CookieSet;
 import org.openide.nodes.Node;
+import org.openide.util.Exceptions;
 import org.openide.util.Lookup;
 import org.openide.util.lookup.Lookups;
 import org.openide.util.lookup.ProxyLookup;
@@ -72,16 +73,7 @@ public class MashupDataObject extends MultiDataObject {
         CookieSet cookies = getCookieSet();
         editorSupport = new MashupDataEditorSupport(this);
         cookies.add(editorSupport);
-        try {
-            mModel = new ETLCollaborationModel(this.getName());
-            Element elem = parseFile(pf);
-            ETLDefinitionImpl etlDefn = new ETLDefinitionImpl(elem, null);
-            mModel.setDefinitionContent(etlDefn);
-            view = new ETLEditorTopView(mModel);
-            manager = new MashupGraphManager(this);
-        } catch(Exception ex) {
-            ErrorManager.getDefault().notify(ex);
-        }
+        manager = new MashupGraphManager(this);        
     }
     
     public Node createNodeDelegate() {
@@ -159,10 +151,6 @@ public class MashupDataObject extends MultiDataObject {
         return manager;
     }
     
-    public void setMashupGraphManager(MashupGraphManager manager) {
-        this.manager = manager;
-    }
-    
     public void initialize(WizardDescriptor descriptor) {
         try {
             
@@ -179,22 +167,35 @@ public class MashupDataObject extends MultiDataObject {
                 ErrorManager.getDefault().notify(ex);
             }
             if(view == null) {
-                view = new ETLEditorTopView(mModel);    
-            }            
+                view = new ETLEditorTopView(mModel);
+            }
             if(manager == null) {
                 manager = new MashupGraphManager(this);
                 manager.refreshGraph();
-            }            
+            }
         } catch(Exception ex) {
             ErrorManager.getDefault().notify(ex);
         }
     }
     
     public ETLCollaborationModel getModel() {
+        if(this.mModel == null) {
+            try {
+                mModel = new ETLCollaborationModel(this.getName());
+                Element elem = parseFile(this.getPrimaryFile());
+                ETLDefinitionImpl etlDefn = new ETLDefinitionImpl(elem, null);
+                mModel.setDefinitionContent(etlDefn);                
+            } catch (Exception ex) {
+                Exceptions.printStackTrace(ex);
+            }
+        }
         return this.mModel;
     }
     
     public ETLEditorTopView getEditorView() {
+        if(this.view == null) {
+            view = new ETLEditorTopView(getModel());
+        }
         return this.view;
     }
     

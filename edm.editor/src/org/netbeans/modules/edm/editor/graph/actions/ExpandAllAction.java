@@ -48,6 +48,6 @@ public class ExpandAllAction extends AbstractAction {
     
     public void actionPerformed(ActionEvent e) {
         mObj.getGraphManager().expandAll();
-        mObj.getGraphManager().setLog("Expand all successfully completed.");
+        mObj.getGraphManager().setLog("Expanded all widgets.");
     }    
 }

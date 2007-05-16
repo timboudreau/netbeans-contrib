@@ -53,10 +53,11 @@ public class ScenePopupProvider implements PopupMenuProvider {
     
     private MashupGraphManager manager;
     
-    public ScenePopupProvider(MashupDataObject dObj, EDMGraphScene gScene) {
+    public ScenePopupProvider(MashupDataObject dObj, MashupGraphManager manager,
+           EDMGraphScene gScene) {
         mObj = dObj;
         scene = gScene;
-        this.manager = dObj.getGraphManager();
+        this.manager = manager;
     }
     
     public JPopupMenu getPopupMenu(Widget widget, Point point) {

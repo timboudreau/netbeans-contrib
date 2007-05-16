@@ -63,8 +63,8 @@ public class TablePopupProvider implements PopupMenuProvider {
         menu.add(selectColumns);   
         
         // add data extraction action
-        JMenuItem dataExtraction = new JMenuItem("Data Extraction Condition");
-        dataExtraction.setAction(new ExtractionConditionAction(mObj, obj, "Data Extraction Condition"));
+        JMenuItem dataExtraction = new JMenuItem("Filter Condition");
+        dataExtraction.setAction(new ExtractionConditionAction(mObj, obj, "Filter Condition"));
         menu.add(dataExtraction);          
         
         menu.addSeparator();

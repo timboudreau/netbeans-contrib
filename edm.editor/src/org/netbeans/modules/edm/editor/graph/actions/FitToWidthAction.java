@@ -47,6 +47,6 @@ public class FitToWidthAction extends AbstractAction {
     
     public void actionPerformed(ActionEvent e) {
         mObj.getGraphManager().fitToWidth();
-        mObj.getGraphManager().setLog("Fit to width successfully completed.");
+        mObj.getGraphManager().setLog("Graph successfully fit to width.");
     }    
 }

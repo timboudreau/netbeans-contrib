@@ -47,6 +47,6 @@ public class FitToHeightAction extends AbstractAction {
     
     public void actionPerformed(ActionEvent e) {
         mObj.getGraphManager().fitToHeight();
-        mObj.getGraphManager().setLog("Fit to height successfully completed.");
+        mObj.getGraphManager().setLog("Graph successfully fit to height.");
     }    
 }
