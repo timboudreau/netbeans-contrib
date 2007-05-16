@@ -51,7 +51,9 @@ public final class MasterMatcher {
     private static final Logger LOG = Logger.getLogger(MasterMatcher.class.getName());
     
     public static final String PROP_ALLOWED_SEARCH_DIRECTION = "nbeditor-bracesMatching-allowedSearchDirection"; //NOI18N
-            
+    public static final String PROP_MAX_LOOKAHEAD = "nbeditor-bracesMatching-maxLookahead"; //NOI18N
+    private static final int DEFAULT_MAX_LOOKAHEAD = 256;
+    
     public static MasterMatcher get(Document document) {
         synchronized (MM) {
             MasterMatcher mm = MM.get(document);
