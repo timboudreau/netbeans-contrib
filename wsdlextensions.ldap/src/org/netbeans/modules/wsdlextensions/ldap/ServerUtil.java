@@ -109,7 +109,7 @@ public class ServerUtil {
                 objClass.addMust(a);
             }
         }
-
+        objClass.setSelected(new ArrayList());
         return objClass;
     }
 }

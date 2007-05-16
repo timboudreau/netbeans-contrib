@@ -22,6 +22,7 @@ public class LdifObjectClass {
     private String mSuper;
     private List mMust;
     private List mMay;
+    private List mSelected;
     
     public LdifObjectClass() {
     }
@@ -54,6 +55,10 @@ public class LdifObjectClass {
         mMay.add(m);
     }
 
+    public void setSelected(List s) {
+        mSelected = s;
+    }
+    
     public String getName() {
         return mName;
     }
@@ -72,5 +77,9 @@ public class LdifObjectClass {
     
     public List getMay() {
         return mMay;
+    }
+    
+    public List getSelected() {
+        return mSelected;
     }
 }

@@ -1,6 +1,7 @@
 package org.netbeans.modules.wsdlextensions.ldap;
 
 import java.awt.Component;
+import java.util.Map;
 import javax.swing.event.ChangeListener;
 import org.openide.WizardDescriptor;
 import org.openide.util.HelpCtx;
@@ -11,7 +12,7 @@ public class ServerBrowserWizardPanelStep3 implements WizardDescriptor.Panel {
      * The visual component that displays this panel. If you need to access the
      * component from this class, just use getComponent().
      */
-    private Component component;
+    private ServerBrowserVisualPanelStep3 component;
     
     // Get the visual component for the panel. In this template, the component
     // is kept separate. This can be more efficient: if the wizard is created
@@ -71,7 +72,10 @@ public class ServerBrowserWizardPanelStep3 implements WizardDescriptor.Panel {
     // settings object will be the WizardDescriptor, so you can use
     // WizardDescriptor.getProperty & putProperty to store information entered
     // by the user.
-    public void readSettings(Object settings) {}
+    public void readSettings(Object settings) {
+        WizardDescriptor wd = (WizardDescriptor) settings;
+        component.read(wd);
+    }
     public void storeSettings(Object settings) {}
     
 }

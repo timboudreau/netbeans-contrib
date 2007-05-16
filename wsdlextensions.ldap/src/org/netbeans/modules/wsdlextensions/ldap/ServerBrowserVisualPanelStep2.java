@@ -1,12 +1,15 @@
 package org.netbeans.modules.wsdlextensions.ldap;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Vector;
 import javax.naming.NamingException;
 import javax.swing.JPanel;
 import javax.swing.ListModel;
 import org.netbeans.modules.wsdlextensions.ldap.ldif.LdifObjectClass;
+import org.openide.WizardDescriptor;
 
 public final class ServerBrowserVisualPanelStep2 extends JPanel {
     
@@ -190,6 +193,20 @@ private void jButtonSelectMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIR
         }
     }
     
+    public void store(WizardDescriptor wd) {
+        Map objs = new HashMap();
+        jListSelectedObjects.getModel().getSize();
+        try {
+            for (int i = 0; i < jListSelectedObjects.getModel().getSize(); i++) {
+                String objName = (String) jListSelectedObjects.getModel().getElementAt(i);
+                objs.put(objName, ServerUtil.getObjectClass(objName));
+            }
+            
+            wd.putProperty("LDAP_OBJCLASS_LIST", objs);
+        } catch (NamingException ex) {
+            ex.printStackTrace();
+        }
+    }
     
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton jButtonSelect;
