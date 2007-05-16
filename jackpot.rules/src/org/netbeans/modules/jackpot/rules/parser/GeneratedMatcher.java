@@ -41,9 +41,10 @@ import com.sun.tools.javac.code.Symtab;
 import com.sun.tools.javac.comp.Attr;
 import com.sun.tools.javac.code.*;
 import com.sun.tools.javac.jvm.ClassReader;
-import com.sun.tools.javac.tree.*;
 import com.sun.tools.javac.tree.JCTree.*;
 import com.sun.tools.javac.parser.*;
+import com.sun.tools.javac.tree.JCTree;
+import com.sun.tools.javac.tree.TreeInfo;
 import com.sun.tools.javac.util.*;
 import java.lang.reflect.Method;
 import javax.lang.model.element.Element;
@@ -105,7 +106,7 @@ abstract public class GeneratedMatcher extends TreePathTransformer<Void,Object> 
             depth--;
             if (tree.getKind() != Tree.Kind.EXPRESSION_STATEMENT) {
                 comment = "";
-                Tree ret = rewrite(tree);
+                Tree ret = rewrite0(tree);
                 if (ret != tree)
                     addChange(trees.getPath(currentTopLevel, tree), ret, comment);
                 else if (comment != null && comment.length() > 0)
@@ -652,7 +653,7 @@ abstract public class GeneratedMatcher extends TreePathTransformer<Void,Object> 
             _this instanceof NullType || _that instanceof NullType)
             return false;
         Types types = getCompilationInfo().getTypes();
-	return types.isSubtype(_this, types.erasure(_that));
+	return types.isSubtype(_this, _that);
     }
     
     protected TreePath getPath(Tree t) {

@@ -219,8 +219,9 @@ public class TransformParser extends ScriptParser {
 	    pc.startGeneration();
             pc.write("import com.sun.source.tree.*;\n");
 	    pc.write("import com.sun.tools.javac.code.*;\n"); 
-	    pc.write("import com.sun.tools.javac.tree.*;\n"); 
+	    pc.write("import com.sun.tools.javac.tree.JCTree;\n"); 
 	    pc.write("import com.sun.tools.javac.tree.JCTree.*;\n"); 
+            pc.write("import com.sun.tools.javac.tree.TreeInfo;\n");
 	    pc.write("import com.sun.tools.javac.util.*;\n"); 
             pc.write("import javax.lang.model.element.*;\n");
 	    pc.write("import org.netbeans.api.jackpot.*;\n");
@@ -1288,7 +1289,7 @@ public class TransformParser extends ScriptParser {
 		}
 	    }
 	    addBoolean(prefix+".nonEmpty()");
-	    genMatch(prefix+".head", head);
+	    genMatch("deblock("+prefix+".head)", head);
 	    prefix = prefix+".tail";
 	}
 	addBoolean(prefix+".isEmpty()");

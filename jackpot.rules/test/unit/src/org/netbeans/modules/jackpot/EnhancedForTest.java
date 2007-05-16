@@ -45,7 +45,7 @@ public class EnhancedForTest extends NbTestCase {
             "package x.y;\n\n" +
             "class EnhancedFor {\n" +
             "    public static void main(String[] args) {\n" +
-            "        int count;\n\n" +
+            "        int count;\n" +
             "        System.out.println(\"args\");\n" +
             "        count = 0;\n\n" +
             "        for (String arg : args) {\n" +
@@ -55,7 +55,7 @@ public class EnhancedForTest extends NbTestCase {
             "    }\n" +
             "}\n";
         
-        String rule = "{ $p$; $t $v; $intr$; $v = $e; $q$; } => { $p$; $intr$; $t $v = $e; $q$; } :: !assignedIn($v, $intr$);";
+        String rule = "{ $t $v; $intr$; $v = $e; $q$; } => { $intr$; $t $v = $e; $q$; } :: !assignedIn($v, $intr$);";
         
         String golden = 
             "package x.y;\n\n" +
@@ -76,9 +76,7 @@ public class EnhancedForTest extends NbTestCase {
         TestUtilities.copyStringToFile(ruleFile, rule);
         URL ruleURL = ruleFile.toURI().toURL();
         
-        if (TestUtilities.applyRules(getWorkDir(), ruleURL) != 1) {
-            fail("transformation failed");
-        }
+        TestUtilities.applyRules(getWorkDir(), ruleURL);
         String result = TestUtilities.copyFileToString(java);
         assertEquals(golden, result);
     }
