@@ -75,14 +75,13 @@ public final class TestUtilities {
      * 
      * @param  dir the directory containing the source files to be modified.
      * @param  rules the rule file to apply to the source files.
-     * @return the number of matches found
      * @throws BuildErrorsException 
      *         If any errors are found when building the source files.
      * @throws java.lang.Exception 
      */
-    public static int applyRules(File dir, URL rules) 
+    public static void applyRules(File dir, URL rules) 
             throws BuildErrorsException, Exception {
-        return applyRules(dir, rules, false);
+        applyRules(dir, rules, false);
     }
 
     /**
@@ -91,15 +90,14 @@ public final class TestUtilities {
      * @param  dir the directory containing the source files to be modified.
      * @param  rules the rule file to apply to the source files.
      * @param  allowErrors true if the rules should still be applied if there are build errors.
-     * @return the number of matches found
      * @throws BuildErrorsException 
      *         If any errors are found when building the source files.
      * @throws java.lang.Exception 
      */
-    public static int applyRules(File dir, URL rules, boolean allowErrors) 
+    public static void applyRules(File dir, URL rules, boolean allowErrors) 
             throws BuildErrorsException, Exception {
         File rulesFile = copyResourceToFile(rules);
-        return apply(dir, rulesFile.getPath()).size();
+        apply(dir, rulesFile.getPath()).size();
     }
 
     private static List<Result> apply(File dir, String cmd) 

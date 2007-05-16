@@ -75,9 +75,7 @@ public class ChangeArgumentTest extends NbTestCase {
         File ruleFile = new File(getWorkDir(), "r.rules");
         TestUtilities.copyStringToFile(ruleFile, rule);
 
-        if (TestUtilities.applyRules(getWorkDir(), ruleFile.toURI().toURL()) == 0) {
-            fail("No transformation, that is strange");
-        }
+        TestUtilities.applyRules(getWorkDir(), ruleFile.toURI().toURL());
         
         String res = TestUtilities.copyFileToString(java);
         

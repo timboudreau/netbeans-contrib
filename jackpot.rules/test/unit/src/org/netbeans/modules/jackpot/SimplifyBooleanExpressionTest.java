@@ -38,7 +38,7 @@ public class SimplifyBooleanExpressionTest extends NbTestCase {
     
     protected void setUp() throws Exception {
         TestUtilities.makeScratchDir(this);
-        ruleURL = getClass().getResource("resources/SimplifyBooleanExpressions.rules");
+        ruleURL = getClass().getResource("scripts/SimplifyBooleanExpressions.rules");
     }
 
     protected void tearDown() throws Exception {
@@ -69,9 +69,7 @@ public class SimplifyBooleanExpressionTest extends NbTestCase {
         
         File java = new File(getWorkDir(), "IfTrue.java");
         TestUtilities.copyStringToFile(java, code);
-        if (TestUtilities.applyRules(getWorkDir(), ruleURL) != 2) {
-            fail("a transformation was missed");
-        }
+        TestUtilities.applyRules(getWorkDir(), ruleURL);
         String result = TestUtilities.copyFileToString(java);
         assertEquals(golden, result);
     }
@@ -88,9 +86,9 @@ public class SimplifyBooleanExpressionTest extends NbTestCase {
         
         File java = new File(getWorkDir(), "ShouldIgnoreConditional.java");
         TestUtilities.copyStringToFile(java, code);
-        if (TestUtilities.applyRules(getWorkDir(), ruleURL) > 0) {
-            fail("Conditional was modified");
-        }
+        TestUtilities.applyRules(getWorkDir(), ruleURL);
+        String result = TestUtilities.copyFileToString(java);
+        assertEquals(code, result); // should be no change
     }
     
     public void testAnotherConditional() throws Exception {
@@ -108,8 +106,8 @@ public class SimplifyBooleanExpressionTest extends NbTestCase {
 
         File java = new File(getWorkDir(), "ShouldIgnoreConditional.java");
         TestUtilities.copyStringToFile(java, code);
-        if (TestUtilities.applyRules(getWorkDir(), ruleURL) > 0) {
-            fail("Conditional was modified");
-        }
+        TestUtilities.applyRules(getWorkDir(), ruleURL);
+        String result = TestUtilities.copyFileToString(java);
+        assertEquals(code, result); // should be no change
     }
 }

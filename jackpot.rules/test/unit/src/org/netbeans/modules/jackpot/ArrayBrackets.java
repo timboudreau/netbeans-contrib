@@ -78,9 +78,7 @@ public class ArrayBrackets extends NbTestCase {
         TestUtilities.copyStringToFile(ruleFile, rule);
         URL ruleURL = ruleFile.toURI().toURL();
         
-        if (TestUtilities.applyRules(getWorkDir(), ruleURL) != 1) {
-            fail("transformation failed");
-        }
+        TestUtilities.applyRules(getWorkDir(), ruleURL);
         String result = TestUtilities.copyFileToString(java);
         assertEquals(golden, result);
     }
@@ -115,9 +113,7 @@ public class ArrayBrackets extends NbTestCase {
         TestUtilities.copyStringToFile(ruleFile, rule);
         URL ruleURL = ruleFile.toURI().toURL();
         
-        if (TestUtilities.applyRules(getWorkDir(), ruleURL) != 1) {
-            fail("transformation failed");
-        }
+        TestUtilities.applyRules(getWorkDir(), ruleURL);
         String result = TestUtilities.copyFileToString(java);
         assertEquals(golden, result);
     }
