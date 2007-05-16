@@ -94,6 +94,13 @@
                 <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.wsdlextensions.ldap.resources.Bundle"/>
                 <attr name="template" boolvalue="true"/>
             </file>
+            <file name="serverBrowser">
+                <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/wsdlextensions/ldap/resources/ldapfile16x16.png"/>
+                <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.wsdlextensions.ldap.resources.Bundle"/>
+                <attr name="instantiatingIterator" newvalue="org.netbeans.modules.wsdlextensions.ldap.ServerBrowserWizardIterator"/>
+                <attr name="template" boolvalue="true"/>
+                <attr name="templateWizardURL" urlvalue="nbresloc:/org/netbeans/modules/wsdlextensions/ldap/serverBrowser.html"/>
+            </file>
         </folder>
     </folder>
     <folder name="WSDLEditor">
