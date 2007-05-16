@@ -52,6 +52,7 @@ public final class UsedLocalVariableVisitor extends TreePathScanner<Void, Set<Pa
     
     @Override
     public Void visitIdentifier(IdentifierTree node, Set<ParamDesc> p) {
+        System.err.println("Visit identifier " + node);
         Element el = info.getTrees().getElement(getCurrentPath());
         TreePath elPath = el != null ? info.getTrees().getPath(el) : null;
         SourcePositions positions = info.getTrees().getSourcePositions();
@@ -82,7 +83,9 @@ public final class UsedLocalVariableVisitor extends TreePathScanner<Void, Set<Pa
     
     public void pruneLocallyDefined (Set <ParamDesc> desc) {
         for (Iterator <ParamDesc> i = desc.iterator(); i.hasNext();) {
-            if (locallyDefinedNames.contains (i.next().getName().toString())) {
+            String s;
+            if (locallyDefinedNames.contains (s = i.next().getName().toString())) {
+                System.err.println("Pruned " + s);
                 i.remove();
             }
         }
@@ -93,10 +96,16 @@ public final class UsedLocalVariableVisitor extends TreePathScanner<Void, Set<Pa
     @Override
     public Void visitVariable(VariableTree tree, Set<ParamDesc> set) {
         System.err.println("Visit variable " + tree);
+        SourcePositions positions = info.getTrees().getSourcePositions();
+        long start = positions.getStartPosition(info.getCompilationUnit(), tree);
+        long end = positions.getEndPosition(info.getCompilationUnit(), tree);
         //Make sure we didn't catch anything like loop variables that are actually
         //defined in the new method
-        locallyDefinedNames.add (tree.getName().toString());
+        if (!notInExcludedRange(start, end)) {
+            locallyDefinedNames.add (tree.getName().toString());
+        } else {
+            System.err.println("Variable " + tree.getName() + " is locally defined");
+        }
         return super.visitVariable(tree, set);
     }
-    
 }

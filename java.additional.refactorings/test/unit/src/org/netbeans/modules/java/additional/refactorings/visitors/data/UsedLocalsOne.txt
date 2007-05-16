@@ -1,0 +1,13 @@
+public class UsedLocalsOne {
+    private static void doSomething() throws IOException, SAXException  {
+        String s = "x";
+        String y = "y";
+        if (true) {
+            s = "bar";
+            y = y + s;
+            throw new IOException();
+        } else {
+            throw new SAXException();
+        }
+    }
+}
