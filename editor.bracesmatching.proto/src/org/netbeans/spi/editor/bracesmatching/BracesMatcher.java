@@ -105,9 +105,7 @@ public interface BracesMatcher {
      * @throws java.lang.InterruptedException If the thread was engaged in a
      *   call that resulted in <code>InterruptedException</code>, the exception
      *   should be rethrown.
-     * @throws javax.swing.text.BadLocationException If the caret offset from
-     *   the <code>MatcherContext</code> does not denote a valid position in
-     *   the document.
+     * @throws javax.swing.text.BadLocationException If the search fails.
      */
     public int [] findOrigin() throws InterruptedException, BadLocationException;
     
@@ -137,9 +135,7 @@ public interface BracesMatcher {
      * @throws java.lang.InterruptedException If the thread was engaged in a
      *   call that resulted in <code>InterruptedException</code>, the exception
      *   should be rethrown.
-     * @throws javax.swing.text.BadLocationException If the caret offset from
-     *   the <code>MatcherContext</code> does not denote a valid position in
-     *   the document.
+     * @throws javax.swing.text.BadLocationException If the search fails.
      */
     public int [] findMatches() throws InterruptedException, BadLocationException;
 }

@@ -128,7 +128,9 @@ Microsystems, Inc. All Rights Reserved.
 -->
  <answer id="arch-usecases">
   <p>
-   XXX no answer for arch-usecases
+  The usecases can be found in the
+  <a href="@org-netbeans-modules-editor-bracesmatching@/org/netbeans/spi/editor/bracesmatching/package-summary.html#usecases"><code>org.netbeans.spi.editor.bracesmatching</code></a>
+  package's overview.
   </p>
  </answer>
 
