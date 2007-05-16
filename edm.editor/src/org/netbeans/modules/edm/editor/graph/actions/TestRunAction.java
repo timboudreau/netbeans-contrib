@@ -72,7 +72,7 @@ public class TestRunAction extends AbstractAction {
             manager.setLog("Generating Output for SQL: \n" + sql);
             manager.showOutput(joinView, mObj.getModel().getSQLDefinition());
         } catch (Exception ex) {
-            manager.setLog("Failed to run collaboration");
+            manager.setError("Failed to run collaboration");
         }
     }
 }

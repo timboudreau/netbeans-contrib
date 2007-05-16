@@ -68,7 +68,7 @@ public class RemoveObjectAction extends AbstractAction {
             mObj.getGraphManager().setLog("Remove the SQL Object successfully.");
             mObj.getGraphManager().refreshGraph();
         } catch (Exception ex) {
-            mObj.getGraphManager().setLog("Failed to remove the specified object.");
+            mObj.getGraphManager().setError("Failed to remove the specified object.");
         }
         
     }    

@@ -41,8 +41,6 @@ import org.netbeans.modules.edm.editor.widgets.EDMPinWidget;
 import org.netbeans.modules.edm.editor.widgets.EDMGraphScene;
 import org.netbeans.modules.edm.editor.graph.actions.SceneAcceptProvider;
 import org.netbeans.modules.edm.editor.graph.actions.ScenePopupProvider;
-import org.netbeans.modules.edm.editor.graph.components.DebugPanel;
-import org.netbeans.modules.edm.editor.graph.components.MashupTopPanel;
 import org.netbeans.modules.edm.editor.utils.MashupGraphUtil;
 import org.netbeans.modules.edm.editor.graph.actions.JoinPopupProvider;
 
@@ -58,7 +56,9 @@ import org.netbeans.modules.sql.framework.model.SQLObject;
 import org.netbeans.modules.sql.framework.model.RuntimeDatabaseModel;
 import org.netbeans.modules.sql.framework.model.RuntimeInput;
 import com.sun.sql.framework.utils.RuntimeAttribute;
+import org.netbeans.modules.edm.editor.graph.components.EDMOutputTopComponent;
 import org.netbeans.modules.edm.editor.utils.ImageConstants;
+import org.netbeans.modules.edm.editor.utils.OutputWindowUtil;
 import org.netbeans.modules.edm.editor.widgets.property.JoinNode;
 import org.netbeans.modules.edm.editor.widgets.property.TableNode;
 import org.netbeans.modules.sql.framework.model.SQLCondition;
@@ -72,12 +72,8 @@ public class MashupGraphManager {
     
     private MashupDataObject mObj;
     
-    private EDMGraphScene scene;
-    
-    private DebugPanel output;
-    
-    private MashupTopPanel panel;
-    
+    private EDMGraphScene scene;    
+        
     private JScrollPane pane;
     
     private long edgeCounter = 1;
@@ -96,10 +92,7 @@ public class MashupGraphManager {
     
     public MashupGraphManager() {
         scene = new EDMGraphScene();
-        
-        output = new DebugPanel();
-        panel = new MashupTopPanel();
-        
+                
         scene.getActions().addAction(ActionFactory.createZoomAction());
         scene.getActions().addAction(ActionFactory.createPanAction());
         scene.getActions().addAction(ActionFactory.createMoveAction());
@@ -258,23 +251,30 @@ public class MashupGraphManager {
         this.mObj = mashupDataObject;
     }
     
-    public JComponent getTopPanel() {
+    public JComponent getPanel() {
         if(pane == null) {
             JComponent comp = scene.getView();
             comp = (comp == null) ? scene.createView() : scene.getView();
             pane = new JScrollPane(comp);
         }
-        panel.setTopComponent(pane);
-        panel.setBottomComponent(output);
-        return panel;
+        return pane;
     }
     
     public void setLog(String text) {
-        output.setLog(text);
+        OutputWindowUtil.writeLogMessage(mObj, text);
     }
     
+    public void setError(String text) {
+        OutputWindowUtil.writeErrorMessage(mObj, text);
+    }    
+    
     public void showOutput(SQLObject object, SQLDefinition sqlDefn) {
-        output.showOutput(object, sqlDefn);
+        EDMOutputTopComponent win = EDMOutputTopComponent.findInstance();
+        win.generateOutput(object, sqlDefn);
+        if(!win.isOpened()) {
+            win.open();
+        }
+        win.requestActive();        
     }
     
     public void updateColumnSelection(SQLDBTable table) {

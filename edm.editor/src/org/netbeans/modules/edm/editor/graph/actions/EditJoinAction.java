@@ -78,9 +78,7 @@ public class EditJoinAction extends AbstractAction {
                     mObj.getGraphManager().setLog("Join view successfully edited.");
                 }
             } catch (Exception ex) {
-                DialogDisplayer.getDefault().notify(
-                        new NotifyDescriptor.Message("Error adding join view.",
-                        NotifyDescriptor.INFORMATION_MESSAGE));
+                 mObj.getGraphManager().setError("Error adding Join view.");
             }
         }
     }

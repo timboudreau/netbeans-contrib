@@ -90,7 +90,7 @@ public class ShowSqlAction extends AbstractAction {
                 }
             }
         } catch (Exception ex) {
-            manager.setLog("Failed to evaluate join.");
+            manager.setError("Failed to evaluate join.");
         }
     }
 }

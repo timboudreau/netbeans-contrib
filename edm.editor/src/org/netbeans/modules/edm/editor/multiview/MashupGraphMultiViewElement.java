@@ -1,6 +1,6 @@
 /*
  * The contents of this file are subject to the terms of the Common
- * Development and Distribution License (the License). You may not use this 
+ * Development and Distribution License (the License). You may not use this
  * file except in compliance with the License.  You can obtain a copy of the
  *  License at http://www.netbeans.org/cddl.html
  *
@@ -18,15 +18,13 @@ package org.netbeans.modules.edm.editor.multiview;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.Toolkit;
-import javax.swing.JSplitPane;
 import javax.swing.JToolBar;
 import javax.swing.UIManager;
 import java.beans.PropertyChangeListener;
 import java.util.Iterator;
 import java.beans.PropertyChangeEvent;
 import java.util.Arrays;
+import javax.swing.JScrollPane;
 
 import org.openide.cookies.SaveCookie;
 import org.openide.windows.TopComponent;
@@ -90,7 +88,7 @@ public class MashupGraphMultiViewElement extends TopComponent
     }
     
     private void initialize() {
-        setLayout(new BorderLayout());        
+        setLayout(new BorderLayout());
         initUI();
         initializeLookup();
     }
@@ -256,11 +254,8 @@ public class MashupGraphMultiViewElement extends TopComponent
             manager = getMashupDataObject().getGraphManager();
             setLayout(new BorderLayout());
             manager.refreshGraph();
-            JSplitPane splitPane = (JSplitPane)manager.getTopPanel();            
-            Dimension d = Toolkit.getDefaultToolkit().getScreenSize();
-            int divLocation = d.height * 3 / 5;
-            splitPane.setDividerLocation(divLocation);        
-            add(splitPane, BorderLayout.CENTER);
+            JScrollPane pane = (JScrollPane)manager.getPanel();
+            add(pane, BorderLayout.CENTER);
             return;
         } catch (Exception ex) {
             errorMessage = ex.getMessage();
@@ -284,7 +279,7 @@ public class MashupGraphMultiViewElement extends TopComponent
         manager = getMashupDataObject().getGraphManager();
         manager.refreshGraph();
         setLayout(new BorderLayout());
-        add(manager.getTopPanel(), BorderLayout.CENTER);
+        add(manager.getPanel(), BorderLayout.CENTER);
         return;
     }
     
@@ -302,7 +297,7 @@ public class MashupGraphMultiViewElement extends TopComponent
     
     public javax.swing.JComponent getVisualRepresentation() {
         return this;
-    }    
+    }
     
     public TopComponent getComponent() {
         return this;

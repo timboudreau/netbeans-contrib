@@ -35,4 +35,14 @@
             </file>
         </folder>
     </folder>    
+    <folder name="Windows2">
+        <folder name="Components">
+            <file name="EDMOutputTopComponent.settings" url="EDMOutputTopComponentSettings.xml"/>
+        </folder>
+        <folder name="Modes">
+            <folder name="output">
+                <file name="EDMOutputTopComponent.wstcref" url="EDMOutputTopComponentWstcref.xml"/>
+            </folder>
+        </folder>
+    </folder>
 </filesystem>

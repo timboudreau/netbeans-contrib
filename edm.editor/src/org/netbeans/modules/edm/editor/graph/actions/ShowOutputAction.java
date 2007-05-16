@@ -19,48 +19,40 @@ package org.netbeans.modules.edm.editor.graph.actions;
 import java.awt.event.ActionEvent;
 import javax.swing.AbstractAction;
 import javax.swing.ImageIcon;
-
 import org.netbeans.modules.edm.editor.dataobject.MashupDataObject;
+
 import org.netbeans.modules.edm.editor.utils.ImageConstants;
 import org.netbeans.modules.edm.editor.utils.MashupGraphUtil;
-import org.netbeans.modules.sql.framework.model.SQLObject;
-import org.netbeans.modules.etl.ui.view.TablePanel;
-import org.netbeans.modules.sql.framework.model.SQLConstants;
+import org.netbeans.modules.edm.editor.utils.OutputWindowUtil;
+import org.openide.windows.IOProvider;
+import org.openide.windows.InputOutput;
 
 /**
  *
  * @author karthikeyan s
  */
-public class RuntimeInputAction extends AbstractAction {
+public class ShowOutputAction extends AbstractAction {
     
     private MashupDataObject mObj;
     
-    private SQLObject obj;
-    
     /** Creates a new instance of EditJoinAction */
-    public RuntimeInputAction(MashupDataObject dObj) {
-        super("",new ImageIcon(
-                MashupGraphUtil.getImage(ImageConstants.RUNTIMEINPUT)));
+    public ShowOutputAction(MashupDataObject dObj) {
+        super("", new ImageIcon(
+                MashupGraphUtil.getImage(ImageConstants.OUTPUT)));
         mObj = dObj;
     }
     
-    public RuntimeInputAction(MashupDataObject dObj, String name) {
-        super(name,new ImageIcon(
-                MashupGraphUtil.getImage(ImageConstants.RUNTIMEINPUT)));
+    public ShowOutputAction(String name, MashupDataObject dObj) {
+        super(name, new ImageIcon(
+                MashupGraphUtil.getImage(ImageConstants.OUTPUT)));
         mObj = dObj;
     }
     
     public void actionPerformed(ActionEvent e) {
-        try {
-            TablePanel tPanel = new TablePanel(SQLConstants.RUNTIME_INPUT, mObj.getModel());
-            tPanel.showTablePanel();
-            if(mObj.getModel().isDirty()) {
-                mObj.getMashupDataEditorSupport().synchDocument();
-                mObj.getGraphManager().refreshGraph();
-                mObj.getGraphManager().setLog("Runtime input argument successfully added.");
-            }
-        } catch (Exception ex) {
-            mObj.getGraphManager().setError("Failed to add Runtime arguments.");
-        }
+        // close the netbeans output window.
+        InputOutput io = OutputWindowUtil.getIOWindow(mObj);
+        if(io.isClosed()) {
+            io.select();
+        }        
     }
 }
