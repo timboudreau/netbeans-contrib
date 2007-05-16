@@ -1,0 +1,289 @@
+<!--
+The contents of this file are subject to the terms of the Common Development
+and Distribution License (the License). You may not use this file except in
+compliance with the License.
+
+You can obtain a copy of the License at http://www.netbeans.org/cddl.html
+or http://www.netbeans.org/cddl.txt.
+
+When distributing Covered Code, include this CDDL Header Notice in each file
+and include the License file at http://www.netbeans.org/cddl.txt.
+If applicable, add the following below the CDDL Header, with the fields
+enclosed by brackets [] replaced by your own identifying information:
+"Portions Copyrighted [year] [name of copyright owner]"
+
+The Original Software is NetBeans. The Initial Developer of the Original
+Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
+Microsystems, Inc. All Rights Reserved.
+-->
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html>
+  <head>
+    <title>org.netbeans.modules.editor.bracesmatching.spi</title>
+  </head>
+  <body>
+
+  <p>
+  The Braces Matching SPI is for registering services capable of finding matching
+  areas of text in a document.
+  </p>
+
+  
+  <h3>Key parts of the SPI</h3>
+  
+  <p>
+  The main part of the SPI is the
+  <code><a href="@org-netbeans-modules-editor-bracesmatching@/org/netbeans/spi/editor/bracesmatching/BracesMatcher.html">BracesMatcher</a></code>
+  interface, which
+  needs to be implemented by anybody who wishes to provide a text matching
+  services for a particular type of documents. Implementations of the
+  <code>BracesMatcher</code> interface can be plugged in to the system by
+  registering 
+  <code><a href="@org-netbeans-modules-editor-bracesmatching@/org/netbeans/spi/editor/bracesmatching/BracesMatcherFactory.html">BracesMatcherFactory</a></code> 
+  in the MIME lookup.
+  </p>
+  
+  <p>The editor
+  infrastructure will use registered factories to create matchers for highlighting
+  matching areas in documents. Each type of a document (ie. mime type or more
+  precisely each mime path) can have at most one <code>BracesMatcher</code> registered.
+  If there is more different implementations registered for the same mime path
+  the infrastructure will only use the first one.
+  </p>
+  
+  <p>
+  When asking a <code>BracesMatcherFactory</code> to create an instance of
+  <code>BracesMatcher</code> the infrastructure passes the factory an instance of
+  <code><a href="@org-netbeans-modules-editor-bracesmatching@/org/netbeans/spi/editor/bracesmatching/MatcherContext.html">MatcherContext</a></code>, 
+  which provides an information about a document
+  and a position in that document, where the matching should start. The provided
+  <code>MatcherContext</code> can also be used to report the matching areas back
+  to the infrastructure.
+  </p>
+
+  
+  <h3>BracesMatcher registration</h3>
+  
+  <p>
+  The registration of <code>BracesMatcher</code>s has to be done through an
+  instance of the <code>BracesMatcherFactory</code> class. The factory should
+  be registered in <code>MimeLookup</code> under the mime-type of documents, which
+  the <code>BracesMatcher</code> should be used for. For example, if a module
+  wants to provide <code>BracesMatcher</code> for <code>text/x-something</code> documents
+  it should implement its own <code>BracesMatcherFactory</code> (e.g.
+  <code>org.some.module.BMFactory</code> class) and register it in <code>MimeLookup</code>
+  using its XML layer as it is shown on the example below.
+  </p>
+  
+  <pre>
+&lt;folder name="Editors"&gt;
+  &lt;folder name="text"&gt;
+    &lt;folder name="x-something"&gt;
+        &lt;file name="org-some-module-BMFactory.instance" /&gt;
+    &lt;/folder&gt;
+  &lt;/folder&gt;
+&lt;/folder&gt;
+  </pre>
+
+  <p>
+  The <code>BMFactory</code> class will simply return a new instance of
+  the module's implementation of the <code>BracesMatcher</code> interface from its
+  <code>createMatcher</code>
+  method. The parameter of the <code>createMatcher</code> method provides access to
+  a <code>Document</code> and a position of a caret in this document, where
+  searching should start.
+  </p>
+
+  
+  <h3>Languages embedding</h3>
+  
+  <p>
+  The registration mechanism described earlier and the general concept of MIME lookup
+  allows to provide special <code>BracesMatcher</code>s for embedded languages.
+  The editor infrastructure will always try to find the inner-most language at
+  a position in a document, where the matching should start. It will then create
+  the <code>BracesMatcher</code> according to the mime path of that inner-most
+  language.
+  </p>
+  
+  <p>
+  As per the general inheritance rules defined by MIME lookup this may result
+  in using a <code>BracesMatcher</code> that is registered for a top level
+  language (ie. mime type) different from the main language of the scanned
+  document. Here is an example of a java snippet in a JSP page, the caret's
+  position is indicated by the '|' pipe character. Assuming that there are only
+  two <code>BracesMatcher</code> implementations registered - one for <code>text/x-jsp</code>
+  and the other one for <code>text/x-java</code>, the infrastructure's attempt to find a matcher
+  for the <code>text/x-jsp/text/x-java</code> mime path is going to result in
+  finding the matcher registered for <code>text/x-java</code>.
+  </p>
+  
+  <pre>
+&lt;% for(int i = 0; i < 10; i++) <span style="background-color : pink;">{</span> %&gt;
+&lt;th&gt;&lt;%=i%&gt;. column&lt;/th&gt;
+&lt;% <span style="background-color : pink;">}</span>| %&gt;
+  </pre>
+  
+  <p>
+  Since the support for languages embedding comes with the new Lexer API, the
+  above example is naturally only going to work for document types that provide
+  a <code>Lexer</code> implementation. This is the case for the most document types
+  supported in Netbeans 6. In case that a document does not have a <code>Lexer</code>
+  the infrastructure will fall back to using the document's mime type ignoring
+  any other languages that may potentially be embedded in the document.
+  </p>
+  
+  
+  <h3>Use cases</h3>
+
+  <p>
+  Although the SPI can generally by used for highlighting areas in a document
+  that have something in common, the usecases below are demonstrated on a simple
+  braces matching example. This example is used for its simplicity and clarity,
+  but it could be substituted by any other more complex example.
+  </p>
+
+  <p>
+  The usecases listed here were heavily inspired by comments in issues
+  <a href="http://www.netbeans.org/issues/show_bug.cgi?id=95126">95126</a> and
+  <a href="http://www.netbeans.org/issues/show_bug.cgi?id=66037">66037</a>.
+  </p>
+
+  <p>
+  The terminology used here refers to two key terms - an <b>original brace</b> (area)
+  and a <b>matching brace</b> (area or areas). Understanding those two terms is essential.
+  The original brace is the brace that lies in the near vicinity of a caret and
+  it defines the place where searching for the matching brace will start. If there
+  is no original brace, there also is no matching brace to search for. While there
+  is always only at most one original area (brace), there can generally be none,
+  one or more matching areas.
+  </p>
+  
+  
+  <h4>Use case 1. - Directional searching</h4>
+
+  <p>
+  The search for matching braces in a text document always starts at a position
+  of a caret by looking 'around' this position for a brace that we could then
+  try to match against its counterpart. This 'looking around' in fact means
+  looking backwards from the caret's position, looking ahead of it or looking
+  in both directions.
+  </p>
+
+  <p>
+  When looking only in one direction - either backwards or forward - the situation
+  is simple, either we find a brace or not. If there is a brace it can be used
+  as the original brace and we can attemp to find the matching brace. If
+  there is no original brace, then we are done.
+  </p>
+  
+  <p>
+  When looking in both directions the situation is slightly more complicated
+  and we can end up with one of the following possibilities.
+  </p>
+  
+  <ul>
+      <li>No brace in either direction.</li>
+      <li>A brace behind the caret (ie. in backwards direction).</li>
+      <li>A brace in front of the caret (ie. in forward direction).</li>
+      <li>Braces on either side of the caret.</li>
+  </ul>
+  
+  <p>
+  While most of the users probably prefer searching in both direction, the behavior
+  should generally be controllable by a setting. There can also be special editors
+  like jVi for example that need to control this depending on per-component basis
+  depending on the editor's internal state.
+  </p>
+  
+  
+  <h4>Use case 2. - Proximity searching</h4>
+
+  <p>
+  In generall, there can be situations when it makes sense to look for an original brace
+  not only right next to a caret, but also <i>"a little bit further"</i>. The scope
+  of this search should however always be very limeted and the results should only 
+  be used when unambigous. The following example demonstrates the rules that 
+  should be applied in this usecase.
+  </p>
+  
+  <pre>
+1.    if (...) { // explain the if clause
+2.        ...
+3.    } else { // explain the else clause
+4.        ...
+5.    } // final comment
+  </pre>
+
+  <ul>
+  <li>
+      The search for an original brace should never leave the scope of the line with a caret.
+  </li>
+  <li>
+      If an original brace is found only in one direction it can be used even
+      if it is not located right next to a caret. For example, if the caret is
+      at the end of the 3. line, there is only one original brace and it is the
+      one opening the 'else' block.
+  </li>
+  <li>
+      If an original brace is found in both directions, only the one that lies
+      right next to a caret can be used. If none of them lies next to a caret,
+      none of them will be used. For example, if the caret is positioned in the
+      'else' keyword, there are two original braces one in each direaction, but
+      none of them lies next to the caret and none of them will be used.
+  </li>
+  </ul>
+  
+  
+  <h4>Use case 3. - Highlighting results</h4>
+  
+  <p>
+  Probably the main reason why this SPI exists is to allow Netbeans editor to
+  highlight matching braces in a document. The highlighting itself is done by the
+  infrastructure and is not of a concern for <code>BracesMatcher</code> implementors,
+  but the requirements are that it should be possible to highlight independently
+  (ie. in a different color) both the original brace and the matching brace. It should also
+  be possible to highlight the original brace in a special color when its matching
+  brace can't be found. The colors obviously have to be customizable by users.
+  </p>
+  
+  
+  <h4>Use case 4. - Navigating between results</h4>
+  
+  <p>
+  If the original brace is detected and its matching brace is found Netbeans editor
+  needs to allow an easy navigation between those two position (ie. jumping
+  from the original brace to the matching one and back.
+  </p>
+  
+  <p>
+  In general if there is more than one matching area users should be allowed to cycle
+  through all of them.
+  </p>
+
+
+  <h4>Use case 5. - Time consuming searches</h4>
+
+  <p>
+  While finding the original brace is relatively simle task, because it's always
+  done in a limited and quite small area around a caret, finding the matching
+  brace can take much more time and in generall it can involve searching through
+  a whole document. The searching is normally done in response to moving a caret
+  in a document, which means that there can be a lot of search requests generated
+  when a user moves the caret quickly over some text. It is not very important
+  to show all the results as the caret moves, but it is important to show the
+  last result when the caret stops moving.
+  </p>
+  
+  <p>
+  The editor infrastructure must make sure that moving a caret is not impacted by
+  performing searches for matching areas. These searches have to run on background,
+  outside of the Swing's event thread and most importantly it has to be possible
+  to cancel searches, whose results are no longer needed.
+  </p>
+  
+
+  </body>
+</html>

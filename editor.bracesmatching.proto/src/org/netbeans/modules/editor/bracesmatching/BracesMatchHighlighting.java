@@ -20,7 +20,6 @@ package org.netbeans.modules.editor.bracesmatching;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -29,7 +28,6 @@ import javax.swing.event.DocumentListener;
 import javax.swing.text.AttributeSet;
 import javax.swing.text.Caret;
 import javax.swing.text.Document;
-import javax.swing.text.Element;
 import javax.swing.text.JTextComponent;
 import javax.swing.text.SimpleAttributeSet;
 import org.netbeans.spi.editor.highlighting.HighlightsChangeEvent;
@@ -42,16 +40,8 @@ import org.openide.util.WeakListeners;
 import org.netbeans.api.editor.mimelookup.MimePath;
 import org.netbeans.api.editor.mimelookup.MimeLookup;
 import org.netbeans.api.editor.settings.FontColorSettings;
-import org.netbeans.api.lexer.TokenHierarchy;
-import org.netbeans.api.lexer.TokenId;
-import org.netbeans.api.lexer.TokenSequence;
-import org.netbeans.lib.editor.util.swing.DocumentUtilities;
-import org.netbeans.modules.editor.bracesmatching.spi.BracesMatcherFactory;
-import org.netbeans.modules.editor.bracesmatching.spi.BracesMatcher;
-import org.netbeans.modules.editor.bracesmatching.spi.MatcherContext;
 import org.netbeans.spi.editor.highlighting.HighlightsLayerFactory;
 import org.netbeans.spi.editor.highlighting.ZOrder;
-import org.openide.util.RequestProcessor;
 
 /**
  *

@@ -87,7 +87,7 @@
                 </test-type>
             </test-dependencies>
             <public-packages>
-                <package>org.netbeans.modules.editor.bracesmatching.spi</package>
+                <package>org.netbeans.spi.editor.bracesmatching</package>
             </public-packages>
         </data>
     </configuration>

@@ -17,7 +17,7 @@
 package org.netbeans.modules.editor.bracesmatching;
 
 import javax.swing.text.Document;
-import org.netbeans.modules.editor.bracesmatching.spi.MatcherContext;
+import org.netbeans.spi.editor.bracesmatching.MatcherContext;
 
 /**
  *

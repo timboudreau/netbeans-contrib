@@ -24,10 +24,10 @@ import org.netbeans.api.editor.mimelookup.MimePath;
 import org.netbeans.junit.MockServices;
 import org.netbeans.junit.NbTestCase;
 import org.netbeans.modules.editor.bracesmatching.MasterMatcher;
-import org.netbeans.modules.editor.bracesmatching.spi.BracesMatcher;
-import org.netbeans.modules.editor.bracesmatching.spi.BracesMatcherFactory;
-import org.netbeans.modules.editor.bracesmatching.spi.BracesMatcherFactory;
-import org.netbeans.modules.editor.bracesmatching.spi.MatcherContext;
+import org.netbeans.spi.editor.bracesmatching.BracesMatcher;
+import org.netbeans.spi.editor.bracesmatching.BracesMatcherFactory;
+import org.netbeans.spi.editor.bracesmatching.BracesMatcherFactory;
+import org.netbeans.spi.editor.bracesmatching.MatcherContext;
 import org.netbeans.spi.editor.highlighting.support.OffsetsBag;
 
 import org.netbeans.api.editor.mimelookup.test.MockMimeLookup;

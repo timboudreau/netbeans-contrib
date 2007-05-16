@@ -36,9 +36,9 @@ import org.netbeans.api.lexer.TokenHierarchy;
 import org.netbeans.api.lexer.TokenId;
 import org.netbeans.api.lexer.TokenSequence;
 import org.netbeans.lib.editor.util.swing.DocumentUtilities;
-import org.netbeans.modules.editor.bracesmatching.spi.BracesMatcher;
-import org.netbeans.modules.editor.bracesmatching.spi.BracesMatcherFactory;
-import org.netbeans.modules.editor.bracesmatching.spi.MatcherContext;
+import org.netbeans.spi.editor.bracesmatching.BracesMatcher;
+import org.netbeans.spi.editor.bracesmatching.BracesMatcherFactory;
+import org.netbeans.spi.editor.bracesmatching.MatcherContext;
 import org.netbeans.spi.editor.highlighting.support.OffsetsBag;
 import org.openide.util.RequestProcessor;
 
