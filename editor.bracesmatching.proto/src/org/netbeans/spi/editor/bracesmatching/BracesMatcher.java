@@ -44,11 +44,11 @@ import javax.swing.text.BadLocationException;
  * by calling {@link MatcherContext#isSearchingBackward}.
  * 
  * <p>The search for the original area should only be attempted in the near proximity
- * of the caret. The maximum distance from the caret wher the matcher is supposed
- * to look can be obtained by calling {@link MatcherContext#getSearchLookahead}.
+ * of the caret. The maximum distance from the caret where the matcher is supposed
+ * to look can be obtained from {@link MatcherContext#getSearchLookahead}.
  * 
- * <p>While there can only be one original area, the area in the document that
- * initiated the search, the matcher may report multiple areas matching the
+ * <p>While there can only be one original area, the area in the document where
+ * the the search start, the matcher may report multiple areas matching the
  * original one. Typically, though, there will only be one matching area too.
  * 
  * <p>In the situation when the matcher reported an original area, but was unable
@@ -61,12 +61,13 @@ import javax.swing.text.BadLocationException;
  * to a moving caret in a text component on screen. Therefore there can be many
  * requests for matching started, but only the last one provides results interesting
  * for a user. In order not to flood the system with background tasks that are computing
- * results nobody is interested in, it is essential to implement <code>findMatches</code>
- * method in a way that makes its work possible to interrupt and cancel.
+ * results nobody is interested in, it is essential to implement both <code>findOrigin</code>
+ * and <code>findMatches</code> methods in a way that makes their work possible
+ * to interrupt and cancel.
  * 
  * <p>The infrastructre uses <code>RequestProcessor</code> for spawning a background
  * thread that runs the asynchronous matching tasks. When the infrastructure wants
- * to cancel a task it simply interrupts its thread. The task <code>must</code>
+ * to cancel a task it simply interrupts its thread. The task <b>must</b>
  * check up on its thread status periodically and quit immediately when the
  * thread is interruped. The example below shows how this can be implemented:
  * 

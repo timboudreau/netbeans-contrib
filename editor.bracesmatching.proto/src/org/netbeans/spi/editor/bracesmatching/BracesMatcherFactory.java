@@ -19,7 +19,7 @@
 package org.netbeans.spi.editor.bracesmatching;
 
 /**
- * The factory for creating <code>BracesMatcher</code>s. Instances of this class
+ * The factory for creating {@link BracesMatcher}s. Instances of this class
  * are supposed to be registered in MIME lookup under the mime type of documents
  * that they wish to provide matching services for.
  * 

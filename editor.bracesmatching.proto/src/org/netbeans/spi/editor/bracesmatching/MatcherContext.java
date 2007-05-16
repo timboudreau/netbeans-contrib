@@ -22,10 +22,10 @@ import javax.swing.text.Document;
 import org.netbeans.modules.editor.bracesmatching.SpiAccessor;
 
 /**
- * The context for a <code>BracesMatcher</code>. This context is created by the
- * editor infrastructure when it creates a matcher by using its factory.
- * The context provides a matcher with information essential to perform its
- * task.
+ * An immutable context for a {@link BracesMatcher}. This context is created by the
+ * editor infrastructure when it needs to create a matcher by using a registered
+ * {@link BracesMatcherFactory}. The context provides a matcher with 
+ * information essential to perform the search.
  * 
  * @author Vita Stejskal
  */

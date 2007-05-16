@@ -136,7 +136,7 @@ Microsystems, Inc. All Rights Reserved.
   </p>
   
   
-  <h3>Use cases</h3>
+  <h3><a name="usecases">Use cases</a></h3>
 
   <p>
   Although the SPI can generally by used for highlighting areas in a document
@@ -168,12 +168,12 @@ Microsystems, Inc. All Rights Reserved.
   The search for matching braces in a text document always starts at a position
   of a caret by looking 'around' this position for a brace that we could then
   try to match against its counterpart. This 'looking around' in fact means
-  looking backwards from the caret's position, looking ahead of it or looking
+  looking backward from the caret's position, looking ahead of it or looking
   in both directions.
   </p>
 
   <p>
-  When looking only in one direction - either backwards or forward - the situation
+  When looking only in one direction - either backward or forward - the situation
   is simple, either we find a brace or not. If there is a brace it can be used
   as the original brace and we can attemp to find the matching brace. If
   there is no original brace, then we are done.
@@ -185,17 +185,17 @@ Microsystems, Inc. All Rights Reserved.
   </p>
   
   <ul>
-      <li>No brace in either direction.</li>
-      <li>A brace behind the caret (ie. in backwards direction).</li>
-      <li>A brace in front of the caret (ie. in forward direction).</li>
-      <li>Braces on either side of the caret.</li>
+      <li>No brace in either direction</li>
+      <li>A brace in backward direction</li>
+      <li>A brace in forward direction</li>
+      <li>Braces in both directions</li>
   </ul>
   
   <p>
-  While most of the users probably prefer searching in both direction, the behavior
-  should generally be controllable by a setting. There can also be special editors
-  like jVi for example that need to control this depending on per-component basis
-  depending on the editor's internal state.
+  The search direction can be controlled by a special client property on per-component
+  basis. The property is called <code>nbeditor-bracesMatching-allowedSearchDirection</code>
+  and its allowed values are <code>backward</code> and <code>forward</code>. By default
+  when the property is not specified the infrastructure searches in both directions.
   </p>
   
   
@@ -205,8 +205,8 @@ Microsystems, Inc. All Rights Reserved.
   In generall, there can be situations when it makes sense to look for an original brace
   not only right next to a caret, but also <i>"a little bit further"</i>. The scope
   of this search should however always be very limeted and the results should only 
-  be used when unambigous. The following example demonstrates the rules that 
-  should be applied in this usecase.
+  be used when they are unambigous. The following example demonstrates the rules
+  applied by the infrastructure.
   </p>
   
   <pre>
@@ -225,18 +225,28 @@ Microsystems, Inc. All Rights Reserved.
       If an original brace is found only in one direction it can be used even
       if it is not located right next to a caret. For example, if the caret is
       at the end of the 3. line, there is only one original brace and it is the
-      one opening the 'else' block.
+      one that is opening the 'else' block.
   </li>
   <li>
       If an original brace is found in both directions, only the one that lies
       right next to a caret can be used. If none of them lies next to a caret,
       none of them will be used. For example, if the caret is positioned in the
       'else' keyword, there are two original braces one in each direaction, but
-      none of them lies next to the caret and none of them will be used.
+      none of them lies next to a caret and therefore none of them will be used.
   </li>
   </ul>
   
-  
+  <p>
+  The maximum distance, measured in characters from the position of a caret, that
+  the proximity search should be attempted in can be controlled by a special
+  property called <code>nbeditor-bracesMatching-maxLookahead</code> on per-component
+  basis. The allowed values for this property are small positive integers. If
+  the property is not defined the default lookahead is to the beginning or
+  end of a line with the caret. The absolute maximum enforced by the infrastructure
+  is 256 characters.
+  </p>
+
+
   <h4>Use case 3. - Highlighting results</h4>
   
   <p>
