@@ -45,7 +45,7 @@ import org.netbeans.api.java.source.CompilationInfo;
 import org.netbeans.api.java.source.ElementUtilities.ElementAcceptor;
 import org.netbeans.api.java.source.UiUtils;
 import org.netbeans.api.lexer.Token;
-import org.netbeans.modules.java.hints.JavaHintsProvider;
+import org.netbeans.modules.java.hints.infrastructure.ErrorHintsProvider;
 import org.netbeans.modules.java.hints.spi.ErrorRule;
 import org.netbeans.modules.java.hints.spi.ErrorRule.Data;
 import org.netbeans.spi.editor.hints.ChangeInfo;
@@ -120,14 +120,14 @@ public class TypoDetector implements ErrorRule<Void> {
         if (kinds == null)
             return null;
         
-        Token ident = JavaHintsProvider.findUnresolvedElementToken(info, offset);
+        Token ident = ErrorHintsProvider.findUnresolvedElementToken(info, offset);
         
         if (ident == null)
             return null;
         
         String text = ident.text().toString();
         
-        JavaHintsProvider.LOG.log(Level.FINE, "run: ident={0}", ident); //NOI18N
+        ErrorHintsProvider.LOG.log(Level.FINE, "run: ident={0}", ident); //NOI18N
         
         if (ident == null) {
             return null;

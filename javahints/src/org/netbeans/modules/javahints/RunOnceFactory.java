@@ -29,7 +29,7 @@ import org.netbeans.api.java.source.CompilationInfo;
 import org.netbeans.api.java.source.JavaSource.Phase;
 import org.netbeans.api.java.source.JavaSource.Priority;
 import org.netbeans.api.java.source.JavaSourceTaskFactory;
-import org.netbeans.modules.java.hints.Pair;
+import org.netbeans.modules.java.hints.infrastructure.Pair;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
 
