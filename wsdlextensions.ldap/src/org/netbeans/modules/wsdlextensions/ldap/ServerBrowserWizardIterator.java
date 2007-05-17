@@ -10,7 +10,6 @@ import javax.swing.event.ChangeListener;
 import org.openide.WizardDescriptor;
 
 public final class ServerBrowserWizardIterator implements WizardDescriptor.InstantiatingIterator {
-    
     private int index;
     
     private WizardDescriptor wizard;
@@ -64,6 +63,7 @@ public final class ServerBrowserWizardIterator implements WizardDescriptor.Insta
     
     public void initialize(WizardDescriptor wizard) {
         this.wizard = wizard;
+
     }
     
     public void uninitialize(WizardDescriptor wizard) {

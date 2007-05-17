@@ -1,13 +1,24 @@
 package org.netbeans.modules.wsdlextensions.ldap;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Vector;
 import javax.swing.JPanel;
+import org.netbeans.api.project.Project;
+
+import org.netbeans.modules.wsdlextensions.ldap.ldif.GenerateWSDL;
+import org.netbeans.modules.wsdlextensions.ldap.ldif.GenerateXSD;
 import org.netbeans.modules.wsdlextensions.ldap.ldif.LdifObjectClass;
 import org.openide.WizardDescriptor;
+import org.openide.filesystems.FileObject;
+import org.openide.filesystems.FileUtil;
+import org.openide.loaders.DataFolder;
+import org.openide.loaders.DataObject;
+import org.openide.loaders.TemplateWizard;
 
 public final class ServerBrowserVisualPanelStep3 extends JPanel {
     private Map mObjectClassMap;
@@ -39,6 +50,26 @@ public final class ServerBrowserVisualPanelStep3 extends JPanel {
         }
     }
     
+    public void store(WizardDescriptor wd) {
+        try {
+            Project project = (Project) wd.getProperty("project");
+            File dir = new File(FileUtil.toFile(project.getProjectDirectory()).getAbsolutePath() + File.separator + "src" + File.separator + "ldapwsdls");
+            dir.mkdirs();
+            if (mObjectClassMap != null && mObjectClassMap.size() > 0) {
+                Iterator it = mObjectClassMap.values().iterator();
+                while (it.hasNext()) {
+                    LdifObjectClass obj = (LdifObjectClass) it.next();
+                    GenerateXSD genXsd = new GenerateXSD(dir, obj, "Search");
+                    GenerateWSDL genWsdl = new GenerateWSDL(dir, obj, "Search");
+                    genXsd.generate();
+                    genWsdl.generate();
+                }
+            }
+            project.getProjectDirectory().refresh();
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
+    }
     /** This method is called from within the constructor to
      * initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is
@@ -285,7 +316,7 @@ public final class ServerBrowserVisualPanelStep3 extends JPanel {
             .add(jTabbedPane, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 330, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
         );
     }// </editor-fold>//GEN-END:initComponents
-
+    
 private void jButtonUnSelect1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonUnSelect1ActionPerformed
     // TODO add your handling code here:
     Object[] unselected = this.jListSelected1.getSelectedValues();//GEN-LAST:event_jButtonUnSelect1ActionPerformed
@@ -305,12 +336,12 @@ private void jButtonUnSelect1ActionPerformed(java.awt.event.ActionEvent evt) {//
     srcList.removeAll(unselectedList);
     destList.addAll(unselectedList);
     
-    mCurrentResultObject.setSelected(srcList);
+    mCurrentResultObject.setResultSet(srcList);
     jListAttributes1.removeAll();
     jListAttributes1.setListData(new Vector(destList));
     jListSelected1.removeAll();
     jListSelected1.setListData(new Vector(srcList));
-
+    
 }
 
 private void jButtonSelect1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonSelect1ActionPerformed
@@ -320,7 +351,7 @@ private void jButtonSelect1ActionPerformed(java.awt.event.ActionEvent evt) {//GE
     for (int i = 0; i < selected.length; i++) {
         selectedList.add(selected[i]);
     }
-    List destList = mCurrentResultObject.getSelected();
+    List destList = mCurrentResultObject.getResultSet();
     List srcList = new ArrayList();
     for (int i = 0; i < jListAttributes1.getModel().getSize(); i++) {
         srcList.add(jListAttributes1.getModel().getElementAt(i));
@@ -331,7 +362,7 @@ private void jButtonSelect1ActionPerformed(java.awt.event.ActionEvent evt) {//GE
         destList = new ArrayList();
     }
     destList.addAll(selectedList);
-    mCurrentResultObject.setSelected(destList);
+    mCurrentResultObject.setResultSet(destList);
     jListAttributes1.removeAll();
     jListAttributes1.setListData(new Vector(srcList));
     jListSelected1.removeAll();
@@ -361,7 +392,7 @@ private void jButtonSelectActionPerformed(java.awt.event.ActionEvent evt) {//GEN
     jListAttributes.setListData(new Vector(srcList));
     jListSelected.removeAll();
     jListSelected.setListData(new Vector(destList));
-
+    
 }
 
 private void jButtonUnSelectMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButtonUnSelectMouseClicked
@@ -388,7 +419,7 @@ private void jButtonUnSelectMouseClicked(java.awt.event.MouseEvent evt) {//GEN-F
     jListAttributes.setListData(new Vector(destList));
     jListSelected.removeAll();
     jListSelected.setListData(new Vector(srcList));
-            
+    
 }//GEN-LAST:event_jButtonUnSelectMouseClicked
 
 private void jComboBoxObjects1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jComboBoxObjects1ActionPerformed
@@ -399,7 +430,7 @@ private void jComboBoxObjects1ActionPerformed(java.awt.event.ActionEvent evt) {/
         mCurrentResultObject = obj;
         List mays = obj.getMay();
         List musts = obj.getMust();
-        List selected = obj.getSelected();
+        List selected = obj.getResultSet();
         Vector list = new Vector();
         if (musts != null) {
             for (int i = 0; i < musts.size(); i++) {
@@ -442,7 +473,7 @@ private void jComboBoxObjectsActionPerformed(java.awt.event.ActionEvent evt) {//
                 list.removeAll(selected);
             }
             jListAttributes.setListData(list);
-
+            
             jListSelected.removeAll();
             if (selected != null) {
                 jListSelected.setListData(new Vector(selected));
@@ -458,8 +489,8 @@ private void jListAttributes1ValueChanged(javax.swing.event.ListSelectionEvent e
 private void jListAttributesValueChanged(javax.swing.event.ListSelectionEvent evt) {//GEN-FIRST:event_jListAttributesValueChanged
     // TODO add your handling code here:
 }//GEN-LAST:event_jListAttributesValueChanged
-    
-    
+
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton jButtonSelect;
     private javax.swing.JButton jButtonSelect1;

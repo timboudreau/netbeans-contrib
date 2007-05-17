@@ -76,7 +76,10 @@ public class ServerBrowserWizardPanelStep3 implements WizardDescriptor.Panel {
         WizardDescriptor wd = (WizardDescriptor) settings;
         component.read(wd);
     }
-    public void storeSettings(Object settings) {}
+    public void storeSettings(Object settings) {
+        WizardDescriptor wd = (WizardDescriptor) settings;
+        component.store(wd);
+    }
     
 }
 

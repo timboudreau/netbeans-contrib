@@ -71,16 +71,27 @@ public class GenerateXSD {
         ret += getTab(level) + "<xsd:element name=\"attrs\" maxOccurs=\"1\">" + "\n";
         ret += getTab(level + 1) + "<xsd:complexType xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\">" + "\n";
         ret += getTab(level + 2) + "<xsd:sequence>" + "\n";
-        List mays = mLdif.getMay();
-        if (mays != null) {
-            for (int i = 0; i < mays.size(); i++) {
-                ret += generateElement((String) mays.get(i), "tns:SearchFilterType", "0", level + 3);
+        List selected = mLdif.getSelected();
+        if (selected != null && selected.size() > 0) {
+            for (int i = 0; i < selected.size(); i++) {
+                String item = (String) selected.get(i);
+                if (item.startsWith("* ")) {
+                    item = item.substring(2);
+                }
+                ret += generateElement(item, "tns:SearchFilterType", "0", level + 3);
             }
-        }
-        List musts = mLdif.getMust();
-        if (musts != null) {
-            for (int i = 0; i < musts.size(); i++) {
-                ret += generateElement((String) musts.get(i), "tns:SearchFilterType", "0", level + 3);
+        } else {
+            List mays = mLdif.getMay();
+            if (mays != null) {
+                for (int i = 0; i < mays.size(); i++) {
+                    ret += generateElement((String) mays.get(i), "tns:SearchFilterType", "0", level + 3);
+                }
+            }
+            List musts = mLdif.getMust();
+            if (musts != null) {
+                for (int i = 0; i < musts.size(); i++) {
+                    ret += generateElement((String) musts.get(i), "tns:SearchFilterType", "0", level + 3);
+                }
             }
         }
         ret += getTab(level + 2) + "</xsd:sequence>" + "\n";
@@ -96,16 +107,27 @@ public class GenerateXSD {
         ret += getTab(level) + "<xsd:element name=\"entries\" maxOccurs=\"unbounded\">" + "\n";
         ret += getTab(level + 1) + "<xsd:complexType xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\">" + "\n";
         ret += getTab(level + 2) + "<xsd:sequence>" + "\n";
-        List mays = mLdif.getMay();
-        if (mays != null) {
-            for (int i = 0; i < mays.size(); i++) {
-                ret += generateElement((String) mays.get(i), "xsd:string", "0", level + 3);
+        List selected = mLdif.getResultSet();
+        if (selected != null && selected.size() > 0) {
+            for (int i = 0; i < selected.size(); i++) {
+                String item = (String) selected.get(i);
+                if (item.startsWith("* ")) {
+                    item = item.substring(2);
+                }
+                ret += generateElement(item, "xsd:string", "0", level + 3);
             }
-        }
-        List musts = mLdif.getMust();
-        if (musts != null) {
-            for (int i = 0; i < musts.size(); i++) {
-                ret += generateElement((String) musts.get(i), "xsd:string", "0", level + 3);
+        } else {
+            List mays = mLdif.getMay();
+            if (mays != null) {
+                for (int i = 0; i < mays.size(); i++) {
+                    ret += generateElement((String) mays.get(i), "xsd:string", "0", level + 3);
+                }
+            }
+            List musts = mLdif.getMust();
+            if (musts != null) {
+                for (int i = 0; i < musts.size(); i++) {
+                    ret += generateElement((String) musts.get(i), "xsd:string", "0", level + 3);
+                }
             }
         }
         ret += getTab(level + 2) + "</xsd:sequence>" + "\n";

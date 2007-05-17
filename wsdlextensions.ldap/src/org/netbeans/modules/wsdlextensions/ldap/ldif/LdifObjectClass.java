@@ -23,6 +23,7 @@ public class LdifObjectClass {
     private List mMust;
     private List mMay;
     private List mSelected;
+    private List mResultSet;
     
     public LdifObjectClass() {
     }
@@ -59,6 +60,10 @@ public class LdifObjectClass {
         mSelected = s;
     }
     
+    public void setResultSet(List r) {
+        mResultSet = r;
+    }
+    
     public String getName() {
         return mName;
     }
@@ -81,5 +86,9 @@ public class LdifObjectClass {
     
     public List getSelected() {
         return mSelected;
+    }
+    
+    public List getResultSet() {
+        return mResultSet;
     }
 }
