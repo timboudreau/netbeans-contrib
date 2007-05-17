@@ -47,16 +47,16 @@ public final class MasterMatcher {
 
     private static final Logger LOG = Logger.getLogger(MasterMatcher.class.getName());
     
-    private static final String PROP_ALLOWED_SEARCH_DIRECTION = "nbeditor-bracesMatching-allowedSearchDirection"; //NOI18N
-    private static final String D_BACKWARD = "backward"; //NOI18N
-    private static final String D_FORWARD = "forward"; //NOI18N
-    private static final String D_BACKWARD_PREFERRED = "backward-preferred"; //NOI18N
-    private static final String D_FORWARD_PREFERRED = "forward-preferred"; //NOI18N
-    private static final String [] D_VALUES = new String [] { D_BACKWARD, D_FORWARD, D_BACKWARD_PREFERRED, D_FORWARD_PREFERRED };
+    public static final String PROP_ALLOWED_SEARCH_DIRECTION = "nbeditor-bracesMatching-allowedSearchDirection"; //NOI18N
+    public static final String D_BACKWARD = "backward"; //NOI18N
+    public static final String D_FORWARD = "forward"; //NOI18N
+    public static final String D_BACKWARD_PREFERRED = "backward-preferred"; //NOI18N
+    public static final String D_FORWARD_PREFERRED = "forward-preferred"; //NOI18N
     
-    private static final String PROP_SHOW_AMBIGUOUS_ORIGINS = "nbeditor-bracesMatching-showAmbiguousOrigins"; //NOI18N
+    public static final String PROP_SHOW_AMBIGUOUS_ORIGINS = "nbeditor-bracesMatching-showAmbiguousOrigins"; //NOI18N
             
-    public static final String PROP_MAX_LOOKAHEAD = "nbeditor-bracesMatching-maxLookahead"; //NOI18N
+    public static final String PROP_MAX_BACKWARD_LOOKAHEAD = "nbeditor-bracesMatching-maxBackwardLookahead"; //NOI18N
+    public static final String PROP_MAX_FORWARD_LOOKAHEAD = "nbeditor-bracesMatching-maxForwardLookahead"; //NOI18N
     private static final int DEFAULT_MAX_LOOKAHEAD = 256;
     
     public static synchronized MasterMatcher get(JTextComponent component) {
@@ -78,14 +78,16 @@ public final class MasterMatcher {
         synchronized (LOCK) {
             Object allowedSearchDirection = getAllowedDirection();
             boolean showAmbiguousOrigins = getShowAmbiguousOrigins();
-            int maxLookahead = getMaxLookahead();
+            int maxBwdLookahead = getMaxLookahead(true);
+            int maxFwdLookahead = getMaxLookahead(false);
             
             if (task != null) {
                 // a task is running, perhaps just add a new job to it
                 if (lastResult.getCaretOffset() == caretOffset && 
                     lastResult.getAllowedDirection() == allowedSearchDirection &&
                     lastResult.getShowAmbiguousOrigins() == showAmbiguousOrigins &&
-                    lastResult.getMaxLookahead() == maxLookahead
+                    lastResult.getMaxBwdLookahead() == maxBwdLookahead &&
+                    lastResult.getMaxFwdLookahead() == maxBwdLookahead
                 ) {
                     lastResult.addHighlightingJob(highlights, matchedColoring, mismatchedColoring);
                 } else {
@@ -97,7 +99,7 @@ public final class MasterMatcher {
 
             if (task == null) {
                 // Remember the last request
-                lastResult = new Result(document, caretOffset, allowedSearchDirection, showAmbiguousOrigins, maxLookahead);
+                lastResult = new Result(document, caretOffset, allowedSearchDirection, showAmbiguousOrigins, maxBwdLookahead, maxFwdLookahead);
                 lastResult.addHighlightingJob(highlights, matchedColoring, mismatchedColoring);
 
                 // Fire up a new task
@@ -117,14 +119,16 @@ public final class MasterMatcher {
         synchronized (LOCK) {
             Object allowedSearchDirection = getAllowedDirection();
             boolean showAmbiguousOrigins = getShowAmbiguousOrigins();
-            int maxLookahead = getMaxLookahead();
+            int maxBwdLookahead = getMaxLookahead(true);
+            int maxFwdLookahead = getMaxLookahead(false);
 
             if (task != null) {
                 // a task is running, perhaps just add a new job to it
                 if (lastResult.getCaretOffset() == caretOffset && 
                     lastResult.getAllowedDirection() == allowedSearchDirection &&
                     lastResult.getShowAmbiguousOrigins() == showAmbiguousOrigins &&
-                    lastResult.getMaxLookahead() == maxLookahead
+                    lastResult.getMaxBwdLookahead() == maxBwdLookahead &&
+                    lastResult.getMaxFwdLookahead() == maxBwdLookahead
                 ) {
                     lastResult.addNavigationJob(caret, select);
                     waitFor = task;
@@ -137,7 +141,7 @@ public final class MasterMatcher {
 
             if (task == null) {
                 // Remember the last request
-                lastResult = new Result(document, caretOffset, allowedSearchDirection, showAmbiguousOrigins, maxLookahead);
+                lastResult = new Result(document, caretOffset, allowedSearchDirection, showAmbiguousOrigins, maxBwdLookahead, maxFwdLookahead);
                 lastResult.addNavigationJob(caret, select);
 
                 // Fire up a new task
@@ -164,12 +168,12 @@ public final class MasterMatcher {
         this.component = component;
     }
 
-    public Object getAllowedDirection() {
+    private Object getAllowedDirection() {
         Object allowedDirection = component.getClientProperty(PROP_ALLOWED_SEARCH_DIRECTION);
         return allowedDirection != null ? allowedDirection : D_BACKWARD_PREFERRED;
     }
 
-    public boolean getShowAmbiguousOrigins() {
+    private boolean getShowAmbiguousOrigins() {
         Object showAmbiguousOrigins = component.getClientProperty(PROP_SHOW_AMBIGUOUS_ORIGINS);
         if (showAmbiguousOrigins instanceof Boolean) {
             return ((Boolean) showAmbiguousOrigins).booleanValue();
@@ -180,23 +184,24 @@ public final class MasterMatcher {
         }
     }
 
-    public int getMaxLookahead() {
+    private int getMaxLookahead(boolean backward) {
+        String propName = backward ? PROP_MAX_BACKWARD_LOOKAHEAD : PROP_MAX_FORWARD_LOOKAHEAD;
         int maxLookahead = DEFAULT_MAX_LOOKAHEAD;
-        Object value = component.getClientProperty(PROP_MAX_LOOKAHEAD);
+        Object value = component.getClientProperty(propName);
         if (value instanceof Integer) {
             maxLookahead = ((Integer) value).intValue();
         } else if (value != null) {
             try {
                 maxLookahead = Integer.valueOf(value.toString());
             } catch (NumberFormatException nfe) {
-                LOG.log(Level.WARNING, "Can't parse the value of PROP_MAX_LOOKAHEAD: '" + value + "'", nfe); //NOI18N
+                LOG.log(Level.WARNING, "Can't parse the value of " + propName + ": '" + value + "'", nfe); //NOI18N
             }
         }
         
         if (maxLookahead > 0 && maxLookahead <= DEFAULT_MAX_LOOKAHEAD) {
             return maxLookahead;
         } else {
-            LOG.warning("Invalid value of PROP_MAX_LOOKAHEAD: " + maxLookahead); //NOI18N
+            LOG.warning("Invalid value of " + propName + ": " + maxLookahead); //NOI18N
             return DEFAULT_MAX_LOOKAHEAD;
         }
     }
@@ -276,7 +281,8 @@ public final class MasterMatcher {
         private final int caretOffset;
         private final Object allowedDirection;
         private final boolean showAmbiguousOrigins;
-        private final int maxLookahead;
+        private final int maxBwdLookahead;
+        private final int maxFwdLookahead;
 
         private boolean inDocumentRender = false;
         private boolean interrupted = false;
@@ -291,13 +297,15 @@ public final class MasterMatcher {
             int caretOffset, 
             Object allowedDirection,
             boolean showAmbiguousOrigins,
-            int maxLookahead
+            int maxBwdLookahead,
+            int maxFwdLookahead
         ) {
             this.document = document;
             this.caretOffset = caretOffset;
             this.allowedDirection = allowedDirection;
             this.showAmbiguousOrigins = showAmbiguousOrigins;
-            this.maxLookahead = maxLookahead;
+            this.maxBwdLookahead = maxBwdLookahead;
+            this.maxFwdLookahead = maxFwdLookahead;
         }
         
         // Must be called under the MasterMatcher.LOCK
@@ -330,8 +338,12 @@ public final class MasterMatcher {
             return showAmbiguousOrigins;
         }
         
-        public int getMaxLookahead() {
-            return maxLookahead;
+        public int getMaxBwdLookahead() {
+            return maxBwdLookahead;
+        }
+        
+        public int getMaxFwdLookahead() {
+            return maxFwdLookahead;
         }
         
         // Must be called under the MasterMatcher.LOCK
@@ -481,15 +493,17 @@ public final class MasterMatcher {
             
             if (backward) {
                 lookahead = caretOffset - paragraph.getStartOffset();
+                if (lookahead > maxBwdLookahead) {
+                    lookahead = maxBwdLookahead;
+                }
             } else {
                 lookahead = paragraph.getEndOffset() - caretOffset;
+                if (lookahead > maxFwdLookahead) {
+                    lookahead = maxFwdLookahead;
+                }
             }
             
             if (lookahead > 0) {
-                if (lookahead > maxLookahead) {
-                    lookahead = maxLookahead;
-                }
-                
                 MatcherContext context = SpiAccessor.get().createCaretContext(
                     document, 
                     caretOffset, 

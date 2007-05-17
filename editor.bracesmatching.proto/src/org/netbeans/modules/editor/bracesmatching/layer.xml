@@ -12,6 +12,13 @@
                 </folder>
             </folder>
         </folder>
+        <folder name="Keybindings">
+            <folder name="NetBeans">
+                <folder name="Defaults">
+                    <file name="org-netbeans-modules-editor-bracesmatching-keybindings.xml" url="keybindings.xml"/>
+                </folder>
+            </folder>
+        </folder>
 
         <file name="org-netbeans-modules-editor-bracesmatching-BracesMatchHighlighting$Factory.instance"/>
         
