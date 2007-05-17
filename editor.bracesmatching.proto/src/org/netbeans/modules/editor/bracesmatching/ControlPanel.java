@@ -19,6 +19,7 @@ public class ControlPanel extends javax.swing.JPanel {
         new String [] { MasterMatcher.D_BACKWARD_PREFERRED, "Backward Preferred" }, //NOI18N
         new String [] { MasterMatcher.D_FORWARD, "Forward Only" }, //NOI18N
         new String [] { MasterMatcher.D_FORWARD_PREFERRED, "Forward Preferred" }, //NOI18N
+        new String [] { MasterMatcher.D_BOTH, "Both" }, //NOI18N
     };
     
     private JTextComponent component;
@@ -32,14 +33,12 @@ public class ControlPanel extends javax.swing.JPanel {
         this.backwardLookahead.setText(getBwdLookahead(component));
         this.forwardLookahead.setText(getFwdLookahead(component));
         this.searchDirection.setSelectedItem(getSearchDirection(component));
-        this.showAmbiguousOrigins.setSelected(getShowAmbiguousOrigins(component));
     }
 
     public void applyChanges() {
         setBwdLookahead(component, backwardLookahead.getText());
         setFwdLookahead(component, forwardLookahead.getText());
         setSearchDirection(component, (String)searchDirection.getSelectedItem());
-        setShowAmbiguousOrigins(component, showAmbiguousOrigins.isSelected());
     }
     
     private static String getBwdLookahead(JTextComponent component) {
@@ -78,7 +77,7 @@ public class ControlPanel extends javax.swing.JPanel {
                 }
             }
         }
-        return "";
+        return ""; //NOI18N
     }
 
     private static void setSearchDirection(JTextComponent component, String value) {
@@ -94,15 +93,6 @@ public class ControlPanel extends javax.swing.JPanel {
         component.putClientProperty(MasterMatcher.PROP_ALLOWED_SEARCH_DIRECTION, s);
     }
 
-    private static boolean getShowAmbiguousOrigins(JTextComponent component) {
-        Object value = component.getClientProperty(MasterMatcher.PROP_SHOW_AMBIGUOUS_ORIGINS);
-        return value == null ? false : Boolean.valueOf(value.toString()).booleanValue();
-    }
-
-    private static void setShowAmbiguousOrigins(JTextComponent component, boolean value) {
-        component.putClientProperty(MasterMatcher.PROP_SHOW_AMBIGUOUS_ORIGINS, value);
-    }
-    
     /** This method is called from within the constructor to
      * initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is
@@ -114,11 +104,9 @@ public class ControlPanel extends javax.swing.JPanel {
         jLabel1 = new javax.swing.JLabel();
         jLabel2 = new javax.swing.JLabel();
         jLabel3 = new javax.swing.JLabel();
-        jLabel4 = new javax.swing.JLabel();
         backwardLookahead = new javax.swing.JTextField();
         forwardLookahead = new javax.swing.JTextField();
         searchDirection = new javax.swing.JComboBox();
-        showAmbiguousOrigins = new javax.swing.JCheckBox();
 
         jLabel1.setText(org.openide.util.NbBundle.getMessage(ControlPanel.class, "jLabel1.text")); // NOI18N
 
@@ -126,17 +114,11 @@ public class ControlPanel extends javax.swing.JPanel {
 
         jLabel3.setText(org.openide.util.NbBundle.getMessage(ControlPanel.class, "jLabel3.text")); // NOI18N
 
-        jLabel4.setText(org.openide.util.NbBundle.getMessage(ControlPanel.class, "jLabel4.text")); // NOI18N
-
         backwardLookahead.setText(org.openide.util.NbBundle.getMessage(ControlPanel.class, "backwardLookahead.text")); // NOI18N
 
         forwardLookahead.setText(org.openide.util.NbBundle.getMessage(ControlPanel.class, "forwardLookahead.text")); // NOI18N
 
-        searchDirection.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "", "Backward Only", "Backward Preferred", "Forward Only", "Forward Preferred" }));
-
-        showAmbiguousOrigins.setText(org.openide.util.NbBundle.getMessage(ControlPanel.class, "jCheckBox1.text")); // NOI18N
-        showAmbiguousOrigins.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        showAmbiguousOrigins.setMargin(new java.awt.Insets(0, 0, 0, 0));
+        searchDirection.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "", "Backward Only", "Backward Preferred", "Forward Only", "Forward Preferred", "Both" }));
 
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
         this.setLayout(layout);
@@ -156,11 +138,7 @@ public class ControlPanel extends javax.swing.JPanel {
                     .add(layout.createSequentialGroup()
                         .add(jLabel3, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 183, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(searchDirection, 0, 181, Short.MAX_VALUE))
-                    .add(layout.createSequentialGroup()
-                        .add(jLabel4, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 183, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(showAmbiguousOrigins, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 181, Short.MAX_VALUE)))
+                        .add(searchDirection, 0, 181, Short.MAX_VALUE)))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -178,10 +156,6 @@ public class ControlPanel extends javax.swing.JPanel {
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(jLabel3)
                     .add(searchDirection, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(jLabel4)
-                    .add(showAmbiguousOrigins))
                 .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
@@ -193,9 +167,7 @@ public class ControlPanel extends javax.swing.JPanel {
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
-    private javax.swing.JLabel jLabel4;
     private javax.swing.JComboBox searchDirection;
-    private javax.swing.JCheckBox showAmbiguousOrigins;
     // End of variables declaration//GEN-END:variables
     
 }
