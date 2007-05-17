@@ -33,6 +33,7 @@ import java.util.Collection;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
+import java.util.logging.ConsoleHandler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.Action;
@@ -40,7 +41,6 @@ import javax.swing.JButton;
 
 import javax.swing.JEditorPane;
 import javax.swing.JToolBar;
-import org.netbeans.modules.tasklist.core.TLUtils;
 
 import org.openide.cookies.EditorCookie;
 import org.openide.cookies.LineCookie;
@@ -67,10 +67,30 @@ import org.w3c.dom.Text;
  */
 public final class UTUtils {
     /** Logger for the "User Tasks" module. */
-    public static final Logger LOGGER = TLUtils.getLogger(UTUtils.class);
+    public static final Logger LOGGER = getLogger(UTUtils.class);
     
     static {
         LOGGER.setLevel(Level.OFF);
+    }
+
+    /**
+     * Creates a simple logger for the specified class. 
+     * Category of the logger will be equals to the class name.
+     *
+     * @param clazz the name of the class will be used for the logger's category
+     * @return logger
+     */
+    private static Logger getLogger(Class clazz) {
+        // eliminate duplications. There are two console handlers somehow,
+        // the second one publishes also INFO messages
+        Logger logger = Logger.getLogger(clazz.getName());
+        logger.setUseParentHandlers(false);
+
+        ConsoleHandler ch = new ConsoleHandler();
+        ch.setLevel(Level.FINE);
+        logger.addHandler(ch);
+        logger.setLevel(Level.WARNING);
+        return logger;
     }
 
     /**

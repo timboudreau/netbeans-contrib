@@ -19,7 +19,6 @@
 
 package org.netbeans.modules.tasklist.usertasks.renderers;
 
-import org.netbeans.modules.tasklist.core.PriorityListCellRenderer;
 import java.awt.Component;
 import java.awt.Image;
 import javax.swing.*;

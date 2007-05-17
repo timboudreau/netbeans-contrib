@@ -19,7 +19,7 @@
 
 package org.netbeans.modules.tasklist.docscan;
 
-import org.netbeans.modules.tasklist.core.filter.SuggestionProperty;
+import org.netbeans.modules.tasklist.filter.SuggestionProperty;
 import org.netbeans.modules.tasklist.suggestions.SuggestionImplProperties;
 
 

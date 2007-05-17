@@ -20,9 +20,9 @@ package org.netbeans.modules.tasklist.core;
 
 import org.openide.nodes.PropertySupport;
 import org.netbeans.modules.tasklist.client.Suggestion;
-import org.netbeans.modules.tasklist.core.filter.SuggestionProperty;
 import org.openide.ErrorManager;
 import java.beans.PropertyEditor;
+import org.netbeans.modules.tasklist.filter.SuggestionProperty;
 
 public class SuggestionNodeProperty extends PropertySupport.ReadOnly {
 

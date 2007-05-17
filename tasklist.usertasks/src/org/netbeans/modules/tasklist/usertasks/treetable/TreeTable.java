@@ -70,7 +70,7 @@ import org.netbeans.modules.tasklist.usertasks.util.UTUtils;
 
 
 /**
- * This example shows how to create a simple JTreeTable component, 
+ * A simple JTreeTable component created
  * by using a JTree as a renderer (and editor) for the cells in a 
  * particular column in the JTable.  
  *
@@ -149,10 +149,10 @@ public class TreeTable extends JTable {
 
 	// And update the height of the trees row to match that of
 	// the table.
-	if (tree.getRowHeight() < 1) {
+	/*if (tree.getRowHeight() < 1) {
 	    // Metal looks better like this.
 	    setRowHeight(18);
-	}
+	}*/
         
         this.sortingModel = new SortingModel();
         

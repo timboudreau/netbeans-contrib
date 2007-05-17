@@ -9,10 +9,11 @@ import java.util.Iterator;
 import org.netbeans.modules.tasklist.usertasks.treetable.AdvancedTreeTableNode;
 import org.netbeans.modules.tasklist.usertasks.treetable.FilterIntf;
 import org.netbeans.modules.tasklist.usertasks.treetable.TreeTableNode;
-import org.netbeans.modules.tasklist.core.util.ObjectListEvent;
-import org.netbeans.modules.tasklist.core.util.ObjectListListener;
+
 import org.netbeans.modules.tasklist.usertasks.model.UserTask;
 import org.netbeans.modules.tasklist.usertasks.table.UTBasicTreeTableNode;
+import org.netbeans.modules.tasklist.usertasks.util.ObjectListEvent;
+import org.netbeans.modules.tasklist.usertasks.util.ObjectListListener;
 
 /**
  * Task node

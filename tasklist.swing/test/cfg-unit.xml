@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mconfig PUBLIC "-//NetBeans//DTD XTest cfg 1.0//EN" "http://www.netbeans.org/dtds/xtest-cfg-1_0.dtd">
+<!--
+The contents of this file are subject to the terms of the Common Development
+and Distribution License (the License). You may not use this file except in
+compliance with the License.
+
+You can obtain a copy of the License at http://www.netbeans.org/cddl.html
+or http://www.netbeans.org/cddl.txt.
+
+When distributing Covered Code, include this CDDL Header Notice in each file
+and include the License file at http://www.netbeans.org/cddl.txt.
+If applicable, add the following below the CDDL Header, with the fields
+enclosed by brackets [] replaced by your own identifying information:
+"Portions Copyrighted [year] [name of copyright owner]"
+
+The Original Software is NetBeans. The Initial Developer of the Original
+Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
+Microsystems, Inc. All Rights Reserved.
+-->
+
+<!--
+  These classes are excluded by default (defined in build.xml):
+    "**/*Suite.class"
+    "**/*$$*.class"
+    "**/data/**"
+    "**/hidden/**"
+    "**/*Hidden.*"
+    "**/*Hid.*"
+-->
+
+<!-- =========================================================================
+      This file contains testbag declarations used by xtest harness runtime.
+     ========================================================================= -->
+
+<mconfig name="tasklist/core/test">
+    <!-- Tests which should be run before commit to validate IDE, needs IDE mode for ValidateLayer suites -->
+    <testbag testattribs="x-commit" executor="ide" name="Before Commit Validation in IDE" resultsprocessor="unit">
+        <testset dir="unit/src">
+            <patternset>
+            </patternset>
+        </testset>
+    </testbag>
+  
+    <testbag testattribs="x-stable" executor="ide" name="Unit tests running in the IDE" resultsprocessor="unit">
+        <testset dir="unit/src">
+            <patternset>
+           </patternset>
+        </testset>
+    </testbag>
+
+   <testbag testattribs="unstable" executor="code" name="Unit tests" resultsprocessor="unit">
+        <testset dir="unit/src">
+            <patternset>
+                <include name="org/netbeans/modules/tasklist/core/*Test.class"/>
+            </patternset>
+        </testset>
+    </testbag>
+
+    <testbag testattribs="x-failing" executor="code" name="testbag_4" resultsprocessor="unit">
+        <testset dir="unit/src">
+            <patternset>
+            </patternset>
+        </testset>
+    </testbag>
+
+    <!-- Xtest runtime configuration -->
+ 
+    <executor name="code" antfile="build-unit.xml" target="runcodetest"/>    
+    <executor name="ide" antfile="build-unit.xml" target="runidetest"/>
+    <compiler name="unit-compiler" antfile="build-unit.xml" target="unit-compiler" default="true"/>
+</mconfig>
+

@@ -23,8 +23,7 @@ import java.util.Date;
 
 
 import org.netbeans.modules.tasklist.core.*;
-import org.netbeans.modules.tasklist.core.filter.FilterAction;
-import org.netbeans.modules.tasklist.core.filter.RemoveFilterAction;
+
 import org.openide.util.NbBundle;
 import org.openide.util.Utilities;
 import org.openide.util.actions.SystemAction;
@@ -307,7 +306,7 @@ public class BugsView extends TaskListView implements TaskListener {
       return new TaskListNode(getModel());
     }
     
-    public org.netbeans.modules.tasklist.core.filter.Filter createFilter() {
+    public org.netbeans.modules.tasklist.filter.Filter createFilter() {
         return null; // TODO
     }
 

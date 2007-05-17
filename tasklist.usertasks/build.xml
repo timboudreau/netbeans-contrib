@@ -24,23 +24,4 @@ Microsystems, Inc. All Rights Reserved.
     <target name="changelog">
         <echo message="${libs/commons_lang.dir}/org-netbeans-libs-commons_lang.jar"/>
     </target>
-    
-    <target name="pmd-check">
-        <taskdef name="pmd" classname="net.sourceforge.pmd.ant.PMDTask">
-            <classpath>
-                <fileset dir="C:\Programme\pmd-2.0\lib\">
-                    <include name="*.jar"></include>
-                </fileset>
-            </classpath>
-        </taskdef>
-        <pmd printtoconsole="true" shortfilenames="true"  
-            rulesetfiles="rulesets/imports.xml,
-                rulesets/unusedcode.xml,
-                rulesets/basic.xml">
-            <formatter linkprefix="src/" type="html" tofile="pmd-report.html"/>
-            <fileset dir="src">
-                <include name="**/*.java"/>
-            </fileset>
-        </pmd>
-    </target>
 </project>

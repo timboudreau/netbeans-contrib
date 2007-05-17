@@ -49,12 +49,6 @@ User Tasks Module (http://tasklist.netbeans.org)
         
         <xsl:text>* </xsl:text>
         <xsl:value-of select="summary"/> 
-        
-        <xsl:if test="details != ''">
-            <xsl:text> (</xsl:text>
-            <xsl:value-of select="details"/>
-            <xsl:text>)</xsl:text>
-        </xsl:if>
 
         <xsl:variable name="eff">
             <xsl:call-template name="effort">

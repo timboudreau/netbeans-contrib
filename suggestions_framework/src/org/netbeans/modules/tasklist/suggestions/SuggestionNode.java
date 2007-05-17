@@ -27,7 +27,6 @@ import org.netbeans.modules.tasklist.core.TaskNode;
 import org.netbeans.modules.tasklist.core.editors.LocationPropertyEditor;
 import org.netbeans.modules.tasklist.core.editors.PriorityPropertyEditor;
 import org.netbeans.modules.tasklist.core.editors.StringPropertyEditor;
-import org.netbeans.modules.tasklist.core.filter.FilterAction;
 import org.openide.ErrorManager;
 import org.openide.actions.PropertiesAction;
 import org.openide.loaders.DataObject;
@@ -50,6 +49,7 @@ import java.util.Iterator;
 import java.util.List;
 import org.netbeans.modules.tasklist.core.TaskChildren;
 import org.netbeans.modules.tasklist.core.SuggestionNodeProperty;
+import org.netbeans.modules.tasklist.filter.FilterAction;
 
 
 /**

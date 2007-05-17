@@ -27,13 +27,12 @@ import javax.swing.AbstractAction;
 import javax.swing.ImageIcon;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.tree.TreePath;
-import org.netbeans.modules.tasklist.core.util.ObjectListEvent;
-import org.netbeans.modules.tasklist.core.util.ObjectListListener;
-import org.netbeans.modules.tasklist.usertasks.table.UTTreeTableNode;
 import org.netbeans.modules.tasklist.usertasks.model.StartedUserTask;
 import org.netbeans.modules.tasklist.usertasks.model.UserTask;
 import org.netbeans.modules.tasklist.usertasks.UserTaskView;
 import org.netbeans.modules.tasklist.usertasks.table.UTBasicTreeTableNode;
+import org.netbeans.modules.tasklist.usertasks.util.ObjectListEvent;
+import org.netbeans.modules.tasklist.usertasks.util.ObjectListListener;
 import org.openide.util.NbBundle;
 import org.openide.util.Utilities;
 

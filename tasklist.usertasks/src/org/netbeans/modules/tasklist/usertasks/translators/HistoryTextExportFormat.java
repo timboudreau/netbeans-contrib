@@ -38,11 +38,11 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.TransformerFactoryConfigurationError;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
-import org.netbeans.modules.tasklist.core.export.ExportImportFormat;
-import org.netbeans.modules.tasklist.core.export.ExportImportProvider;
-import org.netbeans.modules.tasklist.core.export.SaveFilePanel;
-import org.netbeans.modules.tasklist.core.util.ExtensionFileFilter;
-import org.netbeans.modules.tasklist.core.util.SimpleWizardPanel;
+import org.netbeans.modules.tasklist.export.ExportImportFormat;
+import org.netbeans.modules.tasklist.export.ExportImportProvider;
+import org.netbeans.modules.tasklist.export.SaveFilePanel;
+import org.netbeans.modules.tasklist.export.SimpleWizardPanel;
+
 import org.netbeans.modules.tasklist.usertasks.options.Settings;
 import org.netbeans.modules.tasklist.usertasks.UserTaskView;
 import org.netbeans.modules.tasklist.usertasks.UserTaskViewRegistry;
@@ -51,6 +51,7 @@ import org.netbeans.modules.tasklist.usertasks.model.UserTask;
 import org.netbeans.modules.tasklist.usertasks.model.UserTaskList;
 import org.netbeans.modules.tasklist.usertasks.model.UserTaskObjectList;
 import org.netbeans.modules.tasklist.usertasks.util.DurationFormat;
+import org.netbeans.modules.tasklist.usertasks.util.ExtensionFileFilter;
 import org.netbeans.modules.tasklist.usertasks.util.TreeAbstraction;
 import org.netbeans.modules.tasklist.usertasks.util.UTUtils;
 import org.netbeans.modules.tasklist.usertasks.util.UnaryFunction;
@@ -311,12 +312,12 @@ public class HistoryTextExportFormat implements ExportImportFormat {
         Element html = doc.createElement("html"); // NOI18N
         doc.appendChild(html);
         Element head = UTUtils.appendElement(html, "head"); // NOI18N
-        Element meta = UTUtils.appendElement(head, "meta");
+        Element meta = UTUtils.appendElement(head, "meta"); // NOI18N
         meta.setAttribute("http-equiv", "Content-Type"); // NOI18N
         meta.setAttribute("content", "text/html; charset=UTF-8"); // NOI18N
         UTUtils.appendElement(head, "title", loc("SpentTimes")); // NOI18N
         createStyle(head);
-        Element body = UTUtils.appendElement(html, "body");
+        Element body = UTUtils.appendElement(html, "body"); // NOI18N
         body.setAttribute("style", "font-family: sans-serif"); // NOI18N
         UTUtils.appendElement(body,"h1", loc("SpentTimes")); // NOI18N
                 
@@ -432,7 +433,7 @@ public class HistoryTextExportFormat implements ExportImportFormat {
         UTUtils.appendText(style, 
                 "tr.even { background-color: #eeeeee }\n"); // NOI18N
         UTUtils.appendText(style,
-                "td.summary { text-align: left; width: 400px; }\n"); // NOI18N
+                "td.summary { text-align: left; width: 400px; nowrap; }\n"); // NOI18N
         UTUtils.appendText(style,
                 "td.data { text-align: center }"); // NOI18N
         return style;

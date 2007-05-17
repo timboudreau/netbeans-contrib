@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+The contents of this file are subject to the terms of the Common Development
+and Distribution License (the License). You may not use this file except in
+compliance with the License.
+
+You can obtain a copy of the License at http://www.netbeans.org/cddl.html
+or http://www.netbeans.org/cddl.txt.
+
+When distributing Covered Code, include this CDDL Header Notice in each file
+and include the License file at http://www.netbeans.org/cddl.txt.
+If applicable, add the following below the CDDL Header, with the fields
+enclosed by brackets [] replaced by your own identifying information:
+"Portions Copyrighted [year] [name of copyright owner]"
+
+The Original Software is NetBeans. The Initial Developer of the Original
+Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
+Microsystems, Inc. All Rights Reserved.
+-->
+<project name="tasklist/core" default="netbeans" basedir=".">
+
+    <import file="../../nbbuild/templates/projectized.xml"/>
+
+    <!-- XXX currently this target is not called, so this file is not in the build... delete target or add <target name="netbeans-extra" depends="native"/> -->
+    <target name="native">
+        <mkdir dir="${cluster}/modules/lib"/>
+        <copy file="native/libtasklist_bgthreads.so" todir="${cluster}/modules/lib"/>
+    </target>
+
+    <target name="changelog">
+        <style in="module-updates.xml" out="../www/updates/tasklist-core.html" 
+            style="../www/updates/updates.xsl"/>
+    </target>
+    
+    <target name="pmd-check">
+        <taskdef name="pmd" classname="net.sourceforge.pmd.ant.PMDTask">
+            <classpath>
+                <fileset dir="C:\Programme\pmd-2.0\lib\">
+                    <include name="*.jar"></include>
+                </fileset>
+            </classpath>
+        </taskdef>
+        <pmd printtoconsole="true" shortfilenames="true"  
+            rulesetfiles="rulesets/imports.xml,
+                rulesets/unusedcode.xml,
+                rulesets/basic.xml">
+            <formatter type="text" tofile="pmd_report.txt"/>
+            <fileset dir="src">
+                <include name="**/*.java"/>
+            </fileset>
+        </pmd>
+    </target>
+
+</project>

@@ -64,18 +64,19 @@ import net.fortuna.ical4j.model.property.Uid;
 import net.fortuna.ical4j.model.property.Url;
 import net.fortuna.ical4j.model.property.Version;
 import net.fortuna.ical4j.model.property.XProperty;
+import org.netbeans.modules.tasklist.export.ExportImportFormat;
+import org.netbeans.modules.tasklist.export.ExportImportProvider;
+import org.netbeans.modules.tasklist.export.SaveFilePanel;
+import org.netbeans.modules.tasklist.export.SimpleWizardPanel;
 
-import org.netbeans.modules.tasklist.core.export.ExportImportFormat;
-import org.netbeans.modules.tasklist.core.export.ExportImportProvider;
-import org.netbeans.modules.tasklist.core.export.SaveFilePanel;
-import org.netbeans.modules.tasklist.core.util.ExtensionFileFilter;
-import org.netbeans.modules.tasklist.core.util.ObjectList;
-import org.netbeans.modules.tasklist.core.util.SimpleWizardPanel;
+
 import org.netbeans.modules.tasklist.usertasks.options.Settings;
 import org.netbeans.modules.tasklist.usertasks.UserTaskViewRegistry;
 import org.netbeans.modules.tasklist.usertasks.model.UserTask;
 import org.netbeans.modules.tasklist.usertasks.model.UserTaskList;
 import org.netbeans.modules.tasklist.usertasks.model.Dependency;
+import org.netbeans.modules.tasklist.usertasks.util.ExtensionFileFilter;
+import org.netbeans.modules.tasklist.usertasks.util.ObjectList;
 import org.netbeans.modules.tasklist.usertasks.util.UTUtils;
 import org.openide.WizardDescriptor;
 import org.openide.util.NbBundle;

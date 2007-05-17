@@ -19,33 +19,16 @@
 
 package org.netbeans.modules.tasklist.docscan;
 
-import java.util.List;
-import java.util.ArrayList;
-import java.awt.datatransfer.Transferable;
 
 import javax.swing.*;
 
 import org.openide.util.actions.SystemAction;
-import org.openide.util.NbBundle;
 import org.openide.nodes.Node;
-import org.openide.nodes.AbstractNode;
-import org.openide.nodes.Sheet;
 import org.openide.nodes.Children;
-import org.openide.nodes.PropertySupport;
-import org.openide.actions.PropertiesAction;
-import org.openide.ErrorManager;
-import org.openide.loaders.DataObject;
-import org.openide.text.Line;
-import org.openide.text.DataEditorSupport;
 
-import org.netbeans.modules.tasklist.client.SuggestionPriority;
-import org.netbeans.modules.tasklist.client.Suggestion;
 
 import org.netbeans.modules.tasklist.suggestions.*;
-import org.netbeans.modules.tasklist.core.filter.FilterAction;
 import org.netbeans.modules.tasklist.core.*;
-import org.netbeans.modules.tasklist.core.editors.PriorityPropertyEditor;
-import org.netbeans.modules.tasklist.core.editors.LineNumberPropertyEditor;
 
 /**
  * Represents one scanned source task as a Node with

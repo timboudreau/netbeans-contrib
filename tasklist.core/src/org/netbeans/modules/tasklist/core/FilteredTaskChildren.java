@@ -23,7 +23,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.netbeans.modules.tasklist.core.filter.Filter;
+import org.netbeans.modules.tasklist.filter.Filter;
 import org.openide.nodes.FilterNode;
 import org.openide.nodes.Node;
 import org.openide.nodes.NodeMemberEvent;

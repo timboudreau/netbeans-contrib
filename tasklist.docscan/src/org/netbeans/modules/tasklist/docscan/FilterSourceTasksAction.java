@@ -19,10 +19,10 @@
 
 package org.netbeans.modules.tasklist.docscan;
 
-import org.netbeans.modules.tasklist.core.filter.FilterAction;
 import org.openide.util.HelpCtx;
 
 import java.awt.*;
+import org.netbeans.modules.tasklist.filter.FilterAction;
 
 /**
  * Filters source tasks. It hides south component and makes action modal.

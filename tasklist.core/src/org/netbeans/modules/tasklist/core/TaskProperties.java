@@ -19,8 +19,9 @@
 
 package org.netbeans.modules.tasklist.core;
 
-import org.netbeans.modules.tasklist.core.filter.SuggestionProperty;
-import org.netbeans.modules.tasklist.core.filter.SuggestionProperties;
+import org.netbeans.modules.tasklist.filter.SuggestionProperties;
+import org.netbeans.modules.tasklist.filter.SuggestionProperty;
+
 
 /**
  * Although Task doesn't introduce any new properties, I include this

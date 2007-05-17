@@ -49,14 +49,6 @@ import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
 import javax.swing.border.EmptyBorder;
 import javax.swing.tree.TreePath;
-import org.netbeans.modules.tasklist.core.export.ExportImportFormat;
-import org.netbeans.modules.tasklist.core.export.ExportImportProvider;
-import org.netbeans.modules.tasklist.core.filter.Filter;
-import org.netbeans.modules.tasklist.core.filter.FilterAction;
-import org.netbeans.modules.tasklist.core.filter.FilterRepository;
-import org.netbeans.modules.tasklist.core.filter.FilteredTopComponent;
-import org.netbeans.modules.tasklist.core.filter.RemoveFilterAction;
-import org.netbeans.modules.tasklist.core.util.RightSideBorder;
 import org.netbeans.modules.tasklist.usertasks.actions.GoToUserTaskAction;
 import org.netbeans.modules.tasklist.usertasks.actions.MoveDownAction;
 import org.netbeans.modules.tasklist.usertasks.actions.MoveLeftAction;
@@ -80,6 +72,13 @@ import org.netbeans.modules.tasklist.usertasks.translators.ICalImportFormat;
 import org.netbeans.modules.tasklist.usertasks.translators.TextExportFormat;
 import org.netbeans.modules.tasklist.usertasks.translators.XmlExportFormat;
 import org.netbeans.modules.tasklist.core.table.ChooseColumnsPanel;
+import org.netbeans.modules.tasklist.export.ExportImportFormat;
+import org.netbeans.modules.tasklist.export.ExportImportProvider;
+import org.netbeans.modules.tasklist.filter.Filter;
+import org.netbeans.modules.tasklist.filter.FilterAction;
+import org.netbeans.modules.tasklist.filter.FilterRepository;
+import org.netbeans.modules.tasklist.filter.FilteredTopComponent;
+import org.netbeans.modules.tasklist.filter.RemoveFilterAction;
 import org.netbeans.modules.tasklist.usertasks.actions.AsListAction;
 import org.netbeans.modules.tasklist.usertasks.actions.ClearCompletedAction;
 import org.netbeans.modules.tasklist.usertasks.actions.PurgeTasksAction;
@@ -113,13 +112,14 @@ import org.netbeans.modules.tasklist.usertasks.model.UserTaskList;
 import org.netbeans.modules.tasklist.usertasks.table.UTBasicTreeTableModel;
 import org.netbeans.modules.tasklist.usertasks.table.UTFlatTreeTableModel;
 import org.netbeans.modules.tasklist.usertasks.treetable.TreeTable;
+import org.netbeans.modules.tasklist.usertasks.util.RightSideBorder;
 import org.openide.DialogDisplayer;
 import org.openide.NotifyDescriptor;
 import org.openide.cookies.SaveCookie;
 
 /** 
  * View showing the user tasks.
- *
+ * 
  * @author Tor Norbye
  * @author tl
  */
@@ -502,7 +502,7 @@ public class UserTaskView extends TopComponent implements ExportImportProvider,
             if (StartedUserTask.getInstance().getStarted() == null && uid != null) {
                 UserTask ut = tasklist.findItem(
                     tasklist.getSubtasks().iterator(), uid);
-                if (ut != null)
+                if (ut != null && ut.isStartable())
                     ut.start();
             }
         }
@@ -669,7 +669,7 @@ public class UserTaskView extends TopComponent implements ExportImportProvider,
      *
      * @return created filter
      */
-    public org.netbeans.modules.tasklist.core.filter.Filter createFilter() {
+    public org.netbeans.modules.tasklist.filter.Filter createFilter() {
         return new UserTaskFilter("Simple"); // NOI18N
     }
 

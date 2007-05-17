@@ -22,29 +22,15 @@ package org.netbeans.modules.tasklist.usertasks.table;
 import java.net.URL;
 import javax.swing.event.ChangeEvent;
 import org.netbeans.modules.tasklist.usertasks.*;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Date;
-import java.util.List;
-import java.util.logging.Level;
 import javax.swing.event.ChangeListener;
-import javax.swing.tree.TreeNode;
 
-import javax.swing.tree.TreePath;
 
-import org.netbeans.modules.tasklist.core.filter.Filter;
-import org.netbeans.modules.tasklist.usertasks.treetable.AdvancedTreeTableNode;
 import org.netbeans.modules.tasklist.usertasks.treetable.BooleanComparator;
-import org.netbeans.modules.tasklist.usertasks.treetable.DefaultMutableTreeTableNode;
 import org.netbeans.modules.tasklist.usertasks.treetable.DefaultTreeTableModel;
-import org.netbeans.modules.tasklist.usertasks.treetable.FilterIntf;
-import org.netbeans.modules.tasklist.usertasks.treetable.NotComparator;
 import org.netbeans.modules.tasklist.core.table.SortingModel;
 import org.netbeans.modules.tasklist.usertasks.treetable.StringIgnoreCaseComparator;
-import org.netbeans.modules.tasklist.usertasks.treetable.TreeTableNode;
-import org.netbeans.modules.tasklist.usertasks.util.UTUtils;
-import org.openide.text.Line;
 import org.netbeans.modules.tasklist.usertasks.model.UserTask;
 import org.netbeans.modules.tasklist.usertasks.model.UserTaskList;
 

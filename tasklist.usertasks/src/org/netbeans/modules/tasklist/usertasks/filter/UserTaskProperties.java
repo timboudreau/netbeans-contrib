@@ -22,10 +22,8 @@ package org.netbeans.modules.tasklist.usertasks.filter;
 import java.net.URL;
 import java.util.Date;
 
-import org.netbeans.modules.tasklist.core.TaskProperties;
-import org.netbeans.modules.tasklist.core.filter.SuggestionProperty;
+import org.netbeans.modules.tasklist.filter.SuggestionProperty;
 import org.netbeans.modules.tasklist.usertasks.model.UserTask;
-import org.netbeans.modules.tasklist.usertasks.util.UTUtils;
 
 /**
  * Properties for a UserTask.

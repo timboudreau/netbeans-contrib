@@ -39,11 +39,12 @@ import javax.swing.table.TableColumnModel;
 import javax.swing.tree.TreeNode;
 
 import org.netbeans.modules.tasklist.core.columns.ColumnsConfiguration;
-import org.netbeans.modules.tasklist.core.filter.Filter;
-import org.netbeans.modules.tasklist.core.filter.FilterAction;
-import org.netbeans.modules.tasklist.core.filter.FilterRepository;
-import org.netbeans.modules.tasklist.core.filter.FilteredTopComponent;
-import org.netbeans.modules.tasklist.core.filter.RemoveFilterAction;
+import org.netbeans.modules.tasklist.filter.Filter;
+import org.netbeans.modules.tasklist.filter.FilterAction;
+import org.netbeans.modules.tasklist.filter.FilterRepository;
+import org.netbeans.modules.tasklist.filter.FilteredTopComponent;
+import org.netbeans.modules.tasklist.filter.RemoveFilterAction;
+
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.Repository;
 import org.openide.explorer.ExplorerManager;

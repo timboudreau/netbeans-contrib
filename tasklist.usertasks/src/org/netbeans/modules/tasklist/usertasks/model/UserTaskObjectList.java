@@ -20,9 +20,9 @@
 package org.netbeans.modules.tasklist.usertasks.model;
 
 import java.util.Iterator;
-import org.netbeans.modules.tasklist.core.util.ObjectList;
-import org.netbeans.modules.tasklist.core.util.ObjectListEvent;
 import org.netbeans.modules.tasklist.usertasks.*;
+import org.netbeans.modules.tasklist.usertasks.util.ObjectList;
+import org.netbeans.modules.tasklist.usertasks.util.ObjectListEvent;
 
 /**
  * List of UserTasks

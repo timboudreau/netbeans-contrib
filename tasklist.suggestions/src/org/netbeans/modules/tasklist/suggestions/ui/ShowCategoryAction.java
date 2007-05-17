@@ -35,10 +35,11 @@ import org.openide.util.NbBundle;
 import org.openide.util.actions.*;
 import org.openide.awt.*;
 import org.netbeans.modules.tasklist.client.SuggestionManager;
-import org.netbeans.modules.tasklist.core.filter.Filter;
-import org.netbeans.modules.tasklist.core.filter.FilterCondition;
-import org.netbeans.modules.tasklist.core.filter.StringFilterCondition;
-import org.netbeans.modules.tasklist.core.filter.AppliedFilterCondition;
+import org.netbeans.modules.tasklist.filter.AppliedFilterCondition;
+import org.netbeans.modules.tasklist.filter.Filter;
+import org.netbeans.modules.tasklist.filter.FilterCondition;
+import org.netbeans.modules.tasklist.filter.StringFilterCondition;
+
 
 import org.netbeans.modules.tasklist.suggestions.*;
 

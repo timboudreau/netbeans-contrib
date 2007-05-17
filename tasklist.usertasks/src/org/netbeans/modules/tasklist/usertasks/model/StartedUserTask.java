@@ -5,8 +5,8 @@ import javax.swing.SwingUtilities;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.EventListenerList;
-import org.netbeans.modules.tasklist.core.util.ActivityListener;
 import org.netbeans.modules.tasklist.usertasks.options.Settings;
+import org.netbeans.modules.tasklist.usertasks.util.ActivityListener;
 import org.openide.awt.StatusDisplayer;
 import org.openide.util.NbBundle;
 

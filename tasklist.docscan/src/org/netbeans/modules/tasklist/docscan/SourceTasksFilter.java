@@ -19,15 +19,12 @@
 
 package org.netbeans.modules.tasklist.docscan;
 
-import org.netbeans.modules.tasklist.core.filter.Filter;
-import org.netbeans.modules.tasklist.core.filter.PriorityCondition;
-import org.netbeans.modules.tasklist.core.filter.StringFilterCondition;
-import org.netbeans.modules.tasklist.core.filter.FilterConvertor;
-import org.netbeans.modules.tasklist.core.filter.AppliedFilterCondition;
-
-import org.netbeans.modules.tasklist.core.filter.SuggestionProperty;
-
-
+import org.netbeans.modules.tasklist.filter.AppliedFilterCondition;
+import org.netbeans.modules.tasklist.filter.Filter;
+import org.netbeans.modules.tasklist.filter.FilterConvertor;
+import org.netbeans.modules.tasklist.filter.StringFilterCondition;
+import org.netbeans.modules.tasklist.filter.SuggestionProperty;
+import org.netbeans.modules.tasklist.suggestions.PriorityCondition;
 
 /**
  * Filter for user tasks

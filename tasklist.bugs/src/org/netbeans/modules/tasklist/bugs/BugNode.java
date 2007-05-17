@@ -22,7 +22,6 @@ package org.netbeans.modules.tasklist.bugs;
 import java.util.List;
 import java.util.Iterator;
 
-import org.netbeans.modules.tasklist.core.filter.FilterAction;
 import org.netbeans.modules.tasklist.core.TaskNode;
 import org.netbeans.modules.tasklist.core.TaskListView;
 import org.openide.ErrorManager;
@@ -40,7 +39,8 @@ import org.netbeans.modules.tasklist.core.Task;
 import org.openide.nodes.Children;
 
 import javax.swing.*;
-import org.netbeans.modules.tasklist.core.export.ExportAction;
+import org.netbeans.modules.tasklist.export.ExportAction;
+import org.netbeans.modules.tasklist.filter.FilterAction;
 
 
 class BugNode extends TaskNode {

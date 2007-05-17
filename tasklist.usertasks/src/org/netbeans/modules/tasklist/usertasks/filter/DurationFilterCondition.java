@@ -19,11 +19,9 @@
 
 package org.netbeans.modules.tasklist.usertasks.filter;
 
-import javax.swing.BorderFactory;
 import javax.swing.JComponent;
-import javax.swing.UIManager;
+import org.netbeans.modules.tasklist.filter.OneOfFilterCondition;
 
-import org.netbeans.modules.tasklist.core.filter.OneOfFilterCondition;
 import org.netbeans.modules.tasklist.usertasks.DurationPanel;
 import org.openide.util.NbBundle;
 

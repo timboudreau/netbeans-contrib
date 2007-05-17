@@ -44,10 +44,10 @@ import org.openide.filesystems.URLMapper;
 import org.openide.nodes.Node.Cookie;
 import org.openide.text.Line;
 import org.openide.util.NbBundle;
-import org.netbeans.modules.tasklist.core.util.ObjectList;
-import org.netbeans.modules.tasklist.core.util.ObjectListEvent;
-import org.netbeans.modules.tasklist.core.util.ObjectListListener;
 import org.netbeans.modules.tasklist.usertasks.annotations.UTAnnotation;
+import org.netbeans.modules.tasklist.usertasks.util.ObjectList;
+import org.netbeans.modules.tasklist.usertasks.util.ObjectListEvent;
+import org.netbeans.modules.tasklist.usertasks.util.ObjectListListener;
 import org.netbeans.modules.tasklist.usertasks.util.UnaryFunction;
 
 

@@ -18,6 +18,7 @@
  */
 
 package org.netbeans.modules.tasklist.docscan;
+
 import java.awt.*;
 import java.awt.event.*;
 import java.beans.PropertyChangeEvent;
@@ -52,10 +53,10 @@ import org.openide.windows.TopComponent;
 
 
 import org.netbeans.modules.tasklist.core.*;
-import org.netbeans.modules.tasklist.core.filter.Filter;
+import org.netbeans.modules.tasklist.filter.Filter;
+import org.netbeans.modules.tasklist.filter.FilterRepository;
+import org.netbeans.modules.tasklist.filter.FiltersPanel;
 import org.netbeans.modules.tasklist.suggestions.*;
-import org.netbeans.modules.tasklist.core.filter.FilterRepository;
-import org.netbeans.modules.tasklist.core.filter.FiltersPanel;
 import org.openide.awt.Mnemonics;
 import org.openide.util.Cancellable;
 
@@ -1492,7 +1493,7 @@ final class SourceTasksView extends TaskListView implements SourceTasksAction.Sc
         return new FilteredTasksList(list);
     }
 
-    public org.netbeans.modules.tasklist.core.filter.Filter createFilter() {
+    public org.netbeans.modules.tasklist.filter.Filter createFilter() {
       return new SourceTasksFilter(NbBundle.getMessage(SourceTaskNode.class, "new-filter-name"));
     }
 

@@ -30,12 +30,13 @@ import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.stream.StreamSource;
+import org.netbeans.modules.tasklist.export.ExportImportProvider;
+import org.netbeans.modules.tasklist.export.SaveFilePanel;
+import org.netbeans.modules.tasklist.export.SimpleWizardPanel;
 
-import org.netbeans.modules.tasklist.core.export.ExportImportProvider;
-import org.netbeans.modules.tasklist.core.export.SaveFilePanel;
-import org.netbeans.modules.tasklist.core.util.ExtensionFileFilter;
-import org.netbeans.modules.tasklist.core.util.SimpleWizardPanel;
+
 import org.netbeans.modules.tasklist.usertasks.options.Settings;
+import org.netbeans.modules.tasklist.usertasks.util.ExtensionFileFilter;
 import org.netbeans.modules.tasklist.usertasks.util.UTUtils;
 import org.openide.DialogDisplayer;
 import org.openide.NotifyDescriptor;

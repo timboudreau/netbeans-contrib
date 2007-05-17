@@ -22,7 +22,7 @@ package org.netbeans.modules.tasklist.core;
 import org.openide.nodes.PropertySupport;
 
 import java.beans.PropertyEditor;
-import org.netbeans.modules.tasklist.core.filter.SuggestionProperty;
+import org.netbeans.modules.tasklist.filter.SuggestionProperty;
 
 /**
  * Class holding column properties.

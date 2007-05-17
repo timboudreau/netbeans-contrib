@@ -28,11 +28,11 @@ import javax.swing.tree.TreeNode;
 
 import javax.swing.tree.TreePath;
 
-import org.netbeans.modules.tasklist.core.filter.Filter;
 import org.netbeans.modules.tasklist.usertasks.treetable.AdvancedTreeTableNode;
 import org.netbeans.modules.tasklist.usertasks.treetable.DefaultMutableTreeTableNode;
 import org.netbeans.modules.tasklist.usertasks.treetable.FilterIntf;
 import org.netbeans.modules.tasklist.core.table.SortingModel;
+import org.netbeans.modules.tasklist.filter.Filter;
 import org.netbeans.modules.tasklist.usertasks.model.UserTask;
 import org.netbeans.modules.tasklist.usertasks.model.UserTaskList;
 

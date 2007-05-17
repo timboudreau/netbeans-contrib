@@ -53,18 +53,19 @@ import net.fortuna.ical4j.model.property.DateProperty;
 import net.fortuna.ical4j.model.property.PercentComplete;
 import net.fortuna.ical4j.model.property.Priority;
 import net.fortuna.ical4j.util.CompatibilityHints;
+import org.netbeans.modules.tasklist.export.ExportImportFormat;
+import org.netbeans.modules.tasklist.export.ExportImportProvider;
+import org.netbeans.modules.tasklist.export.OpenFilePanel;
+import org.netbeans.modules.tasklist.export.SimpleWizardPanel;
 
-import org.netbeans.modules.tasklist.core.export.ExportImportFormat;
-import org.netbeans.modules.tasklist.core.export.ExportImportProvider;
-import org.netbeans.modules.tasklist.core.export.OpenFilePanel;
-import org.netbeans.modules.tasklist.core.util.ExtensionFileFilter;
-import org.netbeans.modules.tasklist.core.util.SimpleWizardPanel;
+
 import org.netbeans.modules.tasklist.usertasks.util.TreeAbstraction;
 import org.netbeans.modules.tasklist.usertasks.util.UTUtils;
 import org.netbeans.modules.tasklist.usertasks.model.UserTask;
 import org.netbeans.modules.tasklist.usertasks.model.UserTaskList;
 import org.netbeans.modules.tasklist.usertasks.UserTaskView;
 import org.netbeans.modules.tasklist.usertasks.model.Dependency;
+import org.netbeans.modules.tasklist.usertasks.util.ExtensionFileFilter;
 import org.netbeans.modules.tasklist.usertasks.util.UnaryFunction;
 import org.openide.DialogDisplayer;
 import org.openide.NotifyDescriptor;

@@ -17,13 +17,13 @@ public class UserTaskIconProvider {
             "org/netbeans/modules/tasklist/usertasks/tasklistfile.gif")); // NOI18N
     private static final ImageIcon IMAGE =
             new ImageIcon(Utilities.loadImage(
-            "org/netbeans/modules/tasklist/core/task.gif")); // NOI18N
+            "org/netbeans/modules/tasklist/usertasks/task.gif")); // NOI18N
     private static final ImageIcon DONE =
             new ImageIcon(Utilities.loadImage(
-            "org/netbeans/modules/tasklist/core/doneItem.gif")); // NOI18N
+            "org/netbeans/modules/tasklist/usertasks/doneItem.gif")); // NOI18N
     private static final ImageIcon UNMATCHED =
             new ImageIcon(Utilities.loadImage(
-            "org/netbeans/modules/tasklist/core/unmatched.gif")); // NOI18N
+            "org/netbeans/modules/tasklist/usertasks/unmatched.gif")); // NOI18N
     
     private static final Image STARTED_BADGE =
             Utilities.loadImage(

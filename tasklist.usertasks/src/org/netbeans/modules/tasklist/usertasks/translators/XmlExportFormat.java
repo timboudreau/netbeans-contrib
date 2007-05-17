@@ -20,6 +20,7 @@
 package org.netbeans.modules.tasklist.usertasks.translators;
 
 import java.io.File;
+import java.io.IOException;
 import java.net.URL;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -37,17 +38,18 @@ import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
+import org.netbeans.modules.tasklist.export.ExportImportFormat;
+import org.netbeans.modules.tasklist.export.ExportImportProvider;
+import org.netbeans.modules.tasklist.export.SaveFilePanel;
+import org.netbeans.modules.tasklist.export.SimpleWizardPanel;
 
-import org.netbeans.modules.tasklist.core.export.ExportImportFormat;
-import org.netbeans.modules.tasklist.core.export.ExportImportProvider;
-import org.netbeans.modules.tasklist.core.export.SaveFilePanel;
-import org.netbeans.modules.tasklist.core.util.ExtensionFileFilter;
-import org.netbeans.modules.tasklist.core.util.ObjectList;
-import org.netbeans.modules.tasklist.core.util.SimpleWizardPanel;
+
 import org.netbeans.modules.tasklist.usertasks.options.Settings;
 import org.netbeans.modules.tasklist.usertasks.UserTaskViewRegistry;
 import org.netbeans.modules.tasklist.usertasks.model.UserTask;
 import org.netbeans.modules.tasklist.usertasks.model.UserTaskList;
+import org.netbeans.modules.tasklist.usertasks.util.ExtensionFileFilter;
+import org.netbeans.modules.tasklist.usertasks.util.ObjectList;
 import org.netbeans.modules.tasklist.usertasks.util.UTUtils;
 import org.openide.WizardDescriptor;
 import org.openide.util.NbBundle;
@@ -144,8 +146,18 @@ public class XmlExportFormat implements ExportImportFormat {
             Document doc = createXml(list);
             Transformer t = createTransformer();
             Source source = new DOMSource(doc);
-            Result result = new StreamResult(panel.getFile());
-            t.transform(source, result);
+            StreamResult result = new StreamResult(panel.getFile());
+            try {
+                t.transform(source, result);
+            } finally {
+                if (result.getOutputStream() != null) {
+                    try {
+                        result.getOutputStream().close();
+                    } catch (IOException ex) {
+                        UTUtils.LOGGER.log(Level.WARNING, "", ex);
+                    }
+                }
+            }
             Settings.getDefault().setLastUsedExportFolder(
                     panel.getFile().getParentFile());
         } catch (TransformerException e) {

@@ -19,6 +19,7 @@
 
 package org.netbeans.modules.tasklist.usertasks;
 
+import org.netbeans.modules.tasklist.filter.FilterAction;
 import org.netbeans.modules.tasklist.usertasks.treetable.AdvancedTreeTableNode;
 import org.netbeans.modules.tasklist.usertasks.treetable.AdvancedTreeTableNode;
 import org.netbeans.modules.tasklist.usertasks.table.UTTreeTableNode;
@@ -38,12 +39,10 @@ import java.util.logging.Level;
 import javax.swing.Action;
 import javax.swing.SwingUtilities;
 import javax.swing.tree.TreePath;
+import org.netbeans.modules.tasklist.export.ExportAction;
+import org.netbeans.modules.tasklist.export.ImportAction;
+import org.netbeans.modules.tasklist.filter.RemoveFilterAction;
 
-import org.netbeans.modules.tasklist.core.TaskNode;
-import org.netbeans.modules.tasklist.core.export.ExportAction;
-import org.netbeans.modules.tasklist.core.export.ImportAction;
-import org.netbeans.modules.tasklist.core.filter.FilterAction;
-import org.netbeans.modules.tasklist.core.filter.RemoveFilterAction;
 import org.netbeans.modules.tasklist.usertasks.actions.CollapseAllAction;
 import org.netbeans.modules.tasklist.usertasks.actions.ExpandAllUserTasksAction;
 import org.netbeans.modules.tasklist.usertasks.actions.GoToUserTaskAction;
@@ -214,8 +213,10 @@ public final class UserTaskNode extends AbstractNode {
             PropertySupport.Reflection p;
             p = new PropertySupport.Reflection(item, String.class, "getSummary", "setSummary"); // NOI18N
             p.setName(UserTask.PROP_SUMMARY);
-            p.setDisplayName(NbBundle.getMessage(TaskNode.class, "Description")); // NOI18N
-            p.setShortDescription(NbBundle.getMessage(TaskNode.class, "DescriptionHint")); // NOI18N
+            p.setDisplayName(NbBundle.getMessage(
+                    UserTaskNode.class, "Description")); // NOI18N
+            p.setShortDescription(NbBundle.getMessage(
+                    UserTaskNode.class, "DescriptionHint")); // NOI18N
             ss.put(p);            
             
             p = new PropertySupport.Reflection(item, Integer.TYPE, "getPriority", "setPriority"); // NOI18N

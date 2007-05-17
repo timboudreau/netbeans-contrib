@@ -26,9 +26,9 @@ import java.util.Set;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.EventListenerList;
-import org.netbeans.modules.tasklist.core.util.ObjectListEvent;
-import org.netbeans.modules.tasklist.core.util.ObjectListListener;
 import org.netbeans.modules.tasklist.usertasks.DueTasksNotifier;
+import org.netbeans.modules.tasklist.usertasks.util.ObjectListEvent;
+import org.netbeans.modules.tasklist.usertasks.util.ObjectListListener;
 
 /**
  * This class represents the tasklist itself

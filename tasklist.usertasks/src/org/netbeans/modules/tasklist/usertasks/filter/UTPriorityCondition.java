@@ -22,9 +22,9 @@ package org.netbeans.modules.tasklist.usertasks.filter;
 import java.awt.BorderLayout;
 import java.util.Arrays;
 import javax.swing.*;
-import org.netbeans.modules.tasklist.core.checklist.CheckList;
-import org.netbeans.modules.tasklist.core.checklist.DefaultCheckListModel;
-import org.netbeans.modules.tasklist.core.filter.FilterCondition;
+import org.netbeans.modules.tasklist.filter.FilterCondition;
+import org.netbeans.modules.tasklist.swing.checklist.CheckList;
+import org.netbeans.modules.tasklist.swing.checklist.DefaultCheckListModel;
 import org.netbeans.modules.tasklist.usertasks.model.UserTask;
 import org.openide.util.NbBundle;
 

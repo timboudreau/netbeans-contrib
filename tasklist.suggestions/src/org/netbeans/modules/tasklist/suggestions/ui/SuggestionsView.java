@@ -27,9 +27,6 @@ import org.openide.nodes.Node;
 import org.openide.util.actions.SystemAction;
 import org.openide.text.Line;
 import org.netbeans.modules.tasklist.core.*;
-import org.netbeans.modules.tasklist.core.filter.Filter;
-import org.netbeans.modules.tasklist.core.filter.FilterAction;
-import org.netbeans.modules.tasklist.core.filter.RemoveFilterAction;
 import org.netbeans.modules.tasklist.client.*;
 
 import java.util.Iterator;
@@ -45,8 +42,10 @@ import javax.swing.JTable;
 import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
 import javax.swing.SwingUtilities;
-import javax.swing.border.Border;
-import org.netbeans.modules.tasklist.core.export.ExportAction;
+import org.netbeans.modules.tasklist.export.ExportAction;
+import org.netbeans.modules.tasklist.filter.Filter;
+import org.netbeans.modules.tasklist.filter.FilterAction;
+import org.netbeans.modules.tasklist.filter.RemoveFilterAction;
 import org.netbeans.modules.tasklist.suggestions.settings.ManagerSettings;
 
 import org.netbeans.modules.tasklist.suggestions.*;

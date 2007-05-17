@@ -20,7 +20,8 @@
 package org.netbeans.modules.tasklist.suggestions;
 
 import org.netbeans.modules.tasklist.core.TaskProperties;
-import org.netbeans.modules.tasklist.core.filter.SuggestionProperty;
+import org.netbeans.modules.tasklist.filter.SuggestionProperty;
+
 
 
 /**

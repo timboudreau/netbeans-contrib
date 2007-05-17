@@ -23,8 +23,8 @@ import java.util.Date;
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
-import org.netbeans.modules.tasklist.core.util.ObjectList;
 import org.netbeans.modules.tasklist.usertasks.options.Settings;
+import org.netbeans.modules.tasklist.usertasks.util.ObjectList;
 
 /**
  * Tests for o.n.m.t.u.UserTask
