@@ -157,7 +157,7 @@ public final class XTestProjectMenuItem extends AbstractAction implements Presen
         String[] testTypes = findTestTypes(project);
         if(testTypes.length > 0) {
             actions.add(createAction(NbBundle.getMessage(XTestProjectMenuItem.class, "CTL_MenuItem_Clean"),
-                                     project, null, new String[] {"realclean"}, false));
+                                     project, null, new String[] {"clean"}, false));
             actions.add(null);
         } else {
             // hide XTest submenu
