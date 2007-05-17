@@ -19,7 +19,6 @@
 
 package org.netbeans.modules.portalpack.servers.core;
 
-import org.netbeans.modules.portalpack.servers.core.api.PSDeploymentManager;
 import org.netbeans.modules.portalpack.servers.core.util.PSConfigObject;
 import org.netbeans.modules.portalpack.servers.core.util.NetbeanConstants;
 import java.io.File;
@@ -30,14 +29,12 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.enterprise.deploy.spi.DeploymentManager;
 import org.netbeans.api.java.platform.JavaPlatform;
 import org.netbeans.api.java.platform.JavaPlatformManager;
 import org.netbeans.modules.j2ee.deployment.common.api.J2eeLibraryTypeProvider;
 import org.netbeans.modules.j2ee.deployment.devmodules.api.J2eeModule;
-import org.netbeans.modules.j2ee.deployment.plugins.api.J2eePlatformImpl;
+import org.netbeans.modules.j2ee.deployment.plugins.spi.J2eePlatformImpl;
 import org.netbeans.spi.project.libraries.LibraryImplementation;
 import org.openide.filesystems.FileUtil;
 
@@ -53,10 +50,11 @@ import org.openide.util.Utilities;
 public class PSJ2eePlatformImpl extends J2eePlatformImpl {
     private static Logger logger = Logger.getLogger(NetbeanConstants.PORTAL_LOGGER);
     private List/*<LibraryImpl>*/ libraries  = new ArrayList();
-    protected PSDeploymentManager dm;
-    public PSJ2eePlatformImpl(DeploymentManager dm)
+    protected PSConfigObject psconfig;
+    public PSJ2eePlatformImpl(PSConfigObject psconfig)
     {
-        this.dm =(PSDeploymentManager)dm;
+        //this.dm =(PSDeploymentManager)dm;
+        this.psconfig = psconfig;
         J2eeLibraryTypeProvider libProvider = new J2eeLibraryTypeProvider();
         LibraryImplementation lib = libProvider.createLibrary();
         lib.setName("Portlet Plugin");
@@ -88,10 +86,11 @@ public class PSJ2eePlatformImpl extends J2eePlatformImpl {
     }
     
     public java.io.File[] getPlatformRoots() {
-        return new File[]{new File(PSConfigObject.getPSConfigObject(dm.getUri()).getPSHome())};
+        return new File[]{new File(psconfig.getPSHome())};
     }
     
    public void notifyLibrariesChanged() {
+        //System.out.println("************************* Firing event for Library has been change *******************");
         LibraryImplementation lib = (LibraryImplementation)libraries.get(0);
         loadLibraries(lib);
         firePropertyChange(PROP_LIBRARIES, null, libraries);
@@ -142,5 +141,4 @@ public class PSJ2eePlatformImpl extends J2eePlatformImpl {
             }
             return url;
         }
-   
 }

@@ -20,7 +20,7 @@
 package org.netbeans.modules.portalpack.servers.core.api;
 
 import java.util.*;
-import org.netbeans.modules.j2ee.deployment.plugins.api.FindJSPServlet;
+import org.netbeans.modules.j2ee.deployment.plugins.spi.FindJSPServlet;
 /**
  *
  * @author Satya

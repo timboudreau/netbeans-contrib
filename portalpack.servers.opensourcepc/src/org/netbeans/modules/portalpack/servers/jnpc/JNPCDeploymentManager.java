@@ -19,14 +19,13 @@
 
 package org.netbeans.modules.portalpack.servers.jnpc;
 
-import javax.enterprise.deploy.shared.factories.DeploymentFactoryManager;
-import javax.enterprise.deploy.spi.factories.DeploymentFactory;
+import org.netbeans.modules.portalpack.servers.core.PSJ2eePlatformImpl;
 import org.netbeans.modules.portalpack.servers.core.api.PSConfigPanelManager;
 import org.netbeans.modules.portalpack.servers.core.api.PSDeploymentManager;
 import org.netbeans.modules.portalpack.servers.core.api.PSNodeConfiguration;
 import org.netbeans.modules.portalpack.servers.core.api.PSStartServerInf;
 import org.netbeans.modules.portalpack.servers.core.api.PSTaskHandler;
-import org.netbeans.modules.portalpack.servers.core.impl.DefaultPSTaskHandler;
+import org.netbeans.modules.portalpack.servers.core.util.PSConfigObject;
 import org.netbeans.modules.portalpack.servers.jnpc.impl.JNPCTaskHandler;
 
 /**
@@ -36,6 +35,7 @@ import org.netbeans.modules.portalpack.servers.jnpc.impl.JNPCTaskHandler;
 public class JNPCDeploymentManager extends PSDeploymentManager {
      
     private JNPCTaskHandler taskHandler;
+    //private JNPCNodeConfiguration nodeConfigurator;
     
     public JNPCDeploymentManager(String uri,String psVersion)
     {
@@ -52,6 +52,9 @@ public class JNPCDeploymentManager extends PSDeploymentManager {
     }
     
     public PSNodeConfiguration getPSNodeConfiguration() {
+       // if(nodeConfigurator == null)
+      //      nodeConfigurator = new JNPCNodeConfiguration(this);
+      //  return nodeConfigurator;
         return JNPCNodeConfiguration.getInstance();
     }
     
@@ -59,5 +62,9 @@ public class JNPCDeploymentManager extends PSDeploymentManager {
     public PSStartServerInf getStartServerHandler() {
         
         return ContainerStartHandlerFactory.getStartServerHandler(this);
+    }
+
+    public PSJ2eePlatformImpl createPSJ2eePlatformImpl(PSConfigObject psconfig) {
+         return new JNPCJ2eePlatformImpl(psconfig);
     }
 }

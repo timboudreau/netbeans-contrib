@@ -17,18 +17,25 @@
   * Microsystems, Inc. All Rights Reserved.
   */
 
-package org.netbeans.modules.portalpack.servers.jnpc;
+package org.netbeans.modules.portalpack.servers.core.impl.config;
 
-import org.netbeans.modules.portalpack.servers.core.PSJ2eePlatformFactory;
+import org.netbeans.modules.j2ee.deployment.common.api.ConfigurationException;
+import org.netbeans.modules.j2ee.deployment.devmodules.api.J2eeModule;
+import org.netbeans.modules.j2ee.deployment.plugins.spi.config.ModuleConfiguration;
+import org.netbeans.modules.j2ee.deployment.plugins.spi.config.ModuleConfigurationFactory;
 
 /**
  *
- * @author satya
+ * @author Satyaranjan
  */
-public class JNPCJ2eePlatformFactory extends PSJ2eePlatformFactory{
+public class SunPortalModuleConfigurationFactory implements ModuleConfigurationFactory{
     
-    /*public J2eePlatformImpl getJ2eePlatformImpl(DeploymentManager dm) {
-        return new JNPCJ2eePlatformImpl((PSDeploymentManager)dm);
-    }*/
-      
+    public SunPortalModuleConfigurationFactory()
+    {
+        
+    }
+    
+    public ModuleConfiguration create(J2eeModule j2eeModule) throws ConfigurationException {
+        return new SunPSModuleConfiguration(j2eeModule);
+    }
 }

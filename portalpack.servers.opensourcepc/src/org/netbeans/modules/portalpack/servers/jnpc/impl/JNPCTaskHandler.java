@@ -126,7 +126,7 @@ public class JNPCTaskHandler extends DefaultPSTaskHandler{
             Method method = null;
             Boolean isDeployed = Boolean.FALSE;
             try{
-                method = clazz.getMethod("deploy",new Class[]{String.class,Properties.class,Properties.class,Boolean.class});
+                method = clazz.getMethod("deploy",new Class[]{String.class,Properties.class,Properties.class,boolean.class});
                 isDeployed = (Boolean)method.invoke(ob, new Object[]{warfile,new Properties(),new Properties(),Boolean.FALSE});
             }catch(NoSuchMethodException e){
                 method = clazz.getMethod("deploy",new Class[]{String.class,Properties.class,Properties.class,});
@@ -209,7 +209,7 @@ public class JNPCTaskHandler extends DefaultPSTaskHandler{
             Method method = null;
             Boolean isUnDeployed = Boolean.FALSE;
             try{
-                method = clazz.getMethod("undeploy",new Class[]{String.class,Boolean.class});
+                method = clazz.getMethod("undeploy",new Class[]{String.class,boolean.class});
                 isUnDeployed = (Boolean)method.invoke(ob, new Object[]{portletAppName,Boolean.FALSE});
             }catch(NoSuchMethodException e){
                 method = clazz.getMethod("undeploy",new Class[]{String.class});

@@ -23,6 +23,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import javax.management.MBeanException;
+import org.netbeans.modules.portalpack.servers.core.nodes.BaseNode;
+import org.openide.nodes.Sheet;
 
 /**
  *
@@ -75,6 +77,9 @@ public interface PSTaskHandler {
     public String getAuthlessUser(String baseDN) throws Exception;
     
     public Map getObjects(String type,String searchFilter, String baseDN) throws Exception;
+    
+    //show properties
+    public Sheet createContainerPropertySheet(BaseNode node);
     
       
 }

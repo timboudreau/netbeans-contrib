@@ -41,6 +41,7 @@ import org.openide.util.actions.SystemAction;
 public class ChannelNode extends BaseNode implements Node.Cookie {
     
     private static String ICON_BASE = "org/netbeans/modules/portalpack/servers/core/resources/channel.gif"; // NOI18N
+    private static String REF_ICON_BASE = "org/netbeans/modules/portalpack/servers/core/resources/channel-ref.gif"; // NOI18N
     private String key = "";
     private String displayValue = "";
     private PSDeploymentManager manager;
@@ -62,7 +63,16 @@ public class ChannelNode extends BaseNode implements Node.Cookie {
         this.ccNode = ccNode;
         
         getCookieSet().add(this);
-        setIconBaseWithExtension(ICON_BASE);
+        if(manager != null)
+        {
+            if(ccNode.getChannelFilterType().equals(ChannelChildrenNode.TOP_CHANNELS))
+                setIconBaseWithExtension(ICON_BASE);
+            else
+                setIconBaseWithExtension(REF_ICON_BASE);
+        }
+        else
+            setIconBaseWithExtension(ICON_BASE);
+        
         setDisplayName(displayValue);
         setShortDescription(getShortDescription());
         getCookieSet().add(this);

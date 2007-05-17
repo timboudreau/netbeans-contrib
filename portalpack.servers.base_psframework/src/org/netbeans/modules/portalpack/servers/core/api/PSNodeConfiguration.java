@@ -38,6 +38,8 @@ public interface PSNodeConfiguration {
     
     public boolean showTopChannelsNode();
     
+    public boolean allowDragAndDrop();
+    
     public Action[] getChannelActions(String channelType);
 
     public Action[] getDnActions();
@@ -47,6 +49,10 @@ public interface PSNodeConfiguration {
     public Action[] getContainerActions();
     
     public Action[] getTopChannelsActions();
+    
+    public Action[] getChannelFolderActions();
+    
+    public Action[] getTopChannelFolderActions();
     
     public Node[] getCustomChildrenForDnNode(PSDeploymentManager dm,String baseDn,String key);
 

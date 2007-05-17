@@ -27,7 +27,6 @@ import java.util.List;
 import java.util.Set;
 import org.netbeans.modules.j2ee.deployment.devmodules.api.J2eeModule;
 import org.netbeans.modules.portalpack.servers.core.PSJ2eePlatformImpl;
-import org.netbeans.modules.portalpack.servers.core.api.PSDeploymentManager;
 import org.netbeans.modules.portalpack.servers.core.util.PSConfigObject;
 import org.netbeans.modules.portalpack.servers.core.util.Util;
 
@@ -37,8 +36,8 @@ import org.netbeans.modules.portalpack.servers.core.util.Util;
  */
 public class JNPCJ2eePlatformImpl extends PSJ2eePlatformImpl{
     /** Creates a new instance of JNPCJ2eePlatformImpl */
-    public JNPCJ2eePlatformImpl(PSDeploymentManager dm) {
-        super(dm);
+    public JNPCJ2eePlatformImpl(PSConfigObject psconfig) {
+        super(psconfig);
     }
     
     public Set getSupportedSpecVersions() {
@@ -51,8 +50,8 @@ public class JNPCJ2eePlatformImpl extends PSJ2eePlatformImpl{
     protected List getCustomLibraries() {
          List classPath = new ArrayList();
          
-         String[] libFiles = {"portlet-api-1.0.jar","portlettaglib-1.0.jar"};
-         PSConfigObject psconfig = dm.getPSConfig();
+         String[] libFiles = {"portlet-api-1.0.jar","portlettaglib-1.0.jar","portletappengine-1.0.jar"};
+         //PSConfigObject psconfig = psconfig.getPSConfig();
          
          for(int i=0;i<libFiles.length;i++)
          {

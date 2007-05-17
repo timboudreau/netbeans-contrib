@@ -45,7 +45,7 @@ import org.openide.windows.*;
 /**
  * <code>LogSupport</code> class for creating links in the output window.
  *
- * @author  Stepan Herold
+ * @author  Satyaranjan
  */
 public abstract class LogSupport {
     private Map/*<Link, Link>*/ links = Collections.synchronizedMap(new HashMap());

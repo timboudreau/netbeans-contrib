@@ -21,6 +21,7 @@ package org.netbeans.modules.portalpack.servers.core.nodes.actions;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.SwingUtilities;
 import org.netbeans.modules.portalpack.servers.core.api.PSTaskHandler;
 import org.netbeans.modules.portalpack.servers.core.nodes.ChannelHolderNode;
 import org.netbeans.modules.portalpack.servers.core.ui.CreateContainerChannelPanel;
@@ -37,8 +38,11 @@ import org.openide.windows.WindowManager;
  */
 public class AddChannelAction extends CookieAction {
     private static Logger logger = Logger.getLogger(NetbeanConstants.PORTAL_LOGGER);
-    protected void performAction(Node[] nodes) {
+    protected void performAction(final Node[] nodes) {
         
+        SwingUtilities.invokeLater(new Runnable(){
+            
+        public void run(){
         if( (nodes == null) || (nodes.length < 1) )
             return;
         
@@ -59,6 +63,7 @@ public class AddChannelAction extends CookieAction {
                 DialogDisplayer.getDefault().notify(nd);
             }            
         }
+        }});
     }
     
     protected int mode() {

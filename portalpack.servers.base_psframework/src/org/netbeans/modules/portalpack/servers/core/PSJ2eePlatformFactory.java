@@ -19,12 +19,13 @@
 
 package org.netbeans.modules.portalpack.servers.core;
 
+import org.netbeans.modules.portalpack.servers.core.api.PSDeploymentManager;
 import org.netbeans.modules.portalpack.servers.core.util.NetbeanConstants;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.enterprise.deploy.spi.DeploymentManager;
-import org.netbeans.modules.j2ee.deployment.plugins.api.J2eePlatformFactory;
-import org.netbeans.modules.j2ee.deployment.plugins.api.J2eePlatformImpl;
+import org.netbeans.modules.j2ee.deployment.plugins.spi.J2eePlatformFactory;
+import org.netbeans.modules.j2ee.deployment.plugins.spi.J2eePlatformImpl;
 
 /**
  *
@@ -34,6 +35,9 @@ public class PSJ2eePlatformFactory extends J2eePlatformFactory {
     private static Logger logger = Logger.getLogger(NetbeanConstants.PORTAL_LOGGER);
     public J2eePlatformImpl getJ2eePlatformImpl(DeploymentManager dm) {
         logger.log(Level.FINEST,"J2eePlatform Factory is crated.");
-        return new PSJ2eePlatformImpl(dm);
+        if(dm instanceof PSDeploymentManager)
+            return ((PSDeploymentManager)dm).getPSJ2eePlatformImpl();
+        //return new PSJ2eePlatformImpl(dm);
+        return null;
     }
 }

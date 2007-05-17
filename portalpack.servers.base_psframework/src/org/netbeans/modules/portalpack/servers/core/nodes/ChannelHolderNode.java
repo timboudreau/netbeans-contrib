@@ -19,8 +19,14 @@
 
 package org.netbeans.modules.portalpack.servers.core.nodes;
 
+import java.awt.datatransfer.Transferable;
+import java.awt.datatransfer.UnsupportedFlavorException;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import org.netbeans.modules.portalpack.servers.core.api.PSDeploymentManager;
 import org.netbeans.modules.portalpack.servers.core.common.enterprise.NodeTypeConstants;
+import org.netbeans.modules.portalpack.servers.core.nodes.actions.ActionUtil;
 import org.netbeans.modules.portalpack.servers.core.nodes.actions.AddChannelAction;
 import org.netbeans.modules.portalpack.servers.core.nodes.actions.CreateContainerAction;
 import org.netbeans.modules.portalpack.servers.core.nodes.actions.RefreshPortletsAction;
@@ -28,9 +34,11 @@ import org.netbeans.modules.portalpack.servers.core.nodes.actions.RefreshCookie;
 import org.netbeans.modules.portalpack.servers.core.nodes.actions.ShowAvailableChannelAction;
 import org.netbeans.modules.portalpack.servers.core.nodes.actions.ShowExistingChannelAction;
 import org.netbeans.modules.portalpack.servers.core.nodes.actions.ShowSelectedChannelAction;
+import org.openide.nodes.Children;
 import org.openide.nodes.Node;
 import org.openide.util.Lookup;
 import org.openide.util.actions.SystemAction;
+import org.openide.util.datatransfer.PasteType;
 
 public class ChannelHolderNode extends BaseNode implements Node.Cookie {
     
@@ -58,7 +66,10 @@ public class ChannelHolderNode extends BaseNode implements Node.Cookie {
          //here key is container name. if containername == null means topLevel channels node.
          if(key != null)
          {       
-            return new SystemAction[] {
+            if(manager != null)
+                return manager.getPSNodeConfiguration().getChannelFolderActions();
+            else
+                return new SystemAction[] {
            
                 SystemAction.get(RefreshPortletsAction.class),
                 SystemAction.get(ShowExistingChannelAction.class),
@@ -66,12 +77,14 @@ public class ChannelHolderNode extends BaseNode implements Node.Cookie {
                 SystemAction.get(ShowSelectedChannelAction.class)
             };
          }else{
-             
-            return new SystemAction[] {
+             if(manager != null)
+                 return manager.getPSNodeConfiguration().getTopChannelFolderActions();
+             else
+                return new SystemAction[] {
            
-                SystemAction.get(RefreshPortletsAction.class),
-                SystemAction.get(AddChannelAction.class),
-            }; 
+                    SystemAction.get(RefreshPortletsAction.class),
+                    SystemAction.get(AddChannelAction.class),
+                 }; 
          }
     }
     
@@ -95,7 +108,73 @@ public class ChannelHolderNode extends BaseNode implements Node.Cookie {
         setDisplayName("Channels ["+filterType+"]");
     }
     
+    public PSDeploymentManager getManager()
+    {
+        return manager;
+    }
+    
+    //implements drag/drop facitlity
+    public PasteType getDropType(final Transferable t, int action, int index) {
+        if(!manager.getPSNodeConfiguration().allowDragAndDrop())
+            return null;
+        
+        try{
+            final java.lang.Object obj = t.getTransferData(new java.awt.datatransfer.DataFlavor("application/x-java-openide-nodednd; class=org.openide.nodes.Node",
+                                                                                          "application/x-java-openide-nodednd"));
+            if(obj instanceof ChannelNode)
+            {
+                final String channelName = ((BaseNode)obj).getKey();
+                if(obj instanceof ChannelNode)
+                {
+                    final ChannelNode channelNode = (ChannelNode)obj;
+                     if(!channelNode.getParentChannelChildrenNode().getChannelFilterType().equals(ChannelChildrenNode.TOP_CHANNELS))
+                    return null;
+                }else{
+                    //do nothing incase of container;
+                }
+               // System.out.println("Channel Node is getting draggggggggggggggggggged........");
+                return new PasteType() {
+                    public Transferable paste() throws IOException {
+                        try{
+                           // String channelName = channelNode.getKey();
+                            List selectedList = new ArrayList();
+                            selectedList.add(channelName);
+                            //manager.getTaskHandler().setSelectedChannels(((ChannelNode)obj).getDn(), selectedList, getKey());;
+                            if(channelName.equals(getKey()))
+                                return null;
+                            ActionUtil.addChannelToSelectedList(getDn(),channelName,getKey(),getManager().getTaskHandler());
+                            Children children = getChildren();
+                            if(children instanceof ChannelChildrenNode)
+                            {
+                                ((ChannelChildrenNode)children).setChannelFilterType(ChannelChildrenNode.SELECTED_TYPE);
+                                setDisplayText(((ChannelChildrenNode)children).getChannelFilterType());
+                                //((ChannelChildrenNode)children).updateKeys();
+                               // Node[] childrenNodes = children.getNodes();
+                               //refresh ChannelHolderNode
+                              
+                                
+                            }
+                            ActionUtil.refresh(ChannelHolderNode.this);
+                        }
+                        catch (Exception ex) {
+                            ex.printStackTrace();
+                        }
+                        return t;
+                }};      
+            }
+            return null;
+        }
+        catch (UnsupportedFlavorException ex) {
+            ex.printStackTrace();
+        }
+        catch (IOException ex) {
+            ex.printStackTrace();
+        }
+        return null;
+    }  
 }
+
+
 
 class RefreshChannelChildren implements RefreshCookie {
     ChannelChildrenNode children;

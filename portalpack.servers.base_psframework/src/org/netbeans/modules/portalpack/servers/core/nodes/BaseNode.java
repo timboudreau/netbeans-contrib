@@ -19,6 +19,8 @@
 
 package org.netbeans.modules.portalpack.servers.core.nodes;
 
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import org.netbeans.modules.portalpack.servers.core.api.PSDeploymentManager;
 import org.openide.nodes.AbstractNode;
 import org.openide.nodes.Children;

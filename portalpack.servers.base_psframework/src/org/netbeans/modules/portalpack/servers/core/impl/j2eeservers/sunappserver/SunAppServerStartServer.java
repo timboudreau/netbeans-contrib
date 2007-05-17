@@ -19,15 +19,12 @@
 
 package org.netbeans.modules.portalpack.servers.core.impl.j2eeservers.sunappserver;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.xml.parsers.ParserConfigurationException;
-import org.netbeans.modules.j2ee.deployment.plugins.api.FindJSPServlet;
+import org.netbeans.modules.j2ee.deployment.plugins.spi.FindJSPServlet;
 import org.netbeans.modules.j2ee.deployment.plugins.api.UISupport;
 import org.netbeans.modules.portalpack.servers.core.PSLogViewer;
 import org.netbeans.modules.portalpack.servers.core.api.PSDeploymentManager;
@@ -36,7 +33,6 @@ import org.netbeans.modules.portalpack.servers.core.common.LogManager;
 import org.netbeans.modules.portalpack.servers.core.util.NetbeanConstants;
 import org.netbeans.modules.portalpack.servers.core.util.PSConfigObject;
 import org.openide.ErrorManager;
-import org.openide.windows.OutputWriter;
 import org.xml.sax.SAXException;
 
 /**

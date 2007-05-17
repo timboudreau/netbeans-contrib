@@ -20,6 +20,7 @@
 package org.netbeans.modules.portalpack.servers.core.util;
 
 import java.beans.PropertyChangeListener;
+import javax.enterprise.deploy.spi.DeploymentManager;
 import org.netbeans.modules.portalpack.servers.core.PSConfigCallBackHandler;
 import java.io.File;
 import java.util.Enumeration;
@@ -27,6 +28,7 @@ import java.util.Iterator;
 import java.util.WeakHashMap;
 import java.util.Properties;
 import org.netbeans.modules.j2ee.deployment.plugins.api.InstanceProperties;
+import org.netbeans.modules.portalpack.servers.core.api.PSDeploymentManager;
 
 /**
  *
@@ -34,7 +36,7 @@ import org.netbeans.modules.j2ee.deployment.plugins.api.InstanceProperties;
  */
 public class PSConfigObject {
     
-    public static final String SERVER_CONFIG_FILE = NetbeanConstants.CONFIG_DIR + File.separator + "ps71.xml";
+   // public static final String SERVER_CONFIG_FILE = NetbeanConstants.CONFIG_DIR + File.separator + "ps71.xml";
     private static WeakHashMap map = new WeakHashMap();
     
     private String psHome = "";
@@ -61,11 +63,12 @@ public class PSConfigObject {
     private Properties props = null;
     
     private boolean newInstance = false;
+   // private boolean libraryChanged = false;
     
     private static PSConfigObject instance = null;
     
     private PSConfigObject(String uri){
-        File file = new File(SERVER_CONFIG_FILE);
+      //  File file = new File(SERVER_CONFIG_FILE);
         this.uri = uri;
        // load(file);
         load(uri);
@@ -497,6 +500,16 @@ public class PSConfigObject {
         setPortalUri(handler.getPortalUri());*/
         populate(handler);
         saveProperties();
+        try{
+              InstanceProperties ip = InstanceProperties.getInstanceProperties(uri);
+              DeploymentManager dm = ip.getDeploymentManager();
+              if(dm instanceof PSDeploymentManager)
+              {
+                    ((PSDeploymentManager)dm).getPSJ2eePlatformImpl().notifyLibrariesChanged();
+              }
+         }catch(Exception e){
+            e.printStackTrace();
+         }
        // save();
         
     }

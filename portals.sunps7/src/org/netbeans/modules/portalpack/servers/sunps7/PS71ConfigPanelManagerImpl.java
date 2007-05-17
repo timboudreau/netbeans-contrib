@@ -21,9 +21,9 @@ package org.netbeans.modules.portalpack.servers.sunps7;
 
 import org.netbeans.modules.portalpack.servers.core.api.ConfigPanel;
 import org.netbeans.modules.portalpack.servers.core.api.PSConfigPanelManager;
+import org.netbeans.modules.portalpack.servers.core.impl.j2eeservers.ui.ClasspathConfigPanel;
 import org.netbeans.modules.portalpack.servers.core.ui.InstallPanel;
 import org.netbeans.modules.portalpack.servers.sunps7.ui.PS71ConfigPanel;
-import org.netbeans.modules.portalpack.servers.sunps7.ui.PSConfigServerPanel;
 
 /**
  *
@@ -45,7 +45,7 @@ public class PS71ConfigPanelManagerImpl implements PSConfigPanelManager{
     }
 
     public ConfigPanel[] getConfigPanels(String psVersion) {
-        return new ConfigPanel[]{new PS71ConfigPanel()};
+        return new ConfigPanel[]{new PS71ConfigPanel(),new ClasspathConfigPanel()};
     }
 
 }

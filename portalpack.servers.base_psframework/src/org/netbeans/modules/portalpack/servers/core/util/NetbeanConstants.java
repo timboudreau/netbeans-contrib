@@ -33,7 +33,7 @@ public class NetbeanConstants {
     public static final String AJAX_REQUEST_JS = "AjaxRequest.js";
     public static final String CONTEXT_XML = "context.xml";
     
-    public static final String CONFIG_DIR = System.getProperty("user.home") + File.separator + ".psnetbeans";
+    public static final String CONFIG_DIR = System.getProperty("netbeans.user") + File.separator + "portalpacklib";
     
     public static final String CHANNEL_PREFIX = "_channel_";
     

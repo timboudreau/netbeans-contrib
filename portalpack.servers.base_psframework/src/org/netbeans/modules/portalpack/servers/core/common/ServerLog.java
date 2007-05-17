@@ -20,7 +20,6 @@
 package org.netbeans.modules.portalpack.servers.core.common;
 
 
-import org.netbeans.modules.portalpack.servers.core.common.LogSupport.LineInfo;
 import org.netbeans.modules.portalpack.servers.core.util.NetbeanConstants;
 import java.io.IOException;
 import java.io.Reader;
@@ -30,7 +29,6 @@ import java.util.logging.Logger;
 import org.openide.ErrorManager;
 import org.openide.windows.InputOutput;
 import org.openide.windows.OutputWriter;
-import org.netbeans.api.java.classpath.GlobalPathRegistry;
 import org.netbeans.modules.j2ee.deployment.plugins.api.UISupport;
 
 

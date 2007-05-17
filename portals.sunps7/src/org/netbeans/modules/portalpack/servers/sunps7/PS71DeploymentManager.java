@@ -19,12 +19,13 @@
 
 package org.netbeans.modules.portalpack.servers.sunps7;
 
+import org.netbeans.modules.portalpack.servers.core.PSJ2eePlatformImpl;
 import org.netbeans.modules.portalpack.servers.core.api.PSDeploymentManager;
 import org.netbeans.modules.portalpack.servers.core.api.PSConfigPanelManager;
 import org.netbeans.modules.portalpack.servers.core.api.PSNodeConfiguration;
 import org.netbeans.modules.portalpack.servers.core.api.PSTaskHandler;
 import org.netbeans.modules.portalpack.servers.core.common.enterprise.PSCommandHandler;
-import org.netbeans.modules.portalpack.servers.core.ui.InstallPanel;
+import org.netbeans.modules.portalpack.servers.core.util.PSConfigObject;
 
 /**
  *
@@ -57,6 +58,10 @@ public class PS71DeploymentManager extends PSDeploymentManager{
     public PSNodeConfiguration getPSNodeConfiguration()
     {
        return PS71NodeConfiguration.getInstance();
+    }
+
+    public PSJ2eePlatformImpl createPSJ2eePlatformImpl(PSConfigObject psconfig) {
+          return new PS71J2eePlatformImpl(psconfig);
     }
 
 }

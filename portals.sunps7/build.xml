@@ -28,6 +28,13 @@ Microsystems, Inc. All Rights Reserved.
  
      <target name="netbeans-extra" depends="release"/>
 
+     <target name="compile" depends="projectized-common.compile">
+          <property name="build.libs.dir" value="${build.classes.dir}/libs"/>
+          <mkdir dir="${build.libs.dir}"/>
+          <copy file="../../external/portlet/portletappengine-1.0.jar"
+          todir="${build.libs.dir}"/>
+     </target>
+     
     <target name="release" depends="init">           
         <copy file="../../external/jmxremote_optional.jar"
         todir="${cluster}/modules/ext/portalpack"/>

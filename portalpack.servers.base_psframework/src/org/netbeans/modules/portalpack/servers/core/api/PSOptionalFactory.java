@@ -19,17 +19,17 @@
 
 package org.netbeans.modules.portalpack.servers.core.api;
 
-import org.netbeans.modules.j2ee.deployment.plugins.api.AntDeploymentProvider;
+import org.netbeans.modules.j2ee.deployment.plugins.spi.AntDeploymentProvider;
 import org.netbeans.modules.portalpack.servers.core.*;
 import org.netbeans.modules.portalpack.servers.core.common.NetbeansServerConstant;
 import org.netbeans.modules.portalpack.servers.core.common.NetbeansServerType;
 import org.netbeans.modules.portalpack.servers.core.impl.PSAntDeploymentProviderImpl;
 import org.netbeans.modules.portalpack.servers.core.ui.PSInstantiatingIterator;
 import javax.enterprise.deploy.spi.DeploymentManager;
-import org.netbeans.modules.j2ee.deployment.plugins.api.FindJSPServlet;
-import org.netbeans.modules.j2ee.deployment.plugins.api.IncrementalDeployment;
-import org.netbeans.modules.j2ee.deployment.plugins.api.OptionalDeploymentManagerFactory;
-import org.netbeans.modules.j2ee.deployment.plugins.api.StartServer;
+import org.netbeans.modules.j2ee.deployment.plugins.spi.FindJSPServlet;
+import org.netbeans.modules.j2ee.deployment.plugins.spi.IncrementalDeployment;
+import org.netbeans.modules.j2ee.deployment.plugins.spi.OptionalDeploymentManagerFactory;
+import org.netbeans.modules.j2ee.deployment.plugins.spi.StartServer;
 import org.openide.WizardDescriptor.InstantiatingIterator;
 
 /**

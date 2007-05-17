@@ -21,6 +21,7 @@ package org.netbeans.modules.portalpack.servers.core.api;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import org.netbeans.modules.j2ee.deployment.plugins.spi.J2eePlatformImpl;
 import org.netbeans.modules.portalpack.servers.core.*;
 import org.netbeans.modules.portalpack.servers.core.PSDeployer;
 import org.netbeans.modules.portalpack.servers.core.common.LogManager;
@@ -62,6 +63,7 @@ public abstract class PSDeploymentManager implements DeploymentManager {
     private PSConfigObject psconfig;
     private String psVersion;
     private LogManager logManager;
+    private PSJ2eePlatformImpl psPlatformImpl;
     
     public PSDeploymentManager(String uri,String psVersion)
     {
@@ -91,6 +93,15 @@ public abstract class PSDeploymentManager implements DeploymentManager {
             }
         );
     }
+
+    public PSJ2eePlatformImpl getPSJ2eePlatformImpl()
+    {
+        if(psPlatformImpl == null)
+           psPlatformImpl = createPSJ2eePlatformImpl(psconfig);
+        return psPlatformImpl;
+    }
+    public abstract PSJ2eePlatformImpl createPSJ2eePlatformImpl(PSConfigObject psconfig);
+    
     
     public PSConfigObject getPSConfig()
     {

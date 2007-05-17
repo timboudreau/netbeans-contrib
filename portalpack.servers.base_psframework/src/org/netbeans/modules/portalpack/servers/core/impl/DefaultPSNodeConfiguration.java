@@ -30,7 +30,8 @@ import org.netbeans.modules.portalpack.servers.core.nodes.actions.CreateContaine
 import org.netbeans.modules.portalpack.servers.core.nodes.actions.DeleteChannelAction;
 import org.netbeans.modules.portalpack.servers.core.nodes.actions.DeleteChannelFromSelected;
 import org.netbeans.modules.portalpack.servers.core.nodes.actions.DeleteContainerAction;
-import org.netbeans.modules.portalpack.servers.core.nodes.actions.ShowAdminToolAction;
+import org.netbeans.modules.portalpack.servers.core.nodes.actions.RefreshPortletsAction;
+import org.netbeans.modules.portalpack.servers.core.nodes.actions.*;
 import org.netbeans.modules.portalpack.servers.core.nodes.actions.UndeployAction;
 import org.netbeans.modules.portalpack.servers.core.nodes.actions.ViewChannelsAction;
 import org.netbeans.modules.portalpack.servers.core.nodes.actions.ViewPortletAction;
@@ -150,8 +151,29 @@ public class DefaultPSNodeConfiguration implements PSNodeConfiguration {
     }
 
     
-
     public Node[] getCustomChildrenForTopChannelsNode(PSDeploymentManager dm, String baseDn, String key) {
         return null;
     }
+
+    public Action[] getChannelFolderActions() {
+             return new SystemAction[] {
+                SystemAction.get(RefreshPortletsAction.class),
+                SystemAction.get(ShowExistingChannelAction.class),
+                SystemAction.get(ShowAvailableChannelAction.class),
+                SystemAction.get(ShowSelectedChannelAction.class)
+            };
+    }
+
+    public Action[] getTopChannelFolderActions() {
+        return new SystemAction[] {
+           
+                    SystemAction.get(RefreshPortletsAction.class),
+                    SystemAction.get(AddChannelAction.class),
+                 };
+    }
+
+    public boolean allowDragAndDrop() {
+        return false;
+    }
+    
 }

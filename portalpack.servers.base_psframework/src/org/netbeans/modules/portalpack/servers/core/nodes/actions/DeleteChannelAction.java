@@ -55,17 +55,22 @@ public class DeleteChannelAction extends CookieAction {
             return;
         
         for(int i=0;i<nodes.length;i++) {
-            ChannelNode cookie = null;//(ChannelNode)nodes[i].getCookie(ChannelHolderNode.class);
+            ChannelNode cookie = (ChannelNode)nodes[i].getCookie(ChannelNode.class);
                 
             if(cookie == null)
                 return;
-            ChannelChildrenNode chChildrenNode = cookie.getParentChannelChildrenNode();
+          //  ChannelChildrenNode chChildrenNode = cookie.getParentChannelChildrenNode();
             
-            if(chChildrenNode == null)
-                return;
+           // if(chChildrenNode == null)
+             //   return;
             
             PSTaskHandler handler = cookie.getDeploymentManager().getTaskHandler();
-          
+            try{
+                handler.deleteChannel(cookie.getDn(),cookie.getKey(), null);
+                ActionUtil.refresh(nodes[i]); 
+            }catch(Exception e){
+               e.printStackTrace();
+            }
             System.out.println("Delete Channellllllllllllllllllllll..");
         }
     }
@@ -75,7 +80,7 @@ public class DeleteChannelAction extends CookieAction {
     }
     
     public String getName(){
-        return org.openide.util.NbBundle.getMessage(AddChannelAction.class, "ACT_DELETE_CHANNEL");
+        return org.openide.util.NbBundle.getMessage(DeleteChannelAction.class, "ACT_DELETE_CHANNEL");
     }
      
     

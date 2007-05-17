@@ -19,8 +19,15 @@
 
 package org.netbeans.modules.portalpack.servers.core.nodes;
 
+import java.awt.datatransfer.DataFlavor;
+import java.awt.datatransfer.Transferable;
+import java.awt.datatransfer.UnsupportedFlavorException;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import org.netbeans.modules.portalpack.servers.core.api.PSDeploymentManager;
 import org.netbeans.modules.portalpack.servers.core.common.enterprise.NodeTypeConstants;
+import org.netbeans.modules.portalpack.servers.core.nodes.actions.ActionUtil;
 import org.netbeans.modules.portalpack.servers.core.nodes.actions.AddPortletAction;
 import org.netbeans.modules.portalpack.servers.core.nodes.actions.CreateContainerAction;
 import org.netbeans.modules.portalpack.servers.core.nodes.actions.DeleteContainerAction;
@@ -29,9 +36,11 @@ import org.netbeans.modules.portalpack.servers.core.nodes.actions.ViewChannelsAc
 import org.openide.nodes.AbstractNode;
 import org.openide.nodes.Children;
 import org.openide.nodes.Node;
+import org.openide.nodes.Sheet;
 import org.openide.util.Lookup;
 import org.openide.util.NbBundle;
 import org.openide.util.actions.SystemAction;
+import org.openide.util.datatransfer.PasteType;
 
 /**
  *
@@ -42,7 +51,7 @@ public class ContainerNode extends BaseNode implements Node.Cookie {
     private static String ICON_BASE = "org/netbeans/modules/portalpack/servers/core/resources/container.gif"; // NOI18N
     private String key = "";
     private String displayValue = "";
-    private PSDeploymentManager manager;
+    private PSDeploymentManager manager = null;
     private String baseDn = "";
     public ContainerNode()
     {
@@ -77,6 +86,11 @@ public class ContainerNode extends BaseNode implements Node.Cookie {
         getCookieSet().add(this);
          
     }
+
+    /*@Override
+    public String getHtmlDisplayName() {
+        return "<font color='0000FF' style='Bold'>" + getDisplayName() + "</font>"; 
+    }*/
         
     public PSDeploymentManager getDeploymentManager()
     {
@@ -117,13 +131,17 @@ public class ContainerNode extends BaseNode implements Node.Cookie {
     
     public javax.swing.Action[] getActions(boolean context) {
         
-        if(manager != null)
+        if(manager != null){
             return manager.getPSNodeConfiguration().getContainerActions();
-        
+        }
+            
         javax.swing.Action[]  newActions = new javax.swing.Action[1] ;
         newActions[0]=(null);    
         return newActions;
     }
+    
+    
+    
     
     public boolean hasCustomizer() {
         return true;
@@ -136,4 +154,90 @@ public class ContainerNode extends BaseNode implements Node.Cookie {
     public String getType() {
         return NodeTypeConstants.CONTAINER;
     }
+
+    @Override
+    public PasteType getDropType(final Transferable t, int action, int index) {
+        if(!manager.getPSNodeConfiguration().allowDragAndDrop())
+            return null;
+        
+        try{
+            final java.lang.Object obj = t.getTransferData(new java.awt.datatransfer.DataFlavor("application/x-java-openide-nodednd; class=org.openide.nodes.Node",
+                                                                                          "application/x-java-openide-nodednd"));
+            if(obj instanceof ChannelNode || obj instanceof ContainerNode)
+            {
+                final String channelName = ((BaseNode)obj).getKey();
+                if(obj instanceof ChannelNode)
+                {
+                    final ChannelNode channelNode = (ChannelNode)obj;
+                     if(!channelNode.getParentChannelChildrenNode().getChannelFilterType().equals(ChannelChildrenNode.TOP_CHANNELS))
+                    return null;
+                }else{
+                    //do nothing incase of container;
+                }
+               // System.out.println("Channel Node is getting draggggggggggggggggggged........");
+                return new PasteType() {
+                    public Transferable paste() throws IOException {
+                        try{
+                      //      String channelName = channelNode.getKey();
+                            List selectedList = new ArrayList();
+                            selectedList.add(channelName);
+                            //manager.getTaskHandler().setSelectedChannels(((ChannelNode)obj).getDn(), selectedList, getKey());;
+                            if(channelName.equals(getKey()))
+                                return null;
+                            ActionUtil.addChannelToSelectedList(getDn(),channelName,getKey(),getManager().getTaskHandler());
+                            Children children = getChildren();
+                            if(children instanceof ContainersChildrenNode)
+                            {
+                                //((ContainersChildrenNode)children).setChannelFilterType(ChannelChildrenNode.SELECTED_TYPE);
+                                //((ChannelChildrenNode)children).updateKeys();
+                                Node[] childrenNodes = children.getNodes();
+                               //refresh ChannelHolderNode
+                                
+                                for(int i=0;i<childrenNodes.length;i++)
+                                {
+                                    if(childrenNodes[i] instanceof ChannelHolderNode)
+                                    {
+                                        ChannelHolderNode holderNode = (ChannelHolderNode)childrenNodes[i];
+                                        Children ch = holderNode.getChildren();
+                                        if(ch instanceof ChannelChildrenNode)
+                                        {
+                                            ((ChannelChildrenNode)ch).setChannelFilterType(ChannelChildrenNode.SELECTED_TYPE);
+                                            holderNode.setDisplayText(((ChannelChildrenNode)ch).getChannelFilterType());
+                                        }
+                                        
+                                        //()childrenNodes[i]
+                                        ActionUtil.refresh(childrenNodes[i]);
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+                        catch (Exception ex) {
+                            ex.printStackTrace();
+                        }
+                        return t;
+
+                }};
+                
+            }
+            return null;
+        }
+        catch (UnsupportedFlavorException ex) {
+            ex.printStackTrace();
+        }
+        catch (IOException ex) {
+            ex.printStackTrace();
+        }
+        return null;
+    }
+    
+    private PSDeploymentManager getManager(){
+        return manager;
+    }
+
+    @Override
+    protected Sheet createSheet() {
+        return manager.getTaskHandler().createContainerPropertySheet(this);
+    }
+    
 }

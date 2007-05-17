@@ -25,6 +25,7 @@ import org.netbeans.modules.portalpack.servers.core.util.NetbeanConstants;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JOptionPane;
+import javax.swing.SwingUtilities;
 import org.openide.nodes.Node;
 import org.openide.util.HelpCtx;
 import org.openide.util.actions.CookieAction;
@@ -35,8 +36,11 @@ import org.openide.windows.WindowManager;
  */
 public final class DeleteContainerAction extends CookieAction {
     private static Logger logger = Logger.getLogger(NetbeanConstants.PORTAL_LOGGER);
-    protected void performAction(Node[] nodes) {
+    protected void performAction(final Node[] nodes) {
 
+        SwingUtilities.invokeLater(new Runnable(){
+            
+        public void run(){
         if( (nodes == null) || (nodes.length < 1) )
             return;
         for(int i=0;i<nodes.length;i++) {
@@ -80,6 +84,7 @@ public final class DeleteContainerAction extends CookieAction {
             ActionUtil.refresh(nodes[i]);
             
         }
+        }});
     }
     
     protected int mode() {

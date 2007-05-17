@@ -25,6 +25,8 @@ import java.util.Map;
 import java.util.Set;
 import javax.management.MBeanException;
 import org.netbeans.modules.portalpack.servers.core.api.PSTaskHandler;
+import org.netbeans.modules.portalpack.servers.core.nodes.BaseNode;
+import org.openide.nodes.Sheet;
 
 /**
  *
@@ -115,5 +117,9 @@ public class DefaultPSTaskHandler implements PSTaskHandler {
 
     public String getClientURL() {
         return constructAdminToolURL();
+    }
+
+    public Sheet createContainerPropertySheet(BaseNode node) {
+        return Sheet.createDefault();
     }
 }
