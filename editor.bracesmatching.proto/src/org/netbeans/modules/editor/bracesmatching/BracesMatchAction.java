@@ -44,9 +44,9 @@ public final class BracesMatchAction extends TextAction {
         Document document = component.getDocument();
         Caret caret = component.getCaret();
         
-        MasterMatcher.get(document).navigate(
+        MasterMatcher.get(component).navigate(
+            document,
             caret.getDot(), 
-            component.getClientProperty(MasterMatcher.PROP_ALLOWED_SEARCH_DIRECTION), 
             caret,
             select
         );

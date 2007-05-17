@@ -181,9 +181,9 @@ public class BracesMatchHighlighting extends AbstractHighlightsContainer
         if (caret == null) {
             bag.clear();
         } else {
-            MasterMatcher.get(document).highlight(
+            MasterMatcher.get(component).highlight(
+                document,
                 caret.getDot(), 
-                component.getClientProperty(MasterMatcher.PROP_ALLOWED_SEARCH_DIRECTION), 
                 bag, 
                 bracesMatchColoring, 
                 bracesMismatchColoring
