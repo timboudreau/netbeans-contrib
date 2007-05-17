@@ -162,11 +162,31 @@ Microsystems, Inc. All Rights Reserved.
   </p>
   
   
-  <h4>Use case 1. - Directional searching</h4>
+  <h4><a name="usecase1">Use case 1. - Proximity searching</a></h4>
+
+  <p>
+  In generall, there can be situations when it makes sense to look for an original brace
+  not only right next to a caret, but also <i>"a little bit further"</i>. The scope
+  of this search should however never leave the line with a caret.
+  
+  <p>
+  The maximum distance, measured in characters from the position of a caret, that
+  the proximity search should be attempted in can be controlled by two properties
+  called <code>nbeditor-bracesMatching-maxBackwardLookahead</code> and
+  <code>nbeditor-bracesMatching-maxForwardLookahead</code>. These properties can
+  be set on a text component to control lookaheads for that component.
+  The allowed values for these properties are small positive integers. The lookahead
+  is normally limited by the beginning and end of a line with the caret, but
+  can be further limited by using those two properties. The absolute maximum
+  enforced by the infrastructure is 256 characters.
+  </p>
+
+
+  <h4><a name="usecase2">Use case 2. - Directional searching</a></h4>
 
   <p>
   The search for matching braces in a text document always starts at a position
-  of a caret by looking 'around' this position for a brace that we could then
+  of a caret by looking 'around' this position for a brace that we could thenhref
   try to match against its counterpart. This 'looking around' in fact means
   looking backward from the caret's position, looking ahead of it or looking
   in both directions.
@@ -190,63 +210,47 @@ Microsystems, Inc. All Rights Reserved.
       <li>A brace in forward direction</li>
       <li>Braces in both directions</li>
   </ul>
-  
+
   <p>
   The search direction can be controlled by a special client property on per-component
   basis. The property is called <code>nbeditor-bracesMatching-allowedSearchDirection</code>
-  and its allowed values are <code>backward</code> and <code>forward</code>. By default
-  when the property is not specified the infrastructure searches in both directions.
+  and its allowed values are listed below.  By default when the property is not specified
+  the infrastructure searches in both directions.
   </p>
   
-  
-  <h4>Use case 2. - Proximity searching</h4>
-
-  <p>
-  In generall, there can be situations when it makes sense to look for an original brace
-  not only right next to a caret, but also <i>"a little bit further"</i>. The scope
-  of this search should however always be very limeted and the results should only 
-  be used when they are unambigous. The following example demonstrates the rules
-  applied by the infrastructure.
-  </p>
-  
-  <pre>
-1.    if (...) { // explain the if clause
-2.        ...
-3.    } else { // explain the else clause
-4.        ...
-5.    } // final comment
-  </pre>
-
   <ul>
   <li>
-      The search for an original brace should never leave the scope of the line with a caret.
+      <code>backward</code> - Searching for origin is only performed backward
+      from the position of a caret to the beginning of a document.
   </li>
   <li>
-      If an original brace is found only in one direction it can be used even
-      if it is not located right next to a caret. For example, if the caret is
-      at the end of the 3. line, there is only one original brace and it is the
-      one that is opening the 'else' block.
+      <code>backward-preferred</code> - Searching in both directions with preferrence
+      for an original brace laying in the backward direction in situations when there are
+      braces in both directions.
   </li>
   <li>
-      If an original brace is found in both directions, only the one that lies
-      right next to a caret can be used. If none of them lies next to a caret,
-      none of them will be used. For example, if the caret is positioned in the
-      'else' keyword, there are two original braces one in each direaction, but
-      none of them lies next to a caret and therefore none of them will be used.
+      <code>forward</code> - Searching for origin is only performed forward
+      from the position of a caret to the end of a document.
+  </li>
+  <li>
+      <code>forward-preferred</code> - Searching in both directions with preferrence
+      for an original brace laying in the forward direction in situations when there are
+      braces in both directions.
+  </li>
+  <li>
+      <code>both</code> - Searching for original brace in both directions.
+      If there are braces in both directions the search will be cancelled unless
+      one of them lies right next to a caret. If both braces lay right next to
+      a caret the backward one is used.
   </li>
   </ul>
   
   <p>
-  The maximum distance, measured in characters from the position of a caret, that
-  the proximity search should be attempted in can be controlled by a special
-  property called <code>nbeditor-bracesMatching-maxLookahead</code> on per-component
-  basis. The allowed values for this property are small positive integers. If
-  the property is not defined the default lookahead is to the beginning or
-  end of a line with the caret. The absolute maximum enforced by the infrastructure
-  is 256 characters.
+  This property and its values are much more useful when performing a proximity
+  search with the default lookahead, which spans the whole line.
   </p>
-
-
+  
+      
   <h4>Use case 3. - Highlighting results</h4>
   
   <p>

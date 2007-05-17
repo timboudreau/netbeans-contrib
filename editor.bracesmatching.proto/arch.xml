@@ -528,22 +528,26 @@ Microsystems, Inc. All Rights Reserved.
   <ul>
   <li>
   <api name="nbeditor-bracesMatching-allowedSearchDirection" group="property" category="devel" type="export" >
-  Defines a direction
-  in which the search for the original area is performed. Allowed values are
-  <code>backward</code> and <code>forward</code> (case insensitive). The default
-  value is <code>null</code>, which means that the search is done in both directions
-  going backward (ie. towards the beginning of a document) first and then
-  forward (ei. towards the end of a document) if the backward search didn't produce
-  any results.
+  Controls a direction
+  in which the search for the original area is performed. Please see the
+  <a href="@org-netbeans-modules-editor-bracesmatching@/org/netbeans/spi/editor/bracesmatching/package-summary.html#usecase2">directional searching</a>
+  usecase for more details.
   </api></li>
   <li>
-  <api name="nbeditor-bracesMatching-maxLookahead" group="property" category="devel" type="export">
-  Defines the maximum distance
+  <api name="nbeditor-bracesMatching-maxBackwardLookahead" group="property" category="devel" type="export">
+  Controls the maximum distance
   measured in characters from the position of a caret, where matchers are allowed
-  to search for the original area. Allowed values are small positive integers. The
-  default value is <code>null</code>, which means that the search is limited by
-  the beginning and end of a line with the caret. The absolute maximum enforced
-  by the infrastructure is 256 characters.
+  to search for the original area. Please see the
+  <a href="@org-netbeans-modules-editor-bracesmatching@/org/netbeans/spi/editor/bracesmatching/package-summary.html#usecase1">proximity searching</a>
+  usecase for more details.
+  </api></li>
+  <li>
+  <api name="nbeditor-bracesMatching-maxForwardLookahead" group="property" category="devel" type="export">
+  Controls the maximum distance
+  measured in characters from the position of a caret, where matchers are allowed
+  to search for the original area. Please see the
+  <a href="@org-netbeans-modules-editor-bracesmatching@/org/netbeans/spi/editor/bracesmatching/package-summary.html#usecase1">proximity searching</a>
+  usecase for more details.
   </api></li>
   </ul>
   
