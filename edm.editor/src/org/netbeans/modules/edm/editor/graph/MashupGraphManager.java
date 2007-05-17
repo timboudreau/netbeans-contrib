@@ -60,7 +60,6 @@ import org.netbeans.modules.sql.framework.model.RuntimeInput;
 import com.sun.sql.framework.utils.RuntimeAttribute;
 import org.netbeans.modules.edm.editor.graph.components.EDMOutputTopComponent;
 import org.netbeans.modules.edm.editor.utils.ImageConstants;
-import org.netbeans.modules.edm.editor.utils.OutputWindowUtil;
 import org.netbeans.modules.edm.editor.widgets.property.JoinNode;
 import org.netbeans.modules.edm.editor.widgets.property.TableNode;
 import org.netbeans.modules.sql.framework.model.SQLCondition;
@@ -255,21 +254,27 @@ public class MashupGraphManager {
     }
     
     public void setLog(String text) {
-        OutputWindowUtil.writeLogMessage(mObj, text);
+        EDMOutputTopComponent win = EDMOutputTopComponent.findInstance();
+        win.setLog(text);
     }
-    
-    public void setError(String text) {
-        OutputWindowUtil.writeErrorMessage(mObj, text);
-    }
-    
+            
     public void showOutput(SQLObject object, SQLDefinition sqlDefn) {
         EDMOutputTopComponent win = EDMOutputTopComponent.findInstance();
         win.generateOutput(object, sqlDefn);
         if(!win.isOpened()) {
             win.open();
         }
-        win.requestActive();
+        win.setVisible(true);
     }
+    
+    public void showSql(SQLObject object) {
+        EDMOutputTopComponent win = EDMOutputTopComponent.findInstance();
+        win.showSql(object, mObj);
+        if(!win.isOpened()) {
+            win.open();
+        }
+        win.setVisible(true);
+    }    
     
     public void updateColumnSelection(SQLDBTable table) {
         EDMNodeWidget widget = (EDMNodeWidget) sqlIdtoWidgetMap.get(table.getId());

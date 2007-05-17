@@ -19,8 +19,18 @@
 package org.netbeans.modules.edm.editor.graph.components;
 
 import java.awt.BorderLayout;
+import java.awt.Component;
 import java.io.Serializable;
+import java.util.Calendar;
+import java.util.TimeZone;
 import java.util.logging.Logger;
+
+import org.openide.util.NbBundle;
+import org.openide.util.Utilities;
+import org.openide.windows.TopComponent;
+import org.openide.windows.WindowManager;
+
+import org.netbeans.modules.edm.editor.dataobject.MashupDataObject;
 import org.netbeans.modules.sql.framework.model.SQLConstants;
 import org.netbeans.modules.sql.framework.model.SQLDefinition;
 import org.netbeans.modules.sql.framework.model.SQLJoinView;
@@ -28,9 +38,8 @@ import org.netbeans.modules.sql.framework.model.SQLObject;
 import org.netbeans.modules.sql.framework.model.SourceTable;
 import org.netbeans.modules.sql.framework.model.TargetTable;
 import org.netbeans.modules.sql.framework.ui.view.DataOutputPanel;
-import org.openide.util.NbBundle;
-import org.openide.windows.TopComponent;
-import org.openide.windows.WindowManager;
+import org.netbeans.modules.sql.framework.ui.view.SQLLogView;
+import org.netbeans.modules.sql.framework.ui.view.SQLStatementPanel;
 
 /**
  * Top component which displays something.
@@ -38,8 +47,12 @@ import org.openide.windows.WindowManager;
 public final class EDMOutputTopComponent extends TopComponent {
     
     private static EDMOutputTopComponent instance;
+    
+    private static SQLLogView logView;
+    
+    private static SQLStatementPanel statementPanel;
     /** path to the icon used by the component and its open action */
-    //    static final String ICON_PATH = "SET/PATH/TO/ICON/HERE";
+    private static final String ICON_PATH = "org/netbeans/modules/edm/editor/resources/mashup.png";
     
     private static final String PREFERRED_ID = "EDMOutputTopComponent";
     
@@ -47,7 +60,7 @@ public final class EDMOutputTopComponent extends TopComponent {
         initComponents();
         setName(NbBundle.getMessage(EDMOutputTopComponent.class, "CTL_EDMOutputTopComponent"));
         setToolTipText(NbBundle.getMessage(EDMOutputTopComponent.class, "HINT_EDMOutputTopComponent"));
-        //        setIcon(Utilities.loadImage(ICON_PATH, true));
+        setIcon(Utilities.loadImage(ICON_PATH, true));
     }
     
     /** This method is called from within the constructor to
@@ -82,6 +95,7 @@ public final class EDMOutputTopComponent extends TopComponent {
     public static synchronized EDMOutputTopComponent getDefault() {
         if (instance == null) {
             instance = new EDMOutputTopComponent();
+            logView = new SQLLogView();
         }
         return instance;
     }
@@ -119,12 +133,41 @@ public final class EDMOutputTopComponent extends TopComponent {
         }
         if(outputPanel != null) {
             outputPanel.generateResult(obj);
-            removeAll();
-            setLayout(new BorderLayout());
-            add(outputPanel, BorderLayout.CENTER);
-            revalidate();
+            addComponent(outputPanel);
         }
-    }    
+    }
+    
+    public void setLog(String msg) {
+        logView.appendToView(msg + "\n");
+        logView.appendToView("Logged at " + getTime() + "\n\n");
+        addComponent(logView);
+    }
+    
+    public void showSql(SQLObject obj, MashupDataObject mObj) {
+        if(statementPanel == null) {
+            statementPanel = new SQLStatementPanel(mObj.getEditorView(), obj);
+        } else {
+            statementPanel.updateSQLObject(obj);
+        }
+        statementPanel.refreshSql();
+        addComponent(statementPanel);
+    }
+    
+    private void addComponent(Component comp) {
+        removeAll();
+        setLayout(new BorderLayout());
+        add(comp, BorderLayout.CENTER);
+        revalidate();
+    }
+    
+    private String getTime() {
+        Calendar calendar = Calendar.getInstance(TimeZone.getDefault());
+        String format = "yyyy-MM-dd HH:mm:ss";
+        java.text.SimpleDateFormat dataFormat =
+                new java.text.SimpleDateFormat(format);
+        dataFormat.setTimeZone(TimeZone.getDefault());
+        return dataFormat.format(calendar.getTime());
+    }
     
     public int getPersistenceType() {
         return TopComponent.PERSISTENCE_ALWAYS;

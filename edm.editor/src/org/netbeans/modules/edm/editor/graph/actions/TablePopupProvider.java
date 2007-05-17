@@ -55,6 +55,11 @@ public class TablePopupProvider implements PopupMenuProvider {
         showData.setAction(new ShowDataAction(mObj, obj, "Show Data"));
         menu.add(showData);  
         
+        // add show sql action.
+        JMenuItem showSQL = new JMenuItem("Show SQL");
+        showSQL.setAction(new ShowSqlAction(obj, mObj.getGraphManager(), "Show SQL"));
+        menu.add(showSQL);          
+        
         menu.addSeparator();
         
         // add select columns action.

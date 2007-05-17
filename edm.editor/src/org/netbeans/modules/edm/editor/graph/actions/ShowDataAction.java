@@ -59,7 +59,7 @@ public class ShowDataAction extends AbstractAction {
         try {
             manager.showOutput(obj, mObj.getModel().getSQLDefinition());
         } catch (Exception ex) {
-            manager.setError("Failed to generate output");
+            manager.setLog("Failed to generate output");
         }
     }
 }

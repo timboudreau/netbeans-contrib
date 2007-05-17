@@ -23,15 +23,7 @@ import javax.swing.ImageIcon;
 import org.netbeans.modules.edm.editor.graph.MashupGraphManager;
 import org.netbeans.modules.edm.editor.utils.ImageConstants;
 import org.netbeans.modules.edm.editor.utils.MashupGraphUtil;
-import org.netbeans.modules.sql.framework.evaluators.database.DB;
-import org.netbeans.modules.sql.framework.evaluators.database.DBFactory;
-import org.netbeans.modules.sql.framework.evaluators.database.StatementContext;
-import org.netbeans.modules.sql.framework.model.SQLConstants;
-import org.netbeans.modules.sql.framework.model.SQLDBTable;
-import org.netbeans.modules.sql.framework.model.SQLJoinOperator;
-import org.netbeans.modules.sql.framework.model.SQLDefinition;
-import org.netbeans.modules.sql.framework.model.SQLJoinView;
-import org.netbeans.modules.sql.framework.model.SourceTable;
+import org.netbeans.modules.sql.framework.model.SQLObject;
 
 /**
  *
@@ -39,19 +31,19 @@ import org.netbeans.modules.sql.framework.model.SourceTable;
  */
 public class ShowSqlAction extends AbstractAction {
     
-    private Object obj;
+    private SQLObject obj;
     
     private MashupGraphManager manager;
     
     /** Creates a new instance of EditJoinAction */
-    public ShowSqlAction(Object op, MashupGraphManager manager) {
+    public ShowSqlAction(SQLObject op, MashupGraphManager manager) {
         super("",new ImageIcon(
                 MashupGraphUtil.getImage(ImageConstants.SHOW_SQL)));
         obj = op;
         this.manager = manager;
     }
     
-    public ShowSqlAction(Object op, MashupGraphManager manager, String name) {
+    public ShowSqlAction(SQLObject op, MashupGraphManager manager, String name) {
         super(name,new ImageIcon(
                 MashupGraphUtil.getImage(ImageConstants.SHOW_SQL)));
         obj = op;
@@ -59,38 +51,6 @@ public class ShowSqlAction extends AbstractAction {
     }
     
     public void actionPerformed(ActionEvent e) {
-        try {
-            if(obj instanceof SQLJoinOperator) {
-                DB db = DBFactory.getInstance().getDatabase(DB.AXIONDB);
-                StatementContext context = new StatementContext();
-                StringBuilder buf = new StringBuilder("SELECT ");
-                SQLDBTable[] tables = (SQLDBTable[])((SQLJoinOperator)obj).getAllSourceTables().toArray(new SQLDBTable[0]);
-                int i = 0;
-                for(SQLDBTable table : tables) {
-                    if(i++ != 0) {
-                        buf.append(",");
-                    }
-                    String sql = db.getStatements().getSelectStatement((SourceTable) table, context).toString().trim();
-                    int start = "select".length();
-                    int end = sql.indexOf("from") == -1? sql.indexOf("FROM") : sql.indexOf("from");
-                    sql = sql.substring(start, end).trim();
-                    buf.append(sql);
-                }
-                buf.append(" FROM ");
-                buf.append(db.getEvaluatorFactory().evaluate((SQLJoinOperator)obj, context));
-                manager.setLog(buf.toString());
-            } else if(obj instanceof SQLDefinition) {
-                SQLDefinition defn = (SQLDefinition) obj;
-                SQLJoinView[] joinViews = (SQLJoinView[])defn.getObjectsOfType(
-                        SQLConstants.JOIN_VIEW).toArray(new SQLJoinView[0]);
-                if(joinViews != null && joinViews.length != 0) {                    
-                    DB db = DBFactory.getInstance().getDatabase(DB.AXIONDB);
-                    StatementContext context = new StatementContext();
-                    manager.setLog(db.getStatements().getSelectStatement(joinViews[0], context).toString().trim());
-                }
-            }
-        } catch (Exception ex) {
-            manager.setError("Failed to evaluate join.");
-        }
+        this.manager.showSql(obj);
     }
 }

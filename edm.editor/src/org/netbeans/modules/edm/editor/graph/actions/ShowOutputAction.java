@@ -20,12 +20,10 @@ import java.awt.event.ActionEvent;
 import javax.swing.AbstractAction;
 import javax.swing.ImageIcon;
 import org.netbeans.modules.edm.editor.dataobject.MashupDataObject;
+import org.netbeans.modules.edm.editor.graph.components.EDMOutputTopComponent;
 
 import org.netbeans.modules.edm.editor.utils.ImageConstants;
 import org.netbeans.modules.edm.editor.utils.MashupGraphUtil;
-import org.netbeans.modules.edm.editor.utils.OutputWindowUtil;
-import org.openide.windows.IOProvider;
-import org.openide.windows.InputOutput;
 
 /**
  *
@@ -50,9 +48,12 @@ public class ShowOutputAction extends AbstractAction {
     
     public void actionPerformed(ActionEvent e) {
         // close the netbeans output window.
-        InputOutput io = OutputWindowUtil.getIOWindow(mObj);
-        if(io.isClosed()) {
-            io.select();
-        }        
+       EDMOutputTopComponent topComp = EDMOutputTopComponent.findInstance();
+       if(topComp.isOpened()) {
+           topComp.close();
+       } else {
+           topComp.open();
+           topComp.setVisible(true);
+       }
     }
 }

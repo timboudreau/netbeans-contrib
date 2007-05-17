@@ -1,6 +1,6 @@
 /*
  * The contents of this file are subject to the terms of the Common
- * Development and Distribution License (the License). You may not use this 
+ * Development and Distribution License (the License). You may not use this
  * file except in compliance with the License.  You can obtain a copy of the
  *  License at http://www.netbeans.org/cddl.html
  *
@@ -54,7 +54,7 @@ public class ScenePopupProvider implements PopupMenuProvider {
     private MashupGraphManager manager;
     
     public ScenePopupProvider(MashupDataObject dObj, MashupGraphManager manager,
-           EDMGraphScene gScene) {
+            EDMGraphScene gScene) {
         mObj = dObj;
         scene = gScene;
         this.manager = manager;
@@ -66,15 +66,9 @@ public class ScenePopupProvider implements PopupMenuProvider {
         // add auto layout action.
         JMenuItem layout = new JMenuItem("Auto Layout");
         layout.setAction(new AutoLayoutAction(mObj, "Auto Layout"));
-        menu.add(layout);      
+        menu.add(layout);
         
         menu.addSeparator();
-        
-        // Show sql action.
-        JMenuItem showSql = new JMenuItem("Show SQL");
-        showSql.setAction(new ShowSqlAction(mObj.getModel().getSQLDefinition(),
-                mObj.getGraphManager(), "Show SQL"));
-        menu.add(showSql);              
         
         // add edit join view action.
         JMenuItem edit = new JMenuItem("Edit Join");
@@ -84,23 +78,19 @@ public class ScenePopupProvider implements PopupMenuProvider {
         // Edit connection action.
         JMenuItem editDB = new JMenuItem("Edit Database Properties");
         editDB.setAction(new EditConnectionAction(mObj, "Edit Database Properties"));
-        menu.add(editDB);        
+        menu.add(editDB);
         
         // Edit Runtime input action.
         JMenuItem editRuntime = new JMenuItem("Edit Runtime Input Arguments");
         editRuntime.setAction(new RuntimeInputAction(mObj, "Edit Runtime Input Arguments"));
-        menu.add(editRuntime);          
+        menu.add(editRuntime);
         
         menu.addSeparator();
         
         // add run action.
         JMenuItem run = new JMenuItem("Run");
         run.setAction(new TestRunAction(mObj, "Run"));
-        menu.add(run);   
-        
-        
-  
-        
+        menu.add(run);       
         
         return menu;
     }

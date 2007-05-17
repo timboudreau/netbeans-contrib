@@ -78,7 +78,7 @@ public class EditJoinAction extends AbstractAction {
                     mObj.getGraphManager().setLog("Join view successfully edited.");
                 }
             } catch (Exception ex) {
-                 mObj.getGraphManager().setError("Error adding Join view.");
+                 mObj.getGraphManager().setLog("Error adding Join view.");
             }
         }
     }

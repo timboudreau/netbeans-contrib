@@ -69,10 +69,9 @@ public class TestRunAction extends AbstractAction {
             String sql = db.getStatements().getSelectStatement(joinView, context).toString();
             SQLDBModel dbModel = (SQLDBModel) mObj.getModel().
                     getSQLDefinition().getTargetDatabaseModels().get(0);
-            manager.setLog("Generating Output for SQL: \n" + sql);
             manager.showOutput(joinView, mObj.getModel().getSQLDefinition());
         } catch (Exception ex) {
-            manager.setError("Failed to run collaboration");
+            manager.setLog("Failed to run collaboration");
         }
     }
 }

@@ -65,7 +65,7 @@ public class MashupToolbar extends JToolBar {
         
         // Auto layout button.
         JButton outputButton = new JButton(new ShowOutputAction(mObj));
-        outputButton.setToolTipText("Show Output");
+        outputButton.setToolTipText("Toggle Output");
         toolBar.add(outputButton);          
         
         toolBar.addSeparator();    

@@ -60,7 +60,7 @@ public class RuntimeInputAction extends AbstractAction {
                 mObj.getGraphManager().setLog("Runtime input argument successfully added.");
             }
         } catch (Exception ex) {
-            mObj.getGraphManager().setError("Failed to add Runtime arguments.");
+            mObj.getGraphManager().setLog("Failed to add Runtime arguments.");
         }
     }
 }
