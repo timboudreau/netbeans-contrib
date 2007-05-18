@@ -33,11 +33,6 @@ Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
   </xs:element>
     
   <xs:complexType name="tBinding" >
-    <xs:complexContent>
-      <xs:annotation>
-        <xs:documentation>"tBinding" is the complex type for binding elements</xs:documentation>
-      </xs:annotation>
-    </xs:complexContent>
   </xs:complexType>
 
   <xs:element name="operation" type="tcpip:tOperation" >
@@ -47,8 +42,6 @@ Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
   </xs:element>
 
   <xs:complexType name="tOperation" >
-    <xs:complexContent>
-    </xs:complexContent>
   </xs:complexType>
 
   <xs:element name="message" type="tcpip:tMessage" >
@@ -58,7 +51,6 @@ Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
    </xs:element>
    
   <xs:complexType name="tMessage" >
-    <xs:complexContent></xs:complexContent>
   </xs:complexType>
 
   <xs:element name="fault" type="tcpip:tFault" >
@@ -68,7 +60,6 @@ Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
   </xs:element>
     
   <xs:complexType name="tFault" >
-    <xs:complexContent></xs:complexContent>
   </xs:complexType>
 
   <xs:element name="config" type="tcpip:tConfig" >
