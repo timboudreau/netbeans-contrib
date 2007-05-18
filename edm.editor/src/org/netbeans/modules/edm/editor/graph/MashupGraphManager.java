@@ -27,13 +27,12 @@ import javax.swing.JScrollPane;
 import java.awt.Dimension;
 import java.awt.Rectangle;
 import java.util.WeakHashMap;
+import java.util.LinkedHashMap;
 
 import org.netbeans.api.visual.action.ActionFactory;
 import org.netbeans.api.visual.widget.Widget;
 import org.openide.nodes.Node;
 import org.openide.windows.WindowManager;
-import org.netbeans.api.progress.ProgressHandle;
-import org.netbeans.api.progress.ProgressHandleFactory;
 
 import org.netbeans.modules.edm.editor.dataobject.MashupDataObject;
 import org.netbeans.modules.edm.editor.graph.actions.RuntimeModelPopupProvider;
@@ -235,7 +234,7 @@ public class MashupGraphManager {
                         createGraphNode(rtInput);
                     }
                 }
-            }            
+            }
         } catch (Exception ex) {
             ex.printStackTrace();
         }
@@ -257,7 +256,7 @@ public class MashupGraphManager {
         EDMOutputTopComponent win = EDMOutputTopComponent.findInstance();
         win.setLog(text);
     }
-            
+    
     public void showOutput(SQLObject object, SQLDefinition sqlDefn) {
         EDMOutputTopComponent win = EDMOutputTopComponent.findInstance();
         win.generateOutput(object, sqlDefn);
@@ -274,7 +273,7 @@ public class MashupGraphManager {
             win.open();
         }
         win.setVisible(true);
-    }    
+    }
     
     public void updateColumnSelection(SQLDBTable table) {
         EDMNodeWidget widget = (EDMNodeWidget) sqlIdtoWidgetMap.get(table.getId());
@@ -338,218 +337,14 @@ public class MashupGraphManager {
         widgetToObjectMap.put(widget, model);
         scene.revalidate();
         if(model instanceof SQLJoinOperator) {
-            SQLJoinOperator joinOp = (SQLJoinOperator) model;
-            String nodeName = "";
-            if(joinOp.isRoot()) {
-                nodeName = "ROOT JOIN";
-            } else {
-                nodeName = "JOIN";
-            }
-            String joinType = "";
-            switch(joinOp.getJoinType()) {
-            case SQLConstants.INNER_JOIN:
-                joinType += "INNER JOIN";
-                break;
-            case SQLConstants.RIGHT_OUTER_JOIN:
-                joinType +=  "RIGHT OUTER JOIN";
-                break;
-            case SQLConstants.LEFT_OUTER_JOIN:
-                joinType += "LEFT OUTER JOIN";
-                break;
-            case SQLConstants.FULL_OUTER_JOIN:
-                joinType += "FULL OUTER JOIN";
-            }
-            widget.setNodeName(nodeName);
-            
-            EDMPinWidget joinTypePin = ((EDMPinWidget) scene.addPin(nodeID, "nodeID" + "#pin" + pinCounter++));
-            scene.revalidate();
-            joinTypePin.setPinName(joinType);
-            scene.revalidate();
-            List<Image> typeImage = new ArrayList<Image>();
-            typeImage.add(MashupGraphUtil.getImage(ImageConstants.PROPERTIES));
-            joinTypePin.setGlyphs(typeImage);
-            scene.revalidate();
-            widgets.add(joinTypePin);
-            SQLCondition cond = joinOp.getJoinCondition();
-            String condition = "";
-            if(cond != null) {
-                condition = cond.getConditionText();
-                if(condition == null) {
-                    condition = "";
-                }
-            }
-            condition = condition.equals("") ? "NULL" : condition;
-            EDMPinWidget conditionPin = ((EDMPinWidget) scene.addPin(nodeID, "nodeID" + "#pin" + pinCounter++));
-            scene.revalidate();
-            conditionPin.setPinName("CONDITION");
-            conditionPin.setToolTipText("Join Condition: " + condition);
-            List<Image> image = new ArrayList<Image>();
-            image.add(MashupGraphUtil.getImage(ImageConstants.CONDITION));
-            conditionPin.setGlyphs(image);
-            scene.revalidate();
-            widgets.add(conditionPin);
-            
-            // add popup for join widget.
-            widget.getActions().addAction(
-                    ActionFactory.createPopupMenuAction(new JoinPopupProvider(joinOp, mObj)));
-            scene.revalidate();
-            sqlIdtoWidgetMap.put(joinOp.getId(), widget);
+            addJoinOperatorNode((SQLJoinOperator)model, widget, nodeID);
         } else if(model instanceof RuntimeInput) {
-            widget.setNodeName("Runtime Input");
-            RuntimeInput rtInput = (RuntimeInput)model;
-            Iterator it = rtInput.getRuntimeAttributeMap().keySet().iterator();
-            while(it.hasNext()) {
-                String name = (String)it.next();
-                EDMPinWidget columnPin = ((EDMPinWidget)
-                        scene.addPin(nodeID, "nodeID" + "#pin" + pinCounter++));
-                scene.revalidate();
-                columnPin.setPinName(name);
-                List<Image> image = new ArrayList<Image>();
-                image.add(MashupGraphUtil.getImage(ImageConstants.RUNTIMEATTR));
-                columnPin.setGlyphs(image);
-                scene.revalidate();
-                RuntimeAttribute rtAttr = (RuntimeAttribute) rtInput.getRuntimeAttributeMap().get(name);
-                columnPin.setToolTipText("Value: " + rtAttr.getAttributeValue());
-                widgets.add(columnPin);
-            }
-            
-            // add popup for runtime inputs.
-            widget.getActions().addAction(
-                    ActionFactory.createPopupMenuAction(new RuntimeModelPopupProvider(rtInput, mObj)));
-            scene.revalidate();
-            sqlIdtoWidgetMap.put(rtInput.getId(), widget);
+            addRuntimeNode((RuntimeInput)model, widget, nodeID);
         } else if (model instanceof SQLDBTable) {
-            SQLDBTable tbl = (SQLDBTable) model;
-            String tooltip = "URL: " + tbl.getParent().getConnectionDefinition().getConnectionURL();
-            widget.setNodeName(model.getDisplayName());
-            scene.revalidate();
-            widget.getActions().addAction(
-                    ActionFactory.createPopupMenuAction(new TablePopupProvider(tbl, mObj)));
-            scene.revalidate();
-            String condition = ((SourceTable)tbl).getExtractionCondition().getConditionText();
-            if(condition != null && !condition.equals("")) {
-                List<Image> image = new ArrayList<Image>();
-                image.add(MashupGraphUtil.getImage(ImageConstants.FILTER));
-                widget.setGlyphs(image);
-                scene.revalidate();
-                tooltip = tooltip + ";  Extraction Condition: " + condition;
-            }
-            
-            // now add columns.
-            SQLDBColumn[] columns = (SQLDBColumn[]) tbl.getColumnList().toArray(new SQLDBColumn[0]);
-            List<Widget> usedCol = new ArrayList<Widget>();
-            List<Widget> unusedCol = new ArrayList<Widget>();
-            HashMap<String, List<Widget>> categories = new HashMap<String, List<Widget>>();
-            for(SQLDBColumn column : columns) {
-                String pinTooltip = "Scale: " + column.getScale() +
-                        ";  Precision: " + column.getPrecision() +
-                        ";  Type: " + column.getJdbcTypeString();
-                EDMPinWidget columnPin = ((EDMPinWidget)
-                        scene.addPin(nodeID, "nodeID" + "#pin" + pinCounter++));
-                scene.revalidate();
-                columnPin.setPinName(column.getDisplayName());
-                scene.revalidate();
-                List<Image> image = new ArrayList<Image>();
-                if(column.isVisible()) {
-                    if(column.isPrimaryKey()) {
-                        image.add(MashupGraphUtil.getImage(ImageConstants.PRIMARYKEYCOL));
-                        pinTooltip = pinTooltip + "; PRIMARY KEY ";
-                    } else if (column.isForeignKey()) {
-                        image.add(MashupGraphUtil.getImage(ImageConstants.FOREIGNKEYCOL));
-                        image.add(MashupGraphUtil.getImage(ImageConstants.FOREIGNKEY));
-                        pinTooltip = pinTooltip + "; FOREIGN KEY ";
-                    } else {
-                        image.add(MashupGraphUtil.getImage(ImageConstants.COLUMN));
-                    }
-                    usedCol.add(columnPin);
-                } else {
-                    image.add(MashupGraphUtil.getImage(ImageConstants.COLUMN));
-                    unusedCol.add(columnPin);
-                }
-                columnPin.setGlyphs(image);
-                scene.revalidate();
-                columnPin.setToolTipText(pinTooltip);
-                widgets.add(columnPin);
-                sqlIdtoWidgetMap.put(column.getId(), columnPin);
-            }
-            widget.setToolTipText(tooltip);
-            
-            if(usedCol.size() != 0) {
-                categories.put("Used Columns", usedCol);
-            }
-            if(unusedCol.size() != 0) {
-                categories.put("Unused Columns", unusedCol);
-            }
-            widget.sortPins(categories);
-            scene.revalidate();
-            sqlIdtoWidgetMap.put(tbl.getId(), widget);
+            addTableNode((SQLDBTable)model, widget, nodeID);
         } else if (model instanceof SQLJoinTable) {
-            SQLJoinTable joinTbl = (SQLJoinTable) model;
-            String tooltip = "URL: " + joinTbl.getSourceTable().
-                    getParent().getConnectionDefinition().getConnectionURL();
-            widget.setNodeName(joinTbl.getSourceTable().getDisplayName());
-            scene.revalidate();
-            widget.getActions().addAction(
-                    ActionFactory.createPopupMenuAction(new TablePopupProvider(
-                    joinTbl.getSourceTable(), mObj)));
-            scene.revalidate();
-            String condition = joinTbl.getSourceTable().getExtractionCondition().getConditionText();
-            if(condition != null && !condition.equals("")) {
-                List<Image> image = new ArrayList<Image>();
-                image.add(MashupGraphUtil.getImage(ImageConstants.FILTER));
-                widget.setGlyphs(image);
-                scene.revalidate();
-                tooltip = tooltip + ";  Extraction Condition: " + condition;
-            }
-            
-            // now add columns.
-            SQLDBColumn[] columns = (SQLDBColumn[]) joinTbl.getSourceTable().
-                    getColumnList().toArray(new SQLDBColumn[0]);
-            List<Widget> usedCol = new ArrayList<Widget>();
-            List<Widget> unusedCol = new ArrayList<Widget>();
-            HashMap<String, List<Widget>> categories = new HashMap<String, List<Widget>>();
-            for(SQLDBColumn column : columns) {
-                String pinTooltip = "Scale: " + column.getScale() +
-                        ";  Precision: " + column.getPrecision() +
-                        ";  Type: " + column.getJdbcTypeString();
-                EDMPinWidget columnPin = ((EDMPinWidget)
-                        scene.addPin(nodeID, "nodeID" + "#pin" + pinCounter++));
-                scene.revalidate();
-                columnPin.setPinName(column.getDisplayName());
-                scene.revalidate();
-                List<Image> image = new ArrayList<Image>();
-                if(column.isVisible()) {
-                    if(column.isPrimaryKey()) {
-                        image.add(MashupGraphUtil.getImage(ImageConstants.PRIMARYKEYCOL));
-                        pinTooltip = pinTooltip + "; PRIMARY KEY ";
-                    } else if (column.isForeignKey()) {
-                        image.add(MashupGraphUtil.getImage(ImageConstants.FOREIGNKEYCOL));
-                        image.add(MashupGraphUtil.getImage(ImageConstants.FOREIGNKEY));
-                        pinTooltip = pinTooltip + "; FOREIGN KEY ";
-                    } else {
-                        image.add(MashupGraphUtil.getImage(ImageConstants.COLUMN));
-                    }
-                    usedCol.add(columnPin);
-                } else {
-                    image.add(MashupGraphUtil.getImage(ImageConstants.COLUMN));
-                    unusedCol.add(columnPin);
-                }
-                columnPin.setGlyphs(image);
-                scene.revalidate();
-                columnPin.setToolTipText(pinTooltip);
-                scene.revalidate();
-                widgets.add(columnPin);
-                sqlIdtoWidgetMap.put(column.getId(), columnPin);
-            }
-            widget.setToolTipText(tooltip);
-            if(usedCol.size() != 0) {
-                categories.put("Used Columns", usedCol);
-            }
-            if(unusedCol.size() != 0) {
-                categories.put("Unused Columns", unusedCol);
-            }
-            widget.sortPins(categories);
-            sqlIdtoWidgetMap.put(joinTbl.getSourceTable().getId(), widget);
+            addTableNode((SQLDBTable)((SQLJoinTable)model).getSourceTable(),
+                    widget, nodeID);
         }
         widget.getActions().addAction(scene.createWidgetHoverAction());
         scene.revalidate();
@@ -585,6 +380,165 @@ public class MashupGraphManager {
             recursivelyAddNodes((SQLJoinOperator)rightIn.getSQLObject(), right);
             break;
         }
+    }
+    
+    
+    private void addJoinOperatorNode(SQLJoinOperator joinOp, EDMNodeWidget widget, String nodeID) {
+        String nodeName = "";
+        if(joinOp.isRoot()) {
+            nodeName = "ROOT JOIN";
+        } else {
+            nodeName = "JOIN";
+        }
+        String joinType = "";
+        switch(joinOp.getJoinType()) {
+        case SQLConstants.INNER_JOIN:
+            joinType += "INNER JOIN";
+            break;
+        case SQLConstants.RIGHT_OUTER_JOIN:
+            joinType +=  "RIGHT OUTER JOIN";
+            break;
+        case SQLConstants.LEFT_OUTER_JOIN:
+            joinType += "LEFT OUTER JOIN";
+            break;
+        case SQLConstants.FULL_OUTER_JOIN:
+            joinType += "FULL OUTER JOIN";
+        }
+        widget.setNodeName(nodeName);
+        
+        EDMPinWidget joinTypePin = ((EDMPinWidget) scene.addPin(
+                nodeID, "nodeID" + "#pin" + pinCounter++));
+        scene.revalidate();
+        joinTypePin.setPinName("JOIN TYPE");
+        joinTypePin.setToolTipText(joinType);
+        scene.revalidate();
+        List<Image> typeImage = new ArrayList<Image>();
+        typeImage.add(MashupGraphUtil.getImage(ImageConstants.PROPERTIES));
+        joinTypePin.setGlyphs(typeImage);
+        scene.revalidate();
+        widgets.add(joinTypePin);
+        SQLCondition cond = joinOp.getJoinCondition();
+        String condition = "";
+        if(cond != null) {
+            condition = cond.getConditionText();
+            if(condition == null) {
+                condition = "";
+            }
+        }
+        condition = condition.equals("") ? "<NO CONDITION DEFINED>" : condition;
+        EDMPinWidget conditionPin = ((EDMPinWidget) scene.addPin(
+                nodeID, "nodeID" + "#pin" + pinCounter++));
+        scene.revalidate();
+        conditionPin.setPinName("CONDITION");
+        conditionPin.setToolTipText("Join Condition: " + condition);
+        List<Image> image = new ArrayList<Image>();
+        image.add(MashupGraphUtil.getImage(ImageConstants.CONDITION));
+        conditionPin.setGlyphs(image);
+        scene.revalidate();
+        widgets.add(conditionPin);
+        
+        // add popup for join widget.
+        widget.getActions().addAction(
+                ActionFactory.createPopupMenuAction(new JoinPopupProvider(
+                joinOp, mObj)));
+        scene.revalidate();
+        sqlIdtoWidgetMap.put(joinOp.getId(), widget);
+    }
+    
+    private void addRuntimeNode(RuntimeInput rtInput, EDMNodeWidget widget,
+            String nodeID) {
+        widget.setNodeName("Runtime Input");
+        Iterator it = rtInput.getRuntimeAttributeMap().keySet().iterator();
+        while(it.hasNext()) {
+            String name = (String)it.next();
+            EDMPinWidget columnPin = ((EDMPinWidget)
+                    scene.addPin(nodeID, "nodeID" + "#pin" + pinCounter++));
+            scene.revalidate();
+            columnPin.setPinName(name);
+            List<Image> image = new ArrayList<Image>();
+            image.add(MashupGraphUtil.getImage(ImageConstants.RUNTIMEATTR));
+            columnPin.setGlyphs(image);
+            scene.revalidate();
+            RuntimeAttribute rtAttr = (RuntimeAttribute) rtInput.
+                    getRuntimeAttributeMap().get(name);
+            columnPin.setToolTipText("Value: " + rtAttr.getAttributeValue());
+            widgets.add(columnPin);
+        }
+        
+        // add popup for runtime inputs.
+        widget.getActions().addAction(
+                ActionFactory.createPopupMenuAction(
+                new RuntimeModelPopupProvider(rtInput, mObj)));
+        scene.revalidate();
+        sqlIdtoWidgetMap.put(rtInput.getId(), widget);
+    }
+    
+    private void addTableNode(SQLDBTable tbl, EDMNodeWidget widget, String nodeID) {
+        String tooltip = "URL: " + tbl.getParent().getConnectionDefinition().
+                getConnectionURL();
+        widget.setNodeName(tbl.getDisplayName());
+        scene.revalidate();
+        widget.getActions().addAction(
+                ActionFactory.createPopupMenuAction(new TablePopupProvider(
+                tbl, mObj)));
+        scene.revalidate();
+        String condition = ((SourceTable)tbl).getExtractionCondition().getConditionText();
+        if(condition != null && !condition.equals("")) {
+            List<Image> image = new ArrayList<Image>();
+            image.add(MashupGraphUtil.getImage(ImageConstants.FILTER));
+            widget.setGlyphs(image);
+            scene.revalidate();
+            tooltip = tooltip + ";  Extraction Condition: " + condition;
+        }
+        
+        // now add columns.
+        SQLDBColumn[] columns = (SQLDBColumn[]) tbl.getColumnList().
+                toArray(new SQLDBColumn[0]);
+        List<Widget> usedCol = new ArrayList<Widget>();
+        List<Widget> unusedCol = new ArrayList<Widget>();
+        Map<String, List<Widget>> categories = new LinkedHashMap<String, List<Widget>>();
+        for(SQLDBColumn column : columns) {
+            String pinTooltip = "Scale: " + column.getScale() +
+                    ";  Precision: " + column.getPrecision() +
+                    ";  Type: " + column.getJdbcTypeString();
+            EDMPinWidget columnPin = ((EDMPinWidget)
+                    scene.addPin(nodeID, "nodeID" + "#pin" + pinCounter++));
+            scene.revalidate();
+            columnPin.setPinName(column.getDisplayName());
+            scene.revalidate();
+            List<Image> image = new ArrayList<Image>();
+            if(column.isVisible()) {
+                if(column.isPrimaryKey()) {
+                    image.add(MashupGraphUtil.getImage(ImageConstants.PRIMARYKEYCOL));
+                    pinTooltip = pinTooltip + "; PRIMARY KEY ";
+                } else if (column.isForeignKey()) {
+                    image.add(MashupGraphUtil.getImage(ImageConstants.FOREIGNKEYCOL));
+                    image.add(MashupGraphUtil.getImage(ImageConstants.FOREIGNKEY));
+                    pinTooltip = pinTooltip + "; FOREIGN KEY ";
+                } else {
+                    image.add(MashupGraphUtil.getImage(ImageConstants.COLUMN));
+                }
+                usedCol.add(columnPin);
+            } else {
+                image.add(MashupGraphUtil.getImage(ImageConstants.COLUMN));
+                unusedCol.add(columnPin);
+            }
+            columnPin.setGlyphs(image);
+            scene.revalidate();
+            columnPin.setToolTipText(pinTooltip);
+            scene.revalidate();
+            widgets.add(columnPin);
+            sqlIdtoWidgetMap.put(column.getId(), columnPin);
+        }
+        widget.setToolTipText(tooltip);
+        if(usedCol.size() != 0) {
+            categories.put("Used Columns", usedCol);
+        }
+        if(unusedCol.size() != 0) {
+            categories.put("Unused Columns", unusedCol);
+        }
+        widget.sortPins(categories);
+        sqlIdtoWidgetMap.put(tbl.getId(), widget);
     }
     
     private void removeAllChildren() {

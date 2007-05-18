@@ -300,7 +300,7 @@ public class EDMNodeWidget extends Widget implements StateModel.Listener, EDMMin
      * Sorts and assigns pins into categories.
      * @param pinsCategories the map of category name as key and a list of pin widgets as value
      */
-    public void sortPins(HashMap<String, List<Widget>> pinsCategories) {
+    public void sortPins(Map<String, List<Widget>> pinsCategories) {
         List<Widget> previousPins = getPinWidgets();
         ArrayList<Widget> unresolvedPins = new ArrayList<Widget> (previousPins);
         
@@ -312,8 +312,7 @@ public class EDMNodeWidget extends Widget implements StateModel.Listener, EDMMin
         
         ArrayList<String> unusedCategories = new ArrayList<String> (pinCategoryWidgets.keySet());
         
-        ArrayList<String> categoryNames = new ArrayList<String> (pinsCategories.keySet());
-        Collections.sort(categoryNames);
+        ArrayList<String> categoryNames = new ArrayList<String> (pinsCategories.keySet());        
         
         ArrayList<Widget> newWidgets = new ArrayList<Widget> ();
         for (String categoryName : categoryNames) {
