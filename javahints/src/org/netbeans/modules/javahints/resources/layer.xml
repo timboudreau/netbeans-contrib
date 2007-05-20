@@ -24,10 +24,6 @@ Microsystems, Inc. All Rights Reserved.
         <folder name="rules">
             <folder name="errors">
 <!--                <file name="org-netbeans-modules-javahints-DeclarationFixer.instance" />-->
-                <file name="org-netbeans-modules-javahints-ChangeTypeCreator.instance"/>
-                <file name="org-netbeans-modules-javahints-MakeVariableFinal.instance"/>
-                <file name="org-netbeans-modules-javahints-RemoveUselessCastCreator.instance"/>
-                <file name="org-netbeans-modules-javahints-SuppressWarningsFixer.instance"/>
                 <file name="org-netbeans-modules-javahints-TypoDetector.instance"/>
             </folder>
 
