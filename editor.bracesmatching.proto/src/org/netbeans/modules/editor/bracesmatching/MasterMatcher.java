@@ -50,9 +50,11 @@ public final class MasterMatcher {
     public static final String PROP_ALLOWED_SEARCH_DIRECTION = "nbeditor-bracesMatching-allowedSearchDirection"; //NOI18N
     public static final String D_BACKWARD = "backward"; //NOI18N
     public static final String D_FORWARD = "forward"; //NOI18N
-    public static final String D_BACKWARD_PREFERRED = "backward-preferred"; //NOI18N
-    public static final String D_FORWARD_PREFERRED = "forward-preferred"; //NOI18N
     public static final String D_BOTH = "both"; //NOI18N
+
+    public static final String PROP_CARET_BIAS = "nbeditor-bracesMatching-caretBias"; //NOI18N
+    public static final String B_BACKWARD = "backward"; //NOI18N
+    public static final String B_FORWARD = "forward"; //NOI18N
     
     public static final String PROP_MAX_BACKWARD_LOOKAHEAD = "nbeditor-bracesMatching-maxBackwardLookahead"; //NOI18N
     public static final String PROP_MAX_FORWARD_LOOKAHEAD = "nbeditor-bracesMatching-maxForwardLookahead"; //NOI18N
@@ -76,6 +78,7 @@ public final class MasterMatcher {
     ) {
         synchronized (LOCK) {
             Object allowedSearchDirection = getAllowedDirection();
+            Object caretBias = getCaretBias();
             int maxBwdLookahead = getMaxLookahead(true);
             int maxFwdLookahead = getMaxLookahead(false);
             
@@ -83,6 +86,7 @@ public final class MasterMatcher {
                 // a task is running, perhaps just add a new job to it
                 if (lastResult.getCaretOffset() == caretOffset && 
                     lastResult.getAllowedDirection() == allowedSearchDirection &&
+                    lastResult.getCaretBias() == caretBias &&
                     lastResult.getMaxBwdLookahead() == maxBwdLookahead &&
                     lastResult.getMaxFwdLookahead() == maxBwdLookahead
                 ) {
@@ -96,7 +100,7 @@ public final class MasterMatcher {
 
             if (task == null) {
                 // Remember the last request
-                lastResult = new Result(document, caretOffset, allowedSearchDirection, maxBwdLookahead, maxFwdLookahead);
+                lastResult = new Result(document, caretOffset, allowedSearchDirection, caretBias, maxBwdLookahead, maxFwdLookahead);
                 lastResult.addHighlightingJob(highlights, matchedColoring, mismatchedColoring);
 
                 // Fire up a new task
@@ -115,6 +119,7 @@ public final class MasterMatcher {
         
         synchronized (LOCK) {
             Object allowedSearchDirection = getAllowedDirection();
+            Object caretBias = getCaretBias();
             int maxBwdLookahead = getMaxLookahead(true);
             int maxFwdLookahead = getMaxLookahead(false);
 
@@ -122,6 +127,7 @@ public final class MasterMatcher {
                 // a task is running, perhaps just add a new job to it
                 if (lastResult.getCaretOffset() == caretOffset && 
                     lastResult.getAllowedDirection() == allowedSearchDirection &&
+                    lastResult.getCaretBias() == caretBias &&
                     lastResult.getMaxBwdLookahead() == maxBwdLookahead &&
                     lastResult.getMaxFwdLookahead() == maxBwdLookahead
                 ) {
@@ -136,7 +142,7 @@ public final class MasterMatcher {
 
             if (task == null) {
                 // Remember the last request
-                lastResult = new Result(document, caretOffset, allowedSearchDirection, maxBwdLookahead, maxFwdLookahead);
+                lastResult = new Result(document, caretOffset, allowedSearchDirection, caretBias, maxBwdLookahead, maxFwdLookahead);
                 lastResult.addNavigationJob(caret, select);
 
                 // Fire up a new task
@@ -166,6 +172,11 @@ public final class MasterMatcher {
     private Object getAllowedDirection() {
         Object allowedDirection = component.getClientProperty(PROP_ALLOWED_SEARCH_DIRECTION);
         return allowedDirection != null ? allowedDirection : D_BOTH;
+    }
+
+    private Object getCaretBias() {
+        Object caretBias = component.getClientProperty(PROP_CARET_BIAS);
+        return caretBias != null ? caretBias : B_BACKWARD;
     }
 
     private int getMaxLookahead(boolean backward) {
@@ -220,40 +231,49 @@ public final class MasterMatcher {
     private static void navigateAreas(
         int [] origin, 
         int [] matches,
+        Object caretBias,
         Caret caret,
         boolean select
     ) {
         if (matches != null && matches.length >= 2) {
-            int newDotBackward = Integer.MIN_VALUE;
-            int newDotForward = Integer.MAX_VALUE;
+            int newDotBackwardIdx = -1;
+            int newDotForwardIdx = -1;
             
             for(int i = 0; i < matches.length / 2; i++) {
-                if (matches[i * 2] < origin[0] && matches[i * 2] > newDotBackward) {
-                    newDotBackward = matches[i * 2 + 1];
+                if (matches[i * 2] < origin[0] && 
+                    (newDotBackwardIdx == -1 || matches[i * 2] > matches[newDotBackwardIdx * 2])
+                ) {
+                    newDotBackwardIdx = i;
                 }
                 
-                if (matches[i * 2] > origin[1] && matches[i * 2] < newDotForward) {
-                    if (select) {
-                        newDotForward = matches[i * 2];
-                    } else {
-                        newDotForward = matches[i * 2 + 1];
-                    }
+                if (matches[i * 2] > origin[1] && 
+                    (newDotForwardIdx == -1 || matches[i * 2] < matches[newDotForwardIdx * 2])
+                ) {
+                    newDotForwardIdx = i * 2;
                 }
             }
             
-            if (newDotBackward != Integer.MIN_VALUE) {
+            if (newDotBackwardIdx != -1) {
                 if (select) {
                     caret.setDot(origin[0]);
-                    caret.moveDot(newDotBackward);
+                    caret.moveDot(matches[2 * newDotBackwardIdx + 1]);
                 } else {
-                    caret.setDot(newDotBackward);
+                    if (B_BACKWARD.equalsIgnoreCase(caretBias.toString())) {
+                        caret.setDot(matches[2 * newDotBackwardIdx + 1]);
+                    } else {
+                        caret.setDot(matches[2 * newDotBackwardIdx]);
+                    }
                 }
-            } else if (newDotForward != Integer.MAX_VALUE) {
+            } else if (newDotForwardIdx != -1) {
                 if (select) {
                     caret.setDot(origin[1]);
-                    caret.moveDot(newDotForward);
+                    caret.moveDot(matches[2 * newDotForwardIdx]);
                 } else {
-                    caret.setDot(newDotForward);
+                    if (B_BACKWARD.equalsIgnoreCase(caretBias.toString())) {
+                        caret.setDot(matches[2 * newDotForwardIdx + 1]);
+                    } else {
+                        caret.setDot(matches[2 * newDotForwardIdx]);
+                    }
                 }
             }
         }
@@ -264,6 +284,7 @@ public final class MasterMatcher {
         private final Document document;
         private final int caretOffset;
         private final Object allowedDirection;
+        private final Object caretBias;
         private final int maxBwdLookahead;
         private final int maxFwdLookahead;
 
@@ -279,12 +300,14 @@ public final class MasterMatcher {
             Document document, 
             int caretOffset, 
             Object allowedDirection,
+            Object caretBias,
             int maxBwdLookahead,
             int maxFwdLookahead
         ) {
             this.document = document;
             this.caretOffset = caretOffset;
             this.allowedDirection = allowedDirection;
+            this.caretBias = caretBias;
             this.maxBwdLookahead = maxBwdLookahead;
             this.maxFwdLookahead = maxFwdLookahead;
         }
@@ -312,6 +335,10 @@ public final class MasterMatcher {
         }
         
         public Object getAllowedDirection() {
+            return allowedDirection;
+        }
+        
+        public Object getCaretBias() {
             return allowedDirection;
         }
         
@@ -354,7 +381,7 @@ public final class MasterMatcher {
                     }
                     
                     for(Object [] job : navigationJobs) {
-                        navigateAreas(origin, matches, (Caret) job[0], (Boolean) job[1]);
+                        navigateAreas(origin, matches, caretBias, (Caret) job[0], (Boolean) job[1]);
                     }
                     
                     // Signal that the task is done.
@@ -374,49 +401,54 @@ public final class MasterMatcher {
                 BracesMatcher [] matcher = new BracesMatcher[1];
 
                 if (D_BACKWARD.equalsIgnoreCase(allowedDirection.toString())) {
-                    origin = findOrigin(factories, true, matcher);
+                    if (B_BACKWARD.equalsIgnoreCase(caretBias.toString())) {
+                        origin = findOrigin(factories, 0, true, matcher);
+                    } else {
+                        origin = findOrigin(factories, 1, true, matcher);
+                    }
                 } else if (D_FORWARD.equalsIgnoreCase(allowedDirection.toString())) {
-                    origin = findOrigin(factories, false, matcher);
+                    if (B_BACKWARD.equalsIgnoreCase(caretBias.toString())) {
+                        origin = findOrigin(factories, -1, false, matcher);
+                    } else {
+                        origin = findOrigin(factories, 0, false, matcher);
+                    }
                 } else {
                     boolean firstBackward;
-                    boolean showAmbiguousOrigins;
+                    int caretAdjustment;
                     
-                    if (D_BACKWARD_PREFERRED.equalsIgnoreCase(allowedDirection.toString())) {
-                        firstBackward = true;
-                        showAmbiguousOrigins = true;
-                    } else if (D_FORWARD_PREFERRED.equalsIgnoreCase(allowedDirection.toString())) {
+                    if (B_BACKWARD.equalsIgnoreCase(caretBias.toString())) {
                         firstBackward = false;
-                        showAmbiguousOrigins = true;
-                    } else if (D_BOTH.equalsIgnoreCase(allowedDirection.toString())) {
-                        firstBackward = true;
-                        showAmbiguousOrigins = false;
+                        caretAdjustment = 0;
                     } else {
-                        throw new IllegalStateException("The property " + PROP_ALLOWED_SEARCH_DIRECTION + " has invalid value: '" + allowedDirection + "'"); //NOI18N
+                        firstBackward = true;
+                        caretAdjustment = +1;
                     }
                     
-                    origin = findOrigin(factories, firstBackward, matcher);
+                    origin = findOrigin(factories, caretAdjustment, firstBackward, matcher);
                     if (origin != null) {
-                        if ((firstBackward && origin[1] < caretOffset) ||
-                            (!firstBackward && origin[0] > caretOffset))
+                        if ((firstBackward && origin[1] < caretOffset + caretAdjustment) ||
+                            (!firstBackward && origin[0] > caretOffset + caretAdjustment))
                         {
                             BracesMatcher [] oppositeDirectionMatcher = new BracesMatcher[1];
-                            int oppositeDirectionOrigin [] = findOrigin(factories, !firstBackward, oppositeDirectionMatcher);
+                            int oppositeDirectionOrigin [] = findOrigin(
+                                factories, 0, !firstBackward, oppositeDirectionMatcher);
+
                             if (oppositeDirectionOrigin != null) {
                                 if ((firstBackward && oppositeDirectionOrigin[0] == caretOffset) ||
                                     (!firstBackward && oppositeDirectionOrigin[1] == caretOffset))
                                 {
                                     origin = oppositeDirectionOrigin;
-                                    matcher = oppositeDirectionMatcher;
-                                } else if (!showAmbiguousOrigins) {
+                                    matcher[0] = oppositeDirectionMatcher[0];
+                                } else {
                                     origin = null;
                                 }
                             }
                         }
                     } else {
-                        origin = findOrigin(factories, !firstBackward, matcher);
+                        origin = findOrigin(factories, 0, !firstBackward, matcher);
                     }
                 }
-
+                
                 if (origin == null || Thread.currentThread().isInterrupted()) {
                     // no original area, nothing to search for
                     return;
@@ -468,19 +500,28 @@ public final class MasterMatcher {
         
         private int [] findOrigin(
             Collection<? extends BracesMatcherFactory> factories, 
+            int caretOffsetAdjustment,
             boolean backward, 
             BracesMatcher [] matcher
         ) throws InterruptedException {
             Element paragraph = DocumentUtilities.getParagraphElement(document, caretOffset);
-            int lookahead = 0;
             
+            int adjustedCaretOffset = caretOffset + caretOffsetAdjustment;
+            if (adjustedCaretOffset < paragraph.getStartOffset()) {
+                adjustedCaretOffset = paragraph.getStartOffset();
+            }
+            if (adjustedCaretOffset > paragraph.getEndOffset()) {
+                adjustedCaretOffset = paragraph.getEndOffset();
+            }
+            
+            int lookahead = 0;
             if (backward) {
-                lookahead = caretOffset - paragraph.getStartOffset();
+                lookahead = adjustedCaretOffset - paragraph.getStartOffset();
                 if (lookahead > maxBwdLookahead) {
                     lookahead = maxBwdLookahead;
                 }
             } else {
-                lookahead = paragraph.getEndOffset() - caretOffset;
+                lookahead = paragraph.getEndOffset() - adjustedCaretOffset;
                 if (lookahead > maxFwdLookahead) {
                     lookahead = maxFwdLookahead;
                 }
@@ -489,7 +530,7 @@ public final class MasterMatcher {
             if (lookahead > 0) {
                 MatcherContext context = SpiAccessor.get().createCaretContext(
                     document, 
-                    caretOffset, 
+                    adjustedCaretOffset, 
                     backward, 
                     lookahead
                 );

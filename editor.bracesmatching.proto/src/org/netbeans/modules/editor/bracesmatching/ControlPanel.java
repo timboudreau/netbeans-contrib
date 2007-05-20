@@ -26,10 +26,13 @@ public class ControlPanel extends javax.swing.JPanel {
     
     private static String [][] SEARCH_DIRECTIONS = new String [][] {
         new String [] { MasterMatcher.D_BACKWARD, "Backward Only" }, //NOI18N
-        new String [] { MasterMatcher.D_BACKWARD_PREFERRED, "Backward Preferred" }, //NOI18N
         new String [] { MasterMatcher.D_FORWARD, "Forward Only" }, //NOI18N
-        new String [] { MasterMatcher.D_FORWARD_PREFERRED, "Forward Preferred" }, //NOI18N
         new String [] { MasterMatcher.D_BOTH, "Both" }, //NOI18N
+    };
+    
+    private static String [][] CARET_BIAS = new String [][] {
+        new String [] { MasterMatcher.B_BACKWARD, "Backward (before caret)" }, //NOI18N
+        new String [] { MasterMatcher.B_FORWARD, "Forward (after caret)" }, //NOI18N
     };
     
     private JTextComponent component;
@@ -43,12 +46,14 @@ public class ControlPanel extends javax.swing.JPanel {
         this.backwardLookahead.setText(getBwdLookahead(component));
         this.forwardLookahead.setText(getFwdLookahead(component));
         this.searchDirection.setSelectedItem(getSearchDirection(component));
+        this.caretBias.setSelectedItem(getCaretBias(component));
     }
 
     public void applyChanges() {
         setBwdLookahead(component, backwardLookahead.getText());
         setFwdLookahead(component, forwardLookahead.getText());
         setSearchDirection(component, (String)searchDirection.getSelectedItem());
+        setCaretBias(component, (String)caretBias.getSelectedItem());
     }
     
     private static String getBwdLookahead(JTextComponent component) {
@@ -103,6 +108,32 @@ public class ControlPanel extends javax.swing.JPanel {
         component.putClientProperty(MasterMatcher.PROP_ALLOWED_SEARCH_DIRECTION, s);
     }
 
+    private static String getCaretBias(JTextComponent component) {
+        Object value = component.getClientProperty(MasterMatcher.PROP_CARET_BIAS);
+        if (value != null) {
+            String s = value.toString();
+            for (String [] pair : CARET_BIAS) {
+                if (pair[0].equals(s)) {
+                    return pair[1];
+                }
+            }
+        }
+        return ""; //NOI18N
+    }
+
+    private static void setCaretBias(JTextComponent component, String value) {
+        String s = null;
+        if (value != null) {
+            for (String [] pair : CARET_BIAS) {
+                if (pair[1].equals(value)) {
+                    s = pair[0];
+                    break;
+                }
+            }
+        }
+        component.putClientProperty(MasterMatcher.PROP_CARET_BIAS, s);
+    }
+
     /** This method is called from within the constructor to
      * initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is
@@ -117,6 +148,8 @@ public class ControlPanel extends javax.swing.JPanel {
         backwardLookahead = new javax.swing.JTextField();
         forwardLookahead = new javax.swing.JTextField();
         searchDirection = new javax.swing.JComboBox();
+        jLabel4 = new javax.swing.JLabel();
+        caretBias = new javax.swing.JComboBox();
 
         jLabel1.setText(org.openide.util.NbBundle.getMessage(ControlPanel.class, "jLabel1.text")); // NOI18N
 
@@ -128,7 +161,11 @@ public class ControlPanel extends javax.swing.JPanel {
 
         forwardLookahead.setText(org.openide.util.NbBundle.getMessage(ControlPanel.class, "forwardLookahead.text")); // NOI18N
 
-        searchDirection.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "", "Backward Only", "Backward Preferred", "Forward Only", "Forward Preferred", "Both" }));
+        searchDirection.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "", "Backward", "Forward", "Both" }));
+
+        jLabel4.setText(org.openide.util.NbBundle.getMessage(ControlPanel.class, "jLabel4.text")); // NOI18N
+
+        caretBias.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "", "Backward (before caret)", "Forward (after caret)" }));
 
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
         this.setLayout(layout);
@@ -148,7 +185,11 @@ public class ControlPanel extends javax.swing.JPanel {
                     .add(layout.createSequentialGroup()
                         .add(jLabel3, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 183, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(searchDirection, 0, 181, Short.MAX_VALUE)))
+                        .add(searchDirection, 0, 181, Short.MAX_VALUE))
+                    .add(layout.createSequentialGroup()
+                        .add(jLabel4, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 183, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                        .add(caretBias, 0, 181, Short.MAX_VALUE)))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -166,6 +207,10 @@ public class ControlPanel extends javax.swing.JPanel {
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(jLabel3)
                     .add(searchDirection, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                    .add(jLabel4)
+                    .add(caretBias, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
@@ -173,10 +218,12 @@ public class ControlPanel extends javax.swing.JPanel {
     
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JTextField backwardLookahead;
+    private javax.swing.JComboBox caretBias;
     private javax.swing.JTextField forwardLookahead;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
+    private javax.swing.JLabel jLabel4;
     private javax.swing.JComboBox searchDirection;
     // End of variables declaration//GEN-END:variables
     
