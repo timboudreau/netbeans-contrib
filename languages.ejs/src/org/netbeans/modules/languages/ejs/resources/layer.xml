@@ -46,7 +46,8 @@
         <folder name="MIMEResolver">
             <file name="EJSResolver.xml" url="EJSResolver.xml">
                 <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.languages.ejs.resources.Bundle"/>
-            </file>
+                <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/languages/ejs/resources/ejs.png"/>
+           </file>
         </folder>
     </folder>
     <folder name="Templates">

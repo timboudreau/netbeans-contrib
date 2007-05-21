@@ -35,7 +35,7 @@ javascript = <DELIMITER> <JAVASCRIPT> (<DELIMITER, "%>">);
 NAVIGATOR:javascript: {
     display_name: "<% $JAVASCRIPT$ %>";
     tooltip: "$$";
-    icon: "org/netbeans/modules/languages/ejs/resources/ejs.png";
+    icon: "org/netbeans/modules/languages/ejs/resources/js.png";
 }
 
 ########### code folding #######################################################

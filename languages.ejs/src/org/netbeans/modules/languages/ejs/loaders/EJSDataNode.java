@@ -6,7 +6,7 @@ import org.openide.util.Lookup;
 
 public class EJSDataNode extends DataNode {
     
-    private static final String IMAGE_ICON_BASE = "org/netbeans/modules/ejs/ejs/resources/ejs16.gif";
+    private static final String IMAGE_ICON_BASE = "org/netbeans/modules/languages/ejs/resources/ejs16.gif";
     
     public EJSDataNode(EJSDataObject obj) {
         super(obj, Children.LEAF);
