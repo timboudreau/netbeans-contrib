@@ -19,6 +19,6 @@ Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
 Microsystems, Inc. All Rights Reserved.
 -->
 
-<project name="autoupdate/services/test-unit" basedir="." default="all">
+<project name="contrib/modulemanager/test-unit" basedir="." default="all">
     <import file="../../../nbbuild/templates/xtest-unit.xml"/>
 </project>
