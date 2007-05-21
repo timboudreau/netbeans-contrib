@@ -95,7 +95,11 @@ Microsystems, Inc. All Rights Reserved.
         <attr name="url_key" stringvalue="URL_napkin"/>
         <attr name="enabled" boolvalue="true"/>
       </file>
-    </folder>
+      <file name="ajax.settings" url="uc.xml">
+        <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.extraupdatecenters.Bundle"/>
+        <attr name="url_key" stringvalue="URL_ajax"/>
+        <attr name="enabled" boolvalue="true"/>
+      </file>    </folder>
 
   </folder> <!-- Services -->
 
