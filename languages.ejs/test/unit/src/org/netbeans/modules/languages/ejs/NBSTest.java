@@ -34,9 +34,9 @@ public class NBSTest extends TestCase {
     }
     
     public void testFirst () {
-        InputStream is = getClass ().getClassLoader ().getResourceAsStream ("org/netbeans/modules/languages/ejs/EJS.nbs");
+        InputStream is = getClass ().getClassLoader ().getResourceAsStream ("org/netbeans/modules/languages/ejs/resources/EJS.nbs");
         try {
-            Language l = NBSLanguageReader.readLanguage ("test", is, "test/x-ejs");
+            Language l = NBSLanguageReader.readLanguage (is,"test",  "test/x-ejs");
             List r = l.getAnalyser ().getRules ();
             AnalyserAnalyser.printRules (r, null);
             Map f = Petra.first2 (r);
