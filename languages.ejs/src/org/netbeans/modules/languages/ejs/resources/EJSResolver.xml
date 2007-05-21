@@ -5,4 +5,8 @@
         <ext name="ejs"/>
         <resolver mime="text/x-ejs"/>
     </file>
+    <file>
+        <ext name="ejsp"/>
+        <resolver mime="text/x-ejs"/>
+    </file>
 </MIME-resolver>
