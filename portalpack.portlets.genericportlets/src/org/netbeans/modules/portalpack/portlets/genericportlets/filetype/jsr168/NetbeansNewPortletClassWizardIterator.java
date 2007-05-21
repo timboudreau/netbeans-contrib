@@ -28,6 +28,7 @@ import java.awt.Component;
 import java.io.File;
 import java.io.IOException;
 import java.util.Collections;
+import java.util.LinkedHashSet;
 import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.logging.Level;
@@ -123,7 +124,7 @@ public final class NetbeansNewPortletClassWizardIterator implements WizardDescri
     }
     
     public Set instantiate() throws IOException {
-        
+        Set resultSet = new LinkedHashSet();
         Project project = Templates.getProject(wizard);
         String className = Templates.getTargetName(wizard);
         FileObject pkg = Templates.getTargetFolder(wizard);
@@ -159,6 +160,7 @@ public final class NetbeansNewPortletClassWizardIterator implements WizardDescri
         if(filePath != null && filePath.trim().length() != 0) {
             FileObject fob = FileUtil.toFileObject(new File(filePath));
             if (fob != null) {  //the process succeeded
+                resultSet.add(fob);
                 DataObject dob = DataObject.find(fob);
                 OpenCookie oc = (OpenCookie) dob.getCookie(OpenCookie.class);
                 if (oc != null) { //the Image module is installed
@@ -168,7 +170,7 @@ public final class NetbeansNewPortletClassWizardIterator implements WizardDescri
         }
         
         
-        return Collections.EMPTY_SET;
+        return resultSet;
         
     }
     
