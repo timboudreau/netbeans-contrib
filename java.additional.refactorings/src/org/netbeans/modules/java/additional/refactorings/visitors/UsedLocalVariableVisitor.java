@@ -16,20 +16,27 @@
  */
 package org.netbeans.modules.java.additional.refactorings.visitors;
 
+import com.sun.source.tree.AssignmentTree;
+import com.sun.source.tree.ExpressionTree;
 import com.sun.source.tree.IdentifierTree;
+import com.sun.source.tree.Tree;
+import com.sun.source.tree.Tree.Kind;
 import com.sun.source.tree.VariableTree;
 import com.sun.source.util.SourcePositions;
 import com.sun.source.util.TreePath;
 import com.sun.source.util.TreePathScanner;
+import java.util.Collections;
 import java.util.EnumSet;
+import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
+import java.util.Map;
 import java.util.Set;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.TypeMirror;
 import org.netbeans.api.java.source.CompilationInfo;
+import org.netbeans.api.java.source.TypeMirrorHandle;
 
 /**
  *
@@ -46,13 +53,10 @@ public final class UsedLocalVariableVisitor extends TreePathScanner<Void, Set<Pa
         this.info = info;
     }
     
-    private HashSet <TypeMirror> types = new HashSet <TypeMirror> ();
-    
     private static final Set<ElementKind> VARIABLES = EnumSet.of(ElementKind.EXCEPTION_PARAMETER, ElementKind.PARAMETER, ElementKind.LOCAL_VARIABLE);
     
     @Override
     public Void visitIdentifier(IdentifierTree node, Set<ParamDesc> p) {
-        System.err.println("Visit identifier " + node);
         Element el = info.getTrees().getElement(getCurrentPath());
         TreePath elPath = el != null ? info.getTrees().getPath(el) : null;
         SourcePositions positions = info.getTrees().getSourcePositions();
@@ -62,16 +66,11 @@ public final class UsedLocalVariableVisitor extends TreePathScanner<Void, Set<Pa
         if (include) {
             if (el != null && elPath != null && VARIABLES.contains(el.getKind())) {
                 VariableElement v = (VariableElement) el;
-
-                TypeMirror type = v.asType();
-                if (!types.contains(type)) {
+                if (!locallyDefinedNames.contains(node.getName().toString())) {
                     p.add(new ParamDesc(v));
-                    types.add(type);
                 }
+                saveType (v);
             }
-        } else {
-            System.err.println("Excluded " + node + " [" + start + "-" + end + "] selection  " + 
-                    excludeStart + "-" + excludeEnd);
         }
         return super.visitIdentifier(node, p);
     }
@@ -80,32 +79,61 @@ public final class UsedLocalVariableVisitor extends TreePathScanner<Void, Set<Pa
         return !((start < excludeStart && end < excludeStart) ||
                 (start > excludeEnd));
     }
-    
-    public void pruneLocallyDefined (Set <ParamDesc> desc) {
-        for (Iterator <ParamDesc> i = desc.iterator(); i.hasNext();) {
-            String s;
-            if (locallyDefinedNames.contains (s = i.next().getName().toString())) {
-                System.err.println("Pruned " + s);
-                i.remove();
-            }
-        }
-    }
-    
+
     Set <String> locallyDefinedNames = new HashSet <String> ();
+
     
     @Override
     public Void visitVariable(VariableTree tree, Set<ParamDesc> set) {
-        System.err.println("Visit variable " + tree);
         SourcePositions positions = info.getTrees().getSourcePositions();
         long start = positions.getStartPosition(info.getCompilationUnit(), tree);
         long end = positions.getEndPosition(info.getCompilationUnit(), tree);
         //Make sure we didn't catch anything like loop variables that are actually
         //defined in the new method
-        if (!notInExcludedRange(start, end)) {
-            locallyDefinedNames.add (tree.getName().toString());
-        } else {
-            System.err.println("Variable " + tree.getName() + " is locally defined");
+        if (notInExcludedRange(start, end)) {
+            String nm = tree.getName().toString();
+            locallyDefinedNames.add (nm);
         }
+        saveType (tree);
         return super.visitVariable(tree, set);
+    }
+    
+    private void saveType (VariableElement el) {
+        TypeMirror typeMirror = el.asType();
+        TypeMirrorHandle handle = TypeMirrorHandle.create(typeMirror);
+        VariableTree vt = (VariableTree) info.getTrees().getTree(el);
+        names2types.put (vt.getName().toString(), handle);
+    }
+    
+    private void saveType (VariableTree tree) {
+        Tree type = tree.getType();
+        TypeMirror typeMirror = info.getTrees().getTypeMirror(TreePath.getPath(info.getCompilationUnit(), type));
+        TypeMirrorHandle handle = TypeMirrorHandle.create(typeMirror);
+        names2types.put (tree.getName().toString(), handle);
+    }
+    
+    Map <String, TypeMirrorHandle> names2types = new HashMap<String, TypeMirrorHandle>();
+    Set <String> locallyAssigned = new HashSet<String> ();
+    
+    public TypeMirrorHandle getType (String varName) {
+        TypeMirrorHandle result = names2types.get(varName);
+        return result;
+    }
+    
+    @Override
+    public Void visitAssignment(AssignmentTree tree, Set<ParamDesc> set) {
+        ExpressionTree var = tree.getVariable();
+        if (var.getKind() == Kind.IDENTIFIER && var instanceof IdentifierTree) {
+            IdentifierTree id = (IdentifierTree) var;
+            String nm = id.getName().toString();
+            if (!locallyDefinedNames.contains(nm)) {
+                locallyAssigned.add (nm);
+            }
+        }
+        return super.visitAssignment(tree, set);
+    }
+    
+    public Set <String> getLocallyAssigned() {
+        return Collections.<String>unmodifiableSet(locallyAssigned);
     }
 }

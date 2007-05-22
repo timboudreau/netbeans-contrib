@@ -22,9 +22,7 @@ import com.sun.source.tree.CompilationUnitTree;
 import com.sun.source.tree.ExpressionTree;
 import com.sun.source.tree.MethodTree;
 import com.sun.source.tree.ModifiersTree;
-import com.sun.source.tree.StatementTree;
 import com.sun.source.tree.Tree;
-import com.sun.source.tree.Tree.Kind;
 import com.sun.source.tree.TypeParameterTree;
 import com.sun.source.tree.VariableTree;
 import com.sun.source.util.SourcePositions;
@@ -83,6 +81,8 @@ public abstract class Utils {
             TreePath path = TreePath.getPath(parent, tree);
             TreePathHandle handle = TreePathHandle.create(path, info);
             result.add (handle);
+            assert handle.resolve(info) != null : "Newly created TreePathHandle resolves to null"; //NOI18N
+            assert handle.resolve(info).getLeaf() != null : "Newly created TreePathHandle.getLeaf() resolves to null"; //NOI18N            
         }
         return result;
     }
@@ -183,9 +183,6 @@ public abstract class Utils {
         return result;
     }        
     
-    /*
-    
-    
     public static List <TreePath> toPaths (TreePath parent, List <? extends Tree> trees, CompilationInfo info) {
         List <TreePath> result = new ArrayList <TreePath> (trees.size());
         for (Tree tree : trees) {
@@ -221,84 +218,4 @@ public abstract class Utils {
         }
         return result;
     }
-     */ 
-    
-    public static <T extends Tree> List <T> fromHackedHandles (List <FakeTreePathHandle> l, WorkingCopy copy) {
-        List <T> result = new ArrayList <T> (l.size());
-        for (FakeTreePathHandle f : l) {
-            result.add ((T) f.resolveToTree(copy));            
-        }
-        return result;
-    }
-    
-    public static List <FakeTreePathHandle> toHackedHandles (TreePath parent, List <? extends Tree> trees, WorkingCopy copy) {
-        List <FakeTreePathHandle> result = new ArrayList <FakeTreePathHandle> (trees.size());
-        for (Tree tree : trees) {
-            TreePath path = TreePath.getPath(parent, tree);
-            FakeTreePathHandle handle = new FakeTreePathHandle(path, copy);
-            result.add (handle);
-        }
-        return result;
-    }
-    
-    public static final class FakeTreePathHandle {
-        //Workaround for http://www.netbeans.org/issues/show_bug.cgi?id=96387
-        //Cannot currently use TreePathHandle with StatementTrees
-        //Will explode if the source has changed
-        private final long start;
-        private final long end;
-        private final Kind kind;
-        private final String debug;
-        
-        FakeTreePathHandle (TreePath path, WorkingCopy copy) {
-            this (path.getLeaf(), copy);
-        }
-        
-        FakeTreePathHandle (Tree tree, WorkingCopy copy) {
-            SourcePositions p = copy.getTrees().getSourcePositions();
-            start = p.getStartPosition(copy.getCompilationUnit(), tree);
-            end = p.getEndPosition(copy.getCompilationUnit(), tree);            
-            kind = tree.getKind();
-            if (start > Integer.MAX_VALUE || end > Integer.MAX_VALUE) {
-                throw new IllegalStateException ("Value out of range");                
-            }
-            debug = tree.toString();
-//            assert resolve(copy).getLeaf() == tree : "NOT EQUAL: " + tree + "\n   VS\n" +
-//                    resolve(copy).getLeaf();
-        }
-        
-        public TreePath resolve (WorkingCopy copy) {
-            SourcePositions p = copy.getTrees().getSourcePositions();
-            
-            //YUCK!
-            TreePath path = copy.getTreeUtilities().pathFor((int) start + 1);
-            while (path != null && (path.getLeaf().getKind() != kind)) {
-                path = path.getParentPath();
-            }
-            
-            if (path == null) {
-                throw new IllegalStateException ("Could not re-resolve " + debug);
-            }
-            
-            Tree tree = path.getLeaf();
-            long currStart = p.getStartPosition(copy.getCompilationUnit(), tree);
-            long currEnd = p.getEndPosition(copy.getCompilationUnit(), tree);
-            if ((tree.getKind() != kind) || currStart != start ||
-                    end != currEnd) {
-//                throw new IllegalArgumentException ("Document changed - could not find " +
-//                        "original tree");                        
-                System.err.println("GONE BAD:  Original kind " + kind + " current kind " + 
-                        tree.getKind() + " orig start " + start + " now start " + currStart + 
-                        " orig end " + end + " curr end " + currEnd);
-                System.err.println("Original text " + debug + " now " + tree);
-            }
-            return path;
-        }
-        
-        public Tree resolveToTree (WorkingCopy copy) {
-            return resolve (copy).getLeaf();
-        }
-    }
-    
-    
 }

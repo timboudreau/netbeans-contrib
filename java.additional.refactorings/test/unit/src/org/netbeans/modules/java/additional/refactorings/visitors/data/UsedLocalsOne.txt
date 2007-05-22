@@ -2,12 +2,16 @@ public class UsedLocalsOne {
     private static void doSomething() throws IOException, SAXException  {
         String s = "x";
         String y = "y";
+        //marker1
         if (true) {
-            s = "bar";
             y = y + s;
+            String q = "foo";
+            q = "moo";
+            s = "hoo";
             throw new IOException();
         } else {
             throw new SAXException();
         }
+        //marker2
     }
 }

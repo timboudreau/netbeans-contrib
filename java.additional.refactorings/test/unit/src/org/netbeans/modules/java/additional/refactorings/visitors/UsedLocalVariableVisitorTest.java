@@ -38,19 +38,43 @@ public class UsedLocalVariableVisitorTest extends BaseTestCase <Void, Set<ParamD
     }
 
     public void testUsedLocals() throws Exception {
-        System.err.println("Test Name " + super.getName());
+        System.out.println("testUsedLocals");
+//        System.out.println(argument);
+        Set <String> names = new HashSet <String> ();
+        for (ParamDesc d : argument) {
+            String nm = d.getName().toString();
+            names.add (nm);
+        }
+        assertTrue (names.contains("y"));        
+        assertTrue (names.contains("s"));
+        assertFalse (names.contains("q"));
+        assertFalse (names.contains("x"));        
+        
+        UsedLocalVariableVisitor v = (UsedLocalVariableVisitor) super.visitor;
+        Set <String> locals = v.getLocallyAssigned();
+        assertTrue (locals.contains("y"));        
+        assertTrue (locals.contains("s"));        
+        assertFalse (locals.contains("q"));        
+        assertEquals (2, locals.size());
     }
 
     @Override
     protected Tree getTreeToUse(CompilationUnitTree root) {
-        return findTree (root, Kind.METHOD, "doSomething");        
+        Tree result = findTree (root, Kind.METHOD, "doSomething");        
+        return result;
     }
 
     @Override
     protected TreeVisitor <Void, Set<ParamDesc>> createVisitor(WorkingCopy copy) {
-        UsedLocalVariableVisitor visitor = new UsedLocalVariableVisitor(copy, 
-                20, 50);
-        return visitor;
+        int start = indexInFile("marker1");        
+        int end = indexInFile("marker2");        
+        if ("testUsedLocals".equals(getName())) {
+            UsedLocalVariableVisitor visitor = new UsedLocalVariableVisitor(copy, 
+                    start, end);
+            return visitor;
+        } else {
+            return null; //XXX
+        }
     }
 
     @Override

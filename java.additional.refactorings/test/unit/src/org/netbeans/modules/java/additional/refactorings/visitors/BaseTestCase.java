@@ -23,13 +23,16 @@ import com.sun.source.tree.Tree;
 import com.sun.source.tree.Tree.Kind;
 import com.sun.source.tree.TreeVisitor;
 import com.sun.source.tree.VariableTree;
+import com.sun.source.util.TreePath;
 import com.sun.source.util.TreePathScanner;
 import com.sun.source.util.TreeScanner;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.ByteBuffer;
+import java.nio.charset.Charset;
 import org.netbeans.api.java.source.CancellableTask;
 import org.netbeans.api.java.source.JavaSource;
 import org.netbeans.api.java.source.JavaSource.Phase;
@@ -57,6 +60,7 @@ public abstract class BaseTestCase <R,D> extends NbTestCase {
         this.dataFileName = name;
     }
     
+    protected TreeVisitor<R,D> visitor;
     private File dataDir;
     private File rootDir;
     protected LocalFileSystem fs;
@@ -65,6 +69,7 @@ public abstract class BaseTestCase <R,D> extends NbTestCase {
     protected WorkingCopy copy;
     protected D argument;
     protected R scanResult;
+    protected String fileContent;
     protected void setUp() throws Exception {
         super.setUp();
         File tmp = new File (System.getProperty("java.io.tmpdir"));        
@@ -95,8 +100,24 @@ public abstract class BaseTestCase <R,D> extends NbTestCase {
         try {
             FileUtil.copy(stream, out);
         } finally {
+            out.flush();
             out.close();
+            stream.close();
         }
+        
+        stream = BaseTestCase.class.getResourceAsStream(
+            "data/" + dataFileName + ".txt");
+        ByteArrayOutputStream dest = new ByteArrayOutputStream();
+        FileUtil.copy (stream, dest);
+        try {
+            byte[] b = dest.toByteArray();
+            Charset set = Charset.forName("UTF-8");        
+            fileContent = set.decode(ByteBuffer.wrap(b)).toString();
+        } finally {
+            stream.close();
+            dest.close();
+        }
+        
         assertTrue (dataDir.exists());
         assertTrue (userDir.exists());
         
@@ -104,11 +125,15 @@ public abstract class BaseTestCase <R,D> extends NbTestCase {
         fs.setRootDirectory(dataDir);
         
         //A butt-ugly hack to fake out the parser
-        FileObject x = fs.getRoot().createFolder("null");
-        x = x.createFolder("var");
-        x = x.createFolder("log");        
         System.setProperty ("netbeans.user", userDir.getPath());
         doParse();
+    }
+    
+    protected int indexInFile (String txt) {
+        //Need this to avoid crlf offset differences depending on whether
+        //test is run on windows or unix
+        int result = fileContent.indexOf(txt);
+        return result;
     }
     
     protected void doParse() throws Exception {
@@ -176,13 +201,25 @@ public abstract class BaseTestCase <R,D> extends NbTestCase {
 
         public void run(WorkingCopy copy) throws Exception {
             if (!cancelled) {
-                BaseTestCase.this.copy = copy;
                 copy.toPhase(Phase.RESOLVED);
-                TreeVisitor<R,D> visitor = createVisitor (copy);
+                
+                CompilationUnitTree unit = copy.getCompilationUnit();
+                assertNotNull ("Compilation unit null", unit);
+                BaseTestCase.this.copy = copy;
+                BaseTestCase.this.visitor = createVisitor (copy);
+                assertNotNull ("Test broken - createVisitor() return null", 
+                        visitor);
+                
                 argument = createArgument();
-                Tree tree = getTreeToUse (copy.getCompilationUnit());
+                Tree tree = getTreeToUse (unit);
+                assertNotNull ("Tree is null", tree);
+                assertNotNull ("Visitor null", visitor);
                 if (visitor instanceof TreeScanner) {
-                    scanResult = ((TreeScanner<R,D>) visitor).scan (tree, argument);
+                    TreePath path = TreePath.getPath(unit, tree);
+                    assertNotNull (path);
+                    assertNotNull (path.getCompilationUnit());
+                    assertNotNull (path.getLeaf());
+                    scanResult = ((TreePathScanner<R,D>) visitor).scan (path, argument);
                 } else {
                     scanResult = tree.accept (visitor, argument);
                 }
@@ -192,7 +229,7 @@ public abstract class BaseTestCase <R,D> extends NbTestCase {
     
     protected static Tree findTree (CompilationUnitTree tree, Kind kind, String name) {
         Finder finder = new Finder(name);
-        return finder.scan(tree, null);
+        return finder.scan(tree, kind);
     }
     
     private static class Finder extends TreePathScanner<Tree, Kind> {
@@ -201,20 +238,15 @@ public abstract class BaseTestCase <R,D> extends NbTestCase {
             this.name = name;
         }
 
+        int ix = 0;
         @Override
         public Tree scan(Tree tree, Kind kind) {
-//            if (tree != null) {
-//                System.err.println("Scanning for " + kind + " for " + 
-//                        " in " + nameOf(tree) + " kind " + tree.getKind() 
-//                        + "\nTREE:\n" + tree);
-//            }
-            if (tree != null && tree.getKind() == kind) {
-                String name = nameOf (tree);
-                if (name != null && this.name != null && this.name.equals(name)) {
-                    return tree;
-                } else if (name == null && this.name == null) {
-                    return tree;
-                }
+            String name = nameOf (tree);
+            boolean nameMatch = this.name.equals(name);
+            boolean kindMatch = (tree != null && tree.getKind() == kind) ;
+            boolean match = nameMatch && kindMatch;
+            if (match) {
+                return tree;
             }
             return super.scan(tree, kind);
         }

@@ -59,4 +59,9 @@ public class ParamDesc {
         int hash = 3;
         hash = 71 * hash + (this.name != null ? this.name.hashCode() : 0);
         return hash;
-    }}
+    }
+    
+    public String toString() {
+        return name;
+    }
+}
