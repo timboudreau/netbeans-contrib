@@ -100,7 +100,7 @@ public final class UsedLocalVariableVisitor extends TreePathScanner<Void, Set<Pa
     
     private void saveType (VariableElement el) {
         TypeMirror typeMirror = el.asType();
-        TypeMirrorHandle handle = TypeMirrorHandle.create(typeMirror);
+        TypeMirrorHandle<TypeMirror> handle = TypeMirrorHandle.<TypeMirror>create(typeMirror);
         VariableTree vt = (VariableTree) info.getTrees().getTree(el);
         names2types.put (vt.getName().toString(), handle);
     }
@@ -108,11 +108,11 @@ public final class UsedLocalVariableVisitor extends TreePathScanner<Void, Set<Pa
     private void saveType (VariableTree tree) {
         Tree type = tree.getType();
         TypeMirror typeMirror = info.getTrees().getTypeMirror(TreePath.getPath(info.getCompilationUnit(), type));
-        TypeMirrorHandle handle = TypeMirrorHandle.create(typeMirror);
+        TypeMirrorHandle<TypeMirror> handle = TypeMirrorHandle.<TypeMirror>create(typeMirror);
         names2types.put (tree.getName().toString(), handle);
     }
     
-    Map <String, TypeMirrorHandle> names2types = new HashMap<String, TypeMirrorHandle>();
+    Map <String, TypeMirrorHandle<TypeMirror>> names2types = new HashMap<String, TypeMirrorHandle<TypeMirror>>();
     Set <String> locallyAssigned = new HashSet<String> ();
     
     public TypeMirrorHandle getType (String varName) {
@@ -137,7 +137,7 @@ public final class UsedLocalVariableVisitor extends TreePathScanner<Void, Set<Pa
         return Collections.<String>unmodifiableSet(locallyAssigned);
     }
     
-    public Map <String, TypeMirrorHandle> getNames2Types() {
+    public Map <String, TypeMirrorHandle<TypeMirror>> getNames2Types() {
         return names2types;
     }
 }

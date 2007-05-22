@@ -125,8 +125,7 @@ public final class ExceptionsVisitor extends TreeScanner<Void, Set<TypeMirrorHan
     }
     
     private void extract(ExecutableElement el, Set <TypeMirrorHandle> thrown) {
-        ExecutableElement ex = (ExecutableElement) el;
-        for (TypeMirror type : ex.getThrownTypes()) {
+        for (TypeMirror type : el.getThrownTypes()) {
             maybeAddType(type, thrown);
         }
     }

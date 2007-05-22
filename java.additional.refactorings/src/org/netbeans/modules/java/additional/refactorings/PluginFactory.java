@@ -17,7 +17,8 @@
  */
 package org.netbeans.modules.java.additional.refactorings;
 
-import org.netbeans.modules.java.additional.refactorings.ExtractMethodPlugin;
+import org.netbeans.modules.java.additional.refactorings.extractmethod.ExtractMethodRefactoring;
+import org.netbeans.modules.java.additional.refactorings.extractmethod.ExtractMethodPlugin;
 import org.netbeans.modules.refactoring.api.AbstractRefactoring;
 import org.netbeans.modules.refactoring.spi.RefactoringPlugin;
 import org.netbeans.modules.refactoring.spi.RefactoringPluginFactory;
