@@ -292,3 +292,8 @@ COMPLETION:html_whitespace2: {
 PROPERTIES {
     ignoreCase:"true";
 }
+
+COMMENT_LINE {
+    prefix:"<!--";
+    suffix:"-->";
+}
