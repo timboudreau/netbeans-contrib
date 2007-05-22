@@ -136,4 +136,8 @@ public final class UsedLocalVariableVisitor extends TreePathScanner<Void, Set<Pa
     public Set <String> getLocallyAssigned() {
         return Collections.<String>unmodifiableSet(locallyAssigned);
     }
+    
+    public Map <String, TypeMirrorHandle> getNames2Types() {
+        return names2types;
+    }
 }

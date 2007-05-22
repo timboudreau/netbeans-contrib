@@ -26,15 +26,15 @@ import com.sun.source.util.TreePathScanner;
 import java.util.Set;
 import javax.lang.model.type.TypeMirror;
 import javax.lang.model.util.Types;
-import org.netbeans.api.java.source.WorkingCopy;
+import org.netbeans.api.java.source.CompilationController;
 
 /**
  *
  * @author Tim
  */
 public class ReturnTypeVisitor extends TreePathScanner <Void, Set <TypeMirror>> {
-    private final WorkingCopy copy;
-    public ReturnTypeVisitor(WorkingCopy copy) {
+    private final CompilationController copy;
+    public ReturnTypeVisitor(CompilationController copy) {
         this.copy = copy;
     }
 
