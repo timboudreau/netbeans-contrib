@@ -110,7 +110,11 @@ public abstract class JavaRefactoringGlobalAction extends NodeAction {
     protected boolean enable(Node[] activatedNodes) {
         return enable(getLookup(activatedNodes));
     }
-    
+
+    @Override
+    protected boolean asynchronous() {
+        return false;
+    }
     
     @Override
     public Action createContextAwareInstance(Lookup actionContext) {

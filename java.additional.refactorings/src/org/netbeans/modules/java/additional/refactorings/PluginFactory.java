@@ -18,12 +18,12 @@
 package org.netbeans.modules.java.additional.refactorings;
 
 import org.netbeans.modules.java.additional.refactorings.ExtractMethodPlugin;
-import javax.swing.text.JTextComponent;
 import org.netbeans.modules.refactoring.api.AbstractRefactoring;
 import org.netbeans.modules.refactoring.spi.RefactoringPlugin;
 import org.netbeans.modules.refactoring.spi.RefactoringPluginFactory;
-import org.openide.cookies.EditorCookie;
+import org.openide.filesystems.FileObject;
 import org.openide.loaders.DataObject;
+import org.openide.nodes.Node;
 import org.openide.util.Lookup;
 
 /**
@@ -36,11 +36,30 @@ public class PluginFactory implements RefactoringPluginFactory {
     }
 
     public RefactoringPlugin createInstance(AbstractRefactoring refactoring) {
-        System.err.println("Create instance for " + refactoring);
         if (refactoring instanceof ExtractMethodRefactoring) {
             ExtractMethodRefactoring r = (ExtractMethodRefactoring) refactoring;
             Lookup context = refactoring.getRefactoringSource();
             DataObject dob = context.lookup(DataObject.class);
+            if (dob == null) {
+                //WTF... - when invoked as a popup
+                //menu item directly on the popup menu, I get the usual DataNode;
+                //when inside the refactoring method I get this weird lookup
+                //that sometimes contains a node, sometimes doesn't,
+                //sometimes contains a fileobject, sometimes doesn't.  Way cool.
+                FileObject fob = context.lookup (FileObject.class);
+                if (fob != null) {
+                    return new ExtractMethodPlugin(r, fob, 
+                        r.start,
+                        r.end, r.handle);
+                } else {
+                    Node n = context.lookup (Node.class);
+                    if (n != null) {
+                        context = n.getLookup();
+                    }
+                    dob = context.lookup (DataObject.class);
+                }
+            }
+            assert dob != null : "No DataObject in " + context; //NOI18N            
             return new ExtractMethodPlugin(r, dob.getPrimaryFile(), 
                     r.start,
                     r.end, r.handle);
