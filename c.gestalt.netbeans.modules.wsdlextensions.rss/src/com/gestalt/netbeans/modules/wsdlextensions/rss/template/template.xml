@@ -34,8 +34,8 @@
         <wsdlElement name="BindingOperationInput">
             <extensionElement name="input" >
                 <extensionAttr name="pollingInterval" defaultValue="10" />
-                <extensionAttr name="filterByValue" defaultValue="now" />
                 <extensionAttr name="filterByType" defaultValue="publishDate" />
+                <extensionAttr name="filterByValue" defaultValue="now" />
             </extensionElement>
         </wsdlElement>
         <wsdlElement name="BindingOperationOutput">
