@@ -22,6 +22,7 @@ import com.sun.source.tree.CompilationUnitTree;
 import com.sun.source.tree.ExpressionTree;
 import com.sun.source.tree.MethodTree;
 import com.sun.source.tree.ModifiersTree;
+import com.sun.source.tree.Scope;
 import com.sun.source.tree.Tree;
 import com.sun.source.tree.TypeParameterTree;
 import com.sun.source.tree.VariableTree;
@@ -33,8 +34,10 @@ import com.sun.source.util.Trees;
 import java.util.ArrayList;
 import java.util.List;
 import javax.lang.model.element.Element;
+import javax.lang.model.element.Modifier;
 import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.TypeMirror;
+import org.netbeans.api.java.source.CompilationController;
 import org.netbeans.api.java.source.CompilationInfo;
 import org.netbeans.api.java.source.TreeMaker;
 import org.netbeans.api.java.source.TreePathHandle;
@@ -215,6 +218,22 @@ public abstract class Utils {
         for (TreePathHandle handle : handles) {
             T element = (T) handle.resolveElement(info);
             result.add (element);
+        }
+        return result;
+    }
+    
+    public static boolean isStatic (Element el, Scope scope, CompilationController cc) {
+        return cc.getTreeUtilities().isStaticContext(scope) ||
+                el.getModifiers().contains (Modifier.STATIC);
+    }
+    
+    public static BlockTree findBlockTree (Tree tree) {
+        BlockTree result = null;
+        if (tree instanceof MethodTree) {
+            MethodTree mt = (MethodTree) tree;
+            result = mt.getBody();
+        } else if (tree instanceof BlockTree) {
+            result = (BlockTree) tree;
         }
         return result;
     }
