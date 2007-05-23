@@ -33,9 +33,6 @@ import org.netbeans.api.java.source.CompilationInfo;
 import org.netbeans.api.java.source.JavaSource;
 import org.netbeans.api.java.source.JavaSource.Phase;
 import org.netbeans.api.java.source.TreePathHandle;
-import org.netbeans.modules.refactoring.java.ui.ExtractInterfaceRefactoringUI;
-import org.netbeans.modules.refactoring.java.ui.RefactoringActionsProvider;
-import org.netbeans.modules.refactoring.java.ui.RefactoringActionsProvider.NodeToFileObject;
 import org.netbeans.modules.refactoring.spi.ui.RefactoringUI;
 import org.netbeans.modules.refactoring.spi.ui.UI;
 import org.openide.cookies.EditorCookie;
@@ -123,7 +120,7 @@ public class ExtractMethodAction extends JavaRefactoringGlobalAction {
             if (ui!=null) {
                 UI.openRefactoringUI(ui, activetc);
             } else {
-                JOptionPane.showMessageDialog(null,NbBundle.getMessage(RefactoringActionsProvider.class, "ERR_CannotRenameKeyword"));
+                JOptionPane.showMessageDialog(null,NbBundle.getMessage(ExtractMethodAction.class, "ERR_CannotRenameKeyword"));
             }
         }
         

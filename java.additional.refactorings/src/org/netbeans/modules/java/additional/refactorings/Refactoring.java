@@ -23,12 +23,11 @@ import org.netbeans.api.java.source.CompilationController;
 import org.netbeans.api.java.source.JavaSource;
 import org.netbeans.api.java.source.WorkingCopy;
 import org.netbeans.modules.refactoring.api.Problem;
-import org.netbeans.modules.refactoring.java.plugins.JavaRefactoringPlugin;
 import org.netbeans.modules.refactoring.spi.RefactoringElementsBag;
 import org.openide.filesystems.FileObject;
 
 /**
- * Copy of RetoucheRefactoringPlugin
+ * Copy of RetoucheRefactoringPlugin from refactoring/java
  */
 public abstract class Refactoring  extends JavaRefactoringPlugin implements CancellableTask<CompilationController>  {
 
