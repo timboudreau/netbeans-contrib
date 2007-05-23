@@ -33,6 +33,8 @@ import org.jdom.output.XMLOutputter;
 import org.jdom.input.SAXBuilder;
 
 import java.io.*;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 
@@ -46,7 +48,7 @@ import org.apache.velocity.app.Velocity;
  */
 public class WebDescriptorGenerator {
 
-  private Logger logger = Logger.getLogger(CoreUtil.CORE_LOGGER);
+  private static Logger logger = Logger.getLogger(CoreUtil.CORE_LOGGER);
 
   public File createPortletXml(String module,String webInfDir, HashMap values) throws Exception{
       File portletXml = new File(webInfDir + File.separator + "portlet.xml");
@@ -115,7 +117,7 @@ public class WebDescriptorGenerator {
       return null;
   }
 
-  private Document createDocFromFile(String file)
+  public static Document createDocFromFile(String file)
   {
 
       SAXBuilder builder = new SAXBuilder();
@@ -171,5 +173,55 @@ public class WebDescriptorGenerator {
 
         writeXmlDocument(root,portletXmlPath);
     }
+    
+     /**
+      * 
+      * @param portletXml 
+      * @return 
+      */
+     public static List getPortlets(File portletXml) {
+
+        
+        if(!portletXml.exists())
+        {
+           
+           logger.severe("Portlet XML Not Found");
+           return Collections.EMPTY_LIST;
+           
+        }
+            
+        Document root = createDocFromFile(portletXml.getAbsolutePath());
+        if(root == null)
+        {
+            logger.log(Level.SEVERE,"Could not add portlet entry in portel.xml");
+            return Collections.EMPTY_LIST;
+        }
+        
+        Element rootElm = root.getRootElement();
+       
+        return getPortlets(rootElm);
+
+       
+    } 
+     
+    public static List getPortlets(Element rootElm)
+    {
+         Namespace namespace = rootElm.getNamespace();
+        
+        List portlets = rootElm.getChildren("portlet",namespace);
+        List list = new ArrayList();
+        for(int i=0;i<portlets.size();i++)
+        {
+            Element portletName = ((Element)portlets.get(i)).getChild("portlet-name",namespace);
+            if(portletName !=  null)
+            {
+                String name = portletName.getTextTrim();
+                if(name != null)
+                    list.add(name);
+            }
+        }
+        return list;
+    }
+     
 
 }

@@ -25,11 +25,8 @@ import org.netbeans.modules.portalpack.portlets.genericportlets.core.util.CoreUt
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.exception.ParseErrorException;
 import org.apache.velocity.app.Velocity;
-
 import java.io.*;
-import java.util.Iterator;
 import java.util.Map;
-import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 

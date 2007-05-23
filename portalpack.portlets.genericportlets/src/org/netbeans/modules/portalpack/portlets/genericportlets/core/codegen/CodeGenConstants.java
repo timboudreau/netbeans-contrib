@@ -35,6 +35,7 @@ public interface CodeGenConstants {
 
 
     public static String J2EE_MODULE = "J2EE";
+    public static String PORTLET_SPEC_VERSION = "PORTLET_SPEC_VERSION";
     
     
     //portlet.xml specific constants
@@ -44,4 +45,18 @@ public interface CodeGenConstants {
     public static final String PORTLET_DESCRIPTION = "PORTLET_DESCRIPTION";
     public static final String PORTLET_TITLE = "PORTLET_TITLE";
     public static final String PORTLET_SHORT_TITLE = "PORTLET_SHORT_TITLE";
+    
+    //filter types
+    public static final String ACTION_FILTER_TYPE = "Action Filter";
+    public static final String EVENT_FILTER_TYPE = "Event Filter";
+    public static final String FRAGMENT_FILTER_TYPE = "Fragment Filter";
+    public static final String RENDER_FILTER_TYPE = "Render Filter";
+    public static final String RESOURCE_FILTER_TYPE = "Resource Filter";
+    
+    //lifecycle phases
+    public static final String ACTION_PHASE="ACTION";
+    public static final String EVENT_PHASE="EVENT";
+    public static final String FRAGMENT_PHASE="FRAGMENT";
+    public static final String RENDER_PHASE="RENDER";
+    public static final String RESOURCE_PHASE="RESOURCE";
 }

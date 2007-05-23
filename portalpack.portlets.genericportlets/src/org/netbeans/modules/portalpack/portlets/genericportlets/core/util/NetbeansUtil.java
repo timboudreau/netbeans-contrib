@@ -126,14 +126,35 @@ public class NetbeansUtil {
     }
     
     public static String getModuleType(Project project) {
+        WebModule wm = WebModule.getWebModule(project.getProjectDirectory());
+        if(wm != null)
+            return CodeGenConstants.WEB_MODULE_TYPE;
+        else
+            return "UNKNOWN";
+        /*
         String className = project.getClass().getName();
         if(className.indexOf("org.netbeans.modules.java.j2seproject") != -1)
             return CodeGenConstants.JAVA_MODULE_TYPE;
         else if(className.indexOf("org.netbeans.modules.web.project") != -1)
             return CodeGenConstants.WEB_MODULE_TYPE;
         else
-            return "UNKNOWN";
+            return "UNKNOWN";*/
     }   
+    
+    public static String getWebInfDir(Project prj)
+    {  
+        if(getModuleType(prj).equals(CodeGenConstants.WEB_MODULE_TYPE))
+        {
+            FileObject object = prj.getProjectDirectory();
+            WebModule module = WebModule.getWebModule(object);
+            FileObject webInf = module.getWebInf();
+            String webInfDir = NetbeansUtil.getAbsolutePath(webInf);
+            logger.log(Level.FINEST,"WEB-INF dir is : "+webInfDir);
+            return webInfDir;
+        }
+        return null;
+       // return NetbeansCreatePortletComponent.getWebInfDirForProject(project);     
+    }
      
 }
 

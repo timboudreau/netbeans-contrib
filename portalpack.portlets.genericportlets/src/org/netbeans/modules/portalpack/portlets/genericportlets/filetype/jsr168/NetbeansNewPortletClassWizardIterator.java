@@ -19,7 +19,8 @@
 
 package org.netbeans.modules.portalpack.portlets.genericportlets.filetype.jsr168;
 
-import org.netbeans.modules.portalpack.portlets.genericportlets.NetbeansCreateJSR168PortletComponent;
+import org.netbeans.modules.portalpack.portlets.genericportlets.apptype.jsr168.NewJSR168CreatePortletComponent;
+import org.netbeans.modules.portalpack.portlets.genericportlets.apptype.jsr168.NewJSR168CreatePortletComponent;
 import org.netbeans.modules.portalpack.portlets.genericportlets.core.AppContext;
 import org.netbeans.modules.portalpack.portlets.genericportlets.core.PortletContext;
 import org.netbeans.modules.portalpack.portlets.genericportlets.core.ResultContext;
@@ -27,18 +28,22 @@ import org.netbeans.modules.portalpack.portlets.genericportlets.core.exceptions.
 import java.awt.Component;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JComponent;
 import javax.swing.event.ChangeListener;
+import org.jdom.Document;
 import org.netbeans.api.java.project.JavaProjectConstants;
 import org.netbeans.api.project.Project;
 import org.netbeans.api.project.SourceGroup;
 import org.netbeans.api.project.Sources;
+import org.netbeans.modules.portalpack.portlets.genericportlets.core.codegen.WebDescriptorGenerator;
 import org.netbeans.modules.portalpack.portlets.genericportlets.core.util.NetbeanConstants;
 import org.netbeans.modules.portalpack.portlets.genericportlets.core.util.NetbeansUtil;
 import org.netbeans.modules.portalpack.portlets.genericportlets.frameworks.util.PortletProjectUtil;
@@ -64,6 +69,7 @@ public final class NetbeansNewPortletClassWizardIterator implements WizardDescri
     private WizardDescriptor wizard;
     private WizardDescriptor.Panel[] panels;
     private WizardDescriptor.Panel packageChooserPanel;
+    private boolean notAllowed = false;
     
     /**
      * 
@@ -78,10 +84,34 @@ public final class NetbeansNewPortletClassWizardIterator implements WizardDescri
     private WizardDescriptor.Panel[] getPanels() {
         
         Project project = Templates.getProject(wizard);
+        List availablePortlets = new ArrayList();
+        //check if a valid portlet App
+        if(panels == null)
+        {
+        String webInfDir = NetbeansUtil.getWebInfDir(project);
+        File portletXml = new File(webInfDir+File.separator+"portlet.xml");
+        if(!portletXml.exists()) {
+           wizard.putProperty("WizardPanel_errorMessage",
+                    "Not a Portlet Application");
+           panels =  new WizardDescriptor.Panel[]{
+               new ErrorWizardPanel(wizard)
+           };
+           notAllowed = true;
+           String[] steps = createSteps();
+           return panels;
+        }else{
+          
+            Document doc = WebDescriptorGenerator.createDocFromFile(portletXml.getAbsolutePath());
+            if(doc != null)
+            {    
+                availablePortlets = WebDescriptorGenerator.getPortlets(doc.getRootElement());
+            }
+        } 
+        }
         Sources sources = (Sources)project.getLookup().lookup(Sources.class);
         SourceGroup[] groups = sources.getSourceGroups(JavaProjectConstants.SOURCES_TYPE_JAVA);
         if (panels == null) {
-            packageChooserPanel = JavaTemplates.createPackageChooser(project,groups,new NetbeansNewPortletClassWizardPanel1());
+            packageChooserPanel = JavaTemplates.createPackageChooser(project,groups,new NetbeansNewPortletClassWizardPanel1(availablePortlets));
             panels = new WizardDescriptor.Panel[] {
                 packageChooserPanel, new NewJSR168FileAdvanceWizardPanel()
                         
@@ -124,7 +154,8 @@ public final class NetbeansNewPortletClassWizardIterator implements WizardDescri
     }
     
     public Set instantiate() throws IOException {
-        Set resultSet = new LinkedHashSet();
+        if(notAllowed) return Collections.EMPTY_SET;
+        Set returnSet = new LinkedHashSet();
         Project project = Templates.getProject(wizard);
         String className = Templates.getTargetName(wizard);
         FileObject pkg = Templates.getTargetFolder(wizard);
@@ -139,7 +170,7 @@ public final class NetbeansNewPortletClassWizardIterator implements WizardDescri
         String targetDir = NetbeansUtil.getAbsolutePath(pkg);
         
         logger.log(Level.FINEST,projPath+"   "+projName+"   "+targetDir+"    ");
-        NetbeansCreateJSR168PortletComponent component = new NetbeansCreateJSR168PortletComponent(project);
+        NewJSR168CreatePortletComponent component = new NewJSR168CreatePortletComponent(project);
         
         PortletContext context = (PortletContext)wizard.getProperty("context");
         logger.log(Level.FINEST,"DisplayName:::::::::::::::::: " +context.getPortletDisplayName());
@@ -160,7 +191,7 @@ public final class NetbeansNewPortletClassWizardIterator implements WizardDescri
         if(filePath != null && filePath.trim().length() != 0) {
             FileObject fob = FileUtil.toFileObject(new File(filePath));
             if (fob != null) {  //the process succeeded
-                resultSet.add(fob);
+                returnSet.add(fob);
                 DataObject dob = DataObject.find(fob);
                 OpenCookie oc = (OpenCookie) dob.getCookie(OpenCookie.class);
                 if (oc != null) { //the Image module is installed
@@ -170,7 +201,7 @@ public final class NetbeansNewPortletClassWizardIterator implements WizardDescri
         }
         
         
-        return resultSet;
+        return returnSet;
         
     }
     

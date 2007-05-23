@@ -33,7 +33,7 @@ import org.apache.velocity.exception.MethodInvocationException;
 import org.apache.velocity.exception.ParseErrorException;
 import org.apache.velocity.exception.ResourceNotFoundException;
 import org.netbeans.api.project.Project;
-import org.netbeans.modules.portalpack.portlets.genericportlets.NetbeansCreateJSR168PortletComponent;
+import org.netbeans.modules.portalpack.portlets.genericportlets.apptype.jsr168.NewJSR168CreatePortletComponent;
 import org.netbeans.modules.portalpack.portlets.genericportlets.core.AppContext;
 import org.netbeans.modules.portalpack.portlets.genericportlets.core.ConfigConstants;
 import org.netbeans.modules.portalpack.portlets.genericportlets.core.PortletContext;
@@ -67,7 +67,7 @@ public class PortletProjectUtil {
         
         String javaFile = new File(newPkgDir,context.getPortletClass()+".java").getAbsolutePath();
         
-        NetbeansCreateJSR168PortletComponent component = new NetbeansCreateJSR168PortletComponent(prj,wm,ConfigConstants.JSR168_TEMPLATE_NAME);
+        NewJSR168CreatePortletComponent component = new NewJSR168CreatePortletComponent(prj,wm,ConfigConstants.JSR168_TEMPLATE_NAME);
         ResultContext retVal = new ResultContext();
         try {
             component.doCreateClass(FileUtil.toFile(prj.getProjectDirectory()).getAbsolutePath(),prj.getProjectDirectory().getName(),newPkgDir.getAbsolutePath(),context.getPortletClass(),context,new AppContext(),retVal);

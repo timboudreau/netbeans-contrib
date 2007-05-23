@@ -1,21 +1,21 @@
 /*
-  * The contents of this file are subject to the terms of the Common Development
-  * and Distribution License (the License). You may not use this file except in
-  * compliance with the License.
-  *
-  * You can obtain a copy of the License at http://www.netbeans.org/cddl.html
-  * or http://www.netbeans.org/cddl.txt.
-  *
-  * When distributing Covered Code, include this CDDL Header Notice in each file
-  * and include the License file at http://www.netbeans.org/cddl.txt.
-  * If applicable, add the following below the CDDL Header, with the fields
-  * enclosed by brackets [] replaced by your own identifying information:
-  * "Portions Copyrighted [year] [name of copyright owner]"
-  *
-  * The Original Software is NetBeans. The Initial Developer of the Original
-  * Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
-  * Microsystems, Inc. All Rights Reserved.
-  */
+ * The contents of this file are subject to the terms of the Common Development
+ * and Distribution License (the License). You may not use this file except in
+ * compliance with the License.
+ *
+ * You can obtain a copy of the License at http://www.netbeans.org/cddl.html
+ * or http://www.netbeans.org/cddl.txt.
+ *
+ * When distributing Covered Code, include this CDDL Header Notice in each file
+ * and include the License file at http://www.netbeans.org/cddl.txt.
+ * If applicable, add the following below the CDDL Header, with the fields
+ * enclosed by brackets [] replaced by your own identifying information:
+ * "Portions Copyrighted [year] [name of copyright owner]"
+ *
+ * The Original Software is NetBeans. The Initial Developer of the Original
+ * Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
+ * Microsystems, Inc. All Rights Reserved.
+ */
 
 package org.netbeans.modules.portalpack.portlets.genericportlets.core.component;
 
@@ -28,39 +28,37 @@ import org.netbeans.modules.portalpack.portlets.genericportlets.core.exceptions.
 import org.netbeans.modules.portalpack.portlets.genericportlets.core.ResultContext;
 import org.netbeans.modules.portalpack.portlets.genericportlets.core.NewPortletDialog;
 import org.netbeans.modules.portalpack.portlets.genericportlets.core.util.CoreUtil;
-
 import java.io.*;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
 import javax.swing.*;
 
 /**
  * @author Satya
  */
 public abstract class NewPortletCreateComponent {
-
+    
     private Logger logger = Logger.getLogger(CoreUtil.CORE_LOGGER);
     public Object beforeCreate(String fileName) {
         return null;
     }
-
+    
     public String getFileContent(String className, Map paramValues) throws Exception {
         
         StringBuffer sb = getCodeGenerator().generateCode(paramValues);
         logger.log(Level.FINEST,sb.toString());
-
+        
         return sb.toString();
     }
-
     
-  
-
+    
+    
+    
     protected abstract String getWebInfDir();
-         
-
+    
+    
     protected abstract String getPackage(File dir);
     
     protected abstract String getModuleType();
@@ -78,46 +76,45 @@ public abstract class NewPortletCreateComponent {
     }
     
     public void doCreateClass(String modulePath, String moduleName,  String selectedDir, String clazzName, PortletContext context,AppContext appContext,ResultContext retMap) throws PortletCreateException {
-          createNewPortletFile(selectedDir,clazzName,context,retMap);
-          String className = (String)retMap.getAttribute(ResultContext.CLASS_NAME);
-          doAfterCreate(context,appContext,className,getWebInfDir());
-                  
+        createNewPortletFile(selectedDir,clazzName,context,retMap);
+        String className = (String)retMap.getAttribute(ResultContext.CLASS_NAME);
+        doAfterCreate(context,appContext,className,getWebInfDir());
+        
     }
-
-    protected abstract void refreshPath(String modulePath);  
-
+    
+    protected abstract void refreshPath(String modulePath);
+    
     private String createNewPortletFile(String selectedPath, String className, PortletContext context, ResultContext returnVal) {
- 
+        
         String portletName = context.getPortletName();
-
+        
         File psiDir = new File(selectedPath);
-        if(!psiDir.exists())
-        {
+        if(!psiDir.exists()) {
             psiDir.mkdirs();
         }
         if (psiDir.isDirectory()) {
-
+            
         } else {
             psiDir = psiDir.getParentFile();
         }
-
+        
         String packageStr = "";
         if (psiDir == null) {
             logger.log(Level.FINE,"PsiDir is null ------------");
         } else {
             packageStr = getPackage(psiDir);
-
+            
             logger.log(Level.FINE,"Package: " + packageStr);
-
+            
             if(className == null)
             {
-                 NewPortletDialog detailUI = new NewPortletDialog();
+                NewPortletDialog detailUI = new NewPortletDialog();
                 detailUI.open();
-
+                
                 className = detailUI.getClassName();
                 portletName = detailUI.getPortletName();
             }
-
+            
             if (className.equals(""))
                 return null;
             else if (className.contains(".")) {
@@ -127,52 +124,56 @@ public abstract class NewPortletCreateComponent {
             
             if(portletName == null || portletName.trim().length() == 0)
                 portletName = className;
-
-
+            
+            
             Map values = new HashMap();
-
+            
             if (packageStr == null || packageStr.trim().length() == 0)
                 packageStr = "";
             values.put(CodeGenConstants.PACKAGE, packageStr);
             values.put(CodeGenConstants.CLASSNAME, className);
             values.put("pc",context);
-
+            
             String fileName = className + ".java";
-
-
+            
+            
             File pFile;
             pFile = new File(psiDir, fileName);
-
-            FileOutputStream fout;
-            try {
-                fout = new FileOutputStream(pFile);
-            } catch (FileNotFoundException e) {
-                logger.log(Level.SEVERE,org.openide.util.NbBundle.getMessage(NewPortletCreateComponent.class, "MSG_ERROR"),e);
-                return null;
-            }
-            String content = null;
-            try {
-                content = getFileContent(className, values);
-            } catch (Exception e) {
-                logger.log(Level.SEVERE,org.openide.util.NbBundle.getMessage(NewPortletCreateComponent.class, "MSG_ERROR"),e);
-            }
-            try {
-                fout.write(content.getBytes());
-                fout.flush();
-            } catch (IOException e) {
-                logger.log(Level.SEVERE,org.openide.util.NbBundle.getMessage(NewPortletCreateComponent.class, "MSG_ERROR"),e);
-            }
-
-            if (fout != null) {
+            
+            if(!pFile.exists() || (pFile.exists() && CoreUtil.checkIfFileNeedsTobeOverwritten(fileName))) {
+                FileOutputStream fout;
                 try {
-                    fout.close();
+                    fout = new FileOutputStream(pFile);
+                } catch (FileNotFoundException e) {
+                    logger.log(Level.SEVERE,org.openide.util.NbBundle.getMessage(NewPortletCreateComponent.class, "MSG_ERROR"),e);
+                    return null;
+                }
+                String content = null;
+                try {
+                    content = getFileContent(className, values);
+                } catch (Exception e) {
+                    logger.log(Level.SEVERE,org.openide.util.NbBundle.getMessage(NewPortletCreateComponent.class, "MSG_ERROR"),e);
+                }
+                try {
+                    fout.write(content.getBytes());
+                    fout.flush();
                 } catch (IOException e) {
                     logger.log(Level.SEVERE,org.openide.util.NbBundle.getMessage(NewPortletCreateComponent.class, "MSG_ERROR"),e);
                 }
+                
+                if (fout != null) {
+                    try {
+                        fout.close();
+                    } catch (IOException e) {
+                        logger.log(Level.SEVERE,org.openide.util.NbBundle.getMessage(NewPortletCreateComponent.class, "MSG_ERROR"),e);
+                    }
+                }
+            }else{
+                
             }
-
+            
             if (!packageStr.equals("")) {
-
+                
                 returnVal.setAttribute(ResultContext.CLASS_NAME, packageStr + "." + className);
                 returnVal.setAttribute(ResultContext.PORTLET_NAME, portletName);
                 returnVal.setAttribute(ResultContext.FILE_PATH,pFile.getAbsolutePath());
@@ -184,14 +185,14 @@ public abstract class NewPortletCreateComponent {
                 return className;
             }
         }
-
+        
         return null;
-
+        
     }
-
-
+        
+            
     private void showErrorMsg() {
         JOptionPane.showMessageDialog(null, org.openide.util.NbBundle.getMessage(NewPortletCreateComponent.class, "MSG_Invalid_WEB-INF_Directory"));
     }
-
+    
 }

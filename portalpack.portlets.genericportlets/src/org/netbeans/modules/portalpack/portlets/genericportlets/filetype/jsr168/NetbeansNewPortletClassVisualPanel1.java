@@ -186,6 +186,10 @@ public final class NetbeansNewPortletClassVisualPanel1 extends JPanel implements
             wizardDescriptor.putProperty("WizardPanel_errorMessage",
                     org.openide.util.NbBundle.getMessage(NetbeansNewPortletClassVisualPanel1.class, "MSG_INVALID_PORTLET_NAME"));
             return false; 
+        }else if(panel.getAvailablePortlets().contains(portalName)){
+             wizardDescriptor.putProperty("WizardPanel_errorMessage",
+                    org.openide.util.NbBundle.getMessage(NetbeansNewPortletClassVisualPanel1.class, "MSG_PORTLET_ALREADY_PRESENT"));
+            return false;
         }else if(!CoreUtil.validateString(portletTitleTf.getText(),true)){
             wizardDescriptor.putProperty("WizardPanel_errorMessage",
                     org.openide.util.NbBundle.getMessage(NetbeansNewPortletClassVisualPanel1.class, "MSG_INVALID_PORTLET_TITLE"));
@@ -253,23 +257,23 @@ public final class NetbeansNewPortletClassVisualPanel1 extends JPanel implements
     
     public void changedUpdate(DocumentEvent e) {
         updateTexts(e);
-        if (this.pnameTf.getDocument() == e.getDocument()) {
-            //firePropertyChange(PROP_PROJECT_NAME,null,this.projectNameTextField.getText());
-        }
+       // if (this.pnameTf.getDocument() == e.getDocument()) {
+            //firePropertyChang
+        //}
     }
     
     public void insertUpdate(DocumentEvent e) {
         updateTexts(e);
-        if (this.pnameTf.getDocument() == e.getDocument()) {
+      //  if (this.pnameTf.getDocument() == e.getDocument()) {
             //firePropertyChange(PROP_PROJECT_NAME,null,this.projectNameTextField.getText());
-        }
+      //  }
     }
     
     public void removeUpdate(DocumentEvent e) {
         updateTexts(e);
-        if (this.pnameTf.getDocument() == e.getDocument()) {
+      //  if (this.pnameTf.getDocument() == e.getDocument()) {
             //firePropertyChange(PROP_PROJECT_NAME,null,this.projectNameTextField.getText());
-        }
+      //  }
     }
     
     /** Handles changes in the Project name and project directory, */

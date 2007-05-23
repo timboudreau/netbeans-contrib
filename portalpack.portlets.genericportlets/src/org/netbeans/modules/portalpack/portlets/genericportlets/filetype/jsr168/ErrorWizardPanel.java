@@ -17,36 +17,32 @@
   * Microsystems, Inc. All Rights Reserved.
   */
 
+
 package org.netbeans.modules.portalpack.portlets.genericportlets.filetype.jsr168;
 
 import java.awt.Component;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Set;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import org.openide.WizardDescriptor;
 import org.openide.util.HelpCtx;
 
-public class NetbeansNewPortletClassWizardPanel1 implements WizardDescriptor.Panel {
+public class ErrorWizardPanel implements WizardDescriptor.Panel {
     
     /**
      * The visual component that displays this panel. If you need to access the
      * component from this class, just use getComponent().
      */
-    private NetbeansNewPortletClassVisualPanel1 component;
-    private WizardDescriptor wizardDescriptor;
-    private List availablePortlets;
-    public NetbeansNewPortletClassWizardPanel1(List availablePortlets)
-    {
-        this.availablePortlets = availablePortlets;
-    }
-    
-    public List getAvailablePortlets()
-    {
-        return availablePortlets;
-    }
+     private Component component;
+     private WizardDescriptor wizard;
+     
+     public ErrorWizardPanel(WizardDescriptor wizard)
+     {
+         this.wizard = wizard;
+     }
+     
     
     // Get the visual component for the panel. In this template, the component
     // is kept separate. This can be more efficient: if the wizard is created
@@ -54,11 +50,12 @@ public class NetbeansNewPortletClassWizardPanel1 implements WizardDescriptor.Pan
     // create only those which really need to be visible.
     public Component getComponent() {
         if (component == null) {
-            component = new NetbeansNewPortletClassVisualPanel1(this);
+            component = new ErrorVisualPanel();
         }
         return component;
     }
     
+  
     public HelpCtx getHelp() {
         // Show no Help button for this panel:
         return HelpCtx.DEFAULT_HELP;
@@ -67,11 +64,8 @@ public class NetbeansNewPortletClassWizardPanel1 implements WizardDescriptor.Pan
     }
     
     public boolean isValid() {
-        getComponent();
         // If it is always OK to press Next or Finish, then:
-        return component.valid(wizardDescriptor);
-        //return component.valid();
-        //return true;
+        return true;
         // If it depends on some condition (form filled out...), then:
         // return someCondition();
         // and when this condition changes (last form field filled in...) then:
@@ -79,7 +73,9 @@ public class NetbeansNewPortletClassWizardPanel1 implements WizardDescriptor.Pan
         // and uncomment the complicated stuff below.
     }
     
-    private final Set/*<ChangeListener>*/ listeners = new HashSet(1);
+   
+  
+    private final Set<ChangeListener> listeners = new HashSet<ChangeListener>(1);
     public final void addChangeListener(ChangeListener l) {
         synchronized (listeners) {
             listeners.add(l);
@@ -91,30 +87,28 @@ public class NetbeansNewPortletClassWizardPanel1 implements WizardDescriptor.Pan
         }
     }
     protected final void fireChangeEvent() {
-        Iterator it;
+        Iterator<ChangeListener> it;
         synchronized (listeners) {
-            it = new HashSet(listeners).iterator();
+            it = new HashSet<ChangeListener>(listeners).iterator();
         }
         ChangeEvent ev = new ChangeEvent(this);
         while (it.hasNext()) {
-            ((ChangeListener) it.next()).stateChanged(ev);
+            it.next().stateChanged(ev);
         }
     }
+     
     
     // You can use a settings object to keep track of state. Normally the
     // settings object will be the WizardDescriptor, so you can use
     // WizardDescriptor.getProperty & putProperty to store information entered
     // by the user.
     public void readSettings(Object settings) {
-        wizardDescriptor = (WizardDescriptor) settings;
-        component.readSettings((WizardDescriptor)settings);
-        
+     
     }
     public void storeSettings(Object settings) {
-        
-        WizardDescriptor d = (WizardDescriptor) settings;
-        component.store(d);
+      
     }
     
 }
+
 

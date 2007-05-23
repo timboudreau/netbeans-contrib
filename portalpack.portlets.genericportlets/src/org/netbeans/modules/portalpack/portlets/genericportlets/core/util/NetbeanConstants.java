@@ -45,6 +45,12 @@ public class NetbeanConstants {
     public final static String J2EE_1_4 = "J2EE 1.4";
     public final static String J2EE_1_5 = "Java EE 5";
     
+    public final static String PORTLET_1_0 = "1.0";
+    public final static String PORTLET_2_0 = "2.0";
+    
+    public final static String PORTLET_1_0_NS = "http://java.sun.com/xml/ns/portlet/portlet-app_1_0.xsd";
+    public final static String PORTLET_2_0_NS = "http://java.sun.com/xml/ns/portlet/portlet-app_2_0.xsd";
+    
     static{
         String userBase = System.getProperty("netbeans.user");
         if(userBase == null || userBase.trim().length() == 0)
