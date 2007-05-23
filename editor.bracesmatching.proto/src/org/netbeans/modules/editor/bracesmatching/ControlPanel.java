@@ -25,8 +25,8 @@ import javax.swing.text.JTextComponent;
 public class ControlPanel extends javax.swing.JPanel {
     
     private static String [][] SEARCH_DIRECTIONS = new String [][] {
-        new String [] { MasterMatcher.D_BACKWARD, "Backward Only" }, //NOI18N
-        new String [] { MasterMatcher.D_FORWARD, "Forward Only" }, //NOI18N
+        new String [] { MasterMatcher.D_BACKWARD, "Backward" }, //NOI18N
+        new String [] { MasterMatcher.D_FORWARD, "Forward" }, //NOI18N
         new String [] { MasterMatcher.D_BOTH, "Both" }, //NOI18N
     };
     
