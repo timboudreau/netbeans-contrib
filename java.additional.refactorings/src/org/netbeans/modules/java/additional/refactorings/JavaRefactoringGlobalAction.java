@@ -18,21 +18,38 @@
  */
 package org.netbeans.modules.java.additional.refactorings;
 
+import com.sun.source.tree.Tree;
+import com.sun.source.util.TreePath;
 import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.beans.PropertyChangeListener;
+import java.io.IOException;
 import java.lang.reflect.Method;
 import java.util.Hashtable;
+import java.util.List;
 import javax.swing.Action;
 import javax.swing.Icon;
 import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
+import javax.swing.text.JTextComponent;
+import org.netbeans.api.java.source.CancellableTask;
+import org.netbeans.api.java.source.CompilationController;
+import org.netbeans.api.java.source.CompilationInfo;
+import org.netbeans.api.java.source.JavaSource;
+import org.netbeans.api.java.source.JavaSource.Phase;
+import org.netbeans.api.java.source.TreePathHandle;
+import org.netbeans.modules.java.additional.refactorings.extractmethod.ExtractMethodAction;
+import org.netbeans.modules.refactoring.spi.ui.RefactoringUI;
+import org.netbeans.modules.refactoring.spi.ui.UI;
 import org.openide.awt.Actions;
 import org.openide.cookies.EditorCookie;
 import org.openide.loaders.DataObject;
 import org.openide.nodes.Node;
 import org.openide.text.CloneableEditorSupport.Pane;
+import org.openide.util.Exceptions;
 import org.openide.util.HelpCtx;
 import org.openide.util.Lookup;
+import org.openide.util.NbBundle;
 import org.openide.util.actions.CallableSystemAction;
 import org.openide.util.actions.NodeAction;
 import org.openide.util.actions.Presenter;
@@ -121,7 +138,7 @@ public abstract class JavaRefactoringGlobalAction extends NodeAction {
         return new ContextAction(actionContext);
     }
     
-    public class ContextAction implements Action, Presenter.Menu, Presenter.Popup, Presenter.Toolbar {
+    protected class ContextAction implements Action, Presenter.Menu, Presenter.Popup, Presenter.Toolbar {
 
         Lookup context;
 
@@ -194,4 +211,59 @@ public abstract class JavaRefactoringGlobalAction extends NodeAction {
             }
         }        
     }
+    
+   protected static abstract class TextComponentRunnable implements Runnable {
+        private JTextComponent textC;
+        private int caret;
+        private int start;
+        private int end;
+        private RefactoringUI ui;
+        
+        public TextComponentRunnable(EditorCookie ec) {
+            this.textC = ec.getOpenedPanes()[0];
+            this.caret = textC.getCaretPosition();
+            this.start = textC.getSelectionStart();
+            this.end = textC.getSelectionEnd();
+//            translatePositionsForCrlf();
+            assert caret != -1;
+            assert start != -1;
+            assert end != -1;
+        }
+        
+        public final void run() {
+            try {
+                JavaSource source = JavaSource.forDocument(textC.getDocument());
+                source.runUserActionTask(new CancellableTask<CompilationController>() {
+                    public void cancel() {
+                    }
+                    
+                    public void run(CompilationController cc) throws Exception {
+                        TreePath selectedElement = null;
+                        cc.toPhase(Phase.RESOLVED);
+                        selectedElement = cc.getTreeUtilities().pathFor(caret);
+                        //workaround for issue 89064
+                        if (selectedElement.getLeaf().getKind() == Tree.Kind.COMPILATION_UNIT) {
+                            List<? extends Tree> decls = cc.getCompilationUnit().getTypeDecls();
+                            if (!decls.isEmpty()) {
+                                selectedElement = TreePath.getPath(cc.getCompilationUnit(), decls.get(0));
+                            }
+                        }
+                        ui = createRefactoringUI(TreePathHandle.create(selectedElement, cc), start, end, cc);
+                    }
+                }, false);
+            } catch (IOException ioe) {
+                Exceptions.printStackTrace(ioe);
+                return ;
+            }
+            TopComponent activetc = TopComponent.getRegistry().getActivated();
+            
+            if (ui!=null) {
+                UI.openRefactoringUI(ui, activetc);
+            } else {
+                JOptionPane.showMessageDialog(null,NbBundle.getMessage(ExtractMethodAction.class, "ERR_CannotRenameKeyword"));
+            }
+        }
+        
+        protected abstract RefactoringUI createRefactoringUI(TreePathHandle selectedElement,int startOffset,int endOffset, CompilationInfo info);
+    }        
 }

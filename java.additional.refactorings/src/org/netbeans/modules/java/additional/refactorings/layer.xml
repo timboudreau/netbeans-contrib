@@ -7,11 +7,16 @@
                 <attr name="originalFile" 
                 stringvalue="Actions/Refactoring/org-netbeans-modules-java-additional-refactorings-extractmethod-ExtractMethodAction.instance"/>                
             </file>
+            <file name="ChangeSignature.shadow">
+                <attr name="originalFile" 
+                stringvalue="Actions/Refactoring/org-netbeans-modules-java-additional-refactorings-splitclass-ChangeSignatureAction.instance"/>                
+            </file>
         </folder>
     </folder>
     <folder name="Actions">
         <folder name="Refactoring">
                 <file name="org-netbeans-modules-java-additional-refactorings-extractmethod-ExtractMethodAction.instance"/>
+                <file name="org-netbeans-modules-java-additional-refactorings-splitclass-ChangeSignatureAction.instance"/>
         </folder>
     </folder>
 </filesystem>

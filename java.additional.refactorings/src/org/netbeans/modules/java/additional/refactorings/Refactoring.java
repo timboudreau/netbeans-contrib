@@ -29,7 +29,7 @@ import org.openide.filesystems.FileObject;
 /**
  * Copy of RetoucheRefactoringPlugin from refactoring/java
  */
-public abstract class Refactoring  extends JavaRefactoringPlugin implements CancellableTask<CompilationController>  {
+public abstract class Refactoring extends JavaRefactoringPlugin implements CancellableTask<CompilationController>  {
 
     public Refactoring() {
     }

@@ -28,8 +28,13 @@ public class ParamDesc {
     private String name;
     
     public ParamDesc(VariableElement e) {
-        this.type = TypeMirrorHandle.create(e.asType());
-        this.name = e.getSimpleName().toString();
+        this (e.getSimpleName().toString(), 
+                TypeMirrorHandle.create(e.asType()));
+    }
+    
+    public ParamDesc (String name, TypeMirrorHandle type) {
+        this.name = name;
+        this.type = type;
     }
     
     public String getName() {
