@@ -26,22 +26,41 @@ import com.sun.source.tree.VariableTree;
 import com.sun.source.util.TreePath;
 import com.sun.source.util.TreePathScanner;
 import com.sun.source.util.TreeScanner;
+import java.beans.PropertyChangeListener;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.URL;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
+import java.util.Collections;
+import java.util.List;
+import javax.swing.event.ChangeListener;
+import org.netbeans.api.java.classpath.ClassPath;
+import org.netbeans.api.java.classpath.GlobalPathRegistry;
+import org.netbeans.api.java.platform.JavaPlatformManager;
+import org.netbeans.api.java.queries.SourceForBinaryQuery;
 import org.netbeans.api.java.source.CancellableTask;
 import org.netbeans.api.java.source.JavaSource;
 import org.netbeans.api.java.source.JavaSource.Phase;
 import org.netbeans.api.java.source.ModificationResult;
 import org.netbeans.api.java.source.WorkingCopy;
+import org.netbeans.junit.MockServices;
 import org.netbeans.junit.NbTestCase;
+import org.netbeans.spi.java.classpath.ClassPathFactory;
+import org.netbeans.spi.java.classpath.ClassPathImplementation;
+import org.netbeans.spi.java.classpath.ClassPathProvider;
+import org.netbeans.spi.java.classpath.PathResourceImplementation;
+import org.netbeans.spi.java.classpath.support.ClassPathSupport;
+import org.netbeans.spi.java.queries.SourceForBinaryQueryImplementation;
 import org.openide.filesystems.FileObject;
+import org.openide.filesystems.FileSystem;
 import org.openide.filesystems.FileUtil;
 import org.openide.filesystems.LocalFileSystem;
+import org.openide.filesystems.MultiFileSystem;
+import org.openide.filesystems.Repository;
 
 /**
  *
@@ -61,9 +80,10 @@ public abstract class BaseTestCase <R,D> extends NbTestCase {
     }
     
     protected TreeVisitor<R,D> visitor;
-    private File dataDir;
+    private static File dataDir;
+    private static LocalFileSystem fs;
+    private static FileObject dataDirFo;
     private File rootDir;
-    protected LocalFileSystem fs;
     protected FileObject sourceFile;
     protected JavaSource source;
     protected WorkingCopy copy;
@@ -123,11 +143,28 @@ public abstract class BaseTestCase <R,D> extends NbTestCase {
         
         fs = new LocalFileSystem();
         fs.setRootDirectory(dataDir);
+        dataDirFo = fs.getRoot();
+        assertNotNull (dataDirFo);
+        
+        
+        srcCpImpl = new Cp (Collections.singletonList(ClassPathSupport.createResource(dataDir.toURI().toURL())));
+        sourcePath = ClassPathFactory.createClassPath(srcCpImpl);
+        bootPath = JavaPlatformManager.getDefault().getDefaultPlatform().getBootstrapLibraries();
+        MockServices.setServices(Rep.class, SFBQ.class);
+//        MockServices.setServices(Rep.class, ClassPathProviderImpl.class, SFBQ.class);
+//        Repository.getDefault().addFileSystem(fs);
+        GlobalPathRegistry.getDefault().register(ClassPath.BOOT, new ClassPath[] {bootPath});
+        GlobalPathRegistry.getDefault().register(ClassPath.COMPILE, new ClassPath[] {sourcePath});
+        GlobalPathRegistry.getDefault().register(ClassPath.SOURCE, new ClassPath[] {sourcePath});        
         
         //A butt-ugly hack to fake out the parser
         System.setProperty ("netbeans.user", userDir.getPath());
         doParse();
     }
+    
+    private static Cp srcCpImpl;
+    private static ClassPath bootPath;
+    private static ClassPath sourcePath;
     
     protected int indexInFile (String txt) {
         //Need this to avoid crlf offset differences depending on whether
@@ -186,11 +223,7 @@ public abstract class BaseTestCase <R,D> extends NbTestCase {
      * <code>return findTree (tree, Kind.METHOD, "someMethod")</code>.
      */ 
     protected Tree getTreeToUse (CompilationUnitTree root) {
-//        if (super.getTestNumber() == 0) {
-            return root;
-//        } else {
-//            return null;
-//        }
+        return root;
     }
     
     private class Stub implements CancellableTask <WorkingCopy> {
@@ -215,7 +248,12 @@ public abstract class BaseTestCase <R,D> extends NbTestCase {
                 assertNotNull ("Tree is null", tree);
                 assertNotNull ("Visitor null", visitor);
                 if (visitor instanceof TreeScanner) {
-                    TreePath path = TreePath.getPath(unit, tree);
+                    TreePath path;
+                    if (tree == unit) {
+                        path = new TreePath(unit);
+                    } else {
+                        path = TreePath.getPath(unit, tree);
+                    }
                     assertNotNull (path);
                     assertNotNull (path.getCompilationUnit());
                     assertNotNull (path.getLeaf());
@@ -261,6 +299,53 @@ public abstract class BaseTestCase <R,D> extends NbTestCase {
             } else {
                 return null;
             }
+        }
+    }
+    
+    public static class ClassPathProviderImpl implements ClassPathProvider {
+        public ClassPath findClassPath(final FileObject file, final String type) {
+            return type == ClassPath.BOOT ? bootPath : sourcePath;
+        }        
+    }
+    
+    
+    private static final class Cp implements ClassPathImplementation {
+        private List<? extends PathResourceImplementation> impls;
+        public Cp () {
+             this (Collections.<PathResourceImplementation>emptyList());
+        }
+        
+        public Cp (final List<? extends PathResourceImplementation> impls) {
+            assert impls != null;
+            this.impls =impls;
+        }
+
+        public List<? extends PathResourceImplementation> getResources() {
+            return impls;
+        }
+                
+        public void addPropertyChangeListener(final PropertyChangeListener listener) {}
+
+        public void removePropertyChangeListener(final PropertyChangeListener listener) {}
+    }    
+    
+    public static class SFBQ implements SourceForBinaryQueryImplementation {
+        public SourceForBinaryQuery.Result findSourceRoots(URL binaryRoot) { 
+            return new SourceForBinaryQuery.Result () {
+                public FileObject[] getRoots() {
+                    return new FileObject[] {dataDirFo};
+                }
+                public void addChangeListener(ChangeListener l) {}
+                public void removeChangeListener(ChangeListener l) {}
+            };
+        }
+    }
+    
+    public static class Rep extends Repository {
+        public Rep () {
+            super (new MultiFileSystem(new FileSystem[] { fs }));
+            MultiFileSystem f = (MultiFileSystem) super.getFileSystems().nextElement();
+            
         }
     }
 }

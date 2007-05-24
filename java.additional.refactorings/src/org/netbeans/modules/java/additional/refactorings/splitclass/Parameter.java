@@ -127,7 +127,15 @@ final class Parameter implements Comparable <Parameter> {
     }
     
     public int hashCode() {
-        return desc.hashCode() * 11;
+        int result;
+        if (desc == null) {
+            result = typeName == null ? 0 : typeName.hashCode();
+            result += name == null ? 0 : name.hashCode();
+            result *= 31;
+        } else {
+            result = desc.hashCode() * 11;
+        }
+        return result;
     }
     
     public String toString() {

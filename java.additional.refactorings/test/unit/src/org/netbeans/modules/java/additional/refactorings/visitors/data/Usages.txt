@@ -1,0 +1,41 @@
+package foo.bar;
+public abstract class Usages {
+
+    public abstract void foo (int a, int b, String c);
+    
+    public abstract String bar (String a);
+    
+    public static void something() {
+        Usages clazz = new ClazzImpl();
+        String s = clazz.bar ("hi");        
+        clazz.foo (1, 2, s);        
+        
+        clazz = new Impl2();
+        s = clazz.bar ("hi");        
+        clazz.foo (1, 2, s);        
+    }
+    
+    private static final class ClazzImpl extends Usages {
+
+        public void foo(int a, int b, String c) {
+            String s = c + (a * b);
+            System.out.println(s);
+        }
+
+        public String bar(String a) {
+            return a + " hello";            
+        }
+    }
+    
+    private static final class Impl2 extends Usages {
+
+        public void foo(int a, int b, String c) {
+            String s = c + (a * b);
+            System.out.println(s);
+        }
+
+        public String bar(String a) {
+            return a + " hello";            
+        }
+    }
+}

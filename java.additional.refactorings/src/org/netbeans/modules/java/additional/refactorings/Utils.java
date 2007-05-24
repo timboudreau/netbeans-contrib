@@ -20,6 +20,7 @@ import com.sun.source.tree.BlockTree;
 import com.sun.source.tree.ClassTree;
 import com.sun.source.tree.CompilationUnitTree;
 import com.sun.source.tree.ExpressionTree;
+import com.sun.source.tree.MemberSelectTree;
 import com.sun.source.tree.MethodTree;
 import com.sun.source.tree.ModifiersTree;
 import com.sun.source.tree.Scope;
@@ -29,16 +30,29 @@ import com.sun.source.tree.VariableTree;
 import com.sun.source.util.SourcePositions;
 import com.sun.source.util.TreePath;
 import com.sun.source.util.TreePath;
+import com.sun.source.util.TreePathScanner;
 import com.sun.source.util.Trees;
 import com.sun.source.util.Trees;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.EnumSet;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import javax.lang.model.element.Element;
+import javax.lang.model.element.ElementKind;
+import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.Modifier;
+import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.TypeMirror;
+import javax.lang.model.util.ElementFilter;
+import org.netbeans.api.java.source.ClassIndex;
+import org.netbeans.api.java.source.ClassIndex.SearchKind;
+import org.netbeans.api.java.source.ClassIndex.SearchScope;
 import org.netbeans.api.java.source.CompilationController;
 import org.netbeans.api.java.source.CompilationInfo;
+import org.netbeans.api.java.source.ElementHandle;
 import org.netbeans.api.java.source.TreeMaker;
 import org.netbeans.api.java.source.TreePathHandle;
 import org.netbeans.api.java.source.TypeMirrorHandle;
@@ -236,5 +250,76 @@ public abstract class Utils {
             result = (BlockTree) tree;
         }
         return result;
+    }
+    
+    public static Collection<ExecutableElement> getOverridingMethods(ExecutableElement e, CompilationInfo info) {
+        //Copied from RetoucheUtils
+        Collection<ExecutableElement> result = new ArrayList();
+        TypeElement parentType = (TypeElement) e.getEnclosingElement();
+        //XXX: Fixme IMPLEMENTORS_RECURSIVE were removed
+        Set<ElementHandle<TypeElement>> subTypes = info.getClasspathInfo().getClassIndex().getElements(ElementHandle.create(parentType),  EnumSet.of(ClassIndex.SearchKind.IMPLEMENTORS),EnumSet.of(ClassIndex.SearchScope.SOURCE));
+        for (ElementHandle<TypeElement> subTypeHandle: subTypes){
+            TypeElement type = subTypeHandle.resolve(info);
+            for (ExecutableElement method: ElementFilter.methodsIn(type.getEnclosedElements())) {
+                if (info.getElements().overrides(method, e, type)) {
+                    result.add(method);
+                }
+            }
+        }
+        return result;
+    }    
+    
+    public static Collection <TreePathHandle> getInvocationsOf(ExecutableElement e, CompilationController wc) {
+        assert e != null;
+        ElementHandle elh = ElementHandle.create(e);
+        Set <ElementHandle<TypeElement>> classes = wc.getClasspathInfo().getClassIndex().getElements(elh, EnumSet.of (SearchKind.METHOD_REFERENCES), EnumSet.of(SearchScope.SOURCE));
+        InvocationScanner scanner = new InvocationScanner (wc);
+        for (ElementHandle<TypeElement> h : classes) {
+            TypeElement type = h.resolve(wc);
+//            assert type != null : "Could not resolve type " + h;
+            if (type != null) {
+                Tree tree = wc.getTrees().getTree(type);
+                assert tree != null : "Tree for " + type + " is null";
+                scanner.scan (tree, e);
+            } else {
+                System.err.println("Null type for " + h);
+            }
+        }
+        return scanner.usages;
+    }
+    
+    private static final class InvocationScanner extends TreePathScanner <Tree, Element> {
+        private final CompilationInfo cc;
+        InvocationScanner (CompilationController cc) {
+            this.cc = cc;
+        }
+
+        @Override
+        public Tree visitMemberSelect(MemberSelectTree node, Element p) {
+            addIfMatch(getCurrentPath(), node,p);
+            return super.visitMemberSelect(node, p);
+        }
+        
+        private void addIfMatch(TreePath path, Tree tree, Element elementToFind) {
+            if (cc.getTreeUtilities().isSynthetic(path))
+                return ;
+            Element el = cc.getTrees().getElement(path);
+            if (el==null)
+                return;
+
+            if (elementToFind.getKind() == ElementKind.METHOD && el.getKind() == ElementKind.METHOD) {
+                if (el.equals(elementToFind) || cc.getElements().overrides(((ExecutableElement) el), (ExecutableElement) elementToFind, (TypeElement) elementToFind.getEnclosingElement())) {
+                    addUsage(getCurrentPath());
+                }
+            } else if (el.equals(elementToFind)) {
+                    addUsage(getCurrentPath());
+            }
+        }
+        
+        Set <TreePathHandle> usages = new HashSet <TreePathHandle> ();
+        void addUsage (TreePath path) {
+            usages.add (TreePathHandle.create(path, cc));
+        }
+        
     }
 }

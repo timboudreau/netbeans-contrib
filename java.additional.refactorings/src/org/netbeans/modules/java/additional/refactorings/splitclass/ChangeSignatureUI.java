@@ -105,7 +105,10 @@ public class ChangeSignatureUI implements RefactoringUI, CancellableTask <Compil
     public AbstractRefactoring getRefactoring() {
         List <Parameter> originals = panel.originals;
         List <Parameter> now = panel.getNewDescriptions();
-        return new ChangeSignatureRefactoring (lkp, originals, now);
+        String returnType = panel.getReturnType();
+        String methodName = panel.getMethodName();
+        return new ChangeSignatureRefactoring (handle, lkp, originals, now, 
+                returnType, methodName);
     }
 
     public HelpCtx getHelpCtx() {

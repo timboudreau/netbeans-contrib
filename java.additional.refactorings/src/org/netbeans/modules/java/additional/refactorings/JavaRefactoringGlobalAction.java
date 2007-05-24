@@ -103,6 +103,7 @@ public abstract class JavaRefactoringGlobalAction extends NodeAction {
 
     
     protected static EditorCookie getTextComponent(Node n) {
+        if (n == null) return null;
         DataObject dobj = n.getCookie(DataObject.class);
         if (dobj != null) {
             EditorCookie ec = dobj.getCookie(EditorCookie.class);
