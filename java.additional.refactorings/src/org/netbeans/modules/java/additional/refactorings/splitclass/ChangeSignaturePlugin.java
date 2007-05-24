@@ -23,9 +23,16 @@ import com.sun.source.tree.Tree.Kind;
 import com.sun.source.util.TreePath;
 import java.io.IOException;
 import java.util.Collection;
+import java.util.EnumSet;
 import java.util.List;
+import java.util.Set;
+import javax.lang.model.element.Element;
 import javax.lang.model.element.ExecutableElement;
+import javax.lang.model.element.TypeElement;
+import org.netbeans.api.java.source.ClassIndex.SearchKind;
+import org.netbeans.api.java.source.ClassIndex.SearchScope;
 import org.netbeans.api.java.source.CompilationController;
+import org.netbeans.api.java.source.ElementHandle;
 import org.netbeans.api.java.source.JavaSource.Phase;
 import org.netbeans.api.java.source.TreePathHandle;
 import org.netbeans.api.java.source.WorkingCopy;
@@ -65,15 +72,15 @@ public class ChangeSignaturePlugin extends Refactoring {
     protected Problem prepare(WorkingCopy wc, RefactoringElementsBag bag) throws IOException {
         wc.toPhase(Phase.RESOLVED);
         List <Transform> l = refactoring.getChanges();
-        
         TreePathHandle toRefactor = refactoring.methodHandle;
         TreePath path = toRefactor.resolve(wc);
         MethodTree method = (MethodTree) path.getLeaf();
         ExecutableElement element = (ExecutableElement) wc.getTrees().getElement(path);
         Collection <ExecutableElement> overrides = Utils.getOverridingMethods(element, wc);
         Collection <TreePathHandle> invocations = Utils.getInvocationsOf (element, wc);
-        
+        //Iterate the changes made to the method signature
         for (Transform t : l) {
+            //Iterate all invocations, and generate a refactoring element for each
             for (TreePathHandle h : invocations) {
                 TreePath pathToInvocation = h.resolve(wc);
                 Tree tree = pathToInvocation.getLeaf();
@@ -85,14 +92,23 @@ public class ChangeSignaturePlugin extends Refactoring {
                     throw new IllegalStateException ("Can't get there from here: " + h.resolve(wc));                    
                 }
                 MethodInvocationTree invocation = (MethodInvocationTree) tree;
-                SimpleRefactoringElementImplementation refactorElement = t.getElement(invocation, wc, refactoring.getContext());
+                Element invokingMethodElement = wc.getTrees().getElement(pathToInvocation);
+                ElementHandle<TypeElement> eh = ElementHandle.<TypeElement>create(wc.getElementUtilities().enclosingTypeElement(invokingMethodElement));
+                Set <FileObject> fobs = wc.getJavaSource().getClasspathInfo().getClassIndex().getResources(eh, EnumSet.of(SearchKind.TYPE_REFERENCES), EnumSet.of(SearchScope.SOURCE));
+                SimpleRefactoringElementImplementation refactorElement = t.getElement(invocation, wc, refactoring.getContext(), fobs.iterator().next());
                 bag.add (refactoring, refactorElement);
             }
+            
+            //Iterate all overrides, and generate a refactoring element for each
             for (ExecutableElement e : overrides) {
-                
+                MethodTree methodTree = (MethodTree) wc.getTrees().getTree(e);
+                TypeElement typeEl = wc.getElementUtilities().enclosingTypeElement(e);
+                ElementHandle<TypeElement> eh = ElementHandle.<TypeElement>create(wc.getElementUtilities().enclosingTypeElement(typeEl));
+                Set <FileObject> fobs = wc.getJavaSource().getClasspathInfo().getClassIndex().getResources(eh, EnumSet.of(SearchKind.TYPE_REFERENCES), EnumSet.of(SearchScope.SOURCE));
+                SimpleRefactoringElementImplementation refactorElement = t.getElement(methodTree, wc, refactoring.getContext(), fobs.iterator().next());
+                bag.add (refactoring, refactorElement);
             }
         }
-        
         return null;
     }
 

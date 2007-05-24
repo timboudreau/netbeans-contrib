@@ -38,9 +38,9 @@ public class AddParameterElementImpl extends AbstractParameterChangeElementImpl 
     private final int paramIndex;
     private final String defaultValue;
     private final String paramName;
-    private final TypeMirror type;
+    private final String type;
     
-    public AddParameterElementImpl(TreePathHandle methodPathHandle, TypeMirror type, int paramIndex, String name, String defaultValue, Lookup context, FileObject file, String paramName) {
+    public AddParameterElementImpl(TreePathHandle methodPathHandle, String type, int paramIndex, String name, String defaultValue, Lookup context, FileObject file, String paramName) {
         super (methodPathHandle, name, context, file);
         this.paramIndex = paramIndex;
         this.defaultValue = defaultValue;
@@ -58,7 +58,7 @@ public class AddParameterElementImpl extends AbstractParameterChangeElementImpl 
     }
 
     protected void modifyOverrideArgs(List<VariableTree> args, TreeMaker maker) {
-        Tree typeTree = maker.Type(type);
+        Tree typeTree = maker.Identifier(type);
         ModifiersTree mods = maker.Modifiers(Collections.<Modifier>emptySet());
         VariableTree nue = maker.Variable(mods, paramName, typeTree, null);
         args.add(paramIndex, nue);

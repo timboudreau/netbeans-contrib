@@ -16,8 +16,6 @@
  */
 package org.netbeans.modules.java.additional.refactorings.splitclass;
 
-import com.sun.source.tree.ExpressionTree;
-import com.sun.source.tree.MemberSelectTree;
 import com.sun.source.tree.MethodInvocationTree;
 import com.sun.source.tree.MethodTree;
 import com.sun.source.tree.Tree;
@@ -26,7 +24,6 @@ import com.sun.source.util.TreePath;
 import java.io.IOException;
 import org.netbeans.api.java.source.CancellableTask;
 import org.netbeans.api.java.source.JavaSource;
-import org.netbeans.api.java.source.JavaSource.Phase;
 import org.netbeans.api.java.source.TreeMaker;
 import org.netbeans.api.java.source.TreePathHandle;
 import org.netbeans.api.java.source.WorkingCopy;
@@ -40,23 +37,24 @@ import org.openide.util.Lookup;
  *
  * @author Tim Boudreau
  */
-public class RenameMethodReferenceElement extends SimpleRefactoringElementImplementation implements CancellableTask<WorkingCopy> {
-    private final String renameTo;
-    private final TreePathHandle toRenameIn;
-    private final String name;
+public class ParameterTypeChangeElement extends SimpleRefactoringElementImplementation implements CancellableTask<WorkingCopy> {
     private final FileObject file;
+    private final String newName;
+    private final String oldName;
+    private final TreePathHandle handle;
     private final Lookup context;
-    
-    public RenameMethodReferenceElement(TreePathHandle toRenameIn, String renameTo, String name, Lookup context, FileObject file) {
-        this.toRenameIn = toRenameIn;
-        this.renameTo = renameTo;
-        this.name = name;
-        this.context = context;
+    private final String name;
+    public ParameterTypeChangeElement(String newName, TreePathHandle methodPathHandle, String name, Lookup context, FileObject file) {
         this.file = file;
+        this.newName = newName;
+        this.oldName = name;
+        this.handle = methodPathHandle;
+        this.context = context;
+        this.name = name;
     }
 
     public String getText() {
-        return "Change reference in " + name;
+        return "Rename parameter " + oldName + " to " + newName + " in " + name;
     }
 
     public String getDisplayText() {
@@ -89,24 +87,28 @@ public class RenameMethodReferenceElement extends SimpleRefactoringElementImplem
         cancelled = true;
     }
 
+
     public void run(WorkingCopy copy) throws Exception {
-        if (cancelled) return;
-        copy.toPhase(Phase.RESOLVED);
-        TreePath path = toRenameIn.resolve(copy);
+        TreePath path = handle.resolve(copy);
         Tree tree = path.getLeaf();
         TreeMaker maker = copy.getTreeMaker();
         if (tree.getKind() == Kind.METHOD_INVOCATION) {
-            MethodInvocationTree invocationTree = (MethodInvocationTree) tree;
-            MemberSelectTree oldSelect = (MemberSelectTree) invocationTree.getMethodSelect();
-            MemberSelectTree newSelect = maker.MemberSelect(oldSelect.getExpression(), renameTo);
-            copy.rewrite(oldSelect, newSelect);
+            changeMethodInvocation (copy, path, (MethodInvocationTree) tree, maker);
         } else if (tree.getKind() == Kind.METHOD) {
-            MethodTree oldMethod = (MethodTree) tree;
-            MethodTree newMethod = maker.Method(oldMethod.getModifiers(), renameTo, oldMethod.getReturnType(), 
-                    oldMethod.getTypeParameters(), oldMethod.getParameters(), 
-                    oldMethod.getThrows(), oldMethod.getBody(), 
-                    (ExpressionTree) oldMethod.getDefaultValue());
-            copy.rewrite (oldMethod, newMethod);
+            changeMethod (copy, path, (MethodTree) tree, maker);
+        } else {
+            throw new IllegalArgumentException ("Don't know what to do with "
+                    + tree.getKind() + ":\n" + tree);
         }
+    }
+    
+    private void changeMethodInvocation (WorkingCopy copy, TreePath path, MethodInvocationTree tree, TreeMaker maker) {
+        
+    }
+    
+    private void changeMethod (WorkingCopy copy, TreePath path, MethodTree tree, TreeMaker maker) {
+        Tree oldReturnType = tree.getReturnType();
+        Tree newReturnType = maker.Identifier(newName);
+        copy.rewrite (oldReturnType, newReturnType);
     }
 }

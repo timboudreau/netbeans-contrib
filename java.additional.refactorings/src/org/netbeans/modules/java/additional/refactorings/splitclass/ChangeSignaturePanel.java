@@ -315,10 +315,10 @@ private void addButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIR
         return this;
     }
 
-    public List <Parameter> getNewDescriptions() {
+    public List <Parameter> getNewParameters() {
         if (jTable1.getModel() instanceof TM) {
             TM tm = (TM) jTable1.getModel();
-            return tm.getDescriptions();
+            return tm.getParameters();
         } else {
             return Collections.<Parameter>emptyList();
         }
@@ -332,7 +332,7 @@ private void addButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIR
         } else {
             TM tm = (TM) jTable1.getModel();
             Set <String> names = new HashSet <String>();
-            List <Parameter> params = tm.getDescriptions();
+            List <Parameter> params = tm.getParameters();
             int ix = 0;
             for (Parameter p : params) {
                 String nm = p.getName();
@@ -430,7 +430,7 @@ private void addButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIR
     }
 
     List <Parameter> originals;
-    void setDescriptions (final List <Parameter> descs) {
+    void setParameters (final List <Parameter> descs) {
         Runnable r = new Runnable() {
             public void run() {
                 originals = new ArrayList <Parameter> (descs);
@@ -458,7 +458,7 @@ private void addButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIR
             this.descs = descs;
         }
 
-        List <Parameter> getDescriptions() {
+        List <Parameter> getParameters() {
             return descs;
         }
 

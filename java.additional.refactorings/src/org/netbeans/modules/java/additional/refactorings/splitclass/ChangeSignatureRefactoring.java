@@ -35,6 +35,10 @@ import org.openide.util.Lookup;
 import org.netbeans.misc.diff.*;
 
 /**
+ * Computes a set of transforms which should be applied successively to get
+ * from the current method signature to the new one.  These transforms will then
+ * be used to generate a refactoring element for each invocation or override
+ * of the method in question.  See ChangeSignaturePlugin for that.
  *
  * @author Tim Boudreau
  */
@@ -69,10 +73,6 @@ public class ChangeSignatureRefactoring extends AbstractRefactoring {
         return changes;
     }
     
-    private void reduceLists() {
-        
-    }
-    
     private List changes;
     private List <Transform> computeChanges() {
         List <Transform> result = new LinkedList <Transform> ();
@@ -91,7 +91,7 @@ public class ChangeSignatureRefactoring extends AbstractRefactoring {
             if (i < origSize) {
                 Parameter p = orig.get(i);
                 if (!nueSet.contains(p)) {
-                    result.add(new ParameterRemovalChange(i + offsets[i]));
+                    result.add(new ParameterRemovalTransform(i + offsets[i]));
                     assert p == work.get (i + offsets[i]);                    
                     work.remove (p);
                     offset--;
@@ -106,7 +106,7 @@ public class ChangeSignatureRefactoring extends AbstractRefactoring {
             if (i < newSize) {
                 Parameter p = nue.get(i);
                 if (!origSet.contains(p)) {
-                    result.add(new ParameterAdditionChange(i + offsets[i], p.getDefaultValue(),
+                    result.add(new ParameterAdditionTransform(i + offsets[i], p.getDefaultValue(),
                             p.getName(), p.getTypeName()));
                     work.add(i + offsets[i], p);
                     offset++;
@@ -120,7 +120,7 @@ public class ChangeSignatureRefactoring extends AbstractRefactoring {
                 int currIndex = i;
                 int nueIndex = nue.indexOf (p);
                 if (currIndex != nueIndex) {
-                    result.add (new ParamOrderChange(currIndex, nueIndex));
+                    result.add (new ParamOrderTransform(currIndex, nueIndex));
                     if (currIndex < nueIndex) {
                         //slow & ugly but works
                         Parameter[] pp = work.toArray (new Parameter[work.size()]);
@@ -139,17 +139,22 @@ public class ChangeSignatureRefactoring extends AbstractRefactoring {
         
         for (Parameter p : nue) {
             if (!p.isNew()) {
+                //Do type changes before name changes, or the type change
+                //will look for the wrong parameter name
                 if (p.isTypeChanged()) {
                     result.add (new ParameterTypeChange(p.getTypeName()));
                 }
                 if (p.isNameChanged()) {
-                    result.add (new ParameterNameChange(p.getTypeName()));
+                    result.add (new ParameterNameTransform(p.getTypeName()));
                 }
             }
         }
         
         if (isMethodNameChanged()) {
-            result.add (new MethodNameChange(methodName));
+            result.add (new MethodNameTransform(methodName));
+        }
+        if (isReturnTypeChanged()) {
+            result.add (new MethodReturnTypeTransform(returnType));
         }
         
         System.err.println("CHANGES:");
@@ -175,22 +180,20 @@ public class ChangeSignatureRefactoring extends AbstractRefactoring {
             return kind;
         }
         
-        final SimpleRefactoringElementImplementation getElement (MethodInvocationTree tree, CompilationController cc, Lookup context) {
+        final SimpleRefactoringElementImplementation getElement (MethodInvocationTree tree, CompilationController cc, Lookup context, FileObject file) {
             TreePath path = TreePath.getPath(cc.getCompilationUnit(), tree);            
             TreePathHandle handle = TreePathHandle.create(path, cc);
             Element element = cc.getTrees().getElement(path);
             TypeElement type = cc.getElementUtilities().enclosingTypeElement(element);
-            FileObject file = cc.getFileObject();
             String name = type.getQualifiedName() + "." + element.getSimpleName();
             return createElement(tree, element, handle, path, name, file);
         }
         
-        public final SimpleRefactoringElementImplementation getElement (MethodTree tree, CompilationController cc, Lookup context) {
+        public final SimpleRefactoringElementImplementation getElement (MethodTree tree, CompilationController cc, Lookup context, FileObject file) {
             TreePath path = TreePath.getPath(cc.getCompilationUnit(), tree);            
             TreePathHandle handle = TreePathHandle.create(path, cc);
             Element element = cc.getTrees().getElement(path);
             TypeElement type = cc.getElementUtilities().enclosingTypeElement(element);
-            FileObject file = cc.getFileObject();
             String name = type.getQualifiedName() + "." + element.getSimpleName();
             return createElement(tree, element, handle, path, name, file);
         }
@@ -203,10 +206,10 @@ public class ChangeSignatureRefactoring extends AbstractRefactoring {
         }
     }
     
-    private class ParamOrderChange extends Transform {
+    private class ParamOrderTransform extends Transform {
         int orig;
         int nue;
-        ParamOrderChange(int orig, int nue) {
+        ParamOrderTransform(int orig, int nue) {
             super (ChangeKind.PARAM_ORDER);
             this.orig = orig;
             this.nue = nue;
@@ -230,9 +233,9 @@ public class ChangeSignatureRefactoring extends AbstractRefactoring {
         
     }
     
-    private class ParameterRemovalChange extends Transform {
+    private class ParameterRemovalTransform extends Transform {
         private int index;
-        ParameterRemovalChange(int index) {
+        ParameterRemovalTransform(int index) {
             super (ChangeKind.PARAM_REMOVAL);
             this.index = index;
         }
@@ -254,12 +257,12 @@ public class ChangeSignatureRefactoring extends AbstractRefactoring {
         }
     }
     
-    private class ParameterAdditionChange extends Transform {
+    private class ParameterAdditionTransform extends Transform {
         private int index;
         private final String defValue;
         private final String paramName;
         private final String paramType;
-        ParameterAdditionChange (int index, String defValue, String paramName, String paramType) {
+        ParameterAdditionTransform (int index, String defValue, String paramName, String paramType) {
             super (ChangeKind.PARAM_ADDITION);
             this.index = index;
             this.defValue = defValue;
@@ -268,12 +271,12 @@ public class ChangeSignatureRefactoring extends AbstractRefactoring {
         }
 
         protected SimpleRefactoringElementImplementation createElement(MethodInvocationTree tree, Element element, TreePathHandle handle, TreePath path, String name, FileObject file) {
-            return new AddParameterElementImpl(handle, null, //XXX figure out types
+            return new AddParameterElementImpl(handle, paramType,
                     index, name, defValue, getContext(), file, paramName);
         }
 
         protected SimpleRefactoringElementImplementation createElement(MethodTree tree, Element element, TreePathHandle handle, TreePath path, String name, FileObject file) {
-            return new AddParameterElementImpl(handle, null, //XXX figure out types
+            return new AddParameterElementImpl(handle, paramType,
                     index, name, defValue, getContext(), file, paramName);
         }
         
@@ -283,9 +286,9 @@ public class ChangeSignatureRefactoring extends AbstractRefactoring {
         }
     }
     
-    private class MethodNameChange extends Transform {
+    private class MethodNameTransform extends Transform {
         private final String newName;
-        MethodNameChange (String newName) {
+        MethodNameTransform (String newName) {
             super (ChangeKind.METHOD_NAME);
             this.newName = newName;
         }
@@ -303,19 +306,19 @@ public class ChangeSignatureRefactoring extends AbstractRefactoring {
         }
     }
     
-    private class ParameterNameChange extends Transform {
+    private class ParameterNameTransform extends Transform {
         private final String newName;
-        ParameterNameChange (String newName) {
+        ParameterNameTransform (String newName) {
             super (ChangeKind.PARAM_NAME);
             this.newName = newName;
         }
 
         protected SimpleRefactoringElementImplementation createElement(MethodInvocationTree tree, Element element, TreePathHandle handle, TreePath path, String name, FileObject file) {
-            return null;
+            return new ParameterNameChangeElement(newName, handle, name, getContext(), file);
         }
 
         protected SimpleRefactoringElementImplementation createElement(MethodTree tree, Element element, TreePathHandle handle, TreePath path, String name, FileObject file) {
-            return null;
+            return new ParameterNameChangeElement(newName, handle, name, getContext(), file);
         }
         
         public String toString() {
@@ -332,16 +335,35 @@ public class ChangeSignatureRefactoring extends AbstractRefactoring {
         }
 
         protected SimpleRefactoringElementImplementation createElement(MethodInvocationTree tree, Element element, TreePathHandle handle, TreePath path, String name, FileObject file) {
-            return null;
+            return new ParameterTypeChangeElement(newName, handle, name, getContext(), file);
         }
 
         protected SimpleRefactoringElementImplementation createElement(MethodTree tree, Element element, TreePathHandle handle, TreePath path, String name, FileObject file) {
-            return null;
+            return new ParameterTypeChangeElement(newName, handle, name, getContext(), file);
         }
         
         public String toString() {
             return super.toString() + " to " + newName;
         }
+    }    
+    
+    private class MethodReturnTypeTransform extends Transform {
+        private final String newType;
+        MethodReturnTypeTransform (String newType) {
+            super (ChangeKind.PARAM_NAME);
+            this.newType = newType;
+        }
+
+        protected SimpleRefactoringElementImplementation createElement(MethodInvocationTree tree, Element element, TreePathHandle handle, TreePath path, String name, FileObject file) {
+            return new MethodReturnTypeChangeElement(newType, handle, name, getContext(), file);
+        }
+
+        protected SimpleRefactoringElementImplementation createElement(MethodTree tree, Element element, TreePathHandle handle, TreePath path, String name, FileObject file) {
+            return new MethodReturnTypeChangeElement(newType, handle, name, getContext(), file);
+        }
         
+        public String toString() {
+            return super.toString() + " to " + newType;
+        }
     }    
 }

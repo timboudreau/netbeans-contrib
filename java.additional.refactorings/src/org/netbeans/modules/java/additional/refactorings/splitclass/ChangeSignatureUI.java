@@ -104,7 +104,7 @@ public class ChangeSignatureUI implements RefactoringUI, CancellableTask <Compil
 
     public AbstractRefactoring getRefactoring() {
         List <Parameter> originals = panel.originals;
-        List <Parameter> now = panel.getNewDescriptions();
+        List <Parameter> now = panel.getNewParameters();
         String returnType = panel.getReturnType();
         String methodName = panel.getMethodName();
         return new ChangeSignatureRefactoring (handle, lkp, originals, now, 
@@ -178,6 +178,6 @@ public class ChangeSignatureUI implements RefactoringUI, CancellableTask <Compil
         }
         panel.setProgress(100);
         System.err.println("Set descs to " + descs);
-        panel.setDescriptions (descs);
+        panel.setParameters (descs);
     }
 }
