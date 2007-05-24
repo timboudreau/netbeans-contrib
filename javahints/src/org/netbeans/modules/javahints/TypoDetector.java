@@ -164,7 +164,7 @@ public class TypoDetector implements ErrorRule<Void> {
             
             float distance = UiUtils.getDistance(e.getSimpleName().toString(), text);
             
-            LOG.log(Level.INFO, "element={0}, simple name={1}, distance={2}", new Object[] {e, e.getSimpleName(), distance});
+            LOG.log(Level.FINE, "element={0}, simple name={1}, distance={2}", new Object[] {e, e.getSimpleName(), distance});
             
             if (distance < 3) {
                 foundProposals.add(new FixImpl(adoc, adoc.createPosition(ident.offset(null)), adoc.createPosition(ident.offset(null) + ident.length()), e.getSimpleName().toString()));
