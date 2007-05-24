@@ -25,9 +25,8 @@ import javax.swing.text.JTextComponent;
 public class ControlPanel extends javax.swing.JPanel {
     
     private static String [][] SEARCH_DIRECTIONS = new String [][] {
-        new String [] { MasterMatcher.D_BACKWARD, "Backward" }, //NOI18N
-        new String [] { MasterMatcher.D_FORWARD, "Forward" }, //NOI18N
-        new String [] { MasterMatcher.D_BOTH, "Both" }, //NOI18N
+        new String [] { MasterMatcher.D_BACKWARD, "Backward Preferred" }, //NOI18N
+        new String [] { MasterMatcher.D_FORWARD, "Forward Preferred" }, //NOI18N
     };
     
     private static String [][] CARET_BIAS = new String [][] {
@@ -47,6 +46,7 @@ public class ControlPanel extends javax.swing.JPanel {
         this.forwardLookahead.setText(getFwdLookahead(component));
         this.searchDirection.setSelectedItem(getSearchDirection(component));
         this.caretBias.setSelectedItem(getCaretBias(component));
+        this.showParameters.setSelected(getShowParameters(component));
     }
 
     public void applyChanges() {
@@ -54,6 +54,7 @@ public class ControlPanel extends javax.swing.JPanel {
         setFwdLookahead(component, forwardLookahead.getText());
         setSearchDirection(component, (String)searchDirection.getSelectedItem());
         setCaretBias(component, (String)caretBias.getSelectedItem());
+        setShowParameters(component, showParameters.isSelected());
     }
     
     private static String getBwdLookahead(JTextComponent component) {
@@ -134,6 +135,14 @@ public class ControlPanel extends javax.swing.JPanel {
         component.putClientProperty(MasterMatcher.PROP_CARET_BIAS, s);
     }
 
+    private static boolean getShowParameters(JTextComponent component) {
+        return Boolean.valueOf((String) component.getClientProperty(MasterMatcher.PROP_SHOW_SEARCH_PARAMETERS));
+    }
+    
+    private static void setShowParameters(JTextComponent component, boolean show) {
+        component.putClientProperty(MasterMatcher.PROP_SHOW_SEARCH_PARAMETERS, Boolean.toString(show));
+    }
+    
     /** This method is called from within the constructor to
      * initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is
@@ -150,6 +159,8 @@ public class ControlPanel extends javax.swing.JPanel {
         searchDirection = new javax.swing.JComboBox();
         jLabel4 = new javax.swing.JLabel();
         caretBias = new javax.swing.JComboBox();
+        showParameters = new javax.swing.JCheckBox();
+        jLabel5 = new javax.swing.JLabel();
 
         jLabel1.setText(org.openide.util.NbBundle.getMessage(ControlPanel.class, "jLabel1.text")); // NOI18N
 
@@ -161,11 +172,17 @@ public class ControlPanel extends javax.swing.JPanel {
 
         forwardLookahead.setText(org.openide.util.NbBundle.getMessage(ControlPanel.class, "forwardLookahead.text")); // NOI18N
 
-        searchDirection.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "", "Backward", "Forward", "Both" }));
+        searchDirection.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "", "Backward Preferred", "Forward Preferred" }));
 
         jLabel4.setText(org.openide.util.NbBundle.getMessage(ControlPanel.class, "jLabel4.text")); // NOI18N
 
         caretBias.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "", "Backward (before caret)", "Forward (after caret)" }));
+
+        showParameters.setText(org.openide.util.NbBundle.getMessage(ControlPanel.class, "jCheckBox1.text_1")); // NOI18N
+        showParameters.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        showParameters.setMargin(new java.awt.Insets(0, 0, 0, 0));
+
+        jLabel5.setText(org.openide.util.NbBundle.getMessage(ControlPanel.class, "jLabel5.text")); // NOI18N
 
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
         this.setLayout(layout);
@@ -187,9 +204,13 @@ public class ControlPanel extends javax.swing.JPanel {
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(searchDirection, 0, 181, Short.MAX_VALUE))
                     .add(layout.createSequentialGroup()
-                        .add(jLabel4, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 183, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                            .add(jLabel4, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 183, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                            .add(jLabel5, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 183, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(caretBias, 0, 181, Short.MAX_VALUE)))
+                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                            .add(showParameters)
+                            .add(caretBias, 0, 181, Short.MAX_VALUE))))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -211,6 +232,10 @@ public class ControlPanel extends javax.swing.JPanel {
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(jLabel4)
                     .add(caretBias, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                    .add(showParameters)
+                    .add(jLabel5))
                 .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
@@ -224,7 +249,9 @@ public class ControlPanel extends javax.swing.JPanel {
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
+    private javax.swing.JLabel jLabel5;
     private javax.swing.JComboBox searchDirection;
+    private javax.swing.JCheckBox showParameters;
     // End of variables declaration//GEN-END:variables
     
 }

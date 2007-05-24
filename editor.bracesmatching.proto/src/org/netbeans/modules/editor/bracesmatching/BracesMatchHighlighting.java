@@ -77,7 +77,7 @@ public class BracesMatchHighlighting extends AbstractHighlightsContainer
         this.bracesMismatchColoring = SimpleAttributeSet.EMPTY; //fcs.getFontColors(BRACES_MISMATCH_COLORING);
         
         // Create and hook up the highlights bag
-        this.bag = new OffsetsBag(document, false); // don't merge highlights
+        this.bag = new OffsetsBag(document, true);
         this.bag.addHighlightsChangeListener(this);
         
         // Hook up the component
@@ -168,6 +168,12 @@ public class BracesMatchHighlighting extends AbstractHighlightsContainer
                 caret.addChangeListener(caretListener);
             }
             
+            refresh();
+        } else if (MasterMatcher.PROP_ALLOWED_SEARCH_DIRECTION.equals(evt.getPropertyName()) ||
+                   MasterMatcher.PROP_CARET_BIAS.equals(evt.getPropertyName()) ||
+                   MasterMatcher.PROP_MAX_BACKWARD_LOOKAHEAD.equals(evt.getPropertyName()) ||
+                   MasterMatcher.PROP_MAX_FORWARD_LOOKAHEAD.equals(evt.getPropertyName())
+        ) {
             refresh();
         }
     }
