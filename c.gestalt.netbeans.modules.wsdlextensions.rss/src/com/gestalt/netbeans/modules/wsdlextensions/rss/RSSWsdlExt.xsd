@@ -26,36 +26,16 @@
         </xs:annotation>
         <xs:complexContent>
             <xs:extension base="wsdl:tExtensibilityElement">
-                <xs:attribute name="name" type="xs:string"/>
+                <xs:attribute name="name" type="rss:operationName" use="required"/>
             </xs:extension>
         </xs:complexContent>
     </xs:complexType>
-    <xs:element name="message" type="rss:tMessage">
-        <xs:annotation>
-            <xs:documentation>
-                Defines the protocol based operation message details.
-            </xs:documentation>
-        </xs:annotation>
-    </xs:element>
-    <xs:complexType name="tMessage">
-        <xs:complexContent>
-            <xs:extension base="wsdl:tExtensibilityElement">
-            </xs:extension>
-        </xs:complexContent>
-    </xs:complexType>
-    <xs:element name="fault" type="rss:tFault">
-        <xs:annotation>
-            <xs:documentation>
-                Defines the protocol based operation fault details.
-            </xs:documentation>
-        </xs:annotation>
-    </xs:element>
-    <xs:complexType name="tFault">
-        <xs:complexContent>
-            <xs:extension base="wsdl:tExtensibilityElement">
-            </xs:extension>
-        </xs:complexContent>
-    </xs:complexType>        
+    <xs:simpleType name="operationName">
+        <xs:restriction base="xs:string">
+                <xs:enumeration value="subscribe"/>
+                <xs:enumeration value="publish"/>
+        </xs:restriction>
+    </xs:simpleType>        
     <xs:element name="address" type="rss:tAddress">
         <xs:annotation>
             <xs:documentation>
@@ -70,8 +50,29 @@
                 <xs:attribute name="feedTitle" type="xs:string"/>
                 <xs:attribute name="feedDescription" type="xs:string"/>
                 <xs:attribute name="feedType" type="xs:string"/>
-                <xs:attribute name="feedUrl" type="xs:string"/>
+                <xs:attribute name="feedUrl" type="xs:anyURI"/>
             </xs:extension>
         </xs:complexContent>
     </xs:complexType>
+    <xs:element name="input" type="rss:tInput"/>
+    <xs:complexType name="tInput">
+        <xs:annotation>
+            <xs:documentation>
+                "input" defines the protocol based input binding details.
+            </xs:documentation>
+        </xs:annotation>
+        <xs:complexContent>
+            <xs:extension base="wsdl:tExtensibilityElement">
+                <xs:attribute name="pollingInterval" type="xs:int" use="optional"/>
+                <xs:attribute name="filterByType" type="rss:filterType" use="optional"/>
+                <xs:attribute name="filterByValue" type="xs:string" use="optional"/>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+    <xs:simpleType name="filterType">
+        <xs:restriction base="xs:string">
+                <xs:enumeration value="none"/>
+                <xs:enumeration value="publishDate"/>
+        </xs:restriction>
+    </xs:simpleType>        
 </xs:schema>
