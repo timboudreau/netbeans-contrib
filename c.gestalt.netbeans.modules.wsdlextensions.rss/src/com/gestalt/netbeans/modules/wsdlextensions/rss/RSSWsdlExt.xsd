@@ -95,17 +95,17 @@
                             <prop:SimpleCustomizer name="PartChooser"/>
                         </prop:BuiltInCustomizer>
                     </prop:Property>
-                    <prop:Property attributeName="entryTitle" propertyOrder="3">
+                    <prop:Property attributeName="entryTitle" propertyOrder="4">
                         <prop:BuiltInCustomizer>
                             <prop:SimpleCustomizer name="PartChooser"/>
                         </prop:BuiltInCustomizer>
                     </prop:Property>
-                    <prop:Property attributeName="entryLink" propertyOrder="3">
+                    <prop:Property attributeName="entryLink" propertyOrder="5">
                         <prop:BuiltInCustomizer>
                             <prop:SimpleCustomizer name="PartChooser"/>
                         </prop:BuiltInCustomizer>
                     </prop:Property>
-                    <prop:Property attributeName="entryDescription" propertyOrder="3">
+                    <prop:Property attributeName="entryDescription" propertyOrder="6">
                         <prop:BuiltInCustomizer>
                             <prop:SimpleCustomizer name="PartChooser"/>
                         </prop:BuiltInCustomizer>
