@@ -100,15 +100,5 @@ Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
              <file name="portlet10lib.xml" url="portlet10lib.xml"/>
         </folder>
     </folder>
-     
-    <folder name="Services">
-        <folder name="AutoupdateType">
-            <file name="portalpack_nb6_update_center.settings" url="update-center.xml">
-                <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.portalpack.portlets.genericportlets.Bundle"/>
-                <attr name="enabled" boolvalue="true"/>
-                <attr name="url_key" stringvalue="update_center"/>
-            </file>
-        </folder>
-     </folder>     
     
 </filesystem>
