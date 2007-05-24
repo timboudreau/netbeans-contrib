@@ -36,6 +36,9 @@
                 <extensionAttr name="pollingInterval" defaultValue="10" />
                 <extensionAttr name="filterByType" defaultValue="publishDate" />
                 <extensionAttr name="filterByValue" defaultValue="now" />
+                <extensionAttr name="entryTitle" defaultValue="" />
+                <extensionAttr name="entryLink" defaultValue="" />
+                <extensionAttr name="entryDescription" defaultValue="" />
             </extensionElement>
         </wsdlElement>
         <wsdlElement name="BindingOperationOutput">

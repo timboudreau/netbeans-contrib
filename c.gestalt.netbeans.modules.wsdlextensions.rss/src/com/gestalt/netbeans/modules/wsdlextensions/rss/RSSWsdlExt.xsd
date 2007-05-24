@@ -26,7 +26,11 @@
         </xs:annotation>
         <xs:complexContent>
             <xs:extension base="wsdl:tExtensibilityElement">
-                <xs:attribute name="name" type="rss:operationName" use="required"/>
+                <xs:attribute name="name" type="rss:operationName" use="required">
+                    <xs:annotation>
+                        <xs:documentation>Select the name of the operation. Subscribe provides the capability to receive notifications of new feed entries from external feeds. Publish allows components to send the RSS BC a new entry to publish to its internal feed store.</xs:documentation>
+                    </xs:annotation>
+                </xs:attribute>
             </xs:extension>
         </xs:complexContent>
     </xs:complexType>
@@ -46,15 +50,70 @@
     <xs:complexType name="tAddress">
         <xs:complexContent>
             <xs:extension base="wsdl:tExtensibilityElement">
-                <xs:attribute name="feedName" type="xs:string"/>
-                <xs:attribute name="feedTitle" type="xs:string"/>
-                <xs:attribute name="feedDescription" type="xs:string"/>
-                <xs:attribute name="feedType" type="xs:string"/>
-                <xs:attribute name="feedUrl" type="xs:anyURI"/>
+                <xs:attribute name="feedTitle" type="xs:string">
+                    <xs:annotation>
+                        <xs:documentation>Feed title is the title of your feed. For example in RSS 2.0 this corresponds to the Channel Title. Required only for publish.</xs:documentation>
+                    </xs:annotation>
+                </xs:attribute>
+                <xs:attribute name="feedDescription" type="xs:string">
+                    <xs:annotation>
+                        <xs:documentation>Feed description is the description of your feed. For example in RSS 2.0 this corresponds to the Channel Description. Required only for publish.</xs:documentation>
+                    </xs:annotation>
+                </xs:attribute>
+                <xs:attribute name="feedType" type="xs:string">
+                    <xs:annotation>
+                        <xs:documentation>Feed type is used to specify the type and version of your feed. Format is type_version, for example "rss_2.0" or "atom_1.0". Required only for publish.</xs:documentation>
+                    </xs:annotation>
+                </xs:attribute>
+                <xs:attribute name="feedUrl" type="xs:anyURI">
+                    <xs:annotation>
+                        <xs:documentation>Feed URL has different meanings for publish and subscribe. For publish this correlates to the local address, port, and path you wish your feed to use; for example http://localhost:8282/myfeed/latest. This is the URL you would point a subscribe to as well as your favorite RSS Reader. For subscribe feedUrl correlates to the external RSS feed URL; for example http://www.cnn.com/feed/news.</xs:documentation>
+                    </xs:annotation>
+                </xs:attribute>
             </xs:extension>
         </xs:complexContent>
     </xs:complexType>
-    <xs:element name="input" type="rss:tInput"/>
+    <xs:element name="input" type="rss:tInput">
+        <xs:annotation>
+            <xs:documentation>
+            "input" indicates a rss protocol based operation input.
+            </xs:documentation>
+            <xs:appinfo>
+                <prop:ElementProperties  xmlns:prop="http://xml.netbeans.org/schema/wsdlui/property">
+                    <prop:Property attributeName="pollingInterval" propertyOrder="1">
+                        <prop:BuiltInCustomizer>
+                            <prop:SimpleCustomizer name="PartChooser"/>
+                        </prop:BuiltInCustomizer>
+                    </prop:Property>
+                    <prop:Property attributeName="filterByType"  propertyOrder="2">
+                        <prop:BuiltInCustomizer>
+                            <prop:SimpleCustomizer name="PartChooser"/>
+                        </prop:BuiltInCustomizer>
+                    </prop:Property>
+                    <prop:Property attributeName="filterByValue" propertyOrder="3">
+                        <prop:BuiltInCustomizer>
+                            <prop:SimpleCustomizer name="PartChooser"/>
+                        </prop:BuiltInCustomizer>
+                    </prop:Property>
+                    <prop:Property attributeName="entryTitle" propertyOrder="3">
+                        <prop:BuiltInCustomizer>
+                            <prop:SimpleCustomizer name="PartChooser"/>
+                        </prop:BuiltInCustomizer>
+                    </prop:Property>
+                    <prop:Property attributeName="entryLink" propertyOrder="3">
+                        <prop:BuiltInCustomizer>
+                            <prop:SimpleCustomizer name="PartChooser"/>
+                        </prop:BuiltInCustomizer>
+                    </prop:Property>
+                    <prop:Property attributeName="entryDescription" propertyOrder="3">
+                        <prop:BuiltInCustomizer>
+                            <prop:SimpleCustomizer name="PartChooser"/>
+                        </prop:BuiltInCustomizer>
+                    </prop:Property>
+                </prop:ElementProperties>
+            </xs:appinfo>
+        </xs:annotation>
+    </xs:element>
     <xs:complexType name="tInput">
         <xs:annotation>
             <xs:documentation>
@@ -63,9 +122,36 @@
         </xs:annotation>
         <xs:complexContent>
             <xs:extension base="wsdl:tExtensibilityElement">
-                <xs:attribute name="pollingInterval" type="xs:int" use="optional"/>
-                <xs:attribute name="filterByType" type="rss:filterType" use="optional"/>
-                <xs:attribute name="filterByValue" type="xs:string" use="optional"/>
+                <xs:attribute name="pollingInterval" type="xs:int" use="optional">
+                    <xs:annotation>
+                        <xs:documentation>The time unit in seconds to poll for feed changes. Required only for subscribe.</xs:documentation>
+                    </xs:annotation>
+                </xs:attribute>
+                <xs:attribute name="filterByType" type="rss:filterType" use="optional">
+                    <xs:annotation>
+                        <xs:documentation>Specify whether to filter or not. Two values are supported: none and publishDate. Default is publishDate. To specify that you want all the feed entries everytime a change has occured specify "none". If you wish to only receive the latest feed entries, determined by the publish date of the entry, then specify "publishDate". The "publishDate" value is also used in conjunction with the filterByValue attribute. Required only for subscribe.</xs:documentation>
+                    </xs:annotation>
+                </xs:attribute>
+                <xs:attribute name="filterByValue" type="xs:string" use="optional">
+                    <xs:annotation>
+                        <xs:documentation>Used when filterByType is publishDate. The values supported are: now or an actual date + time in the format yyyy-MM-dd HH:mm (military style). The vale now means to use the current date + time as the first filter date. This will notify you only of the recent changes, nothing historical. Here is an example: filterByValue="now". If you specify an actual date + time, that value will be used as the first filter date. Here is an example: filterByValue="2007-05-02 14:30. Required only for subcribe."</xs:documentation>
+                    </xs:annotation>
+                </xs:attribute>
+                <xs:attribute name="entryTitle" type="xs:string" use="optional">
+                    <xs:annotation>
+                        <xs:documentation>TBD</xs:documentation>
+                    </xs:annotation>
+                </xs:attribute>
+                <xs:attribute name="entryLink" type="xs:string" use="optional">
+                    <xs:annotation>
+                        <xs:documentation>TBD</xs:documentation>
+                    </xs:annotation>
+                </xs:attribute>
+                <xs:attribute name="entryDescription" type="xs:string" use="optional">
+                    <xs:annotation>
+                        <xs:documentation>TBD</xs:documentation>
+                    </xs:annotation>
+                </xs:attribute>
             </xs:extension>
         </xs:complexContent>
     </xs:complexType>
