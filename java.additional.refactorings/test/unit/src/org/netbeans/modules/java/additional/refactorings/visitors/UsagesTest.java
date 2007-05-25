@@ -83,6 +83,9 @@ public class UsagesTest extends VisitorBaseTestCase  <MethodTree, Info> {
         Set <ElementHandle<TypeElement>> els = index.getElements(classHandle,
                 EnumSet.of(SearchKind.IMPLEMENTORS), EnumSet.of(SearchScope.SOURCE));
         System.err.println("ELEMENTS: " + els);
+        assertEquals (2, els.size());
+        assertEquals (1, pkgNames.size());
+        assertTrue (pkgNames.contains("foo.bar"));        
     }
 
     protected TreePath pathToMethod;
