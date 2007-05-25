@@ -95,8 +95,6 @@ public class ChangeSignaturePlugin extends Refactoring {
         System.err.println(overrides.size() + " overrides");
         System.err.println(invocations.size() + " invocations");
         
-        bag.
-        
         //Iterate the changes made to the method signature
         for (Transform t : l) {
             //Iterate all invocations, and generate a refactoring element for each

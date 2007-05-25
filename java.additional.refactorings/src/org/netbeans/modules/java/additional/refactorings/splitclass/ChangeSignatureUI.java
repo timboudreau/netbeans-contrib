@@ -16,6 +16,7 @@
  */
 package org.netbeans.modules.java.additional.refactorings.splitclass;
 
+import org.netbeans.modules.java.additional.refactorings.splitclass.ChangeSignaturePanel;
 import com.sun.source.tree.CompilationUnitTree;
 import com.sun.source.tree.MethodTree;
 import com.sun.source.tree.VariableTree;

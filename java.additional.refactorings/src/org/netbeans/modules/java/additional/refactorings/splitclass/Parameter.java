@@ -16,6 +16,7 @@
  */
 package org.netbeans.modules.java.additional.refactorings.splitclass;
 
+import org.netbeans.modules.java.additional.refactorings.splitclass.ChangeSignaturePanel;
 import java.util.List;
 import org.netbeans.modules.java.additional.refactorings.visitors.*;
 import org.netbeans.api.java.source.TypeMirrorHandle;

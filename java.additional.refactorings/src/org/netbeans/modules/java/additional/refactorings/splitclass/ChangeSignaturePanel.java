@@ -16,25 +16,22 @@
  */
 package org.netbeans.modules.java.additional.refactorings.splitclass;
 
+import org.netbeans.modules.java.additional.refactorings.splitclass.*;
 import java.awt.Component;
 import java.awt.Font;
-import java.awt.Toolkit;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 import javax.swing.JButton;
+import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
-import javax.swing.event.TableModelEvent;
-import javax.swing.event.TableModelListener;
-import javax.swing.table.TableModel;
 import org.netbeans.modules.refactoring.spi.ui.CustomRefactoringPanel;
 import org.openide.awt.Mnemonics;
 import org.openide.util.Mutex;
@@ -45,7 +42,7 @@ import org.openide.util.Utilities;
  *
  * @author  Tim Boudreau
  */
-class ChangeSignaturePanel extends javax.swing.JPanel implements CustomRefactoringPanel, ListSelectionListener, DocumentListener {
+class ChangeSignaturePanel extends javax.swing.JPanel implements CustomRefactoringPanel, ListSelectionListener, DocumentListener, ParameterTableModel.UI {
     private final ChangeSignatureUI ui;
     public ChangeSignaturePanel(ChangeSignatureUI ui) {
         this.ui = ui;
@@ -81,6 +78,14 @@ class ChangeSignaturePanel extends javax.swing.JPanel implements CustomRefactori
         Mutex.EVENT.readAccess(r);
     }
     
+    public JTable getTable() {
+        return jTable1;
+    }
+    
+    public List <Parameter> getOriginals() {
+        return originals;
+    }
+    
     String origMethodType;
     void setMethodType(final String s) {
         origMethodType = s;
@@ -94,8 +99,8 @@ class ChangeSignaturePanel extends javax.swing.JPanel implements CustomRefactori
     
     boolean anyChanges() {
         boolean result = false;
-        if (jTable1.getModel() instanceof TM) {
-            TM tm = (TM) jTable1.getModel();
+        if (jTable1.getModel() instanceof ParameterTableModel) {
+            ParameterTableModel tm = (ParameterTableModel) jTable1.getModel();
             List <Parameter> params = tm.getParameters();
             result = originals.size() != params.size();
             if (!result) {
@@ -130,7 +135,7 @@ class ChangeSignaturePanel extends javax.swing.JPanel implements CustomRefactori
         ui.init();
     }
 
-    String getProblemText() {
+    public String getProblemText() {
         return problemLabel.getText().trim().length() == 0 ? null :
             problemLabel.getText();
     }
@@ -239,6 +244,7 @@ class ChangeSignaturePanel extends javax.swing.JPanel implements CustomRefactori
 
         jTextArea1.setBackground(javax.swing.UIManager.getDefaults().getColor("control"));
         jTextArea1.setColumns(20);
+        jTextArea1.setEditable(false);
         jTextArea1.setFont(problemLabel.getFont());
         jTextArea1.setRows(5);
         jTextArea1.setText(org.openide.util.NbBundle.getMessage(ChangeSignaturePanel.class, "jTextArea1.text")); // NOI18N
@@ -324,24 +330,24 @@ class ChangeSignaturePanel extends javax.swing.JPanel implements CustomRefactori
     }// </editor-fold>//GEN-END:initComponents
 
 private void moveDownButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_moveDownButtonActionPerformed
-    if (jTable1.getModel() instanceof TM) {
-        TM tm = (TM) jTable1.getModel();
+    if (jTable1.getModel() instanceof ParameterTableModel) {
+        ParameterTableModel tm = (ParameterTableModel) jTable1.getModel();
         int ix = Math.max (0, jTable1.getSelectedRow());
         tm.moveDown (ix);
     }
 }//GEN-LAST:event_moveDownButtonActionPerformed
 
 private void moveUpButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_moveUpButtonActionPerformed
-        if (jTable1.getModel() instanceof TM) {
-            TM tm = (TM) jTable1.getModel();
+        if (jTable1.getModel() instanceof ParameterTableModel) {
+            ParameterTableModel tm = (ParameterTableModel) jTable1.getModel();
             int ix = Math.max (0, jTable1.getSelectedRow());
             tm.moveUp(ix);
         }
 }//GEN-LAST:event_moveUpButtonActionPerformed
 
 private void addButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addButtonActionPerformed
-    if (jTable1.getModel() instanceof TM) {
-        TM tm = (TM) jTable1.getModel();
+    if (jTable1.getModel() instanceof ParameterTableModel) {
+        ParameterTableModel tm = (ParameterTableModel) jTable1.getModel();
         int ix = Math.max (0, jTable1.getSelectedRow());
         Parameter nue = new Parameter ("param", "");
         tm.add (nue, ix);
@@ -349,8 +355,8 @@ private void addButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIR
 }//GEN-LAST:event_addButtonActionPerformed
 
     private void removeButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_removeButtonActionPerformed
-        if (jTable1.getModel() instanceof TM) {
-            TM tm = (TM) jTable1.getModel();
+        if (jTable1.getModel() instanceof ParameterTableModel) {
+            ParameterTableModel tm = (ParameterTableModel) jTable1.getModel();
             int ix = Math.max (0, jTable1.getSelectedRow());
             tm.remove (ix);
         }
@@ -384,15 +390,15 @@ private void addButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIR
     }
 
     public List <Parameter> getNewParameters() {
-        if (jTable1.getModel() instanceof TM) {
-            TM tm = (TM) jTable1.getModel();
+        if (jTable1.getModel() instanceof ParameterTableModel) {
+            ParameterTableModel tm = (ParameterTableModel) jTable1.getModel();
             return tm.getParameters();
         } else {
             return Collections.<Parameter>emptyList();
         }
     }
 
-    private void change() {
+    public void change() {
         boolean problem = false;
         String mname = methodNameField.getText().trim();
         if (!Utilities.isJavaIdentifier(mname)) {
@@ -410,11 +416,11 @@ private void addButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIR
             }
         }
         
-        if (!problem && !(jTable1.getModel() instanceof TM)) {
+        if (!problem && !(jTable1.getModel() instanceof ParameterTableModel)) {
             setProblemText (NbBundle.getMessage(ChangeSignaturePanel.class,
                     "MSG_INITIALIZING")); //NOI18N
-        } else if (jTable1.getModel() instanceof TM) {
-            TM tm = (TM) jTable1.getModel();
+        } else if (jTable1.getModel() instanceof ParameterTableModel) {
+            ParameterTableModel tm = (ParameterTableModel) jTable1.getModel();
             Set <String> names = new HashSet <String>();
             List <Parameter> params = tm.getParameters();
             int ix = 0;
@@ -522,7 +528,7 @@ private void addButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIR
         Runnable r = new Runnable() {
             public void run() {
                 originals = new ArrayList <Parameter> (descs);
-                TM tm = new TM (descs);
+                ParameterTableModel tm = new ParameterTableModel (descs, ChangeSignaturePanel.this);
                 jTable1.setModel (tm);
                 jTable1.setEnabled(true);
                 boolean hasDescs = descs.size() > 0;
@@ -540,177 +546,6 @@ private void addButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIR
         Mutex.EVENT.readAccess(r);
     }
 
-    private class TM implements TableModel {
-        final List <Parameter> descs;
-        TM (List <Parameter> descs) {
-            this.descs = descs;
-        }
-
-        List <Parameter> getParameters() {
-            return descs;
-        }
-
-        void add (Parameter param, int ix) {
-            if (ix < descs.size()) ix++;
-            descs.add(ix, param);
-            TableModelEvent tme = new TableModelEvent (this, ix-1, descs.size());
-            fire (tme);
-            jTable1.getSelectionModel().setAnchorSelectionIndex(ix);
-            jTable1.getSelectionModel().setLeadSelectionIndex(ix);
-            jTable1.requestFocus();
-            jTable1.editCellAt(ix, 1);
-        }
-
-        void remove (int ix) {
-            descs.remove (ix);
-            TableModelEvent tme = new TableModelEvent (this, ix, descs.size() + 1);
-            fire (tme);
-            if (descs.size() > 0) {
-                ix = Math.max (0, ix);
-                jTable1.getSelectionModel().setAnchorSelectionIndex(ix);
-                jTable1.getSelectionModel().setLeadSelectionIndex(ix);
-            }
-        }
-
-        void moveUp (int ix) {
-            if (ix == 0) {
-                return;
-            }
-            Parameter p = descs.remove (ix);
-            descs.add (ix - 1, p);
-            TableModelEvent evt = new TableModelEvent (this);
-            fire (evt);
-            jTable1.getSelectionModel().setAnchorSelectionIndex(ix - 1);
-            jTable1.getSelectionModel().setLeadSelectionIndex(ix - 1);
-        }
-
-        void moveDown (int ix) {
-            if (ix >= descs.size()) {
-                return;
-            }
-            Parameter p = descs.remove (ix);
-            descs.add (Math.min (descs.size(), ix + 1), p);
-            TableModelEvent evt = new TableModelEvent (this);
-            fire (evt);
-            jTable1.getSelectionModel().setAnchorSelectionIndex(ix + 1);
-            jTable1.getSelectionModel().setLeadSelectionIndex(ix + 1);
-        }
-
-        public int getRowCount() {
-            return descs.size();
-        }
-
-        public int getColumnCount() {
-            return 3;
-        }
-
-        public String getColumnName(int columnIndex) {
-            String key = columnIndex == 0 ?
-                    "LBL_NAMES" : columnIndex == 1 ? "LBL_TYPES"
-                    : "LBL_DEFAULT_VALUE"; //NOI18N
-            return NbBundle.getMessage(TM.class, key);
-        }
-
-        public Class<?> getColumnClass(int columnIndex) {
-            return columnIndex == 0 ? String.class :
-                String.class;
-        }
-
-        public boolean isCellEditable(int rowIndex, int columnIndex) {
-            return columnIndex == 2 ? descs.get(rowIndex).isNew() : true;
-        }
-
-        public Object getValueAt(int rowIndex, int columnIndex) {
-            if (rowIndex < 0 || rowIndex > descs.size()) {
-                return null;
-            }
-
-            String result = columnIndex == 0 ? descs.get(rowIndex).getName() :
-                columnIndex == 1 ?
-                descs.get(rowIndex).getTypeName() : descs.get(rowIndex).getDefaultValue();
-            if (result == null) {
-                result = "";
-            }
-            return result;
-        }
-
-        public void setValueAt(Object aValue, int rowIndex, int columnIndex) {
-            String s = aValue.toString();
-            Parameter p = descs.get(rowIndex);
-            switch (columnIndex) {
-            case 0 :
-                p.setName(s);
-                break;
-            case 1 :
-                p.setTypeName(s);
-                break;
-            case 2:
-                if (p.isNew()) {
-                    p.setDefaultValue(s);
-                } else {
-                    Toolkit.getDefaultToolkit().beep();
-                    return;
-                }
-                break;
-            default :
-                throw new IllegalArgumentException("" + columnIndex);
-            }
-            fire(rowIndex, columnIndex);
-            if (getProblemText() == null) {
-                restoreOriginalsIfPossible(rowIndex);
-            }
-        }
-
-        private void restoreOriginalsIfPossible(int ix) {
-            //If the type name and type have become the same as one we originally
-            //had, replce with that element
-            Parameter p = descs.get(ix);
-            Parameter orig = null;
-            String typeName = p.getTypeName();
-            String name = p.getName();
-            if (name != null && typeName != null) {
-                for (Parameter old : originals) {
-                    if (name.equals(old.getName()) && typeName.equals(old.getTypeName())) {
-                        orig = old;
-                        break;
-                    }
-                }
-            }
-            if (orig != null) {
-                descs.remove (ix);
-                descs.add (ix, orig);
-            }
-        }
-
-        private void fire (int row, int col) {
-            TableModelEvent evt = new TableModelEvent(this, row, row, col);
-            fire (evt);
-        }
-
-        private void fire (TableModelEvent evt) {
-            TableModelListener[] l = listeners.toArray (new TableModelListener[0]);
-            for (int i = 0; i < l.length; i++) {
-                l[i].tableChanged(evt);
-            }
-            jTable1.invalidate();
-            jTable1.revalidate();
-            jTable1.repaint();
-            change();
-        }
-
-        private List <TableModelListener> listeners =
-                Collections.<TableModelListener>synchronizedList (new
-                LinkedList<TableModelListener>());
-
-        public void addTableModelListener(TableModelListener l) {
-            listeners.add (l);
-        }
-
-        public void removeTableModelListener(TableModelListener l) {
-            listeners.remove (l);
-        }
-    }
-    
     public String getMethodName() {
         return methodNameField.getText().trim().length() == 0 ? null : 
             methodNameField.getText().trim();
@@ -724,7 +559,7 @@ private void addButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIR
     public void valueChanged(ListSelectionEvent e) {
         int ix = jTable1.getSelectedRow();
         int max = jTable1.getRowCount();
-        if (jTable1.getModel() instanceof TM) {
+        if (jTable1.getModel() instanceof ParameterTableModel) {
             moveUpButton.setEnabled (ix > 0);
             moveDownButton.setEnabled (ix >= 0 && ix < max - 1 && max > 1);
             removeButton.setEnabled (true);
