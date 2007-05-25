@@ -1,0 +1,5 @@
+Manifest-Version: 1.0
+OpenIDE-Module: org.netbeans.modules.features2views
+OpenIDE-Module-Install: org/netbeans/modules/features2views/Installer.class
+OpenIDE-Module-Localizing-Bundle: org/netbeans/modules/features2views/resources/Bundle.properties
+OpenIDE-Module-Specification-Version: 1.0
