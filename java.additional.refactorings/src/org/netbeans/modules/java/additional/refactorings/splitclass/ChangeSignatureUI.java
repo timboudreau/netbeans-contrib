@@ -108,7 +108,7 @@ public class ChangeSignatureUI implements RefactoringUI, CancellableTask <Compil
         String returnType = panel.getReturnType();
         String methodName = panel.getMethodName();
         return new ChangeSignatureRefactoring (handle, lkp, originals, now, 
-                returnType, methodName);
+                methodName, returnType);
     }
 
     public HelpCtx getHelpCtx() {
@@ -157,6 +157,8 @@ public class ChangeSignatureUI implements RefactoringUI, CancellableTask <Compil
            return;
         }
         MethodTree tree = (MethodTree) path.getLeaf();
+        String name = tree.getName().toString();
+        String type = tree.getReturnType().toString();
         List <? extends VariableTree> params = tree.getParameters();
         Trees trees = cc.getTrees();
         List <Parameter> descs = new ArrayList <Parameter> (params.size());
@@ -177,7 +179,8 @@ public class ChangeSignatureUI implements RefactoringUI, CancellableTask <Compil
             ix++;
         }
         panel.setProgress(100);
-        System.err.println("Set descs to " + descs);
+        panel.setMethodType (type);
+        panel.setMethodName (name);
         panel.setParameters (descs);
     }
 }

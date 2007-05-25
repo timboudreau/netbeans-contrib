@@ -59,6 +59,61 @@ class ChangeSignaturePanel extends javax.swing.JPanel implements CustomRefactori
         methodNameField.getDocument().addDocumentListener(this);
         returnTypeField.getDocument().addDocumentListener(this);
     }
+    
+    String origMethodName;
+    void setMethodName(final String s) {
+        origMethodName = s;
+        Runnable r = new Runnable() {
+            public void run() {
+                methodNameField.setText(s);
+            }
+        };
+        Mutex.EVENT.readAccess(r);
+    }
+    
+    String origMethodType;
+    void setMethodType(final String s) {
+        origMethodType = s;
+        Runnable r = new Runnable() {
+            public void run() {
+                returnTypeField.setText(s);
+            }
+        };
+        Mutex.EVENT.readAccess(r);
+    }
+    
+    boolean anyChanges() {
+        boolean result = false;
+        if (jTable1.getModel() instanceof TM) {
+            TM tm = (TM) jTable1.getModel();
+            List <Parameter> params = tm.getParameters();
+            result = originals.size() != params.size();
+            if (!result) {
+                int max = params.size();
+                for (int i=0; i < max; i++) {
+                    result |= originals.get(i) != params.get(i);
+                    if (result) {
+                        break;
+                    }
+                }
+            }
+            if (!result) {
+                for (Parameter p : params) {
+                    result |= p.isModified();
+                    if (result) break;
+                }
+                if (!result && origMethodName != null) {
+                    result |= !origMethodName.equals(
+                            methodNameField.getText().trim());
+                }
+                if (!result && origMethodType != null) {
+                    result |= !origMethodType.equals(
+                            returnTypeField.getText().trim());
+                }
+            }
+        }
+        return result;
+    }
 
     public void addNotify() {
         super.addNotify();
@@ -194,29 +249,32 @@ class ChangeSignaturePanel extends javax.swing.JPanel implements CustomRefactori
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(jScrollPane2, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 438, Short.MAX_VALUE)
-                    .addComponent(problemLabel, javax.swing.GroupLayout.DEFAULT_SIZE, 438, Short.MAX_VALUE)
-                    .addComponent(progress, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 438, Short.MAX_VALUE)
+                    .addComponent(progress, javax.swing.GroupLayout.DEFAULT_SIZE, 458, Short.MAX_VALUE)
                     .addGroup(layout.createSequentialGroup()
-                        .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 337, Short.MAX_VALUE)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(returnTypeLbl)
+                            .addComponent(methodNameLbl))
+                        .addGap(16, 16, 16)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addComponent(problemLabel, javax.swing.GroupLayout.DEFAULT_SIZE, 376, Short.MAX_VALUE)
+                            .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                                    .addComponent(returnTypeField, javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(methodNameField, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 372, Short.MAX_VALUE))
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 4, Short.MAX_VALUE))))
+                    .addComponent(jLabel1, javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jScrollPane2, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 458, Short.MAX_VALUE)
+                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
+                        .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 357, Short.MAX_VALUE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                             .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                 .addComponent(removeButton)
                                 .addComponent(addButton))
                             .addComponent(moveUpButton)
-                            .addComponent(moveDownButton)))
-                    .addComponent(jLabel1, javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(returnTypeLbl)
-                            .addComponent(methodNameLbl))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(methodNameField, javax.swing.GroupLayout.DEFAULT_SIZE, 368, Short.MAX_VALUE)
-                            .addComponent(returnTypeField, javax.swing.GroupLayout.DEFAULT_SIZE, 368, Short.MAX_VALUE))))
+                            .addComponent(moveDownButton))))
                 .addContainerGap())
         );
 
@@ -225,10 +283,9 @@ class ChangeSignaturePanel extends javax.swing.JPanel implements CustomRefactori
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                .addContainerGap()
                 .addComponent(jLabel1)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 20, Short.MAX_VALUE)
+                .addGap(17, 17, 17)
+                .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 41, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(methodNameLbl)
@@ -239,7 +296,6 @@ class ChangeSignaturePanel extends javax.swing.JPanel implements CustomRefactori
                     .addComponent(returnTypeField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(12, 12, 12)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 211, Short.MAX_VALUE)
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(addButton)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -247,8 +303,9 @@ class ChangeSignaturePanel extends javax.swing.JPanel implements CustomRefactori
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(moveUpButton)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(moveDownButton)))
-                .addGap(20, 20, 20)
+                        .addComponent(moveDownButton))
+                    .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 232, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(progress, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(problemLabel)
@@ -307,6 +364,7 @@ private void addButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIR
     // End of variables declaration//GEN-END:variables
 
     public void initialize() {
+        System.err.println("Initialize");
         //never called. curious.
 //        ui.init();
     }
@@ -326,10 +384,26 @@ private void addButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIR
 
     private void change() {
         boolean problem = false;
-        if (!(jTable1.getModel() instanceof TM)) {
+        String mname = methodNameField.getText().trim();
+        if (!Utilities.isJavaIdentifier(mname)) {
+            setProblemText(NbBundle.getMessage(ChangeSignaturePanel.class,
+                    "MSG_BAD_NAME", mname)); //NOI18N
+            problem = true;
+        }
+        String type = returnTypeField.getText().trim();
+        if (!problem && !Utilities.isJavaIdentifier(type) && !"void".equals(type) && !isPrimitiveTypeName(type)) {
+            boolean qualName = !isQualifiedTypeName(type);
+            if (!qualName || (qualName && !checkQualifiedTypeName(type))) {
+                setProblemText (NbBundle.getMessage(ChangeSignaturePanel.class,
+                        "MSG_BAD_TYPE", type)); //NOI18N
+                problem = true;
+            }
+        }
+        
+        if (!problem && !(jTable1.getModel() instanceof TM)) {
             setProblemText (NbBundle.getMessage(ChangeSignaturePanel.class,
                     "MSG_INITIALIZING")); //NOI18N
-        } else {
+        } else if (jTable1.getModel() instanceof TM) {
             TM tm = (TM) jTable1.getModel();
             Set <String> names = new HashSet <String>();
             List <Parameter> params = tm.getParameters();
@@ -393,9 +467,13 @@ private void addButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIR
                 ix ++;
             }
         }
+        if (!problem && !anyChanges()) {
+            setProblemText (NbBundle.getMessage(ChangeSignaturePanel.class,
+                    "MSG_NOTHING_TO_DO")); //NOI18N
+            problem = true;
+        }
         if (!problem) {
-            problem = nameOrTypeChanged();
-            setProblemText (null);
+            setProblemText(null);
         }
         ui.change();
     }
@@ -463,6 +541,7 @@ private void addButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIR
         }
 
         void add (Parameter param, int ix) {
+            if (ix < descs.size()) ix++;
             descs.add(ix, param);
             TableModelEvent tme = new TableModelEvent (this, ix-1, descs.size());
             fire (tme);
@@ -643,36 +722,25 @@ private void addButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIR
         }
     }
     
-    private boolean nameOrTypeChanged() {
-        boolean problem = getProblemText() != null;
-        if (!problem) {
-            String mname = methodNameField.getText();
-            if (!Utilities.isJavaIdentifier(mname)) {
-                setProblemText(NbBundle.getMessage(ChangeSignaturePanel.class,
-                        "MSG_BAD_NAME", mname)); //NOI18N
-                problem = true;
-            }
-            String type = returnTypeField.getText();
-            if (!Utilities.isJavaIdentifier(type)) {
-                if (!"void".equals(type)  && !isQualifiedTypeName(type)) {
-                    setProblemText (NbBundle.getMessage(ChangeSignaturePanel.class,
-                            "MSG_BAD_TYPE", type)); //NOI18N
-                    problem = true;
-                }
-            }
+    private boolean checkQualifiedTypeName (String nm) {
+        String[] s = nm.split (".");        
+        boolean result = true;
+        for (int i = 0; i < s.length; i++) {
+            result &= Utilities.isJavaIdentifier(s[i]);
+            if (!result) break;
         }
-        return problem;
+        return result;
     }
 
     public void insertUpdate(DocumentEvent e) {
-        nameOrTypeChanged();
+        change();
     }
 
     public void removeUpdate(DocumentEvent e) {
-        nameOrTypeChanged();
+        change();
     }
 
     public void changedUpdate(DocumentEvent e) {
-        nameOrTypeChanged();
+        change();
     }
 }

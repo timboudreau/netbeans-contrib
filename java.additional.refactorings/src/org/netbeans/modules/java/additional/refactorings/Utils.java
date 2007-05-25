@@ -279,8 +279,9 @@ public abstract class Utils {
 //            assert type != null : "Could not resolve type " + h;
             if (type != null) {
                 Tree tree = wc.getTrees().getTree(type);
+                TreePath path = TreePath.getPath(wc.getCompilationUnit(), tree);                
                 assert tree != null : "Tree for " + type + " is null";
-                scanner.scan (tree, e);
+                scanner.scan (path, e);
             } else {
                 System.err.println("Null type for " + h);
             }

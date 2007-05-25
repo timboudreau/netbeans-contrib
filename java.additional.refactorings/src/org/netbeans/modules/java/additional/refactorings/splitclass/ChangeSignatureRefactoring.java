@@ -106,7 +106,8 @@ public class ChangeSignatureRefactoring extends AbstractRefactoring {
             if (i < newSize) {
                 Parameter p = nue.get(i);
                 if (!origSet.contains(p)) {
-                    result.add(new ParameterAdditionTransform(i + offsets[i], p.getDefaultValue(),
+                    result.add(new ParameterAdditionTransform(i + offsets[i], 
+                            p.getDefaultValue(),
                             p.getName(), p.getTypeName()));
                     work.add(i + offsets[i], p);
                     offset++;
@@ -145,7 +146,7 @@ public class ChangeSignatureRefactoring extends AbstractRefactoring {
                     result.add (new ParameterTypeChange(p.getTypeName()));
                 }
                 if (p.isNameChanged()) {
-                    result.add (new ParameterNameTransform(p.getTypeName()));
+                    result.add (new ParameterNameTransform(p.getName()));
                 }
             }
         }
@@ -165,12 +166,12 @@ public class ChangeSignatureRefactoring extends AbstractRefactoring {
         return result;
     }    
     
-    public enum ChangeKind {
+    public static enum ChangeKind {
         RETURN_TYPE, PARAM_ORDER, PARAM_ADDITION, PARAM_REMOVAL, METHOD_NAME, 
         PARAM_TYPE, PARAM_NAME
     }
     
-    public abstract class Transform {
+    public static abstract class Transform {
         private final ChangeKind kind;
         Transform (ChangeKind kind) {
             this.kind = kind;
@@ -186,6 +187,8 @@ public class ChangeSignatureRefactoring extends AbstractRefactoring {
             Element element = cc.getTrees().getElement(path);
             TypeElement type = cc.getElementUtilities().enclosingTypeElement(element);
             String name = type.getQualifiedName() + "." + element.getSimpleName();
+            assert handle.resolve(cc) != null;
+            assert handle.resolve(cc).getLeaf() != null;
             return createElement(tree, element, handle, path, name, file);
         }
         
@@ -195,11 +198,19 @@ public class ChangeSignatureRefactoring extends AbstractRefactoring {
             Element element = cc.getTrees().getElement(path);
             TypeElement type = cc.getElementUtilities().enclosingTypeElement(element);
             String name = type.getQualifiedName() + "." + element.getSimpleName();
+            assert handle.resolve(cc) != null;
+            assert handle.resolve(cc).getLeaf() != null;
             return createElement(tree, element, handle, path, name, file);
         }
         
-        protected abstract SimpleRefactoringElementImplementation createElement (MethodInvocationTree tree, Element element, TreePathHandle handle, TreePath path, String name, FileObject file);
-        protected abstract SimpleRefactoringElementImplementation createElement (MethodTree tree, Element element, TreePathHandle handle, TreePath path, String name, FileObject file);
+        protected abstract SimpleRefactoringElementImplementation createElement (
+                MethodInvocationTree tree, Element element, 
+                TreePathHandle handle, TreePath path, String name, 
+                FileObject file);
+        
+        protected abstract SimpleRefactoringElementImplementation createElement (
+                MethodTree tree, Element element, TreePathHandle handle, 
+                TreePath path, String name, FileObject file);
         
         public String toString() {
             return kind.toString();
@@ -291,6 +302,8 @@ public class ChangeSignatureRefactoring extends AbstractRefactoring {
         MethodNameTransform (String newName) {
             super (ChangeKind.METHOD_NAME);
             this.newName = newName;
+            System.err.println("MethodNameTransform new name " + newName);
+            if ("void".equals(newName)) Thread.dumpStack();
         }
 
         protected SimpleRefactoringElementImplementation createElement(MethodInvocationTree tree, Element element, TreePathHandle handle, TreePath path, String name, FileObject file) {

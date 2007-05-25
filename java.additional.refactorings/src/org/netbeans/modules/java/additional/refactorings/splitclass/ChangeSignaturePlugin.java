@@ -42,6 +42,7 @@ import org.netbeans.modules.java.additional.refactorings.splitclass.ChangeSignat
 import org.netbeans.modules.refactoring.api.Problem;
 import org.netbeans.modules.refactoring.spi.RefactoringElementsBag;
 import org.netbeans.modules.refactoring.spi.SimpleRefactoringElementImplementation;
+import org.netbeans.modules.refactoring.spi.Transaction;
 import org.openide.filesystems.FileObject;
 
 /**
@@ -62,6 +63,19 @@ public class ChangeSignaturePlugin extends Refactoring {
     }
 
     protected Problem checkParameters(CompilationController wc) throws IOException {
+        /* Pending:
+         *  If param names changed:
+         *   - Scan all implementors for local variable with name that matches any
+         *      changed parameter name if we should change implementation 
+         *      param names;  if not, skip this.
+         *  - If return type changed:
+         *   - If old return type non-void
+         *     - Try to find the actual type;  scan all usages of the returned
+         *       object in invoking methods and determine if any methods which
+         *       don't exist on the new type are called
+         *  If param type changed
+         *    - Do same as if return type changed
+         */ 
         return null;
     }
 
@@ -74,10 +88,15 @@ public class ChangeSignaturePlugin extends Refactoring {
         List <Transform> l = refactoring.getChanges();
         TreePathHandle toRefactor = refactoring.methodHandle;
         TreePath path = toRefactor.resolve(wc);
-        MethodTree method = (MethodTree) path.getLeaf();
+        MethodTree theMethod = (MethodTree) path.getLeaf();
         ExecutableElement element = (ExecutableElement) wc.getTrees().getElement(path);
         Collection <ExecutableElement> overrides = Utils.getOverridingMethods(element, wc);
         Collection <TreePathHandle> invocations = Utils.getInvocationsOf (element, wc);
+        System.err.println(overrides.size() + " overrides");
+        System.err.println(invocations.size() + " invocations");
+        
+        bag.
+        
         //Iterate the changes made to the method signature
         for (Transform t : l) {
             //Iterate all invocations, and generate a refactoring element for each
@@ -95,6 +114,7 @@ public class ChangeSignaturePlugin extends Refactoring {
                 Element invokingMethodElement = wc.getTrees().getElement(pathToInvocation);
                 ElementHandle<TypeElement> eh = ElementHandle.<TypeElement>create(wc.getElementUtilities().enclosingTypeElement(invokingMethodElement));
                 Set <FileObject> fobs = wc.getJavaSource().getClasspathInfo().getClassIndex().getResources(eh, EnumSet.of(SearchKind.TYPE_REFERENCES), EnumSet.of(SearchScope.SOURCE));
+                System.err.println("Process " + t + " on " + fobs);
                 SimpleRefactoringElementImplementation refactorElement = t.getElement(invocation, wc, refactoring.getContext(), fobs.iterator().next());
                 bag.add (refactoring, refactorElement);
             }
@@ -105,9 +125,13 @@ public class ChangeSignaturePlugin extends Refactoring {
                 TypeElement typeEl = wc.getElementUtilities().enclosingTypeElement(e);
                 ElementHandle<TypeElement> eh = ElementHandle.<TypeElement>create(wc.getElementUtilities().enclosingTypeElement(typeEl));
                 Set <FileObject> fobs = wc.getJavaSource().getClasspathInfo().getClassIndex().getResources(eh, EnumSet.of(SearchKind.TYPE_REFERENCES), EnumSet.of(SearchScope.SOURCE));
+                System.err.println("Process " + t + " on " + fobs);
                 SimpleRefactoringElementImplementation refactorElement = t.getElement(methodTree, wc, refactoring.getContext(), fobs.iterator().next());
                 bag.add (refactoring, refactorElement);
             }
+            SimpleRefactoringElementImplementation refactorElement = t.getElement(theMethod, 
+                    wc, refactoring.getContext(), file);
+            bag.add (refactoring, refactorElement);
         }
         return null;
     }

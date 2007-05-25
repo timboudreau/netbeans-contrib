@@ -21,6 +21,8 @@ import org.netbeans.modules.java.additional.refactorings.visitors.*;
 import org.netbeans.api.java.source.TypeMirrorHandle;
 
 /**
+ * Model objects used in the table model in the UI to represent method
+ * parameters.
  *
  * @author Tim Boudreau
  */
@@ -50,10 +52,6 @@ final class Parameter implements Comparable <Parameter> {
         } else {
             defaultValue = "null"; //NOI18N            
         }
-    }
-    
-    public boolean isPositionChanged (List <Parameter> orig) {
-        return pos != orig.indexOf (this);
     }
     
     public boolean isNew() {
