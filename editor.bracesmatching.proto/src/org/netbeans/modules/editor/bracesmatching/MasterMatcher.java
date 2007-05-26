@@ -19,6 +19,7 @@ package org.netbeans.modules.editor.bracesmatching;
 import java.awt.Color;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -38,6 +39,7 @@ import org.netbeans.api.lexer.TokenId;
 import org.netbeans.api.lexer.TokenSequence;
 import org.netbeans.lib.editor.util.swing.DocumentUtilities;
 import org.netbeans.spi.editor.bracesmatching.BracesMatcher;
+import org.netbeans.spi.editor.bracesmatching.BracesMatcherFactory;
 import org.netbeans.spi.editor.bracesmatching.BracesMatcherFactory;
 import org.netbeans.spi.editor.bracesmatching.MatcherContext;
 import org.netbeans.spi.editor.highlighting.support.OffsetsBag;
@@ -287,6 +289,41 @@ public final class MasterMatcher {
             }
         }
     }
+
+    private static Collection<? extends BracesMatcherFactory> findFactories(Document document, int offset) {
+        MimePath mimePath = null;
+
+        TokenHierarchy<? extends Document> th = TokenHierarchy.get(document);
+        if (th != null) {
+            TokenSequence<? extends TokenId> embedded = th.tokenSequence();
+            TokenSequence<? extends TokenId> seq = null;
+
+            do {
+                seq = embedded;
+                embedded = null;
+
+                // Find the token at the caret's position
+                seq.move(offset);
+                if (seq.moveNext()) {
+                    // Drill down to the embedded sequence
+                    embedded = seq.embedded();
+                }
+
+            } while (embedded != null);
+
+            String path = seq.languagePath().mimePath();
+            mimePath = MimePath.parse(path);
+        } else {
+            String mimeType = (String) document.getProperty("mimeType"); //NOI18N
+            mimePath = mimeType != null ? MimePath.parse(mimeType) : null;
+        }
+
+        if (mimePath == null) {
+            mimePath = MimePath.EMPTY;
+        }
+
+        return MimeLookup.getLookup(mimePath).lookupAll(BracesMatcherFactory.class);
+    }
     
     private final class Result implements Runnable {
 
@@ -298,9 +335,6 @@ public final class MasterMatcher {
         private final int maxFwdLookahead;
 
         private boolean inDocumentRender = false;
-        private boolean interrupted = false;
-        private int [] origin = null;
-        private int [] matches = null;
 
         private final List<Object []> highlightingJobs = new ArrayList<Object []>();
         private final List<Object []> navigationJobs = new ArrayList<Object []>();
@@ -348,7 +382,7 @@ public final class MasterMatcher {
         }
         
         public Object getCaretBias() {
-            return allowedDirection;
+            return caretBias;
         }
         
         public int getMaxBwdLookahead() {
@@ -357,16 +391,6 @@ public final class MasterMatcher {
         
         public int getMaxFwdLookahead() {
             return maxFwdLookahead;
-        }
-        
-        // Must be called under the MasterMatcher.LOCK
-        public int [] getOrigin() {
-            return origin;
-        }
-        
-        // Must be called under the MasterMatcher.LOCK
-        public int [] getMatches() {
-            return matches;
         }
         
         // ------------------------------------------------
@@ -378,103 +402,67 @@ public final class MasterMatcher {
             if (!inDocumentRender) {
                 inDocumentRender = true;
                 document.render(this);
-                
-                synchronized (LOCK) {
-                    // If the task was cancelled, we must exit without storing results
-                    if (interrupted || Thread.currentThread().isInterrupted()) {
-                        return;
-                    }
-
-                    for (Object[] job : highlightingJobs) {
-                        highlightAreas(origin, matches, (OffsetsBag) job[0], (AttributeSet) job[1], (AttributeSet) job[2]);
-                        if (Boolean.valueOf((String) component.getClientProperty(PROP_SHOW_SEARCH_PARAMETERS))) {
-                            showSearchParameters((OffsetsBag) job[0]);
-                        }
-                    }
-                    
-                    for(Object [] job : navigationJobs) {
-                        navigateAreas(origin, matches, caretBias, (Caret) job[0], (Boolean) job[1]);
-                    }
-                    
-                    // Signal that the task is done.
-                    MasterMatcher.this.task = null;
-                }
-                
                 return;
             }
 
-            Collection<? extends BracesMatcherFactory> factories = findFactories();
-            if (factories.isEmpty() || Thread.currentThread().isInterrupted()) {
-                // no provider, no matcher, nothing to do
+            if (Thread.currentThread().isInterrupted()) {
                 return;
             }
             
+            int [] origin = null;
+            int [] matches = null;
+            
             try {
+                // Find the original area
                 BracesMatcher [] matcher = new BracesMatcher[1];
 
                 if (D_BACKWARD.equalsIgnoreCase(allowedDirection.toString())) {
-                    origin = findOrigin(factories, true, matcher);
+                    origin = findOrigin(true, matcher);
                     if (origin == null) {
-                        origin = findOrigin(factories, false, matcher);
+                        origin = findOrigin(false, matcher);
                     }
                 } else if (D_FORWARD.equalsIgnoreCase(allowedDirection.toString())) {
-                    origin = findOrigin(factories, false, matcher);
+                    origin = findOrigin(false, matcher);
                     if (origin == null) {
-                        origin = findOrigin(factories, true, matcher);
+                        origin = findOrigin(true, matcher);
                     }
                 }
                 
-                if (origin == null || Thread.currentThread().isInterrupted()) {
-                    // no original area, nothing to search for
-                    return;
+                if (origin != null && !Thread.currentThread().isInterrupted()) {
+                    // Find matching areas
+                    matches = matcher[0].findMatches();
                 }
-            
-                matches = matcher[0].findMatches();
             } catch (BadLocationException ble) {
                 LOG.log(Level.WARNING, null, ble);
             } catch (InterruptedException e) {
                 // We were interrupted, no results
-                interrupted = true;
+                return;
             }
-        }
+            
+            // Show the results
+            synchronized (LOCK) {
+                // If the task was cancelled, we must exit immediately
+                if (Thread.currentThread().isInterrupted()) {
+                    return;
+                }
 
-        private Collection<? extends BracesMatcherFactory> findFactories() {
-            MimePath mimePath = null;
-
-            TokenHierarchy<? extends Document> th = TokenHierarchy.get(document);
-            if (th != null) {
-                TokenSequence<? extends TokenId> embedded = th.tokenSequence();
-                TokenSequence<? extends TokenId> seq = null;
-
-                do {
-                    seq = embedded;
-                    embedded = null;
-
-                    // Find the token at the caret's position
-                    seq.move(caretOffset);
-                    if (seq.moveNext()) {
-                        // Drill down to the embedded sequence
-                        embedded = seq.embedded();
+                for (Object[] job : highlightingJobs) {
+                    highlightAreas(origin, matches, (OffsetsBag) job[0], (AttributeSet) job[1], (AttributeSet) job[2]);
+                    if (Boolean.valueOf((String) component.getClientProperty(PROP_SHOW_SEARCH_PARAMETERS))) {
+                        showSearchParameters((OffsetsBag) job[0]);
                     }
+                }
 
-                } while (embedded != null);
+                for(Object [] job : navigationJobs) {
+                    navigateAreas(origin, matches, caretBias, (Caret) job[0], (Boolean) job[1]);
+                }
 
-                String path = seq.languagePath().mimePath();
-                mimePath = MimePath.parse(path);
-            } else {
-                String mimeType = (String) document.getProperty("mimeType"); //NOI18N
-                mimePath = mimeType != null ? MimePath.parse(mimeType) : null;
+                // Signal that the task is done.
+                MasterMatcher.this.task = null;
             }
-
-            if (mimePath == null) {
-                mimePath = MimePath.EMPTY;
-            }
-
-            return MimeLookup.getLookup(mimePath).lookupAll(BracesMatcherFactory.class);
         }
         
         private int [] findOrigin(
-            Collection<? extends BracesMatcherFactory> factories, 
             boolean backward, 
             BracesMatcher [] matcher
         ) throws InterruptedException {
@@ -520,7 +508,13 @@ public final class MasterMatcher {
                 }
             }
             
+            Collection<? extends BracesMatcherFactory> factories = Collections.<BracesMatcherFactory>emptyList();
+            
             if (lookahead > 0) {
+                factories = findFactories(document, adjustedCaretOffset);
+            }
+            
+            if (!factories.isEmpty()) {
                 MatcherContext context = SpiAccessor.get().createCaretContext(
                     document, 
                     adjustedCaretOffset, 
