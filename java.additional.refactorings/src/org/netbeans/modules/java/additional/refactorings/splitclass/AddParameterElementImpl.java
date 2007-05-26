@@ -17,6 +17,7 @@
 package org.netbeans.modules.java.additional.refactorings.splitclass;
 
 import com.sun.source.tree.ExpressionTree;
+import com.sun.source.tree.IdentifierTree;
 import com.sun.source.tree.LiteralTree;
 import com.sun.source.tree.ModifiersTree;
 import com.sun.source.tree.Tree;
@@ -53,8 +54,9 @@ public class AddParameterElementImpl extends AbstractParameterChangeElementImpl 
     }
 
     protected void modifyArgs(List<ExpressionTree> args, TreeMaker maker) {
-        LiteralTree litTree = maker.Literal(defaultValue);
-        args.add(paramIndex, litTree);
+//        LiteralTree ree = maker.Literal(defaultValue);
+        IdentifierTree tree = maker.Identifier(defaultValue);
+        args.add(paramIndex, tree);
     }
 
     protected void modifyOverrideArgs(List<VariableTree> args, TreeMaker maker) {
