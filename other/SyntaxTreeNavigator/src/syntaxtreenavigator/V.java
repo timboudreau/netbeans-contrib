@@ -544,57 +544,57 @@ public class V extends DefaultMutableTreeNode {
             return;
         }
         visited.add (o);
-        if (o instanceof List) {
-            procList ((List) o);
-        } else {
+        if (o instanceof Iterable) {
+            procList ((Iterable) o);
             if (o instanceof Tree) {
                 ((Tree) o).accept(new TreeV(), null);
             }
-            Class clazz = o.getClass();
-            Method[] m = clazz.getMethods();
-            for (int i = 0; i < m.length; i++) {
-                boolean isCollection = Collection.class.isAssignableFrom(m[i].getReturnType());
-                int paramCount = m[i].getParameterTypes().length;
-                if (isCollection && paramCount == 0 && m[i].getName().startsWith("get")) {
-                    String title = m[i].getName().substring(3);
-                    Collection collection;
-                    try {
-                        collection = ((Collection) m[i].invoke(o));
-                        if ((collection != null && !collection.isEmpty()) || showLists) {
-                            add (new V (title, collection));
-                        }
-                    } catch (IllegalArgumentException ex) {
-                        ex.printStackTrace();
-                    } catch (IllegalAccessException ex) {
-                        ex.printStackTrace();
-                    } catch (InvocationTargetException ex) {
-                        ex.printStackTrace();
+        }
+        Class clazz = o.getClass();
+        Method[] m = clazz.getMethods();
+        for (int i = 0; i < m.length; i++) {
+            boolean isCollection = Collection.class.isAssignableFrom(m[i].getReturnType());
+            int paramCount = m[i].getParameterTypes().length;
+            if (isCollection && paramCount == 0 && m[i].getName().startsWith("get")) {
+                String title = m[i].getName().substring(3);
+                Collection collection;
+                try {
+                    collection = ((Collection) m[i].invoke(o));
+                    if ((collection != null && !collection.isEmpty()) || showLists) {
+                        add (new V (title, collection));
                     }
+                } catch (IllegalArgumentException ex) {
+                    ex.printStackTrace();
+                } catch (IllegalAccessException ex) {
+                    ex.printStackTrace();
+                } catch (InvocationTargetException ex) {
+                    ex.printStackTrace();
                 }
-                boolean isTree = Tree.class.isAssignableFrom(m[i].getReturnType());
-                if (isTree && paramCount == 0 && m[i].getName().startsWith("get")) {
-                    try {
-                        Tree tree = (Tree) m[i].invoke(o);
-                        if (!visited.contains(tree)) {
-                            add (new V(m[i].getName().substring(3), tree));
-                        }
-                    } catch (IllegalArgumentException ex) {
-                        ex.printStackTrace();
-                    } catch (IllegalAccessException ex) {
-                        ex.printStackTrace();
-                    } catch (InvocationTargetException ex) {
-                        ex.printStackTrace();
+            }
+            boolean isTree = Tree.class.isAssignableFrom(m[i].getReturnType());
+            if (isTree && paramCount == 0 && m[i].getName().startsWith("get")) {
+                try {
+                    Tree tree = (Tree) m[i].invoke(o);
+                    if (!visited.contains(tree)) {
+                        add (new V(m[i].getName().substring(3), tree));
                     }
+                } catch (IllegalArgumentException ex) {
+                    ex.printStackTrace();
+                } catch (IllegalAccessException ex) {
+                    ex.printStackTrace();
+                } catch (InvocationTargetException ex) {
+                    ex.printStackTrace();
                 }
             }
         }
     }
 
-    private void procList(Collection list) {
-        if (!showLists && list.isEmpty()) {
-            return;
-        }
-        for (Iterator i=list.iterator(); i.hasNext();) {
+    private void procList(Iterable list) {
+        Iterator i = list.iterator();
+//        if (!showLists || !i.hasNext()) {
+//            return;
+//        }
+        while (i.hasNext()) {
             add (new V(i.next()));
         }
     }
