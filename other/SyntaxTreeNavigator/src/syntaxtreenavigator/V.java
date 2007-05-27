@@ -9,10 +9,56 @@ enclosed by brackets [] replaced by your own identifying information:
 "Portions Copyrighted [year] [name of copyright owner]"  */
 package syntaxtreenavigator;
 
-import com.sun.tools.javac.tree.JCTree;
-import com.sun.tools.javac.tree.JCTree.JCMethodDecl;
-import com.sun.tools.javac.tree.JCTree.JCVariableDecl;
-import com.sun.tools.javac.tree.JCTree.Visitor;
+import com.sun.source.tree.AnnotationTree;
+import com.sun.source.tree.ArrayAccessTree;
+import com.sun.source.tree.ArrayTypeTree;
+import com.sun.source.tree.AssertTree;
+import com.sun.source.tree.AssignmentTree;
+import com.sun.source.tree.BinaryTree;
+import com.sun.source.tree.BlockTree;
+import com.sun.source.tree.BreakTree;
+import com.sun.source.tree.CaseTree;
+import com.sun.source.tree.CatchTree;
+import com.sun.source.tree.ClassTree;
+import com.sun.source.tree.CompilationUnitTree;
+import com.sun.source.tree.CompoundAssignmentTree;
+import com.sun.source.tree.ConditionalExpressionTree;
+import com.sun.source.tree.ContinueTree;
+import com.sun.source.tree.DoWhileLoopTree;
+import com.sun.source.tree.EmptyStatementTree;
+import com.sun.source.tree.EnhancedForLoopTree;
+import com.sun.source.tree.ErroneousTree;
+import com.sun.source.tree.ExpressionStatementTree;
+import com.sun.source.tree.ForLoopTree;
+import com.sun.source.tree.IdentifierTree;
+import com.sun.source.tree.IfTree;
+import com.sun.source.tree.ImportTree;
+import com.sun.source.tree.InstanceOfTree;
+import com.sun.source.tree.LabeledStatementTree;
+import com.sun.source.tree.LiteralTree;
+import com.sun.source.tree.MemberSelectTree;
+import com.sun.source.tree.MethodInvocationTree;
+import com.sun.source.tree.MethodTree;
+import com.sun.source.tree.ModifiersTree;
+import com.sun.source.tree.NewArrayTree;
+import com.sun.source.tree.NewClassTree;
+import com.sun.source.tree.ParameterizedTypeTree;
+import com.sun.source.tree.ParenthesizedTree;
+import com.sun.source.tree.PrimitiveTypeTree;
+import com.sun.source.tree.ReturnTree;
+import com.sun.source.tree.SwitchTree;
+import com.sun.source.tree.SynchronizedTree;
+import com.sun.source.tree.ThrowTree;
+import com.sun.source.tree.Tree;
+import com.sun.source.tree.Tree;
+import com.sun.source.tree.TreeVisitor;
+import com.sun.source.tree.TryTree;
+import com.sun.source.tree.TypeCastTree;
+import com.sun.source.tree.TypeParameterTree;
+import com.sun.source.tree.UnaryTree;
+import com.sun.source.tree.VariableTree;
+import com.sun.source.tree.WhileLoopTree;
+import com.sun.source.tree.WildcardTree;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Collection;
@@ -52,17 +98,23 @@ public class V extends DefaultMutableTreeNode {
         StringBuffer result = new StringBuffer (nm.length() + 20);
         result.append ("<html>");
         result.append (nm);
-        if (o instanceof JCMethodDecl) {
+        if (o instanceof MethodTree) {
             result.append ("<font color=#AAAAAA>");
             result.append (' ');
             result.append ('(');
-            result.append (((JCMethodDecl) o).getName());
+            result.append (((MethodTree) o).getName());
             result.append(')');
-        } else if (o instanceof JCTree.JCVariableDecl) {
+        } else if (o instanceof VariableTree) {
             result.append ("<font color=#AAAAAA>");
             result.append (' ');
             result.append ('(');
-            result.append (((JCVariableDecl) o).getName());
+            result.append (((VariableTree) o).getName());
+            result.append(')');
+        } else if (o instanceof IdentifierTree) {
+            result.append ("<font color=#DD8800>");
+            result.append (' ');
+            result.append ('(');
+            result.append (((IdentifierTree) o).getName());
             result.append(')');
         }
         if (o instanceof Collection) {
@@ -87,7 +139,200 @@ public class V extends DefaultMutableTreeNode {
         }
     }
     
-    private class TreeV extends Visitor {
+    private class TreeV implements TreeVisitor <Void, Void> {
+        public Void visitAnnotation(AnnotationTree arg0, Void arg1) {
+            proc (arg0); return null;
+        }
+
+        public Void visitMethodInvocation(MethodInvocationTree arg0, Void arg1) {
+            proc (arg0); return null;
+        }
+
+        public Void visitAssert(AssertTree arg0, Void arg1) {
+            proc (arg0); return null;
+        }
+
+        public Void visitAssignment(AssignmentTree arg0, Void arg1) {
+            proc (arg0); return null;
+        }
+
+        public Void visitCompoundAssignment(CompoundAssignmentTree arg0, Void arg1) {
+            proc (arg0); return null;
+        }
+
+        public Void visitBinary(BinaryTree arg0, Void arg1) {
+            proc (arg0); return null;
+        }
+
+        public Void visitBlock(BlockTree arg0, Void arg1) {
+            proc (arg0); return null;
+        }
+
+        public Void visitBreak(BreakTree arg0, Void arg1) {
+            proc (arg0); return null;
+        }
+
+        public Void visitCase(CaseTree arg0, Void arg1) {
+            proc (arg0); return null;
+        }
+
+        public Void visitCatch(CatchTree arg0, Void arg1) {
+            proc (arg0); return null;
+        }
+
+        public Void visitClass(ClassTree arg0, Void arg1) {
+            proc (arg0); return null;
+        }
+
+        public Void visitConditionalExpression(ConditionalExpressionTree arg0, Void arg1) {
+            proc (arg0); return null;
+        }
+
+        public Void visitContinue(ContinueTree arg0, Void arg1) {
+            proc (arg0); return null;
+        }
+
+        public Void visitDoWhileLoop(DoWhileLoopTree arg0, Void arg1) {
+            proc (arg0); return null;
+        }
+
+        public Void visitErroneous(ErroneousTree arg0, Void arg1) {
+            proc (arg0); return null;
+        }
+
+        public Void visitExpressionStatement(ExpressionStatementTree arg0, Void arg1) {
+            proc (arg0); return null;
+        }
+
+        public Void visitEnhancedForLoop(EnhancedForLoopTree arg0, Void arg1) {
+            proc (arg0); return null;
+        }
+
+        public Void visitForLoop(ForLoopTree arg0, Void arg1) {
+            proc (arg0); return null;
+        }
+
+        public Void visitIdentifier(IdentifierTree arg0, Void arg1) {
+            proc (arg0); return null;
+        }
+
+        public Void visitIf(IfTree arg0, Void arg1) {
+            proc (arg0); return null;
+        }
+
+        public Void visitImport(ImportTree arg0, Void arg1) {
+            proc (arg0); return null;
+        }
+
+        public Void visitArrayAccess(ArrayAccessTree arg0, Void arg1) {
+            proc (arg0); return null;
+        }
+
+        public Void visitLabeledStatement(LabeledStatementTree arg0, Void arg1) {
+            proc (arg0); return null;
+        }
+
+        public Void visitLiteral(LiteralTree arg0, Void arg1) {
+            proc (arg0); return null;
+        }
+
+        public Void visitMethod(MethodTree arg0, Void arg1) {
+            proc (arg0); return null;
+        }
+
+        public Void visitModifiers(ModifiersTree arg0, Void arg1) {
+            proc (arg0); return null;
+        }
+
+        public Void visitNewArray(NewArrayTree arg0, Void arg1) {
+            proc (arg0); return null;
+        }
+
+        public Void visitNewClass(NewClassTree arg0, Void arg1) {
+            proc (arg0); return null;
+        }
+
+        public Void visitParenthesized(ParenthesizedTree arg0, Void arg1) {
+            proc (arg0); return null;
+        }
+
+        public Void visitReturn(ReturnTree arg0, Void arg1) {
+            proc (arg0); return null;
+        }
+
+        public Void visitMemberSelect(MemberSelectTree arg0, Void arg1) {
+            proc (arg0); return null;
+        }
+
+        public Void visitEmptyStatement(EmptyStatementTree arg0, Void arg1) {
+            proc (arg0); return null;
+        }
+
+        public Void visitSwitch(SwitchTree arg0, Void arg1) {
+            proc (arg0); return null;
+        }
+
+        public Void visitSynchronized(SynchronizedTree arg0, Void arg1) {
+            proc (arg0); return null;
+        }
+
+        public Void visitThrow(ThrowTree arg0, Void arg1) {
+            proc (arg0); return null;
+        }
+
+        public Void visitCompilationUnit(CompilationUnitTree arg0, Void arg1) {
+            proc (arg0); return null;
+        }
+
+        public Void visitTry(TryTree arg0, Void arg1) {
+            proc (arg0); return null;
+        }
+
+        public Void visitParameterizedType(ParameterizedTypeTree arg0, Void arg1) {
+            proc (arg0); return null;
+        }
+
+        public Void visitArrayType(ArrayTypeTree arg0, Void arg1) {
+            proc (arg0); return null;
+        }
+
+        public Void visitTypeCast(TypeCastTree arg0, Void arg1) {
+            proc (arg0); return null;
+        }
+
+        public Void visitPrimitiveType(PrimitiveTypeTree arg0, Void arg1) {
+            proc (arg0); return null;
+        }
+
+        public Void visitTypeParameter(TypeParameterTree arg0, Void arg1) {
+            proc (arg0); return null;
+        }
+
+        public Void visitInstanceOf(InstanceOfTree arg0, Void arg1) {
+            proc (arg0); return null;
+        }
+
+        public Void visitUnary(UnaryTree arg0, Void arg1) {
+            proc (arg0); return null;
+        }
+
+        public Void visitVariable(VariableTree arg0, Void arg1) {
+            proc (arg0); return null;
+        }
+
+        public Void visitWhileLoop(WhileLoopTree arg0, Void arg1) {
+            proc (arg0); return null;
+        }
+
+        public Void visitWildcard(WildcardTree arg0, Void arg1) {
+            proc (arg0); return null;
+        }
+
+        public Void visitOther(Tree arg0, Void arg1) {
+            proc (arg0); return null;
+        }
+        
+        /*
         public void visitTopLevel(JCTree.JCCompilationUnit that) {
             proc(that);
         }
@@ -283,6 +528,7 @@ public class V extends DefaultMutableTreeNode {
         public void visitTree(JCTree that) {
             proc(that);
         }
+         */ 
     }
     
     static void clear() {
@@ -301,8 +547,8 @@ public class V extends DefaultMutableTreeNode {
         if (o instanceof List) {
             procList ((List) o);
         } else {
-            if (o instanceof JCTree) {
-                ((JCTree) o).accept(new TreeV());
+            if (o instanceof Tree) {
+                ((Tree) o).accept(new TreeV(), null);
             }
             Class clazz = o.getClass();
             Method[] m = clazz.getMethods();
@@ -325,10 +571,10 @@ public class V extends DefaultMutableTreeNode {
                         ex.printStackTrace();
                     }
                 }
-                boolean isTree = JCTree.class.isAssignableFrom(m[i].getReturnType());
+                boolean isTree = Tree.class.isAssignableFrom(m[i].getReturnType());
                 if (isTree && paramCount == 0 && m[i].getName().startsWith("get")) {
                     try {
-                        JCTree tree = (JCTree) m[i].invoke(o);
+                        Tree tree = (Tree) m[i].invoke(o);
                         if (!visited.contains(tree)) {
                             add (new V(m[i].getName().substring(3), tree));
                         }
