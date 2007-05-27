@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE filesystem PUBLIC "-//NetBeans//DTD Filesystem 1.1//EN" "http://www.netbeans.org/dtds/filesystem-1_1.dtd">
+<filesystem>
+    <folder name="Actions">
+        <folder name="Source">
+            <file name="org-netbeans-modules-syntaxtreebrowser-SyntaxTreeBrowserAction.instance"/>
+        </folder>
+    </folder>
+    <folder name="Editors">
+        <folder name="text">
+            <folder name="x-java">
+                <folder name="Popup">
+                    <attr name="SeparatorAfterConfigs.instance/org-netbeans-modules-syntaxtreebrowser-SyntaxTreeBrowserAction.shadow" boolvalue="true"/>
+                    <file name="org-netbeans-modules-syntaxtreebrowser-SyntaxTreeBrowserAction.shadow">
+                        <attr name="originalFile" stringvalue="Actions/Source/org-netbeans-modules-syntaxtreebrowser-SyntaxTreeBrowserAction.instance"/>
+                    </file>
+                    <attr name="org-netbeans-modules-syntaxtreebrowser-SyntaxTreeBrowserAction.shadow/goto-help" boolvalue="true"/>
+                </folder>
+            </folder>
+        </folder>
+    </folder>
+    <folder name="Loaders">
+        <folder name="text">
+            <folder name="x-java">
+                <folder name="Actions">
+                    <attr name="OpenAction.instance/org-netbeans-modules-syntaxtreebrowser-SyntaxTreeBrowserAction.shadow" boolvalue="true"/>
+                    <file name="org-netbeans-modules-syntaxtreebrowser-SyntaxTreeBrowserAction.shadow">
+                        <attr name="originalFile" stringvalue="Actions/Source/org-netbeans-modules-syntaxtreebrowser-SyntaxTreeBrowserAction.instance"/>
+                    </file>
+                    <attr name="org-netbeans-modules-syntaxtreebrowser-SyntaxTreeBrowserAction.shadow/Separator1.instance" boolvalue="true"/>
+                </folder>
+            </folder>
+        </folder>
+    </folder>
+    <folder name="Menu">
+        <folder name="Source">
+            <attr name="org-netbeans-modules-editor-MainMenuAction$FormatAction.instance/org-netbeans-modules-syntaxtreebrowser-SyntaxTreeBrowserAction.shadow" boolvalue="true"/>
+            <file name="org-netbeans-modules-syntaxtreebrowser-SyntaxTreeBrowserAction.shadow">
+                <attr name="originalFile" stringvalue="Actions/Source/org-netbeans-modules-syntaxtreebrowser-SyntaxTreeBrowserAction.instance"/>
+            </file>
+            <attr name="org-netbeans-modules-syntaxtreebrowser-SyntaxTreeBrowserAction.shadow/org-netbeans-modules-editor-MainMenuAction$RemoveTrailingSpacesAction.instance" boolvalue="true"/>
+        </folder>
+    </folder>
+</filesystem>
