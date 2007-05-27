@@ -114,17 +114,7 @@ public class SyntaxTreePanel extends javax.swing.JPanel implements DiagnosticLis
 
         jSplitPane1.setLeftComponent(jPanel2);
 
-        javax.swing.GroupLayout vpLayout = new javax.swing.GroupLayout(vp);
-        vp.setLayout(vpLayout);
-        vpLayout.setHorizontalGroup(
-            vpLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 498, Short.MAX_VALUE)
-        );
-        vpLayout.setVerticalGroup(
-            vpLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 353, Short.MAX_VALUE)
-        );
-
+        vp.setLayout(null);
         jSplitPane1.setRightComponent(vp);
 
         gridBagConstraints = new java.awt.GridBagConstraints();
@@ -163,7 +153,7 @@ private void jCheckBox1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FI
         jSplitPane1.setDividerLocation(0.5D);
     }
 
-    protected V init (Iterator <? extends CompilationUnitTree> it) {
+    public V init (Iterator <? extends CompilationUnitTree> it) {
         root = new DefaultMutableTreeNode ("Root");
         V first = null;
         while (it.hasNext()) {
