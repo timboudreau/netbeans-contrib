@@ -58,6 +58,11 @@ Microsystems, Inc. All Rights Reserved.
   XML, HTML or JSP tags.
   </p>
 
+  <p>
+  The Braces Matching SPI is a replacement for the old SPI in
+  <code>org.netbeans.editor.ExtSyntaxSupport</code>.
+  </p>
+  
   <h3>The infrastructure overview</h3>
   
   <p>
