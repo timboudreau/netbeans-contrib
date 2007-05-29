@@ -114,6 +114,7 @@
             </test-dependencies>
             <public-packages>
                 <package>org.netbeans.spi.editor.bracesmatching</package>
+                <package>org.netbeans.spi.editor.bracesmatching.support</package>
             </public-packages>
         </data>
     </configuration>

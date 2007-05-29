@@ -21,24 +21,78 @@ import org.netbeans.spi.editor.bracesmatching.BracesMatcherFactory;
 import org.netbeans.spi.editor.bracesmatching.MatcherContext;
 
 /**
- *
+ * Some useful implementations of <code>BracesMatcher</code>.
+ * 
  * @author Vita Stejskal
  */
 public final class BracesMatcherSupport {
 
     private static final char [] DEFAULT_CHARS = new char [] { '(', ')', '[', ']', '{', '}', '<', '>' }; //NOI18N
-    
-    public static BracesMatcher defaultMatcher(MatcherContext context, int lowerLimit, int upperLimit) {
-        return new CharacterMatcher(context, lowerLimit, upperLimit, DEFAULT_CHARS);
+   
+    /**
+     * Creates the default <code>BracesMatcher</code> implementation. The default
+     * matcher is used when no other matcher is available. The default matcher
+     * is basically a character matcher, which looks for the following character
+     * pairs: <code>'(', ')', '[', ']', '{', '}', '&lt;', '&gt;'</code>.
+     * 
+     * @param context The context for the matcher.
+     * @param lowerBound The start offset of the area where the created matcher
+     *   should search. Can be <code>-1</code> for no restriction.
+     * @param upperBound The end offset of the area where the crated matcher
+     *   should search. Can be <code>-1</code> for no restriction.
+     * 
+     * @return The default matcher.
+     * @see #characterMatcher
+     */
+    public static BracesMatcher defaultMatcher(MatcherContext context, int lowerBound, int upperBound) {
+        return new CharacterMatcher(context, lowerBound, upperBound, DEFAULT_CHARS);
     }
     
-    public static BracesMatcher characterMatcher(MatcherContext context, int lowerLimit, int upperLimit, char... matchingPairs) {
-        return new CharacterMatcher(context, lowerLimit, upperLimit, matchingPairs);
+    /**
+     * Creates <code>BracesMatcher</code> for finding character pairs.
+     * 
+     * <p>The character matcher looks for characters passed in as an
+     * array of paired characters that match each other. Any character from
+     * the array can be detected as the original character (area). The other
+     * character from the pair will then be used to search for the matching area.
+     * 
+     * <p>The characters in each pair have to be listed in a specific order.
+     * The order determines where the matching character should lay in text
+     * relatively to the position of the original character. When the first character
+     * is detected as the original character the matcher will search for the
+     * matching character (ie. the second character from the pair) in the forward
+     * direction (ie. towards the end of a document). Similarily when the second
+     * character is detected as the original character the matcher will search
+     * for the matching character (ie. the first character in the pair) in the
+     * backward direction towards the beginning of a document.
+     * 
+     * <p>In other words each pair should contain the 'opening' character first
+     * and the 'closing' character second. For example, when searching for curely
+     * braces they should be listed in the following order
+     * <code>char [] braces = new char [] { '{', '}' }</code>.
+     * 
+     * <p>The created matcher can be further restricted to search in a certain
+     * area only. This might be useful for restricting the search to a particular
+     * lexical token in text (eg. a string literal, javadoc comment, etc.).
+     * 
+     * @param context The context for the matcher.
+     * @param lowerBound The start offset of the area where the created matcher
+     *   should search. Can be <code>-1</code> for no restriction.
+     * @param upperBound The end offset of the area where the crated matcher
+     *   should search. Can be <code>-1</code> for no restriction.
+     * @param matchingPairs The array with pairs of matching characters. There
+     *   should always be an even number of elements in the array.
+     * 
+     * @return The character matcher.
+     */
+    public static BracesMatcher characterMatcher(MatcherContext context, int lowerBound, int upperBound, char... matchingPairs) {
+        return new CharacterMatcher(context, lowerBound, upperBound, matchingPairs);
     }
     
     private BracesMatcherSupport() {
     }
 
+    // Used from the layer
     private static BracesMatcherFactory defaultMatcherFactory() {
         return new BracesMatcherFactory() {
             public BracesMatcher createMatcher(MatcherContext context) {

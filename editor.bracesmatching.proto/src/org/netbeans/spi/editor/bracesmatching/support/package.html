@@ -21,24 +21,13 @@ Microsystems, Inc. All Rights Reserved.
 
 <html>
   <head>
-    <title>org.netbeans.spi.editor.bracesmatching</title>
+    <title>org.netbeans.spi.editor.bracesmatching.support</title>
   </head>
   <body>
 
   <p>
-  The Braces Matching SPI for implementing <code>BracesMatcher</code>s that can search
-  through a document and find matching areas of text.
-  </p>
-  <p>
-  Implementations of <code>BracesMatcherFactory</code> can be registered in <code>MimeLookup</code>
-  under the mime type of documents that they wish to create <code>BracesMatcher</code>s for.
-  </p>
-  <p>
-  The infrastructure behind the SPI registers a special highlighting layer for visualization of search results
-  provided by registered matchers. The highlighting layer uses <code>Highlighting SPI</code> to
-  colorify parts of a document in a text component that have been identified by matchers. The infrastructure also
-  supplies an action for moving componet's caret between those areas. The action is registered
-  for all supported document types and bound to a shortcut.
+  The support package provides several useful implementations of
+  the <code>BracesMatcher</code> interface.
   </p>
 
   </body>

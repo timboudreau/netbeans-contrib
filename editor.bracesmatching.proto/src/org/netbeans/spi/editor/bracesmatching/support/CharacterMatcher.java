@@ -35,18 +35,18 @@ import org.netbeans.spi.editor.bracesmatching.MatcherContext;
     private final MatcherContext context;
     private final char [] charsA;
     private final char [] charsB;
-    private final int lowerLimit;
-    private final int upperLimit;
+    private final int lowerBound;
+    private final int upperBound;
     
     private int originOffset;
     private char origin;
     private char lookingFor;
     private boolean backward;
     
-    public CharacterMatcher(MatcherContext context, int lowerLimit, int upperLimit, char... matchingPairs) {
+    public CharacterMatcher(MatcherContext context, int lowerBound, int upperBound, char... matchingPairs) {
         this.context = context;
-        this.lowerLimit = lowerLimit;
-        this.upperLimit = upperLimit;
+        this.lowerBound = lowerBound;
+        this.upperBound = upperBound;
         
         assert matchingPairs.length % 2 == 0 : "The matchingPairs parameter must contain even number of characters."; //NOI18N
         int size = matchingPairs.length / 2;
@@ -68,6 +68,11 @@ import org.netbeans.spi.editor.bracesmatching.MatcherContext;
         int lookahead = context.getSearchLookahead();
         
         if (context.isSearchingBackward()) {
+            // Maybe restrict the lookahead by the lowerBound
+            if (lowerBound >= 0 && offset - lookahead < lowerBound) {
+                lookahead = offset - lowerBound;
+            }
+            
             // check the character at the left from the caret
             Segment text = new Segment();
             doc.getText(offset - lookahead, lookahead, text);
@@ -79,6 +84,11 @@ import org.netbeans.spi.editor.bracesmatching.MatcherContext;
                 }
             }
         } else {
+            // Maybe restrict the lookahead by the lowerBound
+            if (upperBound >= 0 && offset + lookahead > upperBound) {
+                lookahead = upperBound - offset;
+            }
+            
             // check the character at the right from the caret
             Segment text = new Segment();
             doc.getText(offset, lookahead, text);
@@ -99,7 +109,7 @@ import org.netbeans.spi.editor.bracesmatching.MatcherContext;
         Segment text = new Segment();
         
         if (backward) {
-            int startOffset = lowerLimit >= 0 ? lowerLimit : 0;
+            int startOffset = lowerBound >= 0 ? lowerBound : 0;
             doc.getText(startOffset, originOffset - startOffset, text);
             
             int counter = 0;
@@ -118,7 +128,7 @@ import org.netbeans.spi.editor.bracesmatching.MatcherContext;
             }
         } else {
             int startOffset = originOffset + 1;
-            doc.getText(startOffset, (upperLimit >= 0 ? upperLimit : doc.getLength()) - startOffset, text);
+            doc.getText(startOffset, (upperBound >= 0 ? upperBound : doc.getLength()) - startOffset, text);
             
             int counter = 0;
             
