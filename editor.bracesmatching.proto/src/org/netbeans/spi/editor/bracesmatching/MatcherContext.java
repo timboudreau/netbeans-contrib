@@ -62,7 +62,7 @@ public final class MatcherContext {
      * 
      * @return The caret's position.
      */
-    public int getCaretOffset() {
+    public int getSearchOffset() {
         return offset;
     }
 
@@ -90,7 +90,7 @@ public final class MatcherContext {
     public int getSearchLookahead() {
         return lookahead;
     }
-    
+
     private static final class SpiAccessorImpl extends SpiAccessor {
         
         public MatcherContext createCaretContext(Document document, int offset, boolean backward, int lookahead) {

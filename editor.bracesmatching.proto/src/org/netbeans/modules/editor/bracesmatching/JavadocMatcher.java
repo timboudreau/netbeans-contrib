@@ -55,7 +55,7 @@ public final class JavadocMatcher implements BracesMatcher, BracesMatcherFactory
     // -----------------------------------------------------
     
     public int[] findOrigin() throws BadLocationException, InterruptedException {
-        int caretOffset = context.getCaretOffset();
+        int caretOffset = context.getSearchOffset();
         TokenHierarchy<Document> th = TokenHierarchy.get(context.getDocument());
         TokenSequence<? extends TokenId> embedded = th.tokenSequence();
         List<TokenSequence<? extends TokenId>> sequences = new ArrayList<TokenSequence<? extends TokenId>>();

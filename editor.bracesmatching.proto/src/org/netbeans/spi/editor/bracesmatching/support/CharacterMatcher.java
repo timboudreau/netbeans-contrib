@@ -64,7 +64,7 @@ import org.netbeans.spi.editor.bracesmatching.MatcherContext;
     
     public int [] findOrigin() throws BadLocationException {
         Document doc = context.getDocument();
-        int offset = context.getCaretOffset();
+        int offset = context.getSearchOffset();
         int lookahead = context.getSearchLookahead();
         
         if (context.isSearchingBackward()) {

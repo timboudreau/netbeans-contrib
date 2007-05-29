@@ -53,9 +53,9 @@ public final class LegacyEssMatcher implements BracesMatcher, BracesMatcherFacto
         int offset;
         
         if (context.isSearchingBackward()) {
-            offset = context.getCaretOffset() - 1;
+            offset = context.getSearchOffset() - 1;
         } else {
-            offset = context.getCaretOffset();
+            offset = context.getSearchOffset();
         }
         
         block = ess.findMatchingBlock(offset, false);

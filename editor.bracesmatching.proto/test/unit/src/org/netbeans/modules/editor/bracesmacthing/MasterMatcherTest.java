@@ -64,7 +64,7 @@ public class MasterMatcherTest extends NbTestCase {
         assertNotNull("No matcher created", tm);
         assertNotNull("No context passed to the matcher", tm.context);
         assertSame("Wrong document", d, tm.context.getDocument());
-        assertEquals("Wrong caret offset", 7, tm.context.getCaretOffset());
+        assertEquals("Wrong caret offset", 7, tm.context.getSearchOffset());
         assertFalse("Wrong search direction", tm.context.isSearchingBackward());
         }        
         
@@ -76,7 +76,7 @@ public class MasterMatcherTest extends NbTestCase {
         assertNotNull("No matcher created", tm);
         assertNotNull("No context passed to the matcher", tm.context);
         assertSame("Wrong document", d, tm.context.getDocument());
-        assertEquals("Wrong caret offset", 11, tm.context.getCaretOffset());
+        assertEquals("Wrong caret offset", 11, tm.context.getSearchOffset());
         assertTrue("Wrong search direction", tm.context.isSearchingBackward());
         }        
     }
