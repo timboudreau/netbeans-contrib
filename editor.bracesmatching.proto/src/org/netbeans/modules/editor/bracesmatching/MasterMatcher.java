@@ -53,7 +53,7 @@ public final class MasterMatcher {
 
     private static final Logger LOG = Logger.getLogger(MasterMatcher.class.getName());
     
-    public static final String PROP_ALLOWED_SEARCH_DIRECTION = "nbeditor-bracesMatching-allowedSearchDirection"; //NOI18N
+    public static final String PROP_ALLOWED_SEARCH_DIRECTION = "nbeditor-bracesMatching-searchDirection"; //NOI18N
     public static final String D_BACKWARD = "backward"; //NOI18N
     public static final String D_FORWARD = "forward"; //NOI18N
 

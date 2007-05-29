@@ -527,27 +527,36 @@ Microsystems, Inc. All Rights Reserved.
   </p>
   <ul>
   <li>
-  <api name="nbeditor-bracesMatching-allowedSearchDirection" group="property" category="devel" type="export" >
+  <api name="nbeditor-bracesMatching-caretBias" group="property" category="devel" type="export" >
+  Controls where the important character lies in relation to a caret. The important
+  character is a character right next to a caret and depending on the value of
+  this property it can be the character on either the left hand side or the right hand side
+  of the caret. Please see the infrastructure
+  <a href="@org-netbeans-modules-editor-bracesmatching@/org/netbeans/spi/editor/bracesmatching/package-summary.html#controlling-parameters">overview</a>
+  for more details.
+  </api></li>
+  <li>
+  <api name="nbeditor-bracesMatching-searchDirection" group="property" category="devel" type="export" >
   Controls a direction
-  in which the search for the original area is performed. Please see the
-  <a href="@org-netbeans-modules-editor-bracesmatching@/org/netbeans/spi/editor/bracesmatching/package-summary.html#usecase2">directional searching</a>
-  usecase for more details.
+  in which the search for the original area is performed. Please see the infrastructure
+  <a href="@org-netbeans-modules-editor-bracesmatching@/org/netbeans/spi/editor/bracesmatching/package-summary.html#controlling-parameters">overview</a>
+  for more details.
   </api></li>
   <li>
   <api name="nbeditor-bracesMatching-maxBackwardLookahead" group="property" category="devel" type="export">
   Controls the maximum distance
   measured in characters from the position of a caret, where matchers are allowed
-  to search for the original area. Please see the
-  <a href="@org-netbeans-modules-editor-bracesmatching@/org/netbeans/spi/editor/bracesmatching/package-summary.html#usecase1">proximity searching</a>
-  usecase for more details.
+  to search for the original area. Please see the infrastructure
+  <a href="@org-netbeans-modules-editor-bracesmatching@/org/netbeans/spi/editor/bracesmatching/package-summary.html#controlling-parameters">overview</a>
+  for more details.
   </api></li>
   <li>
   <api name="nbeditor-bracesMatching-maxForwardLookahead" group="property" category="devel" type="export">
   Controls the maximum distance
   measured in characters from the position of a caret, where matchers are allowed
   to search for the original area. Please see the
-  <a href="@org-netbeans-modules-editor-bracesmatching@/org/netbeans/spi/editor/bracesmatching/package-summary.html#usecase1">proximity searching</a>
-  usecase for more details.
+  <a href="@org-netbeans-modules-editor-bracesmatching@/org/netbeans/spi/editor/bracesmatching/package-summary.html#controlling-parameters">overveiw</a>
+  for more details.
   </api></li>
   </ul>
   
