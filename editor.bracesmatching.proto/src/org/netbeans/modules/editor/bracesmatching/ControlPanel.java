@@ -84,7 +84,7 @@ public class ControlPanel extends javax.swing.JPanel {
     }
     
     private static String getSearchDirection(JTextComponent component) {
-        Object value = component.getClientProperty(MasterMatcher.PROP_ALLOWED_SEARCH_DIRECTION);
+        Object value = component.getClientProperty(MasterMatcher.PROP_SEARCH_DIRECTION);
         if (value != null) {
             String s = value.toString();
             for (String [] pair : SEARCH_DIRECTIONS) {
@@ -106,7 +106,7 @@ public class ControlPanel extends javax.swing.JPanel {
                 }
             }
         }
-        component.putClientProperty(MasterMatcher.PROP_ALLOWED_SEARCH_DIRECTION, s);
+        component.putClientProperty(MasterMatcher.PROP_SEARCH_DIRECTION, s);
     }
 
     private static String getCaretBias(JTextComponent component) {

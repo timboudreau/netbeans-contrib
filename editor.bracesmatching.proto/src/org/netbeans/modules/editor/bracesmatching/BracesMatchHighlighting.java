@@ -169,7 +169,7 @@ public class BracesMatchHighlighting extends AbstractHighlightsContainer
             }
             
             refresh();
-        } else if (MasterMatcher.PROP_ALLOWED_SEARCH_DIRECTION.equals(evt.getPropertyName()) ||
+        } else if (MasterMatcher.PROP_SEARCH_DIRECTION.equals(evt.getPropertyName()) ||
                    MasterMatcher.PROP_CARET_BIAS.equals(evt.getPropertyName()) ||
                    MasterMatcher.PROP_MAX_BACKWARD_LOOKAHEAD.equals(evt.getPropertyName()) ||
                    MasterMatcher.PROP_MAX_FORWARD_LOOKAHEAD.equals(evt.getPropertyName())

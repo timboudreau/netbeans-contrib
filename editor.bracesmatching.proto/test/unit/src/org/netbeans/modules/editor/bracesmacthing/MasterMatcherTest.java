@@ -16,9 +16,10 @@
  */
 package org.netbeans.modules.editor.bracesmacthing;
 
+import javax.swing.JEditorPane;
 import javax.swing.text.AttributeSet;
 import javax.swing.text.BadLocationException;
-import javax.swing.text.PlainDocument;
+import javax.swing.text.Document;
 import javax.swing.text.SimpleAttributeSet;
 import org.netbeans.api.editor.mimelookup.MimePath;
 import org.netbeans.junit.MockServices;
@@ -53,11 +54,18 @@ public class MasterMatcherTest extends NbTestCase {
         MockMimeLookup.setInstances(MimePath.EMPTY, new TestMatcher());
         
         AttributeSet EAS = SimpleAttributeSet.EMPTY;
-        PlainDocument d = new PlainDocument();
+        JEditorPane c = new JEditorPane();
+        Document d = c.getDocument();
         OffsetsBag bag = new OffsetsBag(d);
         d.insertString(0, "text text { text } text", null);
 
-        MasterMatcher.get(d).highlight(7, "forward", bag, EAS, EAS);
+        c.putClientProperty(MasterMatcher.PROP_MAX_BACKWARD_LOOKAHEAD, 3);
+        c.putClientProperty(MasterMatcher.PROP_MAX_FORWARD_LOOKAHEAD, 4);
+        c.putClientProperty(MasterMatcher.PROP_SEARCH_DIRECTION, MasterMatcher.D_FORWARD);
+        c.putClientProperty(MasterMatcher.PROP_CARET_BIAS, MasterMatcher.B_FORWARD);
+        
+        TestMatcher.origin = new int [] { 7, 7 };
+        MasterMatcher.get(c).highlight(d, 7, bag, EAS, EAS);
         Thread.sleep(300);
         {
         TestMatcher tm = TestMatcher.lastMatcher;
@@ -66,10 +74,15 @@ public class MasterMatcherTest extends NbTestCase {
         assertSame("Wrong document", d, tm.context.getDocument());
         assertEquals("Wrong caret offset", 7, tm.context.getSearchOffset());
         assertFalse("Wrong search direction", tm.context.isSearchingBackward());
+        assertEquals("Wrong lookahead", 4, tm.context.getSearchLookahead());
         }        
         
         TestMatcher.lastMatcher = null;
-        MasterMatcher.get(d).highlight(11, "backward", bag, EAS, EAS);
+        TestMatcher.origin = new int [] { 11, 11 };
+        c.putClientProperty(MasterMatcher.PROP_SEARCH_DIRECTION, MasterMatcher.D_BACKWARD);
+        c.putClientProperty(MasterMatcher.PROP_CARET_BIAS, MasterMatcher.B_BACKWARD);
+        
+        MasterMatcher.get(c).highlight(d, 11, bag, EAS, EAS);
         Thread.sleep(300);
         {
         TestMatcher tm = TestMatcher.lastMatcher;
@@ -78,6 +91,7 @@ public class MasterMatcherTest extends NbTestCase {
         assertSame("Wrong document", d, tm.context.getDocument());
         assertEquals("Wrong caret offset", 11, tm.context.getSearchOffset());
         assertTrue("Wrong search direction", tm.context.isSearchingBackward());
+        assertEquals("Wrong lookahead", 3, tm.context.getSearchLookahead());
         }        
     }
     
@@ -86,14 +100,18 @@ public class MasterMatcherTest extends NbTestCase {
         MockMimeLookup.setInstances(MimePath.EMPTY, new TestMatcher());
         
         AttributeSet EAS = SimpleAttributeSet.EMPTY;
-        PlainDocument d = new PlainDocument();
+        JEditorPane c = new JEditorPane();
+        Document d = c.getDocument();
         OffsetsBag bag = new OffsetsBag(d);
         d.insertString(0, "text text { text } text", null);
 
+        c.putClientProperty(MasterMatcher.PROP_MAX_BACKWARD_LOOKAHEAD, 256);
+        c.putClientProperty(MasterMatcher.PROP_MAX_FORWARD_LOOKAHEAD, 256);
+        
         TestMatcher.origin = new int [] { 2, 3 };
         TestMatcher.matches = new int [] { 10, 11 };
         
-        MasterMatcher.get(d).highlight(7, "backward", bag, EAS, EAS);
+        MasterMatcher.get(c).highlight(d, 7, bag, EAS, EAS);
         Thread.sleep(300);
         {
         TestMatcher tm = TestMatcher.lastMatcher;
@@ -115,10 +133,14 @@ public class MasterMatcherTest extends NbTestCase {
         MockMimeLookup.setInstances(MimePath.EMPTY, new BlockingMatcher());
         
         AttributeSet EAS = SimpleAttributeSet.EMPTY;
-        PlainDocument d = new PlainDocument();
+        JEditorPane c = new JEditorPane();
+        Document d = c.getDocument();
         OffsetsBag bag = new OffsetsBag(d);
         d.insertString(0, "text text { text } text", null);
 
+        c.putClientProperty(MasterMatcher.PROP_MAX_BACKWARD_LOOKAHEAD, 256);
+        c.putClientProperty(MasterMatcher.PROP_MAX_FORWARD_LOOKAHEAD, 256);
+        
         BlockingMatcher.blockByForLoop = true;
         BlockingMatcher.origin = new int [] { 2, 3 };
         BlockingMatcher.matches = new int [] { 10, 11 };
@@ -126,13 +148,13 @@ public class MasterMatcherTest extends NbTestCase {
         {
         BlockingMatcher.blockInFindOrigin = true;
         
-        MasterMatcher.get(d).highlight(7, "backward", bag, EAS, EAS);
+        MasterMatcher.get(c).highlight(d, 7, bag, EAS, EAS);
         Thread.sleep(300);
         BlockingMatcher first = BlockingMatcher.lastMatcher;
         assertNotNull("No first matcher", first);
         assertTrue("Should be blocking", first.blocking);
         
-        MasterMatcher.get(d).highlight(8, "backward", bag, EAS, EAS);
+        MasterMatcher.get(c).highlight(d, 8, bag, EAS, EAS);
         Thread.sleep(2000);
         BlockingMatcher second = BlockingMatcher.lastMatcher;
         assertNotNull("No second matcher", second);
@@ -144,13 +166,13 @@ public class MasterMatcherTest extends NbTestCase {
         {
         BlockingMatcher.blockInFindOrigin = false;
         
-        MasterMatcher.get(d).highlight(7, "backward", bag, EAS, EAS);
+        MasterMatcher.get(c).highlight(d, 7, bag, EAS, EAS);
         Thread.sleep(300);
         BlockingMatcher first = BlockingMatcher.lastMatcher;
         assertNotNull("No first matcher", first);
         assertTrue("First matcher should be blocking", first.blocking);
         
-        MasterMatcher.get(d).highlight(8, "backward", bag, EAS, EAS);
+        MasterMatcher.get(c).highlight(d, 8, bag, EAS, EAS);
         Thread.sleep(2000);
         BlockingMatcher second = BlockingMatcher.lastMatcher;
         assertNotNull("No second matcher", second);
@@ -166,10 +188,14 @@ public class MasterMatcherTest extends NbTestCase {
         MockMimeLookup.setInstances(MimePath.EMPTY, new BlockingMatcher());
         
         AttributeSet EAS = SimpleAttributeSet.EMPTY;
-        PlainDocument d = new PlainDocument();
+        JEditorPane c = new JEditorPane();
+        Document d = c.getDocument();
         OffsetsBag bag = new OffsetsBag(d);
         d.insertString(0, "text text { text } text", null);
 
+        c.putClientProperty(MasterMatcher.PROP_MAX_BACKWARD_LOOKAHEAD, 256);
+        c.putClientProperty(MasterMatcher.PROP_MAX_FORWARD_LOOKAHEAD, 256);
+        
         BlockingMatcher.blockByForLoop = false;
         BlockingMatcher.origin = new int [] { 2, 3 };
         BlockingMatcher.matches = new int [] { 10, 11 };
@@ -177,13 +203,13 @@ public class MasterMatcherTest extends NbTestCase {
         {
         BlockingMatcher.blockInFindOrigin = true;
         
-        MasterMatcher.get(d).highlight(7, "backward", bag, EAS, EAS);
+        MasterMatcher.get(c).highlight(d, 7, bag, EAS, EAS);
         Thread.sleep(300);
         BlockingMatcher first = BlockingMatcher.lastMatcher;
         assertNotNull("No first matcher", first);
         assertTrue("Should be blocking", first.blocking);
         
-        MasterMatcher.get(d).highlight(8, "backward", bag, EAS, EAS);
+        MasterMatcher.get(c).highlight(d, 8, bag, EAS, EAS);
         Thread.sleep(2000);
         BlockingMatcher second = BlockingMatcher.lastMatcher;
         assertNotNull("No second matcher", second);
@@ -195,13 +221,13 @@ public class MasterMatcherTest extends NbTestCase {
         {
         BlockingMatcher.blockInFindOrigin = false;
         
-        MasterMatcher.get(d).highlight(7, "backward", bag, EAS, EAS);
+        MasterMatcher.get(c).highlight(d, 7, bag, EAS, EAS);
         Thread.sleep(300);
         BlockingMatcher first = BlockingMatcher.lastMatcher;
         assertNotNull("No first matcher", first);
         assertTrue("First matcher should be blocking", first.blocking);
         
-        MasterMatcher.get(d).highlight(8, "backward", bag, EAS, EAS);
+        MasterMatcher.get(c).highlight(d, 8, bag, EAS, EAS);
         Thread.sleep(2000);
         BlockingMatcher second = BlockingMatcher.lastMatcher;
         assertNotNull("No second matcher", second);
