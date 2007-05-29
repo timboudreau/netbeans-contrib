@@ -445,7 +445,7 @@ Microsystems, Inc. All Rights Reserved.
   <a href="http://www.netbeans.org/issues/show_bug.cgi?id=66037">66037</a>.
   </p>
   
-  <usecase id="usecase-1" name="Use case 1. - Highlighting results">
+  <usecase id="usecase-1" name="Usecase 1. - Highlighting results">
   <p>
   Probably the main reason why this SPI exists is to allow Netbeans editor to
   highlight matching braces in a document. The highlighting itself is done by the
@@ -457,7 +457,7 @@ Microsystems, Inc. All Rights Reserved.
   </p>
   </usecase>
   
-  <usecase id="usecase-2" name="Use case 2. - Navigating between results">
+  <usecase id="usecase-2" name="Usecase 2. - Navigating between results">
   <p>
   If the original brace is detected and its matching brace is found Netbeans editor
   needs to allow an easy navigation between those two positions (ie. jumping
@@ -474,7 +474,7 @@ Microsystems, Inc. All Rights Reserved.
   </p>
   </usecase>
 
-  <usecase id="usecase-3" name="Use case 3. - Different search scenarios">
+  <usecase id="usecase-3" name="Usecase 3. - Different search scenarios">
   <p>
   The users are likely to have different preferences for the way how braces matching
   works therefore its behavior should be customizable. We have listed below several
@@ -509,7 +509,7 @@ Microsystems, Inc. All Rights Reserved.
       for jVi insert mode.
   </li>
   <li>
-      <code>MBL = 0, MFL = 0, SD = F, CB = F</code> : Search forward from the caret.
+      <code>MBL = 0, MFL = 256, SD = F, CB = F</code> : Search forward from the caret.
       This is the default for jVi command mode.
   </li>
   <li>

@@ -58,8 +58,8 @@ public final class MasterMatcher {
     public static final String D_FORWARD = "forward"; //NOI18N
 
     public static final String PROP_CARET_BIAS = "nbeditor-bracesMatching-caretBias"; //NOI18N
-    public static final String B_BACKWARD = "backward"; //NOI18N
-    public static final String B_FORWARD = "forward"; //NOI18N
+    public static final String B_BACKWARD = "backward-preferred"; //NOI18N
+    public static final String B_FORWARD = "forward-preferred"; //NOI18N
     
     public static final String PROP_MAX_BACKWARD_LOOKAHEAD = "nbeditor-bracesMatching-maxBackwardLookahead"; //NOI18N
     public static final String PROP_MAX_FORWARD_LOOKAHEAD = "nbeditor-bracesMatching-maxForwardLookahead"; //NOI18N
@@ -236,7 +236,7 @@ public final class MasterMatcher {
         }
     }
 
-    // when navigating: always set the dot after a matching area
+    // when navigating: set the dot after or before the matching area, depending on the caret bias
     // when selecting: always select the inside between original and matching areas
     //                 do not select the areas themselvs
     private static void navigateAreas(
@@ -251,16 +251,16 @@ public final class MasterMatcher {
             int newDotForwardIdx = -1;
             
             for(int i = 0; i < matches.length / 2; i++) {
-                if (matches[i * 2] < origin[0] && 
+                if (matches[i * 2] <= origin[0] && 
                     (newDotBackwardIdx == -1 || matches[i * 2] > matches[newDotBackwardIdx * 2])
                 ) {
                     newDotBackwardIdx = i;
                 }
                 
-                if (matches[i * 2] > origin[1] && 
+                if (matches[i * 2] >= origin[1] && 
                     (newDotForwardIdx == -1 || matches[i * 2] < matches[newDotForwardIdx * 2])
                 ) {
-                    newDotForwardIdx = i * 2;
+                    newDotForwardIdx = i;
                 }
             }
             
