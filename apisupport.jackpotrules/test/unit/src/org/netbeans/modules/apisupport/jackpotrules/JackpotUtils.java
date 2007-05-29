@@ -24,20 +24,12 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
-import java.io.Writer;
 import java.net.URL;
 import java.util.zip.GZIPInputStream;
 
 import junit.framework.Assert;
+import org.netbeans.api.jackpot.test.TestUtilities;
 
-import org.netbeans.jackpot.engine.*;
-import org.netbeans.jackpot.transform.Transformer;
-
-import org.openide.filesystems.FileObject;
-import org.openide.filesystems.FileUtil;
-import org.openide.filesystems.Repository;
 
 /**
  *
@@ -50,17 +42,7 @@ public final class JackpotUtils {
     }
 
     public static void apply(File dir, URL rules) throws Exception {
-        DefaultApplicationContext context = new DefaultApplicationContext();
-        JackpotEngine eng = EngineFactory.createEngine(context);
-
-        File rulesFile = extractResource(rules);
-
-        int errors = eng.initialize(dir.getPath(), System.getProperty("java.class.path"), "1.4");
-        Assert.assertEquals("No errors during compilation", 0, errors);
-        eng.runScript("q", "t", rulesFile.getPath());
-
-        Assert.assertTrue("There is something to commit", eng.needsCommit());
-        Assert.assertTrue("commit ok", eng.commit());
+        TestUtilities.applyRules(dir, rules, false);
     }
 
     final static String readFile (java.io.File f, boolean gzip) throws java.io.IOException {
