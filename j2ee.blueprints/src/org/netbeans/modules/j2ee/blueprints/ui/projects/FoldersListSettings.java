@@ -18,11 +18,13 @@
  */
 package org.netbeans.modules.j2ee.blueprints.ui.projects;
 
-import org.openide.options.SystemOption;
-import org.openide.util.NbBundle;
+import java.util.prefs.Preferences;
+import org.openide.util.NbPreferences;
 
 
-public class FoldersListSettings extends SystemOption {
+public class FoldersListSettings {
+    
+    private static final FoldersListSettings INSTANCE = new FoldersListSettings();
 
     static final long serialVersionUID = -5L;
 
@@ -37,20 +39,19 @@ public class FoldersListSettings extends SystemOption {
     }
 
     public String getLastExternalSourceRoot () {
-        return (String) getProperty(LAST_EXTERNAL_SOURCE_ROOT);
+        return getPreferences().get(LAST_EXTERNAL_SOURCE_ROOT, System.getProperty("user.home")); //NOI18N
     }
 
     public void setLastExternalSourceRoot (String path) {
-        putProperty (LAST_EXTERNAL_SOURCE_ROOT, path, true);
+        getPreferences().put(LAST_EXTERNAL_SOURCE_ROOT, path);
     }
 
     public int getNewProjectCount () {
-        Integer value = (Integer) getProperty (NEW_PROJECT_COUNT);
-        return value == null ? 0 : value.intValue();
+        return getPreferences().getInt(NEW_PROJECT_COUNT, 0);
     }
 
     public void setNewProjectCount (int count) {
-        this.putProperty(NEW_PROJECT_COUNT, new Integer(count),true);
+        getPreferences().putInt(NEW_PROJECT_COUNT, count);
     }
     
 //    public boolean isShowAgainBrokenRefAlert() {
@@ -63,6 +64,10 @@ public class FoldersListSettings extends SystemOption {
 //    }
 
     public static FoldersListSettings getDefault () {
-        return (FoldersListSettings) SystemOption.findObject (FoldersListSettings.class, true);
+        return INSTANCE;
+    }
+    
+    private static Preferences getPreferences() {
+        return NbPreferences.forModule(FoldersListSettings.class);
     }
 }
