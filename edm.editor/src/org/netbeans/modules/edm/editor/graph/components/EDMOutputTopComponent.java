@@ -153,7 +153,7 @@ public final class EDMOutputTopComponent extends TopComponent {
         addComponent(statementPanel);
     }
     
-    private void addComponent(Component comp) {
+    public void addComponent(Component comp) {
         removeAll();
         setLayout(new BorderLayout());
         add(comp, BorderLayout.CENTER);

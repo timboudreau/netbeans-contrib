@@ -32,6 +32,7 @@ import org.netbeans.modules.edm.editor.graph.actions.FitToPageAction;
 import org.netbeans.modules.edm.editor.graph.actions.FitToWidthAction;
 import org.netbeans.modules.edm.editor.graph.actions.TestRunAction;
 import org.netbeans.modules.edm.editor.graph.actions.ShowOutputAction;
+import org.netbeans.modules.edm.editor.graph.actions.ValidationAction;
 import org.netbeans.modules.edm.editor.graph.actions.ZoomInAction;
 import org.netbeans.modules.edm.editor.graph.actions.ZoomOutAction;
 
@@ -63,10 +64,15 @@ public class MashupToolbar extends JToolBar {
         collapseButton.setToolTipText("Collapse All Widgets");
         toolBar.add(collapseButton);               
         
-        // Auto layout button.
+        // Show output button.
         JButton outputButton = new JButton(new ShowOutputAction(mObj));
         outputButton.setToolTipText("Toggle Output");
         toolBar.add(outputButton);          
+        
+        // Validate button.
+        JButton validateButton = new JButton(new ValidationAction(mObj));
+        validateButton.setToolTipText("Validate");
+        toolBar.add(validateButton);          
         
         toolBar.addSeparator();    
 

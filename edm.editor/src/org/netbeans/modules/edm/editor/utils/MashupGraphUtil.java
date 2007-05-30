@@ -57,6 +57,7 @@ public class MashupGraphUtil {
         imageMap.put(ImageConstants.RUN, ImageConstants.RUN_IMAGE);
         imageMap.put(ImageConstants.ZOOMIN, ImageConstants.ZOOM_IN_IMAGE);
         imageMap.put(ImageConstants.ZOOMOUT, ImageConstants.ZOOM_OUT_IMAGE);
+        imageMap.put(ImageConstants.VALIDATE, ImageConstants.VALIDATE_IMAGE);
     }
     
     /** Creates a new instance of MashupGraphUtil */

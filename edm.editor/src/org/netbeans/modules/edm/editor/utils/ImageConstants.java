@@ -80,6 +80,8 @@ public interface ImageConstants {
     
     public static final String ZOOMOUT = "ZOOMOUT";
     
+    public static final String VALIDATE = "VALIDATE";
+    
     /* Image objects */
     public static final Image JOIN_IMAGE = Utilities.loadImage(
             "org/netbeans/modules/edm/editor/resources/join_view.png"); // NOI18N
@@ -158,4 +160,7 @@ public interface ImageConstants {
         
     public static final Image ZOOM_OUT_IMAGE = Utilities.loadImage(
             "org/netbeans/modules/edm/editor/resources/zoom_out.png"); // NOI18N    
+    
+    public static final Image VALIDATE_IMAGE = Utilities.loadImage(
+            "org/netbeans/modules/edm/editor/resources/validation.png"); // NOI18N        
 }
