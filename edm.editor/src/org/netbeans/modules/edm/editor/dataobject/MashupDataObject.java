@@ -36,7 +36,6 @@ import org.openide.loaders.DataObjectExistsException;
 import org.openide.loaders.MultiDataObject;
 import org.openide.nodes.CookieSet;
 import org.openide.nodes.Node;
-import org.openide.util.Exceptions;
 import org.openide.util.Lookup;
 import org.openide.util.lookup.Lookups;
 import org.openide.util.lookup.ProxyLookup;
@@ -51,7 +50,8 @@ import org.netbeans.modules.etl.model.impl.ETLDefinitionImpl;
 
 public class MashupDataObject extends MultiDataObject {
     
-    public static final String MASHUP_ICON_BASE_WITH_EXT = "org/netbeans/modules/edm/editor/resources/mashup.png"; // NOI18N
+    public static final String MASHUP_ICON_BASE_WITH_EXT = 
+            "org/netbeans/modules/edm/editor/resources/mashup.png"; // NOI18N
     
     private MashupDataEditorSupport editorSupport;
     
@@ -73,7 +73,7 @@ public class MashupDataObject extends MultiDataObject {
         CookieSet cookies = getCookieSet();
         editorSupport = new MashupDataEditorSupport(this);
         cookies.add(editorSupport);
-        manager = new MashupGraphManager(this);        
+        manager = new MashupGraphManager(this);
     }
     
     public Node createNodeDelegate() {
@@ -157,7 +157,7 @@ public class MashupDataObject extends MultiDataObject {
             // get the tables list from the descriptor and add to the model.
             DefaultTableModel tblModel = (DefaultTableModel) descriptor.getProperty("model");
             String url = (String) descriptor.getProperty("mashupConnection");
-            this.mModel = MashupModelHelper.getModel(this.mModel, tblModel, url);
+            this.mModel = MashupModelHelper.getModel(getModel(), tblModel, url);
             try {
                 String content = this.mModel.getETLDefinition().toXMLString("");
                 editorSupport.openDocument();
@@ -180,14 +180,24 @@ public class MashupDataObject extends MultiDataObject {
     
     public ETLCollaborationModel getModel() {
         if(this.mModel == null) {
+            Element elem = null;
+            ETLDefinitionImpl etlDefn = null;
+            mModel = new ETLCollaborationModel(this.getName());
             try {
-                mModel = new ETLCollaborationModel(this.getName());
-                Element elem = parseFile(this.getPrimaryFile());
-                ETLDefinitionImpl etlDefn = new ETLDefinitionImpl(elem, null);
-                mModel.setDefinitionContent(etlDefn);                
+                elem = parseFile(this.getPrimaryFile());
             } catch (Exception ex) {
-                Exceptions.printStackTrace(ex);
+                elem = null;
             }
+            if(elem != null) {
+                try {
+                    etlDefn = new ETLDefinitionImpl(elem, null);
+                } catch (Exception ex) {
+                    etlDefn = new ETLDefinitionImpl(this.getName());
+                }
+            } else {
+                etlDefn = new ETLDefinitionImpl(this.getName());
+            }
+            mModel.setDefinitionContent(etlDefn);
         }
         return this.mModel;
     }
