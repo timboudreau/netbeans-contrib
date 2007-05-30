@@ -390,7 +390,8 @@ public class MashupGraphManager {
         } else {
             nodeName = "JOIN";
         }
-        String joinType = "";
+        String joinType = "<html><table border=0 cellspacing=0 cellpadding=4>" +
+                "<tr><td><b>Join Type</b></td><td>";
         switch(joinOp.getJoinType()) {
         case SQLConstants.INNER_JOIN:
             joinType += "INNER JOIN";
@@ -404,6 +405,7 @@ public class MashupGraphManager {
         case SQLConstants.FULL_OUTER_JOIN:
             joinType += "FULL OUTER JOIN";
         }
+        joinType += "</td></tr></table></html>";
         widget.setNodeName(nodeName);
         
         EDMPinWidget joinTypePin = ((EDMPinWidget) scene.addPin(
@@ -430,7 +432,9 @@ public class MashupGraphManager {
                 nodeID, "nodeID" + "#pin" + pinCounter++));
         scene.revalidate();
         conditionPin.setPinName("CONDITION");
-        conditionPin.setToolTipText("Join Condition: " + condition);
+        conditionPin.setToolTipText("<html> <table border=0 cellspacing=0 cellpadding=4>" +
+                "<tr><td><b>Join Condition</b></td><td>" + 
+                condition + "</td></tr></table></html>");
         List<Image> image = new ArrayList<Image>();
         image.add(MashupGraphUtil.getImage(ImageConstants.CONDITION));
         conditionPin.setGlyphs(image);
@@ -461,7 +465,9 @@ public class MashupGraphManager {
             scene.revalidate();
             RuntimeAttribute rtAttr = (RuntimeAttribute) rtInput.
                     getRuntimeAttributeMap().get(name);
-            columnPin.setToolTipText("Value: " + rtAttr.getAttributeValue());
+            columnPin.setToolTipText("<html><table border=0 cellspacing=0 cellpadding=4 >" +
+                "<tr><td><b>Value</b></td><td>" + rtAttr.getAttributeValue() + 
+                "</td></tr></table></html>");
             widgets.add(columnPin);
         }
         
@@ -474,8 +480,10 @@ public class MashupGraphManager {
     }
     
     private void addTableNode(SQLDBTable tbl, EDMNodeWidget widget, String nodeID) {
-        String tooltip = "URL: " + tbl.getParent().getConnectionDefinition().
-                getConnectionURL();
+        String tooltip = "<html><table border=0 cellspacing=0 cellpadding=4><tr><td><b>URL</b></td>" +
+                "<td>" + tbl.getParent().getConnectionDefinition().getConnectionURL() + 
+                "</td></tr><tr><td><b>Database</b></td><td>"+ tbl.getParent().getConnectionDefinition().getDBType() +
+                "</td></tr>";
         widget.setNodeName(tbl.getDisplayName());
         scene.revalidate();
         widget.getActions().addAction(
@@ -488,7 +496,8 @@ public class MashupGraphManager {
             image.add(MashupGraphUtil.getImage(ImageConstants.FILTER));
             widget.setGlyphs(image);
             scene.revalidate();
-            tooltip = tooltip + ";  Extraction Condition: " + condition;
+            tooltip = tooltip + "<tr><td><b>Extraction Condition</b></td><td>" +
+                    condition + "</td></tr></table></html>";
         }
         
         // now add columns.
@@ -498,9 +507,11 @@ public class MashupGraphManager {
         List<Widget> unusedCol = new ArrayList<Widget>();
         Map<String, List<Widget>> categories = new LinkedHashMap<String, List<Widget>>();
         for(SQLDBColumn column : columns) {
-            String pinTooltip = "Scale: " + column.getScale() +
-                    ";  Precision: " + column.getPrecision() +
-                    ";  Type: " + column.getJdbcTypeString();
+            String pinTooltip = "<html> <table border=0 cellspacing=0 cellpadding=4><tr><td>" +
+                    "<b>Scale</b></td><td>" + column.getScale() + "</td></tr>" +
+                    "<tr><td><b>Precision</b></td><td>" + column.getPrecision() +
+                    "</td></tr><tr><td><b>Type</b></td><td>" + 
+                    column.getJdbcTypeString() + "</td></tr>";
             EDMPinWidget columnPin = ((EDMPinWidget)
                     scene.addPin(nodeID, "nodeID" + "#pin" + pinCounter++));
             scene.revalidate();
@@ -510,11 +521,11 @@ public class MashupGraphManager {
             if(column.isVisible()) {
                 if(column.isPrimaryKey()) {
                     image.add(MashupGraphUtil.getImage(ImageConstants.PRIMARYKEYCOL));
-                    pinTooltip = pinTooltip + "; PRIMARY KEY ";
+                    pinTooltip = pinTooltip + "<tr><td colspan=2><b>PRIMARY KEY</b></td></tr>";
                 } else if (column.isForeignKey()) {
                     image.add(MashupGraphUtil.getImage(ImageConstants.FOREIGNKEYCOL));
                     image.add(MashupGraphUtil.getImage(ImageConstants.FOREIGNKEY));
-                    pinTooltip = pinTooltip + "; FOREIGN KEY ";
+                    pinTooltip = pinTooltip + "<tr><td colspan=2><b>FOREIGN KEY</b></td></tr>";
                 } else {
                     image.add(MashupGraphUtil.getImage(ImageConstants.COLUMN));
                 }
@@ -523,6 +534,7 @@ public class MashupGraphManager {
                 image.add(MashupGraphUtil.getImage(ImageConstants.COLUMN));
                 unusedCol.add(columnPin);
             }
+            pinTooltip = pinTooltip + "</table></html>";
             columnPin.setGlyphs(image);
             scene.revalidate();
             columnPin.setToolTipText(pinTooltip);
