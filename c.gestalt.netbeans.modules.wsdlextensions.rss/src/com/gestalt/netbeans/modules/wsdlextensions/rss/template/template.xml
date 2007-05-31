@@ -47,7 +47,6 @@
         </wsdlElement>
         <wsdlElement name="ServicePort">
             <extensionElement name="address" >
-                <extensionAttr name="feedName"  defaultValue=""/>
                 <extensionAttr name="feedTitle" defaultValue=""/>
                 <extensionAttr name="feedDescription" defaultValue=""/>
                 <extensionAttr name="feedType" defaultValue=""/>

@@ -110,6 +110,16 @@
                             <prop:SimpleCustomizer name="PartChooser"/>
                         </prop:BuiltInCustomizer>
                     </prop:Property>
+                    <prop:Property attributeName="latitude" propertyOrder="7">
+                        <prop:BuiltInCustomizer>
+                            <prop:SimpleCustomizer name="PartChooser"/>
+                        </prop:BuiltInCustomizer>
+                    </prop:Property>
+                    <prop:Property attributeName="longitude" propertyOrder="8">
+                        <prop:BuiltInCustomizer>
+                            <prop:SimpleCustomizer name="PartChooser"/>
+                        </prop:BuiltInCustomizer>
+                    </prop:Property>
                 </prop:ElementProperties>
             </xs:appinfo>
         </xs:annotation>
@@ -148,6 +158,16 @@
                     </xs:annotation>
                 </xs:attribute>
                 <xs:attribute name="entryDescription" type="xs:string" use="optional">
+                    <xs:annotation>
+                        <xs:documentation>TBD</xs:documentation>
+                    </xs:annotation>
+                </xs:attribute>
+                <xs:attribute name="latitude" type="xs:string" use="optional">
+                    <xs:annotation>
+                        <xs:documentation>TBD</xs:documentation>
+                    </xs:annotation>
+                </xs:attribute>
+                <xs:attribute name="longitude" type="xs:string" use="optional">
                     <xs:annotation>
                         <xs:documentation>TBD</xs:documentation>
                     </xs:annotation>
