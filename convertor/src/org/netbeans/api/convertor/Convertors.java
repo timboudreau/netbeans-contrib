@@ -60,9 +60,6 @@ public final class Convertors {
 
     private static Convertors DEFAULT = new Convertors();
     
-    private static DocumentBuilderFactory factory;
-    private static DocumentBuilder builder;
-    
     // Yarda's Accessor Pattern in practise
     static {
         Accessor.DEFAULT = new AccessorImpl();
@@ -81,58 +78,10 @@ public final class Convertors {
         return DEFAULT;
     }
     
-
-    private static DocumentBuilderFactory getDocumentBuilderFactory() {
-        if (factory == null) {
-            //TODO: suspicious impl. - evaluate        
-            // XXX Crimson documents do not seem to work too well; e.g. create a document element
-            // with a namespace and attributes, and Xerces will not write out the attributes
-            try {
-                String prop = "javax.xml.parsers.DocumentBuilderFactory"; // NOI18N
-                Properties p = System.getProperties();
-                String old = p.getProperty(prop);
-                try {
-                    p.setProperty(prop, "org.apache.xerces.jaxp.DocumentBuilderFactoryImpl"); // NOI18N
-                    factory = DocumentBuilderFactory.newInstance();
-                } finally {
-                    if (old != null) {
-                        p.setProperty(prop, old);
-                    } else {
-                        p.remove(prop);
-                    }
-                }
-            } catch (FactoryConfigurationError e) {
-                // OK, Xerces didn't work, try the default configuration and hope.
-                factory = DocumentBuilderFactory.newInstance();
-            }
-            factory = DocumentBuilderFactory.newInstance();
-            factory.setNamespaceAware(true);
-            factory.setValidating(false);
-            // Please read follwing about why are these here:
-            // http://www-106.ibm.com/developerworks/xml/library/x-perfap2.html
-            factory.setAttribute("http://apache.org/xml/properties/dom/document-class-name", "org.apache.xerces.dom.CoreDocumentImpl");
-            factory.setAttribute("http://apache.org/xml/features/dom/defer-node-expansion", Boolean.FALSE);
-        }
-        return factory;
-    }
-
-    
-    private static DocumentBuilder getDocumentBuilder() throws ParserConfigurationException {
-        if (builder == null) {
-            builder = getDocumentBuilderFactory().newDocumentBuilder();
-            builder.setEntityResolver(EntityCatalog.getDefault());
-        }
-        return builder;
-    }
-    
     static Document createDocument() {
         Document doc = null;
-        try {
-            doc = getDocumentBuilder().newDocument();
-        } catch (ParserConfigurationException ex) {
-            ErrorManager.getDefault().log(ErrorManager.WARNING, "Could not create instance of new dom.Document.\n" + ex.toString());
-            return null;
-        }
+        doc = XMLUtil.createDocument("convertors", null, null, null);
+        doc.removeChild(doc.getFirstChild());
         return doc;
     }
     
