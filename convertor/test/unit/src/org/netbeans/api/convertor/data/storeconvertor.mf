@@ -1,0 +1,14 @@
+Manifest-Version: 1.0
+OpenIDE-Module: org.storeconvertor
+OpenIDE-Module-Name: storeconvertor
+OpenIDE-Module-Module-Dependencies: org.openide.filesystems > 6.2, org
+ .openide.util > 6.2, org.openide.modules > 6.2, org.openide.nodes > 6
+ .2, org.openide.loaders, org.netbeans.modules.convertor/1 > 1.2, 
+  org.netbeans.core.startup/1 > 1.0,
+  org.netbeans.libs.xerces/1 > 1.2
+
+Name: org/storeconvertor/StoreConvertor.class
+NetBeans-Convertor: {http://www.netbeans.org/ns/store}store, org.netbeans.api.convertor.store.Store
+NetBeans-Convertor-2: {http://www.netbeans.org/ns/store}dvd, org.netbeans.api.convertor.dvd.DVD
+NetBeans-Convertor-3: {http://www.netbeans.org/ns/store}book, org.netbeans.api.convertor.book.Book
+

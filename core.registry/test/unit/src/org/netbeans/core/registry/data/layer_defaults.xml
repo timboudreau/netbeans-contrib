@@ -1,0 +1,73 @@
+<?xml version="1.0"?>
+<!--
+The contents of this file are subject to the terms of the Common Development
+and Distribution License (the License). You may not use this file except in
+compliance with the License.
+
+You can obtain a copy of the License at http://www.netbeans.org/cddl.html
+or http://www.netbeans.org/cddl.txt.
+
+When distributing Covered Code, include this CDDL Header Notice in each file
+and include the License file at http://www.netbeans.org/cddl.txt.
+If applicable, add the following below the CDDL Header, with the fields
+enclosed by brackets [] replaced by your own identifying information:
+"Portions Copyrighted [year] [name of copyright owner]"
+
+The Original Software is NetBeans. The Initial Developer of the Original
+Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
+Microsystems, Inc. All Rights Reserved.
+-->
+<!DOCTYPE filesystem PUBLIC "-//NetBeans//DTD Filesystem 1.1//EN" "http://www.netbeans.org/dtds/filesystem-1_1.dtd">
+
+<filesystem>
+
+    <folder name="contextX">
+        <attr name="contextXAttribute" stringvalue="contextXAttributeValue"/>
+
+        <file name="objectBindingOne.instance">
+            <attr name="objectBindingOneAttribute" stringvalue="objectBindingOneAttributeValue"/>
+        </file>
+
+        <file name="objectBindingTwo.instance">
+            <attr name="objectBindingTwoAttribute" stringvalue="objectBindingTwoAttributeValue"/>
+        </file>
+
+        <attr name="BINDING:primitiveBindingOne" stringvalue="primitiveBindingOneValue"/>
+        <attr name="BINDINGATTR:primitiveBindingOne/primitiveBindingOneAttribute" stringvalue="primitiveBindingOneAttributeValue"/>
+
+        <attr name="BINDING:primitiveBindingTwo" stringvalue="primitiveBindingTwoValue"/>
+        <attr name="BINDINGATTR:primitiveBindingTwo/primitiveBindingTwoAttribute" stringvalue="primitiveBindingTwoAttributeValue"/>
+
+    </folder>
+    
+    <folder name="contextY">
+        <attr name="BINDING:bndString" stringvalue="string val"/>
+        <attr name="BINDING:bndInteger" intvalue="1984"/>
+        <attr name="BINDING:bndLong" longvalue="19841984"/>
+        <attr name="BINDING:bndBoolean" boolvalue="true"/>
+        <attr name="BINDING:bndFloat" floatvalue="1112.1112"/>
+        <attr name="BINDING:bndDouble" doublevalue="11121112.11121112"/>
+        <attr name="BINDING:bndURL" urlvalue="http://www.netbeans.org/download/"/>
+        <attr name="BINDING:bndFont" stringvalue="Font[Arial-bolditalic-15]"/>
+        <attr name="BINDING:bndColor" stringvalue="Color[25000]"/>
+    </folder>
+
+    <folder name="contextZ">
+        <file name="objectBindingOne.instance">
+            <attr name="instanceCreate" newvalue="java.lang.String"/>
+        </file>
+        <attr name="BINDING:primitiveBindingOne" stringvalue="primitiveBindingOneValue"/>
+    </folder>
+
+    <folder name="contextREF">
+        <file name="ref.shadow">
+            <attr name="originalFile" stringvalue="contextZ/objectBindingOne.instance"/>
+        </file>
+        <file name="ref2.xml">
+            <![CDATA[
+                <link xmlns="http://www.netbeans.org/ns/registry">/contextZ/primitiveBindingOne</link>
+            ]]>
+        </file>
+    </folder>
+
+</filesystem>

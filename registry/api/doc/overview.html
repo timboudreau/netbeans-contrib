@@ -1,0 +1,58 @@
+<!--
+The contents of this file are subject to the terms of the Common Development
+and Distribution License (the License). You may not use this file except in
+compliance with the License.
+
+You can obtain a copy of the License at http://www.netbeans.org/cddl.html
+or http://www.netbeans.org/cddl.txt.
+
+When distributing Covered Code, include this CDDL Header Notice in each file
+and include the License file at http://www.netbeans.org/cddl.txt.
+If applicable, add the following below the CDDL Header, with the fields
+enclosed by brackets [] replaced by your own identifying information:
+"Portions Copyrighted [year] [name of copyright owner]"
+
+The Original Software is NetBeans. The Initial Developer of the Original
+Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
+Microsystems, Inc. All Rights Reserved.
+-->
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+</head>
+<body>
+
+This document set describes the public APIs and SPIs offered by the Registry module.
+
+<h2>Contents</h2>
+
+<a href="org/netbeans/api/registry/package-summary.html#Overview">API (including overview and examples)</a><br>
+<a href="org/netbeans/spi/registry/package-summary.html#Registry_SPI_in_detail">SPI</a><br>
+<a href="org/netbeans/api/registry/doc-files/mergedcontext.html">MergedContexts</a><br>
+<br>
+<span style="font-weight: bold;">Additional documentation:<br></span>
+<a href="org/netbeans/api/registry/doc-files/design_choices.html">Design Choices</a><br>
+<a href="apichanges.html">Change History</a><br>
+<a href="architecture-summary.html">Architecture Summary</a><br>
+<br>
+<span style="font-weight: bold; font-style: italic;">Credits:</span><br style="font-style: italic;">
+<span style="font-style: italic;">The Registry API was strongly inpired by </span><a href="http://java.sun.com/j2se/1.4.1/docs/guide/lang/preferences.html" style="font-style: italic;">Preferences API</a><span style="font-style: italic;"> and </span><a href="http://java.sun.com/products/jndi/" style="font-style: italic;">JNDI API</a><span style="font-style: italic;">. Several people from nbdev mailing list (</span><span style="font-style: italic;">especially Jesse Glick, Radek Matous, Petr Nejedly, Vitezslav Stejskal, Jaroslav Tulach</span><span style="font-style: italic;">) provided valuable feedback which was incorporated.<br>
+</span><br>
+<div style="margin-left: 40px;"><font size="+2" style="color: red;"><span style="font-weight: bold;">&lt;WARNING&gt;</span></font><br>
+<font size="+1">Current
+implementation of the Registry uses for object persistence DataSystem
+layer and its InstanceDataObject. This will be changed before final
+release and this change can significantly change the behaviour how
+object are treated. For example current InstanceDataObject
+automatically saves object when it was modified. You just retrieve the
+object from Registry API, modify the object through its API and the
+object will be automatically persist without the need to bind the
+changed object back to Registry. This is one of the things which can
+change when dependency on DataSystem is eliminated. If you are
+switching to Registry API please keep this in mind, ask questions, mark
+the source code to be able to return to is later etc. See <a href="http://openide.netbeans.org/proposals/settings/">Settings Redesign</a> page for the most actual info.</font><br>
+<font size="+2" style="color: red;"><span style="font-weight: bold;">&lt;/WARNING&gt;</span></font><br>
+</div>
+
+</body>
+</html>

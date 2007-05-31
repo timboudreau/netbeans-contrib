@@ -1,0 +1,225 @@
+<!--
+The contents of this file are subject to the terms of the Common Development
+and Distribution License (the License). You may not use this file except in
+compliance with the License.
+
+You can obtain a copy of the License at http://www.netbeans.org/cddl.html
+or http://www.netbeans.org/cddl.txt.
+
+When distributing Covered Code, include this CDDL Header Notice in each file
+and include the License file at http://www.netbeans.org/cddl.txt.
+If applicable, add the following below the CDDL Header, with the fields
+enclosed by brackets [] replaced by your own identifying information:
+"Portions Copyrighted [year] [name of copyright owner]"
+
+The Original Software is NetBeans. The Initial Developer of the Original
+Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
+Microsystems, Inc. All Rights Reserved.
+-->
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"><html><head></head><body>
+
+The Convertor SPI defines interface describing the convertor.
+
+<h2>Content</h2>
+
+<a href="#Writing_your_first_convertor">Writing your first convertor</a><br>
+<a href="#Using_SimplyConvertible_instead_of">Using SimplyConvertible instead of writing convertor</a><br>
+
+<a href="#Existing_convertors">Existing convertors</a><br>
+<a href="#SPI_in_details">SPI in details</a><br>
+
+<h2><a name="Writing_your_first_convertor"></a>Writing your first convertor</h2>
+
+Implementing a convertor is fairly simple task. Two things must be done:<br>
+<ul>
+  <li>Convertor interface must be implemented</li>
+  <li>implementation of convertor must be registered to the system</li>
+</ul>
+<h3>Learn by example</h3>
+
+1.) let say you have an object like this:<br>
+
+<br>
+
+<code style="font-weight: bold;">&nbsp; package com.mycompany.book;<br>
+<br>
+</code><code style="font-weight: bold;">&nbsp; class Book {<br>
+<br>
+</code><code style="font-weight: bold;">&nbsp;&nbsp;&nbsp; private String author;<br>
+</code><code><span style="font-weight: bold;">&nbsp;&nbsp;&nbsp; private String title;</span><br style="font-weight: bold;">
+<br>
+&nbsp;&nbsp;&nbsp; public Book(String author, String title) { ... };<br>
+&nbsp; <br>
+&nbsp;&nbsp;&nbsp; public String getAuthor() { ... };<br>
+&nbsp;&nbsp;&nbsp; public void setAuthor(String author) { ... };<br>
+<br>
+&nbsp;&nbsp;&nbsp; public String getTitle() { ... };<br>
+&nbsp;&nbsp;&nbsp; public void setTitle(String title) { ... };<br>
+<br>
+&nbsp; }&nbsp;&nbsp; <br>
+</code><br>
+2.) make up a unique namespace identifier and root element name<br>
+
+<br>
+
+<code>&nbsp; String NAMESPACE = "<span style="font-weight: bold;">http://www.mycompany.com/namespace/book</span>";<br>
+</code><code>&nbsp; String ELEMENT = "<span style="font-weight: bold;">book</span>";<br>
+</code><br>
+
+3.) implement Convertor interface. It has two methods which implementation is straightforward<br>
+<br>
+<code>&nbsp; package com.mycompany.book;<br>
+<br>
+</code><code>&nbsp; public class BookConvertor implements Convertor {<br>
+&nbsp;  <br>&nbsp;&nbsp;&nbsp; public BookConvertor() {<br>
+&nbsp;&nbsp;&nbsp; }<br>
+&nbsp;&nbsp;&nbsp; <br></code><code>&nbsp;&nbsp;&nbsp; public Object read(Element element) {<br>
+</code><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; String author;<br>
+</code><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; String title;<br>
+<br>
+<span style="font-weight: bold;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // read author and title from element or </span></code><code style="font-weight: bold;">its child elements </code><code><br style="font-weight: bold;">
+<span style="font-weight: bold;">&nbsp;&nbsp;&nbsp; &nbsp; // whatever way you store it and like it</span><br style="font-weight: bold;">
+<br>&nbsp;&nbsp;&nbsp; &nbsp; return new Book(author, title);<br>
+&nbsp;&nbsp;&nbsp; }<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <br>&nbsp;&nbsp;&nbsp; public Element write(Document doc, Object inst) {<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Book book = (Book)inst;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Element element = doc.createElementNS(NAMESPACE, BOOK);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;  <br></code><code><span style="font-weight: bold;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // write author and title whatever way you prefer</span><br style="font-weight: bold;">
+<span style="font-weight: bold;">&nbsp;&nbsp;&nbsp; &nbsp; // to the element and return that element</span><br style="font-weight: bold;">
+</code><code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;  <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return element;<br>
+&nbsp;&nbsp;&nbsp; }<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <br>&nbsp; }<br>
+</code><br>
+The example of fully working simple convertor can be found at:<br>
+<ul>
+  <li>openide/convertor/test/unit/src/org/netbeans/api/convertor/data/dvdconvertor/org/dvdconvertor/DVDConvertor.java</li>
+</ul>
+4.) register your convertor to the system<br>
+<br>
+The convertor is registered in JAR Manifest by following lines:<br>
+<br>
+<code>&nbsp; Name: </code><code>com/mycompany/book/BookConvertor.class</code><br>
+<code>&nbsp; NetBeans-Convertor: {</code><code>http://www.mycompany.com/namespace/book}</code><code>book, </code><code>com.mycompany.book.Book</code><br>
+<br>
+This declarative registration gives system all the necessary
+information about input and output of your convertor and how to
+instantiate it. And that's all. Now you can convert your Book instances
+as described in <a href="../../api/convertor/package-summary.html">API package overview</a> or by some other APIs like <a href="@org-netbeans-modules-registry@/index.html">Registry API</a>.<br>
+<br>
+The more details about Convertor interface, its semantics and JAR
+Manifest registration can be found in Javadoc for Convertor class.<br>
+<h3>Other examples</h3>
+Other examples can be found in unit tests. In folder <code>openide/convertor/test/unit/src/org/netbeans/api/convertor/data</code>
+can be found Ant build script for building three separate JARs each
+containing one convertor example and its registration. There is also
+example of usage of SimplyConvertible and compound convertor which
+are discussed in next chapters.<br>
+<h2><a name="Using_SimplyConvertible_instead_of"></a>Using SimplyConvertible instead of writing convertor</h2>SimplyConvertible is way how to persist object without implementing your own convertor.<br>
+<h3>Learn by example</h3>
+
+
+1.) let say we have the same Book object as defined in chapter before.<br>
+<br>
+In order to make the object persistable the
+class must implement <a href="SimplyConvertible.html">SimplyConvertible</a> interface and two of its
+methods. Below is code which has to be added to Book class:<br>
+
+<br>
+
+<code>&nbsp; class Book <span style="font-weight: bold;">implements SimplyConvertible</span> {<br>
+&nbsp;&nbsp;&nbsp; <br>
+<span style="font-weight: bold;">&nbsp;&nbsp;&nbsp; private static final String AUTHOR = "author";</span><br style="font-weight: bold;">
+<span style="font-weight: bold;">&nbsp;&nbsp;&nbsp; </span></code><code><span style="font-weight: bold;">private static final </span></code><code><span style="font-weight: bold;">String TITLE = "title";</span><br style="font-weight: bold;">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <br><span style="font-weight: bold;">&nbsp;&nbsp;&nbsp; public void read(Properties p) { </span><br style="font-weight: bold;">
+<span style="font-weight: bold;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; author = p.getProperty(AUTHOR);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; title = p.getProperty(TITLE);</span><br style="font-weight: bold;">
+<span style="font-weight: bold;">&nbsp;&nbsp;&nbsp; }</span><br style="font-weight: bold;">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <br><span style="font-weight: bold;">&nbsp;&nbsp;&nbsp; public void write(Properties p) {</span><br style="font-weight: bold;">
+<span style="font-weight: bold;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; p.setProperty(AUTHOR, author);</span><br style="font-weight: bold;">
+<span style="font-weight: bold;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; p.setProperty(TITLE, title);</span><br style="font-weight: bold;">
+<span style="font-weight: bold;">&nbsp;&nbsp;&nbsp; }<br>
+</span><br>
+&nbsp;&nbsp;&nbsp; // and the rest ...<br>
+&nbsp; }&nbsp;&nbsp; <br>
+</code><br>
+2.) make up a unique namespace identifier and root element name<br>
+
+
+<br>
+
+
+<code>&nbsp; String NAMESPACE = "<span style="font-weight: bold;">http://www.mycompany.com/namespace/book2</span>";<br>
+</code><code>&nbsp; String ELEMENT = "<span style="font-weight: bold;">book2</span>";<br>
+</code><br>
+3.) register your SimplyConvertible object to the system<br>
+
+<br><code>&nbsp; Name: </code><code>com/mycompany/book/Book.class<br>
+&nbsp; NetBeans-Simply-Convertible: {</code><code>http://www.mycompany.com/namespace/book2}book2</code><br>
+<br>
+That's all. The resulting persistent format of a book instance will look like:<br>
+<br>
+<code>&lt;book2 xmlns="</code><code>http://www.mycompany.com/namespace/book2</code><code>"&gt;<br>
+&nbsp;&nbsp;&nbsp; &lt;author&gt;A Book Author&lt;/author&gt;<br>
+&nbsp;&nbsp;&nbsp; &lt;title&gt;A Book Title&lt;/title&gt;<br>
+&lt;/book2</code><code>&gt;</code>&nbsp;<br>
+<br>
+The example of fully working SimplyConvertible example can be found at:<br>
+
+<ul>
+<li>openide/convertor/test/unit/src/org/netbeans/api/convertor/data/bookconvertor/</li>
+</ul>The more details about SimplyConvertible interface, its semantics and JAR
+Manifest registration can be found in Javadoc for SimplyConvertible class.<br>
+
+<h2><a name="Existing_convertors"></a>
+Existing convertors</h2>
+The Convertor module provides at the moment one additional convertor for general usage: Instance convertor.<br>
+<h3>Instance convertor</h3>
+
+This convertor allows easy way to register immutable instances to the
+system because it does not support saving. There are four possible
+usages:<br>
+<br>
+1.) instantiate class by its public default constructor:<br>
+<br>
+<code>&lt;instance xmlns="http://www.netbeans.org/ns/registry"&gt;<br>
+&nbsp;&nbsp;&nbsp; &lt;class&gt;com.mycompany.SomeClass&lt;/class&gt;<br>
+&lt;/instance&gt;<br>
+&nbsp;</code><br>
+2.) instantiate class by calling a public static factory method:<br>
+
+<br>
+
+<code>&lt;instance xmlns="http://www.netbeans.org/ns/registry"&gt;<br>
+&nbsp;&nbsp;&nbsp; &lt;method&gt;com.mycompany.SomeClass.getDefault&lt;/method&gt;<br>
+&lt;/instance&gt;<br>
+</code><br>The object created by this method does not have to be assignable to the class of the static factory method.<br>
+<br>
+3.) instantiate class by its public constructor with Properties parameter:<br>
+
+<br>
+
+<code>&lt;instance xmlns="http://www.netbeans.org/ns/registry"&gt;<br>
+&nbsp;&nbsp;&nbsp; &lt;class&gt;com.mycompany.SomeClass&lt;/class&gt;<br>&nbsp;&nbsp;&nbsp; &lt;property name="prop1"&gt;Value of Prop1&lt;/property&gt;<br>
+&nbsp;&nbsp;&nbsp; &lt;property name="prop2"&gt;</code><code>Value of Prop2</code><code>&lt;/property&gt;<br>
+&lt;/instance&gt;<br>
+&nbsp;</code><br>
+The key-value pairs specified by &lt;property&gt; tags will be parsed
+and put into Properties instance passed to the constructor.<br>
+<br>
+
+4.) instantiate class by calling a public static factory method with Properties parameter<br>
+
+<br>Same as in #3 only the method is called instead of constructor.
+Again, the object created by this method does not have to be assignable
+to the class of the static factory method.<br>
+
+<h2><a name="SPI_in_details"></a>SPI in details<br>
+</h2><h4>Are compound convertors supported?</h4>
+There is no explicit support for them, but compound convertor can be
+easily written using the existing Convertors API. See compound convertor
+examples at:<br>
+<ul>
+  <li>openide/convertor/test/unit/src/org/netbeans/api/convertor/data/shoppingcartconvertor/org/shoppingcartconvertor/ShoppingCartConvertor.java</li><li>openide/convertor/test/unit/src/org/netbeans/api/convertor/data/storeconvertor/org/storeconvertor/StoreConvertor.java</li>
+
+</ul><br>
+
+</body></html>

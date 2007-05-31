@@ -1,0 +1,65 @@
+<!--
+The contents of this file are subject to the terms of the Common Development
+and Distribution License (the License). You may not use this file except in
+compliance with the License.
+
+You can obtain a copy of the License at http://www.netbeans.org/cddl.html
+or http://www.netbeans.org/cddl.txt.
+
+When distributing Covered Code, include this CDDL Header Notice in each file
+and include the License file at http://www.netbeans.org/cddl.txt.
+If applicable, add the following below the CDDL Header, with the fields
+enclosed by brackets [] replaced by your own identifying information:
+"Portions Copyrighted [year] [name of copyright owner]"
+
+The Original Software is NetBeans. The Initial Developer of the Original
+Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
+Microsystems, Inc. All Rights Reserved.
+-->
+<html>
+<body>
+
+The Registry SPI may be used by infrastructure modules which handle
+persistence of settings.
+
+Normal modules should not need to use this SPI.
+
+<h2><a name="Registry_SPI_in_detail"></a>Registry SPI in detail</h2>
+
+(TBD)<br>
+<br>
+The heart of the Registry SPI is BasicContext interface. Any client
+implementing the SPI must implement this interface. The
+ResettableContext is optional extension of the BasicContext capable to
+revert modifications to their default state. The RootContext is special
+extension of context which describes root of the registry hierarchy and
+several of its special capabilities like searching over the whole
+registry hierarchy, making pending registry modifications permanent, provides one mutex for all synchronization
+Each root context must implement the RootContext.<br>
+<br>
+At the moment it is not expected that some other
+implementations of backend storage would exist or would be needed. The
+default one provided by NetBeans (currently known as SystemFilesystem)
+will be documented in separate document. It will implement
+ResettableContext; it will document how defaults can be declared; it
+will document how it persist binded objects (eg. first the convertor is
+searched; if failed "implements Serializable" is tested; if failed
+throw exceptions and reject the object); etc.<br>
+<br>
+The SpiUtils class has several helper methods for creating misc Objects, Contexts, etc.
+
+<h2><a name="Threading_Model"></a>Threading Model</h2>(TBD)<br>
+<br>
+Threading model is very simple. SPI clients do not have to synchronize
+anything. They must only correctly implement RootContext.getMutex()
+method. The implementation of Registry APIs synchronizes all its
+methods calls on this mutex. That makes API thread save and it can be
+accessed from arbitrary threads without the need of client
+synchronization and that SPI will be always accessed only under the
+read or write lock of the SPI mutex. That also means that one client
+owning exlusive write lock and modifying a context blocks the whole
+registry or more precisely the root context and its hierarchy of
+context descendants to which the modified context belongs.<br>
+
+</body>
+</html>

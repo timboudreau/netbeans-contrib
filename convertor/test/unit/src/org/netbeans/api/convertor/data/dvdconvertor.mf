@@ -1,0 +1,12 @@
+Manifest-Version: 1.0
+OpenIDE-Module: org.dvdconvertor
+OpenIDE-Module-Name: dvdconvertor
+OpenIDE-Module-Module-Dependencies: org.openide.filesystems > 6.2, org
+ .openide.util > 6.2, org.openide.modules > 6.2, org.openide.nodes > 6
+ .2, org.openide.loaders, org.netbeans.modules.convertor/1 > 1.2, 
+  org.netbeans.core.startup/1 > 1.0,
+  org.netbeans.libs.xerces/1 > 1.2
+
+Name: org/dvdconvertor/DVDConvertor.class
+NetBeans-Convertor: {http://www.netbeans.org/ns/dvd}dvd, org.netbeans.api.convertor.dvd.DVD
+

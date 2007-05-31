@@ -1,0 +1,132 @@
+<!--
+The contents of this file are subject to the terms of the Common Development
+and Distribution License (the License). You may not use this file except in
+compliance with the License.
+
+You can obtain a copy of the License at http://www.netbeans.org/cddl.html
+or http://www.netbeans.org/cddl.txt.
+
+When distributing Covered Code, include this CDDL Header Notice in each file
+and include the License file at http://www.netbeans.org/cddl.txt.
+If applicable, add the following below the CDDL Header, with the fields
+enclosed by brackets [] replaced by your own identifying information:
+"Portions Copyrighted [year] [name of copyright owner]"
+
+The Original Software is NetBeans. The Initial Developer of the Original
+Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
+Microsystems, Inc. All Rights Reserved.
+-->
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<title>Registry API</title>
+  <meta name="author" content="David Konecny">
+<link rel="stylesheet" href="../../../../../prose.css" type="text/css">
+</head>
+<body>
+
+<p class="overviewlink"><a href="../../../../../overview-summary.html">Overview</a></p>
+
+<p><span style="color: red;">(This part needs to be updated!)</span></p>
+
+<h2><a name="Design_Choices"></a>Design Choices</h2>
+
+Designing API consists of considering wide rage of possibilities and
+chosing the particular one for some reason. The important thing to keep
+in mind is that API as a whole must be consistent and its individual
+parts must fit into other smoothly and naturally. This often means that
+solution for one concrete API part which seems as the best cannot be
+used because it does work well with other parts of the API. <br>
+<br>
+This section tries to summarize some of the dilemmas and choices considered during
+the design of this API and why some things were done this way and not
+the other.<br>
+<h3>Why the Preferences API was not used?</h3>
+The Preferences API intentionally does not support objects handling.
+The Preferences API as it names says is suitable for storage of
+application preferences. However, handling of objects is requirement for
+NetBeans. The NetBeans platform is customized by the objects registered
+in the module's layer. The reasonable requirement is to have just one
+API for manipulation of these objects and also for maniulation with
+application preferences. At the end they are both just some settings.<br>
+<br>
+However, the Preferences API provider can be written which would use as
+backend Registry API. This would allow users accustomed to Preferences
+API use that API even in NetBeans and take advantage of subset of the
+features of the Registry API.<br>
+<h3>Why the JNDI API was not used?</h3>
+The JNDI API was considered for a long time. There even exists
+experimental implementation of the JNDI over NetBeans configuration
+system - core/naming module. However this idea was discarded mainly for
+these reasons:<br>
+<ul>
+  <li>too heavyweight for our needs. We need just subset of the
+functionality and even this subset is sort of cumbersome for use in
+client applications.</li>
+  <li>&nbsp;JNDI Specification. The clear specification of behaviour of
+JNDI is of course advantage, but in case of our particular usage of JNDI
+it could be also limiting disadvantage.</li>
+  <li>the JNDI originally was designed for enterprice or remote stuff.
+Therefore exceptions as return values are quite appropriate solution. This
+is not true for client applications which might query settings
+frequently and catching exceptions would surely be performance problem.</li>
+  <li>plain JNDI API is not enough for our needs. We would have to
+create a few helper APIs anyway, e.g. support for defaults, handling of
+primitive types, ordering, etc. Not mentioning that direct work with
+JNDI API requires catching exceptions all the time and so it would be most probably wrapped into some helper class as well.<br>
+</li></ul>The result is that we created Registry API which borrows a lot of ideas
+both from the JNDI API and Preferences API and which suits better our
+concrete needs in NetBeans.<br>
+<h3>Binding-based API or binding-less API?</h3>
+Why there is not just <br>
+<br>
+<code>&nbsp;&nbsp;&nbsp; public interface <span style="font-weight: bold;">Context </span>{<br>
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; String getName();<br>
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; Context[] getChildrens();<br>
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; <span style="font-weight: bold;">Object getObject();</span><br>
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; String getAttribute(attrname);<br>
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; // ... other methods<br>
+&nbsp;&nbsp;&nbsp; }<br>
+</code><br>
+one single Context interface which represent both context and binding
+as well. This is how FileSystem library treats files and folders - the
+FileObject represents them both. Why the Registry API distinguish
+contexts and bindings?<br>
+<br>
+This possibility was considered. There is no significant difference
+between these two concepts. The binding-less concept is more natural
+to people who are used to NetBeans FileSystem API; the binding-based concept is
+used in Preferences API, JNDI API and also Windows Registry works the
+same way. So in this light it was decided that easy of use of API and
+its intuitiveness is more important. Comparison of these two approaches demonstrated on a few usecases <a href="bindingbased_vs_bindingless.html">can be found here</a>.<br><h3>The behaviour of some methods depend on whether the binding name is
+passed or not.</h3>
+Yes, all
+ResettableContext methods accept null as value of the binding name.
+Passing null value means that methods will operate on the Context itself
+and not on the concrete binding: binding's attribute versus context's
+attributes; reset of binding versus reset of whole context.<br>
+<br>
+This design is not nice but it is reasonable compromise. Other solution
+would be to add several methods without this parameter, but this seems
+to be worse that current solution.<br><br>
+<br>
+<span style="font-weight: bold;">TBD: </span>mention advantage of API/SPI separation<br>
+<br>
+<h2><a name="Links"></a>Links</h2>
+Archive of discussions about this API.<br>
+<ul>
+  <li><a href="http://www.netbeans.org/servlets/ReadMsg?msgId=498624&amp;listName=nbdev">[nbdev] [PROPOSAL] Registry API - new settings API for NetBeans</a></li>
+  <li><a href="http://www.netbeans.org/servlets/BrowseList?listName=nbdev&amp;by=subject&amp;from=238303">[nbdev] [PROPOSAL] Registry API - defining attributes</a></li>
+  <li><a href="http://www.netbeans.org/servlets/BrowseList?listName=nbdev&amp;by=subject&amp;from=238313">[nbdev] [PROPOSAL] Registry API - listening</a></li>
+  <li><a href="http://www.netbeans.org/servlets/BrowseList?listName=nbdev&amp;by=subject&amp;from=238472">[nbdev] [PROPOSAL] Registry API - what to do with files?</a></li>
+  <li><a href="http://www.netbeans.org/servlets/BrowseList?listName=nbdev&amp;by=subject&amp;from=238311">[nbdev] [PROPOSAL] Registry API - URL bridge</a></li>
+  <li><a href="http://www.netbeans.org/servlets/BrowseList?listName=nbdev&amp;by=subject&amp;from=235858">[nbdev] [Registry API] - API/SPI + user comments</a></li>
+  <li><a href="http://www.netbeans.org/servlets/BrowseList?listName=nbdev&amp;by=subject&amp;from=238110">[nbdev] Registry API - Binding based versus Bindingless Context</a></li>
+  <li><a href="http://www.netbeans.org/servlets/ReadMsg?msgId=496032&amp;listName=nbdev">[nbdev] JNDI in NetBeans: yes or no? NO!!</a></li>
+  <li><a href="http://www.netbeans.org/servlets/ReadMsg?msgId=506459&amp;listName=nbdev">[nbdev] JNDI in NetBeans: No. WHY ???</a></li>
+</ul>
+
+
+
+<br>
+</body></html>

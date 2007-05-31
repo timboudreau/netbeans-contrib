@@ -1,0 +1,154 @@
+<!--
+The contents of this file are subject to the terms of the Common Development
+and Distribution License (the License). You may not use this file except in
+compliance with the License.
+
+You can obtain a copy of the License at http://www.netbeans.org/cddl.html
+or http://www.netbeans.org/cddl.txt.
+
+When distributing Covered Code, include this CDDL Header Notice in each file
+and include the License file at http://www.netbeans.org/cddl.txt.
+If applicable, add the following below the CDDL Header, with the fields
+enclosed by brackets [] replaced by your own identifying information:
+"Portions Copyrighted [year] [name of copyright owner]"
+
+The Original Software is NetBeans. The Initial Developer of the Original
+Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
+Microsystems, Inc. All Rights Reserved.
+-->
+<html>
+<body>
+
+The Registry API provides unified access to settings.
+
+<h2><a name="Overview"></a>API Overview</h2>
+The API has the concept of <span style="font-style: italic;">context</span> which consists of a set
+of&nbsp; <span style="font-style: italic;">name-to-object bindings</span>.
+It contains methods for examining and updating these bindings. The
+contexts are composed into <span style="font-style: italic;">hierarchical
+collection</span> which form configuration system. The configuration
+system allows applications to store and retrieve data. How data are
+stored is implementation detail of backing storage.<br>
+
+<h2><a name="Learn_by_example"></a>Learn by example<br>
+</h2>
+For API clients it in practice means:<br>
+<br>
+1.) Decide on the unique name of the context for a group of related
+settings, eg:<br>
+<br>
+<code>String ctxName = "<span style="font-weight: bold;">/Settings/org/netbeans/modules/fooModule/barSettings</span>";<br>
+</code><br>
+It is recommended to use the module's code name base in the name of the context to ensure uniqueness.<br>
+<br>
+2.) Create the context for this unique name:<br>
+<br>
+<code>Context ctx = <span style="font-weight: bold;">Context.getDefault().createSubcontext</span>(ctxName);</code>
+<br>
+or you can retrieve context if you know it exists:<br>
+<br>
+<code>Context ctx = <span style="font-weight: bold;">Context.getDefault().getSubcontext</span>(ctxName);<br>
+</code><br>
+3.) Read and/store settings in the context as needed:<br>
+<br>
+You have two choices. First is to read/store only primitivy data types:<br>
+<br>
+<code>String proxyServer = ctx<span style="font-weight: bold;">.getString</span>("proxyServer", <span style="font-weight: bold;">""</span>);<br>
+int proxyPort = ctx<span style="font-weight: bold;">.getInt</span>("proxyPort", <span style="font-weight: bold;">8080</span>);<br>
+boolean proxyInUse = ctx<span style="font-weight: bold;">.getBoolean</span>("proxyInUse", <span style="font-weight: bold;">false</span>);<br>
+</code><br>
+The last parameters in all calls is default value which will be
+returned if there is no value stored in the registry or if for some reason operation of reading of stored
+data failed. It is up to client to provide some reasonable default which
+will allow application to still work although there is no default configured.<br>
+<br>
+Similarly writing could look like:<br>
+<br>
+<code><span style="font-weight: bold;">ctx.putString</span>("proxyServer", "someproxy.com");<br>
+<span style="font-weight: bold;">ctx.putInt</span>("proxyPort", 1080</code><code>);<br>
+<span style="font-weight: bold;">ctx.putBoolean</span>("proxyInUse", true</code><code>);<br>
+</code><br>
+The second choice is to read/store directly <span style="font-style: italic;">Objects</span> in registry:<br>
+<br>
+<code>ProxyConfiguration proxy = (ProxyConfiguration)<span style="font-weight: bold;">ctx.getObject</span>("proxy", defaultInstance);<br></code><br>
+and writting:<br>
+<br>
+<code><span style="font-weight: bold;">ctx.putObject</span>("proxy",
+new ProxyConfiguration("someproxy.com", 1080, true));<br></code><br>
+However in this case the client must also solve how the object will be
+persisted. The object persistence is not in the scope of Registry API.
+It is up to implementation of backing storage and its documentation must
+be consulted. It is expected that backing storage should by default handle
+all common types of objects like String, Integer, Long, Color, Font,
+URL, etc. and for client's objects it should provide a way how to
+persist them, e.g. Java Serialization or other mechanism.<br>
+
+<h2><a name="Registry_API_in_detail"></a>Registry API in detail</h2>
+The API classes can be split into these categories:<br>
+<ul>
+  <li>The Context class. This is the heart of the Registry API.
+Clients will use the class to manipulate the settings. The Context
+class contains getters and setters for most of the common data types
+including the primitivy data types. All method signatures contain
+defaultValue parameter which is returned if no value was found in
+registry. Besides that there are methods for enumerating subcontexts,
+bindings and attributes; methods for manipulation with them; support
+for ordered listing of context items and their sorting; support for
+reverting of modifications to default state if Registry backend has
+concept of defaults; method for obtaining default context on top of the default filesystem; etc.</li>
+  <li>The ContextListener (and its events: SubcontextEvent, BindingEvent and
+AttributeEvent) can be used to learn about changes on the context.</li><li>The
+Registry API is thread save. It can be called form arbitrary threads
+and it will internally properly synchronize them. The API has getter
+for Mutex which clients can used to do several changes in one step.</li>
+</ul>
+<h2>Distinguishing events</h2>
+It might be needed to distinguish events resulted from your context
+modifications and events results from foreign modifications. The events
+are fired synchronously from the write mutex. That means that at time
+when your code is leaving write mutex are all listeners already
+notified about the change(s). Following code snippet illustrate the
+typical usage how to take advantage of this to distinguish the events:<br>
+<br>
+<code><span style="font-weight: bold;">private static boolean doingMyChanges = false;
+</span><br style="font-weight: bold;">
+<br>
+Context myContext = ... ;<br>
+<br>
+myContext.getMutex().writeAccess( new Runnable() {<br>
+&nbsp;&nbsp;&nbsp; public void run() {<br>
+<span style="font-weight: bold;">&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; doingMyChanges = true;
+</span><br style="font-weight: bold;">
+&nbsp;&nbsp; &nbsp;&nbsp; &nbsp; try {
+<br>
+<span style="font-weight: bold;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp; doMyChangeHere();
+</span><br style="font-weight: bold;">
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; } finally {
+<br>
+<span style="font-weight: bold;">&nbsp;&nbsp;&nbsp; &nbsp;&nbsp; &nbsp; &nbsp;&nbsp; doingMyChanges = false;
+</span><br style="font-weight: bold;">
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; }
+<br>
+&nbsp;&nbsp;&nbsp; }<br>
+});<br>
+<br>
+<br>
+// in implementation of your ContextListener you then do<br>
+// ...<br>
+&nbsp;&nbsp;&nbsp; public void bindingChanged(...) {
+<br>
+<span style="font-weight: bold;">&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; if (doingMyChanges) {
+</span><br style="font-weight: bold;">
+<span style="font-weight: bold;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; return;
+</span><br style="font-weight: bold;">
+<span style="font-weight: bold;">&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; }
+</span><br style="font-weight: bold;">
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; // handle foreign changes...
+<br>
+&nbsp;&nbsp;&nbsp; }
+<br>
+</code><code>// ...<br>
+</code><br>
+
+</body>
+</html>

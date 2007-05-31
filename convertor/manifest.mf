@@ -1,0 +1,8 @@
+Manifest-Version: 1.0
+OpenIDE-Module: org.netbeans.modules.convertor/1
+OpenIDE-Module-Localizing-Bundle: org/netbeans/modules/convertor/resources/Bundle.properties
+OpenIDE-Module-Specification-Version: 1.3
+
+Name: org/netbeans/modules/convertor/XMLInstanceConvertor.class
+NetBeans-Convertor: {http://www.netbeans.org/ns/registry}instance
+

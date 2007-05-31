@@ -1,0 +1,402 @@
+<!--
+The contents of this file are subject to the terms of the Common Development
+and Distribution License (the License). You may not use this file except in
+compliance with the License.
+
+You can obtain a copy of the License at http://www.netbeans.org/cddl.html
+or http://www.netbeans.org/cddl.txt.
+
+When distributing Covered Code, include this CDDL Header Notice in each file
+and include the License file at http://www.netbeans.org/cddl.txt.
+If applicable, add the following below the CDDL Header, with the fields
+enclosed by brackets [] replaced by your own identifying information:
+"Portions Copyrighted [year] [name of copyright owner]"
+
+The Original Software is NetBeans. The Initial Developer of the Original
+Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
+Microsystems, Inc. All Rights Reserved.
+-->
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+  <title>Binding based versus Bindingless Context</title>
+  <meta name="author" content="David Konecny">
+<link rel="stylesheet" href="../../../../../prose.css" type="text/css">
+</head>
+
+<body>
+
+<p class="overviewlink"><a href="../../../../../overview-summary.html">Overview</a></p>
+
+<h2>Binding based versus Bindingless Context<br>
+</h2>
+Current Registry API proposal is binding based API, ie. the bindings
+and contexts are distinguished, can be enumerated separately, etc.. This is how the JNDI API and Preferences
+API are designed. Other possibility is to do not distinguish then at all and have
+bindingless API where context directly has getValue/setValue methods,
+eg.:<br>
+<br>
+<code>&nbsp;&nbsp;&nbsp; public interface Context {<br>
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; String getName();<br>
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; Context[] getChildren();<br>
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; Object getValue();<br>
+</code><code> &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; Object setValue();<br>
+<br>
+</code><code>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; // ... other methods<br>
+&nbsp;&nbsp;&nbsp; }<br>
+</code><br> This paper analysis differences between these two approaches
+on a few usecases and also shows how the registry will store data and
+defaults will be defined. Each usecase chapter ends with summary of
+differences (there are not many).<br>
+<h3>Usecase 1: store a primitive data<br>
+</h3>
+Store one integer value.<br>
+<br>
+<span style="font-weight: bold;">Binding based API</span><br style="font-weight: bold;">
+<br>
+<code> Context ctx = Context.getDefault().createSubcontext("/settings/mymodule");<br>
+</code><br>
+The folder "/settings/mymodule/" will be create if it does not exist.<br>
+<br>
+<code>ctx.bindObject("proxyPort", new Integer(789));<br>
+</code><br>
+The registry knows how to store basic object types like String, Integer,
+Long, etc.. It creates file with fixed name "settings.properties" in
+the given context's folder (ie. there will be created file
+"/settings/mymodule/settings.properties") and persist the object as
+property "proxyPort=789" in this file.<br>
+<br>
+There can be helper method:<br>
+<br>
+<code> ContextUtil.putInt(ctx, "proxyPort", 789);<br>
+</code><br>
+which can do the int to Integer conversion.<br>
+<br>
+How the defaults would be declared:<br>
+<br>
+<code> &lt;folder name="settings"&gt;<br>
+&nbsp;&lt;folder name="mymodule"&gt;<br>
+&nbsp; &lt;file name="settings.properties" url="url to properties file with
+defaults"/&gt;<br>
+&nbsp;&lt;/&gt;<br>
+&lt;/&gt;<br>
+</code> <br>
+One context was defined:<br>
+&nbsp;- /settings/mymodule<br>
+with one binding:<br>
+&nbsp;- /settings/mymodule/proxyPort<br>
+<br>
+<span style="font-weight: bold;">Bindingless API</span><br style="font-weight: bold;">
+<br>
+<code> Context ctx = Context.getDefault().createSubcontext("/settings/mymodule");<br>
+</code><br>
+The folder "/settings/" will be create if it does not exist. The
+"mymodule" file or subfolder or both will be created later lazily.<br>
+<br>
+<code>Properties prop = new Properties();<br>
+prop.putProperty("proxyPort", </code><code>new Integer(789).toString()</code><code>);<br>
+</code><code>ctx.putValue(prop);<br>
+</code><br>The bindingless concept requires that
+Properties object is binded which contains simple object types. There
+exists general convertor which converts Properties object into
+.properties file and vice versa. The name of the file is same as name
+of the context (ie. "/settings/mymodule.properties" file was created).<br>
+<br>
+There can be helper method:<br>
+
+<br>
+
+<code> ContextUtil.putInt(ctx, "proxyPort", 789);<br>
+</code><br>
+
+which would simplify this task and would do this:<br>
+<br>
+<code> Properties prop = (Properties)ctx.getValue();<br>
+prop.putProperty("proxyPort", new Integer(789).toString());<br>
+ctx.putValue(prop);<br>
+</code><br>
+How the defaults would be declared:<br>
+<br>
+<code> &lt;folder name="settings"&gt;<br>
+&nbsp; &lt;file name="mymodule.properties" url="url to properties file with
+defaults"/&gt;<br>
+&lt;/&gt;<br>
+</code> <br>
+One context was defined with Properties object value:<br>
+&nbsp;- /settings/mymodule<br>
+<br>
+<span style="font-weight: bold;">Difference:</span><br style="font-weight: bold;">
+<br> The binding based case allows finer granularity. Context methods
+(eg. revert(), hasDefault(), listening support, ...) operate directly
+on the individual bindings while in the bindingless case it is limited
+to the whole Properties object.<br>
+<br>
+In bindingless case the context contains value and children as well, so
+the implementation most probably would be that folder and file with the
+same name would be created. The file contains the value of the context
+and folder contains children of context. The folder should be created
+lazily after some actual children was created.<br>
+<h3>Usecase 2: store an object<br>
+</h3>
+Store service instance.<br>
+<br>
+<span style="font-weight: bold;">Binding based API</span><br style="font-weight: bold;">
+<br>
+<code> CompilerType compiler = new MyCompilerType(...);<br>
+Context ctx = Context.getDefault().createSubcontext("/services/compilers");<br>
+</code><br>
+The folder "/services/compilers/" will be create if it does not exist.<br>
+<br>
+<code> ctx.bindObject("someCompiler", compiler);<br>
+</code><br>
+Registry will lookup convertor registered for the MyCompilerType and
+creates file "/services/compilers/someCompiler.settings" (or .xml or
+.instance or whatever) with converted compiler instance.<br>
+<br>
+How the defaults would be declared:<br>
+<br>
+<code> &lt;folder name="services"&gt;<br>
+&nbsp;&lt;folder name="compilers"&gt;<br>
+&nbsp; &lt;file name="someCompiler.instance"&gt;<br>
+&nbsp;&nbsp; &lt;attr instanceClass="some class"&gt;<br>
+&nbsp; &lt;/&gt;<br>
+&nbsp;&lt;/&gt;<br>
+&lt;/&gt;<br>
+</code> <br>
+One context was defined:<br>
+&nbsp;- /services/compilers<br>
+with one binding:<br>
+&nbsp;- /services/compilers/someCompiler<br>
+<br>
+<span style="font-weight: bold;">Bindingless API</span><br style="font-weight: bold;">
+<br>
+<code> CompilerType compiler = new MyCompilerType(...);<br>
+Context ctx =
+Context.getDefault().createSubcontext("/services/compilers/someCompiler");<br>
+</code><br>
+The folder "/services/compilers/" will be create if it does not exist.<br>
+<br>
+<code>ctx.putValue(compiler);<br>
+</code><br>
+Registry will lookup convertor registered for the MyCompilerType and
+creates file "/services/compilers/someCompiler.settings" (or .xml) with
+converted compiler instance.<br>
+<br>
+How the defaults would be declared:<br>
+<br>
+<code> &lt;folder name="services"&gt;<br>
+&nbsp;&lt;folder name="compilers"&gt;<br>
+&nbsp; &lt;file name="someCompiler.instance"&gt;<br>
+&nbsp;&nbsp; &lt;attr instanceClass="some class"&gt;<br>
+&nbsp; &lt;/&gt;<br>
+&nbsp;&lt;/&gt;<br>
+&lt;/&gt;<br>
+</code> <br>
+One context was defined with a value:<br>
+&nbsp;- /services/compilers/someCompiler<br>
+<br>
+<span style="font-weight: bold;">Difference:</span><br style="font-weight: bold;">
+<br>
+Bindingless Context is in fact wrapper for registry object.<br>
+<h3>Usecase 3: store both primitive data and objects in one context<br>
+</h3>
+Store mixed data in one context. This is currently used in projects,
+but it is questionable whether this is requirement or not. Bindingless
+concept does not support it but can workaround it by subcontexts.<br>
+<br>
+<span style="font-weight: bold;">Binding based API</span><br style="font-weight: bold;">
+<br>
+Mixture of usecase 1 and usecase 2.<br>
+<br>
+How the defaults would be declared:<br>
+<br>
+<code> &lt;folder name="foo"&gt;<br>
+&nbsp;&lt;folder name="bar"&gt;<br>
+&nbsp; &lt;file name="settings.properties" url="url to file with
+primitive data defaults"/&gt;<br>
+&nbsp; &lt;file name="object1.instance"&gt;<br>
+&nbsp;&nbsp; &lt;attr instanceClass="some class"&gt;<br>
+&nbsp; &lt;/&gt;<br>
+&nbsp; &lt;file name="object2.instance"&gt;<br>
+&nbsp;&nbsp; &lt;attr instanceClass="some class"&gt;<br>
+&nbsp; &lt;/&gt;<br>
+&nbsp;&lt;/&gt;<br>
+&lt;/&gt;<br>
+</code> <br>
+One context was defined:<br>
+&nbsp;- /foo/bar<br>
+with several bindings:<br>
+&nbsp;- /foo/bar/object1<br>
+&nbsp;- /foo/bar/object2<br>
+&nbsp;- and all property names from the settings.properties file<br>
+<br>
+<span style="font-weight: bold;">Bindingless API</span><br style="font-weight: bold;">
+<br>
+Not possible. Can be workarounded by subcontexts - one subcontext for
+primitive data types, some others for objects.<br>
+<br>
+How the defaults would be declared in case of workaround:<br>
+<br>
+<code> &lt;folder name="foo"&gt;<br>
+&nbsp;&lt;folder name="bar"&gt;<br>
+&nbsp; &lt;file name="primitiveCtx.properties" url="url to file with
+primitive data defauls"/&gt;<br>
+&nbsp; &lt;file name="object1Ctx.instance"&gt;<br>
+&nbsp;&nbsp; &lt;attr instanceClass="some class"&gt;<br>
+&nbsp; &lt;/&gt;<br>
+&nbsp; &lt;file name="object2Ctx.instance"&gt;<br>
+&nbsp;&nbsp; &lt;attr instanceClass="some class"&gt;<br>
+&nbsp; &lt;/&gt;<br>
+&nbsp; &lt;/&gt;<br>
+&lt;/&gt;<br>
+</code> <br>
+Three contexts were defined and each has some value:<br>
+&nbsp;- /foo/bar/primitiveCtx<br>
+&nbsp;- /foo/bar/object1Ctx<br>
+&nbsp;- /foo/bar/object2Ctx<br>
+<br>
+<span style="font-weight: bold;">Difference:</span><br style="font-weight: bold;">
+<br>
+The bindingless case is more restrictive.<br>
+<h3>Usecase 4: ordered context based popup menu </h3>
+Let say there are following defaults from which should be created menu
+which items can be reordered:<br>
+<br>
+<code> &lt;folder name=someMenu"&gt;<br>
+&nbsp; &lt;file name="actionA.instance"/&gt;<br>
+&nbsp; &lt;file name="actionB.instance"/&gt;<br>
+&nbsp; &lt;folder name="submenu1"&gt;<br>
+&nbsp;&nbsp; &lt;file name="subActionK.instance"/&gt;<br>
+&nbsp;&nbsp; &lt;file name="subActionL.instance"/&gt;<br>
+&nbsp; &lt;/&gt;<br>
+&nbsp; &lt;file name="actionC.instance"/&gt;<br>
+&nbsp; &lt;folder name="submenu2"&gt;<br>
+&nbsp;&nbsp; &lt;file name="subActionZ.instance"/&gt;<br>
+&nbsp; &lt;/&gt;<br>
+&lt;/&gt;<br>
+</code><br>
+<span style="font-weight: bold;">Binding based API</span><br style="font-weight: bold;">
+<br>
+There exists following contexts:<br>
+&nbsp;- /someMenu<br>
+&nbsp;- /someMenu/submenu1<br>
+&nbsp;- /someMenu/submenu2<br>
+<br>
+and following bindings:<br>
+&nbsp;- /someMenu/actionA<br>
+&nbsp;- /someMenu/actionB<br>
+&nbsp;- /someMenu/submenu1/subActionK<br>
+&nbsp;- /someMenu/submenu1/subActionL<br>
+&nbsp;- /someMenu/actionC<br>
+&nbsp;- /someMenu/submenu2/subActionZ<br>
+<br>
+The popup menu based on the someMenu context is composed from both the
+subcontexts and bindings. These two types of items must be kept
+distinguished. The possible format for full order could be one string
+with names of the subcontexts appended with ".subcontext" suffix and
+names of the bindings appended with the ".binding" suffix eg. (slash is
+separator):
+"actionA.binding/actionB.binding/submenu1.subcontext/actionC.binding/submenu2.subcontext"<br>
+<br>
+If user customized the order in a UI then the new full order must be
+stored. There could exist helper method
+ContextUtils.storeItemsOrder(Context ctx, String[]
+itemNamesWithSuffixes) which would store the full order in a context's
+attribute. There could also exist opposite method for reading it:
+Collection&lt;String&gt; ContextUtils.getSortedItems(Context ctx).<br>
+<br>
+The algorithm for menu creation could then look like (it is illustrative code of menu creation only):<br>
+<br>
+<code>public Menu createMenu(Context ctx) {<br>
+&nbsp;&nbsp;&nbsp; Menu m = new Menu();<br>
+&nbsp;&nbsp;&nbsp; Iterator it =
+ContextUtils.getSortedItems(ctx).iterator();<br>
+&nbsp;&nbsp;&nbsp; while (it.hasNext()) {<br>
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; String itemName =
+(String)it.next();<br>
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;  &nbsp; if
+(itemName.endsWith(".binding")) {<br>
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;  &nbsp;&nbsp; 
+m.addMenuItem(ctx.lookupObject(itemName.substring(<br>
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+itemName.length()-".binding".length())));<br>
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; } else {<br>
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;  &nbsp;&nbsp; 
+m.addSubMenu(createMenu(ctx.getSubcontext(<br>
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+itemName.length()-".subcontext".length())));<br>
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; }<br>
+&nbsp;&nbsp;&nbsp; }<br>
+&nbsp;&nbsp;&nbsp; return m;<br>
+}<br>
+<br>
+Context menuCtx = Context.getDefault().createSubcontext("/someMenu");<br>
+Menu menu = createMenu(menuCtx);<br>
+</code> <br>
+The default value of full order attribute would have to be generated by
+the Registry implementation from the module layer partial order
+attributes.<br>
+<br>
+<span style="font-weight: bold;">Bindingless API</span><br style="font-weight: bold;">
+<br>
+There exists following contexts:<br>
+&nbsp;- /someMenu/actionA<br>
+&nbsp;- /someMenu/actionB<br>
+&nbsp;- /someMenu/submenu1<br>
+&nbsp;- /someMenu/submenu1/subActionK<br>
+&nbsp;- /someMenu/submenu1/subActionL<br>
+&nbsp;- /someMenu/actionC<br>
+&nbsp;- /someMenu/submenu2<br>
+&nbsp;- /someMenu/submenu2/subActionZ<br>
+<br>
+Contexts "/someMenu/submenu1" and "/someMenu/submenu2" has no value
+set. All other contexts has value which is instance of Action subclass.<br>
+<br>
+Order of items in popup menu based on the someMenu context can be
+expressed as ordered list of context names. The possible format for full order could be one string with child
+context names separated by slash, eg.:<br>
+"actionA/actionB/submenu1/actionC/submenu2"<br>
+<br>
+If user customized the order in a UI then the new full order must be
+stored. There could exist helper method
+ContextUtils.storeChildrenOrder(Context ctx, Context[] fullOrder) which
+would accept ordered list of child contexts of the given ctx and would
+store the full order (ie. string similar to the above mentioned one) in
+an attribute. There could also exist opposite method which could return
+ordered list of children: Collection&lt;Context&gt;
+ContextUtils.getSortedChildren(Context ctx).<br>
+<br>
+The algorithm for menu creation could then look like (it is illustrative code of menu creation only):<br>
+<br>
+<code>public Menu createMenu(Context ctx) {<br>
+&nbsp;&nbsp;&nbsp; Menu m = new Menu();<br>
+&nbsp;&nbsp;&nbsp; Iterator it =
+ContextUtils.getSortedChildren(ctx).iterator();<br>
+&nbsp;&nbsp;&nbsp; while (it.hasNext()) {<br>
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; Context childrenCtx =
+(Context)it.next();<br>
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; if (childrenCtx.getChildren() ==
+null) {<br>
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;  &nbsp;&nbsp; 
+m.addMenuItem(childrenCtx.getValue());<br>
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; } else {<br>
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;  &nbsp;&nbsp; 
+m.addSubMenu(createMenu(childrenCtx));<br>
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; }<br>
+&nbsp;&nbsp;&nbsp; }<br>
+&nbsp;&nbsp;&nbsp; return m;<br>
+}<br>
+<br>
+Context menuCtx = Context.getDefault().createSubcontext("/someMenu");<br>
+Menu menu = createMenu(menuCtx);</code><br>
+<br>
+<span style="font-weight: bold;">Differences:<br>
+<br style="font-weight: bold;">
+</span>The bindingless API is better in handling of order of
+items because everything is context. However adequate solution can be
+provided for binding based API as well.<br><h3>Summary</h3>Both solutions are adequate. There are just slight differences.<br>
+<br>
+
+</body></html>

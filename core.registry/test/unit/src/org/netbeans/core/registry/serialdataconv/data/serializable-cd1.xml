@@ -1,0 +1,32 @@
+<?xml version="1.0"?>
+<!--
+The contents of this file are subject to the terms of the Common Development
+and Distribution License (the License). You may not use this file except in
+compliance with the License.
+
+You can obtain a copy of the License at http://www.netbeans.org/cddl.html
+or http://www.netbeans.org/cddl.txt.
+
+When distributing Covered Code, include this CDDL Header Notice in each file
+and include the License file at http://www.netbeans.org/cddl.txt.
+If applicable, add the following below the CDDL Header, with the fields
+enclosed by brackets [] replaced by your own identifying information:
+"Portions Copyrighted [year] [name of copyright owner]"
+
+The Original Software is NetBeans. The Initial Developer of the Original
+Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
+Microsystems, Inc. All Rights Reserved.
+-->
+<!DOCTYPE settings PUBLIC "-//NetBeans//DTD Session settings 1.0//EN" "http://www.netbeans.org/dtds/sessionsettings-1_0.dtd">
+<settings version="1.0">
+    <instanceof class="java.lang.Object"/>
+    <instanceof class="org.netbeans.core.registry.serialdataconv.SerializableCD"/>
+    <instanceof class="java.io.Serializable"/>
+    <serialdata class="org.netbeans.core.registry.serialdataconv.SerializableCD">
+        ACED0005737200386F72672E6E65746265616E732E636F72652E726567697374
+        72792E73657269616C64617461636F6E762E53657269616C697A61626C654344
+        8778A88F135201DF0200024C0005616C62756D7400124C6A6176612F6C616E67
+        2F537472696E673B4C000661727469737471007E000178707400134D6F75726E
+        6564206279207468652057696E6474000D47697961204B616E6368656C69
+    </serialdata>
+</settings>

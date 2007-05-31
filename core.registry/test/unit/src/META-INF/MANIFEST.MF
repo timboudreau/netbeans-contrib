@@ -1,0 +1,7 @@
+Manifest-Version: 1.0
+
+Name: org/netbeans/core/registry/convertors/TestBeanConvertor.class
+NetBeans-Convertor: {http://core.netbeans.org/registry/test/ns}test-bean, org.netbeans.core.registry.convertors.TestBean
+
+Name: org/netbeans/core/registry/cdconvertor/CDConvertor.class
+NetBeans-Convertor: {http://www.netbeans.org/ns/cd}cd, org.netbeans.core.registry.cdconvertor.CD

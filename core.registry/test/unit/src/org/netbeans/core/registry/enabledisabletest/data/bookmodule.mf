@@ -1,0 +1,10 @@
+Manifest-Version: 1.0
+OpenIDE-Module: org.bookmodule/1
+OpenIDE-Module-Name: bookmodule
+OpenIDE-Module-Layer: org/bookmodule/bookmodule-layer.xml
+OpenIDE-Module-Module-Dependencies: org.openide.filesystems > 6.2, org
+ .openide.util > 6.2, org.openide.modules > 6.2, org.openide.nodes > 6
+ .2, org.openide.loaders, org.netbeans.modules.convertor/1 > 1.2, org.
+ netbeans.modules.registry/1 > 1.7, org.netbeans.core.startup/1 > 1.0,
+  org.netbeans.libs.xerces/1 > 1.2
+

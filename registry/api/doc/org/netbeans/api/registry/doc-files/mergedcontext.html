@@ -1,0 +1,184 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<!--
+The contents of this file are subject to the terms of the Common Development
+and Distribution License (the License). You may not use this file except in
+compliance with the License.
+
+You can obtain a copy of the License at http://www.netbeans.org/cddl.html
+or http://www.netbeans.org/cddl.txt.
+
+When distributing Covered Code, include this CDDL Header Notice in each file
+and include the License file at http://www.netbeans.org/cddl.txt.
+If applicable, add the following below the CDDL Header, with the fields
+enclosed by brackets [] replaced by your own identifying information:
+"Portions Copyrighted [year] [name of copyright owner]"
+
+The Original Software is NetBeans. The Initial Developer of the Original
+Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
+Microsystems, Inc. All Rights Reserved.
+-->
+  <title>Merged Context</title>
+  <link rel="stylesheet" href="../../../../../prose.css" type="text/css">
+</head>
+<body>
+<p class="overviewlink"><a href="../../../../../overview-summary.html">Overview</a></p>
+<h1>Merged context<br>
+</h1>
+There exists implementation of&nbsp; <code>org.netbeans.spi.registry.BasicContext</code>
+which &nbsp;provides this basic functionality:&nbsp; merges subcontexts,
+bindings and context attributes according their names for&nbsp;arbitrary
+number of delegates and&nbsp;takes precedence&nbsp;in case of name
+conflict. This implementation of <code>org.netbeans.spi.registry.BasicContext</code>
+and also&nbsp; its API context is bellow called Merged Context.<br>
+<br>
+<h2><a name="API"></a>API </h2>
+Two factory methods were added to provide ability to create instance of
+Merged Context:<br>
+<ul>
+  <li><code>public static Context</code><code>
+org.netbeans.api.registry.Context.merge (Context[] delegates)</code><br>
+    <br>
+This method doesn't allow to dynamically change delegates.&nbsp; <br>
+    <br>
+  </li>
+  <li><code>public static BasicContext</code><code>
+org.netbeans.spi.registry.SpiUtils.merge (MergeContextProvider)</code><br>
+    <br>
+This method requires to implement interface <code>org.netbeans.spi.registry.MergeContextProvider:</code>
+    <pre><code>public interface MergeContextProvider {<br>  public static final String PROP_DELEGATES_CHANGED = "PROP_DELEGATES_CHANGED"; //NOI18N<br>  public void addPropertyChangeListener (PropertyChangeListener listener);<br>  public void removePropertyChangeListener (PropertyChangeListener listener);<br>  public BasicContext[] getDelegates ();<br>}</code> </pre>
+Implementation of Merged Context registers its PropertyChangeListener
+and as soon as<code> PROP_DELEGATES_CHANGED </code>is fired, then method <code>getDelegates
+()</code> is called and this invokes refresh of root context and all
+live descendant subcontexts. This may cause, that <code>ContextEvents</code>
+are fired.
+    <p>Implementation of&nbsp; method&nbsp;<code>getDelegates () </code>requires
+to return&nbsp; instances of some implementation of <code>BasicContext</code>.
+In ther words it means probably to provide its own implementation of<code>
+BasicContext</code>.<br>
+    <br>
+Return value of this factory method can be passed to method&nbsp; <code>SpiUtils.createContext</code>to
+get&nbsp;<code>org.netbeans.api.registry.Context.</code> </p>
+  </li>
+</ul>
+<br>
+<br>
+<h2><a name="Overview"></a>Overview</h2>
+<ul>
+  <li>
+    <h4>Lifecycle of objects</h4>
+Any call of factory method creates new instance of Merged Context. This
+instance can be considered as root which means&nbsp; its parent is null. &nbsp;<br>
+    <p> All descendant subcontexts of this instance lives&nbsp; so long
+as some non-Registry code is holding a reference to the object,
+subsequent calls will return the same object. &nbsp;</p>
+    <p> On the other hand Merged Context does not create new instances
+for bindings, &nbsp;but delegates calls to its delegating contexts and
+then there is only one object and it &nbsp;should be the same without
+regard whether it was created from the regular Context or from the
+Merged Context. </p>
+  </li>
+  <li>
+    <h4>Merging</h4>
+    <p> Subcontext, bindings and attributes&nbsp;provided by their
+delegates are merged according their names. There is important that
+there is taken precedence&nbsp;in case of name conflict. There is
+true:&nbsp; the lower index in the array&nbsp; the higher
+priority.&nbsp; </p>
+    <p>Merged Context provides subcontext for subcontext name&nbsp;
+only if at least one of its delegates provides this subcontext.</p>
+    <p>Attributes related to bindings are not merged at all. &nbsp; On
+the other hand attributes related to context are merged from all
+delegates.&nbsp;</p>
+    <p>If name for binding comes from two or more delegates, then the
+instance from delegate with highest priority is returned from Merged
+Context and also only this delegate with highest priority provides
+attributes and attribute names for this binding.&nbsp; </p>
+  </li>
+  <li>
+    <h4>Events</h4>
+Merged Context listens on its delegates and&nbsp; Merged Context is
+also source of events. &nbsp;Every modification on Merged Context fires
+ContextEvent. But not all events fired originally from delegates are
+propagated from Merged Context to its listeners, because not all changes
+on delegates mean modification of Merged Context. <br>
+For example:&nbsp; creation of subcontext on read-only delegate isn't
+propagated from Merged Context in case, that subcontext with the same
+name already existed on active delegate.
+    <p>Listener registered on Merged Context will receive events about
+modifications of this context and all its descendant live subcontext
+instances. </p>
+    <p>Destroy of subcontext destroys all descendant subcontexts and
+&nbsp;naturally all descendant subcontetxs &nbsp;must fire
+SubcontextEvents. </p>
+    <p>There is obvious, that as soon as event is fired, then Merged
+Context must be in consistent status, which means that added or modified
+subcontext, binding or attribute must be reachable and on the other hand
+removed&nbsp;suncontext, binding or attribute can't be reachable.<br>
+    <br>
+    </p>
+  </li>
+  <li>
+    <h4>Delegates &amp; active delegate</h4>
+All delegates may come from the same RootContex (in other words from
+the same implementation of BasicContext and RootContext).
+    <p>Active delegate is the one and the only one delegate with
+special meaning among others:&nbsp; all modifications &nbsp;go into
+active delegate (newly created, destroyed or modified subcontexts,
+bindings or attributes). &nbsp;All other delegates are considered as
+read-only. There is true that&nbsp; active delegate is the one with
+index zero. </p>
+    <p> Delegates of Merged Context may be instances of Merged Context
+again. </p>
+    <p>Method merge with zero delegates returns instance of context
+impl., that has no content (subcontexts, bindings, attributes). This is
+true for root context, else there won't  be returned no subcontext
+instance if there is zero delegates. Zero-delegate merged context is
+automatically read-only. </p>
+    <p> Destroyed subcontexts, bindings and attributes from&nbsp;
+read-only delegates must be masked on active delegate. &nbsp;Merged
+Context isolates its clients from this mechanism and masks must be
+considered as implementation detail.&nbsp; </p>
+  </li>
+  <li>
+    <h4>Resettability</h4>
+Merged Context provides resettable functionality&nbsp;and&nbsp; there
+is possible to reset whole context or individual binding in context.
+(see ResettableContext). &nbsp;
+    <p> Binding has default value if there exists binding on one of
+read-only delegates Binding is modified if &nbsp;this binding comes from
+active delegate or there doesn't exist&nbsp; default value for this
+binding. Revert of binding means destroy of binding on active delegate
+and also destroy its mask. </p>
+    <p>In the merged context, Context.hasDefault(null) will be true
+when at least one read-only delegate has a context with the same path.
+Context.isModified(null) will be true in case a context with the same
+path exists on the active delegate (whether or not contexts with that
+path exist on any of the read-only delegates). Context.revert(null) will
+remove the context with the same path from the active delegate, if it
+exists.</p>
+  </li>
+</ul>
+<h2><a name="open_issues"></a>Limitations, problems, open issues</h2>
+<ul>
+  <li>there should be&nbsp; enhanced context merging with explicit
+support for overriding. At the moment are things merged according to
+order in array of delegates </li>
+  <li>information about ordering provided by Merge Context is wrong and
+useless (see default.context.sorting in
+org.netbeans.core.registry.ContextImpl)</li>
+  <li>use javax.swing.event.ChangeListener for one property instead of
+java.beans.PropertyChangeListener ?<br>
+  </li>
+  <li>currently masks are considered to be only on active delegate;
+masks on read-only delegates aren't taken into consideration</li>
+  <li> delegates of Merged Context may be instances of Merged Context
+again, but this is not true for active delegate </li>
+  <li>masked stuff isn't filtered by Registry API (also active delegate
+shouldn't provide masks)</li>
+  <li>lack of right synchronization at the moment<br>
+  </li>
+</ul>
+</body>
+</html>

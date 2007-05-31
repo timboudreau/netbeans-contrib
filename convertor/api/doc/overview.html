@@ -1,0 +1,62 @@
+<!--
+The contents of this file are subject to the terms of the Common Development
+and Distribution License (the License). You may not use this file except in
+compliance with the License.
+
+You can obtain a copy of the License at http://www.netbeans.org/cddl.html
+or http://www.netbeans.org/cddl.txt.
+
+When distributing Covered Code, include this CDDL Header Notice in each file
+and include the License file at http://www.netbeans.org/cddl.txt.
+If applicable, add the following below the CDDL Header, with the fields
+enclosed by brackets [] replaced by your own identifying information:
+"Portions Copyrighted [year] [name of copyright owner]"
+
+The Original Software is NetBeans. The Initial Developer of the Original
+Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
+Microsystems, Inc. All Rights Reserved.
+-->
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+</head>
+<body>
+
+This document set describes the public APIs and SPIs offered by the Convertor module.
+
+<h2>Contents</h2>
+<a href="#Overview">Overview</a><br>
+<a href="org/netbeans/api/convertor/package-summary.html">API overview</a><br>
+<a href="org/netbeans/spi/convertor/package-summary.html">SPI overview</a><br>
+<br>
+<span style="font-weight: bold;">Additional documentation:</span><br style="font-weight: bold;">
+Change History<br>
+Architecture Summary<br>
+<br>
+<span style="font-weight: bold; font-style: italic;">Credits:</span><br style="font-style: italic;">
+
+<span style="font-style: italic;">The Convertor API was inspired by
+core/settings module created by Jan Pokorsky and&nbsp; Jaroslav
+Tulach. Credit must go to people from nbdev mailing list (especially to
+Jesse Glick) for providing valuable feedback which was incorporated.</span><br style="font-style: italic;">
+<h2><a name="Overview"></a>Overview</h2>
+The convertor module allows to convert object to XML namespace aware
+fragment and to convert this fragment back to instance of an
+object.
+The
+module consists of SPI and API part. The SPI part defines convertor
+interface to be implemented by clients and alternative for persistence
+of object without the need to write your own convertor. The API part
+has small set of
+helper static methods operating on all available convertors which
+clients can
+use to convert XML fragments to objects and vice versa.<br>
+
+<br>More concrete and detailed information including examples and list
+of available convertors can be found at the following links:<br>
+<ul>
+  <li><a href="org/netbeans/api/convertor/package-summary.html">API overview</a> - how to use convertors infrastructure and convert files
+to objects and vice versa</li>
+  <li><a href="org/netbeans/spi/convertor/package-summary.html">SPI overview</a> - everything about writing convertors, list of existing
+convertors, registration of convertors, etc.</li></ul><br>
+</body></html>
