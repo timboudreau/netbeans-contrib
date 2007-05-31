@@ -95,7 +95,8 @@ public class MashupGraphManager {
     
     public MashupGraphManager() {
         scene = new EDMGraphScene();
-        pane = new JScrollPane(scene.createView());
+        pane = new JScrollPane();
+        pane.setViewportView(scene.createView());
         satelliteView = scene.createSatelliteView();
         
         scene.getActions().addAction(ActionFactory.createZoomAction());
@@ -117,17 +118,18 @@ public class MashupGraphManager {
     }
     
     public void refreshGraph() {
-        scene.revalidate();
         generateGraph(this.mObj.getModel().getSQLDefinition());
-        scene.layoutScene();
+        scene.validate();        
+        if(this.mObj.getModel().getSQLDefinition().getObjectsOfType(
+                SQLConstants.JOIN_VIEW).size() == 0) {
+            scene.layoutScene(true);
+        } else {
+            scene.layoutScene(false);
+        }
     }
     
     public JComponent getSatelliteView() throws Exception {
         return satelliteView;
-    }
-    
-    public EDMGraphScene getScene() {
-        return this.scene;
     }
     
     public void fitToPage() {
@@ -139,7 +141,7 @@ public class MashupGraphManager {
         scene.getSceneAnimator().animateZoomFactor(
                 Math.min((float) viewDim.width / dim.width,
                 (float) viewDim.height / dim.height));
-        scene.revalidate();
+        scene.validate();
     }
     
     public void fitToWidth(){
@@ -150,7 +152,7 @@ public class MashupGraphManager {
         Dimension viewDim = pane.getViewportBorderBounds().getSize();
         scene.getSceneAnimator().animateZoomFactor(
                 (float) viewDim.width / dim.width);
-        scene.revalidate();
+        scene.validate();
     }
     
     public void fitToHeight(){
@@ -161,7 +163,7 @@ public class MashupGraphManager {
         Dimension viewDim = pane.getViewportBorderBounds().getSize();
         scene.getSceneAnimator().animateZoomFactor(
                 (float) viewDim.height / dim.height);
-        scene.revalidate();
+        scene.validate();
     }
     
     public void expandAll() {
@@ -188,17 +190,17 @@ public class MashupGraphManager {
     
     public void zoomGraph(double zoomFactor) {
         scene.getSceneAnimator().animateZoomFactor(zoomFactor);
-        scene.revalidate();
+        scene.validate();
     }
     
     public void zoomIn() {
         scene.getSceneAnimator().animateZoomFactor(scene.getZoomFactor() * 1.1);
-        scene.revalidate();
+        scene.validate();
     }
     
     public void zoomOut() {
         scene.getSceneAnimator().animateZoomFactor(scene.getZoomFactor() * 0.9);
-        scene.revalidate();
+        scene.validate();
     }
     
     public void generateGraph(SQLDefinition sqlDefinition) {
@@ -247,7 +249,8 @@ public class MashupGraphManager {
     
     public JComponent getPanel() {
         if(pane == null) {
-            pane = new JScrollPane(scene.createView());
+            pane = new JScrollPane();
+            pane.setViewportView(scene.createView());
         }
         return pane;
     }
@@ -327,7 +330,7 @@ public class MashupGraphManager {
         scene.setEdgeSource(edgeID, sourcePinID + EDMGraphScene.PIN_ID_DEFAULT_SUFFIX);
         scene.setEdgeTarget(edgeID, targetNodeID + EDMGraphScene.PIN_ID_DEFAULT_SUFFIX);
         edgeMap.put(edgeID, sourcePinID + "#" + targetNodeID);
-        scene.revalidate();
+        scene.validate();
     }
     
     private String createGraphNode(SQLObject model) {
@@ -335,7 +338,7 @@ public class MashupGraphManager {
         EDMNodeWidget widget = (EDMNodeWidget)scene.addNode(nodeID);
         widgets.add(widget);
         widgetToObjectMap.put(widget, model);
-        scene.revalidate();
+        scene.validate();
         if(model instanceof SQLJoinOperator) {
             addJoinOperatorNode((SQLJoinOperator)model, widget, nodeID);
         } else if(model instanceof RuntimeInput) {
@@ -347,11 +350,11 @@ public class MashupGraphManager {
                     widget, nodeID);
         }
         widget.getActions().addAction(scene.createWidgetHoverAction());
-        scene.revalidate();
+        scene.validate();
         widget.setNodeImage(MashupGraphUtil.getImageForObject(model.getObjectType()));
-        scene.revalidate();
+        scene.validate();
         scene.addPin(nodeID, nodeID + EDMGraphScene.PIN_ID_DEFAULT_SUFFIX);
-        scene.revalidate();
+        scene.validate();
         return nodeID;
     }
     
@@ -410,14 +413,14 @@ public class MashupGraphManager {
         
         EDMPinWidget joinTypePin = ((EDMPinWidget) scene.addPin(
                 nodeID, "nodeID" + "#pin" + pinCounter++));
-        scene.revalidate();
+        scene.validate();
         joinTypePin.setPinName("JOIN TYPE");
         joinTypePin.setToolTipText(joinType);
-        scene.revalidate();
+        scene.validate();
         List<Image> typeImage = new ArrayList<Image>();
         typeImage.add(MashupGraphUtil.getImage(ImageConstants.PROPERTIES));
         joinTypePin.setGlyphs(typeImage);
-        scene.revalidate();
+        scene.validate();
         widgets.add(joinTypePin);
         SQLCondition cond = joinOp.getJoinCondition();
         String condition = "";
@@ -430,7 +433,7 @@ public class MashupGraphManager {
         condition = condition.equals("") ? "<NO CONDITION DEFINED>" : condition;
         EDMPinWidget conditionPin = ((EDMPinWidget) scene.addPin(
                 nodeID, "nodeID" + "#pin" + pinCounter++));
-        scene.revalidate();
+        scene.validate();
         conditionPin.setPinName("CONDITION");
         conditionPin.setToolTipText("<html> <table border=0 cellspacing=0 cellpadding=4>" +
                 "<tr><td><b>Join Condition</b></td><td>" + 
@@ -438,14 +441,14 @@ public class MashupGraphManager {
         List<Image> image = new ArrayList<Image>();
         image.add(MashupGraphUtil.getImage(ImageConstants.CONDITION));
         conditionPin.setGlyphs(image);
-        scene.revalidate();
+        scene.validate();
         widgets.add(conditionPin);
         
         // add popup for join widget.
         widget.getActions().addAction(
                 ActionFactory.createPopupMenuAction(new JoinPopupProvider(
                 joinOp, mObj)));
-        scene.revalidate();
+        scene.validate();
         sqlIdtoWidgetMap.put(joinOp.getId(), widget);
     }
     
@@ -457,12 +460,12 @@ public class MashupGraphManager {
             String name = (String)it.next();
             EDMPinWidget columnPin = ((EDMPinWidget)
                     scene.addPin(nodeID, "nodeID" + "#pin" + pinCounter++));
-            scene.revalidate();
+            scene.validate();
             columnPin.setPinName(name);
             List<Image> image = new ArrayList<Image>();
             image.add(MashupGraphUtil.getImage(ImageConstants.RUNTIMEATTR));
             columnPin.setGlyphs(image);
-            scene.revalidate();
+            scene.validate();
             RuntimeAttribute rtAttr = (RuntimeAttribute) rtInput.
                     getRuntimeAttributeMap().get(name);
             columnPin.setToolTipText("<html><table border=0 cellspacing=0 cellpadding=4 >" +
@@ -475,7 +478,7 @@ public class MashupGraphManager {
         widget.getActions().addAction(
                 ActionFactory.createPopupMenuAction(
                 new RuntimeModelPopupProvider(rtInput, mObj)));
-        scene.revalidate();
+        scene.validate();
         sqlIdtoWidgetMap.put(rtInput.getId(), widget);
     }
     
@@ -485,17 +488,17 @@ public class MashupGraphManager {
                 "</td></tr><tr><td><b>Database</b></td><td>"+ tbl.getParent().getConnectionDefinition().getDBType() +
                 "</td></tr>";
         widget.setNodeName(tbl.getDisplayName());
-        scene.revalidate();
+        scene.validate();
         widget.getActions().addAction(
                 ActionFactory.createPopupMenuAction(new TablePopupProvider(
                 tbl, mObj)));
-        scene.revalidate();
+        scene.validate();
         String condition = ((SourceTable)tbl).getExtractionCondition().getConditionText();
         if(condition != null && !condition.equals("")) {
             List<Image> image = new ArrayList<Image>();
             image.add(MashupGraphUtil.getImage(ImageConstants.FILTER));
             widget.setGlyphs(image);
-            scene.revalidate();
+            scene.validate();
             tooltip = tooltip + "<tr><td><b>Extraction Condition</b></td><td>" +
                     condition + "</td></tr></table></html>";
         }
@@ -514,9 +517,9 @@ public class MashupGraphManager {
                     column.getJdbcTypeString() + "</td></tr>";
             EDMPinWidget columnPin = ((EDMPinWidget)
                     scene.addPin(nodeID, "nodeID" + "#pin" + pinCounter++));
-            scene.revalidate();
+            scene.validate();
             columnPin.setPinName(column.getDisplayName());
-            scene.revalidate();
+            scene.validate();
             List<Image> image = new ArrayList<Image>();
             if(column.isVisible()) {
                 if(column.isPrimaryKey()) {
@@ -536,9 +539,9 @@ public class MashupGraphManager {
             }
             pinTooltip = pinTooltip + "</table></html>";
             columnPin.setGlyphs(image);
-            scene.revalidate();
+            scene.validate();
             columnPin.setToolTipText(pinTooltip);
-            scene.revalidate();
+            scene.validate();
             widgets.add(columnPin);
             sqlIdtoWidgetMap.put(column.getId(), columnPin);
         }
@@ -558,7 +561,7 @@ public class MashupGraphManager {
         while(it.hasNext()) {
             Widget wd = (Widget) it.next();
             wd.removeFromParent();
-            scene.revalidate();
+            scene.validate();
         }
         
         sqlIdtoWidgetMap.clear();

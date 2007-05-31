@@ -1,6 +1,6 @@
 /*
  * The contents of this file are subject to the terms of the Common
- * Development and Distribution License (the License). You may not use this 
+ * Development and Distribution License (the License). You may not use this
  * file except in compliance with the License.  You can obtain a copy of the
  *  License at http://www.netbeans.org/cddl.html
  *
@@ -32,92 +32,96 @@ import java.util.List;
  * @author David Kaspar
  */
 public class EDMPinWidget extends Widget {
-
+    
     private LabelWidget nameWidget;
     private EDMGlyphSetWidget glyphsWidget;
     private EDMNodeAnchor anchor;
-
+    
     /**
      * Creates a pin widget.
      * @param scene the scene
      */
-    public EDMPinWidget (Scene scene) {
-        super (scene);
-
-        setBorder (EDMNodeWidget.BORDER);
-        setBackground (EDMNodeWidget.COLOR_SELECTED);
-        setOpaque (false);
-        setLayout (LayoutFactory.createHorizontalFlowLayout (LayoutFactory.SerialAlignment.CENTER, 8));
-        addChild (glyphsWidget = new EDMGlyphSetWidget (scene));
-        addChild (nameWidget = new LabelWidget (scene));        
-
-        notifyStateChanged (ObjectState.createNormal (), ObjectState.createNormal ());
+    public EDMPinWidget(Scene scene) {
+        super(scene);
+        
+        setBorder(EDMNodeWidget.BORDER);
+        setBackground(EDMNodeWidget.COLOR_SELECTED);
+        setOpaque(false);
+        setLayout(LayoutFactory.createHorizontalFlowLayout(LayoutFactory.SerialAlignment.CENTER, 8));
+        addChild(glyphsWidget = new EDMGlyphSetWidget(scene));
+        addChild(nameWidget = new LabelWidget(scene));
+        revalidate();
+        notifyStateChanged(ObjectState.createNormal(), ObjectState.createNormal());
     }
-
+    
     /**
      * Called to notify about the change of the widget state.
      * @param previousState the previous state
      * @param state the new state
      */
-    protected void notifyStateChanged (ObjectState previousState, ObjectState state) {
-        setOpaque (state.isSelected ());
-        setBorder (state.isFocused () || state.isHovered () ? EDMNodeWidget.BORDER_HOVERED : EDMNodeWidget.BORDER);
-//        LookFeel lookFeel = getScene ().getLookFeel ();
-//        setBorder (BorderFactory.createCompositeBorder (BorderFactory.createEmptyBorder (8, 2), lookFeel.getMiniBorder (state)));
-//        setForeground (lookFeel.getForeground (state));
+    protected void notifyStateChanged(ObjectState previousState, ObjectState state) {
+        setOpaque(state.isSelected());
+        setBorder(state.isFocused() || state.isHovered() ? EDMNodeWidget.BORDER_HOVERED : EDMNodeWidget.BORDER);
+        //        LookFeel lookFeel = getScene ().getLookFeel ();
+        //        setBorder (BorderFactory.createCompositeBorder (BorderFactory.createEmptyBorder (8, 2), lookFeel.getMiniBorder (state)));
+        //        setForeground (lookFeel.getForeground (state));
     }
-
+    
     /**
      * Returns a pin name widget.
      * @return the pin name widget
      */
-    public Widget getPinNameWidget () {
+    public Widget getPinNameWidget() {
         return nameWidget;
     }
-
+    
     /**
      * Sets a pin name.
      * @param name the pin name
      */
-    public void setPinName (String name) {
-        nameWidget.setLabel (name);
+    public void setPinName(String name) {
+        nameWidget.setLabel(name);
+        revalidate();
     }
-
+    
     /**
      * Returns a pin name.
      * @return the pin name
      */
-    public String getPinName () {
+    public String getPinName() {
         return nameWidget.getLabel();
     }
-
+    
     /**
      * Sets pin glyphs.
      * @param glyphs the list of images
      */
-    public void setGlyphs (List<Image> glyphs) {
-        glyphsWidget.setGlyphs (glyphs);
+    public void setGlyphs(List<Image> glyphs) {
+        glyphsWidget.setGlyphs(glyphs);
+        revalidate();
     }
-
+    
     /**
      * Sets all pin properties at once.
      * @param name the pin name
      * @param glyphs the pin glyphs
      */
-    public void setProperties (String name, List<Image> glyphs) {
-        setPinName (name);
-        glyphsWidget.setGlyphs (glyphs);
+    public void setProperties(String name, List<Image> glyphs) {
+        setPinName(name);
+        glyphsWidget.setGlyphs(glyphs);
     }
-
+    
     /**
      * Creates a horizontally oriented anchor similar to EDMNodeWidget.createAnchorPin
-     * 
+     *
      * @return the anchor
      */
-    public Anchor createAnchor () {
-        if (anchor == null)
-            anchor = new EDMNodeAnchor (this, false);
+    public Anchor createAnchor() {
+        if (anchor == null) {
+            anchor = new EDMNodeAnchor(this, false);
+            revalidate();
+        }
         return anchor;
     }
-
+    
 }

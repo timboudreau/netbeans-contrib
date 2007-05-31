@@ -29,6 +29,7 @@ import org.netbeans.modules.edm.editor.utils.ImageConstants;
 import org.netbeans.modules.edm.editor.utils.MashupGraphUtil;
 import org.netbeans.modules.sql.framework.model.SQLDefinition;
 import org.netbeans.modules.sql.framework.ui.SwingWorker;
+import org.netbeans.modules.sql.framework.ui.utils.UIUtil;
 import org.netbeans.modules.sql.framework.ui.view.validation.SQLValidationView;
 
 /**
@@ -84,6 +85,7 @@ public class ValidationAction extends AbstractAction {
          * @return object
          */
         public Object construct() {
+            UIUtil.startProgressDialog(mObj.getName(), "Validating model...");
             list = execModel.validate();
             return "";
         }
@@ -99,6 +101,7 @@ public class ValidationAction extends AbstractAction {
             } else {
                 validationView.setValidationInfos(list);
             }
+            UIUtil.stopProgressDialog();
         }
     }
 }

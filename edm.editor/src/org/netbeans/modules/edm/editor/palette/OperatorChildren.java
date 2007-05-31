@@ -31,8 +31,11 @@ public class OperatorChildren extends Index.ArrayChildren {
     private Category category;
 
     private String[][] items = new String[][]{
-        {"0", "Mashup Operators", "org/netbeans/modules/edm/editor/resources/join_view.png", "Join"},
-        {"1", "Mashup Operators", "org/netbeans/modules/edm/editor/resources/mashup.png", "Materialized View"}       
+        {"0", "Table Operators", "org/netbeans/modules/edm/editor/resources/join_view.png", "Join"},
+        {"1", "Table Operators", "org/netbeans/modules/edm/editor/resources/groupby.gif", "Group By"},
+        {"2", "Table Operators", "org/netbeans/modules/edm/editor/resources/unionx16.png", "Union"},        
+        {"3", "Table Operators", "org/netbeans/modules/edm/editor/resources/intersectx16.png", "Intersect"},
+        {"4", "Mashup Operators", "org/netbeans/modules/edm/editor/resources/mashup.png", "Materialized View"}       
     };
 
     /**

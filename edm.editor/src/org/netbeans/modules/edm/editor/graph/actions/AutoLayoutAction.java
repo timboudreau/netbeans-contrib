@@ -48,7 +48,6 @@ public class AutoLayoutAction extends AbstractAction {
     
     public void actionPerformed(ActionEvent e) {
         mObj.getGraphManager().refreshGraph();
-        mObj.getGraphManager().getScene().layoutScene();
         mObj.getGraphManager().setLog("Sucessfully laid out graph.");
     }    
 }

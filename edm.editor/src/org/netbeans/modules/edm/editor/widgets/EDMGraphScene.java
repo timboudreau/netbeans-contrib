@@ -74,7 +74,7 @@ public class EDMGraphScene extends GraphPinScene<String, String, String> {
 
         getActions ().addAction (ActionFactory.createZoomAction ());
         getActions ().addAction (ActionFactory.createPanAction ());
-
+        
         sceneLayout = LayoutFactory.createSceneGraphLayout (this, 
                 new GridGraphLayout<String, String> ().
                 setChecker(false).setGaps(50, 50));
@@ -89,7 +89,7 @@ public class EDMGraphScene extends GraphPinScene<String, String, String> {
     protected Widget attachNodeWidget (String node) {
         EDMNodeWidget widget = new EDMNodeWidget (this);
         mainLayer.addChild (widget);
-
+        revalidate();
         widget.getHeader ().getActions ().addAction (createObjectHoverAction ());
         widget.getActions ().addAction (createSelectAction ());
         widget.getActions ().addAction (moveAction);
@@ -111,6 +111,7 @@ public class EDMGraphScene extends GraphPinScene<String, String, String> {
 
         EDMPinWidget widget = new EDMPinWidget (this);
         ((EDMNodeWidget) findWidget (node)).attachPinWidget (widget);
+        revalidate();
         widget.getActions ().addAction (createObjectHoverAction ());
         widget.getActions ().addAction (createSelectAction ());
 
@@ -125,7 +126,7 @@ public class EDMGraphScene extends GraphPinScene<String, String, String> {
     protected Widget attachEdgeWidget (String edge) {
         EDMConnectionWidget connectionWidget = new EDMConnectionWidget (this, router);
         connectionLayer.addChild (connectionWidget);
-
+        revalidate();
         connectionWidget.getActions ().addAction (createObjectHoverAction ());
         connectionWidget.getActions ().addAction (createSelectAction ());
         connectionWidget.getActions ().addAction (moveControlPointAction);
@@ -172,7 +173,14 @@ public class EDMGraphScene extends GraphPinScene<String, String, String> {
     /**
      * Invokes layout of the scene.
      */
-    public void layoutScene () {
-        sceneLayout.invokeLayout ();
+    public void layoutScene (boolean isInitial) {
+        revalidate();
+        if(isInitial) {
+            SceneLayout devolveLayout = LayoutFactory.createDevolveWidgetLayout(
+                    mainLayer, LayoutFactory.createHorizontalFlowLayout (), true);
+            devolveLayout.invokeLayout();
+        } else {
+            sceneLayout.invokeLayout ();
+        }
     }
 }

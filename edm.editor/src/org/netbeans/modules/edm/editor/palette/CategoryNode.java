@@ -16,13 +16,7 @@
 
 package org.netbeans.modules.edm.editor.palette;
 
-import org.openide.actions.NewAction;
-import org.openide.actions.PasteAction;
 import org.openide.nodes.AbstractNode;
-import org.openide.nodes.Children;
-import org.openide.nodes.Node;
-import org.openide.nodes.Node.Cookie;
-import org.openide.nodes.NodeTransfer;
 import org.openide.util.lookup.Lookups;
 
 /**

@@ -217,6 +217,7 @@ public class EDMNodeWidget extends Widget implements StateModel.Listener, EDMMin
      */
     public void setNodeName(String nodeName) {
         nameWidget.setLabel(nodeName);
+        revalidate();
     }
     
     /**
@@ -225,6 +226,7 @@ public class EDMNodeWidget extends Widget implements StateModel.Listener, EDMMin
      */
     public void setNodeType(String nodeType) {
         typeWidget.setLabel(nodeType != null ? "[" + nodeType + "]" : null);
+        revalidate();
     }
     
     /**
@@ -236,6 +238,7 @@ public class EDMNodeWidget extends Widget implements StateModel.Listener, EDMMin
         addChild(widget);
         if (stateModel.getBooleanState()  && isMinimizableWidget(widget))
             widget.setPreferredBounds(new Rectangle());
+        revalidate();
     }
     
     /**
@@ -244,6 +247,7 @@ public class EDMNodeWidget extends Widget implements StateModel.Listener, EDMMin
      */
     public void setGlyphs(List<Image> glyphs) {
         glyphSetWidget.setGlyphs(glyphs);
+        revalidate();
     }
     
     /**
@@ -254,7 +258,7 @@ public class EDMNodeWidget extends Widget implements StateModel.Listener, EDMMin
      * @param glyphs the node glyphs
      */
     public void setNodeProperties(Image image, String nodeName, String nodeType, List<Image> glyphs) {
-        setNodeImage(image);
+        setNodeImage(image);        
         setNodeName(nodeName);
         setNodeType(nodeType);
         setGlyphs(glyphs);
@@ -306,8 +310,10 @@ public class EDMNodeWidget extends Widget implements StateModel.Listener, EDMMin
         
         for (Iterator<Widget> iterator = unresolvedPins.iterator(); iterator.hasNext();) {
             Widget widget = iterator.next();
-            if (pinCategoryWidgets.containsValue(widget))
+            if (pinCategoryWidgets.containsValue(widget)) {
                 iterator.remove();
+                revalidate();
+            }
         }
         
         ArrayList<String> unusedCategories = new ArrayList<String> (pinCategoryWidgets.keySet());
@@ -319,21 +325,30 @@ public class EDMNodeWidget extends Widget implements StateModel.Listener, EDMMin
             if (categoryName == null)
                 continue;
             unusedCategories.remove(categoryName);
+            revalidate();
             newWidgets.add(createPinCategoryWidget(categoryName));
             List<Widget> widgets = pinsCategories.get(categoryName);
             for (Widget widget : widgets)
-                if (unresolvedPins.remove(widget))
+                if (unresolvedPins.remove(widget)) {
                     newWidgets.add(widget);
+                    revalidate();
+                }
         }
         
-        if (! unresolvedPins.isEmpty())
+        if (! unresolvedPins.isEmpty()) {
             newWidgets.addAll(0, unresolvedPins);
+            revalidate();
+        }
         
-        for (String category : unusedCategories)
+        for (String category : unusedCategories) {
             pinCategoryWidgets.remove(category);
+            revalidate();
+        }            
         
         removeChildren(previousPins);
+        revalidate();
         addChildren(newWidgets);
+        revalidate();
     }
     
     private Widget createPinCategoryWidget(String categoryDisplayName) {
@@ -350,6 +365,7 @@ public class EDMNodeWidget extends Widget implements StateModel.Listener, EDMMin
         if (stateModel.getBooleanState())
             label.setPreferredBounds(new Rectangle());
         pinCategoryWidgets.put(categoryDisplayName, label);
+        revalidate();
         return label;
     }
     
