@@ -66,7 +66,8 @@ public class JustifyTest extends Scene {
 
     private LabelWidget createLabel (String text) {
         final LabelWidget label = new LabelWidget (this, text);
-        label.setBorder (BorderFactory.createLineBorder (1, Color.RED));
+        label.setBorder (BorderFactory.createLineBorder (10, Color.RED));
+        label.getActions ().addAction (ActionFactory.createResizeAction ());
         label.getActions ().addAction (ActionFactory.createInplaceEditorAction (new TextFieldInplaceEditor () {
             public boolean isEnabled (Widget widget) {
                 return true;
@@ -83,15 +84,17 @@ public class JustifyTest extends Scene {
 
     private Widget creeateVerticalBox () {
         Widget vbox = new Widget (this);
-        vbox.setBorder (BorderFactory.createLineBorder (1, Color.GREEN));
+        vbox.setBorder (BorderFactory.createLineBorder (10, Color.GREEN));
         vbox.setLayout (LayoutFactory.createVerticalFlowLayout ());
+        vbox.getActions ().addAction (ActionFactory.createResizeAction ());
         return vbox;
     }
 
     private Widget creeateHorizontalBox () {
         Widget hbox = new Widget (this);
-        hbox.setBorder (BorderFactory.createLineBorder (1, Color.BLUE));
+        hbox.setBorder (BorderFactory.createLineBorder (10, Color.BLUE));
         hbox.setLayout (LayoutFactory.createHorizontalFlowLayout ());
+        hbox.getActions ().addAction (ActionFactory.createResizeAction ());
         return hbox;
     }
 
