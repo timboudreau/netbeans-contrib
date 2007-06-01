@@ -55,6 +55,12 @@ public class ETableColumnModel extends DefaultTableColumnModel {
      */
     protected List hiddenColumns = new ArrayList();
     
+    /**
+     * Allows the user to customize the list of the visible columns using
+     * a hierarchy in a special TableColumnSelector.
+     */
+    private TableColumnSelector.TreeNode columnHierarchyRoot;
+    
     /** Creates a new instance of ETableColumnModel */
     public ETableColumnModel() {
         super();
@@ -285,5 +291,21 @@ public class ETableColumnModel extends DefaultTableColumnModel {
             }
             return original.compare(o1, o2);
         }
+    }
+
+    /**
+     * Allows the user to customize the list of the visible columns using
+     * a hierarchy in a special TableColumnSelector.
+     */
+    public TableColumnSelector.TreeNode getColumnHierarchyRoot() {
+        return columnHierarchyRoot;
+    }
+
+    /**
+     * Allows the user to customize the list of the visible columns using
+     * a hierarchy in a special TableColumnSelector.
+     */
+    public void setColumnHierarchyRoot(TableColumnSelector.TreeNode columnHierarchyRoot) {
+        this.columnHierarchyRoot = columnHierarchyRoot;
     }
 }

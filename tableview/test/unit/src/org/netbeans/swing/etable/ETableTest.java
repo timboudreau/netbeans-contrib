@@ -273,6 +273,36 @@ public class ETableTest extends TestCase {
         assertEquals("Sort reorder (4) not ok", t2.getValueAt(5, 0), t2.getModel().getValueAt(4, 1));
     }
     
+    public void testTableColumnSelector() {
+        ETable t = createTestingTable(false);
+        t.setColumnSelector(new TableColumnSelector() {
+            public String[] selectVisibleColumns(TableColumnSelector.TreeNode root, String[] selected) {
+                return new String[] { "AA", "BB" };
+            }
+            public String[] selectVisibleColumns(String[] available, String[] selected) {
+                return new String[] { "CC" };
+            }
+        });
+        ColumnSelectionPanel.showColumnSelectionDialog(t);
+        assertEquals(1, t.getColumnCount());
+        ETableColumnModel etcm = (ETableColumnModel) t.getColumnModel();
+        etcm.setColumnHierarchyRoot(new TableColumnSelector.TreeNode() {
+            public String getText() {
+                return "Root";
+            }
+
+            public boolean isLeaf() {
+                return false;
+            }
+
+            public TableColumnSelector.TreeNode[] getChildren() {
+                return new TableColumnSelector.TreeNode[0];
+            }
+        } );
+        ColumnSelectionPanel.showColumnSelectionDialog(t);
+        assertEquals(2, t.getColumnCount());
+    }
+    
     /**
      * Create a test ETable instance with some dummy data. BUT please
      * be aware that the tests result depend on this data so if you do

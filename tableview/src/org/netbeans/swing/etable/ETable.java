@@ -178,11 +178,13 @@ public class ETable extends JTable {
     /**
      * This text can be customized using setSelectVisibleColumnsLabel(...) method.
      */
-    private String selectVisibleColumnsLabel = "Select Visible Columns";
+    String selectVisibleColumnsLabel = "Select Visible Columns";
 
     private boolean inEditRequest = false;
     private boolean inEditorChangeRequest=false;
     private boolean inRemoveRequest=false;
+    
+    private static String COMPUTING_TOOLTIP = "ComputingTooltip";
 
     /**
      * Default formatting strings for the Quick Filter feature.
@@ -204,6 +206,17 @@ public class ETable extends JTable {
      * column selection dialog.
      */
     private MouseListener columnSelectionMouseListener = new ColumnSelectionMouseListener();
+    
+    /**
+     * Allows to supply alternative implementation of the column
+     * selection functionality in ETable.
+     */
+    private TableColumnSelector columnSelector;
+    
+    /**
+     * The column selection corner can use either dialog or popup menu.
+     */
+    private boolean popupUsedFromTheCorner;
     
     /**
      * Constructs a default <code>JTable</code> that is initialized with a default
@@ -668,6 +681,18 @@ public class ETable extends JTable {
     }
     
     /**
+     * Overriden to make a speed optimization.
+     */
+    public String getToolTipText(MouseEvent event) {
+        try {
+            putClientProperty(COMPUTING_TOOLTIP, Boolean.TRUE);
+            return super.getToolTipText(event);
+        } finally {
+            putClientProperty(COMPUTING_TOOLTIP, Boolean.FALSE);
+        }
+    }
+    
+    /**
      * Overriden to do additional initialization.
      * @see javax.swing.JTable#initializeLocalVars()
      */
@@ -752,7 +777,7 @@ public class ETable extends JTable {
                 return true;
             }
             if (e.getKeyChar() == '*' && ( (e.getModifiers() & InputEvent.CTRL_MASK) == InputEvent.CTRL_MASK)) {
-                showColumnSelectionDialog();
+                ColumnSelectionPanel.showColumnSelectionDialog(this);
                 e.consume();
                 return true;
             }
@@ -825,13 +850,13 @@ public class ETable extends JTable {
                 b.setToolTipText(selectVisibleColumnsLabel);
                 b.addActionListener(new ActionListener() {
                     public void actionPerformed(ActionEvent evt) {
-                        showColumnSelectionPopup(b);
+                        ColumnSelectionPanel.showColumnSelectionPopup(b, ETable.this);
                     }
                 });
                 b.addMouseListener(new MouseAdapter() {
                     public void mouseClicked(MouseEvent me) {
                         if (me.getButton() == MouseEvent.BUTTON3) {
-                            showColumnSelectionDialog();
+                            ColumnSelectionPanel.showColumnSelectionDialog(ETable.this);
                         }
                     }
                 });
@@ -881,89 +906,11 @@ public class ETable extends JTable {
     }
     
     /**
-     * Shows the popup allowing to show/hide columns.
-     */
-    private void showColumnSelectionPopup(Component c) {
-        JPopupMenu popup = new JPopupMenu();
-        TableColumnModel columnModel = getColumnModel();
-        if (! (columnModel instanceof ETableColumnModel)) {
-            return;
-        }
-        final ETableColumnModel etcm = (ETableColumnModel)columnModel;
-        List columns = Collections.list(etcm.getColumns());
-        columns.addAll(etcm.hiddenColumns);
-        Collections.sort(columns);
-        Map displayNameToCheckBox = new HashMap();
-        ArrayList displayNames = new ArrayList();
-        for (Iterator it = columns.iterator(); it.hasNext(); ) {
-            final ETableColumn etc = (ETableColumn)it.next();
-            final JCheckBoxMenuItem checkBox = new JCheckBoxMenuItem();
-            String dName = getColumnDisplayName(etc.getHeaderValue().toString());
-            checkBox.setText(dName);
-            checkBox.setSelected(! etcm.isColumnHidden(etc));
-            checkBox.setEnabled(etc.isHidingAllowed());
-            checkBox.addActionListener(new ActionListener() {
-                public void actionPerformed(ActionEvent evt) {
-                    etcm.setColumnHidden(etc,! checkBox.isSelected());
-                    updateColumnSelectionMouseListener();
-                }
-            });
-            if (! displayNames.contains(dName)) {
-                // the expected case
-                displayNameToCheckBox.put(dName, checkBox);
-            } else {
-                // the same display name is used for more columns - fuj
-                ArrayList al = null;
-                Object theFirstOne = displayNameToCheckBox.get(dName);
-                if (theFirstOne instanceof JCheckBoxMenuItem) {
-                    JCheckBoxMenuItem firstCheckBox = (JCheckBoxMenuItem)theFirstOne;
-                    al = new ArrayList();
-                    al.add(firstCheckBox);
-                } else {
-                    // already a list there
-                    if (theFirstOne instanceof ArrayList) {
-                        al = (ArrayList)theFirstOne;
-                    } else {
-                        throw new IllegalStateException("Wrong object theFirstOne is " + theFirstOne);
-                    }
-                }
-                al.add(checkBox);
-                displayNameToCheckBox.put(dName, al);
-            }
-            displayNames.add(dName);
-        }
-        Collections.sort(displayNames, Collator.getInstance());
-        int index = 0;
-        for (Iterator it = displayNames.iterator(); it.hasNext(); ) {
-            String displayName = (String)it.next();
-            Object obj = displayNameToCheckBox.get(displayName);
-            JCheckBoxMenuItem checkBox = null;
-            if (obj instanceof JCheckBoxMenuItem) {
-                checkBox = (JCheckBoxMenuItem)obj;
-            } else {
-                // in case there are duplicate names we store ArrayLists
-                // of JCheckBoxes
-                if (obj instanceof ArrayList) {
-                    ArrayList al = (ArrayList)obj;
-                    if (index >= al.size()) {
-                        index = 0;
-                    }
-                    checkBox = (JCheckBoxMenuItem)al.get(index++);
-                } else {
-                    throw new IllegalStateException("Wrong object obj is " + obj);
-                }
-            }
-            popup.add(checkBox);
-        }
-        popup.show(c, 8, 8);
-    }
-
-    /**
      * This method update mouse listener on the scrollPane if it is needed.
      * It also recomputes the model of searchCombo. Both actions are needed after
      * the set of visible columns is changed.
      */
-    private void updateColumnSelectionMouseListener() {
+    void updateColumnSelectionMouseListener() {
         Container p = getParent();
         if (p instanceof JViewport) {
             Container gp = p.getParent();
@@ -1557,7 +1504,7 @@ public class ETable extends JTable {
             if (val != null) {
                 s = convertValueToString(val);
             }   
-            if ((s != null) && (s.toUpperCase().startsWith(prefix.toUpperCase()))) {
+            if ((s != null) && (s.toUpperCase().indexOf(prefix.toUpperCase()))!= -1   ) {
                 results.add(new Integer(startIndex));
             
                 // initialize prefix
@@ -1940,19 +1887,6 @@ public class ETable extends JTable {
     }
     
     /**
-     * Shows dialog allowing to show/hide columns.
-     */
-    private void showColumnSelectionDialog() {
-        // right click will open the column visibility dialog
-        ColumnSelectionPanel panel = new ColumnSelectionPanel(getColumnModel(), this);
-        int res = JOptionPane.showConfirmDialog(null, panel, selectVisibleColumnsLabel, JOptionPane.OK_CANCEL_OPTION);
-        if (res == JOptionPane.OK_OPTION) {
-            panel.changeColumnVisibility();
-            updateColumnSelectionMouseListener();
-        }
-    }
-    
-    /**
      * Mouse listener attached to the JTableHeader of this table. Single
      * click on the table header should trigger sorting on that column.
      * Double click on the column divider automatically resizes the column.
@@ -1960,7 +1894,7 @@ public class ETable extends JTable {
     private class ColumnSelectionMouseListener extends MouseAdapter {
         public void mouseClicked(MouseEvent me) {
             if (me.getButton() == MouseEvent.BUTTON3) {
-                showColumnSelectionDialog();
+                ColumnSelectionPanel.showColumnSelectionDialog(ETable.this);
             }
         }
     }
@@ -1972,7 +1906,7 @@ public class ETable extends JTable {
     private class HeaderMouseListener extends MouseAdapter {
         public void mouseClicked(MouseEvent me) {
             if (me.getButton() == MouseEvent.BUTTON3) {
-                showColumnSelectionDialog();
+                ColumnSelectionPanel.showColumnSelectionDialog(ETable.this);
                 return;
             }
             TableColumn resColumn = getResizingColumn(me.getPoint());
@@ -2350,5 +2284,35 @@ public class ETable extends JTable {
                 setFocusCycleRoot(true);
             }
         }
+    }
+    
+    /**
+     * Allows to supply alternative implementation of the column
+     * selection functionality in ETable.
+     */
+    public TableColumnSelector getColumnSelector() {
+        return columnSelector;
+    }
+
+    /**
+     * Allows to supply alternative implementation of the column
+     * selection functionality in ETable.
+     */
+    public void setColumnSelector(TableColumnSelector columnSelector) {
+        this.columnSelector = columnSelector;
+    }
+
+    /**
+     * The column selection corner can use either dialog or popup menu.
+     */
+    public boolean isPopupUsedFromTheCorner() {
+        return popupUsedFromTheCorner;
+    }
+
+    /**
+     * The column selection corner can use either dialog or popup menu.
+     */
+    public void setPopupUsedFromTheCorner(boolean popupUsedFromTheCorner) {
+        this.popupUsedFromTheCorner = popupUsedFromTheCorner;
     }
 }

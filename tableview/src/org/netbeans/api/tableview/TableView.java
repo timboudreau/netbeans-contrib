@@ -23,6 +23,7 @@ import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
+import java.awt.dnd.DnDConstants;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyVetoException;
 import java.beans.VetoableChangeListener;
@@ -51,11 +52,13 @@ import javax.swing.table.TableModel;
 import org.netbeans.swing.etable.ETable;
 import org.netbeans.swing.etable.ETableColumn;
 import org.netbeans.swing.etable.QuickFilter;
+import org.netbeans.swing.etable.TableColumnSelector;
 import org.openide.ErrorManager;
 import org.openide.awt.MouseUtils;
 import org.openide.explorer.ExplorerManager;
 import org.openide.nodes.Node;
 import org.openide.nodes.NodeOp;
+import org.openide.util.Lookup;
 import org.openide.util.NbBundle;
 import org.openide.util.Utilities;
 import org.openide.util.WeakListeners;
@@ -80,6 +83,23 @@ public class TableView extends JScrollPane {
     transient VetoableChangeListener wlvc;
     /** */
     private NodePopupFactory popupFactory;
+    /** true if drag support is active */
+    private transient boolean dragActive = true;
+
+    /** true if drop support is active */
+    private transient boolean dropActive = true;
+
+    /** Drag support */
+    transient TableViewDragSupport dragSupport;
+
+    /** Drop support */
+    transient TableViewDropSupport dropSupport;
+    transient boolean dropTargetPopupAllowed = true;
+//    transient private List storeSelectedPaths;
+
+    // default DnD actions
+    transient private int allowedDragActions = DnDConstants.ACTION_COPY_OR_MOVE | DnDConstants.ACTION_REFERENCE;
+    transient private int allowedDropActions = DnDConstants.ACTION_COPY_OR_MOVE | DnDConstants.ACTION_REFERENCE;
     
     /** Creates a new instance of TableView */
     public TableView() {
@@ -106,6 +126,12 @@ public class TableView extends JScrollPane {
         }
         if (c != null) {
             getViewport().setBackground(c);
+        }
+        setDragSource(true);
+        setDropTarget(true);
+        TableColumnSelector tcs = (TableColumnSelector) Lookup.getDefault().lookup(TableColumnSelector.class);
+        if (tcs != null) {
+            table.setColumnSelector(tcs);
         }
 
     }
@@ -311,7 +337,7 @@ public class TableView extends JScrollPane {
     /**
      * 
      */
-    private Node getNodeFromRow(int rowIndex) {
+    Node getNodeFromRow(int rowIndex) {
         int row = table.convertRowIndexToModel(rowIndex);
         TableModel tm = table.getModel();
         if (tm instanceof NodeTableModel) {
@@ -433,6 +459,91 @@ public class TableView extends JScrollPane {
         
         // all is ok
         return false;
+    }
+    /********** Support for the Drag & Drop operations *********/
+    /** Drag support is enabled by default.
+    * @return true if dragging from the view is enabled, false
+    * otherwise.
+    */
+    public boolean isDragSource() {
+        return dragActive;
+    }
+
+    /** Enables/disables dragging support.
+    * @param state true enables dragging support, false disables it.
+    */
+    public void setDragSource(boolean state) {
+        // create drag support if needed
+        if (state && (dragSupport == null)) {
+            dragSupport = new TableViewDragSupport(this, table);
+        }
+
+        // activate / deactivate support according to the state
+        dragActive = state;
+
+        if (dragSupport != null) {
+            dragSupport.activate(dragActive);
+        }
+    }
+
+    /** Drop support is enabled by default.
+    * @return true if dropping to the view is enabled, false
+    * otherwise<br>
+    */
+    public boolean isDropTarget() {
+        return dropActive;
+    }
+
+    /** Enables/disables dropping support.
+    * @param state true means drops into view are allowed,
+    * false forbids any drops into this view.
+    */
+    public void setDropTarget(boolean state) {
+        // create drop support if needed
+        if (dropActive && (dropSupport == null)) {
+            dropSupport = new TableViewDropSupport(this, table, dropTargetPopupAllowed);
+        }
+
+        // activate / deactivate support according to the state
+        dropActive = state;
+
+        if (dropSupport != null) {
+            dropSupport.activate(dropActive);
+        }
+    }
+
+    /** Actions constants comes from {@link java.awt.dnd.DnDConstants}.
+    * All actions (copy, move, link) are allowed by default.
+    * @return int representing set of actions which are allowed when dragging from
+    * asociated component.
+     */
+    public int getAllowedDragActions() {
+        return allowedDragActions;
+    }
+
+    /** Sets allowed actions for dragging
+    * @param actions new drag actions, using {@link java.awt.dnd.DnDConstants}
+    */
+    public void setAllowedDragActions(int actions) {
+        // PENDING: check parameters
+        allowedDragActions = actions;
+    }
+
+    /** Actions constants comes from {@link java.awt.dnd.DnDConstants}.
+    * All actions are allowed by default.
+    * @return int representing set of actions which are allowed when dropping
+    * into the asociated component.
+    */
+    public int getAllowedDropActions() {
+        return allowedDropActions;
+    }
+
+    /** Sets allowed actions for dropping.
+    * @param actions new allowed drop actions, using {@link java.awt.dnd.DnDConstants}
+    */
+    public void setAllowedDropActions(int actions) {
+        // PENDING: check parameters
+        allowedDropActions = actions;
     }
     
     /**

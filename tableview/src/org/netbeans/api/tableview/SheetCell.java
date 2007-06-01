@@ -245,7 +245,34 @@ abstract class SheetCell extends AbstractCellEditor implements TableModelListene
         if (prop != null) {
             FocusedPropertyPanel propPanel = getRenderer (prop, node);
             propPanel.setFocused(hasFocus);
-            propPanel.setToolTipText(prop.getShortDescription());
+            Object computeTooltip = table.getClientProperty("ComputingTooltip");
+            if (Boolean.TRUE.equals(computeTooltip)) {
+                String toolT = null;
+                PropertyEditor propEd = prop.getPropertyEditor();
+                if (propEd != null) {
+                    try {
+                        propEd.setValue(prop.getValue());
+                        toolT = propEd.getAsText();
+                    } catch (Exception ex) {
+                        // no problem here - just leave null tooltip
+                    }
+
+                }
+                if (toolT == null) {
+                    Object val = null;
+                    try {
+                        val = prop.getValue();
+                    } catch (Exception ex) {
+                        // no problem here - just leave null tooltip
+                    }
+                    if (val != null) {
+                        toolT = val.toString();
+                    }
+                }
+                if (toolT != null) {
+                    propPanel.setToolTipText(toolT);
+                }
+            }
             propPanel.setOpaque(true);
             if (isSelected){
                 

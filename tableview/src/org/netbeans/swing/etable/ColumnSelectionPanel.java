@@ -17,19 +17,26 @@
  */
 package org.netbeans.swing.etable;
 
-import java.awt.Color;
+import java.awt.Component;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.text.Collator;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import javax.swing.JCheckBox;
+import javax.swing.JCheckBoxMenuItem;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.border.LineBorder;
+import javax.swing.JPopupMenu;
 import javax.swing.table.TableColumnModel;
 
 /**
@@ -50,7 +57,8 @@ class ColumnSelectionPanel extends JPanel {
     private ETableColumnModel columnModel;
     
     /** Creates a new instance of ColumnSelectionPanel */
-    public ColumnSelectionPanel(TableColumnModel columnModel, ETable table) {
+    public ColumnSelectionPanel(ETable table) {
+        TableColumnModel columnModel = table.getColumnModel();
         setLayout(new GridBagLayout());
         if (! (columnModel instanceof ETableColumnModel)) {
             return;
@@ -153,5 +161,161 @@ class ColumnSelectionPanel extends JPanel {
             JCheckBox checkBox = (JCheckBox)checkBoxes.get(etc);
             columnModel.setColumnHidden(etc,! checkBox.isSelected());
         }
+    }
+    
+    /**
+     * Shows the popup allowing to show/hide columns.
+     */
+    static void showColumnSelectionPopup(Component c, final ETable table) {
+        if (! table.isPopupUsedFromTheCorner()) {
+            showColumnSelectionDialog(table);
+            return;
+        }
+        JPopupMenu popup = new JPopupMenu();
+        TableColumnModel columnModel = table.getColumnModel();
+        if (! (columnModel instanceof ETableColumnModel)) {
+            return;
+        }
+        final ETableColumnModel etcm = (ETableColumnModel)columnModel;
+        List columns = Collections.list(etcm.getColumns());
+        columns.addAll(etcm.hiddenColumns);
+        Collections.sort(columns);
+        Map displayNameToCheckBox = new HashMap();
+        ArrayList displayNames = new ArrayList();
+        for (Iterator it = columns.iterator(); it.hasNext(); ) {
+            final ETableColumn etc = (ETableColumn)it.next();
+            final JCheckBoxMenuItem checkBox = new JCheckBoxMenuItem();
+            String dName = table.getColumnDisplayName(etc.getHeaderValue().toString());
+            checkBox.setText(dName);
+            checkBox.setSelected(! etcm.isColumnHidden(etc));
+            checkBox.setEnabled(etc.isHidingAllowed());
+            checkBox.addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent evt) {
+                    etcm.setColumnHidden(etc,! checkBox.isSelected());
+                    table.updateColumnSelectionMouseListener();
+                }
+            });
+            if (! displayNames.contains(dName)) {
+                // the expected case
+                displayNameToCheckBox.put(dName, checkBox);
+            } else {
+                // the same display name is used for more columns - fuj
+                ArrayList al = null;
+                Object theFirstOne = displayNameToCheckBox.get(dName);
+                if (theFirstOne instanceof JCheckBoxMenuItem) {
+                    JCheckBoxMenuItem firstCheckBox = (JCheckBoxMenuItem)theFirstOne;
+                    al = new ArrayList();
+                    al.add(firstCheckBox);
+                } else {
+                    // already a list there
+                    if (theFirstOne instanceof ArrayList) {
+                        al = (ArrayList)theFirstOne;
+                    } else {
+                        throw new IllegalStateException("Wrong object theFirstOne is " + theFirstOne);
+                    }
+                }
+                al.add(checkBox);
+                displayNameToCheckBox.put(dName, al);
+            }
+            displayNames.add(dName);
+        }
+        Collections.sort(displayNames, Collator.getInstance());
+        int index = 0;
+        for (Iterator it = displayNames.iterator(); it.hasNext(); ) {
+            String displayName = (String)it.next();
+            Object obj = displayNameToCheckBox.get(displayName);
+            JCheckBoxMenuItem checkBox = null;
+            if (obj instanceof JCheckBoxMenuItem) {
+                checkBox = (JCheckBoxMenuItem)obj;
+            } else {
+                // in case there are duplicate names we store ArrayLists
+                // of JCheckBoxes
+                if (obj instanceof ArrayList) {
+                    ArrayList al = (ArrayList)obj;
+                    if (index >= al.size()) {
+                        index = 0;
+                    }
+                    checkBox = (JCheckBoxMenuItem)al.get(index++);
+                } else {
+                    throw new IllegalStateException("Wrong object obj is " + obj);
+                }
+            }
+            popup.add(checkBox);
+        }
+        popup.show(c, 8, 8);
+    }
+    
+    /**
+     * Shows dialog allowing to show/hide columns.
+     */
+    static void showColumnSelectionDialog(ETable table) {
+        TableColumnSelector tcs = table.getColumnSelector();
+        if (tcs != null) {
+            ETableColumnModel etcm = (ETableColumnModel)table.getColumnModel();
+            TableColumnSelector.TreeNode root = etcm.getColumnHierarchyRoot();
+            if (root != null) {
+                String[] origVisible = getAvailableColumnNames(table, true);
+                String[] visibleColumns = tcs.selectVisibleColumns(root, origVisible);
+                makeVisibleColumns(table, visibleColumns);
+            } else {
+                String[] availableColumns = getAvailableColumnNames(table, false);
+                String[] origVisible = getAvailableColumnNames(table, true);
+                String[] visibleColumns = tcs.selectVisibleColumns(availableColumns, origVisible);
+                makeVisibleColumns(table, visibleColumns);
+            }
+            return;
+        }
+        // The default behaviour:
+        ColumnSelectionPanel panel = new ColumnSelectionPanel(table);
+        int res = JOptionPane.showConfirmDialog(null, panel, table.selectVisibleColumnsLabel, JOptionPane.OK_CANCEL_OPTION);
+        if (res == JOptionPane.OK_OPTION) {
+            panel.changeColumnVisibility();
+            table.updateColumnSelectionMouseListener();
+        }
+    }
+
+    /**
+     * This method is called after the user made a selection. Applies the
+     * changes to the visible column for the given table.
+     */
+    private static void makeVisibleColumns(ETable table, String[] visibleColumns) {
+        HashSet visible = new HashSet(Arrays.asList(visibleColumns));
+        TableColumnModel columnModel = table.getColumnModel();
+        if (! (columnModel instanceof ETableColumnModel)) {
+            return;
+        }
+        final ETableColumnModel etcm = (ETableColumnModel)columnModel;
+        List columns = Collections.list(etcm.getColumns());
+        columns.addAll(etcm.hiddenColumns);
+        Collections.sort(columns);
+        for (Iterator it = columns.iterator(); it.hasNext(); ) {
+            final ETableColumn etc = (ETableColumn)it.next();
+            String dName = table.getColumnDisplayName(etc.getHeaderValue().toString());
+            etcm.setColumnHidden(etc, !visible.contains(dName));
+        }
+    }
+
+    /**
+     * Computes the strings shown to the user in the selection dialog.
+     */
+    private static String[] getAvailableColumnNames(ETable table, boolean visibleOnly) {
+        TableColumnModel columnModel = table.getColumnModel();
+        if (! (columnModel instanceof ETableColumnModel)) {
+            return new String[0];
+        }
+        final ETableColumnModel etcm = (ETableColumnModel)columnModel;
+        List columns = Collections.list(etcm.getColumns());
+        if (!visibleOnly) {
+            columns.addAll(etcm.hiddenColumns);
+        }
+        Collections.sort(columns);
+        ArrayList displayNames = new ArrayList();
+        for (Iterator it = columns.iterator(); it.hasNext(); ) {
+            final ETableColumn etc = (ETableColumn)it.next();
+            String dName = table.getColumnDisplayName(etc.getHeaderValue().toString());
+            displayNames.add(dName);
+        }
+        Collections.sort(displayNames, Collator.getInstance());
+        return (String[])displayNames.toArray(new String[displayNames.size()]);
     }
 }
