@@ -21,45 +21,77 @@ Software is Nokia. Portions Copyright 2005 Nokia.
 <filesystem>
     <folder name="Menu">
         <folder name="File">
-            <attr name="org-openide-actions-SaveAction.instance/org-netbeans-modules-tool-actions-SaveAsSystemAction.instance" boolvalue="true" />
-            <attr name="org-netbeans-modules-tool-actions-SaveAsSystemAction.instance/org-openide-actions-SaveAllAction.instance" boolvalue="true" />
-            <file name="org-netbeans-modules-tool-actions-SaveAsSystemAction.instance" />
-       </folder>
-        <folder name="Edit">
-            <attr name="org-openide-actions-DeleteAction.instance/SelectAllSeparator.instance" boolvalue="true" />
-            <attr name="SelectAllSeparator.instance/org-netbeans-modules-tool-actions-SelectAllSystemAction.instance" boolvalue="true" />
-            <file name="SelectAllSeparator.instance">
-                <attr name="instanceClass" stringvalue="javax.swing.JSeparator" />
+            <attr name="Separator2.instance/org-netbeans-modules-tool-actions-SaveAction.shadow" boolvalue="true"/>
+            <file name="org-netbeans-modules-tool-actions-SaveAction.shadow">
+                <attr name="originalFile" stringvalue="Actions/File/org-netbeans-modules-tool-actions-SaveAction.instance"/>
             </file>
-            <file name="org-netbeans-modules-tool-actions-SelectAllSystemAction.instance" />
+            <attr name="org-netbeans-modules-tool-actions-SaveAction.shadow/org-netbeans-modules-tool-actions-SaveAsAction.shadow" boolvalue="true"/>
+            <file name="org-netbeans-modules-tool-actions-SaveAsAction.shadow">
+                <attr name="originalFile" stringvalue="Actions/File/org-netbeans-modules-tool-actions-SaveAsAction.instance"/>
+            </file>
+            <attr name="org-netbeans-modules-tool-actions-SaveAsAction.shadow/org-netbeans-modules-tool-actions-SaveAllAction.shadow" boolvalue="true"/>
+            <file name="org-netbeans-modules-tool-actions-SaveAllAction.shadow">
+                <attr name="originalFile" stringvalue="Actions/File/org-netbeans-modules-tool-actions-SaveAllAction.instance"/>
+            </file>
+            <attr name="org-netbeans-modules-tool-actions-SaveAllAction.shadow/Separator3.instance" boolvalue="true"/>
+            <attr name="Separator3.instance/org-netbeans-modules-tool-actions-PrintAction.shadow" boolvalue="true"/>
+            <file name="org-netbeans-modules-tool-actions-PrintAction.shadow">
+                <attr name="originalFile" stringvalue="Actions/File/org-netbeans-modules-tool-actions-PrintAction.instance"/>
+            </file>
+            <attr name="org-netbeans-modules-tool-actions-PrintAction.shadow/Separator4.instance" boolvalue="true"/>
+            <attr name="org-netbeans-modules-tool-actions-PrintAction.instance/org-openide-actions-PageSetupAction.instance" boolvalue="true"/>
+            <attr name="org-openide-actions-PageSetupAction.instance/Separator4.instance" boolvalue="true"/>
+            <file name="org-openide-actions-PrintAction.instance_hidden"/>
+            <file name="org-openide-actions-SaveAction.instance_hidden"/>
+            <file name="org-openide-actions-SaveAllAction.instance_hidden"/>
+        </folder>
+        <folder name="Edit">
+            <attr name="org-openide-actions-DeleteAction.instance/SelectAllSeparator.instance" boolvalue="true"/>
+            <attr name="SelectAllSeparator.instance/org-netbeans-modules-tool-actions-SelectAllSystemAction.instance" boolvalue="true"/>
+            <file name="SelectAllSeparator.instance">
+                <attr name="instanceClass" stringvalue="javax.swing.JSeparator"/>
+            </file>
+            <file name="org-netbeans-modules-tool-actions-SelectAllSystemAction.instance"/>
         </folder>
     </folder>
     <folder name="Toolbars">
         <folder name="File">
-            <attr name="org-openide-actions-SaveAction.instance/org-netbeans-modules-tool-actions-SaveAsSystemAction.instance" boolvalue="true" />
-            <attr name="org-netbeans-modules-tool-actions-SaveAsSystemAction.instance/org-openide-actions-SaveAllAction.instance" boolvalue="true" />
-            <file name="org-netbeans-modules-tool-actions-SaveAsSystemAction.instance_hidden" />
+            <file name="org-netbeans-modules-tool-actions-SaveAction.shadow">
+                <attr name="originalFile" stringvalue="Actions/File/org-netbeans-modules-tool-actions-SaveAction.instance"/>
+            </file>
+            <attr name="org-netbeans-modules-tool-actions-SaveAction.shadow/org-openide-actions-SaveAllAction.shadow" boolvalue="true"/>
+            <file name="org-netbeans-modules-tool-actions-SaveAllAction.shadow">
+                <attr name="originalFile" stringvalue="Actions/File/org-netbeans-modules-tool-actions-SaveAllAction.instance"/>
+            </file>
+            <file name="org-openide-actions-SaveAction.instance_hidden"/>
+            <file name="org-openide-actions-SaveAllAction.instance_hidden"/>
         </folder>
         <folder name="Edit1">
-            <attr name="org-openide-actions-DeleteAction.instance/org-netbeans-modules-tool-actions-SelectAllSystemAction.instance" boolvalue="true" />
-            <file name="org-netbeans-modules-tool-actions-SelectAllSystemAction.instance" />
+            <attr name="org-openide-actions-DeleteAction.instance/org-netbeans-modules-tool-actions-SelectAllSystemAction.instance" boolvalue="true"/>
+            <file name="org-netbeans-modules-tool-actions-SelectAllSystemAction.instance"/>
         </folder>
     </folder>
     <folder name="Actions">
         <folder name="File">
-            <attr name="org-openide-actions-SaveAction.instance/org-netbeans-modules-tool-actions-SaveAsSystemAction.instance" boolvalue="true" />
-            <attr name="org-netbeans-modules-tool-actions-SaveAsSystemAction.instance/org-openide-actions-SaveAllAction.instance" boolvalue="true" />
-            <file name="org-netbeans-modules-tool-actions-SaveAsSystemAction.instance" />
+            <file name="org-netbeans-modules-tool-actions-SaveAction.instance"/>
+            <attr name="org-netbeans-modules-tool-actions-SaveAction.instance/org-netbeans-modules-tool-actions-SaveAsAction.instance" boolvalue="true"/>
+            <file name="org-netbeans-modules-tool-actions-SaveAsAction.instance"/>
+            <attr name="org-netbeans-modules-tool-actions-SaveAsAction.instance/org-openide-actions-SaveAllAction.instance" boolvalue="true"/>
+            <attr name="org-netbeans-modules-tool-actions-SaveAsAction.instance/org-netbeans-modules-tool-actions-SaveAllAction.instance" boolvalue="true"/>
+            <file name="org-netbeans-modules-tool-actions-SaveAllAction.instance"/>
+            <file name="org-netbeans-modules-tool-actions-PrintAction.instance"/>
+            <file name="org-openide-actions-SaveAction.instance_hidden"/>
+            <file name="org-openide-actions-SaveAllAction.instance_hidden"/>
         </folder>
         <folder name="Edit">
-            <attr name="org-openide-actions-DeleteAction.instance/org-netbeans-modules-tool-actions-SelectAllSystemAction.instance" boolvalue="true" />
-            <file name="org-netbeans-modules-tool-actions-SelectAllSystemAction.instance" />
-            <attr name="org-netbeans-modules-tool-actions-SelectAllSystemAction.instance/org-openide-actions-FindAction.instance" boolvalue="true" />
+            <attr name="org-openide-actions-DeleteAction.instance/org-netbeans-modules-tool-actions-SelectAllSystemAction.instance" boolvalue="true"/>
+            <file name="org-netbeans-modules-tool-actions-SelectAllSystemAction.instance"/>
+            <attr name="org-netbeans-modules-tool-actions-SelectAllSystemAction.instance/org-openide-actions-FindAction.instance" boolvalue="true"/>
         </folder>
     </folder>
     <folder name="Shortcuts">
-        <file name="CS-S.instance">
-            <attr name="instanceClass" stringvalue="org.netbeans.modules.tool.actions.SaveAsSystemAction"/>
+        <file name="CS-S.shadow">
+            <attr name="originalFile" stringvalue="Actions/File/org-netbeans-modules-tool-actions-SaveAsAction.instance"/>
         </file>
         <file name="C-A.instance">
             <attr name="instanceClass" stringvalue="org.netbeans.modules.tool.actions.SelectAllSystemAction"/>
@@ -93,7 +125,7 @@ Software is Nokia. Portions Copyright 2005 Nokia.
                         <folder name="tool">
                             <!--allows to create .settings file from memory via InstanceDataObject.create-->
                             <file name="AbstractTool">
-                                <attr name="settings.providerPath" stringvalue="xml/lookups/NetBeans_org_netbeans_modules_tool/DTD_Tool_1_0.instance" />
+                                <attr name="settings.providerPath" stringvalue="xml/lookups/NetBeans_org_netbeans_modules_tool/DTD_Tool_1_0.instance"/>
                             </file>
                         </folder> <!--tool-->
                     </folder> <!--modules-->

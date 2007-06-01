@@ -37,7 +37,9 @@ import javax.swing.JMenuItem;
 
 import org.netbeans.api.bookmarks.Bookmark;
 import org.netbeans.spi.convertor.SimplyConvertible;
+import org.openide.DialogDisplayer;
 import org.openide.ErrorManager;
+import org.openide.NotifyDescriptor;
 import org.openide.util.Lookup;
 import org.openide.util.NbBundle;
 import org.openide.windows.Mode;
@@ -117,17 +119,16 @@ public class ToolBookmark
      *
      * @param tool The tool that shall be bookmarked.
      */
-    public ToolBookmark( AbstractTool tool )
+    public ToolBookmark(AbstractTool tool, String name)
     {
         this(  );
 
-        myName = tool.getDisplayName(  );
-        if( myName == null )
-        {
-            myName = tool.getName(  );
-        }
+        myName = name;
         
-        myIcon = new ImageIcon( tool.getIcon(  ) );
+        Image toolIcon = tool.getIcon();
+        if (toolIcon != null) {
+            myIcon = new ImageIcon( toolIcon );
+        }
         
         if( tool.isSingleton( ) )
         {
@@ -181,7 +182,9 @@ public class ToolBookmark
             myName = settings.getProperty( NAME );
 
             String icon = settings.getProperty( ICON );
-            myIcon = stringToIcon( icon );
+            if (icon != null) {
+                myIcon = stringToIcon( icon );
+            }
 
             myTopComponentId = settings.getProperty( TC_ID );
             if( myTopComponentId == null )
@@ -221,8 +224,10 @@ public class ToolBookmark
 
         settings.setProperty( NAME, myName );
 
-        String icon = iconToString( myIcon );
-        settings.setProperty( ICON, icon );
+        if (myIcon != null) {
+            String icon = iconToString( myIcon );
+            settings.setProperty( ICON, icon );
+        }
 
         if( myTopComponentId != null )
         {
@@ -251,7 +256,14 @@ public class ToolBookmark
     {
         if( myMenuItem == null )
         {
-            myMenuItem = new JMenuItem( myName );
+            // Mantis 242
+            String mName = myName;
+            if ((mName != null) && (mName.length() > 50)) {
+                mName = mName.substring(0, 49);
+            }
+            // ----------
+            
+            myMenuItem = new JMenuItem( mName );
             myMenuItem.addActionListener( this );
 
             if( myIcon != null )
@@ -532,7 +544,28 @@ public class ToolBookmark
         return icon;
     }
 
-
+    /**
+     * @returns name or null if the action should be cancelled.
+     */
+    static String askUserAboutNewBookmarkName(String name) {
+        
+        NotifyDescriptor.InputLine nd = new NotifyDescriptor.InputLine(
+                NbBundle.getBundle(ToolBookmark.class).getString("CTL_NewBookmarkName"),
+                NbBundle.getBundle(ToolBookmark.class).getString("CTL_CreateBookmark"),
+                NotifyDescriptor.OK_CANCEL_OPTION,
+                NotifyDescriptor.QUESTION_MESSAGE
+        );
+        nd.setInputText(name);
+        DialogDisplayer dd = DialogDisplayer.getDefault();
+        Object ok = dd.notify(nd);
+        if (ok == NotifyDescriptor.OK_OPTION) {
+            return nd.getInputText();
+        }
+        
+        // if the dialog was cancelled null means cancel the bookmark creation
+        return null;
+    }
+    
     /**
      * Just delegate the call to the PropertyChangeSupport.
      */

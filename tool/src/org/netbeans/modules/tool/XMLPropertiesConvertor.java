@@ -262,7 +262,8 @@ public final class XMLPropertiesConvertor extends Convertor implements PropertyC
             w.write("<property name=\""); //$NON-NLS-1$
             w.write(key);
             w.write("\" value=\""); //$NON-NLS-1$
-            w.write(p.getProperty(key));
+            String val = p.getProperty(key);
+            w.write(escapeXmlContent(val));
             w.write("\"/>\n"); //$NON-NLS-1$
         }
     }
@@ -287,6 +288,26 @@ public final class XMLPropertiesConvertor extends Convertor implements PropertyC
                 new IOException(t.getLocalizedMessage()), t);
         }
     }
+    
+    /** 
+     * Mantis 184 - handle chars like & and ' in names of tools
+     */
+    private static String escapeXmlContent (String text) {
+        if (text.indexOf('&') != -1 ||
+            text.indexOf('\'') != -1 ||
+            text.indexOf('<') != -1 ||
+            text.indexOf('>') != -1 ||
+            text.indexOf('\"') != -1    
+                ) {
+            text = text.replaceAll("&", "&amp;");
+            text = text.replaceAll("'", "&apos;");
+            text = text.replaceAll("\"", "&quot;");
+            text = text.replaceAll("<", "&lt;");
+            text = text.replaceAll(">", "&gt;");
+        }
+        return text;
+    }
+
     
     /** support for reading xml/properties format */
     private static class Reader extends org.xml.sax.helpers.DefaultHandler implements org.xml.sax.ext.LexicalHandler {

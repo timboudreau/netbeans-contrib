@@ -161,6 +161,10 @@ public class ExitDialog extends JPanel implements java.awt.event.ActionListener 
                     }
                 }
             }
+            SaveCookie sc = (SaveCookie)toc.getLookup().lookup(SaveCookie.class);
+            if (sc != null) {
+                sc.save();
+            }
             listModel.removeElement(toc);
         } catch (java.io.IOException exc) {
             ErrorManager em = ErrorManager.getDefault();
@@ -198,6 +202,10 @@ public class ExitDialog extends JPanel implements java.awt.event.ActionListener 
                         break;
                     }
                 }
+            }
+            SaveCookie sc = (SaveCookie)toc.getLookup().lookup(SaveCookie.class);
+            if (sc != null) {
+                set.add(toc);
             }
         }
         return set;
@@ -284,7 +292,11 @@ public class ExitDialog extends JPanel implements java.awt.event.ActionListener 
         {
             final TopComponent toc = (TopComponent)value;
             super.setIcon(new ImageIcon(toc.getIcon()));
-            setText(toc.getDisplayName());
+            String s = toc.getDisplayName();
+            if ((s == null) || (s.length() == 0)) {
+                s = toc.getName();
+            }
+            setText(s);
             if (isSelected){
                 this.setBackground(UIManager.getColor("List.selectionBackground")); // NOI18N
                 this.setForeground(UIManager.getColor("List.selectionForeground")); // NOI18N

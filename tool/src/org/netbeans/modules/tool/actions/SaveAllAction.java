@@ -57,6 +57,8 @@ public class SaveAllAction extends CallableSystemAction {
             TopComponent tc = (TopComponent)it.next();
             save(tc);
         }
+        s = ExitDialog.getModifiedTCSet();
+        setEnabled(!s.isEmpty());
     }
     
     public String getName() {

@@ -514,7 +514,19 @@ public abstract class AbstractTool
      */
     public Bookmark createBookmark(  )
     {
-        ToolBookmark tb = new ToolBookmark( this );
+        
+        String name = getDisplayName(  );
+        if( name == null )
+        {
+            name = getName(  );
+        }
+
+        name = ToolBookmark.askUserAboutNewBookmarkName(name);
+        if (name == null) {
+            return null;
+        }
+        
+        ToolBookmark tb = new ToolBookmark( this, name );
 
         return tb;
     }
@@ -616,7 +628,7 @@ public abstract class AbstractTool
         if ( isSingleton() == false )
         {
         
-            Point topLeft = null;
+            Point topLeft = new Point(10000,10000);
             int topArea = 0;
             Set openTools = WindowManager.getDefault( ).getRegistry( ).getOpened( );
             Iterator tools = openTools.iterator( );
@@ -628,8 +640,7 @@ public abstract class AbstractTool
                 {
                     WindowManager manager = WindowManager.getDefault( );
                     Mode wsMode = manager.findMode( tool );
-                    if( wsMode.getSelectedTopComponent( ) != null )
-                    {
+                    if ((wsMode != null) && (wsMode.getSelectedTopComponent( ) != null)) {
                         //
                         // After restart, only the visible TC
                         // has correct bounds
@@ -642,10 +653,12 @@ public abstract class AbstractTool
                     Frame mainWindow = manager.getMainWindow( );
                     location = SwingUtilities.convertPoint( tool, location, mainWindow );
                 
-                    if( area > topArea ||
-                        ( area == topArea &&
-                          ( topLeft.y > location.y || 
-                            topLeft.y == location.y && topLeft.x > location.x ) ) )
+                    if ( (area > topArea) ||
+                         ( (area == topArea) && 
+                           (topLeft.y > location.y) || 
+                           ( (topLeft.y == location.y) && 
+                             (topLeft.x > location.x)
+                       ) ) )
                     {
                         topArea = area;
                         topLeft = location;
