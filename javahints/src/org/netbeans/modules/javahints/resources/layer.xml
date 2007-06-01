@@ -22,7 +22,12 @@ Microsystems, Inc. All Rights Reserved.
     
     <folder name="Actions">
         <folder name="Refactoring">
-            <file name="org-netbeans-modules-javahints-IntroduceAction.instance"/>
+            <file name="org-netbeans-modules-javahints-IntroduceVariableAction.instance">
+                <attr name="instanceCreate" methodvalue="org.netbeans.modules.javahints.IntroduceAction.createVariable" />
+            </file>
+            <file name="org-netbeans-modules-javahints-IntroduceConstantAction.instance">
+                <attr name="instanceCreate" methodvalue="org.netbeans.modules.javahints.IntroduceAction.createConstant" />
+            </file>
         </folder>
     </folder>
     <folder name="Menu">
@@ -31,11 +36,15 @@ Microsystems, Inc. All Rights Reserved.
             <file name="org-netbeans-modules-javahints-separatorBefore.instance">
                 <attr name="instanceClass" stringvalue="javax.swing.JSeparator"/>
             </file>
-            <attr name="org-netbeans-modules-javahints-separatorBefore.instance/org-netbeans-modules-javahints-IntroduceAction.shadow" boolvalue="true"/>
-            <file name="org-netbeans-modules-javahints-IntroduceAction.shadow">
-                <attr name="originalFile" stringvalue="Actions/Refactoring/org-netbeans-modules-javahints-IntroduceAction.instance"/>
+            <attr name="org-netbeans-modules-javahints-separatorBefore.instance/org-netbeans-modules-javahints-IntroduceVariableAction.shadow" boolvalue="true"/>
+            <file name="org-netbeans-modules-javahints-IntroduceVariableAction.shadow">
+                <attr name="originalFile" stringvalue="Actions/Refactoring/org-netbeans-modules-javahints-IntroduceVariableAction.instance"/>
             </file>
-            <attr name="org-netbeans-modules-javahints-IntroduceAction.shadow/UndoSeparator.instance" boolvalue="true"/>
+            <attr name="org-netbeans-modules-javahints-IntroduceVariableAction.shadow/org-netbeans-modules-javahints-IntroduceConstantAction.shadow" boolvalue="true"/>
+            <file name="org-netbeans-modules-javahints-IntroduceConstantAction.shadow">
+                <attr name="originalFile" stringvalue="Actions/Refactoring/org-netbeans-modules-javahints-IntroduceConstantAction.instance"/>
+            </file>
+            <attr name="org-netbeans-modules-javahints-IntroduceConstantAction.shadow/UndoSeparator.instance" boolvalue="true"/>
         </folder>
     </folder>
     <folder name="org-netbeans-modules-java-hints">
