@@ -18,12 +18,16 @@
  */
 package org.netbeans.modules.eview;
 
+import java.awt.KeyboardFocusManager;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.util.HashSet;
+import java.util.Set;
 import javax.swing.InputVerifier;
 import javax.swing.JComponent;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
+import javax.swing.KeyStroke;
 import javax.swing.event.DocumentListener;
 import org.netbeans.api.eview.ControlFactory;
 import org.openide.filesystems.FileObject;
@@ -93,9 +97,22 @@ public class TextAreaControlFactory implements ControlFactory {
             result.setText(initValue);
         }
         result.setRows(numberOfLines+1);
+ 
+        Set set = new HashSet(result.getFocusTraversalKeys(
+            KeyboardFocusManager.FORWARD_TRAVERSAL_KEYS ) );
+        set.add(KeyStroke.getKeyStroke("TAB"));
+        result.setFocusTraversalKeys(
+            KeyboardFocusManager.FORWARD_TRAVERSAL_KEYS, set);
+ 
+        set = new HashSet(result.getFocusTraversalKeys(
+            KeyboardFocusManager.BACKWARD_TRAVERSAL_KEYS));
+        set.add( KeyStroke.getKeyStroke("shift TAB"));
+        result.setFocusTraversalKeys(
+            KeyboardFocusManager.BACKWARD_TRAVERSAL_KEYS, set);
         JScrollPane jsp = new JScrollPane();
         jsp.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
         jsp.setViewportView(result);
+        jsp.getVerticalScrollBar().setFocusable(false);
         return jsp;
     }
 

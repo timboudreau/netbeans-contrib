@@ -102,10 +102,9 @@ public class TextFieldControlFactory implements ControlFactory {
     public void setValue(JComponent c, Object value) {
         if (c instanceof JTextField) {
             JTextField jtf = (JTextField)c;
-            if (value == null) {
-                value = "null"; // NOI18N
+            if (value != null) {
+                jtf.setText(value.toString());
             }
-            jtf.setText(value.toString());
         }
     }
     

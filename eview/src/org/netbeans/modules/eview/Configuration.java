@@ -33,7 +33,7 @@ import org.netbeans.api.registry.ContextListener;
 import org.netbeans.api.registry.SubcontextEvent;
 import org.openide.ErrorManager;
 import org.openide.filesystems.FileObject;
-importorg.openide.filesystems.Repository;
+import org.openide.filesystems.Repository;
 import org.openide.util.WeakListeners;
 
 /**

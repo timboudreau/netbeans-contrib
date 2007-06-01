@@ -19,8 +19,11 @@
 package org.netbeans.modules.eview;
 
 import java.awt.Color;
+import java.awt.Component;
+import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
+import java.awt.FocusTraversalPolicy;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
@@ -35,11 +38,13 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Logger;
 import javax.swing.BorderFactory;
-importjavax.swing.JButton;
+import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.Scrollable;
 import javax.swing.SwingUtilities;
@@ -62,6 +67,8 @@ public class EViewPanel extends JPanel implements Scrollable {
 //    }
     private static ErrorManager log = ErrorManager.getDefault().getInstance(EViewPanel.class.getName());
     private static boolean LOGGABLE = log.isLoggable(ErrorManager.INFORMATIONAL);
+    /** Private logger. */
+    private Logger logger;
     
     //~ Static fields/initializers ---------------------------------------------
     
@@ -82,6 +89,11 @@ public class EViewPanel extends JPanel implements Scrollable {
     private PanelDataImpl myPanelData;
     
     private ControlListener controlListener;
+    private Map/*<Component, Component>*/ nextFocusableComponent = new HashMap();
+    private Map/*<Component, Component>*/ previousFocusableComponent = new HashMap();
+    private JComponent firstComp = null;
+    private JComponent lastComp = null;
+    private List/*<Component>*/ toggleButtons = new ArrayList();
     
     //~ Constructors -----------------------------------------------------------
     
@@ -99,6 +111,76 @@ public class EViewPanel extends JPanel implements Scrollable {
         initComponents();
         // after the start the user did not have a chance to modify anything (yet):
         clearModified();
+        setFocusCycleRoot(true);
+        setFocusable(true);
+        setFocusTraversalPolicy(new FocusTraversalPolicy() {
+            public Component getComponentAfter(Container focusCycleRoot, Component aComponent) {
+                Component res = (Component)nextFocusableComponent.get(aComponent);
+                while ((res != null) && (!res.isShowing() || !res.isFocusable())) {
+                    res = (Component)nextFocusableComponent.get(res);
+                }
+                if (res == null) {
+                    if (toggleButtons.contains(aComponent)) {
+                        int index = toggleButtons.indexOf(aComponent);
+                        index++;
+                        if (index >= toggleButtons.size()) {
+                            return getDefaultComponent(focusCycleRoot);
+                        }
+                        res = (Component)toggleButtons.get(index);
+                    } else {
+                        res = (Component)toggleButtons.get(0);
+                    }
+                }
+                return res;
+            }
+
+            public Component getComponentBefore(Container focusCycleRoot, Component aComponent) {
+                Component res = (Component)previousFocusableComponent.get(aComponent);
+                while ((res != null) && (!res.isShowing()|| !res.isFocusable())) {
+                    res = (Component)previousFocusableComponent.get(res);
+                }
+                if (res == null) {
+                    if (toggleButtons.contains(aComponent)) {
+                        int index = toggleButtons.indexOf(aComponent);
+                        index--;
+                        if (index < 0) {
+                            return getLastComponent(focusCycleRoot);
+                        }
+                        res = (Component)toggleButtons.get(index);
+                    } else {
+                        res = (Component)toggleButtons.get(toggleButtons.size()-1);
+                    }
+                }
+                return res;
+            }
+
+            public Component getFirstComponent(Container focusCycleRoot) {
+                return (Component)toggleButtons.get(0);
+            }
+
+            public Component getLastComponent(Container focusCycleRoot) {
+                Component res = lastComp;
+                while ((res != null) && (!res.isShowing()|| !res.isFocusable())) {
+                    res = (Component)previousFocusableComponent.get(res);
+                }
+                if (res == null) {
+                    res = (Component)toggleButtons.get(toggleButtons.size()-1);
+                }
+                return res;
+            }
+
+            public Component getDefaultComponent(Container focusCycleRoot) {
+                Component res = firstComp;
+                while ((res != null) && (!res.isShowing() || !res.isFocusable())) {
+                    res = (Component)nextFocusableComponent.get(res);
+                }
+                if (res == null) {
+                    res = (Component)toggleButtons.get(0);
+                }
+                return res;
+            }
+            
+        });
     }
     
     //~ Methods ----------------------------------------------------------------
@@ -137,10 +219,10 @@ public class EViewPanel extends JPanel implements Scrollable {
         
         setLayout(new GridBagLayout());
         putClientProperty("foregroundArea",Boolean.TRUE);
-        
         lineCounter = 0;
         Configuration c = Configuration.getInstance(location);
         Configuration.ContainerEntry cc = c.getConfig();
+        JComponent previousComp = null;
         putClientProperty("displayName", cc.displayName);
         if (LOGGABLE) log.log("EViewPanel.initComponents() cc = " + cc);
         for (Iterator it = cc.entries.iterator(); it.hasNext(); ) {
@@ -152,6 +234,8 @@ public class EViewPanel extends JPanel implements Scrollable {
                 Configuration.ContainerEntry ic = (Configuration.ContainerEntry)o;
                 dName = ic.displayName;
                 jp = new JPanel();
+                jp.setFocusable(true);
+                jp.setFocusCycleRoot(true);
                 ArrayList currentPanelKeys = new ArrayList();
                 jp.putClientProperty("keys", currentPanelKeys);
                 jp.putClientProperty("labelFormat", ic.labelFormat);
@@ -195,6 +279,28 @@ public class EViewPanel extends JPanel implements Scrollable {
                             }
                             //comp.setBorder(new LineBorder(Color.GREEN));
                             if (LOGGABLE) log.log("Adding control "+comp+" to (" + j + "," + i + ")");
+                            // fix for GridBagLayout resizing bug - this is a hack:
+                            Dimension prefSize = comp.getPreferredSize();
+                            int prefWidth = 1000;
+                            int prefHeight = (int)prefSize.getHeight();
+                            if (comp instanceof JScrollPane) {
+                                // special hack inside hack for JScrollPanes
+                                JScrollPane jsp = (JScrollPane)comp;
+                                prefHeight = jsp.getViewport().getView().getPreferredSize().height;
+                            }
+                            comp.setPreferredSize(new Dimension(prefWidth, prefHeight));
+                            // ------
+                            // fix for tab navigating:
+                            if (firstComp == null) {
+                                firstComp = comp;
+                            }
+                            lastComp = comp;
+                            if (previousComp != null) {
+                                nextFocusableComponent.put(previousComp, comp);
+                                previousFocusableComponent.put(comp, previousComp);
+                            }
+                            previousComp = comp;
+                            // -------
                             jp.add(comp, getControlConstraints(j, i));
                             currentPanelKeys.add(cce.id);
                             controls.put(cce.id, cce.control);
@@ -257,7 +363,6 @@ public class EViewPanel extends JPanel implements Scrollable {
         return gridBagConstraints;
     }
     
-    
     /**
      * Adds a panel and an expandable handle.
      */
@@ -266,16 +371,16 @@ public class EViewPanel extends JPanel implements Scrollable {
 //        button.setToolTipText(
 //            NbBundle.getBundle(TTDetails.class).getString(key+"_tooltip"));
         addLine(lineCounter+=2, button, key, panel, key);
-        
         button.setHideablePanel(panel);
         button.setPanelVisible(visible);
+        toggleButtons.add(button);
     }
     
     /**
      * Adds a panel and an expandable handle.
      */
     private void addHideablePanel(JComponent panel, String key) {
-        addHideablePanel(panel, key, false);
+        addHideablePanel(panel, key, true);
     }
     
     /**
@@ -525,13 +630,12 @@ public class EViewPanel extends JPanel implements Scrollable {
             JComponent comp = (JComponent)components.get(key);
             Object data = control.getValue(comp);
             Object rememberedData = rememberedValues.get(key);
-            if (data == null) {
-                return rememberedData != null;
-            }
             if (! Utilities.compareObjects(data, rememberedData)) {
+                log("EViewPanel isModified returning true \ndata == " + data + "\n rememberedData == " + rememberedData);
                 return true;
             }
-        }       
+        }
+        log("EViewPanel isModified returning false");
         return false;
     }
     
@@ -547,5 +651,13 @@ public class EViewPanel extends JPanel implements Scrollable {
             myPanelData.setModified(true);
             updateDescriptions();
         }
+    }
+    
+    /** Local logger */
+    private void log(String s) {
+        if (logger == null) {
+            logger = Logger.getLogger(getClass().getName());
+        }
+        logger.finest(s);
     }
 }
