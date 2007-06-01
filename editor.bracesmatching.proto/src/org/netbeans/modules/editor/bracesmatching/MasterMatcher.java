@@ -54,12 +54,12 @@ public final class MasterMatcher {
     private static final Logger LOG = Logger.getLogger(MasterMatcher.class.getName());
     
     public static final String PROP_SEARCH_DIRECTION = "nbeditor-bracesMatching-searchDirection"; //NOI18N
-    public static final String D_BACKWARD = "backward"; //NOI18N
-    public static final String D_FORWARD = "forward"; //NOI18N
+    public static final String D_BACKWARD = "backward-preferred"; //NOI18N
+    public static final String D_FORWARD = "forward-preferred"; //NOI18N
 
     public static final String PROP_CARET_BIAS = "nbeditor-bracesMatching-caretBias"; //NOI18N
-    public static final String B_BACKWARD = "backward-preferred"; //NOI18N
-    public static final String B_FORWARD = "forward-preferred"; //NOI18N
+    public static final String B_BACKWARD = "backward"; //NOI18N
+    public static final String B_FORWARD = "forward"; //NOI18N
     
     public static final String PROP_MAX_BACKWARD_LOOKAHEAD = "nbeditor-bracesMatching-maxBackwardLookahead"; //NOI18N
     public static final String PROP_MAX_FORWARD_LOOKAHEAD = "nbeditor-bracesMatching-maxForwardLookahead"; //NOI18N
@@ -324,7 +324,7 @@ public final class MasterMatcher {
 
         return MimeLookup.getLookup(mimePath).lookupAll(BracesMatcherFactory.class);
     }
-    
+        
     private final class Result implements Runnable {
 
         private final Document document;
