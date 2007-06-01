@@ -115,7 +115,7 @@ public class NewEJBFreeformProjectWizardIterator implements WizardDescriptor.Ins
                     org.netbeans.modules.j2ee.api.ejbjar.EjbJar ejbModule = org.netbeans.modules.j2ee.api.ejbjar.EjbJar.getEjbJars(p)[0];
                     if (ejbModule != null) {
                         FileObject ejbJarFile = ejbModule.getDeploymentDescriptor();
-                        EjbJar dd = DDProvider.getDefault().getMergedDDRoot(ejbModule.getMetadataUnit());
+                        EjbJar dd = DDProvider.getDefault().getDDRoot(ejbJarFile);
                         // #82897: putEJBNodeView() is called here because Enterprise Beans
                         // node is supposed to be shown only for non EJB 3.0 projects
                         if (!new BigDecimal(EjbJar.VERSION_3_0).equals(dd.getVersion())) {

@@ -28,10 +28,11 @@ import org.netbeans.api.project.Project;
 import org.netbeans.modules.j2ee.dd.api.common.RootInterface;
 import org.netbeans.modules.j2ee.dd.api.ejb.EjbJar;
 import org.netbeans.modules.j2ee.dd.api.ejb.DDProvider;
+import org.netbeans.modules.j2ee.dd.api.ejb.EjbJarMetadata;
 import org.netbeans.modules.j2ee.dd.api.webservices.Webservices;
 import org.netbeans.modules.j2ee.deployment.devmodules.api.J2eeModule;
 import org.netbeans.modules.j2ee.deployment.devmodules.spi.J2eeModuleImplementation;
-import org.netbeans.modules.schema2beans.BaseBean;
+import org.netbeans.modules.j2ee.metadata.model.api.MetadataModel;
 import org.netbeans.spi.project.support.ant.AntProjectHelper;
 import org.netbeans.spi.project.support.ant.PropertyEvaluator;
 import org.openide.DialogDisplayer;
@@ -39,6 +40,7 @@ import org.openide.NotifyDescriptor;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
 import org.openide.util.NbBundle;
+import org.openide.util.NotImplementedException;
 import org.openide.util.WeakListeners;
 
 /**
@@ -72,14 +74,28 @@ public class EJBFreeformModule implements J2eeModuleImplementation, PropertyChan
     
     public void setUrl(String url) {
     }
-    
-    public RootInterface getDeploymentDescriptor(String location) {
-        if (J2eeModule.EJBJAR_XML.equals(location)){
-            return getEjbJar();
-        } else if(J2eeModule.EJBSERVICES_XML.equals(location)){
-            return getWebservices();
+  
+// TODO MetadataModel: rewrite when MetadataModel is ready
+//    public RootInterface getDeploymentDescriptor(String location) {
+//        if (J2eeModule.EJBJAR_XML.equals(location)){
+//            return getEjbJar();
+//        } else if(J2eeModule.EJBSERVICES_XML.equals(location)){
+//            return getWebservices();
+//        }
+//        return null;
+//    }
+//    
+    public <T> MetadataModel<T> getDeploymentDescriptor(Class<T> type) {
+        if (type == EjbJarMetadata.class) {
+//            return (MetadataModel<T>) project.getAPIEjbJar().getMetadataModel();
+            throw new NotImplementedException();
+        } else {
+        // TODO MetadataModel: rewrite when MetadataModel<WebservicesMode> is ready
+        // } else if (type == WebservicesMetadata.class) {
+        //     return getWebservices();
+            throw new NotImplementedException();
         }
-        return null;
+//        return null;
     }
     
     public String getUrl() {
@@ -87,8 +103,10 @@ public class EJBFreeformModule implements J2eeModuleImplementation, PropertyChan
     }
     
     public String getModuleVersion() {
-        EjbJar ejbJar = getEjbJar();
-        return ejbJar.getVersion().toString();
+        // TODO MetadataModel: rewrite when MetadataModel is ready
+//        EjbJar ejbJar = getEjbJar();
+//        return ejbJar.getVersion().toString();
+        throw new NotImplementedException();
     }
     
     public Object getModuleType() {
@@ -109,27 +127,28 @@ public class EJBFreeformModule implements J2eeModuleImplementation, PropertyChan
     
     // private methods
     
-    private EjbJar getEjbJar() {
-        try {
-            return DDProvider.getDefault().getMergedDDRoot(getEjbModule().getMetadataUnit());
-        } catch (java.io.IOException e) {
-            org.openide.ErrorManager.getDefault().log(e.getLocalizedMessage());
-        }
-        return null;
-    }
-    
-    private Webservices getWebservices() {
-        FileObject wsdd = getDD();
-        if(wsdd != null) {
-            try {
-                return org.netbeans.modules.j2ee.dd.api.webservices.DDProvider.getDefault().getDDRoot(getDD());
-            } catch (java.io.IOException e) {
-                org.openide.ErrorManager.getDefault().log(e.getLocalizedMessage());
-            }
-        }
-        
-        return null;
-    }
+// TODO MetadataModel: rewrite when MetadataModel is ready
+//    private EjbJar getEjbJar() {
+//        try {
+//            return DDProvider.getDefault().getDDRoot(getEjbModule().getDeploymentDescriptor());
+//        } catch (java.io.IOException e) {
+//            org.openide.ErrorManager.getDefault().log(e.getLocalizedMessage());
+//        }
+//        return null;
+//    }
+//    
+//    private Webservices getWebservices() {
+//        FileObject wsdd = getDD();
+//        if(wsdd != null) {
+//            try {
+//                return org.netbeans.modules.j2ee.dd.api.webservices.DDProvider.getDefault().getDDRoot(getDD());
+//            } catch (java.io.IOException e) {
+//                org.openide.ErrorManager.getDefault().log(e.getLocalizedMessage());
+//            }
+//        }
+//        
+//        return null;
+//    }
     
     public FileObject getDD() {
         FileObject metaInfFo = getEjbModule().getMetaInf();
@@ -171,14 +190,15 @@ public class EJBFreeformModule implements J2eeModuleImplementation, PropertyChan
     }
     
     private PropertyChangeSupport getPropertyChangeSupport() {
-        EjbJar ejbJar = getEjbJar();
+// TODO MetadataModel: rewrite when MetadataModel is ready
+//        EjbJar ejbJar = getEjbJar();
         synchronized (this) {
             if (propertyChangeSupport == null) {
                 propertyChangeSupport = new PropertyChangeSupport(this);
-                if (ejbJar != null) {
-                    PropertyChangeListener l = (PropertyChangeListener) WeakListeners.create(PropertyChangeListener.class, this, ejbJar);
-                    ejbJar.addPropertyChangeListener(l);
-                }
+//                if (ejbJar != null) {
+//                    PropertyChangeListener l = (PropertyChangeListener) WeakListeners.create(PropertyChangeListener.class, this, ejbJar);
+//                    ejbJar.addPropertyChangeListener(l);
+//                }
             }
             return propertyChangeSupport;
         }

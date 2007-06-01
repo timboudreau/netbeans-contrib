@@ -30,6 +30,7 @@ import java.util.List;
 import java.util.Set;
 import org.netbeans.modules.j2ee.api.ejbjar.EjbJar;
 import org.netbeans.modules.j2ee.metadata.MetadataUnit;
+import org.netbeans.modules.j2ee.metadata.model.api.MetadataModel;
 import org.netbeans.modules.j2ee.spi.ejbjar.EjbJarFactory;
 import org.netbeans.modules.j2ee.spi.ejbjar.EjbJarImplementation;
 import org.netbeans.modules.j2ee.spi.ejbjar.EjbJarProvider;
@@ -291,8 +292,6 @@ public class EJBModules implements EjbJarProvider, EjbJarsInProject, AntProjectL
         private FileObject [] sourcesFOs;
         private ClassPath classPath;
         private String j2eeSpec;
-        private MetadataUnit metadataUnit;
-        private ClassPath metadataClassPath;
         private File[] j2eePlatformClasspath;
 //        private String contextPath;
         
@@ -355,21 +354,11 @@ public class EJBModules implements EjbJarProvider, EjbJarsInProject, AntProjectL
         }
 
         public MetadataUnit getMetadataUnit() {
-            synchronized (this) {
-                if (metadataUnit == null) {
-                    metadataUnit = new MetadataUnitImpl();
-                }
-                return metadataUnit;
-            }
+            return null;
         }
         
-        private class MetadataUnitImpl implements MetadataUnit {
-            public ClassPath getClassPath() {
-                return classPath;
-            }
-            public FileObject getDeploymentDescriptor() {
-                return FFEJBModule.this.getDeploymentDescriptor();
-            }
+        public MetadataModel getMetadataModel() {
+            throw new UnsupportedOperationException("Not supported yet.");
         }
 
     }

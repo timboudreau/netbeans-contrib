@@ -19,23 +19,19 @@
 
 package org.netbeans.modules.j2ee.ejbfreeform;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import org.netbeans.api.java.classpath.ClassPath;
 import org.netbeans.api.project.Project;
 import org.netbeans.modules.ant.freeform.spi.ProjectNature;
 import org.netbeans.modules.ant.freeform.spi.TargetDescriptor;
 import org.netbeans.modules.j2ee.api.ejbjar.EjbJar;
-import org.netbeans.modules.j2ee.dd.api.ejb.DDProvider;
 import org.netbeans.modules.j2ee.spi.ejbjar.support.J2eeProjectView;
 import org.netbeans.spi.project.AuxiliaryConfiguration;
 import org.netbeans.spi.project.support.ant.AntProjectHelper;
 import org.netbeans.spi.project.support.ant.PropertyEvaluator;
-import org.openide.ErrorManager;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
 import org.openide.loaders.DataObject;
@@ -92,15 +88,7 @@ public class EJBProjectNature implements ProjectNature {
         } else if (style.equals(STYLE_EJBS)) {
             EjbJar ejbJar = EjbJar.getEjbJar(folder);
             assert ejbJar != null;
-            FileObject ddFile = ejbJar.getDeploymentDescriptor();
-            org.netbeans.modules.j2ee.dd.api.ejb.EjbJar model;
-            try {
-                model = DDProvider.getDefault().getMergedDDRoot(ejbJar.getMetadataUnit());
-                ClassPath cp = org.netbeans.spi.java.classpath.support.ClassPathSupport.createClassPath(ejbJar.getJavaSources());
-                return J2eeProjectView.createEjbsView(model, cp, ddFile, project);
-            } catch (IOException ex) {
-                ErrorManager.getDefault().notify(ex);
-            }
+            return J2eeProjectView.createEjbsView(ejbJar, project);
         }
         throw new IllegalArgumentException();
     }
