@@ -237,4 +237,8 @@ public class ManageBookmarksTool extends TopComponent implements ExplorerManager
     public Bookmark createBookmark() {
         return new ManageBookmarksBookmarkImpl();
     }
+
+    protected String preferredID() {
+        return "ManageBookmarksTool"; // NOI18N
+    }
 }

@@ -27,8 +27,10 @@ import java.util.*;
 import javax.swing.Action;
 import javax.swing.Icon;
 import javax.swing.SwingUtilities;
+import org.openide.DialogDisplayer;
 
 import org.openide.ErrorManager;
+import org.openide.NotifyDescriptor;
 import org.openide.nodes.*;
 import org.openide.util.NbBundle;
 import org.openide.util.lookup.*;
@@ -48,6 +50,9 @@ import org.openide.windows.WindowManager;
  * @author David Strupl
  */
 public class BookmarksFolderNode extends AbstractNode {
+    
+    /** Let's cache it.*/
+    private static ErrorManager em = ErrorManager.getDefault().getInstance("org.netbeans.modules.bookmarks");
     
     /** Should be either Context or Bookmark*/
     private Context context;
@@ -174,8 +179,7 @@ public class BookmarksFolderNode extends AbstractNode {
     }
     
     /**
-     * Since contexts do not support renaming, change of the name
-     * is implemented as a move operation on the whole context.
+     * Display name is an attribute of the context.
      */
     public void setName(final String newName) {
         final String oldName = getName();
@@ -185,20 +189,7 @@ public class BookmarksFolderNode extends AbstractNode {
         RequestProcessor.getDefault().post(new Runnable() {
             public void run() {
                 try {
-                    String newContextName = "Folder_" + newName.hashCode();
-                    Context parent = context.getParentContext();
-                    try {
-                        RegistryUtil.copy(context, parent, newContextName);
-                        destroy();
-                    } catch (ContextException x) {
-                        ErrorManager.getDefault().getInstance("org.netbeans.modules.bookmarks").notify(x);
-                    } catch (IOException ioe) {
-                        ErrorManager.getDefault().getInstance("org.netbeans.modules.bookmarks").notify(ioe);
-                    }
-                    Context newlyCreated = parent.getSubcontext(newContextName);
-                    if (newlyCreated != null) {
-                        newlyCreated.setAttribute(null, PROP_DISPLAY_NAME, newName);
-                    }
+                    context.setAttribute(null, PROP_DISPLAY_NAME, newName);
                 } finally {
                     SwingUtilities.invokeLater(new Runnable() {
                         public void run() {
@@ -231,13 +222,19 @@ public class BookmarksFolderNode extends AbstractNode {
                     while (childrenNames.contains(resName)) {
                         resName = baseName + "_" + i++ + "/"; // NOI18N
                     }
+                    String folderName = 
+                        NbBundle.getMessage(BookmarksNode.class, "LBL_NewFolder_Number", new Integer(i));
+                    folderName = askUserAboutNewFolderName(folderName);
+                    if (folderName == null) {
+                        // cancelled
+                        return;
+                    }
                     // create the folder with the found name
                     try {
                         Context c = context.createSubcontext(resName);
-                        c.setAttribute(null, PROP_DISPLAY_NAME, 
-                            NbBundle.getMessage(BookmarksNode.class, "LBL_NewFolder_Number", new Integer(i)));
+                        c.setAttribute(null, PROP_DISPLAY_NAME, folderName);
                     } catch (ContextException ce) {
-                        ErrorManager.getDefault().getInstance("org.netbeans.modules.bookmarks").notify(ce); // NOI18N
+                        em.notify(ce); // NOI18N
                     }
                     ArrayList al = new ArrayList(childrenNames);
                     al.add(resName);
@@ -245,6 +242,28 @@ public class BookmarksFolderNode extends AbstractNode {
                 }
             }
         };
+    }
+    
+    /**
+     * @returns name or null if the action should be cancelled.
+     */
+    static String askUserAboutNewFolderName(String name) {
+        
+        NotifyDescriptor.InputLine nd = new NotifyDescriptor.InputLine(
+                NbBundle.getBundle(BookmarksFolderNode.class).getString("CTL_NewBookmarkFolder"),
+                NbBundle.getBundle(BookmarksFolderNode.class).getString("CTL_CreateBookmarkFolder"),
+                NotifyDescriptor.OK_CANCEL_OPTION,
+                NotifyDescriptor.QUESTION_MESSAGE
+        );
+        nd.setInputText(name);
+        DialogDisplayer dd = DialogDisplayer.getDefault();
+        Object ok = dd.notify(nd);
+        if (ok == NotifyDescriptor.OK_OPTION) {
+            return nd.getInputText();
+        }
+        
+        // if the dialog was cancelled null means cancel the bookmark creation
+        return null;
     }
     
     /**
@@ -432,7 +451,7 @@ public class BookmarksFolderNode extends AbstractNode {
             // this method would be called to update the state of the children.
             // But it tries to access the list of children so it would either
             // loop or deadlock.
-            RequestProcessor.getDefault().post(this, 100);
+            RequestProcessor.getDefault().post(this, 300);
         }
 
         /**

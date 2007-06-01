@@ -53,7 +53,14 @@ public class BookmarksRootNode extends AbstractNode {
         };
     }
     
-    /**
+    /** Can this node be copied?
+     * @return <code>false</code>
+     */
+    public boolean canCopy() {
+        return false;
+    }
+    
+   /**
      * Help context with ID corresponding to this class.
      */
     public HelpCtx getHelpCtx() {
@@ -91,7 +98,11 @@ public class BookmarksRootNode extends AbstractNode {
     private static Node getBookmarksNode() {
         try {
             Context con = Context.getDefault().createSubcontext(BookmarkServiceImpl.BOOKMARKS_FOLDER);
-            return new BookmarksFolderNode(con, false);
+            return new BookmarksFolderNode(con, false) {
+                public boolean canCopy() {
+                    return false;
+                }
+            };
         } catch (ContextException ce) {
             ErrorManager.getDefault().getInstance("org.netbeans.modules.bookmarks").notify(ce);
         }

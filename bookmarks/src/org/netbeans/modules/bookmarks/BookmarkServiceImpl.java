@@ -21,6 +21,7 @@ package org.netbeans.modules.bookmarks;
 import java.awt.event.ActionEvent;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeEvent;
+import java.io.IOException;
 import java.io.Serializable;
 import java.lang.reflect.Method;
 import java.util.*;
@@ -30,6 +31,8 @@ import javax.swing.Action;
 import javax.swing.SwingUtilities;
 
 import org.openide.ErrorManager;
+import org.openide.filesystems.FileObject;
+import org.openide.filesystems.Repository;
 import org.openide.windows.TopComponent;
 import org.openide.windows.WindowManager;
 import org.openide.util.RequestProcessor;
@@ -128,6 +131,9 @@ public class BookmarkServiceImpl extends BookmarkService {
      * @see Bookmark
      */
     public void storeBookmark(Bookmark b) {
+        if (b == null) {
+            return;
+        }
         if (initTask != null) {
             initTask.waitFinished();
         }
@@ -167,14 +173,10 @@ public class BookmarkServiceImpl extends BookmarkService {
         if ( (bp == null) && (tc instanceof BookmarkProvider) ) {
             bp = (BookmarkProvider)tc;
         }
-        Bookmark b = null;
         if (bp != null) {
-            b = bp.createBookmark();
+            return bp.createBookmark();
         }
-        if (b == null) {
-            b = new BookmarkImpl(tc);
-        }
-        return b;
+        return new BookmarkImpl(tc);
     }
     
     /**
@@ -424,20 +426,13 @@ public class BookmarkServiceImpl extends BookmarkService {
      */
     static void refreshShortcutsFolder() {
         try {
-            Context c = Context.getDefault().createSubcontext(SHORTCUTS_FOLDER);
+            FileObject sfo = Repository.getDefault().getDefaultFileSystem().findResource(SHORTCUTS_FOLDER);
             // This is a hack! It forces the core's impl to refresh the list of shortcuts.
-            c.putObject("dummy", new DummyAction()); // NOI18N
+            FileObject dummy = sfo.createData("dummy");  // NOI18N
             // and delete it!
-            c.putObject("dummy", null);
-        } catch (ContextException ce)  {
-            ErrorManager.getDefault().getInstance("org.netbeans.modules.bookmarks").notify(ce); // NOI18N
-        }
-    }
-    
-    private static class DummyAction extends AbstractAction implements Serializable {
-        static final long serialVersionUID = 1L;
-
-        public void actionPerformed(ActionEvent e) {
+            dummy.delete();
+        } catch (IOException ioe)  {
+            ErrorManager.getDefault().getInstance("org.netbeans.modules.bookmarks").notify(ioe); // NOI18N
         }
     }
     

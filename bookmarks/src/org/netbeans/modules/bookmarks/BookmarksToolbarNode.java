@@ -86,6 +86,13 @@ public class BookmarksToolbarNode extends AbstractNode {
         return new HelpCtx(BookmarksToolbarNode.class);
     }
     
+    /** Can this node be copied?
+     * @return <code>false</code>
+     */
+    public boolean canCopy() {
+        return false;
+    }
+    
     /**
      * This node supports cloning simply by creating a new instance.
      */

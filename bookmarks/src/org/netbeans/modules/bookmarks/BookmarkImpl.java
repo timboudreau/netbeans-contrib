@@ -113,7 +113,13 @@ public class BookmarkImpl extends AbstractAction
         if (menuItem != null) {
             return menuItem;
         }
-        menuItem = new JMenuItem(getName());
+        // Mantis 242 
+        String mName = getName();
+        if ((mName != null) && (mName.length() > 50)) {
+            mName = mName.substring(0, 49);
+        }
+        // ----------
+        menuItem = new JMenuItem(mName);
         menuItem.addActionListener(new InvokeBookmarkListener());
         TopComponent tc = getTopComponent();
         if (tc != null) {

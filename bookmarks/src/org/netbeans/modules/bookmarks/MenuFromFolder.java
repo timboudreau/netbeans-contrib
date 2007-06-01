@@ -224,7 +224,7 @@ public class MenuFromFolder implements Runnable {
      */
     public void run() {
         refreshNeeded = true;
-        menu = getMenu();
+        getMenu();
     }
     
     /**
@@ -271,5 +271,8 @@ public class MenuFromFolder implements Runnable {
     private class MyMenu extends JMenu {
         public MyMenu() {}
         public MyMenu(String s) { super(s); }
+        public String toString() {
+            return "MyMenu: " + this.hashCode(); // NOI18N
+        }
     }
 }

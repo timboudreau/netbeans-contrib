@@ -21,11 +21,11 @@ Software is Nokia. Portions Copyright 2003 Nokia.
 
 <filesystem>
     <folder name="Menu">
-
         <attr boolvalue="true" name="Tools/BookmarksMenu.instance"/>
         <attr boolvalue="true" name="BookmarksMenu.instance/Window"/>
         <file name="BookmarksMenu.instance">
             <attr name="instanceClass" stringvalue="org.netbeans.modules.bookmarks.actions.BookmarksMenu"/>
+            <attr name="instanceCreate" methodvalue="org.netbeans.modules.bookmarks.actions.BookmarksMenu.getInstance"/>
         </file>
     </folder>
 

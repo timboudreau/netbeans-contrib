@@ -37,6 +37,9 @@ import org.netbeans.modules.bookmarks.*;
 */
 public class BookmarksMenu implements Presenter.Toolbar, HelpCtx.Provider {
     
+    private static BookmarksMenu instance = new BookmarksMenu();
+    private JMenu myToolbarPresenter = null;
+    
     /**
      * @returns localized name for the action
      */
@@ -58,6 +61,9 @@ public class BookmarksMenu implements Presenter.Toolbar, HelpCtx.Provider {
      * of this menu is created dynamically by MenuFromFolder.
      */
     public java.awt.Component getToolbarPresenter() {
+        if (myToolbarPresenter != null) {
+            return myToolbarPresenter;
+        }
         JMenuItem addBookmarkItem = new JMenuItem();
         Actions.connect(addBookmarkItem, new AddBookmarkAction(), false);
         JMenuItem manageBookmarkItem = new JMenuItem();
@@ -66,8 +72,15 @@ public class BookmarksMenu implements Presenter.Toolbar, HelpCtx.Provider {
             addBookmarkItem,
             manageBookmarkItem,
         };
-        JMenu jm = new MenuFromFolder(BookmarkServiceImpl.BOOKMARKS_FOLDER, fixed).getMenu();
-        Mnemonics.setLocalizedText(jm, getName());
-        return jm;
-    }    
+        myToolbarPresenter = new MenuFromFolder(BookmarkServiceImpl.BOOKMARKS_FOLDER, fixed).getMenu();
+        Mnemonics.setLocalizedText(myToolbarPresenter, getName());
+        return myToolbarPresenter;
+    }   
+
+    /** 
+     * To be called from the layer file.
+     */
+    public static BookmarksMenu getInstance() {
+        return instance;
+    }
 }
