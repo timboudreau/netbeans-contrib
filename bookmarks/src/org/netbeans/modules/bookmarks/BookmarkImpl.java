@@ -18,7 +18,6 @@
  */
 package org.netbeans.modules.bookmarks;
 
-import java.beans.PropertyChangeListener;
 import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -31,9 +30,6 @@ import javax.swing.AbstractAction;
 import javax.swing.SwingUtilities;
 
 import org.openide.windows.TopComponent;
-import org.openide.windows.WindowManager;
-import org.openide.windows.Mode;
-import org.openide.util.actions.Presenter;
 import org.openide.util.Utilities;
 import org.openide.util.NbBundle;
 import org.openide.NotifyDescriptor;

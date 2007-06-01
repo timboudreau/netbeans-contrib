@@ -22,12 +22,10 @@ package org.netbeans.modules.bookmarks;
 import java.lang.ref.WeakReference;
 import java.util.*;
 import javax.swing.*;
-import org.netbeans.api.bookmarks.BookmarkService;
 
 import org.openide.ErrorManager;
 import org.openide.util.actions.Presenter;
 import org.openide.util.WeakListeners;
-import org.openide.filesystems.Repository;
 
 import org.netbeans.api.registry.*;
 import org.openide.util.RequestProcessor;

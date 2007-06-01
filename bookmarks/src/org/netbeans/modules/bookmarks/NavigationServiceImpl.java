@@ -22,7 +22,6 @@ import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeEvent;
 import java.util.*;
 
-import org.openide.ErrorManager;
 import org.openide.windows.TopComponent;
 import org.openide.windows.WindowManager;
 

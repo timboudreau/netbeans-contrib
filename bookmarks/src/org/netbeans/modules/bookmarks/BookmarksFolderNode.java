@@ -21,11 +21,9 @@ package org.netbeans.modules.bookmarks;
 
 import java.awt.Cursor;
 import java.awt.datatransfer.*;
-import java.awt.Image;
 import java.io.IOException;
 import java.util.*;
 import javax.swing.Action;
-import javax.swing.Icon;
 import javax.swing.SwingUtilities;
 import org.openide.DialogDisplayer;
 
@@ -41,7 +39,6 @@ import org.openide.util.datatransfer.*;
 import org.openide.actions.*;
 
 import org.netbeans.api.bookmarks.Bookmark;
-import org.netbeans.api.bookmarks.BookmarkService;
 import org.netbeans.api.registry.*;
 import org.openide.windows.WindowManager;
 

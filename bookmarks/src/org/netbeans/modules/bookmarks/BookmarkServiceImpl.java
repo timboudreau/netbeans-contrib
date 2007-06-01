@@ -18,25 +18,17 @@
  */
 package org.netbeans.modules.bookmarks;
 
-import java.awt.event.ActionEvent;
-import java.beans.PropertyChangeListener;
-import java.beans.PropertyChangeEvent;
 import java.io.IOException;
-import java.io.Serializable;
 import java.lang.reflect.Method;
 import java.util.*;
-import javax.swing.AbstractAction;
 
-import javax.swing.Action;
 import javax.swing.SwingUtilities;
 
 import org.openide.ErrorManager;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.Repository;
 import org.openide.windows.TopComponent;
-import org.openide.windows.WindowManager;
 import org.openide.util.RequestProcessor;
-import org.openide.util.WeakListeners;
 
 import org.netbeans.api.bookmarks.*;
 import org.netbeans.api.registry.*;

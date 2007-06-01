@@ -19,25 +19,15 @@
 
 package org.netbeans.modules.bookmarks;
 
-import java.awt.Image;
 import java.io.IOException;
 import java.util.*;
 import javax.swing.Action;
-import javax.swing.Icon;
-import java.beans.PropertyChangeListener;
-import java.beans.PropertyChangeEvent;
 
-import org.openide.ErrorManager;
 import org.openide.nodes.*;
-import org.openide.util.NbBundle;
-import org.openide.util.RequestProcessor;
 import org.openide.util.actions.SystemAction;
-import org.openide.util.datatransfer.NewType;
 import org.openide.util.lookup.Lookups;
 import org.openide.actions.*;
 
-import org.netbeans.api.bookmarks.Bookmark;
-import org.netbeans.api.bookmarks.BookmarkService;
 import org.netbeans.api.registry.*;
 
 /**

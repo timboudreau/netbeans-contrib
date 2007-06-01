@@ -21,16 +21,12 @@ package org.netbeans.modules.bookmarks;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.Externalizable;
-import java.util.Properties;
-import java.util.Iterator;
 import javax.swing.AbstractAction;
 import java.awt.event.ActionEvent;
 import java.lang.ref.WeakReference;
 import javax.swing.SwingUtilities;
 
 import org.openide.util.NbBundle;
-import org.openide.util.WeakListeners;
-import org.openide.ErrorManager;
 import org.openide.NotifyDescriptor;
 import org.openide.DialogDisplayer;
 

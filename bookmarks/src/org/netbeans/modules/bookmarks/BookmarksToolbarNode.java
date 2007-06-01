@@ -32,7 +32,6 @@ import org.openide.util.NbBundle;
 import org.openide.util.RequestProcessor;
 import org.openide.util.datatransfer.*;
 import org.openide.util.actions.SystemAction;
-import org.openide.util.actions.Presenter;
 import org.openide.ErrorManager;
 
 import org.netbeans.api.bookmarks.*;
