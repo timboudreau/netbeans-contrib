@@ -146,9 +146,13 @@ public class LookupProviderImpl implements LookupProvider {
         
         private static final String[] PRIVILEGED_NAMES = new String[] {
             "Templates/J2EE/Session", // NOI18N
-            "Templates/J2EE/Entity",  // NOI18N
-            "Templates/J2EE/ServiceLocator.java", // NOI18N
-            "Templates/Classes/Class.java" // NOI18N
+            "Templates/J2EE/Message", // NOI18N
+            "Templates/Classes/Class.java",             // NOI18N
+            "Templates/Classes/Package",                // NOI18N
+            "Templates/Persistence/Entity.java", // NOI18N
+            "Templates/Persistence/RelatedCMP", // NOI18N
+            "Templates/WebServices/WebService.java", // NOI18N
+            "Templates/WebServices/WebServiceClient"   // NOI18N      
         };
         
         private static final String[] RECOMENDED_TYPES = new String[] {
