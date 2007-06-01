@@ -2,16 +2,16 @@
  * The contents of this file are subject to the terms of the Common Development
  * and Distribution License (the License). You may not use this file except in
  * compliance with the License.
- * 
+ *
  * You can obtain a copy of the License at http://www.netbeans.org/cddl.html
  * or http://www.netbeans.org/cddl.txt.
- * 
+ *
  * When distributing Covered Code, include this CDDL Header Notice in each file
  * and include the License file at http://www.netbeans.org/cddl.txt.
  * If applicable, add the following below the CDDL Header, with the fields
  * enclosed by brackets [] replaced by your own identifying information:
  * "Portions Copyrighted [year] [name of copyright owner]"
- * 
+ *
  * The Original Software is NetBeans. The Initial Developer of the Original
  * Software is Sun Microsystems, Inc. Portions Copyright 1997-2007 Sun
  * Microsystems, Inc. All Rights Reserved.
@@ -26,7 +26,7 @@ import org.openide.util.Utilities;
  * @author karthikeyan s
  */
 public interface ImageConstants {
-        
+    
     /* CONSTANTS USED FOR GETTING IMAGE ICONS */
     public static final String CONDITION = "CONDITION";
     
@@ -57,6 +57,8 @@ public interface ImageConstants {
     public static final String EDITCONNECTION = "EDITCONNECTION";
     
     public static final String EDITJOIN = "EDITJOIN";
+    
+    public static final String ADDTABLE = "ADDTABLE";
     
     public static final String JOINCONDITION = "JOINCONDITION";
     
@@ -96,7 +98,7 @@ public interface ImageConstants {
             "org/netbeans/modules/edm/editor/resources/columnPrimary.gif"); // NOI18N
     
     public static final Image FOREIGN_COLUMN_IMAGE = Utilities.loadImage(
-            "org/netbeans/modules/edm/editor/resources/columnForeign.gif"); // NOI18N    
+            "org/netbeans/modules/edm/editor/resources/columnForeign.gif"); // NOI18N
     
     public static final Image CONDITION_IMAGE = Utilities.loadImage(
             "org/netbeans/modules/edm/editor/resources/condition.png"); // NOI18N
@@ -117,16 +119,19 @@ public interface ImageConstants {
             "org/netbeans/modules/edm/editor/resources/foreignKey.gif"); // NOI18N
     
     public static final Image LAYOUT_IMAGE = Utilities.loadImage(
-            "org/netbeans/modules/edm/editor/resources/layout.png"); // NOI18N 
+            "org/netbeans/modules/edm/editor/resources/layout.png"); // NOI18N
     
     public static final Image COLLAPSE_IMAGE = Utilities.loadImage(
-            "org/netbeans/modules/edm/editor/resources/collapse_all.png"); // NOI18N 
+            "org/netbeans/modules/edm/editor/resources/collapse_all.png"); // NOI18N
     
     public static final Image EDIT_IMAGE = Utilities.loadImage(
-            "org/netbeans/modules/edm/editor/resources/DatabaseProperties.png"); // NOI18N    
+            "org/netbeans/modules/edm/editor/resources/DatabaseProperties.png"); // NOI18N
     
     public static final Image EDITJOIN_IMAGE = Utilities.loadImage(
-            "org/netbeans/modules/edm/editor/resources/edit_join.png"); // NOI18N 
+            "org/netbeans/modules/edm/editor/resources/edit_join.png"); // NOI18N
+    
+    public static final Image ADDTABLE_IMAGE = Utilities.loadImage(
+            "org/netbeans/modules/edm/editor/resources/join_view.png");// NOI18N
     
     public static final Image JOINCONDITION_IMAGE = Utilities.loadImage(
             "org/netbeans/modules/edm/editor/resources/system_condition.png"); // NOI18N
@@ -138,13 +143,13 @@ public interface ImageConstants {
             "org/netbeans/modules/edm/editor/resources/fit_height.png"); // NOI18N
     
     public static final Image FITTOPAGE_IMAGE = Utilities.loadImage(
-            "org/netbeans/modules/edm/editor/resources/fit_diagram.png"); // NOI18N    
+            "org/netbeans/modules/edm/editor/resources/fit_diagram.png"); // NOI18N
     
     public static final Image FITTOWIDTH_IMAGE = Utilities.loadImage(
-            "org/netbeans/modules/edm/editor/resources/fit_width.png"); // NOI18N  
+            "org/netbeans/modules/edm/editor/resources/fit_width.png"); // NOI18N
     
     public static final Image REMOVE_IMAGE = Utilities.loadImage(
-            "org/netbeans/modules/edm/editor/resources/remove.png"); // NOI18N 
+            "org/netbeans/modules/edm/editor/resources/remove.png"); // NOI18N
     
     public static final Image OUTPUT_IMAGE = Utilities.loadImage(
             "org/netbeans/modules/edm/editor/resources/showOutput.png"); // NOI18N
@@ -153,14 +158,14 @@ public interface ImageConstants {
             "org/netbeans/modules/edm/editor/resources/Show_Sql.png"); // NOI18N
     
     public static final Image RUN_IMAGE = Utilities.loadImage(
-            "org/netbeans/modules/edm/editor/resources/run.png"); // NOI18N    
+            "org/netbeans/modules/edm/editor/resources/run.png"); // NOI18N
     
     public static final Image ZOOM_IN_IMAGE = Utilities.loadImage(
-            "org/netbeans/modules/edm/editor/resources/zoom_in.png"); // NOI18N   
-        
+            "org/netbeans/modules/edm/editor/resources/zoom_in.png"); // NOI18N
+    
     public static final Image ZOOM_OUT_IMAGE = Utilities.loadImage(
-            "org/netbeans/modules/edm/editor/resources/zoom_out.png"); // NOI18N    
+            "org/netbeans/modules/edm/editor/resources/zoom_out.png"); // NOI18N
     
     public static final Image VALIDATE_IMAGE = Utilities.loadImage(
-            "org/netbeans/modules/edm/editor/resources/validation.png"); // NOI18N        
+            "org/netbeans/modules/edm/editor/resources/validation.png"); // NOI18N
 }

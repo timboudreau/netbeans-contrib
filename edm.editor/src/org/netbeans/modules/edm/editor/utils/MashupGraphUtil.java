@@ -26,7 +26,7 @@ import org.netbeans.modules.sql.framework.model.SQLConstants;
  *
  * @author karthikeyan s
  */
-public class MashupGraphUtil {   
+public class MashupGraphUtil {
     
     private static Map<String, Image> imageMap = new HashMap<String, Image>();
     
@@ -46,6 +46,7 @@ public class MashupGraphUtil {
         imageMap.put(ImageConstants.COLLAPSEALL, ImageConstants.COLLAPSE_IMAGE);
         imageMap.put(ImageConstants.EDITCONNECTION, ImageConstants.EDIT_IMAGE);
         imageMap.put(ImageConstants.EDITJOIN, ImageConstants.EDITJOIN_IMAGE);
+        imageMap.put(ImageConstants.ADDTABLE,ImageConstants.ADDTABLE_IMAGE);
         imageMap.put(ImageConstants.JOINCONDITION, ImageConstants.JOINCONDITION_IMAGE);
         imageMap.put(ImageConstants.EXPANDALL, ImageConstants.EXPAND_IMAGE);
         imageMap.put(ImageConstants.FITTOHEIGHT, ImageConstants.FITTOHEIGHT_IMAGE);

@@ -1,6 +1,6 @@
 /*
  * The contents of this file are subject to the terms of the Common
- * Development and Distribution License (the License). You may not use this 
+ * Development and Distribution License (the License). You may not use this
  * file except in compliance with the License.  You can obtain a copy of the
  *  License at http://www.netbeans.org/cddl.html
  *
@@ -54,7 +54,7 @@ public class MashupModelHelper {
     }
     
     /**
-     * 
+     *
      * @param model ETLCollaborationModel
      * @param tblModel DefaultTableModel
      * @param url String
@@ -116,6 +116,57 @@ public class MashupModelHelper {
         }
         return model;
     }
+    
+    public static ETLCollaborationModel getModel(ETLCollaborationModel model, DefaultTableModel tblModel){
+        SQLDefinition sqlDefn = model.getSQLDefinition();
+        DBMetaData meta = new DBMetaData();
+        Map<String, SQLDBModel> dbModelMap = new HashMap<String, SQLDBModel>();
+        try {
+            for(int i = 0; i < tblModel.getRowCount(); i++) {
+                String table = (String) tblModel.getValueAt(i, 0);
+                String schema = (String) tblModel.getValueAt(i, 1);
+                String connectionUrl = (String) tblModel.getValueAt(i, 2);
+                String user = (String) tblModel.getValueAt(i, 3);
+                String pass = (String) tblModel.getValueAt(i, 4);
+                String driver = (String) tblModel.getValueAt(i, 5);
+                Connection conn = DBExplorerConnectionUtil.createConnection(driver, connectionUrl, user, pass);
+                meta.connectDB(conn);
+                SQLDBModel dbModel = dbModelMap.get(connectionUrl);
+                if(dbModel == null) {
+                    dbModel = SQLModelObjectFactory.getInstance().createDBModel(
+                            SQLConstants.SOURCE_DBMODEL);
+                    populateModel(dbModel, driver, user, pass, connectionUrl, meta);
+                }
+                SourceTable srcTable = createTable(table, schema, connectionUrl, meta);
+                dbModel.addTable(srcTable);
+                dbModelMap.put(connectionUrl, dbModel);
+                try {
+                    meta.disconnectDB();
+                } catch (Exception ex) {
+                    //ignore
+                }
+            }
+            
+            // add all models.
+            SQLDBModel[] models = dbModelMap.values().toArray(new SQLDBModel[0]);
+            for(SQLDBModel mdl : models) {
+                sqlDefn.addObject(mdl);
+            }
+            
+            // now add the target model.
+            SQLDBModel tgtModel = SQLModelObjectFactory.getInstance().createDBModel(
+                    SQLConstants.TARGET_DBMODEL);
+            DBConnectionDefinition def = null;
+            tgtModel.setConnectionDefinition(def);
+            sqlDefn.addObject(tgtModel);
+            model.setSQLDefinition(sqlDefn);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return model;
+    }
+    
+    
     
     private static SQLDBModel populateModel(SQLDBModel model, String driver,
             String user, String pass, String url, DBMetaData meta) {
@@ -193,5 +244,7 @@ public class MashupModelHelper {
         ((SourceTableImpl)ffTable).setEditable(true);
         ((SourceTableImpl)ffTable).setSelected(true);
         return ffTable;
-    }    
+    }
+    private static Object model;
+    private static Object tblModel;
 }
