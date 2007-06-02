@@ -24,6 +24,7 @@ import com.sun.source.util.TreePath;
 import java.io.IOException;
 import org.netbeans.api.java.source.CancellableTask;
 import org.netbeans.api.java.source.JavaSource;
+import org.netbeans.api.java.source.JavaSource.Phase;
 import org.netbeans.api.java.source.TreeMaker;
 import org.netbeans.api.java.source.TreePathHandle;
 import org.netbeans.api.java.source.WorkingCopy;
@@ -89,6 +90,7 @@ public class ParameterTypeChangeElement extends SimpleRefactoringElementImplemen
 
 
     public void run(WorkingCopy copy) throws Exception {
+        copy.toPhase (Phase.RESOLVED);
         TreePath path = handle.resolve(copy);
         Tree tree = path.getLeaf();
         TreeMaker maker = copy.getTreeMaker();

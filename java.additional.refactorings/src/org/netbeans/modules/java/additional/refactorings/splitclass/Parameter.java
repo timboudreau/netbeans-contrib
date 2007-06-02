@@ -67,6 +67,10 @@ final class Parameter implements Comparable <Parameter> {
         }
     }
     
+    public String getOriginalName() {
+        return desc == null ? null : desc.getName();
+    }
+    
     public String getDefaultValue() {
         return defaultValue;
     }

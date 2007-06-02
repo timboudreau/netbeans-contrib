@@ -53,6 +53,10 @@ public abstract class AbstractParameterChangeElementImpl extends SimpleRefactori
         this.name = name;
         this.context = context;
         this.file = file;
+        System.err.println("Created " + this);
+        if ("void".equals(name)) {
+            Thread.dumpStack();
+        }
     }
 
     public abstract String getText();
@@ -92,6 +96,7 @@ public abstract class AbstractParameterChangeElementImpl extends SimpleRefactori
         copy.toPhase(Phase.RESOLVED);
         TreePath path = methodPathHandle.resolve(copy);
         Tree tree = path.getLeaf();
+        System.err.println("Change parameter " + tree + " with " + this);
         TreeMaker maker = copy.getTreeMaker();
         if (tree.getKind() == Kind.METHOD_INVOCATION) {
             MethodInvocationTree oldInvocationTree = (MethodInvocationTree) tree;
@@ -100,6 +105,7 @@ public abstract class AbstractParameterChangeElementImpl extends SimpleRefactori
             modifyArgs (args, maker);
             if (cancelled) return;
 
+            @SuppressWarnings("unchecked")
             MethodInvocationTree newInvocationTree = maker.MethodInvocation((List <? extends ExpressionTree>) oldInvocationTree.getTypeArguments(), 
                     oldInvocationTree.getMethodSelect(), args);                
             copy.rewrite (oldInvocationTree, newInvocationTree);

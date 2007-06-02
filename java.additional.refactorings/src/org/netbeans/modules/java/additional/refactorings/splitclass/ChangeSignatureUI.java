@@ -16,6 +16,7 @@
  */
 package org.netbeans.modules.java.additional.refactorings.splitclass;
 
+import org.netbeans.modules.java.additional.refactorings.visitors.ParameterRenamePolicy;
 import org.netbeans.modules.java.additional.refactorings.splitclass.ChangeSignaturePanel;
 import com.sun.source.tree.CompilationUnitTree;
 import com.sun.source.tree.MethodTree;
@@ -27,6 +28,9 @@ import java.util.ArrayList;
 import java.util.List;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
+import javax.lang.model.element.ExecutableElement;
+import javax.lang.model.element.Modifier;
+import javax.lang.model.element.TypeElement;
 import javax.lang.model.type.TypeMirror;
 import javax.lang.model.type.TypeMirror;
 import javax.swing.event.ChangeEvent;
@@ -64,12 +68,12 @@ public class ChangeSignatureUI implements RefactoringUI, CancellableTask <Compil
 
     public String getName() {
         return NbBundle.getMessage (ChangeSignatureUI.class,
-                "LBL_CHANGE_SIG_UI");
+                "LBL_CHANGE_SIG_UI"); //NOI18N
     }
 
     public String getDescription() {
         return NbBundle.getMessage (ChangeSignatureUI.class,
-                "DESC_CHANGE_SIG_UI");
+                "DESC_CHANGE_SIG_UI"); //NOI18N
     }
 
     public boolean isQuery() {
@@ -108,8 +112,9 @@ public class ChangeSignatureUI implements RefactoringUI, CancellableTask <Compil
         List <Parameter> now = panel.getNewParameters();
         String returnType = panel.getReturnType();
         String methodName = panel.getMethodName();
+        ParameterRenamePolicy policy = panel.getRenamePolicy();
         return new ChangeSignatureRefactoring (handle, lkp, originals, now, 
-                methodName, returnType);
+                methodName, returnType, policy);
     }
 
     public HelpCtx getHelpCtx() {
@@ -152,11 +157,16 @@ public class ChangeSignatureUI implements RefactoringUI, CancellableTask <Compil
             throw new IOException("Could not resolve " + path);
         }
         Element el = cc.getTrees().getElement(path);
-        if (el.getKind() != ElementKind.METHOD) {
+        if (el == null || el.getKind() != ElementKind.METHOD) {
            setProblem (NbBundle.getMessage(ChangeSignatureUI.class,
                    "MSG_NO_METHOD"));
            return;
         }
+        ExecutableElement ee = (ExecutableElement) el;
+        TypeElement containingClass = cc.getElementUtilities().enclosingTypeElement(ee);
+        boolean mayHaveOverrides = !containingClass.getModifiers().contains(Modifier.FINAL);
+        
+        
         MethodTree tree = (MethodTree) path.getLeaf();
         String name = tree.getName().toString();
         String type = tree.getReturnType().toString();
@@ -182,6 +192,7 @@ public class ChangeSignatureUI implements RefactoringUI, CancellableTask <Compil
         panel.setProgress(100);
         panel.setMethodType (type);
         panel.setMethodName (name);
+        panel.setMayHaveOverrides (mayHaveOverrides);
         panel.setParameters (descs);
     }
 }

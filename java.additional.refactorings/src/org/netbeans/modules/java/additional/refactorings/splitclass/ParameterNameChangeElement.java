@@ -21,14 +21,19 @@ import com.sun.source.tree.MethodInvocationTree;
 import com.sun.source.tree.MethodTree;
 import com.sun.source.tree.Tree;
 import com.sun.source.tree.Tree.Kind;
+import com.sun.source.tree.VariableTree;
 import com.sun.source.util.TreePath;
-import com.sun.source.util.TreePathScanner;
 import com.sun.source.util.TreeScanner;
+import com.sun.source.util.Trees;
 import java.io.IOException;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
+import javax.lang.model.element.Element;
 import org.netbeans.api.java.source.CancellableTask;
+import org.netbeans.api.java.source.ElementUtilities;
 import org.netbeans.api.java.source.JavaSource;
+import org.netbeans.api.java.source.JavaSource.Phase;
 import org.netbeans.api.java.source.TreeMaker;
 import org.netbeans.api.java.source.TreePathHandle;
 import org.netbeans.api.java.source.WorkingCopy;
@@ -55,7 +60,6 @@ public class ParameterNameChangeElement extends SimpleRefactoringElementImplemen
         this.oldName = name;
         this.handle = methodPathHandle;
         this.context = context;
-        
     }
 
     public String getText() {
@@ -93,7 +97,12 @@ public class ParameterNameChangeElement extends SimpleRefactoringElementImplemen
     }
 
     public void run(WorkingCopy copy) throws Exception {
+        System.err.println("Handle kind " + handle.getKind());
+        copy.toPhase (Phase.RESOLVED);
+        assert copy.getCompilationUnit() != null : "Compilation unit from " + //NOI18N        
+                "working copy is null"; //NOI18N        
         TreePath path = handle.resolve(copy);
+        assert path != null : "Tree path " + path + " resolved to null"; //NOI18N        
         Tree tree = path.getLeaf();
         TreeMaker maker = copy.getTreeMaker();
         if (tree.getKind() == Kind.METHOD_INVOCATION) {
@@ -111,21 +120,42 @@ public class ParameterNameChangeElement extends SimpleRefactoringElementImplemen
     }
     
     private void changeMethod (WorkingCopy copy, TreePath path, MethodTree tree, TreeMaker maker) {
-        //XXX check for local variables with the same name!
+        System.err.println(this + ".changeMethod");
         ParameterUsagesCollector collector = new ParameterUsagesCollector();
         collector.scan (tree, oldName);
-        for (IdentifierTree old : collector.paths) {
-            IdentifierTree nue = maker.Identifier(newName);
-            copy.rewrite (old, nue);
+        System.err.println("Collector scan found " + collector.trees.size() + " identifiers to fix");
+        Trees trees = copy.getTrees();
+        ElementUtilities elemUtils = copy.getElementUtilities();
+        for (IdentifierTree old : collector.trees) {
+            TreePath pathToId = TreePath.getPath(copy.getCompilationUnit(), old);
+            Element elemForParam = trees.getElement(pathToId);
+            if (elemUtils.isLocal(elemForParam)) {
+                IdentifierTree nue = maker.Identifier(newName);
+                System.err.println("Change " + old + " to " + nue);
+                copy.rewrite (old, nue);
+            }
+        }
+        List <? extends VariableTree> params = tree.getParameters();
+        for (VariableTree vt : params) {
+            if (vt.getName().contentEquals(oldName)) {
+                VariableTree nue = maker.Variable(vt.getModifiers(), newName, 
+                        vt.getType(), vt.getInitializer());
+                
+                copy.rewrite (vt, nue);
+                break;
+            }
         }
     }
     
     private static final class ParameterUsagesCollector extends TreeScanner <Void, String> {
-        Set <IdentifierTree> paths = new HashSet <IdentifierTree>();
+        Set <IdentifierTree> trees = new HashSet <IdentifierTree>();
         @Override
         public Void visitIdentifier(IdentifierTree tree, String nameToFind) {
-            if (tree.getName().contentEquals(nameToFind)) {
-                paths.add (tree);
+            //XXX make sure it doesn't find name matches with things that are name-matched
+            //fields of other objects, etc.
+            System.err.println("Check ID tree " + tree.getName().toString() + " in idtree " + tree + " against " + nameToFind);
+            if (tree.getName().toString().equals(nameToFind)) {
+                trees.add (tree);
             }
             return super.visitIdentifier(tree, nameToFind);
         }

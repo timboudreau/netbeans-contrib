@@ -16,10 +16,15 @@
  */
 package org.netbeans.modules.java.additional.refactorings.splitclass;
 
+import org.netbeans.modules.java.additional.refactorings.visitors.ParameterRenamePolicy;
+import org.netbeans.modules.java.additional.refactorings.visitors.RequestedParameterChanges;
 import com.sun.source.tree.MethodInvocationTree;
 import com.sun.source.tree.MethodTree;
+import com.sun.source.util.SourcePositions;
 import com.sun.source.util.TreePath;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -27,6 +32,7 @@ import java.util.Set;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.TypeElement;
 import org.netbeans.api.java.source.CompilationController;
+import org.netbeans.api.java.source.SourceUtils;
 import org.netbeans.api.java.source.TreePathHandle;
 import org.netbeans.modules.refactoring.api.AbstractRefactoring;
 import org.netbeans.modules.refactoring.spi.SimpleRefactoringElementImplementation;
@@ -48,16 +54,19 @@ public class ChangeSignatureRefactoring extends AbstractRefactoring {
     final String methodName;
     final String returnType;
     final TreePathHandle methodHandle;
+    final ParameterRenamePolicy policy;
     public ChangeSignatureRefactoring(TreePathHandle methodHandle, Lookup source, List <Parameter> orig, 
-            List <Parameter> nue, String methodName, String returnType) {
+            List <Parameter> nue, String methodName, String returnType,
+            ParameterRenamePolicy policy) {
         super (source);
         this.methodHandle = methodHandle;
         this.orig = orig;
         this.nue = nue;
         this.returnType = returnType;
         this.methodName = methodName;
+        this.policy = policy;
     }
-    
+
     boolean isReturnTypeChanged() {
         return returnType != null;
     }
@@ -71,6 +80,41 @@ public class ChangeSignatureRefactoring extends AbstractRefactoring {
             changes = computeChanges();
         }
         return changes;
+    }
+    
+    private Collection <String> getNewOrChangedParameterNames() {
+        Set <String> result = new HashSet<String>();
+        for (Parameter p : nue) {
+            if (p.isNew() || p.isNameChanged()) {
+                result.add (p.getName());
+            }
+        }
+        return result;
+    }
+    
+    private Collection <String> getNewParameterNames() {
+        Set <String> result = new HashSet<String>();
+        for (Parameter p : nue) {
+            if (p.isNew()) {
+                result.add (p.getName());
+            }
+        }
+        return result;
+    }
+    
+    private List <String> getOriginalParameterNamesInOrder() {
+        List <String> result = new ArrayList<String>(orig.size());
+        for (Parameter p : orig) {
+            result.add (p.getOriginalName());
+        }
+        return result;
+    }
+    
+    public RequestedParameterChanges getParameterModificationInfo() {
+        return new RequestedParameterChanges (getNewParameterNames(), //NOI18N        
+                getNewOrChangedParameterNames(), 
+                getOriginalParameterNamesInOrder(), 
+                policy);
     }
     
     private List changes;
@@ -146,7 +190,11 @@ public class ChangeSignatureRefactoring extends AbstractRefactoring {
                     result.add (new ParameterTypeChange(p.getTypeName()));
                 }
                 if (p.isNameChanged()) {
-                    result.add (new ParameterNameTransform(p.getName()));
+                    if ("void".equals(p.getName())) {
+                        System.err.println("Changing param name to void: " + p);
+                    }
+                    result.add (new ParameterNameTransform(p.getName(), 
+                            p.getOriginalName()));
                 }
             }
         }
@@ -189,17 +237,33 @@ public class ChangeSignatureRefactoring extends AbstractRefactoring {
             String name = type.getQualifiedName() + "." + element.getSimpleName();
             assert handle.resolve(cc) != null;
             assert handle.resolve(cc).getLeaf() != null;
+            assert handle.resolve(cc).getLeaf().getKind() == tree.getKind() : "TreePathHandle for a " + tree.getKind() +  //NOI18N
+                    " comes up as " + handle.resolve(cc).getLeaf().getKind(); //NOI18N
+            assert handle.resolve(cc).getLeaf().getKind() == path.getLeaf().getKind() : "TreePathHandle for a " + tree.getKind() + //NOI18N
+                    " comes up as " + path.getLeaf().getKind() + " when resolved from a TreePath"; //NOI18N
+            assert handle.resolve(cc).getLeaf().equals(tree);
             return createElement(tree, element, handle, path, name, file);
         }
         
         public final SimpleRefactoringElementImplementation getElement (MethodTree tree, CompilationController cc, Lookup context, FileObject file) {
-            TreePath path = TreePath.getPath(cc.getCompilationUnit(), tree);            
-            TreePathHandle handle = TreePathHandle.create(path, cc);
+            TreePath path = TreePath.getPath(cc.getCompilationUnit(), tree);
+            TreePathHandle handle;
+            try {
+                handle = TreePathHandle.create(path, cc);
+            } catch (NullPointerException e) {
+                throw new NullPointerException ("Could not create tree path handle for " + file);
+            }
             Element element = cc.getTrees().getElement(path);
             TypeElement type = cc.getElementUtilities().enclosingTypeElement(element);
             String name = type.getQualifiedName() + "." + element.getSimpleName();
             assert handle.resolve(cc) != null;
             assert handle.resolve(cc).getLeaf() != null;
+            assert handle.resolve(cc).getLeaf().getKind() == tree.getKind() : "TreePathHandle for a " + tree.getKind() +  //NOI18N
+                    " comes up as " + handle.resolve(cc).getLeaf().getKind(); //NOI18N
+            assert handle.resolve(cc).getLeaf().getKind() == path.getLeaf().getKind() : "TreePathHandle for a " + tree.getKind() + //NOI18N
+                    " comes up as " + path.getLeaf().getKind() + " when resolved from a TreePath"; //NOI18N
+            assert handle.resolve(cc).getLeaf().equals(tree);
+            SourcePositions sp = cc.getTrees().getSourcePositions();
             return createElement(tree, element, handle, path, name, file);
         }
         
@@ -321,17 +385,19 @@ public class ChangeSignatureRefactoring extends AbstractRefactoring {
     
     private class ParameterNameTransform extends Transform {
         private final String newName;
-        ParameterNameTransform (String newName) {
+        private final String oldName;
+        ParameterNameTransform (String newName, String oldName) {
             super (ChangeKind.PARAM_NAME);
             this.newName = newName;
+            this.oldName = oldName;
         }
 
         protected SimpleRefactoringElementImplementation createElement(MethodInvocationTree tree, Element element, TreePathHandle handle, TreePath path, String name, FileObject file) {
-            return new ParameterNameChangeElement(newName, handle, name, getContext(), file);
+            return new ParameterNameChangeElement(newName, handle, oldName, getContext(), file);
         }
 
         protected SimpleRefactoringElementImplementation createElement(MethodTree tree, Element element, TreePathHandle handle, TreePath path, String name, FileObject file) {
-            return new ParameterNameChangeElement(newName, handle, name, getContext(), file);
+            return new ParameterNameChangeElement(newName, handle, oldName, getContext(), file);
         }
         
         public String toString() {
