@@ -53,19 +53,16 @@ import org.openide.util.RequestProcessor;
 public class DbFileFilterNode extends FilterNode {
     private final DbProject project;
     private RequestProcessor.Task task;
-    /** Creates a new instance of DocbookFileNode */
     public DbFileFilterNode(Node orig, DbProject project, FileObject parentFolder) throws DataObjectNotFoundException {
         super (orig, new ImageChildren (parentFolder));
         this.project = project;
-        DataObject ob = (DataObject) orig.getLookup().lookup (DataObject.class);
-//        FileObject fob = ob.getPrimaryFile();
-//        fob.addFileChangeListener(WeakListeners.create(
-//                FileChangeListener.class, this, fob));
+        DataObject ob = orig.getLookup(  ).lookup( org.openide.loaders.DataObject.class );
         setName (ob.getName());
     }
 
     private String cachedName = null;
     private final Object lock = new Object();
+    @Override
     public String getDisplayName() {
         String result;
         String nm = super.getDisplayName();
@@ -91,6 +88,7 @@ public class DbFileFilterNode extends FilterNode {
         return result;
     }
 
+    @Override
     public String getHtmlDisplayName() {
         FileObject ob = ((DataNode) getOriginal()).getDataObject().getPrimaryFile();
         String origHtml = getOriginal().getHtmlDisplayName();
@@ -135,13 +133,13 @@ public class DbFileFilterNode extends FilterNode {
         }
     }
     
-    void detach() {
-        ParsingService serv = ((DataNode) getOriginal()).getLookup().lookup(ParsingService.class);
-        if (serv != null) {
-            serv.unregister(nameUpdater);
-            enqueued = false;
-        }
-    }
+//    void detach() {
+//        ParsingService serv = ((DataNode) getOriginal()).getLookup().lookup(ParsingService.class);
+//        if (serv != null) {
+//            serv.unregister(nameUpdater);
+//            enqueued = false;
+//        }
+//    }
 
     private Callback <Pattern> nameUpdater = new NameUpdater();
     private class NameUpdater extends PatternCallback {
@@ -160,50 +158,13 @@ public class DbFileFilterNode extends FilterNode {
                 fireDisplayNameChange(old, s);
             }
             enqueued = false;
+            //XXX in the future we want to listen, but not by being permanently
+            //registered.  For now, we never update node title.
+            ParsingService serv = ((DataNode) getOriginal()).getLookup().lookup(ParsingService.class);
+            serv.unregister(this);
             return false;
         }
     }
-
-//    void cancel() {
-//        synchronized (lock) {
-//            if (task != null) {
-//                task.cancel();
-//                task = null;
-//            }
-//        }
-//    }
-//
-//    void updateName() {
-//        synchronized (lock) {
-//            if (task == null) {
-//                task = project.rp.post (this);
-//            }
-//        }
-//    }
-//
-//    public void fileFolderCreated(FileEvent fe) {
-//    }
-//
-//    public void fileDataCreated(FileEvent fe) {
-//    }
-//
-//    public void fileChanged(FileEvent fe) {
-//        updateName();
-//    }
-//
-//    public void fileDeleted(FileEvent fe) {
-//        try {
-//            destroy();
-//        } catch (IOException ex) {
-//            ErrorManager.getDefault().notify (ex);
-//        }
-//    }
-//
-//    public void fileRenamed(FileRenameEvent fe) {
-//    }
-//
-//    public void fileAttributeChanged(FileAttributeEvent fe) {
-//    }
 
     private static final String NO_NAME = "Unknown"; //NOI18N
 
@@ -226,79 +187,4 @@ public class DbFileFilterNode extends FilterNode {
             Pattern.compile(CONTENT_TYPE_PATTERN,
             Pattern.CASE_INSENSITIVE | Pattern.DOTALL);
 
-    /*
-    public void run() {
-        synchronized (lock) {
-            task = null;
-        }
-        try {
-            DataObject dob = getLookup().lookup (DataObject.class);
-            if (dob != null && dob.isValid()) {
-                FileObject fob = dob.getPrimaryFile();
-                File f = FileUtil.toFile (fob);
-                if (!f.exists() || f.length() > Integer.MAX_VALUE) {
-                    return;
-                }
-                if (Thread.interrupted()) {
-                    return;
-                }
-                FileInputStream in = new FileInputStream (f);
-                FileChannel channel = in.getChannel();
-                try {
-                    ByteBuffer buf = ByteBuffer.allocate (
-                            (int) f.length());
-
-                    channel.read(buf);
-                    buf.flip();
-                    if (Thread.interrupted()) {
-                        return;
-                    }
-//                    CharSequence contents = decode(buf);
-                    CharSequence contents = decoder.decode(buf);
-                    Matcher matcher = TITLE_PATTERN.matcher(contents);
-                    String old = getDisplayName();
-                    if (matcher.find()) {
-                        String nm = matcher.group(1).trim();
-                        if (nm.length() > 0) {
-                            cachedName = nm;
-                        } else {
-                            cachedName = NO_NAME;
-                        }
-                        fireDisplayNameChange(old, getDisplayName());
-                    } else {
-                        cachedName = NO_NAME;
-                    }
-                } finally {
-                    channel.close();
-                }
-            }
-        } catch (IOException ioe) {
-            ErrorManager.getDefault().notify (ErrorManager.INFORMATIONAL, ioe);
-        }
-    }
-
-    private CharSequence decode (ByteBuffer buf) throws CharacterCodingException {
-        CharsetDecoder decoder = this.decoder;
-
-        CharSequence seq = decoder.decode (buf);
-        Matcher matcher = encodingPattern.matcher(seq);
-        if (matcher.lookingAt()) {
-            String enc = matcher.group(1);
-            String encoding = enc.toUpperCase(Locale.ENGLISH);
-            String defEncoding = Charset.defaultCharset().name().toUpperCase(
-                    Locale.ENGLISH);
-            if (!defEncoding.equals(encoding)) {
-                try {
-                    Charset charset = Charset.forName(encoding);
-                    decoder = charset.newDecoder();
-                    seq = decoder.decode(buf);
-                } catch (Exception e) {
-                    ErrorManager.getDefault().notify (
-                           ErrorManager.INFORMATIONAL, e);
-                }
-            }
-        }
-        return seq;
-    }
-    */
 }

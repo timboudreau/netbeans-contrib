@@ -34,6 +34,7 @@ import org.openide.filesystems.FileObject;
 import org.openide.loaders.DataObject;
 import org.openide.loaders.DataObjectNotFoundException;
 import org.openide.nodes.AbstractNode;
+import org.openide.nodes.Children;
 import org.openide.nodes.Node;
 import org.openide.nodes.NodeAdapter;
 import org.openide.nodes.NodeEvent;
@@ -46,7 +47,7 @@ import org.openide.util.lookup.Lookups;
  */
 public class DbLogicalView extends AbstractNode {
     public DbLogicalView(DbProject proj) throws DataObjectNotFoundException {
-        super (new DbLogicalViewChildren(proj),
+        super (Children.<FileObject>create(new DbLogicalViewChildren(proj), true),
                 Lookups.fixed(proj, DataObject.find (proj.getProjectDirectory())));
         setDisplayName (proj.getProjectDirectory().getName());
         setIconBaseWithExtension(
@@ -92,7 +93,7 @@ public class DbLogicalView extends AbstractNode {
     public Action[] getActions (boolean context) {
         DbProject proj = getLookup().lookup (DbProject.class);
         Action[] a = proj.getActions();
-        List l = new ArrayList (Arrays.asList(a));
+        List <Action> l = new ArrayList <Action>(Arrays.<Action>asList(a));
         l.add (0, SystemAction.get(NewTemplateAction.class));
         l.add (1, null);
         l.add (2, SystemAction.get (org.openide.actions.FindAction.class));
@@ -102,7 +103,7 @@ public class DbLogicalView extends AbstractNode {
         l.add (null);
         l.add (SystemAction.get(FileSystemAction.class));
 
-        a = (Action[]) l.toArray (a);
+        a = l.toArray (a);
         return a;
     }
 

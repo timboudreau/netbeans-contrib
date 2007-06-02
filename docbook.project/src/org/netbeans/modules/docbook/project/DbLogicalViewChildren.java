@@ -18,10 +18,9 @@
  */
 package org.netbeans.modules.docbook.project;
 
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.logging.Level;
+import java.io.IOException;
+import java.util.Collection;
+import java.util.List;
 import java.util.logging.Logger;
 import org.openide.filesystems.FileAttributeEvent;
 import org.openide.filesystems.FileChangeListener;
@@ -29,85 +28,32 @@ import org.openide.filesystems.FileEvent;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileRenameEvent;
 import org.openide.loaders.DataObject;
-import org.openide.loaders.DataObjectNotFoundException;
 import org.openide.nodes.AbstractNode;
+import org.openide.nodes.ChildFactory;
 import org.openide.nodes.Children;
 import org.openide.nodes.Node;
-import org.openide.util.RequestProcessor;
+import org.openide.util.Exceptions;
+import org.openide.util.WeakListeners;
+import org.openide.util.WeakSet;
 
 /**
  *
  * @author Tim Boudreau
  */
-public class DbLogicalViewChildren extends Children.Keys implements FileChangeListener {
+public class DbLogicalViewChildren extends ChildFactory<FileObject> implements FileChangeListener {
     private final DbProject proj;
     private static final Logger log = Logger.getLogger(DbLogicalViewChildren.class.getName());
     final Object lock = new Object();
     public DbLogicalViewChildren(DbProject proj) {
         this.proj = proj;
     }
-
-    RequestProcessor.Task task;
-    public void addNotify() {
-        setKeys (Collections.singleton("Please wait..."));
-        updateChildren();
-        proj.getProjectDirectory().addFileChangeListener(this);
-    }
-
-    private void updateChildren() {
-        synchronized (lock) {
-            if (task == null) {
-                setTask(proj.rp.post(new Updater()));
-            }
-        }
-    }
-
-    public void removeNotify() {
-        synchronized (lock) {
-            task.cancel();
-            task = null;
-        }
-        Node[] n = getNodes();
-        for (int i = 0; i < n.length; i++) {
-            if (n[i] instanceof DbFileFilterNode) {
-                ((DbFileFilterNode) n[i]).detach();
-            }
-        }
-        setKeys (Collections.EMPTY_SET);
-        proj.getProjectDirectory().removeFileChangeListener(this);
-    }
-
-    private void setTask (RequestProcessor.Task task) {
-        synchronized (lock) {
-            task = task;
-        }
-    }
-
-    protected Node[] createNodes(Object key) {
-        Node result;
-        if (key instanceof String) {
-            result = new AbstractNode (Children.LEAF);
-            result.setDisplayName(key.toString());
-        } else {
-            FileObject ob = (FileObject) key;
-            try {
-                DataObject dob = DataObject.find(ob);
-                result = new DbFileFilterNode (dob.getNodeDelegate(), proj, ob.getParent());
-            } catch (DataObjectNotFoundException ex) {
-                log.log(Level.WARNING, null, ex);
-                result = new AbstractNode (Children.LEAF);
-                result.setDisplayName(ob.getName());
-            }
-        }
-        return new Node[] { result };
-    }
-
+    
     public void fileFolderCreated(FileEvent fe) {
-        updateChildren();
+        refresh(false);
     }
 
     public void fileDataCreated(FileEvent fe) {
-        updateChildren();
+        refresh(false);
     }
 
     public void fileChanged(FileEvent fe) {
@@ -115,52 +61,62 @@ public class DbLogicalViewChildren extends Children.Keys implements FileChangeLi
     }
 
     public void fileDeleted(FileEvent fe) {
-        updateChildren();
+        refresh(false);
     }
 
     public void fileRenamed(FileRenameEvent fe) {
-        updateChildren();
+        refresh(false);
     }
 
     public void fileAttributeChanged(FileAttributeEvent fe) {
         //do nothing
     }
 
-    private final class Updater implements Runnable {
-        public void run() {
-            try {
-                Set s = new HashSet();
-                try {
-                    findFiles (proj.getProjectDirectory(), s);
-                    setKeys (s);
-                } catch (InterruptedException e) {
-                    //normal
-                }
-            } finally {
-                synchronized (lock) {
-                    task = null;
-                }
-            }
-        }
-
-        private boolean findFiles (FileObject dir, Set dest) throws InterruptedException {
-            int sz = dest.size();
-            if (Thread.interrupted()) {
-                throw new InterruptedException();
-            }
-            if (dir.isFolder()) {
-                FileObject[] obs = dir.getChildren();
-                for (int i = 0; i < obs.length; i++) {
-                    findFiles (obs[i], dest);
-                }
-            } else if ("text/x-docbook+xml".equals(dir.getMIMEType())) {
-                dest.add (dir);
-            }
-            boolean result = dest.size() > sz;
-            if (result) {
-                setKeys (dest);
-            }
+    WeakSet <DbFileFilterNode> nodes = new WeakSet <DbFileFilterNode> (); //temporary fix
+    @Override
+    protected Node createNodeForKey(FileObject key) {
+        try {
+            DataObject dob = DataObject.find(key);
+            DbFileFilterNode result = new DbFileFilterNode (dob.getNodeDelegate(), proj, key.getParent());
+            return result;
+        } catch (IOException ioe) {
+            AbstractNode result = new AbstractNode(Children.LEAF);
+            result.setDisplayName (ioe.getMessage());
+            Exceptions.printStackTrace (ioe);
             return result;
         }
+    }
+
+    private boolean initialized;
+    protected boolean createKeys(List <FileObject> toPopulate) {
+        try {
+            FileObject projdir = proj.getProjectDirectory();
+            if (!initialized) {
+                projdir.addFileChangeListener(WeakListeners.create(FileChangeListener.class, this, projdir));
+                initialized = true;
+            }
+            boolean result = findFiles (projdir, toPopulate);
+            return result;
+        } catch (InterruptedException ex) {
+            Exceptions.printStackTrace( ex );
+            return true;
+        }
+    }
+    
+    private boolean findFiles (FileObject dir, Collection <FileObject> dest) throws InterruptedException {
+        int sz = dest.size();
+        if (Thread.interrupted()) {
+            throw new InterruptedException();
+        }
+        if (dir.isFolder()) {
+            FileObject[] obs = dir.getChildren();
+            for (int i = 0; i < obs.length; i++) {
+                findFiles (obs[i], dest);
+            }
+        } else if ("text/x-docbook+xml".equals(dir.getMIMEType())) {
+            dest.add (dir);
+        }
+        boolean result = dest.size() > sz;
+        return result;
     }
 }
