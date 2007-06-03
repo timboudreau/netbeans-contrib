@@ -1,0 +1,11 @@
+This module is part of NetBeans and is open-source.
+You can see http://www.netbeans.org/about/legal/index.html for details.
+
+You may use the binary however you like. The source file license is:
+
+The contents of this file are subject to the terms of the Common Development
+and Distribution License (the License). You may not use this file except in
+compliance with the License.
+
+You can obtain a copy of the License at http://www.netbeans.org/cddl.html
+or http://www.netbeans.org/cddl.txt.

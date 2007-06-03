@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE filesystem PUBLIC "-//NetBeans//DTD Filesystem 1.1//EN" "http://www.netbeans.org/dtds/filesystem-1_1.dtd">
+<filesystem>
+    <folder name="Actions">
+        <folder name="Tools">
+            <file name="org-netbeans-modules-javatextcopypaste-CopyAsTextNewlinesToSpacesAndJavaNewlinesToSpaces.instance"/>
+            <file name="org-netbeans-modules-javatextcopypaste-CopyAsTextNewlinesToSpaces.instance"/>
+            <file name="org-netbeans-modules-javatextcopypaste-CopyAsTextWithNewlines.instance"/>
+            <file name="org-netbeans-modules-javatextcopypaste-PasteAsJavaSourceNewlinesToSpaces.instance"/>
+            <file name="org-netbeans-modules-javatextcopypaste-PasteAsJavaSourceWithNewlines.instance"/>
+        </folder>
+    </folder>
+    <folder name="Editors">
+        <folder name="text">
+            <folder name="x-java">
+                <folder name="Popup">
+                    <attr name="SeparatorAfterPaste.instance/Java Text Copy and Paste" boolvalue="true"/>
+                    <folder name="Java Text Copy and Paste">
+                        
+                        <file name="org-netbeans-modules-javatextcopypaste-CopyAsSQLWithNewlines.shadow">
+                            <attr name="originalFile" stringvalue="Actions/Tools/org-netbeans-modules-javatextcopypaste-CopyAsTextWithNewlines.instance"/>
+                        </file>
+                        
+                        <file name="org-netbeans-modules-javatextcopypaste-CopyAsTextNewlinesToSpacesAndJavaNewlinesToSpaces.shadow">
+                            <attr name="originalFile" stringvalue="Actions/Tools/org-netbeans-modules-javatextcopypaste-CopyAsTextNewlinesToSpacesAndJavaNewlinesToSpaces.instance"/>
+                        </file>                        
+                        
+                        <file name="org-netbeans-modules-javatextcopypaste-CopyAsSQLNewlinesToSpaces.shadow">
+                            <attr name="originalFile" stringvalue="Actions/Tools/org-netbeans-modules-javatextcopypaste-CopyAsTextNewlinesToSpaces.instance"/>
+                        </file>
+                        
+                        <file name="org-netbeans-modules-javatextcopypaste-PasteAsJavaSourceNewlinesToSpaces.shadow">
+                            <attr name="originalFile" stringvalue="Actions/Tools/org-netbeans-modules-javatextcopypaste-PasteAsJavaSourceNewlinesToSpaces.instance"/>
+                        </file>
+                        
+                        <file name="org-netbeans-modules-javatextcopypaste-PasteAsJavaSourceWithNewlines.shadow">
+                            <attr name="originalFile" stringvalue="Actions/Tools/org-netbeans-modules-javatextcopypaste-PasteAsJavaSourceWithNewlines.instance"/>
+                        </file>
+                        <attr name="org-netbeans-modules-javatextcopypaste-CopyAsTextNewlinesToSpacesAndJavaNewlinesToSpaces.shadow/org-netbeans-modules-javatextcopypaste-CopyAsSQLWithNewlines.shadow" boolvalue="true"/>
+                        <attr name="org-netbeans-modules-javatextcopypaste-CopyAsSQLNewlinesToSpaces.shadow/org-netbeans-modules-javatextcopypaste-CopyAsSQLWithNewlines.shadow" boolvalue="true"/>
+                        <attr name="org-netbeans-modules-javatextcopypaste-CopyAsSQLWithNewlines.shadow/org-netbeans-modules-javatextcopypaste-PasteAsJavaSourceNewlinesToSpaces.shadow" boolvalue="true"/>
+                        <attr name="org-netbeans-modules-javatextcopypaste-PasteAsJavaSourceNewlinesToSpaces.shadow/org-netbeans-modules-javatextcopypaste-PasteAsJavaSourceWithNewlines.shadow" boolvalue="true"/>
+                    </folder>
+                    <attr name="Java Text Copy and Paste/SeparatorBeforeCut.instance" boolvalue="true"/>
+                </folder>
+            </folder>
+        </folder>
+    </folder>
+    
+</filesystem>
