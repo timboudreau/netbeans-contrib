@@ -29,9 +29,7 @@ import com.sun.source.tree.TypeParameterTree;
 import com.sun.source.tree.VariableTree;
 import com.sun.source.util.SourcePositions;
 import com.sun.source.util.TreePath;
-import com.sun.source.util.TreePath;
 import com.sun.source.util.TreePathScanner;
-import com.sun.source.util.Trees;
 import com.sun.source.util.Trees;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -348,7 +346,9 @@ T item = (T) path.getLeaf();
         @SuppressWarnings("unchecked")
         public void run(CompilationController cc) throws Exception {
             cc.toPhase (Phase.RESOLVED);
-            tree = (T) handle.resolve(cc);
+            TreePath path = handle.resolve(cc);
+            assert path != null : "Null path for " + handle; //NOI18N
+            tree = (T) path.getLeaf();
         }
     }
     
@@ -356,8 +356,8 @@ T item = (T) path.getLeaf();
         private volatile boolean cancelled;
         Tree tree;
         TreePathHandle handle;
-        private final Element element;
-        TreeFromElementFinder (Element element) {
+        private final ElementHandle element;
+        TreeFromElementFinder (ElementHandle element) {
             this.element = element;
         }
         
@@ -369,29 +369,72 @@ T item = (T) path.getLeaf();
         public void run(CompilationController cc) throws Exception {
             if (cancelled) return;
             cc.toPhase(Phase.RESOLVED);
-            tree = cc.getTrees().getTree(element);
-            if (tree == null) {
-                tree = cc.getTrees().getTree(element);
-            }
+            Element e = element.resolve(cc);
+            System.err.println("Searching for " + ((ExecutableElement)e).getSimpleName() + " on " + cc.getElementUtilities().enclosingTypeElement(e).getQualifiedName());
+            tree = cc.getTrees().getTree(e);
             assert tree != null : "Got null tree for " + element + " on " + cc.getFileObject().getPath();
             if (cancelled) return;
-            TreePath path = TreePath.getPath(cc.getCompilationUnit(), tree);
+            CompilationUnitTree unit = cc.getCompilationUnit();
+            TreePath path = TreePath.getPath(unit, tree);
+            if (path == null) {
+                path = getPath(unit, tree);
+            }
+            System.err.println("FileObject for CompilationController is " + cc.getFileObject().getPath());
+            System.err.println("Source file for CompilationUnit is " + unit.getSourceFile());
             assert path != null : "Got null tree path for " + cc.getFileObject().getPath() + " tree is " + tree;
-            handle = TreePathHandle.create(TreePath.getPath(cc.getCompilationUnit(), tree), cc);            
+            handle = TreePathHandle.create(path, cc);
         }
     }
+
+    private static TreePath getPath (CompilationUnitTree unit, Tree target) {
+	return getPath(new TreePath(unit), target);
+    }
+    
+    public static TreePath getPath(TreePath path, Tree target) {
+        //Copied from com.sun.source.util.TreePath for debugging purposes
+	path.getClass();
+	target.getClass();
+	
+	class Result extends Error {
+	    static final long serialVersionUID = -5942088234594905625L;
+	    TreePath path;
+	    Result(TreePath path) {
+		this.path = path;
+	    }
+	}
+	class PathFinder extends TreePathScanner<TreePath,Tree> {
+	    public TreePath scan(Tree tree, Tree target) {
+                if (tree != null) {
+                    System.err.println("Scan " + tree.getKind() + "\n" + tree);
+                }
+		if (tree == target) {
+                    System.err.println("FOUND MATCH");
+		    throw new Result(new TreePath(getCurrentPath(), target));
+                }
+		return super.scan(tree, target);
+	    }
+	}
+	
+	try {
+	    new PathFinder().scan(path, target);
+	} catch (Result result) {
+	    return result.path;
+	}
+        return null;
+    }    
     
 
     public static Collection<TreePathHandle> getOverridingMethodHandles (ExecutableElement e, CompilationController cc) throws IOException {
-        Collection <ExecutableElement> mtds = getOverridingMethods (e, cc);
+        Collection <ElementHandle<ExecutableElement>> mtds = getOverridingMethods (e, cc);
         Set <TreePathHandle> result = new HashSet <TreePathHandle> ();
-        for (ExecutableElement element : mtds) {
+        ElementHandle<ExecutableElement> toFind = ElementHandle.<ExecutableElement>create(e);
+        for (ElementHandle<ExecutableElement> element : mtds) {
             FileObject fob = SourceUtils.getFile(element, cc.getClasspathInfo());
             JavaSource src = JavaSource.forFileObject(fob);
             System.err.println("Got JavaSource " + src + " for " + fob.getPath());
             System.err.println("FOBS for JS " + src.getFileObjects());
             assert src.getFileObjects().contains(fob);
-            TreeFromElementFinder finder = new TreeFromElementFinder (e);
+            TreeFromElementFinder finder = new TreeFromElementFinder (element);
             src.runUserActionTask(finder, false);
             if (finder.handle != null) {
                 result.add (finder.handle);
@@ -400,9 +443,9 @@ T item = (T) path.getLeaf();
         return result;
     }
     
-    public static Collection<ExecutableElement> getOverridingMethods(ExecutableElement e, CompilationInfo info) {
+    public static Collection<ElementHandle<ExecutableElement>> getOverridingMethods(ExecutableElement e, CompilationInfo info) {
         //Copied from RetoucheUtils
-        Collection<ExecutableElement> result = new ArrayList <ExecutableElement>();
+        Collection<ElementHandle<ExecutableElement>> result = new ArrayList <ElementHandle<ExecutableElement>> ();
         TypeElement parentType = (TypeElement) e.getEnclosingElement();
         //XXX: Fixme IMPLEMENTORS_RECURSIVE were removed
         Set<ElementHandle<TypeElement>> subTypes = info.getClasspathInfo().getClassIndex().getElements(ElementHandle.create(parentType),  EnumSet.of(ClassIndex.SearchKind.IMPLEMENTORS),EnumSet.of(ClassIndex.SearchScope.SOURCE));
@@ -410,18 +453,19 @@ T item = (T) path.getLeaf();
             TypeElement type = subTypeHandle.resolve(info);
             for (ExecutableElement method: ElementFilter.methodsIn(type.getEnclosedElements())) {
                 if (info.getElements().overrides(method, e, type)) {
-                    result.add(method);
+                    result.add(ElementHandle.<ExecutableElement>create(method));
                 }
             }
         }
         return result;
     }    
     
-    public static Collection <TreePathHandle> getInvocationsOf(ExecutableElement e, CompilationController wc) throws IOException {
+    public static Collection <TreePathHandle> getInvocationsOf(ElementHandle e, CompilationController wc) throws IOException {
         assert e != null;
         assert wc != null;
         wc.toPhase (Phase.RESOLVED);
-        TypeElement type = wc.getElementUtilities().enclosingTypeElement(e);
+        Element element = e.resolve(wc);
+        TypeElement type = wc.getElementUtilities().enclosingTypeElement(element);
         ElementHandle<TypeElement> elh = ElementHandle.<TypeElement>create(type);
         assert elh != null;
         //XXX do I want the enclosing type element for elh here?
@@ -439,7 +483,7 @@ T item = (T) path.getLeaf();
      * @param on A type which presumably refers to the passed element
      * @param toFind An element, presumably a field or method, of some type (not necessarily the passed one)
      */ 
-    public static Collection <TreePathHandle> getReferencesToMember (ElementHandle<TypeElement> on, ClasspathInfo info, Element toFind) throws IOException {
+    public static Collection <TreePathHandle> getReferencesToMember (ElementHandle<TypeElement> on, ClasspathInfo info, ElementHandle toFind) throws IOException {
         FileObject ob = SourceUtils.getFile(on, info);
         assert ob != null : "SourceUtils.getFile(" + on + ") returned null"; //NOI18N        
         JavaSource src = JavaSource.forFileObject(ob);
@@ -448,17 +492,18 @@ T item = (T) path.getLeaf();
         return scanner.usages;
     }
     
-    private static final class InvocationScanner extends TreePathScanner <Tree, Element> implements CancellableTask <CompilationController> {
+    private static final class InvocationScanner extends TreePathScanner <Tree, ElementHandle> implements CancellableTask <CompilationController> {
         private CompilationController cc;
-        private final Element toFind;
-        InvocationScanner (Element toFind) {
+        private final ElementHandle toFind;
+        InvocationScanner (ElementHandle toFind) {
             this.toFind = toFind;
         }
 
         @Override
-        public Tree visitMemberSelect(MemberSelectTree node, Element p) {
+        public Tree visitMemberSelect(MemberSelectTree node, ElementHandle p) {
             assert cc != null;
-            addIfMatch(getCurrentPath(), node,p);
+            Element e = p.resolve(cc);
+            addIfMatch(getCurrentPath(), node, e);
             return super.visitMemberSelect(node, p);
         }
         
@@ -494,9 +539,12 @@ T item = (T) path.getLeaf();
             cc.toPhase(Phase.RESOLVED);
             if (cancelled) return;
             this.cc = cc;
-            TreePath path = new TreePath (cc.getCompilationUnit());
-            scan (path, toFind);
-            this.cc = null;
+            try {
+                TreePath path = new TreePath (cc.getCompilationUnit());
+                scan (path, toFind);
+            } finally {
+                this.cc = null;
+            }
         }
     }
 }

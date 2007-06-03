@@ -95,9 +95,13 @@ public class ChangeSignaturePlugin extends Refactoring {
         void reset(ExecutableElement element, CompilationInfo info) {
             idx = 0;
             this.element = element;
-            this.info = info;
+            setCompilationInfo(info);
         }
         private CompilationInfo info;
+        
+        void setCompilationInfo (CompilationInfo info) {
+            this.info = info;
+        }
         
         public CompilationInfo getCompilationInfo() {
             return info;
@@ -135,7 +139,8 @@ public class ChangeSignaturePlugin extends Refactoring {
         
 //        Collection <ExecutableElement> overrides = Utils.getOverridingMethods(theMethod, wc);
         this.overrideHandles = Utils.getOverridingMethodHandles(theMethod, wc);        
-        this.invocations = Utils.getInvocationsOf (theMethod, wc);
+        ElementHandle <ExecutableElement> theMethodHandle = ElementHandle.create (theMethod);
+        this.invocations = Utils.getInvocationsOf (theMethodHandle, wc);
         System.err.println(overrideHandles.size() + " overrides");
         System.err.println(invocations.size() + " invocations");
 
@@ -148,9 +153,6 @@ public class ChangeSignaturePlugin extends Refactoring {
             
             VariableNameScanner variableNameCollector = new VariableNameScanner (
                     VariableNameScanner.Mode.SCAN_METHOD_BODIES);
-            
-            ElementHandle <ExecutableElement> theMethodHandle = 
-                    ElementHandle.<ExecutableElement>create (theMethod);
             
             final ParameterChangeContext changes = new ParameterChangeContext (requestedChanges, scan);
             BlockTree bodyTree = theMethodTree.getBody();
@@ -199,21 +201,26 @@ public class ChangeSignaturePlugin extends Refactoring {
                         public void run(CompilationController cc) throws Exception {
                             if (cancelled) return;
                             cc.toPhase (Phase.RESOLVED);
-                            final VariableNameScanner nameCollector = 
-                                    new VariableNameScanner (VariableNameScanner.Mode.SCAN_METHOD_BODIES);
-                            nameCollector.scan(tree, changes);
-                            List <? extends VariableTree> parameters = tree.getParameters();
-                            int max = parameters.size();
-                            ExecutableElement methodElement = (ExecutableElement) 
-                                    override.resolveElement(cc);
-//                                    cc.getTrees().getElement(TreePath.getPath(cc.getCompilationUnit(), tree));
-                            overriddenMethods.add(ElementHandle.create(methodElement));
-                            scan.reset (methodElement, cc);
-                            for (int i=0; i < max; i++) {
-                                VariableTree vt = parameters.get(i);
-                                parameterScanner.scan (vt, changes);
-                                pscanner.scan(tree, changes);
-                                scan.inc();
+                            CompilationInfo old = scan.getCompilationInfo();
+                            scan.setCompilationInfo(cc);
+                            try {
+                                final VariableNameScanner nameCollector = 
+                                        new VariableNameScanner (VariableNameScanner.Mode.SCAN_METHOD_BODIES);
+                                nameCollector.scan(tree, changes);
+                                List <? extends VariableTree> parameters = tree.getParameters();
+                                int max = parameters.size();
+                                ExecutableElement methodElement = (ExecutableElement) 
+                                        override.resolveElement(cc);
+                                overriddenMethods.add(ElementHandle.create(methodElement));
+                                scan.reset (methodElement, cc);
+                                for (int i=0; i < max; i++) {
+                                    VariableTree vt = parameters.get(i);
+                                    parameterScanner.scan (vt, changes);
+                                    pscanner.scan(tree, changes);
+                                    scan.inc();
+                                }
+                            } finally {
+                                scan.setCompilationInfo(old);
                             }
                         }
                     };
@@ -307,28 +314,29 @@ public class ChangeSignaturePlugin extends Refactoring {
 
             //Iterate all overrides, and generate a refactoring element for each
             for (final TreePathHandle e : overrideHandles) {
-                final FileObject fob = e.getFileObject();
-                assert fob != null : "Null fileobject for " + e;
                 final class Z implements CancellableTask <CompilationController> {
+                    private FileObject file;
                     private volatile boolean cancelled;
+                    Z (FileObject file) {
+                        this.file = file;
+                    }
                     public void cancel() {
                         this.cancelled = true;
                     }
                     public void run(CompilationController wc) throws Exception {
                         if (cancelled) return;
                         wc.toPhase (Phase.RESOLVED);
-                        MethodTree methodTree = (MethodTree) e.resolve(wc);
-                        ExecutableElement element = (ExecutableElement) e.resolveElement(wc);
+                        MethodTree methodTree = (MethodTree) e.resolve(wc).getLeaf();
                         assert methodTree != null : "Got null method tree for " + e;
-                        TypeElement typeEl = wc.getElementUtilities().enclosingTypeElement(element);
-                        ElementHandle<TypeElement> eh = ElementHandle.<TypeElement>create(wc.getElementUtilities().enclosingTypeElement(typeEl));
-                        System.err.println("Process " + t + " on " + fob.getPath());
-                        SimpleRefactoringElementImplementation refactorElement = t.getElement(methodTree, wc, refactoring.getContext(), fob);
+                        System.err.println("Process " + t + " on " + file.getPath());
+                        SimpleRefactoringElementImplementation refactorElement = t.getElement(methodTree, wc, refactoring.getContext(), file);
                         bag.add (refactoring, refactorElement);
                     }
                 };
+                FileObject file = e.getFileObject();
+                assert file != null : "Null fileobject for " + e;
                 JavaSource src = JavaSource.forFileObject(file);
-                Z z = new Z();
+                Z z = new Z(file);
                 src.runUserActionTask(z, true);
             }
             SimpleRefactoringElementImplementation refactorElement = t.getElement(theMethod,
