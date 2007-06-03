@@ -29,7 +29,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import org.netbeans.modules.j2ee.api.ejbjar.EjbJar;
-import org.netbeans.modules.j2ee.metadata.MetadataUnit;
 import org.netbeans.modules.j2ee.metadata.model.api.MetadataModel;
 import org.netbeans.modules.j2ee.spi.ejbjar.EjbJarFactory;
 import org.netbeans.modules.j2ee.spi.ejbjar.EjbJarImplementation;
@@ -353,10 +352,6 @@ public class EJBModules implements EjbJarProvider, EjbJarsInProject, AntProjectL
             return sourcesFOs;
         }
 
-        public MetadataUnit getMetadataUnit() {
-            return null;
-        }
-        
         public MetadataModel getMetadataModel() {
             throw new UnsupportedOperationException("Not supported yet.");
         }
