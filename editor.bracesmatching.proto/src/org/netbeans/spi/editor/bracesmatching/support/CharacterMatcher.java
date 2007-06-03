@@ -19,8 +19,6 @@ package org.netbeans.spi.editor.bracesmatching.support;
 import org.netbeans.modules.editor.bracesmatching.*;
 import java.util.logging.Logger;
 import javax.swing.text.BadLocationException;
-import javax.swing.text.Document;
-import javax.swing.text.Segment;
 import org.netbeans.spi.editor.bracesmatching.BracesMatcher;
 import org.netbeans.spi.editor.bracesmatching.MatcherContext;
 
@@ -33,29 +31,22 @@ import org.netbeans.spi.editor.bracesmatching.MatcherContext;
     private static final Logger LOG = Logger.getLogger(CharacterMatcher.class.getName());
     
     private final MatcherContext context;
-    private final char [] charsA;
-    private final char [] charsB;
+    private final char [] matchingPairs;
     private final int lowerBound;
     private final int upperBound;
     
     private int originOffset;
-    private char origin;
-    private char lookingFor;
+    private char originalChar;
+    private char matchingChar;
     private boolean backward;
     
     public CharacterMatcher(MatcherContext context, int lowerBound, int upperBound, char... matchingPairs) {
         this.context = context;
-        this.lowerBound = lowerBound;
-        this.upperBound = upperBound;
+        this.lowerBound = lowerBound == -1 ? Integer.MIN_VALUE : lowerBound;
+        this.upperBound = upperBound == -1 ? Integer.MAX_VALUE : upperBound;
         
         assert matchingPairs.length % 2 == 0 : "The matchingPairs parameter must contain even number of characters."; //NOI18N
-        int size = matchingPairs.length / 2;
-        this.charsA = new char [size];
-        this.charsB = new char [size];
-        for (int i = 0; i < size; i++) {
-            charsA[i] = matchingPairs[2 * i];
-            charsB[i] = matchingPairs[2 * i + 1];
-        }
+        this.matchingPairs = matchingPairs;
     }
     
     // -----------------------------------------------------
@@ -63,119 +54,37 @@ import org.netbeans.spi.editor.bracesmatching.MatcherContext;
     // -----------------------------------------------------
     
     public int [] findOrigin() throws BadLocationException {
-        Document doc = context.getDocument();
-        int offset = context.getSearchOffset();
-        int lookahead = context.getSearchLookahead();
+        int result [] = BracesMatcherSupport.findChar(
+            context.getDocument(), 
+            context.getSearchOffset(),
+            context.isSearchingBackward() ? 
+                Math.max(context.getLimitOffset(), lowerBound) :
+                Math.min(context.getLimitOffset(), upperBound),
+            matchingPairs
+        );
         
-        if (context.isSearchingBackward()) {
-            // Maybe restrict the lookahead by the lowerBound
-            if (lowerBound >= 0 && offset - lookahead < lowerBound) {
-                lookahead = offset - lowerBound;
-            }
-            
-            // check the character at the left from the caret
-            Segment text = new Segment();
-            doc.getText(offset - lookahead, lookahead, text);
-
-            for(int i = lookahead - 1; i >= 0; i--) {
-                if (detectOrigin(text.array[text.offset + i])) {
-                    originOffset = offset - (lookahead - i);
-                    return new int [] { originOffset, originOffset + 1 };
-                }
-            }
+        if (result != null) {
+            originOffset = result[0];
+            originalChar = matchingPairs[result[1]];
+            matchingChar = matchingPairs[result[1] + result[2]];
+            backward = result[2] < 0;
+            return new int [] { originOffset, originOffset + 1 };
         } else {
-            // Maybe restrict the lookahead by the lowerBound
-            if (upperBound >= 0 && offset + lookahead > upperBound) {
-                lookahead = upperBound - offset;
-            }
-            
-            // check the character at the right from the caret
-            Segment text = new Segment();
-            doc.getText(offset, lookahead, text);
-
-            for(int i = 0 ; i < lookahead; i++) {
-                if (detectOrigin(text.array[text.offset + i])) {
-                    originOffset = offset + i;
-                    return new int [] { originOffset, originOffset + 1 };
-                }
-            }
+            return null;
         }
-        
-        return null;
     }
 
     public int [] findMatches() throws BadLocationException {
-        Document doc = context.getDocument();
-        Segment text = new Segment();
+        int offset = BracesMatcherSupport.matchChar(
+            context.getDocument(),
+            backward ? originOffset : originOffset + 1,
+            backward ? 
+                Math.max(0, lowerBound) :
+                Math.min(context.getDocument().getLength(), upperBound),
+            originalChar,
+            matchingChar
+        );
         
-        if (backward) {
-            int startOffset = lowerBound >= 0 ? lowerBound : 0;
-            doc.getText(startOffset, originOffset - startOffset, text);
-            
-            int counter = 0;
-            
-            for(char ch = text.last(); Segment.DONE != ch; ch = text.previous()) {
-                if (origin == ch) {
-                    counter++;
-                } else if (lookingFor == ch) {
-                    if (counter == 0) {
-                        int match = text.getIndex() - text.offset + startOffset;
-                        return new int [] { match, match + 1 };
-                    } else {
-                        counter--;
-                    }
-                }
-            }
-        } else {
-            int startOffset = originOffset + 1;
-            doc.getText(startOffset, (upperBound >= 0 ? upperBound : doc.getLength()) - startOffset, text);
-            
-            int counter = 0;
-            
-            for(char ch = text.first(); Segment.DONE != ch; ch = text.next()) {
-                if (origin == ch) {
-                    counter++;
-                } else if (lookingFor == ch) {
-                    if (counter == 0) {
-                        int match = text.getIndex() - text.offset + startOffset;
-                        return new int [] { match, match + 1 };
-                    } else {
-                        counter--;
-                    }
-                }
-            }
-        }
-        
-        return null;
-    }
-
-    // -----------------------------------------------------
-    // private implementation
-    // -----------------------------------------------------
-    
-    private boolean detectOrigin(char ch) {
-        int idx = find(charsA, ch);
-        if (idx != -1) {
-            origin = charsA[idx];
-            lookingFor = charsB[idx];
-            backward = false;
-        } else {
-            idx = find(charsB, ch);
-            if (idx != -1) {
-                origin = charsB[idx];
-                lookingFor = charsA[idx];
-                backward = true;
-            }
-        }
-        return idx != -1;
-    }
-    
-    private int find(char [] chars, char ch) {
-        for(int i = 0; i < chars.length; i++) {
-            if (chars[i] == ch) {
-                return i;
-            }
-        }
-        return -1;
+        return offset != -1 ? new int [] { offset, offset + 1 } : null;
     }
 }

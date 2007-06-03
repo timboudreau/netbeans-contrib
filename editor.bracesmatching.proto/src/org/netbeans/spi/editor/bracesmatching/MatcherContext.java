@@ -79,6 +79,17 @@ public final class MatcherContext {
     }
     
     /**
+     * Gets an offset in a document towards which the search should go. This
+     * is basically <code>searchOffset ± searchLookahead</code> depending on
+     * the search direction.
+     * 
+     * @return The offset limiting the search, <code>searchOffset ± searchLookahead</code>.
+     */
+    public int getLimitOffset() {
+        return backward ? offset - lookahead : offset + lookahead;
+    }
+    
+    /**
      * Gets the number of characters to search through when looking for an original
      * area. When searching for an original area matchers should not look
      * further from the caret offset then the number of characters returned from

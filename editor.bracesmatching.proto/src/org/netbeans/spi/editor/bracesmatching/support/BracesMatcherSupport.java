@@ -16,6 +16,9 @@
  */
 package org.netbeans.spi.editor.bracesmatching.support;
 
+import javax.swing.text.BadLocationException;
+import javax.swing.text.Document;
+import javax.swing.text.Segment;
 import org.netbeans.spi.editor.bracesmatching.BracesMatcher;
 import org.netbeans.spi.editor.bracesmatching.BracesMatcherFactory;
 import org.netbeans.spi.editor.bracesmatching.MatcherContext;
@@ -89,9 +92,221 @@ public final class BracesMatcherSupport {
         return new CharacterMatcher(context, lowerBound, upperBound, matchingPairs);
     }
     
-    private BracesMatcherSupport() {
+    /**
+     * Finds a character in a document. This methods will scan a document area between
+     * the <code>offset</code> and <code>limit</code> offsets to search for characters
+     * passed in the <code>pairs</code> parameter.
+     * 
+     * <p>The <code>offset</code> parameter determines the position in the document
+     * where searching should start. The method will search from this position
+     * towards the position specified by the <code>limit</code> parameter. That means
+     * that if <code>limit &lt; offset</code> the search will be done in the backward
+     * direction; while if <code>limit &gt; offset</code> the method will search
+     * in the forward direction.
+     * 
+     * <p>The pairs array should always contain an even number of chacters that
+     * match each other, eg. <code>char [] { '(', ')' }</code>. It is recommended
+     * to pass the 'opening' character first and the 'closing' character second.
+     * 
+     * <p>If some of the <code>pairs</code> characters is found in the specified
+     * area of the document, the method will return an array of exactly three
+     * integers. The numbers returned have the following meaning.
+     * 
+     * <ul>
+     * <li><code>int[0]</code> - offset in the document where the character
+     * was found.
+     * <li><code>int[1]</code> - index in the <code>pairs</code> array of the
+     * character that was found.
+     * <li><code>int[2]</code> - flag, indicating whether the search for the
+     * matching character should be done bacwkard or forward from the offset returned
+     * in <code>int[0]</code>. The value of this flag is either <code>-1</code>
+     * for bacward search or <code>+1</code> for forward search. The value can
+     * also be used for determining the index of the matching character in the
+     * <code>pairs</code> array simply by adding it to <code>int[1]</code>.
+     * </ul>
+     * 
+     * <div class="nonnormative">
+     * The code below demonstrates how the original and the matching characters
+     * and the direction in which the matching character should lay can be determined
+     * from the return value.
+     * 
+     * <pre>
+     * int offset = result[0];
+     * char original = pairs[result[1]];
+     * char matching = pairs[result[1] + result[2]];
+     * boolean backward = result[2] &lt; 0;
+     * </pre>
+     * </div>
+     * 
+     * @param document The document to scan.
+     * @param offset The offset in the document to start searching at.
+     * @param limit The offset in the document to search towards.
+     * @param pairs The pairs of matching characters to search for.
+     * 
+     * @return The search results as an array of three integers or <code>null</code>
+     *   if none of the <code>pairs</code> characters was found in the specified
+     *   area of the document.
+     * @throws javax.swing.text.BadLocationException If the offsets are incorrect.
+     */
+    public static int [] findChar(Document document, int offset, int limit, char... pairs) throws BadLocationException {
+        assert pairs.length % 2 == 0 : "The pairs parameter must contain even number of characters."; //NOI18N
+        
+        boolean backward = limit < offset;
+        int lookahead = backward ? offset - limit : limit - offset;
+        int [] result = new int [3];
+        
+        if (backward) {
+            // check the character at the left from the caret
+            Segment text = new Segment();
+            document.getText(offset - lookahead, lookahead, text);
+
+            for(int i = lookahead - 1; i >= 0; i--) {
+                if (detectOrigin(result, text.array[text.offset + i], pairs)) {
+                    result[0] = offset - (lookahead - i);
+                    return result;
+                }
+            }
+        } else {
+            // check the character at the right from the caret
+            Segment text = new Segment();
+            document.getText(offset, lookahead, text);
+
+            for(int i = 0 ; i < lookahead; i++) {
+                if (detectOrigin(result, text.array[text.offset + i], pairs)) {
+                    result[0] = offset + i;
+                    return result;
+                }
+            }
+        }
+        
+        return null;
     }
 
+    /**
+     * Searches for a matching character. This method will search <code>document</code>
+     * in the area between <code>offset</code> and <code>limit</code> for
+     * the <code>matching</code> character. The method will automatically skip
+     * any additional pairs of <code>original</code> - <code>matching</code> characters
+     * in the searched area.
+     * 
+     * <p>The <code>offset</code> parameter determines the position in the document
+     * where searching should start. The method will search from this position
+     * towards the position specified by the <code>limit</code> parameter. That means
+     * that if <code>limit &lt; offset</code> the search will be done in the backward
+     * direction; while if <code>limit &gt; offset</code> the method will search
+     * in the forward direction.
+     * 
+     * <div class="nonnormative">This method in combination with <code>findChar</code>
+     * can be used for creating a character matcher as demonstrated below.
+     * 
+     * <pre>
+     * int originOffset;
+     * char originalChar;
+     * char matchingChar;
+     * boolean backward;
+     * 
+     * int [] findOrigin() {
+     *   int result[] = findChar(doc, offset, limit, PAIRS);
+     *   if (result != null) {
+     *     originOffset = result[0];
+     *     originalChar = PAIRS[result[1]];
+     *     matchingChar = PAIRS[result[1] + result[2]];
+     *     backward = result[2] &lt; 0;
+     * 
+     *     return new int [] { originOffset, originOffset + 1 };
+     *   } else {
+     *     return null;
+     *   }
+     * }
+     * 
+     * int [] findMatches() {
+     *   int offset = matchCharacter(
+     *     doc, 
+     *     backward ? originOffset : originOffset + 1, 
+     *     backward ? 0 : doc.getLength(), 
+     *     originalChar, 
+     *     matchingChar);
+     * 
+     *   return offset != -1 ? new int [] { offset, offset + 1 } : null;
+     * }
+     * </pre>
+     * </div>
+     * 
+     * @param document The document to search in.
+     * @param offset The offset in the document to start seacrhing at.
+     * @param limit The offset in the document to search towards.
+     * @param origin The original character.
+     * @param matching The matching character. This is the character we are searching for.
+     * 
+     * @return The offset of the matching character or <code>-1</code> if the matching
+     *   character can't be found in the specified area of the document.
+     * @throws javax.swing.text.BadLocationException If the offsets are invalid.
+     */
+    public static int matchChar(Document document, int offset, int limit, char origin, char matching) throws BadLocationException {
+        boolean backward = limit < offset;
+        int lookahead = backward ? offset - limit : limit - offset;
+        
+        if (backward) {
+            // check the character at the left from the caret
+            Segment text = new Segment();
+            document.getText(offset - lookahead, lookahead, text);
+
+            int count = 0;
+            for(int i = lookahead - 1; i >= 0; i--) {
+                if (origin == text.array[text.offset + i]) {
+                    count++;
+                } else if (matching == text.array[text.offset + i]) {
+                    if (count == 0) {
+                        return offset - (lookahead - i);
+                    } else {
+                        count--;
+                    }
+                }
+            }
+        } else {
+            // check the character at the right from the caret
+            Segment text = new Segment();
+            document.getText(offset, lookahead, text);
+
+            int count = 0;
+            for(int i = 0 ; i < lookahead; i++) {
+                if (origin == text.array[text.offset + i]) {
+                    count++;
+                } else if (matching == text.array[text.offset + i]) {
+                    if (count == 0) {
+                        return offset + i;
+                    } else {
+                        count--;
+                    }
+                }
+            }
+        }
+        
+        return -1;
+    }
+    
+    // -----------------------------------------------------
+    // private implementation
+    // -----------------------------------------------------
+    
+    private static boolean detectOrigin(int [] results, char ch, char... pairs) {
+        int cnt = pairs.length / 2;
+        
+        for(int idx = 0; idx < 2; idx++) {
+            for(int i = 0; i < cnt; i++) {
+                int i2 = 2 * i + idx;
+                
+                if (ch == pairs[i2]) {
+                    results[1] = i2;
+                    results[2] = idx == 0 ? 1 : -1;
+                    return true;
+                }
+            }
+        }        
+        
+        return false;
+    }
+    
     // Used from the layer
     private static BracesMatcherFactory defaultMatcherFactory() {
         return new BracesMatcherFactory() {
@@ -99,5 +314,9 @@ public final class BracesMatcherSupport {
                 return defaultMatcher(context, -1, -1);
             }
         };
+    }
+
+    // Preventing instantiation
+    private BracesMatcherSupport() {
     }
 }

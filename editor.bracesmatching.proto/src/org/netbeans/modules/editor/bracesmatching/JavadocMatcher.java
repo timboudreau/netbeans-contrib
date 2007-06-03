@@ -16,7 +16,6 @@
  */
 package org.netbeans.modules.editor.bracesmatching;
 
-import java.util.ArrayList;
 import java.util.List;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
@@ -39,7 +38,12 @@ public final class JavadocMatcher implements BracesMatcher, BracesMatcherFactory
 
     private final MatcherContext context;
     
-    private TokenSequence<? extends TokenId> jseq;
+    private TokenSequence<? extends TokenId> jdocSeq;
+    private int jdocStart;
+    private int jdocEnd;
+
+//    private int [] matchingArea;
+    
     private BracesMatcher defaultMatcher;
     
     public JavadocMatcher() {
@@ -56,99 +60,104 @@ public final class JavadocMatcher implements BracesMatcher, BracesMatcherFactory
     
     public int[] findOrigin() throws BadLocationException, InterruptedException {
         int caretOffset = context.getSearchOffset();
-        TokenHierarchy<Document> th = TokenHierarchy.get(context.getDocument());
-        TokenSequence<? extends TokenId> embedded = th.tokenSequence();
-        List<TokenSequence<? extends TokenId>> sequences = new ArrayList<TokenSequence<? extends TokenId>>();
-
-        do {
-            TokenSequence<? extends TokenId> seq = embedded;
-            embedded = null;
-
-            sequences.add(seq);
-            
-            // Find the token at the caret's position
-            seq.move(caretOffset);
-            if (seq.moveNext()) {
-                // Drill down to the embedded sequence
-                embedded = seq.embedded();
-            }
-
-        } while (embedded != null);
+        boolean backward = context.isSearchingBackward();
         
+        TokenHierarchy<Document> th = TokenHierarchy.get(context.getDocument());
+        List<TokenSequence<? extends TokenId>> sequences = MasterMatcher.getEmbeddedTokenSequences(th, caretOffset, backward);
+
         for(int i = sequences.size() - 1; i >= 0; i--) {
             TokenSequence<? extends TokenId> seq = sequences.get(i);
             if (seq.language() == JavadocTokenId.language()) {
-                jseq = seq;
+                jdocSeq = seq;
+                if (i > 0) {
+                    TokenSequence<? extends TokenId> javaSeq = sequences.get(i - 1);
+                    jdocStart = javaSeq.offset();
+                    jdocEnd = javaSeq.offset() + javaSeq.token().length();
+                } else {
+                    // jdocSeq is the top level sequence, ie the whole document is just javadoc
+                    jdocStart = 0;
+                    jdocEnd = context.getDocument().getLength();
+                }
                 break;
             }
         }
+
+        assert jdocSeq != null : "Not in javadoc"; //NOI18N
         
-        assert jseq != null : "Not in javadoc"; //NOI18N
+//        if (caretOffset >= jdocStart && 
+//            ((backward && caretOffset <= jdocStart + 3) ||
+//            (!backward && caretOffset < jdocStart + 3))
+//        ) {
+//            matchingArea = new int [] { jdocEnd - 2, jdocEnd };
+//            return new int [] { jdocStart, jdocStart + 3 };
+//        }
+//
+//        if (caretOffset <= jdocEnd && 
+//            ((backward && caretOffset > jdocEnd - 2) ||
+//            (!backward && caretOffset >= jdocEnd - 2))
+//        ) {
+//            matchingArea = new int [] { jdocStart, jdocStart + 3 };
+//            return new int [] { jdocEnd - 2, jdocEnd };
+//        }
         
         // look for tags first
-        jseq.move(caretOffset);
-        if (jseq.moveNext()) {
-            if (isTag(jseq.token())) {
-                int s = jseq.offset();
-                int e = jseq.offset() + jseq.token().length();
-                if (s < caretOffset || !context.isSearchingBackward()) {
+        jdocSeq.move(caretOffset);
+        if (jdocSeq.moveNext()) {
+            if (isTag(jdocSeq.token())) {
+                int s = jdocSeq.offset();
+                int e = jdocSeq.offset() + jdocSeq.token().length();
+                if (s < caretOffset || !backward) {
                     return new int [] { s, e };
                 }
             }
 
-            int limitOffset = context.isSearchingBackward() ? 
-                caretOffset - context.getSearchLookahead() : 
-                caretOffset + context.getSearchLookahead();
-
-            while(moveTheSequence(jseq, context.isSearchingBackward(), limitOffset)) {
-                if (isTag(jseq.token())) {
-                    int s = jseq.offset();
-                    int e = jseq.offset() + jseq.token().length();
+            while(moveTheSequence(jdocSeq, backward, context.getLimitOffset())) {
+                if (isTag(jdocSeq.token())) {
+                    int s = jdocSeq.offset();
+                    int e = jdocSeq.offset() + jdocSeq.token().length();
                     return new int [] { s, e };
                 }
             }
         }
 
-        int seqS = getSequenceStart(jseq);
-        int seqE = getSequenceEnd(jseq);
-        if (seqS != -1 && seqE != -1) {
-            defaultMatcher = BracesMatcherSupport.defaultMatcher(context, seqS, seqE);
-            return defaultMatcher.findOrigin();
-        } else {
-            return null;
-        }
+        defaultMatcher = BracesMatcherSupport.defaultMatcher(context, jdocStart, jdocEnd);
+        return defaultMatcher.findOrigin();
     }
 
     public int[] findMatches() throws InterruptedException, BadLocationException {
         if (defaultMatcher != null) {
             return defaultMatcher.findMatches();
         }
+    
+//        if (matchingArea != null) {
+//            return matchingArea;
+//        }
         
-        assert jseq != null : "No javadoc token sequence"; //NOI18N
+        assert jdocSeq != null : "No javadoc token sequence"; //NOI18N
         
-        Token<? extends TokenId> tag = jseq.token();
+        Token<? extends TokenId> tag = jdocSeq.token();
         assert tag.id() == JavadocTokenId.HTML_TAG : "Wrong token"; //NOI18N
         
         if (isSingleTag(tag)) {
-            return new int [] { jseq.offset(), jseq.offset() + jseq.token().length() };
+            return new int [] { jdocSeq.offset(), jdocSeq.offset() + jdocSeq.token().length() };
         }
         
         boolean backward = !isOpeningTag(tag);
         int cnt = 0;
         
-        while(moveTheSequence(jseq, backward, -1)) {
-            if (!isTag(jseq.token())) {
+        while(moveTheSequence(jdocSeq, backward, -1)) {
+            if (!isTag(jdocSeq.token())) {
                 continue;
             }
             
-            if (matchTags(tag, jseq.token())) {
-                if ((backward && !isOpeningTag(jseq.token())) ||
-                    (!backward && isOpeningTag(jseq.token()))
+            if (matchTags(tag, jdocSeq.token())) {
+                if ((backward && !isOpeningTag(jdocSeq.token())) ||
+                    (!backward && isOpeningTag(jdocSeq.token()))
                 ) {
                     cnt++;
                 } else {
                     if (cnt == 0) {
-                        return new int [] { jseq.offset(), jseq.offset() + jseq.token().length() };
+                        return new int [] { jdocSeq.offset(), jdocSeq.offset() + jdocSeq.token().length() };
                     } else {
                         cnt--;
                     }
@@ -178,34 +187,6 @@ public final class JavadocMatcher implements BracesMatcher, BracesMatcherFactory
         return false;
     }
 
-    private static int getSequenceStart(TokenSequence<? extends TokenId> seq) {
-        int idx = seq.index();
-        seq.moveStart();
-        try {
-            if (seq.moveNext()) {
-                return seq.offset();
-            } else {
-                return -1;
-            }
-        } finally {
-            seq.moveIndex(idx);
-        }
-    }
-    
-    private static int getSequenceEnd(TokenSequence<? extends TokenId> seq) {
-        int idx = seq.index();
-        seq.moveEnd();
-        try {
-            if (seq.movePrevious()) {
-                return seq.offset() + seq.token().length();
-            } else {
-                return -1;
-            }
-        } finally {
-            seq.moveIndex(idx);
-        }
-    }
-    
     private static boolean isTag(Token<? extends TokenId> tag) {
         CharSequence s = tag.text();
         int l = s.length();

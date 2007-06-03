@@ -34,6 +34,7 @@ import org.netbeans.api.editor.mimelookup.MimeLookup;
 import org.netbeans.api.editor.mimelookup.MimePath;
 import org.netbeans.api.editor.settings.AttributesUtilities;
 import org.netbeans.api.editor.settings.EditorStyleConstants;
+import org.netbeans.api.lexer.Language;
 import org.netbeans.api.lexer.TokenHierarchy;
 import org.netbeans.api.lexer.TokenId;
 import org.netbeans.api.lexer.TokenSequence;
@@ -290,39 +291,32 @@ public final class MasterMatcher {
         }
     }
 
-    private static Collection<? extends BracesMatcherFactory> findFactories(Document document, int offset) {
+    private static Collection<? extends BracesMatcherFactory> findFactories(Document document, int offset, boolean backward) {
         MimePath mimePath = null;
 
         TokenHierarchy<? extends Document> th = TokenHierarchy.get(document);
         if (th != null) {
-            TokenSequence<? extends TokenId> embedded = th.tokenSequence();
-            TokenSequence<? extends TokenId> seq = null;
-
-            do {
-                seq = embedded;
-                embedded = null;
-
-                // Find the token at the caret's position
-                seq.move(offset);
-                if (seq.moveNext()) {
-                    // Drill down to the embedded sequence
-                    embedded = seq.embedded();
-                }
-
-            } while (embedded != null);
-
-            String path = seq.languagePath().mimePath();
-            mimePath = MimePath.parse(path);
+            List<TokenSequence<? extends TokenId>> sequences = getEmbeddedTokenSequences(th, offset, backward);
+            if (!sequences.isEmpty()) {
+                String path = sequences.get(sequences.size() - 1).languagePath().mimePath();
+                mimePath = MimePath.parse(path);
+            }
         } else {
             String mimeType = (String) document.getProperty("mimeType"); //NOI18N
-            mimePath = mimeType != null ? MimePath.parse(mimeType) : null;
+            mimePath = mimeType != null ? MimePath.parse(mimeType) : MimePath.EMPTY;
         }
 
-        if (mimePath == null) {
-            mimePath = MimePath.EMPTY;
-        }
-
-        return MimeLookup.getLookup(mimePath).lookupAll(BracesMatcherFactory.class);
+        Collection<? extends BracesMatcherFactory> factories = mimePath == null ?
+            Collections.<BracesMatcherFactory>emptyList() :
+            MimeLookup.getLookup(mimePath).lookupAll(BracesMatcherFactory.class);
+        
+//        System.out.println("@@@ '" + (mimePath == null ? "null" : mimePath.getPath()) + "', offset = " + offset + ", backward = " + backward + " -> {");
+//        for(BracesMatcherFactory f : factories) {
+//            System.out.println("@@@    " + f);
+//        }
+//        System.out.println("@@@ } --------------");
+        
+        return factories;
     }
         
     private final class Result implements Runnable {
@@ -416,6 +410,7 @@ public final class MasterMatcher {
                 // Find the original area
                 BracesMatcher [] matcher = new BracesMatcher[1];
 
+//                System.out.println("!!! ------------------- finding Origin ---------------------");
                 if (D_BACKWARD.equalsIgnoreCase(allowedDirection.toString())) {
                     origin = findOrigin(true, matcher);
                     if (origin == null) {
@@ -427,6 +422,7 @@ public final class MasterMatcher {
                         origin = findOrigin(true, matcher);
                     }
                 }
+//                System.out.println("!!! --------------------------------------------------------");
                 
                 if (origin != null && !Thread.currentThread().isInterrupted()) {
                     // Find matching areas
@@ -473,10 +469,9 @@ public final class MasterMatcher {
             if (backward) {
                 int maxLookahead = maxBwdLookahead;
                 if (B_FORWARD.equalsIgnoreCase(caretBias.toString())) {
-                    adjustedCaretOffset++;
-                    maxLookahead++;
-                    if (adjustedCaretOffset > paragraph.getEndOffset()) {
-                        adjustedCaretOffset = paragraph.getEndOffset();
+                    if (adjustedCaretOffset < paragraph.getEndOffset() - 1) {
+                        adjustedCaretOffset++;
+                        maxLookahead++;
                     }
                 } else {
                     if (maxLookahead == 0) {
@@ -484,17 +479,16 @@ public final class MasterMatcher {
                     }
                 }
 
-                lookahead = caretOffset - paragraph.getStartOffset();
+                lookahead = adjustedCaretOffset - paragraph.getStartOffset();
                 if (lookahead > maxLookahead) {
                     lookahead = maxLookahead;
                 }
             } else {
                 int maxLookahead = maxFwdLookahead;
                 if (B_BACKWARD.equalsIgnoreCase(caretBias.toString())) {
-                    adjustedCaretOffset--;
-                    maxLookahead++;
-                    if (adjustedCaretOffset < paragraph.getStartOffset()) {
-                        adjustedCaretOffset = paragraph.getStartOffset();
+                    if (adjustedCaretOffset > paragraph.getStartOffset()) {
+                        adjustedCaretOffset--;
+                        maxLookahead++;
                     }
                 } else {
                     if (maxLookahead == 0) {
@@ -502,7 +496,7 @@ public final class MasterMatcher {
                     }
                 }
                 
-                lookahead = paragraph.getEndOffset() - caretOffset;
+                lookahead = paragraph.getEndOffset() - 1 - adjustedCaretOffset;
                 if (lookahead > maxLookahead) {
                     lookahead = maxLookahead;
                 }
@@ -511,7 +505,7 @@ public final class MasterMatcher {
             Collection<? extends BracesMatcherFactory> factories = Collections.<BracesMatcherFactory>emptyList();
             
             if (lookahead > 0) {
-                factories = findFactories(document, adjustedCaretOffset);
+                factories = findFactories(document, adjustedCaretOffset, backward);
             }
             
             if (!factories.isEmpty()) {
@@ -606,16 +600,65 @@ public final class MasterMatcher {
                     bag.addHighlight(caretOffset - 1, caretOffset, CARET_BIAS_HIGHLIGHT);
                 }
             } else {
-                if (caretOffset < paragraph.getEndOffset()) {
+                if (caretOffset < paragraph.getEndOffset() - 1) {
                     bag.addHighlight(caretOffset, caretOffset + 1, CARET_BIAS_HIGHLIGHT);
                 }
             }
             
             // Show lookahead
             int bwdLookahead = Math.min(maxBwdLookahead, caretOffset - paragraph.getStartOffset());
-            int fwdLookahead = Math.min(maxFwdLookahead, paragraph.getEndOffset() - caretOffset);
+            int fwdLookahead = Math.min(maxFwdLookahead, paragraph.getEndOffset() - 1 - caretOffset);
             bag.addHighlight(caretOffset - bwdLookahead, caretOffset, MAX_LOOKAHEAD_HIGHLIGHT);
             bag.addHighlight(caretOffset, caretOffset + fwdLookahead, MAX_LOOKAHEAD_HIGHLIGHT);
         }
     } // End of Result class
+    
+    
+    // XXX: This should be moved to Lexer API !!!
+    
+    public static List<TokenSequence<? extends TokenId>> getEmbeddedTokenSequences(
+        TokenHierarchy<?> tokenHierarchy, int offset, boolean backwardBias
+    ) {
+        TokenSequence<? extends TokenId> embedded = tokenHierarchy.tokenSequence();
+        List<TokenSequence<? extends TokenId>> sequences = new ArrayList<TokenSequence<? extends TokenId>>();
+
+        do {
+            TokenSequence<? extends TokenId> seq = embedded;
+            sequences.add(seq);
+            embedded = null;
+
+            seq.move(offset);
+            if (seq.moveNext()) {
+                if (seq.offset() == offset && backwardBias) {
+                    if (seq.movePrevious()) {
+                        embedded = seq.embedded();
+                    }
+                } else {
+                    embedded = seq.embedded();
+                }
+            } else if (backwardBias && seq.movePrevious()) {
+                embedded = seq.embedded();
+            }
+        } while (embedded != null);
+        
+        return sequences;
+    }
+    
+    public static List<TokenSequence<? extends TokenId>> getEmbeddedTokenSequences(
+        TokenHierarchy<?> th, int offset, boolean backwardBias, Language<? extends TokenId> language
+    ) {
+        List<TokenSequence<? extends TokenId>> sequences = getEmbeddedTokenSequences(th, offset, backwardBias);
+
+        for(int i = sequences.size() - 1; i >= 0; i--) {
+            TokenSequence<? extends TokenId> seq = sequences.get(i);
+            if (seq.language() == language) {
+                break;
+            } else {
+                sequences.remove(i);
+            }
+        }
+        
+        return sequences;
+    }
+    
 }
