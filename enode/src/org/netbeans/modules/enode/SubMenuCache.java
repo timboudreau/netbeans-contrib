@@ -104,6 +104,9 @@ class SubMenuCache {
      * Finds the cached entry for given path. If there is none returns null.
      */
     public CacheEntry getCacheEntry(String originalPath) {
+        if (originalPath == null) {
+            return null;
+        }
         return (CacheEntry)getPathToEntryMap().get(originalPath);
     }
     

@@ -212,7 +212,7 @@ public class NbIcon extends ImageIcon {
             if (file == null) {
                 throw new IllegalStateException("Icon with description " + description + " cannot be loaded.");
             }
-            Image image = Utilities.loadImage( file );
+            Image image = Utilities.loadImage(file, true);
             if (image == null) {
                 throw new IOException("File " + file + " cannot be found.");
             }

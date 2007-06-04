@@ -36,6 +36,8 @@ import javax.swing.JComponent;
 import javax.swing.JSeparator;
 
 import org.openide.ErrorManager;
+import org.openide.filesystems.FileObject;
+import org.openide.filesystems.Repository;
 import org.openide.util.WeakListeners;
 
 import org.netbeans.api.enode.*;
@@ -277,8 +279,12 @@ public class ExtensibleActionsImpl extends ExtensibleActions {
             }
             SubMenuCache.CacheEntry entry = SubMenuCache.getInstance().getCacheEntry(objLocation);
             if (entry == null) {
-                if (LOGGABLE) log.log(obj + " with location " + objLocation + " was not found in cache");
-                continue;
+                String origLocation = tryToResolveShadow(objLocation);
+                entry = SubMenuCache.getInstance().getCacheEntry(origLocation);
+                if (entry == null) {
+                    if (LOGGABLE) log.log(obj + " with location " + objLocation + " was not found in cache");
+                    continue;
+                }
             }
             ActionCacheEntryPair pair = new ActionCacheEntryPair();
             if (entry.getParent().getParent() == null) {
@@ -332,6 +338,27 @@ public class ExtensibleActionsImpl extends ExtensibleActions {
         return arr;
     }
 
+    private String tryToResolveShadow(String shadowLocation) {
+        FileObject fo = Repository.getDefault().getDefaultFileSystem().findResource(shadowLocation + ".shadow");
+        if (fo != null) {
+            String origPathAttr = (String)fo.getAttribute("originalFile");
+            if (origPathAttr == null) {
+                log.log("Shadow file " + fo.getPath() + " is missing the originalFile attribute");
+                return null;
+            }
+            FileObject origAction = Repository.getDefault().getDefaultFileSystem().findResource(origPathAttr);
+            if (origAction == null) {
+                log.log("originalFile attribute (" + origPathAttr + ") of " + fo.getPath() + " does not reference existing action.");
+                return null;
+            }
+            int lastDotIndex = origPathAttr.lastIndexOf('.');
+            String pathWithoutExt = origPathAttr.substring(0, lastDotIndex);
+            return pathWithoutExt;
+        }
+        log.log("tryToResolveShadow returning null for " + shadowLocation);
+        return null;
+    }
+    
     /**
      *
      */

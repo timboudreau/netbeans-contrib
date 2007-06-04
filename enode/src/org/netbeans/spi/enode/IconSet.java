@@ -120,6 +120,8 @@ import org.netbeans.modules.enode.TimedSoftReference;
 public class IconSet {
     //=======================================================================
     // Private data members
+    private static ErrorManager log = ErrorManager.getDefault().getInstance("org.netbeans.spi.enode");
+    private static boolean LOGGABLE = log.isLoggable(ErrorManager.INFORMATIONAL);
     
     //
     // Special characters in icon names (marked as default
@@ -206,9 +208,7 @@ public class IconSet {
             }
         }
         catch( Exception e ) {
-            ErrorManager manager =
-            ErrorManager.getDefault(  ).getInstance( "org.netbeans.spi.enode" );
-            manager.notify( ErrorManager.INFORMATIONAL, e );
+            log.notify( ErrorManager.INFORMATIONAL, e );
         }
     }
     
@@ -310,11 +310,12 @@ public class IconSet {
                 if (myDelegate != null) {
                     return myDelegate.getIcon(name,size) ;
                 } else {
-                    ErrorManager.getDefault().getInstance("org.netbeans.spi.enode").notify(
-                        ErrorManager.INFORMATIONAL,
-                        new IllegalStateException(
-                            "Icon with the size " + size + " does not exist")
+                    if (LOGGABLE) log.log(
+                        ErrorManager.INFORMATIONAL, "Icon with the size " + 
+                        size + " does not exist for name " + name + 
+                        "Desc: " + myDescription
                     );
+                    return NbIcon.unknownIcon(size);
                 }
             }
             
@@ -338,8 +339,7 @@ public class IconSet {
             logger.finest( "Loading MO symbol from file " + file );
             
             if (file == null) {
-                ErrorManager.getDefault().getInstance("org.netbeans.spi.enode").notify(
-                ErrorManager.INFORMATIONAL,
+                log.notify(ErrorManager.INFORMATIONAL,
                 new IllegalStateException("File cannot be computed for name " + name));
             }
             
@@ -399,9 +399,7 @@ public class IconSet {
             display = NbBundle.getBundle( myBundle ).getString( name );
         }
         catch( MissingResourceException e ) {
-            ErrorManager manager =
-            ErrorManager.getDefault(  ).getInstance( "org.netbeans.spi.enode" );
-            manager.notify( ErrorManager.INFORMATIONAL, e );
+            log.notify( ErrorManager.INFORMATIONAL, e );
             
             display = name;
         }
@@ -483,9 +481,7 @@ public class IconSet {
             myDefaultSize = Integer.parseInt( value );
         }
         catch( NumberFormatException nfe ) {
-            ErrorManager manager =
-            ErrorManager.getDefault(  ).getInstance( "org.netbeans.spi.enode" );
-            manager.notify( ErrorManager.INFORMATIONAL, nfe );
+            log.notify( ErrorManager.INFORMATIONAL, nfe );
         }
     }
     
@@ -616,9 +612,7 @@ public class IconSet {
             size = Integer.parseInt( suffix );
         }
         catch( Exception e ) {
-            ErrorManager manager =
-            ErrorManager.getDefault(  ).getInstance( "org.netbeans.spi.enode" );
-            manager.notify( ErrorManager.INFORMATIONAL, e );
+            log.notify( ErrorManager.INFORMATIONAL, e );
         }
         
         return size;

@@ -93,7 +93,12 @@ public class FactoryWrapper implements LookupContentFactory {
     boolean matches(Template template) {
         if (template.getType() != null) {
             if (obj != null) {
-                return template.getType().isAssignableFrom(obj.getClass());
+                // after the factory object was created we cannot determine
+                // which interfaces it implements and do not want to go
+                // through the expensive check bellow we simply return
+                // true here and the lookup implementation will handle
+                // correct return value from the lookup
+                return true;
             }
             if (! resultImplements().contains(template.getType().getName())) {
                 return false;
@@ -110,6 +115,9 @@ public class FactoryWrapper implements LookupContentFactory {
     private List resultImplements() {
         String classAttr = (String)f.getAttribute("implements"); // NOI18N
         ArrayList res = new ArrayList();
+        if (classAttr == null) {
+            return res;
+        }
         StringTokenizer t = new StringTokenizer(classAttr, ",");
         while (t.hasMoreElements()) {
             res.add(t.nextElement());

@@ -337,11 +337,40 @@ public class ExtensibleActionsTest extends NbTestCase {
 
         Action[] actions = NodeOp.findActions(new Node[] { en1, en2 });
         assertEquals("Actions array should contain 1 element", 1, actions.length);
-        JPopupMenu jp = Utilities.actionsToPopup(actions, org.openide.util.lookup.Lookups.singleton(en1));
+        JPopupMenu jp = Utilities.actionsToPopup(actions, org.openide.util.lookup.Lookups.fixed(new Node[] { en1, en2 }));
         assertEquals("Popup should contain 1 component", 1, jp.getComponentCount());
         assertTrue("The component should be menu", jp.getComponent(0) instanceof javax.swing.JMenu);
         javax.swing.JMenu jm = (javax.swing.JMenu)jp.getComponent(0);
         assertEquals("Submenu should contain 3 elements", 3, jm.getMenuComponentCount());
+    }
+    
+    /**
+     * This test should ensure that when the user selects more nodes in the explorer
+     * that share common submenu the resulting submenu is really shown.
+     * The tests performs following steps:
+     * <OL><LI> Create two instances of ExtensibleNode with folder set to "test"
+     *     <LI> No actions should be returned by getActions since the "test" folder
+     *          is not there
+     *     <LI> Create a subfolder of the config folder containing two acitons files
+     *     <LI> Check whether the folder is represented by an action when both nodes
+     *          are selected
+     *     <LI> Convert the action to popup
+     *     <LI> The popup should contain one element (JMenu)
+     * </OL>
+     */
+    public void testSubMenuShadow() throws Exception {
+        ExtensibleNode en1 = new ExtensibleNode("test5", false);
+        ExtensibleNode en2 = new ExtensibleNode("test5", false);
+
+        Action[] actions = NodeOp.findActions(new Node[] { en1, en2 });
+        assertEquals("Actions array should contain 1 element", 1, actions.length);
+        JPopupMenu jp = Utilities.actionsToPopup(actions, org.openide.util.lookup.Lookups.fixed(new Node[] { en1, en2 }));
+        assertEquals("Popup should contain 1 component", 1, jp.getComponentCount());
+        assertTrue("The component should be menu", jp.getComponent(0) instanceof javax.swing.JMenu);
+        javax.swing.JMenu jm = (javax.swing.JMenu)jp.getComponent(0);
+        assertEquals("Submenu should contain 1 element", 1, jm.getMenuComponentCount());
+        JMenuItem jmi = (JMenuItem)jm.getMenuComponent(0);
+        assertTrue(jmi.isEnabled());
     }
     
     /**

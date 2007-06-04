@@ -21,6 +21,7 @@ package org.netbeans.modules.enode;
 
 import java.awt.Component;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
@@ -36,7 +37,11 @@ import org.openide.awt.Actions;
 import org.openide.util.Lookup;
 
 import org.netbeans.modules.enode.*;
+import org.openide.awt.DynamicMenuContent;
 import org.openide.util.ContextAwareAction;
+import org.openide.util.actions.BooleanStateAction;
+import org.openide.util.actions.Presenter;
+import org.openide.util.actions.SystemAction;
 
 /**
  * Special action serving as a wrapper for submenus added to the popup
@@ -235,12 +240,25 @@ public class SubMenuAction extends AbstractAction implements
 
         public void addAllCacheItems(Collection/*<SubMenuCache.CacheEntry>*/ newEntries) {
             if (LOGGABLE) log.log("addAllCacheItems on menu" + getText());
-            for (Iterator it = newEntries.iterator(); it.hasNext();) {
-                SubMenuCache.CacheEntry e = (SubMenuCache.CacheEntry)it.next();
-                if (LOGGABLE) log.log("addAllCacheItems adding " + e);
+            SubMenuCache.CacheEntry e;
+            Collection entryND = new ArrayList();
+            for(Iterator it = newEntries.iterator(); it.hasNext(); ) {
+                e = (SubMenuCache.CacheEntry)it.next();
+                if(!entryND.contains(e)) {
+                    if (LOGGABLE) log.log("addAllCacheItems adding " + e);
+                    entryND.add(e);
+                } else { 
+                    if (LOGGABLE) log.log("addAllCacheItems removing duplicate " + e);
+                    it.remove();
+                }
+            }
+            e = null;
+            for (Iterator it = entryND.iterator(); it.hasNext();) {
+                e = (SubMenuCache.CacheEntry)it.next();
                 addItemFromCache(e);
             }
         }
+        
         /** Converts the items to real elements */
         public void buildMenu() {
             if (LOGGABLE) log.log("buildMenu() " + getText());
@@ -256,9 +274,23 @@ public class SubMenuAction extends AbstractAction implements
                             if ((ctx != null) && a instanceof ContextAwareAction) {
                                 a = ((ContextAwareAction)a).createContextAwareInstance(ctx);
                             }
-                            JMenuItem menuItem = new JMenuItem();
-                            Actions.connect(menuItem, a, true);
-                            add(menuItem);
+                            JMenuItem item;
+                            if (a instanceof Presenter.Popup) {
+                                item = ((Presenter.Popup) a).getPopupPresenter();
+                                
+                                if (item == null) {
+                                    NullPointerException npe = new NullPointerException(
+                                            "buildMenu, getPopupPresenter returning null for " + a
+                                            ); // NOI18N
+                                    ErrorManager.getDefault().notify(ErrorManager.INFORMATIONAL, npe);
+                                }
+                            } else {
+                                item = createPopupPresenter(a);
+                            }
+                            Component[] comps = convertComponents(item);
+                            for (int v = 0; v < comps.length;v++) {
+                                add(comps[v]);
+                            }
                         }
                         if (obj instanceof JSeparator) {
                             // create a "clone" of the separator
@@ -311,6 +343,50 @@ public class SubMenuAction extends AbstractAction implements
             return null;
         }
     }
+    
+    /*
+     * Copy from org.netbeans.modules.openide.awt.DefaultAWTBridge
+     */
+    private static JMenuItem createPopupPresenter(Action action) {
+        if (action instanceof BooleanStateAction) {
+            BooleanStateAction b = (BooleanStateAction)action;
+            return new Actions.CheckboxMenuItem (b, false);
+        }
+        if (action instanceof SystemAction) {
+            SystemAction s = (SystemAction)action;
+            return new Actions.MenuItem (s, false);
+        }
+        return new Actions.MenuItem (action, false);
+    }
+    
+    /*
+     * Copy from org.netbeans.modules.openide.awt.DefaultAWTBridge
+     */
+    private static Component[] convertComponents(Component comp) {
+         if (comp instanceof DynamicMenuContent) {
+            Component[] toRet = ((DynamicMenuContent)comp).getMenuPresenters();
+            boolean atLeastOne = false;
+            Collection<Component> col = new ArrayList<Component>();
+            for (int i = 0; i < toRet.length; i++) {
+                if (toRet[i] instanceof DynamicMenuContent && toRet[i] != comp) {
+                    col.addAll(Arrays.asList(convertComponents(toRet[i])));
+                    atLeastOne = true;
+                } else {
+                    if (toRet[i] == null) {
+                        toRet[i] = new JSeparator();
+                    }
+                    col.add(toRet[i]);
+                }
+            }
+            if (atLeastOne) {
+                return col.toArray(new Component[col.size()]);
+            } else {
+                return toRet;
+            }
+         }
+         return new Component[] {comp};
+    }
+    
     
     /**
      * Invariant: 

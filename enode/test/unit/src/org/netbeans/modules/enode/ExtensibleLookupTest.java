@@ -99,13 +99,23 @@ public class ExtensibleLookupTest extends NbTestCase {
         if (test == null) {
             test = root.createFolder("test");
         }
-        FileObject a1 = test.createData("cookie1.instance");
-        a1.setAttribute("instanceCreate", org.netbeans.spi.enode.LookupContentFactoryManager.create(a1));
-        a1.setAttribute("factoryClass", "org.netbeans.modules.enode.test.C1Factory");
-        a1.setAttribute("implements", "org.netbeans.modules.enode.test.MONodeEnhancer");
-        assertNotNull("Object not found", en1.getLookup().lookup(MONodeEnhancer.class));
-        a1.delete();
-        assertNull("Object found but should be gone.", en1.getLookup().lookup(MONodeEnhancer.class));
+        FileObject a1 = null;
+        try {
+            a1 = test.createData("cookie1.instance");
+            a1.setAttribute("instanceCreate", org.netbeans.spi.enode.LookupContentFactoryManager.create(a1));
+            a1.setAttribute("factoryClass", "org.netbeans.modules.enode.test.C1Factory");
+            a1.setAttribute("implements", "org.netbeans.modules.enode.test.MONodeEnhancer");
+            assertNotNull("Object not found", en1.getLookup().lookup(MONodeEnhancer.class));
+            // Mantis 241: wrong caching was causing the second node with the same
+            // path to fail.
+            ExtensibleNode en2 = new ExtensibleNode("test", false);
+            assertNotNull("Object not found", en2.getLookup().lookup(MONodeEnhancer.class));
+        } finally {
+            if (a1 != null) {
+                a1.delete();
+            }
+            assertNull("Object found but should be gone.", en1.getLookup().lookup(MONodeEnhancer.class));
+        }
     }
 
     /**
@@ -121,7 +131,7 @@ public class ExtensibleLookupTest extends NbTestCase {
         if (test == null) {
             test = root.createFolder("test");
         }
-        FileObject a1 = test.createData("cookie1.instance");
+        FileObject a1 = test.createData("cookie2.instance");
         a1.setAttribute("instanceCreate", org.netbeans.spi.enode.LookupContentFactoryManager.create(a1));
         a1.setAttribute("factoryClass", "org.netbeans.modules.enode.test.C1Factory");
         a1.setAttribute("implements", "org.netbeans.modules.enode.test.MONodeEnhancer");
@@ -130,4 +140,46 @@ public class ExtensibleLookupTest extends NbTestCase {
         a1.delete();
         assertNull("Object found but should be gone.", en1.getLookup().lookup(MONodeEnhancer.class));
     }
+
+    /**
+     * Test the ability to get an object from the declarative specification into
+     * the content of the lookup <code>ExtensibleNode.getLookup()</code>.
+     * The test performs following steps:
+     * <OL> <LI> Create an ExtensibleNode with path "test"
+     *      <LI> Check the content of its lookup (should be empty)
+     *      <LI> Use Filesystems API to create an object on the system file system
+     *      in folder "test".
+     *      The configuration file tells the lookup to create an instance of MONodeEnhancer
+     *      <LI> MONodeEnhancer should be found in the lookup
+     *      <LI> Delete the configuration file
+     *      <LI> The lookup should not return the object (it was deleted).
+     * </OL>
+     */
+    public void testSpeedOfFindObjectInLookup() throws Exception {
+        ExtensibleNode en1 = new ExtensibleNode("test", false);
+        assertNull("No objects at the start", en1.getLookup().lookup(MONodeEnhancer.class));
+        FileObject test = root.getFileObject("test");
+        if (test == null) {
+            test = root.createFolder("test");
+        }
+        FileObject a1 = test.createData("cookie3.instance");
+        a1.setAttribute("instanceCreate", org.netbeans.spi.enode.LookupContentFactoryManager.create(a1));
+        a1.setAttribute("factoryClass", "org.netbeans.modules.enode.test.C1Factory");
+        a1.setAttribute("implements", "org.netbeans.modules.enode.test.MONodeEnhancer");
+        
+        ExtensibleNode n[] = new ExtensibleNode[1000];
+        for (int i = 0; i < n.length; i++) {
+            n[i] = new ExtensibleNode("test", false);
+        }
+        long start = System.currentTimeMillis();
+        for (int i = 0; i < n.length; i++) {
+            n[i].getLookup().lookup(MONodeEnhancer.class);
+        }
+        long end = System.currentTimeMillis();
+        assertTrue("It took " + (end - start), (end - start) < 500);
+        
+        a1.delete();
+        assertNull("Object found but should be gone.", en1.getLookup().lookup(MONodeEnhancer.class));
+    }
+
 }

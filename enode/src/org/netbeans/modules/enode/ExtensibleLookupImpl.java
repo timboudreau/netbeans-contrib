@@ -20,10 +20,13 @@
 package org.netbeans.modules.enode;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.openide.ErrorManager;
@@ -47,6 +50,12 @@ public class ExtensibleLookupImpl extends ProxyLookup {
 
     private static ErrorManager log = ErrorManager.getDefault().getInstance(SubMenuCache.class.getName());
     private static boolean LOGGABLE = log.isLoggable(ErrorManager.INFORMATIONAL);
+    /**
+     * Maps List<String> --> List. The key is list of
+     * folders passed as paths parameter or computed by
+     * ExtensibleNode.computeHierarchicalPaths().
+     */
+    private static Map cache = new HashMap();
 
     /** enode we (lookup) belong to */
     private ExtensibleNode enode;
@@ -117,12 +126,12 @@ public class ExtensibleLookupImpl extends ProxyLookup {
             return;
         }
         
-        if (LOGGABLE) log.log("beforeLookup " + template.getType().getName());
+        if (LOGGABLE) log.log(this + " beforeLookup " + template.getType().getName() + " thread: " + Thread.currentThread());
         Iterator c = getCandidates();
         
         while (c.hasNext()) {
             Object o = c.next();
-            if (LOGGABLE) log.log("candidate " + o);
+            if (LOGGABLE) log.log(this + " candidate " + o + " thread: " + Thread.currentThread());
             if (o instanceof LookupContentFactory) {
                 LookupContentFactory lcf = (LookupContentFactory)o;
                 if (lcf instanceof FactoryWrapper) {
@@ -130,7 +139,10 @@ public class ExtensibleLookupImpl extends ProxyLookup {
                     // that we know not to be returned anyway
                     FactoryWrapper impl = (FactoryWrapper)lcf;
                     if (! impl.matches(template)) {
-                        if (LOGGABLE) log.log("continue");
+                        if (LOGGABLE) {
+                            log.log(this + " continue " + " thread: " + Thread.currentThread());
+                            log.log(impl + " did not match " + template);
+                        }
                         continue;
                     }
                 }
@@ -147,11 +159,11 @@ public class ExtensibleLookupImpl extends ProxyLookup {
                 Object resObject = lcf.create(enode); 
                 Lookup resLookup = lcf.createLookup(enode);
                 if (resLookup != null) {
-                    if (LOGGABLE) log.log("adding lookup " + resLookup);
+                    if (LOGGABLE) log.log(this + " adding lookup " + resLookup + " thread: " + Thread.currentThread());
                     addLookup(resLookup);
                 }
                 if (resObject != null) {
-                    if (LOGGABLE) log.log("adding " + resObject);
+                    if (LOGGABLE) log.log(this + " adding " + resObject + " thread: " + Thread.currentThread());
                     content.add(resObject);
                 }
             } else {
@@ -196,20 +208,18 @@ public class ExtensibleLookupImpl extends ProxyLookup {
         List c = null;
         if (candidates == null) {
             // we are called for the first time
-            c = new LinkedList();
             String[] whereToSearch = enode.getPaths();
-            for (int i = 0; i < whereToSearch.length; i++) {
-                computeCandidates(whereToSearch[i], c);                
-            }
+            c = getCandidatesCachedInstance(whereToSearch);
             listenersAttached = true;
         }
         
         synchronized (lock) {
             if (candidates == null) {
-                candidates = c;
+                // use a copy of the static candidates cache:
+                candidates = new ArrayList(c);
             }
             // return a copy to make sure two threads have distinct copies
-            List result = new ArrayList(candidates);
+            List result = new LinkedList(candidates);
             return result.iterator();
         }
     }
@@ -260,6 +270,7 @@ public class ExtensibleLookupImpl extends ProxyLookup {
     private void changeContent() {
         synchronized (lock) {
             candidates = null;
+            cache = new HashMap();
         }
         Lookup instances = new AbstractLookup(content = new InstanceContent());
         setLookups(new Lookup[] { instances });
@@ -302,4 +313,40 @@ public class ExtensibleLookupImpl extends ProxyLookup {
         }
         return con;
     }
+    
+    /**
+     * Caches the candidates list in the static cache.
+     */
+    public List getCandidatesCachedInstance(String[] paths) {
+        // We use list as the key. It ensures that the hashCode will
+        // be same for the arrays of equals String instances.
+        Object key = Arrays.asList(paths);
+        
+        TimedSoftReference ref = null;
+        synchronized (cache) {
+            ref = (TimedSoftReference)cache.get(key);
+        }
+        List instance = null;
+        if (ref != null) {
+            instance = (List)ref.get();
+        }
+        if (instance == null) {
+            instance = new LinkedList();
+            for (int i = 0; i < paths.length; i++) {
+                computeCandidates(paths[i], instance);                
+            }
+            synchronized (cache) {
+                cache.put(key, new TimedSoftReference(instance, cache, key));
+            }
+        }
+        return instance;
+    }
+
+    public String toString() {
+        String res = "ExtensibleLookupImpl[";
+        res += "enode=" + enode;
+        res += ",candidates="+ candidates;
+        return res + "]";
+    }
+    
 }

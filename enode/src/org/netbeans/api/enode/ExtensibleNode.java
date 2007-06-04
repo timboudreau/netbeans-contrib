@@ -30,6 +30,7 @@ import javax.swing.Icon;
 import org.openide.nodes.AbstractNode;
 import org.openide.nodes.Children;
 import org.openide.util.Lookup;
+import org.openide.util.WeakListeners;
 
 
 /**
@@ -75,9 +76,15 @@ public class ExtensibleNode extends AbstractNode {
     private ExtensibleIcons iconManager;
     
     /**
-     * Listener attached to iconManager.
+     * Listener attached to iconManager (through its weak wrapper bellow).
      */
     private IconChangeListener iconChangeListener;
+    
+    /**
+     * Weak Listener attached to iconManager.
+     */
+    private PropertyChangeListener weakIconChangeListener;
+
     
     /**
      * The configured icons can be switched via setting the icon name.
@@ -214,6 +221,9 @@ public class ExtensibleNode extends AbstractNode {
         } else {            
             ii = getIconManager().getIcon(getIconName(), size);
         }
+        if (ii == null) {
+            return super.getIcon(type);
+        }
         return ii.getImage();
     }
     
@@ -240,7 +250,9 @@ public class ExtensibleNode extends AbstractNode {
     private ExtensibleIcons getIconManager() {
         if (iconManager == null) {
             iconManager = ExtensibleIcons.getInstance(getPaths());
-            iconManager.addPropertyChangeListener(getIconChangeListener());
+            PropertyChangeListener p = getIconChangeListener();
+            weakIconChangeListener = WeakListeners.propertyChange(p, iconManager);
+            iconManager.addPropertyChangeListener(weakIconChangeListener);
         }
         return iconManager;
     }
@@ -277,7 +289,8 @@ public class ExtensibleNode extends AbstractNode {
      */
     public final void setPaths(String[] paths) {
         if (iconChangeListener != null) {
-            iconManager.removePropertyChangeListener(iconChangeListener);
+            iconManager.removePropertyChangeListener(weakIconChangeListener);
+            iconChangeListener = null;
         }
         
         // clear cached values for icons and actions
