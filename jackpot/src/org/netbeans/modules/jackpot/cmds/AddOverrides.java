@@ -83,8 +83,10 @@ public class AddOverrides extends TreePathTransformer<Void,Object>  {
 	super.visitMethod(tree, p);
         ExecutableElement element = 
             (ExecutableElement)trees.getElement(getCurrentPath());
-        if (element != null && elementUtils.overridesMethod(element) &&
-                AddDeprecateds.needsAnnotation(element, override, elements))
+        if (element != null && 
+                (elementUtils.overridesMethod(element) ||
+                 elementUtils.implementsMethod(element)) &&
+               AddDeprecateds.needsAnnotation(element, override, elements))
             addOverridesAnnotation(element, tree.getModifiers());
         return null;
     }
