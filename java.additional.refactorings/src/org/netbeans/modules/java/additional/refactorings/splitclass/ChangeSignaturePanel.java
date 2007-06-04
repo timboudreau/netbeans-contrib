@@ -16,10 +16,12 @@
  */
 package org.netbeans.modules.java.additional.refactorings.splitclass;
 
+import java.awt.event.FocusEvent;
 import org.netbeans.modules.java.additional.refactorings.visitors.ParameterRenamePolicy;
 import org.netbeans.modules.java.additional.refactorings.splitclass.*;
 import java.awt.Component;
 import java.awt.Font;
+import java.awt.event.FocusListener;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -31,6 +33,7 @@ import javax.lang.model.element.ExecutableElement;
 import javax.swing.AbstractButton;
 import javax.swing.JRadioButton;
 import javax.swing.JTable;
+import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
@@ -47,7 +50,7 @@ import org.openide.util.Utilities;
  *
  * @author  Tim Boudreau
  */
-class ChangeSignaturePanel extends javax.swing.JPanel implements CustomRefactoringPanel, ListSelectionListener, DocumentListener, ParameterTableModel.UI {
+class ChangeSignaturePanel extends javax.swing.JPanel implements CustomRefactoringPanel, ListSelectionListener, DocumentListener, ParameterTableModel.UI, FocusListener {
     private final ChangeSignatureUI ui;
     private static final String PROP_POLICY = "renamePolicy";    
     public ChangeSignaturePanel(ChangeSignatureUI ui) {
@@ -62,6 +65,10 @@ class ChangeSignaturePanel extends javax.swing.JPanel implements CustomRefactori
                 Mnemonics.setLocalizedText((AbstractButton) c[i],
                         ((AbstractButton) c[i]).getText());
             }
+            if (c[i] instanceof JTextField) {
+                ((JTextField) c[i]).addFocusListener(this);
+                ((JTextField) c[i]).getDocument().addDocumentListener(this);
+            }
         }
         jTable1.setAutoCreateRowSorter(false);
         jTable1.setFillsViewportHeight(true);
@@ -69,8 +76,6 @@ class ChangeSignaturePanel extends javax.swing.JPanel implements CustomRefactori
         Font f = jTable1.getFont();
         Font nue = new Font ("Monospaced", f.getStyle(), f.getSize()); //NOI18N
         jTable1.setFont (nue);
-        methodNameField.getDocument().addDocumentListener(this);
-        returnTypeField.getDocument().addDocumentListener(this);
         dontRenameButton.putClientProperty (PROP_POLICY, ParameterRenamePolicy.DO_NOT_RENAME);
         renameIfSameButton.putClientProperty(PROP_POLICY, ParameterRenamePolicy.RENAME_IF_SAME);
         alwaysRenameButton.putClientProperty(PROP_POLICY, ParameterRenamePolicy.RENAME_UNLESS_CONFLICT);
@@ -233,7 +238,7 @@ class ChangeSignaturePanel extends javax.swing.JPanel implements CustomRefactori
         renameIfSameButton = new javax.swing.JRadioButton();
         alwaysRenameButton = new javax.swing.JRadioButton();
         jLabel2 = new javax.swing.JLabel();
-        jTextField1 = new javax.swing.JTextField();
+        defaultValueField = new javax.swing.JTextField();
         refactorFromBase = new javax.swing.JCheckBox();
 
         problemLabel.setForeground(javax.swing.UIManager.getDefaults().getColor("nb.errorForeground"));
@@ -254,7 +259,6 @@ class ChangeSignaturePanel extends javax.swing.JPanel implements CustomRefactori
         ));
         jTable1.setAutoResizeMode(javax.swing.JTable.AUTO_RESIZE_ALL_COLUMNS);
         jTable1.setNextFocusableComponent(addButton);
-        jTable1.setRowSelectionAllowed(false);
         jTable1.setSurrendersFocusOnKeystroke(true);
         jScrollPane1.setViewportView(jTable1);
 
@@ -339,8 +343,8 @@ class ChangeSignaturePanel extends javax.swing.JPanel implements CustomRefactori
         jLabel2.setText(org.openide.util.NbBundle.getMessage(ChangeSignaturePanel.class, "jLabel2.text_1")); // NOI18N
         jLabel2.setEnabled(false);
 
-        jTextField1.setText(org.openide.util.NbBundle.getMessage(ChangeSignaturePanel.class, "jTextField1.text_1")); // NOI18N
-        jTextField1.setEnabled(false);
+        defaultValueField.setText(org.openide.util.NbBundle.getMessage(ChangeSignaturePanel.class, "jTextField1.text_1")); // NOI18N
+        defaultValueField.setEnabled(false);
 
         refactorFromBase.setText(org.openide.util.NbBundle.getMessage(ChangeSignaturePanel.class, "jCheckBox1.text")); // NOI18N
         refactorFromBase.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
@@ -364,7 +368,7 @@ class ChangeSignaturePanel extends javax.swing.JPanel implements CustomRefactori
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(jLabel2)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jTextField1, javax.swing.GroupLayout.DEFAULT_SIZE, 152, Short.MAX_VALUE))))
+                        .addComponent(defaultValueField, javax.swing.GroupLayout.DEFAULT_SIZE, 152, Short.MAX_VALUE))))
             .addComponent(jLabel1)
             .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 458, Short.MAX_VALUE)
             .addComponent(dontRenameButton)
@@ -374,7 +378,7 @@ class ChangeSignaturePanel extends javax.swing.JPanel implements CustomRefactori
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                     .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
                         .addComponent(refactorFromBase)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 160, Short.MAX_VALUE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 162, Short.MAX_VALUE)
                         .addComponent(problemLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 357, Short.MAX_VALUE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -403,7 +407,7 @@ class ChangeSignaturePanel extends javax.swing.JPanel implements CustomRefactori
                     .addComponent(returnTypeLbl)
                     .addComponent(returnTypeField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabel2)
-                    .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(defaultValueField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(12, 12, 12)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
@@ -468,6 +472,7 @@ private void addButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIR
     private javax.swing.JButton addButton;
     private javax.swing.JRadioButton alwaysRenameButton;
     private javax.swing.ButtonGroup buttonGroup1;
+    private javax.swing.JTextField defaultValueField;
     private javax.swing.JRadioButton dontRenameButton;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
@@ -475,7 +480,6 @@ private void addButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIR
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JTable jTable1;
     private javax.swing.JTextArea jTextArea1;
-    private javax.swing.JTextField jTextField1;
     private javax.swing.JTextField methodNameField;
     private javax.swing.JLabel methodNameLbl;
     private javax.swing.JButton moveDownButton;
@@ -610,6 +614,12 @@ private void addButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIR
         if (!overrides.isEmpty()) {
             refactorFromBase.setEnabled(true);
         }
+        String retType = getReturnType();
+        if (retType != null && !"void".equals(retType) && !retType.equals(origMethodType)) {
+            defaultValueField.setEnabled(true);
+        } else {
+            defaultValueField.setEnabled(false);
+        }
 //        if (overrides.size() > 1) {
 //            problem = true;
 //            setProblemText(NbBundle.getMessage(ChangeSignaturePanel.class,
@@ -717,5 +727,14 @@ private void addButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIR
 
     public void changedUpdate(DocumentEvent e) {
         change();
+    }
+
+    public void focusGained(FocusEvent e) {
+        JTextField jtf = (JTextField) e.getComponent();
+        jtf.selectAll();
+    }
+
+    public void focusLost(FocusEvent e) {
+        //do nothing
     }
 }

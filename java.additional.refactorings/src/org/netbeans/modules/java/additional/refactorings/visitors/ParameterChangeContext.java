@@ -24,6 +24,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import javax.lang.model.element.Element;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.TypeElement;
 import org.netbeans.api.java.source.CompilationController;
@@ -105,6 +106,7 @@ public final class ParameterChangeContext {
             Map <ExecutableElement, Set <Tree>> result = new HashMap <ExecutableElement, Set <Tree>> ();
             for (Map.Entry <ElementHandle<ExecutableElement>, Set<TreePathHandle>> e : memberSelectsThatNeedQualifyingAfterParamChanges.entrySet()) {
                 ElementHandle<ExecutableElement> key = e.getKey();
+                if (key == null) continue; //XXX unit tests
                 Set <TreePathHandle> val = e.getValue();
                 ExecutableElement el = key.resolve(info);
                 Set <Tree> nuvals = new HashSet <Tree> (val.size());
@@ -184,10 +186,22 @@ public final class ParameterChangeContext {
             return scanContext.getCurrentMethodElement();
         }
         
-        public Set <TreePathHandle> getMemberSelectsThatNeedRequalifying (ExecutableElement overriddingMethod, CompilationInfo info) {
-            ElementHandle<ExecutableElement> handle = ElementHandle.<ExecutableElement>create(overriddingMethod);
-            Set <TreePathHandle> result = memberSelectsThatNeedQualifyingAfterParamChanges.get(handle);
+        public Set <TreePathHandle> getMemberSelectsThatNeedRequalifying (ExecutableElement overridingMethod, CompilationInfo info) {
+            Set <TreePathHandle> result = getRequalifySetFor (overridingMethod, info);
             return result == null ? Collections.<TreePathHandle>emptySet() : result;
+        }
+        
+        private Set <TreePathHandle> getRequalifySetFor (ExecutableElement method, CompilationInfo info) {
+            Set <TreePathHandle> result = null;
+            for (Map.Entry<ElementHandle<ExecutableElement>, Set<TreePathHandle>> entry : memberSelectsThatNeedQualifyingAfterParamChanges.entrySet()) {
+                ElementHandle<ExecutableElement> el = entry.getKey();
+                Set <TreePathHandle> set = entry.getValue();
+                Element e = el.resolve(info);
+                if (method.equals(e)) {
+                    result = set;
+                }
+            }
+            return result;
         }
         
         /** Call when data done being added, so a reference to the compile tree
@@ -203,13 +217,21 @@ public final class ParameterChangeContext {
         public ElementHandle <ExecutableElement> getHandleToCurrentMethodElement() {
             return ElementHandle.create(scanContext.getCurrentMethodElement());
         }
+
+        public void addMemberSelectThatNeedsRequalifying (TreePathHandle pathToMemberSelect, ElementHandle<ExecutableElement> on, CompilationInfo info) {
+            assert on != null;
+            assert info != null;
+            assert pathToMemberSelect != null;
+            addMemberSelectThatNeedsRequalifying(pathToMemberSelect, on.resolve(info), info);
+        }
         
-        public void addMemberSelectThatNeedsRequalifying (TreePathHandle pathToMemberSelect, ElementHandle<ExecutableElement> on) {
-            System.err.println("Added member that needs requalifying: " + pathToMemberSelect);
-            Set <TreePathHandle> handles = memberSelectsThatNeedQualifyingAfterParamChanges.get(on);
+        public void addMemberSelectThatNeedsRequalifying (TreePathHandle pathToMemberSelect, ExecutableElement on, CompilationInfo info) {
+            System.err.println("Added member that needs requalifying: " + pathToMemberSelect + " on " + on);
+            Set <TreePathHandle> handles = getRequalifySetFor(on, info);
             if (handles == null) {
                 handles = new HashSet <TreePathHandle> ();
-                memberSelectsThatNeedQualifyingAfterParamChanges.put (on, handles);
+                ElementHandle <ExecutableElement> handle = ElementHandle.<ExecutableElement>create(on);
+                memberSelectsThatNeedQualifyingAfterParamChanges.put (handle, handles);
             }
             handles.add (pathToMemberSelect);
         }

@@ -16,15 +16,21 @@
  */
 package org.netbeans.modules.java.additional.refactorings.splitclass;
 
+import com.sun.source.tree.IdentifierTree;
 import com.sun.source.tree.MethodInvocationTree;
 import com.sun.source.tree.MethodTree;
+import com.sun.source.tree.ReturnTree;
 import com.sun.source.tree.Tree;
 import com.sun.source.tree.Tree.Kind;
 import com.sun.source.util.TreePath;
+import com.sun.source.util.TreePathScanner;
 import java.io.IOException;
+import java.util.HashSet;
+import java.util.Set;
 import org.netbeans.api.java.source.CancellableTask;
 import org.netbeans.api.java.source.JavaSource;
 import org.netbeans.api.java.source.JavaSource.Phase;
+import org.netbeans.api.java.source.TreeMaker;
 import org.netbeans.api.java.source.TreePathHandle;
 import org.netbeans.api.java.source.WorkingCopy;
 import org.netbeans.modules.refactoring.spi.SimpleRefactoringElementImplementation;
@@ -106,6 +112,61 @@ public class MethodReturnTypeChangeElement extends SimpleRefactoringElementImple
     }
     
     private void changeMethod (WorkingCopy copy, TreePath path, MethodTree tree) {
-        
+        TreeMaker maker = copy.getTreeMaker();
+        Tree retTypeTree = tree.getReturnType();
+        ReturnLocator ret = new ReturnLocator();
+        Set <ReturnTree> returns = new HashSet <ReturnTree> ();
+        ret.scan(path, returns);
+        for (ReturnTree rt : returns) {
+            ReturnTree nue;
+            if ("void".equals(newType)) {
+                //maybe we should look for statements that are just return statements,
+                //see if they're in a block by themselves and if so remove
+                //that block and any if/while/etc. that owns it - basically figure
+                //out how to prove that the block now does nothing
+                nue = maker.Return(null);
+            } else {
+                //Do what here?  Maybe nothing?
+                nue = null;//maker.Return(maker.Identifier(newType));
+            }
+            if (nue != null) {
+                copy.rewrite (rt, nue);
+            }
+            /*
+            TreePath p = TreePath.getPath(copy.getCompilationUnit(), rt);
+            do {
+                p = p.getParentPath();
+            } while (p != null && !(p.getLeaf() instanceof StatementTree));
+            StatementTree st = p != null ? (StatementTree) p.getLeaf() : null;
+            if (st != null) {
+                do {
+                    p = p.getParentPath();
+                } while (p != null && !(p.getLeaf() instanceof BlockTree));
+                if (p != null) {
+                    BlockTree bt = (BlockTree) p.getLeaf();
+                    assert bt.getStatements().contains (st);
+                    List <StatementTree> statements = new ArrayList <StatementTree> (bt.getStatements());
+                    //XXX we need to filter these statements - we're probably 
+                    //removing too much here.  In some cases, probably need to
+                    //leave a return with no argument.
+                    statements.remove(st);
+                    BlockTree nue = maker.Block(statements, bt.isStatic());
+                    copy.rewrite (bt, nue);
+                }
+            }
+             */ 
+        }
+        IdentifierTree nue = maker.Identifier(newType);
+        copy.rewrite(retTypeTree, nue);
+    }
+    
+    private static final class ReturnLocator extends TreePathScanner<Void, Set<ReturnTree>> {
+        @Override
+        public Void visitReturn(ReturnTree tree, Set<ReturnTree> set) {
+            set.add (tree);
+            //XXX check the expression - make sure there is nothing like
+            //      return (foo[3] = 24);
+            return super.visitReturn( tree, set );
+        }
     }
 }

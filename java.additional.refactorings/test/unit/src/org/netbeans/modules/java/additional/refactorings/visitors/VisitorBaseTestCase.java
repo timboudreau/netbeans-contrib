@@ -91,6 +91,10 @@ public abstract class VisitorBaseTestCase<R,D> extends BaseTestCase2<R,D> {
         return root;
     }
     
+    protected void beforeScan (WorkingCopy copy) {
+        
+    }
+    
     private class Stub implements CancellableTask <WorkingCopy> {
         boolean cancelled;
         public void cancel() {
@@ -100,7 +104,7 @@ public abstract class VisitorBaseTestCase<R,D> extends BaseTestCase2<R,D> {
         public void run(WorkingCopy copy) throws Exception {
             if (!cancelled) {
                 copy.toPhase(Phase.RESOLVED);
-                
+                beforeScan (copy);
                 CompilationUnitTree unit = copy.getCompilationUnit();
                 assertNotNull ("Compilation unit null", unit);
                 VisitorBaseTestCase.this.copy = copy;

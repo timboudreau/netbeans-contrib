@@ -23,6 +23,7 @@ import com.sun.source.tree.VariableTree;
 import com.sun.source.util.TreePath;
 import com.sun.source.util.TreeScanner;
 import javax.lang.model.element.Element;
+import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.TypeElement;
 import org.netbeans.api.java.source.CompilationInfo;
@@ -86,53 +87,4 @@ public final class VariableNameScanner extends TreeScanner <Void, ParameterChang
         return super.visitVariable(tree, ctx);
     }
 
-    @Override
-    public Void visitMemberSelect(MemberSelectTree tree, ParameterChangeContext ctx) {
-        ChangeData data = ctx.changeData;
-        CompilationInfo info = data.getCompilationInfo();
-        String memberName = tree.getIdentifier().toString();
-        if (ctx.mods.isNewOrChangedParameterName(memberName)) {
-            //XXX how to determine if the memberselect is on this or this.getClass()?
-            TreePath pathToMemberSelect = TreePath.getPath(ctx.changeData.getCompilationUnit(), tree);
-            assert pathToMemberSelect != null : "Path to member select is null";
-            Element element = info.getTrees().getElement(pathToMemberSelect);
-            
-            //This will be the class whose member is being selected.  We will
-            //use it to see if the member with the conflicting name is a class
-            //member of the class containing the method we are refactoring.  If
-            //so then we will need to change uses of the variable to be qualified
-            //with "this" or the type name.  In other words, if someone has
-            
-            // int x = 0;
-            // @Override
-            // public void foo (int y) {
-            //     x += y;
-            // }
-            
-            //and they want to rename the parameter y to x, then the existing
-            //reference to x in foo() must become "this.x"
-            
-            TypeElement owner = info.getElementUtilities().enclosingTypeElement(element);
-            
-            TreePath path = pathToMemberSelect;
-            Tree leaf = path.getLeaf();
-            while (leaf != null && path != null && leaf.getKind() != Kind.CLASS) {
-                path = path.getParentPath();
-                leaf = path.getLeaf();
-            }
-            if (leaf != null) {
-                Element el = info.getTrees().getElement(path);
-                if (el instanceof TypeElement) {
-                    if (owner == el) {
-                        ElementHandle <ExecutableElement> methodHandle = data.getHandleToCurrentMethodElement();
-                        TreePathHandle memberSelectHandle = TreePathHandle.create(pathToMemberSelect, info);
-                        data.addMemberSelectThatNeedsRequalifying(memberSelectHandle, methodHandle);
-                    }
-                }
-            } else {
-                throw new IllegalStateException("??? Found no enclosing class for " + tree);
-            }
-        }
-        return super.visitMemberSelect(tree, ctx);
-    }
 }

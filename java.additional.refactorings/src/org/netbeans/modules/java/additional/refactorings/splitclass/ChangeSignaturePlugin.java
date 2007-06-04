@@ -48,6 +48,7 @@ import org.netbeans.modules.java.additional.refactorings.splitclass.ChangeSignat
 import org.netbeans.modules.java.additional.refactorings.visitors.ParameterChangeContext;
 import org.netbeans.modules.java.additional.refactorings.visitors.ParameterChangeContext.ScanContext;
 import org.netbeans.modules.java.additional.refactorings.visitors.ParameterScanner;
+import org.netbeans.modules.java.additional.refactorings.visitors.UnqualifiedMemberScanner;
 import org.netbeans.modules.java.additional.refactorings.visitors.VariableNameScanner;
 import org.netbeans.modules.refactoring.api.Problem;
 import org.netbeans.modules.refactoring.spi.RefactoringElementImplementation;
@@ -111,6 +112,8 @@ public class ChangeSignaturePlugin extends Refactoring {
             return info.getCompilationUnit();
         }
     }
+    
+    ParameterChangeContext changes;
 
         /* Pending:
          *  If param names changed:
@@ -143,14 +146,19 @@ public class ChangeSignaturePlugin extends Refactoring {
 
         ParameterRenamePolicy policy = refactoring.policy;
         RequestedParameterChanges requestedChanges = refactoring.getParameterModificationInfo();
+        UnqualifiedMemberScanner unqScanner = new UnqualifiedMemberScanner();
         if (!requestedChanges.isEmpty()) {
             final ScanCtxImpl scan = new ScanCtxImpl(theMethod, wc);
             
             VariableNameScanner variableNameCollector = new VariableNameScanner (
                     VariableNameScanner.Mode.SCAN_METHOD_BODIES);
             
-            final ParameterChangeContext changes = new ParameterChangeContext (requestedChanges, scan);
+            this.changes = new ParameterChangeContext (requestedChanges, scan);
             BlockTree bodyTree = theMethodTree.getBody();
+//            TreePath pathToBlock = TreePath.getPath(wc.getCompilationUnit(), bodyTree);
+//            unqScanner.scan (pathToBlock, changes);
+            
+            unqScanner.scan (path, changes);
             
             //Here we scan the method body of the method that is to be 
             //refactored.  The scanner will collect all variable
@@ -186,7 +194,8 @@ public class ChangeSignaturePlugin extends Refactoring {
                 final VariableNameScanner parameterScanner = new VariableNameScanner (
                         VariableNameScanner.Mode.SCAN_PARAMETERS);
                 final ParameterScanner pscanner = new ParameterScanner();
-                Utils.<Void, ParameterChangeContext>runAgainstSources(overrideHandles, changes, parameterScanner, pscanner);
+                Utils.<Void, ParameterChangeContext>runAgainstSources(overrideHandles, 
+                        changes, parameterScanner, pscanner, unqScanner);
             }
             Map<ElementHandle<ExecutableElement>, Set<String>> fatals = 
                     changes.changeData.getAllFatalConflicts(overriddenMethods, wc, 
@@ -275,10 +284,37 @@ public class ChangeSignaturePlugin extends Refactoring {
                     wc, refactoring.getContext(), file);
             refactoringElements.add(refactorElement);
         }
+        if (this.changes != null) { //Will be null if the user did not change parameters
+            TreePathHandleTask<ParameterChangeContext> requalifyHandler = new TreePathHandleTask <ParameterChangeContext>() {
+                public void run(CompilationController cc, TreePathHandle handle, FileObject file, ParameterChangeContext changes) {
+                    TreePath path = handle.resolve(cc);
+                    ExecutableElement elem = (ExecutableElement) cc.getTrees().getElement (path);
+                    Set <TreePathHandle> toRequalify = changes.changeData.getMemberSelectsThatNeedRequalifying(elem, cc);
+                    for (TreePathHandle toMethodSelect : toRequalify) {
+                        TreePath requalifyPath = toMethodSelect.resolve(cc);
+                        TreePath methodPath = handle.resolve(cc);
+                        ExecutableElement method = (ExecutableElement) cc.getTrees().getElement(methodPath);
+                        String methodName = method.getSimpleName().toString();
+                        String requalifyName = requalifyPath.getLeaf().toString();
+                        SimpleRefactoringElementImplementation refactorElement = 
+                                new RequalifyMemberSelectElement (toMethodSelect, handle, requalifyName,
+                                methodName, getRequalifyString (requalifyPath, methodPath), refactoring.getContext(), 
+                                toMethodSelect.getFileObject());
+                    }
+                }
+            };
+            Utils.<ParameterChangeContext>runAgainstSources(invocations, requalifyHandler, changes);
+        }
+        
         bag.addAll (refactoring, refactoringElements);
         return null;
     }
-
+    
+    private String getRequalifyString (TreePath requalifyPath, TreePath methodPath) {
+        System.err.println("Proper requalification strings not implemented - " + requalifyPath.getLeaf());
+        return "this";
+    }
+        
     protected FileObject getFileObject() {
         return file;
     }

@@ -1,0 +1,62 @@
+package foo.bar;
+public abstract class Unqualifieds {
+    public abstract void foo (int a, int b, String c);
+    public abstract String bar (String a);
+
+    public static void something() {
+        Unqualifieds clazz = new ClazzImpl();
+        String s = clazz.bar ("hi");
+        clazz.foo (1, 2, s);
+
+        clazz = new Impl2();
+        s = clazz.bar ("hi");
+        clazz.foo (1, 2, s);
+    }
+
+    private static final class ClazzImpl extends Unqualifieds {
+        private int there = 5;
+        public void foo(int a, int b, String c) {
+            String s = c + (a * b);
+            int hey = 1;
+            there = hey;
+            System.out.println(s);
+        }
+
+        public String bar(String a) {
+            return a + " hello";
+        }
+    }
+
+    static String fred = "fred";
+    private static final class Impl2 extends Unqualifieds {
+        String q = "foo";
+        int foodbar = 5;
+        public void foo(int a, int b, String c) {
+            String s = c + (a * b) + q + foodbar;
+            System.out.println(s);
+            System.out.println(new Thing().fred);
+        }
+
+        public String bar(String a) {
+            return a + " die";
+        }
+        
+        private static final class Impl3 extends Unqualifieds {
+            public void foo(int a, int b, String c) {
+                String s = c + (a * b) + fred + foodbar;
+                System.out.println(s);
+                Thing thing = new Thing();
+                s += thing.fred;
+                System.out.println(new Thing().fred);
+            }
+
+            public String bar(String a) {
+                return a + " die";
+            }
+        }
+    }
+    
+    private static final class Thing {
+        String fred = "fred";        
+    }
+}

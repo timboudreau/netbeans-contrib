@@ -47,7 +47,7 @@ public class UsagesTest extends VisitorBaseTestCase  <MethodTree, Info> {
         super.pkgname = "foo.bar";        
     }
 
-    protected TreeVisitor createVisitor(WorkingCopy copy) {
+    protected TreeVisitor<MethodTree, Info> createVisitor(WorkingCopy copy) {
         return new MethodFinder ();
     }
 
@@ -76,7 +76,7 @@ public class UsagesTest extends VisitorBaseTestCase  <MethodTree, Info> {
         System.err.println("CPI: " + cpi);
         
         ExecutableElement el = (ExecutableElement) copy.getTrees().getElement(pathToMethod);
-        Collection <ExecutableElement> c = Utils.getOverridingMethods(el, copy);
+        Collection <ElementHandle<ExecutableElement>> c = Utils.getOverridingMethods(el, copy);
         System.err.println("FOUND " + c);
         ElementHandle handle = ElementHandle.create(el);
         ElementHandle classHandle = ElementHandle.create (copy.getElementUtilities().enclosingTypeElement(el));
