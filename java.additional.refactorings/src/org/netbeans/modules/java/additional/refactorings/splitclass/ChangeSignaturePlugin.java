@@ -18,10 +18,9 @@ package org.netbeans.modules.java.additional.refactorings.splitclass;
 
 import com.sun.source.tree.BlockTree;
 import com.sun.source.tree.CompilationUnitTree;
-import org.netbeans.api.java.source.ModificationResult;
+import com.sun.source.tree.MethodInvocationTree;
 import org.netbeans.modules.java.additional.refactorings.visitors.ParameterRenamePolicy;
 import org.netbeans.modules.java.additional.refactorings.visitors.RequestedParameterChanges;
-import com.sun.source.tree.MethodInvocationTree;
 import com.sun.source.tree.MethodTree;
 import com.sun.source.tree.Tree;
 import com.sun.source.tree.Tree.Kind;
@@ -34,7 +33,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import javax.lang.model.element.Element;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.TypeElement;
 import org.netbeans.api.java.source.CancellableTask;
@@ -47,8 +45,10 @@ import org.netbeans.api.java.source.TreePathHandle;
 import org.netbeans.api.java.source.WorkingCopy;
 import org.netbeans.modules.java.additional.refactorings.Refactoring;
 import org.netbeans.modules.java.additional.refactorings.Utils;
+import org.netbeans.modules.java.additional.refactorings.Utils.TreePathHandleTask;
 import org.netbeans.modules.java.additional.refactorings.splitclass.ChangeSignatureRefactoring.Transform;
 import org.netbeans.modules.java.additional.refactorings.visitors.ParameterChangeContext;
+import org.netbeans.modules.java.additional.refactorings.visitors.ParameterChangeContext.ChangeData;
 import org.netbeans.modules.java.additional.refactorings.visitors.ParameterChangeContext.ScanContext;
 import org.netbeans.modules.java.additional.refactorings.visitors.ParameterScanner;
 import org.netbeans.modules.java.additional.refactorings.visitors.VariableNameScanner;
@@ -140,7 +140,6 @@ public class ChangeSignaturePlugin extends Refactoring {
         ExecutableElement theMethod = (ExecutableElement) wc.getTrees().getElement(path);
         MethodTree theMethodTree = (MethodTree) path.getLeaf();
         
-//        Collection <ExecutableElement> overrides = Utils.getOverridingMethods(theMethod, wc);
         this.overrideHandles = Utils.getOverridingMethodHandles(theMethod, wc);        
         ElementHandle <ExecutableElement> theMethodHandle = ElementHandle.create (theMethod);
         this.invocations = Utils.getInvocationsOf (theMethodHandle, wc);
@@ -189,49 +188,12 @@ public class ChangeSignaturePlugin extends Refactoring {
             //methods : list of indices of parameters to skip
             final Set <ElementHandle <ExecutableElement>> overriddenMethods =
                     new HashSet <ElementHandle <ExecutableElement>> ();
+            
             if (result == null && policy != ParameterRenamePolicy.DO_NOT_RENAME && !overrideHandles.isEmpty()) {
                 final VariableNameScanner parameterScanner = new VariableNameScanner (
                         VariableNameScanner.Mode.SCAN_PARAMETERS);
-                for (final TreePathHandle override : overrideHandles) {
-                    final MethodTree tree = Utils.<MethodTree>resolveTreePathHandle(override);
-                    final ParameterScanner pscanner = new ParameterScanner();
-                    final class X implements CancellableTask <CompilationController> {
-                        private volatile boolean cancelled;
-                        public void cancel() {
-                            this.cancelled = true;
-                        }
-
-                        public void run(CompilationController cc) throws Exception {
-                            if (cancelled) return;
-                            cc.toPhase (Phase.RESOLVED);
-                            CompilationInfo old = scan.getCompilationInfo();
-                            scan.setCompilationInfo(cc);
-                            try {
-                                final VariableNameScanner nameCollector = 
-                                        new VariableNameScanner (VariableNameScanner.Mode.SCAN_METHOD_BODIES);
-                                nameCollector.scan(tree, changes);
-                                List <? extends VariableTree> parameters = tree.getParameters();
-                                int max = parameters.size();
-                                ExecutableElement methodElement = (ExecutableElement) 
-                                        override.resolveElement(cc);
-                                overriddenMethods.add(ElementHandle.create(methodElement));
-                                scan.reset (methodElement, cc);
-                                for (int i=0; i < max; i++) {
-                                    VariableTree vt = parameters.get(i);
-                                    parameterScanner.scan (vt, changes);
-                                    pscanner.scan(tree, changes);
-                                    scan.inc();
-                                }
-                            } finally {
-                                scan.setCompilationInfo(old);
-                            }
-                        }
-                    };
-                    FileObject fileContainingOverride = override.getFileObject();
-                    JavaSource src = JavaSource.forFileObject (fileContainingOverride);
-                    X x = new X();
-                    src.runUserActionTask(x, true);
-                }
+                final ParameterScanner pscanner = new ParameterScanner();
+                Utils.<Void, ParameterChangeContext>runAgainstSources(overrideHandles, changes, parameterScanner, pscanner);
             }
             Map<ElementHandle<ExecutableElement>, Set<String>> fatals = 
                     changes.changeData.getAllFatalConflicts(overriddenMethods, wc, 
@@ -276,7 +238,6 @@ public class ChangeSignaturePlugin extends Refactoring {
         TreePathHandle toRefactor = refactoring.methodHandle;
         TreePath path = toRefactor.resolve(wc);
         MethodTree theMethod = (MethodTree) path.getLeaf();
-//        Iterable <MethodTree> overrides = Utils.resolveTreePathHandles(overrideHandles);
 
         System.err.println(l.size() + " transforms created.");
         
@@ -286,71 +247,46 @@ public class ChangeSignaturePlugin extends Refactoring {
         //Iterate the changes made to the method signature
         for (final Transform t : l) {
             System.err.println("  Transform: " + t);
-            //Iterate all invocations, and generate a refactoring element for each
-            for (final TreePathHandle h : invocations) {
-                final FileObject fob = h.getFileObject();
-                assert fob != null : "Null fileobject for " + h;
-                final class Y implements CancellableTask <CompilationController> {
-                    private volatile boolean cancelled;
-                    public void cancel() {
-                        this.cancelled = true;
+            
+            //Iterate all invocations and generate a refactoring element 
+            //corresponding to this transform for that invocation
+            TreePathHandleTask<Transform> run = new TreePathHandleTask <Transform>() {
+                public void run(CompilationController cc, TreePathHandle h, FileObject file, Transform t) {
+                    if (cancelled) return;
+                    TreePath pathToInvocation = h.resolve(cc);
+                    Tree tree = pathToInvocation.getLeaf();
+                    while (pathToInvocation != null && tree.getKind() != Kind.METHOD_INVOCATION) {
+                        pathToInvocation = pathToInvocation.getParentPath();
+                        tree = pathToInvocation.getLeaf();
                     }
-                    public void run(CompilationController wc) throws Exception {
-                        if (cancelled) return;
-                        TreePath pathToInvocation = h.resolve(wc);
-                        Tree tree = pathToInvocation.getLeaf();
-                        while (pathToInvocation != null && tree.getKind() != Kind.METHOD_INVOCATION) {
-                            pathToInvocation = pathToInvocation.getParentPath();
-                            tree = pathToInvocation.getLeaf();
-                        }
-                        if (pathToInvocation == null) {
-                            throw new IllegalStateException ("Can't get there from here: " + h.resolve(wc));
-                        }
-                        MethodInvocationTree invocation = (MethodInvocationTree) tree;
-                        System.err.println("Process " + t + " on " + fob.getPath());
-                        SimpleRefactoringElementImplementation refactorElement =
-                                t.getElement(invocation, wc, refactoring.getContext(), fob);
-                        
-                        refactoringElements.add (refactorElement);
-                    }
-                };
-                JavaSource src = JavaSource.forFileObject (fob);
-                Y y = new Y();
-                src.runUserActionTask(y, true);
-            }
+                    MethodInvocationTree invocation = (MethodInvocationTree) tree;
+                    System.err.println("Process " + t + " on " + file.getPath());
+                    SimpleRefactoringElementImplementation refactorElement =
+                            t.getElement(invocation, cc, refactoring.getContext(), file);
 
+                    refactoringElements.add (refactorElement);
+                }
+            };
+            Utils.<Transform>runAgainstSources(invocations, run, t);
             //Iterate all overrides, and generate a refactoring element for each
-            for (final TreePathHandle e : overrideHandles) {
-                final class Z implements CancellableTask <CompilationController> {
-                    private FileObject file;
-                    private volatile boolean cancelled;
-                    Z (FileObject file) {
-                        this.file = file;
-                    }
-                    public void cancel() {
-                        this.cancelled = true;
-                    }
-                    public void run(CompilationController wc) throws Exception {
-                        if (cancelled) return;
-                        wc.toPhase (Phase.RESOLVED);
-                        MethodTree methodTree = (MethodTree) e.resolve(wc).getLeaf();
-                        assert methodTree != null : "Got null method tree for " + e;
-                        System.err.println("Process " + t + " on " + file.getPath());
-                        SimpleRefactoringElementImplementation refactorElement = t.getElement(methodTree, wc, refactoring.getContext(), file);
-                        refactoringElements.add (refactorElement);
-                    }
-                };
-                FileObject file = e.getFileObject();
-                assert file != null : "Null fileobject for " + e;
-                JavaSource src = JavaSource.forFileObject(file);
-                Z z = new Z(file);
-                src.runUserActionTask(z, true);
-            }
+            TreePathHandleTask<Transform> run2 = new TreePathHandleTask <Transform>() {
+                public void run(CompilationController cc, TreePathHandle handle, FileObject file, Transform arg) {
+                    if (cancelled) return;
+                    MethodTree methodTree = (MethodTree) handle.resolve(cc).getLeaf();
+                    assert methodTree != null : "Got null method tree for " + handle;
+                    System.err.println("Process " + t + " on " + file.getPath());
+                    SimpleRefactoringElementImplementation refactorElement = t.getElement(
+                            methodTree, cc, refactoring.getContext(), file);
+                    refactoringElements.add (refactorElement);
+                }
+            };
+            
+            Utils.<Transform>runAgainstSources(overrideHandles, run2, t);
             SimpleRefactoringElementImplementation refactorElement = t.getElement(theMethod,
                     wc, refactoring.getContext(), file);
             refactoringElements.add(refactorElement);
-            bag.addAll (refactoring, refactoringElements);
         }
+        bag.addAll (refactoring, refactoringElements);
         return null;
     }
 

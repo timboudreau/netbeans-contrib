@@ -25,11 +25,13 @@ import com.sun.source.tree.MethodTree;
 import com.sun.source.tree.ModifiersTree;
 import com.sun.source.tree.Scope;
 import com.sun.source.tree.Tree;
+import com.sun.source.tree.TreeVisitor;
 import com.sun.source.tree.TypeParameterTree;
 import com.sun.source.tree.VariableTree;
 import com.sun.source.util.SourcePositions;
 import com.sun.source.util.TreePath;
 import com.sun.source.util.TreePathScanner;
+import com.sun.source.util.TreeScanner;
 import com.sun.source.util.Trees;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -424,7 +426,6 @@ T item = (T) path.getLeaf();
 	}
         return null;
     }    
-    
 
     public static Collection<TreePathHandle> getOverridingMethodHandles (ExecutableElement e, CompilationController cc) throws IOException {
         Collection <ElementHandle<ExecutableElement>> mtds = getOverridingMethods (e, cc);
@@ -583,4 +584,96 @@ T item = (T) path.getLeaf();
         return null;
     }
     
+    public static <R, D> Map <TreePathHandle, Map<TreeVisitor<R,D>, R>> runAgainstSources (Iterable<TreePathHandle> handles, D arg, TreeVisitor<R,D>... visitors) throws IOException {
+        Map <TreePathHandle, Map<TreeVisitor<R,D>, R>> results = new HashMap<TreePathHandle, Map<TreeVisitor<R, D>, R>>();
+        for (TreePathHandle handle : handles) {
+            FileObject fob = handle.getFileObject();
+            JavaSource src = JavaSource.forFileObject(fob);
+            MultiVisitorRunner<R, D> runner = new MultiVisitorRunner <R, D> (handle, arg, visitors);
+            src.runUserActionTask(runner, true);
+            results.put (handle, runner.results);
+        }
+        return results;
+    }
+    
+    public static void runAgainstSources (Iterable <TreePathHandle> handles, CancellableTask<CompilationController> c) throws IOException {
+        for (TreePathHandle handle : handles) {
+            FileObject fob = handle.getFileObject();
+            JavaSource src = JavaSource.forFileObject(fob);
+            src.runUserActionTask(c, true);
+        }
+    }
+    
+    public static <T> void runAgainstSources (Iterable <TreePathHandle> handles,TreePathHandleTask<T> t, T arg) throws IOException {
+        for (TreePathHandle handle : handles) {
+            FileObject file = handle.getFileObject();
+            t.handle = handle;
+            t.arg = arg;
+            t.file = file;
+            JavaSource src = JavaSource.forFileObject(file);
+            src.runUserActionTask(t, true);
+        }
+        t.handle = null;
+        t.arg = null;
+        t.file = null;
+    }
+    
+    public abstract static class TreePathHandleTask<T> implements CancellableTask <CompilationController> {
+        protected boolean cancelled;
+        private TreePathHandle handle;
+        private T arg;
+        private FileObject file;
+        public void cancel() {
+            cancelled = true;
+        }
+
+        public final void run(CompilationController cc) throws Exception {
+            cc.toPhase (Phase.RESOLVED);
+            run (cc, handle, file, arg);
+        }
+        
+        public abstract void run (CompilationController cc, TreePathHandle handle, FileObject file, T arg);
+    }
+    
+    private static class MultiVisitorRunner <R, D> implements CancellableTask <CompilationController> {
+        private final Map <TreeVisitor<R,D>, R> results = new HashMap <TreeVisitor<R,D>, R> ();
+        private final TreeVisitor<R,D>[] visitors;
+        private final D arg;
+        private TreePathHandle handle;
+        MultiVisitorRunner (TreePathHandle handle, D arg, TreeVisitor<R, D>... visitors) {
+            this.visitors = visitors;
+            this.handle = handle;
+            this.arg = arg;
+        }
+        
+        R getResult (TreeVisitor visitor) {
+            return results.get(visitor);
+        }
+
+        volatile boolean cancelled;
+        public void cancel() {
+            cancelled = true;
+        }
+
+        public void run(CompilationController cc) throws Exception {
+            if (cancelled) return;
+            TreePath path = handle.resolve(cc);
+            for (TreeVisitor<R,D> v : visitors) {
+                if (cancelled) return;
+                R result;
+                if (v instanceof TreePathScanner) {
+                    @SuppressWarnings("unchecked") //NOI18N
+                    TreePathScanner<R,D> scanner = (TreePathScanner<R,D>) v;
+                    result = scanner.scan(path, arg);
+                } else if (v instanceof TreeScanner) {
+                    @SuppressWarnings("unchecked") //NOI18N
+                    TreeScanner<R,D> scanner = (TreeScanner<R,D>) v;
+                    result = scanner.scan(path.getLeaf(), arg);
+                } else {
+                    result = path.getLeaf().accept(v, arg);
+                }
+                results.put (v, result);
+            }
+        }
+    }
 }
