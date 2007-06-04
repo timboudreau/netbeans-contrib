@@ -84,6 +84,8 @@ public interface ImageConstants {
     
     public static final String VALIDATE = "VALIDATE";
     
+    public static final String GROUPBY = "GROUPBY";
+    
     /* Image objects */
     public static final Image JOIN_IMAGE = Utilities.loadImage(
             "org/netbeans/modules/edm/editor/resources/join_view.png"); // NOI18N
@@ -167,5 +169,8 @@ public interface ImageConstants {
             "org/netbeans/modules/edm/editor/resources/zoom_out.png"); // NOI18N
     
     public static final Image VALIDATE_IMAGE = Utilities.loadImage(
-            "org/netbeans/modules/edm/editor/resources/validation.png"); // NOI18N
+            "org/netbeans/modules/edm/editor/resources/validation.png"); // NOI18N        
+    
+    public static final Image GROUPBY_IMAGE = Utilities.loadImage(
+            "org/netbeans/modules/edm/editor/resources/groupby.gif"); // NOI18N       
 }

@@ -20,12 +20,11 @@ import java.awt.Point;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
 
-import org.netbeans.api.visual.action.AcceptProvider;
-import org.netbeans.api.visual.action.ConnectorState;
-import org.netbeans.api.visual.widget.Scene;
-import org.netbeans.api.visual.widget.Widget;
 import org.openide.DialogDisplayer;
 import org.openide.NotifyDescriptor;
+import org.netbeans.api.visual.action.AcceptProvider;
+import org.netbeans.api.visual.action.ConnectorState;
+import org.netbeans.api.visual.widget.Widget;
 
 import org.netbeans.modules.edm.editor.dataobject.MashupDataObject;
 import org.netbeans.modules.edm.editor.graph.MashupGraphManager;
@@ -33,7 +32,6 @@ import org.netbeans.modules.edm.editor.palette.Operator;
 import org.netbeans.modules.edm.editor.widgets.EDMGraphScene;
 import org.netbeans.modules.sql.framework.model.SQLConstants;
 import org.netbeans.modules.sql.framework.model.SQLJoinView;
-import org.netbeans.modules.sql.framework.model.SQLObject;
 import org.netbeans.modules.sql.framework.ui.view.join.JoinMainDialog;
 import org.netbeans.modules.sql.framework.ui.view.join.JoinUtility;
 
@@ -113,6 +111,11 @@ public class SceneAcceptProvider implements AcceptProvider {
                 }
             } else if(type.equals("Group By")) {
                 // Add group by operator.
+                if(mObj.getGraphManager().addGroupby(((EDMGraphScene)widget).
+                        convertLocalToScene(point))) {
+                    mObj.getMashupDataEditorSupport().synchDocument();
+                    mObj.getGraphManager().refreshGraph();
+                }
             } else if(type.equals("Materialized View") ||
                     type.equals("Union") || type.equals("Intersect")) {
                 // create view widget on the canvas.

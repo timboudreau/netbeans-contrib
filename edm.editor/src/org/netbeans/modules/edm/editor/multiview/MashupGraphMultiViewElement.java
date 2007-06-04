@@ -256,7 +256,7 @@ public class MashupGraphMultiViewElement extends TopComponent
             manager = getMashupDataObject().getGraphManager();
             setLayout(new BorderLayout());
             manager.refreshGraph();
-            JScrollPane pane = (JScrollPane)manager.getPanel();
+            JScrollPane pane = manager.getPanel();
             add(pane, BorderLayout.CENTER);
             return;
         } catch (Exception ex) {

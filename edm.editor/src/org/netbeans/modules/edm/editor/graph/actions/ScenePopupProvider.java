@@ -17,28 +17,16 @@
 package org.netbeans.modules.edm.editor.graph.actions;
 
 import java.awt.Point;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import javax.swing.ImageIcon;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
-import java.awt.Image;
 
 import org.netbeans.api.visual.action.PopupMenuProvider;
 import org.netbeans.api.visual.widget.Widget;
-import org.openide.DialogDisplayer;
-import org.openide.NotifyDescriptor;
-import org.openide.util.Utilities;
 
-import org.netbeans.modules.sql.framework.model.SQLConstants;
-import org.netbeans.modules.sql.framework.model.SQLJoinView;
-import org.netbeans.modules.sql.framework.ui.view.join.JoinMainDialog;
-import org.netbeans.modules.sql.framework.ui.view.join.JoinUtility;
 import org.netbeans.modules.edm.editor.dataobject.MashupDataObject;
 import org.netbeans.modules.edm.editor.graph.MashupGraphManager;
 import org.netbeans.modules.edm.editor.graph.actions.AutoLayoutAction;
 import org.netbeans.modules.edm.editor.graph.actions.EditJoinAction;
-import org.netbeans.modules.edm.editor.widgets.EDMGraphScene;
 
 /**
  * This class implements the popup provider for the scene.
@@ -49,14 +37,10 @@ public class ScenePopupProvider implements PopupMenuProvider {
     
     private MashupDataObject mObj;
     
-    private EDMGraphScene scene;
-    
     private MashupGraphManager manager;
     
-    public ScenePopupProvider(MashupDataObject dObj, MashupGraphManager manager,
-            EDMGraphScene gScene) {
+    public ScenePopupProvider(MashupDataObject dObj, MashupGraphManager manager) {
         mObj = dObj;
-        scene = gScene;
         this.manager = manager;
     }
     
