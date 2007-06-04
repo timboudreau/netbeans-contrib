@@ -104,6 +104,7 @@ public class RunDialog extends javax.swing.JFrame {
         "test.visible.VisibilityTest",
         "test.vmd.VMDCollisionTest",
         "test.vmd.VMDTest",
+        "test.widget.AnimatedImageTest",
         "test.zoom.FitToViewTest",
     };
 
