@@ -60,7 +60,7 @@ public final class ParameterChangeContext {
                 memberSelectsThatNeedQualifyingAfterParamChanges = 
                 new HashMap<ElementHandle<ExecutableElement>, Set<TreePathHandle>>();
         
-        private ScanContext scanContext;
+        public ScanContext scanContext; //XXX should be in same package
         ChangeData (ScanContext scanContext) {
             this.scanContext = scanContext;
         }
@@ -219,29 +219,32 @@ public final class ParameterChangeContext {
             Map <ExecutableElement, Set <String>> names = resolveNames (cc);
             Map <ExecutableElement, Set <Integer>> skips = resolveSkips (cc);
             Map <ExecutableElement, Set <Tree>> requalify = resolveRequalifies(cc);
-            System.err.println("NAMES:");
+            sb.append("NAMES:");
             for (ExecutableElement el : names.keySet()) {
                 TypeElement te = cc.getElementUtilities().enclosingTypeElement(el);
-                System.err.println(te.getQualifiedName().toString() + '.' + el.getSimpleName().toString() + " uses the following variables:");
+                sb.append(te.getQualifiedName().toString() + '.' + el.getSimpleName().toString() + " uses the following variables:");
                 Set <String> nm = names.get(el);
                 for (String s : nm) {
-                    System.err.println("  " + s);
+                    sb.append("  " + s);
                 }
+                sb.append ("\n");
             }
-            System.err.println("PARAMS TO SKIP:");
+            sb.append("PARAMS TO SKIP:");
             for (ExecutableElement el : skips.keySet()) {
                 TypeElement te = cc.getElementUtilities().enclosingTypeElement(el);
-                System.err.println(te.getQualifiedName().toString() + '.' +el.getSimpleName().toString() + " will skip the following parameters:");
+                sb.append(te.getQualifiedName().toString() + '.' +el.getSimpleName().toString() + " will skip the following parameters:");
                 Set <Integer> ss = skips.get (el);
-                System.err.println("  " + ss);
+                sb.append("  ");
+                sb.append (ss);
+                sb.append ("\n");
             }
-            System.err.println("PARAMS TO REQUALIFY:");
+            sb.append("PARAMS TO REQUALIFY:");
             for (ExecutableElement el : requalify.keySet()) {
                 TypeElement te = cc.getElementUtilities().enclosingTypeElement(el);
-                System.err.println(te.getQualifiedName().toString() + '.' + el.getSimpleName().toString() + " will requalify the following parameters:");
+                sb.append(te.getQualifiedName().toString() + '.' + el.getSimpleName().toString() + " will requalify the following parameters:");
                 Set <Tree> reqs = requalify.get (el);
                 for (Tree tree : reqs) {
-                    System.err.println("  " + tree.getKind() + ": " + tree);
+                    sb.append("  " + tree.getKind() + ": " + tree);
                 }
             }
             return sb.toString();
@@ -257,5 +260,6 @@ public final class ParameterChangeContext {
         ExecutableElement getCurrentMethodElement();
         CompilationUnitTree getCompilationUnit();
         CompilationInfo getCompilationInfo();
+        void setCompilationInfo(CompilationInfo info);
     }
 }

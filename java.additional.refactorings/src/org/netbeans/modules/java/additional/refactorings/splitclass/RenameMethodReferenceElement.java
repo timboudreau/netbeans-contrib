@@ -48,7 +48,6 @@ public class RenameMethodReferenceElement extends SimpleRefactoringElementImplem
     private final Lookup context;
     
     public RenameMethodReferenceElement(TreePathHandle toRenameIn, String renameTo, String name, Lookup context, FileObject file) {
-        System.err.println("Rename Method Element renameTo=" + renameTo );
         this.toRenameIn = toRenameIn;
         this.renameTo = renameTo;
         this.name = name;

@@ -38,8 +38,6 @@ public class ParameterScanner extends TreeScanner <Void, ParameterChangeContext>
     
     @Override
     public Void visitVariable(VariableTree tree, ParameterChangeContext ctx) {
-        Trees trees = ctx.changeData.getCompilationInfo().getTrees();
-        ElementUtilities elUtils = ctx.changeData.getCompilationInfo().getElementUtilities();
         String name = tree.getName().toString();
         RequestedParameterChanges pendingChanges = ctx.mods;
         ChangeData data = ctx.changeData;

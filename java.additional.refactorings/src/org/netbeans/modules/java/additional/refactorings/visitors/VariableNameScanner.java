@@ -91,7 +91,6 @@ public final class VariableNameScanner extends TreeScanner <Void, ParameterChang
         ChangeData data = ctx.changeData;
         CompilationInfo info = data.getCompilationInfo();
         String memberName = tree.getIdentifier().toString();
-        System.err.println("Check " + memberName);
         if (ctx.mods.isNewOrChangedParameterName(memberName)) {
             //XXX how to determine if the memberselect is on this or this.getClass()?
             TreePath pathToMemberSelect = TreePath.getPath(ctx.changeData.getCompilationUnit(), tree);
@@ -131,7 +130,7 @@ public final class VariableNameScanner extends TreeScanner <Void, ParameterChang
                     }
                 }
             } else {
-                System.err.println("??? Found no enclosing class for " + tree);
+                throw new IllegalStateException("??? Found no enclosing class for " + tree);
             }
         }
         return super.visitMemberSelect(tree, ctx);

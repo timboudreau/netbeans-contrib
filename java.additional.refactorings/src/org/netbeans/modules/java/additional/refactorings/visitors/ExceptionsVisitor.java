@@ -100,7 +100,7 @@ public final class ExceptionsVisitor extends TreeScanner<Void, Set<TypeMirrorHan
                 TypeMirror mirror = info.getTrees().getTypeMirror(path);
                 maybeAddType(mirror, set);
             } else {
-                System.err.println("no path for " + tree);
+                throw new IllegalStateException("no path for " + tree);
             }
         }
         return super.visitIdentifier(tree, set);
@@ -119,7 +119,7 @@ public final class ExceptionsVisitor extends TreeScanner<Void, Set<TypeMirrorHan
         if (el != null && el.getKind() == ElementKind.METHOD) {
             extract((ExecutableElement)el, thrown);
         } else {
-            System.err.println("null element for " + tree);
+            throw new IllegalStateException("null element for " + tree);
         }
         return super.visitMethodInvocation(tree, thrown);
     }
@@ -135,7 +135,7 @@ public final class ExceptionsVisitor extends TreeScanner<Void, Set<TypeMirrorHan
         if (el != null && el.getKind() == ElementKind.CONSTRUCTOR) {
             extract((ExecutableElement)el, thrown);
         } else {
-            System.err.println("null element for " + tree);
+            throw new IllegalStateException("null element for " + tree);
         }
         return super.visitNewClass(tree, thrown);
     }

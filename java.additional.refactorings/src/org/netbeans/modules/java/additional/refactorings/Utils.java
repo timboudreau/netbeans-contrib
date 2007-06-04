@@ -68,6 +68,7 @@ import org.netbeans.api.java.source.TreeMaker;
 import org.netbeans.api.java.source.TreePathHandle;
 import org.netbeans.api.java.source.TypeMirrorHandle;
 import org.netbeans.api.java.source.WorkingCopy;
+import org.netbeans.modules.java.additional.refactorings.visitors.ParameterChangeContext;
 import org.openide.filesystems.FileObject;
 import org.openide.util.Exceptions;
 
@@ -177,8 +178,6 @@ T item = (T) path.getLeaf();
             } catch (NullPointerException npe) {
                 Exceptions.printStackTrace(npe);
             }
-        } else {
-            System.err.println("Null tree path for " + mirror);
         }
         return result == null ? mirror : result;
     }
@@ -374,58 +373,15 @@ T item = (T) path.getLeaf();
             if (cancelled) return;
             cc.toPhase(Phase.RESOLVED);
             Element e = element.resolve(cc);
-            System.err.println("Searching for " + ((ExecutableElement)e).getSimpleName() + " on " + cc.getElementUtilities().enclosingTypeElement(e).getQualifiedName());
             tree = cc.getTrees().getTree(e);
             assert tree != null : "Got null tree for " + element + " on " + cc.getFileObject().getPath();
             if (cancelled) return;
             CompilationUnitTree unit = cc.getCompilationUnit();
             TreePath path = TreePath.getPath(unit, tree);
-            if (path == null) {
-                path = getPath(unit, tree);
-            }
-            System.err.println("FileObject for CompilationController is " + cc.getFileObject().getPath());
-            System.err.println("Source file for CompilationUnit is " + unit.getSourceFile());
             assert path != null : "Got null tree path for " + cc.getFileObject().getPath() + " tree is " + tree;
             handle = TreePathHandle.create(path, cc);
         }
     }
-
-    private static TreePath getPath (CompilationUnitTree unit, Tree target) {
-	return getPath(new TreePath(unit), target);
-    }
-    
-    public static TreePath getPath(TreePath path, Tree target) {
-        //Copied from com.sun.source.util.TreePath for debugging purposes
-	path.getClass();
-	target.getClass();
-	
-	class Result extends Error {
-	    static final long serialVersionUID = -5942088234594905625L;
-	    TreePath path;
-	    Result(TreePath path) {
-		this.path = path;
-	    }
-	}
-	class PathFinder extends TreePathScanner<TreePath,Tree> {
-	    public TreePath scan(Tree tree, Tree target) {
-                if (tree != null) {
-                    System.err.println("Scan " + tree.getKind() + "\n" + tree);
-                }
-		if (tree == target) {
-                    System.err.println("FOUND MATCH");
-		    throw new Result(new TreePath(getCurrentPath(), target));
-                }
-		return super.scan(tree, target);
-	    }
-	}
-	
-	try {
-	    new PathFinder().scan(path, target);
-	} catch (Result result) {
-	    return result.path;
-	}
-        return null;
-    }    
 
     public static Collection<TreePathHandle> getOverridingMethodHandles (ExecutableElement e, CompilationController cc) throws IOException {
         Collection <ElementHandle<ExecutableElement>> mtds = getOverridingMethods (e, cc);
@@ -434,8 +390,6 @@ T item = (T) path.getLeaf();
         for (ElementHandle<ExecutableElement> element : mtds) {
             FileObject fob = SourceUtils.getFile(element, cc.getClasspathInfo());
             JavaSource src = JavaSource.forFileObject(fob);
-            System.err.println("Got JavaSource " + src + " for " + fob.getPath());
-            System.err.println("FOBS for JS " + src.getFileObjects());
             assert src.getFileObjects().contains(fob);
             TreeFromElementFinder finder = new TreeFromElementFinder (element);
             src.runUserActionTask(finder, false);
@@ -658,6 +612,10 @@ T item = (T) path.getLeaf();
         public void run(CompilationController cc) throws Exception {
             if (cancelled) return;
             TreePath path = handle.resolve(cc);
+            if (arg instanceof ParameterChangeContext) {
+                ParameterChangeContext pcc = (ParameterChangeContext) arg;
+                pcc.changeData.scanContext.setCompilationInfo(cc);
+            }
             for (TreeVisitor<R,D> v : visitors) {
                 if (cancelled) return;
                 R result;

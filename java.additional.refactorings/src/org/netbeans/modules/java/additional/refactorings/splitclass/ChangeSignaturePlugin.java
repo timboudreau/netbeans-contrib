@@ -99,7 +99,7 @@ public class ChangeSignaturePlugin extends Refactoring {
         }
         private CompilationInfo info;
         
-        void setCompilationInfo (CompilationInfo info) {
+        public void setCompilationInfo (CompilationInfo info) {
             this.info = info;
         }
         
@@ -140,8 +140,6 @@ public class ChangeSignaturePlugin extends Refactoring {
         this.overrideHandles = Utils.getOverridingMethodHandles(theMethod, wc);        
         ElementHandle <ExecutableElement> theMethodHandle = ElementHandle.create (theMethod);
         this.invocations = Utils.getInvocationsOf (theMethodHandle, wc);
-        System.err.println(overrideHandles.size() + " overrides");
-        System.err.println(invocations.size() + " invocations");
 
         ParameterRenamePolicy policy = refactoring.policy;
         RequestedParameterChanges requestedChanges = refactoring.getParameterModificationInfo();
@@ -234,8 +232,6 @@ public class ChangeSignaturePlugin extends Refactoring {
         TreePath path = toRefactor.resolve(wc);
         MethodTree theMethod = (MethodTree) path.getLeaf();
 
-        System.err.println(l.size() + " transforms created.");
-        
         final List <RefactoringElementImplementation> refactoringElements = 
                 new ArrayList<RefactoringElementImplementation>();
         
@@ -255,7 +251,6 @@ public class ChangeSignaturePlugin extends Refactoring {
                         tree = pathToInvocation.getLeaf();
                     }
                     MethodInvocationTree invocation = (MethodInvocationTree) tree;
-                    System.err.println("Process " + t + " on " + file.getPath());
                     SimpleRefactoringElementImplementation refactorElement =
                             t.getElement(invocation, cc, refactoring.getContext(), file);
 
@@ -269,7 +264,6 @@ public class ChangeSignaturePlugin extends Refactoring {
                     if (cancelled) return;
                     MethodTree methodTree = (MethodTree) handle.resolve(cc).getLeaf();
                     assert methodTree != null : "Got null method tree for " + handle;
-                    System.err.println("Process " + t + " on " + file.getPath());
                     SimpleRefactoringElementImplementation refactorElement = t.getElement(
                             methodTree, cc, refactoring.getContext(), file);
                     refactoringElements.add (refactorElement);

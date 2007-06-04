@@ -46,6 +46,10 @@ final class Parameter implements Comparable <Parameter> {
         createDefaultValue();
     }
     
+    public String getOriginalTypeName() {
+        return origTypeName;
+    }
+    
     private void createDefaultValue() {
         if (origTypeName != null && ChangeSignaturePanel.isPrimitiveTypeName(origTypeName)) {
             defaultValue = "-1"; //NOI18N

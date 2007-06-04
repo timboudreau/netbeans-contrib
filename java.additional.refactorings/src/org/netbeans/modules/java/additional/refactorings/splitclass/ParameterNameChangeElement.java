@@ -97,7 +97,6 @@ public class ParameterNameChangeElement extends SimpleRefactoringElementImplemen
     }
 
     public void run(WorkingCopy copy) throws Exception {
-        System.err.println("Handle kind " + handle.getKind());
         copy.toPhase (Phase.RESOLVED);
         assert copy.getCompilationUnit() != null : "Compilation unit from " + //NOI18N        
                 "working copy is null"; //NOI18N        
@@ -120,10 +119,8 @@ public class ParameterNameChangeElement extends SimpleRefactoringElementImplemen
     }
     
     private void changeMethod (WorkingCopy copy, TreePath path, MethodTree tree, TreeMaker maker) {
-        System.err.println(this + ".changeMethod");
         ParameterUsagesCollector collector = new ParameterUsagesCollector();
         collector.scan (tree, oldName);
-        System.err.println("Collector scan found " + collector.trees.size() + " identifiers to fix");
         Trees trees = copy.getTrees();
         ElementUtilities elemUtils = copy.getElementUtilities();
         for (IdentifierTree old : collector.trees) {
@@ -131,7 +128,6 @@ public class ParameterNameChangeElement extends SimpleRefactoringElementImplemen
             Element elemForParam = trees.getElement(pathToId);
             if (elemUtils.isLocal(elemForParam)) {
                 IdentifierTree nue = maker.Identifier(newName);
-                System.err.println("Change " + old + " to " + nue);
                 copy.rewrite (old, nue);
             }
         }
@@ -153,7 +149,6 @@ public class ParameterNameChangeElement extends SimpleRefactoringElementImplemen
         public Void visitIdentifier(IdentifierTree tree, String nameToFind) {
             //XXX make sure it doesn't find name matches with things that are name-matched
             //fields of other objects, etc.
-            System.err.println("Check ID tree " + tree.getName().toString() + " in idtree " + tree + " against " + nameToFind);
             if (tree.getName().toString().equals(nameToFind)) {
                 trees.add (tree);
             }
