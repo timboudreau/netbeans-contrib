@@ -1,5 +1,5 @@
 Manifest-Version: 1.0
 OpenIDE-Module: org.netbeans.modules.enode.test/1
 OpenIDE-Module-Specification-Version: 1.0
-OpenIDE-Module-Layer: org/netbeans/modules/enode/test/layer.xml
+OpenIDE-Module-Layer: org/netbeans/modules/enode/test/resources/layer.xml
 
