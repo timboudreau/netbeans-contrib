@@ -22,12 +22,13 @@ import java.awt.Component;
 import java.awt.Font;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import javax.lang.model.element.ExecutableElement;
 import javax.swing.AbstractButton;
-import javax.swing.JButton;
 import javax.swing.JRadioButton;
 import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
@@ -35,6 +36,7 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
+import org.netbeans.api.java.source.ElementHandle;
 import org.netbeans.modules.refactoring.spi.ui.CustomRefactoringPanel;
 import org.openide.awt.Mnemonics;
 import org.openide.util.Mutex;
@@ -196,6 +198,11 @@ class ChangeSignaturePanel extends javax.swing.JPanel implements CustomRefactori
             }
         };
         Mutex.EVENT.readAccess(r);
+    }
+    
+    Collection <ElementHandle<ExecutableElement>> overrides = Collections.<ElementHandle<ExecutableElement>>emptyList();
+    void setOverrides (Collection <ElementHandle<ExecutableElement>> c) {
+        this.overrides = overrides;
     }
 
     /** This method is called from within the constructor to
@@ -367,7 +374,7 @@ class ChangeSignaturePanel extends javax.swing.JPanel implements CustomRefactori
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                     .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
                         .addComponent(refactorFromBase)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 168, Short.MAX_VALUE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 160, Short.MAX_VALUE)
                         .addComponent(problemLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 357, Short.MAX_VALUE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -600,7 +607,19 @@ private void addButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIR
             renameIfSameButton.setEnabled(activateRadioButtons);
             alwaysRenameButton.setEnabled(activateRadioButtons);
         }
+        if (!overrides.isEmpty()) {
+            refactorFromBase.setEnabled(true);
+        }
+//        if (overrides.size() > 1) {
+//            problem = true;
+//            setProblemText(NbBundle.getMessage(ChangeSignaturePanel.class,
+//                                "MSG_MULTIPLE_INTERFACES"));
+//        }
         ui.change();
+    }
+    
+    boolean isRefactorFromBase() {
+        return refactorFromBase.isEnabled() && refactorFromBase.isSelected();
     }
 
     static boolean isPrimitiveTypeEntry (String typeName, String defValue) {
@@ -640,15 +659,15 @@ private void addButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIR
                 ParameterTableModel tm = new ParameterTableModel (descs, ChangeSignaturePanel.this);
                 jTable1.setModel (tm);
                 jTable1.setEnabled(true);
-                boolean hasDescs = descs.size() > 0;
-                if (hasDescs) {
+                boolean hasParams = descs.size() > 0;
+                if (hasParams) {
                     jTable1.getSelectionModel().setAnchorSelectionIndex(0);
                     jTable1.getSelectionModel().setLeadSelectionIndex(0);
                 }
-                moveUpButton.setEnabled(hasDescs);
-                moveDownButton.setEnabled(hasDescs);
+                moveUpButton.setEnabled(hasParams);
+                moveDownButton.setEnabled(hasParams);
                 addButton.setEnabled(true);
-                removeButton.setEnabled (hasDescs);
+                removeButton.setEnabled (hasParams);
                 progress.setVisible (false);
             }
         };

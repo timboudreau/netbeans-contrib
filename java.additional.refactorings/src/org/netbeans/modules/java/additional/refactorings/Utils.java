@@ -46,6 +46,8 @@ import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.Modifier;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
+import javax.lang.model.type.DeclaredType;
+import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
 import javax.lang.model.util.ElementFilter;
 import org.netbeans.api.java.source.CancellableTask;
@@ -547,4 +549,38 @@ T item = (T) path.getLeaf();
             }
         }
     }
+    
+    private static Collection<ExecutableElement> getOverriddenMethods(ExecutableElement e, TypeElement parent, CompilationInfo info) {
+        //Copied from RetoucheUtils
+        ArrayList<ExecutableElement> result = new ArrayList<ExecutableElement>();
+        TypeMirror sup = parent.getSuperclass();
+        if (sup.getKind() == TypeKind.DECLARED) {
+            TypeElement next = (TypeElement) ((DeclaredType)sup).asElement();
+            ExecutableElement overriden = getMethod(e, next, info);
+                result.addAll(getOverriddenMethods(e,next, info));
+            if (overriden!=null) {
+                result.add(overriden);
+            }
+        }
+        for (TypeMirror tm:parent.getInterfaces()) {
+            TypeElement next = (TypeElement) ((DeclaredType)tm).asElement();
+            ExecutableElement overriden2 = getMethod(e, next, info);
+            result.addAll(getOverriddenMethods(e,next, info));
+            if (overriden2!=null) {
+                result.add(overriden2);
+            }
+        }
+        return result;
+    }    
+    
+    private static ExecutableElement getMethod(ExecutableElement method, TypeElement type, CompilationInfo info) {
+        //Copied from RetoucheUtils
+        for (ExecutableElement met: ElementFilter.methodsIn(type.getEnclosedElements())){
+            if (info.getElements().overrides(method, met, type)) {
+                return met;
+            }
+        }
+        return null;
+    }
+    
 }

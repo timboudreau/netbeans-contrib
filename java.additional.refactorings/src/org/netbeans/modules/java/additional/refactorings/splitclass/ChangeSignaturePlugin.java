@@ -18,6 +18,7 @@ package org.netbeans.modules.java.additional.refactorings.splitclass;
 
 import com.sun.source.tree.BlockTree;
 import com.sun.source.tree.CompilationUnitTree;
+import org.netbeans.api.java.source.ModificationResult;
 import org.netbeans.modules.java.additional.refactorings.visitors.ParameterRenamePolicy;
 import org.netbeans.modules.java.additional.refactorings.visitors.RequestedParameterChanges;
 import com.sun.source.tree.MethodInvocationTree;
@@ -27,6 +28,7 @@ import com.sun.source.tree.Tree.Kind;
 import com.sun.source.tree.VariableTree;
 import com.sun.source.util.TreePath;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
@@ -51,6 +53,7 @@ import org.netbeans.modules.java.additional.refactorings.visitors.ParameterChang
 import org.netbeans.modules.java.additional.refactorings.visitors.ParameterScanner;
 import org.netbeans.modules.java.additional.refactorings.visitors.VariableNameScanner;
 import org.netbeans.modules.refactoring.api.Problem;
+import org.netbeans.modules.refactoring.spi.RefactoringElementImplementation;
 import org.netbeans.modules.refactoring.spi.RefactoringElementsBag;
 import org.netbeans.modules.refactoring.spi.SimpleRefactoringElementImplementation;
 import org.openide.filesystems.FileObject;
@@ -276,6 +279,10 @@ public class ChangeSignaturePlugin extends Refactoring {
 //        Iterable <MethodTree> overrides = Utils.resolveTreePathHandles(overrideHandles);
 
         System.err.println(l.size() + " transforms created.");
+        
+        final List <RefactoringElementImplementation> refactoringElements = 
+                new ArrayList<RefactoringElementImplementation>();
+        
         //Iterate the changes made to the method signature
         for (final Transform t : l) {
             System.err.println("  Transform: " + t);
@@ -300,11 +307,11 @@ public class ChangeSignaturePlugin extends Refactoring {
                             throw new IllegalStateException ("Can't get there from here: " + h.resolve(wc));
                         }
                         MethodInvocationTree invocation = (MethodInvocationTree) tree;
-                        Element invokingMethodElement = wc.getTrees().getElement(pathToInvocation);
-                        ElementHandle<TypeElement> eh = ElementHandle.<TypeElement>create(wc.getElementUtilities().enclosingTypeElement(invokingMethodElement));
                         System.err.println("Process " + t + " on " + fob.getPath());
-                        SimpleRefactoringElementImplementation refactorElement = t.getElement(invocation, wc, refactoring.getContext(), fob);
-                        bag.add (refactoring, refactorElement);
+                        SimpleRefactoringElementImplementation refactorElement =
+                                t.getElement(invocation, wc, refactoring.getContext(), fob);
+                        
+                        refactoringElements.add (refactorElement);
                     }
                 };
                 JavaSource src = JavaSource.forFileObject (fob);
@@ -330,7 +337,7 @@ public class ChangeSignaturePlugin extends Refactoring {
                         assert methodTree != null : "Got null method tree for " + e;
                         System.err.println("Process " + t + " on " + file.getPath());
                         SimpleRefactoringElementImplementation refactorElement = t.getElement(methodTree, wc, refactoring.getContext(), file);
-                        bag.add (refactoring, refactorElement);
+                        refactoringElements.add (refactorElement);
                     }
                 };
                 FileObject file = e.getFileObject();
@@ -341,7 +348,8 @@ public class ChangeSignaturePlugin extends Refactoring {
             }
             SimpleRefactoringElementImplementation refactorElement = t.getElement(theMethod,
                     wc, refactoring.getContext(), file);
-            bag.add (refactoring, refactorElement);
+            refactoringElements.add(refactorElement);
+            bag.addAll (refactoring, refactoringElements);
         }
         return null;
     }

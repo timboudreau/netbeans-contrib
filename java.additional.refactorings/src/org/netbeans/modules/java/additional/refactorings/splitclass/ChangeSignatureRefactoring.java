@@ -53,9 +53,10 @@ public class ChangeSignatureRefactoring extends AbstractRefactoring {
     final String returnType;
     final TreePathHandle methodHandle;
     final ParameterRenamePolicy policy;
+    final boolean refactorFromBase;
     public ChangeSignatureRefactoring(TreePathHandle methodHandle, Lookup source, List <Parameter> orig, 
             List <Parameter> nue, String methodName, String returnType,
-            ParameterRenamePolicy policy) {
+            ParameterRenamePolicy policy, boolean refactorFromBase) {
         super (source);
         this.methodHandle = methodHandle;
         this.orig = orig;
@@ -63,6 +64,7 @@ public class ChangeSignatureRefactoring extends AbstractRefactoring {
         this.returnType = returnType;
         this.methodName = methodName;
         this.policy = policy;
+        this.refactorFromBase = refactorFromBase;
     }
 
     boolean isReturnTypeChanged() {
@@ -71,6 +73,10 @@ public class ChangeSignatureRefactoring extends AbstractRefactoring {
     
     boolean isMethodNameChanged() {
         return methodName != null;
+    }
+    
+    boolean isRefactorFromBase() {
+        return refactorFromBase;
     }
     
     public List <Transform> getChanges() {
@@ -157,27 +163,23 @@ public class ChangeSignatureRefactoring extends AbstractRefactoring {
             }
         }
         
+        //handle reorderings
+        Set <Swap> swaps = new HashSet <Swap> ();
         for (int i=0; i < work.size(); i++) {
             Parameter p = work.get (i);
             if (!p.isNew()) {
-                int currIndex = i;
-                int nueIndex = nue.indexOf (p);
-                if (currIndex != nueIndex) {
-                    result.add (new ParamOrderTransform(currIndex, nueIndex));
-                    if (currIndex < nueIndex) {
-                        //slow & ugly but works
-                        Parameter[] pp = work.toArray (new Parameter[work.size()]);
-                        Parameter hold = pp[currIndex];
-                        pp[currIndex] = pp[nueIndex];                        
-                        pp[nueIndex] = hold;
-                        work.clear();
-                        work.addAll(Arrays.<Parameter>asList(pp));
-                        if (nueIndex < i) {
-                            i = nueIndex - 1;
-                        }
-                    }
+                int pos = nue.indexOf(p);
+                int origPos = i;
+                if (pos != origPos) {
+                    Swap swap = new Swap (origPos, pos);
+                    swaps.add (swap);
+                    swap.swap(work);
                 }
             }
+        }
+        if (!swaps.isEmpty()) {
+            System.err.println("Swaps: " + swaps);
+            result.add (new ReorderParametersTransform (swaps));
         }
         
         for (Parameter p : nue) {
@@ -279,6 +281,32 @@ public class ChangeSignatureRefactoring extends AbstractRefactoring {
         }
     }
     
+
+    private class ReorderParametersTransform extends Transform {
+        private final Collection <Swap> swaps;
+        ReorderParametersTransform(Collection <Swap> swaps) {
+            super (ChangeKind.PARAM_ORDER);
+            this.swaps = swaps;
+        }
+        
+        protected SimpleRefactoringElementImplementation createElement (MethodInvocationTree tree, Element element, TreePathHandle handle, TreePath path, String name, FileObject file) {
+            SimpleRefactoringElementImplementation result =
+                    new ReorderParametersElementImpl(handle, name, getContext(), file, swaps);
+            return result;
+        }
+
+        protected SimpleRefactoringElementImplementation createElement(MethodTree tree, Element element, TreePathHandle handle, TreePath path, String name, FileObject file) {
+            SimpleRefactoringElementImplementation result =
+                    new ReorderParametersElementImpl(handle, name, getContext(), file, swaps);
+            return result;
+        }
+        
+        public String toString() {
+            return super.toString() + " at " + orig + " to " + nue;
+        }
+        
+    }    
+/*    
     private class ParamOrderTransform extends Transform {
         int orig;
         int nue;
@@ -303,8 +331,8 @@ public class ChangeSignatureRefactoring extends AbstractRefactoring {
         public String toString() {
             return super.toString() + " at " + orig + " to " + nue;
         }
-        
     }
+ */ 
     
     private class ParameterRemovalTransform extends Transform {
         private int index;

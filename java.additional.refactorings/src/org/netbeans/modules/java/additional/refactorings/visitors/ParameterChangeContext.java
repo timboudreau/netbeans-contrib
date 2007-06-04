@@ -143,18 +143,19 @@ public final class ParameterChangeContext {
         
         private Set<String> getFatalConflicts (ElementHandle<ExecutableElement> method, CompilationInfo info, RequestedParameterChanges mods) {
             Set <String> newParameterNames = mods.getNewParameterNames();
-            Set <String> result;
+            Set <String> result = new HashSet <String> ();
             if (!newParameterNames.isEmpty()) {
                 Map <ExecutableElement, Set <String>> namesUsedInMethods = resolveNames (info);
-                Set <String> namesUsedInThisMethod = new HashSet <String> (namesUsedInMethods.get (method.resolve(info))); //defensive copy
-                result = new HashSet <String> ();
-                for (String p : newParameterNames) {
-                    if (namesUsedInThisMethod.contains(p)) {
-                        result.add (p);
+                Set <String> namesUsedInThisMethod = namesUsedInMethods.get (method.resolve(info));
+                if (namesUsedInThisMethod != null) {
+                    namesUsedInThisMethod = new HashSet <String> (namesUsedInThisMethod); //defensive copy
+                    result = new HashSet <String> ();
+                    for (String p : newParameterNames) {
+                        if (namesUsedInThisMethod.contains(p)) {
+                            result.add (p);
+                        }
                     }
                 }
-            } else {
-                result = Collections.<String>emptySet();
             }
             return result;
         }

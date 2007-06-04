@@ -102,7 +102,9 @@ public abstract class AbstractParameterChangeElementImpl extends SimpleRefactori
             MethodInvocationTree oldInvocationTree = (MethodInvocationTree) tree;
             List <ExpressionTree> args = new ArrayList <ExpressionTree> (oldInvocationTree.getArguments());
 
+            System.err.println("Size of old method invocation args " + args.size() + ": " + args);
             modifyArgs (args, maker);
+            System.err.println("Size of old method invocation args " + args.size() + ": " + args);
             if (cancelled) return;
 
             @SuppressWarnings("unchecked")

@@ -25,6 +25,8 @@ import com.sun.source.util.TreePath;
 import com.sun.source.util.Trees;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
@@ -38,11 +40,12 @@ import javax.swing.event.ChangeListener;
 import org.netbeans.api.java.source.CancellableTask;
 import org.netbeans.api.java.source.CompilationController;
 import org.netbeans.api.java.source.CompilationInfo;
+import org.netbeans.api.java.source.ElementHandle;
 import org.netbeans.api.java.source.JavaSource;
 import org.netbeans.api.java.source.JavaSource.Phase;
 import org.netbeans.api.java.source.TreePathHandle;
 import org.netbeans.api.java.source.TypeMirrorHandle;
-import org.netbeans.modules.java.additional.refactorings.visitors.ParamDesc;
+import org.netbeans.modules.java.additional.refactorings.Utils;
 import org.netbeans.modules.refactoring.api.AbstractRefactoring;
 import org.netbeans.modules.refactoring.api.Problem;
 import org.netbeans.modules.refactoring.spi.ui.CustomRefactoringPanel;
@@ -113,8 +116,9 @@ public class ChangeSignatureUI implements RefactoringUI, CancellableTask <Compil
         String returnType = panel.getReturnType();
         String methodName = panel.getMethodName();
         ParameterRenamePolicy policy = panel.getRenamePolicy();
+        boolean refactorFromBase = panel.isRefactorFromBase();
         return new ChangeSignatureRefactoring (handle, lkp, originals, now, 
-                methodName, returnType, policy);
+                methodName, returnType, policy, refactorFromBase);
     }
 
     public HelpCtx getHelpCtx() {
@@ -165,7 +169,16 @@ public class ChangeSignatureUI implements RefactoringUI, CancellableTask <Compil
         ExecutableElement ee = (ExecutableElement) el;
         TypeElement containingClass = cc.getElementUtilities().enclosingTypeElement(ee);
         boolean mayHaveOverrides = !containingClass.getModifiers().contains(Modifier.FINAL);
+        TypeMirror superType = containingClass.getSuperclass();
+        List <? extends TypeMirror> types = containingClass.getInterfaces();
+        boolean methodMayBeOverride = !"java.lang.Object".equals(superType.toString()) || !types.isEmpty();
         
+        Collection<ElementHandle<ExecutableElement>> overrides;
+        if (methodMayBeOverride) {
+            overrides = Utils.getOverridingMethods(ee, cc);
+        } else {
+            overrides = Collections.<ElementHandle<ExecutableElement>>emptyList();
+        }
         
         MethodTree tree = (MethodTree) path.getLeaf();
         String name = tree.getName().toString();
@@ -193,6 +206,9 @@ public class ChangeSignatureUI implements RefactoringUI, CancellableTask <Compil
         panel.setMethodType (type);
         panel.setMethodName (name);
         panel.setMayHaveOverrides (mayHaveOverrides);
+        //XXX how to deal with case where one method overrides methods in
+        //two interfaces?
+        panel.setOverrides (overrides);
         panel.setParameters (descs);
     }
 }
