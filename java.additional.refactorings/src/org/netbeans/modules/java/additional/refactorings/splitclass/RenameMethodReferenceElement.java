@@ -27,9 +27,11 @@ import java.io.IOException;
 import org.netbeans.api.java.source.CancellableTask;
 import org.netbeans.api.java.source.JavaSource;
 import org.netbeans.api.java.source.JavaSource.Phase;
+import org.netbeans.api.java.source.ModificationResult;
 import org.netbeans.api.java.source.TreeMaker;
 import org.netbeans.api.java.source.TreePathHandle;
 import org.netbeans.api.java.source.WorkingCopy;
+import org.netbeans.modules.java.additional.refactorings.ModificationResultProvider;
 import org.netbeans.modules.refactoring.spi.SimpleRefactoringElementImplementation;
 import org.openide.filesystems.FileObject;
 import org.openide.text.PositionBounds;
@@ -40,7 +42,7 @@ import org.openide.util.Lookup;
  *
  * @author Tim Boudreau
  */
-public class RenameMethodReferenceElement extends SimpleRefactoringElementImplementation implements CancellableTask<WorkingCopy> {
+public class RenameMethodReferenceElement extends SimpleRefactoringElementImplementation implements CancellableTask<WorkingCopy>, ModificationResultProvider {
     private final String renameTo;
     private final TreePathHandle toRenameIn;
     private final String name;
@@ -108,5 +110,15 @@ public class RenameMethodReferenceElement extends SimpleRefactoringElementImplem
                     (ExpressionTree) oldMethod.getDefaultValue());
             copy.rewrite (oldMethod, newMethod);
         }
+    }
+
+    public ModificationResult getModificationResult() {
+        JavaSource js = JavaSource.forFileObject (file);
+        try {
+            return js.runModificationTask(this);
+        } catch (IOException ioe) {
+            Exceptions.printStackTrace(ioe);
+        }
+        return null;
     }
 }

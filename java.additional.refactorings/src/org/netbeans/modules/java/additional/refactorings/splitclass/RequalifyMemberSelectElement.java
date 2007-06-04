@@ -25,9 +25,11 @@ import com.sun.source.util.TreePath;
 import java.io.IOException;
 import org.netbeans.api.java.source.CancellableTask;
 import org.netbeans.api.java.source.JavaSource;
+import org.netbeans.api.java.source.ModificationResult;
 import org.netbeans.api.java.source.TreeMaker;
 import org.netbeans.api.java.source.TreePathHandle;
 import org.netbeans.api.java.source.WorkingCopy;
+import org.netbeans.modules.java.additional.refactorings.ModificationResultProvider;
 import org.netbeans.modules.refactoring.spi.SimpleRefactoringElementImplementation;
 import org.openide.filesystems.FileObject;
 import org.openide.text.PositionBounds;
@@ -38,7 +40,7 @@ import org.openide.util.Lookup;
  *
  * @author Tim
  */
-public class RequalifyMemberSelectElement extends SimpleRefactoringElementImplementation implements CancellableTask<WorkingCopy> {
+public class RequalifyMemberSelectElement extends SimpleRefactoringElementImplementation implements CancellableTask<WorkingCopy>, ModificationResultProvider {
     private final TreePathHandle toRenameIn;
     private final TreePathHandle memberSelectToRequalify;
     private final String memberName;
@@ -64,15 +66,6 @@ public class RequalifyMemberSelectElement extends SimpleRefactoringElementImplem
 
     public String getDisplayText() {
         return getText();
-    }
-
-    public void performChange() {
-        JavaSource js = JavaSource.forFileObject (file);
-        try {
-            js.runModificationTask(this).commit();
-        } catch (IOException ioe) {
-            Exceptions.printStackTrace(ioe);
-        }
     }
 
     public Lookup getLookup() {
@@ -111,4 +104,26 @@ public class RequalifyMemberSelectElement extends SimpleRefactoringElementImplem
             copy.rewrite (toRequalify, nue);
         }
     }
+    
+    public void performChange() {
+        ModificationResult res = getModificationResult();
+        try {
+            if (res != null) res.commit();
+        } catch (IOException ioe) {
+            Exceptions.printStackTrace(ioe);
+        }
+    }
+    
+    ModificationResult result;
+    public ModificationResult getModificationResult() {
+        if (result == null) {
+            JavaSource js = JavaSource.forFileObject (file);
+            try {
+                result = js.runModificationTask(this);
+            } catch (IOException ioe) {
+                Exceptions.printStackTrace(ioe);
+            }
+        }
+        return result;
+    }    
 }

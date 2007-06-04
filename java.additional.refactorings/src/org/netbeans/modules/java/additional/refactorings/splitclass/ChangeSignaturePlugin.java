@@ -19,6 +19,7 @@ package org.netbeans.modules.java.additional.refactorings.splitclass;
 import com.sun.source.tree.BlockTree;
 import com.sun.source.tree.CompilationUnitTree;
 import com.sun.source.tree.MethodInvocationTree;
+import org.netbeans.modules.java.additional.refactorings.RetoucheCommit;
 import org.netbeans.modules.java.additional.refactorings.visitors.ParameterRenamePolicy;
 import org.netbeans.modules.java.additional.refactorings.visitors.RequestedParameterChanges;
 import com.sun.source.tree.MethodTree;
@@ -39,8 +40,10 @@ import org.netbeans.api.java.source.CompilationController;
 import org.netbeans.api.java.source.CompilationInfo;
 import org.netbeans.api.java.source.ElementHandle;
 import org.netbeans.api.java.source.JavaSource.Phase;
+import org.netbeans.api.java.source.ModificationResult;
 import org.netbeans.api.java.source.TreePathHandle;
 import org.netbeans.api.java.source.WorkingCopy;
+import org.netbeans.modules.java.additional.refactorings.ModificationResultProvider;
 import org.netbeans.modules.java.additional.refactorings.Refactoring;
 import org.netbeans.modules.java.additional.refactorings.Utils;
 import org.netbeans.modules.java.additional.refactorings.Utils.TreePathHandleTask;
@@ -51,7 +54,6 @@ import org.netbeans.modules.java.additional.refactorings.visitors.ParameterScann
 import org.netbeans.modules.java.additional.refactorings.visitors.UnqualifiedMemberScanner;
 import org.netbeans.modules.java.additional.refactorings.visitors.VariableNameScanner;
 import org.netbeans.modules.refactoring.api.Problem;
-import org.netbeans.modules.refactoring.spi.RefactoringElementImplementation;
 import org.netbeans.modules.refactoring.spi.RefactoringElementsBag;
 import org.netbeans.modules.refactoring.spi.SimpleRefactoringElementImplementation;
 import org.openide.filesystems.FileObject;
@@ -241,8 +243,8 @@ public class ChangeSignaturePlugin extends Refactoring {
         TreePath path = toRefactor.resolve(wc);
         MethodTree theMethod = (MethodTree) path.getLeaf();
 
-        final List <RefactoringElementImplementation> refactoringElements = 
-                new ArrayList<RefactoringElementImplementation>();
+        final List <SimpleRefactoringElementImplementation> refactoringElements = 
+                new ArrayList<SimpleRefactoringElementImplementation>();
         
         //Iterate the changes made to the method signature
         for (final Transform t : l) {
@@ -306,7 +308,20 @@ public class ChangeSignaturePlugin extends Refactoring {
             Utils.<ParameterChangeContext>runAgainstSources(invocations, requalifyHandler, changes);
         }
         
-        bag.addAll (refactoring, refactoringElements);
+        List <ModificationResult> results = new ArrayList <ModificationResult> (refactoringElements.size());
+        for (SimpleRefactoringElementImplementation el : refactoringElements) {
+            if (el instanceof ModificationResultProvider) {
+                ModificationResult res = ((ModificationResultProvider) el).getModificationResult();
+                results.add (res);
+            } else {
+                bag.add(refactoring, el);
+            }
+        }
+        if (!results.isEmpty()) {
+            bag.registerTransaction(new RetoucheCommit(results));
+        }
+        
+//        bag.addAll (refactoring, refactoringElements);
         return null;
     }
     

@@ -102,7 +102,7 @@ public abstract class Utils {
         for (TreePathHandle handle : handles) {
             TreePath path = handle.resolve(info);
             @SuppressWarnings("unchecked")
-T item = (T) path.getLeaf();
+            T item = (T) path.getLeaf();
             result.add (item);
         }
         return result;
