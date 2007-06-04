@@ -35,11 +35,9 @@ import java.util.Map;
 import java.util.Set;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.TypeElement;
-import org.netbeans.api.java.source.CancellableTask;
 import org.netbeans.api.java.source.CompilationController;
 import org.netbeans.api.java.source.CompilationInfo;
 import org.netbeans.api.java.source.ElementHandle;
-import org.netbeans.api.java.source.JavaSource;
 import org.netbeans.api.java.source.JavaSource.Phase;
 import org.netbeans.api.java.source.TreePathHandle;
 import org.netbeans.api.java.source.WorkingCopy;
@@ -48,7 +46,6 @@ import org.netbeans.modules.java.additional.refactorings.Utils;
 import org.netbeans.modules.java.additional.refactorings.Utils.TreePathHandleTask;
 import org.netbeans.modules.java.additional.refactorings.splitclass.ChangeSignatureRefactoring.Transform;
 import org.netbeans.modules.java.additional.refactorings.visitors.ParameterChangeContext;
-import org.netbeans.modules.java.additional.refactorings.visitors.ParameterChangeContext.ChangeData;
 import org.netbeans.modules.java.additional.refactorings.visitors.ParameterChangeContext.ScanContext;
 import org.netbeans.modules.java.additional.refactorings.visitors.ParameterScanner;
 import org.netbeans.modules.java.additional.refactorings.visitors.VariableNameScanner;
@@ -148,8 +145,6 @@ public class ChangeSignaturePlugin extends Refactoring {
 
         ParameterRenamePolicy policy = refactoring.policy;
         RequestedParameterChanges requestedChanges = refactoring.getParameterModificationInfo();
-        CompilationUnitTree compUnit = wc.getCompilationUnit();
-        
         if (!requestedChanges.isEmpty()) {
             final ScanCtxImpl scan = new ScanCtxImpl(theMethod, wc);
             
@@ -250,7 +245,7 @@ public class ChangeSignaturePlugin extends Refactoring {
             
             //Iterate all invocations and generate a refactoring element 
             //corresponding to this transform for that invocation
-            TreePathHandleTask<Transform> run = new TreePathHandleTask <Transform>() {
+            TreePathHandleTask<Transform> invocationHandler = new TreePathHandleTask <Transform>() {
                 public void run(CompilationController cc, TreePathHandle h, FileObject file, Transform t) {
                     if (cancelled) return;
                     TreePath pathToInvocation = h.resolve(cc);
@@ -267,9 +262,9 @@ public class ChangeSignaturePlugin extends Refactoring {
                     refactoringElements.add (refactorElement);
                 }
             };
-            Utils.<Transform>runAgainstSources(invocations, run, t);
+            Utils.<Transform>runAgainstSources(invocations, invocationHandler, t);
             //Iterate all overrides, and generate a refactoring element for each
-            TreePathHandleTask<Transform> run2 = new TreePathHandleTask <Transform>() {
+            TreePathHandleTask<Transform> overrideHandler = new TreePathHandleTask <Transform>() {
                 public void run(CompilationController cc, TreePathHandle handle, FileObject file, Transform arg) {
                     if (cancelled) return;
                     MethodTree methodTree = (MethodTree) handle.resolve(cc).getLeaf();
@@ -281,7 +276,7 @@ public class ChangeSignaturePlugin extends Refactoring {
                 }
             };
             
-            Utils.<Transform>runAgainstSources(overrideHandles, run2, t);
+            Utils.<Transform>runAgainstSources(overrideHandles, overrideHandler, t);
             SimpleRefactoringElementImplementation refactorElement = t.getElement(theMethod,
                     wc, refactoring.getContext(), file);
             refactoringElements.add(refactorElement);
