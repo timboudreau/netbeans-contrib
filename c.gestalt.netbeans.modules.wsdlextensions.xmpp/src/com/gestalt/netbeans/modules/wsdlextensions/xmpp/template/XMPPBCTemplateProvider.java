@@ -20,7 +20,7 @@
 package com.gestalt.netbeans.modules.wsdlextensions.xmpp.template;
 
 import java.io.InputStream;
-import org.netbeans.modules.xml.wsdl.ui.spi.ExtensibilityElementTemplateProvider;
+import org.netbeans.modules.xml.wsdl.bindingsupport.spi.ExtensibilityElementTemplateProvider;
 import org.openide.util.NbBundle;
 
 public class XMPPBCTemplateProvider extends ExtensibilityElementTemplateProvider {
