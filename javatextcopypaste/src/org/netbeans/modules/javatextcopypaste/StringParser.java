@@ -76,7 +76,7 @@ public class StringParser {
         return sb.toString();
     }
     
-    public static String convertJavaToText(String textValue, boolean newlinesToSpaces, boolean javaNewLinesToSpaces) throws Exception{
+    public static String convertJavaToText(String textValue, boolean newlinesToSpaces, boolean javaNewLinesToSpaces, boolean blankNewlines, boolean blankJavaNewlines) throws Exception{
         
         if(textValue==null){
             textValue="";
@@ -158,17 +158,21 @@ public class StringParser {
                                     sb.append('\t');
                                     break;
                                 case 'n':
-                                    if(!newlinesToSpaces){
-                                        sb.append(System.getProperty("line.separator", "\n"));
-                                    }else{
-                                        sb.append(' ');
+                                    if(!blankNewlines){
+                                        if(!newlinesToSpaces){
+                                            sb.append(System.getProperty("line.separator", "\n"));
+                                        }else{
+                                            sb.append(' ');
+                                        }
                                     }
                                     break;
                                 case 'r':
-                                    if(!newlinesToSpaces){
-                                        sb.append(System.getProperty("line.separator", "\n"));
-                                    }else{
-                                        sb.append(' ');
+                                    if(!blankNewlines){
+                                        if(!newlinesToSpaces){
+                                            sb.append(System.getProperty("line.separator", "\n"));
+                                        }else{
+                                            sb.append(' ');
+                                        }
                                     }
                                     break;
                                 case '"':
@@ -187,16 +191,20 @@ public class StringParser {
                     }
                     
                 } else if( curline.charAt(i) == '\n') {
-                    if(!javaNewLinesToSpaces){
-                        sb.append(System.getProperty("line.separator", "\n"));
-                    }else{
-                        sb.append(' ');
+                    if(!blankJavaNewlines){
+                        if(!javaNewLinesToSpaces){
+                            sb.append(System.getProperty("line.separator", "\n"));
+                        }else{
+                            sb.append(' ');
+                        }
                     }
                 } else if( curline.charAt(i) == '\r') {
-                    if(!javaNewLinesToSpaces){
-                        sb.append(System.getProperty("line.separator", "\n"));
-                    }else{
-                        sb.append(' ');
+                    if(!blankJavaNewlines){
+                        if(!javaNewLinesToSpaces){
+                            sb.append(System.getProperty("line.separator", "\n"));
+                        }else{
+                            sb.append(' ');
+                        }
                     }
                 } else {
                     if(inJString||inSQuote){
@@ -218,14 +226,21 @@ public class StringParser {
                 sb.append("</JavaCode> ");
                 outString = new StringBuffer();
             }
-            if(!javaNewLinesToSpaces){
-                sb.append(System.getProperty("line.separator", "\n"));
-            }else{
-                sb.append(' ');
+            
+            if(!blankJavaNewlines){
+                if(!javaNewLinesToSpaces){
+                    sb.append(System.getProperty("line.separator", "\n"));
+                }else{
+                    sb.append(' ');
+                }
             }
             
         }//end while lines
         return sb.toString();
+    }
+    
+    public static String convertJavaToText(String textValue, boolean newlinesToSpaces, boolean javaNewLinesToSpaces) throws Exception{
+        return convertJavaToText(textValue, newlinesToSpaces, javaNewLinesToSpaces, false, false);
     }
     
 }
