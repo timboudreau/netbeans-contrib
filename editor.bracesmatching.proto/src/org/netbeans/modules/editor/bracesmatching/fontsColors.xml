@@ -21,11 +21,10 @@ Microsystems, Inc. All Rights Reserved.
 
 <fontscolors>
 <!-- XXX:
-    This should be moved here from ide/defaults
+    This should be removed from ide/defaults
     <fontcolor name="highlight-match-brace" foreColor="white" bgColor="ffff32d2"/>
-    
-    
-    <fontcolor name="braces-match" bgColor="pink"/>
-    <fontcolor name="braces-mismatch" bgColor="red"/>
 -->
+    
+    <fontcolor name="nbeditor-bracesMatching-match" bgColor="ff4BFF0F"/>
+    <fontcolor name="nbeditor-bracesMatching-mismatch" bgColor="red"/>
 </fontscolors>
