@@ -296,7 +296,7 @@ public final class MasterMatcher {
 
         TokenHierarchy<? extends Document> th = TokenHierarchy.get(document);
         if (th != null) {
-            List<TokenSequence<? extends TokenId>> sequences = getEmbeddedTokenSequences(th, offset, backward);
+            List<TokenSequence<? extends TokenId>> sequences = th.embeddedTokenSequences(offset, backward);
             if (!sequences.isEmpty()) {
                 String path = sequences.get(sequences.size() - 1).languagePath().mimePath();
                 mimePath = MimePath.parse(path);
@@ -612,53 +612,5 @@ public final class MasterMatcher {
             bag.addHighlight(caretOffset, caretOffset + fwdLookahead, MAX_LOOKAHEAD_HIGHLIGHT);
         }
     } // End of Result class
-    
-    
-    // XXX: This should be moved to Lexer API !!!
-    
-    public static List<TokenSequence<? extends TokenId>> getEmbeddedTokenSequences(
-        TokenHierarchy<?> tokenHierarchy, int offset, boolean backwardBias
-    ) {
-        TokenSequence<? extends TokenId> embedded = tokenHierarchy.tokenSequence();
-        List<TokenSequence<? extends TokenId>> sequences = new ArrayList<TokenSequence<? extends TokenId>>();
-
-        do {
-            TokenSequence<? extends TokenId> seq = embedded;
-            sequences.add(seq);
-            embedded = null;
-
-            seq.move(offset);
-            if (seq.moveNext()) {
-                if (seq.offset() == offset && backwardBias) {
-                    if (seq.movePrevious()) {
-                        embedded = seq.embedded();
-                    }
-                } else {
-                    embedded = seq.embedded();
-                }
-            } else if (backwardBias && seq.movePrevious()) {
-                embedded = seq.embedded();
-            }
-        } while (embedded != null);
-        
-        return sequences;
-    }
-    
-    public static List<TokenSequence<? extends TokenId>> getEmbeddedTokenSequences(
-        TokenHierarchy<?> th, int offset, boolean backwardBias, Language<? extends TokenId> language
-    ) {
-        List<TokenSequence<? extends TokenId>> sequences = getEmbeddedTokenSequences(th, offset, backwardBias);
-
-        for(int i = sequences.size() - 1; i >= 0; i--) {
-            TokenSequence<? extends TokenId> seq = sequences.get(i);
-            if (seq.language() == language) {
-                break;
-            } else {
-                sequences.remove(i);
-            }
-        }
-        
-        return sequences;
-    }
     
 }

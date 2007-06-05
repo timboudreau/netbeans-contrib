@@ -20,6 +20,7 @@ import java.util.List;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
 import org.netbeans.api.java.lexer.JavaTokenId;
+import org.netbeans.api.lexer.Language;
 import org.netbeans.api.lexer.TokenHierarchy;
 import org.netbeans.api.lexer.TokenId;
 import org.netbeans.api.lexer.TokenId;
@@ -82,7 +83,7 @@ public final class JavaMatcher implements BracesMatcher, BracesMatcherFactory {
 
     public int[] findMatches() throws InterruptedException, BadLocationException {
         TokenHierarchy<Document> th = TokenHierarchy.get(context.getDocument());
-        List<TokenSequence<? extends TokenId>> sequences = MasterMatcher.getEmbeddedTokenSequences(
+        List<TokenSequence<? extends TokenId>> sequences = getEmbeddedTokenSequences(
             th, originOffset, backward, JavaTokenId.language());
 
         if (!sequences.isEmpty()) {
@@ -150,6 +151,23 @@ public final class JavaMatcher implements BracesMatcher, BracesMatcherFactory {
             }
         }
         return null;
+    }
+    
+    public static List<TokenSequence<? extends TokenId>> getEmbeddedTokenSequences(
+        TokenHierarchy<?> th, int offset, boolean backwardBias, Language<? extends TokenId> language
+    ) {
+        List<TokenSequence<? extends TokenId>> sequences = th.embeddedTokenSequences(offset, backwardBias);
+
+        for(int i = sequences.size() - 1; i >= 0; i--) {
+            TokenSequence<? extends TokenId> seq = sequences.get(i);
+            if (seq.language() == language) {
+                break;
+            } else {
+                sequences.remove(i);
+            }
+        }
+        
+        return sequences;
     }
     
     private static final class TokenSequenceIterator {
