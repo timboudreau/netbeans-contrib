@@ -21,6 +21,7 @@ import javax.swing.text.Caret;
 import javax.swing.text.Document;
 import javax.swing.text.JTextComponent;
 import javax.swing.text.TextAction;
+import org.openide.util.NbBundle;
 
 /**
  *
@@ -37,6 +38,7 @@ public final class BracesMatchAction extends TextAction {
     public BracesMatchAction(boolean select) {
         super(select ? "selection-match-brace" : "match-brace"); //NOI18N
         this.select = select;
+        putValue(SHORT_DESCRIPTION, NbBundle.getMessage(BracesMatchAction.class, (String) getValue(NAME)));
     }
     
     public void actionPerformed(ActionEvent e) {

@@ -20,5 +20,10 @@ Microsystems, Inc. All Rights Reserved.
 <!DOCTYPE bindings PUBLIC "-//NetBeans//DTD Editor KeyBindings settings 1.1//EN" "http://www.netbeans.org/dtds/EditorKeyBindings-1_1.dtd">
                           
 <bindings>
-    <bind actionName="match-brace-control-properties" key="DOS-OPEN_BRACKET"/>
+    <!-- XXX: these shortcuts need to be removed from src/org/netbeans/modules/editor/resources/NetBeans-keybindings.xml
+    -->
+    <bind actionName="match-brace" key="D-OPEN_BRACKET"/>
+    <bind actionName="selection-match-brace" key="DS-OPEN_BRACKET"/>
+    
+<!--    <bind actionName="match-brace-control-properties" key="DOS-OPEN_BRACKET"/> -->
 </bindings>

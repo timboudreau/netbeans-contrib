@@ -62,7 +62,7 @@ public class Installer extends ModuleInstall {
             if (kitClass == BaseKit.class) {
                 SettingsUtil.updateListSetting(settingsMap,
                     SettingsNames.CUSTOM_ACTION_LIST,new Object[] { 
-                        new ControlPanelAction(),
+//                        new ControlPanelAction(),
                         new BracesMatchAction(false), // an ordinary navigation
                         new BracesMatchAction(true)   // navigates and selects a block
                        // navigates and selects a block
