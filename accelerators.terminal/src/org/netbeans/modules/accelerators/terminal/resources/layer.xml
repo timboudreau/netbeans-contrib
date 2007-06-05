@@ -32,7 +32,7 @@ Contributor(s): Andrei Badea, Leon Chiver
 
     <!-- Install the action shortcut -->
     <folder name="Shortcuts">
-        <file name="DS-Enter.shadow">
+        <file name="DSO-Enter.shadow">
             <attr name="originalFile" stringvalue="Actions/Tools/org-netbeans-modules-accelerators-terminal-RunTerminalAction.instance"/>
         </file>
     </folder>
