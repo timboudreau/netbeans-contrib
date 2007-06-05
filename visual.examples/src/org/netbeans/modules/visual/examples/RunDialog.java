@@ -52,6 +52,7 @@ public class RunDialog extends javax.swing.JFrame {
         "test.constraint.ConstraintsTest",
         "test.context.ContextTest",
         "test.controlpoint.AddRemoveControlPointTest",
+        "test.controlpoint.ControlPointsCursorTest",
         "test.convolve.ConvolveTest",
         "test.custom.CustomWidgetTest",
         "test.devolve.DevolveTest",
