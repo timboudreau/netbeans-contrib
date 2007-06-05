@@ -34,7 +34,6 @@ import org.netbeans.api.editor.mimelookup.MimeLookup;
 import org.netbeans.api.editor.mimelookup.MimePath;
 import org.netbeans.api.editor.settings.AttributesUtilities;
 import org.netbeans.api.editor.settings.EditorStyleConstants;
-import org.netbeans.api.lexer.Language;
 import org.netbeans.api.lexer.TokenHierarchy;
 import org.netbeans.api.lexer.TokenId;
 import org.netbeans.api.lexer.TokenSequence;
@@ -395,7 +394,13 @@ public final class MasterMatcher {
             // Read lock the document
             if (!inDocumentRender) {
                 inDocumentRender = true;
-                document.render(this);
+                try {
+                    document.render(this);
+                } catch (ThreadDeath t) {
+                    throw t;
+                } catch (Error t) {
+                    // ignore, can happen when the task is interrupted
+                }
                 return;
             }
 
