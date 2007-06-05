@@ -26,6 +26,7 @@ import java.net.MalformedURLException;
 import java.security.*;
 import java.util.jar.Attributes;
 import java.util.jar.Attributes.Name;
+import org.netbeans.ModuleManager;
 
 /**
  * This classloader is used to directly delegate to the delegate class loader.
@@ -38,10 +39,13 @@ public class ClasspathDelegateClassLoader extends URLPrefixClassLoader {
     /** Common prefix of all JDK jars */
     private String jdkPrefix = null;
     
+    private ModuleManager mgr;
+    
     /** Creates a new instance of DelegatingClassLoader */
-    public ClasspathDelegateClassLoader(Collection prefixes, ClassLoader delegate) {
+    public ClasspathDelegateClassLoader(Collection prefixes, ClassLoader delegate, ModuleManager manager) {
         super(new ClassLoader[] { delegate }, false, prefixes, delegate);
         initJdkPrefixes();
+        this.mgr = manager;
     }
 
     /**
@@ -55,6 +59,14 @@ public class ClasspathDelegateClassLoader extends URLPrefixClassLoader {
     protected boolean shouldBeCheckedAsParentProxyClassLoader() {
         return false;
     }
+
+    protected boolean isSpecialResource(String pkg) {
+        if (mgr != null && mgr.isSpecialResource(pkg)) {
+            return true;
+        }
+        return super.isSpecialResource(pkg);
+    }
+    
     /**
      * Overriden to directly delegate and not to define the classes here.
      */

@@ -1,5 +1,5 @@
 Manifest-Version: 1.0
-OpenIDE-Module-Specification-Version: 0.1
+OpenIDE-Module-Specification-Version: 0.2
 Created-By: Nokia
 OpenIDE-Module: org.netbeans.modules.jnlpmodules
 OpenIDE-Module-Display-Category: Infrastructure

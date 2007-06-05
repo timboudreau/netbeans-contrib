@@ -183,9 +183,19 @@ public class JNLPModuleFactory extends ModuleFactory {
                 return loc;
             }
         }
+        
+        err.log(ErrorManager.INFORMATIONAL, "!!! WARNING: Jar " + 
+            jarFileName + " with prefix " + prefix + 
+                " is not specified in META-INF/netbeans-location.properties!"); 
+        
         if (attr.getValue("OpenIDE-Module") != null) {
+            err.log(ErrorManager.INFORMATIONAL, "Assuming that Jar " + 
+            jarFileName + " with prefix " + prefix + " is a regular module."); 
             return "modules";
         }
+        err.log(ErrorManager.INFORMATIONAL, "Putting Jar " + 
+            jarFileName + " with prefix " + prefix + " to JNLP classpath!!!");
+        
         return "core";
     }
     
@@ -322,7 +332,7 @@ public class JNLPModuleFactory extends ModuleFactory {
                 }
                 
             }
-            classpathDelegateClassLoader = new ClasspathDelegateClassLoader(s, Module.class.getClassLoader());
+            classpathDelegateClassLoader = new ClasspathDelegateClassLoader(s, Module.class.getClassLoader(), mgr);
         }
         return classpathDelegateClassLoader;
     }
