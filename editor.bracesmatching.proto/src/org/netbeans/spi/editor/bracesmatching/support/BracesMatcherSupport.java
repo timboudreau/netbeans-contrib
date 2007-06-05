@@ -161,6 +161,9 @@ public final class BracesMatcherSupport {
             document.getText(offset - lookahead, lookahead, text);
 
             for(int i = lookahead - 1; i >= 0; i--) {
+                if (Thread.currentThread().isInterrupted()) {
+                    return null;
+                }
                 if (detectOrigin(result, text.array[text.offset + i], pairs)) {
                     result[0] = offset - (lookahead - i);
                     return result;
@@ -172,6 +175,9 @@ public final class BracesMatcherSupport {
             document.getText(offset, lookahead, text);
 
             for(int i = 0 ; i < lookahead; i++) {
+                if (Thread.currentThread().isInterrupted()) {
+                    return null;
+                }
                 if (detectOrigin(result, text.array[text.offset + i], pairs)) {
                     result[0] = offset + i;
                     return result;
@@ -253,6 +259,9 @@ public final class BracesMatcherSupport {
 
             int count = 0;
             for(int i = lookahead - 1; i >= 0; i--) {
+                if (Thread.currentThread().isInterrupted()) {
+                    return -1;
+                }
                 if (origin == text.array[text.offset + i]) {
                     count++;
                 } else if (matching == text.array[text.offset + i]) {
@@ -270,6 +279,9 @@ public final class BracesMatcherSupport {
 
             int count = 0;
             for(int i = 0 ; i < lookahead; i++) {
+                if (Thread.currentThread().isInterrupted()) {
+                    return -1;
+                }
                 if (origin == text.array[text.offset + i]) {
                     count++;
                 } else if (matching == text.array[text.offset + i]) {
