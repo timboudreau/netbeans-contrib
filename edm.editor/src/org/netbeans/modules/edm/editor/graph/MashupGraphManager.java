@@ -347,7 +347,7 @@ public class MashupGraphManager {
         if(obj != null) {
             if(obj instanceof SQLJoinOperator) {
                 WindowManager.getDefault().getRegistry().getActivated().
-                        setActivatedNodes(new Node[]{new JoinNode((SQLJoinOperator)obj)});
+                        setActivatedNodes(new Node[]{new JoinNode((SQLJoinOperator)obj, mObj)});
             } else if (obj instanceof SQLDBTable) {
                 WindowManager.getDefault().getRegistry().getActivated().
                         setActivatedNodes(new Node[]{new TableNode((SQLDBTable)obj)});
