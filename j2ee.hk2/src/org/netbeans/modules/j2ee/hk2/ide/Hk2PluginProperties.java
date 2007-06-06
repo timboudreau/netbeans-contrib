@@ -135,9 +135,22 @@ public class Hk2PluginProperties {
         List<URL> list = new ArrayList<URL>();
         File serverDir = new File(getHk2JHomeLocation());
         try{
-
-                    list.add(CustomizerSupport.fileToUrl(new File(serverDir,"lib/javaee.jar")));
-            
+            File ee5lib = new File(serverDir,"lib/javaee.jar");
+            if (ee5lib.exists()){
+                list.add(CustomizerSupport.fileToUrl(ee5lib));
+            }
+            else {
+                list.add(CustomizerSupport.fileToUrl(new File(serverDir,"lib/jars/servlet-api-2.5.jar")));
+                list.add(CustomizerSupport.fileToUrl(new File(serverDir,"lib/jars/transaction-api-1.1.jar")));
+                list.add(CustomizerSupport.fileToUrl(new File(serverDir,"lib/jars/activation-1.1.jar")));
+                list.add(CustomizerSupport.fileToUrl(new File(serverDir,"lib/jars/mail-1.4.1ea-SNAPSHOT.jar")));
+                list.add(CustomizerSupport.fileToUrl(new File(serverDir,"lib/jars/jsp-api-2.1.1-SNAPSHOT.jar")));
+               list.add(CustomizerSupport.fileToUrl(new File(serverDir,"lib/jars/ejb-api-3.0.jar")));
+               list.add(CustomizerSupport.fileToUrl(new File(serverDir,"lib/jars/jaxb-api-2.1.jar")));
+               list.add(CustomizerSupport.fileToUrl(new File(serverDir,"lib/jars/jms-api-1.1.jar")));
+               list.add(CustomizerSupport.fileToUrl(new File(serverDir,"lib/jars/persistence-api-1.0.jar")));
+     
+            }
 
         } catch(MalformedURLException ex) {
             ErrorManager.getDefault().notify(ErrorManager.INFORMATIONAL, ex);

@@ -20,6 +20,7 @@
 
 package org.netbeans.modules.j2ee.hk2;
 
+import java.io.File;
 import javax.enterprise.deploy.shared.factories.DeploymentFactoryManager;
 import javax.enterprise.deploy.spi.DeploymentManager;
 import javax.enterprise.deploy.spi.exceptions.DeploymentManagerCreationException;
@@ -58,7 +59,33 @@ public class Hk2DeploymentFactory implements DeploymentFactory {
      * @return 
      */
     public boolean handlesURI(String uri) {
-        return uri != null && uri.startsWith(URI_PREFIX);
+        if (uri==null){
+            return false;
+        }
+        if(uri.startsWith("[")){//NOI18N
+            if (uri.indexOf(URI_PREFIX)!=-1){
+                return true;
+            }
+        }
+        
+        
+        return false;
+    }
+    
+    private static File getServerLocationFromURI(String uri) throws DeploymentManagerCreationException{
+        
+        if(uri.startsWith("[")){//NOI18N
+            String loc = uri.substring(1,uri.indexOf("]"));
+            return  new File(loc);
+        }
+    return null;
+    }
+    
+    private static String getRealURI(String uri) throws DeploymentManagerCreationException{
+        if(uri.startsWith("[")){//NOI18N
+            return uri.substring(uri.indexOf("]")+1,uri.length());
+        }
+        return uri;// the old one.
     }
     
     /**
