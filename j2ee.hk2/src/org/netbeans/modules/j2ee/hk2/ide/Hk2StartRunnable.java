@@ -140,7 +140,7 @@ public class Hk2StartRunnable implements Runnable {
             fireStartProgressEvent(StateType.FAILED, createProgressMessage("MSG_START_SERVER_FAILED_FNF")); //NOI18N
             return null;
         }
-        return new NbProcessDescriptor(startScript, " -jar "+jarlocation); //NOI18N
+        return new NbProcessDescriptor(startScript, " -jar \""+jarlocation+"\""); //NOI18N
     }
     
     private Process createProcess() {
