@@ -33,10 +33,14 @@ public class PropertyEditorManager {
     private static Map<String, String> editorMap = new HashMap<String, String>();
     
     static {
-        editorMap.put("JOINCONDITION",
+        editorMap.put("JOIN_CONDITION",
                 "org.netbeans.modules.edm.editor.widgets.property.editor.JoinConditionCustomEditor");
-        editorMap.put("JOINTYPE",
+        editorMap.put("JOIN_TYPE",
                 "org.netbeans.modules.edm.editor.widgets.property.editor.JoinTypeCustomEditor");
+        editorMap.put("EXTRACTION_CONDITION",
+                "org.netbeans.modules.edm.editor.widgets.property.editor.ExtractionConditionCustomEditor");
+        editorMap.put("HAVING_CONDITION",
+                "org.netbeans.modules.edm.editor.widgets.property.editor.HavingConditionCustomEditor");        
     }
     
     private PropertyEditorManager() {

@@ -24,7 +24,8 @@ import org.openide.nodes.Children;
 import org.openide.nodes.PropertySupport;
 import org.openide.nodes.Sheet;
 
-import org.netbeans.modules.sql.framework.model.SQLDBTable;
+import org.netbeans.modules.sql.framework.model.SourceTable;
+import org.netbeans.modules.sql.framework.model.impl.SourceTableImpl;
 
 /**
  *
@@ -32,11 +33,11 @@ import org.netbeans.modules.sql.framework.model.SQLDBTable;
  */
 public class TableNode extends AbstractNode {
     
-    private SQLDBTable dbTable;
+    private SourceTableImpl dbTable;
     
-    public TableNode(SQLDBTable obj) {
+    public TableNode(SourceTable obj) {
         super(Children.LEAF);
-        dbTable = obj;
+        dbTable = (SourceTableImpl) obj;
     }
     
     @Override
@@ -69,17 +70,28 @@ public class TableNode extends AbstractNode {
             nameProp.setName("Table Name");
             set.put(nameProp);
             
+            PropertySupport.Reflection aliasProp = new PropertySupport.Reflection(this.dbTable,
+                    String.class, "getAliasName", "setAliasName");
+            aliasProp.setName("Table Alias Name");
+            set.put(aliasProp);            
+            
             PropertySupport.Reflection conditionProp = new PropertySupport.Reflection(
                     this.dbTable.getParent().getConnectionDefinition(),
                     String.class, "getConnectionURL", null);
             conditionProp.setName("Connection URL");
             set.put(conditionProp);
             
-            PropertySupport.Reflection modelNameProp = new PropertySupport.Reflection(
-                    this.dbTable.getParent(), String.class,"getModelName",null);
-            modelNameProp.setName("Model Name");
-            set.put(modelNameProp);
-            
+            PropertySupport.Reflection distinctProp = new PropertySupport.Reflection(this.dbTable,
+                    Boolean.class, "isSelectDistinct", "setSelectDistinct");
+            distinctProp.setName("Is Distinct");
+            set.put(distinctProp);              
+
+            PropertySupport.Reflection extProp = new PropertySupport.Reflection(this.dbTable,
+                    String.class, "getExtractionConditionText", "setExtractionConditionText");
+//            extProp.setPropertyEditorClass(
+//                    PropertyEditorManager.getPropertyEditor("EXTRACTION_CONDITION"));            
+            extProp.setName("Filter Condition");
+            set.put(extProp);                          
         } catch (Exception ex) {
             ErrorManager.getDefault().notify(ex);
         }

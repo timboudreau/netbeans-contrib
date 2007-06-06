@@ -26,7 +26,7 @@ import org.openide.nodes.Node;
 public class CategoryChildren extends Children.Keys {
 
     private String[] Categories = new String[]{
-        "Table Operators", "Mashup Operators"};
+        "Table Operators", /*"Mashup Operators"*/};
 
     public CategoryChildren() {
     }

@@ -66,6 +66,7 @@ import com.sun.sql.framework.utils.RuntimeAttribute;
 import org.netbeans.modules.edm.editor.graph.components.EDMOutputTopComponent;
 import org.netbeans.modules.edm.editor.graph.components.TableChooserPanel;
 import org.netbeans.modules.edm.editor.utils.ImageConstants;
+import org.netbeans.modules.edm.editor.widgets.property.GroupByNode;
 import org.netbeans.modules.edm.editor.widgets.property.JoinNode;
 import org.netbeans.modules.edm.editor.widgets.property.TableNode;
 import org.netbeans.modules.sql.framework.model.SQLCondition;
@@ -350,11 +351,15 @@ public class MashupGraphManager {
                         setActivatedNodes(new Node[]{new JoinNode((SQLJoinOperator)obj, mObj)});
             } else if (obj instanceof SQLDBTable) {
                 WindowManager.getDefault().getRegistry().getActivated().
-                        setActivatedNodes(new Node[]{new TableNode((SQLDBTable)obj)});
+                        setActivatedNodes(new Node[]{new TableNode((SourceTable)obj)});
             } else if (obj instanceof SQLJoinTable) {
                 SQLJoinTable joinTbl = (SQLJoinTable)obj;
                 WindowManager.getDefault().getRegistry().getActivated().
                         setActivatedNodes(new Node[]{new TableNode(joinTbl.getSourceTable())});
+            } else if(obj instanceof SQLGroupByImpl) {
+                SQLGroupByImpl grpby = (SQLGroupByImpl)obj;
+                WindowManager.getDefault().getRegistry().getActivated().
+                        setActivatedNodes(new Node[]{new GroupByNode(grpby, mObj)});                
             }
         }
     }

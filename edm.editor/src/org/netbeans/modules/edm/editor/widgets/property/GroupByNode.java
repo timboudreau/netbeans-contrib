@@ -26,21 +26,22 @@ import org.openide.nodes.Sheet;
 
 import org.netbeans.modules.sql.framework.model.SQLJoinOperator;
 import org.netbeans.modules.edm.editor.dataobject.MashupDataObject;
+import org.netbeans.modules.sql.framework.model.impl.SQLGroupByImpl;
 
 /**
  *
  * @author karthikeyan s
  */
-public class JoinNode extends AbstractNode {
+public class GroupByNode extends AbstractNode {
     
-    private SQLJoinOperator joinOp;
+    private SQLGroupByImpl grpby;
     
     private MashupDataObject mObj;
     
-    public JoinNode(SQLJoinOperator obj, MashupDataObject dObj) {
+    public GroupByNode(SQLGroupByImpl obj, MashupDataObject dObj) {
         super(Children.LEAF);
         mObj = dObj;
-        joinOp = obj;
+        grpby = obj;
     }
     
     @Override
@@ -68,21 +69,13 @@ public class JoinNode extends AbstractNode {
         Sheet sheet = Sheet.createDefault();
         Sheet.Set set = sheet.createPropertiesSet();
         try {
-            PropertySupport.Reflection joinConditionProp = new PropertySupport.Reflection(
-                    this.joinOp.getJoinCondition(), String.class,
+            PropertySupport.Reflection havingConditionProp = new PropertySupport.Reflection(
+                    this.grpby.getHavingCondition(), String.class,
                     "getConditionText", "setConditionText");
-            joinConditionProp.setName("Join Condition");
-            joinConditionProp.setPropertyEditorClass(
-                    PropertyEditorManager.getPropertyEditor("JOIN_CONDITION"));
-            set.put(joinConditionProp);
-            
-            PropertySupport.Reflection joinTypeProp = new PropertySupport.Reflection(
-                    this.joinOp, String.class,
-                    "getJoinTypeString", "setJoinType");
-            joinTypeProp.setName("Join Type");
-            joinTypeProp.setPropertyEditorClass(
-                    PropertyEditorManager.getPropertyEditor("JOIN_TYPE"));
-            set.put(joinTypeProp);
+            havingConditionProp.setName("Having Condition");
+            havingConditionProp.setPropertyEditorClass(
+                    PropertyEditorManager.getPropertyEditor("HAVING_CONDITION"));
+            set.put(havingConditionProp);
             
         } catch (Exception ex) {
             ErrorManager.getDefault().notify(ex);
@@ -91,8 +84,8 @@ public class JoinNode extends AbstractNode {
         return sheet;
     }
     
-    public SQLJoinOperator getJoinOperator() {
-        return this.joinOp;
+    public SQLGroupByImpl getGroupBy() {
+        return this.grpby;
     }
     
     public MashupDataObject getMashupDataObject() {
