@@ -20,125 +20,100 @@
 
 package org.netbeans.modules.edm.editor.widgets.property.editor;
 
-import java.awt.Component;
-import java.awt.event.ActionListener;
-import java.beans.PropertyEditor;
-import java.beans.PropertyEditor;
-import java.beans.PropertyEditor;
-import java.beans.PropertyEditor;
 import java.beans.PropertyEditorSupport;
-import java.lang.Object;
-import java.lang.Object;
-import javax.swing.JComboBox;
-import javax.swing.JComponent;
-import javax.swing.KeyStroke;
 
 import org.openide.explorer.propertysheet.ExPropertyEditor;
-import org.openide.explorer.propertysheet.InplaceEditor;
 import org.openide.explorer.propertysheet.PropertyEnv;
-import org.openide.explorer.propertysheet.PropertyModel;
+import org.openide.nodes.Node;
+import org.openide.windows.WindowManager;
+
+import org.netbeans.modules.edm.editor.widgets.property.JoinNode;
+import org.netbeans.modules.sql.framework.model.SQLConstants;
 
 /**
  *
  * @author Nithya
  */
 public class JoinTypeCustomEditor extends PropertyEditorSupport implements
-        ExPropertyEditor, InplaceEditor.Factory  {
+        ExPropertyEditor {   
     
-    private InplaceEditor ed = null;
-    
-    public JoinTypeCustomEditor() {
-    }
-    
-    public void attachEnv(PropertyEnv env) {
-        env.registerInplaceEditorFactory(this);
-    }
+    private JoinNode node;
     
     private PropertyEnv env;
     
-    public InplaceEditor getInplaceEditor() {
-        if (ed == null){
-            ed = (InplaceEditor) new InPlaceTextField();
-        }
-        return ed;
+    public JoinTypeCustomEditor() {
+        initialize();
+    }
+
+    @Override 
+    public String[] getTags() {
+        String[] tags = {"INNER JOIN","LEFT OUTER JOIN",
+        "RIGHT OUTER JOIN","FULL OUTER JOIN"};
+        return tags;
     }
     
-    private static class InPlaceTextField implements InplaceEditor{
-        private JComboBox combo;
-        private java.beans.PropertyEditor editor = null;
-        public InPlaceTextField() {
+    @Override
+    public Object getValue(){        
+        String type = "";
+        if(node == null) {
             initialize();
         }
-        
-        public void connect(PropertyEditor pe, PropertyEnv env){
-            editor = pe;
-            reset();
+        int joinType = node.getJoinOperator().getJoinType();
+        switch(joinType) {
+        case SQLConstants.INNER_JOIN:
+            type = "INNER JOIN";
+            break;
+        case SQLConstants.LEFT_OUTER_JOIN:
+            type = "LEFT OUTER JOIN";
+            break;
+        case SQLConstants.RIGHT_OUTER_JOIN:
+            type = "RIGHT OUTER JOIN";
+            break;
+        case SQLConstants.FULL_OUTER_JOIN:            
+            type = "FULL OUTER JOIN";        
         }
-        
-        public JComponent getComponent() {
-            if(combo == null) {
-                initialize();
+        return type;
+    }     
+    
+    @Override
+    public String getAsText() {
+        return (String)getValue();
+    }
+    
+    @Override
+    public void setValue(Object object) {
+        String type = (String)object;
+        if(type.equals("INNER JOIN")) {
+            node.getJoinOperator().setJoinType(SQLConstants.INNER_JOIN);
+        } else if(type.equals("LEFT OUTER JOIN")) {
+            node.getJoinOperator().setJoinType(SQLConstants.LEFT_OUTER_JOIN);
+        } else if(type.equals("RIGHT OUTER JOIN")) {
+            node.getJoinOperator().setJoinType(SQLConstants.RIGHT_OUTER_JOIN);
+        } else if(type.equals("FULL OUTER JOIN")) {
+            node.getJoinOperator().setJoinType(SQLConstants.FULL_OUTER_JOIN);
+        }
+        node.getMashupDataObject().getMashupDataEditorSupport().synchDocument();
+    }
+    
+    @Override
+    public void setAsText(String text) {
+        if(node == null) {
+            initialize();
+        }
+        setValue(text);
+    }
+    
+    private void initialize() {
+        Node[] nodes = WindowManager.getDefault().getRegistry().getActivatedNodes();
+        for(Node node : nodes) {
+            if(node instanceof JoinNode) {
+                this.node = (JoinNode) node;
+                break;
             }
-            return combo;
         }
-        
-        public void clear() {
-            editor = null;
-            model = null;
-            combo = null;
-        }
-        
-        public Object getValue() {
-            return combo.getSelectedItem();
-        }
-        
-        public void setValue(Object object) {
-            combo.setSelectedItem(object);
-        }
-        
-        public boolean supportsTextEntry() {
-            return false;
-        }
-        
-        public void reset() {
-        }
-        
-        private void initialize() {
-            combo = new JComboBox();
-            combo.addItem("INNER JOIN");
-            combo.addItem("LEFT OUTER JOIN");
-            combo.addItem("RIGHT OUTER JOIN");
-            combo.addItem("FULL OUTER JOIN");
-        }
-        
-        public KeyStroke[] getKeyStrokes() {
-            return new KeyStroke[0];
-        }
-        
-        public PropertyEditor getPropertyEditor() {
-            return editor;
-        }
-        
-        public PropertyModel getPropertyModel() {
-            return  model;
-        }
-        
-        private PropertyModel model;
-        
-        public void setPropertyModel(PropertyModel propertyModel) {
-            this.model = propertyModel;
-        }
-        
-        public boolean isKnownComponent(Component component) {
-            return component == combo;
-        }
-        
-        public void addActionListener(ActionListener actionListener) {
-            //do nothing - not needed for this component
-        }
-        
-        public void removeActionListener(ActionListener actionListener) {
-            //do nothing - not needed for this component
-        }
+    }
+
+    public void attachEnv(PropertyEnv env) {
+        this.env = env;
     }
 }
