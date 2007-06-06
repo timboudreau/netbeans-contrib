@@ -3,7 +3,7 @@ Created-By: Nokia
 OpenIDE-Module-Layer: org/netbeans/modules/tool/resources/layer.xml
 OpenIDE-Module: org.netbeans.modules.tool/1
 OpenIDE-Module-Name: tool
-OpenIDE-Module-Specification-Version: 1.1
+OpenIDE-Module-Specification-Version: 1.2
 OpenIDE-Module-Localizing-Bundle: org/netbeans/modules/tool/resources/Bundle.properties
 OpenIDE-Module-Install: org/netbeans/modules/tool/ToolInstall.class
 
