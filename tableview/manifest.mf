@@ -1,5 +1,5 @@
 Manifest-Version: 1.0
-OpenIDE-Module-Specification-Version: 0.3
+OpenIDE-Module-Specification-Version: 1.0
 Created-By: Nokia
 OpenIDE-Module: org.netbeans.modules.tableview/1
 OpenIDE-Module-Display-Category: Infrastructure
