@@ -18,7 +18,6 @@
  */
 package org.netbeans.modules.edm.editor.widgets.property;
 
-import org.netbeans.modules.edm.editor.dataobject.MashupDataObject;
 import org.openide.ErrorManager;
 import org.openide.nodes.AbstractNode;
 import org.openide.nodes.Children;
@@ -26,6 +25,7 @@ import org.openide.nodes.PropertySupport;
 import org.openide.nodes.Sheet;
 
 import org.netbeans.modules.sql.framework.model.SQLJoinOperator;
+import org.netbeans.modules.edm.editor.dataobject.MashupDataObject;
 
 /**
  *
@@ -68,16 +68,20 @@ public class JoinNode extends AbstractNode {
         Sheet sheet = Sheet.createDefault();
         Sheet.Set set = sheet.createPropertiesSet();
         try {
-            PropertySupport.Reflection joinConditionProp = new PropertySupport.Reflection(this.joinOp.getJoinCondition(), String.class,
+            PropertySupport.Reflection joinConditionProp = new PropertySupport.Reflection(
+                    this.joinOp.getJoinCondition(), String.class,
                     "getConditionText", "setConditionText");
             joinConditionProp.setName("Join Condition");
-            joinConditionProp.setPropertyEditorClass(PropertyEditorManager.getPropertyEditor("JOINCONDITION"));
+            joinConditionProp.setPropertyEditorClass(
+                    PropertyEditorManager.getPropertyEditor("JOINCONDITION"));
             set.put(joinConditionProp);
             
-            PropertySupport.Reflection joinTypeProp = new PropertySupport.Reflection(this.joinOp, String.class,
+            PropertySupport.Reflection joinTypeProp = new PropertySupport.Reflection(
+                    this.joinOp, String.class,
                     "getJoinTypeString", "setJoinType");
             joinTypeProp.setName("Join Type");
-            joinTypeProp.setPropertyEditorClass(PropertyEditorManager.getPropertyEditor("JOINTYPE"));
+            joinTypeProp.setPropertyEditorClass(
+                    PropertyEditorManager.getPropertyEditor("JOINTYPE"));
             set.put(joinTypeProp);
             
         } catch (Exception ex) {

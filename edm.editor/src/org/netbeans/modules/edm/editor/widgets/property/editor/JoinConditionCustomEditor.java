@@ -17,20 +17,24 @@
  * Microsystems, Inc. All Rights Reserved.
  */
 
-
 package org.netbeans.modules.edm.editor.widgets.property.editor;
 
 import java.awt.Component;
+import java.awt.Dialog;
+import java.awt.Graphics;
+import java.awt.Rectangle;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
-import java.beans.PropertyEditorSupport;
-import java.io.Serializable;
-import java.util.Vector;
 
 import org.openide.explorer.propertysheet.ExPropertyEditor;
 import org.openide.explorer.propertysheet.PropertyEnv;
 import org.openide.windows.WindowManager;
 import org.openide.nodes.Node;
+import org.openide.DialogDescriptor;
+import org.openide.DialogDisplayer;
+import org.openide.NotifyDescriptor;
 
 import org.netbeans.modules.edm.editor.dataobject.MashupDataObject;
 import org.netbeans.modules.edm.editor.widgets.property.JoinNode;
@@ -40,16 +44,13 @@ import org.netbeans.modules.sql.framework.ui.graph.IOperatorXmlInfoModel;
 import org.netbeans.modules.sql.framework.ui.view.IGraphViewContainer;
 import org.netbeans.modules.sql.framework.ui.view.conditionbuilder.ConditionBuilderView;
 
-import org.openide.DialogDescriptor;
 /**
  *
  * @author Nithya
  */
-public class JoinConditionCustomEditor extends PropertyEditorSupport implements ExPropertyEditor, Serializable {
+public class JoinConditionCustomEditor implements ExPropertyEditor {
     
     private PropertyEnv env;
-    
-    protected Vector<PropertyChangeListener> mListeners;
     
     private MashupDataObject mObj;
     
@@ -57,10 +58,15 @@ public class JoinConditionCustomEditor extends PropertyEditorSupport implements 
     
     private ConditionBuilderView conditionView;
     
-    private final PropertyChangeSupport pcs = new PropertyChangeSupport(this);
+    private PropertyChangeSupport support;
+    
+    private Dialog dialog;
+    
+    private DialogDescriptor dd;
     
     public JoinConditionCustomEditor() {
-        initializeDataObject();
+        super();
+        support = new PropertyChangeSupport(this);
     }
     
     /**
@@ -76,72 +82,87 @@ public class JoinConditionCustomEditor extends PropertyEditorSupport implements 
         this.env = env;
     }
     
-    public PropertyEnv getEnv(){
-        return env;
-    }
-    
-    @Override
-    public void setSource(Object source) {
-        if(source instanceof SQLJoinOperator) {
-            this.joinOp = (SQLJoinOperator) source;
-        }
-    }
-    
-    public String getJavaInitializationString(){
-        return this.joinOp.getJoinCondition().getConditionText();
-    }
-    
-    @Override
     public Object getValue() {
-        return this.joinOp.getJoinCondition().getConditionText();
+        return getAsText();
     }
     
-    @Override
     public void setValue(Object value) {
-        value =  this.joinOp.getJoinCondition().getConditionText();
-        firePropertyChange();
+        if(mObj == null || joinOp == null) {
+            initializeDataObject();
+        }
+        support.firePropertyChange("", null, null);
     }
     
-    @Override
     public String getAsText() {
-        if(this.joinOp != null) {
-            return this.joinOp.getJoinCondition().getConditionText();
-            
+        if(mObj == null || joinOp == null) {
+            initializeDataObject();
         }
-        return "<NO CONDITION DEFINED>";
+        return this.joinOp.getJoinCondition().getConditionText(true);
     }
     
-    @Override
     public void setAsText(String text) {
-        this.joinOp.getJoinCondition().setConditionText(text);
-        
-        firePropertyChange();
-    }
-    public synchronized void addPropertyChangeListener(
-            PropertyChangeListener listener) {
-        if (mListeners == null) {
-            mListeners = new Vector<PropertyChangeListener>();
-        }
-        mListeners.addElement(listener);
-        env.addPropertyChangeListener(listener);
-        this.pcs.addPropertyChangeListener(listener);
-    }
-    
-    public synchronized void removePropertyChangeListener(
-            PropertyChangeListener listener) {
-        if (mListeners == null) {
-            return;
-        }
-        mListeners.removeElement(listener);
-        env.removePropertyChangeListener(listener);
-        this.pcs.removePropertyChangeListener(listener);
+        setValue(text);
     }
     
     public Component getCustomEditor(){
         if(mObj == null || joinOp == null) {
             initializeDataObject();
         }
-        return conditionView;
+        dd = new DialogDescriptor(conditionView,
+                "Edit Join Condition", true,
+                NotifyDescriptor.OK_CANCEL_OPTION, null,new ActionListener(){
+            public void actionPerformed(ActionEvent e) {
+                if(dd.getValue().equals(NotifyDescriptor.OK_OPTION)) {
+                    SQLCondition cond = (SQLCondition) conditionView.getPropertyValue();
+                    if (cond != null) {
+                        SQLCondition oldCondition = joinOp.getJoinCondition();
+                        if (joinOp != null && !cond.equals(oldCondition)) {
+                            joinOp.setJoinCondition(cond);
+                            joinOp.setJoinConditionType(SQLJoinOperator.USER_DEFINED_CONDITION);                            
+                            setAsText(joinOp.getJoinCondition().getConditionText(true));        
+                            mObj.getMashupDataEditorSupport().synchDocument();
+                        }
+                    }
+                    // This is a hack to close the window. Find a better way to do.
+                    dialog.dispose();
+                }
+            }
+        });
+        dialog = DialogDisplayer.getDefault().createDialog(dd);
+        return dialog;
+    }
+    
+    /** Gets java initialization string. Implements <code>PropertyEditor</code>
+     * interface.
+     * @return <code>null</code> */
+    public String getJavaInitializationString() {
+        return null; // no code generation
+    }
+    
+    /** Gets tags. Implements <code>PropertyEditor</code> interface.
+     * @return <code>null</code> */
+    public String[] getTags() {
+        return null;
+    }
+    
+    /** Indicates wheter this editor paints itself the value. Implements
+     * <code>PropertyEditor</code> interface.
+     * @return <code>null</code> */
+    public boolean isPaintable() {
+        return false;
+    }
+    
+    /** Dummy implementation of <code>PropertyEditor</code> interface method.
+     * @see #isPaintable */
+    public void paintValue(Graphics g, Rectangle rectangle) {
+    }
+    
+    public void addPropertyChangeListener(PropertyChangeListener listener) {
+        support.addPropertyChangeListener(listener);
+    }
+    
+    public void removePropertyChangeListener(PropertyChangeListener listener) {
+        support.removePropertyChangeListener(listener);
     }
     
     private void initializeDataObject() {
