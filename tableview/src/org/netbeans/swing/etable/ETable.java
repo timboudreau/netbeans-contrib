@@ -134,10 +134,10 @@ public class ETable extends JTable {
      * or null. If it is not null the row originally at index i will be
      * displayed on index sortingPermutation[i].
      */
-    transient int [] sortingPermutation;
+    protected transient int [] sortingPermutation;
     
     /** Inverse of the above */
-    transient int [] inverseSortingPermutation;
+    protected transient int [] inverseSortingPermutation;
     
     /**
      *
@@ -1332,7 +1332,7 @@ public class ETable extends JTable {
     /**
      * Sorts the rows of the table.
      */
-    private void sortAndFilter() {
+    protected void sortAndFilter() {
         TableColumnModel tcm = getColumnModel();
         if (tcm instanceof ETableColumnModel) {
             ETableColumnModel etcm = (ETableColumnModel) tcm;
@@ -1364,7 +1364,7 @@ public class ETable extends JTable {
     /**
      * Determines whether the given row should be displayed or not.
      */
-    private boolean acceptByQuickFilter(TableModel model, int row) {
+    protected boolean acceptByQuickFilter(TableModel model, int row) {
         if ((quickFilterColumn == -1) || (quickFilterObject == null) ) {
             return true;
         }

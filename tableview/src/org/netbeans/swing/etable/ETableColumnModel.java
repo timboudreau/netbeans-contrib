@@ -137,7 +137,7 @@ public class ETableColumnModel extends DefaultTableColumnModel {
      * @returns a comparator for sorting the rows of the table. The comparator
      * operates over ETable.RowMappings objects.
      */
-    Comparator getComparator() {
+    public Comparator getComparator() {
         if (sortedColumns.isEmpty()) {
             return new ETable.OriginalRowComparator();
         }
