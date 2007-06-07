@@ -2,8 +2,14 @@
 <html><body>
 <h1 class="styleClass">Embedded EJS Example</h1>
 <ul>
-<%(1..10).each do|i|%>
-  <li>number <%=i%></li>
-<%end%>
+<% 
+    library.jmaki.insert(
+        {
+        component : "dojo.clock",
+        args : {
+                clockType : 'black'
+              } 
+        }
+    ); %>
 </ul>
 </body></html>

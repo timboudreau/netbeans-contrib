@@ -75,11 +75,7 @@
             </folder>
             <folder name="x-ejs">
                 <file name="language.nbs" url="fake.nbs"/>
-            </folder>
-        </folder>
-        <!-- eof hack -->
-        <folder name="text">
-            <folder name="x-ejs">
+
                 <folder name="Popup">
                     <file name="org-netbeans-modules-refactoring-api-ui-WhereUsedAction.instance">
                          <attr name="instanceCreate" methodvalue="org.netbeans.modules.refactoring.api.ui.RefactoringActionsFactory.whereUsedAction"/>
@@ -128,10 +124,10 @@
                 </folder>
                 
                 <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.languages.ejs.resources.Bundle"/>
-                <folder name="FontColors">
+                <folder name="FontsColors">
                     <folder name="NetBeans">
                         <folder name="Defaults">
-                            <file name="coloring.xml" url="fontsColors.xml">
+                            <file name="org-netbeans-modules-languages-ejs-coloring.xml" url="fontsColors.xml">
                                 <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.languages.ejs.resources.Bundle"/>
                             </file>
                         </folder>
