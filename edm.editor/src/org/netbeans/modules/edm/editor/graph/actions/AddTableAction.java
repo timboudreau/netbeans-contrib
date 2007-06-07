@@ -43,13 +43,19 @@ import org.openide.NotifyDescriptor;
 import org.openide.util.NbBundle;
 
 /**
- *
+ * This class implements the action for adding new table.
  * @author Nithya
  */
 public class AddTableAction extends AbstractAction {
     
+    /**
+     * member variable for mashup data object.
+     */
     private MashupDataObject mObj;
     
+    /**
+     * Implements actionPerformed. 
+     */
     public void actionPerformed(ActionEvent e) {
         JLabel panelTitle = new JLabel("Select Source Tables");
         panelTitle.setFont(panelTitle.getFont().deriveFont(Font.BOLD));
@@ -86,7 +92,5 @@ public class AddTableAction extends AbstractAction {
         super(name,new ImageIcon(
                 MashupGraphUtil.getImage(ImageConstants.ADDTABLE)));
         mObj = dObj;
-    }
-    
-    
+    }    
 }

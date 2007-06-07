@@ -20,9 +20,6 @@ import java.awt.event.ActionEvent;
 import javax.swing.AbstractAction;
 import javax.swing.ImageIcon;
 
-import org.openide.DialogDisplayer;
-import org.openide.NotifyDescriptor;
-
 import org.netbeans.modules.edm.editor.dataobject.MashupDataObject;
 import org.netbeans.modules.edm.editor.utils.ImageConstants;
 import org.netbeans.modules.edm.editor.utils.MashupGraphUtil;
@@ -51,7 +48,9 @@ public class EditJoinAction extends AbstractAction {
                 MashupGraphUtil.getImage(ImageConstants.EDITJOIN)));
         mObj = dObj;
     }    
-    
+    /** 
+     * implements edit join action. 
+     */    
     public void actionPerformed(ActionEvent e) {
         SQLJoinView[] joinViews = (SQLJoinView[]) mObj.getModel().getSQLDefinition().getObjectsOfType(
                 SQLConstants.JOIN_VIEW).toArray(new SQLJoinView[0]);
@@ -61,7 +60,7 @@ public class EditJoinAction extends AbstractAction {
         }
         JoinMainDialog.showJoinDialog(
                 mObj.getModel().getSQLDefinition().getJoinSources(), jView,
-                mObj.getEditorView().getCollaborationView().getGraphView());
+                null);
         if (JoinMainDialog.getClosingButtonState() == JoinMainDialog.OK_BUTTON) {
             SQLJoinView joinView = JoinMainDialog.getSQLJoinView();
             try {
