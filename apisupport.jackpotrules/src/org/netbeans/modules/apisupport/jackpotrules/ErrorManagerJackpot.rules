@@ -13,7 +13,7 @@
  * "Portions Copyrighted [year] [name of copyright owner]"
  *
  * The Original Software is NetBeans. The Initial Developer of the Original
- * Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
+ * Software is Sun Microsystems, Inc. Portions Copyright 1997-2007 Sun
  * Microsystems, Inc. All Rights Reserved.
  */
 
@@ -26,14 +26,14 @@ is done automatically.
 
 */
 
-$err.getDefault().getInstance($name) => java.util.logging.Logger.getLogger($name)
+$err.getDefault().getInstance($name) => Logger.getLogger($name)
     :: $err instanceof org.openide.ErrorManager;
 // XXX should rather use Logger.getLogger(ThisClass.class.getName()).log(...)
 // If that is impossible, should use
 // Logger.getLogger(getClass().getName()).log(...)
 // as a fallback (and print a warning).
 $err.getDefault().notify($err.INFORMATIONAL, $throwable) =>
-        Logger.getAnonymousLogger().log(Level.WARNING, null, $throwable)
+        Logger.getLogger("global").log(Level.WARNING, null, $throwable)
     :: $err instanceof org.openide.ErrorManager;
 
 // "un-convert" the ErrorManager API that is still in use.
@@ -55,7 +55,7 @@ $err.notify($throwable) => ErrorManager.getDefault().notify($throwable)
 
 
 /*
-$err.getDefault() => java.util.logging.Logger.getAnonymousLogger() :: $err instanceof java.util.logging.Logger;
+$err.getDefault() => Logger.getLogger("global") :: $err instanceof java.util.logging.Logger;
 $err.notify($err.INFORMATIONAL, $ex) => $err.log(Level.WARNING, null, $ex) :: $err instanceof java.util.logging.Logger;
 
 $err.INFORMATIONAL => java.util.logging.Level.WARNING :: $err instanceof java.util.logging.Logger;
@@ -65,25 +65,25 @@ $err.EXCEPTION => java.util.logging.Level.SEVERE :: $err instanceof java.util.lo
 $err.ERROR => java.util.logging.Level.SEVERE :: $err instanceof java.util.logging.Logger;
 */
 
-$err.log($msg) => $err.log(Level.FINE, $msg)
+$err.log($msg) => Logger.getLogger("global").log(Level.FINE, $msg)
     :: $err instanceof org.openide.ErrorManager;
 
-$err.log($err.INFORMATIONAL, $msg) => $err.log(Level.FINE, $msg)
+$err.log($err.INFORMATIONAL, $msg) => Logger.getLogger("global").log(Level.FINE, $msg)
     :: $err instanceof org.openide.ErrorManager;
-$err.log($err.USER, $msg) => $err.log(Level.INFO, $msg)
+$err.log($err.USER, $msg) => Logger.getLogger("global").log(Level.INFO, $msg)
     :: $err instanceof org.openide.ErrorManager;
-$err.log($err.EXCEPTION, $msg) => $err.log(Level.WARNING, $msg)
+$err.log($err.EXCEPTION, $msg) => Logger.getLogger("global").log(Level.WARNING, $msg)
     :: $err instanceof org.openide.ErrorManager;
-$err.log($err.ERROR, $msg) => $err.log(Level.SEVERE, $msg)
+$err.log($err.ERROR, $msg) => Logger.getLogger("global").log(Level.SEVERE, $msg)
     :: $err instanceof org.openide.ErrorManager;
 
-$err.isLoggable(org.openide.ErrorManager.INFORMATIONAL) => $err.isLoggable(Level.FINE)
+$err.isLoggable(org.openide.ErrorManager.INFORMATIONAL) => Logger.getLogger("global").isLoggable(Level.FINE)
     :: $err instanceof org.openide.ErrorManager;
-$err.isLoggable(org.openide.ErrorManager.USER) => $err.isLoggable(Level.INFO)
+$err.isLoggable(org.openide.ErrorManager.USER) => Logger.getLogger("global").isLoggable(Level.INFO)
     :: $err instanceof org.openide.ErrorManager;
-$err.isLoggable(org.openide.ErrorManager.EXCEPTION) => $err.isLoggable(Level.WARNING)
+$err.isLoggable(org.openide.ErrorManager.EXCEPTION) => Logger.getLogger("global").isLoggable(Level.WARNING)
     :: $err instanceof org.openide.ErrorManager;
-$err.isLoggable(org.openide.ErrorManager.ERROR) => $err.isLoggable(Level.SEVERE)
+$err.isLoggable(org.openide.ErrorManager.ERROR) => Logger.getLogger("global").isLoggable(Level.SEVERE)
     :: $err instanceof org.openide.ErrorManager;
 
 // XXX should also convert
