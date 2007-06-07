@@ -40,10 +40,19 @@ public class FlowLayoutTest {
         LayerWidget layer = new LayerWidget (scene);
         scene.addChild (layer);
 
-        Widget widget = new Widget (scene);
+        createParent (layer, LayoutFactory.SerialAlignment.JUSTIFY, 50, 50);
+        createParent (layer, LayoutFactory.SerialAlignment.CENTER, 300, 50);
+        createParent (layer, LayoutFactory.SerialAlignment.LEFT_TOP, 50, 300);
+        createParent (layer, LayoutFactory.SerialAlignment.RIGHT_BOTTOM, 300, 300);
+
+        SceneSupport.show (scene);
+    }
+
+    private static void createParent (LayerWidget layer, LayoutFactory.SerialAlignment align, int x, int y) {
+        Widget widget = new Widget (layer.getScene ());
         widget.setBorder (BorderFactory.createResizeBorder (8, Color.BLACK, false));
-        widget.setLayout (LayoutFactory.createVerticalFlowLayout ());
-        widget.setPreferredLocation (new Point (50, 50));
+        widget.setLayout (LayoutFactory.createVerticalFlowLayout (align, 0));
+        widget.setPreferredLocation (new Point (x, y));
         widget.setPreferredBounds (new Rectangle (200, 200));
         widget.getActions ().addAction (ActionFactory.createResizeAction ());
         layer.addChild (widget);
@@ -52,8 +61,6 @@ public class FlowLayoutTest {
         createChild (widget, Color.GREEN);
         createChild (widget, Color.BLUE);
         createChild (widget, Color.BLACK);
-
-        SceneSupport.show (scene);
     }
 
     private static void createChild (Widget parent, Color color) {
