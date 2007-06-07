@@ -22,38 +22,38 @@ import javax.swing.JPopupMenu;
 
 import org.netbeans.api.visual.action.PopupMenuProvider;
 import org.netbeans.api.visual.widget.Widget;
-import org.netbeans.modules.sql.framework.model.SQLJoinOperator;
 import org.netbeans.modules.edm.editor.dataobject.MashupDataObject;
+import org.netbeans.modules.sql.framework.model.impl.SQLGroupByImpl;
 
 /**
- * This class implements the popup provider for the join.
+ * This class implements the popup provider for the group by operator.
  * @author karthikeyan s
  */
 
-public class JoinPopupProvider implements PopupMenuProvider {
+public class GroupByPopupProvider implements PopupMenuProvider {
     
-    private SQLJoinOperator joinOp;
+    private SQLGroupByImpl grpby;
     
     private MashupDataObject mObj;
     
     /*
-     * Creates an instance of join popup provider.
+     *  Creates an instance of groupby popup provider
      */ 
-    public JoinPopupProvider(SQLJoinOperator op, MashupDataObject dObj) {
-        joinOp = op;
+    public GroupByPopupProvider(SQLGroupByImpl op, MashupDataObject dObj) {
+        grpby = op;
         this.mObj = dObj;
     }
     
     /*
-    * return the popup menu for this widget type.
-    */
+     * return the popup menu for this widget type.
+     */ 
     public JPopupMenu getPopupMenu(Widget widget, Point point) {
         JPopupMenu menu = new JPopupMenu();
         
-        // add edit join condition action.
-        JMenuItem editJoinCondition = new JMenuItem("Edit Join Condition");
-        editJoinCondition.setAction(new EditJoinConditionAction(mObj, joinOp, "Edit Join Condition"));
-        menu.add(editJoinCondition);
+        // add edit having condition action.
+        JMenuItem editHavingCondition = new JMenuItem("Edit Having Condition");
+        editHavingCondition.setAction(new EditHavingConditionAction(mObj,grpby, "Edit Having Condition"));
+        menu.add(editHavingCondition);
         
         return menu;
     }

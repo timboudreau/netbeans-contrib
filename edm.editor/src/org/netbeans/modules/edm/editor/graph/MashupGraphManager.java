@@ -63,6 +63,7 @@ import org.netbeans.modules.sql.framework.model.SQLObject;
 import org.netbeans.modules.sql.framework.model.RuntimeDatabaseModel;
 import org.netbeans.modules.sql.framework.model.RuntimeInput;
 import com.sun.sql.framework.utils.RuntimeAttribute;
+import org.netbeans.modules.edm.editor.graph.actions.GroupByPopupProvider;
 import org.netbeans.modules.edm.editor.graph.components.EDMOutputTopComponent;
 import org.netbeans.modules.edm.editor.graph.components.TableChooserPanel;
 import org.netbeans.modules.edm.editor.utils.ImageConstants;
@@ -637,6 +638,8 @@ public class MashupGraphManager {
         havingPin.setPinName("HAVING CLAUSE");
         havingPin.setToolTipText(conditionText);
         scene.validate();
+        widget.getActions().addAction(
+                ActionFactory.createPopupMenuAction(new GroupByPopupProvider(groupby, mObj)));
         widgets.add(havingPin);
     }
     
