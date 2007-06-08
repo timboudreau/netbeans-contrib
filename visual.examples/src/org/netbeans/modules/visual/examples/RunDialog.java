@@ -81,6 +81,7 @@ public class RunDialog extends javax.swing.JFrame {
         "test.layout.FlowLayoutTest",
         "test.layout.MinMaxFlowLayoutTest",
         "test.layout.OverlayLayoutWidgetTest",
+        "test.layout.WeightFlowLayoutTest",
         "test.list.ListTest",
         "test.listeners.ObjectSceneListenerTest",
         "test.lod.LevelOfDetailsTest",
