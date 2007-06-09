@@ -23,6 +23,8 @@ import java.io.File;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
+import javax.swing.BorderFactory;
+import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.SwingUtilities;
 import javax.swing.event.ChangeEvent;
@@ -31,6 +33,9 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import org.openide.util.NbBundle;
 
+import java.net.URL;
+import org.openide.awt.HtmlBrowser.URLDisplayer;
+
 /**
  * @author pblaha
  * @author peterw99
@@ -38,7 +43,9 @@ import org.openide.util.NbBundle;
 public class AddServerLocationVisualPanel extends javax.swing.JPanel implements Retriever.Updater {
     
     private static final String V3_DOWNLOAD_URL = 
-            "http://download.java.net/maven/glassfish/com/sun/enterprise/glassfish/pe/10.0-SNAPSHOT/pe-10.0-SNAPSHOT.zip";
+            "http://java.net/download/javaee5/v3/releases/preview/glassfish-snapshot-v3-preview1-b2.zip";
+//    private static final String JRUBY_DOWNLOAD_URL = 
+//            "http://dist.codehaus.org/jruby/jruby-bin-1.0.0RC3.zip";
     
     private final Set <ChangeListener> listeners = new HashSet<ChangeListener>();
     private Retriever retriever;
@@ -46,6 +53,16 @@ public class AddServerLocationVisualPanel extends javax.swing.JPanel implements 
 
     public AddServerLocationVisualPanel() {
         initComponents();
+
+        readlicenseButton.setBorder(BorderFactory.createEmptyBorder(2,2,2,2));
+        readlicenseButton.setHorizontalAlignment(JButton.LEADING); // optional
+        readlicenseButton.setBorderPainted(false);
+        readlicenseButton.setContentAreaFilled(false);
+
+        readlicenseButton.setText("<html><body><span style=\"text-decoration: underline;\">"+org.openide.util.NbBundle.getMessage(AddServerLocationVisualPanel.class, "AddServerLocationVisualPanel.readlicenseButton.text")+"</span></body></html>");
+    downloadButton.setEnabled(false);
+        
+        
         hk2HomeTextField.setText(System.getProperty("user.home")+"/glassfishV3preview");
         setName(NbBundle.getMessage(AddServerLocationVisualPanel.class, "TITLE_ServerLocation"));
         hk2HomeTextField.getDocument().addDocumentListener(new DocumentListener() {
@@ -224,6 +241,8 @@ public class AddServerLocationVisualPanel extends javax.swing.JPanel implements 
         downloadButton = new javax.swing.JButton();
         jPanel1 = new javax.swing.JPanel();
         downloadStatusLabel = new javax.swing.JLabel();
+        agreeCheckBox = new javax.swing.JCheckBox();
+        readlicenseButton = new javax.swing.JButton();
 
         org.openide.awt.Mnemonics.setLocalizedText(hk2HomeLabel, org.openide.util.NbBundle.getMessage(AddServerLocationVisualPanel.class, "LBL_InstallLocation")); // NOI18N
 
@@ -247,12 +266,28 @@ public class AddServerLocationVisualPanel extends javax.swing.JPanel implements 
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
             jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(downloadStatusLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 350, Short.MAX_VALUE)
+            .add(downloadStatusLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 458, Short.MAX_VALUE)
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(downloadStatusLabel)
         );
+
+        agreeCheckBox.setText(org.openide.util.NbBundle.getMessage(AddServerLocationVisualPanel.class, "AddServerLocationVisualPanel.agreeCheckBox.text")); // NOI18N
+        agreeCheckBox.setMargin(new java.awt.Insets(0, 0, 0, 0));
+        agreeCheckBox.addChangeListener(new javax.swing.event.ChangeListener() {
+            public void stateChanged(javax.swing.event.ChangeEvent evt) {
+                agreeCheckBoxStateChanged(evt);
+            }
+        });
+
+        readlicenseButton.setText(org.openide.util.NbBundle.getMessage(AddServerLocationVisualPanel.class, "AddServerLocationVisualPanel.readlicenseButton.text")); // NOI18N
+        readlicenseButton.setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
+        readlicenseButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                readlicenseButtonActionPerformed(evt);
+            }
+        });
 
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
         this.setLayout(layout);
@@ -260,29 +295,53 @@ public class AddServerLocationVisualPanel extends javax.swing.JPanel implements 
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(layout.createSequentialGroup()
                 .add(hk2HomeLabel)
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(hk2HomeTextField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 116, Short.MAX_VALUE)
-                .add(18, 18, 18)
-                .add(browseButton))
+                .addContainerGap(190, Short.MAX_VALUE))
+            .add(jPanel1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
             .add(layout.createSequentialGroup()
                 .add(downloadButton)
-                .addContainerGap())
-            .add(jPanel1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.UNRELATED)
+                .add(agreeCheckBox)
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.UNRELATED)
+                .add(readlicenseButton, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .add(4, 4, 4))
+            .add(layout.createSequentialGroup()
+                .add(hk2HomeTextField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 357, Short.MAX_VALUE)
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(browseButton)
+                .add(8, 8, 8))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(layout.createSequentialGroup()
+                .add(hk2HomeLabel)
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(hk2HomeLabel)
                     .add(browseButton)
                     .add(hk2HomeTextField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.UNRELATED)
-                .add(downloadButton)
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                    .add(downloadButton)
+                    .add(agreeCheckBox)
+                    .add(readlicenseButton))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(jPanel1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(114, Short.MAX_VALUE))
+                .addContainerGap(93, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
+
+private void agreeCheckBoxStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_agreeCheckBoxStateChanged
+    downloadButton.setEnabled(agreeCheckBox.isSelected());
+}//GEN-LAST:event_agreeCheckBoxStateChanged
+
+private void readlicenseButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_readlicenseButtonActionPerformed
+        try{
+            
+            URLDisplayer.getDefault().showURL(new URL("https://glassfish.dev.java.net/public/CDDLv1.0.html"));//NOI18N
+        } catch (Exception eee){
+            return;//nothing much to do
+            
+        }
+}//GEN-LAST:event_readlicenseButtonActionPerformed
 
 private void downloadButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_downloadButtonActionPerformed
         if(retriever == null) {
@@ -304,12 +363,14 @@ private void browseButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-
     
     
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JCheckBox agreeCheckBox;
     private javax.swing.JButton browseButton;
     private javax.swing.JButton downloadButton;
     private javax.swing.JLabel downloadStatusLabel;
     private javax.swing.JLabel hk2HomeLabel;
     private javax.swing.JTextField hk2HomeTextField;
     private javax.swing.JPanel jPanel1;
+    private javax.swing.JButton readlicenseButton;
     // End of variables declaration//GEN-END:variables
     
 }

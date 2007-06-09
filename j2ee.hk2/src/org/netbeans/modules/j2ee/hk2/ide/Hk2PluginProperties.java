@@ -47,35 +47,35 @@ import org.openide.modules.InstalledFileLocator;
 public class Hk2PluginProperties {
     
     /**
-     * 
+     *
      */
     public static final String PROPERTY_DISPLAY_NAME = InstanceProperties.DISPLAY_NAME_ATTR;
     /**
-     * 
+     *
      */
     public static final String PROPERTY_ADMIN_PORT = "adminPort"; //NOI18N
     /**
-     * 
+     *
      */
     public static final String PROPERTY_PORT = "port"; //NOI18N
     /**
-     * 
+     *
      */
     public static final String PROPERTY_HK2_HOME = "HK2Home"; //NOI18N
     /**
-     * 
+     *
      */
     public static final String PROPERTY_HOST = "host"; //NOI18N
     /**
-     * 
+     *
      */
     public static final String PROP_JAVA_PLATFORM = "java_platform"; //NOI18N
     /**
-     * 
+     *
      */
     public static final String PROP_JAVADOCS      = "javadocs";        // NOI18N
     /**
-     * 
+     *
      */
     public static final String PLAT_PROP_ANT_NAME = "platform.ant.name"; //NOI18N
     
@@ -85,8 +85,8 @@ public class Hk2PluginProperties {
     private static final int DEBUGPORT = 8787;
     
     /**
-     * 
-     * @param dm 
+     *
+     * @param dm
      */
     public Hk2PluginProperties(Hk2DeploymentManager dm) {
         this.dm = dm;
@@ -94,16 +94,16 @@ public class Hk2PluginProperties {
     }
     
     /**
-     * 
-     * @return 
+     *
+     * @return
      */
     public String getHk2JHomeLocation() {
         return ip.getProperty(PROPERTY_HK2_HOME);
     }
     
     /**
-     * 
-     * @return 
+     *
+     * @return
      */
     public JavaPlatform getJavaPlatform() {
         String currentJvm = ip.getProperty(PROP_JAVA_PLATFORM);
@@ -120,38 +120,47 @@ public class Hk2PluginProperties {
     }
     
     /**
-     * 
-     * @return 
+     *
+     * @return
      */
     public InstanceProperties getInstanceProperties() {
         return ip;
     }
     
     /**
-     * 
-     * @return 
+     *
+     * @return
      */
-    public List<URL> getClasses () {
+    public List<URL> getClasses() {
         List<URL> list = new ArrayList<URL>();
         File serverDir = new File(getHk2JHomeLocation());
         try{
             File ee5lib = new File(serverDir,"lib/javaee.jar");
             if (ee5lib.exists()){
                 list.add(CustomizerSupport.fileToUrl(ee5lib));
-            }
-            else {
+            } else {
                 list.add(CustomizerSupport.fileToUrl(new File(serverDir,"lib/jars/servlet-api-2.5.jar")));
                 list.add(CustomizerSupport.fileToUrl(new File(serverDir,"lib/jars/transaction-api-1.1.jar")));
                 list.add(CustomizerSupport.fileToUrl(new File(serverDir,"lib/jars/activation-1.1.jar")));
-                list.add(CustomizerSupport.fileToUrl(new File(serverDir,"lib/jars/mail-1.4.1ea-SNAPSHOT.jar")));
-                list.add(CustomizerSupport.fileToUrl(new File(serverDir,"lib/jars/jsp-api-2.1.1-SNAPSHOT.jar")));
-               list.add(CustomizerSupport.fileToUrl(new File(serverDir,"lib/jars/ejb-api-3.0.jar")));
-               list.add(CustomizerSupport.fileToUrl(new File(serverDir,"lib/jars/jaxb-api-2.1.jar")));
-               list.add(CustomizerSupport.fileToUrl(new File(serverDir,"lib/jars/jms-api-1.1.jar")));
-               list.add(CustomizerSupport.fileToUrl(new File(serverDir,"lib/jars/persistence-api-1.0.jar")));
-     
-            }
+              //  list.add(CustomizerSupport.fileToUrl(new File(serverDir,"lib/jars/mail-1.4.1ea-SNAPSHOT.jar")));
+              //  list.add(CustomizerSupport.fileToUrl(new File(serverDir,"lib/jars/jsp-api-2.1.1-SNAPSHOT.jar")));
+                list.add(CustomizerSupport.fileToUrl(new File(serverDir,"lib/jars/ejb-api-3.0.jar")));
+                list.add(CustomizerSupport.fileToUrl(new File(serverDir,"lib/jars/jaxws-api-2.0.jar")));
+                list.add(CustomizerSupport.fileToUrl(new File(serverDir,"lib/jars/jaxrpc-api-1.1.jar")));
+                list.add(CustomizerSupport.fileToUrl(new File(serverDir,"lib/jars/jaxb-api-2.1.jar")));
+                list.add(CustomizerSupport.fileToUrl(new File(serverDir,"lib/jars/jms-api-1.1.jar")));
+                list.add(CustomizerSupport.fileToUrl(new File(serverDir,"lib/jars/persistence-api-1.0.jar")));
+                list.add(CustomizerSupport.fileToUrl(new File(serverDir,"lib/jars/saaj-api-1.3.jar")));
+                list.add(CustomizerSupport.fileToUrl(new File(serverDir,"lib/jars/deployment-api-1.2.jar")));
+                list.add(CustomizerSupport.fileToUrl(new File(serverDir,"lib/jars/jsr250-api-1.0.jar")));
+                list.add(CustomizerSupport.fileToUrl(new File(serverDir,"lib/jars/connector-api-1.5.jar")));
+                list.add(CustomizerSupport.fileToUrl(new File(serverDir,"lib/jars/security-api-1.1.jar")));
+                list.add(CustomizerSupport.fileToUrl(new File(serverDir,"lib/jars/jsr173_api-1.0.jar")));
+                list.add(CustomizerSupport.fileToUrl(new File(serverDir,"lib/jars/jsr181-api-1.0-MR1.jar")));
 
+                
+            }
+            
         } catch(MalformedURLException ex) {
             ErrorManager.getDefault().notify(ErrorManager.INFORMATIONAL, ex);
         }
@@ -159,8 +168,8 @@ public class Hk2PluginProperties {
     }
     
     /**
-     * 
-     * @return 
+     *
+     * @return
      */
     public List<URL> getJavadocs() {
         String path = ip.getProperty(PROP_JAVADOCS);
@@ -245,12 +254,12 @@ public class Hk2PluginProperties {
             ErrorManager.getDefault().notify(e);
             return new ArrayList();
         }
-    }    
+    }
     /**
-     * 
-     * @param file 
-     * @return 
-     * @throws java.net.MalformedURLException 
+     *
+     * @param file
+     * @return
+     * @throws java.net.MalformedURLException
      */
     public static URL fileToUrl(File file) throws MalformedURLException {
         URL url = file.toURI().toURL();
@@ -276,7 +285,7 @@ public class Hk2PluginProperties {
             }
         }
         return sb.toString();
-    }    
+    }
     /** Return string representation of the specified URL. */
     private static String urlToString(URL url) {
         if ("jar".equals(url.getProtocol())) { // NOI18N
@@ -298,26 +307,26 @@ public class Hk2PluginProperties {
     }
     
     /**
-     * 
-     * @param path 
+     *
+     * @param path
      */
     public void setJavadocs(List<URL> path) {
         ip.setProperty(PROP_JAVADOCS, buildPath(path));
     }
     
     /**
-     * 
-     * @return 
+     *
+     * @return
      */
     public int getDebugPort() {
         return DEBUGPORT;
     }
     
     /**
-     * 
-     * @param host 
-     * @param port 
-     * @return 
+     *
+     * @param host
+     * @param port
+     * @return
      */
     public static boolean isRunning(String host, int port) {
         if(null == host)
@@ -335,16 +344,16 @@ public class Hk2PluginProperties {
     }
     
     /**
-     * 
-     * @param host 
-     * @param port 
-     * @return 
+     *
+     * @param host
+     * @param port
+     * @return
      */
     public static boolean isRunning(String host, String port) {
         try {
             return isRunning(host, Integer.parseInt(port));
         } catch(NumberFormatException e) {
-
+            
             return false;
         }
     }
