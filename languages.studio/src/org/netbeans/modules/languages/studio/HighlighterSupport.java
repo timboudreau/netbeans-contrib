@@ -120,8 +120,7 @@ public class HighlighterSupport {
     
     private void removeHighlightIn () {
         if (highlightedItem != null) {
-            Highlighting.getHighlighting (highlightedDocument).removeHighlight 
-                (highlightedItem);
+            Highlighting.getHighlighting(highlightedDocument).highlight(highlightedItem, getHighlightAS()).remove();
             highlightedItem = null;
             highlightedDocument = null;
         }
