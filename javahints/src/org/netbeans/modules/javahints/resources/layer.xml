@@ -31,6 +31,9 @@ Microsystems, Inc. All Rights Reserved.
             <file name="org-netbeans-modules-javahints-IntroduceFieldAction.instance">
                 <attr name="instanceCreate" methodvalue="org.netbeans.modules.javahints.IntroduceAction.createField" />
             </file>
+            <file name="org-netbeans-modules-javahints-IntroduceMethodAction.instance">
+                <attr name="instanceCreate" methodvalue="org.netbeans.modules.javahints.IntroduceAction.createMethod" />
+            </file>
         </folder>
     </folder>
     <folder name="Menu">
@@ -51,7 +54,11 @@ Microsystems, Inc. All Rights Reserved.
             <file name="org-netbeans-modules-javahints-IntroduceFieldAction.shadow">
                 <attr name="originalFile" stringvalue="Actions/Refactoring/org-netbeans-modules-javahints-IntroduceFieldAction.instance"/>
             </file>
-            <attr name="org-netbeans-modules-javahints-IntroduceFieldAction.shadow/UndoSeparator.instance" boolvalue="true"/>
+            <attr name="org-netbeans-modules-javahints-IntroduceFieldAction.shadow-org-netbeans-modules-javahints-IntroduceMethodAction.shadow" boolvalue="true"/>
+            <file name="org-netbeans-modules-javahints-IntroduceMethodAction.shadow">
+                <attr name="originalFile" stringvalue="Actions/Refactoring/org-netbeans-modules-javahints-IntroduceMethodAction.instance"/>
+            </file>
+            <attr name="org-netbeans-modules-javahints-IntroduceMethodAction.shadow/UndoSeparator.instance" boolvalue="true"/>
         </folder>
     </folder>
     <folder name="org-netbeans-modules-java-hints">
