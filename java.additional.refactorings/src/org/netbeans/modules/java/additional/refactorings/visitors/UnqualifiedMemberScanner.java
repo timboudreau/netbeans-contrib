@@ -23,12 +23,19 @@ import com.sun.source.tree.Tree.Kind;
 import com.sun.source.tree.Tree.Kind;
 import com.sun.source.util.TreePath;
 import com.sun.source.util.TreePathScanner;
+import com.sun.source.util.Trees;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ExecutableElement;
+import javax.lang.model.element.Modifier;
+import javax.lang.model.element.NestingKind;
 import javax.lang.model.element.TypeElement;
 import org.netbeans.api.java.source.CompilationInfo;
 import org.netbeans.api.java.source.ElementHandle;
 import org.netbeans.api.java.source.TreePathHandle;
+import org.netbeans.modules.java.additional.refactorings.Utils;
 import org.netbeans.modules.java.additional.refactorings.visitors.ParameterChangeContext.ChangeData;
 
 /**
@@ -53,25 +60,25 @@ public class UnqualifiedMemberScanner extends TreePathScanner <Void, ParameterCh
         handle (tree, ctx);
         return super.visitIdentifier(tree, ctx);
     }
-    
+
     private void handle (Tree tree, ParameterChangeContext ctx) {
         ChangeData data = ctx.changeData;
         CompilationInfo info = data.getCompilationInfo();
         String memberName = tree instanceof MemberSelectTree ? ((MemberSelectTree)tree).getIdentifier().toString() :
             tree instanceof IdentifierTree ? ((IdentifierTree) tree).getName().toString() : null;
         assert memberName != null;
-        System.err.println("Visit member named " + memberName);
+//        System.err.println("Visit member named " + memberName);
         if (ctx.mods.isNewOrChangedParameterName(memberName)) {
-            System.err.println("POSSIBLE MATCH: " + memberName);
+//            System.err.println("POSSIBLE MATCH: " + memberName);
             TreePath pathToMemberSelect = getCurrentPath();
             assert pathToMemberSelect != null : "Path to member select is null";
             Element element = info.getTrees().getElement(pathToMemberSelect);
             
             TypeElement ownerOfThingSelected = info.getElementUtilities().enclosingTypeElement(element);
-            System.err.println("Member select owned by " + ownerOfThingSelected.getQualifiedName());
+//            System.err.println("Member select owned by " + ownerOfThingSelected.getQualifiedName());
             
             Element ownerOfMemberSelect = info.getTrees().getElement(getCurrentPath());
-            System.err.println("Owner of meber select is " + ownerOfMemberSelect);
+//            System.err.println("Owner of meber select is " + ownerOfMemberSelect);
             if (!(ownerOfMemberSelect instanceof TypeElement)) {
                 ownerOfMemberSelect = info.getElementUtilities().enclosingTypeElement(ownerOfMemberSelect);
             }
@@ -80,8 +87,12 @@ public class UnqualifiedMemberScanner extends TreePathScanner <Void, ParameterCh
                         getCurrentMethodHandle(ctx.changeData.getCompilationInfo());
                 if (methodHandle != null) {
                     TreePathHandle memberSelectHandle = TreePathHandle.create(pathToMemberSelect, info);
-                    System.err.println("Adding member select that needs requalifying: " + tree);
-                    data.addMemberSelectThatNeedsRequalifying(memberSelectHandle, methodHandle, ctx.changeData.getCompilationInfo());
+                    String qualification = Utils.getQualification (pathToMemberSelect, (TypeElement) 
+                            ownerOfMemberSelect, element, ctx);
+                    if (qualification != null) {
+                        System.err.println("Adding member select that needs requalifying: " + tree + " qualification " + qualification);
+                        data.addMemberSelectThatNeedsRequalifying(memberSelectHandle, methodHandle, ctx.changeData.getCompilationInfo(), qualification);
+                    }
                 } else {
                     System.err.println("Method handle null for " + ownerOfMemberSelect);
                 }

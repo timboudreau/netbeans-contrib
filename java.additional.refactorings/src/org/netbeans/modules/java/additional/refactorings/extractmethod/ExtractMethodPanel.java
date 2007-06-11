@@ -93,75 +93,70 @@ public class ExtractMethodPanel extends javax.swing.JPanel implements CustomRefa
 
         buttonGroup1.add(publicButton);
         publicButton.setText(org.openide.util.NbBundle.getMessage(ExtractMethodPanel.class, "jRadioButton1.text")); // NOI18N
-        publicButton.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         publicButton.setMargin(new java.awt.Insets(0, 0, 0, 0));
 
         buttonGroup1.add(protectedButton);
         protectedButton.setText(org.openide.util.NbBundle.getMessage(ExtractMethodPanel.class, "jRadioButton2.text")); // NOI18N
-        protectedButton.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         protectedButton.setMargin(new java.awt.Insets(0, 0, 0, 0));
 
         buttonGroup1.add(packageButton);
         packageButton.setText(org.openide.util.NbBundle.getMessage(ExtractMethodPanel.class, "jRadioButton3.text")); // NOI18N
-        packageButton.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         packageButton.setMargin(new java.awt.Insets(0, 0, 0, 0));
 
         buttonGroup1.add(privateButton);
         privateButton.setSelected(true);
         privateButton.setText(org.openide.util.NbBundle.getMessage(ExtractMethodPanel.class, "jRadioButton4.text")); // NOI18N
-        privateButton.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         privateButton.setMargin(new java.awt.Insets(0, 0, 0, 0));
 
         finalBox.setSelected(true);
         finalBox.setText(org.openide.util.NbBundle.getMessage(ExtractMethodPanel.class, "jCheckBox1.text")); // NOI18N
-        finalBox.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         finalBox.setMargin(new java.awt.Insets(0, 0, 0, 0));
 
         problemLabel.setForeground(javax.swing.UIManager.getDefaults().getColor("nb.errorForeground"));
         problemLabel.setText(org.openide.util.NbBundle.getMessage(ExtractMethodPanel.class, "jLabel2.text")); // NOI18N
 
-        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
+        org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
+            layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+            .add(layout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(problemLabel, javax.swing.GroupLayout.DEFAULT_SIZE, 427, Short.MAX_VALUE)
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(jLabel1)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(finalBox)
-                            .addComponent(jTextField1, javax.swing.GroupLayout.DEFAULT_SIZE, 327, Short.MAX_VALUE)
-                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                                .addComponent(privateButton)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(packageButton)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                .addComponent(protectedButton)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(publicButton)
-                                .addGap(49, 49, 49)))))
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                    .add(problemLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 800, Short.MAX_VALUE)
+                    .add(layout.createSequentialGroup()
+                        .add(jLabel1)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.UNRELATED)
+                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                            .add(finalBox)
+                            .add(jTextField1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 692, Short.MAX_VALUE)
+                            .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
+                                .add(privateButton)
+                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                                .add(packageButton)
+                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.UNRELATED)
+                                .add(protectedButton)
+                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                                .add(publicButton)
+                                .add(49, 49, 49)))))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
+            layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+            .add(layout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel1)
-                    .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(privateButton)
-                    .addComponent(packageButton)
-                    .addComponent(protectedButton)
-                    .addComponent(publicButton))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(finalBox)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(problemLabel)
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                    .add(jLabel1)
+                    .add(jTextField1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                    .add(privateButton)
+                    .add(packageButton)
+                    .add(protectedButton)
+                    .add(publicButton))
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(finalBox)
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .add(problemLabel)
                 .addContainerGap())
         );
     }// </editor-fold>//GEN-END:initComponents

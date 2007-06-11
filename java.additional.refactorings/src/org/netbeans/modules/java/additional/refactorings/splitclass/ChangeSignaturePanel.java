@@ -2,16 +2,16 @@
  * The contents of this file are subject to the terms of the Common Development
  * and Distribution License (the License). You may not use this file except in
  * compliance with the License.
- * 
+ *
  * You can obtain a copy of the License at http://www.netbeans.org/cddl.html
  * or http://www.netbeans.org/cddl.txt.
- * 
+ *
  * When distributing Covered Code, include this CDDL Header Notice in each file
  * and include the License file at http://www.netbeans.org/cddl.txt.
  * If applicable, add the following below the CDDL Header, with the fields
  * enclosed by brackets [] replaced by your own identifying information:
  * "Portions Copyrighted [year] [name of copyright owner]"
- * 
+ *
  * Portions Copyrighted 2007 Sun Microsystems, Inc.
  */
 package org.netbeans.modules.java.additional.refactorings.splitclass;
@@ -22,6 +22,7 @@ import org.netbeans.modules.java.additional.refactorings.splitclass.*;
 import java.awt.Component;
 import java.awt.Font;
 import java.awt.event.FocusListener;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -52,7 +53,7 @@ import org.openide.util.Utilities;
  */
 class ChangeSignaturePanel extends javax.swing.JPanel implements CustomRefactoringPanel, ListSelectionListener, DocumentListener, ParameterTableModel.UI, FocusListener {
     private final ChangeSignatureUI ui;
-    private static final String PROP_POLICY = "renamePolicy";    
+    private static final String PROP_POLICY = "renamePolicy";
     public ChangeSignaturePanel(ChangeSignatureUI ui) {
         this.ui = ui;
         initComponents();
@@ -70,17 +71,28 @@ class ChangeSignaturePanel extends javax.swing.JPanel implements CustomRefactori
                 ((JTextField) c[i]).getDocument().addDocumentListener(this);
             }
         }
-        jTable1.setAutoCreateRowSorter(false);
-        jTable1.setFillsViewportHeight(true);
+        jdk6hackJtable(jTable1);
         jTable1.setSurrendersFocusOnKeystroke(true);
         Font f = jTable1.getFont();
-        Font nue = new Font ("Monospaced", f.getStyle(), f.getSize()); //NOI18N
-        jTable1.setFont (nue);
-        dontRenameButton.putClientProperty (PROP_POLICY, ParameterRenamePolicy.DO_NOT_RENAME);
+        Font nue = new Font("Monospaced", f.getStyle(), f.getSize()); //NOI18N
+        jTable1.setFont(nue);
+        dontRenameButton.putClientProperty(PROP_POLICY, ParameterRenamePolicy.DO_NOT_RENAME);
         renameIfSameButton.putClientProperty(PROP_POLICY, ParameterRenamePolicy.RENAME_IF_SAME);
         alwaysRenameButton.putClientProperty(PROP_POLICY, ParameterRenamePolicy.RENAME_UNLESS_CONFLICT);
         problemLabel.setVisible(false);
-        jTable1.putClientProperty("JTable.autoStartsEdit", Boolean.TRUE); //NOI18N        
+        jTable1.putClientProperty("JTable.autoStartsEdit", Boolean.TRUE); //NOI18N
+    }
+    
+    private static void jdk6hackJtable(JTable tbl) {
+        //Calls a couple of methods new in JDK 6
+        try {
+            Method m = JTable.class.getDeclaredMethod("setAutoCreateRowSorter", Boolean.TYPE);
+            m.invoke (tbl, Boolean.FALSE);
+            m = JTable.class.getDeclaredMethod("setFillsViewportHeight", Boolean.TYPE);
+            m.invoke (tbl, Boolean.TRUE);
+        } catch (Exception e) {
+            //do nothing
+        }
     }
     
     ParameterRenamePolicy getRenamePolicy() {
@@ -90,11 +102,11 @@ class ChangeSignaturePanel extends javax.swing.JPanel implements CustomRefactori
                 return (ParameterRenamePolicy) ((JRadioButton) c[i]).getClientProperty(PROP_POLICY);
             }
         }
-        throw new AssertionError("No button selected");        
+        throw new AssertionError("No button selected");
     }
     
     private boolean mayHaveOverrides = false;
-    public void setMayHaveOverrides (boolean val) {
+    public void setMayHaveOverrides(boolean val) {
         this.mayHaveOverrides = val;
     }
     
@@ -175,18 +187,18 @@ class ChangeSignaturePanel extends javax.swing.JPanel implements CustomRefactori
         }
         return result;
     }
-
+    
     public void addNotify() {
         super.addNotify();
         ui.init();
     }
-
+    
     public String getProblemText() {
         return problemLabel.getText().trim().length() == 0 ? null :
             problemLabel.getText();
     }
-
-    void setProblemText (String s) {
+    
+    void setProblemText(String s) {
         boolean hadText = getProblemText() != null;
         String txt = s == null ? "   " : s;
         problemLabel.setText(txt);
@@ -195,7 +207,7 @@ class ChangeSignaturePanel extends javax.swing.JPanel implements CustomRefactori
             ui.change();
         }
     }
-
+    
     void setProgress(final int val) {
         Runnable r = new Runnable() {
             public void run() {
@@ -206,10 +218,10 @@ class ChangeSignaturePanel extends javax.swing.JPanel implements CustomRefactori
     }
     
     Collection <ElementHandle<ExecutableElement>> overrides = Collections.<ElementHandle<ExecutableElement>>emptyList();
-    void setOverrides (Collection <ElementHandle<ExecutableElement>> c) {
+    void setOverrides(Collection <ElementHandle<ExecutableElement>> c) {
         this.overrides = overrides;
     }
-
+    
     /** This method is called from within the constructor to
      * initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is
@@ -324,19 +336,16 @@ class ChangeSignaturePanel extends javax.swing.JPanel implements CustomRefactori
         buttonGroup1.add(dontRenameButton);
         dontRenameButton.setSelected(true);
         dontRenameButton.setText(org.openide.util.NbBundle.getMessage(ChangeSignaturePanel.class, "jRadioButton1.text")); // NOI18N
-        dontRenameButton.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         dontRenameButton.setEnabled(false);
         dontRenameButton.setMargin(new java.awt.Insets(0, 0, 0, 0));
 
         buttonGroup1.add(renameIfSameButton);
         renameIfSameButton.setText(org.openide.util.NbBundle.getMessage(ChangeSignaturePanel.class, "jRadioButton2.text")); // NOI18N
-        renameIfSameButton.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         renameIfSameButton.setEnabled(false);
         renameIfSameButton.setMargin(new java.awt.Insets(0, 0, 0, 0));
 
         buttonGroup1.add(alwaysRenameButton);
         alwaysRenameButton.setText(org.openide.util.NbBundle.getMessage(ChangeSignaturePanel.class, "jRadioButton3.text")); // NOI18N
-        alwaysRenameButton.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         alwaysRenameButton.setEnabled(false);
         alwaysRenameButton.setMargin(new java.awt.Insets(0, 0, 0, 0));
 
@@ -347,128 +356,127 @@ class ChangeSignaturePanel extends javax.swing.JPanel implements CustomRefactori
         defaultValueField.setEnabled(false);
 
         refactorFromBase.setText(org.openide.util.NbBundle.getMessage(ChangeSignaturePanel.class, "jCheckBox1.text")); // NOI18N
-        refactorFromBase.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         refactorFromBase.setEnabled(false);
         refactorFromBase.setMargin(new java.awt.Insets(0, 0, 0, 0));
 
-        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
+        org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(progress, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 458, Short.MAX_VALUE)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(returnTypeLbl)
-                    .addComponent(methodNameLbl))
-                .addGap(16, 16, 16)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(methodNameField, javax.swing.GroupLayout.DEFAULT_SIZE, 376, Short.MAX_VALUE)
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(returnTypeField, javax.swing.GroupLayout.PREFERRED_SIZE, 116, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jLabel2)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(defaultValueField, javax.swing.GroupLayout.DEFAULT_SIZE, 152, Short.MAX_VALUE))))
-            .addComponent(jLabel1)
-            .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 458, Short.MAX_VALUE)
-            .addComponent(dontRenameButton)
-            .addComponent(renameIfSameButton)
-            .addComponent(alwaysRenameButton)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
-                        .addComponent(refactorFromBase)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 162, Short.MAX_VALUE)
-                        .addComponent(problemLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 357, Short.MAX_VALUE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                        .addComponent(removeButton)
-                        .addComponent(addButton))
-                    .addComponent(moveUpButton)
-                    .addComponent(moveDownButton)))
+            layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+            .add(org.jdesktop.layout.GroupLayout.TRAILING, progress, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 524, Short.MAX_VALUE)
+            .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                    .add(returnTypeLbl)
+                    .add(methodNameLbl))
+                .add(16, 16, 16)
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                    .add(methodNameField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 421, Short.MAX_VALUE)
+                    .add(layout.createSequentialGroup()
+                        .add(returnTypeField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 116, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                        .add(jLabel2)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                        .add(defaultValueField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 156, Short.MAX_VALUE))))
+            .add(jLabel1)
+            .add(jScrollPane2, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 524, Short.MAX_VALUE)
+            .add(dontRenameButton)
+            .add(renameIfSameButton)
+            .add(alwaysRenameButton)
+            .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
+                    .add(org.jdesktop.layout.GroupLayout.LEADING, layout.createSequentialGroup()
+                        .add(refactorFromBase)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 168, Short.MAX_VALUE)
+                        .add(problemLabel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 50, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                    .add(jScrollPane1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 405, Short.MAX_VALUE))
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
+                    .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                        .add(removeButton)
+                        .add(addButton))
+                    .add(moveUpButton)
+                    .add(moveDownButton)))
         );
 
-        layout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] {addButton, moveDownButton, moveUpButton, removeButton});
+        layout.linkSize(new java.awt.Component[] {addButton, moveDownButton, moveUpButton, removeButton}, org.jdesktop.layout.GroupLayout.HORIZONTAL);
 
         layout.setVerticalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                .addComponent(jLabel1)
-                .addGap(17, 17, 17)
-                .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(methodNameLbl)
-                    .addComponent(methodNameField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(returnTypeLbl)
-                    .addComponent(returnTypeField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLabel2)
-                    .addComponent(defaultValueField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(12, 12, 12)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(addButton)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(removeButton)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(moveUpButton)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(moveDownButton))
-                    .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 199, Short.MAX_VALUE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(refactorFromBase)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(dontRenameButton))
-                    .addComponent(problemLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 11, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(renameIfSameButton)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(alwaysRenameButton)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(progress, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(17, 17, 17))
+            layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+            .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
+                .add(jLabel1)
+                .add(17, 17, 17)
+                .add(jScrollPane2, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 38, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                    .add(methodNameLbl)
+                    .add(methodNameField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                    .add(returnTypeLbl)
+                    .add(returnTypeField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                    .add(jLabel2)
+                    .add(defaultValueField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                .add(12, 12, 12)
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                    .add(layout.createSequentialGroup()
+                        .add(addButton)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                        .add(removeButton)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                        .add(moveUpButton)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                        .add(moveDownButton))
+                    .add(jScrollPane1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 199, Short.MAX_VALUE))
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                    .add(layout.createSequentialGroup()
+                        .add(refactorFromBase)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                        .add(dontRenameButton))
+                    .add(problemLabel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 11, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(renameIfSameButton)
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(alwaysRenameButton)
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(progress, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                .add(17, 17, 17))
         );
     }// </editor-fold>//GEN-END:initComponents
-
+    
 private void moveDownButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_moveDownButtonActionPerformed
     if (jTable1.getModel() instanceof ParameterTableModel) {
         ParameterTableModel tm = (ParameterTableModel) jTable1.getModel();
-        int ix = Math.max (0, jTable1.getSelectedRow());
-        tm.moveDown (ix);
+        int ix = Math.max(0, jTable1.getSelectedRow());
+        tm.moveDown(ix);
     }
 }//GEN-LAST:event_moveDownButtonActionPerformed
 
 private void moveUpButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_moveUpButtonActionPerformed
-        if (jTable1.getModel() instanceof ParameterTableModel) {
-            ParameterTableModel tm = (ParameterTableModel) jTable1.getModel();
-            int ix = Math.max (0, jTable1.getSelectedRow());
-            tm.moveUp(ix);
-        }
+    if (jTable1.getModel() instanceof ParameterTableModel) {
+        ParameterTableModel tm = (ParameterTableModel) jTable1.getModel();
+        int ix = Math.max(0, jTable1.getSelectedRow());
+        tm.moveUp(ix);
+    }
 }//GEN-LAST:event_moveUpButtonActionPerformed
 
 private void addButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addButtonActionPerformed
     if (jTable1.getModel() instanceof ParameterTableModel) {
         ParameterTableModel tm = (ParameterTableModel) jTable1.getModel();
-        int ix = Math.max (0, jTable1.getSelectedRow());
-        Parameter nue = new Parameter ("param", "");
-        tm.add (nue, ix);
+        int ix = Math.max(0, jTable1.getSelectedRow());
+        Parameter nue = new Parameter("param", "");
+        tm.add(nue, ix);
     }
 }//GEN-LAST:event_addButtonActionPerformed
 
     private void removeButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_removeButtonActionPerformed
         if (jTable1.getModel() instanceof ParameterTableModel) {
             ParameterTableModel tm = (ParameterTableModel) jTable1.getModel();
-            int ix = Math.max (0, jTable1.getSelectedRow());
-            tm.remove (ix);
+            int ix = Math.max(0, jTable1.getSelectedRow());
+            tm.remove(ix);
         }
 }//GEN-LAST:event_removeButtonActionPerformed
-    // Variables declaration - do not modify//GEN-BEGIN:variables
+        // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton addButton;
     private javax.swing.JRadioButton alwaysRenameButton;
     private javax.swing.ButtonGroup buttonGroup1;
@@ -492,17 +500,17 @@ private void addButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIR
     private javax.swing.JTextField returnTypeField;
     private javax.swing.JLabel returnTypeLbl;
     // End of variables declaration//GEN-END:variables
-
+    
     public void initialize() {
         System.err.println("Initialize");
         //never called. curious.
-//        ui.init();
+        //        ui.init();
     }
-
+    
     public Component getComponent() {
         return this;
     }
-
+    
     public List <Parameter> getNewParameters() {
         if (jTable1.getModel() instanceof ParameterTableModel) {
             ParameterTableModel tm = (ParameterTableModel) jTable1.getModel();
@@ -511,7 +519,7 @@ private void addButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIR
             return Collections.<Parameter>emptyList();
         }
     }
-
+    
     public void change() {
         boolean problem = false;
         String mname = methodNameField.getText().trim();
@@ -524,14 +532,14 @@ private void addButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIR
         if (!problem && !Utilities.isJavaIdentifier(type) && !"void".equals(type) && !isPrimitiveTypeName(type)) {
             boolean qualName = !isQualifiedTypeName(type);
             if (!qualName || (qualName && !checkQualifiedTypeName(type))) {
-                setProblemText (NbBundle.getMessage(ChangeSignaturePanel.class,
+                setProblemText(NbBundle.getMessage(ChangeSignaturePanel.class,
                         "MSG_BAD_TYPE", type)); //NOI18N
                 problem = true;
             }
         }
         
         if (!problem && !(jTable1.getModel() instanceof ParameterTableModel)) {
-            setProblemText (NbBundle.getMessage(ChangeSignaturePanel.class,
+            setProblemText(NbBundle.getMessage(ChangeSignaturePanel.class,
                     "MSG_INITIALIZING")); //NOI18N
         } else if (jTable1.getModel() instanceof ParameterTableModel) {
             ParameterTableModel tm = (ParameterTableModel) jTable1.getModel();
@@ -541,38 +549,38 @@ private void addButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIR
             for (Parameter p : params) {
                 String nm = p.getName();
                 if (names.contains(nm)) {
-                    setProblemText (NbBundle.getMessage(ChangeSignaturePanel.class,
+                    setProblemText(NbBundle.getMessage(ChangeSignaturePanel.class,
                             "MSG_DUPLICATE_NAMES", nm)); //NOI18N
                     problem = true;
                     break;
                 }
                 if (nm != null && !Utilities.isJavaIdentifier(nm)) {
-                    setProblemText (NbBundle.getMessage(ChangeSignaturePanel.class,
+                    setProblemText(NbBundle.getMessage(ChangeSignaturePanel.class,
                             "MSG_BAD_NAME", nm)); //NOI18N
                     problem = true;
                     break;
                 }
                 if (nm == null) {
-                    setProblemText (NbBundle.getMessage(ChangeSignaturePanel.class,
+                    setProblemText(NbBundle.getMessage(ChangeSignaturePanel.class,
                             "MSG_NO_NAME", ix)); //NOI18N
                     problem = true;
                     break;
                 }
                 if (p.isNew() && p.getDefaultValue() == null) {
-                    setProblemText (NbBundle.getMessage(ChangeSignaturePanel.class,
+                    setProblemText(NbBundle.getMessage(ChangeSignaturePanel.class,
                             "MSG_NO_DEFAULT_VALUE", nm)); //NOI18N
                     problem = true;
                     break;
                 }
                 String typeName = p.getTypeName();
                 if (typeName == null && p.isNew()) {
-                    setProblemText (NbBundle.getMessage(ChangeSignaturePanel.class,
+                    setProblemText(NbBundle.getMessage(ChangeSignaturePanel.class,
                             "MSG_NO_TYPE", nm)); //NOI18N
                     problem = true;
                     break;
                 }
                 if (typeName != null && !Utilities.isJavaIdentifier(typeName) && !isPrimitiveTypeName(typeName) && !isQualifiedTypeName(typeName)) {
-                    setProblemText (NbBundle.getMessage(ChangeSignaturePanel.class,
+                    setProblemText(NbBundle.getMessage(ChangeSignaturePanel.class,
                             "MSG_BAD_TYPE", typeName)); //NOI18N
                     problem = true;
                     break;
@@ -581,8 +589,8 @@ private void addButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIR
                 if (defValue != null) {
                     if (!Utilities.isJavaIdentifier(defValue) && !"null".equals(defValue)) {
                         if (isPrimitiveTypeName(typeName) != isPrimitiveTypeEntry(typeName, defValue)) {
-                            setProblemText (NbBundle.getMessage(ChangeSignaturePanel.class,
-                                "MSG_BAD_DEFAULT_VALUE", defValue, nm)); //NOI18N
+                            setProblemText(NbBundle.getMessage(ChangeSignaturePanel.class,
+                                    "MSG_BAD_DEFAULT_VALUE", defValue, nm)); //NOI18N
                             problem = true;
                             break;
                         }
@@ -593,12 +601,12 @@ private void addButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIR
                         return;
                     }
                 }
-                names.add (nm);
+                names.add(nm);
                 ix ++;
             }
         }
         if (!problem && !anyChanges()) {
-            setProblemText (NbBundle.getMessage(ChangeSignaturePanel.class,
+            setProblemText(NbBundle.getMessage(ChangeSignaturePanel.class,
                     "MSG_NOTHING_TO_DO")); //NOI18N
             problem = true;
         }
@@ -607,7 +615,7 @@ private void addButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIR
         }
         if (mayHaveOverrides) {
             boolean activateRadioButtons = anyRenamesOrNewParameters();
-            dontRenameButton.setEnabled (activateRadioButtons);
+            dontRenameButton.setEnabled(activateRadioButtons);
             renameIfSameButton.setEnabled(activateRadioButtons);
             alwaysRenameButton.setEnabled(activateRadioButtons);
         }
@@ -620,25 +628,25 @@ private void addButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIR
         } else {
             defaultValueField.setEnabled(false);
         }
-//        if (overrides.size() > 1) {
-//            problem = true;
-//            setProblemText(NbBundle.getMessage(ChangeSignaturePanel.class,
-//                                "MSG_MULTIPLE_INTERFACES"));
-//        }
+        //        if (overrides.size() > 1) {
+        //            problem = true;
+        //            setProblemText(NbBundle.getMessage(ChangeSignaturePanel.class,
+        //                                "MSG_MULTIPLE_INTERFACES"));
+        //        }
         ui.change();
     }
     
     boolean isRefactorFromBase() {
         return refactorFromBase.isEnabled() && refactorFromBase.isSelected();
     }
-
-    static boolean isPrimitiveTypeEntry (String typeName, String defValue) {
+    
+    static boolean isPrimitiveTypeEntry(String typeName, String defValue) {
         if ("char".equals(typeName)) { //NOI18N
-            return defValue.startsWith ("'") && defValue.endsWith ("'") &&
+            return defValue.startsWith("'") && defValue.endsWith("'") &&
                     defValue.length() == 3;
         } else {
             String upc = defValue.toUpperCase();
-            if (upc.startsWith("0x") || upc.endsWith("L") || upc.endsWith("F") || upc.endsWith("D")) { //NOI18N           
+            if (upc.startsWith("0x") || upc.endsWith("L") || upc.endsWith("F") || upc.endsWith("D")) { //NOI18N
                 upc = upc.substring(0, upc.length());
             }
             try {
@@ -649,25 +657,25 @@ private void addButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIR
         }
         return true;
     }
-
-    static boolean isPrimitiveTypeName (String s) {
+    
+    static boolean isPrimitiveTypeName(String s) {
         String[] prims = new String[] {
-            "int", "short", "byte", "char", "float", "double", "long", //NOI18N           
+            "int", "short", "byte", "char", "float", "double", "long", //NOI18N
         };
-        return Arrays.asList (prims).indexOf (s) >= 0;
+        return Arrays.asList(prims).indexOf(s) >= 0;
     }
-
-    private boolean isQualifiedTypeName (String s) {
-        return s.indexOf (".") >= 0;
+    
+    private boolean isQualifiedTypeName(String s) {
+        return s.indexOf(".") >= 0;
     }
-
+    
     List <Parameter> originals;
-    void setParameters (final List <Parameter> descs) {
+    void setParameters(final List <Parameter> descs) {
         Runnable r = new Runnable() {
             public void run() {
                 originals = new ArrayList <Parameter> (descs);
-                ParameterTableModel tm = new ParameterTableModel (descs, ChangeSignaturePanel.this);
-                jTable1.setModel (tm);
+                ParameterTableModel tm = new ParameterTableModel(descs, ChangeSignaturePanel.this);
+                jTable1.setModel(tm);
                 jTable1.setEnabled(true);
                 boolean hasParams = descs.size() > 0;
                 if (hasParams) {
@@ -677,38 +685,38 @@ private void addButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIR
                 moveUpButton.setEnabled(hasParams);
                 moveDownButton.setEnabled(hasParams);
                 addButton.setEnabled(true);
-                removeButton.setEnabled (hasParams);
-                progress.setVisible (false);
+                removeButton.setEnabled(hasParams);
+                progress.setVisible(false);
             }
         };
         Mutex.EVENT.readAccess(r);
     }
-
+    
     public String getMethodName() {
         String curr = methodNameField.getText().trim();
-        return curr.length() == 0 ? null : 
+        return curr.length() == 0 ? null :
             curr.equals(origMethodName) ? null : curr;
     }
     
     public String getReturnType() {
         String curr = returnTypeField.getText().trim();
-        return curr.length() == 0 ? null : 
+        return curr.length() == 0 ? null :
             curr.equals(origMethodType) ? null : curr;
     }
-
+    
     public void valueChanged(ListSelectionEvent e) {
         int ix = jTable1.getSelectedRow();
         int max = jTable1.getRowCount();
         if (jTable1.getModel() instanceof ParameterTableModel) {
-            moveUpButton.setEnabled (ix > 0);
-            moveDownButton.setEnabled (ix >= 0 && ix < max - 1 && max > 1);
-            removeButton.setEnabled (true);
-            addButton.setEnabled (true);
+            moveUpButton.setEnabled(ix > 0);
+            moveDownButton.setEnabled(ix >= 0 && ix < max - 1 && max > 1);
+            removeButton.setEnabled(true);
+            addButton.setEnabled(true);
         }
     }
     
-    private boolean checkQualifiedTypeName (String nm) {
-        String[] s = nm.split (".");        
+    private boolean checkQualifiedTypeName(String nm) {
+        String[] s = nm.split(".");
         boolean result = true;
         for (int i = 0; i < s.length; i++) {
             result &= Utilities.isJavaIdentifier(s[i]);
@@ -716,24 +724,24 @@ private void addButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIR
         }
         return result;
     }
-
+    
     public void insertUpdate(DocumentEvent e) {
         change();
     }
-
+    
     public void removeUpdate(DocumentEvent e) {
         change();
     }
-
+    
     public void changedUpdate(DocumentEvent e) {
         change();
     }
-
+    
     public void focusGained(FocusEvent e) {
         JTextField jtf = (JTextField) e.getComponent();
         jtf.selectAll();
     }
-
+    
     public void focusLost(FocusEvent e) {
         //do nothing
     }

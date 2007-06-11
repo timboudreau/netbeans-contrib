@@ -84,9 +84,11 @@ public abstract class BaseTestCase2<R,D> extends NbTestCase {
 
     @Override
     protected void setUp() throws Exception {
+        System.err.println("\n\nJAVA HOME:'" + System.getProperty("java.home") + "\n\n");
         clearAllButCaches ();                
         File cache = new File(getWorkDir(), "cache");       //NOI18N
         System.setProperty ("netbeans.home", FileUtil.normalizeFile(cache).getPath()); //NOI18N        
+        System.setProperty ("netbeans.user", FileUtil.normalizeFile(cache).getPath()); //NOI18N        
         cache.mkdirs();
         File logdir = new File (cache, INDEX_DIR);
         logdir.mkdirs();

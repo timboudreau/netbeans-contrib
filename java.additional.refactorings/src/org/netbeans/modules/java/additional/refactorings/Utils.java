@@ -39,6 +39,7 @@ import java.util.Collection;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -46,6 +47,9 @@ import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.Modifier;
+import javax.lang.model.element.NestingKind;
+import javax.lang.model.element.PackageElement;
+import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.DeclaredType;
@@ -60,12 +64,14 @@ import org.netbeans.api.java.source.ClasspathInfo;
 import org.netbeans.api.java.source.CompilationController;
 import org.netbeans.api.java.source.CompilationInfo;
 import org.netbeans.api.java.source.ElementHandle;
+import org.netbeans.api.java.source.ElementUtilities;
 import org.netbeans.api.java.source.JavaSource;
 import org.netbeans.api.java.source.JavaSource.Phase;
 import org.netbeans.api.java.source.SourceUtils;
 import org.netbeans.api.java.source.SourceUtils;
 import org.netbeans.api.java.source.TreeMaker;
 import org.netbeans.api.java.source.TreePathHandle;
+import org.netbeans.api.java.source.TreeUtilities;
 import org.netbeans.api.java.source.TypeMirrorHandle;
 import org.netbeans.api.java.source.WorkingCopy;
 import org.netbeans.modules.java.additional.refactorings.visitors.ParameterChangeContext;
@@ -101,13 +107,44 @@ public abstract class Utils {
             ((Collection)handles).size() : 11);
         for (TreePathHandle handle : handles) {
             TreePath path = handle.resolve(info);
+            if (path == null) {
+                try {
+                    JavaSource src = JavaSource.forFileObject(handle.getFileObject());
+                    TreePathResolver res = new TreePathResolver(handle);
+                    if (res.cancelled) break;
+                    path = res.path;
+                    src.runUserActionTask(res, true);
+                } catch (IOException ex) {
+                    Exceptions.printStackTrace( ex );
+                }
+            }
+            if (path != null) {
             @SuppressWarnings("unchecked")
             T item = (T) path.getLeaf();
             result.add (item);
         }
+        }
         return result;
     }
     
+    private static final class TreePathResolver implements CancellableTask <CompilationController> {
+        private volatile boolean cancelled = false;
+        TreePath path;
+        private final TreePathHandle handle;
+        TreePathResolver (TreePathHandle handle) {
+            this.handle = handle;
+        }
+        public void cancel() {
+            cancelled = true;
+        }
+
+        public void run(CompilationController cc) throws Exception {
+            if (cancelled) return;
+            path = handle.resolve(cc);
+        }
+
+    }
+
     public static List <TreePathHandle> toHandles (TreePath parent, Iterable <? extends Tree> trees, CompilationInfo info) {
         List <TreePathHandle> result = new ArrayList <TreePathHandle> (
                 trees instanceof Collection ? ((Collection)trees).size() : 11);
@@ -126,6 +163,10 @@ public abstract class Utils {
             ((Collection)trees).size() : 11);
         for (Tree tree : trees) {
             TreePath path = TreePath.getPath(info.getCompilationUnit(), tree);            
+            if (path == null) {
+                throw new IllegalArgumentException (tree + " does not belong to " + //NOI18N
+                        "the same compilation unit passed to this method"); //NOI18N
+            }
             TreePathHandle handle = TreePathHandle.create(path, info);
             result.add (handle);
             assert handle.resolve(info) != null : "Newly created TreePathHandle resolves to null"; //NOI18N
@@ -634,4 +675,296 @@ public abstract class Utils {
             }
         }
     }
+
+    /**
+     * finds the nearest enclosing ClassTree on <code>path</code> that
+     * is class or interface or enum or annotation type and is or is not annonymous.
+     * In case no ClassTree is found the first top level ClassTree is returned.
+     *
+     * Especially useful for selecting proper tree to refactor.
+     *
+     * @param javac javac
+     * @param path path to search
+     * @param isClass stop on class
+     * @param isInterface  stop on interface
+     * @param isEnum stop on enum
+     * @param isAnnotation stop on annotation type
+     * @param isAnonymous check if class or interface is annonymous
+     * @return path to the enclosing ClassTree
+     */
+    public static TreePath findEnclosingClass(CompilationInfo javac, TreePath path, boolean isClass, boolean isInterface, boolean isEnum, boolean isAnnotation, boolean isAnonymous) {
+        Tree selectedTree = path.getLeaf();
+        TreeUtilities utils = javac.getTreeUtilities();
+        while(true) {
+            if (Tree.Kind.CLASS == selectedTree.getKind()) {
+                ClassTree classTree = (ClassTree) selectedTree;
+                if (isEnum && utils.isEnum(classTree)
+                        || isInterface && utils.isInterface(classTree)
+                        || isAnnotation && utils.isAnnotation(classTree)
+                        || isClass && !(utils.isInterface(classTree) || utils.isEnum(classTree) || utils.isAnnotation(classTree))) {
+
+                    Tree.Kind parentKind = path.getParentPath().getLeaf().getKind();
+                    if (isAnonymous || Tree.Kind.NEW_CLASS != parentKind) {
+                        break;
+}
+                }
+            }
+
+            path = path.getParentPath();
+            if (path == null) {
+                selectedTree = javac.getCompilationUnit().getTypeDecls().get(0);
+                path = javac.getTrees().getPath(javac.getCompilationUnit(), selectedTree);
+                break;
+            }
+            selectedTree = path.getLeaf();
+        }
+        return path;
+    }
+
+    public static boolean isParentPath (TreePath targetParent, TreePath test) {
+        assert test != null;
+        assert targetParent != null;
+        assert test.getLeaf() != null;
+        assert targetParent.getLeaf() != null;
+        if (test.getLeaf().equals(targetParent.getLeaf())) {
+            return true;
+        }
+        do {
+            test = test.getParentPath();
+        } while (test != null && !test.getLeaf().equals(targetParent));
+        boolean result = test != null;
+        System.err.println("ipp " + result);
+        return result;
+    }
+
+//    private static boolean isEnclosedBy (TypeElement el, TypeElement maybeParent, ElementUtilities utils) {
+//        if (el.equals(maybeParent)) return true;
+//        TypeElement test = el;
+//        boolean result = false;
+//        do {
+//            System.err.println("Check " + test.getQualifiedName());
+//            Element e = test.getEnclosingElement();
+//            if (e == null || e.getKind() == ElementKind.PACKAGE) {
+//                System.err.println("hit package, done");
+//                break;
+//            }
+//            test = utils.enclosingTypeElement(e);
+//            System.err.println("Now " + test.getQualifiedName());
+//            result = maybeParent.equals(test);
+//            if (result) {
+//                break;
+//            }
+//        } while (test != null);
+//
+//        return result;
+//    }
+    
+    private static boolean isEnclosedBy (TypeElement el, TypeElement maybeParent, CompilationInfo compiler) {
+        ElementUtilities utils = compiler.getElementUtilities();
+        boolean result = false;
+        Element current = el;
+        ElementHandle<TypeElement> b = ElementHandle.<TypeElement>create(maybeParent);
+        while (current.getKind() != ElementKind.PACKAGE) {
+            result = elementsEqual (current, maybeParent, compiler);
+            if (result) {
+                break;
+            }
+            current = current.getEnclosingElement();
+        }
+        return result;
+    }
+    
+
+    /**
+     * Get the String needed to qualify a reference to a member of an outer
+     * class from a member of an inner class.
+     */
+    /*
+    public static String getQualification(TreePath pathToMemberSelect, TypeElement ownerOfMemberSelect, Element selected, ParameterChangeContext ctx) {
+        CompilationInfo compiler = ctx.changeData.getCompilationInfo();
+        Trees trees = compiler.getTrees();
+        TreePath pathToOwnerOfSelectedMember = Utils.findEnclosingClass(compiler, pathToMemberSelect, true, true, false, false, false);
+        TypeElement ownerType = (TypeElement) trees.getElement(pathToOwnerOfSelectedMember);
+        TreePath pathToOwnerOfMemberSelect = Utils.findEnclosingClass(compiler, pathToOwnerOfSelectedMember, true, false, true, false, true);
+        String result = null;
+
+
+        boolean enclosed = isEnclosedBy (ownerOfMemberSelect, ownerType, compiler.getElementUtilities());
+//        if (Utils.isParentPath (pathToOwnerOfSelectedMember, pathToOwnerOfMemberSelect)) {
+        if (enclosed) {
+            System.err.println("GQ: " + pathToMemberSelect.getLeaf().toString() + " selected is " + compiler.getElementUtilities().getFullName(selected) + " in " + compiler.getElementUtilities().getFullName(ownerOfMemberSelect));
+            //If not isParentPath, it is a member of some other class caught in our
+            //net by accident - return null to not use it further
+            boolean statik = selected.getModifiers().contains(Modifier.STATIC);
+            if (statik) {
+                System.err.println("   A");
+                //XXX this will always generate FQNs.  We should check to see if
+                //they share either class file or package
+                result = ownerType.getQualifiedName().toString();
+            } else {
+                switch (ownerOfMemberSelect.getNestingKind()) {
+                    case TOP_LEVEL :
+                        result = "this";
+                        System.err.println("   B");
+                        break;
+                    case ANONYMOUS :
+                    case LOCAL :
+                        System.err.println("   C");
+                        List <String> names = new ArrayList <String> ();
+                        names.add ("this");
+                        TreePath pathToParentClass = Utils.findEnclosingClass(compiler, pathToOwnerOfSelectedMember, true, true, false, false, false);
+                        int len = 5;
+                        do {
+                            if (pathToParentClass != null) {
+                                TypeElement owner = (TypeElement) trees.getElement(pathToParentClass);
+                                String s = owner.getSimpleName().toString();
+                                names.add (0, s);
+                                System.err.println("  app " + s);
+                                len += s.length() + 1;
+                                if (owner.getNestingKind() == NestingKind.MEMBER ||
+                                        owner.getNestingKind() == NestingKind.TOP_LEVEL) {
+                                    break;
+                                }
+                            }
+                        } while (pathToParentClass != null && pathToParentClass.getLeaf().equals(pathToOwnerOfSelectedMember.getLeaf()));
+                        StringBuilder sb = new StringBuilder(len);
+                        for (Iterator<String> it = names.iterator(); it.hasNext();) {
+                            String s = it.next();
+                            sb.append (s);
+                            if (it.hasNext()) {
+                                sb.append ('.'); //NOI18N
+                            }
+                        }
+                        result = sb.toString();
+                        break;
+                    case MEMBER :
+                        System.err.println("   D");
+                        break;
+                    default :
+                        throw new AssertionError();
+                }
+            }
+        }
+        System.err.println("Generated qualifier " + result + " for reference to "
+                + compiler.getElementUtilities().getFullName(selected) + " in "
+                + compiler.getElementUtilities().getFullName(ownerOfMemberSelect));
+
+        return result;
+    }
+     */
+
+    public static String getQualification(TreePath pathToMemberSelect, TypeElement ownerOfMemberSelect, Element selected, ParameterChangeContext ctx) {
+        CompilationInfo compiler = ctx.changeData.getCompilationInfo();
+        Trees trees = compiler.getTrees();
+        ElementUtilities utils = compiler.getElementUtilities();
+
+        TreePath pathToOwnerOfSelectedMember = Utils.findEnclosingClass(compiler, pathToMemberSelect, true, true, false, false, false);
+        TypeElement ownerType = (TypeElement) trees.getElement(pathToOwnerOfSelectedMember);
+
+        TreePath pathToOwnerOfMemberSelect = Utils.findEnclosingClass(compiler, pathToOwnerOfSelectedMember, true, false, true, false, true);
+        String result = null;
+        
+        //XXX something is backwards here
+//        TypeElement hold = ownerOfMemberSelect;
+//        ownerOfMemberSelect = ownerType;
+//        ownerType = hold;
+        
+//        boolean enclosed = isEnclosedBy (ownerOfMemberSelect, ownerType, compiler);
+        boolean enclosed = isParentPath (pathToOwnerOfSelectedMember, 
+                pathToOwnerOfMemberSelect);
+        boolean isSuperType = isSupertype (ownerOfMemberSelect, ownerType, compiler);
+        System.err.println("Generate qualifier for reference to "
+            + compiler.getElementUtilities().getFullName(selected) + "\n   belonging to "
+            + compiler.getElementUtilities().getFullName(ownerType) + "\n   in "
+            + compiler.getElementUtilities().getFullName(ownerOfMemberSelect) +
+            "\n   enclosed? " + enclosed + "\n   supertype? " + isSuperType);
+        boolean same = pathToOwnerOfSelectedMember.getLeaf().equals(pathToOwnerOfMemberSelect.getLeaf());
+        if (same || enclosed || isSuperType) {
+            boolean statik = selected.getModifiers().contains(Modifier.STATIC);
+            if (statik) {
+                System.err.println("   a");
+                PackageElement ownerPackage = compiler.getElements().getPackageOf(ownerType);
+                PackageElement selectPackage = compiler.getElements().getPackageOf(ownerOfMemberSelect);
+                boolean fqn = ownerPackage != null && !ownerPackage.equals(selectPackage);
+                result = fqn ? ownerOfMemberSelect.getQualifiedName().toString() : ownerOfMemberSelect.getSimpleName().toString();
+            } else if (same) {
+                result = "this"; //NOI18N                
+            } else {
+                Element enc = ownerType.getEnclosingElement();
+//                Element enc = ownerOfMemberSelect.getEnclosingElement();
+                System.err.println("   d");
+                TypeElement owner = utils.enclosingTypeElement(enc);
+                List <String> strings = new ArrayList<String> ();
+                strings.add ("this"); //NOI18N
+                do {
+                    strings.add (0, owner.getSimpleName().toString());
+                    TypeElement last = owner;
+                    Element el = owner.getEnclosingElement();
+                    if (el == null || el.getKind() == ElementKind.PACKAGE) break;
+                    owner = utils.enclosingTypeElement(el);
+                    if (last == owner) break;
+                } while (ownerType != null && ownerType.getNestingKind() != NestingKind.TOP_LEVEL);
+                StringBuilder sb = new StringBuilder();
+                for (Iterator<String> it = strings.iterator(); it.hasNext();) {
+                    sb.append (it.next());
+                    if (it.hasNext()) {
+                        sb.append ('.'); //NOI18N
+                    }
+                }
+                result = sb.toString();
+            }
+        }
+        System.err.println("Generated qualifier " + result + " for reference to "
+        + compiler.getElementUtilities().getFullName(selected) + " in "
+        + compiler.getElementUtilities().getFullName(ownerOfMemberSelect));
+
+        return result;
+    }
+
+    public static boolean isSupertype (TypeElement ownerOfMemberSelect, TypeElement memberOwner, CompilationInfo compiler) {
+        boolean result = false;
+        TypeElement supertype = ownerOfMemberSelect;
+        while (supertype != null) {
+            result = elementsEqual (supertype, memberOwner, compiler);
+            List <? extends TypeMirror> ifaces = supertype.getInterfaces();
+            for (TypeMirror t : ifaces) {
+                Element e = compiler.getTypes().asElement(t);
+                result = elementsEqual (supertype, e, compiler);
+            }
+            if (result) {
+                break;
+            }
+            TypeMirror type = supertype.getSuperclass();
+            if (type.getKind() == TypeKind.NONE) {
+                break;
+            } else {
+                Element e = compiler.getTypes().asElement(
+                        supertype.getSuperclass());
+                //XXX need to check interfaces to
+                if (e instanceof TypeElement) {
+                    supertype = (TypeElement) e;
+                } else {
+                    supertype = null;
+                }
+            }
+        }
+        return result;
+    }
+    
+    public static boolean elementsEqual (Element a, Element b, CompilationInfo info) {
+        boolean result;
+        if (a == b) {
+            result = true;
+        } else {
+            if (a.getKind() == b.getKind()) {
+                ElementHandle e1 = ElementHandle.create (a);
+                ElementHandle e2 = ElementHandle.create (b);
+                result = e1.equals (e2);
+            } else {
+                result = false;
+            }
+        }
+        return result;
+    }
+
 }

@@ -2,16 +2,16 @@
  * The contents of this file are subject to the terms of the Common Development
  * and Distribution License (the License). You may not use this file except in
  * compliance with the License.
- * 
+ *
  * You can obtain a copy of the License at http://www.netbeans.org/cddl.html
  * or http://www.netbeans.org/cddl.txt.
- * 
+ *
  * When distributing Covered Code, include this CDDL Header Notice in each file
  * and include the License file at http://www.netbeans.org/cddl.txt.
  * If applicable, add the following below the CDDL Header, with the fields
  * enclosed by brackets [] replaced by your own identifying information:
  * "Portions Copyrighted [year] [name of copyright owner]"
- * 
+ *
  * Portions Copyrighted 2007 Sun Microsystems, Inc.
  */
 package org.netbeans.modules.java.additional.refactorings.visitors;
@@ -29,12 +29,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import javax.lang.model.element.Element;
-import javax.lang.model.element.ElementVisitor;
 import javax.lang.model.element.ExecutableElement;
-import javax.lang.model.element.PackageElement;
 import javax.lang.model.element.TypeElement;
-import javax.lang.model.element.TypeParameterElement;
-import javax.lang.model.element.VariableElement;
 import org.netbeans.api.java.source.CompilationInfo;
 import org.netbeans.api.java.source.TreePathHandle;
 import org.netbeans.api.java.source.WorkingCopy;
@@ -48,22 +44,30 @@ public class FindUnqualifiedMethodSelectsTest extends VisitorBaseTestCase<Void, 
 
     public FindUnqualifiedMethodSelectsTest(String name) {
         super (name, "Unqualifieds");
-        super.pkgname = "foo.bar";        
+        super.pkgname = "foo.bar";
     }
-    
+
     public void testSomething() {
         System.out.println("testSomething");
         String data = ctx.changeData.toString(copy, rpc);
         System.err.println(data);
         Set <ExecutableElement> elements = getAllExecutableElements (copy.getCompilationUnit(),
                 copy.getTrees());
-        
+
         System.err.println("Found elements " + elements);
-        
+
         for (ExecutableElement el : elements) {
             Set <TreePathHandle> requalifies = ctx.changeData.getMemberSelectsThatNeedRequalifying(el, copy);
+            if (requalifies != null && !requalifies.isEmpty()) {
             System.err.println("For " + el + ":");
             System.err.println("  requalifies: " + requalifies);
+                for (TreePathHandle handle : requalifies) {
+                    String newName = ctx.changeData.getQualifierFor(el, handle, copy);
+                    TreePath path = handle.resolve (copy);
+                    Tree leaf = path.getLeaf();
+                    System.err.println(leaf + " -> " + newName);
+        }
+    }
         }
     }
 
@@ -71,7 +75,7 @@ public class FindUnqualifiedMethodSelectsTest extends VisitorBaseTestCase<Void, 
     protected void beforeScan(WorkingCopy copy) {
         sc.setCompilationInfo(copy);
     }
-    
+
     @Override
     protected void setUp () throws Exception {
         sc = new SC();
@@ -85,7 +89,7 @@ public class FindUnqualifiedMethodSelectsTest extends VisitorBaseTestCase<Void, 
         UnqualifiedMemberScanner result = new UnqualifiedMemberScanner ();
         return result;
     }
-    
+
     private static Set <ExecutableElement> getAllExecutableElements(CompilationUnitTree unit, Trees trees) {
         List <? extends Tree> types = unit.getTypeDecls();
         Set <ExecutableElement> elements = new HashSet <ExecutableElement> ();
@@ -98,7 +102,7 @@ public class FindUnqualifiedMethodSelectsTest extends VisitorBaseTestCase<Void, 
         }
         return elements;
     }
-    
+
     private static void getAllExes (TypeElement tel, Set <ExecutableElement> elements) {
         List <? extends Element> encs = tel.getEnclosedElements();
         for (Element e : encs) {
@@ -111,7 +115,7 @@ public class FindUnqualifiedMethodSelectsTest extends VisitorBaseTestCase<Void, 
     }
 
     protected ParameterChangeContext createArgument() {
-        Collection <String> newOrChangedParameterNames = cs ("q", "fred", "foodbar");
+        Collection <String> newOrChangedParameterNames = cs (FIELDS);
         Collection <String> newParameterNames = cs ("q");
         List <String> origParamsInOrder = cs ("a", "b", "c");
         ParameterRenamePolicy policy = ParameterRenamePolicy.RENAME_UNLESS_CONFLICT;
@@ -123,7 +127,21 @@ public class FindUnqualifiedMethodSelectsTest extends VisitorBaseTestCase<Void, 
     private static List <String> cs (String... s) {
         return new ArrayList <String> (Arrays.<String>asList(s));
     }
-    
+
+
+    static String[] FIELDS = new String[] {
+        "ownedByInnerInnerClassOfInnerStaticsNonStaticSubclass",
+        "ownedByInnerStaticsNonStaticSubclass",
+        "ownedByInnerStaticClass2",
+        "ownedByInnerStaticClass1",
+        "ownedByInnerInner",
+        "ownedByInner",
+        "staticStringOwnedByTopLevel",
+        "ownedByTopLevel",
+        "MULTIPLE_INTERVAL_SELECTION",
+        "SINGLE_INTERVAL_SELECTION",
+    };
+
     private class SC implements ScanContext {
         public int getParameterIndex() {
             return -1;

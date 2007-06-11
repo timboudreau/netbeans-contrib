@@ -57,9 +57,9 @@ public final class ParameterChangeContext {
         private final Map <ElementHandle<ExecutableElement>, Set <String>> 
                 usedVariableNames = new HashMap<ElementHandle<ExecutableElement>, 
                 Set<String>>(); 
-        private final Map <ElementHandle<ExecutableElement>, Set <TreePathHandle>>
+        private final Map <ElementHandle<ExecutableElement>, Set <RequalificationEntry>>
                 memberSelectsThatNeedQualifyingAfterParamChanges = 
-                new HashMap<ElementHandle<ExecutableElement>, Set<TreePathHandle>>();
+                new HashMap<ElementHandle<ExecutableElement>, Set<RequalificationEntry>>();
         
         public ScanContext scanContext; //XXX should be in same package
         ChangeData (ScanContext scanContext) {
@@ -104,20 +104,54 @@ public final class ParameterChangeContext {
         
         private Map <ExecutableElement, Set <Tree>> resolveRequalifies (CompilationInfo info) {
             Map <ExecutableElement, Set <Tree>> result = new HashMap <ExecutableElement, Set <Tree>> ();
-            for (Map.Entry <ElementHandle<ExecutableElement>, Set<TreePathHandle>> e : memberSelectsThatNeedQualifyingAfterParamChanges.entrySet()) {
+            for (Map.Entry <ElementHandle<ExecutableElement>, Set<RequalificationEntry>> e : memberSelectsThatNeedQualifyingAfterParamChanges.entrySet()) {
                 ElementHandle<ExecutableElement> key = e.getKey();
                 if (key == null) continue; //XXX unit tests
-                Set <TreePathHandle> val = e.getValue();
+                Set <RequalificationEntry> val = e.getValue();
                 ExecutableElement el = key.resolve(info);
                 Set <Tree> nuvals = new HashSet <Tree> (val.size());
-                for (TreePathHandle h : val) {
-                    TreePath path = h.resolve(info);
+                for (RequalificationEntry entry : val) {
+                    TreePath path = entry.pathToMemberSelect.resolve(info);
                     Tree tree = path.getLeaf();
                     nuvals.add(tree);
                 }
                 result.put (el, nuvals);
             }
             return result;
+        }
+        
+        private Map <ExecutableElement, Set <RequalificationEntry>> resolveRequalifiers (CompilationInfo info) {
+            //XXX this is fairly inefficient - could cache the result in a WeakHashMap keyed on the
+            //CompilationInfo.  Several similar methods here that can do this
+            //kind of iteration repeatedly.
+            Map <ExecutableElement, Set <RequalificationEntry>> result = new HashMap <ExecutableElement, Set <RequalificationEntry>> ();
+            for (Map.Entry <ElementHandle<ExecutableElement>, Set<RequalificationEntry>> e : memberSelectsThatNeedQualifyingAfterParamChanges.entrySet()) {
+                ElementHandle<ExecutableElement> key = e.getKey();
+                if (key == null) continue; //XXX unit tests
+                Set <RequalificationEntry> val = e.getValue();
+                ExecutableElement el = key.resolve(info);
+                Set <RequalificationEntry> nuvals = new HashSet <RequalificationEntry> (val.size());
+                for (RequalificationEntry entry : val) {
+                    nuvals.add(entry);
+                }
+                result.put (el, nuvals);
+            }
+            return result;
+        }
+        
+        public String getQualifierFor (ExecutableElement on, TreePathHandle handle, CompilationInfo info) {
+            Map <ExecutableElement, Set <RequalificationEntry>> map = resolveRequalifiers (info);
+            Set <RequalificationEntry> entries = map.get (on);
+            if (entries != null) {
+                TreePath path = handle.resolve(info);
+                for (RequalificationEntry entry : entries) {
+                    TreePath other = entry.pathToMemberSelect.resolve (info);
+                    if (other != null && path.getLeaf().equals(other.getLeaf())) {
+                        return entry.qualifier;
+                    }
+                }
+            }
+            return null;
         }
         
         void addUsedVariableName (ElementHandle <ExecutableElement> method, String varName) {
@@ -187,15 +221,22 @@ public final class ParameterChangeContext {
         }
         
         public Set <TreePathHandle> getMemberSelectsThatNeedRequalifying (ExecutableElement overridingMethod, CompilationInfo info) {
-            Set <TreePathHandle> result = getRequalifySetFor (overridingMethod, info);
+            Set <RequalificationEntry> entries = getRequalifySetFor (overridingMethod, info);
+            Set <TreePathHandle> result = null;;
+            if (entries != null) {
+                result = new HashSet <TreePathHandle>(entries.size());
+                for (RequalificationEntry entry : entries) {
+                    result.add (entry.pathToMemberSelect);
+                }
+            }
             return result == null ? Collections.<TreePathHandle>emptySet() : result;
         }
         
-        private Set <TreePathHandle> getRequalifySetFor (ExecutableElement method, CompilationInfo info) {
-            Set <TreePathHandle> result = null;
-            for (Map.Entry<ElementHandle<ExecutableElement>, Set<TreePathHandle>> entry : memberSelectsThatNeedQualifyingAfterParamChanges.entrySet()) {
+        private Set <RequalificationEntry> getRequalifySetFor (ExecutableElement method, CompilationInfo info) {
+            Set <RequalificationEntry> result = null;
+            for (Map.Entry<ElementHandle<ExecutableElement>, Set<RequalificationEntry>> entry : memberSelectsThatNeedQualifyingAfterParamChanges.entrySet()) {
                 ElementHandle<ExecutableElement> el = entry.getKey();
-                Set <TreePathHandle> set = entry.getValue();
+                Set <RequalificationEntry> set = entry.getValue();
                 Element e = el.resolve(info);
                 if (method.equals(e)) {
                     result = set;
@@ -218,22 +259,32 @@ public final class ParameterChangeContext {
             return ElementHandle.create(scanContext.getCurrentMethodElement());
         }
 
-        public void addMemberSelectThatNeedsRequalifying (TreePathHandle pathToMemberSelect, ElementHandle<ExecutableElement> on, CompilationInfo info) {
+        public void addMemberSelectThatNeedsRequalifying (TreePathHandle pathToMemberSelect, ElementHandle<ExecutableElement> on, CompilationInfo info, String qualifier) {
             assert on != null;
             assert info != null;
             assert pathToMemberSelect != null;
-            addMemberSelectThatNeedsRequalifying(pathToMemberSelect, on.resolve(info), info);
+            addMemberSelectThatNeedsRequalifying(pathToMemberSelect, on.resolve(info), info, qualifier);
         }
         
-        public void addMemberSelectThatNeedsRequalifying (TreePathHandle pathToMemberSelect, ExecutableElement on, CompilationInfo info) {
+        public void addMemberSelectThatNeedsRequalifying (TreePathHandle pathToMemberSelect, ExecutableElement on, CompilationInfo info, String qualifier) {
             System.err.println("Added member that needs requalifying: " + pathToMemberSelect + " on " + on);
-            Set <TreePathHandle> handles = getRequalifySetFor(on, info);
-            if (handles == null) {
-                handles = new HashSet <TreePathHandle> ();
+            Set <RequalificationEntry> entries = getRequalifySetFor(on, info);
+            if (entries == null) {
+                entries = new HashSet <RequalificationEntry> ();
                 ElementHandle <ExecutableElement> handle = ElementHandle.<ExecutableElement>create(on);
-                memberSelectsThatNeedQualifyingAfterParamChanges.put (handle, handles);
+                memberSelectsThatNeedQualifyingAfterParamChanges.put (handle, entries);
             }
-            handles.add (pathToMemberSelect);
+            RequalificationEntry entry = new RequalificationEntry (pathToMemberSelect, qualifier);
+            entries.add (entry);
+        }
+        
+        private static class RequalificationEntry {
+            final String qualifier;
+            final TreePathHandle pathToMemberSelect;
+            RequalificationEntry (TreePathHandle pathToMemberSelect, String qualifier) {
+                this.qualifier = qualifier;
+                this.pathToMemberSelect = pathToMemberSelect;
+            }
         }
         
         public String toString (CompilationController cc, RequestedParameterChanges mods) {
@@ -241,7 +292,7 @@ public final class ParameterChangeContext {
             Map <ExecutableElement, Set <String>> names = resolveNames (cc);
             Map <ExecutableElement, Set <Integer>> skips = resolveSkips (cc);
             Map <ExecutableElement, Set <Tree>> requalify = resolveRequalifies(cc);
-            sb.append("NAMES:");
+            sb.append("NAMES:\n");
             for (ExecutableElement el : names.keySet()) {
                 TypeElement te = cc.getElementUtilities().enclosingTypeElement(el);
                 sb.append(te.getQualifiedName().toString() + '.' + el.getSimpleName().toString() + " uses the following variables:");
@@ -251,7 +302,7 @@ public final class ParameterChangeContext {
                 }
                 sb.append ("\n");
             }
-            sb.append("PARAMS TO SKIP:");
+            sb.append("PARAMS TO SKIP:\n");
             for (ExecutableElement el : skips.keySet()) {
                 TypeElement te = cc.getElementUtilities().enclosingTypeElement(el);
                 sb.append(te.getQualifiedName().toString() + '.' +el.getSimpleName().toString() + " will skip the following parameters:");
@@ -260,7 +311,7 @@ public final class ParameterChangeContext {
                 sb.append (ss);
                 sb.append ("\n");
             }
-            sb.append("PARAMS TO REQUALIFY:");
+            sb.append("PARAMS TO REQUALIFY:\n");
             for (ExecutableElement el : requalify.keySet()) {
                 TypeElement te = cc.getElementUtilities().enclosingTypeElement(el);
                 sb.append(te.getQualifiedName().toString() + '.' + el.getSimpleName().toString() + " will requalify the following parameters:");

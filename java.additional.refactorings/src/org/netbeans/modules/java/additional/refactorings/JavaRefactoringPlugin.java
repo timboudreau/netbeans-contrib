@@ -47,7 +47,6 @@ import org.netbeans.api.project.ProjectUtils;
 import org.netbeans.api.project.SourceGroup;
 import org.netbeans.modules.refactoring.api.AbstractRefactoring;
 import org.netbeans.modules.refactoring.api.Problem;
-import org.netbeans.modules.refactoring.spi.RefactoringElementsBag;
 import org.netbeans.modules.refactoring.spi.RefactoringPlugin;
 import org.netbeans.spi.java.classpath.support.ClassPathSupport;
 import org.openide.filesystems.FileObject;
@@ -146,7 +145,7 @@ public abstract class JavaRefactoringPlugin implements RefactoringPlugin {
     
     protected final Collection<ModificationResult> processFiles(Set<FileObject> files, CancellableTask<WorkingCopy> task) {
         currentTask = task;
-        Collection<ModificationResult> results = new LinkedList();
+        Collection<ModificationResult> results = new LinkedList <ModificationResult> ();
         try {
             Iterable<? extends List<FileObject>> work = groupByRoot(files);
             for (List<FileObject> fos : work) {
@@ -165,7 +164,7 @@ public abstract class JavaRefactoringPlugin implements RefactoringPlugin {
     
     ClasspathInfo getClasspathInfoFor(FileObject ... files) {
         assert files.length >0;
-        Set<URL> dependentRoots = new HashSet();
+        Set<URL> dependentRoots = new HashSet <URL> ();
         for (FileObject fo: files) {
             Project p = null;
             if (fo!=null)
