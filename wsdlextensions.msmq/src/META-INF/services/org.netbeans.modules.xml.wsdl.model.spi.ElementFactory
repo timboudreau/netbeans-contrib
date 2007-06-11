@@ -1,0 +1,4 @@
+org.netbeans.modules.wsdlextensions.msmq.impl.MSMQElementFactoryProvider$AddressFactory
+org.netbeans.modules.wsdlextensions.msmq.impl.MSMQElementFactoryProvider$BindingFactory
+org.netbeans.modules.wsdlextensions.msmq.impl.MSMQElementFactoryProvider$OperationFactory
+org.netbeans.modules.wsdlextensions.msmq.impl.MSMQElementFactoryProvider$MessageFactory
