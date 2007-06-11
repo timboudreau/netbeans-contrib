@@ -61,12 +61,6 @@ Microsystems, Inc. All Rights Reserved.
                 <file name="org-netbeans-modules-javahints-TypoDetector.instance"/>
             </folder>
 
-            <folder name="hints">
-                <folder name="general">
-                    <file name="org-netbeans-modules-javahints-IllegalInstanceOf.instance" />
-                </folder>    
-            </folder>
-            
             <folder name="suggestions">
                 <file name="org-netbeans-modules-javahints-ConvertAnonymousToInner.instance" />
             </folder>
