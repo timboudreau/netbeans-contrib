@@ -1,7 +1,6 @@
 package org.netbeans.modules.codetemplatetools.actions;
 
 import java.awt.Toolkit;
-import java.util.Collection;
 import javax.swing.JEditorPane;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
@@ -19,7 +18,7 @@ import org.openide.windows.TopComponent;
 public final class ExpandTemplateAction extends CookieAction {
     
     protected void performAction(Node[] activatedNodes) {
-        EditorCookie editorCookie = (EditorCookie) activatedNodes[0].getLookup().lookup(EditorCookie.class);
+        EditorCookie editorCookie = activatedNodes[0].getLookup().lookup(EditorCookie.class);
         if (editorCookie != null) {
             JEditorPane[] panes = editorCookie.getOpenedPanes();
             if (panes != null) {
@@ -43,8 +42,7 @@ public final class ExpandTemplateAction extends CookieAction {
                 String abbrev = editorPane.getText(wordStart, (caretPosition - wordStart));
                 Document doc = editorPane.getDocument();
                 CodeTemplateManager codeTemplateManager = CodeTemplateManager.get(doc);
-                Collection<CodeTemplate> codeTemplatesCollection = codeTemplateManager.getCodeTemplates();
-                for (CodeTemplate codeTemplate : codeTemplatesCollection) {
+                for (CodeTemplate codeTemplate : codeTemplateManager.getCodeTemplates()) {
                     if (codeTemplate.getAbbreviation().equals(abbrev)) {
                         if (doc instanceof BaseDocument) {
                             ((BaseDocument)doc).atomicLock();
