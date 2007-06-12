@@ -50,6 +50,18 @@ public class JoinPopupProvider implements PopupMenuProvider {
     public JPopupMenu getPopupMenu(Widget widget, Point point) {
         JPopupMenu menu = new JPopupMenu();
         
+        // add show sql action.
+        JMenuItem showData = new JMenuItem("Show Data");
+        showData.setAction(new ShowDataAction(mObj, joinOp, "Show Data"));
+        menu.add(showData);  
+        
+        // add show sql action.
+        JMenuItem showSQL = new JMenuItem("Show SQL");
+        showSQL.setAction(new ShowSqlAction(joinOp, mObj.getGraphManager(), "Show SQL"));
+        menu.add(showSQL);       
+        
+        menu.addSeparator();
+        
         // add edit join condition action.
         JMenuItem editJoinCondition = new JMenuItem("Edit Join Condition");
         editJoinCondition.setAction(new EditJoinConditionAction(mObj, joinOp, "Edit Join Condition"));

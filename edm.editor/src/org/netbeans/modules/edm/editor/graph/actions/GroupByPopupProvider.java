@@ -50,10 +50,22 @@ public class GroupByPopupProvider implements PopupMenuProvider {
     public JPopupMenu getPopupMenu(Widget widget, Point point) {
         JPopupMenu menu = new JPopupMenu();
         
+        // add show sql action.
+        JMenuItem showSQL = new JMenuItem("Show SQL");
+        showSQL.setAction(new ShowSqlAction(grpby, mObj.getGraphManager(), "Show SQL"));
+        menu.add(showSQL);     
+        
+        menu.addSeparator();
+        
         // add edit having condition action.
         JMenuItem editHavingCondition = new JMenuItem("Edit Having Condition");
-        editHavingCondition.setAction(new EditHavingConditionAction(mObj,grpby, "Edit Having Condition"));
+        editHavingCondition.setAction(new EditHavingConditionAction(mObj, grpby, "Edit Having Condition"));
         menu.add(editHavingCondition);
+        
+//        // add select column action.
+//        JMenuItem selectColumns = new JMenuItem("Select Columns");
+//        selectColumns.setAction(new GroupBySelectColumnsAction(mObj,grpby, "Select Columns"));
+//        menu.add(selectColumns);        
         
         return menu;
     }

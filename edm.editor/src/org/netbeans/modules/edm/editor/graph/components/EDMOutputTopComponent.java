@@ -25,14 +25,20 @@ import java.util.Calendar;
 import java.util.TimeZone;
 import java.util.logging.Logger;
 
+import org.openide.util.Exceptions;
 import org.openide.util.NbBundle;
 import org.openide.util.Utilities;
 import org.openide.windows.TopComponent;
 import org.openide.windows.WindowManager;
 
 import org.netbeans.modules.edm.editor.dataobject.MashupDataObject;
+import org.netbeans.modules.sql.framework.evaluators.database.DB;
+import org.netbeans.modules.sql.framework.evaluators.database.DBFactory;
+import org.netbeans.modules.sql.framework.evaluators.database.StatementContext;
 import org.netbeans.modules.sql.framework.model.SQLConstants;
 import org.netbeans.modules.sql.framework.model.SQLDefinition;
+import org.netbeans.modules.sql.framework.model.SQLGroupBy;
+import org.netbeans.modules.sql.framework.model.SQLJoinOperator;
 import org.netbeans.modules.sql.framework.model.SQLJoinView;
 import org.netbeans.modules.sql.framework.model.SQLObject;
 import org.netbeans.modules.sql.framework.model.SourceTable;
@@ -40,6 +46,8 @@ import org.netbeans.modules.sql.framework.model.TargetTable;
 import org.netbeans.modules.sql.framework.ui.view.DataOutputPanel;
 import org.netbeans.modules.sql.framework.ui.view.SQLLogView;
 import org.netbeans.modules.sql.framework.ui.view.SQLStatementPanel;
+import com.sun.sql.framework.exception.BaseException;
+import com.sun.sql.framework.jdbc.DBConstants;
 
 /**
  * Top component which displays something.
@@ -129,7 +137,10 @@ public final class EDMOutputTopComponent extends TopComponent {
             outputPanel = new DataOutputPanel.TargetQuery((TargetTable) obj, defn);
             break;
         case SQLConstants.JOIN_VIEW:
-            outputPanel = new DataOutputPanel.JoinQuery((SQLJoinView) obj, defn);
+            outputPanel = new DataOutputPanel.JoinViewQuery((SQLJoinView) obj, defn);
+            break;
+        case SQLConstants.JOIN:
+            outputPanel = new DataOutputPanel.JoinOperatorQuery((SQLJoinOperator) obj, defn);
         }
         if(outputPanel != null) {
             outputPanel.generateResult(obj);
@@ -146,10 +157,45 @@ public final class EDMOutputTopComponent extends TopComponent {
     public void showSql(SQLObject obj, MashupDataObject mObj) {
         if(statementPanel == null) {
             statementPanel = new SQLStatementPanel(mObj.getEditorView(), obj);
-        } else {
-            statementPanel.updateSQLObject(obj);
         }
-        statementPanel.refreshSql();
+        StringBuilder buf = null;
+        try {
+            DB db = DBFactory.getInstance().getDatabase(DBConstants.AXION);
+            StatementContext context = new StatementContext();
+            context.setUsingOriginalSourceTableName(true);
+            context.setUseSourceColumnAliasName(false);
+            if(obj instanceof SourceTable) {
+                buf = new StringBuilder(db.getStatements().
+                        getSelectStatement((SourceTable) obj, context).getSQL());
+            } else if(obj instanceof SQLJoinView) {
+                SQLGroupBy grpby = ((SQLJoinView)obj).getSQLGroupBy();
+                ((SQLJoinView)obj).setSQLGroupBy(null);
+                buf = new StringBuilder(db.getStatements().
+                        getSelectStatement((SQLJoinView)obj, context).getSQL());
+                ((SQLJoinView)obj).setSQLGroupBy(grpby);
+            } else if(obj instanceof SQLJoinOperator) {
+                buf = new StringBuilder(db.getStatements().
+                        getSelectStatement((SQLJoinOperator)obj, context).getSQL());
+            } else if(obj instanceof SQLGroupBy) {
+                SQLObject parent = (SQLObject) ((SQLGroupBy)obj).getParentObject();
+                if(parent instanceof SQLJoinView) {
+                    buf = new StringBuilder(db.getStatements().
+                            getSelectStatement((SQLJoinView)parent, context).getSQL());
+                } else if(parent instanceof SourceTable) {
+                    buf = new StringBuilder(db.getStatements().
+                            getSelectStatement((SourceTable)parent, context).getSQL());
+                } else if(parent instanceof TargetTable) {
+                    buf = new StringBuilder(db.getStatements().
+                            getSelectStatement((TargetTable)parent, context).getSQL());
+                }
+            } else {
+                buf = new StringBuilder(db.getEvaluatorFactory().evaluate(obj, context));
+            }
+        } catch (BaseException ex) {
+            Exceptions.printStackTrace(ex);
+        }
+        statementPanel.clearView();
+        statementPanel.appendToView(buf.toString());
         addComponent(statementPanel);
     }
     
