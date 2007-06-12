@@ -80,7 +80,7 @@ public class EJBFreeformModule implements J2eeModuleImplementation, PropertyChan
 //        return null;
 //    }
 //    
-    public <T> MetadataModel<T> getDeploymentDescriptor(Class<T> type) {
+    public <T> MetadataModel<T> getMetadataModel(Class<T> type) {
         if (type == EjbJarMetadata.class) {
 //            return (MetadataModel<T>) project.getAPIEjbJar().getMetadataModel();
             throw new NotImplementedException();
