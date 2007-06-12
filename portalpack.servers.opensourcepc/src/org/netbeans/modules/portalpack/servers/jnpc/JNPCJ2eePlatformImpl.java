@@ -67,6 +67,24 @@ public class JNPCJ2eePlatformImpl extends PSJ2eePlatformImpl{
             }
          }
          
+         //If glassfish then add javaee.jar
+         if(psconfig.getServerType().equals(ServerConstants.SUN_APP_SERVER_9))
+         {
+             String[] libs = {"javaee.jar"};
+             for(int k=0;k<libs.length;k++)
+             {
+                 File libJar = new File(psconfig.getServerHome() + File.separator + "lib" + File.separator + libs[k]);
+                 if(libJar.exists())
+                 {
+                    try {
+                        classPath.add(fileToUrl(libJar));
+                    } catch (MalformedURLException ex) {
+                      ex.printStackTrace();
+                    }
+                 }
+             } 
+         }
+         
 
          String[] encClassPaths = Util.decodeClassPath(psconfig.getClassPath());
          for(int i=0;i<encClassPaths.length;i++)
