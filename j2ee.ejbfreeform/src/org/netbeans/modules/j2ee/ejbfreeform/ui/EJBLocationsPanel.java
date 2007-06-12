@@ -44,7 +44,6 @@ import org.netbeans.modules.j2ee.deployment.devmodules.api.J2eePlatform;
 import org.netbeans.modules.j2ee.ejbfreeform.EJBProjectGenerator;
 import org.netbeans.modules.j2ee.ejbfreeform.EJBProjectNature;
 import org.netbeans.modules.j2ee.ejbfreeform.EjbFreeformProperties;
-import org.openide.ErrorManager;
 import org.openide.filesystems.FileUtil;
 import org.openide.util.HelpCtx;
 import org.openide.util.NbBundle;
@@ -54,6 +53,7 @@ import org.netbeans.spi.project.support.ant.PropertyUtils;
 import org.netbeans.spi.project.support.ant.PropertyEvaluator;
 import org.openide.WizardDescriptor;
 import org.openide.filesystems.FileObject;
+import org.openide.util.Exceptions;
 import org.w3c.dom.Element;
 
 
@@ -585,12 +585,12 @@ public class EJBLocationsPanel extends javax.swing.JPanel implements HelpCtx.Pro
     ActionListener getCustomizerOkListener() {
         return new ActionListener() {
             public void actionPerformed(ActionEvent arg0) {
-                
+
                 AuxiliaryConfiguration aux = Util.getAuxiliaryConfiguration(projectHelper);
                 EJBProjectGenerator.putEJBModules(projectHelper, aux, getEJBModules());
                 EJBProjectGenerator.putServerID(projectHelper, getSelectedServerID());
                 EJBProjectGenerator.putResourceFolder(projectHelper, getResourcesFolder());
-                
+
                 String j2eeLevel = ((EJBProjectGenerator.EJBModule)getEJBModules().get(0)).j2eeSpecLevel;
                 EJBProjectGenerator.putJ2EELevel(projectHelper, j2eeLevel);
                 
@@ -603,9 +603,8 @@ public class EJBLocationsPanel extends javax.swing.JPanel implements HelpCtx.Pro
                         root.write(ejbJarXml);
                     }
                 } catch (IOException e) {
-                    final ErrorManager errorManager = ErrorManager.getDefault();
                     String message = NbBundle.getMessage(EJBLocationsPanel.class, "MSG_EjbJarXmlCorrupted");
-                    errorManager.notify(errorManager.annotate(e, message));
+                    Exceptions.printStackTrace(Exceptions.attachLocalizedMessage(e, message));
                 }
             }
         };
@@ -620,7 +619,7 @@ public class EJBLocationsPanel extends javax.swing.JPanel implements HelpCtx.Pro
             String serverID = Deployment.getDefault().getServerID(servInstIDs[i]);
             String servDisplayName = Deployment.getDefault().getServerDisplayName(serverID);
             if (servDisplayName != null && !serverIDs.contains(serverID)
-                && j2eePlat != null && j2eePlat.getSupportedModuleTypes().contains(J2eeModule.EJB)) {
+                    && j2eePlat != null && j2eePlat.getSupportedModuleTypes().contains(J2eeModule.EJB)) {
                 serverIDs.add(serverID);
                 serverTypeComboBox.addItem(servDisplayName);
             }
@@ -746,9 +745,8 @@ public class EJBLocationsPanel extends javax.swing.JPanel implements HelpCtx.Pro
             }
             
         } catch (IOException e) {
-            final ErrorManager errorManager = ErrorManager.getDefault();
             String message = NbBundle.getMessage(EJBLocationsPanel.class, "MSG_EjbJarXmlCorrupted");
-            errorManager.notify(errorManager.annotate(e, message));
+            Exceptions.printStackTrace(Exceptions.attachLocalizedMessage(e, message));
         }
     }
 }

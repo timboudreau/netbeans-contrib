@@ -28,11 +28,12 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import org.netbeans.modules.ant.freeform.spi.support.NewFreeformProjectSupport;
 import org.netbeans.modules.java.freeform.spi.support.NewJavaFreeformProjectSupport;
-import org.openide.ErrorManager;
 import org.openide.WizardDescriptor;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileStateInvalidException;
@@ -161,7 +162,7 @@ public class EJBLocationsWizardPanel implements WizardDescriptor.Panel, ChangeLi
                 }
             }
         } catch (FileStateInvalidException fsie) {
-            ErrorManager.getDefault ().notify (ErrorManager.INFORMATIONAL, fsie);
+            Logger.getLogger("global").log(Level.INFO, null, fsie);
         }
         return ""; // NOI18N
     }
@@ -191,7 +192,7 @@ public class EJBLocationsWizardPanel implements WizardDescriptor.Panel, ChangeLi
                     noPackage = true;
             }
         } catch (java.io.IOException ioe) {
-            ErrorManager.getDefault().notify(ErrorManager.INFORMATIONAL, ioe);
+            Logger.getLogger("global").log(Level.INFO, null, ioe);
         } finally {
             try {
                 if (r != null)

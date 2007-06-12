@@ -24,6 +24,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Iterator;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.JButton;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
@@ -39,7 +41,6 @@ import org.netbeans.spi.project.AuxiliaryConfiguration;
 import org.netbeans.spi.project.support.ant.AntProjectHelper;
 import org.netbeans.spi.project.support.ant.EditableProperties;
 import org.openide.DialogDisplayer;
-import org.openide.ErrorManager;
 import org.openide.NotifyDescriptor;
 import org.openide.cookies.EditCookie;
 import org.openide.cookies.LineCookie;
@@ -49,6 +50,7 @@ import org.openide.filesystems.FileUtil;
 import org.openide.loaders.DataObject;
 import org.openide.loaders.DataObjectNotFoundException;
 import org.openide.text.Line;
+import org.openide.util.Exceptions;
 import org.openide.util.NbBundle;
 import org.openide.xml.XMLUtil;
 import org.w3c.dom.Comment;
@@ -135,7 +137,7 @@ public class EjbFreeFormActionProvider implements ActionProvider {
                     throw (IOException) new IOException(e.toString()).initCause(e);
                 }
         } catch (IOException e) {
-            ErrorManager.getDefault().notify(e);
+            Exceptions.printStackTrace(e);
         }
     }
 
@@ -542,7 +544,7 @@ public class EjbFreeFormActionProvider implements ActionProvider {
         try {
             line = findLine(file, match, elementLocalName, elementAttributeName);
         } catch (Exception e) {
-            ErrorManager.getDefault().notify(ErrorManager.INFORMATIONAL, e);
+            Logger.getLogger("global").log(Level.INFO, null, e);
             return;
         }
         if (line == -1) {
@@ -561,8 +563,8 @@ public class EjbFreeFormActionProvider implements ActionProvider {
                 lines.getLineSet().getCurrent(line).show(Line.SHOW_GOTO);
             } catch (IndexOutOfBoundsException e) {
                 // XXX reproducibly thrown if the document was already open. Why?? (file.refresh() above does not help.)
-                ErrorManager.getDefault().getInstance(EjbFreeFormActionProvider.class.getName()).log(
-                            ErrorManager.WARNING, e + " [file=" + file + " match=" + match + " line=" + line + "]"); // NOI18N
+                Logger.getLogger(EjbFreeFormActionProvider.class.getName()).log(Level.WARNING,
+                        e + " [file=" +file + " match=" + match + " line=" + line + "]"); // NOI18N
                 lines.getLineSet().getCurrent(0).show(Line.SHOW_GOTO);
             }
         }

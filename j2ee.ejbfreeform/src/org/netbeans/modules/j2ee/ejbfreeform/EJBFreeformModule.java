@@ -25,11 +25,7 @@ import java.beans.PropertyChangeSupport;
 import java.io.File;
 import java.util.Iterator;
 import org.netbeans.api.project.Project;
-import org.netbeans.modules.j2ee.dd.api.common.RootInterface;
-import org.netbeans.modules.j2ee.dd.api.ejb.EjbJar;
-import org.netbeans.modules.j2ee.dd.api.ejb.DDProvider;
 import org.netbeans.modules.j2ee.dd.api.ejb.EjbJarMetadata;
-import org.netbeans.modules.j2ee.dd.api.webservices.Webservices;
 import org.netbeans.modules.j2ee.deployment.devmodules.api.J2eeModule;
 import org.netbeans.modules.j2ee.deployment.devmodules.spi.J2eeModuleImplementation;
 import org.netbeans.modules.j2ee.metadata.model.api.MetadataModel;
@@ -41,7 +37,6 @@ import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
 import org.openide.util.NbBundle;
 import org.openide.util.NotImplementedException;
-import org.openide.util.WeakListeners;
 
 /**
  *
