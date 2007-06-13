@@ -1,0 +1,161 @@
+
+/*
+ * The contents of this file are subject to the terms of the Common Development
+ * and Distribution License (the License). You may not use this file except in
+ * compliance with the License.
+ *
+ * You can obtain a copy of the License at http://www.netbeans.org/cddl.html
+ * or http://www.netbeans.org/cddl.txt.
+ *
+ * When distributing Covered Code, include this CDDL Header Notice in each file
+ * and include the License file at http://www.netbeans.org/cddl.txt.
+ * If applicable, add the following below the CDDL Header, with the fields
+ * enclosed by brackets [] replaced by your own identifying information:
+ * "Portions Copyrighted [year] [name of copyright owner]"
+ * 
+ * Copyright 2007 Sun Microsystems, Inc. All Rights Reserved
+ *
+ */
+
+
+package com.sun.tthub.gdelib.fields;
+
+import com.sun.tthub.gdelib.GDEException;
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+
+/**
+ *
+ * @author Hareesh Ravindran
+ */
+public final class GenFieldUtil {
+    
+    /**
+     * Creates a new instance of GenFieldUtil
+     */
+    public GenFieldUtil() {}
+    
+    /**
+     * This function returns FieldMetaData objects representing all the getter 
+     * methods within the class. The 'get' prefix of the method is eliminated 
+     * while retrieving the methods. 
+     *
+     * @return The Collection of FieldMetaData objects representing the 
+     *      object
+     */    
+    public static Collection getProperties(FieldMetaData metaData,
+                    ClassLoader classLoader) throws GDEException {
+        
+        if(metaData.getFieldDataTypeNature() 
+                        == DataTypeNature.NATURE_SIMPLE) {
+            throw new GDEException("The getProperties() cannot be called on" +
+                    "a field meata data for a simple data type.");
+        }                
+        return getProperties(metaData.getFieldDataType(), classLoader);
+    }    
+    
+    /**
+     * Loads the specified class using the class loader. If the class loader
+     * is able to load the class, it returns the class object. Otherwise it
+     * throws a GDEException. The Class loader should already have loaded
+     * the class before this method is invoked.
+     */
+    public static Class loadClass(String className, 
+                        ClassLoader classLoader) throws GDEException {
+        try {
+            return classLoader.loadClass(className);
+        } catch (ClassNotFoundException ex) {
+            ex.printStackTrace();
+            throw new GDEException("The specified class '" + 
+                    className + "' cannot be loaded by the class loader.", ex);
+        } catch (Throwable ex) {
+            ex.printStackTrace();
+            throw new GDEException("The specified class '" +
+                    className + "' cannot be loaded by the class loader", ex);
+        }                
+    }
+    
+    public static Collection getProperties(String className, 
+                        ClassLoader classLoader) throws GDEException {
+        Class cls = loadClass(className, classLoader);
+        Method[] methods = cls.getDeclaredMethods();
+        Collection coll = new ArrayList();
+        for(int i = 0; i < methods.length; ++i) {
+            String methodName = methods[i].getName();
+            // if the method name starts with a 'get', add the name of the method
+            // after removing the 'get' prefix to the collection to be returned.
+            if(methodName.startsWith("get")) {
+                Class returnType = methods[i].getReturnType();
+                FieldMetaData data = new FieldMetaData(
+                        methodName.substring(3), returnType.getName());
+                coll.add(data);
+            }
+        }
+        return coll;        
+    }
+    
+  /**
+     * This is a recursive function that generates the FieldInfo map for the
+     * field meta data represented by this class. The method will check if the 
+     * data type of the field is of 'SIMPLE' nature, if so, it creates a default
+     * SimpleEntryFieldDisplayInfo object using the 
+     * createDefaultSimpleFieldDisplayInfo() method. If it finds that the field 
+     * is a complex one, it will iterate through each field of the complex data 
+     * structure and will use the createDefaultComplexEntryFieldInfo() method on
+     * each fieldMeta data encountered, to create a ComplexEntryFieldDisplayInfo.
+     *
+     * The special cases of a complex data type containing a reference to itself,
+     * is not handled in this fucntion, currently.
+     *
+     * @return The map containing the field names of the complex data object as
+     *      keys and the FieldInfo objects for the corresponding fields as 
+     *      values.
+     * @throws GDEException if this method is invoked with a FieldMeta data for
+     *      a simple data type.
+     */    
+    public static Map getDefaultFieldInfoMap(FieldMetaData metaData, 
+                        ClassLoader classLoader) throws GDEException {        
+        if(metaData.getFieldDataTypeNature() 
+                        == DataTypeNature.NATURE_SIMPLE) {
+            throw new GDEException("The getFieldInfoMap() cannot be called on " +
+                    "a field meata data for a simple data type. " +
+                    " Current FieldMetaData is: [" + metaData + "]");
+        }                
+        Collection fields = getProperties(metaData, classLoader);
+        Map  map = new HashMap(fields.size());                
+        for(Iterator it = fields.iterator(); it.hasNext(); ){
+            
+            FieldMetaData innerMetaData = (FieldMetaData) it.next();
+            
+            System.out.println(innerMetaData.getFieldName()+"-"+innerMetaData.getFieldDataTypeNature()+"\n");
+            
+            if(innerMetaData.getFieldDataTypeNature() == 
+                                DataTypeNature.NATURE_SIMPLE) {
+                FieldInfo info = new FieldInfo(innerMetaData, 
+                        new FieldMetaDataProcessor(innerMetaData, classLoader
+                        ).createDefaultSimpleEntryFieldDisplayInfo());
+                map.put(innerMetaData.getFieldName(), info);            
+            } else {
+                FieldMetaDataProcessor processor = 
+                        new FieldMetaDataProcessor(innerMetaData, classLoader);
+                FieldInfo info = new FieldInfo(innerMetaData, new 
+                        FieldMetaDataProcessor(innerMetaData, classLoader
+                        ).createDefaultComplexEntryFieldDisplayInfo());
+                map.put(innerMetaData.getFieldName(), info);
+            }
+        }            
+        return map;
+    }    
+    
+    public static Map getDefaultFieldInfoMap(String className, 
+                        ClassLoader classLoader) throws GDEException{
+        FieldMetaData metaData = new FieldMetaData(className, className);
+        return getDefaultFieldInfoMap(metaData, classLoader);        
+    }    
+    
+    
+}
