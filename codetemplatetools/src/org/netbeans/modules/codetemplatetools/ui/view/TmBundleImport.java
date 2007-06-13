@@ -18,6 +18,7 @@
  */
 package org.netbeans.modules.codetemplatetools.ui.view;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
@@ -84,6 +85,7 @@ public class TmBundleImport {
     private Map /*<String,Map<String,String>>*/ propsByMime =
         new HashMap /*<String,Map<String,String>>*/();
     private String defaultMime;
+    private boolean wasBinary;
     private java.util.List<String> modified = new java.util.ArrayList<String>();
 
     public TmBundleImport() {
@@ -108,6 +110,10 @@ public class TmBundleImport {
         for (File f : snippetFiles) {
             if (f.getName().endsWith(".plist")) {
                 importFile(f);
+                
+                if (wasBinary) {
+                    break;
+                }
             }
         }
 
@@ -197,6 +203,20 @@ public class TmBundleImport {
                 org.w3c.dom.Document doc = XMLUtil.parse(inputSource, false, false, null, null);
                 r = doc.getDocumentElement();
             } catch (SAXParseException spe) {
+                BufferedReader f = new BufferedReader(new FileReader(file));
+                String s = f.readLine();
+                if (s != null && s.startsWith("bplist")) {
+                    wasBinary = true;
+                    log.append("Binary plist files!\n\nYour snippets are in a binary plist format.\nTo " +
+                            "be imported, they must be in XML format.\n\n" +
+                            "First make a backup of your bundle tree (zip -r bundle.zip whatever.bundle)\n" +
+                            "and then run \"plutil -convert xml1 snippet.plist\" to convert each file.\n" +
+                            "To perform this for a directory tree, use this:\n\n" +
+                            "find . -name \"*.plist\" -exec plutil -convert xml1 {} \\;\n\n" +
+                            "(To change back, replace -convert xml1 with -convert binary1");
+                    return;
+                }
+                
                 log.append("Parsing error in \"" + file.getName() + "\"; skipping\n  " +
                     spe.getMessage());
 
@@ -429,7 +449,7 @@ public class TmBundleImport {
                         //for (; i < content.length(); i++) {
                         //    c = content.charAt(i);
                         //    if (c == '}') {
-                        //        sb.append('}');÷
+                        //        sb.append('}');
                         //        break;
                         //    }
                         //}
