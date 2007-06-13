@@ -26,8 +26,9 @@ public final class ServerBrowserVisualPanelStep1 extends JPanel {
         jLabelURL = new javax.swing.JLabel();
         jTextFieldURL = new javax.swing.JTextField();
 
-        org.openide.awt.Mnemonics.setLocalizedText(jLabelURL, "LDAP Server URL");
+        jLabelURL.setText(org.openide.util.NbBundle.getMessage(ServerBrowserVisualPanelStep1.class, "ServerBrowserVisualPanelStep1.jLabelURL.text")); // NOI18N
 
+        jTextFieldURL.setText(org.openide.util.NbBundle.getMessage(ServerBrowserVisualPanelStep1.class, "ServerBrowserVisualPanelStep1.jTextFieldURL.text")); // NOI18N
         jTextFieldURL.addPropertyChangeListener(new java.beans.PropertyChangeListener() {
             public void propertyChange(java.beans.PropertyChangeEvent evt) {
                 jTextFieldURLPropertyChange(evt);
@@ -38,21 +39,21 @@ public final class ServerBrowserVisualPanelStep1 extends JPanel {
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(layout.createSequentialGroup()
-                .addContainerGap()
-                .add(jLabelURL)
+            .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
+                .add(19, 19, 19)
+                .add(jLabelURL, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 104, Short.MAX_VALUE)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(jTextFieldURL, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 294, Short.MAX_VALUE)
+                .add(jTextFieldURL, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 263, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(layout.createSequentialGroup()
-                .addContainerGap()
+                .add(66, 66, 66)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(jLabelURL)
-                    .add(jTextFieldURL, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(269, Short.MAX_VALUE))
+                    .add(jTextFieldURL, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                    .add(jLabelURL))
+                .addContainerGap(215, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
 
