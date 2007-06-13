@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+The contents of this file are subject to the terms of the Common
+Development and Distribution License (the License). You may not use this
+file except in compliance with the License.  You can obtain a copy of the
+License at http://www.netbeans.org/cddl.html
+
+When distributing Covered Code, include this CDDL Header Notice in each
+file and include the License. If applicable, add the following below the
+CDDL Header, with the fields enclosed by brackets [] replaced by your own
+identifying information:
+"Portions Copyrighted [year] [name of copyright owner]"
+
+Copyright 2007 Sun Microsystems, Inc. All Rights Reserved
+-->
+<!--
+*** GENERATED FROM project.xml - DO NOT EDIT  ***
+***         EDIT ../build.xml INSTEAD         ***
+-->
+<project name="com.sun.tthub.gdelib-impl" basedir=".." xmlns:nbmproject="http://www.netbeans.org/ns/nb-module-project/2">
+    <property file="nbproject/private/suite-private.properties"/>
+    <property file="nbproject/suite.properties"/>
+    <fail unless="suite.dir">You must set 'suite.dir' to point to your containing module suite</fail>
+    <property file="${suite.dir}/nbproject/private/platform-private.properties"/>
+    <property file="${suite.dir}/nbproject/platform.properties"/>
+    <macrodef name="property" uri="http://www.netbeans.org/ns/nb-module-project/2">
+        <attribute name="name"/>
+        <attribute name="value"/>
+        <sequential>
+            <property name="@{name}" value="${@{value}}"/>
+        </sequential>
+    </macrodef>
+    <property file="${user.properties.file}"/>
+    <nbmproject:property name="harness.dir" value="nbplatform.${nbplatform.active}.harness.dir"/>
+    <nbmproject:property name="netbeans.dest.dir" value="nbplatform.${nbplatform.active}.netbeans.dest.dir"/>
+    <fail message="You must define 'nbplatform.${nbplatform.active}.harness.dir'">
+        <condition>
+            <not>
+                <available file="${harness.dir}" type="dir"/>
+            </not>
+        </condition>
+    </fail>
+    <import file="${harness.dir}/build.xml"/>
+</project>

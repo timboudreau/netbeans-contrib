@@ -1,0 +1,5 @@
+Manifest-Version: 1.0
+OpenIDE-Module: com.sun.tthub.gdelib
+OpenIDE-Module-Localizing-Bundle: com/sun/tthub/gdelib/Bundle.properties
+OpenIDE-Module-Specification-Version: 1.0
+
