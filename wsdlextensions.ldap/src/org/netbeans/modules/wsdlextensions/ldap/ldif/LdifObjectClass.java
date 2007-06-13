@@ -20,6 +20,7 @@ public class LdifObjectClass {
     private String mName;
     private String mDescription;
     private String mSuper;
+    private String mLadpUrl;
     private List mMust;
     private List mMay;
     private List mSelected;
@@ -38,6 +39,10 @@ public class LdifObjectClass {
     
     public void setSuper(String s) {
         mSuper = s;
+    }
+    
+    public void setLdapUrl(String s) {
+        mLadpUrl = s;
     }
     
     public void addMust(String m) {
@@ -74,6 +79,10 @@ public class LdifObjectClass {
     
     public String getSuper() {
         return mSuper;
+    }
+    
+    public String getLdapUrl() {
+        return mLadpUrl;
     }
     
     public List getMust() {

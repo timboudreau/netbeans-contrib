@@ -38,6 +38,7 @@ import org.netbeans.modules.wsdlextensions.ldap.ldif.LdifObjectClass;
  */
 public class ServerUtil {
     private static LdapContext mConnection = null;
+    private static String ldapUrl = null;
     
     private ServerUtil() {
     }
@@ -48,6 +49,7 @@ public class ServerUtil {
             env.put(Context.INITIAL_CONTEXT_FACTORY,"com.sun.jndi.ldap.LdapCtxFactory");
             env.put(Context.PROVIDER_URL, url);
             mConnection = new InitialLdapContext(env, null);
+            ldapUrl = url;
         } catch (Exception ex) {
             ex.printStackTrace();
         }
@@ -76,6 +78,7 @@ public class ServerUtil {
         Attribute name = atrs.get("NAME");
         NamingEnumeration nameValue = name.getAll();
         objClass.setName((String) nameValue.next());
+        objClass.setLdapUrl(ldapUrl);
         
         Attribute sup = atrs.get("SUP");
         if (sup != null) {

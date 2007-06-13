@@ -95,9 +95,9 @@ public class GenerateWSDL {
         ret += getTab(level) + "<binding name=\"" + tag + "Binding\" type=\"tns:" + tag + "PortType\">" + "\n";
         ret += getTab(level + 1) + "<ldap:binding/>" + "\n";
         ret += getTab(level + 1) + "<wsdl:operation name=\"" + tag + "Operation\">" + "\n";
-        ret += getTab(level + 2) + "<ldap:operation/>" + "\n";
+        ret += getTab(level + 2) + "<ldap:operation type=\"searchRequest\"/>" + "\n";
         ret += getTab(level + 2) + "<wsdl:input name=\"request\">" + "\n";
-        ret += getTab(level + 3) + "<ldap:input operationType=\"searchRequest\"/>" + "\n";
+        ret += getTab(level + 3) + "<ldap:input/>" + "\n";
         ret += getTab(level + 2) + "</wsdl:input>" + "\n";
         ret += getTab(level + 2) + "<wsdl:output name=\"reply\">" + "\n";
         ret += getTab(level + 3) + "<ldap:output returnPartName=\"reply\" attributes=\"\"/>" + "\n";
@@ -124,7 +124,7 @@ public class GenerateWSDL {
         
         ret += getTab(level) + "<service name=\"" + tag + "Service\">" + "\n";
         ret += getTab(level + 1) + "<wsdl:port name=\"port1\" binding=\"tns:" + tag + "Binding\">" + "\n";
-        ret += getTab(level + 2) + "<ldap:address location=\"\"/>" + "\n";
+        ret += getTab(level + 2) + "<ldap:address location=\""+mLdif.getLdapUrl()+"\""+"/>" + "\n";
         ret += getTab(level + 1) + "</wsdl:port>" + "\n";
         ret += getTab(level) + "</service>" + "\n";
 
@@ -148,6 +148,7 @@ public class GenerateWSDL {
         ret += generateMessages(1);
         ret += generatePortType(1);
         ret += generateBindings(1);
+        ret += generateService(1);
         ret += generatePLink(1);
         
         ret += "</definitions>" + "\n";

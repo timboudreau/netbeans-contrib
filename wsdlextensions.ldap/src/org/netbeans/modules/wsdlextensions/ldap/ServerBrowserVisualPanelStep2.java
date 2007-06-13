@@ -48,6 +48,7 @@ public final class ServerBrowserVisualPanelStep2 extends JPanel {
         jButtonSelect = new javax.swing.JButton();
         jButtonUnSelect = new javax.swing.JButton();
 
+        jListObjClass.setBorder(javax.swing.BorderFactory.createTitledBorder("namelist"));
         jListObjClass.setModel(new SortedListModel());
         jListObjClass.addListSelectionListener(new javax.swing.event.ListSelectionListener() {
             public void valueChanged(javax.swing.event.ListSelectionEvent evt) {

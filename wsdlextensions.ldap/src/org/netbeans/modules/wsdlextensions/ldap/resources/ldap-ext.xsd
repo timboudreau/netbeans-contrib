@@ -41,6 +41,15 @@
 	      	"operation" defines the ldap protocol based operation binding details..
 	      </xs:documentation>
 		</xs:annotation>
+                <xs:complexContent>
+			<xs:extension base="wsdl:tExtensibilityElement">				
+				<xs:attribute name="type" type="ldap:operationTypes" use="required">
+					<xs:annotation>
+						<xs:documentation>Defines the ldap operation type valid values are Search</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+			</xs:extension>
+		</xs:complexContent>
 	</xs:complexType>
 	
 	<xs:simpleType name="operationTypes">
@@ -57,15 +66,7 @@
 		</xs:annotation>
 	</xs:element>
 	<xs:complexType name="tInput">
-		<xs:complexContent>
-			<xs:extension base="wsdl:tExtensibilityElement">				
-				<xs:attribute name="operationType" type="ldap:operationTypes" use="required">
-					<xs:annotation>
-						<xs:documentation>Defines the ldap operation type valid values are Search</xs:documentation>
-					</xs:annotation>
-				</xs:attribute>
-			</xs:extension>
-		</xs:complexContent>
+		
 	</xs:complexType>	
 	<xs:element name="output" type="ldap:tOutput">
 		<xs:annotation>
