@@ -50,9 +50,9 @@ public class TestEncodingAction extends NodeAction {
     protected void performAction(Node[] node) {
         SchemaModel model;
         try {
-            model = ModelUtils.getSchemaModelFromNode(node[0], null);
-        } catch (IOException ex) {
-            ErrorManager.getDefault().notify(ex);
+            model = ModelUtils.getSchemaModelFromNode(node[0]);
+        } catch (IOException e) {
+            ErrorManager.getDefault().notify(e);
             return;
         }
         String xsdPath = ModelUtils.getFilePath(model);
@@ -116,10 +116,12 @@ public class TestEncodingAction extends NodeAction {
         if (node == null || node.length == 0 || node.length > 1) {
             return false;
         }
-        SchemaModel sm = null;
+        SchemaModel sm;
         try {
-            sm = ModelUtils.getSchemaModelFromNode(node[0], null);
-        } catch (IOException ex) {
+            sm = ModelUtils.getSchemaModelFromNode(node[0]);
+        } catch (IOException e) {
+            ErrorManager.getDefault().log(ErrorManager.EXCEPTION, e.toString());
+            return false;
         }
         if (sm == null) {
             return false;

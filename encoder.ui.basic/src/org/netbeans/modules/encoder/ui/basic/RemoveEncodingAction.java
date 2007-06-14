@@ -26,7 +26,6 @@ import java.io.IOException;
 import java.util.ResourceBundle;
 import javax.swing.JOptionPane;
 import javax.swing.text.Document;
-import org.netbeans.modules.xml.schema.core.SchemaDataObject;
 import org.netbeans.modules.xml.schema.model.SchemaModel;
 import org.netbeans.modules.xml.xam.locator.CatalogModelException;
 import org.openide.DialogDescriptor;
@@ -152,8 +151,7 @@ public class RemoveEncodingAction extends NodeAction {
         SchemaModel model = null;
         for (int nodeIndex = 0; nodeIndex < node.length; nodeIndex++) {
             try {
-                SchemaDataObject[] sdoReturned = new SchemaDataObject[1];
-                model = ModelUtils.getSchemaModelFromNode(node[nodeIndex], sdoReturned);
+                model = ModelUtils.getSchemaModelFromNode(node[nodeIndex]);
                 if (model == null) {
                     continue;
                 }
@@ -187,8 +185,11 @@ public class RemoveEncodingAction extends NodeAction {
         }
         SchemaModel sm = null;
         try {
-            sm = ModelUtils.getSchemaModelFromNode(node[0], null);
+	    sm = ModelUtils.getSchemaModelFromNode(node[0]);
         } catch (IOException ex) {
+            ErrorManager.getDefault().log(ErrorManager.EXCEPTION,
+                    ex.toString());
+            return false;
         }
         boolean writable = ModelUtils.isModelWritable(sm);
         if (!writable) {

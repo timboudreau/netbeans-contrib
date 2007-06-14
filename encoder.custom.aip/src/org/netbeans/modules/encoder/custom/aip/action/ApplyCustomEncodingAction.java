@@ -37,7 +37,6 @@ import org.netbeans.modules.encoder.ui.basic.ModelVisitor;
 import org.netbeans.modules.encoder.ui.basic.ModelVisitorException;
 import org.netbeans.modules.encoder.ui.basic.ProgressDialog;
 import org.netbeans.modules.encoder.ui.basic.Utils;
-import org.netbeans.modules.xml.schema.core.SchemaDataObject;
 import org.netbeans.modules.xml.schema.model.SchemaModel;
 import org.netbeans.modules.xml.xam.locator.CatalogModelException;
 import org.openide.DialogDescriptor;
@@ -167,8 +166,7 @@ public class ApplyCustomEncodingAction extends NodeAction {
         SchemaModel model = null;
         for (int nodeIndex = 0; nodeIndex < node.length; nodeIndex++) {
             try {
-                SchemaDataObject[] sdoReturned = new SchemaDataObject[1];
-                model = ModelUtils.getSchemaModelFromNode(node[nodeIndex], sdoReturned);
+                model = ModelUtils.getSchemaModelFromNode(node[nodeIndex]);
                 if (model == null) {
                     continue;
                 }
@@ -205,8 +203,11 @@ public class ApplyCustomEncodingAction extends NodeAction {
         }
         SchemaModel sm = null;
         try {
-            sm = ModelUtils.getSchemaModelFromNode(node[0], null);
+	    sm = ModelUtils.getSchemaModelFromNode(node[0]);
         } catch (IOException ex) {
+            ErrorManager.getDefault().log(ErrorManager.EXCEPTION,
+                    ex.toString());
+            return false;
         }
         boolean writable = ModelUtils.isModelWritable(sm);
         if (!writable) {

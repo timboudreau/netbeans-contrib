@@ -28,15 +28,13 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import javax.swing.text.Document;
-import javax.swing.text.StyledDocument;
-import org.netbeans.modules.xml.schema.core.SchemaDataObject;
-import org.netbeans.modules.xml.schema.core.SchemaEditorSupport;
 import org.netbeans.modules.xml.schema.model.Annotation;
 import org.netbeans.modules.xml.schema.model.AppInfo;
 import org.netbeans.modules.xml.schema.model.GlobalElement;
 import org.netbeans.modules.xml.schema.model.Schema;
 import org.netbeans.modules.xml.schema.model.SchemaModel;
 import org.netbeans.modules.xml.schema.model.SchemaModelReference;
+import org.netbeans.modules.xml.schema.ui.basic.SchemaModelCookie;
 import org.netbeans.modules.xml.xam.Model;
 import org.netbeans.modules.xml.xam.ModelSource;
 import org.netbeans.modules.xml.xam.locator.CatalogModelException;
@@ -61,30 +59,18 @@ public class ModelUtils {
      * Gets the schema model from a XSD node.  This method is copied from
      * <code>org.netbeans.modules.xml.schema.core.actions.SchemaTransformAction</code>.
      * @param node the XSD Node instance
-     * @param sdoReturned returns the SchemaDataObject instance in the first element of the array
-     *          if this parameter is not null and its length is greater than 0
      * @return the schema model if the node has one, otherwise null
      */
-    public static SchemaModel getSchemaModelFromNode(final Node node,
-            SchemaDataObject[] sdoReturned) throws IOException {
+    public static SchemaModel getSchemaModelFromNode(final Node node)
+            throws IOException {
         if(node == null)
             return null;
         
-        SchemaDataObject sdo = (SchemaDataObject) node.getLookup().lookup(
-                SchemaDataObject.class);
-        if (sdo != null){
-            SchemaEditorSupport editor = sdo.getSchemaEditorSupport();
-            SchemaModel model = null;
-            if (editor != null) {
-                model = editor.getModel();
-                StyledDocument doc = editor.getDocument();
-            }
-            if (sdoReturned != null && sdoReturned.length > 0) {
-                sdoReturned[0] = sdo;
-            }
-            return model;
-        }
-        return null;
+        DataObject dobj = node.getCookie(DataObject.class);
+        SchemaModelCookie modelCookie =
+                dobj.getCookie(SchemaModelCookie.class);
+        
+        return modelCookie.getModel();
     }
 
     /**
