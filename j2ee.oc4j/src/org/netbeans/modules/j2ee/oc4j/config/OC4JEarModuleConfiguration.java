@@ -28,10 +28,10 @@ import org.netbeans.modules.j2ee.deployment.common.api.ConfigurationException;
 import org.netbeans.modules.j2ee.deployment.devmodules.api.J2eeModule;
 import org.netbeans.modules.j2ee.deployment.plugins.spi.config.DeploymentPlanConfiguration;
 import org.netbeans.modules.j2ee.oc4j.config.gen.OrionApplication;
-import org.openide.ErrorManager;
 import org.openide.filesystems.FileUtil;
 import org.openide.loaders.DataObject;
 import org.openide.loaders.DataObjectNotFoundException;
+import org.openide.util.Exceptions;
 
 /**
  * EAR application deployment configuration handles orion-application.xml configuration
@@ -64,7 +64,7 @@ public class OC4JEarModuleConfiguration extends OC4JModuleConfiguration
                 deploymentDescriptorDO = deploymentDescriptorDO.find(FileUtil.toFileObject(orionApplicationFile));
                 deploymentDescriptorDO.addPropertyChangeListener(this);
             } catch(DataObjectNotFoundException donfe) {
-                ErrorManager.getDefault().notify(donfe);
+                Exceptions.printStackTrace(donfe);
             }
         }
     }
@@ -112,7 +112,7 @@ public class OC4JEarModuleConfiguration extends OC4JModuleConfiguration
                     try {
                         orionApplication = orionApplication.createGraph(orionApplicationFile);
                     } catch (IOException ioe) {
-                        ErrorManager.getDefault().notify(ioe);
+                        Exceptions.printStackTrace(ioe);
                     } catch (RuntimeException re) {
                         // orion-application.xml is not parseable, do nothing
                     }
@@ -122,7 +122,7 @@ public class OC4JEarModuleConfiguration extends OC4JModuleConfiguration
                     OC4JResourceConfigurationHelper.writefile(orionApplicationFile, orionApplication);
                 }
             } catch (ConfigurationException ce) {
-                ErrorManager.getDefault().notify(ce);
+                Exceptions.printStackTrace(ce);
             }
         }
         return orionApplication;

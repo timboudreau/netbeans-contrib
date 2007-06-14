@@ -25,6 +25,8 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.JComponent;
 import javax.swing.SwingUtilities;
 import javax.swing.event.ChangeEvent;
@@ -34,7 +36,6 @@ import org.netbeans.modules.j2ee.deployment.plugins.api.InstanceProperties;
 import org.netbeans.modules.j2ee.oc4j.OC4JDeploymentFactory;
 import org.netbeans.modules.j2ee.oc4j.util.OC4JPluginUtils;
 import org.openide.DialogDisplayer;
-import org.openide.ErrorManager;
 import org.openide.NotifyDescriptor;
 import org.openide.WizardDescriptor;
 import org.openide.util.NbBundle;
@@ -115,7 +116,7 @@ public class OC4JInstantiatingIterator implements WizardDescriptor.Instantiating
             OC4JPluginUtils.registerOracleJdbcDriver(oc4jHomeLocation);
         } catch (InstanceCreationException e){
             showInformation(e.getLocalizedMessage(), NbBundle.getMessage(AddServerPropertiesVisualPanel.class, "MSG_INSTANCE_REGISTRATION_FAILED")); //NOI18N
-            ErrorManager.getDefault().log(ErrorManager.EXCEPTION, e.getMessage());
+            Logger.getLogger("global").log(Level.SEVERE, e.getMessage());
         }
         
         return result;

@@ -21,7 +21,8 @@ package org.netbeans.modules.j2ee.oc4j.nodes.actions;
 
 import java.net.MalformedURLException;
 import java.net.URL;
-import org.openide.ErrorManager;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.openide.awt.HtmlBrowser.URLDisplayer;
 import org.openide.nodes.Node;
 import org.openide.util.HelpCtx;
@@ -43,7 +44,7 @@ public class OpenURLAction extends NodeAction {
                 try {
                     URLDisplayer.getDefault().showURL(new URL(oCookie.getWebURL()));
                 } catch (MalformedURLException e) {
-                    ErrorManager.getDefault().notify(ErrorManager.INFORMATIONAL, e);
+                    Logger.getLogger("global").log(Level.INFO, null, e);
                 }
             }
         }

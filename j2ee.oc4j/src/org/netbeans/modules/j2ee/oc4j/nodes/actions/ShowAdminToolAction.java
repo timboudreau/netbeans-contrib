@@ -21,10 +21,11 @@ package org.netbeans.modules.j2ee.oc4j.nodes.actions;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.netbeans.modules.j2ee.deployment.plugins.api.InstanceProperties;
 import org.netbeans.modules.j2ee.oc4j.nodes.OC4JInstanceNode;
 import org.netbeans.modules.j2ee.oc4j.util.OC4JPluginProperties;
-import org.openide.ErrorManager;
 import org.openide.nodes.Node;
 import org.openide.util.HelpCtx;
 import org.openide.util.NbBundle;
@@ -52,12 +53,15 @@ public class ShowAdminToolAction extends CookieAction {
         
         for (int i = 0; i < nodes.length; i++) {
             Object node = nodes[i].getLookup().lookup(OC4JInstanceNode.class);
+
             if (node instanceof OC4JInstanceNode) {
                 try {
                     URL url = new URL(((OC4JInstanceNode) node).getAdminURL());
+
                     URLDisplayer.getDefault().showURL(url);
-                } catch (MalformedURLException ex) {
-                    ErrorManager.getDefault().notify(ErrorManager.INFORMATIONAL, ex);
+                }
+                catch (MalformedURLException ex) {
+                    Logger.getLogger("global").log(Level.INFO, null, ex);
                 }
             }
         }

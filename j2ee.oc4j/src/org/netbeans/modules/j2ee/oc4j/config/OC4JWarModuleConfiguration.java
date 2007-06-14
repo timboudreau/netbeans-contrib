@@ -33,13 +33,13 @@ import org.netbeans.modules.j2ee.deployment.plugins.spi.config.ContextRootConfig
 import org.netbeans.modules.j2ee.deployment.plugins.spi.config.DeploymentPlanConfiguration;
 import org.netbeans.modules.j2ee.oc4j.config.gen.OrionWebApp;
 import org.openide.DialogDisplayer;
-import org.openide.ErrorManager;
 import org.openide.NotifyDescriptor;
 import org.openide.cookies.EditorCookie;
 import org.openide.cookies.SaveCookie;
 import org.openide.filesystems.FileUtil;
 import org.openide.loaders.DataObject;
 import org.openide.loaders.DataObjectNotFoundException;
+import org.openide.util.Exceptions;
 import org.openide.util.NbBundle;
 
 /**
@@ -75,7 +75,7 @@ public class OC4JWarModuleConfiguration extends OC4JModuleConfiguration
                 deploymentDescriptorDO = deploymentDescriptorDO.find(FileUtil.toFileObject(orionWebFile));
                 deploymentDescriptorDO.addPropertyChangeListener(this);
             } catch(DataObjectNotFoundException donfe) {
-                ErrorManager.getDefault().notify(donfe);
+                Exceptions.printStackTrace(donfe);
             }
         }
     }
@@ -177,7 +177,7 @@ public class OC4JWarModuleConfiguration extends OC4JModuleConfiguration
                     try {
                         orionWebApp = OrionWebApp.createGraph(orionWebFile);
                     } catch (IOException ioe) {
-                        ErrorManager.getDefault().notify(ioe);
+                        Exceptions.printStackTrace(ioe);
                     } catch (RuntimeException re) {
                         // orion-web.xml is not parseable, do nothing
                     }
@@ -187,7 +187,7 @@ public class OC4JWarModuleConfiguration extends OC4JModuleConfiguration
                     OC4JResourceConfigurationHelper.writefile(orionWebFile, orionWebApp);
                 }
             } catch (ConfigurationException ce) {
-                ErrorManager.getDefault().notify(ce);
+                Exceptions.printStackTrace(ce);
             }
         }
         

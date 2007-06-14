@@ -20,12 +20,13 @@
 package org.netbeans.modules.j2ee.oc4j.nodes;
 
 import java.util.Vector;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.enterprise.deploy.shared.ModuleType;
 import javax.enterprise.deploy.spi.TargetModuleID;
 import org.netbeans.modules.j2ee.oc4j.OC4JDeploymentManager;
 import org.netbeans.modules.j2ee.oc4j.nodes.actions.Refreshable;
 import org.netbeans.modules.j2ee.oc4j.util.OC4JPluginUtils;
-import org.openide.ErrorManager;
 import org.openide.nodes.Children;
 import org.openide.nodes.Node;
 import org.openide.util.Lookup;
@@ -65,9 +66,8 @@ public class OC4JJ2EEApplicationsChildren extends Children.Keys implements Refre
                         }
                     }
                 } catch (Exception ex) {
-                    ErrorManager.getDefault().notify(ErrorManager.INFORMATIONAL, ex);
+                    Logger.getLogger("global").log(Level.INFO, null, ex);
                 }
-                
                 setKeys(keys);
             }
         }, 0);

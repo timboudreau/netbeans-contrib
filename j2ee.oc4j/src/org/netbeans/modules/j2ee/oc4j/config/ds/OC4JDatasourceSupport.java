@@ -37,7 +37,6 @@ import org.netbeans.modules.j2ee.oc4j.config.gen.DataSources;
 import org.netbeans.modules.j2ee.oc4j.config.gen.ManagedDataSource;
 import org.netbeans.modules.j2ee.oc4j.config.gen.NativeDataSource;
 import org.openide.DialogDisplayer;
-import org.openide.ErrorManager;
 import org.openide.NotifyDescriptor;
 import org.openide.cookies.EditorCookie;
 import org.openide.cookies.SaveCookie;
@@ -47,7 +46,9 @@ import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
 import org.openide.loaders.DataObject;
 import org.openide.loaders.DataObjectNotFoundException;
+import org.openide.util.Exceptions;
 import org.openide.util.NbBundle;
+import sun.jdbc.odbc.ee.ConnectionPool;
 
 /**
  * Support class for Datasource management
@@ -79,7 +80,7 @@ public class OC4JDatasourceSupport {
             try {
                 ensureDatasourcesFOExists();
             } catch (DataObjectNotFoundException donfe) {
-                ErrorManager.getDefault().notify(donfe);
+                Exceptions.printStackTrace(donfe);
             }
         }
     }
@@ -246,7 +247,7 @@ public class OC4JDatasourceSupport {
             datasources = newDatasources;
             
         } catch(DataObjectNotFoundException donfe) {
-            ErrorManager.getDefault().notify(donfe);
+            Exceptions.printStackTrace(donfe);
         } catch (BadLocationException ble) {
             throw new ConfigurationException(ble.getMessage(), ble);
         } catch (IOException ioe) {
@@ -281,7 +282,7 @@ public class OC4JDatasourceSupport {
                     if (datasources == null)
                         datasources = DataSources.createGraph(datasourcesFile);
                 } catch (IOException ioe) {
-                    ErrorManager.getDefault().notify(ioe);
+                    Exceptions.printStackTrace(ioe);
                 } catch (RuntimeException re) {
                     // jboss-ds.xml is not parseable, do nothing
                 }
@@ -292,7 +293,7 @@ public class OC4JDatasourceSupport {
                 OC4JResourceConfigurationHelper.writefile(datasourcesFile, datasources);
             }
         } catch (ConfigurationException ce) {
-            ErrorManager.getDefault().notify(ce);
+            Exceptions.printStackTrace(ce);
         }
         
         return datasources;

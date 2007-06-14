@@ -31,6 +31,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.enterprise.deploy.spi.TargetModuleID;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.xpath.XPath;
@@ -48,7 +50,6 @@ import org.netbeans.modules.j2ee.oc4j.OC4JDeploymentManager;
 import org.netbeans.modules.j2ee.oc4j.ide.OC4JErrorManager;
 import org.netbeans.modules.web.api.webmodule.WebModule;
 import org.openide.DialogDisplayer;
-import org.openide.ErrorManager;
 import org.openide.NotifyDescriptor;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
@@ -143,7 +144,7 @@ public class OC4JPluginUtils {
             Element rootElement = document.getDocumentElement();
             httpPort = Integer.parseInt(rootElement.getAttributes().getNamedItem("port").getNodeValue()); // NOI18N
         } catch(Exception ex) {
-            ErrorManager.getDefault().notify(ErrorManager.INFORMATIONAL, ex);
+            Logger.getLogger("global").log(Level.INFO, null, ex);
         }
         return httpPort;
     }
@@ -165,7 +166,7 @@ public class OC4JPluginUtils {
             Element rootElement = document.getDocumentElement();
             adminPort = Integer.parseInt(rootElement.getAttributes().getNamedItem("port").getNodeValue()); // NOI18N
         } catch(Exception ex) {
-            ErrorManager.getDefault().notify(ErrorManager.INFORMATIONAL, ex);
+            Logger.getLogger("global").log(Level.INFO, null, ex);
         }
         return adminPort;
     }
@@ -196,7 +197,7 @@ public class OC4JPluginUtils {
             for(int i=0;i<nodes.getLength();i++)
                 users.add(nodes.item(i).getNodeValue());
         } catch(Exception ex) {
-            ErrorManager.getDefault().notify(ErrorManager.INFORMATIONAL, ex);
+            Logger.getLogger("global").log(Level.INFO, null, ex);
         }
         
         return users;
@@ -221,7 +222,7 @@ public class OC4JPluginUtils {
             
             return true;
         } catch(Exception ex) {
-            ErrorManager.getDefault().notify(ErrorManager.INFORMATIONAL, ex);
+            Logger.getLogger("global").log(Level.INFO, null, ex);
         }
         
         return false;
@@ -265,7 +266,7 @@ public class OC4JPluginUtils {
             
             return true;
         } catch(Exception ex) {
-            ErrorManager.getDefault().notify(ErrorManager.INFORMATIONAL, ex);
+            Logger.getLogger("global").log(Level.INFO, null, ex);
         }
         
         return false;
@@ -304,7 +305,7 @@ public class OC4JPluginUtils {
                 }
             }
         }catch(Exception e){
-            ErrorManager.getDefault().notify(ErrorManager.INFORMATIONAL, e);
+            Logger.getLogger("global").log(Level.INFO, null, e);
         }
         return paths;
     }
@@ -341,7 +342,7 @@ public class OC4JPluginUtils {
                     list.add(fileToUrl(file));
             }
         } catch(MalformedURLException ex) {
-            ErrorManager.getDefault().notify(ErrorManager.INFORMATIONAL, ex);
+            Logger.getLogger("global").log(Level.INFO, null, ex);
         }
         
         URL[] urls = list.toArray(new URL[list.size()]);

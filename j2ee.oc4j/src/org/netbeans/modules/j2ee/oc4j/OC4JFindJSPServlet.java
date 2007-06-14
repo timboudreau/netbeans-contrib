@@ -20,11 +20,12 @@
 package org.netbeans.modules.j2ee.oc4j;
 
 import java.io.File;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.enterprise.deploy.shared.ModuleType;
 import javax.enterprise.deploy.spi.TargetModuleID;
 import org.netbeans.modules.j2ee.deployment.plugins.spi.FindJSPServlet;
 import org.netbeans.modules.j2ee.oc4j.util.OC4JPluginProperties;
-import org.openide.ErrorManager;
 
 /**
  *
@@ -54,7 +55,7 @@ public class OC4JFindJSPServlet implements FindJSPServlet {
                 }
             }
         } catch(Exception ex) {
-            ErrorManager.getDefault().notify(ErrorManager.INFORMATIONAL, ex);
+            Logger.getLogger("global").log(Level.INFO, null, ex);
         }
         return null;
     }

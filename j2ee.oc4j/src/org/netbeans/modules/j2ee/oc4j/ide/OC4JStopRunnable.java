@@ -23,6 +23,8 @@ import java.io.File;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.enterprise.deploy.shared.ActionType;
 import javax.enterprise.deploy.shared.CommandType;
 import javax.enterprise.deploy.shared.StateType;
@@ -32,7 +34,6 @@ import org.netbeans.modules.j2ee.oc4j.OC4JDeploymentManager;
 import org.netbeans.modules.j2ee.oc4j.util.OC4JPluginProperties;
 import org.netbeans.modules.j2ee.oc4j.util.OC4JDebug;
 import org.netbeans.modules.j2ee.oc4j.util.OC4JPluginUtils;
-import org.openide.ErrorManager;
 import org.openide.execution.NbProcessDescriptor;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
@@ -152,7 +153,7 @@ class OC4JStopRunnable implements Runnable {
         try {
             return pd.exec(null, createEnvironment(), true, new File(ip.getProperty(OC4JPluginProperties.PROPERTY_OC4J_HOME)));
         } catch (java.io.IOException ioe) {
-            ErrorManager.getDefault().notify(ErrorManager.INFORMATIONAL, ioe);
+            Logger.getLogger("global").log(Level.INFO, null, ioe);
             fireStartProgressEvent(StateType.FAILED, createProgressMessage("MSG_STOP_SERVER_FAILED_PD"));
             return null;
         }

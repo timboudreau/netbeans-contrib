@@ -19,16 +19,16 @@
 
 package org.netbeans.modules.j2ee.oc4j;
 
-import javax.enterprise.deploy.shared.factories.DeploymentFactoryManager;
 import javax.enterprise.deploy.spi.DeploymentManager;
 import javax.enterprise.deploy.spi.exceptions.DeploymentManagerCreationException;
 import javax.enterprise.deploy.spi.factories.DeploymentFactory;
 import org.openide.util.NbBundle;
 import java.util.HashMap;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.netbeans.modules.j2ee.deployment.plugins.api.InstanceProperties;
 import org.netbeans.modules.j2ee.oc4j.util.OC4JDebug;
 import org.netbeans.modules.j2ee.oc4j.util.OC4JPluginProperties;
-import org.openide.ErrorManager;
 import org.openide.util.NbPreferences;
 
 /**
@@ -132,11 +132,11 @@ public class OC4JDeploymentFactory implements DeploymentFactory {
                         "oracle.oc4j.admin.deploy.spi.factories.Oc4jDeploymentFactory"). // NOI18N
                         newInstance();
             } catch (ClassNotFoundException e) {
-                ErrorManager.getDefault().notify(ErrorManager.ERROR, e);
+                Logger.getLogger("global").log(Level.SEVERE, null, e);
             } catch (InstantiationException e) {
-                ErrorManager.getDefault().notify(ErrorManager.ERROR, e);
+                Logger.getLogger("global").log(Level.SEVERE, null, e);
             } catch (IllegalAccessException e) {
-                ErrorManager.getDefault().notify(ErrorManager.ERROR, e);
+                Logger.getLogger("global").log(Level.SEVERE, null, e);
             } finally {
                 OC4JClassLoader.getInstance(serverRoot).restoreLoader();
             }

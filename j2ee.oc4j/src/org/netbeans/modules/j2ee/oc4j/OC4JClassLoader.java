@@ -27,7 +27,8 @@ import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
-import org.openide.ErrorManager;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -94,7 +95,7 @@ public class OC4JClassLoader extends URLClassLoader {
                 addURL(urls[i]);
             }
         }catch(Exception e) {
-            ErrorManager.getDefault().notify(ErrorManager.EXCEPTION, e);
+            Logger.getLogger("global").log(Level.WARNING, null, e);
         }
     }
     

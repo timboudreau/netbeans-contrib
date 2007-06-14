@@ -28,6 +28,8 @@ import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Map;
 import java.util.Vector;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.enterprise.deploy.model.DeployableObject;
 import javax.enterprise.deploy.shared.ActionType;
 import javax.enterprise.deploy.shared.CommandType;
@@ -69,7 +71,6 @@ import org.netbeans.modules.j2ee.oc4j.util.OC4JPluginProperties;
 import org.netbeans.modules.j2ee.oc4j.util.OC4JDebug;
 import org.netbeans.modules.j2ee.oc4j.util.OC4JPluginUtils;
 import org.netbeans.modules.web.api.webmodule.WebModule;
-import org.openide.ErrorManager;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
 import org.openide.filesystems.JarFileSystem;
@@ -195,11 +196,11 @@ public class OC4JDeploymentManager implements DeploymentManager, ProgressObject,
                         module_id.addChild(mod_id);
                     }
                 } else {
-                    ErrorManager.getDefault().log("Cannot file META-INF/application.xml in " + file); // NOI18N
+                    Logger.getLogger("global").log(Level.INFO, "Cannot file META-INF/application.xml in " + file); // NOI18N
                 }
             }
         } catch (Exception e){
-            ErrorManager.getDefault().notify(ErrorManager.INFORMATIONAL, e);
+            Logger.getLogger("global").log(Level.INFO, null, e);
         }
         
         command = COMMAND.DEPLOY;
@@ -647,17 +648,17 @@ public class OC4JDeploymentManager implements DeploymentManager, ProgressObject,
                 Object arglist[] = {uri, getUsername(), getPassword()};
                 oc4jPropDm = ct.newInstance(arglist);
             } catch (NoSuchMethodException e) {
-                ErrorManager.getDefault().notify(ErrorManager.ERROR, e);
+                Logger.getLogger("global").log(Level.SEVERE, null, e);
             } catch (ClassNotFoundException e) {
-                ErrorManager.getDefault().notify(ErrorManager.ERROR, e);
+                Logger.getLogger("global").log(Level.SEVERE, null, e);
             } catch (InstantiationException e) {
-                ErrorManager.getDefault().notify(ErrorManager.ERROR, e);
+                Logger.getLogger("global").log(Level.SEVERE, null, e);
             } catch (IllegalAccessException e) {
-                ErrorManager.getDefault().notify(ErrorManager.ERROR, e);
+                Logger.getLogger("global").log(Level.SEVERE, null, e);
             } catch (InvocationTargetException e) {
-                ErrorManager.getDefault().notify(ErrorManager.ERROR, e);
+                Logger.getLogger("global").log(Level.SEVERE, null, e);
             } catch (Exception e) {
-                ErrorManager.getDefault().notify(ErrorManager.ERROR, e);
+                Logger.getLogger("global").log(Level.SEVERE, null, e);
             } finally {
                 OC4JClassLoader.getInstance(getProperties().getOC4JHomeLocation()).restoreLoader();
             }

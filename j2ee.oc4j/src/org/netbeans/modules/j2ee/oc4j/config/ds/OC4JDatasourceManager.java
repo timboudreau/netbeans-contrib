@@ -25,6 +25,8 @@ import java.io.IOException;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.enterprise.deploy.spi.DeploymentManager;
 import javax.management.MBeanServerConnection;
 import javax.management.ObjectInstance;
@@ -40,10 +42,10 @@ import org.netbeans.modules.j2ee.oc4j.config.gen.ManagedDataSource;
 import org.netbeans.modules.j2ee.oc4j.config.gen.NativeDataSource;
 import org.netbeans.modules.j2ee.oc4j.ide.OC4JErrorManager;
 import org.netbeans.modules.j2ee.oc4j.util.OC4JPluginUtils;
-import org.openide.ErrorManager;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
 import org.openide.util.NbBundle;
+import sun.jdbc.odbc.ee.ConnectionPool;
 
 /**
  *
@@ -302,8 +304,7 @@ public class OC4JDatasourceManager implements DatasourceManager {
         Set<Datasource> globalDS = new HashSet<Datasource>();
         
         if (serverDir == null || !serverDir.isValid() || !serverDir.isFolder() || !serverDir.canRead()) {
-            ErrorManager.getDefault().log(ErrorManager.USER,
-                    NbBundle.getMessage(OC4JDatasourceManager.class, "ERR_WRONG_DEPLOY_DIR"));
+            Logger.getLogger("global").log(Level.WARNING,  NbBundle.getMessage(OC4JDatasourceManager.class, "ERR_WRONG_DEPLOY_DIR"));
             return globalDS;
         }
         
@@ -343,7 +344,7 @@ public class OC4JDatasourceManager implements DatasourceManager {
                     }
                 }
             } catch(IOException ex) {
-                ErrorManager.getDefault().log(ErrorManager.INFORMATIONAL, ex.getMessage());
+                Logger.getLogger("global").log(Level.INFO, ex.getMessage());
             }
         }
         

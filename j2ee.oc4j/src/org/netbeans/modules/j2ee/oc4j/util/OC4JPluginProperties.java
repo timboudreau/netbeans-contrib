@@ -27,13 +27,14 @@ import java.net.Socket;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.netbeans.api.java.platform.JavaPlatform;
 import org.netbeans.api.java.platform.JavaPlatformManager;
 import org.netbeans.api.java.platform.Specification;
 import org.netbeans.modules.j2ee.deployment.plugins.api.InstanceProperties;
 import org.netbeans.modules.j2ee.oc4j.OC4JDeploymentManager;
 import org.netbeans.modules.j2ee.oc4j.customizer.OC4JCustomizerSupport;
-import org.openide.ErrorManager;
 import org.openide.filesystems.FileUtil;
 import org.openide.modules.InstalledFileLocator;
 
@@ -108,7 +109,7 @@ public class OC4JPluginProperties {
                     list.add(OC4JPluginUtils.fileToUrl(file));
             }
         } catch(MalformedURLException ex) {
-            ErrorManager.getDefault().notify(ErrorManager.INFORMATIONAL, ex);
+            Logger.getLogger("global").log(Level.INFO, null, ex);
         }
         return list;
     }
@@ -123,7 +124,7 @@ public class OC4JPluginProperties {
                     list.add(OC4JPluginUtils.fileToUrl(j2eeDoc));
                 }
             } catch (MalformedURLException e) {
-                ErrorManager.getDefault().notify(ErrorManager.INFORMATIONAL, e);
+                Logger.getLogger("global").log(Level.INFO, null, e);
             }
             return list;
         }

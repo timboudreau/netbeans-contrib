@@ -19,7 +19,6 @@
 
 package org.netbeans.modules.j2ee.oc4j.nodes.actions;
 
-import org.netbeans.modules.j2ee.oc4j.nodes.OC4JItemNode;
 import org.openide.nodes.Node;
 import org.openide.util.HelpCtx;
 import org.openide.util.NbBundle;
