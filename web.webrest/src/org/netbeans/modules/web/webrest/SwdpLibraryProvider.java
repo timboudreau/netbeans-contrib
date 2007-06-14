@@ -31,6 +31,8 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.netbeans.modules.j2ee.deployment.common.api.J2eeLibraryTypeProvider;
 import org.netbeans.modules.j2ee.deployment.devmodules.api.Deployment;
 import org.netbeans.modules.j2ee.deployment.devmodules.api.J2eePlatform;
@@ -38,7 +40,6 @@ import org.netbeans.modules.websvc.rest.spi.RestSupport;
 import org.netbeans.spi.project.libraries.LibraryImplementation;
 import org.netbeans.spi.project.libraries.LibraryProvider;
 import org.netbeans.spi.project.libraries.support.LibrariesSupport;
-import org.openide.ErrorManager;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
 import org.openide.util.NbBundle;
@@ -153,7 +154,7 @@ public class SwdpLibraryProvider implements LibraryProvider {
                     URL url = file.getURL();
                     resultJars.put(name, url);
                 } catch (IOException ioe) {
-                    ErrorManager.getDefault().notify(ErrorManager.INFORMATIONAL, ioe);
+                    Logger.getLogger("global").log(Level.INFO, null, ioe);
                 }
             }
         }

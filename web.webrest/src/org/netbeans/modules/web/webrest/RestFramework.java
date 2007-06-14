@@ -22,15 +22,15 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.netbeans.api.project.FileOwnerQuery;
 import org.netbeans.api.project.Project;
-import org.netbeans.api.project.libraries.Library;
 import org.netbeans.modules.j2ee.deployment.devmodules.spi.J2eeModuleProvider;
 import org.netbeans.modules.web.api.webmodule.WebModule;
 import org.netbeans.modules.web.spi.webmodule.FrameworkConfigurationPanel;
 import org.netbeans.modules.web.spi.webmodule.WebFrameworkProvider;
 import org.netbeans.modules.websvc.rest.spi.RestSupport;
-import org.openide.ErrorManager;
 import org.openide.filesystems.FileObject;
 import org.openide.util.NbBundle;
 
@@ -69,7 +69,7 @@ public class RestFramework extends WebFrameworkProvider {
             try {
                rs.ensureRestDevelopmentReady();
             } catch(IOException ioe) {
-               ErrorManager.getDefault().notify(ErrorManager.INFORMATIONAL, ioe);
+               Logger.getLogger("global").log(Level.INFO, null, ioe);
             }
         }
         return Collections.EMPTY_SET;
