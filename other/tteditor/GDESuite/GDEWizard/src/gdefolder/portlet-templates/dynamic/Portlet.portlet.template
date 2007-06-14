@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+The contents of this file are subject to the terms of the Common
+Development and Distribution License (the License). You may not use this
+file except in compliance with the License.  You can obtain a copy of the
+License at http://www.netbeans.org/cddl.html
+
+When distributing Covered Code, include this CDDL Header Notice in each
+file and include the License. If applicable, add the following below the
+CDDL Header, with the fields enclosed by brackets [] replaced by your own
+identifying information:
+"Portions Copyrighted [year] [name of copyright owner]"
+
+Copyright 2007 Sun Microsystems, Inc. All Rights Reserved
+-->
+
+<portlet>
+    <!-- The description element is used to provide text
+    describing the portlet. This is optional.
+    <description></discription> -->
+
+    <!-- The init-param element contains a name/value pair as an
+    initialization param of the portlet. This is optional.
+    <init-param>
+    <description></description>
+        <name></name>
+    <value></value>
+    </init-param> -->
+
+    <!--Specifies the portlet name, this is required-->
+    <portlet-name>__GDEPORTLETNAME__</portlet-name>
+
+    <!--display-name specifies the name that is intended to be
+    displayed by tools. This is not-required-->
+    <display-name>__GDEPORTLETNAME__</display-name>
+
+    <!--portlet-class pecifies the portlet class name, this is
+    required. -->
+    <portlet-class>__GDEPACKAGE__.__GDEPORTLETNAME__</portlet-class>
+
+    <!--expriation-cache defines expiration-based caching for this
+    portlet. The parameter indicates the time in seconds after
+    which the portlet output expires. -1 indicates that the output 
+    never expires.-->
+    <expiration-cache>0</expiration-cache>
+
+    <!--supports indicates the portlet modes that the portlet
+    supports for a specific content type. All portlets must 
+    support the view mode. There could be 1 or more supports bags, 
+    each specifies a different mime-type. -->
+
+    <supports>
+        <!--MIME type name, e.g. "text/html". This is required
+        inside the supports element. -->
+        <mime-type>text/html</mime-type>
+
+        <!--Specifies the portlet modes, there could be 0 or more 
+        portlet-mode elements. The specification pre-defines the 
+        following values as valid portlet mode constants: CONFIG, 
+        EDIT, HELP, VIEW. If the view mode is not presented, the
+        portlets still need to support it. -->
+        <portlet-mode>EDIT</portlet-mode>
+        <portlet-mode>HELP</portlet-mode>
+    </supports>
+
+
+
+    <!-- Indicated the locales the portlet
+    supports. This is optional.
+    <supported-locale><supported-locale> -->
+
+    <!-- Filename of the resource bundle containing the
+    language specific portlet informations in different
+    languages. This is optional.
+    <resource-bundle></resource-bundle> -->
+
+    <!-- Provides information for the portlet. portlet-info is a
+    required element. portlet-info can either be specified directely
+    in the deployment descriptor, or in a resource bundle file.-->
+    <portlet-info>
+        <!--title of the portlet. Excactly one title needs to be 
+        specified if portlet-info is provided directly in the 
+        deployment descriptor.-->
+        <title>__GDEPORTLETNAME__</title>
+
+        <!--Locale specific information - keywords associated with this portlet.
+        The kewords are separated by commas.-->
+        <keywords></keywords>
+    </portlet-info>
+
+    <!--Portlet persistent preference store. portlet-preferences
+    are optional.-->
+    <portlet-preferences>
+        <preference>
+            <name>viewPage</name>
+            <value>/__GDEPORTLETNAME__/PortletView.jsp</value>
+        </preference>
+        <preference>
+            <name>ttValueDisplayInfo</name>
+            <value>/WEB-INF/ttValueDisplayInfo.xml</value>
+        </preference>
+    </portlet-preferences>
+
+    <!--The security-role-ref elements contain the declaration of a 
+    security role reference in the web application's code. The 
+    declaration consists of an optional description, the security 
+    role name used in the code, and an optional link to a security 
+    role. If the security role is not specified, the Deployer must 
+    choose an appropriate security role.
+    The value of the role name element must be the String used 
+    as the parameter to the EJBContext.isCallerInRole(String
+    roleName) method or the HttpServletRequest.isUserInRole(String
+    role) method.
+    <security-role-ref>
+    <description>description</description>
+        <role-name>name of a security role, eg. trustedUser</role-name>
+        <role-link>reference to a defined security role</role-link>
+    </security-role-ref> -->
+</portlet>

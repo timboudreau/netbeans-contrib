@@ -1,0 +1,127 @@
+
+/*
+ * The contents of this file are subject to the terms of the Common Development
+ * and Distribution License (the License). You may not use this file except in
+ * compliance with the License.
+ *
+ * You can obtain a copy of the License at http://www.netbeans.org/cddl.html
+ * or http://www.netbeans.org/cddl.txt.
+ *
+ * When distributing Covered Code, include this CDDL Header Notice in each file
+ * and include the License file at http://www.netbeans.org/cddl.txt.
+ * If applicable, add the following below the CDDL Header, with the fields
+ * enclosed by brackets [] replaced by your own identifying information:
+ * "Portions Copyrighted [year] [name of copyright owner]"
+ * 
+ * Copyright 2007 Sun Microsystems, Inc. All Rights Reserved
+ *
+ */
+
+package __GDEPACKAGE__;
+
+import java.io.IOException;
+import javax.portlet.ActionRequest;
+import javax.portlet.ActionResponse;
+import javax.portlet.GenericPortlet;
+import javax.portlet.PortletConfig;
+import javax.portlet.PortletContext;
+import javax.portlet.PortletException;
+import javax.portlet.RenderRequest;
+import javax.portlet.RenderResponse;
+import javax.portlet.UnavailableException;
+
+import com.sun.tthub.processor.RequestRouter;
+import com.sun.tthub.data.AppRequest;
+import com.sun.tthub.data.DataConstants;
+
+/**
+ * The class provides a default implementation
+ * for the <code>Portlet</code> interface.<p>
+ *
+ * It is recommended not to extend the Portlet interface directly.
+ * Rather, a portlet should derive from this or any other derived
+ * class and use the provided helper methods for the different modes.
+ */
+public class __GDEPORTLETNAME__ extends GenericPortlet {
+
+  public void init (PortletConfig config) throws PortletException, UnavailableException {
+    super.init (config);
+    myPortletContext = config.getPortletContext ();
+    
+  }
+
+  public void processAction (ActionRequest request, ActionResponse response) throws PortletException, IOException {
+    // add your code here
+     System.out.println("---------Portlet processAction-------------");
+     
+      // Set App Request for request processing
+     AppRequest appRequest= new AppRequest(request.getParameter(DataConstants.USE_CASE_ID),
+                                            request.getParameter(DataConstants.REQUEST_ID),
+                                            request.getParameter(DataConstants.CUR_EDIT_PATH));
+     
+      System.out.println("-usecaseid-"+appRequest.getUsecaseId());
+      System.out.println("-requestId-"+appRequest.getRequestId());
+
+     request.getPortletSession(true).setAttribute(DataConstants.USE_CASE_ID,appRequest.getUsecaseId());
+     
+     RequestRouter reqRouter=new RequestRouter();
+     String returnEditPath= reqRouter.route(appRequest,request);
+     
+     String pageurl= "/"+appRequest.getUsecaseId();
+
+
+      System.out.println("-pageurl-"+pageurl);
+      System.out.println("-returnEditPath-"+returnEditPath);
+
+     if (returnEditPath!=null && !returnEditPath.equals("/"))
+         //e.g /web/creatett/a
+         //e.g /web/creatett/a/b
+		
+ 		pageurl=pageurl+returnEditPath;
+      System.out.println("-pageurl-"+pageurl);
+    		
+      response.setRenderParameter("viewPage",pageurl);
+	
+      
+  }
+
+  protected void doView (RenderRequest request, RenderResponse response) throws PortletException, IOException {
+    
+    request.setAttribute ("viewParam", "view");
+    String viewPage= request.getParameter("viewPage");
+    if (viewPage !=null){
+        processViewPage(request,response, viewPage);
+    }else{
+      processPage (request, response, "viewPage");
+    }
+  }
+
+  protected void doEdit (RenderRequest request, RenderResponse response) throws PortletException, IOException {
+    request.setAttribute("editParam", "edit");
+    processPage (request, response, "editPage");
+  }
+
+  protected void doHelp (RenderRequest request, RenderResponse response) throws PortletException, IOException {
+    processPage (request, response, "helpPage");
+  }
+
+  //Get page from config file
+  private void processPage (RenderRequest request, RenderResponse response, String page) throws PortletException, IOException {
+    response.setContentType (request.getResponseContentType ());
+    String value = request.getPreferences ().getValue (page, "");
+
+    if (value != null && value.length () > 0) {
+      myPortletContext.getRequestDispatcher (value).include (request, response);
+    }
+  }
+
+  //Get page from url
+  private void processViewPage (RenderRequest request, RenderResponse response, String pageurl) throws PortletException, IOException {
+    response.setContentType (request.getResponseContentType ());
+    System.out.println("pageurl="+pageurl);
+    if (pageurl != null && pageurl.length () > 0) {
+      myPortletContext.getRequestDispatcher (pageurl+"/PortletView.jsp").include (request, response);
+    }
+  }
+  private PortletContext myPortletContext;
+}

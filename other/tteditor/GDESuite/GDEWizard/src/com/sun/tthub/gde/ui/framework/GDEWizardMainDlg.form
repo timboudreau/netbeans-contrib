@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<Form version="1.3" type="org.netbeans.modules.form.forminfo.JDialogFormInfo">
+  <Properties>
+    <Property name="defaultCloseOperation" type="int" value="2"/>
+    <Property name="modal" type="boolean" value="true"/>
+  </Properties>
+  <SyntheticProperties>
+    <SyntheticProperty name="formSizePolicy" type="int" value="1"/>
+  </SyntheticProperties>
+  <AuxValues>
+    <AuxValue name="FormSettings_generateMnemonicsCode" type="java.lang.Boolean" value="false"/>
+    <AuxValue name="FormSettings_layoutCodeTarget" type="java.lang.Integer" value="2"/>
+    <AuxValue name="FormSettings_listenerGenerationStyle" type="java.lang.Integer" value="0"/>
+    <AuxValue name="FormSettings_variablesLocal" type="java.lang.Boolean" value="false"/>
+    <AuxValue name="FormSettings_variablesModifier" type="java.lang.Integer" value="1"/>
+  </AuxValues>
+
+  <Layout>
+    <DimensionLayout dim="0">
+      <Group type="103" groupAlignment="0" attributes="0">
+          <Group type="102" alignment="1" attributes="0">
+              <EmptySpace max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="1" attributes="0">
+                  <Component id="spltPaneGdeWizard" alignment="0" pref="576" max="32767" attributes="0"/>
+                  <Component id="lblStatus" alignment="0" pref="576" max="32767" attributes="0"/>
+              </Group>
+              <EmptySpace max="-2" attributes="0"/>
+          </Group>
+      </Group>
+    </DimensionLayout>
+    <DimensionLayout dim="1">
+      <Group type="103" groupAlignment="0" attributes="0">
+          <Group type="102" alignment="1" attributes="0">
+              <EmptySpace max="-2" attributes="0"/>
+              <Component id="spltPaneGdeWizard" pref="350" max="32767" attributes="0"/>
+              <EmptySpace max="-2" attributes="0"/>
+              <Component id="lblStatus" min="-2" max="-2" attributes="0"/>
+              <EmptySpace max="-2" attributes="0"/>
+          </Group>
+      </Group>
+    </DimensionLayout>
+  </Layout>
+  <SubComponents>
+    <Container class="javax.swing.JSplitPane" name="spltPaneGdeWizard">
+      <Properties>
+        <Property name="dividerLocation" type="int" value="150"/>
+      </Properties>
+      <AuxValues>
+        <AuxValue name="JavaCodeGenerator_InitCodePost" type="java.lang.String" value="// ---- Post initialization code for the split pane.&#xa;&#xa;// Initialize the navigation panel and the content panel.&#xa;// The content panel is a dummy panel initialized at first.&#xa;// later, this will be replaced by different other panels.&#xa;// Set the navigation panel as the left component and the content&#xa;// panel as the right component of the split pane.&#xa;&#xa;navigationPanel = new GDENavigationPanel(this);&#xa;this.navigationPanel.setPreferredSize(new Dimension(&#xa;            150, this.spltPaneGdeWizard.getHeight()));&#xa;&#xa;contentPanel = new JPanel();&#xa;int contentPanelWidth = spltPaneGdeWizard.getWidth() - 160;&#xa;this.contentPanel.setPreferredSize( new Dimension(&#xa;            contentPanelWidth, spltPaneGdeWizard.getHeight()));&#xa;&#xa;spltPaneGdeWizard.setLeftComponent(navigationPanel);&#xa;spltPaneGdeWizard.setRightComponent(contentPanel);&#xa;&#xa;// ----- End of post initialization code for the split pane."/>
+      </AuxValues>
+
+      <Layout class="org.netbeans.modules.form.compat2.layouts.support.JSplitPaneSupportLayout"/>
+    </Container>
+    <Component class="javax.swing.JLabel" name="lblStatus">
+      <Properties>
+        <Property name="text" type="java.lang.String" value="Status Messages"/>
+        <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
+          <Border info="org.netbeans.modules.form.compat2.border.BevelBorderInfo">
+            <BevelBorder bevelType="1"/>
+          </Border>
+        </Property>
+      </Properties>
+    </Component>
+  </SubComponents>
+</Form>

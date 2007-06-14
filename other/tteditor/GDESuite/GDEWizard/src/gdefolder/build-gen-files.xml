@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+The contents of this file are subject to the terms of the Common
+Development and Distribution License (the License). You may not use this
+file except in compliance with the License.  You can obtain a copy of the
+License at http://www.netbeans.org/cddl.html
+
+When distributing Covered Code, include this CDDL Header Notice in each
+file and include the License. If applicable, add the following below the
+CDDL Header, with the fields enclosed by brackets [] replaced by your own
+identifying information:
+"Portions Copyrighted [year] [name of copyright owner]"
+
+Copyright 2007 Sun Microsystems, Inc. All Rights Reserved
+-->
+<project name="build-gen-files" default="all" basedir=".">
+    
+    <!-- The gde-folder property will be passed using the -D option from the
+         command line. e.g. 
+         ant -f build-gen-files.xml -Dgde-folder=E://projects/GDESuite/GDEWizard/gdefolder  -Dgde-package=com/sun/tthub -Dappserv-folder=e://sun/sdk-->
+    
+    <path id="compile.class.path">       
+        <!--<fileset dir="${gde-folder}/portlet-lib">
+            <include name="*.jar"/>            
+        </fileset>
+-->  
+      <fileset dir="${gde-folder}/lib">
+            <include name="*.jar"/>
+        </fileset>        
+        <fileset dir="${gde-folder}/std-lib">
+            <include name="*.jar"/>
+        </fileset>  
+<!--
+        <fileset dir="${appserv-folder}" >
+           <include name="lib/appserv-ws.jar"/>
+           <include name="lib/javaee.jar"/>
+        </fileset>
+    -->          
+    </path>    
+
+    <target name="delete-folders" if="build.dir.exists">
+        <echo message="Deleting the build directory and all its sub directories"/>
+        <delete includeEmptyDirs="true">
+            <fileset dir="${gde-folder}/build"/>
+        </delete>                
+    </target>
+    
+    <target name="create-folders">
+        <condition property="build.dir.exists">
+            <available file="${gde-folder}/build"/>
+        </condition>
+        <antcall target="delete-folders"/>        
+        <echo message="Creating the build dir and required sub directories."/>
+        <mkdir dir="${gde-folder}/build/src"/>
+        <mkdir dir="${gde-folder}/build/classes"/>
+        <mkdir dir="${gde-folder}/build/dist"/>        
+    </target>
+    
+    <target name="pre-copy-files" depends="create-folders">
+        <echo message="Copying required files to temp directory"/>                                                              
+        <copy todir="${gde-folder}/build/src">
+            <fileset dir="${gde-folder}/portlet-templates/static">
+                <include name="*.java"/>
+            </fileset>
+        </copy>                                                
+        <copy todir="${gde-folder}/build/src">
+            <fileset dir="${gde-folder}/gen-files/java">
+                <include name="*.java"/>
+            </fileset>
+        </copy>                         
+    </target>
+
+    <target name="compile-java-files" depends="pre-copy-files">        
+        <echo message="Compiling wizard generated source java files"/>
+        <javac srcdir="${gde-folder}/build/src" 
+                    destdir="${gde-folder}/build/classes">
+            <classpath refid="compile.class.path"/>
+        </javac>                
+    </target>    
+    
+    <target name="post-copy-files" depends="compile-java-files">
+        <echo message="Copying required files to the package folders"/>
+        <!-- Currently there are no files to copy -->
+
+        <copy todir="${gde-folder}/build/classes/${gde-package}">
+            <fileset dir="${gde-folder}/gen-files/java">
+                <include name="*.portlet"/>
+            </fileset>
+        </copy> 
+    </target>
+
+    <target name="create-war-file" depends="post-copy-files">        
+        <war destfile="${gde-folder}/build/dist/tthubportlets.war" 
+                            webxml="${gde-folder}/portlet-config-files/web.xml">
+            <fileset dir="${gde-folder}/gen-files/jsp"/>
+  
+            <webinf dir="${gde-folder}/portlet-config-files">
+                <include name="*.xml"/>            
+                <include name="*.tld"/>                            
+                <exclude name="web.xml"/>                
+            </webinf> 
+
+<!--            <lib dir="${gde-folder}/portlet-lib"/>-->
+            <lib dir="${gde-folder}/lib"/>
+            <classes dir="${gde-folder}/build/classes"/>                        
+        </war>        
+    </target>
+    
+    <target name="all" depends="create-war-file">        
+        <!-- TODO define script. See Help menu or http://ant.apache.org/ -->
+    </target>
+</project>

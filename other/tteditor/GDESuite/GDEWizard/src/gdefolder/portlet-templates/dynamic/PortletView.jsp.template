@@ -1,0 +1,103 @@
+<!--
+The contents of this file are subject to the terms of the Common
+Development and Distribution License (the License). You may not use this
+file except in compliance with the License.  You can obtain a copy of the
+License at http://www.netbeans.org/cddl.html
+
+When distributing Covered Code, include this CDDL Header Notice in each
+file and include the License. If applicable, add the following below the
+CDDL Header, with the fields enclosed by brackets [] replaced by your own
+identifying information:
+"Portions Copyrighted [year] [name of copyright owner]"
+
+Copyright 2007 Sun Microsystems, Inc. All Rights Reserved
+-->
+
+<%@page contentType="text/html;charset=UTF-8"%>
+
+<%@page import="javax.portlet.*"%>
+
+<%@page import="com.sun.tthub.data.*"%>
+<%@page import="java.util.Collection"%>
+<%@page import="java.util.Iterator"%>
+
+<%@taglib uri="http://java.sun.com/portlet" prefix="portlet"%>
+<%@taglib uri="/WEB-INF/tthub.tld" prefix="tthub"%>
+
+<portlet:defineObjects/>
+
+<%
+
+PortletSession portletSession= renderRequest.getPortletSession(true);
+String statusMessage="";
+ReqProcessingResult result=(ReqProcessingResult)portletSession.getAttribute(DataConstants.REQPROCESSINGRESULT);
+try{
+
+
+if (result!=null){
+	System.out.println("-result-"+result.toString());
+	statusMessage=result.getStatusMessage();
+}
+%>
+
+<h2>__FIELDNAME__</h2>
+
+<form method="post" action="<portlet:actionURL/>">
+    <input type="hidden" name="usecaseId" value="__OPERATIONNAME__"><p>
+    <input type="hidden" name="curEditPath" value="__CUREDITPATH__"><p>
+    <table border="0" width="100%">
+    <tr>
+        <table border="0" width="100%">
+            
+            <!--INSERT THE GDE WIZARD GENERATED CODE HERE-->  
+
+            <tr><td colspan="3"></td></tr> 
+            <tr >
+            </tr>
+        </table>
+    </tr>
+
+            <% }catch(Exception e){
+			e.printStackTrace();
+		  	statusMessage="Illegal Server Error.";
+		}%>
+    <tr>
+        <center>
+            <input type="submit" name="requestId" onClick="finish.value='true';" value="Save">
+            <input type="submit" name="requestId" onClick="finish.value='true';" value="Abort">
+        </center>
+    </tr>
+    <tr>
+	 <center>
+
+        <!--Display status message-success/fail -->
+        <b>
+		<%=statusMessage%></b>
+	</center>
+    </tr>
+<tr></tr>
+    <tr>
+	 <center>
+        
+            <!--Display Global Errors-->
+            <%
+            // Display Global Error Message or successMessage
+            Collection globalErrors =null;
+
+		if (result!=null)
+			globalErrors=result.getGlobalErrors();
+            
+            if (globalErrors!=null && globalErrors.size()==0){
+                for(Iterator it = globalErrors.iterator(); it.hasNext(); ){
+                    GlobalError error=(GlobalError)it.next();
+                    //Print error message
+            %>      <br><%=error.getErrorMessage()%></br>
+            <%
+                }//end for loop
+            }//end if loop
+            %>
+
+      </center>
+
+    </tr>
+</form>

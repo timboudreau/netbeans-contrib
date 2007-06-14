@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE filesystem PUBLIC "-//NetBeans//DTD Filesystem 1.1//EN" "http://www.netbeans.org/dtds/filesystem-1_1.dtd">
+<!--
+The contents of this file are subject to the terms of the Common
+Development and Distribution License (the License). You may not use this
+file except in compliance with the License.  You can obtain a copy of the
+License at http://www.netbeans.org/cddl.html
+
+When distributing Covered Code, include this CDDL Header Notice in each
+file and include the License. If applicable, add the following below the
+CDDL Header, with the fields enclosed by brackets [] replaced by your own
+identifying information:
+"Portions Copyrighted [year] [name of copyright owner]"
+
+Copyright 2007 Sun Microsystems, Inc. All Rights Reserved
+-->
+<filesystem>
+    <folder name="Actions">
+        <folder name="Tools">
+            <file name="com-sun-tthub-gde-ui-framework-GDEWizardMenuAction.instance">
+                <attr name="instanceClass" stringvalue="com.sun.tthub.gde.ui.framework.GDEWizardMenuAction"/>
+            </file>
+        </folder>
+    </folder>
+    <folder name="Menu">
+        <folder name="Tools">
+            <file name="com-sun-tthub-gde-ui-framework-separatorBefore.instance">
+                <attr name="instanceClass" stringvalue="javax.swing.JSeparator"/>
+            </file>
+            <attr name="com-sun-tthub-gde-ui-framework-separatorBefore.instance/com-sun-tthub-gde-ui-framework-GDEWizardMenuAction.shadow" boolvalue="true"/>
+            <file name="com-sun-tthub-gde-ui-framework-GDEWizardMenuAction.shadow">
+                <attr name="originalFile" stringvalue="Actions/Tools/com-sun-tthub-gde-ui-framework-GDEWizardMenuAction.instance"/>
+            </file>
+            <attr name="com-sun-tthub-gde-ui-framework-GDEWizardMenuAction.shadow/com-sun-tthub-gde-ui-framework-separatorAfter.instance" boolvalue="true"/>
+            <file name="com-sun-tthub-gde-ui-framework-separatorAfter.instance">
+                <attr name="instanceClass" stringvalue="javax.swing.JSeparator"/>
+            </file>
+            <attr name="com-sun-tthub-gde-ui-framework-separatorAfter.instance/javadoc-Search-Doc-Action.instance" boolvalue="true"/>
+        </folder>
+    </folder>
+    <folder name="Toolbars">
+        <folder name="Build">
+            <file name="com-sun-tthub-gde-ui-framework-GDEWizardMenuAction.shadow">
+                <attr name="originalFile" stringvalue="Actions/Tools/com-sun-tthub-gde-ui-framework-GDEWizardMenuAction.instance"/>
+            </file>
+            <attr name="com-sun-tthub-gde-ui-framework-GDEWizardMenuAction.shadow/org-netbeans-modules-project-ui-BuildMainProject.shadow" boolvalue="true"/>
+        </folder>
+    </folder>
+</filesystem>
