@@ -84,6 +84,9 @@ abstract public class GeneratedMatcher extends TreePathTransformer<Void,Object> 
     protected org.netbeans.api.java.source.TreeMaker make;
     private CompilationUnitTree currentTopLevel;
     protected String comment;
+    private VariableCharacterization vcCache;
+    private Element vcKey;
+    private Tree vcTree;
     
     protected abstract Tree rewrite(Tree t);
     protected abstract void initializeKeywords() throws ClassNotFoundException;
@@ -165,7 +168,11 @@ abstract public class GeneratedMatcher extends TreePathTransformer<Void,Object> 
         trueName = null;
         falseName = null;
         currentTopLevel = null;
+        vcCache = null;
+        vcKey = null;
+        vcTree = null;
     }
+    
     @Override
     public void attach(CompilationInfo info) {
         super.attach(info);
@@ -187,6 +194,15 @@ abstract public class GeneratedMatcher extends TreePathTransformer<Void,Object> 
         } catch (ClassNotFoundException e) {
             throw new ScriptParsingException("cannot find class: " + e.getMessage());
         }
+    }
+    
+    private VariableCharacterization getCharacterization(Element s) {
+        if(s!=vcKey|| vcCache==null) {
+            vcTree = trees.getTree(s);
+            vcCache = new VariableCharacterization(vcTree);
+            vcKey= s;
+        }
+        return vcCache;
     }
     
     private static Context getContext(CompilationInfo info) {
@@ -383,7 +399,9 @@ abstract public class GeneratedMatcher extends TreePathTransformer<Void,Object> 
     protected boolean idMatches(JCFieldAccess t, Name fqn) {
         if (t.toString().endsWith(".INFORMATIONAL"))
             System.out.println();
-        if (t.sym != null && elements.getFullName(t.sym) == fqn)
+        if (t.sym != null && (t.sym instanceof Symbol.ClassSymbol ? 
+                                ((Symbol.ClassSymbol)t.sym).fullname :
+                                Symbol.TypeSymbol.formFullName(t.sym.name, t.sym.owner)) == fqn)
             return true;
         return TreeInfo.fullName(t) == fqn;
     }
@@ -612,13 +630,13 @@ abstract public class GeneratedMatcher extends TreePathTransformer<Void,Object> 
 
     public boolean referenced(Element e) {
         Element method = getOwningMethod(e);
-	return method != null ? elements.referenced(e, method) : false;
+	return method != null ? getCharacterization(e).referenced(method) : false;
     }
     
     public boolean assigned(Element e) {
         if (e instanceof VariableElement) {
             Element method = getOwningMethod(e);
-            return method != null ? elements.assigned(e, method) : false;
+            return method != null ? getCharacterization(e).assigned(method) : false;
         }
         return false;
     }
@@ -630,7 +648,7 @@ abstract public class GeneratedMatcher extends TreePathTransformer<Void,Object> 
     public boolean parameter(Element e) {
         if (e instanceof VariableElement) {
             Element method = getOwningMethod(e);
-            return method != null ? elements.parameter(e, method) : false;
+            return method != null ? getCharacterization(e).parameter(method) : false;
         }
         return false;
     }
