@@ -75,7 +75,10 @@ public class ModuleConfigurationImpl implements DatasourceConfiguration, Deploym
         
         config.init(dds);
     }
-    
+
+    public void setCMPResource(String ejbName, String jndiName){
+
+}
     public J2eeModule getJ2eeModule() {
         return module;
     }
