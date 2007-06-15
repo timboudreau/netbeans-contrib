@@ -61,16 +61,4 @@ Microsystems, Inc. All Rights Reserved.
             </folder>
         </folder>
     </folder>
-    <folder name="Templates">
-        <folder name="NetBeansModuleDevelopment">
-            <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.languages.studio.Bundle"/>
-            <file name="gLFTemplate">
-                <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.languages.studio.Bundle"/>
-                <attr name="instantiatingIterator" newvalue="org.netbeans.modules.languages.studio.wizard.GLFTemplateWizardIterator"/>
-                <attr name="template" boolvalue="true"/>
-                <attr name="templateWizardURL" urlvalue="nbresloc:/org/netbeans/modules/languages/studio/resources/GLFTemplate.html"/>
-                <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/languages/resources/defaultIcon.png"/>
-            </file>
-        </folder>
-    </folder>
 </filesystem>
