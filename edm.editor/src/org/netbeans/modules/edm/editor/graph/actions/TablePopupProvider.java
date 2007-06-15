@@ -77,8 +77,10 @@ public class TablePopupProvider implements PopupMenuProvider {
         // add remove table action
         JMenuItem remove = new JMenuItem("Remove Table");
         remove.setAction(new RemoveObjectAction(mObj, obj, "Remove Table"));
-        menu.add(remove);          
+        menu.add(remove);      
         
+         menu.addSeparator();
+                     
         return menu;
     }
 }

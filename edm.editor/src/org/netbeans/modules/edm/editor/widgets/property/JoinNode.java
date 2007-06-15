@@ -43,6 +43,11 @@ public class JoinNode extends AbstractNode {
         joinOp = obj;
     }
     
+    public JoinNode(SQLJoinOperator obj){
+        super(Children.LEAF);
+        joinOp = obj;
+    }
+    
     @Override
     public boolean canCopy() {
         return false;

@@ -24,6 +24,8 @@ import org.netbeans.api.visual.widget.Widget;
 
 import java.awt.*;
 import java.util.List;
+import javax.swing.JCheckBox;
+import org.netbeans.api.visual.widget.ComponentWidget;
 
 /**
  * This class represents a pin widget in the EDM visualization style.
@@ -35,7 +37,10 @@ public class EDMPinWidget extends Widget {
     
     private LabelWidget nameWidget;
     private EDMGlyphSetWidget glyphsWidget;
+    private Widget editorWidget;
+    private JCheckBox checkBox;
     private EDMNodeAnchor anchor;
+    private Scene scene;
     
     /**
      * Creates a pin widget.
@@ -43,15 +48,45 @@ public class EDMPinWidget extends Widget {
      */
     public EDMPinWidget(Scene scene) {
         super(scene);
-        
+        this.scene = scene;
         setBorder(EDMNodeWidget.BORDER);
         setBackground(EDMNodeWidget.COLOR_SELECTED);
         setOpaque(false);
         setLayout(LayoutFactory.createHorizontalFlowLayout(LayoutFactory.SerialAlignment.CENTER, 8));
         addChild(glyphsWidget = new EDMGlyphSetWidget(scene));
-        addChild(nameWidget = new LabelWidget(scene));
+        addChild(nameWidget = new LabelWidget(scene));        
+        checkBox = new JCheckBox();
+        editorWidget = new ComponentWidget(scene, checkBox);
         revalidate();
         notifyStateChanged(ObjectState.createNormal(), ObjectState.createNormal());
+    }
+    
+    /**
+     * Creates and enables the Inplace Editor widget.
+     * 
+     */
+    public void enableEditor() {
+        addChild(0, editorWidget);
+        revalidate();
+        removeChild(glyphsWidget);
+        revalidate();
+    }
+    
+     /**
+     * Disables the Inplace Editor widget
+      * after the selection/de-selection
+     * 
+     */
+    public void disableEditor(){
+        removeChild(editorWidget);
+        revalidate();
+        addChild(0, glyphsWidget);
+        revalidate();
+    }
+    
+    
+    public JCheckBox getEditor() {
+        return checkBox;
     }
     
     /**
@@ -62,9 +97,6 @@ public class EDMPinWidget extends Widget {
     protected void notifyStateChanged(ObjectState previousState, ObjectState state) {
         setOpaque(state.isSelected());
         setBorder(state.isFocused() || state.isHovered() ? EDMNodeWidget.BORDER_HOVERED : EDMNodeWidget.BORDER);
-        //        LookFeel lookFeel = getScene ().getLookFeel ();
-        //        setBorder (BorderFactory.createCompositeBorder (BorderFactory.createEmptyBorder (8, 2), lookFeel.getMiniBorder (state)));
-        //        setForeground (lookFeel.getForeground (state));
     }
     
     /**
@@ -102,6 +134,14 @@ public class EDMPinWidget extends Widget {
     }
     
     /**
+     * Gets pin glyphs.
+     * @return 
+     */
+    public List<Image> getGlyphs() {
+        return glyphsWidget.getGlyphs();
+    }    
+    
+    /**
      * Sets all pin properties at once.
      * @param name the pin name
      * @param glyphs the pin glyphs
@@ -122,6 +162,10 @@ public class EDMPinWidget extends Widget {
             revalidate();
         }
         return anchor;
+    }
+    
+    public void doValidation() {
+        scene.validate();
     }
     
 }

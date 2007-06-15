@@ -48,9 +48,9 @@ public class EDMNodeWidget extends Widget implements StateModel.Listener, EDMMin
     
     private static final Color BORDER_CATEGORY_BACKGROUND = new Color(0x8BA6FD);
     private static final Border BORDER_MINIMIZE = BorderFactory.createRoundedBorder(2, 2, null, EDMNodeBorder.COLOR_BORDER);
-    static final Color COLOR_SELECTED = new Color(0x748CC0);
+    static final Color COLOR_SELECTED = new Color(0xffffff);
     static final Border BORDER = BorderFactory.createOpaqueBorder(2, 8, 2, 8);
-    static final Border BORDER_HOVERED = BorderFactory.createLineBorder(2, 8, 2, 8, Color.BLACK);
+    static final Border BORDER_HOVERED = BorderFactory.createLineBorder(2, 8, 2, 8, Color.RED);
     
     private Widget header;
     private ImageWidget minimizeWidget;
@@ -106,9 +106,6 @@ public class EDMNodeWidget extends Widget implements StateModel.Listener, EDMMin
         typeWidget = new LabelWidget(scene);
         typeWidget.setForeground(Color.BLACK);
         header.addChild(typeWidget);
-        
-        //        glyphSetWidget = new EDMGlyphSetWidget (scene);
-        //        header.addChild (glyphSetWidget);
         
         pinsSeparator = new SeparatorWidget(scene, SeparatorWidget.Orientation.HORIZONTAL);
         pinsSeparator.setForeground(BORDER_CATEGORY_BACKGROUND);
@@ -186,7 +183,9 @@ public class EDMNodeWidget extends Widget implements StateModel.Listener, EDMMin
             bringToFront();
             MashupDataObject dObj = WindowManager.getDefault().getRegistry().
                     getActivated().getLookup().lookup(MashupDataObject.class);
-            dObj.getGraphManager().setSelectedNode(this);
+            if(dObj != null) {
+                dObj.getGraphManager().setSelectedNode(this);
+            }
         }else if (! previousState.isHovered()  &&  state.isHovered()) {
             bringToFront();
         }

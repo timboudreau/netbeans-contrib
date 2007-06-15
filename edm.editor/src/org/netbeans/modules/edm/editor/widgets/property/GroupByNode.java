@@ -24,7 +24,6 @@ import org.openide.nodes.Children;
 import org.openide.nodes.PropertySupport;
 import org.openide.nodes.Sheet;
 
-import org.netbeans.modules.sql.framework.model.SQLJoinOperator;
 import org.netbeans.modules.edm.editor.dataobject.MashupDataObject;
 import org.netbeans.modules.sql.framework.model.impl.SQLGroupByImpl;
 

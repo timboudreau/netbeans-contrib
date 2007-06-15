@@ -101,8 +101,8 @@ public class SelectColumnsAction extends AbstractAction {
         gbc.weightx = 1.0;
         gbc.weighty = 0.0;
         panel.add(new JSeparator(), gbc);
-
         gbc = new GridBagConstraints();
+
         gbc.gridx = 0;
         gbc.gridy = GridBagConstraints.RELATIVE;
         gbc.anchor = GridBagConstraints.PAGE_START;

@@ -31,6 +31,7 @@ import java.util.List;
  */
 public class EDMGlyphSetWidget extends Widget {
 
+    private List<Image> glyphs;
     /**
      * Creates a glyph set widget.
      * @param scene the scene
@@ -45,6 +46,7 @@ public class EDMGlyphSetWidget extends Widget {
      * @param glyphs the list of images used as glyphs
      */
     public void setGlyphs (List<Image> glyphs) {
+        this.glyphs = glyphs;
         List<Widget> children = new ArrayList<Widget> (getChildren ());
         for (Widget widget : children)
             removeChild (widget);
@@ -54,6 +56,10 @@ public class EDMGlyphSetWidget extends Widget {
                 imageWidget.setImage (glyph);
                 addChild (imageWidget);
             }
+    }
+    
+    public List<Image> getGlyphs() {
+        return this.glyphs;
     }
 
 }

@@ -63,6 +63,10 @@ import org.netbeans.modules.sql.framework.model.SQLObject;
 import org.netbeans.modules.sql.framework.model.RuntimeDatabaseModel;
 import org.netbeans.modules.sql.framework.model.RuntimeInput;
 import com.sun.sql.framework.utils.RuntimeAttribute;
+import java.util.List;
+import java.util.List;
+import java.util.List;
+import org.netbeans.api.visual.action.WidgetAction;
 import org.netbeans.modules.edm.editor.graph.actions.GroupByPopupProvider;
 import org.netbeans.modules.edm.editor.graph.components.EDMOutputTopComponent;
 import org.netbeans.modules.edm.editor.graph.components.TableChooserPanel;
@@ -70,6 +74,7 @@ import org.netbeans.modules.edm.editor.utils.ImageConstants;
 import org.netbeans.modules.edm.editor.widgets.property.GroupByNode;
 import org.netbeans.modules.edm.editor.widgets.property.JoinNode;
 import org.netbeans.modules.edm.editor.widgets.property.TableNode;
+import org.netbeans.modules.edm.editor.widgets.property.editor.ColumnSelectionEditor;
 import org.netbeans.modules.sql.framework.model.SQLCondition;
 import org.netbeans.modules.sql.framework.model.SQLGroupBy;
 import org.netbeans.modules.sql.framework.model.SourceTable;
@@ -96,7 +101,7 @@ public class MashupGraphManager {
     
     private long pinCounter = 1;
     
-    private Map<String, Widget> sqlIdtoWidgetMap = new HashMap<String, Widget>();
+    private Map<SQLObject, Widget> sqltoWidgetMap = new HashMap<SQLObject, Widget>();
     
     private WeakHashMap<Widget, SQLObject> widgetToObjectMap =
             new WeakHashMap<Widget, SQLObject>();
@@ -104,6 +109,8 @@ public class MashupGraphManager {
     private Map<String, String> edgeMap = new HashMap<String, String>();
     
     private List<Widget> widgets = new ArrayList<Widget>();
+    
+    private WidgetAction columnSelectionEditor;
     
     public MashupGraphManager() {
         scene = new EDMGraphScene();
@@ -127,6 +134,8 @@ public class MashupGraphManager {
                 new SceneAcceptProvider(mObj, this)));
         scene.getActions().addAction(ActionFactory.createPopupMenuAction(
                 new ScenePopupProvider(mObj, this)));
+        columnSelectionEditor = ActionFactory.createInplaceEditorAction(
+                new ColumnSelectionEditor(mObj));
     }
     
     public void refreshGraph() {
@@ -256,7 +265,7 @@ public class MashupGraphManager {
                 }
             }
         } catch (Exception ex) {
-            Exceptions.printStackTrace(ex);            
+            Exceptions.printStackTrace(ex);
         }
         return status;
     }
@@ -317,23 +326,28 @@ public class MashupGraphManager {
     }
     
     public void updateColumnSelection(SQLDBTable table) {
-        EDMNodeWidget widget = (EDMNodeWidget) sqlIdtoWidgetMap.get(table.getId());
-        
+        EDMNodeWidget widget = (EDMNodeWidget) sqltoWidgetMap.get(table);
         List<Widget> usedCol = new ArrayList<Widget>();
         List<Widget> unusedCol = new ArrayList<Widget>();
         HashMap<String, List<Widget>> categories = new HashMap<String, List<Widget>>();
-        
-        SQLDBColumn[] columns = (SQLDBColumn[]) table.getColumnList().
+        SQLDBColumn[] columns = (SQLDBColumn[])table.getColumnList().
                 toArray(new SQLDBColumn[0]);
         for(SQLDBColumn column : columns) {
-            EDMPinWidget pin = (EDMPinWidget)sqlIdtoWidgetMap.get(column.getId());
+            Widget[] children = widget.getChildren().toArray(new Widget[0]);
+            EDMPinWidget pin = null;
+            for(Widget child : children) {
+                if(child instanceof EDMPinWidget &&
+                        ((EDMPinWidget)child).getPinName().equals(column.getDisplayName())) {
+                    pin = (EDMPinWidget)child;
+                    break;
+                }
+            }
             if(column.isVisible()) {
                 usedCol.add(pin);
             } else {
                 unusedCol.add(pin);
             }
         }
-        
         if(usedCol.size() != 0) {
             categories.put("Used Columns", usedCol);
         }
@@ -360,9 +374,17 @@ public class MashupGraphManager {
             } else if(obj instanceof SQLGroupByImpl) {
                 SQLGroupByImpl grpby = (SQLGroupByImpl)obj;
                 WindowManager.getDefault().getRegistry().getActivated().
-                        setActivatedNodes(new Node[]{new GroupByNode(grpby, mObj)});                
+                        setActivatedNodes(new Node[]{new GroupByNode(grpby, mObj)});
             }
         }
+    }
+    
+    public SQLObject mapWidgetToObject(Widget widget) {
+        return widgetToObjectMap.get(widget);
+    }
+    
+    public void validateScene() {
+        scene.validate();
     }
     
     private void createGraphEdge(String sourcePinID, String targetNodeID) {
@@ -380,7 +402,6 @@ public class MashupGraphManager {
         EDMNodeWidget widget = (EDMNodeWidget)scene.addNode(nodeID);
         widgets.add(widget);
         widgetToObjectMap.put(widget, model);
-        sqlIdtoWidgetMap.put(model.getId(), widget);
         scene.validate();
         widget.setNodeImage(MashupGraphUtil.getImageForObject(model.getObjectType()));
         scene.validate();
@@ -456,6 +477,7 @@ public class MashupGraphManager {
     
     
     private void addJoinOperatorNode(SQLJoinOperator joinOp, EDMNodeWidget widget, String nodeID) {
+        sqltoWidgetMap.put(joinOp, widget);
         String nodeName = "";
         if(joinOp.isRoot()) {
             nodeName = "ROOT JOIN";
@@ -512,7 +534,7 @@ public class MashupGraphManager {
         conditionPin.setGlyphs(image);
         scene.validate();
         widgets.add(conditionPin);
-        
+     
         // add popup for join widget.
         widget.getActions().addAction(
                 ActionFactory.createPopupMenuAction(new JoinPopupProvider(
@@ -522,6 +544,7 @@ public class MashupGraphManager {
     
     private void addRuntimeNode(RuntimeInput rtInput, EDMNodeWidget widget,
             String nodeID) {
+        sqltoWidgetMap.put(rtInput, widget);
         widget.setNodeName("Runtime Input");
         Iterator it = rtInput.getRuntimeAttributeMap().keySet().iterator();
         while(it.hasNext()) {
@@ -550,6 +573,7 @@ public class MashupGraphManager {
     }
     
     private void addTableNode(SQLDBTable tbl, EDMNodeWidget widget, String nodeID) {
+        sqltoWidgetMap.put(tbl, widget);
         String tooltip = "<html><table border=0 cellspacing=0 cellpadding=4><tr><td><b>URL</b></td>" +
                 "<td>" + tbl.getParent().getConnectionDefinition().getConnectionURL() +
                 "</td></tr><tr><td><b>Database</b></td><td>"+ tbl.getParent().getConnectionDefinition().getDBType() +
@@ -586,6 +610,7 @@ public class MashupGraphManager {
                     scene.addPin(nodeID, "nodeID" + "#pin" + pinCounter++));
             scene.validate();
             columnPin.setPinName(column.getDisplayName());
+            columnPin.getActions().addAction(columnSelectionEditor);
             scene.validate();
             List<Image> image = new ArrayList<Image>();
             if(column.isVisible()) {
@@ -600,9 +625,11 @@ public class MashupGraphManager {
                     image.add(MashupGraphUtil.getImage(ImageConstants.COLUMN));
                 }
                 usedCol.add(columnPin);
+                
             } else {
                 image.add(MashupGraphUtil.getImage(ImageConstants.COLUMN));
                 unusedCol.add(columnPin);
+                
             }
             pinTooltip = pinTooltip + "</table></html>";
             columnPin.setGlyphs(image);
@@ -610,7 +637,8 @@ public class MashupGraphManager {
             columnPin.setToolTipText(pinTooltip);
             scene.validate();
             widgets.add(columnPin);
-            sqlIdtoWidgetMap.put(column.getId(), columnPin);
+            sqltoWidgetMap.put(column, columnPin);
+            widgetToObjectMap.put(columnPin, column);
         }
         widget.setToolTipText(tooltip);
         if(usedCol.size() != 0) {
@@ -624,6 +652,7 @@ public class MashupGraphManager {
     
     private void addGroupbyNode(SQLGroupByImpl groupby,
             EDMNodeWidget widget, String nodeID) {
+        sqltoWidgetMap.put(groupby, widget);
         widget.setNodeName("Group By");
         SQLCondition condition = groupby.getHavingCondition();
         String conditionText = "<NO CONDITION>";
@@ -703,9 +732,13 @@ public class MashupGraphManager {
         }
         
         // clear all data structures.
-        sqlIdtoWidgetMap.clear();
+        sqltoWidgetMap.clear();
         edgeMap.clear();
         widgets.clear();
         widgetToObjectMap.clear();
     }
+    private Object image;
+    private Object pin;
+    private Object sqlIdtoWidgetMap;
+    private Object srcCols;
 }
