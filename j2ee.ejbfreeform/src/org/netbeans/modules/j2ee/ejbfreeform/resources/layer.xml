@@ -22,8 +22,8 @@ Microsystems, Inc. All Rights Reserved.
     <folder name="Templates">
         <folder name="Project">
             <folder name="J2EE">
-                <attr name="importEjbJar.xml/ejbfreeform.xml" boolvalue="true"/>
                 <file name="ejbfreeform.xml">
+                    <attr name="position" intvalue="500"/>
                     <attr name="template" boolvalue="true"/>
                     <attr name="instantiatingIterator" newvalue="org.netbeans.modules.j2ee.ejbfreeform.ui.NewEJBFreeformProjectWizardIterator"/>
                     <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.j2ee.ejbfreeform.resources.Bundle"/>
@@ -41,9 +41,10 @@ Microsystems, Inc. All Rights Reserved.
                 <file name="org-netbeans-modules-j2ee-ejbfreeform-LookupProviderImpl.instance"/>
             </folder>
             <folder name="Customizer">
-                <file name="org-netbeans-modules-j2ee-ejbfreeform-ui-EjbLocationsCategoryProvider.instance"/>
-                <attr name="org-netbeans-modules-j2ee-ejbfreeform-ui-EjbLocationsCategoryProvider.instance/org-netbeans-modules-java-freeform-ui-SourceFoldersCategoryProvider.instance" boolvalue="true"/>
-            </folder>
+                <file name="org-netbeans-modules-j2ee-ejbfreeform-ui-EjbLocationsCategoryProvider.instance">
+                    <attr name="position" intvalue="100"/>
+                </file>
+                </folder>
         </folder>
     </folder>
     
