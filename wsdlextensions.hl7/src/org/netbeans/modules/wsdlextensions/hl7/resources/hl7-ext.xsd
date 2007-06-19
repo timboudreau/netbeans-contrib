@@ -133,6 +133,25 @@
         </xs:restriction>
     </xs:simpleType>
 
+    <!--communication control names-->
+    <xs:simpleType name="comControlNames">
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="TIME_TO_WAIT_FOR_A_RESPONSE"/>
+			<xs:enumeration value="MAX_NO_RESPONSE"/>
+			<xs:enumeration value="MAX_NAK_RECEIVED_RETRY"/>
+			<xs:enumeration value="MAX_EMPTY_READ_RETRY"/>
+		</xs:restriction>
+    </xs:simpleType>
+    
+     <!--Recourse Actions-->
+    <xs:simpleType name="recourseActions">
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="Reset"/>
+			<xs:enumeration value="Resend"/>
+			<xs:enumeration value="SkipMessage"/>
+			<xs:enumeration value="Exit"/>
+		</xs:restriction>
+    </xs:simpleType>	
 
     <!-- Extensibility Element for the WSDL Port -->
     <xs:element name="address" type="hl7:tAddress">
@@ -268,4 +287,53 @@
            </xs:extension>
         </xs:complexContent>
     </xs:complexType>
+     <!-- Extensibility Element for the WSDL Port -->
+   <!-- <xs:element name="communicationcontrols" type="hl7:tCommunicationControls">
+        <xs:annotation>
+            <xs:documentation>
+            "communicationcontrols" indicates hl7 communication controls.
+            </xs:documentation>
+        </xs:annotation>
+    </xs:element>
+    <xs:complexType name="tCommunicationControls">
+        <xs:complexContent>
+            <xs:extension base="wsdl:tExtensibilityElement">
+		<xs:sequence>
+			<xs:element ref="hl7:communicationcontrol" minOccurs="0" maxOccurs="5"/>
+		</xs:sequence>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+   
+    <xs:element name="communicationcontrol" type="hl7:tCommunicationControl">
+	<xs:annotation>
+	<xs:documentation>"communicationcontrol defines the communication property and the respective recourse actions"</xs:documentation>
+	</xs:annotation>
+    </xs:element>
+    <xs:complexType name="tCommunicationControl">
+		<xs:complexContent>
+			<xs:extension base="wsdl:tExtensibilityElement">
+				<xs:attribute name="name" type="hl7:comControlNames" use="required">
+					<xs:annotation>
+						<xs:documentation>Name of the Communication Control</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+				<xs:attribute name="value" type="xs:int" use="required">
+					<xs:annotation>
+						<xs:documentation>Value of the Communication Control</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+				<xs:attribute name="enabled" type="xs:boolean" use="required" default="false">
+					<xs:annotation>
+						<xs:documentation>Enables or disables the communication control</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+				<xs:attribute name="recourse-action" type="hl7:recourseActions" use="required">
+					<xs:annotation>
+						<xs:documentation>Specifies the recourse action on the communication control</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>-->
 </xs:schema>
