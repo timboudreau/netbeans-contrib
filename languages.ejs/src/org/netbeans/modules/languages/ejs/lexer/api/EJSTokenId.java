@@ -44,6 +44,9 @@ import org.netbeans.spi.lexer.LexerRestartInfo;
 public enum EJSTokenId implements TokenId {
 
     HTML("html"),
+    /** Contents inside <%= %> */
+    JAVASCRIPT_EXPRESSION("javascript"),
+    /** Contents inside <% %> */
     JAVASCRIPT("javascript"),
     DELIMITER("ejs-delimiter");
 
@@ -66,9 +69,6 @@ public enum EJSTokenId implements TokenId {
         }
         
         protected Map<String,Collection<EJSTokenId>> createTokenCategories() {
-            //Map<String,Collection<EJSTokenId>> cats = new HashMap<String,Collection<EJSTokenId>>();
-            // Additional literals being a lexical error
-            //cats.put("error", EnumSet.of());
             return null;
         }
         
@@ -81,14 +81,10 @@ public enum EJSTokenId implements TokenId {
                                   LanguagePath languagePath, InputAttributes inputAttributes) {
             switch(token.id()) {
                  case HTML:
-                    // XXX Should I pass in a fourth argument, joinsections=true?
-                    return LanguageEmbedding.create(HTMLTokenId.language(), 0, 0);
+                    return LanguageEmbedding.create(HTMLTokenId.language(), 0, 0, true);
                 case JAVASCRIPT:
-                    // XXX Should I pass in a fourth argument, joinsections=true?
-                    
-
+                case JAVASCRIPT_EXPRESSION:
                     return LanguageEmbedding.create(org.netbeans.api.lexer.Language.find("text/javascript") , 0, 0);
- //ludo                   return LanguageEmbedding.create(EJSTokenId.language(), 0, 0);
                 default:
                     return null;
             }
