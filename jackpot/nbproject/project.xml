@@ -14,12 +14,8 @@ Microsystems, Inc. All Rights Reserved.
 <project xmlns="http://www.netbeans.org/ns/project/1">
     <type>org.netbeans.modules.apisupport.project</type>
     <configuration>
-        <data xmlns="http://www.netbeans.org/ns/nb-module-project/2">
+        <data xmlns="http://www.netbeans.org/ns/nb-module-project/3">
             <code-name-base>org.netbeans.modules.jackpot</code-name-base>
-            <public-packages>
-                <package>org.netbeans.api.jackpot</package>
-                <package>org.netbeans.spi.jackpot</package>
-            </public-packages>
             <module-dependencies>
                 <dependency>
                     <code-name-base>org.jdesktop.layout</code-name-base>
@@ -171,6 +167,10 @@ Microsystems, Inc. All Rights Reserved.
                     </test-dependency>
                 </test-type>
             </test-dependencies>
+            <public-packages>
+                <package>org.netbeans.api.jackpot</package>
+                <package>org.netbeans.spi.jackpot</package>
+            </public-packages>
         </data>
     </configuration>
 </project>
