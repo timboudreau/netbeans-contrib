@@ -26,7 +26,7 @@ import org.openide.WizardDescriptor;
 import org.openide.util.HelpCtx;
 import org.openide.filesystems.FileObject;
 
-public class ExportWizardPanel1 implements WizardDescriptor.Panel {
+public class ExportWizardPanel1 implements WizardDescriptor.Panel<WizardDescriptor> {
 
     /**
      * The visual component that displays this panel. If you need to access the
@@ -89,10 +89,9 @@ public class ExportWizardPanel1 implements WizardDescriptor.Panel {
         }
     }
     
-    @SuppressWarnings("unchecked")
-    public void readSettings(Object settings) {
-        WizardDescriptor wd = (WizardDescriptor)settings;
+    public void readSettings(WizardDescriptor wd) {
         String impl = (String)wd.getProperty("implName"); // NOI18N
+        @SuppressWarnings("unchecked")
         Collection<String> interfaces = (Collection<String>)wd.getProperty("interfaceNames"); // NOI18N
         target = (FileObject)wd.getProperty("target"); // NOI18N
 
@@ -100,8 +99,7 @@ public class ExportWizardPanel1 implements WizardDescriptor.Panel {
             component.fillTable(interfaces);
         }
     }
-    public void storeSettings(Object settings) {
-        WizardDescriptor wd = (WizardDescriptor)settings;
+    public void storeSettings(WizardDescriptor wd) {
         wd.putProperty("files", component.generatedFiles());
     }
     

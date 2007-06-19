@@ -24,7 +24,7 @@ import javax.swing.JComponent;
 import javax.swing.event.ChangeListener;
 import org.openide.WizardDescriptor;
 
-public final class ExportWizardIterator implements WizardDescriptor.Iterator {
+public final class ExportWizardIterator implements WizardDescriptor.Iterator<WizardDescriptor> {
 
     // To invoke this wizard, copy-paste and run the following code, e.g. from
     // SomeAction.performAction():
@@ -46,15 +46,15 @@ public final class ExportWizardIterator implements WizardDescriptor.Iterator {
     
     private int index;
     
-    private WizardDescriptor.Panel[] panels;
+    private ExportWizardPanel1[] panels;
     
     /**
      * Initialize panels representing individual wizard's steps and sets
      * various properties for them influencing wizard appearance.
      */
-    private WizardDescriptor.Panel[] getPanels() {
+    private ExportWizardPanel1[] getPanels() {
         if (panels == null) {
-            panels = new WizardDescriptor.Panel[] {
+            panels = new ExportWizardPanel1[] {
                 new ExportWizardPanel1(),
             };
             String[] steps = new String[panels.length];
@@ -80,7 +80,7 @@ public final class ExportWizardIterator implements WizardDescriptor.Iterator {
         return panels;
     }
     
-    public WizardDescriptor.Panel current() {
+    public WizardDescriptor.Panel<WizardDescriptor> current() {
         return getPanels()[index];
     }
     
