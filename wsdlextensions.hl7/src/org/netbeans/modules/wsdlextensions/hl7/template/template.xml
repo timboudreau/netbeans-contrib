@@ -66,6 +66,7 @@
 				<extensionAttr name="softwareBinaryID"  defaultValue="2.0"/>
 				<extensionAttr name="softwareProductInformation"  defaultValue="It is a binding component for HL7 over TCP/IP connection"/>
             </extensionElement>
+			<!-- <extensionElement name="communicationcontrols"/> -->
         </wsdlElement>
     </template>
 </templateGroup>
