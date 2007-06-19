@@ -322,6 +322,10 @@ public class HL7ComponentValidator implements Validator, HL7Component.Visitor {
         String versionID = target.getVersionID();
         String ackMode = target.getAckMode();
         if (nonEmptyString(versionID)) {
+			if(versionID.equals("3.0")){
+				 results.add(new Validator.ResultItem(this, Validator.ResultType.ERROR, target, getMessage(
+                            "HL7ProtocolProperties.NOT_SUPPORT_VERSION", new Object[] { versionID })));
+			}
             if (nonEmptyString(ackMode)) {
                 if (versionID.equals("2.1") && ackMode.equals("enhanced")) {
                     results.add(new Validator.ResultItem(this, Validator.ResultType.ERROR, target, getMessage(
