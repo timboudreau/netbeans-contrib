@@ -64,6 +64,12 @@
 			<attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.wsdlextensions.hl7.resources.Bundle"/>
 			<attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/wsdlextensions/hl7/resources/while16x16.png"/>
 			</file>
+			<!--<file name="HL7CommunicationControls">
+			<attr name="xsdFileName" stringvalue="hl7-ext" />
+			<attr name="element" stringvalue="communicationcontrols"/>
+			<attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.wsdlextensions.hl7.resources.Bundle"/>
+			<attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/wsdlextensions/hl7/resources/while16x16.png"/>
+			</file>-->
         </folder>
     </folder>
     <folder name="SeeBeyondJbiComponents">
