@@ -1,7 +1,20 @@
-<?xml version="1.0"?>
-<!DOCTYPE catalog PUBLIC "-//NetBeans//DTD Editor Abbreviations settings 1.0//EN"
- "http://www.netbeans.org/dtds/EditorAbbreviations-1_0.dtd">
-
-<abbrevs>
-<abbrev key="TODO">TODO - add abbreviations for EJS</abbrev>
-</abbrevs>
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE codetemplates PUBLIC "-//NetBeans//DTD Editor Code Templates settings 1.0//EN" "http://www.netbeans.org/dtds/EditorCodeTemplates-1_0.dtd">
+<codetemplates>
+    <codetemplate abbreviation="td" descriptionId="ct_td">
+        <code><![CDATA[<td>${cursor}</td>]]></code>
+    </codetemplate>
+    <codetemplate abbreviation="table"><code><![CDATA[<table border="1">
+<tr>
+<td>   
+</td>    
+</tr>    
+        </table>]]></code>
+    </codetemplate>
+    <codetemplate abbreviation="p" descriptionId="ct_p">
+        <code><![CDATA[<% ${cursor} %>]]></code>
+    </codetemplate>
+    <codetemplate abbreviation="pe" descriptionId="ct_pe"><code><![CDATA[<%= ${cursor} %>]]></code>
+    </codetemplate>
+    
+</codetemplates>

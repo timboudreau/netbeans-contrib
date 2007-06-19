@@ -56,7 +56,11 @@ public final class EJSLexer implements Lexer<EJSTokenId> {
     private static final int ISA_LT              = 1; // after '<' char
     private static final int ISA_LT_PC           = 2; // after '<%' - comment or directive or scriptlet
     private static final int ISI_SCRIPTLET       = 3; // inside java scriptlet/declaration/expression
-    private static final int ISP_SCRIPTLET_PC    = 4; // just after % in scriptlet
+    private static final int ISI_SCRIPTLET_PC    = 4; // just after % in scriptlet
+    private static final int ISI_COMMENT_SCRIPTLET    = 5; // Inside a js comment scriptlet
+    private static final int ISI_COMMENT_SCRIPTLET_PC = 6; // just after % in a js comment scriptlet
+    private static final int ISI_EXPR_SCRIPTLET       = 7; // inside js expression scriptlet
+    private static final int ISI_EXPR_SCRIPTLET_PC    = 8; // just after % in an expression scriptlet
     
     public EJSLexer(LexerRestartInfo<EJSTokenId> info) {
         this.input = info.input();
@@ -114,14 +118,25 @@ public final class EJSLexer implements Lexer<EJSTokenId> {
 //                            break;
                     }
                     break;
-                    
+
+                                        
                 case ISA_LT_PC:
                     switch (actChar) {
-                        case '!': 
                         case '=': 
                             if(input.readLength() == 3) {
                                 // just <%! or <%= read
-                                state = ISI_SCRIPTLET;
+                                state = ISI_EXPR_SCRIPTLET;
+                                return token(EJSTokenId.DELIMITER);
+                            } else {
+                                // RHTML symbol, but we also have content language in the buffer
+                                input.backup(3); //backup <%=
+                                state = INIT;
+                                return token(EJSTokenId.HTML); //return CL token
+                            }
+                        case '#':
+                            if(input.readLength() == 3) {
+                                // just <%! or <%= read
+                                state = ISI_COMMENT_SCRIPTLET;
                                 return token(EJSTokenId.DELIMITER);
                             } else {
                                 //jsp symbol, but we also have content language in the buffer
@@ -129,31 +144,41 @@ public final class EJSLexer implements Lexer<EJSTokenId> {
                                 state = INIT;
                                 return token(EJSTokenId.HTML); //return CL token
                             }
-                        default:  //java scriptlet delimiter '<%'
+                        default:  // RHTML scriptlet delimiter '<%'
                             if(input.readLength() == 3) {
-                                // just <% + something != [-,!,=,@] read
+                                // just <% + something != [=,#] read
                                 state = ISI_SCRIPTLET;
                                 input.backup(1); //backup the third character, it is a part of the java scriptlet
                                 return token(EJSTokenId.DELIMITER);
                             } else {
-                                //jsp symbol, but we also have content language in the buffer
+                                // RHTML symbol, but we also have content language in the buffer
                                 input.backup(3); //backup <%@
                                 state = INIT;
                                 return token(EJSTokenId.HTML); //return CL token
                             }
                     }
                     
-                case ISI_SCRIPTLET:
+                case ISI_COMMENT_SCRIPTLET:
                     switch(actChar) {
                         case '%':
-                            state = ISP_SCRIPTLET_PC;
+                            state = ISI_COMMENT_SCRIPTLET_PC;
                             break;
                     }
                     break;
                     
-                case ISP_SCRIPTLET_PC:
+                    
+                case ISI_SCRIPTLET:
                     switch(actChar) {
-                                                case '>':
+                        case '%':
+                            state = ISI_SCRIPTLET_PC;
+                            break;
+                    }
+                    break;
+                    
+
+                case ISI_SCRIPTLET_PC:
+                    switch(actChar) {
+                        case '>':
                             if(input.readLength() == 2) {
                                 //just the '%>' symbol read
                                 state = INIT;
@@ -169,6 +194,53 @@ public final class EJSLexer implements Lexer<EJSTokenId> {
                             break;
                     }
                     break;
+
+                case ISI_EXPR_SCRIPTLET:
+                    switch(actChar) {
+                        case '%':
+                            state = ISI_EXPR_SCRIPTLET_PC;
+                            break;
+                    }
+                    break;
+                    
+
+                case ISI_EXPR_SCRIPTLET_PC:
+                    switch(actChar) {
+                        case '>':
+                            if(input.readLength() == 2) {
+                                //just the '%>' symbol read
+                                state = INIT;
+                                return token(EJSTokenId.DELIMITER);
+                            } else {
+                                //return the scriptlet content
+                                input.backup(2); // backup '%>' we will read JUST them again
+                                state = ISI_EXPR_SCRIPTLET;
+                                return token(EJSTokenId.JAVASCRIPT_EXPRESSION);
+                            }
+                        default:
+                            state = ISI_EXPR_SCRIPTLET;
+                            break;
+                    }
+                    break;
+                    
+            /*    case ISI_COMMENT_SCRIPTLET_PC:
+                    switch(actChar) {
+                        case '>':
+                            if(input.readLength() == 2) {
+                                //just the '%>' symbol read
+                                state = INIT;
+                                return token(EJSTokenId.DELIMITER);
+                            } else {
+                                //return the scriptlet content
+                                input.backup(2); // backup '%>' we will read JUST them again
+                                state = ISI_COMMENT_SCRIPTLET;
+                                return token(EJSTokenId.JSCOMMENT);
+                            }
+                        default:
+                            state = ISI_COMMENT_SCRIPTLET;
+                            break;
+                    }
+                    break;*/
             }
             
         }
@@ -178,7 +250,7 @@ public final class EJSLexer implements Lexer<EJSTokenId> {
         // available buffer.
         
         switch(state) {
-                        case INIT:
+            case INIT:
                 if (input.readLength() == 0) {
                     return null;
                 } else {
@@ -190,15 +262,28 @@ public final class EJSLexer implements Lexer<EJSTokenId> {
             case ISA_LT_PC:
                 state = INIT;
                 return token(EJSTokenId.DELIMITER);
-            case ISP_SCRIPTLET_PC:
+            case ISI_SCRIPTLET_PC:
                 state = INIT;
                 return token(EJSTokenId.DELIMITER);
             case ISI_SCRIPTLET:
                 state = INIT;
                 return token(EJSTokenId.JAVASCRIPT);
+            case ISI_EXPR_SCRIPTLET_PC:
+                state = INIT;
+                return token(EJSTokenId.DELIMITER);
+            case ISI_EXPR_SCRIPTLET:
+                state = INIT;
+                return token(EJSTokenId.JAVASCRIPT_EXPRESSION);
+            case ISI_COMMENT_SCRIPTLET_PC:
+                state = INIT;
+                return token(EJSTokenId.DELIMITER);
+  //          case ISI_COMMENT_SCRIPTLET:
+   //             state = INIT;
+   //             return token(EJSTokenId.JSCOMMENT);
+                
                 
             default:
-                System.out.println("EJSLexer - unhandled state : " + state);   // NOI18N
+                System.out.println("RhtmlLexer - unhandled state : " + state);   // NOI18N
         }
         
         return null;
@@ -208,4 +293,3 @@ public final class EJSLexer implements Lexer<EJSTokenId> {
     public void release() {
     }
 }
-
