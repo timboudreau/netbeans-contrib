@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Copyright 2001 Cisco Systems, Inc., Ericsson Radio Systems AB., Motorola, Inc., NEC Corporation, Nokia Networks Oy, Nortel Networks Limited, Sun Microsystems, Inc., Telcordia Technologies, Inc., Digital Fairway Corporation, Orchestream Holdings plc, BEA Systems, Inc.  All rights reserved.  Use is subject to license terms. -->
+<!--
+DOCUMENTATION IS PROVIDED "AS IS" AND ALL EXPRESS OR IMPLIED
+CONDITIONS, REPRESENTATIONS AND WARRANTIES, INCLUDING ANY IMPLIED
+WARRANTY OF MERCHANTABILITY, FITNESS FOR FOR A PARTICULAR PURPOSE OR
+NON-INFRINGEMENT, ARE DISCLAIMED, EXCEPT TO THE EXTENT THAT SUCH
+DISCLAIMERS ARE HELD TO BE LEGALLY INVALID.
+-->
+<schema targetNamespace="http://java.sun.com/products/oss/xml/Common/Util" xmlns="http://www.w3.org/2001/XMLSchema" xmlns:irp="http://java.sun.com/products/oss/xml/Common/Util" xmlns:co="http://java.sun.com/products/oss/xml/Common" elementFormDefault="qualified">
+	<import namespace="http://java.sun.com/products/oss/xml/Common" schemaLocation="XmlCommonSchema.xsd"/>
+  <!-- Event type javax.oss.util.IRPEvent -->
+  <element name="IRPEvent">
+	  <complexType>
+	    <sequence>
+	      <element name="event" type="irp:IRPEventType" nillable="false"/>
+	    </sequence>
+		</complexType>
+	</element>
+	<complexType name="IRPEventType">
+	  <complexContent>
+	    <extension base="co:BaseEventType">
+	      <sequence>
+	        <element name="managedObjectClass" type="string" nillable="false"/>
+	        <element name="managedObjectInstance" type="string" nillable="false"/>
+	        <element name="notificationId" type="string" nillable="false"/>
+	      </sequence>
+      </extension>
+	  </complexContent>
+	</complexType>
+	<!-- Value type javax.oss.util.IRPEventPropertyDescriptor -->
+	<complexType name="IRPEventPropertyDescriptor">
+    <complexContent>
+      <extension base="co:EventPropertyDescriptor">
+	      <sequence/>
+      </extension>
+    </complexContent>
+	</complexType>
+</schema>

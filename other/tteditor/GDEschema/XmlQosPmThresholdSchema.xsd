@@ -1,0 +1,675 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Copyright 2001 Cisco Systems, Inc., Ericsson Radio Systems AB., Motorola, Inc., NEC Corporation, Nokia Networks Oy, Nortel Networks Limited, Sun Microsystems, Inc., Telcordia Technologies, Inc., Digital Fairway Corporation, Orchestream Holdings plc, BEA Systems, Inc.  All rights reserved.  Use is subject to license terms. -->
+<!--
+DOCUMENTATION IS PROVIDED "AS IS" AND ALL EXPRESS OR IMPLIED
+CONDITIONS, REPRESENTATIONS AND WARRANTIES, INCLUDING ANY IMPLIED
+WARRANTY OF MERCHANTABILITY, FITNESS FOR FOR A PARTICULAR PURPOSE OR
+NON-INFRINGEMENT, ARE DISCLAIMED, EXCEPT TO THE EXTENT THAT SUCH
+DISCLAIMERS ARE HELD TO BE LEGALLY INVALID.
+-->
+<schema targetNamespace="http://java.sun.com/products/oss/xml/QualityOfService/PM/Threshold" 
+  xmlns:co="http://java.sun.com/products/oss/xml/Common" 
+  xmlns:irp="http://java.sun.com/products/oss/xml/Common/Util" 
+  xmlns:fm="http://java.sun.com/products/oss/xml/QualityOfService/FM/Monitor" 
+xmlns:threshold="http://java.sun.com/products/oss/xml/QualityOfService/PM/Threshold" 
+xmlns:measurement="http://java.sun.com/products/oss/xml/QualityOfService/PM/Measurement" 
+  xmlns:pmUtil="http://java.sun.com/products/oss/xml/QualityOfService/PM/Util" 
+  xmlns="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified">
+	<import namespace="http://java.sun.com/products/oss/xml/Common" 
+          schemaLocation="http://java.sun.com/products/oss/xml/Common/XmlCommonSchema.xsd"/>
+	<import namespace="http://java.sun.com/products/oss/xml/Common/Util" 
+          schemaLocation="http://java.sun.com/products/oss/xml/Common/Util/XmlCommonUtilSchema.xsd"/>
+	<import namespace="http://java.sun.com/products/oss/xml/QualityOfService/PM/Util" 
+         schemaLocation="http://java.sun.com/products/oss/xml/QualityOfService/PM/Util/XmlQosPmUtilSchema.xsd"/>
+	<import namespace="http://java.sun.com/products/oss/xml/QualityOfService/PM/Measurement" 
+    	schemaLocation="http://java.sun.com/products/oss/xml/QualityOfService/PM/Measurement/XmlQosPmMeasurementSchema.xsd"/>
+	<import namespace="http://java.sun.com/products/oss/xml/QualityOfService/FM/Monitor" 
+	    schemaLocation="http://java.sun.com/products/oss/xml/QualityOfService/FM/Monitor/XmlQosFmMonitorSchema.xsd"/>
+	<!-- Value type javax.oss.pm.threshold.AlarmConfig -->
+	<complexType name="AlarmConfig">
+		<sequence>
+			<element ref="fm:baseAlarmType"/>
+			<element ref="fm:basePerceivedSeverity"/>
+			<element name="specificProblem" type="string"/>
+			<element ref="fm:baseProbableCause"/>
+		</sequence>
+	</complexType>
+	<element name="createThresholdMonitorByValueRequest">
+		<complexType>
+			<sequence>
+				<element name="value" 
+                     type="threshold:ThresholdMonitorValue"/>
+			</sequence>
+		</complexType>
+	</element>
+	<element name="createThresholdMonitorByValueResponse">
+		<complexType>
+			<sequence>
+				<element name="thresholdMonitorByValue" 
+                     type="threshold:ThresholdMonitorKey"/>
+			</sequence>
+		</complexType>
+	</element>
+	<element name="createThresholdMonitorByValueException">
+		<complexType>
+			<choice>
+				<element name="createException" type="co:CreateException"/>
+				<element name="illegalArgumentException" 
+                     type="co:IllegalArgumentException"/>
+				<element name="duplicateKeyException"                                                                            type="co:DuplicateKeyException"/>
+				<element name="remoteException" type="co:RemoteException"/>
+			</choice>
+		</complexType>
+	</element>
+	<element name="getObservableAttributesRequest">
+		<complexType>
+			<sequence>
+				<element name="observableObjectClassName" type="string"/>
+			</sequence>
+		</complexType>
+	</element>
+	<element name="getObservableAttributesResponse">
+		<complexType>
+			<sequence>
+				<element name="observableAttributes" 
+                     type="measurement:PerformanceAttributeDescriptor"/>
+			</sequence>
+		</complexType>
+	</element>
+	<element name="getObservableAttributesException">
+		<complexType>
+			<choice>
+				<element name="illegalArgumentException" 
+                     type="co:IllegalArgumentException"/>
+				<element name="remoteException" type="co:RemoteException"/>
+			</choice>
+		</complexType>
+	</element>
+	<element name="getObservableObjectClassesRequest">
+		<complexType>
+			<complexContent>
+				<extension base="co:IteratorRequest">
+					<sequence/>
+				</extension>
+			</complexContent>
+		</complexType>
+	</element>
+	<element name="getObservableObjectClassesResponse">
+		<complexType>
+			<complexContent>
+				<extension base="co:IteratorResponse">
+					<sequence>
+						<element name="classes" type="co:ArrayOfString" />
+					</sequence>
+				</extension>
+			</complexContent>
+		</complexType>
+	</element>
+	<element name="getObservableObjectClassesException">
+		<complexType>
+			<choice>
+				<element name="remoteException" type="co:RemoteException"/>
+			</choice>
+		</complexType>
+	</element>
+	<element name="getObservableObjectsRequest">
+		<complexType>
+			<complexContent>
+				<extension base="co:IteratorRequest">
+					<sequence>
+						<element name="observableObjectClassName" type="string"/>
+						<element name="base" type="string"/>
+					</sequence>
+				</extension>
+			</complexContent>
+		</complexType>
+	</element>
+	<element name="getObservableObjectsResponse">
+		<complexType>
+			<complexContent>
+				<extension base="co:IteratorResponse">
+					<sequence>
+						<element name="ooDNs" type="co:ArrayOfString"  />
+					</sequence>
+				</extension>
+			</complexContent>
+		</complexType>
+	</element>
+	<element name="getObservableObjectsException">
+		<complexType>
+			<choice>
+				<element name="illegalArgumentException" 
+                     type="co:IllegalArgumentException"/>
+				<element name="remoteException" type="co:RemoteException"/>
+			</choice>
+		</complexType>
+	</element>
+	<element name="getSupportedGranularitiesRequest">
+		<complexType>
+			<sequence>
+				<element name="tmValue" type="threshold:ThresholdMonitorValue"/>
+			</sequence>
+		</complexType>
+	</element>
+	<element name="getSupportedGranularitiesResponse">
+		<complexType>
+			<sequence>
+				<element name="supportedGranularities" type="co:ArrayOfInt" />
+			</sequence>
+		</complexType>
+	</element>
+	<element name="getSupportedGranularitiesException">
+		<complexType>
+			<choice>
+				<element name="remoteException" type="co:RemoteException"/>
+				<element name="illegalArgumentException" 
+                     type="co:IllegalArgumentException"/>
+			</choice>
+		</complexType>
+	</element>
+	<element name="getSupportedObservableObjectsRequest">
+		<complexType>
+			<sequence>
+				<element name="dnList" type="co:ArrayOfString"/>
+			</sequence>
+		</complexType>
+	</element>
+	<element name="getSupportedObservableObjectsResponse">
+		<complexType>
+			<sequence>
+				<element name="supportedObservableObjects" type="co:ArrayOfString"/>
+			</sequence>
+		</complexType>
+	</element>
+	<element name="getSupportedObservableObjectsException">
+		<complexType>
+			<choice>
+				<element name="remoteException" type="co:RemoteException"/>
+			</choice>
+		</complexType>
+	</element>
+	<element name="getThresholdMonitorByKeyRequest">
+		<complexType>
+			<sequence>
+				<element name="tmKey" type="threshold:ThresholdMonitorKey"/>
+				<element name="attributes" type="co:ArrayOfString"/>
+			</sequence>
+		</complexType>
+	</element>
+	<element name="getThresholdMonitorByKeyResponse">
+		<complexType>
+			<sequence>
+				<element name="thresholdMonitorByKey" 
+                     type="threshold:ThresholdMonitorValue"/>
+			</sequence>
+		</complexType>
+	</element>
+	<element name="getThresholdMonitorByKeyException">
+		<complexType>
+			<choice>
+				<element name="objectNotFoundException" 
+                     type="co:ObjectNotFoundException"/>
+				<element name="illegalArgumentException" 
+                     type="co:IllegalArgumentException"/>
+				<element name="remoteException" type="co:RemoteException"/>
+			</choice>
+		</complexType>
+	</element>
+	<element name="getThresholdMonitorsByKeysRequest">
+		<complexType>
+			<complexContent>
+				<extension base="co:IteratorRequest">
+					<sequence>
+						<element name="tmKeys" 
+                           type="threshold:ArrayOfThresholdMonitorKey"/>
+						<element name="attributes" type="co:ArrayOfString"/>
+					</sequence>
+				</extension>
+			</complexContent>
+		</complexType>
+	</element>
+	<element name="getThresholdMonitorsByKeysResponse">
+		<complexType>
+			<complexContent>
+				<extension base="co:IteratorResponse">
+					<sequence>
+						<element name="values" 
+                           type="threshold:ArrayOfThresholdMonitorValue" />
+					</sequence>
+				</extension>
+			</complexContent>
+		</complexType>
+	</element>
+	<element name="getThresholdMonitorsByKeysException">
+		<complexType>
+			<choice>
+				<element name="illegalArgumentException" 
+                     type="co:IllegalArgumentException"/>
+				<element name="finderException" type="co:FinderException"/>
+				<element name="remoteException" type="co:RemoteException"/>
+			</choice>
+		</complexType>
+	</element>
+	<element name="getVersionRequest">
+		<complexType>
+			<sequence/>
+		</complexType>
+	</element>
+	<element name="getVersionResponse">
+		<complexType>
+			<sequence>
+				<element name="version" type="co:ArrayOfString"/>
+			</sequence>
+		</complexType>
+	</element>
+	<element name="getVersionException">
+		<complexType>
+			<choice>
+				<element name="remoteException" type="co:RemoteException"/>
+			</choice>
+		</complexType>
+	</element>
+	<element name="queryThresholdMonitorsRequest">
+		<complexType>
+			<complexContent>
+				<extension base="co:IteratorRequest">
+					<sequence>
+						<element name="query" type="co:QueryValue"/>
+						<element name="attrNames" type="co:ArrayOfString"/>
+					</sequence>
+				</extension>
+			</complexContent>
+		</complexType>
+	</element>
+	<element name="queryThresholdMonitorsResponse">
+		<complexType>
+			<complexContent>
+				<extension base="co:IteratorResponse">
+					<sequence>
+						<element name="thresholdMonitorsByValues" 
+                           type="threshold:ArrayOfThresholdMonitorValue" 
+                            />
+					</sequence>
+				</extension>
+			</complexContent>
+		</complexType>
+	</element>
+	<element name="queryThresholdMonitorsException">
+		<complexType>
+			<choice>
+				<element name="illegalArgumentException" 
+                     type="co:IllegalArgumentException"/>
+				<element name="remoteException" type="co:RemoteException"/>
+			</choice>
+		</complexType>
+	</element>
+	<element name="removeThresholdMonitorByKeyRequest">
+		<complexType>
+			<sequence>
+				<element name="tmKey" type="threshold:ThresholdMonitorKey"/>
+			</sequence>
+		</complexType>
+	</element>
+	<element name="removeThresholdMonitorByKeyResponse">
+		<complexType>
+			<sequence/>
+		</complexType>
+	</element>
+	<element name="removeThresholdMonitorByKeyException">
+		<complexType>
+			<choice>
+				<element name="objectNotFoundException" 
+                     type="co:ObjectNotFoundException"/>
+				<element name="illegalArgumentException" 
+                     type="co:IllegalArgumentException"/>
+				<element name="removeException" type="co:RemoveException"/>
+				<element name="remoteException" type="co:RemoteException"/>
+			</choice>
+		</complexType>
+	</element>
+	<element name="resumeThresholdMonitorByKeyRequest">
+		<complexType>
+			<sequence>
+				<element name="tmKey" type="threshold:ThresholdMonitorKey"/>
+			</sequence>
+		</complexType>
+	</element>
+	<element name="resumeThresholdMonitorByKeyResponse">
+		<complexType>
+			<sequence/>
+		</complexType>
+	</element>
+	<element name="resumeThresholdMonitorByKeyException">
+		<complexType>
+			<choice>
+				<element name="unsupportedOperationException" 
+                     type="co:UnsupportedOperationException"/>
+				<element name="objectNotFoundException" 
+                     type="co:ObjectNotFoundException"/>
+				<element name="illegalArgumentException" 
+                     type="co:IllegalArgumentException"/>
+				<element name="remoteException" type="co:RemoteException"/>
+			</choice>
+		</complexType>
+	</element>
+	<element name="suspendThresholdMonitorByKeyRequest">
+		<complexType>
+			<sequence>
+				<element name="tmKey" type="threshold:ThresholdMonitorKey"/>
+			</sequence>
+		</complexType>
+	</element>
+	<element name="suspendThresholdMonitorByKeyResponse">
+		<complexType>
+			<sequence/>
+		</complexType>
+	</element>
+	<element name="suspendThresholdMonitorByKeyException">
+		<complexType>
+			<choice>
+				<element name="unsupportedOperationException" 
+                     type="co:UnsupportedOperationException"/>
+				<element name="objectNotFoundException" 
+                     type="co:ObjectNotFoundException"/>
+				<element name="illegalArgumentException" 
+                     type="co:IllegalArgumentException"/>
+				<element name="remoteException" type="co:RemoteException"/>
+			</choice>
+		</complexType>
+	</element>
+	<element name="tryCreateThresholdMonitorsByValuesRequest">
+		<complexType>
+			<sequence>
+				<element name="tmValues" type="threshold:ArrayOfThresholdMonitorValue"/>
+			</sequence>
+		</complexType>
+	</element>
+	<element name="tryCreateThresholdMonitorsByValuesResponse">
+		<complexType>
+			<sequence>
+				<element name="createThresholdMonitorsByValues" 
+                     type="threshold:ArrayOfThresholdMonitorKeyResult"/>
+			</sequence>
+		</complexType>
+	</element>
+	<element name="tryCreateThresholdMonitorsByValuesException">
+		<complexType>
+			<choice>
+				<element name="unsupportedOperationException" 
+                     type="co:UnsupportedOperationException"/>
+				<element name="illegalArgumentException" 
+                     type="co:IllegalArgumentException"/>
+				<element name="remoteException" type="co:RemoteException"/>
+			</choice>
+		</complexType>
+	</element>
+	<element name="tryRemoveThresholdMonitorsByKeysRequest">
+		<complexType>
+			<sequence>
+				<element name="tmKeys" type="threshold:ArrayOfThresholdMonitorKey"/>
+			</sequence>
+		</complexType>
+	</element>
+	<element name="tryRemoveThresholdMonitorsByKeysResponse">
+		<complexType>
+			<sequence>
+				<element name="removeThresholdMonitorsByKeys" 
+                     type="threshold:ArrayOfThresholdMonitorKeyResult"/>
+			</sequence>
+		</complexType>
+	</element>
+	<element name="tryRemoveThresholdMonitorsByKeysException">
+		<complexType>
+			<choice>
+				<element name="unsupportedOperationException" 
+                     type="co:UnsupportedOperationException"/>
+				<element name="illegalArgumentException" 
+                     type="co:IllegalArgumentException"/>
+				<element name="remoteException" type="co:RemoteException"/>
+			</choice>
+		</complexType>
+	</element>
+	<element name="tryResumeThresholdMonitorsByKeysRequest">
+		<complexType>
+			<sequence>
+				<element name="tmKeys" type="threshold:ArrayOfThresholdMonitorKey"/>
+			</sequence>
+		</complexType>
+	</element>
+	<element name="tryResumeThresholdMonitorsByKeysResponse">
+		<complexType>
+			<sequence>
+				<element name="resumeThresholdMonitorsByKeys" 
+                     type="threshold:ArrayOfThresholdMonitorKeyResult"/>
+			</sequence>
+		</complexType>
+	</element>
+	<element name="tryResumeThresholdMonitorsByKeysException">
+		<complexType>
+			<choice>
+				<element name="unsupportedOperationException" 
+                     type="co:UnsupportedOperationException"/>
+				<element name="illegalArgumentException" 
+                     type="co:IllegalArgumentException"/>
+				<element name="remoteException" type="co:RemoteException"/>
+			</choice>
+		</complexType>
+	</element>
+	<element name="trySuspendThresholdMonitorsByKeysRequest">
+		<complexType>
+			<sequence>
+				<element name="tmKeys" type="threshold:ArrayOfThresholdMonitorKey"/>
+			</sequence>
+		</complexType>
+	</element>
+	<element name="trySuspendThresholdMonitorsByKeysResponse">
+		<complexType>
+			<sequence>
+				<element name="suspendThresholdMonitorsByKeys" 
+                     type="threshold:ArrayOfThresholdMonitorKeyResult"/>
+			</sequence>
+		</complexType>
+	</element>
+	<element name="trySuspendThresholdMonitorsByKeysException">
+		<complexType>
+			<choice>
+				<element name="unsupportedOperationException" 
+                     type="co:UnsupportedOperationException"/>
+				<element name="illegalArgumentException" 
+                     type="co:IllegalArgumentException"/>
+				<element name="remoteException" type="co:RemoteException"/>
+			</choice>
+		</complexType>
+	</element>
+	<!-- Enum type javax.oss.pm.threshold.JVTThresholdMonitorSessionOptionalOpt -->
+	<element name="JVTThresholdMonitorSessionOptionalOpt" 
+            type="threshold:JVTThresholdMonitorSessionOptionalOpt" />
+	<simpleType name="JVTThresholdMonitorSessionOptionalOpt">
+		<restriction base="string">
+			<enumeration value="TRY_CREATE_THRESHOLD_MONITORS_BY_VALUES"/>
+			<enumeration value="TRY_REMOVE_THRESHOLD_MONITORS_BY_KEYS"/>
+			<enumeration value="SUSPEND_THRESHOLD_MONITOR_BY_KEY"/>
+			<enumeration value="TRY_SUSPEND_THRESHOLD_MONITORS_BY_KEYS"/>
+			<enumeration value="RESUME_THRESHOLD_MONITOR_BY_KEY"/>
+			<enumeration value="TRY_RESUME_THRESHOLD_MONITORS_BY_KEYS"/>
+		</restriction>
+	</simpleType>
+	<!-- Value type javax.oss.pm.threshold.QueryByMonitorValue -->
+	<complexType name="QueryByMonitorValue">
+		<complexContent>
+			<extension base="co:QueryValue">
+				<sequence>
+					<element name="state" type="int"  minOccurs="0"/>
+					<element name="name" type="string"  minOccurs="0"/>
+					<element name="granularityPeriod" type="int"  
+                        minOccurs="0"/>
+					<element name="valueType" type="string"  
+                        minOccurs="0"/>
+				</sequence>
+			</extension>
+		</complexContent>
+	</complexType>
+	<!-- Value type javax.oss.pm.threshold.QueryBySimpleThresAttributesValue -->
+	<complexType name="QueryBySimpleThresAttributesValue">
+		<complexContent>
+			<extension base="threshold:QueryByMonitorValue">
+				<sequence>
+					<element name="observableObjects" type="co:ArrayOfString" 
+                         minOccurs="0"/>
+					<element name="thresholdDefinitions" 
+                        type="threshold:ArrayOfThresholdDefinition" 
+                         minOccurs="0"/>
+					<element name="alarmConfig" type="threshold:AlarmConfig" 
+                         minOccurs="0"/>
+				</sequence>
+			</extension>
+		</complexContent>
+	</complexType>
+	<!-- Value type javax.oss.pm.threshold.SimpleThresholdMonitorValue -->
+	<complexType name="SimpleThresholdMonitorValue">
+		<complexContent>
+			<extension base="threshold:ThresholdMonitorValue">
+				<sequence>
+					<element name="observableObject" type="string"  
+                        minOccurs="0"/>
+					<element name="thresholdDefinition" 
+                        type="threshold:ThresholdDefinition"  
+                        minOccurs="0"/>
+					<element name="alarmConfig" type="threshold:AlarmConfig" 
+                         minOccurs="0"/>
+				</sequence>
+			</extension>
+		</complexContent>
+	</complexType>
+	<!-- Value type javax.oss.pm.threshold.ThresholdDefinition -->
+	<complexType name="ThresholdDefinition">
+		<sequence>
+			<element name="descriptor" 
+                  type="measurement:PerformanceAttributeDescriptor" 
+                  nillable="false"/>
+			<element name="thresholdValue" type="string" nillable="false"/>
+			<element name="offset" type="string" nillable="false"/>
+			<element ref="threshold:baseThresholdDirection"/>
+		</sequence>
+	</complexType>
+	<!-- Array type javax.oss.pm.threshold.ThresholdDefinition [] -->
+	<complexType name="ArrayOfThresholdDefinition">
+		<sequence>
+			<element name="item" type="threshold:ThresholdDefinition"  
+                  maxOccurs="unbounded"/>
+		</sequence>
+	</complexType>
+	<!-- Enum type javax.oss.pm.threshold.ThresholdDirection -->
+	<element name="baseThresholdDirection" type="string"/>
+	<element name="thresholdDirection" type="threshold:ThresholdDirection" 
+                      substitutionGroup="threshold:baseThresholdDirection"/>
+	<simpleType name="ThresholdDirection">
+		<restriction base="string">
+			<enumeration value="RISING"/>
+			<enumeration value="FALLING"/>
+		</restriction>
+	</simpleType>
+	<!-- Value type javax.oss.pm.threshold.ThresholdMonitorKey -->
+	<complexType name="ThresholdMonitorKey">
+		<complexContent>
+			<extension base="co:ManagedEntityKey">
+				<sequence>
+					<element name="thresholdMonitorPrimaryKey" type="string"/>
+				</sequence>
+			</extension>
+		</complexContent>
+	</complexType>
+	<!-- Array type javax.oss.pm.threshold.ThresholdMonitorKey[] -->
+	<complexType name="ArrayOfThresholdMonitorKey">
+		<sequence>
+			<element name="item" type="threshold:ThresholdMonitorKey"  
+                  maxOccurs="unbounded"/>
+		</sequence>
+	</complexType>
+	<!-- Value type javax.oss.pm.threshold.ThresholdMonitorKeyResult -->
+	<complexType name="ThresholdMonitorKeyResult">
+		<complexContent>
+			<extension base="co:ManagedEntityKeyResult">
+				<sequence>
+					<element name="thresholdMonitorKey" 
+                        type="threshold:ThresholdMonitorKey"  
+                        minOccurs="0"/>
+				</sequence>
+			</extension>
+		</complexContent>
+	</complexType>
+	<!-- Array type javax.oss.pm.threshold.ThresholdMonitorKeyResult[] -->
+	<complexType name="ArrayOfThresholdMonitorKeyResult">
+		<sequence>
+			<element name="item" type="threshold:ThresholdMonitorKeyResult" 
+                   maxOccurs="unbounded"/>
+		</sequence>
+	</complexType>
+	<!-- Enum type javax.oss.pm.threshold.ThresholdMonitorState -->
+	<element name="thresholdMonitorState" type="threshold:ThresholdMonitorState" 
+            />
+	<simpleType name="ThresholdMonitorState">
+		<restriction base="string">
+			<enumeration value="ACTIVE_ON_DUTY"/>
+			<enumeration value="ACTIVE_OFF_DUTY"/>
+			<enumeration value="SUSPENDED"/>
+		</restriction>
+	</simpleType>
+	<!-- Value type javax.oss.pm.threshold.ThresholdMonitorValue -->
+	<complexType name="ThresholdMonitorValue">
+		<complexContent>
+			<extension base="co:ManagedEntityValue">
+				<sequence>
+					<element name="granularityPeriod" type="int"  
+                        minOccurs="0"/>
+					<element name="schedule" type="pmUtil:Schedule"  
+                        minOccurs="0"/>
+					<element name="thresholdMonitorKey" 
+                        type="threshold:ThresholdMonitorKey"  
+                        minOccurs="0"/>
+					<element name="name" type="string"  minOccurs="0"/>
+					<element name="state" type="int"  minOccurs="0"/>
+				</sequence>
+			</extension>
+		</complexContent>
+	</complexType>
+	<!-- Array type javax.oss.pm.threshold.ThresholdMonitorValue[] -->
+	<complexType name="ArrayOfThresholdMonitorValue">
+		<sequence>
+			<element name="item" type="threshold:ThresholdMonitorValue"  
+                  maxOccurs="unbounded"/>
+		</sequence>
+	</complexType>
+	<!-- Value type javax.oss.pm.threshold.TriggerOnAllThresholdMonitorValue -->
+	<complexType name="TriggerOnAllThresholdMonitorValue">
+		<complexContent>
+			<extension base="threshold:ThresholdMonitorValue">
+				<sequence>
+					<element name="observableObjects" type="co:ArrayOfString" 
+                         minOccurs="0"/>
+					<element name="thresholdDefinitions" 
+                        type="threshold:ArrayOfThresholdDefinition"  
+                        minOccurs="0"/>
+					<element name="alarmConfig" type="threshold:AlarmConfig" 
+                         minOccurs="0"/>
+				</sequence>
+			</extension>
+		</complexContent>
+	</complexType>
+	<!-- Value type javax.oss.pm.threshold.TriggerOnAnyThresholdMonitorValue -->
+	<complexType name="TriggerOnAnyThresholdMonitorValue">
+		<complexContent>
+			<extension base="threshold:ThresholdMonitorValue">
+				<sequence>
+					<element name="observableObjects" type="co:ArrayOfString" 
+                         minOccurs="0"/>
+					<element name="thresholdDefinitions" 
+                        type="threshold:ArrayOfThresholdDefinition"  
+                        minOccurs="0"/>
+					<element name="alarmConfig" type="threshold:AlarmConfig" 
+                         minOccurs="0"/>
+				</sequence>
+			</extension>
+		</complexContent>
+	</complexType>
+</schema>

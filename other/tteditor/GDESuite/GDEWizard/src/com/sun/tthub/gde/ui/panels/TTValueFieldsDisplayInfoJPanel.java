@@ -34,7 +34,7 @@ import com.sun.tthub.gdelib.fields.FieldInfo;
 import com.sun.tthub.gdelib.fields.FieldDisplayInfo;
 import com.sun.tthub.gdelib.fields.FieldDataEntryNature;
 import com.sun.tthub.gdelib.fields.SelectionFieldDisplayInfo;
-import com.sun.tthub.gdelib.fields.ComplexEntryFieldDisplayInfo;
+
 import com.sun.tthub.gdelib.logic.TTValueDisplayInfo;
 import com.sun.tthub.gdelib.logic.TTValueFieldInfo;
 import com.sun.tthub.gde.logic.GDEAppContext;

@@ -110,6 +110,7 @@ public class NetbeansUtilities {
             if (targetFolder.getFileObject(sourceLocation.getName())==null) {
                 
                 childTargetFolder=targetFolder.createFolder(sourceLocation.getName());
+                
             }
             
             FileObject[] children = sourceLocation.getChildren();

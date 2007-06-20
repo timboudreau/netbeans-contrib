@@ -1,0 +1,2925 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Copyright 2001 Cisco Systems, Inc., Ericsson Radio Systems AB., MetaSolv Software, Inc, Motorola, Inc., NEC Corporation, Nokia Networks Oy, Nortel Networks Limited,,Sun Microsystems, Inc., Telcordia Technologies, Inc., BEA Systems, Inc. All rights reserved. Use is subject to license terms.-->
+<schema targetNamespace="http://java.sun.com/products/oss/xml/TroubleTicket" xmlns:tt="http://java.sun.com/products/oss/xml/TroubleTicket" xmlns:co="http://java.sun.com/products/oss/xml/Common" xmlns:fm="http://java.sun.com/products/oss/xml/QualityOfService/FM/Monitor" xmlns:threshold="http://java.sun.com/products/oss/xml/QualityOfService/PM/Threshold" xmlns:measurement="http://java.sun.com/products/oss/xml/QualityOfService/PM/Measurement" xmlns="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified">
+	<annotation>
+		<documentation>
+            	The following Schema is the Trouble Ticket API Request Response Schema.
+           	 Pierre Gauthier Nortel Networks 2001.
+		 </documentation>
+	</annotation>
+	<import namespace="http://java.sun.com/products/oss/xml/Common" schemaLocation="http://java.sun.com/products/oss/xml/Common/XmlCommonSchema.xsd"/>
+	<import namespace="http://java.sun.com/products/oss/xml/QualityOfService/FM/Monitor" schemaLocation="http://java.sun.com/products/oss/xml/QualityOfService/FM/Monitor/XmlQosFmMonitorSchema.xsd"/>
+	<import namespace="http://java.sun.com/products/oss/xml/QualityOfService/PM/Threshold" schemaLocation="http://java.sun.com/products/oss/xml/QualityOfService/PM/Threshold/XmlQosPmThresholdSchema.xsd"/>
+	<import namespace="http://java.sun.com/products/oss/xml/QualityOfService/PM/Measurement" schemaLocation="http://java.sun.com/products/oss/xml/QualityOfService/PM/Measurement/XmlQosPmMeasurementSchema.xsd"/>
+	<!--==============TT Event Property Descriptors and FIlterable Properties================-->
+	<complexType name="TroubleTicketEventPropertyDescriptor" abstract="true">
+		<annotation>
+			<documentation>Trouble Ticket Event Property Descriptor. Extends the EventPropertyDescriptor.
+			</documentation>
+		</annotation>
+		<complexContent>
+			<extension base="co:EventPropertyDescriptor">
+				<sequence>
+					<element name="OSS_ORIGINATOR" type="string" nillable="false"/>
+					<element name="OSS_RELATED_ALARMID_LIST" type="string" nillable="false"/>
+					<element name="OSS_SUSPECTOID_LIST" type="string" nillable="false"/>
+					<element name="OSS_SYSTEMDN" type="string" nillable="false"/>
+					<element name="OSS_CUSTOMERID" type="string" nillable="false"/>
+					<element name="OSS_TROUBLEDOID" type="string" nillable="false"/>
+				</sequence>
+			</extension>
+		</complexContent>
+	</complexType>
+	<complexType name="TroubleTicketCreateEventPropertyDescriptor">
+		<annotation>
+			<documentation>Trouble Ticekt CreateEvent Property Descriptor. Extends the 
+			TroubleTicketEventPropertyDescriptor.
+			</documentation>
+		</annotation>
+		<complexContent>
+			<extension base="tt:TroubleTicketEventPropertyDescriptor">
+				<sequence/>
+			</extension>
+		</complexContent>
+	</complexType>
+	<complexType name="TroubleTicketCloseOutEventPropertyDescriptor">
+		<annotation>
+			<documentation>TroubleTicketCloseOutEventPropertyDescriptor. Extends the 
+			TroubleTicketEventPropertyDescriptor.
+			</documentation>
+		</annotation>
+		<complexContent>
+			<extension base="tt:TroubleTicketEventPropertyDescriptor">
+				<sequence/>
+			</extension>
+		</complexContent>
+	</complexType>
+	<complexType name="TroubleTicketCancellationEventPropertyDescriptor">
+		<annotation>
+			<documentation>TroubleTicketCancellationEventPropertyDescriptor. Extends the 
+			TroubleTicketEventPropertyDescriptor.
+			</documentation>
+		</annotation>
+		<complexContent>
+			<extension base="tt:TroubleTicketEventPropertyDescriptor">
+				<sequence/>
+			</extension>
+		</complexContent>
+	</complexType>
+	<complexType name="TroubleTicketAttributeValueChangeEventPropertyDescriptor">
+		<annotation>
+			<documentation>TroubleTicketAttributeValueChangeEventPropertyDescriptor. Extends the 
+			TroubleTicketEventPropertyDescriptor.
+			</documentation>
+		</annotation>
+		<complexContent>
+			<extension base="tt:TroubleTicketEventPropertyDescriptor">
+				<sequence/>
+			</extension>
+		</complexContent>
+	</complexType>
+	<complexType name="TroubleTicketStatusChangeEventPropertyDescriptor">
+		<annotation>
+			<documentation>TroubleTicketStatusChangeEventPropertyDescriptor. Extends the 
+			TroubleTicketEventPropertyDescriptor.
+			</documentation>
+		</annotation>
+		<complexContent>
+			<extension base="tt:TroubleTicketEventPropertyDescriptor">
+				<sequence/>
+			</extension>
+		</complexContent>
+	</complexType>
+	<!--==============TT Operations Defined as Request/Response/Exception================-->
+	<element name="queryTroubleTicketsRequest">
+		<annotation>
+			<documentation>The following request runs a query and returns the matching TroubleTickets. The attributeName array
+			 indicates which attributes are to be returned. If the attributeName is null or empty then all possible attributes are returned. 
+			The howMany attribute is used to restrict the number of Trouble Ticket values returned per response message.
+			If the number of matching Trouble Tickets exceeds the "howMany" value then multiple response messages are 
+			returned.
+			</documentation>
+		</annotation>
+		<complexType>
+			<complexContent>
+				<extension base="co:IteratorRequest">
+					<sequence>
+						<element name="query" type="co:QueryValue"/>
+						<element name="attrNames" type="co:ArrayOfString" nillable="true" minOccurs="0"/>
+					</sequence>
+				</extension>
+			</complexContent>
+		</complexType>
+	</element>
+	<element name="queryTroubleTicketsResponse">
+		<annotation>
+			<documentation>The result set is an array of Trouble Ticket values (the amount is determined by the howMany attribute
+			of the Request message). The endOfReply indicates whether there are any more response messages to be returned. 
+			The sequence number indicates the order of this response in the set of responses to be returned. Siince there can be a
+			 number of response messages generated and there is no mechanism to insure the responses are sent sequentially,
+			 the sequence number provides a mechanism for preserving the order in which the  the response messages are
+			 returned.
+			  </documentation>
+		</annotation>
+		<complexType>
+			<complexContent>
+				<extension base="co:IteratorResponse">
+					<sequence>
+						<element name="troubleTicketValues" type="tt:ArrayOfTroubleTicketValue" nillable="true" minOccurs="0"/>
+					</sequence>
+				</extension>
+			</complexContent>
+		</complexType>
+	</element>
+	<element name="queryTroubleTicketsException">
+		<annotation>
+			<documentation>The operation may fail because an IllegalArgument has been provided or because a System
+			exception occured.
+			.</documentation>
+		</annotation>
+		<complexType>
+			<choice>
+				<element name="illegalArgumentException" type="co:IllegalArgumentException"/>
+				<element name="remoteException" type="co:RemoteException"/>
+			</choice>
+		</complexType>
+	</element>
+	<element name="getTroubleTicketByKeyRequest">
+		<annotation>
+			<documentation>Returns  the TroubleTicket identified by the key. The attributeName list indicates which attributes
+			 are to be returned. If no attributeName is provided then all possible attributes are returned.
+			  </documentation>
+		</annotation>
+		<complexType>
+			<sequence>
+				<element name="troubleTicketKey" type="tt:TroubleTicketKey"/>
+				<element name="attrNames" type="co:ArrayOfString" nillable="true" minOccurs="0"/>
+			</sequence>
+		</complexType>
+	</element>
+	<element name="getTroubleTicketByKeyResponse">
+		<annotation>
+			<documentation> The value for the TroubleTicket is returned.</documentation>
+		</annotation>
+		<complexType>
+			<sequence>
+				<element name="troubleTicketValue" type="tt:TroubleTicketValue"/>
+			</sequence>
+		</complexType>
+	</element>
+	<element name="getTroubleTicketByKeyException">
+		<annotation>
+			<documentation>The following exceptions are returned if an error occurrs.</documentation>
+		</annotation>
+		<complexType>
+			<choice>
+				<element name="illegalArgumentException" type="co:IllegalArgumentException"/>
+				<element name="objectNotFoundException" type="co:ObjectNotFoundException"/>
+				<element name="remoteException" type="co:RemoteException"/>
+			</choice>
+		</complexType>
+	</element>
+	<element name="getTroubleTicketsByKeysRequest">
+		<annotation>
+			<documentation>This is the plural version of getTroubleTicketByKey. It takes in a list of TroubleTicket keys.</documentation>
+		</annotation>
+		<complexType>
+			<sequence>
+				<element name="troubleTicketKeys" type="tt:ArrayOfTroubleTicketKey"/>
+				<element name="attrNames" type="co:ArrayOfString" nillable="true" minOccurs="0"/>
+			</sequence>
+		</complexType>
+	</element>
+	<element name="getTroubleTicketsByKeysResponse">
+		<annotation>
+			<documentation>A list of TroubleTicket values is returned.</documentation>
+		</annotation>
+		<complexType>
+			<sequence>
+				<element name="troubleTicketValues" type="tt:ArrayOfTroubleTicketValue"/>
+			</sequence>
+		</complexType>
+	</element>
+	<element name="getTroubleTicketsByKeysException">
+		<annotation>
+			<documentation>The following exceptions are returned if an error occurrs.</documentation>
+		</annotation>
+		<complexType>
+			<choice>
+				<element name="illegalArgumentException" type="co:IllegalArgumentException"/>
+				<element name="finderException" type="co:FinderException"/>
+				<element name="remoteException" type="co:RemoteException"/>
+			</choice>
+		</complexType>
+	</element>
+	<element name="getTroubleTicketsByTemplateRequest">
+		<annotation>
+			<documentation>This is an associative lookup which will return the Trouble Ticket values matching  the TroubleTicket, 
+			identified by the TroubleTicketValue template. The attributeName array indicates which attributes are to be returned.
+			 If the attributeName is null or empty then all possible attributes are returned. The howMany attribute is used to restrict
+			 the number of Trouble Ticket values returned per response message.If the number of matching Trouble Tickets exceeds
+			 the "howMany" value then multiple response messages are returned.
+			 </documentation>
+		</annotation>
+		<complexType>
+			<complexContent>
+				<extension base="co:IteratorRequest">
+					<sequence>
+						<element name="template" type="tt:TroubleTicketValue"/>
+						<element name="attrNames" type="co:ArrayOfString" nillable="true" minOccurs="0"/>
+					</sequence>
+				</extension>
+			</complexContent>
+		</complexType>
+	</element>
+	<element name="getTroubleTicketsByTemplateResponse">
+		<annotation>
+			<documentation>The result set is an array of Trouble Ticket values (the amount is determined by the howMany attribute
+			of the Request message). The endOfReply indicates whether there are any more response messages to be returned. 
+			 </documentation>
+		</annotation>
+		<complexType>
+			<complexContent>
+				<extension base="co:IteratorResponse">
+					<sequence>
+						<element name="troubleTicketValues" type="tt:ArrayOfTroubleTicketValue" nillable="true" minOccurs="0"/>
+					</sequence>
+				</extension>
+			</complexContent>
+		</complexType>
+	</element>
+	<element name="getTroubleTicketsByTemplateException">
+		<annotation>
+			<documentation>The following exceptions are returned if an error occurrs.</documentation>
+		</annotation>
+		<complexType>
+			<choice>
+				<element name="illegalArgumentException" type="co:IllegalArgumentException"/>
+				<element name="remoteException" type="co:RemoteException"/>
+				<element name="objectNotFoundException" type="co:ObjectNotFoundException"/>
+			</choice>
+		</complexType>
+	</element>
+	<element name="getTroubleTicketsByTemplatesRequest">
+		<annotation>
+			<documentation>This is an associative lookup which will return the Trouble Ticket values matching  the TroubleTicket, 
+			identified by the TroubleTicketValue templates. The attributeName array indicates which attributes are to be returned.
+			 If the attributeName is null or empty then all possible attributes are returned. The howMany attribute is used to restrict
+			 the number of Trouble Ticket values returned per response message.If the number of matching Trouble Tickets exceeds
+			 the "howMany" value then multiple response messages are returned.
+			</documentation>
+		</annotation>
+		<complexType>
+			<complexContent>
+				<extension base="co:IteratorRequest">
+					<sequence>
+						<element name="templates" type="tt:ArrayOfTroubleTicketValue" maxOccurs="unbounded"/>
+						<element name="attrNames" type="co:ArrayOfString" nillable="true" minOccurs="0"/>
+					</sequence>
+				</extension>
+			</complexContent>
+		</complexType>
+	</element>
+	<element name="getTroubleTicketsByTemplatesResponse">
+		<annotation>
+			<documentation>The result set is an array of Trouble Ticket values (the amount is determined by the howMany attribute
+			of the Request message). The endOfReply indicates whether there are any more response messages to be returned. 
+			The sequence number indicates the order of this response in the set of responses to be returned. 
+			 </documentation>
+		</annotation>
+		<complexType>
+			<complexContent>
+				<extension base="co:IteratorResponse">
+					<sequence>
+						<element name="troubleTicketValues" type="tt:ArrayOfTroubleTicketValue" nillable="true" minOccurs="0"/>
+					</sequence>
+				</extension>
+			</complexContent>
+		</complexType>
+	</element>
+	<element name="getTroubleTicketsByTemplatesException">
+		<annotation>
+			<documentation>The following exceptions are returned if an error occurrs.</documentation>
+		</annotation>
+		<complexType>
+			<choice>
+				<element name="illegalArgumentException" type="co:IllegalArgumentException"/>
+				<element name="finderException" type="co:FinderException"/>
+				<element name="remoteException" type="co:RemoteException"/>
+			</choice>
+		</complexType>
+	</element>
+	<element name="setTroubleTicketByValueRequest">
+		<annotation>
+			<documentation>This request is used to change the attributes of an TroubleTicket. Only the attributes which are 
+			 present in the Trouble Ticket Value are changed.</documentation>
+		</annotation>
+		<complexType>
+			<sequence>
+				<element name="troubleTicketValue" type="tt:TroubleTicketValue"/>
+				<element name="resyncRequired" type="boolean"/>
+			</sequence>
+		</complexType>
+	</element>
+	<element name="setTroubleTicketByValueResponse">
+		<annotation>
+			<documentation>Only the message header is returned. This is sufficient to indicate that the TroubleTicket was changed. </documentation>
+		</annotation>
+		<complexType>
+			<sequence/>
+		</complexType>
+	</element>
+	<element name="setTroubleTicketByValueException">
+		<annotation>
+			<documentation>The following exceptions are returned if an error occurrs.</documentation>
+		</annotation>
+		<complexType>
+			<choice>
+				<element name="setException" type="co:SetException"/>
+				<element name="illegalArgumentException" type="co:IllegalArgumentException"/>
+				<element name="objectNotFoundException" type="co:ObjectNotFoundException"/>
+				<element name="remoteException" type="co:RemoteException"/>
+				<element name="resyncRequiredException" type="co:ResyncRequiredException"/>
+			</choice>
+		</complexType>
+	</element>
+	<element name="closeTroubleTicketByKeyRequest">
+		<annotation>
+			<documentation>The following request close a TroubleTicket given its key.</documentation>
+		</annotation>
+		<complexType>
+			<sequence>
+				<element name="troubleTicketKey" type="tt:TroubleTicketKey"/>
+				<element name="status" type="tt:TroubleStatus"/>
+				<element name="closeOutNarr" type="string"/>
+			</sequence>
+		</complexType>
+	</element>
+	<element name="closeTroubleTicketByKeyResponse">
+		<annotation>
+			<documentation>Only the message header is returned. This is sufficient to indicate that the TroubleTicket
+			 was closed. </documentation>
+		</annotation>
+		<complexType>
+			<sequence/>
+		</complexType>
+	</element>
+	<element name="closeTroubleTicketByKeyException">
+		<annotation>
+			<documentation>The following exceptions are returned if an error occurrs.</documentation>
+		</annotation>
+		<complexType>
+			<choice>
+				<element name="illegalArgumentException" type="co:IllegalArgumentException"/>
+				<element name="objectNotFoundException" type="co:ObjectNotFoundException"/>
+				<element name="remoteException" type="co:RemoteException"/>
+				<element name="closeException" type="tt:CloseException"/>
+			</choice>
+		</complexType>
+	</element>
+	<element name="createTroubleTicketByValueRequest">
+		<annotation>
+			<documentation>Creates a new Trouble Ticket and returns the key for the new object. A single TroubleTicket value
+			 is the only parameter passed into the request. 
+			</documentation>
+		</annotation>
+		<complexType>
+			<sequence>
+				<element name="troubleTicketValue" type="tt:TroubleTicketValue"/>
+			</sequence>
+		</complexType>
+	</element>
+	<element name="createTroubleTicketByValueResponse">
+		<annotation>
+			<documentation>This returns the TroubleTicketKey corresponding to the TroubleTicket which was created. </documentation>
+		</annotation>
+		<complexType>
+			<sequence>
+				<element name="troubleTicketKey" type="tt:TroubleTicketKey"/>
+			</sequence>
+		</complexType>
+	</element>
+	<element name="createTroubleTicketByValueException">
+		<annotation>
+			<documentation>This is returned if an exception occurrs.</documentation>
+		</annotation>
+		<complexType>
+			<choice>
+				<element name="illegalArgumentException" type="co:IllegalArgumentException"/>
+				<element name="createException" type="co:CreateException"/>
+				<element name="remoteException" type="co:RemoteException"/>
+			</choice>
+		</complexType>
+	</element>
+	<element name="escalateTroubleTicketByKeyRequest">
+		<annotation>
+			<documentation>The following request escalate a TroubleTicket given its key and an escalation list.
+			</documentation>
+		</annotation>
+		<complexType>
+			<sequence>
+				<element name="troubleTicketKey" type="tt:TroubleTicketKey"/>
+				<element name="escalationList" type="tt:EscalationList"/>
+			</sequence>
+		</complexType>
+	</element>
+	<element name="escalateTroubleTicketByKeyResponse">
+		<annotation>
+			<documentation>Only the message header is returned. This is sufficient to indicate that the TroubleTicket 
+			was escalated.
+			 </documentation>
+		</annotation>
+		<complexType>
+			<sequence/>
+		</complexType>
+	</element>
+	<element name="escalateTroubleTicketByKeyException">
+		<annotation>
+			<documentation>The following exceptions are returned if an error occurrs.</documentation>
+		</annotation>
+		<complexType>
+			<choice>
+				<element name="illegalArgumentException" type="co:IllegalArgumentException"/>
+				<element name="objectNotFoundException" type="co:ObjectNotFoundException"/>
+				<element name="remoteException" type="co:RemoteException"/>
+				<element name="escalateException" type="tt:EscalateException"/>
+			</choice>
+		</complexType>
+	</element>
+	<element name="cancelTroubleTicketByKeyRequest">
+		<annotation>
+			<documentation>The following request cancel a TroubleTicket given its key.
+			</documentation>
+		</annotation>
+		<complexType>
+			<sequence>
+				<element name="troubleTicketKey" type="tt:TroubleTicketKey"/>
+				<element name="status" type="tt:TroubleStatus"/>
+				<element name="closeOutNarr" type="string"/>
+			</sequence>
+		</complexType>
+	</element>
+	<element name="cancelTroubleTicketByKeyResponse">
+		<annotation>
+			<documentation>Only the message header is returned. This is sufficient to indicate that the TroubleTicket 
+			was canceled. </documentation>
+		</annotation>
+		<complexType>
+			<sequence/>
+		</complexType>
+	</element>
+	<element name="cancelTroubleTicketByKeyException">
+		<annotation>
+			<documentation>The following exceptions are returned if an error occurrs.</documentation>
+		</annotation>
+		<complexType>
+			<choice>
+				<element name="illegalArgumentException" type="co:IllegalArgumentException"/>
+				<element name="objectNotFoundException" type="co:ObjectNotFoundException"/>
+				<element name="remoteException" type="co:RemoteException"/>
+				<element name="cancelException" type="tt:CancelException"/>
+			</choice>
+		</complexType>
+	</element>
+	<element name="tryCreateTroubleTicketsByValuesRequest">
+		<annotation>
+			<documentation>The following request tries to create multiple Trouble Tickets each with a different set of attribute 
+			values. The operation is best effort  i.e. the operation will try to set the attributes of every newly created trouble tickets 
+			with their new set of values. 			 
+			</documentation>
+		</annotation>
+		<complexType>
+			<sequence>
+				<element name="troubleTicketValues" type="tt:ArrayOfTroubleTicketValue"/>
+			</sequence>
+		</complexType>
+	</element>
+	<element name="tryCreateTroubleTicketsByValuesResponse">
+		<annotation>
+			<documentation>The return value is an array of TroubleTicketKeyResult which contains ALL the trouble ticket results
+			 (both the failed and success). Each trouble ticket key result contains the exception that would have been raised if the 
+			create operation had been called on a single trouble ticket. 			
+			</documentation>
+		</annotation>
+		<complexType>
+			<sequence>
+				<element name="results" type="tt:ArrayOfTroubleTicketKeyResult" nillable="true" minOccurs="0"/>
+			</sequence>
+		</complexType>
+	</element>
+	<element name="tryCreateTroubleTicketsByValuesException">
+		<annotation>
+			<documentation>The operation may fail because an IllegalArgument has been provided or because a System
+			exception occured.
+			</documentation>
+		</annotation>
+		<complexType>
+			<choice>
+				<element name="illegalArgumentException" type="co:IllegalArgumentException"/>
+				<element name="remoteException" type="co:RemoteException"/>
+			</choice>
+		</complexType>
+	</element>
+	<element name="trySetTroubleTicketsByValuesRequest">
+		<annotation>
+			<documentation>The following request tries to set multiple Trouble Tickets each with different values. 
+			The operation is best effort  i.e. the operation will try to update the attributes of every targeted trouble 
+			tickets with their new attribute values. The resyncRequired flag indicates if the lastUpdateVersionNumber
+			should be used to detect a staled object condition. 
+			</documentation>
+		</annotation>
+		<complexType>
+			<sequence>
+				<element name="troubleTicketValues" type="tt:ArrayOfTroubleTicketValue"/>
+				<element name="resyncRequired" type="boolean"/>
+			</sequence>
+		</complexType>
+	</element>
+	<element name="trySetTroubleTicketsByValuesResponse">
+		<annotation>
+			<documentation>The return value is an array of TroubleTicketKeyResult which contains only the trouble ticket keys 
+			for which the update operation failed. Each trouble ticket key result contains the exception that would have been raised if the 
+			set operation had been called on a single trouble ticket. 
+			</documentation>
+		</annotation>
+		<complexType>
+			<sequence>
+				<element name="results" type="tt:ArrayOfTroubleTicketKeyResult" nillable="true" minOccurs="0"/>
+			</sequence>
+		</complexType>
+	</element>
+	<element name="trySetTroubleTicketsByValuesException">
+		<annotation>
+			<documentation>The operation may fail because an IllegalArgument has been provided or because a System
+			exception occured.
+			 </documentation>
+		</annotation>
+		<complexType>
+			<choice>
+				<element name="illegalArgumentException" type="co:IllegalArgumentException"/>
+				<element name="remoteException" type="co:RemoteException"/>
+			</choice>
+		</complexType>
+	</element>
+	<element name="trySetTroubleTicketsByKeysRequest">
+		<annotation>
+			<documentation>The following request tries to set multiple Trouble Tickets each with the same value. 
+			The operation is best effort  i.e. the operation will try to update the attributes of every targeted trouble 
+			tickets with their new attribute values. 
+			</documentation>
+		</annotation>
+		<complexType>
+			<sequence>
+				<element name="troubleTicketKeys" type="tt:ArrayOfTroubleTicketKey"/>
+				<element name="troubleTicketValue" type="tt:TroubleTicketValue"/>
+			</sequence>
+		</complexType>
+	</element>
+	<element name="trySetTroubleTicketsByKeysResponse">
+		<annotation>
+			<documentation>The return value is an array of TroubleTicketKeyResult which contains only the trouble ticket keys 
+			for which the update operation FAILED. Each trouble ticket key result contains the exception that would have been raised
+			 if the set operation had been called on a single trouble ticket.
+			</documentation>
+		</annotation>
+		<complexType>
+			<sequence>
+				<element name="results" type="tt:ArrayOfTroubleTicketKeyResult" nillable="true" minOccurs="0"/>
+			</sequence>
+		</complexType>
+	</element>
+	<element name="trySetTroubleTicketsByKeysException">
+		<annotation>
+			<documentation>The operation may fail because an IllegalArgument has been provided or because a System
+			exception occured.
+			</documentation>
+		</annotation>
+		<complexType>
+			<choice>
+				<element name="illegalArgumentException" type="co:IllegalArgumentException"/>
+				<element name="remoteException" type="co:RemoteException"/>
+			</choice>
+		</complexType>
+	</element>
+	<element name="trySetTroubleTicketsByTemplateRequest">
+		<annotation>
+			<documentation>All the trouble tickets matching the attribute values provided in the value template 
+			are set with the attribute values provided in the trouble ticket value. Only the trouble tickets matching 
+			all the attribute values provided in the value template are updated.The operation is best effort  i.e. the
+			operation will try to update the attributes of ALL the targeted trouble tickets matching the Template 
+			with the provided Trouble ticket Value. (failuresOnly)
+			</documentation>
+		</annotation>
+		<complexType>
+			<complexContent>
+				<extension base="co:IteratorRequest">
+					<sequence>
+						<element name="template" type="tt:TroubleTicketValue" nillable="true"/>
+						<element name="troubleTicketValue" type="tt:TroubleTicketValue"/>
+						<element name="failuresOnly" type="boolean"/>
+					</sequence>
+				</extension>
+			</complexContent>
+		</complexType>
+	</element>
+	<element name="trySetTroubleTicketsByTemplateResponse">
+		<annotation>
+			<documentation>The result set is an array of Trouble Ticket Result (the amount is determined by the howMany attribute
+			of the Request message). The endOfReply indicates whether there are any more response messages to be returned. 
+			</documentation>
+		</annotation>
+		<complexType>
+			<complexContent>
+				<extension base="co:IteratorResponse">
+					<sequence>
+						<element name="results" type="tt:ArrayOfTroubleTicketKeyResult" nillable="true" minOccurs="0"/>
+					</sequence>
+				</extension>
+			</complexContent>
+		</complexType>
+	</element>
+	<element name="trySetTroubleTicketsByTemplateException">
+		<annotation>
+			<documentation>The operation may fail because the trouble ticket could not be found or because the update 
+			could not be applied to the targeted trouble ticket. Each trouble ticket key result should contain the exception
+			that would have been raised if the SET operation had been called on a single trouble ticket.
+			</documentation>
+		</annotation>
+		<complexType>
+			<choice>
+				<element name="illegalArgumentException" type="co:IllegalArgumentException"/>
+				<element name="remoteException" type="co:RemoteException"/>
+			</choice>
+		</complexType>
+	</element>
+	<element name="trySetTroubleTicketsByTemplatesRequest">
+		<annotation>
+			<documentation>All the trouble tickets matching the attribute values provided in the value template(s) 
+			are set with the attribute values provided in the trouble ticket value. Only the trouble tickets matching 
+			all the attribute values provided in the value template(s) are updated.The operation is best effort  i.e. the
+			operation will try to update the attributes of ALL the targeted trouble tickets matching the Template(s) 
+			with the provided Trouble ticket Value. If multiple Templates are provided then the semantic is to apply 
+			an OR operation between the Templates.
+			</documentation>
+		</annotation>
+		<complexType>
+			<complexContent>
+				<extension base="co:IteratorRequest">
+					<sequence>
+						<element name="templates" type="tt:ArrayOfTroubleTicketValue" nillable="true"/>
+						<element name="troubleTicketValue" type="tt:TroubleTicketValue"/>
+						<element name="failuresOnly" type="boolean"/>
+					</sequence>
+				</extension>
+			</complexContent>
+		</complexType>
+	</element>
+	<element name="trySetTroubleTicketsByTemplatesResponse">
+		<annotation>
+			<documentation>The result set is a list (the amount in the list is determined by the HowMany element) of
+			TroubleTicketKeyResult. The endOfReply indicates whether there are any more result sets being returned. 
+			The sequence number indicates the result set TroubleTicketKeyResult, since there can be a number of response messages 
+			generated and there is no mechanism to insure the responses are sent sequentially, 
+			there needs to be a method of preserving the TroubleTicketKeyResult of the response messages.
+			</documentation>
+		</annotation>
+		<complexType>
+			<complexContent>
+				<extension base="co:IteratorResponse">
+					<sequence>
+						<element name="results" type="tt:ArrayOfTroubleTicketKeyResult" nillable="true" minOccurs="0"/>
+					</sequence>
+				</extension>
+			</complexContent>
+		</complexType>
+	</element>
+	<element name="trySetTroubleTicketsByTemplatesException">
+		<annotation>
+			<documentation>The operation may fail because the trouble ticket could not be found or because the update 
+			could not be applied to the targeted trouble ticket. Each trouble ticket key result should contain the exception
+			that would have been raised if the SET operation had been called on a single trouble ticket. If no trouble ticket 
+			are found then the javax.ejb.FinderException is raised. If the operation can’t proceed for any other reason 
+			(backend failure) then the javax.oss.SetException should be raised. If none of the objects could be modified 
+			then the javax.oss.SetException should be raised.</documentation>
+		</annotation>
+		<complexType>
+			<choice>
+				<element name="illegalArgumentException" type="co:IllegalArgumentException"/>
+				<element name="remoteException" type="co:RemoteException"/>
+			</choice>
+		</complexType>
+	</element>
+	<element name="tryEscalateTroubleTicketsByKeysRequest">
+		<annotation>
+			<documentation>This request is used to escalate multiple Trouble Tickets given their keys. 
+			The operation is best effort i.e. the operation will try to close all the targeted trouble tickets given their keys.					 </documentation>
+		</annotation>
+		<complexType>
+			<sequence>
+				<element name="troubleTicketKeys" type="tt:ArrayOfTroubleTicketKey"/>
+				<element name="escalationList" type="tt:EscalationList"/>
+			</sequence>
+		</complexType>
+	</element>
+	<element name="tryEscalateTroubleTicketsByKeysResponse">
+		<annotation>
+			<documentation>The return value is a list ( representing an array of TroubleTicketKeyResult ) which contains 
+			only the trouble ticket keys for which the escalate operation failed. Each trouble ticket key result contains the exception 
+			that would have been raised if the escalate operation had been called on a single trouble ticket.
+			</documentation>
+		</annotation>
+		<complexType>
+			<sequence>
+				<element name="results" type="tt:ArrayOfTroubleTicketKeyResult" nillable="true" minOccurs="0"/>
+			</sequence>
+		</complexType>
+	</element>
+	<element name="tryEscalateTroubleTicketsByKeysException">
+		<annotation>
+			<documentation>The operation may fail because an IllegalArgument has been provided or because a System
+			exception occured.
+			</documentation>
+		</annotation>
+		<complexType>
+			<choice>
+				<element name="illegalArgumentException" type="co:IllegalArgumentException"/>
+				<element name="remoteException" type="co:RemoteException"/>
+			</choice>
+		</complexType>
+	</element>
+	<element name="tryEscalateTroubleTicketsByTemplateRequest">
+		<annotation>
+			<documentation>This is the best effort version of the EscalateTroubleTicketByTemplate request that allows the 
+			client to escalate all the TroubleTickets matching an TroubleTicket Template .
+
+			</documentation>
+		</annotation>
+		<complexType>
+			<complexContent>
+				<extension base="co:IteratorRequest">
+					<sequence>
+						<element name="template" type="tt:TroubleTicketValue" nillable="true"/>
+						<element name="escalationList" type="tt:EscalationList"/>
+						<element name="failuresOnly" type="boolean"/>
+					</sequence>
+				</extension>
+			</complexContent>
+		</complexType>
+	</element>
+	<element name="tryEscalateTroubleTicketsByTemplateResponse">
+		<annotation>
+			<documentation>The result set is a list (the amount in the list is determined by the HowMany element) of
+			TroubleTicketKeyResult. The endOfReply indicates whether there are any more result sets being returned. 
+			The sequence number indicates the result set TroubleTicketKeyResult, since there can be a number of response messages 
+			generated and there is no mechanism to insure the responses are sent sequentially, 
+			there needs to be a method of preserving the TroubleTicketKeyResult of the response messages.
+			</documentation>
+		</annotation>
+		<complexType>
+			<complexContent>
+				<extension base="co:IteratorResponse">
+					<sequence>
+						<element name="results" type="tt:ArrayOfTroubleTicketKeyResult" nillable="true" minOccurs="0"/>
+					</sequence>
+				</extension>
+			</complexContent>
+		</complexType>
+	</element>
+	<element name="tryEscalateTroubleTicketsByTemplateException">
+		<annotation>
+			<documentation>The operation may fail because an IllegalArgument has been provided or because a System
+			exception occured.
+                  </documentation>
+		</annotation>
+		<complexType>
+			<choice>
+				<element name="illegalArgumentException" type="co:IllegalArgumentException"/>
+				<element name="remoteException" type="co:RemoteException"/>
+			</choice>
+		</complexType>
+	</element>
+	<element name="tryEscalateTroubleTicketsByTemplatesRequest">
+		<annotation>
+			<documentation>This is the best effort version of the EscalateTroubleTicketsByTemplates request that allows the 
+			client to escalate all the TroubleTickets matching an TroubleTicket Template(s). If multiple Templates are provided 
+			then the semantic is to apply an OR operation between the Templates. The return value is a list of TroubleTicketKeyResults
+			which can be used to extract the operation results based on the value of the return_mode parameter:
+			</documentation>
+		</annotation>
+		<complexType>
+			<complexContent>
+				<extension base="co:IteratorRequest">
+					<sequence>
+						<element name="templates" type="tt:ArrayOfTroubleTicketValue" nillable="true"/>
+						<element name="escalationList" type="tt:EscalationList"/>
+						<element name="failuresOnly" type="boolean"/>
+					</sequence>
+				</extension>
+			</complexContent>
+		</complexType>
+	</element>
+	<element name="tryEscalateTroubleTicketsByTemplatesResponse">
+		<annotation>
+			<documentation>The result set is a list (the amount in the list is determined by the HowMany element) of
+			TroubleTicketKeyResult. The endOfReply indicates whether there are any more result sets being returned. 
+			The sequence number indicates the result set TroubleTicketKeyResult, since there can be a number of response
+			messages generated and there is no mechanism to insure the responses are sent sequentially, there needs 
+			to be a method of preserving the TroubleTicketKeyResult of the response messages.
+			</documentation>
+		</annotation>
+		<complexType>
+			<complexContent>
+				<extension base="co:IteratorResponse">
+					<sequence>
+						<element name="results" type="tt:ArrayOfTroubleTicketKeyResult" nillable="true" minOccurs="0"/>
+					</sequence>
+				</extension>
+			</complexContent>
+		</complexType>
+	</element>
+	<element name="tryEscalateTroubleTicketsByTemplatesException">
+		<annotation>
+			<documentation>The following exceptions are returned if an error occurrs. The operation may fail because 
+			the trouble ticket could not be found or because escalating the targeted trouble ticket is not allowed. 
+			Each trouble ticket key result should contain the exception that would have been raised if the ESCALATE
+			operation had been called on a single trouble ticket. If no trouble tickets are found then the javax.ejb.FinderException 
+			is raised. If the operation can’t proceed for any other reason (backend failure) then the EscalateTroubleTicketException
+			should be raised.</documentation>
+		</annotation>
+		<complexType>
+			<choice>
+				<element name="escalateTroubleTicketException" type="tt:EscalateException"/>
+				<element name="illegalArgumentException" type="co:IllegalArgumentException"/>
+			</choice>
+		</complexType>
+	</element>
+	<element name="tryCloseTroubleTicketsByKeysRequest">
+		<annotation>
+			<documentation>This request is used to close multiple Trouble Tickets given their keys. 
+			The operation is best effort i.e. the operation will try to close all the targeted trouble tickets. 				
+			</documentation>
+		</annotation>
+		<complexType>
+			<sequence>
+				<element name="troubleTicketKeys" type="tt:ArrayOfTroubleTicketKey"/>
+				<element name="status" type="tt:TroubleStatus"/>
+				<element name="closeOutNarr" type="string"/>
+			</sequence>
+		</complexType>
+	</element>
+	<element name="tryCloseTroubleTicketsByKeysResponse">
+		<annotation>
+			<documentation>The return value is a list (representing an array) of TroubleTicketKeyResult which contains 
+			only the trouble ticket keys for which the close operation failed. Each trouble ticket key result contains the exception 
+			that would have been raised if the set operation had been called on a single trouble ticket.
+			</documentation>
+		</annotation>
+		<complexType>
+			<sequence>
+				<element name="results" type="tt:ArrayOfTroubleTicketKeyResult" nillable="true" minOccurs="0"/>
+			</sequence>
+		</complexType>
+	</element>
+	<element name="tryCloseTroubleTicketsByKeysException">
+		<annotation>
+			<documentation>The operation may fail because an IllegalArgument has been provided or because a System
+			exception occured.			
+			</documentation>
+		</annotation>
+		<complexType>
+			<choice>
+				<element name="illegalArgumentException" type="co:IllegalArgumentException"/>
+				<element name="remoteException" type="co:RemoteException"/>
+			</choice>
+		</complexType>
+	</element>
+	<element name="tryCloseTroubleTicketsByTemplateRequest">
+		<annotation>
+			<documentation>This is the best effort version of the CloseTroubleTicketByTemplate request that allows the 
+			client to close all the TroubleTickets matching an TroubleTicket Template .
+			The returnMode attribute is used to indicate what information should be returned.
+			</documentation>
+		</annotation>
+		<complexType>
+			<complexContent>
+				<extension base="co:IteratorRequest">
+					<sequence>
+						<element name="template" type="tt:TroubleTicketValue" nillable="true"/>
+						<element name="status" type="tt:TroubleStatus"/>
+						<element name="closeOutNarr" type="string"/>
+						<element name="failuresOnly" type="boolean"/>
+					</sequence>
+				</extension>
+			</complexContent>
+		</complexType>
+	</element>
+	<element name="tryCloseTroubleTicketsByTemplateResponse">
+		<annotation>
+			<documentation>The result set is a list (the amount in the list is determined by the HowMany element) of
+			TroubleTicketKeyResult. The endOfReply indicates whether there are any more result sets being returned. 
+			The sequence number indicates the result set TroubleTicketKeyResult, since there can be a number of response messages 
+			generated and there is no mechanism to insure the responses are sent sequentially, 
+			there needs to be a method of preserving the TroubleTicketKeyResult of the response messages.
+			</documentation>
+		</annotation>
+		<complexType>
+			<complexContent>
+				<extension base="co:IteratorResponse">
+					<sequence>
+						<element name="results" type="tt:ArrayOfTroubleTicketKeyResult" nillable="true" minOccurs="0"/>
+					</sequence>
+				</extension>
+			</complexContent>
+		</complexType>
+	</element>
+	<element name="tryCloseTroubleTicketsByTemplateException">
+		<annotation>
+			<documentation>The following exceptions are returned if an error occurrs.</documentation>
+		</annotation>
+		<complexType>
+			<choice>
+				<element name="illegalArgumentException" type="co:IllegalArgumentException"/>
+				<element name="remoteException" type="co:RemoteException"/>
+			</choice>
+		</complexType>
+	</element>
+	<element name="tryCloseTroubleTicketsByTemplatesRequest">
+		<annotation>
+			<documentation>This is the best effort version of the CloseTroubleTicketsByTemplates request that allows the 
+			client to close all the TroubleTickets matching an TroubleTicket Template. This operation will try to close all the 
+			trouble tickets matching the Template(s) . If multiple Templates are provided then the semantic is to apply an 
+			OR operation between the Templates. The return value is a list of TroubleTicketKeyResults which can be used
+			to extract the operation results based on the value of the return_mode parameter:
+
+			</documentation>
+		</annotation>
+		<complexType>
+			<complexContent>
+				<extension base="co:IteratorRequest">
+					<sequence>
+						<element name="templates" type="tt:ArrayOfTroubleTicketValue" nillable="true"/>
+						<element name="status" type="tt:TroubleStatus"/>
+						<element name="closeOutNarr" type="string"/>
+						<element name="failuresOnly" type="boolean"/>
+					</sequence>
+				</extension>
+			</complexContent>
+		</complexType>
+	</element>
+	<element name="tryCloseTroubleTicketsByTemplatesResponse">
+		<annotation>
+			<documentation>The result set is a list (the amount in the list is determined by the HowMany element) of
+			TroubleTicketKeyResult. The endOfReply indicates whether there are any more result sets being returned. 
+			The sequence number indicates the result set TroubleTicketKeyResult, since there can be a number of response messages 
+			generated and there is no mechanism to insure the responses are sent sequentially, 
+			there needs to be a method of preserving the TroubleTicketKeyResult of the response messages.
+			</documentation>
+		</annotation>
+		<complexType>
+			<complexContent>
+				<extension base="co:IteratorResponse">
+					<sequence>
+						<element name="results" type="tt:ArrayOfTroubleTicketKeyResult" nillable="true" minOccurs="0"/>
+					</sequence>
+				</extension>
+			</complexContent>
+		</complexType>
+	</element>
+	<element name="tryCloseTroubleTicketsByTemplatesException">
+		<annotation>
+			<documentation>The following exceptions are returned if an error occurrs. The operation may fail 
+			because the trouble ticket could not be found or because removing the targeted trouble ticket is not 
+			allowed. Each trouble ticket key result should contain the exception that would have been raised if 
+			the CLOSE operation had been called on a single trouble ticket. If no trouble ticket are found then 
+			the javax.ejb.FinderException is raised. If the operation can’t proceed for any other reason 
+			(backend failure) then the javax.oss.trouble.CloseException should be raised.</documentation>
+		</annotation>
+		<complexType>
+			<choice>
+				<element name="illegalArgumentException" type="co:IllegalArgumentException"/>
+				<element name="remoteException" type="co:RemoteException"/>
+			</choice>
+		</complexType>
+	</element>
+	<element name="tryCancelTroubleTicketsByKeysRequest">
+		<annotation>
+			<documentation>This request is used to cancel multiple Trouble Tickets given their keys. 
+			The operation is best effort i.e. the operation will try to cancel all the targeted trouble tickets given their keys.
+			</documentation>
+		</annotation>
+		<complexType>
+			<sequence>
+				<element name="troubleTicketKeys" type="tt:ArrayOfTroubleTicketKey"/>
+				<element name="status" type="tt:TroubleStatus"/>
+				<element name="closeOutNarr" type="string"/>
+				<element name="failuresOnly" type="boolean"/>
+			</sequence>
+		</complexType>
+	</element>
+	<element name="tryCancelTroubleTicketsByKeysResponse">
+		<annotation>
+			<documentation>The return value is an array of TroubleTicketKeyResult that contains only the trouble 
+			ticket keys for which the Cancel operation failed. Each trouble ticket key result contains the exception 
+			that would have been raised if the cancel operation had been called on a single trouble ticket
+			</documentation>
+		</annotation>
+		<complexType>
+			<sequence>
+				<element name="results" type="tt:ArrayOfTroubleTicketKeyResult" nillable="true" minOccurs="0"/>
+			</sequence>
+		</complexType>
+	</element>
+	<element name="tryCancelTroubleTicketsByKeysException">
+		<annotation>
+			<documentation>The operation may fail because an IllegalArgument has been provided or because a System
+			exception occured.
+			</documentation>
+		</annotation>
+		<complexType>
+			<choice>
+				<element name="illegalArgumentException" type="co:IllegalArgumentException"/>
+				<element name="remoteException" type="co:RemoteException"/>
+			</choice>
+		</complexType>
+	</element>
+	<element name="tryCancelTroubleTicketsByTemplateRequest">
+		<annotation>
+			<documentation>This is the best effort version of the CancelTroubleTicketByTemplate request that allows the 
+			client to cancel all the TroubleTickets matching an TroubleTicket Template .
+			The returnMode attribute is used to indicate what information should be returned.
+
+			</documentation>
+		</annotation>
+		<complexType>
+			<complexContent>
+				<extension base="co:IteratorRequest">
+					<sequence>
+						<element name="template" type="tt:TroubleTicketValue" nillable="true"/>
+						<element name="status" type="tt:TroubleStatus"/>
+						<element name="closeOutNarr" type="string"/>
+						<element name="failuresOnly" type="boolean"/>
+					</sequence>
+				</extension>
+			</complexContent>
+		</complexType>
+	</element>
+	<element name="tryCancelTroubleTicketsByTemplateResponse">
+		<annotation>
+			<documentation>The result set is a list (the amount in the list is determined by the HowMany element) of
+			TroubleTicketKeyResult. The endOfReply indicates whether there are any more result sets being returned. 
+			The sequence number indicates the result set TroubleTicketKeyResult, since there can be a number of response messages 
+			generated and there is no mechanism to insure the responses are sent sequentially, 
+			there needs to be a method of preserving the TroubleTicketKeyResult of the response messages.
+			</documentation>
+		</annotation>
+		<complexType>
+			<complexContent>
+				<extension base="co:IteratorResponse">
+					<sequence>
+						<element name="results" type="tt:ArrayOfTroubleTicketKeyResult" nillable="true" minOccurs="0"/>
+					</sequence>
+				</extension>
+			</complexContent>
+		</complexType>
+	</element>
+	<element name="tryCancelTroubleTicketsByTemplateException">
+		<annotation>
+			<documentation>The following exceptions are returned if an error occurrs.
+			The operation may fail because the trouble ticket could not be found or because removing the targeted
+			trouble ticket is not allowed. Each trouble ticket key result should contain the exception that would have
+			been raised if the CANCEL operation had been called on a single trouble ticket. If no trouble ticket are 
+			found then the javax.ejb.FinderException is raised. If the operation can’t proceed for any other reason 
+			(backend failure) then the CancelTroubleTicketException should be raised. If none of the objects could 
+			be canceld then the CancelTroubleTicketException should be raised.</documentation>
+		</annotation>
+		<complexType>
+			<choice>
+				<element name="illegalArgumentException" type="co:IllegalArgumentException"/>
+				<element name="remoteException" type="co:RemoteException"/>
+			</choice>
+		</complexType>
+	</element>
+	<element name="tryCancelTroubleTicketsByTemplatesRequest">
+		<annotation>
+			<documentation>This is the best effort version of the CancelTroubleTicketsByTemplates request that allows the 
+			client to cancel all the TroubleTickets matching an TroubleTicket Template(s). If multiple Templates are provided 
+			then the semantic is to apply an OR operation between the Templates. The return value is a list of TroubleTicketKeyResults
+			which can be used to extract the operation results based on the value of the return_mode parameter:
+
+			</documentation>
+		</annotation>
+		<complexType>
+			<complexContent>
+				<extension base="co:IteratorRequest">
+					<sequence>
+						<element name="templates" type="tt:ArrayOfTroubleTicketValue" nillable="true"/>
+						<element name="status" type="tt:TroubleStatus"/>
+						<element name="closeOutNarr" type="string"/>
+						<element name="failuresOnly" type="boolean"/>
+					</sequence>
+				</extension>
+			</complexContent>
+		</complexType>
+	</element>
+	<element name="tryCancelTroubleTicketsByTemplatesResponse">
+		<annotation>
+			<documentation>The result set is a list (the amount in the list is determined by the HowMany element) of
+			TroubleTicketKeyResult. The endOfReply indicates whether there are any more result sets being returned. 
+			The sequence number indicates the result set TroubleTicketKeyResult, since there can be a number of response
+			messages generated and there is no mechanism to insure the responses are sent sequentially, there needs 
+			to be a method of preserving the TroubleTicketKeyResult of the response messages.
+			</documentation>
+		</annotation>
+		<complexType>
+			<complexContent>
+				<extension base="co:IteratorResponse">
+					<sequence>
+						<element name="results" type="tt:ArrayOfTroubleTicketKeyResult" nillable="true" minOccurs="0"/>
+					</sequence>
+				</extension>
+			</complexContent>
+		</complexType>
+	</element>
+	<element name="tryCancelTroubleTicketsByTemplatesException">
+		<annotation>
+			<documentation>The following exceptions are returned if an error occurrs. The operation may fail because 
+			the trouble ticket could not be found or because caneling the targeted trouble ticket is not allowed. 
+			Each trouble ticket key result should contain the exception that would have been raised if the CANCEL
+			operation had been called on a single trouble ticket. If no trouble ticket are found then the javax.ejb.FinderException 
+			is raised. If the operation can’t proceed for any other reason (backend failure) then the CancelTroubleTicketException
+			should be raised. If none of the objects could be canceld then the CancelTroubleTicketException should be raised.</documentation>
+		</annotation>
+		<complexType>
+			<choice>
+				<element name="illegalArgumentException" type="co:IllegalArgumentException"/>
+				<element name="remoteException" type="co:RemoteException"/>
+			</choice>
+		</complexType>
+	</element>
+	<element name="createTroubleTicketsByValuesRequest">
+		<annotation>
+			<documentation>This is the same as createTroubleTicket except it allows the client to create 
+			a number of TroubleTickets in the system. A list of TroubleTicketValues 
+			is passed into the request.</documentation>
+		</annotation>
+		<complexType>
+			<sequence>
+				<element name="troubleTicketValues" type="tt:ArrayOfTroubleTicketValue"/>
+			</sequence>
+		</complexType>
+	</element>
+	<element name="createTroubleTicketsByValuesResponse">
+		<annotation>
+			<documentation>This returns a list of TroubleTicketKeys corresponding to each 
+			TroubleTicket which was created in the system. It is assumed that a successful completion will create 
+			all the trouble tickets with their corresponding values and that no changes will be commited otherwise.</documentation>
+		</annotation>
+		<complexType>
+			<sequence>
+				<element name="troubleTicketKeys" type="tt:ArrayOfTroubleTicketKey"/>
+			</sequence>
+		</complexType>
+	</element>
+	<element name="createTroubleTicketsByValuesException">
+		<annotation>
+			<documentation>This is returned if an exception occurrs.</documentation>
+		</annotation>
+		<complexType>
+			<choice>
+				<element name="createException" type="co:CreateException"/>
+				<element name="illegalArgumentException" type="co:IllegalArgumentException"/>
+				<element name="remoteException" type="co:RemoteException"/>
+				<element name="unsupportedOperationException" type="co:UnsupportedOperationException"/>
+			</choice>
+		</complexType>
+	</element>
+	<element name="setTroubleTicketsByValuesRequest">
+		<annotation>
+			<documentation>This is the plural version of the setTroubleTicket request. The only difference is that it takes a list
+			of TroubleTicketValues. 	This operation is used to set multiple trouble tickets each with a different set of
+			attribute values. Each trouble ticket is set with the attribute values provided in the corresponding element of 
+			the trouble ticket value array. All the entities matching the provided keys (i.e contained in each TroubleTicketValue 
+			of the array) must be found otherwise the XML FinderException message should be sent. If the same key is
+			duplicated (i.e there is more than one entry in the array targeting the same trouble ticket) then the XML
+			DuplicateKeyException message is sent. The operation is atomic i.e. the operation must successfully update all 
+			the attributes of the ALL the corresponding trouble ticket otherwise the XML SetException message is sent 
+			(assuming that all the trouble tickets were found i.e XML FinderException was not sent and no 
+			key duplication was present). 			
+			</documentation>
+		</annotation>
+		<complexType>
+			<sequence>
+				<element name="troubleTicketValues" type="tt:ArrayOfTroubleTicketValue"/>
+				<element name="resyncRequired" type="boolean"/>
+			</sequence>
+		</complexType>
+	</element>
+	<element name="setTroubleTicketsByValuesResponse">
+		<annotation>
+			<documentation>The Response is the SetTroubleTicketsByValuesResponse message which contains only the message
+			header. This is sufficient to indicate that the TroubleTickets were changed.It is assumed that a successful 
+			completion will update all the attribute values of the ALL the trouble tickets matching the provided keys
+			with values with their corresponding values and no changes will be commited otherwise.</documentation>
+		</annotation>
+		<complexType>
+			<sequence/>
+		</complexType>
+	</element>
+	<element name="setTroubleTicketsByValuesException">
+		<annotation>
+			<documentation>The following exceptions are returned if an error occurrs.
+			All the entities matching the provided keys (i.e contained in each TroubleTicketValue 
+			of the array) must be found otherwise the XML FinderException message should be sent. If the same key is
+			duplicated (i.e there is more than one entry in the array targeting the same trouble ticket) then the XML
+			DuplicateKeyException message is sent. The operation is atomic i.e. the operation must successfully update all 
+			the attributes of the ALL the corresponding trouble ticket otherwise the XML SetException message is sent 
+			(assuming that all the trouble tickets were found i.e XML FinderException was not sent and no 
+			key duplication was present). </documentation>
+		</annotation>
+		<complexType>
+			<choice>
+				<element name="setException" type="co:SetException"/>
+				<element name="illegalArgumentException" type="co:IllegalArgumentException"/>
+				<element name="duplicateKeyException" type="co:DuplicateKeyException"/>
+				<element name="finderException" type="co:FinderException"/>
+				<element name="remoteException" type="co:RemoteException"/>
+				<element name="unsupportedOperationException" type="co:UnsupportedOperationException"/>
+				<element name="resyncRequiredException" type="co:ResyncRequiredException"/>
+			</choice>
+		</complexType>
+	</element>
+	<element name="setTroubleTicketsByKeysRequest">
+		<annotation>
+			<documentation>This is a version of the setTroubleTicket request that allows the client to set a number
+			of TroubleTickets (passing in a list of TroubleTicketKeys to identify those TroubleTickets) with the same values 
+		    (passing in a single TroubleTicketValue).
+			All the trouble tickets matching the provided keys are set with the attribute values provided in the trouble
+			ticket value. All the entities matching the provided keys must be found otherwise the javax.ejb.FinderException 
+			should be raised. The operation is atomic i.e. the operation must successfully update all the attributes of the 
+			ALL the corresponding trouble ticket otherwise the javax.oss.SetException is raised (assuming that all the trouble
+			tickets were found i.e the javax.ejb.FinderException was not raised). 		
+		</documentation>
+		</annotation>
+		<complexType>
+			<sequence>
+				<element name="troubleTicketKeys" type="tt:ArrayOfTroubleTicketKey"/>
+				<element name="troubleTicketValue" type="tt:TroubleTicketValue"/>
+			</sequence>
+		</complexType>
+	</element>
+	<element name="setTroubleTicketsByKeysResponse">
+		<annotation>
+			<documentation>Only the message header is returned. This is sufficient to indicate that the TroubleTickets were changed. 
+			It is assumed that a successful completion will update all the attribute values of the ALL the trouble tickets matching 
+			the provided keys with values based on the Trouble ticket Value modifier or that no changes will be commited.
+			</documentation>
+		</annotation>
+		<complexType>
+			<sequence/>
+		</complexType>
+	</element>
+	<element name="setTroubleTicketsByKeysException">
+		<annotation>
+			<documentation>The following exceptions are returned if an error occurrs.
+			All the trouble tickets matching the provided keys are set with the attribute values provided in the trouble
+			ticket value. All the entities matching the provided keys must be found otherwise the javax.ejb.FinderException 
+			should be raised. The operation is atomic i.e. the operation must successfully update all the attributes of the 
+			ALL the corresponding trouble ticket otherwise the javax.oss.SetException is raised (assuming that all the trouble
+			tickets were found i.e the javax.ejb.FinderException was not raised).
+			</documentation>
+		</annotation>
+		<complexType>
+			<choice>
+				<element name="setException" type="co:SetException"/>
+				<element name="illegalArgumentException" type="co:IllegalArgumentException"/>
+				<element name="finderException" type="co:FinderException"/>
+				<element name="remoteException" type="co:RemoteException"/>
+				<element name="unsupportedOperationException" type="co:UnsupportedOperationException"/>
+			</choice>
+		</complexType>
+	</element>
+	<element name="setTroubleTicketsByTemplateRequest">
+		<annotation>
+			<documentation>This is a version of the setTroubleTicket request that allows the client to set all
+			the TroubleTickets matching an TroubleTicketTemplate with the same values (passing in a single TroubleTicketValue).
+			Only the trouble tickets matching all the attribute values provided in the value template are updated.			
+			</documentation>
+		</annotation>
+		<complexType>
+			<sequence>
+				<element name="template" type="tt:TroubleTicketValue"/>
+				<element name="troubleTicketValue" type="tt:TroubleTicketValue"/>
+			</sequence>
+		</complexType>
+	</element>
+	<element name="setTroubleTicketsByTemplateResponse">
+		<annotation>
+			<documentation>Only the message header is returned. This is sufficient to indicate that the TroubleTickets were changed.
+			It is assumed that a successful completion will update all the attribute values of the ALL the trouble tickets 
+			matching the template with values based on the Trouble ticket Value modifier.
+			 </documentation>
+		</annotation>
+		<complexType>
+			<sequence/>
+		</complexType>
+	</element>
+	<element name="setTroubleTicketsByTemplateException">
+		<annotation>
+			<documentation>The following exceptions are returned if an error occurrs.
+			If no trouble ticket matching the value templates are found then no exception is raised. The exceptions and
+			their semantics are the same than the ones raised in the equivalent JVT operation. The operations are 
+			atomic i.e. the operation must successfully update all the attributes of the ALL the corresponding trouble 
+			ticket otherwise the javax.oss.SetException is raised.</documentation>
+		</annotation>
+		<complexType>
+			<choice>
+				<element name="setException" type="co:SetException"/>
+				<element name="illegalArgumentException" type="co:IllegalArgumentException"/>
+				<element name="finderException" type="co:FinderException"/>
+				<element name="remoteException" type="co:RemoteException"/>
+				<element name="unsupportedOperationException" type="co:UnsupportedOperationException"/>
+			</choice>
+		</complexType>
+	</element>
+	<element name="setTroubleTicketsByTemplatesRequest">
+		<annotation>
+			<documentation>This is a version of the setTroubleTicket request that allows the client to set all
+			the TroubleTickets matching at least one of the TroubleTicketTemplate with the same values (passing in a single TroubleTicketValue).
+			</documentation>
+		</annotation>
+		<complexType>
+			<sequence>
+				<element name="templates" type="tt:ArrayOfTroubleTicketValue"/>
+				<element name="troubleTicketValue" type="tt:TroubleTicketValue"/>
+			</sequence>
+		</complexType>
+	</element>
+	<element name="setTroubleTicketsByTemplatesResponse">
+		<annotation>
+			<documentation>Only the message header is returned. This is sufficient to indicate that the TroubleTickets were changed. </documentation>
+		</annotation>
+		<complexType>
+			<sequence/>
+		</complexType>
+	</element>
+	<element name="setTroubleTicketsByTemplatesException">
+		<annotation>
+			<documentation>The following exceptions are returned if an error occurrs.
+			If no trouble ticket matching the value templates are found then no exception is raised. The exceptions and
+			their semantics are the same than the ones raised in the equivalent JVT operation. The operations are 
+			atomic i.e. the operation must successfully update all the attributes of the ALL the corresponding trouble 
+			ticket otherwise the javax.oss.SetException is raised.</documentation>
+		</annotation>
+		<complexType>
+			<choice>
+				<element name="setException" type="co:SetException"/>
+				<element name="illegalArgumentException" type="co:IllegalArgumentException"/>
+				<element name="finderException" type="co:FinderException"/>
+				<element name="remoteException" type="co:RemoteException"/>
+				<element name="unsupportedOperationException" type="co:UnsupportedOperationException"/>
+				<element name="duplicateKeyException" type="co:DuplicateKeyException"/>
+			</choice>
+		</complexType>
+	</element>
+	<element name="escalateTroubleTicketsByKeysRequest">
+		<annotation>
+			<documentation>This request is used to escalate multiple Trouble Tickets given their keys. 
+			The operation is atomic i.e. the operation must successfully escalate all the corresponding trouble tickets
+			otherwise the EscalateTroubleTicketException is raised (assuming that all the trouble tickets were found
+			FinderException was not raised).				 
+			</documentation>
+		</annotation>
+		<complexType>
+			<sequence>
+				<element name="troubleTicketKeys" type="tt:ArrayOfTroubleTicketKey"/>
+				<element name="escalationList" type="tt:EscalationList"/>
+			</sequence>
+		</complexType>
+	</element>
+	<element name="escalateTroubleTicketsByKeysResponse">
+		<annotation>
+			<documentation>The return type for the operation is just the header. It is assumed that a successful 
+			completion will escalate all the trouble tickets matching the provided keys or that no changes will be commited.
+			</documentation>
+		</annotation>
+		<complexType>
+			<sequence/>
+		</complexType>
+	</element>
+	<element name="escalateTroubleTicketsByKeysException">
+		<annotation>
+			<documentation>The operation is atomic i.e. the operation must successfully escalate all the corresponding trouble tickets
+			otherwise the EscalateTroubleTicketException is raised (assuming that all the trouble tickets were found
+			FinderException was not raised).	
+			</documentation>
+		</annotation>
+		<complexType>
+			<choice>
+				<element name="illegalArgumentException" type="co:IllegalArgumentException"/>
+				<element name="finderException" type="co:FinderException"/>
+				<element name="remoteException" type="co:RemoteException"/>
+				<element name="escalateTroubleTicketException" type="tt:EscalateException"/>
+				<element name="unsupportedOperationException" type="co:UnsupportedOperationException"/>
+			</choice>
+		</complexType>
+	</element>
+	<element name="escalateTroubleTicketsByTemplateRequest">
+		<annotation>
+			<documentation>This request is used to escalate all the targeted TroubleTickets using the template Trouble
+			Ticket value. All the trouble tickets matching the attribute values provided in the value template are escalated.
+			The operation is atomic i.e. the operation must successfully escalate all the corresponding trouble tickets
+			otherwise the EscalateTroubleTicketException is raised.
+			</documentation>
+		</annotation>
+		<complexType>
+			<sequence>
+				<element name="template" type="tt:TroubleTicketValue" nillable="true"/>
+				<element name="escalationList" type="tt:EscalationList"/>
+			</sequence>
+		</complexType>
+	</element>
+	<element name="escalateTroubleTicketsByTemplateResponse">
+		<annotation>
+			<documentation>The return type for the operation is just the header. It is assumed that a successful 
+			completion will escalate all the trouble tickets matching the template.			
+			</documentation>
+		</annotation>
+		<complexType>
+			<sequence/>
+		</complexType>
+	</element>
+	<element name="escalateTroubleTicketsByTemplateException">
+		<annotation>
+			<documentation>If no trouble ticket matching the value template is found then no exception is raised. The
+			javax.ejb.ObjectNotFoundException should only be raised if the TroubleTicketKey is provided as part of
+			the Value template.</documentation>
+		</annotation>
+		<complexType>
+			<choice>
+				<element name="escalateTroubleTicketException" type="tt:CancelException"/>
+				<element name="illegalArgumentException" type="co:IllegalArgumentException"/>
+				<element name="objectNotFoundException" type="co:ObjectNotFoundException"/>
+				<element name="remoteException" type="co:RemoteException"/>
+				<element name="unsupportedOperationException" type="co:UnsupportedOperationException"/>
+			</choice>
+		</complexType>
+	</element>
+	<element name="escalateTroubleTicketsByTemplatesRequest">
+		<annotation>
+			<documentation>This request is used to escalate all the targeted TroubleTickets using the Trouble
+			Ticket template(s). All the trouble tickets matching the attribute values provided in the value template(s) are escalated.
+			The operation is atomic i.e. the operation must successfully escalate all the corresponding trouble tickets
+			otherwise the EscalateTroubleTicketException is raised.</documentation>
+		</annotation>
+		<complexType>
+			<sequence>
+				<element name="templates" type="tt:ArrayOfTroubleTicketValue" nillable="true"/>
+				<element name="escalationList" type="tt:EscalationList"/>
+			</sequence>
+		</complexType>
+	</element>
+	<element name="escalateTroubleTicketsByTemplatesResponse">
+		<annotation>
+			<documentation>The return type for the operation is just the header. It is assumed that a successful 
+			completion will escalate all the trouble tickets matching the template(s).</documentation>
+		</annotation>
+		<complexType>
+			<sequence/>
+		</complexType>
+	</element>
+	<element name="escalateTroubleTicketsByTemplatesException">
+		<annotation>
+			<documentation>If no trouble ticket matching the value templates is found then no exception is raised.
+			The FinderException should only be raised if all the Value Template(s) are populated with a 
+			TroubleTicketKey value and no object is found.</documentation>
+		</annotation>
+		<complexType>
+			<choice>
+				<element name="escalateTroubleTicketException" type="tt:EscalateException"/>
+				<element name="illegalArgumentException" type="co:IllegalArgumentException"/>
+				<element name="finderException" type="co:FinderException"/>
+				<element name="remoteException" type="co:RemoteException"/>
+				<element name="duplicateKeyException" type="co:DuplicateKeyException"/>
+				<element name="unsupportedOperationException" type="co:UnsupportedOperationException"/>
+			</choice>
+		</complexType>
+	</element>
+	<element name="closeTroubleTicketsByKeysRequest">
+		<annotation>
+			<documentation>This is the plural version of the CloseTroubleTicket request. 
+			The only difference is that it takes a list of TroubleTickets  to be closed
+			(indicated by a list of TroubleTicketKeys). All the trouble tickets matching the provided keys are closed. 
+			The operation is atomic i.e. the operation must successfully close all the corresponding trouble tickets 
+			otherwise the proper Exception messages should be sent. </documentation>
+		</annotation>
+		<complexType>
+			<sequence>
+				<element name="troubleTicketKeys" type="tt:ArrayOfTroubleTicketKey"/>
+				<element name="status" type="tt:TroubleStatus"/>
+				<element name="closeOutNarr" type="string"/>
+				<element name="failuresOnly" type="boolean"/>
+			</sequence>
+		</complexType>
+	</element>
+	<element name="closeTroubleTicketsByKeysResponse">
+		<annotation>
+			<documentation>Only the message header is returned. This is sufficient to indicate that 
+			the TroubleTickets were closed. It is assumed that a successful completion will close all
+			the trouble tickets matching the provided keys or that no changes will be commited.</documentation>
+		</annotation>
+		<complexType>
+			<sequence/>
+		</complexType>
+	</element>
+	<element name="closeTroubleTicketsByKeysException">
+		<annotation>
+			<documentation>The following exceptions are returned if an error occurrs.</documentation>
+		</annotation>
+		<complexType>
+			<choice>
+				<element name="illegalArgumentException" type="co:IllegalArgumentException"/>
+				<element name="finderException" type="co:FinderException"/>
+				<element name="closeTroubleTicketException" type="tt:CloseException"/>
+				<element name="remoteException" type="co:RemoteException"/>
+				<element name="unsupportedOperationException" type="co:UnsupportedOperationException"/>
+			</choice>
+		</complexType>
+	</element>
+	<element name="closeTroubleTicketsByTemplateRequest">
+		<annotation>
+			<documentation>This is a close operation, that determines which TroubleTicket to close by using an 
+			associative lookup. TroubleTickets are closed based on the values of the attributes in the TroubleTicketValue 
+			template passed into this request. This operation is not MANDATORY. </documentation>
+		</annotation>
+		<complexType>
+			<sequence>
+				<element name="template" type="tt:TroubleTicketValue"/>
+				<element name="status" type="tt:TroubleStatus"/>
+				<element name="closeOutNarr" type="string"/>
+			</sequence>
+		</complexType>
+	</element>
+	<element name="closeTroubleTicketsByTemplateResponse">
+		<annotation>
+			<documentation>Only the message header is returned. This is sufficient to indicate that 
+			ALL the TroubleTickets were closed. </documentation>
+		</annotation>
+		<complexType>
+			<sequence/>
+		</complexType>
+	</element>
+	<element name="closeTroubleTicketsByTemplateException">
+		<annotation>
+			<documentation>The following exceptions are returned if an error occurrs.</documentation>
+		</annotation>
+		<complexType>
+			<choice>
+				<element name="illegalArgumentException" type="co:IllegalArgumentException"/>
+				<element name="finderException" type="co:FinderException"/>
+				<element name="closeTroubleTicketException" type="tt:CloseException"/>
+				<element name="remoteException" type="co:RemoteException"/>
+				<element name="unsupportedOperationException" type="co:UnsupportedOperationException"/>
+			</choice>
+		</complexType>
+	</element>
+	<element name="closeTroubleTicketsByTemplatesRequest">
+		<annotation>
+			<documentation>This is a close operation, that determines which TroubleTicket to close by using an 
+			associative lookup. TroubleTickets are closed based on the values of the attributes in the TroubleTicketValue 
+			templates passed into this request. </documentation>
+		</annotation>
+		<complexType>
+			<sequence>
+				<element name="templates" type="tt:ArrayOfTroubleTicketValue"/>
+				<element name="status" type="tt:TroubleStatus"/>
+				<element name="closeOutNarr" type="string"/>
+			</sequence>
+		</complexType>
+	</element>
+	<element name="closeTroubleTicketsByTemplatesResponse">
+		<annotation>
+			<documentation>Only the message header is returned. This is sufficient to indicate that 
+			ALL the TroubleTickets were closed. </documentation>
+		</annotation>
+		<complexType>
+			<sequence/>
+		</complexType>
+	</element>
+	<element name="closeTroubleTicketsByTemplatesException">
+		<annotation>
+			<documentation>The following exceptions are returned if an error occurrs.</documentation>
+		</annotation>
+		<complexType>
+			<choice>
+				<element name="illegalArgumentException" type="co:IllegalArgumentException"/>
+				<element name="finderException" type="co:FinderException"/>
+				<element name="closeTroubleTicketException" type="tt:CloseException"/>
+				<element name="remoteException" type="co:RemoteException"/>
+				<element name="unsupportedOperationException" type="co:UnsupportedOperationException"/>
+				<element name="duplicateKeyException" type="co:DuplicateKeyException"/>
+			</choice>
+		</complexType>
+	</element>
+	<element name="cancelTroubleTicketsByKeysRequest">
+		<annotation>
+			<documentation>This request is used to cancel multiple Trouble Tickets given their keys. 
+			All the trouble tickets matching the provided keys are canceld. All the entities matching the provided keys
+			must be found otherwise the FinderException should be raised. The operation is atomic i.e. the operation 
+			must successfully cancel all the corresponding trouble tickets otherwise the CancelTroubleTicketException 
+			is raised (assuming that all the trouble tickets were found i.e the javax.ejb.FinderException was not raised).
+			</documentation>
+		</annotation>
+		<complexType>
+			<sequence>
+				<element name="troubleTicketKeys" type="tt:ArrayOfTroubleTicketKey"/>
+				<element name="status" type="tt:TroubleStatus"/>
+				<element name="closeOutNarr" type="string"/>
+			</sequence>
+		</complexType>
+	</element>
+	<element name="cancelTroubleTicketsByKeysResponse">
+		<annotation>
+			<documentation>The return type for the operation is just the header. It is assumed that a successful completion will
+			cancel all the trouble tickets matching the provided keys or that no changes will be commited.				
+			</documentation>
+		</annotation>
+		<complexType>
+			<sequence/>
+		</complexType>
+	</element>
+	<element name="cancelTroubleTicketsByKeysException">
+		<annotation>
+			<documentation>The operation is atomic i.e. the operation must successfully cancel all the 
+			corresponding trouble tickets otherwise the CancelTroubleTicketException is raised (assuming that all the 
+			trouble tickets were found i.e the javax.ejb.FinderException was not raised).
+			</documentation>
+		</annotation>
+		<complexType>
+			<choice>
+				<element name="illegalArgumentException" type="co:IllegalArgumentException"/>
+				<element name="finderException" type="co:FinderException"/>
+				<element name="remoteException" type="co:RemoteException"/>
+				<element name="cancelTroubleTicketException" type="tt:CancelException"/>
+				<element name="unsupportedOperationException" type="co:UnsupportedOperationException"/>
+			</choice>
+		</complexType>
+	</element>
+	<element name="cancelTroubleTicketsByTemplateRequest">
+		<annotation>
+			<documentation>All the trouble tickets matching the attribute values provided in the value template  are canceld.
+			If no trouble ticket matching the value template is found then no exception is raised. The operations are atomic 
+			i.e. the operation must successfully cancel all the corresponding trouble tickets otherwise the 
+			CancelTroubleTicketException is raised.
+			</documentation>
+		</annotation>
+		<complexType>
+			<sequence>
+				<element name="template" type="tt:TroubleTicketValue" nillable="true"/>
+				<element name="status" type="tt:TroubleStatus"/>
+				<element name="closeOutNarr" type="string"/>
+			</sequence>
+		</complexType>
+	</element>
+	<element name="cancelTroubleTicketsByTemplateResponse">
+		<annotation>
+			<documentation>The return type for the operations is just the header. It is assumed that a successful completion will
+			cancel all the trouble tickets matching the template.					
+			</documentation>
+		</annotation>
+		<complexType>
+			<sequence/>
+		</complexType>
+	</element>
+	<element name="cancelTroubleTicketsByTemplateException">
+		<annotation>
+			<documentation>If no trouble ticket matching the value templates are found then no exception is raised. The
+			ObjectNotFoundException should only be raised if the TroubleTicketKey is provided as part of the Value template. 
+			</documentation>
+		</annotation>
+		<complexType>
+			<choice>
+				<element name="cancelTroubleTicketException" type="tt:CancelException"/>
+				<element name="illegalArgumentException" type="co:IllegalArgumentException"/>
+				<element name="objectNotFoundException" type="co:ObjectNotFoundException"/>
+				<element name="remoteException" type="co:RemoteException"/>
+				<element name="unsupportedOperationException" type="co:UnsupportedOperationException"/>
+			</choice>
+		</complexType>
+	</element>
+	<element name="cancelTroubleTicketsByTemplatesRequest">
+		<annotation>
+			<documentation>All the trouble tickets matching the attribute values provided in the value template(s) are cancelled.
+			If no trouble ticket matching the value templates is found then no exception is raised. The operations are atomic 
+			i.e. the operation must successfully cancel all the corresponding trouble tickets otherwise the 
+			CancelTroubleTicketException is raised. 			
+			</documentation>
+		</annotation>
+		<complexType>
+			<sequence>
+				<element name="templates" type="tt:ArrayOfTroubleTicketValue" nillable="true"/>
+				<element name="status" type="tt:TroubleStatus"/>
+				<element name="closeOutNarr" type="string"/>
+			</sequence>
+		</complexType>
+	</element>
+	<element name="cancelTroubleTicketsByTemplatesResponse">
+		<annotation>
+			<documentation>The return type for the operations is just the header. It is assumed that a successful completion will
+			cancel all the trouble tickets matching the template.						
+			</documentation>
+		</annotation>
+		<complexType>
+			<sequence/>
+		</complexType>
+	</element>
+	<element name="cancelTroubleTicketsByTemplatesException">
+		<annotation>
+			<documentation>If no trouble ticket matching the value templates are found then no exception is raised.
+			The FinderException should only be raised if all the Value Templates are populated with a TroubleTicketKey 
+			value and no object is found.</documentation>
+		</annotation>
+		<complexType>
+			<choice>
+				<element name="cancelTroubleTicketException" type="tt:CancelException"/>
+				<element name="illegalArgumentException" type="co:IllegalArgumentException"/>
+				<element name="finderException" type="co:FinderException"/>
+				<element name="remoteException" type="co:RemoteException"/>
+				<element name="unsupportedOperationException" type="co:UnsupportedOperationException"/>
+				<element name="duplicateKeyException" type="co:DuplicateKeyException"/>
+			</choice>
+		</complexType>
+	</element>
+	<!--==============TroubleTicketValue, TroubleTicketKey and Related Types================-->
+	<complexType name="TroubleTicketValue" abstract="false">
+		<annotation>
+			<documentation>The following is an XML representation of an TroubleTicket. 
+		    TroubleTicketKey (uniquely identifies an TroubleTicket) </documentation>
+		</annotation>
+		<complexContent>
+			<extension base="co:ManagedEntityValue">
+				<sequence>
+					<element name="troubleTicketKey" type="tt:TroubleTicketKey" nillable="true" minOccurs="0"/>
+					<element name="accountOwner" type="tt:PersonReach" nillable="true" minOccurs="0"/>
+					<element name="activityDurationList" type="tt:ActivityDurationList" nillable="true" minOccurs="0"/>
+					<element name="additionalTroubleInfoList" type="co:ArrayOfString" nillable="true" minOccurs="0"/>
+					<element name="afterHoursRepairAuthority" type="boolean" nillable="true" minOccurs="0"/>
+					<element name="authorizationList" type="tt:ArrayOfAuthorization" nillable="true" minOccurs="0"/>
+					<element name="cancelRequestedByCustomer" type="boolean" nillable="true" minOccurs="0"/>
+					<element name="clearancePerson" type="tt:PersonReach" nillable="true" minOccurs="0"/>
+					<element name="closeOutNarr" type="string" nillable="true" minOccurs="0"/>
+					<element ref="tt:baseCloseOutVerification" nillable="true" minOccurs="0"/>
+					<element name="commitmentTime" type="dateTime" nillable="true" minOccurs="0"/>
+					<element name="commitmentTimeRequested" type="dateTime" nillable="true" minOccurs="0"/>
+					<element name="customer" type="tt:PersonReach" nillable="true" minOccurs="0"/>
+					<element name="customerRoleAssignmentList" type="tt:ArrayOfCustomerRoleAssignment" nillable="true" minOccurs="0"/>
+					<element name="customerTroubleNum" type="string" nillable="true" minOccurs="0"/>
+					<element name="dialog" type="string" nillable="true" minOccurs="0"/>
+					<element name="escalationList" type="tt:EscalationList" nillable="true" minOccurs="0"/>
+					<element ref="tt:baseInitiatingMode" nillable="true" minOccurs="0"/>
+					<element name="lastUpdateTime" type="dateTime" nillable="true" minOccurs="0"/>
+					<element name="maintServiceCharge" type="boolean" nillable="true" minOccurs="0"/>
+					<element name="originator" type="string" nillable="true" minOccurs="0"/>
+					<element name="outageDuration" type="tt:TimeLength" nillable="true" minOccurs="0"/>
+					<element name="receivedTime" type="dateTime" nillable="true" minOccurs="0"/>
+					<element name="relatedAlarmList" type="tt:RelatedAlarmList" nillable="true" minOccurs="0"/>
+					<element name="relatedTroubleTicketKeyList" type="tt:ArrayOfTroubleTicketKey" nillable="true" minOccurs="0"/>
+					<element name="repairActivityList" type="tt:RepairActivityList" nillable="true" minOccurs="0"/>
+					<element ref="tt:baseRepeatReport" nillable="true" minOccurs="0"/>
+					<element name="restoredTime" type="dateTime" nillable="true" minOccurs="0"/>
+					<element name="serviceUnavailableBeginTime" type="dateTime" nillable="true" minOccurs="0"/>
+					<element name="serviceUnavailableEndTime" type="dateTime" nillable="true" minOccurs="0"/>
+					<element name="sPRoleAssignmentList" type="tt:ArrayOfSPRoleAssignment" nillable="true" minOccurs="0"/>
+					<element name="suspectObjectList" type="tt:ArrayOfSuspectObject" nillable="true" minOccurs="0"/>
+					<element name="troubleDescription" type="string" nillable="true" minOccurs="0"/>
+					<element ref="tt:baseFoundType" nillable="true" minOccurs="0"/>
+					<element name="troubleLocation" type="string" nillable="true" minOccurs="0"/>
+					<element name="troubleNumList" type="co:ArrayOfString" nillable="true" minOccurs="0"/>
+					<element name="troubledObject" type="string" nillable="true" minOccurs="0"/>
+					<element ref="tt:baseTroubleType" nillable="true" minOccurs="0"/>
+					<element ref="tt:baseState" nillable="true" minOccurs="0"/>
+					<element ref="tt:baseStatus" nillable="true" minOccurs="0"/>
+					<element name="troubleStatusTime" type="dateTime" nillable="true" minOccurs="0"/>
+					<element ref="tt:basePerceivedTroubleSeverity" nillable="true" minOccurs="0"/>
+					<element ref="tt:basePreferredPriority" nillable="true" minOccurs="0"/>
+					<element name="troubleDetectionTime" type="dateTime" nillable="true" minOccurs="0"/>
+					<element name="troubleLocationInfoList" type="tt:ArrayOfTroubleLocationInfo" nillable="true" minOccurs="0"/>
+					<element name="troubledObjectAccessFromTime" type="dateTime" nillable="true" minOccurs="0"/>
+					<element name="troubledObjectAccessHoursList" type="tt:ArrayOfAccessHours" nillable="true" minOccurs="0"/>
+					<element name="troubledObjectAccessToTime" type="dateTime" nillable="true" minOccurs="0"/>
+					<element name="troubleSystemDN" type="string" nillable="true" minOccurs="0"/>
+				</sequence>
+			</extension>
+		</complexContent>
+	</complexType>
+	<complexType name="ArrayOfTroubleTicketValue">
+		<annotation>
+			<documentation>This is a representation of a Trouble Ticket Value array.</documentation>
+		</annotation>
+		<sequence>
+			<element name="item" type="tt:TroubleTicketValue" nillable="true" maxOccurs="unbounded"/>
+		</sequence>
+	</complexType>
+	<complexType name="TroubleTicketKey">
+		<annotation>
+			<documentation>The TroubleTicketKey uniquely identifies an TroubleTicket.</documentation>
+		</annotation>
+		<complexContent>
+			<extension base="co:ManagedEntityKey">
+				<sequence>
+					<element name="primaryKey" type="string"/>
+				</sequence>
+			</extension>
+		</complexContent>
+	</complexType>
+	<complexType name="ArrayOfTroubleTicketKey">
+		<annotation>
+			<documentation>This is a representation of a Trouble Ticket Key array.</documentation>
+		</annotation>
+		<sequence>
+			<element name="item" type="tt:TroubleTicketKey" nillable="true" maxOccurs="unbounded"/>
+		</sequence>
+	</complexType>
+	<complexType name="TroubleTicketKeyResult">
+		<annotation>
+			<documentation>The TroubleTicketKeyResult encapsulates all the information necessary to indicate the result of 
+			 a BEST EFFORT operation on a specific trouble ticket. The trouble ticket key result is used in operations 
+			 involving the update of multiple managed entities, in the deletion of multiple managed entities 
+			 or in the creation of multiple managed entities. It contains thetrouble ticket entity key, a Boolean value 
+			 indicating if the set, delete or create operation was succesfull for that managed entity  and finally 
+			 a reason for the failure</documentation>
+		</annotation>
+		<complexContent>
+			<extension base="co:ManagedEntityKeyResult">
+				<sequence>
+					<element name="troubleTicketKey" type="tt:TroubleTicketKey" nillable="true" maxOccurs="unbounded"/>
+				</sequence>
+			</extension>
+		</complexContent>
+	</complexType>
+	<complexType name="ArrayOfTroubleTicketKeyResult">
+		<annotation>
+			<documentation>This is a representation of an array of Trouble Ticket Key Results returned by a Best Effort
+			Template based bulk operation </documentation>
+		</annotation>
+		<sequence>
+			<element name="item" type="tt:TroubleTicketKeyResult" nillable="true" maxOccurs="unbounded"/>
+		</sequence>
+	</complexType>
+	<complexType name="ActivityDuration">
+		<sequence>
+			<element ref="tt:baseActivityType" nillable="true" minOccurs="0"/>
+			<element name="billable" type="boolean" nillable="true" minOccurs="0"/>
+			<element name="duration" type="tt:TimeLength" minOccurs="0"/>
+		</sequence>
+	</complexType>
+	<complexType name="ArrayOfActivityDuration">
+		<annotation>
+			<documentation>This is a representation of a ActivityDuration array.</documentation>
+		</annotation>
+		<sequence>
+			<element name="item" type="tt:ActivityDuration" nillable="true" maxOccurs="unbounded"/>
+		</sequence>
+	</complexType>
+	<element name="baseActivityType" type="string"/>
+	<element name="activityType" type="tt:ActivityType" substitutionGroup="tt:baseActivityType"/>
+	<simpleType name="ActivityType">
+		<restriction base="string">
+			<enumeration value="ACTIVITYTYPERELEASE"/>
+			<enumeration value="AFTERHOURSREPAIR"/>
+			<enumeration value="AFTERHOURSSTANDBY"/>
+			<enumeration value="CUSTOMERINITIATEDTEST"/>
+			<enumeration value="DELAYEDMAINTENANCE"/>
+			<enumeration value="DEREGULATEDWORK"/>
+			<enumeration value="DISPATCH"/>
+			<enumeration value="NOACCESS"/>
+			<enumeration value="STANDBY"/>
+			<enumeration value="TEST"/>
+		</restriction>
+	</simpleType>
+	<element name="baseRepeatReport" type="string"/>
+	<element name="repeatReport" type="tt:RepeatReport" substitutionGroup="tt:baseRepeatReport"/>
+	<simpleType name="RepeatReport">
+		<restriction base="string">
+			<enumeration value="UNSPECIFIED"/>
+			<enumeration value="RECENTINSTALLATION"/>
+			<enumeration value="REPEAT"/>
+			<enumeration value="BOTHINSTALLATIONANDREPEAT"/>
+			<enumeration value="CHRONIC"/>
+			<enumeration value="BOTHINSTALLATIONANDCHRONIC"/>
+		</restriction>
+	</simpleType>
+	<element name="baseCloseOutVerification" type="string"/>
+	<element name="closeOutVerification" type="tt:CloseOutVerification" substitutionGroup="tt:baseCloseOutVerification"/>
+	<simpleType name="CloseOutVerification">
+		<restriction base="string">
+			<enumeration value="NOACTION"/>
+			<enumeration value="VERIFIED"/>
+			<enumeration value="DENIEDCLOSEOUTVERIFICATION"/>
+			<enumeration value="DENIEDACTIVITYDURATIONDISPUTED"/>
+			<enumeration value="DENIEDCLOSEOUTNARRDISPUTED"/>
+		</restriction>
+	</simpleType>
+	<!--Modified:
+		1. Used tt time constituent types -->
+	<complexType name="TimeLength">
+		<sequence>
+			<element name="years" type="nonNegativeInteger" nillable="true" minOccurs="0"/>
+			<element name="months" type="tt:Months" nillable="true" minOccurs="0"/>
+			<element name="days" type="tt:Days" nillable="true" minOccurs="0"/>
+			<element name="hours" type="tt:Hours" nillable="true" minOccurs="0"/>
+			<element name="minutes" type="tt:Minutes" nillable="true" minOccurs="0"/>
+			<element name="seconds" type="tt:Seconds" nillable="true" minOccurs="0"/>
+			<element name="msecs" type="tt:Msecs" nillable="true" minOccurs="0"/>
+		</sequence>
+	</complexType>
+	<complexType name="Authorization">
+		<sequence>
+			<element ref="tt:baseActivityType" nillable="true" minOccurs="0"/>
+			<element name="authPerson" type="tt:PersonReach" nillable="true" minOccurs="0"/>
+			<element name="authTime" type="dateTime" nillable="true" minOccurs="0"/>
+			<element name="requestState" type="tt:RequestState" nillable="true" minOccurs="0"/>
+		</sequence>
+	</complexType>
+	<complexType name="ArrayOfAuthorization">
+		<annotation>
+			<documentation>This is a representation of an Authorization array.</documentation>
+		</annotation>
+		<sequence>
+			<element name="item" type="tt:Authorization" nillable="true" maxOccurs="unbounded"/>
+		</sequence>
+	</complexType>
+	<!-- Modified:
+		1. Used BaseRole -->
+	<complexType name="CustomerRoleAssignment">
+		<sequence>
+			<element ref="tt:baseRole" nillable="true" minOccurs="0"/>
+			<element name="contactPerson" type="tt:PersonReach" nillable="true" minOccurs="0"/>
+		</sequence>
+	</complexType>
+	<complexType name="ArrayOfCustomerRoleAssignment">
+		<annotation>
+			<documentation>This is a representation of a CustomerRoleAssignment array.</documentation>
+		</annotation>
+		<sequence>
+			<element name="item" type="tt:CustomerRoleAssignment" nillable="true" maxOccurs="unbounded"/>
+		</sequence>
+	</complexType>
+	<complexType name="Escalation">
+		<sequence>
+			<element name="escPerson" type="tt:PersonReach" nillable="true" minOccurs="0"/>
+			<element name="escTime" type="dateTime" nillable="true" minOccurs="0"/>
+			<element name="orgLevel" type="tt:OrgLevel" nillable="true" minOccurs="0"/>
+			<element name="requestPerson" type="tt:PersonReach" nillable="true" minOccurs="0"/>
+			<element name="requestState" type="tt:RequestState" nillable="true" minOccurs="0"/>
+		</sequence>
+	</complexType>
+	<complexType name="ArrayOfEscalation">
+		<annotation>
+			<documentation>This is a representation of a Escalation array.</documentation>
+		</annotation>
+		<sequence>
+			<element name="item" type="tt:Escalation" nillable="true" maxOccurs="unbounded"/>
+		</sequence>
+	</complexType>
+	<element name="baseInitiatingMode" type="string"/>
+	<element name="initiatingMode" type="tt:InitiatingMode" substitutionGroup="tt:baseInitiatingMode"/>
+	<simpleType name="InitiatingMode">
+		<restriction base="string">
+			<enumeration value="UNDEFINED"/>
+			<enumeration value="CUSTOMERDIRECT"/>
+			<enumeration value="CUSTOMERINDIRECT"/>
+			<enumeration value="PROVIDERORIGINATED"/>
+			<enumeration value="CUSTOMERINDIRECTEMAIL"/>
+			<enumeration value="CUSTOMERINDIRECTFAX"/>
+			<enumeration value="CUSTOMERINDIRECTPERSONAL"/>
+			<enumeration value="CUSTOMERINDIRECTPHONE"/>
+			<enumeration value="ALARMORIGINATED"/>
+		</restriction>
+	</simpleType>
+	<complexType name="PersonReach">
+		<sequence>
+			<element name="email" type="string" nillable="true" minOccurs="0"/>
+			<element name="fax" type="string" nillable="true" minOccurs="0"/>
+			<element name="location" type="tt:Address" nillable="true" minOccurs="0"/>
+			<element name="name" type="string" nillable="true" minOccurs="0"/>
+			<element name="number" type="string" nillable="true" minOccurs="0"/>
+			<element name="organizationName" type="string" nillable="true" minOccurs="0"/>
+			<element name="phone" type="string" nillable="true" minOccurs="0"/>
+			<element name="responsible" type="string" nillable="true" minOccurs="0"/>
+			<element name="sMSAddress" type="string" nillable="true" minOccurs="0"/>
+		</sequence>
+	</complexType>
+	<complexType name="RepairActivity">
+		<sequence>
+			<element ref="tt:baseActivityCode" nillable="true" minOccurs="0"/>
+			<element name="activityInfo" type="string" nillable="true" minOccurs="0"/>
+			<element name="activityPerson" type="tt:PersonReach" nillable="true" minOccurs="0"/>
+			<element name="entryTime" type="dateTime" nillable="true" minOccurs="0"/>
+		</sequence>
+	</complexType>
+	<complexType name="ArrayOfRepairActivity">
+		<annotation>
+			<documentation>This is a representation of a RepairActivity array.</documentation>
+		</annotation>
+		<sequence>
+			<element name="item" type="tt:RepairActivity" nillable="true" maxOccurs="unbounded"/>
+		</sequence>
+	</complexType>
+	<element name="baseActivityCode" type="string"/>
+	<element name="activityCode" type="tt:ActivityCode" substitutionGroup="tt:baseActivityCode"/>
+	<simpleType name="ActivityCode">
+		<restriction base="string">
+			<enumeration value="APPROVED"/>
+			<enumeration value="ASSIGNED "/>
+			<enumeration value="CANCEL "/>
+			<enumeration value="CLEAR"/>
+			<enumeration value="CLOSE"/>
+			<enumeration value="DEFER"/>
+			<enumeration value="DISPATCH"/>
+			<enumeration value="REFER"/>
+			<enumeration value="RELEASE"/>
+			<enumeration value="REOPEN"/>
+			<enumeration value="REPAIR"/>
+			<enumeration value="TEST"/>
+			<enumeration value="CLOSE"/>
+			<enumeration value="TRANSFER"/>
+		</restriction>
+	</simpleType>
+	<complexType name="SPRoleAssignment">
+		<sequence>
+			<element ref="tt:baseRole" nillable="true" minOccurs="0"/>
+			<element name="contactPerson" type="tt:PersonReach" nillable="true" minOccurs="0"/>
+		</sequence>
+	</complexType>
+	<complexType name="ArrayOfSPRoleAssignment">
+		<annotation>
+			<documentation>This is a representation of a SPRoleAssignment array.</documentation>
+		</annotation>
+		<sequence>
+			<element name="item" type="tt:SPRoleAssignment" nillable="true" maxOccurs="unbounded"/>
+		</sequence>
+	</complexType>
+	<element name="baseFoundType" type="string"/>
+	<element name="troubleFound" type="tt:TroubleFound" substitutionGroup="tt:baseFoundType"/>
+	<simpleType name="TroubleFound">
+		<restriction base="string">
+			<enumeration value="UNDEFINED"/>
+			<enumeration value="PENDING"/>
+			<enumeration value="CAMECLEAR"/>
+			<enumeration value="CENTRALOFFICE"/>
+			<enumeration value="SWITCHTROUBLE"/>
+			<enumeration value="CUSTOMERPROVIDEDEQUIPMENT"/>
+			<enumeration value="FACILITY"/>
+			<enumeration value="CENTRALOFFICEFACILITY"/>
+			<enumeration value="ICFACILITY"/>
+			<enumeration value="INTEREXCHANGECARRIER"/>
+			<enumeration value="TROUBLEFOUNDINFORMATION"/>
+			<enumeration value="NONPLANCLASSIFIED"/>
+			<enumeration value="NONPLANCLASSIFIEDIC"/>
+			<enumeration value="NONPLANCLASSIFIEDEA"/>
+			<enumeration value="NOTROUBLEFOUND"/>
+			<enumeration value="STATION"/>
+			<enumeration value="STATIONPRODUCTDATA"/>
+			<enumeration value="STATIONPRODUCTTERMINAL"/>
+			<enumeration value="STATIONPRODUCTVIDEO"/>
+			<enumeration value="STATIONPRODUCTVOICE"/>
+			<enumeration value="TROUBLEFOUNDSTATIONWIRING"/>
+			<enumeration value="OTHERSTATIONEQUIPMENT"/>
+			<enumeration value="FOUNDOKSTATION"/>
+			<enumeration value="SERVINGBUREAU"/>
+			<enumeration value="TESTOK"/>
+			<enumeration value="PUBLICSERVICESCOINSET"/>
+			<enumeration value="CUSTOMEROPERATINGINSTRUCTIONS"/>
+			<enumeration value="TESTEDOKVERIFIEDOK"/>
+			<enumeration value="COFACILITYTESTEDFOUNDOK"/>
+			<enumeration value="OUTSIDEFACILITYTESTEDFOUNDOK"/>
+			<enumeration value="REFERREDOUTTOOTHERDEPT"/>
+			<enumeration value="PROTECTIVECONNECTINGARRANG"/>
+			<enumeration value="CPECUSTOMERRESPONSIBILITY"/>
+			<enumeration value="PRESERVICE"/>
+			<enumeration value="PRESERVICEIC"/>
+			<enumeration value="PRESERVICEEA"/>
+			<enumeration value="SERVICENODE"/>
+			<enumeration value="TROUBLEFOUNDDATA"/>
+			<enumeration value="CUSTOMERREFERREDTOVENDOR"/>
+			<enumeration value="EXCHANGEACCESS"/>
+			<enumeration value="INTERNATIONAL"/>
+			<enumeration value="OTHERPROVIDEDACCESS"/>
+			<enumeration value="EXISTINGREPORT"/>
+			<enumeration value="CANCELEXCLUDE"/>
+			<enumeration value="PABX"/>
+			<enumeration value="OUTSIDEWIRE"/>
+			<enumeration value="OUTSIDETERMINALS"/>
+			<enumeration value="OUTSIDEPLANTEQUIPMENT"/>
+			<enumeration value="OUTSIDEPLANTFIBEROPTIC"/>
+			<enumeration value="OUTSIDEPLANTOTHER"/>
+			<enumeration value="COEQUIPMENTOTHER"/>
+			<enumeration value="COEQUIPMENTFRAMES"/>
+			<enumeration value="COCONCENTRATOR"/>
+			<enumeration value="RECEIVEROFFHOOK"/>
+			<enumeration value="CPEAUTHORIZED"/>
+			<enumeration value="CPETELCOMAINTAINED"/>
+			<enumeration value="INDEPENDENTCOMPANY"/>
+			<enumeration value="CPECALLEDNUMBER"/>
+			<enumeration value="ASSIGNINGPROVISIONING"/>
+			<enumeration value="INTERSERVICECENTER"/>
+			<enumeration value="REFERREDOUT"/>
+			<enumeration value="NETWORKTROUBLEFOUND"/>
+		</restriction>
+	</simpleType>
+	<complexType name="TroubleLocationInfo">
+		<sequence>
+			<element name="accessHoursList" type="tt:ArrayOfAccessHours" nillable="true" minOccurs="0" maxOccurs="unbounded"/>
+			<element name="locationPerson" type="tt:PersonReach" nillable="true" minOccurs="0"/>
+			<element name="objectIdDN" type="string" nillable="true" minOccurs="0"/>
+			<element name="premiseAddress" type="tt:Address" nillable="true" minOccurs="0"/>
+			<element name="premiseName" type="string" nillable="true" minOccurs="0"/>
+		</sequence>
+	</complexType>
+	<complexType name="ArrayOfTroubleLocationInfo">
+		<annotation>
+			<documentation>This is a representation of a TroubleLocationInfo array.</documentation>
+		</annotation>
+		<sequence>
+			<element name="item" type="tt:TroubleLocationInfo" nillable="true" maxOccurs="unbounded"/>
+		</sequence>
+	</complexType>
+	<complexType name="AccessHours">
+		<sequence>
+			<element name="dayOfWeek" type="tt:DayOfWeek" nillable="true" minOccurs="0"/>
+			<element name="timeIntervalList" type="tt:ArrayOfTimeInterval" nillable="true" minOccurs="0"/>
+		</sequence>
+	</complexType>
+	<complexType name="ArrayOfAccessHours">
+		<annotation>
+			<documentation>This is a representation of a AccessHours array.</documentation>
+		</annotation>
+		<sequence>
+			<element name="item" type="tt:AccessHours" nillable="true" maxOccurs="unbounded"/>
+		</sequence>
+	</complexType>
+	<simpleType name="DayOfWeek">
+		<restriction base="string">
+			<enumeration value="SUNDAY"/>
+			<enumeration value="MONDAY"/>
+			<enumeration value="TUESDAY"/>
+			<enumeration value="WEDNESDAY"/>
+			<enumeration value="THURSDAY"/>
+			<enumeration value="FRIDAY"/>
+			<enumeration value="SATURDAY"/>
+		</restriction>
+	</simpleType>
+	<complexType name="TimeInterval">
+		<annotation>
+			<documentation>This is a representation of a TimeInterval .</documentation>
+		</annotation>
+		<sequence>
+			<element name="intervalBegin" type="tt:Time" nillable="true" minOccurs="0"/>
+			<element name="intervalEnd" type="tt:Time" nillable="true" minOccurs="0"/>
+		</sequence>
+	</complexType>
+	<complexType name="ArrayOfTimeInterval">
+		<annotation>
+			<documentation>This is a representation of a TimeInterval array.</documentation>
+		</annotation>
+		<sequence>
+			<element name="item" type="tt:TimeInterval" nillable="true" maxOccurs="unbounded"/>
+		</sequence>
+	</complexType>
+	<!--Modified:
+		1. Added more details to the types and upper bound of time constituents.
+		2. Added UtcOffset element -->
+	<complexType name="Time">
+		<annotation>
+			<documentation>This is a representation of a TimeInterval .</documentation>
+		</annotation>
+		<sequence>
+			<element name="hours" type="tt:Hours" nillable="true" minOccurs="0"/>
+			<element name="minutes" type="tt:Minutes" nillable="true" minOccurs="0"/>
+			<element name="seconds" type="tt:Seconds" nillable="true" minOccurs="0"/>
+			<element name="msecs" type="tt:Msecs" nillable="true" minOccurs="0"/>
+			<element name="utcOffset" type="tt:UtcOffset" nillable="true" minOccurs="0"/>
+		</sequence>
+	</complexType>
+	<simpleType name="Months">
+		<restriction base="nonNegativeInteger">
+			<maxInclusive value="11"/>
+		</restriction>
+	</simpleType>
+	<simpleType name="Days">
+		<restriction base="nonNegativeInteger">
+			<maxInclusive value="31"/>
+		</restriction>
+	</simpleType>
+	<simpleType name="Hours">
+		<restriction base="nonNegativeInteger">
+			<maxInclusive value="23"/>
+		</restriction>
+	</simpleType>
+	<simpleType name="Minutes">
+		<restriction base="nonNegativeInteger">
+			<maxInclusive value="59"/>
+		</restriction>
+	</simpleType>
+	<simpleType name="Seconds">
+		<restriction base="nonNegativeInteger">
+			<maxInclusive value="59"/>
+		</restriction>
+	</simpleType>
+	<simpleType name="Msecs">
+		<restriction base="nonNegativeInteger">
+			<maxInclusive value="999"/>
+		</restriction>
+	</simpleType>
+	<simpleType name="UtcOffset">
+		<restriction base="integer">
+			<minInclusive value="-23"/>
+			<maxInclusive value="23"/>
+		</restriction>
+	</simpleType>
+	<complexType name="Address">
+		<sequence>
+			<element name="addressInfo" type="string" nillable="true" minOccurs="0"/>
+		</sequence>
+	</complexType>
+	<complexType name="NorthAmericaAddress">
+		<complexContent>
+			<extension base="tt:Address">
+				<sequence>
+					<element name="civicAddress" type="string"/>
+					<element name="city"/>
+					<element name="state" type="string"/>
+					<element name="zip" type="string"/>
+				</sequence>
+			</extension>
+		</complexContent>
+	</complexType>
+	<element name="baseTroubleType" type="string"/>
+	<element name="troubleType" type="tt:TroubleType" substitutionGroup="tt:baseTroubleType"/>
+	<simpleType name="TroubleType">
+		<restriction base="string">
+			<enumeration value="UNDEFINED"/>
+			<enumeration value="NODIALTONEGROUP"/>
+			<enumeration value="NODIALTONE"/>
+			<enumeration value="SLOWDIALTONE"/>
+			<enumeration value="CIRCUITDEAD"/>
+			<enumeration value="CANNOTCALLOUTGROUP"/>
+			<enumeration value="CANNOTCALLOUT"/>
+			<enumeration value="CANNOTBREAKDIALTONE"/>
+			<enumeration value="DIALTONEAFTERDIALING"/>
+			<enumeration value="HIGHANDDRY"/>
+			<enumeration value="CANNOTRAISE"/>
+			<enumeration value="ALLACCESSBUSY"/>
+			<enumeration value="CANNOTCALLOUT2"/>
+			<enumeration value="CANNOTCALLLONGDISTANCE"/>
+			<enumeration value="CANNOTCALLOVERSEAS"/>
+			<enumeration value="SPEEDCALL"/>
+			<enumeration value="CANNOTCALL911"/>
+			<enumeration value="CANNOTCALL700"/>
+			<enumeration value="CANNOTCALL800OR888"/>
+			<enumeration value="CANNOTCALL900"/>
+			<enumeration value="CANNOTCALLDA"/>
+			<enumeration value="CANNOTCALLINTRALATATOLL"/>
+			<enumeration value="CANNOTBECALLEDGROUP"/>
+			<enumeration value="CANNOTBECALLED"/>
+			<enumeration value="CANNOTBECALLEDBUSY"/>
+			<enumeration value="DONOTGETCALLED"/>
+			<enumeration value="CANNOTTRIPRING"/>
+			<enumeration value="FALSERINGS"/>
+			<enumeration value="DONOTANSWER"/>
+			<enumeration value="REACHRECORDING"/>
+			<enumeration value="CANNOTRAISEASTATION"/>
+			<enumeration value="CANNOTRAISEADROP"/>
+			<enumeration value="CANNOTRAISEACIRCUITLOCATION"/>
+			<enumeration value="RINGNOANSWER"/>
+			<enumeration value="REORDER"/>
+			<enumeration value="ALWAYSBUSY"/>
+			<enumeration value="BELLDOESNOTRING"/>
+			<enumeration value="BELLDOESNOTRING2"/>
+			<enumeration value="BELLRINGSCANNOTANSWER"/>
+			<enumeration value="BELLRINGSAFTERANSWER"/>
+			<enumeration value="NORINGNOANSWER"/>
+			<enumeration value="OTHERRINGTROUBLE"/>
+			<enumeration value="RECEIVESCALLSFORWRONGNUMBER"/>
+			<enumeration value="RECORDINGONLINE"/>
+			<enumeration value="RINGSTHENGOESBUSY"/>
+			<enumeration value="CANNOTBEHEARDGROUP"/>
+			<enumeration value="CANNOTBEHEARD"/>
+			<enumeration value="CANNOTHEAR"/>
+			<enumeration value="FADING"/>
+			<enumeration value="DISTANT"/>
+			<enumeration value="REACHEDWRONGNUMBERGROUP"/>
+			<enumeration value="WRONGNUMBER"/>
+			<enumeration value="WRONGPSAPNUMBER"/>
+			<enumeration value="CIRCUITOPERATIONGROUP"/>
+			<enumeration value="OPEN"/>
+			<enumeration value="FALSEDISCONNECT"/>
+			<enumeration value="GROUNDED"/>
+			<enumeration value="CANNOTBESIGNALLED"/>
+			<enumeration value="CANNOTSIGNAL"/>
+			<enumeration value="PERMANENTSIGNAL"/>
+			<enumeration value="IMPROPERSUPERVISION"/>
+			<enumeration value="SUPERVISION"/>
+			<enumeration value="CANNOTMEET"/>
+			<enumeration value="CANNOTRELEASECIRCUIT"/>
+			<enumeration value="HUNGUP"/>
+			<enumeration value="NOWINKSTART"/>
+			<enumeration value="NOSF"/>
+			<enumeration value="LOWSF"/>
+			<enumeration value="NOCONTINUITY"/>
+			<enumeration value="CUTCABLE"/>
+			<enumeration value="OPENTODEMARC"/>
+			<enumeration value="NORINGGENERATOR"/>
+			<enumeration value="BADERL"/>
+			<enumeration value="ECHO"/>
+			<enumeration value="HOLLOW"/>
+			<enumeration value="CIRCUITOPERATIONSCIRCUITDEAD"/>
+			<enumeration value="CIRCUITDOWN"/>
+			<enumeration value="FAILINGCIRCUIT"/>
+			<enumeration value="NOSIGNAL"/>
+			<enumeration value="SEIZUREONCIRCUIT"/>
+			<enumeration value="LOSSEPSCSORSWITCHEDSERVICES"/>
+			<enumeration value="MONITORCIRCUIT"/>
+			<enumeration value="NEWSERVICENOTWORKING"/>
+			<enumeration value="OPENEPSCSORSWITCHEDSERVICES"/>
+			<enumeration value="OTHERVOICEDESCRIBEADDITINFO"/>
+			<enumeration value="TRUNKBLOCKEDFAREND"/>
+			<enumeration value="BADBALANCE"/>
+			<enumeration value="HIGHRATEINCOMPLETEINCOMING"/>
+			<enumeration value="OUTGOINGFAILUREAFTERWINK"/>
+			<enumeration value="CUTOFFGROUP"/>
+			<enumeration value="CUTOFF"/>
+			<enumeration value="NOISEPROBLEMGROUP"/>
+			<enumeration value="INTERMITTENTNOISE"/>
+			<enumeration value="NOISY"/>
+			<enumeration value="FOREIGNTONE"/>
+			<enumeration value="CLIPPING"/>
+			<enumeration value="CROSSTALK"/>
+			<enumeration value="STATICONLINE"/>
+			<enumeration value="GROUNDHUM"/>
+			<enumeration value="HEARSOTHERONLINE"/>
+			<enumeration value="HUMONLINE"/>
+			<enumeration value="CLICKING"/>
+			<enumeration value="NOISEEPSCSORSWITCHEDSERVICES"/>
+			<enumeration value="LEVELTROUBLESGROUP"/>
+			<enumeration value="LOWLEVELS"/>
+			<enumeration value="HIGHLEVELS"/>
+			<enumeration value="LONGLEVELS"/>
+			<enumeration value="HOTLEVELS"/>
+			<enumeration value="HIGHENDROLLOFF"/>
+			<enumeration value="LOWENDROLLOFF"/>
+			<enumeration value="NEEDSEQUALIZED"/>
+			<enumeration value="LINELOSS"/>
+			<enumeration value="DOESNOTPASSFREQRESPONSE"/>
+			<enumeration value="LEVELSOUTOFLIMIT"/>
+			<enumeration value="MISCELLANEOUSTROUBLEGROUP"/>
+			<enumeration value="HICAPDOWN"/>
+			<enumeration value="CARRIERDOWN"/>
+			<enumeration value="BIPOLARVIOLATIONS"/>
+			<enumeration value="FRAMEERRORSHICAP"/>
+			<enumeration value="OUTOFFRAME"/>
+			<enumeration value="LOSSOFSYNC"/>
+			<enumeration value="FRAMESLIPS"/>
+			<enumeration value="NOLOOPBACK"/>
+			<enumeration value="CANNOTLOOPBACKDEMARC"/>
+			<enumeration value="RECORDINGONCIRCUIT"/>
+			<enumeration value="LINESNEEDTAGGING"/>
+			<enumeration value="OUTWATSRINGINGIN"/>
+			<enumeration value="REMOTEACCESS"/>
+			<enumeration value="OTHER"/>
+			<enumeration value="ALARM"/>
+			<enumeration value="MULTIPLESHORTDURATIONHIT"/>
+			<enumeration value="FRAMEERRORS"/>
+			<enumeration value="FACILITYALARM"/>
+			<enumeration value="SOFTWAREGROUPALARM"/>
+			<enumeration value="DCHANNELDOWN"/>
+			<enumeration value="DEGRADATIONOFT1"/>
+			<enumeration value="NETWORKFAILURE"/>
+			<enumeration value="NOPSAPINFO"/>
+			<enumeration value="MEMORYSERVICEPROBLEMGROUP"/>
+			<enumeration value="PICTROUBLE"/>
+			<enumeration value="CALLTRANSFER"/>
+			<enumeration value="CALLWAITING"/>
+			<enumeration value="CUSTOMCALLFEATURE"/>
+			<enumeration value="THREEWAYCALLING"/>
+			<enumeration value="CALLTRACENOTWORKING"/>
+			<enumeration value="CALLTRACEBLOCKNOTWORKING"/>
+			<enumeration value="REPEATDIALNOTWORKING"/>
+			<enumeration value="REPEATDIALBLOCKNOTWORKING"/>
+			<enumeration value="CALLRETURNNOTWORKING"/>
+			<enumeration value="CALLRETURNBLOCKNOTWORKING"/>
+			<enumeration value="CALLERIDENTIFICATIONNOTWORKING"/>
+			<enumeration value="CALLBLOCKINGNOTWORKING"/>
+			<enumeration value="VOICEMESSAGINGSERVICESPROBLEM"/>
+			<enumeration value="CALLFORWARDINGNOTWORKING"/>
+			<enumeration value="CALLFORWARDINGBUSYLINENOTWORKING"/>
+			<enumeration value="CALLFORWARDNOANSWERNOTWORKING"/>
+			<enumeration value="HUNTINGNOTWORKING"/>
+			<enumeration value="SELECTIVECALLFORWARDINGNOTWORKING"/>
+			<enumeration value="CANNOTSETUPUNIQUERINGID"/>
+			<enumeration value="CALLERIDBLOCKNOTWORKINGPERLINE"/>
+			<enumeration value="CALLERIDBLOCKNOTWORKINGPERCALL"/>
+			<enumeration value="CANNOTREMOVEBLOCKINGONASINGLECALL"/>
+			<enumeration value="REMOTECALLFORWARDING"/>
+			<enumeration value="COMMONBLOCKCENTREXPROBLEMS"/>
+			<enumeration value="INCORRECTCALLERID"/>
+			<enumeration value="DATATROUBLEGROUP"/>
+			<enumeration value="CANNOTRECEIVEDATA"/>
+			<enumeration value="CANNOTSENDDATA"/>
+			<enumeration value="CANNOTTRANSMITCANNOTRECEIVE"/>
+			<enumeration value="NORECEIVE"/>
+			<enumeration value="NORESPONSE"/>
+			<enumeration value="DELAY"/>
+			<enumeration value="IMPULSENOISE"/>
+			<enumeration value="PHASEJITTER"/>
+			<enumeration value="HARMONICDISTORTION"/>
+			<enumeration value="HIGHDISTORTION"/>
+			<enumeration value="NODATALOOPBACK"/>
+			<enumeration value="NOCARRIER"/>
+			<enumeration value="NOTPOLLING"/>
+			<enumeration value="DATAFRAMINGERRORS"/>
+			<enumeration value="DROPOUTS"/>
+			<enumeration value="HITS"/>
+			<enumeration value="NOANSWERBACK"/>
+			<enumeration value="STREAMER"/>
+			<enumeration value="OUTOFSPECIFICATION"/>
+			<enumeration value="CANNOTRUNTOCSU"/>
+			<enumeration value="CANNOTRUNTOOCU"/>
+			<enumeration value="DEADDATACIRCUIT"/>
+			<enumeration value="CIRCUITINLOOPBACK"/>
+			<enumeration value="ERRORS"/>
+			<enumeration value="GARBLEDDATA"/>
+			<enumeration value="INVALIDDATA"/>
+			<enumeration value="CROSSMODULATION"/>
+			<enumeration value="SLOWRESPONSE"/>
+			<enumeration value="OTHERDATADESCRIBEADDITINFO"/>
+			<enumeration value="GETTINGALLONES"/>
+			<enumeration value="SLIP"/>
+			<enumeration value="STATIONTROUBLEGROUP"/>
+			<enumeration value="VOICEEQUIPMENT"/>
+			<enumeration value="DATAEQUIPMENT"/>
+			<enumeration value="VIDEOEQUIPMENT"/>
+			<enumeration value="OTHEREQUIPMENT"/>
+			<enumeration value="STATIONWIRING"/>
+			<enumeration value="PHYSICALTROUBLEGROUP"/>
+			<enumeration value="LIGHTBURNEDOUT"/>
+			<enumeration value="DATASET"/>
+			<enumeration value="TTYSET"/>
+			<enumeration value="HIGHSPEEDPRINTER"/>
+			<enumeration value="ANI"/>
+			<enumeration value="ALI"/>
+			<enumeration value="CANNOTACTIVATEPC"/>
+			<enumeration value="MODEM"/>
+			<enumeration value="CATHODERAYTUBE"/>
+			<enumeration value="LOOSEJACK"/>
+			<enumeration value="OFFHOOK"/>
+			<enumeration value="PHYSICALPROBLEM"/>
+			<enumeration value="PROCESSORDEAD"/>
+			<enumeration value="WIRINGPROBLEM"/>
+			<enumeration value="WIREBROKENSETBROKENPOLEDOWN"/>
+			<enumeration value="NOREGISTER"/>
+			<enumeration value="STUCKSENDER"/>
+			<enumeration value="OTHERSTATIONTROUBLE"/>
+			<enumeration value="OTHERCASEGROUP"/>
+			<enumeration value="CALLTRANSFERPROBLEM"/>
+			<enumeration value="CALLWAITINGPROBLEM"/>
+			<enumeration value="CUSTOMCALLFEATUREDONOTWORK"/>
+			<enumeration value="INFORMATION"/>
+			<enumeration value="THREEWAYCALLINGPROBLEM"/>
+			<enumeration value="ORDERWORK"/>
+			<enumeration value="RELEASECKTREQUESTEDBYIC"/>
+			<enumeration value="RELEASECKTREQUESTEDBYEC"/>
+			<enumeration value="RELEASEFACILITYREQUESTEDBYIC"/>
+			<enumeration value="RELEASEFACILITYREQUESTEDBYEC"/>
+			<enumeration value="REQUESTFORROUTINE"/>
+			<enumeration value="RELEASE"/>
+			<enumeration value="REQUESTDISPATCH"/>
+			<enumeration value="REQUESTMONITOROFCIRCUIT"/>
+			<enumeration value="ROUTINETESTFAILURE"/>
+			<enumeration value="LOSTTIMERREPORTS"/>
+			<enumeration value="HISTORICALREPORTS"/>
+			<enumeration value="SWITCHORTRUNKRELATED"/>
+			<enumeration value="REQUESTTESTASSIST"/>
+			<enumeration value="ANALOGTESTLINE"/>
+			<enumeration value="DIGITALTESTLINE"/>
+			<enumeration value="MANUALINTERVENTIONREQUESTED"/>
+			<enumeration value="RECOVERY"/>
+			<enumeration value="RECOVERYREPORT"/>
+			<enumeration value="SWITCHEDNETWORKPROBLEMSGROUP"/>
+			<enumeration value="ANITIMEOUT"/>
+			<enumeration value="EXTRADIGIT"/>
+			<enumeration value="EXTRAPULSE"/>
+			<enumeration value="FALSEKEYPULSE"/>
+			<enumeration value="MISPLACEDSTARTPULSE"/>
+			<enumeration value="MUTILATEDDIGITGROUP"/>
+			<enumeration value="NOKEYPULSE"/>
+			<enumeration value="PARTIALDIALTIMEOUT"/>
+			<enumeration value="SIGNALINGNETWORKFAILUREINCOMING"/>
+			<enumeration value="STATIONGROUPDESIGNATIONDIGITFAILURE"/>
+			<enumeration value="ANIPROBLEM"/>
+			<enumeration value="OSPSEQUALACCESSSIGNALING"/>
+			<enumeration value="MISSINGANI"/>
+			<enumeration value="VACANTCODEANNOUNCEMENT"/>
+			<enumeration value="INVALIDDIGIT"/>
+			<enumeration value="HIGHANDWET"/>
+			<enumeration value="PAYPHONEPROBLEMSGROUP"/>
+			<enumeration value="NOCOINRETURN"/>
+			<enumeration value="COINSTUCK"/>
+			<enumeration value="CANNOTDEPOSITCOIN"/>
+			<enumeration value="COINSFALLTHROUGH"/>
+			<enumeration value="COINSDONOTREGISTER"/>
+			<enumeration value="PAYPHONEDAMAGE"/>
+		</restriction>
+	</simpleType>
+	<element name="baseState" type="string"/>
+	<element name="troubleState" type="tt:TroubleState" substitutionGroup="tt:baseState"/>
+	<simpleType name="TroubleState">
+		<restriction base="string">
+			<enumeration value="UNKNOWNTROUBLESTATE"/>
+			<enumeration value="QUEUED"/>
+			<enumeration value="OPENACTIVE"/>
+			<enumeration value="DEFERRED"/>
+			<enumeration value="CLEARED"/>
+			<enumeration value="CLOSED"/>
+			<enumeration value="DISABLED"/>
+		</restriction>
+	</simpleType>
+	<element name="baseStatus" type="string"/>
+	<element name="troubleStatus" type="tt:TroubleStatus" substitutionGroup="tt:baseStatus"/>
+	<simpleType name="TroubleStatus">
+		<restriction base="string">
+			<enumeration value="UNDEFINED"/>
+			<enumeration value="SCREENING"/>
+			<enumeration value="TESTING"/>
+			<enumeration value="DISPATCHEDIN"/>
+			<enumeration value="DISPATCHEDOUT"/>
+			<enumeration value="PREASSIGNEDOUT"/>
+			<enumeration value="BULKDISPATCHEDOUT"/>
+			<enumeration value="STARTREPAIR"/>
+			<enumeration value="PENDINGTEST"/>
+			<enumeration value="PENDINGDISPATCH"/>
+			<enumeration value="REQUESTREPAIR"/>
+			<enumeration value="REFERMTCECENTER"/>
+			<enumeration value="REFERVENDOR"/>
+			<enumeration value="NOACCESSOTHER"/>
+			<enumeration value="STARTNOACCESS"/>
+			<enumeration value="STOPNOACCESS"/>
+			<enumeration value="STARTDELAYEDMTCE"/>
+			<enumeration value="STOPDELAYEDMTCE"/>
+			<enumeration value="TROUBLEESCALATED"/>
+			<enumeration value="CRAFTDISPATCHED"/>
+			<enumeration value="TEMPORARYOK"/>
+			<enumeration value="CABLEFAILURE"/>
+			<enumeration value="ORIGINATINGEQUIPFAILURE"/>
+			<enumeration value="BACKORDER"/>
+			<enumeration value="CLEAREDCUSTNOTADVISED"/>
+			<enumeration value="CLEAREDCUSTADVISED"/>
+			<enumeration value="CLEAREDAWAITINGCUSTVERIFICATION"/>
+			<enumeration value="CLOSEDOUT"/>
+			<enumeration value="CLOSEDOUTBYCUSTREQ"/>
+			<enumeration value="CLOSEDOUTCUSTVERIFIED"/>
+			<enumeration value="CLOSEDOUTCUSTDENIED"/>
+			<enumeration value="CANCELEDPENDINGWORKINPROGRESS"/>
+			<enumeration value="CANCELEDPENDINGTESTCOMPLETION"/>
+			<enumeration value="CANCELEDPENDINGDISPATCHCOMPL"/>
+			<enumeration value="TECHONSITE"/>
+			<enumeration value="TECHLEFTSITE"/>
+		</restriction>
+	</simpleType>
+	<element name="basePerceivedTroubleSeverity" type="string"/>
+	<element name="perceivedTroubleSeverity" type="tt:PerceivedTroubleSeverity" substitutionGroup="tt:basePerceivedTroubleSeverity"/>
+	<simpleType name="PerceivedTroubleSeverity">
+		<restriction base="string">
+			<enumeration value="UNDEFINED"/>
+			<enumeration value="OUTOFSERVICE"/>
+			<enumeration value="BACKINSERVICE"/>
+			<enumeration value="SERVICEIMPAIRMENT"/>
+			<enumeration value="NONSERVICEAFFECTINGTROUBLE"/>
+		</restriction>
+	</simpleType>
+	<element name="basePreferredPriority" type="string"/>
+	<element name="preferredPriority" type="tt:PreferredPriority" substitutionGroup="tt:basePreferredPriority"/>
+	<simpleType name="PreferredPriority">
+		<restriction base="string">
+			<enumeration value="UNDEFINED"/>
+			<enumeration value="MINOR"/>
+			<enumeration value="MAJOR"/>
+			<enumeration value="SERIOUS"/>
+			<enumeration value="LIFETHREATENING"/>
+		</restriction>
+	</simpleType>
+	<!-- Modified -->
+	<complexType name="SuspectObject">
+		<annotation>
+			<documentation>This is a representation of a suspect object.</documentation>
+		</annotation>
+		<sequence>
+			<element name="suspectObjectType" type="string" nillable="true" minOccurs="0"/>
+			<element name="suspectObjectId" type="string" nillable="true" minOccurs="0"/>
+			<element name="failureProbability" type="tt:FailureProbability" minOccurs="0"/>
+		</sequence>
+	</complexType>
+	<complexType name="ArrayOfSuspectObject">
+		<annotation>
+			<documentation>This is a representation of an array of suspect objects.</documentation>
+		</annotation>
+		<sequence>
+			<element name="item" type="tt:SuspectObject" nillable="true" maxOccurs="unbounded"/>
+		</sequence>
+	</complexType>
+	<simpleType name="FailureProbability">
+		<restriction base="nonNegativeInteger">
+			<maxInclusive value="100"/>
+		</restriction>
+	</simpleType>
+	<element name="baseRole" type="string"/>
+	<element name="role" type="tt:Role" substitutionGroup="tt:baseRole"/>
+	<simpleType name="Role">
+		<restriction base="string">
+			<enumeration value="PRIMARYCONTACTPERSON"/>
+			<enumeration value="ALTERNATECONTACTPERSON"/>
+			<enumeration value="MANAGERCONTACTPERSON"/>
+			<enumeration value="ALTERNATEMANAGERCONTACTPERSON"/>
+			<enumeration value="ACCOUNTCONTACTPERSON"/>
+			<enumeration value="TROUBLECLEARANCEPERSON"/>
+			<enumeration value="CONTACTPERSONMAINTENANCE"/>
+			<enumeration value="ACTIVITYPERSON"/>
+			<enumeration value="RESPONSIBLEPERSON"/>
+			<enumeration value="HANDOFFPERSON"/>
+			<enumeration value="AUTHORIZATIONPERSON"/>
+			<enumeration value="ESCALATIONPERSON"/>
+			<enumeration value="LOCATIONACCESSPERSON"/>
+			<enumeration value="ESCALATIONREQUESTPERSON"/>
+		</restriction>
+	</simpleType>
+	<simpleType name="RequestState">
+		<restriction base="string">
+			<enumeration value="REQUESTED"/>
+			<enumeration value="PROVIDED"/>
+			<enumeration value="DENIED"/>
+			<enumeration value="NOSTATE"/>
+		</restriction>
+	</simpleType>
+	<!--=============Lists for TT Multi Value Attributes================-->
+	<complexType name="EscalationList">
+		<annotation>
+			<documentation>
+				The EscalationList is a MultiValuedList, used In oder to minimize the  
+				amount of data required to add or remove a single attribute value from
+				the corresponding TT multi-valued attribute.
+			</documentation>
+		</annotation>
+		<complexContent>
+			<extension base="co:MultiValueList">
+				<sequence>
+					<element name="escalations" type="tt:ArrayOfEscalation" nillable="true" minOccurs="0"/>
+				</sequence>
+			</extension>
+		</complexContent>
+	</complexType>
+	<complexType name="RelatedAlarmList">
+		<annotation>
+			<documentation>
+				The RelatedAlarmList is a MultiValuedList, used In oder to minimize the  
+				amount of data required to add or remove a single attribute value from
+				the corresponding TT multi-valued attribute.
+			</documentation>
+		</annotation>
+		<complexContent>
+			<extension base="co:MultiValueList">
+				<sequence>
+					<element name="relatedAlarms" type="fm:ArrayOfAlarmValue" nillable="true" minOccurs="0"/>
+				</sequence>
+			</extension>
+		</complexContent>
+	</complexType>
+	<complexType name="RepairActivityList">
+		<annotation>
+			<documentation>
+				The RepairActivityList is a MultiValuedList, used In oder to minimize the  
+				amount of data required to add or remove a single attribute value from
+				the corresponding TT multi-valued attribute.
+			</documentation>
+		</annotation>
+		<complexContent>
+			<extension base="co:MultiValueList">
+				<sequence>
+					<element name="repairActivities" type="tt:ArrayOfRepairActivity" nillable="true" minOccurs="0"/>
+				</sequence>
+			</extension>
+		</complexContent>
+	</complexType>
+	<complexType name="ActivityDurationList">
+		<annotation>
+			<documentation>
+				The ActivityDurationList is a MultiValuedList, used In oder to minimize the  
+				amount of data required to add or remove a single attribute value from
+				the corresponding TT multi-valued attribute.
+			</documentation>
+		</annotation>
+		<complexContent>
+			<extension base="co:MultiValueList">
+				<sequence>
+					<element name="activityDurations" type="tt:ArrayOfActivityDuration" nillable="true" minOccurs="0"/>
+				</sequence>
+			</extension>
+		</complexContent>
+	</complexType>
+	<!--=============TroubleTicket Exceptions====================-->
+	<complexType name="CloseException">
+		<annotation>
+			<documentation> The CloseTroubleTicketException  exception is returned by the OSS through 
+			Java XML/JMS interface  to report that the invoked TryCloseTroubleTicket(s) or CloseTroubleTicket(s) 
+			could not be completed.</documentation>
+		</annotation>
+		<complexContent>
+			<extension base="co:BaseException">
+				<sequence/>
+			</extension>
+		</complexContent>
+	</complexType>
+	<complexType name="CancelException">
+		<annotation>
+			<documentation> The CancelTroubleTicketException  exception is returned by the OSS through 
+			Java XML/JMS interface  to report that the invoked TryCancelTroubleTicket(s) or CancelTroubleTicket(s) 
+			could not be completed.</documentation>
+		</annotation>
+		<complexContent>
+			<extension base="co:BaseException">
+				<sequence/>
+			</extension>
+		</complexContent>
+	</complexType>
+	<!--Modified:
+		1. Added this exception  -->
+	<complexType name="EscalateException">
+		<annotation>
+			<documentation> The EscalateTroubleTicketException  exception is returned by the OSS through 
+			Java XML/JMS interface  to report that the invoked TryEscalateTroubleTicket(s) or EscalateTroubleTicket(s) 
+			could not be completed.</documentation>
+		</annotation>
+		<complexContent>
+			<extension base="co:BaseException">
+				<sequence/>
+			</extension>
+		</complexContent>
+	</complexType>
+	<!--==================TroubleTicket Queries=================================-->
+	<complexType name="QueryAllOpenTroubleTicketsValue">
+		<annotation>
+			<documentation>The following is an XML representation of the QueryAllOpenTroubleTickets. 
+			 </documentation>
+		</annotation>
+		<complexContent>
+			<extension base="co:QueryValue">
+				<sequence/>
+			</extension>
+		</complexContent>
+	</complexType>
+	<complexType name="QueryByEscalationValue">
+		<annotation>
+			<documentation>The following is an XML representation of the QueryByEscalation. 
+			 </documentation>
+		</annotation>
+		<complexContent>
+			<extension base="co:QueryValue">
+				<sequence>
+					<element name="startLevel" type="tt:OrgLevel"/>
+					<element name="endLevel" type="tt:OrgLevel"/>
+				</sequence>
+			</extension>
+		</complexContent>
+	</complexType>
+	<simpleType name="OrgLevel">
+		<restriction base="string">
+			<enumeration value="NOESCALATION"/>
+			<enumeration value="FIRSTLEVEL"/>
+			<enumeration value="SECONDLEVEL"/>
+			<enumeration value="THIRDLEVEL"/>
+			<enumeration value="FOURTHLEVEL"/>
+			<enumeration value="FIFTHLEVEL"/>
+			<enumeration value="SIXTHLEVEL"/>
+		</restriction>
+	</simpleType>
+	<!--===============TroubleTicke Events=========================-->
+	<element name="troubleTicketAttributeValueChangeEvent">
+		<annotation>
+			<documentation>An Event that is sent in the case in which some value of the TroubleTicket has changed. 
+			The event is thrown in the case of 1) setTroubleTicket(s).Request has been called and changed the value 
+			of an TroubleTicket 2) Some values of the TroubleTicket have been changed during the 
+			execution of a TroubleTicket by implementation. 
+			.</documentation>
+		</annotation>
+		<complexType>
+			<sequence>
+				<element name="event" type="tt:TroubleTicketAttributeValueChangeEventType" nillable="false"/>
+			</sequence>
+		</complexType>
+	</element>
+	<complexType name="TroubleTicketAttributeValueChangeEventType">
+		<annotation>
+			<documentation>Base Content of Attribute Value Change Event</documentation>
+		</annotation>
+		<complexContent>
+			<extension base="co:BaseEventType">
+				<sequence>
+					<element name="troubleTicketValue" type="tt:TroubleTicketValue" nillable="false"/>
+				</sequence>
+			</extension>
+		</complexContent>
+	</complexType>
+	<element name="troubleTicketCreateEvent">
+		<annotation>
+			<documentation>An Event that is published in the case where a new TroubleTicket is created.
+			The event is emitted when a new TroubleTicket is created</documentation>
+		</annotation>
+		<complexType>
+			<sequence>
+				<element name="event" type="tt:TroubleTicketCreateEventType" nillable="false"/>
+			</sequence>
+		</complexType>
+	</element>
+	<complexType name="TroubleTicketCreateEventType">
+		<annotation>
+			<documentation>Base Content of Create Event</documentation>
+		</annotation>
+		<complexContent>
+			<extension base="co:BaseEventType">
+				<sequence>
+					<element name="troubleTicketValue" type="tt:TroubleTicketValue" nillable="false"/>
+				</sequence>
+			</extension>
+		</complexContent>
+	</complexType>
+	<element name="troubleTicketCloseOutEvent">
+		<annotation>
+			<documentation>An Event that is published in the case where a TroubleTicket is closed.</documentation>
+		</annotation>
+		<complexType>
+			<sequence>
+				<element name="event" type="tt:TroubleTicketCloseOutType" nillable="false"/>
+			</sequence>
+		</complexType>
+	</element>
+	<complexType name="TroubleTicketCloseOutType">
+		<annotation>
+			<documentation>Base Content of CloseOut Event</documentation>
+		</annotation>
+		<complexContent>
+			<extension base="co:BaseEventType">
+				<sequence>
+					<element name="troubleTicketValue" type="tt:TroubleTicketValue" nillable="false"/>
+				</sequence>
+			</extension>
+		</complexContent>
+	</complexType>
+	<element name="troubleTicketCancellationEvent">
+		<annotation>
+			<documentation>An Event that is published in the case where a TroubleTicket is cancelled.</documentation>
+		</annotation>
+		<complexType>
+			<sequence>
+				<element name="event" type="tt:TroubleTicketCancellationType" nillable="false"/>
+			</sequence>
+		</complexType>
+	</element>
+	<complexType name="TroubleTicketCancellationType">
+		<annotation>
+			<documentation>Base Content of Cancellation Event</documentation>
+		</annotation>
+		<complexContent>
+			<extension base="co:BaseEventType">
+				<sequence>
+					<element name="troubleTicketKey" type="tt:TroubleTicketKey" nillable="false"/>
+					<element name="closeOutNarr" type="string"/>
+				</sequence>
+			</extension>
+		</complexContent>
+	</complexType>
+	<element name="troubleTicketStatusChangeEvent">
+		<annotation>
+			<documentation>An Event that is published in the case where the is a TroubleTicket Status Change.
+			</documentation>
+		</annotation>
+		<complexType>
+			<sequence>
+				<element name="event" type="tt:TroubleTicketStatusChangeEventType" nillable="false"/>
+			</sequence>
+		</complexType>
+	</element>
+	<complexType name="TroubleTicketStatusChangeEventType">
+		<annotation>
+			<documentation>Base Content of StatusChange Event</documentation>
+		</annotation>
+		<complexContent>
+			<extension base="co:BaseEventType">
+				<sequence>
+					<element name="troubleTicketKey" type="tt:TroubleTicketKey" nillable="false"/>
+					<element ref="tt:baseState" nillable="true" minOccurs="0"/>
+					<element ref="tt:baseStatus" nillable="true" minOccurs="0"/>
+					<element name="statusTime" type="dateTime" nillable="true" minOccurs="0"/>
+				</sequence>
+			</extension>
+		</complexContent>
+	</complexType>
+</schema>

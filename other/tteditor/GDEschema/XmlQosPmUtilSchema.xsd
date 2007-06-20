@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Copyright 2001 Cisco Systems, Inc., Ericsson Radio Systems AB., Motorola, Inc.,
+NEC Corporation, Nokia Networks Oy, Nortel Networks Limited, Sun Microsystems, Inc.,
+Telcordia Technologies, Inc., Digital Fairway Corporation, Orchestream Holdings plc,
+BEA Systems, Inc. All rights reserved. Use is subject to license terms. -->
+<!--
+DOCUMENTATION IS PROVIDED "AS IS" AND ALL EXPRESS OR IMPLIED
+CONDITIONS, REPRESENTATIONS AND WARRANTIES, INCLUDING ANY IMPLIED
+WARRANTY OF MERCHANTABILITY, FITNESS FOR FOR A PARTICULAR PURPOSE OR
+NON-INFRINGEMENT, ARE DISCLAIMED, EXCEPT TO THE EXTENT THAT SUCH
+DISCLAIMERS ARE HELD TO BE LEGALLY INVALID.
+-->
+<schema
+targetNamespace="http://java.sun.com/products/oss/xml/QualityOfService/PM/Util"
+xmlns="http://www.w3.org/2001/XMLSchema"
+xmlns:pmUtil="http://java.sun.com/products/oss/xml/QualityOfService/PM/Util"
+xmlns:irp="http://java.sun.com/products/oss/xml/Common/Util"
+xmlns:co="http://java.sun.com/products/oss/xml/Common"
+elementFormDefault="qualified">
+<import namespace="http://java.sun.com/products/oss/xml/Common"
+schemaLocation="http://java.sun.com/products/oss/xml/Common/XmlCommonSchema.xsd"/>
+<import namespace="http://java.sun.com/products/oss/xml/Common/Util"
+schemaLocation="http://java.sun.com/products/oss/xml/Common/Util/XmlCommonUtilSchema.xsd"/>
+<!-- Value type javax.oss.pm.util.DailySchedule -->
+<complexType name="DailySchedule">
+<sequence>
+<element name="stratTimes" type="dateTime" nillable="false"
+maxOccurs="unbounded"/>
+<element name="stopTimes" type="dateTime" nillable="false"
+maxOccurs="unbounded"/>
+</sequence>
+</complexType>
+<!-- Value type javax.oss.pm.util.Schedule -->
+<complexType name="Schedule">
+<sequence>
+<element name="startTime" type="dateTime"/>
+<element name="stopTime" type="dateTime"/>
+<element name="weeklySchedule" type="pmUtil:WeeklySchedule"/>
+<element name="dailySchedule" type="pmUtil:DailySchedule"/>
+</sequence>
+</complexType>
+<!-- Value type javax.oss.pm.util.WeeklySchedule -->
+<complexType name="WeeklySchedule">
+<sequence>
+<element name="timeZone" type="string"/>
+<element name="monday" type="boolean"/>
+<element name="tuesday" type="boolean"/>
+<element name="wednesday" type="boolean"/>
+<element name="thursday" type="boolean"/>
+<element name="friday" type="boolean"/>
+<element name="saturday" type="boolean"/>
+<element name="sunday" type="boolean"/>
+</sequence>
+</complexType>
+</schema>

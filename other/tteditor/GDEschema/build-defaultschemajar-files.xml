@@ -1,0 +1,73 @@
+<?xml version="1.0" standalone="yes"?>
+<!--
+The contents of this file are subject to the terms of the Common
+Development and Distribution License (the License). You may not use this
+file except in compliance with the License.  You can obtain a copy of the
+License at http://www.netbeans.org/cddl.html
+
+When distributing Covered Code, include this CDDL Header Notice in each
+file and include the License. If applicable, add the following below the
+CDDL Header, with the fields enclosed by brackets [] replaced by your own
+identifying information:
+"Portions Copyrighted [year] [name of copyright owner]"
+
+Copyright 2007 Sun Microsystems, Inc. All Rights Reserved
+-->
+<project name="build-schemajar-files" basedir="." default="jar">
+  <description>
+      This scripts generate jar from schema file
+  </description>
+
+<!-- The gde-folder property will be passed using the -D option from the
+         command line. e.g. 
+         ant -f build-schemajar-files.xml -Dgde-folder=E://projects/GDESuite/GDEWizard/gdefolder 
+		-Djaxb-folder=E://Sun/netbeans-5.5
+		-Dschema-file=
+ -->
+
+  <path id="classpath">
+    <pathelement path="build/classes" />
+            <fileset dir="${jaxb-folder}"/>
+
+  </path>
+  <taskdef name="xjc" classname="com.sun.tools.xjc.XJC2Task">
+    <classpath refid="classpath" />
+  </taskdef>
+
+  <!--Delete folders if any -->
+    <target name="delete-folders" if="build.dir.exists">
+        <echo message="Deleting the build directory and all its sub directories"/>
+        <delete includeEmptyDirs="true">
+            <fileset dir="${gde-folder}/schema"/>
+        </delete>                
+    </target>
+  
+
+  <!--compile Java source files-->
+  <target name="compile" description="Compile all Java source files" depends="delete-folders">
+    <echo message="Compiling the schema..." />
+    <mkdir dir="${gde-folder}/schema/gen-src" />
+    <xjc schema="${schema-file}" package="gde.generated.base" destdir="${gde-folder}/schema/gen-src" catalog="${gde-folder}/catalog.cat">
+      <produces dir="${gde-folder}/schema/gen-src" includes="**/*.java" />
+    </xjc>
+    <echo message="Compiling the java source files..." />
+    <mkdir dir="${gde-folder}/schema/build/classes" />
+    <javac destdir="${gde-folder}/schema/build/classes" debug="on">
+      <src path="${gde-folder}/schema/gen-src" />
+      <classpath refid="classpath" />
+    </javac>
+  </target>
+
+  
+    <target name="jar" depends="compile">
+        <echo message="Creating jar files..." />
+
+        <mkdir dir="${gde-folder}/lib"/>
+        <jar destfile="${gde-folder}/lib/GDEDefaultTroubleTicketValue.jar" basedir="${gde-folder}/schema/build/classes">
+            <manifest>
+                <attribute name="Main-Class" value="TroubleTicketValue"/>
+            </manifest>
+        </jar>
+    </target>
+</project>
+

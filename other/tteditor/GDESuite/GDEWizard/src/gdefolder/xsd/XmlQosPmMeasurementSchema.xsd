@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Copyright 2001 Cisco Systems, Inc., Ericsson Radio Systems AB., MetaSolv Software, Inc., Motorola, Inc., NEC Corporation, Nokia Networks Oy, Nortel Networks Limited, Sun Microsystems, Inc., Telcordia Technologies, Inc., Digital Fairway Corporation, Orchestream Holdings plc, BEA Systems, Inc.  All rights reserved.  Use is subject to license terms. -->
+<schema targetNamespace="http://java.sun.com/products/oss/xml/QualityOfService/PM/Measurement" xmlns:co="http://java.sun.com/products/oss/xml/Common" xmlns:measurement="http://java.sun.com/products/oss/xml/QualityOfService/PM/Measurement" xmlns="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified">
+	<annotation>
+		<documentation>
+            	The following is the Schema for the Qos Threshold Definition
+		 </documentation>
+	</annotation>
+	<import namespace="http://java.sun.com/products/oss/xml/Common" 
+	schemaLocation="http://java.sun.com/products/oss/xml/Common/XmlCommonSchema.xsd"/>
+	<!-- Value type javax.oss.pm.measurement.PerformanceAttributeDescriptor -->
+	<complexType name="PerformanceAttributeDescriptor">
+		<sequence>
+			<element name="name" type="string"/>
+			<element ref="measurement:baseAttributeTypes"/>
+			<element ref="measurement:baseCollectionMethods"/>
+			<element name="isArray" type="boolean"/>
+		</sequence>
+	</complexType>
+	<!-- Enum type attribute types -->
+	<element name="baseAttributeTypes" type="string"/>
+	<element name="attributeTypes" type="measurement:AttributeTypes" substitutionGroup="measurement:baseAttributeTypes"/>
+	<simpleType name="AttributeTypes">
+		<restriction base="string">
+			<enumeration value="INT"/>
+			<enumeration value="REAL"/>
+			<enumeration value="STRING"/>
+		</restriction>
+	</simpleType>
+	<!-- Enum type collection methods -->
+	<element name="baseCollectionMethods" type="string"/>
+	<element name="collectionMethods" type="measurement:CollectionMethods" substitutionGroup="measurement:baseCollectionMethods"/>
+	<simpleType name="CollectionMethods">
+		<restriction base="string">
+			<enumeration value="CUMULATIVE_COUNTER"/>
+			<enumeration value="GAUGE"/>
+			<enumeration value="DISCRETE_EVENT_REGISTRATION"/>
+			<enumeration value="STATUS_INSPECTION"/>
+		</restriction>
+	</simpleType>
+</schema>

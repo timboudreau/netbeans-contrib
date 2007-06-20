@@ -1,0 +1,25 @@
+
+--
+The contents of this file are subject to the terms of the Common
+Development and Distribution License (the License). You may not use this
+file except in compliance with the License.  You can obtain a copy of the
+License at http://www.netbeans.org/cddl.html
+
+When distributing Covered Code, include this CDDL Header Notice in each
+file and include the License. If applicable, add the following below the
+CDDL Header, with the fields enclosed by brackets [] replaced by your own
+identifying information:
+"Portions Copyrighted [year] [name of copyright owner]"
+
+Copyright 2007 Sun Microsystems, Inc. All Rights Reserved
+--
+
+SYSTEM "http://www.w3.org/2001/xml.xsd" "xml.xsd"
+SYSTEM "http://java.sun.com/products/oss/xml/Common/XmlCommonSchema.xsd" "XmlCommonSchema.xsd"
+SYSTEM "http://java.sun.com/products/oss/xml/QualityOfService/FM/Monitor/XmlQosFmMonitorSchema.xsd" "XmlQosFmMonitorSchema.xsd"
+SYSTEM "http://java.sun.com/products/oss/xml/QualityOfService/PM/Threshold/XmlQosPmThresholdSchema.xsd" "XmlQosPmThresholdSchema.xsd"
+SYSTEM "http://java.sun.com/products/oss/xml/QualityOfService/PM/Measurement/XmlQosPmMeasurementSchema.xsd" "XmlQosPmMeasurementSchema.xsd"
+SYSTEM "http://java.sun.com/products/oss/xml/Common/Util/XmlCommonUtilSchema.xsd" "XmlCommonUtilSchema.xsd"
+SYSTEM "http://java.sun.com/products/oss/xml/QualityOfService/PM/Util/XmlQosPmUtilSchema.xsd" "XmlQosPmUtilSchema.xsd"
+
+PUBLIC "-//W3C//DTD XMLSCHEMA 200102//EN" "XMLSchema.dtd"
