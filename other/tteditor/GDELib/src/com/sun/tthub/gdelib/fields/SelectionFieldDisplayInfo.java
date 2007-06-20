@@ -13,7 +13,7 @@
  * If applicable, add the following below the CDDL Header, with the fields
  * enclosed by brackets [] replaced by your own identifying information:
  * "Portions Copyrighted [year] [name of copyright owner]"
- * 
+ *
  * Copyright 2007 Sun Microsystems, Inc. All Rights Reserved
  *
  */
@@ -85,15 +85,20 @@ public class SelectionFieldDisplayInfo extends FieldDisplayInfo {
      * new array.
      */
     public Object clone() throws CloneNotSupportedException {
-        if(selectionRange.length <= 0)
-            return EMPTY_SELECTION_ARR;
         
-        Object[] selRangeClone = new Object[selectionRange.length];
-        for(int i = 0; i < selectionRange.length; ++i) {
-            //selRangeClone[i] = (Selection)selectionRange[i].clone();
-            selRangeClone[i] =selectionRange[i];
+        Object[] selRangeClone =null;
+        if(selectionRange.length <= 0){
+            selRangeClone= EMPTY_SELECTION_ARR;
+        }else{
+            selRangeClone = new Object[selectionRange.length];
+            for(int i = 0; i < selectionRange.length; ++i) {
+                //selRangeClone[i] = (Selection)selectionRange[i].clone();
+                selRangeClone[i] =selectionRange[i];
+            }
         }
-        return selRangeClone;
+        return new SelectionFieldDisplayInfo(fieldDisplayName,displayUIComponentType,
+                isMultiSelect, selRangeClone, isRequired);
+                
     }
     
     public boolean equals(Object obj) {
@@ -174,5 +179,5 @@ public class SelectionFieldDisplayInfo extends FieldDisplayInfo {
         return false;
     }
     
-
+    
 }

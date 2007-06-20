@@ -96,13 +96,15 @@ Copyright 2007 Sun Microsystems, Inc. All Rights Reserved
   
             <webinf dir="${gde-folder}/portlet-config-files">
                 <include name="*.xml"/>            
-                <include name="*.tld"/>                            
+                <include name="*.tld"/>                              
                 <exclude name="web.xml"/>                
             </webinf> 
 
 <!--            <lib dir="${gde-folder}/portlet-lib"/>-->
             <lib dir="${gde-folder}/lib"/>
-            <classes dir="${gde-folder}/build/classes"/>                        
+            <classes dir="${gde-folder}/build/classes"/>
+	    <zipfileset dir="${gde-folder}/portlet-templates/static/css"
+              prefix="css"/>                        
         </war>        
     </target>
     

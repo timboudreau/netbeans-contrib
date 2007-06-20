@@ -31,7 +31,7 @@ import com.sun.tthub.gdelib.InvalidArgumentException;
  *
  * @author Hareesh Ravindran
  */
-public final class FieldMetaData implements Cloneable {
+public final class FieldMetaData implements Cloneable,java.io.Serializable {
     
     /**
      * This is the name of the field (i.e. the variable) as defined in the

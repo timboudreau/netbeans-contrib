@@ -64,7 +64,7 @@ public class ExtTTValueInfoProcessorImpl
             ttValueDisplayInfo) throws GDEException {
         PortletGenerator portletGenerator =
                 new PortletGenerator(ttValueDisplayInfo);
-        portletGenerator.generatePortlet("creatett");
+        portletGenerator.generatePortlet("createTroubleTicketByValueRequest");
         //portletGenerator.generatePortlet("GetTroubleTicketByKeyResponse");
     }
     

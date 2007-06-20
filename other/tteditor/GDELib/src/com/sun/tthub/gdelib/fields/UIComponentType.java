@@ -24,7 +24,7 @@ package com.sun.tthub.gdelib.fields;
  *
  * @author Hareesh Ravindran
  */
-public final class UIComponentType {
+public final class UIComponentType implements java.io.Serializable {
     
     private int componentType;
     private String componentTypeName;

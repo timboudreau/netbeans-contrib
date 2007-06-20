@@ -25,7 +25,7 @@ import com.sun.tthub.gdelib.InvalidArgumentException;
  *
  * @author Hareesh Ravindran
  */
-public class FieldInfo implements Cloneable {
+public class FieldInfo implements Cloneable,java.io.Serializable {
     
     protected FieldMetaData fieldMetaData;         
     protected FieldDisplayInfo fieldDisplayInfo;

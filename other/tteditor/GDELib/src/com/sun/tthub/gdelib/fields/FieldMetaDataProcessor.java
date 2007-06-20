@@ -22,7 +22,7 @@ package com.sun.tthub.gdelib.fields;
 
 import com.sun.tthub.gdelib.GDEException;
 import com.sun.tthub.gdelib.GDERuntimeException;
-import java.lang.reflect.Method;
+
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;

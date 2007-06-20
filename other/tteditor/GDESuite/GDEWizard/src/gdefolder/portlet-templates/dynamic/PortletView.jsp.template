@@ -13,11 +13,13 @@ identifying information:
 Copyright 2007 Sun Microsystems, Inc. All Rights Reserved
 -->
 
-<%@page contentType="text/html;charset=UTF-8"%>
+<%@page contentType="text/html"%>
+<%@page pageEncoding="UTF-8"%>
 
 <%@page import="javax.portlet.*"%>
 
 <%@page import="com.sun.tthub.data.*"%>
+<%@page import="com.sun.tthub.util.DataConstants"%>
 <%@page import="java.util.Collection"%>
 <%@page import="java.util.Iterator"%>
 
@@ -26,78 +28,91 @@ Copyright 2007 Sun Microsystems, Inc. All Rights Reserved
 
 <portlet:defineObjects/>
 
+<SCRIPT>
+	function submitform(fieldValue){
+	
+		setRequestId("drilldown.do");
+		document.forms['tthubform'].fieldName.value=fieldValue;
+		document.forms['tthubform'].submit();
+       }
+	function setRequestId(request){
+		
+		document.forms['tthubform'].requestId.value=request;
+	}
+</SCRIPT>
+
+<link rel="stylesheet" href="<%=renderResponse.encodeURL(renderRequest.getContextPath() + "/css/tthubstyle.css")%>" type="text/css"/>
+
 <%
 
 PortletSession portletSession= renderRequest.getPortletSession(true);
 String statusMessage="";
 ReqProcessingResult result=(ReqProcessingResult)portletSession.getAttribute(DataConstants.REQPROCESSINGRESULT);
 try{
-
-
-if (result!=null){
-	System.out.println("-result-"+result.toString());
-	statusMessage=result.getStatusMessage();
-}
+    
+    
+    if (result!=null){
+        System.out.println("PortletViewJSP-result-"+result.toString());
+        statusMessage=result.getStatusMessage();
+    }
 %>
+
+
 
 <h2>__FIELDNAME__</h2>
 
-<form method="post" action="<portlet:actionURL/>">
-    <input type="hidden" name="usecaseId" value="__OPERATIONNAME__"><p>
-    <input type="hidden" name="curEditPath" value="__CUREDITPATH__"><p>
+<form method="post" name="tthubform" action="<portlet:actionURL/>">
+    <input type="hidden" name="usecaseId" value="__OPERATIONNAME__">
+    <input type="hidden" name="curEditPath" value="__CUREDITPATH__">
+    <input type="hidden" name="fieldName" value="#">
+    <input type="hidden" name="requestId" value="#">
+    
     <table border="0" width="100%">
-    <tr>
-        <table border="0" width="100%">
-            
-            <!--INSERT THE GDE WIZARD GENERATED CODE HERE-->  
-
-            <tr><td colspan="3"></td></tr> 
-            <tr >
-            </tr>
-        </table>
-    </tr>
-
-            <% }catch(Exception e){
-			e.printStackTrace();
-		  	statusMessage="Illegal Server Error.";
-		}%>
-    <tr>
-        <center>
-            <input type="submit" name="requestId" onClick="finish.value='true';" value="Save">
-            <input type="submit" name="requestId" onClick="finish.value='true';" value="Abort">
-        </center>
-    </tr>
-    <tr>
-	 <center>
-
-        <!--Display status message-success/fail -->
-        <b>
-		<%=statusMessage%></b>
-	</center>
-    </tr>
-<tr></tr>
-    <tr>
-	 <center>
         
-            <!--Display Global Errors-->
-            <%
-            // Display Global Error Message or successMessage
-            Collection globalErrors =null;
+        <!--INSERT THE GDE WIZARD GENERATED CODE HERE-->  
 
-		if (result!=null)
-			globalErrors=result.getGlobalErrors();
-            
-            if (globalErrors!=null && globalErrors.size()==0){
-                for(Iterator it = globalErrors.iterator(); it.hasNext(); ){
-                    GlobalError error=(GlobalError)it.next();
-                    //Print error message
-            %>      <br><%=error.getErrorMessage()%></br>
-            <%
-                }//end for loop
-            }//end if loop
-            %>
-
-      </center>
-
-    </tr>
+        <tr><td colspan="3"></td></tr> 
+        <tr >
+        </tr>
+        
+    </table>
+    
+    <% }catch(Exception e){
+        e.printStackTrace();
+        statusMessage="Illegal Server Error.";
+    }%>
+    <input class="buttonStyle" type="submit" name="Submit" onClick="javascript:setRequestId('Save');" value="Save">
+    <input class="buttonStyle" type="submit" name="Submit" onClick="javascript:setRequestId('Abort');" value="Abort">
+    
+    
+    <table border="0" width="100%">
+        <!--Display status message-success/fail -->
+        
+        <tr><td colspan="3">
+                <b><%=statusMessage%></b>
+        </td></tr> 
+        <!--Display Global Errors-->
+        
+        <tr><td colspan="3">
+                <%
+                // Display Global Error Message or successMessage
+                Collection globalErrors =null;
+                
+                if (result!=null)
+                    globalErrors=result.getGlobalErrors();
+                
+                if (globalErrors!=null && globalErrors.size()!=0){
+                    for(Iterator it = globalErrors.iterator(); it.hasNext(); ){
+                        GlobalError error=(GlobalError)it.next();
+                        //Print error message
+                %>      <br><%=error.getErrorMessage()%></br>
+                <%
+                    }//end for loop
+        }//end if loop
+                %>
+        </td></tr> 
+        
+        
+    </table>
+    
 </form>

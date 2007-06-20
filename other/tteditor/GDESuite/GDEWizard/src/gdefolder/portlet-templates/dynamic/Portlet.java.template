@@ -32,7 +32,7 @@ import javax.portlet.UnavailableException;
 
 import com.sun.tthub.processor.RequestRouter;
 import com.sun.tthub.data.AppRequest;
-import com.sun.tthub.data.DataConstants;
+import com.sun.tthub.util.DataConstants;
 
 /**
  * The class provides a default implementation
@@ -52,15 +52,16 @@ public class __GDEPORTLETNAME__ extends GenericPortlet {
 
   public void processAction (ActionRequest request, ActionResponse response) throws PortletException, IOException {
     // add your code here
-     System.out.println("---------Portlet processAction-------------");
+     System.out.println("[Portlet processAction]");
      
       // Set App Request for request processing
      AppRequest appRequest= new AppRequest(request.getParameter(DataConstants.USE_CASE_ID),
                                             request.getParameter(DataConstants.REQUEST_ID),
                                             request.getParameter(DataConstants.CUR_EDIT_PATH));
      
-      System.out.println("-usecaseid-"+appRequest.getUsecaseId());
-      System.out.println("-requestId-"+appRequest.getRequestId());
+      System.out.println("[Portlet-usecaseid]-"+appRequest.getUsecaseId());
+      System.out.println("[Portlet-requestId]-"+appRequest.getRequestId());
+      System.out.println("[Portlet-parameter-requestId]-"+request.getParameter(DataConstants.REQUEST_ID));
 
      request.getPortletSession(true).setAttribute(DataConstants.USE_CASE_ID,appRequest.getUsecaseId());
      
@@ -70,18 +71,22 @@ public class __GDEPORTLETNAME__ extends GenericPortlet {
      String pageurl= "/"+appRequest.getUsecaseId();
 
 
-      System.out.println("-pageurl-"+pageurl);
-      System.out.println("-returnEditPath-"+returnEditPath);
+      System.out.println("[Portlet-pageurl]-"+pageurl);
+      System.out.println("[Portlet-returnEditPath]-"+returnEditPath);
 
-     if (returnEditPath!=null && !returnEditPath.equals("/"))
+     if (returnEditPath!=null && !returnEditPath.equals("/")){
          //e.g /web/creatett/a
          //e.g /web/creatett/a/b
 		
  		pageurl=pageurl+returnEditPath;
-      System.out.println("-pageurl-"+pageurl);
-    		
-      response.setRenderParameter("viewPage",pageurl);
+	    	
+	}
+      System.out.println("[Portlet-pageurl]-"+pageurl);
+	response.setRenderParameter("viewPage",pageurl);
 	
+	if(returnEditPath!=null)
+		response.setRenderParameter("returnEditPath",returnEditPath);
+      
       
   }
 
@@ -118,7 +123,7 @@ public class __GDEPORTLETNAME__ extends GenericPortlet {
   //Get page from url
   private void processViewPage (RenderRequest request, RenderResponse response, String pageurl) throws PortletException, IOException {
     response.setContentType (request.getResponseContentType ());
-    System.out.println("pageurl="+pageurl);
+    System.out.println("[Portlet-processViewPage-pageurl]-"+pageurl);
     if (pageurl != null && pageurl.length () > 0) {
       myPortletContext.getRequestDispatcher (pageurl+"/PortletView.jsp").include (request, response);
     }

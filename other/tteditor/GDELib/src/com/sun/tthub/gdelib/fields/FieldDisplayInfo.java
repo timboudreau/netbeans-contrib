@@ -20,6 +20,7 @@
 
 package com.sun.tthub.gdelib.fields;
 
+import com.sun.org.apache.bcel.internal.classfile.JavaClass;
 import com.sun.tthub.gdelib.GDERuntimeException;
 import com.sun.tthub.gdelib.InvalidArgumentException;
 
@@ -27,7 +28,7 @@ import com.sun.tthub.gdelib.InvalidArgumentException;
  *
  * @author Hareesh Ravindran
  */
-public abstract class FieldDisplayInfo implements Cloneable {
+public abstract class FieldDisplayInfo implements Cloneable ,java.io.Serializable{
     
     protected String fieldDisplayName;
     protected UIComponentType displayUIComponentType;

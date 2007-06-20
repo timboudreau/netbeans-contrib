@@ -22,7 +22,6 @@ package com.sun.tthub.gde.ui.panels;
 
 import com.sun.tthub.gdelib.GDEException;
 
-import com.sun.tthub.gdelib.fields.ComplexEntryFieldDisplayInfo;
 import com.sun.tthub.gdelib.fields.DataTypeNature;
 import com.sun.tthub.gdelib.fields.FieldInfo;
 import com.sun.tthub.gdelib.fields.FieldMetaDataProcessor;

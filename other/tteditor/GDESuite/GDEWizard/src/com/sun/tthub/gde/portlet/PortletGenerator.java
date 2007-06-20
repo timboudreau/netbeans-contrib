@@ -108,10 +108,10 @@ public class PortletGenerator {
         File filefolder = new File(filedir);
         try {
             FileUtilities.deleteDir(filefolder);
-            filefolder.mkdir();   // Create the sub directory named gen-files
-            
+            boolean created=filefolder.mkdirs();   // Create the sub directory named gen-files
+            System.out.println("createGenFilesFolder()-"+filedir+"-"+created);
         } catch(SecurityException ex) {
-            throw new GDEException("Failed to create the directory 'gen-files' " +
+            throw new GDEException("Failed to create the directory " +filedir+
                     "in the GDE folder.", ex);
         }
         

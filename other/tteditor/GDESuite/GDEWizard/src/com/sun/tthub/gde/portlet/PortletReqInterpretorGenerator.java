@@ -97,13 +97,21 @@ public class PortletReqInterpretorGenerator {
         PrintWriter templateWriter = null;
         try {
             templateReader = new BufferedReader(new FileReader(readerFile));
+         } catch (FileNotFoundException ex) {
+            ex.printStackTrace();
+            throw new GDEException("Failed to read the " + readerFile.getPath()
+                   +" template", ex);
+        }
+        
+        try {
             templateWriter = new PrintWriter(new FileWriter(writerFile), true);
         } catch (FileNotFoundException ex) {
-            throw new GDEException("Failed to read the " +
-                    PortletConstants.PORTLET_REQINTERPRETOR_TEMPLATE+" template", ex);
+            ex.printStackTrace();
+            throw new GDEException("Failed to read the " + writerFile.getPath()
+                   +" for writing", ex);
         } catch(IOException ex) {
-            throw new GDEException("Failed to create the file '" +
-                    operationName + ".java' for writing", ex);
+            throw new GDEException("Failed to create the file '" + writerFile.getPath()+
+                     "for writing", ex);
         }
         
         while(true) {

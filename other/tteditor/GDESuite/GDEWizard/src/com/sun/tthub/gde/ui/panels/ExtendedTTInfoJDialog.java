@@ -311,7 +311,7 @@ public class ExtendedTTInfoJDialog extends JDialog {
             } catch (Exception ex) {
                 throw new GDERuntimeException(ex);
             }
-            String destFileName = gdeFolderName + str + file.getName();
+            String destFileName = gdeFolderName + str +"lib"+str+ file.getName();
             File destFile = new File(destFileName);
             try { 
                 FileUtilities.copy(file, destFile);
@@ -319,6 +319,7 @@ public class ExtendedTTInfoJDialog extends JDialog {
                 GDEClassesManager mngr = 
                         GDEAppContext.getInstance().getClassesManager();
                 mngr.loadClassesFromJarFile(file.getName());
+                loadClassesFromGDEFolder();
             } catch(IOException ex) {
                 throw new GDERuntimeException("IOException occured", ex);
             } catch(GDEException ex) {

@@ -39,7 +39,7 @@ import java.util.HashMap;
  *
  */
 
-public class TTValueDisplayInfo {
+public class TTValueDisplayInfo implements java.io.Serializable{
     
     protected String extTTValueInterface;
     protected String extTTValueImplClass;

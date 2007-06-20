@@ -70,22 +70,23 @@ public class PortletJspGenerator {
         // This is the buffer to which the dynamically generated contents are
         // placed.
         StringBuffer jspBuffer = new StringBuffer();
-        
+        int i=0;
         for(Iterator it = coll.iterator(); it.hasNext(); ) {
             Map.Entry entry = (Map.Entry) it.next();
             //String str = getTagString((FieldInfo) entry.getValue());
             FieldInfo fieldInfo= (FieldInfo)entry.getValue();
             
-            jspBuffer.append("<tr><td><b>\n");
+            jspBuffer.append("<tr><td class=\"labelStyle\">\n");
             
             jspBuffer.append(fieldInfo.getFieldDisplayInfo().getFieldDisplayName());
-            jspBuffer.append("</b></td><td colspan=\"2\">\n");
+            jspBuffer.append(" :</td><td colspan=\"2\">\n");
             
             String str = getTagString(fieldInfo,operationName,curEditPath);
             
             jspBuffer.append(str);
             jspBuffer.append("</td><tr>\n");
             
+
         }
         return jspBuffer;
     }
