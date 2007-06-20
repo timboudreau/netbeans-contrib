@@ -17,6 +17,7 @@
 package org.netbeans.modules.edm.editor.graph.actions;
 
 import java.awt.event.ActionEvent;
+import java.util.List;
 import javax.swing.AbstractAction;
 import javax.swing.ImageIcon;
 
@@ -65,9 +66,18 @@ public class EditJoinConditionAction extends AbstractAction {
     
     public void actionPerformed(ActionEvent e) {
         if (joinOp != null && mObj.getEditorView() != null) {
-            ConditionBuilderView conditionView = new ConditionBuilderView((IGraphViewContainer) mObj.getEditorView().getGraphView().getGraphViewContainer(),
-                    joinOp.getAllSourceTables(), joinOp.getJoinCondition(), IOperatorXmlInfoModel.CATEGORY_FILTER);
-            DialogDescriptor dd = new DialogDescriptor(conditionView, "Edit Join Condition", true, NotifyDescriptor.OK_CANCEL_OPTION, null, null);
+            
+            List srcTables = joinOp.getAllSourceTables();
+            if(mObj.getModel().getSQLDefinition().getRuntimeDbModel() != null &&
+                    mObj.getModel().getSQLDefinition().getRuntimeDbModel().getRuntimeInput()!= null) {
+                srcTables.add(mObj.getModel().getSQLDefinition().getRuntimeDbModel().getRuntimeInput());
+            }
+            
+            ConditionBuilderView conditionView = new ConditionBuilderView(
+                    (IGraphViewContainer) mObj.getEditorView().getGraphView().getGraphViewContainer(),
+                    srcTables, joinOp.getJoinCondition(), IOperatorXmlInfoModel.CATEGORY_FILTER);
+            DialogDescriptor dd = new DialogDescriptor(conditionView, "Edit Join Condition", 
+                    true, NotifyDescriptor.OK_CANCEL_OPTION, null, null);
             
             if (DialogDisplayer.getDefault().notify(dd) == NotifyDescriptor.OK_OPTION) {
                 SQLCondition cond = (SQLCondition) conditionView.getPropertyValue();
