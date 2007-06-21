@@ -1,0 +1,7 @@
+Manifest-Version: 1.0
+OpenIDE-Module: org.netbeans.modules.sfsexplorer
+OpenIDE-Module-Layer: org/netbeans/modules/sfsexplorer/layer.xml
+OpenIDE-Module-Localizing-Bundle: org/netbeans/modules/sfsexplorer/Bundle.properties
+OpenIDE-Module-Requires: org.netbeans.api.javahelp.Help
+OpenIDE-Module-Specification-Version: 1.13
+

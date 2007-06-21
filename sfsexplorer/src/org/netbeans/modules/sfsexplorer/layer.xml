@@ -1,0 +1,748 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE filesystem PUBLIC "-//NetBeans//DTD Filesystem 1.1//EN" "http://www.netbeans.org/dtds/filesystem-1_1.dtd">
+<filesystem>
+    <folder name="Actions">
+        <folder name="Window">
+            <file name="org-netbeans-modules-sfsexplorer-SFSBrowserAction.instance"/>
+        </folder>
+    </folder>
+    <folder name="Menu">
+        <folder name="Window">
+            <file name="SFSBrowserAction.shadow">
+                <attr name="originalFile" stringvalue="Actions/Window/org-netbeans-modules-sfsexplorer-SFSBrowserAction.instance"/>
+            </file>
+        </folder>
+    </folder>
+    <folder name="Services">
+        <folder name="JavaHelp">
+            <file name="sfsexplorer-helpset.xml" url="sfsexplorer-helpset.xml"/>
+        </folder>
+    </folder>
+    <folder name="Windows2">
+        <folder name="Components">
+            <file name="SFSBrowserTopComponent.settings" url="SFSBrowserTopComponentSettings.xml"/>
+        </folder>
+        <folder name="Modes">
+            <folder name="explorer">
+                <file name="SFSBrowserTopComponent.wstcref" url="SFSBrowserTopComponentWstcref.xml"/>
+            </folder>
+        </folder>
+    </folder>
+    <folder name="org.netbeans.modules.sfsexplorer">
+        <folder name="Editors">
+            <file name="APIDescription.instance">
+                <attr name="instanceClass" stringvalue="javax.swing.Action"/>
+                <attr name="instanceCreate" methodvalue="org.netbeans.modules.sfsexplorer.ShowURLActionFactory.create"/>
+                <attr name="url" stringvalue="http://www.netbeans.org/download/5_5/javadoc/org-openide-text/org/openide/text/doc-files/api.html"/>
+                <attr name="displayName" stringvalue="Editors API Detailed Description"/>
+            </file>
+            <file name="FAQ.instance">
+                <attr name="instanceClass" stringvalue="javax.swing.Action"/>
+                <attr name="instanceCreate" methodvalue="org.netbeans.modules.sfsexplorer.ShowURLActionFactory.create"/>
+                <attr name="url" stringvalue="http://wiki.netbeans.org/wiki/view/NetBeansDeveloperFAQ#section-NetBeansDeveloperFAQ-EditorAndEditedFiles"/>
+                <attr name="displayName" stringvalue="FAQ"/>
+            </file>
+            <file name="CodeTemplatesAPIDescription.instance">
+                <attr name="instanceClass" stringvalue="javax.swing.Action"/>
+                <attr name="instanceCreate" methodvalue="org.netbeans.modules.sfsexplorer.ShowURLActionFactory.create"/>
+                <attr name="url" stringvalue="http://www.netbeans.org/download/5_5/javadoc/org-netbeans-modules-editor-codetemplates/architecture-summary.html"/>
+                <attr name="displayName" stringvalue="Code Templates API Detailed Description"/>
+            </file>
+            <file name="CodeFodingAPIDescription.instance">
+                <attr name="instanceClass" stringvalue="javax.swing.Action"/>
+                <attr name="instanceCreate" methodvalue="org.netbeans.modules.sfsexplorer.ShowURLActionFactory.create"/>
+                <attr name="url" stringvalue="http://www.netbeans.org/download/dev/javadoc/org-netbeans-modules-editor-fold/architecture-summary.html#java-CodeFoldingAPI"/>
+                <attr name="displayName" stringvalue="Code Foding API Detailed Description"/>
+            </file>
+            <file name="CodeFodingUISpecifications.instance">
+                <attr name="instanceClass" stringvalue="javax.swing.Action"/>
+                <attr name="instanceCreate" methodvalue="org.netbeans.modules.sfsexplorer.ShowURLActionFactory.create"/>
+                <attr name="url" stringvalue="http://ui.netbeans.org/docs/ui/code_folding/cf_uispec.html"/>
+                <attr name="displayName" stringvalue="Code Foding UI Specifications"/>
+            </file>
+            <file name="EditorProject.instance">
+                <attr name="instanceClass" stringvalue="javax.swing.Action"/>
+                <attr name="instanceCreate" methodvalue="org.netbeans.modules.sfsexplorer.ShowURLActionFactory.create"/>
+                <attr name="url" stringvalue="http://editor.netbeans.org"/>
+                <attr name="displayName" stringvalue="Editor Project Page"/>
+            </file>
+        </folder>
+        <folder name="Modules">
+            <file name="HarnessREADME.instance">
+                <attr name="instanceClass" stringvalue="javax.swing.Action"/>
+                <attr name="instanceCreate" methodvalue="org.netbeans.modules.sfsexplorer.ShowURLActionFactory.create"/>
+                <attr name="url" stringvalue="http://www.netbeans.org/source/browse/*checkout*/apisupport/harness/release/README"/>
+                <attr name="displayName" stringvalue="Modules Development Harness README"/>
+            </file>
+            <file name="APIDescription.instance">
+                <attr name="instanceClass" stringvalue="javax.swing.Action"/>
+                <attr name="instanceCreate" methodvalue="org.netbeans.modules.sfsexplorer.ShowURLActionFactory.create"/>
+                <attr name="url" stringvalue="http://www.netbeans.org/download/dev/javadoc/org-openide-modules/org/openide/modules/doc-files/api.html"/>
+                <attr name="displayName" stringvalue="Modules API Detailed Description"/>
+            </file>
+            <file name="ModuleClassloaderDescription.instance">
+                <attr name="instanceClass" stringvalue="javax.swing.Action"/>
+                <attr name="instanceCreate" methodvalue="org.netbeans.modules.sfsexplorer.ShowURLActionFactory.create"/>
+                <attr name="url" stringvalue="http://www.netbeans.org/project/www/download/dev/javadoc/org-openide-modules/org/openide/modules/doc-files/classpath.html"/>
+                <attr name="displayName" stringvalue="Modules, JARs, Class Loaders, and the Class Path"/>
+            </file>
+            <file name="FAQ1.instance">
+                <attr name="instanceClass" stringvalue="javax.swing.Action"/>
+                <attr name="instanceCreate" methodvalue="org.netbeans.modules.sfsexplorer.ShowURLActionFactory.create"/>
+                <attr name="url" stringvalue="http://wiki.netbeans.org/wiki/view/NetBeansDeveloperFAQ#section-NetBeansDeveloperFAQ-ConfigurationHowModulesInstallThings"/>
+                <attr name="displayName" stringvalue="FAQ - Configuration: How modules install things"/>
+            </file>
+            <file name="FAQ2.instance">
+                <attr name="instanceClass" stringvalue="javax.swing.Action"/>
+                <attr name="instanceCreate" methodvalue="org.netbeans.modules.sfsexplorer.ShowURLActionFactory.create"/>
+                <attr name="url" stringvalue="http://wiki.netbeans.org/wiki/view/NetBeansDeveloperFAQ#section-NetBeansDeveloperFAQ-ModuleSystem"/>
+                <attr name="displayName" stringvalue="FAQ - Module System"/>
+            </file>
+            <file name="Tutorials.instance">
+                <attr name="instanceClass" stringvalue="javax.swing.Action"/>
+                <attr name="instanceCreate" methodvalue="org.netbeans.modules.sfsexplorer.ShowURLActionFactory.create"/>
+                <attr name="url" stringvalue="http://platform.netbeans.org/tutorials/index.html"/>
+                <attr name="displayName" stringvalue="Tutorials"/>
+            </file>
+            <file name="ModuleDevelopmentIntroduction.instance">
+                <attr name="instanceClass" stringvalue="javax.swing.Action"/>
+                <attr name="instanceCreate" methodvalue="org.netbeans.modules.sfsexplorer.ShowURLActionFactory.create"/>
+                <attr name="url" stringvalue="http://platform.netbeans.org/tutorials/quickstart-nbm.html"/>
+                <attr name="displayName" stringvalue="Introduction to NetBeans Module Development"/>
+            </file>
+            <file name="RichClientApplicationDevelopmentIntroduction.instance">
+                <attr name="instanceClass" stringvalue="javax.swing.Action"/>
+                <attr name="instanceCreate" methodvalue="org.netbeans.modules.sfsexplorer.ShowURLActionFactory.create"/>
+                <attr name="url" stringvalue="http://platform.netbeans.org/tutorials/nbm-paintapp.html"/>
+                <attr name="displayName" stringvalue="Introduction to Rich-Client Application Development"/>
+            </file>
+            <folder name="org-apache-tools-ant-module.xml">
+                <file name="ProjectHome.instance">
+                    <attr name="instanceClass" stringvalue="javax.swing.Action"/>
+                    <attr name="instanceCreate" methodvalue="org.netbeans.modules.sfsexplorer.ShowURLActionFactory.create"/>
+                    <attr name="url" stringvalue="http://ant.apache.org"/>
+                    <attr name="displayName" stringvalue="Ant Project Page"/>
+                </file>
+            </folder>
+            <folder name="org-netbeans-modules-project-ant.xml">
+                <file name="ProjectHome.instance">
+                    <attr name="instanceClass" stringvalue="javax.swing.Action"/>
+                    <attr name="instanceCreate" methodvalue="org.netbeans.modules.sfsexplorer.ShowURLActionFactory.create"/>
+                    <attr name="url" stringvalue="http://ant.netbeans.org"/>
+                    <attr name="displayName" stringvalue="Ant-Based Project Support Project Page"/>
+                </file>
+            </folder>
+            <folder name="org-netbeans-modules-autoupdate.xml">
+                <file name="ProjectHome.instance">
+                    <attr name="instanceClass" stringvalue="javax.swing.Action"/>
+                    <attr name="instanceCreate" methodvalue="org.netbeans.modules.sfsexplorer.ShowURLActionFactory.create"/>
+                    <attr name="url" stringvalue="http://autoupdate.netbeans.org"/>
+                    <attr name="displayName" stringvalue="Auto Update Project Page"/>
+                </file>
+                <file name="AutoUpdateDescriptorSpecifications.instance">
+                    <attr name="instanceClass" stringvalue="javax.swing.Action"/>
+                    <attr name="instanceCreate" methodvalue="org.netbeans.modules.sfsexplorer.ShowURLActionFactory.create"/>
+                    <attr name="url" stringvalue="http://platform.netbeans.org/articles/update-descriptor-specification.html"/>
+                    <attr name="displayName" stringvalue="Understanding AutoUpdate Descriptors"/>
+                </file>
+                <file name="SandipChitalesUpdateCenter.instance">
+                    <attr name="instanceClass" stringvalue="javax.swing.Action"/>
+                    <attr name="instanceCreate" methodvalue="org.netbeans.modules.sfsexplorer.ShowURLActionFactory.create"/>
+                    <attr name="url" stringvalue="http://blogs.sun.com/scblog/entry/netbeans_module_update_center"/>
+                    <attr name="displayName" stringvalue="Sandip Chitales update center"/>
+                </file>
+            </folder>
+            <folder name="org-apache-bcel.xml">
+                <file name="ProjectHome.instance">
+                    <attr name="instanceClass" stringvalue="javax.swing.Action"/>
+                    <attr name="instanceCreate" methodvalue="org.netbeans.modules.sfsexplorer.ShowURLActionFactory.create"/>
+                    <attr name="url" stringvalue="http://jakarta.apache.org/bcel/index.html"/>
+                    <attr name="displayName" stringvalue="bcel Project Page"/>
+                </file>
+            </folder>
+            <folder name="org-netbeans-lib-cvsclient.xml">
+                <file name="ProjectHome.instance">
+                    <attr name="instanceClass" stringvalue="javax.swing.Action"/>
+                    <attr name="instanceCreate" methodvalue="org.netbeans.modules.sfsexplorer.ShowURLActionFactory.create"/>
+                    <attr name="url" stringvalue="http://javacvs.netbeans.org"/>
+                    <attr name="displayName" stringvalue="CVS Client Library Project Page"/>
+                </file>
+            </folder>
+            <folder name="org-netbeans-modules-versioning-system-cvss.xml">
+                <file name="ProjectHome.instance">
+                    <attr name="instanceClass" stringvalue="javax.swing.Action"/>
+                    <attr name="instanceCreate" methodvalue="org.netbeans.modules.sfsexplorer.ShowURLActionFactory.create"/>
+                    <attr name="url" stringvalue="http://vcscvs.netbeans.org"/>
+                    <attr name="displayName" stringvalue="CVS Versioning System Project Page"/>
+                </file>
+            </folder>
+            <folder name="org-netbeans-modules-db.xml">
+                <file name="ProjectHome.instance">
+                    <attr name="instanceClass" stringvalue="javax.swing.Action"/>
+                    <attr name="instanceCreate" methodvalue="org.netbeans.modules.sfsexplorer.ShowURLActionFactory.create"/>
+                    <attr name="url" stringvalue="http://db.netbeans.org"/>
+                    <attr name="displayName" stringvalue="Database Explorer Project Page"/>
+                </file>
+            </folder>
+            <folder name="org-netbeans-spi-debugger-ui.xml">
+                <file name="ProjectHome.instance">
+                    <attr name="instanceClass" stringvalue="javax.swing.Action"/>
+                    <attr name="instanceCreate" methodvalue="org.netbeans.modules.sfsexplorer.ShowURLActionFactory.create"/>
+                    <attr name="url" stringvalue="http://debuggercore.netbeans.org/"/>
+                    <attr name="displayName" stringvalue="Debugger Core - UI Project Page"/>
+                </file>
+            </folder>
+            <folder name="org-netbeans-api-debugger.xml">
+                <file name="ProjectHome.instance">
+                    <attr name="instanceClass" stringvalue="javax.swing.Action"/>
+                    <attr name="instanceCreate" methodvalue="org.netbeans.modules.sfsexplorer.ShowURLActionFactory.create"/>
+                    <attr name="url" stringvalue="http://debuggercore.netbeans.org"/>
+                    <attr name="displayName" stringvalue="Debugger Core API Project Page"/>
+                </file>
+            </folder>
+            <folder name="org-netbeans-modules-diff.xml">
+                <file name="ProjectHome.instance">
+                    <attr name="instanceClass" stringvalue="javax.swing.Action"/>
+                    <attr name="instanceCreate" methodvalue="org.netbeans.modules.sfsexplorer.ShowURLActionFactory.create"/>
+                    <attr name="url" stringvalue="http://diff.netbeans.org"/>
+                    <attr name="displayName" stringvalue="Diff Project Page"/>
+                </file>
+            </folder>
+            <folder name="org-netbeans-modules-editor.xml">
+                <file name="ProjectHome.instance">
+                    <attr name="instanceClass" stringvalue="javax.swing.Action"/>
+                    <attr name="instanceCreate" methodvalue="org.netbeans.modules.sfsexplorer.ShowURLActionFactory.create"/>
+                    <attr name="url" stringvalue="http://editor.netbeans.org"/>
+                    <attr name="displayName" stringvalue="Editor Project Page"/>
+                </file>
+            </folder>
+            <folder name="org-netbeans-modules-form.xml">
+                <file name="ProjectHome.instance">
+                    <attr name="instanceClass" stringvalue="javax.swing.Action"/>
+                    <attr name="instanceCreate" methodvalue="org.netbeans.modules.sfsexplorer.ShowURLActionFactory.create"/>
+                    <attr name="url" stringvalue="http://form.netbeans.org"/>
+                    <attr name="displayName" stringvalue="Form Editor Project Page"/>
+                </file>
+            </folder>
+            <folder name="org-netbeans-modules-i18n.xml">
+                <file name="ProjectHome.instance">
+                    <attr name="instanceClass" stringvalue="javax.swing.Action"/>
+                    <attr name="instanceCreate" methodvalue="org.netbeans.modules.sfsexplorer.ShowURLActionFactory.create"/>
+                    <attr name="url" stringvalue="http://i18n.netbeans.org"/>
+                    <attr name="displayName" stringvalue="Internationalization Project Page"/>
+                </file>
+            </folder>
+            <folder name="org-netbeans-modules-java-freeform.xml">
+                <file name="ProjectHome.instance">
+                    <attr name="instanceClass" stringvalue="javax.swing.Action"/>
+                    <attr name="instanceCreate" methodvalue="org.netbeans.modules.sfsexplorer.ShowURLActionFactory.create"/>
+                    <attr name="url" stringvalue="http://java.netbeans.org"/>
+                    <attr name="displayName" stringvalue="Java Freeform Project Support Project Page"/>
+                </file>
+            </folder>
+            <folder name="org-netbeans-modules-java-hints.xml">
+                <file name="ProjectHome.instance">
+                    <attr name="instanceClass" stringvalue="javax.swing.Action"/>
+                    <attr name="instanceCreate" methodvalue="org.netbeans.modules.sfsexplorer.ShowURLActionFactory.create"/>
+                    <attr name="url" stringvalue="http://java.netbeans.org"/>
+                    <attr name="displayName" stringvalue="Java Hints Project Page"/>
+                </file>
+            </folder>
+            <folder name="org-netbeans-modules-javacore.xml">
+                <file name="ProjectHome.instance">
+                    <attr name="instanceClass" stringvalue="javax.swing.Action"/>
+                    <attr name="instanceCreate" methodvalue="org.netbeans.modules.sfsexplorer.ShowURLActionFactory.create"/>
+                    <attr name="url" stringvalue="http://java.netbeans.org"/>
+                    <attr name="displayName" stringvalue="Java Language Model Implementation Project Page"/>
+                </file>
+            </folder>
+            <folder name="org-netbeans-modules-java-platform.xml">
+                <file name="ProjectHome.instance">
+                    <attr name="instanceClass" stringvalue="javax.swing.Action"/>
+                    <attr name="instanceCreate" methodvalue="org.netbeans.modules.sfsexplorer.ShowURLActionFactory.create"/>
+                    <attr name="url" stringvalue="http://java.netbeans.org"/>
+                    <attr name="displayName" stringvalue="Java Platform Project Page"/>
+                </file>
+            </folder>
+            <folder name="org-netbeans-modules-java-project.xml">
+                <file name="ProjectHome.instance">
+                    <attr name="instanceClass" stringvalue="javax.swing.Action"/>
+                    <attr name="instanceCreate" methodvalue="org.netbeans.modules.sfsexplorer.ShowURLActionFactory.create"/>
+                    <attr name="url" stringvalue="http://java.netbeans.org"/>
+                    <attr name="displayName" stringvalue="Java Project Support Project Page"/>
+                </file>
+            </folder>
+            <folder name="org-netbeans-modules-java.xml">
+                <file name="ProjectHome.instance">
+                    <attr name="instanceClass" stringvalue="javax.swing.Action"/>
+                    <attr name="instanceCreate" methodvalue="org.netbeans.modules.sfsexplorer.ShowURLActionFactory.create"/>
+                    <attr name="url" stringvalue="http://java.netbeans.org"/>
+                    <attr name="displayName" stringvalue="Java Source Files Project Page"/>
+                </file>
+            </folder>
+            <folder name="org-openide-nodes.xml">
+                <file name="Tutorial1.instance">
+                    <attr name="instanceClass" stringvalue="javax.swing.Action"/>
+                    <attr name="instanceCreate" methodvalue="org.netbeans.modules.sfsexplorer.ShowURLActionFactory.create"/>
+                    <attr name="url" stringvalue="http://platform.netbeans.org/tutorials/nbm-selection-2.html"/>
+                    <attr name="displayName" stringvalue="NetBeans Selection Management Tutorial I—Using a TopComponent's Lookup"/>
+                </file>
+                <file name="Tutorial2.instance">
+                    <attr name="instanceClass" stringvalue="javax.swing.Action"/>
+                    <attr name="instanceCreate" methodvalue="org.netbeans.modules.sfsexplorer.ShowURLActionFactory.create"/>
+                    <attr name="url" stringvalue="http://platform.netbeans.org/tutorials/nbm-selection-1.html"/>
+                    <attr name="displayName" stringvalue="NetBeans Selection Management Tutorial II—Using Nodes"/>
+                </file>
+                <file name="Tutorial2.instance">
+                    <attr name="instanceClass" stringvalue="javax.swing.Action"/>
+                    <attr name="instanceCreate" methodvalue="org.netbeans.modules.sfsexplorer.ShowURLActionFactory.create"/>
+                    <attr name="url" stringvalue="http://platform.netbeans.org/tutorials/nbm-nodesapi2.html"/>
+                    <attr name="displayName" stringvalue="NetBeans Nodes API Tutorial"/>
+                </file>
+                <file name="Tutorial2.instance">
+                    <attr name="instanceClass" stringvalue="javax.swing.Action"/>
+                    <attr name="instanceCreate" methodvalue="org.netbeans.modules.sfsexplorer.ShowURLActionFactory.create"/>
+                    <attr name="url" stringvalue="http://platform.netbeans.org/tutorials/nbm-property-editors.html"/>
+                    <attr name="displayName" stringvalue="NetBeans Property Editor Tutorial"/>
+                </file>
+            </folder>
+            <folder name="org-openide-src.xml">
+                <file name="ProjectHome.instance">
+                    <attr name="instanceClass" stringvalue="javax.swing.Action"/>
+                    <attr name="instanceCreate" methodvalue="org.netbeans.modules.sfsexplorer.ShowURLActionFactory.create"/>
+                    <attr name="url" stringvalue="http://java.netbeans.org"/>
+                    <attr name="displayName" stringvalue="Java Source Model Project Page"/>
+                </file>
+            </folder>
+            <folder name="org-netbeans-api-java.xml">
+                <file name="ProjectHome.instance">
+                    <attr name="instanceClass" stringvalue="javax.swing.Action"/>
+                    <attr name="instanceCreate" methodvalue="org.netbeans.modules.sfsexplorer.ShowURLActionFactory.create"/>
+                    <attr name="url" stringvalue="http://java.netbeans.org"/>
+                    <attr name="displayName" stringvalue="Java Support APIs Project Page"/>
+                </file>
+            </folder>
+            <folder name="org-netbeans-modules-javadoc.xml">
+                <file name="ProjectHome.instance">
+                    <attr name="instanceClass" stringvalue="javax.swing.Action"/>
+                    <attr name="instanceCreate" methodvalue="org.netbeans.modules.sfsexplorer.ShowURLActionFactory.create"/>
+                    <attr name="url" stringvalue="http://javadoc.netbeans.org"/>
+                    <attr name="displayName" stringvalue="Javadoc Project Page"/>
+                </file>
+            </folder>
+            <folder name="org-netbeans-api-debugger-jpda.xml">
+                <file name="ProjectHome.instance">
+                    <attr name="instanceClass" stringvalue="javax.swing.Action"/>
+                    <attr name="instanceCreate" methodvalue="org.netbeans.modules.sfsexplorer.ShowURLActionFactory.create"/>
+                    <attr name="url" stringvalue="http://debuggerjpda.netbeans.org/"/>
+                    <attr name="displayName" stringvalue="JPDA Debugger API Project Page"/>
+                </file>
+            </folder>
+            <folder name="org-netbeans-modules-debugger-jpda-ui.xml">
+                <file name="ProjectHome.instance">
+                    <attr name="instanceClass" stringvalue="javax.swing.Action"/>
+                    <attr name="instanceCreate" methodvalue="org.netbeans.modules.sfsexplorer.ShowURLActionFactory.create"/>
+                    <attr name="url" stringvalue="http://debuggerjpda.netbeans.org"/>
+                    <attr name="displayName" stringvalue="JPDA Debugger UI Project Page"/>
+                </file>
+            </folder>
+            <folder name="org-netbeans-modules-junit.xml">
+                <file name="ProjectHome.instance">
+                    <attr name="instanceClass" stringvalue="javax.swing.Action"/>
+                    <attr name="instanceCreate" methodvalue="org.netbeans.modules.sfsexplorer.ShowURLActionFactory.create"/>
+                    <attr name="url" stringvalue="http://junit.netbeans.org"/>
+                    <attr name="displayName" stringvalue="JUnit Tests Project Page"/>
+                </file>
+            </folder>
+            <folder name="org-netbeans-api-mdr.xml">
+                <file name="ProjectHome.instance">
+                    <attr name="instanceClass" stringvalue="javax.swing.Action"/>
+                    <attr name="instanceCreate" methodvalue="org.netbeans.modules.sfsexplorer.ShowURLActionFactory.create"/>
+                    <attr name="url" stringvalue="http://mdr.netbeans.org"/>
+                    <attr name="displayName" stringvalue="Metadata Repository API Project Page"/>
+                </file>
+            </folder>
+            <folder name="org-netbeans-modules-mdr.xml">
+                <file name="ProjectHome.instance">
+                    <attr name="instanceClass" stringvalue="javax.swing.Action"/>
+                    <attr name="instanceCreate" methodvalue="org.netbeans.modules.sfsexplorer.ShowURLActionFactory.create"/>
+                    <attr name="url" stringvalue="http://mdr.netbeans.org"/>
+                    <attr name="displayName" stringvalue="MOF Metadata Repository Project Page"/>
+                </file>
+            </folder>
+            <folder name="org-netbeans-modules-apisupport-project.xml">
+                <file name="ProjectHome.instance">
+                    <attr name="instanceClass" stringvalue="javax.swing.Action"/>
+                    <attr name="instanceCreate" methodvalue="org.netbeans.modules.sfsexplorer.ShowURLActionFactory.create"/>
+                    <attr name="url" stringvalue="http://apisupport.netbeans.org/"/>
+                    <attr name="displayName" stringvalue="NetBeans Module Projects Project Page"/>
+                </file>
+            </folder>
+            <folder name="org-netbeans-modules-profiler.xml">
+                <file name="ProjectHome.instance">
+                    <attr name="instanceClass" stringvalue="javax.swing.Action"/>
+                    <attr name="instanceCreate" methodvalue="org.netbeans.modules.sfsexplorer.ShowURLActionFactory.create"/>
+                    <attr name="url" stringvalue="http://profiler.netbeans.org"/>
+                    <attr name="displayName" stringvalue="NetBeans Profiler Project Page"/>
+                </file>
+            </folder>
+            <folder name="org-netbeans-modules-apisupport-paintapp.xml">
+                <file name="ProjectHome.instance">
+                    <attr name="instanceClass" stringvalue="javax.swing.Action"/>
+                    <attr name="instanceCreate" methodvalue="org.netbeans.modules.sfsexplorer.ShowURLActionFactory.create"/>
+                    <attr name="url" stringvalue="http://platform.netbeans.org/tutorials/nbm-paintapp.html"/>
+                    <attr name="displayName" stringvalue="PaintApp Platform Sample Page"/>
+                </file>
+            </folder>
+            <folder name="org-netbeans-modules-editor-plain.xml">
+                <file name="ProjectHome.instance">
+                    <attr name="instanceClass" stringvalue="javax.swing.Action"/>
+                    <attr name="instanceCreate" methodvalue="org.netbeans.modules.sfsexplorer.ShowURLActionFactory.create"/>
+                    <attr name="url" stringvalue="http://editor.netbeans.org/"/>
+                    <attr name="displayName" stringvalue="Plain Editor Project Page"/>
+                </file>
+            </folder>
+            <folder name="org-netbeans-modules-editor-plain-lib.xml">
+                <file name="ProjectHome.instance">
+                    <attr name="instanceClass" stringvalue="javax.swing.Action"/>
+                    <attr name="instanceCreate" methodvalue="org.netbeans.modules.sfsexplorer.ShowURLActionFactory.create"/>
+                    <attr name="url" stringvalue="http://editor.netbeans.org"/>
+                    <attr name="displayName" stringvalue="Plain Editor Library Project Page"/>
+                </file>
+            </folder>
+            <folder name="org-netbeans-modules-projectapi.xml">
+                <file name="ProjectHome.instance">
+                    <attr name="instanceClass" stringvalue="javax.swing.Action"/>
+                    <attr name="instanceCreate" methodvalue="org.netbeans.modules.sfsexplorer.ShowURLActionFactory.create"/>
+                    <attr name="url" stringvalue="http://projects.netbeans.org"/>
+                    <attr name="displayName" stringvalue="Project API Project Page"/>
+                </file>
+            </folder>
+            <folder name="org-netbeans-modules-projectui.xml">
+                <file name="ProjectHome.instance">
+                    <attr name="instanceClass" stringvalue="javax.swing.Action"/>
+                    <attr name="instanceCreate" methodvalue="org.netbeans.modules.sfsexplorer.ShowURLActionFactory.create"/>
+                    <attr name="url" stringvalue="http://projects.netbeans.org"/>
+                    <attr name="displayName" stringvalue="Project UI Project Page"/>
+                </file>
+            </folder>
+            <folder name="org-netbeans-modules-projectuiapi.xml">
+                <file name="ProjectHome.instance">
+                    <attr name="instanceClass" stringvalue="javax.swing.Action"/>
+                    <attr name="instanceCreate" methodvalue="org.netbeans.modules.sfsexplorer.ShowURLActionFactory.create"/>
+                    <attr name="url" stringvalue="http://projects.netbeans.org"/>
+                    <attr name="displayName" stringvalue="Project UI API Project Page"/>
+                </file>
+            </folder>
+            <folder name="org-netbeans-modules-refactoring.xml">
+                <file name="ProjectHome.instance">
+                    <attr name="instanceClass" stringvalue="javax.swing.Action"/>
+                    <attr name="instanceCreate" methodvalue="org.netbeans.modules.sfsexplorer.ShowURLActionFactory.create"/>
+                    <attr name="url" stringvalue="http://refactoring.netbeans.org"/>
+                    <attr name="displayName" stringvalue="Refactoring Project Page"/>
+                </file>
+            </folder>
+            <folder name="org-netbeans-modules-versioning.xml">
+                <file name="ProjectHome.instance">
+                    <attr name="instanceClass" stringvalue="javax.swing.Action"/>
+                    <attr name="instanceCreate" methodvalue="org.netbeans.modules.sfsexplorer.ShowURLActionFactory.create"/>
+                    <attr name="url" stringvalue="http://vcscore.netbeans.org"/>
+                    <attr name="displayName" stringvalue="Versioning Project Page"/>
+                </file>
+            </folder>
+            <folder name="org-netbeans-modules-websvc-core.xml">
+                <file name="ProjectHome.instance">
+                    <attr name="instanceClass" stringvalue="javax.swing.Action"/>
+                    <attr name="instanceCreate" methodvalue="org.netbeans.modules.sfsexplorer.ShowURLActionFactory.create"/>
+                    <attr name="url" stringvalue="http://websvc.netbeans.org"/>
+                    <attr name="displayName" stringvalue="Web Services Core Project Page"/>
+                </file>
+            </folder>
+            <folder name="org-netbeans-modules-websvc-dev.xml">
+                <file name="ProjectHome.instance">
+                    <attr name="instanceClass" stringvalue="javax.swing.Action"/>
+                    <attr name="instanceCreate" methodvalue="org.netbeans.modules.sfsexplorer.ShowURLActionFactory.create"/>
+                    <attr name="url" stringvalue="http://websvc.netbeans.org/"/>
+                    <attr name="displayName" stringvalue="Web Services Developer Project Page"/>
+                </file>
+            </folder>
+            <folder name="org-netbeans-modules-xml-core.xml">
+                <file name="ProjectHome.instance">
+                    <attr name="instanceClass" stringvalue="javax.swing.Action"/>
+                    <attr name="instanceCreate" methodvalue="org.netbeans.modules.sfsexplorer.ShowURLActionFactory.create"/>
+                    <attr name="url" stringvalue="http://xml.netbeans.org"/>
+                    <attr name="displayName" stringvalue="XML Core Project Page"/>
+                </file>
+            </folder>
+
+        </folder>
+        <folder name="Services">
+            <file name="ServicesRegistration.instance">
+                <attr name="instanceClass" stringvalue="javax.swing.Action"/>
+                <attr name="instanceCreate" methodvalue="org.netbeans.modules.sfsexplorer.ShowURLActionFactory.create"/>
+                <attr name="url" stringvalue="http://www.netbeans.org/project/www/download/dev/javadoc/org-openide-util/org/openide/util/doc-files/api.html"/>
+                <attr name="displayName" stringvalue="Services Registration"/>
+            </file>
+            <file name="FAQ.instance">
+                <attr name="instanceClass" stringvalue="javax.swing.Action"/>
+                <attr name="instanceCreate" methodvalue="org.netbeans.modules.sfsexplorer.ShowURLActionFactory.create"/>
+                <attr name="url" stringvalue="http://wiki.netbeans.org/wiki/view/NetBeansDeveloperFAQ#section-NetBeansDeveloperFAQ-Lookup"/>
+                <attr name="displayName" stringvalue="Lookup FAQ"/>
+            </file>
+        </folder>
+        <folder name="Actions">
+            <file name="APIDescription.instance">
+                <attr name="instanceClass" stringvalue="javax.swing.Action"/>
+                <attr name="instanceCreate" methodvalue="org.netbeans.modules.sfsexplorer.ShowURLActionFactory.create"/>
+                <attr name="url" stringvalue="http://www.netbeans.org/download/5_5/javadoc/org-openide-actions/org/openide/actions/doc-files/api.html"/>
+                <attr name="displayName" stringvalue="Actions API Detailed Description"/>
+            </file>
+            <file name="FAQ.instance">
+                <attr name="instanceClass" stringvalue="javax.swing.Action"/>
+                <attr name="instanceCreate" methodvalue="org.netbeans.modules.sfsexplorer.ShowURLActionFactory.create"/>
+                <attr name="url" stringvalue="http://wiki.netbeans.org/wiki/view/NetBeansDeveloperFAQ#section-NetBeansDeveloperFAQ-ActionsHowToAddActionsToFilesFoldersMenusToolbarsAndMore"/>
+                <attr name="displayName" stringvalue="FAQ"/>
+            </file>
+        </folder>        
+        <folder name="Menu">
+            <file name="APIDescription.instance">
+                <attr name="instanceClass" stringvalue="javax.swing.Action"/>
+                <attr name="instanceCreate" methodvalue="org.netbeans.modules.sfsexplorer.ShowURLActionFactory.create"/>
+                <attr name="url" stringvalue="http://www.netbeans.org/download/5_5/javadoc/org-openide-actions/org/openide/actions/doc-files/api.html#install-menu"/>
+                <attr name="displayName" stringvalue="Actions API Detailed Description - Menu"/>
+            </file>
+            <file name="FAQ.instance">
+                <attr name="instanceClass" stringvalue="javax.swing.Action"/>
+                <attr name="instanceCreate" methodvalue="org.netbeans.modules.sfsexplorer.ShowURLActionFactory.create"/>
+                <attr name="url" stringvalue="http://wiki.netbeans.org/wiki/view/NetBeansDeveloperFAQ#section-NetBeansDeveloperFAQ-ActionsHowToAddActionsToFilesFoldersMenusToolbarsAndMore"/>
+                <attr name="displayName" stringvalue="FAQ"/>
+            </file>
+        </folder>
+        <folder name="Toolbars">
+            <file name="APIDescription.instance">
+                <attr name="instanceClass" stringvalue="javax.swing.Action"/>
+                <attr name="instanceCreate" methodvalue="org.netbeans.modules.sfsexplorer.ShowURLActionFactory.create"/>
+                <attr name="url" stringvalue="http://www.netbeans.org/download/5_5/javadoc/org-openide-actions/org/openide/actions/doc-files/api.html#install-toolbar"/>
+                <attr name="displayName" stringvalue="Actions API Detailed Description - Toolbar"/>
+            </file>
+            <file name="FAQ.instance">
+                <attr name="instanceClass" stringvalue="javax.swing.Action"/>
+                <attr name="instanceCreate" methodvalue="org.netbeans.modules.sfsexplorer.ShowURLActionFactory.create"/>
+                <attr name="url" stringvalue="http://wiki.netbeans.org/wiki/view/NetBeansDeveloperFAQ#section-NetBeansDeveloperFAQ-ActionsHowToAddActionsToFilesFoldersMenusToolbarsAndMore"/>
+                <attr name="displayName" stringvalue="FAQ"/>
+            </file>
+        </folder>
+        <folder name="Shortcuts">
+            <file name="APIDescription.instance">
+                <attr name="instanceClass" stringvalue="javax.swing.Action"/>
+                <attr name="instanceCreate" methodvalue="org.netbeans.modules.sfsexplorer.ShowURLActionFactory.create"/>
+                <attr name="url" stringvalue="http://www.netbeans.org/download/5_5/javadoc/org-openide-actions/org/openide/actions/doc-files/api.html#keymap"/>
+                <attr name="displayName" stringvalue="Actions API Detailed Description - Shortcuts"/>
+            </file>
+            <file name="FAQ.instance">
+                <attr name="instanceClass" stringvalue="javax.swing.Action"/>
+                <attr name="instanceCreate" methodvalue="org.netbeans.modules.sfsexplorer.ShowURLActionFactory.create"/>
+                <attr name="url" stringvalue="http://wiki.netbeans.org/wiki/view/NetBeansDeveloperFAQ#section-NetBeansDeveloperFAQ-KeyBindings"/>
+                <attr name="displayName" stringvalue="FAQ"/>
+            </file>
+        </folder>
+        <folder name="Loaders">
+            <file name="APIDescription.instance">
+                <attr name="instanceClass" stringvalue="javax.swing.Action"/>
+                <attr name="instanceCreate" methodvalue="org.netbeans.modules.sfsexplorer.ShowURLActionFactory.create"/>
+                <attr name="url" stringvalue="http://www.netbeans.org/download/dev/javadoc/org-openide-loaders/org/openide/loaders/doc-files/api.html"/>
+                <attr name="displayName" stringvalue="Loaders API Detailed Description"/>
+            </file>
+            <file name="FAQ1.instance">
+                <attr name="instanceClass" stringvalue="javax.swing.Action"/>
+                <attr name="instanceCreate" methodvalue="org.netbeans.modules.sfsexplorer.ShowURLActionFactory.create"/>
+                <attr name="url" stringvalue="http://wiki.netbeans.org/wiki/view/NetBeansDeveloperFAQ#section-NetBeansDeveloperFAQ-FilesAndDataObjects"/>
+                <attr name="displayName" stringvalue="FAQ - Files and Data Objects"/>
+            </file>
+            <file name="FAQ2.instance">
+                <attr name="instanceClass" stringvalue="javax.swing.Action"/>
+                <attr name="instanceCreate" methodvalue="org.netbeans.modules.sfsexplorer.ShowURLActionFactory.create"/>
+                <attr name="url" stringvalue="http://wiki.netbeans.org/wiki/view/NetBeansDeveloperFAQ#section-NetBeansDeveloperFAQ-ConvertingBetweenCommonDataTypesAndFindingThings"/>
+                <attr name="displayName" stringvalue="FAQ - Converting between common data types and finding things"/>
+            </file>
+            <file name="FAQ3.instance">
+                <attr name="instanceClass" stringvalue="javax.swing.Action"/>
+                <attr name="instanceCreate" methodvalue="org.netbeans.modules.sfsexplorer.ShowURLActionFactory.create"/>
+                <attr name="url" stringvalue="http://wiki.netbeans.org/wiki/view/NetBeansDeveloperFAQ#section-NetBeansDeveloperFAQ-NodesAndExplorer"/>
+                <attr name="displayName" stringvalue="FAQ - Nodes and Explorer"/>
+            </file>
+            <file name="FAQ4.instance">
+                <attr name="instanceClass" stringvalue="javax.swing.Action"/>
+                <attr name="instanceCreate" methodvalue="org.netbeans.modules.sfsexplorer.ShowURLActionFactory.create"/>
+                <attr name="url" stringvalue="http://wiki.netbeans.org/wiki/view/NetBeansDeveloperFAQ#section-NetBeansDeveloperFAQ-PropertiesAndPropertySheet"/>
+                <attr name="displayName" stringvalue="FAQ - Properties and PropertySheet"/>
+            </file>
+        </folder>
+        <folder name="Windows2Local">
+            <file name="APIDescription.instance">
+                <attr name="instanceClass" stringvalue="javax.swing.Action"/>
+                <attr name="instanceCreate" methodvalue="org.netbeans.modules.sfsexplorer.ShowURLActionFactory.create"/>
+                <attr name="url" stringvalue="http://www.netbeans.org/download/5_5/javadoc/org-openide-windows/org/openide/windows/doc-files/api.html"/>
+                <attr name="displayName" stringvalue="Window System API Detailed Description"/>
+            </file>
+            <file name="XMLFileFormats.instance">
+                <attr name="instanceClass" stringvalue="javax.swing.Action"/>
+                <attr name="instanceCreate" methodvalue="org.netbeans.modules.sfsexplorer.ShowURLActionFactory.create"/>
+                <attr name="url" stringvalue="http://core.netbeans.org/windowsystem/changes.html#3.4.2"/>
+                <attr name="displayName" stringvalue="Configuration File Format"/>
+            </file>
+            <file name="FAQ.instance">
+                <attr name="instanceClass" stringvalue="javax.swing.Action"/>
+                <attr name="instanceCreate" methodvalue="org.netbeans.modules.sfsexplorer.ShowURLActionFactory.create"/>
+                <attr name="url" stringvalue="http://wiki.netbeans.org/wiki/view/NetBeansDeveloperFAQ#section-NetBeansDeveloperFAQ-WindowSystem"/>
+                <attr name="displayName" stringvalue="FAQ"/>
+            </file>
+        </folder>
+        <folder name="Windows2">
+            <file name="APIDescription.instance">
+                <attr name="instanceClass" stringvalue="javax.swing.Action"/>
+                <attr name="instanceCreate" methodvalue="org.netbeans.modules.sfsexplorer.ShowURLActionFactory.create"/>
+                <attr name="url" stringvalue="http://www.netbeans.org/download/5_5/javadoc/org-openide-windows/org/openide/windows/doc-files/api.html"/>
+                <attr name="displayName" stringvalue="Window System API Detailed Description"/>
+            </file>
+            <file name="XMLFileFormats.instance">
+                <attr name="instanceClass" stringvalue="javax.swing.Action"/>
+                <attr name="instanceCreate" methodvalue="org.netbeans.modules.sfsexplorer.ShowURLActionFactory.create"/>
+                <attr name="url" stringvalue="http://core.netbeans.org/windowsystem/changes.html#3.4.2"/>
+                <attr name="displayName" stringvalue="Configuration File Format"/>
+            </file>
+        </folder>
+        <folder name="platform6">
+            <folder name="Windows2Local">
+                <file name="API.instance">
+                    <attr name="instanceClass" stringvalue="javax.swing.Action"/>
+                    <attr name="instanceCreate" methodvalue="org.netbeans.modules.sfsexplorer.ShowURLActionFactory.create"/>
+                    <attr name="url" stringvalue="http://www.netbeans.org/download/5_5/javadoc/org-openide-windows/overview-summary.html"/>
+                    <attr name="displayName" stringvalue="Window System API"/>
+                </file>
+            </folder>
+            <folder name="Editors">
+                <file name="API.instance">
+                    <attr name="instanceClass" stringvalue="javax.swing.Action"/>
+                    <attr name="instanceCreate" methodvalue="org.netbeans.modules.sfsexplorer.ShowURLActionFactory.create"/>
+                    <attr name="url" stringvalue="http://www.netbeans.org/download/5_5/javadoc/org-openide-text/overview-summary.html"/>
+                    <attr name="displayName" stringvalue="Editor API"/>
+                </file>
+            </folder>
+            <folder name="Modules">
+                <file name="API.instance">
+                    <attr name="instanceClass" stringvalue="javax.swing.Action"/>
+                    <attr name="instanceCreate" methodvalue="org.netbeans.modules.sfsexplorer.ShowURLActionFactory.create"/>
+                    <attr name="url" stringvalue="http://www.netbeans.org/download/5_5/javadoc/org-openide-modules/overview-summary.html"/>
+                    <attr name="displayName" stringvalue="Modules API"/>
+                </file>
+            </folder>
+            <folder name="Actions">
+                <file name="API.instance">
+                    <attr name="instanceClass" stringvalue="javax.swing.Action"/>
+                    <attr name="instanceCreate" methodvalue="org.netbeans.modules.sfsexplorer.ShowURLActionFactory.create"/>
+                    <attr name="url" stringvalue="http://www.netbeans.org/download/5_5/javadoc/org-openide-actions/overview-summary.html"/>
+                    <attr name="displayName" stringvalue="Actions API"/>
+                </file>
+            </folder>
+            <folder name="Menu">
+                <file name="API.instance">
+                    <attr name="instanceClass" stringvalue="javax.swing.Action"/>
+                    <attr name="instanceCreate" methodvalue="org.netbeans.modules.sfsexplorer.ShowURLActionFactory.create"/>
+                    <attr name="url" stringvalue="http://www.netbeans.org/download/5_5/javadoc/org-openide-actions/overview-summary.html"/>
+                    <attr name="displayName" stringvalue="Actions API - Menu"/>
+                </file>
+            </folder>
+            <folder name="Toolbars">
+                <file name="API.instance">
+                    <attr name="instanceClass" stringvalue="javax.swing.Action"/>
+                    <attr name="instanceCreate" methodvalue="org.netbeans.modules.sfsexplorer.ShowURLActionFactory.create"/>
+                    <attr name="url" stringvalue="http://www.netbeans.org/download/5_5/javadoc/org-openide-actions/overview-summary.html"/>
+                    <attr name="displayName" stringvalue="Actions API - Toolbar"/>
+                </file>
+            </folder>
+            <folder name="Shortcuts">
+                <file name="API.instance">
+                    <attr name="instanceClass" stringvalue="javax.swing.Action"/>
+                    <attr name="instanceCreate" methodvalue="org.netbeans.modules.sfsexplorer.ShowURLActionFactory.create"/>
+                    <attr name="url" stringvalue="http://www.netbeans.org/download/5_5/javadoc/org-openide-actions/overview-summary.html"/>
+                    <attr name="displayName" stringvalue="Actions API - Shortcuts"/>
+                </file>
+            </folder>
+            <folder name="Loaders">
+                <file name="API.instance">
+                    <attr name="instanceClass" stringvalue="javax.swing.Action"/>
+                    <attr name="instanceCreate" methodvalue="org.netbeans.modules.sfsexplorer.ShowURLActionFactory.create"/>
+                    <attr name="url" stringvalue="http://www.netbeans.org/download/5_5/javadoc/org-openide-loaders/overview-summary.html"/>
+                    <attr name="displayName" stringvalue="Loaders API"/>
+                </file>
+            </folder>
+        </folder>
+        <folder name="platform7">
+            <folder name="Editors">
+                <file name="API.instance">
+                    <attr name="instanceClass" stringvalue="javax.swing.Action"/>
+                    <attr name="instanceCreate" methodvalue="org.netbeans.modules.sfsexplorer.ShowURLActionFactory.create"/>
+                    <attr name="url" stringvalue="http://www.netbeans.org/download/dev/javadoc/org-netbeans-modules-editor/overview-summary.html"/>
+                    <attr name="displayName" stringvalue="Editor API"/>
+                </file>
+            </folder>
+            <folder name="Modules">
+                <file name="API.instance">
+                    <attr name="instanceClass" stringvalue="javax.swing.Action"/>
+                    <attr name="instanceCreate" methodvalue="org.netbeans.modules.sfsexplorer.ShowURLActionFactory.create"/>
+                    <attr name="url" stringvalue="http://www.netbeans.org/download/dev/javadoc/org-openide-modules/overview-summary.html"/>
+                    <attr name="displayName" stringvalue="Modules API"/>
+                </file>
+            </folder>
+            <folder name="Actions">
+                <file name="API.instance">
+                    <attr name="instanceClass" stringvalue="javax.swing.Action"/>
+                    <attr name="instanceCreate" methodvalue="org.netbeans.modules.sfsexplorer.ShowURLActionFactory.create"/>
+                    <attr name="url" stringvalue="http://www.netbeans.org/download/dev/javadoc/org-openide-actions/overview-summary.html"/>
+                    <attr name="displayName" stringvalue="Actions API"/>
+                </file>
+            </folder>
+            <folder name="Menu">
+                <file name="API.instance">
+                    <attr name="instanceClass" stringvalue="javax.swing.Action"/>
+                    <attr name="instanceCreate" methodvalue="org.netbeans.modules.sfsexplorer.ShowURLActionFactory.create"/>
+                    <attr name="url" stringvalue="http://www.netbeans.org/download/dev/javadoc/org-openide-actions/overview-summary.html"/>
+                    <attr name="displayName" stringvalue="Actions API - Menu"/>
+                </file>
+            </folder>
+            <folder name="Toolbars">
+                <file name="API.instance">
+                    <attr name="instanceClass" stringvalue="javax.swing.Action"/>
+                    <attr name="instanceCreate" methodvalue="org.netbeans.modules.sfsexplorer.ShowURLActionFactory.create"/>
+                    <attr name="url" stringvalue="http://www.netbeans.org/download/dev/javadoc/org-openide-actions/overview-summary.html"/>
+                    <attr name="displayName" stringvalue="Actions API - Toolbar"/>
+                </file>
+            </folder>
+            <folder name="Shortcuts">
+                <file name="API.instance">
+                    <attr name="instanceClass" stringvalue="javax.swing.Action"/>
+                    <attr name="instanceCreate" methodvalue="org.netbeans.modules.sfsexplorer.ShowURLActionFactory.create"/>
+                    <attr name="url" stringvalue="http://www.netbeans.org/download/dev/javadoc/org-openide-actions/overview-summary.html"/>
+                    <attr name="displayName" stringvalue="Actions API - Shortcuts"/>
+                </file>
+            </folder>
+            <folder name="Loaders">
+                <file name="API.instance">
+                    <attr name="instanceClass" stringvalue="javax.swing.Action"/>
+                    <attr name="instanceCreate" methodvalue="org.netbeans.modules.sfsexplorer.ShowURLActionFactory.create"/>
+                    <attr name="url" stringvalue="http://www.netbeans.org/download/dev/javadoc/org-openide-loaders/overview-summary.html"/>
+                    <attr name="displayName" stringvalue="Loaders API"/>
+                </file>
+            </folder>
+            <folder name="Windows2Local">
+                <file name="API.instance">
+                    <attr name="instanceClass" stringvalue="javax.swing.Action"/>
+                    <attr name="instanceCreate" methodvalue="org.netbeans.modules.sfsexplorer.ShowURLActionFactory.create"/>
+                    <attr name="url" stringvalue="http://www.netbeans.org/download/dev/javadoc/org-openide-windows/overview-summary.html"/>
+                    <attr name="displayName" stringvalue="Window System API"/>
+                </file>
+            </folder>
+        </folder>
+    </folder>
+</filesystem>
