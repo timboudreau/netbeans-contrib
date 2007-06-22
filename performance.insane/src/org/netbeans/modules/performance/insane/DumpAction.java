@@ -67,13 +67,13 @@ public final class DumpAction extends javax.swing.AbstractAction {
 
         visitor.close();
 
-        Set ordered = new TreeSet(new Comparator() {
-            public int compare(Object c1, Object c2) {
-                int diff = counter.getSizeForClass((Class)c2) - 
-                           counter.getSizeForClass((Class)c1);
+        Set<Class> ordered = new TreeSet<Class>(new Comparator<Class>() {
+            public int compare(Class c1, Class c2) {
+                int diff = counter.getSizeForClass(c2) - 
+                           counter.getSizeForClass(c1);
 
                 if (diff != 0 || c1 == c2) return diff;
-                return ((Class)c1).getName().compareTo(((Class)c2).getName());
+                return c1.getName().compareTo(c2.getName());
             }
         });
 
