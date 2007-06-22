@@ -21,14 +21,14 @@ package org.netbeans.modules.regextester.editor;
 
 import javax.swing.text.Document;
 import org.netbeans.editor.Syntax;
-import org.netbeans.modules.editor.java.JavaKit;
+import org.netbeans.modules.editor.NbEditorKit;
 
 /*
  * Based on sqleditor
  *
  * @author Martin Adamek
  */
-public class RegexEditorKit extends JavaKit {
+public class RegexEditorKit extends NbEditorKit {
 
     public static final String MIME_TYPE = "text/x-regex"; // NOI18N
 
