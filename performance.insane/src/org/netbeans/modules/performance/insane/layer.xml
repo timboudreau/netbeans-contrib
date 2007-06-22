@@ -32,6 +32,7 @@ Microsystems, Inc. All Rights Reserved.
         <folder name="Memory">
             <file name="org-netbeans-modules-performance-insane-DumpAction.shadow">
                 <attr name="originalFile" stringvalue="Actions/System/org-netbeans-modules-performance-insane-DumpAction.instance"/>
+                <attr name="position" intvalue="300"/>
             </file>
         </folder>
     </folder>
