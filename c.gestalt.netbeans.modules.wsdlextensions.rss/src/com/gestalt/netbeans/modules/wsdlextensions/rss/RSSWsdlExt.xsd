@@ -65,9 +65,19 @@
                         <xs:documentation>Feed type is used to specify the type and version of your feed. Format is type_version, for example "rss_2.0" or "atom_1.0". Required only for publish.</xs:documentation>
                     </xs:annotation>
                 </xs:attribute>
-                <xs:attribute name="feedUrl" type="xs:anyURI">
+                <xs:attribute name="location" type="xs:anyURI">
                     <xs:annotation>
                         <xs:documentation>Feed URL has different meanings for publish and subscribe. For publish this correlates to the local address, port, and path you wish your feed to use; for example http://localhost:8282/myfeed/latest. This is the URL you would point a subscribe to as well as your favorite RSS Reader. For subscribe feedUrl correlates to the external RSS feed URL; for example http://www.cnn.com/feed/news.</xs:documentation>
+                    </xs:annotation>
+                </xs:attribute>
+                <xs:attribute name="username" type="xs:string">
+                    <xs:annotation>
+                        <xs:documentation>Required when subscribing to a secure feed</xs:documentation>
+                    </xs:annotation>
+                </xs:attribute>
+                <xs:attribute name="password" type="xs:string">
+                    <xs:annotation>
+                        <xs:documentation>Required when subscribing to a secure feed.</xs:documentation>
                     </xs:annotation>
                 </xs:attribute>
             </xs:extension>
@@ -81,19 +91,13 @@
             <xs:appinfo>
                 <prop:ElementProperties  xmlns:prop="http://xml.netbeans.org/schema/wsdlui/property">
                     <prop:Property attributeName="pollingInterval" propertyOrder="1">
-                        <prop:BuiltInCustomizer>
-                            <prop:SimpleCustomizer name="PartChooser"/>
-                        </prop:BuiltInCustomizer>
+                        <prop:SchemaCustomizer />
                     </prop:Property>
                     <prop:Property attributeName="filterByType"  propertyOrder="2">
-                        <prop:BuiltInCustomizer>
-                            <prop:SimpleCustomizer name="PartChooser"/>
-                        </prop:BuiltInCustomizer>
+                        <prop:SchemaCustomizer />
                     </prop:Property>
                     <prop:Property attributeName="filterByValue" propertyOrder="3">
-                        <prop:BuiltInCustomizer>
-                            <prop:SimpleCustomizer name="PartChooser"/>
-                        </prop:BuiltInCustomizer>
+                        <prop:SchemaCustomizer />
                     </prop:Property>
                     <prop:Property attributeName="entryTitle" propertyOrder="4">
                         <prop:BuiltInCustomizer>

@@ -50,7 +50,7 @@
                 <extensionAttr name="feedTitle" defaultValue=""/>
                 <extensionAttr name="feedDescription" defaultValue=""/>
                 <extensionAttr name="feedType" defaultValue=""/>
-                <extensionAttr name="feedUrl" defaultValue="http://gallemore.blogspot.com/feeds/posts/default?alt=rss"/>
+                <extensionAttr name="location" defaultValue="http://gallemore.blogspot.com/feeds/posts/default?alt=rss"/>
             </extensionElement>
         </wsdlElement>
         <wsdlElement name="Binding">

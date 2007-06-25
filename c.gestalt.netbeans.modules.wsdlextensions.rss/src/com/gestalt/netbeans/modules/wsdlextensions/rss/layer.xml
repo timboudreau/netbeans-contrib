@@ -29,7 +29,7 @@
         <folder name ="BindingOperationInput">
             <file name="RSSInMessage">
                 <attr name="xsdFileName" stringvalue="RSSWsdlExt" />
-                <attr name="element" stringvalue="message" />
+                <attr name="element" stringvalue="input" />
                 <attr name="SystemFileSystem.localizingBundle" stringvalue="com.gestalt.netbeans.modules.wsdlextensions.rss.Bundle" />
                 <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/com/gestalt/netbeans/modules/wsdlextensions/rss/resources/inMessage.png" /> 
             </file>
@@ -38,7 +38,7 @@
         <folder name ="BindingOperationOutput">
             <file name="RSSOutMessage">
                 <attr name="xsdFileName" stringvalue="RSSWsdlExt" />
-                <attr name="element" stringvalue="message" />
+                <attr name="element" stringvalue="output" />
                 <attr name="SystemFileSystem.localizingBundle" stringvalue="com.gestalt.netbeans.modules.wsdlextensions.rss.Bundle" />
                 <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/com/gestalt/netbeans/modules/wsdlextensions/rss/resources/outMessage.png" /> 
             </file>
