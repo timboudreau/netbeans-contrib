@@ -50,7 +50,10 @@ public class VMDTest {
 
     public static void main (String[] args) {
         final VMDGraphScene scene = new VMDGraphScene ();
+        runScene (scene);
+    }
 
+    static void runScene (final VMDGraphScene scene) {
         String mobile = createNode (scene, 100, 100, IMAGE_LIST, "menu", "List", null);
         createPin (scene, mobile, "start", IMAGE_ITEM, "Start", "Element");
         createPin (scene, mobile, "resume", IMAGE_ITEM, "Resume", "Element");
@@ -91,7 +94,7 @@ public class VMDTest {
         SceneSupport.show (scene);
     }
 
-    private static String createNode (VMDGraphScene scene, int x, int y, Image image, String name, String type, List<Image> glyphs) {
+    static String createNode (VMDGraphScene scene, int x, int y, Image image, String name, String type, List<Image> glyphs) {
         String nodeID = "node" + VMDTest.nodeID ++;
         VMDNodeWidget widget = (VMDNodeWidget) scene.addNode (nodeID);
         widget.setPreferredLocation (new Point (x, y));
@@ -100,11 +103,11 @@ public class VMDTest {
         return nodeID;
     }
 
-    private static void createPin (VMDGraphScene scene, String nodeID, String pinID, Image image, String name, String type) {
+    static void createPin (VMDGraphScene scene, String nodeID, String pinID, Image image, String name, String type) {
         ((VMDPinWidget) scene.addPin (nodeID, pinID)).setProperties (name, null);
     }
 
-    private static void createEdge (VMDGraphScene scene, String sourcePinID, String targetNodeID) {
+    static void createEdge (VMDGraphScene scene, String sourcePinID, String targetNodeID) {
         String edgeID = "edge" + VMDTest.edgeID ++;
         scene.addEdge (edgeID);
         scene.setEdgeSource (edgeID, sourcePinID);
