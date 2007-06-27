@@ -16,39 +16,34 @@
  * Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
  * Microsystems, Inc. All Rights Reserved.
  */
-
 package org.netbeans.modules.sfsexplorer;
 
-import java.awt.event.ActionEvent;
-import javax.swing.AbstractAction;
-import javax.swing.ImageIcon;
-import org.openide.util.NbBundle;
-import org.openide.util.Utilities;
-import org.openide.windows.TopComponent;
+import javax.swing.Action;
+import org.openide.nodes.AbstractNode;
+import org.openide.nodes.Children;
 
 /**
- * Action which shows System FileSystem and META-INF/services Browser window.
- *
- * @author Sandip V. Chitale (Sandip.Chitale@Sun.Com)
+ * Node representing position in the META-INF/services browser.
+ * Sandip V. Chitale (Sandip.Chitale@Sun.Com)
  */
-public class SFSBrowserAction extends AbstractAction {
-
+class PositionNode extends AbstractNode {
+    
     /**
-     * Constructor.
+     * 
+     * @param position 
      */
-    public SFSBrowserAction() {
-        super(NbBundle.getMessage(SFSBrowserAction.class, "CTL_SFSBrowserAction"));
-        putValue(SMALL_ICON, new ImageIcon(Utilities.loadImage(SFSBrowserTopComponent.ICON_PATH, true)));
+    PositionNode(String position) {
+        super(Children.LEAF);
+        setDisplayName(position);
+        setIconBaseWithExtension("org/netbeans/modules/sfsexplorer/position.gif");
     }
 
     /**
-     * Opens the SFSBrowserTopComponent.
-     * @param evt 
+     * 
+     * @param context 
+     * @return 
      */
-    public void actionPerformed(ActionEvent evt) {
-        TopComponent win = SFSBrowserTopComponent.findInstance();
-        win.open();
-        win.requestActive();
+    public Action[] getActions(boolean context) {
+        return SFSBrowserTopComponent.EMPTY_ACTIONS;
     }
-
 }

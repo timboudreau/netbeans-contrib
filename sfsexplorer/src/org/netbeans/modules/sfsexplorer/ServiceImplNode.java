@@ -16,39 +16,40 @@
  * Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
  * Microsystems, Inc. All Rights Reserved.
  */
-
 package org.netbeans.modules.sfsexplorer;
 
-import java.awt.event.ActionEvent;
-import javax.swing.AbstractAction;
-import javax.swing.ImageIcon;
-import org.openide.util.NbBundle;
-import org.openide.util.Utilities;
-import org.openide.windows.TopComponent;
+import javax.swing.Action;
+import org.openide.nodes.AbstractNode;
+import org.openide.nodes.Children;
 
 /**
- * Action which shows System FileSystem and META-INF/services Browser window.
- *
  * @author Sandip V. Chitale (Sandip.Chitale@Sun.Com)
  */
-public class SFSBrowserAction extends AbstractAction {
+class ServiceImplNode extends AbstractNode {
+    private Action[] actions;
 
     /**
-     * Constructor.
+     * 
+     * @param serviceImpl 
      */
-    public SFSBrowserAction() {
-        super(NbBundle.getMessage(SFSBrowserAction.class, "CTL_SFSBrowserAction"));
-        putValue(SMALL_ICON, new ImageIcon(Utilities.loadImage(SFSBrowserTopComponent.ICON_PATH, true)));
+    ServiceImplNode(String serviceImpl) {
+        super(Children.LEAF);
+        setDisplayName(serviceImpl);
+        setIconBaseWithExtension("org/netbeans/modules/sfsexplorer/provider.gif");
     }
 
     /**
-     * Opens the SFSBrowserTopComponent.
-     * @param evt 
+     * 
+     * @param context 
+     * @return 
      */
-    public void actionPerformed(ActionEvent evt) {
-        TopComponent win = SFSBrowserTopComponent.findInstance();
-        win.open();
-        win.requestActive();
+    public Action[] getActions(boolean context) {
+        if (!context) {
+            if (actions == null) {
+                actions = new Action[]{};
+            }
+            return actions;
+        }
+        return SFSBrowserTopComponent.EMPTY_ACTIONS;
     }
-
 }

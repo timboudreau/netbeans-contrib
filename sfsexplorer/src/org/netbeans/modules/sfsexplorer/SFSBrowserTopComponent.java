@@ -22,57 +22,35 @@ package org.netbeans.modules.sfsexplorer;
 import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.beans.PropertyVetoException;
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.Serializable;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.net.JarURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.net.URLConnection;
-import java.util.Collections;
 import java.util.Comparator;
-import java.util.Enumeration;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.LinkedList;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import java.util.Set;
-import java.util.jar.JarEntry;
-import java.util.jar.JarFile;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
+import javax.swing.ActionMap;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSplitPane;
 import org.openide.ErrorManager;
 import org.openide.awt.StatusDisplayer;
 import org.openide.cookies.EditorCookie;
-import org.openide.cookies.EditorCookie;
 import org.openide.cookies.InstanceCookie;
 import org.openide.cookies.OpenCookie;
 import org.openide.explorer.ExplorerManager;
+import org.openide.explorer.ExplorerUtils;
 import org.openide.explorer.view.BeanTreeView;
 import org.openide.filesystems.FileObject;
-import org.openide.filesystems.FileStateInvalidException;
-import org.openide.filesystems.FileSystem;
-import org.openide.filesystems.MultiFileSystem;
 import org.openide.filesystems.Repository;
 import org.openide.loaders.DataFolder;
 import org.openide.loaders.DataObject;
 import org.openide.loaders.DataObjectNotFoundException;
 import org.openide.loaders.FolderLookup;
 import org.openide.nodes.AbstractNode;
-import org.openide.nodes.Children;
-import org.openide.nodes.FilterNode;
 import org.openide.nodes.Node;
 import org.openide.nodes.NodeNotFoundException;
 import org.openide.nodes.NodeOp;
@@ -117,7 +95,7 @@ final class SFSBrowserTopComponent extends TopComponent {
             }
         }
 
-        ExplorerManagerPanel sfsPanel = new ExplorerManagerPanel("System FileSystem");
+        ExplorerManagerPanel sfsPanel = new ExplorerManagerPanel(NbBundle.getMessage(SFSBrowserTopComponent.class, "System_FileSystem"));
         sfsView = new BeanTreeView();
         sfsView.setRootVisible(false);
         try {
@@ -143,22 +121,67 @@ final class SFSBrowserTopComponent extends TopComponent {
         };
         splitPane.setOneTouchExpandable(true);
         add(splitPane, BorderLayout.CENTER);
+        associateLookup(sfsPanel.getLookup());
     }
 
-    private class ExplorerManagerPanel extends JPanel implements ExplorerManager.Provider {
+    private class ExplorerManagerPanel extends JPanel implements ExplorerManager.Provider, Lookup.Provider {
         private final ExplorerManager manager = new ExplorerManager();
+        private Lookup lookup;
 
+        /**
+         * 
+         * @param label 
+         */
         ExplorerManagerPanel(String label) {
             super(new BorderLayout());
+            ActionMap map = getActionMap();
+//            map.put(DefaultEditorKit.copyAction, ExplorerUtils.actionCopy(manager));
+//            map.put(DefaultEditorKit.cutAction, ExplorerUtils.actionCut(manager));
+//            map.put(DefaultEditorKit.pasteAction, ExplorerUtils.actionPaste(manager));
+//            map.put("delete", ExplorerUtils.actionDelete(manager, true)); // or false
+
+            // ...but add e.g.:
+//            InputMap keys = getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
+//            keys.put(KeyStroke.getKeyStroke("control C"), DefaultEditorKit.copyAction);
+//            keys.put(KeyStroke.getKeyStroke("control X"), DefaultEditorKit.cutAction);
+//            keys.put(KeyStroke.getKeyStroke("control V"), DefaultEditorKit.pasteAction);
+//            keys.put(KeyStroke.getKeyStroke("DELETE"), "delete");
+
+            // ...and initialization of lookup variable
+            lookup = ExplorerUtils.createLookup (manager, map);
 
             add(new JLabel(label), BorderLayout.NORTH);
         }
 
+        /**
+         * 
+         * @return 
+         */
         public ExplorerManager getExplorerManager() {
             return manager;
         }
+        
+        /**
+         * 
+         * @return 
+         */
+        public Lookup getLookup() {
+            return lookup;
+        }
+        public void addNotify() {
+            super.addNotify();
+            ExplorerUtils.activateActions(manager, true);
+        }
+        public void removeNotify() {
+            ExplorerUtils.activateActions(manager, false);
+            super.removeNotify();
+        }
     }
-
+        
+    /**
+     * 
+     * @return 
+     */
     public String getPlatform() {
         return platform;
     }
@@ -181,16 +204,20 @@ final class SFSBrowserTopComponent extends TopComponent {
     public static synchronized SFSBrowserTopComponent findInstance() {
         TopComponent win = WindowManager.getDefault().findTopComponent(PREFERRED_ID);
         if (win == null) {
-            ErrorManager.getDefault().log(ErrorManager.WARNING, "Cannot find SFSBrowser component. It will not be located properly in the window system.");
+            ErrorManager.getDefault().log(ErrorManager.WARNING, NbBundle.getMessage(SFSBrowserTopComponent.class, "Cannot_find_SFSBrowser_component._It_will_not_be_located_properly_in_the_window_system."));
             return getDefault();
         }
         if (win instanceof SFSBrowserTopComponent) {
             return (SFSBrowserTopComponent)win;
         }
-        ErrorManager.getDefault().log(ErrorManager.WARNING, "There seem to be multiple components with the '" + PREFERRED_ID + "' ID. That is a potential source of errors and unexpected behavior.");
+        ErrorManager.getDefault().log(ErrorManager.WARNING, NbBundle.getMessage(SFSBrowserTopComponent.class, "There_seem_to_be_multiple_components_with_the_'") + PREFERRED_ID + NbBundle.getMessage(SFSBrowserTopComponent.class, "'_ID._That_is_a_potential_source_of_errors_and_unexpected_behavior."));
         return getDefault();
     }
 
+    /**
+     * 
+     * @return 
+     */
     public int getPersistenceType() {
         return TopComponent.PERSISTENCE_ALWAYS;
     }
@@ -203,22 +230,37 @@ final class SFSBrowserTopComponent extends TopComponent {
         // TODO add custom code on component closing
     }
 
-    /** replaces this in object stream */
+    /**
+     * replaces this in object stream
+     * @return 
+     */
     public Object writeReplace() {
         return new ResolvableHelper();
     }
 
+    /**
+     * 
+     * @return 
+     */
     protected String preferredID() {
         return PREFERRED_ID;
     }
 
     final static class ResolvableHelper implements Serializable {
         private static final long serialVersionUID = 1L;
+        /**
+         * 
+         * @return 
+         */
         public Object readResolve() {
             return SFSBrowserTopComponent.getDefault();
         }
     }
 
+    /**
+     * 
+     * @param path 
+     */
     private void selectNode(String path) {
         ExplorerManager explorerManager = ExplorerManager.find(sfsView);
         if (explorerManager != null) {
@@ -230,31 +272,56 @@ final class SFSBrowserTopComponent extends TopComponent {
                     ErrorManager.getDefault().notify(ex);
                 }
             } catch (NodeNotFoundException ex) {
-                StatusDisplayer.getDefault().setStatusText("Could not select " + path);
+                StatusDisplayer.getDefault().setStatusText(NbBundle.getMessage(SFSBrowserTopComponent.class, "Could_not_select_") + path);
             }
         }
     }
 
-    private static void select(String path) {
+    /**
+     * 
+     * @param path 
+     */
+    static void select(String path) {
         SFSBrowserTopComponent sfsBrowserTopComponent = findInstance();
         sfsBrowserTopComponent.selectNode(path);
     }
 
     private static class NonRecursiveFolderLookup extends FolderLookup {
+        /**
+         * 
+         * @param df 
+         */
         public NonRecursiveFolderLookup(DataObject.Container df) {
             super(df);
         }
 
+        /**
+         * 
+         * @param df 
+         * @return 
+         */
         protected InstanceCookie acceptFolder(DataFolder df) {
             return null;
         }
 
+        /**
+         * 
+         * @param container 
+         * @return 
+         */
         protected InstanceCookie acceptContainer(DataObject.Container container) {
             return null;
         }
     }
 
-    private static void collectActions(Node node, List<Action> actions, String platform, FileObject root) {
+    /**
+     * 
+     * @param node 
+     * @param actions 
+     * @param platform 
+     * @param root 
+     */
+    static void collectActions(Node node, List/*<Action>*/ actions, String platform, FileObject root) {
         DataObject dataObject = (DataObject) node.getLookup().lookup(DataObject.class);
         if (dataObject != null) {
             FileObject fileObject = dataObject.getPrimaryFile();
@@ -304,304 +371,16 @@ final class SFSBrowserTopComponent extends TopComponent {
         }
     }
 
-    private static Node[] EMPTY_NODE_ARRAY = new Node[0];
-    private static Action[] EMPTY_ACTIONS = new Action[0];
-
-    private static class SFSNode extends FilterNode {
-        private String platform;
-        private Action[] actions;
-
-        SFSNode(Node node, String platform) {
-            super(node, new SFSNodeChildren(node, platform));
-            this.platform = platform;
-        }
-
-        public Action[] getActions(boolean context) {
-            if (!context) {
-                if (actions == null) {
-                    Node node = SFSNode.this.getOriginal();
-                    return getActions(node);
-                }
-                return actions;
-            }
-            return EMPTY_ACTIONS;
-        }
-
-        public Node getOriginal() {
-            return super.getOriginal();
-        }
-
-        private Action[] getActions(Node node) {
-            List<Action> actions = new LinkedList<Action>();
-            MultiFileSystem multiFileSystem = (MultiFileSystem) Repository.getDefault().getDefaultFileSystem();
-            FileObject root = multiFileSystem.getRoot();
-            collectActions(node, actions, platform, root);
-            DataObject dataObject = (DataObject) node.getLookup().lookup(DataObject.class);
-            if (dataObject != null) {
-                FileObject fileObject = dataObject.getPrimaryFile();
-                if (fileObject != null) {
-                    URL url = null;
-                    if (fileObject.getExt().equals("instance")) {
-                        url = getURL("http://wiki.netbeans.org/wiki/view/DevFaqInstanceDataObject"); // NOI18N
-                        if (url != null) {
-                            actions.add(
-                                    new ShowURLActionFactory.ShowURLAction(
-                                        "FAQ on .instance files",
-                                        url)); // TODO cache this
-                        }
-                    } else if (fileObject.getExt().equals("settings")) {
-                        url = getURL("http://wiki.netbeans.org/wiki/view/DevFaqDotSettingsFiles"); // NOI18N
-                        if (url != null) {
-                            actions.add(
-                                    new ShowURLActionFactory.ShowURLAction(
-                                        "FAQ on .settings files",
-                                        url)); // TODO cache this
-                        }
-                    } else if (fileObject.getExt().equals("shadow")) {
-                        url = getURL("http://wiki.netbeans.org/wiki/view/DevFaqDotShadowFiles"); // NOI18N
-                        if (url != null) {
-                            actions.add(
-                                    new ShowURLActionFactory.ShowURLAction(
-                                        "FAQ on .settings files",
-                                        url)); // TODO cache this
-                        }
-
-                        String originalFile = String.valueOf(fileObject.getAttribute("originalFile"));
-                        if (originalFile != null && originalFile.endsWith(".instance")) {
-                            final String originalFileSansExt = originalFile.substring(0, originalFile.lastIndexOf(".instance"));
-                            actions.add(new AbstractAction("Go to original file " + originalFileSansExt) {
-                                public void actionPerformed(ActionEvent e) {
-                                    select(originalFileSansExt);
-                                }
-                            });
-                        }
-                    }
-                    List delegates = getDelegates(multiFileSystem, fileObject);
-                    if (delegates.size() > 0) {
-                        FileObject delegateFileObject = (FileObject) delegates.get(0);
-                        if (delegateFileObject.isValid()) {
-                            try {
-                                DataObject delegateDataObject = DataObject.find(delegateFileObject);
-                                if (delegateDataObject != null &&
-                                        (delegateDataObject.getCookie(OpenCookie.class) != null ||
-                                         delegateDataObject.getCookie(EditorCookie.class) != null
-                                        )) {
-                                    try {
-                                        actions.add(new OpenDelegateAction(delegateFileObject,
-                                                delegateFileObject.getFileSystem().getDisplayName()));
-                                    }
-                                    catch (FileStateInvalidException ex) {
-                                        Exceptions.printStackTrace(ex);
-                                    }
-                                }
-                            } catch (DataObjectNotFoundException ex) {
-                                Exceptions.printStackTrace(ex);
-                            }
-                        }
-                    }
-                }
-            }
-            URL url = getURL("http://www.netbeans.org/download/dev/javadoc/org-openide-filesystems/org/openide/filesystems/doc-files/api.html");
-            if (url != null) {
-                actions.add(new ShowURLActionFactory.ShowURLAction("FileSystem API Details", url));
-            }
-            url = null;
-            if ("platform6".equals(platform)) {
-                url = getURL("http://www.netbeans.org/download/5_5/javadoc/org-openide-filesystems/org/openide/filesystems/XMLFileSystem.html");
-            } else if ("platform7".equals(platform)) {
-                url = getURL("http://www.netbeans.org/download/6_0/javadoc/org-openide-filesystems/org/openide/filesystems/XMLFileSystem.html");
-
-            }
-            if (url != null) {
-                actions.add(new ShowURLActionFactory.ShowURLAction("XML FileSystem API Details", url));
-            }
-
-            return actions.toArray(EMPTY_ACTIONS);
-        }
-    }
-
-    private static Comparator<Node> nodeComparator  = new Comparator<Node>() {
-        public int compare(Node o1, Node o2) {
-            return o1.getDisplayName().compareTo(o2.getDisplayName());
-        }
-    };
-
-    private static class SFSNodeChildren extends Children.Keys {
-        private Node node;
-        private String platform;
-        SFSNodeChildren(Node node, String platform) {
-            this.node = node;
-            this.platform = platform;
-        }
-
-        public void addNotify() {
-            List<Object> childrenKeys = new LinkedList<Object>();
-            DataObject dataObject = (DataObject) node.getLookup().lookup(DataObject.class);
-            if (dataObject != null) {
-                FileObject fileObject = dataObject.getPrimaryFile();
-                if (fileObject != null && fileObject != Repository.getDefault().getDefaultFileSystem().getRoot()) {
-                    Enumeration attributes = fileObject.getAttributes();
-                    while (attributes.hasMoreElements()) {
-                        String attribute = (String) attributes.nextElement();
-                        if (attribute != null) {
-                            Object value = fileObject.getAttribute(attribute);
-                            childrenKeys.add(
-                                    new Object[] {
-                                node,
-                                attribute,
-                                String.valueOf(value),
-                            }
-                            );
-                        }
-                    }
-                }
-                if (dataObject instanceof DataFolder) {
-                    DataFolder dataFolder = (DataFolder)dataObject;
-                    DataObject[] childrenDataObjects = dataFolder.getChildren();
-                    for (DataObject childDataObject : childrenDataObjects) {
-                        childrenKeys.add(childDataObject.getNodeDelegate());
-                    }
-                }
-            }
-
-            setKeys(childrenKeys);
-        }
-
-        protected Node[] createNodes(Object key) {
-            if (key instanceof Node) {
-                Node node = (Node) key;
-                return new Node[] {new SFSNode(node, platform)};
-            } else if (key instanceof Object[]) {
-                Object[] attrDesc = (Object[])key;
-                Node attributeNode = new AttributeNode(
-                        (Node)attrDesc[0],
-                        (String)attrDesc[1],
-                        attrDesc[2],
-                        platform);
-                return new Node[] {attributeNode};
-            }
-            return EMPTY_NODE_ARRAY;
-        }
-    }
-
-    private static class AttributeNode extends AbstractNode {
-        private Node   of;
-        private String attributeName;
-        private Object attributeValue;
-        private String platform;
-        private Action[] actions;
-
-        AttributeNode(Node of, String attributeName, Object attributeValue, String platform) {
-            super(Children.LEAF);
-            this.of = of;
-            this.attributeName = attributeName;
-            this.attributeValue = attributeValue;
-            this.platform = platform;
-            setName(attributeName + "=" + attributeValue);
-        }
-
-        public Action[] getActions(boolean context) {
-            if (!context) {
-                if (actions == null) {
-                    return getActions(of);
-                }
-                return actions;
-            }
-            return EMPTY_ACTIONS;
-        }
-
-        private Action[] getActions(Node node) {
-            List<Action> actions = new LinkedList<Action>();
-            if ("instanceClass".equals(attributeName)) {
-//                actions.add(new GotoJavaTypeAction(String.valueOf(attributeValue)));
-            } else if ("originalFile".equals(attributeName)) {
-                String originalFile = String.valueOf(attributeValue);
-                if (originalFile != null && originalFile.endsWith(".instance")) {
-                    final String originalFileSansExt = originalFile.substring(0, originalFile.lastIndexOf(".instance"));
-                    actions.add(new AbstractAction("Go to original file " + originalFileSansExt) {
-                        public void actionPerformed(ActionEvent e) {
-                            select(originalFileSansExt);
-                        }
-                    });
-                }
-            }
-            MultiFileSystem multiFileSystem = (MultiFileSystem) Repository.getDefault().getDefaultFileSystem();
-            FileObject root = multiFileSystem.getRoot();
-            collectActions(node, actions, platform, root);
-            return actions.toArray(EMPTY_ACTIONS);
-        }
-    }
-
-    private static class MetaInfService {
-        private String service;
-        private List<String> providers;
-
-        MetaInfService(String service) {
-            this.service = service;
-            providers = new LinkedList<String>();
-        }
-
-        String getService() {
-            return service;
-        }
-
-        void addProvider(String providerInfo) {
-            providers.add(providerInfo);
-        }
-
-        List<String> getProviders() {
-            return Collections.<String>unmodifiableList(providers);
-        }
-    }
-    private static Map<String, String> metaInfServicesAPI = new HashMap<String, String>();
-    static {
-        metaInfServicesAPI.put("org.openide.filesystems.Repository", "org-openide-filesystems/org/openide/filesystems/Repository.html");
-        metaInfServicesAPI.put("org.openide.filesystems.URLMapper", "org-openide-filesystems/org/openide/filesystems/URLMapper.html");
-        metaInfServicesAPI.put("org.openide.modules.InstalledFileLocator", "org-openide-modules/org/openide/modules/InstalledFileLocator.html");
-        metaInfServicesAPI.put("org.openide.util.Lookup", "org-openide-util/org/openide/util/Lookup.html");
-        metaInfServicesAPI.put("org.openide.nodes.NodeOperation", "org-openide-nodes/org/openide/nodes/NodeOperation.html");
-        metaInfServicesAPI.put("org.openide.util.ContextGlobalProvider", "org-openide-util/org/openide/util/ContextGlobalProvider.html");
-        metaInfServicesAPI.put("org.openide.xml.EntityCatalog", "org-openide-util/org/openide/xml/EntityCatalog.html");
-        metaInfServicesAPI.put("org.netbeans.spi.editor.mimelookup.MimeLookupInitializer", "org-netbeans-modules-editor-mimelookup/org/netbeans/spi/editor/mimelookup/MimeLookupInitializer.html");
-        metaInfServicesAPI.put("org.netbeans.spi.editor.mimelookup.Class2LayerFolder", "org-netbeans-modules-editor-mimelookup/org/netbeans/spi/editor/mimelookup/Class2LayerFolder.html");
-        metaInfServicesAPI.put("org.openide.awt.StatusLineElementProvider", "org-openide-awt/org/openide/awt/StatusLineElementProvider.html");
-        metaInfServicesAPI.put("org.openide.ErrorManager", "org-openide-util/org/openide/ErrorManager.html");
-        metaInfServicesAPI.put("org.openide.LifecycleManager", "org-openide-util/org/openide/LifecycleManager.html");
-        metaInfServicesAPI.put("org.openide.actions.ActionManager", "org-openide-actions/org/openide/actions/ActionManager.html");
-        metaInfServicesAPI.put("org.openide.awt.StatusDisplayer", "org-openide-awt/org/openide/awt/StatusDisplayer.html");
-        metaInfServicesAPI.put("org.openide.loaders.DataLoaderPool", "org-openide-loaders/org/openide/loaders/DataLoaderPool.html");
-        metaInfServicesAPI.put("org.openide.loaders.RepositoryNodeFactory", "org-openide-loaders/org/openide/loaders/RepositoryNodeFactory.html");
-        metaInfServicesAPI.put("org.openide.util.datatransfer.ExClipboard", "org-openide-util/org/openide/util/datatransfer/ExClipboard.html");
-        metaInfServicesAPI.put("org.openide.windows.IOProvider", "org-openide-io/org/openide/windows/IOProvider.html");
-        metaInfServicesAPI.put("org.netbeans.spi.queries.CollocationQueryImplementation", "org-netbeans-modules-queries/org/netbeans/spi/queries/CollocationQueryImplementation.html");
-        metaInfServicesAPI.put("org.netbeans.spi.project.FileOwnerQueryImplementation", "org-netbeans-modules-projectapi/org/netbeans/spi/project/FileOwnerQueryImplementation.html");
-        metaInfServicesAPI.put("org.netbeans.spi.queries.FileBuiltQueryImplementation", "org-netbeans-modules-queries/org/netbeans/spi/queries/FileBuiltQueryImplementation.html");
-        metaInfServicesAPI.put("org.netbeans.spi.queries.SharabilityQueryImplementation", "org-netbeans-modules-queries/org/netbeans/spi/queries/SharabilityQueryImplementation.html");
-        metaInfServicesAPI.put("org.netbeans.spi.java.classpath.ClassPathProvider", "org-netbeans-api-java/org/netbeans/spi/java/classpath/ClassPathProvider.html");
-        metaInfServicesAPI.put("org.netbeans.spi.java.queries.SourceForBinaryQueryImplementation", "org-netbeans-api-java/org/netbeans/spi/java/queries/SourceForBinaryQueryImplementation.html");
-        metaInfServicesAPI.put("org.netbeans.spi.project.ProjectFactory", "org-netbeans-modules-projectapi/org/netbeans/spi/project/ProjectFactory.html");
-        metaInfServicesAPI.put("org.netbeans.spi.project.ant.AntArtifactQueryImplementation", "org-netbeans-modules-project-ant/org/netbeans/spi/project/ant/AntArtifactQueryImplementation.html");
-        metaInfServicesAPI.put("org.openide.execution.ExecutionEngine", "org-openide-execution/org/openide/execution/ExecutionEngine.html");
-        metaInfServicesAPI.put("org.netbeans.spi.queries.VisibilityQueryImplementation", "org-netbeans-modules-queries/org/netbeans/spi/queries/VisibilityQueryImplementation.html");
-        metaInfServicesAPI.put("org.apache.tools.ant.module.spi.AntLogger", "org-apache-tools-ant-module/org/apache/tools/ant/module/spi/AntLogger.html");
-        metaInfServicesAPI.put("org.netbeans.spi.project.libraries.LibraryProvider", "org-netbeans-modules-project-libraries/org/netbeans/spi/project/libraries/LibraryProvider.html");
-        metaInfServicesAPI.put("org.netbeans.spi.java.queries.AccessibilityQueryImplementation", "org-netbeans-api-java/org/netbeans/spi/java/queries/AccessibilityQueryImplementation.html");
-        metaInfServicesAPI.put("org.netbeans.spi.java.queries.JavadocForBinaryQueryImplementation", "org-netbeans-api-java/org/netbeans/spi/java/queries/JavadocForBinaryQueryImplementation.html");
-        metaInfServicesAPI.put("org.netbeans.spi.java.queries.MultipleRootsUnitTestForSourceQueryImplementation", "org-netbeans-api-java/org/netbeans/spi/java/queries/MultipleRootsUnitTestForSourceQueryImplementation.html");
-        metaInfServicesAPI.put("org.netbeans.spi.java.queries.SourceLevelQueryImplementation", "org-netbeans-api-java/org/netbeans/spi/java/queries/SourceLevelQueryImplementation.html");
-        metaInfServicesAPI.put("org.netbeans.spi.java.queries.UnitTestForSourceQueryImplementation", "org-netbeans-api-java/org/netbeans/spi/java/queries/UnitTestForSourceQueryImplementation.html");
-        metaInfServicesAPI.put("org.apache.tools.ant.module.spi.AutomaticExtraClasspathProvider", "org-apache-tools-ant-module/org/apache/tools/ant/module/spi/AutomaticExtraClasspathProvider.html");
-        metaInfServicesAPI.put("org.netbeans.spi.java.project.support.ui.PackageRenameHandler", "org-netbeans-modules-java-project/org/netbeans/spi/java/project/support/ui/PackageRenameHandler.html");
-        metaInfServicesAPI.put("org.openide.loaders.FolderRenameHandler", "org-openide-loaders/org/openide/loaders/FolderRenameHandler.html");
-        metaInfServicesAPI.put("org.openide.text.AnnotationProvider", "org-openide-text/org/openide/text/AnnotationProvider.html");
-        metaInfServicesAPI.put("org.netbeans.spi.project.support.ant.AntBasedProjectType", "org-netbeans-modules-project-ant/org/netbeans/spi/project/support/ant/AntBasedProjectType.html");
-        metaInfServicesAPI.put("org.netbeans.modules.masterfs.providers.AnnotationProvider", "org-netbeans-modules-masterfs/org/netbeans/modules/masterfs/providers/AnnotationProvider.html");
-        metaInfServicesAPI.put("org.openide.DialogDisplayer", "org-openide-dialogs/org/openide/DialogDisplayer.html");
-        metaInfServicesAPI.put("org.openide.windows.WindowManager", "org-openide-windows/org/openide/windows/WindowManager.html");
-    }
+    static Node[] EMPTY_NODE_ARRAY = new Node[0];
+    static Action[] EMPTY_ACTIONS = new Action[0];
 
     private static Map<String, URL> urlCache = new HashMap<String, URL>();
 
+    /**
+     * 
+     * @param urlString 
+     * @return 
+     */
     static URL getURL(String urlString) {
         if (urlCache.containsKey(urlString)) {
             return urlCache.get(urlString);
@@ -616,172 +395,23 @@ final class SFSBrowserTopComponent extends TopComponent {
         return url;
     }
 
-    private static class MetaInfServicesChildren extends Children.Keys {
-        private List<String> services;
-        private String platform;
-
-        MetaInfServicesChildren(String platform) {
-            this.platform = platform;
-        }
-
-        protected void addNotify() {
-            ClassLoader systemClassLoader = (ClassLoader) Lookup.getDefault().lookup(ClassLoader.class);
-            if (systemClassLoader != null) {
-                java.util.Map<String, MetaInfService> servicesMap = new LinkedHashMap<String, MetaInfService>();
-                try {
-                    Enumeration<URL> services = systemClassLoader.getResources("META-INF/services"); // NOI18N
-                    while (services.hasMoreElements()) {
-                        URL service = services.nextElement();
-                        URLConnection urlConnection = service.openConnection();
-                        if (urlConnection instanceof JarURLConnection) {
-                            JarURLConnection jarURLConnection = (JarURLConnection) urlConnection;
-                            JarEntry jarEntry = jarURLConnection.getJarEntry();
-                            if (jarEntry != null) {
-                                JarFile jarFile = jarURLConnection.getJarFile();
-                                Enumeration entries = jarFile.entries();
-                                while (entries.hasMoreElements()) {
-                                    JarEntry entry = (JarEntry) entries.nextElement();
-                                    if (entry.getName().startsWith("META-INF/services/") && !entry.isDirectory()) { // NOI18N
-                                        //sb.append(entry.getName().substring("META-INF/services/".length()) + "\n");
-                                        String serviceClassName = entry.getName().substring("META-INF/services/".length());
-                                        MetaInfService metaInfService = servicesMap.get(serviceClassName);
-                                        if (metaInfService == null) {
-                                            metaInfService = new MetaInfService(serviceClassName);
-                                            servicesMap.put(serviceClassName, metaInfService);
-                                        }
-                                        InputStream inputStream = jarFile.getInputStream(entry);
-                                        if (inputStream != null) {
-                                            BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
-                                            String aLine;
-                                            while ((aLine = bufferedReader.readLine()) != null) {
-                                                if (aLine.trim().length() != 0) {
-                                                    if (aLine.startsWith("#")) {
-                                                        if (!aLine.startsWith("#position=")) {
-                                                            continue;
-                                                        }
-                                                    }
-                                                    metaInfService.addProvider(aLine.trim());
-                                                }
-                                            }
-                                            bufferedReader.close();
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                } catch (IOException ex) {
-                }
-                setKeys(servicesMap.values());
-            }
-        }
-
-        protected Node[] createNodes(Object key) {
-            return new Node[] { new MetaInfServiceNode((MetaInfService) key, platform)};
-        }
-    }
-
-    private static class MetaInfServiceNode extends AbstractNode {
-        private String platform;
-        private String service;
-        private Action[] actions;
-
-        MetaInfServiceNode(MetaInfService metaInfService, String platform) {
-            super(new MetaInfServiceNodeChildren(metaInfService.getProviders()));
-            this.platform = platform;
-            this.service = metaInfService.getService();
-            setDisplayName(service);
-            setIconBaseWithExtension("org/netbeans/modules/sfsexplorer/service.gif");
-        }
-
-        public Action[] getActions(boolean context) {
-            if (metaInfServicesAPI.containsKey(service)) {
-                if (!context) {
-                    if (actions == null) {
-                        List<Action> actionsList = new LinkedList<Action>();
-                        String urlString = metaInfServicesAPI.get(service);
-                        if (platform.equals("platform6")) {
-                            urlString = "http://www.netbeans.org/download/5_5/javadoc/"+ urlString;
-                        } else if (platform.equals("platform7")) {
-                            urlString = "http://www.netbeans.org/download/6_0/javadoc/"+ urlString;
-                        }
-                        URL url = getURL(urlString);
-                        if (url != null) {
-                            actionsList.add(new ShowURLActionFactory.ShowURLAction(service + " API", url));
-                        }
-                        actions = actionsList.toArray(EMPTY_ACTIONS);
-                    }
-                    return actions;
-                }
-            }
-            return EMPTY_ACTIONS;
-        }
-    }
-
-    private static class MetaInfServiceNodeChildren extends Children.Keys {
-        private List<String> providers;
-
-        MetaInfServiceNodeChildren(List<String> providers) {
-            this.providers = providers;
-        }
-
-        protected void addNotify() {
-            setKeys(providers);
-        }
-
-        protected Node[] createNodes(Object key) {
-            Node node = new AbstractNode(Children.LEAF);
-            String displayName = String.valueOf(key);
-            if (displayName.startsWith("#position=")) {
-                displayName = displayName.substring("#position=".length());
-                node = new PositionNode(displayName);
-            } else {
-                node = new ServiceImplNode(displayName);
-            }
-            return new Node[] { node };
-        }
-    }
-
-    private static class ServiceImplNode extends AbstractNode {
-        private Action[] actions;
-
-        ServiceImplNode(String serviceImpl) {
-            super(Children.LEAF);
-            setDisplayName(serviceImpl);
-            setIconBaseWithExtension("org/netbeans/modules/sfsexplorer/provider.gif");
-        }
-
-        public Action[] getActions(boolean context) {
-            if (!context) {
-                if (actions == null) {
-                    actions = new Action[] {};
-                }
-                return actions;
-            }
-            return EMPTY_ACTIONS;
-        }
-    }
-
-    private static class PositionNode extends AbstractNode {
-        PositionNode(String position) {
-            super(Children.LEAF);
-            setDisplayName(position);
-            setIconBaseWithExtension("org/netbeans/modules/sfsexplorer/position.gif");
-        }
-
-        public Action[] getActions(boolean context) {
-            return EMPTY_ACTIONS;
-        }
-    }
-
-    private static class OpenDelegateAction extends AbstractAction {
+    static class OpenDelegateAction extends AbstractAction {
         private FileObject fileObject;
 
+        /**
+         * 
+         * @param fileObject 
+         * @param fileSystemName 
+         */
         OpenDelegateAction(FileObject fileObject, String fileSystemName) {
-            super("Open " + fileObject.getPath() + " in " + fileSystemName); // TODO I18N
+            super(NbBundle.getMessage(SFSBrowserTopComponent.class, "Open_") + fileObject.getPath() + NbBundle.getMessage(SFSBrowserTopComponent.class, "_in_") + fileSystemName); // TODO I18N
             this.fileObject = fileObject;
         }
 
+        /**
+         * 
+         * @param e 
+         */
         public void actionPerformed(ActionEvent e) {
             try {
                 org.openide.loaders.DataObject dataObject = org.openide.loaders.DataObject.find(fileObject);
@@ -805,51 +435,4 @@ final class SFSBrowserTopComponent extends TopComponent {
         }
     }
 
-    private static List getDelegates(MultiFileSystem multiFileSystem, FileObject fileObject) {
-        List delegates = new LinkedList();
-        getDelegates(multiFileSystem, fileObject, delegates);
-        Collections.reverse(delegates);
-        return delegates;
-    }
-
-    private static Method method;
-    static {
-        try {
-            method = MultiFileSystem.class.getDeclaredMethod("delegates", String.class);
-            method.setAccessible(true);
-        } catch (NoSuchMethodException nsme) {
-            // ignore
-        }
-    }
-
-    private static void getDelegates(MultiFileSystem multiFileSystem, FileObject fileObject, List delegatesSet) {
-        if (method != null) {
-            try         {
-                java.util.Enumeration<org.openide.filesystems.FileObject> delegates = (java.util.Enumeration<org.openide.filesystems.FileObject>) method.invoke(multiFileSystem,
-                        fileObject.getPath());
-
-                while (delegates.hasMoreElements()) {
-                    org.openide.filesystems.FileObject delegate = delegates.nextElement();
-
-                    if (delegate.isValid()) {
-                        delegatesSet.add(delegate);
-                        org.openide.filesystems.FileSystem fileSystem = delegate.getFileSystem();
-
-                        if (fileSystem instanceof org.openide.filesystems.MultiFileSystem) {
-                            getDelegates((org.openide.filesystems.MultiFileSystem) fileSystem,
-                                    delegate);
-                        }
-                    }
-                }
-            } catch (FileStateInvalidException ex) {
-                Exceptions.printStackTrace(ex);
-            } catch (IllegalAccessException ex) {
-                // ignore
-            } catch (IllegalArgumentException ex) {
-                // ignore
-            } catch (InvocationTargetException ex) {
-                // ignore
-            }
-        }
-    }
 }

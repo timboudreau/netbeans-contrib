@@ -1,0 +1,283 @@
+/*
+ * The contents of this file are subject to the terms of the Common Development
+ * and Distribution License (the License). You may not use this file except in
+ * compliance with the License.
+ *
+ * You can obtain a copy of the License at http://www.netbeans.org/cddl.html
+ * or http://www.netbeans.org/cddl.txt.
+ *
+ * When distributing Covered Code, include this CDDL Header Notice in each file
+ * and include the License file at http://www.netbeans.org/cddl.txt.
+ * If applicable, add the following below the CDDL Header, with the fields
+ * enclosed by brackets [] replaced by your own identifying information:
+ * "Portions Copyrighted [year] [name of copyright owner]"
+ *
+ * The Original Software is NetBeans. The Initial Developer of the Original
+ * Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
+ * Microsystems, Inc. All Rights Reserved.
+ */
+package org.netbeans.modules.sfsexplorer;
+
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import org.openide.filesystems.FileObject;
+import org.openide.filesystems.FileStateInvalidException;
+import org.openide.filesystems.FileSystem;
+import org.openide.filesystems.MultiFileSystem;
+import org.openide.filesystems.XMLFileSystem;
+import org.openide.loaders.DataFolder;
+import org.openide.modules.ModuleInfo;
+import org.openide.util.Lookup;
+import org.openide.util.LookupEvent;
+import org.openide.util.LookupListener;
+import org.xml.sax.SAXException;
+
+/**
+ * This (singleton) objects creates a cache of XMLFileSystems from
+ * the layer files.
+ * @author David Strupl
+ */
+public class XMLFileSystemCache {
+    
+    /**
+     * The singleton instance.
+     */
+    private static XMLFileSystemCache instance = new XMLFileSystemCache();
+    
+    /**
+     * XML URL --> XMLFileSystem
+     */
+    private Map/*<URL, XMLFileSystem>*/ filesystemURLs = new HashMap/*<URL, XMLFileSystem>*/();
+    
+    /**
+     * XMLFileSystem --> Jar file name
+     */
+    private Map/*<XMLFileSystem, String>*/ filesystemNames = new HashMap/*<XMLFileSystem, String>*/();
+    
+    /**
+     * Let's call update in case some modules are added/removed.
+     */
+    private LookupListener moduleInfoListener; 
+    
+    /** Creates a new instance of XMLFileSystemCache  - not for everybody.*/
+    private XMLFileSystemCache() {
+        updateCache();
+    }
+    
+    /**
+     * We are a singleton.
+     */
+    public static XMLFileSystemCache getInstance() {
+        return instance;
+    }
+    
+    /**
+     * Finds the name of the jar file from where the FileObject originates.
+     */
+    String getModuleName(FileObject f) {
+        String res = ""; // NOI18N
+        FileSystem[] cachedFSs = getCachedFileSystems();
+        for (int i = 0; i < cachedFSs.length; i++) {
+            FileObject originalF = cachedFSs[i].findResource(f.getPath());
+            if (originalF != null) {
+                String s = getFSName(cachedFSs[i]);
+                if (res.length() == 0) {
+                    res = s;
+                } else {
+                    res += ", " + s; // NOI18N
+                }
+            }
+        }
+        return res;
+    }
+
+    /**
+     * Updates the XMLFileSystems in our cache based on the installed modules.
+     */
+    private void updateCache() {
+        Lookup.Result moduleInfos = Lookup.getDefault().lookup(new Lookup.Template(ModuleInfo.class));
+        ModuleInfo [] modules = (ModuleInfo[])moduleInfos.allInstances().toArray(new ModuleInfo[0]);
+        if (moduleInfoListener == null) {
+            moduleInfoListener = new LookupListener() {
+                public void resultChanged(LookupEvent ev) {
+                    updateCache();
+                }
+            };
+            moduleInfos.addLookupListener(moduleInfoListener);
+        }
+        
+        ClassLoader systemClassloader = (ClassLoader)Lookup.getDefault().lookup(ClassLoader.class);
+        for (int i = 0; i < modules.length; i++) {
+            Object layerFileName = modules[i].getAttribute("OpenIDE-Module-Layer");
+            if (layerFileName instanceof String) {
+                String lfn = (String)layerFileName;
+                URL url = systemClassloader.getResource(lfn);
+                if (url != null) {
+                    updateCache(url);
+                }
+            }
+        }
+    }
+    
+    /**
+     * Tries to find all children of the given folder that were
+     * hidden by some layer file.
+     */
+    FileObject[] getHiddenChildren(DataFolder dataFolder) {
+        List res = new ArrayList();
+        FileObject folder = dataFolder.getPrimaryFile();
+        try {
+            FileSystem mainFS = folder.getFileSystem();
+            FileSystem[] cachedFSs = getCachedFileSystems();
+            for (int i = 0; i < cachedFSs.length; i++) {
+                FileObject originalFolder = cachedFSs[i].findResource(folder.getPath());
+                if (originalFolder != null) {
+                    // This XML FS defines our folder
+                    FileObject[] xmlFSFolderChildren = originalFolder.getChildren();
+                    for (int j = 0; j < xmlFSFolderChildren.length; j++) {
+                        String chPath = xmlFSFolderChildren[j].getPath();
+                        if (chPath.endsWith("_hidden")) { // NOI18N
+                            // ignore the hiding files themselves:
+                            continue;
+                        }
+                        FileObject fo = mainFS.findResource(chPath);
+                        if (fo == null) {
+                            // we have something that was hidden!
+                            res.add(xmlFSFolderChildren[j]);
+                        }
+                    }
+                }
+            }
+        } catch (FileStateInvalidException ex) {
+            ex.printStackTrace();
+        }
+        return (FileObject[]) res.toArray(new FileObject[res.size()]);
+    }
+
+    /**
+     * Returns the name of the module jar which hides the given file object.
+     */
+    String whoHides(FileObject theWretch) {
+        String res = ""; // NOI18N
+        FileSystem[] cachedFSs = getCachedFileSystems();
+        for (int i = 0; i < cachedFSs.length; i++) {
+            FileObject originalF = cachedFSs[i].findResource(theWretch.getPath()+"_hidden"); // NOI18N
+            if (originalF != null) {
+                String s = getFSName(cachedFSs[i]);
+                if (res.length() == 0) {
+                    res = s;
+                } else {
+                    res += ", " + s; // NOI18N
+                }
+            }
+        }
+        return res;
+    }
+    
+    /**
+     * If the given URL is not yet tracked adds the corresponding
+     * XMLFileSystem to our cache.
+     */
+    private void updateCache(URL url) {
+        if (filesystemURLs.containsKey(url)) {
+            return;
+        }
+        XMLFileSystem xmlFS;
+        try {
+            xmlFS = new XMLFileSystem(url);
+            filesystemURLs.put(url, xmlFS);
+            String s = url.getPath();
+            if (s.indexOf('!') > 0) {
+                s = s.substring(0, s.indexOf('!'));
+            }
+            if (s.lastIndexOf('/')>0) {
+                s = s.substring(s.lastIndexOf('/')+1);
+            }
+            if ((s.length() > 2) && (s.startsWith("RM"))) { // NOI18N
+                // hack for the JNLP version
+                s = s.substring(2);
+            }
+            filesystemNames.put(xmlFS, s);
+        } catch (SAXException ex) {
+            ex.printStackTrace();
+        }
+    }
+
+    /**
+     * Returns all of the up to now gathered XMLFileSystems.
+     */
+    private FileSystem[] getCachedFileSystems() {
+        return (FileSystem[]) filesystemNames.
+            keySet().toArray(new FileSystem[filesystemNames.size()]);
+    }
+    
+    /**
+     * Finds the jar file name of a given XMLFileSystem.
+     */
+    private String getFSName(FileSystem fs) {
+        String s = (String)filesystemNames.get(fs);
+        if (s == null) {
+            s = ""; // NOI18N
+        }
+        return s;
+    }
+    
+    //
+    // The section bellow was moved from SFSBrowserTopComponent:
+    //
+    
+    static List getDelegates(MultiFileSystem multiFileSystem, FileObject fileObject) {
+        List delegates = new LinkedList();
+        getDelegates(multiFileSystem, fileObject, delegates);
+        Collections.reverse(delegates);
+        return delegates;
+    }
+
+    private static Method method;
+    static {
+        try {
+            method = MultiFileSystem.class.getDeclaredMethod("delegates", new Class[] { String.class});
+            method.setAccessible(true);
+        } catch (NoSuchMethodException nsme) {
+            // ignore
+        }
+    }
+
+    private static void getDelegates(MultiFileSystem multiFileSystem, FileObject fileObject, List delegatesSet) {
+        if (method != null) {
+            try         {
+                java.util.Enumeration delegates = (java.util.Enumeration) method.invoke(multiFileSystem,
+                        new Object[] { fileObject.getPath()});
+
+                while (delegates.hasMoreElements()) {
+                    org.openide.filesystems.FileObject delegate = (FileObject) delegates.nextElement();
+
+                    if (delegate.isValid()) {
+                        delegatesSet.add(delegate);
+                        org.openide.filesystems.FileSystem fileSystem = delegate.getFileSystem();
+
+                        if (fileSystem instanceof org.openide.filesystems.MultiFileSystem) {
+                            getDelegates((org.openide.filesystems.MultiFileSystem) fileSystem,
+                                    delegate);
+                        }
+                    }
+                }
+            } catch (FileStateInvalidException ex) {
+                ex.printStackTrace();
+            } catch (IllegalAccessException ex) {
+                // ignore
+            } catch (IllegalArgumentException ex) {
+                // ignore
+            } catch (InvocationTargetException ex) {
+                // ignore
+            }
+        }
+    }
+}

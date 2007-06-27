@@ -16,39 +16,51 @@
  * Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
  * Microsystems, Inc. All Rights Reserved.
  */
-
 package org.netbeans.modules.sfsexplorer;
 
-import java.awt.event.ActionEvent;
-import javax.swing.AbstractAction;
-import javax.swing.ImageIcon;
-import org.openide.util.NbBundle;
-import org.openide.util.Utilities;
-import org.openide.windows.TopComponent;
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.List;
+
 
 /**
- * Action which shows System FileSystem and META-INF/services Browser window.
- *
- * @author Sandip V. Chitale (Sandip.Chitale@Sun.Com)
+ * Object representing one META-INF/service registration.
+ * @author Sandip V. Chitale (Sandip.Chitale@Sun.Com), David Strupl
  */
-public class SFSBrowserAction extends AbstractAction {
+class MetaInfService {
+    private String service;
+    private List providers;
 
     /**
      * Constructor.
+     * @param service Name of the class of the service.
      */
-    public SFSBrowserAction() {
-        super(NbBundle.getMessage(SFSBrowserAction.class, "CTL_SFSBrowserAction"));
-        putValue(SMALL_ICON, new ImageIcon(Utilities.loadImage(SFSBrowserTopComponent.ICON_PATH, true)));
+    MetaInfService(String service) {
+        this.service = service;
+        providers = new LinkedList();
     }
 
     /**
-     * Opens the SFSBrowserTopComponent.
-     * @param evt 
+     * Service getter.
+     * @return The represented service.
      */
-    public void actionPerformed(ActionEvent evt) {
-        TopComponent win = SFSBrowserTopComponent.findInstance();
-        win.open();
-        win.requestActive();
+    String getService() {
+        return service;
     }
 
+    /**
+     * Adds additional implementation of the service
+     * @param providerInfo Class name of the provider.
+     */
+    void addProvider(String providerInfo) {
+        providers.add(providerInfo);
+    }
+
+    /**
+     * Returns an unmodifiable collection of the providers.
+     * @return All providers of this service.
+     */
+    List getProviders() {
+        return Collections.unmodifiableList(providers);
+    }
 }
