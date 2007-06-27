@@ -31,7 +31,7 @@ import org.openide.nodes.Node;
 /**
  * @author Sandip V. Chitale (Sandip.Chitale@Sun.Com)
  */
-class SFSNodeChildren extends Children.Keys {
+class SFSNodeChildren extends Children.Keys<Object> {
     private Node node;
     private String platform;
     SFSNodeChildren(Node node, String platform) {
@@ -40,14 +40,14 @@ class SFSNodeChildren extends Children.Keys {
     }
 
     public void addNotify() {
-        List childrenKeys = new LinkedList();
-        DataObject dataObject = (DataObject) node.getLookup().lookup(DataObject.class);
+        List<Object> childrenKeys = new LinkedList<Object>();
+        DataObject dataObject = node.getLookup().lookup(DataObject.class);
         if (dataObject != null) {
             FileObject fileObject = dataObject.getPrimaryFile();
             if (fileObject != null && fileObject != Repository.getDefault().getDefaultFileSystem().getRoot()) {
-                Enumeration attributes = fileObject.getAttributes();
+                Enumeration<String> attributes = fileObject.getAttributes();
                 while (attributes.hasMoreElements()) {
-                    String attribute = (String) attributes.nextElement();
+                    String attribute = attributes.nextElement();
                     if (attribute != null) {
                         Object value = fileObject.getAttribute(attribute);
                         childrenKeys.add(

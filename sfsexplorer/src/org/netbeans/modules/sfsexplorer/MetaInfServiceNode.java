@@ -40,7 +40,7 @@ class MetaInfServiceNode extends AbstractNode {
     /**
      * Maps: Class name --> JavaDoc documentation of that class.
      */
-    private static Map/*<String, String>*/ metaInfServicesAPI = new HashMap/*<String, String>*/();
+    private static Map<String, String> metaInfServicesAPI = new HashMap<String, String>();
     
     static {
         metaInfServicesAPI.put("org.openide.filesystems.Repository", "org-openide-filesystems/org/openide/filesystems/Repository.html");
@@ -110,7 +110,7 @@ class MetaInfServiceNode extends AbstractNode {
         if (metaInfServicesAPI.containsKey(service)) {
             if (!context) {
                 if (actions == null) {
-                    List/*<Action>*/ actionsList = new LinkedList/*<Action>*/();
+                    List<Action> actionsList = new LinkedList<Action>();
                     String urlString = (String) metaInfServicesAPI.get(service);
                     if (platform.equals("platform6")) {
                         urlString = NbBundle.getMessage(MetaInfServiceNode.class, "javadoc55")+ urlString;
@@ -121,7 +121,7 @@ class MetaInfServiceNode extends AbstractNode {
                     if (url != null) {
                         actionsList.add(new ShowURLAction(service + " API", url));
                     }
-                    actions = (Action[]) actionsList.toArray(SFSBrowserTopComponent.EMPTY_ACTIONS);
+                    actions = actionsList.toArray(SFSBrowserTopComponent.EMPTY_ACTIONS);
                 }
                 return actions;
             }

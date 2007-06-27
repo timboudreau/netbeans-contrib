@@ -38,8 +38,7 @@ import org.openide.util.Lookup;
  * Children of MetaInfServiceNode.
  * Sandip V. Chitale (Sandip.Chitale@Sun.Com), David Strupl
  */
-class MetaInfServicesChildren extends Children.Keys {
-    private List services;
+class MetaInfServicesChildren extends Children.Keys<MetaInfService> {
     private String platform;
 
     /**
@@ -53,14 +52,14 @@ class MetaInfServicesChildren extends Children.Keys {
     /**
      * Computes the children only when they are really needed.
      */
-    protected void addNotify() {
-        ClassLoader systemClassLoader = (ClassLoader) Lookup.getDefault().lookup(ClassLoader.class);
+    @Override protected void addNotify() {
+        ClassLoader systemClassLoader = Lookup.getDefault().lookup(ClassLoader.class);
         if (systemClassLoader != null) {
-            java.util.Map/*<String, MetaInfService>*/ servicesMap = new LinkedHashMap/*<String, MetaInfService>*/();
+            java.util.Map<String, MetaInfService> servicesMap = new LinkedHashMap<String, MetaInfService>();
             try {
-                Enumeration/*<URL>*/ services = systemClassLoader.getResources("META-INF/services"); // NOI18N
+                Enumeration<URL> services = systemClassLoader.getResources("META-INF/services"); // NOI18N
                 while (services.hasMoreElements()) {
-                    URL service = (URL)services.nextElement();
+                    URL service = services.nextElement();
                     URLConnection urlConnection = service.openConnection();
                     if (urlConnection instanceof JarURLConnection) {
                         JarURLConnection jarURLConnection = (JarURLConnection) urlConnection;
@@ -73,7 +72,7 @@ class MetaInfServicesChildren extends Children.Keys {
                                 if (entry.getName().startsWith("META-INF/services/") && !entry.isDirectory()) { // NOI18N
                                     //sb.append(entry.getName().substring("META-INF/services/".length()) + "\n");
                                     String serviceClassName = entry.getName().substring("META-INF/services/".length());
-                                    MetaInfService metaInfService = (MetaInfService) servicesMap.get(serviceClassName);
+                                    MetaInfService metaInfService = servicesMap.get(serviceClassName);
                                     if (metaInfService == null) {
                                         metaInfService = new MetaInfService(serviceClassName);
                                         servicesMap.put(serviceClassName, metaInfService);
@@ -110,7 +109,7 @@ class MetaInfServicesChildren extends Children.Keys {
      * @param key 
      * @return 
      */
-    protected Node[] createNodes(Object key) {
-        return new Node[] {new MetaInfServiceNode((MetaInfService) key, platform)};
+    protected Node[] createNodes(MetaInfService key) {
+        return new Node[] {new MetaInfServiceNode(key, platform)};
     }
 }

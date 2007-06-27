@@ -27,21 +27,21 @@ import org.openide.nodes.Node;
  * Children of the MetaInfServiceNode.
  * Sandip V. Chitale (Sandip.Chitale@Sun.Com), David Strupl
  */
-class MetaInfServiceNodeChildren extends Children.Keys {
-    private List providers;
+class MetaInfServiceNodeChildren extends Children.Keys<String> {
+    private List<String> providers;
 
     /**
      * Constructor.
      * @param providers 
      */
-    MetaInfServiceNodeChildren(List providers) {
+    MetaInfServiceNodeChildren(List<String> providers) {
         this.providers = providers;
     }
 
     /**
      * Creates the children lazily.
      */
-    protected void addNotify() {
+    @Override protected void addNotify() {
         setKeys(providers);
     }
 
@@ -50,7 +50,7 @@ class MetaInfServiceNodeChildren extends Children.Keys {
      * @param key 
      * @return 
      */
-    protected Node[] createNodes(Object key) {
+    protected Node[] createNodes(String key) {
         Node node = new AbstractNode(Children.LEAF);
         String displayName = String.valueOf(key);
         if (displayName.startsWith("#position=")) {

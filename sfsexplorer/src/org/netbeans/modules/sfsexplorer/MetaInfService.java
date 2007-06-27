@@ -29,7 +29,7 @@ import java.util.List;
  */
 class MetaInfService {
     private String service;
-    private List providers;
+    private List<String> providers;
 
     /**
      * Constructor.
@@ -37,7 +37,7 @@ class MetaInfService {
      */
     MetaInfService(String service) {
         this.service = service;
-        providers = new LinkedList();
+        providers = new LinkedList<String>();
     }
 
     /**
@@ -60,7 +60,7 @@ class MetaInfService {
      * Returns an unmodifiable collection of the providers.
      * @return All providers of this service.
      */
-    List getProviders() {
+    List<String> getProviders() {
         return Collections.unmodifiableList(providers);
     }
 }

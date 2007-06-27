@@ -52,18 +52,18 @@ class HiddenNode extends AbstractNode {
      * Overriden to provide supply properties.
      * @return Initialized sheet.
      */
-    protected Sheet createSheet() {
+    @Override protected Sheet createSheet() {
         Sheet s = Sheet.createDefault();
         Sheet.Set set = s.get(Sheet.PROPERTIES);
-        set.put(new PropertySupport.ReadOnly("origin", 
-            String.class, NbBundle.getMessage(HiddenNode.class, "Defined_in"), NbBundle.getMessage(HiddenNode.class, "The_name_of_the_jar_that_defines_this_file/folder")) {
-            public Object getValue() {
+        set.put(new PropertySupport.ReadOnly<String>("origin", String.class,
+            NbBundle.getMessage(HiddenNode.class, "Defined_in"), NbBundle.getMessage(HiddenNode.class, "The_name_of_the_jar_that_defines_this_file/folder")) {
+            public String getValue() {
                 return XMLFileSystemCache.getInstance().getModuleName(fileObject);
             }
         });
-        set.put(new PropertySupport.ReadOnly("hiddenby", 
+        set.put(new PropertySupport.ReadOnly<String>("hiddenby", 
             String.class, NbBundle.getMessage(HiddenNode.class, "Hidden_by"), NbBundle.getMessage(HiddenNode.class, "The_name_of_the_jar_that_hides_this_file/folder")) {
-            public Object getValue() {
+            public String getValue() {
                 return XMLFileSystemCache.getInstance().whoHides(fileObject);
             }
         });

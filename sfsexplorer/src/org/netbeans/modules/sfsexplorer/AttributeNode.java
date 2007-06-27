@@ -81,7 +81,7 @@ class AttributeNode extends AbstractNode {
      * @return 
      */
     private Action[] getActions(Node node) {
-        List/*<Action>*/ actions = new LinkedList/*<Action>*/();
+        List<Action> actions = new LinkedList<Action>();
         if ("instanceClass".equals(attributeName)) {
 //                actions.add(new GotoJavaTypeAction(String.valueOf(attributeValue)));
         } else {
@@ -100,6 +100,6 @@ class AttributeNode extends AbstractNode {
         MultiFileSystem multiFileSystem = (MultiFileSystem) Repository.getDefault().getDefaultFileSystem();
         FileObject root = multiFileSystem.getRoot();
         SFSBrowserTopComponent.collectActions(node, actions, platform, root);
-        return (Action[]) actions.toArray(SFSBrowserTopComponent.EMPTY_ACTIONS);
+        return actions.toArray(SFSBrowserTopComponent.EMPTY_ACTIONS);
     }
 }

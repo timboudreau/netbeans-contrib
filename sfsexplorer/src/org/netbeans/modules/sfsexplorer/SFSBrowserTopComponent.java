@@ -26,7 +26,6 @@ import java.io.File;
 import java.io.Serializable;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -38,9 +37,7 @@ import javax.swing.JPanel;
 import javax.swing.JSplitPane;
 import org.openide.ErrorManager;
 import org.openide.awt.StatusDisplayer;
-import org.openide.cookies.EditorCookie;
 import org.openide.cookies.InstanceCookie;
-import org.openide.cookies.OpenCookie;
 import org.openide.explorer.ExplorerManager;
 import org.openide.explorer.ExplorerUtils;
 import org.openide.explorer.view.BeanTreeView;
@@ -321,8 +318,8 @@ final class SFSBrowserTopComponent extends TopComponent {
      * @param platform 
      * @param root 
      */
-    static void collectActions(Node node, List/*<Action>*/ actions, String platform, FileObject root) {
-        DataObject dataObject = (DataObject) node.getLookup().lookup(DataObject.class);
+    static void collectActions(Node node, List<Action> actions, String platform, FileObject root) {
+        DataObject dataObject = node.getLookup().lookup(DataObject.class);
         if (dataObject != null) {
             FileObject fileObject = dataObject.getPrimaryFile();
             if (fileObject != null && fileObject != root) {
@@ -335,9 +332,9 @@ final class SFSBrowserTopComponent extends TopComponent {
                         + fileObject.getPath());
                 if (specificReleaseActionInstanceFolder != null) {
                     DataFolder dataFolder = DataFolder.findFolder(specificReleaseActionInstanceFolder);
-                    FolderLookup fl = new NonRecursiveFolderLookup(dataFolder);
-                    Lookup.Template template = new Lookup.Template(Action.class);
-                    Lookup.Result result = fl.getLookup().lookup(template);
+                    NonRecursiveFolderLookup fl = new NonRecursiveFolderLookup(dataFolder);
+                    Lookup.Template<Action> template = new Lookup.Template<Action>(Action.class);
+                    Lookup.Result<Action> result = fl.getLookup().lookup(template);
                     actions.addAll(result.allInstances());
                 }
                 FileObject genericActionInstanceFolder =
@@ -347,9 +344,9 @@ final class SFSBrowserTopComponent extends TopComponent {
                         + fileObject.getPath());
                 if (genericActionInstanceFolder != null) {
                     DataFolder dataFolder = DataFolder.findFolder(genericActionInstanceFolder);
-                    FolderLookup fl = new NonRecursiveFolderLookup(dataFolder);
-                    Lookup.Template template = new Lookup.Template(Action.class);
-                    Lookup.Result result = fl.getLookup().lookup(template);
+                    NonRecursiveFolderLookup fl = new NonRecursiveFolderLookup(dataFolder);
+                    Lookup.Template<Action> template = new Lookup.Template<Action>(Action.class);
+                    Lookup.Result<Action> result = fl.getLookup().lookup(template);
                     actions.addAll(result.allInstances());
                 }
                 FileObject parentFileObject = fileObject.getParent();

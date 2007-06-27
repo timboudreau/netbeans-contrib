@@ -54,12 +54,12 @@ public class XMLFileSystemCache {
     /**
      * XML URL --> XMLFileSystem
      */
-    private Map/*<URL, XMLFileSystem>*/ filesystemURLs = new HashMap/*<URL, XMLFileSystem>*/();
+    private Map<URL, XMLFileSystem> filesystemURLs = new HashMap<URL, XMLFileSystem>();
     
     /**
      * XMLFileSystem --> Jar file name
      */
-    private Map/*<XMLFileSystem, String>*/ filesystemNames = new HashMap/*<XMLFileSystem, String>*/();
+    private Map<XMLFileSystem, String> filesystemNames = new HashMap<XMLFileSystem, String>();
     
     /**
      * Let's call update in case some modules are added/removed.
@@ -102,8 +102,8 @@ public class XMLFileSystemCache {
      * Updates the XMLFileSystems in our cache based on the installed modules.
      */
     private void updateCache() {
-        Lookup.Result moduleInfos = Lookup.getDefault().lookup(new Lookup.Template(ModuleInfo.class));
-        ModuleInfo [] modules = (ModuleInfo[])moduleInfos.allInstances().toArray(new ModuleInfo[0]);
+        Lookup.Result<ModuleInfo> moduleInfos = Lookup.getDefault().lookup(new Lookup.Template<ModuleInfo>(ModuleInfo.class));
+        ModuleInfo[] modules = moduleInfos.allInstances().toArray(new ModuleInfo[0]);
         if (moduleInfoListener == null) {
             moduleInfoListener = new LookupListener() {
                 public void resultChanged(LookupEvent ev) {
@@ -113,7 +113,7 @@ public class XMLFileSystemCache {
             moduleInfos.addLookupListener(moduleInfoListener);
         }
         
-        ClassLoader systemClassloader = (ClassLoader)Lookup.getDefault().lookup(ClassLoader.class);
+        ClassLoader systemClassloader = Lookup.getDefault().lookup(ClassLoader.class);
         for (int i = 0; i < modules.length; i++) {
             Object layerFileName = modules[i].getAttribute("OpenIDE-Module-Layer");
             if (layerFileName instanceof String) {
@@ -131,7 +131,7 @@ public class XMLFileSystemCache {
      * hidden by some layer file.
      */
     FileObject[] getHiddenChildren(DataFolder dataFolder) {
-        List res = new ArrayList();
+        List<FileObject> res = new ArrayList<FileObject>();
         FileObject folder = dataFolder.getPrimaryFile();
         try {
             FileSystem mainFS = folder.getFileSystem();
@@ -158,7 +158,7 @@ public class XMLFileSystemCache {
         } catch (FileStateInvalidException ex) {
             ex.printStackTrace();
         }
-        return (FileObject[]) res.toArray(new FileObject[res.size()]);
+        return res.toArray(new FileObject[res.size()]);
     }
 
     /**
@@ -214,15 +214,14 @@ public class XMLFileSystemCache {
      * Returns all of the up to now gathered XMLFileSystems.
      */
     private FileSystem[] getCachedFileSystems() {
-        return (FileSystem[]) filesystemNames.
-            keySet().toArray(new FileSystem[filesystemNames.size()]);
+        return filesystemNames.keySet().toArray(new FileSystem[filesystemNames.size()]);
     }
     
     /**
      * Finds the jar file name of a given XMLFileSystem.
      */
     private String getFSName(FileSystem fs) {
-        String s = (String)filesystemNames.get(fs);
+        String s = filesystemNames.get(fs);
         if (s == null) {
             s = ""; // NOI18N
         }
@@ -233,8 +232,8 @@ public class XMLFileSystemCache {
     // The section bellow was moved from SFSBrowserTopComponent:
     //
     
-    static List getDelegates(MultiFileSystem multiFileSystem, FileObject fileObject) {
-        List delegates = new LinkedList();
+    static List<FileObject> getDelegates(MultiFileSystem multiFileSystem, FileObject fileObject) {
+        List<FileObject> delegates = new LinkedList<FileObject>();
         getDelegates(multiFileSystem, fileObject, delegates);
         Collections.reverse(delegates);
         return delegates;
@@ -250,21 +249,21 @@ public class XMLFileSystemCache {
         }
     }
 
-    private static void getDelegates(MultiFileSystem multiFileSystem, FileObject fileObject, List delegatesSet) {
+    private static void getDelegates(MultiFileSystem multiFileSystem, FileObject fileObject, List<FileObject> delegatesSet) {
         if (method != null) {
             try         {
                 java.util.Enumeration delegates = (java.util.Enumeration) method.invoke(multiFileSystem,
                         new Object[] { fileObject.getPath()});
 
                 while (delegates.hasMoreElements()) {
-                    org.openide.filesystems.FileObject delegate = (FileObject) delegates.nextElement();
+                    FileObject delegate = (FileObject) delegates.nextElement();
 
                     if (delegate.isValid()) {
                         delegatesSet.add(delegate);
-                        org.openide.filesystems.FileSystem fileSystem = delegate.getFileSystem();
+                        FileSystem fileSystem = delegate.getFileSystem();
 
-                        if (fileSystem instanceof org.openide.filesystems.MultiFileSystem) {
-                            getDelegates((org.openide.filesystems.MultiFileSystem) fileSystem,
+                        if (fileSystem instanceof MultiFileSystem) {
+                            getDelegates((MultiFileSystem) fileSystem,
                                     delegate);
                         }
                     }

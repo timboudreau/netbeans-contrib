@@ -87,11 +87,11 @@ class SFSNode extends FilterNode {
      * @return 
      */
     private Action[] getActions(Node node) {
-        List/*<Action>*/ actions = new LinkedList/*<Action>*/();
+        List<Action> actions = new LinkedList<Action>();
         MultiFileSystem multiFileSystem = (MultiFileSystem) Repository.getDefault().getDefaultFileSystem();
         FileObject root = multiFileSystem.getRoot();
         SFSBrowserTopComponent.collectActions(node, actions, platform, root);
-        DataObject dataObject = (DataObject) node.getLookup().lookup(DataObject.class);
+        DataObject dataObject = node.getLookup().lookup(DataObject.class);
         if (dataObject != null) {
             FileObject fileObject = dataObject.getPrimaryFile();
             if (fileObject != null) {
@@ -179,9 +179,9 @@ class SFSNode extends FilterNode {
                 PropertySet a = new PropertySet(NbBundle.getMessage(SFSNode.class, "LayerSet"), NbBundle.getMessage(SFSNode.class, "Layer"), NbBundle.getMessage(SFSNode.class, "This_set_contains_information_from_which_layer_the_file_originates.")) {
                         public Node.Property[] getProperties() {
                             return new Node.Property[] {
-                                new PropertySupport.ReadOnly(NbBundle.getMessage(SFSNode.class, "name"), String.class, NbBundle.getMessage(SFSNode.class, "Origin"), 
+                                new PropertySupport.ReadOnly<String>(NbBundle.getMessage(SFSNode.class, "name"), String.class, NbBundle.getMessage(SFSNode.class, "Origin"), 
                                         NbBundle.getMessage(SFSNode.class, "Shows_which_layer(s)_defines_this_file/folder.")) {
-                                    public Object getValue() {
+                                    public String getValue() {
                                         return XMLFileSystemCache.getInstance().getModuleName(fileObject);
                                     }
                                 }
