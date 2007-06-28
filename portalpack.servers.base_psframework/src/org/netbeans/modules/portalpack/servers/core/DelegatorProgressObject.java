@@ -36,29 +36,29 @@ import javax.enterprise.deploy.spi.status.ProgressObject;
 
 /**
  *
- * @author root
+ * @author Satyaranjan
  */
 public class DelegatorProgressObject implements ProgressObject{
-    
+
     private static Logger logger = Logger.getLogger(NetbeanConstants.PORTAL_LOGGER);
     private ProgressEventSupport pes;
     /** Creates a new instance of DelegatorProgressObject */
     public DelegatorProgressObject() {
-        
+
         pes = new ProgressEventSupport(this);
     }
 
-    
+
      public ProgressObject startModule(TargetModuleID[] modules)
      {
           logger.log(Level.FINEST,"Inside StartModule......");
           pes.fireHandleProgressEvent(null,
                     new Status(ActionType.EXECUTE, CommandType.START,
                      org.openide.util.NbBundle.getMessage(DelegatorProgressObject.class, "MSG_START_MODULE_SERVER"),
-                    StateType.RUNNING));   
-          
+                    StateType.RUNNING));
+
           Thread t2 = new Thread(){
-              
+
               public void run(){
                 pes.fireHandleProgressEvent(null,
                             new Status(ActionType.EXECUTE, CommandType.STOP,
@@ -69,17 +69,17 @@ public class DelegatorProgressObject implements ProgressObject{
           t2.start();
            return this;
      }
-     
-     
+
+
      public ProgressObject stopModule(TargetModuleID[] modules)
      {
           pes.fireHandleProgressEvent(null,
                     new Status(ActionType.EXECUTE, CommandType.START,
                      org.openide.util.NbBundle.getMessage(DelegatorProgressObject.class, "MSG_START_MODULE_SERVER"),
-                    StateType.RUNNING));   
-          
+                    StateType.RUNNING));
+
           Thread t2 = new Thread(){
-              
+
               public void run(){
                 pes.fireHandleProgressEvent(null,
                             new Status(ActionType.EXECUTE, CommandType.STOP,
@@ -89,20 +89,20 @@ public class DelegatorProgressObject implements ProgressObject{
           };
           t2.start();
            return this;
-         
+
      }
-     
+
      public ClientConfiguration getClientConfiguration(TargetModuleID t) {
         return null;
     }
 
     /** JSR88 method. */
     public DeploymentStatus getDeploymentStatus() {
-        return pes.getDeploymentStatus();        
+        return pes.getDeploymentStatus();
     }
 
     /** JSR88 method. */
-    public TargetModuleID[] getResultTargetModuleIDs() { 
+    public TargetModuleID[] getResultTargetModuleIDs() {
         return new TargetModuleID [] {};
     }
 
@@ -130,10 +130,10 @@ public class DelegatorProgressObject implements ProgressObject{
     public void addProgressListener(ProgressListener l) {
         pes.addProgressListener(l);
     }
-    
+
     /** JSR88 method. */
     public void removeProgressListener(ProgressListener l) {
         pes.removeProgressListener(l);
-    }        
-  
+    }
+
 }
