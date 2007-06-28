@@ -42,17 +42,20 @@ public class TTHubTagUtil {
     }
     
     public static String[] retrieveFieldFromTempPage(String fieldName,PortletSession portletSession, String curEditPath) {
+        
         String[] field;
         
         Map tempPageStateMap= (Map)portletSession.getAttribute(DataConstants.TEMP_PAGE_STATE_MAP);
         StandardTempPageState tempPageState=(StandardTempPageState)tempPageStateMap.get(curEditPath);
         DefaultFieldState fieldState=(DefaultFieldState)tempPageState.getTempFieldState(fieldName);
         field= fieldState.getFieldValue();
+        System.out.println("[TTHubTagUtil.retrieveFieldFromTempPage-field-]"+field);
         return field;
     }
     
     public static String[] retrieveFieldFromTTValue(String fieldName,PortletSession portletSession, String curEditPath )
     throws IllegalArgumentException, IllegalAccessException, SecurityException, NoSuchMethodException,InvocationTargetException,IllegalServerException {
+        
         // retrieve fieldValue from TValueImplObj
         String[] field=new String[1];
         //TroubleTicketValue ttValImplObj=(TroubleTicketValue)portletSession.getAttribute(DataConstants.TTVALUEIMPLOBJECT);
@@ -98,9 +101,12 @@ public class TTHubTagUtil {
                 Object fieldValueObj=CommonUtil.getFieldValue(fieldName,curFieldClass,fieldObj);
                 if (fieldValueObj!=null)
                     field[0]=(String)fieldValueObj.toString();
+                else
+                    field[0]=retrieveDefaultValue(fieldName,pathList,portletSession);
             }
             
         }
+        System.out.println("[TTHubTagUtil.retrieveFieldFromTTValue-field[0]"+field[0]);
         return field;
         
     }
@@ -121,6 +127,7 @@ public class TTHubTagUtil {
             String fieldType=fieldInfo.getFieldMetaData().getFieldDataType();
             fieldValue=getDefaultValueByType(fieldType);
         }
+        System.out.println("[TTHubTagUtil.retrieveDefaultValue]-fieldValue-"+fieldValue);
         return fieldValue;
     }
     public static String getDefaultValueByType(String fieldType){
@@ -134,7 +141,7 @@ public class TTHubTagUtil {
         || fieldType.equals(Double.class.getName())){
             defaultValue="0.0";
         }
-        //String/Date-null
+        //String/Date-null-blank
         return defaultValue;
     }
 }

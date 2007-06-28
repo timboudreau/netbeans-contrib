@@ -102,7 +102,7 @@ public class SingleSelectListTag extends TagSupport {
             
             FieldInfo fieldInfo=(FieldInfo)fieldList.get(fieldName);
             
-            System.out.println("[MultiSelectListTag-fieldList]-"+fieldList);
+            System.out.println("[SingleSelectListTag-fieldList]-"+fieldList);
             
             
             SelectionFieldDisplayInfo fieldDisplayInfo =

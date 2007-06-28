@@ -30,7 +30,7 @@ public class PortletConstants {
     public PortletConstants() {
     }
     
-    public final static String PORTLET_XML= "Portlet.xml";
+    public final static String PORTLET_XML= "portlet.xml";
     public final static String PORTLET_XML_TEMPLATE= "/dynamic/Portlet.xml.template";
     public final static String PORTLET_REQINTERPRETOR_TEMPLATE= "/dynamic/Portlet.java.template";
     public final static String PORTLET_CONFIG_TEMPLATE= "/dynamic/Portlet.portlet.template";

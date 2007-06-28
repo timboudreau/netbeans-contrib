@@ -221,7 +221,12 @@ public class SaveEditPathReqProcessor {
             }else{
                 //go back to parent path
                 int index=curEditPath.lastIndexOf("/");
-                returnEditPath=curEditPath.substring(0,index);
+                System.out.println("[SaveEditPathReqProcessor-index]-"+index);
+                if (index==0)
+                    //parent is Root path
+                    returnEditPath="/";
+                else 
+                    returnEditPath=curEditPath.substring(0,index);
             }
             if (curEditPath.equals("/")){
               statusMessage=DataConstants.SUCCESS_MESSAGE+":The request is saved to "+fileName+".";
@@ -241,6 +246,7 @@ public class SaveEditPathReqProcessor {
         result.setClearTTValueFlag(clearTTValImplObj);
         session.setAttribute(DataConstants.REQPROCESSINGRESULT,result);
         
+         System.out.println("[SaveEditPathReqProcessor-returnEditPath]-"+returnEditPath);
         
         return returnEditPath;
     }
