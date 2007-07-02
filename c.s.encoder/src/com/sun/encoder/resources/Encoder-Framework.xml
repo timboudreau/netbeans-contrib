@@ -7,6 +7,7 @@
     <volume>
         <type>classpath</type>
         <resource>jar:nbinst://com.sun.encoder/modules/ext/encoder/encoderframework.jar!/</resource>
+        <resource>jar:nbinst://com.sun.encoder/modules/ext/encoder/encoderfrmwk-xsdextension.jar!/</resource>
         <resource>jar:nbinst://org.apache.xmlbeans/modules/ext/xmlbeans-2.1.0/xbean.jar!/</resource>
     </volume>
     <volume>
