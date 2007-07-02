@@ -26,8 +26,11 @@ Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
     
     <description>Builds, tests, and runs the project org.netbeans.modules.portalpack.portlets.genericportlets.</description>
     <import file="../../../nbbuild/templates/projectized.xml"/>
-    
-    <target name="compile" depends="projectized-common.compile">
+    <property name="s2b_res_root" location="src/org/netbeans/modules/portalpack/portlets/genericportlets"/>
+    <property name="s2b_root_1_0" location="src/org/netbeans/modules/portalpack/portlets/genericportlets/ddapi/impl/model_1_0"/>
+      
+    <target name="build-init" depends="projectized.build-init"/>
+    <target name="compile" depends="dd2beans_gen,projectized-common.compile">
         
         <property name="build.templates.projects.dir" value="${build.classes.dir}/templates/projects"/>
         <property name="build.templates.dir" value="${build.classes.dir}/templates"/>
@@ -66,6 +69,7 @@ Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
         <mkdir dir="${cluster}/modules/ext/portalpack/jdom"/>
         <mkdir dir="${cluster}/modules/ext/portalpack/velocity"/>
         
+        
         <copy file="../../external/jdom/jaxen-core.jar"
         todir="${cluster}/modules/ext/portalpack/jdom"/>
         <copy file="../../external/jdom/jaxen-jdom.jar"
@@ -86,6 +90,8 @@ Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
         todir="${cluster}/modules/ext/portalpack/velocity"/>
 
         <copy file="../../external/portlet/portlet-api-1.0.jar"
+        todir="${cluster}/modules/ext/portalpack/"/>
+        <copy file="../../external/portlet/portlet-api-2.0.jar"
         todir="${cluster}/modules/ext/portalpack/"/>
         
     </target>
@@ -110,5 +116,45 @@ Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
             <signature keystore="${keystore}" storepass="${storepass}" alias="${nbm_alias}"/>
         </makenbm>
     </target>
+
+ <target name="schema2beans">
+    <ant dir="../../../schema2beans" target="build"/>
+  </target>
+  <target name="s2binit" depends="schema2beans">
+	<taskdef name="schema2beans" classname="org.netbeans.modules.s2banttask.Schema2BeansAntTask">
+	  <classpath>
+		<pathelement path="${schema2beans/rt.dir}/modules/org-netbeans-modules-schema2beans.jar" />
+		<pathelement path="${nb_all}/schema2beans/dev/schema2beansdev.jar" />
+		<pathelement path="${nb_all}/schema2beans/anttask/s2banttask.jar"/>
+	  </classpath>
+	</taskdef>
+  </target>
+  
+  <target name="dd2beans_gen" depends="s2binit">
+      <echo message="generating bean graph for portlet xml configuration files" />
+	<schema2beans schema="${s2b_res_root}/portlet-app_1_0.xsd"
+	  package="org.netbeans.modules.portalpack.portlets.genericportlets.ddapi.impl.model_1_0"
+          mddFile="${s2b_res_root}/portlet-app_1_0.mdd"
+	  schemaType="xmlschema"
+	  useInterfaces="true"
+	  validate="true"
+	  attrProp="true"
+	  removeUnreferencedNodes="true"
+	  rootDir="src"/>
+	
+  </target>
+  
+  <target name="clean" depends="projectized-common.clean,clean-ddgen-src"/>
+   <target name="clean-ddgen-src">
+        <mkdir dir="${s2b_root_1_0}"/>
+        <delete>
+            <fileset dir="${s2b_root_1_0}">
+                <include name="*.java"/>
+            </fileset>
+        </delete>
+        <delete dir="${s2b_root_1_0}"/>
+  </target>
+  
+
    
 </project>
