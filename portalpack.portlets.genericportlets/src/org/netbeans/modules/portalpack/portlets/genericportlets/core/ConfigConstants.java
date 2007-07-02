@@ -33,4 +33,8 @@ public interface ConfigConstants {
     public static final String JSR168_TEMPLATE_WITH_JSP = "jsr168portletwithjsp.template";
     public static final String NETBEANS_PROJECT_XML = "project.xml.template";
     
+    //Portlet 2.0 constants
+    public static final String PORTLET20_XML_TEMPLATE = "portlet20-xml.template";
+    public static final String PORTLET20_XML_PORTLET_FRAG = "portlet20-portlet.template";
+    
 }

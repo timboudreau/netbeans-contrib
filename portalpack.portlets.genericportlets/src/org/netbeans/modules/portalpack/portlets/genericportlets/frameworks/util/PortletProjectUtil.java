@@ -19,6 +19,7 @@
 
 package org.netbeans.modules.portalpack.portlets.genericportlets.frameworks.util;
 
+import org.netbeans.modules.portalpack.portlets.genericportlets.apptype.jsr168.NewJSR168CreatePortletComponent;
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;

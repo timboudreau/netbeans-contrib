@@ -18,13 +18,14 @@
   */
 
 package org.netbeans.modules.portalpack.portlets.genericportlets.core;
-
+import org.netbeans.modules.portalpack.portlets.genericportlets.core.util.NetbeanConstants;
 /**
  *
  * @author Satya
  */
 public class PortletContext {
     
+    private String version = NetbeanConstants.PORTLET_1_0;
     private String portletClass;
     private String portletName;
     private String portletDesc;
@@ -196,5 +197,18 @@ public class PortletContext {
                 return true;
         }
         return false;
+    }
+    
+    public String getPortletVersion()
+    {
+        if(version == null)
+        {
+            return NetbeanConstants.PORTLET_1_0;
+        }
+        return version;
+    }
+    public void setPortletVersion(String version)
+    {
+        this.version = version;
     }
 }

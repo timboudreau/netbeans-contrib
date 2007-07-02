@@ -36,6 +36,7 @@ import org.netbeans.api.project.SourceGroup;
 import org.netbeans.api.project.Sources;
 import org.netbeans.modules.portalpack.portlets.genericportlets.core.PortletContext;
 import org.netbeans.modules.portalpack.portlets.genericportlets.core.util.CoreUtil;
+import org.netbeans.modules.portalpack.portlets.genericportlets.core.util.NetbeanConstants;
 import org.netbeans.modules.web.api.webmodule.WebModule;
 import org.netbeans.spi.project.ui.support.ProjectChooser;
 import org.openide.WizardDescriptor;
@@ -46,7 +47,7 @@ import org.openide.filesystems.FileObject;
  * 
  * @author Satyaranjan
  */
-public class PortletApplicationPanelVisual extends JPanel implements DocumentListener {
+    public class PortletApplicationPanelVisual extends JPanel implements DocumentListener {
    
     public static final String PROP_PROJECT_NAME = "projectName";
     
@@ -105,6 +106,9 @@ public class PortletApplicationPanelVisual extends JPanel implements DocumentLis
              srcCombo.setEnabled(false);
              srcCombo.setEditable(false);
         }
+        
+        portletVersion.addItem(NetbeanConstants.PORTLET_1_0);
+        portletVersion.addItem(NetbeanConstants.PORTLET_2_0);
       //  Project project = FileOwnerQuery.getOwner(wm.getDocumentBase());
       //  Sources sources = (Sources)project.getLookup().lookup(Sources.class);
      //   SourceGroup[] groups = sources.getSourceGroups(JavaProjectConstants.SOURCES_TYPE_JAVA);
@@ -160,6 +164,8 @@ public class PortletApplicationPanelVisual extends JPanel implements DocumentLis
         editCheckbox = new javax.swing.JCheckBox();
         helpCheckbox = new javax.swing.JCheckBox();
         isCreateJsps = new javax.swing.JCheckBox();
+        portletVersion = new javax.swing.JComboBox();
+        jLabel9 = new javax.swing.JLabel();
 
         setAutoscrolls(true);
 
@@ -235,6 +241,8 @@ public class PortletApplicationPanelVisual extends JPanel implements DocumentLis
         isCreateJsps.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         isCreateJsps.setMargin(new java.awt.Insets(0, 0, 0, 0));
 
+        org.openide.awt.Mnemonics.setLocalizedText(jLabel9, "Portlet Version");
+
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
@@ -245,58 +253,60 @@ public class PortletApplicationPanelVisual extends JPanel implements DocumentLis
                     .add(jLabel8)
                     .add(jLabel5)
                     .add(jLabel4)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
+                    .add(layout.createSequentialGroup()
+                        .add(jLabel3)
+                        .add(15, 15, 15)
                         .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                             .add(layout.createSequentialGroup()
-                                .add(jLabel3)
-                                .add(15, 15, 15)
-                                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                                    .add(layout.createSequentialGroup()
-                                        .add(viewCheckbox)
-                                        .add(71, 71, 71)
-                                        .add(editCheckbox)
-                                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 75, Short.MAX_VALUE)
-                                        .add(helpCheckbox))
-                                    .add(portletTitleTf, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 259, Short.MAX_VALUE)
-                                    .add(portletDescTf, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 259, Short.MAX_VALUE)
-                                    .add(portletShortTitleTf, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 259, Short.MAX_VALUE)))
-                            .add(layout.createSequentialGroup()
-                                .add(jLabel2)
-                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                                .add(portletDisplayNameTf, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 259, Short.MAX_VALUE))
-                            .add(layout.createSequentialGroup()
-                                .add(jLabel7)
-                                .add(41, 41, 41)
-                                .add(portletNameTf, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 259, Short.MAX_VALUE))
-                            .add(layout.createSequentialGroup()
-                                .add(jLabel1)
-                                .add(13, 13, 13)
-                                .add(portletClassNameTf, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 259, Short.MAX_VALUE))
-                            .add(layout.createSequentialGroup()
-                                .add(jLabel6)
-                                .add(63, 63, 63)
-                                .add(pkgTf, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 259, Short.MAX_VALUE))
-                            .add(layout.createSequentialGroup()
-                                .add(srcRootLbl)
-                                .add(44, 44, 44)
-                                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                                    .add(layout.createSequentialGroup()
-                                        .add(isCreatePortlet, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 86, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                                        .add(45, 45, 45)
-                                        .add(isCreateJsps)
-                                        .add(53, 53, 53))
-                                    .add(srcCombo, 0, 259, Short.MAX_VALUE))))
-                        .add(77, 77, 77)))
-                .addContainerGap())
+                                .add(viewCheckbox)
+                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 88, Short.MAX_VALUE)
+                                .add(editCheckbox)
+                                .add(68, 68, 68)
+                                .add(helpCheckbox))
+                            .add(portletTitleTf, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 269, Short.MAX_VALUE)
+                            .add(portletDescTf, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 269, Short.MAX_VALUE)
+                            .add(portletShortTitleTf, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 269, Short.MAX_VALUE)))
+                    .add(layout.createSequentialGroup()
+                        .add(jLabel2)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                        .add(portletDisplayNameTf, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 269, Short.MAX_VALUE))
+                    .add(layout.createSequentialGroup()
+                        .add(jLabel7)
+                        .add(41, 41, 41)
+                        .add(portletNameTf, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 269, Short.MAX_VALUE))
+                    .add(layout.createSequentialGroup()
+                        .add(jLabel1)
+                        .add(13, 13, 13)
+                        .add(portletClassNameTf, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 269, Short.MAX_VALUE))
+                    .add(layout.createSequentialGroup()
+                        .add(jLabel6)
+                        .add(63, 63, 63)
+                        .add(pkgTf, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 269, Short.MAX_VALUE))
+                    .add(layout.createSequentialGroup()
+                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                            .add(srcRootLbl)
+                            .add(jLabel9))
+                        .add(33, 33, 33)
+                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING, false)
+                            .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
+                                .add(portletVersion, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 54, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                                .add(20, 20, 20)
+                                .add(isCreatePortlet, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 86, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .add(isCreateJsps))
+                            .add(srcCombo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 269, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))))
+                .add(67, 67, 67))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(layout.createSequentialGroup()
-                .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addContainerGap()
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                    .add(jLabel9)
+                    .add(isCreateJsps)
                     .add(isCreatePortlet)
-                    .add(isCreateJsps))
-                .add(11, 11, 11)
+                    .add(portletVersion, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(srcRootLbl)
                     .add(srcCombo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
@@ -333,7 +343,8 @@ public class PortletApplicationPanelVisual extends JPanel implements DocumentLis
                     .add(jLabel8)
                     .add(viewCheckbox)
                     .add(helpCheckbox)
-                    .add(editCheckbox)))
+                    .add(editCheckbox))
+                .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
 
@@ -384,6 +395,7 @@ public class PortletApplicationPanelVisual extends JPanel implements DocumentLis
     private javax.swing.JLabel jLabel6;
     private javax.swing.JLabel jLabel7;
     private javax.swing.JLabel jLabel8;
+    private javax.swing.JLabel jLabel9;
     private javax.swing.JTextField pkgTf;
     private javax.swing.JTextField portletClassNameTf;
     private javax.swing.JTextField portletDescTf;
@@ -391,6 +403,7 @@ public class PortletApplicationPanelVisual extends JPanel implements DocumentLis
     private javax.swing.JTextField portletNameTf;
     private javax.swing.JTextField portletShortTitleTf;
     private javax.swing.JTextField portletTitleTf;
+    private javax.swing.JComboBox portletVersion;
     private javax.swing.JComboBox srcCombo;
     private javax.swing.JLabel srcRootLbl;
     private javax.swing.JCheckBox viewCheckbox;
@@ -483,6 +496,8 @@ public class PortletApplicationPanelVisual extends JPanel implements DocumentLis
         d.putProperty(CodeGenConstants.PORTLET_DESCRIPTION,portletDescTf.getText().trim());
         d.putProperty(CodeGenConstants.PORTLET_TITLE,portletTitleTf.getText().trim());
         d.putProperty(CodeGenConstants.PORTLET_SHORT_TITLE,portletShortTitleTf.getText().trim());
+        String portletSpecVersion = (String) portletVersion.getSelectedItem();
+        d.putProperty(CodeGenConstants.PORTLET_SPEC_VERSION,(String)portletVersion.getSelectedItem());
     }
     
     /**
@@ -521,6 +536,7 @@ public class PortletApplicationPanelVisual extends JPanel implements DocumentLis
         context.setPortletTitle(portletTitleTf.getText().trim());
         context.setPortletShortTitle(portletShortTitleTf.getText().trim());
         context.setHasJsps(isCreateJsps.isSelected());
+        context.setPortletVersion((String)portletVersion.getSelectedItem());
         d.put("context", context);
         return d;
         
@@ -602,6 +618,7 @@ public class PortletApplicationPanelVisual extends JPanel implements DocumentLis
         }
         
         isCreatePortlet.setEnabled(enable);
+        portletVersion.setEnabled(enable);
        /// isCreateJsps.setEnabled(enable);
         if(wm != null)
             srcCombo.setEnabled(enable);
@@ -624,7 +641,7 @@ public class PortletApplicationPanelVisual extends JPanel implements DocumentLis
         portletDisplayNameTf.setEditable(enable);
         portletShortTitleTf.setEditable(enable);
         pkgTf.setEditable(enable);
-        
+       
         portletClassNameTf.setEnabled(enable);
         portletNameTf.setEnabled(enable);
         portletTitleTf.setEnabled(enable);

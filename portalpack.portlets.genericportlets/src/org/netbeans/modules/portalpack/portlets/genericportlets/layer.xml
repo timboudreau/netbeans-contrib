@@ -19,7 +19,109 @@ Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
 -->
 <!DOCTYPE filesystem PUBLIC "-//NetBeans//DTD Filesystem 1.1//EN" "http://www.netbeans.org/dtds/filesystem-1_1.dtd">
 <filesystem>
-
+   
+    <folder name="Actions">
+        <folder name="Window">
+            <file name="org-netbeans-modules-portalpack-portlets-genericportlets-storyboard-ipc-IPCStoryBoardAction.instance"/>
+        </folder>
+    </folder>
+    <folder name="Loaders">
+        <folder name="text">
+            <folder name="x-dd-portlet1.0">
+                <folder name="Actions">
+                    <file name="org-openide-actions-OpenAction.instance"/>
+                    <attr name="org-openide-actions-OpenAction.instance/org-openide-actions-FileSystemAction.instance" boolvalue="true"/>
+                    <file name="org-openide-actions-FileSystemAction.instance"/>
+                    <attr name="org-openide-actions-FileSystemAction.instance/sep-1.instance" boolvalue="true"/>
+                    <file name="sep-1.instance">
+                        <attr name="instanceClass" stringvalue="javax.swing.JSeparator"/>
+                    </file>
+                    <attr name="sep-1.instance/org-openide-actions-CutAction.instance" boolvalue="true"/>
+                    <file name="org-openide-actions-CutAction.instance"/>
+                    <attr name="org-openide-actions-CutAction.instance/org-openide-actions-CopyAction.instance" boolvalue="true"/>
+                    <file name="org-openide-actions-CopyAction.instance"/>
+                    <attr name="org-openide-actions-CopyAction.instance/sep-2.instance" boolvalue="true"/>
+                    <file name="sep-2.instance">
+                        <attr name="instanceClass" stringvalue="javax.swing.JSeparator"/>
+                    </file>
+                    <attr name="sep-2.instance/org-openide-actions-DeleteAction.instance" boolvalue="true"/>
+                    <file name="org-openide-actions-DeleteAction.instance"/>
+                    <attr name="org-openide-actions-DeleteAction.instance/org-openide-actions-RenameAction.instance" boolvalue="true"/>
+                    <file name="org-openide-actions-RenameAction.instance"/>
+                    <attr name="org-openide-actions-RenameAction.instance/sep-3.instance" boolvalue="true"/>
+                    <file name="sep-3.instance">
+                        <attr name="instanceClass" stringvalue="javax.swing.JSeparator"/>
+                    </file>
+                    <attr name="sep-3.instance/org-openide-actions-SaveAsTemplateAction.instance" boolvalue="true"/>
+                    <file name="org-openide-actions-SaveAsTemplateAction.instance"/>
+                    <attr name="org-openide-actions-SaveAsTemplateAction.instance/sep-4.instance" boolvalue="true"/>
+                    <file name="sep-4.instance">
+                        <attr name="instanceClass" stringvalue="javax.swing.JSeparator"/>
+                    </file>
+                    <attr name="sep-4.instance/org-openide-actions-ToolsAction.instance" boolvalue="true"/>
+                    <file name="org-openide-actions-ToolsAction.instance"/>
+                    <attr name="org-openide-actions-ToolsAction.instance/org-openide-actions-PropertiesAction.instance" boolvalue="true"/>
+                    <file name="org-openide-actions-PropertiesAction.instance"/>
+                </folder>
+            </folder>
+            <folder name="x-portlet">
+                <folder name="Actions">
+                    <!--
+                    <file name="org-openide-actions-OpenAction.instance"/>
+                    <attr name="org-openide-actions-OpenAction.instance/org-openide-actions-FileSystemAction.instance" boolvalue="true"/>
+                    <file name="org-openide-actions-FileSystemAction.instance"/>
+                    <attr name="org-openide-actions-FileSystemAction.instance/sep-1.instance" boolvalue="true"/>
+                    <file name="sep-1.instance">
+                        <attr name="instanceClass" stringvalue="javax.swing.JSeparator"/>
+                    </file>
+                    <attr name="sep-1.instance/org-openide-actions-CutAction.instance" boolvalue="true"/>
+                    <file name="org-openide-actions-CutAction.instance"/>
+                    <attr name="org-openide-actions-CutAction.instance/org-openide-actions-CopyAction.instance" boolvalue="true"/>
+                    <file name="org-openide-actions-CopyAction.instance"/>
+                    <attr name="org-openide-actions-CopyAction.instance/sep-2.instance" boolvalue="true"/>
+                    <file name="sep-2.instance">
+                        <attr name="instanceClass" stringvalue="javax.swing.JSeparator"/>
+                    </file>
+                    <attr name="sep-2.instance/org-openide-actions-DeleteAction.instance" boolvalue="true"/>
+                    <file name="org-openide-actions-DeleteAction.instance"/>
+                    <attr name="org-openide-actions-DeleteAction.instance/org-openide-actions-RenameAction.instance" boolvalue="true"/>
+                    <file name="org-openide-actions-RenameAction.instance"/>
+                    <attr name="org-openide-actions-RenameAction.instance/sep-3.instance" boolvalue="true"/>
+                    <file name="sep-3.instance">
+                        <attr name="instanceClass" stringvalue="javax.swing.JSeparator"/>
+                    </file>
+                    <attr name="sep-3.instance/org-openide-actions-SaveAsTemplateAction.instance" boolvalue="true"/>
+                    <file name="org-openide-actions-SaveAsTemplateAction.instance"/>
+                    <attr name="org-openide-actions-SaveAsTemplateAction.instance/sep-4.instance" boolvalue="true"/>
+                    <file name="sep-4.instance">
+                        <attr name="instanceClass" stringvalue="javax.swing.JSeparator"/>
+                    </file>
+                    <attr name="sep-4.instance/org-openide-actions-ToolsAction.instance" boolvalue="true"/>
+                    <file name="org-openide-actions-ToolsAction.instance"/>
+                    <attr name="org-openide-actions-ToolsAction.instance/org-openide-actions-PropertiesAction.instance" boolvalue="true"/>
+                    <file name="org-openide-actions-PropertiesAction.instance"/> -->
+                </folder>
+            </folder>
+        </folder>
+    </folder>
+   
+    <folder name="Menu">
+        <folder name="Window">
+            <file name="IPCStoryBoardAction.shadow">
+                <attr name="originalFile" stringvalue="Actions/Window/org-netbeans-modules-portalpack-portlets-genericportlets-storyboard-ipc-IPCStoryBoardAction.instance"/>
+            </file>
+        </folder>
+    </folder>
+    <folder name="Services">
+        <folder name="MIMEResolver">
+            <file name="PortletResolver.xml" url="PortletResolver.xml">
+                <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.portalpack.portlets.genericportlets.Bundle"/>
+            </file>
+            <file name="PortletXMLResolver.xml" url="PortletXMLResolver.xml">
+                <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.portalpack.portlets.genericportlets.Bundle"/>
+            </file>
+        </folder>
+    </folder>
     <folder name="Templates">
             
             <folder name="JSP_Servlet">
@@ -32,7 +134,15 @@ Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
                     <attr name="templateWizardURL" urlvalue="nbresloc:org/netbeans/modules/portalpack/portlets/genericportlets/filetype/jsr168/netbeansNewPortletClass.html"/>
                 </file>
                 
-            </folder>
+                <file name="newFilterWizard">
+                <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.portalpack.portlets.genericportlets.Bundle"/>
+                <attr name="instantiatingIterator" newvalue="org.netbeans.modules.portalpack.portlets.genericportlets.filetype.filters.NewFilterWizardWizardIterator"/>
+                <attr name="template" boolvalue="true"/>
+                <attr name="templateCategory" stringvalue="servlet-types"/>
+                <attr name="SystemFileSystem.icon" urlvalue="nbresloc:org/netbeans/modules/portalpack/portlets/genericportlets/resources/portletapp.gif"/>
+                <attr name="templateWizardURL" urlvalue="nbresloc:/org/netbeans/modules/portalpack/portlets/genericportlets/filetype/filters/newFilterWizard.html"/>
+            </file>
+        </folder>
             <!--
             <file name="JSR-168 Portlet">
                 <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.portalpack.portlets.genericportlets.Bundle"/>
@@ -61,9 +171,29 @@ Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
                     
                 </folder>
             </folder>                     -->
+            <folder name="Other">
+            <file name="PortletTemplate.portlet" url="PortletTemplate.portlet">
+                <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.portalpack.portlets.genericportlets.Bundle"/>
+                <attr name="template" boolvalue="true"/>
+            </file>
+            <file name="PortletXMLTemplate.xml" url="PortletXMLTemplate.xml">
+                <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.portalpack.portlets.genericportlets.Bundle"/>
+                <attr name="template" boolvalue="true"/>
+            </file>
         </folder>
+    </folder>
         
-       <folder name="velocity"> 
+    <folder name="Windows2">
+        <folder name="Components">
+            <file name="IPCStoryBoardTopComponent.settings" url="IPCStoryBoardTopComponentSettings.xml"/>
+        </folder>
+        <folder name="Modes">
+            <folder name="editor">
+                <file name="IPCStoryBoardTopComponent.wstcref" url="IPCStoryBoardTopComponentWstcref.xml"/>
+            </folder>
+        </folder>
+    </folder>
+    <folder name="velocity"> 
         <folder name="templates">
              <file name="jsr168portlet.template" url="nbresloc:templates/jsr168portlet.template"/>
              <file name="jsr168portletwithjsp.template" url="nbresloc:templates/jsr168portletwithjsp.template"/>
@@ -76,6 +206,10 @@ Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
              <file name="web-24.xml" url="nbresloc:templates/web-24.xml"/>
              <file name="context.xml" url="nbresloc:templates/context.xml"/>
              <file name="jsptemplate.jsp" url="nbresloc:templates/jsptemplate.jsp"/>
+             <!-- portlet20 related entries -->
+             <file name="portlet20-xml.template" url="nbresloc:templates/portlet20-xml.template"/>
+             <file name="portlet20-portlet.template" url="nbresloc:templates/portlet20-portlet.template"/>
+             <file name="portlet20-filter.template" url="nbresloc:templates/portlet20-filter.template"/>
         </folder>
       </folder>
       
@@ -99,6 +233,9 @@ Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
         <folder name="Libraries">
              <file name="portlet10lib.xml" url="portlet10lib.xml"/>
         </folder>
+        <folder name="Libraries">
+             <file name="portlet20lib.xml" url="portlet20lib.xml"/>
+        </folder>
     </folder>
-    
+
 </filesystem>

@@ -22,12 +22,12 @@ package org.netbeans.modules.portalpack.portlets.genericportlets.core.metagen;
 import org.netbeans.modules.portalpack.portlets.genericportlets.core.PortletContext;
 import org.netbeans.modules.portalpack.portlets.genericportlets.core.codegen.WebDescriptorGenerator;
 import org.netbeans.modules.portalpack.portlets.genericportlets.core.util.CoreUtil;
-
 import java.awt.*;
 import java.io.File;
 import java.util.HashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.jdom.Element;
 
 /**
  * @author Satya
@@ -36,10 +36,10 @@ public class WebResourceCreatorFactory {
 
     private static Logger logger = Logger.getLogger(CoreUtil.CORE_LOGGER);
    
-    public static void addPortletEntryToPortletXml(String webInfPath,PortletContext portletContext)
+    public static Element addPortletEntryToPortletXml(String webInfPath,PortletContext portletContext)
     {
         String portletXml = webInfPath + File.separator + "portlet.xml";
-        new WebDescriptorGenerator().addNewPortletEntry(portletXml,portletContext);
+        return new WebDescriptorGenerator().addNewPortletEntry(portletXml,portletContext);
     }
     
   

@@ -19,10 +19,9 @@
 
 package org.netbeans.modules.portalpack.portlets.genericportlets.core.codegen;
 
-import org.netbeans.modules.portalpack.portlets.genericportlets.core.PortletContext;
-import org.netbeans.modules.portalpack.portlets.genericportlets.core.ConfigConstants;
+import org.netbeans.modules.portalpack.portlets.genericportlets.core.*;
 import org.netbeans.modules.portalpack.portlets.genericportlets.core.util.CoreUtil;
-import org.apache.velocity.app.VelocityEngine;
+import org.netbeans.modules.portalpack.portlets.genericportlets.core.util.NetbeanConstants;
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.Template;
 import org.jdom.Document;
@@ -42,6 +41,9 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.apache.velocity.VTResourceLoader;
 import org.apache.velocity.app.Velocity;
+import org.jdom.output.Format;
+import org.netbeans.modules.portalpack.portlets.genericportlets.core.FilterContext;
+import org.netbeans.modules.portalpack.portlets.genericportlets.filetype.filters.InitParam;
 
 /**
  * @author Satya
@@ -50,7 +52,7 @@ public class WebDescriptorGenerator {
 
   private static Logger logger = Logger.getLogger(CoreUtil.CORE_LOGGER);
 
-  public File createPortletXml(String module,String webInfDir, HashMap values) throws Exception{
+  public File createPortletXml(String module,String webInfDir,PortletContext context, HashMap values) throws Exception{
       File portletXml = new File(webInfDir + File.separator + "portlet.xml");
 
       if(portletXml.exists())
@@ -58,12 +60,15 @@ public class WebDescriptorGenerator {
 
       FileOutputStream outputStream = new FileOutputStream(portletXml);
       OutputStreamWriter writer = new OutputStreamWriter(outputStream,"UTF-8");
-      mergeTemplate(ConfigConstants.PORTLET_XML_TEMPLATE,values, writer);
+       if(context.getPortletVersion().equals(NetbeanConstants.PORTLET_2_0))
+         mergeTemplate(ConfigConstants.PORTLET20_XML_TEMPLATE,values, writer); 
+      else
+         mergeTemplate(ConfigConstants.PORTLET_XML_TEMPLATE,values, writer);
       return portletXml;
 
   }
   
-   public File createPortletXml(String webInfDir, HashMap values) throws Exception{
+   public File createPortletXml(String webInfDir, PortletContext context, HashMap values) throws Exception{
       File portletXml = new File(webInfDir + File.separator + "portlet.xml");
 
       if(portletXml.exists())
@@ -71,7 +76,10 @@ public class WebDescriptorGenerator {
 
       FileOutputStream outputStream = new FileOutputStream(portletXml);
       OutputStreamWriter writer = new OutputStreamWriter(outputStream,"UTF-8");
-      mergeTemplate(ConfigConstants.PORTLET_XML_TEMPLATE,values, writer);
+      if(context.getPortletVersion().equals(NetbeanConstants.PORTLET_2_0))
+         mergeTemplate(ConfigConstants.PORTLET20_XML_TEMPLATE,values, writer); 
+      else
+         mergeTemplate(ConfigConstants.PORTLET_XML_TEMPLATE,values, writer);
       return portletXml;
 
   }
@@ -91,9 +99,9 @@ public class WebDescriptorGenerator {
         writer.close();
     }
 
-  private void writeXmlDocument(Document doc,String filePath)
+  public void writeXmlDocument(Document doc,String filePath)
   {
-      XMLOutputter outputter = new XMLOutputter();
+      XMLOutputter outputter = new XMLOutputter(Format.getPrettyFormat());
       try {
           OutputStreamWriter writer = new OutputStreamWriter(new FileOutputStream(new File(filePath)),"UTF-8");
           outputter.output(doc,writer);
@@ -101,9 +109,20 @@ public class WebDescriptorGenerator {
           logger.log(Level.SEVERE,"error",e);
       }
   }
+  
+  public void writeXmlElement(Element elm,String filePath)
+  {
+      XMLOutputter outputter = new XMLOutputter();
+      try {
+          OutputStreamWriter writer = new OutputStreamWriter(new FileOutputStream(new File(filePath)),"UTF-8");
+          outputter.output(elm,writer);
+      } catch (IOException e) {
+          logger.log(Level.SEVERE,"error",e);
+      }
+  }
 
 
-  private Element createElementFromReader(Reader reader)
+  private static Element createElementFromReader(Reader reader)
   {
 
       SAXBuilder builder = new SAXBuilder();
@@ -131,13 +150,29 @@ public class WebDescriptorGenerator {
       return null;
   }
 
-    public void addNewPortletEntry(String portletXmlPath, PortletContext portletContext) {
+  public static String getPortletAppVersion(String portletXmlPath)
+  {
+       File f = new File(portletXmlPath);
+       if(!f.exists()) return null;
+       Document root = createDocFromFile(portletXmlPath);
+        if(root == null)
+        {
+            logger.log(Level.SEVERE,"Could not add portlet entry in portel.xml");
+            return null;
+        }
+        Namespace ns = root.getRootElement().getNamespace();
+        if(ns.equals(Namespace.getNamespace(NetbeanConstants.PORTLET_2_0_NS)))
+            return NetbeanConstants.PORTLET_2_0;
+        else
+            return NetbeanConstants.PORTLET_1_0;
+  }
+    public Element addNewPortletEntry(String portletXmlPath, PortletContext portletContext) {
 
         File f = new File(portletXmlPath);
         if(!f.exists())
         {
             try {
-                createPortletXml(f.getParentFile().getAbsolutePath(), new HashMap());
+                createPortletXml(f.getParentFile().getAbsolutePath(), portletContext,new HashMap());
             } catch (Exception ex) {
                 logger.log(Level.SEVERE,"error",ex);
             }
@@ -147,18 +182,24 @@ public class WebDescriptorGenerator {
         if(root == null)
         {
             logger.log(Level.SEVERE,"Could not add portlet entry in portel.xml");
-            return;
+            return null;
         }
 
+        Namespace ns = root.getRootElement().getNamespace();
+        if(ns.equals(Namespace.getNamespace(NetbeanConstants.PORTLET_2_0_NS)))
+            portletContext.setPortletVersion(NetbeanConstants.PORTLET_2_0);
         StringWriter writer = new StringWriter();
 
         HashMap map = new HashMap();
         map.put("pc",portletContext);
         try {
-            mergeTemplate(ConfigConstants.PORTLET_XML_PORTLET_FRAG,map,writer);
+            if(portletContext.getPortletVersion().equals(NetbeanConstants.PORTLET_2_0))
+                mergeTemplate(ConfigConstants.PORTLET20_XML_PORTLET_FRAG,map,writer);
+            else
+                mergeTemplate(ConfigConstants.PORTLET_XML_PORTLET_FRAG,map,writer);
         } catch (Exception e) {
             logger.log(Level.SEVERE,"error",e);
-            return;
+            return null;
         }
         
         Namespace namespace = root.getRootElement().getNamespace();
@@ -166,12 +207,14 @@ public class WebDescriptorGenerator {
 
         Element elm = createElementFromReader(new StringReader(writer.getBuffer().toString()));
         
+      //  elm.removeNamespaceDeclaration(elm.getNamespace());//setNamespace(root.getRootElement().getNamespace());
         List clone = elm.cloneContent();
         
         
         root.getRootElement().addContent(clone);
 
         writeXmlDocument(root,portletXmlPath);
+        return elm;
     }
     
      /**
@@ -224,4 +267,124 @@ public class WebDescriptorGenerator {
     }
      
 
+     public Element addNewFilter(String portletXmlPath, FilterContext filterContext) {
+
+        File f = new File(portletXmlPath);
+        if(!f.exists())
+        {
+           
+           logger.severe("Portlet XML Not Found");
+           return null;
+           
+        }
+            
+        Document root = createDocFromFile(portletXmlPath);
+        if(root == null)
+        {
+            logger.log(Level.SEVERE,"Could not add portlet entry in portel.xml");
+            return null;
+        }
+
+        Element filterElm = new Element("filter",root.getRootElement().getNamespace());//,Namespace.getNamespace("http://java.sun.com/xml/ns/portlet/portlet-app_2_0.xsd"));
+        Element filterName = new Element("filter-name",filterElm.getNamespace());
+        filterName.setText(filterContext.getFilterName());
+        filterElm.addContent(filterName);
+        
+        Element filterClass = new Element("filter-class",filterElm.getNamespace());
+        filterClass.setText(filterContext.getFilterClassName());
+        filterElm.addContent(filterClass);
+        
+        Element lifeCycleElm = new Element("lifecycle",filterElm.getNamespace());
+        lifeCycleElm.setText(filterContext.getLifeCyclePhase());
+        filterElm.addContent(lifeCycleElm);
+        
+        InitParam[] initParams = filterContext.getInitParams();
+        for(int i=0;i<initParams.length;i++)
+        {
+            Element initParam = new Element("init-param",filterElm.getNamespace());
+            Element name = new Element("name",filterElm.getNamespace());
+            Element value = new Element("value",filterElm.getNamespace());
+            name.setText(initParams[i].getName());
+            value.setText(initParams[i].getValue());
+            initParam.addContent(name);
+            initParam.addContent(value);
+            filterElm.addContent(initParam);
+        }
+        Element elm =(Element) filterElm.clone();
+        
+      //  List clone = filterElm.cloneContent();
+        root.getRootElement().addContent(elm);
+        addFilterMappings(root.getRootElement(), filterContext);
+        writeXmlDocument(root,portletXmlPath);
+        return filterElm;
+    }
+     
+    public void addFilterMappings(Element rootElm,FilterContext fc)
+    {
+        List mappingList = new ArrayList();
+        FilterMappingData[] mappings = fc.getFilterMappingData();
+        for(int i=0;i<mappings.length;i++)
+        {
+            FilterMappingData mapping = mappings[i];
+            if(mappingList.contains(mapping.getName()+"::"+mapping.getPortlet()))
+                    continue; //no need to add again
+            if(mapping.getName() == null || mapping.getName().length()==0 || mapping.getPortlet() == null
+                    || mapping.getPortlet().length() ==0)
+                continue;
+            Element filterElm = new Element("filter-mapping",rootElm.getNamespace());
+          
+            Element filterName = new Element("filter-name",rootElm.getNamespace());
+            filterName.setText(mapping.getName());
+            filterElm.addContent(filterName);
+            
+            Element portletName = new Element("portlet-name",rootElm.getNamespace());
+            portletName.setText(mapping.getPortlet());
+            filterElm.addContent(portletName);
+            mappingList.add(mapping.getName()+"::"+mapping.getPortlet());
+            rootElm.addContent(filterElm);
+        }
+    }
+     
+    public static List getFilters(File portletXml) {
+
+        
+        if(!portletXml.exists())
+        {
+           
+           logger.severe("Portlet XML Not Found");
+           return Collections.EMPTY_LIST;
+           
+        }
+            
+        Document root = createDocFromFile(portletXml.getAbsolutePath());
+        if(root == null)
+        {
+            logger.log(Level.SEVERE,"Could not add portlet entry in portel.xml");
+            return Collections.EMPTY_LIST;
+        }
+        
+       Element rootElm = root.getRootElement();
+       return getFilters(rootElm);
+       
+    }  
+    
+    public static List getFilters(Element rootElm)
+    {
+        
+        Namespace namespace = rootElm.getNamespace();
+        
+        List filters = rootElm.getChildren("filter",namespace);
+        List list = new ArrayList();
+        for(int i=0;i<filters.size();i++)
+        {
+            Element filterName = ((Element)filters.get(i)).getChild("filter-name",namespace);
+            if(filterName !=  null)
+            {
+                String name = filterName.getTextTrim();
+                if(name != null)
+                    list.add(name);
+            }
+        }
+        return list;
+    }
 }

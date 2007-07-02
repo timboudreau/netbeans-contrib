@@ -20,6 +20,7 @@
 package org.netbeans.modules.portalpack.portlets.genericportlets.frameworks.jsr168;
 
 import java.io.File;
+import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 import org.netbeans.api.java.classpath.ClassPath;
@@ -29,6 +30,8 @@ import org.netbeans.api.project.Project;
 import org.netbeans.api.project.libraries.Library;
 import org.netbeans.api.project.libraries.LibraryManager;
 import org.netbeans.modules.portalpack.portlets.genericportlets.core.PortletContext;
+import org.netbeans.modules.portalpack.portlets.genericportlets.core.codegen.WebDescriptorGenerator;
+import org.netbeans.modules.portalpack.portlets.genericportlets.core.util.NetbeanConstants;
 import org.netbeans.modules.portalpack.portlets.genericportlets.frameworks.util.PortletProjectUtil;
 import org.netbeans.modules.web.api.webmodule.WebModule;
 import org.netbeans.modules.web.spi.webmodule.FrameworkConfigurationPanel;
@@ -48,19 +51,26 @@ public class JSR168WebFrameworkProvider extends WebFrameworkProvider{
      */
     public JSR168WebFrameworkProvider()
     {
-        super(NbBundle.getMessage(JSR168WebFrameworkProvider.class, "LBL_PORTLET_1_0_FRAMEWORK"),NbBundle.getMessage(JSR168WebFrameworkProvider.class, "LBL_PORTLET_1_0_FRAMEWORK_DESC"));
+        super(NbBundle.getMessage(JSR168WebFrameworkProvider.class, "LBL_PORTLET_FRAMEWORK"),NbBundle.getMessage(JSR168WebFrameworkProvider.class, "LBL_PORTLET_FRAMEWORK_DESC"));
     }
     
     public Set extend(WebModule wm) {
+       Set resultSet = new LinkedHashSet();
        final  FileObject documentBase = wm.getDocumentBase();
         Project project = FileOwnerQuery.getOwner(documentBase);
         
+        Map data = panel.getData();
+        PortletContext context = (PortletContext)data.get("context");
          try{
             FileObject dd = wm.getDeploymentDescriptor();
            // WebApp ddRoot = DDProvider.getDefault().getDDRoot(dd);
            // if (ddRoot != null){
                 //  if (!WebApp.VERSION_2_5.equals(ddRoot.getVersion())) {
-                Library bpLibrary = LibraryManager.getDefault().getLibrary("Portlet-1.0-Lib"); //NOI18N
+                Library bpLibrary = null;
+                if(context.getPortletVersion().equals(NetbeanConstants.PORTLET_2_0))
+                    bpLibrary = LibraryManager.getDefault().getLibrary("Portlet-2.0-Lib"); //NOI18N
+                else
+                    bpLibrary = LibraryManager.getDefault().getLibrary("Portlet-1.0-Lib"); //NOI18N
                 if (bpLibrary != null) {
                     FileObject[] sources = wm.getJavaSources();
                    for(int i =0;i<sources.length;i++)
@@ -70,20 +80,23 @@ public class JSR168WebFrameworkProvider extends WebFrameworkProvider{
          }catch(Exception e){
              e.printStackTrace();
          } 
-         Map data = panel.getData();
-         PortletContext context = (PortletContext)data.get("context");
+         
          String pkg = (String)data.get("package");
          FileObject srcFolder = (FileObject)data.get("src_folder");
          if(srcFolder == null)
              srcFolder = wm.getJavaSources()[0];
          if(pkg == null) pkg = "";
          if(((String)data.get("generate_portlet")).equals("true"))
+         {
             PortletProjectUtil.createPkgAndClass(srcFolder, project, wm,pkg,context);
+            resultSet.add(srcFolder);
+         }
          else
          {
             try{
-                new org.netbeans.modules.portalpack.portlets.genericportlets.core.codegen.WebDescriptorGenerator().createPortletXml(org.openide.filesystems.FileUtil.toFile(wm.getWebInf()).getAbsolutePath(),
-                                                                                                                                    new java.util.HashMap());
+                WebDescriptorGenerator webDescGen = new org.netbeans.modules.portalpack.portlets.genericportlets.core.codegen.WebDescriptorGenerator();
+                File portletXml = webDescGen.createPortletXml(org.openide.filesystems.FileUtil.toFile(wm.getWebInf()).getAbsolutePath(),context,new java.util.HashMap());
+                resultSet.add(FileUtil.toFileObject(portletXml));                                                                                                                 
             }
             catch (Exception ex) {
                 ex.printStackTrace();

@@ -34,6 +34,11 @@ import java.util.HashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.*;
+import org.jdom.Element;
+import org.netbeans.modules.portalpack.portlets.genericportlets.core.DataContext;
+import org.netbeans.modules.portalpack.portlets.genericportlets.core.codegen.WebDescriptorGenerator;
+import org.openide.util.Exceptions;
+
 
 /**
  * @author Satya
@@ -65,8 +70,7 @@ public abstract class NewPortletCreateComponent {
     
     protected abstract BaseCodeGenerator getCodeGenerator();
     
-    protected void doBeforeCreate(String modulePath, String moduleName,  String selectedDir, String clazzName, PortletContext context,AppContext appContext,ResultContext retMap)
-    {
+    protected void doBeforeCreate(String modulePath, String moduleName,  String selectedDir, String clazzName, PortletContext context,AppContext appContext,ResultContext retMap) {
         
     }
     protected void doAfterCreate(PortletContext context, AppContext appContext, String className, String webInfDir) {
@@ -106,8 +110,7 @@ public abstract class NewPortletCreateComponent {
             
             logger.log(Level.FINE,"Package: " + packageStr);
             
-            if(className == null)
-            {
+            if(className == null) {
                 NewPortletDialog detailUI = new NewPortletDialog();
                 detailUI.open();
                 
@@ -189,8 +192,101 @@ public abstract class NewPortletCreateComponent {
         return null;
         
     }
+    public String createNewClass(String selectedPath, String className,DataContext context,ResultContext returnVal) {
         
+        // String portletName = context.getPortletName();
+        File psiDir = new File(selectedPath);
+        if(!psiDir.exists()) {
+            psiDir.mkdirs();
+        }
+        if (psiDir.isDirectory()) {
             
+        } else {
+            psiDir = psiDir.getParentFile();
+        }
+        
+        String packageStr = "";
+        if (psiDir == null) {
+            logger.log(Level.FINE,"PsiDir is null ------------");
+        } else {
+            packageStr = getPackage(psiDir);
+            
+            logger.log(Level.FINE,"Package: " + packageStr);
+            
+            if(className == null) {
+                logger.severe("Class Name is null!!!!!!!!!!!! SEVERE MSG");
+                return null;
+            }
+            
+            if (className.equals(""))
+                return null;
+            else if (className.contains(".")) {
+                JOptionPane.showMessageDialog(null, org.openide.util.NbBundle.getMessage(NewPortletCreateComponent.class, "Msg_Not_a_valid_class_name"));
+                return null;
+            }
+            
+            Map values = new HashMap();
+            
+            if (packageStr == null || packageStr.trim().length() == 0)
+                packageStr = "";
+            values.put(CodeGenConstants.PACKAGE, packageStr);
+            values.put(CodeGenConstants.CLASSNAME, className);
+            values.put("dc",context);
+            
+            String fileName = className + ".java";
+            
+            
+            File pFile;
+            pFile = new File(psiDir, fileName);
+            
+            FileOutputStream fout;
+            if(!pFile.exists() || (pFile.exists() && CoreUtil.checkIfFileNeedsTobeOverwritten(fileName))) {
+                try {
+                    fout = new FileOutputStream(pFile);
+                } catch (FileNotFoundException e) {
+                    logger.log(Level.SEVERE,org.openide.util.NbBundle.getMessage(NewPortletCreateComponent.class, "MSG_ERROR"),e);
+                    return null;
+                }
+                String content = null;
+                try {
+                    content = getFileContent(className, values);
+                } catch (Exception e) {
+                    logger.log(Level.SEVERE,org.openide.util.NbBundle.getMessage(NewPortletCreateComponent.class, "MSG_ERROR"),e);
+                }
+                try {
+                    fout.write(content.getBytes());
+                    fout.flush();
+                } catch (IOException e) {
+                    logger.log(Level.SEVERE,org.openide.util.NbBundle.getMessage(NewPortletCreateComponent.class, "MSG_ERROR"),e);
+                }
+                
+                if (fout != null) {
+                    try {
+                        fout.close();
+                    } catch (IOException e) {
+                        logger.log(Level.SEVERE,org.openide.util.NbBundle.getMessage(NewPortletCreateComponent.class, "MSG_ERROR"),e);
+                    }
+                }
+            }else{
+                
+            }
+            
+            if (!packageStr.equals("")) {
+                
+                returnVal.setAttribute(ResultContext.CLASS_NAME, packageStr + "." + className);
+                returnVal.setAttribute(ResultContext.FILE_PATH,pFile.getAbsolutePath());
+                return packageStr + "." + className;
+            } else {
+                returnVal.setAttribute(ResultContext.CLASS_NAME, className);
+                returnVal.setAttribute(ResultContext.FILE_PATH,pFile.getAbsolutePath());
+                return className;
+            }
+        }
+        
+        return null;
+        
+    }
+    
     private void showErrorMsg() {
         JOptionPane.showMessageDialog(null, org.openide.util.NbBundle.getMessage(NewPortletCreateComponent.class, "MSG_Invalid_WEB-INF_Directory"));
     }

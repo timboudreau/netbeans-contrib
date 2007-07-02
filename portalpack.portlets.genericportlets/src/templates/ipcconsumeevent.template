@@ -1,0 +1,13 @@
+ public void consumeNewEventEvent(ActionRequest request, ActionResponse response,String eventData) {
+        try{
+            PortletEventBroker peb = new PortletEventBroker(request);
+            /*Check for null value of Portlet Event Broker */
+            PortletEvent pe = peb.createEvent("NewEvent");
+            /*Check for null value of Portlet Event */
+            pe.setEventData(eventData);
+            pe.fire();
+
+        } catch(Exception e) {
+            /*Catch Exception here */
+	}
+}

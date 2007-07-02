@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema targetNamespace="http://www.sun.com/software/xml/ns/portal_server"
+xmlns:xs="http://www.w3.org/2001/XMLSchema"
+xmlns:sunportal="http://www.sun.com/software/xml/ns/portal_server"
+xmlns="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" attributeFormDefault="unqualified" version="1.0" xml:lang="EN">
+	<xs:import namespace="http://www.w3.org/XML/1998/namespace" schemaLocation="http://www.w3.org/2001/xml.xsd"/>
+	<xs:element name="portlet-app-extension" type="sunportal:portlet-app-extensionType">
+		<xs:annotation>
+			<xs:documentation>
+			The portlet-app-extension element is the root
+			of the deployment extension descriptor
+			for a portlet application
+			</xs:documentation>
+		</xs:annotation>
+	</xs:element>
+	<xs:complexType name="portlet-app-extensionType">
+		<xs:sequence>
+			<xs:element name="save-preferences-in-render-permission" type="sunportal:save-preferences-in-render-permissionType" minOccurs="0"/>
+			<xs:element name="portlet" type="sunportal:portletType" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element name="provision" type="sunportal:provisionType" minOccurs="0" maxOccurs="1"/>
+            <xs:element name="membership" type="sunportal:membershipType" minOccurs="0" maxOccurs="1"/>
+		</xs:sequence>
+		<xs:attribute name="version" type="string" use="required"/>
+		<xs:attribute name="id" type="string" use="optional"/>
+	</xs:complexType>
+	<xs:complexType name="portletType">
+		<xs:annotation>
+			<xs:documentation>
+			The portlet element contains the declarative data of a portlet. 
+			Used in: portlet-app-extension
+			</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="portlet-name" type="sunportal:portlet-nameType"/>
+			<xs:element name="deployment-extension"	type="sunportal:deployment-ExtensionType" minOccurs="0" maxOccurs="unbounded"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="portlet-nameType">
+		<xs:annotation>
+			<xs:documentation>
+			The portlet-name element contains the canonical name of the 
+			portlet. Each portlet name is unique within the portlet 
+			application.
+			Used in: portlet
+			</xs:documentation>
+		</xs:annotation>
+		<xs:simpleContent>
+			<xs:extension base="xs:string"/>
+		</xs:simpleContent>
+	</xs:complexType>
+	<complexType name="deployment-ExtensionType">
+		<xs:annotation>
+			<xs:documentation>
+			The deployment extension element contains the
+			declarative data of a portlet extension. 
+			Used in: portlet-app-extension
+			</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="extension-element" type="sunportal:extensibleType" maxOccurs="unbounded"/>
+		</xs:sequence>
+	</complexType>
+	<complexType name="extensibleType">
+		<xs:annotation>
+			<xs:documentation>
+			The extension element contains the
+			declarative data of a portlet extension. 
+			Used in: deployment-extension
+			</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="session-enabled" type="sunportal:session-enabledType" minOccurs="0"/>
+		</xs:sequence>
+	</complexType>
+	<simpleType name="save-preferences-in-render-permissionType">
+		<annotation>
+		<documentation>
+			save-preferences-in-render-permission
+			indicates whether or not the portlet 
+			app allows preferences value to be saved in
+			the render method. A value of 1 means it is allowed, a 
+			value of 0 means it is not allowed . Used in: 
+			portlet-app.
+		</documentation>
+		</annotation>
+               <restriction base="sunportal:string">
+                        <enumeration value="0"/>
+                        <enumeration value="1"/>
+                </restriction>
+	</simpleType>
+	<simpleType name="session-enabledType">
+		<annotation>
+		<documentation>
+			session-enabled indicates whether or not a portlet 
+			uses session. A value of 1 means the portlet
+			uses session, a value of 0 means the portlet
+			doesn't use session. Used in: 
+			extension-element.
+		</documentation>
+		</annotation>
+               <restriction base="sunportal:string">
+                        <enumeration value="0"/>
+                        <enumeration value="1"/>
+                </restriction>
+	</simpleType>
+
+    <xs:complexType name="provisionType">
+		<xs:annotation>
+			<xs:documentation>
+			The element contains the list of provision listeners. 
+			Used in: portlet-app-extension
+			</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="listener" type="sunportal:listenerType" minOccurs="0" maxOccurs="unbounded"/>
+		</xs:sequence>
+	</xs:complexType>
+    <xs:complexType name="membershipType">
+		<xs:annotation>
+			<xs:documentation>
+			The element contains the list of membership listeners. 
+			Used in: portlet-app-extension
+			</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="listener" type="sunportal:listenerType" minOccurs="0" maxOccurs="unbounded"/>
+		</xs:sequence>
+	</xs:complexType>
+    <xs:complexType name="listenerType">
+		<xs:annotation>
+			<xs:documentation>
+			The listener element contains the list of name of portlet and the class name
+                        for the listener. 
+			Used in: provision and membership
+			</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="portlet-name" type="sunportal:portlet-nameType" />
+                        <xs:element name="listener-class" type="sunportal:listener-classType" />
+		</xs:sequence>
+	</xs:complexType>
+        <xs:complexType name="listener-classType">
+		<xs:annotation>
+			<xs:documentation>
+			The listener-class element contains the class name for the listener
+			Used in: listener
+			</xs:documentation>
+		</xs:annotation>
+		<xs:simpleContent>
+			<xs:extension base="xs:string"/>
+		</xs:simpleContent>
+	</xs:complexType>
+	<simpleType name="string">
+		<annotation>
+			<documentation>
+			This is a special string datatype that is defined by J2EE 
+			as a base type for defining collapsed strings. When 
+			schemas require trailing/leading space elimination as 
+			well as collapsing the existing whitespace, this base 
+			type may be used.
+			</documentation>
+		</annotation>
+		<restriction base="xs:string">
+			<whiteSpace value="collapse"/>
+		</restriction>
+	</simpleType>
+</schema>
