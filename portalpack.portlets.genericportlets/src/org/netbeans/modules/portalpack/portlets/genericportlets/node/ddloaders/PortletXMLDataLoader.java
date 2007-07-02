@@ -32,7 +32,7 @@ public class PortletXMLDataLoader extends UniFileLoader {
     private static final long serialVersionUID = 1L;
     
     public PortletXMLDataLoader() {
-        super("org.netbeans.modules.portalpack.portlets.genericportlets.node.dd.PortletXMLDataObject");
+        super("org.netbeans.modules.portalpack.portlets.genericportlets.node.ddloaders.PortletXMLDataObject");
     }
     
     protected String defaultDisplayName() {
