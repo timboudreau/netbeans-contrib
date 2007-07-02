@@ -40,11 +40,11 @@
                     </run-dependency>
                 </dependency>
                 <dependency>
-                    <code-name-base>org.netbeans.modules.encoder.custom.aip.wrapper</code-name-base>
+                    <code-name-base>com.sun.encoder.custom</code-name-base>
                     <build-prerequisite/>
                     <compile-dependency/>
                     <run-dependency>
-                        <specification-version>1.0</specification-version>
+                        <specification-version>1.0.2</specification-version>
                     </run-dependency>
                 </dependency>
                 <dependency>

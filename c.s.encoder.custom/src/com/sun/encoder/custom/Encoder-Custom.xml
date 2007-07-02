@@ -7,7 +7,7 @@
     <volume>
         <type>classpath</type>
         <resource>jar:nbinst://com.sun.encoder.custom/modules/ext/encoder/custom.jar!/</resource>
-        <resource>jar:nbinst://org.netbeans.modules.encoder.custom.aip.wrapper/modules/ext/customencoder-xsdextension.jar!/</resource>
+        <resource>jar:nbinst://com.sun.encoder.custom/modules/ext/encoder/customencoder-xsdextension.jar!/</resource>
     </volume>
     <volume>
         <type>src</type>
