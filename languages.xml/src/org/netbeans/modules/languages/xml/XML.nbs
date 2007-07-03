@@ -141,20 +141,22 @@ INDENT org.netbeans.modules.languages.xml.XML.indent
 
 MARK:unpairedStartTag: {
     type:"Warning";
-    message:"Unfinished tag.";
+    message:"LBL_UNFINISHED_TAG";
 }
 MARK:unpairedEndTag: {
     type:"Error";
-    message:"Unpaired end tag.";
+    message:"LBL_UNPAIRED_END_TAG";
 }
 MARK:ERROR: {
     type:"Error";
-    message:"Unpaired end tag.";
+    message:"LBL_UNPAIRED_END_TAG";
 }
 MARK:error: {
     type:"Error";
-    message:"Unexpected character.";
+    message:"LBL_UNEXPECTED_CHARACTER";
 }
+
+BUNDLE "org.netbeans.modules.languages.xml.Bundle"
 
 PROPERTIES {
     ignoreCase:"true";

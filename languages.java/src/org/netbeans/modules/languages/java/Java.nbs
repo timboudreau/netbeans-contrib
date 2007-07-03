@@ -474,12 +474,14 @@ COLOR:comment_keyword {
 
 MARK:ERROR {
     type:"Error";
-    message:"Unpaired end tag.";
+    message:"LBL_UNPAIRED_END_TAG";
 }
 MARK:error {
     type:"Error";
-    message:"Unexpected character.";
+    message:"LBL_UNEXPECTED_CHARACTER";
 }
+
+BUNDLE "org.netbeans.modules.languages.java.Bundle"
 
 ########### code folding #######################################################
 
