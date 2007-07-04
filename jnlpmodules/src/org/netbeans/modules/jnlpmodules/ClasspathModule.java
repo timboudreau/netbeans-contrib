@@ -62,25 +62,25 @@ public final class ClasspathModule extends Module {
      * different modules try to load the same extension (which would cause them
      * to both load their own private copy, which may not be intended).
      */
-    private static final Map extensionOwners = new HashMap(); // Map<File,Set<File>>
+    private static final Map<String, Set<String>> extensionOwners = new HashMap<String, Set<String>>();
 
     /** Set of locale-variants JARs for this module (or null).
      * Added explicitly to classloader, and can be used by execution engine.
      */
-    private Set localeVariants = null; // Set<String>
+    private Set<String> localeVariants = null;
     /** Set of extension JARs that this module loads via Class-Path (or null).
      * Can be used e.g. by execution engine. (#9617)
      */
-    private Set plainExtensions = null; // Set<String>
+    private Set<String> plainExtensions = null;
     /** Set of localized extension JARs derived from plainExtensions (or null).
      * Used to add these to the classloader. (#9348)
      * Can be used e.g. by execution engine.
      */
-    private Set localeExtensions = null; // Set<String>
+    private Set<String> localeExtensions = null;
     /** Patches added at the front of the classloader (or null).
      * Files are assumed to be JARs; directories are themselves.
      */
-    private Set patches = null; // Set<String>
+    private Set<String> patches = null;
     
     /** localized properties, only non-null if requested from disabled module */
     private Properties localizedProps;
@@ -94,6 +94,7 @@ public final class ClasspathModule extends Module {
     private String location; // non null for prefix modules
     private ClassLoader delegate; // non null for prefix modules
 
+    private Manifest manifest;
 
     /** Use ModuleManager.create as a factory. */
     public ClasspathModule(ModuleManager mgr, Events ev, Manifest manifest, Object history, String prefixURL, String location, ClassLoader delegate, JNLPModuleFactory factory) throws IOException {
@@ -105,16 +106,19 @@ public final class ClasspathModule extends Module {
         this.prefixURL = prefixURL;
         this.location = location;
         this.delegate = delegate;
-//        loadLocalizedPropsClasspath();
         parseManifest();
         findExtensionsAndVariants(manifest);
     }
     
+    public @Override Manifest getManifest() {
+        return manifest;
+    }
+
     private void setupClassloader() {
         try {
             // Calculate the parents to initialize the classloader with.
             Dependency[] dependencies = getDependenciesArray();
-            Set parents = new HashSet(dependencies.length * 4 / 3 + 1);
+            Set<Module> parents = new HashSet<Module>(dependencies.length * 4 / 3 + 1);
             for (int i = 0; i < dependencies.length; i++) {
                 Dependency dep = dependencies[i];
                 if (dep.getType() != Dependency.TYPE_MODULE) {
@@ -221,8 +225,8 @@ public final class ClasspathModule extends Module {
      */
     private void findExtensionsAndVariants(Manifest m) {
         localeVariants = null;
-        List l = findLocaleVariantsOf(location, prefixURL);
-        if (!l.isEmpty()) localeVariants = new HashSet(l);
+        List<String> l = findLocaleVariantsOf(location, prefixURL);
+        if (!l.isEmpty()) localeVariants = new HashSet<String>(l);
         plainExtensions = null;
         localeExtensions = null;
         String classPath = m.getMainAttributes().getValue(Attributes.Name.CLASS_PATH);
@@ -264,20 +268,20 @@ public final class ClasspathModule extends Module {
                     continue;
                 }                    
                 //No need to sync on extensionOwners - we are in write mutex
-                    Set owners = (Set)extensionOwners.get(extPrefix);
+                    Set<String> owners = extensionOwners.get(extPrefix);
                     if (owners == null) {
-                        owners = new HashSet(2);
+                        owners = new HashSet<String>(2);
                         owners.add(prefixURL);
                         extensionOwners.put(extPrefix, owners);
                     } else if (! owners.contains(prefixURL)) {
                         owners.add(prefixURL);
                         events.log(Events.EXTENSION_MULTIPLY_LOADED, extName, owners);
                     } // else already know about it (OK or warned)
-                if (plainExtensions == null) plainExtensions = new HashSet();
+                if (plainExtensions == null) plainExtensions = new HashSet<String>();
                 plainExtensions.add(extPrefix);
                 l = findLocaleVariantsOf(subLocation, extPrefix);
                 if (!l.isEmpty()) {
-                    if (localeExtensions == null) localeExtensions = new HashSet();
+                    if (localeExtensions == null) localeExtensions = new HashSet<String>();
                     localeExtensions.addAll(l);
                 }
             }
@@ -301,24 +305,23 @@ public final class ClasspathModule extends Module {
    /** Find existing locale variants of f, in search order.
      * Returns list of prefixes.
      */
-    private List findLocaleVariantsOf(String loc, String name) {
-        Set s = factory.getPrefixNonModules(loc + "/locale"); //NOI18N
+    private List<String> findLocaleVariantsOf(String loc, String name) {
+        Set<String> s = factory.getPrefixNonModules(loc + "/locale"); //NOI18N
         if (s == null || s.isEmpty()) {
-            return Collections.EMPTY_LIST;
+            return Collections.emptyList();
         }
         String jarFileName = factory.getJarFileName(name);
         if (jarFileName == null) {
-            return Collections.EMPTY_LIST;
+            return Collections.emptyList();
         }
         // cut off .jar
         jarFileName = jarFileName.substring(0, jarFileName.length() - 4);
-        List l = new ArrayList(7); // List<String>
+        List<String> l = new ArrayList<String>(7);
         Iterator it = NbBundle.getLocalizingSuffixes();
         while (it.hasNext()) {
             String suffix = (String)it.next();
             String entry = jarFileName + suffix + ".jar";
-            for (Iterator i = s.iterator(); i.hasNext(); ) {
-                String p = (String)i.next();
+            for (String p : s) {
                 if (p.indexOf(entry) >= 0) {
                     l.add(p);
                 }
@@ -342,15 +345,15 @@ public final class ClasspathModule extends Module {
                     name = locbundle.substring(0, idx);
                     ext = locbundle.substring(idx);
                 }
-                List suffixes = new ArrayList(10);
-                Iterator it = NbBundle.getLocalizingSuffixes();
+                List<String> suffixes = new ArrayList<String>(10);
+                Iterator<String> it = NbBundle.getLocalizingSuffixes();
                 while (it.hasNext()) {
                     suffixes.add(it.next());
                 }
                 Collections.reverse(suffixes);
                 it = suffixes.iterator();
                 while (it.hasNext()) {
-                    String suffix = (String)it.next();
+                    String suffix = it.next();
                     String resource = name + suffix + ext;
                     InputStream is = classloader.getResourceAsStream(resource);
                     if (is != null) {
@@ -383,8 +386,8 @@ public final class ClasspathModule extends Module {
         throw new IllegalStateException();
     }
     
-    public List getAllJars() {
-        return Collections.EMPTY_LIST;
+    public List<java.io.File> getAllJars() {
+        return Collections.emptyList();
     }
  
     /** Reload this module. Access from ModuleManager.
@@ -399,14 +402,14 @@ public final class ClasspathModule extends Module {
     /** Turn on the classloader. Passed a list of parent modules to use.
      * The parents should already have had their classloaders initialized.
      */
-    public void classLoaderUp(Set parents) throws IOException {
+    public void classLoaderUp(Set<Module> parents) throws IOException {
         err.log("classLoaderUp on " + this + " with parents " + parents);
         // Find classloaders for dependent modules and parent to them.
-        List loaders = new ArrayList(parents.size() + 1); // List<ClassLoader>
+        List<ClassLoader> loaders = new ArrayList<ClassLoader>(parents.size() + 1);
         loaders.add(factory.getClasspathDelegateClassLoader(getManager(), delegate));
-        Iterator it = parents.iterator();
+        Iterator<Module> it = parents.iterator();
         while (it.hasNext()) {
-            Module parent = (Module)it.next();
+            Module parent = it.next();
             PackageExport[] exports = parent.getPublicPackages();
             if (exports != null && exports.length == 0) {
                 // Check if there is an impl dep here.
@@ -438,7 +441,7 @@ public final class ClasspathModule extends Module {
             }
             loaders.add(l);
         }
-        List classp = new ArrayList(3); // List<File|JarFile>
+        List<String> classp = new ArrayList<String>(3);
         classp.add(prefixURL);
         computePrefixes(classp);
         // #27853:
@@ -471,7 +474,7 @@ public final class ClasspathModule extends Module {
      * Gathers prefixes from localeVariants, localeExtensions and
      * plainExtensions. 
      */
-    void computePrefixes(List prefixes) {
+    void computePrefixes(List<String> prefixes) {
         if (patches != null) {
             prefixes.addAll(0, patches);
         }

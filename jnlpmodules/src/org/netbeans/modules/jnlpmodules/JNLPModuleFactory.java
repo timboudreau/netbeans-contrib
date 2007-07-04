@@ -58,12 +58,12 @@ public class JNLPModuleFactory extends ModuleFactory {
     // non module jars on classpath sorted by their original
     // location (location is a key, set of all jar names is
     // value in this map.
-    private final Map prefixedNonModules = new HashMap(); // Map<String:location, Set<String:prefix>
+    private final Map<String, Set<String>> prefixedNonModules = new HashMap<String, Set<String>>();
     
-    private final Map prefixedModules = new HashMap(); // Map<String, String>, module name --> prefix
-    private final Map moduleLocations = new HashMap(); // Map<String, String>, module name --> location
+    private final Map<String, String> prefixedModules = new HashMap<String, String>(); // module name --> prefix
+    private final Map<String, String> moduleLocations = new HashMap<String, String>(); // module name --> location
     
-    private Map prefixLocations; // Map<String, String>, URL prefix --> location
+    private Map<String, String> prefixLocations; // URL prefix --> location
 
     
     /** Creates a new instance of JNLPModuleFactory */
@@ -84,8 +84,8 @@ public class JNLPModuleFactory extends ModuleFactory {
     public Module createFixed(java.util.jar.Manifest mani, Object history, ClassLoader loader, ModuleManager mgr, Events ev) throws InvalidException {
         Attributes attr = mani.getMainAttributes();
         String module = attr.getValue("OpenIDE-Module");
-        String prefixURL = (String)prefixedModules.get(module);
-        String location = (String)moduleLocations.get(module);;
+        String prefixURL = prefixedModules.get(module);
+        String location = moduleLocations.get(module);;
 //        System.out.println("Factory creating prefixed " + module + " prefixURL == " + prefixURL + " location == " + location);
         try {
             return new ClasspathModule(mgr, ev, mani, history,  prefixURL, location, loader, this);
@@ -97,7 +97,7 @@ public class JNLPModuleFactory extends ModuleFactory {
 
     private void scanManifests() throws IOException {
         ClassLoader loader = ModuleSystem.class.getClassLoader();
-        Collection ignoredPrefixes = new ArrayList(3); // List<String>
+        Collection<String> ignoredPrefixes = new ArrayList<String>(3);
         try {
             // skip the JDK/JRE libraries
             String jdk = System.getProperty("java.home");
@@ -111,15 +111,15 @@ public class JNLPModuleFactory extends ModuleFactory {
             err.notify(ErrorManager.INFORMATIONAL, e);
         }
         
-        Enumeration e = loader.getResources(MANIFEST_LOCATION); // NOI18N
+        Enumeration<URL> e = loader.getResources(MANIFEST_LOCATION); // NOI18N
         
         // There will be duplicates: cf. #32576.
-        Set checkedManifests = new HashSet(); // Set<URL>
+        Set<URL> checkedManifests = new HashSet<URL>();
         
         // first search for non-modules with prefixes
         MANIFESTS1:
             while (e.hasMoreElements()) {
-                URL manifestUrl = (URL)e.nextElement();
+                URL manifestUrl = e.nextElement();
                 if (checkedManifests.contains(manifestUrl)) {
                     // Already seen, ignore.
                     continue;
@@ -178,7 +178,7 @@ public class JNLPModuleFactory extends ModuleFactory {
         }
         String jarFileName = getJarFileName(prefix, prefixLocations.keySet());
         if (jarFileName != null) {
-            String loc = (String)prefixLocations.get(jarFileName);
+            String loc = prefixLocations.get(jarFileName);
             if (loc != null) {
                 return loc;
             }
@@ -224,11 +224,11 @@ public class JNLPModuleFactory extends ModuleFactory {
         return getJarFileName(prefix, prefixLocations.keySet());
     }
     
-    public Map getPrefixLocations() {
+    public Map<String, String> getPrefixLocations() {
         return prefixLocations;
     }
     
-    public void setPrefixLocations(Map newPL) {
+    public void setPrefixLocations(Map<String, String> newPL) {
         prefixLocations = newPL;
     }
     
@@ -237,9 +237,9 @@ public class JNLPModuleFactory extends ModuleFactory {
      * location of a non module jar.
      */
     public void addPrefixNonModule(String prefix, String location) {
-        Set s = (Set)prefixedNonModules.get(location);
+        Set<String> s = prefixedNonModules.get(location);
         if (s == null) {
-            s = new HashSet();
+            s = new HashSet<String>();
             prefixedNonModules.put(location, s);
         }
         s.add(prefix);
@@ -264,10 +264,10 @@ public class JNLPModuleFactory extends ModuleFactory {
      * Returns all stored non-module jar prefixes
      * with given location.
      */
-    public Set getPrefixNonModules(String location) {
-        Set s = (Set)prefixedNonModules.get(location);
+    public Set<String> getPrefixNonModules(String location) {
+        Set<String> s = prefixedNonModules.get(location);
         if (s == null) {
-            s = new HashSet();
+            s = new HashSet<String>();
             prefixedNonModules.put(location, s);
         }
         return s;
@@ -279,12 +279,12 @@ public class JNLPModuleFactory extends ModuleFactory {
      * @param ClassLoader loader used for loading the config file.
      */
     private void initializePrefixLocations(ClassLoader loader) {
-        Map pl = new HashMap();
+        Map<String, String> pl = new HashMap<String, String>();
         Properties p = new Properties();
         try {
-            Enumeration e = loader.getResources(CONFIG_LOCATION);
+            Enumeration<URL> e = loader.getResources(CONFIG_LOCATION);
             while (e.hasMoreElements()) {
-                URL configURL = (URL) e.nextElement();
+                URL configURL = e.nextElement();
                 try {
                     InputStream is = configURL.openStream();
                     p.load(is);
@@ -296,7 +296,9 @@ public class JNLPModuleFactory extends ModuleFactory {
         } catch (IOException ioe) {
             err.notify(ioe);
         }
-        pl.putAll(p);
+        for (Object key : p.keySet()) {
+            pl.put((String)key, (String)p.get(key));
+        }
         setPrefixLocations(pl);
     }
     
@@ -304,7 +306,7 @@ public class JNLPModuleFactory extends ModuleFactory {
     
     public ClassLoader getClasspathDelegateClassLoader(ModuleManager mgr, ClassLoader del) {
         if (classpathDelegateClassLoader == null) {
-            Set s = getPrefixNonModules("core");
+            Set<String> s = getPrefixNonModules("core");
             s.addAll(getPrefixNonModules("lib"));
             Set m = mgr.getModules();
             for (Iterator it = m.iterator(); it.hasNext(); ) {
@@ -318,7 +320,7 @@ public class JNLPModuleFactory extends ModuleFactory {
                 ) {
                     if (m1 instanceof ClasspathModule) {
                         ClasspathModule cpm1 = (ClasspathModule)m1;
-                        List cp = new ArrayList();
+                        List<String> cp = new ArrayList<String>();
                         cp.add(cpm1.prefixURL);
                         cpm1.computePrefixes(cp);
                         s.addAll(cp);
