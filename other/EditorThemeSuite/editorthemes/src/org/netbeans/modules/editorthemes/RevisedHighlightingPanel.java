@@ -150,33 +150,32 @@ class RevisedHighlightingPanel extends JPanel implements SingleColoringPanel.Fac
             pnl.setup(name, desc, bg, fg, fx, inheritBg, inheritFg, inheritEnabled, italic, bold, strike, underline, defBg, defFg, defFx);
             innerPanel.add(pnl);
         }
-//        boolean kindChange = (preview != null) == (kind != UIKind.SYNTAX);
-//        if (kindChange) {
-            if (preview != null) {
-                split.remove(preview);
-                remove(preview);
+        if (preview != null) {
+            split.remove(preview);
+            remove(preview);
+        }
+        preview = getPreviewComponent();
+        if (preview == null) {
+            remove(split);
+            add(pane, BorderLayout.CENTER);
+        } else {
+            remove(pane);
+            split.setOrientation(JSplitPane.VERTICAL_SPLIT);
+            split.setTopComponent(pane);
+            split.setBottomComponent(preview);
+            add(split, BorderLayout.CENTER);
+            split.setDividerLocation(0.5D);
+        }
+        EventQueue.invokeLater (new Runnable() {
+            //Sigh...
+            public void run() {
+                if (preview != null) {
+                    preview.invalidate();
+                    preview.revalidate();
+                    preview.repaint();
+                }
             }
-            preview = getPreviewComponent();
-            if (preview == null) {
-                remove(split);
-                add(pane, BorderLayout.CENTER);
-            } else {
-                remove(pane);
-                split.setOrientation(JSplitPane.VERTICAL_SPLIT);
-                split.setTopComponent(pane);
-                split.setBottomComponent(preview);
-                add(split, BorderLayout.CENTER);
-                split.setDividerLocation(0.5D);
-            }
-            split.invalidate();
-            split.revalidate();
-            split.repaint();
-            if (preview != null) {
-                preview.invalidate();
-                preview.validate();
-                preview.repaint();
-            }
-//        }
+        });
     }
 
     private Preview getPreviewComponent() {
