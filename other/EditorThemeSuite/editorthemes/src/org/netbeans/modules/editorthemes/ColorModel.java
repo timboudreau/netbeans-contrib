@@ -90,23 +90,28 @@ public final class ColorModel {
     }
 
     public void createNewProfile (String name, String toClone) {
+        System.err.println("Color model create new profile " + name + " based on " + toClone);
         Collection <AttributeSet> anns = getAnnotations (toClone);
         setAnnotations(name, anns);
 
-        Set <String> langs = getLanguages();
+        Set <String> langs = new HashSet<String>(getLanguages());
+        langs.add (ALL_LANGUAGES);
         for (String lang : langs) {
             Collection <AttributeSet> fcs = getCategories(toClone, lang);
             setCategories(toClone, lang, fcs);
         }
         Map<String, AttributeSet> m = new HashMap<String, AttributeSet>(EditorSettings.getDefault().getHighlightings(toClone));
+        System.err.println("Receieved hl size " + m.size());
         Map<String, AttributeSet> b = EditorSettings.getDefault().getHighlightingDefaults(toClone);
-        for (Map.Entry <String, AttributeSet> e : b.entrySet()) {
-            if (!m.containsKey(e.getKey())) {
-                m.put (e.getKey(), e.getValue());
+        System.err.println("Defs hl size " + (b == null ? 0 : b.size()));
+        if (b != null) {
+            for (Map.Entry <String, AttributeSet> e : b.entrySet()) {
+                if (!m.containsKey(e.getKey())) {
+                    m.put (e.getKey(), e.getValue());
+                }
             }
         }
         EditorSettings.getDefault().setHighlightings(name, m);
-
         setCurrentProfile(name);
     }
 

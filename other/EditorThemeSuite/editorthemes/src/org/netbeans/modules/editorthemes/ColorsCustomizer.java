@@ -121,6 +121,7 @@ public class ColorsCustomizer extends JPanel implements ActionListener {
         profileChooser.addActionListener(this);
         saveButton.addActionListener(this);
         transformButton.addActionListener(this);
+        saveButton.setVisible(false);
     }
 
     public void requestFocus() {
@@ -159,21 +160,33 @@ public class ColorsCustomizer extends JPanel implements ActionListener {
     }
 
     private void createNewProfile() {
+        System.err.println("Customizer create new profile");
         NotifyDescriptor.InputLine in = new
-                NotifyDescriptor.InputLine(loc(null, "LBL_NEW_PROFILE"),
+                NotifyDescriptor.InputLine(loc(null, "MSG_NEW_PROFILE"),
                 loc(null, "TTL_NEW_PROFILE"));
         if (DialogDisplayer.getDefault().notify(in) != NotifyDescriptor.CANCEL_OPTION) {
             String nm = in.getInputText().trim();
             if (nm.length() > 0 && !mdl.getProfiles().contains(nm)) {
                 String currentProfile = profileChooser.getSelectedItem().toString();
-                if (!mdl.getProfiles ().contains (currentProfile)) {
+                if (!mdl.getProfiles ().contains (nm)) {
                     // clone profile
+                    System.err.println("Creating profile " + nm);
                     mdl.createNewProfile (nm, currentProfile);
+                } else {
+                    System.err.println("Profile already exists");
+                    Toolkit.getDefaultToolkit().beep();
+                    return;
                 }
                 DefaultComboBoxModel cmdl = (DefaultComboBoxModel) profileChooser.getModel();
                 cmdl.addElement(nm);
-                setSelectedProfile (nm);
+                profileChooser.setSelectedItem(nm);
+//                setSelectedProfile (nm);
+            } else {
+                System.err.println("Name " + nm + " no good");
+                Toolkit.getDefaultToolkit().beep();
             }
+        } else {
+            System.err.println("cancelled");
         }
     }
 

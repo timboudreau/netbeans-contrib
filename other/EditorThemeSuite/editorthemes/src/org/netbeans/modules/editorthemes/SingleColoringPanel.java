@@ -101,6 +101,7 @@ final class SingleColoringPanel extends JPanel implements ActionListener, MouseL
         italic.addActionListener(this);
         strike.addActionListener(this);
         underline.addActionListener(this);
+        useFx.addActionListener(this);
         addMouseListener(this);
         bg.addMouseListener(this);
         fg.addMouseListener(this);
@@ -143,11 +144,6 @@ final class SingleColoringPanel extends JPanel implements ActionListener, MouseL
 
     private void swapPalettes (ColorChooser... c) {
         for (int i=0; i < c.length; i++) {
-//            Palette[] p = c[i].getPalettes();
-//            Palette hold = p[0];
-//            p[0] = p[1];
-//            p[1] = hold;
-//            c[i].setPalettes(p);
             c[i].setPalettes(palettes);
             c[i].setFocusable(true);
         }
