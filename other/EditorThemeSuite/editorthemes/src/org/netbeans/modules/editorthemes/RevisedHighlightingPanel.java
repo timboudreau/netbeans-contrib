@@ -186,9 +186,9 @@ class RevisedHighlightingPanel extends JPanel implements SingleColoringPanel.Fac
         Collection<AttributeSet> defaults = colorModel.getCategories(currentProfile, ColorModel.ALL_LANGUAGES);
         for (AttributeSet as : defaults) {
             String name = (String) as.getAttribute(StyleConstants.NameAttribute);
-            if (name != null && "default".equals(name)) {
-                //NOI18N
-return as;  }
+            if (name != null && "default".equals(name)) { //NOI18N
+                return as;  
+            }
         }
         return null;
     }
@@ -219,25 +219,36 @@ return as;  }
         blinkSequence = 5;
         task.schedule(0);
     }
+    
+    Collection<AttributeSet> getAllLanguages() {
+        return getCategories(currentProfile, ColorModel.ALL_LANGUAGES);
+    }
+    
+    Collection<AttributeSet> getSyntaxColorings() {
+        return getCategories(currentProfile, language);
+    }
 
     void updatePreview() {
         String category = getCurrentCategoryName();
         if (preview != null && category != null) {
-            Collection<AttributeSet> defaults = new ArrayList<AttributeSet>(colorModel.getDefaults(currentProfile, language));
-            Collection <AttributeSet> hl = colorModel.getHighlightings(currentProfile);
-            final Collection<AttributeSet> highlightings = hl == null ? new ArrayList<AttributeSet>() : new ArrayList<AttributeSet>(hl);
-            final Collection<AttributeSet> syntaxColorings = new ArrayList<AttributeSet>(colorModel.getCategories(currentProfile, language));
+            Collection<AttributeSet> syntaxColorings = getSyntaxColorings ();
+            Collection<AttributeSet> allLanguages = getAllLanguages ();
             if ((blinkSequence % 2) == 1) {
-                if (ColorModel.ALL_LANGUAGES.equals(language)) {
-                    defaults = invertCategory(defaults, getCurrentCategory());
-                } else {
-                    defaults = invertCategory(defaults, getCurrentCategory());
-                }
+                if (ColorModel.ALL_LANGUAGES.equals(language))
+                    allLanguages = invertCategory (allLanguages, getCurrentCategory ());
+                else
+                    syntaxColorings = invertCategory (syntaxColorings, getCurrentCategory ());
             }
-            final Collection <AttributeSet> defs = defaults;
+            final Collection<AttributeSet> sc = syntaxColorings;
+            final Collection<AttributeSet> al = allLanguages;
             EventQueue.invokeLater(new Runnable() {
                 public void run() {
-                    preview.setParameters(language, defs, highlightings, syntaxColorings);
+                    preview.setParameters (
+                        language,
+                        al,
+                        Collections.<AttributeSet>emptySet(),
+                        sc
+                    );
                 }
             });
         }

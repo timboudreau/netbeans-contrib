@@ -33,7 +33,7 @@ public abstract class Transformation { //implements Comparable <Transformation> 
         Collection <MutableAttributeSet> attrs = convert(mdl.getAnnotations(profile));
         apply (attrs);
         mdl.setAnnotations(profile, convertBack(attrs));
-        attrs = convert (mdl.getHighlightingDefaults(profile));
+        attrs = convert (mdl.getHighlightings(profile));
         apply (attrs);
         mdl.setHighlightings(profile, convertBack(attrs));
         for (String lang : mdl.getLanguages()) {

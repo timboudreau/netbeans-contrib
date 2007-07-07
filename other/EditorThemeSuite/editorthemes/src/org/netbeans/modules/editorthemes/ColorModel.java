@@ -29,6 +29,7 @@ import java.io.InputStreamReader;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -90,20 +91,14 @@ public final class ColorModel {
     }
 
     public void createNewProfile (String name, String toClone) {
-        System.err.println("Color model create new profile " + name + " based on " + toClone);
+//        System.err.println("Color model create new profile " + name + " based on " + toClone);
         Collection <AttributeSet> anns = getAnnotations (toClone);
         setAnnotations(name, anns);
 
-        Set <String> langs = new HashSet<String>(getLanguages());
-        langs.add (ALL_LANGUAGES);
-        for (String lang : langs) {
-            Collection <AttributeSet> fcs = getCategories(toClone, lang);
-            setCategories(toClone, lang, fcs);
-        }
         Map<String, AttributeSet> m = new HashMap<String, AttributeSet>(EditorSettings.getDefault().getHighlightings(toClone));
-        System.err.println("Receieved hl size " + m.size());
+//        System.err.println("Receieved hl size " + m.size());
         Map<String, AttributeSet> b = EditorSettings.getDefault().getHighlightingDefaults(toClone);
-        System.err.println("Defs hl size " + (b == null ? 0 : b.size()));
+//        System.err.println("Defs hl size " + (b == null ? 0 : b.size()));
         if (b != null) {
             for (Map.Entry <String, AttributeSet> e : b.entrySet()) {
                 if (!m.containsKey(e.getKey())) {
@@ -112,6 +107,12 @@ public final class ColorModel {
             }
         }
         EditorSettings.getDefault().setHighlightings(name, m);
+        Set <String> langs = new HashSet<String>(getLanguages());
+//        System.err.println("Languages: " + langs);
+        for (String lang : langs) {
+            Collection <AttributeSet> fcs = getCategories(toClone, lang);
+            setCategories(name, lang, fcs);
+        }
         setCurrentProfile(name);
     }
 
@@ -235,7 +236,8 @@ public final class ColorModel {
 
 
     public Collection<AttributeSet> getHighlightingDefaults (String profile) {
-        Collection<AttributeSet> r = EditorSettings.getDefault().getHighlightingDefaults(profile).values();
+        Map <String, AttributeSet> m = EditorSettings.getDefault().getHighlightingDefaults(profile);
+        Collection<AttributeSet> r = m == null ? Collections.<AttributeSet>emptyList() : m.values();
         if (r == null) return null;
         return hideDummyCategories (r);
     }

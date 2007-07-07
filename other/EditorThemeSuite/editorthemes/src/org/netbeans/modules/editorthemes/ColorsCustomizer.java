@@ -49,7 +49,6 @@ public class ColorsCustomizer extends JPanel implements ActionListener {
     private final JLabel profileLabel = new JLabel();
     private final JButton newProfileButton = new JButton();
     private final JButton delProfileButton = new JButton();
-    private final JButton saveButton = new JButton();
     private final JButton transformButton = new JButton();
     public ColorsCustomizer() {
         setLayout (new BorderLayout());
@@ -67,7 +66,6 @@ public class ColorsCustomizer extends JPanel implements ActionListener {
         loc (profileLabel, "LBL_PROFILES"); //NOI18N
         loc (newProfileButton, "LBL_NEW_PROFILE"); //NOI18N
         loc (delProfileButton, "LBL_DELETE_PROFILE"); //NOI18N
-        loc (saveButton, "LBL_SAVE"); //NOI18N
         loc (transformButton, "LBL_TRANSFORM");
 
         GridBagConstraints gbc = new GridBagConstraints();
@@ -95,10 +93,7 @@ public class ColorsCustomizer extends JPanel implements ActionListener {
 
         JPanel bottomPanel = new JPanel(new GridBagLayout());
         gbc = new GridBagConstraints();
-        gbc.anchor = GridBagConstraints.LINE_END;
         gbc.weightx = 0.5D;
-        gbc.gridx = 1;
-        bottomPanel.add (saveButton, gbc);
         gbc.gridx = 0;
         gbc.anchor = GridBagConstraints.LINE_START;
         bottomPanel.add (transformButton, gbc);
@@ -119,9 +114,7 @@ public class ColorsCustomizer extends JPanel implements ActionListener {
         delProfileButton.addActionListener(this);
         languageChooser.addActionListener(this);
         profileChooser.addActionListener(this);
-        saveButton.addActionListener(this);
         transformButton.addActionListener(this);
-        saveButton.setVisible(false);
     }
 
     public void requestFocus() {
@@ -138,8 +131,6 @@ public class ColorsCustomizer extends JPanel implements ActionListener {
             setSelectedLanguage (languageChooser.getSelectedItem().toString());
         } else if (o == profileChooser) {
             setSelectedProfile (profileChooser.getSelectedItem().toString());
-        } else if (o == saveButton) {
-            save();
         } else if (o == transformButton) {
             transform();
         } else {
@@ -217,6 +208,7 @@ public class ColorsCustomizer extends JPanel implements ActionListener {
                 r.setCurrentProfile(s);
             }
         }
+        mdl.setCurrentProfile(s);
     }
 
     private void transform() {
@@ -239,9 +231,6 @@ public class ColorsCustomizer extends JPanel implements ActionListener {
                 r.updatePreview();
             }
         }
-    }
-
-    private void save() {
     }
 
     private static final class LanguagesComparator implements Comparator<String> {
