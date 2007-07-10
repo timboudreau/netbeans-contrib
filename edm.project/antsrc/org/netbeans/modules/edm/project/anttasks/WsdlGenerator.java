@@ -235,6 +235,7 @@ public class WsdlGenerator {
         Hashtable<String, String>outputColumnMap = null;
         try {
             outputColumnMap = new Hashtable<String, String>();
+            outputColumnMap.put("RECORD", getDataType("12")); //Schema node to represent records from the DB
             DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
             Element enginefileroot = factory.newDocumentBuilder().parse(engineFile).getDocumentElement();
             
