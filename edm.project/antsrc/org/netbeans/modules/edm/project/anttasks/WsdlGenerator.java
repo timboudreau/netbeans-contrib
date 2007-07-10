@@ -47,6 +47,7 @@ import javax.wsdl.xml.WSDLWriter;
 import javax.xml.namespace.QName;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
+import org.openide.util.Exceptions;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -55,6 +56,8 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 import com.sun.sql.framework.utils.RuntimeAttribute;
+import java.util.Enumeration;
+import java.util.Hashtable;
 import org.netbeans.modules.etl.model.impl.ETLDefinitionImpl;
 import org.netbeans.modules.sql.framework.model.SQLDefinition;
 import org.netbeans.modules.sql.framework.model.RuntimeDatabaseModel;
@@ -68,16 +71,14 @@ import org.netbeans.modules.sql.framework.model.RuntimeInput;
 public class WsdlGenerator {
     
     private static Logger logger = Logger.getLogger(WsdlGenerator.class.getName());
-    
     private static WSDLFactory factory;
-    
     private String engineFileName;
-    
     private String wsdlLocation;
-    
     private Definition def;
-    
     private File engineFile;
+    private static String[][] datatypearray = {
+                                                {"12","xsd:string"},
+                                              };
     
     static {
         initFactory();
@@ -141,7 +142,7 @@ public class WsdlGenerator {
      * @throws ParserConfigurationException
      * @throws BaseException
      */
-    private Map getEngineInputParams() {        
+    private Map getEngineInputParams() {
         try {
             DocumentBuilderFactory df = DocumentBuilderFactory.newInstance();
             Element element = df.newDocumentBuilder().parse(engineFile).getDocumentElement();
@@ -202,6 +203,90 @@ public class WsdlGenerator {
         modifyPartnerLink();
     }
     
+    private void addInlineOutputItemSchema(Element root){
+        Element outputItem = getElementByName(root, "outputItem");
+        Document doc = (Document) root.getParentNode().getParentNode().getParentNode();
+        NodeList outputSeqList = outputItem.getElementsByTagName("xsd:sequence");
+
+        // Build Column Map Here for he Inline schema as dom has been created
+        Hashtable outputColumnTable = createListOfColumns();
+
+        // If the List has element, delete and rebuild it
+        if (outputSeqList.item(0).getChildNodes().getLength() != 0) {
+            for (int i=0; i < outputSeqList.item(0).getChildNodes().getLength(); i++) {
+                outputSeqList.item(0).removeChild(outputSeqList.item(0).getChildNodes().item(i));
+            }
+        }
+            
+        Node sequence = outputSeqList.item(0);
+        
+        Enumeration e = outputColumnTable.keys();
+        while (e.hasMoreElements())
+        {
+            Element child = doc.createElementNS("http://www.w3.org/2001/XMLSchema", "xsd:element");
+            String key = e.nextElement().toString();
+            child.setAttribute("name", key);
+            child.setAttribute("type", outputColumnTable.get(key).toString());
+            sequence.appendChild(child);
+        }
+    }
+    
+    private Hashtable createListOfColumns() {
+        Hashtable<String, String>outputColumnMap = null;
+        try {
+            outputColumnMap = new Hashtable<String, String>();
+            DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+            Element enginefileroot = factory.newDocumentBuilder().parse(engineFile).getDocumentElement();
+            
+            NodeList dbModelList =  enginefileroot.getElementsByTagName("dbModel");
+            for (int i=0; i < dbModelList.getLength(); i++) {
+            Element dbmodel = (Element)dbModelList.item(i);
+            String attr = dbmodel.getAttribute("type");
+            if (attr.equals("source")) {
+                // This is the dbModel to work - keep processing
+                NodeList tablenames = dbmodel.getElementsByTagName("dbTable");
+                for (int j=0; j< tablenames.getLength(); j++) {
+                    Element table = (Element)tablenames.item(j);
+                    
+                    NodeList columnamelist = table.getElementsByTagName("dbColumn");
+                    for (int k=0; k < columnamelist.getLength(); k++) {
+                        Element column = (Element)columnamelist.item(k);
+                        if (!outputColumnMap.containsKey(column.getAttribute("name"))) {
+                            outputColumnMap.put(column.getAttribute("name"), getDataType(column.getAttribute("type")));
+                        }
+                    }
+                }
+            }
+        }
+        } 
+        catch (SAXException ex) {
+            Exceptions.printStackTrace(ex);
+        }
+        catch (IOException ex) {
+            Exceptions.printStackTrace(ex);
+        }
+        catch (ParserConfigurationException ex) {
+            Exceptions.printStackTrace(ex);
+        }
+        return outputColumnMap;
+    }
+
+    private String getDataType(String dataType)
+    {   
+        String interpreteddatatype = null;
+        for (int i=0; i < this.datatypearray.length;  i++)
+        {
+            if (this.datatypearray[i][0].equals(dataType))
+            {
+               interpreteddatatype = this.datatypearray[i][1];
+                break;
+            }
+        }
+        if (interpreteddatatype == null) interpreteddatatype="Undefined";
+        return interpreteddatatype;
+    }
+    
+    
     private void modifyBinding() {
         Binding b = def.getBinding(new QName(def.getTargetNamespace(), "Binding"));
         
@@ -209,7 +294,6 @@ public class WsdlGenerator {
         if (getEngineInputParams().isEmpty()) {
             bo.setBindingInput(null);
         }
-        
     }
     
     private void modifyMessageTypes() {
@@ -223,9 +307,7 @@ public class WsdlGenerator {
                 Schema s = (Schema) o;
                 modifySchema(s);
             }
-            
         }
-        
     }
     
     private void modifySchema(Schema s) {
@@ -248,6 +330,8 @@ public class WsdlGenerator {
             sequence.appendChild(child);
         }
         
+        // Generate Inline Schema for the outputItem from the engine file
+        addInlineOutputItemSchema(root);
     }
     
     private String getAttributeType(RuntimeAttribute ra) {
