@@ -40,8 +40,8 @@ import org.openide.util.Utilities;
  * @author Satyaranjan
  */
 public class WidgetUtil {
-       private static final Image GLYPH_CONSUME_EVENT=Utilities.loadImage("org/netbeans/modules/portalpack/portlets/genericportlets/resources/portletapp.gif");
-      
+    // private static final Image GLYPH_CONSUME_EVENT=Utilities.loadImage("org/netbeans/modules/portalpack/portlets/genericportlets/resources/eventicon.PNG");
+     
     /** Creates a new instance of WidgetUtil */
     public WidgetUtil() {
     }
@@ -62,7 +62,7 @@ public class WidgetUtil {
         widget.setKey(pinID);
         widget.setNodeKey(nodeID);     
         List list = new ArrayList();
-        list.add(GLYPH_CONSUME_EVENT);
+        list.add(image);
         widget.setProperties(name, list);
         
         return widget;
@@ -75,6 +75,16 @@ public class WidgetUtil {
         scene.setEdgeSource(edgeID, sourcePinID);
         scene.setEdgeTarget(edgeID, targetNodeID + VMDGraphScene.PIN_ID_DEFAULT_SUFFIX);
         return widget;
+    }
+    
+    public static boolean hasString(String org,String[] arr)
+    {
+        for(int i=0;i<arr.length;i++)
+        {
+            if(org.equals(arr[i]))
+                return true;
+        }
+        return false;
     }
      
 }

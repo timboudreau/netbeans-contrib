@@ -49,8 +49,9 @@ public class EventPinPopUpMenuProvider implements PopupMenuProvider, ActionListe
         item = new JMenuItem("Generate Source");
         item.setActionCommand(ACTION_GENERATE_SOURCE);
         item.addActionListener(this);
+        item.setBackground(Color.WHITE);
         menu.add(item);
-        menu.setBackground(Color.white);
+        
         //menu.setBorder(Border);
     }
 

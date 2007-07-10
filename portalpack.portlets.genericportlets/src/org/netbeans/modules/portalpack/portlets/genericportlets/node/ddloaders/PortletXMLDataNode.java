@@ -18,17 +18,23 @@
   */
 package org.netbeans.modules.portalpack.portlets.genericportlets.node.ddloaders;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import org.netbeans.modules.portalpack.portlets.genericportlets.node.PortletChildrenNode;
+import org.openide.filesystems.FileAttributeEvent;
+import org.openide.filesystems.FileChangeListener;
+import org.openide.filesystems.FileEvent;
+import org.openide.filesystems.FileRenameEvent;
 import org.openide.loaders.DataNode;
+import org.openide.loaders.DataObject;
 import org.openide.nodes.Children;
 import org.openide.nodes.Node;
 import org.openide.util.Lookup;
 import org.openide.util.actions.SystemAction;
 import org.openide.util.lookup.Lookups;
 
-public class PortletXMLDataNode extends DataNode {
+public class PortletXMLDataNode extends DataNode implements FileChangeListener {
     
     private static final String IMAGE_ICON_BASE = "org/netbeans/modules/portalpack/portlets/genericportlets/resources/portlet-xml.gif";
     
@@ -36,6 +42,7 @@ public class PortletXMLDataNode extends DataNode {
         super(obj, new PortletChildrenNode(obj));
         getCookieSet().add(new RefreshChannelChildren((PortletChildrenNode)getChildren()));
         setIconBaseWithExtension(IMAGE_ICON_BASE);
+        obj.addFileChangeListener(this);
     }
     PortletXMLDataNode(PortletXMLDataObject obj, Lookup lookup) {
         super(obj, new PortletChildrenNode(obj), lookup);
@@ -43,6 +50,7 @@ public class PortletXMLDataNode extends DataNode {
         Lookups.singleton(new RefreshChannelChildren((PortletChildrenNode)getChildren()));
        // getCookieSet().add(new RefreshChannelChildren((PortletChildrenNode)getChildren()));
         setIconBaseWithExtension(IMAGE_ICON_BASE);
+        obj.addFileChangeListener(this);
     }
     
     public javax.swing.Action[] getActions(boolean context) {
@@ -58,7 +66,16 @@ public class PortletXMLDataNode extends DataNode {
             return (javax.swing.Action [])actionList.toArray(new javax.swing.Action[0]);
             
     }
-    
+
+    public void destroy() throws IOException {
+        super.destroy();
+        DataObject dob = getDataObject();
+        if(dob != null && dob instanceof PortletXMLDataObject)
+        {
+            ((PortletXMLDataObject)dob).removeFileChangeListener(this);
+        }
+    }
+
     //    /** Creates a property sheet. */
     //    protected Sheet createSheet() {
     //        Sheet s = super.createSheet();
@@ -70,6 +87,28 @@ public class PortletXMLDataNode extends DataNode {
     //        // TODO add some relevant properties: ss.put(...)
     //        return s;
     //    }
+
+    public void fileFolderCreated(FileEvent fe) {
+    }
+
+    public void fileDataCreated(FileEvent fe) {
+    }
+
+    public void fileChanged(FileEvent fe) {
+       RefreshCookie cookie = (RefreshCookie)getCookie(RefreshCookie.class);            
+       if (cookie != null)
+           cookie.refresh();
+        
+    }
+
+    public void fileDeleted(FileEvent fe) {
+    }
+
+    public void fileRenamed(FileRenameEvent fe) {
+    }
+
+    public void fileAttributeChanged(FileAttributeEvent fe) {
+    }
     
 }
 

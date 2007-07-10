@@ -25,25 +25,28 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.netbeans.api.project.FileOwnerQuery;
 import org.netbeans.api.project.ProjectUtils;
-import org.netbeans.modules.xml.multiview.DesignMultiViewDesc;
+import org.openide.filesystems.FileChangeListener;
+//import org.netbeans.modules.xml.multiview.DesignMultiViewDesc;
 import org.openide.filesystems.FileObject;
 import org.openide.loaders.DataObjectExistsException;
+import org.openide.loaders.MultiDataObject;
+import org.openide.loaders.XMLDataObject;
 import org.openide.nodes.CookieSet;
 import org.openide.nodes.Node;
 import org.openide.util.Lookup;
-import org.netbeans.api.xml.cookies.CheckXMLCookie;
-import org.netbeans.api.xml.cookies.ValidateXMLCookie;
+//import org.netbeans.api.xml.cookies.CheckXMLCookie;
+//import org.netbeans.api.xml.cookies.ValidateXMLCookie;
 import org.netbeans.modules.portalpack.portlets.genericportlets.ddapi.*;
 import org.netbeans.modules.portalpack.portlets.genericportlets.core.util.NetbeanConstants;
 import org.netbeans.modules.portalpack.portlets.genericportlets.ddapi.eventing.PortletEventingHandler;
 import org.netbeans.modules.portalpack.portlets.genericportlets.ddapi.impl.sun.SunPortletEventingHandlerImpl;
-import org.netbeans.modules.xml.multiview.XmlMultiViewDataObject;
-import org.netbeans.spi.xml.cookies.CheckXMLSupport;
-import org.netbeans.spi.xml.cookies.DataObjectAdapters;
-import org.netbeans.spi.xml.cookies.ValidateXMLSupport;
+//import org.netbeans.modules.xml.multiview.XmlMultiViewDataObject;
+//import org.netbeans.spi.xml.cookies.CheckXMLSupport;
+//import org.netbeans.spi.xml.cookies.DataObjectAdapters;
+//import org.netbeans.spi.xml.cookies.ValidateXMLSupport;
 import org.openide.filesystems.FileUtil;
 
-public class PortletXMLDataObject extends XmlMultiViewDataObject
+public class PortletXMLDataObject extends  XMLDataObject//XmlMultiViewDataObject
         implements Lookup.Provider {
     
     private static Logger logger = Logger.getLogger(NetbeanConstants.PORTAL_LOGGER);
@@ -58,13 +61,14 @@ public class PortletXMLDataObject extends XmlMultiViewDataObject
     public PortletXMLDataObject(FileObject pf, PortletXMLDataLoader loader) throws DataObjectExistsException, IOException {
         super(pf, loader);
         this.portletXmlFobj = pf;
-        CookieSet cookies = getCookieSet();
+        /*CookieSet cookies = getCookieSet();
         org.xml.sax.InputSource in = DataObjectAdapters.inputSource(this);
         CheckXMLCookie checkCookie = new CheckXMLSupport(in);
         cookies.add(checkCookie);
         ValidateXMLCookie validateCookie = new ValidateXMLSupport(in);
         cookies.add(validateCookie);
-         try{
+        */
+        try{
             this.applicationName = ProjectUtils.getInformation(FileOwnerQuery.getOwner(this.getPrimaryFile())).getName();
         }catch(Exception e){
             applicationName = "";
@@ -100,10 +104,11 @@ public class PortletXMLDataObject extends XmlMultiViewDataObject
         if (portletApp==null) {
             portletApp = getPortletApp();
         } else {
-            java.io.InputStream is = getEditorSupport().getInputStream();
+            //java.io.InputStream is = getEditorSupport().getInputStream();
             PortletApp newPortletApp = null;
             try {
-                newPortletApp = PortletXMLFactory.createGraph(is);
+               // newPortletApp = PortletXMLFactory.createGraph(FileUtil.toFile(portletXmlFobj));
+               newPortletApp = PortletXMLFactory.createGraph(FileUtil.toFile(portletXmlFobj));
             } catch (RuntimeException ex) {
                 logger.log(Level.SEVERE,"Parse Error",ex);
             }
@@ -131,8 +136,8 @@ public class PortletXMLDataObject extends XmlMultiViewDataObject
      */
     public PortletApp getPortletApp() throws IOException {
         if (portletApp==null) {
-            if(FileUtil.toFile(getPrimaryFile()).exists())
-                portletApp = PortletXMLFactory.createGraph(FileUtil.toFile(getPrimaryFile()));
+            if(FileUtil.toFile(portletXmlFobj).exists())
+                portletApp = PortletXMLFactory.createGraph(FileUtil.toFile(portletXmlFobj));
         }
         return portletApp;
     }
@@ -154,17 +159,29 @@ public class PortletXMLDataObject extends XmlMultiViewDataObject
     }
     
     public Lookup getLookup() {
-        return getCookieSet().getLookup();
+        return null;
+     //   return getCookieSet().getLookup();
     }
-    
+ /*   
     protected DesignMultiViewDesc[] getMultiViewDesc() {
         return new DesignMultiViewDesc[]{new DesignView(this,TYPE_TOOLBAR)};
-    }
+    }*/
     
     protected String getPrefixMark() {
         return null;
     }
     
+    public void addFileChangeListener(FileChangeListener fileChangeListener)
+    {
+        portletXmlFobj.addFileChangeListener(fileChangeListener);
+    }
+    
+    public void removeFileChangeListener(FileChangeListener fcl)
+    {
+        portletXmlFobj.removeFileChangeListener(fcl);
+    }
+    
+/*
     private static class DesignView extends DesignMultiViewDesc {
         private int type;
         DesignView(PortletXMLDataObject dObj, int type) {
@@ -188,6 +205,8 @@ public class PortletXMLDataObject extends XmlMultiViewDataObject
             return "portlet_xml_multiview_"+String.valueOf(type);
         }
     }
+  */  
+
     
     
 }

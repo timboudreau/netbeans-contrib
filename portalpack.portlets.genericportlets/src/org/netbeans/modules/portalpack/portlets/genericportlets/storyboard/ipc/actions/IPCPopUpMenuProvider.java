@@ -19,6 +19,7 @@
 
 package org.netbeans.modules.portalpack.portlets.genericportlets.storyboard.ipc.actions;
 
+import java.awt.Color;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -58,6 +59,7 @@ public class IPCPopUpMenuProvider implements PopupMenuProvider, ActionListener {
         item = new JMenuItem("Reset");
         item.setActionCommand(ACTION_RESET);
         item.addActionListener(this);
+        item.setBackground(Color.WHITE);
         menu.add(item);
     }
     public JPopupMenu getPopupMenu(Widget widget, Point localLocation) {

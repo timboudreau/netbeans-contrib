@@ -19,6 +19,7 @@
 
 package org.netbeans.modules.portalpack.portlets.genericportlets.storyboard.ipc.actions;
 
+import java.awt.Color;
 import org.netbeans.modules.portalpack.portlets.genericportlets.storyboard.widgets.CustomPinWidget;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
@@ -51,6 +52,7 @@ public class EdgePopUpMenuProvider implements PopupMenuProvider, ActionListener 
         item = new JMenuItem("Remove");
         item.setActionCommand(ACTION_REMOVE);
         item.addActionListener(this);
+        item.setBackground(Color.WHITE);
         this.edge = edge;
         this.scene = scene;
         this.target = target;

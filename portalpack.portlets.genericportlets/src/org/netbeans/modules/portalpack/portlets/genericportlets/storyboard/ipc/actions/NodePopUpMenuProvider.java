@@ -46,14 +46,16 @@ public class NodePopUpMenuProvider implements PopupMenuProvider, ActionListener{
         menu = new JPopupMenu("Popup menu");
         JMenuItem item;
 
-        item = new JMenuItem("Remove Portlet From Scene");
+        item = new JMenuItem("Remove Portlet From StoryBoard");
         item.setActionCommand(ACTION_REMOVE);
         item.addActionListener(this);
+        item.setBackground(Color.WHITE);
         menu.add(item);
         
         item = new JMenuItem("Add Event");
         item.setActionCommand(ACTION_ADD);
         item.addActionListener(this);
+        item.setBackground(Color.WHITE);
         menu.add(item);
         menu.setBackground(Color.white);
     }
