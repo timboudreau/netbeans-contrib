@@ -182,7 +182,8 @@ Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
             </file>
         </folder>
     </folder>
-        
+    
+    <!-- Uncomment this to enable IPCStoryBoard
     <folder name="Windows2">
         <folder name="Components">
             <file name="IPCStoryBoardTopComponent.settings" url="IPCStoryBoardTopComponentSettings.xml"/>
@@ -192,7 +193,8 @@ Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
                 <file name="IPCStoryBoardTopComponent.wstcref" url="IPCStoryBoardTopComponentWstcref.xml"/>
             </folder>
         </folder>
-    </folder>
+    </folder> 
+    -->
     <folder name="velocity"> 
         <folder name="templates">
              <file name="jsr168portlet.template" url="nbresloc:templates/jsr168portlet.template"/>
