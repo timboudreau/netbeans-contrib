@@ -55,5 +55,7 @@ public interface PortletEventingHandler {
     
     public boolean generateProcessEventMethod(String portlet,String eventName)throws PortletEventException;
     
+    public boolean isEventingSupported();
+    
     public void refresh();
 }

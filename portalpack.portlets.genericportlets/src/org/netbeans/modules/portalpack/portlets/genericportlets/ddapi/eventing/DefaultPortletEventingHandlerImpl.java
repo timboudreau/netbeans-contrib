@@ -94,5 +94,9 @@ public class DefaultPortletEventingHandlerImpl implements PortletEventingHandler
     public boolean generateProcessEventMethod(String portlet, String eventName) throws PortletEventException {
         throw new UnsupportedOperationException("Not supported yet.");
     }
+
+    public boolean isEventingSupported() {
+        return true;
+    }
     
 }
