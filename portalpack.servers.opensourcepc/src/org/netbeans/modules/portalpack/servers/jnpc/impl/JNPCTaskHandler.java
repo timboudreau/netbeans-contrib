@@ -62,12 +62,13 @@ public class JNPCTaskHandler extends DefaultPSTaskHandler{
     private PSDeploymentManager dm;
     private PSConfigObject psconfig;
     
-    private static String PORTLET_ADMIN_INTERFACE = "com.sun.portal.portletadmin.mbeans.PortletAdmin";
+    private static String PORTLET_ADMIN_INTERFACE = "com.sun.portal.portletcontainer.admin.mbeans.PortletAdmin";
     private static String PORTLET_REGISTRY_CONTEXT_FACTORY_OLD = "com.sun.portal.portletadmin.PortletRegistryContextFactory";
     private static String PORTLET_REGISTRY_CONTEXT_OLD = "com.sun.portal.portletadmin.PortletRegistryContext";
     private static String PORTLET_REGISTRY_CONTEXT_FACTORY_NEW = "com.sun.portal.portletcontainer.context.registry.PortletRegistryContextFactory";
     private static String PORTLET_REGISTRY_CONTEXT_NEW = "com.sun.portal.portletcontainer.context.registry.PortletRegistryContext";
-    private static String PORTLET_REGISTRY_CACHE = "com.sun.portal.portletadmin.PortletRegistryCache";
+    private static String PORTLET_REGISTRY_CACHE_OLD = "com.sun.portal.portletadmin.PortletRegistryCache";
+    private static String PORTLET_REGISTRY_CACHE_NEW = "com.sun.portal.portletcontainer.admin.PortletRegistryCache";
     //private FileObject taskFile;
 
     private ServerDeployHandler deployerHandler;
@@ -284,7 +285,13 @@ public class JNPCTaskHandler extends DefaultPSTaskHandler{
    private void updateCache()
    {
        try{
-             Class cacheClazz = loader.loadClass(PORTLET_REGISTRY_CACHE);
+             Class cacheClazz = null;
+             try{
+                cacheClazz = loader.loadClass(PORTLET_REGISTRY_CACHE_NEW);
+             }catch(ClassNotFoundException e)
+             {
+                cacheClazz = loader.loadClass(PORTLET_REGISTRY_CACHE_OLD);
+             }
              Method m = cacheClazz.getMethod("init",new Class[]{});
              m.invoke(null,null);
         }catch(Exception e){
