@@ -18,21 +18,24 @@
   */
 package org.netbeans.modules.portalpack.portlets.genericportlets.storyboard.ipc;
 
+import java.awt.Image;
 import java.io.Serializable;
 import org.openide.ErrorManager;
 import org.openide.util.NbBundle;
+import org.openide.util.Utilities;
 import org.openide.windows.TopComponent;
 import org.openide.windows.WindowManager;
 //import org.openide.util.Utilities;
 
 /**
- * Top component which displays something.
+ *
+ * @author Satyaranjan
  */
 final class IPCStoryBoardTopComponent extends TopComponent {
     
     private static IPCStoryBoardTopComponent instance;
     /** path to the icon used by the component and its open action */
-    //    static final String ICON_PATH = "SET/PATH/TO/ICON/HERE";
+    private static final String ICON_PATH = "org/netbeans/modules/portalpack/portlets/genericportlets/resources/ipcicon.png";
     
     private static final String PREFERRED_ID = "IPCStoryBoardTopComponent";
     private IPCGraphScene scene;
@@ -41,8 +44,12 @@ final class IPCStoryBoardTopComponent extends TopComponent {
         initComponents();
         setName(NbBundle.getMessage(IPCStoryBoardTopComponent.class, "CTL_IPCStoryBoardTopComponent"));
         setToolTipText(NbBundle.getMessage(IPCStoryBoardTopComponent.class, "HINT_IPCStoryBoardTopComponent"));
+        Image iconImage = Utilities.loadImage (ICON_PATH); 
+        setIcon(iconImage);
         scene = new IPCGraphScene(this);
-        jPanel1.add(scene.createView());
+     ////   jPanel1.add(scene.createView());
+        jScrollPane1.setViewportView(scene.createView());
+        
        // scene.getView().setVisible(true);
       ///  System.out.println("*****************"+scene.getView());
         //        setIcon(Utilities.loadImage(ICON_PATH, true));
@@ -50,9 +57,11 @@ final class IPCStoryBoardTopComponent extends TopComponent {
     
     public void reset()
     {
-        jPanel1.remove(scene.getView());
+     ///   jPanel1.remove(scene.getView());
+        jScrollPane1.remove(scene.getView());
         scene = new IPCGraphScene(this);
-        jPanel1.add(scene.createView());
+        //jPanel1.add(scene.createView());
+        jScrollPane1.setViewportView(scene.createView());
     }
     
     
@@ -67,26 +76,23 @@ final class IPCStoryBoardTopComponent extends TopComponent {
      */
     // <editor-fold defaultstate="collapsed" desc=" Generated Code ">//GEN-BEGIN:initComponents
     private void initComponents() {
-
-        jPanel1 = new javax.swing.JPanel();
-
-        jPanel1.setLayout(new java.awt.BorderLayout());
+        jScrollPane1 = new javax.swing.JScrollPane();
 
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(org.jdesktop.layout.GroupLayout.TRAILING, jPanel1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 400, Short.MAX_VALUE)
+            .add(jScrollPane1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 400, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(org.jdesktop.layout.GroupLayout.TRAILING, jPanel1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 300, Short.MAX_VALUE)
+            .add(org.jdesktop.layout.GroupLayout.TRAILING, jScrollPane1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 305, Short.MAX_VALUE)
         );
     }// </editor-fold>//GEN-END:initComponents
     
     
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JPanel jPanel1;
+    private javax.swing.JScrollPane jScrollPane1;
     // End of variables declaration//GEN-END:variables
     
     /**
@@ -129,6 +135,7 @@ final class IPCStoryBoardTopComponent extends TopComponent {
     }
     
     public void componentClosed() {
+        resetScene();
         // TODO add custom code on component closing
     }
     

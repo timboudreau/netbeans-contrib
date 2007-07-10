@@ -455,8 +455,26 @@ public class SunPortletXmlHandler {
         }
         return false;
     }
+    
+    public boolean deleteGeneratesEvent(String portlet,String evtName)
+    {
+         if(notExistsSunPortletXml()) return false;
+         try{
+            reloadRequired();
+        }catch(JDOMException e){
+            return false;
+        }
+        Element portletElm = getPortlet(portlet);
+        if(portletElm == null) return true;
+        if(deleteGeneratesEvent(portletElm, evtName))
+        {
+            writeXmlDocument(sunPortletXml);
+            return true;
+        }
+        return false;
+    }
      public void writeXmlDocument(Document doc)
-  {
+    {
       XMLOutputter outputter = new XMLOutputter(Format.getPrettyFormat());
       try {
           OutputStreamWriter writer = new OutputStreamWriter(new FileOutputStream(file),"UTF-8");

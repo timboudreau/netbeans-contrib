@@ -30,7 +30,7 @@ import org.netbeans.modules.portalpack.portlets.genericportlets.ddapi.*;
 import org.netbeans.modules.portalpack.portlets.genericportlets.node.ddloaders.PortletXMLDataObject;
 import org.openide.nodes.Children;
 import org.openide.nodes.Node;
-import org.openide.util.Exceptions;
+
 import org.openide.util.RequestProcessor;
 
 /**
@@ -47,7 +47,7 @@ public class PortletChildrenNode extends Children.Keys{
             this.dbObj = dbObj;
             this.portletApp = dbObj.getPortletApp();
         } catch (IOException ex) {
-            Exceptions.printStackTrace(ex);
+            ex.printStackTrace();
         }
     }
     

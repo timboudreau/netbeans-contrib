@@ -58,5 +58,14 @@ public class IPCActionsHandler {
         }
     }
      
+    public void generateProcessEventSource(String nodeKey,String eventName)
+    {
+        PortletNode portletNode = scene.getPortletNode(nodeKey);
+        try{
+            portletNode.getDataObject().getPortletEventingHandler().generateProcessEventMethod(portletNode.getName(), eventName);
+        }catch(PortletEventException e){
+            e.printStackTrace();
+        }
+    }
     
 }

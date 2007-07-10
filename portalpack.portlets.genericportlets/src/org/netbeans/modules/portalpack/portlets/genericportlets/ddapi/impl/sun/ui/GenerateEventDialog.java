@@ -27,6 +27,7 @@ import java.awt.Frame;
 public class GenerateEventDialog extends javax.swing.JDialog {
     private String portlet = "";
     private String event = "";
+    private boolean cancel = false;
     /** Creates new form GenerateEventDialog */
     public GenerateEventDialog(Frame parent,String portlet,String eventName) {
         super(parent,true);
@@ -39,11 +40,12 @@ public class GenerateEventDialog extends javax.swing.JDialog {
     
     private void initData()
     {
+        eventNameTf.setEditable(false);
         portletNameTf.setText(portlet);
         eventNameTf.setText(event);
     }
     
-    public void setMethodNames(String[] methods)
+    public void setMethods(Object[] methods)
     {
         for(int i=0;i<methods.length;i++)
         {
@@ -51,6 +53,19 @@ public class GenerateEventDialog extends javax.swing.JDialog {
         }
     }
     
+    public boolean isCancelled()
+    {
+        return cancel;
+    }
+    public void setSuggestedMethodName(String method)
+    {
+        methodNameTxt.setText(method);
+
+    }
+    public String getSuggestedMethodName()
+    {
+        return methodNameTxt.getText();
+    }
     /** This method is called from within the constructor to
      * initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is
@@ -201,6 +216,7 @@ public class GenerateEventDialog extends javax.swing.JDialog {
 
 private void cancelButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cancelButtonActionPerformed
     // TODO add your handling code here:
+    cancel = true;
     setVisible(false);
     dispose();
 }//GEN-LAST:event_cancelButtonActionPerformed
@@ -211,6 +227,15 @@ private void cancelButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-
     dispose();
 }//GEN-LAST:event_okButtonActionPerformed
    
+    public boolean addToExistingMethod()
+    {
+        return addToExistingMethodCombo.isSelected();
+    }
+
+    public Object getExistingMethodName()
+    {
+        return methodListCombo.getSelectedItem();
+    }
     
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JCheckBox addToExistingMethodCombo;
