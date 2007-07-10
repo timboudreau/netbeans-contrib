@@ -25,7 +25,7 @@ Microsystems, Inc. All Rights Reserved.
 <project name="org.netbeans.modules.portals.sunps7" default="netbeans" basedir=".">
     <description>Builds, tests, and runs the project org.netbeans.modules.portals.sunps7.</description>
       <import file="../../../nbbuild/templates/projectized.xml"/>
- 
+     <property name="base.nbm.target.dir" value="build"/>
      <target name="netbeans-extra" depends="release"/>
 
      <target name="compile" depends="projectized-common.compile">
@@ -46,7 +46,7 @@ Microsystems, Inc. All Rights Reserved.
         -->
      </target>  
      
-     <target name="nbm" depends="init,netbeans" description="Build NBM archive.">
+   <!--  <target name="nbm" depends="init,netbeans" description="Build NBM archive.">
         <mkdir dir="build"/>
         <makenbm file="build/${nbm}"
                  productdir="${cluster}"
@@ -58,13 +58,9 @@ Microsystems, Inc. All Rights Reserved.
                  releasedate="${nbm.release.date}"
 		 moduleauthor="${nbm.module.author}">
             <license file="${basedir}/../../LICENSE"/>
-            <!-- <license name="${basedir}/../../LICENSE">
-                <text>For the integration module:</text>
-                <file location="${basedir}/../../LICENSE"/>
-
-             </license> -->
+            
             <signature keystore="${keystore}" storepass="${storepass}" alias="${nbm_alias}"/>
         </makenbm>
-    </target>
+    </target>-->
      
 </project>
