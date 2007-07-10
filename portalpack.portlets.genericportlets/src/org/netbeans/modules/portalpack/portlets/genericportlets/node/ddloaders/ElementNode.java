@@ -16,7 +16,7 @@
   * Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
   * Microsystems, Inc. All Rights Reserved.
   */
-
+package org.netbeans.modules.portalpack.portlets.genericportlets.node.ddloaders;
 import org.netbeans.modules.portalpack.portlets.genericportlets.node.ddloaders.PortletXMLDataObject;
  
 import java.lang.reflect.InvocationTargetException;
