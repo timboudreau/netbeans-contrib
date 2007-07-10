@@ -54,9 +54,9 @@ public interface CodeGenConstants {
     public static final String RESOURCE_FILTER_TYPE = "Resource Filter";
     
     //lifecycle phases
-    public static final String ACTION_PHASE="ACTION";
-    public static final String EVENT_PHASE="EVENT";
-    public static final String FRAGMENT_PHASE="FRAGMENT";
-    public static final String RENDER_PHASE="RENDER";
-    public static final String RESOURCE_PHASE="RESOURCE";
+    public static final String ACTION_PHASE="ACTION_PHASE";
+    public static final String EVENT_PHASE="EVENT_PHASE";
+    public static final String FRAGMENT_PHASE="FRAGMENT_PHASE";
+    public static final String RENDER_PHASE="RENDER_PHASE";
+    public static final String RESOURCE_PHASE="RESOURCE_PHASE";
 }
