@@ -1,0 +1,55 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<body>
+
+Looks is an SPI (service provider interface) which permits the definition of
+transformations from arbitrary Java objects into a form suitable for
+visual representation.
+
+<!-- that was the summary sentence -->
+
+The transformation includes conversion of object 
+attributes into atrributes of it's visual representation and conversion
+of events fired from praticular object into events suitable for rearanging
+the visual representation. 
+<p>
+The architecture of Looks allows for more independent modules to take 
+part in an object visualisation. (I.e. using Looks it is possible for module
+A to add child objects to an object originally created and visualised by module
+B.)
+<p>
+Besides the Looks SPI this package also contains a bridge to the current NetBeans
+visualisation API,
+<a href="@OPENIDE@/org/openide/nodes/doc-files/api.html">Nodes</a>.
+<p>
+
+<h2>Additional information</h2>
+
+<a href="org/netbeans/spi/looks/doc-files/about.html"><b>About Looks</b></a>
+: general information on why Looks API exists what it
+provides and how it is related to the Nodes API.<br>
+<a href="org/netbeans/spi/looks/doc-files/howto.html"><b>Looks HowTo</b></a>
+: document describing usual usecases for the looks API
+including short examples of code.<br>
+<!-- a href="org/netbeans/spi/looks/doc-files/plans.html"><b>Looks - Known issues,
+plans</b></a>
+: talks about what might/will change and what are the plans.-->
+
+<p>
+
+<font size="+2" style="color: red;"><b>WARNING:</b></font>
+<i>
+The API is still under development and may be changed. The changes will not 
+change the general way how the looks API works and can be considered small but 
+it is not granted that the changes will be compatoble on either binary or 
+source level.<br>
+Especially the way how the Looks are registered on the system filesystem 
+using module layers will likely undergo some changes when the back end of the 
+<a href="@OPENIDE/REGISTRY@/">Registry API</a> 
+will change.
+</i>
+
+</body>
+
+</html>

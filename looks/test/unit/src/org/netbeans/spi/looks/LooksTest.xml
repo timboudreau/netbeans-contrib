@@ -1,0 +1,159 @@
+<?xml version="1.0"?>
+<!--
+The contents of this file are subject to the terms of the Common Development
+and Distribution License (the License). You may not use this file except in
+compliance with the License.
+
+You can obtain a copy of the License at http://www.netbeans.org/cddl.html
+or http://www.netbeans.org/cddl.txt.
+
+When distributing Covered Code, include this CDDL Header Notice in each file
+and include the License file at http://www.netbeans.org/cddl.txt.
+If applicable, add the following below the CDDL Header, with the fields
+enclosed by brackets [] replaced by your own identifying information:
+"Portions Copyrighted [year] [name of copyright owner]"
+
+The Original Software is NetBeans. The Initial Developer of the Original
+Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
+Microsystems, Inc. All Rights Reserved.
+-->
+<!DOCTYPE filesystem PUBLIC "-//NetBeans//DTD Filesystem 1.1//EN" "http://www.netbeans.org/dtds/filesystem-1_1.dtd">
+
+<filesystem>
+    <folder name="Looks">
+        <file name="NODES.instance">
+            <attr name="instanceClass" stringvalue="org.netbeans.api.nodes2looks.Nodes" />
+            <attr name="instanceCreate" methodvalue="org.netbeans.api.nodes2looks.Nodes.nodeLook" />
+        </file>
+
+        <file name="BEANS.instance">
+            <attr name="instanceClass" stringvalue="org.netbeans.spi.looks.Look" />
+            <attr name="instanceCreate" methodvalue="org.netbeans.spi.looks.Looks.bean" />
+        </file>
+
+       <folder name="Bean">
+            <file name="SimpleBeanLook.instance">
+	        <attr name="instanceClass" stringvalue="org.netbeans.spi.looks.Look" />
+    	        <attr name="instanceCreate" methodvalue="org.netbeans.spi.looks.Looks.bean" />
+            </file>
+	</folder>
+        <file name="FILTER_DEFAULT.instance">
+            <attr name="instanceClass" stringvalue="org.netbeans.spi.looks.Look" />
+            <attr name="instanceCreate" methodvalue="org.netbeans.spi.looks.Looks.filter" />
+            <attr name="delegateLook" stringvalue="Looks/Bean/SimpleBeanLook" />  
+        </file>
+        <file name="FILTER_DEFAULT2.instance">
+            <attr name="instanceClass" stringvalue="org.netbeans.spi.looks.Look" />
+            <attr name="instanceCreate" methodvalue="org.netbeans.spi.looks.Looks.filter" />
+            <attr name="delegateLook" methodvalue="org.netbeans.spi.looks.Looks.bean" />
+        </file>
+        <file name="FILTER_ALL_METHODS.instance">
+            <attr name="instanceClass" stringvalue="org.netbeans.spi.looks.Look" />
+            <attr name="instanceCreate" methodvalue="org.netbeans.spi.looks.Looks.filter" />
+            <attr name="delegateLook" stringvalue="Looks/Bean/SimpleBeanLook" />  
+            <attr name="ALL_METHODS" boolvalue="true" />
+        </file>
+        <file name="FILTER_ALL_METHODS2.instance">
+            <attr name="instanceClass" stringvalue="org.netbeans.spi.looks.Look" />
+            <attr name="instanceCreate" methodvalue="org.netbeans.spi.looks.Looks.filter" />
+            <attr name="delegateLook" methodvalue="org.netbeans.spi.looks.Looks.bean" />
+            <attr name="ALL_METHODS" boolvalue="true" />
+        </file>
+
+        <file name="FILTER_ALL_METHODS_MINUS_GET_NAME.instance">
+            <attr name="instanceClass" stringvalue="org.netbeans.spi.looks.Look" />
+            <attr name="instanceCreate" methodvalue="org.netbeans.spi.looks.Looks.filter" />
+            <attr name="delegateLook" stringvalue="Looks/Bean/SimpleBeanLook" />  
+            <attr name="ALL_METHODS" boolvalue="true" />
+            <attr name="GET_NAME" boolvalue="false" />
+        </file>
+        
+        <file name="FILTER_ALL_METHODS_MINUS_GET_NAME2.instance">
+            <attr name="instanceClass" stringvalue="org.netbeans.spi.looks.Look" />
+            <attr name="instanceCreate" methodvalue="org.netbeans.spi.looks.Looks.filter" />
+            <attr name="delegateLook" methodvalue="org.netbeans.spi.looks.Looks.bean" />
+            <attr name="ALL_METHODS" boolvalue="true" />
+            <attr name="GET_NAME" boolvalue="false" />
+        </file>
+
+        <file name="FILTER_NO_METHODS.instance">
+            <attr name="instanceClass" stringvalue="org.netbeans.spi.looks.Look" />
+            <attr name="instanceCreate" methodvalue="org.netbeans.spi.looks.Looks.filter" />
+            <attr name="delegateLook" stringvalue="Looks/Bean/SimpleBeanLook" />  
+            <attr name="NO_METHODS" boolvalue="true" />
+        </file>
+
+        <file name="FILTER_NO_METHODS2.instance">
+            <attr name="instanceClass" stringvalue="org.netbeans.spi.looks.Look" />
+            <attr name="instanceCreate" methodvalue="org.netbeans.spi.looks.Looks.filterL" />
+            <attr name="delegateLook" methodvalue="org.netbeans.spi.looks.Looks.bean" />
+            <attr name="NO_METHODS" boolvalue="true" />
+        </file>
+        
+        <file name="FILTER_NO_METHODS_PLUS_GET_NAME.instance">
+            <attr name="instanceClass" stringvalue="org.netbeans.spi.looks.Look" />
+            <attr name="instanceCreate" methodvalue="org.netbeans.spi.looks.Looks.filter" />
+            <attr name="delegateLook" stringvalue="Looks/Bean/SimpleBeanLook" />  
+            <attr name="ALL_METHODS" boolvalue="false" />
+            <attr name="GET_NAME" boolvalue="true" />
+        </file>
+        
+        <file name="FILTER_NO_METHODS_PLUS_GET_NAME2.instance">
+            <attr name="instanceClass" stringvalue="org.netbeans.spi.looks.Look" />
+            <attr name="instanceCreate" methodvalue="org.netbeans.spi.looks.Looks.filter" />
+            <attr name="delegateLook" methodvalue="org.netbeans.spi.looks.Looks.bean" />
+            <attr name="ALL_METHODS" boolvalue="false" />
+            <attr name="GET_NAME" boolvalue="true" />
+        </file>
+
+        <folder name="Selectors">
+            <file name="NAMESPACE_SELECTOR.instance">
+                <attr name="instanceClass" stringvalue="org.netbeans.spi.looks.LookSelector" />
+                <attr name="instanceCreate" methodvalue="org.netbeans.spi.looks.Selectors.namespaceTypes" />
+                <attr name="context" stringvalue="Looks/Types/Beans/" />  
+            </file>
+            <file name="DECORATOR_SELECTOR.instance">
+                <attr name="instanceClass" stringvalue="org.netbeans.spi.looks.LookSelector" />
+                <attr name="instanceCreate" methodvalue="org.netbeans.spi.looks.Selectors.decorator" />
+                <attr name="lookSelector" methodvalue="org.netbeans.spi.looks.LooksTest.namespaceSelectorForLooksTypesBeans" />
+                <attr name="decoratingLook" stringvalue="Looks/Bean/SimpleBeanLook" />  
+                <attr name="asLast" boolvalue="true" />  
+                <attr name="excludable" boolvalue="true" />  
+            </file>
+            <file name="DECORATOR_SELECTOR2.instance">
+                <attr name="instanceClass" stringvalue="org.netbeans.spi.looks.LookSelector" />
+                <attr name="instanceCreate" methodvalue="org.netbeans.spi.looks.Selectors.decorator" />
+                <attr name="lookSelector" stringvalue="Looks/Selectors/NAMESPACE_SELECTOR" />  
+                <attr name="decoratingLook" methodvalue="org.netbeans.spi.looks.Looks.bean" />
+                <attr name="asLast" boolvalue="true" />  
+                <attr name="excludable" boolvalue="true" />  
+            </file>            
+        </folder>
+        
+        <folder name="Types">
+            <folder name="Beans">
+                <folder name="java">
+                    <folder name="lang">
+                        <file name="String.shadow">
+                            <attr name="originalFile" stringvalue="Looks/BEANS.instance"/>
+                        </file>
+                        <file name="Object.shadow">
+                            <attr name="originalFile" stringvalue="Looks/NODES.instance"/>
+                        </file>
+                    </folder>
+                </folder>
+            </folder>
+            <folder name="Simple">
+                <folder name="java">
+                    <folder name="lang">
+                        <file name="String.instance">
+                            <attr name="instanceClass" stringvalue="org.netbeans.spi.looks.Look" />
+                            <attr name="instanceCreate" methodvalue="org.netbeans.spi.looks.LooksTest.instanceCountingLook" />
+                        </file>
+                    </folder>
+                </folder>
+            </folder>
+        </folder>
+        
+    </folder>    
+</filesystem>

@@ -1,0 +1,322 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML>
+<HEAD>
+<TITLE>Looks API - About</TITLE>
+<META NAME="Author" CONTENT="Petr Hrebejk">
+<META NAME="CATEGORY" CONTENT="FunctionalSpec">
+<META NAME="DESCRIPTION" CONTENT="The Looks Architecture">
+
+<link rel="Stylesheet" href="../../../../../prose.css" type="text/css" title="NetBeans Open APIs Style">
+
+</HEAD>
+
+<BODY>
+
+<H1>Looks API - About</H1>
+
+<P>
+
+<B>Abstract:</B> The document describes how and why the LooksAPI extends the NodesAPI
+<BR>
+
+<P>
+<B>Contents:</B>
+
+<UL>
+    1] <A href="#1">What are Nodes</A>
+    <UL>
+        1.1] <A href="#1.1">Why you should know the NodesAPI before reading about Looks</A><BR>
+        1.2] <A href="#1.2">What are nodes in short</A>
+    </UL>    
+    2] <A href="#2">What are Looks</A>
+    <UL>
+        2.1] <A href="#2.1">Cooperation beween modules when creating visual represntation of an object</A><BR>        
+        2.2] <A href="#2.2">Stronger separation of aspects when creating a node</A>
+        2.3] <A href="#2.3">Simplyfing event firing</A></H3>
+        2.4] <A href="#2.4">Displaying only one relationship</A><BR>
+        2.5] <A href="#2.5">Misc improvements</A><BR>
+    </UL>
+</UL>
+
+<P>
+<B>See also:</B>
+<UL>
+    <A href="howto.html">Looks - How Tos</A><BR>
+    <A href="../package-summary.html">looks - package summary</A><BR>
+    <A href="../../../api/nodes2looks/package-summary.html">nodes2ooks - package summary</A><BR>
+    <!-- A href="plans.html">Looks API - Known issues, plans, future directions</A><BR -->
+    <!--A href="">Looks - Exmaple</A> [PENDING]<BR> -->
+</UL>
+
+
+<H2><A NAME="1">1] Nodes</A></H2>
+
+<BLOCKQUOTE>
+
+<H3><A NAME="1.1">1.1] Why you should know the NodesAPI before reading about Looks</A></H3>
+
+It might be necessary to read a little bit about NodesAPI before starting 
+reading about Looks. LooksAPI is more or less originated as an extension of the 
+NodesAPI so some knowledge about Nodes is required use the LookAPI correcty. 
+A very good source of inforamtion about Nodes is the 
+<A HREF="@OPENIDE@/org/openide/nodes/doc-files/api.html">
+NodesAPI description</A>. First, it will give you an overall notion about the
+nodes acrchitecture and how nodes are bound to the JavaBeans concept. Second
+many of the methods in the Look class and in it's subclasses are supposed to
+work exactly the way methods in Node do. So if you want to know more about
+implementing Cut &amp Paste operations for nodes (no matter whether using looks or not),
+then the above mentioned document is the right text to read.
+<P>
+Short description on nodes follows for those of you who do not want or have no
+time to read the NodesAPI description. Developers already knowledgeable about
+Nodes are of course encouraged to skip both the NodesAPI description and the 
+following paragraph.
+<P>
+
+<H3><A NAME="1.2"></A>1.2] What are nodes in short</H3>
+Nodes are presentation objects used in the IDE. Presentation in this case should 
+not be considered equal to visual representation. Nodes are an layer between objects, 
+which should be presented visually (e.g. JavaBeans, FileObjects, Services, Options, etc.) 
+and the real visual presentation. In other words the nodes are on the half way
+between in-memory object and it's visual presentation on the screen.<BR>
+The real visual presentation may vary. The most usuall node representation in
+NetBeans is the <A>tree</A> form with a <A>property sheet</A> and actions popup menu in the 
+explorer. But there are more types of views available in NetBeans e.g. 
+<A>ListView</A>, <A>IconView</A>, <A>TreeTable</A> view etc.<BR>
+All these types of views have something in common. You could say that the views
+present some kinds of records and allow invocation of some actions on those
+records. Nodes are translation of various objects into this unified structures.
+The contract of a node is very similar to contract if a JavaBean. For more info see: the
+<A HREF="@OPENIDE@/org/openide/nodes/doc-files/api.html">
+NodesAPI description</A>. and 
+<A HREF="@OPENIDE@/org/openide/nodes/Node.html">
+Javadoc for the Node class.</A>
+<P>
+</BLOCKQUOTE>
+
+<H2><A NAME="2">2] What are Looks</A></H2>
+
+Now, when there already is the Nodes layer in NetBeans why to add something 
+new to it? The abstraction of Nodes is quite powerful and useful. But a
+common framework for conversion of in-memory representation of data
+(java.sql.Result, java.util.List, org.openide.filesystem.FileObject, any 
+JavaBean, etc.) into Nodes is missing. Such transformation framework should
+be powerfull enough to allow developers easily create semanticaly rich
+presentation of the data in theirs applications. It also should allow reuse
+of already defined presentations etc. (see below for the main requirements) 
+The looks should be seen as such an utility framework which should fill the gap, 
+thus make the module developer's life easier, and bring additional improvements 
+for the user.<BR>
+Notice that the Looks API does not depend directly on Nodes
+and it is possible to create Views in future, which only require Looks and no 
+nodes. However in the nodes2looks package contains classes and methods to 
+allow smooth interoperation between Looks and existing Node based APIs.
+<P>
+The basic idea behind the looks is that there exists a net of objects which 
+have actions/services/methods which can be invoked. The objects also 
+have attributes/properties which can be displayed and changed. 
+This is quite obvious in the object oriented world. It also maps 
+very well to the Nodes abstraction used in the IDE (i.e. Nodes, Properties, 
+Actions etc.). However representing the objects using only nodes has some
+drawbacks. LooksAPI tries to solve these problems. 
+<BLOCKQUOTE>
+
+<H3><A NAME="2.1">2.1] Cooperation beween modules when creating visual 
+represntation of an object</A></H3>
+NetBeans architecture is based on allowing loosely coupled set of modules to
+create an application. Although the modules should be designed to be as much 
+independent as possible developers sometimes need to allow some level of 
+cooperation of modules. Sharing a node which represents some object is example 
+of such cooperation. (Currently in the NetBeans IDE the support for plain Java 
+and supprt for working JavaBeans are two separated modules. However the JavaBeans
+module needs to add it's own child node under the node representing a Java class.
+this is impossible when using nodes only. Well, there is a way how to do it 
+which only works for Java elements using using not very popular
+<A HREF="@JAVA/SRCMODEL@/org/openide/src/nodes/FilterFactory.html">
+Filter Factories</A>.)<BR>
+Looks should allow such cooperation between any modules. Usual way how NetBeans
+modules cooperate is through XML layers in the module jars. A module
+can define a folder in the layer and other modules are allowed to add instances
+of their classes into such folder. (The resulting content in folder is a merge
+from instances in all modules.)<BR>
+In order to be able to use this way of modules cooperation we need to switch
+from the generalization based model in Nodes to a composition based model.
+<A>CompositeLook</A> and <A>ProxyLook</A> are classes which allow for
+the module cooperatin.<BR>
+Notice that the Looks framework does not an can not solve the problem of 
+what how exactly the Looks will cooperate. This is the responsibility of 
+the module which provides the composition Look. So there can still be modules
+which do not allow any other modules to modify the visualisation of their object
+however some modules may expose such declarative API.
+<P>
+
+<H3><A NAME="2.2">2.2] Stronger separation of aspects when creating a node</A></H3>
+The API of the Node class mixes many aspects of a node together. There are 
+methods which affects the visual form of the node mixed with the methods for 
+the managing node's internal state or children, firing events, support for drag and drop,
+support for cut'n'paste etc. mixed together:
+
+<TABLE>
+<TR valign="top">
+    <TD CLASS="tablecbg" WIDTH="25%"><B>Ascpect</B></TD>
+    <TD CLASS="tablecbg"><B>Methods</B></TD>
+</TR>
+<TR valign="top">
+    <TD class='tablerbg'>Node's visualisation</TD>
+    <TD><CODE>
+        <A HREF="">getIcon(int type)</A><BR>
+        <A HREF="">setDisplayName(String s)</A><BR>
+        <A HREF="">setShortDescription(String s)</A><BR>
+        <A HREF="">Image getOpenedIcon(int type)</A><BR>
+        <A HREF="">isLeaf()</A><BR>
+        <A HREF="">getChildren()</A><BR>
+        <A HREF="">void setChildren(Children ch)</A><BR>
+        </CODE>
+    </TD>
+</TR>
+<TR valign="top">    
+    <TD class='tablerbg'>Properties</TD>
+    <TD><CODE>
+        <A HREF="">getCustomizer()</A><BR>
+        <A HREF="">getPropertySets()</A><BR>
+        <A HREF="">hasCustomizer()</A><BR>
+        </CODE>
+    </TD>
+</TR>
+<TR valign="top">    
+    <TD class='tablerbg'>Actions & New Types</TD>
+    <TD><CODE>
+        <A HREF="">getActions()</A><BR>
+        <A HREF="">getContextMenu()</A><BR>
+        <A HREF="">getContextActions()</A><BR>
+        <A HREF="">getDefaultAction()</A><BR>
+        <A HREF="">getNewTypes()</A><BR>
+        </CODE>
+    </TD>
+</TR>
+<TR valign="top">    
+    <TD class='tablerbg'>Cut'n'Paste</TD>
+    <TD> <CODE>
+         <A HREF="">canCopy()</A><BR>
+         <A HREF="">canCut()</A><BR>
+         <A HREF="">clipboardCopy()</A><BR>
+         <A HREF="">clipboardCut()</A><BR>
+         </CODE>
+    </TD>
+</TR>
+<TR valign="top">    
+    <TD class='tablerbg'>Drag'n'Drop</TD>
+    <TD><CODE>
+        <A HREF="">getPasteTypes(Transferable t)</A><BR>
+        <A HREF="">getDropType(Transferable t, int action, int index)</A><BR>
+        <A HREF="">drag()</A><BR>
+        </CODE>
+    </TD>
+</TR>
+<TR valign="top">
+    <TD class='tablerbg'>Nodes interanal state</TD>
+    <TD><CODE>
+        <A HREF="">canDestroy()</A><BR>
+        <A HREF="">canRename()</A><BR>
+        <A HREF="">Object clone()</A><BR>
+        <A HREF="">cloneNode()</A><BR>
+        <A HREF="">destroy()</A><BR>
+        <A HREF="">getCookie(Class type)</A><BR>
+        <A HREF="">Node.Handle getHandle()</A><BR>
+        <A HREF="">getLookup()</A><BR>
+        <A HREF="">getLookup()</A><BR>
+        <A HREF="">setName(String s)</A><BR>
+        <A HREF="">getHelpCtx()</A><BR>
+        <A HREF="">getParentNode()</A><BR>
+        </CODE>
+    </TD>
+</TR>
+<TR valign="top">
+    <TD class='tablerbg'>Event firing</TD>
+    <TD><CODE>
+        <A HREF="">fireCookieChange()</A><BR>
+        <A HREF="">fireDisplayNameChange(String o, String n)</A><BR>
+        <A HREF="">fireIconChange()</A><BR>
+        <A HREF="">fireNameChange(String o, String n)</A><BR>
+        <A HREF="">fireNodeDestroyed()</A><BR>
+        <A HREF="">fireOpenedIconChange()</A><BR>
+        <A HREF="">firePropertyChange(String name, Object o, Object n)</A><BR>
+        <A HREF="">firePropertySetsChange(Node.PropertySet[] o, Node.PropertySet[] n)</A><BR>
+        <A HREF="">fireShortDescriptionChange(String o, String n)</A><BR>
+        <A HREF="">addNodeListener(NodeListener l)</A><BR>
+        <A HREF="">addPropertyChangeListener(PropertyChangeListener l)</A><BR>
+        <A HREF="">hasPropertyChangeListener()</A><BR>
+        <A HREF="">removeNodeListener(NodeListener l)</A>,
+        <A HREF="">removePropertyChangeListener(PropertyChangeListener l)</A><BR>
+        </CODE>
+    </TD>
+</TR>
+</TABLE>
+ 
+<BR>
+The only way developer would be  able to separate these aspects of nodes in 
+order to allow some level of reuse would be designing his own classes and using 
+delegation.<BR>
+Looks API gives the developer a framework for developing different aspects 
+separatley and composing them later with the possibility to share parts of
+the implementation between different types of represented objects, in different 
+Looks. Sipmle composition and filtering are one of the major advantages 
+when using looks. Notice that when using filtering or composition the 
+Looks framework will take care of composing and filtering the events fired from
+the objects as well.
+
+<H3><A NAME="2.3">2.3] Simplyfing event firing</A></H3>
+
+Node was limited to fire only some changes in the underlying data. E.g. there
+was no way how to fire change in the result of hasCustomizerMethod(). Also
+all the firing methods were done as regular property changes i.e. there were
+arguments for old and new value. This lead to the situatuin where some subclasses
+had these methods implemented correctly an computed the values where some
+implementations dir fire nulls instead.<BR>
+In only the information is fired that something changed and the view has to
+ask the Look for new values using regular Look methods. Event types are 
+numbered rather than having separate methods. This allows for fireing more
+changes at once. (E.g. it is possible to inform the view that the icon, opened
+icon an name changed using one event istead of three)<BR>
+This approach should allow views to handle events more effectively i.e. not 
+to fire events from invisible objects, doing more updates at once. Decide
+about suitable caching strategy for given view etc.
+
+<H3><A NAME="2.4">2.4] Displaying only more aspects of object or more 
+relationships between objects</A></H3>
+Nodes are usually used to present the hierarchy of objects. This hierarchy
+is usualy based on one kind of relationship between the represented objects.
+Good example could be the hierarchy of Java classes and it's elements (e,g,
+fields and methods. Currently in the IDE if you look at a Java class using int 
+the explorer the hierarchy is given by containment (i.e. packages contain
+Java classes, Java classes contain innerclasses, fields, constructors and 
+methods). But it is true that the object describing  a Java source rather 
+form a net than a tree. This can also be formulated so 
+that the containment is not the only relationship which can be displayed for 
+the Java sources. Other possible view of a Java class would show the supperclasses
+and implemented interfaces of the class, yet another view would show the Java
+class as a JavaBean with it's properties and event sources, different view
+would show correctness of the Javadoc on the elements etc.<BR>
+Looks allow to change is the fact that there is usually only one way how 
+to look at the underlying data (object net). Just replace the word view from
+the paragraph above with the word Look and allow switching look on given node
+and you will get very flexible and rich viewer of the undelying object net.</LI>
+<P>
+<B>Notice</B>: Although this feature is implemented internaly there is currently
+no API for changing look of a represented object.
+<P>
+
+<H3><A NAME="2.5">2.5] Misc improvements</A></H3>
+
+The looks framework tryies not to remove any features which were available
+in Nodes but it tryies to be more kind to the CPU and memory. So for example
+when you still can chain looks as it was possible to chain FilterNodes 
+the Looks framework saves listeners objects where possible. Also (as already 
+mentioned in the paragraph 2.3) with some changes in the views ( and/or Nodes,
+Children) classes there may be really siginificant memory consumption 
+improvements achieved.
+
+
+<BLOCKQUOTE>
+</BODY>
+</HTML>

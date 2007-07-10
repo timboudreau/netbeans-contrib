@@ -1,0 +1,48 @@
+<HTML>
+<BODY>
+
+This package contains the whole Look framework. 
+
+<H3>Basic classes</H3>
+
+Basic classes Look, DefaultLook, LookSelector and NamespaceSelector will
+be used when defining the transformation between arbitrary represend object 
+and it's visual representation. The Look can be think of as factory for
+the values used for visual representation of objects. I.e. the Look is
+given the object and should return/extract/compute the proper value
+(e.g. DisplayName or Icon)<BR>
+Look is the class responsible for the transformation of data and events.
+Look selector is responsible for finding proper Look (set of Looks) for 
+given object where the search can be based on various criteria e.g. type
+of the object some (immutable) property of the object etc.
+<BR>
+Simply extending look will provide a "null" representation so there
+won't be any name, any icon etc. Overriding methods in the subclass of Look
+allows to return some reasonable values based on properties of the
+represented object. The subclass can also decide to implement some listener
+interfaces and register on the represented objects in order to 
+translate/refire the changes and in turn update the view when some 
+property of represented object changes.
+<BR>
+LookSelectors serve:
+<OL>
+    <LI>For implementing more advanced Looks search strategies in Proxy/Composite
+Looks and for selecting proper Looks for different categories of objects.</LI>
+    <LI>For creating an API of modules which need to
+allow other modules to modify the visual representation of objects the 
+module produces.</LI>
+</OL>
+
+<H3>Static factories</H3>
+
+
+There are two static factories (Looks and Selectors). These factories: 
+<OL>
+    <LI>Provide some default implementations of Looks for general objects e.g. JavaBeans
+or selecting by a type of object.</LI>
+    <LI>Second, provide Looks and LookSelectors which execute some general operations
+on other Looks/LookSelectors (e.g. composition and filtering)</LI>
+</OL>
+
+</BODY>
+</HTML>

@@ -1,0 +1,461 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML>
+<HEAD>
+<TITLE>Looks API - HowTo</TITLE>
+<link rel="stylesheet" href="../../../../../prose.css" type="text/css">
+
+</HEAD>
+
+<BODY>
+
+
+<H1>Looks API - HowTo</H1>
+
+<P>
+
+<B>Abstract:</B> The document describes typical usecases of looks in form of 
+How Tos. You may either choose the topic you interested in or the document
+can be read sequentialy as a tutorial. This document is non-normative.
+
+<BR>
+
+<P>
+<B>Contents:</B>
+
+<UL>
+
+    <P>
+    <B>Simple look implementation</B>
+    <P>
+    1] <A HREF="#simple">How to implement simple node using looks</A><BR>
+    2] <A HREF="#children">How to add children (subnodes)</A><BR>
+    3] <A HREF="#defaultLook">How to make coding easier with DefaultLook</A><BR>
+    4] <A HREF="#events">How to reflect changes in represented object</A><BR>
+    5] <A HREF="#legacy">How to transform "standard objects" (Beans & Nodes)</A><BR>    
+    <P>
+    <B>Operations on Looks</B>
+    <P>    
+    6] <A HREF="#reuse">How to reuse part of an existing Look - Filtering</A><BR>
+    7] <A HREF="#composition">How to build a look from more looks - Composition</A><BR>
+    8] <A HREF="#composition2">How to add features to other looks - Composition II</A><BR>
+    <P>
+    <B>Declarative registration and exposing APIs</B>
+    <P>
+    9]<A HREF="#sfs"> How to declare looks using the system filesystem</A><BR>
+    10]<A HREF="#api"> How to allow other modules to influence your view</A><BR>
+    <!--
+    x] <A HREF="">How to specify look for children</A><BR>
+    x] <A HREF="">How to use the lookup</A><BR>
+    x] <A HREF="">How to reflect changes in the look itself</A><BR>
+    x] <A HREF="">How to modify (decorate) all nodes under my node</A><BR>
+    x] <A HREF="">How to pass context down through a hierarchy of nodes</A><BR>
+    x] <A HREF="">How to allow switching looks on nodes</A><BR>
+    x] <A HREF="">How to provide different UI for switching looks</A><BR>
+    x] <A HREF="">How to communicate with other looks participating on creating given node</A><BR>
+    -->
+
+</UL>
+
+<P>
+<B>See also:</B>
+<UL>
+    <A href="about.html">About looks</A><BR>
+    <A href="../package-summary.html">looks - package summary</A><BR>
+    <A href="../../../api/nodes2looks/package-summary.html">nodes2ooks - package summary</A><BR>
+    <!-- A href="plans.html">Looks API - Known issues, plans, future directions</A><BR -->
+    <!--A HREF="">Looks - Exmaple</A> [PENDING]<BR> -->
+</UL>
+
+
+<H2><A name="simple">1] How to implement simple node using looks</A></H2>
+
+This is the basic problem. There is some object which has to be represented 
+using nodes. When using the NodesAPI only one would subclass the Node class 
+(or better the AbstractNode class), override some methods (e.g getDisplayName() ).
+After that you would call the constructor of the new class.
+When using looks the procedure is very similar but there are some little diffrences.
+You will subclass the Look class, which gives you a "null" or "meutral" visual 
+representation, such a Look does not produce any data. This is probably not
+intended behavior so you have to decide which data you want to produce and 
+override corresponding methods in your subclass.
+
+<P>
+The example shows simple look for NetBeans FileObject which provides 
+icon and name:
+
+<pre>
+import java.awt.Image;
+
+import org.openide.filesystems.FileObject;
+import org.netbeans.spi.looks.Look;
+import org.openide.util.Lookup;
+import org.openide.util.Utilities;
+
+public class FileObjectStyle extends Look {
+    
+    private static Look INSTANCE = new FileObjectStyle( "FILE_OBJECT_STYLE" );
+    
+    private static Image FILE_IMAGE = Utilities.loadImage( "file.gif" );
+    private static Image FOLDER_IMAGE = Utilities.loadImage( "folder.gif" );
+    
+    private FileObjectStyle(String name) {
+        super( name );
+    }
+    
+    public static Look getInstance() {
+        return INSTANCE;
+    }
+    
+    public String getName(Object representedObject, Lookup env) {
+        return ((FileObject)representedObject).getNameExt();
+    }
+    
+    public String getDisplayName(Object representedObject, Lookup env) {        
+        return getName( representedObject, env );
+    }    
+    
+    public Image getIcon(Object representedObject, int type, Lookup env) {
+        FileObject fo = (FileObject)representedObject;
+        
+        return fo.isFolder() ? FOLDER_IMAGE : FILE_IMAGE;        
+    }    
+        
+}
+</PRE>
+
+Notice that we've made the Look rather a factory than a class with 
+contructor. It is usually enough to have one instance of the Look 
+in the system so there should be no need for other instances.
+Of course there are exceptions from the rule, but you should usualy
+rather create static factories than create allways new Looks.
+<P>
+
+<H2><A NAME="children">2] How to add children (subnodes)</A></H2>
+
+The Look in the example in above would only show one directory it would
+not be possible to descend deeper in the Files tree. One would probably want
+to be able to expand the folders. So we need to implement the Children 
+aspect of the nodes. 
+<P>
+Notice that the following example uses different class for adding children
+(this is an artifical example just to be used in later examples) it would be
+absolutely correct to add metods in the above Look subclass.
+<P>
+There are two methods in the look class responsible for managing
+node's children. The method isLeaf says whether the node should have any 
+children at all. If this method returns false. User won't be able to open the
+node. (There will be no thumb for opening shown in the tree.) Returning true
+from this method will enable opening the node. Still the node may have no children
+(A good example is an empty folder, user can open the node but it shows no 
+childern underneath).<BR>
+
+The method responsible for real creation of sub nodes is getChildObjects(...)
+has to return the List of represented objects.<BR>
+
+<pre>
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+
+import org.openide.filesystems.FileObject;
+import org.netbeans.spi.looks.Look;
+import org.openide.util.Lookup;
+
+public class FileObjectChildren extends Look {
+    
+    private static final Look INSTANCE = new FileObjectChildren( "FILE_OBJECT_CHILDREN" );
+    
+    private  FileObjectChildren(String name) {
+        super( name );
+    }
+    
+    public static Look getInstance() {
+        return INSTANCE;
+    }
+    
+    public List getChildObjects(Object representedObject, Lookup env) {
+        FileObject fo = (FileObject)representedObject;
+        if ( fo.isFolder() ) {
+            FileObject[] fos = fo.getChildren();
+            return Arrays.asList( fos );
+        }
+        else {
+            // This should never happen
+            return Collections.EMPTY_LIST; 
+        }
+    }    
+    
+    public Boolean isLeaf(Object representedObject, Lookup env) {        
+        return ((FileObject)representedObject).isFolder() ? Boolean.TRUE : Boolean.FALSE;
+    }    
+    
+}
+
+</pre>
+
+<H2><A NAME="defaultLook">3]How to make coding easier with DefaultLook</A></H2>
+
+TBD
+
+<H2><A NAME="events">4] How to reflect changes in represented object</A></H2>
+
+Taking the values from the represented object and translating them was easy.
+But what to do when the represented object changes one or more of it's 
+properties while it is shown in the application. In this case
+it is desirable that given object changes it's apperance. How to do it?<BR>
+First of all you definitely will have to register listener on your 
+represented object to get notified about the changes in the object. This has to 
+be done in the attachTo method of Look. In order to free memory correctly 
+you also should remove the Listeners. The right place to do so is in
+detachFrom method.<BR>
+Then you only need to translate/refire the events usink the fireChange method 
+in Look.
+<P>
+Notice that there is usually no need to create new Lister for each represented
+object. It is usually enough to register just one. You can even decide 
+that the Look itself will implement the Listener interface. However if necessary
+e.g. for some event source translation you may still decide to create one
+Listener per represented object.
+<P>
+Also notice that when your Look is used more than once for given represented
+object (E.g. there are mor views or your look is used in more Filter/Composite
+Looks) then the attachTo(...)/detachFrom(...) methods will only be called once.
+So you don't have to worry about having atached more Listeners than necessary
+to your represented object.
+<P>
+Following exaple shows how to react on change of name of a FileObject. Of
+course the FileObjectChangeListener is richer than that but the example is
+restriced to name in order to keep it short and understandable. The implemetation
+of other methods would be analogous.<BR>
+Again we introduce new class in the example but it would be perfectly OK to 
+have all the methods in one class.
+
+<pre>
+import org.openide.filesystems.*;
+import org.netbeans.spi.looks.Look;
+import org.openide.util.Lookup;
+import org.openide.util.Utilities;
+
+public class FileObjectEvents extends Look implements FileChangeListener {
+    
+    private static final Look INSTANCE = new FileObjectEvents( "FILE_OBJECT_EVENTS" );
+    
+    private FileObjectEvents(String name) {
+        super( name );
+    }
+    
+    public static Look getInstance() {
+        return INSTANCE;
+    }
+    
+    public void attachTo( Object representedObject ) {
+        ((FileObject)representedObject).addFileChangeListener( this );
+    }
+    
+    public void detachFrom( Object representedObject ) {
+        ((FileObject)representedObject).removeFileChangeListener( this ); 
+    }
+    
+    // Implementation of FileChangeListener ------------------------------------
+    
+    public void fileRenamed( FileRenameEvent fe ) {
+        fireChange( fe.getSource(), Look.GET_NAME | Look.GET_DISPLAY_NAME );
+    }
+    
+    public void fileAttributeChanged( FileAttributeEvent fe ) { /*IGNORE */ }    
+    public void fileChanged( FileEvent fe ) { /*IGNORE */ }
+    public void fileDataCreated( FileEvent fe ) { /*IGNORE */ }
+    public void fileDeleted( FileEvent fe ) { /*IGNORE */ }
+    public void fileFolderCreated( FileEvent fe ) { /*IGNORE */ }
+    
+}
+</pre>
+
+<H2><A NAME="legacy">5] How to transform "standard objects" (Beans & Nodes)</A></H2>
+
+Sometimes your object is a standard object. (Currently plain beans and the
+NetBeans nodes) are supported. If so you don't need to write your own look.
+You can use the class Looks which is a static factory and can provide 
+implentations of the Looks for this kind of objects.
+<P>
+In case of Nodes the right thing to do would of course be to figure out 
+what the real represented objects are and rewrite your the code to use
+the Looks more "native" way. This is nice but  sometimes happens that developers 
+are rather looking for the quick and dirty solution.
+<P>
+How to get Look for representing JavaBeans:
+
+<pre>
+<span class="type">Look</span> <span class="variable-name">look4Beans</span> = org.netbeans.spi.looks.Looks.bean();
+</pre>
+
+
+<P>
+How to get Look for reresenting Nodes:
+
+
+<pre>
+<span class="type">Look</span> <span class="variable-name">look4Nodes</span> = org.netbeans.api.nodes2looks.Nodes.nodeLook();
+</pre>
+
+
+<!-- Operations on Looks -->
+
+<H2><A NAME="reuse">7] How to reuse part of an existing Look - Filtering</A></H2>
+
+Let's assume you have an existing looks which implements almost all the methods
+from look. You want to create a different look which is exactly the same as 
+this look but does provide just a small part of the functionality. E.g. you want
+to reuse only the name and icon and to ignore all other values from the original
+look. You might try to write new Look which will delegate
+on the orignal in the getName(...) and getIcon(...) methods. This is OK but
+you will create one class more in your VM. There exists an generic solution in
+the Looks API. It is the FilterLook. FilterLook can be created using the filter()
+method the parameters of the method require you to provide name of the FilterLook,
+Look to which this look wants to delegate and bit mask which specifyies 
+which methods should be delegated.
+<P>
+Notice that the FilterLook not only takes care of filtering the methods but it
+also restricts the event firing. I.e. if you filter all methods except getName
+and getDisplayName you at the same time flter all change events except those 
+for changes in getName() and getDisplayName(). So even if the delegate Look fires
+a change in children such a FilterLook will not refire this event.
+<P>
+Following example shows how to create a look which behaves as a standard Look
+for beans but only for properties and customizer (and corresponding events
+of course)
+
+<PRE>
+    Look beans = Looks.bean();
+    Look filteredBeans = Looks.filter( "MY_FILTER_BEANS", beans, 
+        Look.GET_NAME | Look.GET_DISPLAY_NAME );
+</PRE>
+
+<P>
+
+<H2><A NAME="composition">8] How to build a look from more looks - Composition</A></H2>
+
+Restricting some look's functionality might be nice but sometimes one needs
+exactly the opposite i.e. merging functionality. In the above examples we've 
+created Looks for style, children and events. Now we would like to make it
+one doing everything. This can be done using composite Look. Which is 
+crated from a set of "sub-looks" which are merged together.<BR> 
+Generally speaking such usecase is about merging different aspects of 
+the object visualisation together.
+<P>
+Following example shows merging the three aspects into one example.
+
+<PRE>
+    Look composite = Looks.composite( "MY_FO_COMPOSITE", new Look[] {
+        FileObjectStyle.getInstance(),
+        FileObjectChildren.getInstance(),
+        FileObjectEvents.getInstance() } );
+</PRE>
+
+
+<H2><A NAME="composition2">9] How to add features to other looks - Composition II</A></H2>
+
+In the previous example methods implemented in the sub-looks were not
+overlaping. But what if they would overlap?<BR>
+This gives us different way of looking at the composition. Let's have two
+looks ( A and B ) both have the getChildObjects method implemented. Look
+A returns { CHa1, CHa2 } and B returns { CHb1 }. What will happen when
+we create a composite Look exactly the way we did in the example above. 
+
+<PRE>
+    Look composite = Looks.composite( "MY_FO_COMPOSITE", new Look[] {
+        Look_A, Look_B  // Ordering is important
+    } );    
+        
+</PRE>
+
+Well the resulting look will merge the values and the result will be 
+{ CHa1, CHa2, CHb1 }. This is easy and can be applyied to all methods which
+return Collections of objects e.g. childObjects, Actions, Properties etc.
+But what to do with single vaued aspects of the object e.g. name or 
+Customizer? In this case the composite will apply the first (who does
+return something else than null) wins. I.e. if the look A would return
+NAME_A from getDisplayName() method and the Look B would return NAME_B then
+result given by getDisplayName() on the composit look would be NAME_A, However
+if the look A would not implement the getDisplayName() method (i.e. would 
+return null then the result would be NAME_B<BR>  
+<P>
+This kind of composition allows for additions/competition (depends on
+whther the aspect is single or multivalued). When combined with the 
+registration of Looks in the module layer (discussed later) it gives
+the possibility of cooperation between modules.
+
+
+<CENTER>
+    <H1>WARNING: Here ends the revised version of the document</H1>
+    <H3>Following paragraphs are oudated nad reflect older APIs.</H3>
+</CENTER>
+
+
+
+<H2><A NAME="sfs">9] How to declare looks using the system filesystem</A></H2>
+Until now we've created all our looks programmaticaly from code. But this is 
+not the only way how to instantiate objects in NetBeans. The other way is to
+crate objects from system filesystem. This is done by putting special files 
+on the filesystem. Adding files is in turn done usually using XML layers.
+For more info see <B>LINK</B>. So if you for example plan to install the MethodLook
+using XML layer you would do something like
+<B>EXAMPLE</B>
+If you plan to use some Look or LookSelector from the Looks class. The format
+is very similar. Some of the Looks in the factory (e.g. FilterLook) take
+some additional parameters in form of file attributes, please consult the
+LooksAPI Javadoc for the exact syntax.
+<P>
+
+
+<H2><A NAME="api">10] How to allow other modules to influence your view</A></H2>
+TBD
+
+
+<!--
+
+Of course there is a need to determine the look for these objects properly.
+This is the task of the LookSelector which can be put into LookNoode 
+constructor. So you should change the call to LookNode contructor in the 
+example to something like.
+<B>EXAMPLE</B>
+The selector will be shared throgh the whole nodes hierarchy. (There are 
+ways how to change LookSelector in middle of the tree described later). Not 
+providing any LookSelector when creating the root node will result in using 
+default one which searches the /Looks/Types folder on system filesystem by
+the type of representing objects. For more information about LookSelector 
+please see description of LookSelector class.
+
+<P>
+<H2><A NAME="changesInLook">6] How to reflect changes in the look itself</A></H2>
+You may decide that your look will have some properties itself. In the method
+displaying example we could decide put a proprty for sorting into the look.
+User would be able to sort the parameters either alphabetically or by the
+order in which they appear in the signature of the method. Notice if you add such
+property to your look it will affect all nodes which have this look attached.
+Not only the current node in the explorer. Anyway if the look changes this 
+property all nodes should update to the new way of sorting. Reacting on the 
+changes of look is similar as reacting to changes of the RO. Besides adding 
+the getter and setter of the look's property you should add the property change 
+firing mechanism into your look and register the Look.NodeSubstitutes as listeners
+on the look.<BR>
+<B>EXAMPLE</B>
+<P>
+
+<H2>10] How to communicate with other modules</H2>
+Communication with other modules which may participate in creating a common
+node is done using the XML layers
+
+<H2>11] How to modify (decorate) all nodes under my node</H2>>
+<H2>12] How to pass context down through a hierarchy of nodes</H2>
+<H2>13] How to allow switching looks on nodes</H2>
+<B>Problem:</B> There are various relations between the objects. These 
+relations have to be transformed into tree hierarchy.
+<B>Solution:</B> Using the method Object[] getChildObjects( Look.NodeSubstitute ns ) 
+it is possible to specify what objects are children of the node in given hirarchy.
+<H2>14] How to provide different UI for switching looks</H2>
+<H2>15] How to communicate with other looks participating on creating given node</H2>
+-->
+
+</BODY>
+</HTML>
