@@ -1,0 +1,299 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE filesystem
+	PUBLIC "-//NetBeans//DTD Filesystem 1.1//EN"
+	"http://www.netbeans.org/dtds/filesystem-1_1.dtd"
+>
+
+<filesystem>
+    <folder name="Actions">
+        <folder name="test5">
+            <file name="a1.instance">
+                <attr name="instanceClass" stringvalue="org.netbeans.modules.enode.test.TestAction" />
+            </file>
+        </folder>
+    </folder>
+    <!-- Actions -->
+    
+    <folder name="ExtensibleNode">
+        <folder name="Actions">
+            <!-- START testShadow -->
+            <folder name="test5">
+                <file name="a1.shadow">
+                    <attr name="originalFile" stringvalue="Actions/test5/a1.instance"/>
+                </file>
+            </folder>
+            <!-- END testShadow -->
+            <!-- START testSubMenuBehaviour --> 
+            <folder name="test1">
+                <file name="a1.instance">
+                    <attr name="instanceClass" stringvalue="org.openide.actions.PropertiesAction" />
+                </file>
+                <file name="a2.instance">
+                    <attr name="instanceClass" stringvalue="org.openide.actions.CutAction" />
+                </file>
+                <file name="a3.instance">
+                    <attr name="instanceClass" stringvalue="org.openide.actions.CopyAction" />
+                </file>
+            </folder>
+            <!-- test1 -->
+            <!-- END testSubMenuBehaviour --> 
+        
+            <!-- START  testAddingSeparatorsToSubMenu --> 
+            <folder name="test2">
+                <file name="b1.instance">
+                    <attr name="instanceClass" stringvalue="org.openide.actions.PropertiesAction" />
+                </file>
+                <file name="b2.instance">
+                    <attr name="instanceClass" stringvalue="org.openide.actions.CutAction" />
+                </file>
+                <file name="sep.instance">
+                    <attr name="instanceClass" stringvalue="javax.swing.JSeparator" />
+                </file>
+            </folder>
+            <!-- END testAddingSeparatorsToSubMenu --> 
+            <!-- START testSubSubMenu --> 
+            <folder name="test3">
+                <file name="c1.instance">
+                    <attr name="instanceClass" stringvalue="org.openide.actions.PropertiesAction" />
+                </file>
+                <file name="c2.instance">
+                    <attr name="instanceClass" stringvalue="org.openide.actions.CutAction" />
+                </file>
+                <file name="sep3.instance">
+                    <attr name="instanceClass" stringvalue="javax.swing.JSeparator" />
+                </file>
+            </folder>
+            <!-- END testSubSubMenu --> 
+
+            <!-- START testMoreSeparators --> 
+            <folder name="test4">
+                <file name="d1.instance">
+                    <attr name="instanceClass" stringvalue="org.openide.actions.PropertiesAction" />
+                </file>
+                <file name="d2.instance">
+                    <attr name="instanceClass" stringvalue="org.openide.actions.CutAction" />
+                </file>
+                <file name="d3.instance">
+                    <attr name="instanceClass" stringvalue="org.openide.actions.CopyAction" />
+                </file>
+                <file name="sep1.instance">
+                    <attr name="instanceClass" stringvalue="javax.swing.JSeparator" />
+                </file>
+                <file name="sep2.instance">
+                    <attr name="instanceClass" stringvalue="javax.swing.JSeparator" />
+                </file>
+                <file name="d1a.instance">
+                    <attr name="instanceClass" stringvalue="org.openide.actions.PropertiesAction" />
+                </file>
+                <file name="d2a.instance">
+                    <attr name="instanceClass" stringvalue="org.openide.actions.CutAction" />
+                </file>
+                <file name="d3a.instance">
+                    <attr name="instanceClass" stringvalue="org.openide.actions.CopyAction" />
+                </file>
+                <file name="sep1a.instance">
+                    <attr name="instanceClass" stringvalue="javax.swing.JSeparator" />
+                </file>
+                <file name="sep2a.instance">
+                    <attr name="instanceClass" stringvalue="javax.swing.JSeparator" />
+                </file>
+                <file name="d1b.instance">
+                    <attr name="instanceClass" stringvalue="org.openide.actions.PropertiesAction" />
+                </file>
+                <file name="d2b.instance">
+                    <attr name="instanceClass" stringvalue="org.openide.actions.CutAction" />
+                </file>
+                <file name="d3b.instance">
+                    <attr name="instanceClass" stringvalue="org.openide.actions.CopyAction" />
+                </file>
+                <file name="sep1b.instance">
+                    <attr name="instanceClass" stringvalue="javax.swing.JSeparator" />
+                </file>
+                <file name="sep2b.instance">
+                    <attr name="instanceClass" stringvalue="javax.swing.JSeparator" />
+                </file>
+            </folder>
+            <!-- END testMoreSeparators --> 
+            <!-- START testOrderOfActions --> 
+            <folder name="TPFVWC_View">
+                <folder name="View">
+                    <file name="RenameView.instance">
+                        <attr name="instanceClass" stringvalue="org.openide.actions.RenameAction" />
+                    </file>
+                    <file name="DeleteView.instance">
+                        <attr name="instanceClass" stringvalue="org.openide.actions.DeleteAction"/>
+                    </file>
+                </folder>
+                <!-- View -->
+                <folder name="ViewFolder">
+                    <file name="RenameFolder.instance">
+                        <attr name="instanceClass" stringvalue="org.openide.actions.RenameAction" />
+                    </file>
+                    <file name="DeleteFolder.instance">
+                        <attr name="instanceClass" stringvalue="org.openide.actions.DeleteAction"/>
+                    </file>
+                </folder>
+                <!-- ViewFolder -->
+                <folder name="Root">
+                </folder>
+                <!-- ViewFolder -->
+            </folder>
+            <!-- TPFVWC_View -->
+            <!-- END testOrderOfActions --> 
+        </folder>
+        <!-- Actions -->
+		
+        <folder name="SubMenu">
+            <!-- START testSubMenuBehaviour -->
+            <file name="a3.shadow">
+                <attr name="originalFile" stringvalue="ExtensibleNode/Actions/test1/a3.instance"/>
+            </file>
+            <folder name="Sub Menu1">
+                <file name="a1.shadow">
+                    <attr name="originalFile" stringvalue="ExtensibleNode/Actions/test1/a1.instance"/>
+                </file>
+                <file name="a2.shadow">
+                    <attr name="originalFile" stringvalue="ExtensibleNode/Actions/test1/a2.instance"/>
+                </file>
+            </folder>
+            <attr name="Sub Menu1/a3.shadow" boolvalue="true"/>
+            <!-- END testSubMenuBehaviour --> 
+
+            <!-- START testAddingSeparatorsToSubMenu -->
+            <folder name="Sub Menu2">
+                <file name="b1.shadow">
+                    <attr name="originalFile" stringvalue="ExtensibleNode/Actions/test2/b1.instance"/>
+                </file>
+                <file name="b2.shadow">
+                    <attr name="originalFile" stringvalue="ExtensibleNode/Actions/test2/b2.instance"/>
+                </file>
+                <file name="sep.shadow">
+                    <attr name="originalFile" stringvalue="ExtensibleNode/Actions/test2/sep.instance"/>
+                </file>
+                <attr name="b1.shadow/sep.shadow" boolvalue="true"/>
+                <attr name="sep.shadow/b2.shadow" boolvalue="true"/>
+            </folder>
+            <!-- END testAddingSeparatorsToSubMenu --> 
+            
+            <!-- START testSubMenuShadow -->
+            <folder name="Sub Menu3">
+                <file name="a1.shadow">
+                    <attr name="originalFile" stringvalue="Actions/test5/a1.instance"/>
+                </file>
+            </folder>
+            <!-- END testSubMenuShadow -->
+            
+            <!-- START testSubSubMenu -->
+            <folder name="sub1">
+                <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.enode.test.Bundle"/>
+                <folder name="sub2">
+                    <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.enode.test.Bundle"/>
+                    <folder name="sub3">
+                        <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.enode.test.Bundle"/>
+                        <file name="c1.shadow">
+                            <attr name="originalFile" stringvalue="ExtensibleNode/Actions/test3/c1.instance"/>
+                        </file>
+                        <file name="c2.shadow">
+                            <attr name="originalFile" stringvalue="ExtensibleNode/Actions/test3/c2.instance"/>
+                        </file>
+                        <file name="sep3.shadow">
+                            <attr name="originalFile" stringvalue="ExtensibleNode/Actions/test3/sep3.instance"/>
+                        </file>
+                        <attr name="c1.shadow/sep3.shadow" boolvalue="true"/>
+                        <attr name="sep3.shadow/c2.shadow" boolvalue="true"/>
+                    </folder>
+                </folder>
+            </folder>
+            <!-- sub1 -->
+            <!-- END testSubSubMenu --> 
+            
+            <!-- START testMoreSeparators -->
+            <file name="d1.shadow">
+                <attr name="originalFile" stringvalue="ExtensibleNode/Actions/test4/d1.instance"/>
+            </file>
+            <file name="d2.shadow">
+                <attr name="originalFile" stringvalue="ExtensibleNode/Actions/test4/d2.instance"/>
+            </file>
+            <file name="d3.shadow">
+                <attr name="originalFile" stringvalue="ExtensibleNode/Actions/test4/d3.instance"/>
+            </file>
+            <file name="sep1.shadow">
+                <attr name="originalFile" stringvalue="ExtensibleNode/Actions/test4/sep1.instance"/>
+            </file>
+            <file name="sep2.shadow">
+                <attr name="originalFile" stringvalue="ExtensibleNode/Actions/test4/sep2.instance"/>
+            </file>
+            <attr name="d1.shadow/sep1.shadow" boolvalue="true"/>
+            <attr name="sep1.shadow/MS1" boolvalue ="true"/>
+            <attr name="MS1/d2.shadow" boolvalue="true"/>
+            <attr name="d2.shadow/sep2.shadow" boolvalue="true"/>
+            <attr name="sep2.shadow/d3.shadow" boolvalue="true"/>
+            <folder name="MS1">
+                <file name="d1a.shadow">
+                    <attr name="originalFile" stringvalue="ExtensibleNode/Actions/test4/d1a.instance"/>
+                </file>
+                <file name="d2a.shadow">
+                    <attr name="originalFile" stringvalue="ExtensibleNode/Actions/test4/d2a.instance"/>
+                </file>
+                <file name="d3a.shadow">
+                    <attr name="originalFile" stringvalue="ExtensibleNode/Actions/test4/d3a.instance"/>
+                </file>
+                <file name="sep1a.shadow">
+                    <attr name="originalFile" stringvalue="ExtensibleNode/Actions/test4/sep1a.instance"/>
+                </file>
+                <file name="sep2a.shadow">
+                    <attr name="originalFile" stringvalue="ExtensibleNode/Actions/test4/sep2a.instance"/>
+                </file>
+                <attr name="d1a.shadow/sep1a.shadow" boolvalue="true"/>
+                <attr name="sep1a.shadow/MS2" boolvalue="true"/>
+                <attr name="MS2/d2a.shadow" boolvalue="true"/>
+                <attr name="d2a.shadow/sep2a.shadow" boolvalue="true"/>
+                <attr name="sep2a.shadow/d3a.shadow" boolvalue="true"/>
+                <folder name="MS2">
+                    <file name="d1b.shadow">
+                        <attr name="originalFile" stringvalue="ExtensibleNode/Actions/test4/d1b.instance"/>
+                    </file>
+                    <file name="d2b.shadow">
+                        <attr name="originalFile" stringvalue="ExtensibleNode/Actions/test4/d2b.instance"/>
+                    </file>
+                    <file name="d3b.shadow">
+                        <attr name="originalFile" stringvalue="ExtensibleNode/Actions/test4/d3b.instance"/>
+                    </file>
+                    <file name="sep1b.shadow">
+                        <attr name="originalFile" stringvalue="ExtensibleNode/Actions/test4/sep1b.instance"/>
+                    </file>
+                    <file name="sep2b.shadow">
+                        <attr name="originalFile" stringvalue="ExtensibleNode/Actions/test4/sep2b.instance"/>
+                    </file>
+                    <attr name="d1b.shadow/sep1b.shadow" boolvalue="true"/>
+                    <attr name="sep1b.shadow/d2b.shadow" boolvalue="true"/>
+                    <attr name="d2b.shadow/sep2b.shadow" boolvalue="true"/>
+                    <attr name="sep2b.shadow/d3b.shadow" boolvalue="true"/>
+                </folder>
+            </folder>
+            <!-- END testMoreSeparators --> 
+            
+                    
+            <!-- START testOrderOfActions --> 
+            <!-- Rename -->
+            <file name="RenameFolder.shadow">
+                <attr name="originalFile" stringvalue="ExtensibleNode/Actions/TPFVWC_View/ViewFolder/RenameFolder.instance"/>
+            </file>
+            <file name="RenameView.shadow">
+                <attr name="originalFile" stringvalue="ExtensibleNode/Actions/TPFVWC_View/View/RenameView.instance"/>
+            </file>
+            <!-- Delete -->
+            <file name="DeleteView.shadow">
+                <attr name="originalFile" stringvalue="ExtensibleNode/Actions/TPFVWC_View/View/DeleteView.instance"/>
+            </file>
+            <file name="DeleteFolder.shadow">
+                <attr name="originalFile" stringvalue="ExtensibleNode/Actions/TPFVWC_View/ViewFolder/DeleteFolder.instance"/>
+            </file>
+            <attr name="RenameFolder.shadow/DeleteFolder.shadow" boolvalue="true"/>
+            <attr name="RenameView.shadow/DeleteView.shadow" boolvalue="true"/>
+            <!-- END testOrderOfActions --> 
+        </folder>
+        <!-- SubMenu -->
+    </folder>
+    <!-- ExtensibleNode -->
+</filesystem>
