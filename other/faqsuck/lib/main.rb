@@ -81,8 +81,8 @@ matches.keys.each { |url |
   pagecontent = pagecontentDoc.to_s
   contentdoc = REXML::XPath.each(doc, '//a[@class="wikipage"]') do |match|
     linkAttr = match.attribute('href')
-    puts 'Check link ' + linkAttr.to_s
     if (linkAttr) 
+      puts 'Check link ' + linkAttr.to_s
       link = linkAttr.to_s
       if (link && /\/wiki\/view.*?/.match(link)) 
         link = base + link
