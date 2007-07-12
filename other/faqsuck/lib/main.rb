@@ -46,6 +46,7 @@ base = 'http://wiki.netbeans.org'
 faqsite = base + "/wiki/view/NetBeansDeveloperFAQ"
 content = Net::HTTP.get(URI.parse(faqsite))
 doc = REXML::Document.new content
+puts "Loaded content from " + faqsite
 matches = {}
 titleexp = /.*?>(.*?)<.*/
 faqexp = /.*DevFaq.*/
@@ -62,7 +63,7 @@ REXML::XPath.each(doc,'//div//li/a[@class="wikipage"]') do |match|
       title = titleexp.match(match.to_s)[1]
       page = Faqpage.new(title, spath)
       matches[spath] = page
-      puts "Found " + page
+      puts "Found " + page.to_s
     end
   end
 end
@@ -78,7 +79,7 @@ matches.keys.each { |url |
   doc = REXML::Document.new content
   pagecontentDoc = REXML::XPath.first(doc, '//div[@id="pagecontent"]')
   pagecontent = pagecontentDoc.to_s
-  contentdoc = REXML::XPath.each(doc, '//a[@class="wikipage"]') do |match|
+  contentdoc = REXML::XPath.each(pagecontentDoc, '//a[@class="wikipage"]') do |match|
     linkAttr = match.attribute('href')
     if (linkAttr) 
       puts 'Check link ' + linkAttr.to_s
@@ -90,6 +91,21 @@ matches.keys.each { |url |
         end
         puts "Substitute " + linkAttr.to_s + " with " + link
         pagecontent.gsub!(linkAttr.to_s, link)
+        #Faq entries are inconsistent about title form, normalize
+        #TODO - figure out why this results in unmatched tags
+#        pagecontent.gsub!("<h1>", "<h2>")
+#        pagecontent.gsub!("<h3>", "<h2>")
+#        pagecontent.gsub!("<h4>", "<h2>")
+#        pagecontent.gsub!("</h1>", "</h2>")
+#        pagecontent.gsub!("</h3>", "</h2>")
+#        pagecontent.gsub!("</h4>", "</h2>")
+        
+#        pagecontent.gsub!("<H1>", "<H2>")
+#        pagecontent.gsub!("<H3>", "<H2>")
+#        pagecontent.gsub!("<H4>", "<H2>")
+#        pagecontent.gsub!("</H1>", "</H2>")
+#        pagecontent.gsub!("</H3>", "</H2>")
+#        pagecontent.gsub!("</H4>", "</H2>")
       end
     end
   end
