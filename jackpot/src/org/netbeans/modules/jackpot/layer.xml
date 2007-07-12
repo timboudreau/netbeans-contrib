@@ -169,18 +169,17 @@ Microsystems, Inc. All Rights Reserved.
         <folder name="Refactoring">
             <file name="org-netbeans-modules-jackpot-ui-QueryAndRefactorAction.shadow">
                 <attr name="originalFile" stringvalue="Actions/Jackpot/org-netbeans-modules-jackpot-ui-QueryAndRefactorAction.instance"/>
+                <attr name="position" intvalue="60"/>
             </file>
-            <attr name="org-netbeans-modules-jackpot-ui-QueryAndRefactorAction.shadow/org-netbeans-modules-jackpot-ui-separatorAfter.instance" boolvalue="true"/>
             <file name="org-netbeans-modules-jackpot-ui-separatorAfter.instance">
                 <attr name="instanceClass" stringvalue="javax.swing.JSeparator"/>
+                <attr name="position" intvalue="70"/>
             </file>
-            <attr name="org-netbeans-modules-jackpot-ui-separatorAfter.instance/RenameAction.instance" boolvalue="true"/>
         </folder>
         <folder name="Tools">
-	    <attr name="Separator1.instance/org-netbeans-modules-jackpot-ui-RefactoringManagerAction.instance" boolvalue="false"/>
-            <file name="org-netbeans-modules-jackpot-ui-RefactoringManagerAction.instance"/>
-            <attr name="org-netbeans-modules-jackpot-ui-RefactoringManagerAction.instance/JavaPlatformsCustomizerAction.instance" boolvalue="true"/>
-            <attr name="Separator1.instance/org-netbeans-modules-jackpot-ui-RefactoringManagerAction.instance" boolvalue="true"/>
+            <file name="org-netbeans-modules-jackpot-ui-RefactoringManagerAction.instance">
+                <attr name="position" intvalue="250"/>
+            </file>
         </folder>
     </folder>
 
@@ -224,6 +223,7 @@ Microsystems, Inc. All Rights Reserved.
      
     <folder name="Templates">
         <folder name="Jackpot">
+            <attr name="position" intvalue="1968"/>
             <file name="Query.java" url="templates/Query.template">
                 <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.jackpot.Bundle"/>
                 <attr name="template" boolvalue="true"/>
