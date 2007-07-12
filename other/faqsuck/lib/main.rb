@@ -113,7 +113,7 @@ matches.keys.each { |url |
   allcontent += pagecontent
 }
 allcontent += '</body></html>'
-puts "WRITING /tmp/faq.html"
-open('/tmp/faq.html', 'w') { |file| file.puts(allcontent) }
 
-
+out=($*[0] or '/tmp/faq.html')
+puts "WRITING #{out}"
+open(out, 'w') { |file| file.puts(allcontent) }
