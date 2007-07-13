@@ -37,6 +37,10 @@ class Faqpage
     @url.hash
   end
   
+  def name
+    /.*(DevFaq.*)/.match(@url)[1]
+  end
+  
   def title
     @title
   end
@@ -46,7 +50,7 @@ base = 'http://wiki.netbeans.org'
 faqsite = base + "/wiki/view/NetBeansDeveloperFAQ"
 content = Net::HTTP.get(URI.parse(faqsite))
 doc = REXML::Document.new content
-puts "Loaded content from " + faqsite
+puts "Loaded content from #{faqsite}"
 matches = {}
 titleexp = /.*?>(.*?)<.*/
 faqexp = /.*DevFaq.*/
@@ -59,22 +63,24 @@ REXML::XPath.each(doc,'//div//li/a[@class="wikipage"]') do |match|
     #skip two huge and unwieldy FAQ items - the app client one should
     #probably not be in the FAQ, but in the tutorials section of the web site
     if ('http://wiki.netbeans.org/wiki/view/DevFaqWindowsInternals' != spath &&
-        'http://wiki.netbeans.org/wiki/view/DevFaqAppClientOnNbPlatformTut' != spath) 
+        'http://wiki.netbeans.org/wiki/view/DevFaqAppClientOnNbPlatformTut' != spath  &&
+        'http://wiki.netbeans.org/wiki/view/DevFaqTutorialsAPIJa' != spath &&
+        'http://wiki.netbeans.org/wiki/view/DevFaqTutorialsAPI' != spath) 
       title = titleexp.match(match.to_s)[1]
       page = Faqpage.new(title, spath)
       matches[spath] = page
-      puts "Found " + page.to_s
+      puts "Found #{page}"
     end
   end
 end
 
 matches.each { |url, faqpage|
-   allcontent += '<li><a href="#' + url + '">' + faqpage.title() + "</a></li>\n"
+   allcontent += '<li><a href="#' + faqpage.name() + '">' + faqpage.title() + "</a></li>\n"
 }
 
 allcontent += "</ul>\n"
-matches.keys.each { |url | 
-  puts "FETCHING " + url
+matches.keys.sort.each { |url| 
+  puts "FETCHING #{url}"
   content = Net::HTTP.get(URI.parse(url))
   doc = REXML::Document.new content
   pagecontentDoc = REXML::XPath.first(doc, '//div[@id="pagecontent"]')
@@ -82,34 +88,27 @@ matches.keys.each { |url |
   contentdoc = REXML::XPath.each(pagecontentDoc, '//a[@class="wikipage"]') do |match|
     linkAttr = match.attribute('href')
     if (linkAttr) 
-      puts 'Check link ' + linkAttr.to_s
+      puts "Check link #{linkAttr}"
       link = linkAttr.to_s
       if (link && /\/wiki\/view.*?/.match(link)) 
         link = base + link
         if (matches[link])
-          link = "#" + link
+          link = "#" + matches[link].name()
         end
-        puts "Substitute " + linkAttr.to_s + " with " + link
+        puts "Substitute #{linkAttr} with #{link}"
         pagecontent.gsub!(linkAttr.to_s, link)
         #Faq entries are inconsistent about title form, normalize
-        #TODO - figure out why this results in unmatched tags
-#        pagecontent.gsub!("<h1>", "<h2>")
-#        pagecontent.gsub!("<h3>", "<h2>")
-#        pagecontent.gsub!("<h4>", "<h2>")
-#        pagecontent.gsub!("</h1>", "</h2>")
-#        pagecontent.gsub!("</h3>", "</h2>")
-#        pagecontent.gsub!("</h4>", "</h2>")
+        pagecontent.gsub!('<h1', '<h2')
+        pagecontent.gsub!('<h3', '<h2')
+        pagecontent.gsub!('<h4', '<h2')
+        pagecontent.gsub!('</h1', '</h2')
+        pagecontent.gsub!('</h3', '</h2')
+        pagecontent.gsub!('</h4', '</h2')
         
-#        pagecontent.gsub!("<H1>", "<H2>")
-#        pagecontent.gsub!("<H3>", "<H2>")
-#        pagecontent.gsub!("<H4>", "<H2>")
-#        pagecontent.gsub!("</H1>", "</H2>")
-#        pagecontent.gsub!("</H3>", "</H2>")
-#        pagecontent.gsub!("</H4>", "</H2>")
       end
     end
   end
-  allcontent += '<a name="' + url + '">'
+  allcontent += '<a name="' + matches[url].name() + '">'
   allcontent += pagecontent
 }
 allcontent += '</body></html>'
