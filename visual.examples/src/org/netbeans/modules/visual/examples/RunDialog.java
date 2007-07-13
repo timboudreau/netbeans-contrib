@@ -110,7 +110,9 @@ public class RunDialog extends javax.swing.JFrame {
         "test.vmd.VMDTest",
         "test.widget.AnimatedImageTest",
         "test.widget.ConnectionWidgetCutDistanceTest",
+        "test.widget.ConnectionWidgetOrderTest",
         "test.widget.IconNodeHeaderTest",
+        "test.widget.RelativeDecorationTest",
         "test.zoom.FitToViewTest",
     };
 
@@ -232,8 +234,8 @@ public class RunDialog extends javax.swing.JFrame {
         //setVisible(false);
         try {
             Class c = Class.forName(value);
-            Method m = c.getDeclaredMethod("main", new Class[] { String[].class });
-            m.invoke(null, new Object[] { new String[0] });
+            Method m = c.getDeclaredMethod("main", String[].class);
+            m.invoke(null, new String[0]);
         } catch (Exception e) {
             e.printStackTrace();
         }
