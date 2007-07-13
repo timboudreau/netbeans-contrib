@@ -661,6 +661,7 @@ abstract public class GeneratedMatcher extends TreePathTransformer<Void,Object> 
     public boolean isInstance(Tree t, Element cs) {
 	if(t==null || cs==null) return false;
         TreePath path = TreePath.getPath(currentTopLevel, t);
+        if (path == null) return false;
 	TypeMirror type = trees.getTypeMirror(path);
 	return type!=null && isSubType(type, cs.asType());
     }
