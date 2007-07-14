@@ -58,7 +58,6 @@ public class JackpotCommand implements Serializable {
 		InstanceDataObject.create(directory, name, cmd, getModuleInfo());
 	    FileObject newFO = ido.getPrimaryFile();
 	    newFO.setAttribute("inspector", name); //NOI18N
-	    newFO.setAttribute("command", command); // NOI18N
 	    newFO.setAttribute("SystemFileSystem.icon",
 		new URL("nbresloc:/org/netbeans/modules/jackpot/resources/refactoring.png"));
 	    cmd.setFileObject(newFO);
