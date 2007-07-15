@@ -37,8 +37,6 @@ Microsystems, Inc. All Rights Reserved.
                     td.priority { text-align : center }
                     td.category { text-align : center }
                     td.due { text-align : right }
-                    td.file { text-align : center }
-                    td.line { text-align : right }
                     td.created { text-align : center }
                     td.modified { text-align : center }
                 </style>

@@ -19,6 +19,7 @@
 
 package org.netbeans.modules.tasklist.usertasks.renderers;
 
+import java.awt.Graphics;
 import org.netbeans.modules.tasklist.usertasks.table.UTTreeTableNode;
 import java.awt.Component;
 import java.awt.Font;

@@ -51,6 +51,7 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
+import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
@@ -139,6 +140,12 @@ public class TreeTable extends JTable {
 
 	// Install the tree editor renderer and editor. 
 	setDefaultRenderer(TreeTableModel.class, tree); 
+        /*
+         it is also possible to draw the tree only once:
+         setUI(new TreeTableUI(tree));
+        setDefaultRenderer(TreeTableModel.class,
+                new DefaultTableCellRenderer());*/
+        
 	setDefaultEditor(TreeTableModel.class, new TreeTableCellEditor());
 
 	// No grid.
@@ -178,7 +185,8 @@ public class TreeTable extends JTable {
     }
 
     /**
-     * Returnes the node that is currently being rendered. This method could
+     * Returnes the node (object returned by TreeTableModel.getChild or
+     * getRoot) that is currently being rendered. This method could
      * only be called from a cell renderer to access current node.
      * 
      * @return current node 

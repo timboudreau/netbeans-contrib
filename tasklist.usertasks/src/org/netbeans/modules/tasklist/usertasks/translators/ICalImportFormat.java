@@ -65,14 +65,18 @@ import org.netbeans.modules.tasklist.usertasks.model.UserTask;
 import org.netbeans.modules.tasklist.usertasks.model.UserTaskList;
 import org.netbeans.modules.tasklist.usertasks.UserTaskView;
 import org.netbeans.modules.tasklist.usertasks.model.Dependency;
+import org.netbeans.modules.tasklist.usertasks.model.LineResource;
+import org.netbeans.modules.tasklist.usertasks.model.URLResource;
 import org.netbeans.modules.tasklist.usertasks.util.ExtensionFileFilter;
 import org.netbeans.modules.tasklist.usertasks.util.UnaryFunction;
 import org.openide.DialogDisplayer;
 import org.openide.NotifyDescriptor;
 import org.openide.WizardDescriptor;
 import org.openide.filesystems.FileObject;
+import org.openide.filesystems.FileUtil;
 import org.openide.filesystems.URLMapper;
 import org.openide.text.Line;
+import org.openide.util.Exceptions;
 import org.openide.util.NbBundle;
 
 /**
@@ -87,7 +91,7 @@ import org.openide.util.NbBundle;
  *       file. I might need some of it again when we decide we want to
  *       event support.
  *
- * The iCalendar supports other "tags" for a VTODO item than Tasklist. In
+ * The iCalendar supports other "tags" for a VTODO item than we do. In
  * order to avoid loosing such information, these unknown tags are stored
  * inside the UserTaskList object.
  *
@@ -323,21 +327,6 @@ public class ICalImportFormat implements ExportImportFormat {
         if (prop != null)
             ut.setDetails(prop.getValue());
         
-        String filename = null;
-        prop = pl.getProperty("X-NETBEANS-FILENAME"); // NOI18N
-        if (prop != null)
-            filename = prop.getValue();
-        
-        String lineNumber = null;
-        prop = pl.getProperty("X-NETBEANS-LINE"); // NOI18N
-        if (prop != null)
-            lineNumber = prop.getValue();
-        
-        String url = null;
-        prop = pl.getProperty(Property.URL);
-        if (prop != null)
-            url = prop.getValue();
-        
         String related = null;
         prop = pl.getProperty(Property.RELATED_TO);
         if (prop != null)
@@ -487,47 +476,7 @@ public class ICalImportFormat implements ExportImportFormat {
         if (prop != null)
             ut.setCompletedDate(((DateProperty) prop).getDate().getTime());
         
-        int lineno = 1;
-        if (lineNumber != null) {
-            try {
-                lineno = Integer.parseInt(lineNumber);
-            } catch (NumberFormatException e) {
-                // ignore
-            }
-        }
-        
-        if (lineno < 1)
-            lineno = 1;
-        
-        FileObject fo = null;
-        if (url != null) {
-            try {
-                fo = URLMapper.findFileObject(new URL(url));
-            } catch (MalformedURLException e) {
-                // ignore
-            }
-        }
-        
-        if (fo == null && filename != null) {
-            fo = UTUtils.getFileObjectForFile(filename);
-        }
-        
-        if (fo != null) {
-            Line line = UTUtils.getLineByFile(fo, lineno - 1);
-            if (line == null)
-                line = UTUtils.getLineByFile(fo, 0);
-            
-            if (line != null) {
-                ut.setLine(line);
-            }
-        } else if (url != null) {
-            try {
-                ut.setUrl(new URL(url));
-                ut.setLineNumber(lineno - 1);
-            } catch (MalformedURLException e) {
-                // ignore
-            }
-        }
+        readResources(ut, pl);        
         
 //        if (associatedTime != null) {
 //            task.setAssociatedTime(associatedTime);
@@ -605,5 +554,109 @@ public class ICalImportFormat implements ExportImportFormat {
         d.putProperty("WizardPanel_contentNumbered", Boolean.TRUE); // NOI18N
         d.setTitleFormat(new java.text.MessageFormat("{0}")); // NOI18N 
         return d;
+    }
+    
+    /**
+     * Reads references to associated resources.
+     * 
+     * @param ut user task
+     * @param pl list of properties 
+     */
+    private static void readResources(UserTask ut, PropertyList pl) {
+        PropertyList ress = pl.getProperties("X-NETBEANS-RESOURCE"); // NOI18N
+        if (ress.size() > 0) {
+            for (int i = 0; i < ress.size(); i++) {
+                Property prop = (Property) ress.get(i);
+                ParameterList parl = prop.getParameters();
+                Parameter type = parl.getParameter(
+                        "X-NETBEANS-RESOURCE-TYPE"); // NOI18N
+                if (type != null) {
+                    if ("url".equals(type.getValue())) { // NOI18N
+                        try {
+                            String urlText = parl.getParameter(
+                                    "X-NETBEANS-URL").getValue(); // NOI18N
+                            URL rurl = new URL(urlText);
+                            ut.getResources().add(new URLResource(rurl));
+                        } catch (MalformedURLException ex) {
+                            UTUtils.LOGGER.warning(ex.getMessage());
+                        }
+                    } else if ("line".equals(type.getValue())) { // NOI18N
+                        try {
+                            URL url = new URL(parl.getParameter(
+                                    "X-NETBEANS-URL").getValue()); // NOI18N
+                            int line;
+                            try {
+                                line = Integer.parseInt(parl.getParameter(
+                                        "X-NETBEANS-LINE").getValue()); // NOI18N
+                            } catch (java.lang.NumberFormatException e) {
+                                UTUtils.LOGGER.warning(e.getMessage());
+                                line = 0;
+                            }
+                            ut.getResources().add(new LineResource(url, line));
+                        } catch (MalformedURLException ex) {
+                            UTUtils.LOGGER.warning(ex.getMessage());
+                        }
+                    } else {
+                        // ignore
+                    }
+                }
+            }
+        } else {
+            String filename = null;
+            Property prop = pl.getProperty("X-NETBEANS-FILENAME"); // NOI18N
+            if (prop != null)
+                filename = prop.getValue();
+
+            String lineNumber = null;
+            prop = pl.getProperty("X-NETBEANS-LINE"); // NOI18N
+            if (prop != null)
+                lineNumber = prop.getValue();
+
+            String url = null;
+            prop = pl.getProperty(Property.URL);
+            if (prop != null)
+                url = prop.getValue();
+
+            int lineno = 1;
+            if (lineNumber != null) {
+                try {
+                    lineno = Integer.parseInt(lineNumber);
+                } catch (NumberFormatException e) {
+                    // ignore
+                }
+            }
+
+            if (lineno < 1)
+                lineno = 1;
+
+            FileObject fo = null;
+            if (url != null) {
+                try {
+                    fo = URLMapper.findFileObject(new URL(url));
+                } catch (MalformedURLException e) {
+                    // ignore
+                }
+            }
+
+            if (fo == null && filename != null) {
+                fo = UTUtils.getFileObjectForFile(filename);
+            }
+            if (fo != null) {
+                Line line = UTUtils.getLineByFile(fo, lineno - 1);
+                if (line == null)
+                    line = UTUtils.getLineByFile(fo, 0);
+
+                if (line != null) {
+                    ut.getResources().add(new LineResource(line));
+                }
+            } else if (url != null) {
+                try {
+                    ut.getResources().add(new LineResource(new URL(url), 
+                            lineno - 1));
+                } catch (MalformedURLException e) {
+                    // ignore
+                }
+            }
+        }
     }
 }

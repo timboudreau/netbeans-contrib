@@ -21,7 +21,10 @@ package org.netbeans.modules.tasklist.usertasks.renderers;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.Rectangle;
+import java.awt.RenderingHints;
 
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;

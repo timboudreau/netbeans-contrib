@@ -125,8 +125,6 @@ public abstract class UTBasicTreeTableModel extends DefaultTreeTableModel {
         SortingModel.DEFAULT_COMPARATOR,
         SortingModel.DEFAULT_COMPARATOR, 
         SortingModel.DEFAULT_COMPARATOR, 
-        new TextComparator(), 
-        new URLComparator(), 
         SortingModel.DEFAULT_COMPARATOR, 
         SortingModel.DEFAULT_COMPARATOR, 
         SortingModel.DEFAULT_COMPARATOR, 
@@ -147,8 +145,6 @@ public abstract class UTBasicTreeTableModel extends DefaultTreeTableModel {
         Integer.class,
         Integer.class,
         String.class,
-        String.class,
-        Integer.class,
         UserTask.class,
         String.class,
         Long.class,
@@ -176,10 +172,6 @@ public abstract class UTBasicTreeTableModel extends DefaultTreeTableModel {
                 "ColumnSpentTime"), // NOI18N
         org.openide.util.NbBundle.getMessage(UTBasicTreeTableModel.class, 
                 "ColumnDetails"), // NOI18N
-        org.openide.util.NbBundle.getMessage(UTBasicTreeTableModel.class, 
-                "ColumnFile"), // NOI18N
-        org.openide.util.NbBundle.getMessage(UTBasicTreeTableModel.class, 
-                "ColumnLine"), // NOI18N
         org.openide.util.NbBundle.getMessage(UTBasicTreeTableModel.class, 
                 "ColumnCategory"), // NOI18N
         org.openide.util.NbBundle.getMessage(UTBasicTreeTableModel.class, 

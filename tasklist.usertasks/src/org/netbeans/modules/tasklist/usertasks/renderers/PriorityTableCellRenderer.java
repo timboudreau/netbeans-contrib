@@ -24,6 +24,7 @@ import java.awt.Image;
 import javax.swing.*;
 import javax.swing.table.DefaultTableCellRenderer;
 import org.netbeans.modules.tasklist.usertasks.model.UserTask;
+import org.netbeans.modules.tasklist.usertasks.util.FastImageIcon;
 import org.openide.util.Utilities;
 
 /**
@@ -45,7 +46,7 @@ public final class PriorityTableCellRenderer extends DefaultTableCellRenderer {
     
     private static final long serialVersionUID = 1;
 
-    private ImageIcon icon = new ImageIcon();
+    private ImageIcon icon = new FastImageIcon();
     
     public Component getTableCellRendererComponent(JTable table, Object value, 
         boolean isSelected, boolean cellHasFocus, int row, int col) {

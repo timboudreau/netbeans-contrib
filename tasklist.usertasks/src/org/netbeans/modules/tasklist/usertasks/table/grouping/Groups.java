@@ -80,9 +80,6 @@ public class Groups {
             case UTColumns.DONE:
                 f = new DoneGroupBuilder();
                 break;
-            case UTColumns.LINE_NUMBER:
-                f = new LineGroupBuilder();
-                break;
             case UTColumns.CATEGORY:
             case UTColumns.OWNER:
                 f = new ValueGroupBuilder();
@@ -98,9 +95,6 @@ public class Groups {
                 break;
             case UTColumns.DETAILS:
                 f = new NotEmptyStringGroupBuilder();
-                break;
-            case UTColumns.FILE_BASE_NAME:
-                f = new URLGroupBuilder();
                 break;
             case UTColumns.CREATED:
             case UTColumns.LAST_EDITED:

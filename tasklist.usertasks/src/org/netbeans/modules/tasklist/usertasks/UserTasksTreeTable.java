@@ -35,9 +35,11 @@ import java.util.ArrayList;
 import java.util.List;
 import javax.swing.Action;
 import javax.swing.ImageIcon;
+import javax.swing.JFrame;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.ListSelectionModel;
+import javax.swing.RepaintManager;
 import javax.swing.SwingUtilities;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
@@ -92,6 +94,7 @@ import org.openide.actions.DeleteAction;
 import org.openide.actions.PasteAction;
 import org.openide.util.Utilities;
 import org.openide.util.actions.SystemAction;
+import org.openide.windows.WindowManager;
 
 /**
  * TT for user tasks
@@ -114,6 +117,7 @@ public class UserTasksTreeTable extends TreeTable {
         super(new DefaultTreeTableModel(
             new DefaultMutableTreeTableNode(), new String[] {""})); // NOI18N
         this.utv = utv;
+        
         // this disables automatic scrolling if using keyboard
         // setAutoscrolls(false);
         setTreeTableModel(
@@ -146,6 +150,7 @@ public class UserTasksTreeTable extends TreeTable {
         }
          */
         
+        /* is not used anymore
         getSelectionModel().addListSelectionListener(
             new ListSelectionListener() {
                 public void valueChanged(ListSelectionEvent e) {
@@ -165,6 +170,7 @@ public class UserTasksTreeTable extends TreeTable {
                 }
             }
         );
+         */
         
         addMouseListener(new MouseUtils.PopupMouseAdapter() {
             public void showPopup(MouseEvent e) {
@@ -295,9 +301,6 @@ public class UserTasksTreeTable extends TreeTable {
         tcm.getColumn(UTColumns.SPENT_TIME).setCellEditor(
                 new EffortTableCellEditor());
 
-        tcm.getColumn(UTColumns.LINE_NUMBER).setCellRenderer(
-            new LineTableCellRenderer());
-
         DateTableCellRenderer dcr = new DateTableCellRenderer();
         tcm.getColumn(UTColumns.CREATED).setCellRenderer(dcr);
 
@@ -344,9 +347,6 @@ public class UserTasksTreeTable extends TreeTable {
         tcm.getColumn(UTColumns.START).setCellEditor(dc);
 
         tcm.getColumn(UTColumns.SPENT_TIME_TODAY).setCellRenderer(dr);
-        
-        tcm.getColumn(UTColumns.FILE_BASE_NAME).setCellRenderer(
-                new URLTableCellRenderer());
     }
 
     /**

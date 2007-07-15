@@ -78,10 +78,6 @@ public abstract class UTBasicTreeTableNode extends AdvancedTreeTableNode<UserTas
                 return new Integer(ut.getSpentTime());
             case UTColumns.DETAILS: 
                 return ut.getDetails();
-            case UTColumns.FILE_BASE_NAME:
-                return ut.getUrl();
-            case UTColumns.LINE_NUMBER:
-                return new Integer(ut.getLineNumber() + 1);
             case UTColumns.CATEGORY:
                 return ut.getCategory();
             case UTColumns.CREATED:

@@ -36,7 +36,7 @@ Microsystems, Inc. All Rights Reserved.
     and only here for backward compatibility (see the new attribute
     values-computed)
 -->
-<!ELEMENT task (summary, details?, work-periods?, (task)*)>
+<!ELEMENT task (summary, details?, work-periods?, resources?, (task)*)>
 <!ATTLIST task
     priority (high|medium-high|medium|medium-low|low)  "medium"
     category CDATA #IMPLIED
@@ -68,4 +68,26 @@ Microsystems, Inc. All Rights Reserved.
 <!ATTLIST period
     start CDATA #REQUIRED
     duration CDATA #REQUIRED
+>
+
+<!--
+    resources associated with a task
+-->
+<!ELEMENT resources (line-resource | url-resource)+>
+
+<!--
+    line in a file. Line number is 0-based.
+-->
+<!ELEMENT line-resource EMPTY>
+<!ATTLIST line-resource
+    url CDATA #REQUIRED
+    line-number CDATA #REQUIRED
+>
+
+<!--
+   an URL associated with a task
+-->
+<!ELEMENT url-resource EMPTY>
+<!ATTLIST url-resource 
+    url CDATA #REQUIRED
 >

@@ -38,8 +38,6 @@ Microsystems, Inc. All Rights Reserved.
                     td.category { text-align : center }
                     td.effort { text-align : right }
                     td.due { text-align : right }
-                    td.file { text-align : center }
-                    td.line { text-align : right }
                 </style>
             </head>
             <body style="font-family : sans-serif">
@@ -61,8 +59,6 @@ Microsystems, Inc. All Rights Reserved.
                             <th>Progress</th>
                             <th>Effort</th>
                             <th>Due</th>
-                            <th>File</th>
-                            <th>Line</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -142,19 +138,6 @@ Microsystems, Inc. All Rights Reserved.
                     <xsl:with-param name="date" select="@due"/>
                 </xsl:call-template>
             </td>
-            <td class="file">
-                <xsl:if test='@file'>
-                    <a>
-                        <xsl:attribute name="href">
-                            <xsl:value-of select="@file"/>
-                        </xsl:attribute>
-                        <span title="{@file}:{@line}">
-                            open
-                        </span>
-                    </a>
-                </xsl:if>
-            </td>
-            <td class="line"><xsl:value-of select="@line"/></td>
         </tr>
         <xsl:apply-templates select="task">
             <xsl:with-param name="level" select="$level + 1"/>

@@ -24,36 +24,11 @@ Microsystems, Inc. All Rights Reserved.
             <code-name-base>org.netbeans.modules.tasklist.swing</code-name-base>
             <module-dependencies>
                 <dependency>
-                    <code-name-base>org.netbeans.modules.settings</code-name-base>
-                    <build-prerequisite/>
-                    <compile-dependency/>
-                    <run-dependency>
-                        <release-version>1</release-version>
-                        <specification-version>1.13</specification-version>
-                    </run-dependency>
-                </dependency>
-                <dependency>
-                    <code-name-base>org.openide.awt</code-name-base>
-                    <build-prerequisite/>
-                    <compile-dependency/>
-                    <run-dependency>
-                        <specification-version>6.11</specification-version>
-                    </run-dependency>
-                </dependency>
-                <dependency>
                     <code-name-base>org.openide.dialogs</code-name-base>
                     <build-prerequisite/>
                     <compile-dependency/>
                     <run-dependency>
                         <specification-version>6.2</specification-version>
-                    </run-dependency>
-                </dependency>
-                <dependency>
-                    <code-name-base>org.openide.filesystems</code-name-base>
-                    <build-prerequisite/>
-                    <compile-dependency/>
-                    <run-dependency>
-                        <specification-version>7.1</specification-version>
                     </run-dependency>
                 </dependency>
                 <dependency>
@@ -64,15 +39,7 @@ Microsystems, Inc. All Rights Reserved.
                         <specification-version>7.9</specification-version>
                     </run-dependency>
                 </dependency>
-                <dependency>
-                    <code-name-base>org.openide.windows</code-name-base>
-                    <build-prerequisite/>
-                    <compile-dependency/>
-                    <run-dependency>
-                        <specification-version>6.16</specification-version>
-                    </run-dependency>
-                </dependency>
-            </module-dependencies>
+                </module-dependencies>
             <public-packages/>
         </data>
     </configuration>

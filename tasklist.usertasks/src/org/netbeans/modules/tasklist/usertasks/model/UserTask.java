@@ -272,9 +272,6 @@ public final class UserTask implements Cloneable, Cookie,
     /** Id of bound "valid" property. */
     public static final String PROP_VALID = "valid"; // NOI18N
     
-    /** URL property. java.net.URL */
-    public static final String PROP_URL = "url"; // NOI18N
-    
     /** line number property. Integer */
     public static final String PROP_LINE_NUMBER = "lineNumber"; // NOI18N
     
@@ -292,6 +289,9 @@ public final class UserTask implements Cloneable, Cookie,
     public static final String PROP_WORK_PERIODS = "workPeriods"; // NOI18N
     public static final String PROP_START = "start"; // NOI18N
     public static final String PROP_SPENT_TIME_TODAY = "spentTimeToday"; // NOI18N
+    
+    /** will be fired if something in resources has changed. */
+    public static final String PROP_RESOURCES = "resources"; // NOI18N
     
     /** last modified. long as returned by System.currentTimeMillis() */
     public static final String PROP_LAST_EDITED_DATE = 
@@ -371,23 +371,6 @@ public final class UserTask implements Cloneable, Cookie,
     
     private PropertyChangeListener lineListener;
 
-    // <editor-fold defaultstate="collapsed" desc="These 4 attributes should be used/updated together: url, annotation, line, linenumber">
-    /** annotation for this task. != null if line != null */
-    private UTAnnotation annotation = null;
-    
-    /** URL associated with this task. */
-    private URL url = null;
-    
-    /** The line position associated with the task */
-    private Line line = null;
-    
-    /** 
-     * 0, 1, 2, 3, ... 
-     * -1 = no line information 
-     */
-    private int linenumber = -1;
-    // </editor-fold>                        
-    
     private ObjectList<Dependency> dependencies = new ObjectList<Dependency>();
     private String owner = ""; // NOI18N
     private long completedDate = 0;
@@ -400,6 +383,9 @@ public final class UserTask implements Cloneable, Cookie,
     
     // <WorkPeriod>
     private ObjectList<WorkPeriod> workPeriods = new ObjectList<WorkPeriod>();
+    
+    private ObjectList<UserTaskResource> resources = 
+            new ObjectList<UserTaskResource>();
     // ATTENTION: if you add new fields here do not forget to update copyFrom
     
     /**
@@ -437,6 +423,12 @@ public final class UserTask implements Cloneable, Cookie,
         workPeriods.addListener(new ObjectListListener() {
             public void listChanged(ObjectListEvent event) {
                 firePropertyChange(PROP_WORK_PERIODS, null, null);
+            }
+        });
+        
+        resources.addListener(new ObjectListListener() {
+            public void listChanged(ObjectListEvent e) {
+                firePropertyChange(PROP_RESOURCES, null, null);
             }
         });
         
@@ -548,6 +540,15 @@ public final class UserTask implements Cloneable, Cookie,
         } else { TODO: future implementation */
             return workPeriods;
         /*}*/
+    }
+
+    /**
+     * Returns resources associated with this task.
+     * 
+     * @return associated resources 
+     */
+    public ObjectList<UserTaskResource> getResources() {
+        return resources;
     }
     
     /**
@@ -1032,10 +1033,6 @@ public final class UserTask implements Cloneable, Cookie,
                 }
             }
         }
-        
-        if (annotation != null) {
-            annotation.setDone(isDone());
-        }
     }
 
     /** 
@@ -1058,140 +1055,6 @@ public final class UserTask implements Cloneable, Cookie,
                     p.setProgress_(p.computeProgress());
             }
         }
-    }
-    
-    /** 
-     * Return the URL associated with this
-     * task, or null if none.
-     *
-     * @return URL or null
-     */    
-    public URL getUrl() {
-        if (line == null)
-            return url;
-        
-        return UTUtils.getExternalURLForLine(line);
-    }
-    
-    /**
-     * Associates an URL with this task. This method sets the line 
-     * number to 0.
-     *
-     * @param url an url or null
-     */
-    public void setUrl(URL url) {
-        URL old = this.url;
-        int oldn = this.linenumber;
-        
-        this.url = url;
-        this.linenumber = 0;
-        
-        firePropertyChange(PROP_URL, old, url);
-        firePropertyChange(PROP_LINE_NUMBER, new Integer(oldn), new Integer(linenumber));
-
-        updateLine();
-        updateAnnotation();
-    }
-
-    /** 
-     * Return line number associated with the task.
-     *
-     * @return Line number, or -1 if no particular line is
-     * associated. 
-     */    
-    public int getLineNumber() {
-        Line line = getLine();
-        if(line != null)
-            return line.getLineNumber();
-        return linenumber;
-    }
-    
-    /**
-     * Sets new line number.
-     *
-     * @param n new line number
-     */
-    public void setLineNumber(int n) {
-        int old = this.linenumber;
-        this.linenumber = n;
-        
-        firePropertyChange(PROP_LINE_NUMBER, new Integer(old), 
-            new Integer(this.linenumber));
-
-        updateLine();
-        updateAnnotation();
-    }
-    
-    /**
-     * Get the line position for the task.
-     *
-     * @return The line position for the task.
-     */
-    public Line getLine() {
-        return line;
-    }
-
-    /**
-     * Set the line (file position) associated with the task.
-     *
-     * @param line The line associated with the task.
-     */
-    public void setLine(final Line line) {
-        Line old = this.line;
-        
-        if (this.line != null) {
-            this.line.removePropertyChangeListener(lineListener);
-        }
-        this.line = line;
-        if (this.line != null) {
-            this.line.addPropertyChangeListener(lineListener);
-        }
-        firePropertyChange(PROP_LINE, old, this.line);
-        
-        if (line != null) {
-            URL oldUrl = this.url;
-            this.url = UTUtils.getExternalURLForLine(line);
-            firePropertyChange(PROP_URL, oldUrl, this.url);
-            
-            int oldLineNumber = this.linenumber;
-            this.linenumber = line.getLineNumber();
-            firePropertyChange(PROP_LINE_NUMBER, new Integer(oldLineNumber),
-                new Integer(this.linenumber));
-        } else {
-            URL oldUrl = this.url;
-            this.url = null;
-            firePropertyChange(PROP_URL, oldUrl, this.url);
-            
-            int oldLineNumber = this.linenumber;
-            this.linenumber = -1;
-            firePropertyChange(PROP_LINE_NUMBER, new Integer(oldLineNumber),
-                new Integer(this.linenumber));
-        }
-        
-        updateAnnotation();
-    }
-
-    /**
-     * Computes line property from the url and lineNumber
-     */
-    private void updateLine() {
-        if (this.line != null)
-            this.line.removePropertyChangeListener(lineListener);
-            
-        Line oldLine = this.line;
-        this.line = null;
-        
-        if (url != null) {
-            FileObject fo = URLMapper.findFileObject(url);
-            if (fo != null) 
-                this.line = UTUtils.getLineByFile(fo, linenumber);
-        }
-        
-        if (this.line != null)
-            this.line.addPropertyChangeListener(lineListener);
-            
-        if (this.line != oldLine)
-            firePropertyChange(PROP_LINE, oldLine, this.line);
     }
     
     /** 
@@ -1227,30 +1090,6 @@ public final class UserTask implements Cloneable, Cookie,
         return created;
     }
 
-    /** 
-     * Get annotation associated with this task 
-     *
-     * @return annotation
-     */
-    public UTAnnotation getAnnotation() {
-        return annotation;
-    }
-    
-    /**
-     * Creates new annotation object for the current line property.
-     */
-    private void updateAnnotation() {
-        if (this.annotation != null) {
-            this.annotation.detach();
-            this.annotation = null;
-        }
-        
-        if (this.line != null) {
-            this.annotation = createAnnotation();
-            this.annotation.attach(this.line);
-        }
-    }
-    
     /** 
      * Set the date when the item was created 
      */
@@ -1359,20 +1198,6 @@ public final class UserTask implements Cloneable, Cookie,
      * @param from another task
      */
     protected void copyFrom(UserTask from) {
-        // Copy fields from the parent implementation
-        if (this.line != null)
-            this.line.removePropertyChangeListener(lineListener);
-        this.line = from.line;
-        if (this.line != null)
-            this.line.addPropertyChangeListener(lineListener);
-        
-        this.url = from.url;
-        this.linenumber = from.linenumber;
-        if (this.line == null)
-            this.annotation = null;
-        else
-            this.annotation = createAnnotation();
-        
         setSummary(from.getSummary());
         setPriority(from.getPriority());
 
@@ -1421,6 +1246,12 @@ public final class UserTask implements Cloneable, Cookie,
             } catch (CloneNotSupportedException e) {
                 throw new InternalError("unexpected"); // NOI18N
             }
+        }
+        
+        resources.clear();
+        for (int i = 0; i < resources.size(); i++) {
+            UserTaskResource r = resources.get(i);
+            resources.add((UserTaskResource) r.clone());
         }
     }
     
@@ -1750,11 +1581,6 @@ public final class UserTask implements Cloneable, Cookie,
      * Will be called from UserTaskList.destroy()
      */
     public void destroy() {
-        if (this.annotation != null) {
-            this.annotation.detach();
-            this.annotation = null;
-        }
-        
         Iterator it = getSubtasks().iterator();
         while (it.hasNext()) {
             UserTask ut = (UserTask) it.next();

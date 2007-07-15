@@ -52,6 +52,7 @@ public class DurationFormat {
     private MessageFormat format;
     private Pattern parsePattern;
     private Type type;
+    private StringBuilder sb = new StringBuilder(25);
 
     /**
      * Creates a new instance of EnDurationFormatter.
@@ -130,8 +131,8 @@ public class DurationFormat {
                     new Integer(d.hours), new Integer(d.minutes)
                     }).trim();
         
+        sb.setLength(0);
         if (type == Type.LONG) {
-            StringBuilder sb = new StringBuilder(25);
             switch (d.weeks) {
                 case 0:
                     break;
@@ -176,7 +177,6 @@ public class DurationFormat {
                 sb.delete(0, 1);
             return sb.toString();
         } else {
-            StringBuilder sb = new StringBuilder();
             switch (d.weeks) {
                 case 0:
                     break;

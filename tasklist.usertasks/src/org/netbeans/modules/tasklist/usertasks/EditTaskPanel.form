@@ -17,6 +17,7 @@
     </Property>
   </Properties>
   <AuxValues>
+    <AuxValue name="FormSettings_autoResourcing" type="java.lang.Integer" value="0"/>
     <AuxValue name="FormSettings_generateMnemonicsCode" type="java.lang.Boolean" value="true"/>
     <AuxValue name="FormSettings_i18nAutoMode" type="java.lang.Boolean" value="false"/>
     <AuxValue name="FormSettings_layoutCodeTarget" type="java.lang.Integer" value="2"/>
@@ -61,37 +62,25 @@
                   <Group type="102" attributes="0">
                       <Group type="103" groupAlignment="0" attributes="0">
                           <Group type="102" alignment="1" attributes="0">
-                              <Group type="103" groupAlignment="1" attributes="0">
-                                  <Group type="102" attributes="0">
-                                      <Component id="fileCheckBox" min="-2" max="-2" attributes="0"/>
-                                      <EmptySpace max="-2" attributes="0"/>
-                                      <Component id="fileTextField" pref="517" max="32767" attributes="0"/>
-                                      <EmptySpace max="-2" attributes="0"/>
-                                      <Component id="lineLabel" min="-2" max="-2" attributes="0"/>
-                                      <EmptySpace max="-2" attributes="0"/>
-                                      <Component id="lineTextField" min="-2" pref="82" max="-2" attributes="0"/>
-                                  </Group>
-                                  <Group type="102" alignment="1" attributes="0">
-                                      <Group type="103" groupAlignment="0" attributes="0">
-                                          <Component id="detailsLabel" alignment="0" min="-2" max="-2" attributes="0"/>
-                                          <Component id="jLabel1" min="-2" max="-2" attributes="0"/>
-                                          <Component id="descLabel" alignment="0" min="-2" max="-2" attributes="0"/>
-                                          <Component id="prioLabel" alignment="0" min="-2" max="-2" attributes="0"/>
-                                          <Component id="categoryLabel" alignment="0" min="-2" max="-2" attributes="0"/>
-                                      </Group>
-                                      <EmptySpace max="-2" attributes="0"/>
-                                      <Group type="103" groupAlignment="0" attributes="0">
-                                          <Component id="priorityComboBox" linkSize="1" alignment="0" min="-2" pref="137" max="-2" attributes="0"/>
-                                          <Component id="categoryCombo" linkSize="1" alignment="0" min="-2" max="-2" attributes="0"/>
-                                          <Component id="jComboBoxOwner" linkSize="1" alignment="0" min="-2" max="-2" attributes="0"/>
-                                          <Component id="descriptionTextField" alignment="0" pref="699" max="32767" attributes="0"/>
-                                          <Component id="detailsScrollPane" alignment="0" max="32767" attributes="0"/>
-                                      </Group>
-                                  </Group>
+                              <Group type="103" groupAlignment="0" attributes="0">
+                                  <Component id="detailsLabel" alignment="0" min="-2" max="-2" attributes="0"/>
+                                  <Component id="jLabel1" min="-2" max="-2" attributes="0"/>
+                                  <Component id="descLabel" alignment="0" min="-2" max="-2" attributes="0"/>
+                                  <Component id="prioLabel" alignment="0" min="-2" max="-2" attributes="0"/>
+                                  <Component id="categoryLabel" alignment="0" min="-2" max="-2" attributes="0"/>
+                              </Group>
+                              <EmptySpace max="-2" attributes="0"/>
+                              <Group type="103" groupAlignment="0" attributes="0">
+                                  <Component id="priorityComboBox" linkSize="1" alignment="0" min="-2" pref="137" max="-2" attributes="0"/>
+                                  <Component id="categoryCombo" linkSize="1" alignment="0" min="-2" max="-2" attributes="0"/>
+                                  <Component id="jComboBoxOwner" linkSize="1" alignment="0" min="-2" max="-2" attributes="0"/>
+                                  <Component id="descriptionTextField" alignment="0" pref="699" max="32767" attributes="0"/>
+                                  <Component id="detailsScrollPane" alignment="0" max="32767" attributes="0"/>
                               </Group>
                               <EmptySpace max="-2" attributes="0"/>
                           </Group>
-                          <Group type="102" alignment="0" attributes="0">
+                          <Component id="jLinkButtonAddToSource" alignment="0" min="-2" max="-2" attributes="0"/>
+                          <Group type="102" attributes="0">
                               <Component id="addLabel" min="-2" max="-2" attributes="0"/>
                               <EmptySpace max="-2" attributes="0"/>
                               <Component id="beginningToggle" min="-2" max="-2" attributes="0"/>
@@ -100,7 +89,6 @@
                               <EmptySpace max="-2" attributes="0"/>
                               <Component id="jCheckBoxTopLevel" min="-2" max="-2" attributes="0"/>
                           </Group>
-                          <Component id="jLinkButtonAddToSource" alignment="0" min="-2" max="-2" attributes="0"/>
                       </Group>
                       <EmptySpace max="-2" attributes="0"/>
                   </Group>
@@ -116,7 +104,7 @@
                       <EmptySpace min="-2" max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="0" attributes="0">
                           <Component id="detailsLabel" min="-2" max="-2" attributes="0"/>
-                          <Component id="detailsScrollPane" pref="288" max="32767" attributes="0"/>
+                          <Component id="detailsScrollPane" pref="313" max="32767" attributes="0"/>
                       </Group>
                       <EmptySpace min="-2" max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="3" attributes="0">
@@ -132,13 +120,6 @@
                       <Group type="103" groupAlignment="3" attributes="0">
                           <Component id="jLabel1" alignment="3" min="-2" max="-2" attributes="0"/>
                           <Component id="jComboBoxOwner" alignment="3" min="-2" max="-2" attributes="0"/>
-                      </Group>
-                      <EmptySpace min="-2" max="-2" attributes="0"/>
-                      <Group type="103" groupAlignment="3" attributes="0">
-                          <Component id="fileCheckBox" alignment="3" min="-2" max="-2" attributes="0"/>
-                          <Component id="lineLabel" alignment="3" min="-2" max="-2" attributes="0"/>
-                          <Component id="lineTextField" alignment="3" min="-2" max="-2" attributes="0"/>
-                          <Component id="fileTextField" alignment="3" min="-2" max="-2" attributes="0"/>
                       </Group>
                       <EmptySpace max="-2" attributes="0"/>
                       <Component id="jLinkButtonAddToSource" min="-2" max="-2" attributes="0"/>
@@ -243,21 +224,6 @@
                 <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="priorityComboBoxActionPerformed"/>
               </Events>
             </Component>
-            <Component class="javax.swing.JCheckBox" name="fileCheckBox">
-              <Properties>
-                <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor" preCode="/*" postCode="*/">
-                  <ResourceString bundle="org/netbeans/modules/tasklist/usertasks/Bundle.properties" key="AssociatedFile" replaceFormat="NbBundle.getMessage(EditTaskPanel.class, &quot;{key}&quot;)); // NOI18N"/>
-                </Property>
-                <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
-                  <Border info="org.netbeans.modules.form.compat2.border.EmptyBorderInfo">
-                    <EmptyBorder bottom="0" left="0" right="0" top="0"/>
-                  </Border>
-                </Property>
-              </Properties>
-              <Events>
-                <EventHandler event="itemStateChanged" listener="java.awt.event.ItemListener" parameters="java.awt.event.ItemEvent" handler="fileCheckBoxItemStateChanged"/>
-              </Events>
-            </Component>
             <Component class="javax.swing.JLabel" name="categoryLabel">
               <Properties>
                 <Property name="labelFor" type="java.awt.Component" editor="org.netbeans.modules.form.ComponentChooserEditor">
@@ -317,28 +283,6 @@
                 <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
                   <Insets value="[0, 0, 0, 0]"/>
                 </Property>
-              </Properties>
-            </Component>
-            <Component class="javax.swing.JLabel" name="lineLabel">
-              <Properties>
-                <Property name="labelFor" type="java.awt.Component" editor="org.netbeans.modules.form.ComponentChooserEditor">
-                  <ComponentRef name="lineTextField"/>
-                </Property>
-                <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor" preCode="/*" postCode="*/">
-                  <ResourceString bundle="org/netbeans/modules/tasklist/usertasks/Bundle.properties" key="LineLabel" replaceFormat="NbBundle.getMessage(EditTaskPanel.class, &quot;{key}&quot;)); // NOI18N"/>
-                </Property>
-              </Properties>
-            </Component>
-            <Component class="javax.swing.JTextField" name="lineTextField">
-              <Properties>
-                <Property name="editable" type="boolean" value="false"/>
-                <Property name="horizontalAlignment" type="int" value="4"/>
-              </Properties>
-            </Component>
-            <Component class="javax.swing.JTextField" name="fileTextField">
-              <Properties>
-                <Property name="columns" type="int" value="100"/>
-                <Property name="editable" type="boolean" value="false"/>
               </Properties>
             </Component>
           </SubComponents>
@@ -443,7 +387,7 @@
                       </Group>
                       <EmptySpace min="-2" pref="30" max="-2" attributes="0"/>
                       <Component id="jPanel4" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace pref="187" max="32767" attributes="1"/>
+                      <EmptySpace pref="202" max="32767" attributes="1"/>
                   </Group>
               </Group>
             </DimensionLayout>
@@ -661,13 +605,13 @@
             <DimensionLayout dim="0">
               <Group type="103" groupAlignment="0" attributes="0">
                   <Group type="102" alignment="0" attributes="0">
-                      <EmptySpace min="-2" max="-2" attributes="0"/>
+                      <EmptySpace max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="0" attributes="0">
                           <Component id="jScrollPane1" alignment="0" pref="771" max="32767" attributes="2"/>
                           <Group type="102" alignment="0" attributes="0">
                               <Component id="jLabel3" min="-2" max="-2" attributes="0"/>
                               <EmptySpace max="-2" attributes="0"/>
-                              <Component id="jLabelSpentTimeToday" pref="656" max="32767" attributes="0"/>
+                              <Component id="jLabelSpentTimeToday" min="-2" max="-2" attributes="0"/>
                           </Group>
                           <Component id="jLabel12" alignment="0" min="-2" max="-2" attributes="0"/>
                       </Group>
@@ -677,16 +621,16 @@
             </DimensionLayout>
             <DimensionLayout dim="1">
               <Group type="103" groupAlignment="0" attributes="0">
-                  <Group type="102" alignment="0" attributes="0">
+                  <Group type="102" attributes="0">
                       <EmptySpace max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="1" attributes="0">
-                          <Component id="jLabelSpentTimeToday" pref="15" max="32767" attributes="2"/>
-                          <Component id="jLabel3" alignment="1" max="32767" attributes="1"/>
+                          <Component id="jLabel3" min="-2" max="-2" attributes="1"/>
+                          <Component id="jLabelSpentTimeToday" min="-2" max="-2" attributes="2"/>
                       </Group>
-                      <EmptySpace min="-2" max="-2" attributes="0"/>
+                      <EmptySpace type="unrelated" max="-2" attributes="0"/>
                       <Component id="jLabel12" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
-                      <Component id="jScrollPane1" pref="437" max="32767" attributes="0"/>
+                      <Component id="jScrollPane1" pref="431" max="32767" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
                   </Group>
               </Group>
@@ -725,6 +669,123 @@
               <AuxValues>
                 <AuxValue name="generateMnemonicsCode" type="java.lang.Boolean" value="false"/>
               </AuxValues>
+            </Component>
+          </SubComponents>
+        </Container>
+        <Container class="javax.swing.JPanel" name="jPanel2">
+          <Constraints>
+            <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.support.JTabbedPaneSupportLayout" value="org.netbeans.modules.form.compat2.layouts.support.JTabbedPaneSupportLayout$JTabbedPaneConstraintsDescription">
+              <JTabbedPaneConstraints tabName="Context">
+                <Property name="tabTitle" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
+                  <ResourceString bundle="org/netbeans/modules/tasklist/usertasks/Bundle.properties" key="Context" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
+                </Property>
+              </JTabbedPaneConstraints>
+            </Constraint>
+          </Constraints>
+
+          <Layout>
+            <DimensionLayout dim="0">
+              <Group type="103" groupAlignment="0" attributes="0">
+                  <Group type="102" attributes="0">
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Group type="103" groupAlignment="0" attributes="0">
+                          <Component id="jLabel13" alignment="0" min="-2" max="-2" attributes="0"/>
+                          <Group type="102" alignment="1" attributes="0">
+                              <Component id="jScrollPane2" pref="676" max="32767" attributes="0"/>
+                              <EmptySpace type="unrelated" max="-2" attributes="0"/>
+                              <Group type="103" groupAlignment="1" attributes="0">
+                                  <Component id="jButtonAddResource" linkSize="2" min="-2" max="-2" attributes="0"/>
+                                  <Component id="jButtonRemoveResource" linkSize="2" alignment="1" min="-2" max="-2" attributes="0"/>
+                                  <Component id="jButtonOpenResource" linkSize="2" alignment="1" min="-2" max="-2" attributes="0"/>
+                              </Group>
+                          </Group>
+                      </Group>
+                      <EmptySpace max="-2" attributes="0"/>
+                  </Group>
+              </Group>
+            </DimensionLayout>
+            <DimensionLayout dim="1">
+              <Group type="103" groupAlignment="0" attributes="0">
+                  <Group type="102" alignment="0" attributes="0">
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Component id="jLabel13" min="-2" max="-2" attributes="0"/>
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Group type="103" groupAlignment="0" attributes="0">
+                          <Group type="102" attributes="0">
+                              <Component id="jButtonAddResource" min="-2" max="-2" attributes="0"/>
+                              <EmptySpace max="-2" attributes="0"/>
+                              <Component id="jButtonRemoveResource" min="-2" max="-2" attributes="0"/>
+                              <EmptySpace max="-2" attributes="0"/>
+                              <Component id="jButtonOpenResource" min="-2" max="-2" attributes="0"/>
+                          </Group>
+                          <Component id="jScrollPane2" pref="458" max="32767" attributes="0"/>
+                      </Group>
+                      <EmptySpace max="-2" attributes="0"/>
+                  </Group>
+              </Group>
+            </DimensionLayout>
+          </Layout>
+          <SubComponents>
+            <Component class="javax.swing.JLabel" name="jLabel13">
+              <Properties>
+                <Property name="labelFor" type="java.awt.Component" editor="org.netbeans.modules.form.ComponentChooserEditor">
+                  <ComponentRef name="jListContext"/>
+                </Property>
+                <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
+                  <ResourceString bundle="org/netbeans/modules/tasklist/usertasks/Bundle.properties" key="ObjectsAssociated" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
+                </Property>
+              </Properties>
+            </Component>
+            <Container class="javax.swing.JScrollPane" name="jScrollPane2">
+              <AuxValues>
+                <AuxValue name="autoScrollPane" type="java.lang.Boolean" value="true"/>
+              </AuxValues>
+
+              <Layout class="org.netbeans.modules.form.compat2.layouts.support.JScrollPaneSupportLayout"/>
+              <SubComponents>
+                <Component class="javax.swing.JList" name="jListContext">
+                  <Properties>
+                    <Property name="cellRenderer" type="javax.swing.ListCellRenderer" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
+                      <Connection code="new org.netbeans.modules.tasklist.usertasks.edit.ResourceListCellRenderer()" type="code"/>
+                    </Property>
+                  </Properties>
+                  <Events>
+                    <EventHandler event="valueChanged" listener="javax.swing.event.ListSelectionListener" parameters="javax.swing.event.ListSelectionEvent" handler="jListContextValueChanged"/>
+                  </Events>
+                </Component>
+              </SubComponents>
+            </Container>
+            <Component class="javax.swing.JButton" name="jButtonAddResource">
+              <Properties>
+                <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
+                  <ResourceString bundle="org/netbeans/modules/tasklist/usertasks/Bundle.properties" key="AddResource" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
+                </Property>
+              </Properties>
+              <AuxValues>
+                <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="new org.netbeans.modules.tasklist.swing.DropDownButton(&quot;Add...&quot;, addResourcePopup)"/>
+              </AuxValues>
+            </Component>
+            <Component class="javax.swing.JButton" name="jButtonRemoveResource">
+              <Properties>
+                <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
+                  <ResourceString bundle="org/netbeans/modules/tasklist/usertasks/Bundle.properties" key="RemoveResource" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
+                </Property>
+                <Property name="enabled" type="boolean" value="false"/>
+              </Properties>
+              <Events>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jButtonRemoveResourceActionPerformed"/>
+              </Events>
+            </Component>
+            <Component class="javax.swing.JButton" name="jButtonOpenResource">
+              <Properties>
+                <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
+                  <ResourceString bundle="org/netbeans/modules/tasklist/usertasks/Bundle.properties" key="OpenResource" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
+                </Property>
+                <Property name="enabled" type="boolean" value="false"/>
+              </Properties>
+              <Events>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jButtonOpenResourceActionPerformed"/>
+              </Events>
             </Component>
           </SubComponents>
         </Container>

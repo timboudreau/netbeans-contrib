@@ -26,7 +26,6 @@ import java.util.Set;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.EventListenerList;
-import org.netbeans.modules.tasklist.usertasks.DueTasksNotifier;
 import org.netbeans.modules.tasklist.usertasks.util.ObjectListEvent;
 import org.netbeans.modules.tasklist.usertasks.util.ObjectListListener;
 
@@ -57,8 +56,6 @@ public class UserTaskList {
      * not editable parameters
      */
     public Object userObject;
-    
-    private DueTasksNotifier dueTasksNotifier;
 
     /** <ChangeListener> */
     private EventListenerList listeners = new EventListenerList();
@@ -81,11 +78,11 @@ public class UserTaskList {
      * @return all found categories
      */
     public String[] getOwners() {
-        Iterator it = this.getSubtasks().iterator();
         Set<String> cat = new java.util.HashSet<String>();
-        while (it.hasNext()) {
-            UserTask ut = (UserTask) it.next();
-            findOwners(ut, cat);
+        
+        UserTaskObjectList ol = this.getSubtasks();
+        for (int i = 0; i < ol.size(); i++) {
+            findOwners(ol.get(i), cat);
         }
         return cat.toArray(new String[cat.size()]);
     }
@@ -101,9 +98,9 @@ public class UserTaskList {
         if (task.getOwner().length() != 0)
             cat.add(task.getOwner());
         
-        Iterator it = task.getSubtasks().iterator();
-        while (it.hasNext()) {
-            findOwners((UserTask) it.next(), cat);
+        UserTaskObjectList ol = task.getSubtasks();
+        for(int i = 0; i < ol.size(); i++) {
+            findOwners(ol.get(i), cat);
         }
     }
     
@@ -139,7 +136,9 @@ public class UserTaskList {
         }
     }
     
-    // Look up a particular item by uid
+    /**
+     * Look up a particular item by uid
+     */ 
     public UserTask findItem(Iterator tasks, String uid) {
         while (tasks.hasNext()) {
             UserTask task = (UserTask)tasks.next();

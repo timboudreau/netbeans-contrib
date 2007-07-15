@@ -63,23 +63,6 @@ public class ShowTaskAction extends UTViewAction {
         panel.setPreferredSize(new Dimension(600, 500));
         panel.fillPanel(item);
         
-        // find cursor position
-        if (item.getUrl() == null) {
-            Line cursor = UTUtils.findCursorPosition(null);
-            if (cursor == null) {
-                Node[] editorNodes = UTUtils.getEditorNodes();
-                if (editorNodes != null)
-                    cursor = UTUtils.findCursorPosition(editorNodes);
-            }
-            if (cursor == null) {
-                panel.setUrl(null);
-                panel.setLineNumber(0);
-            } else {
-                panel.setUrl(UTUtils.getExternalURLForLine(cursor));
-                panel.setLineNumber(cursor.getLineNumber());
-            }
-        }
-        
         DialogDescriptor d = new DialogDescriptor(panel,
             NbBundle.getMessage(ShowTaskAction.class, "TITLE_edit_todo")); // NOI18N
         d.setModal(true);

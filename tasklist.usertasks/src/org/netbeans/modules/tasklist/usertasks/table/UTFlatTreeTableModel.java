@@ -66,7 +66,6 @@ public class UTFlatTreeTableModel extends UTBasicTreeTableModel {
             };
         }
         this.root = new UTListFlatTreeTableNode(fi, this, utl, null, sm);
-        //this.root = new UTListDependenciesTreeTableNode(fi, this, utl, null);
     }
     
     public void destroy() {

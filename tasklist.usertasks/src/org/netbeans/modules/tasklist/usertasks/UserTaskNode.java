@@ -72,7 +72,9 @@ import org.openide.util.datatransfer.MultiTransferObject;
 import org.openide.util.datatransfer.PasteType;
 import org.netbeans.modules.tasklist.usertasks.model.UserTask;
 import org.netbeans.modules.tasklist.usertasks.model.UserTaskList;
+import org.netbeans.modules.tasklist.usertasks.model.UserTaskResource;
 import org.netbeans.modules.tasklist.usertasks.table.UTBasicTreeTableNode;
+import org.netbeans.modules.tasklist.usertasks.util.ObjectList;
 import org.openide.actions.DeleteAction;
 import org.openide.nodes.Node;
 
@@ -284,61 +286,6 @@ public final class UserTaskNode extends AbstractNode {
             p.setShortDescription(NbBundle.getMessage(UserTaskNode.class, "HNT_detailsProperty")); // NOI18N
             ss.put(p);
             
-            p = new PropertySupport.Reflection(item, String.class, (String) null, null) { // NOI18N
-                public boolean canRead() {
-                    return true;
-                }
-                public boolean canWrite() {
-                    return true;
-                }
-                public Object getValue () throws
-                    IllegalAccessException, IllegalArgumentException, InvocationTargetException {
-                    URL url = ((UserTask) instance).getUrl();
-                    if (url == null)
-                        return ""; // NOI18N
-                    else
-                        return url.toExternalForm();
-                }
-                public void setValue (Object val) throws
-                    IllegalAccessException, IllegalArgumentException, InvocationTargetException {
-                    try {
-                        URL url = new URL((String) val);
-                        ((UserTask) instance).setUrl(url);
-                    } catch (MalformedURLException e) {
-                        throw new IllegalArgumentException(e.getMessage());
-                    }
-                }
-            };
-            p.setName(UserTask.PROP_URL);
-            p.setDisplayName(NbBundle.getMessage(UserTaskNode.class, "LBL_urlProperty")); // NOI18N
-            p.setShortDescription(NbBundle.getMessage(UserTaskNode.class, "HNT_urlProperty")); // NOI18N
-            //p.setValue("suppressCustomEditor", Boolean.TRUE); // NOI18N
-            ss.put(p);
-
-            p = new PropertySupport.Reflection(item, Integer.TYPE, (String) null, null) { // NOI18N
-                public boolean canRead() {
-                    return true;
-                }
-                public boolean canWrite() {
-                    return true;
-                }
-                public Object getValue () throws
-                    IllegalAccessException, IllegalArgumentException, InvocationTargetException {
-                    return new Integer(((UserTask) instance).getLineNumber() + 1);
-                }
-                public void setValue (Object val) throws
-                    IllegalAccessException, IllegalArgumentException, InvocationTargetException {
-                    int n = ((Integer) val).intValue();
-                    if (n < 1)
-                        throw new IllegalArgumentException(); 
-                    ((UserTask) instance).setLineNumber(n - 1);
-                }
-            };
-            p.setName(UserTask.PROP_LINE_NUMBER);
-            p.setDisplayName(NbBundle.getMessage(UserTaskNode.class, "LBL_lineProperty")); // NOI18N
-            p.setShortDescription(NbBundle.getMessage(UserTaskNode.class, "HNT_lineProperty")); // NOI18N
-            ss.put(p);
-            
             p = new PropertySupport.Reflection(item, String.class, "getCategory", "setCategory"); // NOI18N
             p.setName(UserTask.PROP_CATEGORY);
             p.setDisplayName(NbBundle.getMessage(UserTaskNode.class, "LBL_categoryProperty")); // NOI18N
@@ -409,6 +356,23 @@ public final class UserTaskNode extends AbstractNode {
             p.setDisplayName(NbBundle.getMessage(UserTaskNode.class, "LBL_startProperty")); // NOI18N
             p.setShortDescription(NbBundle.getMessage(UserTaskNode.class, "HNT_startProperty")); // NOI18N
             ss.put(p);
+
+            PropertySupport.ReadOnly ro = new PropertySupport.
+                    ReadOnly<String>(UserTask.PROP_RESOURCES, String.class, 
+                    NbBundle.getMessage(UserTaskNode.class, "LBL_resourcesProperty"), // NOI18N
+                    NbBundle.getMessage(UserTaskNode.class, "HNT_resourcesProperty")) { // NOI18N
+                public String getValue() throws IllegalAccessException, InvocationTargetException {
+                    ObjectList<UserTaskResource> rl = item.getResources();
+                    StringBuilder sb = new StringBuilder();
+                    for (UserTaskResource r: rl) {
+                        if (sb.length() != 0)
+                            sb.append("\n"); // NOI18N
+                        sb.append(r.getDisplayName());
+                    }
+                    return sb.toString();
+                }                
+            };
+            ss.put(ro);
         } catch (NoSuchMethodException nsme) {
             UTUtils.LOGGER.log(Level.WARNING, "", nsme); // NOI18N
         }
@@ -617,7 +581,6 @@ public final class UserTaskNode extends AbstractNode {
             } else {
                 ut = new UserTask(item.getSummary(), item.getList());
                 ut.setDetails(item.getDetails());
-                ut.setLine(item.getLine());
                 ut.setPriority(item.getPriority());
             }
             ((UserTaskNode) target).pasteTask(ut);

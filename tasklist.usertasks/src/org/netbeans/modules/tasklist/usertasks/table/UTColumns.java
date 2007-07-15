@@ -34,16 +34,14 @@ public class UTColumns {
     public static final int REMAINING_EFFORT = 5;
     public static final int SPENT_TIME = 6;
     public static final int DETAILS = 7;
-    public static final int FILE_BASE_NAME = 8;
-    public static final int LINE_NUMBER = 9;
-    public static final int CATEGORY = 10;
-    public static final int CREATED = 11;
-    public static final int LAST_EDITED = 12;
-    public static final int COMPLETED_DATE = 13;
-    public static final int DUE_DATE = 14;
-    public static final int OWNER = 15;
-    public static final int START = 16;
-    public static final int SPENT_TIME_TODAY = 17;
+    public static final int CATEGORY = 8;
+    public static final int CREATED = 9;
+    public static final int LAST_EDITED = 10;
+    public static final int COMPLETED_DATE = 11;
+    public static final int DUE_DATE = 12;
+    public static final int OWNER = 13;
+    public static final int START = 14;
+    public static final int SPENT_TIME_TODAY = 15;
 
     /**
      * Reads the value of a property from the specified UserTask
@@ -78,12 +76,6 @@ public class UTColumns {
                 break;
             case UTColumns.DETAILS:
                 r = ut.getDetails();
-                break;
-            case UTColumns.FILE_BASE_NAME:
-                r = ut.getUrl();
-                break;
-            case UTColumns.LINE_NUMBER:
-                r = ut.getLineNumber();
                 break;
             case UTColumns.CATEGORY:
                 r = ut.getCategory();

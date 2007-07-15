@@ -42,6 +42,7 @@ import javax.swing.JComponent;
 import javax.swing.TransferHandler;
 import javax.swing.tree.TreePath;
 import org.netbeans.modules.tasklist.usertasks.*;
+import org.netbeans.modules.tasklist.usertasks.model.URLResource;
 import org.netbeans.modules.tasklist.usertasks.model.UserTask;
 import org.netbeans.modules.tasklist.usertasks.model.UserTaskList;
 import org.netbeans.modules.tasklist.usertasks.model.UserTaskObjectList;
@@ -108,7 +109,7 @@ public class MyTransferHandler extends TransferHandler {
                 
                 // DEBUG UTUtils.LOGGER.fine("'" + url + "'"); // NOI18N
                 UserTask ut = new UserTask(title == null ? url : title, null);
-                ut.setUrl(new URL(url.trim()));
+                ut.getResources().add(new URLResource(new URL(url)));
                 tasks = new UserTask[] {ut};
             } else if (t.isDataFlavorSupported(DataFlavor.stringFlavor)) {
                 String text = (String) t.getTransferData(

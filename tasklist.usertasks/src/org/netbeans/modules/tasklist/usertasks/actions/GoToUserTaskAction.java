@@ -25,6 +25,7 @@ import javax.swing.ImageIcon;
 import javax.swing.event.ListSelectionEvent;
 import org.netbeans.modules.tasklist.usertasks.UserTaskView;
 import org.netbeans.modules.tasklist.usertasks.model.UserTask;
+import org.netbeans.modules.tasklist.usertasks.model.UserTaskResource;
 import org.openide.awt.HtmlBrowser;
 import org.openide.text.Line;
 import org.openide.util.NbBundle;
@@ -57,30 +58,25 @@ public class GoToUserTaskAction extends UTViewAction
     
     public void actionPerformed(ActionEvent e) {
         UserTask ut = getSingleSelectedTask();
-        if (ut.getLine() != null)
-            ut.getLine().show(Line.SHOW_GOTO);
-        else
-            HtmlBrowser.URLDisplayer.getDefault().showURL(ut.getUrl());
+        for (UserTaskResource r: ut.getResources()) {
+            r.open();
+        }
     }
 
     public void valueChanged(ListSelectionEvent e) {
         if (last != null)
             last.removePropertyChangeListener(this);
         UserTask ut = getSingleSelectedTask();
-        setEnabled(ut != null && 
-                (ut.getLine() != null || ut.getUrl() != null));
+        setEnabled(ut != null && ut.getResources().size() > 0);
         last = ut;
         if (last != null)
             last.addPropertyChangeListener(this);
     }
 
     public void propertyChange(PropertyChangeEvent evt) {
-        if (evt.getPropertyName() == UserTask.PROP_URL ||
-                evt.getPropertyName() == UserTask.PROP_LINE_NUMBER ||
-                evt.getPropertyName() == UserTask.PROP_LINE) {
+        if (evt.getPropertyName() == UserTask.PROP_RESOURCES) {
             UserTask ut = getSingleSelectedTask();
-            setEnabled(ut != null && 
-                    (ut.getLine() != null || ut.getUrl() != null));
+            setEnabled(ut != null && ut.getResources().size() > 0);
         }
     }
 }

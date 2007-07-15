@@ -46,8 +46,11 @@ import org.netbeans.modules.tasklist.export.SimpleWizardPanel;
 
 import org.netbeans.modules.tasklist.usertasks.options.Settings;
 import org.netbeans.modules.tasklist.usertasks.UserTaskViewRegistry;
+import org.netbeans.modules.tasklist.usertasks.model.LineResource;
+import org.netbeans.modules.tasklist.usertasks.model.URLResource;
 import org.netbeans.modules.tasklist.usertasks.model.UserTask;
 import org.netbeans.modules.tasklist.usertasks.model.UserTaskList;
+import org.netbeans.modules.tasklist.usertasks.model.UserTaskResource;
 import org.netbeans.modules.tasklist.usertasks.util.ExtensionFileFilter;
 import org.netbeans.modules.tasklist.usertasks.util.ObjectList;
 import org.netbeans.modules.tasklist.usertasks.util.UTUtils;
@@ -229,14 +232,6 @@ public class XmlExportFormat implements ExportImportFormat {
             node.setAttribute("due", dateToString(task.getDueDate())); // NOI18N
         }
         
-        URL url = task.getUrl();
-        if (url != null) {
-            node.setAttribute("file", // NOI18N
-                url.toExternalForm());
-            node.setAttribute("line", // NOI18N
-                String.valueOf(task.getLineNumber() + 1));
-        }
-        
         node.setAttribute("created", // NOI18N
             dateToString(new Date(task.getCreatedDate())));
 
@@ -281,6 +276,31 @@ public class XmlExportFormat implements ExportImportFormat {
             }
         }
         
+        ObjectList<UserTaskResource> ress = task.getResources();
+        if (ress.size() > 0) {
+            Element resources = doc.createElement("resources"); // NOI18N
+            node.appendChild(resources);
+            for (UserTaskResource r: ress) {
+                if (r instanceof URLResource) {
+                    Element urlResource = doc.createElement(
+                            "url-resource"); // NOI18N
+                    urlResource.setAttribute("url", // NOI18N
+                            ((URLResource) r).getUrl().toExternalForm());
+                    resources.appendChild(urlResource);
+                } else if (r instanceof LineResource) {
+                    Element lineResource = doc.createElement(
+                            "line-resource"); // NOI18N
+                    lineResource.setAttribute("url", // NOI18N
+                            ((LineResource) r).getURL().toExternalForm());
+                    lineResource.setAttribute("line-number", // NOI18N
+                            Integer.toString(((LineResource) r).getLineNumber()));
+                    resources.appendChild(lineResource);
+                } else {
+                    UTUtils.LOGGER.warning("Unknown resource type"); // NOI18N
+                }
+            }
+        }
+
         Iterator it = task.getSubtasks().iterator();
         while (it.hasNext()) {
             task(node, (UserTask) it.next());

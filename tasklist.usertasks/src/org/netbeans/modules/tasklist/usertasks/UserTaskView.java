@@ -21,6 +21,7 @@ package org.netbeans.modules.tasklist.usertasks;
 
 import org.netbeans.modules.tasklist.usertasks.table.UTTreeTableModel;
 import java.awt.BorderLayout;
+import java.awt.Graphics;
 import java.awt.Image;
 import java.awt.Point;
 import java.awt.event.InputEvent;
@@ -111,6 +112,7 @@ import org.netbeans.modules.tasklist.usertasks.model.UserTask;
 import org.netbeans.modules.tasklist.usertasks.model.UserTaskList;
 import org.netbeans.modules.tasklist.usertasks.table.UTBasicTreeTableModel;
 import org.netbeans.modules.tasklist.usertasks.table.UTFlatTreeTableModel;
+import org.netbeans.modules.tasklist.usertasks.translators.GoogleICalExportFormat;
 import org.netbeans.modules.tasklist.usertasks.treetable.TreeTable;
 import org.netbeans.modules.tasklist.usertasks.util.RightSideBorder;
 import org.openide.DialogDisplayer;
@@ -399,6 +401,8 @@ public class UserTaskView extends TopComponent implements ExportImportProvider,
             (RemoveFilterAction) SystemAction.get(RemoveFilterAction.class);
         removeFilter.enable();
         UserTaskViewRegistry.getInstance().setLastActivated(this);
+        
+        tt.requestFocus();
     }
     
     /** 
@@ -746,6 +750,7 @@ public class UserTaskView extends TopComponent implements ExportImportProvider,
             new XmlExportFormat(), 
             new HtmlExportFormat(),
             new ICalExportFormat(),
+            new GoogleICalExportFormat(),
             new HistoryTextExportFormat()
         };
     }

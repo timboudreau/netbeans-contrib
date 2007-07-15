@@ -38,8 +38,6 @@ public class UserTaskFilter extends Filter {
         UserTaskProperties.PROP_SUMMARY,
         UserTaskProperties.PROP_PRIORITY,
         UserTaskProperties.PROP_CATEGORY,
-        UserTaskProperties.PROP_FILENAME,
-        UserTaskProperties.PROP_LINE_NUMBER,
         UserTaskProperties.PROP_CREATED_DATE,
         UserTaskProperties.PROP_LAST_EDITED_DATE,
         UserTaskProperties.PROP_COMPLETED_DATE,
@@ -87,10 +85,6 @@ public class UserTaskFilter extends Filter {
             return applyConditions(property, StringFilterCondition.createConditions());
         } else if (property.equals(UserTaskProperties.PROP_DETAILS)) {
             return applyConditions(property, StringFilterCondition.createConditions());
-        } else if (property.equals(UserTaskProperties.PROP_FILENAME)) {
-            return applyConditions(property, StringFilterCondition.createConditions());
-        } else if (property.equals(UserTaskProperties.PROP_LINE_NUMBER)) {
-            return applyConditions(property, IntegerFilterCondition.createConditions());
         } else if (property.equals(UserTaskProperties.PROP_CREATED_DATE)) {
             return applyConditions(property, DateFilterCondition.createConditions());
         } else if (property.equals(UserTaskProperties.PROP_LAST_EDITED_DATE)) {

@@ -131,24 +131,14 @@ public class NewTaskAction extends UTViewAction {
             if (editorNodes != null)
                 cursor = UTUtils.findCursorPosition(editorNodes);
         }
-        int lineNumber;
-        URL url;
-        if (cursor != null) {
-            lineNumber = cursor.getLineNumber();
-            url = UTUtils.getExternalURLForLine(cursor);
-        } else {
-            url = null;
-            lineNumber = -1;
-        }
         
         UserTask ut = new UserTask("", utl); // NOI18N
 
         final EditTaskPanel panel = getEditTaskPanel();
         panel.setTopLevel(parent == null);
         panel.fillPanel(ut);
-        panel.setAssociatedFilePos(false);
-        panel.setUrl(url);
-        panel.setLineNumber(lineNumber);
+        if (cursor != null)
+            panel.addResource(cursor);
         panel.focusSummary();
         
         DialogDescriptor dd = new DialogDescriptor(getEditTaskPanel(),
@@ -277,9 +267,8 @@ public class NewTaskAction extends UTViewAction {
 
         EditTaskPanel panel = getEditTaskPanel();
         panel.fillPanel(ut);
-        panel.setAssociatedFilePos(true);
-        panel.setUrl(url);
-        panel.setLineNumber(line.getLineNumber());
+        if (line != null)
+            panel.addResource(line);
         panel.focusSummary();
         
         DialogDescriptor dd = new DialogDescriptor(getEditTaskPanel(),

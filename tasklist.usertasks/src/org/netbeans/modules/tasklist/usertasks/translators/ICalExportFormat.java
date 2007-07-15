@@ -31,17 +31,20 @@ import java.io.StringWriter;
 import java.io.Writer;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.TimeZone;
 import java.util.logging.Level;
 import net.fortuna.ical4j.data.CalendarOutputter;
 import net.fortuna.ical4j.model.Calendar;
 import net.fortuna.ical4j.model.Component;
 import net.fortuna.ical4j.model.ComponentList;
-import net.fortuna.ical4j.model.Date;
 import net.fortuna.ical4j.model.DateTime;
 import net.fortuna.ical4j.model.Property;
 import net.fortuna.ical4j.model.PropertyList;
@@ -49,12 +52,7 @@ import net.fortuna.ical4j.model.ValidationException;
 import net.fortuna.ical4j.model.component.VToDo;
 import net.fortuna.ical4j.model.parameter.XParameter;
 import net.fortuna.ical4j.model.property.Categories;
-import net.fortuna.ical4j.model.property.Completed;
-import net.fortuna.ical4j.model.property.Created;
 import net.fortuna.ical4j.model.property.Description;
-import net.fortuna.ical4j.model.property.DtStamp;
-import net.fortuna.ical4j.model.property.DtStart;
-import net.fortuna.ical4j.model.property.LastModified;
 import net.fortuna.ical4j.model.property.PercentComplete;
 import net.fortuna.ical4j.model.property.Priority;
 import net.fortuna.ical4j.model.property.ProdId;
@@ -64,10 +62,12 @@ import net.fortuna.ical4j.model.property.Uid;
 import net.fortuna.ical4j.model.property.Url;
 import net.fortuna.ical4j.model.property.Version;
 import net.fortuna.ical4j.model.property.XProperty;
+import net.fortuna.ical4j.util.TimeZones;
 import org.netbeans.modules.tasklist.export.ExportImportFormat;
 import org.netbeans.modules.tasklist.export.ExportImportProvider;
 import org.netbeans.modules.tasklist.export.SaveFilePanel;
 import org.netbeans.modules.tasklist.export.SimpleWizardPanel;
+import org.netbeans.modules.tasklist.usertasks.model.LineResource;
 
 
 import org.netbeans.modules.tasklist.usertasks.options.Settings;
@@ -75,10 +75,15 @@ import org.netbeans.modules.tasklist.usertasks.UserTaskViewRegistry;
 import org.netbeans.modules.tasklist.usertasks.model.UserTask;
 import org.netbeans.modules.tasklist.usertasks.model.UserTaskList;
 import org.netbeans.modules.tasklist.usertasks.model.Dependency;
+import org.netbeans.modules.tasklist.usertasks.model.URLResource;
+import org.netbeans.modules.tasklist.usertasks.model.UserTaskResource;
 import org.netbeans.modules.tasklist.usertasks.util.ExtensionFileFilter;
 import org.netbeans.modules.tasklist.usertasks.util.ObjectList;
 import org.netbeans.modules.tasklist.usertasks.util.UTUtils;
 import org.openide.WizardDescriptor;
+import org.openide.filesystems.FileStateInvalidException;
+import org.openide.loaders.DataObject;
+import org.openide.text.Line;
 import org.openide.util.NbBundle;
 
 /**
@@ -98,9 +103,36 @@ import org.openide.util.NbBundle;
  * @author tl
  */
 public class ICalExportFormat implements ExportImportFormat {
+    /**
+     * Speed optimization.
+     * See http://sourceforge.net/tracker/index.php?func=detail&aid=1722243&group_id=107024&atid=646395
+     * for details. 
+     */
+    private static final String UTC_PATTERN = "yyyyMMdd'T'HHmmss'Z'";
+
+    /**
+     * Speed optimization.
+     * See http://sourceforge.net/tracker/index.php?func=detail&aid=1722243&group_id=107024&atid=646395
+     * for details. 
+     *
+     * Used for parsing times in a UTC date-time representation.
+     */
+    private static final DateFormat UTC_FORMAT = new SimpleDateFormat(
+            UTC_PATTERN);
+    
+    /*
+     * Speed optimization.
+     * See http://sourceforge.net/tracker/index.php?func=detail&aid=1722243&group_id=107024&atid=646395
+     * for details. 
+     */
+    static {
+        UTC_FORMAT.setTimeZone(TimeZone.getTimeZone(TimeZones.UTC_ID));
+        UTC_FORMAT.setLenient(false);
+    }
+   
     private final static String PRODID = 
         "-//NetBeans User Tasks//NONSGML 1.0//EN"; // NOI18N
-    protected final static String 
+    private final static String 
         CHOOSE_FILE_PANEL_PROP = "ChooseFilePanel"; // NOI18N
     
     // Format which includes the timezone at the end. This is the format
@@ -108,7 +140,7 @@ public class ICalExportFormat implements ExportImportFormat {
     private static final String DATEFORMATZ = "yyyyMMdd'T'HHmmss'Z'"; // NOI18N
     private static final SimpleDateFormat DATEFORMAT = 
         new SimpleDateFormat(DATEFORMATZ);
-    
+
     /**
      * Converts a stream to default system line endings.
      *
@@ -207,6 +239,19 @@ public class ICalExportFormat implements ExportImportFormat {
     }
 
     /**
+     * Retrieves calender from a task list.
+     * 
+     * @param list a task list
+     * @return calendar for the task list 
+     */
+    private Calendar getCalendar(UserTaskList list) {
+        Calendar cal = (Calendar) list.userObject;
+        if (cal == null)
+            cal = new Calendar();
+        return cal;
+    }
+    
+    /**
      * Do the actual export of the list into the stream
      *
      * @param list The tasklist to store
@@ -216,11 +261,9 @@ public class ICalExportFormat implements ExportImportFormat {
      */
     public void writeList(UserTaskList list, Writer out, boolean std) 
     throws IOException, ValidationException, URISyntaxException, ParseException {
-        Calendar cal = (Calendar) list.userObject;
-        if (cal == null)
-            cal = new Calendar();
+        Calendar cal = getCalendar(list);
         
-        Property prop = cal.getProperties().getProperty(Property.PRODID); 
+        Property prop = getProperty(cal.getProperties(), Property.PRODID); 
         if (prop == null) {
             prop = new ProdId(PRODID);
             cal.getProperties().add(prop);
@@ -234,10 +277,10 @@ public class ICalExportFormat implements ExportImportFormat {
         cal.getProperties().add(Version.VERSION_2_0);
         
         Iterator it = list.getSubtasks().iterator();
-        int[] p = new int[1];
+        Map<String, Integer> uid2index = createUId2IndexMap(cal);
         while (it.hasNext()) {
             UserTask item = (UserTask) it.next();
-            writeTask(cal, item, p);
+            writeTask(cal, item, uid2index);
         }
         
         final List<String> uids = new ArrayList<String>();
@@ -261,6 +304,7 @@ public class ICalExportFormat implements ExportImportFormat {
         }
 
         CalendarOutputter co = new CalendarOutputter();
+        co.setValidating(false);
         if (std) {
             co.output(cal, out);
         } else {
@@ -269,6 +313,30 @@ public class ICalExportFormat implements ExportImportFormat {
             StringReader sr = new StringReader(sw.getBuffer().toString());
             convertToSystem(sr, out);
         }
+    }
+    
+    /**
+     * Creates a map from UID to index in the cal.getComponents() list.
+     * 
+     * @param cal a calendar
+     * @return map from UID to index in cal.getComponents() 
+     */
+    private static Map<String, Integer> createUId2IndexMap(Calendar cal) {
+        Map<String, Integer> r = new HashMap<String, Integer>();
+        ComponentList cl = cal.getComponents();
+        for (int i = 0; i < cl.size(); i++) {
+            if (((Component) cl.get(i)).getName().equals(Component.VTODO)) {
+                VToDo c = (VToDo) cl.get(i);
+                PropertyList pl = c.getProperties();
+                for (int j = 0; j < pl.size(); j++) {
+                    Property p = (Property) pl.get(j);
+                    if (p instanceof Uid) {
+                        r.put(p.getValue(), i);
+                    }
+                }
+            }
+        }
+        return r;
     }
     
     /**
@@ -283,7 +351,7 @@ public class ICalExportFormat implements ExportImportFormat {
         while (it.hasNext()) {
             Component c = (Component) it.next();
             if (c.getName().equals(Component.VTODO)) {
-                Uid p = (Uid) c.getProperties().getProperty(Property.UID);
+                Uid p = (Uid) getProperty(c.getProperties(), Property.UID);
                 if (p == null || uids.indexOf(p.getValue()) < 0)
                     it.remove();
             }
@@ -291,21 +359,23 @@ public class ICalExportFormat implements ExportImportFormat {
     }
     
     /**
-     * Searches for a VTODO with the given uid.
-     *
-     * @param cal a calendar object
-     * @param uid searching for this uid.
-     * @return found component or null
+     * Creates ical4j objects for a task and all of its subtasks.
+     * 
+     * @param cal calendar
+     * @param task a task
+     * @param uid2index UID -> index in cal.getComponents() 
      */
-    private static VToDo find(Calendar cal, String uid) {
-        ComponentList cl = cal.getComponents().getComponents(Component.VTODO);
-        for (int i = 0; i < cl.size(); i++) {
-            VToDo c = (VToDo) cl.get(i);
-            Uid p = (Uid) c.getProperties().getProperty(Property.UID);
-            if (p != null && p.getValue().equals(uid))
-                return c;
+    private void writeTask(Calendar cal, UserTask task, 
+            Map<String, Integer> uid2index) 
+    throws IOException, URISyntaxException, ParseException, ValidationException {
+        writeTask0(cal, task, uid2index);
+
+        // Recurse over subtasks
+        Iterator it = task.getSubtasks().iterator();
+        while (it.hasNext()) {
+            UserTask subtask = (UserTask)it.next();
+            writeTask(cal, subtask, uid2index);
         }
-        return null;
     }
     
     /**
@@ -313,53 +383,34 @@ public class ICalExportFormat implements ExportImportFormat {
      *
      * @param cal calendar object
      * @param task The task/todo item to use
-     * @param position position of the VTODO-element in cal.getComponents()
-     * Length of the array should be 1 (in/out argument).
+     * @param uid2index UID -> index in cal.getComponents() 
      */
     @SuppressWarnings("unchecked")
-    private void writeTask(Calendar cal, UserTask task, int[] position) 
+    private void writeTask0(Calendar cal, UserTask task, 
+            Map<String, Integer> uid2index) 
     throws IOException, URISyntaxException, ParseException, ValidationException {
-        VToDo vtodo = find(cal, task.getUID());
-        if (vtodo == null) {
+        VToDo vtodo;
+        Integer index = uid2index.get(task.getUID());
+        if (index == null) {
             vtodo = new VToDo();
             vtodo.getProperties().add(new Uid(task.getUID()));
-            cal.getComponents().add(position[0], vtodo);
+            cal.getComponents().add(vtodo);
         } else {
-            cal.getComponents().remove(vtodo);
-            cal.getComponents().add(position[0], vtodo);
+            vtodo = (VToDo) cal.getComponents().get(index);
         }
-        position[0]++;
 
         PropertyList pl = vtodo.getProperties();
-        Property prop = pl.getProperty(Property.CREATED);
-        if (prop == null) {
-            prop = new Created();
-            pl.add(prop);
-        }
+        Property prop = getProperty(pl, Property.CREATED);
         long created = task.getCreatedDate();
-        DateTime dt = new DateTime(created);
-        dt.setUtc(true);
-        ((Created) prop).setDate(dt);
-        prop.validate();
+        setUtcProperty(pl, Property.CREATED, new java.util.Date(created));
+        // DEBUG: prop.validate();
             
         // DTSTAMP
-        prop = pl.getProperty(Property.DTSTAMP);
-        if (prop == null) {
-            prop = new DtStamp();
-            pl.add(prop);
-        }
-        ((DtStamp) prop).setDate(dt);
+        setUtcProperty(pl, Property.DTSTAMP, new java.util.Date(created));
         
-        prop = pl.getProperty(Property.DTSTART);
+        prop = getProperty(pl, Property.DTSTART);
         if (task.getStart() != -1) {
-            if (prop == null) {
-                prop = new DtStart();
-                pl.add(prop);
-            }
-            dt = new DateTime(task.getStart());
-            dt.setUtc(true);
-            ((DtStart) prop).setDate(dt);
-            prop.validate();
+            setUtcProperty(pl, Property.DTSTART, task.getStartDate());
         } else {
             if (prop != null)
                 pl.remove(prop);
@@ -367,7 +418,7 @@ public class ICalExportFormat implements ExportImportFormat {
 
         // summary: (Description)
         String desc = task.getSummary();
-        prop = pl.getProperty(Property.SUMMARY);
+        prop = getProperty(pl, Property.SUMMARY);
         if (desc != null && desc.length() > 0) {
             if (prop == null) {
                 prop = new Summary();
@@ -381,7 +432,7 @@ public class ICalExportFormat implements ExportImportFormat {
 
         // description (details)
         String details = task.getDetails();
-        prop = pl.getProperty(Property.DESCRIPTION);
+        prop = getProperty(pl, Property.DESCRIPTION);
         if (details != null && details.length() > 0) {
             if (prop == null) {
                 prop = new Description();
@@ -394,7 +445,7 @@ public class ICalExportFormat implements ExportImportFormat {
         }
 
         // Priority
-        prop = pl.getProperty(Property.PRIORITY);
+        prop = getProperty(pl, Property.PRIORITY);
         if (prop != null)
             pl.remove(prop);
         if (task.getPriority() != UserTask.MEDIUM) {
@@ -424,7 +475,7 @@ public class ICalExportFormat implements ExportImportFormat {
         // xprop is special, we will have those)
 
 
-        prop = pl.getProperty(Property.PERCENT_COMPLETE);
+        prop = getProperty(pl, Property.PERCENT_COMPLETE);
         if (prop == null) {
             prop = new PercentComplete();
             pl.add(prop);
@@ -452,7 +503,7 @@ public class ICalExportFormat implements ExportImportFormat {
         // Category (XXX standard allows MULTIPLE categories, I must handle
         // that when I parse back)
         String category = task.getCategory();
-        prop = pl.getProperty(Property.CATEGORIES);
+        prop = getProperty(pl, Property.CATEGORIES);
         if (category != null && category.length() > 0) {
             // TODO Write out multiple CATEGORIES lines instead
             // of a combined comma separated list which is what we're
@@ -470,17 +521,10 @@ public class ICalExportFormat implements ExportImportFormat {
         // Last modified
         // Last Edited Date, if different than created
         long edited = task.getLastEditedDate();
-        prop = pl.getProperty(Property.LAST_MODIFIED);
+        prop = getProperty(pl, Property.LAST_MODIFIED);
         if (edited != created) {
             // They differ
-            if (prop == null) {
-                prop = new LastModified();
-                pl.add(prop);
-            }
-            dt = new DateTime(edited);
-            dt.setUtc(true);
-            ((LastModified) prop).setDate(dt);
-            prop.validate();
+            setUtcProperty(pl, Property.LAST_MODIFIED, new java.util.Date(edited));
         } else {
             if (prop != null)
                 pl.remove(pl);
@@ -488,47 +532,22 @@ public class ICalExportFormat implements ExportImportFormat {
 
         // completion date
         long completed = task.getCompletedDate();
-        prop = pl.getProperty(Property.COMPLETED);
+        prop = getProperty(pl, Property.COMPLETED);
         if (completed != 0) {
-            if (prop == null) {
-                prop = new Completed();
-                pl.add(prop);
-            }
-            dt = new DateTime(task.getCompletedDate());
-            dt.setUtc(true);
-            ((Completed) prop).setDate(dt);
-            prop.validate();
+            setUtcProperty(pl, Property.COMPLETED, new java.util.Date(
+                    task.getCompletedDate()));
         } else {
             if (prop != null)
                 pl.remove(prop);
         }
 
-        // URL
-        URL url = task.getUrl();
-        prop = pl.getProperty(Property.URL);
-        if (url != null) {
-            if (prop == null) {
-                prop = new Url();
-                pl.add(prop);
-            }
-            prop.setValue(url.toExternalForm());
-        } else {
-            if (prop != null)
-                pl.remove(pl);
-        }
-        
-        // Line number
-        int lineno = task.getLineNumber();
-        setXProperty(pl, "X-NETBEANS-LINE",  // NOI18N
-            Integer.toString(lineno + 1), lineno >= 0);
-        
         setXProperty(pl, "X-NETBEANS-OWNER", task.getOwner(), // NOI18N
             task.getOwner().length() != 0);
 
         // Parent item
         // attribute reltype for related-to defaults to "PARENT" so we
         // don't need to specify it
-        prop = pl.getProperty(Property.RELATED_TO);
+        prop = getProperty(pl, Property.RELATED_TO);
         if (task.getParent() != null) {
             if (prop == null) {
                 prop = new RelatedTo();
@@ -542,7 +561,7 @@ public class ICalExportFormat implements ExportImportFormat {
         }
         
         List dep = task.getDependencies();
-        pl.removeAll(pl.getProperties("X-NETBEANS-DEPENDENCY")); // NOI18N
+        removeAll(pl, "X-NETBEANS-DEPENDENCY"); // NOI18N
         for (int i = 0; i < dep.size(); i++) {
             Dependency d = (Dependency) dep.get(i);
             prop = new XProperty("X-NETBEANS-DEPENDENCY"); // NOI18N
@@ -554,7 +573,7 @@ public class ICalExportFormat implements ExportImportFormat {
         }
 
         ObjectList wks = task.getWorkPeriods();
-        pl.removeAll(pl.getProperties("X-NETBEANS-WORK-PERIOD")); // NOI18N
+        removeAll(pl, "X-NETBEANS-WORK-PERIOD"); // NOI18N
         for (int i = 0; i < wks.size(); i++) {
             UserTask.WorkPeriod wk = (UserTask.WorkPeriod) wks.get(i);
             prop = new XProperty("X-NETBEANS-WORK-PERIOD"); // NOI18N
@@ -565,7 +584,9 @@ public class ICalExportFormat implements ExportImportFormat {
             prop.setValue(Integer.toString(wk.getDuration()));
             pl.add(prop);
         }
-        
+
+        exportResources(task, pl);
+
         java.util.Date d = task.getDueDate();
         if (d != null)
             setXProperty(pl, "X-NETBEANS-DUETIME", Long.toString(d.getTime()), // NOI18N
@@ -620,13 +641,6 @@ public class ICalExportFormat implements ExportImportFormat {
 //                    }
 //                }
 //            }
-
-        // Recurse over subtasks
-        Iterator it = task.getSubtasks().iterator();
-        while (it.hasNext()) {
-            UserTask subtask = (UserTask)it.next();
-            writeTask(cal, subtask, position);
-        }
     }
     
     /**
@@ -641,7 +655,7 @@ public class ICalExportFormat implements ExportImportFormat {
     private static void setXProperty(PropertyList pl, 
         String name, String value, boolean set) throws IOException, 
         URISyntaxException, ParseException {
-        Property prop = pl.getProperty(name);
+        Property prop = getProperty(pl, name);
         if (set) {
             if (prop == null) {
                 prop = new XProperty(name);
@@ -652,5 +666,110 @@ public class ICalExportFormat implements ExportImportFormat {
             if (prop != null)
                 pl.remove(prop);
         }    
+    }
+    
+    /**
+     * Sets an UTC date/time property.
+     * Speed optimization.
+     * See http://sourceforge.net/tracker/index.php?func=detail&aid=1722243&group_id=107024&atid=646395
+     * for details. 
+     * 
+     * @param pl a list of properties
+     * @param name nam for the property
+     * @param value value for the property
+     */
+    private static void setUtcProperty(PropertyList pl, String name, 
+            java.util.Date value) throws IOException, ParseException, URISyntaxException {
+        int index = -1;
+        for (int i = 0; i < pl.size(); i++) {
+            Property p = (Property) pl.get(i);
+            if (p.getName().equalsIgnoreCase(name)) {
+                index = i;
+                pl.remove(i);
+                break;
+            }
+        }
+        
+        XProperty prop = new XProperty(name);
+        if (index >= 0)
+            pl.add(index, prop);
+        else
+            pl.add(prop);
+
+        prop.setValue(UTC_FORMAT.format(value));
+    }
+    
+    /**
+     * Replacement for PropertyList.getProperty(String)
+     * Speed optimization.
+     * See http://sourceforge.net/tracker/index.php?func=detail&aid=1722243&group_id=107024&atid=646395
+     * for details. 
+     * 
+     * @param pl a list of properties
+     * @param name nam for the property
+     * @return property or null
+     */
+    private static Property getProperty(PropertyList pl, String name) {
+        for (int i = 0; i < pl.size(); i++) {
+            Property p = (Property) pl.get(i);
+            if (p.getName().equalsIgnoreCase(name))
+                return p;
+        }
+        return null;
+    }
+    
+    /**
+     * Deletes all properties with the specified name.
+     * Implemented for performance reasons.
+     * 
+     * @param pl list of properties
+     * @param name the property name 
+     */
+    private static void removeAll(PropertyList pl, String name) {
+        for (int i = 0; i < pl.size();) {
+            Property p = (Property) pl.get(i);
+            if (p.getName().equalsIgnoreCase(name))
+                pl.remove(i);
+            else
+                i++;
+        }
+    }    
+    
+    /**
+     * Exports resources associated with a task.
+     * 
+     * @param task a task
+     * @param pl list of properties 
+     */
+    private void exportResources(UserTask task, PropertyList pl) {
+        ObjectList<UserTaskResource> ress = task.getResources();
+        removeAll(pl, "X-NETBEANS-RESOURCE"); // NOI18N
+        for (int i = 0; i < ress.size(); i++) {
+            UserTaskResource res = (UserTaskResource) ress.get(i);
+            Property prop = new XProperty("X-NETBEANS-RESOURCE"); // NOI18N
+            if (res instanceof URLResource) {
+                prop.getParameters().add(new XParameter(
+                        "X-NETBEANS-URL", // NOI18N
+                        ((URLResource) res).getUrl().toExternalForm()));
+                prop.getParameters().add(new XParameter(
+                        "X-NETBEANS-RESOURCE-TYPE", // NOI18N
+                        "url")); // NOI18N                
+            } else if (res instanceof LineResource) {
+                URL url_ = ((LineResource) res).getURL();
+                int lineno = ((LineResource) res).getLineNumber();
+                prop.getParameters().add(new XParameter(
+                        "X-NETBEANS-URL", // NOI18N
+                        url_.toExternalForm()));
+                prop.getParameters().add(new XParameter(
+                        "X-NETBEANS-LINE", // NOI18N
+                        String.valueOf(lineno)));
+                prop.getParameters().add(new XParameter(
+                        "X-NETBEANS-RESOURCE-TYPE", // NOI18N
+                        "line")); // NOI18N                
+            } else {
+                UTUtils.LOGGER.warning("Unknown resource type"); // NOI18N
+            }
+            pl.add(prop);
+        }
     }
 }

@@ -36,8 +36,6 @@ public class UserTaskProperties extends TaskProperties {
     public static final String PROPID_SUMMARY = "summary"; // NOI18N
     public static final String PROPID_DETAILS = "details"; // NOI18N
     public static final String PROPID_CATEGORY = "category"; // NOI18N
-    public static final String PROPID_FILENAME = "filename"; // NOI18N
-    public static final String PROPID_LINE_NUMBER = "line"; // NOI18N
     public static final String PROPID_CREATED_DATE = "created"; // NOI18N
     public static final String PROPID_LAST_EDITED_DATE = "edited"; // NOI18N
     public static final String PROPID_DUE_DATE = "dueDate"; // NOI18N
@@ -75,25 +73,7 @@ public class UserTaskProperties extends TaskProperties {
             return ((UserTask) obj).getCategory();
         }
     };
-    
-    public static final SuggestionProperty PROP_FILENAME =
-            new SuggestionProperty(PROPID_FILENAME, String.class) {
-        public Object getValue(Object obj) {
-            URL url = ((UserTask) obj).getUrl();
-            if (url == null)
-                return ""; // NOI18N
-            else
-                return url.toExternalForm();
-        }
-    };
-    
-    public static final SuggestionProperty PROP_LINE_NUMBER =
-            new SuggestionProperty(PROPID_LINE_NUMBER, Integer.class) {
-        public Object getValue(Object obj) {
-            return new Integer(((UserTask) obj).getLineNumber() + 1);
-        }
-    };
-    
+        
     public static final SuggestionProperty PROP_CREATED_DATE =
             new SuggestionProperty(PROPID_CREATED_DATE, Date.class) {
         public Object getValue(Object obj) {
@@ -185,10 +165,6 @@ public class UserTaskProperties extends TaskProperties {
     public static SuggestionProperty getProperty(String propID) {
         if (propID.equals(PROPID_CATEGORY)) {
             return PROP_CATEGORY;
-        } else if (propID.equals(PROPID_FILENAME)) {
-            return PROP_FILENAME;
-        } else if (propID.equals(PROPID_LINE_NUMBER)) {
-            return PROP_LINE_NUMBER;
         } else if (propID.equals(PROPID_CREATED_DATE)) {
             return PROP_CREATED_DATE;
         } else if (propID.equals(PROPID_LAST_EDITED_DATE)) {
