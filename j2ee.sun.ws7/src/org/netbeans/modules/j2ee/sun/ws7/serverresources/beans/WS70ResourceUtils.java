@@ -582,7 +582,7 @@ public class WS70ResourceUtils implements WS70WizardConstants{
         FileObject resourceDir = fo;
         if (holdingProj != null){
             J2eeModuleProvider provider = (J2eeModuleProvider) holdingProj.getLookup().lookup(J2eeModuleProvider.class);
-            File resourceLoc = provider.getEnterpriseResourceDirectory();
+            File resourceLoc = provider.getJ2eeModule().getResourceDirectory();
             if(resourceLoc != null){
                 if(resourceLoc.exists()){
                     resourceDir = FileUtil.toFileObject(resourceLoc);

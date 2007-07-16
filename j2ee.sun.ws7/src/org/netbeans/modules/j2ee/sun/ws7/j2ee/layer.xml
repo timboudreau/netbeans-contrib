@@ -33,10 +33,10 @@ Microsystems, Inc. All Rights Reserved.
                     <attr name="instanceClass" stringvalue="org.netbeans.modules.j2ee.sun.ws7.j2ee.WS70NodeFactory"/>
                     <attr name="instanceOf" stringvalue="org.netbeans.modules.j2ee.deployment.plugins.spi.RegistryNodeFactory"/>
                 </file>
-                <file name="ConfigurationSupport.instance">
-                     <attr name="instanceClass" stringvalue="org.netbeans.modules.j2ee.sun.ws7.j2ee.WS70ConfigurationSupportImpl"/>
-                     <attr name="instanceOf" stringvalue="org.netbeans.modules.j2ee.deployment.plugins.api.ConfigurationSupport"/>
-                </file>
+                <file name="ModConFactory.instance">
+                    <attr name="instanceClass" stringvalue="org.netbeans.modules.j2ee.sun.ws7.j2ee.WS70ModuleConfigurationFactory"/>
+		    <attr name="instanceOf" stringvalue="org.netbeans.modules.j2ee.deployment.plugins.spi.config.ModuleConfigurationFactory"/>
+		</file>
                 <file name="OptionalFactory.instance">
                     <attr name="instanceCreate" newvalue="org.netbeans.modules.j2ee.sun.ws7.j2ee.WS70OptionalFactory"/>
                     <attr name="instanceClass" stringvalue="org.netbeans.modules.j2ee.sun.ws7.j2ee.WS70OptionalFactory"/>
