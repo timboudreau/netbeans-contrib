@@ -54,7 +54,7 @@ import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
 
 /**
- * Class that provides validation functionality for custom encoder.
+ * Class that provides validation functionality for HL7 encoder.
  *
  * @author Jun Xu
  */

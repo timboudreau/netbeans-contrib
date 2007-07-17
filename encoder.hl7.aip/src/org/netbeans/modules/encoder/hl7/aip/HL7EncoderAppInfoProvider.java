@@ -38,7 +38,7 @@ import org.openide.util.Lookup;
 import org.openide.util.lookup.Lookups;
 
 /**
- * <appinfo> provider that implements the custom encoder plug-in over
+ * <appinfo> provider that implements the HL7 encoder plug-in over
  * the XSD editor.
  *
  * @author Jun Xu
