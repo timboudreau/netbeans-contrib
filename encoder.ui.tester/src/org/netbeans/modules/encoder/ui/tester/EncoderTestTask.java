@@ -44,7 +44,8 @@ public interface EncoderTestTask {
      * generate a output xml file
      */
     public File decode(EncoderType type, File metaFile, QName rootElement,
-            File inputFile, File outputFile) throws EncoderException, IOException,
+            File inputFile, File outputFile, String predecodeCoding,
+            boolean charBased) throws EncoderException, IOException,
                     TransformerConfigurationException, TransformerException,
                     EncoderConfigurationException;
     
@@ -52,7 +53,8 @@ public interface EncoderTestTask {
      * Encodes the xml file with the xsd meta file and generate the encoded output file.
      */
     public File encode(EncoderType type, File metaFile, QName rootElement,
-            File xmlFile, File outputFile) throws EncoderException, IOException,
+            File xmlFile, File outputFile, String postencodeCoding,
+            boolean charBased) throws EncoderException, IOException,
                     ParserConfigurationException, SAXException,
                     EncoderConfigurationException;    
     

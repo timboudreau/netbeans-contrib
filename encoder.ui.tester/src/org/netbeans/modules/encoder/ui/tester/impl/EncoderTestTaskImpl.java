@@ -23,7 +23,9 @@ import com.sun.encoder.Encoder;
 import com.sun.encoder.EncoderConfigurationException;
 import com.sun.encoder.EncoderException;
 import com.sun.encoder.EncoderFactory;
+import com.sun.encoder.EncoderProperties;
 import com.sun.encoder.EncoderType;
+import com.sun.encoder.util.UnicodeFile;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -72,7 +74,8 @@ public class EncoderTestTaskImpl implements EncoderTestTask {
      * generate a output xml file
      */    
     public File decode(EncoderType type, File metaFile, QName rootElement,
-            File inputFile, File outputFile) throws EncoderException, IOException,
+            File inputFile, File outputFile, String predecodeCoding,
+            boolean charBased) throws EncoderException, IOException,
                     TransformerConfigurationException, TransformerException,
                     EncoderConfigurationException {
         Encoder encoder = null;
@@ -80,7 +83,15 @@ public class EncoderTestTaskImpl implements EncoderTestTask {
         Writer writer = null;
         
         encoder = getEncoder(type, metaFile, rootElement);
-        decodedXML = encoder.decodeFromBytes(TesterUtil.loadBytes(inputFile));
+        EncoderProperties properties = new EncoderProperties();
+        if (predecodeCoding.length() > 0) {
+            properties.setPreDecodeCharCoding(predecodeCoding);
+        }
+        if (charBased) {
+            decodedXML = encoder.decodeFromString(UnicodeFile.getText(inputFile), properties);
+        } else {
+            decodedXML = encoder.decodeFromBytes(TesterUtil.loadBytes(inputFile), properties);
+        }
         writer = new OutputStreamWriter(new FileOutputStream(outputFile), "UTF-8"); //NOI18N
         
         StreamResult sResult = new StreamResult(writer);
@@ -96,20 +107,30 @@ public class EncoderTestTaskImpl implements EncoderTestTask {
     }
 
     public File encode(EncoderType type, File metaFile, QName rootElement,
-            File xmlFile, File outputFile) throws EncoderException, IOException,
+            File xmlFile, File outputFile, String postencodeCoding,
+            boolean charBased) throws EncoderException, IOException,
                     ParserConfigurationException, SAXException,
                     EncoderConfigurationException {
         
         Encoder encoder = getEncoder(type, metaFile, rootElement);
+        EncoderProperties properties = new EncoderProperties();
+        if (postencodeCoding.length() > 0) {
+            properties.setPostEncodeCharCoding(postencodeCoding);
+        }
         Source decodedXML;
         decodedXML = new DOMSource(TesterUtil.loadDocument(xmlFile), xmlFile.toString());
 
         //Does the encoding
-        byte[] encodedResult =
-                encoder.encodeToBytes(decodedXML);
-
-        //Writes the encoded result to a file
-        TesterUtil.writeBytes(encodedResult, outputFile);
+        if (charBased) {
+            String encodedResult =
+                    encoder.encodeToString(decodedXML, properties);
+            UnicodeFile.setText(outputFile, encodedResult);
+        } else {
+            byte[] encodedResult =
+                    encoder.encodeToBytes(decodedXML, properties);
+            //Writes the encoded result to a file
+            TesterUtil.writeBytes(encodedResult, outputFile);
+        }
 
         return null;
     }

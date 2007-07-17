@@ -225,7 +225,8 @@ public class EncoderTestPerformerImpl implements EncoderTestPerformer, ActionLis
             try {
                 testerPanel.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
                 mEncoderTestTask.encode(mEncoderType, metaFile, rootElement,
-                        processFile, outputFile);
+                        processFile, outputFile, testerPanel.getPostencodeCoding(),
+                        testerPanel.isToString());
             } catch (IOException ex) {
                 Utils.notify(ex, true, dialog, JOptionPane.ERROR_MESSAGE);
                 mResult = false;
@@ -248,7 +249,8 @@ public class EncoderTestPerformerImpl implements EncoderTestPerformer, ActionLis
             try {
                 testerPanel.setCursor(Utilities.createProgressCursor(testerPanel));
                 mEncoderTestTask.decode(mEncoderType, metaFile, rootElement,
-                        processFile, outputFile);
+                        processFile, outputFile, testerPanel.getPredecodeCoding(),
+                        testerPanel.isFromString());
             } catch (TransformerConfigurationException ex) {
                 Utils.notify(ex, true, dialog, JOptionPane.ERROR_MESSAGE);
                 mResult = false;
