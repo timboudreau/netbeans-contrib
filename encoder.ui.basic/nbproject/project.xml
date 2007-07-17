@@ -133,6 +133,7 @@
                 </dependency>
             </module-dependencies>
             <friend-packages>
+                <friend>org.netbeans.modules.encoder.coco.ui</friend>
                 <friend>org.netbeans.modules.encoder.custom.aip</friend>
                 <friend>org.netbeans.modules.encoder.hl7.aip</friend>
                 <friend>org.netbeans.modules.encoder.ui.tester</friend>

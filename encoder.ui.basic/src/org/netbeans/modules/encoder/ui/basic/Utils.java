@@ -20,6 +20,10 @@
 package org.netbeans.modules.encoder.ui.basic;
 
 import java.awt.Component;
+import java.nio.charset.Charset;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -90,5 +94,21 @@ public class Utils {
             JDialog dialog = pane.createDialog(topComp, ""); //NOI18N
             dialog.setVisible(true);
         }
+    }
+
+    /**
+     * Gets the list of all supported character sets plus some extra
+     * coding methods that are supported by encoders.
+     */
+    public static String[] getCharsetNames(boolean includeExtra) {
+        List<String> nameList = new ArrayList<String>();
+        if (includeExtra) {
+            nameList.add("base64");
+        }
+        Map<String, Charset> charsets = Charset.availableCharsets();
+        for (String name : charsets.keySet()) {
+            nameList.add(name);
+        }
+        return nameList.toArray(new String[0]);
     }
 }

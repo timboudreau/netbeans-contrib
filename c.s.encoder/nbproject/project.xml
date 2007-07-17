@@ -33,6 +33,7 @@
             <friend-packages>
                 <friend>com.sun.encoder.custom</friend>
                 <friend>com.sun.encoder.hl7</friend>
+                <friend>com.sun.encoder.coco</friend>
                 <friend>org.netbeans.modules.encoder.custom.aip</friend>
                 <friend>org.netbeans.modules.encoder.ui.tester</friend>
                 <package>com.sun.encoder</package>
