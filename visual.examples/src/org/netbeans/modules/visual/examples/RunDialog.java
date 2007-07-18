@@ -235,7 +235,7 @@ public class RunDialog extends javax.swing.JFrame {
         try {
             Class c = Class.forName(value);
             Method m = c.getDeclaredMethod("main", String[].class);
-            m.invoke(null, new String[0]);
+            m.invoke(null, (Object) new String[0]);
         } catch (Exception e) {
             e.printStackTrace();
         }
