@@ -36,9 +36,11 @@ import javax.swing.JList;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.ListSelectionModel;
+import javax.swing.TransferHandler;
 import org.netbeans.api.docbook.ContentHandlerCallback;
 import org.netbeans.api.docbook.ParseJob;
 import org.netbeans.api.docbook.ParsingService;
+import org.netbeans.api.imagepaste.ImagePasteSupport;
 
 import org.openide.cookies.*;
 import org.openide.filesystems.FileLock;
@@ -56,7 +58,17 @@ import org.xml.sax.SAXParseException;
 import org.xml.sax.helpers.DefaultHandler;
 
 public class DocBookEditorSupport extends DataEditorSupport implements EditorCookie, OpenCookie, CloseCookie, PrintCookie {
-
+    private static final String IMG_TEMPLATE =
+            "\n <figure id=\"$ID\">\n" + //NOI18N
+            "     <title>$TITLE</title>\n" + //NOI18N
+            "     <titleabbrev>$SHORT_TITLE</titleabbrev>\n" + //NOI18N
+            "     <mediaobject>\n" + //NOI18N
+            "        <imageobject>\n" + //NOI18N
+            "            <imagedata fileref=\"$FILENAME\"/>\n" + //NOI18N
+            "        </imageobject>\n" + //NOI18N
+            "    </mediaobject>\n" + //NOI18N
+            " </figure>\n"; //NOI18N
+    
     public DocBookEditorSupport(DocBookDataObject obj) {
         super(obj, new DocBookEnv(obj));
         setMIMEType("text/xml");
@@ -124,8 +136,9 @@ public class DocBookEditorSupport extends DataEditorSupport implements EditorCoo
     protected void initializeCloneableEditor(CloneableEditor editor) {
         try {
             super.initializeCloneableEditor(editor);
-            editor.getEditorPane().setTransferHandler(new TextAndImageTransferHandler(
-                    editor.getEditorPane()));
+            TransferHandler handler = ImagePasteSupport.createTransferHandler(
+                    editor.getEditorPane(), IMG_TEMPLATE);
+            editor.getEditorPane().setTransferHandler(handler);
             refreshAnnotations();
         } catch (IllegalStateException ise) {
             //Normal during restart if module has created a dataobject, then
