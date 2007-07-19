@@ -82,7 +82,7 @@ import org.xml.sax.XMLReader;
  * <p>
  * Supports registering SAX ContentHandlers and regular expressions.
  * <p>
- * Uses an AsynchPerObjectWorkDispatcher to push work onto a background
+ * Uses a Dispatcher (see contrib/misc/workqueues) to push work onto a background
  * thread.  Work is enqueued, and batched - ParseJobs which can perform
  * some type of processing on a given file are what is enqueued.  When they
  * run, the callback is notified as processing occurs.
