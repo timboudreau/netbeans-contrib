@@ -58,10 +58,10 @@ import org.netbeans.api.docbook.Callback;
 import org.netbeans.api.docbook.ContentHandlerCallback;
 import org.netbeans.api.docbook.ParseJob;
 import org.netbeans.api.docbook.PatternCallback;
-import org.netbeans.modules.docbook.*;
-import org.netbeans.modules.docbook.workqueue.AsynchPerObjectWorkDispatcher;
-import org.netbeans.modules.docbook.workqueue.Drainable;
-import org.netbeans.modules.docbook.workqueue.QueueWorkProcessor;
+import org.netbeans.api.workqueues.Dispatcher;
+import org.netbeans.api.workqueues.Drainable;
+import org.netbeans.api.workqueues.QueueWorkProcessor;
+import org.netbeans.modules.docbook.DocBookCatalog;
 import org.openide.ErrorManager;
 import org.openide.cookies.EditorCookie;
 import org.openide.filesystems.FileObject;
@@ -115,10 +115,10 @@ import org.xml.sax.XMLReader;
  * @author Tim Boudreau
  */
 public class ParseJobFactory implements QueueWorkProcessor <FileObject, ParseJob> {
-    private final AsynchPerObjectWorkDispatcher <FileObject, ParseJob> queue;
+    private final Dispatcher <FileObject, ParseJob> queue;
 
     public ParseJobFactory() {
-        queue = new AsynchPerObjectWorkDispatcher <FileObject, ParseJob> (this);
+        queue = new Dispatcher <FileObject, ParseJob> (this);
     }
 
     public static void enqueue(final ParseJob parseJob) {

@@ -19,7 +19,6 @@
 package org.netbeans.api.docbook;
 
 import java.io.File;
-import org.openide.windows.InputOutput;
 
 /**
  *
