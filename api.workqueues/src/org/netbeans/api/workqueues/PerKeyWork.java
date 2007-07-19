@@ -97,6 +97,7 @@ final class PerKeyWork<Target, WorkType> implements Delayed, Drainable <WorkType
         return !expired && q.offer(content);
     }
 
+    @SuppressWarnings("unchecked")
     public <T extends WorkType> List<T> drain(Class<T> clazz) {
         Dispatcher.log.log(Level.FINE, "Drain work for " + key);
         List<T> result = new LinkedList <T> ();
