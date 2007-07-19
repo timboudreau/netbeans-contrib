@@ -49,7 +49,7 @@ public class CardLayoutWithLabelTest {
         deferredWidget.setBorder (BorderFactory.createLineBorder (1, Color.BLUE));
         nodeWidget.addChild (deferredWidget);
 
-        Widget label = new LabelWidget (scene, "Click me to add ComponentWidget");
+        final Widget label = new LabelWidget (scene, "Click me to add ComponentWidget");
         label.setBorder (BorderFactory.createLineBorder (1, Color.GREEN));
         deferredWidget.addChild (label);
         LayoutFactory.setActiveCard (deferredWidget, label);
@@ -60,6 +60,12 @@ public class CardLayoutWithLabelTest {
                 component.setBorder (BorderFactory.createLineBorder (1, Color.GREEN));
                 deferredWidget.addChild (component);
                 LayoutFactory.setActiveCard (deferredWidget, component);
+            }
+        }));
+
+        scene.getActions ().addAction (ActionFactory.createEditAction (new EditProvider() {
+            public void edit (Widget widget) {
+                LayoutFactory.setActiveCard (deferredWidget, label);
             }
         }));
 
