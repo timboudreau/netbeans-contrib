@@ -35,7 +35,7 @@ public class NBSTest extends TestCase {
     public void testFirst () {
         InputStream is = getClass ().getClassLoader ().getResourceAsStream ("org/netbeans/modules/languages/velocity/Velocity.nbs");
         try {
-            Language l = NBSLanguageReader.readLanguage ("test", is, "test/x-velocity");
+            Language l = NBSLanguageReader.readLanguage(is, "test", "test/x-velocity");
             List r = l.getAnalyser ().getRules ();
             AnalyserAnalyser.printRules (r, null);
             Map f = Petra.first2 (r);
