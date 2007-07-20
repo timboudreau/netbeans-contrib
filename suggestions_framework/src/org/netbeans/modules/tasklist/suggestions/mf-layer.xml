@@ -105,7 +105,7 @@ Microsystems, Inc. All Rights Reserved.
             </file>
 
             <file name="filters.settings" url="suggestions_filters.xml">
-                <attr name="instanceClass" stringvalue="org.netbeans.modules.tasklist.core.filter.FilterRepository"/>
+                <attr name="instanceClass" stringvalue="org.netbeans.modules.tasklist.filter.FilterRepository"/>
             </file>
 
         </folder>

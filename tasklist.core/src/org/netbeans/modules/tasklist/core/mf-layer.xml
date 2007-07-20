@@ -149,49 +149,49 @@ Microsystems, Inc. All Rights Reserved.
 	<!-- filter repository  -->
                 <file name="DTD_Filters_1_0.instance">
                     <attr name="instanceCreate" methodvalue="org.netbeans.api.settings.Factory.create"/>
-                    <attr name="settings.convertor" methodvalue="org.netbeans.modules.tasklist.core.filter.FilterRepositoryConvertor.create"/>
-                    <attr name="settings.instanceClass" stringvalue="org.netbeans.modules.tasklist.core.filter.FilterRepository"/>
-                    <attr name="settings.instanceOf" stringvalue="org.netbeans.modules.tasklist.core.filter.FilterRepository"/>
+                    <attr name="settings.convertor" methodvalue="org.netbeans.modules.tasklist.filter.FilterRepositoryConvertor.create"/>
+                    <attr name="settings.instanceClass" stringvalue="org.netbeans.modules.tasklist.filter.FilterRepository"/>
+                    <attr name="settings.instanceOf" stringvalue="org.netbeans.modules.tasklist.filter.FilterRepository"/>
                 </file>
 
 	<!-- integer condition -->
                 <file name="DTD_IntegerCondition_1_0.instance">
                     <attr name="instanceCreate" methodvalue="org.netbeans.api.settings.Factory.create"/>
-                    <attr name="settings.convertor" methodvalue="org.netbeans.modules.tasklist.core.filter.IntegerFilterCondition$Convertor.create"/>
-                    <attr name="settings.instanceClass" stringvalue="org.netbeans.modules.tasklist.core.filter.IntegerFilterCondition"/>
-                    <attr name="settings.instanceOf" stringvalue="org.netbeans.modules.tasklist.core.filter.IntegerFilterCondition"/>
+                    <attr name="settings.convertor" methodvalue="org.netbeans.modules.tasklist.filter.IntegerFilterCondition$Convertor.create"/>
+                    <attr name="settings.instanceClass" stringvalue="org.netbeans.modules.tasklist.filter.IntegerFilterCondition"/>
+                    <attr name="settings.instanceOf" stringvalue="org.netbeans.modules.tasklist.filter.IntegerFilterCondition"/>
                 </file>
 
 	<!-- string condition -->
                 <file name="DTD_StringCondition_1_0.instance">
                     <attr name="instanceCreate" methodvalue="org.netbeans.api.settings.Factory.create"/>
-                    <attr name="settings.convertor" methodvalue="org.netbeans.modules.tasklist.core.filter.StringFilterCondition$Convertor.create"/>
-                    <attr name="settings.instanceClass" stringvalue="org.netbeans.modules.tasklist.core.filter.StringFilterCondition"/>
-                    <attr name="settings.instanceOf" stringvalue="org.netbeans.modules.tasklist.core.filter.StringFilterCondition"/>
+                    <attr name="settings.convertor" methodvalue="org.netbeans.modules.tasklist.filter.StringFilterCondition$Convertor.create"/>
+                    <attr name="settings.instanceClass" stringvalue="org.netbeans.modules.tasklist.filter.StringFilterCondition"/>
+                    <attr name="settings.instanceOf" stringvalue="org.netbeans.modules.tasklist.filter.StringFilterCondition"/>
                 </file>
 
 	<!-- date condition -->
                 <file name="DTD_DateCondition_1_0.instance">
                     <attr name="instanceCreate" methodvalue="org.netbeans.api.settings.Factory.create"/>
-                    <attr name="settings.convertor" methodvalue="org.netbeans.modules.tasklist.core.filter.DateFilterCondition$Convertor.create"/>
-                    <attr name="settings.instanceClass" stringvalue="org.netbeans.modules.tasklist.core.filter.DateFilterCondition"/>
-                    <attr name="settings.instanceOf" stringvalue="org.netbeans.modules.tasklist.core.filter.DateFilterCondition"/>
+                    <attr name="settings.convertor" methodvalue="org.netbeans.modules.tasklist.filter.DateFilterCondition$Convertor.create"/>
+                    <attr name="settings.instanceClass" stringvalue="org.netbeans.modules.tasklist.filter.DateFilterCondition"/>
+                    <attr name="settings.instanceOf" stringvalue="org.netbeans.modules.tasklist.filter.DateFilterCondition"/>
                 </file>
 
 	<!-- boolean condition -->
                 <file name="DTD_BooleanCondition_1_0.instance">
                     <attr name="instanceCreate" methodvalue="org.netbeans.api.settings.Factory.create"/>
-                    <attr name="settings.convertor" methodvalue="org.netbeans.modules.tasklist.core.filter.BooleanFilterCondition$Convertor.create"/>
-                    <attr name="settings.instanceClass" stringvalue="org.netbeans.modules.tasklist.core.filter.BooleanFilterCondition"/>
-                    <attr name="settings.instanceOf" stringvalue="org.netbeans.modules.tasklist.core.filter.BooleanFilterCondition"/>
+                    <attr name="settings.convertor" methodvalue="org.netbeans.modules.tasklist.filter.BooleanFilterCondition$Convertor.create"/>
+                    <attr name="settings.instanceClass" stringvalue="org.netbeans.modules.tasklist.filter.BooleanFilterCondition"/>
+                    <attr name="settings.instanceOf" stringvalue="org.netbeans.modules.tasklist.filter.BooleanFilterCondition"/>
                 </file>
 
 	<!-- priority condition -->
                 <file name="DTD_PriorityCondition_1_0.instance">
                     <attr name="instanceCreate" methodvalue="org.netbeans.api.settings.Factory.create"/>
-                    <attr name="settings.convertor" methodvalue="org.netbeans.modules.tasklist.core.filter.PriorityCondition$Convertor.create"/>
-                    <attr name="settings.instanceClass" stringvalue="org.netbeans.modules.tasklist.core.filter.PriorityCondition"/>
-                    <attr name="settings.instanceOf" stringvalue="org.netbeans.modules.tasklist.core.filter.PriorityCondition"/>
+                    <attr name="settings.convertor" methodvalue="org.netbeans.modules.tasklist.filter.PriorityCondition$Convertor.create"/>
+                    <attr name="settings.instanceClass" stringvalue="org.netbeans.modules.tasklist.filter.PriorityCondition"/>
+                    <attr name="settings.instanceOf" stringvalue="org.netbeans.modules.tasklist.filter.PriorityCondition"/>
                 </file>
 
             </folder>

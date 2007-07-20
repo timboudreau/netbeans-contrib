@@ -994,7 +994,7 @@ Microsystems, Inc. All Rights Reserved.
    </li>
    <li>
     <api name="filters" category="friend" type="import" group="layer">
-     Repository for filters as defined by org.netbeans.modules.tasklist.core.filter.FilterRepository
+     Repository for filters as defined by org.netbeans.modules.tasklist.filter.FilterRepository
      is registered.
     </api>
    </li>

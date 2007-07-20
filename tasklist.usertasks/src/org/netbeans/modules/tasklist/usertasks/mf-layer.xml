@@ -56,7 +56,7 @@ Microsystems, Inc. All Rights Reserved.
     <folder name="TaskList">
         <folder name="usertasks">
             <file name="filters.settings" url="filter/usertasks_filters.xml">
-                <attr name="instanceClass" stringvalue="org.netbeans.modules.tasklist.core.filter.FilterRepository"/>
+                <attr name="instanceClass" stringvalue="org.netbeans.modules.tasklist.filter.FilterRepository"/>
             </file>
         </folder>
     </folder>
