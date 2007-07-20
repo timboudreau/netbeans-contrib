@@ -100,35 +100,6 @@ Microsystems, Inc. All Rights Reserved.
                     <attr name="hint.originalPublicID"
                         stringvalue="-//NetBeans org.netbeans.modules.tasklist//DTD Columns 1.0//EN"/>
                 </file>
-                <!-- filter repository -->
-                <file name="DTD_Filters_1_0" url="filter/filters-1_0.dtd">
-                    <attr name="hint.originalPublicID"
-                        stringvalue="-//NetBeans org.netbeans.modules.tasklist//DTD Filters 1.0//EN"/>
-                </file>
-
-	        <!-- condtitions -->
-                <file name="DTD_IntegerCondition_1_0" url="filter/conditions-1_0.dtd">
-                    <attr name="hint.originalPublicID"
-                        stringvalue="-//NetBeans org.netbeans.modules.tasklist//DTD IntegerCondition 1.0//EN"/>
-                </file>
-                <file name="DTD_StringCondition_1_0" url="filter/conditions-1_0.dtd">
-                    <attr name="hint.originalPublicID"
-                        stringvalue="-//NetBeans org.netbeans.modules.tasklist//DTD StringCondition 1.0//EN"/>
-                </file>
-                <file name="DTD_DateCondition_1_0" url="filter/conditions-1_0.dtd">
-                    <attr name="hint.originalPublicID"
-                        stringvalue="-//NetBeans org.netbeans.modules.tasklist//DTD DateCondition 1.0//EN"/>
-                </file>
-                <file name="DTD_PriorityCondition_1_0" url="filter/conditions-1_0.dtd">
-                    <attr name="hint.originalPublicID"
-                        stringvalue="-//NetBeans org.netbeans.modules.tasklist//DTD PriorityCondition 1.0//EN"/>
-                </file>
-                <file name="DTD_BooleanCondition_1_0" url="filter/conditions-1_0.dtd">
-                    <attr name="hint.originalPublicID"
-                        stringvalue="-//NetBeans org.netbeans.modules.tasklist//DTD BooleanCondition 1.0//EN"/>
-                </file>
-
-
             </folder>
         </folder>
         <folder name="lookups">
