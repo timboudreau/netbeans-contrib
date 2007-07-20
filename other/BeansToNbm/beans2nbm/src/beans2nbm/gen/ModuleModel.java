@@ -149,6 +149,11 @@ public class ModuleModel implements FileModel {
         entries.add (fi);
     }
     
+    public void setCategory (String s) {
+        this.category = s;
+    }
+    
+    String category = "Swing Components";
     private List entries = new ArrayList();
     private List buildEntries() {
         List result = new ArrayList(entries);
@@ -156,7 +161,7 @@ public class ModuleModel implements FileModel {
         result.add (pfm);
         pfm.put("OpenIDE-Module-Display-Name", displayName);
         pfm.put("OpenIDE-Module-Short-Description", description);
-        pfm.put("OpenIDE-Module-Display-Category", "Swing Components");
+        pfm.put("OpenIDE-Module-Display-Category", category);
         pfm.putAll(filesToDisplayNames);
         return result;
     }

@@ -25,7 +25,7 @@ import java.io.OutputStream;
  *
  * @author Tim Boudreau
  */
-interface FileModel {
+public interface FileModel {
     public String getPath();
     public void write (OutputStream stream) throws IOException;
 }

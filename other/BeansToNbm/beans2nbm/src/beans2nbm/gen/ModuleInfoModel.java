@@ -93,7 +93,7 @@ public class ModuleInfoModel implements FileModel {
         sb.append ("releasedate=\"");
         sb.append (this.getDateString());
         sb.append ("\"\n");
-        sb.append (">\n  ");
+        sb.append (">\n");
         sb.append (module.getManifestXML());
         sb.append ('\n');
         sb.append ("<license name=\"license.txt\"><![CDATA[");
