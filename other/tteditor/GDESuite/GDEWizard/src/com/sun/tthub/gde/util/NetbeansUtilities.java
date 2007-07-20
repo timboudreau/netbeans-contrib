@@ -54,14 +54,17 @@ public class NetbeansUtilities {
     }
     
     public static String getJAXBDir() throws FileNotFoundException{
-        System.out.println("System.getProperties-"+System.getProperties());
+        
         File file= InstalledFileLocator.getDefault().locate("modules/ext/jaxws20",null,false);
-        if (file==null)
-            throw new FileNotFoundException("unable to find netbeans jaxws20 directory");
+        if (file==null){
+            file=InstalledFileLocator.getDefault().locate("modules/ext/jaxws21",null,false);
+            if(file==null)
+                throw new FileNotFoundException("unable to find netbeans jaxws20 or jaxws21 directory");
+        }
         return file.getPath();
     }
     public static void copyDefaultGDEFolder(String gdefolder) throws FileNotFoundException,IOException{
-       
+        
         File destDir=new File(gdefolder);
         if(!destDir.isDirectory()){
             //if the gdefolder does not exists
