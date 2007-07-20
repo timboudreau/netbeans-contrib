@@ -23,12 +23,15 @@ import java.io.*;
 import java.util.Properties;
 import java.util.jar.*;
 import java.util.zip.*;
+import java.util.StringTokenizer;
 
 /**
  * Locate a specified class from a starting directory/jar file, searching
  * any jar files that are located.  Use the -p flag to specify searching
  * for a package instead of a class, and the -s flag to specify searching for
  * service instances.
+ * It is possible to have a list of starting directories/jars. The elements of the list must be separated
+ * with spaces, semicolons or colons (semicolons and colons together in one command are not allowed)
  * <h4>Examples</h4>
  * To find which jar provides <code>org.openide.ErrorManager</code> in a
  * NetBeans distribution:
@@ -48,14 +51,17 @@ import java.util.zip.*;
  * </pre>
  *
  * @author Tom Ball
+ * @author Michael Raschkowski
+ *
  */
 public class JFind implements Runnable {
-    enum QueryType {
+    public enum QueryType {
         CLASS, PACKAGE, SERVICE
     }
-    
+
     static void usage() {
-	fatal("usage: java JFind [-ps] classname [starting path]");
+	fatal("usage:  java -jar jfind.jar [-ps] classname [starting path | jar-name] \n" +
+                "\t<space | semicolon | colon> [starting path 2]...");
     }
 
     private String classname;
@@ -65,7 +71,7 @@ public class JFind implements Runnable {
     public JFind(String classname, String path, QueryType type) {
         this.type = type;
         switch (type) {
-            case CLASS: 
+            case CLASS:
                 this.classname = classname.replace('.', '/') + ".class";
                 break;
             case PACKAGE:
@@ -86,6 +92,11 @@ public class JFind implements Runnable {
 	} catch (IOException e) {
 	    fatal(e.toString());
 	}
+    }
+
+    private void find (String sfile) throws IOException
+    {
+      find (new File(sfile));
     }
 
     private void find(File f) throws IOException {
@@ -129,7 +140,7 @@ public class JFind implements Runnable {
 	    }
 	}
     }
-    
+
     private void printFile(InputStream in) throws IOException {
         try {
             BufferedReader br = new BufferedReader(new InputStreamReader(in));
@@ -140,7 +151,7 @@ public class JFind implements Runnable {
             in.close();
         }
     }
-    
+
     private static String getModuleName(JarFile jar) {
         try {
             Attributes attrs = jar.getManifest().getMainAttributes();
@@ -191,7 +202,18 @@ public class JFind implements Runnable {
 	String classname = args[iarg++];
 	if (iarg == nargs)
 	    new JFind(classname, ".", type).run();
-	else for (int i = iarg; i < nargs; i++)
-	    new JFind(classname, args[i], type).run();
+	else 
+            for (int i = iarg; i < nargs; i++) {
+               String delim="";
+               if (args[i].indexOf(':') >=0) delim = ":";
+               if (args[i].indexOf(';') >=0) delim = ";";
+               if ("".equals(delim)==false) {
+                   StringTokenizer st= new StringTokenizer(args[i],delim);
+                   while (st.hasMoreTokens())
+                       new JFind(classname, st.nextToken(), type).run();
+               }
+               else 
+                   new JFind(classname, args[i], type).run();
+            }
     }
 }
