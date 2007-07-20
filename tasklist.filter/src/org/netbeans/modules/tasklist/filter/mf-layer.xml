@@ -138,9 +138,9 @@ Microsystems, Inc. All Rights Reserved.
 	<!-- priority condition -->
                 <file name="DTD_PriorityCondition_1_0.instance">
                     <attr name="instanceCreate" methodvalue="org.netbeans.api.settings.Factory.create"/>
-                    <attr name="settings.convertor" methodvalue="org.netbeans.modules.tasklist.filter.PriorityCondition$Convertor.create"/>
-                    <attr name="settings.instanceClass" stringvalue="org.netbeans.modules.tasklist.filter.PriorityCondition"/>
-                    <attr name="settings.instanceOf" stringvalue="org.netbeans.modules.tasklist.filter.PriorityCondition"/>
+                    <attr name="settings.convertor" methodvalue="org.netbeans.modules.tasklist.suggestions.PriorityCondition$Convertor.create"/>
+                    <attr name="settings.instanceClass" stringvalue="org.netbeans.modules.tasklist.suggestions.PriorityCondition"/>
+                    <attr name="settings.instanceOf" stringvalue="org.netbeans.modules.tasklist.suggestions.PriorityCondition"/>
                 </file>
 
             </folder>
