@@ -158,7 +158,7 @@ public class LookNodeLookupTest extends NbTestCase {
     }
     
     
-    private void checkInstanceInGetCookie (Collection ro, Object obj, TestLookupLook look, Node node) {
+    private void checkInstanceInGetCookie (Collection ro, Node.Cookie obj, TestLookupLook look, Node node) {
         
         Listener listener = new Listener ();
         node.addNodeListener(listener);
