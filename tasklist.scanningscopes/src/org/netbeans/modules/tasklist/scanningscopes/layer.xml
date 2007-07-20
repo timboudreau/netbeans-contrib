@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE filesystem PUBLIC "-//NetBeans//DTD Filesystem 1.1//EN" "http://www.netbeans.org/dtds/filesystem-1_1.dtd">
+<filesystem>
+    <folder name="TaskList">
+        <folder name="ScanningScopes">
+            <file name="OpenedFilesScope.instance">
+                <attr name="instanceCreate" methodvalue="org.netbeans.modules.tasklist.scanningscopes.OpenedFilesScanningScope.create"/>
+                <attr name="instanceOf" stringvalue="org.netbeans.spi.tasklist.TaskScanningScope"/>
+                <attr name="position" intvalue="150"/>
+            </file>
+            <file name="CurrentFolderScope.instance">
+                <attr name="instanceCreate" methodvalue="org.netbeans.modules.tasklist.scanningscopes.CurrentFolderScanningScope.create"/>
+                <attr name="instanceOf" stringvalue="org.netbeans.spi.tasklist.TaskScanningScope"/>
+                <attr name="position" intvalue="160"/>
+            </file>
+            <file name="MainProjectNoDepsScope.instance">
+                <attr name="instanceCreate" methodvalue="org.netbeans.modules.tasklist.scanningscopes.MainProjectNoDepsScanningScope.create"/>
+                <attr name="instanceOf" stringvalue="org.netbeans.spi.tasklist.TaskScanningScope"/>
+                <attr name="position" intvalue="170"/>
+            </file>
+        </folder>
+    </folder>
+</filesystem>
