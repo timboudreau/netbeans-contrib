@@ -3,5 +3,4 @@ OpenIDE-Module: org.netbeans.modules.tasklist.export/1
 OpenIDE-Module-Implementation-Version: 1
 OpenIDE-Module-Localizing-Bundle: org/netbeans/modules/tasklist/export/Bundle.properties
 OpenIDE-Module-Requires: org.netbeans.api.javahelp.Help
-OpenIDE-Module-Layer: org/netbeans/modules/tasklist/export/mf-layer.xml
 
