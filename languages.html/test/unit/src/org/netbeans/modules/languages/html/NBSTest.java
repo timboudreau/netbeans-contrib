@@ -23,6 +23,7 @@ import org.netbeans.modules.languages.Language;
 import org.netbeans.modules.languages.NBSLanguageReader;
 import org.netbeans.modules.languages.NBSLanguageReader;
 import org.netbeans.modules.languages.parser.AnalyserAnalyser;
+import org.netbeans.modules.languages.parser.LLSyntaxAnalyser.Rule;
 import org.netbeans.modules.languages.parser.Petra;
 
 
@@ -39,8 +40,8 @@ public class NBSTest extends TestCase {
     public void testFirst () {
         InputStream is = getClass ().getClassLoader ().getResourceAsStream ("org/netbeans/modules/languages/html/HTML.nbs");
         try {
-            Language l = NBSLanguageReader.readLanguage ("test", is, "test/html");
-            List r = l.getAnalyser ().getRules ();
+            Language l = NBSLanguageReader.readLanguage(is, "test", "test/html");
+            List<Rule> r = l.getAnalyser ().getRules ();
             AnalyserAnalyser.printRules (r, null);
             Map f = Petra.first2 (r);
             //AnalyserAnalyser.printDepth (f, null);
