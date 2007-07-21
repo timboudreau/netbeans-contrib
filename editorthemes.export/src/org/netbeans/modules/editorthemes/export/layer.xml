@@ -3,7 +3,18 @@
 <filesystem>
 <folder name="Menu">
     <folder name="Tools">
-        <file name="org-netbeans-modules-editorthemes-export-ExportAction.instance"/>
+        <file name="ExportColorsAction.instance">
+            <attr name="instanceOf" 
+                stringvalue="org.netbeans.modules.editorthemes.export.ExportAction"/>
+            <attr name="instanceCreate" 
+                methodvalue="org.netbeans.modules.editorthemes.export.ExportAction.createExportColorThemesAction"/>
+        </file>
+<!--        <file name="ExportKeybindingsAction.instance">
+            <attr name="instanceOf" 
+                stringvalue="org.netbeans.modules.editorthemes.export.ExportAction"/>
+            <attr name="instanceCreate" 
+                methodvalue="org.netbeans.modules.editorthemes.export.ExportAction.createExportKeyboardProfilesAction"/>
+        </file> -->
     </folder>
 </folder>
 </filesystem>

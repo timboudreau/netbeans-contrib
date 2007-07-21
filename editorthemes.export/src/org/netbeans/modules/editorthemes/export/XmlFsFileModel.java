@@ -46,7 +46,7 @@ final class XmlFsFileModel implements FileModel, Comparator <FileObject> {
     }
 
     public String getPath() {
-        return path + "/layer.xml";
+        return path + "/layer.xml"; //NOI18N
     }
 
     public void add (final FileObject obj) {
@@ -65,7 +65,6 @@ final class XmlFsFileModel implements FileModel, Comparator <FileObject> {
                 if (nue == null) {
                     nue = FileUtil.createData(fs.getRoot(), obj.getPath());
                 }
-                System.err.println("Copying data file to " + nue.getPath());
                 FileLock a = obj.lock();
                 try {
                     FileLock lock = nue.lock();
@@ -113,75 +112,76 @@ final class XmlFsFileModel implements FileModel, Comparator <FileObject> {
     public void write(OutputStream stream) throws IOException {
         clear();
         try { Thread.sleep (5000); } catch (Exception e) {}
-        System.err.println("write " + getPath());
         PrintWriter w = new PrintWriter (stream);
         try {
-            w.println("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
-            w.println("<!DOCTYPE filesystem PUBLIC \"-//NetBeans//DTD Filesystem 1.1//EN\" \"http://www.netbeans.org/dtds/filesystem-1_1.dtd\">");
-            w.println ("<filesystem>");
+            w.println("<?xml version=\"1.0\" encoding=\"UTF-8\"?>"); //NOI18N
+            w.println("<!DOCTYPE filesystem PUBLIC " + //NOI18N
+                    "\"-//NetBeans//DTD Filesystem 1.1//EN\" " + //NOI18N
+                    "\"http://www.netbeans.org/dtds/filesystem-1_1.dtd\">"); //NOI18N
+            w.println ("<filesystem>"); //NOI18N
             recurseWrite (fs.getRoot(), w, 0);
         } finally {
-            w.println ("</filesystem>");
+            w.println ("</filesystem>"); //NOI18N
             w.flush();
         }
     }
 
     private String getValString(Object o) {
         if (o instanceof String) {
-            return "stringvalue=\"" + o.toString() + "\"";
+            return "stringvalue=\"" + o.toString() + "\""; //NOI18N
         } else if (o instanceof Class) {
             Class clazz = (Class) o;
-            return "stringvalue=\"" + clazz.getName() + "\"";
+            return "stringvalue=\"" + clazz.getName() + "\""; //NOI18N
         } else if (o instanceof Method) {
             Method m = (Method) o;
             Class clazz = m.getDeclaringClass();
-            return "methodvalue=\"" + clazz.getCanonicalName() + m.getName() + "\"";
+            return "methodvalue=\"" + clazz.getCanonicalName() + m.getName() + "\""; //NOI18N
         } else if (o instanceof Integer) {
             Integer in = (Integer) o;
-            return "intvalue=\"" + in.intValue() + "\"";
+            return "intvalue=\"" + in.intValue() + "\""; //NOI18N
         } else if (o instanceof Boolean) {
-            return "boolvalue=\"" + o.toString() + "\"";
+            return "boolvalue=\"" + o.toString() + "\""; //NOI18N
         } else {
-            throw new IllegalArgumentException ("What is " + o.getClass() + " " + o);
+            throw new IllegalArgumentException ("What is " + o.getClass() + " " + o); //NOI18N
         }
     }
 
     private void recurseWrite(FileObject f, PrintWriter w, int depth) throws IOException {
-        System.err.println("  recurseWrite " + f.getPath());
         String s = depthString(depth);
         if (f.isData()) {
             AdHocFileModel fm = AdHocFileModel.create(f, path);
-            String decl = "<file name=\"" + f.getNameExt() + "\"";
+            String decl = "<file name=\"" + f.getNameExt() + "\""; //NOI18N
             if (fm != null) {
-                decl += " url=\"" + fm.getName() + "\"";
+                decl += " url=\"" + fm.getName() + "\""; //NOI18N
                 embeddedFiles.add (fm);
             }
             String ss = depthString (depth + 1);
             Enumeration <String> e = f.getAttributes();
             boolean hasAttrs = e.hasMoreElements();
             if (hasAttrs) {
-                decl += ">";
+                decl += ">"; //NOI18N
                 w.println (s + decl);
                 for (; e.hasMoreElements();) {
                     String key = e.nextElement();
                     Object o = f.getAttribute(key);
-                    w.println (ss + "<attr name=\"" + key + "\" " + getValString(o) + "/>");
+                    w.println (ss + "<attr name=\"" + key + "\" " + getValString(o) + "/>"); //NOI18N
                 }
-                w.println (s + "</file>");
+                w.println (s + "</file>"); //NOI18N
             } else {
-                decl += "/>";
+                decl += "/>"; //NOI18N
                 w.println (s + decl);
             }
-            System.err.println("WRITE: " + decl);
+            System.err.println("WRITE: " + decl); //NOI18N
         } else if (f.isFolder()) {
             if (!"".equals(f.getName()))
-                w.println (s + "<folder name=\"" + f.getName() + "\">");
+                w.println (s + "<folder name=\"" + f.getName() + "\">"); //NOI18N
             FileObject[] kids = f.getChildren();
             for (FileObject fob : kids) {
                 recurseWrite (fob, w, depth + 1);
             }
-            if (!"".equals(f.getName()))
-                w.println (s + "</folder>");
+            if (!"".equals(f.getName())) {//NOI18N
+                w.println (s + "</folder>"); //NOI18N
+            }
         }
     }
 
