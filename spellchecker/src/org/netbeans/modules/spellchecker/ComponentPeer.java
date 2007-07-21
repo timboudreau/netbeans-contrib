@@ -47,7 +47,6 @@ import org.netbeans.api.editor.mimelookup.MimeLookup;
 import org.netbeans.api.editor.mimelookup.MimePath;
 import org.netbeans.api.editor.settings.AttributesUtilities;
 import org.netbeans.api.editor.settings.EditorStyleConstants;
-import org.netbeans.api.timers.TimesCollector;
 import org.netbeans.modules.spellchecker.spi.dictionary.Dictionary;
 import org.netbeans.modules.spellchecker.api.LocaleQuery;
 import org.netbeans.modules.spellchecker.hints.DictionaryBasedHint;
@@ -281,7 +280,8 @@ public class ComponentPeer implements PropertyChangeListener, DocumentListener, 
         } finally {
             if (!isCanceled()) {
                 SpellcheckerHighlightLayerFactory.getBag(pane).setHighlights(localHighlights);
-                TimesCollector.getDefault().reportTime(file, "spellchecker", "Spellchecker", System.currentTimeMillis() - startTime);
+                Logger.getLogger("TIMER").log(Level.FINE, "Spellchecker",
+                        new Object[] {file, System.currentTimeMillis() - startTime});
             }
         }
     }
