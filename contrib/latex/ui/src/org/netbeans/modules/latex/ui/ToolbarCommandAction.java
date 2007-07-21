@@ -14,7 +14,7 @@
  *
  * The Original Software is the LaTeX module.
  * The Initial Developer of the Original Software is Jan Lahoda.
- * Portions created by Jan Lahoda_ are Copyright (C) 2002-2004.
+ * Portions created by Jan Lahoda_ are Copyright (C) 2002-2007.
  * All Rights Reserved.
  *
  * Contributor(s): Jan Lahoda.
@@ -29,12 +29,15 @@ import javax.swing.JEditorPane;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
 import javax.swing.text.StyledDocument;
+import org.netbeans.api.gsf.CancellableTask;
+import org.netbeans.api.retouche.source.CompilationController;
+import org.netbeans.api.retouche.source.Phase;
+import org.netbeans.api.retouche.source.Source;
+import org.netbeans.modules.latex.model.LaTeXParserResult;
 import org.netbeans.modules.latex.model.Utilities;
 import org.netbeans.modules.latex.model.command.CommandNode;
 import org.netbeans.modules.latex.model.command.CommandPackage;
 import org.netbeans.modules.latex.model.command.DocumentNode;
-import org.netbeans.modules.latex.model.command.LaTeXSource;
-import org.netbeans.modules.latex.model.command.LaTeXSource.Lock;
 import org.netbeans.modules.latex.model.command.Node;
 import org.openide.ErrorManager;
 import org.openide.text.NbDocument;
@@ -64,57 +67,50 @@ public abstract class ToolbarCommandAction extends AbstractAction {
         final Document    doc      = pane.getDocument();
         
         try {
-            //TODO:may this cause deadlock?:
+            Source source = Source.forDocument(doc);
+            final int[]     removeFirstS  = {(-1)};
+            final int[]     removeFirstE  = {(-1)};
+            final int[]     removeSecondS = {(-1)};
+            final int[]     removeSecondE = {(-1)};
+
+            final boolean[] insert        = {false};
+
+            source.runUserActionTask(new CancellableTask<CompilationController>() {
+                public void cancel() {}
+                public void run(CompilationController parameter) throws Exception {
+                    parameter.toPhase(Phase.RESOLVED);
+                    LaTeXParserResult lpr = (LaTeXParserResult) parameter.getParserResult();
+                    Node node = lpr.getCommandUtilities().findNode(doc, pane.getCaret().getDot());
+
+                    CommandNode cn = findCorrespondingNode(node); //TODO: CommandNode?
+                    CommandDescription currentType = findCorrespondingCommandDescription(cn);
+
+                    if (currentType.equals(wantedType))
+                        return ;
+
+                    if (!currentType.isEmpty()) {
+                        removeFirstS[0]  = cn.getStartingPosition().getOffsetValue();
+                        removeFirstE[0]  = cn.getArgument(/*!!!*/0).getStartingPosition().getOffsetValue() + 1;
+                        removeSecondS[0] = cn.getEndingPosition().getOffsetValue();
+                        removeSecondE[0] = removeSecondS[0] + 1;
+                    }
+
+                    insert[0] = !wantedType.isEmpty();
+                }
+            }, enabled);
+                    
             NbDocument.runAtomicAsUser((StyledDocument) doc, new Runnable() {
                 public void run() {
-                    LaTeXSource source   = LaTeXSource.get(Utilities.getDefault().getFile(doc));
-                    Lock lock = null;
-                    
-                    int     removeFirstS  = (-1);
-                    int     removeFirstE  = (-1);
-                    int     removeSecondS = (-1);
-                    int     removeSecondE = (-1);
-                    
-                    boolean insert        = false;
-                    
                     try {
-                        lock = source.lock(true);
-                        
-                        if (lock != null) {
-                            Node node = source.findNode(doc, pane.getCaret().getDot());
+                        if (removeFirstS[0] != (-1)) {
+                            int removeFirstLength = removeFirstE[0] - removeFirstS[0];
                             
-                            CommandNode cn = findCorrespondingNode(node); //TODO: CommandNode?
-                            CommandDescription currentType = findCorrespondingCommandDescription(cn);
-                            
-                            if (currentType.equals(wantedType))
-                                return ;
-                            
-                            if (!currentType.isEmpty()) {
-                                removeFirstS  = cn.getStartingPosition().getOffsetValue();
-                                removeFirstE  = cn.getArgument(/*!!!*/0).getStartingPosition().getOffsetValue() + 1;
-                                removeSecondS = cn.getEndingPosition().getOffsetValue();
-                                removeSecondE = removeSecondS + 1;
-                            }
-                            
-                            insert = !wantedType.isEmpty();
-                        }
-                    } catch (IOException e) {
-                        ErrorManager.getDefault().notify(e);
-                    } finally {
-                        if (lock != null)
-                            source.unlock(lock);
-                    }
-                    
-                    try {
-                        if (removeFirstS != (-1)) {
-                            int removeFirstLength = removeFirstE - removeFirstS;
-                            
-                            doc.remove(removeFirstS, removeFirstLength);
-                            doc.remove(removeSecondS - removeFirstLength - 1, removeSecondE - removeSecondS);
-                            pane.select(removeFirstS, removeSecondE - removeFirstLength - 2);
+                            doc.remove(removeFirstS[0], removeFirstLength);
+                            doc.remove(removeSecondS[0] - removeFirstLength - 1, removeSecondE[0] - removeSecondS[0]);
+                            pane.select(removeFirstS[0], removeSecondE[0] - removeFirstLength - 2);
                         }
                         
-                        if (insert) {
+                        if (insert[0]) {
                             String selection = pane.getSelectedText();
                             
                             if (selection == null)
@@ -132,6 +128,8 @@ public abstract class ToolbarCommandAction extends AbstractAction {
                     }
                 }
             });
+        } catch (IOException e) {
+            ErrorManager.getDefault().notify(e);
         } catch (BadLocationException e) {
             ErrorManager.getDefault().notify(e);
             return ;
@@ -158,7 +156,7 @@ public abstract class ToolbarCommandAction extends AbstractAction {
         return null;
     }
     
-    protected static class CommandDescription {
+    protected static class CommandDescription implements ToolbarUpdater.ToolbarUpdatable {
         private String displayName;
         private String command;
         private boolean isEmpty;
@@ -185,37 +183,39 @@ public abstract class ToolbarCommandAction extends AbstractAction {
             return isEmpty;
         }
         
-        public boolean isEnabled() {
-            if (command.length() == 0)
-                return true;
-            
-            JEditorPane pane = UIUtilities.getCurrentEditorPane();
-            
-            if (pane == null)
-                return true;
-            
-            LaTeXSource source = Utilities.getDefault().getSource(pane.getDocument());
-            
-            if (source == null)
-                return true;
-            
-            DocumentNode node = source.getDocument();
-            
-            if (node == null) {
-                return true;
+        public synchronized boolean isEnabled() {
+            return enabled;
+        }
+
+        private boolean enabled = true;
+        
+        private synchronized void setEnabled(boolean enabled) {
+            this.enabled = enabled;
+        }
+        
+        public void update(LaTeXParserResult lpr) {
+            if (command.length() == 0) {
+                setEnabled(true);
+                return ;
             }
+            
+            DocumentNode node = lpr.getDocument();
             
             CommandPackage cp = CommandPackage.getCommandPackageForName(node.getDocumentClass());
             
-            if (cp == null)
-                return true;
+            if (cp == null) {
+                setEnabled(true);
+                return ;
+            }
             
             Map commands = cp.getCommands();
             
-            if (commands == null)
-                return true;
+            if (commands == null) {
+                setEnabled(true);
+                return ;
+            }
             
-            return commands.get(command) != null;
+            setEnabled(commands.get(command) != null);
         }
     }
     

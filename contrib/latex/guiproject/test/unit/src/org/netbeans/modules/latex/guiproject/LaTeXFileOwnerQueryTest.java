@@ -14,26 +14,16 @@
  *
  * The Original Software is the LaTeX module.
  * The Initial Developer of the Original Software is Jan Lahoda.
- * Portions created by Jan Lahoda_ are Copyright (C) 2002-2004.
+ * Portions created by Jan Lahoda_ are Copyright (C) 2002-2007.
  * All Rights Reserved.
  *
  * Contributor(s): Jan Lahoda.
  */
 package org.netbeans.modules.latex.guiproject;
 
-import java.beans.PropertyVetoException;
-import java.io.File;
-import java.io.IOException;
 import org.netbeans.api.project.FileOwnerQuery;
 import org.netbeans.api.project.Project;
-import org.netbeans.api.project.ProjectManager;
-import org.netbeans.junit.NbTestCase;
-import org.netbeans.modules.latex.UnitUtilities;
-import org.netbeans.modules.latex.model.command.LaTeXSource;
-import org.openide.filesystems.FileLock;
 import org.openide.filesystems.FileObject;
-import org.openide.filesystems.FileUtil;
-import org.xml.sax.SAXException;
 
 /**
  *
@@ -67,12 +57,9 @@ public class LaTeXFileOwnerQueryTest extends ProjectTestCase {
         if (p == null)
             fail("No project corresponding to file: " + name + " found.");
         
-        LaTeXSource source = (LaTeXSource) p.getLookup().lookup(LaTeXSource.class);
+        FileObject foundMainFile = p.getLookup().lookup(FileObject.class);
         
-        if (source == null)
-            fail("Found project is not LaTeXGUIProject (does not have LaTeXSource in lookup).");
-        
-        assertTrue("Incorrect project found!", source.getMainFile() /*!!*/ == /*!!*/ mainFile);
+        assertTrue("Incorrect project found!", foundMainFile /*!!*/ == /*!!*/ mainFile);
     }
     
     public void test_main1_tex_File() {

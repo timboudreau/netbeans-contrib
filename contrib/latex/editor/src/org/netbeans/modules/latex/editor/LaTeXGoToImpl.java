@@ -14,7 +14,7 @@
  *
  * The Original Software is the LaTeX module.
  * The Initial Developer of the Original Software is Jan Lahoda.
- * Portions created by Jan Lahoda_ are Copyright (C) 2002-2004.
+ * Portions created by Jan Lahoda_ are Copyright (C) 2002-2007.
  * All Rights Reserved.
  *
  * Contributor(s): Jan Lahoda.
@@ -25,10 +25,13 @@ import java.io.IOException;
 import java.util.Iterator;
 import java.util.List;
 import javax.swing.text.Document;
-import org.netbeans.modules.latex.editor.AnalyseBib.BibRecord;
+import org.netbeans.api.gsf.CancellableTask;
+import org.netbeans.api.retouche.source.CompilationController;
+import org.netbeans.api.retouche.source.Phase;
+import org.netbeans.api.retouche.source.Source;
+import org.netbeans.modules.latex.model.LaTeXParserResult;
 import org.netbeans.modules.latex.model.LabelInfo;
 import org.netbeans.modules.latex.model.Utilities;
-import org.netbeans.modules.latex.model.bibtex.BiBTeXModel;
 import org.netbeans.modules.latex.model.bibtex.PublicationEntry;
 import org.netbeans.modules.latex.model.command.ArgumentContainingNode;
 import org.netbeans.modules.latex.model.command.ArgumentNode;
@@ -36,9 +39,9 @@ import org.netbeans.modules.latex.model.command.BlockNode;
 import org.netbeans.modules.latex.model.command.Command;
 import org.netbeans.modules.latex.model.command.CommandNode;
 import org.netbeans.modules.latex.model.command.InputNode;
-import org.netbeans.modules.latex.model.command.LaTeXSource;
 import org.netbeans.modules.latex.model.command.Node;
 import org.openide.awt.StatusDisplayer;
+import org.openide.util.Exceptions;
 
 /**
  *
@@ -59,89 +62,86 @@ public final class LaTeXGoToImpl {
         return instance;
     }
     
-    public int[] getGoToNode(Document doc, int offset, boolean  doOpen) {
-        LaTeXSource source   = Utilities.getDefault().getSource(doc);
-        
-        if (source == null)
-            return null;
-        
-        LaTeXSource.Lock lock = null;
+    public int[] getGoToNode(final Document doc, final int offset, final boolean  doOpen) {
+        Source source = Source.forDocument(doc);
+        final int[][] result = new int[1][];
         
         try {
-            lock = source.lock(false);
-            
-            if (lock == null)
-                return null;
-            
-            Node        node     = source.findNode(doc, offset);
-            
-            if (node == null)
-                return null;
-            
-            if (node instanceof ArgumentNode) {
-                ArgumentNode anode = (ArgumentNode) node;
-                ArgumentContainingNode  cnode = anode.getCommand();
+        source.runUserActionTask(new CancellableTask<CompilationController>() {
+            public void cancel() {}
+            public void run(CompilationController parameter) throws Exception {
+                parameter.toPhase(Phase.RESOLVED);
                 
-                if (anode.hasAttribute("#ref")) {
-                    if (doOpen)
-                        openRef(source, anode);
-                    
-                    return getSpanForNode(anode);
-                } else {
-                    if (cnode instanceof CommandNode && ((CommandNode) cnode).getCommand().isInputLike()) {
+                LaTeXParserResult lpr = (LaTeXParserResult) parameter.getParserResult();
+                Node        node     = lpr.getCommandUtilities().findNode(doc, offset);
+
+                if (node == null)
+                    return ;
+
+                if (node instanceof ArgumentNode) {
+                    ArgumentNode anode = (ArgumentNode) node;
+                    ArgumentContainingNode  cnode = anode.getCommand();
+
+                    if (anode.hasAttribute("#ref")) {
                         if (doOpen)
-                            openInput(source, (CommandNode) cnode);
-                        
-                        return getSpanForNode(anode);
+                            openRef(lpr, anode);
+
+                        result[0] = getSpanForNode(anode);
+                        return ;
                     } else {
-                        if (anode.hasAttribute("#cite")) {
-                            return handleCite(anode, offset, doOpen);
+                        if (cnode instanceof CommandNode && ((CommandNode) cnode).getCommand().isInputLike()) {
+                            if (doOpen)
+                                openInput((CommandNode) cnode);
+
+                            result[0] = getSpanForNode(anode);
+                            return ;
+                        } else {
+                            if (anode.hasAttribute("#cite")) {
+                                result[0] = handleCite(lpr, anode, offset, doOpen);
+                                return ;
+                            }
+                        }
+                    }
+
+                    //otherwise, test the parent command node:
+                    node = cnode;
+                }
+
+                if (node instanceof CommandNode) {
+                    Node parent = node.getParent();
+
+                    if (parent instanceof BlockNode) {
+                        BlockNode bnode = (BlockNode) parent;
+
+                        if (bnode.getBeginCommand() == node) {
+                            if (doOpen)
+                                openAtCommand(bnode.getEndCommand());
+
+                            result[0] = getSpanForNode(node);
+                            return ;
+                        }
+
+                        if (bnode.getEndCommand() == node) {
+                            if (doOpen)
+                                openAtCommand(bnode.getBeginCommand());
+
+                            result[0] = getSpanForNode(node);
+                            return ;
                         }
                     }
                 }
-                
-                //otherwise, test the parent command node:
-                node = cnode;
             }
-            
-            if (node instanceof CommandNode) {
-                Node parent = node.getParent();
-                
-                if (parent instanceof BlockNode) {
-                    BlockNode bnode = (BlockNode) parent;
-                    
-                    if (bnode.getBeginCommand() == node) {
-                        if (doOpen)
-                            openAtCommand(source, bnode.getEndCommand());
-                        
-                        return getSpanForNode(node);
-                    }
-                    
-                    if (bnode.getEndCommand() == node) {
-                        if (doOpen)
-                            openAtCommand(source, bnode.getBeginCommand());
-                        
-                        return getSpanForNode(node);
-                    }
-                }
-            }
-            
-            return null;
+        }, true);
         } catch (IOException e) {
-            IllegalStateException exc = new IllegalStateException();
-            
-            ErrorManager.getDefault().annotate(exc, e);
-            
-            throw exc;
-        } finally {
-            if (lock != null)
-                source.unlock(lock);
+            Exceptions.printStackTrace(e);
         }
+        
+        return result[0];
     }
     
-    private void openRef(LaTeXSource source, ArgumentNode anode) {
+    private void openRef(LaTeXParserResult lpr, ArgumentNode anode) {
         String       label  = anode.getText().toString();
-        List         labels = Utilities.getDefault().getLabels(source);
+        List         labels = Utilities.getDefault().getLabels(lpr);
         
         for (Iterator i = labels.iterator(); i.hasNext(); ) {
             LabelInfo info = (LabelInfo) i.next();
@@ -151,18 +151,18 @@ public final class LaTeXGoToImpl {
         }
     }
     
-    private void openInput(LaTeXSource source, CommandNode cnode) {
+    private void openInput(CommandNode cnode) {
         Utilities.getDefault().openPosition(((InputNode) cnode).getContent().getStartingPosition());
     }
     
-    private void openAtCommand(LaTeXSource source, CommandNode cnode) {
+    private void openAtCommand(CommandNode cnode) {
         if (cnode == null)
             return ;
         
         Utilities.getDefault().openPosition(cnode.getStartingPosition());
     }
     
-    private int[] handleCite(ArgumentNode anode, int offset, boolean  doOpen) {
+    private int[] handleCite(LaTeXParserResult lpr, ArgumentNode anode, int offset, boolean  doOpen) {
         int start = anode.getStartingPosition().getOffsetValue();
         int end   = anode.getEndingPosition().getOffsetValue();
 //                            int[] fullArgSpan = getSpanForNode(anode);
@@ -180,13 +180,10 @@ public final class LaTeXGoToImpl {
         for (int cntr = 0; cntr < parts.length; cntr++) {
             if (currentStart <= offset && offset <= currentStart + parts[cntr].length()) {
                 if (doOpen) {
-                    List references = org.netbeans.modules.latex.editor.Utilities.getAllBibReferences(anode.getDocumentNode().getSource());
+                    List<? extends PublicationEntry> references = Utilities.getDefault().getAllBibReferences(lpr);
                     boolean     found = false;
                     
-                    for (Iterator i = references.iterator(); i.hasNext(); ) {
-                        BibRecord record = (BibRecord) i.next();
-                        PublicationEntry entry = record.getEntry();
-                        
+                    for (PublicationEntry entry : references) {
                         if (parts[cntr].equals(entry.getTag())) {
                             Utilities.getDefault().openPosition(entry.getStartPosition());
                             found = true;

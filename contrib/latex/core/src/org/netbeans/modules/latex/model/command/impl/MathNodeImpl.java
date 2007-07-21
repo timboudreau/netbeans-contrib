@@ -13,7 +13,7 @@
  * "Portions Copyrighted [year] [name of copyright owner]"
  *
  * The Original Software is NetBeans. The Initial Developer of the Original
- * Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
+ * Software is Sun Microsystems, Inc. Portions Copyright 1997-2007 Sun
  * Microsystems, Inc. All Rights Reserved.
  */
 package org.netbeans.modules.latex.model.command.impl;
@@ -22,6 +22,7 @@ import java.io.PrintWriter;
 import java.util.Iterator;
 import org.netbeans.modules.latex.model.command.MathNode;
 import org.netbeans.modules.latex.model.command.Node;
+import org.netbeans.modules.latex.model.command.TraverseHandler;
 import org.netbeans.modules.latex.test.TestCertificate;
 
 /**
@@ -46,6 +47,15 @@ public class MathNodeImpl extends TextNodeImpl implements MathNode {
         }
         
         pw.println("</MathNodeNodeImpl>"); // NOI18N
+    }
+
+    @Override
+    public void traverse(TraverseHandler th) {
+        if (th.mathStart(this)) {
+            super.traverse(th);
+        }
+        
+        th.mathEnd();
     }
     
 }

@@ -14,36 +14,15 @@
  *
  * The Original Software is the LaTeX module.
  * The Initial Developer of the Original Software is Jan Lahoda.
- * Portions created by Jan Lahoda_ are Copyright (C) 2002,2003.
+ * Portions created by Jan Lahoda_ are Copyright (C) 2002-2007.
  * All Rights Reserved.
  *
  * Contributor(s): Jan Lahoda.
  */
 package org.netbeans.modules.latex.ui;
 
-import java.awt.Dimension;
-import java.awt.Font;
-import java.awt.Toolkit;
-import java.io.IOException;
-import java.lang.IllegalStateException;
-import java.net.URL;
-import javax.swing.AbstractButton;
 import javax.swing.Action;
-import javax.swing.Icon;
-import javax.swing.ImageIcon;
-import javax.swing.JEditorPane;
-import javax.swing.JToggleButton;
-import javax.swing.text.BadLocationException;
-import javax.swing.text.Document;
-import org.netbeans.modules.latex.model.Utilities;
-import org.netbeans.modules.latex.model.command.ArgumentNode;
-import org.netbeans.modules.latex.model.command.CommandNode;
-import org.netbeans.modules.latex.model.command.LaTeXSource;
-import org.netbeans.modules.latex.model.command.Node;
-import org.openide.ErrorManager;
 import org.openide.filesystems.FileObject;
-import org.openide.filesystems.FileStateInvalidException;
-import org.openide.filesystems.Repository;
 
 /**
  *

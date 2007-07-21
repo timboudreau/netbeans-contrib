@@ -14,7 +14,7 @@
  *
  * The Original Software is the LaTeX module.
  * The Initial Developer of the Original Software is Jan Lahoda.
- * Portions created by Jan Lahoda_ are Copyright (C) 2002,2003.
+ * Portions created by Jan Lahoda_ are Copyright (C) 2002-2007.
  * All Rights Reserved.
  *
  * Contributor(s): Jan Lahoda.
@@ -73,25 +73,25 @@ public class LineEdgeNode extends CurveEdgeNode {
         return getLine().ptLineDist(pos.getX(), pos.getY());
     }
     
-    protected double getSourceAngle() {
+    public double getSourceAngle() {
         int dx = getTarget().getX() - getSource().getX();
         int dy = getTarget().getY() - getSource().getY();
         
         return Math.toDegrees(Math.atan2(-dy, dx));
     }
     
-    protected double getSourceDistance() {
+    public double getSourceDistance() {
         return 0.0;
     }
     
-    protected double getTargetAngle() {
+    public double getTargetAngle() {
         int dx = getTarget().getX() - getSource().getX();
         int dy = getTarget().getY() - getSource().getY();
         
         return Math.toDegrees(Math.atan2(dy, -dx));
     }
     
-    protected double getTargetDistance() {
+    public double getTargetDistance() {
         return 0.0;
     }
     

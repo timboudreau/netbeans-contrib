@@ -14,7 +14,7 @@
  *
  * The Original Software is the LaTeX module.
  * The Initial Developer of the Original Software is Jan Lahoda.
- * Portions created by Jan Lahoda_ are Copyright (C) 2002-2004.
+ * Portions created by Jan Lahoda_ are Copyright (C) 2002-2007.
  * All Rights Reserved.
  *
  * Contributor(s): Jan Lahoda.
@@ -26,7 +26,6 @@ import junit.framework.Test;
 import junit.framework.TestSuite;
 import org.netbeans.api.project.Project;
 import org.netbeans.api.project.ProjectManager;
-import org.netbeans.modules.latex.model.command.LaTeXSource;
 import org.netbeans.spi.project.ActionProvider;
 import org.openide.util.Lookup;
 
@@ -60,7 +59,6 @@ public class LaTeXGUIProjectTest extends ProjectTestCase {
         Lookup l = p.getLookup();
         
         assertNotNull("ActionProvider missing in the project lookup.", l.lookup(ActionProvider.class));
-        assertNotNull("LaTeXSource missing in the project lookup.", l.lookup(LaTeXSource.class));
         //TODO: other...
     }
 

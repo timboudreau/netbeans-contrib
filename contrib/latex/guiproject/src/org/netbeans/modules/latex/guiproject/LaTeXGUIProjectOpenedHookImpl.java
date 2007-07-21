@@ -14,14 +14,13 @@
  *
  * The Original Software is the LaTeX module.
  * The Initial Developer of the Original Software is Jan Lahoda.
- * Portions created by Jan Lahoda_ are Copyright (C) 2002-2004.
+ * Portions created by Jan Lahoda_ are Copyright (C) 2002-2007.
  * All Rights Reserved.
  *
  * Contributor(s): Jan Lahoda.
  */
 package org.netbeans.modules.latex.guiproject;
 
-import org.netbeans.modules.latex.model.command.LaTeXSource;
 import org.netbeans.spi.project.ui.ProjectOpenedHook;
 import org.openide.ErrorManager;
 import org.openide.util.Lookup;
@@ -42,43 +41,45 @@ public class LaTeXGUIProjectOpenedHookImpl extends ProjectOpenedHook {
 
     protected void projectOpened() {
         LaTeXGUIProjectUpgrader.getUpgrader().upgrade(project);
+        ProjectReparsedTaskFactory.get().registerFile(project.getMainFile());
         assureParsed();
     }
 
     protected void projectClosed() {
+        ProjectReparsedTaskFactory.get().registerFile(project.getMainFile());
     }
     
     private void assureParsed() {
-        RequestProcessor.getDefault().post(new Runnable() {
-	    public void run() {
-                //an attempt to prevent deadlock between TexKit.<clinit> and TexSettingsInitializer:
-                try {
-                    ClassLoader cl = (ClassLoader) Lookup.getDefault().lookup(ClassLoader.class);
-                    
-                    cl.loadClass("org.netbeans.modules.latex.editor.TexKit");
-                } catch (Exception e) {
-                    ErrorManager.getDefault().notify(ErrorManager.INFORMATIONAL, e);
-                }
-                
-                LaTeXSource      source = project.getSource();
-	        LaTeXSource.Lock lock = null;
-		
-//                System.err.println("source=" + source);
-		try {
-//                    System.err.println("LaTeXGUIProject.assureParsed trying to obtain lock");
-		    lock = source.lock(true);
-//                    System.err.println("LaTeXGUIProject.assureParsed trying lock obtained=" + lock);
-		} finally {
-                    if (lock != null) {
-//                        System.err.println("LaTeXGUIProject.assureParsed unlock the lock");
-                        source.unlock(lock);
-//                        System.err.println("LaTeXGUIProject.assureParsed unlocking done");
-                    } else {
-//                        System.err.println("LaTeXGUIProject.assureParsed no unlocking (lock == null)");
-                    }
-		}
-	    }
-	});
+//        RequestProcessor.getDefault().post(new Runnable() {
+//	    public void run() {
+//                //an attempt to prevent deadlock between TexKit.<clinit> and TexSettingsInitializer:
+//                try {
+//                    ClassLoader cl = (ClassLoader) Lookup.getDefault().lookup(ClassLoader.class);
+//                    
+//                    cl.loadClass("org.netbeans.modules.latex.editor.TexKit");
+//                } catch (Exception e) {
+//                    ErrorManager.getDefault().notify(ErrorManager.INFORMATIONAL, e);
+//                }
+//                
+//                LaTeXSource      source = project.getSource();
+//	        LaTeXSource.Lock lock = null;
+//		
+////                System.err.println("source=" + source);
+//		try {
+////                    System.err.println("LaTeXGUIProject.assureParsed trying to obtain lock");
+//		    lock = source.lock(true);
+////                    System.err.println("LaTeXGUIProject.assureParsed trying lock obtained=" + lock);
+//		} finally {
+//                    if (lock != null) {
+////                        System.err.println("LaTeXGUIProject.assureParsed unlock the lock");
+//                        source.unlock(lock);
+////                        System.err.println("LaTeXGUIProject.assureParsed unlocking done");
+//                    } else {
+////                        System.err.println("LaTeXGUIProject.assureParsed no unlocking (lock == null)");
+//                    }
+//		}
+//	    }
+//	});
     }
     
 }

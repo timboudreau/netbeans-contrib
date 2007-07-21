@@ -14,7 +14,7 @@
  *
  * The Original Software is the LaTeX module.
  * The Initial Developer of the Original Software is Jan Lahoda.
- * Portions created by Jan Lahoda_ are Copyright (C) 2002,2003.
+ * Portions created by Jan Lahoda_ are Copyright (C) 2002-2007.
  * All Rights Reserved.
  *
  * Contributor(s): Jan Lahoda.
@@ -22,6 +22,7 @@
 package org.netbeans.modules.latex.gui.nb;
 
 import java.beans.IntrospectionException;
+import javax.swing.Action;
 import org.netbeans.modules.latex.model.command.SourcePosition;
 import org.netbeans.modules.latex.model.structural.GoToSourceAction;
 import org.netbeans.modules.latex.model.structural.StructuralNode;
@@ -45,7 +46,8 @@ public class VauStructuralElementNode extends StructuralNode {
         setDisplayName(element.getCaption());
     }
 
-    public SystemAction[] createActions() {
+    @Override
+    public Action[] getActions(boolean context) {
         return new SystemAction[] {
             SystemAction.get(OpenAction.class),
             null,
@@ -54,7 +56,7 @@ public class VauStructuralElementNode extends StructuralNode {
             SystemAction.get(PropertiesAction.class),
         };
     }
-    
+
     private class OpenCookieImpl implements OpenCookie {
         
         public void open() {

@@ -14,7 +14,7 @@
  *
  * The Original Software is the LaTeX module.
  * The Initial Developer of the Original Software is Jan Lahoda.
- * Portions created by Jan Lahoda_ are Copyright (C) 2002,2003.
+ * Portions created by Jan Lahoda_ are Copyright (C) 2002-2007.
  * All Rights Reserved.
  *
  * Contributor(s): Jan Lahoda.
@@ -25,24 +25,26 @@ import java.beans.IntrospectionException;
 import java.beans.PropertyChangeEvent;
 import java.util.ArrayList;
 import java.util.List;
+import org.netbeans.modules.latex.model.structural.StructuralElement;
 import org.netbeans.modules.latex.model.structural.StructuralNode;
 import org.openide.ErrorManager;
 import org.openide.nodes.AbstractNode;
 import org.openide.nodes.Children;
 import org.openide.nodes.Node;
+import org.openide.util.Exceptions;
 
 /**
  *
  * @author Jan Lahoda
  */
-public class MainStructuralElementNode extends StructuralNode {
+public class MainStructuralElementNode extends StructuralNode<MainStructuralElement> {
 
     /** Creates a new instance of MainStructuralElementNode */
     public MainStructuralElementNode(MainStructuralElement el) throws IntrospectionException {
         super(el, new MainStructuralElementNodeChildren(el));
     }
     
-    protected static class MainStructuralElementNodeChildren extends StructuralNodeChildren {
+    protected static class MainStructuralElementNodeChildren extends StructuralNodeChildren<MainStructuralElement> {
         
         private LabelsNode labelsNode = null;
         
@@ -51,17 +53,9 @@ public class MainStructuralElementNode extends StructuralNode {
         }
 
         protected synchronized void doSetKeys() {
-            List l = new ArrayList();
+            List<StructuralElement> l = new ArrayList<StructuralElement>();
             
-            try {
-                if (labelsNode == null)
-                    labelsNode = new LabelsNode((MainStructuralElement) getElement());
-                
-                l.add(labelsNode);
-            } catch (IntrospectionException e) {
-                ErrorManager.getDefault().notify(e);
-            }
-            
+            l.add(getElement());
             l.addAll(getElement().getSubElements());
             
             setKeys(l);
@@ -72,11 +66,21 @@ public class MainStructuralElementNode extends StructuralNode {
             labelsNode = null;
         }
     
-        protected Node[] createNodes(Object key) {
-            if (key instanceof Node) {
-                return new Node[] {(Node) key};
-            } else
+        @Override
+        protected Node[] createNodes(StructuralElement key) {
+            if (key instanceof MainStructuralElement) {
+                try {
+                    if (labelsNode == null)
+                        labelsNode = new LabelsNode((MainStructuralElement) key);
+                    
+                    return new Node[] {labelsNode};
+                } catch (IntrospectionException e) {
+                    Exceptions.printStackTrace(e);
+                    return new Node[0];
+                }
+            } else {
                 return super.createNodes(key);
+            }
         }
 
     }

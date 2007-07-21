@@ -14,7 +14,7 @@
  *
  * The Original Software is the LaTeX module.
  * The Initial Developer of the Original Software is Jan Lahoda.
- * Portions created by Jan Lahoda_ are Copyright (C) 2002-2006.
+ * Portions created by Jan Lahoda_ are Copyright (C) 2002-2007.
  * All Rights Reserved.
  *
  * Contributor(s): Jan Lahoda.
@@ -32,6 +32,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -39,6 +40,7 @@ import javax.swing.Action;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JSeparator;
+import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import org.netbeans.api.project.Project;
 import org.netbeans.api.project.ProjectInformation;
@@ -46,12 +48,6 @@ import org.netbeans.api.project.ProjectUtils;
 import org.netbeans.modules.latex.guiproject.build.BuildConfigurationProvider;
 import org.netbeans.modules.latex.guiproject.ui.LaTeXGUIProjectCustomizer;
 import org.netbeans.modules.latex.model.Utilities;
-import org.netbeans.modules.latex.model.command.DocumentNode;
-import org.netbeans.modules.latex.model.command.LaTeXSource;
-import org.netbeans.modules.latex.model.command.impl.LaTeXSourceImpl;
-import org.netbeans.modules.latex.model.structural.Model;
-import org.netbeans.modules.latex.model.structural.StructuralElement;
-import org.netbeans.modules.latex.model.structural.StructuralNodeFactory;
 import org.netbeans.spi.navigator.NavigatorLookupHint;
 import org.netbeans.spi.project.ui.LogicalViewProvider;
 import org.netbeans.spi.project.ui.support.CommonProjectActions;
@@ -73,6 +69,7 @@ import org.openide.nodes.AbstractNode;
 import org.openide.nodes.Children;
 import org.openide.nodes.FilterNode;
 import org.openide.nodes.Node;
+import org.openide.util.ChangeSupport;
 import org.openide.util.Lookup;
 import org.openide.util.RequestProcessor;
 import org.openide.util.lookup.Lookups;
@@ -82,13 +79,11 @@ import org.openide.util.lookup.ProxyLookup;
  *
  * @author Jan Lahoda
  */
-public class LaTeXGUIProject implements Project, LogicalViewProvider, LaTeXSource.DocumentChangedListener {
+public class LaTeXGUIProject implements Project, LogicalViewProvider {
     
     private FileObject dir;
     private FileObject masterFile;
     private Lookup lookup;
-    
-    private LaTeXSource source;
     
     private PropertyChangeSupport pcs;
     
@@ -110,15 +105,13 @@ public class LaTeXGUIProject implements Project, LogicalViewProvider, LaTeXSourc
     public LaTeXGUIProject(FileObject dir, FileObject masterFile) {
         this.dir = dir;
         this.masterFile = masterFile;
-        source = new LaTeXSourceImpl(masterFile);
-        source.addDocumentChangedListener(source.weakDocumentChangedListener(this, source));
         pcs = new PropertyChangeSupport(this);
         lookup = Lookups.fixed(new Object[] {
             new Info(),
             this,
             new ActionsFactory(this),
             GenericSources.genericOnly(this),
-            source,
+            masterFile,
             new LaTeXGUIProjectOpenedHookImpl(this),
             new LaTeXAuxiliaryConfigurationImpl(this),
             new LaTeXSharabilityQuery(this),
@@ -167,8 +160,8 @@ public class LaTeXGUIProject implements Project, LogicalViewProvider, LaTeXSourc
         return null;
     }
     
-    public LaTeXSource getSource() {
-        return source;
+    public FileObject getMainFile() {
+        return masterFile;
     }
     
     private static final String SOURCE_NODE_NAME = "Sources";
@@ -180,15 +173,6 @@ public class LaTeXGUIProject implements Project, LogicalViewProvider, LaTeXSourc
         an.setDisplayName(SOURCE_NODE_NAME);
         
         return an;
-    }
-    
-    private Node createStructuralNode() {
-//        System.err.println("masterFile = " + masterFile );
-        StructuralElement rootEl = Model.getDefault().getModel(masterFile);
-        
-        Node fnode = new MainStructuralNode(StructuralNodeFactory.createNode(rootEl));
-        
-        return fnode;
     }
     
     private Children createChildren() {
@@ -208,7 +192,7 @@ public class LaTeXGUIProject implements Project, LogicalViewProvider, LaTeXSourc
     /*package private*/synchronized boolean contains(FileObject file) {
         //TODO: more effeciently:
         if (containedFilesCache == null)
-            return Utilities.getDefault().compareFiles(source.getMainFile(), file);
+            return Utilities.getDefault().compareFiles(getMainFile(), file);
         else {
             return containedFilesCache.contains(file);
         }
@@ -216,37 +200,25 @@ public class LaTeXGUIProject implements Project, LogicalViewProvider, LaTeXSourc
     
     public synchronized Collection getContainedFiles() {
         if (containedFilesCache == null)
-            return Collections.singletonList(source.getMainFile());
+            return Collections.singletonList(getMainFile());
         else {
             return containedFilesCache;
         }
     }
     
-    private synchronized void updateContainedFilesCache() {
-        containedFilesCache = new HashSet(source.getDocument().getFiles());
-        pcs.firePropertyChange(PROP_CONTAINED_FILES, null, null);
+    synchronized void setContainedFile(Collection<FileObject> files) {
+        containedFilesCache = new LinkedList<FileObject>(files);
+        cs.fireChange();
     }
     
-    public void nodesRemoved(LaTeXSource.DocumentChangeEvent evt) {
-        updateContainedFilesCache();
+    private ChangeSupport cs = new ChangeSupport(this);
+    
+    public void addChangeListener(ChangeListener l) {
+        cs.addChangeListener(l);
     }
-
-    public void nodesChanged(LaTeXSource.DocumentChangeEvent evt) {
-        updateContainedFilesCache();
-    }
-
-    public void nodesAdded(LaTeXSource.DocumentChangeEvent evt) {
-        updateContainedFilesCache();
-    }
-
-    private static class MainStructuralNode extends FilterNode {
-        
-        public MainStructuralNode(Node original) {
-            super(original);
-            disableDelegation(DELEGATE_GET_DISPLAY_NAME | DELEGATE_SET_DISPLAY_NAME);
-            setDisplayName("Structure");
-        }
-        
+    
+    public void removeChangeListener(ChangeListener l) {
+        cs.removeChangeListener(l);
     }
     
     private static class LaTeXGUIProjectNode extends AbstractNode implements Runnable, FileStatusListener, PropertyChangeListener {
@@ -265,7 +237,7 @@ public class LaTeXGUIProject implements Project, LogicalViewProvider, LaTeXSourc
         // icon badging <<<
         
         public LaTeXGUIProjectNode(LaTeXGUIProject project) {
-            super(new LaTeXChildren(project), Lookups.fixed(new Object[] {project, NAVIGATOR_HINT, project.source, new SearchInfoImpl(project)}));
+            super(new LaTeXChildren(project), Lookups.fixed(new Object[] {project, NAVIGATOR_HINT, new SearchInfoImpl(project)}));
             setDisplayName(ProjectUtils.getInformation(project).getDisplayName());
             setIconBase("org/netbeans/modules/latex/guiproject/resources/latex_gui_project_icon");
             this.project = project;
@@ -477,7 +449,7 @@ public class LaTeXGUIProject implements Project, LogicalViewProvider, LaTeXSourc
     }
     
     
-    private static class LaTeXChildren extends Children.Keys implements LaTeXSource.DocumentChangedListener/*TODO: Weak?*/ {
+    private static class LaTeXChildren extends Children.Keys implements ChangeListener/*TODO: Weak?*/ {
 
         private LaTeXGUIProject project;
 
@@ -486,19 +458,17 @@ public class LaTeXGUIProject implements Project, LogicalViewProvider, LaTeXSourc
         }
 
         public void addNotify() {
-            project.getSource().addDocumentChangedListener(this);
+            project.addChangeListener(this);
             doSetKeys();
         }
         
         private void doSetKeys() {
 //            Thread.dumpStack();
-            DocumentNode dn = project.getSource().getDocument();
             List toAdd = new ArrayList();
             
-            if (dn != null)
-                toAdd.addAll(dn.getFiles());
+            toAdd.addAll(project.getContainedFiles());
             
-            Object main = project.getSource().getMainFile();
+            Object main = project.getMainFile();
             
             toAdd.remove(main);
             toAdd.add(0, main);
@@ -517,16 +487,8 @@ public class LaTeXGUIProject implements Project, LogicalViewProvider, LaTeXSourc
                 return new Node[0];
             }
         }
-        
-        public void nodesAdded(LaTeXSource.DocumentChangeEvent evt) {
-            doSetKeys();
-        }
-        
-        public void nodesRemoved(LaTeXSource.DocumentChangeEvent evt) {
-            doSetKeys();
-        }
-        
-        public void nodesChanged(LaTeXSource.DocumentChangeEvent evt) {
+
+        public void stateChanged(ChangeEvent e) {
             doSetKeys();
         }
 

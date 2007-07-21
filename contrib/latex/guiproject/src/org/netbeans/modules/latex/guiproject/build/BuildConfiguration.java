@@ -13,7 +13,7 @@
  * "Portions Copyrighted [year] [name of copyright owner]"
  *
  * The Original Software is NetBeans. The Initial Developer of the Original
- * Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
+ * Software is Sun Microsystems, Inc. Portions Copyright 1997-2007 Sun
  * Microsystems, Inc. All Rights Reserved.
  */
 package org.netbeans.modules.latex.guiproject.build;
@@ -28,13 +28,16 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import javax.swing.text.Document;
-import org.netbeans.api.project.ProjectUtils;
+import org.netbeans.api.gsf.CancellableTask;
+import org.netbeans.api.retouche.source.CompilationController;
+import org.netbeans.api.retouche.source.Phase;
+import org.netbeans.modules.latex.model.LaTeXParserResult;
+import org.netbeans.api.retouche.source.Source;
 import org.netbeans.modules.latex.guiproject.LaTeXGUIProject;
 import org.netbeans.modules.latex.guiproject.Utilities;
 import org.netbeans.modules.latex.guiproject.ui.ProjectSettings;
 import org.netbeans.modules.latex.model.command.CommandNode;
 import org.netbeans.modules.latex.model.command.DefaultTraverseHandler;
-import org.netbeans.modules.latex.model.command.LaTeXSource;
 import org.netbeans.modules.latex.model.platform.LaTeXPlatform;
 import org.netbeans.spi.editor.hints.ErrorDescription;
 import org.netbeans.spi.editor.hints.HintsController;
@@ -45,6 +48,7 @@ import org.openide.execution.NbProcessDescriptor;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
 import org.openide.filesystems.URLMapper;
+import org.openide.util.Exceptions;
 import org.openide.util.MapFormat;
 import org.openide.util.NbBundle;
 import org.openide.windows.IOProvider;
@@ -82,7 +86,7 @@ public final class BuildConfiguration {
         if (getErrorIfAny(p) != null)
             throw new IllegalArgumentException();
         
-        FileObject file = (FileObject) p.getSource().getMainFile();
+        FileObject file = (FileObject) p.getMainFile();
         File wd = FileUtil.toFile(file.getParent());
         LaTeXPlatform platform = Utilities.getPlatform(p);
         Map format = new HashMap();
@@ -175,16 +179,29 @@ public final class BuildConfiguration {
             case AUTO:
             default:
                 final boolean [] result = new boolean[1];
-                p.getSource().traverse(new DefaultTraverseHandler() {
-                    public boolean commandStart(CommandNode node) {
-                        if ("\\bibliography".equals(node.getCommand().getCommand())) {
-                            result[0] = true;
-                            return false;
+                Source source = Source.forFileObject(p.getMainFile());
+                
+                try {
+                    source.runUserActionTask(new CancellableTask<CompilationController>() {
+                        public void cancel() {}
+                        public void run(CompilationController parameter) throws Exception {
+                            parameter.toPhase(Phase.RESOLVED);
+                            ((LaTeXParserResult) parameter.getParserResult()).getDocument().traverse(new DefaultTraverseHandler() {
+                                public boolean commandStart(CommandNode node) {
+                                    if ("\\bibliography".equals(node.getCommand().getCommand())) {
+                                        result[0] = true;
+                                        return false;
+                                    }
+
+                                    return true;
+                                }
+                            });
                         }
-                        
-                        return true;
-                    }
-                }, LaTeXSource.DOCUMENT_SHOULD_EXIST_LOCK);
+                    }, true);
+                } catch (IOException e) {
+                    Exceptions.printStackTrace(e);
+                }
+                
                 return result[0];
         }
     }
@@ -193,7 +210,7 @@ public final class BuildConfiguration {
         if (getErrorIfAny(p) != null)
             throw new IllegalArgumentException();
 
-        FileObject file = (FileObject) p.getSource().getMainFile();
+        FileObject file = (FileObject) p.getMainFile();
         LaTeXPlatform platform = Utilities.getPlatform(p);
         List<URI> targets = new ArrayList<URI>();
         
@@ -256,7 +273,7 @@ public final class BuildConfiguration {
             errors.putAll(scErr.getErrors());
             
             for (Entry<Document, List<ErrorDescription>> e : errors.entrySet()) {
-                HintsController.setErrors(e.getKey(), e.getValue());
+                HintsController.setErrors(e.getKey(), BuildConfiguration.class.getName(), e.getValue());
             }
             return result;
         } catch (InterruptedException ex) {

@@ -14,7 +14,7 @@
  *
  * The Original Software is the LaTeX module.
  * The Initial Developer of the Original Software is Jan Lahoda.
- * Portions created by Jan Lahoda_ are Copyright (C) 2002-2005.
+ * Portions created by Jan Lahoda_ are Copyright (C) 2002-2007.
  * All Rights Reserved.
  *
  * Contributor(s): Jan Lahoda.
@@ -41,7 +41,7 @@ public class SlideDelegatedParser extends DelegatedParser {
     public SlideDelegatedParser() {
     }
     
-    public StructuralElement getElement(Node node, Collection/*<ParseError>*/ errors) {
+    public StructuralElement getElement(Node node) {
         //Only for case that some malicious module marked some Command with our attributes ;-(.
         if (node instanceof BlockNode) {
             BlockNode bnode = (BlockNode) node;

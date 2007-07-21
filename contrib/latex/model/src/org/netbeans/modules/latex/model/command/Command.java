@@ -14,7 +14,7 @@
  *
  * The Original Software is the LaTeX module.
  * The Initial Developer of the Original Software is Jan Lahoda.
- * Portions created by Jan Lahoda_ are Copyright (C) 2002,2003.
+ * Portions created by Jan Lahoda_ are Copyright (C) 2002-2007.
  * All Rights Reserved.
  *
  * Contributor(s): Jan Lahoda.
@@ -22,15 +22,11 @@
 package org.netbeans.modules.latex.model.command;
 
 import java.text.ParsePosition;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 import java.util.StringTokenizer;
-import java.util.Vector;
-//import org.openide.ErrorManager;
 
 /**
  *
@@ -151,7 +147,7 @@ public final class Command extends NamedAttributableWithArguments {
 //        private boolean canContainCode;
 //        private boolean canBeEnum;
         
-        private Set values;
+        private Set<String> values;
         
         /*package private*/ void setType(int type) {
             this.type = type;
@@ -159,7 +155,7 @@ public final class Command extends NamedAttributableWithArguments {
         
         /*package private*/ synchronized void addValue(String value) {
             if (values == null)
-                values = new HashSet();
+                values = new HashSet<String>();
             
             values.add(value);
         }
@@ -270,9 +266,9 @@ public final class Command extends NamedAttributableWithArguments {
             return values != null;
         }
         
-        public Collection getValues() {
+        public Collection<String> getValues() {
             if (values == null)
-                return Collections.EMPTY_SET;
+                return Collections.<String>emptySet();
             else
                 return values;
         }

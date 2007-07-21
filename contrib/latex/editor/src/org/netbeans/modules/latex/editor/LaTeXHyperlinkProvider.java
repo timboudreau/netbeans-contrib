@@ -14,7 +14,7 @@
  *
  * The Original Software is the LaTeX module.
  * The Initial Developer of the Original Software is Jan Lahoda.
- * Portions created by Jan Lahoda_ are Copyright (C) 2002-2004.
+ * Portions created by Jan Lahoda_ are Copyright (C) 2002-2007.
  * All Rights Reserved.
  *
  * Contributor(s): Jan Lahoda.
@@ -24,9 +24,6 @@ package org.netbeans.modules.latex.editor;
 import java.awt.Toolkit;
 import javax.swing.text.Document;
 import org.netbeans.lib.editor.hyperlink.spi.HyperlinkProvider;
-import org.netbeans.modules.latex.model.command.ArgumentNode;
-import org.netbeans.modules.latex.model.command.Command;
-import org.netbeans.modules.latex.model.command.Node;
 
 /**
  *
@@ -54,6 +51,10 @@ public class LaTeXHyperlinkProvider implements HyperlinkProvider {
     
     public int[] getHyperlinkSpan(Document doc, int offset) {
         return LaTeXGoToImpl.getDefault().getGoToNode(doc, offset, false);
+    }
+
+    public String getShortDescription(Document document, int i) {
+        return null;
     }
 
 }

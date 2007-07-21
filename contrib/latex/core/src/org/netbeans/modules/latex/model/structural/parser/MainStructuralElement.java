@@ -14,7 +14,7 @@
  *
  * The Original Software is the LaTeX module.
  * The Initial Developer of the Original Software is Jan Lahoda.
- * Portions created by Jan Lahoda_ are Copyright (C) 2002,2003.
+ * Portions created by Jan Lahoda_ are Copyright (C) 2002-2007.
  * All Rights Reserved.
  *
  * Contributor(s): Jan Lahoda.
@@ -33,10 +33,10 @@ import org.openide.util.actions.SystemAction;
  */
 public class MainStructuralElement extends StructuralElement {
 
-    private List labels;
+    private List<StructuralElement> labels;
 
     public MainStructuralElement() {
-        labels = new ArrayList();
+        labels = new ArrayList<StructuralElement>();
     }
     
     public SystemAction[] createActions() {
@@ -47,9 +47,9 @@ public class MainStructuralElement extends StructuralElement {
         return -1;
     }
     
-    public synchronized List getLabels() {
+    public synchronized List<? extends StructuralElement> getLabels() {
         //Defense copy (against concurrent modifications):
-        return new ArrayList(labels);
+        return new ArrayList<StructuralElement>(labels);
     }
     
     public synchronized void addLabel(LabelStructuralElement el) {

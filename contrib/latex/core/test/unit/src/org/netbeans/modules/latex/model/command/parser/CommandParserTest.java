@@ -13,7 +13,7 @@
  * "Portions Copyrighted [year] [name of copyright owner]"
  *
  * The Original Software is NetBeans. The Initial Developer of the Original
- * Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
+ * Software is Sun Microsystems, Inc. Portions Copyright 1997-2007 Sun
  * Microsystems, Inc. All Rights Reserved.
  */
 
@@ -32,21 +32,24 @@ import javax.swing.text.StyledDocument;
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
+import org.netbeans.api.gsf.CancellableTask;
+import org.netbeans.api.retouche.source.CompilationController;
+import org.netbeans.api.retouche.source.Phase;
+import org.netbeans.api.retouche.source.Source;
 import org.netbeans.junit.NbTestCase;
 import org.netbeans.modules.latex.UnitUtilities;
+import org.netbeans.modules.latex.model.LaTeXParserResult;
 import org.netbeans.modules.latex.model.command.ArgumentNode;
 import org.netbeans.modules.latex.model.command.BlockNode;
 import org.netbeans.modules.latex.model.command.CommandNode;
 import org.netbeans.modules.latex.model.command.DocumentNode;
 import org.netbeans.modules.latex.model.command.InputNode;
-import org.netbeans.modules.latex.model.command.LaTeXSource;
 import org.netbeans.modules.latex.model.command.MathNode;
 import org.netbeans.modules.latex.model.command.Node;
 import org.netbeans.modules.latex.model.command.TextNode;
 import org.netbeans.modules.latex.model.command.TraverseHandler;
 import org.netbeans.modules.latex.model.command.impl.BlockNodeImpl;
 import org.netbeans.modules.latex.model.command.impl.CommandNodeImpl;
-import org.netbeans.modules.latex.model.command.impl.LaTeXSourceImpl;
 import org.openide.cookies.EditorCookie;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
@@ -97,9 +100,8 @@ public class CommandParserTest extends NbTestCase {
         assertNotNull(testFileObject);
         
         Collection errors = new ArrayList();
-        LaTeXSourceImpl lsi =  new LaTeXSourceImpl(testFileObject);
         
-        DocumentNode node = new CommandParser().parse(lsi, errors);
+        DocumentNode node = new CommandParser().parse(testFileObject, new LinkedList(), errors);
         
         assertTrue("Errors: " + errors, errors.isEmpty());
         assertEquals(new HashSet(Arrays.asList(new FileObject[] {
@@ -117,9 +119,8 @@ public class CommandParserTest extends NbTestCase {
         assertNotNull(testFileObject);
         
         Collection errors = new ArrayList();
-        LaTeXSourceImpl lsi =  new LaTeXSourceImpl(testFileObject);
         
-        DocumentNode node = new CommandParser().parse(lsi, errors);
+        DocumentNode node = new CommandParser().parse(testFileObject, new LinkedList(), errors);
         
         assertTrue("Errors: " + errors, errors.isEmpty());
         
@@ -173,9 +174,8 @@ public class CommandParserTest extends NbTestCase {
         assertNotNull(testFileObject);
         
         Collection errors = new ArrayList();
-        LaTeXSourceImpl lsi =  new LaTeXSourceImpl(testFileObject);
         
-        DocumentNode node = new CommandParser().parse(lsi, errors);
+        DocumentNode node = new CommandParser().parse(testFileObject, new LinkedList(), errors);
         
         assertTrue("Errors: " + errors, errors.isEmpty());
     }
@@ -186,35 +186,34 @@ public class CommandParserTest extends NbTestCase {
         assertNotNull(testFileObject);
         
         Collection errors = new ArrayList();
-        LaTeXSourceImpl lsi =  new LaTeXSourceImpl(testFileObject);
         
-        DocumentNode node = new CommandParser().parse(lsi, errors);
+        DocumentNode node = new CommandParser().parse(testFileObject, new LinkedList(), errors);
         
         assertTrue("Errors: " + errors, errors.isEmpty());
     }
     
     public void testEnvironmentsWithCommandDefinitions() throws Exception {
-        FileObject testFileObject = dataDir.getFileObject("testEnvironmentsWithCommandDefinitions.tex");
+        final FileObject testFileObject = dataDir.getFileObject("testEnvironmentsWithCommandDefinitions.tex");
         
         assertNotNull(testFileObject);
         
-        Collection errors = new ArrayList();
-        LaTeXSourceImpl lsi =  new LaTeXSourceImpl(testFileObject);
-        
-        LaTeXSource.Lock lock = lsi.lock(true);
-        
-        try {
-            DataObject od = DataObject.find(testFileObject);
-            EditorCookie ec = (EditorCookie) od.getCookie(EditorCookie.class);
-            StyledDocument doc = ec.openDocument();
+        Source.forFileObject(testFileObject).runUserActionTask(new CancellableTask<CompilationController>() {
+            public void cancel() {}
+            public void run(CompilationController parameter) throws Exception {
+                parameter.toPhase(Phase.RESOLVED);
+                
+                LaTeXParserResult lpr = (LaTeXParserResult) parameter.getParserResult();
+                
+                DataObject od = DataObject.find(testFileObject);
+                EditorCookie ec = (EditorCookie) od.getCookie(EditorCookie.class);
+                StyledDocument doc = ec.openDocument();
             
-            int offset = NbDocument.findLineOffset(doc, 8) + 3;
-            Node node = lsi.findNode(doc, offset);
-            assertTrue(node instanceof CommandNode);
-            assertEquals("\\test", ((CommandNode) node).getCommand().getCommand());
-        } finally {
-            lsi.unlock(lock);
-        }
+                int offset = NbDocument.findLineOffset(doc, 8) + 3;
+                Node node = lpr.getCommandUtilities().findNode(doc, offset);
+                assertTrue(node instanceof CommandNode);
+                assertEquals("\\test", ((CommandNode) node).getCommand().getCommand());
+            }
+        }, true);
     }
     
     public void testEnvironmentInEnvironment() throws Exception {
@@ -223,35 +222,33 @@ public class CommandParserTest extends NbTestCase {
         assertNotNull(testFileObject);
         
         Collection errors = new ArrayList();
-        LaTeXSourceImpl lsi =  new LaTeXSourceImpl(testFileObject);
         
-        DocumentNode node = new CommandParser().parse(lsi, errors);
+        DocumentNode node = new CommandParser().parse(testFileObject, new LinkedList(), errors);
         
         assertTrue("Errors: " + errors, errors.isEmpty());
     }
     
     public void testIncludeDefiningCommands() throws Exception {
-        FileObject testFileObject = dataDir.getFileObject("testInclude.tex");
+        final FileObject testFileObject = dataDir.getFileObject("testInclude.tex");
         
         assertNotNull(testFileObject);
         
-        Collection errors = new ArrayList();
-        LaTeXSourceImpl lsi =  new LaTeXSourceImpl(testFileObject);
-        
-        LaTeXSource.Lock lock = lsi.lock(true);
-        
-        try {
-            DataObject od = DataObject.find(testFileObject);
-            EditorCookie ec = (EditorCookie) od.getCookie(EditorCookie.class);
-            StyledDocument doc = ec.openDocument();
-            
-            int offset = NbDocument.findLineOffset(doc, 7) + 3;
-            Node node = lsi.findNode(doc, offset);
-            assertTrue(node instanceof CommandNode);
-            assertEquals("\\test", ((CommandNode) node).getCommand().getCommand());
-        } finally {
-            lsi.unlock(lock);
-        }
+        Source.forFileObject(testFileObject).runUserActionTask(new CancellableTask<CompilationController>() {
+            public void cancel() {}
+            public void run(CompilationController parameter) throws Exception {
+                parameter.toPhase(Phase.RESOLVED);
+                
+                LaTeXParserResult lpr = (LaTeXParserResult) parameter.getParserResult();
+                DataObject od = DataObject.find(testFileObject);
+                EditorCookie ec = (EditorCookie) od.getCookie(EditorCookie.class);
+                StyledDocument doc = ec.openDocument();
+
+                int offset = NbDocument.findLineOffset(doc, 7) + 3;
+                Node node = lpr.getCommandUtilities().findNode(doc, offset);
+                assertTrue(node instanceof CommandNode);
+                assertEquals("\\test", ((CommandNode) node).getCommand().getCommand());
+            }
+        }, true);
     }
     
     public void testVerbatimEnvironment() throws Exception {
@@ -260,9 +257,8 @@ public class CommandParserTest extends NbTestCase {
         assertNotNull(testFileObject);
         
         Collection errors = new ArrayList();
-        LaTeXSourceImpl lsi =  new LaTeXSourceImpl(testFileObject);
         
-        DocumentNode node = new CommandParser().parse(lsi, errors);
+        DocumentNode node = new CommandParser().parse(testFileObject, new LinkedList(), errors);
         
         assertTrue("Errors: " + errors, errors.isEmpty());
     }
@@ -273,147 +269,147 @@ public class CommandParserTest extends NbTestCase {
         assertNotNull(testFileObject);
         
         Collection errors = new ArrayList();
-        LaTeXSourceImpl lsi =  new LaTeXSourceImpl(testFileObject);
         
-        DocumentNode node = new CommandParser().parse(lsi, errors);
+        DocumentNode node = new CommandParser().parse(testFileObject, new LinkedList(), errors);
         
         assertTrue("Errors: " + errors, errors.isEmpty());
     }
     
     public void testMathNode1() throws Exception {
-        FileObject testFileObject = dataDir.getFileObject("testMathNode1.tex");
+        final FileObject testFileObject = dataDir.getFileObject("testMathNode1.tex");
         
         assertNotNull(testFileObject);
         
-        LaTeXSourceImpl lsi =  new LaTeXSourceImpl(testFileObject);
-        LaTeXSource.Lock lock = lsi.lock(true);
-        
-        try {
-            DataObject od = DataObject.find(testFileObject);
-            EditorCookie ec = (EditorCookie) od.getCookie(EditorCookie.class);
-            StyledDocument doc = ec.openDocument();
-            
-            Node node = lsi.findNode(doc, 45);
-            
-            assertTrue(node instanceof MathNode);
-            node = lsi.findNode(doc, 46);
-            assertTrue(node instanceof MathNode);
-            node = lsi.findNode(doc, 47);
-            assertTrue(node instanceof MathNode);
-        } finally {
-            lsi.unlock(lock);
-        }
+        Source.forFileObject(testFileObject).runUserActionTask(new CancellableTask<CompilationController>() {
+            public void cancel() {}
+            public void run(CompilationController parameter) throws Exception {
+                parameter.toPhase(Phase.RESOLVED);
+                
+                LaTeXParserResult lpr = (LaTeXParserResult) parameter.getParserResult();
+                DataObject od = DataObject.find(testFileObject);
+                EditorCookie ec = (EditorCookie) od.getCookie(EditorCookie.class);
+                StyledDocument doc = ec.openDocument();
+
+                Node node = lpr.getCommandUtilities().findNode(doc, 45);
+
+                assertTrue(node instanceof MathNode);
+                node = lpr.getCommandUtilities().findNode(doc, 46);
+                assertTrue(node instanceof MathNode);
+                node = lpr.getCommandUtilities().findNode(doc, 47);
+                assertTrue(node instanceof MathNode);
+            }
+        }, true);
     }
     
     public void testMathNode2() throws Exception {
-        FileObject testFileObject = dataDir.getFileObject("testMathNode2.tex");
+        final FileObject testFileObject = dataDir.getFileObject("testMathNode2.tex");
         
         assertNotNull(testFileObject);
         
-        LaTeXSourceImpl lsi =  new LaTeXSourceImpl(testFileObject);
-        LaTeXSource.Lock lock = lsi.lock(true);
-        
-        try {
-            DataObject od = DataObject.find(testFileObject);
-            EditorCookie ec = (EditorCookie) od.getCookie(EditorCookie.class);
-            StyledDocument doc = ec.openDocument();
-            
-            Node node = lsi.findNode(doc, 27);
-            
-            assertTrue(node instanceof MathNode);
-            node = lsi.findNode(doc, 28);
-            assertTrue(node instanceof MathNode);
-            node = lsi.findNode(doc, 29);
-            assertTrue(node instanceof MathNode);
-        } finally {
-            lsi.unlock(lock);
-        }
+        Source.forFileObject(testFileObject).runUserActionTask(new CancellableTask<CompilationController>() {
+            public void cancel() {}
+            public void run(CompilationController parameter) throws Exception {
+                parameter.toPhase(Phase.RESOLVED);
+                
+                LaTeXParserResult lpr = (LaTeXParserResult) parameter.getParserResult();
+                DataObject od = DataObject.find(testFileObject);
+                EditorCookie ec = (EditorCookie) od.getCookie(EditorCookie.class);
+                StyledDocument doc = ec.openDocument();
+
+                Node node = lpr.getCommandUtilities().findNode(doc, 27);
+
+                assertTrue(node instanceof MathNode);
+                node = lpr.getCommandUtilities().findNode(doc, 28);
+                assertTrue(node instanceof MathNode);
+                node = lpr.getCommandUtilities().findNode(doc, 29);
+                assertTrue(node instanceof MathNode);
+            }
+        }, true);
     }
 
     public void testMathNode3() throws Exception {
-        FileObject testFileObject = dataDir.getFileObject("testMathNode3.tex");
+        final FileObject testFileObject = dataDir.getFileObject("testMathNode3.tex");
         
         assertNotNull(testFileObject);
         
-        LaTeXSourceImpl lsi =  new LaTeXSourceImpl(testFileObject);
-        LaTeXSource.Lock lock = lsi.lock(true);
-        
-        try {
-            DataObject od = DataObject.find(testFileObject);
-            EditorCookie ec = (EditorCookie) od.getCookie(EditorCookie.class);
-            StyledDocument doc = ec.openDocument();
-            
-            Node node = lsi.findNode(doc, 46);
-            
-            assertTrue(node instanceof MathNode);
-            node = lsi.findNode(doc, 47);
-            assertTrue(node instanceof MathNode);
-            node = lsi.findNode(doc, 48);
-            assertTrue(node instanceof MathNode);
-        } finally {
-            lsi.unlock(lock);
-        }
+        Source.forFileObject(testFileObject).runUserActionTask(new CancellableTask<CompilationController>() {
+            public void cancel() {}
+            public void run(CompilationController parameter) throws Exception {
+                parameter.toPhase(Phase.RESOLVED);
+                
+                LaTeXParserResult lpr = (LaTeXParserResult) parameter.getParserResult();
+                DataObject od = DataObject.find(testFileObject);
+                EditorCookie ec = (EditorCookie) od.getCookie(EditorCookie.class);
+                StyledDocument doc = ec.openDocument();
+
+                Node node = lpr.getCommandUtilities().findNode(doc, 46);
+
+                assertTrue(node instanceof MathNode);
+                node = lpr.getCommandUtilities().findNode(doc, 47);
+                assertTrue(node instanceof MathNode);
+                node = lpr.getCommandUtilities().findNode(doc, 48);
+                assertTrue(node instanceof MathNode);
+            }
+        }, true);
     }
     
     public void testEnvironmentInEnvironment2() throws Exception {
-        FileObject testFileObject = dataDir.getFileObject("testEnvironmentInEnvironment2.tex");
+        final FileObject testFileObject = dataDir.getFileObject("testEnvironmentInEnvironment2.tex");
         
         assertNotNull(testFileObject);
         
-        LaTeXSourceImpl lsi =  new LaTeXSourceImpl(testFileObject);
-        LaTeXSource.Lock lock = lsi.lock(true);
-        
-        try {
-            DataObject od = DataObject.find(testFileObject);
-            EditorCookie ec = (EditorCookie) od.getCookie(EditorCookie.class);
-            StyledDocument doc = ec.openDocument();
-            
-            lsi.findNode(doc, 106);
+        Source.forFileObject(testFileObject).runUserActionTask(new CancellableTask<CompilationController>() {
+            public void cancel() {}
+            public void run(CompilationController parameter) throws Exception {
+                parameter.toPhase(Phase.RESOLVED);
                 
-            for (int offset = 0; offset < doc.getLength(); offset++) {
-                lsi.findNode(doc, offset);
+                LaTeXParserResult lpr = (LaTeXParserResult) parameter.getParserResult();
+                DataObject od = DataObject.find(testFileObject);
+                EditorCookie ec = (EditorCookie) od.getCookie(EditorCookie.class);
+                StyledDocument doc = ec.openDocument();
+
+                lpr.getCommandUtilities().findNode(doc, 106);
+
+                for (int offset = 0; offset < doc.getLength(); offset++) {
+                    lpr.getCommandUtilities().findNode(doc, offset);
+                }
             }
-        } finally {
-            lsi.unlock(lock);
-        }
+        }, true);
     }
 
     public void testEnvironmentInEnvironment3() throws Exception {
-        FileObject testFileObject = dataDir.getFileObject("testEnvironmentInEnvironment3.tex");
+        final FileObject testFileObject = dataDir.getFileObject("testEnvironmentInEnvironment3.tex");
         
         assertNotNull(testFileObject);
         
-        LaTeXSourceImpl lsi =  new LaTeXSourceImpl(testFileObject);
-        LaTeXSource.Lock lock = lsi.lock(true);
-        
-        try {
-            DataObject od = DataObject.find(testFileObject);
-            EditorCookie ec = (EditorCookie) od.getCookie(EditorCookie.class);
-            StyledDocument doc = ec.openDocument();
+        Source.forFileObject(testFileObject).runUserActionTask(new CancellableTask<CompilationController>() {
+            public void cancel() {}
+            public void run(CompilationController parameter) throws Exception {
+                parameter.toPhase(Phase.RESOLVED);
+                
+                LaTeXParserResult lpr = (LaTeXParserResult) parameter.getParserResult();
             
-            lsi.traverse(new TraverseHandler() {
-                public void argumentEnd(ArgumentNode node) {
-                }
-                public boolean argumentStart(ArgumentNode node) {
-                    return true;
-                }
-                public void blockEnd(BlockNode node) {
-                }
-                public boolean blockStart(BlockNode node) {
-                    assertTrue(node.getFullText().toString(), BlockNodeImpl.NULL_ENVIRONMENT != node.getEnvironment());
-                    return true;
-                }
-                public void commandEnd(CommandNode node) {
-                }
-                public boolean commandStart(CommandNode node) {
-                    assertTrue(node.getFullText().toString(), CommandNodeImpl.NULL_COMMAND != node.getCommand());
-                    return true;
-                }
-            }, LaTeXSource.HEAVY_LOCK);
-            
-        } finally {
-            lsi.unlock(lock);
-        }
+                lpr.getDocument().traverse(new TraverseHandler() {
+                    public void argumentEnd(ArgumentNode node) {
+                    }
+                    public boolean argumentStart(ArgumentNode node) {
+                        return true;
+                    }
+                    public void blockEnd(BlockNode node) {
+                    }
+                    public boolean blockStart(BlockNode node) {
+                        assertTrue(node.getFullText().toString(), BlockNodeImpl.NULL_ENVIRONMENT != node.getEnvironment());
+                        return true;
+                    }
+                    public void commandEnd(CommandNode node) {
+                    }
+                    public boolean commandStart(CommandNode node) {
+                        assertTrue(node.getFullText().toString(), CommandNodeImpl.NULL_COMMAND != node.getCommand());
+                        return true;
+                    }
+                });
+            }
+        }, true);
     }
 
 }

@@ -14,7 +14,7 @@
  *
  * The Original Software is the LaTeX module.
  * The Initial Developer of the Original Software is Jan Lahoda.
- * Portions created by Jan Lahoda_ are Copyright (C) 2002,2003.
+ * Portions created by Jan Lahoda_ are Copyright (C) 2002-2007.
  * All Rights Reserved.
  *
  * Contributor(s): Jan Lahoda.
@@ -38,7 +38,6 @@ import org.netbeans.modules.latex.model.command.TraverseHandler;
 import org.netbeans.modules.latex.model.command.Command;
 import org.netbeans.modules.latex.model.command.Command.Param;
 import org.netbeans.modules.latex.model.command.CommandCollection;
-import org.netbeans.modules.latex.model.command.LaTeXSource;
 import org.netbeans.modules.latex.model.command.SourcePosition;
 import org.netbeans.modules.latex.test.TestCertificate;
 import org.openide.ErrorManager;
@@ -106,31 +105,31 @@ public class CommandNodeImpl extends ArgumentContainingNodeImpl implements Comma
         return true;
     }
 
-    public void setCommand(LaTeXSource.WriteLock lock, Command command) {
-        //Validation of the lock is missing.
-        SourcePosition start = getStartingPosition();
-        
-        try {
-            Document doc = Utilities.getDefault().openDocument(start.getFile());
-
-            doc.remove(start.getOffsetValue(), getCommand().getCommand().length());
-            doc.insertString(start.getOffsetValue(), command.getCommand(), null);
-        } catch (BadLocationException e) {
-            IllegalStateException ex = new IllegalStateException();
-            
-            ErrorManager.getDefault().annotate(ex, e);
-            
-            throw ex;
-        } catch (IOException e) {
-            IllegalStateException ex = new IllegalStateException();
-            
-            ErrorManager.getDefault().annotate(ex, e);
-            
-            throw ex;
-        }
-        
-        this.command = command;
-    }
+//    public void setCommand(LaTeXSource.WriteLock lock, Command command) {
+//        //Validation of the lock is missing.
+//        SourcePosition start = getStartingPosition();
+//        
+//        try {
+//            Document doc = Utilities.getDefault().openDocument(start.getFile());
+//
+//            doc.remove(start.getOffsetValue(), getCommand().getCommand().length());
+//            doc.insertString(start.getOffsetValue(), command.getCommand(), null);
+//        } catch (BadLocationException e) {
+//            IllegalStateException ex = new IllegalStateException();
+//            
+//            ErrorManager.getDefault().annotate(ex, e);
+//            
+//            throw ex;
+//        } catch (IOException e) {
+//            IllegalStateException ex = new IllegalStateException();
+//            
+//            ErrorManager.getDefault().annotate(ex, e);
+//            
+//            throw ex;
+//        }
+//        
+//        this.command = command;
+//    }
 
     protected boolean isInChild(Object file, Position pos) {
         int count = getArgumentCount();

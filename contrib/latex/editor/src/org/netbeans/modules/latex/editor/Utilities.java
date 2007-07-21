@@ -14,26 +14,23 @@
  *
  * The Original Software is the LaTeX module.
  * The Initial Developer of the Original Software is Jan Lahoda.
- * Portions created by Jan Lahoda_ are Copyright (C) 2002,2003.
+ * Portions created by Jan Lahoda_ are Copyright (C) 2002-2007.
  * All Rights Reserved.
  *
  * Contributor(s): Jan Lahoda.
  */
 package org.netbeans.modules.latex.editor;
 
-import java.util.Iterator;
-import java.util.List;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
-import org.netbeans.api.lexer.Language;
 
 import org.netbeans.api.lexer.Token;
+import org.netbeans.api.lexer.TokenHierarchy;
 import org.netbeans.api.lexer.TokenId;
+import org.netbeans.api.lexer.TokenSequence;
 import org.netbeans.editor.BaseDocument;
-import org.netbeans.modules.latex.editor.bibtex.BiBTeXLanguage;
-import org.netbeans.modules.latex.model.command.LaTeXSource;
-import org.netbeans.modules.lexer.editorbridge.TokenRootElement;
-import org.netbeans.spi.lexer.inc.OffsetToken;
+import org.netbeans.modules.latex.editor.TexLanguage;
+import org.netbeans.modules.latex.model.lexer.TexTokenId;
 
 /**
  *
@@ -45,68 +42,68 @@ public final class Utilities {
     private Utilities() {
     }
     
-    public static final Token getToken(Document doc, int offset) throws /*BadLocationException, */ClassCastException {
-        TokenRootElement tre = getTREImpl(doc);
+    public static final Token<TexTokenId> getToken(Document doc, int offset) throws /*BadLocationException, */ClassCastException {
+        TokenSequence<TexTokenId> ts = TokenHierarchy.get(doc).tokenSequence(TexLanguage.description());
         
-        tre.relocate(offset > 0 ? offset - 1 : 0);
+        ts.move(offset > 0 ? offset - 1 : 0); //TODO: -1??/
         
-        return tre.next();
+        return ts.token();
     }
     
-    public static final Token getTokenForIndex(Document doc, int index) {
-        TokenRootElement tre = getTREImpl(doc);
-        
-        return (Token) tre.getElement(index);
-    }
+//    public static final Token getTokenForIndex(Document doc, int index) {
+//        TokenRootElement tre = getTREImpl(doc);
+//        
+//        return (Token) tre.getElement(index);
+//    }
     
 //    public static final Collection getAllLabels(LaTeXSource source) {
 //        return getAllLabelsInfos(source).keySet();
 //    }
     
-    public static int getTokenIndex(Document doc, int offset) {
-        TokenRootElement tre = getTREImpl(doc);
-        
-        return tre.getElementIndex(offset);
-    }
+//    public static int getTokenIndex(Document doc, int offset) {
+//        TokenRootElement tre = getTREImpl(doc);
+//        
+//        return tre.getElementIndex(offset);
+//    }
     
-    public static int getTokenIndex(Document doc, Token token) {
-        return getTokenIndex(doc, ((OffsetToken) token).getOffset());
-    }
+//    public static int getTokenIndex(Document doc, Token token) {
+//        return getTokenIndex(doc, ((OffsetToken) token).getOffset());
+//    }
+//    
+//    public static int getTokenOffset(Document doc, Token token) {
+//        return ((OffsetToken) token).getOffset();
+//    }
     
-    public static int getTokenOffset(Document doc, Token token) {
-        return ((OffsetToken) token).getOffset();
-    }
-    
-    public static String readArgumentContent(Document doc, int index, int limitOffset) {
-        //TODO: this implementation is far from perfect (...\section{sf{}}), correct.
-        TokenRootElement tre = getTREImpl(doc);
-        int              elements = tre.getElementCount();
-        
-        if (index >= elements)
-            return "";
-    
-        Token brack = (Token) tre.getElement(index++);
-        
-        assert brack.getId() == TexLanguage.RECT_BRACKET_LEFT || brack.getId() == TexLanguage.COMP_BRACKET_LEFT;
-        
-        TokenId finish = brack.getId() == TexLanguage.RECT_BRACKET_LEFT ? TexLanguage.RECT_BRACKET_RIGHT : TexLanguage.COMP_BRACKET_RIGHT;
-        
-        Token actual;
-        StringBuffer result = new StringBuffer();
-        
-        while (index < elements && (actual = (Token) tre.getElement(index)).getId() != finish) {
-            if (limitOffset == (-1) || tre.getElementOffset(index) + actual.getText().length() < limitOffset) {
-                result.append(actual.getText());
-                index++;
-            } else {
-                result.append(actual.getText().subSequence(0, limitOffset - tre.getElementOffset(index)));
-                
-                break;
-            }
-        }
-        
-        return result.toString();
-    }
+//    public static String readArgumentContent(Document doc, int startOffset, int limitOffset) {
+//        //TODO: this implementation is far from perfect (...\section{sf{}}), correct.
+//        TokenRootElement tre = getTREImpl(doc);
+//        int              elements = tre.getElementCount();
+//        
+//        if (index >= elements)
+//            return "";
+//    
+//        Token brack = (Token) tre.getElement(index++);
+//        
+//        assert brack.getId() == TexLanguage.RECT_BRACKET_LEFT || brack.getId() == TexLanguage.COMP_BRACKET_LEFT;
+//        
+//        TokenId finish = brack.getId() == TexLanguage.RECT_BRACKET_LEFT ? TexLanguage.RECT_BRACKET_RIGHT : TexLanguage.COMP_BRACKET_RIGHT;
+//        
+//        Token actual;
+//        StringBuffer result = new StringBuffer();
+//        
+//        while (index < elements && (actual = (Token) tre.getElement(index)).getId() != finish) {
+//            if (limitOffset == (-1) || tre.getElementOffset(index) + actual.getText().length() < limitOffset) {
+//                result.append(actual.getText());
+//                index++;
+//            } else {
+//                result.append(actual.getText().subSequence(0, limitOffset - tre.getElementOffset(index)));
+//                
+//                break;
+//            }
+//        }
+//        
+//        return result.toString();
+//    }
     
 //    public static final Map getAllLabelsInfos(LaTeXSource source) {
 //              LaTeXSource.Lock lock   = null;
@@ -155,10 +152,6 @@ public final class Utilities {
 //        }
 //    }
 
-    public static final List getAllBibReferences(LaTeXSource source) {
-        return AnalyseBib.getDefault().getAllBibReferences(source);
-    }
-
     public static final Token getPreviousToken(Document doc, int offset) {
         int   startingOffset = getStartingOffset(doc, offset);
         Token previous       = getToken         (doc, startingOffset - 1);
@@ -167,10 +160,13 @@ public final class Utilities {
     }
     
     public static final int getStartingOffset(Document doc, int offset) /*throws BadLocationException*/ {
-        TokenRootElement tre = getTREImpl(doc);
-        Token orig = getToken(doc, offset);
+        TokenHierarchy<Document> h = TokenHierarchy.get(doc);
+        TokenSequence ts = h.tokenSequence(TexLanguage.description());
         
-        int newOffset = tre.getElementOffset(tre.getElementIndex(offset - 1));
+        ts.move(offset);
+        
+        Token orig = ts.token();
+        int newOffset = ts.offset();
         
         if (getToken(doc, newOffset) == orig)
             return newOffset;
@@ -182,11 +178,11 @@ public final class Utilities {
     }
     
     public static boolean isTextWord(Token token) {
-        return isTextWord(token.getId());
+        return isTextWord(token.id());
     }
     
     public static boolean isTextWord(TokenId token) {
-        return token == TexLanguage.WORD;
+        return token == TexTokenId.WORD;
     }
     
     public static int getOffsetForLineIndex(BaseDocument doc, int line) throws BadLocationException {
@@ -198,15 +194,15 @@ public final class Utilities {
     }
     
     public static int countWords(Document doc) {
-        TokenRootElement tre      = getTREImpl(doc);
-        int              elements = tre.getElementCount();
-        int              count    = 0;
+        TokenHierarchy<Document> h = TokenHierarchy.get(doc);
+        TokenSequence<TexTokenId> ts = h.tokenSequence(TexLanguage.description());
+        int count = 0;
         
-        for (int cntr = 0; cntr < elements; cntr++) {
-            Token current = (Token) tre.getElement(cntr);
-	    String text   = current.getText().toString();
+        while (ts.moveNext()) {
+            Token current = ts.token();
             
-            if (current.getId() == TexLanguage.WORD) {
+            if (isTextWord(current)) {
+                String text   = current.text().toString();
 	        if (!"a".equals(text) && !"an".equals(text) && !"the".equals(text))
                    count++;
             } //else
@@ -216,56 +212,55 @@ public final class Utilities {
         return count;
     }
     
-    public static Iterator getTokenIterator(Document doc) {
-        return new TokenIterator(doc);
-    }
+//    public static Iterator getTokenIterator(Document doc) {
+//        return new TokenIterator(doc);
+//    }
+//    
+//    private static class TokenIterator implements Iterator {
+//        
+//        private int              index = 0;
+//        
+//        public TokenIterator(Document doc) {
+//            tre = getTREImpl(doc);
+//            index = 0;
+//        }
+//        
+//        public boolean hasNext() {
+//            return index < tre.getElementCount();
+//        }
+//        
+//        public Object next() {
+//            return (Token) tre.getElement(index);
+//        }
+//        
+//        public void remove() {
+//            throw new UnsupportedOperationException("TokenIterator does not support remove().");
+//        }
+//        
+//    }
     
-    private static class TokenIterator implements Iterator {
-        
-        private TokenRootElement tre   = null;
-        private int              index = 0;
-        
-        public TokenIterator(Document doc) {
-            tre = getTREImpl(doc);
-            index = 0;
-        }
-        
-        public boolean hasNext() {
-            return index < tre.getElementCount();
-        }
-        
-        public Object next() {
-            return (Token) tre.getElement(index);
-        }
-        
-        public void remove() {
-            throw new UnsupportedOperationException("TokenIterator does not support remove().");
-        }
-        
-    }
-    
-    private static TexTokenRootElement getTREImpl(Document doc, Language language) {
-        Object tre = doc.getProperty(TokenRootElement.class);
-        
-        if (tre instanceof TexTokenRootElement)
-            return (TexTokenRootElement) tre;
-        else
-            return new TexTokenRootElement(doc, language);
-    }
-    
-    public static TexTokenRootElement getTREImpl(Document doc) {
-        Object mimeType = doc.getProperty("mime-type");
-        
-        if (mimeType == null || !(mimeType instanceof String))
-            throw new IllegalStateException("Undeterminable mime type.");
-        
-        if ("text/x-tex".equals(mimeType))
-            return getTREImpl(doc, TexLanguage.get());
-        
-        if ("text/x-bibtex".equals(mimeType))
-            return getTREImpl(doc, BiBTeXLanguage.get());
-        
-        throw new IllegalStateException("Unknown mime type: " + mimeType);
-    }
+//    private static TexTokenRootElement getTREImpl(Document doc, Language language) {
+//        Object tre = doc.getProperty(TokenRootElement.class);
+//        
+//        if (tre instanceof TexTokenRootElement)
+//            return (TexTokenRootElement) tre;
+//        else
+//            return new TexTokenRootElement(doc, language);
+//    }
+//    
+//    public static TexTokenRootElement getTREImpl(Document doc) {
+//        Object mimeType = doc.getProperty("mime-type");
+//        
+//        if (mimeType == null || !(mimeType instanceof String))
+//            throw new IllegalStateException("Undeterminable mime type.");
+//        
+//        if ("text/x-tex".equals(mimeType))
+//            return getTREImpl(doc, TexLanguage.get());
+//        
+//        if ("text/x-bibtex".equals(mimeType))
+//            return getTREImpl(doc, BiBTeXLanguage.get());
+//        
+//        throw new IllegalStateException("Unknown mime type: " + mimeType);
+//    }
     
 }

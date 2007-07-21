@@ -14,7 +14,7 @@
  *
  * The Original Software is the LaTeX module.
  * The Initial Developer of the Original Software is Jan Lahoda.
- * Portions created by Jan Lahoda_ are Copyright (C) 2002,2003.
+ * Portions created by Jan Lahoda_ are Copyright (C) 2002-2007.
  * All Rights Reserved.
  *
  * Contributor(s): Jan Lahoda.
@@ -55,7 +55,7 @@ public class Storage {
     
     public Collection getAllDocumentClasses(boolean includeDefault) {
         Collection result = new ArrayList();
-        FileObject latexCommandsFolder = Repository.getDefault().findResource("latex/commands");
+        FileObject latexCommandsFolder = Repository.getDefault().getDefaultFileSystem().findResource("latex/commands");
         
         FileObject[] children = latexCommandsFolder.getChildren();
         
@@ -88,7 +88,7 @@ public class Storage {
         if (getAllDocumentClasses(true).contains(name))
             throw new IllegalArgumentException();
         
-        FileObject latexCommandsFolder = Repository.getDefault().findResource("latex/commands");
+        FileObject latexCommandsFolder = Repository.getDefault().getDefaultFileSystem().findResource("latex/commands");
         FileObject newFolder = latexCommandsFolder.createFolder(name);
         
         newFolder.setAttribute("type", "docclass");
@@ -137,7 +137,7 @@ public class Storage {
     }
     
     private List readFile(String name, String fileName) {
-        return readFile(Repository.getDefault().findResource("latex/commands/" + name + "/" + fileName));
+        return readFile(Repository.getDefault().getDefaultFileSystem().findResource("latex/commands/" + name + "/" + fileName));
     }
     
     public Collection getOptions(String name) {

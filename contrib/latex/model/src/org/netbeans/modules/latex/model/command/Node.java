@@ -14,7 +14,7 @@
  *
  * The Original Software is the LaTeX module.
  * The Initial Developer of the Original Software is Jan Lahoda.
- * Portions created by Jan Lahoda_ are Copyright (C) 2002,2003.
+ * Portions created by Jan Lahoda_ are Copyright (C) 2002-2007.
  * All Rights Reserved.
  *
  * Contributor(s): Jan Lahoda.
@@ -22,7 +22,8 @@
 package org.netbeans.modules.latex.model.command;
 
 import java.io.IOException;
-import java.util.Iterator;
+import org.netbeans.api.lexer.Token;
+import org.netbeans.modules.latex.model.lexer.TexTokenId;
 
 /**
  *
@@ -81,7 +82,7 @@ public interface Node extends Attributable {
      *
      *  @return Iterator of Tokens of the node.
      */
-    public abstract Iterator/*<Token>*/ getNodeTokens() throws IOException;
+    public abstract Iterable<? extends Token<TexTokenId>> getNodeTokens() throws IOException;
     
     /** Returns an Iterator over all Tokens that are between this.getStartingPosition() and
      *  this.getEndingPosition(), including tokens for children of this.
@@ -89,7 +90,7 @@ public interface Node extends Attributable {
      *  @param n Node we produce tokens for.
      *  @return Iterator of Tokens of the node.
      */
-    public abstract Iterator/*<Token>*/ getDeepNodeTokens() throws IOException;
+    public abstract Iterable<? extends Token<TexTokenId>> getDeepNodeTokens() throws IOException;
     
     /** Check whether this node contains given position. The children of the node are
      *  not considered when computing.

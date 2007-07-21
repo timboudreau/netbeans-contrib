@@ -14,7 +14,7 @@
  *
  * The Original Software is the LaTeX module.
  * The Initial Developer of the Original Software is Jan Lahoda.
- * Portions created by Jan Lahoda_ are Copyright (C) 2002,2003.
+ * Portions created by Jan Lahoda_ are Copyright (C) 2002-2007.
  * All Rights Reserved.
  *
  * Contributor(s): Jan Lahoda.
@@ -22,27 +22,16 @@
 package org.netbeans.modules.latex.ui;
 
 import java.awt.Component;
-import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
-import java.io.IOException;
 import java.net.URL;
-import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JEditorPane;
 import javax.swing.JToggleButton;
 import javax.swing.SwingUtilities;
-import javax.swing.text.BadLocationException;
-import javax.swing.text.Document;
-import org.netbeans.modules.latex.model.Utilities;
-import org.netbeans.modules.latex.model.command.ArgumentNode;
 import org.netbeans.modules.latex.model.command.BlockNode;
-import org.netbeans.modules.latex.model.command.CommandNode;
-import org.netbeans.modules.latex.model.command.DocumentNode;
-import org.netbeans.modules.latex.model.command.LaTeXSource;
 import org.netbeans.modules.latex.model.command.Node;
-import org.openide.ErrorManager;
 import org.openide.util.actions.Presenter;
 
 /** This action represents the buttons on the toolbar that provides Bold, Italics, Emphasine,
@@ -79,9 +68,11 @@ public class ToolbarEnvironmentToggleAction extends ToolbarEnvironmentAction imp
         button = new JToggleButton(this);
         
 //        this.command = command;
-        ToolbarUpdater.getDefault().addToolbarStatusChangeListener(this);
+        ToolbarUpdater.addToolbarStatusChangeListener(this);
         
         description = new EnvironmentDescription("<name>", environment, false);
+        
+        ToolbarUpdater.addToUpdate(description);
     }
     
     public JToggleButton getToggleButton() {

@@ -14,7 +14,7 @@
  *
  * The Original Software is the LaTeX module.
  * The Initial Developer of the Original Software is Jan Lahoda.
- * Portions created by Jan Lahoda_ are Copyright (C) 2002,2003.
+ * Portions created by Jan Lahoda_ are Copyright (C) 2002-2007.
  * All Rights Reserved.
  *
  * Contributor(s): Jan Lahoda.
@@ -27,32 +27,37 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.EnumSet;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
 import javax.swing.text.Position;
+import org.netbeans.api.gsf.Element;
+import org.netbeans.api.gsf.ElementKind;
+import org.netbeans.api.gsf.Modifier;
 
 import org.netbeans.api.lexer.Token;
-import org.netbeans.modules.latex.editor.TexLanguage;
+import org.netbeans.api.lexer.TokenHierarchy;
+import org.netbeans.api.lexer.TokenSequence;
 import org.netbeans.modules.latex.model.Utilities;
 import org.netbeans.modules.latex.model.command.Command;
 import org.netbeans.modules.latex.model.command.CommandCollection;
-import org.netbeans.modules.latex.model.command.CommandNode;
 import org.netbeans.modules.latex.model.command.DocumentNode;
 import org.netbeans.modules.latex.model.command.Environment;
 import org.netbeans.modules.latex.model.command.Node;
 import org.netbeans.modules.latex.model.command.SourcePosition;
-import org.netbeans.modules.latex.model.command.TextNode;
 import org.netbeans.modules.latex.model.command.TraverseHandler;
+import org.netbeans.modules.latex.model.lexer.TexTokenId;
 import org.netbeans.modules.latex.test.TestCertificate;
-import org.netbeans.modules.lexer.editorbridge.TokenRootElement;
 
 /**
  *
  * @author Jan Lahoda
  */
-public abstract class NodeImpl implements Node {
+public abstract class NodeImpl implements Node, Element {
     
     public static final String START    = "start";
     public static final String END      = "end";
@@ -124,10 +129,6 @@ public abstract class NodeImpl implements Node {
         this.parent = node;
     }
     
-    private TokenRootElement getTokenRootElement(Document doc) {
-        return org.netbeans.modules.latex.editor.Utilities.getTREImpl(doc);
-    }
-
     protected boolean isIn(Object file, Position pos, Node node) {
         assert Utilities.getDefault().compareFiles(node.getStartingPosition().getFile(), node.getEndingPosition().getFile());
         
@@ -141,7 +142,7 @@ public abstract class NodeImpl implements Node {
         return false;
     }
 
-    public Iterator/*<Token>*/ getNodeTokens() throws IOException {
+    public Iterable<? extends Token<TexTokenId>> getNodeTokens() throws IOException {
         try {
             SourcePosition start = getStartingPosition();
             SourcePosition end   = getEndingPosition();
@@ -157,24 +158,30 @@ public abstract class NodeImpl implements Node {
             if (doc == null)
                 throw new IllegalStateException();
             
-            TokenRootElement tre    = getTokenRootElement(doc);
-            List             result = new ArrayList();
+            TokenHierarchy h = TokenHierarchy.get(doc);
+            TokenSequence  ts = h.tokenSequence();
+            List<Token<TexTokenId>> result = new LinkedList<Token<TexTokenId>>();
             
-            int startIndex = tre.getElementIndex(start.getOffsetValue());
-            int endIndex   = tre.getElementIndex(end.getOffsetValue());
+            ts.move(start.getOffsetValue());
 
-            for (int cntr = startIndex; cntr </*=*/ endIndex; cntr++) {
-                if (!isInChild(start.getFile(), doc.createPosition(tre.getElementOffset(cntr))))
-                    result.add((Token) tre.getElement(cntr));
+            if (!ts.moveNext())
+                return result;
+            
+            while (ts.offset() < end.getOffsetValue()) {
+                if (!isInChild(start.getFile(), doc.createPosition(ts.offset())))
+                    result.add((Token) ts.token());
+                
+                if (!ts.moveNext())
+                    break;
             }
             
-            return result.iterator();
+            return result;
         } catch (BadLocationException e) {
             throw new IOException(e.getMessage());
         }
     }
     
-    public Iterator/*<Token>*/ getDeepNodeTokens() throws IOException {
+    public Iterable<? extends Token<TexTokenId>> getDeepNodeTokens() throws IOException {
         SourcePosition start = getStartingPosition();
         SourcePosition end   = getEndingPosition();
         
@@ -190,34 +197,37 @@ public abstract class NodeImpl implements Node {
             throw new IllegalStateException();
         
         if (start.getOffset().getOffset() == end.getOffset().getOffset()) //the node is empty
-            return Collections.EMPTY_LIST.iterator();
+            return Collections.emptyList();
         
-        TokenRootElement tre    = getTokenRootElement(doc);
-        List             result = new ArrayList();
+        TokenHierarchy h = TokenHierarchy.get(doc);
+        TokenSequence  ts = h.tokenSequence();
+        List<Token<TexTokenId>> result = new LinkedList<Token<TexTokenId>>();
         
-        int startIndex = tre.getElementIndex(start.getOffset().getOffset());
-        int endIndex   = tre.getElementIndex(end.getOffset().getOffset());
+        ts.move(start.getOffsetValue());
         
-        for (int cntr = startIndex; cntr </*=*/ endIndex; cntr++) {
-            //TODO: this will work only for one file, not sure whether this is problem now.
-            result.add((Token) tre.getElement(cntr));
+        if (!ts.moveNext())
+            return result;
+        
+        //TODO: this will work only for one file, not sure whether this is problem now.
+        while (ts.offset() < end.getOffsetValue()) {
+            result.add((Token) ts.token());
+            
+            if (!ts.moveNext())
+                break;
         }
         
-        return result.iterator();
+        return result;
     }
 
     public CharSequence getText() {
 //        System.err.println("getText() start");
         
         try {
-            Iterator/*<Token>*/ iter = getNodeTokens(); //TODO: finish this.
             StringBuffer  result = new StringBuffer();
             
-            while (iter.hasNext()) {
-                Token token = (Token) iter.next();
-                
-                if (token.getId() == TexLanguage.WORD || token.getId() == TexLanguage.WHITESPACE || token.getId() == TexLanguage.UNKNOWN_CHARACTER) {
-                    CharSequence s = token.getText();
+            for (Token<TexTokenId> token : getNodeTokens()) {
+                if (token.id() == TexTokenId.WORD || token.id() == TexTokenId.WHITESPACE || token.id() == TexTokenId.UNKNOWN_CHARACTER) {
+                    CharSequence s = token.text();
                     
 //                    if (s.length() == 1 && s.charAt(0) == '\n')
 //                        s = " ";
@@ -367,12 +377,10 @@ public abstract class NodeImpl implements Node {
 
     public CharSequence getFullText() {
         try {
-            Iterator/*<Token>*/ iter = getDeepNodeTokens(); //TODO: finish this.
             StringBuffer  result = new StringBuffer();
             
-            while (iter.hasNext()) {
-                Token token = (Token) iter.next();
-                CharSequence s = token.getText();
+            for (Token<TexTokenId> token : getDeepNodeTokens()) {
+                CharSequence s = token.text();
                 
                 result.append(s);
             }
@@ -395,4 +403,21 @@ public abstract class NodeImpl implements Node {
         return false;
     }
     
+
+    //XXX: from element:
+    public String getName() {
+        return "";
+    }
+    
+    public String getIn() {
+        return "";
+    }
+    
+    public ElementKind getKind() {
+        return ElementKind.OTHER;
+    }
+    
+    public Set<Modifier> getModifiers() {
+        return EnumSet.noneOf(Modifier.class);
+    }
 }

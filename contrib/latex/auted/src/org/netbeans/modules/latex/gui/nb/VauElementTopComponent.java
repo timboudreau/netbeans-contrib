@@ -14,7 +14,7 @@
  *
  * The Original Software is the LaTeX module.
  * The Initial Developer of the Original Software is Jan Lahoda.
- * Portions created by Jan Lahoda_ are Copyright (C) 2002,2003.
+ * Portions created by Jan Lahoda_ are Copyright (C) 2002-2007.
  * All Rights Reserved.
  *
  * Contributor(s): Jan Lahoda.
@@ -32,13 +32,20 @@ import java.io.Writer;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.WeakHashMap;
+import javax.swing.JComponent;
 import javax.swing.JScrollPane;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
 import javax.swing.text.StyledDocument;
+import org.netbeans.api.visual.model.ObjectSceneEvent;
+import org.netbeans.api.visual.model.ObjectSceneEventType;
+import org.netbeans.api.visual.model.ObjectSceneListener;
+import org.netbeans.api.visual.model.ObjectState;
 import org.netbeans.modules.latex.gui.Editor;
 import org.netbeans.modules.latex.gui.NodeStorage;
+import org.netbeans.modules.latex.gui.graph.GraphSceneImpl;
 import org.netbeans.modules.latex.model.command.SourcePosition;
 import org.openide.ErrorManager;
 import org.openide.cookies.SaveCookie;
@@ -52,12 +59,14 @@ import org.openide.windows.Mode;
 import org.openide.windows.TopComponent;
 import org.openide.windows.WindowManager;
 
-public class VauElementTopComponent extends TopComponent implements PropertyChangeListener {
+public class VauElementTopComponent extends TopComponent implements PropertyChangeListener, ObjectSceneListener {
     private NodeStorage storage;
     private SourcePosition start;
     private SourcePosition end;
-    private Editor         editor;
-    
+//    private Editor         editor;
+    private JComponent myView;
+    private GraphSceneImpl scene;
+
     private VauElementTopComponent() {
     }
     
@@ -121,18 +130,50 @@ public class VauElementTopComponent extends TopComponent implements PropertyChan
         storage = el.getStorage();
         start   = el.getStart();
         end     = el.getEnd();
-        editor = new Editor(storage);
-        JScrollPane  spane = new JScrollPane(editor);
+        
+        scene = new GraphSceneImpl(el);
+        myView = scene.createView();
+        
+        scene.setChildren();
+        scene.addObjectSceneListener(this, ObjectSceneEventType.OBJECT_SELECTION_CHANGED);
+        
+        JScrollPane shapePane = new JScrollPane(myView);
+        
+//        shapePane.setViewportView(myView);
+//        add(scene.createSatelliteView(), BorderLayout.WEST);
         
         setLayout(new BorderLayout());
-        add(spane, BorderLayout.CENTER);
+        add(shapePane, BorderLayout.CENTER);
+
+//        editor = new Editor(storage);
+//        JScrollPane  spane = new JScrollPane(editor);
+//        
+//        setLayout(new BorderLayout());
+//        add(spane, BorderLayout.CENTER);
+//        
+//        setName(el.getCaption());
+//        
+//        //XXX:
+//        editor.addPropertyChangeListener(this);
         
-        setName(el.getCaption());
         
-        editor.addPropertyChangeListener(this);
         positionToComponent.put(start, this);
         
         setIcon(Utilities.loadImage("org/netbeans/modules/latex/resource/autedit_icon.gif"));
+        
+        selectionChanged();
+    }
+    
+    private void selectionChanged() {
+        Set selected = scene.getSelectedObjects();
+        Node[] nodes = new Node[selected.size()];
+        
+        int cntr = 0;
+        for (Object o : selected) {
+            nodes[cntr++] = findNodeForVauNode(o);
+        }
+        
+        setActivatedNodes(nodes);
     }
     
     private VauElementTopComponent(VauStructuralElement el) {
@@ -325,17 +366,18 @@ public class VauElementTopComponent extends TopComponent implements PropertyChan
     }
     
     public void propertyChange(PropertyChangeEvent evt) {
-        if (Editor.PROP_SELECTION.equals(evt.getPropertyName())) {
-            List     selected = editor.getSelection();
-            Node[]   result   = new Node[selected.size()];
-            
-            for (int cntr = 0; cntr < selected.size(); cntr++) {
-                result[cntr] = findNodeForVauNode(selected.get(cntr));
-                result[cntr].addPropertyChangeListener(this);
-            }
-            
-            setActivatedNodes(result);
-        }
+        //XXX:
+//        if (Editor.PROP_SELECTION.equals(evt.getPropertyName())) {
+//            List     selected = editor.getSelection();
+//            Node[]   result   = new Node[selected.size()];
+//            
+//            for (int cntr = 0; cntr < selected.size(); cntr++) {
+//                result[cntr] = findNodeForVauNode(selected.get(cntr));
+//                result[cntr].addPropertyChangeListener(this);
+//            }
+//            
+//            setActivatedNodes(result);
+//        }
     }
 
     /**
@@ -349,4 +391,36 @@ public class VauElementTopComponent extends TopComponent implements PropertyChan
         return PERSISTENCE_NEVER;
     }
     
+    public void objectAdded(ObjectSceneEvent event, Object addedObject) {
+    }
+
+    public void objectRemoved(ObjectSceneEvent event, Object removedObject) {
+    }
+
+    public void objectStateChanged(ObjectSceneEvent event, Object changedObject,
+                                   ObjectState previousState,
+                                   ObjectState newState) {
+    }
+
+    public void selectionChanged(ObjectSceneEvent event,
+                                 Set<Object> previousSelection,
+                                 Set<Object> newSelection) {
+        selectionChanged();
+    }
+
+    public void highlightingChanged(ObjectSceneEvent event,
+                                    Set<Object> previousHighlighting,
+                                    Set<Object> newHighlighting) {
+    }
+
+    public void hoverChanged(ObjectSceneEvent event,
+                             Object previousHoveredObject,
+                             Object newHoveredObject) {
+    }
+
+    public void focusChanged(ObjectSceneEvent event,
+                             Object previousFocusedObject,
+                             Object newFocusedObject) {
+    }
+
 }

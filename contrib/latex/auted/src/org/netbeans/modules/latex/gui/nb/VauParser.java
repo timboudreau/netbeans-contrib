@@ -14,16 +14,17 @@
  *
  * The Original Software is the LaTeX module.
  * The Initial Developer of the Original Software is Jan Lahoda.
- * Portions created by Jan Lahoda_ are Copyright (C) 2002,2003.
+ * Portions created by Jan Lahoda_ are Copyright (C) 2002-2007.
  * All Rights Reserved.
  *
  * Contributor(s): Jan Lahoda.
  */
 package org.netbeans.modules.latex.gui.nb;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import org.netbeans.modules.latex.model.command.CommandNode;
-
 import org.netbeans.modules.latex.model.command.Node;
 import org.netbeans.modules.latex.model.structural.DelegatedParser;
 import org.netbeans.modules.latex.model.structural.StructuralElement;
@@ -39,7 +40,8 @@ public final class VauParser extends DelegatedParser {
     public VauParser() {
     }
 
-    public StructuralElement getElement(Node node, Collection errors) {
+    public StructuralElement getElement(Node node) {
+        List errors = new ArrayList();//XXX   !!!!!
         if (node instanceof CommandNode) {
             return new VauStructuralElement((CommandNode) node, errors);
         }

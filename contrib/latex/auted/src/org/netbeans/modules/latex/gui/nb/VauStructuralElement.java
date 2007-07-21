@@ -14,7 +14,7 @@
  *
  * The Original Software is the LaTeX module.
  * The Initial Developer of the Original Software is Jan Lahoda.
- * Portions created by Jan Lahoda_ are Copyright (C) 2002,2003.
+ * Portions created by Jan Lahoda_ are Copyright (C) 2002-2007.
  * All Rights Reserved.
  *
  * Contributor(s): Jan Lahoda.
@@ -28,7 +28,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.WeakHashMap;
 import org.netbeans.modules.latex.gui.NodeStorage;
-import org.netbeans.modules.latex.model.ParseError;
 import org.netbeans.modules.latex.model.Utilities;
 import org.netbeans.modules.latex.model.command.ArgumentNode;
 import org.netbeans.modules.latex.model.command.BlockNode;
@@ -75,7 +74,8 @@ public class VauStructuralElement extends StructuralElement {
         
         if (iErrors.size() != 0) {
             valid = false;
-            errors.add(Utilities.getDefault().createError("Error(s) occured during sematic parsing of figure.", node.getStartingPosition()));
+            //XXX: commented out:
+//            errors.add(Utilities.getDefault().createError("Error(s) occured during sematic parsing of figure.", node.getStartingPosition()));
             if (addErrors)
                 errors.addAll(iErrors);
         } else {

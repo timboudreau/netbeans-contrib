@@ -14,7 +14,7 @@
  *
  * The Original Software is the LaTeX module.
  * The Initial Developer of the Original Software is Jan Lahoda.
- * Portions created by Jan Lahoda_ are Copyright (C) 2002,2003.
+ * Portions created by Jan Lahoda_ are Copyright (C) 2002-2007.
  * All Rights Reserved.
  *
  * Contributor(s): Jan Lahoda.
@@ -32,6 +32,7 @@ import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -41,6 +42,9 @@ import java.util.Map;
 import javax.swing.JComponent;
 import org.netbeans.modules.latex.model.Utilities;
 import org.netbeans.modules.latex.model.command.SourcePosition;
+import org.netbeans.spi.editor.hints.ErrorDescription;
+import org.netbeans.spi.editor.hints.ErrorDescriptionFactory;
+import org.netbeans.spi.editor.hints.Severity;
 
 /**
  *
@@ -112,7 +116,7 @@ public class NodeStorage extends Node implements PropertyChangeListener {
             String error = "Node with id=" + node.getID() + " already in the collection. Current node: " + getObjectByID(node.getID()) + ", new node: " + node + ".";
             
             if (errors != null) {
-                errors.add(Utilities.getDefault().createError(error, pos));
+                errors.add(ErrorDescriptionFactory.createErrorDescription(Severity.ERROR, error, null, pos.getLine()));
             } else {
                 throw new IllegalArgumentException(error);
             }
@@ -135,7 +139,7 @@ public class NodeStorage extends Node implements PropertyChangeListener {
             objects.remove(iter.next());
     }
     
-    public Collection getObjects() {
+    public Collection<Node> getObjects() {
         return Collections.unmodifiableCollection(objects.values());
     }
     

@@ -14,7 +14,7 @@
  *
  * The Original Software is the LaTeX module.
  * The Initial Developer of the Original Software is Jan Lahoda.
- * Portions created by Jan Lahoda_ are Copyright (C) 2002,2003.
+ * Portions created by Jan Lahoda_ are Copyright (C) 2002-2007.
  * All Rights Reserved.
  *
  * Contributor(s): Jan Lahoda.
@@ -40,13 +40,13 @@ import org.openide.util.actions.SystemAction;
  *
  * @author Jan Lahoda
  */
-public class StructuralNode extends BeanNode implements PropertyChangeListener {
+public class StructuralNode<T extends StructuralElement> extends BeanNode<T> implements PropertyChangeListener {
     
-    public StructuralNode(StructuralElement el) throws IntrospectionException {
-        this(el, el.getSubElements().size() == 0 ? Children.LEAF : new StructuralNodeChildren(el));
+    public StructuralNode(T el) throws IntrospectionException {
+        this(el, el.getSubElements().size() == 0 ? Children.LEAF : new StructuralNodeChildren<T>(el));
     }
     
-    public StructuralNode(StructuralElement el, Children children) throws IntrospectionException {
+    public StructuralNode(T el, Children children) throws IntrospectionException {
         super(el, children);
         
         getCookieSet().add(new PositionCookie() {
@@ -83,11 +83,11 @@ public class StructuralNode extends BeanNode implements PropertyChangeListener {
     
     public void propertyChange(PropertyChangeEvent evt) {
         if (StructuralElement.SUB_ELEMENTS.equals(evt.getPropertyName())) {
-            StructuralElement el = (StructuralElement) getBean();
+            T el = getBean();
             
             if (getChildren() == Children.LEAF) {
                 if (el.getSubElements().size() != 0) {
-                    setChildren(new StructuralNodeChildren(el));
+                    setChildren(new StructuralNodeChildren<T>(el));
                 }
             } else {
                 if (el.getSubElements().size() == 0) {
@@ -97,11 +97,11 @@ public class StructuralNode extends BeanNode implements PropertyChangeListener {
         }
     }
     
-    public static class StructuralNodeChildren extends Keys implements PropertyChangeListener {
+    public static class StructuralNodeChildren<T extends StructuralElement> extends Keys<StructuralElement> implements PropertyChangeListener {
         
-        private StructuralElement el;
+        private T el;
         
-        public StructuralNodeChildren (StructuralElement el) {
+        public StructuralNodeChildren (T el) {
             this.el = el;
             
             el.addPropertyChangeListener(this); //!!!WARNING: POSSIBLE MEMORY LEAK!!!!!!
@@ -116,10 +116,10 @@ public class StructuralNode extends BeanNode implements PropertyChangeListener {
         }
         
         public void removeNotify() {
-            setKeys(Collections.EMPTY_LIST);
+            setKeys(Collections.<StructuralElement>emptyList());
         }
         
-        protected StructuralElement getElement() {
+        protected T getElement() {
             return el;
         }
         
@@ -128,8 +128,8 @@ public class StructuralNode extends BeanNode implements PropertyChangeListener {
          * @return child nodes for this key or null if there should be no
          *    nodes for this key
          */
-        protected Node[] createNodes(Object key) {
-            return new Node[] {StructuralNodeFactory.createNode((StructuralElement) key)};
+        protected Node[] createNodes(StructuralElement key) {
+            return new Node[] {StructuralNodeFactory.createNode(key)};
         }
         
         public void propertyChange(PropertyChangeEvent evt) {

@@ -14,7 +14,7 @@
  *
  * The Original Software is the LaTeX module.
  * The Initial Developer of the Original Software is Jan Lahoda.
- * Portions created by Jan Lahoda_ are Copyright (C) 2002-2004.
+ * Portions created by Jan Lahoda_ are Copyright (C) 2002-2007.
  * All Rights Reserved.
  *
  * Contributor(s): Jan Lahoda.
@@ -29,17 +29,18 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
+import javax.swing.text.Document;
 import org.netbeans.modules.latex.UnitUtilities;
-import org.netbeans.modules.latex.model.ParseError;
 import org.netbeans.modules.latex.model.command.DocumentNode;
 import org.netbeans.modules.latex.model.command.SourcePosition;
-import org.netbeans.modules.latex.model.command.impl.LaTeXSourceImpl;
 import org.netbeans.modules.latex.model.command.parser.CommandParser;
+import org.netbeans.spi.editor.hints.ErrorDescription;
 import org.openide.filesystems.FileObject;
 
 import org.openide.filesystems.FileUtil;
 import org.openide.filesystems.LocalFileSystem;
 import org.openide.filesystems.Repository;
+import org.openide.text.PositionRef;
 import org.xml.sax.SAXException;
 
 /**
@@ -105,19 +106,19 @@ public class ErrorDetectionAndCorrectionTest extends  NbTestCase {
         
         assertNotNull("The test file " + testFileName + " translated to " + testFile.getPath() + " was not found on the filesystems.", testFileObject);
         
-        Collection errors = new ArrayList();
-        LaTeXSourceImpl lsi =  new LaTeXSourceImpl(testFileObject);
+        Collection<ErrorDescription> errors = new ArrayList<ErrorDescription>();
+        Collection<Document> documents = new ArrayList<Document>();
         
-        DocumentNode node = new CommandParser().parse(lsi, errors);
+        DocumentNode node = new CommandParser().parse(testFileObject, documents, errors);
         
         //Print errors:
         Iterator iter = errors.iterator();
         
         while (iter.hasNext()) {
-            ParseError err = (ParseError) iter.next();
-            SourcePosition pos = err.getPosition();
+            ErrorDescription err = (ErrorDescription) iter.next();
+            PositionRef pos = err.getRange().getBegin();
             
-            getRef().println("(" + pos.getLine() + ":" + pos.getColumn() + "):" + err.getMessage());
+            getRef().println("(" + pos.getLine() + ":" + pos.getColumn() + "):" + err.getDescription());
         }
         
         getLog().println("ErrorDetectionAndCorrection test end.");

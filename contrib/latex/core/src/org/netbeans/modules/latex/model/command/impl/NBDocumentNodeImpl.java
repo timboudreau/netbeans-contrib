@@ -14,7 +14,7 @@
  *
  * The Original Software is the LaTeX module.
  * The Initial Developer of the Original Software is Jan Lahoda.
- * Portions created by Jan Lahoda_ are Copyright (C) 2002-2006.
+ * Portions created by Jan Lahoda_ are Copyright (C) 2002-2007.
  * All Rights Reserved.
  *
  * Contributor(s): Jan Lahoda.
@@ -30,7 +30,6 @@ import java.util.List;
 import org.netbeans.modules.latex.model.command.Command;
 import org.netbeans.modules.latex.model.command.CommandCollection;
 import org.netbeans.modules.latex.model.command.DocumentNode;
-import org.netbeans.modules.latex.model.command.LaTeXSource;
 import org.netbeans.modules.latex.model.command.TraverseHandler;
 import org.netbeans.modules.latex.test.TestCertificate;
 import org.openide.filesystems.FileObject;
@@ -46,16 +45,14 @@ public class NBDocumentNodeImpl extends TextNodeImpl implements DocumentNode {
     private List/*<FileObject>*/ files;
     private boolean      uptoDate;
     
-    private LaTeXSource source;
     private FileSystem  memoryFS;
     
     private String documentClass = "<unknown>";
     
     /** Creates a new instance of DocumentNodeImpl */
-    public NBDocumentNodeImpl(LaTeXSource source) {
+    public NBDocumentNodeImpl() {
         super(null, null);
         
-        this.source   = source;
         this.uptoDate = true;
         this.files    = new ArrayList();
         
@@ -104,10 +101,6 @@ public class NBDocumentNodeImpl extends TextNodeImpl implements DocumentNode {
         }
         
 //        th.argumentEnd(this);
-    }
-    
-    public LaTeXSource getSource() {
-        return source;
     }
     
     public void dump(TestCertificate tc, PrintWriter pw) {

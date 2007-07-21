@@ -155,7 +155,7 @@ public class TexCloneableEditor extends CloneableEditor implements FocusListener
 
             controllers.put(pc, Boolean.TRUE);
             pc.addPropertyChangeListener(this);
-            palette = Lookups.fixed(new Object[] {pc});
+            palette = Lookups.fixed(new Object[] {pc, pane});
             
 //            Lookup f = Lookups.fixed(new Object[] {
 //                ((TexEditorSupport) cloneableEditorSupport()).getDataObject(),

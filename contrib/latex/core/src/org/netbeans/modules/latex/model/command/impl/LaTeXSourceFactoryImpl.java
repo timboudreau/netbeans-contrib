@@ -14,7 +14,7 @@
  *
  * The Original Software is the LaTeX module.
  * The Initial Developer of the Original Software is Jan Lahoda.
- * Portions created by Jan Lahoda_ are Copyright (C) 2002,2003.
+ * Portions created by Jan Lahoda_ are Copyright (C) 2002-2007.
  * All Rights Reserved.
  *
  * Contributor(s): Jan Lahoda.
@@ -26,9 +26,6 @@ import java.util.Collections;
 import java.util.Map;
 import org.openide.filesystems.FileObject;
 
-import org.netbeans.modules.latex.model.command.LaTeXSource;
-import org.netbeans.modules.latex.model.command.LaTeXSourceFactory;
-
 public class LaTeXSourceFactoryImpl extends AbstractLaTeXSourceFactory {
 
     public LaTeXSourceFactoryImpl() {
@@ -38,10 +35,6 @@ public class LaTeXSourceFactoryImpl extends AbstractLaTeXSourceFactory {
         return file instanceof FileObject;
     }
 
-    public LaTeXSource createSource(Object file) {
-        return new LaTeXSourceImpl((FileObject) file);
-    }
-    
     public boolean isKnownFile(Object file) {
         return true;
     }
@@ -52,6 +45,10 @@ public class LaTeXSourceFactoryImpl extends AbstractLaTeXSourceFactory {
 
     public Collection getAllKnownFiles() {
         return Collections.EMPTY_LIST;
+    }
+
+    public FileObject findMainFile(FileObject file) {
+        return file;
     }
     
 }

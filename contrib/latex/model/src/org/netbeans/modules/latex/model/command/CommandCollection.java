@@ -14,31 +14,21 @@
  *
  * The Original Software is the LaTeX module.
  * The Initial Developer of the Original Software is Jan Lahoda.
- * Portions created by Jan Lahoda_ are Copyright (C) 2002,2003.
+ * Portions created by Jan Lahoda_ are Copyright (C) 2002-2007.
  * All Rights Reserved.
  *
  * Contributor(s): Jan Lahoda.
  */
 package org.netbeans.modules.latex.model.command;
 
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.LineNumberReader;
-import java.io.Reader;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import org.netbeans.modules.latex.model.Queue;
 
-import org.openide.ErrorManager;
-import org.openide.filesystems.FileObject;
-import org.openide.filesystems.Repository;
 
 import org.netbeans.modules.latex.model.command.Command;
 
@@ -50,29 +40,29 @@ public class CommandCollection {
     
     /** Creates a new instance of CommandCollection */
     public CommandCollection() {
-        commands = new HashMap();
-        environments = new HashMap();
+        commands = new HashMap<String, Command>();
+        environments = new HashMap<String, Environment>();
         
 //        addCommand(new Command("\\documentclass[#code]{#code}:preamble"));
     }
     
-    private Map commands;
-    private Map environments;
+    private Map<String, Command> commands;
+    private Map<String, Environment> environments;
     
     private void addContentImpl(NamedAttributableWithSubElements pack) {
         commands.putAll(pack.getCommands());
         environments.putAll(pack.getEnvironments());
     }
     
-    private Set/*<CommandPackage>*/ computeClosure(CommandPackage pack) {
-        Set result = new HashSet();
-        Set done   = new HashSet();
-        Queue q = new Queue();
+    private Set<? extends CommandPackage> computeClosure(CommandPackage pack) {
+        Set<CommandPackage> result = new HashSet<CommandPackage>();
+        Set<String> done   = new HashSet<String>();
+        Queue<CommandPackage> q = new Queue<CommandPackage>();
         
         q.put(pack);
         
         while (!q.empty()) {
-            CommandPackage current = (CommandPackage) q.pop();
+            CommandPackage current = q.pop();
             
             done.add(current.getName());
             result.add(current);
@@ -157,11 +147,11 @@ public class CommandCollection {
     }
     
     public Command getCommand(String name) {
-        return (Command) commands.get(name);
+        return commands.get(name);
     }
     
     public Environment getEnvironment(String name) {
-        return (Environment) environments.get(name);
+        return environments.get(name);
     }
     
     public String toString() {

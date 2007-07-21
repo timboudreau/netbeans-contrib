@@ -13,7 +13,7 @@
  * "Portions Copyrighted [year] [name of copyright owner]"
  *
  * The Original Software is NetBeans. The Initial Developer of the Original
- * Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
+ * Software is Sun Microsystems, Inc. Portions Copyright 1997-2007 Sun
  * Microsystems, Inc. All Rights Reserved.
  */
 package org.netbeans.modules.latex.editor.completion.latex;
@@ -177,7 +177,7 @@ public class TexCompletionTest extends NbTestCase {
         test("", "completion/NotFullTest3b.tex", 4, 12, 0);
     }
 
-    private List<CompletionItem> getItems(JEditorPane editor) throws Exception {
+    private List<? extends CompletionItem> getItems(JEditorPane editor) throws Exception {
         CompletionProvider provider = new TexCompletion();
         
         CompletionTask compTask = provider.createTask(CompletionProvider.COMPLETION_QUERY_TYPE, editor);
@@ -203,7 +203,7 @@ public class TexCompletionTest extends NbTestCase {
         
         assertTrue(resultSetImpl.isFinished());
 
-        List<CompletionItem> items = resultSetImpl.getItems();
+        List<? extends CompletionItem> items = resultSetImpl.getItems();
 
         Collections.sort(items, CompletionItemComparator.BY_PRIORITY);
         
@@ -211,7 +211,7 @@ public class TexCompletionTest extends NbTestCase {
     }
 
     private void completionQuery(JEditorPane  editor) throws Exception {
-        List<CompletionItem> items = getItems(editor);
+        List<? extends CompletionItem> items = getItems(editor);
         
         for (CompletionItem item : items) {
             ref(item.toString());
@@ -246,7 +246,7 @@ public class TexCompletionTest extends NbTestCase {
         doc.insertString(lineOffset, assign, null);
         editor.getCaret().setDot(lineOffset + column);
 
-        List<CompletionItem> items = getItems(editor);
+        List<? extends CompletionItem> items = getItems(editor);
 
         assertTrue(items.toString(), itemIndexToCommit < items.size());
 

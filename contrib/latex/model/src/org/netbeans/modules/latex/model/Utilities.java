@@ -14,30 +14,39 @@
  *
  * The Original Software is the LaTeX module.
  * The Initial Developer of the Original Software is Jan Lahoda.
- * Portions created by Jan Lahoda_ are Copyright (C) 2002,2003.
+ * Portions created by Jan Lahoda_ are Copyright (C) 2002-2007.
  * All Rights Reserved.
  *
  * Contributor(s): Jan Lahoda.
  */
 package org.netbeans.modules.latex.model;
-import java.io.File;
-
 
 import java.io.IOException;
-import java.util.Collection;
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.StringTokenizer;
 import javax.swing.JEditorPane;
 import javax.swing.text.Document;
+import org.netbeans.api.gsf.CancellableTask;
+import org.netbeans.api.retouche.source.CompilationController;
+import org.netbeans.api.retouche.source.Source;
+import org.netbeans.modules.latex.model.bibtex.BiBTeXModel;
+import org.netbeans.modules.latex.model.bibtex.Entry;
+import org.netbeans.modules.latex.model.bibtex.PublicationEntry;
 import org.netbeans.modules.latex.model.command.ArgumentNode;
 import org.netbeans.modules.latex.model.command.BlockNode;
 import org.netbeans.modules.latex.model.command.CommandNode;
+import org.netbeans.modules.latex.model.command.DefaultTraverseHandler;
+import org.netbeans.modules.latex.model.command.DocumentNode;
 import org.netbeans.modules.latex.model.command.Environment;
-import org.netbeans.modules.latex.model.command.LaTeXSource;
-import org.netbeans.modules.latex.model.command.NamedAttributableWithSubElements;
 import org.netbeans.modules.latex.model.command.Node;
 import org.netbeans.modules.latex.model.command.SourcePosition;
 import org.netbeans.modules.latex.model.command.TraverseHandler;
+import org.openide.ErrorManager;
+import org.openide.filesystems.FileObject;
+import org.openide.util.Exceptions;
 import org.openide.util.Lookup;
 
 /**General Utilities (usefull mainly when used together with command and
@@ -66,7 +75,7 @@ public abstract class Utilities {
         if (instance != null)
             return instance;
         
-        return instance = (Utilities) Lookup.getDefault().lookup(Utilities.class);
+        return instance = Lookup.getDefault().lookup(Utilities.class);
     }
     private static Utilities instance = null;
     
@@ -108,44 +117,17 @@ public abstract class Utilities {
     
     public abstract List/*<String>*/ findRelativeFilesBegining(Object file, String prefix) throws IOException;
     
-    /**Remove errors in the editor. All annotations and other visual clues
-     * created by {@link #showErrors} for given {@link ParseError} should be removed.
-     *
-     * @param errors errors to show.
-     */
-    public abstract void removeErrors(Collection/*<ParseError>*/ errors);
-    
-    /**Show errors in the editor. Some kind of annotations are shown in the
-     * editor for the errors. The must be removed using {@link #removeErrors}.
-     *
-     * @param errors errors to show.
-     */
-    public abstract void showErrors(Collection/*<ParseError>*/ errors);
-    
-    public abstract ParseError createError(String message, SourcePosition pos);
-    
     /**Find all \label commands in the source. More preciselly, all arguments with
      * attribute <i>#label</i>.
      *
      * @param source source to search for labels.
      * @return list of all found {@link LabelInfo LabelInfos}
      */
-    public abstract List/*<LabelInfo>*/ getLabels(LaTeXSource source);
+    public abstract List<? extends LabelInfo> getLabels(LaTeXParserResult root);
     
     public abstract String getHumanReadableDescription(SourcePosition position);
     
     public abstract JEditorPane getLastActiveEditorPane();
-    
-    /**Returns LaTeXSource corresponding to a given Document.
-     *
-     * @param doc Document to find the LaTeXSource for.
-     * @return LaTeXSource corresponding to the given Document.
-     */
-    public LaTeXSource getSource(Document doc) {
-        Object file = getFile(doc);
-        
-        return LaTeXSource.get(file);
-    }
     
     public ArgumentNode getArgumentWithAttribute(CommandNode node, String attribute) {
         for (int cntr = 0; cntr < node.getArgumentCount(); cntr++) {
@@ -233,4 +215,63 @@ public abstract class Utilities {
         }
         
     }
+
+    private List<? extends PublicationEntry> getReferences(Object file, String  bibFileName) throws IOException {
+        Object      bibFile = getRelativeFileName(file, bibFileName);
+        
+        if (bibFile == null) {
+            bibFile = org.netbeans.modules.latex.model.Utilities.getDefault().getRelativeFileName(file, bibFileName + ".bib");
+        }
+        
+        if (bibFile == null)
+            throw new IllegalArgumentException("BiBTeX file " + bibFileName + " for main source file " + file + " not found.");
+        
+        BiBTeXModel model   = BiBTeXModel.getModel(bibFile);
+        List<PublicationEntry> result  = new ArrayList<PublicationEntry>();
+        
+        for (Iterator i = model.getEntries().iterator(); i.hasNext(); ) {
+            Entry e = (Entry) i.next();
+            
+            if (e instanceof PublicationEntry) {
+                PublicationEntry pEntry = (PublicationEntry) e;
+                
+                result.add(pEntry);
+            }
+        }
+        
+        return result;
+    }
+    
+    public final List<? extends PublicationEntry> getAllBibReferences(final LaTeXParserResult lpr) {
+        final List<PublicationEntry> result = new LinkedList<PublicationEntry>();
+        DocumentNode node = lpr.getDocument();
+
+        node.traverse(new DefaultTraverseHandler() {
+            public boolean commandStart(CommandNode node) {
+                //XXX: use attribute instead of command name:
+                if ("\\bibliography".equals(node.getCommand().getCommand())) {
+                    String          bibFileNames = node.getArgument(0).getText().toString();
+                    StringTokenizer divider      = new StringTokenizer(bibFileNames, ",");
+
+                    while (divider.hasMoreTokens()) {
+                        String bibFileName  = divider.nextToken();
+                        Object file         = lpr.getMainFile();
+
+                        try {
+                            result.addAll(getDefault().getReferences(file, bibFileName));
+                        } catch (IOException e) {
+                            ErrorManager.getDefault().notify(ErrorManager.INFORMATIONAL, e);
+                        } catch (IllegalArgumentException e) {
+                            ErrorManager.getDefault().notify(ErrorManager.INFORMATIONAL, e);
+                        }
+                    }
+                }
+
+                return false;
+            }
+        });
+                    
+        return result;
+    }
+    
 }

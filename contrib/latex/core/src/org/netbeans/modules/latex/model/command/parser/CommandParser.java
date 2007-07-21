@@ -14,7 +14,7 @@
  *
  * The Original Software is the LaTeX module.
  * The Initial Developer of the Original Software is Jan Lahoda.
- * Portions created by Jan Lahoda_ are Copyright (C) 2002-2006.
+ * Portions created by Jan Lahoda_ are Copyright (C) 2002-2007.
  * All Rights Reserved.
  *
  * Contributor(s): Jan Lahoda.
@@ -29,11 +29,9 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
+import javax.swing.text.Document;
 import org.netbeans.api.lexer.Token;
-import org.netbeans.modules.latex.editor.TexLanguage;
-import org.netbeans.modules.latex.model.ParseError;
 import org.netbeans.modules.latex.model.Utilities;
-import org.netbeans.modules.latex.model.command.ArgumentContainingNode;
 
 import org.netbeans.modules.latex.model.command.ArgumentNode;
 import org.netbeans.modules.latex.model.command.BlockNode;
@@ -52,12 +50,15 @@ import org.netbeans.modules.latex.model.command.impl.BlockNodeImpl;
 import org.netbeans.modules.latex.model.command.impl.CommandNodeImpl;
 import org.netbeans.modules.latex.model.command.impl.GroupNodeImpl;
 import org.netbeans.modules.latex.model.command.impl.InputNodeImpl;
-import org.netbeans.modules.latex.model.command.impl.LaTeXSourceImpl;
 import org.netbeans.modules.latex.model.command.impl.MathNodeImpl;
 import org.netbeans.modules.latex.model.command.impl.NBDocumentNodeImpl;
 import org.netbeans.modules.latex.model.command.impl.NodeImpl;
 import org.netbeans.modules.latex.model.command.impl.ParagraphNodeImpl;
 import org.netbeans.modules.latex.model.command.impl.TextNodeImpl;
+import org.netbeans.modules.latex.model.lexer.TexTokenId;
+import org.netbeans.spi.editor.hints.ErrorDescription;
+import org.netbeans.spi.editor.hints.ErrorDescriptionFactory;
+import org.netbeans.spi.editor.hints.Severity;
 import org.openide.ErrorManager;
 import org.openide.filesystems.FileLock;
 import org.openide.filesystems.FileObject;
@@ -79,7 +80,7 @@ public final class CommandParser {
     public CommandParser() {
     }
     
-    private Collection/*<ParseError>*/  errors;
+    private Collection<ErrorDescription>  errors;
     private Collection/*<String>*/ labels;
     
     private Map<Environment, FileObject> env2BeginText = new HashMap<Environment, FileObject>();
@@ -111,17 +112,17 @@ public final class CommandParser {
 //        return result;
 //    }
 
-    public synchronized DocumentNode parseImpl(LaTeXSourceImpl source, Collection documents, Collection/*<ParseError>*/ errors) throws IOException {
+    /*public*/private synchronized DocumentNode parseImpl(FileObject mainFile, Collection documents, Collection<ErrorDescription> errors) throws IOException {
         this.errors    = errors;
         this.documents = documents;
 //        this.usedFiles = new ArrayList();
-        this.mainFile  = (FileObject) source.getMainFile();
+        this.mainFile  = mainFile;
         this.labels    = new HashSet/*<String>*/();
         this.currentCommandDefiningNode = null;
         
         ParserInput input = openFile(mainFile);
         
-        NBDocumentNodeImpl result = parseDocument(input, source);
+        NBDocumentNodeImpl result = parseDocument(input);
         
         result.addUsedFile(mainFile);
         
@@ -137,19 +138,19 @@ public final class CommandParser {
         return result;
     }
 
-    public DocumentNode parse(LaTeXSourceImpl source) throws IOException {
-        return parse(source, new ArrayList());
+    /*public*/private DocumentNode parse(FileObject mainFile) throws IOException {
+        return parse(mainFile, new ArrayList());
     }
     
-    public DocumentNode parse(LaTeXSourceImpl source, Collection errors) throws IOException {
-        return parse(source, new HashSet(), errors);
+    /*public*/private DocumentNode parse(FileObject mainFile, Collection<ErrorDescription> errors) throws IOException {
+        return parse(mainFile, new HashSet(), errors);
     }
     
-    public synchronized DocumentNode parse(LaTeXSourceImpl source, Collection documents, Collection errors) throws IOException {
+    public synchronized DocumentNode parse(FileObject mainFile, Collection documents, Collection<ErrorDescription> errors) throws IOException {
 //        Collection coll = new HashSet();
 //        
 //        try {
-            DocumentNode result = parseImpl(source, documents, errors);
+            DocumentNode result = parseImpl(mainFile, documents, errors);
             
             return result;
 //        } finally {
@@ -252,7 +253,7 @@ public final class CommandParser {
         while (input.hasNext()) {
             Token read = input.getToken();
             
-            if (read.getId() == TexLanguage.COMMAND) {
+            if (read.id() == TexTokenId.COMMAND) {
                 SourcePosition previous = input.getPosition();
                 NodeImpl cnode = parseCommand(mathNode != null ? mathNode : lastParagraph, input);
                 
@@ -270,12 +271,12 @@ public final class CommandParser {
                 cnode.setParent(mathNode != null ? mathNode : lastParagraph);
                 (mathNode != null ? mathNode : lastParagraph).addChild(cnode);
             } else {
-                if (read.getId() == TexLanguage.COMP_BRACKET_LEFT) {
+                if (read.id() == TexTokenId.COMP_BRACKET_LEFT) {
                     GroupNodeImpl n = new GroupNodeImpl(mathNode != null ? mathNode : lastParagraph, currentCommandDefiningNode);
                     
                     (mathNode != null ? mathNode : lastParagraph).addChild(parseGroup(input, n, false, false, false, true, false));
                 } else {
-                    if (read.getId() == TexLanguage.MATH) {
+                    if (read.id() == TexTokenId.MATH) {
                         if (mathNode == null) {
                             mathNode = new MathNodeImpl(lastParagraph, currentCommandDefiningNode);
                             lastParagraph.addChild(mathNode);
@@ -287,7 +288,7 @@ public final class CommandParser {
                             mathNode = null;
                         }
                     } else {
-                        if (read.getId() == TexLanguage.PARAGRAPH_END && useParagraphs) {
+                        if (read.id() == TexTokenId.PARAGRAPH_END && useParagraphs) {
                             if (mathNode != null) {
                                 mathNode.setEndingPosition(input.getPosition());
                                 mathNode = null;
@@ -320,8 +321,8 @@ public final class CommandParser {
         return node;
     }
     
-    private NBDocumentNodeImpl parseDocument(ParserInput input, LaTeXSourceImpl source) throws IOException {
-        NBDocumentNodeImpl node = new NBDocumentNodeImpl(source);
+    private NBDocumentNodeImpl parseDocument(ParserInput input) throws IOException {
+        NBDocumentNodeImpl node = new NBDocumentNodeImpl();
         
         currentCommandDefiningNode = node;
         
@@ -381,6 +382,19 @@ public final class CommandParser {
         }
     }
     
+    private ErrorDescription createError(final String message, final SourcePosition pos) {
+        final Document doc = pos.getDocument();
+        final ErrorDescription[] result = new ErrorDescription[1];
+        
+        doc.render(new Runnable() {
+            public void run() {
+                result[0] = ErrorDescriptionFactory.createErrorDescription(Severity.ERROR, message, doc, pos.getLine());
+            }
+        });
+        
+        return result[0];
+    }
+    
     private void handleArguments(ArgumentContainingNodeImpl cni, ParserInput input) throws IOException {
         NamedAttributableWithArguments actual = cni.getArgumentsSpecification();
         int argumentCount = actual.getArgumentCount();
@@ -400,7 +414,7 @@ public final class CommandParser {
                     if ("verbatim-env".equals(arg.getAttribute("type"))) {
                         handleAddArgument(cni, currentArgument, parseVerbatimEnvArgument(input,  ani));
                     } else {
-                        errors.add(Utilities.getDefault().createError("Unknown special argument (internal error).", input.getPosition()));
+                        errors.add(createError("Unknown special argument (internal error).", input.getPosition()));
                     }
                 }
                 
@@ -413,11 +427,11 @@ public final class CommandParser {
             Token read = getTokenWithoutWhiteSpace(input);
             
             if (read == null) {
-                errors.add(Utilities.getDefault().createError("Unexpected end of file.", input.getPosition()));
+                errors.add(createError("Unexpected end of file.", input.getPosition()));
                 break;
             }
             
-            if (read.getId() != TexLanguage.RECT_BRACKET_LEFT) {
+            if (read.id() != TexTokenId.RECT_BRACKET_LEFT) {
                 //TODO: this is not finished (it won't find the problem of mandatory agrument starting by '[').
                 while (currentArgument < argumentCount && actual.getArgument(currentArgument).getType() == Command.Param.NONMANDATORY) {
                     ArgumentNodeImpl an = new ArgumentNodeImpl(cni, false, currentCommandDefiningNode);
@@ -439,13 +453,13 @@ public final class CommandParser {
             boolean freeText = actual.getArgument(currentArgument).getType() == Command.Param.FREE;
             
             if (!ParserUtilities.isOpeningBracket(read) && (actual.getArgument(currentArgument).getType() != Command.Param.FREE)) {
-                errors.add(Utilities.getDefault().createError("A non-free argument looking like a free argument", input.getPosition()));
+                errors.add(createError("A non-free argument looking like a free argument", input.getPosition()));
                 break;
 //                throw new ParseException(input);
             }
             
 //            System.err.println("read = " + read );
-//            if (read.getId() != TexLanguage.COMP_BRACKET_LEFT && read.getId() != TexLanguage.RECT_BRACKET_LEFT) {
+//            if (read.id() != TexTokenId.COMP_BRACKET_LEFT && read.id() != TexTokenId.RECT_BRACKET_LEFT) {
 //                throw new ParseException(input);
 //            }
             
@@ -470,9 +484,9 @@ public final class CommandParser {
     private NodeImpl parseCommand(Node parent, ParserInput input) throws IOException {
         Token command = input.getToken();
         
-        assert command.getId() == TexLanguage.COMMAND;
+        assert command.id() == TexTokenId.COMMAND;
         
-        Command actual = findCommand(parent, input, command.getText());
+        Command actual = findCommand(parent, input, command.text());
         
         if (actual == null) {
             actual = CommandNodeImpl.NULL_COMMAND;
@@ -520,10 +534,10 @@ public final class CommandParser {
         
         if ("\\newcommand".equals(cni.getCommand().getCommand()) || "\\renewcommand".equals(cni.getCommand().getCommand())) {//TODO: this is quite obsolette way :-)
             if (cni.getArgumentCount() == 4) {//TODO: this is quite obsolette way :-)
-                Iterator nameTokens = cni.getArgument(0).getDeepNodeTokens(); nameTokens.next();/*{*/
-                String name = ((Token) nameTokens.next()).getText().toString(); //!!!Check that it has exactly one argument of type command!
-                Iterator argTokens = cni.getArgument(1).getDeepNodeTokens(); if (argTokens.hasNext()) argTokens.next();
-                String argCountString = argTokens.hasNext() ? ((Token) argTokens.next()).getText().toString() : ""; //!!!Check that it has exact one argument of type number!
+                Iterator nameTokens = cni.getArgument(0).getDeepNodeTokens().iterator(); nameTokens.next();/*{*/
+                String name = ((Token) nameTokens.next()).text().toString(); //!!!Check that it has exactly one argument of type command!
+                Iterator argTokens = cni.getArgument(1).getDeepNodeTokens().iterator(); if (argTokens.hasNext()) argTokens.next();
+                String argCountString = argTokens.hasNext() ? ((Token) argTokens.next()).text().toString() : ""; //!!!Check that it has exact one argument of type number!
 //                System.err.println(cni.getCommand().getCommand() + "{" + name + "}[" + argCountString + "]{" + cni.getArgument(2).getText() + "}");
                 boolean isFirstNonMandatory = cni.getArgument(2).isPresent();
                 int argCount = 0;
@@ -541,10 +555,10 @@ public final class CommandParser {
 //                    System.err.println("coll=" + coll);
 //                    System.err.println("cni.getCommandCollection()=" + cni.getCommandCollection());
                 } catch (NumberFormatException e) {
-                    errors.add(Utilities.getDefault().createError("The number of arguments should be a positive integer or zero.", cni.getArgument(1).getStartingPosition()));
+                    errors.add(createError("The number of arguments should be a positive integer or zero.", cni.getArgument(1).getStartingPosition()));
                 }
             } else {
-                errors.add(Utilities.getDefault().createError("Incorrect number of arguments for \\newcommand. Expected 3, found " + cni.getArgumentCount() + ".", cni.getStartingPosition()));
+                errors.add(createError("Incorrect number of arguments for \\newcommand. Expected 3, found " + cni.getArgumentCount() + ".", cni.getStartingPosition()));
             }
         }
         
@@ -574,7 +588,7 @@ public final class CommandParser {
                         try {
                             argNumber = Integer.parseInt(argNumberValue);
                         } catch (NumberFormatException e) {
-                            errors.add(Utilities.getDefault().createError("The number of arguments is not a valid number:" + argNumberValue + "." , an.getStartingPosition()));
+                            errors.add(createError("The number of arguments is not a valid number:" + argNumberValue + "." , an.getStartingPosition()));
                         }
                     }
 
@@ -622,12 +636,12 @@ public final class CommandParser {
         
         if (cni.getCommand().isLabelLike()) {//TODO: this is quite obsolette way :-)
             if (cni.getArgumentCount() != 1)//TODO: this is quite obsolette way :-)
-                errors.add(Utilities.getDefault().createError("Incorrect number of arguments for \\label (like). Expected 1, found " + cni.getArgumentCount() + ".", cni.getStartingPosition()));
+                errors.add(createError("Incorrect number of arguments for \\label (like). Expected 1, found " + cni.getArgumentCount() + ".", cni.getStartingPosition()));
             else {
                 String label = cni.getArgument(0).getText().toString();
                 
                 if (labels.contains(label)) {
-                    errors.add(Utilities.getDefault().createError("Multiply defined label: " + label + ".", cni.getEndingPosition()));
+                    errors.add(createError("Multiply defined label: " + label + ".", cni.getEndingPosition()));
                 } else {
                     labels.add(label);
                 }
@@ -635,12 +649,12 @@ public final class CommandParser {
         }
         
 //        if (cni.getCommand().isEndLike()) {
-//            errors.add(Utilities.getDefault().createError("Too much \\ends: \\end{" + cni.getArgument(0).getText() + "}", cni.getStartingPosition()));
+//            errors.add(createError("Too much \\ends: \\end{" + cni.getArgument(0).getText() + "}", cni.getStartingPosition()));
 //        }
         
         if (cni.getCommand().isInputLike()) {//TODO: this is quite obsolette way :-)
             if (cni.getArgumentCount() != 1) {//TODO: this is quite obsolette way :-)
-                errors.add(Utilities.getDefault().createError("For \\input or \\include is expected one parameter, found " + cni.getArgumentCount() + ".", cni.getStartingPosition()));
+                errors.add(createError("For \\input or \\include is expected one parameter, found " + cni.getArgumentCount() + ".", cni.getStartingPosition()));
             } else {
                 String fileName = cni.getArgument(0).getText().toString();
                 
@@ -652,10 +666,10 @@ public final class CommandParser {
                         
                         closeFile(newInput);
                     } else {
-                        errors.add(Utilities.getDefault().createError("Included file \"" + fileName + "\" not found.", cni.getStartingPosition()));
+                        errors.add(createError("Included file \"" + fileName + "\" not found.", cni.getStartingPosition()));
                     }
                 } catch (IOException e) {
-                    errors.add(Utilities.getDefault().createError("Cannot include file \"" + fileName + "\" reason:" + e.getMessage() + ".", cni.getStartingPosition()));
+                    errors.add(createError("Cannot include file \"" + fileName + "\" reason:" + e.getMessage() + ".", cni.getStartingPosition()));
                 }
             }
         }
@@ -698,12 +712,12 @@ public final class CommandParser {
         //TODO: this is incorrect. The \verb is in form: \verbDtestD, where D is a one character
         //delimiter. This code requires D to be one token (of length==1) which is not required by LaTeX.
         Token delimiter = input.getToken();
-        String delimiterString = delimiter.getText().toString();
+        String delimiterString = delimiter.text().toString();
         
         anode.setStartingPosition(input.getPosition());
         input.next();
         
-        while (!delimiterString.equals(input.getToken().getText().toString()) && input.hasNext()) {
+        while (!delimiterString.equals(input.getToken().text().toString()) && input.hasNext()) {
             input.next();
         }
         
@@ -722,7 +736,7 @@ public final class CommandParser {
         anode.setStartingPosition(input.getPosition());
         
         while (input.hasNext()) {
-            currentContent.append(input.next().getText());
+            currentContent.append(input.next().text());
             if (currentContent.indexOf(delimiterString) != (-1))
                 break;
         }
@@ -735,25 +749,25 @@ public final class CommandParser {
     }
     
     private boolean isOpeningBracket(Token read, boolean argument) {
-        return (argument && ParserUtilities.isOpeningBracket(read)) || (!argument && read.getId() == TexLanguage.COMP_BRACKET_LEFT);
+        return (argument && ParserUtilities.isOpeningBracket(read)) || (!argument && read.id() == TexTokenId.COMP_BRACKET_LEFT);
     }
     
     private boolean isClosingBracket(Token read, boolean argument) {
-        return (argument && ParserUtilities.isClosingBracket(read)) || (!argument && read.getId() == TexLanguage.COMP_BRACKET_RIGHT);
+        return (argument && ParserUtilities.isClosingBracket(read)) || (!argument && read.id() == TexTokenId.COMP_BRACKET_RIGHT);
     }
     
     private boolean isPAREnd(Token read, ParserInput input, Node parent) {
-        if (read.getId() == TexLanguage.COMMAND) {
-            Command cmd = findCommand(parent, input, read.getText());
+        if (read.id() == TexTokenId.COMMAND) {
+            Command cmd = findCommand(parent, input, read.text());
             return cmd != null ? cmd.isPARLike() : false;
         } else
-            return false;//read.getId() == TexLanguage.PARAGRAPH_END;
+            return false;//read.id() == TexTokenId.PARAGRAPH_END;
     }
     
     private boolean isFreeTextEnd(Token read, ParserInput input, Node parent) {
-        return    read.getId() == TexLanguage.COMP_BRACKET_RIGHT
-               /*|| read.getId() == TexLanguage.COMP_BRACKET_LEFT*/
-               /*|| read.getId() == TexLanguage.PARAGRAPH_END*/
+        return    read.id() == TexTokenId.COMP_BRACKET_RIGHT
+               /*|| read.id() == TexTokenId.COMP_BRACKET_LEFT*/
+               /*|| read.id() == TexTokenId.PARAGRAPH_END*/
                || isPAREnd(read, input, parent);
     }
     
@@ -775,7 +789,7 @@ public final class CommandParser {
         
         while (bracketStack.length() != 0) {
             if (!input.hasNext()) {
-                errors.add(Utilities.getDefault().createError("Unexpected end of the file.", input.getPosition()));
+                errors.add(createError("Unexpected end of the file.", input.getPosition()));
                 
                 break;
             }
@@ -830,7 +844,7 @@ public final class CommandParser {
 	    
             if (!input.hasNext()) {
                 
-                errors.add(Utilities.getDefault().createError("Unexpected end of the file.", input.getPosition()));
+                errors.add(createError("Unexpected end of the file.", input.getPosition()));
                 
                 break;
             }
@@ -852,7 +866,7 @@ public final class CommandParser {
                 break;
             }
             
-            if (read.getId() == TexLanguage.COMMAND) {
+            if (read.id() == TexTokenId.COMMAND) {
                 SourcePosition previous = input.getPosition();
                 NodeImpl cnode = parseCommand(mathNode == null ? lastParagraph : mathNode, input);
                 
@@ -877,7 +891,7 @@ public final class CommandParser {
                 afterCommand = true;
             }
             
-            if (read.getId() == TexLanguage.COMP_BRACKET_LEFT) {
+            if (read.id() == TexTokenId.COMP_BRACKET_LEFT) {
                 GroupNodeImpl n = new GroupNodeImpl(mathNode == null ? lastParagraph : mathNode, currentCommandDefiningNode);
 
                 (mathNode == null ? lastParagraph : mathNode).addChild(parseGroup(input, n, false, false, parErrorRecovery, /*?????*/useParagraphs, false));
@@ -885,7 +899,7 @@ public final class CommandParser {
                 afterCommand = true;
             }
             
-            if (read.getId() == TexLanguage.PARAGRAPH_END && useParagraphs) {
+            if (read.id() == TexTokenId.PARAGRAPH_END && useParagraphs) {
                 if (mathNode != null) {
                     mathNode.setEndingPosition(input.getPosition());
                     mathNode = null;
@@ -896,7 +910,7 @@ public final class CommandParser {
                 node.addChild(lastParagraph);
             }
             
-            if (read.getId() == TexLanguage.MATH) {
+            if (read.id() == TexTokenId.MATH) {
                 if (mathNode == null) {
                     mathNode = new MathNodeImpl(lastParagraph, currentCommandDefiningNode);
                     lastParagraph.addChild(mathNode);
@@ -918,7 +932,7 @@ public final class CommandParser {
 	    System.err.println("parseGroup: after main loop: input.getToken()=" + input.getToken() + ";" + input.getPosition());
 	}
 	
-        shouldReadAtEnd = shouldReadAtEnd && !errorRecovery && !(freeText && isPAREnd(input.getToken(), input, node.getParent())) && !(freeText && input.getToken().getId() == TexLanguage.COMP_BRACKET_RIGHT);
+        shouldReadAtEnd = shouldReadAtEnd && !errorRecovery && !(freeText && isPAREnd(input.getToken(), input, node.getParent())) && !(freeText && input.getToken().id() == TexTokenId.COMP_BRACKET_RIGHT);
         
         if (useParagraphs) {
             lastParagraph.setEndingPosition(input.getPosition());
@@ -939,7 +953,7 @@ public final class CommandParser {
         node.setEndingPosition(input.getPosition());
         
         if (errorRecovery) {
-            ParseError err = Utilities.getDefault().createError("Missing closing bracket added.", node.getEndingPosition());
+            ErrorDescription err = createError("Missing closing bracket added.", node.getEndingPosition());
             
             errors.add(err);
             
@@ -968,11 +982,11 @@ public final class CommandParser {
                     
                     closeFile(newInput);
                 } else {
-                    errors.add(Utilities.getDefault().createError("Cannot correctly start environment \"" + env.getName() + "\" (internal error).", pos));
+                    errors.add(createError("Cannot correctly start environment \"" + env.getName() + "\" (internal error).", pos));
                 }
             } catch (IOException e) {
                 ErrorManager.getDefault().notify(ErrorManager.INFORMATIONAL, e);
-                errors.add(Utilities.getDefault().createError("Cannot correctly start environment \"" + env.getName() + "\" (internal error).", pos));
+                errors.add(createError("Cannot correctly start environment \"" + env.getName() + "\" (internal error).", pos));
             }
         }
     }
@@ -1027,7 +1041,7 @@ public final class CommandParser {
         while (input.hasNext()) {
             Token read = input.getToken();
             
-            if (read.getId() == TexLanguage.COMMAND) {
+            if (read.id() == TexTokenId.COMMAND) {
                 endPosition = input.getPosition();
                 
                 NodeImpl bcnode = parseCommand(mathNode != null ? mathNode : lastParagraph, input);
@@ -1055,7 +1069,7 @@ public final class CommandParser {
                          if (!beginText.equals(endText)) {
                              System.err.println("beginText= " + beginText);
                              System.err.println("endText = " + endText);
-                             errors.add(Utilities.getDefault().createError("\\begin-\\end not matching. \\begin command: " + beginText + ", \\end command: " + endText + ".", cnode.getStartingPosition()));
+                             errors.add(createError("\\begin-\\end not matching. \\begin command: " + beginText + ", \\end command: " + endText + ".", cnode.getStartingPosition()));
                              //????
                              break;
                          }
@@ -1069,18 +1083,18 @@ public final class CommandParser {
                 bcnode.setParent(mathNode != null ? mathNode : lastParagraph);
                 (mathNode != null ? mathNode : lastParagraph).addChild(bcnode);
             } else {
-                if (read.getId() == TexLanguage.COMP_BRACKET_LEFT) {
+                if (read.id() == TexTokenId.COMP_BRACKET_LEFT) {
                     GroupNodeImpl n = new GroupNodeImpl(mathNode != null ? mathNode : lastParagraph, currentCommandDefiningNode);
                     
                     (mathNode != null ? mathNode : lastParagraph).addChild(parseGroup(input, n, false, false, false, true, false));
                 } else {
-                    if (read.getId() == TexLanguage.COMP_BRACKET_RIGHT) {
+                    if (read.id() == TexTokenId.COMP_BRACKET_RIGHT) {
                         SourcePosition pos = input.getPosition();
                         
-                        errors.add(Utilities.getDefault().createError("Missing \\end{" + beginText + "} command added.", pos));
+                        errors.add(createError("Missing \\end{" + beginText + "} command added.", pos));
                         break;
                     } else {
-                        if (read.getId() == TexLanguage.MATH) {
+                        if (read.id() == TexTokenId.MATH) {
                             if (mathNode == null) {
                                 mathNode = new MathNodeImpl(lastParagraph, currentCommandDefiningNode);
                                 lastParagraph.addChild(mathNode);
@@ -1092,7 +1106,7 @@ public final class CommandParser {
                                 mathNode = null;
                             }
                         } else {
-                            if (read.getId() == TexLanguage.PARAGRAPH_END && useParagraphs) {
+                            if (read.id() == TexTokenId.PARAGRAPH_END && useParagraphs) {
                                 if (mathNode != null) {
                                     mathNode.setEndingPosition(input.getPosition());
                                     mathNode = null;

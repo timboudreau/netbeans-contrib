@@ -13,7 +13,7 @@
  * "Portions Copyrighted [year] [name of copyright owner]"
  *
  * The Original Software is NetBeans. The Initial Developer of the Original
- * Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
+ * Software is Sun Microsystems, Inc. Portions Copyright 1997-2007 Sun
  * Microsystems, Inc. All Rights Reserved.
  */
 
@@ -34,11 +34,11 @@ import javax.swing.text.Document;
 import javax.swing.text.JTextComponent;
 import javax.swing.text.StyledDocument;
 import org.netbeans.api.editor.completion.Completion;
-import org.netbeans.modules.latex.editor.AnalyseBib;
 import org.netbeans.modules.latex.editor.completion.latex.TexCompletionJavaDoc;
 import org.netbeans.modules.latex.model.IconsStorage;
 import org.netbeans.modules.latex.model.IconsStorage.ChangeableIcon;
 import org.netbeans.modules.latex.model.Utilities;
+import org.netbeans.modules.latex.model.bibtex.PublicationEntry;
 import org.netbeans.modules.latex.model.command.Command;
 import org.netbeans.modules.latex.model.command.Environment;
 import org.netbeans.spi.editor.completion.CompletionItem;
@@ -359,11 +359,11 @@ public abstract class TexCompletionItem implements CompletionItem {
     
     public static final class BiBRecordCompletionItem extends TexCompletionItem {
         
-        private AnalyseBib.BibRecord record;
+        private PublicationEntry entry;
         
-        public BiBRecordCompletionItem(int substituteOffset, AnalyseBib.BibRecord record) {
+        public BiBRecordCompletionItem(int substituteOffset, PublicationEntry entry) {
             super(substituteOffset);
-            this.record = record;
+            this.entry = entry;
         }
 
         public int getSortPriority() {
@@ -371,15 +371,15 @@ public abstract class TexCompletionItem implements CompletionItem {
         }
 
         protected String getText() {
-            return record.getRef();
+            return entry.getTag();
         }
 
         protected String getLeftText() {
-            return record.getTitle();
+            return entry.getTitle();
         }
 
         protected String getRightText() {
-            return record.getRef();
+            return entry.getTag();
         }
 
         protected ImageIcon getIcon() {
@@ -387,7 +387,7 @@ public abstract class TexCompletionItem implements CompletionItem {
         }
         
         public String toString() {
-            return record.getRef() + ":" + record.getTitle();
+            return entry.getTag() + ":" + entry.getTitle();
         }
     }
 

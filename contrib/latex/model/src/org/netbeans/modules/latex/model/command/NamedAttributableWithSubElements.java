@@ -14,26 +14,15 @@
  *
  * The Original Software is the LaTeX module.
  * The Initial Developer of the Original Software is Jan Lahoda.
- * Portions created by Jan Lahoda_ are Copyright (C) 2002,2003.
+ * Portions created by Jan Lahoda_ are Copyright (C) 2002-2007.
  * All Rights Reserved.
  *
  * Contributor(s): Jan Lahoda.
  */
 package org.netbeans.modules.latex.model.command;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
-import javax.xml.parsers.ParserConfigurationException;
-import org.openide.filesystems.FileObject;
-import org.openide.filesystems.Repository;
-import org.xml.sax.InputSource;
-import org.xml.sax.SAXException;
 
 /**
  *
@@ -41,23 +30,23 @@ import org.xml.sax.SAXException;
  */
 public class NamedAttributableWithSubElements extends NamedAttributable {
     
-    private Map/*<String, Environment>*/ environments;
-    private Map/*<String, Command>*/     commands;
+    private Map<String, Environment> environments;
+    private Map<String, Command>     commands;
     
     /** Creates a new instance of NamedAttributableWithSubElements */
     /*package private*/ NamedAttributableWithSubElements() {
     }
     
-    public synchronized Map getEnvironments() {
+    public synchronized Map<String, Environment> getEnvironments() {
         if (environments == null)
-            return environments = new HashMap();
+            return environments = new HashMap<String, Environment>();
 
         return environments;
     }
     
-    public synchronized Map getCommands() {
+    public synchronized Map<String, Command> getCommands() {
         if (commands == null)
-            return commands = new HashMap();
+            return commands = new HashMap<String, Command>();
 
         return commands;
     }

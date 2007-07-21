@@ -13,7 +13,7 @@
  * "Portions Copyrighted [year] [name of copyright owner]"
  *
  * The Original Software is NetBeans. The Initial Developer of the Original
- * Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
+ * Software is Sun Microsystems, Inc. Portions Copyright 1997-2007 Sun
  * Microsystems, Inc. All Rights Reserved.
  */
 package org.netbeans.modules.latex.guiproject.build;
@@ -166,7 +166,7 @@ public final class ShowConfiguration {
         LaTeXPlatform platform = Utilities.getPlatform(p);
 
         for (String tool : conf.getTools()) {
-            result.addAll(platform.getTargetFiles(tool, (FileObject) p.getSource().getMainFile()));
+            result.addAll(platform.getTargetFiles(tool, (FileObject) p.getMainFile()));
         }
 
         return result;

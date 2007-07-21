@@ -14,7 +14,7 @@
  *
  * The Original Software is the LaTeX module.
  * The Initial Developer of the Original Software is Jan Lahoda.
- * Portions created by Jan Lahoda_ are Copyright (C) 2002,2003.
+ * Portions created by Jan Lahoda_ are Copyright (C) 2002-2007.
  * All Rights Reserved.
  *
  * Contributor(s): Jan Lahoda.
@@ -73,7 +73,7 @@ public final class StructuralParserImpl {
         return result;
     }
     
-    public StructuralElement parse(LaTeXSource source, Collection/*<ParseError>*/ errors) {
+    public StructuralElement parse(DocumentNode dn) {
         List<DelegatedParser> parsers = getDelegatedParsers();
         
         for (DelegatedParser p : parsers) {
@@ -82,7 +82,7 @@ public final class StructuralParserImpl {
         
         mainElement.clearSubElements();
         mainElement.clearLabels();
-        source.traverse(new ParsingTraverseHandler(mainElement, parsers, errors), LaTeXSource.NO_LOCKING);
+        dn.traverse(new ParsingTraverseHandler(mainElement, parsers));
         
         fireSubElementsChanged(mainElement);
         
@@ -93,9 +93,13 @@ public final class StructuralParserImpl {
             tempErrors.addAll(p.getErrors());
         }
         
+        for (DelegatedParser p : parsers) {
+            p.parsingFinished();
+        }
+        
         Map<FileObject, List<ErrorDescription>> errorsMap = sortErrors(tempErrors);
         
-        for (FileObject file : (Collection<FileObject>) source.getDocument().getFiles()) {
+        for (FileObject file : errorsMap.keySet()) {
             List<ErrorDescription> l = errorsMap.get(file);
             
             if (l == null) {
@@ -158,16 +162,14 @@ public final class StructuralParserImpl {
         
         private Stack             elements;
         private List              parsers;
-        private Collection/*<ParseError>*/ errors;
         private MainStructuralElement main;
         
-        public ParsingTraverseHandler(MainStructuralElement mainElement, List parsers, Collection/*<ParseError>*/ errors) {
+        public ParsingTraverseHandler(MainStructuralElement mainElement, List parsers) {
             elements = new Stack();
             elements.push(mainElement);
             this.main = mainElement;
             
             this.parsers = parsers;
-            this.errors  = errors;
         }
         
         private void addElement(StructuralElement el) {
@@ -208,7 +210,7 @@ public final class StructuralParserImpl {
                     StructuralElement oldEl = (StructuralElement) oldElementsMap.get(key);
                     
                     if (oldEl != null) {
-                        el = parser.updateElement(node, errors, oldEl);
+                        el = parser.updateElement(node, oldEl);
                         
                         if (el != null) {
                             el.clearSubElements();//This is the only legal place to do this!!!!
@@ -221,13 +223,13 @@ public final class StructuralParserImpl {
                             System.err.println("node = " + node );
                         }
                     } else {
-                        el = parser.getElement(node, errors);
+                        el = parser.getElement(node);
                     }
                     
                     if (el != null)
                         oldElementsMap.put(key, el);
                 } else {
-                    el = parser.getElement(node, errors);
+                    el = parser.getElement(node);
                 }
                 
                 

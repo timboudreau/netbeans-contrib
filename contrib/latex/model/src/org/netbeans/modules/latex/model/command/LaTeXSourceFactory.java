@@ -14,7 +14,7 @@
  *
  * The Original Software is the LaTeX module.
  * The Initial Developer of the Original Software is Jan Lahoda.
- * Portions created by Jan Lahoda_ are Copyright (C) 2002,2003.
+ * Portions created by Jan Lahoda_ are Copyright (C) 2002-2007.
  * All Rights Reserved.
  *
  * Contributor(s): Jan Lahoda.
@@ -27,6 +27,7 @@ import java.util.EventListener;
 import java.util.EventObject;
 import java.util.Iterator;
 import java.util.List;
+import org.openide.filesystems.FileObject;
 import org.openide.util.WeakListeners;
 
 /**
@@ -34,10 +35,10 @@ import org.openide.util.WeakListeners;
  */
 public abstract class LaTeXSourceFactory {
 
-    private List/*<MainFileListener>*/ listeners;
+    private List<MainFileListener> listeners;
 
     public LaTeXSourceFactory() {
-        listeners = new ArrayList();
+        listeners = new ArrayList<MainFileListener>();
     }
 
     public synchronized void addMainFileListener(MainFileListener l) {
@@ -52,7 +53,7 @@ public abstract class LaTeXSourceFactory {
         List clone;
         
         synchronized (this) {
-            clone = new ArrayList(listeners);
+            clone = new ArrayList<MainFileListener>(listeners);
         }
         
         MainFileEvent evt = null;
@@ -69,7 +70,7 @@ public abstract class LaTeXSourceFactory {
     
     public abstract boolean supports(Object file);
     
-    public abstract LaTeXSource get(Object file);
+    public abstract FileObject findMainFile(FileObject file);
     
     public abstract boolean isKnownFile(Object file);
     
@@ -124,7 +125,7 @@ public abstract class LaTeXSourceFactory {
     }
     
     public static MainFileListener weakMainFileListener(MainFileListener l, LaTeXSourceFactory source) {
-        return (MainFileListener) WeakListeners.create(MainFileListener.class, l, source);
+        return WeakListeners.create(MainFileListener.class, l, source);
     }
 }
 

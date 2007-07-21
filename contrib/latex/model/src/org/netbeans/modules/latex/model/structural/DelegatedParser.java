@@ -14,7 +14,7 @@
  *
  * The Original Software is the LaTeX module.
  * The Initial Developer of the Original Software is Jan Lahoda.
- * Portions created by Jan Lahoda_ are Copyright (C) 2002,2003.
+ * Portions created by Jan Lahoda_ are Copyright (C) 2002-2007.
  * All Rights Reserved.
  *
  * Contributor(s): Jan Lahoda.
@@ -41,12 +41,14 @@ public abstract class DelegatedParser {
 
     public abstract String[] getSupportedAttributes();
 
-    public abstract StructuralElement getElement(Node node, Collection/*<ParseError>*/ errors);
+    public abstract StructuralElement getElement(Node node);
 
     public void reset() {}
     
-    public StructuralElement updateElement(Node node, Collection/*<ParseError>*/ errors, StructuralElement element) {
-        return getElement(node, errors);
+    public void parsingFinished() {}
+    
+    public StructuralElement updateElement(Node node, StructuralElement element) {
+        return getElement(node);
     }
     
     public Object getKey(Node node) {

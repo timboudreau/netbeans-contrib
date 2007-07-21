@@ -14,7 +14,7 @@
  *
  * The Original Software is the LaTeX module.
  * The Initial Developer of the Original Software is Jan Lahoda.
- * Portions created by Jan Lahoda_ are Copyright (C) 2002,2003.
+ * Portions created by Jan Lahoda_ are Copyright (C) 2002-2007.
  * All Rights Reserved.
  *
  * Contributor(s): Jan Lahoda.
@@ -27,7 +27,6 @@ import java.nio.charset.Charset;
 import java.util.Locale;
 import java.util.StringTokenizer;
 //import org.netbeans.modules.latex.executors.TexExecutor;
-import org.netbeans.modules.latex.model.command.LaTeXSource;
 
 import org.openide.ErrorManager;
 import org.openide.filesystems.FileObject;
@@ -38,7 +37,6 @@ import org.openide.nodes.CookieSet;
 import org.openide.nodes.Node;
 import org.openide.util.HelpCtx;
 
-import org.netbeans.modules.latex.model.command.impl.LaTeXSourceImpl;
 //import org.openide.execution.Executor;
 import org.openide.util.Lookup;
 
@@ -47,6 +45,8 @@ import org.openide.util.Lookup;
  * @author Jan Lahoda
  */
 public class TexDataObject extends MultiDataObject {
+    
+    public static final String LOCALE_ATTRIBUTE = "locale";
     
     public static final String ENCODING_ATTRIBUTE_NAME = "Content-Encoding";
     public static final String ENCODING_PROPERTY_NAME  = "encoding";
@@ -126,7 +126,7 @@ public class TexDataObject extends MultiDataObject {
     }
 
     public Locale getLocaleImpl() {
-        return (Locale) getPrimaryFile().getAttribute(LaTeXSourceImpl.LOCALE_ATTRIBUTE);
+        return (Locale) getPrimaryFile().getAttribute(LOCALE_ATTRIBUTE);
     }
     
     public String getLocale() {
@@ -157,7 +157,7 @@ public class TexDataObject extends MultiDataObject {
         Locale nueLocale = new Locale(language, country, variant);
         Locale old  = getLocaleImpl();
         
-        getPrimaryFile().setAttribute(LaTeXSourceImpl.LOCALE_ATTRIBUTE, nueLocale);
+        getPrimaryFile().setAttribute(LOCALE_ATTRIBUTE, nueLocale);
         
         firePropertyChange(ENCODING_PROPERTY_NAME, old, nueLocale);
     }
@@ -165,7 +165,7 @@ public class TexDataObject extends MultiDataObject {
     public void setLocaleImpl(Locale nueLocale) throws IOException {
         Locale old  = getLocaleImpl();
         
-        getPrimaryFile().setAttribute(LaTeXSourceImpl.LOCALE_ATTRIBUTE, nueLocale);
+        getPrimaryFile().setAttribute(LOCALE_ATTRIBUTE, nueLocale);
         
         firePropertyChange(ENCODING_PROPERTY_NAME, old, nueLocale);
     }

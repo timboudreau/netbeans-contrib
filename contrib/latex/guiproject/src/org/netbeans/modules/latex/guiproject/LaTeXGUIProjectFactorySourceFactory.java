@@ -14,7 +14,7 @@
  *
  * The Original Software is the LaTeX module.
  * The Initial Developer of the Original Software is Jan Lahoda.
- * Portions created by Jan Lahoda_ are Copyright (C) 2002-2005.
+ * Portions created by Jan Lahoda_ are Copyright (C) 2002-2007.
  * All Rights Reserved.
  *
  * Contributor(s): Jan Lahoda.
@@ -26,8 +26,6 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.WeakHashMap;
-import org.netbeans.modules.latex.model.command.DocumentNode;
-import org.netbeans.modules.latex.model.command.LaTeXSource;
 import org.netbeans.modules.latex.model.command.LaTeXSourceFactory;
 import org.openide.filesystems.FileObject;
 import org.openide.util.Lookup;
@@ -62,11 +60,11 @@ public class LaTeXGUIProjectFactorySourceFactory extends LaTeXSourceFactory {
         return file instanceof FileObject;
     }
     
-    public LaTeXSource get(Object file) {
+    public FileObject findMainFile(FileObject file) {
         LaTeXGUIProject p = findProject(file);
         
         if (p != null)
-            return p.getSource();
+            return p.getMainFile();
         else
             return null;
     }
@@ -107,9 +105,8 @@ public class LaTeXGUIProjectFactorySourceFactory extends LaTeXSourceFactory {
         //TODO: is this fast enough?:
         for (Iterator i = mainFile2Project.values().iterator(); i.hasNext(); ) {
             LaTeXGUIProject p = (LaTeXGUIProject) i.next();
-            DocumentNode dn = p.getSource().getDocument(); //TODO:no locking? (currently intentionally)
             
-            result.addAll(dn.getFiles());
+            result.addAll(p.getContainedFiles());
         }
         
         return result;

@@ -14,23 +14,19 @@
  *
  * The Original Software is the LaTeX module.
  * The Initial Developer of the Original Software is Jan Lahoda.
- * Portions created by Jan Lahoda_ are Copyright (C) 2002,2003.
+ * Portions created by Jan Lahoda_ are Copyright (C) 2002-2007.
  * All Rights Reserved.
  *
  * Contributor(s): Jan Lahoda.
  */
 package org.netbeans.modules.latex.model.structural;
 
-import java.awt.Image;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
-import org.netbeans.modules.latex.model.command.SourcePosition;
 import org.openide.util.HelpCtx;
-import org.openide.util.actions.SystemAction;
 
 /**
  *
@@ -42,12 +38,12 @@ public abstract class StructuralElement implements HelpCtx.Provider {
     
     protected static final int NO_PRIORITY = (-1);
     
-    private List/*<StructuralElement>*/ subElements;
+    private List<StructuralElement> subElements;
     protected PropertyChangeSupport pcs = new PropertyChangeSupport(this);
     
     /** Creates a new instance of StructuralNode */
     public StructuralElement() {
-        subElements = new ArrayList();
+        subElements = new ArrayList<StructuralElement>();
     }
     
     public void addPropertyChangeListener(PropertyChangeListener l) {
@@ -58,7 +54,7 @@ public abstract class StructuralElement implements HelpCtx.Provider {
         pcs.removePropertyChangeListener(l);
     }
     
-    public List getSubElements() {
+    public List<? extends StructuralElement> getSubElements() {
         return Collections.unmodifiableList(subElements);
     }
     

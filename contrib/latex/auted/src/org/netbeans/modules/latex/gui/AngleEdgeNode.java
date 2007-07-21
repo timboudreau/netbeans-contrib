@@ -14,7 +14,7 @@
  *
  * The Original Software is the LaTeX module.
  * The Initial Developer of the Original Software is Jan Lahoda.
- * Portions created by Jan Lahoda_ are Copyright (C) 2002,2003.
+ * Portions created by Jan Lahoda_ are Copyright (C) 2002-2007.
  * All Rights Reserved.
  *
  * Contributor(s): Jan Lahoda.
@@ -52,19 +52,19 @@ public class AngleEdgeNode extends CurveEdgeNode {
         return result;
     }
     
-    protected double getSourceAngle() {
+    public double getSourceAngle() {
         return computeAngle(getSource(), getTarget(), 1);
     }
     
-    protected double getSourceDistance() {
+    public double getSourceDistance() {
         return 0.8;
     }
     
-    protected double getTargetAngle() {
+    public double getTargetAngle() {
         return computeAngle(getSource(), getTarget(), -1);
     }
     
-    protected double getTargetDistance() {
+    public double getTargetDistance() {
         return 0.8;
     }
     

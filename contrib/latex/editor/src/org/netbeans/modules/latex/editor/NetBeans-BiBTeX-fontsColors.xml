@@ -26,6 +26,18 @@ Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
         Purpose of the document follows.
 -->
 
+<!DOCTYPE fontscolors PUBLIC "-//NetBeans//DTD Editor Fonts and Colors settings 1.1//EN" "http://www.netbeans.org/dtds/EditorFontsColors-1_1.dtd">
+
 <fontscolors>
+
+    <fontcolor name="comment" default="comment" />
+    <fontcolor name="brackets" default="operator" />
+    <fontcolor name="comma" default="default" />
+    <fontcolor name="equals" default="operator" />
+    <fontcolor name="string" default="default" foreColor="99006B" />
+    <fontcolor name="text" default="default"/>
+    <fontcolor name="type" default="default" foreColor="000099" />
+    <fontcolor name="unknown" default="error"/>
+    <fontcolor name="whitespace" default="whitespace"/>
 
 </fontscolors>

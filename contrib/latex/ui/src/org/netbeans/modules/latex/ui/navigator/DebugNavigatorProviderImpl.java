@@ -13,7 +13,7 @@
  * "Portions Copyrighted [year] [name of copyright owner]"
  *
  * The Original Software is NetBeans. The Initial Developer of the Original
- * Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
+ * Software is Sun Microsystems, Inc. Portions Copyright 1997-2007 Sun
  * Microsystems, Inc. All Rights Reserved.
  */
 package org.netbeans.modules.latex.ui.navigator;
@@ -21,24 +21,20 @@ package org.netbeans.modules.latex.ui.navigator;
 import java.awt.BorderLayout;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.util.Collection;
 import javax.swing.ActionMap;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.ListSelectionModel;
+import org.netbeans.api.gsf.CancellableTask;
+import org.netbeans.api.retouche.source.CompilationInfo;
+import org.netbeans.modules.latex.model.LaTeXParserResult;
 import org.netbeans.modules.latex.model.command.DebuggingSupport;
-import org.netbeans.modules.latex.model.command.LaTeXSource;
-import org.netbeans.modules.latex.ui.NodeNode;
 import org.netbeans.spi.navigator.NavigatorPanel;
 import org.openide.explorer.ExplorerManager;
 import org.openide.explorer.ExplorerUtils;
 import org.openide.explorer.view.BeanTreeView;
-import org.openide.filesystems.FileObject;
-import org.openide.loaders.DataObject;
 import org.openide.nodes.Node;
 import org.openide.util.Lookup;
-import org.openide.util.LookupEvent;
-import org.openide.util.LookupListener;
 import org.openide.util.NbBundle;
 
 
@@ -48,12 +44,6 @@ import org.openide.util.NbBundle;
  */
 public class DebugNavigatorProviderImpl implements NavigatorPanel {
     
-    private Lookup.Result selection;
-    private final LookupListener selectionListener = new LookupListener() {
-        public void resultChanged(LookupEvent ev) {
-            display(selection.allInstances());
-        }
-    };
     private JComponent panel;
     private final ExplorerManager manager = new ExplorerManager();
     
@@ -108,34 +98,25 @@ public class DebugNavigatorProviderImpl implements NavigatorPanel {
     }
     
     public void panelActivated(Lookup context) {
-        selection = context.lookup(new Lookup.Template(DataObject.class));
-        selection.addLookupListener(selectionListener);
-        selectionListener.resultChanged(null);
+        LaTeXNavigatorFactory.getInstance().setLookup(context, new TaskImpl());
     }
-    
+
     public void panelDeactivated() {
-        selection.removeLookupListener(selectionListener);
-        selection = null;
+        LaTeXNavigatorFactory.getInstance().setLookup(Lookup.EMPTY, null);
     }
     
     public Lookup getLookup() {
         return null;
     }
     
-    private FileObject currentFO;
-    
-    private void display(Collection/*<DataObject>*/ selectedFiles) {
-        // Show list of targets for selected file:
-        if (selectedFiles.size() == 1) {
-            DebuggingSupport.getDefault().setDebuggingEnabled(true);
-            
-            DataObject d = (DataObject) selectedFiles.iterator().next();
-            
-            manager.setRootContext(NodeNode.constructRootNodeFor(LaTeXSource.get(d.getPrimaryFile())));
-            return ;
+    private final class TaskImpl implements CancellableTask<CompilationInfo> {
+        public void cancel() {}
+
+        public void run(CompilationInfo ci) throws Exception {
+            LaTeXParserResult lpr = (LaTeXParserResult) ci.getParserResult();
+            manager.setRootContext(NodeNode.constructRootNodeFor(lpr.getDocument()));
         }
-        // Fallback:
-        manager.setRootContext(Node.EMPTY);
+        
     }
     
 }

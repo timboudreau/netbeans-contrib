@@ -14,7 +14,7 @@
  *
  * The Original Software is the LaTeX module.
  * The Initial Developer of the Original Software is Jan Lahoda.
- * Portions created by Jan Lahoda_ are Copyright (C) 2002-2004.
+ * Portions created by Jan Lahoda_ are Copyright (C) 2002-2007.
  * All Rights Reserved.
  *
  * Contributor(s): Jan Lahoda.
@@ -31,7 +31,6 @@ import java.util.Collection;
 import org.netbeans.api.project.ProjectManager;
 import org.netbeans.junit.NbTestCase;
 import org.netbeans.modules.latex.UnitUtilities;
-import org.netbeans.modules.latex.model.command.LaTeXSource;
 import org.openide.ErrorManager;
 import org.openide.filesystems.FileLock;
 import org.openide.filesystems.FileObject;
@@ -140,34 +139,34 @@ public class ProjectTestCase extends NbTestCase {
 	
 	notIncluded = copyFile("data/notIncluded.tex", testDir, "noIncluded", "tex");
         
-        parseProject(prj1Impl);
-        parseProject(prj2Impl);
+//        parseProject(prj1Impl);
+//        parseProject(prj2Impl);
     }
     
-    private static void parseProject(FileObject prj) throws IOException {
-        LaTeXSource source = ((LaTeXSource) ProjectManager.getDefault().findProject(prj).getLookup().lookup(LaTeXSource.class));
-        LaTeXSource.Lock lock = null;
-        
+//    private static void parseProject(FileObject prj) throws IOException {
+//        LaTeXSource source = ((LaTeXSource) ProjectManager.getDefault().findProject(prj).getLookup().lookup(LaTeXSource.class));
+//        LaTeXSource.Lock lock = null;
+//        
+////        try {
+////            lock = source.lock(true);
+////        } finally  {
+////            if (lock != null)
+////                source.unlock(lock);
+////        }
+//        
+////        System.err.println("source=" + source);
 //        try {
+////            System.err.println("ProjectTestCase.parseProject trying to obtain lock");
 //            lock = source.lock(true);
-//        } finally  {
-//            if (lock != null)
+////            System.err.println("ProjectTestCase.parseProject lock obtained=" + lock);
+//        } finally {
+//            if (lock != null) {
+////                System.err.println("ProjectTestCase.parseProject unlock the lock");
 //                source.unlock(lock);
+////                System.err.println("ProjectTestCase.parseProject unlocking done");
+//            } else {
+////                System.err.println("ProjectTestCase.parseProject no unlocking (lock == null)");
+//            }
 //        }
-        
-//        System.err.println("source=" + source);
-        try {
-//            System.err.println("ProjectTestCase.parseProject trying to obtain lock");
-            lock = source.lock(true);
-//            System.err.println("ProjectTestCase.parseProject lock obtained=" + lock);
-        } finally {
-            if (lock != null) {
-//                System.err.println("ProjectTestCase.parseProject unlock the lock");
-                source.unlock(lock);
-//                System.err.println("ProjectTestCase.parseProject unlocking done");
-            } else {
-//                System.err.println("ProjectTestCase.parseProject no unlocking (lock == null)");
-            }
-        }
-    }
+//    }
 }

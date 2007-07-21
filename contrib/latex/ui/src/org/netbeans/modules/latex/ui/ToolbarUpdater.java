@@ -14,178 +14,123 @@
  *
  * The Original Software is the LaTeX module.
  * The Initial Developer of the Original Software is Jan Lahoda.
- * Portions created by Jan Lahoda_ are Copyright (C) 2002,2003.
+ * Portions created by Jan Lahoda_ are Copyright (C) 2002-2007.
  * All Rights Reserved.
  *
  * Contributor(s): Jan Lahoda.
  */
 package org.netbeans.modules.latex.ui;
 
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
-import java.io.IOException;
 import java.lang.ref.Reference;
 import java.lang.ref.WeakReference;
-import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
-import javax.swing.JEditorPane;
-import javax.swing.event.CaretEvent;
-import javax.swing.event.CaretListener;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.text.Document;
-import org.netbeans.modules.latex.model.Utilities;
-import org.netbeans.modules.latex.model.command.LaTeXSource;
-import org.netbeans.modules.latex.model.command.LaTeXSource.DocumentChangeEvent;
-import org.netbeans.modules.latex.model.command.LaTeXSource.DocumentChangedListener;
+import org.netbeans.api.gsf.CancellableTask;
+import org.netbeans.api.retouche.source.CompilationInfo;
+import org.netbeans.api.retouche.source.Phase;
+import org.netbeans.api.retouche.source.Source.Priority;
+import org.netbeans.api.retouche.source.support.CaretAwareSourceTaskFactory;
+import org.netbeans.modules.latex.model.LaTeXParserResult;
 import org.netbeans.modules.latex.model.command.Node;
-import org.netbeans.modules.latex.model.command.SourcePosition;
-import org.openide.ErrorManager;
-import org.openide.util.RequestProcessor;
-import org.openide.windows.TopComponent;
+import org.openide.cookies.EditorCookie;
+import org.openide.filesystems.FileObject;
+import org.openide.loaders.DataObject;
+import org.openide.loaders.DataObjectNotFoundException;
 
 /**
  *
  * @author Jan Lahoda
  */
-public class ToolbarUpdater implements CaretListener, PropertyChangeListener, DocumentChangedListener {
-    
-    private Reference   currentNode;
-    private LaTeXSource source;
-    private JEditorPane currentPane;
-    
-    private List        listeners;
-    
-    private static ToolbarUpdater instance = null;
-    
-    public static synchronized ToolbarUpdater getDefault() {
-        if (instance == null) {
-            instance = new ToolbarUpdater();
+public class ToolbarUpdater extends CaretAwareSourceTaskFactory {
+
+    public ToolbarUpdater() {
+        super(Phase.RESOLVED, Priority.ABOVE_NORMAL);
+    }
+    protected CancellableTask<CompilationInfo> createTask(FileObject file) {
+        return new UpdatingTask(file);
+    }
+
+    @Override
+    public List<FileObject> getFileObjects() {
+        List<FileObject> result = super.getFileObjects();
+        
+        if (result.isEmpty()) {
+            fireToolbarEnableChange(false);
         }
         
-        return instance;
+        return result;
     }
     
-    protected static synchronized void destroy() {
-        TopComponent.getRegistry().removePropertyChangeListener(instance);
-        instance = null;
-    }
-    
-    /** Creates a new instance of ToolbarUpdater */
-    protected ToolbarUpdater() {
-        listeners = new ArrayList();
+    private static final class UpdatingTask implements CancellableTask<CompilationInfo> {
+
+        private FileObject file;
         
-        TopComponent.getRegistry().addPropertyChangeListener(this);
-        setup();
-    }
-    
-    private Node getCurrentNodeImpl() {
-        if (currentNode == null)
-            return null;
-        
-        Node node = (Node) currentNode.get();
-        
-        if (node == null)
-            return null;
-        
-        if (source.getDocument() != node.getDocumentNode())
-            return null;
-        
-        return node;
-    }
-    
-    public void nodesAdded(DocumentChangeEvent evt) {
-        heavyUpdate();
-    }
-    
-    public void nodesChanged(DocumentChangeEvent evt) {
-        heavyUpdate();
-    }
-    
-    public void nodesRemoved(DocumentChangeEvent evt) {
-        heavyUpdate();
-    }
-    
-    private RequestProcessor.Task updateTask = null;
-    
-    private synchronized void prepareUpdateTask(Runnable r) {
-        if (updateTask != null) {
-            updateTask.cancel();
-            updateTask = null;
+        public UpdatingTask(FileObject file) {
+            this.file = file;
         }
         
-        updateTask = RequestProcessor.getDefault().post(r, 200);
-    }
-    
-    public void caretUpdate(CaretEvent e) {
-        prepareUpdateTask(new Runnable() {
-            public void run() {
-                if (currentPane == null)
-                    return ;
-                
-                LaTeXSource.Lock lock        = null;
-                boolean          heavyUpdate = false;
-                
-                try {
-                    lock = source.lock(false);
-                    if (lock != null) {
-                        Node node = getCurrentNodeImpl();
-                        
-                        if (node == null) {
-                            heavyUpdate = true;
-                        } else {
-                            Document doc = currentPane.getDocument();
-                            
-                            heavyUpdate = !node.contains(new SourcePosition(Utilities.getDefault().getFile(doc), doc, /*e.getDot()*/currentPane.getCaret().getDot()));
-                        }
-                    } else {
-                        //no update in this case...
-                    }
-                } finally {
-                    if (lock != null)
-                        source.unlock(lock);
-                }
-                
-                if (heavyUpdate)
-                    heavyUpdate();
+        public void cancel() {
+        }
+
+        private Document getDocument() {
+            try {
+                DataObject od = DataObject.find(file);
+                EditorCookie ec = od.getLookup().lookup(EditorCookie.class);
+
+                if (ec == null)
+                    return null;
+
+                return ec.getDocument();
+            } catch (DataObjectNotFoundException donfe) {
+                Logger.getLogger(ToolbarUpdater.class.getName()).log(Level.FINE, null, donfe);
+                return null;
             }
-        });
-    }
-    
-    public void heavyUpdate() {
-        LaTeXSource.Lock lock   = null;
-        boolean          enable = false;
+        }
         
-        try {
-            lock = source.lock(false);
+        public void run(CompilationInfo parameter) throws Exception {
+            LaTeXParserResult lpr = (LaTeXParserResult) parameter.getParserResult();
+            Document doc = getDocument();
+            Node node = lpr.getCommandUtilities().findNode(doc, CaretAwareSourceTaskFactory.getLastPosition(file));
             
-            if (lock != null) {
-                Node node = source.findNode(currentPane.getDocument(), currentPane.getCaret().getDot());
+            if (node == null) {
+                fireToolbarEnableChange(false);
                 
-                if (node == null) {
-                    fireToolbarEnableChange(false);
-                    
-                    return ;
-                }
-                
-                currentNode = new WeakReference(node);
-                
-                enable = true;
-                fireToolbarStatusChange(node);
+                return ;
             }
-        } catch (IOException e) {
-            //cannot find ;-(
-            ErrorManager.getDefault().notify(e);
-        } finally {
-            if (lock != null)
-                source.unlock(lock);
+            
+            List<Reference<ToolbarUpdatable>> toUpdate = new LinkedList<Reference<ToolbarUpdatable>>();
+            synchronized (ToolbarUpdater.class) {
+                toUpdate.addAll(ToolbarUpdater.toUpdate);
+            }
+            
+            for (Reference<ToolbarUpdatable> r : toUpdate) {
+                ToolbarUpdatable t = r.get();
+                
+                if (t != null) {
+                    t.update(lpr);
+                }
+            }
+            
+            fireToolbarStatusChange(node);
+            fireToolbarEnableChange(true);
         }
         
-        fireToolbarEnableChange(enable);
     }
     
-    protected void fireToolbarStatusChange(Node node) {
+    public static interface ToolbarUpdatable {
+        public void update(LaTeXParserResult lpr);
+    }
+    
+    private static List<ToolbarStatusChangeListener> listeners = new LinkedList<ToolbarStatusChangeListener>();
+    private static List<Reference<ToolbarUpdatable>> toUpdate = new LinkedList<Reference<ToolbarUpdater.ToolbarUpdatable>>();
+    
+    protected static void fireToolbarStatusChange(Node node) {
         ToolbarStatusChangeListener[] listnrs = null;
         
-        synchronized (this) {
+        synchronized (ToolbarUpdater.class) {
             listnrs = (ToolbarStatusChangeListener[] ) listeners.toArray(new ToolbarStatusChangeListener[0]);
         }
         
@@ -194,10 +139,10 @@ public class ToolbarUpdater implements CaretListener, PropertyChangeListener, Do
         }
     }
     
-    protected void fireToolbarEnableChange(boolean enable) {
+    protected static void fireToolbarEnableChange(boolean enable) {
         ToolbarStatusChangeListener[] listnrs = null;
         
-        synchronized (this) {
+        synchronized (ToolbarUpdater.class) {
             listnrs = (ToolbarStatusChangeListener[] ) listeners.toArray(new ToolbarStatusChangeListener[0]);
         }
         
@@ -205,52 +150,204 @@ public class ToolbarUpdater implements CaretListener, PropertyChangeListener, Do
             listnrs[cntr].enableChange(enable);
         }
     }
-
-    public synchronized void addToolbarStatusChangeListener(ToolbarStatusChangeListener l) {
+    
+    public static synchronized void addToolbarStatusChangeListener(ToolbarStatusChangeListener l) {
         listeners.add(l);
     }
     
-    public synchronized void removeToolbarStatusChangeListener(ToolbarStatusChangeListener l) {
+    public static synchronized void removeToolbarStatusChangeListener(ToolbarStatusChangeListener l) {
         listeners.remove(l);
     }
     
-    public void propertyChange(PropertyChangeEvent evt) {
-        setup();
+    public static synchronized void addToUpdate(ToolbarUpdatable u) {
+        toUpdate.add(new WeakReference<ToolbarUpdatable>(u));
     }
     
-    private synchronized void setup() {
-        if (currentPane != null)
-            currentPane.removeCaretListener(this);
-        
-        if (source != null)
-            source.removeDocumentChangedListener(this);
-        
-        currentPane = UIUtilities.getCurrentEditorPane();
-        
-        if (currentPane == null) {
-            fireToolbarEnableChange(false);
-            return ;
+    public static synchronized void removeToUpdate(ToolbarUpdatable u) {
+        for (Reference<ToolbarUpdatable> r : toUpdate) {
+            if (r.get() == u) {
+                toUpdate.remove(r);
+                return ;
+            }
         }
-        
-        if (currentPane.getEditorKit().getContentType() != "text/x-tex") {
-            currentPane = null;
-            fireToolbarEnableChange(false);
-            return ;
-        }
-        
-        try {
-            source      = LaTeXSource.get(Utilities.getDefault().getFile(currentPane.getDocument()));
-        } catch (LaTeXSource.UnsupportedFileTypeException e) {
-            //ehm. nothing.
-            //...
-            fireToolbarEnableChange(false);
-            return ;
-        }
-        
-        currentPane.addCaretListener(this);
-        
-        if (source != null) //!!!
-            source.addDocumentChangedListener(this);
     }
     
 }
+//        
+//        
+//        implements CaretListener, PropertyChangeListener, DocumentChangedListener {
+//    
+//    private Reference   currentNode;
+//    private LaTeXSource source;
+//    private JEditorPane currentPane;
+//    
+//    
+//    private static ToolbarUpdater instance = null;
+//    
+//    public static synchronized ToolbarUpdater getDefault() {
+//        if (instance == null) {
+//            instance = new ToolbarUpdater();
+//        }
+//        
+//        return instance;
+//    }
+//    
+//    protected static synchronized void destroy() {
+//        TopComponent.getRegistry().removePropertyChangeListener(instance);
+//        instance = null;
+//    }
+//    
+//    /** Creates a new instance of ToolbarUpdater */
+//    protected ToolbarUpdater() {
+//        listeners = new ArrayList();
+//        
+//        TopComponent.getRegistry().addPropertyChangeListener(this);
+//        setup();
+//    }
+//    
+//    private Node getCurrentNodeImpl() {
+//        if (currentNode == null)
+//            return null;
+//        
+//        Node node = (Node) currentNode.get();
+//        
+//        if (node == null)
+//            return null;
+//        
+//        if (source.getDocument() != node.getDocumentNode())
+//            return null;
+//        
+//        return node;
+//    }
+//    
+//    public void nodesAdded(DocumentChangeEvent evt) {
+//        heavyUpdate();
+//    }
+//    
+//    public void nodesChanged(DocumentChangeEvent evt) {
+//        heavyUpdate();
+//    }
+//    
+//    public void nodesRemoved(DocumentChangeEvent evt) {
+//        heavyUpdate();
+//    }
+//    
+//    private RequestProcessor.Task updateTask = null;
+//    
+//    private synchronized void prepareUpdateTask(Runnable r) {
+//        if (updateTask != null) {
+//            updateTask.cancel();
+//            updateTask = null;
+//        }
+//        
+//        updateTask = RequestProcessor.getDefault().post(r, 200);
+//    }
+//    
+//    public void caretUpdate(CaretEvent e) {
+//        prepareUpdateTask(new Runnable() {
+//            public void run() {
+//                if (currentPane == null)
+//                    return ;
+//                
+//                LaTeXSource.Lock lock        = null;
+//                boolean          heavyUpdate = false;
+//                
+//                try {
+//                    lock = source.lock(false);
+//                    if (lock != null) {
+//                        Node node = getCurrentNodeImpl();
+//                        
+//                        if (node == null) {
+//                            heavyUpdate = true;
+//                        } else {
+//                            Document doc = currentPane.getDocument();
+//                            
+//                            heavyUpdate = !node.contains(new SourcePosition(Utilities.getDefault().getFile(doc), doc, /*e.getDot()*/currentPane.getCaret().getDot()));
+//                        }
+//                    } else {
+//                        //no update in this case...
+//                    }
+//                } finally {
+//                    if (lock != null)
+//                        source.unlock(lock);
+//                }
+//                
+//                if (heavyUpdate)
+//                    heavyUpdate();
+//            }
+//        });
+//    }
+//    
+//    public void heavyUpdate() {
+//        LaTeXSource.Lock lock   = null;
+//        boolean          enable = false;
+//        
+//        try {
+//            lock = source.lock(false);
+//            
+//            if (lock != null) {
+//                Node node = source.findNode(currentPane.getDocument(), currentPane.getCaret().getDot());
+//                
+//                if (node == null) {
+//                    fireToolbarEnableChange(false);
+//                    
+//                    return ;
+//                }
+//                
+//                currentNode = new WeakReference(node);
+//                
+//                enable = true;
+//                fireToolbarStatusChange(node);
+//            }
+//        } catch (IOException e) {
+//            //cannot find ;-(
+//            ErrorManager.getDefault().notify(e);
+//        } finally {
+//            if (lock != null)
+//                source.unlock(lock);
+//        }
+//        
+//        fireToolbarEnableChange(enable);
+//    }
+//    
+//    
+//    public void propertyChange(PropertyChangeEvent evt) {
+//        setup();
+//    }
+//    
+//    private synchronized void setup() {
+//        if (currentPane != null)
+//            currentPane.removeCaretListener(this);
+//        
+//        if (source != null)
+//            source.removeDocumentChangedListener(this);
+//        
+//        currentPane = UIUtilities.getCurrentEditorPane();
+//        
+//        if (currentPane == null) {
+//            fireToolbarEnableChange(false);
+//            return ;
+//        }
+//        
+//        if (currentPane.getEditorKit().getContentType() != "text/x-tex") {
+//            currentPane = null;
+//            fireToolbarEnableChange(false);
+//            return ;
+//        }
+//        
+//        try {
+//            source      = LaTeXSource.get(Utilities.getDefault().getFile(currentPane.getDocument()));
+//        } catch (LaTeXSource.UnsupportedFileTypeException e) {
+//            //ehm. nothing.
+//            //...
+//            fireToolbarEnableChange(false);
+//            return ;
+//        }
+//        
+//        currentPane.addCaretListener(this);
+//        
+//        if (source != null) //!!!
+//            source.addDocumentChangedListener(this);
+//    }
+//    
+//}

@@ -18,6 +18,8 @@ Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
      Microsystems, Inc. All Rights Reserved.
    -->
 
+<!DOCTYPE fontscolors PUBLIC "-//NetBeans//DTD Editor Fonts and Colors settings 1.1//EN" "http://www.netbeans.org/dtds/EditorFontsColors-1_1.dtd">
+
 <!--
     Document   : NetBeans-LaTeX-fontsColors.xml.xml
     Created on : November 16, 2005, 6:11 PM
@@ -28,6 +30,20 @@ Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
 
 <fontscolors>
 
+    <fontcolor name="whitespace" default="whitespace" />
+    <fontcolor name="unknown-character" default="error" />
+    <fontcolor name="comment" default="comment" />
+    <fontcolor name="brackets" default="operator" />
+    <fontcolor name="word" default="default" />
+    
+    <fontcolor name="command" default="default" foreColor="CC0000"/>
+    
+    <fontcolor name="mod-enum-arg-incorrect" foreColor="0000F5"/>
+    <fontcolor name="mod-enum-arg-correct" foreColor="0000F5"/>
+    <fontcolor name="mod-command-incorrect"/>
+    <fontcolor name="mod-command-correct"/>
+    <fontcolor name="mod-command-definition" foreColor="808000"/>
+    <fontcolor name="mod-math" bgColor="C8DAFF" />
 <!--mod-enum-arg-incorrect
 whitespace
 mod-enum-arg-correct

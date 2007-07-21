@@ -14,23 +14,17 @@
  *
  * The Original Software is the LaTeX module.
  * The Initial Developer of the Original Software is Jan Lahoda.
- * Portions created by Jan Lahoda_ are Copyright (C) 2002-2004.
+ * Portions created by Jan Lahoda_ are Copyright (C) 2002-2007.
  * All Rights Reserved.
  *
  * Contributor(s): Jan Lahoda.
  */
 package org.netbeans.modules.latex.model.bibtex;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
-import javax.swing.text.BadLocationException;
-import javax.swing.text.Document;
-import org.netbeans.modules.latex.model.Utilities;
-import org.openide.ErrorManager;
 
 public class PublicationEntry extends Entry {
 
@@ -39,10 +33,10 @@ public class PublicationEntry extends Entry {
     
     private String type;
     private String tag;
-    private Map    content;
+    private Map<String, String> content;
     
     public PublicationEntry() {
-        content = new HashMap();
+        content = new HashMap<String, String>();
     }
     
     /** Getter for property type.
@@ -97,7 +91,7 @@ public class PublicationEntry extends Entry {
     }
 
     protected String getValue(String key) {
-        String value = (String) getContent().get(key);
+        String value = getContent().get(key);
         
         if (value == null)
             return "";
@@ -114,7 +108,7 @@ public class PublicationEntry extends Entry {
      * @return Value of property content.
      *
      */
-    public Map getContent() {
+    public Map<String, String> getContent() {
         return content;
     }
     
@@ -122,17 +116,14 @@ public class PublicationEntry extends Entry {
      * @param content New value of property content.
      *
      */
-    public void setContent(Map content) {
+    public void setContent(Map<String, String> content) {
         //well, not sure how much effective is this..
-        Collection properties = new ArrayList();
+        Collection<String> properties = new ArrayList<String>();
         
         properties.addAll(content.keySet());
         this.content = content;
-        properties.addAll(content.keySet());
         
-        for (Iterator i = properties.iterator(); i.hasNext(); ) {
-            String key = (String) i.next();
-            
+        for (String key : properties) {
             firePropertyChange(key, null, null);
         }
         
@@ -172,9 +163,8 @@ public class PublicationEntry extends Entry {
         sb.append(getTag());
         sb.append(",\n"); //newlines are CORRECT, the result will be put into a NB document!
         
-        for (Iterator i = getContent().keySet().iterator(); i.hasNext(); ) {
-            String key = (String) i.next();
-            String value = (String) getContent().get(key);
+        for (String key : getContent().keySet()) {
+            String value = getContent().get(key);
             
             sb.append("    "); //indentation :-)
             sb.append(key);

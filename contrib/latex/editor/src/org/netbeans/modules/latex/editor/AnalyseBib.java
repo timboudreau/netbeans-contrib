@@ -14,7 +14,7 @@
  *
  * The Original Software is the LaTeX module.
  * The Initial Developer of the Original Software is Jan Lahoda.
- * Portions created by Jan Lahoda_ are Copyright (C) 2002-2004.
+ * Portions created by Jan Lahoda_ are Copyright (C) 2002-2007.
  * All Rights Reserved.
  *
  * Contributor(s): Jan Lahoda.
@@ -32,7 +32,6 @@ import org.netbeans.modules.latex.model.bibtex.PublicationEntry;
 import org.netbeans.modules.latex.model.command.CommandNode;
 import org.netbeans.modules.latex.model.command.DefaultTraverseHandler;
 import org.netbeans.modules.latex.model.command.DocumentNode;
-import org.netbeans.modules.latex.model.command.LaTeXSource;
 
 
 /**
@@ -57,90 +56,5 @@ public class AnalyseBib {
         return instance;
     }
     
-    public static final class BibRecord  {
-        private PublicationEntry entry;
-        
-        public BibRecord(PublicationEntry entry) {
-            this.entry = entry;
-        }
-        
-        public String getRef() {
-            return entry.getTag();
-        }
-        
-        public String getTitle() {
-            return entry.getTitle();
-        }
-        
-        public PublicationEntry getEntry() {
-            return entry;
-        }
-    }
-    
-    private List getReferences(Object file, String  bibFileName) throws IOException {
-        Object      bibFile = org.netbeans.modules.latex.model.Utilities.getDefault().getRelativeFileName(file, bibFileName);
-        
-        if (bibFile == null) {
-            bibFile = org.netbeans.modules.latex.model.Utilities.getDefault().getRelativeFileName(file, bibFileName + ".bib");
-        }
-        
-        if (bibFile == null)
-            throw new IllegalArgumentException("BiBTeX file " + bibFileName + " for main source file " + file + " not found.");
-        
-        BiBTeXModel model   = BiBTeXModel.getModel(bibFile);
-        List        result  = new ArrayList();
-        
-        for (Iterator i = model.getEntries().iterator(); i.hasNext(); ) {
-            Entry e = (Entry) i.next();
-            
-            if (e instanceof PublicationEntry) {
-                PublicationEntry pEntry = (PublicationEntry) e;
-                
-                result.add(new BibRecord(pEntry));
-            }
-        }
-        
-        return result;
-    }
-    
-    public final List getAllBibReferences(final LaTeXSource source) {
-              LaTeXSource.Lock lock   = null;
-        final List             result = new ArrayList();
-        
-        try {
-            lock = source.lock();
-            
-            DocumentNode node = source.getDocument();
-            
-            node.traverse(new DefaultTraverseHandler() {
-                public boolean commandStart(CommandNode node) {
-                    if ("\\bibliography".equals(node.getCommand().getCommand())) {
-                        String          bibFileNames = node.getArgument(0).getText().toString();
-                        StringTokenizer divider      = new StringTokenizer(bibFileNames, ",");
-                        
-                        while (divider.hasMoreTokens()) {
-                            String bibFileName  = divider.nextToken();
-                            Object file         = source.getMainFile();
-                            
-                            try {
-                                result.addAll(getDefault().getReferences(file, bibFileName));
-                            } catch (IOException e) {
-                                ErrorManager.getDefault().notifyInformational(e);
-                            } catch (IllegalArgumentException e) {
-                                ErrorManager.getDefault().notifyInformational(e);
-                            }
-                        }
-                    }
-                    
-                    return false;
-                }
-            });
-        } finally {
-            if (lock != null)
-                source.unlock(lock);
-        }
-
-        return result;
-    }
 
 }

@@ -14,7 +14,7 @@
  *
  * The Original Software is the LaTeX module.
  * The Initial Developer of the Original Software is Jan Lahoda.
- * Portions created by Jan Lahoda_ are Copyright (C) 2002,2003.
+ * Portions created by Jan Lahoda_ are Copyright (C) 2002-2007.
  * All Rights Reserved.
  *
  * Contributor(s): Jan Lahoda.
@@ -213,10 +213,10 @@ public abstract class CurveEdgeNode extends EdgeNode {
      *
      * @returns the source angle in degrees.
      */
-    protected abstract double getSourceAngle();
-    protected abstract double getTargetAngle();
-    protected abstract double getSourceDistance();
-    protected abstract double getTargetDistance();
+    public abstract double getSourceAngle();
+    public abstract double getTargetAngle();
+    public abstract double getSourceDistance();
+    public abstract double getTargetDistance();
     
     protected final void   outputCurveVaucansonSource(PrintWriter out) {}
     protected abstract String getCommandBase();

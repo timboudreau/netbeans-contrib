@@ -14,7 +14,7 @@
  *
  * The Original Software is the LaTeX module.
  * The Initial Developer of the Original Software is Jan Lahoda.
- * Portions created by Jan Lahoda_ are Copyright (C) 2002,2003.
+ * Portions created by Jan Lahoda_ are Copyright (C) 2002-2007.
  * All Rights Reserved.
  *
  * Contributor(s): Jan Lahoda.
@@ -28,16 +28,16 @@ import java.io.IOException;
 import java.lang.ref.WeakReference;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import javax.swing.JEditorPane;
 import javax.swing.text.Document;
-import org.netbeans.modules.latex.model.ParseError;
+import org.netbeans.modules.latex.model.LaTeXParserResult;
+import org.netbeans.modules.latex.model.LabelInfo;
 import org.netbeans.modules.latex.model.Utilities;
-import org.netbeans.modules.latex.model.command.LaTeXSource;
 import org.netbeans.modules.latex.model.command.SourcePosition;
-import org.netbeans.modules.latex.model.structural.Model;
+import org.netbeans.modules.latex.model.structural.StructuralElement;
+import org.netbeans.modules.latex.model.structural.label.LabelStructuralElement;
 import org.netbeans.modules.latex.model.structural.parser.MainStructuralElement;
 import org.openide.ErrorManager;
 import org.openide.cookies.EditorCookie;
@@ -73,8 +73,10 @@ public class NBUtilities extends Utilities implements PropertyChangeListener {
         
         DataObject od = (DataObject) doc.getProperty(Document.StreamDescriptionProperty);
         
-        if (od == null)
+        if (od == null) {
+//            Logger.getLogger("global").log(Level.WARNING, "The document's StreamDescriptionProperty is null.");
             return null;
+        }
 //            throw new IllegalStateException("The document's StreamDescriptionProperty is null.");
         
         return od.getPrimaryFile();
@@ -158,26 +160,6 @@ public class NBUtilities extends Utilities implements PropertyChangeListener {
         return getChild(fileFO, relativeFile);
     }
     
-    public void removeErrors(Collection/*<ParseError>*/ errors) {
-        Iterator err = errors.iterator();
-        
-        while (err.hasNext()) {
-            ((ParseErrorImpl) err.next()).removeError();
-        }
-    }
-    
-    public void showErrors(Collection/*<ParseError>*/ errors) {
-        Iterator err = errors.iterator();
-        
-        while (err.hasNext()) {
-            ((ParseErrorImpl) err.next()).showError();
-        }
-    }
-
-    public ParseError createError(String message, SourcePosition pos) {
-        return new ParseErrorImpl(message, pos);
-    }
-    
 //    public Object   findFile(File file) throws IOException {
 //        return FileUtil.toFileObject(file);
 //    }
@@ -212,10 +194,16 @@ public class NBUtilities extends Utilities implements PropertyChangeListener {
         return result;
     }
     
-    public List getLabels(LaTeXSource source) {
-        FileObject mainFile = (FileObject) source.getMainFile();
+    public List<? extends LabelInfo> getLabels(LaTeXParserResult root) {
+        List<LabelInfo> labels = new LinkedList<LabelInfo>();
         
-        return ((MainStructuralElement) Model.getDefault().getModel(mainFile)).getLabels();
+        for (StructuralElement e : ((MainStructuralElement) root.getStructuralRoot()).getLabels()) {
+            if (e instanceof LabelStructuralElement) {
+                labels.add((LabelStructuralElement) e);
+            }
+        }
+        
+        return labels;
     }
     
     public String getHumanReadableDescription(SourcePosition position) {

@@ -14,7 +14,7 @@
  *
  * The Original Software is the LaTeX module.
  * The Initial Developer of the Original Software is Jan Lahoda.
- * Portions created by Jan Lahoda_ are Copyright (C) 2002,2003.
+ * Portions created by Jan Lahoda_ are Copyright (C) 2002-2007.
  * All Rights Reserved.
  *
  * Contributor(s): Jan Lahoda.
@@ -24,29 +24,20 @@ package org.netbeans.modules.latex.model.command.parser;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Set;
-import java.util.Stack;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
-import javax.swing.text.AbstractDocument;
-import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
-import javax.swing.text.Position;
+import org.netbeans.api.lexer.TokenHierarchy;
+import org.netbeans.api.lexer.TokenSequence;
 
-import org.openide.ErrorManager;
-import org.openide.cookies.EditorCookie;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
-import org.openide.loaders.DataFolder;
-import org.openide.loaders.DataObject;
 
 import org.netbeans.api.lexer.Token;
-import org.netbeans.modules.latex.editor.TexLanguage;
 import org.netbeans.modules.latex.model.Utilities;
 
 import org.netbeans.modules.latex.model.command.SourcePosition;
-import org.netbeans.modules.lexer.editorbridge.TokenRootElement;
 
 /**
  *
@@ -57,7 +48,7 @@ public class ParserInput implements DocumentListener {
     private boolean changed;
     
     private FileObject file;
-    private TokenRootElement currentTRE;
+    private TokenSequence ts;
     private Document document;
     private int index;
     private Set usedFiles;
@@ -78,11 +69,6 @@ public class ParserInput implements DocumentListener {
         return ad;
     }
     
-    private TokenRootElement getTRE(Document doc) {
-        //TODO:assure this is correct way to do it. (it is not, but...)
-        return org.netbeans.modules.latex.editor.Utilities.getTREImpl(doc);
-    }
-
     /** Creates a new instance of ParserInput */
     public ParserInput(FileObject file, Collection documents) throws IOException {
         assert file != null;
@@ -92,7 +78,10 @@ public class ParserInput implements DocumentListener {
         if (document == null)
             throw new IOException("The document cannot be opened.");
         
-        currentTRE = getTRE(document);
+        TokenHierarchy h = TokenHierarchy.get(document);
+        
+        ts = h.tokenSequence();
+        ts.moveNext();
         usedFiles = new HashSet();
         usedFiles.add(file);
     }
@@ -102,7 +91,7 @@ public class ParserInput implements DocumentListener {
             throw new ParsingAbortedException();
 
         int toUse = index > 0 ? index : 0;
-        int offset = currentTRE.getElementOffset(toUse);
+        int offset = ts.offset();
         
         return new SourcePosition(file, document, offset);
     }
@@ -118,13 +107,13 @@ public class ParserInput implements DocumentListener {
         if (changed)
             throw new ParsingAbortedException();
         
-        return (Token) currentTRE.getElement(index);
+        return ts.token();
     }
     
     private Token nextImpl() {
-        Token current = (Token) currentTRE.getElement(++index);
+        ts.moveNext();
         
-        return current;
+        return ts.token();
     }
     
     public synchronized Token next() throws IOException {
@@ -140,7 +129,12 @@ public class ParserInput implements DocumentListener {
         if (changed)
             throw new ParsingAbortedException();
 
-        return /*treStack.size() != 0 || */(index + 1) < currentTRE.getElementCount();
+        if (!ts.moveNext())
+            return false;
+        
+        ts.movePrevious();
+        
+        return true;
     }
     
     public Collection getUsedFiles() {
@@ -148,7 +142,8 @@ public class ParserInput implements DocumentListener {
     }
     
     public void goBack(int howMany) {
-        index = currentTRE.getElementIndex(currentTRE.getElementOffset(index) - howMany);
+        while (howMany > 0 && ts.movePrevious())
+            howMany--;
     }
     
     public void changedUpdate(DocumentEvent e) {

@@ -25,12 +25,39 @@ Microsystems, Inc. All Rights Reserved.
             <suite-component/>
             <module-dependencies>
                 <dependency>
+                    <code-name-base>org.netbeans.api.gsf</code-name-base>
+                    <build-prerequisite/>
+                    <compile-dependency/>
+                    <run-dependency>
+                        <release-version>1</release-version>
+                        <implementation-version/>
+                    </run-dependency>
+                </dependency>
+                <dependency>
+                    <code-name-base>org.netbeans.modules.gsf</code-name-base>
+                    <build-prerequisite/>
+                    <compile-dependency/>
+                    <run-dependency>
+                        <release-version>1</release-version>
+                        <implementation-version/>
+                    </run-dependency>
+                </dependency>
+                <dependency>
+                    <code-name-base>org.netbeans.modules.lexer</code-name-base>
+                    <build-prerequisite/>
+                    <compile-dependency/>
+                    <run-dependency>
+                        <release-version>2</release-version>
+                        <specification-version>1.10.0</specification-version>
+                    </run-dependency>
+                </dependency>
+                <dependency>
                     <code-name-base>org.netbeans.spi.editor.hints</code-name-base>
                     <build-prerequisite/>
                     <compile-dependency/>
                     <run-dependency>
-                        <release-version>0-1</release-version>
-                        <specification-version>1.0</specification-version>
+                        <release-version>0</release-version>
+                        <implementation-version/>
                     </run-dependency>
                 </dependency>
                 <dependency>
@@ -94,6 +121,7 @@ Microsystems, Inc. All Rights Reserved.
                 <package>org.netbeans.modules.latex.model</package>
                 <package>org.netbeans.modules.latex.model.bibtex</package>
                 <package>org.netbeans.modules.latex.model.command</package>
+                <package>org.netbeans.modules.latex.model.lexer</package>
                 <package>org.netbeans.modules.latex.model.platform</package>
                 <package>org.netbeans.modules.latex.model.structural</package>
             </public-packages>

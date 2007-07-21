@@ -14,7 +14,7 @@
  *
  * The Original Software is the LaTeX module.
  * The Initial Developer of the Original Software is Jan Lahoda.
- * Portions created by Jan Lahoda_ are Copyright (C) 2002,2003.
+ * Portions created by Jan Lahoda_ are Copyright (C) 2002-2007.
  * All Rights Reserved.
  *
  * Contributor(s): Jan Lahoda.
@@ -27,8 +27,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
-import java.util.WeakHashMap;
 import org.netbeans.modules.latex.model.structural.StructuralElement;
 import org.netbeans.modules.latex.model.structural.StructuralNode;
 import org.openide.ErrorManager;
@@ -37,11 +35,8 @@ import org.openide.filesystems.Repository;
 import org.openide.loaders.DataFolder;
 import org.openide.loaders.DataObject;
 import org.openide.loaders.FolderLookup;
-import org.openide.nodes.BeanNode;
-import org.openide.nodes.Children;
 import org.openide.nodes.Node;
 import org.openide.util.Lookup;
-import org.openide.util.actions.SystemAction;
 
 /**
  *
@@ -53,7 +48,7 @@ public final class StructuralNodeFactory {
     public StructuralNodeFactory() {
     }
 
-    private static synchronized List getNodeProviders() {
+    private static synchronized List<NodeProvider> getNodeProviders() {
         FileObject parsersFolder = Repository.getDefault().getDefaultFileSystem().findResource("latex/structural/nodes");
         
         try {
@@ -65,14 +60,13 @@ public final class StructuralNodeFactory {
                 flookup.run();
                 
                 Lookup l = flookup.getLookup();
-                Lookup.Result result = l.lookup(new Lookup.Template(NodeProvider.class));
                 
-                return new ArrayList(result.allInstances());
+                return new ArrayList<NodeProvider>(l.lookupAll(NodeProvider.class));
             }
         } catch (IOException e) {
             ErrorManager.getDefault().notify(e);
         }
-        return Collections.EMPTY_LIST;
+        return Collections.<NodeProvider>emptyList();
     }
     
     public static Node createNode(StructuralElement el) {
@@ -86,7 +80,7 @@ public final class StructuralNodeFactory {
                     return node;
             }
             
-            return new StructuralNode(el);
+            return new StructuralNode<StructuralElement>(el);
         } catch (IntrospectionException e) {
             ErrorManager.getDefault().notify(e);
         }

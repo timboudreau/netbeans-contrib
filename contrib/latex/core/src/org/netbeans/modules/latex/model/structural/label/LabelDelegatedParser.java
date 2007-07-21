@@ -14,7 +14,7 @@
  *
  * The Original Software is the LaTeX module.
  * The Initial Developer of the Original Software is Jan Lahoda.
- * Portions created by Jan Lahoda_ are Copyright (C) 2002,2003.
+ * Portions created by Jan Lahoda_ are Copyright (C) 2002-2007.
  * All Rights Reserved.
  *
  * Contributor(s): Jan Lahoda.
@@ -39,6 +39,7 @@ import org.netbeans.modules.latex.model.structural.DelegatedParser;
 import org.netbeans.modules.latex.model.structural.StructuralElement;
 import org.netbeans.spi.editor.hints.ErrorDescription;
 import org.netbeans.spi.editor.hints.ErrorDescriptionFactory;
+import org.netbeans.spi.editor.hints.Severity;
 import org.openide.filesystems.FileObject;
 import org.openide.util.actions.SystemAction;
 
@@ -92,7 +93,7 @@ public class LabelDelegatedParser extends DelegatedParser {
         
         if (fromMap instanceof List) {
             ((List) fromMap).add(el);
-            errors.put(el.getLabel(), ErrorDescriptionFactory.createErrorDescription(ErrorDescription.SEVERITY_WARNING, "Undefined label: " + el.getLabel(), (FileObject) anode.getStartingPosition().getFile(), anode.getStartingPosition().getOffsetValue(), anode.getEndingPosition().getOffsetValue()));
+            errors.put(el.getLabel(), ErrorDescriptionFactory.createErrorDescription(Severity.WARNING, "Undefined label: " + el.getLabel(), (FileObject) anode.getStartingPosition().getFile(), anode.getStartingPosition().getOffsetValue(), anode.getEndingPosition().getOffsetValue()));
         } else {
             ((LabelStructuralElement) fromMap).addSubElement(el);
         }
@@ -122,7 +123,7 @@ public class LabelDelegatedParser extends DelegatedParser {
         return el;
     }
     
-    public StructuralElement getElement(Node node, Collection/*<ParseError>*/ errors) {
+    public StructuralElement getElement(Node node) {
         if (node instanceof CommandNode) {
             CommandNode cnode = (CommandNode) node;
             

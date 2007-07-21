@@ -14,7 +14,7 @@
  *
  * The Original Software is the LaTeX module.
  * The Initial Developer of the Original Software is Jan Lahoda.
- * Portions created by Jan Lahoda_ are Copyright (C) 2002,2003.
+ * Portions created by Jan Lahoda_ are Copyright (C) 2002-2007.
  * All Rights Reserved.
  *
  * Contributor(s): Jan Lahoda.
@@ -27,11 +27,11 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.LinkedList;
 import org.netbeans.junit.NbTestCase;
 
 import org.netbeans.modules.latex.UnitUtilities;
 import org.netbeans.modules.latex.model.command.DocumentNode;
-import org.netbeans.modules.latex.model.command.impl.LaTeXSourceImpl;
 import org.netbeans.modules.latex.model.command.impl.NBDocumentNodeImpl;
 import org.netbeans.modules.latex.model.command.parser.CommandParser;
 import org.netbeans.modules.latex.test.TestCertificate;
@@ -98,10 +98,9 @@ public class TreeConstructionTest extends NbTestCase {
         assertNotNull("The test file " + testFileName + " translated to " + testFile.getPath() + " was not found on the filesystems.", testFileObject);
         
         Collection errors = new ArrayList();
-        LaTeXSourceImpl lsi =  new LaTeXSourceImpl(testFileObject);
         
         getLog().println("Parsing:");
-        DocumentNode node = new CommandParser().parse(lsi, errors);
+        DocumentNode node = new CommandParser().parse(testFileObject, new LinkedList(), errors);
         getLog().println("Done.");
         
         PrintWriter ref = new PrintWriter(getRef());

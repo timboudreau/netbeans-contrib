@@ -14,7 +14,7 @@
  *
  * The Original Software is the LaTeX module.
  * The Initial Developer of the Original Software is Jan Lahoda.
- * Portions created by Jan Lahoda_ are Copyright (C) 2002,2003.
+ * Portions created by Jan Lahoda_ are Copyright (C) 2002-2007.
  * All Rights Reserved.
  *
  * Contributor(s): Jan Lahoda.
@@ -22,7 +22,6 @@
 package org.netbeans.modules.latex.model.command;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -33,7 +32,6 @@ import javax.xml.parsers.ParserConfigurationException;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.Repository;
 import org.openide.xml.EntityCatalog;
-import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
 /**
@@ -53,8 +51,8 @@ public final class CommandPackage extends NamedAttributableWithSubElements {
     
     private int type = 0;
     
-    private Map/*<String, Option>*/ options;
-    private Set/*<String>*/              includes;
+    private Map<String, Option> options;
+    private Set<String>              includes;
     
     /*package private*/void setType(int type) {
         this.type = type;
@@ -68,24 +66,24 @@ public final class CommandPackage extends NamedAttributableWithSubElements {
         return type;
     }
     
-    public synchronized Map getOptions() {
+    public synchronized Map<String, Option> getOptions() {
         if (options == null)
-            return options = new HashMap();
+            return options = new HashMap<String, Option>();
         
         return options;
     }
     
-    public synchronized Set getIncludes() {
+    public synchronized Set<String> getIncludes() {
         if (includes == null)
-            return includes = new HashSet();
+            return includes = new HashSet<String>();
 
         return includes;
     }
     
-    private static Map/*<String, CommandPackage>*/ name2documentClass = null;
-    private static Map/*<String, CommandPackage>*/ name2package = null;
+    private static Map<String, CommandPackage> name2documentClass = null;
+    private static Map<String, CommandPackage> name2package = null;
     
-    private static synchronized Map/*<String, CommandPackage>*/ getName2DocumentClass() {
+    private static synchronized Map<String, CommandPackage> getName2DocumentClass() {
         if (name2documentClass == null) {
             load();
         }
@@ -93,7 +91,7 @@ public final class CommandPackage extends NamedAttributableWithSubElements {
         return name2documentClass;
     }
     
-    private static synchronized Map/*<String, CommandPackage>*/ getName2Package() {
+    private static synchronized Map<String, CommandPackage> getName2Package() {
         if (name2package == null) {
             load();
         }
@@ -111,12 +109,12 @@ public final class CommandPackage extends NamedAttributableWithSubElements {
     }
 
     public static CommandPackage getCommandPackageForName(String name) {
-        CommandPackage result = (CommandPackage) getName2DocumentClass().get(name);
+        CommandPackage result = getName2DocumentClass().get(name);
         
         if (result != null)
             return result;
         
-        return (CommandPackage) getName2Package().get(name);
+        return getName2Package().get(name);
     }
 
     /**Returns the collection of names of known document classes.
@@ -140,8 +138,8 @@ public final class CommandPackage extends NamedAttributableWithSubElements {
     private static synchronized void load() {
         long start = System.currentTimeMillis();
         
-        name2documentClass = new HashMap();
-        name2package = new HashMap();
+        name2documentClass = new HashMap<String, CommandPackage>();
+        name2package = new HashMap<String, CommandPackage>();
         
         FileObject root = Repository.getDefault().getDefaultFileSystem().findResource(FILE_ROOT);
         FileObject[] children = root.getChildren();

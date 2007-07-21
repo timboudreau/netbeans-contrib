@@ -14,7 +14,7 @@
  *
  * The Original Software is the LaTeX module.
  * The Initial Developer of the Original Software is Jan Lahoda.
- * Portions created by Jan Lahoda_ are Copyright (C) 2002-2006.
+ * Portions created by Jan Lahoda_ are Copyright (C) 2002-2007.
  * All Rights Reserved.
  *
  * Contributor(s): Jan Lahoda.
@@ -22,7 +22,6 @@
 package org.netbeans.modules.latex.editor.completion.latex;
 
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
@@ -30,13 +29,16 @@ import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
 import javax.swing.text.JTextComponent;
 import javax.swing.text.Position;
+import org.netbeans.api.gsf.CancellableTask;
 import org.netbeans.api.lexer.Token;
+import org.netbeans.api.lexer.TokenHierarchy;
 import org.netbeans.api.lexer.TokenId;
+import org.netbeans.api.lexer.TokenSequence;
+import org.netbeans.api.retouche.source.CompilationController;
+import org.netbeans.api.retouche.source.Phase;
+import org.netbeans.api.retouche.source.Source;
 import org.netbeans.modules.editor.fscompletion.spi.support.FSCompletion;
 import org.netbeans.modules.editor.fscompletion.spi.support.FileObjectFilter;
-import org.netbeans.modules.latex.editor.AnalyseBib;
-import org.netbeans.modules.latex.editor.TexLanguage;
-import org.netbeans.modules.latex.editor.Utilities;
 import org.netbeans.modules.latex.editor.completion.latex.TexCompletionItem.BiBRecordCompletionItem;
 import org.netbeans.modules.latex.editor.completion.latex.TexCompletionItem.CommandCompletionItem;
 import org.netbeans.modules.latex.editor.completion.latex.TexCompletionItem.DocClassCompletionItem;
@@ -44,7 +46,10 @@ import org.netbeans.modules.latex.editor.completion.latex.TexCompletionItem.Envi
 import org.netbeans.modules.latex.editor.completion.latex.TexCompletionItem.LabelCompletionItem;
 import org.netbeans.modules.latex.editor.completion.latex.TexCompletionItem.ValueCompletionItem;
 import org.netbeans.modules.latex.model.IconsStorage;
+import org.netbeans.modules.latex.model.LaTeXParserResult;
 import org.netbeans.modules.latex.model.LabelInfo;
+import org.netbeans.modules.latex.model.Utilities;
+import org.netbeans.modules.latex.model.bibtex.PublicationEntry;
 import org.netbeans.modules.latex.model.command.ArgumentContainingNode;
 import org.netbeans.modules.latex.model.command.ArgumentNode;
 import org.netbeans.modules.latex.model.command.BlockNode;
@@ -52,18 +57,19 @@ import org.netbeans.modules.latex.model.command.Command;
 import org.netbeans.modules.latex.model.command.CommandNode;
 import org.netbeans.modules.latex.model.command.CommandPackage;
 import org.netbeans.modules.latex.model.command.Environment;
+import org.netbeans.modules.latex.model.lexer.TexTokenId;
 import org.netbeans.spi.editor.completion.CompletionProvider;
 import org.netbeans.spi.editor.completion.CompletionResultSet;
 import org.netbeans.spi.editor.completion.CompletionTask;
 import org.netbeans.spi.editor.completion.support.AsyncCompletionQuery;
 import org.netbeans.spi.editor.completion.support.AsyncCompletionTask;
-import org.netbeans.modules.latex.model.command.LaTeXSource;
 import org.netbeans.modules.latex.model.command.Node;
 import org.netbeans.modules.latex.model.command.SourcePosition;
 import org.openide.ErrorManager;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
 import org.openide.loaders.DataObject;
+import org.openide.util.Exceptions;
 
 
 /**
@@ -72,11 +78,11 @@ import org.openide.loaders.DataObject;
  */
 public class TexCompletion implements CompletionProvider {
     
-    protected static void getCommandsForPrefix(CompletionResultSet resultSet, LaTeXSource source, Document doc, DataObject od, Position pos, String prefix, int start) throws BadLocationException {
+    protected static void getCommandsForPrefix(CompletionResultSet resultSet, LaTeXParserResult lpr, Document doc, DataObject od, Position pos, String prefix, int start) throws BadLocationException {
         Object file = od.getPrimaryFile();
         try {
-            SourcePosition spos = new SourcePosition(file, org.netbeans.modules.latex.model.Utilities.getDefault().openDocument(file), pos);
-            List commandsList = source.getCommands(spos);
+            SourcePosition spos = new SourcePosition(file, Utilities.getDefault().openDocument(file), pos);
+            List commandsList = lpr.getCommandUtilities().getCommands(spos);
             
             if (commandsList != null) {
                 Iterator commands = commandsList.iterator();
@@ -87,7 +93,7 @@ public class TexCompletion implements CompletionProvider {
                     
                     if (commandName.startsWith(prefix)) {
                         if (comm.hasAttribute("end") && comm.getArgumentCount() == 1 && comm.getArgument(0).hasAttribute("#environmentname")) {
-                            BlockNode node = findBlockNode(source, doc, pos.getOffset());
+                            BlockNode node = findBlockNode(lpr, doc, pos.getOffset());
                             resultSet.addItem(new ValueCompletionItem(start, commandName + "{" + node.getEnvironment().getName() + "}"));
                         } else {
                             boolean isIcon = IconsStorage.getDefault().getAllIconNames().contains(commandName);
@@ -102,21 +108,21 @@ public class TexCompletion implements CompletionProvider {
     }
     
     private static boolean isCommand(TokenId token) {
-        return token == TexLanguage.COMMAND;
+        return token == TexTokenId.COMMAND;
     }
     
-    private static ArgumentNode lookupArgument(LaTeXSource source, Document doc, int offset) {
+    private static ArgumentNode lookupArgument(LaTeXParserResult lpr, Document doc, int offset) {
         try {
-            Node node = source.findNode(doc, offset);
+            Node node = lpr.getCommandUtilities().findNode(doc, offset);
             
             if (node instanceof ArgumentNode) {
                 ArgumentNode anode = (ArgumentNode) node;
 
-                Iterator tokens = anode.getDeepNodeTokens();
+                Iterator tokens = anode.getDeepNodeTokens().iterator();
 
                 if (   node.getStartingPosition().getOffsetValue() >= offset
                     && tokens.hasNext()
-                    && ((Token) tokens.next()).getId() == TexLanguage.COMP_BRACKET_LEFT) {
+                    && ((Token) tokens.next()).id() == TexTokenId.COMP_BRACKET_LEFT) {
                     return null;
                 }
                 
@@ -130,9 +136,9 @@ public class TexCompletion implements CompletionProvider {
         }
     }
 
-    private static BlockNode findBlockNode(LaTeXSource source, Document doc, int offset) {
+    private static BlockNode findBlockNode(LaTeXParserResult lpr, Document doc, int offset) {
         try {
-            Node node = source.findNode(doc, offset);
+            Node node = lpr.getCommandUtilities().findNode(doc, offset);
 
             while (!(node instanceof BlockNode) && node != null) {
                 node = node.getParent();
@@ -157,8 +163,8 @@ public class TexCompletion implements CompletionProvider {
     
     private static interface ArgumentCompletionHandler {
         public String[]               getArgumentTags();
-        public String                 preprocessPrefix(LaTeXSource source, ArgumentNode node, String prefix);
-        public void                   getCompletionResult(CompletionResultSet set, LaTeXSource source, ArgumentNode node, String prefix, int start);
+        public String                 preprocessPrefix(LaTeXParserResult lpr, ArgumentNode node, String prefix);
+        public void                   getCompletionResult(CompletionResultSet set, LaTeXParserResult lpr, ArgumentNode node, String prefix, int start);
     }
     
     private static class RefArgumentCompletionHandler implements ArgumentCompletionHandler {
@@ -167,8 +173,8 @@ public class TexCompletion implements CompletionProvider {
             return new String[] {"#ref"};
         }
         
-        public void getCompletionResult(CompletionResultSet set, LaTeXSource source, ArgumentNode node, String prefix, int start) {
-            Collection/*<LabelInfo>*/ labels = org.netbeans.modules.latex.model.Utilities.getDefault().getLabels(source);
+        public void getCompletionResult(CompletionResultSet set, LaTeXParserResult lpr, ArgumentNode node, String prefix, int start) {
+            Collection/*<LabelInfo>*/ labels = Utilities.getDefault().getLabels(lpr);
             
             Iterator             labelsIter = labels.iterator();
             
@@ -186,7 +192,7 @@ public class TexCompletion implements CompletionProvider {
             }
         }
         
-        public String preprocessPrefix(LaTeXSource source, ArgumentNode node, String prefix) {
+        public String preprocessPrefix(LaTeXParserResult lpr, ArgumentNode node, String prefix) {
             return prefix;
         }
         
@@ -198,20 +204,18 @@ public class TexCompletion implements CompletionProvider {
             return new String[] {"#cite"};
         }
         
-        public void getCompletionResult(CompletionResultSet set, LaTeXSource source, ArgumentNode node, String prefix, int start) {
-            List/*<BibRecord>*/ references = Utilities.getAllBibReferences(source);
+        public void getCompletionResult(CompletionResultSet set, LaTeXParserResult lpr, ArgumentNode node, String prefix, int start) {
+            List<? extends PublicationEntry> references = Utilities.getDefault().getAllBibReferences(lpr);
             Iterator            referencesIter = references.iterator();
             
-            while (referencesIter.hasNext()) {
-                AnalyseBib.BibRecord record = (AnalyseBib.BibRecord) referencesIter.next();
-                
-                if (record.getRef().startsWith(prefix)) {
-                    set.addItem(new BiBRecordCompletionItem(start, record));
+            for (PublicationEntry entry : references) {
+                if (entry.getTag().startsWith(prefix)) {
+                    set.addItem(new BiBRecordCompletionItem(start, entry));
                 }
             }
         }
         
-        public String preprocessPrefix(LaTeXSource source, ArgumentNode node, String prefix) {
+        public String preprocessPrefix(LaTeXParserResult lpr, ArgumentNode node, String prefix) {
             return preprocessList(prefix);
         }
         
@@ -223,7 +227,7 @@ public class TexCompletion implements CompletionProvider {
             return new String[] {"#documentclass", "#package"};
         }
         
-        public void getCompletionResult(CompletionResultSet set, LaTeXSource source, ArgumentNode node, String prefix, int start) {
+        public void getCompletionResult(CompletionResultSet set, LaTeXParserResult lpr, ArgumentNode node, String prefix, int start) {
             Collection names;
             
             if (node.getArgument().hasAttribute("#documentclass")) {
@@ -239,7 +243,7 @@ public class TexCompletion implements CompletionProvider {
             }
         }
         
-        public String preprocessPrefix(LaTeXSource source, ArgumentNode node, String prefix) {
+        public String preprocessPrefix(LaTeXParserResult lpr, ArgumentNode node, String prefix) {
             if (node.getArgument().hasAttribute("#package"))
                 return preprocessList(prefix);
             else
@@ -254,7 +258,7 @@ public class TexCompletion implements CompletionProvider {
             return new String[] {"#documentclassoptions", "#packageoptions"};
         }
         
-        public void getCompletionResult(CompletionResultSet set, LaTeXSource source, ArgumentNode node, String prefix, int start) {
+        public void getCompletionResult(CompletionResultSet set, LaTeXParserResult lpr, ArgumentNode node, String prefix, int start) {
             ArgumentContainingNode container = node.getCommand();
             
             if (!(container instanceof CommandNode))
@@ -285,7 +289,7 @@ public class TexCompletion implements CompletionProvider {
             }
         }
         
-        public String preprocessPrefix(LaTeXSource source, ArgumentNode node, String prefix) {
+        public String preprocessPrefix(LaTeXParserResult lpr, ArgumentNode node, String prefix) {
             return preprocessList(prefix);
         }
         
@@ -297,17 +301,17 @@ public class TexCompletion implements CompletionProvider {
                 return new String[] {"#include"};
             }
 
-            public void getCompletionResult(CompletionResultSet set, LaTeXSource source, ArgumentNode node, String prefix, int start) {
+            public void getCompletionResult(CompletionResultSet set, LaTeXParserResult lpr, ArgumentNode node, String prefix, int start) {
                 try {
-                    set.addAllItems(FSCompletion.completion(null, (FileObject) source.getMainFile(), prefix, start, TEX_FILTER));
+                    set.addAllItems(FSCompletion.completion(null, lpr.getMainFile(), prefix, start, TEX_FILTER));
                     if (prefix.length() == 0)
-                        set.addItem(new TexCompletionItem.NewFileCompletionItem(start, (FileObject) source.getMainFile()));
+                        set.addItem(new TexCompletionItem.NewFileCompletionItem(start, lpr.getMainFile()));
                 } catch (IOException e) {
                     ErrorManager.getDefault().notify(ErrorManager.INFORMATIONAL, e);
                 }
             }
 
-            public String preprocessPrefix(LaTeXSource source, ArgumentNode node, String prefix) {
+            public String preprocessPrefix(LaTeXParserResult lpr, ArgumentNode node, String prefix) {
                 return prefix;
             }
 
@@ -338,7 +342,7 @@ public class TexCompletion implements CompletionProvider {
             return new String[] {"#environmentname"};
         }
         
-        public void getCompletionResult(CompletionResultSet set, LaTeXSource source, ArgumentNode node, String prefix, int start) {
+        public void getCompletionResult(CompletionResultSet set, LaTeXParserResult lpr, ArgumentNode node, String prefix, int start) {
             try {
                 ArgumentContainingNode container = node.getCommand();
                 
@@ -346,7 +350,7 @@ public class TexCompletion implements CompletionProvider {
                     return;
                 
                 CommandNode cnode = (CommandNode) container;
-                List environments = source.getEnvironments(cnode.getStartingPosition());
+                List environments = lpr.getCommandUtilities().getEnvironments(cnode.getStartingPosition());
                 Iterator            environmentsIter = environments.iterator();
                 
                 while (environmentsIter.hasNext()) {
@@ -360,7 +364,7 @@ public class TexCompletion implements CompletionProvider {
             }
         }
         
-        public String preprocessPrefix(LaTeXSource source, ArgumentNode node, String prefix) {
+        public String preprocessPrefix(LaTeXParserResult lpr, ArgumentNode node, String prefix) {
             return prefix;
         }
         
@@ -382,8 +386,8 @@ public class TexCompletion implements CompletionProvider {
     }
     
     
-    private static void getSpecialCommandArguments(CompletionResultSet set, LaTeXSource source, Document doc, int offset, int start) throws BadLocationException {
-        ArgumentNode argument = lookupArgument(source, doc, offset);
+    private static void getSpecialCommandArguments(CompletionResultSet set, LaTeXParserResult lpr, Document doc, int offset, int start) throws BadLocationException {
+        ArgumentNode argument = lookupArgument(lpr, doc, offset);
         
         if (argument != null) {
             ArgumentContainingNode container = argument.getCommand();
@@ -410,9 +414,9 @@ public class TexCompletion implements CompletionProvider {
                 
                 for (int atr_cntr = 0; atr_cntr < attributes.length; atr_cntr++) {
                     if (argument.getArgument().hasAttribute(attributes[atr_cntr])) {
-                        ccPrefix = handlers[cntr].preprocessPrefix(source, argument, ccPrefix);
+                        ccPrefix = handlers[cntr].preprocessPrefix(lpr, argument, ccPrefix);
                         
-                        handlers[cntr].getCompletionResult(set, source, argument, ccPrefix, start);
+                        handlers[cntr].getCompletionResult(set, lpr, argument, ccPrefix, start);
                     }
                 }
             }
@@ -429,8 +433,8 @@ public class TexCompletion implements CompletionProvider {
         }
     }
     
-    private static boolean isArgument(LaTeXSource source, Document doc, int index) {
-        return lookupArgument(source, doc, index) != null;
+    private static boolean isArgument(LaTeXParserResult lpr, Document doc, int index) {
+        return lookupArgument(lpr, doc, index) != null;
     }
     
     public CompletionTask createTask(int queryType, JTextComponent component) {
@@ -447,41 +451,41 @@ public class TexCompletion implements CompletionProvider {
     
     private static class Query extends AsyncCompletionQuery {
         
-        protected void query(CompletionResultSet resultSet, Document doc, int caretOffset) {
-            LaTeXSource.Lock lock = null;
-            LaTeXSource      source = null;
+        protected void query(final CompletionResultSet resultSet, final Document doc, final int caretOffset) {
+            final DataObject od = (DataObject) doc.getProperty(Document.StreamDescriptionProperty); //TODO: this won't work in SA
+            Source source = Source.forDocument(doc);
             try {
-                DataObject od = (DataObject) doc.getProperty(Document.StreamDescriptionProperty); //TODO: this won't work in SA
+                source.runUserActionTask(new CancellableTask<CompilationController>() {
+                    public void cancel() {}
+                    public void run(CompilationController parameter) throws Exception {
+                        parameter.toPhase(Phase.RESOLVED);
+                        
+                        LaTeXParserResult lpr = (LaTeXParserResult) parameter.getParserResult();
+                                
+                        int type;
+                        
+                        Token token = getToken(doc, caretOffset);
+                        
+                        String caption      = null;
+                        int start = getStartingOffset(doc, caretOffset);
+                        
+                        if (isCommand(token.id())) {
+                            Position pos = doc.createPosition(caretOffset);
+                            String prefix = token.text().subSequence(0, caretOffset - start + 1).toString();
+                            
+                            getCommandsForPrefix(resultSet, lpr, doc, od, pos, prefix, start);
+                        }
+                        
+                        if (isArgument(lpr, doc, caretOffset)) {
+                            getSpecialCommandArguments(resultSet, lpr, doc, caretOffset, start);
+                        }
+                    }
+                }, true);
                 
-                source = LaTeXSource.get(od.getPrimaryFile());
-                
-                lock = source.lock();
-                
-                int type;
-                
-                Token token = Utilities.getToken(doc, caretOffset);
-                
-                String caption      = null;
-                int start = Utilities.getStartingOffset(doc, caretOffset);
-                
-                if (isCommand(token.getId())) {
-                    Position pos = doc.createPosition(caretOffset);
-                    String prefix = token.getText().subSequence(0, caretOffset - start + 1).toString();
-                    
-                    getCommandsForPrefix(resultSet, source, doc, od, pos, prefix, start);
-                }
-                
-                if (isArgument(source, doc, caretOffset)) {
-                    getSpecialCommandArguments(resultSet, source, doc, caretOffset, start);
-                }
-                
-                resultSet.finish();
-            } catch (BadLocationException e) {
-                ErrorManager.getDefault().notify(e);
+            } catch (IOException e) {
+                Exceptions.printStackTrace(e);
             } finally {
-                if (lock != null) {
-                    source.unlock(lock);
-                }
+                resultSet.finish();
             }
         }
         
@@ -489,5 +493,36 @@ public class TexCompletion implements CompletionProvider {
             super.filter(resultSet);
         }
         
+    }
+
+
+    public static final Token<TexTokenId> getToken(Document doc, int offset) throws ClassCastException {
+        TokenSequence<TexTokenId> ts = (TokenSequence<TexTokenId>) TokenHierarchy.get(doc).tokenSequence();
+        
+        ts.move(offset > 0 ? offset - 1 : 0); //TODO: -1??/
+        
+        if (ts.moveNext())
+            return ts.token();
+        else
+            return null;
+    }
+    
+    public static final int getStartingOffset(Document doc, int offset) {
+        TokenHierarchy h = TokenHierarchy.get(doc);
+        TokenSequence ts = h.tokenSequence();
+        
+        ts.move(offset);
+        ts.moveNext();
+        
+        Token orig = ts.token();
+        int newOffset = ts.offset();
+        
+        if (getToken(doc, newOffset) == orig)
+            return newOffset;
+        
+        if (getToken(doc, newOffset + 1) == orig)
+            return newOffset + 1;
+        
+        throw new IllegalStateException("");
     }
 }

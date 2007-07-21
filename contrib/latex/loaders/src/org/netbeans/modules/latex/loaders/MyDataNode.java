@@ -14,44 +14,24 @@
  *
  * The Original Software is the LaTeX module.
  * The Initial Developer of the Original Software is Jan Lahoda.
- * Portions created by Jan Lahoda_ are Copyright (C) 2002-2005.
+ * Portions created by Jan Lahoda_ are Copyright (C) 2002-2007.
  * All Rights Reserved.
  *
  * Contributor(s): Jan Lahoda.
  */
 package org.netbeans.modules.latex.loaders;
 
-import java.awt.Image;
-import java.beans.IntrospectionException;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
-import java.util.Collections;
 import java.util.Locale;
-import javax.swing.Icon;
-import org.netbeans.modules.latex.model.command.LaTeXSource;
 import org.netbeans.modules.latex.model.command.LaTeXSourceFactory;
 
-import org.openide.ErrorManager;
 import org.openide.loaders.DataNode;
-import org.openide.loaders.DataObject;
-//import org.openide.loaders.ExecutionSupport;
-import org.openide.nodes.BeanNode;
 import org.openide.nodes.Children;
-import org.openide.nodes.Node;
 import org.openide.nodes.PropertySupport;
 import org.openide.nodes.Sheet;
 import org.openide.util.NbBundle;
-import org.openide.util.RequestProcessor;
 
-import org.netbeans.modules.latex.model.structural.Model;
-import org.netbeans.modules.latex.model.structural.ModelListener;
-import org.netbeans.modules.latex.model.structural.StructuralElement;
-import org.netbeans.modules.latex.model.structural.StructuralNodeFactory;
-import org.openide.filesystems.FileObject;
-import org.openide.util.Lookup;
-import org.openide.util.WeakListeners;
 
 /** A node to represent this object.
  *
@@ -64,7 +44,7 @@ public class MyDataNode extends DataNode {
     private LaTeXSourceFactory.MainFileListener factoryListener;
     
     public MyDataNode(TexDataObject obj) {
-        this(obj, new TexChildren(obj));
+        this(obj, Children.LEAF);
     }
     
     protected MyDataNode(TexDataObject obj, Children ch) {
@@ -166,74 +146,5 @@ public class MyDataNode extends DataNode {
     }
 
     // Don't use getDefaultAction(); just make that first in the data loader's getActions list
-    
-    private static class TexChildren extends Children.Keys implements ModelListener {
-        
-        private DataObject mainFile;
-        
-        public TexChildren(DataObject mainFile) {
-            this.mainFile = mainFile;
-        }
-        
-        private FileObject getFileObject() {
-            LaTeXSource source = LaTeXSource.get(mainFile.getPrimaryFile());
-            
-            if (source != null)
-                return (FileObject) source.getMainFile();
-            else
-                return null;
-        }
-        
-        protected Node[] createNodes(Object key) {
-            if (key instanceof StructuralElement) {
-                return new Node[] {StructuralNodeFactory.createNode((StructuralElement) key)};
-            } else {
-                try {
-                    return new Node[] {new BeanNode(key)};
-                } catch (IntrospectionException e) {
-                    ErrorManager.getDefault().notify(e);
-                    
-                    return new Node[0];
-                }
-            }
-        }
-        
-        
-        private void setDocumentElement(StructuralElement el) {
-            setKeys(new StructuralElement[] {el}); //!!!!!
-        }
-        
-        public void addNotify() {
-            setKeys(new Object[] {new Waiting()});
-            Model.getDefault().addModelListener(getFileObject(), this);
-            RequestProcessor.getDefault().post(new Runnable() {
-                public void run() {
-                    StructuralElement el = Model.getDefault().getModel(getFileObject());
-                    
-                    if (el != null)
-                        setDocumentElement(el);
-                    //The possibility that the model may be out-of-date is ignored for performance reasons.
-                }
-            });
-        }
-        
-        public void removeNotify() {
-            Model.getDefault().removeModelListener(getFileObject(), this);
-            setKeys(Collections.EMPTY_SET);
-            //Remove listners.
-        }
-        
-        public void modelChanged(FileObject mainFile) {
-//            System.err.println("Model changed, obj=" + obj);
-            setDocumentElement(Model.getDefault().getModel(mainFile));
-        }
-        
-        private static class Waiting {
-            public String getName() {
-                return "Parsing...";
-            }
-        }
-        
-    }
     
 }

@@ -14,32 +14,19 @@
  *
  * The Original Software is the LaTeX module.
  * The Initial Developer of the Original Software is Jan Lahoda.
- * Portions created by Jan Lahoda_ are Copyright (C) 2002,2003.
+ * Portions created by Jan Lahoda_ are Copyright (C) 2002-2007.
  * All Rights Reserved.
  *
  * Contributor(s): Jan Lahoda.
  */
 package org.netbeans.modules.latex.loaders;
 
-import java.awt.event.ActionEvent;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 import java.io.*;
-import java.lang.reflect.Method;
-import javax.swing.AbstractAction;
-import javax.swing.Action;
-import javax.swing.JEditorPane;
 import javax.swing.SwingUtilities;
-import javax.swing.event.DocumentEvent;
-import javax.swing.event.DocumentListener;
 import javax.swing.text.BadLocationException;
-import javax.swing.text.Document;
 import javax.swing.text.EditorKit;
 import javax.swing.text.StyledDocument;
-import org.netbeans.modules.latex.editor.ActionsFactory;
-import org.netbeans.modules.latex.editor.TexKit;
-import org.netbeans.modules.latex.model.command.LaTeXSource;
-import org.netbeans.modules.latex.model.command.impl.LaTeXSourceImpl;
+import org.netbeans.modules.latex.model.command.LaTeXSourceFactory;
 
 import org.openide.filesystems.FileLock;
 import org.openide.filesystems.FileObject;
@@ -47,21 +34,17 @@ import org.openide.text.CloneableEditor;
 import org.openide.text.DataEditorSupport;
 import org.openide.text.DataEditorSupport.Env;
 import org.openide.windows.CloneableOpenSupport;
-import org.openide.windows.TopComponent;
 
 
 import org.openide.cookies.*;
 import org.openide.util.Lookup;
-import org.openide.util.actions.CallbackSystemAction;
-import org.openide.util.actions.SystemAction;
-import org.openide.windows.WindowManager;
 
 /** Support for editing a data object as text.
  *
  * @author Jan Lahoda
  */
 // Replace OpenCookie with EditCookie or maybe ViewCookie as desired:
-public class TexEditorSupport extends DataEditorSupport implements EditorCookie, OpenCookie, CloseCookie, PrintCookie, EditorCookie.Observable, PropertyChangeListener {
+public class TexEditorSupport extends DataEditorSupport implements EditorCookie, OpenCookie, CloseCookie, PrintCookie, EditorCookie.Observable {
     
     private static final boolean debugReparse = Boolean.getBoolean("netbeans.debug.reparse.title");
     
@@ -72,33 +55,17 @@ public class TexEditorSupport extends DataEditorSupport implements EditorCookie,
         super(obj, new TexEnv(obj));
         // Set a MIME type as needed, e.g.:
         setMIMEType("text/x-tex");
-        
-        if (debugReparse) {
-            addPropertyChangeListener(this);
-            
-//            updateListeners();
-        }
-    }
-    
-    private LaTeXSource.DocumentChangedListener sourceListener = null;
-    private DocumentListener documentListener = null;
-    private boolean     sourceListernersInstalled = false;
-    private Object      sourceLock  = new Object();
-    
-    public StyledDocument openDocument() throws IOException {
-        //This is only a workaround against the winsys agressive lazyness:
-        StyledDocument doc = super.openDocument();
-        
-        if (debugReparse)
-            updateListeners();
-        
-        return doc;
     }
     
     public void open() {
         //Lets give the LaTeXSource managment system and the user opportunity
         //find out what is the main file of this file:
-        LaTeXSource source = LaTeXSource.get(getDataObject().getPrimaryFile());
+        for (LaTeXSourceFactory f : Lookup.getDefault().lookupAll(LaTeXSourceFactory.class)) {
+            if (f.supports(getDataObject().getPrimaryFile())) {
+                f.findMainFile(getDataObject().getPrimaryFile());
+                break;
+            }
+        }
         
         super.open();
     }
@@ -150,21 +117,6 @@ public class TexEditorSupport extends DataEditorSupport implements EditorCookie,
         '-',
         '+'
     };
-    
-    protected String messageName() {
-        String sup = super.messageName();
-        
-        if (debugReparse) {
-            LaTeXSource source = LaTeXSource.get(getDataObject().getPrimaryFile());
-            
-            if (source instanceof LaTeXSourceImpl)
-                return sup + "[" + source.getDocumentVersion() + symbols[((LaTeXSourceImpl) source).getReparseStateDebug()] + "]";
-            else
-                return sup + "[" + source.getDocumentVersion() + "]";
-        } else {
-            return sup;
-        }
-    }
     
     /** Called when the document is modified.
      * Here, adding a save cookie to the object and marking it modified.
@@ -277,93 +229,6 @@ public class TexEditorSupport extends DataEditorSupport implements EditorCookie,
                 updateTitles();
             }
         });
-    }
-    
-    private void addListeners() {
-        synchronized (sourceLock) {
-            if (!sourceListernersInstalled) {
-                FileObject file = getDataObject().getPrimaryFile();
-                LaTeXSource source = LaTeXSource.get(file);
-                
-                if (source == null)
-                    return ;
-                
-                sourceListener = new LaTeXSource.DocumentChangedListener() {
-                    public void nodesAdded(LaTeXSource.DocumentChangeEvent evt) {
-                        updateTitlesImpl();
-                    }
-                    public void nodesRemoved(LaTeXSource.DocumentChangeEvent evt) {
-                        updateTitlesImpl();
-                    }
-                    public void nodesChanged(LaTeXSource.DocumentChangeEvent evt) {
-                        updateTitlesImpl();
-                    }
-                };
-                
-                source.addDocumentChangedListener(sourceListener);
-                
-                Document doc = getDocument();
-                
-                if (doc != null) {
-                    documentListener = new DocumentListener() {
-                        public void changedUpdate(DocumentEvent e) {
-                            updateTitlesImpl();
-                        }
-                        
-                        public void insertUpdate(DocumentEvent e) {
-                            updateTitlesImpl();
-                        }
-                        
-                        public void removeUpdate(DocumentEvent e) {
-                            updateTitlesImpl();
-                        }
-                    };
-                    doc.addDocumentListener(documentListener);
-                }
-            }
-            
-            sourceListernersInstalled = true;
-        }
-    }
-    
-    private void removeListeners() {
-        synchronized(sourceLock) {
-            sourceListernersInstalled = false;
-            
-            FileObject file = getDataObject().getPrimaryFile();
-            LaTeXSource source = LaTeXSource.get(file);
-            
-            if (source == null) {
-                sourceListener = null;
-                documentListener = null;
-                return ;
-            }
-            
-            source.removeDocumentChangedListener(sourceListener);
-            
-            Document doc = getDocument();
-            
-            if (doc != null)
-                doc.removeDocumentListener(documentListener);
-            
-            sourceListener = null;
-            documentListener = null;
-            
-        }
-    }
-    
-    private void updateListeners() {
-        if (getOpenedPanes() != null) {
-            addListeners();
-        } else {
-            removeListeners();
-        }
-    }
-    
-    public void propertyChange(PropertyChangeEvent evt) {
-        if (PROP_OPENED_PANES.equals(evt.getPropertyName())) {
-            updateListeners();
-        }
     }
     
     /** A description of the binding between the editor support and the object.

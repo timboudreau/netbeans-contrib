@@ -14,7 +14,7 @@
  *
  * The Original Software is the LaTeX module.
  * The Initial Developer of the Original Software is Jan Lahoda.
- * Portions created by Jan Lahoda_ are Copyright (C) 2002,2003.
+ * Portions created by Jan Lahoda_ are Copyright (C) 2002-2007.
  * All Rights Reserved.
  *
  * Contributor(s): Jan Lahoda.
@@ -117,6 +117,10 @@ public final class SourcePosition implements Serializable {
     
     public int getOffsetValue() {
         return position.getOffset();
+    }
+    
+    public Document getDocument() {
+        return doc;
     }
     
     public String toString() {

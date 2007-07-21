@@ -14,12 +14,14 @@
  *
  * The Original Software is the LaTeX module.
  * The Initial Developer of the Original Software is Jan Lahoda.
- * Portions created by Jan Lahoda_ are Copyright (C) 2002,2003.
+ * Portions created by Jan Lahoda_ are Copyright (C) 2002-2007.
  * All Rights Reserved.
  *
  * Contributor(s): Jan Lahoda.
  */
 package org.netbeans.modules.latex.editor;
+
+import org.netbeans.modules.latex.model.lexer.TexTokenId;
 
 /**
  *
@@ -32,12 +34,12 @@ public class TexColoringNames {
     }
 
     //Basic token colorings:
-    public static final String COMMAND_GENERAL   = TexLanguage.COMMAND.getName();
-    public static final String COMMENT           = TexLanguage.COMMENT.getName();
-    public static final String WHITESPACE        = TexLanguage.WHITESPACE.getName();
-    public static final String UNKNOWN_CHARACTER = TexLanguage.UNKNOWN_CHARACTER.getName();
-    public static final String WORD              = TexLanguage.WORD.getName();
-    public static final String PARAGRAPH_END     = TexLanguage.PARAGRAPH_END.getName();
+    public static final String COMMAND_GENERAL   = TexTokenId.COMMAND.name();
+    public static final String COMMENT           = TexTokenId.COMMENT.name();
+    public static final String WHITESPACE        = TexTokenId.WHITESPACE.name();
+    public static final String UNKNOWN_CHARACTER = TexTokenId.UNKNOWN_CHARACTER.name();
+    public static final String WORD              = TexTokenId.WORD.name();
+    public static final String PARAGRAPH_END     = TexTokenId.PARAGRAPH_END.name();
     
     //Modifiers:
     

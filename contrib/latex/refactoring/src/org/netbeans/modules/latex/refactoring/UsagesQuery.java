@@ -13,13 +13,14 @@
  * "Portions Copyrighted [year] [name of copyright owner]"
  *
  * The Original Software is NetBeans. The Initial Developer of the Original
- * Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
+ * Software is Sun Microsystems, Inc. Portions Copyright 1997-2007 Sun
  * Microsystems, Inc. All Rights Reserved.
  */
 package org.netbeans.modules.latex.refactoring;
 
 import java.util.ArrayList;
 import java.util.List;
+import org.netbeans.modules.latex.model.LaTeXParserResult;
 import org.netbeans.modules.latex.model.Utilities;
 import org.netbeans.modules.latex.model.command.ArgumentNode;
 import org.netbeans.modules.latex.model.command.BlockNode;
@@ -27,7 +28,6 @@ import org.netbeans.modules.latex.model.command.Command;
 import org.netbeans.modules.latex.model.command.CommandNode;
 import org.netbeans.modules.latex.model.command.DefaultTraverseHandler;
 import org.netbeans.modules.latex.model.command.Environment;
-import org.netbeans.modules.latex.model.command.LaTeXSource;
 import org.netbeans.modules.latex.model.command.Node;
 
 /**
@@ -48,10 +48,10 @@ public class UsagesQuery {
         return text.subSequence(start, end);
     }
     
-    public static List<ArgumentNode> findLabelUsages(LaTeXSource source, final String label) {
-        final List<ArgumentNode> result = new ArrayList();
+    public static List<ArgumentNode> findLabelUsages(LaTeXParserResult lpr, final String label) {
+        final List<ArgumentNode> result = new ArrayList<ArgumentNode>();
         
-        source.traverse(new DefaultTraverseHandler() {
+        lpr.getDocument().traverse(new DefaultTraverseHandler() {
             @Override
             public boolean argumentStart(ArgumentNode node) {
                 if (node.hasAttribute("#ref") || node.hasAttribute("#label")) {
@@ -61,15 +61,15 @@ public class UsagesQuery {
                 }
                 return true;
             }
-        }, LaTeXSource.HEAVY_LOCK);
+        });
         
         return result;
     }
     
-    public static List<Node> findCommandUsages(LaTeXSource source, final Command cmd) {
-        final List<Node> result = new ArrayList();
+    public static List<Node> findCommandUsages(LaTeXParserResult lpr, final Command cmd) {
+        final List<Node> result = new ArrayList<Node>();
         
-        source.traverse(new DefaultTraverseHandler() {
+        lpr.getDocument().traverse(new DefaultTraverseHandler() {
             @Override
             public boolean commandStart(CommandNode node) {
                 if (node.getCommand().equals(cmd)) {
@@ -86,15 +86,15 @@ public class UsagesQuery {
                 }
                 return true;
             }
-        }, LaTeXSource.HEAVY_LOCK);
+        });
         
         return result;
     }
     
-    public static List<Node> findEnvironmentUsages(LaTeXSource source, final Environment env) {
-        final List<Node> result = new ArrayList();
+    public static List<Node> findEnvironmentUsages(LaTeXParserResult lpr, final Environment env) {
+        final List<Node> result = new ArrayList<Node>();
         
-        source.traverse(new DefaultTraverseHandler() {
+        lpr.getDocument().traverse(new DefaultTraverseHandler() {
             @Override
             public boolean blockStart(BlockNode node) {
                 if (node.getEnvironment().equals(env)) {
@@ -112,7 +112,7 @@ public class UsagesQuery {
                 }
                 return true;
             }
-        }, LaTeXSource.HEAVY_LOCK);
+        });
         
         return result;
     }

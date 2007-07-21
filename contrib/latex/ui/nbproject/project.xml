@@ -34,6 +34,15 @@ Microsystems, Inc. All Rights Reserved.
                     </run-dependency>
                 </dependency>
                 <dependency>
+                    <code-name-base>org.netbeans.api.gsf</code-name-base>
+                    <build-prerequisite/>
+                    <compile-dependency/>
+                    <run-dependency>
+                        <release-version>1</release-version>
+                        <implementation-version/>
+                    </run-dependency>
+                </dependency>
+                <dependency>
                     <code-name-base>org.netbeans.api.progress</code-name-base>
                     <build-prerequisite/>
                     <compile-dependency/>
@@ -74,7 +83,7 @@ Microsystems, Inc. All Rights Reserved.
                     <compile-dependency/>
                     <run-dependency>
                         <release-version>0</release-version>
-                        <specification-version>1.0</specification-version>
+                        <implementation-version/>
                     </run-dependency>
                 </dependency>
                 <dependency>
@@ -86,11 +95,30 @@ Microsystems, Inc. All Rights Reserved.
                     </run-dependency>
                 </dependency>
                 <dependency>
+                    <code-name-base>org.netbeans.modules.gsf</code-name-base>
+                    <build-prerequisite/>
+                    <compile-dependency/>
+                    <run-dependency>
+                        <release-version>1</release-version>
+                        <implementation-version/>
+                    </run-dependency>
+                </dependency>
+                <dependency>
+                    <code-name-base>org.netbeans.modules.jumpto</code-name-base>
+                    <build-prerequisite/>
+                    <compile-dependency/>
+                    <run-dependency>
+                        <release-version>1</release-version>
+                        <implementation-version/>
+                    </run-dependency>
+                </dependency>
+                <dependency>
                     <code-name-base>org.netbeans.modules.latex</code-name-base>
                     <build-prerequisite/>
                     <compile-dependency/>
                     <run-dependency>
                         <release-version>1</release-version>
+                        <implementation-version/>
                     </run-dependency>
                 </dependency>
                 <dependency>
@@ -99,6 +127,7 @@ Microsystems, Inc. All Rights Reserved.
                     <compile-dependency/>
                     <run-dependency>
                         <release-version>1</release-version>
+                        <specification-version>1.4</specification-version>
                     </run-dependency>
                 </dependency>
                 <dependency>
@@ -122,8 +151,26 @@ Microsystems, Inc. All Rights Reserved.
                     <build-prerequisite/>
                     <compile-dependency/>
                     <run-dependency>
-                        <release-version>0</release-version>
+                        <release-version>1</release-version>
                         <specification-version>1.3</specification-version>
+                    </run-dependency>
+                </dependency>
+                <dependency>
+                    <code-name-base>org.netbeans.modules.projectapi</code-name-base>
+                    <build-prerequisite/>
+                    <compile-dependency/>
+                    <run-dependency>
+                        <release-version>1</release-version>
+                        <specification-version>1.13</specification-version>
+                    </run-dependency>
+                </dependency>
+                <dependency>
+                    <code-name-base>org.netbeans.modules.sendopts</code-name-base>
+                    <build-prerequisite/>
+                    <compile-dependency/>
+                    <run-dependency>
+                        <release-version>2</release-version>
+                        <specification-version>2.0</specification-version>
                     </run-dependency>
                 </dependency>
                 <dependency>
@@ -139,7 +186,7 @@ Microsystems, Inc. All Rights Reserved.
                     <build-prerequisite/>
                     <compile-dependency/>
                     <run-dependency>
-                        <release-version>0</release-version>
+                        <release-version>1</release-version>
                         <specification-version>1.0</specification-version>
                     </run-dependency>
                 </dependency>

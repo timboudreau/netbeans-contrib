@@ -14,7 +14,7 @@
  *
  * The Original Software is the LaTeX module.
  * The Initial Developer of the Original Software is Jan Lahoda.
- * Portions created by Jan Lahoda_ are Copyright (C) 2002,2003.
+ * Portions created by Jan Lahoda_ are Copyright (C) 2002-2007.
  * All Rights Reserved.
  *
  * Contributor(s): Jan Lahoda.
@@ -50,7 +50,7 @@ public class GoToSourceAction extends NodeAction {
         return "Go To Source";
     }
     
-    protected void performAction(Node[] activatedNodes) {
+    public void performAction(Node[] activatedNodes) {
         try {
             PositionCookie pc = (PositionCookie) activatedNodes[0].getCookie(PositionCookie.class);
             SourcePosition position = pc.getPosition();

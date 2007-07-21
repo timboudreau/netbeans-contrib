@@ -14,7 +14,7 @@
  *
  * The Original Software is the LaTeX module.
  * The Initial Developer of the Original Software is Jan Lahoda.
- * Portions created by Jan Lahoda_ are Copyright (C) 2002,2003.
+ * Portions created by Jan Lahoda_ are Copyright (C) 2002-2007.
  * All Rights Reserved.
  *
  * Contributor(s): Jan Lahoda.
@@ -39,4 +39,12 @@ public abstract class TraverseHandler {
     public abstract void blockEnd(BlockNode node);
 //    public abstract void textStart(TextNode node);
 //    public abstract void textEnd(TextNode node);
+    
+    public boolean mathStart(MathNode node) {
+        return true;
+    }
+    
+    public void mathEnd() {
+        
+    }
 }

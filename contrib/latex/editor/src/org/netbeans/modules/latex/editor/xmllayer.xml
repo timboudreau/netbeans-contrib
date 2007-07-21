@@ -15,7 +15,7 @@ enclosed by brackets [] replaced by your own identifying information:
 
 The Original Software is the DocSup module.
 The Initial Developer of the Original Software is Jan Lahoda.
-Portions created by Jan Lahoda are Copyright 2002-2006.
+Portions created by Jan Lahoda are Copyright 2002-2007.
 All Rights Reserved.
 
 Contributor(s): Jan Lahoda
@@ -27,6 +27,7 @@ Contributor(s): Jan Lahoda
       <folder name="text">
          <folder name="x-tex">
             <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.latex.editor.Bundle"/>
+            <file name="org-netbeans-modules-latex-editor-HighlightsLayerFactoryImpl.instance" />
             <file name="Settings.settings" url="TexOptions.settings"/>
             <file name="EditorKit.instance">
                 <attr name="instanceClass" stringvalue="org.netbeans.modules.latex.editor.TexKit"/>
@@ -88,10 +89,14 @@ Contributor(s): Jan Lahoda
                 </file>
             </folder>
 
-            <folder name="CompletionProviders">
+<!--            <folder name="CompletionProviders">
                 <file name="org-netbeans-modules-spellchecker-completion-WordCompletion.instance"/>
-            </folder>
+            </folder>-->
             
+            <file name="language.instance">
+                <attr name="instanceCreate" methodvalue="org.netbeans.modules.latex.editor.TexLanguage.description"/>
+                <attr name="instanceOf" stringvalue="org.netbeans.api.lexer.Language"/>
+            </file>
          </folder>
           
          <folder name="x-bibtex">
@@ -113,4 +118,15 @@ Contributor(s): Jan Lahoda
          </folder>
       </folder>
    </folder>
+
+    <folder name="latex">
+        <folder name="structural">
+            <folder name="nodes">
+                <file name="org-netbeans-modules-latex-editor-listing-ListingNodeProvider.instance" />
+            </folder>
+            <folder name="parsers">
+                <file name="org-netbeans-modules-latex-editor-listing-ListingDelegatedParser.instance" />
+            </folder>
+        </folder>
+    </folder>
 </filesystem>

@@ -14,7 +14,7 @@
  *
  * The Original Software is the LaTeX module.
  * The Initial Developer of the Original Software is Jan Lahoda.
- * Portions created by Jan Lahoda_ are Copyright (C) 2002-2006.
+ * Portions created by Jan Lahoda_ are Copyright (C) 2002-2007.
  * All Rights Reserved.
  *
  * Contributor(s): Jan Lahoda.
@@ -36,6 +36,7 @@ import java.util.regex.Pattern;
 import javax.swing.text.Document;
 import org.netbeans.spi.editor.hints.ErrorDescription;
 import org.netbeans.spi.editor.hints.ErrorDescriptionFactory;
+import org.netbeans.spi.editor.hints.Severity;
 import org.openide.cookies.EditorCookie;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
@@ -149,7 +150,7 @@ import org.openide.windows.OutputWriter;
                         DataObject d = DataObject.find(file);
                         EditorCookie ec = (EditorCookie) d.getCookie(EditorCookie.class);
                         Document doc = ec.openDocument();
-                        ErrorDescription err = ErrorDescriptionFactory.createErrorDescription(ErrorDescription.SEVERITY_VERIFIER, line, doc, startLineNumber);
+                        ErrorDescription err = ErrorDescriptionFactory.createErrorDescription(Severity.VERIFIER, line, doc, startLineNumber);
                         List<ErrorDescription> errorDescriptions = errors.get(doc);
                         
                         if (errorDescriptions == null) {

@@ -14,7 +14,7 @@
  *
  * The Original Software is the LaTeX module.
  * The Initial Developer of the Original Software is Jan Lahoda.
- * Portions created by Jan Lahoda_ are Copyright (C) 2002,2003.
+ * Portions created by Jan Lahoda_ are Copyright (C) 2002-2007.
  * All Rights Reserved.
  *
  * Contributor(s): Jan Lahoda.
@@ -48,6 +48,7 @@ import org.netbeans.modules.latex.model.command.DefaultTraverseHandler;
 import org.netbeans.modules.latex.model.command.TextNode;
 import org.netbeans.modules.latex.model.structural.DelegatedParser;
 import org.netbeans.modules.latex.model.structural.StructuralElement;
+import org.netbeans.spi.editor.hints.ErrorDescription;
 import org.openide.ErrorManager;
 
 /**
@@ -62,7 +63,7 @@ public final class VauParserImpl {
     public VauParserImpl() {
     }
 
-    public NodeStorage parse(CommandNode node, Collection/*<ParseError>*/ errors) {
+    public NodeStorage parse(CommandNode node, Collection<ErrorDescription> errors) {
         NodeStorage storage = new NodeStorage();
         
         parsePicture(node, storage, errors);
@@ -70,7 +71,7 @@ public final class VauParserImpl {
         return storage;
     }
 
-    private void parsePicture(CommandNode node, NodeStorage storage, Collection/*<ParseError>*/ errors) {
+    private void parsePicture(CommandNode node, NodeStorage storage, Collection<ErrorDescription> errors) {
         VauTraverseHandler vth = new VauTraverseHandler(getCommandHandlers(), storage, errors);
         
         node.traverse(vth);
@@ -82,7 +83,7 @@ public final class VauParserImpl {
         Collection/*<ParseError>*/ errors;
         private Map attributes;
         
-        public VauTraverseHandler(Map commandHandlers, NodeStorage storage, Collection/*<ParseError>*/ errors) {
+        public VauTraverseHandler(Map commandHandlers, NodeStorage storage, Collection<ErrorDescription> errors) {
             this.commandHandlers = commandHandlers;
             this.storage         = storage;
             this.errors          = errors;
@@ -91,7 +92,8 @@ public final class VauParserImpl {
         
        public boolean commandStart(CommandNode node) {
             if (node.getArgumentCount() != node.getCommand().getArgumentCount()) {
-                errors.add(Utilities.getDefault().createError("Command " + node.getCommand().getCommand() + " is supposed to have " + node.getCommand().getArgumentCount() + " arguments, but found " + node.getArgumentCount() + ".", node.getStartingPosition()));
+                //XXX  !!!
+//                errors.add(Utilities.getDefault().createError("Command " + node.getCommand().getCommand() + " is supposed to have " + node.getCommand().getArgumentCount() + " arguments, but found " + node.getArgumentCount() + ".", node.getStartingPosition()));
             }
            
             String command = node.getCommand().getCommand();
@@ -105,7 +107,8 @@ public final class VauParserImpl {
             CommandParser parser = (CommandParser) commandHandlers.get(command);
             
             if (parser == null) {
-                errors.add(Utilities.getDefault().createError("Unknown command=" + node.getCommand().getCommand() + ".", node.getStartingPosition()));
+                //XXX  !!!
+//                errors.add(Utilities.getDefault().createError("Unknown command=" + node.getCommand().getCommand() + ".", node.getStartingPosition()));
                 
                 return false;
             }
@@ -148,7 +151,8 @@ public final class VauParserImpl {
         
         if (   coordinatesString.charAt(0) != '('
             || coordinatesString.charAt(coordinatesString.length() - 1) != ')') {
-            errors.add(Utilities.getDefault().createError("Incorrect coordinates: " + coordinatesString + ".", node.getStartingPosition()));
+            //XXX  !!!
+//            errors.add(Utilities.getDefault().createError("Incorrect coordinates: " + coordinatesString + ".", node.getStartingPosition()));
             return new int[2];
         }
         
@@ -157,21 +161,24 @@ public final class VauParserImpl {
         StringTokenizer commas = new StringTokenizer(coordinatesString, ",");
         
         if (!commas.hasMoreTokens()) {
-            errors.add(Utilities.getDefault().createError("Incorrect coordinates: " + coordinatesString + ".", node.getStartingPosition()));
+            //XXX  !!!
+//            errors.add(Utilities.getDefault().createError("Incorrect coordinates: " + coordinatesString + ".", node.getStartingPosition()));
             return new int[2];
         }
         
         String xValue = commas.nextToken();
         
         if (!commas.hasMoreTokens()) {
-            errors.add(Utilities.getDefault().createError("Incorrect coordinates: " + coordinatesString + ".", node.getStartingPosition()));
+            //XXX  !!!
+//            errors.add(Utilities.getDefault().createError("Incorrect coordinates: " + coordinatesString + ".", node.getStartingPosition()));
             return new int[2];
         }
         
         String yValue = commas.nextToken();
         
         if (commas.hasMoreTokens()) {
-            errors.add(Utilities.getDefault().createError("Incorrect coordinates: " + coordinatesString + ".", node.getStartingPosition()));
+            //XXX  !!!
+//            errors.add(Utilities.getDefault().createError("Incorrect coordinates: " + coordinatesString + ".", node.getStartingPosition()));
             return new int[2];
         }
         
@@ -181,7 +188,8 @@ public final class VauParserImpl {
                 -Integer.parseInt(yValue)
             };
         } catch (NumberFormatException e) {
-            errors.add(Utilities.getDefault().createError("Incorrect coordinates: " + coordinatesString + ".", node.getStartingPosition()));
+            //XXX  !!!
+//          errors.add(Utilities.getDefault().createError("Incorrect coordinates: " + coordinatesString + ".", node.getStartingPosition()));
             return new int[2];
         }
     }
@@ -197,21 +205,24 @@ public final class VauParserImpl {
             StringTokenizer equals = new StringTokenizer(token, "=");
             
             if (!equals.hasMoreTokens()) {
-                errors.add(Utilities.getDefault().createError("Incorrect options: " + options + ".", node.getStartingPosition()));
+                //XXX  !!!
+//                errors.add(Utilities.getDefault().createError("Incorrect options: " + options + ".", node.getStartingPosition()));
                 return Collections.EMPTY_MAP;
             }
             
             String name = equals.nextToken();
             
             if (!equals.hasMoreTokens()) {
-                errors.add(Utilities.getDefault().createError("Incorrect options: " + options + ".", node.getStartingPosition()));
+                //XXX  !!!
+//                errors.add(Utilities.getDefault().createError("Incorrect options: " + options + ".", node.getStartingPosition()));
                 return Collections.EMPTY_MAP;
             }
             
             String value = equals.nextToken();
             
             if (equals.hasMoreTokens()) {
-                errors.add(Utilities.getDefault().createError("Incorrect options: " + options + ".", node.getStartingPosition()));
+                //XXX  !!!
+//                errors.add(Utilities.getDefault().createError("Incorrect options: " + options + ".", node.getStartingPosition()));
                 return Collections.EMPTY_MAP;
             }
             
@@ -311,7 +322,8 @@ public final class VauParserImpl {
                 if (node instanceof StateNode) {
                     ((StateNode) node).setInitialState(true);
                 } else {
-                    errors.add(Utilities.getDefault().createError("Node " + node + " is not a state.", command.getStartingPosition()));
+                    //XXX  !!!
+//                  errors.add(Utilities.getDefault().createError("Node " + node + " is not a state.", command.getStartingPosition()));
                 }
                 
                 return ;
@@ -324,7 +336,8 @@ public final class VauParserImpl {
                 if (node instanceof StateNode) {
                     ((StateNode) node).setFinalState(true);
                 } else {
-                    errors.add(Utilities.getDefault().createError("Node " + node + " is not a state.", command.getStartingPosition()));
+                    //XXX  !!!
+//                    errors.add(Utilities.getDefault().createError("Node " + node + " is not a state.", command.getStartingPosition()));
                 }
                 
                 return ;
@@ -340,8 +353,10 @@ public final class VauParserImpl {
             if (command.getArgument(0).isPresent()) {
                 state.setName(getFullTextForArgument(command.getArgument(0)).toString());
                 
-                if ("\\VSState".equals(commandString))
-                    errors.add(Utilities.getDefault().createError("The name attribute is not supported for Very Small States (I guess).", command.getStartingPosition()));
+                if ("\\VSState".equals(commandString)) {
+                    //XXX  !!!
+//                    errors.add(Utilities.getDefault().createError("The name attribute is not supported for Very Small States (I guess).", command.getStartingPosition()));
+                }
             }
             
             state.setID(command.getArgument(2).getText().toString());
@@ -378,13 +393,15 @@ public final class VauParserImpl {
             Node     rightState    = storage.getObjectByID(command.getArgument(command.getArgumentCount() - 2).getText().toString());
             
             if (!(leftState instanceof StateNode)) {
-                errors.add(Utilities.getDefault().createError("Node " + leftState + " is not a state.", command.getStartingPosition()));
+                //XXX  !!!
+//                errors.add(Utilities.getDefault().createError("Node " + leftState + " is not a state.", command.getStartingPosition()));
                 
                 return null;
             }
             
             if (!(rightState instanceof StateNode)) {
-                errors.add(Utilities.getDefault().createError("Node " + rightState + " is not a state.", command.getStartingPosition()));
+                //XXX  !!!
+//                errors.add(Utilities.getDefault().createError("Node " + rightState + " is not a state.", command.getStartingPosition()));
                 
                 return null;
             }
@@ -396,7 +413,8 @@ public final class VauParserImpl {
                 
                 node = (EdgeNode) c.newInstance(new Object[] {leftState, rightState});
             } catch (Exception e) {
-                errors.add(Utilities.getDefault().createError(e.getMessage(), command.getStartingPosition()));
+                //XXX  !!!
+//                errors.add(Utilities.getDefault().createError(e.getMessage(), command.getStartingPosition()));
                 
                 return null;
             }
@@ -472,7 +490,8 @@ public final class VauParserImpl {
                     case 'W': orientation = LoopEdgeNode.WEST; break;
                     
                     default:
-                        errors.add(Utilities.getDefault().createError("Loop handler, should never happen.", command.getStartingPosition()));
+                        //XXX  !!!
+//                        errors.add(Utilities.getDefault().createError("Loop handler, should never happen.", command.getStartingPosition()));
                 }
             } else {
                 String directionString = commandString.substring(commandString.length() - 2);
@@ -496,8 +515,10 @@ public final class VauParserImpl {
             
             Node     leftState     = storage.getObjectByID(command.getArgument(1).getText().toString());
             
-            if (!(leftState instanceof StateNode))
-                errors.add(Utilities.getDefault().createError("Node " + leftState + " is not a state.", command.getStartingPosition()));
+            if (!(leftState instanceof StateNode)) {
+                //XXX  !!!
+//                errors.add(Utilities.getDefault().createError("Node " + leftState + " is not a state.", command.getStartingPosition()));
+            }
             
             LoopEdgeNode lineEdge  = new LoopEdgeNode((StateNode) leftState);
             
@@ -567,7 +588,8 @@ public final class VauParserImpl {
                 try {
                     varcEdge.setAngle(Double.parseDouble(angle));
                 } catch (NumberFormatException e) {
-                    errors.add(Utilities.getDefault().createError(e.getMessage(), command.getStartingPosition()));
+                    //XXX  !!!
+//                    errors.add(Utilities.getDefault().createError(e.getMessage(), command.getStartingPosition()));
                 }
             }
             
@@ -606,7 +628,8 @@ public final class VauParserImpl {
                 try {
                     varcEdge.setAngleSource(Double.parseDouble(angleA));
                 } catch (NumberFormatException e) {
-                    errors.add(Utilities.getDefault().createError(e.getMessage(), command.getStartingPosition()));
+                    //XXX  !!!
+//                    errors.add(Utilities.getDefault().createError(e.getMessage(), command.getStartingPosition()));
                 }
             }
 
@@ -616,7 +639,8 @@ public final class VauParserImpl {
                 try {
                     varcEdge.setAngleTarget(Double.parseDouble(angleB));
                 } catch (NumberFormatException e) {
-                    errors.add(Utilities.getDefault().createError(e.getMessage(), command.getStartingPosition()));
+                    //XXX  !!!
+//                    errors.add(Utilities.getDefault().createError(e.getMessage(), command.getStartingPosition()));
                 }
             }
             
@@ -655,7 +679,8 @@ public final class VauParserImpl {
                 try {
                     varcEdge.setAngleSource(Double.parseDouble(angleA));
                 } catch (NumberFormatException e) {
-                    errors.add(Utilities.getDefault().createError(e.getMessage(), command.getStartingPosition()));
+                    //XXX  !!!
+//                    errors.add(Utilities.getDefault().createError(e.getMessage(), command.getStartingPosition()));
                 }
             }
             
@@ -665,7 +690,8 @@ public final class VauParserImpl {
                 try {
                     varcEdge.setAngleTarget(Double.parseDouble(angleB));
                 } catch (NumberFormatException e) {
-                    errors.add(Utilities.getDefault().createError(e.getMessage(), command.getStartingPosition()));
+                    //XXX  !!!
+//                    errors.add(Utilities.getDefault().createError(e.getMessage(), command.getStartingPosition()));
                 }
             }
             

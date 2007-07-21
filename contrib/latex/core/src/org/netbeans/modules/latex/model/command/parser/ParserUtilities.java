@@ -14,7 +14,7 @@
  *
  * The Original Software is the LaTeX module.
  * The Initial Developer of the Original Software is Jan Lahoda.
- * Portions created by Jan Lahoda_ are Copyright (C) 2002,2003.
+ * Portions created by Jan Lahoda_ are Copyright (C) 2002-2007.
  * All Rights Reserved.
  *
  * Contributor(s): Jan Lahoda.
@@ -22,9 +22,9 @@
 package org.netbeans.modules.latex.model.command.parser;
 
 import org.netbeans.api.lexer.Token;
-import org.netbeans.modules.latex.editor.TexLanguage;
 import org.netbeans.modules.latex.model.command.ArgumentNode;
 import org.netbeans.modules.latex.model.command.Command;
+import org.netbeans.modules.latex.model.lexer.TexTokenId;
 
 /**
  *
@@ -39,17 +39,17 @@ public class ParserUtilities {
     public static boolean updateBracketStack(StringBuffer stack, Token bracket) {
         assert isBracket(bracket);
         
-        switch (bracket.getId().getIntId()) {
-            case TexLanguage.COMP_BRACKET_LEFT_INT: stack.append('{'); return true;
-            case TexLanguage.RECT_BRACKET_LEFT_INT: stack.append('['); return true;
-            case TexLanguage.MATH_INT:
+        switch ((TexTokenId) bracket.id()) {
+            case COMP_BRACKET_LEFT: stack.append('{'); return true;
+            case RECT_BRACKET_LEFT: stack.append('['); return true;
+            case MATH:
                 if (stack.charAt(stack.length() - 1) == '$')
                     stack = stack.delete(stack.length() - 1, stack.length());
                 else
                     stack.append("$");
                 return true;
                 
-            case TexLanguage.COMP_BRACKET_RIGHT_INT:
+            case COMP_BRACKET_RIGHT:
                 if ((stack.length() > 0) && (stack.charAt(stack.length() - 1) == '{')) {
                     stack = stack.delete(stack.length() - 1, stack.length());
                     return true;
@@ -57,7 +57,7 @@ public class ParserUtilities {
                     return false;
                 }
                 
-            case TexLanguage.RECT_BRACKET_RIGHT_INT:
+            case RECT_BRACKET_RIGHT:
                 if ((stack.length() > 0) && (stack.charAt(stack.length() - 1) == '[')) {
                     stack = stack.delete(stack.length() - 1, stack.length());
                     return true;
@@ -70,29 +70,29 @@ public class ParserUtilities {
     }
 
     public static boolean isOpeningBracket(Token token) {
-        return    token.getId() == TexLanguage.COMP_BRACKET_LEFT
-               || token.getId() == TexLanguage.RECT_BRACKET_LEFT;
+        return    token.id() == TexTokenId.COMP_BRACKET_LEFT
+               || token.id() == TexTokenId.RECT_BRACKET_LEFT;
     }
     
     public static boolean isClosingBracket(Token token) {
-        return    token.getId() == TexLanguage.COMP_BRACKET_RIGHT
-               || token.getId() == TexLanguage.RECT_BRACKET_RIGHT;
+        return    token.id() == TexTokenId.COMP_BRACKET_RIGHT
+               || token.id() == TexTokenId.RECT_BRACKET_RIGHT;
     }
     
     public static boolean isBracket(Token token) {
-        return isOpeningBracket(token) || isClosingBracket(token) || token.getId() == TexLanguage.MATH;
+        return isOpeningBracket(token) || isClosingBracket(token) || token.id() == TexTokenId.MATH;
     }
     
     public static boolean matches(Token left, Token right) {
-        return    (   left.getId() == TexLanguage.COMP_BRACKET_LEFT
-                   && right.getId() == TexLanguage.COMP_BRACKET_RIGHT)
-               || (   left.getId() == TexLanguage.RECT_BRACKET_LEFT
-                   && right.getId() == TexLanguage.RECT_BRACKET_RIGHT);
+        return    (   left.id() == TexTokenId.COMP_BRACKET_LEFT
+                   && right.id() == TexTokenId.COMP_BRACKET_RIGHT)
+               || (   left.id() == TexTokenId.RECT_BRACKET_LEFT
+                   && right.id() == TexTokenId.RECT_BRACKET_RIGHT);
     }
     
     public static boolean isWhitespace(Token token) {
-        return    token.getId() == TexLanguage.WHITESPACE
-               || token.getId() == TexLanguage.COMMENT;
+        return    token.id() == TexTokenId.WHITESPACE
+               || token.id() == TexTokenId.COMMENT;
     }
     
     private static CharSequence removeBrackets(CharSequence text, char open, char close) {

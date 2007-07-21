@@ -14,7 +14,7 @@
  *
  * The Original Software is the LaTeX module.
  * The Initial Developer of the Original Software is Jan Lahoda.
- * Portions created by Jan Lahoda_ are Copyright (C) 2002,2003.
+ * Portions created by Jan Lahoda_ are Copyright (C) 2002-2007.
  * All Rights Reserved.
  *
  * Contributor(s): Jan Lahoda.
@@ -52,18 +52,19 @@ public class LabelsNode extends AbstractNode {
         return new HelpCtx("latex.ssec.all.labels.node");
     }
     
-    protected static class LabelsNodeChildren extends StructuralNodeChildren {
+    protected static class LabelsNodeChildren extends StructuralNodeChildren<MainStructuralElement> {
         
         public LabelsNodeChildren(MainStructuralElement el) throws IntrospectionException {
             super(el);
         }
         
         protected void doSetKeys() {
-            setKeys(((MainStructuralElement) getElement()).getLabels());
+            setKeys(getElement().getLabels());
         }
         
-        public Node[] createNodes(Object key) {
-            Node node = StructuralNodeFactory.createNode((StructuralElement) key);
+        @Override
+        public Node[] createNodes(StructuralElement key) {
+            Node node = StructuralNodeFactory.createNode(key);
             
             return new Node[] {new FilterNode(node)};
         }

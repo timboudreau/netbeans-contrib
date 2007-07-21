@@ -13,21 +13,26 @@
  * "Portions Copyrighted [year] [name of copyright owner]"
  *
  * The Original Software is NetBeans. The Initial Developer of the Original
- * Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
+ * Software is Sun Microsystems, Inc. Portions Copyright 1997-2007 Sun
  * Microsystems, Inc. All Rights Reserved.
  */
 
 package org.netbeans.modules.latex.ui.navigator;
 
-import java.util.Collection;
+import java.awt.BorderLayout;
+import javax.swing.ActionMap;
 import javax.swing.JComponent;
-import org.netbeans.modules.latex.model.command.LaTeXSource;
-import org.netbeans.modules.latex.ui.StructuralExplorer;
+import javax.swing.JPanel;
+import javax.swing.ListSelectionModel;
+import org.netbeans.api.gsf.CancellableTask;
+import org.netbeans.api.retouche.source.CompilationInfo;
+import org.netbeans.modules.latex.model.LaTeXParserResult;
+import org.netbeans.modules.latex.model.structural.StructuralNodeFactory;
 import org.netbeans.spi.navigator.NavigatorPanel;
-import org.openide.loaders.DataObject;
+import org.openide.explorer.ExplorerManager;
+import org.openide.explorer.ExplorerUtils;
+import org.openide.explorer.view.BeanTreeView;
 import org.openide.util.Lookup;
-import org.openide.util.LookupEvent;
-import org.openide.util.LookupListener;
 import org.openide.util.NbBundle;
 
 /**
@@ -36,24 +41,11 @@ import org.openide.util.NbBundle;
  */
 public class LaTeXNavigatorPanel implements NavigatorPanel {
     
-    private Lookup.Result dataObjectSelection;
-    private Lookup.Result sourceSelection;
-    private final LookupListener selectionListener = new LookupListener() {
-        public void resultChanged(LookupEvent ev) {
-            Collection sources = sourceSelection.allInstances();
-            
-            if (sources.isEmpty()) {
-                displayDO(dataObjectSelection.allInstances());
-            } else {
-                displaySource(sources);
-            }
-        }
-    };
-    private StructuralExplorer structure;
+    private JComponent panel;
+    private final ExplorerManager manager = new ExplorerManager();
     
     /** Creates a new instance of LaTeXNavigatorPanel */
     public LaTeXNavigatorPanel() {
-        structure = new StructuralExplorer();
     }
     
     public String getDisplayName() {
@@ -65,43 +57,49 @@ public class LaTeXNavigatorPanel implements NavigatorPanel {
     }
     
     public JComponent getComponent() {
-        return structure;
+        if (panel == null) {
+            final BeanTreeView view = new BeanTreeView();
+            view.setRootVisible(true);
+            view.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+            class Panel extends JPanel implements ExplorerManager.Provider, Lookup.Provider {
+                // Make sure action context works correctly:
+                private final Lookup lookup = ExplorerUtils.createLookup(manager, new ActionMap());
+                {
+                    setLayout(new BorderLayout());
+                    add(view, BorderLayout.CENTER);
+                }
+                public ExplorerManager getExplorerManager() {
+                    return manager;
+                }
+                public Lookup getLookup() {
+                    return lookup;
+                }
+            }
+            panel = new Panel();
+        }
+        return panel;
     }
     
     public void panelActivated(Lookup context) {
-        dataObjectSelection = context.lookup(new Lookup.Template(DataObject.class));
-        dataObjectSelection.addLookupListener(selectionListener);
-        sourceSelection = context.lookup(new Lookup.Template(LaTeXSource.class));
-        sourceSelection.addLookupListener(selectionListener);
-        selectionListener.resultChanged(null);
+        LaTeXNavigatorFactory.getInstance().setLookup(context, new TaskImpl());
     }
-    
+
     public void panelDeactivated() {
-        dataObjectSelection.removeLookupListener(selectionListener);
-        dataObjectSelection = null;
-        sourceSelection.removeLookupListener(selectionListener);
-        sourceSelection = null;
+        LaTeXNavigatorFactory.getInstance().setLookup(Lookup.EMPTY, null);
     }
     
     public Lookup getLookup() {
         return null;
     }
     
-    private void displayDO(Collection/*<DataObject>*/ selectedFiles) {
-        // Show list of targets for selected file:
-        if (selectedFiles.size() == 1) {
-            DataObject d = (DataObject) selectedFiles.iterator().next();
-            
-            structure.setCurrentSource(LaTeXSource.get(d.getPrimaryFile()));
-            return ;
+    private final class TaskImpl implements CancellableTask<CompilationInfo> {
+        public void cancel() {}
+
+        public void run(CompilationInfo ci) throws Exception {
+            LaTeXParserResult lpr = (LaTeXParserResult) ci.getParserResult();
+            manager.setRootContext(StructuralNodeFactory.createNode(lpr.getStructuralRoot()));
         }
-        // Fallback:
-        structure.setCurrentSource(null);
+        
     }
     
-    private void displaySource(Collection/*<LaTeXSource>*/ selectedSources) {
-        LaTeXSource source = (LaTeXSource) selectedSources.iterator().next();
-        
-        structure.setCurrentSource(source);
-    }
 }

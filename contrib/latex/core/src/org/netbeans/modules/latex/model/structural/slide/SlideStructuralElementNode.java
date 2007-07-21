@@ -14,7 +14,7 @@
  *
  * The Original Software is the LaTeX module.
  * The Initial Developer of the Original Software is Jan Lahoda.
- * Portions created by Jan Lahoda_ are Copyright (C) 2002-2005.
+ * Portions created by Jan Lahoda_ are Copyright (C) 2002-2007.
  * All Rights Reserved.
  *
  * Contributor(s): Jan Lahoda.
@@ -23,17 +23,13 @@ package org.netbeans.modules.latex.model.structural.slide;
 
 import java.beans.IntrospectionException;
 import org.netbeans.modules.latex.model.command.SourcePosition;
-import org.netbeans.modules.latex.model.structural.StructuralElement;
 import org.netbeans.modules.latex.model.structural.StructuralNode;
-import org.openide.actions.OpenAction;
-import org.openide.actions.PropertiesAction;
-import org.openide.util.actions.SystemAction;
 
 /**
  *
  * @author Jan Lahoda
  */
-public class SlideStructuralElementNode extends StructuralNode {
+public class SlideStructuralElementNode extends StructuralNode<SlideStructuralElement> {
     
     /** Creates a new instance of SectionStructuralElementNode */
     public SlideStructuralElementNode(SlideStructuralElement el) throws IntrospectionException {
@@ -43,6 +39,6 @@ public class SlideStructuralElementNode extends StructuralNode {
     }
     
     public SourcePosition getOpeningPosition() {
-        return ((SlideStructuralElement) getBean()).getNode().getStartingPosition();
+        return getBean().getNode().getStartingPosition();
     }
 }

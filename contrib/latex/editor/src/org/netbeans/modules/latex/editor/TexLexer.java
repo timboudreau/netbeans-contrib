@@ -14,43 +14,47 @@
  *
  * The Original Software is the LaTeX module.
  * The Initial Developer of the Original Software is Jan Lahoda.
- * Portions created by Jan Lahoda_ are Copyright (C) 2002-2006.
+ * Portions created by Jan Lahoda_ are Copyright (C) 2002-2007.
  * All Rights Reserved.
  *
  * Contributor(s): Jan Lahoda.
  */
 package org.netbeans.modules.latex.editor;
 
-import org.netbeans.api.lexer.Lexer;
-import org.netbeans.api.lexer.LexerInput;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.netbeans.api.lexer.Token;
-import org.netbeans.api.lexer.TokenId;
-import org.netbeans.api.lexer.swing.TokenElement;
-import org.netbeans.spi.lexer.util.IntegerCache;
+import org.netbeans.modules.latex.model.lexer.TexTokenId;
+import org.netbeans.spi.lexer.Lexer;
+import org.netbeans.spi.lexer.LexerInput;
+import org.netbeans.spi.lexer.TokenFactory;
 
 /**
  *
  * @author  Jan Lahoda
  */
-/*package private*/ class TexLexer implements Lexer {
+public class TexLexer implements Lexer<TexTokenId> {
 
     private LexerInput  input;
+    private TokenFactory<TexTokenId> factory;
     private int         state;
-
-    private static final boolean debug = Boolean.getBoolean("org.netbeans.modules.latex.lexer.debug");
     
-    /** Creates a new instance of TexLexer */
-    public TexLexer() {
-        input = null;
-        state = 0;
+    private static final Logger LOG = Logger.getLogger(TexLexer.class.getName());
+    
+    public TexLexer(LexerInput input, TokenFactory<TexTokenId> factory, Object obj) {
+        this.input = input;
+        this.factory = factory;
+        if (obj == null) {
+            state = 0;
+        } else {
+            int value = ((Integer) obj).intValue();
+            
+            state = value;
+        }
     }
     
-    private static final Integer[] integers =
-            new Integer[] {new Integer(0), new Integer(1), new Integer(2), new Integer(3), new Integer(4), new Integer(5), new Integer(6), new Integer(7), new Integer(8), new Integer(9), };
-    
-    public Object getState() {
-        return integers[state];
-//        return IntegerCache.get(state + (isInMath ? 20 : 0));
+    public Object state() {
+        return Integer.valueOf(state);
     }
     
     private static final String SPECIAL_COMMAND_CHARS = "{}\\ []'`^\"~=.()|"; // NOI18N
@@ -59,23 +63,17 @@ import org.netbeans.spi.lexer.util.IntegerCache;
         return (read == LexerInput.EOF) || (read == 65535 /*this is some nasty bug. no time for investigate it. it was in my code. should no be needed - remove when everything all is done.*/);
     }
     
-    private static final Integer minus = new Integer(-1);
-    
-    public Token nextToken() {
+    public Token<TexTokenId> nextToken() {
         try {
-//        Vector args     = null;
-        Token tokenForTest = null;
-        
         while (true) {
             int read = input.read();
 
-            if (debug) {
-                System.err.println("start");
-                System.err.println("state=" + state);
-                System.err.println("testText=\"" + input.getReadText(0, input.getReadLength()) + "\"");
-                System.err.println("readahead=" + input.getReadLength());
-                System.err.println("input.getClass()=" + input.getClass());
-            }
+            LOG.log(Level.FINE, "start");
+            LOG.log(Level.FINE, "state={0}", state);
+//                System.err.println("testText=\"" + input.getReadText(0, input.getReadLength()) + "\"");
+//                System.err.println("readahead=" + input.getReadLength());
+            LOG.log(Level.FINE, "input.getClass()={0}", input.getClass());
+            
             switch (state) {
                 case 0:
 //                    read = input.read();
@@ -118,37 +116,37 @@ import org.netbeans.spi.lexer.util.IntegerCache;
                         if (read == '{') {
                             state = 0;
                             
-                            return createToken(TexLanguage.COMP_BRACKET_LEFT);
+                            return createToken(TexTokenId.COMP_BRACKET_LEFT);
                         }
                         
                         if (read == '}') {
                             state = 0;
                             
-                            return createToken(TexLanguage.COMP_BRACKET_RIGHT);
+                            return createToken(TexTokenId.COMP_BRACKET_RIGHT);
                         }
                         
                         if (read == '[') {
                             state = 0;
                             
-                            return createToken(TexLanguage.RECT_BRACKET_LEFT);
+                            return createToken(TexTokenId.RECT_BRACKET_LEFT);
                         }
                         
                         if (read == ']') {
                             state = 0;
                             
-                            return createToken(TexLanguage.RECT_BRACKET_RIGHT);
+                            return createToken(TexTokenId.RECT_BRACKET_RIGHT);
                         }
                         
                         if (read == ' ') {
                             state = 0;
                             
-                            return createToken(TexLanguage.WHITESPACE);
+                            return createToken(TexTokenId.WHITESPACE);
                         }
 
                         if (read == '\t') {
                             state = 0;
                             
-                            return createToken(TexLanguage.WHITESPACE);
+                            return createToken(TexTokenId.WHITESPACE);
                         }
                     } else {
                         state = 0;
@@ -157,7 +155,7 @@ import org.netbeans.spi.lexer.util.IntegerCache;
                     }
                     
                     state = 0;
-                    return createToken(TexLanguage.UNKNOWN_CHARACTER);
+                    return createToken(TexTokenId.UNKNOWN_CHARACTER);
 
                 case 1:
 //                    read = input.read();
@@ -173,12 +171,12 @@ import org.netbeans.spi.lexer.util.IntegerCache;
 
 //                    Integer type = Dictionary.getDefault().findWord(sb.toString());
                     
-                    if (input.getReadLookahead() == 1 && input.isEOFLookahead() && isEOF(read))
-                        return null;
+//                    if (input.getReadLookahead() == 1 && input.isEOFLookahead() && isEOF(read))
+//                        return null;
                     
                     state = 0;
                     
-                    return createToken(TexLanguage.WORD);
+                    return createToken(TexTokenId.WORD);
                 
                 case 2:
 //                    read = input.read();
@@ -194,9 +192,9 @@ import org.netbeans.spi.lexer.util.IntegerCache;
                     
                     state = 0;
                     
-		    if (debug)
-                        System.err.println(input.getReadLength());
-                    return createToken(TexLanguage.WORD); //Number, in fact.
+		    LOG.log(Level.FINE, "read length={0}", input.readLength());
+                    
+                    return createToken(TexTokenId.WORD); //Number, in fact.
 
                 case 3:
 //                    read = input.read();
@@ -207,7 +205,7 @@ import org.netbeans.spi.lexer.util.IntegerCache;
                             break;
                         }
                         
-                        if (!(input.getReadLength() == 2 && SPECIAL_COMMAND_CHARS.indexOf(read) != (-1))) {
+                        if (!(input.readLength() == 2 && SPECIAL_COMMAND_CHARS.indexOf(read) != (-1))) {
                             input.backup(1);
                         }
 /*                        if (read == '{')
@@ -223,7 +221,7 @@ import org.netbeans.spi.lexer.util.IntegerCache;
                     
                     state = 0; //!!!
                     
-                    return createToken(TexLanguage.COMMAND);
+                    return createToken(TexTokenId.COMMAND);
                     
                 case 4:
 //                    read = input.read();
@@ -238,7 +236,7 @@ import org.netbeans.spi.lexer.util.IntegerCache;
                     }
                     
                     state = 0;
-                    return createToken(TexLanguage.COMMENT);
+                    return createToken(TexTokenId.COMMENT);
                     
                 case 7:
                     if (read == '\n') {
@@ -249,7 +247,7 @@ import org.netbeans.spi.lexer.util.IntegerCache;
                         state = 0;
                         if (!isEOF(read))
                             input.backup(1);
-                        return createToken(TexLanguage.WHITESPACE);
+                        return createToken(TexTokenId.WHITESPACE);
                     }
 		case 8:
 		    if (read != '\n') {
@@ -258,7 +256,7 @@ import org.netbeans.spi.lexer.util.IntegerCache;
 			
 			state = 0;
 			
-                        return createToken(TexLanguage.PARAGRAPH_END);
+                        return createToken(TexTokenId.PARAGRAPH_END);
 		    }
 		    break;
                     
@@ -269,7 +267,7 @@ import org.netbeans.spi.lexer.util.IntegerCache;
                             input.backup(1);
                     }
                     
-                    Token result = createToken(TexLanguage.MATH);
+                    Token<TexTokenId> result = createToken(TexTokenId.MATH);
                     
                     state = 0;
                     return result;
@@ -278,32 +276,21 @@ import org.netbeans.spi.lexer.util.IntegerCache;
             }
         }
         } catch (RuntimeException e) {
-            ErrorManager.getDefault().annotate(e, "An exception occured during nextToken in TexLexer. Text read so far: " + input.getReadText(0, input.getReadLength()));
-	    
-	    System.err.println("!!!!!:");
-	    e.printStackTrace(System.err);
-	    System.err.println("state = " + state);
-	    System.err.println("text = " + input.getReadText(0, input.getReadLength()));
+//            ErrorManager.getDefault().annotate(e, "An exception occured during nextToken in TexLexer. Text read so far: " + input.getReadText(0, input.getReadLength()));
+//	    
+//	    System.err.println("!!!!!:");
+//	    e.printStackTrace(System.err);
+//	    System.err.println("state = " + state);
+//	    System.err.println("text = " + input.getReadText(0, input.getReadLength()));
             
             throw e;
         }
     }
     
-    private Token createToken(TokenId id) {
-        Token token = input.createToken(id); //!!!
-        
-        return token;
+    private Token<TexTokenId> createToken(TexTokenId id) {
+        return factory.createToken(id); //!!!
     }
     
-    public void restart(LexerInput lexerInput, Object obj) {
-        this.input = lexerInput;
-        if (obj == null) {
-            state = 0;            
-        } else {
-            int value = ((Integer) obj).intValue();
-            
-            state = value;
-        }
-    }
+    public void release() {}
     
 }

@@ -25,28 +25,11 @@ Microsystems, Inc. All Rights Reserved.
             <suite-component/>
             <module-dependencies>
                 <dependency>
-                    <code-name-base>org.netbeans.modules.editor.hints</code-name-base>
-                    <build-prerequisite/>
-                    <compile-dependency/>
-                    <run-dependency>
-                        <release-version>1</release-version>
-                        <implementation-version/>
-                    </run-dependency>
-                </dependency>
-                <dependency>
-                    <code-name-base>org.netbeans.modules.latex.editor</code-name-base>
-                    <build-prerequisite/>
-                    <compile-dependency/>
-                    <run-dependency>
-                        <release-version>1</release-version>
-                    </run-dependency>
-                </dependency>
-                <dependency>
                     <code-name-base>org.netbeans.modules.lexer</code-name-base>
                     <build-prerequisite/>
                     <compile-dependency/>
                     <run-dependency>
-                        <release-version>1</release-version>
+                        <release-version>2</release-version>
                     </run-dependency>
                 </dependency>
                 <dependency>

@@ -14,7 +14,7 @@
  *
  * The Original Software is the LaTeX module.
  * The Initial Developer of the Original Software is Jan Lahoda.
- * Portions created by Jan Lahoda_ are Copyright (C) 2002,2003.
+ * Portions created by Jan Lahoda_ are Copyright (C) 2002-2007.
  * All Rights Reserved.
  *
  * Contributor(s): Jan Lahoda.
@@ -24,6 +24,7 @@ package org.netbeans.modules.latex.model.command;
 import java.util.Stack;
 import org.xml.sax.*;
 
+@SuppressWarnings(value={"deprecation", "deprecated"})
 /*package private*/ class Command_descriptionHandlerImpl implements Command_descriptionHandler {
 
     public static final boolean DEBUG = Boolean.getBoolean("netbeans.latex.commandpackages.debug");
@@ -34,9 +35,9 @@ import org.xml.sax.*;
     private Environment    env;
     private Option         option;
 
-    private Stack lastAttributable;
-    private Stack lastArgumentable;
-    private Stack lastElementable;
+    private Stack<Attributable> lastAttributable;
+    private Stack<NamedAttributableWithArguments> lastArgumentable;
+    private Stack<NamedAttributableWithSubElements> lastElementable;
     
     public void start_argument(final AttributeList meta) throws SAXException {
         if (DEBUG) System.err.println("start_argument: " + meta);
@@ -72,7 +73,7 @@ import org.xml.sax.*;
         if (DEBUG) System.err.println("end_argument()");
         
         lastAttributable.pop();
-        ((NamedAttributableWithArguments) lastArgumentable.peek()).getArguments().add(param);
+        lastArgumentable.peek().getArguments().add(param);
         param = null;
     }
     
@@ -98,7 +99,7 @@ import org.xml.sax.*;
         lastArgumentable.pop();
         lastElementable.pop();
 
-        ((NamedAttributableWithSubElements) lastElementable.peek()).getCommands().put(command.getCommand(), command);
+        lastElementable.peek().getCommands().put(command.getCommand(), command);
     }
     
     public void start_commands(final AttributeList meta) throws SAXException {
@@ -139,9 +140,9 @@ import org.xml.sax.*;
     public void start_file(final AttributeList meta) throws SAXException {
         if (DEBUG) System.err.println("start_file: " + meta);
         
-        lastAttributable = new Stack();
-        lastArgumentable = new Stack();
-        lastElementable  = new Stack();
+        lastAttributable = new Stack<Attributable>();
+        lastArgumentable = new Stack<NamedAttributableWithArguments>();
+        lastElementable  = new Stack<NamedAttributableWithSubElements>();
         
         pack = new CommandPackage();
         
@@ -203,7 +204,7 @@ import org.xml.sax.*;
         lastAttributable.pop();
         lastArgumentable.pop();
         lastElementable.pop();
-        ((NamedAttributableWithSubElements) lastElementable.peek()).getEnvironments().put(env.getName(), env);
+        lastElementable.peek().getEnvironments().put(env.getName(), env);
     }
     
     public void start_environments(final AttributeList meta) throws SAXException {

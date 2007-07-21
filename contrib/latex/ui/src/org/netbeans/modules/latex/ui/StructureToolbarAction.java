@@ -14,7 +14,7 @@
  *
  * The Original Software is the LaTeX module.
  * The Initial Developer of the Original Software is Jan Lahoda.
- * Portions created by Jan Lahoda_ are Copyright (C) 2002-2004.
+ * Portions created by Jan Lahoda_ are Copyright (C) 2002-2007.
  * All Rights Reserved.
  *
  * Contributor(s): Jan Lahoda.
@@ -24,48 +24,28 @@ package org.netbeans.modules.latex.ui;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.ItemEvent;
-import java.awt.event.ItemListener;
-import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Enumeration;
+import java.util.List;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.ResourceBundle;
-import javax.swing.AbstractAction;
 import javax.swing.ComboBoxModel;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.DefaultListCellRenderer;
 import javax.swing.JComboBox;
-import javax.swing.JComponent;
-import javax.swing.JEditorPane;
 import javax.swing.JList;
 import javax.swing.JSeparator;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.event.PopupMenuEvent;
 import javax.swing.event.PopupMenuListener;
-import javax.swing.text.BadLocationException;
-import javax.swing.text.Document;
-import javax.swing.text.StyledDocument;
-import org.netbeans.modules.latex.model.Utilities;
 import org.netbeans.modules.latex.model.command.CommandNode;
-import org.netbeans.modules.latex.model.command.CommandPackage;
-import org.netbeans.modules.latex.model.command.DocumentNode;
-import org.netbeans.modules.latex.model.command.LaTeXSource;
 import org.netbeans.modules.latex.model.command.Node;
-import org.netbeans.modules.latex.model.command.LaTeXSource.Lock;
-import org.netbeans.modules.latex.model.command.impl.NBDocumentNodeImpl;
+import org.netbeans.modules.latex.ui.ToolbarEnvironmentAction.EnvironmentDescription;
 import org.openide.ErrorManager;
 import org.openide.filesystems.FileObject;
-import org.openide.text.NbDocument;
 import org.openide.util.HelpCtx;
-import org.openide.util.NbBundle;
-import org.openide.util.actions.CallableSystemAction;
 import org.openide.util.actions.Presenter;
 
 /**
@@ -137,7 +117,7 @@ public class StructureToolbarAction extends    ToolbarCommandAction
     
     private JComboBox combo;
     
-    private static Map type2Descriptions = null;
+    private static Map<String, List<Object>> type2Descriptions = null;
     
     private static synchronized Map getType2Descriptions() {
         if (type2Descriptions == null) {
@@ -216,7 +196,7 @@ public class StructureToolbarAction extends    ToolbarCommandAction
     }
 
     /** Creates a new instance of StructureToolbarAction */
-    private StructureToolbarAction(String name, List descriptions) {
+    private StructureToolbarAction(String name, List<Object> descriptions) {
         this.descriptions = descriptions;
         
         putValue(NAME, name);
@@ -250,7 +230,13 @@ public class StructureToolbarAction extends    ToolbarCommandAction
         combo.setMinimumSize(prefered);
         combo.setMaximumSize(prefered);
 
-        ToolbarUpdater.getDefault().addToolbarStatusChangeListener(this);
+        ToolbarUpdater.addToolbarStatusChangeListener(this);
+        
+        for (Object o : descriptions) {
+            if (o instanceof EnvironmentDescription) {
+                ToolbarUpdater.addToUpdate((EnvironmentDescription) o);
+            }
+        }
     }
     
     protected JComboBox getCombo() {
@@ -265,11 +251,10 @@ public class StructureToolbarAction extends    ToolbarCommandAction
         return HelpCtx.DEFAULT_HELP;
     }
     
-    private List descriptions = null;
+    private List<Object> descriptions = null;
     private int normalIndex = 0;
 
     public synchronized List getDescriptions() {
-        
         return descriptions;
     }
     

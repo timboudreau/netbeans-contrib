@@ -14,7 +14,7 @@
  *
  * The Original Software is the Viewer module.
  * The Initial Developer of the Original Software is Jan Lahoda.
- * Portions created by Jan Lahoda_ are Copyright (C) 2002-2006.
+ * Portions created by Jan Lahoda_ are Copyright (C) 2002-2007.
  * All Rights Reserved.
  *
  * Contributor(s): Jan Lahoda.
@@ -25,25 +25,29 @@ import java.awt.Dialog;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.IOException;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import javax.swing.JButton;
 import javax.swing.JLabel;
-import javax.swing.JMenu;
-import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.text.BadLocationException;
-import javax.swing.text.Document;
 import javax.swing.text.JTextComponent;
-import org.netbeans.api.lexer.Token;
+import org.netbeans.api.retouche.source.CompilationController;
+import org.netbeans.api.gsf.CancellableTask;
+import org.netbeans.api.retouche.source.Phase;
+import org.netbeans.api.retouche.source.Source;
 import org.netbeans.editor.BaseAction;
 import org.netbeans.editor.DialogSupport;
 import org.netbeans.editor.ext.ExtKit.GotoDeclarationAction;
+import org.netbeans.modules.latex.model.LaTeXParserResult;
 import org.netbeans.modules.latex.model.LabelInfo;
-import org.netbeans.modules.latex.model.command.LaTeXSource;
+import org.netbeans.modules.latex.model.Utilities;
+import org.netbeans.modules.latex.model.bibtex.PublicationEntry;
+import org.openide.util.Exceptions;
 
 /**
  *
@@ -73,7 +77,7 @@ public final class ActionsFactory {
             dialog = null;
             
             JPanel result = new JPanel();
-            int count = Utilities.countWords(target.getDocument());
+            int count = org.netbeans.modules.latex.editor.Utilities.countWords(target.getDocument());
             
             MessageFormat format = new MessageFormat("The document contains {0} words.");
             
@@ -83,11 +87,11 @@ public final class ActionsFactory {
                 new JButton[] {new JButton("OK")}, false, 0, 0, new ActionListener() {
                     public void actionPerformed(ActionEvent evt) {
                         if ("OK".equals(evt.getActionCommand()))
-                            dialog.hide();
+                            dialog.setVisible(false);
                     }
             });
             
-            dialog.show();
+            dialog.setVisible(true);
         }
         
     }
@@ -105,24 +109,36 @@ public final class ActionsFactory {
         
         Dialog dialog;
         
-        private List citeValues(List references) {
-            Iterator            referencesIter = references.iterator();
-            List                result = new ArrayList();
+        private List<String> citeValues(List<PublicationEntry> references) {
+            List<String> result = new ArrayList<String>();
             
-            while (referencesIter.hasNext()) {
-                AnalyseBib.BibRecord record = (AnalyseBib.BibRecord) referencesIter.next();
-                
-                result.add(record.getRef() + ":" + record.getTitle()); //NOI18N
+            for (PublicationEntry entry : references) {
+                result.add(entry.getTag() + ":" + entry.getTitle()); //NOI18N
             }
             
             return result;
         }
         
         public void actionPerformed(ActionEvent evt, final JTextComponent target) {
-            Object file = org.netbeans.modules.latex.model.Utilities.getDefault().getFile(target.getDocument());
-            LaTeXSource source = LaTeXSource.get(file);
+            Source s = Source.forDocument(target.getDocument());
+            final List references = new LinkedList();
             
-            final List references = type == CITE ? Utilities.getAllBibReferences(source) : new ArrayList(org.netbeans.modules.latex.model.Utilities.getDefault().getLabels(source));
+            try {
+                s.runUserActionTask(new CancellableTask<CompilationController>() {
+                    public void cancel() {}
+                    public void run(CompilationController parameter) throws Exception {
+                        parameter.toPhase(Phase.RESOLVED);
+                        LaTeXParserResult lpr = (LaTeXParserResult) parameter.getParserResult();
+                        if (type == CITE) {
+                            references.addAll(Utilities.getDefault().getAllBibReferences(lpr));
+                        } else {
+                            references.addAll(new ArrayList(org.netbeans.modules.latex.model.Utilities.getDefault().getLabels(lpr)));
+                        }
+                    }
+                }, true);
+            } catch (IOException e) {
+                Exceptions.printStackTrace(e);
+            }
             
             if (type == REF)
                 Collections.sort(references);
@@ -133,7 +149,7 @@ public final class ActionsFactory {
                 new JButton[] {new JButton("Add"), new JButton("Cancel")}, false, 0, 0, new ActionListener() {
                     public void actionPerformed(ActionEvent evt) {
                         if ("Add".equals(evt.getActionCommand())) {
-                            dialog.hide();
+                            dialog.setVisible(false);
                             
                             int resultIndex = result.getSelected();
                             
@@ -143,7 +159,7 @@ public final class ActionsFactory {
                             String result;
                             Object ref = references.get(resultIndex);
                             
-                            result = type ==CITE ? ((AnalyseBib.BibRecord) ref).getRef() : ((LabelInfo) ref).getLabel();
+                            result = type ==CITE ? ((PublicationEntry) ref).getTag() : ((LabelInfo) ref).getLabel();
                             
                             if (result != null) {
                                 int dot = target.getCaret().getDot();
@@ -157,12 +173,12 @@ public final class ActionsFactory {
                         }
                         
                         if ("Cancel".equals(evt.getActionCommand())) {
-                            dialog.hide();
+                            dialog.setVisible(false);
                         }
                     }
             });
             
-            dialog.show();
+            dialog.setVisible(true);
         }
         
     }

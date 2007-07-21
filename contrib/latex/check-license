@@ -23,7 +23,7 @@
 find . -type f -name '*.java' -or -name '*.properties' >check-license-files
 
 for file in `cat check-license-files`; do
-    if grep <$file "Sun Public" >/dev/null; then
+    if grep <$file "Common Development" >/dev/null; then
 	echo >/dev/null;
     else
         if echo $file | grep results/testrun >/dev/null; then
