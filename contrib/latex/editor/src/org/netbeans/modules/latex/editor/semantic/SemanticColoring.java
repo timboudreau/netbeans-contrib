@@ -244,7 +244,7 @@ public class SemanticColoring implements CancellableTask<CompilationInfo> {
                     c = SimpleAttributeSet.EMPTY;
                 }
 
-                bag.addHighlight(document.createPosition(t.offset(null)), NbDocument.createPosition(document, t.offset(null) + t.length(), Position.Bias.Backward), c);
+                bag.addHighlight(NbDocument.createPosition(document, t.offset(null), Position.Bias.Backward), NbDocument.createPosition(document, t.offset(null) + t.length(), Position.Bias.Forward), c);
             }
             
             ColoringEvaluator.getDelegate(document).setHighlights(bag);
