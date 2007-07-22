@@ -31,11 +31,11 @@ public class Data {
     private int caret;
     private String displayName;
     private Problem problem;
-    private String newName;
+    private String originalName;
 
-    public Data(Source source, int caret, String displayName, Problem problem, String newName) {
+    public Data(Source source, int caret, String displayName, Problem problem, String originalName) {
         this(source, caret, displayName, problem);
-        this.newName = newName;
+        this.originalName = originalName;
     }
     
     public Data(Source source, int caret, String displayName, Problem problem) {
@@ -60,6 +60,9 @@ public class Data {
     public Source getSource() {
         return source;
     }
-    
+
+    public String getOriginalName() {
+        return originalName;
+    }
     
 }

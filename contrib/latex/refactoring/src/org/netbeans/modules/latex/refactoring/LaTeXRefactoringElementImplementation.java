@@ -50,10 +50,12 @@ public class LaTeXRefactoringElementImplementation extends SimpleRefactoringElem
     private String dname;
     private boolean wasArgument;
     
+    private String originalName;
     private String rewriteTo;
     
-    public LaTeXRefactoringElementImplementation(Node n, String rewriteTo) {
+    public LaTeXRefactoringElementImplementation(Node n, String originalName, String rewriteTo) {
         this(n);
+        this.originalName = originalName;
         this.rewriteTo = rewriteTo;
     }
     
@@ -64,7 +66,7 @@ public class LaTeXRefactoringElementImplementation extends SimpleRefactoringElem
         try {
             DataObject od = DataObject.find(file);
             CloneableEditorSupport ces = od.getLookup().lookup(CloneableEditorSupport.class);
-            PositionRef prefStart = ces.createPositionRef(n.getStartingPosition().getOffsetValue(), Position.Bias.Forward);
+            PositionRef prefStart = ces.createPositionRef(n.getStartingPosition().getOffsetValue(), Position.Bias.Backward);
             PositionRef prefEnd = ces.createPositionRef(n.getEndingPosition().getOffsetValue(), Position.Bias.Forward);
 
             bounds = new PositionBounds(prefStart, prefEnd);
@@ -93,30 +95,42 @@ public class LaTeXRefactoringElementImplementation extends SimpleRefactoringElem
 
     public void performChange() {
         if (isEnabled() && rewriteTo != null) {
-            try {
-                Document doc = Utilities.getDefault().openDocument(file);
-                int start = bounds.getBegin().getOffset();
-                int end   = bounds.getEnd().getOffset();
-                
-                if (wasArgument) {
-                    doc.remove(start, end - start);
-                    doc.insertString(start, "{" + rewriteTo + "}", null);
-                } else {
-//                    if (cnode.getArgumentCount() > 0) {
-//                        endOffset = cnode.getArgument(0).getStartingPosition().getOffsetValue() - 1;
-//                    }
-
-                    doc.remove(start, end - start);
-                    doc.insertString(start, rewriteTo, null);
-                }
-            } catch (IOException e) {
-                ErrorManager.getDefault().notify(e);
-            } catch (BadLocationException e) {
-                ErrorManager.getDefault().notify(e);
-            }
+            rewriteTo(rewriteTo);
         }
     }
 
+    @Override
+    public void undoChange() {
+        if (isEnabled() && rewriteTo != null) {
+            rewriteTo(originalName);
+        }
+    }
+
+    private void rewriteTo(String target) {
+        try {
+            //XXX: locking
+            Document doc = Utilities.getDefault().openDocument(file);
+            int start = bounds.getBegin().getOffset();
+            int end   = bounds.getEnd().getOffset();
+            
+            if (wasArgument) {
+                doc.remove(start, end - start);
+                doc.insertString(start, "{" + target + "}", null);
+            } else {
+                //                    if (cnode.getArgumentCount() > 0) {
+                //                        endOffset = cnode.getArgument(0).getStartingPosition().getOffsetValue() - 1;
+                //                    }
+                
+                doc.remove(start, end - start);
+                doc.insertString(start, target, null);
+            }
+        } catch (IOException e) {
+            ErrorManager.getDefault().notify(e);
+        } catch (BadLocationException e) {
+            ErrorManager.getDefault().notify(e);
+        }
+    }
+    
     public Lookup getLookup() {
         return Lookup.EMPTY;
     }
@@ -127,6 +141,31 @@ public class LaTeXRefactoringElementImplementation extends SimpleRefactoringElem
 
     public PositionBounds getPosition() {
         return bounds;
+    }
+
+    @Override
+    protected String getNewFileContent() {
+        try {
+            //XXX: locking
+            Document doc = Utilities.getDefault().openDocument(file);
+            StringBuffer text = new StringBuffer(doc.getText(0, doc.getLength()));
+            int start = bounds.getBegin().getOffset();
+            int end   = bounds.getEnd().getOffset();
+            
+            if (wasArgument) {
+                text.replace(start, end, "{" + rewriteTo + "}");
+            } else {
+                text.replace(start, end, rewriteTo);
+            }
+            
+            return text.toString();
+        } catch (IOException e) {
+            ErrorManager.getDefault().notify(e);
+        } catch (BadLocationException e) {
+            ErrorManager.getDefault().notify(e);
+        }
+        
+        return null;
     }
 
     private static String computeHtmlDisplayName(Node node) {

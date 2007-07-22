@@ -109,6 +109,7 @@ public class ActionsImplementationProviderImpl extends ActionsImplementationProv
         
         final String[] searchFor = new String[1];
         final Problem[] problem = new Problem[1];
+        final String[] originalName = new String[1];
         
         final int caret = panes[0].getCaretPosition();
         
@@ -125,7 +126,7 @@ public class ActionsImplementationProviderImpl extends ActionsImplementationProv
                     if (doc == null)
                         return ;
                     
-                    if (searchFor(doc, lpr, caret) != null) {
+                    if (searchFor(doc, lpr, caret, originalName) != null) {
                         searchFor[0] = "Something";
                     } else {
                         searchFor[0] ="Nothing";
@@ -134,13 +135,13 @@ public class ActionsImplementationProviderImpl extends ActionsImplementationProv
                 }
             }, true);
         
-            UI.openRefactoringUI(new LaTeXFURefactoringUI(source, caret, searchFor[0], problem[0], whereUsed));
+            UI.openRefactoringUI(new LaTeXFURefactoringUI(source, caret, searchFor[0], originalName[0], problem[0], whereUsed));
         } catch (IOException e) {
             Exceptions.printStackTrace(e);
         }
     }
     
-    public static Object searchFor(Document doc, LaTeXParserResult lpr, int caret) throws IOException {
+    public static Object searchFor(Document doc, LaTeXParserResult lpr, int caret, String[] originalName) throws IOException {
         Node n = lpr.getCommandUtilities().findNode(doc, caret);
         FindUsagesPerformer performer = null;
         String name = null;
@@ -150,16 +151,21 @@ public class ActionsImplementationProviderImpl extends ActionsImplementationProv
             
             if (anode.hasAttribute("#ref") || anode.hasAttribute("#label")) {
                 //check for label usages:
-                return UsagesQuery.getArgumentContent(anode).toString();
+                String text = UsagesQuery.getArgumentContent(anode).toString();
+                
+                originalName[0] = text;
+                return text;
             }
             
             if (anode.hasAttribute("#command-def")) {
                 name = UsagesQuery.getArgumentContent(anode).toString();
+                originalName[0] = name;
                 return ((NodeImpl) anode.getCommand()).getCommand(name, true);
             }
             
             if (anode.hasAttribute("#envname")) {
                 name = UsagesQuery.getArgumentContent(anode).toString();
+                originalName[0] = name;
                 return ((NodeImpl) anode.getCommand()).getEnvironment(name, true);
             }
             
@@ -167,7 +173,10 @@ public class ActionsImplementationProviderImpl extends ActionsImplementationProv
                 Node block = anode.getCommand().getParent();
                 
                 if (block instanceof BlockNode) {
-                    return ((BlockNode) block).getEnvironment();
+                    Environment en = ((BlockNode) block).getEnvironment();
+                    
+                    originalName[0] = en.getName();
+                    return en;
                 }
             }
         }
@@ -177,7 +186,8 @@ public class ActionsImplementationProviderImpl extends ActionsImplementationProv
             CommandNode cnode = (CommandNode) n;
             Command cmd = cnode.getCommand();
             
-            return cmd.getCommand();
+            originalName[0] = cmd.getCommand();
+            return cmd;
         }
         
         return null;

@@ -42,16 +42,18 @@ public class LaTeXFURefactoringUI implements RefactoringUI {
     private Source s;
     private int caret;
     private String name;
+    private String originalName;
     private String newName;
     private Problem problem;
     private boolean whereUsed;
 
-    public LaTeXFURefactoringUI(Source s, int caret, String name, Problem problem, boolean whereUsed) {
+    public LaTeXFURefactoringUI(Source s, int caret, String name, String originalName, Problem problem, boolean whereUsed) {
         this.s = s;
         this.caret = caret;
         this.name = name;
         this.problem = problem;
         this.whereUsed = whereUsed;
+        this.originalName = originalName;
     }
     
     public String getName() {
@@ -84,7 +86,7 @@ public class LaTeXFURefactoringUI implements RefactoringUI {
 
                 public Component getComponent() {
                     if (panel == null) {
-                        panel = new NewNamePanel();
+                        panel = new NewNamePanel(originalName);
                     }
                     return panel;
                 }
@@ -109,7 +111,7 @@ public class LaTeXFURefactoringUI implements RefactoringUI {
         if (whereUsed) {
             return new WhereUsedQuery(Lookups.fixed(new Data(s, caret, name, problem)));
         } else {
-            RenameRefactoring rr = new RenameRefactoring(Lookups.fixed(new Data(s, caret, name, problem, newName)));
+            RenameRefactoring rr = new RenameRefactoring(Lookups.fixed(new Data(s, caret, name, problem, originalName)));
             
             rr.setNewName(newName);
             

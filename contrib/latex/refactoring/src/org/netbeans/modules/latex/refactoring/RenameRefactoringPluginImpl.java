@@ -66,8 +66,9 @@ public class RenameRefactoringPluginImpl implements RefactoringPlugin {
     }
 
     public Problem prepare(final RefactoringElementsBag refactoringElements) {
-        Source source = ref.getRefactoringSource().lookup(Data.class).getSource();
-        final int caret = ref.getRefactoringSource().lookup(Data.class).getCaret();
+        final Data data = ref.getRefactoringSource().lookup(Data.class);
+        Source source = data.getSource();
+        final int caret = data.getCaret();
         final String replaceWith = ref.getNewName();
         try {
             source.runUserActionTask(new CancellableTask<CompilationController>() {
@@ -81,21 +82,21 @@ public class RenameRefactoringPluginImpl implements RefactoringPlugin {
                     if (doc == null)
                         return ;
                     
-                    Object toSearch = ActionsImplementationProviderImpl.searchFor(doc, lpr, caret);
+                    Object toSearch = ActionsImplementationProviderImpl.searchFor(doc, lpr, caret, new String[1]);
                     
                     if (toSearch instanceof Command) {
                         for (Node n : UsagesQuery.findCommandUsages(lpr, (Command) toSearch)) {
-                            refactoringElements.add(ref, new LaTeXRefactoringElementImplementation(n, replaceWith));
+                            refactoringElements.add(ref, new LaTeXRefactoringElementImplementation(n, data.getOriginalName(), replaceWith));
                         }
                     }
                     if (toSearch instanceof String) {
                         for (Node n : UsagesQuery.findLabelUsages(lpr, (String) toSearch)) {
-                            refactoringElements.add(ref, new LaTeXRefactoringElementImplementation(n, replaceWith));
+                            refactoringElements.add(ref, new LaTeXRefactoringElementImplementation(n, data.getOriginalName(), replaceWith));
                         }
                     }
                     if (toSearch instanceof Environment) {
                         for (Node n : UsagesQuery.findEnvironmentUsages(lpr, (Environment) toSearch)) {
-                            refactoringElements.add(ref, new LaTeXRefactoringElementImplementation(n, replaceWith));
+                            refactoringElements.add(ref, new LaTeXRefactoringElementImplementation(n, data.getOriginalName(), replaceWith));
                         }
                     }
                 }

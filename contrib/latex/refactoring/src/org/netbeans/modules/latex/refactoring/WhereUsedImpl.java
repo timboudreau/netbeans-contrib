@@ -80,7 +80,7 @@ public class WhereUsedImpl implements RefactoringPlugin {
                     if (doc == null)
                         return ;
                     
-                    Object toSearch = ActionsImplementationProviderImpl.searchFor(doc, lpr, caret);
+                    Object toSearch = ActionsImplementationProviderImpl.searchFor(doc, lpr, caret, new String[1]);
                     
                     if (toSearch instanceof Command) {
                         for (Node n : UsagesQuery.findCommandUsages(lpr, (Command) toSearch)) {
