@@ -27,6 +27,7 @@ import java.util.HashSet;
 import java.util.Set;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
+import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
 import org.netbeans.api.lexer.TokenHierarchy;
 import org.netbeans.api.lexer.TokenSequence;
@@ -35,9 +36,12 @@ import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
 
 import org.netbeans.api.lexer.Token;
+import org.netbeans.modules.latex.editor.TexLanguage;
 import org.netbeans.modules.latex.model.Utilities;
 
 import org.netbeans.modules.latex.model.command.SourcePosition;
+import org.netbeans.modules.latex.model.lexer.TexTokenId;
+import org.openide.util.Exceptions;
 
 /**
  *
@@ -78,7 +82,19 @@ public class ParserInput implements DocumentListener {
         if (document == null)
             throw new IOException("The document cannot be opened.");
         
-        TokenHierarchy h = TokenHierarchy.get(document);
+        final String[] text = new String[1];
+        
+        document.render(new Runnable() {
+            public void run() {
+                try {
+                    text[0] = document.getText(0, document.getLength());
+                } catch (BadLocationException ex) {
+                    Exceptions.printStackTrace(ex);
+                }
+            }
+        });
+        
+        TokenHierarchy h = TokenHierarchy.create(text[0], TexLanguage.description());
         
         ts = h.tokenSequence();
         ts.moveNext();
