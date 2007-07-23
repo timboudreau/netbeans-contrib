@@ -40,7 +40,9 @@ public class MultiViewTableTest {
         scene.addChild (layer);
 
         JTable table = createTable ();
-        ComponentWidget widget = new ComponentWidget (scene, new JScrollPane (table));
+        JScrollPane pane = new JScrollPane (table);
+        pane.setDoubleBuffered (true); // causes JDK issue #4599654 which is worked around in ComponentWidget.paintWidget method
+        ComponentWidget widget = new ComponentWidget (scene, pane);
         widget.setBorder (BorderFactory.createResizeBorder (10));
         widget.setPreferredLocation (new Point (100, 100));
         widget.getActions ().addAction (ActionFactory.createResizeAction ());
