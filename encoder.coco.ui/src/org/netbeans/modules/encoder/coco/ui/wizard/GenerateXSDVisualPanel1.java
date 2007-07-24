@@ -171,12 +171,14 @@ public final class GenerateXSDVisualPanel1 extends JPanel {
         jComboBoxDISPLAYCodePage.setEditable(true);
         jComboBoxDISPLAYCodePage.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
 
-        org.openide.awt.Mnemonics.setLocalizedText(jLabelPredecodeCoding, "Decoding Source Coding:");
+        org.openide.awt.Mnemonics.setLocalizedText(jLabelPredecodeCoding, "Pre-decoding Char. Coding:");
+        jLabelPredecodeCoding.setToolTipText("The coding tells the encoder how to convert input for decoding from the data nature that cannot be accepted by the encoder to the data nature that is acceptable by the encoder.");
 
         jComboBoxDISPLAY1CodePage.setEditable(true);
         jComboBoxDISPLAY1CodePage.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
 
-        org.openide.awt.Mnemonics.setLocalizedText(jLabelPostencodeCoding, "Encoding Result Coding:");
+        org.openide.awt.Mnemonics.setLocalizedText(jLabelPostencodeCoding, "Post-encoding Char. Coding:");
+        jLabelPostencodeCoding.setToolTipText("The coding tells the encoder how to convert output for encoding from the data nature that is used by the encoder to the data nature that is required by the method signature.");
 
         jComboBoxPostencodeCoding.setEditable(true);
         jComboBoxPostencodeCoding.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
@@ -210,17 +212,17 @@ public final class GenerateXSDVisualPanel1 extends JPanel {
                             .add(jLabelCopybookCodePage, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 111, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                             .add(jLabelDISPLAYCodePage, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 100, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                             .add(jLabelDISPLAY1CodePage)
-                            .add(jLabelPredecodeCoding, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .add(jLabelPostencodeCoding, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 120, Short.MAX_VALUE)
+                            .add(jLabelPredecodeCoding, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 138, Short.MAX_VALUE)
+                            .add(jLabelPostencodeCoding, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                             .add(jLabelTargetNamespace, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 100, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
-                            .add(org.jdesktop.layout.GroupLayout.LEADING, jComboBoxCopybookCodePage, 0, 305, Short.MAX_VALUE)
-                            .add(jComboBoxDISPLAYCodePage, 0, 305, Short.MAX_VALUE)
-                            .add(org.jdesktop.layout.GroupLayout.LEADING, jComboBoxDISPLAY1CodePage, 0, 305, Short.MAX_VALUE)
-                            .add(org.jdesktop.layout.GroupLayout.LEADING, jComboBoxPredecodeCoding, 0, 305, Short.MAX_VALUE)
-                            .add(org.jdesktop.layout.GroupLayout.LEADING, jComboBoxPostencodeCoding, 0, 305, Short.MAX_VALUE)
-                            .add(jTextFieldTargetNamespace, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 305, Short.MAX_VALUE))))
+                            .add(org.jdesktop.layout.GroupLayout.LEADING, jComboBoxCopybookCodePage, 0, 287, Short.MAX_VALUE)
+                            .add(jComboBoxDISPLAYCodePage, 0, 287, Short.MAX_VALUE)
+                            .add(org.jdesktop.layout.GroupLayout.LEADING, jComboBoxDISPLAY1CodePage, 0, 287, Short.MAX_VALUE)
+                            .add(org.jdesktop.layout.GroupLayout.LEADING, jComboBoxPredecodeCoding, 0, 287, Short.MAX_VALUE)
+                            .add(org.jdesktop.layout.GroupLayout.LEADING, jComboBoxPostencodeCoding, 0, 287, Short.MAX_VALUE)
+                            .add(jTextFieldTargetNamespace, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 287, Short.MAX_VALUE))))
                 .addContainerGap())
         );
         layout.setVerticalGroup(

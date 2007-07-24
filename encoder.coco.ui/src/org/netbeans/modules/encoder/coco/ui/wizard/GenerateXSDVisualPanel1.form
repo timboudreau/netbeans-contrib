@@ -25,18 +25,18 @@
                           <Component id="jLabelCopybookCodePage" alignment="0" min="-2" pref="111" max="-2" attributes="1"/>
                           <Component id="jLabelDISPLAYCodePage" alignment="0" min="-2" pref="100" max="-2" attributes="0"/>
                           <Component id="jLabelDISPLAY1CodePage" alignment="0" min="-2" max="-2" attributes="0"/>
-                          <Component id="jLabelPredecodeCoding" alignment="0" max="32767" attributes="1"/>
-                          <Component id="jLabelPostencodeCoding" alignment="0" pref="120" max="32767" attributes="0"/>
+                          <Component id="jLabelPredecodeCoding" alignment="0" pref="138" max="32767" attributes="1"/>
+                          <Component id="jLabelPostencodeCoding" alignment="0" max="32767" attributes="0"/>
                           <Component id="jLabelTargetNamespace" min="-2" pref="100" max="-2" attributes="0"/>
                       </Group>
                       <EmptySpace max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="1" attributes="0">
-                          <Component id="jComboBoxCopybookCodePage" alignment="0" pref="305" max="32767" attributes="1"/>
-                          <Component id="jComboBoxDISPLAYCodePage" alignment="1" pref="305" max="32767" attributes="1"/>
-                          <Component id="jComboBoxDISPLAY1CodePage" alignment="0" pref="305" max="32767" attributes="1"/>
-                          <Component id="jComboBoxPredecodeCoding" alignment="0" pref="305" max="32767" attributes="1"/>
-                          <Component id="jComboBoxPostencodeCoding" alignment="0" pref="305" max="32767" attributes="1"/>
-                          <Component id="jTextFieldTargetNamespace" alignment="1" pref="305" max="32767" attributes="0"/>
+                          <Component id="jComboBoxCopybookCodePage" alignment="0" pref="287" max="32767" attributes="1"/>
+                          <Component id="jComboBoxDISPLAYCodePage" alignment="1" pref="287" max="32767" attributes="1"/>
+                          <Component id="jComboBoxDISPLAY1CodePage" alignment="0" pref="287" max="32767" attributes="1"/>
+                          <Component id="jComboBoxPredecodeCoding" alignment="0" pref="287" max="32767" attributes="1"/>
+                          <Component id="jComboBoxPostencodeCoding" alignment="0" pref="287" max="32767" attributes="1"/>
+                          <Component id="jTextFieldTargetNamespace" alignment="1" pref="287" max="32767" attributes="0"/>
                       </Group>
                   </Group>
               </Group>
@@ -148,7 +148,8 @@
     </Component>
     <Component class="javax.swing.JLabel" name="jLabelPredecodeCoding">
       <Properties>
-        <Property name="text" type="java.lang.String" value="Decoding Source Coding:"/>
+        <Property name="text" type="java.lang.String" value="Pre-decoding Char. Coding:"/>
+        <Property name="toolTipText" type="java.lang.String" value="The coding tells the encoder how to convert input for decoding from the data nature that cannot be accepted by the encoder to the data nature that is acceptable by the encoder."/>
       </Properties>
     </Component>
     <Component class="javax.swing.JComboBox" name="jComboBoxDISPLAY1CodePage">
@@ -166,7 +167,8 @@
     </Component>
     <Component class="javax.swing.JLabel" name="jLabelPostencodeCoding">
       <Properties>
-        <Property name="text" type="java.lang.String" value="Encoding Result Coding:"/>
+        <Property name="text" type="java.lang.String" value="Post-encoding Char. Coding:"/>
+        <Property name="toolTipText" type="java.lang.String" value="The coding tells the encoder how to convert output for encoding from the data nature that is used by the encoder to the data nature that is required by the method signature."/>
       </Properties>
     </Component>
     <Component class="javax.swing.JComboBox" name="jComboBoxPostencodeCoding">

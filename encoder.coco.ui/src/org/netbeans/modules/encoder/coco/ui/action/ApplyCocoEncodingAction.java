@@ -289,16 +289,6 @@ public class ApplyCocoEncodingAction extends NodeAction {
                                 ApplyCocoEncodingAction.class,
                                 "apply_coco_enc.msg.modified_elem_count", //NOI18N
                                 visitor.getElementModified()));
-                mConsole.println(
-                        NbBundle.getMessage(
-                                ApplyCocoEncodingAction.class,
-                                "apply_coco_enc.msg.modified_cplxtype_count", //NOI18N
-                                visitor.getComplexTypeModified()));
-                mConsole.println(
-                        NbBundle.getMessage(
-                                ApplyCocoEncodingAction.class,
-                                "apply_coco_enc.msg.modified_simptype_count", //NOI18N
-                                visitor.getSimpleTypeModified()));
             } finally {
                 if (transStarted) {
                     model.endTransaction();

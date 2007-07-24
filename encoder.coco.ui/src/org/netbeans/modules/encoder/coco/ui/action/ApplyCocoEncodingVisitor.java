@@ -22,12 +22,9 @@ package org.netbeans.modules.encoder.coco.ui.action;
 import org.netbeans.modules.encoder.ui.basic.EncodingConst;
 import org.netbeans.modules.xml.schema.model.Annotation;
 import org.netbeans.modules.xml.schema.model.AppInfo;
-import org.netbeans.modules.xml.schema.model.GlobalComplexType;
+import org.netbeans.modules.xml.schema.model.Element;
 import org.netbeans.modules.xml.schema.model.GlobalElement;
-import org.netbeans.modules.xml.schema.model.GlobalSimpleType;
-import org.netbeans.modules.xml.schema.model.LocalComplexType;
-import org.netbeans.modules.xml.schema.model.LocalSimpleType;
-import org.netbeans.modules.xml.schema.model.SchemaComponent;
+import org.netbeans.modules.xml.schema.model.LocalElement;
 import org.netbeans.modules.xml.schema.model.SchemaModel;
 import org.netbeans.modules.xml.schema.model.visitor.DeepSchemaVisitor;
 import org.netbeans.modules.xml.schema.model.visitor.SchemaVisitor;
@@ -40,70 +37,35 @@ import org.netbeans.modules.xml.schema.model.visitor.SchemaVisitor;
 public class ApplyCocoEncodingVisitor extends DeepSchemaVisitor implements SchemaVisitor {
     
     private final SchemaModel mModel;
-    private int mSimpleTypeModified = 0;
-    private int mComplexTypeModified = 0;
     private int mElementModified = 0;
         
     public ApplyCocoEncodingVisitor(SchemaModel rootModel) {
         mModel = rootModel;
     }
     
+    public void visit(LocalElement localElement) {
+        applyCocoEncoding(localElement);
+        super.visit(localElement);
+    }
+
     public void visit(GlobalElement globalElement) {
-        if (applyHL7Encoding(globalElement)) {
-            mElementModified++;
-        }
+        applyCocoEncoding(globalElement);
         super.visit(globalElement);
-    }
-    
-    public void visit(LocalSimpleType localSimpleType) {
-        if (applyHL7Encoding(localSimpleType)) {
-            mSimpleTypeModified++;
-        }
-        super.visit(localSimpleType);
-    }
-
-    public void visit(GlobalSimpleType globalSimpleType) {
-        if (applyHL7Encoding(globalSimpleType)) {
-            mSimpleTypeModified++;
-        }
-        super.visit(globalSimpleType);
-    }
-
-    public void visit(GlobalComplexType globalComplexType) {
-        if (applyHL7Encoding(globalComplexType)) {
-            mComplexTypeModified++;
-        }
-        super.visit(globalComplexType);
-    }
-
-    public void visit(LocalComplexType localComplexType) {
-        if (applyHL7Encoding(localComplexType)) {
-            mComplexTypeModified++;
-        }
-        super.visit(localComplexType);
-    }
-    
-    public int getComplexTypeModified() {
-        return mComplexTypeModified;
-    }
-    
-    public int getSimpleTypeModified() {
-        return mSimpleTypeModified;
     }
     
     public int getElementModified() {
         return mElementModified;
     }
     
-    private boolean applyHL7Encoding(SchemaComponent component) {
-        if (!mModel.equals(component.getModel())) {
-            return false;
+    private void applyCocoEncoding(Element elem) {
+        if (!mModel.equals(elem.getModel())) {
+            return;
         }
         boolean addAnnotation = false;
         boolean found = false;
-        Annotation anno = component.getAnnotation();
+        Annotation anno = elem.getAnnotation();
         if (anno == null) {
-            anno = component.getModel().getFactory().createAnnotation();
+            anno = elem.getModel().getFactory().createAnnotation();
             addAnnotation = true;
         } else {
             for (AppInfo appInfo : anno.getAppInfos()) {
@@ -114,14 +76,13 @@ public class ApplyCocoEncodingVisitor extends DeepSchemaVisitor implements Schem
             }
         }
         if (!found) {
-            AppInfo appInfo = component.getModel().getFactory().createAppInfo();
+            AppInfo appInfo = elem.getModel().getFactory().createAppInfo();
             appInfo.setURI(EncodingConst.URI);
             anno.addAppInfo(appInfo);
             if (addAnnotation) {
-                component.setAnnotation(anno);
+                elem.setAnnotation(anno);
             }
-            return true;
+            mElementModified++;
         }
-        return false;
     }
 }
