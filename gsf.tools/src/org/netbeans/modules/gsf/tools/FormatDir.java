@@ -9,10 +9,9 @@ import javax.swing.SwingUtilities;
 import javax.swing.text.Document;
 
 import org.netbeans.api.gsf.FormattingPreferences;
-import org.netbeans.editor.BaseDocument;
+import org.netbeans.modules.gsf.GsfFormattingPreferences;
 import org.netbeans.modules.gsf.Language;
 import org.netbeans.modules.gsf.LanguageRegistry;
-import org.netbeans.modules.retouche.editor.GsfFormatter.GenericFormattingPreferences;
 import org.openide.awt.StatusDisplayer;
 import org.openide.cookies.EditorCookie;
 import org.openide.cookies.SaveCookie;
@@ -123,7 +122,7 @@ public final class FormatDir extends CallableSystemAction {
         }
 
         int indentSize = language.getFormatter().indentSize();
-        FormattingPreferences preferences = new GenericFormattingPreferences(indentSize, indentSize);
+        FormattingPreferences preferences = new GsfFormattingPreferences(indentSize, indentSize);
         int startOffset = 0;
         int endOffset = doc.getLength();
         language.getFormatter().reindent(doc, startOffset, endOffset, null, preferences);
