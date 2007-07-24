@@ -156,15 +156,11 @@ public class TesterPanel extends javax.swing.JPanel implements DocumentListener 
         if (this.getActionType().equals(EncoderTestPerformerImpl.DECODE)) {
             mPrefs.put(PREF_ACTION, ACTION_DECODE);
             mPrefs.putBoolean(PREF_CHAR_BASED, isFromString());
-            if (getPredecodeCoding().length() > 0) {
-                mPrefs.put(PREF_DOC_CODING, getPredecodeCoding());
-            }
+            mPrefs.put(PREF_DOC_CODING, getPredecodeCoding());
         } else {
             mPrefs.put(PREF_ACTION, ACTION_ENCODE);
             mPrefs.putBoolean(PREF_CHAR_BASED, isToString());
-            if (getPostencodeCoding().length() > 0) {
-                mPrefs.put(PREF_DOC_CODING, getPostencodeCoding());
-            }
+            mPrefs.put(PREF_DOC_CODING, getPostencodeCoding());
         }
         if (getSelectedTopElementDecl() != null) {
             mPrefs.put(PREF_TOP_ELEM, getSelectedTopElementDecl().toString());
