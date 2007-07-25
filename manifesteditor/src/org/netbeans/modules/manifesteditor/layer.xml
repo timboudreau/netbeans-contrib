@@ -82,6 +82,7 @@ Microsystems, Inc. All Rights Reserved.
             <file name="ManTemplate.mf" url="ManTemplate.mf">
                 <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.manifesteditor.Bundle"/>
                 <attr name="template" boolvalue="true"/>
+                <attr name="position" intvalue="650"/>
             </file>
         </folder>
     </folder>

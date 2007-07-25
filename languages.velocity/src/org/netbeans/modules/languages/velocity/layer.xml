@@ -34,12 +34,12 @@ Microsystems, Inc. All Rights Reserved.
         </folder>
     </folder>
     <folder name="Templates">
-        <attr name="API_Support/Scripting" boolvalue="true"/>
         <folder name="Scripting">
             <file name="EmptyVelocity.vm" url="EmptyVelocity.vm">
                 <attr name="template" boolvalue="true" />
                 <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.languages.velocity.Bundle"/>
                 <attr name="templateWizardURL" urlvalue="nbresloc:/org/netbeans/modules/languages/velocity/EmptyVelocityFileDescription.html"/>
+                <attr name="position" intvalue="20"/>
             </file>
         </folder>
     </folder>

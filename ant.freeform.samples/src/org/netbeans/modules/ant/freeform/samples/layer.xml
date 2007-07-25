@@ -26,14 +26,14 @@ Microsystems, Inc. All Rights Reserved.
     </folder>
     <folder name="Services">
         <folder name="JavaHelp">
-            <attr name="org-netbeans-modules-usersguide-below-regular.txt/helpset.xml" boolvalue="true"/>
-            <file name="helpset.xml" url="helpset.xml"/>
+            <file name="org-netbeans-modules-ant-freeform-samples-helpset.xml" url="helpset.xml">
+                <attr name="position" intvalue="3077"/>
+            </file>
         </folder>
     </folder>
     <folder name="Templates">
         <folder name="Project">
             <folder name="Standard">
-                <attr name="j2sefreeform.xml/EmptyFreeformProject.zip" boolvalue="true"/>
                 <file name="EmptyFreeformProject.zip" url="EmptyFreeformProject.zip">
                     <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.ant.freeform.samples.Bundle"/>
                     <!-- XXX: icon used from ant/freeform -->
@@ -42,8 +42,8 @@ Microsystems, Inc. All Rights Reserved.
                     <attr name="instantiatingWizardURL" urlvalue="nbresloc:/org/netbeans/modules/ant/freeform/samples/EmptyFreeformDescription.html"/>
                     <attr name="template" boolvalue="true"/>
                     <attr name="help" stringvalue="org.netbeans.modules.ant.freeform.samples.template-empty"/>
+                    <attr name="position" intvalue="430"/>
                 </file>
-                <attr name="EmptyFreeformProject.zip/SkeletalFreeformProject.zip" boolvalue="true"/>
                 <file name="SkeletalFreeformProject.zip" url="SkeletalFreeformProject.zip">
                     <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.ant.freeform.samples.Bundle"/>
                     <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/ant/freeform/resources/freeform-project.png"/>
@@ -51,6 +51,7 @@ Microsystems, Inc. All Rights Reserved.
                     <attr name="instantiatingWizardURL" urlvalue="nbresloc:/org/netbeans/modules/ant/freeform/samples/SkeletalFreeformDescription.html"/>
                     <attr name="template" boolvalue="true"/>
                     <attr name="help" stringvalue="org.netbeans.modules.ant.freeform.samples.template-skeletal"/>
+                    <attr name="position" intvalue="435"/>
                 </file>
             </folder>
             <folder name="Samples">
@@ -63,6 +64,7 @@ Microsystems, Inc. All Rights Reserved.
                         <attr name="instantiatingWizardURL" urlvalue="nbresloc:/org/netbeans/modules/ant/freeform/samples/AnagramFreeformDescription.html"/>
                         <attr name="template" boolvalue="true"/>
                         <attr name="help" stringvalue="org.netbeans.modules.ant.freeform.samples.template-anagram"/>
+                        <attr name="position" intvalue="220"/>
                     </file>
                 </folder>
             </folder>
