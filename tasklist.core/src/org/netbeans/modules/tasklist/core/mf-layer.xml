@@ -29,21 +29,6 @@ Microsystems, Inc. All Rights Reserved.
 	</folder>
     </folder>
 
-    <!--
-    <folder name="Menu">
-        <folder name="Help">
-            <folder name="HelpShortcuts">
-                <attr name="org-netbeans-modules-usersguide-sep.instance/org-netbeans-modules-tasklist-mainpage.xml" boolvalue="true"/>
-                <file name="org-netbeans-modules-tasklist-mainpage.xml" url="helpctx.xml">
-                    <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.tasklist.core.Bundle"/>
-                    <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/tasklist/core/blank.gif"/>
-                </file>
-                <attr name="org-netbeans-modules-tasklist-mainpage.xml/org-netbeans-modules-usersguide-lower-sep.instance" boolvalue="true"/>
-            </folder>
-        </folder>
-    </folder>
-    -->
-
     <folder name="xml">
         <folder name="memory">
             <folder name="org">
@@ -99,4 +84,3 @@ Microsystems, Inc. All Rights Reserved.
     </folder>
 
 </filesystem>
-
