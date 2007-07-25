@@ -34,19 +34,22 @@ Microsystems, Inc. All Rights Reserved.
 
     <folder name="Menu">
         <folder name="Tools">
-            <attr name="LibrariesCustomizerAction.instance/org-netbeans-modules-languages-studio-LanguagesManagerAction.shadow" boolvalue="true"/>
             <file name="org-netbeans-modules-languages-studio-LanguagesManagerAction.shadow">
                 <attr name="originalFile" stringvalue="Actions/Tools/org-netbeans-modules-languages-studio-LanguagesManagerAction.instance"/>
+                <attr name="position" intvalue="773"/>
             </file>
-            <attr name="org-netbeans-modules-languages-studio-LanguagesManagerAction.shadow/ServerManagerAction.instance" boolvalue="true"/>
         </folder>
         <folder name="Window">
-            <file name="TokensBrowserAction.shadow">
-                <attr name="originalFile" stringvalue="Actions/Window/org-netbeans-modules-languages-studio-TokensBrowserAction.instance"/>
-            </file>
-            <file name="ASTBrowserAction.shadow">
-                <attr name="originalFile" stringvalue="Actions/Window/org-netbeans-modules-languages-studio-ASTBrowserAction.instance"/>
-            </file>
+            <folder name="Other">
+                <file name="TokensBrowserAction.shadow">
+                    <attr name="originalFile" stringvalue="Actions/Window/org-netbeans-modules-languages-studio-TokensBrowserAction.instance"/>
+                    <attr name="position" intvalue="2131"/>
+                </file>
+                <file name="ASTBrowserAction.shadow">
+                    <attr name="originalFile" stringvalue="Actions/Window/org-netbeans-modules-languages-studio-ASTBrowserAction.instance"/>
+                    <attr name="position" intvalue="2133"/>
+                </file>
+            </folder>
         </folder>
     </folder>
     <folder name="Windows2">

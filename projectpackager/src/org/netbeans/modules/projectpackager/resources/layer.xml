@@ -23,33 +23,33 @@ Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
 <filesystem>
     <folder name="Menu">
         <folder name="File">
-            <attr name="Separator2.instance/Import" boolvalue="true" />
             <folder name="Import">
+                <attr name="position" intvalue="1426"/>
                 <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.projectpackager.resources.Bundle"/>
                 <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/openide/resources/actions/empty.gif"/>
-                <file name="org-netbeans-modules-projectpackager-importer-ImportZip.instance"/> 
-            </folder>            
-            <attr name="Import/Export" boolvalue="true" />
-            <folder name="Export">
-                <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.projectpackager.resources.Bundle"/>
-                <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/openide/resources/actions/empty.gif"/>
-                <file name="org-netbeans-modules-projectpackager-exporter-ExportZip.instance"/> 
+                <file name="org-netbeans-modules-projectpackager-importer-ImportZip.instance"/>
             </folder>
-            <attr name="Export/ImporterSeparator1.instance" boolvalue="true" />
+            <folder name="Export">
+                <attr name="position" intvalue="1428"/>
+                <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.projectpackager.resources.Bundle"/>
+                <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/openide/resources/actions/empty.gif"/>
+                <file name="org-netbeans-modules-projectpackager-exporter-ExportZip.instance"/>
+            </folder>
             <file name="ImporterSeparator1.instance">
                 <attr name="instanceClass" stringvalue="javax.swing.JSeparator" />
+                <attr name="position" intvalue="1430"/>
             </file>
         </folder>
     </folder>
-            
+
     <folder name="Services">
     	<file name="org-netbeans-modules-projectpackager-resources-ProjectPackagerSettings.settings" url="ProjectPackagerSettings.xml" />
         <folder name="ProjectPackager">
-            <file name="export_script.xml" url="export_script.xml"/>                
-            <file name="import_script.xml" url="import_script.xml"/>                
+            <file name="export_script.xml" url="export_script.xml"/>
+            <file name="import_script.xml" url="import_script.xml"/>
         </folder>
     </folder>
-    
+
     <folder name="UI">
         <folder name="Services">
           <folder name="IDEConfiguration">
@@ -61,5 +61,5 @@ Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
           </folder>
         </folder>
       </folder>
-    
+
 </filesystem>

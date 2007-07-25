@@ -22,24 +22,19 @@ Microsystems, Inc. All Rights Reserved.
     <folder name="Menu">
         <folder name="Window">
             <folder name="Other">
-                <file name="org-netbeans-modules-tasklist-usertasks-actions-ViewTasksAction.instance" />
+                <file name="org-netbeans-modules-tasklist-usertasks-actions-ViewTasksAction.instance">
+                    <attr name="position" intvalue="829"/>
+                </file>
                 <!--<file name="org-netbeans-modules-tasklist-usertasks-actions-ShowScheduleViewAction.instance" />-->
-                <attr name="org-netbeans-core-actions-EditorViewAction.instance/org-netbeans-modules-tasklist-usertasks-actions-ViewTasksAction.instance" boolvalue="true" />
-                <attr name="org-netbeans-modules-tasklist-usertasks-actions-ViewTasksAction.instance/org-netbeans-modules-scripting-ConsoleAction.instance" boolvalue="true" />
-                <!--<attr name="org-netbeans-modules-tasklist-usertasks-actions-ViewTasksAction.instance/org-netbeans-modules-tasklist-usertasks-actions-ShowScheduleViewAction.instance" boolvalue="true" />-->
             </folder>    
         </folder>
     </folder>
 
     <folder name="Services">
         <folder name="JavaHelp">
-            <!-- Merge after Core IDE Help: -->
-            <attr name="org-netbeans-modules-usersguide-above-regular.txt/org-netbeans-modules-tasklist-usertasks-helpsetref.xml" boolvalue="true"/>
-
-            <file name="org-netbeans-modules-tasklist-usertasks-helpsetref.xml" url="helpsetref.xml"/>
-
-            <!-- Merge before 3rd party help: -->
-            <attr name="org-netbeans-modules-tasklist-usertasks-helpsetref.xml/org-netbeans-modules-usersguide-below-regular.txt" boolvalue="true"/>
+            <file name="org-netbeans-modules-tasklist-usertasks-helpsetref.xml" url="helpsetref.xml">
+                <attr name="position" intvalue="3016"/>
+            </file>
         </folder>
     </folder>
 
@@ -49,6 +44,7 @@ Microsystems, Inc. All Rights Reserved.
                 <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.tasklist.usertasks.Bundle"/>
                 <attr name="template" boolvalue="true"/>
                 <attr name="templateWizardURL" urlvalue="nbresloc:/org/netbeans/modules/tasklist/usertasks/emptyicalendar.html" />
+                <attr name="position" intvalue="1539"/>
             </file>
         </folder>
     </folder>

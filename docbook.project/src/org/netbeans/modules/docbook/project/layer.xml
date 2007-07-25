@@ -23,18 +23,18 @@ Microsystems, Inc. All Rights Reserved.
         <folder name="text">
             <folder name="x-docbook+xml">
                 <folder name="Actions">
-                    <file name="org-netbeans-modules-docbook-project-SetMainFileAction.instance"/>
-                    <attr name="org-openide-actions-OpenAction.instance/org-netbeans-modules-docbook-project-SetMainFileAction.instance" boolvalue="true"/>
-                    <attr name="org-netbeans-modules-docbook-project-SetMainFileAction.instance/org-netbeans-modules-docbook-ToHtmlAction.instance" boolvalue="true"/>
+                    <file name="org-netbeans-modules-docbook-project-SetMainFileAction.instance">
+                        <attr name="position" intvalue="150"/>
+                    </file>
                 </folder>
             </folder>
         </folder>
     </folder>
     <folder name="Templates">
         <folder name="Project">
-            <attr name="APISupport/Docbook" boolvalue="true"/>
             <folder name="Docbook">
                 <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.docbook.project.Bundle"/>
+                <attr name="position" intvalue="937"/>
                 <file name="DocbookProjectTemplate">
                     <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.docbook.project.Bundle"/>
                     <attr name="instantiatingIterator" methodvalue="org.netbeans.modules.docbook.project.wizard.WizardIt.createIterator"/>
@@ -42,7 +42,6 @@ Microsystems, Inc. All Rights Reserved.
                     <attr name="template" boolvalue="true"/>
                 </file>
             </folder>
-            <attr name="Docbook/Samples" boolvalue="true"/>
         </folder>
     </folder>
     <folder name="Editors">

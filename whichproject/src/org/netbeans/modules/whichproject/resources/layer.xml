@@ -27,27 +27,22 @@ Microsystems, Inc. All Rights Reserved.
     </folder>
     <folder name="Menu">
         <folder name="File">
-            <attr name="Separator3.instance/CloseUnrelatedAction.shadow" boolvalue="true" />
             <file name="CloseUnrelatedAction.shadow">
-                <attr name="originalFile" 
-                 stringvalue="Actions/Project/org-netbeans-modules-whichproject-CloseUnrelatedAction.instance"/>
+                <attr name="originalFile" stringvalue="Actions/Project/org-netbeans-modules-whichproject-CloseUnrelatedAction.instance"/>
+                <attr name="position" intvalue="1828"/>
              </file>
-            <attr name="CloseUnrelatedAction.shadow/SeparatorUnrelated.instance" 
-              boolvalue="true" />
             <file name="SeparatorUnrelated.instance">
-              <attr name="instanceClass" stringvalue="javax.swing.JSeparator"/>
+                <attr name="instanceClass" stringvalue="javax.swing.JSeparator"/>
+                <attr name="position" intvalue="1830"/>
             </file>
-            <attr name="SeparatorUnrelated.instance/org-openide-actions-PageSetupAction.instance" boolvalue="true" />
          </folder>
     </folder>
     <folder name="Shortcuts">
         <file name="OS-P.shadow">
-            <attr name="originalFile" 
-            stringvalue="Actions/Project/org-netbeans-modules-whichproject-WhichProjectAction.instance"/>
+            <attr name="originalFile" stringvalue="Actions/Project/org-netbeans-modules-whichproject-WhichProjectAction.instance"/>
         </file>
         <file name="CA-P.shadow">
-            <attr name="originalFile" 
-            stringvalue="Actions/Project/org-netbeans-modules-whichproject-CloseUnrelatedAction.instance"/>
+            <attr name="originalFile" stringvalue="Actions/Project/org-netbeans-modules-whichproject-CloseUnrelatedAction.instance"/>
         </file>
-    </folder>     
+    </folder>
 </filesystem>

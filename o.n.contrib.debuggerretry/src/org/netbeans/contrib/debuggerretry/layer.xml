@@ -8,11 +8,10 @@
     </folder>
     <folder name="Menu">
         <folder name="RunProject">
-            <attr name="org-netbeans-modules-debugger-ui-actions-RunIntoMethodAction.shadow/org-netbeans-contrib-debuggerretry-RetryAction.shadow" boolvalue="true"/>
             <file name="org-netbeans-contrib-debuggerretry-RetryAction.shadow">
                 <attr name="originalFile" stringvalue="Actions/Debug/org-netbeans-contrib-debuggerretry-RetryAction.instance"/>
+                <attr name="position" intvalue="1750"/>
             </file>
-            <attr name="org-netbeans-contrib-debuggerretry-RetryAction.shadow/Separator3.instance" boolvalue="true"/>
         </folder>
     </folder>
     <folder name="Shortcuts">
@@ -22,11 +21,10 @@
     </folder>
     <folder name="Toolbars">
         <folder name="Debug">
-            <attr name="org-netbeans-modules-debugger-ui-actions-RunToCursorAction.shadow/org-netbeans-contrib-debuggerretry-RetryAction.shadow" boolvalue="true"/>
             <file name="org-netbeans-contrib-debuggerretry-RetryAction.shadow">
                 <attr name="originalFile" stringvalue="Actions/Debug/org-netbeans-contrib-debuggerretry-RetryAction.instance"/>
+                <attr name="position" intvalue="850"/>
             </file>
-            <attr name="org-netbeans-contrib-debuggerretry-RetryAction.shadow/org-netbeans-modules-debugger-ui-actions-FixAction.shadow" boolvalue="true"/>
         </folder>
     </folder>
 </filesystem>

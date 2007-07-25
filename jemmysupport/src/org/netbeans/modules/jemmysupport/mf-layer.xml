@@ -59,10 +59,9 @@ Author: <a href="mailto:adam.sotona@sun.com">Adam Sotona</a>
     </folder>
     <folder name="Services">
         <folder name="JavaHelp">
-            <attr name="org-netbeans-modules-usersguide-above-regular.txt/org-netbeans-modules-jemmysupport-helpset.xml" boolvalue="true"/>
             <file name="org-netbeans-modules-jemmysupport-helpset.xml" url="helpset.xml">
+                <attr name="position" intvalue="3855"/>
             </file>
-            <attr name="org-netbeans-modules-jemmysupport-helpset.xml/org-netbeans-modules-usersguide-below-regular.txt" boolvalue="true"/>
         </folder>
     </folder>
 </filesystem>

@@ -25,124 +25,122 @@ Microsystems, Inc. All Rights Reserved.
             <file name="org-netbeans-modules-jackpot-ui-QueryAndRefactorAction.instance"/>
         </folder>
     </folder>
-    
+
     <folder name="Jackpot">
         <folder name="Inspections">
             <file name="RemoveUnneededCasts.rules" url="scripts/RemoveUnneededCasts.rules">
                 <attr name="inspector" stringvalue="Unnecessary casts"/>
+                <attr name="position" intvalue="100"/>
                 <attr name="transformer" stringvalue="Remove cast"/>
                 <attr name="description" stringvalue="Removes any cast expressions which are not needed, since the expression being cast is already of the correct type."/>
             </file>
-            <attr name="RemoveUnneededCasts.rules/SimplifyBooleanExpressions.rules" boolvalue="true"/>
             <file name="SimplifyBooleanExpressions.rules" url="scripts/SimplifyBooleanExpressions.rules">
                 <attr name="inspector" stringvalue="Complex boolean expressions"/>
+                <attr name="position" intvalue="200"/>
                 <attr name="transformer" stringvalue="Simplify boolean expression"/>
                 <attr name="description" stringvalue="Converts complex boolean expressions into their simpler equivalents"/>
             </file>
             <!-- SimplifyLoops needs to pass full unit test before being enabled
-            <attr name="SimplifyBooleanExpressions.rules/SimplifyLoops.settings" boolvalue="true"/>
             <file name="SimplifyLoops.settings" url="resources/jackpotCommand.xml">
                 <attr name="inspector" stringvalue="While loops that can be simplified"/>
                 <attr name="transformer" stringvalue="Simplify loop"/>
                 <attr name="command" stringvalue="org.netbeans.modules.jackpot.cmds.SimplifyLoops"/>
                 <attr name="description" stringvalue="Finds while loops whose code can be simplified without changing their semantics."/>
             </file>
-            <attr name="SimplifyLoops.settings/SimplifyIfStatements.settings" boolvalue="true"/>
             -->
-            <attr name="SimplifyBooleanExpressions.rules/SimplifyIfStatements.settings" boolvalue="true"/>
-            <!-- remove above attr line when SimplifyLoops is enabled -->
             <file name="SimplifyIfStatements.settings" url="resources/jackpotCommand.xml">
                 <attr name="inspector" stringvalue="If statements that can be simplified"/>
+                <attr name="position" intvalue="300"/>
                 <attr name="transformer" stringvalue="Simplify statement"/>
                 <attr name="command" stringvalue="org.netbeans.modules.jackpot.cmds.SimplifyIfStatements"/>
                 <attr name="description" stringvalue="Finds if statements whose code can be simplified without changing their semantics.  For example, a statement or block does not need to be an else expression if the then expression ends with a return, break, or continue statement."/>
             </file>
-            <attr name="SimplifyIfStatements.settings/TailMerge.settings" boolvalue="true"/>
             <file name="TailMerge.settings" url="resources/jackpotCommand.xml">
                 <attr name="inspector" stringvalue="if-else blocks with shared end statements"/>
+                <attr name="position" intvalue="400"/>
                 <attr name="transformer" stringvalue="Move statements after the if statement"/>
                 <attr name="command" stringvalue="org.netbeans.modules.jackpot.cmds.TailMerge"/>
                 <attr name="description" stringvalue="Finds common trailing code in the then and else clauses of an if statement, which is then moved after the if statement."/>
             </file>
-            <attr name="TailMerge.settings/FindUnusedVariables.settings" boolvalue="true"/>
             <file name="FindUnusedVariables.settings" url="resources/jackpotCommand.xml">
                 <attr name="inspector" stringvalue="Unused variables"/>
                 <attr name="command" stringvalue="org.netbeans.modules.jackpot.cmds.FindUnusedVariables"/>
                 <attr name="description" stringvalue="Finds variables which are not referenced by any source files."/>
+                <attr name="position" intvalue="500"/>
             </file>
-            <attr name="FindUnusedVariables.settings/AddOverrides.settings" boolvalue="true"/>
             <file name="AddOverrides.settings" url="resources/jackpotCommand.xml">
                 <attr name="inspector" stringvalue="Overridden methods"/>
+                <attr name="position" intvalue="600"/>
                 <attr name="transformer" stringvalue="Add @Override annotation"/>
                 <attr name="command" stringvalue="org.netbeans.modules.jackpot.cmds.AddOverrides"/>
                 <attr name="description" stringvalue="Adds an @Override annotation to each method which overrides a superclass method.  The javac compiler will then verify that contract with each build."/>
             </file>
-            <attr name="AddOverrides.settings/MinimizeFieldAccess.settings" boolvalue="true"/>
             <file name="MinimizeFieldAccess.settings" url="resources/jackpotCommand.xml">
                 <attr name="inspector" stringvalue="Fields whose access can be minimized"/>
+                <attr name="position" intvalue="700"/>
                 <attr name="transformer" stringvalue="Minimize access"/>
                 <attr name="command" stringvalue="org.netbeans.modules.jackpot.cmds.MinimizeFieldAccess"/>
                 <attr name="description" stringvalue="Restricts fields' access depending on their usage by other classes."/>
             </file>
-            <attr name="MinimizeFieldAccess.settings/MinimizeMethodAccess.settings" boolvalue="true"/>
             <file name="MinimizeMethodAccess.settings" url="resources/jackpotCommand.xml">
                 <attr name="inspector" stringvalue="Methods whose access can be minimized"/>
+                <attr name="position" intvalue="800"/>
                 <attr name="transformer" stringvalue="Minimize access"/>
                 <attr name="command" stringvalue="org.netbeans.modules.jackpot.cmds.MinimizeMethodAccess"/>
                 <attr name="description" stringvalue="Restricts methods' access depending on their usage by other classes."/>
             </file>
-            <attr name="MinimizeMethodAccess.settings/StringTokenizerToScanner.rules" boolvalue="true"/>
             <file name="StringTokenizerToScanner.rules" url="scripts/StringTokenizerToScanner.rules">
                 <attr name="inspector" stringvalue="StringTokenizer usages"/>
+                <attr name="position" intvalue="900"/>
                 <attr name="transformer" stringvalue="Convert to java.util.Scanner"/>
                 <attr name="description" stringvalue="Converts StringTokenizer references to use Java 5's Scanner class."/>
             </file>
-            <attr name="StringTokenizerToScanner.rules/StringBufferToStringBuilder.rules" boolvalue="true"/>
             <file name="StringBufferToStringBuilder.rules" url="scripts/StringBufferToStringBuilder.rules">
                 <attr name="inspector" stringvalue="StringBuffer usages"/>
+                <attr name="position" intvalue="1000"/>
                 <attr name="transformer" stringvalue="Convert to java.lang.StringBuilder"/>
                 <attr name="description" stringvalue="Converts StringBuffer references to use Java 5's StringBuilder class.  The StringBuilder class is faster but is not thread-safe."/>
             </file>
-            <attr name="StringBufferToStringBuilder.rules/SwingUtilitiesToEventQueue.rules" boolvalue="true"/>
             <file name="SwingUtilitiesToEventQueue.rules" url="scripts/SwingUtilitiesToEventQueue.rules">
                 <attr name="inspector" stringvalue="SwingUtilities EventQueue methods"/>
+                <attr name="position" intvalue="1100"/>
                 <attr name="transformer" stringvalue="Use EventQueue equivalent"/>
                 <attr name="description" stringvalue="Updates references to the SwingUtilities methods that were moved to the EventQueue in Java 1.3"/>
             </file>
-            <attr name="SwingUtilitiesToEventQueue.rules/BadFinallyBlocks.settings" boolvalue="true"/>
             <file name="BadFinallyBlocks.settings" url="resources/jackpotCommand.xml">
                 <attr name="inspector" stringvalue="Bad finally blocks"/>
                 <attr name="command" stringvalue="org.netbeans.modules.jackpot.cmds.BadFinallyBlocks"/>
                 <attr name="description" stringvalue="Locates try blocks with finally clauses which contain throws or return statements."/>
+                <attr name="position" intvalue="1200"/>
             </file>
-            <attr name="BadFinallyBlocks.settings/ConstructorsCallingPublicMethods.settings" boolvalue="true"/>
             <file name="ConstructorsCallingPublicMethods.settings" url="resources/jackpotCommand.xml">
                 <attr name="inspector" stringvalue="Dangerous constructors"/>
                 <attr name="command" stringvalue="org.netbeans.modules.jackpot.cmds.ConstPublicCalls"/>
                 <attr name="description" stringvalue="Locates constructors which call 'dangerous' methods, which are defined as any overridable public method, or methods where 'this' is passed as a parameter.  In both cases, an incompletely initialized object may be passed outside of the class."/>
+                <attr name="position" intvalue="1300"/>
             </file>
-            <attr name="ConstructorsCallingPublicMethods.settings/ChangeCopyright.settings" boolvalue="true"/>
             <file name="ChangeCopyright.settings" url="resources/jackpotCommand.xml">
                 <attr name="inspector" stringvalue="Missing or old copyright comments"/>
+                <attr name="position" intvalue="1400"/>
                 <attr name="transformer" stringvalue="Replace copyright text if necessary"/>
                 <attr name="command" stringvalue="org.netbeans.modules.jackpot.cmds.ChangeCopyright"/>
                 <attr name="description" stringvalue="Adds or replaces the top comment of each source file if it does not match the specified text."/>
             </file>
-            <attr name="ChangeCopyright.settings/FindSelfAssignments.settings" boolvalue="true"/>
             <file name="FindSelfAssignments.settings" url="resources/jackpotCommand.xml">
                 <attr name="inspector" stringvalue="Find self-initialized variables"/>
                 <attr name="command" stringvalue="org.netbeans.modules.jackpot.cmds.FindSelfAssignments"/>
                 <attr name="description" stringvalue="Reports variables which are assigned to themselves, such as 'this.message = message;' in a constructor.  This is at best a useless statement, but more often is an error caused by a typing mistake."/>
+                <attr name="position" intvalue="1500"/>
             </file>
-            <attr name="FindSelfAssignments.settings/log4j.rules" boolvalue="true"/>
             <file name="log4j.rules" url="scripts/log4j.rules">
                 <attr name="inspector" stringvalue="Find Apache Log4J references"/>
+                <attr name="position" intvalue="1600"/>
                 <attr name="transformer" stringvalue="Convert to use java.util.logging instead."/>
                 <attr name="description" stringvalue="Updates log4j usage to the java.util.logging package introduced in Java 1.4."/>
             </file>
-            <attr name="log4j.rules/EnhancedFor.rules" boolvalue="true"/>
             <file name="EnhancedFor.rules" url="scripts/EnhancedFor.rules">
                 <attr name="inspector" stringvalue="Find common for statements"/>
+                <attr name="position" intvalue="1700"/>
                 <attr name="transformer" stringvalue="Replace with enhanced for statements"/>
                 <attr name="description" stringvalue="Finds common for statements and replaces them with Java 5 enhanced for statements."/>
             </file>
@@ -151,21 +149,21 @@ Microsystems, Inc. All Rights Reserved.
             <file name="Cleanup.queryset" url="resources/Cleanup.queryset">
                 <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.jackpot.Bundle"/>
                 <attr name="default" boolvalue="true"/>
+                <attr name="position" intvalue="100"/>
             </file>
-           <attr name="Default.queryset/EffectiveJava.queryset" boolvalue="true"/>
             <file name="EffectiveJava.queryset" url="resources/EffectiveJava.queryset">
                 <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.jackpot.Bundle"/>
+                <attr name="position" intvalue="200"/>
             </file>
 <!--
-            <attr name="EffectiveJava.queryset/Java5.queryset" boolvalue="true"/>
             <file name="Java5.queryset" url="resources/Java5.queryset">
                 <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.jackpot.Bundle"/>
             </file>
  -->
         </folder>
     </folder>
-    
-    <folder name="Menu">  
+
+    <folder name="Menu">
         <folder name="Refactoring">
             <file name="org-netbeans-modules-jackpot-ui-QueryAndRefactorAction.shadow">
                 <attr name="originalFile" stringvalue="Actions/Jackpot/org-netbeans-modules-jackpot-ui-QueryAndRefactorAction.instance"/>
@@ -220,7 +218,7 @@ Microsystems, Inc. All Rights Reserved.
              <file name="jackpot-query-results.settings" url="resources/jackpot-query-results.settings"/>
          </folder>
      </folder>
-     
+
     <folder name="Templates">
         <folder name="Jackpot">
             <attr name="position" intvalue="1968"/>

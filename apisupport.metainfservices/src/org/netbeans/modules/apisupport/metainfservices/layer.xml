@@ -10,11 +10,10 @@
         <folder name="text">
             <folder name="x-java">
                 <folder name="Popup">
-                    <attr name="org-netbeans-modules-websvc-core-client-actions-WebServiceClientActionGroup.instance/org-netbeans-modules-apisupport-metainfservices-ExportAction.shadow" boolvalue="true"/>
                     <file name="org-netbeans-modules-apisupport-metainfservices-ExportAction.shadow">
                         <attr name="originalFile" stringvalue="Actions/Tools/org-netbeans-modules-apisupport-metainfservices-ExportAction.instance"/>
+                        <attr name="position" intvalue="9755"/>
                     </file>
-                    <attr name="org-netbeans-modules-apisupport-metainfservices-ExportAction.shadow/org-netbeans-modules-refactoring-ui-WhereUsedAction.instance" boolvalue="true"/>
                 </folder>
             </folder>
         </folder>
@@ -23,11 +22,10 @@
         <folder name="text">
             <folder name="x-java">
                 <folder name="Actions">
-                    <attr name="RefactoringAll.instance/org-netbeans-modules-apisupport-metainfservices-ExportAction.shadow" boolvalue="true"/>
                     <file name="org-netbeans-modules-apisupport-metainfservices-ExportAction.shadow">
                         <attr name="originalFile" stringvalue="Actions/Tools/org-netbeans-modules-apisupport-metainfservices-ExportAction.instance"/>
+                        <attr name="position" intvalue="2078"/>
                     </file>
-                    <attr name="org-netbeans-modules-apisupport-metainfservices-ExportAction.shadow/RefactoringSeparator-1.instance" boolvalue="true"/>
                 </folder>
             </folder>
         </folder>

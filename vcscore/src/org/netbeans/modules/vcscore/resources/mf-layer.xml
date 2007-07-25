@@ -1,4 +1,4 @@
-<?xml version='1.0'?>
+<?xml version="1.0"?>
 <!--
 The contents of this file are subject to the terms of the Common Development
 and Distribution License (the License). You may not use this file except in
@@ -20,50 +20,42 @@ Microsystems, Inc. All Rights Reserved.
 <!DOCTYPE filesystem PUBLIC "-//NetBeans//DTD Filesystem 1.0//EN" "http://www.netbeans.org/dtds/filesystem-1_0.dtd">
 <filesystem>
   <folder name="Menu">
-    <attr name="Build/Versioning" boolvalue="true"/>
-    <attr name="Debug/Versioning" boolvalue="true"/>
-    <attr name="Versioning/Tools" boolvalue="true"/>
     <folder name="Versioning">
-      <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.vcscore.actions.Bundle" />
-      <file name="org-netbeans-modules-vcscore-actions-VcsManagerAction.instance" />
+      <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.vcscore.actions.Bundle"/>
+      <file name="org-netbeans-modules-vcscore-actions-VcsManagerAction.instance"/>
       <!--
-      <attr name="org-netbeans-modules-vcscore-actions-VcsManagerAction.instance/GlobalCommands" boolvalue="true"/>
       <folder name="GlobalCommands">
         <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.vcscore.actions.Bundle" />
         <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/vcscore/runtime/commandIcon.gif" />
         <file name="org-netbeans-modules-vcscore-actions-VcsGlobalCommandsAction.instance" />
       </folder>
-      <attr name="GlobalCommands/org-netbeans-modules-vcscore-actions-VcsCommandsAction.instance" boolvalue="true"/>
-      <file name="org-netbeans-modules-vcscore-actions-VcsCommandsAction.instance" /> 
+      <file name="org-netbeans-modules-vcscore-actions-VcsCommandsAction.instance" />
       -->
-      <file name="org-netbeans-modules-vcscore-actions-VcsAllCommandsAction.instance" />
-      <attr name="org-netbeans-modules-vcscore-actions-VcsManagerAction.instance/org-netbeans-modules-vcscore-actions-VcsAllCommandsAction.instance" boolvalue="true"/>
+      <file name="org-netbeans-modules-vcscore-actions-VcsAllCommandsAction.instance"/>
     </folder>
     <folder name="Window">
-        <attr name="Output/Versioning" boolvalue="true"/>
-        <attr name="Navigator/Versioning" boolvalue="true"/>
-        <attr name="Debug/Versioning" boolvalue="true"/>
         <folder name="Versioning">
-            <attr name="SystemFileSystem.icon" urlvalue="nbresloc:org/openide/resources/actions/empty.gif" />
-            <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.vcscore.Bundle" />
-            <file name="org-netbeans-modules-vcscore-actions-OpenVersioningAction.instance" /> 
-            <file name="org-netbeans-modules-vcscore-actions-VcsOutputAction.instance" />
-            <attr name="org-netbeans-modules-vcscore-grouping-VcsGroupMenuAction.instance/org-netbeans-modules-vcscore-actions-VcsOutputAction.instance" boolvalue="true"/>          
+            <attr name="SystemFileSystem.icon" urlvalue="nbresloc:org/openide/resources/actions/empty.gif"/>
+            <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.vcscore.Bundle"/>
+            <file name="org-netbeans-modules-vcscore-actions-OpenVersioningAction.instance">
+                <attr name="position" intvalue="2100"/>
+            </file>
+            <file name="org-netbeans-modules-vcscore-actions-VcsOutputAction.instance">
+                <attr name="position" intvalue="2200"/>
+            </file>
         </folder>
-        <attr name="Versioning/Other" boolvalue="true"/>
-        <attr name="Versioning/SwitchToRecentDocumentAction.shadow" boolvalue="true"/>
     </folder>
   </folder>
-  
+
   <folder name="Shortcuts">
       <file name="D-8.instance">
-          <attr name="instanceClass" stringvalue="org.netbeans.modules.vcscore.actions.OpenVersioningAction" />
+          <attr name="instanceClass" stringvalue="org.netbeans.modules.vcscore.actions.OpenVersioningAction"/>
       </file>
       <file name="DS-8.instance">
-          <attr name="instanceClass" stringvalue="org.netbeans.modules.vcscore.actions.VersioningAction" />
+          <attr name="instanceClass" stringvalue="org.netbeans.modules.vcscore.actions.VersioningAction"/>
       </file>
       <file name="D-9.instance">
-        <attr name="instanceClass" stringvalue="org.netbeans.modules.vcscore.actions.VcsOutputAction" />
+        <attr name="instanceClass" stringvalue="org.netbeans.modules.vcscore.actions.VcsOutputAction"/>
       </file>
   </folder>
 
@@ -83,80 +75,89 @@ Microsystems, Inc. All Rights Reserved.
   <folder name="Toolbars">
      <folder name="Versioning">
             <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.vcscore.Bundle"/>
-            <attr boolvalue="true" name="org-netbeans-modules-vcscore-actions-UpdateCommandAction.instance/org-netbeans-modules-vcscore-actions-CommitCommandAction.instance"/>
-            <file name="org-netbeans-modules-vcscore-actions-UpdateCommandAction.instance" />
-            <attr boolvalue="true" name="org-netbeans-modules-vcscore-actions-CommitCommandAction.instance/org-netbeans-modules-vcscore-actions-AddCommandAction.instance"/>
-            <file name="org-netbeans-modules-vcscore-actions-CommitCommandAction.instance" />
-            <attr boolvalue="true" name="org-netbeans-modules-vcscore-actions-AddCommandAction.instance/org-netbeans-modules-vcscore-actions-RemoveCommandAction.instance"/>
-            <file name="org-netbeans-modules-vcscore-actions-AddCommandAction.instance" />
-            <attr boolvalue="true" name="org-netbeans-modules-vcscore-actions-RemoveCommandAction.instance/org-netbeans-modules-vcscore-actions-DiffCommandAction.instance"/>
-            <file name="org-netbeans-modules-vcscore-actions-RemoveCommandAction.instance" />
-            <attr boolvalue="true" name="org-netbeans-modules-vcscore-actions-DiffCommandAction.instance/org-netbeans-modules-vcscore-actions-HistoryCommandAction.instance"/>
-            <file name="org-netbeans-modules-vcscore-actions-DiffCommandAction.instance" />
-            <file name="org-netbeans-modules-vcscore-actions-HistoryCommandAction.instance" />
+            <file name="org-netbeans-modules-vcscore-actions-UpdateCommandAction.instance">
+                <attr name="position" intvalue="100"/>
+            </file>
+            <file name="org-netbeans-modules-vcscore-actions-CommitCommandAction.instance">
+                <attr name="position" intvalue="200"/>
+            </file>
+            <file name="org-netbeans-modules-vcscore-actions-AddCommandAction.instance">
+                <attr name="position" intvalue="300"/>
+            </file>
+            <file name="org-netbeans-modules-vcscore-actions-RemoveCommandAction.instance">
+                <attr name="position" intvalue="400"/>
+            </file>
+            <file name="org-netbeans-modules-vcscore-actions-DiffCommandAction.instance">
+                <attr name="position" intvalue="500"/>
+            </file>
+            <file name="org-netbeans-modules-vcscore-actions-HistoryCommandAction.instance">
+                <attr name="position" intvalue="600"/>
+            </file>
         </folder>
   </folder>
 
   <folder name="vcs">
     <folder name="Groups">
-        <file name="org-netbeans-modules-vcscore-grouping-MainVcsGroupNode.instance" />      
+        <file name="org-netbeans-modules-vcscore-grouping-MainVcsGroupNode.instance"/>
     </folder>
    </folder>
-   
-  <folder name="Services"> 
-    <folder name = "Hidden">
+
+  <folder name="Services">
+    <folder name="Hidden">
         <file name="org-netbeans-modules-vcscore-settings-GeneralVcsSettings.settings" url="GeneralVcsSettings.settings">
-            <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.vcscore.settings.Bundle" />
-            <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/vcscore/settings/vcsSettings.gif" />
-            <attr name="SystemFileSystem.layer" stringvalue="project" />
+            <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.vcscore.settings.Bundle"/>
+            <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/vcscore/settings/vcsSettings.gif"/>
+            <attr name="SystemFileSystem.layer" stringvalue="project"/>
         </file>
         <file name="VcsFSProvider.instance">
-            <attr name="instanceCreate" newvalue="org.netbeans.modules.vcscore.registry.VcsFSProvider" />
-            <attr name="instanceClass" stringvalue="org.netbeans.modules.vcscore.registry.VcsFSProvider" />
+            <attr name="instanceCreate" newvalue="org.netbeans.modules.vcscore.registry.VcsFSProvider"/>
+            <attr name="instanceClass" stringvalue="org.netbeans.modules.vcscore.registry.VcsFSProvider"/>
         </file>
         <folder name="VersionControl">
             <file name="org-netbeans-modules-vcscore-grouping-VcsGroupSettings.settings" url="VcsGroupSettings.settings">
-                <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.vcscore.grouping.Bundle" />
-                <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/vcscore/grouping/MainVcsGroupNodeIcon.gif" />
-                <attr name="SystemFileSystem.layer" stringvalue="project" />
+                <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.vcscore.grouping.Bundle"/>
+                <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/vcscore/grouping/MainVcsGroupNodeIcon.gif"/>
+                <attr name="SystemFileSystem.layer" stringvalue="project"/>
             </file>
         </folder>
         <file name="org-netbeans-modules-vcscore-search-VcsSearchType.settings" url="VcsSearchType.settings">
-            <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.vcscore.search.Bundle" />
-            <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/vcscore/search/find.gif" />
+            <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.vcscore.search.Bundle"/>
+            <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/vcscore/search/find.gif"/>
         </file>
 
     </folder>
 
     <!-- Plugins registration point defined by turbo.local package. -->
-    <folder name="FileAttributeProviders">
-        <folder name="Default"/>
-        <!--
+        <folder name="FileAttributeProviders">
+            <folder name="Default">
+                <attr name="position" intvalue="100"/>
+            </folder>
+            <!--
           - Until DefaultFileAttributeProvider is implemented Turbo
           - registers here fallback provider for it's well known attribute.
           - It must be always the last provider registered.
           -->
-        <attr boolvalue="true" name="Default/Turbo"/>
-        <folder name="Turbo">
-            <file name="org-netbeans-modules-vcscore-turbo-DiskFileAttributeProvider.instance">
-                <attr name="instanceCreate" methodvalue="org.netbeans.modules.vcscore.turbo.DiskFileAttributeProvider.getDefault" />
-                <attr name="instanceOf" stringvalue="org.netbeans.modules.vcscore.turbo.local.FileAttributeProvider" />
-            </file>
+          <folder name="Turbo">
+                <attr name="position" intvalue="200"/>
+                <file name="org-netbeans-modules-vcscore-turbo-DiskFileAttributeProvider.instance">
+                    <attr name="instanceCreate" methodvalue="org.netbeans.modules.vcscore.turbo.DiskFileAttributeProvider.getDefault"/>
+                    <attr name="instanceOf" stringvalue="org.netbeans.modules.vcscore.turbo.local.FileAttributeProvider"/>
+                </file>
+            </folder>
         </folder>
     </folder>
-  </folder>
 
   <folder name="UI">
     <folder name="Runtime">
       <file name="org-netbeans-modules-vcscore-runtime-RuntimeMainNode.instance"/>
     </folder>
-    <folder name="Services"> 
-      <folder name="SourceCreationAndManagement"> 
-        <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.vcscore.Bundle" />
+    <folder name="Services">
+      <folder name="SourceCreationAndManagement">
+        <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.vcscore.Bundle"/>
 
         <file name="org-netbeans-modules-vcscore-settings-GeneralVcsSettingsNode.instance">
-            <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.vcscore.settings.Bundle" />
-            <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/vcscore/settings/vcsSettings.gif" />
+            <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.vcscore.settings.Bundle"/>
+            <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/vcscore/settings/vcsSettings.gif"/>
         </file>
       </folder>
     </folder>
@@ -168,30 +169,27 @@ Microsystems, Inc. All Rights Reserved.
 
    <folder name="Templates">
      <folder name="Mount">
-      
-       <attr name="org-netbeans-core-ExLocalFileSystem.settings/VCS" boolvalue="true" />
-       <attr name="org-netbeans-core-ExJarFileSystem.settings/VCS" boolvalue="true" />
-      
+
        <folder name="VCS">
        <!-- Put links to templates in "VCSMountTemplates" here in case VCS mount menu items should be groupped in a sub-menu
             See the mf-layer.xml in vcsgeneric module, as it may need some tunning to look good.
         -->
-       <attr name="simple" boolvalue="false" />
+       <attr name="simple" boolvalue="false"/>
        <attr name="templateWizardURL" urlvalue="nbresloc:/org/netbeans/modules/vcscore/resources/templatesVCSFS.html"/>
-       <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.vcscore.wizard.Bundle" />
+       <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.vcscore.wizard.Bundle"/>
        </folder>
-     <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.vcscore.wizard.Bundle" />
+     <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.vcscore.wizard.Bundle"/>
      </folder>
    </folder>
 
   <folder name="Windows2">
       <folder name="Modes">
           <folder name="output">
-              <file name="VCSCommandOutput.wstcref" url="CommandOutput.wstcref" />
+              <file name="VCSCommandOutput.wstcref" url="CommandOutput.wstcref"/>
           </folder>
       </folder>
       <folder name="Components">
-          <file name="VCSCommandOutput.settings" url="CommandOutputTopComponent.settings" />
+          <file name="VCSCommandOutput.settings" url="CommandOutputTopComponent.settings"/>
       </folder>
   </folder>
 

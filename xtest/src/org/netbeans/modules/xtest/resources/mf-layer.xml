@@ -49,9 +49,10 @@ Microsystems, Inc. All Rights Reserved.
     </folder>
     <folder name="Projects" >
         <folder name="Actions" >
-            <attr name="org-netbeans-modules-versioning-system-cvss-ui-actions-ProjectCvsMenuItem.instance/org-netbeans-modules-xtest-actions-XTestProjectMenuItem.instance" boolvalue="true" />
             <!-- Adds XTest sub menu to project root node -->
-            <file name="org-netbeans-modules-xtest-actions-XTestProjectMenuItem.instance"/>
+            <file name="org-netbeans-modules-xtest-actions-XTestProjectMenuItem.instance">
+                <attr name="position" intvalue="200"/>
+            </file>
             <!-- Hide XTest sub menu provided by apisupport/project module -->
             <file name="org-netbeans-modules-apisupport-project-ui-XTestProjectMenuItem.instance_hidden"/>
         </folder>

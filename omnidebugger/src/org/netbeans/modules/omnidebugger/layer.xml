@@ -16,13 +16,10 @@
         <folder name="text">
             <folder name="x-java">
                 <folder name="Popup">
-                    <attr name="org-netbeans-modules-project-ui-RunSingle.shadow/org-netbeans-modules-omnidebugger-DebugFileAction.shadow" boolvalue="true"/>
-                    <attr name="org-netbeans-modules-project-ui-DebugSingle.shadow/org-netbeans-modules-omnidebugger-DebugFileAction.shadow" boolvalue="true"/>
                     <file name="org-netbeans-modules-omnidebugger-DebugFileAction.shadow">
                         <attr name="originalFile" stringvalue="Actions/Project/org-netbeans-modules-omnidebugger-DebugFileAction.instance"/>
+                        <attr name="position" intvalue="1770"/>
                     </file>
-                    <attr name="org-netbeans-modules-omnidebugger-DebugFileAction.shadow/SeparatorBeforeCut.instance" boolvalue="true"/>
-                    <attr name="org-netbeans-modules-omnidebugger-DebugFileAction.shadow/org-netbeans-modules-debugger-ui-actions-AddWatchAction.instance" boolvalue="true"/>
                 </folder>
             </folder>
         </folder>
@@ -31,28 +28,25 @@
         <folder name="text">
             <folder name="x-java">
                 <folder name="Actions">
-                    <attr name="DebugFile.instance/org-netbeans-modules-omnidebugger-DebugFileAction.shadow" boolvalue="true"/>
                     <file name="org-netbeans-modules-omnidebugger-DebugFileAction.shadow">
                         <attr name="originalFile" stringvalue="Actions/Project/org-netbeans-modules-omnidebugger-DebugFileAction.instance"/>
+                        <attr name="position" intvalue="1110"/>
                     </file>
-                    <attr name="org-netbeans-modules-omnidebugger-DebugFileAction.shadow/java-project-separator-3.instance" boolvalue="true"/>
                 </folder>
             </folder>
         </folder>
     </folder>
     <folder name="Menu">
         <folder name="RunProject">
-            <attr name="org-netbeans-modules-project-ui-DebugMainProject.shadow/org-netbeans-modules-omnidebugger-DebugMainProjectAction.shadow" boolvalue="true"/>
             <file name="org-netbeans-modules-omnidebugger-DebugMainProjectAction.shadow">
                 <attr name="originalFile" stringvalue="Actions/Project/org-netbeans-modules-omnidebugger-DebugMainProjectAction.instance"/>
+                <attr name="position" intvalue="210"/>
             </file>
-            <attr name="org-netbeans-modules-omnidebugger-DebugMainProjectAction.shadow/org-netbeans-modules-project-ui-TestProject.shadow" boolvalue="true"/>
             <folder name="RunOther">
-                <attr name="org-netbeans-modules-project-ui-DebugSingle.shadow/org-netbeans-modules-omnidebugger-DebugFileAction.shadow" boolvalue="true"/>
                 <file name="org-netbeans-modules-omnidebugger-DebugFileAction.shadow">
                     <attr name="originalFile" stringvalue="Actions/Project/org-netbeans-modules-omnidebugger-DebugFileAction.instance"/>
+                    <attr name="position" intvalue="210"/>
                 </file>
-                <attr name="org-netbeans-modules-omnidebugger-DebugFileAction.shadow/org-netbeans-modules-project-ui-TestSingle.shadow" boolvalue="true"/>
             </folder>
         </folder>
     </folder>
@@ -79,11 +73,10 @@
         </folder>
     </folder>
     <folder name="ProjectsTabActions">
-        <attr name="org-netbeans-modules-project-ui-DebugMainProject.shadow/org-netbeans-modules-omnidebugger-DebugMainProjectAction.shadow" boolvalue="true"/>
         <file name="org-netbeans-modules-omnidebugger-DebugMainProjectAction.shadow">
             <attr name="originalFile" stringvalue="Actions/Project/org-netbeans-modules-omnidebugger-DebugMainProjectAction.instance"/>
+            <attr name="position" intvalue="1210"/>
         </file>
-        <attr name="org-netbeans-modules-omnidebugger-DebugMainProjectAction.shadow/sep-4.instance" boolvalue="true"/>
     </folder>
     <folder name="Services">
         <folder name="JavaHelp">
@@ -92,11 +85,10 @@
     </folder>
     <folder name="Toolbars">
         <folder name="Build">
-            <attr name="org-netbeans-modules-project-ui-DebugMainProject.shadow/org-netbeans-modules-omnidebugger-DebugMainProjectAction.shadow" boolvalue="true"/>
             <file name="org-netbeans-modules-omnidebugger-DebugMainProjectAction.shadow">
                 <attr name="originalFile" stringvalue="Actions/Project/org-netbeans-modules-omnidebugger-DebugMainProjectAction.instance"/>
+                <attr name="position" intvalue="360"/>
             </file>
-            <attr name="org-netbeans-modules-omnidebugger-DebugMainProjectAction.shadow/org-netbeans-modules-debugger-ui-actions-ConnectAction.shadow" boolvalue="true"/>
         </folder>
     </folder>
 </filesystem>

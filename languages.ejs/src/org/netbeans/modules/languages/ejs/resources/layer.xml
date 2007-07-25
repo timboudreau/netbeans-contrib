@@ -70,60 +70,56 @@
             </file>
         </folder>
     </folder>
-   
+
     <folder name="Editors">
         <!-- schliemann hack - the js language contains some embedded languages which needs to have
              a language.nbs file in the layer -->
         <folder name="text">
             <folder name="x-ejs">
-
                 <folder name="Popup">
+                    <file name="SeparatorBeforeWhereUsedAction.instance">
+                        <attr name="instanceClass" stringvalue="javax.swing.JSeparator"/>
+                        <attr name="position" intvalue="100"/>
+                    </file>
                     <file name="org-netbeans-modules-refactoring-api-ui-WhereUsedAction.instance">
                          <attr name="instanceCreate" methodvalue="org.netbeans.modules.refactoring.api.ui.RefactoringActionsFactory.whereUsedAction"/>
+                        <attr name="position" intvalue="200"/>
                     </file>
                     <file name="org-netbeans-modules-refactoring-api-ui-RSMEditorAction.instance">
                          <attr name="instanceCreate" methodvalue="org.netbeans.modules.refactoring.api.ui.RefactoringActionsFactory.editorSubmenuAction"/>
-                    </file>
-                    <file name="SeparatorBeforeWhereUsedAction.instance">
-                        <attr name="instanceClass" stringvalue="javax.swing.JSeparator"/>
+                        <attr name="position" intvalue="300"/>
                     </file>
                     <file name="SeparatorAfterSelectInPopupAction.instance">
                         <attr name="instanceClass" stringvalue="javax.swing.JSeparator"/>
+                        <attr name="position" intvalue="400"/>
                     </file>
-                    <attr name="SeparatorBeforeWhereUsedAction.instance/org-netbeans-modules-refactoring-api-ui-WhereUsedAction.instance" boolvalue="true"/>
-                    <attr name="org-netbeans-modules-refactoring-api-ui-WhereUsedAction.instance/org-netbeans-modules-refactoring-api-ui-RSMEditorAction.instance" boolvalue="true"/>        
-                    <attr name="org-netbeans-modules-refactoring-api-ui-RSMEditorAction.instance/SeparatorAfterSelectInPopupAction.instance" boolvalue="true"/>
-                </folder>
+                    </folder>
                 <folder name="FoldManager">
                     <file name="org-netbeans-modules-languages-features-LanguagesFoldManager$Factory.instance"/>
                 </folder>
                 <folder name="SideBar">
-                    <file name="org-netbeans-modules-languages-features-CodeFoldingSideBarFactory.instance"/>
-                    <attr name="org-netbeans-editor-GlyphGutter.instance/org-netbeans-modules-languages-features-CodeFoldingSideBarFactory.instance" boolvalue="true"/>
+                    <file name="org-netbeans-modules-languages-features-CodeFoldingSideBarFactory.instance">
+                        <attr name="position" intvalue="1500"/>
+                    </file>
                 </folder>
-
-                
-                
-                
-                
                 <file name="org-netbeans-spi-palette-PaletteFactory.instance">
                     <attr name="instanceOf" stringvalue="org.netbeans.spi.palette.PaletteController"/>
                     <attr name="instanceCreate" methodvalue="org.netbeans.modules.languages.ejs.editor.palette.LayerPaletteFactory.createPalette"/>
-                </file>                
+                </file>
                 <file name="language.instance">
                     <attr name="instanceCreate" methodvalue="org.netbeans.modules.languages.ejs.lexer.api.EJSTokenId.language"/>
                     <attr name="instanceOf" stringvalue="org.netbeans.api.lexer.Language"/>
                 </file>
-                
+
                 <attr name="createDataObject" boolvalue="false"/>
                 <file name="language.nbs" url="EJS.nbs">
                     <attr name="icon" stringvalue="org/netbeans/modules/languages/ejs/resources/ejs16.gif"/>
                 </file>
-                
+
                 <folder name="CompletionProviders">
                     <file name="org-netbeans-modules-editor-html-HTMLCompletionProvider.instance"/>
                 </folder>
-                
+
                 <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.languages.ejs.resources.Bundle"/>
                 <folder name="FontsColors">
                     <folder name="NetBeans">
@@ -136,12 +132,12 @@
                 </folder>
                  <folder name="CodeTemplateFilterFactories">
                     <file name="org-netbeans-modules-languages-ejs-editor-EJSCodeTemplateFilter$Factory.instance"/>
-                </folder>                 
+                </folder>
                 <file name="Settings.settings" url="EJSOptions.settings"/>
                 <file name="EditorKit.instance">
                     <attr name="instanceClass" stringvalue="org.netbeans.modules.languages.ejs.editor.EJSKit"/>
                 </file>
-            
+
                 <folder name="Keybindings">
                     <folder name="NetBeans">
                         <folder name="Defaults">
@@ -159,7 +155,7 @@
             </folder>
         </folder>
     </folder>
-    
+
     <folder name="OptionsDialog">
         <folder name="PreviewExamples">
             <folder name="text">
@@ -167,5 +163,5 @@
             </folder>
         </folder>
     </folder>
-    
+
 </filesystem>

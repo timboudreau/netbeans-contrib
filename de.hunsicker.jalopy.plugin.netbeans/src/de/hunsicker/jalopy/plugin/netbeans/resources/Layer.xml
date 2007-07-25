@@ -20,15 +20,15 @@
 		<folder name="Source">
 			<file name="de-hunsicker-jalopy-plugin-netbeans-FormatAction.shadow">
 				<attr name="originalFile" stringvalue="Actions/Tools/de-hunsicker-jalopy-plugin-netbeans-FormatAction.instance"/>
+                                <attr name="position" intvalue="310"/>
 			</file>
 		</folder>    <!--folder name="Source"-->
 
 		<folder name="Tools">
-			<attr name="org-netbeans-core-actions-OptionsAction.instance/de-hunsicker-jalopy-plugin-netbeans-SettingsAction.shadow" boolvalue="true"/>
 			<file name="de-hunsicker-jalopy-plugin-netbeans-SettingsAction.shadow">
 				<attr name="originalFile" stringvalue="Actions/Tools/de-hunsicker-jalopy-plugin-netbeans-SettingsAction.instance"/>
+                                <attr name="position" intvalue="1710"/>
 			</file>
-			<attr name="de-hunsicker-jalopy-plugin-netbeans-SettingsAction.shadow/Separator3.instance" boolvalue="true"/>
 		</folder>    <!--folder name="Tools"-->
 
 	</folder>  <!--folder name="Menu"-->
@@ -55,11 +55,10 @@
 		<folder name="text">
 			<folder name="x-java">
 				<folder name="Popup">
-					<attr name="org-netbeans-modules-refactoring-ui-RSMEditorAction.instance/de-hunsicker-jalopy-plugin-netbeans-FormatAction.shadow" boolvalue="true"/>
 					<file name="de-hunsicker-jalopy-plugin-netbeans-FormatAction.shadow">
 						<attr name="originalFile" stringvalue="Actions/Tools/de-hunsicker-jalopy-plugin-netbeans-FormatAction.instance"/>
+                                                <attr name="position" intvalue="1470"/>
 					</file>
-					<attr name="de-hunsicker-jalopy-plugin-netbeans-FormatAction.shadow/format" boolvalue="true"/>
 				</folder>
 			</folder>
 		</folder>    <!--folder name="text"-->
@@ -73,11 +72,10 @@
 		<folder name="text">
 			<folder name="x-java">
 				<folder name="Actions">
-					<attr name="RefactoringAll.instance/de-hunsicker-jalopy-plugin-netbeans-FormatAction.shadow" boolvalue="true"/>
 					<file name="de-hunsicker-jalopy-plugin-netbeans-FormatAction.shadow">
 						<attr name="originalFile" stringvalue="Actions/Tools/de-hunsicker-jalopy-plugin-netbeans-FormatAction.instance"/>
+                                                <attr name="position" intvalue="2070"/>
 					</file>
-					<attr name="de-hunsicker-jalopy-plugin-netbeans-FormatAction.shadow/RefactoringSeparator-1.instance" boolvalue="true"/>
 				</folder>
 			</folder>
 		</folder>    <!--folder name="text"-->
@@ -85,11 +83,10 @@
 		<folder name="folder">
 			<folder name="any">
 				<folder name="Actions">
-					<attr name="RefactoringAll.instance/de-hunsicker-jalopy-plugin-netbeans-FormatAction.shadow" boolvalue="true"/>
 					<file name="de-hunsicker-jalopy-plugin-netbeans-FormatAction.shadow">
 						<attr name="originalFile" stringvalue="Actions/Tools/de-hunsicker-jalopy-plugin-netbeans-FormatAction.instance"/>
+                                                <attr name="position" intvalue="1270"/>
 					</file>
-					<attr name="de-hunsicker-jalopy-plugin-netbeans-FormatAction.shadow/Separator3.instance" boolvalue="true"/>
 				</folder>
 			</folder>
 		</folder>    <!--folder name="folder"-->

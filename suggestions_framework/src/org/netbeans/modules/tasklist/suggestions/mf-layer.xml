@@ -21,27 +21,20 @@ Microsystems, Inc. All Rights Reserved.
 
 <filesystem>
     <!-- default order for tasklist provided suggestions:
-      Compilation Errors
-      Tasks Due
-      Rule Violations
-      HTML Problems
-      Source Tasks
-      Javadoc Problems
-      Copyright Problems
+      100 Compilation Errors org-netbeans-modules-tasklist-javaparser-parse-error.xml
+      200 Tasks Due org-netbeans-modules-tasklist-usertasks-duetasks.xml
+      300 Rule Violations pmd-rule_violation.xml
+      400 HTML Problems org-netbeans-modules-tasklist-html-docerror.xml
+      500 Source Tasks org-netbeans-modules-tasklist-docscan-scanned_task.xml
+      600 Javadoc Problems org-netbeans-modules-tasklist-javadoc-docerror.xml
+      700 Copyright Problems org-netbeans-modules-tasklist-docscan-copyright_suggestion.xml
      -->
     <folder name="Suggestions">
-      <folder name="Types">
-        <attr name="org-netbeans-modules-tasklist-javaparser-parse-error.xml/org-netbeans-modules-tasklist-usertasks-duetasks.xml" boolvalue="true" />
-        <attr name="org-netbeans-modules-tasklist-usertasks-duetasks.xml/pmd-rule_violation.xml" boolvalue="true" />
-        <attr name="pmd-rule_violation.xml/org-netbeans-modules-tasklist-html-docerror.xml" boolvalue="true" />
-        <attr name="org-netbeans-modules-tasklist-html-docerror.xml/org-netbeans-modules-tasklist-docscan-scanned_task.xml" boolvalue="true" />
-        <attr name="org-netbeans-modules-tasklist-docscan-scanned_task.xml/org-netbeans-modules-tasklist-javadoc-docerror.xml" boolvalue="true" />
-        <attr name="org-netbeans-modules-tasklist-javadoc-docerror.xml/org-netbeans-modules-tasklist-docscan-copyright_suggestion.xml" boolvalue="true" />
-      </folder>
+      <folder name="Types"/>
     </folder>
 
-    <folder name="Editors"> 
-        <folder name="AnnotationTypes"> 
+    <folder name="Editors">
+        <folder name="AnnotationTypes">
             <file name="SuggestionAnno.xml" url="SuggestionAnno.xml"/>
         </folder>
     </folder>
@@ -52,7 +45,7 @@ Microsystems, Inc. All Rights Reserved.
     <folder name="entities">
       <folder name="NetBeans" >
 	<file name="DTD_suggestion_type_1_0" url="nbres:/org/netbeans/modules/tasklist/suggestions/suggestion-type-1_0.dtd"/>
-      </folder>    
+      </folder>
 
       <folder name="NetBeans_org_netbeans_modules_tasklist">
 	<file name="DTD_SuggestionFilter_1_0" url="sugfilter-1_0.dtd">
@@ -77,7 +70,7 @@ Microsystems, Inc. All Rights Reserved.
 	  <attr name="settings.instanceOf" stringvalue="org.netbeans.modules.tasklist.suggestions.SuggestionFilter"/>
 	</file>
       </folder>
-    
+
     </folder>
 
     <folder name="memory">

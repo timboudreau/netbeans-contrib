@@ -23,7 +23,9 @@ Microsystems, Inc. All Rights Reserved.
 
     <folder name="Suggestions">
         <folder name="Types">
-            <file name="org-netbeans-modules-tasklist-copyright-copyright_suggestion.xml" url="copyright_suggestion.xml"/>
+            <file name="org-netbeans-modules-tasklist-copyright-copyright_suggestion.xml" url="copyright_suggestion.xml">
+                <attr name="position" intvalue="700"/>
+            </file>
         </folder>
     </folder>
 
