@@ -14,11 +14,6 @@
             </file>
         </folder>
     </folder>
-    <folder name="Shortcuts">
-        <file name="DS-F6.shadow">
-            <attr name="originalFile" stringvalue="Actions/Debug/org-netbeans-contrib-debuggerretry-RetryAction.instance"/>
-        </file>
-    </folder>
     <folder name="Toolbars">
         <folder name="Debug">
             <file name="org-netbeans-contrib-debuggerretry-RetryAction.shadow">
