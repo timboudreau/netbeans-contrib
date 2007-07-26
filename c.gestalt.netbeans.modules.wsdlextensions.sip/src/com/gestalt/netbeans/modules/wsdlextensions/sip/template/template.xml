@@ -33,21 +33,18 @@
     <template name="SIPTransport">
         <wsdlElement name="BindingOperationInput">
             <extensionElement name="input" >
-                <extensionAttr name="from" defaultValue="" />
-                <extensionAttr name="to" defaultValue="" />
-                <extensionAttr name="message" defaultValue="" />
-            </extensionElement>
-        </wsdlElement>
-        <wsdlElement name="BindingOperationOutput">
-            <extensionElement name="output" >
-                <extensionAttr name="message" defaultValue="" />
+                <extensionAttr name="requestMethod" defaultValue="" />
+                <extensionAttr name="responseMethod" defaultValue="" />
+                <extensionAttr name="responseStatus" defaultValue="" />
+                <extensionAttr name="content" defaultValue="" />
+                <extensionAttr name="remoteUri" defaultValue="" />
             </extensionElement>
         </wsdlElement>
         <wsdlElement name="ServicePort">
             <extensionElement name="address" >
-                <extensionAttr name="proxydomain"  defaultValue="localhost"/>
-                <extensionAttr name="proxyport" defaultValue="5060"/>
-                <extensionAttr name="proxytimeout" defaultValue="5000"/>
+                <extensionAttr name="proxyDomain"  defaultValue="localhost"/>
+                <extensionAttr name="proxyPort" defaultValue="5060"/>
+                <extensionAttr name="proxyTimeout" defaultValue="5000"/>
                 <extensionAttr name="username" defaultValue=""/>
                 <extensionAttr name="password" defaultValue=""/>
             </extensionElement>
@@ -57,7 +54,7 @@
         </wsdlElement>
         <wsdlElement name="BindingOperation">
             <extensionElement name="operation" >
-                <extensionAttr name="name" defaultValue="sendmessage" />
+                <extensionAttr name="name" defaultValue="sendRequest" />
             </extensionElement>
         </wsdlElement>
     </template>

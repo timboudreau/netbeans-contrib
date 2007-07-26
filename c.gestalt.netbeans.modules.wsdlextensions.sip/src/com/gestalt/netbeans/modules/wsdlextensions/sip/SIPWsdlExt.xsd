@@ -26,36 +26,22 @@
         </xs:annotation>
         <xs:complexContent>
             <xs:extension base="wsdl:tExtensibilityElement">
-                <xs:attribute name="name" type="xs:string"/>
+                <xs:attribute name="name" type="sip:operationName" use="required">
+                    <xs:annotation>
+                        <xs:documentation>Select the name of the operation.</xs:documentation>
+                    </xs:annotation>
+                </xs:attribute>
             </xs:extension>
         </xs:complexContent>
     </xs:complexType>
-    <xs:element name="message" type="sip:tMessage">
-        <xs:annotation>
-            <xs:documentation>
-                Defines the protocol based operation message details.
-            </xs:documentation>
-        </xs:annotation>
-    </xs:element>
-    <xs:complexType name="tMessage">
-        <xs:complexContent>
-            <xs:extension base="wsdl:tExtensibilityElement">
-            </xs:extension>
-        </xs:complexContent>
-    </xs:complexType>
-    <xs:element name="fault" type="sip:tFault">
-        <xs:annotation>
-            <xs:documentation>
-                Defines the protocol based operation fault details.
-            </xs:documentation>
-        </xs:annotation>
-    </xs:element>
-    <xs:complexType name="tFault">
-        <xs:complexContent>
-            <xs:extension base="wsdl:tExtensibilityElement">
-            </xs:extension>
-        </xs:complexContent>
-    </xs:complexType>        
+    <xs:simpleType name="operationName">
+        <xs:restriction base="xs:string">
+                <xs:enumeration value="sendRequest"/>
+                <xs:enumeration value="sendResponse"/>
+                <xs:enumeration value="receiveRequest"/>
+                <xs:enumeration value="receiveResponse"/>
+        </xs:restriction>
+    </xs:simpleType>       
     <xs:element name="address" type="sip:tAddress">
         <xs:annotation>
             <xs:documentation>
@@ -66,11 +52,103 @@
     <xs:complexType name="tAddress">
         <xs:complexContent>
             <xs:extension base="wsdl:tExtensibilityElement">
-                <xs:attribute name="proxydomain" type="xs:string" use="required"/>
-                <xs:attribute name="proxyport" type="xs:string" use="required"/>
-                <xs:attribute name="proxytimeout" type="xs:string" use="required"/>
-                <xs:attribute name="username" type="xs:string"/>
-                <xs:attribute name="password" type="xs:string"/>
+                <xs:attribute name="proxyDomain" type="xs:string" use="required">
+                    <xs:annotation>
+                        <xs:documentation>Location of the SIP Proxy.</xs:documentation>
+                    </xs:annotation>
+                </xs:attribute>
+                <xs:attribute name="proxyPort" type="xs:string" use="required">
+                    <xs:annotation>
+                        <xs:documentation>The SIP Listening Port of the Proxy</xs:documentation>
+                    </xs:annotation>
+                </xs:attribute>
+                <xs:attribute name="proxyTimeout" type="xs:string" use="required">
+                    <xs:annotation>
+                        <xs:documentation>Time out of the Proxy</xs:documentation>
+                    </xs:annotation>
+                </xs:attribute>
+                <xs:attribute name="username" type="xs:string">
+                    <xs:annotation>
+                        <xs:documentation>The username to login to the SIP Proxy</xs:documentation>
+                    </xs:annotation>
+                </xs:attribute>
+                <xs:attribute name="password" type="xs:string">
+                    <xs:annotation>
+                        <xs:documentation>The password needed to login to the SIP Proxy</xs:documentation>
+                    </xs:annotation>
+                </xs:attribute>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+    <xs:element name="input" type="sip:tInput">
+        <xs:annotation>
+            <xs:documentation>
+            "input" indicates a sip protocol based operation input.
+            </xs:documentation>
+            <xs:appinfo>
+                <prop:ElementProperties  xmlns:prop="http://xml.netbeans.org/schema/wsdlui/property">
+                    <prop:Property attributeName="requestMethod" propertyOrder="1">
+                        <prop:BuiltInCustomizer>
+                            <prop:SimpleCustomizer name="PartChooser"/>
+                        </prop:BuiltInCustomizer>
+                    </prop:Property>
+                    <prop:Property attributeName="responseMethod"  propertyOrder="2">
+                        <prop:BuiltInCustomizer>
+                            <prop:SimpleCustomizer name="PartChooser"/>
+                        </prop:BuiltInCustomizer>
+                    </prop:Property>
+                    <prop:Property attributeName="responseStatus" propertyOrder="3">
+                        <prop:BuiltInCustomizer>
+                            <prop:SimpleCustomizer name="PartChooser"/>
+                        </prop:BuiltInCustomizer>
+                    </prop:Property>
+                    <prop:Property attributeName="content" propertyOrder="4">
+                        <prop:BuiltInCustomizer>
+                            <prop:SimpleCustomizer name="PartChooser"/>
+                        </prop:BuiltInCustomizer>
+                    </prop:Property>
+                    <prop:Property attributeName="remoteUri" propertyOrder="5">
+                        <prop:BuiltInCustomizer>
+                            <prop:SimpleCustomizer name="PartChooser"/>
+                        </prop:BuiltInCustomizer>
+                    </prop:Property>
+                </prop:ElementProperties>
+            </xs:appinfo>
+        </xs:annotation>
+    </xs:element>
+    <xs:complexType name="tInput">
+        <xs:annotation>
+            <xs:documentation>
+                "input" defines the protocol based input binding details.
+            </xs:documentation>
+        </xs:annotation>
+        <xs:complexContent>
+            <xs:extension base="wsdl:tExtensibilityElement">
+                <xs:attribute name="requestMethod" type="xs:string" use="optional">
+                    <xs:annotation>
+                        <xs:documentation>The SIP method type such as MESSAGE, INVITE, BYE, or CANCEL.</xs:documentation>
+                    </xs:annotation>
+                </xs:attribute>
+                <xs:attribute name="responseMethod" type="xs:string" use="optional">
+                    <xs:annotation>
+                        <xs:documentation>Specify the SIP Method type to response to. If you wish to send a 200 to an INVITE, the INVITE is the response Method.</xs:documentation>
+                    </xs:annotation>
+                </xs:attribute>
+                <xs:attribute name="responseStatus" type="xs:int" use="optional">
+                    <xs:annotation>
+                        <xs:documentation>The response status code to send such as 200.</xs:documentation>
+                    </xs:annotation>
+                </xs:attribute>
+                <xs:attribute name="content" type="xs:string" use="optional">
+                    <xs:annotation>
+                        <xs:documentation>When sending a MESSAGE request content is the value of the instant message. When sending or responding to an INVITE the content is the SDP.</xs:documentation>
+                    </xs:annotation>
+                </xs:attribute>
+                <xs:attribute name="remoteUri" type="xs:string" use="optional">
+                    <xs:annotation>
+                        <xs:documentation>The SIP uri of the remote user you want to send a Request or send a response. An example would be bob@bob.com.</xs:documentation>
+                    </xs:annotation>
+                </xs:attribute>
             </xs:extension>
         </xs:complexContent>
     </xs:complexType>
