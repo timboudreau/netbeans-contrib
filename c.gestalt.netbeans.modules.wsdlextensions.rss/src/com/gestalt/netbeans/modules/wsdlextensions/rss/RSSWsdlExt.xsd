@@ -82,7 +82,7 @@
                 </xs:attribute>
                 <xs:attribute name="correlationId" type="xs:string">
                     <xs:annotation>
-                        <xs:documentation>TBD</xs:documentation>
+                        <xs:documentation>This id is used to store the list of URL's in a collection so that it can be matched up with the consumer subscribe service unit. In the consumer subscribe service unit there is another rss wsdl defining this id for a match. When a match is found the RSS BC begins polling the list of URLs. This id must be unique amound all RSS WSDL's and therefore the RSS BC will fail a service unit deployment where an id is duplicated.</xs:documentation>
                     </xs:annotation>
                 </xs:attribute>
             </xs:extension>
@@ -163,32 +163,32 @@
                 </xs:attribute>
                 <xs:attribute name="entryTitle" type="xs:string" use="optional">
                     <xs:annotation>
-                        <xs:documentation>TBD</xs:documentation>
+                        <xs:documentation>The title of the new entry</xs:documentation>
                     </xs:annotation>
                 </xs:attribute>
                 <xs:attribute name="entryLink" type="xs:string" use="optional">
                     <xs:annotation>
-                        <xs:documentation>TBD</xs:documentation>
+                        <xs:documentation>The link for the new entry</xs:documentation>
                     </xs:annotation>
                 </xs:attribute>
                 <xs:attribute name="entryDescription" type="xs:string" use="optional">
                     <xs:annotation>
-                        <xs:documentation>TBD</xs:documentation>
+                        <xs:documentation>Then content of the new entry</xs:documentation>
                     </xs:annotation>
                 </xs:attribute>
                 <xs:attribute name="latitude" type="xs:string" use="optional">
                     <xs:annotation>
-                        <xs:documentation>TBD</xs:documentation>
+                        <xs:documentation>The latitude representing the GeoRSS Point</xs:documentation>
                     </xs:annotation>
                 </xs:attribute>
                 <xs:attribute name="longitude" type="xs:string" use="optional">
                     <xs:annotation>
-                        <xs:documentation>TBD</xs:documentation>
+                        <xs:documentation>The longitude representing the GeoRSS Point</xs:documentation>
                     </xs:annotation>
                 </xs:attribute>
                 <xs:attribute name="feedList" type="xs:string" use="optional">
                     <xs:annotation>
-                        <xs:documentation>TBD</xs:documentation>
+                        <xs:documentation>The list of Feed URL's to poll for changes</xs:documentation>
                     </xs:annotation>
                 </xs:attribute>
             </xs:extension>
