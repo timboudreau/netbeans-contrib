@@ -5,6 +5,7 @@
     <folder name="Templates">
         <folder name="Project">
             <folder name="Scala">
+                <attr name="position" intvalue="730"/>
                 <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.scala.project.ui.wizards.Bundle"/>
                 <file name="emptyProject">
                     <attr name="template" boolvalue="true"/>

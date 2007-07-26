@@ -59,8 +59,12 @@ Microsystems, Inc. All Rights Reserved.
         </folder>
         <folder name="Modes">
             <folder name="explorer">
-                <file name="TokensBrowserTopComponent.wstcref" url="TokensBrowserTopComponentWstcref.xml"/>
-                <file name="ASTBrowserTopComponent.wstcref" url="ASTBrowserTopComponentWstcref.xml"/>
+                <file name="TokensBrowserTopComponent.wstcref" url="TokensBrowserTopComponentWstcref.xml">
+                    <attr name="position" intvalue="3015"/>
+                </file>
+                <file name="ASTBrowserTopComponent.wstcref" url="ASTBrowserTopComponentWstcref.xml">
+                    <attr name="position" intvalue="3017"/>
+                </file>
             </folder>
         </folder>
     </folder>

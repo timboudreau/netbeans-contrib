@@ -57,7 +57,9 @@
                 </file>
             </folder>
             <folder name="output">
-                <file name="TokenSpyTopComponent.wstcref" url="TokenSpyTopComponentWstcref.xml"/>
+                <file name="TokenSpyTopComponent.wstcref" url="TokenSpyTopComponentWstcref.xml">
+                    <attr name="position" intvalue="3003"/>
+                </file>
             </folder>
         </folder>
     </folder>

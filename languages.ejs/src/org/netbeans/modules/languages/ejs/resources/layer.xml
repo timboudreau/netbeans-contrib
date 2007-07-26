@@ -62,6 +62,7 @@
     </folder>
     <folder name="Templates">
         <folder name="EJS">
+            <attr name="position" intvalue="610"/>
             <file name="EJSTemplate.ejs" url="EJSTemplate.ejs">
                 <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.languages.ejs.resources.Bundle"/>
                 <attr name="templateCategory" stringvalue="phobos"/>

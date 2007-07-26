@@ -17,6 +17,7 @@ enclosed by brackets [] replaced by your own identifying information:
         <folder name="Project">
             <folder name="Web">
                 <file name="Html Project">
+                    <attr name="position" intvalue="407"/>
                     <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/htmlproject/htmlProject.png"/>
                     <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.htmlproject.Bundle"/>
                     <attr name="instantiatingIterator" methodvalue="org.netbeans.modules.htmlproject.HtmlProjectWizardIterator.createIterator"/>
