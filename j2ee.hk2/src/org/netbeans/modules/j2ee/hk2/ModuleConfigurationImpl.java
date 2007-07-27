@@ -228,5 +228,9 @@ public class ModuleConfigurationImpl implements DatasourceConfiguration, Deploym
         return null;
     }
 
+    public String findJndiNameForEjb(String ejbName) throws ConfigurationException {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
 }
 
