@@ -76,11 +76,16 @@ public class OC4JEjbModuleConfiguration extends OC4JModuleConfiguration
         // TO DO
     }
     
-    public void bindEjbReference(String referenceName, String referencedEjbName) throws org.netbeans.modules.j2ee.deployment.common.api.ConfigurationException {
+    public String findJndiNameForEjb(String ejbName) throws ConfigurationException {
+        // TODO
+        return null;
+    }
+    
+    public void bindEjbReference(String referenceName, String jndiName) throws org.netbeans.modules.j2ee.deployment.common.api.ConfigurationException {
         // TO DO
     }
     
-    public void bindEjbReferenceForEjb(String ejbName, String ejbType, String referenceName, String referencedEjbName) throws org.netbeans.modules.j2ee.deployment.common.api.ConfigurationException {
+    public void bindEjbReferenceForEjb(String ejbName, String ejbType, String referenceName, String jndiName) throws org.netbeans.modules.j2ee.deployment.common.api.ConfigurationException {
         // TO DO
     }
     
