@@ -62,7 +62,6 @@ public class TexSettingsInitializer extends Settings.AbstractInitializer {
     *   that updates it or if no previous initializers updated it.
     */
     public void updateSettingsMap(Class kitClass, Map settingsMap) {
-
         if (kitClass == TexKit.class) {
             settingsMap.put(SettingsNames.CODE_FOLDING_ENABLE, Boolean.TRUE);
 

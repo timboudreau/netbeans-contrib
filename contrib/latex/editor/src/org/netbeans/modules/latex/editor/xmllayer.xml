@@ -52,13 +52,12 @@ Contributor(s): Jan Lahoda
             </folder>
             
             <folder name="SideBar">
-                <file name="org-netbeans-modules-latex-editor-AbstractLaTeXFoldMaintainer$LaTeXSideBarFactory.instance"/>
-                <attr name="org-netbeans-editor-GlyphGutter.instance/org-netbeans-modules-latex-editor-AbstractLaTeXFoldMaintainer$LaTeXSideBarFactory.instance" boolvalue="true"/>
+                <!--XXX: currently provided by the GSF:-->
+<!--                <file name="org-netbeans-modules-latex-editor-fold-FoldMaintainerImpl$SideBarFactoryImpl.instance"/>-->
             </folder>
 
             <folder name="FoldManager">
-                <file name="org-netbeans-modules-latex-editor-BlockFoldMaintainer$BlockFoldMaintainerFactory.instance"/>
-                <file name="org-netbeans-modules-latex-editor-SectionFoldMaintainer$SectionFoldMaintainerFactory.instance"/>
+                <file name="org-netbeans-modules-latex-editor-fold-FoldMaintainerImpl$MaintainerFactory.instance"/>
             </folder>
             
             <folder name="HyperlinkProviders">
