@@ -8,14 +8,8 @@ import java.util.Iterator;
 import javax.swing.JEditorPane;
 import javax.swing.text.Document;
 import org.netbeans.editor.BaseDocument;
-import org.netbeans.jmi.javamodel.Element;
-import org.netbeans.jmi.javamodel.Resource;
-import org.netbeans.modules.editor.java.JMIUtils;
-import org.netbeans.modules.javacore.api.JavaModel;
 import org.openide.cookies.EditorCookie;
-import org.openide.cookies.SourceCookie;
 import org.openide.nodes.Node;
-import org.openide.src.DefaultElementPrinter;
 import org.openide.util.HelpCtx;
 import org.openide.util.Lookup;
 import org.openide.util.NbBundle;
@@ -68,30 +62,7 @@ public final class CopyAsTextNewlinesToSpaces extends CookieAction {
                 }
                 
             }
-            if(istart<0){
-                int x = iend;
-            }else{
-                int x = iend;
-            }
-            SourceCookie.Editor se = (SourceCookie.Editor)lup.lookup(SourceCookie.Editor.class);
-            if(se!=null){
-                org.openide.src.Element e = se.findElement(istart);
-                
-            }
-            
-            Document doc = epane.getDocument();
-            JavaModel.getJavaRepository().beginTrans(false);
-            try {
-                JMIUtils utils = JMIUtils.get((BaseDocument)doc);
-                Resource resource = utils.getResource();
-                JavaModel.setClassPath(resource);
-                Element el = resource.getElementByOffset(istart);
-                DefaultElementPrinter ep = new DefaultElementPrinter(out);
-                String startElSource = el.getResource().getSourceText();
-                int breakp = 0;
-            } finally {
-                JavaModel.getJavaRepository().endTrans();
-            }
+
         }
         
     }

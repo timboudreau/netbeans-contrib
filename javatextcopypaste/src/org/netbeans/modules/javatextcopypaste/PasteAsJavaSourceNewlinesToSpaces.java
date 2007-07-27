@@ -54,10 +54,24 @@ public final class PasteAsJavaSourceNewlinesToSpaces extends CookieAction {
                         int pos = panes[i].getCaretPosition();
                         StringReader sr = new StringReader(realc);
                         Document doc = panes[i].getDocument();
-                        panes[i].getEditorKit().read(sr, doc, pos);
-                        int endpos = pos+realc.length();
-                        Formatter formatter = Formatter.getFormatter(panes[i].getEditorKit().getClass());
-                        formatter.reformat((BaseDocument) doc, pos, endpos);
+                        if(doc instanceof BaseDocument){
+                            ((BaseDocument)doc).atomicLock();
+                        }
+                        try{
+                            panes[i].getEditorKit().read(sr, doc, pos);
+                            int endpos = pos+realc.length();
+                            Formatter formatter = Formatter.getFormatter(panes[i].getEditorKit().getClass());
+                            formatter.reformat((BaseDocument) doc, pos, endpos);
+                        }catch(Throwable e){
+                            if(doc instanceof BaseDocument){
+                                ((BaseDocument)doc).atomicUndo();
+                            }
+                            throw e;
+                        }finally{
+                            if(doc instanceof BaseDocument){
+                                ((BaseDocument)doc).atomicUnlock();
+                            }
+                        }
                         break;
                     }
                 }
