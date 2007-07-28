@@ -25,7 +25,6 @@ import java.beans.IntrospectionException;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.Collections;
-import java.util.List;
 import javax.swing.Action;
 import org.netbeans.modules.latex.model.command.SourcePosition;
 import org.openide.actions.PropertiesAction;
@@ -58,8 +57,9 @@ public class StructuralNode<T extends StructuralElement> extends BeanNode<T> imp
         el.addPropertyChangeListener(this);
     }
     
-    public SystemAction[] createActions() {
-        return new SystemAction[] {
+    @Override
+    public Action[] getActions(boolean context) {
+        return new Action[] {
             SystemAction.get(GoToSourceAction.class),
             null,
             SystemAction.get(PropertiesAction.class),
