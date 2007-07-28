@@ -29,7 +29,6 @@ import org.netbeans.modules.latex.model.structural.DelegatedParser;
 import org.netbeans.modules.latex.model.structural.StructuralElement;
 import org.netbeans.modules.latex.model.structural.label.LabelStructuralElement;
 import org.netbeans.spi.editor.hints.ErrorDescription;
-import org.netbeans.spi.editor.hints.HintsController;
 import org.openide.ErrorManager;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.Repository;
@@ -39,7 +38,6 @@ import org.openide.loaders.FolderLookup;
 import org.openide.util.Lookup;
 import org.openide.util.Lookup.Result;
 import org.openide.util.Lookup.Template;
-import org.openide.util.actions.SystemAction;
 
 
 /**
@@ -57,23 +55,7 @@ public final class StructuralParserImpl {
         mainElement = new MainStructuralElement();
     }
     
-    private Map<FileObject, List<ErrorDescription>> sortErrors(Collection<ErrorDescription> errors) {
-        Map<FileObject, List<ErrorDescription>> result = new HashMap<FileObject, List<ErrorDescription>>();
-        
-        for (ErrorDescription err : errors) {
-            List<ErrorDescription> errs = (List<ErrorDescription>) result.get(err.getFile());
-            
-            if (errs == null) {
-                result.put(err.getFile(), errs = new ArrayList<ErrorDescription>());
-            }
-            
-            errs.add(err);
-        }
-        
-        return result;
-    }
-    
-    public StructuralElement parse(DocumentNode dn) {
+    public StructuralElement parse(DocumentNode dn, List<ErrorDescription> errors) {
         List<DelegatedParser> parsers = getDelegatedParsers();
         
         for (DelegatedParser p : parsers) {
@@ -86,27 +68,12 @@ public final class StructuralParserImpl {
         
         fireSubElementsChanged(mainElement);
         
-        //TODO: only one "errors":
-        List<ErrorDescription> tempErrors = new ArrayList<ErrorDescription>();
-        
         for (DelegatedParser p : parsers) {
-            tempErrors.addAll(p.getErrors());
+            errors.addAll(p.getErrors());
         }
         
         for (DelegatedParser p : parsers) {
             p.parsingFinished();
-        }
-        
-        Map<FileObject, List<ErrorDescription>> errorsMap = sortErrors(tempErrors);
-        
-        for (FileObject file : errorsMap.keySet()) {
-            List<ErrorDescription> l = errorsMap.get(file);
-            
-            if (l == null) {
-                l = Collections.<ErrorDescription>emptyList();
-            }
-            
-            HintsController.setErrors(file, "latex-structural-parser", l);
         }
         
         return mainElement;
@@ -216,12 +183,12 @@ public final class StructuralParserImpl {
                             el.clearSubElements();//This is the only legal place to do this!!!!
                         }
                         
-                        if (el != oldEl) {
-                            System.err.println("A new element created for:");
-                            System.err.println("oldEl = " + oldEl );
-                            System.err.println("el = " + el );
-                            System.err.println("node = " + node );
-                        }
+//                        if (el != oldEl) {
+//                            System.err.println("A new element created for:");
+//                            System.err.println("oldEl = " + oldEl );
+//                            System.err.println("el = " + el );
+//                            System.err.println("node = " + node );
+//                        }
                     } else {
                         el = parser.getElement(node);
                     }

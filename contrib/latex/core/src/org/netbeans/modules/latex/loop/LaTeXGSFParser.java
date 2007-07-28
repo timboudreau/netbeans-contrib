@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.WeakHashMap;
@@ -66,6 +67,7 @@ public class LaTeXGSFParser implements Parser {
         assert files.size() == 1;
         
         try {
+            List<ErrorDescription> errors = new LinkedList<ErrorDescription>();
             FileObject file = files.get(0).getFileObject();
             FileObject main = null;
             
@@ -80,7 +82,7 @@ public class LaTeXGSFParser implements Parser {
             
             assert main != null;
             
-            final DocumentNode dn = reparseImpl(main);
+            final DocumentNode dn = reparseImpl(main, errors);
             
             StructuralParserImpl p = file2Root.get(main);
             
@@ -88,9 +90,9 @@ public class LaTeXGSFParser implements Parser {
                 file2Root.put(main, p = new StructuralParserImpl());
             }
             
-            StructuralElement structuralRoot = p.parse(dn);
+            StructuralElement structuralRoot = p.parse(dn, errors);
             
-            listener.finished(new ParseEvent(ParseEvent.Kind.PARSE, files.get(0), new LaTeXParserResult(files.get(0), main, dn, structuralRoot, new CommandUtilitiesImpl(dn))));
+            listener.finished(new ParseEvent(ParseEvent.Kind.PARSE, files.get(0), new LaTeXParserResult(files.get(0), main, dn, structuralRoot, new CommandUtilitiesImpl(dn), errors)));
         } catch (IOException e) {
             Exceptions.printStackTrace(e);
         }
@@ -122,16 +124,15 @@ public class LaTeXGSFParser implements Parser {
         return null;
     }
 
-    private DocumentNode reparseImpl(FileObject main) throws IOException {
+    private DocumentNode reparseImpl(FileObject main, List<ErrorDescription> errors) throws IOException {
 //        try {
             long start = System.currentTimeMillis();
             
             Collection newDocuments = new HashSet();
-            Collection<ErrorDescription> newErrors = new ArrayList();
             
             long startParsing = System.currentTimeMillis();
             
-            DocumentNode document = new CommandParser().parse(main, newDocuments, newErrors);
+            DocumentNode document = new CommandParser().parse(main, newDocuments, errors);
             
             long endParsing = System.currentTimeMillis();
             
