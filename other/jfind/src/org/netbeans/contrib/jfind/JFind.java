@@ -154,7 +154,11 @@ public class JFind implements Runnable {
 
     private static String getModuleName(JarFile jar) {
         try {
-            Attributes attrs = jar.getManifest().getMainAttributes();
+            final Manifest manifest = jar.getManifest();
+            if (manifest == null) {
+                return null;
+            }
+            Attributes attrs = manifest.getMainAttributes();
             String bundleName = attrs.getValue("OpenIDE-Module-Localizing-Bundle");
             if (bundleName == null)
                 // check if old-style name spec was used; returns null if not
