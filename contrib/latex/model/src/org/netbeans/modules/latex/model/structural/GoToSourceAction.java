@@ -52,12 +52,12 @@ public class GoToSourceAction extends NodeAction {
     
     public void performAction(Node[] activatedNodes) {
         try {
-            PositionCookie pc = (PositionCookie) activatedNodes[0].getCookie(PositionCookie.class);
+            PositionCookie pc = activatedNodes[0].getCookie(PositionCookie.class);
             SourcePosition position = pc.getPosition();
             FileObject fileObject = (FileObject) position.getFile(); //!!!!
             DataObject file = DataObject.find(fileObject);
             
-            LineCookie lc = (LineCookie) file.getCookie(LineCookie.class);
+            LineCookie lc = file.getCookie(LineCookie.class);
             
             if (lc == null)
                 return ;
@@ -79,7 +79,7 @@ public class GoToSourceAction extends NodeAction {
             return false;
         
         Node activatedNode = activatedNodes[0];
-        PositionCookie pc = (PositionCookie) activatedNode.getCookie(PositionCookie.class);
+        PositionCookie pc = activatedNode.getCookie(PositionCookie.class);
         
         if (pc == null)
             return false;
