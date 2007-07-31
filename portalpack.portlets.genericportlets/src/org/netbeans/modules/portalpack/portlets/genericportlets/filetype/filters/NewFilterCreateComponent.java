@@ -20,14 +20,13 @@
 
 package org.netbeans.modules.portalpack.portlets.genericportlets.filetype.filters;
 
-import org.netbeans.modules.portalpack.portlets.genericportlets.apptype.jsr168.NewJSR168CreatePortletComponent;
 import java.io.File;
 import org.netbeans.api.project.Project;
-import org.netbeans.modules.portalpack.portlets.genericportlets.apptype.jsr168.NewJSR168CreatePortletComponent;
 import org.netbeans.modules.portalpack.portlets.genericportlets.core.FilterContext;
 import org.netbeans.modules.portalpack.portlets.genericportlets.core.ResultContext;
 import org.netbeans.modules.portalpack.portlets.genericportlets.core.codegen.BaseCodeGenerator;
 import org.netbeans.modules.portalpack.portlets.genericportlets.core.codegen.WebDescriptorGenerator;
+import org.netbeans.modules.portalpack.portlets.genericportlets.filetype.jsr168.impl.NewJSR168CreatePortletComponent;
 
 /**
  *

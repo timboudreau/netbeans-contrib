@@ -19,7 +19,6 @@
 
 package org.netbeans.modules.portalpack.portlets.genericportlets.frameworks.util;
 
-import org.netbeans.modules.portalpack.portlets.genericportlets.apptype.jsr168.NewJSR168CreatePortletComponent;
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -34,7 +33,6 @@ import org.apache.velocity.exception.MethodInvocationException;
 import org.apache.velocity.exception.ParseErrorException;
 import org.apache.velocity.exception.ResourceNotFoundException;
 import org.netbeans.api.project.Project;
-import org.netbeans.modules.portalpack.portlets.genericportlets.apptype.jsr168.NewJSR168CreatePortletComponent;
 import org.netbeans.modules.portalpack.portlets.genericportlets.core.AppContext;
 import org.netbeans.modules.portalpack.portlets.genericportlets.core.ConfigConstants;
 import org.netbeans.modules.portalpack.portlets.genericportlets.core.PortletContext;
@@ -42,6 +40,7 @@ import org.netbeans.modules.portalpack.portlets.genericportlets.core.ResultConte
 import org.netbeans.modules.portalpack.portlets.genericportlets.core.exceptions.PortletCreateException;
 import org.netbeans.modules.portalpack.portlets.genericportlets.core.util.CoreUtil;
 import org.netbeans.modules.portalpack.portlets.genericportlets.core.util.NetbeanConstants;
+import org.netbeans.modules.portalpack.portlets.genericportlets.filetype.jsr168.impl.NewJSR168CreatePortletComponent;
 import org.netbeans.modules.web.api.webmodule.WebModule;
 import org.openide.filesystems.FileLock;
 import org.openide.filesystems.FileObject;
