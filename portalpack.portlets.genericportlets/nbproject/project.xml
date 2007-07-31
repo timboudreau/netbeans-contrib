@@ -207,15 +207,6 @@ Microsystems, Inc. All Rights Reserved.
                     </run-dependency>
                 </dependency>
                 <dependency>
-                    <code-name-base>org.netbeans.modules.xml.multiview</code-name-base>
-                    <build-prerequisite/>
-                    <compile-dependency/>
-                    <run-dependency>
-                        <release-version>1</release-version>
-                        <implementation-version/>
-                    </run-dependency>
-                </dependency>
-                <dependency>
                     <code-name-base>org.openide.awt</code-name-base>
                     <build-prerequisite/>
                     <compile-dependency/>
@@ -304,7 +295,6 @@ Microsystems, Inc. All Rights Reserved.
                     </run-dependency>
                 </dependency>
             </module-dependencies>
-
             <public-packages>
                 <package>com.werken.saxpath</package>
                 <package>org.apache.commons.collections</package>
