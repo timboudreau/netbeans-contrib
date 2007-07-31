@@ -169,6 +169,7 @@ import org.openide.filesystems.FileObject;
 
         setAutoscrolls(true);
 
+        srcRootLbl.setLabelFor(srcCombo);
         org.openide.awt.Mnemonics.setLocalizedText(srcRootLbl, org.openide.util.NbBundle.getMessage(PortletApplicationPanelVisual.class, "LBL_SRC_ROOT")); // NOI18N
 
         srcCombo.setEnabled(false);
@@ -176,8 +177,10 @@ import org.openide.filesystems.FileObject;
         portletClassNameTf.setText("HelloWorld");
         portletClassNameTf.setEnabled(false);
 
+        jLabel1.setLabelFor(portletClassNameTf);
         org.openide.awt.Mnemonics.setLocalizedText(jLabel1, org.openide.util.NbBundle.getMessage(PortletApplicationPanelVisual.class, "LBL_PORTLET_CLASS_NAME")); // NOI18N
 
+        jLabel2.setLabelFor(portletDisplayNameTf);
         org.openide.awt.Mnemonics.setLocalizedText(jLabel2, org.openide.util.NbBundle.getMessage(PortletApplicationPanelVisual.class, "LBL_PORTLET_DISPLAY_NAME")); // NOI18N
 
         portletDisplayNameTf.setText("HelloWorldPortlet");
@@ -186,18 +189,22 @@ import org.openide.filesystems.FileObject;
         portletDescTf.setText("HelloWorldPortlet");
         portletDescTf.setEnabled(false);
 
+        jLabel3.setLabelFor(portletDescTf);
         org.openide.awt.Mnemonics.setLocalizedText(jLabel3, org.openide.util.NbBundle.getMessage(PortletApplicationPanelVisual.class, "LBL_PORTLET_DESCRIPTION")); // NOI18N
 
+        jLabel4.setLabelFor(portletTitleTf);
         org.openide.awt.Mnemonics.setLocalizedText(jLabel4, org.openide.util.NbBundle.getMessage(PortletApplicationPanelVisual.class, "LBL_PORTLET_TITLE")); // NOI18N
 
         portletTitleTf.setText("HelloWorldPortlet");
         portletTitleTf.setEnabled(false);
 
+        jLabel5.setLabelFor(portletShortTitleTf);
         org.openide.awt.Mnemonics.setLocalizedText(jLabel5, org.openide.util.NbBundle.getMessage(PortletApplicationPanelVisual.class, "LBL_PORTLET_SHORT_TITLE")); // NOI18N
 
         portletShortTitleTf.setText("HelloWorld");
         portletShortTitleTf.setEnabled(false);
 
+        jLabel6.setLabelFor(pkgTf);
         org.openide.awt.Mnemonics.setLocalizedText(jLabel6, org.openide.util.NbBundle.getMessage(PortletApplicationPanelVisual.class, "LBL_PACKAGE")); // NOI18N
 
         pkgTf.setText("com.test");
@@ -206,9 +213,10 @@ import org.openide.filesystems.FileObject;
         portletNameTf.setText("HelloWorld");
         portletNameTf.setEnabled(false);
 
+        jLabel7.setLabelFor(portletNameTf);
         org.openide.awt.Mnemonics.setLocalizedText(jLabel7, org.openide.util.NbBundle.getMessage(PortletApplicationPanelVisual.class, "LBL_PORTLET_NAME")); // NOI18N
 
-        java.util.ResourceBundle bundle = java.util.ResourceBundle.getBundle("org/netbeans/modules/portalpack/portlets/genericportlets/apptype/jsr168/Bundle"); // NOI18N
+        java.util.ResourceBundle bundle = java.util.ResourceBundle.getBundle("org/netbeans/modules/portalpack/portlets/genericportlets/frameworks/jsr168/Bundle"); // NOI18N
         org.openide.awt.Mnemonics.setLocalizedText(isCreatePortlet, bundle.getString("LBL_CREATE_PORTLET")); // NOI18N
         isCreatePortlet.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         isCreatePortlet.setMargin(new java.awt.Insets(0, 0, 0, 0));
@@ -237,11 +245,12 @@ import org.openide.filesystems.FileObject;
         helpCheckbox.setMargin(new java.awt.Insets(0, 0, 0, 0));
 
         isCreateJsps.setSelected(true);
-        org.openide.awt.Mnemonics.setLocalizedText(isCreateJsps, "Create Jsps");
+        org.openide.awt.Mnemonics.setLocalizedText(isCreateJsps, org.openide.util.NbBundle.getMessage(PortletApplicationPanelVisual.class, "LBL_CREATE_JSPS")); // NOI18N
         isCreateJsps.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         isCreateJsps.setMargin(new java.awt.Insets(0, 0, 0, 0));
 
-        org.openide.awt.Mnemonics.setLocalizedText(jLabel9, "Portlet Version");
+        jLabel9.setLabelFor(portletVersion);
+        org.openide.awt.Mnemonics.setLocalizedText(jLabel9, org.openide.util.NbBundle.getMessage(PortletApplicationPanelVisual.class, "LBL_PORTLET_SPEC_VERSION")); // NOI18N
 
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
         this.setLayout(layout);
@@ -252,88 +261,94 @@ import org.openide.filesystems.FileObject;
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                     .add(jLabel8)
                     .add(jLabel5)
-                    .add(jLabel4)
                     .add(layout.createSequentialGroup()
-                        .add(jLabel3)
-                        .add(15, 15, 15)
-                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                            .add(layout.createSequentialGroup()
-                                .add(viewCheckbox)
-                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 88, Short.MAX_VALUE)
-                                .add(editCheckbox)
-                                .add(68, 68, 68)
-                                .add(helpCheckbox))
-                            .add(portletTitleTf, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 269, Short.MAX_VALUE)
-                            .add(portletDescTf, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 269, Short.MAX_VALUE)
-                            .add(portletShortTitleTf, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 269, Short.MAX_VALUE)))
-                    .add(layout.createSequentialGroup()
-                        .add(jLabel2)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(portletDisplayNameTf, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 269, Short.MAX_VALUE))
-                    .add(layout.createSequentialGroup()
-                        .add(jLabel7)
-                        .add(41, 41, 41)
-                        .add(portletNameTf, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 269, Short.MAX_VALUE))
-                    .add(layout.createSequentialGroup()
-                        .add(jLabel1)
-                        .add(13, 13, 13)
-                        .add(portletClassNameTf, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 269, Short.MAX_VALUE))
-                    .add(layout.createSequentialGroup()
-                        .add(jLabel6)
-                        .add(63, 63, 63)
-                        .add(pkgTf, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 269, Short.MAX_VALUE))
-                    .add(layout.createSequentialGroup()
-                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                            .add(srcRootLbl)
-                            .add(jLabel9))
-                        .add(33, 33, 33)
-                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING, false)
-                            .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
-                                .add(portletVersion, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 54, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                                .add(20, 20, 20)
-                                .add(isCreatePortlet, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 86, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                .add(isCreateJsps))
-                            .add(srcCombo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 269, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))))
-                .add(67, 67, 67))
+                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
+                            .add(org.jdesktop.layout.GroupLayout.LEADING, layout.createSequentialGroup()
+                                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                                    .add(jLabel2)
+                                    .add(jLabel3)
+                                    .add(jLabel4))
+                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                                    .add(layout.createSequentialGroup()
+                                        .add(viewCheckbox)
+                                        .add(74, 74, 74)
+                                        .add(editCheckbox)
+                                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 54, Short.MAX_VALUE)
+                                        .add(helpCheckbox))
+                                    .add(portletTitleTf, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 241, Short.MAX_VALUE)
+                                    .add(portletShortTitleTf, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 241, Short.MAX_VALUE)
+                                    .add(org.jdesktop.layout.GroupLayout.TRAILING, portletDescTf, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 241, Short.MAX_VALUE)
+                                    .add(portletDisplayNameTf, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 241, Short.MAX_VALUE)))
+                            .add(org.jdesktop.layout.GroupLayout.LEADING, layout.createSequentialGroup()
+                                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                                    .add(jLabel7)
+                                    .add(jLabel1)
+                                    .add(jLabel6))
+                                .add(13, 13, 13)
+                                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                                    .add(portletNameTf, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 241, Short.MAX_VALUE)
+                                    .add(portletClassNameTf, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 241, Short.MAX_VALUE)
+                                    .add(pkgTf, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 241, Short.MAX_VALUE)))
+                            .add(org.jdesktop.layout.GroupLayout.LEADING, layout.createSequentialGroup()
+                                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                                    .add(jLabel9)
+                                    .add(srcRootLbl))
+                                .add(33, 33, 33)
+                                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                                    .add(layout.createSequentialGroup()
+                                        .add(portletVersion, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 54, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                                        .add(20, 20, 20)
+                                        .add(isCreatePortlet, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 86, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                        .add(isCreateJsps))
+                                    .add(srcCombo, 0, 241, Short.MAX_VALUE))))
+                        .add(95, 95, 95)))
+                .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(layout.createSequentialGroup()
-                .addContainerGap()
+                .addContainerGap(19, Short.MAX_VALUE)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(jLabel9)
                     .add(isCreateJsps)
                     .add(isCreatePortlet)
                     .add(portletVersion, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(srcRootLbl)
-                    .add(srcCombo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .add(14, 14, 14)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(jLabel6)
-                    .add(pkgTf, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .add(14, 14, 14)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(jLabel1)
-                    .add(portletClassNameTf, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 20, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
+                    .add(layout.createSequentialGroup()
+                        .add(srcCombo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                        .add(14, 14, 14))
+                    .add(layout.createSequentialGroup()
+                        .add(srcRootLbl)
+                        .add(18, 18, 18)))
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
+                    .add(layout.createSequentialGroup()
+                        .add(pkgTf, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                        .add(14, 14, 14))
+                    .add(layout.createSequentialGroup()
+                        .add(jLabel6)
+                        .add(18, 18, 18)))
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
+                    .add(portletClassNameTf, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 20, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                    .add(jLabel1))
                 .add(18, 18, 18)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
                     .add(jLabel7)
                     .add(portletNameTf, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 21, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                 .add(20, 20, 20)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(jLabel2)
-                    .add(portletDisplayNameTf, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
+                    .add(portletDisplayNameTf, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                    .add(jLabel2))
                 .add(20, 20, 20)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(jLabel3)
-                    .add(portletDescTf, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
+                    .add(portletDescTf, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                    .add(jLabel3))
                 .add(18, 18, 18)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(jLabel4)
-                    .add(portletTitleTf, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
+                    .add(portletTitleTf, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                    .add(jLabel4))
                 .add(13, 13, 13)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
                     .add(jLabel5)
@@ -343,8 +358,7 @@ import org.openide.filesystems.FileObject;
                     .add(jLabel8)
                     .add(viewCheckbox)
                     .add(helpCheckbox)
-                    .add(editCheckbox))
-                .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .add(editCheckbox)))
         );
     }// </editor-fold>//GEN-END:initComponents
 
