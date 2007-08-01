@@ -134,7 +134,7 @@ Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
                     <attr name="templateWizardURL" urlvalue="nbresloc:org/netbeans/modules/portalpack/portlets/genericportlets/filetype/jsr168/netbeansNewPortletClass.html"/>
                 </file>
                 
-                <file name="newFilterWizard">
+                <file name="PortletFilter" url="templates/PortletFilter">
                 <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.portalpack.portlets.genericportlets.Bundle"/>
                 <attr name="instantiatingIterator" newvalue="org.netbeans.modules.portalpack.portlets.genericportlets.filetype.filters.NewFilterWizardWizardIterator"/>
                 <attr name="template" boolvalue="true"/>
