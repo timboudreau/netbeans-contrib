@@ -19,6 +19,8 @@
 
 package org.netbeans.modules.portalpack.portlets.genericportlets.filetype.filters;
 
+import java.util.ArrayList;
+import java.util.List;
 import javax.swing.JPanel;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
@@ -42,11 +44,7 @@ public final class NewFilterWizardVisualPanel1 extends JPanel implements Documen
     }
     
     public void initData() {
-        filterTypeCombo.addItem(CodeGenConstants.ACTION_FILTER_TYPE);
-        filterTypeCombo.addItem(CodeGenConstants.EVENT_FILTER_TYPE);
-        filterTypeCombo.addItem(CodeGenConstants.RENDER_FILTER_TYPE);
-        filterTypeCombo.addItem(CodeGenConstants.RESOURCE_FILTER_TYPE);
-        filterTypeCombo.addItem(CodeGenConstants.FRAGMENT_FILTER_TYPE);
+        renderCB.setSelected(true);
     }
     
     /** This method is called from within the constructor to
@@ -59,8 +57,6 @@ public final class NewFilterWizardVisualPanel1 extends JPanel implements Documen
 
         jScrollPane1 = new javax.swing.JScrollPane();
         jTable1 = new javax.swing.JTable();
-        jLabel1 = new javax.swing.JLabel();
-        filterTypeCombo = new javax.swing.JComboBox();
         jLabel2 = new javax.swing.JLabel();
         filterNameTxt = new javax.swing.JTextField();
         jScrollPane2 = new javax.swing.JScrollPane();
@@ -68,6 +64,11 @@ public final class NewFilterWizardVisualPanel1 extends JPanel implements Documen
         jLabel3 = new javax.swing.JLabel();
         addParamButton = new javax.swing.JButton();
         deleteParamButton = new javax.swing.JButton();
+        jPanel1 = new javax.swing.JPanel();
+        renderCB = new javax.swing.JCheckBox();
+        actionCB = new javax.swing.JCheckBox();
+        eventCB = new javax.swing.JCheckBox();
+        resourceCB = new javax.swing.JCheckBox();
 
         jTable1.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
@@ -81,8 +82,6 @@ public final class NewFilterWizardVisualPanel1 extends JPanel implements Documen
             }
         ));
         jScrollPane1.setViewportView(jTable1);
-
-        org.openide.awt.Mnemonics.setLocalizedText(jLabel1, "Filter Type");
 
         org.openide.awt.Mnemonics.setLocalizedText(jLabel2, "Filter Name");
 
@@ -107,51 +106,101 @@ public final class NewFilterWizardVisualPanel1 extends JPanel implements Documen
             }
         });
 
+        jPanel1.setBorder(javax.swing.BorderFactory.createTitledBorder("Filter Type"));
+        jPanel1.setName("filterType"); // NOI18N
+
+        org.openide.awt.Mnemonics.setLocalizedText(renderCB, "RENDER");
+        renderCB.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        renderCB.setMargin(new java.awt.Insets(0, 0, 0, 0));
+
+        org.openide.awt.Mnemonics.setLocalizedText(actionCB, "ACTION");
+        actionCB.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        actionCB.setMargin(new java.awt.Insets(0, 0, 0, 0));
+
+        org.openide.awt.Mnemonics.setLocalizedText(eventCB, "EVENT");
+        eventCB.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        eventCB.setMargin(new java.awt.Insets(0, 0, 0, 0));
+
+        org.openide.awt.Mnemonics.setLocalizedText(resourceCB, "RESOURCE");
+        resourceCB.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        resourceCB.setMargin(new java.awt.Insets(0, 0, 0, 0));
+
+        org.jdesktop.layout.GroupLayout jPanel1Layout = new org.jdesktop.layout.GroupLayout(jPanel1);
+        jPanel1.setLayout(jPanel1Layout);
+        jPanel1Layout.setHorizontalGroup(
+            jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+            .add(jPanel1Layout.createSequentialGroup()
+                .addContainerGap()
+                .add(renderCB, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 59, Short.MAX_VALUE)
+                .add(18, 18, 18)
+                .add(actionCB, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 59, Short.MAX_VALUE)
+                .add(39, 39, 39)
+                .add(eventCB, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 50, Short.MAX_VALUE)
+                .add(33, 33, 33)
+                .add(resourceCB, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 72, Short.MAX_VALUE)
+                .addContainerGap())
+        );
+        jPanel1Layout.setVerticalGroup(
+            jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+            .add(jPanel1Layout.createSequentialGroup()
+                .addContainerGap()
+                .add(jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.CENTER)
+                    .add(renderCB)
+                    .add(resourceCB)
+                    .add(actionCB)
+                    .add(eventCB))
+                .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
+
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(layout.createSequentialGroup()
                 .addContainerGap()
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING, false)
-                    .add(layout.createSequentialGroup()
-                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                            .add(jLabel1)
-                            .add(jLabel2))
-                        .add(57, 57, 57)
-                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING, false)
-                            .add(filterNameTxt)
-                            .add(filterTypeCombo, 0, 265, Short.MAX_VALUE)))
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                     .add(jLabel3)
-                    .add(layout.createSequentialGroup()
-                        .add(jScrollPane2, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 287, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .add(24, 24, 24)
-                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                            .add(deleteParamButton, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 65, Short.MAX_VALUE)
-                            .add(addParamButton, 0, 0, Short.MAX_VALUE))))
-                .addContainerGap(34, Short.MAX_VALUE))
+                    .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
+                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
+                            .add(org.jdesktop.layout.GroupLayout.LEADING, jPanel1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .add(org.jdesktop.layout.GroupLayout.LEADING, layout.createSequentialGroup()
+                                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING, false)
+                                    .add(org.jdesktop.layout.GroupLayout.LEADING, layout.createSequentialGroup()
+                                        .add(jLabel2)
+                                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                        .add(filterNameTxt, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 251, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                                    .add(org.jdesktop.layout.GroupLayout.LEADING, layout.createSequentialGroup()
+                                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                                        .add(jScrollPane2, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 287, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING, false)
+                                            .add(deleteParamButton, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                            .add(addParamButton, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 63, Short.MAX_VALUE))))
+                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 10, Short.MAX_VALUE)))
+                        .add(11, 11, 11)))
+                .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(layout.createSequentialGroup()
                 .addContainerGap()
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(jLabel1)
-                    .add(filterTypeCombo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(jPanel1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                .add(18, 18, 18)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(jLabel2)
                     .add(filterNameTxt, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .add(15, 15, 15)
+                .add(18, 18, 18)
                 .add(jLabel3)
-                .add(16, 16, 16)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(jScrollPane2, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 84, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                     .add(layout.createSequentialGroup()
+                        .add(14, 14, 14)
                         .add(addParamButton)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.UNRELATED)
+                        .add(deleteParamButton))
+                    .add(layout.createSequentialGroup()
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(deleteParamButton)))
-                .addContainerGap(28, Short.MAX_VALUE))
+                        .add(jScrollPane2, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 84, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
+                .addContainerGap())
         );
     }// </editor-fold>//GEN-END:initComponents
     
@@ -179,10 +228,19 @@ public void store(WizardDescriptor wizardDescriptor) {
         context = new FilterContext();
         wizardDescriptor.putProperty("context", context);
     }
-    
+    initParamTable.editCellAt(-1, -1);
     context.setFilterName(filterNameTxt.getText());
     context.setInitParams((InitParam [])initParamTableModel.getInitParams().toArray(new InitParam[0]));
-    context.setFilterType((String)filterTypeCombo.getSelectedItem());
+    List filterTypes = new ArrayList();
+    if(renderCB.isSelected())
+        filterTypes.add(CodeGenConstants.RENDER_FILTER_TYPE);
+    if(actionCB.isSelected())
+        filterTypes.add(CodeGenConstants.ACTION_FILTER_TYPE);
+    if(eventCB.isSelected())
+        filterTypes.add(CodeGenConstants.EVENT_FILTER_TYPE);
+    if(resourceCB.isSelected())
+        filterTypes.add(CodeGenConstants.RESOURCE_FILTER_TYPE);
+    context.setFilterType((String [])filterTypes.toArray(new String[0]));
         
 }
 
@@ -208,17 +266,20 @@ public boolean valid(WizardDescriptor wd)
 }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JCheckBox actionCB;
     private javax.swing.JButton addParamButton;
     private javax.swing.JButton deleteParamButton;
+    private javax.swing.JCheckBox eventCB;
     private javax.swing.JTextField filterNameTxt;
-    private javax.swing.JComboBox filterTypeCombo;
     private javax.swing.JTable initParamTable;
-    private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
+    private javax.swing.JPanel jPanel1;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JTable jTable1;
+    private javax.swing.JCheckBox renderCB;
+    private javax.swing.JCheckBox resourceCB;
     // End of variables declaration//GEN-END:variables
     private InitParamTableModel initParamTableModel;
 
