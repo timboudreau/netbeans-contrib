@@ -21,9 +21,9 @@ Microsystems, Inc. All Rights Reserved.
 
 <fontscolors>
     <!-- EJS tokens -->
-    <fontcolor name="ejs-delimiter" foreColor="black" bgColor="fffdf2c4" default="default">
+    <fontcolor name="ejs-delimiter" foreColor="black" bgColor="ffD8EED2" default="default">
         <font style="bold"/>
     </fontcolor>
     <fontcolor name="html" default="default"/>
-    <fontcolor name="javascript" bgColor="fffdf2c4" default="default"/>
+    <fontcolor name="javascript" bgColor="ffD8EED2" default="default"/>
 </fontscolors>
