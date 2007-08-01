@@ -34,7 +34,7 @@ public class ActionMapActionTest {
 
     public static void main (String[] args) {
         Scene scene = new Scene ();
-        scene.addChild (new LabelWidget (scene, "Invoke popup menu here or press Enter key"));
+        scene.addChild (new LabelWidget (scene, "Press Enter key to invoke the action"));
 
         InputMap inputMap = new InputMap ();
         inputMap.put (KeyStroke.getKeyStroke (KeyEvent.VK_ENTER, 0, false), "myAction");
