@@ -108,7 +108,7 @@ public class SemanticColoring implements CancellableTask<CompilationInfo> {
         final Map<Token, List<AttributeSet>> token2Attributes = new HashMap<Token, List<AttributeSet>>();
         
         dn.traverse(new TraverseHandler() {
-            public boolean commandStart(CommandNode node) {
+            public boolean commandStart(final CommandNode node) {
                 if (cancelled.get()) {
                     return false;
                 }
@@ -116,22 +116,27 @@ public class SemanticColoring implements CancellableTask<CompilationInfo> {
                 if (node.getStartingPosition().getDocument() != document)
                     return true;
                 
-                try {
-                    Token cmd = (Token) node.getNodeTokens().iterator().next();
-                    if (node.isValid())
-                        add(token2Attributes, cmd, getColoringForName(TexColoringNames.COMMAND_CORRECT));
-                    else
-                        add(token2Attributes, cmd, getColoringForName(TexColoringNames.COMMAND_INCORRECT));
-                } catch (IOException e) {
-                    Exceptions.printStackTrace(e);
-                }
+                document.render(new Runnable() {
+                    public void run() {
+                        try {
+                            Token cmd = (Token) node.getNodeTokens().iterator().next();
+                            if (node.isValid()) {
+                                add(token2Attributes, cmd, getColoringForName(TexColoringNames.COMMAND_CORRECT));
+                            } else {
+                                add(token2Attributes, cmd, getColoringForName(TexColoringNames.COMMAND_INCORRECT));
+                            }
+                        } catch (IOException e) {
+                            Exceptions.printStackTrace(e);
+                        }
+                    }
+                });
                 
                 return true;
             }
 
             public void commandEnd(CommandNode node) {}
 
-            public boolean argumentStart(ArgumentNode node) {
+            public boolean argumentStart(final ArgumentNode node) {
                 if (cancelled.get()) {
                     return false;
                 }
@@ -166,32 +171,38 @@ public class SemanticColoring implements CancellableTask<CompilationInfo> {
                     }
                 }
                 
-                try {
-                    if (node.getChildrenCount() > 0) {
-                        for (Iterator<Node> children = node.getChildrenIterator(); children.hasNext();) {
-                            for (Token t : children.next().getNodeTokens()) {
-                                add(token2Attributes, t, attrs);
+                final AttributeSet attrsFin = attrs;
+                
+                document.render(new Runnable() {
+                    public void run() {
+                        try {
+                            if (node.getChildrenCount() > 0) {
+                                for (Iterator<Node> children = node.getChildrenIterator(); children.hasNext();) {
+                                    for (Token t : children.next().getNodeTokens()) {
+                                        add(token2Attributes, t, attrsFin);
+                                    }
+                                }
+                            } else {
+                                boolean first = true;
+
+                                for (Iterator<? extends Token> it = node.getNodeTokens().iterator(); it.hasNext();) {
+                                    Token t = it.next();
+
+                                    if (first && t.id() == TexTokenId.COMP_BRACKET_LEFT) {
+                                        continue;
+                                    }
+                                    if (t.id() == TexTokenId.COMP_BRACKET_RIGHT && !it.hasNext()) {
+                                        continue;
+                                    }
+                                    add(token2Attributes, t, attrsFin);
+                                    first = false;
+                                }
                             }
-                        }
-                    } else {
-                        boolean first = true;
-                        
-                        for (Iterator<? extends Token> it = node.getNodeTokens().iterator(); it.hasNext();) {
-                            Token t = it.next();
-                            
-                            if (first && t.id() == TexTokenId.COMP_BRACKET_LEFT)
-                                continue;
-                            
-                            if (t.id() == TexTokenId.COMP_BRACKET_RIGHT && !it.hasNext())
-                                continue;
-                            
-                            add(token2Attributes, t, attrs);
-                            first = false;
+                        } catch (IOException e) {
+                            Exceptions.printStackTrace(e);
                         }
                     }
-                } catch (IOException e) {
-                    Exceptions.printStackTrace(e);
-                }
+                });
                 
                 return true;
             }
@@ -209,7 +220,7 @@ public class SemanticColoring implements CancellableTask<CompilationInfo> {
             public void blockEnd(BlockNode node) {}
 
             @Override
-            public boolean mathStart(MathNode node) {
+            public boolean mathStart(final MathNode node) {
                 if (cancelled.get()) {
                     return false;
                 }
@@ -217,47 +228,48 @@ public class SemanticColoring implements CancellableTask<CompilationInfo> {
                 if (node.getStartingPosition().getDocument() != document)
                     return true;
                 
-                AttributeSet attrs = getColoringForName(TexColoringNames.MATH);
+                final AttributeSet attrs = getColoringForName(TexColoringNames.MATH);
                 
-                try {
-                    for (Token t : node.getDeepNodeTokens()) {
-                        add(token2Attributes, t, attrs);
+                document.render(new Runnable() {
+                    public void run() {
+                        try {
+                            for (Token t : node.getDeepNodeTokens()) {
+                                add(token2Attributes, t, attrs);
+                            }
+                        } catch (IOException e) {
+                            Exceptions.printStackTrace(e);
+                        }
                     }
-                } catch (IOException e) {
-                    Exceptions.printStackTrace(e);
-                }
+                });
                 
                 return true;
             }
         });
 
-        PositionsBag bag = new PositionsBag(null);
+        final PositionsBag bag = new PositionsBag(null);
 //        long start = System.currentTimeMillis();
         
-        try {
-            for (Entry<Token, List<AttributeSet>> e : token2Attributes.entrySet()) {
-                Token t = e.getKey();
-                AttributeSet c = AttributesUtilities.createComposite(e.getValue().toArray(new AttributeSet[0]));
-                
-                //XXX:
-                if (c == null) {
-                    c = SimpleAttributeSet.EMPTY;
-                }
+        document.render(new Runnable() {
+            public void run() {
+                try {
+                    for (Entry<Token, List<AttributeSet>> e : token2Attributes.entrySet()) {
+                        Token t = e.getKey();
+                        AttributeSet c = AttributesUtilities.createComposite(e.getValue().toArray(new AttributeSet[0]));
 
-                bag.addHighlight(NbDocument.createPosition(document, t.offset(null), Position.Bias.Backward), NbDocument.createPosition(document, t.offset(null) + t.length(), Position.Bias.Forward), c);
+                        //XXX:
+                        if (c == null || c == SimpleAttributeSet.EMPTY) {
+                            continue;
+                        }
+
+                        bag.addHighlight(NbDocument.createPosition(document, t.offset(null), Position.Bias.Backward), NbDocument.createPosition(document, t.offset(null) + t.length(), Position.Bias.Forward), c);
+                    }
+                } catch (BadLocationException e) {
+                    Exceptions.printStackTrace(e);
+                }
             }
-            
-            ColoringEvaluator.getDelegate(document).setHighlights(bag);
-        } catch (BadLocationException e) {
-            Exceptions.printStackTrace(e);
-        } catch (IllegalStateException e) {
-            //XXX: debug only
-            Exceptions.printStackTrace(e);
-//            System.err.println("result= " + result);
-//            e.printStackTrace();
-        } finally {
-            //            TimesCollector.getDefault().reportTime((FileObject) Utilities.getDefault().getSource(document).getMainFile(), "ColoringEvaluator", "Coloring Evaluator", System.currentTimeMillis() - start);
-        }
+        });
+
+        ColoringEvaluator.getDelegate(document).setHighlights(bag);
     }
 
     private void add(Map<Token, List<AttributeSet>> token2Attributes, Token t, AttributeSet att) {
