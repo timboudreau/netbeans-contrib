@@ -66,6 +66,7 @@ public class JNPCTaskHandler extends DefaultPSTaskHandler{
     private static String PORTLET_REGISTRY_CONTEXT_FACTORY_OLD = "com.sun.portal.portletadmin.PortletRegistryContextFactory";
     private static String PORTLET_REGISTRY_CONTEXT_OLD = "com.sun.portal.portletadmin.PortletRegistryContext";
     private static String PORTLET_REGISTRY_CONTEXT_FACTORY_NEW = "com.sun.portal.portletcontainer.context.registry.PortletRegistryContextFactory";
+    private static String PORTLET_REGISTRY_CONTEXT_ABSTRACT_FACTORY = "com.sun.portal.portletcontainer.context.registry.PortletRegistryContextAbstractFactory";
     private static String PORTLET_REGISTRY_CONTEXT_NEW = "com.sun.portal.portletcontainer.context.registry.PortletRegistryContext";
     private static String PORTLET_REGISTRY_CACHE_OLD = "com.sun.portal.portletadmin.PortletRegistryCache";
     private static String PORTLET_REGISTRY_CACHE_NEW = "com.sun.portal.portletcontainer.admin.PortletRegistryCache";
@@ -248,14 +249,21 @@ public class JNPCTaskHandler extends DefaultPSTaskHandler{
         try{
             Thread.currentThread().setContextClassLoader(loader);
             Class clazz = null;
+            Object factoryObj = null;
+            Object portletRegistryContextObj = null;
             updateCache();
             try {
+                Class absFactoryClazz = loader.loadClass(PORTLET_REGISTRY_CONTEXT_ABSTRACT_FACTORY);
                 clazz = loader.loadClass(PORTLET_REGISTRY_CONTEXT_FACTORY_NEW);
+                Object absFactoryObj = absFactoryClazz.newInstance();
+                Method getPRCF = absFactoryClazz.getMethod("getPortletRegistryContextFactory",new Class[]{});
+                factoryObj = getPRCF.invoke(absFactoryObj, new Object[]{}); 
             } catch (ClassNotFoundException ex) {
                 clazz = loader.loadClass(PORTLET_REGISTRY_CONTEXT_FACTORY_OLD);
             }
+            
             Method method = clazz.getMethod("getPortletRegistryContext",new Class[]{});
-            Object portletRegistryContextObj = method.invoke(null,new Object[]{});
+            portletRegistryContextObj = method.invoke(factoryObj,new Object[]{});
             Class registryContextClazz = null;
             try {
                 registryContextClazz = loader.loadClass(PORTLET_REGISTRY_CONTEXT_NEW);
