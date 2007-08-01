@@ -30,8 +30,8 @@ public class FilterContext implements DataContext {
     private String filterName;
     private InitParam[] initParams;
     private String filterClassName;
-    private String filterType;
-    private String lifeCyclePhase;
+    private String[] filterTypes;
+    private String[] lifeCyclePhases;
     private FilterMappingData[] filterMappingData;
 
     public void setFilterMappingData(FilterMappingData[] filterMappingData) {
@@ -42,28 +42,40 @@ public class FilterContext implements DataContext {
         return filterMappingData;
     }
 
-    public String getLifeCyclePhase() {
-        return lifeCyclePhase;
+    public String[] getLifeCyclePhase() {
+        return lifeCyclePhases;
     }
 
-    public String getFilterType() {
-        return filterType;
+    public String[] getFilterTypes() {
+        return filterTypes;
     }
 
-    public void setFilterType(String filterType) {
-        this.filterType = filterType;
-        if(filterType.equals(CodeGenConstants.ACTION_FILTER_TYPE))
-            lifeCyclePhase = CodeGenConstants.ACTION_PHASE;
-        else if(filterType.equals(CodeGenConstants.RENDER_FILTER_TYPE))
-            lifeCyclePhase = CodeGenConstants.RENDER_PHASE;
-        else if(filterType.equals(CodeGenConstants.EVENT_FILTER_TYPE))
-            lifeCyclePhase = CodeGenConstants.EVENT_PHASE;
-        else if(filterType.equals(CodeGenConstants.FRAGMENT_FILTER_TYPE))
-            lifeCyclePhase = CodeGenConstants.FRAGMENT_PHASE;
-        else if(filterType.equals(CodeGenConstants.RESOURCE_FILTER_TYPE))
-            lifeCyclePhase = CodeGenConstants.RESOURCE_PHASE;
-        else
-            lifeCyclePhase = "UNKNOWN";
+    public void setFilterType(String[] selectedFilterTypes) {
+        if(selectedFilterTypes == null || selectedFilterTypes.length == 0)
+        {
+            this.filterTypes = new String[1];
+            this.lifeCyclePhases = new String[1];
+            this.filterTypes[0] = CodeGenConstants.RENDER_FILTER_TYPE;
+            this.lifeCyclePhases[0] = CodeGenConstants.RENDER_PHASE;
+            return;
+        }
+        this.filterTypes = new String[selectedFilterTypes.length];
+        System.arraycopy(selectedFilterTypes, 0, filterTypes, 0, selectedFilterTypes.length);
+        
+        lifeCyclePhases = new String[filterTypes.length];
+        for(int i=0;i<filterTypes.length;i++)
+        {
+            if(filterTypes[i].equals(CodeGenConstants.ACTION_FILTER_TYPE))
+                lifeCyclePhases[i] = CodeGenConstants.ACTION_PHASE;
+            else if(filterTypes[i].equals(CodeGenConstants.RENDER_FILTER_TYPE))
+                lifeCyclePhases[i] = CodeGenConstants.RENDER_PHASE;
+            else if(filterTypes[i].equals(CodeGenConstants.EVENT_FILTER_TYPE))
+                lifeCyclePhases[i] = CodeGenConstants.EVENT_PHASE;
+            else if(filterTypes[i].equals(CodeGenConstants.RESOURCE_FILTER_TYPE))
+                lifeCyclePhases[i] = CodeGenConstants.RESOURCE_PHASE;
+            else
+                lifeCyclePhases[i] = "UNKNOWN";
+        }
     }
     /** Creates a new instance of FilterContext */
     public FilterContext() {
