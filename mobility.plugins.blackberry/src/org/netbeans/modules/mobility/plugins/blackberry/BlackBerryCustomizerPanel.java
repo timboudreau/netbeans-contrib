@@ -89,7 +89,7 @@ public class BlackBerryCustomizerPanel extends javax.swing.JPanel {
         jPanel1.setLayout(new java.awt.GridBagLayout());
 
         lError.setForeground(new java.awt.Color(89, 79, 191));
-        lError.setText(NbBundle.getMessage(BlackBerryCustomizerPanel.class, "ERR_MissingSDK")); // NOI18N
+        org.openide.awt.Mnemonics.setLocalizedText(lError, NbBundle.getMessage(BlackBerryCustomizerPanel.class, "ERR_MissingSDK")); // NOI18N
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 0;
@@ -97,41 +97,35 @@ public class BlackBerryCustomizerPanel extends javax.swing.JPanel {
         gridBagConstraints.weightx = 1.0;
         jPanel1.add(lError, gridBagConstraints);
 
-        jButton1.setMnemonic(NbBundle.getMessage(BlackBerryCustomizerPanel.class, "MNM_ManageEmulators").charAt(0));
-        jButton1.setText(NbBundle.getMessage(BlackBerryCustomizerPanel.class, "LBL_ManageEmulators")); // NOI18N
+        org.openide.awt.Mnemonics.setLocalizedText(jButton1, NbBundle.getMessage(BlackBerryCustomizerPanel.class, "LBL_ManageEmulators")); // NOI18N
         jButton1.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jButton1ActionPerformed(evt);
             }
         });
-
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.insets = new java.awt.Insets(0, 11, 0, 0);
         jPanel1.add(jButton1, gridBagConstraints);
 
         add(jPanel1, "noSDK");
 
-        jCheckBox1.setMnemonic(NbBundle.getMessage(BlackBerryCustomizerPanel.class, "MNM_USB").charAt(0));
-        jCheckBox1.setText(NbBundle.getMessage(BlackBerryCustomizerPanel.class, "LBL_USB")); // NOI18N
+        org.openide.awt.Mnemonics.setLocalizedText(jCheckBox1, NbBundle.getMessage(BlackBerryCustomizerPanel.class, "LBL_USB")); // NOI18N
         jCheckBox1.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         jCheckBox1.setMargin(new java.awt.Insets(0, 0, 0, 0));
         jCheckBox1.setName(BlackBerryDeploymentPlugin.PROP_USB);
 
-        jLabel1.setDisplayedMnemonic(NbBundle.getMessage(BlackBerryCustomizerPanel.class, "MNM_PortPin").charAt(0));
         jLabel1.setLabelFor(jTextFieldPortPin);
-        jLabel1.setText(NbBundle.getMessage(BlackBerryCustomizerPanel.class, "LBL_PortPin")); // NOI18N
+        org.openide.awt.Mnemonics.setLocalizedText(jLabel1, NbBundle.getMessage(BlackBerryCustomizerPanel.class, "LBL_PortPin")); // NOI18N
 
         jTextFieldPortPin.setName(BlackBerryDeploymentPlugin.PROP_PORT_PIN);
 
-        jLabel2.setDisplayedMnemonic(NbBundle.getMessage(BlackBerryCustomizerPanel.class, "LBL_BaudRate").charAt(0));
         jLabel2.setLabelFor(jTextFieldBaudRate);
-        jLabel2.setText(NbBundle.getMessage(BlackBerryCustomizerPanel.class, "LBL_BaudRate")); // NOI18N
+        org.openide.awt.Mnemonics.setLocalizedText(jLabel2, NbBundle.getMessage(BlackBerryCustomizerPanel.class, "LBL_BaudRate")); // NOI18N
 
         jTextFieldBaudRate.setName(BlackBerryDeploymentPlugin.PROP_BAUD_RATE);
 
-        jLabel3.setDisplayedMnemonic(NbBundle.getMessage(BlackBerryCustomizerPanel.class, "MNM_Password").charAt(0));
         jLabel3.setLabelFor(jPasswordField);
-        jLabel3.setText(NbBundle.getMessage(BlackBerryCustomizerPanel.class, "LBL_Password")); // NOI18N
+        org.openide.awt.Mnemonics.setLocalizedText(jLabel3, NbBundle.getMessage(BlackBerryCustomizerPanel.class, "LBL_Password")); // NOI18N
 
         jPasswordField.setName(BlackBerryDeploymentPlugin.PROP_PASSWORD);
 
@@ -142,7 +136,7 @@ public class BlackBerryCustomizerPanel extends javax.swing.JPanel {
             .add(jPanel2Layout.createSequentialGroup()
                 .addContainerGap()
                 .add(jPanel2Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(jCheckBox1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 380, Short.MAX_VALUE)
+                    .add(jCheckBox1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 390, Short.MAX_VALUE)
                     .add(jPanel2Layout.createSequentialGroup()
                         .add(jPanel2Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                             .add(jLabel1)
@@ -152,10 +146,10 @@ public class BlackBerryCustomizerPanel extends javax.swing.JPanel {
                         .add(jPanel2Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                             .add(jPanel2Layout.createSequentialGroup()
                                 .add(jPanel2Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                                    .add(jPasswordField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 266, Short.MAX_VALUE)
-                                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jTextFieldPortPin, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 266, Short.MAX_VALUE))
+                                    .add(jPasswordField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 269, Short.MAX_VALUE)
+                                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jTextFieldPortPin, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 269, Short.MAX_VALUE))
                                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED))
-                            .add(jTextFieldBaudRate, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 266, Short.MAX_VALUE))))
+                            .add(jTextFieldBaudRate, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 269, Short.MAX_VALUE))))
                 .addContainerGap())
         );
         jPanel2Layout.setVerticalGroup(
@@ -175,10 +169,10 @@ public class BlackBerryCustomizerPanel extends javax.swing.JPanel {
                 .add(jPanel2Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(jLabel3)
                     .add(jPasswordField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(192, Short.MAX_VALUE))
+                .addContainerGap(198, Short.MAX_VALUE))
         );
-        add(jPanel2, "customizer");
 
+        add(jPanel2, "customizer");
     }// </editor-fold>//GEN-END:initComponents
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
