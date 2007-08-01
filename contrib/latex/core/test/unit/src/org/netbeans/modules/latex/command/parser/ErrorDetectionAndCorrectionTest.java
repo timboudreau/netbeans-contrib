@@ -30,6 +30,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import javax.swing.text.Document;
+import org.netbeans.core.startup.Main;
 import org.netbeans.modules.latex.UnitUtilities;
 import org.netbeans.modules.latex.model.command.DocumentNode;
 import org.netbeans.modules.latex.model.command.SourcePosition;
@@ -71,6 +72,8 @@ public class ErrorDetectionAndCorrectionTest extends  NbTestCase {
         }
         
         log("ErrorDetectionAndCorrectionPerformer.setUp finished.");
+        
+        Main.initializeURLFactory();
     }
     
     public void testTest1() throws Exception {

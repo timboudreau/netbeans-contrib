@@ -64,6 +64,7 @@ import org.netbeans.spi.editor.completion.CompletionTask;
 import org.netbeans.spi.editor.completion.support.AsyncCompletionQuery;
 import org.netbeans.spi.editor.completion.support.AsyncCompletionTask;
 import org.netbeans.modules.latex.model.command.Node;
+import org.netbeans.modules.latex.model.command.ParagraphNode;
 import org.netbeans.modules.latex.model.command.SourcePosition;
 import org.openide.ErrorManager;
 import org.openide.filesystems.FileObject;
@@ -93,7 +94,7 @@ public class TexCompletion implements CompletionProvider {
                     
                     if (commandName.startsWith(prefix)) {
                         if (comm.hasAttribute("end") && comm.getArgumentCount() == 1 && comm.getArgument(0).hasAttribute("#environmentname")) {
-                            BlockNode node = findBlockNode(lpr, doc, pos.getOffset());
+                            BlockNode node = findBlockNode(lpr, doc, start - 1);
                             resultSet.addItem(new ValueCompletionItem(start, commandName + "{" + node.getEnvironment().getName() + "}"));
                         } else {
                             boolean isIcon = IconsStorage.getDefault().getAllIconNames().contains(commandName);
@@ -427,7 +428,7 @@ public class TexCompletion implements CompletionProvider {
                 String name = (String) i.next();
                 
                 if (name.startsWith(ccPrefix)) {
-                    set.addItem(new ValueCompletionItem(start, name));
+                    set.addItem(new ValueCompletionItem(start, "{" + name + "}"));
                 }
             }
         }
@@ -438,7 +439,7 @@ public class TexCompletion implements CompletionProvider {
     }
     
     public CompletionTask createTask(int queryType, JTextComponent component) {
-        if (queryType == COMPLETION_QUERY_TYPE) {
+        if ((queryType & COMPLETION_QUERY_TYPE) != 0) {
             return new AsyncCompletionTask(new Query(), component);
         }
         
@@ -464,14 +465,23 @@ public class TexCompletion implements CompletionProvider {
                                 
                         int type;
                         
-                        Token token = getToken(doc, caretOffset);
+                        Token token;
                         
+                        TokenSequence<TexTokenId> ts = (TokenSequence<TexTokenId>) TokenHierarchy.get(doc).tokenSequence();
+                        
+                        ts.move(caretOffset > 0 ? caretOffset - 1 : 0); //TODO: -1??/
+                        
+                        if (ts.moveNext())
+                            token = ts.token();
+                        else
+                            token = null;
+        
                         String caption      = null;
-                        int start = getStartingOffset(doc, caretOffset);
+                        int start = ts.offset();
                         
-                        if (isCommand(token.id())) {
+                        if (token != null && isCommand(token.id())) {
                             Position pos = doc.createPosition(caretOffset);
-                            String prefix = token.text().subSequence(0, caretOffset - start + 1).toString();
+                            String prefix = token.text().subSequence(0, caretOffset - start).toString();
                             
                             getCommandsForPrefix(resultSet, lpr, doc, od, pos, prefix, start);
                         }
@@ -496,33 +506,33 @@ public class TexCompletion implements CompletionProvider {
     }
 
 
-    public static final Token<TexTokenId> getToken(Document doc, int offset) throws ClassCastException {
-        TokenSequence<TexTokenId> ts = (TokenSequence<TexTokenId>) TokenHierarchy.get(doc).tokenSequence();
-        
-        ts.move(offset > 0 ? offset - 1 : 0); //TODO: -1??/
-        
-        if (ts.moveNext())
-            return ts.token();
-        else
-            return null;
-    }
-    
-    public static final int getStartingOffset(Document doc, int offset) {
-        TokenHierarchy h = TokenHierarchy.get(doc);
-        TokenSequence ts = h.tokenSequence();
-        
-        ts.move(offset);
-        ts.moveNext();
-        
-        Token orig = ts.token();
-        int newOffset = ts.offset();
-        
-        if (getToken(doc, newOffset) == orig)
-            return newOffset;
-        
-        if (getToken(doc, newOffset + 1) == orig)
-            return newOffset + 1;
-        
-        throw new IllegalStateException("");
-    }
+//    public static final Token<TexTokenId> getToken(Document doc, int offset) throws ClassCastException {
+//        TokenSequence<TexTokenId> ts = (TokenSequence<TexTokenId>) TokenHierarchy.get(doc).tokenSequence();
+//        
+//        ts.move(offset > 0 ? offset - 1 : 0); //TODO: -1??/
+//        
+//        if (ts.moveNext())
+//            return ts.token();
+//        else
+//            return null;
+//    }
+//    
+//    public static final int getStartingOffset(Document doc, int offset) {
+//        TokenHierarchy h = TokenHierarchy.get(doc);
+//        TokenSequence ts = h.tokenSequence();
+//        
+//        ts.move(offset);
+//        ts.moveNext();
+//        
+//        Token orig = ts.token();
+//        int newOffset = ts.offset();
+//        
+//        if (getToken(doc, newOffset) == orig)
+//            return newOffset;
+//        
+//        if (getToken(doc, newOffset + 1) == orig)
+//            return newOffset + 1;
+//        
+//        throw new IllegalStateException("");
+//    }
 }

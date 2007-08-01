@@ -388,7 +388,7 @@ public final class CommandParser {
         
         doc.render(new Runnable() {
             public void run() {
-                result[0] = ErrorDescriptionFactory.createErrorDescription(Severity.ERROR, message, doc, pos.getLine());
+                result[0] = ErrorDescriptionFactory.createErrorDescription(Severity.ERROR, message, doc, pos.getLine() + 1);
             }
         });
         
@@ -1124,8 +1124,10 @@ public final class CommandParser {
             
         }
         
-        if (endPosition == null)
+        if (endPosition == null) {
             endPosition = input.getPosition();
+            bni.setEndingPosition(input.getPosition());
+        }
         
         node.setEndingPosition(endPosition);
         
@@ -1138,10 +1140,10 @@ public final class CommandParser {
             mathNode = null;
         }
         
-        //Safety workaround:
-        if (bni.getEndingPosition() == null) {
-            bni.setEndingPosition(input.getPosition());
-        }
+//        //Safety workaround:
+//        if (bni.getEndingPosition() == null) {
+//            bni.setEndingPosition(input.getPosition());
+//        }
         
         currentCommandDefiningNode = lastCommandDefiningNode;
         

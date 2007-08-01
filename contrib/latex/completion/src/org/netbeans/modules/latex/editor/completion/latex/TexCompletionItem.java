@@ -120,7 +120,7 @@ public abstract class TexCompletionItem implements CompletionItem {
     }
     
     public boolean instantSubstitution(JTextComponent component) {
-        return true;
+        return false;
     }
     
     public abstract int getSortPriority();
@@ -153,7 +153,7 @@ public abstract class TexCompletionItem implements CompletionItem {
         
         /** Creates a new instance of TexCompletionItem */
         public CommandCompletionItem(int substituteOffset, Command command, boolean isIcon) {
-            super(substituteOffset);
+            super(substituteOffset + 1);
             this.command = command;
             cIcon = isIcon ? IconsStorage.getDefault().getIcon(command.getCommand(), 16, 16) : null;
             if (cIcon != null)
@@ -261,7 +261,7 @@ public abstract class TexCompletionItem implements CompletionItem {
         }
         
         public String getText() {
-            return environment.getName();
+            return "{" + environment.getName();
         }
         
         public String getLeftText() {
@@ -404,7 +404,7 @@ public abstract class TexCompletionItem implements CompletionItem {
 
         public void defaultAction(final JTextComponent component) {
             try {
-                NotifyDescriptor nd = new NotifyDescriptor.InputLine("New File Name:", "Craate New File");
+                NotifyDescriptor nd = new NotifyDescriptor.InputLine("New File Name:", "Create New File");
                 
                 DialogDisplayer.getDefault().notify(nd);
 

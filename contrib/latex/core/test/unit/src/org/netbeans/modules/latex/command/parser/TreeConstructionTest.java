@@ -28,6 +28,7 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedList;
+import org.netbeans.core.startup.Main;
 import org.netbeans.junit.NbTestCase;
 
 import org.netbeans.modules.latex.UnitUtilities;
@@ -70,6 +71,8 @@ public class TreeConstructionTest extends NbTestCase {
         }
         
         getLog().println("ErrorDetectionAndCorrectionPerformer.setUp finished.");
+        
+        Main.initializeURLFactory();
     }
 
     

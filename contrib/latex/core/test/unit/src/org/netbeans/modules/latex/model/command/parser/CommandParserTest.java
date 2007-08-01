@@ -36,6 +36,7 @@ import org.netbeans.api.gsf.CancellableTask;
 import org.netbeans.api.retouche.source.CompilationController;
 import org.netbeans.api.retouche.source.Phase;
 import org.netbeans.api.retouche.source.Source;
+import org.netbeans.core.startup.Main;
 import org.netbeans.junit.NbTestCase;
 import org.netbeans.modules.latex.UnitUtilities;
 import org.netbeans.modules.latex.model.LaTeXParserResult;
@@ -85,13 +86,20 @@ public class CommandParserTest extends NbTestCase {
     }
 
     protected void setUp() throws Exception {
+        System.setProperty("netbeans.user", getWorkDir().getAbsolutePath());
+        new File(new File(getWorkDir(), "var"), "log").mkdirs();
+
         System.setProperty("netbeans.test.latex.enable", "true");
         
-        UnitUtilities.prepareTest(new String[0], new Object[0]);
+        UnitUtilities.prepareTest(new String[] {"/org/netbeans/modules/latex/resources/mf-layer.xml"}, new Object[0]);
         
         dataDir = FileUtil.toFileObject(new File(getDataDir(), "CommandParserTest"));
         
+        FileUtil.setMIMEType("tex", "text/x-tex");
+        
         assertNotNull(dataDir);
+        
+        Main.initializeURLFactory();
     }
 
     public void testInclude() throws Exception {

@@ -1,5 +1,6 @@
 abstract
 algorithm
+algorithmic
 center
 description
 document
@@ -10,5 +11,8 @@ flushleft
 flushright
 itemize
 minipage
+quotation
+quote
 table
 tabular
+verbatim

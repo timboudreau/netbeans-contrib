@@ -28,11 +28,15 @@ import java.util.List;
 import javax.swing.JEditorPane;
 import javax.swing.text.Document;
 import javax.swing.text.StyledDocument;
+import org.netbeans.api.lexer.Language;
+import org.netbeans.core.startup.Main;
 import org.netbeans.junit.NbTestCase;
 import org.netbeans.modules.editor.completion.CompletionImpl;
 import org.netbeans.modules.editor.completion.CompletionItemComparator;
 import org.netbeans.modules.editor.completion.CompletionResultSetImpl;
 import org.netbeans.modules.latex.UnitUtilities;
+import org.netbeans.modules.latex.bibtex.loaders.MyDataLoader;
+import org.netbeans.modules.latex.editor.TexLanguage;
 import org.netbeans.modules.latex.model.Utilities;
 import org.netbeans.spi.editor.completion.CompletionItem;
 import org.netbeans.spi.editor.completion.CompletionProvider;
@@ -105,8 +109,14 @@ public class TexCompletionTest extends NbTestCase {
 
     protected void setUp() throws Exception {
         System.setProperty("netbeans.user", getWorkDir().getAbsolutePath());
+        new File(new File(getWorkDir(), "var"), "log").mkdirs();
         UnitUtilities.initLookup();
-        UnitUtilities.prepareTest(new String[] {"/org/netbeans/modules/latex/resources/mf-layer.xml"}, new Object[0]);
+        UnitUtilities.prepareTest(new String[] {"/org/netbeans/modules/latex/resources/mf-layer.xml", "/org/netbeans/modules/latex/bibtex/layer.xml"}, new Object[] {MyDataLoader.getLoader(MyDataLoader.class)});
+        
+        FileUtil.setMIMEType("tex", "text/x-tex");
+        FileUtil.setMIMEType("bib", "text/x-bibtex");
+        
+        Main.initializeURLFactory();
     }
     
     public void testrefargsorted() throws Exception {
@@ -152,11 +162,11 @@ public class TexCompletionTest extends NbTestCase {
     public void testmultiplepackages1sorted() throws Exception {
         test("", "completion/MultiplePackagesTest1.tex", 3, 26);
     }
-    
-    public void testmultiplebibliographies1sorted() throws Exception {
-        test("", "completion/MultipleBibliographies1.tex", 6, 12);
-    }
-
+//    
+//    public void testmultiplebibliographies1sorted() throws Exception {
+//        test("", "completion/MultipleBibliographies1.tex", 6, 12);
+//    }
+//
     public void testArgumentNotProsedBeforeArgStart() throws Exception {
         test("", "completion/RefTest.tex", 6, 5);
     }
@@ -177,6 +187,14 @@ public class TexCompletionTest extends NbTestCase {
         test("", "completion/NotFullTest3b.tex", 4, 12, 0);
     }
 
+    public void testIncompleteEnvName() throws Exception {
+        test("", "completion/IncompleteEnvName.tex", 5, 9);
+    }
+    
+    public void testCommandCommitTest() throws Exception {
+        test("\\newcomma", "completion/CommandCommitTest.tex", 4, 9, 0);
+    }
+    
     private List<? extends CompletionItem> getItems(JEditorPane editor) throws Exception {
         CompletionProvider provider = new TexCompletion();
         
@@ -198,7 +216,7 @@ public class TexCompletionTest extends NbTestCase {
         
         long started = System.currentTimeMillis();
         
-        while (!resultSetImpl.isFinished() && (System.currentTimeMillis() - started) < 10000)
+        while (!resultSetImpl.isFinished() && (System.currentTimeMillis() - started) < 1000000)
             Thread.sleep(100);
         
         assertTrue(resultSetImpl.isFinished());
@@ -275,6 +293,8 @@ public class TexCompletionTest extends NbTestCase {
         
         pane.setContentType("text/x-tex");
         pane.setDocument(doc);
+        
+        doc.putProperty(Language.class, TexLanguage.description());
         
         return pane;
     }

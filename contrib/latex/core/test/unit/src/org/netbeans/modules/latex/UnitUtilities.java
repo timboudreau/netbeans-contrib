@@ -33,16 +33,22 @@ import javax.swing.text.BadLocationException;
 import javax.swing.text.DefaultStyledDocument;
 import javax.swing.text.Document;
 import junit.framework.Assert;
+import org.netbeans.api.lexer.Language;
 import org.netbeans.junit.NbTestCase;
+import org.netbeans.modules.latex.editor.TexLanguage;
+import org.netbeans.modules.latex.editor.bibtex.BiBTeXLanguage;
 import org.netbeans.modules.latex.model.Utilities;
 import org.netbeans.modules.latex.model.impl.NBUtilities;
 import org.openide.ErrorManager;
 import org.openide.filesystems.FileObject;
+import org.openide.filesystems.FileSystem;
 import org.openide.filesystems.FileUtil;
 import org.openide.filesystems.LocalFileSystem;
+import org.openide.filesystems.MultiFileSystem;
 import org.openide.filesystems.Repository;
 import org.openide.filesystems.XMLFileSystem;
 import org.openide.loaders.DataObject;
+import org.openide.util.Exceptions;
 import org.openide.util.Lookup;
 import org.openide.util.lookup.Lookups;
 import org.openide.util.lookup.ProxyLookup;
@@ -83,8 +89,9 @@ public class UnitUtilities extends ProxyLookup {
         
         XMLFileSystem system = new XMLFileSystem();
         system.setXmlUrls(layers);
+        FileSystem fs = new MFSImpl(new FileSystem[] {FileUtil.createMemoryFileSystem(), system});
         
-        Repository repository = new Repository(system);
+        Repository repository = new Repository(fs);
         Object[] lookupContent = new Object[additionalLookupContent.length + 2];
         
         System.arraycopy(additionalLookupContent, 0, lookupContent, 2, additionalLookupContent.length);
@@ -93,6 +100,17 @@ public class UnitUtilities extends ProxyLookup {
         lookupContent[1] = new ModelUtilities();
         
         DEFAULT_LOOKUP.setLookup(lookupContent, Utilities.class.getClassLoader());
+    }
+    
+    private static final class MFSImpl extends MultiFileSystem {
+        public MFSImpl(FileSystem[] fs) {
+            super(fs);
+            try {
+                setSystemName("A");
+            } catch (PropertyVetoException ex) {
+                Exceptions.printStackTrace(ex);
+            }
+        }
     }
     
     static {
@@ -170,10 +188,12 @@ public class UnitUtilities extends ProxyLookup {
                     
                     if ("tex".equals(file.getExt())) {
                         doc.putProperty("mime-type", "text/x-tex");
+                        doc.putProperty(Language.class, TexLanguage.description());
                     }
                     
                     if ("bib".equals(file.getExt())) {
                         doc.putProperty("mime-type", "text/x-bibtex");
+                        doc.putProperty(Language.class, BiBTeXLanguage.description());
                     }
                     
                     file2Document.put(obj, doc);

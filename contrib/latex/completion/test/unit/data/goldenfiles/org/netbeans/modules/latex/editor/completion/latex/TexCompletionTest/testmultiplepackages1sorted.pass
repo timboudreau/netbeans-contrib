@@ -8,5 +8,6 @@ color
 graphicx
 inputenc
 latexsym
+listings
 test
 xspace
