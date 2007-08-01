@@ -49,14 +49,12 @@ public interface CodeGenConstants {
     //filter types
     public static final String ACTION_FILTER_TYPE = "Action Filter";
     public static final String EVENT_FILTER_TYPE = "Event Filter";
-    public static final String FRAGMENT_FILTER_TYPE = "Fragment Filter";
     public static final String RENDER_FILTER_TYPE = "Render Filter";
     public static final String RESOURCE_FILTER_TYPE = "Resource Filter";
     
     //lifecycle phases
     public static final String ACTION_PHASE="ACTION_PHASE";
     public static final String EVENT_PHASE="EVENT_PHASE";
-    public static final String FRAGMENT_PHASE="FRAGMENT_PHASE";
     public static final String RENDER_PHASE="RENDER_PHASE";
     public static final String RESOURCE_PHASE="RESOURCE_PHASE";
 }
