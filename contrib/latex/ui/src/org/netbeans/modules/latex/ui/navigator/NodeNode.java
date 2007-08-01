@@ -32,6 +32,7 @@ import org.openide.ErrorManager;
 import org.openide.nodes.AbstractNode;
 import org.openide.nodes.BeanNode;
 import org.openide.nodes.Children;
+import org.openide.util.Lookup;
 import org.openide.util.lookup.Lookups;
 
 /**
@@ -85,6 +86,10 @@ public class NodeNode extends AbstractNode {
             return result;
         }
         
+        if (node == null) {
+            return new NodeNode[0];
+        }
+        
         throw new IllegalArgumentException("Unknown node type: " + node.getClass().getName());
     }
     
@@ -96,10 +101,10 @@ public class NodeNode extends AbstractNode {
     }
     
     private NodeNode(Node node, String displayName) throws IntrospectionException {
-        super(new NodeChildren(getChildren(node)), Lookups.singleton(node));
+        super(new NodeChildren(getChildren(node)), node != null ? Lookups.singleton(node) : Lookup.EMPTY);
         
         this.root = root;
-        setDisplayName(displayName);
+        setDisplayName(node != null ? displayName : displayName + "(null)");
     }
     
 //    public void addNodeListener(l
