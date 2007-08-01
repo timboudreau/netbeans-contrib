@@ -294,9 +294,13 @@ public class WebDescriptorGenerator {
         filterClass.setText(filterContext.getFilterClassName());
         filterElm.addContent(filterClass);
         
-        Element lifeCycleElm = new Element("lifecycle",filterElm.getNamespace());
-        lifeCycleElm.setText(filterContext.getLifeCyclePhase());
-        filterElm.addContent(lifeCycleElm);
+        String[] lifeCyclePhases = filterContext.getLifeCyclePhase();
+        for(int i =0;i<lifeCyclePhases.length;i++)
+        {
+             Element lifeCycleElm = new Element("lifecycle",filterElm.getNamespace());
+             lifeCycleElm.setText(lifeCyclePhases[i]);
+             filterElm.addContent(lifeCycleElm);
+        }
         
         InitParam[] initParams = filterContext.getInitParams();
         for(int i=0;i<initParams.length;i++)
@@ -304,8 +308,12 @@ public class WebDescriptorGenerator {
             Element initParam = new Element("init-param",filterElm.getNamespace());
             Element name = new Element("name",filterElm.getNamespace());
             Element value = new Element("value",filterElm.getNamespace());
-            name.setText(initParams[i].getName());
-            value.setText(initParams[i].getValue());
+            String paramName = initParams[i].getName();
+            String paramValue = initParams[i].getValue();
+            if(paramName == null || paramName.length() == 0)
+                continue;
+            name.setText(paramName);
+            value.setText(paramValue);
             initParam.addContent(name);
             initParam.addContent(value);
             filterElm.addContent(initParam);
