@@ -39,8 +39,10 @@ import org.openide.util.NbBundle;
  */
 public class PCConfigPanel extends ConfigPanel implements DocumentListener{
     
+    private String psVersion;
     /** Creates new form PCConfigPanel */
-    public PCConfigPanel() {
+    public PCConfigPanel(String psVersion) {
+        this.psVersion = psVersion;
         initComponents();
         initData();
         
@@ -193,7 +195,23 @@ public class PCConfigPanel extends ConfigPanel implements DocumentListener{
         
         String dir = homeTf.getText();
         File homeDir = new File(dir);
-        
+        File portletPolicy = new File(homeDir,"config" + File.separator + "portlet-policy.xml");
+        if(psVersion.equals(JNPCConstants.OP_PC_2_0))
+        {
+            //check for policy file  
+            if(!portletPolicy.exists())
+            {
+                setErrorMessage(NbBundle.getMessage(PCConfigPanel.class,"MSG_INVALID_PC_2_0_HOME"));
+                return false;
+            }
+        } else if(psVersion.equals(JNPCConstants.OS_PC_1_0))
+        {
+            if(portletPolicy.exists())
+            {
+                setErrorMessage(NbBundle.getMessage(PCConfigPanel.class,"MSG_PC_2_0_HOME_NEED_PC_1_0_Home"));
+                return false;
+            }
+        }
         File config = new File(homeDir,"config" + File.separator + "pcenv.conf");
         File lib = new File(homeDir,"lib");
         if(!config.exists() || !lib.exists())

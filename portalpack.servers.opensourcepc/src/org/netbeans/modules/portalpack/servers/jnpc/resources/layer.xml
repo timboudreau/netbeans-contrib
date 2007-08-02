@@ -24,7 +24,7 @@ Microsystems, Inc. All Rights Reserved.
     
     <folder name="J2EE">
         <folder name="DeploymentPlugins">
-            <folder name="OpenSourcePortletContainer">
+            <folder name="OpenSourcePortletContainer_1_0">
                 <file name="Descriptor" url="/org/netbeans/modules/portalpack/servers/jnpc/resources/nbdep.xml"/>
                 <file name="Factory.instance">
                     <attr name="instanceCreate" methodvalue="org.netbeans.modules.portalpack.servers.jnpc.JNPCDeploymentFactory.create"/>
@@ -43,6 +43,43 @@ Microsystems, Inc. All Rights Reserved.
                 <file name="OptionalFactory.instance">
                     <attr name="instanceCreate" newvalue="org.netbeans.modules.portalpack.servers.jnpc.JNPCOptionalFactory"/>
                     <attr name="instanceClass" stringvalue="org.netbeans.modules.servers.jnpc.JNPCOptionalFactory"/>
+                    <attr name="instanceOf" stringvalue="org.netbeans.modules.j2ee.deployment.plugins.spi.OptionalDeploymentManagerFactory"/>
+                </file>
+                <file name="SunPortalModuleConfigurationFactory.instance">
+                    <attr name="instanceClass" stringvalue="org.netbeans.modules.portalpack.servers.core.impl.config.SunPortalModuleConfigurationFactory"/>
+                    <attr name="instanceOf" stringvalue="org.netbeans.modules.j2ee.deployment.plugins.spi.config.ModuleConfigurationFactory"/>
+                </file>
+                
+                <folder name="DeploymentFileNames">
+                    <folder name="WAR">
+                        <file name="WEB-INF\sun-portlet.xml"/>
+                        <file name="WEB-INF\portlet.xml"/>
+                    </folder>
+                </folder>
+                
+                
+            </folder>
+            
+            
+            <folder name="OpenPortalPortletContainer_2_0">
+                <file name="Descriptor" url="/org/netbeans/modules/portalpack/servers/jnpc/resources/nbdep.xml"/>
+                <file name="Factory.instance">
+                    <attr name="instanceCreate" methodvalue="org.netbeans.modules.portalpack.servers.jnpc.pc20.PC20DeploymentFactory.create"/>
+                    <attr name="instanceClass" stringvalue="org.netbeans.modules.portalpack.servers.jnpc.pc20.PC20DeploymentFactory"/>
+                    <attr name="instanceOf" stringvalue="javax.enterprise.deploy.spi.factories.DeploymentFactory"/>
+                </file>
+                <file name="RegistryNodeFactory.instance">
+                    <attr name="instanceClass" stringvalue="org.netbeans.modules.portalpack.servers.core.nodes.PSRegistryNodeFactory"/>
+                    <attr name="instanceOf" stringvalue="org.netbeans.modules.j2ee.deployment.plugins.spi.RegistryNodeFactory"/>
+                </file>
+                <file name="J2eePlatformFactory.instance">
+                    <attr name="instanceCreate" newvalue="org.netbeans.modules.portalpack.servers.jnpc.JNPCJ2eePlatformFactory"/>
+                    <attr name="instanceClass" stringvalue="org.netbeans.modules.portalpack.servers.jnpc.JNPCJ2eePlatformFactory"/>
+                    <attr name="instanceOf" stringvalue="org.netbeans.modules.j2ee.deployment.plugins.spi.J2eePlatformFactory"/>
+                </file>
+                <file name="OptionalFactory.instance">
+                    <attr name="instanceCreate" newvalue="org.netbeans.modules.portalpack.servers.jnpc.pc20.PC20OptionalFactory"/>
+                    <attr name="instanceClass" stringvalue="org.netbeans.modules.servers.jnpc.pc20.PC20OptionalFactory"/>
                     <attr name="instanceOf" stringvalue="org.netbeans.modules.j2ee.deployment.plugins.spi.OptionalDeploymentManagerFactory"/>
                 </file>
                 <file name="SunPortalModuleConfigurationFactory.instance">
