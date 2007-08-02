@@ -26,7 +26,9 @@ import org.netbeans.modules.portalpack.servers.core.api.PSNodeConfiguration;
 import org.netbeans.modules.portalpack.servers.core.api.PSStartServerInf;
 import org.netbeans.modules.portalpack.servers.core.api.PSTaskHandler;
 import org.netbeans.modules.portalpack.servers.core.util.PSConfigObject;
+import org.netbeans.modules.portalpack.servers.jnpc.common.JNPCConstants;
 import org.netbeans.modules.portalpack.servers.jnpc.impl.JNPCTaskHandler;
+import org.netbeans.modules.portalpack.servers.jnpc.pc20.PC20TaskHandler;
 
 /**
  *
@@ -34,7 +36,7 @@ import org.netbeans.modules.portalpack.servers.jnpc.impl.JNPCTaskHandler;
  */
 public class JNPCDeploymentManager extends PSDeploymentManager {
      
-    private JNPCTaskHandler taskHandler;
+    private PSTaskHandler taskHandler;
     //private JNPCNodeConfiguration nodeConfigurator;
     
     public JNPCDeploymentManager(String uri,String psVersion)
@@ -42,8 +44,14 @@ public class JNPCDeploymentManager extends PSDeploymentManager {
         super(uri,psVersion);
     }
     public PSTaskHandler getTaskHandler() {
-        if(taskHandler == null)
-            taskHandler = new JNPCTaskHandler(this);
+        if(taskHandler == null){
+            if(getPSVersion().equals(JNPCConstants.OS_PC_1_0))
+                taskHandler = new JNPCTaskHandler(this);
+            else if(getPSVersion().equals(JNPCConstants.OP_PC_2_0))
+                taskHandler = new PC20TaskHandler(this);
+            else
+                taskHandler = new PC20TaskHandler(this);
+        }
         return taskHandler;
     }
 
