@@ -20,13 +20,18 @@
 package org.netbeans.modules.portalpack.servers.jnpc.common;
 
 /**
- *
- * @author root
+ * This class defines all constants required for the different version of
+ * Portlet Container.
+ * @author Satyaranjan
  */
 public class JNPCConstants {
     
     public static String OS_PC_1_0 = "OS_PC_1_0";
     public static String OS_PC_1_0_URI_PREFIX = "os:pc_1_0";
+    
+    //constants for pc2.0
+    public static String OP_PC_2_0 = "OP_PC_2_0";
+    public static String OP_PC_2_0_URI_PREFIX = "op:pc_2_0";
     
     //config parameters
     public static String ADMIN_CONSOLE_URI = "ADMIN_CONSOLE_URI";

@@ -29,7 +29,7 @@ import org.netbeans.modules.portalpack.servers.jnpc.ui.PCConfigPanel;
 
 /**
  *
- * @author root
+ * @author Satya
  */
 public class JNPCConfigPanelManagerImpl implements PSConfigPanelManager, ServerConstants{
     
@@ -43,14 +43,14 @@ public class JNPCConfigPanelManagerImpl implements PSConfigPanelManager, ServerC
     public InstallPanel[] getInstallPanels(String psVersion) {
         
         return new InstallPanel[]{new InstallPanel(getServerConfigPanel()),
-                                  new InstallPanel(new PCConfigPanel(),true)};
+                                  new InstallPanel(new PCConfigPanel(psVersion),true)};
         
     }
 
     public ConfigPanel[] getConfigPanels(String psVersion) {
         
         
-        return new ConfigPanel[]{new PCConfigPanel(),
+        return new ConfigPanel[]{new PCConfigPanel(psVersion),
                                     getServerConfigPanel(),new ClasspathConfigPanel()};
         
     }

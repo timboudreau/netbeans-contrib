@@ -44,8 +44,8 @@ public class JNPCOptionalFactory extends PSOptionalFactory {
     }  
   
 
-    public FindJSPServlet getFindJSPServlet(DeploymentManager dm) {
-        return ((PSDeploymentManager)dm).getStartServerHandler().getFindJSPServlet((PSDeploymentManager)dm);
-    }
+        public FindJSPServlet getFindJSPServlet(DeploymentManager dm) {
+            return ((PSDeploymentManager)dm).getStartServerHandler().getFindJSPServlet((PSDeploymentManager)dm);
+        }
     
 }

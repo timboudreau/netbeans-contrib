@@ -56,5 +56,4 @@ public class JNPCDeploymentFactory extends PSDeploymentFactory{
         return JNPCConstants.OS_PC_1_0;
     }
     
-    
 }

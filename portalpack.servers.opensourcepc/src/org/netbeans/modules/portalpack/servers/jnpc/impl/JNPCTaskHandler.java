@@ -20,36 +20,23 @@
 package org.netbeans.modules.portalpack.servers.jnpc.impl;
 
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.FilenameFilter;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.util.List;
 import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.apache.tools.ant.module.api.support.ActionUtils;
 import org.netbeans.modules.j2ee.deployment.plugins.api.UISupport;
 import org.netbeans.modules.portalpack.servers.core.api.PSDeploymentManager;
 import org.netbeans.modules.portalpack.servers.core.common.ExtendedClassLoader;
 import org.netbeans.modules.portalpack.servers.core.common.LogManager;
 import org.netbeans.modules.portalpack.servers.core.impl.DefaultPSTaskHandler;
-import org.netbeans.modules.portalpack.servers.core.impl.j2eeservers.sunappserver.SunAppServerConstants;
-import org.netbeans.modules.portalpack.servers.core.impl.j2eeservers.tomcat.TomcatConstant;
-import org.netbeans.modules.portalpack.servers.core.util.Command;
 import org.netbeans.modules.portalpack.servers.core.util.NetbeanConstants;
 import org.netbeans.modules.portalpack.servers.core.util.PSConfigObject;
-import org.netbeans.modules.portalpack.servers.jnpc.ServerConstants;
 import org.netbeans.modules.portalpack.servers.jnpc.ServerDeployHandler;
 import org.netbeans.modules.portalpack.servers.jnpc.ServerDeployerHandlerFactory;
 import org.netbeans.modules.portalpack.servers.jnpc.common.JNPCConstants;
-import org.openide.filesystems.FileObject;
-import org.openide.filesystems.FileUtil;
 
 /**
  *
@@ -57,23 +44,21 @@ import org.openide.filesystems.FileUtil;
  */
 public class JNPCTaskHandler extends DefaultPSTaskHandler{
 
-    private static Logger logger = Logger.getLogger(NetbeanConstants.PORTAL_LOGGER);
-    private ExtendedClassLoader loader;
-    private PSDeploymentManager dm;
-    private PSConfigObject psconfig;
+    protected static Logger logger = Logger.getLogger(NetbeanConstants.PORTAL_LOGGER);
+    protected ExtendedClassLoader loader;
+    protected PSDeploymentManager dm;
+    protected PSConfigObject psconfig;
     
-    private static String PORTLET_ADMIN_INTERFACE = "com.sun.portal.portletcontainer.admin.mbeans.PortletAdmin";
+    private static String PORTLET_ADMIN_INTERFACE = "com.sun.portal.portletadmin.mbeans.PortletAdmin";
     private static String PORTLET_REGISTRY_CONTEXT_FACTORY_OLD = "com.sun.portal.portletadmin.PortletRegistryContextFactory";
     private static String PORTLET_REGISTRY_CONTEXT_OLD = "com.sun.portal.portletadmin.PortletRegistryContext";
     private static String PORTLET_REGISTRY_CONTEXT_FACTORY_NEW = "com.sun.portal.portletcontainer.context.registry.PortletRegistryContextFactory";
-    private static String PORTLET_REGISTRY_CONTEXT_ABSTRACT_FACTORY = "com.sun.portal.portletcontainer.context.registry.PortletRegistryContextAbstractFactory";
     private static String PORTLET_REGISTRY_CONTEXT_NEW = "com.sun.portal.portletcontainer.context.registry.PortletRegistryContext";
-    private static String PORTLET_REGISTRY_CACHE_OLD = "com.sun.portal.portletadmin.PortletRegistryCache";
-    private static String PORTLET_REGISTRY_CACHE_NEW = "com.sun.portal.portletcontainer.admin.PortletRegistryCache";
+    private static String PORTLET_REGISTRY_CACHE = "com.sun.portal.portletadmin.PortletRegistryCache";
     //private FileObject taskFile;
 
-    private ServerDeployHandler deployerHandler;
-    private String uri;
+    protected ServerDeployHandler deployerHandler;
+    protected String uri;
 
 
     /** Creates a new instance of JNPCTaskHandler */
@@ -116,7 +101,7 @@ public class JNPCTaskHandler extends DefaultPSTaskHandler{
         return org.openide.util.NbBundle.getMessage(JNPCTaskHandler.class, "Deployed_Successfully");
     }
 
-    private void _deployOnPC(final String warfile) throws Exception {
+    protected void _deployOnPC(final String warfile) throws Exception {
 
         ClassLoader contextClassLoader = Thread.currentThread().getContextClassLoader();
         try{
@@ -155,7 +140,7 @@ public class JNPCTaskHandler extends DefaultPSTaskHandler{
         }
     }
 
-     private int runProcess(String str, boolean wait) throws Exception {
+     protected int runProcess(String str, boolean wait) throws Exception {
         final Process child = Runtime.getRuntime().exec(str);
 
         LogManager manager = new LogManager(dm);
@@ -167,7 +152,7 @@ public class JNPCTaskHandler extends DefaultPSTaskHandler{
 
     }
 
-    private int runProcess(String[] cmdArray, boolean wait) throws Exception {
+    protected int runProcess(String[] cmdArray, boolean wait) throws Exception {
         final Process child = Runtime.getRuntime().exec(cmdArray);
 
 
@@ -197,7 +182,7 @@ public class JNPCTaskHandler extends DefaultPSTaskHandler{
 
     }
 
-    private void _undeployFromPC(final String portletAppName,boolean logError) throws Exception {
+    protected void _undeployFromPC(final String portletAppName,boolean logError) throws Exception {
         
         ClassLoader contextClassLoader = Thread.currentThread().getContextClassLoader();
         try{
@@ -249,21 +234,14 @@ public class JNPCTaskHandler extends DefaultPSTaskHandler{
         try{
             Thread.currentThread().setContextClassLoader(loader);
             Class clazz = null;
-            Object factoryObj = null;
-            Object portletRegistryContextObj = null;
             updateCache();
             try {
-                Class absFactoryClazz = loader.loadClass(PORTLET_REGISTRY_CONTEXT_ABSTRACT_FACTORY);
                 clazz = loader.loadClass(PORTLET_REGISTRY_CONTEXT_FACTORY_NEW);
-                Object absFactoryObj = absFactoryClazz.newInstance();
-                Method getPRCF = absFactoryClazz.getMethod("getPortletRegistryContextFactory",new Class[]{});
-                factoryObj = getPRCF.invoke(absFactoryObj, new Object[]{}); 
             } catch (ClassNotFoundException ex) {
                 clazz = loader.loadClass(PORTLET_REGISTRY_CONTEXT_FACTORY_OLD);
             }
-            
             Method method = clazz.getMethod("getPortletRegistryContext",new Class[]{});
-            portletRegistryContextObj = method.invoke(factoryObj,new Object[]{});
+            Object portletRegistryContextObj = method.invoke(null,new Object[]{});
             Class registryContextClazz = null;
             try {
                 registryContextClazz = loader.loadClass(PORTLET_REGISTRY_CONTEXT_NEW);
@@ -290,16 +268,10 @@ public class JNPCTaskHandler extends DefaultPSTaskHandler{
     }
     
     
-   private void updateCache()
+   protected void updateCache()
    {
        try{
-             Class cacheClazz = null;
-             try{
-                cacheClazz = loader.loadClass(PORTLET_REGISTRY_CACHE_NEW);
-             }catch(ClassNotFoundException e)
-             {
-                cacheClazz = loader.loadClass(PORTLET_REGISTRY_CACHE_OLD);
-             }
+             Class cacheClazz = loader.loadClass(PORTLET_REGISTRY_CACHE);
              Method m = cacheClazz.getMethod("init",new Class[]{});
              m.invoke(null,null);
         }catch(Exception e){
@@ -308,7 +280,7 @@ public class JNPCTaskHandler extends DefaultPSTaskHandler{
         }
    }
 
-   private ExtendedClassLoader initClassLoader() throws MalformedURLException
+   protected ExtendedClassLoader initClassLoader() throws MalformedURLException
    {
        //System.setProperty("com.sun.portal.portletcontainer.dir",psconfig.getPSHome());
         ExtendedClassLoader loader = new ExtendedClassLoader(getClass().getClassLoader());
@@ -377,7 +349,7 @@ public class JNPCTaskHandler extends DefaultPSTaskHandler{
         return "http://"+psconfig.getHost() + ":"+psconfig.getPort()+"/"+contextUri;
     }
 
-    private void writeErrorToOutput(String uri,Exception e) {
+    protected void writeErrorToOutput(String uri,Exception e) {
         e.printStackTrace(UISupport.getServerIO(uri).getErr());
     }
 }
