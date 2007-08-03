@@ -3,13 +3,11 @@
 <filesystem>
     <folder name="Menu">
         <folder name="Help">
-            <folder name="Tutorials">
-                <file name="jackpot-tutorial.url" url="nbresloc:/org/netbeans/modules/jackpot/rules/resources/jackpot-tutorial.url">
-                    <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.jackpot.rules.Bundle"/>
-                    <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/openide/resources/actions/empty.gif"/>
-                    <attr name="position" intvalue="600"/>
-                </file>
-            </folder>
+            <file name="jackpot-tutorial.url" url="nbresloc:/org/netbeans/modules/jackpot/rules/resources/jackpot-tutorial.url">
+                <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.jackpot.rules.Bundle"/>
+                <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/openide/resources/actions/empty.gif"/>
+                <attr name="position" intvalue="350"/>
+            </file>
         </folder> <!-- Help -->
     </folder>
 
