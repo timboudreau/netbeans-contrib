@@ -29,7 +29,7 @@
         <folder name ="BindingOperationInput">
             <file name="XMPPInMessage">
                 <attr name="xsdFileName" stringvalue="XMPPWsdlExt" />
-                <attr name="element" stringvalue="message" />
+                <attr name="element" stringvalue="input" />
                 <attr name="SystemFileSystem.localizingBundle" stringvalue="com.gestalt.netbeans.modules.wsdlextensions.xmpp.Bundle" />
                 <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/com/gestalt/netbeans/modules/wsdlextensions/xmpp/resources/inMessage.png" /> 
             </file>
@@ -38,7 +38,7 @@
         <folder name ="BindingOperationOutput">
             <file name="XMPPOutMessage">
                 <attr name="xsdFileName" stringvalue="XMPPWsdlExt" />
-                <attr name="element" stringvalue="message" />
+                <attr name="element" stringvalue="output" />
                 <attr name="SystemFileSystem.localizingBundle" stringvalue="com.gestalt.netbeans.modules.wsdlextensions.xmpp.Bundle" />
                 <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/com/gestalt/netbeans/modules/wsdlextensions/xmpp/resources/outMessage.png" /> 
             </file>

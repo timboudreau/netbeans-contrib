@@ -14,7 +14,6 @@
     <xs:complexType name="tBinding">
         <xs:complexContent>
             <xs:extension base="wsdl:tExtensibilityElement"/>
-            <!-- could add more attributes to the binding -->
         </xs:complexContent>
     </xs:complexType>
     <xs:element name="operation" type="xmpp:tOperation"/>
@@ -29,16 +28,97 @@
             </xs:extension>
         </xs:complexContent>
     </xs:complexType>
-    <xs:element name="message" type="xmpp:tMessage">
+    <xs:element name="input" type="xmpp:tInput">
         <xs:annotation>
             <xs:documentation>
                 Defines the protocol based operation message details.
             </xs:documentation>
+            <xs:appinfo>
+                <prop:ElementProperties  xmlns:prop="http://xml.netbeans.org/schema/wsdlui/property">
+                    <prop:Property attributeName="from" propertyOrder="1">
+                        <prop:BuiltInCustomizer>
+                            <prop:SimpleCustomizer name="PartChooser"/>
+                        </prop:BuiltInCustomizer>
+                    </prop:Property>
+                    <prop:Property attributeName="id" propertyOrder="2">
+                        <prop:BuiltInCustomizer>
+                            <prop:SimpleCustomizer name="PartChooser"/>
+                        </prop:BuiltInCustomizer>
+                    </prop:Property>
+                    <prop:Property attributeName="message" propertyOrder="3">
+                        <prop:BuiltInCustomizer>
+                            <prop:SimpleCustomizer name="PartChooser"/>
+                        </prop:BuiltInCustomizer>
+                    </prop:Property>
+                </prop:ElementProperties>
+            </xs:appinfo>
         </xs:annotation>
     </xs:element>
-    <xs:complexType name="tMessage">
+    <xs:complexType name="tInput">
         <xs:complexContent>
             <xs:extension base="wsdl:tExtensibilityElement">
+                <xs:attribute name="from" type="xs:string" use="optional">
+                    <xs:annotation>
+                        <xs:documentation>Who the message is from</xs:documentation>
+                    </xs:annotation>
+                </xs:attribute>
+                <xs:attribute name="id" type="xs:string" use="optional">
+                    <xs:annotation>
+                        <xs:documentation>The ID of the message</xs:documentation>
+                    </xs:annotation>
+                </xs:attribute>
+                <xs:attribute name="message" type="xs:string" use="optional">
+                    <xs:annotation>
+                        <xs:documentation>The content of the message</xs:documentation>
+                    </xs:annotation>
+                </xs:attribute>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+    <xs:element name="output" type="xmpp:tOutput">
+        <xs:annotation>
+            <xs:documentation>
+                Defines the protocol based operation message details.
+            </xs:documentation>
+            <xs:appinfo>
+                <prop:ElementProperties  xmlns:prop="http://xml.netbeans.org/schema/wsdlui/property">
+                    <prop:Property attributeName="to" propertyOrder="1">
+                        <prop:BuiltInCustomizer>
+                            <prop:SimpleCustomizer name="PartChooser"/>
+                        </prop:BuiltInCustomizer>
+                    </prop:Property>
+                    <prop:Property attributeName="id" propertyOrder="2">
+                        <prop:BuiltInCustomizer>
+                            <prop:SimpleCustomizer name="PartChooser"/>
+                        </prop:BuiltInCustomizer>
+                    </prop:Property>
+                    <prop:Property attributeName="message" propertyOrder="3">
+                        <prop:BuiltInCustomizer>
+                            <prop:SimpleCustomizer name="PartChooser"/>
+                        </prop:BuiltInCustomizer>
+                    </prop:Property>
+                </prop:ElementProperties>
+            </xs:appinfo>
+        </xs:annotation>
+    </xs:element>
+    <xs:complexType name="tOutput">
+        <xs:complexContent>
+            <xs:extension base="wsdl:tExtensibilityElement">
+                <xs:attribute name="to" type="xs:string" use="optional">
+                    <xs:annotation>
+                        <xs:documentation>Who the message is destined for</xs:documentation>
+                    </xs:annotation>
+                </xs:attribute>
+                <xs:attribute name="id" type="xs:string" use="optional">
+                    <xs:annotation>
+                        <xs:documentation>The ID of the message</xs:documentation>
+                    </xs:annotation>
+                </xs:attribute>
+                <xs:attribute name="message" type="xs:string" use="optional">
+                    <xs:annotation>
+                        <xs:documentation>The content of the message</xs:documentation>
+                    </xs:annotation>
+                </xs:attribute>
             </xs:extension>
         </xs:complexContent>
     </xs:complexType>
