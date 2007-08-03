@@ -29,7 +29,7 @@
         <folder name ="BindingOperationInput">
             <file name="UDDIInMessage">
                 <attr name="xsdFileName" stringvalue="UDDIWsdlExt" />
-                <attr name="element" stringvalue="message" />
+                <attr name="element" stringvalue="input" />
                 <attr name="SystemFileSystem.localizingBundle" stringvalue="com.gestalt.netbeans.modules.wsdlextensions.uddi.Bundle" />
                 <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/com/gestalt/netbeans/modules/wsdlextensions/uddi/resources/inMessage.png" /> 
             </file>
@@ -38,7 +38,7 @@
         <folder name ="BindingOperationOutput">
             <file name="UDDIOutMessage">
                 <attr name="xsdFileName" stringvalue="UDDIWsdlExt" />
-                <attr name="element" stringvalue="message" />
+                <attr name="element" stringvalue="output" />
                 <attr name="SystemFileSystem.localizingBundle" stringvalue="com.gestalt.netbeans.modules.wsdlextensions.uddi.Bundle" />
                 <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/com/gestalt/netbeans/modules/wsdlextensions/uddi/resources/outMessage.png" /> 
             </file>

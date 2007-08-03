@@ -36,17 +36,45 @@
             </xs:extension>
         </xs:complexContent>
     </xs:complexType>
-    <xs:element name="message" type="uddi:tMessage">
+    <xs:element name="input" type="uddi:tInput">
         <xs:annotation>
             <xs:documentation>
                 Defines the protocol based operation message details.
             </xs:documentation>
+            <xs:appinfo>
+                <prop:ElementProperties  xmlns:prop="http://xml.netbeans.org/schema/wsdlui/property">
+                    <prop:Property attributeName="businessname" propertyOrder="1">
+                        <prop:BuiltInCustomizer>
+                            <prop:SimpleCustomizer name="PartChooser"/>
+                        </prop:BuiltInCustomizer>
+                    </prop:Property>
+                    <prop:Property attributeName="servicename" propertyOrder="2">
+                        <prop:BuiltInCustomizer>
+                            <prop:SimpleCustomizer name="PartChooser"/>
+                        </prop:BuiltInCustomizer>
+                    </prop:Property>
+                </prop:ElementProperties>
+            </xs:appinfo>
         </xs:annotation>
     </xs:element>
-    <xs:complexType name="tMessage">
+    <xs:complexType name="tInput">
+        <xs:annotation>
+            <xs:documentation>
+                "input" defines the protocol based input binding details.
+            </xs:documentation>
+        </xs:annotation>
         <xs:complexContent>
             <xs:extension base="wsdl:tExtensibilityElement">
-                <xs:attribute name="name" type="xs:string"/>
+                <xs:attribute name="businessname" type="xs:string">
+                    <xs:annotation>
+                        <xs:documentation>The business name to search for in UDDI</xs:documentation>
+                    </xs:annotation>
+                </xs:attribute>
+                <xs:attribute name="servicename" type="xs:string">
+                    <xs:annotation>
+                        <xs:documentation>The service name to search for in UDDI</xs:documentation>
+                    </xs:annotation>
+                </xs:attribute>
             </xs:extension>
         </xs:complexContent>
     </xs:complexType>
