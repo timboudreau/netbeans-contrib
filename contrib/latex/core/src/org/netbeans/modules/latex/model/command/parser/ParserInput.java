@@ -103,9 +103,6 @@ public class ParserInput implements DocumentListener {
     }
     
     public SourcePosition getPosition() {
-        if (changed)
-            throw new ParsingAbortedException();
-
         int toUse = index > 0 ? index : 0;
         int offset = ts.offset();
         
@@ -113,16 +110,10 @@ public class ParserInput implements DocumentListener {
     }
     
     public int getIndex() {
-        if (changed)
-            throw new ParsingAbortedException();
-        
         return index;
     }
     
     public Token getToken() throws IOException {
-        if (changed)
-            throw new ParsingAbortedException();
-        
         return ts.token();
     }
     
@@ -133,18 +124,12 @@ public class ParserInput implements DocumentListener {
     }
     
     public synchronized Token next() throws IOException {
-        if (changed)
-            throw new ParsingAbortedException();
-        
         Token token = nextImpl();
         
         return token;
     }
     
     public boolean hasNext() {
-        if (changed)
-            throw new ParsingAbortedException();
-
         if (!ts.moveNext())
             return false;
         
