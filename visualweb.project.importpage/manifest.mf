@@ -3,4 +3,4 @@ OpenIDE-Module: org.netbeans.modules.visualweb.project.importpage
 OpenIDE-Module-Layer: org/netbeans/modules/visualweb/project/importpage/resources/layer.xml
 OpenIDE-Module-Localizing-Bundle: org/netbeans/modules/visualweb/project/importpage/resources/Bundle.properties
 OpenIDE-Module-Specification-Version: 2.0
-
+AutoUpdate-Show-In-Client: false
