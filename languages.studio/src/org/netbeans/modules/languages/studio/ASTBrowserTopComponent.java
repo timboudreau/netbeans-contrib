@@ -25,7 +25,6 @@ import org.netbeans.api.languages.ASTNode;
 import org.netbeans.api.languages.ASTPath;
 import org.netbeans.api.languages.ParseException;
 import org.netbeans.api.languages.ParserManager;
-import org.netbeans.api.languages.ASTToken;
 import org.netbeans.modules.editor.NbEditorDocument;
 import org.openide.ErrorManager;
 import org.openide.cookies.EditorCookie;
@@ -187,7 +186,7 @@ final class ASTBrowserTopComponent extends TopComponent {
         if (tree.isFocusOwner ()) {
             Node[] ns = TopComponent.getRegistry ().getActivatedNodes ();
             if (ns.length == 1) {
-                EditorCookie editorCookie = (EditorCookie) ns [0].getLookup ().
+                EditorCookie editorCookie = ns [0].getLookup ().
                     lookup (EditorCookie.class);
                 if (editorCookie != null) {
                     TNode tn = (TNode) tree.getLastSelectedPathComponent ();
@@ -226,7 +225,7 @@ final class ASTBrowserTopComponent extends TopComponent {
     private ASTNode getCurrentRootNode () {
         Node[] ns = TopComponent.getRegistry ().getActivatedNodes ();
         if (ns.length != 1) return null;
-        EditorCookie editorCookie = (EditorCookie) ns [0].getLookup ().
+        EditorCookie editorCookie = ns [0].getLookup ().
             lookup (EditorCookie.class);
         if (editorCookie == null) return null;
         if (editorCookie.getOpenedPanes () == null) return null;
@@ -259,10 +258,10 @@ final class ASTBrowserTopComponent extends TopComponent {
     
     static class TNode implements TreeNode {
         
-        private TNode       parent;
-        private ASTItem     astItem;
-        private List        children;
-        private Map         map;
+        private TNode                   parent;
+        private ASTItem                 astItem;
+        private List<TreeNode>          children;
+        private Map<ASTItem,TreeNode>   map;
         
         TNode (TNode parent, ASTItem astItem) {
             this.parent = parent;
@@ -271,8 +270,8 @@ final class ASTBrowserTopComponent extends TopComponent {
         
         private void initChildren () {
             if (children != null) return;
-            children = new ArrayList ();
-            map = new HashMap ();
+            children = new ArrayList<TreeNode> ();
+            map = new HashMap<ASTItem,TreeNode> ();
             if (astItem == null) return;
             List<ASTItem> chList = astItem.getChildren ();
             
@@ -305,12 +304,12 @@ final class ASTBrowserTopComponent extends TopComponent {
         
         TreeNode getTreeNode (Object o) {
             initChildren ();
-            return (TreeNode) map.get (o);
+            return map.get (o);
         }
         
         public TreeNode getChildAt (int childIndex) {
             initChildren ();
-            return (TreeNode) children.get (childIndex);
+            return children.get (childIndex);
         }
 
         public int getChildCount () {
@@ -357,7 +356,7 @@ final class ASTBrowserTopComponent extends TopComponent {
             ASTPath path = rootNode.findPath (e.getDot ());
             if (path == null) return;
             TreeNode tNode = (TreeNode) tree.getModel ().getRoot ();
-            List treePath = new ArrayList ();
+            List<TreeNode> treePath = new ArrayList<TreeNode> ();
             Iterator it = path.listIterator ();
             if (!it.hasNext ()) return;
             it.next ();
@@ -403,16 +402,16 @@ final class ASTBrowserTopComponent extends TopComponent {
     
     private static class Listener implements PropertyChangeListener {
         
-        private WeakReference component;
+        private WeakReference<ASTBrowserTopComponent> component;
         
         
         Listener (ASTBrowserTopComponent c) {
-            component = new WeakReference (c);
+            component = new WeakReference<ASTBrowserTopComponent> (c);
             TopComponent.getRegistry ().addPropertyChangeListener (this);
         }
 
         ASTBrowserTopComponent getComponent () {
-            ASTBrowserTopComponent c = (ASTBrowserTopComponent) component.get ();
+            ASTBrowserTopComponent c = component.get ();
             if (c != null) return c;
             remove ();
             return null;

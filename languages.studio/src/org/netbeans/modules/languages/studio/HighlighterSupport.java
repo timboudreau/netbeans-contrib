@@ -21,6 +21,7 @@ package org.netbeans.modules.languages.studio;
 
 import org.netbeans.api.languages.ASTItem;
 import org.netbeans.api.languages.Highlighting;
+import org.netbeans.api.languages.Highlighting.Highlight;
 import org.openide.ErrorManager;
 import org.openide.cookies.EditorCookie;
 import org.openide.windows.TopComponent;
@@ -40,8 +41,7 @@ import javax.swing.text.StyleConstants;
 public class HighlighterSupport {
     
     private Color       color;
-    private Document    highlightedDocument;
-    private ASTItem     highlightedItem;
+    private Highlight   highlight;
     
     
     public HighlighterSupport (Color c) {
@@ -49,9 +49,9 @@ public class HighlighterSupport {
     }
     
     public void highlight (Document doc, ASTItem item) {
-        removeHighlightIn ();
-        Highlighting.getHighlighting (highlightedDocument = doc).highlight (
-            highlightedItem = item, 
+        removeHighlight ();
+        highlight = Highlighting.getHighlighting (doc).highlight (
+            item, 
             getHighlightAS ()
         );
         refresh (doc, item.getOffset ());
@@ -63,7 +63,7 @@ public class HighlighterSupport {
                 Iterator it = TopComponent.getRegistry ().getOpened ().iterator ();
                 while (it.hasNext ()) {
                     TopComponent tc = (TopComponent) it.next ();
-                    EditorCookie ec = (EditorCookie) tc.getLookup ().lookup (EditorCookie.class);
+                    EditorCookie ec = tc.getLookup ().lookup (EditorCookie.class);
                     if (ec == null) continue;
                     JEditorPane[] eps = ec.getOpenedPanes ();
                     if (eps == null) continue;
@@ -76,34 +76,6 @@ public class HighlighterSupport {
                             } catch (BadLocationException ex) {
                                 ErrorManager.getDefault ().notify (ex);
                             }
-                            ep.repaint ();
-                        }
-                    }
-                }
-            }
-        });
-    }
-    
-    private static void refresh (final Document doc) {
-        SwingUtilities.invokeLater(new Runnable() {
-            public void run() {
-                Iterator it = TopComponent.getRegistry ().getOpened ().iterator ();
-                while (it.hasNext ()) {
-                    TopComponent tc = (TopComponent) it.next ();
-                    EditorCookie ec = (EditorCookie) tc.getLookup ().lookup (EditorCookie.class);
-                    if (ec == null) continue;
-                    JEditorPane[] eps = ec.getOpenedPanes ();
-                    if (eps == null) continue;
-                    int i, k = eps.length;
-                    for (i = 0; i < k; i++) {
-                        if (eps [i].getDocument () == doc) {
-                            final JEditorPane ep = eps [i];
-                            SwingUtilities.invokeLater (new Runnable () {
-                                public void run () {
-                                    ep.repaint ();
-                                }
-                            });
-                            return;
                         }
                     }
                 }
@@ -112,18 +84,9 @@ public class HighlighterSupport {
     }
     
     public void removeHighlight () {
-        Document doc = highlightedDocument;
-        removeHighlightIn ();
-        if (doc != null)
-            refresh (doc);
-    }
-    
-    private void removeHighlightIn () {
-        if (highlightedItem != null) {
-            Highlighting.getHighlighting(highlightedDocument).highlight(highlightedItem, getHighlightAS()).remove();
-            highlightedItem = null;
-            highlightedDocument = null;
-        }
+        if (highlight == null) return;
+        highlight.remove ();
+        highlight = null;
     }
     
     private AttributeSet highlightAS = null;
