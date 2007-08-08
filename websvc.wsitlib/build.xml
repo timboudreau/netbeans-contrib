@@ -21,15 +21,15 @@ Microsystems, Inc. All Rights Reserved.
 
     <import file="../../nbbuild/templates/projectized.xml"/>
     
-    <target name="files-init" depends="copyfiles, projectized-common.files-init" />
+    <target name="unzip_wsitlib"/>
+        <mkdir dir="build/external/wsitlib"/>
+        <unzip src="external/wsitlib.zip" dest="build/external/wsitlib"/>
+    </target>
 
-    <target name="copyfiles" depends="" >
-        <ant dir="../external" target="unzip_wsitlib"/>
-     
-        <mkdir dir="${netbeans.dest.dir}/${cluster.dir}/modules/ext"/>
-        <copy description="Copying files" todir="${netbeans.dest.dir}/${cluster.dir}/modules/ext/wsitlib/">
-            <fileset dir="../external/wsitlib/" includes="*.jar"/>
-        </copy>  
+    <target name="common-init" depends="default.init, unzip_wsitlib"/>
+
+    <target name="clean" depends="init,projectized-common.clean">
+	<delete dir="${netbeans.dest.dir}/${cluster.dir}/modules/ext/wsitlib/"/>
     </target>
 
 </project>
