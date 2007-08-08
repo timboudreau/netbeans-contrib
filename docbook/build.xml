@@ -22,12 +22,11 @@ Microsystems, Inc. All Rights Reserved.
     <import file="../../nbbuild/templates/projectized.xml"/>
 
     <target name="external">
-        <ant dir="${nb_all}/libs/external"/>
-        <property file="${nb_all}/libs/public.properties"/>
+        <property file="external/public.properties"/>
         <mkdir dir="build/docbook-libs/docbook-xml-${libs.docbook-xml.version}"/>
-        <unzip src="${nb_all}/libs/external/docbook-xsl-${libs.docbook-xsl.version}.zip" dest="build/docbook-libs"/>
-        <unzip src="${nb_all}/libs/external/slides-${libs.docbook-slides.version}.zip" dest="build/docbook-libs"/>
-        <unzip src="${nb_all}/libs/external/docbook-xml-${libs.docbook-xml.version}.zip" dest="build/docbook-libs/docbook-xml-${libs.docbook-xml.version}"/>
+        <unzip src="external/docbook-xsl-${libs.docbook-xsl.version}.zip" dest="build/docbook-libs"/>
+        <unzip src="external/slides-${libs.docbook-slides.version}.zip" dest="build/docbook-libs"/>
+        <unzip src="external/docbook-xml-${libs.docbook-xml.version}.zip" dest="build/docbook-libs/docbook-xml-${libs.docbook-xml.version}"/>
         <property name="browser.dir" location="build/docbook-libs/slides-${libs.docbook-slides.version}/browser"/>
         <fileset id="browser.files.list" dir="${browser.dir}">
             <exclude name="**/ChangeLog"/>
@@ -117,9 +116,9 @@ Microsystems, Inc. All Rights Reserved.
                 <text>For the module itself:</text>
                 <file location="${license.file}"/>
                 <text>For the included DocBook stylesheets and Slides DTD:</text>
-                <file location="${nb_all}/libs/external/docbook-xsl-${libs.docbook-xsl.version}-license.txt"/>
+                <file location="external/docbook-xsl-${libs.docbook-xsl.version}-license.txt"/>
                 <text>For the included DocBook XML DTD:</text>
-                <file location="${nb_all}/libs/external/docbook-xml-${libs.docbook-xml.version}-license.txt"/>
+                <file location="external/docbook-xml-${libs.docbook-xml.version}-license.txt"/>
                 <text>For the included Saxon 8 XSLT processor:</text>
                 <file location="ext/MPL-1.0.txt"/>
             </license>
