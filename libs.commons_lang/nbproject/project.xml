@@ -28,7 +28,7 @@ Microsystems, Inc. All Rights Reserved.
             </public-packages>
             <class-path-extension>
                 <runtime-relative-path>ext/commons-lang-2.1.jar</runtime-relative-path>
-                <binary-origin>../external/commons-lang-2.1.jar</binary-origin>
+                <binary-origin>external/commons-lang-2.1.jar</binary-origin>
             </class-path-extension>
         </data>
     </configuration>
