@@ -67,4 +67,12 @@ public class SceneSupport {
         }, delay);
     }
 
+    public static void sleep (int delay) {
+        try {
+            Thread.sleep (delay);
+        } catch (InterruptedException e) {
+            e.printStackTrace ();
+        }
+    }
+
 }
