@@ -41,7 +41,7 @@ Microsystems, Inc. All Rights Reserved.
 
     <target name="init">
         <mkdir dir="tmp"/>
-        <unzip src="../../libs/external/pmd-netbeans35-bin-0.91.zip" dest="tmp">
+        <unzip src="external/pmd-netbeans35-bin-0.91.zip" dest="tmp">
             <patternset>
                 <include name="pmd.nbm"/>
             </patternset>
