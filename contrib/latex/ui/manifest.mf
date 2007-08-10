@@ -5,4 +5,5 @@ OpenIDE-Module-Layer: org/netbeans/modules/latex/ui/resources/mf-layer.xml
 OpenIDE-Module-Localizing-Bundle: org/netbeans/modules/latex/ui/Bundle.properties
 OpenIDE-Module-Java-Dependencies: Java > 1.4.0
 OpenIDE-Module-Install: org/netbeans/modules/latex/ui/UIModuleInstall.class
+AutoUpdate-Show-In-Client: false
 

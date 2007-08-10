@@ -3,4 +3,5 @@ OpenIDE-Module: org.netbeans.modules.latex.auc
 OpenIDE-Module-Layer: org/netbeans/modules/latex/auc/layer.xml
 OpenIDE-Module-Localizing-Bundle: org/netbeans/modules/latex/auc/Bundle.properties
 OpenIDE-Module-Specification-Version: 1.4.0
+AutoUpdate-Show-In-Client: false
 

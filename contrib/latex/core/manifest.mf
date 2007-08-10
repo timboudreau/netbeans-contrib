@@ -5,3 +5,4 @@ OpenIDE-Module-Requires: org.openide.modules.InstalledFileLocator
 OpenIDE-Module-Layer: org/netbeans/modules/latex/resources/mf-layer.xml
 OpenIDE-Module-Localizing-Bundle: org/netbeans/modules/latex/Bundle.properties
 OpenIDE-Module-Java-Dependencies: Java > 1.4.0
+AutoUpdate-Show-In-Client: false

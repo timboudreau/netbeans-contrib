@@ -7,4 +7,5 @@ OpenIDE-Module-Localizing-Bundle: org/netbeans/modules/latex/guiproject/B
 OpenIDE-Module-Java-Dependencies: Java > 1.4.0
 OpenIDE-Module: org.netbeans.modules.latex.guiproject/1
 OpenIDE-Module-Requires: org.openide.modules.InstalledFileLocator
+AutoUpdate-Show-In-Client: false
 
