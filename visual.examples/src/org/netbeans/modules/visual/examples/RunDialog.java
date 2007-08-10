@@ -106,6 +106,7 @@ public class RunDialog extends javax.swing.JFrame {
         "test.tool.CtrlKeySwitchToolTest",
         "test.tool.ToolTest",
         "test.visible.VisibilityTest",
+        "test.view.TooltipTest",
         "test.vmd.VMDCollisionTest",
         "test.vmd.VMDColorSchemeTest",
         "test.vmd.VMDTest",
