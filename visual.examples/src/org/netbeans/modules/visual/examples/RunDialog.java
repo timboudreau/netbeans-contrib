@@ -77,6 +77,7 @@ public class RunDialog extends javax.swing.JFrame {
         "test.keyboard.EnterKeyProcessingTest",
         "test.keyboard.EnterKeyTest",
         "test.keyboard.KeyboardTest",
+        "test.label.LabelGlyphVectorTest",
         "test.label.LabelOrientationTest",
         "test.layout.CardLayoutWithLabelTest",
         "test.layout.FlowLayoutTest",
