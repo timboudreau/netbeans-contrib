@@ -65,14 +65,18 @@ public class TextNodeImpl extends NodeImpl implements TextNode {
     
     protected void traverseImpl(TraverseHandler th) {
         int count = getChildrenCount();
-        
+
         for (int cntr = 0; cntr < count; cntr++) {
             getChild(cntr).traverse(th);
         }
     }
     
     public void traverse(TraverseHandler th) {
-        traverseImpl(th);
+        if (th.textStart(this)) {
+            traverseImpl(th);
+        }
+        
+        th.textEnd(this);
     }
 
     protected boolean isInChild(Object file, Position pos) {

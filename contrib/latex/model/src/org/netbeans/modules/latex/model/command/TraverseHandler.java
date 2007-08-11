@@ -37,8 +37,14 @@ public abstract class TraverseHandler {
     public abstract void argumentEnd(ArgumentNode node);
     public abstract boolean blockStart(BlockNode node);
     public abstract void blockEnd(BlockNode node);
-//    public abstract void textStart(TextNode node);
-//    public abstract void textEnd(TextNode node);
+    
+    public boolean textStart(TextNode node) {
+        return true;
+    }
+    
+    public void textEnd(TextNode node) {
+        
+    }
     
     public boolean mathStart(MathNode node) {
         return true;
