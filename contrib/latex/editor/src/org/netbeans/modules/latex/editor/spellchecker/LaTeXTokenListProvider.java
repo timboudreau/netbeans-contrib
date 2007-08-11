@@ -13,11 +13,15 @@
  * "Portions Copyrighted [year] [name of copyright owner]"
  *
  * The Original Software is NetBeans. The Initial Developer of the Original
- * Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
+ * Software is Sun Microsystems, Inc. Portions Copyright 1997-2007 Sun
  * Microsystems, Inc. All Rights Reserved.
  */
 package org.netbeans.modules.latex.editor.spellchecker;
 
+import java.lang.ref.Reference;
+import java.lang.ref.WeakReference;
+import java.util.Map;
+import java.util.WeakHashMap;
 import javax.swing.text.Document;
 import org.netbeans.modules.spellchecker.spi.language.TokenList;
 import org.netbeans.modules.spellchecker.spi.language.TokenListProvider;
@@ -28,12 +32,24 @@ import org.netbeans.modules.spellchecker.spi.language.TokenListProvider;
  */
 public class LaTeXTokenListProvider implements TokenListProvider {
 
-    /** Creates a new instance of LaTeXTokenListProvider */
+    private static Map<Document, Reference<LaTeXTokenList>> doc2TokenList = new WeakHashMap<Document, Reference<LaTeXTokenList>>();
+    
     public LaTeXTokenListProvider() {
     }
 
     public TokenList findTokenList(Document document) {
-        return new LaTeXTokenList(document);
+        return findTokenListImpl(document);
+    }
+    
+    static LaTeXTokenList findTokenListImpl(Document document) {
+        Reference<LaTeXTokenList> r = doc2TokenList.get(document);
+        LaTeXTokenList result = r != null ? r.get() : null;
+        
+        if (result == null) {
+            doc2TokenList.put(document, new WeakReference<LaTeXTokenList>(result = new LaTeXTokenList(document)));
+        }
+        
+        return result;
     }
 
 }
