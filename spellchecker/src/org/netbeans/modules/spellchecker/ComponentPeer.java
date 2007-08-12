@@ -24,10 +24,17 @@ import java.awt.Dimension;
 import java.awt.Point;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.io.File;
+import java.lang.ref.Reference;
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
+import java.util.WeakHashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JViewport;
@@ -47,8 +54,11 @@ import org.netbeans.api.editor.mimelookup.MimeLookup;
 import org.netbeans.api.editor.mimelookup.MimePath;
 import org.netbeans.api.editor.settings.AttributesUtilities;
 import org.netbeans.api.editor.settings.EditorStyleConstants;
+import org.netbeans.api.project.FileOwnerQuery;
+import org.netbeans.api.project.Project;
 import org.netbeans.modules.spellchecker.spi.dictionary.Dictionary;
 import org.netbeans.modules.spellchecker.api.LocaleQuery;
+import org.netbeans.modules.spellchecker.hints.AddToDictionaryHint;
 import org.netbeans.modules.spellchecker.hints.DictionaryBasedHint;
 import org.netbeans.modules.spellchecker.spi.dictionary.DictionaryProvider;
 import org.netbeans.modules.spellchecker.spi.dictionary.ValidityType;
@@ -60,6 +70,7 @@ import org.netbeans.spi.editor.hints.ErrorDescriptionFactory;
 import org.netbeans.spi.editor.hints.Fix;
 import org.netbeans.spi.editor.hints.HintsController;
 import org.netbeans.spi.editor.hints.Severity;
+import org.netbeans.spi.project.AuxiliaryConfiguration;
 import org.openide.filesystems.FileObject;
 import org.openide.loaders.DataObject;
 import org.openide.util.Exceptions;
@@ -112,7 +123,7 @@ public class ComponentPeer implements PropertyChangeListener, DocumentListener, 
         }
     });
     
-    private void reschedule() {
+    public void reschedule() {
         cancel();
         checker.schedule(100);
     }
@@ -286,7 +297,46 @@ public class ComponentPeer implements PropertyChangeListener, DocumentListener, 
         }
     }
 
-    public static Dictionary getDictionary(Document doc) {
+    private static Map<Document, Dictionary> doc2DictionaryCache = new WeakHashMap<Document, Dictionary>();
+    private static Map<Locale, DictionaryImpl> locale2UsersLocalDictionary = new HashMap<Locale, DictionaryImpl>();
+    private static Map<Project, Reference<DictionaryImpl>> project2Reference = new WeakHashMap<Project, Reference<DictionaryImpl>>();
+    
+    public static synchronized DictionaryImpl getUsersLocalDictionary(Locale locale) {
+        DictionaryImpl d = locale2UsersLocalDictionary.get(locale);
+        
+        if (d != null)
+            return d;
+        
+        String userdir = System.getProperty("netbeans.user");
+        File cache = new File(userdir, "private-dictionary-" + locale.toString());
+        
+        locale2UsersLocalDictionary.put(locale, d = new DictionaryImpl(cache));
+        
+        return d;
+    }
+    
+    public static synchronized DictionaryImpl getProjectDictionary(Project p) {
+        Reference<DictionaryImpl> r = project2Reference.get(p);
+        DictionaryImpl d = r != null ? r.get() : null;
+        
+        if (d == null) {
+            AuxiliaryConfiguration ac = p.getLookup().lookup(AuxiliaryConfiguration.class);
+            
+            if (ac != null) {
+                project2Reference.put(p, new WeakReference<DictionaryImpl>(d = new DictionaryImpl(ac)));
+            }
+        }
+        
+        return d;
+    }
+    
+    public static synchronized Dictionary getDictionary(Document doc) {
+        Dictionary result = doc2DictionaryCache.get(doc);
+        
+        if (result != null) {
+            return result;
+        }
+        
         FileObject file = getFile(doc);
 
         if (file == null)
@@ -294,7 +344,32 @@ public class ComponentPeer implements PropertyChangeListener, DocumentListener, 
 
         Locale locale = LocaleQuery.findLocale(file);
         
-        return ACCESSOR.lookupDictionary(locale);
+        Dictionary d = ACCESSOR.lookupDictionary(locale);
+        
+        if (d == null)
+            return null; //XXX
+        
+        List<Dictionary> dictionaries = new LinkedList<Dictionary>();
+        
+        dictionaries.add(getUsersLocalDictionary(locale));
+        
+        Project p = FileOwnerQuery.getOwner(file);
+        
+        if (p != null) {
+            Dictionary projectDictionary = getProjectDictionary(p);
+            
+            if (projectDictionary != null) {
+                dictionaries.add(projectDictionary);
+            }
+        }
+        
+        dictionaries.add(d);
+        
+        result = CompoundDictionary.create(dictionaries.toArray(new Dictionary[0]));
+        
+        doc2DictionaryCache.put(doc, result);
+        
+        return result;
     }
 
     private synchronized boolean isCanceled() {
@@ -437,9 +512,29 @@ public class ComponentPeer implements PropertyChangeListener, DocumentListener, 
         LOG.log(Level.FINE, "word={0}", word[0]);
         
         if (span[0] != null && span[1] != null) {
-            for (String proposal : d.findProposals(word[0])) {
-                result.add(new DictionaryBasedHint(word[0].toString(), proposal, doc, span));
+            String currentWord = word[0].toString();
+            
+            for (String proposal : d.findProposals(currentWord)) {
+                result.add(new DictionaryBasedHint(currentWord, proposal, doc, span, "0" + currentWord));
             }
+            
+            FileObject file = getFile(doc);
+
+            if (file != null) {
+                Project p = FileOwnerQuery.getOwner(file);
+                
+                if (p != null) {
+                    DictionaryImpl projectDictionary = getProjectDictionary(p);
+                    
+                    if (projectDictionary != null) {
+                        result.add(new AddToDictionaryHint(this, projectDictionary, currentWord, "Add \"%s\" to the project's dictionary.", "1" + currentWord));
+                    }
+                }
+            }
+            
+            Locale locale = LocaleQuery.findLocale(file);
+            
+            result.add(new AddToDictionaryHint(this, getUsersLocalDictionary(locale), currentWord, "Add \"%s\" to your private dictionary.", "2" + currentWord));
             
             if (!result.isEmpty()) {
                 HintsController.setErrors(doc, ComponentPeer.class.getName(), Collections.singletonList(ErrorDescriptionFactory.createErrorDescription(Severity.HINT, "Missspelled word", result, doc, span[0], span[1])));

@@ -23,7 +23,7 @@ import javax.swing.text.Document;
 import javax.swing.text.Position;
 import javax.swing.text.StyledDocument;
 import org.netbeans.spi.editor.hints.ChangeInfo;
-import org.netbeans.spi.editor.hints.Fix;
+import org.netbeans.spi.editor.hints.EnhancedFix;
 import org.openide.ErrorManager;
 import org.openide.text.NbDocument;
 
@@ -31,18 +31,20 @@ import org.openide.text.NbDocument;
  *
  * @author Jan Lahoda
  */
-public final class DictionaryBasedHint implements Fix {
+public final class DictionaryBasedHint implements EnhancedFix {
 
     private String original;
     private Document doc;
     private String proposal;
     private Position[] span;
+    private String sortText;
     
-    public DictionaryBasedHint(String original, String proposal, Document doc, Position[] span) {
+    public DictionaryBasedHint(String original, String proposal, Document doc, Position[] span, String sortText) {
         this.original = original;
         this.doc = doc;
         this.proposal = proposal;
         this.span = span;
+        this.sortText = sortText;
     }
 
     public String getText() {
@@ -66,6 +68,10 @@ public final class DictionaryBasedHint implements Fix {
         }
 	
 	return null;
+    }
+
+    public CharSequence getSortText() {
+        return sortText;
     }
 
 }

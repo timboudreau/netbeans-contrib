@@ -13,23 +13,36 @@
  * "Portions Copyrighted [year] [name of copyright owner]"
  *
  * The Original Software is NetBeans. The Initial Developer of the Original
- * Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
+ * Software is Sun Microsystems, Inc. Portions Copyright 1997-2007 Sun
  * Microsystems, Inc. All Rights Reserved.
  */
 package org.netbeans.modules.spellchecker;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Locale;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import org.netbeans.api.project.ProjectManager;
 import org.netbeans.modules.spellchecker.spi.dictionary.Dictionary;
 import org.netbeans.modules.spellchecker.spi.dictionary.ValidityType;
+import org.netbeans.spi.project.AuxiliaryConfiguration;
+import org.openide.util.Exceptions;
+import org.openide.util.Mutex.Action;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
 /**
  *
@@ -37,41 +50,44 @@ import org.netbeans.modules.spellchecker.spi.dictionary.ValidityType;
  */
 public class DictionaryImpl implements Dictionary {
     
-    private Locale locale;
-    private String suffix;
+    private List<String> dictionary = null;
+    private StringBuffer dictionaryText = null;
+    private File source;
+    private AuxiliaryConfiguration ac;
     
-    /**
-     * Creates a new instance of DictionaryImpl
-     */
-    public DictionaryImpl(Locale locale, String suffix, List<InputStream> streams) {
-        this.locale = locale;
-        this.suffix = suffix;
-        loadDictionary(streams);
+    public DictionaryImpl(File source) {
+        this.source = source;
+        loadDictionary(source);
     }
     
-    private void loadDictionary(List<InputStream> streams) {
-        for (InputStream in : streams) {
-            BufferedReader reader = null;
-            
+    public DictionaryImpl(AuxiliaryConfiguration ac) {
+        this.ac = ac;
+        loadDictionary(ac);
+    }
+    
+    private void loadDictionary(File source) {
+        if (!source.canRead())
+            return ;
+        
+        BufferedReader reader = null;
+
+        try {
+            reader = new BufferedReader(new InputStreamReader(new FileInputStream(source), "UTF-8"));
+
+            String line = null;
+
+            while ((line = reader.readLine()) != null) {
+                addEntryImpl(line);
+            }
+        } catch (IOException e) {
+            e.printStackTrace(System.err);
+        } finally {
             try {
-                reader = new BufferedReader(new InputStreamReader(in, "UTF-8"));
-                
-                in = null;
-                
-                String line = null;
-                
-                while ((line = reader.readLine()) != null) {
-                    addEntry(line);
+                if (reader != null) {
+                    reader.close();
                 }
             } catch (IOException e) {
                 e.printStackTrace(System.err);
-            } finally {
-                try {
-                    if (reader != null)
-                        reader.close();
-                } catch (IOException e) {
-                    e.printStackTrace(System.err);
-                }
             }
         }
         
@@ -80,11 +96,33 @@ public class DictionaryImpl implements Dictionary {
                 return s1.compareToIgnoreCase(s2);
             }
         });
-        
-    }
+   }
     
-    private List<String> dictionary = null;
-    private StringBuffer dictionaryText = null;
+    private static final String WORDLIST = "spellchecker-wordlist";
+    private static final String NAMESPACE = "http://www.netbeans.org/ns/spellchecker-wordlist/1";
+    
+    private void loadDictionary(final AuxiliaryConfiguration ac) {
+        ProjectManager.mutex().readAccess(new Action<Void>() {
+            public Void run() {
+                Element conf = ac.getConfigurationFragment(WORDLIST, NAMESPACE, true);
+
+                if (conf == null) {
+                    return null;
+                }
+                
+                NodeList childNodes = conf.getChildNodes();
+
+                for (int cntr = 0; cntr < childNodes.getLength(); cntr++) {
+                    Node n = childNodes.item(cntr);
+
+                    if ("word".equals(n.getLocalName())) {
+                        addEntryImpl(n.getTextContent());
+                    }
+                }
+                return null;
+            }
+        });
+    }
     
     public int findLesser(String word) {
         List dict = getDictionary();
@@ -128,6 +166,7 @@ public class DictionaryImpl implements Dictionary {
     }
     
     public ValidityType findWord(String word) {
+        if (getDictionary().isEmpty()) return ValidityType.INVALID;
         String str = getDictionary().get(findLesser(word.toLowerCase()));
 //            System.err.println("str=" + str);
         if (str.startsWith(word.toLowerCase())) {
@@ -151,15 +190,96 @@ public class DictionaryImpl implements Dictionary {
         if (dictionaryText == null) {
             dictionaryText = new StringBuffer();
             dictionaryText.append('\n');
+            
+            for (String e : getDictionary()) {
+                dictionaryText.append(e);
+                dictionaryText.append('\n');
+            }
         }
         
         return dictionaryText;
     }
     
-    protected void addEntry(String entry) {
+    private void addEntryImpl(String entry) {
         getDictionary().add(entry);
-        getDictionaryText().append(entry);
-        getDictionaryText().append('\n');
+    }
+    
+    private void dumpToFile(List<String> dictionary) {
+        BufferedWriter writer = null;
+
+        try {
+            writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(source), "UTF-8"));
+
+            for (String s : dictionary) {
+                writer.append(s);
+                writer.append('\n');
+            }
+        } catch (IOException e) {
+            Exceptions.printStackTrace(e);
+        } finally {
+            try {
+                if (writer != null) {
+                    writer.close();
+                }
+            } catch (IOException e) {
+                Exceptions.printStackTrace(e);
+            }
+        }
+    }
+    
+    private void dumpToProject(final List<String> dictionary) {
+        ProjectManager.mutex().writeAccess(new Action<Void>(){
+            public Void run() {
+                Element conf = null;
+                Document doc = createXmlDocument();
+                
+                if (doc != null) {
+                    conf = doc.createElementNS(NAMESPACE, WORDLIST);
+                }
+                
+                if (conf == null) {
+                    return null;
+                }
+
+                for (String s : dictionary) {
+                    Element e = conf.getOwnerDocument().createElementNS(NAMESPACE, "word");
+
+                    e.appendChild(conf.getOwnerDocument().createTextNode(s));
+                    conf.appendChild(e);
+                }
+
+                ac.putConfigurationFragment(conf, true);
+                return null;
+            }
+        });
+    }
+    
+    private Document createXmlDocument() {
+        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+        try {
+            return factory.newDocumentBuilder().newDocument();
+        } catch (ParserConfigurationException ex) {
+            return null;
+        }
+    }
+    
+    public synchronized void addEntry(String entry) {
+        List<String> dictionary = getDictionary();
+        int index = Collections.binarySearch(dictionary, entry);
+        
+        if (index >= 0)
+            return ;
+        
+        index = -index - 1;
+        
+        dictionary.add(index, entry);
+        dictionaryText = null;
+        
+        if (source != null) {
+            dumpToFile(dictionary);
+        } else {
+            dumpToProject(dictionary);
+        }
     }
     
     public List<String> completions(String word) {
@@ -204,7 +324,8 @@ public class DictionaryImpl implements Dictionary {
     private static int MINIMAL_SIMILAR_COUNT = 3;
     
     public List<String> getSimilarWords(String word) {
-        List<Pair> proposal = dynamicProgramming(word, dictionaryText, 5);
+        if (getDictionary().isEmpty()) return Collections.<String>emptyList();
+        List<Pair> proposal = dynamicProgramming(word, getDictionaryText(), 5);
         List<String> result   = new ArrayList<String>();
         
         //future:
@@ -278,6 +399,8 @@ public class DictionaryImpl implements Dictionary {
                 int start = currentIndex - length[pattern.length()] + 1;
                 int end   = currentIndex + 1;
                 
+                end = end >= text.length() ? text.length() - 1 : end;
+                
                 if ((start == 0 || text.charAt(start - 1) == '\n') && text.charAt(end) == '\n') {
                     String occurence = text.subSequence(start, end).toString();
                     
@@ -315,7 +438,4 @@ public class DictionaryImpl implements Dictionary {
         return getSimilarWords(word.toString());
     }
 
-    public String getSuffix() {
-        return suffix;
-    }
 }
