@@ -25,7 +25,7 @@ Microsystems, Inc. All Rights Reserved.
         <field field-type="string" required="true">
             <name>jndi-name</name>
             <field-value>
-                <default-field-value>mail/</default-field-value>
+                <default-field-value></default-field-value>
             </field-value>
         </field>
         <field field-type="string" required="true">

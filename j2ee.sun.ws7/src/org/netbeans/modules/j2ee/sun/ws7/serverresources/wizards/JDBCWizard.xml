@@ -17,6 +17,7 @@ The Original Software is NetBeans. The Initial Developer of the Original
 Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
 Microsystems, Inc. All Rights Reserved.
 -->
+
 <!DOCTYPE wizard>
 <wizard>
     <name>jdbc-resource</name>
@@ -25,7 +26,7 @@ Microsystems, Inc. All Rights Reserved.
         <field field-type="string" required="true">
             <name>jndi-name</name>
             <field-value>
-                <default-field-value>jdbc/</default-field-value>
+                <default-field-value></default-field-value>
             </field-value>
         </field>
         <field field-type="list">
@@ -41,7 +42,7 @@ Microsystems, Inc. All Rights Reserved.
         <field field-type="list">
             <name>database-vendor</name>
             <field-value>
-                <default-field-value></default-field-value>
+                <default-field-value>oracle</default-field-value>
             </field-value>
             <tag>
                 <tag-item>oracle</tag-item>
@@ -64,7 +65,7 @@ Microsystems, Inc. All Rights Reserved.
         <field field-type="string">
             <name>datasource-class</name>
             <field-value>
-                <default-field-value></default-field-value>
+                <default-field-value>oracle.jdbc.pool.OracleDataSource</default-field-value>
                 <option-value-pair>
                     <option-name>oracle</option-name>
                     <conditional-value>oracle.jdbc.pool.OracleDataSource</conditional-value>

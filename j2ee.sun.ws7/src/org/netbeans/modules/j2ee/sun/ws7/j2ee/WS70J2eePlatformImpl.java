@@ -64,7 +64,9 @@ public class WS70J2eePlatformImpl extends J2eePlatformImpl{
     private static final String JAXRPC_SPI_JAR =  "lib/jaxrpc-spi.jar"; //NOI18N
     private static final String ACTIVATION =  "lib/activation.jar"; //NOI18N
     
-    private List libraries  = new ArrayList();          
+    private List libraries  = new ArrayList();
+    private boolean isJwsdp16enabled =false;
+    private boolean isJwsdp20enabled =false;
           
     
     
@@ -72,7 +74,8 @@ public class WS70J2eePlatformImpl extends J2eePlatformImpl{
         MODULE_TYPES.add(J2eeModule.WAR);
 
         SPEC_VERSIONS.add(J2eeModule.J2EE_13);
-        SPEC_VERSIONS.add(J2eeModule.J2EE_14);
+        SPEC_VERSIONS.add(J2eeModule.J2EE_14);        
+        SPEC_VERSIONS.add(J2eeModule.JAVA_EE_5);        
     }
     
     private File root;
@@ -100,15 +103,22 @@ public class WS70J2eePlatformImpl extends J2eePlatformImpl{
             List l = new ArrayList();            
 
             l.add(fileToUrl(new File(root, WS70_JAR)));
-            l.add(fileToUrl(new File(root, JWSDP20_JAR)));            
+            if(new File(root, JWSDP20_JAR).exists()){
+                l.add(fileToUrl(new File(root, JWSDP20_JAR)));
+                isJwsdp20enabled = true;
+            }
             l.add(fileToUrl(new File(root, MAIL_JAR)));
             l.add(fileToUrl(new File(root, JSTL_JAR)));
-            l.add(fileToUrl(new File(root, JAXRPC_API_JAR)));
-            l.add(fileToUrl(new File(root, JAXRPC_IMPL_JAR)));
-            l.add(fileToUrl(new File(root, JAXRPC_SPI_JAR)));
-            l.add(fileToUrl(new File(root, ACTIVATION)));            
-
-
+            if(new File(root, JAXRPC_API_JAR).exists() &&
+                 new File(root, JAXRPC_IMPL_JAR).exists() &&
+                 new File(root, JAXRPC_IMPL_JAR).exists() ){
+                
+                l.add(fileToUrl(new File(root, JAXRPC_API_JAR)));
+                l.add(fileToUrl(new File(root, JAXRPC_IMPL_JAR)));
+                l.add(fileToUrl(new File(root, JAXRPC_SPI_JAR)));
+                isJwsdp16enabled = true;
+            }
+            l.add(fileToUrl(new File(root, ACTIVATION)));
             lib.setContent(J2eeLibraryTypeProvider.VOLUME_TYPE_CLASSPATH, l);
             
             File doc = InstalledFileLocator.getDefault().locate("docs/j2eeri-1_4-doc-api.zip", null, false); // NOI18N
@@ -153,11 +163,29 @@ public class WS70J2eePlatformImpl extends J2eePlatformImpl{
      *         <code>false</code> otherwise.
      */
     public boolean isToolSupported(String toolName) {
-        if(toolName.equals("wscompile")){
+        if(J2eePlatform.TOOL_WSCOMPILE.equals(toolName)
+               && this.isJwsdp16enabled){
             return true;
-        }else{
+        }
+        if(isJwsdp20enabled){
+            if (J2eePlatform.TOOL_WSGEN.equals(toolName)) {
+                return true;
+            }
+            if (J2eePlatform.TOOL_WSIMPORT.equals(toolName)) {
+                return true;
+            }
+            if (J2eePlatform.TOOL_JWSDP.equals(toolName) ){
+                return true;
+            }
+            if (J2eePlatform.TOOL_WSIT.equals(toolName) ){
+                return true;
+            }            
+        }
+        if (J2eePlatform.TOOL_JSR109.equals(toolName)) {
             return false;
         }
+        return false;
+        
     }
     
     /**

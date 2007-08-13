@@ -9,6 +9,7 @@
   </NonVisualComponents>
   <AuxValues>
     <AuxValue name="FormSettings_generateMnemonicsCode" type="java.lang.Boolean" value="false"/>
+    <AuxValue name="FormSettings_layoutCodeTarget" type="java.lang.Integer" value="2"/>
     <AuxValue name="FormSettings_listenerGenerationStyle" type="java.lang.Integer" value="0"/>
     <AuxValue name="FormSettings_variablesLocal" type="java.lang.Boolean" value="false"/>
     <AuxValue name="FormSettings_variablesModifier" type="java.lang.Integer" value="2"/>
@@ -23,7 +24,7 @@
                   <Component id="jCBRemote" alignment="0" min="-2" max="-2" attributes="0"/>
                   <Group type="102" alignment="0" attributes="0">
                       <Component id="jAdminInstructionsLbl" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace pref="283" max="-2" attributes="0"/>
+                      <EmptySpace pref="288" max="-2" attributes="0"/>
                   </Group>
                   <Group type="102" alignment="0" attributes="0">
                       <Group type="103" groupAlignment="0" attributes="0">
@@ -34,13 +35,13 @@
                       </Group>
                       <EmptySpace min="-2" pref="31" max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="0" attributes="0">
-                          <Component id="jPasswordTxt" pref="294" max="32767" attributes="0"/>
-                          <Component id="jUserNameTxt" pref="294" max="32767" attributes="0"/>
-                          <Component id="jAdminHostTxt" pref="294" max="32767" attributes="0"/>
+                          <Component id="jPasswordTxt" pref="306" max="32767" attributes="0"/>
+                          <Component id="jUserNameTxt" pref="306" max="32767" attributes="0"/>
+                          <Component id="jAdminHostTxt" pref="306" max="32767" attributes="0"/>
                           <Group type="102" alignment="0" attributes="0">
                               <Component id="jAdminPortTxt" min="-2" pref="112" max="-2" attributes="0"/>
                               <EmptySpace min="-2" pref="25" max="-2" attributes="0"/>
-                              <Component id="jCBSSLPort" pref="73" max="32767" attributes="0"/>
+                              <Component id="jCBSSLPort" pref="85" max="32767" attributes="0"/>
                               <EmptySpace min="84" pref="84" max="84" attributes="0"/>
                           </Group>
                       </Group>
@@ -54,7 +55,7 @@
                   </Group>
                   <Component id="jServerInstructionsLbl" alignment="0" min="-2" pref="350" max="-2" attributes="0"/>
                   <Component id="jLabel2" alignment="0" min="-2" max="-2" attributes="0"/>
-                  <Component id="jSeparator1" alignment="1" pref="383" max="32767" attributes="0"/>
+                  <Component id="jSeparator1" alignment="1" pref="405" max="32767" attributes="0"/>
               </Group>
               <EmptySpace min="-2" max="-2" attributes="0"/>
           </Group>
@@ -243,6 +244,9 @@
       </AccessibilityProperties>
     </Component>
     <Component class="javax.swing.JTextField" name="jAdminPortTxt">
+      <Properties>
+        <Property name="text" type="java.lang.String" value="8989"/>
+      </Properties>
       <Events>
         <EventHandler event="caretUpdate" listener="javax.swing.event.CaretListener" parameters="javax.swing.event.CaretEvent" handler="jAdminPortTxtCaretUpdate"/>
       </Events>
@@ -383,6 +387,9 @@
           <ComponentRef name="Form"/>
         </Property>
       </AccessibilityProperties>
+      <Events>
+        <EventHandler event="itemStateChanged" listener="java.awt.event.ItemListener" parameters="java.awt.event.ItemEvent" handler="jCBSSLPortItemStateChanged"/>
+      </Events>
     </Component>
   </SubComponents>
 </Form>

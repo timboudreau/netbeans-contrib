@@ -41,6 +41,8 @@ import org.openide.WizardDescriptor;
  */
 public class WS70AddServerChoiceVisualPanel extends javax.swing.JPanel {
     private static final String LOCALHOST="localhost";//NOI18N
+    private static final String SSL_PORT="8989";//NOI18N
+    private static final String NON_SSL_PORT="8800";//NOI18N
     private String installDirName;    
     private String hostName=LOCALHOST;
     private String portNumber;
@@ -295,6 +297,7 @@ public class WS70AddServerChoiceVisualPanel extends javax.swing.JPanel {
         jAdminPortLbl.getAccessibleContext().setAccessibleDescription(java.util.ResourceBundle.getBundle("org/netbeans/modules/j2ee/sun/ws7/ui/Bundle").getString("A11Y_DESC_AddServerVisualPanelPort"));
         jAdminPortLbl.getAccessibleContext().setAccessibleParent(this);
 
+        jAdminPortTxt.setText("8989");
         jAdminPortTxt.addCaretListener(new javax.swing.event.CaretListener() {
             public void caretUpdate(javax.swing.event.CaretEvent evt) {
                 jAdminPortTxtCaretUpdate(evt);
@@ -357,6 +360,12 @@ public class WS70AddServerChoiceVisualPanel extends javax.swing.JPanel {
         jCBSSLPort.setToolTipText(java.util.ResourceBundle.getBundle("org/netbeans/modules/j2ee/sun/ws7/ui/Bundle").getString("Tooltip_AddServerVisualPanelSSLPort"));
         jCBSSLPort.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         jCBSSLPort.setMargin(new java.awt.Insets(0, 0, 0, 0));
+        jCBSSLPort.addItemListener(new java.awt.event.ItemListener() {
+            public void itemStateChanged(java.awt.event.ItemEvent evt) {
+                jCBSSLPortItemStateChanged(evt);
+            }
+        });
+
         jCBSSLPort.getAccessibleContext().setAccessibleName(java.util.ResourceBundle.getBundle("org/netbeans/modules/j2ee/sun/ws7/ui/Bundle").getString("A11Y_NAME_AddServerVisualPanelSSLPort"));
         jCBSSLPort.getAccessibleContext().setAccessibleDescription(java.util.ResourceBundle.getBundle("org/netbeans/modules/j2ee/sun/ws7/ui/Bundle").getString("A11Y_DESC_AddServerVisualPanelSSLPort"));
         jCBSSLPort.getAccessibleContext().setAccessibleParent(this);
@@ -371,7 +380,7 @@ public class WS70AddServerChoiceVisualPanel extends javax.swing.JPanel {
                     .add(jCBRemote)
                     .add(layout.createSequentialGroup()
                         .add(jAdminInstructionsLbl)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 283, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 288, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                     .add(layout.createSequentialGroup()
                         .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                             .add(jPasswordLbl)
@@ -380,13 +389,13 @@ public class WS70AddServerChoiceVisualPanel extends javax.swing.JPanel {
                             .add(jUserNameLbl))
                         .add(31, 31, 31)
                         .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                            .add(jPasswordTxt, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 294, Short.MAX_VALUE)
-                            .add(jUserNameTxt, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 294, Short.MAX_VALUE)
-                            .add(jAdminHostTxt, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 294, Short.MAX_VALUE)
+                            .add(jPasswordTxt, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 306, Short.MAX_VALUE)
+                            .add(jUserNameTxt, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 306, Short.MAX_VALUE)
+                            .add(jAdminHostTxt, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 306, Short.MAX_VALUE)
                             .add(layout.createSequentialGroup()
                                 .add(jAdminPortTxt, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 112, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                                 .add(25, 25, 25)
-                                .add(jCBSSLPort, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 73, Short.MAX_VALUE)
+                                .add(jCBSSLPort, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 85, Short.MAX_VALUE)
                                 .add(84, 84, 84))))
                     .add(layout.createSequentialGroup()
                         .add(jDirectoryLbl)
@@ -396,7 +405,7 @@ public class WS70AddServerChoiceVisualPanel extends javax.swing.JPanel {
                         .add(jBrowseBtn))
                     .add(jServerInstructionsLbl, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 350, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                     .add(jLabel2)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jSeparator1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 383, Short.MAX_VALUE))
+                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jSeparator1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 405, Short.MAX_VALUE))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -440,6 +449,16 @@ public class WS70AddServerChoiceVisualPanel extends javax.swing.JPanel {
                 .add(20, 20, 20))
         );
     }// </editor-fold>//GEN-END:initComponents
+
+    private void jCBSSLPortItemStateChanged (java.awt.event.ItemEvent evt) {//GEN-FIRST:event_jCBSSLPortItemStateChanged
+        if (jCBSSLPort.isSelected()){
+            if (jAdminPortTxt.getText().equals(NON_SSL_PORT))
+                jAdminPortTxt.setText(SSL_PORT);
+        }else {
+            if (jAdminPortTxt.getText().equals (SSL_PORT))
+                jAdminPortTxt.setText(NON_SSL_PORT);
+        }
+    }//GEN-LAST:event_jCBSSLPortItemStateChanged
 
     private void jCBRemoteStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_jCBRemoteStateChanged
         if(!jCBRemote.isSelected()){

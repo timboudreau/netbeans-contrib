@@ -49,7 +49,6 @@ import javax.enterprise.deploy.spi.exceptions.DeploymentManagerCreationException
 import javax.enterprise.deploy.spi.factories.DeploymentFactory;
 import org.netbeans.modules.j2ee.deployment.plugins.api.InstanceProperties;
 
-
 import java.io.*;
 import org.netbeans.modules.j2ee.sun.share.configbean.SunONEDeploymentConfiguration;
 import org.netbeans.modules.j2ee.sun.dd.api.DDProvider;
@@ -85,7 +84,6 @@ public class WS70SunDeploymentManager implements DeploymentManager{
     private String debugOptions;
     private boolean isDebugModeEnabled;
 
-    
     /** Creates a new instance of WS70SunDeploymentManager */
     public WS70SunDeploymentManager(DeploymentFactory df, DeploymentManager dm, String uri, String username, String password) {
         this.ws70DF = df;
@@ -115,15 +113,19 @@ public class WS70SunDeploymentManager implements DeploymentManager{
     public String getPassword() {
         return password;
     }
+
     public String getServerLocation(){
         return serverLocation;
     }
+
     public String getUri(){
         return uri;
     }
+
     public String getHost(){
         return host;        
     }
+
     public int getPort(){
         return port;
     }
@@ -140,10 +142,10 @@ public class WS70SunDeploymentManager implements DeploymentManager{
             if(this.isAdminOnSSL()){
                 ws70url=ws70url+":https";
             }
-            ClassLoader loader = WS70SunDeploymentFactory.getLibClassLoader(serverLocation);
-            if(loader!=null){
-                Thread.currentThread().setContextClassLoader(loader);                
-            }
+
+            ClassLoader loader = ws70DF.getClass().getClassLoader();
+            Thread.currentThread().setContextClassLoader(loader);
+
             ws70DM = ws70DF.getDeploymentManager(ws70url, uname, pword);
             userName = uname;
             password = pword;
@@ -156,21 +158,25 @@ public class WS70SunDeploymentManager implements DeploymentManager{
             Thread.currentThread().setContextClassLoader(origClassLoader);
         }        
     }
+
     public boolean isLocalServer(){
         InstanceProperties ip =  InstanceProperties.getInstanceProperties(uri);
         String isLocal = ip.getProperty(WS70ServerUIWizardIterator.PROP_LOCAL_SERVER);
         return Boolean.parseBoolean(isLocal);
     }
+
     public boolean isAdminOnSSL(){
         InstanceProperties ip =  InstanceProperties.getInstanceProperties(uri);
         String isSSL = ip.getProperty(WS70ServerUIWizardIterator.PROP_SSL_PORT);
         return Boolean.parseBoolean(isSSL);
     }    
+
     // returns the default config Target selected by the user.
     // used by JSPServletFinder
     public Target getDefaultTarget(){
         return defaultTarget;
     }
+
     public DeploymentConfiguration createConfiguration(DeployableObject deplObj)
         throws InvalidModuleException {
         if (!ModuleType.WAR.equals(deplObj.getType())) {
@@ -180,7 +186,6 @@ public class WS70SunDeploymentManager implements DeploymentManager{
 
         return new SunONEDeploymentConfiguration(deplObj);
     }
-
 
     /**
      * Deploys web module using deploy command
@@ -196,7 +201,6 @@ public class WS70SunDeploymentManager implements DeploymentManager{
         return ws70DM.distribute(targets, is, deplPlan);
     }
 
-
     /**
      * Deploys web module using install command
      * @param targets Array containg one web module
@@ -208,8 +212,7 @@ public class WS70SunDeploymentManager implements DeploymentManager{
     public ProgressObject distribute(Target[] targets, File moduleArchive,File deplPlan)
                                         throws IllegalStateException {
         SunWebApp swa = null;
-        try {        
-            
+        try {
             InputStream inputStream = new BufferedInputStream(new FileInputStream(deplPlan),
                                                            4096);
             DDProvider provider = DDProvider.getDefault();
@@ -218,22 +221,17 @@ public class WS70SunDeploymentManager implements DeploymentManager{
             e.printStackTrace();
         } // end of try-catch            
 
-        String ctxRoot = null;
-        if (swa == null) {            
-            ErrorManager.getDefault().log(
-                    ErrorManager.ERROR, NbBundle.getMessage(WS70SunDeploymentManager.class, "ERR_NULL_SWA"));
-        }else{
-            ctxRoot = swa.getContextRoot();
-            ErrorManager.getDefault().log(
-                    ErrorManager.USER, NbBundle.getMessage(WS70SunDeploymentManager.class, "MSG_CONTEXTROOT", ctxRoot));
-        }
-        
-        try{
+        if (swa == null)
+            throw new IllegalStateException(NbBundle.getMessage(WS70SunDeploymentManager.class, "ERR_NULL_SWA"));
+
+        String ctxRoot = swa.getContextRoot();
+        ErrorManager.getDefault().log(
+                ErrorManager.USER, NbBundle.getMessage(WS70SunDeploymentManager.class, "MSG_CONTEXTROOT", ctxRoot));
+        try {
             Method distribute = dmClass.getDeclaredMethod("distribute", new Class[]{Target[].class, File.class, String.class});            
             ProgressObject po = (ProgressObject)distribute.invoke(this.ws70DM, new Object[]{targets, moduleArchive, ctxRoot});
-            return po;
-            
-        }catch(Exception ex){
+            return po;    
+        } catch (Exception ex) {
             ex.printStackTrace();
         }
         return null;

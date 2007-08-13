@@ -37,9 +37,8 @@ import java.io.File;
 import java.util.HashMap;
 
 public class WS70SunDeploymentFactory implements DeploymentFactory {    
-    private DeploymentFactory ws70DF;
-    private static HashMap ws7ClassLoaders;
-    private static HashMap connectedDepManagers;
+    private static HashMap connectedManagers = new HashMap();
+    private static HashMap disconnectedManagers = new HashMap();
     private static final String HTTPS=":https";//NOI18N
     
     public static synchronized Object create(){
@@ -57,10 +56,7 @@ public class WS70SunDeploymentFactory implements DeploymentFactory {
      * Creates a new instance of WS70SunDeploymentFactory
      */
     public WS70SunDeploymentFactory() {
-        ws7ClassLoaders = new HashMap();
-        connectedDepManagers = new HashMap();
     }
-
     
     /**
      * Factory method to create DeploymentManager.
@@ -73,51 +69,41 @@ public class WS70SunDeploymentFactory implements DeploymentFactory {
     public DeploymentManager getDeploymentManager(String uri, String uname,
                                                   String passwd)
         throws DeploymentManagerCreationException {
-        
-        String location = WS70URIManager.getLocation(uri);
-        
+        DeploymentManager manager = (DeploymentManager)connectedManagers.get(uri);
+        if (manager != null)
+            return manager;
+
+        String location = WS70URIManager.getLocation(uri);        
         // If we can't find the location of the WS70 libraries
         // We can not really use the actual deployment manager
         // provided by jsr-88 impl of the WS70
         // This wont likely happene for the getDeploymentManager case
         // it happens in getDisconnectedDeploymentManager case if
         // Web project's target server was removed and the IDE restarts
-        
-        if(location==null){
+        if (location==null) {
             return new WS70SunDeploymentManager(null, null, uri, uname, passwd);            
         }
-        WS7LibsClassLoader ws7Libloader = (WS7LibsClassLoader)ws7ClassLoaders.get(location);
-        if(ws7Libloader == null){            
-            ws7Libloader = (WS7LibsClassLoader)getWs7ClassLoader(location);
-            ws7ClassLoaders.put(location, ws7Libloader);
+
+        String ws70url = WS70URIManager.getURIWithoutLocation(uri);
+        InstanceProperties ip =  InstanceProperties.getInstanceProperties(uri);
+        String isSSL = ip.getProperty(WS70ServerUIWizardIterator.PROP_SSL_PORT);
+        if (Boolean.parseBoolean(isSSL)) {
+            ws70url=ws70url+HTTPS;
         }
-        if(ws70DF==null){
-            try{
-                this.createInnerFactory(ws7Libloader);
-            }catch(Exception ex){            
-                throw new DeploymentManagerCreationException(ex.getMessage());
-            }
-        }
-        
+
+        ClassLoader loader = getWs7ClassLoader(location);
         ClassLoader origClassLoader=Thread.currentThread().getContextClassLoader();        
-        try{
-            String ws70url = WS70URIManager.getURIWithoutLocation(uri);
-            InstanceProperties ip =  InstanceProperties.getInstanceProperties(uri);
-            String isSSL = ip.getProperty(WS70ServerUIWizardIterator.PROP_SSL_PORT);
-            if(Boolean.parseBoolean(isSSL)){
-                ws70url=ws70url+HTTPS;
-            }
-            Thread.currentThread().setContextClassLoader(ws7Libloader);            
-            DeploymentManager manager = new WS70SunDeploymentManager(ws70DF, ws70DF.getDeploymentManager(ws70url, uname,  passwd), 
+        Thread.currentThread().setContextClassLoader(loader);            
+        try {
+            DeploymentFactory ws70DF = createInnerFactory(loader);
+            manager = new WS70SunDeploymentManager(ws70DF, ws70DF.getDeploymentManager(ws70url, uname,  passwd), 
                                                                         uri, uname, passwd);            
-            if(connectedDepManagers!=null){
-                connectedDepManagers.put(uri, manager);
-            }
+            connectedManagers.put(uri, manager);
             return manager;        
-        }catch(Exception e){
+        } catch(Exception e) {
             e.printStackTrace();
             throw new DeploymentManagerCreationException(e.getMessage());            
-        }finally{
+        } finally {
             Thread.currentThread().setContextClassLoader(origClassLoader);
         }
     }
@@ -132,6 +118,9 @@ public class WS70SunDeploymentFactory implements DeploymentFactory {
      */    
     public DeploymentManager getDisconnectedDeploymentManager(String uri)
         throws DeploymentManagerCreationException {    
+        DeploymentManager manager = (DeploymentManager)disconnectedManagers.get(uri);
+        if (manager != null)
+            return manager;
         
         String location = WS70URIManager.getLocation(uri);
         // If we can't find the location of the WS70 libraries
@@ -140,38 +129,29 @@ public class WS70SunDeploymentFactory implements DeploymentFactory {
         // it happens in getDisconnectedDeploymentManager case if
         // Web project's target server was removed and the IDE restarts
         
-        if(location==null){
+        if (location==null) {
             return new WS70SunDeploymentManager(null, null, uri, null, null);            
         }
-        WS7LibsClassLoader ws7Libloader = (WS7LibsClassLoader)ws7ClassLoaders.get(location);
-        if(ws7Libloader == null){            
-            ws7Libloader = (WS7LibsClassLoader)getWs7ClassLoader(location);
-            ws7ClassLoaders.put(location, ws7Libloader);
+        String ws70url = WS70URIManager.getURIWithoutLocation(uri);
+        InstanceProperties ip =  InstanceProperties.getInstanceProperties(uri);
+        String isSSL = ip.getProperty(WS70ServerUIWizardIterator.PROP_SSL_PORT);
+        if (Boolean.parseBoolean(isSSL)) {
+            ws70url=ws70url+HTTPS;
         }
-        if(ws70DF==null){
-            try{
-                this.createInnerFactory(ws7Libloader);
-            }catch(Exception ex){            
-                throw new DeploymentManagerCreationException(ex.getMessage());
-            }
-        }        
-        
+
+        ClassLoader loader = getWs7ClassLoader(location);
         ClassLoader origClassLoader=Thread.currentThread().getContextClassLoader();        
-        try{
-            String ws70url = WS70URIManager.getURIWithoutLocation(uri);
-            InstanceProperties ip =  InstanceProperties.getInstanceProperties(uri);
-            String isSSL = ip.getProperty(WS70ServerUIWizardIterator.PROP_SSL_PORT);
-            if(Boolean.parseBoolean(isSSL)){
-                ws70url=ws70url+HTTPS;
-            }
-            Thread.currentThread().setContextClassLoader(ws7Libloader);            
-            DeploymentManager manager = new WS70SunDeploymentManager(ws70DF, ws70DF.getDisconnectedDeploymentManager(ws70url),
-                                                                        uri, null, null);            
+        Thread.currentThread().setContextClassLoader(loader);
+        try {
+            DeploymentFactory ws70DF = createInnerFactory(loader);
+            manager = new WS70SunDeploymentManager(ws70DF, ws70DF.getDisconnectedDeploymentManager(ws70url),
+                                                                        uri, null, null);
+            disconnectedManagers.put(uri, manager);
             return manager;        
-        }catch(Exception e){
+        } catch(Exception e) {
             e.printStackTrace();
             throw new DeploymentManagerCreationException(e.getMessage());            
-        }finally{
+        } finally {
             Thread.currentThread().setContextClassLoader(origClassLoader);
         }
     }
@@ -196,22 +176,14 @@ public class WS70SunDeploymentFactory implements DeploymentFactory {
         if(location==null){
             return false;
         }
-        WS7LibsClassLoader ws7Libloader = (WS7LibsClassLoader)ws7ClassLoaders.get(location);
-        if(ws7Libloader == null){            
-            ws7Libloader = (WS7LibsClassLoader)getWs7ClassLoader(location);
-            ws7ClassLoaders.put(location, ws7Libloader);
-        }
-        if(ws70DF==null){
-            try{
-                this.createInnerFactory(ws7Libloader);
-            }catch(Exception ex){            
-                return false;
-            }
+        DeploymentFactory ws70DF;
+        try {
+            ClassLoader loader = getWs7ClassLoader(location);
+            ws70DF = createInnerFactory(loader);
+        } catch(Exception ex) {            
+            return false;
         }                
-        ClassLoader origClassLoader=Thread.currentThread().getContextClassLoader();        
-        Thread.currentThread().setContextClassLoader(ws7Libloader);
         boolean ret = ws70DF.handlesURI(WS70URIManager.getURIWithoutLocation(uri)); 
-        Thread.currentThread().setContextClassLoader(origClassLoader);
         return ret;        
     }
     
@@ -222,61 +194,44 @@ public class WS70SunDeploymentFactory implements DeploymentFactory {
     public String getProductVersion() {
         return NbBundle.getMessage(WS70SunDeploymentFactory.class, "LBL_WS70SunDeploymentFactoryVersion");
     }
-    private static ClassLoader getWs7ClassLoader(String location){        
+    private static ClassLoader getWs7ClassLoader(String location) {        
         WS7LibsClassLoader ws7Loader = null;               
         try{
-            String libsLocation = location+"/lib"; //NOI18N            
-            //ws7Loader = new WS7LibsClassLoader(Thread.currentThread().getContextClassLoader());
+            String libsLocation = location+"/lib"; //NOI18N
             ClassLoader moduleClassLoader = new Dummy().getClass().getClassLoader();
             ErrorManager.getDefault().log(ErrorManager.USER, "WS70 moduleclassloader is "+moduleClassLoader.toString());
             ws7Loader = new WS7LibsClassLoader(moduleClassLoader);
             File f = null;
-            
-            // removing s1as-jsr160-server.jar from this classloader as it is not
-            // needed by plugin
-/*            f = new File(libsLocation+"/s1as-jsr160-server.jar");//NO I118N
-            ws7Loader.addURL(f);
-*/
             f = new File(libsLocation+"/sun-ws-jsr88-dm.jar");//NO I118N
             ws7Loader.addURL(f);            
             f = new File(libsLocation+"/s1as-jsr160-client.jar");//NO I118N
             ws7Loader.addURL(f);          
-
             f = new File(libsLocation+"/jmxremote_optional.jar"); //NO I118N            
-            ws7Loader.addURL(f);
-            
-            // removing webserv-admin.jar from this classloader as it is not
-            // needed by plugin anymore
-/*            f = new File(libsLocation+"/webserv-admin.jar"); //NO I118N
-            ws7Loader.addURL(f);
-*/
+            ws7Loader.addURL(f);            
             f = new File(libsLocation+"/webserv-admin-shared.jar"); //NO I118N
-            ws7Loader.addURL(f);
-            
+            ws7Loader.addURL(f);            
         }catch(Exception ex){
             ex.printStackTrace();
         }
         return ws7Loader;
     }
-    private void createInnerFactory(WS7LibsClassLoader loader) throws Exception{
+    private DeploymentFactory createInnerFactory(ClassLoader loader) throws DeploymentManagerCreationException{
+        DeploymentFactory factory = null;
         try{
-            Object factory = loader.loadClass("com.sun.web.admin.deployapi.SunDeploymentFactory").newInstance();
-            ws70DF = (DeploymentFactory)factory;            
-        }catch(Exception ex){
+            factory = (DeploymentFactory)loader.loadClass("com.sun.web.admin.deployapi.SunDeploymentFactory").newInstance();
+        } catch(Exception ex) {
             ex.printStackTrace();
-            throw ex;
-        }        
+            throw new DeploymentManagerCreationException(ex.getMessage());
+        }
+        return factory;
     }
+
     public static WS70SunDeploymentManager getConnectedCachedDeploymentManager(String uri){
-        WS70SunDeploymentManager dm =  (WS70SunDeploymentManager)connectedDepManagers.get(uri);        
+        WS70SunDeploymentManager dm =  (WS70SunDeploymentManager)connectedManagers.get(uri);        
         return dm;
     }
-    public static ClassLoader getLibClassLoader(String location){
-        return (ClassLoader)ws7ClassLoaders.get(location);
-    }
+
     // Dummy class for WS70Deployment Factory to get classloader of this class
     public static class Dummy{
-        
     }
-                
 }
