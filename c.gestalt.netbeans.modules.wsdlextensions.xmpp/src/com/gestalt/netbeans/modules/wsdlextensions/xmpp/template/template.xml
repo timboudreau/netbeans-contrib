@@ -36,6 +36,8 @@
                 <extensionAttr name="from" defaultValue="" />
                 <extensionAttr name="id" defaultValue="" />
                 <extensionAttr name="message" defaultValue="" />
+                <extensionAttr name="groupChat" defaultValue="" />
+                <extensionAttr name="groupList" defaultValue="" />
             </extensionElement>
         </wsdlElement>
         <wsdlElement name="BindingOperationOutput">
@@ -52,13 +54,16 @@
                 <extensionAttr name="password" defaultValue=""/>
                 <extensionAttr name="resource" defaultValue="resource"/>
                 <extensionAttr name="port" defaultValue="5222"/>
+                <extensionAttr name="group" defaultValue="" />
             </extensionElement>
         </wsdlElement>
         <wsdlElement name="Binding">
             <extensionElement name="binding" />
         </wsdlElement>
         <wsdlElement name="BindingOperation">
-            <extensionElement name="operation" />
+            <extensionElement name="operation">
+                <extensionAttr name="name" defaultValue="sendMessage" />
+            </extensionElement>
         </wsdlElement>
     </template>
 </templateGroup>
