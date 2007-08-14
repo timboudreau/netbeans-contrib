@@ -19,6 +19,7 @@
 package org.netbeans.modules.spellchecker.options;
 
 import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeSupport;
 import javax.swing.JComponent;
 import org.netbeans.spi.options.OptionsPanelController;
 import org.openide.util.HelpCtx;
@@ -31,6 +32,7 @@ import org.openide.util.Lookup;
 public class SpellcheckerOptionsPanelController extends OptionsPanelController {
 
     private SpellcheckerOptionsPanel comp;
+    private boolean valid = true;
 
     /**
      * Creates a new instance of SpellcheckerOptionsPanelController
@@ -51,16 +53,22 @@ public class SpellcheckerOptionsPanelController extends OptionsPanelController {
     }
 
     public boolean isValid() {
-        return true;
+        return valid;
     }
 
     public boolean isChanged() {
         return false;
     }
+    
+    void setValid(boolean valid) {
+        this.valid = valid;
+        pcs.firePropertyChange(PROP_VALID, null, valid);
+    }
 
     private synchronized SpellcheckerOptionsPanel getComponentImpl() {
         if (comp == null) {
-            comp = new SpellcheckerOptionsPanel();
+            comp = new SpellcheckerOptionsPanel(this);
+            setValid(true);
         }
         
         return comp;
@@ -74,10 +82,14 @@ public class SpellcheckerOptionsPanelController extends OptionsPanelController {
         return HelpCtx.DEFAULT_HELP;
     }
 
+    private PropertyChangeSupport pcs = new PropertyChangeSupport(this);
+    
     public void addPropertyChangeListener(PropertyChangeListener l) {
+        pcs.addPropertyChangeListener(l);
     }
 
     public void removePropertyChangeListener(PropertyChangeListener l) {
+        pcs.removePropertyChangeListener(l);
     }
     
 }

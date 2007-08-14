@@ -19,6 +19,7 @@
 
 package org.netbeans.modules.spellchecker.options;
 
+import java.awt.Color;
 import java.awt.Dialog;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -29,12 +30,22 @@ import java.util.Locale;
 import javax.swing.ComboBoxModel;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.DefaultListModel;
+import javax.swing.Icon;
+import javax.swing.ImageIcon;
 import javax.swing.ListModel;
+import javax.swing.UIManager;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
+import javax.swing.text.BadLocationException;
+import javax.swing.text.Document;
+import javax.swing.text.JTextComponent;
 import org.netbeans.modules.spellchecker.DefaultLocaleQueryImplementation;
 import org.netbeans.modules.spellchecker.DictionaryProviderImpl;
 import org.netbeans.modules.spellchecker.options.DictionaryInstallerPanel.DictionaryDescription;
 import org.openide.DialogDescriptor;
 import org.openide.DialogDisplayer;
+import org.openide.util.Exceptions;
+import org.openide.util.Utilities;
 
 /**
  *
@@ -45,13 +56,81 @@ public class SpellcheckerOptionsPanel extends javax.swing.JPanel {
     private List<Locale> removedDictionaries = new ArrayList<Locale>();
     private List<DictionaryDescription> addedDictionaries = new ArrayList<DictionaryDescription>();
 
+    private SpellcheckerOptionsPanelController c;
+    private static final Icon errorIcon = new ImageIcon(Utilities.loadImage("org/netbeans/modules/spellchecker/resources/error.gif"));
+    
     /**
      * Creates new form SpellcheckerOptionsPanel
      */
-    public SpellcheckerOptionsPanel() {
+    public SpellcheckerOptionsPanel(final SpellcheckerOptionsPanelController c) {
         initComponents();
+        this.c = c;
+        Color errorColor = UIManager.getColor("nb.errorForeground");
+        
+        if (errorColor == null) {
+            errorColor = new Color(255, 0, 0);
+        }
+        
+        errorText.setForeground(errorColor);
+        
+        JTextComponent editorComponent = (JTextComponent) defaultLocale.getEditor().getEditorComponent();
+        final Document document = editorComponent.getDocument();
+        
+        document.addDocumentListener(new DocumentListener() {
+            private void validate() {
+                try {
+                    String locale = document.getText(0, document.getLength());
+
+                    if (locale.length() == 0) {
+                        setError("Locale is empty");
+                        return;
+                    }
+
+                    String[] components = locale.split("_");
+
+                    if (components.length > 3) {
+                        setError("Invalid locale");
+                        return;
+                    }
+
+                    if (!Arrays.asList(Locale.getISOLanguages()).contains(components[0])) {
+                        setError("Unknown language");
+                        return;
+                    }
+
+                    if (components.length > 1) {
+                        if (!Arrays.asList(Locale.getISOCountries()).contains(components[1])) {
+                            setError("Unknown country");
+                            return;
+                        }
+
+                        if (!Arrays.asList(Locale.getAvailableLocales()).contains(new Locale(components[0], components[1]))) {
+                            setError("Unsupported locale");
+                            return;
+                        }
+                    }
+
+                    setError(null);
+                } catch (BadLocationException ex) {
+                    Exceptions.printStackTrace(ex);
+                }
+            }
+            public void insertUpdate(DocumentEvent e) {
+                validate();
+            }
+            public void removeUpdate(DocumentEvent e) {
+                validate();
+            }
+            public void changedUpdate(DocumentEvent e) {}
+        });
     }
 
+    private void setError(String error) {
+        c.setValid(error == null);
+        errorText.setText(error != null ? error : "");
+        errorText.setIcon(error != null ? errorIcon : null);
+    }
+    
     public void update() {
         removedDictionaries.clear();
         addedDictionaries.clear();
@@ -89,7 +168,25 @@ public class SpellcheckerOptionsPanel extends javax.swing.JPanel {
             DictionaryInstallerPanel.removeDictionary(remove);
         }
         
-        DefaultLocaleQueryImplementation.setDefaultLocale((Locale) defaultLocale.getSelectedItem());
+        Object selectedItem = defaultLocale.getSelectedItem();
+        Locale selectedLocale = null;
+        
+        if (selectedItem instanceof Locale) {
+            selectedLocale = (Locale) selectedItem;
+        }
+        
+        if (selectedItem instanceof String) {
+            String[] parsedComponents = ((String) selectedItem).split("_");
+            String[] components = new String[] {"", "", ""};
+            
+            System.arraycopy(parsedComponents, 0, components, 0, parsedComponents.length);
+            
+            selectedLocale = new Locale(components[0], components[1], components[2]);
+        }
+        
+        if (selectedLocale != null) {
+            DefaultLocaleQueryImplementation.setDefaultLocale(selectedLocale);
+        }
     }
     
     /** This method is called from within the constructor to
@@ -99,6 +196,7 @@ public class SpellcheckerOptionsPanel extends javax.swing.JPanel {
      */
     // <editor-fold defaultstate="collapsed" desc=" Generated Code ">//GEN-BEGIN:initComponents
     private void initComponents() {
+
         jPanel2 = new javax.swing.JPanel();
         jScrollPane1 = new javax.swing.JScrollPane();
         installedLocalesList = new javax.swing.JList();
@@ -107,8 +205,10 @@ public class SpellcheckerOptionsPanel extends javax.swing.JPanel {
         jPanel1 = new javax.swing.JPanel();
         jLabel1 = new javax.swing.JLabel();
         defaultLocale = new javax.swing.JComboBox();
+        errorText = new javax.swing.JLabel();
 
         jPanel2.setBorder(javax.swing.BorderFactory.createTitledBorder("Dictionaries"));
+
         installedLocalesList.setModel(getInstalledDictionariesModel());
         installedLocalesList.setVisibleRowCount(4);
         jScrollPane1.setViewportView(installedLocalesList);
@@ -148,12 +248,13 @@ public class SpellcheckerOptionsPanel extends javax.swing.JPanel {
                         .add(jButton4)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(jButton5))
-                    .add(jScrollPane1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 61, Short.MAX_VALUE))
+                    .add(jScrollPane1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 68, Short.MAX_VALUE))
                 .addContainerGap())
         );
 
-        jPanel1.setBorder(javax.swing.BorderFactory.createTitledBorder(org.openide.util.NbBundle.getMessage(SpellcheckerOptionsPanel.class, "LBL_Default_Locale_Panel", new Object[] {})));
-        org.openide.awt.Mnemonics.setLocalizedText(jLabel1, org.openide.util.NbBundle.getMessage(SpellcheckerOptionsPanel.class, "LBL_Default_Locale", new Object[] {}));
+        jPanel1.setBorder(javax.swing.BorderFactory.createTitledBorder(org.openide.util.NbBundle.getMessage(SpellcheckerOptionsPanel.class, "LBL_Default_Locale_Panel", new Object[] {}))); // NOI18N
+
+        org.openide.awt.Mnemonics.setLocalizedText(jLabel1, org.openide.util.NbBundle.getMessage(SpellcheckerOptionsPanel.class, "LBL_Default_Locale", new Object[] {})); // NOI18N
 
         defaultLocale.setEditable(true);
         defaultLocale.setModel(getLocaleModel());
@@ -166,7 +267,9 @@ public class SpellcheckerOptionsPanel extends javax.swing.JPanel {
                 .addContainerGap()
                 .add(jLabel1)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(defaultLocale, 0, 244, Short.MAX_VALUE)
+                .add(jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                    .add(errorText)
+                    .add(defaultLocale, 0, 251, Short.MAX_VALUE))
                 .addContainerGap())
         );
         jPanel1Layout.setVerticalGroup(
@@ -175,6 +278,8 @@ public class SpellcheckerOptionsPanel extends javax.swing.JPanel {
                 .add(jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(jLabel1)
                     .add(defaultLocale, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(errorText)
                 .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
@@ -226,6 +331,7 @@ public class SpellcheckerOptionsPanel extends javax.swing.JPanel {
     
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JComboBox defaultLocale;
+    private javax.swing.JLabel errorText;
     private javax.swing.JList installedLocalesList;
     private javax.swing.JButton jButton4;
     private javax.swing.JButton jButton5;
