@@ -1,0 +1,88 @@
+    <target name="modify-tomcat" description="Modify downloaded tomcat build apache-tomcat-${tomcat_version}.zip.orig and prepare for scrabmling">
+       <delete file="apache-tomcat-${tomcat_version}.zip.master"/>
+       <unzip src="apache-tomcat-${tomcat_version}.zip.orig" dest="."/>
+       <delete dir="apache-tomcat-${tomcat_version}/webapps/tomcat-docs/catalina"/>
+       <delete dir="apache-tomcat-${tomcat_version}/webapps/tomcat-docs/jspapi"/>
+       <delete dir="apache-tomcat-${tomcat_version}/webapps/tomcat-docs/servletapi"/>
+       <delete dir="apache-tomcat-${tomcat_version}/webapps/tomcat-docs/jasper"/>
+       <delete dir="apache-tomcat-${tomcat_version}/webapps/jsp-examples"/>
+       <delete dir="apache-tomcat-${tomcat_version}/webapps/servlets-examples"/>		
+       <zip destfile="apache-tomcat-${tomcat_version}.zip"
+         basedir="."
+         includes="apache-tomcat-${tomcat_version}/**"
+       />
+       <delete dir="apache-tomcat-${tomcat_version}"/>
+    </target>
+
+
+How to update version of tomcat of 5.5.x:
+
+There are two main parts:
+    1) Download files from apache:
+        apache-tomcat-5.5.x.zip
+        apache-tomcat-5.5.x-admin.zip
+        apache-tomcat-5.5.x-compat.zip
+    2) files from apache-tomcat-5.5.x-admin.zip and apache-tomcat-5.5.x-compat.zip copy to the apache-tomcat-5.5.x.zip. 
+        Don't change license in  apache-tomcat-5.5.x.zip !.
+    3) Remove from apache-tomcat-5.5.x/common/lib the jasper-compiler-jdt.jar
+        and put there ant.jar.
+    4 a) In the file  apache-tomcat-5.5.x/bin/setclasspath.sh from apache-tomcat-5.5.x.zip put comments as follow:
+        Original rows:
+              # Set standard CLASSPATH
+              if [ "$1" = "debug" -o "$1" = "javac" ] ; then
+                 CLASSPATH="$JAVA_HOME"/lib/tools.jar
+              fi
+       Changed rows:
+              # Set standard CLASSPATH
+              #if [ "$1" = "debug" -o "$1" = "javac" ] ; then
+                    CLASSPATH="$JAVA_HOME"/lib/tools.jar
+              #fi
+
+    We need to put tools.jar on the tomcat's classpath, but there is a bug in the tomcat script. The javac parameter is not propagate to this script on linux/unix platforms
+
+    4 b) In the files apache-tomcat-5.5.x/bin/setclasspath.sh and apache-tomcat-5.5.x/bin/setclasspath.bat from apache-tomcat-5.5.x.zip make the following substitutions:
+      a) apache-tomcat-5.5.x/bin/setclasspath.sh
+       Original rows:
+              # Set the default -Djava.endorsed.dirs argument
+              JAVA_ENDORSED_DIRS="$BASEDIR"/common/endorsed
+       Changed rows:
+              # enable the compatibility pack if starting on JDK 1.4
+              if [ "$NB_TOMCAT_JDK" = "1.4" ]; then
+                # Set the default -Djava.endorsed.dirs argument
+                JAVA_ENDORSED_DIRS="$BASEDIR"/common/endorsed
+              fi
+      b) apache-tomcat-5.5.x/bin/setclasspath.bat
+       Original rows:
+              rem Set the default -Djava.endorsed.dirs argument
+              set JAVA_ENDORSED_DIRS=%BASEDIR%\common\endorsed
+       Changed rows:
+              rem enable the compatibility pack if starting on JDK 1.4
+              if not "%NB_TOMCAT_JDK%" == "1.4" goto noEndorsed
+                rem Set the default -Djava.endorsed.dirs argument
+                set JAVA_ENDORSED_DIRS=%BASEDIR%\common\endorsed
+              :noEndorsed
+
+    These changes are needed in order to fix the problems caused by the JDK 1.4 compatibility pack when running on JDK 1.5
+
+    5) Copy the changed apache-tomcat-5.5.x.zip to the cvs/nb_all/tomcatint/tomcat5/bundled/external/apache-tomcat-5.5.x.zip.orig
+    6) Change the version of the tomcat in this build script and run this build script.
+    7) Copy apache-tomcat-5.5.previous-license.txt to apache-tomcat-5.5.x-license.txt and change the number version in the license
+    8) Check whether the file cvs/nb_all/libs/commons_logging/external/commons-logging-y.y.y.jar 
+       is the same as apache-tomcat-5.5.x.zip/apache-tomcat-5.5.x/bin/commons-logging-api.jar. 
+       If the file is different, you should update the version in the cvs.
+    9) clear the build (run ant real-clean in /cvs/nb_all/nbbuild)
+    10) Remove files:
+         cvs/nb_all/tomcatint/tomcat5/bundled/external/apache-tomcat-5.5.previous.zip,
+         cvs/nb_all/tomcatint/tomcat5/bundled/external/apache-tomcat-5.5.previous-license.txt
+    11) replace all string occurrences  5.5.previous with 5.5.x under the cvs/nb_all/tomcatint 
+        and cvs/nb_all/web folders.
+    14) build the ide and run commit-verification
+    15) repair the golden file cvs/nb_all/ide/golden/files-layout.txt
+    16) run the commit-validation
+    
+
+    If all tests are ok, then you can commit:)
+        
+     PENDING: what about tomcatint/tomcat5/src/org/netbeans/modules/tomcat5/resources/deployment.xml ?
+     Shouldn't this be version-independent?
+     Check whether executable flags are properly set on scripts in nbbuild/build.xml

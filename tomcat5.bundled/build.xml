@@ -22,7 +22,7 @@ Microsystems, Inc. All Rights Reserved.
     <import file="../../../nbbuild/templates/projectized.xml"/>
 
     <target name="netbeans-extra" depends="build-init">
-        <unzip src="../../external/${tomcat.filename}.zip" dest="${cluster}"/>
+        <unzip src="external/${tomcat.filename}.zip" dest="${cluster}"/>
         <!-- monitor -->
         <copy file="${schema2beans/rt.dir}/modules/org-netbeans-modules-schema2beans.jar"
             tofile="${cluster}/apache-tomcat-5.5.17/common/lib/org-netbeans-modules-schema2beans.jar"/>
@@ -44,29 +44,6 @@ Microsystems, Inc. All Rights Reserved.
         <echo file="${cluster}/${tomcat.filename}/work/dummy"/>
         <mkdir dir="${cluster}/${tomcat.filename}/common/classes"/>
         <echo file="${cluster}/${tomcat.filename}/common/classes/dummy"/>
-    </target>
-
-    <target name="nbm" depends="init,netbeans,-nbm-prompt-for-storepass" description="Build NBM archive.">
-        <mkdir dir="build"/>
-        <property name="nbm.target.cluster" value=""/> <!-- fallback -->        
-        <makenbm file="build/${nbm}"
-                 productdir="${cluster}"
-                 module="${module.jar}"
-                 homepage="${nbm.homepage}"
-                 distribution="${nbm.distribution}"
-                 needsrestart="${nbm.needs.restart}"
-                 global="${nbm.is.global}"
-                 releasedate="${nbm.release.date}"
-		 moduleauthor="${nbm.module.author}"
-                 targetcluster="${nbm.target.cluster}">
-            <license>
-                <text>For the integration module:</text>
-                <file location="${license.file}"/>
-                <text>For Tomcat:</text>
-                <file location="../../external/apache-tomcat-5.5.17-license.txt"/>
-            </license>
-            <signature keystore="${keystore}" storepass="${storepass}" alias="${nbm_alias}"/>
-        </makenbm>
     </target>
 
 </project>
