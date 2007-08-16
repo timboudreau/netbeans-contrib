@@ -50,20 +50,20 @@ public class WS70ConfigSelectorPanel extends javax.swing.JPanel {
      */
     // <editor-fold defaultstate="collapsed" desc=" Generated Code ">//GEN-BEGIN:initComponents
     private void initComponents() {
+
         jConfigSelectionCb = new javax.swing.JComboBox();
         jInstaructionLbl = new javax.swing.JLabel();
         jConfigLbl = new javax.swing.JLabel();
 
         jConfigSelectionCb.setEditable(true);
-        jConfigSelectionCb.getAccessibleContext().setAccessibleParent(this);
 
         jInstaructionLbl.setLabelFor(jConfigSelectionCb);
-        jInstaructionLbl.setText(java.util.ResourceBundle.getBundle("org/netbeans/modules/j2ee/sun/ws7/ui/Bundle").getString("LBL_INSTRUCTIONS"));
+        java.util.ResourceBundle bundle = java.util.ResourceBundle.getBundle("org/netbeans/modules/j2ee/sun/ws7/ui/Bundle"); // NOI18N
+        jInstaructionLbl.setText(bundle.getString("LBL_INSTRUCTIONS")); // NOI18N
         jInstaructionLbl.setVerticalTextPosition(javax.swing.SwingConstants.TOP);
-        jInstaructionLbl.getAccessibleContext().setAccessibleParent(this);
 
         jConfigLbl.setLabelFor(jConfigSelectionCb);
-        jConfigLbl.setText(java.util.ResourceBundle.getBundle("org/netbeans/modules/j2ee/sun/ws7/ui/Bundle").getString("LBL_CONFIG"));
+        jConfigLbl.setText(bundle.getString("LBL_CONFIG")); // NOI18N
 
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
         this.setLayout(layout);
@@ -82,14 +82,17 @@ public class WS70ConfigSelectorPanel extends javax.swing.JPanel {
         layout.setVerticalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
-                .add(19, 19, 19)
-                .add(jInstaructionLbl, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 58, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 35, Short.MAX_VALUE)
+                .addContainerGap(25, Short.MAX_VALUE)
+                .add(jInstaructionLbl)
+                .add(18, 18, 18)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(jConfigLbl)
                     .add(jConfigSelectionCb, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .add(95, 95, 95))
+                .add(84, 84, 84))
         );
+
+        jConfigSelectionCb.getAccessibleContext().setAccessibleParent(this);
+        jInstaructionLbl.getAccessibleContext().setAccessibleParent(this);
     }// </editor-fold>//GEN-END:initComponents
     
     
