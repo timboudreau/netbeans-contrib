@@ -31,8 +31,18 @@
                         <specification-version>2.0</specification-version>
                     </run-dependency>
                 </dependency>
+                <dependency>
+                    <code-name-base>org.openide.util</code-name-base>
+                    <build-prerequisite/>
+                    <compile-dependency/>
+                    <run-dependency>
+                        <specification-version>7.9</specification-version>
+                    </run-dependency>
+                </dependency>
             </module-dependencies>
-            <public-packages/>
+            <public-packages>
+                <package>org.netbeans.modules.visual.experimental.graph.layout</package>
+            </public-packages>
         </data>
     </configuration>
 </project>
