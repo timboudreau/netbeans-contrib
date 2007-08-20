@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE filesystem PUBLIC "-//NetBeans//DTD Filesystem 1.1//EN" "http://www.netbeans.org/dtds/filesystem-1_1.dtd">
+<filesystem>
+    <folder name="TaskList">
+        <folder name="Groups">
+            <file name="checkstyle.instance">
+                <attr name="instanceCreate" methodvalue="org.netbeans.spi.tasklist.Task.createGroup"/>
+                
+                <attr name="localizingBundle" stringvalue="org.netbeans.modules.tasklist.checkstyle.Bundle"/>
+                <attr name="groupName" stringvalue="nb-tasklist-checkstyle"/>
+                <attr name="diplayNameKey" stringvalue="LBL_checkstyle_group"/>
+                <attr name="descriptionKey" stringvalue="HINT_checkstyle_group"/>
+                <attr name="iconKey" stringvalue="ICON_checkstyle"/>
+                <attr name="position" intvalue="400"/>
+            </file>
+            
+            </folder>
+        
+        <folder name="Scanners">
+            <file name="CheckStyleScanner.instance">
+                <attr name="instanceOf" stringvalue="org.netbeans.spi.tasklist.FileTaskScanner"/>
+                <attr name="instanceCreate" methodvalue="org.netbeans.modules.tasklist.checkstyle.CheckStyleTaskScanner.create"/>
+            </file>
+            
+        </folder>
+    </folder>
+    
+    <folder name="OptionsDialog">
+        <folder name="Advanced">
+            <attr name="position" intvalue="1000"/>
+            <file name="CheckStyle.instance">
+                <attr name="instanceClass" stringvalue="org.netbeans.modules.tasklist.checkstyle.settings.CheckStyleOptions"/>
+            </file>
+        </folder>
+   </folder>
+</filesystem>
