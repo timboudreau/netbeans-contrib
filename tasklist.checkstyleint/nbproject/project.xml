@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://www.netbeans.org/ns/project/1">
-    <type>org.netbeans.modules.apisupport.project</type>
+    <type>org.netbeans.modules.apisupport.project XXX disabled - conflicts with tasklist/checkstyle, must choose different CNB</type>
     <configuration>
         <data xmlns="http://www.netbeans.org/ns/nb-module-project/3">
             <code-name-base>org.netbeans.modules.tasklist.checkstyle</code-name-base>
