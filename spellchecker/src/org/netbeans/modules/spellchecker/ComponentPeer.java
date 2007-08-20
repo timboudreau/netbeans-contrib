@@ -107,7 +107,9 @@ public class ComponentPeer implements PropertyChangeListener, DocumentListener, 
     private JTextComponent pane;
     private Document doc;
 
-    private RequestProcessor.Task checker = RequestProcessor.getDefault().create(new Runnable() {
+    private RequestProcessor WORKER = new RequestProcessor("Spellchecker");
+    
+    private RequestProcessor.Task checker = WORKER.create(new Runnable() {
         public void run() {
             try {
                 process();
@@ -117,7 +119,7 @@ public class ComponentPeer implements PropertyChangeListener, DocumentListener, 
         }
     });
 
-    private RequestProcessor.Task computeHint = RequestProcessor.getDefault().create(new Runnable() {
+    private RequestProcessor.Task computeHint = WORKER.create(new Runnable() {
         public void run() {
             computeHint();
         }
@@ -545,7 +547,7 @@ public class ComponentPeer implements PropertyChangeListener, DocumentListener, 
             HintsController.setErrors(doc, ComponentPeer.class.getName(), Collections.<ErrorDescription>emptyList());
         }
     }
-            
+    
     public static LookupAccessor ACCESSOR = new LookupAccessor() {
         public Dictionary lookupDictionary(Locale locale) {
             for (DictionaryProvider p : Lookup.getDefault().lookupAll(DictionaryProvider.class)) {
