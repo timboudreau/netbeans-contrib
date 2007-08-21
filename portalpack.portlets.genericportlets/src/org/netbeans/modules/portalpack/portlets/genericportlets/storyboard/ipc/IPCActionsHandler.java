@@ -41,7 +41,7 @@ public class IPCActionsHandler {
         if(node != null)
         {
             try{
-                 node.getDataObject().getPortletEventingHandler().deleteProcessEvent(node.getName(),evtName);
+//TODO                 node.getDataObject().getPortletEventingHandler().deleteProcessEvent(node.getName(),evtName);
             }catch(Exception e){
                 System.out.println("Event could not be deleted  properly");
             }
@@ -51,21 +51,21 @@ public class IPCActionsHandler {
     public void generatePublishEventSource(String nodeKey,String eventName)
     {
         PortletNode portletNode = scene.getPortletNode(nodeKey);
-        try{
-            portletNode.getDataObject().getPortletEventingHandler().generatePublishEventMethod(portletNode.getName(), eventName);
-        }catch(PortletEventException e){
-            e.printStackTrace();
-        }
+      //  try{
+//TODO            portletNode.getDataObject().getPortletEventingHandler().generatePublishEventMethod(portletNode.getName(), eventName);
+//        }catch(PortletEventException e){
+  //          e.printStackTrace();
+    //    }
     }
      
     public void generateProcessEventSource(String nodeKey,String eventName)
     {
         PortletNode portletNode = scene.getPortletNode(nodeKey);
-        try{
-            portletNode.getDataObject().getPortletEventingHandler().generateProcessEventMethod(portletNode.getName(), eventName);
-        }catch(PortletEventException e){
-            e.printStackTrace();
-        }
+ //       try{
+//TODO            portletNode.getDataObject().getPortletEventingHandler().generateProcessEventMethod(portletNode.getName(), eventName);
+//TODO         }catch(PortletEventException e){
+ //TODO           e.printStackTrace();
+   //     }
     }
     
 }
