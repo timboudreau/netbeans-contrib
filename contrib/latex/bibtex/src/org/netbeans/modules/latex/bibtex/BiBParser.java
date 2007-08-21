@@ -164,7 +164,7 @@ public class BiBParser {
         
         entry.setType(type);
         
-        Stack bracketStack = new Stack();
+        Stack<String> bracketStack = new Stack<String>();
         
         while ((token = getNextToken()).id() != BiBTeXTokenId.OP_BRAC)
             ;
@@ -196,18 +196,38 @@ public class BiBParser {
         if (isEOF() || isStopParsingInsideEntryToken(token))
             return null;
         
+        StringBuilder tag = new StringBuilder();
+        
         while (!isEOF() && (token = getNextToken()).id() != BiBTeXTokenId.TEXT && !isStopParsingInsideEntryToken(token))
             ;
         
         if (isEOF() || isStopParsingInsideEntryToken(token))
             return null;
         
-        entry.setTag(token.text().toString());
+        entry.setTag(readTag(token));
         
         while (parseMap(entry))
             ;
         
         return entry;
+    }
+    
+    private String readTag(Token token) {
+        StringBuilder sb = new StringBuilder();
+        
+        while (   token.id() == BiBTeXTokenId.TEXT
+               || token.id() == BiBTeXTokenId.DASH
+               || token.id() == BiBTeXTokenId.UNDERSCORE) {
+            sb.append(token.text());
+            
+            token = getNextToken();
+            
+            if (isEOF()) {
+                break;
+            }
+        }
+        
+        return sb.toString();
     }
     
     private boolean parseMap(PublicationEntry entry) throws IOException {
@@ -253,7 +273,16 @@ public class BiBParser {
         
         while (!isEOF() && (token = getNextToken()).id() != BiBTeXTokenId.COMMA && !isStopParsingInsideEntryToken(token) && token.id() != BiBTeXTokenId.CL_BRAC) {
             if (token.id() == BiBTeXTokenId.OP_BRAC) {//TODO: balanced brackets:
-                while ((token = getNextToken()).id() != BiBTeXTokenId.CL_BRAC && !isStopParsingInsideEntryToken(token)) {
+                int brackets = 1;
+                while (!isStopParsingInsideEntryToken(token = getNextToken())) {
+                    if (token.id() == BiBTeXTokenId.OP_BRAC)
+                        brackets++;
+                    if (token.id() == BiBTeXTokenId.CL_BRAC)
+                        brackets--;
+                    
+                    if (brackets == 0)
+                        break;
+                    
                     appendContent(result, token);
                 }
                 continue;

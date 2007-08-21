@@ -22,16 +22,27 @@
 package org.netbeans.modules.latex.bibtex;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.PrintStream;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import javax.swing.text.BadLocationException;
+import javax.swing.text.Document;
 import junit.framework.AssertionFailedError;
 import junit.framework.TestCase;
+import org.netbeans.junit.MockServices;
+import org.netbeans.modules.latex.UnitUtilities;
 
 import org.netbeans.modules.latex.model.bibtex.PublicationEntry;
 import org.netbeans.modules.latex.bibtex.IncrementalParserTestStub.*;
+import org.netbeans.modules.latex.model.Utilities;
+import org.netbeans.modules.latex.model.bibtex.BiBTeXModel;
+import org.netbeans.modules.latex.model.bibtex.Entry;
+import org.openide.filesystems.FileObject;
+import org.openide.filesystems.URLMapper;
 
 /**
  *
@@ -48,8 +59,8 @@ public class IncrementalParserTest extends TestCase {
         return System.err;
     }
     
-    public void setUp() {
-        System.setProperty("org.openide.util.Lookup", "org.netbeans.modules.latex.bibtex.UnitLookup");
+    public void setUp() throws Exception {
+        UnitUtilities.prepareTest(new String[0], new Object[] {new BiBTeXModelFactoryImpl()});
     }
     
     private URL getTestFile() throws MalformedURLException {
@@ -63,8 +74,12 @@ public class IncrementalParserTest extends TestCase {
 //        return new URL("file://" + new File(getDataDir(), "test.tex").getAbsolutePath());//TODO: CORRECT!
     }
     
-    private void performTest(URL file, Description description) throws Exception {
+    private void performTest(URL url, Description description) throws Exception {
         try {
+            FileObject file = URLMapper.findFileObject(url);
+            
+            assertNotNull(file);
+            
             IncrementalParserTestStub.performTest(file, description);
         } catch (Exception e) {
             AssertionFailedError error = new AssertionFailedError("Test Case Failed");
@@ -187,7 +202,7 @@ public class IncrementalParserTest extends TestCase {
         newEntry.setTitle("On BiBTeX Files Processing");
         newEntry.setAuthor("Joe Hacker");
         
-        Map content = new HashMap();
+        Map<String, String> content = new HashMap<String, String>();
         
         content.put("url", "http://somwhere.org");
         
@@ -200,4 +215,72 @@ public class IncrementalParserTest extends TestCase {
         }));
     }
 
+    public void testParsingZajo1() throws Exception {
+        performTest(getTestFile(),
+        new Description(
+"\n@INPROCEEDINGS{FB_03,\n" +
+"    year = \"2003\",\n" +
+"    pages = \"142-143\",\n"+
+"    title = \"Do anything:\" # test # \" Continued\",\n"+
+"    booktitle = \"Proc. of the 3rd Conference on LaTeX editors\",\n"+
+"    author = \"X. Foo and Y. Bar\",\n"+
+"}\n"+
+"\n"+
+"@INPROCEEDINGS{FB-05,\n"+
+"    title = \"title\",\n"+
+"    journal = \"test - journal\",\n"+
+"    author = \"test\",\n"+
+"}\n", new Change[] {
+        new ValidateChange(new Validator() {
+            public void validate(Document doc) throws BadLocationException, IOException {
+                BiBTeXModel model = BiBTeXModel.getModel(Utilities.getDefault().getFile(doc));
+                
+                assertEquals(2, model.getEntries().size());
+                
+                Entry e1 = (Entry) model.getEntries().get(0);
+                Entry e2 = (Entry) model.getEntries().get(1);
+                
+                assertNotNull(e1);
+                assertNotNull(e2);
+                
+                assertTrue(e1 instanceof PublicationEntry);
+                assertTrue(e2 instanceof PublicationEntry);
+                
+                assertEquals("FB_03", ((PublicationEntry) e1).getTag());
+                assertEquals("FB-05", ((PublicationEntry) e2).getTag());
+            }
+        })
+        
+        }));
+    }
+
+    public void testParsingZajo2() throws Exception {
+        performTest(getTestFile(),
+        new Description(
+"\n@INPROCEEDINGS{FB_03,\n" +
+"    author = {X. Foo and Y. {Bar}},\n"+
+"    title = {Do anything:{test} Continued},\n"+
+"    booktitle = \"Proc. of the 3rd Conference on LaTeX editors\",\n"+
+"    year = \"2003\",\n" +
+"    pages = \"142-143\",\n"+
+"}\n", new Change[] {
+        new ValidateChange(new Validator() {
+            public void validate(Document doc) throws BadLocationException, IOException {
+                BiBTeXModel model = BiBTeXModel.getModel(Utilities.getDefault().getFile(doc));
+                
+                assertEquals(1, model.getEntries().size());
+                
+                Entry e1 = (Entry) model.getEntries().get(0);
+                
+                assertNotNull(e1);
+                
+                assertTrue(e1 instanceof PublicationEntry);
+                
+                assertEquals("Do anything:{test} Continued", ((PublicationEntry) e1).getTitle());
+            }
+        })
+        
+        }));
+    }
+    
 }

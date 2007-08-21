@@ -35,6 +35,8 @@ public enum BiBTeXTokenId implements TokenId {
     TEXT("text"),
     TYPE("type"),
     UNKNOWN_CHARACTER("unknown"),
+    DASH("text"),
+    UNDERSCORE("text"),
     WHITESPACE("whitespaces");
     
     private String category;

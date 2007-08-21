@@ -309,7 +309,19 @@ public class IncrementalParserTestStub {
         
     }
 
-    public static void performTest(URL testFile, Description description) throws Exception {
+    public static class ValidateChange extends Change {
+        
+        public ValidateChange(Validator validator) {
+            super(validator);
+        }
+        
+        public void performChange(Document doc) throws BadLocationException, IOException {
+            getValidator().validate(doc);
+        }
+        
+    }
+    
+    public static void performTest(FileObject testFile, Description description) throws Exception {
         Document doc = Utilities.getDefault().openDocument(testFile);
         
         new IncrementalParserTestStub().test(doc, description);

@@ -93,6 +93,10 @@ import org.netbeans.spi.lexer.TokenFactory;
                             case '"':
                                 state = 3;
                                 continue MAIN_LOOP;
+                            case '-':
+                                return factory.createToken(BiBTeXTokenId.DASH);
+                            case '_':
+                                return factory.createToken(BiBTeXTokenId.UNDERSCORE);
                         }
                         
                         if (Character.isLetter((char) read) || Character.isDigit((char) read)) {
