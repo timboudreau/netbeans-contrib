@@ -23,8 +23,6 @@ import java.io.File;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
-import org.netbeans.api.java.classpath.ClassPath;
-import org.netbeans.api.java.project.classpath.ProjectClassPathModifier;
 import org.netbeans.api.project.FileOwnerQuery;
 import org.netbeans.api.project.Project;
 import org.netbeans.api.project.libraries.Library;
@@ -34,10 +32,12 @@ import org.netbeans.modules.portalpack.portlets.genericportlets.core.codegen.Web
 import org.netbeans.modules.portalpack.portlets.genericportlets.core.util.NetbeanConstants;
 import org.netbeans.modules.portalpack.portlets.genericportlets.frameworks.util.PortletProjectUtil;
 import org.netbeans.modules.web.api.webmodule.WebModule;
+import org.netbeans.modules.web.project.api.WebProjectLibrariesModifier;
 import org.netbeans.modules.web.spi.webmodule.FrameworkConfigurationPanel;
 import org.netbeans.modules.web.spi.webmodule.WebFrameworkProvider;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
+import org.openide.util.Lookup;
 import org.openide.util.NbBundle;
 
 /**
@@ -63,19 +63,20 @@ public class JSR168WebFrameworkProvider extends WebFrameworkProvider{
         PortletContext context = (PortletContext)data.get("context");
          try{
             FileObject dd = wm.getDeploymentDescriptor();
-           // WebApp ddRoot = DDProvider.getDefault().getDDRoot(dd);
-           // if (ddRoot != null){
-                //  if (!WebApp.VERSION_2_5.equals(ddRoot.getVersion())) {
+          
                 Library bpLibrary = null;
                 if(context.getPortletVersion().equals(NetbeanConstants.PORTLET_2_0))
                     bpLibrary = LibraryManager.getDefault().getLibrary("Portlet-2.0-Lib"); //NOI18N
                 else
                     bpLibrary = LibraryManager.getDefault().getLibrary("Portlet-1.0-Lib"); //NOI18N
-                if (bpLibrary != null) {
-                    FileObject[] sources = wm.getJavaSources();
-                   for(int i =0;i<sources.length;i++)
-                    ProjectClassPathModifier.addLibraries(new Library[]{bpLibrary}, sources[i], ClassPath.COMPILE);
+                
+                Lookup lookup = project.getLookup();
+                Object modifierObj = lookup.lookup(WebProjectLibrariesModifier.class);
+                if(modifierObj != null && (modifierObj instanceof WebProjectLibrariesModifier))
+                {
+                    ((WebProjectLibrariesModifier)modifierObj).addCompileLibraries(new Library[]{bpLibrary});
                 }
+                
               
          }catch(Exception e){
              e.printStackTrace();
@@ -103,33 +104,7 @@ public class JSR168WebFrameworkProvider extends WebFrameworkProvider{
             }
         }
         return null;
-        //throw new UnsupportedOperationException("Not supported yet.");
-    }
-    
-    private void excludePortlet1_0LibrariesFromPackaging()
-    {
-      /*  
-        Project p;
-        ProjectUtils.getInformation(p).
-         Element data = projectHelper.getPrimaryConfigurationData(true);
-                Document doc = data.getOwnerDocument();
-                Element nameEl = doc.createElement("name"); // NOI18N
-                nameEl.appendChild(doc.createTextNode(prjName));
-                data.appendChild(nameEl);
-                Element minant = doc.createElement("minimum-ant-version"); // NOI18N
-                minant.appendChild(doc.createTextNode(MINIMUM_ANT_VERSION)); // NOI18N
-                data.appendChild(minant);            
-                
-                Element sourceRoots = doc.createElement("source-roots");  //NOI18N
-                data.appendChild (sourceRoots);
-                Element testRoots = doc.createElement("test-roots");  //NOI18N
-                data.appendChild (testRoots);
         
-                Element srcDir = doc.createElement("root");
-                srcDir.setAttribute("id","src.dir");
-                sourceRoots.appendChild(srcDir);
-                         
-                projectHelper.putPrimaryConfigurationData(data, true);*/
     }
 
     public boolean isInWebModule(WebModule wm) {
@@ -137,7 +112,7 @@ public class JSR168WebFrameworkProvider extends WebFrameworkProvider{
         
         File portletXml = new File(FileUtil.toFile(webInfObj),"portlet.xml");
         return portletXml.exists();
-        //throw new UnsupportedOperationException("Not supported yet.");
+       
     }
 
     public File[] getConfigurationFiles(WebModule wm) {
