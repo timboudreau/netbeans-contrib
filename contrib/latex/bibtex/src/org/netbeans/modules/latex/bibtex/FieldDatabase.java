@@ -14,7 +14,7 @@
  *
  * The Original Software is the LaTeX module.
  * The Initial Developer of the Original Software is Jan Lahoda.
- * Portions created by Jan Lahoda_ are Copyright (C) 2002-2004.
+ * Portions created by Jan Lahoda_ are Copyright (C) 2002-2007.
  * All Rights Reserved.
  *
  * Contributor(s): Jan Lahoda.
@@ -42,13 +42,13 @@ public class FieldDatabase {
         return instance;
     }
 
-    private Map type2Required;
-    private Map type2Optional;
+    private Map<String, Collection<String>> type2Required;
+    private Map<String, Collection<String>> type2Optional;
     
     /** Creates a new instance of FieldDatabase */
     private FieldDatabase() {
-        type2Required = new HashMap();
-        type2Optional = new HashMap();
+        type2Required = new HashMap<String, Collection<String>>();
+        type2Optional = new HashMap<String, Collection<String>>();
         
         type2Required.put("INPROCEEDINGS", //==CONFERENCE!
             Arrays.asList(new String[] {
@@ -112,25 +112,25 @@ public class FieldDatabase {
         );
     }
     
-    public Collection/*<String>*/ getRequiredFields(String type) {
-        Collection result = (Collection) type2Required.get(type.toUpperCase());
+    public Collection<String> getRequiredFields(String type) {
+        Collection<String> result = type2Required.get(type.toUpperCase());
         
         if (result != null)
             return result;
         else
-            return Collections.EMPTY_LIST;
+            return Collections.<String>emptyList();
     }
 
-    public Collection/*<String>*/ getOptionalFields(String type) {
-        Collection result = (Collection) type2Optional.get(type.toUpperCase());
+    public Collection<String> getOptionalFields(String type) {
+        Collection<String> result = type2Optional.get(type.toUpperCase());
         
         if (result != null)
             return result;
         else
-            return Collections.EMPTY_LIST;
+            return Collections.<String>emptyList();
     }
     
-    public Collection/*<String>*/ getKnownTypes() {
+    public Collection<String> getKnownTypes() {
         return type2Required.keySet();
     }
 }

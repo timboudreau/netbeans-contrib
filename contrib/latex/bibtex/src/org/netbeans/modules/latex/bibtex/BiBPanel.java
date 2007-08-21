@@ -14,7 +14,7 @@
  *
  * The Original Software is the LaTeX module.
  * The Initial Developer of the Original Software is Jan Lahoda.
- * Portions created by Jan Lahoda_ are Copyright (C) 2002-2004.
+ * Portions created by Jan Lahoda_ are Copyright (C) 2002-2007.
  * All Rights Reserved.
  *
  * Contributor(s): Jan Lahoda.
@@ -57,12 +57,12 @@ public class BiBPanel extends javax.swing.JPanel implements ActionListener {
     public static final String JOURNAL = "journal";
     public static final String PAGES = "pages";
     
-    private static final Map NAMES2CODES;
+    private static final Map<String, String> NAMES2CODES;
     
     private String type;
     
     static {
-        NAMES2CODES = new HashMap();
+        NAMES2CODES = new HashMap<String, String>();
         
         NAMES2CODES.put(AUTHOR, "Author");
         NAMES2CODES.put(TITLE, "Title");
@@ -83,7 +83,7 @@ public class BiBPanel extends javax.swing.JPanel implements ActionListener {
     
     private JTextField getTextField(String name) {
         try {
-            String codeBase = (String) NAMES2CODES.get(name);
+            String codeBase = NAMES2CODES.get(name);
             
             if (codeBase == null)
                 return null;
@@ -112,7 +112,7 @@ public class BiBPanel extends javax.swing.JPanel implements ActionListener {
 
     private JLabel getLabel(String name) {
         try {
-            String codeBase = (String) NAMES2CODES.get(name);
+            String codeBase = NAMES2CODES.get(name);
             
             if (codeBase == null)
                 return null;
@@ -158,7 +158,7 @@ public class BiBPanel extends javax.swing.JPanel implements ActionListener {
 
         this.type = type;
         
-        Collection c = new ArrayList();
+        Collection<String> c = new ArrayList<String>();
 	
 	c.addAll(FieldDatabase.getDefault().getRequiredFields(type));
 	c.addAll(FieldDatabase.getDefault().getOptionalFields(type));
@@ -169,7 +169,7 @@ public class BiBPanel extends javax.swing.JPanel implements ActionListener {
     }
     
     private void setContent(Map content) {
-        Collection c = new ArrayList();
+        Collection<String> c = new ArrayList<String>();
 	
 	c.addAll(FieldDatabase.getDefault().getRequiredFields(type));
 	c.addAll(FieldDatabase.getDefault().getOptionalFields(type));
@@ -191,7 +191,7 @@ public class BiBPanel extends javax.swing.JPanel implements ActionListener {
     public void setContent(PublicationEntry entry) {
         type = entry.getType().toUpperCase();
         
-        Collection c = new ArrayList();
+        Collection<String> c = new ArrayList<String>();
 	
 	c.addAll(FieldDatabase.getDefault().getRequiredFields(type));
 	c.addAll(FieldDatabase.getDefault().getOptionalFields(type));
@@ -206,7 +206,7 @@ public class BiBPanel extends javax.swing.JPanel implements ActionListener {
     }
     
     private void setVariableTable(Map content) {
-        Collection c = new ArrayList();
+        Collection<String> c = new ArrayList<String>();
 	
 	c.addAll(FieldDatabase.getDefault().getRequiredFields(type));
 	c.addAll(FieldDatabase.getDefault().getOptionalFields(type));
@@ -215,7 +215,6 @@ public class BiBPanel extends javax.swing.JPanel implements ActionListener {
         
         toUse.removeAll(c);
         
-        System.err.println("toUse = " + toUse );
         Iterator iter = toUse.iterator();
         int rowIndex = 0;
         
