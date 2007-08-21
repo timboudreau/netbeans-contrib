@@ -1,0 +1,44 @@
+<#if PACKAGE_NAME != "">package ${PACKAGE_NAME};
+</#if>
+import java.io.IOException;
+import javax.portlet.PortletException;
+
+<#assign implements = ""><#assign i = 0><#assign comma = ","><#foreach filter in dc.getFilterTypes()><#if filter == "Action Filter"><#assign filterType = "Action"><#elseif filter == "Render Filter"><#assign filterType = "Render"><#elseif filter == "Resource Filter"><#assign filterType = "Resource"><#elseif filter == "Event Filter"><#assign filterType = "Event"></#if><#if i == 0><#assign implements = implements + filterType + "Filter"><#else><#assign implements = implements + comma + filterType + "Filter"></#if><#assign i = i + 1>import javax.portlet.${filterType}Request;
+import javax.portlet.${filterType}Response;
+import javax.portlet.filter.${filterType}Filter;
+</#foreach>
+import javax.portlet.filter.FilterChain;
+import javax.portlet.filter.FilterConfig;
+
+/**
+ * ${CLASS_NAME} Filter Class
+ */
+public class ${CLASS_NAME} implements ${implements}{
+    
+    private FilterConfig filterConfig = null;
+
+    public void init(FilterConfig filterConfig) throws PortletException {
+        this.filterConfig = filterConfig;
+    }
+<#foreach filterType in dc.getFilterTypes()>
+<#if filterType == "Render Filter">    public void doFilter(RenderRequest renderRequest, RenderResponse renderResponse, FilterChain filterChain) throws IOException, PortletException {
+        //Write Your Code Here       
+        filterChain.doFilter(renderRequest, renderResponse);
+    }
+<#elseif filterType == "Action Filter">    public void doFilter(ActionRequest actionRequest, ActionResponse actionResponse, FilterChain filterChain) throws IOException, PortletException {
+        //Write Your Code Here       
+        filterChain.doFilter(actionRequest, actionResponse);
+    }
+<#elseif filterType == "Event Filter">    public void doFilter(EventRequest eventRequest, EventResponse eventResponse, FilterChain filterChain) throws IOException, PortletException {
+        //Write Your Code Here       
+        filterChain.doFilter(eventRequest, eventResponse);
+    }
+<#elseif filterType == "Resource Filter">    public void doFilter(ResourceRequest resourceRequest, ResourceResponse resourceResponse, FilterChain filterChain) throws IOException, PortletException {
+        //Write Your Code Here       
+        filterChain.doFilter(resourceRequest, resourceResponse);
+    }
+</#if></#foreach>
+    public void destroy() {
+    }
+    
+}

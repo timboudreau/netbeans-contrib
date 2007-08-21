@@ -1,35 +1,24 @@
-#if($pc.getPortletVersion() == '2.0')
-<portlet-app xmlns="http://java.sun.com/xml/ns/portlet/portlet-app_2_0.xsd"
+<#if pc.getPortletVersion() == "2.0"><portlet-app xmlns="http://java.sun.com/xml/ns/portlet/portlet-app_2_0.xsd"
              xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
              xsi:schemaLocation="http://java.sun.com/xml/ns/portlet/portlet-app_2_0.xsd http://java.sun.com/xml/ns/portlet/portlet-app_2_0.xsd" id="myPortletApp" version="2.0">
-#else
-<portlet-app xmlns="http://java.sun.com/xml/ns/portlet/portlet-app_1_0.xsd"
+<#else><portlet-app xmlns="http://java.sun.com/xml/ns/portlet/portlet-app_1_0.xsd"
              xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
              xsi:schemaLocation="http://java.sun.com/xml/ns/portlet/
                                  portlet-app_1_0.xsd http://java.sun.com/xml/ns/portlet/portlet-app_1_0.xsd"
              version="1.0">
-#end
- <portlet>
-#if($pc.getPortletDescription() && $pc.getPortletDescription() != '')
-        <description>$pc.getPortletDescription()</description>
-#end
-        <portlet-name>$pc.getPortletName()</portlet-name>
-#if($pc.getPortletDisplayName() && $pc.getPortletDisplayName() != '')
-        <display-name>$pc.getPortletDisplayName()</display-name>
-#end
-        <portlet-class>$pc.getPortletClass()</portlet-class>
+</#if> <portlet>
+<#if pc.getPortletDescription() != "">        <description>${pc.getPortletDescription()}</description>
+</#if>        <portlet-name>${pc.getPortletName()}</portlet-name>
+<#if pc.getPortletDisplayName() != "">        <display-name>${pc.getPortletDisplayName()}</display-name>
+</#if>        <portlet-class>${pc.getPortletClass()}</portlet-class>
         <expiration-cache>0</expiration-cache>
         <supports>
             <mime-type>text/html</mime-type>          
-#foreach($mode in $pc.getModes())
-            <portlet-mode>$mode</portlet-mode>
-#end
-        </supports>
+<#foreach mode in pc.getModes()>            <portlet-mode>${mode}</portlet-mode>
+</#foreach>        </supports>
         <portlet-info>
-            <title>$pc.getPortletTitle()</title>
-#if($pc.getPortletShortTitle() && $pc.getPortletShortTitle() != '')
-            <short-title>$pc.getPortletShortTitle()</short-title>
-#end
-        </portlet-info>
+            <title>${pc.getPortletTitle()}</title>
+<#if pc.getPortletShortTitle() != "">            <short-title>${pc.getPortletShortTitle()}</short-title>
+</#if>        </portlet-info>
  </portlet>
 </portlet-app>

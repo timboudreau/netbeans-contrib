@@ -9,4 +9,6 @@
 <%PortletPreferences prefs = renderRequest.getPreferences();%> 
 --%>
 
-<b>$DESC</b>
+<b>
+    ${DESC}
+</b>

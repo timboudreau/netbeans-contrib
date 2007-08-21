@@ -1,7 +1,5 @@
-#if($PACKAGE_NAME != "")
-package $PACKAGE_NAME;
-#end
-import javax.portlet.GenericPortlet;
+<#if PACKAGE_NAME != "">package ${PACKAGE_NAME};
+</#if>import javax.portlet.GenericPortlet;
 import javax.portlet.ActionRequest;
 import javax.portlet.PortletConfig;
 import javax.portlet.PortletRequestDispatcher;
@@ -14,11 +12,10 @@ import javax.portlet.PortletMode;
 import javax.portlet.PortletPreferences;
 import javax.portlet.WindowState;
 import java.io.IOException;
-import java.io.PrintWriter;
 /**
-* This is a $CLASS_NAME
+* This is a ${CLASS_NAME}
 */
-public class $CLASS_NAME extends GenericPortlet {
+public class ${CLASS_NAME} extends GenericPortlet {
 
     public void init(PortletConfig config) throws PortletException {
         super.init(config);
