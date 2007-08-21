@@ -19,13 +19,8 @@
 
 package org.netbeans.modules.portalpack.portlets.genericportlets.ddapi.impl.sun;
 
-import java.io.StringWriter;
-import java.lang.reflect.Modifier;
-import java.util.HashMap;
 import java.util.logging.Logger;
 import org.netbeans.modules.portalpack.portlets.genericportlets.core.util.NetbeanConstants;
-import org.netbeans.modules.portalpack.portlets.genericportlets.ddapi.impl.sun.ui.ConsumeEventDialog;
-import org.netbeans.modules.portalpack.portlets.genericportlets.ddapi.util.PortletXMLUtil;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
@@ -35,26 +30,18 @@ import org.netbeans.api.project.FileOwnerQuery;
 import org.netbeans.api.project.Project;
 import org.netbeans.api.project.SourceGroup;
 import org.netbeans.api.project.Sources;
-import org.netbeans.modules.portalpack.portlets.genericportlets.core.util.JavaSourceUtil;
-import org.netbeans.modules.portalpack.portlets.genericportlets.ddapi.PortletApp;
-import org.netbeans.modules.portalpack.portlets.genericportlets.ddapi.util.PortletXMLUtil;
 import org.netbeans.modules.portalpack.portlets.genericportlets.ddapi.eventing.PortletEventException;
-import org.netbeans.modules.portalpack.portlets.genericportlets.ddapi.eventing.PortletEventingHandler;
-import org.netbeans.modules.portalpack.portlets.genericportlets.ddapi.impl.sun.ui.GenerateEventDialog;
 import org.netbeans.modules.portalpack.portlets.genericportlets.node.ddloaders.PortletXMLDataObject;
 import org.openide.DialogDisplayer;
 import org.openide.NotifyDescriptor;
-import org.openide.cookies.OpenCookie;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
-import org.openide.loaders.DataObject;
-import org.openide.windows.WindowManager;
 
 /**
  *
  * @author Satyaranjan
  */
-public class SunPortletEventingHandlerImpl implements PortletEventingHandler{
+public class SunPortletEventingHandlerImpl{
     private static Logger logger = Logger.getLogger(NetbeanConstants.PORTAL_LOGGER);
     private SunPortletXmlHandler sunPortletXmlHandler;
     private PortletXMLDataObject dbObj;
