@@ -18,20 +18,19 @@
   */
 package org.netbeans.modules.portalpack.portlets.genericportlets.node.ddloaders;
 
-import org.netbeans.modules.portalpack.portlets.genericportlets.ddapi.impl.sun.SunPortletXmlHandler;
-import java.io.File;
 import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.netbeans.api.project.FileOwnerQuery;
+import org.netbeans.api.project.Project;
 import org.netbeans.api.project.ProjectUtils;
+import org.netbeans.api.xml.cookies.CheckXMLCookie;
+import org.netbeans.api.xml.cookies.ValidateXMLCookie;
 import org.openide.filesystems.FileChangeListener;
 //import org.netbeans.modules.xml.multiview.DesignMultiViewDesc;
 import org.openide.filesystems.FileObject;
 import org.openide.loaders.DataObjectExistsException;
-import org.openide.loaders.MultiDataObject;
 import org.openide.loaders.XMLDataObject;
-import org.openide.nodes.CookieSet;
 import org.openide.nodes.Node;
 import org.openide.util.Lookup;
 //import org.netbeans.api.xml.cookies.CheckXMLCookie;
@@ -39,14 +38,19 @@ import org.openide.util.Lookup;
 import org.netbeans.modules.portalpack.portlets.genericportlets.ddapi.*;
 import org.netbeans.modules.portalpack.portlets.genericportlets.core.util.NetbeanConstants;
 import org.netbeans.modules.portalpack.portlets.genericportlets.ddapi.eventing.PortletEventingHandler;
-import org.netbeans.modules.portalpack.portlets.genericportlets.ddapi.impl.sun.SunPortletEventingHandlerImpl;
-//import org.netbeans.modules.xml.multiview.XmlMultiViewDataObject;
+import org.netbeans.modules.portalpack.portlets.genericportlets.ddapi.eventing.impl.PortletEventingHandlerImpl;
 //import org.netbeans.spi.xml.cookies.CheckXMLSupport;
+import org.netbeans.spi.xml.cookies.CheckXMLSupport;
+import org.netbeans.spi.xml.cookies.DataObjectAdapters;
 //import org.netbeans.spi.xml.cookies.DataObjectAdapters;
+import org.netbeans.spi.xml.cookies.ValidateXMLSupport;
 //import org.netbeans.spi.xml.cookies.ValidateXMLSupport;
 import org.openide.filesystems.FileUtil;
+import org.openide.loaders.MultiDataObject;
+import org.openide.nodes.CookieSet;
+import org.openide.text.DataEditorSupport;
 
-public class PortletXMLDataObject extends  XMLDataObject//XmlMultiViewDataObject
+public class PortletXMLDataObject extends XMLDataObject//XmlMultiViewDataObject
         implements Lookup.Provider {
     
     private static Logger logger = Logger.getLogger(NetbeanConstants.PORTAL_LOGGER);
@@ -60,14 +64,22 @@ public class PortletXMLDataObject extends  XMLDataObject//XmlMultiViewDataObject
     
     public PortletXMLDataObject(FileObject pf, PortletXMLDataLoader loader) throws DataObjectExistsException, IOException {
         super(pf, loader);
+      //  CookieSet cookies = getCookieSet();
+      ///  cookies.add((Node.Cookie) DataEditorSupport.create(this, getPrimaryEntry(), cookies));
         this.portletXmlFobj = pf;
         /*CookieSet cookies = getCookieSet();
         org.xml.sax.InputSource in = DataObjectAdapters.inputSource(this);
         CheckXMLCookie checkCookie = new CheckXMLSupport(in);
-        cookies.add(checkCookie);
+        cookies.add(checkCookie)
+        
         ValidateXMLCookie validateCookie = new ValidateXMLSupport(in);
-        cookies.add(validateCookie);
-        */
+        cookies.add(validateCookie);*/
+        
+        Project p = FileOwnerQuery.getOwner(this.getPrimaryFile());
+        if(p != null)
+        {
+            
+        }
         try{
             this.applicationName = ProjectUtils.getInformation(FileOwnerQuery.getOwner(this.getPrimaryFile())).getName();
         }catch(Exception e){
@@ -86,14 +98,14 @@ public class PortletXMLDataObject extends  XMLDataObject//XmlMultiViewDataObject
         
         //Initialize portlet eventing handler
         try{
-            portletEventingHandler = new SunPortletEventingHandlerImpl(pf.getParent(),this);
+            portletEventingHandler = new PortletEventingHandlerImpl(pf.getParent(),this);
             //parseSunPortletXml(pf.getParent());
         }catch(Throwable e){
             e.printStackTrace();
            /// portletAppExt = null;
         }
         
-        //cookies.add((Node.Cookie) DataEditorSupport.create(this, getPrimaryEntry(), cookies));
+       // cookies.add((Node.Cookie) DataEditorSupport.create(this, getPrimaryEntry(), cookies));
     }
     
     protected Node createNodeDelegate() {
@@ -159,8 +171,8 @@ public class PortletXMLDataObject extends  XMLDataObject//XmlMultiViewDataObject
     }
     
     public Lookup getLookup() {
-        return null;
-     //   return getCookieSet().getLookup();
+        //return null;        
+        return getCookieSet().getLookup();
     }
  /*   
     protected DesignMultiViewDesc[] getMultiViewDesc() {

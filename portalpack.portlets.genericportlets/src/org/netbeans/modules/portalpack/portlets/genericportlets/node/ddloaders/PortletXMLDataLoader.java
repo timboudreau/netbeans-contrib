@@ -28,6 +28,7 @@ import org.openide.util.NbBundle;
 public class PortletXMLDataLoader extends UniFileLoader {
     
     public static final String REQUIRED_MIME = "text/x-dd-portlet1.0";
+    public static final String REQUIRED_MIME_PORTLET20 = "text/x-dd-portlet20+xml";
     
     private static final long serialVersionUID = 1L;
     
@@ -42,6 +43,7 @@ public class PortletXMLDataLoader extends UniFileLoader {
     protected void initialize() {
         super.initialize();
         getExtensions().addMimeType(REQUIRED_MIME);
+        getExtensions().addMimeType(REQUIRED_MIME_PORTLET20);
     }
     
     protected MultiDataObject createMultiObject(FileObject primaryFile) throws DataObjectExistsException, IOException {
@@ -49,7 +51,7 @@ public class PortletXMLDataLoader extends UniFileLoader {
     }
     
     protected String actionsContext() {
-        return "Loaders/" + REQUIRED_MIME + "/Actions";
+        return "Loaders/" + REQUIRED_MIME_PORTLET20 + "/Actions";
     }
     
 }
