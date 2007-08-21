@@ -19,19 +19,14 @@
 
 package org.netbeans.modules.portalpack.portlets.genericportlets;
 
-import java.util.HashMap;
-import org.apache.velocity.VTResourceLoader;
 import org.openide.modules.ModuleInstall;
 
 /**
- *
- * @author root
+ * Module Initializer class for GenericPortletBuilder Module
+ * @author Satya
  */
 public class ModuleInitializer extends ModuleInstall{
     public void restored() {
-         VTResourceLoader.getContext(new HashMap());
-        //Initialize template dir if not created
-     //   PluginInitializationComponent.initializeTemplatesIfNot(new File(NetbeanConstants.CONFIG_DIR),NetbeanConstants.TEMPLATES,PluginInitializationComponent.class);
-     //   PluginContextFactory.getInstance().initVelocityEngine(NetbeanConstants.CONFIG_DIR + File.separator + "templates");
+  
     } 
 }
