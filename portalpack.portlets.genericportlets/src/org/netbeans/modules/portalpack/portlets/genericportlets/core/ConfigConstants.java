@@ -29,8 +29,8 @@ public interface ConfigConstants {
     public static final String WEB_XML_24_TEMPLATE = "web-24.xml";
     public static final String PORTLET_XML_TEMPLATE = "portlet168-xml.template";
     public static final String PORTLET_XML_PORTLET_FRAG = "portlet168-portlet.template";
-    public static final String JSR168_TEMPLATE_NAME = "jsr168portlet.template";
-    public static final String JSR168_TEMPLATE_WITH_JSP = "jsr168portletwithjsp.template";
+    public static final String JSR168_TEMPLATE_NAME = "jsr168portlet.java";
+    public static final String JSR168_TEMPLATE_WITH_JSP = "jsr168portletwithjsp.java";
     public static final String NETBEANS_PROJECT_XML = "project.xml.template";
     
     //Portlet 2.0 constants
