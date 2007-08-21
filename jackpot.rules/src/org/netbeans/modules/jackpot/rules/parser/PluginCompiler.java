@@ -19,7 +19,6 @@
 
 package org.netbeans.modules.jackpot.rules.parser;
 
-import com.sun.tools.javac.util.DefaultFileManager;
 import com.sun.tools.javac.main.*;
 import com.sun.tools.javac.util.*;
 import java.io.*;
@@ -284,7 +283,7 @@ public class PluginCompiler {
 	if (out != null) {
 	    out.close();
 	    Context context = new Context();
-            DefaultFileManager.preRegister(context);
+            JavacFileManager.preRegister(context);
 	    log = new ScriptParser.ScriptLog(context);
 	    Options options = Options.instance(context);
 	    String gcd = generatedCodeDir.toString();
@@ -295,7 +294,7 @@ public class PluginCompiler {
             options.put("-g", "-g");
             if (javacpath != null)
                 options.put("-Xbootclasspath/p:", javacpath);
-            DefaultFileManager fileManager = new DefaultFileManager(context, true, null);
+            JavacFileManager fileManager = new JavacFileManager(context, true, null);
             JavaFileObject fileobject = fileManager.getFileForInput(genJava.toString());
 	    List<JavaFileObject> filenames = List.of(fileobject);
 	    JavaCompiler comp = new JavaCompiler(context);

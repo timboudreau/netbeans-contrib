@@ -87,7 +87,7 @@ class VariableCharacterization {
 	    }
 	    int parentContext(Tree tree, Tree parent) {
 		if(parent==null) return 0;
-		int tag = ((JCTree)parent).tag;
+		int tag = ((JCTree)parent).getTag();
 		if(JCTree.BITOR_ASG<=tag && tag<=JCTree.MOD_ASG) {
 		    if(((JCAssignOp)parent).lhs==tree) return ASSIGN;
 		}

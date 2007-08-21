@@ -228,10 +228,10 @@ abstract public class GeneratedMatcher extends TreePathTransformer<Void,Object> 
 		if(s2 != s) {
                     if (explicitRef)
                         t = explicitQualIdent(s2);
-                    else if (t.tag == JCTree.IDENT)
+                    else if (t.getTag() == JCTree.IDENT)
                         t = jcmake.Ident(s2);
                     else {
-                        assert t.tag == JCTree.SELECT;
+                        assert t.getTag() == JCTree.SELECT;
                         t = jcmake.Select(((JCFieldAccess)t).selected, s2.name);
                     }
                 }

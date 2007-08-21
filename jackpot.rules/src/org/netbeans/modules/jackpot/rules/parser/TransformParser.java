@@ -276,7 +276,7 @@ public class TransformParser extends ScriptParser {
 	public void generate(JCTree t) {
 	    try {
 		if(t==null) pc.write("null");
-		else if(t.tag==JCTree.IDENT) {
+		else if(t.getTag()==JCTree.IDENT) {
 		    t.accept(this);
 		} else {
 		    pc.write("rewrite0(");
@@ -308,7 +308,7 @@ public class TransformParser extends ScriptParser {
 		}
 		else {
 		    JCTree head = deblock(t.head);
-		    if(head.tag==JCTree.IDENT) {
+		    if(head.getTag()==JCTree.IDENT) {
 			Name id = ((JCIdent)head).name;
 			for(int i = metavars.length; --i>=0; )
 			    if(id==metavars[i]){
@@ -660,7 +660,7 @@ public class TransformParser extends ScriptParser {
 	public void visitAssignop(JCAssignOp that) {
 	    try {
 		pc.write("jcmake.AssignOp(");
-		pc.write(that.tag);
+		pc.write(that.getTag());
 		pc.write(',');
 		generate(that.lhs);
 		pc.write(',');
@@ -671,7 +671,7 @@ public class TransformParser extends ScriptParser {
 	public void visitUnary(JCUnary that) {
 	    try {
 		pc.write("jcmake.Unary(");
-		pc.write(that.tag);
+		pc.write(that.getTag());
 		pc.write(",(JCExpression)");
 		generate(that.arg);
 		pc.write(')');
@@ -680,7 +680,7 @@ public class TransformParser extends ScriptParser {
 	public void visitBinary(JCBinary that) {
 	    try {
 		pc.write("jcmake.Binary(");
-		pc.write(that.tag);
+		pc.write(that.getTag());
 		pc.write(",(JCExpression)");
 		generate(that.lhs);
 		pc.write(",(JCExpression)");
@@ -953,9 +953,9 @@ public class TransformParser extends ScriptParser {
 
     private void genSuchThat(JCTree t, boolean invert) throws IOException {
 	if(t==null) return;
-	switch(t.tag) {
+	switch(t.getTag()) {
 	default: 
-	    if(funcNames[t.tag]!=null && !invert) {
+	    if(funcNames[t.getTag()]!=null && !invert) {
 		addKnown(t);
 		addBoolean(knownValue(t)+"==Boolean.TRUE");
 	    } else
@@ -988,7 +988,7 @@ public class TransformParser extends ScriptParser {
     private String genSuchThatTerm(JCTree t,boolean invert) {
 	String result = "true";
 	if(t!=null)
-	switch(t.tag) {
+	switch(t.getTag()) {
 	case JCTree.NOT:
 	    return genSuchThatTerm(((JCUnary)t).arg,!invert);
 	case JCTree.PARENS:
@@ -1013,13 +1013,13 @@ public class TransformParser extends ScriptParser {
 	    }
 	    break;
 	default:
-	    if(funcNames[t.tag]!=null) return genKnown(t, invert);
+	    if(funcNames[t.getTag()]!=null) return genKnown(t, invert);
 	    logError(t.pos, "illegal.guard", t);
 	    break;
 	case JCTree.APPLY:
 	    JCMethodInvocation mcall = (JCMethodInvocation) t;
 	    try {
-		if(mcall.meth.tag==JCTree.IDENT) {
+		if(mcall.meth.getTag()==JCTree.IDENT) {
 		    Name nm = ((JCIdent)mcall.meth).name;
 		    if(nm==assignedInName) {
 			checkLen(mcall.args,2);
@@ -1066,7 +1066,7 @@ public class TransformParser extends ScriptParser {
     }
     private String isKnown(JCTree t) {
 	if(t==null) return "";
-	if(funcNames[t.tag]!=null) 
+	if(funcNames[t.getTag()]!=null) 
 	    return isKnown(((JCBinary)t).lhs)+isKnown(((JCBinary)t).rhs);
 	if(t instanceof JCLiteral)
 	    return "";
@@ -1079,7 +1079,7 @@ public class TransformParser extends ScriptParser {
     }
     private void addKnown(JCTree t) {
 	if(t==null) return;
-	int tag = t.tag;
+	int tag = t.getTag();
 	if(funcNames[tag] != null) {
 	    addKnown(((JCBinary)t).lhs);
 	    addKnown(((JCBinary)t).rhs);
@@ -1116,8 +1116,8 @@ public class TransformParser extends ScriptParser {
     
     private String knownValue(JCTree t) {
 	if(t==null) return "intZero";
-	if(funcNames[t.tag]!=null) 
-	    return funcNames[t.tag]+"("+knownValue(((JCBinary)t).lhs)+","+knownValue(((JCBinary)t).rhs)+")";
+	if(funcNames[t.getTag()]!=null) 
+	    return funcNames[t.getTag()]+"("+knownValue(((JCBinary)t).lhs)+","+knownValue(((JCBinary)t).rhs)+")";
 	if(t instanceof JCLiteral) {
 	    Object o = ((JCLiteral)t).value;
 	    if(o instanceof String) {
@@ -1174,7 +1174,7 @@ public class TransformParser extends ScriptParser {
     }
     private String arg(JCTree t) throws ArgError {
 	if(t==null) return "null";
-	switch(t.tag) {
+	switch(t.getTag()) {
 	    case JCTree.IDENT: {
 		Name idname = ((JCIdent)t).name;
 		for(int i = metaslot; --i>=0; )
@@ -1262,7 +1262,7 @@ public class TransformParser extends ScriptParser {
 	if(mightBeNull) addBoolean(prefix+"!=null");
 	for( ; t.nonEmpty(); t = t.tail) {
 	    JCTree head = deblock(t.head);
-	    if(head.tag==JCTree.IDENT) {
+	    if(head.getTag()==JCTree.IDENT) {
 		Name idname = ((JCIdent)head).name;
 		MetaKind meta = metaKind(idname);
 		if(meta == MetaKind.LIST) {
@@ -1338,7 +1338,7 @@ public class TransformParser extends ScriptParser {
     }
     private boolean containsMeta(JCTree t) {
 	while(t!=null)
-	    switch(t.tag) {
+	    switch(t.getTag()) {
 		default: return false;
 		case JCTree.IDENT: return metaKind(((JCIdent)t).name) != MetaKind.NONE;
 		case JCTree.SELECT: t = ((JCFieldAccess)t).selected; continue;
@@ -1353,7 +1353,7 @@ public class TransformParser extends ScriptParser {
 	    addBoolean("isEmpty("+prefix+")");
 	    return;
 	}
-	switch(t.tag) {
+	switch(t.getTag()) {
 	case JCTree.IDENT:
 	    Name idname = ((JCIdent)t).name;
 	    if(idname==trueName) {
@@ -1382,11 +1382,11 @@ public class TransformParser extends ScriptParser {
 	addDeclaration("JCTree", tname0, prefix);
 	prefix = tname0;
 	if(couldBeNull) addBoolean(prefix+"!=null");
-	addInt(prefix+".tag", t.tag);
+	addInt(prefix+".getTag()", t.getTag());
 	String cname = t.getClass().getName().replace('$','.');
 	String tname = "T"+ ++tempslot;
 	addDeclaration(cname,tname,prefix);
-	int tag = t.tag;
+	int tag = t.getTag();
 	switch(tag) {
 	default:
 	    if(tag>=JCTree.BITOR_ASG) {
@@ -1572,7 +1572,7 @@ public class TransformParser extends ScriptParser {
             }
 	    break;
         case JCTree.WILDCARD:
-            genMatch(tname+".kind.ordinal()", ((JCWildcard)t).kind.ordinal());
+            genMatch(tname+".kind.ordinal()", ((JCWildcard)t).kind.kind.ordinal());
             genMatch(tname+".inner", ((JCWildcard)t).inner);
             break;
 	}
@@ -1748,7 +1748,7 @@ public class TransformParser extends ScriptParser {
 		    pc.write(")) System.err.println(\""+ debugTag++ +": Failed: \"+");
 		    pc.writeQuoted(test);
 		    if(test.startsWith("isFalse"))
-			pc.write("+\": \"+"+test.substring(7)+"+\" @\"+"+test.substring(7)+".tag");
+			pc.write("+\": \"+"+test.substring(7)+"+\" @\"+"+test.substring(7)+".getTag()");
 		    pc.write(");\n");
 		}
 		pc.write("\t\tif(!(");
@@ -1821,15 +1821,15 @@ public class TransformParser extends ScriptParser {
 	    JCTree replacement = rule.replacement;
 	    if(replacement!=null) {
                 JCMethodInvocation a = null;
-		if(replacement.tag==JCTree.APPLY)
+		if(replacement.getTag()==JCTree.APPLY)
 		    a = (JCMethodInvocation) replacement;
-                else if(replacement.tag==JCTree.EXEC) {
+                else if(replacement.getTag()==JCTree.EXEC) {
                     JCTree t = deblock(replacement);
-                    if (t.tag == JCTree.APPLY)
+                    if (t.getTag() == JCTree.APPLY)
                         a = (JCMethodInvocation) t;
                 }
                 if (a != null) {
-		    if(a.meth.tag==JCTree.IDENT) {
+		    if(a.meth.getTag()==JCTree.IDENT) {
 			Name nm = ((JCIdent)a.meth).name;
 			if(nm==noteName) {
 			    pc.write("addResult(getCurrentPath(), ");

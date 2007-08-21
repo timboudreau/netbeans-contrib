@@ -90,7 +90,7 @@ public class ScriptParser {
     protected Context createContext() { 
         Context ctx = new Context(); 
         log = new ScriptLog(ctx);
-        DefaultFileManager.preRegister(ctx);
+        JavacFileManager.preRegister(ctx);
         return ctx;
     }
     
@@ -175,7 +175,7 @@ public class ScriptParser {
             return sb.toString();
         }
         public void report(JCDiagnostic diag) {
-	    rawError((int)diag.getPosition(), diag.getText());
+	    rawError((int)diag.getPosition(), diag.getMessage(null));
         }
 	public void rawError(int pos, String msg) {
 	    if(errors==null) errors = new ErrorMessage[maxErrors];
