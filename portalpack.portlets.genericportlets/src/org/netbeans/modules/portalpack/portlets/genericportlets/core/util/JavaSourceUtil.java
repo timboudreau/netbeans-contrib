@@ -14,10 +14,6 @@ import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import org.apache.velocity.Template;
-import org.apache.velocity.VTResourceLoader;
-import org.apache.velocity.VelocityContext;
-import org.apache.velocity.app.Velocity;
 import org.openide.filesystems.FileObject;
 /*import org.openide.src.ClassElement;
 import org.openide.src.Identifier;
@@ -225,7 +221,7 @@ public class JavaSourceUtil {
         return parameterNames;*/
         return new ArrayList();
     }
-    public static void mergeTemplate(String templateFile,Writer writer, HashMap values) throws Exception {
+   /* public static void mergeTemplate(String templateFile,Writer writer, HashMap values) throws Exception {
 
         VelocityContext context = VTResourceLoader.getContext(values);
              
@@ -237,7 +233,7 @@ public class JavaSourceUtil {
             template.merge(context, writer);            
             writer.close();
  
-    }
+    }*/
 
    
 
