@@ -33,34 +33,6 @@ Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
     <target name="build-init" depends="projectized.build-init"/>
     <target name="compile" depends="dd2beans_gen,projectized-common.compile">
         
-        <property name="build.templates.projects.dir" value="${build.classes.dir}/templates/projects"/>
-        <property name="build.templates.dir" value="${build.classes.dir}/templates"/>
-        <property name="src.templates.projects.dir" value="${src.dir}/templates/projects"/>
-    
-        <delete file="${build.templates.projects.dir}/JSR168PortletApplication.zip" quiet="true"></delete>
-        
-        <delete dir="${build.templates.dir}/lib"/>
-        <mkdir dir="${build.templates.dir}/lib"/>
-        
-        <copy file="../../external/portlet/portlet-api-1.0.jar"
-        todir="${src.templates.projects.dir}/JSR168PortletApplication/lib"/>
-        <copy file="../../external/portlet/portlettaglib-1.0.jar"
-        todir="${src.templates.projects.dir}/JSR168PortletApplication/lib"/>
-        <copy file="../../external/portlet/portlet.tld"
-        todir="${src.templates.projects.dir}/JSR168PortletApplication/web/WEB-INF"/>
-        
-        <copy file="../../external/portlet/portlet-api-1.0.jar"
-        todir="${build.templates.dir}/lib"/>
-        <copy file="../../external/portlet/portlettaglib-1.0.jar"
-        todir="${build.templates.dir}/lib"/>
-        <copy file="../../external/portlet/portlet.tld"
-        todir="${build.templates.dir}/lib"/>
-        
-         <zip destfile="${build.templates.projects.dir}/JSR168PortletApplication.zip" basedir="${src.templates.projects.dir}/JSR168PortletApplication"/>
-         <delete file="${src.templates.projects.dir}/JSR168PortletApplication/lib/portlet-api-1.0.jar" quiet="true"></delete>
-         <delete file="${src.templates.projects.dir}/JSR168PortletApplication/lib/portlettaglib-1.0.jar" quiet="true"></delete>
-         <delete file="${src.templates.projects.dir}/JSR168PortletApplication/web/WEB-INF/portlet.tld" quiet="true"></delete>
-         
     </target>
     
     <target name="netbeans-extra" depends="release"/>
@@ -68,8 +40,6 @@ Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
     <target name="release" depends="init">
         
         <mkdir dir="${cluster}/modules/ext/portalpack/jdom"/>
-        <mkdir dir="${cluster}/modules/ext/portalpack/velocity"/>
-        
         
         <copy file="../../external/jdom/jaxen-core.jar"
         todir="${cluster}/modules/ext/portalpack/jdom"/>
@@ -80,15 +50,6 @@ Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
         
         <copy file="../../external/jdom/saxpath.jar"
         todir="${cluster}/modules/ext/portalpack/jdom"/>
-        
-        <copy file="../../external/velocity/commons-collections.jar"
-        todir="${cluster}/modules/ext/portalpack/velocity"/>
-        <copy file="../../external/velocity/log4j-core-1.1.3.jar"
-        todir="${cluster}/modules/ext/portalpack/velocity"/>
-        <copy file="../../external/velocity/logkit-1.0.1.jar"
-        todir="${cluster}/modules/ext/portalpack/velocity"/>
-        <copy file="../../external/velocity/velocity-1.4.jar"
-        todir="${cluster}/modules/ext/portalpack/velocity"/>
 
         <copy file="../../external/portlet/portlet-api-1.0.jar"
         todir="${cluster}/modules/ext/portalpack/"/>
@@ -133,6 +94,16 @@ Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
 	<schema2beans schema="${s2b_res_root}/portlet-app_1_0.xsd"
 	  package="org.netbeans.modules.portalpack.portlets.genericportlets.ddapi.impl.model_1_0"
           mddFile="${s2b_res_root}/portlet-app_1_0.mdd"
+	  schemaType="xmlschema"
+	  useInterfaces="true"
+	  validate="true"
+	  attrProp="true"
+	  removeUnreferencedNodes="true"
+	  rootDir="src"/>
+          
+          <schema2beans schema="${s2b_res_root}/portlet-app_2_0.xsd"
+	  package="org.netbeans.modules.portalpack.portlets.genericportlets.ddapi.impl.model_2_0"
+          mddFile="${s2b_res_root}/portlet-app_2_0.mdd"
 	  schemaType="xmlschema"
 	  useInterfaces="true"
 	  validate="true"
