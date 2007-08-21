@@ -56,24 +56,34 @@ public interface FilterType {
 
 	public java.lang.String getFilterClass();
 
-	public void setLifecycle(java.lang.String value);
+	public void setLifecycle(int index, java.lang.String value);
 
-	public java.lang.String getLifecycle();
+	public java.lang.String getLifecycle(int index);
 
-	public void setInitParam(int index,InitParamType value);
+	public int sizeLifecycle();
 
-	public InitParamType getInitParam(int index);
+	public void setLifecycle(java.lang.String[] value);
+
+	public java.lang.String[] getLifecycle();
+
+	public int addLifecycle(java.lang.String value);
+
+	public int removeLifecycle(java.lang.String value);
+
+	public void setInitParam(int index, org.netbeans.modules.portalpack.portlets.genericportlets.ddapi.InitParamType value);
+
+	public org.netbeans.modules.portalpack.portlets.genericportlets.ddapi.InitParamType getInitParam(int index);
 
 	public int sizeInitParam();
 
-	public void setInitParam(InitParamType[] value);
+	public void setInitParam(org.netbeans.modules.portalpack.portlets.genericportlets.ddapi.InitParamType[] value);
 
-	public InitParamType[] getInitParam();
+	public org.netbeans.modules.portalpack.portlets.genericportlets.ddapi.InitParamType[] getInitParam();
 
 	public int addInitParam(org.netbeans.modules.portalpack.portlets.genericportlets.ddapi.InitParamType value);
 
 	public int removeInitParam(org.netbeans.modules.portalpack.portlets.genericportlets.ddapi.InitParamType value);
 
-	public InitParamType newInitParamType();
+	public org.netbeans.modules.portalpack.portlets.genericportlets.ddapi.InitParamType newInitParamType();
 
 }

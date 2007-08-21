@@ -34,15 +34,15 @@ public interface SecurityConstraintType {
 
 	public int removeDisplayName(java.lang.String value);
 
-	public void setPortletCollection(PortletCollectionType value);
+	public void setPortletCollection(org.netbeans.modules.portalpack.portlets.genericportlets.ddapi.PortletCollectionType value);
 
-	public PortletCollectionType getPortletCollection();
+	public org.netbeans.modules.portalpack.portlets.genericportlets.ddapi.PortletCollectionType getPortletCollection();
 
-	public PortletCollectionType newPortletCollectionType();
+	public org.netbeans.modules.portalpack.portlets.genericportlets.ddapi.PortletCollectionType newPortletCollectionType();
 
-	public void setUserDataConstraint(UserDataConstraintType value);
+	public void setUserDataConstraint(org.netbeans.modules.portalpack.portlets.genericportlets.ddapi.UserDataConstraintType value);
 
-	public UserDataConstraintType getUserDataConstraint();
+	public org.netbeans.modules.portalpack.portlets.genericportlets.ddapi.UserDataConstraintType getUserDataConstraint();
 
 	public UserDataConstraintType newUserDataConstraintType();
 

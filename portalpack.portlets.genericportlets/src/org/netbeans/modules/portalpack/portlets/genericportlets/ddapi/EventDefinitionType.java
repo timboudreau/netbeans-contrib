@@ -35,9 +35,13 @@ public interface EventDefinitionType {
 
 	public int removeDescription(java.lang.String value);
 
-	public void setName(javax.xml.namespace.QName value);
+	public void setQname(javax.xml.namespace.QName value);
 
-	public javax.xml.namespace.QName getName();
+	public javax.xml.namespace.QName getQname();
+
+	public void setName(java.lang.String value);
+
+	public java.lang.String getName();
 
 	public void setAlias(int index, javax.xml.namespace.QName value);
 
@@ -53,8 +57,8 @@ public interface EventDefinitionType {
 
 	public int removeAlias(javax.xml.namespace.QName value);
 
-	public void setJavaClass(java.lang.String value);
+	public void setValueType(java.lang.String value);
 
-	public java.lang.String getJavaClass();
+	public java.lang.String getValueType();
 
 }

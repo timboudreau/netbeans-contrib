@@ -37,6 +37,21 @@ public interface SupportsType {
 
 	public int addPortletMode(java.lang.String value);
 
+       //*** new methods added for portlet 2.0
 	public int removePortletMode(java.lang.String value);
+        
+        public void setWindowState(int index, java.lang.String value);
+
+	public java.lang.String getWindowState(int index);
+
+	public int sizeWindowState();
+
+	public void setWindowState(java.lang.String[] value);
+
+	public java.lang.String[] getWindowState();
+
+	public int addWindowState(java.lang.String value);
+
+	public int removeWindowState(java.lang.String value);
 
 }

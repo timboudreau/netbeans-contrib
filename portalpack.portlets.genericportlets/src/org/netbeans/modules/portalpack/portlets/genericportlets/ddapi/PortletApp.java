@@ -20,7 +20,13 @@
 
 package org.netbeans.modules.portalpack.portlets.genericportlets.ddapi;
 
+import java.io.OutputStream;
+import org.netbeans.modules.schema2beans.BaseBean;
+
 public interface PortletApp {
+    
+        public final static String VERSION_1_0 = "1.0";
+        public final static String VERSION_2_0 = "2.0";
 	public void setPortlet(int index,PortletType value);
 
 	public PortletType getPortlet(int index);
@@ -100,5 +106,95 @@ public interface PortletApp {
 	public int removeSecurityConstraint(org.netbeans.modules.portalpack.portlets.genericportlets.ddapi.SecurityConstraintType value);
 
 	public SecurityConstraintType newSecurityConstraintType();
+        
+        //************ New methods for portlet 2.0
+        
+        public void setResourceBundle(java.lang.String value);
+
+	public java.lang.String getResourceBundle();
+
+	public void setFilter(int index, FilterType value);
+
+	public org.netbeans.modules.portalpack.portlets.genericportlets.ddapi.FilterType getFilter(int index);
+
+	public int sizeFilter();
+
+	public void setFilter(org.netbeans.modules.portalpack.portlets.genericportlets.ddapi.FilterType[] value);
+
+	public org.netbeans.modules.portalpack.portlets.genericportlets.ddapi.FilterType[] getFilter();
+
+	public int addFilter(org.netbeans.modules.portalpack.portlets.genericportlets.ddapi.FilterType value);
+
+	public int removeFilter(org.netbeans.modules.portalpack.portlets.genericportlets.ddapi.FilterType value);
+
+	public org.netbeans.modules.portalpack.portlets.genericportlets.ddapi.FilterType newFilterType();
+
+	public void setFilterMapping(int index, org.netbeans.modules.portalpack.portlets.genericportlets.ddapi.FilterMappingType value);
+
+	public org.netbeans.modules.portalpack.portlets.genericportlets.ddapi.FilterMappingType getFilterMapping(int index);
+
+	public int sizeFilterMapping();
+
+	public void setFilterMapping(org.netbeans.modules.portalpack.portlets.genericportlets.ddapi.FilterMappingType[] value);
+
+	public org.netbeans.modules.portalpack.portlets.genericportlets.ddapi.FilterMappingType[] getFilterMapping();
+
+	public int addFilterMapping(org.netbeans.modules.portalpack.portlets.genericportlets.ddapi.FilterMappingType value);
+
+	public int removeFilterMapping(org.netbeans.modules.portalpack.portlets.genericportlets.ddapi.FilterMappingType value);
+
+	public org.netbeans.modules.portalpack.portlets.genericportlets.ddapi.FilterMappingType newFilterMappingType();
+
+	public void setPortletDefaultNamespace(java.net.URI value);
+
+	public void setEventDefinition(int index, org.netbeans.modules.portalpack.portlets.genericportlets.ddapi.EventDefinitionType value);
+
+	public org.netbeans.modules.portalpack.portlets.genericportlets.ddapi.EventDefinitionType getEventDefinition(int index);
+
+	public int sizeEventDefinition();
+
+	public void setEventDefinition(org.netbeans.modules.portalpack.portlets.genericportlets.ddapi.EventDefinitionType[] value);
+
+	public org.netbeans.modules.portalpack.portlets.genericportlets.ddapi.EventDefinitionType[] getEventDefinition();
+
+	public int addEventDefinition(org.netbeans.modules.portalpack.portlets.genericportlets.ddapi.EventDefinitionType value);
+
+	public int removeEventDefinition(org.netbeans.modules.portalpack.portlets.genericportlets.ddapi.EventDefinitionType value);
+
+	public org.netbeans.modules.portalpack.portlets.genericportlets.ddapi.EventDefinitionType newEventDefinitionType();
+
+	public void setPublicRenderParameter(int index, org.netbeans.modules.portalpack.portlets.genericportlets.ddapi.PublicRenderParameterType value);
+
+	public org.netbeans.modules.portalpack.portlets.genericportlets.ddapi.PublicRenderParameterType getPublicRenderParameter(int index);
+
+	public int sizePublicRenderParameter();
+
+	public void setPublicRenderParameter(org.netbeans.modules.portalpack.portlets.genericportlets.ddapi.PublicRenderParameterType[] value);
+
+	public org.netbeans.modules.portalpack.portlets.genericportlets.ddapi.PublicRenderParameterType[] getPublicRenderParameter();
+
+	public int addPublicRenderParameter(org.netbeans.modules.portalpack.portlets.genericportlets.ddapi.PublicRenderParameterType value);
+
+	public int removePublicRenderParameter(org.netbeans.modules.portalpack.portlets.genericportlets.ddapi.PublicRenderParameterType value);
+
+	public org.netbeans.modules.portalpack.portlets.genericportlets.ddapi.PublicRenderParameterType newPublicRenderParameterType();
+
+	public void setContainerRuntimeOption(int index, org.netbeans.modules.portalpack.portlets.genericportlets.ddapi.ContainerRuntimeOptionType value);
+
+	public org.netbeans.modules.portalpack.portlets.genericportlets.ddapi.ContainerRuntimeOptionType getContainerRuntimeOption(int index);
+
+	public int sizeContainerRuntimeOption();
+
+	public void setContainerRuntimeOption(org.netbeans.modules.portalpack.portlets.genericportlets.ddapi.ContainerRuntimeOptionType[] value);
+
+	public org.netbeans.modules.portalpack.portlets.genericportlets.ddapi.ContainerRuntimeOptionType[] getContainerRuntimeOption();
+
+	public int addContainerRuntimeOption(org.netbeans.modules.portalpack.portlets.genericportlets.ddapi.ContainerRuntimeOptionType value);
+
+	public int removeContainerRuntimeOption(org.netbeans.modules.portalpack.portlets.genericportlets.ddapi.ContainerRuntimeOptionType value);
+
+	public org.netbeans.modules.portalpack.portlets.genericportlets.ddapi.ContainerRuntimeOptionType newContainerRuntimeOptionType();
+        
+        public void merge(BaseBean bean,int mode);
 
 }

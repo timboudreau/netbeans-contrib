@@ -22,19 +22,19 @@ package org.netbeans.modules.portalpack.portlets.genericportlets.ddapi;
 public interface PortletPreferencesType {
 	public void setPreference(int index,PreferenceType value);
 
-	public PreferenceType getPreference(int index);
+	public org.netbeans.modules.portalpack.portlets.genericportlets.ddapi.PreferenceType getPreference(int index);
 
 	public int sizePreference();
 
-	public void setPreference(PreferenceType[] value);
+	public void setPreference(org.netbeans.modules.portalpack.portlets.genericportlets.ddapi.PreferenceType[] value);
 
-	public PreferenceType[] getPreference();
+	public org.netbeans.modules.portalpack.portlets.genericportlets.ddapi.PreferenceType[] getPreference();
 
 	public int addPreference(org.netbeans.modules.portalpack.portlets.genericportlets.ddapi.PreferenceType value);
 
 	public int removePreference(org.netbeans.modules.portalpack.portlets.genericportlets.ddapi.PreferenceType value);
 
-	public PreferenceType newPreferenceType();
+	public org.netbeans.modules.portalpack.portlets.genericportlets.ddapi.PreferenceType newPreferenceType();
 
 	public void setPreferencesValidator(java.lang.String value);
 
