@@ -34,10 +34,7 @@ import java.util.HashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.*;
-import org.jdom.Element;
 import org.netbeans.modules.portalpack.portlets.genericportlets.core.DataContext;
-import org.netbeans.modules.portalpack.portlets.genericportlets.core.codegen.WebDescriptorGenerator;
-import org.openide.util.Exceptions;
 
 
 /**
@@ -50,15 +47,11 @@ public abstract class NewPortletCreateComponent {
         return null;
     }
     
-    public String getFileContent(String className, Map paramValues) throws Exception {
+    public void getFileContent(File folder,String className, Map paramValues) throws Exception {
         
-        StringBuffer sb = getCodeGenerator().generateCode(paramValues);
-        logger.log(Level.FINEST,sb.toString());
+        getCodeGenerator().generateCode(folder,className,paramValues);
         
-        return sb.toString();
     }
-    
-    
     
     
     protected abstract String getWebInfDir();
@@ -144,33 +137,14 @@ public abstract class NewPortletCreateComponent {
             pFile = new File(psiDir, fileName);
             
             if(!pFile.exists() || (pFile.exists() && CoreUtil.checkIfFileNeedsTobeOverwritten(fileName))) {
-                FileOutputStream fout;
+              
                 try {
-                    fout = new FileOutputStream(pFile);
-                } catch (FileNotFoundException e) {
-                    logger.log(Level.SEVERE,org.openide.util.NbBundle.getMessage(NewPortletCreateComponent.class, "MSG_ERROR"),e);
-                    return null;
-                }
-                String content = null;
-                try {
-                    content = getFileContent(className, values);
+                    getFileContent(psiDir,className, values);
                 } catch (Exception e) {
                     logger.log(Level.SEVERE,org.openide.util.NbBundle.getMessage(NewPortletCreateComponent.class, "MSG_ERROR"),e);
                 }
-                try {
-                    fout.write(content.getBytes());
-                    fout.flush();
-                } catch (IOException e) {
-                    logger.log(Level.SEVERE,org.openide.util.NbBundle.getMessage(NewPortletCreateComponent.class, "MSG_ERROR"),e);
-                }
-                
-                if (fout != null) {
-                    try {
-                        fout.close();
-                    } catch (IOException e) {
-                        logger.log(Level.SEVERE,org.openide.util.NbBundle.getMessage(NewPortletCreateComponent.class, "MSG_ERROR"),e);
-                    }
-                }
+                pFile = new File(psiDir, fileName);
+              
             }else{
                 
             }
@@ -194,7 +168,6 @@ public abstract class NewPortletCreateComponent {
     }
     public String createNewClass(String selectedPath, String className,DataContext context,ResultContext returnVal) {
         
-        // String portletName = context.getPortletName();
         File psiDir = new File(selectedPath);
         if(!psiDir.exists()) {
             psiDir.mkdirs();
@@ -241,32 +214,14 @@ public abstract class NewPortletCreateComponent {
             
             FileOutputStream fout;
             if(!pFile.exists() || (pFile.exists() && CoreUtil.checkIfFileNeedsTobeOverwritten(fileName))) {
+              
                 try {
-                    fout = new FileOutputStream(pFile);
-                } catch (FileNotFoundException e) {
-                    logger.log(Level.SEVERE,org.openide.util.NbBundle.getMessage(NewPortletCreateComponent.class, "MSG_ERROR"),e);
-                    return null;
-                }
-                String content = null;
-                try {
-                    content = getFileContent(className, values);
+                    getFileContent(psiDir,className, values);
                 } catch (Exception e) {
                     logger.log(Level.SEVERE,org.openide.util.NbBundle.getMessage(NewPortletCreateComponent.class, "MSG_ERROR"),e);
                 }
-                try {
-                    fout.write(content.getBytes());
-                    fout.flush();
-                } catch (IOException e) {
-                    logger.log(Level.SEVERE,org.openide.util.NbBundle.getMessage(NewPortletCreateComponent.class, "MSG_ERROR"),e);
-                }
-                
-                if (fout != null) {
-                    try {
-                        fout.close();
-                    } catch (IOException e) {
-                        logger.log(Level.SEVERE,org.openide.util.NbBundle.getMessage(NewPortletCreateComponent.class, "MSG_ERROR"),e);
-                    }
-                }
+                pFile = new File(psiDir, fileName);
+               
             }else{
                 
             }

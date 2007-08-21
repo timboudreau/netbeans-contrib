@@ -22,8 +22,6 @@ package org.netbeans.modules.portalpack.portlets.genericportlets.core.codegen;
 import org.netbeans.modules.portalpack.portlets.genericportlets.core.*;
 import org.netbeans.modules.portalpack.portlets.genericportlets.core.util.CoreUtil;
 import org.netbeans.modules.portalpack.portlets.genericportlets.core.util.NetbeanConstants;
-import org.apache.velocity.VelocityContext;
-import org.apache.velocity.Template;
 import org.jdom.Document;
 import org.jdom.JDOMException;
 import org.jdom.Element;
@@ -39,17 +37,17 @@ import java.util.List;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.apache.velocity.VTResourceLoader;
-import org.apache.velocity.app.Velocity;
 import org.jdom.output.Format;
 import org.netbeans.modules.portalpack.portlets.genericportlets.core.FilterContext;
 import org.netbeans.modules.portalpack.portlets.genericportlets.filetype.filters.InitParam;
+import org.openide.filesystems.FileObject;
+import org.netbeans.modules.portalpack.portlets.genericportlets.core.util.TemplateHelper;
 
 /**
  * @author Satya
  */
 public class WebDescriptorGenerator {
-
+   
   private static Logger logger = Logger.getLogger(CoreUtil.CORE_LOGGER);
 
   public File createPortletXml(String module,String webInfDir,PortletContext context, HashMap values) throws Exception{
@@ -86,19 +84,14 @@ public class WebDescriptorGenerator {
 
     private void mergeTemplate(String templateFile, HashMap values, Writer writer) throws Exception {
 
-
-        VelocityContext context = VTResourceLoader.getContext(values);
-             
-            Template template = Velocity.getTemplate(templateFile,"UTF-8");
-            if (template == null) {
-                throw new IllegalStateException(" no template defined ");
-            }
-        
-            template.merge(context, writer);
-            
-        writer.close();
+        FileObject template = TemplateHelper.getTemplateFile(templateFile);
+        if(template == null)
+            throw new IOException("Template File is null : "+templateFile);
+        TemplateHelper.mergeTemplateToWriter(template, writer, values);
     }
-
+    
+       
+      
   public void writeXmlDocument(Document doc,String filePath)
   {
       XMLOutputter outputter = new XMLOutputter(Format.getPrettyFormat());

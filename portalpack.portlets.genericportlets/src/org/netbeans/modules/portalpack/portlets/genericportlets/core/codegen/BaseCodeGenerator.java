@@ -19,16 +19,15 @@
 
 package org.netbeans.modules.portalpack.portlets.genericportlets.core.codegen;
 
-import org.apache.velocity.Template;
-import org.apache.velocity.VTResourceLoader;
 import org.netbeans.modules.portalpack.portlets.genericportlets.core.util.CoreUtil;
-import org.apache.velocity.VelocityContext;
-import org.apache.velocity.exception.ParseErrorException;
-import org.apache.velocity.app.Velocity;
 import java.io.*;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.netbeans.modules.portalpack.portlets.genericportlets.core.util.TemplateHelper;
+import org.openide.filesystems.FileObject;
+import org.openide.filesystems.FileUtil;
+import org.openide.loaders.DataObjectNotFoundException;
 
 /**
  * @author Satya
@@ -51,31 +50,21 @@ public class BaseCodeGenerator {
         return templateFileName;
     }
 
-    public StringBuffer generateCode(Map values) throws Exception, ParseErrorException {
-
-        StringWriter writer = new StringWriter();
-        try {
-             VelocityContext context = VTResourceLoader.getContext(values);
-             
-             Template template = Velocity.getTemplate(templateFileName);
-            if (template == null) {
-                throw new IllegalStateException(" no target defined ");
-            }
-        
-            template.merge(context, writer);
-            
-        } catch (Exception e) {
-        
-            logger.log(Level.SEVERE,"error",e);
-        }
-
-        return writer.getBuffer();
-    }
     
+     public void generateCode(File folder,String className,Map values)  throws DataObjectNotFoundException, IOException {
+
+             FileObject templateFileObj = TemplateHelper.getTemplateFile(templateFileName);
+             if(templateFileObj == null)
+                 throw new IOException("Template Not Found : "+templateFileName);
+             FileObject folderObj = FileUtil.toFileObject(folder);
+             if(folderObj == null)
+                 throw new IOException("Folder is null : "+folder);
+             TemplateHelper.mergeTemplateToFile(templateFileObj, folderObj, className, values);
+    }
     
     public File writeToFile(String file,StringBuffer content)
     {
-        
+ 
             File f = new File(file);
             FileOutputStream fout;
             try {
