@@ -34,7 +34,7 @@ import org.netbeans.modules.portalpack.portlets.genericportlets.filetype.jsr168.
  */
 public class NewFilterCreateComponent extends NewJSR168CreatePortletComponent {
     
-    public String templateName = "portlet20-filter.template";
+    public String templateName = "portlet20-filter.java";
     /** Creates a new instance of NewFilterCreateComponent */
     public NewFilterCreateComponent(Project prj) {
         super(prj);
