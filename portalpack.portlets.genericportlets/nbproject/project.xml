@@ -38,22 +38,7 @@ Microsystems, Inc. All Rights Reserved.
                 <runtime-relative-path>ext/portalpack/jdom/saxpath.jar</runtime-relative-path>
                 <binary-origin>../../external/jdom/saxpath.jar</binary-origin>
             </class-path-extension>
-            <class-path-extension>
-                <runtime-relative-path>ext/portalpack/velocity/commons-collections.jar</runtime-relative-path>
-                <binary-origin>../../external/velocity/commons-collections.jar</binary-origin>
-            </class-path-extension>
-            <class-path-extension>
-                <runtime-relative-path>ext/portalpack/velocity/log4j-core-1.1.3.jar</runtime-relative-path>
-                <binary-origin>../../external/velocity/log4j-core-1.1.3.jar</binary-origin>
-            </class-path-extension>
-            <class-path-extension>
-                <runtime-relative-path>ext/portalpack/velocity/logkit-1.0.1.jar</runtime-relative-path>
-                <binary-origin>../../external/velocity/logkit-1.0.1.jar</binary-origin>
-            </class-path-extension>
-            <class-path-extension>
-                <runtime-relative-path>ext/portalpack/velocity/velocity-1.4.jar</runtime-relative-path>
-                <binary-origin>../../external/velocity/velocity-1.4.jar</binary-origin>
-            </class-path-extension>
+            
             <module-dependencies>
                 <dependency>
                     <code-name-base>org.jdesktop.layout</code-name-base>
@@ -123,6 +108,15 @@ Microsystems, Inc. All Rights Reserved.
                     <run-dependency>
                         <release-version>1</release-version>
                         <specification-version>1.3.1</specification-version>
+                    </run-dependency>
+                </dependency>
+                <dependency>
+                    <code-name-base>org.netbeans.libs.jsr223</code-name-base>
+                    <build-prerequisite/>
+                    <compile-dependency/>
+                    <run-dependency>
+                        <release-version>1</release-version>
+                        <specification-version>1.6</specification-version>
                     </run-dependency>
                 </dependency>
                 <dependency>
@@ -198,12 +192,29 @@ Microsystems, Inc. All Rights Reserved.
                     </run-dependency>
                 </dependency>
                 <dependency>
+                    <code-name-base>org.netbeans.modules.queries</code-name-base>
+                    <build-prerequisite/>
+                    <compile-dependency/>
+                    <run-dependency>
+                        <release-version>1</release-version>
+                        <specification-version>1.10</specification-version>
+                    </run-dependency>
+                </dependency>
+                <dependency>
                     <code-name-base>org.netbeans.modules.schema2beans</code-name-base>
                     <build-prerequisite/>
                     <compile-dependency/>
                     <run-dependency>
                         <release-version>1</release-version>
                         <specification-version>1.16</specification-version>
+                    </run-dependency>
+                </dependency>
+                <dependency>
+                    <code-name-base>org.netbeans.modules.web.project</code-name-base>
+                    <build-prerequisite/>
+                    <compile-dependency/>
+                    <run-dependency>
+                        <specification-version>1.6</specification-version>
                     </run-dependency>
                 </dependency>
                 <dependency>
@@ -297,52 +308,6 @@ Microsystems, Inc. All Rights Reserved.
             </module-dependencies>
             <public-packages>
                 <package>com.werken.saxpath</package>
-                <package>org.apache.commons.collections</package>
-                <package>org.apache.log</package>
-                <package>org.apache.log.filter</package>
-                <package>org.apache.log.format</package>
-                <package>org.apache.log.output</package>
-                <package>org.apache.log.output.db</package>
-                <package>org.apache.log.output.io</package>
-                <package>org.apache.log.output.io.rotate</package>
-                <package>org.apache.log.output.jms</package>
-                <package>org.apache.log.output.net</package>
-                <package>org.apache.log.util</package>
-                <package>org.apache.log4j</package>
-                <package>org.apache.log4j.config</package>
-                <package>org.apache.log4j.helpers</package>
-                <package>org.apache.log4j.or</package>
-                <package>org.apache.log4j.spi</package>
-                <package>org.apache.velocity</package>
-                <package>org.apache.velocity.anakia</package>
-                <package>org.apache.velocity.app</package>
-                <package>org.apache.velocity.app.event</package>
-                <package>org.apache.velocity.app.tools</package>
-                <package>org.apache.velocity.context</package>
-                <package>org.apache.velocity.convert</package>
-                <package>org.apache.velocity.exception</package>
-                <package>org.apache.velocity.io</package>
-                <package>org.apache.velocity.runtime</package>
-                <package>org.apache.velocity.runtime.compiler</package>
-                <package>org.apache.velocity.runtime.configuration</package>
-                <package>org.apache.velocity.runtime.directive</package>
-                <package>org.apache.velocity.runtime.exception</package>
-                <package>org.apache.velocity.runtime.log</package>
-                <package>org.apache.velocity.runtime.parser</package>
-                <package>org.apache.velocity.runtime.parser.node</package>
-                <package>org.apache.velocity.runtime.resource</package>
-                <package>org.apache.velocity.runtime.resource.loader</package>
-                <package>org.apache.velocity.runtime.visitor</package>
-                <package>org.apache.velocity.servlet</package>
-                <package>org.apache.velocity.test</package>
-                <package>org.apache.velocity.test.misc</package>
-                <package>org.apache.velocity.test.provider</package>
-                <package>org.apache.velocity.test.view</package>
-                <package>org.apache.velocity.texen</package>
-                <package>org.apache.velocity.texen.ant</package>
-                <package>org.apache.velocity.texen.util</package>
-                <package>org.apache.velocity.util</package>
-                <package>org.apache.velocity.util.introspection</package>
                 <package>org.jaxen</package>
                 <package>org.jaxen.expr</package>
                 <package>org.jaxen.expr.iter</package>
