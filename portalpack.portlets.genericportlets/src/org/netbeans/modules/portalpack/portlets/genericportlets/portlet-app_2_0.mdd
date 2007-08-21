@@ -1,0 +1,185 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!--
+The contents of this file are subject to the terms of the Common Development
+and Distribution License (the License). You may not use this file except in
+compliance with the License.
+
+ You can obtain a copy of the License at http://www.netbeans.org/cddl.html
+or http://www.netbeans.org/cddl.txt.
+
+When distributing Covered Code, include this CDDL Header Notice in each file
+and include the License file at http://www.netbeans.org/cddl.txt.
+If applicable, add the following below the CDDL Header, with the fields
+enclosed by brackets [] replaced by your own identifying information:
+"Portions Copyrighted [year] [name of copyright owner]"
+
+ The Original Software is NetBeans. The Initial Developer of the Original
+Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
+ Microsystems, Inc. All Rights Reserved.
+-->
+<metaDD>
+	<meta-element>
+            <dtd-name>portlet-app</dtd-name>
+            <namespace>http://java.sun.com/xml/ns/portlet/portlet-app_2_0.xsd</namespace>
+            <bean-name>PortletApp</bean-name>
+            <implements> 
+                org.netbeans.modules.portalpack.portlets.genericportlets.ddapi.PortletApp
+            </implements>
+
+            <user-code>
+            </user-code>
+	</meta-element>
+
+        <meta-element>
+            <dtd-name>default-namespace</dtd-name>
+            <namespace>http://java.sun.com/xml/ns/portlet/portlet-app_2_0.xsd</namespace>
+            <bean-name>PortletDefaultNamespace</bean-name>
+        </meta-element>
+
+       <meta-element>
+            <dtd-name>portletType</dtd-name>
+            <namespace>http://java.sun.com/xml/ns/portlet/portlet-app_2_0.xsd</namespace>
+            <bean-name>PortletType</bean-name>
+            <implements> 
+                org.netbeans.modules.portalpack.portlets.genericportlets.ddapi.PortletType
+            </implements>
+	</meta-element> 
+        <meta-element>
+            <dtd-name>portlet-collectionType</dtd-name>
+            <namespace>http://java.sun.com/xml/ns/portlet/portlet-app_2_0.xsd</namespace>
+            <bean-name>PortletCollectionType</bean-name>
+            <implements> 
+                org.netbeans.modules.portalpack.portlets.genericportlets.ddapi.PortletCollectionType
+            </implements>
+	</meta-element> 
+        <meta-element>
+            <dtd-name>custom-portlet-modeType</dtd-name>
+            <namespace>http://java.sun.com/xml/ns/portlet/portlet-app_2_0.xsd</namespace>
+            <bean-name>CustomPortletModeType</bean-name>
+            <implements> 
+                org.netbeans.modules.portalpack.portlets.genericportlets.ddapi.CustomPortletModeType
+            </implements>
+        </meta-element>
+        <meta-element>
+            <dtd-name>custom-window-stateType</dtd-name>
+            <namespace>http://java.sun.com/xml/ns/portlet/portlet-app_2_0.xsd</namespace>
+            <bean-name>CustomWindowStateType</bean-name>
+            <implements> 
+                org.netbeans.modules.portalpack.portlets.genericportlets.ddapi.CustomWindowStateType
+            </implements>
+        </meta-element>
+        <meta-element>
+            <dtd-name>init-paramType</dtd-name>
+            <namespace>http://java.sun.com/xml/ns/portlet/portlet-app_2_0.xsd</namespace>
+            <bean-name>InitParamType</bean-name>
+            <implements> 
+                org.netbeans.modules.portalpack.portlets.genericportlets.ddapi.InitParamType
+            </implements>
+        </meta-element>
+        <meta-element>
+            <dtd-name>portlet-infoType</dtd-name>
+            <namespace>http://java.sun.com/xml/ns/portlet/portlet-app_2_0.xsd</namespace>
+            <bean-name>PortletInfoType</bean-name>
+            <implements> 
+                org.netbeans.modules.portalpack.portlets.genericportlets.ddapi.PortletInfoType
+            </implements>
+        </meta-element>
+        <meta-element>
+            <dtd-name>portlet-preferencesType</dtd-name>
+            <namespace>http://java.sun.com/xml/ns/portlet/portlet-app_2_0.xsd</namespace>
+            <bean-name>PortletPreferencesType</bean-name>
+            <implements> 
+                org.netbeans.modules.portalpack.portlets.genericportlets.ddapi.PortletPreferencesType
+            </implements>
+        </meta-element>
+        <meta-element>
+            <dtd-name>preferenceType</dtd-name>
+            <namespace>http://java.sun.com/xml/ns/portlet/portlet-app_2_0.xsd</namespace>
+            <bean-name>PreferenceType</bean-name>
+            <implements> 
+                org.netbeans.modules.portalpack.portlets.genericportlets.ddapi.PreferenceType
+            </implements>
+        </meta-element>
+        <meta-element>
+            <dtd-name>security-constraintType</dtd-name>
+            <namespace>http://java.sun.com/xml/ns/portlet/portlet-app_2_0.xsd</namespace>
+            <bean-name>SecurityConstraintType</bean-name>
+            <implements> 
+                org.netbeans.modules.portalpack.portlets.genericportlets.ddapi.SecurityConstraintType
+            </implements>
+        </meta-element>
+        <meta-element>
+            <dtd-name>security-role-refType</dtd-name>
+            <namespace>http://java.sun.com/xml/ns/portlet/portlet-app_2_0.xsd</namespace>
+            <bean-name>SecurityRoleRefType</bean-name>
+            <implements> 
+                org.netbeans.modules.portalpack.portlets.genericportlets.ddapi.SecurityRoleRefType
+            </implements>
+        </meta-element>
+        <meta-element>
+            <dtd-name>supportsType</dtd-name>
+            <namespace>http://java.sun.com/xml/ns/portlet/portlet-app_2_0.xsd</namespace>
+            <bean-name>SupportsType</bean-name>
+            <implements> 
+                org.netbeans.modules.portalpack.portlets.genericportlets.ddapi.SupportsType
+            </implements>
+        </meta-element>
+        <meta-element>
+            <dtd-name>user-attributeType</dtd-name>
+            <namespace>http://java.sun.com/xml/ns/portlet/portlet-app_2_0.xsd</namespace>
+            <bean-name>UserAttributeType</bean-name>
+            <implements> 
+                org.netbeans.modules.portalpack.portlets.genericportlets.ddapi.UserAttributeType
+            </implements>
+        </meta-element>
+        <meta-element>
+            <dtd-name>user-data-constraintType</dtd-name>
+            <namespace>http://java.sun.com/xml/ns/portlet/portlet-app_2_0.xsd</namespace>
+            <bean-name>UserDataConstraintType</bean-name>
+            <implements> 
+                org.netbeans.modules.portalpack.portlets.genericportlets.ddapi.UserDataConstraintType
+            </implements>
+        </meta-element>
+
+        <!-- new elements added for portlet 2.0 spec -->
+        <meta-element>
+            <dtd-name>container-runtime-optionType</dtd-name>
+            <namespace>http://java.sun.com/xml/ns/portlet/portlet-app_2_0.xsd</namespace>
+            <bean-name>ContainerRuntimeOptionType</bean-name>
+            <implements> 
+                org.netbeans.modules.portalpack.portlets.genericportlets.ddapi.ContainerRuntimeOptionType
+            </implements>
+        </meta-element>
+        <meta-element>
+            <dtd-name>event-definitionType</dtd-name>
+            <namespace>http://java.sun.com/xml/ns/portlet/portlet-app_2_0.xsd</namespace>
+            <bean-name>EventDefinitionType</bean-name>
+            <implements> 
+                org.netbeans.modules.portalpack.portlets.genericportlets.ddapi.EventDefinitionType
+            </implements>
+        </meta-element>
+        <meta-element>
+            <dtd-name>filter-mappingType</dtd-name>
+            <namespace>http://java.sun.com/xml/ns/portlet/portlet-app_2_0.xsd</namespace>
+            <bean-name>FilterMappingType</bean-name>
+            <implements> 
+                org.netbeans.modules.portalpack.portlets.genericportlets.ddapi.FilterMappingType
+            </implements>
+        </meta-element>
+        <meta-element>
+            <dtd-name>filterType</dtd-name>
+            <namespace>http://java.sun.com/xml/ns/portlet/portlet-app_2_0.xsd</namespace>
+            <bean-name>FilterType</bean-name>
+            <implements> 
+                org.netbeans.modules.portalpack.portlets.genericportlets.ddapi.FilterType
+            </implements>
+        </meta-element>
+        <meta-element>
+            <dtd-name>public-render-parameterType</dtd-name>
+            <namespace>http://java.sun.com/xml/ns/portlet/portlet-app_2_0.xsd</namespace>
+            <bean-name>PublicRenderParameterType</bean-name>
+            <implements> 
+                org.netbeans.modules.portalpack.portlets.genericportlets.ddapi.PublicRenderParameterType
+            </implements>
+        </meta-element>
+</metaDD>
