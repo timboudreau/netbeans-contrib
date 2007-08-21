@@ -26,18 +26,8 @@ import java.io.File;
  * @author Satya
  */
 public class NetbeanConstants {
-    public static final String PROJECT_XML = "project.xml.template";
-    public static final String PROJECT_PROPERTIES = "project.properties.template";
-    public static final String CONTEXT_XML = "context.xml";
-    
-    public static final String[] TEMPLATES = {PROJECT_XML,
-                                                  PROJECT_PROPERTIES, 
-                                                 // AJAX_PAGE_TEMPLATE,
-                                                  //AJAX_REQUEST_JS,
-                                                  CONTEXT_XML};
+   
     public static  String CONFIG_DIR = "";
-    
-    public static final String CHANNEL_PREFIX = "_channel_";
     
     public static final String PORTAL_LOGGER = "nb_portal_plugin";
     
