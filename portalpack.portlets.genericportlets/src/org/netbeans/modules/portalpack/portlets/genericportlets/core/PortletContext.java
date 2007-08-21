@@ -26,14 +26,14 @@ import org.netbeans.modules.portalpack.portlets.genericportlets.core.util.Netbea
 public class PortletContext {
     
     private String version = NetbeanConstants.PORTLET_1_0;
-    private String portletClass;
-    private String portletName;
-    private String portletDesc;
-    private String portletShortDesc;
-    private String portletTitle;
+    private String portletClass = "";
+    private String portletName = "";
+    private String portletDesc = "";
+    private String portletShortDesc = "";
+    private String portletTitle = "";
     
-    private String displayName;
-    private String shortTitle;
+    private String displayName = "";
+    private String shortTitle = "";
     
     private String[] modes;
     
