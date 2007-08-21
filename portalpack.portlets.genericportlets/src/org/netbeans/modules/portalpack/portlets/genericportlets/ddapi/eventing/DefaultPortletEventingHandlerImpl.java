@@ -19,84 +19,78 @@
 package org.netbeans.modules.portalpack.portlets.genericportlets.ddapi.eventing;
 
 import java.util.Map;
+import javax.xml.namespace.QName;
 
 /**
  *
  * @author Satyaranjan
  */
 public class DefaultPortletEventingHandlerImpl implements PortletEventingHandler {
-    
-    /** Creates a new instance of DefaultPorletEventingHandlerImpl */
-    public DefaultPortletEventingHandlerImpl() {
-    }
 
-    public String[] getPublishEvents(String portletName) {
+    public QName[] getPublishEvents(String portletName) {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
-    public String[] getProcessEvents(String portletName) {
+    public QName[] getProcessEvents(String portletName) {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
-    public boolean addProcessEvent(String targetPortlet, String event,
-                                   Map properties) {
+    public boolean addProcessEvent(String targetPortlet, QName event, Map properties) throws PortletEventException {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
-    public boolean addPublishEvent(String portlet, String evt, Map properties) {
+    public boolean addPublishEvent(String portlet, QName evt, Map properties) throws PortletEventException {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
-    public boolean deleteProcessEvent(String portlet, String evt) {
+    public boolean deleteProcessEvent(String portlet, QName evt) throws PortletEventException {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
-    public boolean deletePublishEvent(String portlet, String evt) {
+    public boolean deletePublishEvent(String portlet, QName evt) throws PortletEventException {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
-    public boolean isProcessEventExists(String portlet, String evt) {
+    public boolean isProcessEventExists(String portlet, QName evt) {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
-    public boolean isPublishEventExists(String portlet, String evt) {
+    public boolean isPublishEventExists(String portlet, QName evt) {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
-    public boolean renamePublishEvent(String portlet, String oldEvent,
-                                     String newEvent, Map properties) {
+    public boolean renamePublishEvent(String portlet, QName oldEvent, QName newEvent, Map properties) throws PortletEventException {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
-    public boolean renameProcessEvent(String portlet, String oldEvent,
-                                      String newEvent, Map properties) {
+    public boolean renameProcessEvent(String portlet, QName oldEvent, QName newEvent, Map properties) throws PortletEventException {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    public String getPublishEventMethodBody(String portlet, QName eventName, boolean newMethod) throws PortletEventException {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    public String getProcessEventMethodBody(String portlet, QName eventName, boolean newMethod) throws PortletEventException {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    public boolean generatePublishEventMethod(String portlet, QName eventName) throws PortletEventException {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    public boolean generateProcessEventMethod(String portlet, QName eventName) throws PortletEventException {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    public boolean isEventingSupported() {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
     public void refresh() {
         throw new UnsupportedOperationException("Not supported yet.");
     }
-
-    public String getPublishEventMethodBody(String portlet, String eventName,
-                                            boolean newMethod) throws PortletEventException {
-        throw new UnsupportedOperationException("Not supported yet.");
-    }
-
-    public String getProcessEventMethodBody(String portlet, String eventName,
-                                            boolean newMethod) throws PortletEventException {
-        throw new UnsupportedOperationException("Not supported yet.");
-    }
-
-    public boolean generatePublishEventMethod(String portlet, String eventName) throws PortletEventException {
-        throw new UnsupportedOperationException("Not supported yet.");
-    }
-
-    public boolean generateProcessEventMethod(String portlet, String eventName) throws PortletEventException {
-        throw new UnsupportedOperationException("Not supported yet.");
-    }
-
-    public boolean isEventingSupported() {
-        return true;
-    }
     
+    /** Creates a new instance of DefaultPorletEventingHandlerImpl */
+   
 }
