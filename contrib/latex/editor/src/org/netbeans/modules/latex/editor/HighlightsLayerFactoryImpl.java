@@ -35,7 +35,7 @@ public class HighlightsLayerFactoryImpl implements HighlightsLayerFactory {
     
     public HighlightsLayer[] createLayers(Context context) {
         return new HighlightsLayer[] {
-            HighlightsLayer.create(HighlightsLayerFactoryImpl.class.getName(), ZOrder.SYNTAX_RACK, true, ColoringEvaluator.getDelegate(context.getDocument())),
+            HighlightsLayer.create(HighlightsLayerFactoryImpl.class.getName(), ZOrder.SYNTAX_RACK.forPosition(2500), true, ColoringEvaluator.getDelegate(context.getDocument())),
         };
     }
     
