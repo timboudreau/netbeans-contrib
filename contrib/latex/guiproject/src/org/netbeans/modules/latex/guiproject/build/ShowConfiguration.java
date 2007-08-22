@@ -45,7 +45,7 @@ import org.openide.windows.InputOutput;
  *
  * @author Jan Lahoda
  */
-public final class ShowConfiguration {
+public final class ShowConfiguration implements Builder {
 
     private static final ErrorManager ERR = ErrorManager.getDefault().getInstance(BuildConfiguration.class.getName());
 

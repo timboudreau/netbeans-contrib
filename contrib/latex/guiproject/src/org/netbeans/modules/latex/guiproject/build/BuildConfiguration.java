@@ -59,7 +59,7 @@ import org.openide.windows.OutputWriter;
  *
  * @author Jan Lahoda
  */
-public final class BuildConfiguration {
+public final class BuildConfiguration implements Builder {
 
     private static final ErrorManager ERR = ErrorManager.getDefault().getInstance(BuildConfiguration.class.getName());
 
