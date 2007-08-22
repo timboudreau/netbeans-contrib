@@ -83,8 +83,8 @@ public abstract class TexCompletionItem implements CompletionItem {
                 Document doc = component.getDocument();
                 
                 try {
-                    doc.remove(substituteOffset - 1, component.getCaretPosition() - substituteOffset + 1);
-                    doc.insertString(substituteOffset - 1, getText(), null);
+                    doc.remove(substituteOffset/* - 1*/, component.getCaretPosition() - substituteOffset/* + 1*/);
+                    doc.insertString(substituteOffset/* - 1*/, getText(), null);
                 } catch (BadLocationException e) {
                     ErrorManager.getDefault().notify(e);
                 }
@@ -176,7 +176,7 @@ public abstract class TexCompletionItem implements CompletionItem {
         }
         
         public String getText() {
-            return command.getCommand();
+            return command.getCommand().substring(1);
         }
         
         public String getLeftText() {
@@ -261,7 +261,7 @@ public abstract class TexCompletionItem implements CompletionItem {
         }
         
         public String getText() {
-            return "{" + environment.getName();
+            return environment.getName();
         }
         
         public String getLeftText() {

@@ -1,0 +1,9 @@
+\documentclass{article}
+
+\begin{document}
+
+\begin{itemize}
+\item{text}
+\end{itemize}
+
+\end{document}

@@ -179,6 +179,10 @@ public class TexCompletionTest extends NbTestCase {
 //        test("", "completion/EndTest2.tex", 5, 3);
 //    }
 
+    public void testEndTest3a() throws Exception {
+        test("", "completion/EndTest1.tex", 7, 3, 0);
+    }
+    
     public void testNotFullTest3a() throws Exception {
         test("", "completion/NotFullTest3a.tex", 4, 7, 0);
     }
@@ -193,6 +197,10 @@ public class TexCompletionTest extends NbTestCase {
     
     public void testCommandCommitTest() throws Exception {
         test("\\newcomma", "completion/CommandCommitTest.tex", 4, 9, 0);
+    }
+    
+    public void testRefArgCorrectly() throws Exception {
+        test("", "completion/RefArgCorrectlyReplaced.tex", 6, 5, 0);
     }
     
     private List<? extends CompletionItem> getItems(JEditorPane editor) throws Exception {
