@@ -110,37 +110,26 @@ public class ActionsFactory implements ActionProvider {
         final InputOutput inoutFin = inout;
         
         try {
-            class Exec implements Runnable {
-                public void run() {
-                    LifecycleManager.getDefault().saveAll();
-                    doBuild();
-                }
+            if (COMMAND_CLEAN.equals(command) || COMMAND_REBUILD.equals(command)) {
+                BuildConfiguration conf = Utilities.getBuildConfigurationProvider(project).getBuildConfiguration(ProjectSettings.getDefault(project).getBuildConfigurationName());
 
-                private void doBuild() {
-                    if (COMMAND_CLEAN.equals(command) || COMMAND_REBUILD.equals(command)) {
-                        BuildConfiguration conf = Utilities.getBuildConfigurationProvider(project).getBuildConfiguration(ProjectSettings.getDefault(project).getBuildConfigurationName());
-                        
-                        rerunActionFin.runAndRemember(project, new CleanBuilder(conf), inoutFin);
-                        return ;
-                    }
-                    
-                    if (COMMAND_BUILD.equals(command) || COMMAND_REBUILD.equals(command) || LaTeXGUIProject.COMMAND_SHOW.equals(command)) {
-                        BuildConfiguration conf = Utilities.getBuildConfigurationProvider(project).getBuildConfiguration(ProjectSettings.getDefault(project).getBuildConfigurationName());
-                        
-                        rerunActionFin.runAndRemember(project, conf, inoutFin);
-                        return ;
-                    }
-                    
-                    if (LaTeXGUIProject.COMMAND_SHOW.equals(command)) {
-                        ShowConfiguration conf = Utilities.getBuildConfigurationProvider(project).getShowConfiguration(ProjectSettings.getDefault(project).getShowConfigurationName());
-                        
-                        rerunActionFin.runAndRemember(project, conf, inoutFin);
-                        return ;
-                    }
-                }
+                rerunActionFin.runAndRemember(project, name, new CleanBuilder(conf), inoutFin);
+                return;
             }
-            
-            ExecutionEngine.getDefault().execute(name, new Exec(), inout);
+
+            if (COMMAND_BUILD.equals(command) || COMMAND_REBUILD.equals(command) || LaTeXGUIProject.COMMAND_SHOW.equals(command)) {
+                BuildConfiguration conf = Utilities.getBuildConfigurationProvider(project).getBuildConfiguration(ProjectSettings.getDefault(project).getBuildConfigurationName());
+
+                rerunActionFin.runAndRemember(project, name, conf, inoutFin);
+                return;
+            }
+
+            if (LaTeXGUIProject.COMMAND_SHOW.equals(command)) {
+                ShowConfiguration conf = Utilities.getBuildConfigurationProvider(project).getShowConfiguration(ProjectSettings.getDefault(project).getShowConfigurationName());
+
+                rerunActionFin.runAndRemember(project, name, conf, inoutFin);
+                return;
+            }
         } finally {
             synchronized (ActionsFactory.class) {
                 inout.getOut().close();
@@ -192,6 +181,7 @@ public class ActionsFactory implements ActionProvider {
         private LaTeXGUIProject project;
         private Builder toRepeat;
         private InputOutput inout;
+        private String name;
         
         public RerunAction() {
             putValue(SMALL_ICON, new ImageIcon(ActionsFactory.class.getResource("/org/netbeans/modules/latex/guiproject/resources/rerun.png")));
@@ -199,6 +189,10 @@ public class ActionsFactory implements ActionProvider {
         }
 
         public void actionPerformed(ActionEvent e) {
+            class Exec implements Runnable {
+                public void run() {
+                    LifecycleManager.getDefault().saveAll();
+
             try {
                 inout.getOut().reset();
                 inout.select();
@@ -211,10 +205,15 @@ public class ActionsFactory implements ActionProvider {
             } catch (IOException ex) {
                 Exceptions.printStackTrace(ex);
             }
+                }
+            }
+            
+            ExecutionEngine.getDefault().execute(name, new Exec(), inout);
         }
         
-        void runAndRemember(LaTeXGUIProject project, Builder toRepeat, InputOutput inout) {
+        void runAndRemember(LaTeXGUIProject project, String name, Builder toRepeat, InputOutput inout) {
             this.project = project;
+            this.name = name;
             this.toRepeat = toRepeat;
             this.inout = inout;
             
