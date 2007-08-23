@@ -16,6 +16,8 @@
  */
 package org.netbeans.test.au.launch;
 
+import java.awt.EventQueue;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import org.netbeans.api.sendopts.CommandException;
@@ -28,13 +30,23 @@ import org.netbeans.spi.sendopts.OptionProcessor;
  * @author Jaroslav Tulach
  */
 public class ShowGUIOptions extends OptionProcessor {
+    private static final Option NO_GUI = Option.withoutArgument(Option.NO_SHORT_NAME, "nogui"); // NOI18N
+    private static final Option ALWAYS = Option.always();
+    
 
     protected Set<Option> getOptions() {
-        throw new UnsupportedOperationException("Not supported yet.");
+        Set<Option> options = new HashSet<Option>();
+        options.add(NO_GUI);
+        options.add(ALWAYS);
+        return options;
     }
 
     protected void process(Env env, Map<Option, String[]> optionValues) throws CommandException {
-        throw new UnsupportedOperationException("Not supported yet.");
+        if (!optionValues.containsKey(NO_GUI)) {
+            EventQueue.invokeLater(
+                Installer.findObject(Installer.class, true)
+            );
+        }
     }
 
 }

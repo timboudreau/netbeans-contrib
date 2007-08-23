@@ -16,7 +16,6 @@
  */
 package org.netbeans.test.au.launch;
 
-import java.awt.EventQueue;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.Action;
@@ -33,6 +32,7 @@ public class Installer extends ModuleInstall implements Runnable {
     Action action;
     
     
+    @Override
     public void restored() {
         try {
             FileObject fo = Repository.getDefault().getDefaultFileSystem().findResource("Actions/System/org-netbeans-modules-autoupdate-ui-actions-PluginManagerAction.instance");
@@ -40,7 +40,6 @@ public class Installer extends ModuleInstall implements Runnable {
             DataObject obj = DataObject.find(fo);
             InstanceCookie ic = obj.getLookup().lookup(InstanceCookie.class);
             action = (Action)ic.instanceCreate();
-            EventQueue.invokeLater(this);
         } catch (Exception ex) {
             Logger.getLogger(Installer.class.getName()).log(Level.WARNING, ex.getMessage(), ex);
         }        
