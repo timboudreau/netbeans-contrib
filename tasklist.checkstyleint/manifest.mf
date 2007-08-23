@@ -1,5 +1,5 @@
 Manifest-Version: 1.0
-OpenIDE-Module: org.netbeans.modules.tasklist.checkstyle
+OpenIDE-Module: org.netbeans.modules.tasklist.checkstyleint
 OpenIDE-Module-Layer: org/netbeans/modules/tasklist/checkstyle/layer.xml
 OpenIDE-Module-Localizing-Bundle: org/netbeans/modules/tasklist/checkstyle/Bundle.properties
 OpenIDE-Module-Specification-Version: 1.0
