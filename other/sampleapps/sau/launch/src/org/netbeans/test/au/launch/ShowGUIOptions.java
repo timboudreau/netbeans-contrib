@@ -30,19 +30,20 @@ import org.netbeans.spi.sendopts.OptionProcessor;
  * @author Jaroslav Tulach
  */
 public class ShowGUIOptions extends OptionProcessor {
-    private static final Option NO_GUI = Option.withoutArgument(Option.NO_SHORT_NAME, "nogui"); // NOI18N
+    private static final Option GUI = Option.optionalArgument(Option.NO_SHORT_NAME, "gui"); // NOI18N
     private static final Option ALWAYS = Option.always();
     
 
     protected Set<Option> getOptions() {
         Set<Option> options = new HashSet<Option>();
-        options.add(NO_GUI);
+        options.add(GUI);
         options.add(ALWAYS);
         return options;
     }
 
     protected void process(Env env, Map<Option, String[]> optionValues) throws CommandException {
-        if (!optionValues.containsKey(NO_GUI)) {
+        String[] gui = optionValues.get(GUI);
+        if (gui == null || !gui[0].equals("false")) {
             EventQueue.invokeLater(
                 Installer.findObject(Installer.class, true)
             );
