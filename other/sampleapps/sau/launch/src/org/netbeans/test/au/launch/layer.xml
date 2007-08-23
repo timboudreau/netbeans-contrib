@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE filesystem PUBLIC "-//NetBeans//DTD Filesystem 1.1//EN" "http://www.netbeans.org/dtds/filesystem-1_1.dtd">
+<filesystem>
+
+  <folder name="Services">
+    <folder name="AutoupdateType">
+      <attr name="hidden" boolvalue="true" />
+      <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.test.au.launch.Bundle"/>
+      <attr name="SystemFileSystem.icon" urlvalue="nbresloc:org/netbeans/test.au/launch/updateAction.gif"/>
+      <attr name="helpID" stringvalue="org.netbeans.modules.autoupdate.AutoupdateType"/>
+
+      <file name="small_au.settings" url="autoupdate_xml_type.settings">
+        <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.test.au.launch.Bundle"/>
+        <attr name="SystemFileSystem.icon" urlvalue="nbresloc:org/netbeans/test.au/launch/updateAction.gif"/>
+        <attr name="url_key" stringvalue="URL_Default_N"/>
+        <attr name="enabled" boolvalue="true"/>
+      </file>
+    </folder>
+  </folder> <!-- Services -->
+</filesystem>
