@@ -12,11 +12,8 @@
  * enclosed by brackets [] replaced by your own identifying information:
  * "Portions Copyrighted [year] [name of copyright owner]"
  *
- * The Original Software is NetBeans. The Initial Developer of the Original
- * Software is Sun Microsystems, Inc. Portions Copyright 1997-2007 Sun
- * Microsystems, Inc. All Rights Reserved.
+ * Portions Copyrighted 2007 Sun Microsystems, Inc.
  */
-
 package org.netbeans.test.au.launch;
 
 import java.io.IOException;
