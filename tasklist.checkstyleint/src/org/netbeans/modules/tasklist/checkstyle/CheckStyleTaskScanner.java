@@ -29,8 +29,10 @@ import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.util.Collections;
 import java.util.List;
+import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.apache.commons.logging.LogFactory;
 import org.netbeans.modules.tasklist.checkstyle.settings.Settings;
 import org.netbeans.spi.tasklist.FileTaskScanner;
 import org.netbeans.spi.tasklist.Task;
@@ -132,9 +134,13 @@ public class CheckStyleTaskScanner extends FileTaskScanner implements PropertyCh
         if( null == checker ) {
             checker = new Checker();
             checker.addListener( getCheckstyleListener() );
-            Configuration cfg = ConfigurationLoader.loadConfiguration( Settings.getDefault().getConfigurationUrl(), new PropertiesExpander(System.getProperties()) );
+            Properties props = new Properties( System.getProperties() );
+//            props.put( "org.apache.commons.logging.Log", "org.netbeans.modules.tasklist.checkstyle.MyLogger" );
+            LogFactory.getFactory().setAttribute( "org.apache.commons.logging.Log", "org.netbeans.modules.tasklist.checkstyle.DelegatingLogger" );
+            
+            Configuration cfg = ConfigurationLoader.loadConfiguration( Settings.getDefault().getConfigurationUrl(), new PropertiesExpander(props) );
+            checker.setClassloader( Lookup.getDefault().lookup( ClassLoader.class ) );
             checker.configure( cfg );
-            checker.setClassloader( Lookup.getDefault().lookup(ClassLoader.class) );
         }
         return checker;
     }
