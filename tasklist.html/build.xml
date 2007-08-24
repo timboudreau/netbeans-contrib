@@ -21,18 +21,6 @@ Microsystems, Inc. All Rights Reserved.
 
     <import file="../../nbbuild/templates/projectized.xml"/>
 
-    <target name="netbeans-extra" depends="release"/>
-
-    <target name="release" depends="build-init">
-        <ant antfile="../external/build.xml" dir="../external"/>
-        <mkdir dir="${cluster}/modules/ext"/>
-        <copy todir="${cluster}/modules/ext">
-            <fileset dir="../external">
-                <include name="Tidy*.jar"/>
-            </fileset>
-        </copy>
-    </target>
-
     <target name="changelog">
         <style in="module-updates.xml" out="../www/updates/tasklist-html.html" 
             style="../www/updates/updates.xsl"/>

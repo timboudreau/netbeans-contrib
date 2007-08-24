@@ -9,16 +9,6 @@ or http://www.netbeans.org/cddl.txt.
 
 The Original Code is NetBeans. The Initial Developer of the Original
 Code is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
-=======
-When distributing Covered Code, include this CDDL Header Notice in each file
-and include the License file at http://www.netbeans.org/cddl.txt.
-If applicable, add the following below the CDDL Header, with the fields
-enclosed by brackets [] replaced by your own identifying information:
-"Portions Copyrighted [year] [name of copyright owner]"
-
-The Original Software is NetBeans. The Initial Developer of the Original
-Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
-
 Microsystems, Inc. All Rights Reserved.
 -->
 <project name="tasklist/checkstyle" default="netbeans" basedir=".">
@@ -26,44 +16,6 @@ Microsystems, Inc. All Rights Reserved.
     <property name="license.file" value="${basedir}/license.txt"/>
     <import file="../../nbbuild/templates/projectized.xml"/>
 
-    <target name="netbeans-extra" depends="release"/>
-
-    <target name="release" depends="build-init">
-        <loadfile property="readme.txt" srcfile="README" />
-
-        <available file="../external/checkstyle.jar" property="checkstyle.present" />
-        <fail unless="checkstyle.present"> Missing library.
-            ${readme.txt}
-        </fail>
-        <available file="../external/antlr.jar" property="antlr.present" />
-        <fail unless="antlr.present">Missing library.
-            ${readme.txt} 
-        </fail>
-        <available file="../external/commons-beanutils-core.jar" property="commons-beanutils-core.present" />
-        <fail unless="commons-beanutils-core.present"> Missing library.
-            ${readme.txt} 
-        </fail>
-        <available file="../external/commons-cli.jar" property="commons-cli.present" />
-        <fail unless="commons-cli.present"> Missing library.
-            ${readme.txt} 
-        </fail>
-        <available file="../external/commons-collections.jar" property="commons-collections.present" />
-        <fail unless="commons-collections.present">Missing library.
-            ${readme.txt} 
-        </fail>
-        
-        <mkdir dir="${cluster}/modules/ext"/>
-        <copy todir="${cluster}/modules/ext">
-            <fileset dir="../external">
-                <include name="checkstyle.jar"/>
-                <include name="antlr.jar"/>
-                <include name="commons-beanutils-core.jar"/>
-                <include name="commons-cli.jar"/>
-                <include name="commons-collections.jar"/>
-            </fileset>
-        </copy>
-    </target>
-    
     <target name="changelog">
         <style in="module-updates.xml" out="../www/updates/tasklist-checkstyle.html" 
             style="../www/updates/updates.xsl"/>

@@ -124,23 +124,23 @@ Microsystems, Inc. All Rights Reserved.
             <public-packages/>
             <class-path-extension>
                 <runtime-relative-path>ext/checkstyle.jar</runtime-relative-path>
-                <binary-origin>../external/checkstyle.jar</binary-origin>
+                <binary-origin>external/checkstyle.jar</binary-origin>
             </class-path-extension>
             <class-path-extension>
                 <runtime-relative-path>ext/antlr.jar</runtime-relative-path>
-                <binary-origin>../external/antlr.jar</binary-origin>
+                <binary-origin>external/antlr.jar</binary-origin>
             </class-path-extension>
             <class-path-extension>
                 <runtime-relative-path>ext/commons-beanutils-core.jar</runtime-relative-path>
-                <binary-origin>../external/commons-beanutils-core.jar</binary-origin>
+                <binary-origin>external/commons-beanutils-core.jar</binary-origin>
             </class-path-extension>
             <class-path-extension>
                 <runtime-relative-path>ext/commons-cli.jar</runtime-relative-path>
-                <binary-origin>../external/commons-cli.jar</binary-origin>
+                <binary-origin>external/commons-cli.jar</binary-origin>
             </class-path-extension>
             <class-path-extension>
                 <runtime-relative-path>ext/commons-collections.jar</runtime-relative-path>
-                <binary-origin>../external/commons-collections.jar</binary-origin>
+                <binary-origin>external/commons-collections.jar</binary-origin>
             </class-path-extension>
         </data>
     </configuration>

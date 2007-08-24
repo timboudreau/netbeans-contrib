@@ -86,7 +86,7 @@ Microsystems, Inc. All Rights Reserved.
             <public-packages/>
             <class-path-extension>
                 <runtime-relative-path>ext/Tidy-r7.jar</runtime-relative-path>
-                <binary-origin>../external/Tidy-r7.jar</binary-origin>
+                <binary-origin>external/Tidy-r7.jar</binary-origin>
             </class-path-extension>
         </data>
     </configuration>
