@@ -16,15 +16,12 @@
  */
 package org.netbeans.test.au.launch;
 
-import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.Action;
 import org.openide.LifecycleManager;
-import org.openide.cookies.InstanceCookie;
-import org.openide.filesystems.FileObject;
-import org.openide.filesystems.Repository;
-import org.openide.loaders.DataObject;
 import org.openide.modules.ModuleInstall;
+import org.openide.util.Lookup.Item;
+import org.openide.util.lookup.Lookups;
 
 /**
  */
@@ -34,21 +31,21 @@ public class Installer extends ModuleInstall implements Runnable {
     
     @Override
     public void restored() {
-        try {
-            FileObject fo = Repository.getDefault().getDefaultFileSystem().findResource("Actions/System/org-netbeans-modules-autoupdate-ui-actions-PluginManagerAction.instance");
-            assert fo != null;
-            DataObject obj = DataObject.find(fo);
-            InstanceCookie ic = obj.getLookup().lookup(InstanceCookie.class);
-            action = (Action)ic.instanceCreate();
-        } catch (Exception ex) {
-            Logger.getLogger(Installer.class.getName()).log(Level.WARNING, ex.getMessage(), ex);
-        }        
-        
-        
+        for (Item<Action> item : Lookups.forPath("Actions").lookupResult(Action.class).allItems()) {
+            if (item.getId().contains("PluginManagerAction")) {
+                action = item.getInstance();
+                if (action != null) {
+                    return;
+                }
+            }
+        }
+        Logger.global.warning("Cannot find PluginManagerAction! Enable autoupdate/ui module please!");
     }
 
     public void run() {
-        action.actionPerformed(null);
-        LifecycleManager.getDefault().exit();
+        if (action != null) {
+            action.actionPerformed(null);
+            LifecycleManager.getDefault().exit();
+        }
     }
 }
