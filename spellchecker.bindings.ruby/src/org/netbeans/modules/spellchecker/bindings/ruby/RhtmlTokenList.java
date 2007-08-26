@@ -65,7 +65,7 @@ public class RhtmlTokenList extends RubyTokenList {
                 TokenSequence<? extends GsfTokenId> t = ts.embedded(RubyTokenId.language());
                 if (t != null) {
                     // Tokenize Ruby segment
-                    int[] span = super.findNextSpellSpan(t, /*offset*/ts.offset());
+                    int[] span = super.findNextSpellSpan(t, Math.max(offset,ts.offset()));
                     if (span[0] != -1) {
                         return span;
                     }

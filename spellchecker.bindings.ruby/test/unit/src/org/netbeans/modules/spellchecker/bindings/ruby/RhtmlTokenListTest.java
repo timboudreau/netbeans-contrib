@@ -38,4 +38,8 @@ public class RhtmlTokenListTest extends TokenListTestBase {
     public void testComposite() throws Exception {
         tokenListTest("foo <% bar %> hello <% # hellor %>", "foo", "hello", "hellor");
     }
+
+    public void testComposite2() throws Exception {
+        tokenListTest("foo <% # %> hello", "foo", "hello");
+    }
 }
