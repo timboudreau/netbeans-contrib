@@ -42,13 +42,14 @@ import org.openide.util.lookup.Lookups;
 public class VauStructuralElementNode extends StructuralNode {
     
     public VauStructuralElementNode(VauStructuralElement element) throws IntrospectionException {
-        this(element, new InstanceContent());
-    }
-    
-    private VauStructuralElementNode(VauStructuralElement element, InstanceContent ic) throws IntrospectionException {
-        super(element, element.isValid() ? new AbstractLookup(ic) : Lookup.EMPTY);
+//        this(element, new InstanceContent());
+//    }
+//    
+//    private VauStructuralElementNode(VauStructuralElement element, InstanceContent ic) throws IntrospectionException {
+//        super(element, element.isValid() ? new AbstractLookup(ic) : Lookup.EMPTY);
+        super(element);
         
-        ic.add(new OpenCookieImpl());
+//        ic.add(new OpenCookieImpl());
         
         setIconBase("org/netbeans/modules/latex/gui/nb/autedit_icon");
         setDisplayName(element.getCaption());
