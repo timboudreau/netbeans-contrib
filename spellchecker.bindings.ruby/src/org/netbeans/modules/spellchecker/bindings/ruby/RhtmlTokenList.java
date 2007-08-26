@@ -17,12 +17,11 @@
 package org.netbeans.modules.spellchecker.bindings.ruby;
 
 import javax.swing.text.BadLocationException;
-import javax.swing.text.Document;
 import org.netbeans.api.gsf.GsfTokenId;
 import org.netbeans.api.html.lexer.HTMLTokenId;
 import org.netbeans.api.lexer.TokenId;
 import org.netbeans.api.lexer.TokenSequence;
-import org.netbeans.modules.ruby.lexer.RubyTokenId;
+import org.netbeans.editor.BaseDocument;
 import org.netbeans.modules.ruby.lexer.RubyTokenId;
 import org.netbeans.modules.ruby.rhtml.lexer.api.RhtmlTokenId;
 
@@ -32,7 +31,7 @@ import org.netbeans.modules.ruby.rhtml.lexer.api.RhtmlTokenId;
  * @author Tor Norbye
  */
 public class RhtmlTokenList extends RubyTokenList {
-    public RhtmlTokenList(Document doc) {
+    public RhtmlTokenList(BaseDocument doc) {
         super(doc);
     }
 

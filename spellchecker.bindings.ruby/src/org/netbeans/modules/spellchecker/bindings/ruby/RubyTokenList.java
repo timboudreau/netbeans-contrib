@@ -19,9 +19,10 @@
 package org.netbeans.modules.spellchecker.bindings.ruby;
 
 import javax.swing.text.BadLocationException;
-import javax.swing.text.Document;
 import org.netbeans.api.lexer.TokenId;
 import org.netbeans.api.lexer.TokenSequence;
+import org.netbeans.editor.BaseDocument;
+import org.netbeans.editor.Utilities;
 import org.netbeans.modules.ruby.lexer.RubyCommentTokenId;
 import org.netbeans.modules.ruby.lexer.RubyTokenId;
 import org.netbeans.modules.ruby.lexer.RubyTokenId;
@@ -42,7 +43,7 @@ import org.netbeans.modules.ruby.lexer.RubyTokenId;
 public class RubyTokenList extends AbstractRubyTokenList {
 
     /** Creates a new instance of RubyTokenList */
-    public RubyTokenList(Document doc) {
+    public RubyTokenList(BaseDocument doc) {
         super(doc);
     }
 
@@ -57,7 +58,8 @@ public class RubyTokenList extends AbstractRubyTokenList {
 
         while (ts.moveNext()) {
             TokenId id = ts.token().id();
-            if (id == RubyTokenId.LINE_COMMENT || id == RubyTokenId.DOCUMENTATION) {
+            if ((id == RubyTokenId.LINE_COMMENT || id == RubyTokenId.DOCUMENTATION) &&
+                !isPreformatted(ts.offset(), id != RubyTokenId.DOCUMENTATION)) {
                 TokenSequence<? extends TokenId> t = ts.embedded(RubyCommentTokenId.language());
                 if (t == null) {
                     return new int[]{ts.offset(), ts.offset() + ts.token().length()};
@@ -65,7 +67,8 @@ public class RubyTokenList extends AbstractRubyTokenList {
                     t.move(offset);
                     while (t.moveNext()) {
                         id = t.token().id();
-                        if (id == RubyCommentTokenId.COMMENT_TEXT || id == RubyCommentTokenId.COMMENT_BOLD || id == RubyCommentTokenId.COMMENT_ITALIC) {
+                        if ((id == RubyCommentTokenId.COMMENT_TEXT || id == RubyCommentTokenId.COMMENT_BOLD || id == RubyCommentTokenId.COMMENT_ITALIC) &&
+                            !isPreformatted(t.offset(), id != RubyTokenId.DOCUMENTATION)) {
                             return new int[]{t.offset(), t.offset() + t.token().length()};
                         }
                     }
@@ -74,5 +77,16 @@ public class RubyTokenList extends AbstractRubyTokenList {
         }
 
         return new int[]{-1, -1};
+    }
+    
+    private boolean isPreformatted(int offset, boolean isComment) throws BadLocationException {
+        int lineBegin = Utilities.getRowFirstNonWhite(doc, offset);
+        if (lineBegin == -1) {
+            return false;
+        }
+        
+        // See if this comment is indented more than two chars
+        String line = doc.getText(lineBegin, Math.min(Utilities.getRowEnd(doc, offset), lineBegin+5)-lineBegin);
+        return isComment ? line.startsWith("#  ") : line.startsWith("  "); // NOI18N
     }
 }

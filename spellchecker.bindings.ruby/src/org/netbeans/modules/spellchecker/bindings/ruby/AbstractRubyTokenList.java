@@ -24,6 +24,7 @@ import javax.swing.text.Document;
 import org.netbeans.api.lexer.TokenHierarchy;
 import org.netbeans.api.lexer.TokenId;
 import org.netbeans.api.lexer.TokenSequence;
+import org.netbeans.editor.BaseDocument;
 import org.netbeans.modules.spellchecker.spi.language.TokenList;
 import org.openide.ErrorManager;
 
@@ -43,10 +44,10 @@ import org.openide.ErrorManager;
  */
 // TODO - rename AbstractTokenList
 public abstract class AbstractRubyTokenList implements TokenList {
-    private Document doc;
+    protected BaseDocument doc;
 
     /** Creates a new instance of RubyTokenList */
-    AbstractRubyTokenList(Document doc) {
+    AbstractRubyTokenList(BaseDocument doc) {
         this.doc = doc;
     }
 
@@ -75,7 +76,7 @@ public abstract class AbstractRubyTokenList implements TokenList {
     }
 
     private int[] findNextSpellSpan() throws BadLocationException {
-        TokenHierarchy<Document> h = TokenHierarchy.get(doc);
+        TokenHierarchy<Document> h = TokenHierarchy.get((Document)doc);
         TokenSequence<? extends TokenId> ts = h.tokenSequence();
 
         return findNextSpellSpan(ts, nextBlockStart);
