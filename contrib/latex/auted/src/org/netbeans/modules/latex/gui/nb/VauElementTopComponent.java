@@ -26,27 +26,31 @@ import java.beans.IntrospectionException;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.IOException;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.WeakHashMap;
-import javax.swing.JComponent;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.JScrollPane;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
 import javax.swing.text.StyledDocument;
-import org.netbeans.api.visual.model.ObjectSceneEvent;
-import org.netbeans.api.visual.model.ObjectSceneEventType;
-import org.netbeans.api.visual.model.ObjectSceneListener;
-import org.netbeans.api.visual.model.ObjectState;
+import org.netbeans.api.gsf.CancellableTask;
+import org.netbeans.api.retouche.source.CompilationController;
+import org.netbeans.api.retouche.source.Phase;
+import org.netbeans.api.retouche.source.Source;
 import org.netbeans.modules.latex.gui.Editor;
 import org.netbeans.modules.latex.gui.NodeStorage;
-import org.netbeans.modules.latex.gui.graph.GraphSceneImpl;
+import org.netbeans.modules.latex.model.LaTeXParserResult;
+import org.netbeans.modules.latex.model.Queue;
 import org.netbeans.modules.latex.model.command.SourcePosition;
+import org.netbeans.modules.latex.model.structural.StructuralElement;
 import org.openide.ErrorManager;
 import org.openide.cookies.SaveCookie;
 import org.openide.filesystems.FileObject;
@@ -59,121 +63,94 @@ import org.openide.windows.Mode;
 import org.openide.windows.TopComponent;
 import org.openide.windows.WindowManager;
 
-public class VauElementTopComponent extends TopComponent implements PropertyChangeListener, ObjectSceneListener {
+public class VauElementTopComponent extends TopComponent implements PropertyChangeListener {
+    
+    private static final Logger LOG = Logger.getLogger(VauElementTopComponent.class.getName());
+    
     private NodeStorage storage;
     private SourcePosition start;
     private SourcePosition end;
-//    private Editor         editor;
-    private JComponent myView;
-    private GraphSceneImpl scene;
+    private Editor         editor;
 
-    private VauElementTopComponent() {
+    public void writeExternal(ObjectOutput oo) throws IOException {
+        super.writeExternal(oo);
+        oo.writeBoolean(closed);
+        oo.writeObject(start);
     }
     
-//    public void writeExternal(ObjectOutput oo) throws IOException {
-//        super.writeExternal(oo);
-//        oo.writeBoolean(closed);
-//        oo.writeObject(start);
-//    }
-//    
-//    public void readExternal(ObjectInput oi) throws IOException, ClassNotFoundException {
-//        super.readExternal(oi);
-//        
-//        if (closed)
-//            throw new IOException("The component is closed!");
-//        
-//        Thread.dumpStack();
-//        
-//        start = (SourcePosition) oi.readObject();//TODO: this is kind of "hack", it should be generally done much better.
-//        
-//        
-//        StructuralElement d = Model.getDefault().getModel(DataObject.find((FileObject) start.getFile()));
-//        
-//        Queue q = new Queue();
-//        
-//        q.put(d);
-//        
-//        System.err.println("start=" + start);
-//        
-//        while (!q.empty()) {
-//            Element el = (Element) q.pop();
-//            
-//            System.err.println("el=" + el);
-//            
-//            if (el instanceof VauElementImpl) {
-//                VauElementImpl vel = (VauElementImpl) el;
-//                
-//                System.err.println("vel=" + vel + ", start=" + vel.getStart());
-//                
-//                System.err.println("?:" + vel.getStart().getFile().equals(start.getFile()));
-//                if (vel.getStart().equals(start)) {
-//                    initialize(vel);
-//                    
-//                    return ;
-//                }
-//            }
-//            
-//            if (el instanceof CompoundElement) {
-//                CompoundElement cel = (CompoundElement) el;
-//                Iterator it = cel.getSubElements().iterator();
-//                
-//                while (it.hasNext()) {
-//                    q.put(it.next());
-//                }
-//            }
-//        }
-//        
-//        throw new IOException("No appropriate Vaucanson code found for component: " + this);
-//    }
+    public void readExternal(ObjectInput oi) throws IOException, ClassNotFoundException {
+        super.readExternal(oi);
+        
+        closed = oi.readBoolean();
+        
+        if (closed)
+            throw new IOException("The component is closed!");
+        
+        start = (SourcePosition) oi.readObject();//TODO: this is kind of "hack", it should be generally done much better.
+        
+        Source s = Source.forFileObject((FileObject) start.getFile());
+        final VauStructuralElement[] result = new VauStructuralElement[1];
+        
+        s.runUserActionTask(new CancellableTask<CompilationController>() {
+            public void cancel() {}
+            public void run(CompilationController parameter) throws Exception {
+                parameter.toPhase(Phase.RESOLVED);
+
+                Queue q = new Queue();
+
+                q.put(((LaTeXParserResult) parameter.getParserResult()).getStructuralRoot());
+
+                Logger.getLogger(VauElementTopComponent.class.getName()).log(Level.FINE, "start={0}", start);
+
+                while (!q.empty()) {
+                    StructuralElement el = (StructuralElement) q.pop();
+
+                    Logger.getLogger(VauElementTopComponent.class.getName()).log(Level.FINE, "el={0}", el);
+
+                    if (el instanceof VauStructuralElement) {
+                        VauStructuralElement vel = (VauStructuralElement) el;
+
+                        Logger.getLogger(VauElementTopComponent.class.getName()).log(Level.FINE, "vel={0}, start={1}", new Object[]{vel, vel.getStart()});
+                        Logger.getLogger(VauElementTopComponent.class.getName()).log(Level.FINE, "?:{0}", vel.getStart().getFile().equals(start.getFile()));
+
+                        if (vel.getStart().equals(start)) {
+                            result[0] = vel;
+                            return;
+                        }
+                    }
+
+                    q.putAll(el.getSubElements());
+                }
+            }
+        }, true);
+        
+        if (result[0] != null) {
+            initialize(result[0]);
+        } else {
+            throw new IOException("No appropriate Vaucanson code found for component: " + this);
+        }
+    }
     
     private void initialize(VauStructuralElement el) {
         storage = el.getStorage();
         start   = el.getStart();
         end     = el.getEnd();
         
-        scene = new GraphSceneImpl(el);
-        myView = scene.createView();
-        
-        scene.setChildren();
-        scene.addObjectSceneListener(this, ObjectSceneEventType.OBJECT_SELECTION_CHANGED);
-        
-        JScrollPane shapePane = new JScrollPane(myView);
-        
-//        shapePane.setViewportView(myView);
-//        add(scene.createSatelliteView(), BorderLayout.WEST);
+        editor = new Editor(storage);
+        JScrollPane  spane = new JScrollPane(editor);
         
         setLayout(new BorderLayout());
-        add(shapePane, BorderLayout.CENTER);
-
-//        editor = new Editor(storage);
-//        JScrollPane  spane = new JScrollPane(editor);
-//        
-//        setLayout(new BorderLayout());
-//        add(spane, BorderLayout.CENTER);
-//        
-//        setName(el.getCaption());
-//        
-//        //XXX:
-//        editor.addPropertyChangeListener(this);
+        add(spane, BorderLayout.CENTER);
         
+        setName(el.getCaption());
+        
+        //XXX:
+        editor.addPropertyChangeListener(this);
         
         positionToComponent.put(start, this);
         
         setIcon(Utilities.loadImage("org/netbeans/modules/latex/resource/autedit_icon.gif"));
-        
-        selectionChanged();
-    }
-    
-    private void selectionChanged() {
-        Set selected = scene.getSelectedObjects();
-        Node[] nodes = new Node[selected.size()];
-        
-        int cntr = 0;
-        for (Object o : selected) {
-            nodes[cntr++] = findNodeForVauNode(o);
-        }
-        
-        setActivatedNodes(nodes);
+        setDisplayName(el.getCaption());
     }
     
     private VauElementTopComponent(VauStructuralElement el) {
@@ -183,27 +160,27 @@ public class VauElementTopComponent extends TopComponent implements PropertyChan
     private static Map positionToComponent = new HashMap();
     
     public static VauElementTopComponent openComponentForElement(VauStructuralElement el) {
-        System.err.println("positionToComponent=" + positionToComponent);
+        LOG.log(Level.FINE, "positionToComponent=" + positionToComponent);
         VauElementTopComponent tc = (VauElementTopComponent) positionToComponent.get(el.getStart());
         
-        System.err.println("tc=" + tc);
+        LOG.log(Level.FINE, "tc=" + tc);
         if (tc == null) {
             tc = new VauElementTopComponent(el);
             tc.open();
         }
         
-        System.err.println("done.");
-        System.err.println("positionToComponent=" + positionToComponent);
+        LOG.log(Level.FINE, "done.");
+        LOG.log(Level.FINE, "positionToComponent=" + positionToComponent);
         tc.requestActive();
         return tc;
     }
     
     private boolean closed = false;
     public void componentClosed() {
-        System.err.println("positionToComponent=" + positionToComponent);
+        LOG.log(Level.FINE, "positionToComponent=" + positionToComponent);
         positionToComponent.remove(start);
-        System.err.println("removed.");
-        System.err.println("positionToComponent=" + positionToComponent);
+        LOG.log(Level.FINE, "removed.");
+        LOG.log(Level.FINE, "positionToComponent=" + positionToComponent);
         synchronize();
         unsetGuarded();
         closed = true;
@@ -274,13 +251,13 @@ public class VauElementTopComponent extends TopComponent implements PropertyChan
                 public void run() {
                     try {
                         unsetGuarded();
-                        System.err.println("start=" + start.getOffsetValue());
-                        System.err.println("end=" + end.getOffsetValue());
-                        System.err.println("codelen=" + code.length());
+                        LOG.log(Level.FINE, "start=" + start.getOffsetValue());
+                        LOG.log(Level.FINE, "end=" + end.getOffsetValue());
+                        LOG.log(Level.FINE, "codelen=" + code.length());
                         doc.insertString(start.getOffsetValue() + 1, code, null);
-                        System.err.println("start=" + start.getOffsetValue());
-                        System.err.println("end=" + end.getOffsetValue());
-                        System.err.println("codelen=" + code.length());
+                        LOG.log(Level.FINE, "start=" + start.getOffsetValue());
+                        LOG.log(Level.FINE, "end=" + end.getOffsetValue());
+                        LOG.log(Level.FINE, "codelen=" + code.length());
                         doc.remove(start.getOffsetValue() + code.length(), end.getOffsetValue() - start.getOffsetValue() - code.length());
                         doc.remove(start.getOffsetValue(), 1);
                         setGuarded();
@@ -366,18 +343,17 @@ public class VauElementTopComponent extends TopComponent implements PropertyChan
     }
     
     public void propertyChange(PropertyChangeEvent evt) {
-        //XXX:
-//        if (Editor.PROP_SELECTION.equals(evt.getPropertyName())) {
-//            List     selected = editor.getSelection();
-//            Node[]   result   = new Node[selected.size()];
-//            
-//            for (int cntr = 0; cntr < selected.size(); cntr++) {
-//                result[cntr] = findNodeForVauNode(selected.get(cntr));
-//                result[cntr].addPropertyChangeListener(this);
-//            }
-//            
-//            setActivatedNodes(result);
-//        }
+        if (Editor.PROP_SELECTION.equals(evt.getPropertyName())) {
+            List     selected = editor.getSelection();
+            Node[]   result   = new Node[selected.size()];
+            
+            for (int cntr = 0; cntr < selected.size(); cntr++) {
+                result[cntr] = findNodeForVauNode(selected.get(cntr));
+                result[cntr].addPropertyChangeListener(this);
+            }
+            
+            setActivatedNodes(result);
+        }
     }
 
     /**
@@ -388,39 +364,7 @@ public class VauElementTopComponent extends TopComponent implements PropertyChan
      * @since 4.20
      */
     public int getPersistenceType() {
-        return PERSISTENCE_NEVER;
+        return PERSISTENCE_ONLY_OPENED;
     }
     
-    public void objectAdded(ObjectSceneEvent event, Object addedObject) {
-    }
-
-    public void objectRemoved(ObjectSceneEvent event, Object removedObject) {
-    }
-
-    public void objectStateChanged(ObjectSceneEvent event, Object changedObject,
-                                   ObjectState previousState,
-                                   ObjectState newState) {
-    }
-
-    public void selectionChanged(ObjectSceneEvent event,
-                                 Set<Object> previousSelection,
-                                 Set<Object> newSelection) {
-        selectionChanged();
-    }
-
-    public void highlightingChanged(ObjectSceneEvent event,
-                                    Set<Object> previousHighlighting,
-                                    Set<Object> newHighlighting) {
-    }
-
-    public void hoverChanged(ObjectSceneEvent event,
-                             Object previousHoveredObject,
-                             Object newHoveredObject) {
-    }
-
-    public void focusChanged(ObjectSceneEvent event,
-                             Object previousFocusedObject,
-                             Object newFocusedObject) {
-    }
-
 }

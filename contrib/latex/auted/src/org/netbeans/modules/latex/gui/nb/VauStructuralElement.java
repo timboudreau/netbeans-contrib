@@ -100,6 +100,16 @@ public class VauStructuralElement extends StructuralElement {
         return end;
     }
     
+    @Override
+    public SourcePosition getStartingPosition() {
+        return getStart();
+    }
+
+    @Override
+    public SourcePosition getEndingPosition() {
+        return getEnd();
+    }
+    
     public boolean isValid() {
         return valid;
     }

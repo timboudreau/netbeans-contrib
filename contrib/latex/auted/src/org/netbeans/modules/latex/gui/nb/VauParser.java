@@ -23,11 +23,14 @@ package org.netbeans.modules.latex.gui.nb;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
 import org.netbeans.modules.latex.model.command.CommandNode;
 import org.netbeans.modules.latex.model.command.Node;
 import org.netbeans.modules.latex.model.structural.DelegatedParser;
 import org.netbeans.modules.latex.model.structural.StructuralElement;
+import org.netbeans.spi.editor.hints.ErrorDescription;
 
 
 /**
@@ -36,12 +39,16 @@ import org.netbeans.modules.latex.model.structural.StructuralElement;
  */
 public final class VauParser extends DelegatedParser {
 
-    /** Creates a new instance of VauParser */
+    private List<ErrorDescription> errors;
+    
     public VauParser() {
     }
 
     public StructuralElement getElement(Node node) {
-        List errors = new ArrayList();//XXX   !!!!!
+        if (errors == null) {
+            errors = new LinkedList<ErrorDescription>();
+        }
+        
         if (node instanceof CommandNode) {
             return new VauStructuralElement((CommandNode) node, errors);
         }
@@ -51,6 +58,17 @@ public final class VauParser extends DelegatedParser {
     
     public String[] getSupportedAttributes() {
         return new String[] {"#vcdraw-command"};
+    }
+
+    @Override
+    public Collection<ErrorDescription> getErrors() {
+        return errors == null ? Collections.<ErrorDescription>emptyList() : errors;
+    }
+
+    @Override
+    public void parsingFinished() {
+        super.parsingFinished();
+        errors = null;
     }
     
 }

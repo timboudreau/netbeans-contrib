@@ -29,7 +29,11 @@ import org.netbeans.modules.latex.model.structural.StructuralNode;
 import org.openide.actions.OpenAction;
 import org.openide.actions.PropertiesAction;
 import org.openide.cookies.OpenCookie;
+import org.openide.util.Lookup;
 import org.openide.util.actions.SystemAction;
+import org.openide.util.lookup.AbstractLookup;
+import org.openide.util.lookup.InstanceContent;
+import org.openide.util.lookup.Lookups;
 
 /**
  *
@@ -37,11 +41,15 @@ import org.openide.util.actions.SystemAction;
  */
 public class VauStructuralElementNode extends StructuralNode {
     
-    /** Creates a new instance of VauStructuralElementNode */
     public VauStructuralElementNode(VauStructuralElement element) throws IntrospectionException {
-        super(element);
-        if (element.isValid())
-            getCookieSet().add(new OpenCookieImpl());
+        this(element, new InstanceContent());
+    }
+    
+    private VauStructuralElementNode(VauStructuralElement element, InstanceContent ic) throws IntrospectionException {
+        super(element, element.isValid() ? new AbstractLookup(ic) : Lookup.EMPTY);
+        
+        ic.add(new OpenCookieImpl());
+        
         setIconBase("org/netbeans/modules/latex/gui/nb/autedit_icon");
         setDisplayName(element.getCaption());
     }
