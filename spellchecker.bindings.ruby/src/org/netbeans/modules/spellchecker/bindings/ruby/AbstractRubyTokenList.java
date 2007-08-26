@@ -184,7 +184,7 @@ public abstract class AbstractRubyTokenList implements TokenList {
     private int startOffset;
 
     static boolean isLetter(char c) {
-        return Character.isLetter(c) || c == '\'';
+        return Character.isLetter(c) || c == '\'' || c == '_';
     }
 
     static Pair<CharSequence, Integer> wordBroker(CharSequence start, int offset, boolean treatSpecialCharactersAsLetterInsideWords) {
