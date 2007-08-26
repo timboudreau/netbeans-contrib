@@ -22,6 +22,7 @@ package org.netbeans.modules.spellchecker.bindings.ruby;
 import javax.swing.text.Document;
 import javax.swing.text.PlainDocument;
 import org.netbeans.api.lexer.Language;
+import org.netbeans.editor.BaseDocument;
 import org.netbeans.modules.ruby.lexer.RubyTokenId;
 import org.netbeans.modules.spellchecker.spi.language.TokenList;
 
@@ -32,6 +33,10 @@ public class RubyTokenListTest extends TokenListTestBase {
 
     public void testSimpleWordBroker() throws Exception {
         tokenListTest("# tes test\ntestt(testtt)\n#testttt, testttttt.\n", "tes", "test", "testttt", "testttttt");
+    }
+
+    public void testSkipSymbols() throws Exception {
+        tokenListTest("# tes :skip test\n", "tes", "test");
     }
 
     public void testPairTags() throws Exception {
@@ -59,7 +64,7 @@ public class RubyTokenListTest extends TokenListTestBase {
     }
 
     public void testPositions() throws Exception {
-        Document doc = new PlainDocument();
+        BaseDocument doc = new BaseDocument(null, false);
 
         doc.putProperty(Language.class, RubyTokenId.language());
 

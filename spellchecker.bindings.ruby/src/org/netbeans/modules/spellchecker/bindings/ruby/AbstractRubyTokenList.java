@@ -117,20 +117,20 @@ public abstract class AbstractRubyTokenList implements TokenList {
                         }
 
                         switch (data.a.charAt(0)) {
-                            case '<':
-                                if (startsWith(data.a, "<a ")) {
-                                    pairTag = "</a>";
-                                }
-                                if (startsWith(data.a, "<code>")) {
-                                    pairTag = "</code>";
-                                }
-                                if (startsWith(data.a, "<pre>")) {
-                                    pairTag = "</pre>";
-                                }
-                                break;
-                            case '{':
-                                pairTag = "}";
-                                break;
+                        case '<':
+                            if (startsWith(data.a, "<a ")) {
+                                pairTag = "</a>";
+                            }
+                            if (startsWith(data.a, "<code>")) {
+                                pairTag = "</code>";
+                            }
+                            if (startsWith(data.a, "<pre>")) {
+                                pairTag = "</pre>";
+                            }
+                            break;
+                        case '{':
+                            pairTag = "}";
+                            break;
                         }
                     } else {
                         if (pairTag.contentEquals(data.a)) {
@@ -196,6 +196,11 @@ public abstract class AbstractRubyTokenList implements TokenList {
 
             switch (state) {
                 case 0:
+                    if (current == ':') {
+                        state = 5;
+                        offsetStart = offset;
+                        break;
+                    }
                     if (isLetter(current)) {
                         state = 1;
                         offsetStart = offset;
@@ -220,25 +225,25 @@ public abstract class AbstractRubyTokenList implements TokenList {
                         break;
                     }
                     break;
-                case 1:
+                case 1: // isLetter
                     if (!isLetter(current) && ((current != '.' && current != '#') || !treatSpecialCharactersAsLetterInsideWords)) {
                         return new Pair<CharSequence, Integer>(start.subSequence(offsetStart, offset), offsetStart);
                     }
 
                     break;
-                case 2:
+                case 2: // In @ or #
                     if (!isLetter(current)) {
                         return new Pair<CharSequence, Integer>(start.subSequence(offsetStart, offset), offsetStart);
                     }
 
                     break;
-                case 3:
+                case 3: // In <
                     if (current == '>') {
                         return new Pair<CharSequence, Integer>(start.subSequence(offsetStart, offset + 1), offsetStart);
                     }
 
                     break;
-                case 4:
+                case 4: // In {
                     if (current == '@') {
                         state = 2;
                         break;
@@ -246,6 +251,11 @@ public abstract class AbstractRubyTokenList implements TokenList {
 
                     offset--;
                     state = 0;
+                    break;
+                case 5: // After :
+                    if (Character.isWhitespace(current)) {
+                        state = 0;
+                    }
                     break;
             }
 
