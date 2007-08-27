@@ -90,6 +90,18 @@
                 </dependency>
             </module-dependencies>
             <public-packages/>
+            <class-path-extension>
+                <runtime-relative-path>ext/sapwsdlgenerator/sapjco.jar</runtime-relative-path>
+                <binary-origin>../external/sapjco.jar</binary-origin>
+            </class-path-extension>
+            <class-path-extension>
+                <runtime-relative-path>ext/sapwsdlgenerator/sapidocjco.jar</runtime-relative-path>
+                <binary-origin>../external/sapidocjco.jar</binary-origin>
+            </class-path-extension>
+            <class-path-extension>
+                <runtime-relative-path>ext/sapwsdlgenerator/sapidoc.jar</runtime-relative-path>
+                <binary-origin>../external/sapidoc.jar</binary-origin>
+            </class-path-extension>
         </data>
     </configuration>
 </project>
