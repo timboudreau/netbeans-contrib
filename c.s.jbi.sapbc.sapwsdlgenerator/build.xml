@@ -5,4 +5,14 @@
 <project name="com.sun.jbi.sapbc.sapwsdlgenerator" default="netbeans" basedir=".">
     <description>Builds, tests, and runs the project com.sun.jbi.sapbc.sapwsdlgenerator.</description>
     <import file="../../../nbbuild/templates/projectized.xml"/>
+    <target name="init" depends="projectized.init">
+        <mkdir dir="${cluster}/modules/ext/sapwsdlgenerator/"/>
+        <copy todir="${cluster}/modules/ext/sapwsdlgenerator/">
+            <fileset dir="../sapwsdlgenerator/external">
+                <include name="sapjco.jar"/>
+                <include name="sapidoc.jar"/>
+                <include name="sapidocjco.jar"/>
+            </fileset>
+        </copy>
+    </target>
 </project>
