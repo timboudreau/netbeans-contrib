@@ -75,8 +75,8 @@
                               <Component id="textfieldServerName" alignment="1" pref="258" max="32767" attributes="0"/>
                               <Component id="textfieldSystemId" alignment="1" pref="258" max="32767" attributes="0"/>
                               <Component id="textfieldSapRouterString" alignment="1" pref="258" max="32767" attributes="0"/>
-                              <Component id="textfieldPassword" alignment="0" pref="258" max="32767" attributes="0"/>
                               <Component id="textfieldUserName" alignment="1" pref="258" max="32767" attributes="0"/>
+                              <Component id="textfieldPassword" alignment="0" pref="258" max="32767" attributes="0"/>
                           </Group>
                       </Group>
                       <Component id="labelLogonParams" alignment="0" min="-2" max="-2" attributes="0"/>
@@ -129,15 +129,15 @@
                   </Group>
                   <EmptySpace max="-2" attributes="0"/>
                   <Group type="103" groupAlignment="3" attributes="0">
+		      <Component id="labelUserName" alignment="3" min="-2" max="-2" attributes="0"/>
                       <Component id="textfieldUserName" linkSize="1" alignment="3" min="-2" max="-2" attributes="0"/>
-                      <Component id="labelUserName" alignment="3" min="-2" max="-2" attributes="0"/>
                   </Group>
                   <EmptySpace max="-2" attributes="0"/>
                   <Group type="103" groupAlignment="0" attributes="0">
                       <Group type="102" alignment="0" attributes="0">
                           <Group type="103" groupAlignment="3" attributes="0">
-                              <Component id="textfieldPassword" linkSize="1" alignment="3" min="-2" max="-2" attributes="0"/>
                               <Component id="labelPassword" alignment="3" min="-2" max="-2" attributes="0"/>
+                              <Component id="textfieldPassword" linkSize="1" alignment="3" min="-2" max="-2" attributes="0"/>
                           </Group>
                           <EmptySpace pref="24" max="32767" attributes="0"/>
                       </Group>
@@ -277,7 +277,7 @@
             <Property name="labelFor" type="java.awt.Component" editor="org.netbeans.modules.form.ComponentChooserEditor">
               <ComponentRef name="textfieldPassword"/>
             </Property>
-            <Property name="text" type="java.lang.String" value="*Password:"/>
+            <Property name="text" type="java.lang.String" value="Password:"/>
           </Properties>
         </Component>
         <Component class="javax.swing.JTextField" name="textfieldClientNumber">
@@ -300,6 +300,9 @@
           <Events>
             <EventHandler event="focusGained" listener="java.awt.event.FocusListener" parameters="java.awt.event.FocusEvent" handler="textFieldFocusGained"/>
           </Events>
+          <AuxValues>
+            <AuxValue name="JavaCodeGenerator_InitCodePost" type="java.lang.String" value="textfieldPassword.getDocument().addDocumentListener(this);"/>
+          </AuxValues>
         </Component>
         <Component class="javax.swing.JLabel" name="labelFootnoteOptionalFields">
           <Properties>

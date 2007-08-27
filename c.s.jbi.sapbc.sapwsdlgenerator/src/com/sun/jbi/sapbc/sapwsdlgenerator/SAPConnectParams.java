@@ -1,7 +1,6 @@
 package com.sun.jbi.sapbc.sapwsdlgenerator;
 
 import java.util.Arrays;
-
 /**
  * Container for SAP connection information.
  *
@@ -10,7 +9,7 @@ import java.util.Arrays;
 public class SAPConnectParams implements Cloneable {
     
     public SAPConnectParams() {
-        defaults();
+        //defaults();
     }
     
     public boolean equals(Object obj) {
@@ -71,12 +70,8 @@ public class SAPConnectParams implements Cloneable {
     }
 
     public void setPassword(char[] password) {
-        if (password == null) {
-            this.password = new char[0];
-        } else {
-            this.password = new char[password.length];
-            System.arraycopy(password, 0, this.password, 0, this.password.length);
-        }
+        this.password = new char[password.length];
+        System.arraycopy(password, 0, this.password, 0, this.password.length);
     }
     
     public String getSystemId() {
@@ -126,18 +121,7 @@ public class SAPConnectParams implements Cloneable {
     public void setTraceRfc(boolean traceRfc) {
         this.traceRfc = traceRfc;
     }
-
-    private void defaults() {
-        clientNumber = "";
-        language = "";
-        routerString = "";
-        serverName = "";
-        systemId = "";
-        systemNumber = "";
-        userName = "";
-        password = new char[0];
-    }
-    
+   
     private String clientNumber;
     private String userName;
     private char[] password;

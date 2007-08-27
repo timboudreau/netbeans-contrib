@@ -1,10 +1,5 @@
 package com.sun.jbi.sapbc.sapwsdlgenerator.wizard;
 
-import org.netbeans.modules.compapp.projects.wizard.ProgressController;
-import org.netbeans.modules.compapp.projects.wizard.ProgressDescriptor;
-import org.netbeans.modules.compapp.projects.wizard.ProgressDialogFactory;
-import com.sun.jbi.sapbc.sapwsdlgenerator.SAPConnectParams;
-import com.sun.jbi.sapbc.sapwsdlgenerator.SAPObjectBrowser;
 import java.awt.Component;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -13,9 +8,20 @@ import java.util.Iterator;
 import java.util.Set;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+
 import org.openide.WizardDescriptor;
 import org.openide.util.HelpCtx;
 import org.openide.util.NbBundle;
+
+import org.netbeans.modules.compapp.projects.wizard.ProgressController;
+import org.netbeans.modules.compapp.projects.wizard.ProgressDescriptor;
+import org.netbeans.modules.compapp.projects.wizard.ProgressDialogFactory;
+
+import com.sap.mw.jco.IFunctionTemplate;
+import com.sap.mw.jco.JCO;
+
+import com.sun.jbi.sapbc.sapwsdlgenerator.SAPConnectParams;
+import com.sun.jbi.sapbc.sapwsdlgenerator.SAPObjectBrowser;
 
 /**
  * First Wizard panel for the SAP BC Wizard.
@@ -69,13 +75,7 @@ public class bapiwizardWizardPanel1
         final Thread browsing;
         
         // Progress display for SAP repository browsing process.
-        progress = ProgressDialogFactory.createProgressDialog(
-                NbBundle.getMessage(
-                    getClass(),
-                    "bapiwizardWizardPanel1.progress_title_retrieving_bobjs",
-                    new Object[] { mObjectType.toString() } ),
-                true
-        );
+        progress = ProgressDialogFactory.createProgressDialog("Retrieving BAPI/RFC objects", true);
         tracker = progress.getController();
         view = progress.getGUIComponent();
         
@@ -92,7 +92,11 @@ public class bapiwizardWizardPanel1
                 tracker.progress("Retrieving BAPI/RFC objects...", 1);
                 mBrowser.setConnectionParams(mConnectInfo);
                 mBrowser.setBrowseType(mObjectType);
+                try{
                 browsed = mBrowser.browse();
+                } catch (Exception e){
+                	
+                }
                 delay(2000);
                 if (tracker.isCanceled()) {
                     tracker.dispose();
@@ -222,7 +226,7 @@ public class bapiwizardWizardPanel1
         mConnectInfo.setLanguage((String) descriptor.getProperty(
                 bapiwizardVisualPanel1.PROPERTY_LANGUAGE));
     }
-    
+        
     private void saveParams(WizardDescriptor descriptor) {
         // Passing an object reference.
         // It's intentional that there is no corresponding attempt to
@@ -267,4 +271,6 @@ public class bapiwizardWizardPanel1
      */
     public static final String PROPERTY_BROWSER =
             bapiwizardWizardPanel1.class.getName().concat("/browser");
+ 
+    
 }

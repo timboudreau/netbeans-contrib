@@ -1,6 +1,7 @@
 package com.sun.jbi.sapbc.sapwsdlgenerator.wizard;
 
 import java.lang.reflect.InvocationTargetException;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -50,14 +51,16 @@ public final class bapiwizardVisualPanel1
         String serverName = textfieldServerName.getText();
         String clientNum = textfieldClientNumber.getText();
         String userName = textfieldUserName.getText();
+        char[] password = textfieldPassword.getPassword();
         
-        // password and router string are not part of the decision
-        // because they are optional
+        // router string is not part of the decision
+        // because it is optional
         isValid = isValid && !"".equals(sysId) && sysId != null;
         isValid = isValid && !"".equals(sysNum) && sysNum != null;
         isValid = isValid && !"".equals(serverName) && serverName != null;
         isValid = isValid && !"".equals(clientNum) && clientNum != null;
         isValid = isValid && !"".equals(userName) && userName != null;
+        isValid = isValid && !"".equals(password) && password != null;
         return isValid;
     }
 
@@ -89,6 +92,7 @@ public final class bapiwizardVisualPanel1
         documentMap.put(textfieldSystemId.getDocument(), Boolean.TRUE);
         documentMap.put(textfieldSystemNumber.getDocument(), Boolean.TRUE);
         documentMap.put(textfieldUserName.getDocument(), Boolean.TRUE);
+        documentMap.put(textfieldPassword.getDocument(), Boolean.TRUE);
     }
 
     /**
@@ -157,8 +161,7 @@ public final class bapiwizardVisualPanel1
         textfieldServerName.setText((String) desc.getProperty(PROPERTY_SERVERNAME));
         textfieldSapRouterString.setText((String) desc.getProperty(PROPERTY_ROUTERSTRING));
         textfieldClientNumber.setText((String) desc.getProperty(PROPERTY_CLIENTNUM));
-        final char[] password = (char[]) desc.getProperty(PROPERTY_PASSWORD);
-        textfieldPassword.setText(password != null ? new String(password) : "");
+        textfieldPassword.setText((String) desc.getProperty(PROPERTY_PASSWORD));
         
         // Object Type radio buttons
         Boolean selected = (Boolean) desc.getProperty(PROPERTY_OBJECTTYPE_BAPI);
@@ -308,7 +311,7 @@ public final class bapiwizardVisualPanel1
 
         labelPassword.setDisplayedMnemonic('w');
         labelPassword.setLabelFor(textfieldPassword);
-        labelPassword.setText("*Password:");
+        labelPassword.setText("Password:");
 
         textfieldClientNumber.getDocument().addDocumentListener(this);
         textfieldClientNumber.addFocusListener(new java.awt.event.FocusAdapter() {
@@ -323,7 +326,8 @@ public final class bapiwizardVisualPanel1
                 textFieldFocusGained(evt);
             }
         });
-
+        
+        textfieldPassword.getDocument().addDocumentListener(this);
         textfieldPassword.addFocusListener(new java.awt.event.FocusAdapter() {
             public void focusGained(java.awt.event.FocusEvent evt) {
                 textFieldFocusGained(evt);
@@ -357,8 +361,8 @@ public final class bapiwizardVisualPanel1
                             .add(textfieldServerName, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 258, Short.MAX_VALUE)
                             .add(textfieldSystemId, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 258, Short.MAX_VALUE)
                             .add(textfieldSapRouterString, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 258, Short.MAX_VALUE)
-                            .add(org.jdesktop.layout.GroupLayout.LEADING, textfieldPassword, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 258, Short.MAX_VALUE)
-                            .add(textfieldUserName, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 258, Short.MAX_VALUE)))
+                            .add(org.jdesktop.layout.GroupLayout.LEADING, textfieldUserName, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 258, Short.MAX_VALUE)
+                            .add(textfieldPassword, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 258, Short.MAX_VALUE)))
                     .add(labelLogonParams)
                     .add(labelSystemParams)
                     .add(panelConnectDataLayout.createSequentialGroup()
