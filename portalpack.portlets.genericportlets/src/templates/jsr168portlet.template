@@ -9,6 +9,10 @@ import java.io.IOException;
 <#if pc.getHasJsps()>import javax.portlet.PortletRequestDispatcher;
 <#else>import java.io.PrintWriter;
 </#if>
+
+/**
+ * ${CLASS_NAME} Portlet Class
+ */
 public class ${CLASS_NAME} extends GenericPortlet {
 
     public void processAction(ActionRequest request, ActionResponse response) throws PortletException,IOException {

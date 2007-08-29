@@ -20,13 +20,18 @@
 package org.netbeans.modules.portalpack.portlets.genericportlets.node;
 
 import java.awt.datatransfer.Transferable;
+import java.awt.datatransfer.UnsupportedFlavorException;
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 import org.netbeans.modules.portalpack.portlets.genericportlets.ddapi.*;
 import org.netbeans.modules.portalpack.portlets.genericportlets.node.ddloaders.PortletXMLDataObject;
-import org.openide.loaders.DataNode;
+import org.netbeans.modules.schema2beans.BaseBean;
 import org.openide.nodes.AbstractNode;
-import org.openide.nodes.Children;
 import org.openide.nodes.Sheet;
+import org.openide.util.Exceptions;
+import org.openide.util.NbBundle;
+import org.openide.util.datatransfer.PasteType;
 
 /**
  *
@@ -38,9 +43,10 @@ public class PortletNode extends AbstractNode{
     private PortletXMLDataObject dobj;
     private String id;
     private static final String IMAGE_ICON_BASE = "org/netbeans/modules/portalpack/portlets/genericportlets/resources/portletapp.gif";
+    
     /** Creates a new instance of PortletNode */
     public PortletNode(PortletType portletType,PortletXMLDataObject dobj) {
-        super(Children.LEAF);
+        super(new PortletChildrenNode(dobj,portletType));
         this.portletType = portletType;
         this.dobj = dobj;
         setIconBaseWithExtension(IMAGE_ICON_BASE);
@@ -71,6 +77,74 @@ public class PortletNode extends AbstractNode{
     public String getID()
     {
         return id;
+    }
+
+    @Override
+    public PasteType getDropType(final Transferable t, int action, int index) {
+        try {
+            final Object obj = t.getTransferData(new java.awt.datatransfer.DataFlavor("application/x-java-openide-nodednd; class=org.openide.nodes.Node", "application/x-java-openide-nodednd"));
+           if(obj instanceof FilterNode)
+            {
+                if(!(((FilterNode)obj).getDataObject()).getApplicationName().equals(dobj.getApplicationName()))
+                        return null;
+            }
+            else if(obj instanceof PublicRenderParameterNode)
+            {
+                if(!(((PublicRenderParameterNode)obj).getDataObject()).getApplicationName().equals(dobj.getApplicationName()))
+                        return null;
+            }
+            else{
+                return null;
+            }
+            
+            return new PasteType() {
+
+                public Transferable paste() throws IOException {
+                    if(obj instanceof FilterNode){
+                        FilterNode filter = (FilterNode)obj;
+                        getDataObject().getPortletXmlHelper().addFilter(portletType.getPortletName(), filter.getName());
+                        
+                    }
+                    else if(obj instanceof PublicRenderParameterNode){
+                        PublicRenderParameterNode prNode = (PublicRenderParameterNode)obj;
+                        getDataObject().getPortletXmlHelper().addSupportedPublicRenderParameter(portletType.getPortletName(),prNode.getIdentifier());                      
+                    }
+                    
+                    return t;
+                    
+                }
+            
+            };
+        } catch (UnsupportedFlavorException ex) {
+            Exceptions.printStackTrace(ex);
+        } catch (IOException ex) {
+            Exceptions.printStackTrace(ex);
+        }
+        return null;
+    }
+   
+    @Override
+    protected Sheet createSheet() {
+        
+        Sheet sheet = Sheet.createDefault();
+        Sheet.Set set = sheet.createPropertiesSet();
+        Map<String,String> propertyMap = new HashMap();
+        propertyMap.put("portlet-name", NbBundle.getMessage(PortletNode.class, "PORTLET_NAME"));
+        propertyMap.put("portlet-class", NbBundle.getMessage(PortletNode.class, "PORTLET_CLASS"));
+        propertyMap.put("display-name", NbBundle.getMessage(PortletNode.class, "DISPLAY-NAME"));
+        propertyMap.put("expiration-cache", NbBundle.getMessage(PortletNode.class, "EXPIRATION-CACHE"));
+        try{
+            Property[] property = NodeHelper.getProperties(propertyMap,(BaseBean)portletType);
+            for(int i=0;i<property.length;i++)
+            {
+                set.put (property[i]);  
+            }
+            sheet.put(set);
+        }catch(Exception e){
+            e.printStackTrace();
+        }
+        return sheet;
+
     }
     
 }

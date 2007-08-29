@@ -83,45 +83,45 @@ public final class NewFilterWizardVisualPanel1 extends JPanel implements Documen
         ));
         jScrollPane1.setViewportView(jTable1);
 
-        org.openide.awt.Mnemonics.setLocalizedText(jLabel2, "Filter Name");
+        org.openide.awt.Mnemonics.setLocalizedText(jLabel2, org.openide.util.NbBundle.getMessage(NewFilterWizardVisualPanel1.class, "LBL_FILTER_NAME")); // NOI18N
 
         initParamTableModel = new InitParamTableModel();
         initParamTable.setModel(initParamTableModel
         );
         jScrollPane2.setViewportView(initParamTable);
 
-        org.openide.awt.Mnemonics.setLocalizedText(jLabel3, "Init Params");
+        org.openide.awt.Mnemonics.setLocalizedText(jLabel3, org.openide.util.NbBundle.getMessage(NewFilterWizardVisualPanel1.class, "LBL_INIT_PARAMS")); // NOI18N
 
-        org.openide.awt.Mnemonics.setLocalizedText(addParamButton, "Add");
+        org.openide.awt.Mnemonics.setLocalizedText(addParamButton, org.openide.util.NbBundle.getMessage(NewFilterWizardVisualPanel1.class, "LBL_ADD")); // NOI18N
         addParamButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 addParamButtonActionPerformed(evt);
             }
         });
 
-        org.openide.awt.Mnemonics.setLocalizedText(deleteParamButton, "Delete");
+        org.openide.awt.Mnemonics.setLocalizedText(deleteParamButton, org.openide.util.NbBundle.getMessage(NewFilterWizardVisualPanel1.class, "LBL_DELETE")); // NOI18N
         deleteParamButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 deleteParamButtonActionPerformed(evt);
             }
         });
 
-        jPanel1.setBorder(javax.swing.BorderFactory.createTitledBorder("Filter Type"));
+        jPanel1.setBorder(javax.swing.BorderFactory.createTitledBorder(org.openide.util.NbBundle.getMessage(NewFilterWizardVisualPanel1.class, "LBL_FILTER_TYPE"))); // NOI18N
         jPanel1.setName("filterType"); // NOI18N
 
-        org.openide.awt.Mnemonics.setLocalizedText(renderCB, "RENDER");
+        org.openide.awt.Mnemonics.setLocalizedText(renderCB, org.openide.util.NbBundle.getMessage(NewFilterWizardVisualPanel1.class, "LBL_RENDER")); // NOI18N
         renderCB.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         renderCB.setMargin(new java.awt.Insets(0, 0, 0, 0));
 
-        org.openide.awt.Mnemonics.setLocalizedText(actionCB, "ACTION");
+        org.openide.awt.Mnemonics.setLocalizedText(actionCB, org.openide.util.NbBundle.getMessage(NewFilterWizardVisualPanel1.class, "LBL_ACTION")); // NOI18N
         actionCB.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         actionCB.setMargin(new java.awt.Insets(0, 0, 0, 0));
 
-        org.openide.awt.Mnemonics.setLocalizedText(eventCB, "EVENT");
+        org.openide.awt.Mnemonics.setLocalizedText(eventCB, org.openide.util.NbBundle.getMessage(NewFilterWizardVisualPanel1.class, "LBL_EVENT")); // NOI18N
         eventCB.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         eventCB.setMargin(new java.awt.Insets(0, 0, 0, 0));
 
-        org.openide.awt.Mnemonics.setLocalizedText(resourceCB, "RESOURCE");
+        org.openide.awt.Mnemonics.setLocalizedText(resourceCB, org.openide.util.NbBundle.getMessage(NewFilterWizardVisualPanel1.class, "LBL_RESOURCE")); // NOI18N
         resourceCB.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         resourceCB.setMargin(new java.awt.Insets(0, 0, 0, 0));
 

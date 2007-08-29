@@ -18,8 +18,6 @@ package org.netbeans.modules.portalpack.portlets.genericportlets.ddapi.eventing.
 
 import java.io.IOException;
 import java.io.OutputStream;
-import java.lang.reflect.Array;
-import java.util.ArrayList;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;

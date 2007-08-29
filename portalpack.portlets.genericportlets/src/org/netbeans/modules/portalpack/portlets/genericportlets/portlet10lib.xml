@@ -21,7 +21,7 @@ Microsystems, Inc. All Rights Reserved.
 <library version="1.0">
     <name>Portlet-1.0-Lib</name>
     <type>j2se</type>
-    <localizing-bundle>org/netbeans/modules/portalpack/portlets/genericportlets/resources/Bundle</localizing-bundle>
+    <localizing-bundle>org/netbeans/modules/portalpack/portlets/genericportlets/Bundle</localizing-bundle>
     <volume>
         <type>classpath</type>
         <resource>jar:nbinst:///modules/ext/portalpack/portlet-api-1.0.jar!/</resource>

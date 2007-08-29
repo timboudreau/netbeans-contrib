@@ -46,7 +46,7 @@ public final class ErrorVisualPanel extends JPanel {
 
         jLabel1 = new javax.swing.JLabel();
 
-        org.openide.awt.Mnemonics.setLocalizedText(jLabel1, "Filter is Not Allowed In This Project");
+        org.openide.awt.Mnemonics.setLocalizedText(jLabel1, org.openide.util.NbBundle.getMessage(ErrorVisualPanel.class, "MSG_FILTER_NOT_ALLOWED")); // NOI18N
 
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
         this.setLayout(layout);

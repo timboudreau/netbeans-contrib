@@ -24,8 +24,6 @@ import java.util.logging.Logger;
 import org.netbeans.api.project.FileOwnerQuery;
 import org.netbeans.api.project.Project;
 import org.netbeans.api.project.ProjectUtils;
-import org.netbeans.api.xml.cookies.CheckXMLCookie;
-import org.netbeans.api.xml.cookies.ValidateXMLCookie;
 import org.openide.filesystems.FileChangeListener;
 //import org.netbeans.modules.xml.multiview.DesignMultiViewDesc;
 import org.openide.filesystems.FileObject;
@@ -40,15 +38,12 @@ import org.netbeans.modules.portalpack.portlets.genericportlets.core.util.Netbea
 import org.netbeans.modules.portalpack.portlets.genericportlets.ddapi.eventing.PortletEventingHandler;
 import org.netbeans.modules.portalpack.portlets.genericportlets.ddapi.eventing.impl.PortletEventingHandlerImpl;
 //import org.netbeans.spi.xml.cookies.CheckXMLSupport;
-import org.netbeans.spi.xml.cookies.CheckXMLSupport;
-import org.netbeans.spi.xml.cookies.DataObjectAdapters;
-//import org.netbeans.spi.xml.cookies.DataObjectAdapters;
-import org.netbeans.spi.xml.cookies.ValidateXMLSupport;
-//import org.netbeans.spi.xml.cookies.ValidateXMLSupport;
+import org.netbeans.modules.portalpack.portlets.genericportlets.ddapi.impl.PortletXmlHelper;
+import org.netbeans.modules.schema2beans.BaseBean;
+import org.openide.DialogDisplayer;
+import org.openide.NotifyDescriptor;
 import org.openide.filesystems.FileUtil;
-import org.openide.loaders.MultiDataObject;
-import org.openide.nodes.CookieSet;
-import org.openide.text.DataEditorSupport;
+import org.openide.util.NbBundle;
 
 public class PortletXMLDataObject extends XMLDataObject//XmlMultiViewDataObject
         implements Lookup.Provider {
@@ -58,6 +53,7 @@ public class PortletXMLDataObject extends XMLDataObject//XmlMultiViewDataObject
     private PortletApp portletApp;
    // private SunPortletXmlHandler sunPortletXmlHandler;
     private PortletEventingHandler portletEventingHandler;
+    private PortletXmlHelper portletXmlHelper;
     private FileObject portletXmlFobj;
     private static final int TYPE_TOOLBAR = 0;
     private String applicationName;
@@ -91,7 +87,7 @@ public class PortletXMLDataObject extends XMLDataObject//XmlMultiViewDataObject
         } catch (IOException ex) {
             logger.log(Level.INFO,"Parse Error",ex);
         }catch(Exception e){
-            // logger.log(Level.INFO,"Parse Error",e);
+             logger.log(Level.INFO,"Parse Error",e);
         }catch(Error e){
             logger.log(Level.INFO,"",e);
         }
@@ -104,6 +100,9 @@ public class PortletXMLDataObject extends XMLDataObject//XmlMultiViewDataObject
             e.printStackTrace();
            /// portletAppExt = null;
         }
+        
+        portletXmlHelper = new PortletXmlHelper(this);
+        
         
        // cookies.add((Node.Cookie) DataEditorSupport.create(this, getPrimaryEntry(), cookies));
     }
@@ -119,14 +118,20 @@ public class PortletXMLDataObject extends XMLDataObject//XmlMultiViewDataObject
             //java.io.InputStream is = getEditorSupport().getInputStream();
             PortletApp newPortletApp = null;
             try {
+                //TODO remove this line
+                portletApp = PortletXMLFactory.createGraph(FileUtil.toFile(portletXmlFobj));
                // newPortletApp = PortletXMLFactory.createGraph(FileUtil.toFile(portletXmlFobj));
-               newPortletApp = PortletXMLFactory.createGraph(FileUtil.toFile(portletXmlFobj));
-            } catch (RuntimeException ex) {
+               ///newPortletApp = PortletXMLFactory.createGraph(FileUtil.toFile(portletXmlFobj));
+            } catch (Exception ex) {
                 logger.log(Level.SEVERE,"Parse Error",ex);
-            }
+                NotifyDescriptor nd = new NotifyDescriptor.Message(NbBundle.getMessage(PortletXMLDataObject.class, 
+                                            "INVAILD_PORTLET_XML"),NotifyDescriptor.ERROR_MESSAGE);
+                DialogDisplayer.getDefault().notify(nd);
+            } 
             if (newPortletApp!=null) {
                 //portletApp.merge(newPortletApp, org.netbeans.modules.schema2beans.BaseBean.MERGE_UPDATE);
-                PortletXMLFactory.merge(portletApp,newPortletApp, org.netbeans.modules.schema2beans.BaseBean.MERGE_UPDATE);
+               //// PortletXMLFactory.merge(portletApp,newPortletApp, org.netbeans.modules.schema2beans.BaseBean.MERGE_UPDATE);
+                
             }
         }
     }
@@ -134,6 +139,11 @@ public class PortletXMLDataObject extends XMLDataObject//XmlMultiViewDataObject
     public PortletEventingHandler getPortletEventingHandler()
     {
         return portletEventingHandler;
+    }
+    
+    public PortletXmlHelper getPortletXmlHelper()
+    {
+        return portletXmlHelper;
     }
     
     public String getApplicationName()
@@ -148,8 +158,16 @@ public class PortletXMLDataObject extends XMLDataObject//XmlMultiViewDataObject
      */
     public PortletApp getPortletApp() throws IOException {
         if (portletApp==null) {
-            if(FileUtil.toFile(portletXmlFobj).exists())
-                portletApp = PortletXMLFactory.createGraph(FileUtil.toFile(portletXmlFobj));
+            if(FileUtil.toFile(portletXmlFobj).exists()){
+                try{
+                    portletApp = PortletXMLFactory.createGraph(FileUtil.toFile(portletXmlFobj));
+                }catch(Exception e){
+                    logger.log(Level.SEVERE,"Error in creatingGraph for portlet.xml",e);
+                    NotifyDescriptor nd = new NotifyDescriptor.Message(NbBundle.getMessage(PortletXMLDataObject.class, 
+                                            "INVAILD_PORTLET_XML"),NotifyDescriptor.ERROR_MESSAGE);
+                    DialogDisplayer.getDefault().notify(nd);
+                }
+            }
         }
         return portletApp;
     }
@@ -158,7 +176,7 @@ public class PortletXMLDataObject extends XMLDataObject//XmlMultiViewDataObject
         try{
             parseDocument();
         }catch(Exception e){
-            e.printStackTrace();
+            logger.log(Level.SEVERE,"Error",e);
             //do nothing/
         }
         try{
@@ -191,6 +209,18 @@ public class PortletXMLDataObject extends XMLDataObject//XmlMultiViewDataObject
     public void removeFileChangeListener(FileChangeListener fcl)
     {
         portletXmlFobj.removeFileChangeListener(fcl);
+    }
+
+    public String getPortletSpecVersion()
+    {
+        if(portletApp == null) return "";
+//TODO        String version = ((BaseBean)portletApp).getAttributeValue("version");
+        String version = portletApp.getVersion();
+        if(version.equals(PortletApp.VERSION_2_0))
+            return PortletApp.VERSION_2_0;
+        else
+            return PortletApp.VERSION_1_0;
+
     }
     
 /*

@@ -195,6 +195,10 @@ public interface PortletApp {
 
 	public org.netbeans.modules.portalpack.portlets.genericportlets.ddapi.ContainerRuntimeOptionType newContainerRuntimeOptionType();
         
-        public void merge(BaseBean bean,int mode);
+        //public void merge(BaseBean bean,int mode);
+        //TODO remove it
+        public String getVersion();
+        
+        public void write(java.io.OutputStream out) throws java.io.IOException;
 
 }

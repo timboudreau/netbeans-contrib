@@ -20,64 +20,48 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.TreeSet;
-import org.netbeans.modules.portalpack.portlets.genericportlets.ddapi.FilterMappingType;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import org.netbeans.modules.portalpack.portlets.genericportlets.core.util.CoreUtil;
+import org.netbeans.modules.portalpack.portlets.genericportlets.ddapi.FilterType;
 import org.netbeans.modules.portalpack.portlets.genericportlets.ddapi.PortletApp;
-import org.netbeans.modules.portalpack.portlets.genericportlets.ddapi.PortletType;
 import org.netbeans.modules.portalpack.portlets.genericportlets.node.ddloaders.PortletXMLDataObject;
 import org.openide.nodes.Children;
 import org.openide.nodes.Node;
 import org.openide.util.RequestProcessor;
 
 /**
- *
+ * This class implements the children nodes for Filter folder under portlet xml node.
  * @author Satyaranjan
  */
-public class PortletChildrenNode extends Children.Keys {
+public class FilterChildrenNode extends Children.Keys {
 
-   private PortletXMLDataObject dbObj;
-   private PortletType portletType;
-   private PortletApp portletApp;
-  
-   public PortletChildrenNode(PortletXMLDataObject dbObj,PortletType portletType) {
-       this.portletType = portletType;
-       
+    private static Logger logger = Logger.getLogger(CoreUtil.CORE_LOGGER);
+    private PortletXMLDataObject dbObj;
+    private PortletApp portletApp;
+    /** Creates a new instance of FilterChildrenNode */
+    public FilterChildrenNode(PortletXMLDataObject dbObj) {
         try {
             this.dbObj = dbObj;
             this.portletApp = dbObj.getPortletApp();
         } catch (IOException ex) {
-            ex.printStackTrace();
+            logger.log(Level.SEVERE,"Error initializing FilterChildrenNode",ex);
         }
     }
     
     public synchronized void updateKeys(){
         TreeSet ts = new TreeSet();
+        
         setKeys(ts);
         
         RequestProcessor.getDefault().post(new Runnable() {
             public void run() {
                 List list =new  ArrayList();
-                if(portletType == null)
+                if(portletApp == null)
                     return;
-                if(dbObj.getPortletSpecVersion().equals(PortletApp.VERSION_1_0))
-                    return;
-                FilterMappingType[] filterMappingType = portletApp.getFilterMapping();
-                for(int i=0;i<filterMappingType.length;i++)
-                {
-                    String[] portlets = filterMappingType[i].getPortletName();
-                    boolean isAssigned = false;
-                    for(String portletName:portlets)
-                    {
-                        if(portletName.equals(portletType.getPortletName()))
-                        {
-                            isAssigned = true;
-                        }
-                    }
-                    if(isAssigned)
-                       list.add(filterMappingType[i]);
-                }
-              
-                list.add("supported-public-render-parameters");
-                
+                FilterType[] filterType = portletApp.getFilter();
+                for(int i=0;i<filterType.length;i++)
+                    list.add(filterType[i]);
                 setKeys(list);
                 return;
                 
@@ -87,23 +71,8 @@ public class PortletChildrenNode extends Children.Keys {
     protected Node[] createNodes(Object key) {
         if(key == null) return new Node[]{};
         
-        if(key instanceof FilterMappingType)
-            return new Node[]{new FilterMappingNode(dbObj,portletType,(FilterMappingType)key)};
-       
-        else if(key.equals("supported-public-render-parameters"))
-        {
-               String[] values = portletType.getSupportedPublicRenderParameter();
-                if(values == null || values.length == 0)
-                    return new Node[]{};
-                Node[] nds = new Node[values.length];
-                for(int i=0;i<values.length;i++)
-                {
-                    nds[i] = new SupportedPublicRenderParameterNode(dbObj,portletType,values[i]);
-                    
-                }
-                return nds;
-         
-        }
+        if(key instanceof FilterType)
+            return new Node[]{new FilterNode((FilterType)key,dbObj)};
         else    
             return new Node[]{};
     }
@@ -112,7 +81,6 @@ public class PortletChildrenNode extends Children.Keys {
         updateKeys();
     }
     
-    @Override
     protected void removeNotify() {
         setKeys(java.util.Collections.EMPTY_SET);
     }
@@ -121,6 +89,5 @@ public class PortletChildrenNode extends Children.Keys {
     {
         dbObj.refreshMe();
     }
-
 
 }

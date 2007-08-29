@@ -28,7 +28,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import org.netbeans.modules.schema2beans.BaseBean;
 import org.netbeans.modules.schema2beans.Schema2BeansException;
-import org.openide.util.Exceptions;
 
 /**
  *
@@ -40,41 +39,48 @@ public class PortletXMLFactory {
     public PortletXMLFactory() {
     }
     
-    public static PortletApp createGraph(File portletXml){
+    public static PortletApp createGraph(File portletXml) throws Exception{
         
         try{
             String version = getPortletSpecVersion(portletXml);
             String implClass = getPortletAppImplementationClass(version);
             Class clazz = PortletXMLFactory.class.getClassLoader().loadClass(implClass);
-            Method createGraphMethod = clazz.getMethod("createGraph", new Class[]{File.class});
+//TODO            Method createGraphMethod = clazz.getMethod("createGraph", new Class[]{File.class});
+                        Method createGraphMethod = clazz.getMethod("read", new Class[]{File.class});
             Object[] parameters = new Object[]{portletXml};
             Object returnObj = createGraphMethod.invoke(clazz, parameters);
             if(returnObj == null)
                 return null;
             else if(returnObj instanceof org.netbeans.modules.portalpack.portlets.genericportlets.ddapi.PortletApp)
             {
-                String version1 = ((BaseBean)returnObj).getAttributeValue("version");
+//TODO                String version1 = ((BaseBean)returnObj).getAttributeValue("version");
+                String version1 = ((org.netbeans.modules.portalpack.portlets.genericportlets.ddapi.PortletApp)returnObj).getVersion();
                 System.out.println("version::::::::::::::::::::: "+version1);
                 return (org.netbeans.modules.portalpack.portlets.genericportlets.ddapi.PortletApp)returnObj;
             }
         } catch (ClassNotFoundException ex) {
             ex.printStackTrace();
+            throw ex;
         }catch(NoSuchMethodException ex){
             ex.printStackTrace();
+            throw ex;
         }catch(IllegalAccessException ex){
             ex.printStackTrace();
+            throw ex;
         }catch(InvocationTargetException ex){
             ex.printStackTrace();
+            throw ex;
         }
         return null;
         //return org.netbeans.modules.portalpack.portlets.genericportlets.ddapi.impl.model_1_0.PortletApp.createGraph(portletXml);
         //return null;
     }
-    public static PortletApp createGraph(InputStream in){
+    public static PortletApp createGraph(InputStream in) throws Exception{
         
         try {
             java.lang.Class clazz = org.netbeans.modules.portalpack.portlets.genericportlets.ddapi.PortletXMLFactory.class.getClassLoader().loadClass("org.netbeans.modules.portalpack.portlets.genericportlets.ddapi.impl.model_1_0.PortletApp");
-            java.lang.reflect.Method createGraphMethod = clazz.getMethod("createGraph", new java.lang.Class[] {java.io.InputStream.class});
+          //TODO  java.lang.reflect.Method createGraphMethod = clazz.getMethod("createGraph", new java.lang.Class[] {java.io.InputStream.class});
+              java.lang.reflect.Method createGraphMethod = clazz.getMethod("read", new java.lang.Class[] {java.io.InputStream.class});
             java.lang.Object[] parameters = new java.lang.Object[] {in};
             java.lang.Object returnObj = createGraphMethod.invoke(clazz, parameters);
             if (returnObj == null) {
@@ -84,20 +90,26 @@ public class PortletXMLFactory {
             }
         } catch (ClassNotFoundException ex) {
             ex.printStackTrace();
+            throw ex;
         }catch(NoSuchMethodException ex){
             ex.printStackTrace();
+            throw ex;
         }catch(IllegalAccessException ex){
             ex.printStackTrace();
+            throw ex;
         }catch(InvocationTargetException ex){
             ex.printStackTrace();
+            throw ex;
         }
         return null;
     }
     public static void merge(PortletApp oldPortletApp,PortletApp newPortletApp,int mode) {
-        oldPortletApp.merge((BaseBean)(newPortletApp), mode);
+       ((BaseBean)oldPortletApp).merge((BaseBean)(newPortletApp), mode);
+       // oldPortletApp = newPortletApp;
     }
     
     public static void write(PortletApp portletApp,Writer out) throws Schema2BeansException, IOException {
+        ((BaseBean)portletApp).write(out);
         ///((org.netbeans.modules.portalpack.portlets.genericportlets.ddapi.impl.model_1_0.PortletApp)portletApp).write(out);
     }
     
@@ -105,14 +117,16 @@ public class PortletXMLFactory {
     {
          try{
             Class clazz = PortletXMLFactory.class.getClassLoader().loadClass("org.netbeans.modules.portalpack.portlets.genericportlets.ddapi.impl.model_1_0.PortletApp");
-            Method createGraphMethod = clazz.getMethod("createGraph", new Class[]{File.class});
+           //TODO Method createGraphMethod = clazz.getMethod("createGraph", new Class[]{File.class});
+             Method createGraphMethod = clazz.getMethod("read", new Class[]{File.class});
             Object[] parameters = new Object[]{portletXml};
             Object returnObj = createGraphMethod.invoke(clazz, parameters);
             if(returnObj == null)
                 return null;
             else if(returnObj instanceof org.netbeans.modules.portalpack.portlets.genericportlets.ddapi.PortletApp)
             {
-                String version = ((BaseBean)returnObj).getAttributeValue("version");
+              //TODO  String version = ((BaseBean)returnObj).getAttributeValue("version");
+                  String version = ((org.netbeans.modules.portalpack.portlets.genericportlets.ddapi.PortletApp)returnObj).getVersion();
                 return version;
             }
         } catch (ClassNotFoundException ex) {

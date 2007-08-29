@@ -152,14 +152,14 @@ Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
             </folder>
         </folder>
     </folder>
-   
+   <!--
     <folder name="Menu">
         <folder name="Window">
             <file name="IPCStoryBoardAction.shadow">
                 <attr name="originalFile" stringvalue="Actions/Window/org-netbeans-modules-portalpack-portlets-genericportlets-storyboard-ipc-IPCStoryBoardAction.instance"/>
             </file>
         </folder>
-    </folder>
+    </folder>-->
     <folder name="Services">
         <folder name="MIMEResolver">
            
@@ -195,11 +195,11 @@ Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
             <folder name="Other">
             <file name="PortletTemplate.portlet" url="PortletTemplate.portlet">
                 <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.portalpack.portlets.genericportlets.Bundle"/>
-                <attr name="template" boolvalue="true"/>
+                <!--<attr name="template" boolvalue="true"/>-->
             </file>
             <file name="PortletXMLTemplate.xml" url="PortletXMLTemplate.xml">
                 <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.portalpack.portlets.genericportlets.Bundle"/>
-                <attr name="template" boolvalue="true"/>
+               <!-- <attr name="template" boolvalue="true"/>-->
             </file>
         </folder>
     </folder>

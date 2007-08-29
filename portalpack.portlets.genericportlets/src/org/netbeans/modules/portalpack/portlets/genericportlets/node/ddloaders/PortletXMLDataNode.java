@@ -21,15 +21,13 @@ package org.netbeans.modules.portalpack.portlets.genericportlets.node.ddloaders;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import org.netbeans.modules.portalpack.portlets.genericportlets.node.PortletChildrenNode;
+import org.netbeans.modules.portalpack.portlets.genericportlets.node.PortletXMLChildrenNode;
 import org.openide.filesystems.FileAttributeEvent;
 import org.openide.filesystems.FileChangeListener;
 import org.openide.filesystems.FileEvent;
 import org.openide.filesystems.FileRenameEvent;
 import org.openide.loaders.DataNode;
 import org.openide.loaders.DataObject;
-import org.openide.nodes.Children;
-import org.openide.nodes.Node;
 import org.openide.util.Lookup;
 import org.openide.util.actions.SystemAction;
 import org.openide.util.lookup.Lookups;
@@ -39,15 +37,15 @@ public class PortletXMLDataNode extends DataNode implements FileChangeListener {
     private static final String IMAGE_ICON_BASE = "org/netbeans/modules/portalpack/portlets/genericportlets/resources/portlet-xml.gif";
     
     public PortletXMLDataNode(PortletXMLDataObject obj) {
-        super(obj, new PortletChildrenNode(obj));
-        getCookieSet().add(new RefreshChannelChildren((PortletChildrenNode)getChildren()));
+        super(obj, new PortletXMLChildrenNode(obj));
+        getCookieSet().add(new RefreshChannelChildren((PortletXMLChildrenNode)getChildren()));
         setIconBaseWithExtension(IMAGE_ICON_BASE);
         obj.addFileChangeListener(this);
     }
     PortletXMLDataNode(PortletXMLDataObject obj, Lookup lookup) {
-        super(obj, new PortletChildrenNode(obj), lookup);
+        super(obj, new PortletXMLChildrenNode(obj), lookup);
         
-        Lookups.singleton(new RefreshChannelChildren((PortletChildrenNode)getChildren()));
+        Lookups.singleton(new RefreshChannelChildren((PortletXMLChildrenNode)getChildren()));
        // getCookieSet().add(new RefreshChannelChildren((PortletChildrenNode)getChildren()));
         setIconBaseWithExtension(IMAGE_ICON_BASE);
         obj.addFileChangeListener(this);
@@ -61,7 +59,6 @@ public class PortletXMLDataNode extends DataNode implements FileChangeListener {
             {
                 actionList.add(actions[i]);
             }
-            
             actionList.add(SystemAction.get(RefreshPortletXMLAction.class));
             return (javax.swing.Action [])actionList.toArray(new javax.swing.Action[0]);
             
@@ -113,9 +110,9 @@ public class PortletXMLDataNode extends DataNode implements FileChangeListener {
 }
 
 class RefreshChannelChildren implements RefreshCookie{ //RefreshCookie {
-    PortletChildrenNode children;
+    PortletXMLChildrenNode children;
     
-    RefreshChannelChildren(PortletChildrenNode children){
+    RefreshChannelChildren(PortletXMLChildrenNode children){
         this.children = children;
         
     }

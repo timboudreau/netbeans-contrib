@@ -100,6 +100,8 @@ Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
 	  validate="true"
 	  attrProp="true"
 	  removeUnreferencedNodes="true"
+          outputtype="javabeans"
+          extendBaseBean="true"
 	  rootDir="src"/>
           
           <schema2beans schema="${s2b_res_root}/portlet-app_2_0.xsd"
@@ -110,6 +112,8 @@ Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
 	  validate="true"
 	  attrProp="true"
 	  removeUnreferencedNodes="true"
+          outputtype="javabeans"
+          extendBaseBean="true"
 	  rootDir="src"/>
 	
   </target>
