@@ -5,4 +5,10 @@
 <project name="SmallAutoupdate" basedir="." default="run">
     <description>Builds the module suite SmallAutoupdate.</description>
     <import file="nbproject/build-impl.xml"/>
+    
+    
+    <target name="build" depends="suite.build">
+        <ant dir="../../serviceability">
+        </ant>
+    </target>
 </project>
