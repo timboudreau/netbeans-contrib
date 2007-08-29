@@ -48,7 +48,7 @@ import org.netbeans.api.registry.*;
  */
 public class ExtensibleLookupImpl extends ProxyLookup {
 
-    private static ErrorManager log = ErrorManager.getDefault().getInstance(SubMenuCache.class.getName());
+    private static ErrorManager log = ErrorManager.getDefault().getInstance(ExtensibleLookupImpl.class.getName());
     private static boolean LOGGABLE = log.isLoggable(ErrorManager.INFORMATIONAL);
     /**
      * Maps List<String> --> List. The key is list of
@@ -115,7 +115,7 @@ public class ExtensibleLookupImpl extends ProxyLookup {
     /** Notifies subclasses that a query is about to be processed.
      * @param template the template 
      */
-    protected void beforeLookup (Template template) {
+    @Override protected void beforeLookup (Template template) {
         super.beforeLookup(template);
         
         if (settingLookups) {
@@ -126,12 +126,16 @@ public class ExtensibleLookupImpl extends ProxyLookup {
             return;
         }
         
-        if (LOGGABLE) log.log(this + " beforeLookup " + template.getType().getName() + " thread: " + Thread.currentThread());
+        if (LOGGABLE) {
+            log.log(this + " beforeLookup " + template.getType().getName() + " thread: " + Thread.currentThread());
+        }
         Iterator c = getCandidates();
         
         while (c.hasNext()) {
             Object o = c.next();
-            if (LOGGABLE) log.log(this + " candidate " + o + " thread: " + Thread.currentThread());
+            if (LOGGABLE) {
+                log.log(this + " candidate " + o + " thread: " + Thread.currentThread());
+            }
             if (o instanceof LookupContentFactory) {
                 LookupContentFactory lcf = (LookupContentFactory)o;
                 if (lcf instanceof FactoryWrapper) {
@@ -159,11 +163,15 @@ public class ExtensibleLookupImpl extends ProxyLookup {
                 Object resObject = lcf.create(enode); 
                 Lookup resLookup = lcf.createLookup(enode);
                 if (resLookup != null) {
-                    if (LOGGABLE) log.log(this + " adding lookup " + resLookup + " thread: " + Thread.currentThread());
+                    if (LOGGABLE) {
+                        log.log(this + " adding lookup " + resLookup + " thread: " + Thread.currentThread());
+                    }
                     addLookup(resLookup);
                 }
                 if (resObject != null) {
-                    if (LOGGABLE) log.log(this + " adding " + resObject + " thread: " + Thread.currentThread());
+                    if (LOGGABLE) {
+                        log.log(this + " adding " + resObject + " thread: " + Thread.currentThread());
+                    }
                     content.add(resObject);
                 }
             } else {
@@ -260,7 +268,7 @@ public class ExtensibleLookupImpl extends ProxyLookup {
         if (listener == null) {
             listener = new Listener();
         }
-        return (ContextListener)WeakListeners.create(ContextListener.class, listener, source);
+        return WeakListeners.create(ContextListener.class, listener, source);
     }
     
     /**
@@ -305,7 +313,9 @@ public class ExtensibleLookupImpl extends ProxyLookup {
         while (con == null) {
             int slash = result.lastIndexOf('/');
             if (slash < 0) {
-                if (LOGGABLE) log.log("Cound not find proper context for " + path); // NOI18N
+                if (LOGGABLE) {
+                    log.log("Cound not find proper context for " + path); // NOI18N
+                } // NOI18N
                 return Context.getDefault();
             }
             result = result.substring(0, slash);
@@ -342,6 +352,7 @@ public class ExtensibleLookupImpl extends ProxyLookup {
         return instance;
     }
 
+    @Override
     public String toString() {
         String res = "ExtensibleLookupImpl[";
         res += "enode=" + enode;

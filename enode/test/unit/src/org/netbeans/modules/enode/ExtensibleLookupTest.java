@@ -19,6 +19,10 @@
 
 package org.netbeans.modules.enode;
 
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
+import java.io.IOException;
+import java.util.Collection;
 import junit.textui.TestRunner;
 
 import org.netbeans.junit.NbTestCase;
@@ -26,10 +30,18 @@ import org.netbeans.junit.NbTestSuite;
 
 import org.openide.filesystems.*;
 import org.openide.modules.ModuleInfo;
+import org.openide.nodes.NodeEvent;
+import org.openide.nodes.NodeMemberEvent;
+import org.openide.nodes.NodeReorderEvent;
 import org.openide.util.Lookup;
 
 import org.netbeans.api.enode.ExtensibleNode;
 import org.netbeans.modules.enode.test.*;
+import org.openide.nodes.Node;
+import org.openide.nodes.NodeListener;
+import org.openide.util.LookupEvent;
+import org.openide.util.LookupListener;
+import org.openide.util.lookup.ProxyLookup;
 
 /**
  * Tests contained in this class should cover the content
@@ -96,20 +108,25 @@ public class ExtensibleLookupTest extends NbTestCase {
         if (test == null) {
             test = root.createFolder("test");
         }
-        FileObject a1 = null;
+        final FileObject[] a1 = new FileObject[1];
+        final FileObject t = test;
         try {
-            a1 = test.createData("cookie1.instance");
-            a1.setAttribute("instanceCreate", org.netbeans.spi.enode.LookupContentFactoryManager.create(a1));
-            a1.setAttribute("factoryClass", "org.netbeans.modules.enode.test.C1Factory");
-            a1.setAttribute("implements", "org.netbeans.modules.enode.test.MONodeEnhancer");
+            test.getFileSystem().runAtomicAction(new FileSystem.AtomicAction(){
+                public void run() throws IOException {
+                    a1[0] = t.createData("cookie1.instance");
+                    a1[0].setAttribute("instanceCreate", org.netbeans.spi.enode.LookupContentFactoryManager.create(a1[0]));
+                    a1[0].setAttribute("factoryClass", "org.netbeans.modules.enode.test.C1Factory");
+                    a1[0].setAttribute("implements", "org.netbeans.modules.enode.test.MONodeEnhancer,org.openide.nodes.Node$Cookie");
+                }
+            });
             assertNotNull("Object not found", en1.getLookup().lookup(MONodeEnhancer.class));
             // Mantis 241: wrong caching was causing the second node with the same
             // path to fail.
             ExtensibleNode en2 = new ExtensibleNode("test", false);
             assertNotNull("Object not found", en2.getLookup().lookup(MONodeEnhancer.class));
         } finally {
-            if (a1 != null) {
-                a1.delete();
+            if (a1[0] != null) {
+                a1[0].delete();
             }
             assertNull("Object found but should be gone.", en1.getLookup().lookup(MONodeEnhancer.class));
         }
@@ -128,13 +145,20 @@ public class ExtensibleLookupTest extends NbTestCase {
         if (test == null) {
             test = root.createFolder("test");
         }
-        FileObject a1 = test.createData("cookie2.instance");
-        a1.setAttribute("instanceCreate", org.netbeans.spi.enode.LookupContentFactoryManager.create(a1));
-        a1.setAttribute("factoryClass", "org.netbeans.modules.enode.test.C1Factory");
-        a1.setAttribute("implements", "org.netbeans.modules.enode.test.MONodeEnhancer");
+        final FileObject t = test;
+        final FileObject[] toDelete = new FileObject[1];
+        test.getFileSystem().runAtomicAction(new FileSystem.AtomicAction(){
+            public void run() throws IOException {
+                FileObject a1 = t.createData("cookie2.instance");
+                a1.setAttribute("implements", "org.netbeans.modules.enode.test.MONodeEnhancer,org.openide.nodes.Node$Cookie");
+                a1.setAttribute("instanceCreate", org.netbeans.spi.enode.LookupContentFactoryManager.create(a1));
+                a1.setAttribute("factoryClass", "org.netbeans.modules.enode.test.C1Factory");
+                toDelete[0] = a1;
+            }
+        });
         assertNotNull("Object not found", en1.getLookup().lookup(MONodeEnhancer.class));
         
-        a1.delete();
+        toDelete[0].delete();
         assertNull("Object found but should be gone.", en1.getLookup().lookup(MONodeEnhancer.class));
     }
 
@@ -159,10 +183,17 @@ public class ExtensibleLookupTest extends NbTestCase {
         if (test == null) {
             test = root.createFolder("test");
         }
-        FileObject a1 = test.createData("cookie3.instance");
-        a1.setAttribute("instanceCreate", org.netbeans.spi.enode.LookupContentFactoryManager.create(a1));
-        a1.setAttribute("factoryClass", "org.netbeans.modules.enode.test.C1Factory");
-        a1.setAttribute("implements", "org.netbeans.modules.enode.test.MONodeEnhancer");
+        final FileObject t = test;
+        final FileObject[] toDelete = new FileObject[1];
+        test.getFileSystem().runAtomicAction(new FileSystem.AtomicAction(){
+            public void run() throws IOException {
+                FileObject a1 = t.createData("cookie3.instance");
+                a1.setAttribute("instanceCreate", org.netbeans.spi.enode.LookupContentFactoryManager.create(a1));
+                a1.setAttribute("factoryClass", "org.netbeans.modules.enode.test.C1Factory");
+                a1.setAttribute("implements", "org.netbeans.modules.enode.test.MONodeEnhancer,org.openide.nodes.Node$Cookie");
+                toDelete[0] = a1;
+            }
+        });
         
         ExtensibleNode n[] = new ExtensibleNode[1000];
         for (int i = 0; i < n.length; i++) {
@@ -175,8 +206,96 @@ public class ExtensibleLookupTest extends NbTestCase {
         long end = System.currentTimeMillis();
         assertTrue("It took " + (end - start), (end - start) < 500);
         
-        a1.delete();
+        toDelete[0].delete();
         assertNull("Object found but should be gone.", en1.getLookup().lookup(MONodeEnhancer.class));
+    }
+
+    /**
+     * 
+     */
+    public void testCookieActionsLongLoops() throws Exception {
+        ExtensibleNode en1 = new ExtensibleNode("test", false);
+        assertNull("No objects at the start", en1.getLookup().lookup(MONodeEnhancer.class));
+        FileObject test = root.getFileObject("test");
+        if (test == null) {
+            test = root.createFolder("test");
+        }
+        final FileObject t = test;
+        final FileObject[] toDelete = new FileObject[1];
+        test.getFileSystem().runAtomicAction(new FileSystem.AtomicAction(){
+            public void run() throws IOException {
+                FileObject a1 = t.createData("cookie3.instance");
+                a1.setAttribute("instanceCreate", org.netbeans.spi.enode.LookupContentFactoryManager.create(a1));
+                a1.setAttribute("factoryClass", "org.netbeans.modules.enode.test.C1Factory");
+                a1.setAttribute("implements", "org.netbeans.modules.enode.test.MONodeEnhancer,org.openide.nodes.Node$Cookie");
+                toDelete[0] = a1;
+            }
+        });
+        
+        final ExtensibleNode n[] = new ExtensibleNode[1000];
+        final Lookup[] lkp = new Lookup[1000];
+        final boolean res[] = new boolean[1];
+        long start = System.currentTimeMillis();
+        for (int i = 0; i < n.length; i++) {
+            n[i] = new ExtensibleNode("test", false);
+            lkp[i] = n[i].getLookup();
+            final Lookup.Result<Node.Cookie> r = lkp[i].lookup(new Lookup.Template<Node.Cookie>(Node.Cookie.class));
+            Collection<? extends Node.Cookie> c = r.allInstances();
+            r.addLookupListener(new LookupListener() {
+                public void resultChanged(LookupEvent ev) {
+                    for (int j = 0; j < n.length; j++) {
+                        final Lookup.Result<MONodeEnhancer> r2 = lkp[j].lookup(new Lookup.Template<MONodeEnhancer>(MONodeEnhancer.class));
+                        Collection<? extends MONodeEnhancer> c = r2.allInstances();
+                        if (c.isEmpty()) {
+                            res[0] = true;
+                        }
+                    }
+                }
+            });
+        }
+        final Lookup.Result<MONodeEnhancer> r2 = lkp[0].lookup(new Lookup.Template<MONodeEnhancer>(MONodeEnhancer.class));
+        Collection<? extends MONodeEnhancer> c = r2.allInstances();
+        assertFalse("1 MONodeEnhancer not found!", c.isEmpty());
+        assertFalse("2 MONodeEnhancer not found!", res[0]);
+        long end = System.currentTimeMillis();
+        assertTrue("It took " + (end - start), (end - start) < 500);
+        
+        toDelete[0].delete();
+        assertNull("Object found but should be gone.", en1.getLookup().lookup(MONodeEnhancer.class));
+    }
+    
+    public void testProperRegistration() throws Exception {
+        ExtensibleNode en1 = new ExtensibleNode("test", false);
+        assertNull("No objects at the start", en1.getLookup().lookup(MONodeEnhancer.class));
+        FileObject test = root.getFileObject("test");
+        if (test == null) {
+            test = root.createFolder("test");
+        }
+        final FileObject t = test;
+        final FileObject[] toDelete = new FileObject[1];
+        test.getFileSystem().runAtomicAction(new FileSystem.AtomicAction(){
+            public void run() throws IOException {
+                FileObject a1 = t.createData("cookie3.instance");
+                a1.setAttribute("instanceCreate", org.netbeans.spi.enode.LookupContentFactoryManager.create(a1));
+                a1.setAttribute("factoryClass", "org.netbeans.modules.enode.test.C1Factory");
+                a1.setAttribute("implements", "org.netbeans.modules.enode.test.MONodeEnhancer");
+                toDelete[0] = a1;
+            }
+        });
+        try {
+            ExtensibleNode n = new ExtensibleNode("test", false);
+            Lookup lkp = n.getLookup();
+            final Lookup.Result<Node.Cookie> r = lkp.lookup(new Lookup.Template<Node.Cookie>(Node.Cookie.class));
+            Collection<? extends Node.Cookie> c = r.allInstances();
+            final Lookup.Result<MONodeEnhancer> r2 = lkp.lookup(new Lookup.Template<MONodeEnhancer>(MONodeEnhancer.class));
+            Collection<? extends MONodeEnhancer> c2 = r2.allInstances();
+            fail("The IllegalStateException should have already been thrown");
+        } catch (IllegalStateException ise) {
+            // ok this is expected
+        } finally {
+            toDelete[0].delete();
+            assertNull("Object found but should be gone.", en1.getLookup().lookup(MONodeEnhancer.class));
+        }
     }
 
 }

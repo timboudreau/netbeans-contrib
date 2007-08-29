@@ -20,7 +20,9 @@
 package org.netbeans.modules.enode;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.StringTokenizer;
 
 import org.openide.ErrorManager;
@@ -36,6 +38,9 @@ import org.netbeans.spi.enode.LookupContentFactory;
  * @author David Strupl
  */
 public class FactoryWrapper implements LookupContentFactory {
+    
+    private static ErrorManager log = ErrorManager.getDefault().getInstance(FactoryWrapper.class.getName());
+    private static boolean LOGGABLE = log.isLoggable(ErrorManager.INFORMATIONAL);
 
     /**
      * File object on the system filesystem. The attributes of this
@@ -47,6 +52,13 @@ public class FactoryWrapper implements LookupContentFactory {
      * The result of call to the <code> instantiate </code> method.
      */
     private Object obj;
+    
+    /**
+     * Stores the classes that we were asked for and returned that
+     * the resulting object does not implement them. The collection
+     * is used in method @see #checkImplementsClause(Object).
+     */
+    private Set<Class> implementsQueries = new HashSet<Class>();
     
     /** Just remembers the parameter.*/
     public FactoryWrapper(FileObject f) {
@@ -64,9 +76,27 @@ public class FactoryWrapper implements LookupContentFactory {
         }
         if (obj instanceof LookupContentFactory) {
             LookupContentFactory lcf = (LookupContentFactory)obj;
-            return lcf.create(target);
+            Object result = lcf.create(target);
+            checkImplementsClause(result);
+            return result;
         }
+        checkImplementsClause(obj);
         return obj;
+    }
+    
+    /**
+     * 
+     */
+    private void checkImplementsClause(Object toBeReturned) {
+        for (Class clazz : implementsQueries) {
+            if (clazz.isInstance(toBeReturned)) {
+                throw new IllegalStateException("Registration under " + f.getPath() + // NOI18N
+                        " \n is missing implements entries for " + toBeReturned + // NOI18N
+                        " \n namelly " + clazz.getName() + // NOI18N
+                        " \n the implements attribute is " + // NOI18N
+                        f.getAttribute("implements")); // NOI18N
+            }
+        }
     }
     
     /**
@@ -101,6 +131,13 @@ public class FactoryWrapper implements LookupContentFactory {
                 return true;
             }
             if (! resultImplements().contains(template.getType().getName())) {
+                if (LOGGABLE) {
+                    log.log("implementsQueries adding " + 
+                        template.getType().getName() +
+                        " while the attribute is " +
+                        f.getAttribute("implements"));
+                }
+                implementsQueries.add(template.getType());
                 return false;
             }
         }
@@ -114,6 +151,10 @@ public class FactoryWrapper implements LookupContentFactory {
      */
     private List resultImplements() {
         String classAttr = (String)f.getAttribute("implements"); // NOI18N
+        if (LOGGABLE) {
+            log.log("resultImplements the attribute is " +
+            f.getAttribute("implements"));
+        }
         ArrayList res = new ArrayList();
         if (classAttr == null) {
             return res;

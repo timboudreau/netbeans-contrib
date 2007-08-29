@@ -20,7 +20,7 @@ import org.openide.nodes.Node;
  * hardcoded strings from getURL and toString().
  * @author David Strupl
  */
-public class MONodeEnhancerImpl implements MONodeEnhancer {
+public class MONodeEnhancerImpl implements MONodeEnhancer, Node.Cookie {
     
     /** Creates a new instance of MONodeEnhancerImpl */
     public MONodeEnhancerImpl(Node n) {
@@ -33,7 +33,9 @@ public class MONodeEnhancerImpl implements MONodeEnhancer {
     public String getURL() {
         return "http://www.netbeans.org/";
     }
-    
+    public void save() {
+        
+    }
     /**
      * Return something user can read.
      */

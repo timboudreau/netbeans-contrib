@@ -13,17 +13,20 @@
 
 package org.netbeans.modules.enode.test;
 
+import org.openide.cookies.SaveCookie;
+import org.openide.nodes.Node;
+
 /**
  * Interface for an object returned from the lookup of the
  * ExtensibleNode. This interface does not do anything usefull
  * - it is here only of for testing purposes.
  * @author David Strupl
  */
-public interface MONodeEnhancer {
+public interface MONodeEnhancer extends SaveCookie {
     
     /**
      * An arbitrary method for the interface not being empty.
      */
     String getURL();
-    
+    void save();
 }
