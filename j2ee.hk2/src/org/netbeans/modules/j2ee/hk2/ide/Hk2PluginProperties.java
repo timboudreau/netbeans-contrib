@@ -143,7 +143,7 @@ public class Hk2PluginProperties {
                 list.add(CustomizerSupport.fileToUrl(new File(serverDir,"lib/jars/transaction-api-1.1.jar")));
                 list.add(CustomizerSupport.fileToUrl(new File(serverDir,"lib/jars/activation-1.1.jar")));
               //  list.add(CustomizerSupport.fileToUrl(new File(serverDir,"lib/jars/mail-1.4.1ea-SNAPSHOT.jar")));
-              //  list.add(CustomizerSupport.fileToUrl(new File(serverDir,"lib/jars/jsp-api-2.1.1-SNAPSHOT.jar")));
+                list.add(CustomizerSupport.fileToUrl(new File(serverDir,"lib/jars/jsp-api-2.1.1-SNAPSHOT.jar")));
                 list.add(CustomizerSupport.fileToUrl(new File(serverDir,"lib/jars/ejb-api-3.0.jar")));
                 list.add(CustomizerSupport.fileToUrl(new File(serverDir,"lib/jars/jaxws-api-2.0.jar")));
                 list.add(CustomizerSupport.fileToUrl(new File(serverDir,"lib/jars/jaxrpc-api-1.1.jar")));
