@@ -18,6 +18,7 @@ package org.netbeans.test.au.launch;
 
 import java.util.logging.Logger;
 import javax.swing.Action;
+import javax.swing.SwingUtilities;
 import org.openide.LifecycleManager;
 import org.openide.modules.ModuleInstall;
 import org.openide.util.Lookup.Item;
@@ -26,8 +27,8 @@ import org.openide.util.lookup.Lookups;
 /**
  */
 public class Installer extends ModuleInstall implements Runnable {
-    Action action;
-    
+    private Action action;
+    private int cnt = 0;
     
     @Override
     public void restored() {
@@ -46,6 +47,12 @@ public class Installer extends ModuleInstall implements Runnable {
         if (action != null) {
             action.actionPerformed(null);
             LifecycleManager.getDefault().exit();
+        } else {
+            if (cnt ++ == 10) {
+                Logger.global.warning("Timed-out. No instance of PluginManagerAction found!");
+            } else {
+                SwingUtilities.invokeLater(this);
+            }
         }
     }
 }
