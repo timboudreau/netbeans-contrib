@@ -103,6 +103,8 @@ public class RunDialog extends javax.swing.JFrame {
         "test.resize.ResizeTest",
         "test.router.OSRCollisionsCollectorTest",
         "test.router.OSRComputeControlPointsTest",
+        "test.routing.ActionsWithRoutingPolicyTest",
+        "test.routing.RoutingPolicyTest",
         "test.sceneresize.LimitedSceneTest",
         "test.sceneresize.SceneResizeTest",
         "test.scroll.ScrollTest",
