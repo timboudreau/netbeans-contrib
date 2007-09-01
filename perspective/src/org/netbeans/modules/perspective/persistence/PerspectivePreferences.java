@@ -36,8 +36,10 @@ public class PerspectivePreferences {
 
     private Preferences preferences = NbPreferences.forModule(PerspectivePreferences.class);
     private static PerspectivePreferences instance;
-    private final String SELECTED = "selected"; //NOI18n
+    private static final String SELECTED = "selected"; //NOI18n
     private static final String NONE = "NONE"; //NOI18n
+    private static final String TRACK_OPENED = "track_opened"; //NOI18n
+    private static final String TRACK_ACTIVE = "track_active"; //NOI18n
 
     private PerspectivePreferences() {
     }
@@ -58,5 +60,18 @@ public class PerspectivePreferences {
 
     public String readSelectedPerspective() {
         return preferences.get(SELECTED, NONE);
+    }
+    
+    public boolean isTrackOpened(){
+      return preferences.getBoolean(TRACK_OPENED, false);
+    }
+    public void setTrackOpened(boolean b){
+        preferences.putBoolean(TRACK_OPENED, b);
+    }
+     public boolean isTrackActive(){
+      return preferences.getBoolean(TRACK_ACTIVE, false);
+    }
+    public void setTrackActive(boolean b){
+        preferences.putBoolean(TRACK_ACTIVE, b);
     }
 }
