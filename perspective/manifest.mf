@@ -1,7 +1,7 @@
 Manifest-Version: 1.0
-OpenIDE-Module: org.netbeans.perspective/1
-OpenIDE-Module-Layer: org/netbeans/perspective/layer.xml
-OpenIDE-Module-Install: org/netbeans/perspective/load/Installer.class
-OpenIDE-Module-Localizing-Bundle: org/netbeans/perspective/Bundle.properties
+OpenIDE-Module: org.netbeans.modules.perspective/1
+OpenIDE-Module-Layer: org/netbeans/modules/perspective/layer.xml
+OpenIDE-Module-Install: org/netbeans/modules/perspective/load/Installer.class
+OpenIDE-Module-Localizing-Bundle: org/netbeans/modules/perspective/Bundle.properties
 OpenIDE-Module-Specification-Version: 1.5
 

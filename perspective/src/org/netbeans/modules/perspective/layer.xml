@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+/*
+ * The contents of this file are subject to the terms of the Common Development
+ * and Distribution License (the License). You may not use this file except in
+ * compliance with the License.
+ *
+ * You can obtain a copy of the License at http://www.netbeans.org/cddl.html
+ * or http://www.netbeans.org/cddl.txt.
+ *
+ * When distributing Covered Code, include this CDDL Header Notice in each file
+ * and include the License file at http://www.netbeans.org/cddl.txt.
+ * If applicable, add the following below the CDDL Header, with the fields
+ * enclosed by brackets [] replaced by your own identifying information:
+ * "Portions Copyrighted [year] [name of copyright owner]"
+ *
+ * The Original Software is NetBeans. The Initial Developer of the Original
+ * Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
+ * Microsystems, Inc. All Rights Reserved.
+ */
+-->
+<!DOCTYPE filesystem PUBLIC "-//NetBeans//DTD Filesystem 1.1//EN" "http://www.netbeans.org/dtds/filesystem-1_1.dtd">
+<filesystem>
+
+    <folder name="Actions">
+        <folder name="Perspective">
+            <file name="org-netbeans-modules-perspective-actions-MultiView.instance"/>
+            <file name="org-netbeans-modules-perspective-actions-QuickSwitch.instance"/>
+            <file name="org-netbeans-modules-perspective-menus-ResetAction.instance"/>
+            <file name="org-netbeans-modules-perspective-menus-SaveAsAction.instance"/>
+        </folder>
+    </folder>
+    <folder name="Menu">
+        <folder name="Perspective">
+            <attr name="org-netbeans-modules-perspective-menus-SaveAsAction.shadow/org-netbeans-modules-perspective-menus-ResetAction.shadow" boolvalue="true"/>
+            <attr name="org-netbeans-modules-perspective-menus-SaveAsAction.shadow/org-netbeans-modules-perspective-menus-separatorAfter.instance" boolvalue="true"/>
+            <attr name="org-netbeans-modules-perspective-menus-separatorAfter.instance/org-netbeans-modules-perspective-menus-ResetAction.shadow" boolvalue="true"/>
+            <attr name="position" intvalue="1150"/>
+            <file name="org-netbeans-modules-perspective-menus-ResetAction.shadow">
+                <attr name="originalFile" stringvalue="Actions/Perspective/org-netbeans-modules-perspective-menus-ResetAction.instance"/>
+            </file>
+            <file name="org-netbeans-perspective-menus-SaveAsAction.shadow">
+                <attr name="originalFile" stringvalue="Actions/Perspective/org-netbeans-modules-perspective-menus-SaveAsAction.instance"/>
+            </file>
+            <file name="org-netbeans-modules-perspective-menus-separatorAfter.instance">
+                <attr name="instanceClass" stringvalue="javax.swing.JSeparator"/>
+            </file>
+        </folder>
+    </folder>
+    <folder name="Shortcuts">
+        <file name="OS-P.shadow">
+            <attr name="originalFile" stringvalue="Actions/Perspective/org-netbeans-modules-perspective-actions-QuickSwitch.instance"/>
+        </file>
+    </folder>
+    <folder name="Toolbars">
+        <folder name="Perspective">
+            <file name="org-netbeans-modules-perspective-actions-MultiView.shadow">
+                <attr name="originalFile" stringvalue="Actions/Perspective/org-netbeans-modules-perspective-actions-MultiView.instance"/>
+                <attr name="position" intvalue="3000"/>
+            </file>
+        </folder>
+    </folder>
+    <folder name="perspectives">
+        <folder name="views">
+        </folder>
+    </folder>
+    <folder name="Windows2">
+    <folder name="Components">
+        <file name="ModeHackTopComponent.settings" url="hacks/ModeHackTopComponentSettings.xml"/>
+    </folder>
+    <folder name="Modes">
+        
+        
+        <file name="javaOutput.wsmode" url="modes/javaOutput.wsmode"/>
+        <folder name="javaOutput"/> 
+        <file name="commonpalette.wsmode" url="modes/outline.wsmode"/>
+        <folder name="commonpalette"/> 
+        <file name="explorer.wsmode" url="modes/explorer.wsmode"/>
+        <folder name="explorer"/> 
+        
+        
+        <file name="javaExplorer.wsmode" url="modes/javaExplorer.wsmode"/>
+        <folder name="javaExplorer">
+        </folder> 
+        <file name="javaExplorer2.wsmode" url="modes/javaExplorer2.wsmode"/>
+        <folder name="javaExplorer2">
+        </folder> 
+        
+        
+            
+        </folder>    
+    </folder>
+</filesystem>
