@@ -37,6 +37,8 @@ import javax.swing.event.PopupMenuEvent;
 import javax.swing.event.PopupMenuListener;
 import org.netbeans.modules.perspective.actions.SaveAsAction;
 import org.netbeans.modules.perspective.actions.SwitchAction;
+import org.netbeans.modules.perspective.persistence.PerspectivePreferences;
+import org.netbeans.modules.perspective.utils.OpenedViewTracker;
 import org.netbeans.modules.perspective.views.Perspective;
 
 /**
@@ -156,6 +158,9 @@ public class PerspectiveManager {
     public void setSelected(Perspective perspective) {
         if(selected!=null){
             selected.notifyClosing();
+            if(PerspectivePreferences.getInstance().isTrackOpened()){
+                new OpenedViewTracker(perspective);
+            }
         }
         perspective.notifyOpening();
         selected = perspective;

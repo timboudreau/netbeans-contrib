@@ -24,8 +24,6 @@
 package org.netbeans.modules.perspective.persistence;
 
 import java.util.prefs.Preferences;
-import org.netbeans.modules.perspective.PerspectiveManager;
-import org.netbeans.modules.perspective.views.Perspective;
 import org.openide.util.NbPreferences;
 
 /**
@@ -51,14 +49,13 @@ public class PerspectivePreferences {
         return instance;
     }
 
-    public void storeSelectedPerspective() {
-        Perspective selected = PerspectiveManager.getInstance().getSelected();
-        if (selected != null) {
-            preferences.put(SELECTED, selected.getName());
-        }
+    public void setSelectedPerspective(String name) {
+       
+            preferences.put(SELECTED, name);
+        
     }
 
-    public String readSelectedPerspective() {
+    public String getSelectedPerspective() {
         return preferences.get(SELECTED, NONE);
     }
     
