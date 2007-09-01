@@ -44,19 +44,19 @@ public class CurrentPerspectiveReader {
 
     public CurrentPerspectiveReader(Perspective perspective) {
 
-        genarateMultiMode(perspective);
+        genarate(perspective);
     }
 
 
 
-    private void genarateMultiMode(Perspective perspective) {
+    private void genarate(Perspective perspective) {
         Set<? extends Mode> modes = windowManager.getModes();
         for (Mode mode : modes) {
             if (windowManager.isEditorMode(mode)) {
                 continue;
             }
             //hack
-            if (mode.getName().startsWith("anonymousMode")) {
+            if (mode.getName().startsWith("anonymousMode")) {//NOI18n
                 if (mode.getTopComponents().length == 1 && mode.getTopComponents()[0] instanceof ModeHackTopComponent) {
                     continue;
                 }
@@ -74,7 +74,7 @@ public class CurrentPerspectiveReader {
             TopComponent[] topComponents = mode.getTopComponents();
             for (TopComponent tc : topComponents) {
                 String tcID = windowManager.findTopComponentID(tc);
-                if (!(tcID.startsWith("ModeHackTopComponent")) ){
+                if (!(tcID.startsWith("ModeHackTopComponent")) ){//NOI18n
                     perspective.addComponent(tcID, mode.getName(), tc.isOpened());
                 }
             }
