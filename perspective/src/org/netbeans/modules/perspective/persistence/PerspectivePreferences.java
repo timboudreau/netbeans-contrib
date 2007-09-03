@@ -38,6 +38,7 @@ public class PerspectivePreferences {
     private static final String NONE = "NONE"; //NOI18n
     private static final String TRACK_OPENED = "track_opened"; //NOI18n
     private static final String TRACK_ACTIVE = "track_active"; //NOI18n
+    private static final String CLOSE_OPENED = "close_opened"; //NOI18n
 
     private PerspectivePreferences() {
     }
@@ -50,25 +51,36 @@ public class PerspectivePreferences {
     }
 
     public void setSelectedPerspective(String name) {
-       
-            preferences.put(SELECTED, name);
-        
+
+        preferences.put(SELECTED, name);
     }
 
     public String getSelectedPerspective() {
         return preferences.get(SELECTED, NONE);
     }
-    
-    public boolean isTrackOpened(){
-      return preferences.getBoolean(TRACK_OPENED, false);
+
+    public boolean isTrackOpened() {
+        return preferences.getBoolean(TRACK_OPENED, false);
     }
-    public void setTrackOpened(boolean b){
+
+    public void setTrackOpened(boolean b) {
         preferences.putBoolean(TRACK_OPENED, b);
     }
-     public boolean isTrackActive(){
-      return preferences.getBoolean(TRACK_ACTIVE, false);
+
+    public boolean isTrackActive() {
+        return preferences.getBoolean(TRACK_ACTIVE, false);
     }
-    public void setTrackActive(boolean b){
+
+    public void setTrackActive(boolean b) {
         preferences.putBoolean(TRACK_ACTIVE, b);
+    }
+
+    public boolean isCloseOpened() {
+        //true by default
+        return preferences.getBoolean(CLOSE_OPENED, true);
+    }
+
+    public void setCloseOpened(boolean b) {
+        preferences.putBoolean(CLOSE_OPENED, b);
     }
 }
