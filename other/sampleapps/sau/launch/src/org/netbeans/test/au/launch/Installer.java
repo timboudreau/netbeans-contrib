@@ -27,7 +27,7 @@ import org.openide.util.lookup.Lookups;
 /**
  */
 public class Installer extends ModuleInstall implements Runnable {
-    private Action action;
+    private static Action action;
     private int cnt = 0;
     
     @Override
@@ -40,7 +40,7 @@ public class Installer extends ModuleInstall implements Runnable {
                 }
             }
         }
-        Logger.global.warning("Cannot find PluginManagerAction! Enable autoupdate/ui module please!");
+        Logger.getLogger(Installer.class.getName()).warning("Cannot find PluginManagerAction! Enable autoupdate/ui module please!");
     }
 
     public void run() {
@@ -49,7 +49,7 @@ public class Installer extends ModuleInstall implements Runnable {
             LifecycleManager.getDefault().exit();
         } else {
             if (cnt ++ == 10) {
-                Logger.global.warning("Timed-out. No instance of PluginManagerAction found!");
+                Logger.getLogger(Installer.class.getName()).warning("[" + System.identityHashCode (this) + "] Timed-out. No instance of PluginManagerAction found!");
             } else {
                 SwingUtilities.invokeLater(this);
             }
