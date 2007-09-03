@@ -295,7 +295,6 @@ public class XTestWizardIterator implements TemplateWizard.Iterator {
         // expects __NETBEANS_DEST_DIR__/platformX/core/core.jar
         replaceMap.put("__NETBEANS_DEST_DIR__", 
                 netbeansDestDir.getAbsolutePath().replaceFirst(".platform.*core.jar", "")); // NOI18N
-        replaceMap.put("__NETBEANS_USER__", System.getProperty("netbeans.user"));  // NOI18N
         File jemmyJar = InstalledFileLocator.getDefault().
                 locate("modules/ext/jemmy.jar", "org.netbeans.modules.jemmy", false);  // NOI18N
         if(jemmyJar != null) {
