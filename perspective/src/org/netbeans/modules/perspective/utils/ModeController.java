@@ -29,6 +29,7 @@ import java.util.Map;
 import java.util.Set;
 import org.netbeans.modules.perspective.PerspectiveManager;
 import org.netbeans.modules.perspective.hacks.ModeHackTopComponent;
+import org.netbeans.modules.perspective.persistence.PerspectivePreferences;
 import org.netbeans.modules.perspective.views.Perspective;
 import org.netbeans.modules.perspective.views.View;
 import org.openide.windows.Mode;
@@ -66,7 +67,7 @@ public class ModeController {
         }
 
         Mode preMode = windowManager.findMode(topComponent);
-        //mode hack
+        //hack to prevent anonymous mode  removing from system
         if (preMode != null && preMode.getName().startsWith("anonymousMode") && preMode.getTopComponents().length < 2) {
             preMode.dockInto(new ModeHackTopComponent());
         }
@@ -85,15 +86,33 @@ public class ModeController {
     }
 
     public void switchView(Perspective perspective) {
+        Perspective selected=PerspectiveManager.getInstance().getSelected();
+        if(selected!=null){
+            //Notify closing
+            selected.notifyClosing();
+            if(PerspectivePreferences.getInstance().isTrackOpened()){
+                //track opened Tc to perspective
+                new OpenedViewTracker(selected);
+            }
+        }
+        //Notify operning
+        perspective.notifyOpening();
+        //hack -----
         TopComponent activated = windowManager.getRegistry().getActivated();
+        if(PerspectivePreferences.getInstance().isCloseOpened()){
+        //close opened TC's 
         closeAll();
+        }
+        //begin switch
         List<View> views = perspective.getViews();
         Map<String, String> activeTCs = perspective.getActiveTCs();
         for (View view : views) {
             dock(view.getMode(), view.getTopcomponentID(), view.isOpen(),
                     activeTCs.containsValue(view.getTopcomponentID()));
         }
+        //end switch
         PerspectiveManager.getInstance().setSelected(perspective);
+        //hack -----
         if (activated != null && windowManager.isOpenedEditorTopComponent(activated)) {
             int tabPosition = activated.getTabPosition();
             activated.close();
@@ -101,6 +120,7 @@ public class ModeController {
             activated.openAtTabPosition(tabPosition);
             activated.requestActive();
         }
+        //--------------
     }
 
     private void closeAll() {
