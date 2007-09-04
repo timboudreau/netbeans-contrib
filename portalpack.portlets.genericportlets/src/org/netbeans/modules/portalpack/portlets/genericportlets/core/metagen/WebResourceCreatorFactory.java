@@ -36,10 +36,10 @@ public class WebResourceCreatorFactory {
 
     private static Logger logger = Logger.getLogger(CoreUtil.CORE_LOGGER);
    
-    public static Element addPortletEntryToPortletXml(String webInfPath,PortletContext portletContext)
+    public static void addPortletEntryToPortletXml(String webInfPath,PortletContext portletContext)
     {
         String portletXml = webInfPath + File.separator + "portlet.xml";
-        return new WebDescriptorGenerator().addNewPortletEntry(portletXml,portletContext);
+        new WebDescriptorGenerator().addNewPortletEntry(portletXml,portletContext);
     }
     
   

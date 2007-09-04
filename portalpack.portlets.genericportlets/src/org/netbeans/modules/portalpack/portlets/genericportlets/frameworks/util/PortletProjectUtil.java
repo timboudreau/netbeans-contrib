@@ -177,11 +177,9 @@ public class PortletProjectUtil {
 
             java.util.Map values = new java.util.HashMap();
             values.put("DESC", desc);
-            values.put("demo", "satyademo.............");
 
             org.netbeans.modules.portalpack.portlets.genericportlets.core.util.TemplateHelper.mergeTemplateToFile(template, folder, jspName, values);
-
-            
+      
         } catch (DataObjectNotFoundException ex) {
             logger.log(Level.SEVERE, "Error in merging JSP Template", ex);
         } catch (IOException ex) {
