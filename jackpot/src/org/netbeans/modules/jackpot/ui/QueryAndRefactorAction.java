@@ -80,7 +80,7 @@ public class QueryAndRefactorAction extends NodeAction {
     }
     
     public String getName() {
-        return NbBundle.getMessage(QueryAndRefactorAction.class, "CTL_QueryAndRefactorAction");
+        return NbBundle.getMessage(QueryAndRefactorAction.class, "Actions/Jackpot");
     }
     
     protected String getString(String key) {
