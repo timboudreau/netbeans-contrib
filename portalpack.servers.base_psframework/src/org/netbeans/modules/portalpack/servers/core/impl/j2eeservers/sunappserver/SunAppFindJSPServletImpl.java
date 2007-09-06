@@ -36,7 +36,7 @@ public class SunAppFindJSPServletImpl implements FindJSPServlet {
     
     public File getServletTempDirectory(String moduleContextPath) {
 
-        System.out.println(moduleContextPath);
+        //System.out.println(moduleContextPath);
         moduleContextPath = getContextRootString(moduleContextPath);
         //modName may be null, but this does not impact to following logic: in this case, the file will not exist as well.
          File workDir = new File(tm.getPSConfig().getDomainDir()+"/generated/jsp/j2ee-modules/".replace('/',File.separatorChar) +moduleContextPath);// NOI18N

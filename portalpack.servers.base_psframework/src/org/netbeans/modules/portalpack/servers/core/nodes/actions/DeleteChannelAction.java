@@ -71,7 +71,6 @@ public class DeleteChannelAction extends CookieAction {
             }catch(Exception e){
                e.printStackTrace();
             }
-            System.out.println("Delete Channellllllllllllllllllllll..");
         }
     }
     

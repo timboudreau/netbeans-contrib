@@ -87,7 +87,6 @@ public class SunAppServerStartServer extends PSStartServerInf{
                .append(" ")
                .append(psconfig.getDefaultDomain());
         
-        System.out.println("Return ::::"+command.toString());
         return command.toString();
     }
     
@@ -108,7 +107,6 @@ public class SunAppServerStartServer extends PSStartServerInf{
                .append(" ")
                .append(psconfig.getDefaultDomain());
         
-        System.out.println("Return ::::"+command.toString());
         return command.toString();
     }
     
@@ -133,7 +131,6 @@ public class SunAppServerStartServer extends PSStartServerInf{
                .append(psconfig.getDefaultDomain());
 
         
-        System.out.println("Return ::::"+command.toString());
         return command.toString();
     }
     
