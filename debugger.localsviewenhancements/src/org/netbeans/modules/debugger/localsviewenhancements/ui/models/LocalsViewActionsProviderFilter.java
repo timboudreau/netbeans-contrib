@@ -102,7 +102,7 @@ public class LocalsViewActionsProviderFilter implements NodeActionsProviderFilte
             Variable variable = (Variable) node;
             String variableType = variable.getType();
             if (!primitivesList.contains(variableType)) {
-                if (variableType != null && !variableType.trim().isEmpty()) {
+                if (variableType != null && variableType.trim().length() > 0) {
                     myActions.add(GOTO_TYPE_ACTION);
                 }
                 if (variable instanceof This) {
