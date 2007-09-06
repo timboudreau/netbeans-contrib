@@ -29,6 +29,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.DefaultCellEditor;
 
 import javax.swing.JButton;
@@ -45,6 +47,7 @@ import javax.swing.event.TableModelListener;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
 import org.netbeans.modules.portalpack.portlets.genericportlets.core.FilterContext;
+import org.netbeans.modules.portalpack.portlets.genericportlets.core.util.CoreUtil;
 import org.openide.WizardDescriptor;
 
 import org.openide.util.NbBundle;
@@ -94,6 +97,7 @@ class MappingPanel extends JPanel implements ActionListener,
     private List portlets = new ArrayList();
 
     private static final long serialVersionUID = 6540270797782597645L;
+    private static Logger logger = Logger.getLogger(CoreUtil.CORE_LOGGER);
     
     public MappingPanel(FilterMappingData deployData, NewFilterWizardWizardPanel2 parent) { 
 	this.deployData = deployData; 
@@ -356,7 +360,7 @@ class MappingPanel extends JPanel implements ActionListener,
 
 
     private void log(String s) { 
-	System.out.println("MappingPanel" + s); 
+	logger.log(Level.FINE,s);
     }
     
      

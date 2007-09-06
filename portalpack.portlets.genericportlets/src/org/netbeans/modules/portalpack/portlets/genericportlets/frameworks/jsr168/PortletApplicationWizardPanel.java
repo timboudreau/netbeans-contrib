@@ -89,11 +89,13 @@ public class PortletApplicationWizardPanel implements
     
     public void readSettings(Object settings) {
         wizardDescriptor = (WizardDescriptor) settings;
+        getComponent();
         component.read(wizardDescriptor);
     }
     
     public void storeSettings(Object settings) {
         WizardDescriptor d = (WizardDescriptor) settings;
+        getComponent();
         component.store(d);
     }
     
@@ -107,12 +109,14 @@ public class PortletApplicationWizardPanel implements
     }
     
     public void enableComponents(boolean enable) {
+       getComponent();
        component.enableComponents(enable);
        // throw new UnsupportedOperationException("Not supported yet.");
     }
     
     public Map getData()
     {
+        getComponent();
         return component.getData();
     }
 

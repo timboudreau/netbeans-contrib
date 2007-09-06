@@ -55,7 +55,6 @@ public class PortletXMLFactory {
             {
 //TODO                String version1 = ((BaseBean)returnObj).getAttributeValue("version");
                 String version1 = ((org.netbeans.modules.portalpack.portlets.genericportlets.ddapi.PortletApp)returnObj).getVersion();
-                System.out.println("version::::::::::::::::::::: "+version1);
                 return (org.netbeans.modules.portalpack.portlets.genericportlets.ddapi.PortletApp)returnObj;
             }
         } catch (ClassNotFoundException ex) {

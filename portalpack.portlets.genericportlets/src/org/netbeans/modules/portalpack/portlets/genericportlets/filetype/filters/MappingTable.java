@@ -28,6 +28,7 @@ import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.logging.Logger;
 
 import javax.swing.BorderFactory;
 import javax.swing.JComboBox;
@@ -37,11 +38,13 @@ import javax.swing.table.TableColumnModel;
 import javax.swing.table.TableModel;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.event.TableModelListener;  
+import org.netbeans.modules.portalpack.portlets.genericportlets.core.util.CoreUtil;
 
 import org.openide.util.NbBundle;
 
 class MappingTable extends JTable {
 
+    private static Logger logger = Logger.getLogger(CoreUtil.CORE_LOGGER);
     private static final boolean debug = false; 
 
     // Handle resizing for larger fonts
@@ -177,7 +180,7 @@ class MappingTable extends JTable {
     }
 
     private void log(String s) {
-	System.out.println("MappingTable" + s);  //NOI18N
+        logger.fine("MappingTable" + s);  //NOI18N
     }
 
     class MappingTableModel extends AbstractTableModel { 
@@ -226,7 +229,7 @@ class MappingTable extends JTable {
 
 	public Object getValueAt(int row, int col) {
 	    FilterMappingData fmd = (FilterMappingData)(filterMappings.get(row)); 
-            System.out.println("-----------------------"+fmd.getPortlet());
+            logger.fine("-----------------------"+fmd.getPortlet());
 	    if(col == 0) return fmd.getName(); 
 	    else return fmd.getPortlet();
 	} 
@@ -252,7 +255,7 @@ class MappingTable extends JTable {
 	    if(col == 0) fmd.setName((String)value);
             else{
                 fmd.setPortlet((String)value);
-                System.out.println("Value is----------------------"+value);
+                logger.fine("Value is----------------------"+value);
             }
 	    return;
 	} 
@@ -285,7 +288,7 @@ class MappingTable extends JTable {
 	}
 
 	private void log(String s) { 
-	    System.out.println("MappingTableModel" + s); //NOI18N
+	    logger.fine("MappingTableModel" + s); //NOI18N
 	} 
     } // MappingTableModel
 
