@@ -88,9 +88,7 @@ public class ModeController {
         }
         //Notify operning
         perspective.notifyOpening();
-        //hack -----
-        TopComponent activated = windowManager.getRegistry().getActivated();
-        if(PerspectivePreferences.getInstance().isCloseOpened()){
+       if(PerspectivePreferences.getInstance().isCloseOpened()){
         //close opened TC's 
         closeAll();
         }
@@ -103,15 +101,7 @@ public class ModeController {
         }
         //end switch
         PerspectiveManager.getInstance().setSelected(perspective);
-        //hack -----
-        if (activated != null && windowManager.isOpenedEditorTopComponent(activated)) {
-            int tabPosition = activated.getTabPosition();
-            activated.close();
-            
-            activated.openAtTabPosition(tabPosition);
-            activated.requestActive();
-        }
-        //--------------
+
     }
 
     private void closeAll() {
