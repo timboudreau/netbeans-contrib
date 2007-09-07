@@ -19,10 +19,13 @@
 package org.netbeans.modules.codetemplatetools.ui.view;
 
 import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.SortedSet;
@@ -34,11 +37,14 @@ import javax.swing.JTextArea;
 import org.openide.DialogDisplayer;
 import org.openide.ErrorManager;
 import org.openide.NotifyDescriptor;
+import org.openide.util.Exceptions;
+import org.openide.xml.XMLUtil;
 import org.openide.xml.XMLUtil;
 import org.openide.xml.XMLUtil;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+import org.xml.sax.EntityResolver;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
@@ -68,6 +74,7 @@ public class TmBundleImport {
         };
     public static final String RUBY_MIME_TYPE = "text/x-ruby"; // application/x-ruby is also used a fair bit.
     public static final String RHTML_MIME_TYPE = "application/x-httpd-eruby"; // NOI18N
+    public static final String YAML_MIME_TYPE = "text/x-yaml";
     private int imported;
     private StringBuilder log = new StringBuilder();
     private final String TMKEY = "key"; // NOI18N
@@ -82,11 +89,16 @@ public class TmBundleImport {
     private SortedSet<String> nonTabSnippets = new TreeSet<String>();
     private SortedSet<String> regexpSnippets = new TreeSet<String>();
     private SortedSet<String> shellCmdSnippets = new TreeSet<String>();
-    private Map /*<String,Map<String,String>>*/ propsByMime =
-        new HashMap /*<String,Map<String,String>>*/();
+    private Map<String,String> uuidMap = new HashMap<String,String>();
+    private Map<String,String> nameMap = new HashMap<String,String>();
+    private Map<String,Set<String>> conflicts = new HashMap<String,Set<String>>();
+    
+    private Map <String,Map<String,String>> propsByMime =
+        new HashMap <String,Map<String,String>>();
     private String defaultMime;
     private boolean wasBinary;
     private java.util.List<String> modified = new java.util.ArrayList<String>();
+    private File exportDir = new File("/tmp/tm");
 
     public TmBundleImport() {
     }
@@ -108,7 +120,7 @@ public class TmBundleImport {
         File[] snippetFiles = snippets.listFiles();
 
         for (File f : snippetFiles) {
-            if (f.getName().endsWith(".plist")) {
+            if (f.getName().endsWith(".plist") || f.getName().endsWith(".tmSnippet")) {
                 importFile(f);
                 
                 if (wasBinary) {
@@ -118,6 +130,23 @@ public class TmBundleImport {
         }
 
         log.append("\n\n");
+
+        if (conflicts.size() > 0) {
+            log.append("The following snippets were skipped because they were all\nassigned to the same tab trigger:\n");
+            for (String trigger : conflicts.keySet()) {
+                log.append("[" + trigger + "] : ");
+                boolean first = true;
+                for (String name : conflicts.get(trigger)) {
+                    if (!first) {
+                        log.append(", ");
+                    } else {
+                       first = true;
+                    }
+                    log.append(name);
+                }
+                log.append("\n");
+            }
+        }
 
         if (nonTabSnippets.size() > 0) {
             log.append("The following  " + nonTabSnippets.size() +
@@ -170,12 +199,92 @@ public class TmBundleImport {
         text.setText(log.toString());
         text.setCaretPosition(0);
 
+        if (exportDir != null) {
+            exportCodeTemplates();
+        }
+        
         NotifyDescriptor nd =
             new NotifyDescriptor.Message(new JScrollPane(text),
                 NotifyDescriptor.Message.INFORMATION_MESSAGE);
         DialogDisplayer.getDefault().notify(nd);
 
         return propsByMime;
+    }
+    
+    private void exportCodeTemplates() {
+        if (!exportDir.exists()) {
+            log.append("Warning - export dir " + exportDir.getPath() + " doesn't exist");
+            return;
+        }
+        
+        try {
+            FileWriter bundle = new FileWriter(new File(exportDir, "codetemplates-Bundle.properties"));
+            FileWriter uuids = new FileWriter(new File(exportDir, "codetemplates-uuids.txt"));
+            FileWriter summary = new FileWriter(new File(exportDir, "codetemplates-summary.txt"));
+            
+            // Emit code templates
+            for (String mime : propsByMime.keySet()) {
+                String fileName = "codetemplates-" + mime.replace("/", "-") + ".xml";
+                FileWriter fw = new FileWriter(new File(exportDir, fileName));
+            
+                bundle.write("# Mime Type " + mime + "\n");
+
+                String xmlHeader = 
+                "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" + // NOI18N
+                "<!DOCTYPE codetemplates PUBLIC \"-//NetBeans//DTD Editor Code Templates settings 1.0//EN\" \"http://www.netbeans.org/dtds/EditorCodeTemplates-1_0.dtd\">\n"; // NOI18N
+                fw.write(xmlHeader);
+                fw.write("<codetemplates>\n"); // NOI18N
+                
+                Map<String,String> abbrevs = propsByMime.get(mime);
+                for (String tabTrigger : abbrevs.keySet()) {
+                    String displayName = nameMap.get(tabTrigger);
+                    String code = abbrevs.get(tabTrigger);
+                    String uuid = uuidMap.get(tabTrigger);
+                    
+                    if (uuid != null) {
+                        uuids.write(uuid);
+                        uuids.write("\n");
+                    }
+                    
+                    fw.write("  <codetemplate abbreviation=\""); // NOI18N
+                    fw.write(tabTrigger);
+                    fw.write("\""); // NOI18N
+                    if (displayName != null) {
+                        String bundleKey = "ct_" + tabTrigger;
+                        fw.write(" descriptionId=\"");
+                        fw.write(bundleKey);
+                        fw.write("\"");
+                        bundle.write(bundleKey);
+                        bundle.write("=");
+                        // The display name should be HTML-safe
+                        assert displayName.indexOf('\n') == -1;
+                        try {
+                            displayName = XMLUtil.toElementContent(displayName);
+                        } catch (Exception e) {
+                            Exceptions.printStackTrace(e);
+                        }
+                        bundle.write(displayName);
+                        bundle.write("\n");
+                    }
+                    fw.write(">\n    <code>\n<![CDATA[");
+                    fw.write(code.replace("||", "|"));
+                    fw.write("]]>\n");
+                    fw.write("    </code>\n");
+                    fw.write("  </codetemplate>\n"); // NOI18N
+                }
+                
+                fw.write("</codetemplates>\n");
+                fw.close();
+            }
+            
+            summary.write(log.toString());
+            summary.close();
+
+            bundle.close();
+            uuids.close();
+        } catch (Exception e) {
+            Exceptions.printStackTrace(e);
+        }
     }
 
     /** Get text within an element */
@@ -194,13 +303,21 @@ public class TmBundleImport {
         return sb.toString();
     }
 
+    // TODO: only set this to empty if a first parse fails?
+    public static class NullEntityResolver implements EntityResolver {
+        public org.xml.sax.InputSource resolveEntity(String pubid, String sysid) {
+            return new org.xml.sax.InputSource(new ByteArrayInputStream(new byte[0]));
+        }
+    }
+    
     private void importFile(File file) {
         try {
             Element r = null;
 
             try {
                 InputSource inputSource = new InputSource(new FileReader(file));
-                org.w3c.dom.Document doc = XMLUtil.parse(inputSource, false, false, null, null);
+                
+                org.w3c.dom.Document doc = XMLUtil.parse(inputSource, false, false, null, new NullEntityResolver());
                 r = doc.getDocumentElement();
             } catch (SAXParseException spe) {
                 BufferedReader f = new BufferedReader(new FileReader(file));
@@ -288,7 +405,7 @@ public class TmBundleImport {
 
                 String mimeType = getMimeType(scope);
 
-                addAbbrev(mimeType, tabTrigger, name, netbeansAbbrev);
+                addAbbrev(mimeType, tabTrigger, name, netbeansAbbrev, uuid);
             } else {
                 String name = map.get(TMNAME);
 
@@ -309,7 +426,7 @@ public class TmBundleImport {
 
     /** Get a mime type to use for the given TM scope */
     private String getMimeType(String scope) {
-        if (scope.startsWith("source.ruby")) { // NOI18N
+        if (scope == null || scope.startsWith("source.ruby")) { // NOI18N
 
             return RUBY_MIME_TYPE;
         }
@@ -321,7 +438,7 @@ public class TmBundleImport {
 
         if (scope.startsWith("source.yaml")) { // NOI18N
 
-            return "text/x-yaml";
+            return YAML_MIME_TYPE;
         }
 
         // TODO
@@ -531,15 +648,31 @@ public class TmBundleImport {
      * @todo Do something about desc?
      * @todo Add a UID to easy in import duplicate avoidance?
      */
-    private void addAbbrev(String mime, String key, String desc, String content) {
-        Map /*<String,String*/ map = (Map)propsByMime.get(mime);
+    private void addAbbrev(String mime, String key, String desc, String content, String uuid) {
+        if (nameMap.containsKey(key)) {
+            Set<String> others = conflicts.get(key);
+            if (others == null) {
+                others = new HashSet<String>();
+                conflicts.put(key, others);
+                others.add(nameMap.get(key));
+            }
+            others.add(desc);
+            
+            // Skip this one
+            return;
+        }
+
+        Map<String,String> map = propsByMime.get(mime);
 
         if (map == null) {
-            map = new HashMap /*<String,String>*/();
+            map = new HashMap<String,String>();
             propsByMime.put(mime, map);
         }
 
         map.put(key, content);
+
+        nameMap.put(key, desc);
+        uuidMap.put(key, uuid);
 
         imported++;
     }
