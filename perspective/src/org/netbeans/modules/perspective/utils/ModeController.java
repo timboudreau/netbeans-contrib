@@ -65,14 +65,6 @@ public class ModeController {
         if (windowMode == null || topComponent == null) {
             return;
         }
-
-        Mode preMode = windowManager.findMode(topComponent);
-        //hack to prevent anonymous mode  removing from system
-        if (preMode != null && preMode.getName().startsWith("anonymousMode") && preMode.getTopComponents().length < 2) {
-            preMode.dockInto(new ModeHackTopComponent());
-        }
-
-
         windowMode.dockInto(topComponent);
 
         if (open) {
