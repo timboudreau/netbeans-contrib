@@ -21,7 +21,7 @@
 -->
 <!DOCTYPE filesystem PUBLIC "-//NetBeans//DTD Filesystem 1.1//EN" "http://www.netbeans.org/dtds/filesystem-1_1.dtd">
 <filesystem>
-
+    
     <folder name="Actions">
         <folder name="Perspective">
             <file name="org-netbeans-modules-perspective-actions-MultiView.instance"/>
@@ -72,25 +72,18 @@
         <file name="ModeHackTopComponent.settings" url="hacks/ModeHackTopComponentSettings.xml"/>
     </folder>
     <folder name="Modes">
-        
-        
-        <file name="javaOutput.wsmode" url="modes/javaOutput.wsmode"/>
-        <folder name="javaOutput"/> 
-        <file name="commonpalette.wsmode" url="modes/outline.wsmode"/>
-        <folder name="commonpalette"/> 
+    <file name="javaOutput.wsmode" url="modes/javaOutput.wsmode"/>
+    <folder name="javaOutput"/> 
+    <file name="commonpalette.wsmode" url="modes/outline.wsmode"/>
+    <folder name="commonpalette"/> 
         <file name="explorer.wsmode" url="modes/explorer.wsmode"/>
         <folder name="explorer"/> 
-        
-        
-        <file name="javaExplorer.wsmode" url="modes/javaExplorer.wsmode"/>
-        <folder name="javaExplorer">
-        </folder> 
-        <file name="javaExplorer2.wsmode" url="modes/javaExplorer2.wsmode"/>
-        <folder name="javaExplorer2">
-        </folder> 
-        
-        
-            
+            <file name="javaExplorer.wsmode" url="modes/javaExplorer.wsmode"/>
+            <folder name="javaExplorer">
+            </folder> 
+            <file name="javaExplorer2.wsmode" url="modes/javaExplorer2.wsmode"/>
+            <folder name="javaExplorer2">
+            </folder> 
         </folder>    
     </folder>
 </filesystem>
