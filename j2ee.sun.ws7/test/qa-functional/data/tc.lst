@@ -1,0 +1,21 @@
+#Comment or uncomment (using #) to avoid or run any particular test case.
+TS_COCO_SR_01
+#TS_COCO_SR_02
+#TS_COCO_SR_03
+#TS_COCO_SR_04
+#TS_COCO_SR_05
+#TS_COCO_SR_07
+#TS_COCO_SR_08
+#For JDBC, JNDI and JM testcases the following Register_Server and Deploy_Webapp methods are prerequisites.
+#Register_Server
+#Deploy_WebApp
+#TS_COCO_JDBC_01
+#TS_COCO_JDBC_02
+#TS_COCO_JDBC_04
+#TS_COCO_JDBC_05
+#TS_COCO_JDBC_06
+#TS_COCO_JDBC_07
+#TS_COCO_WD_01
+#TS_COCO_JNDI_01
+#TS_COCO_JM_01
+#Remove_Server
