@@ -28,7 +28,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import org.netbeans.modules.perspective.PerspectiveManager;
-import org.netbeans.modules.perspective.hacks.ModeHackTopComponent;
 import org.netbeans.modules.perspective.persistence.PerspectivePreferences;
 import org.netbeans.modules.perspective.views.Perspective;
 import org.netbeans.modules.perspective.views.View;
