@@ -22,8 +22,8 @@
 
 <!DOCTYPE settings PUBLIC "-//NetBeans//DTD Session settings 1.0//EN" "http://www.netbeans.org/dtds/sessionsettings-1_0.dtd">
 <settings version="1.0">
-    <module name="org.netbeans.perspective" spec="1.7"/>
+    <module name="org.netbeans.modules.perspective/1" spec="1.7"/>
     <instanceof class="org.openide.windows.TopComponent"/>
-    <instanceof class="org.netbeans.perspective.hacks.ModeHackTopComponent"/>
-    <instance class="org.netbeans.perspective.hacks.ModeHackTopComponent" method="getDefault"/>
+    <instanceof class="org.netbeans.modules.perspective.hacks.ModeHackTopComponent"/>
+    <instance   class="org.netbeans.modules.perspective.hacks.ModeHackTopComponent" method="getDefault"/>
 </settings>
