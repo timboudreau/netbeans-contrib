@@ -111,6 +111,8 @@ public class DelimiterOption {
     private String mTermMode = mTextMap.get(TERM_MODE_PREFIX + "_" + "never"); //NOI18N
     private int mOffset = 0;
     private short mLength = 0;
+    private boolean mSkipLeading = false;
+    private boolean mCollapse = false;
     
     /** Creates a new instance of DelimiterOption */
     private DelimiterOption(Delimiter delim) {
@@ -184,10 +186,32 @@ public class DelimiterOption {
     }
 
     public void setPrecedence(short precedence) {
-        int old = precedence;
+        int old = mPrecedence;
         mPrecedence = precedence;
         mDelimiter.setPrecedence(mPrecedence);
         firePropertyChange("precedence", old, mPrecedence); //NOI18N
+    }
+
+    public boolean getSkipLeading() {
+        return mSkipLeading;
+    }
+
+    public void setSkipLeading(boolean skipLeading) {
+        boolean old = mSkipLeading;
+        mSkipLeading = skipLeading;
+        mDelimiter.setSkipLeading(mSkipLeading);
+        firePropertyChange("skipLeading", old, mSkipLeading); //NOI18N
+    }
+
+    public boolean getCollapse() {
+        return mCollapse;
+    }
+
+    public void setCollapse(boolean collpase) {
+        boolean old = mCollapse;
+        mCollapse = collpase;
+        mDelimiter.setCollapse(mCollapse);
+        firePropertyChange("collapse", old, mCollapse); //NOI18N
     }
 
     public String getOptionMode() {
@@ -300,6 +324,12 @@ public class DelimiterOption {
         if (mDelimiter.isSetTerminatorMode()) {
             mTermMode = mTextMap.get(TERM_MODE_PREFIX + "_" //NOI18N
                     + mDelimiter.getTerminatorMode().toString());
+        }
+        if (mDelimiter.isSetSkipLeading() && mDelimiter.getSkipLeading()) {
+            mSkipLeading = true;
+        }
+        if (mDelimiter.isSetCollapse() && mDelimiter.getCollapse()) {
+            mCollapse = true;
         }
     }
 

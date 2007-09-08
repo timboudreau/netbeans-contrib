@@ -41,6 +41,8 @@ public class DelimiterTreeTableView extends TreeTableView {
     private static final int COL_TERMINATOR_MODE = 4;
     private static final int COL_OFFSET = 5;
     private static final int COL_LENGTH = 6;
+    private static final int COL_SKIP_LEADING = 7;
+    private static final int COL_COLLAPSE = 8;
     
     /** Creates a new instance of DelimiterTreeTableView */
     public DelimiterTreeTableView() {
@@ -53,24 +55,28 @@ public class DelimiterTreeTableView extends TreeTableView {
         PropertySupport.ReadWrite prop5 = new SimplePropertySupport("termMode", String.class, _bundle.getString("delim_tree_tab.lbl.term_mode"), _bundle.getString("delim_tree_tab.lbl.term_mode_short")); //NOI18N
         PropertySupport.ReadWrite prop6 = new SimplePropertySupport("offset", int.class, _bundle.getString("delim_tree_tab.lbl.offset"), _bundle.getString("delim_tree_tab.lbl.offset_short")); //NOI18N
         PropertySupport.ReadWrite prop7 = new SimplePropertySupport("length", short.class, _bundle.getString("delim_tree_tab.lbl.length"), _bundle.getString("delim_tree_tab.lbl.length_short")); //NOI18N
-        setProperties(new Property[]{prop1, prop2, prop3, prop4, prop5, prop6, prop7});
+        PropertySupport.ReadWrite prop8 = new SimplePropertySupport("skipLeading", boolean.class, _bundle.getString("delim_tree_tab.lbl.skip_leading"), _bundle.getString("delim_tree_tab.lbl.skip_leading_short")); //NOI18N
+        PropertySupport.ReadWrite prop9 = new SimplePropertySupport("collapse", boolean.class, _bundle.getString("delim_tree_tab.lbl.collapse"), _bundle.getString("delim_tree_tab.lbl.collapse_short")); //NOI18N
+        setProperties(new Property[]{prop1, prop2, prop3, prop4, prop5, prop6, prop7, prop8, prop9});
 
         double ratio = getFont().getSize2D() / 12;
         
-        setTableColumnPreferredWidth(COL_TYPE, (int) (ratio * 60));
-        setTableColumnPreferredWidth(COL_BYTES, (int) (ratio * 96));
+        setTableColumnPreferredWidth(COL_TYPE, (int) (ratio * 65));
+        setTableColumnPreferredWidth(COL_BYTES, (int) (ratio * 60));
         setTableColumnPreferredWidth(COL_PRECEDENCE, (int) (ratio * 80));
-        setTableColumnPreferredWidth(COL_OPTIONAL_MODE, (int) (ratio * 94));
-        setTableColumnPreferredWidth(COL_TERMINATOR_MODE, (int) (ratio * 110));
+        setTableColumnPreferredWidth(COL_OPTIONAL_MODE, (int) (ratio * 60));
+        setTableColumnPreferredWidth(COL_TERMINATOR_MODE, (int) (ratio * 65));
         setTableColumnPreferredWidth(COL_OFFSET, (int) (ratio * 54));
         setTableColumnPreferredWidth(COL_LENGTH, (int) (ratio * 54));
+        setTableColumnPreferredWidth(COL_SKIP_LEADING, (int) (ratio * 40));
+        setTableColumnPreferredWidth(COL_COLLAPSE, (int) (ratio * 54));
     }
 
     private static class SimplePropertySupport extends PropertySupport.ReadWrite {
         
         private Object mValue;
         
-        public SimplePropertySupport(String name, Class clazz, String displayName, String shortDesc) {
+        public SimplePropertySupport(String name, Class clazz, String shortDesc, String displayName) {
             super(name, clazz, displayName, shortDesc);
         }
         

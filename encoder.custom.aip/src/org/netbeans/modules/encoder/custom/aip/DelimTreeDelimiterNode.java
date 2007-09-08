@@ -140,6 +140,20 @@ public class DelimTreeDelimiterNode extends AbstractNode
             lengthProp.setDisplayName(_bundle.getString("delim_tree_delim_node.lbl.length"));
             lengthProp.setPropertyEditorClass(DelimLengthPropertyEditor.class);
             propSet.put(lengthProp);
+            
+            PropertySupport.Reflection skipLeadingProp =
+                    new PropertySupport.Reflection(mDelimOption,
+                            boolean.class, "skipLeading");  //NOI18N
+            skipLeadingProp.setName("skipLeading");  //NOI18N
+            skipLeadingProp.setDisplayName(_bundle.getString("delim_tree_delim_node.lbl.skip_leading"));
+            propSet.put(skipLeadingProp);
+            
+            PropertySupport.Reflection collapseProp =
+                    new PropertySupport.Reflection(mDelimOption,
+                            boolean.class, "collapse");  //NOI18N
+            collapseProp.setName("collapse");  //NOI18N
+            collapseProp.setDisplayName(_bundle.getString("delim_tree_delim_node.lbl.collapse"));
+            propSet.put(collapseProp);
         } catch (NoSuchMethodException e) {
             throw new RuntimeException(_bundle.getString("delim_tree_delim_node.exp.no_such_mthd"), e);
         }
