@@ -219,7 +219,6 @@ public class TmBundleImport {
         
         try {
             FileWriter bundle = new FileWriter(new File(exportDir, "codetemplates-Bundle.properties"));
-            FileWriter uuids = new FileWriter(new File(exportDir, "codetemplates-uuids.txt"));
             FileWriter summary = new FileWriter(new File(exportDir, "codetemplates-summary.txt"));
             
             // Emit code templates
@@ -241,11 +240,6 @@ public class TmBundleImport {
                     String code = abbrevs.get(tabTrigger);
                     String uuid = uuidMap.get(tabTrigger);
                     
-                    if (uuid != null) {
-                        uuids.write(uuid);
-                        uuids.write("\n");
-                    }
-                    
                     fw.write("  <codetemplate abbreviation=\""); // NOI18N
                     fw.write(tabTrigger);
                     fw.write("\""); // NOI18N
@@ -266,6 +260,11 @@ public class TmBundleImport {
                         bundle.write(displayName);
                         bundle.write("\n");
                     }
+                    if (uuid != null) {
+                        fw.write(" uuid=\"");
+                        fw.write(uuid);
+                        fw.write("\"");
+                    }
                     fw.write(">\n    <code>\n<![CDATA[");
                     fw.write(code.replace("||", "|"));
                     fw.write("]]>\n");
@@ -281,7 +280,6 @@ public class TmBundleImport {
             summary.close();
 
             bundle.close();
-            uuids.close();
         } catch (Exception e) {
             Exceptions.printStackTrace(e);
         }
@@ -631,7 +629,34 @@ public class TmBundleImport {
             }
         }
 
-        return sb.toString();
+        String s = sb.toString();
+        
+        // If there are multiple versions of any of the stops, mark subsequent versions as noneditable
+        assert s.indexOf("${10") == -1; // Make sure we don't have more than 9 since below code assumes single-digit stops
+        for (int i = 0; i < 9; i++) {
+            String stop = "${" + i;
+            int first = s.indexOf(stop);
+            if (first != -1 && s.indexOf(stop, first+1) != -1) {
+                // Gotta replace
+                StringBuilder sb2 = new StringBuilder();
+                int offset = first+3;
+                sb2.append(s.substring(0, first+3));
+                while (offset < s.length()) {
+                    int next = s.indexOf(stop, offset);
+                    if (next == -1) {
+                        sb2.append(s.substring(offset));
+                        break;
+                    } else {
+                        sb2.append(s.substring(offset, next+3));
+                        sb2.append(" editable=\"false\"");
+                        offset = next+3;
+                    }
+                }
+                s = sb2.toString();
+            }
+        }
+        
+        return s;
     }
 
     private static String getTabStopString(char digit) {

@@ -79,4 +79,8 @@ public class TmBundleImportTest extends TestCase {
         //   $1Array should be ${1}Array ?
         // \$this-&gt;${1:ModelName}-&gt;field(${2:\$name}${3:, array(${4:'$1.created'=&gt;'&lt;= now()'}})}${5:, ${6:'created DESC'}});
     }
+
+    public void testDuplicates() {
+        assertEquals("foo ${0 default=\"hello\"} ${1} ${0 editable=\"false\"} ${1 editable=\"false\"}", TmBundleImport.testConversion("foo ${0:hello} ${1} ${0} ${1}"));
+    }
 }
