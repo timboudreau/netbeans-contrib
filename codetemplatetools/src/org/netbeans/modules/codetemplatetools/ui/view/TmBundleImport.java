@@ -24,8 +24,11 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.SortedSet;
@@ -140,7 +143,7 @@ public class TmBundleImport {
                     if (!first) {
                         log.append(", ");
                     } else {
-                       first = true;
+                       first = false;
                     }
                     log.append(name);
                 }
@@ -235,7 +238,9 @@ public class TmBundleImport {
                 fw.write("<codetemplates>\n"); // NOI18N
                 
                 Map<String,String> abbrevs = propsByMime.get(mime);
-                for (String tabTrigger : abbrevs.keySet()) {
+                List<String> abbrevNames = new ArrayList<String>(abbrevs.keySet());
+                Collections.sort(abbrevNames);
+                for (String tabTrigger : abbrevNames) {
                     String displayName = nameMap.get(tabTrigger);
                     String code = abbrevs.get(tabTrigger);
                     String uuid = uuidMap.get(tabTrigger);
