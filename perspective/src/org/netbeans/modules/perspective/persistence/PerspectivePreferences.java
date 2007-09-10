@@ -91,6 +91,13 @@ public class PerspectivePreferences {
         preferences.putInt(CUSTOM_PERSPECTIVE_COUNT, ++count);
         return name;
     }
+    public boolean  isCompatible(){
+        return preferences.getBoolean("Version", false);
+    }
+    public void  setCompatible(boolean b){
+         preferences.putBoolean("Version", b);
+    }
+    
     public void reset(){
         preferences.putInt(CUSTOM_PERSPECTIVE_COUNT, 1);
         preferences.putBoolean(CLOSE_OPENED, true);
