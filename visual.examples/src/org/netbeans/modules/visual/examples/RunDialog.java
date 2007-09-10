@@ -99,6 +99,7 @@ public class RunDialog extends javax.swing.JFrame {
         "test.object.MultiMoveActionTest",
         "test.object.MultipleWidgetsTest",
         "test.object.ObjectTest",
+        "test.order.ReverseOrderWidgetDependencyTest",
         "test.repaint.RepaintTest",
         "test.resize.ResizeTest",
         "test.router.OSRCollisionsCollectorTest",
