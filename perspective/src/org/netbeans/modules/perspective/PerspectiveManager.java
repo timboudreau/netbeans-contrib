@@ -26,17 +26,7 @@ package org.netbeans.modules.perspective;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import javax.swing.ButtonGroup;
-import javax.swing.JButton;
-import javax.swing.JCheckBoxMenuItem;
-import javax.swing.JMenuItem;
-import javax.swing.JPopupMenu;
-import javax.swing.event.PopupMenuEvent;
-import javax.swing.event.PopupMenuListener;
-import org.netbeans.modules.perspective.actions.SaveAsAction;
-import org.netbeans.modules.perspective.actions.SwitchAction;
+import org.netbeans.modules.perspective.ui.ToolbarStyleSwitchUI;
 import org.netbeans.modules.perspective.views.Perspective;
 
 /**
@@ -46,13 +36,9 @@ import org.netbeans.modules.perspective.views.Perspective;
 public class PerspectiveManager {
 
     private static PerspectiveManager instance;
-    private JPopupMenu menu = new JPopupMenu();
-    private JMenuItem saveAs;
-    private List<Perspective> perspectives = new ArrayList<Perspective>();
-    private Map<Perspective, JMenuItem> menuMap = new ConcurrentHashMap<Perspective, JMenuItem>();
-    private ButtonGroup group = new ButtonGroup();
+   private List<Perspective> perspectives = new ArrayList<Perspective>();
+    
     private Perspective selected;
-    private JButton toolbarButton;
 
     public static synchronized PerspectiveManager getInstance() {
 
@@ -69,29 +55,7 @@ public class PerspectiveManager {
     }
 
     private PerspectiveManager() {
-
-        menu.addPopupMenuListener(new PopupMenuListener() {
-
-            public void popupMenuWillBecomeVisible(PopupMenuEvent e) {
-                if (toolbarButton != null) {
-                    toolbarButton.setSelected(true);
-                }
-            }
-
-            public void popupMenuWillBecomeInvisible(PopupMenuEvent e) {
-                if (toolbarButton != null) {
-                    toolbarButton.setSelected(false);
-                }
-            }
-
-            public void popupMenuCanceled(PopupMenuEvent e) {
-                if (toolbarButton != null) {
-                    toolbarButton.setSelected(false);
-                }
-            }
-        });
-        saveAs = new JMenuItem(new SaveAsAction());
-        refresh();
+        
     }
 
     public void registerPerspective(int index, Perspective perspective) {
@@ -100,11 +64,8 @@ public class PerspectiveManager {
         } else {
             perspectives.add(index, perspective);
         }
-        final JCheckBoxMenuItem item = new JCheckBoxMenuItem(new SwitchAction(perspective));
-        group.add(item);
-        menuMap.put(perspective, item);
         arrangeIndexs();
-        refresh();
+        
     }
 
     public void registerPerspective(Perspective perspective, boolean arrange) {
@@ -114,52 +75,26 @@ public class PerspectiveManager {
             perspectives.add(perspective);
         }
 
-        final JCheckBoxMenuItem item = new JCheckBoxMenuItem(new SwitchAction(perspective));
-        group.add(item);
-        menuMap.put(perspective, item);
         if (arrange) {
             arrangeIndexs();
-            refresh();
+            
         }
     }
 
     public void deregisterPerspective(Perspective perspective) {
         perspectives.remove(perspective);
-        group.remove(menuMap.get(perspective));
-        menuMap.remove(perspective);
         arrangeIndexs();
-        refresh();
-    }
-
-    public JPopupMenu getMenu() {
-        return menu;
-    }
-
-    public void refresh() {
-        menu.removeAll();
-        for (Perspective perspective : perspectives) {
-            if (perspective.isBeforeSeparator()) {
-                menu.addSeparator();
-            }
-            menu.add(menuMap.get(perspective));
-            if (perspective.isAfterSeparator()) {
-                menu.addSeparator();
-            }
-        }
-        if (menu.getComponentCount() != 0) {
-            menu.addSeparator();
-        }
-        menu.add(saveAs);
+        
     }
 
 
     public void setSelected(Perspective perspective) {
         selected = perspective;
-        group.setSelected(menuMap.get(perspective).getModel(), true);
+             ToolbarStyleSwitchUI.getInstance().setSelected(selected);
     }
 
     public Perspective getSelected() {
-        return selected;
+        return selected;   
     }
 
     public Perspective findPerspectiveByID(String id) {
@@ -170,27 +105,27 @@ public class PerspectiveManager {
         }
         return null;
     }
+    public Perspective findPerspectiveByAlias(String alias) {
+        for (Perspective perspective : perspectives) {
+            if (perspective.getAlias().equals(alias)) {
+                return perspective;
+            }
+        }
+        return null;
+    }
+
+    public void clear() {
+        perspectives.clear();
+        
+        selected = null;
+        
+    }
 
     public void arrangeIndexs() {
         for (Perspective perspective : perspectives) {
             perspective.setIndex(perspectives.indexOf(perspective));
         }
         Collections.sort(perspectives);
-    }
-
-    public void clear() {
-        perspectives.clear();
-        menuMap.clear();
-        selected = null;
-        refresh();
-    }
-
-    public JButton getToolbarButton() {
-        return toolbarButton;
-    }
-
-    public void setToolbarButton(JButton toolbarButton) {
-        this.toolbarButton = toolbarButton;
     }
 
     public void arrangeIndexsToExistIndexs() {

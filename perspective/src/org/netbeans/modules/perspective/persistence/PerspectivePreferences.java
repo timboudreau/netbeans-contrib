@@ -34,11 +34,11 @@ public class PerspectivePreferences {
 
     private Preferences preferences = NbPreferences.forModule(PerspectivePreferences.class);
     private static PerspectivePreferences instance;
-    private static final String SELECTED = "selected"; //NOI18n
-    private static final String NONE = "NONE"; //NOI18n
-    private static final String TRACK_OPENED = "track_opened"; //NOI18n
-    private static final String TRACK_ACTIVE = "track_active"; //NOI18n
-    private static final String CLOSE_OPENED = "close_opened"; //NOI18n
+    private  final String SELECTED = "selected"; //NOI18n
+    private  final String TRACK_OPENED = "track_opened"; //NOI18n
+    private  final String TRACK_ACTIVE = "track_active"; //NOI18n
+    private  final String CLOSE_OPENED = "close_opened"; //NOI18n
+    private  final String CUSTOM_PERSPECTIVE_COUNT = "cp_count"; //NOI18n
 
     private PerspectivePreferences() {
     }
@@ -56,7 +56,7 @@ public class PerspectivePreferences {
     }
 
     public String getSelectedPerspective() {
-        return preferences.get(SELECTED, NONE);
+        return preferences.get(SELECTED, "java");//NOI18n
     }
 
     public boolean isTrackOpened() {
@@ -82,5 +82,20 @@ public class PerspectivePreferences {
 
     public void setCloseOpened(boolean b) {
         preferences.putBoolean(CLOSE_OPENED, b);
+    }
+
+    public synchronized String  getCustomPerspectiveName() {
+        String name = "custom_"; //NOI18N
+        int count=preferences.getInt(CUSTOM_PERSPECTIVE_COUNT, 1);
+        name+=count;
+        preferences.putInt(CUSTOM_PERSPECTIVE_COUNT, ++count);
+        return name;
+    }
+    public void reset(){
+        preferences.putInt(CUSTOM_PERSPECTIVE_COUNT, 1);
+        preferences.putBoolean(CLOSE_OPENED, true);
+        preferences.putBoolean(TRACK_ACTIVE, false);
+        preferences.putBoolean(TRACK_OPENED, false);
+        preferences.put(SELECTED, "java");//NOI18N
     }
 }

@@ -14,11 +14,12 @@ public final class ResetAction extends CallableSystemAction {
     private static final long serialVersionUID = 1l;
 
     public void performAction() {
-        NotifyDescriptor d = new NotifyDescriptor.Confirmation("Do you want to reset Perspectives ?", "Reset Perspectives",
-                NotifyDescriptor.OK_CANCEL_OPTION);
+        NotifyDescriptor d = new NotifyDescriptor.Confirmation("Do you want to reset Perspectives ?", "Reset Perspectives", NotifyDescriptor.OK_CANCEL_OPTION);
         if (DialogDisplayer.getDefault().notify(d) == NotifyDescriptor.OK_OPTION) {
             try {
                 MainPaser.getInstance().reset();
+                NotifyDescriptor information = new NotifyDescriptor.Message("Please invoke \"Window ->Reset Windows\" to compleate Reset", NotifyDescriptor.INFORMATION_MESSAGE);
+                DialogDisplayer.getDefault().notify(information);
             } catch (IOException ex) {
                 Exceptions.printStackTrace(ex);
             }

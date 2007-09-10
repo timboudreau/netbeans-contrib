@@ -21,8 +21,6 @@
  *
  * Created on Aug 5, 2007, 9:18:44 AM
  *
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
  */
 
 package org.netbeans.modules.perspective.utils;

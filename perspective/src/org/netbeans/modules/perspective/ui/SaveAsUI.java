@@ -31,6 +31,7 @@ import javax.swing.DefaultListModel;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import org.netbeans.modules.perspective.PerspectiveManager;
+import org.netbeans.modules.perspective.persistence.PerspectivePreferences;
 import org.netbeans.modules.perspective.utils.CurrentPerspectiveReader;
 import org.netbeans.modules.perspective.views.Perspective;
 import org.openide.DialogDisplayer;
@@ -59,7 +60,7 @@ public class SaveAsUI extends javax.swing.JDialog {
 
                 Perspective perspective = (Perspective) modeList.getSelectedValue();
                 if (perspective != null) {
-                    txtName.setText(perspective.getName());
+                    txtName.setText(perspective.getAlias());
                     selected = perspective;
 
                     before.setSelected(perspective.isBeforeSeparator());
@@ -105,11 +106,11 @@ public class SaveAsUI extends javax.swing.JDialog {
                 continue;
             }
             if (prev.isEmpty()) {
-                cmbPosition.addItem(Here + " - " + perspective.getName());
+                cmbPosition.addItem(Here + " - " + perspective.getAlias());
             } else {
-                cmbPosition.addItem(prev + Here + " - " + perspective.getName());
+                cmbPosition.addItem(prev + Here + " - " + perspective.getAlias());
             }
-            prev = perspective.getName() + " - ";
+            prev = perspective.getAlias() + " - ";
         }
         cmbPosition.addItem(prev + Here);
     }
@@ -268,7 +269,7 @@ public class SaveAsUI extends javax.swing.JDialog {
 
     private void validateExist() {
         String id = txtName.getText();
-        Perspective perspective = PerspectiveManager.getInstance().findPerspectiveByID(id);
+        Perspective perspective = PerspectiveManager.getInstance().findPerspectiveByAlias(id);
         if (perspective != null) {
             modeList.setSelectedValue(perspective, true);
         } else {
@@ -278,23 +279,30 @@ public class SaveAsUI extends javax.swing.JDialog {
     }
 
     private void saveAsMutilMode() {
-        String id = txtName.getText();
-        Perspective perspective = PerspectiveManager.getInstance().findPerspectiveByID(id);
+        Perspective perspective = (Perspective) modeList.getSelectedValue();
         if (perspective != null) {
-            NotifyDescriptor d = new NotifyDescriptor.Confirmation("'"+id+ "' already exists.Do you want\n overwrite? ", "Overwrite MultiMode View",
+            NotifyDescriptor d = new NotifyDescriptor.Confirmation("'"+perspective.getAlias()+ "' already exists.Do you want\n overwrite? ", "Overwrite MultiMode View",
                     NotifyDescriptor.YES_NO_OPTION);
             if (DialogDisplayer.getDefault().notify(d) != NotifyDescriptor.YES_OPTION) {
                 return;
             }
             PerspectiveManager.getInstance().deregisterPerspective(perspective);
+            perspective.clear();
+        }else{
+         
+         perspective = new Perspective(PerspectivePreferences.getInstance().getCustomPerspectiveName(),
+                 txtName.getText().trim());
+         Perspective selectedPerspective=PerspectiveManager.getInstance().getSelected();
+         perspective.setImagePath(selectedPerspective.getImagePath());
         }
-        perspective = new Perspective(txtName.getText().trim(), txtName.getText().trim());
+        
 
         new CurrentPerspectiveReader(perspective);
         perspective.setBeforeSeparator(before.isSelected());
         perspective.setAfterSeparator(after.isSelected());
         PerspectiveManager.getInstance().registerPerspective(cmbPosition.getSelectedIndex(), perspective);
         PerspectiveManager.getInstance().setSelected(perspective);
+        ToolbarStyleSwitchUI.getInstance().loadQuickPerspectives();
         dispose();
     }
 
@@ -311,6 +319,7 @@ public class SaveAsUI extends javax.swing.JDialog {
             saveAsMutilMode();
         }
     }
+    
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JCheckBox after;
     private javax.swing.JCheckBox before;
