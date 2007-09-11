@@ -27,7 +27,7 @@
             <xs:extension base="wsdl:tExtensibilityElement">
                 <xs:attribute name="name" type="xmpp:operationName" use="required">
                     <xs:annotation>
-                        <xs:documentation>Select the name of the operation. JoinGroup allows you to join a specified Group Chat.  LeaveGroup allows you to leave the specified Group Chat(s).  SendMessage allows you to send an Instant Message to a single user or to a group chat.</xs:documentation>
+                        <xs:documentation>Select the name of the operation. JoinGroup allows you to join a specified Group Chat.  LeaveGroup allows you to leave the specified Group Chat(s).  SendMessage allows you to send an Instant Message to a single user or to a group chat.  Kick allows you to kick participants from a group chat.  Create allows you to create a group chat.  Destroy allows you to destroy a group chat.</xs:documentation>
                     </xs:annotation>
                 </xs:attribute>
             </xs:extension>
@@ -40,6 +40,8 @@
                 <xs:enumeration value="leaveGroup"/>
                 <xs:enumeration value="kick"/>
                 <xs:enumeration value="invite"/>
+                <xs:enumeration value="createGroup"/>
+                <xs:enumeration value="destroyGroup"/>
         </xs:restriction>
     </xs:simpleType>        
     <xs:element name="input" type="xmpp:tInput">
