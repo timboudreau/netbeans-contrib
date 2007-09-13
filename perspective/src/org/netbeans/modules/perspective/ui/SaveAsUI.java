@@ -137,6 +137,7 @@ public class SaveAsUI extends javax.swing.JDialog {
         jLabel1 = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
+        setTitle(org.openide.util.NbBundle.getMessage(SaveAsUI.class, "SaveAsUI.title")); // NOI18N
         setResizable(false);
 
         btnCancel.setAction(new CancelAction());
