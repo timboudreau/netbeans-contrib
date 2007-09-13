@@ -74,7 +74,8 @@
                 </dependency>
             </module-dependencies>
             <public-packages>
-                <package>org.netbeans.perspective</package>
+                <package>org.netbeans.modules.perspective</package>
+                <package>org.netbeans.modules.perspective.views</package>
             </public-packages>
         </data>
     </configuration>

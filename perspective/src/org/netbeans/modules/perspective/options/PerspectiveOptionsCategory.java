@@ -20,7 +20,7 @@ package org.netbeans.modules.perspective.options;
 
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
-import org.netbeans.modules.perspective.PerspectiveManager;
+import org.netbeans.modules.perspective.utils.PerspectiveManager;
 import org.netbeans.spi.options.OptionsCategory;
 import org.netbeans.spi.options.OptionsPanelController;
 import org.openide.util.NbBundle;

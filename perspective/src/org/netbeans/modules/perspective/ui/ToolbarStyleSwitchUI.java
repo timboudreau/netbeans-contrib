@@ -36,7 +36,7 @@ import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
 import javax.swing.event.PopupMenuEvent;
 import javax.swing.event.PopupMenuListener;
-import org.netbeans.modules.perspective.PerspectiveManager;
+import org.netbeans.modules.perspective.utils.PerspectiveManager;
 import org.netbeans.modules.perspective.actions.SwitchAction;
 import org.netbeans.modules.perspective.views.Perspective;
 

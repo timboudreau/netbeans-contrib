@@ -30,7 +30,7 @@ import javax.swing.AbstractAction;
 import javax.swing.DefaultListModel;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
-import org.netbeans.modules.perspective.PerspectiveManager;
+import org.netbeans.modules.perspective.utils.PerspectiveManager;
 import org.netbeans.modules.perspective.persistence.PerspectivePreferences;
 import org.netbeans.modules.perspective.utils.CurrentPerspectiveReader;
 import org.netbeans.modules.perspective.views.Perspective;
