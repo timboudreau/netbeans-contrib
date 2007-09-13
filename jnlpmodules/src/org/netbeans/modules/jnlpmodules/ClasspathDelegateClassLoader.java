@@ -18,6 +18,8 @@
  */
 package org.netbeans.modules.jnlpmodules;
 
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.util.*;
 import java.util.jar.Manifest;
 import java.net.URL;
@@ -27,6 +29,9 @@ import java.security.*;
 import java.util.jar.Attributes;
 import java.util.jar.Attributes.Name;
 import org.netbeans.ModuleManager;
+import org.netbeans.Module;
+import org.netbeans.ProxyClassLoader;
+import sun.security.action.GetLongAction;
 
 /**
  * This classloader is used to directly delegate to the delegate class loader.
@@ -34,18 +39,29 @@ import org.netbeans.ModuleManager;
  * loading of the JDK classes plus the classes with given prefixes.
  * @author David Strupl
  */
-public class ClasspathDelegateClassLoader extends URLPrefixClassLoader {
+public class ClasspathDelegateClassLoader extends ProxyClassLoader {
 
     /** Common prefix of all JDK jars */
     private String jdkPrefix = null;
     
     private ModuleManager mgr;
     
+    private Collection<String> prefixes;
+    
+    private ClassLoader delegate;
+    
     /** Creates a new instance of DelegatingClassLoader */
-    public ClasspathDelegateClassLoader(Collection prefixes, ClassLoader delegate, ModuleManager manager) {
-        super(new ClassLoader[] { delegate }, false, prefixes, delegate);
+    public ClasspathDelegateClassLoader(Collection<String> prefixes, ClassLoader delegate, ModuleManager manager) {
+        super(new ClassLoader[0], false);
         initJdkPrefixes();
         this.mgr = manager;
+        this.prefixes = new HashSet<String>(prefixes);
+        this.delegate = delegate;
+        mgr.addPropertyChangeListener(new PropertyChangeListener() {
+            public void propertyChange(PropertyChangeEvent evt) {
+                addNewModules();
+            }
+        });
     }
 
     /**
@@ -61,7 +77,28 @@ public class ClasspathDelegateClassLoader extends URLPrefixClassLoader {
     protected boolean shouldBeCheckedAsParentProxyClassLoader() {
         return false;
     }
+    
+    @Override
+    protected synchronized Class loadClass(String name, boolean resolve)
+                                            throws ClassNotFoundException {
+        Class cls = findLoadedClass(name);
+        if (cls != null) {
+            return cls;
+        }
+        int last = name.lastIndexOf('.');
+        if (last == -1) {
+            throw new ClassNotFoundException("Will not load classes from default package (" + name + ")"); // NOI18N
+        }
 
+        // Strip+intern or use from package coverage
+        String pkg = (last >= 0) ? name.substring(0, last) : ""; 
+        
+        cls = doLoadClass(pkg, name);
+        
+        if (cls == null) throw new ClassNotFoundException(name); 
+        if (resolve) resolveClass(cls); 
+        return cls; 
+    }
     /**
      * Overriden to directly delegate and not to define the classes here.
      */
@@ -85,20 +122,68 @@ public class ClasspathDelegateClassLoader extends URLPrefixClassLoader {
         }
         return null;
     }   
+    /**
+     * Finds the named resource in the delegate classloader. If there are more
+     * resources with the same name the first for which method acceptResourceURL
+     * returned true is returned.
+     */
+    @Override
+    protected URL findResource(String name) {
+
+        try {
+            for (Enumeration en = delegate.getResources(name); en.hasMoreElements(); ) {
+                URL url = (URL)en.nextElement();
+                if (acceptResourceURL(url, name)) {
+                    return url;
+                }
+            }
+        } catch (IOException ioe) {
+            ioe.printStackTrace();
+        }
+        return null;
+    }
+
+    /** Allows to specify the right permissions, subclasses can do it differently.
+     */
+    protected PermissionCollection getPermissions( CodeSource cs ) {           
+        return Policy.getPolicy().getPermissions(cs);       
+    }        
+    
+    /**
+     * Finds the named resource in the delegate classloader. Returns all of the
+     * resources for which method acceptResourceURL returned true.
+     */ 
+    @Override
+    protected java.util.Enumeration<URL> simpleFindResources(String name) throws IOException {
+        ArrayList<URL> ar = new ArrayList<URL>();
+        for (Enumeration<URL> en = delegate.getResources(name); en.hasMoreElements(); ) {
+            URL url = en.nextElement();
+            if (acceptResourceURL(url, name)) {
+                ar.add(url);
+            }
+        }
+        if (! ar.isEmpty()) {
+            return java.util.Collections.enumeration(ar);
+        } else {
+            return super.simpleFindResources(name);
+        }
+    }
 
     /**
      * We accept the resource if it's either from JDK or normally using the
      * prefixes.
      */
-    protected boolean acceptResourceURL(URL resourceURL, String resourceName) {
+    private boolean acceptResourceURL(URL resourceURL, String resourceName) {
         
         if (resourceURL.toExternalForm().startsWith(jdkPrefix)) {
             return true;
         }
         
-        return super.acceptResourceURL(resourceURL, resourceName);
+        String urlString = resourceURL.toExternalForm();
+        String localPrefix = urlString.substring(0, urlString.length() - resourceName.length());
+        return prefixes.contains(localPrefix);
     }
-
+    
     /**
      * For debugging purposes.
      */
@@ -122,4 +207,27 @@ public class ClasspathDelegateClassLoader extends URLPrefixClassLoader {
             e.printStackTrace();
         }
     }
+    
+    private void addNewModules() {
+        Set m = mgr.getModules();
+        for (Iterator it = m.iterator(); it.hasNext(); ) {
+            Module m1 = (Module)it.next();
+            if (  m1.getCodeName().equals("org.netbeans.bootstrap/1") ||
+                  m1.getCodeName().equals("org.netbeans.core.startup/1") ||
+                  m1.getCodeName().equals("org.netbeans.modules.jnlpmodules") ||
+                  m1.getCodeName().equals("org.openide.modules") ||
+                  m1.getCodeName().equals("org.openide.util") ||
+                  m1.getCodeName().equals("org.openide.filesystems")
+            ) {
+                if (m1 instanceof ClasspathModule) {
+                    ClasspathModule cpm1 = (ClasspathModule)m1;
+                    List<String> cp = new ArrayList<String>();
+                    cp.add(cpm1.prefixURL);
+                    cpm1.computePrefixes(cp);
+                    prefixes.addAll(cp);
+                }
+            }
+        }
+    }
+
 }

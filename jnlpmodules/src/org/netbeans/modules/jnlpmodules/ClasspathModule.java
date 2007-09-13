@@ -18,6 +18,7 @@
  */
 
 package org.netbeans.modules.jnlpmodules;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.security.AllPermission;
@@ -42,6 +43,7 @@ import java.util.jar.Manifest;
 import org.netbeans.ProxyClassLoader;
 import org.netbeans.Events;
 import org.netbeans.InvalidException;
+import org.netbeans.JarClassLoader;
 import org.netbeans.Module;
 import org.netbeans.Module.PackageExport;
 import org.netbeans.ModuleManager;
@@ -459,7 +461,7 @@ public final class ClasspathModule extends Module {
                 ) {
                     classloader = delegate;
                 } else {
-                    classloader = new OneModuleClassLoader2(classp, (ClassLoader[])loaders.toArray(new ClassLoader[loaders.size()]), delegate);
+                    classloader = new OneModuleClassLoader2(classp,loaders.toArray(new ClassLoader[loaders.size()]));
                 }
         } catch (IllegalArgumentException iae) {
             // Should not happen, but just in case.
@@ -546,7 +548,7 @@ public final class ClasspathModule extends Module {
      * Auto-localizing, multi-parented, permission-granting, the works.
      * Second copy extends DelegatingClassLoader instead of JarClassLoader.
      */
-    private class OneModuleClassLoader2 extends URLPrefixClassLoader implements Util.ModuleProvider, Util.PackageAccessibleClassLoader {
+    private class OneModuleClassLoader2 extends JarClassLoader implements Util.ModuleProvider, Util.PackageAccessibleClassLoader {
         private int rc;
         /** Create a new loader for a module.
          * @param classp the List of all module jars of code directories;
@@ -555,8 +557,9 @@ public final class ClasspathModule extends Module {
          *      The items are prefixes on the delegate class loader
          * @param parents a set of parent classloaders (from other modules)
          */
-        public OneModuleClassLoader2(List prefixes, ClassLoader[] parents, ClassLoader delegate) throws IllegalArgumentException {
-            super(parents, false, prefixes, delegate);
+        public OneModuleClassLoader2(List<String> prefixes, ClassLoader[] parents) throws IllegalArgumentException {
+            super(prefixesToFile(prefixes),parents, false);
+            setSystemClassLoader(parents[0]);
             rc = releaseCount++;
         }
         
@@ -568,15 +571,18 @@ public final class ClasspathModule extends Module {
          * @param cs is ignored
          * @return PermissionCollection with an AllPermission instance
          */
+        @Override
         protected PermissionCollection getPermissions(CodeSource cs) {
             return getAllPermission();
         }
         
         /** look for JNI libraries also in modules/bin/ */
+        @Override
         protected String findLibrary(String libname) {
             return null;
         }
 
+        @Override
         protected boolean shouldDelegateResource(String pkg, ClassLoader parent) {
             if (!super.shouldDelegateResource(pkg, parent)) {
                 return false;
@@ -590,10 +596,12 @@ public final class ClasspathModule extends Module {
             return getManager().shouldDelegateResource(ClasspathModule.this, other, pkg);
         }
         
+        @Override
         public String toString() {
             return super.toString() + "[" + getCodeNameBase() + "]"; // NOI18N
         }
 
+        @Override
         protected void finalize() throws Throwable {
             super.finalize();
             err.log("Finalize for " + this + ": rc=" + rc + " releaseCount=" + releaseCount + " released=" + released); // NOI18N
@@ -606,4 +614,14 @@ public final class ClasspathModule extends Module {
         }
     }
 
+    private static List<File> prefixesToFile(List<String> prefixes) {
+        List<File> result = new ArrayList<File>();
+        for (String prefix : prefixes) {
+            String s = prefix.substring(9);
+            File f = new File(s.substring(0, s.length()-2));
+            result.add(f);
+        }
+        return result;
+    }
+    
 }

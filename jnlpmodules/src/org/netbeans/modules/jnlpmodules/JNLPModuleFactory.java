@@ -307,6 +307,7 @@ public class JNLPModuleFactory extends ModuleFactory {
     
     private ClassLoader classpathDelegateClassLoader;
     
+    @Override
     public ClassLoader getClasspathDelegateClassLoader(ModuleManager mgr, ClassLoader del) {
         if (classpathDelegateClassLoader == null) {
             Set<String> s = getPrefixNonModules("core");
