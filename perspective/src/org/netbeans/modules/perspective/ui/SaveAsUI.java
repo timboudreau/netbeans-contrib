@@ -137,40 +137,38 @@ public class SaveAsUI extends javax.swing.JDialog {
         jLabel1 = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
-        setTitle("null");
         setResizable(false);
 
         btnCancel.setAction(new CancelAction());
-        btnCancel.setText("null");
+        btnCancel.setText(org.openide.util.NbBundle.getMessage(SaveAsUI.class, "SaveAsUI.btnCancel.text")); // NOI18N
 
         btnOK.setAction(new SaveAs());
-        btnOK.setText("null");
+        btnOK.setText(org.openide.util.NbBundle.getMessage(SaveAsUI.class, "SaveAsUI.btnOK.text")); // NOI18N
 
         modeList.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
         jScrollPane1.setViewportView(modeList);
 
-        lblName.setText("null");
+        lblName.setText("Name :");
 
-        txtName.setText("null");
         txtName.addKeyListener(new java.awt.event.KeyAdapter() {
             public void keyReleased(java.awt.event.KeyEvent evt) {
                 txtNameKeyReleased(evt);
             }
         });
 
-        lblDescription.setText("null");
+        lblDescription.setText("Enter or select a name to save the Perspective as");
 
-        lblPosition.setText("null");
+        lblPosition.setText(org.openide.util.NbBundle.getMessage(SaveAsUI.class, "SaveAsUI.lblPosition.text")); // NOI18N
 
-        after.setText("null");
+        after.setText(org.openide.util.NbBundle.getMessage(SaveAsUI.class, "SaveAsUI.after.text")); // NOI18N
         after.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         after.setMargin(new java.awt.Insets(0, 0, 0, 0));
 
-        before.setText("null");
+        before.setText(org.openide.util.NbBundle.getMessage(SaveAsUI.class, "SaveAsUI.before.text")); // NOI18N
         before.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         before.setMargin(new java.awt.Insets(0, 0, 0, 0));
 
-        jLabel1.setText("null");
+        jLabel1.setText(org.openide.util.NbBundle.getMessage(SaveAsUI.class, "SaveAsUI.jLabel1.text")); // NOI18N
 
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -179,7 +177,7 @@ public class SaveAsUI extends javax.swing.JDialog {
             .add(layout.createSequentialGroup()
                 .addContainerGap()
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jScrollPane1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 348, Short.MAX_VALUE)
+                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jScrollPane1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 337, Short.MAX_VALUE)
                     .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
                         .add(btnOK)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
@@ -187,15 +185,20 @@ public class SaveAsUI extends javax.swing.JDialog {
                     .add(lblDescription)
                     .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
                         .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                            .add(lblName, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 67, Short.MAX_VALUE)
-                            .add(org.jdesktop.layout.GroupLayout.TRAILING, lblPosition, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 67, Short.MAX_VALUE))
+                            .add(lblPosition, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 98, Short.MAX_VALUE)
+                            .add(layout.createSequentialGroup()
+                                .add(lblName, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 94, Short.MAX_VALUE)
+                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)))
                         .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                            .add(org.jdesktop.layout.GroupLayout.TRAILING, cmbPosition, 0, 281, Short.MAX_VALUE)
-                            .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
+                            .add(layout.createSequentialGroup()
                                 .add(before)
                                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                                 .add(after))
-                            .add(org.jdesktop.layout.GroupLayout.TRAILING, txtName, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 281, Short.MAX_VALUE)))
+                            .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
+                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING, false)
+                                    .add(org.jdesktop.layout.GroupLayout.TRAILING, txtName)
+                                    .add(org.jdesktop.layout.GroupLayout.TRAILING, cmbPosition, 0, 239, Short.MAX_VALUE)))))
                     .add(jLabel1))
                 .addContainerGap())
         );
@@ -219,7 +222,7 @@ public class SaveAsUI extends javax.swing.JDialog {
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(before)
                     .add(after))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 22, Short.MAX_VALUE)
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .add(jLabel1)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(jScrollPane1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 163, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
