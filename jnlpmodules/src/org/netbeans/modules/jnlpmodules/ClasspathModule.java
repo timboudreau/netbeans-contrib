@@ -577,13 +577,6 @@ public final class ClasspathModule extends Module {
             return null;
         }
 
-        protected boolean isSpecialResource(String pkg) {
-            if (getManager().isSpecialResource(pkg)) {
-                return true;
-            }
-            return super.isSpecialResource(pkg);
-        }
-        
         protected boolean shouldDelegateResource(String pkg, ClassLoader parent) {
             if (!super.shouldDelegateResource(pkg, parent)) {
                 return false;

@@ -52,28 +52,22 @@ public class ClasspathDelegateClassLoader extends URLPrefixClassLoader {
      * We do not delegate anything to the parent by code in ProxyClassLoader
      * but we do that ourselves from simpleFindClass.
      */
+    @Override
     protected boolean shouldDelegateResource(String pkg, ClassLoader parent) {
         return false;
     }
     
+    @Override
     protected boolean shouldBeCheckedAsParentProxyClassLoader() {
         return false;
     }
 
-    protected boolean isSpecialResource(String pkg) {
-        if (mgr != null && mgr.isSpecialResource(pkg)) {
-            return true;
-        }
-        return super.isSpecialResource(pkg);
-    }
-    
     /**
      * Overriden to directly delegate and not to define the classes here.
      */
-    protected Class simpleFindClass(String name, String fileName, String pkgnameSlashes) {
-        if (fileName == null) {
-            fileName = name.replace('.', '/') + ".class";
-        }
+    @Override
+    protected Class doLoadClass(String pkg, String name) {
+        String fileName = name.replace('.', '/') + ".class";
         try {
             for (Enumeration en = delegate.getResources(fileName); en.hasMoreElements(); ) {
                 URL url = (URL)en.nextElement();

@@ -75,13 +75,16 @@ public class JNLPModuleFactory extends ModuleFactory {
         }
     }
 
+    @Override
     public Module create(java.io.File jar, Object history, boolean reloadable, boolean autoload, boolean eager, ModuleManager mgr, Events ev) throws IOException {
 //        System.out.println("Factory creating standard " + jar);
 //        return new StandardModule(mgr, ev, jar, history, reloadable, autoload, eager);
         throw new IOException("Standard modules not supported " + jar);
     }
 
-    public Module createFixed(java.util.jar.Manifest mani, Object history, ClassLoader loader, ModuleManager mgr, Events ev) throws InvalidException {
+    @Override
+    public Module createFixed(Manifest mani, Object history, ClassLoader loader, boolean autoload, boolean eager,
+            ModuleManager mgr, Events ev) throws InvalidException {
         Attributes attr = mani.getMainAttributes();
         String module = attr.getValue("OpenIDE-Module");
         String prefixURL = prefixedModules.get(module);
