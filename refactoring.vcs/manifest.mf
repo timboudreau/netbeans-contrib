@@ -1,0 +1,6 @@
+Manifest-Version: 1.0
+OpenIDE-Module: org.netbeans.modules.refactoring.vcs
+OpenIDE-Module-Implementation-Version: 1
+OpenIDE-Module-Layer: org/netbeans/modules/refactoring/vcs/layer.xml
+OpenIDE-Module-Localizing-Bundle: org/netbeans/modules/refactoring/vcs/Bundle.properties
+OpenIDE-Module-Provides: org.netbeans.modules.refactoring.vcs
