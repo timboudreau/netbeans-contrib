@@ -36,6 +36,7 @@
     <xs:simpleType name="operationName">
         <xs:restriction base="xs:string">
                 <xs:enumeration value="sendMessage"/>
+                <xs:enumeration value="receiveMessage"/>
                 <xs:enumeration value="joinGroup"/>
                 <xs:enumeration value="leaveGroup"/>
                 <xs:enumeration value="kick"/>
@@ -51,12 +52,12 @@
             </xs:documentation>
             <xs:appinfo>
                 <prop:ElementProperties  xmlns:prop="http://xml.netbeans.org/schema/wsdlui/property">
-                    <prop:Property attributeName="from" propertyOrder="1">
+                    <prop:Property attributeName="jabberId" propertyOrder="1">
                         <prop:BuiltInCustomizer>
                             <prop:SimpleCustomizer name="PartChooser"/>
                         </prop:BuiltInCustomizer>
                     </prop:Property>
-                    <prop:Property attributeName="id" propertyOrder="2">
+                    <prop:Property attributeName="packetId" propertyOrder="2">
                         <prop:BuiltInCustomizer>
                             <prop:SimpleCustomizer name="PartChooser"/>
                         </prop:BuiltInCustomizer>
@@ -93,14 +94,14 @@
     <xs:complexType name="tInput">
         <xs:complexContent>
             <xs:extension base="wsdl:tExtensibilityElement">
-                <xs:attribute name="from" type="xs:string" use="optional">
+                <xs:attribute name="jabberId" type="xs:string" use="optional">
                     <xs:annotation>
-                        <xs:documentation>Who the message is from</xs:documentation>
+                        <xs:documentation>The jabberId for whom the message is from</xs:documentation>
                     </xs:annotation>
                 </xs:attribute>
-                <xs:attribute name="id" type="xs:string" use="optional">
+                <xs:attribute name="packetId" type="xs:string" use="optional">
                     <xs:annotation>
-                        <xs:documentation>The ID of the message</xs:documentation>
+                        <xs:documentation>The Packet ID of the message</xs:documentation>
                     </xs:annotation>
                 </xs:attribute>
                 <xs:attribute name="message" type="xs:string" use="optional">
@@ -138,12 +139,12 @@
             </xs:documentation>
             <xs:appinfo>
                 <prop:ElementProperties  xmlns:prop="http://xml.netbeans.org/schema/wsdlui/property">
-                    <prop:Property attributeName="to" propertyOrder="1">
+                    <prop:Property attributeName="jabberId" propertyOrder="1">
                         <prop:BuiltInCustomizer>
                             <prop:SimpleCustomizer name="PartChooser"/>
                         </prop:BuiltInCustomizer>
                     </prop:Property>
-                    <prop:Property attributeName="id" propertyOrder="2">
+                    <prop:Property attributeName="packetId" propertyOrder="2">
                         <prop:BuiltInCustomizer>
                             <prop:SimpleCustomizer name="PartChooser"/>
                         </prop:BuiltInCustomizer>
@@ -160,14 +161,14 @@
     <xs:complexType name="tOutput">
         <xs:complexContent>
             <xs:extension base="wsdl:tExtensibilityElement">
-                <xs:attribute name="to" type="xs:string" use="optional">
+                <xs:attribute name="jabberId" type="xs:string" use="optional">
                     <xs:annotation>
-                        <xs:documentation>Who the message is destined for</xs:documentation>
+                        <xs:documentation>The jabberId for whom the message is destined</xs:documentation>
                     </xs:annotation>
                 </xs:attribute>
-                <xs:attribute name="id" type="xs:string" use="optional">
+                <xs:attribute name="packetId" type="xs:string" use="optional">
                     <xs:annotation>
-                        <xs:documentation>The ID of the message</xs:documentation>
+                        <xs:documentation>The Packet ID of the message</xs:documentation>
                     </xs:annotation>
                 </xs:attribute>
                 <xs:attribute name="message" type="xs:string" use="optional">

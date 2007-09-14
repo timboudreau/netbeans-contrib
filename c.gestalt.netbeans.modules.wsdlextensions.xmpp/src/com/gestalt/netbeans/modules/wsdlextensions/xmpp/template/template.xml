@@ -33,15 +33,15 @@
     <template name="XMPPTransport">
         <wsdlElement name="BindingOperationInput">
             <extensionElement name="input" >
-                <extensionAttr name="from" defaultValue="" />
-                <extensionAttr name="id" defaultValue="" />
+                <extensionAttr name="jabberId" defaultValue="" />
+                <extensionAttr name="packetId" defaultValue="" />
                 <extensionAttr name="message" defaultValue="" />
             </extensionElement>
         </wsdlElement>
         <wsdlElement name="BindingOperationOutput">
             <extensionElement name="output" >
-                <extensionAttr name="to" defaultValue="" />
-                <extensionAttr name="id" defaultValue="" />
+                <extensionAttr name="jabberId" defaultValue="" />
+                <extensionAttr name="packetId" defaultValue="" />
                 <extensionAttr name="message" defaultValue="" />
             </extensionElement>
         </wsdlElement>
