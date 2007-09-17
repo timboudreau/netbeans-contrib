@@ -40,6 +40,8 @@ import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.jar.Attributes;
 import java.util.jar.Manifest;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.netbeans.ProxyClassLoader;
 import org.netbeans.Events;
 import org.netbeans.InvalidException;
@@ -49,7 +51,6 @@ import org.netbeans.Module.PackageExport;
 import org.netbeans.ModuleManager;
 import org.netbeans.Util;
 import org.netbeans.core.startup.ModuleHistory;
-import org.openide.ErrorManager;
 import org.openide.modules.Dependency;
 import org.openide.util.NbBundle;
 
@@ -57,7 +58,7 @@ import org.openide.util.NbBundle;
  */
 public final class ClasspathModule extends Module {
     
-    static final ErrorManager err = ErrorManager.getDefault().getInstance("org.netbeans.modules.jnlpmodules"); // NOI18N
+    private static final Logger logger = Logger.getLogger(ClasspathModule.class.getName());
     
     /** Map from extension JARs to sets of JAR that load them via Class-Path.
      * Used only for debugging purposes, so that a warning is printed if two
@@ -138,7 +139,7 @@ public final class ClasspathModule extends Module {
             classLoaderUp(parents);
         } catch (IOException ioe) {
             IllegalStateException ie = new IllegalStateException(ioe.toString());
-            err.annotate(ie, ioe);
+            ie.initCause(ioe);
             throw ie;
         }
     }
@@ -174,10 +175,10 @@ public final class ClasspathModule extends Module {
                             // Fine, ignore.
                         }
                     } catch (MissingResourceException mre) {
-                        err.notify(mre);
+                        logger.log(Level.SEVERE, null, mre);
                     }
                 } else {
-                    err.log(ErrorManager.WARNING, "WARNING - cannot efficiently load non-*.properties OpenIDE-Module-Localizing-Bundle: " + locb);
+                    logger.warning( "WARNING - cannot efficiently load non-*.properties OpenIDE-Module-Localizing-Bundle: " + locb);
                 }
             }
             if (!usingLoader) {
@@ -187,7 +188,7 @@ public final class ClasspathModule extends Module {
                         return val;
                     }
                 } else {
-                    err.log("Trying to get localized attr " + attr + " from disabled module " + getCodeNameBase());
+                    logger.fine("Trying to get localized attr " + attr + " from disabled module " + getCodeNameBase());
                 }
             }
         }
@@ -237,7 +238,7 @@ public final class ClasspathModule extends Module {
             while (tok.hasMoreTokens()) {
                 String ext = tok.nextToken();
                 if (ext.indexOf("../") != -1) { // NOI18N
-                    err.log(ErrorManager.WARNING, "WARNING: Class-Path value " + ext + " from " + this + " is illegal according to the Java Extension Mechanism: must be relative and not move up directories");
+                    logger.warning( "WARNING: Class-Path value " + ext + " from " + this + " is illegal according to the Java Extension Mechanism: must be relative and not move up directories");
                 }
                 String extName = ext.substring(0, ext.lastIndexOf('.')); // without suffix
                 String subLocation = null; // location of the extension
@@ -247,9 +248,9 @@ public final class ClasspathModule extends Module {
                     subLocation = location + "/" + extName.substring(0, extName.lastIndexOf('/'));
                     extName = extName.substring(extName.lastIndexOf('/')+1, extName.length());
                 }
-                err.log("subLocation " + subLocation + " extName " + extName);
+                logger.fine("subLocation " + subLocation + " extName " + extName);
                 Set s = factory.getPrefixNonModules(subLocation);
-                err.log("    set under subLocation " + s);
+                logger.fine("    set under subLocation " + s);
                 String extPrefix = null;
                 for (Iterator it = s.iterator(); it.hasNext(); ) {
                     String p = (String)it.next();
@@ -277,7 +278,7 @@ public final class ClasspathModule extends Module {
                         extensionOwners.put(extPrefix, owners);
                     } else if (! owners.contains(prefixURL)) {
                         owners.add(prefixURL);
-                        events.log(Events.EXTENSION_MULTIPLY_LOADED, extName, owners);
+                        logger.warning("The extension " + extName + " may be multiply loaded by modules: " + owners + "; see: http://www.netbeans.org/download/dev/javadoc/org-openide-modules/org/openide/modules/doc-files/classpath.html#class-path"); // NOI18N
                     } // else already know about it (OK or warned)
                 if (plainExtensions == null) plainExtensions = new HashSet<String>();
                 plainExtensions.add(extPrefix);
@@ -292,10 +293,10 @@ public final class ClasspathModule extends Module {
         String patchdir = location + "/patches/" + getCodeName().replace('.', '-').replace('/', '-');
         patches = factory.getPrefixNonModules(patchdir);
         
-        err.log("localeVariants of " + prefixURL + ": " + localeVariants);
-        err.log("plainExtensions of " + prefixURL + ": " + plainExtensions);
-        err.log("localeExtensions of " + prefixURL + ": " + localeExtensions);
-        err.log("patches of " + prefixURL + ": " + patches);
+        logger.fine("localeVariants of " + prefixURL + ": " + localeVariants);
+        logger.fine("plainExtensions of " + prefixURL + ": " + plainExtensions);
+        logger.fine("localeExtensions of " + prefixURL + ": " + localeExtensions);
+        logger.fine("patches of " + prefixURL + ": " + patches);
         if (patches != null) {
             Iterator it = patches.iterator();
             while (it.hasNext()) {
@@ -336,7 +337,7 @@ public final class ClasspathModule extends Module {
         Attributes attr = manifest.getMainAttributes();
         String locbundle = attr.getValue("OpenIDE-Module-Localizing-Bundle"); // NOI18N
         if (locbundle != null) {
-            err.log("Localized props in " + locbundle + " for " + attr.getValue("OpenIDE-Module"));
+            logger.fine("Localized props in " + locbundle + " for " + attr.getValue("OpenIDE-Module"));
             try {
                 int idx = locbundle.lastIndexOf('.'); // NOI18N
                 String name, ext;
@@ -359,7 +360,7 @@ public final class ClasspathModule extends Module {
                     String resource = name + suffix + ext;
                     InputStream is = classloader.getResourceAsStream(resource);
                     if (is != null) {
-                        err.log("Found " + resource);
+                        logger.fine("Found " + resource);
                         if (localizedProps == null) {
                             localizedProps = new Properties();
                         }
@@ -371,7 +372,7 @@ public final class ClasspathModule extends Module {
                 }
             } catch (IOException ioe) {
                 InvalidException e = new InvalidException(ioe.toString());
-                err.annotate(e, ioe);
+                e.initCause(ioe);
                 throw e;
             }
         }
@@ -405,7 +406,7 @@ public final class ClasspathModule extends Module {
      * The parents should already have had their classloaders initialized.
      */
     public void classLoaderUp(Set<Module> parents) throws IOException {
-        err.log("classLoaderUp on " + this + " with parents " + parents);
+        logger.fine("classLoaderUp on " + this + " with parents " + parents);
         // Find classloaders for dependent modules and parent to them.
         List<ClassLoader> loaders = new ArrayList<ClassLoader>(parents.size() + 1);
         loaders.add(factory.getClasspathDelegateClassLoader(getManager(), delegate));
@@ -435,7 +436,7 @@ public final class ClasspathModule extends Module {
             }
             ClassLoader l = parent.getClassLoader();
             if (parent.isFixed() && loaders.contains(l)) {
-                err.log("#24996: skipping duplicate classloader from " + parent);
+                logger.fine("#24996: skipping duplicate classloader from " + parent);
                 continue;
             }
             if (l == delegate) {
@@ -466,7 +467,7 @@ public final class ClasspathModule extends Module {
         } catch (IllegalArgumentException iae) {
             // Should not happen, but just in case.
             IOException ioe = new IOException(iae.toString());
-            err.annotate(ioe, iae);
+            ioe.initCause(iae);
             throw ioe;
         }
         //oldClassLoaders.add(classloader);
@@ -497,7 +498,7 @@ public final class ClasspathModule extends Module {
             ((ProxyClassLoader)classloader).destroy();
         }
         classloader = null;
-        err.log("classLoaderDown on " + this + ": releaseCount=" + releaseCount + " released=" + released);
+        logger.fine("classLoaderDown on " + this + ": releaseCount=" + releaseCount + " released=" + released);
         released = false;
 
     }
@@ -506,10 +507,10 @@ public final class ClasspathModule extends Module {
         if (isEnabled()) throw new IllegalStateException("cleanup on enabled module: " + this); // NOI18N
         if (classloader != null) throw new IllegalStateException("cleanup on module with classloader: " + this); // NOI18N
         if (! released) {
-            err.log("Warning: not all resources associated with module " + this + " were successfully released.");
+            logger.fine("Warning: not all resources associated with module " + this + " were successfully released.");
             released = true;
         } else {
-            err.log ("All resources associated with module " + this + " were successfully released.");
+            logger.fine ("All resources associated with module " + this + " were successfully released.");
         }
     }
     
@@ -604,12 +605,12 @@ public final class ClasspathModule extends Module {
         @Override
         protected void finalize() throws Throwable {
             super.finalize();
-            err.log("Finalize for " + this + ": rc=" + rc + " releaseCount=" + releaseCount + " released=" + released); // NOI18N
+            logger.fine("Finalize for " + this + ": rc=" + rc + " releaseCount=" + releaseCount + " released=" + released); // NOI18N
             if (rc == releaseCount) {
                 // Hurrah! release() worked.
                 released = true;
             } else {
-                err.log("Now resources for " + getCodeNameBase() + " have been released."); // NOI18N
+                logger.fine("Now resources for " + getCodeNameBase() + " have been released."); // NOI18N
             }
         }
     }
