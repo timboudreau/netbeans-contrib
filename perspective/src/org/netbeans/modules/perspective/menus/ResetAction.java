@@ -14,11 +14,11 @@ public final class ResetAction extends CallableSystemAction {
     private static final long serialVersionUID = 1l;
 
     public void performAction() {
-        NotifyDescriptor d = new NotifyDescriptor.Confirmation("Do you want to reset Perspectives ?", "Reset Perspectives", NotifyDescriptor.OK_CANCEL_OPTION);
+        NotifyDescriptor d = new NotifyDescriptor.Confirmation(NbBundle.getMessage(ResetAction.class,"Reset_Comfrom_Massage"), NbBundle.getMessage(ResetAction.class,"Reset_Perspectives"), NotifyDescriptor.OK_CANCEL_OPTION);
         if (DialogDisplayer.getDefault().notify(d) == NotifyDescriptor.OK_OPTION) {
             try {
                 MainPaser.getInstance().reset();
-                NotifyDescriptor information = new NotifyDescriptor.Message("Please invoke \"Window ->Reset Windows\" to compleate Reset", NotifyDescriptor.INFORMATION_MESSAGE);
+                NotifyDescriptor information = new NotifyDescriptor.Message(NbBundle.getMessage(ResetAction.class,"Window_Reset_Massage"), NotifyDescriptor.INFORMATION_MESSAGE);
                 DialogDisplayer.getDefault().notify(information);
             } catch (IOException ex) {
                 Exceptions.printStackTrace(ex);
@@ -27,13 +27,12 @@ public final class ResetAction extends CallableSystemAction {
     }
 
     public String getName() {
-        return NbBundle.getMessage(ResetAction.class, "CTL_ResetAction");
+        return NbBundle.getMessage(ResetAction.class,"Reset_Perspectives");
     }
 
     @Override
     protected void initialize() {
         super.initialize();
-        // see org.openide.util.actions.SystemAction.iconResource() javadoc for more details
         putValue("noIconInMenu", Boolean.TRUE);
     }
 

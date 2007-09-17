@@ -15,8 +15,7 @@
  * The Original Software is NetBeans. The Initial Developer of the Original
  * Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
  * Microsystems, Inc. All Rights Reserved.
- */
-/*
+ *//*
  * CurrentMultiMode.java
  *
  * Created on Aug 5, 2007, 9:18:44 AM
@@ -45,8 +44,6 @@ public class CurrentPerspectiveReader {
         genarate(perspective);
     }
 
-
-
     private void genarate(Perspective perspective) {
         Set<? extends Mode> modes = windowManager.getModes();
         for (Mode mode : modes) {
@@ -54,25 +51,19 @@ public class CurrentPerspectiveReader {
                 continue;
             }
             //hack
-            if (mode.getName().startsWith("anonymousMode")) {//NOI18n
+            if (mode.getName().startsWith("anonymousMode")) {//NOI18N
+                
                 if (mode.getTopComponents().length == 1 && mode.getTopComponents()[0] instanceof ModeHackTopComponent) {
                     continue;
                 }
-                boolean hacked = false;
-                for (TopComponent tc : mode.getTopComponents()) {
-                    if (tc instanceof ModeHackTopComponent) {
-                        hacked = true;
-                        break;
-                    }
-                }
-                if (!hacked) {
-                    mode.dockInto(new ModeHackTopComponent());
-                }
+
+                mode.dockInto(new ModeHackTopComponent());
             }
             TopComponent[] topComponents = mode.getTopComponents();
             for (TopComponent tc : topComponents) {
                 String tcID = windowManager.findTopComponentID(tc);
-                if (!(tcID.startsWith("ModeHackTopComponent")) ){//NOI18n
+                if (!(tcID.startsWith("ModeHackTopComponent"))) {//NOI18N
+                    
                     perspective.addComponent(tcID, mode.getName(), tc.isOpened());
                 }
             }

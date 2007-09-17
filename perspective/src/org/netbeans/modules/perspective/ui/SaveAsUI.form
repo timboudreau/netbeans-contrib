@@ -135,7 +135,9 @@
     </Container>
     <Component class="javax.swing.JLabel" name="lblName">
       <Properties>
-        <Property name="text" type="java.lang.String" value="Name :"/>
+        <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
+          <ResourceString bundle="org/netbeans/modules/perspective/ui/Bundle.properties" key="Name" replaceFormat="NbBundle.getMessage(SaveAsUI.class,&quot;{key}&quot;)"/>
+        </Property>
       </Properties>
     </Component>
     <Component class="javax.swing.JTextField" name="txtName">
@@ -145,13 +147,15 @@
     </Component>
     <Component class="javax.swing.JLabel" name="lblDescription">
       <Properties>
-        <Property name="text" type="java.lang.String" value="Enter or select a name to save the Perspective as"/>
+        <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
+          <ResourceString bundle="org/netbeans/modules/perspective/ui/Bundle.properties" key="Saveas_Header" replaceFormat="NbBundle.getMessage(SaveAsUI.class,&quot;{key}&quot;)"/>
+        </Property>
       </Properties>
     </Component>
     <Component class="javax.swing.JLabel" name="lblPosition">
       <Properties>
         <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
-          <ResourceString bundle="org/netbeans/modules/perspective/ui/Bundle.properties" key="SaveAsUI.lblPosition.text" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
+          <ResourceString bundle="org/netbeans/modules/perspective/ui/Bundle.properties" key="SaveAsUI.lblPosition.text" replaceFormat="NbBundle.getMessage(SaveAsUI.class,&quot;{key}&quot;)"/>
         </Property>
       </Properties>
     </Component>

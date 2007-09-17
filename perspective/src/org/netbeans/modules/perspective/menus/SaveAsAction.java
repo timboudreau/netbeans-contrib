@@ -12,14 +12,14 @@ private static final long serialVersionUID = 1l;
     }
 
     public String getName() {
-        return NbBundle.getMessage(SaveAsAction.class, "CTL_SaveAsAction");
+        return NbBundle.getMessage(ResetAction.class,"Save_Perspective_as");
     }
 
     @Override
     protected void initialize() {
         super.initialize();
         // see org.openide.util.actions.SystemAction.iconResource() javadoc for more details
-        putValue("noIconInMenu", Boolean.TRUE);
+        putValue("noIconInMenu", Boolean.TRUE);//NOI18N
     }
 
     public HelpCtx getHelpCtx() {

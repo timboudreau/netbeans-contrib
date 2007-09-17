@@ -36,7 +36,7 @@ import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
 import javax.swing.event.PopupMenuEvent;
 import javax.swing.event.PopupMenuListener;
-import org.netbeans.modules.perspective.utils.PerspectiveManager;
+import org.netbeans.modules.perspective.utils.PerspectiveManagerImpl;
 import org.netbeans.modules.perspective.actions.SwitchAction;
 import org.netbeans.modules.perspective.views.Perspective;
 
@@ -96,7 +96,7 @@ public class ToolbarStyleSwitchUI extends JToolBar {
     }
 
     public void showPerspectiveList() {
-        List<Perspective> perspectives = PerspectiveManager.getInstance().getPerspectives();
+        List<Perspective> perspectives = PerspectiveManagerImpl.getInstance().getPerspectives();
         menu.removeAll();
 
         for (Perspective perspective : perspectives) {
@@ -154,6 +154,11 @@ public class ToolbarStyleSwitchUI extends JToolBar {
     public void setSelected(Perspective selected) {
         previous = this.selected;
         this.selected = selected;
+        
+    }
+
+    public void reset() {
+        previous = null;
     }
 
     public void loadQuickPerspectives() {
@@ -166,7 +171,7 @@ public class ToolbarStyleSwitchUI extends JToolBar {
 
         if (previous == null || selected.equals(previous)) {
             int index = selected.getIndex();
-            List<Perspective> perspectives = PerspectiveManager.getInstance().getPerspectives();
+            List<Perspective> perspectives = PerspectiveManagerImpl.getInstance().getPerspectives();
             if (index < (perspectives.size() - 1)) {
                 next = perspectives.get(++index);
             } else {
@@ -189,7 +194,7 @@ public class ToolbarStyleSwitchUI extends JToolBar {
     private class SwitchListAction extends AbstractAction {
 
         public SwitchListAction() {
-            putValue(SMALL_ICON, new javax.swing.ImageIcon(getClass().getResource("/org/netbeans/modules/perspective/resources/multiView.png")));
+            putValue(SMALL_ICON, new javax.swing.ImageIcon(getClass().getResource(java.util.ResourceBundle.getBundle("org/netbeans/modules/perspective/ui/Bundle").getString("StatusBar_Icon"))));
         }
 
         public void actionPerformed(ActionEvent e) {

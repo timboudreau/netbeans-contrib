@@ -30,12 +30,13 @@ import javax.swing.AbstractAction;
 import javax.swing.DefaultListModel;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
-import org.netbeans.modules.perspective.utils.PerspectiveManager;
+import org.netbeans.modules.perspective.utils.PerspectiveManagerImpl;
 import org.netbeans.modules.perspective.persistence.PerspectivePreferences;
 import org.netbeans.modules.perspective.utils.CurrentPerspectiveReader;
 import org.netbeans.modules.perspective.views.Perspective;
 import org.openide.DialogDisplayer;
 import org.openide.NotifyDescriptor;
+import org.openide.util.NbBundle;
 import org.openide.windows.WindowManager;
 
 /**
@@ -46,7 +47,7 @@ public class SaveAsUI extends javax.swing.JDialog {
 
     private static final long serialVersionUID = 1l;
     private DefaultListModel defaultListModel = new DefaultListModel();
-    private static String Here = "HERE";
+    private static String Here = java.util.ResourceBundle.getBundle("org/netbeans/modules/perspective/ui/Bundle").getString("HERE");
     private Perspective selected;
 
     /** Creates new form SaveAsUI */
@@ -87,14 +88,14 @@ public class SaveAsUI extends javax.swing.JDialog {
 
     private void loadPerspectives() {
         defaultListModel.clear();
-        List<Perspective> perspectives = PerspectiveManager.getInstance().getPerspectives();
+        List<Perspective> perspectives = PerspectiveManagerImpl.getInstance().getPerspectives();
         for (Perspective perspective : perspectives) {
             defaultListModel.addElement(perspective);
         }
     }
 
     private void loadcmbPerspectives() {
-        List<Perspective> perspectives = PerspectiveManager.getInstance().getPerspectives();
+        List<Perspective> perspectives = PerspectiveManagerImpl.getInstance().getPerspectives();
         cmbPosition.removeAllItems();
         if (perspectives.size() == 0) {
             cmbPosition.addItem(Here);
@@ -149,7 +150,7 @@ public class SaveAsUI extends javax.swing.JDialog {
         modeList.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
         jScrollPane1.setViewportView(modeList);
 
-        lblName.setText("Name :");
+        lblName.setText(NbBundle.getMessage(SaveAsUI.class,"Name")); // NOI18N
 
         txtName.addKeyListener(new java.awt.event.KeyAdapter() {
             public void keyReleased(java.awt.event.KeyEvent evt) {
@@ -157,9 +158,9 @@ public class SaveAsUI extends javax.swing.JDialog {
             }
         });
 
-        lblDescription.setText("Enter or select a name to save the Perspective as");
+        lblDescription.setText(NbBundle.getMessage(SaveAsUI.class,"Saveas_Header")); // NOI18N
 
-        lblPosition.setText(org.openide.util.NbBundle.getMessage(SaveAsUI.class, "SaveAsUI.lblPosition.text")); // NOI18N
+        lblPosition.setText(NbBundle.getMessage(SaveAsUI.class,"SaveAsUI.lblPosition.text")); // NOI18N
 
         after.setText(org.openide.util.NbBundle.getMessage(SaveAsUI.class, "SaveAsUI.after.text")); // NOI18N
         after.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
@@ -255,7 +256,7 @@ public class SaveAsUI extends javax.swing.JDialog {
         Perspective mode;
 
         public CancelAction() {
-            putValue(NAME, "Cancel");
+            putValue(NAME, java.util.ResourceBundle.getBundle("org/netbeans/modules/perspective/ui/Bundle").getString("Cancel"));
         }
 
         public void actionPerformed(ActionEvent e) {
@@ -273,7 +274,7 @@ public class SaveAsUI extends javax.swing.JDialog {
 
     private void validateExist() {
         String id = txtName.getText();
-        Perspective perspective = PerspectiveManager.getInstance().findPerspectiveByAlias(id);
+        Perspective perspective = PerspectiveManagerImpl.getInstance().findPerspectiveByAlias(id);
         if (perspective != null) {
             modeList.setSelectedValue(perspective, true);
         } else {
@@ -285,18 +286,18 @@ public class SaveAsUI extends javax.swing.JDialog {
     private void saveAsMutilMode() {
         Perspective perspective = (Perspective) modeList.getSelectedValue();
         if (perspective != null) {
-            NotifyDescriptor d = new NotifyDescriptor.Confirmation("'"+perspective.getAlias()+ "' already exists.Do you want\n overwrite? ", "Overwrite MultiMode View",
+            NotifyDescriptor d = new NotifyDescriptor.Confirmation("'"+perspective.getAlias()+ java.util.ResourceBundle.getBundle("org/netbeans/modules/perspective/ui/Bundle").getString("OverWrite_Massage"), java.util.ResourceBundle.getBundle("org/netbeans/modules/perspective/ui/Bundle").getString("Overwrite_MultiMode_View"),
                     NotifyDescriptor.YES_NO_OPTION);
             if (DialogDisplayer.getDefault().notify(d) != NotifyDescriptor.YES_OPTION) {
                 return;
             }
-            PerspectiveManager.getInstance().deregisterPerspective(perspective);
+            PerspectiveManagerImpl.getInstance().deregisterPerspective(perspective);
             perspective.clear();
         }else{
          
          perspective = new Perspective(PerspectivePreferences.getInstance().getCustomPerspectiveName(),
                  txtName.getText().trim());
-         Perspective selectedPerspective=PerspectiveManager.getInstance().getSelected();
+         Perspective selectedPerspective=PerspectiveManagerImpl.getInstance().getSelected();
          perspective.setImagePath(selectedPerspective.getImagePath());
         }
         
@@ -304,8 +305,8 @@ public class SaveAsUI extends javax.swing.JDialog {
         new CurrentPerspectiveReader(perspective);
         perspective.setBeforeSeparator(before.isSelected());
         perspective.setAfterSeparator(after.isSelected());
-        PerspectiveManager.getInstance().registerPerspective(cmbPosition.getSelectedIndex(), perspective);
-        PerspectiveManager.getInstance().setSelected(perspective);
+        PerspectiveManagerImpl.getInstance().registerPerspective(cmbPosition.getSelectedIndex(), perspective);
+        PerspectiveManagerImpl.getInstance().setSelected(perspective);
         ToolbarStyleSwitchUI.getInstance().loadQuickPerspectives();
         dispose();
     }
@@ -316,7 +317,7 @@ public class SaveAsUI extends javax.swing.JDialog {
         Perspective mode;
 
         public SaveAs() {
-            putValue(NAME, "OK");
+            putValue(NAME, java.util.ResourceBundle.getBundle("org/netbeans/modules/perspective/ui/Bundle").getString("OK"));
         }
 
         public void actionPerformed(ActionEvent e) {

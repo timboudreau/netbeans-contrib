@@ -64,30 +64,40 @@
         <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
           <Font name="Tahoma" size="11" style="1"/>
         </Property>
-        <Property name="text" type="java.lang.String" value="Perspective Options"/>
+        <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
+          <ResourceString bundle="org/netbeans/modules/perspective/options/Bundle.properties" key="Perspective_Options" replaceFormat="NbBundle.getMessage(PerspectivePanel.class,&quot;{key}&quot;)"/>
+        </Property>
       </Properties>
     </Component>
     <Component class="javax.swing.JCheckBox" name="chCloseOpened">
       <Properties>
         <Property name="selected" type="boolean" value="true"/>
-        <Property name="text" type="java.lang.String" value="Close all Views before open new Perspective"/>
+        <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
+          <ResourceString bundle="org/netbeans/modules/perspective/options/Bundle.properties" key="Close_all_Views_before_open_new_Perspective" replaceFormat="NbBundle.getMessage(PerspectivePanel.class,&quot;{key}&quot;)"/>
+        </Property>
         <Property name="opaque" type="boolean" value="false"/>
       </Properties>
     </Component>
     <Component class="javax.swing.JCheckBox" name="chAddOpened">
       <Properties>
-        <Property name="text" type="java.lang.String" value="Add Open Views automaticaly to Perspective"/>
+        <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
+          <ResourceString bundle="org/netbeans/modules/perspective/options/Bundle.properties" key="Add_Open_Views_automaticaly_to_Perspective" replaceFormat="NbBundle.getMessage(PerspectivePanel.class,&quot;{key}&quot;)"/>
+        </Property>
         <Property name="opaque" type="boolean" value="false"/>
       </Properties>
     </Component>
     <Component class="javax.swing.JLabel" name="lblClaoseOpenedDescription">
       <Properties>
-        <Property name="text" type="java.lang.String" value="When switching Perspective,  close opened Views before switch to  new Perspective"/>
+        <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
+          <ResourceString bundle="org/netbeans/modules/perspective/options/Bundle.properties" key="When_switching_Perspective,__close_opened_Views_before_switch_to__new_Perspective" replaceFormat="NbBundle.getMessage(PerspectivePanel.class,&quot;{key}&quot;)"/>
+        </Property>
       </Properties>
     </Component>
     <Component class="javax.swing.JLabel" name="lblAddOpendDescription">
       <Properties>
-        <Property name="text" type="java.lang.String" value="Automaticaly track opened views and add to Perspective"/>
+        <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
+          <ResourceString bundle="org/netbeans/modules/perspective/options/Bundle.properties" key="Automaticaly_track_opened_views_and_add_to_Perspective" replaceFormat="NbBundle.getMessage(PerspectivePanel.class,&quot;{key}&quot;)"/>
+        </Property>
       </Properties>
     </Component>
   </SubComponents>

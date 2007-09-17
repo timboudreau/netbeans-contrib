@@ -20,7 +20,6 @@ package org.netbeans.modules.perspective.options;
 
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
-import org.netbeans.modules.perspective.utils.PerspectiveManager;
 import org.netbeans.spi.options.OptionsCategory;
 import org.netbeans.spi.options.OptionsPanelController;
 import org.openide.util.NbBundle;
@@ -33,15 +32,15 @@ public final class PerspectiveOptionsCategory extends OptionsCategory {
 
     @Override
     public Icon getIcon() {
-        return new ImageIcon(Utilities.loadImage("org/netbeans/modules/perspective/options/multi view32.png"));
+        return new ImageIcon(Utilities.loadImage(java.util.ResourceBundle.getBundle("org/netbeans/modules/perspective/options/Bundle").getString("Options_Icon")));
     }
 
     public String getCategoryName() {
-        return NbBundle.getMessage(PerspectiveManager.class, "OptionsCategory_Name_Perspective");
+        return NbBundle.getMessage(PerspectiveOptionsCategory.class, "OptionsCategory_Name_Perspective");
     }
 
     public String getTitle() {
-        return NbBundle.getMessage(PerspectiveManager.class, "OptionsCategory_Title_Perspective");
+        return NbBundle.getMessage(PerspectiveOptionsCategory.class, "OptionsCategory_Title_Perspective");
     }
 
     public OptionsPanelController create() {

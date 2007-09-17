@@ -21,6 +21,7 @@ package org.netbeans.modules.perspective.options;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import org.netbeans.modules.perspective.persistence.PerspectivePreferences;
+import org.openide.util.NbBundle;
 /**
  *
  * @author Anuradha G
@@ -61,18 +62,18 @@ final class PerspectivePanel extends javax.swing.JPanel {
         lblAddOpendDescription = new javax.swing.JLabel();
 
         lblHeader.setFont(new java.awt.Font("Tahoma", 1, 11));
-        org.openide.awt.Mnemonics.setLocalizedText(lblHeader, "Perspective Options");
+        org.openide.awt.Mnemonics.setLocalizedText(lblHeader, NbBundle.getMessage(PerspectivePanel.class,"Perspective_Options")); // NOI18N
 
         chCloseOpened.setSelected(true);
-        org.openide.awt.Mnemonics.setLocalizedText(chCloseOpened, "Close all Views before open new Perspective");
+        org.openide.awt.Mnemonics.setLocalizedText(chCloseOpened, NbBundle.getMessage(PerspectivePanel.class,"Close_all_Views_before_open_new_Perspective")); // NOI18N
         chCloseOpened.setOpaque(false);
 
-        org.openide.awt.Mnemonics.setLocalizedText(chAddOpened, "Add Open Views automaticaly to Perspective");
+        org.openide.awt.Mnemonics.setLocalizedText(chAddOpened, NbBundle.getMessage(PerspectivePanel.class,"Add_Open_Views_automaticaly_to_Perspective")); // NOI18N
         chAddOpened.setOpaque(false);
 
-        org.openide.awt.Mnemonics.setLocalizedText(lblClaoseOpenedDescription, "When switching Perspective,  close opened Views before switch to  new Perspective");
+        org.openide.awt.Mnemonics.setLocalizedText(lblClaoseOpenedDescription, NbBundle.getMessage(PerspectivePanel.class,"When_switching_Perspective,__close_opened_Views_before_switch_to__new_Perspective")); // NOI18N
 
-        org.openide.awt.Mnemonics.setLocalizedText(lblAddOpendDescription, "Automaticaly track opened views and add to Perspective");
+        org.openide.awt.Mnemonics.setLocalizedText(lblAddOpendDescription, NbBundle.getMessage(PerspectivePanel.class,"Automaticaly_track_opened_views_and_add_to_Perspective")); // NOI18N
 
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
         this.setLayout(layout);

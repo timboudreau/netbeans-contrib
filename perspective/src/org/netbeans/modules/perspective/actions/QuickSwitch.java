@@ -21,7 +21,7 @@ public final class QuickSwitch extends AbstractAction {
     }
 
     public String getName() {
-        return NbBundle.getMessage(QuickSwitch.class, "CTL_QuickSwitch");
+        return NbBundle.getMessage(QuickSwitch.class,"Quick_Switch");
     }
 
     

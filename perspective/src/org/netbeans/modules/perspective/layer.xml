@@ -24,30 +24,28 @@
     
     <folder name="Actions">
         <folder name="Perspective">
-           <file name="org-netbeans-modules-perspective-actions-QuickSwitch.instance"/>
+            <file name="org-netbeans-modules-perspective-actions-QuickSwitch.instance"/>
             <file name="org-netbeans-modules-perspective-menus-ResetAction.instance"/>
             <file name="org-netbeans-modules-perspective-menus-SaveAsAction.instance"/>
         </folder>
     </folder>
     <folder name="Menu">
         <folder name="Perspective">
-            <attr name="org-netbeans-modules-perspective-menus-SaveAsAction.shadow/org-netbeans-modules-perspective-menus-ResetAction.shadow" boolvalue="true"/>
-            <attr name="org-netbeans-modules-perspective-menus-SaveAsAction.shadow/org-netbeans-modules-perspective-menus-separatorAfter.instance" boolvalue="true"/>
-            <attr name="org-netbeans-modules-perspective-menus-separatorAfter.instance/org-netbeans-modules-perspective-menus-ResetAction.shadow" boolvalue="true"/>
+          <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.perspective.Bundle"/>
             <attr name="position" intvalue="1150"/>
             <file name="org-netbeans-modules-perspective-menus-ResetAction.shadow">
+                <attr name="position" intvalue="300"/>
                 <attr name="originalFile" stringvalue="Actions/Perspective/org-netbeans-modules-perspective-menus-ResetAction.instance"/>
             </file>
             <file name="org-netbeans-perspective-menus-SaveAsAction.shadow">
+                <attr name="position" intvalue="100"/>
                 <attr name="originalFile" stringvalue="Actions/Perspective/org-netbeans-modules-perspective-menus-SaveAsAction.instance"/>
-            </file>
-            <file name="org-netbeans-modules-perspective-menus-separatorAfter.instance">
-                <attr name="instanceClass" stringvalue="javax.swing.JSeparator"/>
             </file>
         </folder>
     </folder>
     <folder name="OptionsDialog">
         <file name="org-netbeans-modules-perspective-options-PerspectiveOptionsCategory.instance"/>
+        <attr name="position" intvalue="800"/>
     </folder>
     <folder name="Shortcuts">
         <file name="OS-P.shadow">

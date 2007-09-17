@@ -26,7 +26,7 @@ package org.netbeans.modules.perspective.actions;
 import java.awt.event.ActionEvent;
 import javax.swing.AbstractAction;
 import org.netbeans.modules.perspective.ui.ToolbarStyleSwitchUI;
-import org.netbeans.modules.perspective.utils.ModeController;
+import org.netbeans.modules.perspective.utils.PerspectiveManagerImpl;
 import org.netbeans.modules.perspective.views.Perspective;
 
 /**
@@ -54,7 +54,7 @@ public class SwitchAction extends AbstractAction {
     }
 
     public void actionPerformed(ActionEvent e) {
-        ModeController.getInstance().switchView(perspective);
+        PerspectiveManagerImpl.getInstance().setSelected(perspective);
 
         if (fireToolbarUpdate) {
             ToolbarStyleSwitchUI.getInstance().loadQuickPerspectives();

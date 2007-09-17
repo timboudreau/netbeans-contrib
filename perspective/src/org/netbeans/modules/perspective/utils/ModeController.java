@@ -15,8 +15,7 @@
  * The Original Software is NetBeans. The Initial Developer of the Original
  * Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
  * Microsystems, Inc. All Rights Reserved.
- */
-/*
+ */ /*
  * ModeController.java
  *
  */
@@ -27,7 +26,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import org.netbeans.modules.perspective.utils.PerspectiveManager;
 import org.netbeans.modules.perspective.persistence.PerspectivePreferences;
 import org.netbeans.modules.perspective.views.Perspective;
 import org.netbeans.modules.perspective.views.View;
@@ -39,13 +37,12 @@ import org.openide.windows.WindowManager;
  *
  * @author Anuradha G
  */
-public class ModeController {
+class ModeController {
 
     private WindowManager windowManager;
     private static ModeController instance;
 
-
-    public static synchronized ModeController getInstance() {
+    static synchronized ModeController getInstance() {
         if (instance == null) {
             instance = new ModeController();
         }
@@ -75,33 +72,34 @@ public class ModeController {
             topComponent.close();
         }
     }
+    Perspective selected;
 
     public void switchView(Perspective perspective) {
-        Perspective selected=PerspectiveManager.getInstance().getSelected();
-        if(selected!=null){
+        if (perspective == null) {
+            return;
+        }
+        if (selected != null) {
             //Notify closing
             selected.notifyClosing();
-            if(PerspectivePreferences.getInstance().isTrackOpened()){
+            if (PerspectivePreferences.getInstance().isTrackOpened()) {
                 //track opened Tc to perspective
                 new OpenedViewTracker(selected);
             }
         }
         //Notify operning
         perspective.notifyOpening();
-       if(PerspectivePreferences.getInstance().isCloseOpened()){
-        //close opened TC's 
-        closeAll();
+        selected = perspective;
+        if (PerspectivePreferences.getInstance().isCloseOpened()) {
+            //close opened TC's
+            closeAll();
         }
         //begin switch
         List<View> views = perspective.getViews();
         Map<String, String> activeTCs = perspective.getActiveTCs();
         for (View view : views) {
-            dock(view.getMode(), view.getTopcomponentID(), view.isOpen(),
-                    activeTCs.containsValue(view.getTopcomponentID()));
+            dock(view.getMode(), view.getTopcomponentID(), view.isOpen(), activeTCs.containsValue(view.getTopcomponentID()));
         }
         //end switch
-        PerspectiveManager.getInstance().setSelected(perspective);
-
     }
 
     private void closeAll() {
