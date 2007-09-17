@@ -16,21 +16,43 @@
  */
 package org.netbeans.modules.cnd.syntaxerr.provider;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import org.openide.text.NbDocument;
-
 /**
- * ErrorProvider implementation
+ * A trivial ErrorInfo implementation
  * @author Vladimir Kvashin
  */
-// package-local
-class ErrorProviderImpl extends ErrorProvider {
+public class ErrorInfoImpl implements ErrorInfo {
+    
+    private String message;
+    private Severity severity;
+    private int line;
+    private int column;
 
-    public Collection<ErrorInfo> getErrors(NbDocument doc) {
-        Collection<ErrorInfo> result = new ArrayList<ErrorInfo>();
-        result.add(new ErrorInfoImpl("An error", ErrorInfoImpl.Severity.ERROR, 2));
-        result.add(new ErrorInfoImpl("A warning", ErrorInfoImpl.Severity.WARNING, 2));
-        return result;
+    public ErrorInfoImpl(String message, Severity severity, int line) {
+        this(message, severity, line, -1);
     }
+    
+    public ErrorInfoImpl(String message, Severity severity, int line, int column) {
+        this.message = message;
+        this.severity = severity;
+        this.line = line;
+        this.column = column;
+    }
+    
+    
+    public int getColumn() {
+        return column;
+    }
+
+    public int getLineNumber() {
+        return line;
+    }
+
+    public String getMessage() {
+        return message;
+    }
+
+    public Severity getSeverity() {
+        return severity;
+    }
+
 }

@@ -46,7 +46,4 @@ public class ErrorHighlighter implements PropertyChangeListener {
 //        }
         System.err.printf("ErrorHighlighter.propertyChange %s\n", evt.getPropertyName());
     }
-    
-    
-
 }
