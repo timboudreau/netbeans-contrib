@@ -18,6 +18,7 @@ package org.netbeans.modules.cnd.syntaxerr.provider;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import org.openide.loaders.DataObject;
 import org.openide.text.NbDocument;
 
 /**
@@ -27,10 +28,10 @@ import org.openide.text.NbDocument;
 // package-local
 class ErrorProviderImpl extends ErrorProvider {
 
-    public Collection<ErrorInfo> getErrors(NbDocument doc) {
+    public Collection<ErrorInfo> getErrors(DataObject dao) {
         Collection<ErrorInfo> result = new ArrayList<ErrorInfo>();
         result.add(new ErrorInfoImpl("An error", ErrorInfoImpl.Severity.ERROR, 2));
-        result.add(new ErrorInfoImpl("A warning", ErrorInfoImpl.Severity.WARNING, 2));
+        result.add(new ErrorInfoImpl("A warning", ErrorInfoImpl.Severity.WARNING, 4));
         return result;
     }
 }
