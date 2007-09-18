@@ -32,7 +32,7 @@ public final class PerspectiveOptionsCategory extends OptionsCategory {
 
     @Override
     public Icon getIcon() {
-        return new ImageIcon(Utilities.loadImage(java.util.ResourceBundle.getBundle("org/netbeans/modules/perspective/options/Bundle").getString("Options_Icon")));
+        return new ImageIcon(Utilities.loadImage(NbBundle.getMessage(PerspectiveOptionsCategory.class, "Options_Icon")));
     }
 
     public String getCategoryName() {

@@ -154,11 +154,11 @@ public class ToolbarStyleSwitchUI extends JToolBar {
     public void setSelected(Perspective selected) {
         previous = this.selected;
         this.selected = selected;
-        
     }
 
     public void reset() {
         previous = null;
+        selected = null;
     }
 
     public void loadQuickPerspectives() {
