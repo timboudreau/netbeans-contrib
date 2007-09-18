@@ -28,6 +28,7 @@ import javax.swing.text.Document;
 import javax.swing.text.Position;
 import javax.swing.text.StyledDocument;
 import org.netbeans.editor.BaseDocument;
+import org.netbeans.modules.cnd.syntaxerr.Flags;
 import org.netbeans.modules.cnd.syntaxerr.provider.ErrorInfo;
 import org.netbeans.modules.cnd.syntaxerr.provider.ErrorProvider;
 import org.openide.cookies.EditorCookie;
@@ -138,17 +139,18 @@ public class ErrorHighlighter implements PropertyChangeListener, DocumentListene
 
 	if (TopComponent.Registry.PROP_CURRENT_NODES.equals(evt.getPropertyName())) {
             Node[] nodes = TopComponent.getRegistry().getCurrentNodes();
-	    for (int i = 0; i < nodes.length; i++) {
-		Node node = nodes[i];
-		EditorCookie editor = node.getLookup().lookup(EditorCookie.class);
-		if( editor != null ) {
-		    DataObject dao = node.getLookup().lookup(DataObject.class);
-		    if( dao != null ) {
-                        onActivated(dao, editor);
-		    }
-		}
+	    if( nodes != null ) {
+                for (int i = 0; i < nodes.length; i++) {
+                    Node node = nodes[i];
+                    EditorCookie editor = node.getLookup().lookup(EditorCookie.class);
+                    if( editor != null ) {
+                        DataObject dao = node.getLookup().lookup(DataObject.class);
+                        if( dao != null ) {
+                            onActivated(dao, editor);
+                        }
+                    }
+                }
 	    }
-
         }
 	else if(TopComponent.Registry.PROP_OPENED.equals(evt.getPropertyName())) {
             // TODO: process closure; remove doc listener
@@ -190,8 +192,10 @@ public class ErrorHighlighter implements PropertyChangeListener, DocumentListene
     }
 
     private void scheduleHighlighting(final FileInfo info) {
+	if( Flags.TRACE ) System.err.printf("Schedulling highlighting\n");
 	Runnable r = new Runnable() {
 	    public void run() {
+		if( Flags.TRACE ) System.err.printf("Runnig highlighting task\n");
 		 Collection<ErrorInfo> errors = ErrorProvider.getDefault().getErrors(info.getDao());
 		 info.setAnnotations(errors);
 
