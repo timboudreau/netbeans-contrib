@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE filesystem PUBLIC "-//NetBeans//DTD Filesystem 1.1//EN" "http://www.netbeans.org/dtds/filesystem-1_1.dtd">
+<filesystem>
+    <folder name="Templates">
+        <folder name="Project">
+            <folder name="Samples">
+                <folder name="Web">
+                    <folder name="VisualJsf">
+                        <attr name="position" intvalue="500" />
+                        <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.visualweb.samples.postrel.Bundle"/>
+                        <attr name="instantiatingWizardURL" urlvalue="nbresloc:/org/netbeans/modules/visualweb/samples/postrel/descriptions/webSamplesCategory.html"/>
+                        <file name="CurrencyTrader" url="CurrencyTrader.zip">
+                           <attr name="template" boolvalue="true"/>
+                           <attr name="templateCategory" stringvalue="web-types"/>
+                           <attr name="position" intvalue="1100"/>
+                           <attr name="instantiatingWizardURL" urlvalue="nbresloc:/org/netbeans/modules/visualweb/samples/postrel/descriptions/CurrencyTrader.html"/>
+                           <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.visualweb.samples.postrel.Bundle"/>
+                           <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/visualweb/samples/postrel/ui/resources/webProjectIcon.gif"/>
+                           <attr name="instantiatingIterator" methodvalue="org.netbeans.modules.visualweb.samples.bundled.wizard.SamplesWebWizardIterator.createIterator"/>
+                        </file>
+                    </folder>
+                </folder>
+            </folder>
+        </folder>
+    </folder>
+</filesystem>
+
