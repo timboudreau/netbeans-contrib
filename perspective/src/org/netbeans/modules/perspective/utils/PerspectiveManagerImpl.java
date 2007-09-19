@@ -85,7 +85,8 @@ public class PerspectiveManagerImpl extends PerspectiveManager{
     public void deregisterPerspective(Perspective perspective) {
         perspectives.remove(perspective);
         arrangeIndexs();
-        
+        ToolbarStyleSwitchUI.getInstance().reset();
+        ToolbarStyleSwitchUI.getInstance().loadQuickPerspectives();
     }
 
 
