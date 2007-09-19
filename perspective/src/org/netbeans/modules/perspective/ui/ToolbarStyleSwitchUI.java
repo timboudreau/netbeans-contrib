@@ -39,6 +39,7 @@ import javax.swing.event.PopupMenuListener;
 import org.netbeans.modules.perspective.utils.PerspectiveManagerImpl;
 import org.netbeans.modules.perspective.actions.SwitchAction;
 import org.netbeans.modules.perspective.views.Perspective;
+import org.openide.util.Utilities;
 
 /**
  *
@@ -194,7 +195,7 @@ public class ToolbarStyleSwitchUI extends JToolBar {
     private class SwitchListAction extends AbstractAction {
 
         public SwitchListAction() {
-            putValue(SMALL_ICON, new javax.swing.ImageIcon(getClass().getResource(java.util.ResourceBundle.getBundle("org/netbeans/modules/perspective/ui/Bundle").getString("StatusBar_Icon"))));
+            putValue(SMALL_ICON, new javax.swing.ImageIcon(Utilities.loadImage("org/netbeans/modules/perspective/resources/multiView.png",true)));
         }
 
         public void actionPerformed(ActionEvent e) {

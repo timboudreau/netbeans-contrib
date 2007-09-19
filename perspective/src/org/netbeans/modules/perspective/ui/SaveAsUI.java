@@ -47,7 +47,7 @@ public class SaveAsUI extends javax.swing.JDialog {
 
     private static final long serialVersionUID = 1l;
     private DefaultListModel defaultListModel = new DefaultListModel();
-    private static String Here = java.util.ResourceBundle.getBundle("org/netbeans/modules/perspective/ui/Bundle").getString("HERE");
+    private static String Here = NbBundle.getMessage(SaveAsUI.class,"HERE");
     private Perspective selected;
 
     /** Creates new form SaveAsUI */
@@ -256,7 +256,7 @@ public class SaveAsUI extends javax.swing.JDialog {
         Perspective mode;
 
         public CancelAction() {
-            putValue(NAME, java.util.ResourceBundle.getBundle("org/netbeans/modules/perspective/ui/Bundle").getString("Cancel"));
+            putValue(NAME, NbBundle.getMessage(SaveAsUI.class,"Cancel"));
         }
 
         public void actionPerformed(ActionEvent e) {
@@ -317,7 +317,7 @@ public class SaveAsUI extends javax.swing.JDialog {
         Perspective mode;
 
         public SaveAs() {
-            putValue(NAME, java.util.ResourceBundle.getBundle("org/netbeans/modules/perspective/ui/Bundle").getString("OK"));
+            putValue(NAME, NbBundle.getMessage(SaveAsUI.class,"OK"));
         }
 
         public void actionPerformed(ActionEvent e) {

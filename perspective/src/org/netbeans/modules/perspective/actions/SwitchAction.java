@@ -28,6 +28,7 @@ import javax.swing.AbstractAction;
 import org.netbeans.modules.perspective.ui.ToolbarStyleSwitchUI;
 import org.netbeans.modules.perspective.utils.PerspectiveManagerImpl;
 import org.netbeans.modules.perspective.views.Perspective;
+import org.openide.util.Utilities;
 
 /**
  *
@@ -43,7 +44,7 @@ public class SwitchAction extends AbstractAction {
         putValue(NAME, perspective.getAlias());
         String path = perspective.getImagePath();
         if (path != null) {
-            putValue(SMALL_ICON, new javax.swing.ImageIcon(getClass().getResource(path)));
+            putValue(SMALL_ICON, new javax.swing.ImageIcon(Utilities.loadImage(path,true)));
         }
         this.perspective = perspective;
     }
