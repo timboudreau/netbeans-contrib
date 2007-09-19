@@ -69,55 +69,53 @@ class ErrorProviderImpl extends ErrorProvider {
             File tmpFile = File.createTempFile(fo.getName(), "." + fo.getExt(), tmpDir);
             doc.write(new FileWriter(tmpFile), 0, doc.getLength());
             // TODO: set correct options
-            String command = compiler + ' ' + tmpFile.getAbsolutePath();
-            if( Flags.TRACE ) System.err.printf("Running %s\n", command);
-            Process compilerProcess = Runtime.getRuntime().exec(command);
+            String command = compiler + " -c -o /dev/null -I . " + tmpFile.getAbsolutePath();
+            if( Flags.TRACE ) System.err.printf("RUNNING %s\n", command);
+            Process compilerProcess = Runtime.getRuntime().exec(command, null, FileUtil.toFile(fo.getParent()));
             InputStream stream = compilerProcess.getErrorStream();
-            parseCompilerOutput(stream, result);
+            parseCompilerOutput(stream, tmpFile.getAbsolutePath(), result);
             stream.close();
-            tmpFile.delete();
+            if( Flags.CLEAN_TMP ) {
+                tmpFile.delete();
+            }
             return result;
         }
         return Collections.emptyList();
     }
 
     // FIXUP: a temporary implementation, just to try how it looks like
-    private void parseCompilerOutput(InputStream stream, Collection<ErrorInfo> errors) throws IOException {
+    private void parseCompilerOutput(InputStream stream, String interestingFileName, Collection<ErrorInfo> errors) throws IOException {
         BufferedReader reader = new BufferedReader(new InputStreamReader(stream));
         for( String line = reader.readLine(); line != null; line = reader.readLine() ) {
-            parseCompilerOutputLine(line, errors);
+            parseCompilerOutputLine(line, interestingFileName, errors);
         }
     }
     
-    private void parseCompilerOutputLine(String line, Collection<ErrorInfo> errors) {
-        if( Flags.TRACE ) System.err.printf("\t", line);
-        String errWarn = ": error: ";
-        int pos = line.indexOf(errWarn);
+    private void parseCompilerOutputLine(String line, String interestingFileName, Collection<ErrorInfo> errors) {
+        if( Flags.TRACE ) System.err.printf("\tPARSING: \t%s\n", line);
+        findErrorOrWarning(line, ": error: ", true, interestingFileName, errors);
+        findErrorOrWarning(line, ": warning: ", true, interestingFileName, errors);
+    }
+    
+    private void findErrorOrWarning(String line, String keyword, boolean error, String interestingFileName, Collection<ErrorInfo> errors) {
+        int pos = line.indexOf(keyword);
         if( pos > 0 ) {
-            addErrorInfo(line, pos, pos + errWarn.length(), true, errors);
-        }
-        else {
-            errWarn = ": warning: ";
-            pos = line.indexOf(errWarn);
-            if( pos > 0 ) {
-                addErrorInfo(line, pos, pos + errWarn.length(), false, errors);
+            int beforeErrPos = pos;
+            int afterErrPos = pos + keyword.length();
+            int fileEndPos = line.indexOf(':');
+            if( fileEndPos > 0 ) {
+                String fileName = line.substring(0, fileEndPos);
+                if( fileName.equals(interestingFileName)) {
+                    String strLineNo = line.substring(fileEndPos+1, beforeErrPos);
+                    int lineNo = Integer.parseInt(strLineNo);
+                    String message = line.substring(afterErrPos);
+                    if( Flags.TRACE ) System.err.printf("\t\tFILE: %s LINE: %8d message: %s\n", fileName, lineNo, message);
+                    errors.add(new ErrorInfoImpl(message, error, lineNo));
+                }
             }
         }
     }
 
-    private void addErrorInfo(String line, int beforeErrPos, int afterErrPos, boolean error, Collection<ErrorInfo> errors) {
-        int pos = line.indexOf(':');
-        if( pos > 0 ) {
-            String fileName = line.substring(0, pos);
-            String strLineNo = line.substring(pos+1, beforeErrPos);
-            int lineNo = Integer.parseInt(strLineNo);
-            String message = line.substring(afterErrPos);
-            if( Flags.TRACE ) System.err.printf("\t\tFILE: %s LINE: %8d message: %s\n", fileName, lineNo, message);
-            errors.add(new ErrorInfoImpl(message, error, lineNo));
-        }
-    }
-    
-    
     // FIXUP: a temporary implementation
     private String getCompiler(DataObject dao) {
         String baseName = dao.getPrimaryFile().getMIMEType().endsWith("/x-c++") ? "g++" : "gcc";

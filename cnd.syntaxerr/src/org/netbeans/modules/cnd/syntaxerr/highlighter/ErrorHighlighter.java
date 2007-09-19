@@ -18,15 +18,12 @@ package org.netbeans.modules.cnd.syntaxerr.highlighter;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.text.Document;
-import javax.swing.text.Position;
-import javax.swing.text.StyledDocument;
 import org.netbeans.editor.BaseDocument;
 import org.netbeans.modules.cnd.syntaxerr.Flags;
 import org.netbeans.modules.cnd.syntaxerr.provider.ErrorInfo;
@@ -34,8 +31,6 @@ import org.netbeans.modules.cnd.syntaxerr.provider.ErrorProvider;
 import org.openide.cookies.EditorCookie;
 import org.openide.loaders.DataObject;
 import org.openide.nodes.Node;
-import org.openide.text.Annotation;
-import org.openide.text.NbDocument;
 import org.openide.util.RequestProcessor;
 import org.openide.windows.TopComponent;
 
@@ -48,13 +43,16 @@ public class ErrorHighlighter implements PropertyChangeListener, DocumentListene
     private Map<Document, FileInfo> infoMap = new HashMap<Document, FileInfo>();
     
     private RequestProcessor processor = new RequestProcessor("C/C++ Syntax Error Highlighting", 1); // NOI18N
+    RequestProcessor.Task task;
     
     private static final ErrorHighlighter instance = new ErrorHighlighter();
     
     public static final int delay = Integer.getInteger("cnd.synterr.delay", 2000);
-    
     public static final ErrorHighlighter instance() {
         return instance;
+    }
+
+    private ErrorHighlighter() {
     }
     
     public void startup() {
@@ -153,7 +151,10 @@ public class ErrorHighlighter implements PropertyChangeListener, DocumentListene
 
 	    }
 	};
-	RequestProcessor.Task task = processor.create(r, true);
+        if( task != null ) {
+            task.cancel();
+        }
+	task = processor.create(r, true);
 	task.schedule(delay);
     }
 }
