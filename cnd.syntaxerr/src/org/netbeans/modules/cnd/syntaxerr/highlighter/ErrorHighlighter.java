@@ -45,58 +45,6 @@ import org.openide.windows.TopComponent;
  */
 public class ErrorHighlighter implements PropertyChangeListener, DocumentListener {
     
-    private static class FileInfo {
-	
-	private boolean upToDate = false;
-	private boolean hasErrors = false;
-	private boolean hasWarnings = false;
-	
-	private DataObject dao;
-	private BaseDocument doc;
-	
-	private Collection<Annotation> annotations = new ArrayList<Annotation>();
-	
-	public FileInfo(DataObject dao, BaseDocument doc) {
-	    this.dao = dao;
-	    this.doc = doc;
-	}
-	
-	
-	private void addAnnotation(ErrorInfo info) {
-	    Annotation annotation = new AnnotationImpl(info);
-	    if( info.getSeverity() == ErrorInfo.Severity.ERROR ) {
-		hasErrors = true;
-	    }
-	    else if( info.getSeverity() == ErrorInfo.Severity.WARNING ) {
-		hasWarnings = true;
-	    }
-	    annotations.add(annotation);
-	    int line = info.getLineNumber();
-	    final int offset = NbDocument.findLineOffset((StyledDocument) doc, line);
-            Position pos = new Position() {
-                public int getOffset() {
-                    return offset;
-                }
-
-            };
-            NbDocument.addAnnotation((StyledDocument) doc, pos, -1, annotation);
-	}
-
-	public DataObject getDao() {
-	    return dao;
-	}
-
-	private void setAnnotations(Collection<ErrorInfo> errors) {
-	    for( Annotation annotation : annotations ) {
-                NbDocument.removeAnnotation((StyledDocument)doc, annotation);
-	    }
-	    for( ErrorInfo info : errors ) {
-		addAnnotation(info);
-	    }
-	}
-	
-    }
-    
     private Map<Document, FileInfo> infoMap = new HashMap<Document, FileInfo>();
     
     private RequestProcessor processor = new RequestProcessor("C/C++ Syntax Error Highlighting", 1); // NOI18N
@@ -111,6 +59,7 @@ public class ErrorHighlighter implements PropertyChangeListener, DocumentListene
     
     public void startup() {
         TopComponent.getRegistry().addPropertyChangeListener(this);
+        checkCurrentNodes();
     }
     
     public void shutdown() {
@@ -138,28 +87,31 @@ public class ErrorHighlighter implements PropertyChangeListener, DocumentListene
 	System.err.printf("ErrorHighlighter.propertyChange %s\n", evt.getPropertyName());
 
 	if (TopComponent.Registry.PROP_CURRENT_NODES.equals(evt.getPropertyName())) {
-            Node[] nodes = TopComponent.getRegistry().getCurrentNodes();
-	    if( nodes != null ) {
-                for (int i = 0; i < nodes.length; i++) {
-                    Node node = nodes[i];
-                    EditorCookie editor = node.getLookup().lookup(EditorCookie.class);
-                    if( editor != null ) {
-                        DataObject dao = node.getLookup().lookup(DataObject.class);
-                        if( dao != null ) {
-                            onActivated(dao, editor);
-                        }
-                    }
-                }
-	    }
+            checkCurrentNodes();
         }
 	else if(TopComponent.Registry.PROP_OPENED.equals(evt.getPropertyName())) {
             // TODO: process closure; remove doc listener
 	}
 	    
     }
+    
+    private void checkCurrentNodes() {
+        Node[] nodes = TopComponent.getRegistry().getCurrentNodes();
+        if (nodes != null) {
+            for (int i = 0; i < nodes.length; i++) {
+                Node node = nodes[i];
+                EditorCookie editor = node.getLookup().lookup(EditorCookie.class);
+                if (editor != null) {
+                    DataObject dao = node.getLookup().lookup(DataObject.class);
+                    if (dao != null) {
+                        onActivated(dao, editor);
+                    }
+                }
+            }
+        }
+    }
 
     public void changedUpdate(DocumentEvent e) {
-	documentChanged(e);
     }
 
     public void insertUpdate(DocumentEvent e) {
@@ -196,7 +148,7 @@ public class ErrorHighlighter implements PropertyChangeListener, DocumentListene
 	Runnable r = new Runnable() {
 	    public void run() {
 		if( Flags.TRACE ) System.err.printf("Runnig highlighting task\n");
-		 Collection<ErrorInfo> errors = ErrorProvider.getDefault().getErrors(info.getDao());
+		 Collection<ErrorInfo> errors = ErrorProvider.getDefault().getErrors(info.getDataObject(), info.getDocument());
 		 info.setAnnotations(errors);
 
 	    }

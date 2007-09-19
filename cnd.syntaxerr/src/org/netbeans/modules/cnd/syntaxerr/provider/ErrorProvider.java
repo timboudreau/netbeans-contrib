@@ -17,6 +17,7 @@
 package org.netbeans.modules.cnd.syntaxerr.provider;
 
 import java.util.Collection;
+import org.netbeans.editor.BaseDocument;
 import org.openide.loaders.DataObject;
 import org.openide.text.NbDocument;
 
@@ -32,5 +33,5 @@ public abstract class ErrorProvider {
         return DEFAULT;
     }
 
-    public abstract Collection<ErrorInfo> getErrors(DataObject dao);
+    public abstract Collection<ErrorInfo> getErrors(DataObject dao, BaseDocument document);
 }

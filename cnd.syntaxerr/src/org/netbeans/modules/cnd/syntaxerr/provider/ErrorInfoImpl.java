@@ -31,6 +31,14 @@ public class ErrorInfoImpl implements ErrorInfo {
         this(message, severity, line, -1);
     }
     
+    public ErrorInfoImpl(String message, boolean error, int line) {
+        this(message, error ? Severity.ERROR : Severity.WARNING, line, -1);
+    }
+
+    public ErrorInfoImpl(String message, boolean error, int line, int column) {
+        this(message, error ? Severity.ERROR : Severity.WARNING, line, column);
+    }
+    
     public ErrorInfoImpl(String message, Severity severity, int line, int column) {
         this.message = message;
         this.severity = severity;
