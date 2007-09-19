@@ -55,7 +55,7 @@ import org.openide.util.Utilities;
 
     @Override
     public Image getIcon(int arg0) {
-        return Utilities.loadImage(NbBundle.getMessage(LoggerNode.class,"org/netbeans/modules/logmanagement/resources/logs.gif"));
+        return Utilities.loadImage("org/netbeans/modules/logmanagement/resources/logs.gif",true);
     }
 
     @Override
