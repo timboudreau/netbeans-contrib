@@ -82,7 +82,7 @@ public class ErrorHighlighter implements PropertyChangeListener, DocumentListene
     
     public void propertyChange(PropertyChangeEvent evt) {
 
-	System.err.printf("ErrorHighlighter.propertyChange %s\n", evt.getPropertyName());
+	if( Flags.TRACE) System.err.printf("ErrorHighlighter.propertyChange %s\n", evt.getPropertyName());
 
 	if (TopComponent.Registry.PROP_CURRENT_NODES.equals(evt.getPropertyName())) {
             checkCurrentNodes();

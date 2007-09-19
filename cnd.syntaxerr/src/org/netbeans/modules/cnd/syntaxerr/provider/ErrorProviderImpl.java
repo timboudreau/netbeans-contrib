@@ -106,11 +106,20 @@ class ErrorProviderImpl extends ErrorProvider {
             if( fileEndPos > 0 ) {
                 String fileName = line.substring(0, fileEndPos);
                 if( fileName.equals(interestingFileName)) {
-                    String strLineNo = line.substring(fileEndPos+1, beforeErrPos);
-                    int lineNo = Integer.parseInt(strLineNo);
+                    String strPosition = line.substring(fileEndPos+1, beforeErrPos);
+		    int lineNum;
+		    int colNum = -1;
+		    int colonPos = strPosition.indexOf(':');
+		    if( colonPos < 0 ) {
+                        lineNum = Integer.parseInt(strPosition);
+		    }
+		    else {
+			lineNum = Integer.parseInt(strPosition.substring(0, colonPos));
+			colNum = Integer.parseInt(strPosition.substring(colonPos+1));
+		    }
                     String message = line.substring(afterErrPos);
-                    if( Flags.TRACE ) System.err.printf("\t\tFILE: %s LINE: %8d message: %s\n", fileName, lineNo, message);
-                    errors.add(new ErrorInfoImpl(message, error, lineNo));
+                    if( Flags.TRACE ) System.err.printf("\t\tFILE: %s LINE: %8d COL: %d message: %s\n", fileName, lineNum, colNum, message);
+                    errors.add(new ErrorInfoImpl(message, error, lineNum, colNum));
                 }
             }
         }
