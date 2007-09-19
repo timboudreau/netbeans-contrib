@@ -585,6 +585,9 @@ public final class ClasspathModule extends Module {
 
         @Override
         protected boolean shouldDelegateResource(String pkg, ClassLoader parent) {
+            if (parent instanceof ClasspathDelegateClassLoader) {
+                return false;
+            }
             if (!super.shouldDelegateResource(pkg, parent)) {
                 return false;
             }
