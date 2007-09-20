@@ -39,21 +39,15 @@
 		</operation>
 	</portType>
 	<binding name="Binding" type="tns:edmPortType">
-		<soap:binding style="document"
-			transport="http://schemas.xmlsoap.org/soap/http" />
 		<operation name="execute">
-			<soap:operation soapAction="execute" />
 			<input name="inputMsg">
-				<soap:body use="literal" />
 			</input>
 			<output name="outputMsg">
-				<soap:body use="literal" />
 			</output>
 		</operation>
 	</binding>
 	<service name="edmService">
 		<port name="edmPort" binding="tns:Binding">
-			<soap:address location="http://localhost:12033/edmengine" />
 		</port>
 	</service>
 	<plink:partnerLinkType name="edmPartnerLinkType">
