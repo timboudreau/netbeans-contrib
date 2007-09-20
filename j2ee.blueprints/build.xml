@@ -64,7 +64,7 @@ Microsystems, Inc. All Rights Reserved.
     <!-- Unzip blueprints-solutions-catalog.zip into build -->
     <target name="extra-solutions">
         <property name="examples" location="${build.classes.dir}/org/netbeans/modules/j2ee/blueprints"/>
-        <unzip dest="${examples}" src="../external/blueprints-solutions-catalog.zip"/>
+        <unzip dest="${examples}" src="external/blueprints-solutions-catalog.zip"/>
     </target>    
     <!-- Unzip blueprints library jars into netbeans/extra -->
     <target name="release" depends="init, extra-solutions">
