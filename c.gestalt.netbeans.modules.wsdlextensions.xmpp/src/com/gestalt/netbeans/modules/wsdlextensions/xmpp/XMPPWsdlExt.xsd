@@ -43,6 +43,7 @@
                 <xs:enumeration value="invite"/>
                 <xs:enumeration value="createGroup"/>
                 <xs:enumeration value="destroyGroup"/>
+                <xs:enumeration value="getOccupantsPresence"/>
         </xs:restriction>
     </xs:simpleType>        
     <xs:element name="input" type="xmpp:tInput">
