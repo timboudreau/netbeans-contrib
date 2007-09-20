@@ -42,12 +42,12 @@ public class ErrorHighlighter implements PropertyChangeListener, DocumentListene
     
     private Map<Document, FileInfo> infoMap = new HashMap<Document, FileInfo>();
     
-    private RequestProcessor processor = new RequestProcessor("C/C++ Syntax Error Highlighting", 1); // NOI18N
     RequestProcessor.Task task;
     
     private static final ErrorHighlighter instance = new ErrorHighlighter();
     
     public static final int delay = Integer.getInteger("cnd.synterr.delay", 2000);
+    
     public static final ErrorHighlighter instance() {
         return instance;
     }
@@ -145,16 +145,16 @@ public class ErrorHighlighter implements PropertyChangeListener, DocumentListene
 	if( Flags.TRACE ) System.err.printf("Schedulling highlighting\n");
 	Runnable r = new Runnable() {
 	    public void run() {
+                Thread.currentThread().setName("C/C++ Syntax Error Highlighting"); // NOI18N);
 		if( Flags.TRACE ) System.err.printf("Runnig highlighting task\n");
 		 Collection<ErrorInfo> errors = ErrorProvider.getDefault().getErrors(info.getDataObject(), info.getDocument());
 		 info.setAnnotations(errors);
-
 	    }
 	};
         if( task != null ) {
             task.cancel();
         }
-	task = processor.create(r, true);
+	task = RequestProcessor.getDefault().create(r, true);
 	task.schedule(delay);
     }
 }

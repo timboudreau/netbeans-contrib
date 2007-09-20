@@ -70,7 +70,7 @@ class ErrorProviderImpl extends ErrorProvider {
             doc.write(new FileWriter(tmpFile), 0, doc.getLength());
             // TODO: set correct options
             String command = compiler + " -c -o /dev/null -I . " + tmpFile.getAbsolutePath();
-            if( Flags.TRACE ) System.err.printf("RUNNING %s\n", command);
+            if( Flags.TRACE ) System.err.printf("\n\nRUNNING %s\n", command);
             Process compilerProcess = Runtime.getRuntime().exec(command, null, FileUtil.toFile(fo.getParent()));
             InputStream stream = compilerProcess.getErrorStream();
             parseCompilerOutput(stream, tmpFile.getAbsolutePath(), result);
@@ -78,6 +78,7 @@ class ErrorProviderImpl extends ErrorProvider {
             if( Flags.CLEAN_TMP ) {
                 tmpFile.delete();
             }
+            if( Flags.TRACE ) System.err.printf("DONE %s\n", command);
             return result;
         }
         return Collections.emptyList();
@@ -118,7 +119,7 @@ class ErrorProviderImpl extends ErrorProvider {
 			colNum = Integer.parseInt(strPosition.substring(colonPos+1));
 		    }
                     String message = line.substring(afterErrPos);
-                    if( Flags.TRACE ) System.err.printf("\t\tFILE: %s LINE: %8d COL: %d message: %s\n", fileName, lineNum, colNum, message);
+                    if( Flags.TRACE ) System.err.printf("\t\tFILE: %s LINE: %8d COL: %d MESSAGE: %s\n", fileName, lineNum, colNum, message);
                     errors.add(new ErrorInfoImpl(message, error, lineNum, colNum));
                 }
             }
