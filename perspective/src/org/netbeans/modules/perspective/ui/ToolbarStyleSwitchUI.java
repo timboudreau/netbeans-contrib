@@ -135,7 +135,6 @@ public class ToolbarStyleSwitchUI extends JToolBar {
         setRollover(true);
         add(jSeparator1);
 
-        btnList.setIcon(new javax.swing.ImageIcon(getClass().getResource("/org/netbeans/modules/perspective/resources/multiView.png"))); // NOI18N
         btnList.setText(org.openide.util.NbBundle.getMessage(ToolbarStyleSwitchUI.class, "ToolbarStyleSwitchUI.btnList.text")); // NOI18N
         btnList.setFocusable(false);
         btnList.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
