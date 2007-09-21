@@ -71,7 +71,7 @@ public class PerspectiveManagerImpl extends PerspectiveManager{
 
     public void registerPerspective(Perspective perspective, boolean arrange) {
         //deregistor  if exist
-        deregisterPerspective(perspective);
+        deregisterPerspective(perspective,arrange);
         if (perspectives.size() > perspective.getIndex()) {
             perspectives.add(perspective.getIndex(), perspective);
         } else {
@@ -85,12 +85,18 @@ public class PerspectiveManagerImpl extends PerspectiveManager{
     }
 
     public void deregisterPerspective(Perspective perspective) {
+        deregisterPerspective(perspective, true);
+    }
+    public void deregisterPerspective(Perspective perspective,boolean arrange) {
         perspectives.remove(perspective);
-        arrangeIndexs();
+        if(arrange){
+            arrangeIndexs();
         ToolbarStyleSwitchUI.getInstance().reset();
         ToolbarStyleSwitchUI.getInstance().loadQuickPerspectives();
+        }
+        
     }
-
+    
 
     public void setSelected(Perspective perspective) {
         

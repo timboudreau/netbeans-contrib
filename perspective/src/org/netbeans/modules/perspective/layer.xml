@@ -31,7 +31,7 @@
     </folder>
     <folder name="Menu">
         <folder name="Perspective">
-          <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.perspective.Bundle"/>
+            <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.perspective.Bundle"/>
             <attr name="position" intvalue="1150"/>
             <file name="org-netbeans-modules-perspective-menus-ResetAction.shadow">
                 <attr name="position" intvalue="300"/>
@@ -52,10 +52,26 @@
             <attr name="originalFile" stringvalue="Actions/Perspective/org-netbeans-modules-perspective-actions-QuickSwitch.instance"/>
         </file>
     </folder>
+    
     <folder name="perspectives">
-        <folder name="views">
+        <folder name="config">
+            
+        </folder>
+        
+        <folder name="builtin">
+            <file name="java">
+                <attr name="class" stringvalue="org.netbeans.modules.perspective.builtin.BuiltInDefaultView" />            
+            </file>         
+            <file name="java_browsing">
+                <attr name="class" stringvalue="org.netbeans.modules.perspective.builtin.BuiltInJavaBrowsingView" />         
+            </file>
+            <file name="debug">
+                <attr name="class" stringvalue="org.netbeans.modules.perspective.builtin.BuiltInJavaDebugView" />             
+            </file>     
         </folder>
     </folder>
+    
+    
     <folder name="Windows2">
     <folder name="Components">
         <file name="ModeHackTopComponent.settings" url="hacks/ModeHackTopComponentSettings.xml"/>
