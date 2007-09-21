@@ -70,6 +70,8 @@ public class PerspectiveManagerImpl extends PerspectiveManager{
     }
 
     public void registerPerspective(Perspective perspective, boolean arrange) {
+        //deregistor  if exist
+        deregisterPerspective(perspective);
         if (perspectives.size() > perspective.getIndex()) {
             perspectives.add(perspective.getIndex(), perspective);
         } else {
