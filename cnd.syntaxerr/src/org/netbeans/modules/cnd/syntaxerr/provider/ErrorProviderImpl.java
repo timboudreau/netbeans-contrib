@@ -28,11 +28,12 @@ import java.util.Collections;
 import java.util.StringTokenizer;
 import javax.swing.text.BadLocationException;
 import org.netbeans.editor.BaseDocument;
-import org.netbeans.modules.cnd.syntaxerr.Flags;
+import org.netbeans.modules.cnd.syntaxerr.DebugUtils;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
 import org.openide.loaders.DataObject;
 import org.openide.text.NbDocument;
+import org.openide.util.Exceptions;
 
 /**
  * ErrorProvider implementation
@@ -67,18 +68,22 @@ class ErrorProviderImpl extends ErrorProvider {
             FileObject fo = dao.getPrimaryFile();
             File tmpDir = new File(System.getProperty("java.io.tmpdir"));
             File tmpFile = File.createTempFile(fo.getName(), "." + fo.getExt(), tmpDir);
-            doc.write(new FileWriter(tmpFile), 0, doc.getLength());
+            FileWriter writer = new FileWriter(tmpFile);
+            doc.write(writer, 0, doc.getLength());
+            writer.write(System.getProperty("line.separator"));
+            writer.close();
             // TODO: set correct options
             String command = compiler + " -c -o /dev/null -I . " + tmpFile.getAbsolutePath();
-            if( Flags.TRACE ) System.err.printf("\n\nRUNNING %s\n", command);
+            if( DebugUtils.SLEEP_ON_PARSE ) DebugUtils.sleep(3000);
+            if( DebugUtils.TRACE ) System.err.printf("\n\nRUNNING %s\n", command);
             Process compilerProcess = Runtime.getRuntime().exec(command, null, FileUtil.toFile(fo.getParent()));
             InputStream stream = compilerProcess.getErrorStream();
             parseCompilerOutput(stream, tmpFile.getAbsolutePath(), result);
             stream.close();
-            if( Flags.CLEAN_TMP ) {
+            if( DebugUtils.CLEAN_TMP ) {
                 tmpFile.delete();
             }
-            if( Flags.TRACE ) System.err.printf("DONE %s\n", command);
+            if( DebugUtils.TRACE ) System.err.printf("DONE %s\n", command);
             return result;
         }
         return Collections.emptyList();
@@ -93,7 +98,7 @@ class ErrorProviderImpl extends ErrorProvider {
     }
     
     private void parseCompilerOutputLine(String line, String interestingFileName, Collection<ErrorInfo> errors) {
-        if( Flags.TRACE ) System.err.printf("\tPARSING: \t%s\n", line);
+        if( DebugUtils.TRACE ) System.err.printf("\tPARSING: \t%s\n", line);
         findErrorOrWarning(line, ": error: ", true, interestingFileName, errors);
         findErrorOrWarning(line, ": warning: ", true, interestingFileName, errors);
     }
@@ -119,7 +124,7 @@ class ErrorProviderImpl extends ErrorProvider {
 			colNum = Integer.parseInt(strPosition.substring(colonPos+1));
 		    }
                     String message = line.substring(afterErrPos);
-                    if( Flags.TRACE ) System.err.printf("\t\tFILE: %s LINE: %8d COL: %d MESSAGE: %s\n", fileName, lineNum, colNum, message);
+                    if( DebugUtils.TRACE ) System.err.printf("\t\tFILE: %s LINE: %8d COL: %d MESSAGE: %s\n", fileName, lineNum, colNum, message);
                     errors.add(new ErrorInfoImpl(message, error, lineNum, colNum));
                 }
             }

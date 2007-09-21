@@ -25,7 +25,7 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.text.Document;
 import org.netbeans.editor.BaseDocument;
-import org.netbeans.modules.cnd.syntaxerr.Flags;
+import org.netbeans.modules.cnd.syntaxerr.DebugUtils;
 import org.netbeans.modules.cnd.syntaxerr.provider.ErrorInfo;
 import org.netbeans.modules.cnd.syntaxerr.provider.ErrorProvider;
 import org.openide.cookies.EditorCookie;
@@ -56,11 +56,13 @@ public class ErrorHighlighter implements PropertyChangeListener, DocumentListene
     }
     
     public void startup() {
+        if( DebugUtils.TRACE ) System.err.printf("ErrorHighlighter.startup\n");
         TopComponent.getRegistry().addPropertyChangeListener(this);
         checkCurrentNodes();
     }
     
     public void shutdown() {
+        if( DebugUtils.TRACE ) System.err.printf("ErrorHighlighter.shutdown\n");
         TopComponent.getRegistry().removePropertyChangeListener(this);
     }
 
@@ -82,7 +84,7 @@ public class ErrorHighlighter implements PropertyChangeListener, DocumentListene
     
     public void propertyChange(PropertyChangeEvent evt) {
 
-	if( Flags.TRACE) System.err.printf("ErrorHighlighter.propertyChange %s\n", evt.getPropertyName());
+	if( DebugUtils.TRACE) System.err.printf("ErrorHighlighter.propertyChange %s\n", evt.getPropertyName());
 
 	if (TopComponent.Registry.PROP_CURRENT_NODES.equals(evt.getPropertyName())) {
             checkCurrentNodes();
@@ -142,11 +144,11 @@ public class ErrorHighlighter implements PropertyChangeListener, DocumentListene
     }
 
     private void scheduleHighlighting(final FileInfo info) {
-	if( Flags.TRACE ) System.err.printf("Schedulling highlighting\n");
+	if( DebugUtils.TRACE ) System.err.printf("Schedulling highlighting\n");
 	Runnable r = new Runnable() {
 	    public void run() {
                 Thread.currentThread().setName("C/C++ Syntax Error Highlighting"); // NOI18N);
-		if( Flags.TRACE ) System.err.printf("Runnig highlighting task\n");
+		if( DebugUtils.TRACE ) System.err.printf("Runnig highlighting task\n");
 		 Collection<ErrorInfo> errors = ErrorProvider.getDefault().getErrors(info.getDataObject(), info.getDocument());
 		 info.setAnnotations(errors);
 	    }
