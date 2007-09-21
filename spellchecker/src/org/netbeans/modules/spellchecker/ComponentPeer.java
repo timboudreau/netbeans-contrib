@@ -21,7 +21,10 @@ package org.netbeans.modules.spellchecker;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.Graphics;
 import java.awt.Point;
+import java.awt.Rectangle;
+import java.awt.Shape;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
@@ -37,6 +40,7 @@ import java.util.Map;
 import java.util.WeakHashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.JEditorPane;
 import javax.swing.JViewport;
 import javax.swing.SwingUtilities;
 import javax.swing.event.CaretEvent;
@@ -48,6 +52,8 @@ import javax.swing.event.DocumentListener;
 import javax.swing.text.AttributeSet;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
+import javax.swing.text.Highlighter;
+import javax.swing.text.Highlighter.HighlightPainter;
 import javax.swing.text.JTextComponent;
 import javax.swing.text.Position;
 import org.netbeans.api.editor.mimelookup.MimeLookup;
@@ -206,13 +212,8 @@ public class ComponentPeer implements PropertyChangeListener, DocumentListener, 
         if (doc.getLength() == 0)
             return ;
         
-        FileObject file = getFile(doc);
+        final List<int[]> localHighlights = new LinkedList<int[]>();
         
-        if (file == null) {
-            return ;
-        }
-        
-        final OffsetsBag localHighlights = new OffsetsBag(doc);
         long startTime = System.currentTimeMillis();
         
         try {
@@ -284,7 +285,7 @@ public class ComponentPeer implements PropertyChangeListener, DocumentListener, 
                         doc.render(new Runnable() {
                             public void run() {
                                 if (!isCanceled()) {
-                                    localHighlights.addHighlight(l.getCurrentWordStartOffset(), l.getCurrentWordStartOffset() + word[0].length(), ERROR);
+                                    localHighlights.add(new int[] {l.getCurrentWordStartOffset(), l.getCurrentWordStartOffset() + word[0].length()});
                                 }
                             }
                         });
@@ -292,7 +293,37 @@ public class ComponentPeer implements PropertyChangeListener, DocumentListener, 
             }
         } finally {
             if (!isCanceled()) {
-                SpellcheckerHighlightLayerFactory.getBag(pane).setHighlights(localHighlights);
+                doc.render(new Runnable() {
+                    public void run() {
+                        if (isCanceled()) {
+                            return;
+                        }
+                        try {
+                            if (!(pane instanceof JEditorPane)) {
+                                Highlighter h = pane.getHighlighter();
+
+                                if (h != null) {
+                                    h.removeAllHighlights();
+                                    for (int[] current : localHighlights) {
+                                        h.addHighlight(current[0], current[1], new ErrorHighlightPainter());
+                                    }
+                                }
+                            } else {
+                                OffsetsBag localHighlightsBag = new OffsetsBag(doc);
+
+                                for (int[] current : localHighlights) {
+                                    localHighlightsBag.addHighlight(current[0], current[1], ERROR);
+                                }
+                                SpellcheckerHighlightLayerFactory.getBag(pane).setHighlights(localHighlightsBag);
+                            }
+                        } catch (BadLocationException e) {
+                            Exceptions.printStackTrace(e);
+                        }
+                    }
+                });
+                
+                FileObject file = getFile(doc);
+
                 Logger.getLogger("TIMER").log(Level.FINE, "Spellchecker",
                         new Object[] {file, System.currentTimeMillis() - startTime});
             }
@@ -339,12 +370,15 @@ public class ComponentPeer implements PropertyChangeListener, DocumentListener, 
             return result;
         }
         
+        Locale locale;
+        
         FileObject file = getFile(doc);
 
-        if (file == null)
-            return null;
-
-        Locale locale = LocaleQuery.findLocale(file);
+        if (file != null) {
+            locale = LocaleQuery.findLocale(file);
+        } else {
+            locale = DefaultLocaleQueryImplementation.getDefaultLocale();
+        }
         
         Dictionary d = ACCESSOR.lookupDictionary(locale);
         
@@ -355,13 +389,15 @@ public class ComponentPeer implements PropertyChangeListener, DocumentListener, 
         
         dictionaries.add(getUsersLocalDictionary(locale));
         
-        Project p = FileOwnerQuery.getOwner(file);
-        
-        if (p != null) {
-            Dictionary projectDictionary = getProjectDictionary(p);
-            
-            if (projectDictionary != null) {
-                dictionaries.add(projectDictionary);
+        if (file != null) {
+            Project p = FileOwnerQuery.getOwner(file);
+
+            if (p != null) {
+                Dictionary projectDictionary = getProjectDictionary(p);
+
+                if (projectDictionary != null) {
+                    dictionaries.add(projectDictionary);
+                }
             }
         }
         
@@ -578,5 +614,35 @@ public class ComponentPeer implements PropertyChangeListener, DocumentListener, 
             
         }
     };
+    
+    private class ErrorHighlightPainter implements HighlightPainter {
+        private ErrorHighlightPainter() {
+        }
+
+        public void paint(Graphics g, int p0, int p1, Shape bounds, JTextComponent c) {
+            g.setColor(Color.RED);
+            
+            try {
+                Rectangle start = pane.modelToView(p0);
+                Rectangle end = pane.modelToView(p1);
+
+                int waveLength = end.x + end.width - start.x;
+                if (waveLength > 0) {
+                    int[] wf = {0, 0, -1, -1};
+                    int[] xArray = new int[waveLength + 1];
+                    int[] yArray = new int[waveLength + 1];
+
+                    int yBase = (int) (start.y + start.height - 2);
+                    for (int i = 0; i <= waveLength; i++) {
+                        xArray[i] = start.x + i;
+                        yArray[i] = yBase + wf[xArray[i] % 4];
+                    }
+                    g.drawPolyline(xArray, yArray, waveLength);
+                }
+            } catch (BadLocationException e) {
+                Exceptions.printStackTrace(e);
+            }
+        }
+    }
 
 }

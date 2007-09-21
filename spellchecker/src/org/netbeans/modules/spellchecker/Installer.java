@@ -18,6 +18,11 @@
  */
 package org.netbeans.modules.spellchecker;
 
+import java.awt.AWTEvent;
+import java.awt.Toolkit;
+import java.awt.event.AWTEventListener;
+import java.awt.event.FocusEvent;
+import javax.swing.JTextArea;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.text.JTextComponent;
@@ -42,8 +47,17 @@ public class Installer extends ModuleInstall {
 
     public void restored() {
         Registry.addChangeListener(l);
-        // By default, do nothing.
-        // Put your startup code here.
+        Toolkit.getDefaultToolkit().addAWTEventListener(new AWTEventListener() {
+            public void eventDispatched(AWTEvent event) {
+                if (event instanceof FocusEvent) {
+                    FocusEvent fe = (FocusEvent) event;
+
+                    if (!fe.isTemporary() && fe.getSource() instanceof JTextArea && ((JTextArea) fe.getSource()).isEditable()) {
+                        ComponentPeer.assureInstalled((JTextComponent) fe.getSource());
+                    }
+                }
+            }
+        }, AWTEvent.FOCUS_EVENT_MASK);
     }
     
 }
