@@ -43,7 +43,7 @@ import org.openide.util.Utilities;
     private Logger logger;
 
      LoggerNode(Logger logger) {
-        super(!logger.getChilderns().isEmpty() ? Children.create(new LoggerFactory(logger), true) : Children.LEAF); //TODO
+        super(!logger.getChilderns().isEmpty() ? Children.create(new LoggerFactory(logger), true) : Children.LEAF); 
         this.logger = logger;
     }
 

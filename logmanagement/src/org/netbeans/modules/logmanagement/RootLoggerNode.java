@@ -43,7 +43,7 @@ public class RootLoggerNode extends AbstractNode {
     private Logger logger;
 
     RootLoggerNode(Logger logger) {
-        super(Children.create(new LoggerFactory(logger), true)); //TODO
+        super(Children.create(new LoggerFactory(logger), true)); 
         this.logger = logger;
         WindowManager.getDefault().invokeWhenUIReady(new Runnable() {
 

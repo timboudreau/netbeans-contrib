@@ -36,7 +36,7 @@ import java.util.logging.LoggingMXBean;
  class LoggerManager {
 
     private LoggingMXBean loggingMXBean;
-    private Logger root = new Logger("");
+    private Logger root = new Logger("");// NOI18N
     private static LoggerManager instance;
 
     private LoggerManager() {
@@ -92,14 +92,14 @@ import java.util.logging.LoggingMXBean;
     }
 
     public void printTree() {
-        printTree(root, "");
+        printTree(root, "");// NOI18N
     }
 
     private void printTree(Logger root, String tab) {
         List<Logger> childerns = root.getChilderns();
         for (Logger logger : childerns) {
-            System.out.println(tab + logger.getName() + "  -+");
-            printTree(logger, tab + "\t");
+            System.out.println(tab + logger.getName() + "  -+");// NOI18N
+            printTree(logger, tab + "\t");// NOI18N
         }
     }
 }
