@@ -53,15 +53,17 @@ class FileHighliter implements DocumentListener {
     private DataObject dao;
     private BaseDocument doc;
     
-    private boolean changed = false;
+    private boolean disregard = false;
+    private boolean disposed = false;
     
     /** A list of all annotations currently added to a fuke */
     private Collection<Annotation> annotations = new ArrayList<Annotation>();
 
     public FileHighliter(DataObject dao, BaseDocument doc) {
+        assert dao != null : "DataObject should not be null!"; // NOI18N
         this.dao = dao;
         this.doc = doc;
-        if( DebugUtils.TRACE ) System.err.printf("FileHighliter.ctor");
+        if( DebugUtils.TRACE ) System.err.printf("FileHighliter.ctor %s\n", dao.getName());
     }
 
     /** 
@@ -69,6 +71,7 @@ class FileHighliter implements DocumentListener {
      * and caller has registered it
      */
     public void init() {
+        if( DebugUtils.TRACE ) System.err.printf("FileHighliter.init %s\n", dao.getName());
         doc.addDocumentListener(this);
         schedule();
     }
@@ -78,6 +81,9 @@ class FileHighliter implements DocumentListener {
      * (upon document closure)
      */
     public void dispose() {
+        if( DebugUtils.TRACE ) System.err.printf("FileHighliter.dispose %s\n", dao.getName());
+        disregard = true;
+        disposed = true;
         doc.removeDocumentListener(this);
     }
     
@@ -85,25 +91,29 @@ class FileHighliter implements DocumentListener {
      * Callback, called by ErrorHighlighter.schedule().
      */
     public void updateAnnotations() {
-        if( DebugUtils.TRACE ) System.err.printf("Running updateAnnotations()\n");
-        if( DebugUtils.TRACE ) System.err.printf("(line count = %d)\n", getLineCount());
-        changed = false;
+        if( DebugUtils.TRACE ) System.err.printf("Running updateAnnotations() %s\n", dao.getName());
+        if( disposed ) {
+            if( DebugUtils.TRACE ) System.err.printf("Already disposed  %s\n", dao.getName());
+            return;
+        }
+        //if( DebugUtils.TRACE ) System.err.printf("(line count = %d)\n", getLineCount());
+        disregard = false;
         Collection<ErrorInfo> errors = ErrorProvider.getDefault().getErrors(getDataObject(), getDocument());
-        if( changed ) {
-            if( DebugUtils.TRACE ) System.err.printf("The file has been changed - disregarding results\n");
-            if( DebugUtils.TRACE ) System.err.printf("(line count = %d)\n", getLineCount());
+        if( disregard || disposed ) {
+            if( DebugUtils.TRACE ) System.err.printf("Disregarding results %s\n", dao.getName());
+            //if( DebugUtils.TRACE ) System.err.printf("(line count = %d)\n", getLineCount());
         }
         else {
-            if( DebugUtils.TRACE ) System.err.printf("Setting annotations\n");
-            if( DebugUtils.TRACE ) System.err.printf("(line count = %d)\n", getLineCount());
+            if( DebugUtils.TRACE ) System.err.printf("Setting annotations %s\n", dao.getName());
+            //if( DebugUtils.TRACE ) System.err.printf("(line count = %d)\n", getLineCount());
             setAnnotations(errors);
         }
     }
     
     private void schedule() {
         ErrorHighlighter.instance().schedule(this);
-        if( DebugUtils.TRACE ) System.err.printf("Schedulling updateAnnotations()\n");
-        if( DebugUtils.TRACE ) System.err.printf("(line count = %d)\n", getLineCount());
+        if( DebugUtils.TRACE ) System.err.printf("Schedulling updateAnnotations() %s\n", dao.getName());
+        //if( DebugUtils.TRACE ) System.err.printf("(line count = %d)\n", getLineCount());
         
     }
 
@@ -124,7 +134,7 @@ class FileHighliter implements DocumentListener {
 
     private void documentChanged(DocumentEvent e) {
 	assert e.getDocument() == doc;
-        changed = true;
+        disregard = true;
         schedule();
     }
     
@@ -183,6 +193,10 @@ class FileHighliter implements DocumentListener {
         return annotation;
     }
 
+    public boolean isMine(DataObject dao) {
+        return this.dao.equals(dao);
+    }
+    
     public DataObject getDataObject() {
         return dao;
     }
@@ -191,16 +205,16 @@ class FileHighliter implements DocumentListener {
         return doc;
     }
 
-    /** Gets line count - mostly for debugging/tracing purposes */
-    private int getLineCount() {
-        CharSeq seq = getDocument().getText();
-        int cnt = 0;
-        for (int i = 0; i < seq.length(); i++) {
-            if( seq.charAt(i) == '\n' ) {
-                cnt++;
-            }
-        }
-        return cnt;
-    }
+//    /** Gets line count - mostly for debugging/tracing purposes */
+//    private int getLineCount() {
+//        CharSeq seq = getDocument().getText();
+//        int cnt = 0;
+//        for (int i = 0; i < seq.length(); i++) {
+//            if( seq.charAt(i) == '\n' ) {
+//                cnt++;
+//            }
+//        }
+//        return cnt;
+//    }
     
 }

@@ -18,14 +18,19 @@ package org.netbeans.modules.cnd.syntaxerr.highlighter;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import javax.swing.text.Document;
 import org.netbeans.editor.BaseDocument;
 import org.netbeans.modules.cnd.syntaxerr.DebugUtils;
 import org.openide.cookies.EditorCookie;
 import org.openide.loaders.DataObject;
 import org.openide.nodes.Node;
+import org.openide.text.DataEditorSupport;
 import org.openide.util.RequestProcessor;
 import org.openide.windows.TopComponent;
 
@@ -36,6 +41,7 @@ import org.openide.windows.TopComponent;
 public class ErrorHighlighter implements PropertyChangeListener {
     
     private Map<DataObject, FileHighliter> infoMap = new HashMap<DataObject, FileHighliter>();
+    private Object infoMapLock = new Object();
     
     RequestProcessor.Task task;
 
@@ -63,13 +69,20 @@ public class ErrorHighlighter implements PropertyChangeListener {
     }
 
     private FileHighliter getOrCreateFileInfo(DataObject dao, BaseDocument doc) {
-	FileHighliter info = infoMap.get(dao);
-	if( info == null ) {
-	    info = new FileHighliter(dao, doc);
-	    infoMap.put(dao, info);
+        boolean isNew = false;
+        FileHighliter info = null;
+        synchronized( infoMapLock ) {
+            info = infoMap.get(dao);
+            if( info == null ) {
+                info = new FileHighliter(dao, doc);
+                infoMap.put(dao, info);
+                isNew = true;
+            }
+        }
+        if( isNew ) {
             info.init();
-	}
-	return info;
+        }
+        return info;
     }
     
     public void propertyChange(PropertyChangeEvent evt) {
@@ -80,10 +93,49 @@ public class ErrorHighlighter implements PropertyChangeListener {
             checkCurrentNodes();
         }
 	else if(TopComponent.Registry.PROP_OPENED.equals(evt.getPropertyName())) {
-            // TODO: process closure; remove doc listener
+//            Object oldValue = evt.getOldValue();
+//            Object newValue = evt.getNewValue();
+//            if( (oldValue instanceof Set) && (newValue instanceof Set) ) {
+//                Set removed = new HashSet();
+//                for( Object o : (Set) oldValue ) {
+//                    if( ! ((Set) newValue).contains(o) ) {
+//                        if( o instanceof DataEditorSupport ) {
+//                            DataObject dao = ((DataEditorSupport) o).getDataObject();
+//                            synchronized( infoMapLock ) {
+//                                FileHighliter highlighter = infoMap.get(dao);
+//                                if( highlighter != null ) {
+//                                    highlighter.dispose();
+//                                    infoMap.remove(dao);
+//                                }
+//                            }
+//                        }
+//                    }
+//                }
+//            }
 	}
 	    
     }
+    
+//    private void checkClosed() {
+//        Node[] nodes = TopComponent.getRegistry().getCurrentNodes();        
+//        Collection<FileHighliter> highlighters;
+//        synchronized( infoMapLock ) {
+//            highlighters = new ArrayList<FileHighliter>(infoMap.values());
+//        }
+//        for( FileHighliter highlighter : highlighters ) {
+//            boolean found = false;
+//            for (int i = 0; i < nodes.length; i++) {
+//                if( highlighter.isMine(nodes[i].getLookup().lookup(DataObject.class))) {
+//                    found = true;
+//                    break;
+//                }
+//            }
+//            if( ! found ) {
+//                highlighter.dispose();
+//                infoMap.remove(highlighter.getDataObject());
+//            }
+//        }
+//    }
     
     private void checkCurrentNodes() {
         //if( DebugUtils.TRACE) System.err.printf("ErrorHighlighter.checkNodes\n");
