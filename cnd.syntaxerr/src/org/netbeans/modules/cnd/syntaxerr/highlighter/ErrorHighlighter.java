@@ -47,7 +47,7 @@ public class ErrorHighlighter implements PropertyChangeListener {
 
     private static final ErrorHighlighter instance = new ErrorHighlighter();
     
-    public static final int delay = Integer.getInteger("cnd.synterr.delay", 2000);
+    public static final int delay = Integer.getInteger("cnd.synterr.delay", 2000); // NOI18N
     
     public static final ErrorHighlighter instance() {
         return instance;

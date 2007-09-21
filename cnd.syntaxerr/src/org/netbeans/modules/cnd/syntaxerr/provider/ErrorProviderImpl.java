@@ -67,13 +67,13 @@ class ErrorProviderImpl extends ErrorProvider {
             Collection<ErrorInfo> result = new ArrayList<ErrorInfo>();
             FileObject fo = dao.getPrimaryFile();
             File tmpDir = new File(System.getProperty("java.io.tmpdir"));
-            File tmpFile = File.createTempFile(fo.getName(), "." + fo.getExt(), tmpDir);
+            File tmpFile = File.createTempFile(fo.getName(), "." + fo.getExt(), tmpDir); // NOI18N
             FileWriter writer = new FileWriter(tmpFile);
             doc.write(writer, 0, doc.getLength());
             writer.write(System.getProperty("line.separator"));
             writer.close();
             // TODO: set correct options
-            String command = compiler + " -c -o /dev/null -I . " + tmpFile.getAbsolutePath();
+            String command = compiler + " -c -o /dev/null -I . " + tmpFile.getAbsolutePath(); // NOI18N
             if( DebugUtils.SLEEP_ON_PARSE ) DebugUtils.sleep(3000);
             if( DebugUtils.TRACE ) System.err.printf("\n\nRUNNING %s\n", command);
             Process compilerProcess = Runtime.getRuntime().exec(command, null, FileUtil.toFile(fo.getParent()));
@@ -99,8 +99,8 @@ class ErrorProviderImpl extends ErrorProvider {
     
     private void parseCompilerOutputLine(String line, String interestingFileName, Collection<ErrorInfo> errors) {
         if( DebugUtils.TRACE ) System.err.printf("\tPARSING: \t%s\n", line);
-        findErrorOrWarning(line, ": error: ", true, interestingFileName, errors);
-        findErrorOrWarning(line, ": warning: ", true, interestingFileName, errors);
+        findErrorOrWarning(line, ": error: ", true, interestingFileName, errors); // NOI18N
+        findErrorOrWarning(line, ": warning: ", true, interestingFileName, errors); // NOI18N
     }
     
     private void findErrorOrWarning(String line, String keyword, boolean error, String interestingFileName, Collection<ErrorInfo> errors) {
@@ -133,8 +133,8 @@ class ErrorProviderImpl extends ErrorProvider {
 
     // FIXUP: a temporary implementation
     private String getCompiler(DataObject dao) {
-        String baseName = dao.getPrimaryFile().getMIMEType().endsWith("/x-c++") ? "g++" : "gcc";
-        String path = System.getenv("PATH");
+        String baseName = dao.getPrimaryFile().getMIMEType().endsWith("/x-c++") ? "g++" : "gcc"; // NOI18N
+        String path = System.getenv("PATH"); // NOI18N
         for (StringTokenizer tokenizer = new StringTokenizer(path, File.pathSeparator); tokenizer.hasMoreTokens();) {
             String pathElement = tokenizer.nextToken();
             File file = new File(pathElement, baseName);
