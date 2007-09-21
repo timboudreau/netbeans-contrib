@@ -227,9 +227,11 @@ public final class BuildConfiguration implements Builder {
                     continue;
                 }
                 
-                inout.getOut().println("Going to delete: " + FileUtil.getFileDisplayName(f));
+                File toDelete = FileUtil.toFile(f);
                 
-                f.delete();
+                inout.getOut().println("Going to delete: " + toDelete.getAbsolutePath());
+                
+                toDelete.delete();
             } catch (IOException e) {
                 ErrorManager.getDefault().notify(e);
             }

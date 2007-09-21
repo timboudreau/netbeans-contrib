@@ -14,7 +14,7 @@
  *
  * The Original Software is the LaTeX module.
  * The Initial Developer of the Original Software is Jan Lahoda.
- * Portions created by Jan Lahoda_ are Copyright (C) 2002-2006.
+ * Portions created by Jan Lahoda_ are Copyright (C) 2002-2007.
  * All Rights Reserved.
  *
  * Contributor(s): Jan Lahoda.
@@ -24,8 +24,9 @@ package org.netbeans.modules.latex.guiproject;
 import java.awt.event.ActionEvent;
 import java.io.File;
 import java.io.IOException;
-import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.WeakHashMap;
@@ -94,6 +95,7 @@ public class ActionsFactory implements ActionProvider {
                 if (name.equals(tab.getValue())) {
                     inout = tab.getKey();
                     rerunAction = rerunActions.get(inout);
+                    rerunAction.setEnabled(false);
                     freeTabs.remove(inout);
                     break;
                 }
@@ -106,38 +108,27 @@ public class ActionsFactory implements ActionProvider {
             }
         }
         
-        final RerunAction rerunActionFin = rerunAction;
-        final InputOutput inoutFin = inout;
+        List<Builder> builders = new LinkedList<Builder>();
         
-        try {
-            if (COMMAND_CLEAN.equals(command) || COMMAND_REBUILD.equals(command)) {
-                BuildConfiguration conf = Utilities.getBuildConfigurationProvider(project).getBuildConfiguration(ProjectSettings.getDefault(project).getBuildConfigurationName());
+        if (COMMAND_CLEAN.equals(command) || COMMAND_REBUILD.equals(command)) {
+            BuildConfiguration conf = Utilities.getBuildConfigurationProvider(project).getBuildConfiguration(ProjectSettings.getDefault(project).getBuildConfigurationName());
 
-                rerunActionFin.runAndRemember(project, name, new CleanBuilder(conf), inoutFin);
-                return;
-            }
-
-            if (COMMAND_BUILD.equals(command) || COMMAND_REBUILD.equals(command) || LaTeXGUIProject.COMMAND_SHOW.equals(command)) {
-                BuildConfiguration conf = Utilities.getBuildConfigurationProvider(project).getBuildConfiguration(ProjectSettings.getDefault(project).getBuildConfigurationName());
-
-                rerunActionFin.runAndRemember(project, name, conf, inoutFin);
-                return;
-            }
-
-            if (LaTeXGUIProject.COMMAND_SHOW.equals(command)) {
-                ShowConfiguration conf = Utilities.getBuildConfigurationProvider(project).getShowConfiguration(ProjectSettings.getDefault(project).getShowConfigurationName());
-
-                rerunActionFin.runAndRemember(project, name, conf, inoutFin);
-                return;
-            }
-        } finally {
-            synchronized (ActionsFactory.class) {
-                inout.getOut().close();
-                inout.getErr().close();
-
-                freeTabs.put(inout, name);
-            }
+            builders.add(new CleanBuilder(conf));
         }
+
+        if (COMMAND_BUILD.equals(command) || COMMAND_REBUILD.equals(command) || LaTeXGUIProject.COMMAND_SHOW.equals(command)) {
+            BuildConfiguration conf = Utilities.getBuildConfigurationProvider(project).getBuildConfiguration(ProjectSettings.getDefault(project).getBuildConfigurationName());
+
+            builders.add(conf);
+        }
+
+        if (LaTeXGUIProject.COMMAND_SHOW.equals(command)) {
+            ShowConfiguration conf = Utilities.getBuildConfigurationProvider(project).getShowConfiguration(ProjectSettings.getDefault(project).getShowConfigurationName());
+
+            builders.add(conf);
+        }
+
+        rerunAction.runAndRemember(project, name, builders, inout);
     }
     
     public boolean isActionEnabled(String command, Lookup context) throws IllegalArgumentException {
@@ -179,7 +170,7 @@ public class ActionsFactory implements ActionProvider {
     private static final class RerunAction extends AbstractAction {
 
         private LaTeXGUIProject project;
-        private Builder toRepeat;
+        private List<Builder> toRepeat;
         private InputOutput inout;
         private String name;
         
@@ -189,29 +180,53 @@ public class ActionsFactory implements ActionProvider {
         }
 
         public void actionPerformed(ActionEvent e) {
+            setEnabled(false);
             class Exec implements Runnable {
                 public void run() {
+                    InputOutput inout;
+                    synchronized (RerunAction.this) {
+                        inout = RerunAction.this.inout;
+                    }
                     LifecycleManager.getDefault().saveAll();
 
-            try {
-                inout.getOut().reset();
-                inout.select();
+                    try {
+                        
+                        inout.getOut().reset();
+                        inout.select();
 
-                if (toRepeat.build(project, inout)) {
-                    inout.getOut().println("Build passed.");
-                } else {
-                    inout.getOut().println("Build failed, more info should be provided above.");
-                }
-            } catch (IOException ex) {
-                Exceptions.printStackTrace(ex);
-            }
+                        boolean succeeded = false;
+
+                        for (Builder b : toRepeat) {
+                            succeeded = b.build(project, inout);
+
+                            if (!succeeded) {
+                                break;
+                            }
+                        }
+
+                        if (succeeded) {
+                            inout.getOut().println("Build passed.");
+                        } else {
+                            inout.getOut().println("Build failed, more info should be provided above.");
+                        }
+                    } catch (IOException ex) {
+                        Exceptions.printStackTrace(ex);
+                    } finally {
+                        inout.getOut().close();
+                        inout.getErr().close();
+                        synchronized (ActionsFactory.class) {
+                            freeTabs.put(inout, name);
+                        }
+                        
+                        setEnabled(true);
+                    }
                 }
             }
             
             ExecutionEngine.getDefault().execute(name, new Exec(), inout);
         }
         
-        void runAndRemember(LaTeXGUIProject project, String name, Builder toRepeat, InputOutput inout) {
+        synchronized void runAndRemember(LaTeXGUIProject project, String name, List<Builder> toRepeat, InputOutput inout) {
             this.project = project;
             this.name = name;
             this.toRepeat = toRepeat;
