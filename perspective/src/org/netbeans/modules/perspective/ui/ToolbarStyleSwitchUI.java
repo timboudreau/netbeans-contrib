@@ -195,7 +195,7 @@ public class ToolbarStyleSwitchUI extends JToolBar {
     private class SwitchListAction extends AbstractAction {
 
         public SwitchListAction() {
-            putValue(SMALL_ICON, new javax.swing.ImageIcon(Utilities.loadImage("org/netbeans/modules/perspective/resources/multiView.png",true)));
+            putValue(SMALL_ICON, new javax.swing.ImageIcon(Utilities.loadImage("org/netbeans/modules/perspective/resources/perspective.png",true)));
         }
 
         public void actionPerformed(ActionEvent e) {
