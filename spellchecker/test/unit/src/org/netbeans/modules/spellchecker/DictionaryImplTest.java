@@ -37,7 +37,7 @@ public class DictionaryImplTest extends NbTestCase {
         clearWorkDir();
         
         File source = new File(getWorkDir(), "dictionary.cache");
-        DictionaryImpl d = new DictionaryImpl(null, null, source);
+        DictionaryImpl d = new DictionaryImpl(source);
         
         assertEquals(ValidityType.INVALID, d.validateWord("dddd"));
         assertEquals(Collections.emptyList(), d.findProposals("dddd"));
