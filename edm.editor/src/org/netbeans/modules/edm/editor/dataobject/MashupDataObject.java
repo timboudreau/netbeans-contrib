@@ -24,7 +24,6 @@ import java.util.concurrent.atomic.AtomicReference;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import com.sun.org.apache.xerces.internal.util.XMLChar;
-import javax.swing.table.DefaultTableModel;
 
 import org.openide.ErrorManager;
 import org.openide.WizardDescriptor;
@@ -45,7 +44,6 @@ import org.w3c.dom.Element;
 import org.netbeans.modules.etl.ui.model.impl.ETLCollaborationModel;
 import org.netbeans.modules.etl.ui.view.ETLEditorTopView;
 import org.netbeans.modules.edm.editor.graph.MashupGraphManager;
-import org.netbeans.modules.edm.editor.utils.MashupModelHelper;
 import org.netbeans.modules.etl.model.impl.ETLDefinitionImpl;
 import org.netbeans.modules.etl.ui.DataObjectHelper;
 
@@ -154,9 +152,9 @@ public class MashupDataObject extends MultiDataObject {
     
     public void initialize(WizardDescriptor descriptor) {
         try {
-            //TODO - Check whether this gives exception
+            
             // get the tables list from the descriptor and add to the model.
-            DefaultTableModel tblModel = (DefaultTableModel) descriptor.getProperty("model");
+            /*DefaultTableModel tblModel = (DefaultTableModel) descriptor.getProperty("model");
             String url = (String) descriptor.getProperty("mashupConnection");
             this.mModel = MashupModelHelper.getModel(getModel(), tblModel, url);
             try {
@@ -173,13 +171,13 @@ public class MashupDataObject extends MultiDataObject {
             if(manager == null) {
                 manager = new MashupGraphManager(this);
                 manager.refreshGraph();
-            }
-           /* DataObjectHelper dHelper = new DataObjectHelper();            
+            }*/
+            DataObjectHelper dHelper = new DataObjectHelper();            
             dHelper.initializeETLDataObject(descriptor, getModel(),getEditorView().getGraphView());
             String content = getModel().getETLDefinition().toXMLString("");
             editorSupport.openDocument();
             editorSupport.getDocument().remove(0, editorSupport.getDocument().getLength());
-            editorSupport.getDocument().insertString(0, content, null);*/
+            editorSupport.getDocument().insertString(0, content, null);
         } catch(Exception ex) {
             ErrorManager.getDefault().notify(ex);
         }
