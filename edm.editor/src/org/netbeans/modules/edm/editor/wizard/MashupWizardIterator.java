@@ -13,7 +13,7 @@
  * Copyright 2006 Sun Microsystems, Inc. All Rights Reserved
  *
  */
-package org.netbeans.modules.edm.editor.wizard;
+package org.netbeans.modules.edm.editor.Wizard;
 
 import java.awt.Component;
 import java.io.IOException;
@@ -41,14 +41,19 @@ import org.openide.loaders.DataFolder;
 import org.openide.loaders.DataObject;
 
 import org.netbeans.modules.edm.editor.dataobject.MashupDataObject;
+import org.netbeans.modules.edm.ui.view.wizards.EDMCollaborationWizard;
+import org.netbeans.modules.sql.framework.ui.graph.IGraphView;
+
 
 public final class MashupWizardIterator implements WizardDescriptor.InstantiatingIterator {
     
     private int index;
-    
     private WizardDescriptor wizard;
     private WizardDescriptor.Panel[] panels;
     private SimpleTargetChooserPanel collaborationNamePanel;
+    private EDMCollaborationWizard owner;
+    private String title;
+    private IGraphView view;
     
     /**
      * Initialize panels representing individual wizard's steps and sets
@@ -218,7 +223,13 @@ public final class MashupWizardIterator implements WizardDescriptor.Instantiatin
             if(collaborationNamePanel != null) {
                 panels.add(collaborationNamePanel);
             }
+        
             panels.add(new ChooseTablesWizardPanel());
+            panels.add(new ETLCollaborationWizardJoinFinishPanel(owner,title,view));
+            panels.add(new SelectTargetTableWizardPanel());
+            
+            
+         
         }
         return Collections.unmodifiableList(panels);
     }

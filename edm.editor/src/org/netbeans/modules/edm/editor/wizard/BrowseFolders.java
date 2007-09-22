@@ -1,4 +1,5 @@
 /*
+/*
  * The contents of this file are subject to the terms of the Common
  * Development and Distribution License (the License). You may not use this 
  * file except in compliance with the License.  You can obtain a copy of the
@@ -14,7 +15,7 @@
  *
  */
 
-package org.netbeans.modules.edm.editor.wizard;
+package org.netbeans.modules.edm.editor.Wizard;
 
 import java.awt.Dialog;
 import java.awt.event.ActionEvent;

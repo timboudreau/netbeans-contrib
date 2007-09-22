@@ -1,4 +1,5 @@
 /*
+/*
  * The contents of this file are subject to the terms of the Common
  * Development and Distribution License (the License). You may not use this 
  * file except in compliance with the License.  You can obtain a copy of the
@@ -13,7 +14,7 @@
  * Copyright 2006 Sun Microsystems, Inc. All Rights Reserved
  *
  */
-package org.netbeans.modules.edm.editor.wizard;
+package org.netbeans.modules.edm.editor.Wizard;
 
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
@@ -124,7 +125,7 @@ public final class ChooseTablesVisualPanel extends JPanel {
     }
     
     public String getName() {
-        return "Choose Tables";
+        return "Choose Source Tables";
     }
     
     private void populateDBList(){
@@ -499,3 +500,4 @@ public final class ChooseTablesVisualPanel extends JPanel {
     private javax.swing.JList tableList;
     // End of variables declaration//GEN-END:variables
 }
+ 
