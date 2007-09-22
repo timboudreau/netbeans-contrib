@@ -86,6 +86,8 @@ public interface ImageConstants {
     
     public static final String GROUPBY = "GROUPBY";
     
+    public static final String AUTOMAP = "AUTOMAP";
+    
     /* Image objects */
     public static final Image JOIN_IMAGE = Utilities.loadImage(
             "org/netbeans/modules/edm/editor/resources/join_view.png"); // NOI18N
@@ -173,4 +175,7 @@ public interface ImageConstants {
     
     public static final Image GROUPBY_IMAGE = Utilities.loadImage(
             "org/netbeans/modules/edm/editor/resources/groupby.gif"); // NOI18N       
+    
+    public static final Image AUTOMAP_IMAGE = Utilities.loadImage(
+            "org/netbeans/modules/edm/editor/resources/AutoMapToTarget.png"); // NOI18N
 }

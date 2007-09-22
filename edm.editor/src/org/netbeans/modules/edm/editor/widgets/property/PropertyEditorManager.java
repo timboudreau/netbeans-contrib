@@ -41,6 +41,12 @@ public class PropertyEditorManager {
                 "org.netbeans.modules.edm.editor.widgets.property.editor.ExtractionConditionCustomEditor");
         editorMap.put("HAVING_CONDITION",
                 "org.netbeans.modules.edm.editor.widgets.property.editor.HavingConditionCustomEditor");        
+        editorMap.put("TARGET_JOIN_CONDITION",
+                "org.netbeans.modules.edm.editor.widgets.property.editor.TargetJoinConditionEditor");  
+        editorMap.put("OUTER_FILTER_CONDITION",
+                "org.netbeans.modules.edm.editor.widgets.property.editor.OuterFilterConditionEditor");  
+        editorMap.put("TARGET_STMT_TYPE",
+                "org.netbeans.modules.edm.editor.widgets.property.editor.StatementTypeCustomEditor"); 
     }
     
     private PropertyEditorManager() {

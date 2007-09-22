@@ -27,6 +27,7 @@ import org.netbeans.modules.edm.editor.graph.MashupGraphManager;
 import org.netbeans.modules.edm.editor.dataobject.MashupDataObject;
 
 import org.netbeans.modules.sql.framework.model.SQLObject;
+import org.netbeans.modules.sql.framework.model.SourceTable;
 
 /**
  * This class implements the popup provider for the table.
@@ -79,8 +80,18 @@ public class TablePopupProvider implements PopupMenuProvider {
         remove.setAction(new RemoveObjectAction(mObj, obj, "Remove Table"));
         menu.add(remove);      
         
+        //add AutoMap action
+        if (obj instanceof SourceTable) {
+            JMenuItem autoMap = new JMenuItem("Auto Map");
+            autoMap.setAction(new AutoMapAction(mObj, obj, "AutoMap"));
+            menu.add(autoMap);
+            
          menu.addSeparator();
                      
+            if (mObj.getModel().getSQLDefinition().getTargetTables().size() == 0) {
+                autoMap.setEnabled(false);
+            }
+        }
         return menu;
     }
 }

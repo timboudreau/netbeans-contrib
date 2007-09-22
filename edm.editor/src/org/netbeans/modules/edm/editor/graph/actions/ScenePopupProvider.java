@@ -52,6 +52,16 @@ public class ScenePopupProvider implements PopupMenuProvider {
         layout.setAction(new AutoLayoutAction(mObj, "Auto Layout"));
         menu.add(layout);
         
+         // add Validate action
+        JMenuItem validate = new JMenuItem("Validate");
+        validate.setAction(new ValidationAction(mObj,"Validate"));
+        menu.add(validate);
+      
+         // add ToggleOutput action
+        JMenuItem toggleOutput = new JMenuItem("Toggle Output");
+        toggleOutput.setAction(new ShowOutputAction("Toggle Output",mObj));
+        menu.add(toggleOutput);
+        
         menu.addSeparator();
         
         // add edit join view action.
@@ -71,6 +81,15 @@ public class ScenePopupProvider implements PopupMenuProvider {
         
         menu.addSeparator();
         
+        //add Expand All action
+        JMenuItem expand = new JMenuItem("Expand All");
+        expand.setAction(new ExpandAllAction(mObj, "Expand All"));
+        menu.add(expand); 
+        
+         //add collapse All action
+        JMenuItem collapse = new JMenuItem("Collapse All");
+        collapse.setAction(new CollapseAllAction(mObj, "Collapse All"));
+        menu.add(collapse); 
         // add run action.
         JMenuItem run = new JMenuItem("Run");
         run.setAction(new TestRunAction(mObj, "Run"));

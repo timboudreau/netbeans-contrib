@@ -19,7 +19,6 @@ import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.util.*;
 import java.util.List;
-
 import org.netbeans.api.visual.action.WidgetAction;
 import org.netbeans.api.visual.anchor.Anchor;
 import org.netbeans.api.visual.anchor.AnchorFactory;
@@ -31,7 +30,6 @@ import org.netbeans.api.visual.model.StateModel;
 import org.netbeans.api.visual.widget.*;
 import org.openide.util.Utilities;
 import org.openide.windows.WindowManager;
-
 import org.netbeans.modules.edm.editor.dataobject.MashupDataObject;
 
 /**
@@ -61,12 +59,12 @@ public class EDMNodeWidget extends Widget implements StateModel.Listener, EDMMin
     
     private SeparatorWidget pinsSeparator;
     
-    private HashMap<String, Widget> pinCategoryWidgets = new HashMap<String, Widget> ();
-    private Font fontPinCategory = getScene().getFont().deriveFont(10.0f);
+    private HashMap<String, Widget> pinCategoryWidgets = new HashMap<String, Widget>();
+    private Font fontPinCategory = getScene().getFont().deriveFont(11.0f);
     
     private StateModel stateModel = new StateModel(2);
     private Anchor nodeAnchor = new EDMNodeAnchor(this);
-    
+    LayerWidget interactionLayer;
     /**
      * Creates a node widget.
      * @param scene the scene
@@ -86,8 +84,10 @@ public class EDMNodeWidget extends Widget implements StateModel.Listener, EDMMin
         header.setLayout(LayoutFactory.createHorizontalFlowLayout(LayoutFactory.SerialAlignment.CENTER, 8));
         addChild(header);
         
-        minimizeWidget = new ImageWidget(scene,
-                Utilities.loadImage("org/netbeans/modules/edm/editor/resources/edm-collapse.png"));
+        interactionLayer = new LayerWidget(scene);
+        addChild(interactionLayer);
+        
+        minimizeWidget = new ImageWidget(scene, Utilities.loadImage("org/netbeans/modules/edm/editor/resources/edm-collapse.png"));
         minimizeWidget.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         minimizeWidget.setBorder(BORDER_MINIMIZE);
         minimizeWidget.getActions().addAction(new ToggleMinimizedAction());
@@ -164,13 +164,12 @@ public class EDMNodeWidget extends Widget implements StateModel.Listener, EDMMin
     public void stateChanged() {
         boolean minimized = stateModel.getBooleanState();
         Rectangle rectangle = minimized ? new Rectangle() : null;
-        for (Widget widget : getChildren())
-            if (widget != header  &&  widget != pinsSeparator) {
-                getScene().getSceneAnimator().animatePreferredBounds(widget, minimized  && isMinimizableWidget(widget) ? rectangle : null);
+        for (Widget widget : getChildren()) {
+            if (widget != header && widget != pinsSeparator) {
+                getScene().getSceneAnimator().animatePreferredBounds(widget, minimized && isMinimizableWidget(widget) ? rectangle : null);
             }
-        minimizeWidget.setImage(minimized ?
-            Utilities.loadImage("org/netbeans/modules/edm/editor/resources/edm-expand.png") :
-            Utilities.loadImage("org/netbeans/modules/edm/editor/resources/edm-collapse.png")); // NOI18N
+    }
+        minimizeWidget.setImage(minimized ? Utilities.loadImage("org/netbeans/modules/edm/editor/resources/edm-expand.png") : Utilities.loadImage("org/netbeans/modules/edm/editor/resources/edm-collapse.png")); // NOI18N
     }
     
     /**
@@ -179,14 +178,13 @@ public class EDMNodeWidget extends Widget implements StateModel.Listener, EDMMin
      * @param state the new state
      */
     protected void notifyStateChanged(ObjectState previousState, ObjectState state) {
-        if (! previousState.isSelected()  &&  state.isSelected()) {
+        if (!previousState.isSelected() && state.isSelected()) {
             bringToFront();
-            MashupDataObject dObj = WindowManager.getDefault().getRegistry().
-                    getActivated().getLookup().lookup(MashupDataObject.class);
-            if(dObj != null) {
+            MashupDataObject dObj = WindowManager.getDefault().getRegistry().getActivated().getLookup().lookup(MashupDataObject.class);
+            if (dObj != null) {
                 dObj.getGraphManager().setSelectedNode(this);
             }
-        }else if (! previousState.isHovered()  &&  state.isHovered()) {
+        } else if (!previousState.isHovered() && state.isHovered()) {
             bringToFront();
         }
         header.setOpaque(state.isSelected());
@@ -235,8 +233,9 @@ public class EDMNodeWidget extends Widget implements StateModel.Listener, EDMMin
     public void attachPinWidget(Widget widget) {
         widget.setCheckClipping(true);
         addChild(widget);
-        if (stateModel.getBooleanState()  && isMinimizableWidget(widget))
+        if (stateModel.getBooleanState() && isMinimizableWidget(widget)) {
             widget.setPreferredBounds(new Rectangle());
+        }
         revalidate();
     }
     
@@ -305,7 +304,7 @@ public class EDMNodeWidget extends Widget implements StateModel.Listener, EDMMin
      */
     public void sortPins(Map<String, List<Widget>> pinsCategories) {
         List<Widget> previousPins = getPinWidgets();
-        ArrayList<Widget> unresolvedPins = new ArrayList<Widget> (previousPins);
+        ArrayList<Widget> unresolvedPins = new ArrayList<Widget>(previousPins);
         
         for (Iterator<Widget> iterator = unresolvedPins.iterator(); iterator.hasNext();) {
             Widget widget = iterator.next();
@@ -315,26 +314,28 @@ public class EDMNodeWidget extends Widget implements StateModel.Listener, EDMMin
             }
         }
         
-        ArrayList<String> unusedCategories = new ArrayList<String> (pinCategoryWidgets.keySet());
+        ArrayList<String> unusedCategories = new ArrayList<String>(pinCategoryWidgets.keySet());
         
-        ArrayList<String> categoryNames = new ArrayList<String> (pinsCategories.keySet());        
+        ArrayList<String> categoryNames = new ArrayList<String>(pinsCategories.keySet());
         
-        ArrayList<Widget> newWidgets = new ArrayList<Widget> ();
+        ArrayList<Widget> newWidgets = new ArrayList<Widget>();
         for (String categoryName : categoryNames) {
-            if (categoryName == null)
+            if (categoryName == null) {
                 continue;
+            }
             unusedCategories.remove(categoryName);
             revalidate();
             newWidgets.add(createPinCategoryWidget(categoryName));
             List<Widget> widgets = pinsCategories.get(categoryName);
-            for (Widget widget : widgets)
+            for (Widget widget : widgets) {
                 if (unresolvedPins.remove(widget)) {
                     newWidgets.add(widget);
                     revalidate();
                 }
         }
+        }
         
-        if (! unresolvedPins.isEmpty()) {
+        if (!unresolvedPins.isEmpty()) {
             newWidgets.addAll(0, unresolvedPins);
             revalidate();
         }
@@ -352,22 +353,35 @@ public class EDMNodeWidget extends Widget implements StateModel.Listener, EDMMin
     
     private Widget createPinCategoryWidget(String categoryDisplayName) {
         Widget w = pinCategoryWidgets.get(categoryDisplayName);
-        if (w != null)
+        if (w != null) {
             return w;
+        }
+        ImageWidget minimizeWidget = new ImageWidget(getScene(), Utilities.loadImage("org/netbeans/modules/edm/editor/resources/edm-collapse.png"));
         LabelWidget label = new LabelWidget(getScene(), categoryDisplayName);
         label.setOpaque(true);
-        label.setBackground(BORDER_CATEGORY_BACKGROUND);
-        label.setForeground(Color.GRAY);
+        label.setBackground(Color.lightGray);
+        label.setForeground(Color.BLACK);
         label.setFont(fontPinCategory);
         label.setAlignment(LabelWidget.Alignment.CENTER);
+
+        minimizeWidget.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        minimizeWidget.setBorder(BORDER_MINIMIZE);
+        if (stateModel.getBooleanState() && isMinimizableWidget(minimizeWidget)) {
+            minimizeWidget.setPreferredBounds(new Rectangle());
+        }
+        minimizeWidget.getActions().addAction(new ToggleMinimizedAction());
+        label.addChild(minimizeWidget);
+
         label.setCheckClipping(true);
-        if (stateModel.getBooleanState())
+        if (stateModel.getBooleanState()) {
             label.setPreferredBounds(new Rectangle());
+        }
         pinCategoryWidgets.put(categoryDisplayName, label);
         revalidate();
         return label;
     }
     
+
     /**
      * Collapses the widget.
      */
@@ -392,6 +406,7 @@ public class EDMNodeWidget extends Widget implements StateModel.Listener, EDMMin
     
     private final class ToggleMinimizedAction extends WidgetAction.Adapter {
         
+        @Override
         public State mousePressed(Widget widget, WidgetMouseEvent event) {
             if (event.getButton() == MouseEvent.BUTTON1 || event.getButton() == MouseEvent.BUTTON2) {
                 stateModel.toggleBooleanState();
@@ -400,5 +415,4 @@ public class EDMNodeWidget extends Widget implements StateModel.Listener, EDMMin
             return State.REJECTED;
         }
     }
-    
 }

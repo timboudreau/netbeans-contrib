@@ -26,10 +26,10 @@
     <folder name="Templates">
         <folder name="SOA">
             <file name="untitled.edm" url="MashupTemplate.xml">
-                <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/edm/editor/resources/mashup.png"/>
-                <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.edm.editor.Bundle"/>
-                <attr name="instantiatingIterator" newvalue="org.netbeans.modules.edm.editor.wizard.MashupWizardIterator"/>
                 <attr name="template" boolvalue="true"/>
+                <attr name="instantiatingIterator" methodvalue="org.netbeans.modules.edm.ui.view.wizards.EDMCollaborationWizard.newTemplateIterator"/>
+                <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.edm.editor.Bundle"/>
+                <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/edm/editor/resources/mashup.png"/> 
                 <attr name="templateWizardURL" urlvalue="nbresloc:/org/netbeans/modules/edm/editor/wizard/mashup.html"/>
                 <attr name="templateCategory" stringvalue="XML"/>
             </file>

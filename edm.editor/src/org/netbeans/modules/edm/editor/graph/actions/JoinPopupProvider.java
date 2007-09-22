@@ -62,10 +62,20 @@ public class JoinPopupProvider implements PopupMenuProvider {
         
         menu.addSeparator();
         
+        // add edit join view action.
+        JMenuItem editJoinView = new JMenuItem("Edit Join View");
+        editJoinView.setAction(new EditJoinAction(mObj, "Edit Join View"));
+        menu.add(editJoinView);
+        
         // add edit join condition action.
         JMenuItem editJoinCondition = new JMenuItem("Edit Join Condition");
         editJoinCondition.setAction(new EditJoinConditionAction(mObj, joinOp, "Edit Join Condition"));
         menu.add(editJoinCondition);
+        
+        // add remove action.
+        JMenuItem remove = new JMenuItem("Remove Join");
+        remove.setAction(new RemoveObjectAction(mObj,joinOp, "Remove Join"));
+        menu.add(remove);
         
         return menu;
     }

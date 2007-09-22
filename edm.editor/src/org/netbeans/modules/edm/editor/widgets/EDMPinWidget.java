@@ -23,9 +23,15 @@ import org.netbeans.api.visual.widget.Scene;
 import org.netbeans.api.visual.widget.Widget;
 
 import java.awt.*;
+import java.awt.event.MouseEvent;
 import java.util.List;
 import javax.swing.JCheckBox;
+import org.netbeans.api.visual.action.ActionFactory;
+import org.netbeans.api.visual.action.WidgetAction;
+import org.netbeans.api.visual.model.StateModel;
 import org.netbeans.api.visual.widget.ComponentWidget;
+import org.netbeans.api.visual.widget.ImageWidget;
+
 
 /**
  * This class represents a pin widget in the EDM visualization style.
@@ -35,12 +41,15 @@ import org.netbeans.api.visual.widget.ComponentWidget;
  */
 public class EDMPinWidget extends Widget {
     
+    private ImageWidget minimizeWidget;
     private LabelWidget nameWidget;
     private EDMGlyphSetWidget glyphsWidget;
     private Widget editorWidget;
     private JCheckBox checkBox;
     private EDMNodeAnchor anchor;
     private Scene scene;
+    private StateModel stateModel = new StateModel(2);
+    
     
     /**
      * Creates a pin widget.
@@ -53,14 +62,18 @@ public class EDMPinWidget extends Widget {
         setBackground(EDMNodeWidget.COLOR_SELECTED);
         setOpaque(false);
         setLayout(LayoutFactory.createHorizontalFlowLayout(LayoutFactory.SerialAlignment.CENTER, 8));
+         
         addChild(glyphsWidget = new EDMGlyphSetWidget(scene));
         addChild(nameWidget = new LabelWidget(scene));        
+        
         checkBox = new JCheckBox();
         editorWidget = new ComponentWidget(scene, checkBox);
         revalidate();
         notifyStateChanged(ObjectState.createNormal(), ObjectState.createNormal());
+       
     }
     
+
     /**
      * Creates and enables the Inplace Editor widget.
      * 
@@ -167,5 +180,6 @@ public class EDMPinWidget extends Widget {
     public void doValidation() {
         scene.validate();
     }
+    
     
 }

@@ -38,10 +38,13 @@ import org.netbeans.modules.sql.framework.model.SQLDBTable;
 import org.netbeans.modules.sql.framework.model.SQLDefinition;
 import org.netbeans.modules.sql.framework.model.SQLModelObjectFactory;
 import org.netbeans.modules.sql.framework.model.SourceTable;
+import org.netbeans.modules.sql.framework.model.TargetTable;
 import org.netbeans.modules.sql.framework.model.impl.ForeignKeyImpl;
 import org.netbeans.modules.sql.framework.model.impl.PrimaryKeyImpl;
 import org.netbeans.modules.sql.framework.model.impl.SourceColumnImpl;
 import org.netbeans.modules.sql.framework.model.impl.SourceTableImpl;
+import org.netbeans.modules.sql.framework.model.impl.TargetColumnImpl;
+import org.netbeans.modules.sql.framework.model.impl.TargetTableImpl;
 
 /**
  *
@@ -82,7 +85,9 @@ public class MashupModelHelper {
                     populateModel(dbModel, driver, user, pass, connectionUrl, meta);
                 }
                 SourceTable srcTable = createTable(table, schema, connectionUrl, meta);
+                TargetTable targetTable = createTargetTable(table, schema, connectionUrl, meta);
                 dbModel.addTable(srcTable);
+                dbModel.addTable(targetTable);
                 dbModelMap.put(connectionUrl, dbModel);
                 try {
                     meta.disconnectDB();
@@ -138,7 +143,9 @@ public class MashupModelHelper {
                     populateModel(dbModel, driver, user, pass, connectionUrl, meta);
                 }
                 SourceTable srcTable = createTable(table, schema, connectionUrl, meta);
+                TargetTable targetTable = createTargetTable(table, schema, connectionUrl, meta);
                 dbModel.addTable(srcTable);
+                dbModel.addTable(targetTable);
                 dbModelMap.put(connectionUrl, dbModel);
                 try {
                     meta.disconnectDB();
@@ -245,6 +252,69 @@ public class MashupModelHelper {
         ((SourceTableImpl)ffTable).setSelected(true);
         return ffTable;
     }
-    private static Object model;
-    private static Object tblModel;
+    
+    //to add Target Table
+    private static TargetTable createTargetTable(String table, String sch,
+            String connectionUrl, DBMetaData meta) throws Exception {
+        TargetTable ffTable = new TargetTableImpl(table, sch, "");
+        Table t = meta.getTableMetaData(((TargetTableImpl)ffTable).getCatalog(),
+                ((TargetTableImpl)ffTable).getSchema(), ((TargetTableImpl)ffTable).getName(), "TABLE");
+        meta.checkForeignKeys(t);
+        meta.checkPrimaryKeys(t);
+        TableColumn[] cols = t.getColumns();
+        TableColumn tc = null;
+        List pks = t.getPrimaryKeyColumnList();
+        List<String> pkCols = new ArrayList<String>();
+        Iterator it = pks.iterator();
+        while(it.hasNext()) {
+            KeyColumn kc = (KeyColumn)it.next();
+            pkCols.add(kc.getColumnName());
+}
+        if(pks.size()!=0) {
+            PrimaryKeyImpl pkImpl = new PrimaryKeyImpl(((KeyColumn)t.getPrimaryKeyColumnList().get(0)).getName(), pkCols, true);
+            ((TargetTableImpl)ffTable).setPrimaryKey(pkImpl);
+            
+        }
+        List fkList = t.getForeignKeyColumnList();
+        it = fkList.iterator();
+        while(it.hasNext()) {
+            ForeignKeyColumn fkCol = (ForeignKeyColumn)it.next();
+            ForeignKeyImpl fkImpl = new ForeignKeyImpl((SQLDBTable)ffTable, fkCol.getName(), fkCol.getImportKeyName(),
+                    fkCol.getImportTableName(), fkCol.getImportSchemaName(), fkCol.getImportCatalogName(), fkCol.getUpdateRule(),
+                    fkCol.getDeleteRule(), fkCol.getDeferrability());
+            List<String> fkColumns = new ArrayList<String>();
+            fkColumns.add(fkCol.getColumnName());
+            String catalog = fkCol.getImportCatalogName();
+            if (catalog == null) {
+                catalog = "";
+            }
+            String schema = fkCol.getImportSchemaName();
+            if(schema == null) {
+                schema = "";
+            }
+            pks = meta.getPrimaryKeys(catalog, schema, fkCol.getImportTableName());
+            List<String> pkColumns = new ArrayList<String>();
+            Iterator pksIt = pks.iterator();
+            while(pksIt.hasNext()) {
+                KeyColumn kc = (KeyColumn)pksIt.next();
+                pkColumns.add(kc.getColumnName());
+            }
+            fkImpl.setColumnNames(fkColumns, pkColumns);
+            ((TargetTableImpl)ffTable).addForeignKey(fkImpl);
+        }
+        for (int j = 0; j < cols.length; j++) {
+            tc = cols[j];
+            TargetColumnImpl ffColumn = new TargetColumnImpl(tc.getName(), tc
+                    .getSqlTypeCode(), tc.getNumericScale(), tc
+                    .getNumericPrecision(), tc
+                    .getIsPrimaryKey(), tc.getIsForeignKey(),
+                    false /* isIndexed */, tc.getIsNullable());
+            ffColumn.setVisible(true);
+            ((TargetTableImpl)ffTable).addColumn(ffColumn);
+            
+        }
+        ((TargetTableImpl)ffTable).setEditable(true);
+        ((TargetTableImpl)ffTable).setSelected(true);
+        return ffTable;
+    } 
 }
