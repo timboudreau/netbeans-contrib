@@ -37,7 +37,7 @@ public class RuntimeInputAction extends AbstractAction {
     
     private SQLObject obj;
     
-    /** Creates a new instance of EditJoinAction */
+    /** Creates a new instance of RuntimeInputAction */
     public RuntimeInputAction(MashupDataObject dObj) {
         super("",new ImageIcon(
                 MashupGraphUtil.getImage(ImageConstants.RUNTIMEINPUT)));

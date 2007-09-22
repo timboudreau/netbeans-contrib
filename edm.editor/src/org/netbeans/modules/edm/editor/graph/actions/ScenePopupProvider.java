@@ -25,8 +25,6 @@ import org.netbeans.api.visual.widget.Widget;
 
 import org.netbeans.modules.edm.editor.dataobject.MashupDataObject;
 import org.netbeans.modules.edm.editor.graph.MashupGraphManager;
-import org.netbeans.modules.edm.editor.graph.actions.AutoLayoutAction;
-import org.netbeans.modules.edm.editor.graph.actions.EditJoinAction;
 
 /**
  * This class implements the popup provider for the scene.
