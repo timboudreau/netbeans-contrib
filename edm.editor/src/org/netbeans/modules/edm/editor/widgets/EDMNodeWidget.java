@@ -47,6 +47,7 @@ public class EDMNodeWidget extends Widget implements StateModel.Listener, EDMMin
     private static final Color BORDER_CATEGORY_BACKGROUND = new Color(0x8BA6FD);
     private static final Border BORDER_MINIMIZE = BorderFactory.createRoundedBorder(2, 2, null, EDMNodeBorder.COLOR_BORDER);
     static final Color COLOR_SELECTED = new Color(0xffffff);
+    //Will appear as Lines after Each nodes
     static final Border BORDER = BorderFactory.createLineBorder(2, 8, 2, 8,Color.LIGHT_GRAY);
     //static final Border BORDER = BorderFactory.createOpaqueBorder(2, 8, 2, 8);
     static final Border BORDER_HOVERED = BorderFactory.createLineBorder(2, 8, 2, 8, Color.RED);
