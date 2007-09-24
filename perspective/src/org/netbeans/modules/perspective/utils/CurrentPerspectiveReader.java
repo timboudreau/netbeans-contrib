@@ -69,7 +69,7 @@ public class CurrentPerspectiveReader {
             }
             TopComponent stc = mode.getSelectedTopComponent();
             if (stc != null) {
-                perspective.addActiveComponent(mode.getName(), windowManager.findTopComponentID(stc));
+                perspective.setActiveComponent(mode.getName(), windowManager.findTopComponentID(stc));
             }
         }
     }

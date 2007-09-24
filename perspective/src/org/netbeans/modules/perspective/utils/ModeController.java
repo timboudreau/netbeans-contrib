@@ -28,6 +28,7 @@ import java.util.Map;
 import java.util.Set;
 import org.netbeans.modules.perspective.persistence.PerspectivePreferences;
 import org.netbeans.modules.perspective.views.Perspective;
+import org.netbeans.modules.perspective.views.PerspectiveListener;
 import org.netbeans.modules.perspective.views.View;
 import org.openide.windows.Mode;
 import org.openide.windows.TopComponent;
@@ -75,19 +76,26 @@ class ModeController {
     Perspective selected;
 
     public void switchView(Perspective perspective) {
+        List<PerspectiveListener> perspetiveListners = null;
         if (perspective == null) {
             return;
         }
         if (selected != null) {
             //Notify closing
-            selected.notifyClosing();
+            perspetiveListners = selected.getPerspectiveListeners();
+            for (PerspectiveListener perspetiveListner : perspetiveListners) {
+                perspetiveListner.perspetiveOpening();
+            }
             if (PerspectivePreferences.getInstance().isTrackOpened()) {
                 //track opened Tc to perspective
                 new OpenedViewTracker(selected);
             }
         }
-        //Notify operning
-        perspective.notifyOpening();
+        perspetiveListners = perspective.getPerspectiveListeners();
+        for (PerspectiveListener perspetiveListner : perspetiveListners) {
+            perspetiveListner.perspetiveOpening();
+        }
+
         selected = perspective;
         if (PerspectivePreferences.getInstance().isCloseOpened()) {
             //close opened TC's
