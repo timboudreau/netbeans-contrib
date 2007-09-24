@@ -16,21 +16,14 @@
  * Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
  * Microsystems, Inc. All Rights Reserved.
  */
-/*
- * View.java
- * 
- * Created on Jul 23, 2007, 9:16:19 AM
- * 
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
+
 
 package org.netbeans.modules.perspective.views;
 
 import java.io.Serializable;
 
 /**
- *
+ * Represent TopComponent State In Perspective (ex: Mode ID,Open or not) 
  * @author Anuradha G
  */
 public class View implements Serializable{
@@ -38,37 +31,73 @@ public class View implements Serializable{
     private String topcomponentID;
     private String mode;
     private boolean open;
+    
+    /**
+     * Create View 
+     * @param topcomponentID TopComponent ID
+     * @param mode Mode ID
+     */
     public View(String topcomponentID, String mode) {
         this.topcomponentID = topcomponentID;
         this.mode = mode;
     }
 
+    /**
+     * Create View 
+     * @param topcomponentID TopComponent ID
+     * @param mode Mode ID
+     * @param open TopComponent opened or not 
+     */
     public View(String topcomponentID, String mode, boolean open) {
         this.topcomponentID = topcomponentID;
         this.mode = mode;
         this.open = open;
     }
 
+    /**
+     * Return Mode ID
+     * @return Mode ID
+     */
     public String getMode() {
         return mode;
     }
 
+    /**
+     * Set Mode ID
+     * @param mode Mode ID 
+     */
     public void setMode(String mode) {
         this.mode = mode;
     }
 
+    /**
+     * Return TopComponent ID
+     * @return TopComponent ID
+     */
     public String getTopcomponentID() {
         return topcomponentID;
     }
 
+    /**
+     * Set TopComponent ID
+     * @param topcomponentID TopComponent ID 
+     */
     public void setTopcomponentID(String topcomponentID) {
         this.topcomponentID = topcomponentID;
     }
 
+    /**
+     * Return TopComponent Opened or not
+     * @return opened
+     */
     public boolean isOpen() {
         return open;
     }
 
+    /**
+     * Set TopComponent Opened or not
+     * @param open 
+     */
     public void setOpen(boolean open) {
         this.open = open;
     }
