@@ -28,6 +28,8 @@ import java.util.Collections;
 import java.util.StringTokenizer;
 import javax.swing.text.BadLocationException;
 import org.netbeans.editor.BaseDocument;
+import org.netbeans.modules.cnd.api.project.NativeFileItem;
+import org.netbeans.modules.cnd.api.project.NativeFileItemSet;
 import org.netbeans.modules.cnd.syntaxerr.DebugUtils;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
@@ -73,7 +75,7 @@ class ErrorProviderImpl extends ErrorProvider {
             writer.write(System.getProperty("line.separator"));
             writer.close();
             // TODO: set correct options
-            String command = compiler + " -c -o /dev/null -I . " + tmpFile.getAbsolutePath(); // NOI18N
+            String command = compiler + " -c -o /dev/null -I . " + getOptions(dao) + ' ' + tmpFile.getAbsolutePath(); // NOI18N
             if( DebugUtils.SLEEP_ON_PARSE ) DebugUtils.sleep(3000);
             if( DebugUtils.TRACE ) System.err.printf("\n\nRUNNING %s\n", command);
             Process compilerProcess = Runtime.getRuntime().exec(command, null, FileUtil.toFile(fo.getParent()));
@@ -87,6 +89,28 @@ class ErrorProviderImpl extends ErrorProvider {
             return result;
         }
         return Collections.emptyList();
+    }
+    
+    private String getOptions(DataObject dao) {
+        // FIXUP: a temporary varyant that allows to get *something*
+        // TODO: think over, what if there are several items?
+        StringBuilder sb = new StringBuilder();
+        NativeFileItemSet itemSet = dao.getLookup().lookup(NativeFileItemSet.class);
+        if( itemSet != null ) {
+            for( NativeFileItem item : itemSet ) {
+                for( String path : item.getUserIncludePaths() ) {
+                    sb.append(" -I ");
+                    sb.append(path);
+                }
+    //            for( String def : item.getUserMacroDefinitions() ) {
+    //                sb.append(" -D ");
+    //                sb.append(def);
+    //            }
+                break;
+            }
+            sb.append(' ');
+        }
+        return sb.toString();
     }
 
     // FIXUP: a temporary implementation, just to try how it looks like
