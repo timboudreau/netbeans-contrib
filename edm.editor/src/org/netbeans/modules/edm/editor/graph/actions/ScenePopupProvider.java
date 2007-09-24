@@ -77,6 +77,11 @@ public class ScenePopupProvider implements PopupMenuProvider {
         editRuntime.setAction(new RuntimeInputAction(mObj, "Edit Runtime Input Arguments"));
         menu.add(editRuntime);
         
+        // Edit Runtime output action.
+        JMenuItem editOutputRuntime = new JMenuItem("Edit Runtime Output Arguments");
+        editOutputRuntime.setAction(new RuntimeOutputAction(mObj, "Edit Runtime Output Arguments"));
+        menu.add(editOutputRuntime);
+        
         menu.addSeparator();
         
         //add Expand All action
@@ -92,6 +97,13 @@ public class ScenePopupProvider implements PopupMenuProvider {
         JMenuItem run = new JMenuItem("Run");
         run.setAction(new TestRunAction(mObj, "Run"));
         menu.add(run);       
+        
+        menu.addSeparator();
+        
+        // add Properties action.
+        JMenuItem properties = new JMenuItem("Properties");
+        properties.setAction(new PropertiesAction(mObj, "Properties"));
+        menu.add(properties);
         
         return menu;
     }
