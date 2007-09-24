@@ -85,6 +85,7 @@ class FileHighliter implements DocumentListener {
         disregard = true;
         disposed = true;
         doc.removeDocumentListener(this);
+        clearAnnotations();
     }
     
     /**
@@ -139,13 +140,17 @@ class FileHighliter implements DocumentListener {
     }
     
     private void setAnnotations(Collection<ErrorInfo> errors) {
+        clearAnnotations();
+        for (ErrorInfo info : errors) {
+            attachAnnotation(info);
+        }
+    }
+    
+    private void clearAnnotations() {
         for (Annotation annotation : annotations) {
             NbDocument.removeAnnotation((StyledDocument) doc, annotation);
         }
         annotations.clear();
-        for (ErrorInfo info : errors) {
-            attachAnnotation(info);
-        }
     }
     
     private final void attachAnnotation(final ErrorInfo info) {
