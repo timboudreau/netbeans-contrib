@@ -19,7 +19,6 @@ package org.netbeans.modules.perspective;
 import java.util.List;
 import org.netbeans.modules.perspective.utils.PerspectiveManagerImpl;
 import org.netbeans.modules.perspective.views.Perspective;
-import org.openide.util.Lookup;
 
 /**
  *
@@ -28,11 +27,7 @@ import org.openide.util.Lookup;
 public abstract class PerspectiveManager {
 
     public static PerspectiveManager getDefault() {
-        PerspectiveManager lookup = Lookup.getDefault().lookup(PerspectiveManager.class);
-        if (lookup == null) {
-            lookup = PerspectiveManagerImpl.getInstance();
-        }
-        return lookup;
+        return PerspectiveManagerImpl.getInstance();
     }
 
     public abstract void registerPerspective(int index, Perspective perspective);
