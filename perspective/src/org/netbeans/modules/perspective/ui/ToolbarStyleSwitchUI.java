@@ -135,7 +135,6 @@ public class ToolbarStyleSwitchUI extends JToolBar {
         setRollover(true);
         add(jSeparator1);
 
-        btnList.setText(org.openide.util.NbBundle.getMessage(ToolbarStyleSwitchUI.class, "ToolbarStyleSwitchUI.btnList.text")); // NOI18N
         btnList.setFocusable(false);
         btnList.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
         btnList.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);

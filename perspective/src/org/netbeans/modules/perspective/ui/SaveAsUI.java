@@ -142,10 +142,12 @@ public class SaveAsUI extends javax.swing.JDialog {
         setResizable(false);
 
         btnCancel.setAction(new CancelAction());
-        btnCancel.setText(org.openide.util.NbBundle.getMessage(SaveAsUI.class, "SaveAsUI.btnCancel.text")); // NOI18N
+        btnCancel.setMnemonic('C');
+        btnCancel.setText(org.openide.util.NbBundle.getMessage(SaveAsUI.class, "Cancel")); // NOI18N
 
         btnOK.setAction(new SaveAs());
-        btnOK.setText(org.openide.util.NbBundle.getMessage(SaveAsUI.class, "SaveAsUI.btnOK.text")); // NOI18N
+        btnOK.setMnemonic('O');
+        btnOK.setText(org.openide.util.NbBundle.getMessage(SaveAsUI.class, "OK")); // NOI18N
 
         modeList.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
         jScrollPane1.setViewportView(modeList);
@@ -286,7 +288,7 @@ public class SaveAsUI extends javax.swing.JDialog {
     private void saveAsMutilMode() {
         Perspective perspective = (Perspective) modeList.getSelectedValue();
         if (perspective != null) {
-            NotifyDescriptor d = new NotifyDescriptor.Confirmation("'"+perspective.getAlias()+ java.util.ResourceBundle.getBundle("org/netbeans/modules/perspective/ui/Bundle").getString("OverWrite_Massage"), java.util.ResourceBundle.getBundle("org/netbeans/modules/perspective/ui/Bundle").getString("Overwrite_MultiMode_View"),
+            NotifyDescriptor d = new NotifyDescriptor.Confirmation("'"+perspective.getAlias()+ NbBundle.getMessage(SaveAsUI.class,"OverWrite_Massage"), NbBundle.getMessage(SaveAsUI.class,"Overwrite_Perspective"),
                     NotifyDescriptor.YES_NO_OPTION);
             if (DialogDisplayer.getDefault().notify(d) != NotifyDescriptor.YES_OPTION) {
                 return;
