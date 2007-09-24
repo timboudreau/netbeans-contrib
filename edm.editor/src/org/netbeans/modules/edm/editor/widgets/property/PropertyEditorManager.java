@@ -39,6 +39,8 @@ public class PropertyEditorManager {
                 "org.netbeans.modules.edm.editor.widgets.property.editor.JoinTypeCustomEditor");
         editorMap.put("EXTRACTION_CONDITION",
                 "org.netbeans.modules.edm.editor.widgets.property.editor.ExtractionConditionCustomEditor");
+        editorMap.put("EXECUTION_STRATEGY",
+                "org.netbeans.modules.edm.editor.widgets.property.editor.ExecutionStrategyEditor"); 
         editorMap.put("HAVING_CONDITION",
                 "org.netbeans.modules.edm.editor.widgets.property.editor.HavingConditionCustomEditor");        
         editorMap.put("TARGET_JOIN_CONDITION",
