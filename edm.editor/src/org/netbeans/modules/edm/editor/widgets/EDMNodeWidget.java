@@ -180,10 +180,10 @@ public class EDMNodeWidget extends Widget implements StateModel.Listener, EDMMin
     protected void notifyStateChanged(ObjectState previousState, ObjectState state) {
         if (!previousState.isSelected() && state.isSelected()) {
             bringToFront();
-            MashupDataObject dObj = WindowManager.getDefault().getRegistry().getActivated().getLookup().lookup(MashupDataObject.class);
+            /*MashupDataObject dObj = WindowManager.getDefault().getRegistry().getActivated().getLookup().lookup(MashupDataObject.class);
             if (dObj != null) {
                 dObj.getGraphManager().setSelectedNode(this);
-            }
+            }*/
         } else if (!previousState.isHovered() && state.isHovered()) {
             bringToFront();
         }
