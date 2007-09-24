@@ -1,7 +1,7 @@
 package org.netbeans.modules.perspective.menus;
 
 import java.io.IOException;
-import org.netbeans.modules.perspective.persistence.MainPaser;
+import org.netbeans.modules.perspective.persistence.MainParser;
 import org.openide.DialogDisplayer;
 import org.openide.NotifyDescriptor;
 import org.openide.util.Exceptions;
@@ -17,7 +17,7 @@ public final class ResetAction extends CallableSystemAction {
         NotifyDescriptor d = new NotifyDescriptor.Confirmation(NbBundle.getMessage(ResetAction.class,"Reset_Comfrom_Massage"), NbBundle.getMessage(ResetAction.class,"Reset_Perspectives"), NotifyDescriptor.OK_CANCEL_OPTION);
         if (DialogDisplayer.getDefault().notify(d) == NotifyDescriptor.OK_OPTION) {
             try {
-                MainPaser.getInstance().reset();
+                MainParser.getInstance().reset();
                 NotifyDescriptor information = new NotifyDescriptor.Message(NbBundle.getMessage(ResetAction.class,"Window_Reset_Massage"), NotifyDescriptor.INFORMATION_MESSAGE);
                 DialogDisplayer.getDefault().notify(information);
             } catch (IOException ex) {
