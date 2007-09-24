@@ -4,7 +4,7 @@
     <configuration>
         <data xmlns="http://www.netbeans.org/ns/nb-module-project/3">
             <code-name-base>org.netbeans.modules.perspective</code-name-base>
-               <module-dependencies>
+            <module-dependencies>
                 <dependency>
                     <code-name-base>org.jdesktop.layout</code-name-base>
                     <build-prerequisite/>
@@ -77,5 +77,8 @@
                 <package>org.netbeans.modules.perspective.views</package>
             </public-packages>
         </data>
+        <spellchecker-wordlist xmlns="http://www.netbeans.org/ns/spellchecker-wordlist/1">
+            <word>lifecycle</word>
+        </spellchecker-wordlist>
     </configuration>
 </project>
