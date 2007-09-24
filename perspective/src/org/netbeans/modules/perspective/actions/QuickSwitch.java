@@ -12,7 +12,7 @@ public final class QuickSwitch extends AbstractAction {
 
     public QuickSwitch() {
         putValue( NAME, getName() );
-        putValue("noIconInMenu", Boolean.TRUE);//NOI18n
+        putValue("noIconInMenu", Boolean.TRUE);//NOI18N
     }
 
 
