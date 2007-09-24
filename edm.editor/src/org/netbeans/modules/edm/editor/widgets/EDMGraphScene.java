@@ -132,9 +132,10 @@ public class EDMGraphScene extends GraphPinScene<String, String, String> {
         EDMPinWidget widget = new EDMPinWidget (this);
         ((EDMNodeWidget) findWidget (node)).attachPinWidget (widget);
         revalidate();
-        widget.getActions().addAction(ActionFactory.createConnectAction(interactionLayer,
+        //COMMENTED TO REMOVE THE INTERACTION
+        /*widget.getActions().addAction(ActionFactory.createConnectAction(interactionLayer,
                 new SceneConnectProvider(this)));//createExtendedConnectAction to use with CTRL key
-        widget.getActions().addAction(ActionFactory.createAlignWithMoveAction(mainLayer, interactionLayer, null));
+        widget.getActions().addAction(ActionFactory.createAlignWithMoveAction(mainLayer, interactionLayer, null));*/
         widget.getActions().addAction(createObjectHoverAction());
         widget.getActions().addAction(createSelectAction());
         widget.getActions().addAction(moveAction);
