@@ -34,7 +34,7 @@ public class OperatorChildren extends Index.ArrayChildren {
         {"0", "Table Operators", "org/netbeans/modules/edm/editor/resources/join_view.png", "Join"},
         {"1", "Table Operators", "org/netbeans/modules/edm/editor/resources/groupby.gif", "Group By"},
         
-        {"2", "String Operators", "org/netbeans/modules/sql/framework/ui/resources/images/length.png", "Length"},        
+     /*  {"2", "String Operators", "org/netbeans/modules/sql/framework/ui/resources/images/length.png", "Length"},        
         {"3", "String Operators", "org/netbeans/modules/sql/framework/ui/resources/images/replace.gif", "Replace"},
         {"4", "String Operators", "org/netbeans/modules/sql/framework/ui/resources/images/rightTrim.png", "Right Trim"},
         {"5", "String Operators", "org/netbeans/modules/sql/framework/ui/resources/images/stringToHex.png", "StringToHex"},        
@@ -73,7 +73,7 @@ public class OperatorChildren extends Index.ArrayChildren {
         {"34", "Function Operators", "org/netbeans/modules/sql/framework/ui/resources/images/sign.png", "Sign"},
         {"35", "Function Operators", "org/netbeans/modules/sql/framework/ui/resources/images/subtraction.gif", "Subtraction"},
         {"36", "Function Operators", "org/netbeans/modules/sql/framework/ui/resources/images/SUM.png", "Sum"},
-        {"37", "Function Operators", "org/netbeans/modules/sql/framework/ui/resources/images/addition.gif", "Add"},
+        {"37", "Function Operators", "org/netbeans/modules/sql/framework/ui/resources/images/addition.gif", "Add"},*/
         
     };
 

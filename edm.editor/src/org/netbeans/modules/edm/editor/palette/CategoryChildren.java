@@ -27,11 +27,11 @@ public class CategoryChildren extends Children.Keys {
 
     private String[] Categories = new String[]{
         "Table Operators", /*"Mashup Operators"*/
-        "String Operators",
-        "Cleansing Operators",
-        "SQL Specific Operators",
-        "Date Operators",
-        "Function Operators"
+       // "String Operators",
+       // "Cleansing Operators",
+      // "SQL Specific Operators",
+      //  "Date Operators",
+      //  "Function Operators"
     };
 
 
