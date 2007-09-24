@@ -41,6 +41,7 @@ public class MashupGraphUtil {
         imageMap.put(ImageConstants.FOREIGNKEY, ImageConstants.FOREIGN_KEY_IMAGE);
         imageMap.put(ImageConstants.JOIN, ImageConstants.JOIN_IMAGE);
         imageMap.put(ImageConstants.RUNTIMEINPUT, ImageConstants.RUNTIME_INPUT_IMAGE);
+        imageMap.put(ImageConstants.RUNTIMEOUTPUT, ImageConstants.RUNTIME_OUTPUT_IMAGE);
         imageMap.put(ImageConstants.TABLE, ImageConstants.TABLE_IMAGE);
         imageMap.put(ImageConstants.LAYOUT, ImageConstants.LAYOUT_IMAGE);
         imageMap.put(ImageConstants.COLLAPSEALL, ImageConstants.COLLAPSE_IMAGE);
