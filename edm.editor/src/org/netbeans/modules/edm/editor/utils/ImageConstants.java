@@ -50,6 +50,8 @@ public interface ImageConstants {
     
     public static final String RUNTIMEINPUT = "RUNTIMEINPUT";
     
+    public static final String RUNTIMEOUTPUT = "RUNTIMEOUTPUT";
+    
     public static final String LAYOUT = "LAYOUT";
     
     public static final String COLLAPSEALL = "COLLAPSEALL";
@@ -115,6 +117,9 @@ public interface ImageConstants {
     
     public static final Image RUNTIME_INPUT_IMAGE = Utilities.loadImage(
             "org/netbeans/modules/edm/editor/resources/RuntimeInput.png"); // NOI18N
+    
+    public static final Image RUNTIME_OUTPUT_IMAGE = Utilities.loadImage(
+            "org/netbeans/modules/edm/editor/resources/RuntimeOutput.png"); // NOI18N
     
     public static final Image RUNTIME_ATTR_IMAGE = Utilities.loadImage(
             "org/netbeans/modules/edm/editor/resources/columnselection.png"); // NOI18N
