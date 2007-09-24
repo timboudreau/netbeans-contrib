@@ -18,7 +18,7 @@
  */
 package org.netbeans.modules.perspective.load;
 
-import org.netbeans.modules.perspective.persistence.MainPaser;
+import org.netbeans.modules.perspective.persistence.MainParser;
 import org.openide.modules.ModuleInstall;
 
 /**
@@ -28,15 +28,17 @@ public class Installer extends ModuleInstall {
 
     @Override
     public void close() {
-        MainPaser paser=MainPaser.getInstance();
+        //store Perspective config to perspective dir
+        MainParser paser=MainParser.getInstance();
         paser.store();
 
     }
 
     @Override
     public void restored() {
+        //restore perspectives from perspective dir
         super.restored();
-        MainPaser paser=MainPaser.getInstance();
+        MainParser paser=MainParser.getInstance();
         paser.restore();
     }
     
