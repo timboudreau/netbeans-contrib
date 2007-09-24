@@ -359,7 +359,7 @@ public class EDMNodeWidget extends Widget implements StateModel.Listener, EDMMin
         ImageWidget minimizeWidget = new ImageWidget(getScene(), Utilities.loadImage("org/netbeans/modules/edm/editor/resources/edm-collapse.png"));
         LabelWidget label = new LabelWidget(getScene(), categoryDisplayName);
         label.setOpaque(true);
-        label.setBackground(Color.lightGray);
+        label.setBackground(BORDER_CATEGORY_BACKGROUND);
         label.setForeground(Color.BLACK);
         label.setFont(fontPinCategory);
         label.setAlignment(LabelWidget.Alignment.CENTER);
