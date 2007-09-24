@@ -1,0 +1,191 @@
+/*
+ * The contents of this file are subject to the terms of the Common Development
+ * and Distribution License (the License). You may not use this file except in
+ * compliance with the License.
+ *
+ * You can obtain a copy of the License at http://www.netbeans.org/cddl.html
+ * or http://www.netbeans.org/cddl.txt.
+ *
+ * When distributing Covered Code, include this CDDL Header Notice in each file
+ * and include the License file at http://www.netbeans.org/cddl.txt.
+ * If applicable, add the following below the CDDL Header, with the fields
+ * enclosed by brackets [] replaced by your own identifying information:
+ * "Portions Copyrighted [year] [name of copyright owner]"
+ *
+ * The Original Software is NetBeans. The Initial Developer of the Original
+ * Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
+ * Microsystems, Inc. All Rights Reserved.
+ */
+
+/*
+ * MainPaser.java
+ *
+ */
+
+package org.netbeans.modules.perspective.persistence;
+
+import java.awt.EventQueue;
+import java.io.IOException;
+import java.util.List;
+import org.netbeans.modules.perspective.PerspectiveManager;
+import org.netbeans.modules.perspective.utils.PerspectiveManagerImpl;
+import org.netbeans.modules.perspective.ui.ToolbarStyleSwitchUI;
+import org.netbeans.modules.perspective.utils.OpenedViewTracker;
+import org.netbeans.modules.perspective.views.Perspective;
+import org.openide.filesystems.FileObject;
+import org.openide.filesystems.Repository;
+import org.openide.util.Exceptions;
+import org.openide.windows.WindowManager;
+
+/**
+ *
+ * @author Anuradha G
+ */
+public class MainParser {
+
+    private static final String BASE_DIR = "perspectives"; //NOI18N
+    private static final String EXT = "pv"; //NOI18N
+    private static final String CONFIG_DIR = BASE_DIR + "/config"; //NOI18N
+    private static final String BUILTIN_DIR = BASE_DIR + "/builtin"; //NOI18N
+    private static MainParser instance;
+    private PerspectiveParser paser = new PerspectiveParser();
+    private FileObject config;
+    private FileObject builtin;
+
+    private MainParser() {
+        config = Repository.getDefault().getDefaultFileSystem().findResource(CONFIG_DIR);
+        builtin = Repository.getDefault().getDefaultFileSystem().findResource(BUILTIN_DIR);
+    }
+
+    public static synchronized MainParser getInstance() {
+        if (instance == null) {
+            instance = new MainParser();
+        }
+        return instance;
+    }
+
+    private synchronized void cleanDir() throws IOException {
+        FileObject[] children = config.getChildren();
+        for (FileObject fileObject : children) {
+            fileObject.delete();
+        }
+    }
+
+    public synchronized void restore() {
+        if (!PerspectivePreferences.getInstance().isCompatible()) {
+            try {
+                cleanDir();
+                PerspectivePreferences.getInstance().setCompatible(true);
+            } catch (IOException ex) {
+                Exceptions.printStackTrace(ex);
+            }
+        }
+        PerspectiveManagerImpl.getInstance().clear();
+        FileObject[] builtinChildren = builtin.getChildren();
+        ClassLoader contextLoader = Thread.currentThread().getContextClassLoader();
+        for (FileObject fileObject : builtinChildren) {
+            try {
+                String name = (String) fileObject.getAttribute("class"); //NOI18N
+                Class perspectiveClass = contextLoader.loadClass(name);
+
+                Object object = perspectiveClass.newInstance();
+                if (object instanceof Perspective) {
+                    Perspective perspective = (Perspective) object;
+                    PerspectiveManagerImpl.getInstance().registerPerspective(perspective, false);
+                }
+            } catch (InstantiationException ex) {
+                Exceptions.printStackTrace(ex);
+            } catch (IllegalAccessException ex) {
+                Exceptions.printStackTrace(ex);
+            } catch (ClassNotFoundException ex) {
+                Exceptions.printStackTrace(ex);
+            }
+        }
+
+
+
+
+        FileObject[] viewChildren = config.getChildren();
+        for (FileObject fileObject : viewChildren) {
+            try {
+
+                Perspective decoded = paser.decode(fileObject.getInputStream());
+                if (decoded.getName().startsWith("custom_") || PerspectiveManagerImpl.getInstance().findPerspectiveByID(decoded.getName()) != null) {// NOI18N
+                    
+                    PerspectiveManagerImpl.getInstance().registerPerspective(decoded, false);
+                }
+            } catch (IOException ex) {
+                Exceptions.printStackTrace(ex);
+            } catch (ClassNotFoundException ex) {
+                Exceptions.printStackTrace(ex);
+            }
+        }
+
+
+        PerspectiveManagerImpl.getInstance().arrangeIndexsToExistIndexs();
+        WindowManager.getDefault().invokeWhenUIReady(new Runnable() {
+
+            public void run() {
+                EventQueue.invokeLater(new Runnable() {
+
+                    public void run() {
+
+                        loadSelectedPerspective();
+                    }
+                });
+            }
+        });
+    }
+
+    private void loadSelectedPerspective() {
+        String id = PerspectivePreferences.getInstance().getSelectedPerspective();
+        Perspective selected = null;
+        if (id != null) {
+            selected = PerspectiveManagerImpl.getInstance().findPerspectiveByID(id);
+        }
+        if (selected == null) {
+
+            List<Perspective> perspectives = PerspectiveManager.getDefault().getPerspectives();
+
+            selected = perspectives.size() > 0 ? perspectives.get(0) : null;
+        }
+        if (selected != null) {
+            PerspectiveManager.getDefault().setSelected(selected);
+            ToolbarStyleSwitchUI.getInstance().loadQuickPerspectives();
+        }
+    }
+
+    public synchronized void store() {
+        final List<Perspective> perspectives = PerspectiveManagerImpl.getInstance().getPerspectives();
+        for (Perspective perspective : perspectives) {
+            try {
+                perspective.removePerspectiveListeners();
+                FileObject fileObject = config.getFileObject(perspective.getName(), EXT);
+                if (fileObject == null) {
+                    try {
+                        fileObject = config.createData(perspective.getName(), EXT);
+                    } catch (IOException ex) {
+                        Exceptions.printStackTrace(ex);
+                    }
+                }
+                paser.encode(perspective, fileObject.getOutputStream());
+            } catch (IOException ex) {
+                Exceptions.printStackTrace(ex);
+            }
+        }
+        Perspective selected = PerspectiveManagerImpl.getInstance().getSelected();
+        if (selected != null) {
+            PerspectivePreferences.getInstance().setSelectedPerspective(selected.getName());
+            if (PerspectivePreferences.getInstance().isTrackOpened()) {
+                new OpenedViewTracker(selected);
+            }
+        }
+    }
+
+    public synchronized void reset() throws IOException {
+        PerspectivePreferences.getInstance().reset();
+        ToolbarStyleSwitchUI.getInstance().reset();
+        cleanDir();
+        restore();
+    }
+}
