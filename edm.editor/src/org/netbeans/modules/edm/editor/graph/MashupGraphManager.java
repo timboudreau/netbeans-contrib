@@ -351,7 +351,7 @@ public class MashupGraphManager {
     }
     
     public void setSelectedNode(Widget wd) {
-        SQLObject obj = widgetToObjectMap.get(wd);  
+        SQLObject obj = widgetToObjectMap.get(wd);         
         if (obj != null) {
             if (obj instanceof SQLJoinOperator) {
                 WindowManager.getDefault().getRegistry().getActivated().setActivatedNodes(new Node[]{new JoinNode((SQLJoinOperator) obj, mObj)});
@@ -812,9 +812,8 @@ public class MashupGraphManager {
         SQLJoinOperator joinOperator = joinView.getRootJoin();
         String join = createGraphNode(joinOperator);
 
-        //recursivelyAddNodes(joinOperator, join);
+        recursivelyAddNodes(joinOperator, join);
 
-        //recursivelyAddNodes(joinOperator, join);
 
         // Add tables which are not a part of the join.
         SQLDBTable[] dbTables = (SQLDBTable[]) sqlDefinition.
