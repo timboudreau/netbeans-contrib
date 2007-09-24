@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+    Document   : JCAPSMethodDetails.xml
+    Created on : August 17, 2007, 2:53 PM
+    Author     : Vihang
+    Description:
+        Purpose of the document follows.
+-->
+
+<ns6:root  xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'
+   xmlns:ns6='http://xml.netbeans.org/schema/SAWImplementationDetails'
+   xsi:schemaLocation='http://xml.netbeans.org/schema/SAWImplementationDetails SAWImplementationDetails.xsd'>
+<ImplementationType implType="jcaps">
+        <MethodName methodName="checkOutTask">
+                <returnType>
+                        void
+                </returnType>
+                <method-parameters>
+                        <param-name>
+                            userId
+                        </param-name>
+                        <param-type>
+                            String
+                        </param-type>
+                        <exception-list>
+                            <exception-name>
+                                java.lang.IOException
+                            </exception-name>
+                        </exception-list>
+                </method-parameters>
+        </MethodName>
+    </ImplementationType>
+</ns6:root>

@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<taglib xmlns="http://java.sun.com/xml/ns/j2ee"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/web-jsptaglibrary_2_0.xsd"
+    version="2.0">
+    <description>SAW Taglib library</description>
+    <display-name>SAW</display-name>
+    <tlib-version>1.0</tlib-version>
+    <short-name>saw</short-name>
+    <uri>http://java.sun.com/saw</uri>
+
+
+    <tag>
+        <description>Return a Task object with the specified task ID.
+        </description>
+        <name>getTaskById</name>
+        <tag-class>com.sun.saw.taglib.GetTaskbyIdTag</tag-class>
+        <body-content>scriptless</body-content>
+       <attribute>
+            <name>workflowTaskVO</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        
+         <attribute>
+            <name>returnvalue</name>
+            <required>true</required>
+        </attribute>
+    </tag>
+
+    <tag>
+        <description>
+            If taskId is provided the task corresponding to the taskId is returned
+            to the value of the returnvalue variable as a pagecontext attribute.
+            If taskId is not provided and if userId is provided
+        </description>
+        <name>getTasks</name>
+        <tag-class>com.sun.saw.taglib.GetTasks</tag-class>
+        <body-content>scriptless</body-content>
+        <attribute>
+            <name>workflowTaskVO</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        
+        <attribute>
+            <name>returnvalue</name>
+            <required>true</required>
+        </attribute>
+    </tag>
+
+    <tag>
+        <description>Count the number of tasks</description>
+        <name>countTask</name>
+        <tag-class>com.sun.saw.taglib.CountTasksTag</tag-class>
+        <body-content>scriptless</body-content>
+
+      <attribute>
+            <name>workflowTaskVO</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        
+         <attribute>
+            <name>returnvalue</name>
+            <required>true</required>
+        </attribute>
+
+        <attribute>
+            <name>subordinateCount</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+    </tag>
+
+</taglib>

@@ -1,0 +1,11 @@
+private boolean $methodName(final ActionRequest request, final ActionResponse response) throws PortletException {
+        PortalWorkFlowManager portalWorkFlowManager = PortalWorkFlowManager.getInstance();
+       
+        boolean taskActionStatus = false;
+        try {
+            taskActionStatus = portalWorkFlowManager.$methodName($portalTaskVO);
+        } catch (PortalWorkflowException ex) {
+        	ex.printStackTrace();
+        }
+        return taskActionStatus;
+}
