@@ -143,11 +143,9 @@ public class SaveAsUI extends javax.swing.JDialog {
 
         btnCancel.setAction(new CancelAction());
         btnCancel.setMnemonic('C');
-        btnCancel.setText(org.openide.util.NbBundle.getMessage(SaveAsUI.class, "Cancel")); // NOI18N
 
         btnOK.setAction(new SaveAs());
         btnOK.setMnemonic('O');
-        btnOK.setText(org.openide.util.NbBundle.getMessage(SaveAsUI.class, "OK")); // NOI18N
 
         modeList.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
         jScrollPane1.setViewportView(modeList);
@@ -226,7 +224,7 @@ public class SaveAsUI extends javax.swing.JDialog {
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(before)
                     .add(after))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 20, Short.MAX_VALUE)
                 .add(jLabel1)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(jScrollPane1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 163, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)

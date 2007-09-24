@@ -84,7 +84,7 @@
                   <Component id="before" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="after" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
-              <EmptySpace max="32767" attributes="0"/>
+              <EmptySpace pref="20" max="32767" attributes="0"/>
               <Component id="jLabel1" min="-2" max="-2" attributes="0"/>
               <EmptySpace max="-2" attributes="0"/>
               <Component id="jScrollPane1" min="-2" pref="163" max="-2" attributes="0"/>
@@ -105,9 +105,6 @@
           <Connection code="new CancelAction()" type="code"/>
         </Property>
         <Property name="mnemonic" type="int" value="67"/>
-        <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
-          <ResourceString bundle="org/netbeans/modules/perspective/ui/Bundle.properties" key="Cancel" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
-        </Property>
       </Properties>
     </Component>
     <Component class="javax.swing.JButton" name="btnOK">
@@ -116,9 +113,6 @@
           <Connection code="new SaveAs()" type="code"/>
         </Property>
         <Property name="mnemonic" type="int" value="79"/>
-        <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
-          <ResourceString bundle="org/netbeans/modules/perspective/ui/Bundle.properties" key="OK" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
-        </Property>
       </Properties>
     </Component>
     <Container class="javax.swing.JScrollPane" name="jScrollPane1">
