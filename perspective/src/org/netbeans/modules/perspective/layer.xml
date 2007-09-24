@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
+
 <!--
 /*
  * The contents of this file are subject to the terms of the Common Development
@@ -19,76 +20,108 @@
  * Microsystems, Inc. All Rights Reserved.
  */
 -->
+
 <!DOCTYPE filesystem PUBLIC "-//NetBeans//DTD Filesystem 1.1//EN" "http://www.netbeans.org/dtds/filesystem-1_1.dtd">
 <filesystem>
-    
+    <!-- Perspective Actions -->
     <folder name="Actions">
         <folder name="Perspective">
+            <!-- Qucik Action -->
             <file name="org-netbeans-modules-perspective-actions-QuickSwitch.instance"/>
+            <!-- Reset Action -->
             <file name="org-netbeans-modules-perspective-menus-ResetAction.instance"/>
+            <!-- Save as Action -->
             <file name="org-netbeans-modules-perspective-menus-SaveAsAction.instance"/>
         </folder>
     </folder>
+    
+    <!-- Perspective Menu -->
     <folder name="Menu">
         <folder name="Perspective">
+            <!-- i18n attribute -->
             <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.perspective.Bundle"/>
+            <!-- position attribute (between tools and window menu)-->
             <attr name="position" intvalue="1150"/>
-            <file name="org-netbeans-modules-perspective-menus-ResetAction.shadow">
-                <attr name="position" intvalue="300"/>
-                <attr name="originalFile" stringvalue="Actions/Perspective/org-netbeans-modules-perspective-menus-ResetAction.instance"/>
-            </file>
+              <!-- Save as menu -->
             <file name="org-netbeans-perspective-menus-SaveAsAction.shadow">
                 <attr name="position" intvalue="100"/>
                 <attr name="originalFile" stringvalue="Actions/Perspective/org-netbeans-modules-perspective-menus-SaveAsAction.instance"/>
             </file>
+            <!-- Reset menu -->
+            <file name="org-netbeans-modules-perspective-menus-ResetAction.shadow">
+                <attr name="position" intvalue="200"/>
+                <attr name="originalFile" stringvalue="Actions/Perspective/org-netbeans-modules-perspective-menus-ResetAction.instance"/>
+            </file>
+          
         </folder>
     </folder>
+    
+    <!-- Options Dialog -->
     <folder name="OptionsDialog">
+        <!-- Perspctive Caregory -->
         <file name="org-netbeans-modules-perspective-options-PerspectiveOptionsCategory.instance"/>
         <attr name="position" intvalue="800"/>
     </folder>
+    <!-- Shortcuts -->
     <folder name="Shortcuts">
+        <!--Quick Switch Shortcut -->
         <file name="OS-P.shadow">
             <attr name="originalFile" stringvalue="Actions/Perspective/org-netbeans-modules-perspective-actions-QuickSwitch.instance"/>
         </file>
     </folder>
     
+    <!--  Perspective folder-->
     <folder name="perspectives">
-        <folder name="config">
-            
+        <!--Config folder contains  serialized perspectives-->
+        <folder name="config">         
         </folder>
-        
+        <!-- built-in Perspectives Registry -->
         <folder name="builtin">
+            <!--default java Perspective-->
             <file name="java">
                 <attr name="class" stringvalue="org.netbeans.modules.perspective.builtin.BuiltInDefaultView" />            
-            </file>         
+            </file>  
+            <!-- java browser Perspective-->
             <file name="java_browsing">
                 <attr name="class" stringvalue="org.netbeans.modules.perspective.builtin.BuiltInJavaBrowsingView" />         
             </file>
+            <!--debug java Perspective-->
             <file name="debug">
                 <attr name="class" stringvalue="org.netbeans.modules.perspective.builtin.BuiltInJavaDebugView" />             
             </file>     
         </folder>
     </folder>
     
-    
+     <!--window system config folder-->
     <folder name="Windows2">
-    <folder name="Components">
-        <file name="ModeHackTopComponent.settings" url="hacks/ModeHackTopComponentSettings.xml"/>
-    </folder>
-    <folder name="Modes">
-    <file name="javaOutput.wsmode" url="modes/javaOutput.wsmode"/>
-    <folder name="javaOutput"/> 
-    <file name="commonpalette.wsmode" url="modes/outline.wsmode"/>
-    <folder name="commonpalette"/> 
-        <file name="explorer.wsmode" url="modes/explorer.wsmode"/>
-        <folder name="explorer"/> 
+         <!--Tc components folder-->
+        <folder name="Components">
+            <!--Modehack Tc Settings file -->
+            <file name="ModeHackTopComponent.settings" url="hacks/ModeHackTopComponentSettings.xml"/>
+        </folder>
+        <!--Window System Mode Folder-->
+        <folder name="Modes">
+            <!--Custom javaOutput Mode that use by Java Browsing Perspectie-->
+            <file name="javaOutput.wsmode" url="modes/javaOutput.wsmode"/>
+            <folder name="javaOutput"/> 
+            <!--overwrite default commonpalette mode with custom outline.wsmode config
+            see org.netbeans.modules.perspective.modes package
+            -->
+            <file name="commonpalette.wsmode" url="modes/outline.wsmode"/>
+            <folder name="commonpalette"/> 
+            <!--overwrite default explorer mode with custom explorer.wsmode config 
+            see org.netbeans.modules.perspective.modes package
+            -->
+            <file name="explorer.wsmode" url="modes/explorer.wsmode"/>
+            <folder name="explorer"/> 
+            <!--Custom javaExplorer Mode that use by Java Browsing Perspectie and Debug Perspective-->
             <file name="javaExplorer.wsmode" url="modes/javaExplorer.wsmode"/>
-            <folder name="javaExplorer">
-            </folder> 
+            <folder name="javaExplorer"/>
+            <!--Custom javaExplorer Mode that use by Java Browsing Perspectie and Debug Perspective-->
             <file name="javaExplorer2.wsmode" url="modes/javaExplorer2.wsmode"/>
-            <folder name="javaExplorer2">
-            </folder> 
-        </folder>    
-    </folder>
+            <folder name="javaExplorer2"/>
+             
+            </folder>    
+        </folder>
+    
 </filesystem>
