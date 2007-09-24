@@ -92,50 +92,24 @@ public class ErrorHighlighter implements PropertyChangeListener {
 	if (TopComponent.Registry.PROP_CURRENT_NODES.equals(evt.getPropertyName())) {
             checkCurrentNodes();
         }
-	else if(TopComponent.Registry.PROP_OPENED.equals(evt.getPropertyName())) {
-//            Object oldValue = evt.getOldValue();
-//            Object newValue = evt.getNewValue();
-//            if( (oldValue instanceof Set) && (newValue instanceof Set) ) {
-//                Set removed = new HashSet();
-//                for( Object o : (Set) oldValue ) {
-//                    if( ! ((Set) newValue).contains(o) ) {
-//                        if( o instanceof DataEditorSupport ) {
-//                            DataObject dao = ((DataEditorSupport) o).getDataObject();
-//                            synchronized( infoMapLock ) {
-//                                FileHighliter highlighter = infoMap.get(dao);
-//                                if( highlighter != null ) {
-//                                    highlighter.dispose();
-//                                    infoMap.remove(dao);
-//                                }
-//                            }
-//                        }
-//                    }
-//                }
-//            }
+	else if(TopComponent.Registry.PROP_TC_CLOSED.equals(evt.getPropertyName())) {
+            Object newValue = evt.getNewValue();
+            if( newValue instanceof TopComponent ) {
+                TopComponent closedTC = (TopComponent) newValue;
+                DataObject dao = closedTC.getLookup().lookup(DataObject.class);
+                if( dao != null ) {
+                    synchronized (infoMapLock) {
+                        FileHighliter highlighter = infoMap.get(dao);
+                        if (highlighter != null) {
+                            highlighter.dispose();
+                            infoMap.remove(dao);
+                        }
+                    }
+                }
+            }
 	}
 	    
     }
-    
-//    private void checkClosed() {
-//        Node[] nodes = TopComponent.getRegistry().getCurrentNodes();        
-//        Collection<FileHighliter> highlighters;
-//        synchronized( infoMapLock ) {
-//            highlighters = new ArrayList<FileHighliter>(infoMap.values());
-//        }
-//        for( FileHighliter highlighter : highlighters ) {
-//            boolean found = false;
-//            for (int i = 0; i < nodes.length; i++) {
-//                if( highlighter.isMine(nodes[i].getLookup().lookup(DataObject.class))) {
-//                    found = true;
-//                    break;
-//                }
-//            }
-//            if( ! found ) {
-//                highlighter.dispose();
-//                infoMap.remove(highlighter.getDataObject());
-//            }
-//        }
-//    }
     
     private void checkCurrentNodes() {
         //if( DebugUtils.TRACE) System.err.printf("ErrorHighlighter.checkNodes\n");
