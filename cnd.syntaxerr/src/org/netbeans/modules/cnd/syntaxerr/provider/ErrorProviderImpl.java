@@ -69,7 +69,7 @@ class ErrorProviderImpl extends ErrorProvider {
             Collection<ErrorInfo> result = new ArrayList<ErrorInfo>();
             FileObject fo = dao.getPrimaryFile();
             File tmpDir = new File(System.getProperty("java.io.tmpdir"));
-            File tmpFile = File.createTempFile(fo.getName(), "." + fo.getExt(), tmpDir); // NOI18N
+            File tmpFile = File.createTempFile(fo.getName() + '_', "." + fo.getExt(), tmpDir); // NOI18N
             FileWriter writer = new FileWriter(tmpFile);
             doc.write(writer, 0, doc.getLength());
             writer.write(System.getProperty("line.separator"));
