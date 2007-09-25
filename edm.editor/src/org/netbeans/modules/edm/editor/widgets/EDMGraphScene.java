@@ -1,6 +1,6 @@
 /*
  * The contents of this file are subject to the terms of the Common
- * Development and Distribution License (the License). You may not use this 
+ * Development and Distribution License (the License). You may not use this
  * file except in compliance with the License.  You can obtain a copy of the
  *  License at http://www.netbeans.org/cddl.html
  *
@@ -48,9 +48,9 @@ import org.openide.windows.WindowManager;
  * The scene has 4 layers: background, main, connection, upper.
  * <p>
  * The scene has following actions: zoom, panning, rectangular selection.
- * 
- * 
- * 
+ *
+ *
+ *
  * @author David Kaspar
  */
 // TODO - remove popup menu action
@@ -62,12 +62,9 @@ public class EDMGraphScene extends GraphPinScene<String, String, String> {
     private LayerWidget connectionLayer = new LayerWidget(this);
     private LayerWidget upperLayer = new LayerWidget(this);
     protected LayerWidget interactionLayer = new LayerWidget(this);
-
     private Router router;
-
-    private WidgetAction moveControlPointAction = ActionFactory.createOrthogonalMoveControlPointAction ();
-    private WidgetAction moveAction = ActionFactory.createMoveAction ();
-
+    private WidgetAction moveControlPointAction = ActionFactory.createOrthogonalMoveControlPointAction();
+    private WidgetAction moveAction = ActionFactory.createMoveAction();
     private GraphLayout<String, String> graphLayout;
     private SceneLayout sceneLayout;
 
@@ -88,7 +85,7 @@ public class EDMGraphScene extends GraphPinScene<String, String, String> {
         //getActions ().addAction (ActionFactory.createSelectAction(new CreateProvider()));
         getActions().addAction(ActionFactory.createZoomAction());
         getActions().addAction(ActionFactory.createPanAction());
-        
+
         sceneLayout = LayoutFactory.createSceneGraphLayout(this, new GridGraphLayout<String, String>().setChecker(false).setGaps(500, 50));
 
         /*graphLayout = GraphLayoutFactory.createTreeGraphLayout(0, 100, 100, 150, false);
@@ -97,7 +94,7 @@ public class EDMGraphScene extends GraphPinScene<String, String, String> {
 
     /**
      * Implements attaching a widget to a node. The widget is EDMNodeWidget and has object-hover, select and move actions.
-     * 
+     *
      * @param node the node
      * @return the widget attached to the node
      */
@@ -119,7 +116,7 @@ public class EDMGraphScene extends GraphPinScene<String, String, String> {
     /**
      * Implements attaching a widget to a pin. The widget is EDMPinWidget and has object-hover and select action.
      * The the node id ends with "#default" then the pin is the default pin of a node and therefore it is non-visual.
-     * 
+     *
      * @param node the node
      * @param pin the pin
      * @return the widget attached to the pin, null, if it is a default pin
@@ -129,35 +126,40 @@ public class EDMGraphScene extends GraphPinScene<String, String, String> {
         if (pin.endsWith(PIN_ID_DEFAULT_SUFFIX)) {
             return null;
         }
-        EDMPinWidget widget = new EDMPinWidget (this);
-        ((EDMNodeWidget) findWidget (node)).attachPinWidget (widget);
+        EDMPinWidget widget = new EDMPinWidget(this);
+        ((EDMNodeWidget) findWidget (node)).attachPinWidget(widget);
         revalidate();
+        
         //COMMENTED TO REMOVE THE INTERACTION
         /*widget.getActions().addAction(ActionFactory.createConnectAction(interactionLayer,
                 new SceneConnectProvider(this)));//createExtendedConnectAction to use with CTRL key
         widget.getActions().addAction(ActionFactory.createAlignWithMoveAction(mainLayer, interactionLayer, null));*/
+
         widget.getActions().addAction(createObjectHoverAction());
         widget.getActions().addAction(createSelectAction());
         widget.getActions().addAction(moveAction);
         widget.getActions().addAction(moveControlPointAction);
         return widget;
     }
-
     /**
      * Implements attaching a widget to an edge. the widget is ConnectionWidget and has object-hover, select and move-control-point actions.
      * @param edge the edge
      * @return the widget attached to the edge
      */
-    EDMConnectionWidget connectionWidget;
+    EDMConnectionWidget connectionWidget = null;
 
     protected Widget attachEdgeWidget(String edge) {
-        //connectionWidget = new EDMConnectionWidget(this, router);
-        connectionWidget.getActions().addAction(createObjectHoverAction());
-        connectionWidget.getActions().addAction(createSelectAction());
-        connectionWidget.getActions().addAction(moveControlPointAction);
-        connectionLayer.addChild(connectionWidget);
+        
+        EDMConnectionWidget connWidget = new EDMConnectionWidget(this, router);
+        this.connectionWidget = connWidget;
+        connWidget.getActions().addAction(createObjectHoverAction());
+        connWidget.getActions().addAction(createSelectAction());
+        connWidget.getActions().addAction(moveControlPointAction);
+        connectionLayer.addChild(connWidget);
+        java.util.logging.Logger.getLogger(EDMGraphScene.class.getName()).info("edgeID in EDMGraphScene -- > " + edge);
         revalidate();
-        return connectionWidget;
+
+        return connWidget;
     }
 
     /**
@@ -168,8 +170,8 @@ public class EDMGraphScene extends GraphPinScene<String, String, String> {
      * @param oldSourcePin the old source pin
      * @param sourcePin the new source pin
      */
-    protected void attachEdgeSourceAnchor (String edge, String oldSourcePin, String sourcePin) {
-        ((ConnectionWidget) findWidget (edge)).setSourceAnchor (getPinAnchor (sourcePin));
+    protected void attachEdgeSourceAnchor(String edge, String oldSourcePin, String sourcePin) {
+        ((ConnectionWidget) findWidget (edge)).setSourceAnchor(getPinAnchor(sourcePin));
     }
 
     /**
@@ -180,33 +182,33 @@ public class EDMGraphScene extends GraphPinScene<String, String, String> {
      * @param oldTargetPin the old target pin
      * @param targetPin the new target pin
      */
-    protected void attachEdgeTargetAnchor (String edge, String oldTargetPin, String targetPin) {
-        ((ConnectionWidget) findWidget (edge)).setTargetAnchor (getPinAnchor (targetPin));
+    protected void attachEdgeTargetAnchor(String edge, String oldTargetPin, String targetPin) {
+        ((ConnectionWidget) findWidget (edge)).setTargetAnchor(getPinAnchor(targetPin));
     }
 
-    private Anchor getPinAnchor (String pin) {
+    private Anchor getPinAnchor(String pin) {
         EDMNodeWidget nodeWidget = (EDMNodeWidget) findWidget (getPinNode (pin));
-        Widget pinMainWidget = findWidget (pin);
+        Widget pinMainWidget = findWidget(pin);
         Anchor anchor;
         if (pinMainWidget != null) {
-            anchor = AnchorFactory.createDirectionalAnchor (pinMainWidget, AnchorFactory.DirectionalAnchorKind.HORIZONTAL, 8);
-            anchor = nodeWidget.createAnchorPin (anchor);
-        } else
-            anchor = nodeWidget.getNodeAnchor ();
+            anchor = AnchorFactory.createDirectionalAnchor(pinMainWidget, AnchorFactory.DirectionalAnchorKind.HORIZONTAL, 8);
+            anchor = nodeWidget.createAnchorPin(anchor);
+        } else {
+            anchor = nodeWidget.getNodeAnchor();
+        }
         return anchor;
     }
 
     /**
      * Invokes layout of the scene.
      */
-    public void layoutScene (boolean isInitial) {
+    public void layoutScene(boolean isInitial) {
         revalidate();
-        if(isInitial) {
-            SceneLayout devolveLayout = LayoutFactory.createDevolveWidgetLayout(
-                    mainLayer, LayoutFactory.createHorizontalFlowLayout (), true);
+        if (isInitial) {
+            SceneLayout devolveLayout = LayoutFactory.createDevolveWidgetLayout(mainLayer, LayoutFactory.createHorizontalFlowLayout(), true);
             devolveLayout.invokeLayout();
         } else {
-            sceneLayout.invokeLayout ();
+            sceneLayout.invokeLayout();
         }
     }
 
@@ -216,7 +218,7 @@ public class EDMGraphScene extends GraphPinScene<String, String, String> {
 
         SceneConnectProvider(EDMGraphScene scene) {
             this.scene = scene;
-}
+        }
 
         public boolean isSourceWidget(Widget sourceWidget) {
             return true;
@@ -234,11 +236,15 @@ public class EDMGraphScene extends GraphPinScene<String, String, String> {
             return null;
         }
 
-        public void createConnection(Widget sourceWidget, Widget targetWidget) {            
-            connectionWidget = new EDMConnectionWidget(scene, router);
-            connectionWidget.setSourceAnchor(AnchorFactory.createDirectionalAnchor(sourceWidget, AnchorFactory.DirectionalAnchorKind.HORIZONTAL, 8));//.createRectangularAnchor(sourceWidget));
-            connectionWidget.setTargetAnchor(AnchorFactory.createDirectionalAnchor(targetWidget, AnchorFactory.DirectionalAnchorKind.HORIZONTAL, 8));//.createRectangularAnchor(targetWidget));
+        public void createConnection(Widget sourceWidget, Widget targetWidget) {
+            java.util.logging.Logger.getLogger(EDMGraphScene.class.getName()).info("SceneConnectProvider -- > ");            
+            connectionWidget.getActions().addAction(createObjectHoverAction());
+            connectionWidget.getActions().addAction(createSelectAction());
+            connectionWidget.getActions().addAction(moveControlPointAction);
+            connectionWidget.setSourceAnchor(AnchorFactory.createDirectionalAnchor(sourceWidget, AnchorFactory.DirectionalAnchorKind.HORIZONTAL, 8)); //.createRectangularAnchor(sourceWidget));
+            connectionWidget.setTargetAnchor(AnchorFactory.createDirectionalAnchor(targetWidget, AnchorFactory.DirectionalAnchorKind.HORIZONTAL, 8)); //.createRectangularAnchor(targetWidget));
             connectionLayer.addChild(connectionWidget);
+
             //setEdgeSource(PIN_ID_DEFAULT_SUFFIX, PIN_ID_DEFAULT_SUFFIX);
         }
     }
