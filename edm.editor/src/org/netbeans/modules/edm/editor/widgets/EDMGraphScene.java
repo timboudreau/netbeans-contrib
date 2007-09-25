@@ -155,8 +155,7 @@ public class EDMGraphScene extends GraphPinScene<String, String, String> {
         connWidget.getActions().addAction(createObjectHoverAction());
         connWidget.getActions().addAction(createSelectAction());
         connWidget.getActions().addAction(moveControlPointAction);
-        connectionLayer.addChild(connWidget);
-        java.util.logging.Logger.getLogger(EDMGraphScene.class.getName()).info("edgeID in EDMGraphScene -- > " + edge);
+        connectionLayer.addChild(connWidget);        
         revalidate();
 
         return connWidget;
@@ -236,8 +235,7 @@ public class EDMGraphScene extends GraphPinScene<String, String, String> {
             return null;
         }
 
-        public void createConnection(Widget sourceWidget, Widget targetWidget) {
-            java.util.logging.Logger.getLogger(EDMGraphScene.class.getName()).info("SceneConnectProvider -- > ");            
+        public void createConnection(Widget sourceWidget, Widget targetWidget) {            
             connectionWidget.getActions().addAction(createObjectHoverAction());
             connectionWidget.getActions().addAction(createSelectAction());
             connectionWidget.getActions().addAction(moveControlPointAction);

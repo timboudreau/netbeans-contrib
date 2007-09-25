@@ -420,8 +420,7 @@ public class MashupGraphManager {
   
 
     public void createGraphEdge(String sourcePinID, String targetNodeID) {
-        String edgeID = "edge" + this.edgeCounter++;
-
+        String edgeID = "edge" + this.edgeCounter++;        
         Widget widget = scene.addEdge(edgeID);
         widgets.add(widget);
         scene.setEdgeSource(edgeID, sourcePinID + EDMGraphScene.PIN_ID_DEFAULT_SUFFIX);
@@ -564,7 +563,7 @@ public class MashupGraphManager {
         widgets.add(conditionPin);
      
         //add source and target columns
-        SQLDBTable[] tbl = (SQLDBTable[]) joinOp.getAllSourceTables()
+        /*SQLDBTable[] tbl = (SQLDBTable[]) joinOp.getAllSourceTables()
                 .toArray(new SQLDBTable[0]);
         List<Widget> srcCols1 = new ArrayList<Widget>();
         HashMap<String, List<Widget>> categories = new HashMap<String, List<Widget>>();
@@ -589,7 +588,22 @@ public class MashupGraphManager {
                 } else {
                     srcCols1.add(srcColumnPin);
                 }
-                //---------------------
+               
+            }
+            if (srcCols.size() != 0) {
+                categories.put(table.getDisplayName(), srcCols);
+            }
+            if (srcCols1.size() != 0) {
+                categories.put(table.getDisplayName(), srcCols1);
+            }
+            widget.sortPins(categories);
+            sqltoWidgetMap.put(joinOp, widget);
+            //widget.getActions().addAction(ActionFactory.createPopupMenuAction(new TablePopupProvider(table, mObj)));
+            // manager.updateColumnSelection(table);
+            widget.revalidate();
+        }*/
+
+              //---------------------
                 /*if (column.isVisible()) {
                 if (column.isPrimaryKey()) {
                 tblimage.add(MashupGraphUtil.getImage(ImageConstants.PRIMARYKEYCOL));
@@ -612,20 +626,7 @@ public class MashupGraphManager {
                 widgets.add(srcColumnPin);
                 //sqltoWidgetMap.put(column, srcColumnPin);*/
                 //---------------------
-            }
-            if (srcCols.size() != 0) {
-                categories.put(table.getDisplayName(), srcCols);
-            }
-            if (srcCols1.size() != 0) {
-                categories.put(table.getDisplayName(), srcCols1);
-            }
-            widget.sortPins(categories);
-            sqltoWidgetMap.put(joinOp, widget);
-            //widget.getActions().addAction(ActionFactory.createPopupMenuAction(new TablePopupProvider(table, mObj)));
-            // manager.updateColumnSelection(table);
-            widget.revalidate();
-        }
-
+        
         // add popup for join widget.
         widget.getActions().addAction(ActionFactory.createPopupMenuAction(new JoinPopupProvider(joinOp, mObj)));
         scene.validate();
