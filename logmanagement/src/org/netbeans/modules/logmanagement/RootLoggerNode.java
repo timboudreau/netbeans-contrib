@@ -17,12 +17,12 @@
 package org.netbeans.modules.logmanagement;
 
 import java.awt.Image;
-import java.awt.event.ActionEvent;
+import java.util.logging.LogManager;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.logging.LogManager;
+import java.awt.event.ActionEvent;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import org.openide.nodes.AbstractNode;

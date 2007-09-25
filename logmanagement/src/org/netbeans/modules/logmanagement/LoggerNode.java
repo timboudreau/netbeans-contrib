@@ -25,11 +25,27 @@
 package org.netbeans.modules.logmanagement;
 
 import java.awt.Image;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.awt.event.ActionEvent;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.util.logging.Formatter;
+import java.util.logging.LogManager;
+import java.util.logging.LogRecord;
+import java.util.logging.SimpleFormatter;
+import java.util.logging.StreamHandler;
+import javax.swing.AbstractAction;
+import javax.swing.Action;
 import org.openide.nodes.AbstractNode;
 import org.openide.nodes.Children;
 import org.openide.nodes.Sheet;
 import org.openide.util.NbBundle;
 import org.openide.util.Utilities;
+import org.openide.windows.IOProvider;
+import org.openide.windows.InputOutput;
+import org.openide.windows.OutputWriter;
 
 
 
@@ -37,25 +53,25 @@ import org.openide.util.Utilities;
  *
  * @author Anuradha G
  */
- class LoggerNode extends AbstractNode {
-
+class LoggerNode extends AbstractNode {
 
     private Logger logger;
+    private InputOutput io;
 
-     LoggerNode(Logger logger) {
-        super(!logger.getChilderns().isEmpty() ? Children.create(new LoggerFactory(logger), true) : Children.LEAF); 
+    LoggerNode(Logger logger) {
+        super(!logger.getChilderns().isEmpty() ? Children.create(new LoggerFactory(logger), true) : Children.LEAF);
         this.logger = logger;
     }
 
     @Override
     public String getDisplayName() {
-             
+
         return logger.getName();
     }
 
     @Override
     public Image getIcon(int arg0) {
-        return Utilities.loadImage("org/netbeans/modules/logmanagement/resources/logs.gif",true);
+        return Utilities.loadImage("org/netbeans/modules/logmanagement/resources/logs.gif", true);
     }
 
     @Override
@@ -65,7 +81,7 @@ import org.openide.util.Utilities;
 
     @Override
     public String getShortDescription() {
-        return NbBundle.getMessage(LoggerNode.class,"Log_Levele_:_") + logger.getLevel();
+        return NbBundle.getMessage(LoggerNode.class, "Log_Levele_:_") + logger.getLevel();
     }
 
     /**
@@ -73,10 +89,40 @@ import org.openide.util.Utilities;
      * @param popup
      * @return
      */
-   
-
     public Logger getLogger() {
         return logger;
+    }
+
+    public void showOutput() {
+        getInputOutput().select();
+    }
+
+    private synchronized InputOutput getInputOutput() {
+        if (io == null) {
+            io = IOProvider.getDefault().getIO(logger.getName(), false);
+
+            final OutputWriter w = io.getOut();
+
+            StreamHandler streamHandler = new CustomHandler(w, new SimpleFormatter());
+            LogManager.getLogManager().getLogger(logger.getName()).addHandler(streamHandler);
+        }
+        return io;
+    }
+
+    /**
+     *
+     * @param popup
+     * @return
+     */
+    @Override
+    public Action[] getActions(boolean popup) {
+        Action[] actions = super.getActions(popup);
+        List<Action> asList = Arrays.asList(actions);
+        List<Action> actionsList = new ArrayList<Action>();
+        actionsList.add(new OutputAction());
+        actionsList.add(null);
+        actionsList.addAll(asList);
+        return actionsList.toArray(new Action[0]);
     }
 
     @Override
@@ -84,7 +130,31 @@ import org.openide.util.Utilities;
         return new LoggerSheet(logger).getSheet();
     }
 
-   
-   
+    private class OutputAction extends AbstractAction {
 
+        private static final long serialVersionUID = 1L;
+
+        public OutputAction() {
+            putValue(NAME, NbBundle.getMessage(LoggerNode.class, "Show_output"));
+        }
+
+        public void actionPerformed(ActionEvent e) {
+            showOutput();
+        }
+    }
+
+    private static class CustomHandler extends StreamHandler {
+
+        private OutputWriter w;
+
+        public CustomHandler(OutputWriter w, Formatter formatter) {
+            this.w = w;
+            setFormatter(formatter);
+        }
+
+        @Override
+        public synchronized void publish(LogRecord record) {
+            w.print(getFormatter().format(record));
+        }
+    }
 }

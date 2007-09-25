@@ -1,4 +1,3 @@
-
 /*
  * The contents of this file are subject to the terms of the Common Development
  * and Distribution License (the License). You may not use this file except in
@@ -30,16 +29,17 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.LogManager;
 import java.util.logging.LoggingMXBean;
+import org.openide.DialogDisplayer;
+import org.openide.NotifyDescriptor;
 
 /**
  *
  * @author Anuradha G
  */
-public class Logger implements Comparable<Logger>{
+public class Logger implements Comparable<Logger> {
 
     private final String name;
     private List<Logger> childerns = new ArrayList<Logger>();
-
     private LoggingMXBean loggingMXBean = LogManager.getLoggingMXBean();
 
     public Logger(String name) {
@@ -55,10 +55,14 @@ public class Logger implements Comparable<Logger>{
     }
 
     public void setLevel(String level) {
-        loggingMXBean.setLoggerLevel(name, level);
+        try {
+            loggingMXBean.setLoggerLevel(name, level);
+        } catch (java.lang.IllegalArgumentException exception) {
+            NotifyDescriptor d = new NotifyDescriptor.Message(exception.getLocalizedMessage(), NotifyDescriptor.ERROR_MESSAGE);
+            DialogDisplayer.getDefault().notify(d);
+        }
     }
-    
-    
+
     public String getName() {
         return name;
     }
@@ -86,8 +90,6 @@ public class Logger implements Comparable<Logger>{
     public void removeLogger(Logger logger) {
         childerns.remove(logger);
     }
-
-  
 
     @Override
     public String toString() {
