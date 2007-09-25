@@ -398,7 +398,7 @@ public class MashupGraphManager {
         Collection nodes = scene.getNodes();
         Iterator it2 = nodes.iterator();
         while (it2.hasNext()) {
-            Logger.getLogger(MashupGraphManager.class.getName()).info("nodes " + it2.next().toString());
+            //Logger.getLogger(MashupGraphManager.class.getName()).info("nodes " + it2.next().toString());
         }
         Collection pins = scene.getPins();
         Iterator it1 = pins.iterator();
