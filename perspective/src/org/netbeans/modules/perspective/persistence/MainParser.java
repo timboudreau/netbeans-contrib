@@ -47,14 +47,18 @@ public class MainParser {
     private static final String EXT = "pv"; //NOI18N
     private static final String CONFIG_DIR = BASE_DIR + "/config"; //NOI18N
     private static final String BUILTIN_DIR = BASE_DIR + "/builtin"; //NOI18N
+    private static final String DEFAULT_DIR =  "/default"; //NOI18N
+    private static final String CUSTOM_DIR  =  "/custom"; //NOI18N
     private static MainParser instance;
     private PerspectiveParser paser = new PerspectiveParser();
     private FileObject config;
-    private FileObject builtin;
+    private FileObject builtinDefault ;
+    private FileObject builtinCustom ;
 
     private MainParser() {
         config = Repository.getDefault().getDefaultFileSystem().findResource(CONFIG_DIR);
-        builtin = Repository.getDefault().getDefaultFileSystem().findResource(BUILTIN_DIR);
+        builtinDefault  = Repository.getDefault().getDefaultFileSystem().findResource(BUILTIN_DIR+DEFAULT_DIR);
+        builtinDefault  = Repository.getDefault().getDefaultFileSystem().findResource(BUILTIN_DIR+CUSTOM_DIR);
     }
 
     public static synchronized MainParser getInstance() {
@@ -80,27 +84,19 @@ public class MainParser {
                 Exceptions.printStackTrace(ex);
             }
         }
-        PerspectiveManagerImpl.getInstance().clear();
-        FileObject[] builtinChildren = builtin.getChildren();
         ClassLoader contextLoader = Thread.currentThread().getContextClassLoader();
-        for (FileObject fileObject : builtinChildren) {
-            try {
-                String name = (String) fileObject.getAttribute("class"); //NOI18N
-                Class perspectiveClass = contextLoader.loadClass(name);
 
-                Object object = perspectiveClass.newInstance();
-                if (object instanceof Perspective) {
-                    Perspective perspective = (Perspective) object;
-                    PerspectiveManagerImpl.getInstance().registerPerspective(perspective, false);
-                }
-            } catch (InstantiationException ex) {
-                Exceptions.printStackTrace(ex);
-            } catch (IllegalAccessException ex) {
-                Exceptions.printStackTrace(ex);
-            } catch (ClassNotFoundException ex) {
-                Exceptions.printStackTrace(ex);
-            }
+        PerspectiveManagerImpl.getInstance().clear();
+        if (builtinDefault != null) {
+            FileObject[] builtinDefaultChildren = builtinDefault .getChildren();
+            processPerspectives(contextLoader, builtinDefaultChildren);
         }
+        if (builtinCustom != null) {
+            FileObject[] builtinCustomChildren = builtinCustom .getChildren();
+            processPerspectives(contextLoader, builtinCustomChildren);
+        }
+
+        
 
 
 
@@ -110,8 +106,8 @@ public class MainParser {
             try {
 
                 Perspective decoded = paser.decode(fileObject.getInputStream());
-                if (decoded.getName().startsWith("custom_") || PerspectiveManagerImpl.getInstance().findPerspectiveByID(decoded.getName()) != null) {// NOI18N
-                    
+                if (decoded.getName().startsWith("custom_") || PerspectiveManagerImpl.getInstance().findPerspectiveByID(decoded.getName()) != null) {
+                    // NOI18N
                     PerspectiveManagerImpl.getInstance().registerPerspective(decoded, false);
                 }
             } catch (IOException ex) {
@@ -135,6 +131,27 @@ public class MainParser {
                 });
             }
         });
+    }
+
+    private void processPerspectives(ClassLoader contextLoader, FileObject[] builtinChildren) {
+        for (FileObject fileObject : builtinChildren) {
+            try {
+                String name = (String) fileObject.getAttribute("class"); //NOI18N
+                Class perspectiveClass = contextLoader.loadClass(name);
+
+                Object object = perspectiveClass.newInstance();
+                if (object instanceof Perspective) {
+                    Perspective perspective = (Perspective) object;
+                    PerspectiveManagerImpl.getInstance().registerPerspective(perspective, false);
+                }
+            } catch (InstantiationException ex) {
+                Exceptions.printStackTrace(ex);
+            } catch (IllegalAccessException ex) {
+                Exceptions.printStackTrace(ex);
+            } catch (ClassNotFoundException ex) {
+                Exceptions.printStackTrace(ex);
+            }
+        }
     }
 
     private void loadSelectedPerspective() {
