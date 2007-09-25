@@ -106,10 +106,6 @@ public class EDMGraphScene extends GraphPinScene<String, String, String> {
         widget.getActions().addAction(moveAction);
         mainLayer.addChild(widget);
         revalidate();
-        /*widget.getHeader ().getActions ().addAction (createObjectHoverAction ());
-        widget.getActions ().addAction (createSelectAction ());
-        widget.getActions ().addAction (moveAction);*/
-
         return widget;
     }
 
