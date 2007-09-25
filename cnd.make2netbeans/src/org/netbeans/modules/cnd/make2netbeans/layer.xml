@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE filesystem PUBLIC "-//NetBeans//DTD Filesystem 1.1//EN" "http://www.netbeans.org/dtds/filesystem-1_1.dtd">
+<filesystem>
+    <folder name="Actions">
+        <folder name="Tools">
+            <file name="org.netbeans.modules.cnd.make2netbeans.test.TestAction.instance">
+		<attr name="instanceClass" stringvalue="org.netbeans.modules.cnd.make2netbeans.test.TestAction"/>
+	    </file>
+        </folder>
+    </folder>
+    
+   <folder name="Menu">
+        <folder name="Tools">
+            <file name="org.netbeans.modules.cnd.make2netbeans.test.separatorBefore.instance">
+                <attr name="instanceClass" stringvalue="javax.swing.JSeparator"/>
+                <attr name="position" intvalue="310"/>
+            </file>
+            <file name="org.netbeans.modules.cnd.make2netbeans.test.TestAction.shadow">
+                <attr name="originalFile" stringvalue="Actions/Tools/org.netbeans.modules.cnd.make2netbeans.test.TestAction.instance"/>
+                <attr name="position" intvalue="320"/>
+            </file>
+        </folder>
+   </folder>
+   
+</filesystem>
