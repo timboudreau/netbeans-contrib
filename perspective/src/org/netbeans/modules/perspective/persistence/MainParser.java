@@ -17,11 +17,6 @@
  * Microsystems, Inc. All Rights Reserved.
  */
 
-/*
- * MainPaser.java
- *
- */
-
 package org.netbeans.modules.perspective.persistence;
 
 import java.awt.EventQueue;
@@ -38,7 +33,7 @@ import org.openide.util.Exceptions;
 import org.openide.windows.WindowManager;
 
 /**
- *
+ * MainPaser.java
  * @author Anuradha G
  */
 public class MainParser {
@@ -47,28 +42,36 @@ public class MainParser {
     private static final String EXT = "pv"; //NOI18N
     private static final String CONFIG_DIR = BASE_DIR + "/config"; //NOI18N
     private static final String BUILTIN_DIR = BASE_DIR + "/builtin"; //NOI18N
-    private static final String DEFAULT_DIR =  "/default"; //NOI18N
-    private static final String CUSTOM_DIR  =  "/custom"; //NOI18N
+    private static final String DEFAULT_DIR = "/default"; //NOI18N
+    private static final String CUSTOM_DIR = "/custom"; //NOI18N
     private static MainParser instance;
     private PerspectiveParser paser = new PerspectiveParser();
     private FileObject config;
-    private FileObject builtinDefault ;
-    private FileObject builtinCustom ;
+    private FileObject builtinDefault;
+    private FileObject builtinCustom;
+
+
+
+
+    
 
     private MainParser() {
+        //Creating Parser instance
         config = Repository.getDefault().getDefaultFileSystem().findResource(CONFIG_DIR);
-        builtinDefault  = Repository.getDefault().getDefaultFileSystem().findResource(BUILTIN_DIR+DEFAULT_DIR);
-        builtinDefault  = Repository.getDefault().getDefaultFileSystem().findResource(BUILTIN_DIR+CUSTOM_DIR);
+        builtinDefault = Repository.getDefault().getDefaultFileSystem().findResource(BUILTIN_DIR + DEFAULT_DIR);
+        builtinCustom = Repository.getDefault().getDefaultFileSystem().findResource(BUILTIN_DIR + CUSTOM_DIR);
     }
 
     public static synchronized MainParser getInstance() {
         if (instance == null) {
+            
             instance = new MainParser();
         }
         return instance;
     }
 
     private synchronized void cleanDir() throws IOException {
+        //"Cleaning Dir"
         FileObject[] children = config.getChildren();
         for (FileObject fileObject : children) {
             fileObject.delete();
@@ -88,26 +91,28 @@ public class MainParser {
 
         PerspectiveManagerImpl.getInstance().clear();
         if (builtinDefault != null) {
-            FileObject[] builtinDefaultChildren = builtinDefault .getChildren();
+            //Loading default Perspectives from layer
+            FileObject[] builtinDefaultChildren = builtinDefault.getChildren();
             processPerspectives(contextLoader, builtinDefaultChildren);
         }
         if (builtinCustom != null) {
-            FileObject[] builtinCustomChildren = builtinCustom .getChildren();
+            //Loading custom Perspectives from layer
+            FileObject[] builtinCustomChildren = builtinCustom.getChildren();
             processPerspectives(contextLoader, builtinCustomChildren);
         }
 
-        
 
 
 
-
+        //Loading Perspectives from Config 
         FileObject[] viewChildren = config.getChildren();
         for (FileObject fileObject : viewChildren) {
             try {
 
                 Perspective decoded = paser.decode(fileObject.getInputStream());
-                if (decoded.getName().startsWith("custom_") || PerspectiveManagerImpl.getInstance().findPerspectiveByID(decoded.getName()) != null) {
-                    // NOI18N
+                if (decoded!=null && ( decoded.getName().startsWith("custom_")// NOI18N
+                        || PerspectiveManagerImpl.getInstance().findPerspectiveByID(decoded.getName()) != null)) {
+                    
                     PerspectiveManagerImpl.getInstance().registerPerspective(decoded, false);
                 }
             } catch (IOException ex) {
@@ -138,8 +143,9 @@ public class MainParser {
             try {
                 String name = (String) fileObject.getAttribute("class"); //NOI18N
                 Class perspectiveClass = contextLoader.loadClass(name);
-
+                
                 Object object = perspectiveClass.newInstance();
+                //Perspective Object Created 
                 if (object instanceof Perspective) {
                     Perspective perspective = (Perspective) object;
                     PerspectiveManagerImpl.getInstance().registerPerspective(perspective, false);
@@ -161,14 +167,15 @@ public class MainParser {
             selected = PerspectiveManagerImpl.getInstance().findPerspectiveByID(id);
         }
         if (selected == null) {
-
+            
             List<Perspective> perspectives = PerspectiveManager.getDefault().getPerspectives();
-
+            //Loading default Perspecive as selected Perspective
             selected = perspectives.size() > 0 ? perspectives.get(0) : null;
         }
         if (selected != null) {
             PerspectiveManager.getDefault().setSelected(selected);
             ToolbarStyleSwitchUI.getInstance().loadQuickPerspectives();
+            //Load selected perspective
         }
     }
 
