@@ -51,9 +51,21 @@ public class Logger implements Comparable<Logger> {
     }
 
     public String getLevel() {
-        return loggingMXBean.getLoggerLevel(name);
+        return extractLevel(name);
     }
-
+    //get parent level
+    private String extractLevel(String loggerName){
+        String level=loggingMXBean.getLoggerLevel(loggerName);
+        if(level.trim().length()==0){
+          String  parent  =loggingMXBean.getParentLoggerName(loggerName);
+           if(parent.trim().length()!=0){
+               level=extractLevel(parent);
+           }else{
+               level=loggingMXBean.getLoggerLevel(parent);
+           }
+        }
+        return level;
+    }
     public void setLevel(String level) {
         try {
             loggingMXBean.setLoggerLevel(name, level);
