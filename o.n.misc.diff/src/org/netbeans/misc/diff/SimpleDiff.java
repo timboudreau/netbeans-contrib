@@ -9,6 +9,17 @@
  * The Original Code is NetBeans. The Initial Developer of the Original
  * Code is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
  * Microsystems, Inc. All Rights Reserved.
+
+If you wish your version of this file to be governed by only the CDDL
+or only the GPL Version 2, indicate your decision by adding
+"[Contributor] elects to include this software in this distribution
+under the [CDDL or GPL Version 2] license." If you do not indicate a
+single choice of license, a recipient has the option to distribute
+your version of this file under either the CDDL, the GPL Version 2 or
+to extend the choice of license to its licensees as provided above.
+However, if you add GPL Version 2 code and therefore, elected the GPL
+Version 2 license, then the option applies only if the new code is
+made subject to such option by the copyright holder.
  */
 package org.netbeans.misc.diff;
 
@@ -18,8 +29,8 @@ import java.util.Iterator;
 import java.util.List;
 
 /**
- * Convenience class for producing Diff objects when the set of changes are 
- * known to the code producing the diff, and should not be calculated from a 
+ * Convenience class for producing Diff objects when the set of changes are
+ * known to the code producing the diff, and should not be calculated from a
  * set of lists.
  *
  * @author Tim Boudreau
@@ -31,7 +42,7 @@ final class SimpleDiff <T> extends Diff <T> {
     public SimpleDiff() {
         //do nothing
     }
-    
+
     /** Create a diff with initial lists */
     public SimpleDiff (List <T> old, List <T> nue) {
         this.old = old;
