@@ -26,29 +26,6 @@ import java.util.logging.Level;
  */
 public class LevelPropertyEditor extends PropertyEditorSupport {
 
-    private String level;
-    @Override
-    public String getAsText() {
-        return level;
-    }
-
-    @Override
-    public void setAsText(String text) {
-        level=text;
-
-    }
-
-    @Override
-    public void setValue(Object level) {
-        this.level=(String) level;
-        
-    }
-
-    @Override
-    public Object getValue() {
-        return level;
-    }
-
     @Override
     public String[] getTags() {
         String [] levels=new String[9];
