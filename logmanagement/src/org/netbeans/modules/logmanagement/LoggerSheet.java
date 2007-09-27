@@ -49,10 +49,11 @@ import org.openide.util.NbBundle;
             nameProp.setName("name"); //NOI18N
             nameProp.setDisplayName(NbBundle.getMessage(LoggerNode.class,"Logger_Name"));
             info.put(nameProp);
-            Property<String> levelProp = new PropertySupport.Reflection<String>(logger, String.class, "getLevel", "setLevel");//NOI18N
+            PropertySupport.Reflection<String> levelProp = new PropertySupport.Reflection<String>(logger, String.class, "getLevel", "setLevel");//NOI18N
             nameProp.setName("level"); //NOI18N
             levelProp.setDisplayName(NbBundle.getMessage(LoggerNode.class,"Logger_Level"));
-            levelProp.setShortDescription("");
+            levelProp.setPropertyEditorClass(LevelPropertyEditor.class);
+            
             info.put(levelProp);
         } catch (NoSuchMethodException ex) {
             Exceptions.printStackTrace(ex);
