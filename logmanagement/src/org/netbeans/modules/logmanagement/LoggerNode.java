@@ -29,23 +29,14 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.awt.event.ActionEvent;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.util.logging.Formatter;
-import java.util.logging.LogManager;
-import java.util.logging.LogRecord;
-import java.util.logging.SimpleFormatter;
-import java.util.logging.StreamHandler;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
+import org.netbeans.modules.logmanagement.ui.LogViewerConfigUI;
 import org.openide.nodes.AbstractNode;
 import org.openide.nodes.Children;
 import org.openide.nodes.Sheet;
 import org.openide.util.NbBundle;
 import org.openide.util.Utilities;
-import org.openide.windows.IOProvider;
-import org.openide.windows.InputOutput;
-import org.openide.windows.OutputWriter;
 
 
 
@@ -56,7 +47,7 @@ import org.openide.windows.OutputWriter;
 class LoggerNode extends AbstractNode {
 
     private Logger logger;
-    private InputOutput io;
+
 
     LoggerNode(Logger logger) {
         super(!logger.getChilderns().isEmpty() ? Children.create(new LoggerFactory(logger), true) : Children.LEAF);
@@ -94,20 +85,10 @@ class LoggerNode extends AbstractNode {
     }
 
     public void showOutput() {
-        getInputOutput().select();
+        LogViewerConfigUI.CreateLogViewerConfigUI(logger);
     }
 
-    private synchronized InputOutput getInputOutput() {
-        if (io == null) {
-            io = IOProvider.getDefault().getIO(logger.getName(), false);
 
-            final OutputWriter w = io.getOut();
-
-            StreamHandler streamHandler = new CustomHandler(w, new SimpleFormatter());
-            LogManager.getLogManager().getLogger(logger.getName()).addHandler(streamHandler);
-        }
-        return io;
-    }
 
     /**
      *
@@ -143,18 +124,5 @@ class LoggerNode extends AbstractNode {
         }
     }
 
-    private static class CustomHandler extends StreamHandler {
-
-        private OutputWriter w;
-
-        public CustomHandler(OutputWriter w, Formatter formatter) {
-            this.w = w;
-            setFormatter(formatter);
-        }
-
-        @Override
-        public synchronized void publish(LogRecord record) {
-            w.print(getFormatter().format(record));
-        }
-    }
+   
 }
