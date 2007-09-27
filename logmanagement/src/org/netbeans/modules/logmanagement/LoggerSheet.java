@@ -24,7 +24,7 @@ import org.openide.util.NbBundle;
 
 /**
  *
- * @author Anurdha
+ * @author Anuradha G
  */
  class LoggerSheet {
 
