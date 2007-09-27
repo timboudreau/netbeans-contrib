@@ -21,17 +21,13 @@ package org.netbeans.modules.jnlpmodules;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.*;
-import java.util.jar.Manifest;
 import java.net.URL;
 import java.io.*;
 import java.net.MalformedURLException;
 import java.security.*;
-import java.util.jar.Attributes;
-import java.util.jar.Attributes.Name;
 import org.netbeans.ModuleManager;
 import org.netbeans.Module;
 import org.netbeans.ProxyClassLoader;
-import sun.security.action.GetLongAction;
 
 /**
  * This classloader is used to directly delegate to the delegate class loader.
@@ -70,11 +66,6 @@ public class ClasspathDelegateClassLoader extends ProxyClassLoader {
      */
     @Override
     protected boolean shouldDelegateResource(String pkg, ClassLoader parent) {
-        return false;
-    }
-    
-    @Override
-    protected boolean shouldBeCheckedAsParentProxyClassLoader() {
         return false;
     }
     
@@ -187,6 +178,7 @@ public class ClasspathDelegateClassLoader extends ProxyClassLoader {
     /**
      * For debugging purposes.
      */
+    @Override
     public String toString() {
         return "ClasspathDelegateClassLoader:" + super.toString();
     }
