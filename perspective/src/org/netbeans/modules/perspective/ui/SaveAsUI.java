@@ -183,11 +183,11 @@ public class SaveAsUI extends javax.swing.JDialog {
 
         lblPosition.setText(NbBundle.getMessage(SaveAsUI.class,"SaveAsUI.lblPosition.text")); // NOI18N
 
-        after.setText(org.openide.util.NbBundle.getMessage(SaveAsUI.class, "SaveAsUI.after.text")); // NOI18N
+        org.openide.awt.Mnemonics.setLocalizedText(after, org.openide.util.NbBundle.getMessage(SaveAsUI.class, "SaveAsUI.after.text")); // NOI18N
         after.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         after.setMargin(new java.awt.Insets(0, 0, 0, 0));
 
-        before.setText(org.openide.util.NbBundle.getMessage(SaveAsUI.class, "SaveAsUI.before.text")); // NOI18N
+        org.openide.awt.Mnemonics.setLocalizedText(before, org.openide.util.NbBundle.getMessage(SaveAsUI.class, "SaveAsUI.before.text")); // NOI18N
         before.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         before.setMargin(new java.awt.Insets(0, 0, 0, 0));
 
