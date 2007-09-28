@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- You may freely edit this file. See harness/README in the NetBeans platform -->
+<!-- for some information on what you could do (e.g. targets to override). -->
+<!-- If you delete this file and reopen the project it will be recreated. -->
+<project name="org.netbeans.jsf.webui.themebuilder" default="netbeans" basedir=".">
+    <description>Builds, tests, and runs the project org.netbeans.jsf.webui.themebuilder.</description>
+    <import file="../../nbbuild/templates/projectized.xml"/>
+    
+    <property name="temp.dir" value="build/temp"/>
+    <property name="temp.themes.dir" value="${temp.dir}/themes"/>
+    <property name="temp.suntheme.dir" value="${temp.dir}/themes/src/suntheme"/>
+    <property name="temp.template.dir" value="${temp.dir}/WoodstockThemeTemplate"/>
+    <property name="temp.template.src.dir" value="${temp.template.dir}/src"/>
+    
+    <target name="netbeans" depends="package-templates,projectized-common.netbeans"/>
+
+    <target name="package-templates">
+        <delete file="${basedir}/src/org/netbeans/modules/themebuilder/resources/ThemeProjectTemplate.zip"/>
+        <zip compress="9" basedir="${basedir}/templates/ThemeProjectTemplate/"
+            zipfile="${basedir}/src/org/netbeans/modules/themebuilder/resources/ThemeProjectTemplate.zip"/>
+       
+        <delete file="${basedir}/src/org/netbeans/modules/themebuilder/resources/WoodstockThemeTemplate.zip"/>
+        
+        <mkdir dir="${temp.dir}"/>
+        <mkdir dir="${temp.themes.dir}"/>
+        
+        <!-- Unzip the themes woodstock theme in to temp directory -->
+        <unzip src="${basedir}/templates/WoodstockThemeTemplate/themes.zip" dest="${temp.dir}"/>
+        
+        <mkdir dir="${temp.template.dir}"/>
+        
+        <!-- Create the theme template directory structure from the temp directory -->
+        <copy todir="${temp.template.dir}">
+            <fileset dir="${basedir}/templates/WoodstockThemeTemplate">
+                <include name="src/**" />
+            </fileset>
+        </copy>
+        
+        <copy todir="${temp.template.src.dir}/javascript">
+            <fileset dir="${temp.themes.dir}/javascript">
+                <exclude name="**/CVS/**" />
+            </fileset>
+        </copy>
+        <copy todir="${temp.template.src.dir}/images">
+            <fileset dir="${temp.suntheme.dir}/images">
+                <exclude name="**/CVS/**" /> 
+            </fileset>
+        </copy>
+        <copy todir="${temp.template.src.dir}/css">
+            <fileset dir="${temp.suntheme.dir}/css">
+                <exclude name="**/CVS/**" /> 
+            </fileset>
+        </copy>
+        <copy todir="${temp.template.src.dir}/messages">
+            <fileset dir="${temp.themes.dir}/messages">
+                <exclude name="**/CVS/**" /> 
+            </fileset>
+        </copy>
+        <copy todir="${temp.template.src.dir}/templates">
+            <fileset dir="${temp.themes.dir}/templates">
+                <exclude name="**/CVS/**" /> 
+            </fileset>
+        </copy>
+        
+        <copy tofile="${temp.template.src.dir}/docs/theme_info.html"
+              file="${temp.themes.dir}/doc/sjwuic_themes.html"/>
+        
+        <!-- copy messages.properties to messages_en.properties JSF hack -->
+        <copy tofile="${temp.template.src.dir}/messages/messages_en.properties"
+              file="${temp.themes.dir}/messages/messages.properties"/>
+        
+        <copy todir="${temp.template.src.dir}/properties">
+            <fileset dir="${temp.suntheme.dir}/props">
+                <include name="images.properties" />
+                <include name="javascript.properties" />
+                <include name="stylesheets.properties" />
+                <include name="templates.properties" />
+                <include name="styles.properties" />
+            </fileset>
+        </copy>        
+      
+        <copy todir="${temp.template.dir}/META-INF">
+            <fileset dir="${temp.themes.dir}/META-INF">
+                <include name="manifest.mf" /> 
+                <include name="services/com.sun.webui.theme.ThemeService" /> 
+            </fileset>
+        </copy>
+        
+        <zip  compress="9" basedir="${temp.dir}/WoodstockThemeTemplate/"
+            zipfile="${basedir}/src/org/netbeans/modules/themebuilder/resources/WoodstockThemeTemplate.zip"/>
+            
+        <delete  dir="${temp.dir}" />  
+    </target>
+    
+</project>
