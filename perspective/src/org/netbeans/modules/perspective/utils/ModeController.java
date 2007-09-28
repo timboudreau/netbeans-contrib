@@ -84,8 +84,9 @@ class ModeController {
         if (windowMode == null || topComponent == null) {
             return;
         }
-        windowMode.dockInto(topComponent);
-
+        if (!windowMode.equals(windowManager.findMode(topComponent))) {
+            windowMode.dockInto(topComponent);
+        }
         if (open) {
             topComponent.open();
             if (active) {
