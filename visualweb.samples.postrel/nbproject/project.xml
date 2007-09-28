@@ -6,7 +6,7 @@
             <code-name-base>org.netbeans.modules.visualweb.samples.postrel</code-name-base>
             <module-dependencies>
                 <dependency>
-                    <code-name-base>org.netbeans.modules.visualweb.samples.bundled</code-name-base>
+                    <code-name-base>org.netbeans.modules.visualweb.complib.api</code-name-base>
                     <build-prerequisite/>
                     <compile-dependency/>
                     <run-dependency>
@@ -14,11 +14,11 @@
                     </run-dependency>
                 </dependency>
                 <dependency>
-                    <code-name-base>org.netbeans.modules.visualweb.complib</code-name-base>
+                    <code-name-base>org.netbeans.modules.visualweb.samples.bundled</code-name-base>
                     <build-prerequisite/>
                     <compile-dependency/>
                     <run-dependency>
-                        <specification-version>2.0</specification-version>
+                        <specification-version>1.0</specification-version>
                     </run-dependency>
                 </dependency>
                 <dependency>
