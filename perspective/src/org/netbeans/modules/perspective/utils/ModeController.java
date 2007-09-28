@@ -92,8 +92,6 @@ class ModeController {
             if (active) {
                 topComponent.requestVisible();
             }
-        } else {
-            topComponent.close();
         }
     }
     Perspective selected;
