@@ -121,16 +121,7 @@ is divided into following sections:
         </javac>
     </target>
     
-    <target name="-compressed-javascript-uptodate">
-        <uptodate property="compressed.javascript.uptodate">
-            <srcfiles dir="${src.dir}/${theme.package.path}" includes="javascript/**/*.js"/>
-            <mapper type="regexp" from="^(.*)$$"
-                    to="${build.dir}/${theme.package.path}/\1"/>
-        </uptodate>
-    </target>
-    
-    <target name="-compress-javascript" depends="-compressed-javascript-uptodate"
-            unless="compressed.javascript.uptodate">          
+    <target name="-compress-javascript" if="compress.javascript">          
         
         <java jar="${tools.jar}" failonerror="true" fork="true">
             <arg value="-compress"/>
