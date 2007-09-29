@@ -11,7 +11,7 @@ is divided into following sections:
   - cleanup
 
 -->
-<project name="Theme-impl" default="jar" basedir="..">
+<project name="theme-impl" default="jar" basedir="..">
     
     <!-- 
     ======================
@@ -22,11 +22,13 @@ is divided into following sections:
         <!-- Empty placeholder for easier customization. -->
         <!-- You can override this target in the ../build.xml file. -->
     </target>
+    
     <target name="-init-private" depends="-pre-init">
         <property file="nbproject/private/config.properties"/>
         <property file="nbproject/private/configs/${config}.properties"/>
         <property file="nbproject/private/private.properties"/>
     </target>
+    
     <target name="-init-user" depends="-pre-init,-init-private">
         <property file="${user.properties.file}"/>
         <!-- The two properties below are usually overridden -->
@@ -34,31 +36,63 @@ is divided into following sections:
         <property name="default.javac.source" value="1.4"/>
         <property name="default.javac.target" value="1.4"/>
     </target>
+    
     <target name="-init-project" depends="-pre-init,-init-private,-init-user">
         <property file="nbproject/configs/${config}.properties"/>
         <property file="nbproject/project.properties"/>
+        
+        <!-- make basedir a package -->
+        <pathconvert  property="basedir.package">
+            <path path="${basedir}"/>
+            <unpackagemapper from="*" to="*"/>
+        </pathconvert>
+        <pathconvert property="theme.package.path">
+            <path path="${theme.package}"/>
+            <unpackagemapper from="*" to="*"/>
+            <map from="${basedir.package}/" to=""/>
+        </pathconvert>
+        
+        <property name="tools.jar"
+                  value="${tools.dir}/javascript/tools.jar"/>
+        <property name="rhino.jar"
+                  value="${tools.dir}/javascript/custom_rhino.jar"/>
+        <property name="javascript.nls.path" 
+                  value="${build.dir}/${theme.package.path}/javascript/theme/nls"/>          
     </target>
+    
     <target name="-do-init" depends="-pre-init,-init-private,-init-user,-init-project">
         
     </target>
+    
     <target name="-post-init">
         <!-- Empty placeholder for easier customization. -->
         <!-- You can override this target in the ../build.xml file. -->
     </target>
+    
     <target name="-init-check" depends="-pre-init,-init-private,-init-user,-init-project,-do-init">
         <fail unless="src.dir">Must set src.dir</fail>
         <fail unless="dist.dir">Must set dist.dir</fail>
         <fail unless="build.dir">Must set build.dir</fail>
     </target>
     
-    <target name="init" depends="-pre-init,-do-init,-post-init"/>
+    <target name="-init" depends="-pre-init,-do-init,-post-init"/>
     
     <!--
     ====================
     JAR BUILDING SECTION
     ====================
     -->
-    <target name="-pre-jar">
+    
+    <target name="-pre-pre-jar" >
+        <copy todir="${build.dir}/${theme.package.path}/javascript_uncompressed">
+            <fileset dir="${src.dir}/${theme.package.path}/javascript">
+                 
+            </fileset>
+        </copy>
+        <delete dir="${javascript.nls.path}" />
+    </target>
+    
+    <target name="-pre-jar" depends="-pre-pre-jar">
         <!-- Empty placeholder for easier customization. -->
         <!-- You can override this target in the ../build.xml file. -->
     </target>
@@ -72,7 +106,7 @@ is divided into following sections:
         </copy>
         
         <copy todir="${build.dir}/META-INF">
-             
+            
             <fileset dir="META-INF">
                 
             </fileset>
@@ -87,6 +121,53 @@ is divided into following sections:
         </javac>
     </target>
     
+    <target name="-compressed-javascript-uptodate">
+        <uptodate property="compressed.javascript.uptodate">
+            <srcfiles dir="${src.dir}/${theme.package.path}" includes="javascript/**/*.js"/>
+            <mapper type="regexp" from="^(.*)$$"
+                    to="${build.dir}/${theme.package.path}/\1"/>
+        </uptodate>
+    </target>
+    
+    <target name="-compress-javascript" depends="-compressed-javascript-uptodate"
+            unless="compressed.javascript.uptodate">          
+        
+        <java jar="${tools.jar}" failonerror="true" fork="true">
+            <arg value="-compress"/>
+            <arg value="-sourcePath"/>
+            <arg value="${build.dir}/${theme.package.path}/javascript"/>
+            <arg value="-rhinoJar"/>
+            <arg value="${rhino.jar}"/>
+            <arg value="-verbose"/>
+        </java>
+        
+    </target>
+    
+    <target name="-build-javascript-theme">
+        
+        <mkdir dir="${javascript.nls.path}"/>    
+        <java classname="com.sun.webui.theme.ResourceBundleTheme"
+              failonerror="true" fork="true">
+            <arg value="-dir"/>
+            <arg value="${javascript.nls.path}"/>
+            <arg value="-theme"/>
+            <arg value="${theme.name}"/>
+            <classpath>
+                <pathelement path="${libs.woodstock-components.classpath}"/>
+                <pathelement path="${dist.dir}/${dist.jar}"/>
+            </classpath>
+        </java>
+        
+        
+        <!-- Add the javascript theme to the theme jar -->
+        <jar destfile="${dist.dir}/${dist.jar}"
+             update="true"
+             basedir="${build.dir}/${theme.package.path}/javascript"
+             includes="theme/nls/**/*.js">
+        </jar>
+        
+    </target>
+    
     <target name="-do-jar" description="Building the Jar.">
         <mkdir dir="${dist.dir}"/>
         <jar manifest="META-INF/MANIFEST.MF" 
@@ -99,14 +180,14 @@ is divided into following sections:
         <!-- Empty placeholder for easier customization. -->
         <!-- You can override this target in the ../build.xml file. -->
     </target>
-    <target name="jar" depends="init,-pre-jar, -build-theme, -do-jar,-post-jar" description="Build JAR."/>
+    <target name="jar" depends="-init,-pre-jar, -build-theme, -compress-javascript, -do-jar, -build-javascript-theme, -post-jar" description="Build JAR."/>
     
     <!--
     ===============
     CLEANUP SECTION
     ===============
     -->
-    <target name="-do-clean" depends="init">
+    <target name="-do-clean" depends="-init">
         <delete dir="${build.dir}"/>
         <delete dir="${dist.dir}"/>
     </target>
@@ -114,5 +195,5 @@ is divided into following sections:
         <!-- Empty placeholder for easier customization. -->
         <!-- You can override this target in the ../build.xml file. -->
     </target>
-    <target name="clean" depends="init,-do-clean,-post-clean" description="Clean build products."/>
+    <target name="clean" depends="-init,-do-clean,-post-clean" description="Clean build products."/>
 </project>

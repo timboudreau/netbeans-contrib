@@ -1,10 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- You may freely edit this file. See harness/README in the NetBeans platform -->
-<!-- for some information on what you could do (e.g. targets to override). -->
-<!-- If you delete this file and reopen the project it will be recreated. -->
+
 <project name="org.netbeans.jsf.webui.themebuilder" default="netbeans" basedir=".">
     <description>Builds, tests, and runs the project org.netbeans.jsf.webui.themebuilder.</description>
-    <import file="../../nbbuild/templates/projectized.xml"/>
+    <import file="../../../nbbuild/templates/projectized.xml"/>
     
     <property name="temp.dir" value="build/temp"/>
     <property name="temp.themes.dir" value="${temp.dir}/themes"/>
@@ -37,7 +35,7 @@
         </copy>
         
         <copy todir="${temp.template.src.dir}/javascript">
-            <fileset dir="${temp.themes.dir}/javascript">
+            <fileset dir="${temp.suntheme.dir}/javascript">
                 <exclude name="**/CVS/**" />
             </fileset>
         </copy>
@@ -52,12 +50,12 @@
             </fileset>
         </copy>
         <copy todir="${temp.template.src.dir}/messages">
-            <fileset dir="${temp.themes.dir}/messages">
+            <fileset dir="${temp.suntheme.dir}/messages">
                 <exclude name="**/CVS/**" /> 
             </fileset>
         </copy>
         <copy todir="${temp.template.src.dir}/templates">
-            <fileset dir="${temp.themes.dir}/templates">
+            <fileset dir="${temp.suntheme.dir}/templates">
                 <exclude name="**/CVS/**" /> 
             </fileset>
         </copy>
@@ -67,15 +65,11 @@
         
         <!-- copy messages.properties to messages_en.properties JSF hack -->
         <copy tofile="${temp.template.src.dir}/messages/messages_en.properties"
-              file="${temp.themes.dir}/messages/messages.properties"/>
+              file="${temp.suntheme.dir}/messages/messages.properties"/>
         
         <copy todir="${temp.template.src.dir}/properties">
-            <fileset dir="${temp.suntheme.dir}/props">
-                <include name="images.properties" />
-                <include name="javascript.properties" />
-                <include name="stylesheets.properties" />
-                <include name="templates.properties" />
-                <include name="styles.properties" />
+            <fileset dir="${temp.suntheme.dir}/properties">
+                <exclude name="**/CVS/**" /> 
             </fileset>
         </copy>        
       
@@ -83,6 +77,13 @@
             <fileset dir="${temp.themes.dir}/META-INF">
                 <include name="manifest.mf" /> 
                 <include name="services/com.sun.webui.theme.ThemeService" /> 
+            </fileset>
+        </copy>
+        
+        <copy todir="${temp.template.dir}/tools">
+            <fileset dir="${temp.themes.dir}/tools">
+                <include name="javascript/custom_rhino.jar" /> 
+                <include name="javascript/tools.jar" /> 
             </fileset>
         </copy>
         
