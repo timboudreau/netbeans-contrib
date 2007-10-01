@@ -46,6 +46,8 @@ import java.io.PrintWriter;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -67,14 +69,15 @@ import org.apache.xerces.impl.dv.util.Base64;
  * cfg - NetBeans configuration (Base64 encoded)
  * </pre>
  *
- * @author nokia.com
- * @version 1.0
+ * @author David Strupl
+ * @version 1.1
  */
 
 public class ZeroAdminServlet extends HttpServlet {
 //============================================================================
 // Constants
 //============================================================================
+    private static Logger log = Logger.getLogger(DBHelper.class.getName());
     
     private static final String P_MODE = "mode";         // The mode
     private static final String P_USER_NAME = "user";    // The user name
@@ -94,6 +97,8 @@ public class ZeroAdminServlet extends HttpServlet {
      */
     protected void doGet( HttpServletRequest req, HttpServletResponse resp )
     throws ServletException, IOException {
+        log.entering(getClass().getName(), "doGet");
+        
         List data = null;
         String user = req.getParameter( P_USER_NAME );
         String mode = req.getParameter( P_MODE );
@@ -105,10 +110,9 @@ public class ZeroAdminServlet extends HttpServlet {
             dbHelper.connect();
             dbHelper.initialize(null); // make sure the tables are there
         } catch( SQLException sqle ) {
-            System.err.println(
-                    "failed to open connection using datasource: " + DATASOURCE );
-            
-            sqle.printStackTrace();
+            log.log(Level.WARNING, 
+                    "failed to open connection using datasource: " + DATASOURCE,
+                    sqle);
         }
         
         if ( user == null ) {
@@ -117,10 +121,9 @@ public class ZeroAdminServlet extends HttpServlet {
                     data = dbHelper.loadUsers();
                 }
             } catch( SQLException sqle ) {
-                System.err.println(
-                        "failed to load user list of NetBeans configuration using datasource: " + DATASOURCE );
-                
-                sqle.printStackTrace();
+                log.log(Level.WARNING, 
+                    "failed to load user list of NetBeans configuration using datasource: " +
+                    DATASOURCE, sqle);
             }
         } else {
             data = new ArrayList();
@@ -145,15 +148,14 @@ public class ZeroAdminServlet extends HttpServlet {
                             byte[] buf = Base64.decode( config );
                             config = new String( buf, "UTF-8" );
                         } catch( Exception e ) {
-                            // Do nothing if decoding failed
-                            // (just leave the original data as it is...)
+                            log.log(Level.FINE, "Decoding failed for data: " +
+                                    config, e);
                         }
                     }
                 } catch( SQLException sqle ) {
-                    System.err.println(
-                            "failed to load NetBeans configuration for user: " + item );
-                    
-                    sqle.printStackTrace();
+                    log.log(Level.WARNING, 
+                        "failed to load NetBeans configuration for user: " + item,
+                        sqle);
                     config = sqle.toString();
                 }
                 
@@ -185,10 +187,8 @@ public class ZeroAdminServlet extends HttpServlet {
             try {
                 dbHelper.deleteData( userName );
             } catch( SQLException sqle ) {
-                System.err.println(
-                        "failed to delete configuration for user: " + user );
-                
-                sqle.printStackTrace();
+                log.log(Level.WARNING, 
+                  "failed to delete configuration for user: " + user, sqle);
             }
         } else {
             cfg.append( "No data or error occured." );
@@ -197,15 +197,14 @@ public class ZeroAdminServlet extends HttpServlet {
         try {
             dbHelper.close();
         } catch( SQLException sqle ) {
-            System.err.println(
-                    "failed to close connection using datasource: " + DATASOURCE );
-            
-            sqle.printStackTrace();
+            log.log(Level.WARNING, "failed to close connection using datasource: " +
+                DATASOURCE, sqle);
         }
         
         PrintWriter wr = resp.getWriter();
         wr.print(cfg.toString());
         wr.close();
+        log.exiting(getClass().getName(), "doGet");
     }
     
     /**
@@ -216,6 +215,8 @@ public class ZeroAdminServlet extends HttpServlet {
      */
     protected void doPost( HttpServletRequest req, HttpServletResponse resp )
     throws ServletException, IOException {
+        log.entering(getClass().getName(), "doPost");
+        
         String mode = req.getParameter( P_MODE );
         String user = req.getParameter( P_USER_NAME );
         String cfg = req.getParameter( P_USER_CFG );
@@ -226,7 +227,7 @@ public class ZeroAdminServlet extends HttpServlet {
             try {
                 resp.flushBuffer();
             } catch( IOException e ) {
-                e.printStackTrace();
+                log.log(Level.WARNING, "user == " + user, e);
             }
         } else if ( "load".equals( mode ) ) {
             cfg = getData(user);
@@ -235,6 +236,7 @@ public class ZeroAdminServlet extends HttpServlet {
             wr.print(cfg);
             wr.close();
         }
+        log.exiting(getClass().getName(), "doPost");
     }
     
 //============================================================================
@@ -242,6 +244,7 @@ public class ZeroAdminServlet extends HttpServlet {
 //============================================================================
     
     private void saveData( String userName, String data ) throws IOException {
+        log.entering(getClass().getName(), "saveData", userName);
         DBHelper dbHelper = new DBHelper( DATASOURCE );
         
         try {
@@ -250,14 +253,15 @@ public class ZeroAdminServlet extends HttpServlet {
             dbHelper.saveData( userName, data );
             dbHelper.close();
         } catch( SQLException sqle ) {
-            System.err.println(
-                    "failed to save NetBeans configuration using datasource: " + DATASOURCE );
-            
-            sqle.printStackTrace();
+            log.log(Level.WARNING, 
+                "failed to save NetBeans configuration using datasource: " + 
+                DATASOURCE, sqle);
         }
+        log.exiting(getClass().getName(), "saveData for user"+ userName);
     }
     
     private String getData( String userName ) throws IOException {
+        log.entering(getClass().getName(), "getData", userName);
         String data = "";
         DBHelper dbHelper = new DBHelper( DATASOURCE );
         
@@ -267,13 +271,11 @@ public class ZeroAdminServlet extends HttpServlet {
             data = dbHelper.loadData( userName );
             dbHelper.close();
         } catch( SQLException sqle ) {
-            System.err.println(
-                    "failed to load NetBeans configuration using datasource: " + DATASOURCE );
-            
-            sqle.printStackTrace();
+            log.log(Level.WARNING,
+                "failed to load NetBeans configuration using datasource: " +
+                DATASOURCE, sqle);
         }
-        
+        log.exiting(getClass().getName(), "getData", data);
         return data;
     }
-    
 }
