@@ -294,10 +294,10 @@ public class DBHelper {
         // Different mechanism depending on URL
         if ( dbURL.startsWith( "jdbc:" ) ) {
             // Check if driver has been registered
-            Enumeration enum = DriverManager.getDrivers();
+            Enumeration en = DriverManager.getDrivers();
             
-            while ( enum.hasMoreElements() ) {
-                Driver driverObj = ( Driver )enum.nextElement();
+            while ( en.hasMoreElements() ) {
+                Driver driverObj = ( Driver )en.nextElement();
                 
                 if ( driverObj.getClass().getName().equals( _dbDriver ) ) {
                     DriverManager.deregisterDriver( driverObj );

@@ -6,7 +6,7 @@
             <name>server</name>
             <minimum-ant-version>1.6.5</minimum-ant-version>
             <web-module-libraries>
-                <library files="2">
+                <library files="1">
                     <file>${libs.Xerces.classpath}</file>
                     <path-in-war>WEB-INF/lib</path-in-war>
                 </library>
