@@ -62,7 +62,7 @@ public class XMLBufferFileSystemTest extends FileSystemFactoryHid {
         super(test);
     }
 
-    public static voidmain(String args[]) {
+    public static void main(String args[]) {
         junit.textui.TestRunner.run(suite());
     }
     
