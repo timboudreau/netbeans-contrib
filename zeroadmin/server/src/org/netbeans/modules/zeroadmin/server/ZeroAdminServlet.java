@@ -103,6 +103,7 @@ public class ZeroAdminServlet extends HttpServlet {
         
         try {
             dbHelper.connect();
+            dbHelper.initialize(null); // make sure the tables are there
         } catch( SQLException sqle ) {
             System.err.println(
                     "failed to open connection using datasource: " + DATASOURCE );

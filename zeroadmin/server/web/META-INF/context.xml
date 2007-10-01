@@ -1,2 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Context path="/zeroadmin"/>
+<Context path="/zeroadmin">
+<Resource name="jdbc/nbconfig" auth="Container" type="javax.sql.DataSource"
+               maxActive="100" maxIdle="30" maxWait="10000"
+               username="david" password="david1" driverClassName="org.apache.derby.jdbc.ClientDriver"
+               url="jdbc:derby://localhost:1527/zeroadmin"/>
+</Context>

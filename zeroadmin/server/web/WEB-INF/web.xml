@@ -19,7 +19,7 @@
         </welcome-file>
     </welcome-file-list>
     <resource-ref>
-        <description>jdbc:pointbase://localhost:9092/sample [pbpublic on PBPUBLIC]</description>
+        <description>Testing DB</description>
         <res-ref-name>jdbc/nbconfig</res-ref-name>
         <res-type>javax.sql.DataSource</res-type>
         <res-auth>Container</res-auth>

@@ -42,6 +42,8 @@ package org.netbeans.modules.zeroadmin.server;
 
 import java.sql.*;
 import java.util.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 import javax.sql.DataSource;
@@ -51,11 +53,14 @@ import javax.sql.DataSource;
  * Handles the retrieval and storing of NetBeans configuration of a user.
  * This class saves the data as a CLOB to the SQL database.
  *
- * @author CLi
- * @version 1.0
+ * @author CLi, David Strupl
+ * @version 1.1
  */
 
 public class DBHelper {
+    
+    private static Logger log = Logger.getLogger(DBHelper.class.getName());
+    
 //============================================================================
 // Attributes
 //============================================================================
@@ -100,11 +105,13 @@ public class DBHelper {
      */
     public void connect()
     throws SQLException {
+        log.entering(getClass().getName(), "connect");
         if ( _dbConn != null ) {
             closeConnection( _dbConn );
         }
         
         _dbConn = openConnection( _dbURL, new Properties() );
+        log.exiting(getClass().getName(), "connect");
     }
     
     /**
@@ -114,15 +121,18 @@ public class DBHelper {
      */
     public void close()
     throws SQLException {
+        log.entering(getClass().getName(), "close");
         if ( _dbConn != null ) {
             closeConnection( _dbConn );
         }
+        log.exiting(getClass().getName(), "close");
     }
     
     /**
      * Return treu if we are connected.
      */
     public boolean isConnected() {
+        log.entering(getClass().getName(), "isConnected");
         boolean isConnected = false;
         
         try {
@@ -130,9 +140,10 @@ public class DBHelper {
                 isConnected = true;
             }
         } catch( Exception e ) {
-            // Do nothing if isClosed fails...
+            log.log(Level.FINE, "isConnected connection failed", e);
         }
-        
+        log.exiting(getClass().getName(), "isConnected", 
+                Boolean.valueOf(isConnected));
         return isConnected;
     }
     
@@ -142,9 +153,10 @@ public class DBHelper {
      * @param userName          the user name
      */
     public void initialize( String userName ) {
+        log.entering(getClass().getName(), "initialize", userName);
         if ( _dbConn != null ) {
             String tableSQL = "CREATE TABLE DES_NB_CONFIG " +
-                    "(nbconfig_user VARCHAR2(32) PRIMARY KEY, " +
+                    "(nbconfig_user VARCHAR(32) PRIMARY KEY, " +
                     "nbconfig_data CLOB)";
             
             String insertSQL = "INSERT INTO DES_NB_CONFIG(nbconfig_user, " +
@@ -153,16 +165,18 @@ public class DBHelper {
             try {
                 createTable( tableSQL, _dbConn );
             } catch( Exception e ) {
-                // Do nothing if table exists or some other error...
+                log.log(Level.FINE, "Failed query == " + tableSQL, e);
             }
-            
-            try {
-                // Insert empty data for user
-                saveClob( insertSQL, userName, "", _dbConn );
-            } catch( Exception e ) {
-                // Do nothing if row exists or some other error...
+            if (userName != null) {
+                try {
+                    // Insert empty data for user
+                    saveClob( insertSQL, userName, "", _dbConn );
+                } catch( Exception e ) {
+                    log.log(Level.FINE, "Failed query == " + insertSQL, e);
+                }
             }
         }
+        log.exiting(getClass().getName(), "initialize");
     }
     
     /**
@@ -175,6 +189,7 @@ public class DBHelper {
      */
     public void saveData( String userName, String data )
     throws SQLException {
+        log.entering(getClass().getName(), "saveData", userName);
         if ( _dbConn != null ) {
             String updateSQL = "UPDATE DES_NB_CONFIG SET " +
                     "nbconfig_data = ? WHERE " +
@@ -182,6 +197,7 @@ public class DBHelper {
             
             saveClob( updateSQL, userName, data, _dbConn );
         }
+        log.exiting(getClass().getName(), "saveData");
     }
     
     /**
@@ -194,6 +210,7 @@ public class DBHelper {
      */
     public String loadData( String userName )
     throws SQLException {
+        log.entering(getClass().getName(), "loadData", userName);
         String data = "";
         
         if ( _dbConn != null ) {
@@ -202,7 +219,7 @@ public class DBHelper {
             
             data = loadClob( fetchSQL, userName, _dbConn );
         }
-        
+        log.exiting(getClass().getName(), "loadData", data);
         return data;
     }
     
@@ -215,6 +232,7 @@ public class DBHelper {
      */
     public void deleteData( String userName )
     throws SQLException {
+        log.entering(getClass().getName(), "deleteData", userName);
         if ( _dbConn != null ) {
             String modifySQL = "DELETE FROM DES_NB_CONFIG WHERE " +
                     "nbconfig_user = ?";
@@ -232,13 +250,11 @@ public class DBHelper {
                         pstmt.close();
                     }
                 } catch( Exception e ) {
-                    System.err.println( "failed to release SQL statement: " +
-                            e.toString() );
-                    
-                    e.printStackTrace();
+                    log.log(Level.WARNING, "failed to release SQL statement: " + modifySQL, e);
                 }
             }
         }
+        log.exiting(getClass().getName(), "deleteData");
     }
     
     /**
@@ -248,12 +264,13 @@ public class DBHelper {
      * @throws SQLException     if the database operation fails
      */
     public List loadUsers() throws SQLException {
+        log.entering(getClass().getName(), "loadUsers");
         List data = null;
         
         if ( _dbConn != null ) {
             data = loadUsers( _dbConn );
         }
-        
+        log.exiting(getClass().getName(), "loadUsers", data);
         return data;
     }
     
@@ -279,7 +296,7 @@ public class DBHelper {
     protected Connection openConnection( String dbURL, Properties props )
     throws SQLException {
         Connection conn;
-        
+        log.entering(getClass().getName(), "openConnection", dbURL);
         // Sanity checks
         if ( dbURL == null  ) {
             throw new IllegalArgumentException(
@@ -294,13 +311,14 @@ public class DBHelper {
         // Different mechanism depending on URL
         if ( dbURL.startsWith( "jdbc:" ) ) {
             // Check if driver has been registered
-            Enumeration en = DriverManager.getDrivers();
+            Enumeration<Driver> en = DriverManager.getDrivers();
             
             while ( en.hasMoreElements() ) {
-                Driver driverObj = ( Driver )en.nextElement();
+                Driver driverObj = en.nextElement();
                 
                 if ( driverObj.getClass().getName().equals( _dbDriver ) ) {
                     DriverManager.deregisterDriver( driverObj );
+                    log.fine("unregistered driver " + driverObj);
                     break;
                 }
             }
@@ -309,8 +327,8 @@ public class DBHelper {
                 // Load driver (and let it register itself with the DriverManager)
                 Class.forName( _dbDriver );
             } catch( ClassNotFoundException cnfe ) {
-                cnfe.printStackTrace();
-                throw new SQLException( cnfe.toString() );
+                log.log(Level.FINE, "cannot load driver ", cnfe);
+                throw new SQLException("Cannot load the class of the driver: " + cnfe);
             }
             
             conn = DriverManager.getConnection( _dbURL, props );
@@ -321,11 +339,11 @@ public class DBHelper {
                 DataSource ds = ( DataSource )dsObj;
                 conn = ds.getConnection();
             } catch( NamingException ne ) {
-                ne.printStackTrace();
-                throw new SQLException( ne.toString() );
+                log.log(Level.FINE, "cannot get connection ", ne);
+                throw new SQLException("Cannot get the connection: " + ne);
             }
         }
-        
+        log.exiting(getClass().getName(), "openConnection", conn);
         return conn;
     }
     
@@ -338,6 +356,7 @@ public class DBHelper {
      */
     protected void closeConnection( Connection dbConnection )
     throws SQLException {
+        log.entering(getClass().getName(), "closeConnection", dbConnection);
         // Sanity check
         if ( dbConnection == null ) {
             throw new IllegalArgumentException(
@@ -350,15 +369,14 @@ public class DBHelper {
                 try {
                     dbConnection.commit();
                 } catch( SQLException sqle ) {
-                    System.err.println( "failed to commit changes: " +
-                            sqle.toString() );
-                    
-                    sqle.printStackTrace();
+                    log.log(Level.WARNING, "failed to commit changes: " +
+                            sqle, sqle);
                 }
             }
             
             dbConnection.close();
         }
+        log.exiting(getClass().getName(), "closeConnection");
     }
     
     /**
@@ -371,6 +389,7 @@ public class DBHelper {
      */
     protected void createTable( String dbTableSQL, Connection dbConnection )
     throws SQLException {
+        log.entering(getClass().getName(), "createTable", dbTableSQL);
         Statement stmt = dbConnection.createStatement();
         
         try {
@@ -383,10 +402,8 @@ public class DBHelper {
                     stmt.close();
                 }
             } catch( Exception e ) {
-                System.err.println( "failed to release SQL statement: " +
-                        e.toString() );
-                
-                e.printStackTrace();
+                log.log(Level.WARNING, "failed to release SQL statement: " +
+                        dbTableSQL, e);
             }
         }
     }
@@ -405,6 +422,9 @@ public class DBHelper {
      */
     protected void saveClob( String dbModifySQL, String dbUser,
             String dbData, Connection dbConnection ) throws SQLException {
+        
+        log.entering(getClass().getName(), "saveClob", dbModifySQL);
+        
         PreparedStatement pstmt = dbConnection.prepareStatement( dbModifySQL );
         
         try {
@@ -419,12 +439,11 @@ public class DBHelper {
                     pstmt.close();
                 }
             } catch( Exception e ) {
-                System.err.println( "failed to release SQL statement: " +
-                        e.toString() );
-                
-                e.printStackTrace();
+                log.log(Level.WARNING, "failed to release SQL statement: " +
+                        dbModifySQL, e);
             }
         }
+        log.exiting(getClass().getName(), "saveClob");
     }
     
     /**
@@ -441,6 +460,9 @@ public class DBHelper {
      */
     protected String loadClob( String dbFetchSQL, String dbUser,
             Connection dbConnection ) throws SQLException {
+        
+        log.entering(getClass().getName(), "loadClob", dbFetchSQL);
+        
         String data = "";
         ResultSet rset = null;
         PreparedStatement pstmt = dbConnection.prepareStatement( dbFetchSQL );
@@ -464,10 +486,8 @@ public class DBHelper {
                     rset.close();
                 }
             } catch( Exception e ) {
-                System.err.println( "failed to release SQL result set: " +
-                        e.toString() );
-                
-                e.printStackTrace();
+                log.log(Level.WARNING, "failed to release SQL result set: " +
+                        dbFetchSQL, e);
             }
             
             try {
@@ -475,13 +495,11 @@ public class DBHelper {
                     pstmt.close();
                 }
             } catch( Exception e ) {
-                System.err.println( "failed to release SQL statement: " +
-                        e.toString() );
-                
-                e.printStackTrace();
+                log.log(Level.WARNING, "failed to release SQL statement: " +
+                        dbFetchSQL, e);
             }
         }
-        
+        log.exiting(getClass().getName(), "loadClob", data);
         return data;
     }
     
@@ -494,7 +512,8 @@ public class DBHelper {
      * @throws SQLException     if the select fails
      */
     protected List loadUsers( Connection dbConnection ) throws SQLException {
-        List data = null;
+        log.entering(getClass().getName(), "loadUsers");
+        List data = new ArrayList();
         ResultSet rset = null;
         String dbFetchSQL = "SELECT nbconfig_user FROM DES_NB_CONFIG" +
                 " ORDER BY nbconfig_user";
@@ -505,13 +524,10 @@ public class DBHelper {
             rset = pstmt.executeQuery();
             
             while ( rset.next() ) {
-                if ( data == null ) {
-                    data = new ArrayList();
-                }
-                
                 data.add( rset.getString( 1 ) );
             }
         } catch( SQLException se ) {
+            data = null;
             throw se;
         } finally {
             try {
@@ -519,10 +535,8 @@ public class DBHelper {
                     rset.close();
                 }
             } catch( Exception e ) {
-                System.err.println( "failed to release SQL result set: " +
-                        e.toString() );
-                
-                e.printStackTrace();
+                log.log(Level.WARNING, "failed to release SQL result set: " +
+                        dbFetchSQL, e);
             }
             
             try {
@@ -530,13 +544,11 @@ public class DBHelper {
                     pstmt.close();
                 }
             } catch( Exception e ) {
-                System.err.println( "failed to release SQL statement: " +
-                        e.toString() );
-                
-                e.printStackTrace();
+                log.log(Level.WARNING, "failed to release SQL statement: " +
+                        dbFetchSQL, e);
             }
         }
-        
+        log.exiting(getClass().getName(), "loadUsers", data);
         return data;
     }
 }
