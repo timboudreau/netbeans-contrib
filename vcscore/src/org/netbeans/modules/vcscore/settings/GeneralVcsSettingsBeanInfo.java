@@ -45,7 +45,7 @@ public class GeneralVcsSettingsBeanInfo extends SimpleBeanInfo {
                 new PropertyDescriptor(GeneralVcsSettings.PROP_USE_GLOBAL, GeneralVcsSettings.class),  // [0]
                 new PropertyDescriptor(GeneralVcsSettings.PROP_OFFLINE, GeneralVcsSettings.class),    // [1]
                 new PropertyDescriptor(GeneralVcsSettings.PROP_AUTO_REFRESH, GeneralVcsSettings.class), // [2]
-                new PropertyDescriptor(GeneralVcsSettings.PROP_HOME, GeneralVcsSettings.class), // [3]
+                new PropertyDescriptor(GeneralVcsSettings.PROP_HOME, GeneralVcsSettings.class, "getHome", null), // [3]
                 new PropertyDescriptor(GeneralVcsSettings.PROP_DEFAULT_PROFILE, GeneralVcsSettings.class),// [4]
                 new PropertyDescriptor(GeneralVcsSettings.PROP_RECOGNIZED_FS, GeneralVcsSettings.class), // [5]
                 new PropertyDescriptor(GeneralVcsSettings.PROP_ADVANCED_NOTIFICATION, GeneralVcsSettings.class), // [6])
