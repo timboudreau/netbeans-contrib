@@ -40,7 +40,8 @@
  */
 package org.netbeans.modules.zeroadmin;
 
-import org.openide.ErrorManager;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.jnlp.BasicService;
 import javax.jnlp.ServiceManager;
 
@@ -70,7 +71,8 @@ public class JNLPURLDisplayer extends org.openide.awt.HtmlBrowser.URLDisplayer {
             bs.showDocument(u);
             
         } catch (Exception e) {
-            ErrorManager.getDefault().getInstance("org.netbeans.modules.zeroadmin").notify(e); // NOI18N
+            Logger.getLogger(JNLPURLDisplayer.class.getName()).log(
+                Level.SEVERE, "Cannot show URL : " + u, e); // NOI18N
         }
     }
 }
