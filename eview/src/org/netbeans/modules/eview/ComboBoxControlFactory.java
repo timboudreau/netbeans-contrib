@@ -49,14 +49,13 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.DefaultComboBoxModel;
-import javax.swing.InputVerifier;
 import javax.swing.JComponent;
 import javax.swing.JComboBox;
-import javax.swing.event.DocumentListener;
 import org.netbeans.api.eview.ControlFactory;
 import org.netbeans.api.registry.Context;
-import org.openide.ErrorManager;
 import org.openide.filesystems.FileObject;
 
 /**
@@ -66,12 +65,8 @@ import org.openide.filesystems.FileObject;
  */
 public class ComboBoxControlFactory implements ControlFactory {
     
-//    static {
-//        // enable logging for now
-//        System.setProperty(ComboBoxControlFactory.class.getName(), "-1");
-//    }
-    private static ErrorManager log = ErrorManager.getDefault().getInstance(ComboBoxControlFactory.class.getName());
-    private static boolean LOGGABLE = log.isLoggable(ErrorManager.INFORMATIONAL);
+    private static final Logger log = Logger.getLogger(ComboBoxControlFactory.class.getName());
+    private static boolean LOGGABLE = log.isLoggable(Level.FINE);
 
     /** Shared event instance. */
     private static final PropertyChangeEvent pcEvent = new PropertyChangeEvent(ComboBoxControlFactory.class, "selItem", null, null);
@@ -115,7 +110,7 @@ public class ComboBoxControlFactory implements ControlFactory {
         List orderedNames = con.getOrderedNames();
         for (Iterator it = orderedNames.iterator(); it.hasNext();) {
             String name = (String) it.next();
-            if (LOGGABLE) log.log("scanFolder checking " + name);
+            if (LOGGABLE) log.fine("scanFolder checking " + name);
             if (name.endsWith("/")) {
                 name = name.substring(0, name.length()-1);
             }
@@ -126,11 +121,11 @@ public class ComboBoxControlFactory implements ControlFactory {
                 child = folder.getFileObject(name, extensions[extNum++]);
             }
             if (child == null) {
-                log.log("child == null: Registry returned an invalid name " + name + " in folder " + folder.getPath());
+                log.fine("child == null: Registry returned an invalid name " + name + " in folder " + folder.getPath());
                 continue;
             }
             if (! child.isValid()) {
-                log.log("!child.isValid(): Registry returned an invalid name " + name + " in folder " + folder.getPath());
+                log.fine("!child.isValid(): Registry returned an invalid name " + name + " in folder " + folder.getPath());
                 continue;
             }
             if (child.isData()) {
@@ -138,7 +133,7 @@ public class ComboBoxControlFactory implements ControlFactory {
                 try {
                     displayName = child.getFileSystem ().getStatus ().annotateName(child.getName(), Collections.singleton(child));
                 } catch (Exception x) {
-                    log.notify(ErrorManager.EXCEPTION, x);
+                    log.log(Level.WARNING, "display name cannot be annotated " + displayName, x); // NOI18N
                 }
                 Object value = displayName;
                 Object a1 = child.getAttribute("value");

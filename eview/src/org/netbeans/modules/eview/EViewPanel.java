@@ -48,11 +48,7 @@ import java.awt.FlowLayout;
 import java.awt.FocusTraversalPolicy;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
-import java.awt.GridLayout;
 import java.awt.Rectangle;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.KeyListener;
 import java.beans.PropertyChangeListener;
 import java.text.MessageFormat;
 import java.util.ArrayList;
@@ -60,21 +56,17 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.BorderFactory;
-import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.JTextField;
 import javax.swing.Scrollable;
 import javax.swing.SwingUtilities;
-import javax.swing.border.LineBorder;
-import javax.swing.event.DocumentListener;
 import org.netbeans.api.eview.ControlFactory;
 import org.netbeans.api.eview.PanelData;
-import org.openide.ErrorManager;
 import org.openide.util.NbBundle;
 import org.openide.util.Utilities;
 
@@ -83,14 +75,9 @@ import org.openide.util.Utilities;
  * @author David Strupl
  */
 public class EViewPanel extends JPanel implements Scrollable {
-//    static {
-//        // enable logging for now
-//        System.setProperty(EViewPanel.class.getName(), "-1");
-//    }
-    private static ErrorManager log = ErrorManager.getDefault().getInstance(EViewPanel.class.getName());
-    private static boolean LOGGABLE = log.isLoggable(ErrorManager.INFORMATIONAL);
-    /** Private logger. */
-    private Logger logger;
+    
+    private static final Logger log = Logger.getLogger(Configuration.class.getName());
+    private static boolean LOGGABLE = log.isLoggable(Level.FINE);
     
     //~ Static fields/initializers ---------------------------------------------
     
@@ -246,11 +233,11 @@ public class EViewPanel extends JPanel implements Scrollable {
         Configuration.ContainerEntry cc = c.getConfig();
         JComponent previousComp = null;
         putClientProperty("displayName", cc.displayName);
-        if (LOGGABLE) log.log("EViewPanel.initComponents() cc = " + cc);
+        if (LOGGABLE) log.fine("EViewPanel.initComponents() cc = " + cc);
         for (Iterator it = cc.entries.iterator(); it.hasNext(); ) {
             Object o = it.next();
             String dName = "Display name not specified";
-            if (LOGGABLE) log.log("EViewPanel.initComponents() o = " + o);
+            if (LOGGABLE) log.fine("EViewPanel.initComponents() o = " + o);
             JPanel jp = null;
             if (o instanceof Configuration.ContainerEntry) {
                 Configuration.ContainerEntry ic = (Configuration.ContainerEntry)o;
@@ -263,14 +250,14 @@ public class EViewPanel extends JPanel implements Scrollable {
                 jp.putClientProperty("labelFormat", ic.labelFormat);
                 jp.putClientProperty("foregroundArea",Boolean.TRUE);
                 //jp.setBorder(new LineBorder(Color.RED));
-                if (LOGGABLE) log.log("EViewPanel.initComponents() ic = " + ic);
+                if (LOGGABLE) log.fine("EViewPanel.initComponents() ic = " + ic);
                 jp.setLayout(new GridBagLayout());
                 int i = 0;
                 int j = 0;
                 boolean twoLines = false;
                 for (Iterator it2 = ic.entries.iterator(); it2.hasNext(); ) {
                     Object o2 = it2.next();
-                    if (LOGGABLE) log.log("EViewPanel.initComponents() o2 = " + o2);
+                    if (LOGGABLE) log.fine("EViewPanel.initComponents() o2 = " + o2);
                     if (o2 instanceof Configuration.ControlEntry) {
                         Configuration.ControlEntry cce = (Configuration.ControlEntry)o2;
                         if (cce.control != null) {
@@ -281,14 +268,14 @@ public class EViewPanel extends JPanel implements Scrollable {
                                     try {
                                         jlbl.setText(NbBundle.getBundle(cce.labelBundle).getString(cce.label));
                                     } catch (Exception x) {
-                                        if (LOGGABLE) log.notify(ErrorManager.INFORMATIONAL, x);
+                                        if (LOGGABLE) log.log(Level.FINE, "", x); // NOI18N
                                         jlbl.setText(cce.label);
                                     }
                                 } else {
                                     jlbl.setText(cce.label);
                                 }
                                 jlbl.setLabelFor(comp);
-                                if (LOGGABLE) log.log("Adding label "+jlbl.getText()+" to (" + j + "," + i + ")");
+                                if (LOGGABLE) log.fine("Adding label "+jlbl.getText()+" to (" + j + "," + i + ")");
                                 jp.add(jlbl, getLabelConstraints(j, i));
                                 //jlbl.setBorder(new LineBorder(Color.YELLOW));
                             }
@@ -300,7 +287,7 @@ public class EViewPanel extends JPanel implements Scrollable {
                                 j++;
                             }
                             //comp.setBorder(new LineBorder(Color.GREEN));
-                            if (LOGGABLE) log.log("Adding control "+comp+" to (" + j + "," + i + ")");
+                            if (LOGGABLE) log.fine("Adding control "+comp+" to (" + j + "," + i + ")");
                             // fix for GridBagLayout resizing bug - this is a hack:
                             Dimension prefSize = comp.getPreferredSize();
                             int prefWidth = 1000;
@@ -347,7 +334,7 @@ public class EViewPanel extends JPanel implements Scrollable {
                 }
             }
             if (jp != null) {
-                if (LOGGABLE) log.log("EViewPanel.initComponents() addHideablePanel = " + jp);
+                if (LOGGABLE) log.fine("EViewPanel.initComponents() addHideablePanel = " + jp);
                 addHideablePanel(jp, dName);
             }
         }
@@ -653,11 +640,11 @@ public class EViewPanel extends JPanel implements Scrollable {
             Object data = control.getValue(comp);
             Object rememberedData = rememberedValues.get(key);
             if (! Utilities.compareObjects(data, rememberedData)) {
-                log("EViewPanel isModified returning true \ndata == " + data + "\n rememberedData == " + rememberedData);
+                log.finer("EViewPanel isModified returning true \ndata == " + data + "\n rememberedData == " + rememberedData);
                 return true;
             }
         }
-        log("EViewPanel isModified returning false");
+        log.finer("EViewPanel isModified returning false");
         return false;
     }
     
@@ -673,13 +660,5 @@ public class EViewPanel extends JPanel implements Scrollable {
             myPanelData.setModified(true);
             updateDescriptions();
         }
-    }
-    
-    /** Local logger */
-    private void log(String s) {
-        if (logger == null) {
-            logger = Logger.getLogger(getClass().getName());
-        }
-        logger.finest(s);
     }
 }

@@ -43,16 +43,16 @@ package org.netbeans.modules.eview;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.ComboBoxModel;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.SwingUtilities;
 import org.netbeans.api.eview.ControlFactory;
-import org.openide.ErrorManager;
 import org.openide.filesystems.FileObject;
 
 /**
@@ -64,8 +64,8 @@ import org.openide.filesystems.FileObject;
  */
 public class DetailComboFactory extends ComboBoxControlFactory {
     
-    private static ErrorManager log = ErrorManager.getDefault().getInstance(DetailComboFactory.class.getName());
-    private static boolean LOGGABLE = log.isLoggable(ErrorManager.INFORMATIONAL);
+    private static final Logger log = Logger.getLogger(ComboBoxControlFactory.class.getName());
+    private static boolean LOGGABLE = log.isLoggable(Level.FINE);
     
     private String masterID;
     private Map/*<Object, List>*/ myNames;
@@ -131,7 +131,7 @@ public class DetailComboFactory extends ComboBoxControlFactory {
     private JComboBox findMaster(JComboBox me) {
         JComponent parent = (JComponent)me.getParent().getParent();
         if ( ! (parent instanceof EViewPanel)) {
-            if (LOGGABLE) log.log("Wrong parent in findMaster " + parent);
+            if (LOGGABLE) log.fine("Wrong parent in findMaster " + parent);
             return null;
         }
         EViewPanel panel = (EViewPanel)parent;
@@ -145,7 +145,7 @@ public class DetailComboFactory extends ComboBoxControlFactory {
     private ControlFactory findMasterFactory(JComboBox me) {
         JComponent parent = (JComponent)me.getParent().getParent();
         if ( ! (parent instanceof EViewPanel)) {
-            if (LOGGABLE) log.log("Wrong parent in findMasterFactory " + parent);
+            if (LOGGABLE) log.fine("Wrong parent in findMasterFactory " + parent);
             return null;
         }
         EViewPanel panel = (EViewPanel)parent;

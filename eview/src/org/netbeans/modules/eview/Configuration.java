@@ -46,6 +46,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.JComponent;
 import org.netbeans.api.eview.ControlFactory;
 import org.netbeans.api.registry.AttributeEvent;
@@ -53,7 +55,6 @@ import org.netbeans.api.registry.BindingEvent;
 import org.netbeans.api.registry.Context;
 import org.netbeans.api.registry.ContextListener;
 import org.netbeans.api.registry.SubcontextEvent;
-import org.openide.ErrorManager;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.Repository;
 import org.openide.util.WeakListeners;
@@ -62,12 +63,9 @@ import org.openide.util.WeakListeners;
  * @author David Strupl
  */
 public class Configuration {
-//    static {
-//        // enable logging for now
-//        System.setProperty(Configuration.class.getName(), "-1");
-//    }
-    private static ErrorManager log = ErrorManager.getDefault().getInstance(Configuration.class.getName());
-    private static boolean LOGGABLE = log.isLoggable(ErrorManager.INFORMATIONAL);
+    
+    private static final Logger log = Logger.getLogger(Configuration.class.getName());
+    private static boolean LOGGABLE = log.isLoggable(Level.FINE);
 
     /** Singleton instance of this class. */
     private static Map instanceCache = new HashMap();
@@ -129,7 +127,7 @@ public class Configuration {
         FileObject root = getConfigRoot();
         Context con = Context.getDefault().getSubcontext(root.getPath());
         if (con == null) {
-            if (LOGGABLE) log.log("build() returning - config folder " + location + " does not exist.");
+            if (LOGGABLE) log.fine("build() returning - config folder " + location + " does not exist.");
             return;
         }
         if (!listenersAttached) {
@@ -140,8 +138,8 @@ public class Configuration {
         scanFolder(root, res);
         if (LOGGABLE) {
             long finishTime = System.currentTimeMillis();
-            log.log(ErrorManager.USER, "Configuration building has taken " + (finishTime - startTime));
-            log.log(this.toString());
+            log.fine("Configuration building has taken " + (finishTime - startTime));
+            log.fine(this.toString());
         }
         computedEntry = res;
     }
@@ -151,12 +149,12 @@ public class Configuration {
      * and creating config entries.
      */
     private void scanFolder(FileObject folder, ContainerEntry container) {
-        if (LOGGABLE) log.log("scanFolder(" + folder.getPath() + ") START");
+        if (LOGGABLE) log.fine("scanFolder(" + folder.getPath() + ") START");
         container.displayName = folder.getName();
         try {
             container.displayName = folder.getFileSystem ().getStatus ().annotateName(folder.getName(), Collections.singleton(folder));
         } catch (Exception x) {
-            log.notify(ErrorManager.EXCEPTION, x);
+            log.log(Level.WARNING, container.displayName, x);
         }
         container.entries = new ArrayList();
         Object rowsAttr = folder.getAttribute("rows");
@@ -176,7 +174,7 @@ public class Configuration {
         List orderedNames = con.getOrderedNames();
         for (Iterator it = orderedNames.iterator(); it.hasNext();) {
             String name = (String) it.next();
-            if (LOGGABLE) log.log("scanFolder checking " + name);
+            if (LOGGABLE) log.fine("scanFolder checking " + name);
             if (name.endsWith("/")) {
                 name = name.substring(0, name.length()-1);
             }
@@ -187,28 +185,28 @@ public class Configuration {
                 child = folder.getFileObject(name, extensions[extNum++]);
             }
             if (child == null) {
-                log.log("child == null: Registry returned an invalid name " + name + " in folder " + folder.getPath());
+                log.fine("child == null: Registry returned an invalid name " + name + " in folder " + folder.getPath());
                 continue;
             }
             if (! child.isValid()) {
-                log.log("!child.isValid(): Registry returned an invalid name " + name + " in folder " + folder.getPath());
+                log.fine("!child.isValid(): Registry returned an invalid name " + name + " in folder " + folder.getPath());
                 continue;
             }
             if (child.isData()) {
                 String ext = child.getExt();
                 String componentID = (String)child.getAttribute("componentID");
                 if (componentID == null) {
-                    log.log("File " + child.getPath() + " is missing the componentID attribute");
+                    log.fine("File " + child.getPath() + " is missing the componentID attribute");
                     continue;
                 }
-                if (LOGGABLE) log.log("adding result with ID " + componentID);
+                if (LOGGABLE) log.fine("adding result with ID " + componentID);
                 ControlEntry e = new ControlEntry();
                 e.id = componentID;
                 Object c = con.getObject(name, null);
                 if (c instanceof ControlFactory) {
                     e.control = (ControlFactory)c;
                 } else {
-                    log.log("Invalid control " + name + " in folder " + folder.getPath()+ " expected Control but was " + c);
+                    log.fine("Invalid control " + name + " in folder " + folder.getPath()+ " expected Control but was " + c);
                     continue;
                 }
                 e.label = (String)child.getAttribute("label");
@@ -228,7 +226,7 @@ public class Configuration {
                 }
             }
         }
-        if (LOGGABLE) log.log("scanFolder(" + folder.getPath() + ") END");
+        if (LOGGABLE) log.fine("scanFolder(" + folder.getPath() + ") END");
     }
     
     /**
@@ -251,17 +249,17 @@ public class Configuration {
      */
     private class Listener implements ContextListener {
         public void attributeChanged(AttributeEvent evt) {
-            if (LOGGABLE) log.log("attributeChanged("+evt+") called on listener from " + Configuration.this);
+            if (LOGGABLE) log.fine("attributeChanged("+evt+") called on listener from " + Configuration.this);
             computedEntry = null;
         }
         
         public void bindingChanged(BindingEvent evt) {
-            if (LOGGABLE) log.log("bindingChanged("+evt+") called on listener from " + Configuration.this);
+            if (LOGGABLE) log.fine("bindingChanged("+evt+") called on listener from " + Configuration.this);
             computedEntry = null;
         }
         
         public void subcontextChanged(SubcontextEvent evt) {
-            if (LOGGABLE) log.log("subcontextChanged("+evt+") called on listener from " + Configuration.this);
+            if (LOGGABLE) log.fine("subcontextChanged("+evt+") called on listener from " + Configuration.this);
             computedEntry = null;
         }
     }
