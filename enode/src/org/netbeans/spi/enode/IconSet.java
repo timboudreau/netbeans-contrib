@@ -47,16 +47,12 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.MissingResourceException;
 import java.util.ArrayList;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.swing.ImageIcon;
-
-import org.openide.ErrorManager;
-
 import org.openide.filesystems.FileObject;
-
 import org.openide.util.NbBundle;
-
 import org.netbeans.modules.enode.TimedSoftReference;
 
 
@@ -142,8 +138,8 @@ import org.netbeans.modules.enode.TimedSoftReference;
 public class IconSet {
     //=======================================================================
     // Private data members
-    private static ErrorManager log = ErrorManager.getDefault().getInstance("org.netbeans.spi.enode");
-    private static boolean LOGGABLE = log.isLoggable(ErrorManager.INFORMATIONAL);
+    private static final Logger log = Logger.getLogger(IconSet.class.getName());
+    private static boolean LOGGABLE = log.isLoggable(Level.FINE);
     
     //
     // Special characters in icon names (marked as default
@@ -230,7 +226,7 @@ public class IconSet {
             }
         }
         catch( Exception e ) {
-            log.notify( ErrorManager.INFORMATIONAL, e );
+            log.log(Level.FINE, "", e);
         }
     }
     
@@ -332,8 +328,8 @@ public class IconSet {
                 if (myDelegate != null) {
                     return myDelegate.getIcon(name,size) ;
                 } else {
-                    if (LOGGABLE) log.log(
-                        ErrorManager.INFORMATIONAL, "Icon with the size " + 
+                    if (LOGGABLE) log.fine(
+                        "Icon with the size " + 
                         size + " does not exist for name " + name + 
                         "Desc: " + myDescription
                     );
@@ -361,8 +357,8 @@ public class IconSet {
             logger.finest( "Loading MO symbol from file " + file );
             
             if (file == null) {
-                log.notify(ErrorManager.INFORMATIONAL,
-                new IllegalStateException("File cannot be computed for name " + name));
+                log.log(Level.WARNING, "File cannot be computed for name " + name,
+                    new IllegalStateException());
             }
             
             icon = NbIcon.loadIcon( file, size, name );
@@ -421,7 +417,7 @@ public class IconSet {
             display = NbBundle.getBundle( myBundle ).getString( name );
         }
         catch( MissingResourceException e ) {
-            log.notify( ErrorManager.INFORMATIONAL, e );
+            log.log(Level.FINE, "", e );
             
             display = name;
         }
@@ -503,7 +499,7 @@ public class IconSet {
             myDefaultSize = Integer.parseInt( value );
         }
         catch( NumberFormatException nfe ) {
-            log.notify( ErrorManager.INFORMATIONAL, nfe );
+            log.log(Level.FINE, "Cannot parse " + value, nfe);
         }
     }
     
@@ -634,7 +630,7 @@ public class IconSet {
             size = Integer.parseInt( suffix );
         }
         catch( Exception e ) {
-            log.notify( ErrorManager.INFORMATIONAL, e );
+            log.log(Level.FINE, "Cannot parse size " + attribute, e);
         }
         
         return size;

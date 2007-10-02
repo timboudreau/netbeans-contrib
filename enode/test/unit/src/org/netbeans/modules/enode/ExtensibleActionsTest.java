@@ -51,7 +51,6 @@ import junit.textui.TestRunner;
 import org.netbeans.junit.NbTestCase;
 import org.netbeans.junit.NbTestSuite;
 
-import org.openide.ErrorManager;
 import org.openide.modules.ModuleInfo;
 import org.openide.nodes.*;
 import org.openide.util.Lookup;

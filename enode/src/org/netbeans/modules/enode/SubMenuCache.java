@@ -48,6 +48,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.Action;
 import javax.swing.JComponent;
 import javax.swing.JSeparator;
@@ -56,7 +58,6 @@ import org.netbeans.api.registry.BindingEvent;
 import org.netbeans.api.registry.Context;
 import org.netbeans.api.registry.ContextListener;
 import org.netbeans.api.registry.SubcontextEvent;
-import org.openide.ErrorManager;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.Repository;
 import org.netbeans.api.enode.ExtensibleNode;
@@ -68,8 +69,8 @@ import org.openide.util.WeakListeners;
  */
 class SubMenuCache {
     
-    private static ErrorManager log = ErrorManager.getDefault().getInstance(SubMenuCache.class.getName());
-    private static boolean LOGGABLE = log.isLoggable(ErrorManager.INFORMATIONAL);
+    private static final Logger log = Logger.getLogger(SubMenuCache.class.getName());
+    private static boolean LOGGABLE = log.isLoggable(Level.FINE);
 
     /** Extension of the files we are interested in (in the SubMenu folder). */
     private static final String SHADOW_EXTENSION = "shadow";
@@ -142,7 +143,7 @@ class SubMenuCache {
         FileObject root = getSubMenusRoot();
         Context con = Context.getDefault().getSubcontext(root.getPath());
         if (con == null) {
-            if (LOGGABLE) log.log("buildTheCache() returning - SubMenu context does not exist.");
+            if (LOGGABLE) log.fine("buildTheCache() returning - SubMenu context does not exist.");
             return;
         }
         if (!listenersAttached) {
@@ -153,8 +154,8 @@ class SubMenuCache {
         MenuEntry rootMenu = scanFolder(root, null);
         getPathToEntryMap().put("", rootMenu);
         long finishTime = System.currentTimeMillis();
-        log.log(ErrorManager.USER, "SubMenuCache building has taken " + (finishTime - startTime));
-        if (LOGGABLE) log.log(this.toString());
+        log.fine("SubMenuCache building has taken " + (finishTime - startTime));
+        if (LOGGABLE) log.fine(this.toString());
     }
     
     /**
@@ -162,12 +163,12 @@ class SubMenuCache {
      * and creating SubMenuCacheEntries.
      */
     private MenuEntry scanFolder(FileObject folder, MenuEntry parent) {
-        if (LOGGABLE) log.log("scanFolder(" + folder.getPath() + ") START");
+        if (LOGGABLE) log.fine("scanFolder(" + folder.getPath() + ") START");
         String displayName = folder.getName();
         try {
             displayName = folder.getFileSystem ().getStatus ().annotateName(folder.getName(), Collections.singleton(folder));
         } catch (Exception x) {
-            log.notify(ErrorManager.EXCEPTION, x);
+            log.log(Level.SEVERE, "", x);
         }
         MenuEntry result = new MenuEntry(displayName, parent);
         // in order to get the order we need Registry API:
@@ -175,7 +176,7 @@ class SubMenuCache {
         List orderedNames = con.getOrderedNames();
         for (Iterator it = orderedNames.iterator(); it.hasNext();) {
             String name = (String) it.next();
-            if (LOGGABLE) log.log("scanFolder checking " + name);
+            if (LOGGABLE) log.fine("scanFolder checking " + name);
             if (name.endsWith("/")) {
                 name = name.substring(0, name.length()-1);
             }
@@ -185,32 +186,32 @@ class SubMenuCache {
                 child = folder.getFileObject(name, SHADOW_EXTENSION);
             }
             if (child == null) {
-                log.log("child == null: Registry returned an invalid name " + name + " in folder " + folder.getPath());
+                log.fine("child == null: Registry returned an invalid name " + name + " in folder " + folder.getPath());
                 continue;
             }
             if (! child.isValid()) {
-                log.log("!child.isValid(): Registry returned an invalid name " + name + " in folder " + folder.getPath());
+                log.fine("!child.isValid(): Registry returned an invalid name " + name + " in folder " + folder.getPath());
                 continue;
             }
             if (child.isData()) {
                 String ext = child.getExt();
                 if (!SHADOW_EXTENSION.equals(ext)) {
-                    log.log("Only .shadows files are allowed in SubMenu folder. Illegal file: " + child.getPath());
+                    log.fine("Only .shadows files are allowed in SubMenu folder. Illegal file: " + child.getPath());
                     continue;
                 }
                 String origPathAttr = (String)child.getAttribute("originalFile");
                 if (origPathAttr == null) {
-                    log.log("Shadow file " + child.getPath() + " is missing the originalFile attribute");
+                    log.fine("Shadow file " + child.getPath() + " is missing the originalFile attribute");
                     continue;
                 }
                 FileObject origAction = Repository.getDefault().getDefaultFileSystem().findResource(origPathAttr);
                 if (origAction == null) {
-                    log.log("originalFile attribute (" + origPathAttr + ") of " + child.getPath() + " does not reference existing action.");
+                    log.fine("originalFile attribute (" + origPathAttr + ") of " + child.getPath() + " does not reference existing action.");
                     continue;
                 }
                 int lastDotIndex = origPathAttr.lastIndexOf('.');
                 String pathWithoutExt = origPathAttr.substring(0, lastDotIndex);
-                if (LOGGABLE) log.log("adding result " + result + " with path " + pathWithoutExt);
+                if (LOGGABLE) log.fine("adding result " + result + " with path " + pathWithoutExt);
                 ActionEntry ae = new ActionEntry(pathWithoutExt, result);
                 result.addChild(ae);
                 getPathToEntryMap().put(pathWithoutExt, ae);
@@ -386,17 +387,17 @@ class SubMenuCache {
      */
     private class Listener implements ContextListener {
         public void attributeChanged(AttributeEvent evt) {
-            if (LOGGABLE) log.log("attributeChanged("+evt+") called on listener from " + SubMenuCache.this);
+            if (LOGGABLE) log.fine("attributeChanged("+evt+") called on listener from " + SubMenuCache.this);
             instance = null;
         }
         
         public void bindingChanged(BindingEvent evt) {
-            if (LOGGABLE) log.log("bindingChanged("+evt+") called on listener from " + SubMenuCache.this);
+            if (LOGGABLE) log.fine("bindingChanged("+evt+") called on listener from " + SubMenuCache.this);
             instance = null;
         }
         
         public void subcontextChanged(SubcontextEvent evt) {
-            if (LOGGABLE) log.log("subcontextChanged("+evt+") called on listener from " + SubMenuCache.this);
+            if (LOGGABLE) log.fine("subcontextChanged("+evt+") called on listener from " + SubMenuCache.this);
             instance = null;
         }
     }

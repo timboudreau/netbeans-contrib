@@ -45,14 +45,14 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Iterator;
-import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.swing.ImageIcon;
 
-import org.openide.ErrorManager;
 import org.openide.util.WeakListeners;
 import org.openide.util.RequestProcessor;
 
@@ -66,8 +66,8 @@ import org.netbeans.api.registry.*;
  */
 public class ExtensibleIconsImpl extends ExtensibleIcons {
     
-    private static ErrorManager log = ErrorManager.getDefault().getInstance(ExtensibleIconsImpl.class.getName());
-    private static boolean LOGGABLE = log.isLoggable(ErrorManager.INFORMATIONAL);
+    private static final Logger log = Logger.getLogger(ExtensibleIconsImpl.class.getName());
+    private static boolean LOGGABLE = log.isLoggable(Level.FINE);
     
     private PropertyChangeSupport pcs = new PropertyChangeSupport(this);
     
@@ -202,9 +202,9 @@ public class ExtensibleIconsImpl extends ExtensibleIcons {
      *
      */
     IconSet getIconSet() {
-        if (LOGGABLE) log.log("getIconSet() called on " + this);
+        if (LOGGABLE) log.fine("getIconSet() called on " + this);
         if (iconSet != null) {
-            if (LOGGABLE) log.log("getIconSet() returning cached value");
+            if (LOGGABLE) log.fine("getIconSet() returning cached value");
             return iconSet;
         }
         ArrayList arr = new ArrayList ();
@@ -223,23 +223,23 @@ public class ExtensibleIconsImpl extends ExtensibleIcons {
                     listenersAttachedTo.add(con);
                 }
                 if (! exists) {
-                    if (LOGGABLE) log.log("getIconSet() path " + path + " does not exist.");
+                    if (LOGGABLE) log.fine("getIconSet() path " + path + " does not exist.");
                     continue;
                 }
                 List objects = con.getOrderedObjects();
                 Iterator it = objects.iterator();
-                if (LOGGABLE) log.log("getIconSet() examining object on path " + path);
+                if (LOGGABLE) log.fine("getIconSet() examining object on path " + path);
                 while (it.hasNext()) {
                     Object obj = it.next();
-                    if (LOGGABLE) log.log("getIconSet() trying to add " + obj);
+                    if (LOGGABLE) log.fine("getIconSet() trying to add " + obj);
                     if (obj instanceof IconSet) {
                         arr.add(obj);
                     } else {
-                        if (LOGGABLE) log.log(obj + " is not icon set!");
+                        if (LOGGABLE) log.fine(obj + " is not icon set!");
                     }
                 }
             } catch (Exception ce) {
-                log.notify(ErrorManager.INFORMATIONAL, ce); // NOI18N
+                log.log(Level.FINE, "", ce); // NOI18N
             }
         }
         listenersAttached = true;
@@ -250,10 +250,10 @@ public class ExtensibleIconsImpl extends ExtensibleIcons {
         IconSet previous = null;
         for (Iterator i = arr.iterator(); i.hasNext(); ) {
             IconSet next = (IconSet) i.next();
-            if (LOGGABLE) log.log("getIconSet() next " + next);
+            if (LOGGABLE) log.fine("getIconSet() next " + next);
             if (previous != null) {
                 if (previous.getDelegate() == null) {
-                    if (LOGGABLE) log.log("getIconSet() setting " + next + " as delegate for " + previous);
+                    if (LOGGABLE) log.fine("getIconSet() setting " + next + " as delegate for " + previous);
                     previous.setDelegate(next);
                 }
             }

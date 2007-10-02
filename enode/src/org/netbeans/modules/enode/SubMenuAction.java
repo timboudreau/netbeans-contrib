@@ -50,15 +50,15 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.*;
 import javax.swing.JComponent;
 import javax.swing.JSeparator;
 
-import org.openide.ErrorManager;
 import org.openide.awt.Actions;
 import org.openide.util.Lookup;
 
-import org.netbeans.modules.enode.*;
 import org.openide.awt.DynamicMenuContent;
 import org.openide.util.ContextAwareAction;
 import org.openide.util.actions.BooleanStateAction;
@@ -74,8 +74,8 @@ public class SubMenuAction extends AbstractAction implements
     org.openide.util.actions.Presenter.Popup, 
     org.openide.util.actions.Presenter.Menu, ContextAwareAction {
 
-    private static ErrorManager log = ErrorManager.getDefault().getInstance(SubMenuAction.class.getName());
-    private static boolean LOGGABLE = log.isLoggable(ErrorManager.INFORMATIONAL);
+    private static final Logger log = Logger.getLogger(SubMenuAction.class.getName());
+    private static boolean LOGGABLE = log.isLoggable(Level.FINE);
     
     /** Name used for the display of this context */
     private String name;
@@ -217,7 +217,7 @@ public class SubMenuAction extends AbstractAction implements
             e = e.getParent();
         }
         if (e.getParent() == null) {
-            log.log(entry + " is not under " + myMenu);
+            log.fine(entry + " is not under " + myMenu);
             return null;
         }
         
@@ -261,16 +261,16 @@ public class SubMenuAction extends AbstractAction implements
         }
 
         public void addAllCacheItems(Collection/*<SubMenuCache.CacheEntry>*/ newEntries) {
-            if (LOGGABLE) log.log("addAllCacheItems on menu" + getText());
+            if (LOGGABLE) log.fine("addAllCacheItems on menu" + getText());
             SubMenuCache.CacheEntry e;
             Collection entryND = new ArrayList();
             for(Iterator it = newEntries.iterator(); it.hasNext(); ) {
                 e = (SubMenuCache.CacheEntry)it.next();
                 if(!entryND.contains(e)) {
-                    if (LOGGABLE) log.log("addAllCacheItems adding " + e);
+                    if (LOGGABLE) log.fine("addAllCacheItems adding " + e);
                     entryND.add(e);
                 } else { 
-                    if (LOGGABLE) log.log("addAllCacheItems removing duplicate " + e);
+                    if (LOGGABLE) log.fine("addAllCacheItems removing duplicate " + e);
                     it.remove();
                 }
             }
@@ -283,10 +283,10 @@ public class SubMenuAction extends AbstractAction implements
         
         /** Converts the items to real elements */
         public void buildMenu() {
-            if (LOGGABLE) log.log("buildMenu() " + getText());
+            if (LOGGABLE) log.fine("buildMenu() " + getText());
             for (Iterator it = elements.iterator(); it.hasNext();) {
                 CacheEntryWithSubmenuPointer cewsp = (CacheEntryWithSubmenuPointer)it.next();
-                if (LOGGABLE) log.log("buildMenu() trying to add: " + cewsp.leaf + " cewsp.topLevel: " + cewsp.topLevel);
+                if (LOGGABLE) log.fine("buildMenu() trying to add: " + cewsp.leaf + " cewsp.topLevel: " + cewsp.topLevel);
                 if (cewsp.leaf.equals(cewsp.topLevel)) {
                     if (cewsp.leaf instanceof SubMenuCache.ActionEntry) {
                         SubMenuCache.ActionEntry actionEntry = (SubMenuCache.ActionEntry)cewsp.leaf;
@@ -304,7 +304,7 @@ public class SubMenuAction extends AbstractAction implements
                                     NullPointerException npe = new NullPointerException(
                                             "buildMenu, getPopupPresenter returning null for " + a
                                             ); // NOI18N
-                                    ErrorManager.getDefault().notify(ErrorManager.INFORMATIONAL, npe);
+                                    log.log(Level.FINE, "", npe);
                                 }
                             } else {
                                 item = createPopupPresenter(a);
@@ -324,7 +324,7 @@ public class SubMenuAction extends AbstractAction implements
                         }
                     }
                 } else {
-                    log.log("Adding submenu for " + cewsp.leaf);
+                    log.fine("Adding submenu for " + cewsp.leaf);
                     if (cewsp.topLevel instanceof SubMenuCache.MenuEntry) {
                         SubMenuCache.MenuEntry subMenu = (SubMenuCache.MenuEntry)cewsp.topLevel;
                         String subMenuDisplayName = subMenu.getDisplayName();
@@ -338,7 +338,7 @@ public class SubMenuAction extends AbstractAction implements
                             add(newSub);
                         }
                     } else {
-                        log.log("cewsp.topLevel " + cewsp.topLevel + " is not MenuEntry.");
+                        log.fine("cewsp.topLevel " + cewsp.topLevel + " is not MenuEntry.");
                     }
                 }
             }

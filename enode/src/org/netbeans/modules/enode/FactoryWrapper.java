@@ -46,8 +46,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.StringTokenizer;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
-import org.openide.ErrorManager;
 import org.openide.filesystems.FileObject;
 import org.openide.nodes.Node;
 import org.openide.util.Lookup;
@@ -61,8 +62,8 @@ import org.netbeans.spi.enode.LookupContentFactory;
  */
 public class FactoryWrapper implements LookupContentFactory {
     
-    private static ErrorManager log = ErrorManager.getDefault().getInstance(FactoryWrapper.class.getName());
-    private static boolean LOGGABLE = log.isLoggable(ErrorManager.INFORMATIONAL);
+    private static final Logger log = Logger.getLogger(FactoryWrapper.class.getName());
+    private static boolean LOGGABLE = log.isLoggable(Level.FINE);
 
     /**
      * File object on the system filesystem. The attributes of this
@@ -154,7 +155,7 @@ public class FactoryWrapper implements LookupContentFactory {
             }
             if (! resultImplements().contains(template.getType().getName())) {
                 if (LOGGABLE) {
-                    log.log("implementsQueries adding " + 
+                    log.fine("implementsQueries adding " + 
                         template.getType().getName() +
                         " while the attribute is " +
                         f.getAttribute("implements"));
@@ -174,7 +175,7 @@ public class FactoryWrapper implements LookupContentFactory {
     private List resultImplements() {
         String classAttr = (String)f.getAttribute("implements"); // NOI18N
         if (LOGGABLE) {
-            log.log("resultImplements the attribute is " +
+            log.fine("resultImplements the attribute is " +
             f.getAttribute("implements"));
         }
         ArrayList res = new ArrayList();
@@ -209,8 +210,7 @@ public class FactoryWrapper implements LookupContentFactory {
                 throw new IllegalStateException("Attribute factoryClass not specified for " + f); // NOI18N
             }
         } catch (ClassNotFoundException cnfe) {
-            IllegalStateException ise = new IllegalStateException();
-            ErrorManager.getDefault().annotate(ise, cnfe);
+            IllegalStateException ise = new IllegalStateException(cnfe);
             throw ise;
         }
     }
@@ -224,12 +224,10 @@ public class FactoryWrapper implements LookupContentFactory {
         try {
             return clazz().newInstance();
         } catch (InstantiationException is) {
-            IllegalStateException ise = new IllegalStateException();
-            ErrorManager.getDefault().annotate(ise, is);
+            IllegalStateException ise = new IllegalStateException(is);
             throw ise;
         } catch (IllegalAccessException iae) {
-            IllegalStateException ise = new IllegalStateException();
-            ErrorManager.getDefault().annotate(ise, iae);
+            IllegalStateException ise = new IllegalStateException(iae);
             throw ise;
         }
     }

@@ -41,7 +41,6 @@
 
 package org.netbeans.api.enode;
 
-import org.openide.ErrorManager;
 import org.openide.util.Lookup;
 
 import org.netbeans.modules.enode.ExtensibleLookupImpl;

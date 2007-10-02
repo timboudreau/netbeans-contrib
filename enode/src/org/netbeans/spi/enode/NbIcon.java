@@ -48,10 +48,11 @@ import java.awt.Image;
 import java.awt.image.BufferedImage;
 import java.net.URL;
 import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.swing.ImageIcon;
 
-import org.openide.ErrorManager;
 import org.openide.util.Utilities;
 
 
@@ -71,6 +72,10 @@ import org.openide.util.Utilities;
  * @see #ScaledIcon
  */
 public class NbIcon extends ImageIcon {
+    
+    private static final Logger log = Logger.getLogger(NbIcon.class.getName());
+    private static boolean LOGGABLE = log.isLoggable(Level.FINE);
+
     //=======================================================================
     // Public constants
     
@@ -200,8 +205,7 @@ public class NbIcon extends ImageIcon {
             }
         }
         catch( Exception e ) {
-            ErrorManager manager = ErrorManager.getDefault(  ).getInstance( "org.netbeans.modules.enode" );
-            manager.notify( ErrorManager.INFORMATIONAL, e );
+            log.log(Level.FINE, "", e);
         }
         
         if( icon == null ) {
@@ -246,8 +250,7 @@ public class NbIcon extends ImageIcon {
             }
         }
         catch(Exception e) {
-            ErrorManager manager = ErrorManager.getDefault(  ).getInstance( "org.netbeans.modules.enode" );
-            manager.notify( ErrorManager.INFORMATIONAL, e );
+            log.log(Level.FINE, "", e);
         }
         
         if( icon == null ) {

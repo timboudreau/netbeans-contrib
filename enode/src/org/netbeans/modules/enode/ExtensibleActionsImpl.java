@@ -52,12 +52,13 @@ import java.util.Iterator;
 import java.util.ListIterator;
 import java.util.Map;
 import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.swing.Action;
 import javax.swing.JComponent;
 import javax.swing.JSeparator;
 
-import org.openide.ErrorManager;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.Repository;
 import org.openide.util.WeakListeners;
@@ -72,8 +73,8 @@ import org.netbeans.api.registry.*;
  */
 public class ExtensibleActionsImpl extends ExtensibleActions {
 
-    private static ErrorManager log = ErrorManager.getDefault().getInstance(ExtensibleActionsImpl.class.getName());
-    private static boolean LOGGABLE = log.isLoggable(ErrorManager.INFORMATIONAL);
+    private static final Logger log = Logger.getLogger(ExtensibleActionsImpl.class.getName());
+    private static boolean LOGGABLE = log.isLoggable(Level.FINE);
     
     /**
      * Our paths.
@@ -117,9 +118,9 @@ public class ExtensibleActionsImpl extends ExtensibleActions {
      * @return array of actions
      */
     public Action[] getActions() {
-        if (LOGGABLE) log.log("getActions() called on " + this);
+        if (LOGGABLE) log.fine("getActions() called on " + this);
         if (actions != null) {
-            if (LOGGABLE) log.log("returning cached actions: ");
+            if (LOGGABLE) log.fine("returning cached actions: ");
             return actions;
         }
         
@@ -148,14 +149,14 @@ public class ExtensibleActionsImpl extends ExtensibleActions {
                     if (m.containsKey(obj)) {
                         // remove the duplicate
                         it.remove();
-                        if (LOGGABLE) log.log("removed " + obj);
+                        if (LOGGABLE) log.fine("removed " + obj);
                         // move all the elements from the removed action to its brother
                         SubMenuAction removed = (SubMenuAction)obj;
                         SubMenuAction sma = (SubMenuAction)m.get(obj);
                         if (removed != sma) { // they are equal but not the same object:
                                               // we have to pass the content of the other
                                               // one to sma.
-                            if (LOGGABLE) log.log("adding all cache entries to " + sma);
+                            if (LOGGABLE) log.fine("adding all cache entries to " + sma);
                             sma.addAllCacheItems(removed.getCacheItries());
                         }
                     } else {
@@ -171,7 +172,7 @@ public class ExtensibleActionsImpl extends ExtensibleActions {
             arr = result;
             
         } catch (Exception ce) {
-            log.notify(ErrorManager.INFORMATIONAL, ce); // NOI18N
+            log.log(Level.FINE, "", ce); // NOI18N
         }
         // replace separators with nulls
         for (int i = 0; i < arr.size(); i++) {
@@ -190,16 +191,16 @@ public class ExtensibleActionsImpl extends ExtensibleActions {
      * Helper method dumping the given colletion to the log.
      */
     private static void log(String name, Collection c) {
-        log.log("Dumping " + name);
+        log.fine("Dumping " + name);
         for (Iterator it = c.iterator(); it.hasNext();) {
             Object obj = it.next();
             if (obj != null) {
-                log.log(obj.toString());
+                log.fine(obj.toString());
             } else {
-                log.log("null");
+                log.fine("null");
             }
         }
-        log.log("End of " + name);
+        log.fine("End of " + name);
     }
     
     /**
@@ -213,7 +214,7 @@ public class ExtensibleActionsImpl extends ExtensibleActions {
      * Adds objects from the context with path to the list arr.
      */
     private void scanContext(String path, List arr, List location) {
-        if (LOGGABLE) log.log("scanContext(" + path + ",arr) called on " + this);
+        if (LOGGABLE) log.fine("scanContext(" + path + ",arr) called on " + this);
         boolean exists = true;
         Context con = Context.getDefault().getSubcontext(path);
         if (con == null) {
@@ -227,7 +228,7 @@ public class ExtensibleActionsImpl extends ExtensibleActions {
         }
 
         if (! exists) {
-            if (LOGGABLE) log.log("scanContext(" + path + ",arr) returning - context does not exist.");
+            if (LOGGABLE) log.fine("scanContext(" + path + ",arr) returning - context does not exist.");
             return;
         }
         
@@ -240,11 +241,11 @@ public class ExtensibleActionsImpl extends ExtensibleActions {
             if (absName.startsWith("/")) {
                 absName = absName.substring(1);
             }
-            if (LOGGABLE) log.log("scanContext(...) checking " + obj + " with absName " + absName);
+            if (LOGGABLE) log.fine("scanContext(...) checking " + obj + " with absName " + absName);
             if (obj instanceof Action) {
                 arr.add(obj);
                 location.add(absName);
-                if (LOGGABLE) log.log("scanContext(...) adding " + obj + " with name " + absName);
+                if (LOGGABLE) log.fine("scanContext(...) adding " + obj + " with name " + absName);
                 continue;
             }
             // special handling of separators since they are represented
@@ -252,7 +253,7 @@ public class ExtensibleActionsImpl extends ExtensibleActions {
             if (obj instanceof JSeparator) {
                 arr.add(obj);
                 location.add(absName);
-                if (LOGGABLE) log.log("scanContext(...) adding " + obj + " with name " + absName);
+                if (LOGGABLE) log.fine("scanContext(...) adding " + obj + " with name " + absName);
                 continue;
             }
             // general JComponents are wrapped in special actions
@@ -260,7 +261,7 @@ public class ExtensibleActionsImpl extends ExtensibleActions {
                 Action a = new ComponentAction((JComponent)obj);
                 arr.add(a);
                 location.add(absName);
-                if (LOGGABLE) log.log("scanContext(...) adding " + a + " with name " + absName);
+                if (LOGGABLE) log.fine("scanContext(...) adding " + a + " with name " + absName);
                 continue;
             }
         }
@@ -272,7 +273,7 @@ public class ExtensibleActionsImpl extends ExtensibleActions {
      */
     private List/*<Action>*/ scanSubFolderContext(List/*<Object>*/objects, List location) {
         String path = subFoldersLocation();
-        if (LOGGABLE) log.log("scanSubFolderContext(...) with " + path + ") called on " + this);
+        if (LOGGABLE) log.fine("scanSubFolderContext(...) with " + path + ") called on " + this);
         List/*<ActionCacheEntryPair>*/ linkedList = new LinkedList();
         boolean exists = true;
         Context con = Context.getDefault().getSubcontext(path);
@@ -287,7 +288,7 @@ public class ExtensibleActionsImpl extends ExtensibleActions {
         }
 
         if (! exists) {
-            if (LOGGABLE) log.log("scanSubFolderContext(...) returning empty list because " + path + " does not exist.");
+            if (LOGGABLE) log.fine("scanSubFolderContext(...) returning empty list because " + path + " does not exist.");
             return new ArrayList();
         }
         
@@ -295,7 +296,7 @@ public class ExtensibleActionsImpl extends ExtensibleActions {
         for (Iterator it = objects.iterator(); it.hasNext(); ) {
             Object obj = it.next();
             String objLocation = (String)locationIt.next();
-            if (LOGGABLE) log.log("scanSubFolderContext(...) checking " + obj + " with location " + objLocation);
+            if (LOGGABLE) log.fine("scanSubFolderContext(...) checking " + obj + " with location " + objLocation);
             if (objLocation == null) {
                 throw new IllegalStateException("Did not find location for " + obj);
             }
@@ -304,7 +305,7 @@ public class ExtensibleActionsImpl extends ExtensibleActions {
                 String origLocation = tryToResolveShadow(objLocation);
                 entry = SubMenuCache.getInstance().getCacheEntry(origLocation);
                 if (entry == null) {
-                    if (LOGGABLE) log.log(obj + " with location " + objLocation + " was not found in cache");
+                    if (LOGGABLE) log.fine(obj + " with location " + objLocation + " was not found in cache");
                     continue;
                 }
             }
@@ -347,7 +348,7 @@ public class ExtensibleActionsImpl extends ExtensibleActions {
                     it.remove();
                     locationIt.remove();
                 } else {
-                    log.log(entry + " is not MenuEntry! adding null instead of " + obj);
+                    log.fine(entry + " is not MenuEntry! adding null instead of " + obj);
                 }
             }
             insertPair(linkedList, pair);
@@ -365,19 +366,19 @@ public class ExtensibleActionsImpl extends ExtensibleActions {
         if (fo != null) {
             String origPathAttr = (String)fo.getAttribute("originalFile");
             if (origPathAttr == null) {
-                log.log("Shadow file " + fo.getPath() + " is missing the originalFile attribute");
+                log.fine("Shadow file " + fo.getPath() + " is missing the originalFile attribute");
                 return null;
             }
             FileObject origAction = Repository.getDefault().getDefaultFileSystem().findResource(origPathAttr);
             if (origAction == null) {
-                log.log("originalFile attribute (" + origPathAttr + ") of " + fo.getPath() + " does not reference existing action.");
+                log.fine("originalFile attribute (" + origPathAttr + ") of " + fo.getPath() + " does not reference existing action.");
                 return null;
             }
             int lastDotIndex = origPathAttr.lastIndexOf('.');
             String pathWithoutExt = origPathAttr.substring(0, lastDotIndex);
             return pathWithoutExt;
         }
-        log.log("tryToResolveShadow returning null for " + shadowLocation);
+        log.fine("tryToResolveShadow returning null for " + shadowLocation);
         return null;
     }
     
@@ -411,11 +412,11 @@ public class ExtensibleActionsImpl extends ExtensibleActions {
      * via adding an action to a cookie instance.
      */
     private String[] getCookiePaths() {
-        if (LOGGABLE) log.log("getCookiePaths() called on " + this);
+        if (LOGGABLE) log.fine("getCookiePaths() called on " + this);
         ArrayList names = new ArrayList();
         for (int i = 0; i < paths.length; i++) {
             String path = ExtensibleNode.E_NODE_LOOKUP + paths[i];
-            if (LOGGABLE) log.log("getCookiePaths() checking " + path);
+            if (LOGGABLE) log.fine("getCookiePaths() checking " + path);
             try {
                 boolean exists = true;
                 Context con = Context.getDefault().getSubcontext(path);
@@ -431,21 +432,21 @@ public class ExtensibleActionsImpl extends ExtensibleActions {
                 if (exists) {
                     Collection objects = con.getBindingNames();
                     if (LOGGABLE) {
-                        log.log("getCookiePaths() adding names:");
+                        log.fine("getCookiePaths() adding names:");
                         for (Iterator it = objects.iterator(); it.hasNext();) {
                             Object tmp = it.next();
                             if (tmp != null) {
-                                log.log( tmp.toString());
+                                log.fine( tmp.toString());
                             }
                         }
                     }
                     names.addAll(objects);
                 }
             } catch (Exception ce) {
-                log.notify(ErrorManager.INFORMATIONAL, ce); // NOI18N
+                log.log(Level.FINE,"", ce); // NOI18N
             }
         }
-        if (LOGGABLE) log.log("getCookiePaths() returning " + names.size() + " names.");
+        if (LOGGABLE) log.fine("getCookiePaths() returning " + names.size() + " names.");
         return (String[])names.toArray(new String[names.size()]);
     }
 
@@ -476,7 +477,7 @@ public class ExtensibleActionsImpl extends ExtensibleActions {
         if (listener == null) {
             listener = new Listener();
         }
-        if (LOGGABLE) log.log(this + " adding context listener to " + source);
+        if (LOGGABLE) log.fine(this + " adding context listener to " + source);
         return (ContextListener)WeakListeners.create(ContextListener.class, listener, source);
     }
     
@@ -487,17 +488,17 @@ public class ExtensibleActionsImpl extends ExtensibleActions {
      */
     private class Listener implements ContextListener {
         public void attributeChanged(AttributeEvent evt) {
-            if (LOGGABLE) log.log("attributeChanged("+evt+") called on listener from " + ExtensibleActionsImpl.this);
+            if (LOGGABLE) log.fine("attributeChanged("+evt+") called on listener from " + ExtensibleActionsImpl.this);
             actions = null;
         }
         
         public void bindingChanged(BindingEvent evt) {
-            if (LOGGABLE) log.log("bindingChanged("+evt+") called on listener from " + ExtensibleActionsImpl.this);
+            if (LOGGABLE) log.fine("bindingChanged("+evt+") called on listener from " + ExtensibleActionsImpl.this);
             actions = null;
         }
         
         public void subcontextChanged(SubcontextEvent evt) {
-            if (LOGGABLE) log.log("subcontextChanged("+evt+") called on listener from " + ExtensibleActionsImpl.this);
+            if (LOGGABLE) log.fine("subcontextChanged("+evt+") called on listener from " + ExtensibleActionsImpl.this);
             actions = null;
         }
     }

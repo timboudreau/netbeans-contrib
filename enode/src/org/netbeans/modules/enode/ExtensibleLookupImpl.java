@@ -50,8 +50,9 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
-import org.openide.ErrorManager;
 import org.openide.util.Lookup;
 import org.openide.util.Lookup.Template;
 import org.openide.util.WeakListeners;
@@ -70,8 +71,8 @@ import org.netbeans.api.registry.*;
  */
 public class ExtensibleLookupImpl extends ProxyLookup {
 
-    private static ErrorManager log = ErrorManager.getDefault().getInstance(ExtensibleLookupImpl.class.getName());
-    private static boolean LOGGABLE = log.isLoggable(ErrorManager.INFORMATIONAL);
+    private static final Logger log = Logger.getLogger(ExtensibleLookupImpl.class.getName());
+    private static boolean LOGGABLE = log.isLoggable(Level.FINE);
     /**
      * Maps List<String> --> List. The key is list of
      * folders passed as paths parameter or computed by
@@ -142,21 +143,21 @@ public class ExtensibleLookupImpl extends ProxyLookup {
         
         if (settingLookups) {
             if (LOGGABLE) {
-                log.log(this + " beforeLookup exiting because settingLookups == true"); // NOI18N
+                log.fine(this + " beforeLookup exiting because settingLookups == true"); // NOI18N
                 Thread.dumpStack();
             }
             return;
         }
         
         if (LOGGABLE) {
-            log.log(this + " beforeLookup " + template.getType().getName() + " thread: " + Thread.currentThread());
+            log.fine(this + " beforeLookup " + template.getType().getName() + " thread: " + Thread.currentThread());
         }
         Iterator c = getCandidates();
         
         while (c.hasNext()) {
             Object o = c.next();
             if (LOGGABLE) {
-                log.log(this + " candidate " + o + " thread: " + Thread.currentThread());
+                log.fine(this + " candidate " + o + " thread: " + Thread.currentThread());
             }
             if (o instanceof LookupContentFactory) {
                 LookupContentFactory lcf = (LookupContentFactory)o;
@@ -166,8 +167,8 @@ public class ExtensibleLookupImpl extends ProxyLookup {
                     FactoryWrapper impl = (FactoryWrapper)lcf;
                     if (! impl.matches(template)) {
                         if (LOGGABLE) {
-                            log.log(this + " continue " + " thread: " + Thread.currentThread());
-                            log.log(impl + " did not match " + template);
+                            log.fine(this + " continue " + " thread: " + Thread.currentThread());
+                            log.fine(impl + " did not match " + template);
                         }
                         continue;
                     }
@@ -186,19 +187,19 @@ public class ExtensibleLookupImpl extends ProxyLookup {
                 Lookup resLookup = lcf.createLookup(enode);
                 if (resLookup != null) {
                     if (LOGGABLE) {
-                        log.log(this + " adding lookup " + resLookup + " thread: " + Thread.currentThread());
+                        log.fine(this + " adding lookup " + resLookup + " thread: " + Thread.currentThread());
                     }
                     addLookup(resLookup);
                 }
                 if (resObject != null) {
                     if (LOGGABLE) {
-                        log.log(this + " adding " + resObject + " thread: " + Thread.currentThread());
+                        log.fine(this + " adding " + resObject + " thread: " + Thread.currentThread());
                     }
                     content.add(resObject);
                 }
             } else {
                 if (! (o instanceof Context)) { // Context is directory -- not interested in warning
-                    ErrorManager.getDefault().log(ErrorManager.WARNING,
+                    log.info(
                         "For " + enode + // NOI18N
                         " ExtensibleNodeLookup found an object that is not LookupContentFactory : " + o); // NOI18N
                 }
@@ -276,7 +277,7 @@ public class ExtensibleLookupImpl extends ProxyLookup {
                 result.addAll(objects);
             }
         } catch (Exception ce) {
-            ErrorManager.getDefault().getInstance("org.netbeans.modules.enode").notify(ErrorManager.INFORMATIONAL, ce); // NOI18N
+            log.log(Level.FINE, "", ce); // NOI18N
         }
     }
     
@@ -336,7 +337,7 @@ public class ExtensibleLookupImpl extends ProxyLookup {
             int slash = result.lastIndexOf('/');
             if (slash < 0) {
                 if (LOGGABLE) {
-                    log.log("Cound not find proper context for " + path); // NOI18N
+                    log.fine("Cound not find proper context for " + path); // NOI18N
                 } // NOI18N
                 return Context.getDefault();
             }
