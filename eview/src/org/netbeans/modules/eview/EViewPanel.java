@@ -76,7 +76,7 @@ import org.openide.util.Utilities;
  */
 public class EViewPanel extends JPanel implements Scrollable {
     
-    private static final Logger log = Logger.getLogger(Configuration.class.getName());
+    private static final Logger log = Logger.getLogger(EViewPanel.class.getName());
     private static boolean LOGGABLE = log.isLoggable(Level.FINE);
     
     //~ Static fields/initializers ---------------------------------------------
