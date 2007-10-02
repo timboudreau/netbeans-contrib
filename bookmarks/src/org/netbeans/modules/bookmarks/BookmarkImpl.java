@@ -45,6 +45,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.Externalizable;
 import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.JMenuItem;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -56,7 +58,6 @@ import org.openide.util.Utilities;
 import org.openide.util.NbBundle;
 import org.openide.NotifyDescriptor;
 import org.openide.DialogDisplayer;
-import org.openide.ErrorManager;
 
 import org.netbeans.api.bookmarks.*;
 import org.netbeans.spi.convertor.SimplyConvertible;
@@ -241,8 +242,8 @@ public class BookmarkImpl extends AbstractAction
             try {
                 topComponent = ((TopComponent.Cloneable)topComponent).cloneComponent();
             } catch (Exception x) {
-                ErrorManager.getDefault().annotate(x, "Problem when trying to clone " + topComponent); // NOI18N
-                ErrorManager.getDefault().notify(ErrorManager.INFORMATIONAL, x);
+                Logger log = Logger.getLogger(BookmarkImpl.class.getName());
+                log.log(Level.FINE, "Problem when trying to clone " + topComponent, x);
             }
         }
         return topComponent;

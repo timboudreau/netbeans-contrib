@@ -44,6 +44,8 @@ package org.netbeans.modules.bookmarks;
 import java.awt.datatransfer.*;
 import java.util.*;
 import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.Action;
 
 import org.openide.actions.*;
@@ -54,7 +56,6 @@ import org.openide.util.NbBundle;
 import org.openide.util.RequestProcessor;
 import org.openide.util.datatransfer.*;
 import org.openide.util.actions.SystemAction;
-import org.openide.ErrorManager;
 
 import org.netbeans.api.bookmarks.*;
 import org.netbeans.api.registry.*;
@@ -253,8 +254,8 @@ public class BookmarksToolbarNode extends AbstractNode {
             try {
                 context = Context.getDefault().createSubcontext(BookmarkServiceImpl.BOOKMARKS_TOOLBAR);
             } catch (ContextException ne) {
-                ErrorManager.getDefault().getInstance("org.netbeans.modules.bookmarks").notify(ne); // NOI18N
-            }
+                Logger.getLogger(BookmarksToolbarNode.class.getName()).log(
+                    Level.WARNING, BookmarkServiceImpl.BOOKMARKS_TOOLBAR, ne);            }
         }
         return context;
     }

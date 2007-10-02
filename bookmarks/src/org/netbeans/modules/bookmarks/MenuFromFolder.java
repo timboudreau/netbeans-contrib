@@ -43,9 +43,10 @@ package org.netbeans.modules.bookmarks;
 
 import java.lang.ref.WeakReference;
 import java.util.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.*;
 
-import org.openide.ErrorManager;
 import org.openide.util.actions.Presenter;
 import org.openide.util.WeakListeners;
 
@@ -175,7 +176,8 @@ public class MenuFromFolder implements Runnable {
             try {
                 context = Context.getDefault().createSubcontext(path);
             } catch (ContextException ce) {
-                ErrorManager.getDefault().notify(ce);
+                Logger.getLogger(MenuFromFolder.class.getName()).log(
+                    Level.WARNING, path, ce);
             }
         }
         if (context == null) {

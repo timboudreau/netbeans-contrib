@@ -46,7 +46,6 @@ import org.openide.awt.Mnemonics;
 
 import org.openide.util.HelpCtx;
 import org.openide.util.NbBundle;
-import org.openide.ErrorManager;
 import org.openide.awt.Actions;
 import org.openide.util.actions.Presenter;
 

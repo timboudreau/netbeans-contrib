@@ -45,11 +45,12 @@ import java.awt.Cursor;
 import java.awt.datatransfer.*;
 import java.io.IOException;
 import java.util.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.Action;
 import javax.swing.SwingUtilities;
 import org.openide.DialogDisplayer;
 
-import org.openide.ErrorManager;
 import org.openide.NotifyDescriptor;
 import org.openide.nodes.*;
 import org.openide.util.NbBundle;
@@ -71,7 +72,7 @@ import org.openide.windows.WindowManager;
 public class BookmarksFolderNode extends AbstractNode {
     
     /** Let's cache it.*/
-    private static ErrorManager em = ErrorManager.getDefault().getInstance("org.netbeans.modules.bookmarks");
+    private static final Logger log = Logger.getLogger(BookmarksFolderNode.class.getName());
     
     /** Should be either Context or Bookmark*/
     private Context context;
@@ -144,7 +145,7 @@ public class BookmarksFolderNode extends AbstractNode {
             deleteBookmarksFolder(context);
         } catch (ContextException ce) {
             IOException e = new IOException();
-            ErrorManager.getDefault().annotate(e, ce);
+            e.initCause(ce);
             throw e;
         }
         super.destroy();
@@ -253,7 +254,7 @@ public class BookmarksFolderNode extends AbstractNode {
                         Context c = context.createSubcontext(resName);
                         c.setAttribute(null, PROP_DISPLAY_NAME, folderName);
                     } catch (ContextException ce) {
-                        em.notify(ce); // NOI18N
+                        log.log(Level.INFO, resName, ce); // NOI18N
                     }
                     ArrayList al = new ArrayList(childrenNames);
                     al.add(resName);
@@ -337,7 +338,7 @@ public class BookmarksFolderNode extends AbstractNode {
                                     RegistryUtil.copy(con, context, con.getContextName());
                                 } catch (ContextException x) {
                                     IOException ioe = new IOException();
-                                    ErrorManager.getDefault().annotate(ioe, x);
+                                    ioe.initCause(x);
                                     throw ioe;
                                 }
                             }
@@ -369,7 +370,7 @@ public class BookmarksFolderNode extends AbstractNode {
                             return ExTransferable.EMPTY;
                         } catch (ContextException x) {
                             IOException ioe =  new IOException();
-                            ErrorManager.getDefault().annotate(ioe, x);
+                            ioe.initCause(x);
                             throw ioe;
                         }
                     }

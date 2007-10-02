@@ -41,13 +41,14 @@
 
 package org.netbeans.modules.bookmarks;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.Action;
 import org.openide.actions.*;
 import org.openide.nodes.*;
 import org.openide.util.HelpCtx;
 import org.openide.util.NbBundle;
 import org.openide.util.actions.SystemAction;
-import org.openide.ErrorManager;
 
 import org.netbeans.api.registry.*;
 
@@ -126,7 +127,8 @@ public class BookmarksRootNode extends AbstractNode {
                 }
             };
         } catch (ContextException ce) {
-            ErrorManager.getDefault().getInstance("org.netbeans.modules.bookmarks").notify(ce);
+            Logger.getLogger(BookmarksRootNode.class.getName()).log(
+                Level.WARNING, BookmarkServiceImpl.BOOKMARKS_FOLDER, ce);
         }
         return null;
     }

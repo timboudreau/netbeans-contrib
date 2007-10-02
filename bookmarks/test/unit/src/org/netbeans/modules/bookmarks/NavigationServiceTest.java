@@ -50,11 +50,7 @@ import junit.textui.TestRunner;
 import org.netbeans.junit.NbTestCase;
 import org.netbeans.junit.NbTestSuite;
 
-import org.openide.ErrorManager;
-import org.openide.nodes.Node;
-import org.openide.util.Lookup;
 import org.openide.util.lookup.*;
-import org.openide.util.Utilities;
 import org.openide.windows.*;
 
 import org.netbeans.api.bookmarks.*;

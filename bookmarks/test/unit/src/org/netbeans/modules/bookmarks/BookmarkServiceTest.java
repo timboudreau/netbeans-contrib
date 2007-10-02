@@ -41,6 +41,8 @@
 
 package org.netbeans.modules.bookmarks;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.naming.*;
 import javax.swing.*;
 
@@ -49,15 +51,12 @@ import junit.textui.TestRunner;
 import org.netbeans.junit.NbTestCase;
 import org.netbeans.junit.NbTestSuite;
 
-import org.openide.ErrorManager;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.Repository;
 import org.openide.filesystems.FileSystem;
 import org.openide.modules.ModuleInfo;
-import org.openide.nodes.Node;
 import org.openide.util.Lookup;
 import org.openide.util.lookup.*;
-import org.openide.util.Utilities;
 import org.openide.windows.*;
 import org.openide.loaders.DataObject;
 
@@ -136,7 +135,8 @@ public class BookmarkServiceTest extends NbTestCase {
                     dObj.delete();
                     return true;
                 } catch (java.io.IOException ioe) {
-                    ErrorManager.getDefault().notify(ErrorManager.EXCEPTION, ioe);
+                    Logger.getLogger(BookmarkServiceTest.class.getName()).log(
+                        Level.SEVERE, "", ioe);
                     try {
                         Thread.sleep(100000);
                     } catch (InterruptedException ie) {

@@ -43,10 +43,11 @@ package org.netbeans.modules.bookmarks;
 import java.io.IOException;
 import java.lang.reflect.Method;
 import java.util.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.swing.SwingUtilities;
 
-import org.openide.ErrorManager;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.Repository;
 import org.openide.windows.TopComponent;
@@ -172,7 +173,8 @@ public class BookmarkServiceImpl extends BookmarkService {
             // to be usable for shortcuts
             saveBookmarkActionImpl(targetFolder, safeName);
         } catch (ContextException x) {
-            ErrorManager.getDefault().getInstance("org.netbeans.modules.bookmarks").notify(x); // NOI18N
+            Logger.getLogger("org.netbeans.modules.bookmarks").log( // NOI18N
+                Level.WARNING, "", x); 
         }
     }
     
@@ -237,7 +239,8 @@ public class BookmarkServiceImpl extends BookmarkService {
             TopComponent tc = (TopComponent)targetFolder.getObject(name, null);
             return tc;
         } catch (ContextException x) {
-            ErrorManager.getDefault().getInstance("org.netbeans.modules.bookmarks").notify(x); // NOI18N
+            Logger.getLogger("org.netbeans.modules.bookmarks").log( // NOI18N
+                Level.WARNING, "", x); // NOI18N
         }
         return null;
     }
@@ -282,7 +285,8 @@ public class BookmarkServiceImpl extends BookmarkService {
             // of active shortcuts
             refreshShortcutsFolder();
         } catch (ContextException ne) {
-            ErrorManager.getDefault().getInstance("org.netbeans.modules.bookmarks").notify(ne); // NOI18N
+            Logger.getLogger("org.netbeans.modules.bookmarks").log( // NOI18N
+                Level.WARNING, "", ne); // NOI18N
         }
     }
     
@@ -364,8 +368,9 @@ public class BookmarkServiceImpl extends BookmarkService {
                 if (obj instanceof TopComponent) {
                     al.add(name);
                 } else {
-                    ErrorManager.getDefault().log(ErrorManager.INFORMATIONAL, 
-                        "File " + name + " in " + TOP_COMPONENTS_FOLDER + " is not a top component."); //NOI18N
+                    Logger.getLogger("org.netbeans.modules.bookmarks").log( // NOI18N
+                        Level.FINE, "File " + name + " in " + 
+                        TOP_COMPONENTS_FOLDER + " is not a top component."); //NOI18N
                 }
             }
 
@@ -384,7 +389,8 @@ public class BookmarkServiceImpl extends BookmarkService {
                 targetFolder.putObject(name, null);
             }
         } catch (ContextException ne) {
-            ErrorManager.getDefault().getInstance("org.netbeans.modules.bookmarks").notify(ne); // NOI18N
+            Logger.getLogger("org.netbeans.modules.bookmarks").log( // NOI18N
+                Level.WARNING, "", ne); // NOI18N
         }
     }
     
@@ -429,7 +435,8 @@ public class BookmarkServiceImpl extends BookmarkService {
             targetFolder.putObject(safeName, new BookmarkActionImpl(path1, safeName));
             refreshShortcutsFolder();
         } catch (ContextException ne) {
-            ErrorManager.getDefault().getInstance("org.netbeans.modules.bookmarks").notify(ne); // NOI18N
+            Logger.getLogger("org.netbeans.modules.bookmarks").log( // NOI18N
+                Level.WARNING, "", ne); // NOI18N
         }
     }
     
@@ -446,7 +453,8 @@ public class BookmarkServiceImpl extends BookmarkService {
             // and delete it!
             dummy.delete();
         } catch (IOException ioe)  {
-            ErrorManager.getDefault().getInstance("org.netbeans.modules.bookmarks").notify(ioe); // NOI18N
+            Logger.getLogger("org.netbeans.modules.bookmarks").log( // NOI18N
+                Level.WARNING, "", ioe); // NOI18N
         }
     }
     
@@ -460,7 +468,8 @@ public class BookmarkServiceImpl extends BookmarkService {
             Method cloneMethod = bClass.getMethod("clone", new Class[0]);
             return (Bookmark)cloneMethod.invoke(b, new Object[0]);
         } catch (Exception x) {
-            ErrorManager.getDefault().getInstance("org.netbeans.modules.bookmarks").notify(ErrorManager.INFORMATIONAL, x); // NOI18N
+            Logger.getLogger("org.netbeans.modules.bookmarks").log( // NOI18N
+                Level.FINE, "", x); // NOI18N
         }
         return b;
     }

@@ -44,7 +44,6 @@ import java.util.*;
 import org.netbeans.api.bookmarks.Bookmark;
 
 import org.netbeans.api.registry.*;
-import org.openide.ErrorManager;
 import org.openide.util.NbBundle;
 
 /**
@@ -71,9 +70,8 @@ public class RegistryUtil {
                 s1 = what.getAttribute(null, org.openide.nodes.Node.PROP_DISPLAY_NAME, s1);
                 s2 = where.getAttribute(null, org.openide.nodes.Node.PROP_DISPLAY_NAME, s2);
 
-                IllegalStateException ise = new IllegalStateException();
-                ErrorManager.getDefault().annotate(ise, ErrorManager.USER, "Cannot copy " + what + " to " + where, 
-                    NbBundle.getMessage(RegistryUtil.class, "WARN_CannotCopy", s1, s2), null, new Date() ); 
+                IllegalStateException ise = new IllegalStateException(
+                        "Cannot copy " + what + " to " + where); 
                 throw ise;
             }
             checkWhere = checkWhere.getParentContext();
