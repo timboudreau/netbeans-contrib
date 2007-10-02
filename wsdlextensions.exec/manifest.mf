@@ -1,0 +1,7 @@
+Manifest-Version: 1.0
+OpenIDE-Module: org.netbeans.modules.wsdlextensions.exec
+OpenIDE-Module-Layer: org/netbeans/modules/wsdlextensions/exec/resources/layer.xml
+OpenIDE-Module-Localizing-Bundle: org/netbeans/modules/wsdlextensions/exec/resources/Bundle.properties
+OpenIDE-Module-Specification-Version: 1.0
+AutoUpdate-Show-In-Client: false
+

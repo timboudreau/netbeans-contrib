@@ -1,0 +1,195 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSpy v2006 sp1 U (http://www.altova.com) by Jun Xu (SeeBeyond Technology Corp.) -->
+<!--
+ The contents of this file are subject to the terms of the Common Development
+ and Distribution License (the License). You may not use this file except in
+ compliance with the License.
+ 
+ You can obtain a copy of the License at http://www.netbeans.org/cddl.html
+ or http://www.netbeans.org/cddl.txt.
+ 
+ When distributing Covered Code, include this CDDL Header Notice in each file
+ and include the License file at http://www.netbeans.org/cddl.txt.
+ If applicable, add the following below the CDDL Header, with the fields
+ enclosed by brackets [] replaced by your own identifying information:
+ "Portions Copyrighted [year] [name of copyright owner]"
+ 
+ The Original Software is NetBeans. The Initial Developer of the Original
+ Software is Sun Microsystems, Inc. Portions Copyright 1997-2007 Sun
+ Microsystems, Inc. All Rights Reserved.
+-->
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:exec="http://schemas.sun.com/jbi/wsdl-extensions/exec/" targetNamespace="http://schemas.sun.com/jbi/wsdl-extensions/exec/">
+	<xs:import namespace="http://schemas.xmlsoap.org/wsdl/" schemaLocation="wsdl.xsd"/>
+	<!-- +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ -->
+	<!-- Start complex type defintions to define JMS binding extensibility -->
+	<!-- elements                                                          -->
+	<!-- +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ -->
+	<!-- JMS protocol "binding" definition -->
+	<xs:element name="binding" type="exec:tBinding">
+		<xs:annotation>
+			<xs:documentation>
+	      	"binding" indicates a JMS protocol based binding.
+	      </xs:documentation>
+		</xs:annotation>
+	</xs:element>
+	<xs:complexType name="tBinding">
+		<xs:complexContent>
+			<xs:extension base="wsdl:tExtensibilityElement"/>
+			<!-- could add more attributes to the binding -->
+		</xs:complexContent>
+	</xs:complexType>
+	<!-- JMS protocol "address" definition -->
+	<xs:element name="address" type="exec:tAddress">
+		<xs:annotation>
+			<xs:documentation>
+                    "address" indicates a JMS protocol based service address.
+                    </xs:documentation>
+			<xs:appinfo>
+				<prop:ElementProperties xmlns:prop="http://xml.netbeans.org/schema/wsdlui/property">
+					<prop:PropertyGroup name="SSH" groupOrder="1"/>
+					<prop:Property attributeName="hostName" groupName="SSH" propertyOrder="1">
+						<prop:SchemaCustomizer/>
+					</prop:Property>
+					<prop:Property attributeName="userName" groupName="SSH" propertyOrder="2">
+						<prop:SchemaCustomizer/>
+					</prop:Property>
+					<prop:Property attributeName="password" groupName="SSH" propertyOrder="3">
+						<prop:SchemaCustomizer/>
+					</prop:Property>
+				</prop:ElementProperties>
+			</xs:appinfo>
+		</xs:annotation>
+	</xs:element>
+	<xs:complexType name="tAddress">
+		<xs:complexContent>
+			<xs:extension base="wsdl:tExtensibilityElement">
+				<xs:sequence/>
+				<xs:attribute name="hostName" type="xs:string" use="required">
+					<xs:annotation>
+						<xs:documentation>The name of the host machine to execute the command on</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+				<xs:attribute name="userName" type="xs:string" use="optional">
+					<xs:annotation>
+						<xs:documentation>The user name to use to connect to the remote host</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+				<xs:attribute name="password" type="xs:string" use="optional">
+					<xs:annotation>
+						<xs:documentation>The password to use to connect to the remote host</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<!-- JMS protocol "operation" definition -->
+	<xs:element name="operation" type="exec:tOperation">
+		<xs:annotation>
+			<xs:documentation>
+	      	"operation" indicates an EXEC based operation.
+	      </xs:documentation>
+		</xs:annotation>
+	</xs:element>
+	<xs:complexType name="tOperation">
+		<xs:complexContent>
+			<xs:extension base="wsdl:tExtensibilityElement">
+				<xs:sequence></xs:sequence>
+                                <!-- common to both consumer and provider -->
+				<xs:attribute name="command" type="xs:string" use="required">
+					<xs:annotation>
+						<xs:documentation>Defines the command to be executed</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+                                <!-- only applies to consumer -->
+				<xs:attribute name="pollingInterval" type="xs:int" use="optional">
+					<xs:annotation>
+						<xs:documentation>Defines the polling interval (in seconds) for repetitive receiving. This attribute is not applicable for invoke mode and invoke-once polling pattern.</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+                                <xs:attribute name="pollingPattern" type="exec:tPollingPattern" use="optional">
+                                        <xs:annotation>
+                                                <xs:documentation>Defines the polling pattern for receiving mode. This attribute is not applicable for invoke mode.</xs:documentation>
+                                        </xs:annotation>
+                                </xs:attribute>
+                                <!-- only applies to provider -->
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<!-- EXEC protocol input and output definition -->
+	<xs:element name="message" type="exec:tMessage">
+		<xs:annotation>
+			<xs:documentation>
+	      	"message" indicates a JMS protocol based JMS message to/from WSDL message mapping
+	      </xs:documentation>
+		</xs:annotation>
+	</xs:element>
+	<xs:complexType name="tMessage">
+		<xs:complexContent>
+			<xs:extension base="wsdl:tExtensibilityElement">
+				<xs:sequence/>
+				<xs:attribute name="use" type="exec:useTypes" use="optional">
+					<xs:annotation>
+						<xs:documentation>When messageType is TextMessage, this attribute defines the use type which affects how the text message is interpreted, i.e., literal</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+				<xs:attribute name="encodingStyle" type="xs:string" use="optional">
+					<xs:annotation>
+						<xs:documentation>When use is encoded, this attribute defines the encoding style</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+                                <xs:attribute name="recordsToBeSkipped" type="xs:unsignedInt" use="optional">
+					<xs:annotation>
+						<xs:documentation>This attribute defines the number of records to be skipped from stdout. Sometimes table headers need to be skipped.</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+                                <xs:attribute name="delimitersOfRecord" type="xs:string" use="optional">
+					<xs:annotation>
+						<xs:documentation>If stdout contains multiple records, this attribute defines the delimiters of record. If any of the delimiters is matched, a record is found. Default is no delimiters, so the whole stdout is treated as one record. To define multiple delimiters, use comma to separate them, e.g., \n,\r\n</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+                                <xs:attribute name="injectContextInfo" type="xs:boolean" use="optional">
+					<xs:annotation>
+						<xs:documentation>This attribute defines if context information (such as host name, command executed etc.) should be injected into the record. Default is true.</xs:documentation>
+					</xs:annotation>
+				</xs:attribute>
+			</xs:extension>
+			<!-- common to both producer and consumer -->
+			<!-- reserved for later use with encoder library -->
+			<!-- only applies to consumer -->
+		</xs:complexContent>
+	</xs:complexType>
+	<!-- +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ -->
+	<!-- Start complex type defintions to define elements referenced by    -->
+	<!-- JMS binding definitions                                           -->
+	<!-- +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ -->
+	<!-- JMS Message user properties definition -->
+	<!-- JMS MapMessage definition for MapMessage to Message part(s) mapping -->
+	<!-- Additional "connection" related usage options -->
+	<!-- "address" JNDI environment entries -->
+	<!-- +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ -->
+	<!-- Start simple type defintions to define type enumerations          -->
+	<!-- +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ -->
+	<!-- Transactional support types -->
+	<!-- Message delivery priority levels -->
+	<!-- Message delivery modes -->
+	<!-- Message receiver acknowledgement modes -->
+	<!-- Message types -->
+	<!-- Destination types -->
+	<!-- Subscription Durability types -->
+	<!-- Use types -->
+	<xs:simpleType name="useTypes">
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="literal"/>
+			<xs:enumeration value="encoded"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<!-- Message property types -->
+	<!-- Java primitive types -->
+	<!-- Consumer Concurrency types -->
+    <xs:simpleType name="tPollingPattern">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="RepetitiveInvokeAndReceive"/>
+            <xs:enumeration value="InvokeOnceAndKeepReceiving"/>
+        </xs:restriction>
+    </xs:simpleType>
+</xs:schema>
