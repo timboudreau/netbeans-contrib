@@ -42,8 +42,9 @@
 package org.netbeans.modules.zeroadmin;
 
 import java.io.*;
-import java.net.MalformedURLException;
 import java.util.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.xml.parsers.*;
 import org.xml.sax.*;
@@ -55,7 +56,6 @@ import org.openide.*;
 import org.openide.loaders.*;
 import org.openide.filesystems.*;
 import org.openide.util.RequestProcessor;
-import org.openide.util.WeakListeners;
 import org.openide.util.Lookup;
 import org.openide.xml.*;
 
@@ -85,7 +85,7 @@ public class ParseRegen implements org.w3c.dom.events.EventListener,
     // DocumentBuilderFactory or IllegalStateException
     private static Object parserfact = null;
     
-    private static final ErrorManager err = ErrorManager.getDefault().getInstance("org.netbeans.core.projects"); // NOI18N
+    private static final Logger log = Logger.getLogger(ParseRegen.class.getName());
     
     public ParseRegen (char[] buffer, String systemId) {
         this(buffer);
@@ -138,9 +138,9 @@ public class ParseRegen implements org.w3c.dom.events.EventListener,
             try {
                 DocumentBuilderFactory fact = DocumentBuilderFactory.newInstance();
                 if (fact.newDocumentBuilder().newDocument() instanceof EventTarget) {
-                    err.log("JAXP found a usable DOM parser: " + fact);
+                    log.fine("JAXP found a usable DOM parser: " + fact);
                 } else {
-                    err.log("JAXP failed, trying Xerces impl");
+                    log.fine("JAXP failed, trying Xerces impl");
                     Class xercesImpl = null;
 //                    try {
 //                        xercesImpl = Class.forName("org.apache.xerces.jaxp.DocumentBuilderFactoryImpl");
@@ -153,11 +153,9 @@ public class ParseRegen implements org.w3c.dom.events.EventListener,
                 fact.setValidating(validating);
                 parserfact = fact;
             } catch (Exception e) {
-                parserfact = new IllegalStateException(e.toString());
-                err.annotate((IllegalStateException)parserfact, e);
+                parserfact = new IllegalStateException(e);
             } catch (FactoryConfigurationError fce) {
-                parserfact = new IllegalStateException(fce.toString());
-                err.annotate((IllegalStateException)parserfact, fce);
+                parserfact = new IllegalStateException(fce);
             }
         }
         if (parserfact instanceof IllegalStateException) {
@@ -168,7 +166,7 @@ public class ParseRegen implements org.w3c.dom.events.EventListener,
     }
     
     private void parseDocument () {
-        err.log ("ParseRegen.parseDocument: " + this);
+        log.fine("ParseRegen.parseDocument: " + this);
         try {
             DocumentBuilder parser = findParser().newDocumentBuilder();
             parser.setEntityResolver (EntityCatalog.getDefault ());
@@ -210,8 +208,8 @@ public class ParseRegen implements org.w3c.dom.events.EventListener,
                         }
                     }
                     if (!l.isEmpty()) {
-                        if (err.isLoggable(ErrorManager.INFORMATIONAL)) {
-                            err.log("ParseRegen: Xerces workaround, removing bogus inserts: " + l);
+                        if (log.isLoggable(Level.FINER)) {
+                            log.finer("ParseRegen: Xerces workaround, removing bogus inserts: " + l);
                         }
                         Iterator it = l.iterator();
                         while (it.hasNext()) {
@@ -225,16 +223,16 @@ public class ParseRegen implements org.w3c.dom.events.EventListener,
                 targ.addEventListener ("DOMAttrModified", this, false); // NOI18N
 
                 layerDoc = doc;
-                if (err.isLoggable(ErrorManager.INFORMATIONAL)) {
+                if (log.isLoggable(Level.FINE)) {
                     StringWriter wr = new StringWriter(1000);
                     OutputFormat form = new OutputFormat(layerDoc, "UTF-8", false);
                     form.setPreserveSpace(true);
                     try {
                         new XMLSerializer(wr, form).serialize(layerDoc);
                         wr.close();
-                        err.log("ParseRegen.parseDocument:\n" + wr);
+                        log.fine("ParseRegen.parseDocument:\n" + wr);
                     } catch (IOException ioe) {
-                        err.notify(ErrorManager.INFORMATIONAL, ioe);
+                        log.log(Level.WARNING, "Unable to log document content", ioe);
                     }
                 }
                 exception = null;
@@ -262,7 +260,7 @@ public class ParseRegen implements org.w3c.dom.events.EventListener,
     }
     
     private synchronized void regenerate () {
-        err.log("ParseRegen.regenerate: " + this);
+        log.fine("ParseRegen.regenerate: " + this);
         if (layerDoc == null) throw new IllegalStateException ();
         try {
                 OutputFormat format = new OutputFormat(layerDoc, "UTF-8", false); 
@@ -288,21 +286,21 @@ public class ParseRegen implements org.w3c.dom.events.EventListener,
     }
   
     public void handleEvent (org.w3c.dom.events.Event ev) {
-        if (err.isLoggable(ErrorManager.INFORMATIONAL)) {
-            err.log ("ParseRegen.handleEvent: " + this);
+        if (log.isLoggable(Level.FINE)) {
+            log.fine("ParseRegen.handleEvent: " + this);
             //Thread.dumpStack ();
-            err.log("\tev=" + ev);
-            err.log("\tev.type=" + ev.getType ());
-            err.log("\tev.target=" + ev.getTarget ());
+            log.fine("\tev=" + ev);
+            log.fine("\tev.type=" + ev.getType ());
+            log.fine("\tev.target=" + ev.getTarget ());
             StringWriter wr = new StringWriter(1000);
             OutputFormat form = new OutputFormat(layerDoc, "UTF-8", false);
             form.setPreserveSpace(true);
             try {
                 new XMLSerializer(wr, form).serialize(layerDoc);
                 wr.close();
-                err.log("\tdoc:\n" + wr);
+                log.fine("\tdoc:\n" + wr);
             } catch (IOException ioe) {
-                err.notify(ErrorManager.INFORMATIONAL, ioe);
+                log.log(Level.WARNING, "Cannot log document", ioe); // NOI18N
             }
         }
         // Make sure we regenerate from the same DOM tree that is current!
@@ -310,7 +308,7 @@ public class ParseRegen implements org.w3c.dom.events.EventListener,
             // Attempt to modify stale DOM tree -> ignore it and return.
             // Ideally would cancel ev, but DOM2 does not support
             // cancelling mutation events, so just give up.
-            err.log(ErrorManager.WARNING, "WARNING: ParseRegen.handleEvent on stale DOM tree");
+            log.fine("WARNING: ParseRegen.handleEvent on stale DOM tree");
             return;
         }
         if (regenTask == null) {

@@ -48,6 +48,7 @@ import java.lang.reflect.*;
 import java.io.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.logging.Logger;
 import javax.swing.SwingUtilities;
 import org.apache.xerces.impl.dv.util.Base64;
 import org.netbeans.core.startup.layers.SessionManager;
@@ -82,7 +83,7 @@ public class ZeroAdminInstall extends ModuleInstall implements PropertyChangeLis
     /**
      * Private instance used for more fine grained logging.
      */
-    private static ErrorManager errorManager;
+    private static final Logger log = Logger.getLogger(ZeroAdminInstall.class.getName());
     
     /**
      * Filesystem used for writing user settings. Originally this
@@ -330,7 +331,7 @@ public class ZeroAdminInstall extends ModuleInstall implements PropertyChangeLis
                     }
                     toCopy[i].copy(destFolder, toCopy[i].getName(), toCopy[i].getExt());
                 } catch (IOException x) {
-                    getErrorManager().log(ErrorManager.INFORMATIONAL, "Cannot copy " +
+                    log.fine("Cannot copy " +
                         toCopy + " to " + destFolder + " on " + destFolder.getFileSystem());
                 }
             } else {
@@ -346,8 +347,7 @@ public class ZeroAdminInstall extends ModuleInstall implements PropertyChangeLis
                                 d.setAttribute(s, toCopy[i].getAttribute(s));
                             }
                         } catch (IOException x) {
-                            getErrorManager().log(ErrorManager.INFORMATIONAL, 
-                                "Cannot create folder " +
+                            log.fine("Cannot create folder " +
                                 toCopy[i].getNameExt() + " in " + destFolder + " on " + destFolder.getFileSystem());
                             continue;
                         }
@@ -356,19 +356,11 @@ public class ZeroAdminInstall extends ModuleInstall implements PropertyChangeLis
                         // recursive call
                         copy(toCopy[i], d, overwrite);
                     } else {
-                        getErrorManager().log(ErrorManager.INFORMATIONAL,
-                            "Cannot create folder in place of file " + d);
+                        log.fine("Cannot create folder in place of file " + d);
                     }
                 }
             }
         }
-    }
-    
-    private static ErrorManager getErrorManager() {
-        if (errorManager == null) {
-            errorManager = ErrorManager.getDefault().getInstance("org.netbeans.modules.zeroadmin");
-        }
-        return errorManager;
     }
     
     public void propertyChange(java.beans.PropertyChangeEvent propertyChangeEvent) {

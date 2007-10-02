@@ -46,10 +46,9 @@ import java.beans.*;
 import java.io.*;
 import java.lang.reflect.*;
 import java.net.*;
-import java.security.AllPermission;
-import java.security.PermissionCollection;
-import java.security.Permissions;
 import java.util.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.openide.*;
 import org.openide.filesystems.*;
@@ -80,7 +79,7 @@ public class XMLBufferFileSystem extends AbstractFileSystem implements AbstractF
     private FileChangeListener fileChangeListener;
     private ParseRegen generator;
     
-    private static final ErrorManager err = ErrorManager.getDefault().getInstance("org.netbeans.core.projects"); // NOI18N
+    private static final Logger log = Logger.getLogger(XMLBufferFileSystem.class.getName());
     
     private static final ClassLoader classLoader = (ClassLoader)Lookup.getDefault().lookup(ClassLoader.class);
     
@@ -110,14 +109,15 @@ public class XMLBufferFileSystem extends AbstractFileSystem implements AbstractF
         this.generator = gen;
         this.doc = generator.getDocument();
         if (doc == null) {
-            IllegalStateException ise = new IllegalStateException();
-            err.annotate(ise, generator.getParseException());
+            IllegalStateException ise = new IllegalStateException(
+                    generator.getParseException());
             throw ise;
         }
         time = new Date ();
         fileChangeListener = FileUtil.weakFileChangeListener(this, null);
     }
     
+    @Override
     public Status getStatus () {
         return this;
     }
@@ -246,12 +246,12 @@ public class XMLBufferFileSystem extends AbstractFileSystem implements AbstractF
                     if (warnedAboutDupeKids.add(this + ":" + f + "/" + name)) { // NOI18N
                         // #18699: will deadlock if you try to change anything.
                         if (f.equals("")) { // NOI18N
-                            err.log("WARNING: in " + this + " the root folder contains the child " + name + " more than once.");
+                            log.info("WARNING: in " + this + " the root folder contains the child " + name + " more than once.");
                         } else {
-                            err.log("WARNING: in " + this + " the folder " + f + " contains the child " + name + " more than once.");
+                            log.info("WARNING: in " + this + " the folder " + f + " contains the child " + name + " more than once.");
                         }
-                        err.log("The Open APIs Support module will not work properly with such a layer.");
-                        err.log("Please edit the XML text and merge together all children of a <folder> with the same name.");
+                        log.info("The Open APIs Support module will not work properly with such a layer.");
+                        log.info("Please edit the XML text and merge together all children of a <folder> with the same name.");
                     }
                 }
             }
@@ -360,6 +360,7 @@ public class XMLBufferFileSystem extends AbstractFileSystem implements AbstractF
         if (el == null) throw new FileNotFoundException (name);
         // We will change the layer file.
         return new ByteArrayOutputStream () {
+            @Override
             public void close () throws IOException {
                 super.close ();
                 // If binary data is being stored, convert it to text. For text data,
@@ -711,7 +712,7 @@ public class XMLBufferFileSystem extends AbstractFileSystem implements AbstractF
                         }
                     } catch (Exception e) {
                         // MalformedURLException, NumberFormatException, reflection stuff, ...
-                        err.notify(ErrorManager.INFORMATIONAL, e);
+                        log.log(Level.FINE, "", e); // NOI18N
                         return null;
                     }
                 }
@@ -961,7 +962,7 @@ public class XMLBufferFileSystem extends AbstractFileSystem implements AbstractF
                         return d;
                     }
                 } catch (MalformedURLException mfue) {
-                    err.notify(ErrorManager.INFORMATIONAL, mfue);
+                    log.log(Level.FINE, "", mfue); // NOI18N
                     // ignore
                 }
             }
