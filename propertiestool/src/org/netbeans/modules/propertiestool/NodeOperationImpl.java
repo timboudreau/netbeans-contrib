@@ -46,7 +46,8 @@ import java.beans.PropertyEditor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Enumeration;
 import java.util.Iterator;
-import org.openide.ErrorManager;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.openide.nodes.FilterNode;
 import org.openide.nodes.Node;
 import org.openide.nodes.NodeAcceptor;
@@ -367,18 +368,15 @@ public class NodeOperationImpl extends NodeOperation {
     //
     // Logging:
     //
+    private static final Logger log = Logger.getLogger(NodeOperationImpl.class.getName());
+    private static boolean LOGABLE = log.isLoggable(Level.FINE);
     
-    /** Using the NetBeans error manager for logging. */
-    private static ErrorManager err = ErrorManager.getDefault().getInstance(
-            NodeOperationImpl.class.getName());
-    /** Settable from the system property */
-    private static boolean LOGABLE = err.isLoggable(ErrorManager.INFORMATIONAL);
     /**
      * Logs the string only if logging is turned on.
      */
     private static void log(String s) {
         if (LOGABLE) {
-            err.log(s);
+            log.fine(s);
         }
     }
 }

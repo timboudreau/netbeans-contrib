@@ -47,8 +47,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.openide.DialogDisplayer;
-import org.openide.ErrorManager;
 import org.openide.NotifyDescriptor;
 import org.openide.cookies.SaveCookie;
 import org.openide.nodes.AbstractNode;
@@ -99,15 +100,14 @@ final class PropertiesToolTopComponent extends TopComponent implements LookupLis
     private static final int USER_INPUT_GO_BACK = 1;
     /** Constants indicating the user decision. */
     private static final int USER_INPUT_DISCARD_CHANGES = 2;
-    /** Logging using NetBeans ErrorManager. */
-    private static ErrorManager err = ErrorManager.getDefault().getInstance(
-            PropertiesToolTopComponent.class.getName());
-    /** Can be set from system property. */
-    private static boolean LOGABLE = err.isLoggable(ErrorManager.INFORMATIONAL);
+    
+    private static final Logger log = Logger.getLogger(PropertiesToolTopComponent.class.getName());
+    private static boolean LOGABLE = log.isLoggable(Level.FINE);
+    
     /** Logs the given string only if the system property is set for this logger. */
     private static void log(String s) {
         if (LOGABLE) {
-            err.log(s);
+            log.fine(s);
         }
     }
     /**
@@ -218,13 +218,13 @@ final class PropertiesToolTopComponent extends TopComponent implements LookupLis
     public static synchronized PropertiesToolTopComponent findInstance() {
         TopComponent win = WindowManager.getDefault().findTopComponent(PREFERRED_ID);
         if (win == null) {
-            ErrorManager.getDefault().log(ErrorManager.WARNING, "Cannot find PropertiesTool component. It will not be located properly in the window system.");
+            log.info("Cannot find PropertiesTool component. It will not be located properly in the window system.");
             return getDefault();
         }
         if (win instanceof PropertiesToolTopComponent) {
             return (PropertiesToolTopComponent)win;
         }
-        ErrorManager.getDefault().log(ErrorManager.WARNING, "There seem to be multiple components with the '" + PREFERRED_ID + "' ID. That is a potential source of errors and unexpected behavior.");
+        log.info("There seem to be multiple components with the '" + PREFERRED_ID + "' ID. That is a potential source of errors and unexpected behavior.");
         return getDefault();
     }
 

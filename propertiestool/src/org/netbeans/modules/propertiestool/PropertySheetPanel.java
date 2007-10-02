@@ -57,12 +57,13 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.JComponent;
 import javax.swing.JTable;
 import javax.swing.SwingUtilities;
 import org.netbeans.api.propertiestool.BatchUpdate;
 import org.openide.DialogDisplayer;
-import org.openide.ErrorManager;
 import org.openide.NotifyDescriptor;
 import org.openide.nodes.FilterNode;
 import org.openide.nodes.Node;
@@ -88,11 +89,9 @@ public class PropertySheetPanel extends javax.swing.JPanel {
     public static final String SAVE_ENABLED = "SaveEnabled";
     /** A constant for firing a property change event. */
     public static final String TITLE_CHANGED = "TitleChanged";
-    /** Logging using the NetBeans ErrorManager. */
-    private static ErrorManager err = ErrorManager.getDefault().getInstance(
-            PropertySheetPanel.class.getName());
-    /** Can be set from a system property. */
-    private static boolean LOGABLE = err.isLoggable(ErrorManager.INFORMATIONAL);
+    
+    private static final Logger log = Logger.getLogger(PropertySheetPanel.class.getName());
+    private static boolean LOGABLE = log.isLoggable(Level.FINE);
 
     private Node[] nodesToSet = null;
     /** the nodes that are displayed in the property sheet */
@@ -663,11 +662,11 @@ public class PropertySheetPanel extends javax.swing.JPanel {
                             if (LOGABLE) log("made the property " + props[j] + " unchanged");
                         }
                     } catch (IllegalArgumentException ex) {
-                        err.notify(ex);
+                        log.log(Level.WARNING, "", ex);
                     } catch (IllegalAccessException ex) {
-                        err.notify(ex);
+                        log.log(Level.WARNING, "", ex);
                     } catch (InvocationTargetException ex) {
-                        err.notify(ex);
+                        log.log(Level.WARNING, "", ex);
                     }
                 }
             }
@@ -872,7 +871,7 @@ public class PropertySheetPanel extends javax.swing.JPanel {
                     origValue = orig.getValue();
                 } catch (Exception ex) {
                     // report only in debug mode:
-                    if (LOGABLE) err.notify(ErrorManager.INFORMATIONAL, ex);
+                    if (LOGABLE) log.log(Level.FINE, "", ex);
                     return;
                 }
                 try {
@@ -880,7 +879,7 @@ public class PropertySheetPanel extends javax.swing.JPanel {
                     setValue(orig.getValue());
                 } catch (Exception ex) {
                     // report only in debug mode:
-                    if (LOGABLE) err.notify(ErrorManager.INFORMATIONAL, ex);
+                    if (LOGABLE) log.log(Level.FINE, "", ex);
                 } finally {
                     orig.setValue(origValue); // return back the value
                 }
@@ -894,7 +893,7 @@ public class PropertySheetPanel extends javax.swing.JPanel {
                     origValue = orig.getValue();
                 } catch (Exception ex) {
                     // report only in debug mode:
-                    if (LOGABLE) err.notify(ErrorManager.INFORMATIONAL, ex);
+                    if (LOGABLE) log.log(Level.FINE, "", ex);
                     return false;
                 }
                 try {
@@ -902,13 +901,13 @@ public class PropertySheetPanel extends javax.swing.JPanel {
                     res = orig.isDefaultValue();
                 } catch (Exception ex) {
                     // report only in debug mode:
-                    if (LOGABLE) err.notify(ErrorManager.INFORMATIONAL, ex);
+                    if (LOGABLE) log.log(Level.FINE, "", ex);
                 } finally {
                     try {
                         orig.setValue(origValue);
                     } catch (Exception ex) {
                         // report only in debug mode:
-                        if (LOGABLE) err.notify(ErrorManager.INFORMATIONAL, ex);
+                        if (LOGABLE) log.log(Level.FINE, "", ex);
                     }
                 }
                 return res;
@@ -947,6 +946,6 @@ public class PropertySheetPanel extends javax.swing.JPanel {
     }
     /** Log only if the system property has been specified. */
     private static void log(String s) {
-        err.log(s);
+        log.fine(s);
     }
 }
