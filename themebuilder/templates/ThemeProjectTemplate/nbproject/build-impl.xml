@@ -57,7 +57,9 @@ is divided into following sections:
         <property name="rhino.jar"
                   value="${tools.dir}/javascript/custom_rhino.jar"/>
         <property name="javascript.nls.path" 
-                  value="${build.dir}/${theme.package.path}/javascript/theme/nls"/>          
+                  value="${build.dir}/${theme.package.path}/javascript/theme/nls"/>  
+        <property name="uncompressed_javascript.nls.path" 
+                  value="${build.dir}/${theme.package.path}/javascript_uncompressed/theme/nls"/>
     </target>
     
     <target name="-do-init" depends="-pre-init,-init-private,-init-user,-init-project">
@@ -135,6 +137,23 @@ is divided into following sections:
     </target>
     
     <target name="-build-javascript-theme">
+        <mkdir dir="${uncompressed_javascript.nls.path}"/> 
+        <!-- The uncompressed version is the JSON pretty printed version 
+	  -->
+	<java classname="com.sun.webui.theme.ResourceBundleTheme"
+		logError="yes"
+		failonerror="true" fork="true">
+	    <arg value="-dir"/>
+	    <arg value="${uncompressed_javascript.nls.path}"/>
+	    <arg value="-theme"/>
+	    <arg value="${theme.name}"/>
+	    <arg value="-prettyprint"/>
+	    <arg value="4"/>
+	    <classpath>
+		 <pathelement path="${libs.woodstock-components.classpath}"/>
+                <pathelement path="${dist.dir}/${dist.jar}"/>
+	    </classpath>
+	</java>
         
         <mkdir dir="${javascript.nls.path}"/>    
         <java classname="com.sun.webui.theme.ResourceBundleTheme"
@@ -153,8 +172,8 @@ is divided into following sections:
         <!-- Add the javascript theme to the theme jar -->
         <jar destfile="${dist.dir}/${dist.jar}"
              update="true"
-             basedir="${build.dir}/${theme.package.path}/javascript"
-             includes="theme/nls/**/*.js">
+             basedir="${build.dir}"
+             includes="${theme.package.path}/javascript/theme/nls/**/*.js, ${theme.package.path}/javascript_uncompressed/theme/nls/**/*.js">
         </jar>
         
     </target>

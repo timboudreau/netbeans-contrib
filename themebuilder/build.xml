@@ -14,7 +14,7 @@
 
     <target name="package-templates">
         <delete file="${basedir}/src/org/netbeans/modules/themebuilder/resources/ThemeProjectTemplate.zip"/>
-        <zip compress="9" basedir="${basedir}/templates/ThemeProjectTemplate/"
+        <zip basedir="${basedir}/templates/ThemeProjectTemplate/"
             zipfile="${basedir}/src/org/netbeans/modules/themebuilder/resources/ThemeProjectTemplate.zip"/>
        
         <delete file="${basedir}/src/org/netbeans/modules/themebuilder/resources/WoodstockThemeTemplate.zip"/>
@@ -87,7 +87,7 @@
             </fileset>
         </copy>
         
-        <zip  compress="9" basedir="${temp.dir}/WoodstockThemeTemplate/"
+        <zip basedir="${temp.dir}/WoodstockThemeTemplate/"
             zipfile="${basedir}/src/org/netbeans/modules/themebuilder/resources/WoodstockThemeTemplate.zip"/>
             
         <delete  dir="${temp.dir}" />  
