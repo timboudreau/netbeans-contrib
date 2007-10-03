@@ -64,7 +64,7 @@ import org.openide.filesystems.FileObject;
  */
 public class DetailComboFactory extends ComboBoxControlFactory {
     
-    private static final Logger log = Logger.getLogger(ComboBoxControlFactory.class.getName());
+    private static final Logger log = Logger.getLogger(DetailComboFactory.class.getName());
     private static boolean LOGGABLE = log.isLoggable(Level.FINE);
     
     private String masterID;
