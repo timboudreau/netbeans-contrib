@@ -44,9 +44,10 @@ package org.netbeans.modules.sfsexplorer;
 import java.awt.event.ActionEvent;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
-import org.openide.ErrorManager;
 import org.openide.awt.HtmlBrowser;
 import org.openide.filesystems.FileObject;
 
@@ -74,7 +75,8 @@ public final class ShowURLActionFactory {
             }
             return new ShowURLAction(displayName, new URL(urlString));
         } catch (MalformedURLException ex) {
-            ErrorManager.getDefault().notify(ex);
+            Logger.getLogger(ShowURLActionFactory.class.getName()).log(
+                Level.SEVERE, "URL wrong for file: " + file, ex); // NOI18N
             return null;
         }
     }

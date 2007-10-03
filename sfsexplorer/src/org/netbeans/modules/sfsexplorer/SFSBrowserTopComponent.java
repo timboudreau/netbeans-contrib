@@ -51,13 +51,14 @@ import java.net.URL;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.ActionMap;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSplitPane;
-import org.openide.ErrorManager;
 import org.openide.awt.StatusDisplayer;
 import org.openide.cookies.InstanceCookie;
 import org.openide.explorer.ExplorerManager;
@@ -87,6 +88,8 @@ import org.openide.windows.WindowManager;
  * @author Sandip V. Chitale (Sandip.Chitale@Sun.Com)
  */
 final class SFSBrowserTopComponent extends TopComponent {
+    
+    private static final Logger log = Logger.getLogger(SFSBrowserTopComponent.class.getName());
 
     private static SFSBrowserTopComponent instance;
 
@@ -122,7 +125,7 @@ final class SFSBrowserTopComponent extends TopComponent {
                     new SFSNode(DataObject.find(Repository.getDefault().getDefaultFileSystem().getRoot()).getNodeDelegate(),
                     platform));
         } catch (DataObjectNotFoundException ex) {
-            ErrorManager.getDefault().notify(ErrorManager.INFORMATIONAL, ex);
+            log.log(Level.FINE, "Root node not found", ex); // NOI18N
         }
         sfsPanel.add(sfsView, BorderLayout.CENTER);
 
@@ -223,13 +226,13 @@ final class SFSBrowserTopComponent extends TopComponent {
     public static synchronized SFSBrowserTopComponent findInstance() {
         TopComponent win = WindowManager.getDefault().findTopComponent(PREFERRED_ID);
         if (win == null) {
-            ErrorManager.getDefault().log(ErrorManager.WARNING, NbBundle.getMessage(SFSBrowserTopComponent.class, "Cannot_find_SFSBrowser_component._It_will_not_be_located_properly_in_the_window_system."));
+            log.log(Level.WARNING, NbBundle.getMessage(SFSBrowserTopComponent.class, "Cannot_find_SFSBrowser_component._It_will_not_be_located_properly_in_the_window_system."));
             return getDefault();
         }
         if (win instanceof SFSBrowserTopComponent) {
             return (SFSBrowserTopComponent)win;
         }
-        ErrorManager.getDefault().log(ErrorManager.WARNING, NbBundle.getMessage(SFSBrowserTopComponent.class, "There_seem_to_be_multiple_components_with_the_'") + PREFERRED_ID + NbBundle.getMessage(SFSBrowserTopComponent.class, "'_ID._That_is_a_potential_source_of_errors_and_unexpected_behavior."));
+        log.log(Level.WARNING, NbBundle.getMessage(SFSBrowserTopComponent.class, "There_seem_to_be_multiple_components_with_the_'") + PREFERRED_ID + NbBundle.getMessage(SFSBrowserTopComponent.class, "'_ID._That_is_a_potential_source_of_errors_and_unexpected_behavior."));
         return getDefault();
     }
 
@@ -288,7 +291,7 @@ final class SFSBrowserTopComponent extends TopComponent {
                 try {
                     explorerManager.setSelectedNodes(new Node[] {node});
                 } catch (PropertyVetoException ex) {
-                    ErrorManager.getDefault().notify(ex);
+                    log.log(Level.WARNING, "Cannot set selected nodes", ex); // NOI18N
                 }
             } catch (NodeNotFoundException ex) {
                 StatusDisplayer.getDefault().setStatusText(NbBundle.getMessage(SFSBrowserTopComponent.class, "Could_not_select_") + path);
@@ -408,7 +411,7 @@ final class SFSBrowserTopComponent extends TopComponent {
         try {
             url = new URL(urlString);
         } catch (MalformedURLException ex) {
-            ErrorManager.getDefault().notify(ErrorManager.INFORMATIONAL, ex);
+            log.log(Level.FINE, "Cannot create URL from " + urlString, ex); // NOI18N
         }
         urlCache.put(urlString, url);
         return url;
