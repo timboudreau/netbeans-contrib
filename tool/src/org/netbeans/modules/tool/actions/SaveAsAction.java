@@ -24,10 +24,13 @@ made subject to such option by the copyright holder.
 package org.netbeans.modules.tool.actions;
 
 import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.Action;
 import org.netbeans.modules.tool.ExitDialog;
 import org.netbeans.modules.tool.cookies.SaveAsCookie;
-import org.openide.ErrorManager;
+import org.openide.DialogDisplayer;
+import org.openide.NotifyDescriptor;
 import org.openide.util.Lookup;
 import org.openide.util.NbBundle;
 import org.openide.util.Utilities;
@@ -61,11 +64,13 @@ public class SaveAsAction extends CookieObjectAction {
         try {
             saver.saveAs();
         } catch (IOException exc) {
-            ErrorManager em = ErrorManager.getDefault();
-            Throwable t = em.annotate(
-                exc, NbBundle.getBundle(ExitDialog.class).getString("EXC_Save")
+            Logger.getLogger(getClass().getName()).log(Level.FINE, "Saving failed.", exc); // NOI18N
+            NotifyDescriptor nd = new NotifyDescriptor.Message(
+                    NbBundle.getBundle(ExitDialog.class).getString("EXC_Save"),
+                    NotifyDescriptor.ERROR_MESSAGE
             );
-            em.notify(ErrorManager.EXCEPTION, t);
+            DialogDisplayer dd = DialogDisplayer.getDefault();
+            dd.notify(nd);
         }
     }
 

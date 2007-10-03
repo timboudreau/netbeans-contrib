@@ -44,11 +44,12 @@ package org.netbeans.modules.tool;
 import java.beans.PropertyChangeListener;
 import java.io.IOException;
 import java.util.Properties;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.netbeans.modules.settings.Env;
 import org.netbeans.spi.settings.Convertor;
 import org.netbeans.spi.settings.Saver;
-import org.openide.ErrorManager;
 import org.openide.filesystems.FileObject;
 import org.openide.util.Lookup;
 import org.openide.util.NbBundle;
@@ -132,7 +133,8 @@ public final class XMLPropertiesConvertor extends Convertor implements PropertyC
     public void registerSaver(Object inst, Saver s) {
         if (saver != null) {
             String message = NbBundle.getMessage(getClass(),"XMLProprtiesConvertor.AlreadyRegistered"); //$NON-NLS-1$
-            ErrorManager.getDefault().log(ErrorManager.EXCEPTION, message); 
+            Logger.getLogger(XMLPropertiesConvertor.class.getName()).log(
+                    Level.INFO, message);
             return;
         }
         
@@ -145,13 +147,16 @@ public final class XMLPropertiesConvertor extends Convertor implements PropertyC
             this.saver = s;
 //System.out.println("XMLPropertiesConvertor.registerPropertyListener...ok " + inst);
         } catch (NoSuchMethodException ex) {
-            ErrorManager.getDefault().log(ErrorManager.INFORMATIONAL,
-            "ObjectChangesNotifier: NoSuchMethodException: " + //$NON-NLS-1$
-            inst.getClass().getName() + ".addPropertyChangeListener"); //$NON-NLS-1$
+            Logger.getLogger(XMLPropertiesConvertor.class.getName()).log(
+                    Level.WARNING, 
+                    "ObjectChangesNotifier: NoSuchMethodException: " + //$NON-NLS-1$
+            inst.getClass().getName() + ".addPropertyChangeListener");
         } catch (IllegalAccessException ex) {
-            ErrorManager.getDefault().notify(ex);
+            Logger.getLogger(XMLPropertiesConvertor.class.getName()).log(
+                    Level.SEVERE, "", ex); 
         } catch (java.lang.reflect.InvocationTargetException ex) {
-            ErrorManager.getDefault().notify(ex);
+            Logger.getLogger(XMLPropertiesConvertor.class.getName()).log(
+                    Level.SEVERE, "", ex); 
         }
     }
     
@@ -159,7 +164,8 @@ public final class XMLPropertiesConvertor extends Convertor implements PropertyC
         if (saver == null) return;
         if (saver != s) {
             String message = NbBundle.getMessage(getClass(), "XMLProprtiesConvertor.CannotUnregister"); //$NON-NLS-1$
-            ErrorManager.getDefault().log(ErrorManager.EXCEPTION, message);
+            Logger.getLogger(XMLPropertiesConvertor.class.getName()).log(
+                    Level.INFO, message);
             return;
         }
         try {
@@ -170,15 +176,18 @@ public final class XMLPropertiesConvertor extends Convertor implements PropertyC
             this.saver = null;
 //System.out.println("XMLPropertiesConvertor.unregisterPropertyListener...ok " + inst);
         } catch (NoSuchMethodException ex) {
-            ErrorManager.getDefault().log(ErrorManager.INFORMATIONAL,
-            "ObjectChangesNotifier: NoSuchMethodException: " + //$NON-NLS-1$
+            Logger.getLogger(XMLPropertiesConvertor.class.getName()).log(
+                    Level.WARNING, 
+                    "ObjectChangesNotifier: NoSuchMethodException: " + //$NON-NLS-1$
             inst.getClass().getName() + ".removePropertyChangeListener"); //$NON-NLS-1$
             // just changes done through gui will be saved
         } catch (IllegalAccessException ex) {
-            ErrorManager.getDefault().notify(ex);
+            Logger.getLogger(XMLPropertiesConvertor.class.getName()).log(
+                    Level.SEVERE, "", ex); 
             // just changes done through gui will be saved
         } catch (java.lang.reflect.InvocationTargetException ex) {
-            ErrorManager.getDefault().notify(ex);
+            Logger.getLogger(XMLPropertiesConvertor.class.getName()).log(
+                    Level.SEVERE, "", ex); 
             // just changes done through gui will be saved
         }
     }
@@ -189,7 +198,8 @@ public final class XMLPropertiesConvertor extends Convertor implements PropertyC
             try {
                 saver.requestSave();
             } catch (IOException ex) {
-                ErrorManager.getDefault().notify(ErrorManager.EXCEPTION, ex);
+            Logger.getLogger(XMLPropertiesConvertor.class.getName()).log(
+                Level.SEVERE, "", ex); 
             }
         } else {
             saver.markDirty();
@@ -238,9 +248,9 @@ public final class XMLPropertiesConvertor extends Convertor implements PropertyC
         } catch (Exception ex) { // IllegalAccessException, InstantiationException
             Object[] args = { c.getName() };
             String message = NbBundle.getMessage(getClass(), "XMLProprtiesConvertor.CannotInstantiate", args); //$NON-NLS-1$
-            throw (IOException) ErrorManager.getDefault().annotate(
-                new IOException(message),
-                ex);
+            IOException ioe = new IOException(message);
+            ioe.initCause(ex);
+            throw ioe;
         }
     }
 
@@ -263,15 +273,18 @@ public final class XMLPropertiesConvertor extends Convertor implements PropertyC
                 "readProperties", new Class[] {Properties.class}); //$NON-NLS-1$
             m.invoke(inst, new Object[] { p });
         } catch (NoSuchMethodException ex) {
-            throw (IOException) ErrorManager.getDefault().annotate(
-                new IOException(ex.getLocalizedMessage()), ex);
+            IOException ioe = new IOException();
+            ioe.initCause(ex);
+            throw ioe;
         } catch (IllegalAccessException ex) {
-            throw (IOException) ErrorManager.getDefault().annotate(
-                new IOException(ex.getLocalizedMessage()), ex);
+            IOException ioe = new IOException();
+            ioe.initCause(ex);
+            throw ioe;
         } catch (java.lang.reflect.InvocationTargetException ex) {
             Throwable t = ex.getTargetException();
-            throw (IOException) ErrorManager.getDefault().annotate(
-                new IOException(t.getLocalizedMessage()), t);
+            IOException ioe = new IOException();
+            ioe.initCause(t);
+            throw ioe;
         }
     }    
     
@@ -299,15 +312,18 @@ public final class XMLPropertiesConvertor extends Convertor implements PropertyC
             m.invoke(inst, new Object[] {prop});
             return prop;
         } catch (NoSuchMethodException ex) {
-            throw (IOException) ErrorManager.getDefault().annotate(
-                new IOException(ex.getLocalizedMessage()), ex);
+            IOException ioe = new IOException();
+            ioe.initCause(ex);
+            throw ioe;
         } catch (IllegalAccessException ex) {
-            throw (IOException) ErrorManager.getDefault().annotate(
-                new IOException(ex.getLocalizedMessage()), ex);
+            IOException ioe = new IOException();
+            ioe.initCause(ex);
+            throw ioe;
         } catch (java.lang.reflect.InvocationTargetException ex) {
             Throwable t = ex.getTargetException();
-            throw (IOException) ErrorManager.getDefault().annotate(
-                new IOException(t.getLocalizedMessage()), t);
+            IOException ioe = new IOException();
+            ioe.initCause(t);
+            throw ioe;
         }
     }
     
@@ -369,17 +385,14 @@ public final class XMLPropertiesConvertor extends Convertor implements PropertyC
                 try {
                     reader.setProperty("http://xml.org/sax/properties/lexical-handler", this);  //$NON-NLS-1$
                 } catch (SAXException sex) {
-                    ErrorManager.getDefault().log(ErrorManager.EXCEPTION,
-                    NbBundle.getMessage(getClass(), "XMLProprtiesConvertor.BadParser")); //$NON-NLS-1$
+                    Logger.getLogger(XMLPropertiesConvertor.class.getName()).log(
+                    Level.WARNING, 
+                    NbBundle.getMessage(getClass(), "XMLProprtiesConvertor.BadParser"), sex); //$NON-NLS-1$
                 }
                 reader.parse(is);
             } catch (SAXException ex) {
                 IOException ioe = new IOException();
-                ErrorManager emgr = ErrorManager.getDefault();
-                emgr.annotate(ioe, ex);
-                if (ex.getException () != null) {
-                    emgr.annotate (ioe, ex.getException());
-                }
+                ioe.initCause(ex);
                 throw ioe;
             }
         }

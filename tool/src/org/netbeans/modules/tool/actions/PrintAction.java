@@ -23,10 +23,7 @@ made subject to such option by the copyright holder.
  */
 package org.netbeans.modules.tool.actions;
 
-import java.io.IOException;
 import javax.swing.Action;
-import org.netbeans.modules.tool.ExitDialog;
-import org.openide.ErrorManager;
 import org.openide.cookies.PrintCookie;
 import org.openide.util.Lookup;
 import org.openide.util.NbBundle;

@@ -48,13 +48,14 @@ import java.io.ObjectOutput;
 import java.util.Iterator;
 import java.util.Properties;
 import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.swing.SwingUtilities;
 
 import org.netbeans.api.bookmarks.Bookmark;
 import org.netbeans.api.bookmarks.BookmarkProvider;
 import org.netbeans.spi.convertor.SimplyConvertible;
-import org.openide.ErrorManager;
 import org.openide.util.NbBundle;
 import org.openide.windows.Mode;
 import org.openide.windows.TopComponent;
@@ -577,11 +578,13 @@ public abstract class AbstractTool
             }
             catch( InstantiationException ie )
             {
-                ErrorManager.getDefault(  ).getInstance( "org.netbeans.modules.tool" ).notify( ie ); //$NON-NLS-1$
+                Logger.getLogger(AbstractTool.class.getName()).log(
+                    Level.SEVERE, "", ie);
             }
             catch( IllegalAccessException ia )
             {
-                ErrorManager.getDefault(  ).getInstance( "org.netbeans.modules.tool" ).notify( ia ); //$NON-NLS-1$
+                Logger.getLogger(AbstractTool.class.getName()).log(
+                    Level.SEVERE, "", ia);
             }
         }
         else

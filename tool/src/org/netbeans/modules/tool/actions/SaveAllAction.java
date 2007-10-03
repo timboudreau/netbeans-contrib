@@ -46,13 +46,14 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.Iterator;
 import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.SwingUtilities;
+import org.openide.DialogDisplayer;
 import org.openide.util.HelpCtx;
 import org.openide.util.NbBundle;
 import org.openide.util.actions.CallableSystemAction;
 import org.openide.cookies.SaveCookie;
-import org.openide.DialogDescriptor;
-import org.openide.ErrorManager;
 import org.openide.nodes.Node;
 import org.openide.NotifyDescriptor;
 import org.openide.util.NbBundle;
@@ -125,11 +126,13 @@ public class SaveAllAction extends CallableSystemAction {
                 }
             }
         } catch (java.io.IOException exc) {
-            ErrorManager em = ErrorManager.getDefault();
-            Throwable t = em.annotate(
-                exc, NbBundle.getBundle(ExitDialog.class).getString("EXC_Save")
+            Logger.getLogger(getClass().getName()).log(Level.FINE, "Saving failed.", exc); // NOI18N
+            NotifyDescriptor nd = new NotifyDescriptor.Message(
+                    NbBundle.getBundle(ExitDialog.class).getString("EXC_Save"),
+                    NotifyDescriptor.ERROR_MESSAGE
             );
-            em.notify(ErrorManager.EXCEPTION, t);
+            DialogDisplayer dd = DialogDisplayer.getDefault();
+            dd.notify(nd);
         }
     }
     /* Listens to the chnages in list of modified data objects

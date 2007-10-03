@@ -42,10 +42,11 @@ package org.netbeans.modules.tool;
 
 
 import java.awt.Dimension;
-import java.beans.BeanInfo;
 import java.util.Iterator;
 import java.util.ResourceBundle;
 import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.Border;
@@ -55,8 +56,7 @@ import javax.swing.border.CompoundBorder;
 import org.openide.awt.Actions;
 import org.openide.cookies.SaveCookie;
 import org.openide.DialogDescriptor;
-import org.openide.ErrorManager;
-import org.openide.filesystems.FileSystem;
+import org.openide.DialogDisplayer;
 import org.openide.nodes.Node;
 import org.openide.NotifyDescriptor;
 import org.openide.util.NbBundle;
@@ -189,11 +189,13 @@ public class ExitDialog extends JPanel implements java.awt.event.ActionListener 
             }
             listModel.removeElement(toc);
         } catch (java.io.IOException exc) {
-            ErrorManager em = ErrorManager.getDefault();
-            Throwable t = em.annotate(
-                exc, NbBundle.getBundle(ExitDialog.class).getString("EXC_Save")
+            Logger.getLogger(getClass().getName()).log(Level.FINE, "Saving failed.", exc); // NOI18N
+            NotifyDescriptor nd = new NotifyDescriptor.Message(
+                    NbBundle.getBundle(ExitDialog.class).getString("EXC_Save"),
+                    NotifyDescriptor.ERROR_MESSAGE
             );
-            em.notify(ErrorManager.EXCEPTION, t);
+            DialogDisplayer dd = DialogDisplayer.getDefault();
+            dd.notify(nd);
         }
     }
  

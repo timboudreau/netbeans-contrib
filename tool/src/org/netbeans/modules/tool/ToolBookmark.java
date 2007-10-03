@@ -51,6 +51,8 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.math.BigInteger;
 import java.util.Properties;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
@@ -60,7 +62,6 @@ import javax.swing.JMenuItem;
 import org.netbeans.api.bookmarks.Bookmark;
 import org.netbeans.spi.convertor.SimplyConvertible;
 import org.openide.DialogDisplayer;
-import org.openide.ErrorManager;
 import org.openide.NotifyDescriptor;
 import org.openide.util.Lookup;
 import org.openide.util.NbBundle;
@@ -226,10 +227,13 @@ public class ToolBookmark
             String message =
                 NbBundle.getMessage( ToolBookmark.class, "ToolBookmark.BadSettings", args ); //$NON-NLS-1$
 
-            ErrorManager manager =
-                ErrorManager.getDefault(  ).getInstance( "org.netbeans.modules.tool" ); //$NON-NLS-1$
-            manager.annotate( e, message );
-            manager.notify( ErrorManager.ERROR, e );
+            Logger.getLogger(getClass().getName()).log(Level.FINE, myName, e); // NOI18N
+            NotifyDescriptor nd = new NotifyDescriptor.Message(
+                    message,
+                    NotifyDescriptor.ERROR_MESSAGE
+            );
+            DialogDisplayer dd = DialogDisplayer.getDefault();
+            dd.notify(nd);
         }
     }
 
@@ -447,10 +451,13 @@ public class ToolBookmark
             String message =
                 NbBundle.getMessage( ToolBookmark.class, "ToolBookmark.BadInvocation", args ); //$NON-NLS-1$
 
-            ErrorManager manager =
-                ErrorManager.getDefault(  ).getInstance( "org.netbeans.modules.tool" ); //$NON-NLS-1$
-            manager.annotate( e, message );
-            manager.notify( ErrorManager.ERROR, e );
+            Logger.getLogger(getClass().getName()).log(Level.FINE, myName, e); // NOI18N
+            NotifyDescriptor nd = new NotifyDescriptor.Message(
+                    message,
+                    NotifyDescriptor.ERROR_MESSAGE
+            );
+            DialogDisplayer dd = DialogDisplayer.getDefault();
+            dd.notify(nd);
         }
     }
 
@@ -520,9 +527,7 @@ public class ToolBookmark
         }
         catch( Exception e )
         {
-            ErrorManager manager =
-                ErrorManager.getDefault(  ).getInstance( "org.netbeans.modules.tool" ); //$NON-NLS-1$
-            manager.notify( ErrorManager.INFORMATIONAL, e );
+            Logger.getLogger(ToolBookmark.class.getName()).log(Level.FINE, "", e); // NOI18N
         }
 
         return string;
@@ -558,9 +563,7 @@ public class ToolBookmark
         }
         catch( Exception e )
         {
-            ErrorManager manager =
-                ErrorManager.getDefault(  ).getInstance( "org.netbeans.modules.tool" ); //$NON-NLS-1$
-            manager.notify( ErrorManager.INFORMATIONAL, e );
+            Logger.getLogger(ToolBookmark.class.getName()).log(Level.FINE, "", e); // NOI18N
         }
 
         return icon;
