@@ -42,10 +42,7 @@
 package org.netbeans.core.registry;
 
 import org.netbeans.spi.registry.BasicContext;
-import org.netbeans.core.registry.ConvertorBinding;
-import org.netbeans.core.registry.InstanceBinding;
 import org.openide.filesystems.FileObject;
-import org.openide.ErrorManager;
 
 import java.io.IOException;
 import java.util.Collection;
@@ -53,6 +50,8 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 import java.lang.ref.WeakReference;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * <P>
@@ -68,7 +67,8 @@ import java.lang.ref.WeakReference;
  * (copy & pasted & refactored from original org.netbeans.core.registry.ObjectBinding)   
  */ 
 abstract class ObjectBinding {
-    private static final ErrorManager err = ErrorManager.getDefault().getInstance("org.netbeans.core.registry"); // NOI18N    
+    private static final Logger log = Logger.getLogger(ObjectBinding.class.getName());
+    private static final boolean LOGABLE = log.isLoggable(Level.FINE);
     private static final Reader[] READERS =
             new Reader[]{InstanceBinding.READER, ShadowBinding.READER,
                          ObjectRefBinding.READER, SettingBinding.READER,
@@ -108,9 +108,8 @@ abstract class ObjectBinding {
         Reader r = getReader(fo);
         
         if (r == null) {
-            ErrorManager errorManager = getErrorManager();
-            if (errorManager.isLoggable(ErrorManager.INFORMATIONAL)) {
-                errorManager.log("File " + fo + " was parsed, but it is not a .settings file nor namespace-aware XML. It will be ignored.");
+            if (LOGABLE) {
+                log.fine("File " + fo + " was parsed, but it is not a .settings file nor namespace-aware XML. It will be ignored.");
             }
         }
         
@@ -221,10 +220,6 @@ abstract class ObjectBinding {
     abstract public Object createInstance() throws IOException;
 
     abstract public boolean isEnabled();
-
-    public static final ErrorManager getErrorManager() {
-        return err;
-    }
 
     abstract static class Reader {
         abstract boolean canRead(FileObject fo);

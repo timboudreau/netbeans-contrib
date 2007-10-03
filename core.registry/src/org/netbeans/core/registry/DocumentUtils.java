@@ -41,7 +41,6 @@
 
 package org.netbeans.core.registry;
 
-import org.openide.ErrorManager;
 import org.openide.filesystems.FileLock;
 import org.openide.filesystems.FileObject;
 import org.openide.xml.EntityCatalog;
@@ -51,23 +50,23 @@ import org.xml.sax.InputSource;
 import org.xml.sax.EntityResolver;
 import org.xml.sax.SAXException;
 
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.FactoryConfigurationError;
-import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.ByteArrayInputStream;
 import java.lang.ref.Reference;
 import java.lang.ref.WeakReference;
-import java.util.Properties;
-import javax.xml.parsers.DocumentBuilder;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /** 
  *
  * @author copy&pasted from core/settings
  */
 public class DocumentUtils {
+
+    private static final Logger log = Logger.getLogger(DocumentUtils.class.getName());
+    private static final boolean LOGABLE = log.isLoggable(Level.FINE);
     
     private DocumentUtils() {
     }
@@ -177,17 +176,18 @@ public class DocumentUtils {
                     }
                     return retVal;
                 } catch (Exception e) {
-                    if (ErrorManager.getDefault().isLoggable(ErrorManager.INFORMATIONAL)) {
-                        ErrorManager.getDefault().log(ErrorManager.WARNING, "Could not parse file [" + fo + "].\n" + e.toString());
-                        ErrorManager.getDefault().notify(ErrorManager.INFORMATIONAL, e);
+                    if (LOGABLE) {
+                        log.log(Level.FINE, 
+                            "Could not parse file [" + fo + "].\n" + e.toString(), e);
                     }
                 } finally {
                     is.close();
                 }
             } catch (IOException e) {
-                if (ErrorManager.getDefault().isLoggable(ErrorManager.INFORMATIONAL)) {
-                    ErrorManager.getDefault().log(ErrorManager.WARNING, "Could not parse file [" + fo + "].\n" + e.toString());
-                    ErrorManager.getDefault().notify(ErrorManager.INFORMATIONAL, e);
+                if (LOGABLE) {
+                    log.log(Level.FINE, 
+                        "Could not parse file [" + fo + "].\n" + e.toString(),
+                        e);
                 }
             }
             return null;
@@ -205,7 +205,7 @@ public class DocumentUtils {
             }
             in.close();
         } catch (java.io.IOException ioe) {
-            ErrorManager.getDefault().notify(ErrorManager.INFORMATIONAL, ioe);
+            log.log(Level.FINE, "", ioe);
         }
     }
 }

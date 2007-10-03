@@ -41,7 +41,6 @@
 
 package org.netbeans.core.registry.oldformats;
 
-import org.openide.ErrorManager;
 import org.openide.filesystems.FileObject;
 import org.openide.util.Lookup;
 import org.openide.util.SharedClassObject;
@@ -49,6 +48,8 @@ import org.openide.util.Utilities;
 
 import java.io.*;
 import java.lang.reflect.Method;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -70,7 +71,8 @@ public class InstanceUtils {
                         method.setAccessible(true);
                         method.invoke(o, new Object[0]);
                     } catch (Exception e) {
-                        ErrorManager.getDefault().notify(e);
+                        Logger.getLogger(InstanceUtils.class.getName()).log(
+                            Level.WARNING, "", e);
                     }
                 } else {
                     o = SharedClassObject.findObject(c, true);
@@ -81,7 +83,7 @@ public class InstanceUtils {
             }
         } catch (Exception e) {
             ClassNotFoundException e2 = new ClassNotFoundException("Cannot instantiate class "+val);
-            ErrorManager.getDefault().annotate(e2, e);
+            e2.initCause(e);
             throw e2;
         }
     }
@@ -109,7 +111,7 @@ public class InstanceUtils {
         } catch (NumberFormatException e) {
             e.printStackTrace();
             IOException e2 = new IOException("Cannot read value of <serialvalue> attribute from file XXXX");
-            ErrorManager.getDefault().annotate(e2, e);
+            e2.initCause(e);
             throw e2;
         }
         
@@ -119,11 +121,10 @@ public class InstanceUtils {
             return ois.readObject();
         } catch (Exception e) {
             IOException e2 = new IOException("Cannot read value of <serialvalue> attribute from file XXXXX");
-            ErrorManager.getDefault().annotate(e2, e);
+            e2.initCause(e);
             throw e2;
         }
     }
-
     
     public static Object methodValue(String className, String methodName, FileObject fo) throws ClassNotFoundException, IOException {
         int idx = methodName.lastIndexOf(".");
@@ -192,7 +193,7 @@ public class InstanceUtils {
                 return Class.forName(v.getName(), false, cl);
             } catch (ClassNotFoundException cnfe) {
                 String msg = "Offending classloader: " + cl; // NOI18N
-                ErrorManager.getDefault ().annotate(cnfe, ErrorManager.INFORMATIONAL, msg, null, null, null);
+                Logger.getLogger(getClass().getName()).log(Level.FINE, msg);
                 throw cnfe;
             }
         }

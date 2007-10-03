@@ -41,7 +41,6 @@
 
 package org.netbeans.core.registry.oldformats;
 
-import org.openide.ErrorManager;
 import org.openide.filesystems.FileLock;
 import org.openide.filesystems.FileObject;
 import org.openide.modules.ModuleInfo;
@@ -50,9 +49,7 @@ import org.openide.util.Lookup;
 import org.w3c.dom.*;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
-import org.xml.sax.XMLReader;
 import org.xml.sax.helpers.DefaultHandler;
-import org.netbeans.core.registry.oldformats.InstanceUtils;
 import org.netbeans.core.registry.DocumentUtils;
 
 import java.io.*;
@@ -60,6 +57,8 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 import java.util.Stack;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /** 
  *
@@ -226,7 +225,9 @@ public class SerialDataConvertor {
                 return;
             }
         }
-        ErrorManager.getDefault().log(ErrorManager.WARNING, "ModuleInfo was not found for class "+inst.getClass());
+        Logger.getLogger(getClass().getName()).log(
+                Level.FINE,
+                "ModuleInfo was not found for class "+inst.getClass());
     }
     
 
@@ -286,7 +287,7 @@ public class SerialDataConvertor {
                 getSuperClasses(cs[i], classes);
             }
         } else {
-            ErrorManager.getDefault().log(ErrorManager.ERROR,
+            Logger.getLogger(getClass().getName()).log(Level.WARNING,
                 "Error: if you encounter this message, please attach " + //NOI18N
                 "the class name to the issue http://www.netbeans.org/issues/show_bug.cgi?id=16257. " + //NOI18N
                 "Class.getInterfaces() == null for the class: " + clazz); // NOI18N
@@ -447,9 +448,9 @@ public class SerialDataConvertor {
                     try {
                         codeNameRelease = Integer.parseInt(codeName.substring(slash + 1));
                     } catch (NumberFormatException ex) {
-                        ErrorManager emgr = ErrorManager.getDefault();
-                        emgr.annotate(ex, "Source: XXXXX"); // NOI18N
-                        emgr.notify(ErrorManager.INFORMATIONAL, ex);
+                        Logger.getLogger(getClass().getName()).log(
+                            Level.FINE, codeName, ex);
+
                         codeNameRelease = -1;
                     }
                 }

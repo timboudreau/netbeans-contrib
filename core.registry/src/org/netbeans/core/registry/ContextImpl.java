@@ -43,15 +43,11 @@ package org.netbeans.core.registry;
 
 import org.netbeans.api.registry.*;
 import org.netbeans.spi.registry.BasicContext;
-import org.netbeans.spi.registry.ResettableContext;
 import org.netbeans.spi.registry.SpiUtils;
-import org.openide.ErrorManager;
 import org.openide.filesystems.FileChangeListener;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileStateInvalidException;
-import org.openide.filesystems.FileSystem;
 import org.openide.filesystems.FileUtil;
-import org.openide.util.Mutex;
 
 import javax.swing.event.EventListenerList;
 import java.io.IOException;
@@ -112,8 +108,7 @@ public class ContextImpl implements BasicContext{
             getFolder().getFileSystem().addFileChangeListener(FileUtil.weakFileChangeListener(
                     listener, getFolder()));
         } catch (FileStateInvalidException ex) {
-            RuntimeException e = new RuntimeException();
-            ErrorManager.getDefault().annotate(e, ex);
+            RuntimeException e = new RuntimeException(ex);
             throw e;
         }
 
@@ -196,7 +191,7 @@ public class ContextImpl implements BasicContext{
             fo = folder.createFolder(subcontextName);
         } catch (IOException ex) {
             ContextException ce = SpiUtils.createContextException(this, "Error on underlaying filesystem occured.");
-            ErrorManager.getDefault().annotate(ce, ex);
+            ce.initCause(ex);
             throw ce;
         }
         return getCtx(fo);
@@ -212,7 +207,7 @@ public class ContextImpl implements BasicContext{
             fo.delete();
         } catch (IOException ex) {
             ContextException ce = SpiUtils.createContextException(this, "Error on underlaying filesystem occured.");
-            ErrorManager.getDefault().annotate(ce, ex);
+            ce.initCause(ex);
             throw ce;
         }
     }
@@ -289,7 +284,7 @@ public class ContextImpl implements BasicContext{
             fo.setAttribute(attributeName, value);
         } catch (IOException ex) {
             ContextException ce = SpiUtils.createContextException(this, "Error on underlaying filesystem occured.");
-            ErrorManager.getDefault().annotate(ce, ex);
+            ce.initCause(ex);
             throw ce;
         }
     }

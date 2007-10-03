@@ -41,10 +41,11 @@
 
 package org.netbeans.api.registry.fs;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.netbeans.core.registry.ContextImpl;
 import org.netbeans.core.registry.ResettableContextImpl;
 import org.netbeans.spi.registry.BasicContext;
-import org.openide.ErrorManager;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileStateInvalidException;
 import org.openide.filesystems.Repository;
@@ -75,7 +76,8 @@ public final class FileSystemContextFactory {
         try {
             isSFS = root.getFileSystem().equals(Repository.getDefault().getDefaultFileSystem());
         } catch (FileStateInvalidException ex) {
-            ErrorManager.getDefault().log(ErrorManager.WARNING, ex.toString());
+            Logger.getLogger(FileSystemContextFactory.class.getName()).log(
+                    Level.FINE, "", ex);
             isSFS = false;
         }
         if (isSFS) {

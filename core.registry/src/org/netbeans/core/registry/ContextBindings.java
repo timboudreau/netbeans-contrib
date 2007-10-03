@@ -42,11 +42,9 @@
 package org.netbeans.core.registry;
 
 import org.netbeans.api.registry.BindingEvent;
-import org.netbeans.api.registry.Context;
 import org.netbeans.api.registry.ContextException;
 import org.netbeans.spi.registry.BasicContext;
 import org.netbeans.spi.registry.SpiUtils;
-import org.openide.ErrorManager;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileSystem;
 
@@ -208,7 +206,7 @@ class ContextBindings {
             });
         } catch (IOException ex) {
             ContextException ce = SpiUtils.createContextException(ctx, "Error on underlaying filesystem occured.");
-            ErrorManager.getDefault().annotate(ce, ex);
+            ce.initCause(ex);
             throw ce;
         } 
     }
@@ -253,7 +251,7 @@ class ContextBindings {
             return o;
         } catch (IOException e) {
             ContextException ce = SpiUtils.createContextException(ctx, e.getLocalizedMessage());
-            ObjectBinding.getErrorManager().annotate(ce,e);
+            ce.initCause(e);
             throw ce;
         } 
     }
@@ -266,7 +264,7 @@ class ContextBindings {
                 o = ob1.getObject();
             } catch (IOException e) {
                 ContextException ce = SpiUtils.createContextException(ctx,e.getLocalizedMessage());
-                ObjectBinding.getErrorManager().annotate(ce, e);
+                ce.initCause(e);
                 throw ce;
             }
         }
@@ -349,7 +347,7 @@ class ContextBindings {
             });
         } catch (IOException ex) {
             ContextException ce = SpiUtils.createContextException(ctx, "Error on underlaying filesystem occured.");
-            ErrorManager.getDefault().annotate(ce, ex);
+            ce.initCause(ex);
             throw ce;
         } 
     }

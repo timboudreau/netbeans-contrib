@@ -48,7 +48,6 @@ import org.netbeans.api.registry.ContextException;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileSystem;
 import org.openide.filesystems.Repository;
-import org.openide.ErrorManager;
 
 import java.io.IOException;
 
@@ -160,7 +159,7 @@ public class ResettableContextImpl extends ContextImpl implements ResettableCont
             f.createFolder(name);
         } catch (IOException ex) {
             ContextException ce = SpiUtils.createContextException(this, "Error on underlaying filesystem occured during the revert.");
-            ErrorManager.getDefault().annotate(ce, ex);
+            ce.initCause(ex);
             throw ce;
         }
     }
