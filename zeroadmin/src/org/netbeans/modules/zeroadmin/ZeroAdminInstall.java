@@ -48,12 +48,12 @@ import java.lang.reflect.*;
 import java.io.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.SwingUtilities;
 import org.apache.xerces.impl.dv.util.Base64;
 import org.netbeans.core.startup.layers.SessionManager;
 
-import org.openide.ErrorManager;
 import org.openide.DialogDescriptor;
 import org.openide.DialogDisplayer;
 import org.openide.awt.StatusDisplayer;
@@ -64,6 +64,7 @@ import org.openide.util.NbBundle;
 import org.openide.util.Lookup;
 
 import org.netbeans.core.NbTopManager;
+import org.openide.NotifyDescriptor;
 
 /**
  * This class is needed because
@@ -166,8 +167,13 @@ public class ZeroAdminInstall extends ModuleInstall implements PropertyChangeLis
     
             StatusDisplayer.getDefault().setStatusText(NbBundle.getBundle(ZeroAdminInstall.class).getString("MSG_FinishLoading"));
         } catch (Exception x) {
-            ErrorManager.getDefault().annotate(x, NbBundle.getBundle(ZeroAdminInstall.class).getString("MSG_FailedToInitialize")); 
-            ErrorManager.getDefault().notify(x);
+            Logger.getLogger(ZeroAdminInstall.class.getName()).log(
+                    Level.INFO, "", x);
+            NotifyDescriptor nd = new NotifyDescriptor.Message(
+                NbBundle.getBundle(ZeroAdminInstall.class).getString("MSG_FailedToInitialize"),
+                NotifyDescriptor.ERROR_MESSAGE
+            );
+            DialogDisplayer.getDefault().notify(nd);
             DialogDescriptor dd = new DialogDescriptor(
                 NbBundle.getBundle(ZeroAdminInstall.class).getString("MSG_Closing"),
                 NbBundle.getBundle(ZeroAdminInstall.class).getString("TITLE_Closing"),
@@ -400,8 +406,12 @@ public class ZeroAdminInstall extends ModuleInstall implements PropertyChangeLis
                 cfgProxy.saveUserData(bufFs.getBuffer());
 
             } catch (Exception re) {
-                ErrorManager.getDefault().annotate(re, NbBundle.getBundle(ZeroAdminInstall.class).getString("MSG_SavingToServerFailed"));
-                ErrorManager.getDefault().notify(re);
+                Logger.getLogger(ZeroAdminInstall.class.getName()).log(
+                        Level.INFO, "", re);
+                NotifyDescriptor nd = new NotifyDescriptor.Message(
+                    NbBundle.getBundle(ZeroAdminInstall.class).getString("MSG_SavingToServerFailed"),
+                    NotifyDescriptor.ERROR_MESSAGE
+                );
             }
             // schedule myself again after 20 seconds
             if (! finished) {

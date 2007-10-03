@@ -40,6 +40,8 @@
  */
 package org.netbeans.modules.zeroadmin.actions;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.SwingUtilities;
 
 import org.openide.filesystems.*;
@@ -47,7 +49,6 @@ import org.openide.util.actions.CallableSystemAction;
 import org.openide.util.HelpCtx;
 import org.openide.util.Lookup;
 import org.openide.util.SharedClassObject;
-import org.openide.ErrorManager;
 
 import org.netbeans.modules.zeroadmin.*;
 import org.netbeans.core.NbTopManager;
@@ -82,7 +83,8 @@ public class SaveOperatorConfigAction extends CallableSystemAction {
                         bufFs.waitFinished();
                         z.cfgProxy.saveOperatorData(bufFs.getBuffer());
                     } catch (Exception re) {
-                        ErrorManager.getDefault().notify(re);
+                        Logger.getLogger(SaveOperatorConfigAction.class.getName()).log(
+                            Level.SEVERE, "saveOperatorData failed.", re);
                     }
                 }
             };
@@ -92,7 +94,8 @@ public class SaveOperatorConfigAction extends CallableSystemAction {
                 SwingUtilities.invokeLater(r);
             }
         } catch (Exception re) {
-            ErrorManager.getDefault().notify(re);
+            Logger.getLogger(SaveOperatorConfigAction.class.getName()).log(
+                Level.SEVERE, "SaveOperatorConfigAction failed.", re);
         }
     }
     

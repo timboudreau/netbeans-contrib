@@ -41,13 +41,14 @@
 package org.netbeans.modules.zeroadmin.actions;
 
 import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.SwingUtilities;
 
 import org.openide.filesystems.*;
 import org.openide.util.SharedClassObject;
 import org.openide.util.actions.CallableSystemAction;
 import org.openide.util.HelpCtx;
-import org.openide.ErrorManager;
 import org.openide.util.Lookup;
 
 import org.netbeans.modules.zeroadmin.*;
@@ -76,13 +77,15 @@ public class RefreshConfigAction extends CallableSystemAction {
                             try {
                                 z.refreshOperatorData();
                             } catch (Exception ex) {
-                                ErrorManager.getDefault().notify(ex);
+                                Logger.getLogger(RefreshConfigAction.class.getName()).log(
+                                    Level.SEVERE, "refreshOperatorData failed", ex);
                             }
                         }
                     });
                     ResetConfigAction.updateWindowManager2();
                 } catch (Exception re) {
-                    ErrorManager.getDefault().notify(re);
+                    Logger.getLogger(RefreshConfigAction.class.getName()).log(
+                        Level.SEVERE, "updateWindowManager2 failed", re);
                 }
             }
         };

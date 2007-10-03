@@ -41,19 +41,15 @@
 package org.netbeans.modules.zeroadmin.actions;
 
 import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.SwingUtilities;
 
 import org.openide.filesystems.*;
 import org.openide.util.SharedClassObject;
 import org.openide.util.actions.CallableSystemAction;
 import org.openide.util.HelpCtx;
-import org.openide.ErrorManager;
 import org.openide.util.Lookup;
-import org.openide.windows.WindowManager;
-
-// semi deprecated things
-import org.openide.loaders.DataFolder;
-import org.openide.loaders.DataObject;
 
 import org.netbeans.modules.zeroadmin.*;
 
@@ -103,19 +99,22 @@ public class ResetConfigAction extends CallableSystemAction {
                                     }
                                 }
                                 if (x != null) {
-                                    ErrorManager.getDefault().notify(x);
+                                    Logger.getLogger(ResetConfigAction.class.getName()).log(
+                                        Level.SEVERE, "delete failed: " + ch[i], x);
                                 }
                             }
                             try {
                                 z.installOperatorData();
                             } catch (Exception ex) {
-                                ErrorManager.getDefault().notify(ex);
+                                Logger.getLogger(ResetConfigAction.class.getName()).log(
+                                    Level.SEVERE, "installOperatorData failed", ex);
                             }
                         }
                     });
                     updateWindowManager2();
                 } catch (Exception re) {
-                    ErrorManager.getDefault().notify(re);
+                    Logger.getLogger(ResetConfigAction.class.getName()).log(
+                        Level.SEVERE, "ResetConfigAction failed", re);
                 }
             }
         };
