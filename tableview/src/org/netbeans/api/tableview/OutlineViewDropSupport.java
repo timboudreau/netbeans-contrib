@@ -23,8 +23,6 @@ made subject to such option by the copyright holder.
  */
 package org.netbeans.api.tableview;
 
-import org.openide.ErrorManager;
-import org.openide.explorer.view.NodeRenderer;
 import org.openide.nodes.Children;
 import org.openide.nodes.Index;
 import org.openide.nodes.Node;
@@ -43,19 +41,26 @@ import java.awt.geom.Line2D.Double;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.TreeSet;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.swing.JTable;
 import javax.swing.SwingUtilities;
 import javax.swing.Timer;
-import javax.swing.tree.TreeCellEditor;
 import javax.swing.tree.TreePath;
 
 
 /** Implementation of drop support for asociated OutlineView.
-*
-* @author Dafe Simonek, Jiri Rechtacek, David Strupl
-*/
+ * 
+ * This class has been copied from openide/explorer.
+ *
+ * @author Dafe Simonek, Jiri Rechtacek, David Strupl
+ */
 final class OutlineViewDropSupport implements DropTargetListener, Runnable {
+    
+    private static final Logger log = Logger.getLogger(OutlineViewDropSupport.class.getName());
+    private static boolean LOGABLE = log.isLoggable(Level.FINE);
+    
     final static protected int FUSSY_POINTING = 3;
     final static private int DELAY_TIME_FOR_EXPAND = 1000;
     final static private int SHIFT_DOWN = -1;
@@ -521,7 +526,7 @@ final class OutlineViewDropSupport implements DropTargetListener, Runnable {
             }
         } catch (Exception e) {
             // Pending: add annotation or remove try/catch block
-            ErrorManager.getDefault().notify(ErrorManager.INFORMATIONAL, e);
+            log.log(Level.FINE, "", e);
         }
     }
 
@@ -762,17 +767,12 @@ final class OutlineViewDropSupport implements DropTargetListener, Runnable {
     // Logging:
     //
     
-    /** Using the NetBeans error manager for logging. */
-    private static ErrorManager err = ErrorManager.getDefault().getInstance(
-            OutlineViewDropSupport.class.getName());
-    /** Settable from the system property */
-    private static boolean LOGABLE = err.isLoggable(ErrorManager.INFORMATIONAL);
     /**
      * Logs the string only if logging is turned on.
      */
     private static void log(String s) {
         if (LOGABLE) {
-            err.log(s);
+            log.fine(s);
         }
     }
 

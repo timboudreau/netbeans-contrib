@@ -42,12 +42,13 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.TreeSet;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 import javax.swing.SwingUtilities;
 import javax.swing.tree.TreeNode;
 import org.openide.DialogDisplayer;
-import org.openide.ErrorManager;
 import org.openide.NotifyDescriptor;
 import org.openide.NotifyDescriptor.Message;
 import org.openide.awt.Mnemonics;
@@ -63,12 +64,18 @@ import org.openide.util.datatransfer.ExTransferable.Multi;
 import org.openide.util.datatransfer.MultiTransferObject;
 import org.openide.util.datatransfer.PasteType;
 
-/** Class that provides methods for common tasks needed during
-* drag and drop when working with explorer views.
-*
-* @author Dafe Simonek
-*/
+/**
+ * Class that provides methods for common tasks needed during
+ * drag and drop when working with explorer views.
+ * 
+ *  This class have been copied from openide/explorer.
+ * 
+ * @author Dafe Simonek
+ */
 final class DragDropUtilities extends Object {
+    
+    private static final Logger log = Logger.getLogger(DragDropUtilities.class.getName());
+    
     static final boolean dragAndDropEnabled = isDragAndDropEnabled();
     static final int NODE_UP = -1;
     static final int NODE_CENTRAL = 0;
@@ -157,7 +164,7 @@ final class DragDropUtilities extends Object {
             //System.out.println("--> "+image.getSource());
             return Utilities.createCustomCursor(comp, image, name);
         } catch (Exception ex) {
-            ErrorManager.getDefault().notify(ex);
+            log.log(Level.SEVERE, "Cursor creation error.", ex); // NOI18N
         }
 
         return DragSource.DefaultMoveNoDrop;
@@ -295,7 +302,7 @@ final class DragDropUtilities extends Object {
             // ignore - user just pressed cancel in some dialog....
             return new Node[] {  };
         } catch (IOException e) {
-            ErrorManager.getDefault().notify(e);
+            log.log(Level.SEVERE, "Paste error.", e); // NOI18N
 
             return new Node[] {  };
         }
@@ -319,7 +326,7 @@ final class DragDropUtilities extends Object {
             try {
                 pt = node.getPasteTypes(trans);
             } catch (NullPointerException npe) {
-                ErrorManager.getDefault().notify(npe);
+                log.log(Level.SEVERE, "What the hell is this? Catching a NPE!", npe); // NOI18N
 
                 // there are not paste types
             }
@@ -378,7 +385,7 @@ final class DragDropUtilities extends Object {
             try {
                 pt = node.getDropType(trans, action, -1);
             } catch (NullPointerException npe) {
-                ErrorManager.getDefault().notify(npe);
+                log.log(Level.SEVERE, "What the hell is this? Catching a NPE!", npe); // NOI18N
 
                 // there is not drop type
             }

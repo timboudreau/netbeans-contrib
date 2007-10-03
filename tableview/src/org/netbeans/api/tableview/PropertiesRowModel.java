@@ -44,12 +44,13 @@ import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.WeakHashMap;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.event.TableModelEvent;
 import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 import org.netbeans.swing.outline.Outline;
 import org.netbeans.swing.outline.RowModel;
-import org.openide.ErrorManager;
 import org.openide.explorer.view.Visualizer;
 import org.openide.nodes.Node;
 import org.openide.util.WeakListeners;
@@ -59,6 +60,8 @@ import org.openide.util.WeakListeners;
  * @author David Strupl
  */
 class PropertiesRowModel implements RowModel {
+    
+    private static final Logger log = Logger.getLogger(PropertiesRowModel.class.getName());
    
     private Node.Property[] prop = new Node.Property[0];
     private Outline outline;
@@ -171,9 +174,7 @@ class PropertiesRowModel implements RowModel {
             try {
                 return prop.getValue();
             } catch (Exception x) {
-                ErrorManager.getDefault().getInstance(
-                    PropertiesRowModel.class.getName()).notify(
-                        ErrorManager.INFORMATIONAL, x);
+                log.log(Level.FINE, "", x);
             }
         }
         return null;
@@ -209,7 +210,7 @@ class PropertiesRowModel implements RowModel {
                     p.setValue(Boolean.FALSE);
                 }
             } catch (Exception e1) {
-                ErrorManager.getDefault().notify(ErrorManager.WARNING, e1);
+                log.log(Level.WARNING, "", e1);
             }
         }
     }    

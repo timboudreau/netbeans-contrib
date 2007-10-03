@@ -23,8 +23,6 @@ made subject to such option by the copyright holder.
  */
 package org.netbeans.api.tableview;
 
-import org.openide.ErrorManager;
-import org.openide.explorer.view.NodeRenderer;
 import org.openide.nodes.Node;
 import org.openide.util.Utilities;
 
@@ -36,6 +34,8 @@ import java.awt.dnd.*;
 import java.io.IOException;
 
 import java.util.TooManyListenersException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.swing.JComponent;
 import javax.swing.SwingUtilities;
@@ -43,10 +43,15 @@ import javax.swing.tree.*;
 
 
 /** Support for the drag operations in explorer.
-*
-* @author Jiri Rechtacek
-*/
+ * 
+ * This class has been copied from openide/explorer.
+ *
+ * @author Jiri Rechtacek
+ */
 abstract class ExplorerDragSupport implements DragSourceListener, DragGestureListener {
+
+    private static final Logger log = Logger.getLogger(ExplorerDragSupport.class.getName());
+    
     // Attributes
 
     /** True when we are active, false otherwise */
@@ -136,12 +141,11 @@ abstract class ExplorerDragSupport implements DragSourceListener, DragGestureLis
             }
         } catch (InvalidDnDOperationException exc) {
             // cannot start the drag, notify as informational
-            ErrorManager em = ErrorManager.getDefault();
-            em.notify(ErrorManager.INFORMATIONAL, exc);
+            log.log(Level.FINE, "", exc);
             exDnD.setDnDActive(false);
         } catch (IOException exc) {
             // cannot start the drag, notify user
-            ErrorManager.getDefault().notify(exc);
+            log.log(Level.SEVERE, "", exc);
             exDnD.setDnDActive(false);
         }
     }
