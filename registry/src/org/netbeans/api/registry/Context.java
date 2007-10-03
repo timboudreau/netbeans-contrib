@@ -47,7 +47,6 @@ import org.netbeans.spi.registry.BasicContext;
 import org.netbeans.spi.registry.MergedContextProvider;
 import org.netbeans.spi.registry.ResettableContext;
 import org.netbeans.spi.registry.SpiUtils;
-import org.openide.ErrorManager;
 import org.openide.util.Lookup;
 import org.openide.util.Mutex;
 import org.openide.util.NbBundle;
@@ -59,6 +58,8 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.*;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * This API class is representing a context which consists of a set of 
@@ -137,7 +138,7 @@ public final class Context {
     
     private static BasicContext defaultRootContext;
     
-    private static final ErrorManager errorManager = ErrorManager.getDefault().getInstance("org.netbeans.api.registry");
+    private static final Logger log = Logger.getLogger(Context.class.getName());
     
     private Context(BasicContext delegate) {
         this.delegate = delegate;
@@ -554,10 +555,10 @@ public final class Context {
             mp.enterReadAccess();
             o = delegate.lookupObject(bindingName);
         } catch (ContextException ex) {
-            if (errorManager.isLoggable(ErrorManager.INFORMATIONAL)) {
-                errorManager.annotate(ex, 
-                    NbBundle.getMessage(Context.class, "MSG_get_object", bindingName, getAbsoluteContextName()));
-                errorManager.notify(ErrorManager.INFORMATIONAL, ex);
+            if (log.isLoggable(Level.FINE)) {
+                log.log(Level.FINE,
+                    NbBundle.getMessage(Context.class, "MSG_get_object", bindingName, getAbsoluteContextName()),
+                    ex);
             }
         } finally {
             mp.exitReadAccess();
@@ -583,10 +584,11 @@ public final class Context {
             mp.enterWriteAccess();
             delegate.bindObject(bindingName, value);
         } catch (ContextException ex) {
-            if (errorManager.isLoggable(ErrorManager.INFORMATIONAL)) {
-                errorManager.annotate(ex, 
-                    NbBundle.getMessage(Context.class, "MSG_put_object", bindingName, getAbsoluteContextName()));
-                errorManager.notify(ErrorManager.INFORMATIONAL, ex);
+            if (log.isLoggable(Level.FINE)) {
+                log.log(Level.FINE,
+                    NbBundle.getMessage(Context.class, "MSG_put_object",
+                        bindingName, getAbsoluteContextName()),
+                ex);
             }
         } finally {
             mp.exitWriteAccess();
@@ -948,12 +950,12 @@ public final class Context {
             mp.enterReadAccess();
             value = delegate.getAttribute(bindingName, attributeName);
         } catch (ContextException ex) {
-            if (errorManager.isLoggable(ErrorManager.INFORMATIONAL)) {
-                errorManager.annotate(ex, 
+            if (log.isLoggable(Level.FINE)) {
+                log.log(Level.FINE,
                     NbBundle.getMessage(Context.class, "MSG_get_attr", 
                     bindingName == null ? attributeName : bindingName+"\\"+attributeName,
-                    getAbsoluteContextName()));
-                errorManager.notify(ErrorManager.INFORMATIONAL, ex);
+                    getAbsoluteContextName()), 
+                    ex);
             }
         } finally {
             mp.exitReadAccess();
@@ -980,12 +982,12 @@ public final class Context {
             mp.enterWriteAccess();
             delegate.setAttribute(bindingName, attributeName, value);
         } catch (ContextException ex) {
-            if (errorManager.isLoggable(ErrorManager.INFORMATIONAL)) {
-                errorManager.annotate(ex, 
+            if (log.isLoggable(Level.FINE)) {
+                log.log(Level.FINE,
                     NbBundle.getMessage(Context.class, "MSG_put_attr",
                     bindingName == null ? attributeName : bindingName+"\\"+attributeName,
-                     getAbsoluteContextName()));
-                errorManager.notify(ErrorManager.INFORMATIONAL, ex);
+                    getAbsoluteContextName()),
+                    ex);
             }
         } finally {
             mp.exitWriteAccess();
@@ -1152,9 +1154,9 @@ public final class Context {
     
     private static synchronized BasicContext getRC() {
         if (defaultRootContext == null) {
-            defaultRootContext = (BasicContext)Lookup.getDefault().lookup(BasicContext.class);;
+            defaultRootContext = (BasicContext)Lookup.getDefault().lookup(BasicContext.class);
             if (defaultRootContext == null) {
-                errorManager.log(ErrorManager.EXCEPTION, 
+                log.log(Level.SEVERE, 
                     "FATAL ERROR: RootContext was not found in the default lookup! "+ //NOI18N
                     "All Registry API operations will fail!! "+ //NOI18N
                     "CAUSE: Either the org-netbeans-core-registry-1-?.?.jar module does not exist "+ //NOI18N

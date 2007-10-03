@@ -44,11 +44,12 @@ package org.netbeans.modules.registry;
 import org.netbeans.api.registry.Context;
 import org.netbeans.api.registry.ContextException;
 import org.netbeans.spi.registry.BasicContext;
-import org.openide.ErrorManager;
 import org.openide.util.TopologicalSortException;
 import org.openide.util.Utilities;
 
 import java.util.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * This class orders context items according to positional attributes
@@ -62,7 +63,9 @@ import java.util.*;
  * @author copy & pasted from old Datasystems
  */
 public class OrderingSupport {
-
+    
+    private static final Logger log = Logger.getLogger(OrderingSupport.class.getName());
+    
     private static final char SEP = '/';
 
     public static final OrderingSupport DEFAULT = new OrderingSupport();
@@ -80,7 +83,7 @@ public class OrderingSupport {
         String ordered = ctx.getAttribute(null, "ordered", null);
         if (ordered == null || (!ordered.equals("true"))) {
             // TODO: add this diagnostic later
-            // ErrorManager.getDefault().log(ErrorManager.WARNING, "Context "+ctx+" is not marked as ordered.");
+            // log.log(Level.INFO, "Context "+ctx+" is not marked as ordered.");
         }
         
         List l = getItems(ctx);
@@ -90,9 +93,9 @@ public class OrderingSupport {
                 l = Utilities.topologicalSort(l, constraints);
             } catch (TopologicalSortException ex) {
                 List corrected = ex.partialSort();
-                ErrorManager.getDefault().log(ErrorManager.WARNING, "Note: context [" + ctx + "] cannot be consistently sorted due to ordering conflicts."); // NOI18N
-                ErrorManager.getDefault().notify(ErrorManager.INFORMATIONAL, ex);
-                ErrorManager.getDefault().log(ErrorManager.WARNING, "Using partial sort: " + corrected); // NOI18N
+                log.log(Level.INFO, "Note: context [" + ctx + "] cannot be consistently sorted due to ordering conflicts."); // NOI18N
+                log.log(Level.FINE, "", ex);
+                log.log(Level.INFO, "Using partial sort: " + corrected); // NOI18N
                 l = corrected;
             }
         }
@@ -135,7 +138,7 @@ public class OrderingSupport {
         try {
             addPositions(map, ctx);
         } catch (ContextException ex) {
-            ErrorManager.getDefault().log(ErrorManager.EXCEPTION, ex.toString());
+            log.log(Level.FINE, ex.toString(), ex);
         }
         addPartials(map, ctx);
         return map;
@@ -211,7 +214,7 @@ public class OrderingSupport {
                     Float f = new Float(position);
                     String bnd = (String)map.put(f, bindingName);
                     if (bnd != null) {
-                        ErrorManager.getDefault().log(ErrorManager.WARNING, "Ordering Error: Two items in context ["+ctx+
+                        log.log(Level.INFO, "Ordering Error: Two items in context ["+ctx+
                             "] has the same position ["+position+"]: "+bnd+" "+bindingName);
                     }
                 } catch (NumberFormatException ex) {
@@ -219,7 +222,7 @@ public class OrderingSupport {
                 }
             } else {
                 // TODO: add this diagnostic later
-                // ErrorManager.getDefault().log(ErrorManager.WARNING, "Binding "+bindingName+" in context "+ctx+" does not have position attribute.");
+                // log.log(Level.INFO, "Binding "+bindingName+" in context "+ctx+" does not have position attribute.");
             }
         }
         i = ctx.getSubcontextNames().iterator();
@@ -235,7 +238,7 @@ public class OrderingSupport {
                     Float f = new Float(position);
                     String sub = (String)map.put(f, subcontextName+"/");
                     if (sub != null) {
-                        ErrorManager.getDefault().log(ErrorManager.WARNING, "Ordering Error: Two items in context ["+ctx+
+                        log.log(Level.INFO, "Ordering Error: Two items in context ["+ctx+
                             "] has the same position ["+position+"]: "+sub+" "+subcontextName);
                     }
                 } catch (NumberFormatException ex) {
@@ -243,7 +246,7 @@ public class OrderingSupport {
                 }
             } else {
                 // TODO: add this diagnostic later
-                // ErrorManager.getDefault().log(ErrorManager.WARNING, "Subcontext "+subcontextName+" in context "+ctx+" does not have position attribute.");
+                // log.log(Level.INFO, "Subcontext "+subcontextName+" in context "+ctx+" does not have position attribute.");
             }
         }
         List l = new ArrayList(map.keySet());
