@@ -1,0 +1,216 @@
+<project name="AddOn-uno-impl" default="netbeans" basedir="..">
+    <description>Builds, tests, and runs an UNO project.</description>
+
+    <import file="build-impl.xml"/>
+
+    <!-- ================================================================================== -->
+
+    <target name="-uno-project-init" depends="-do-init">
+        <property file="nbproject/project-uno.properties"/>
+      
+        <!-- set variablers from SDK and Office -->
+        <echo message="setting up UNO environment ..."/>
+        <property name="office.program.dir" value="${office.home}${file.separator}program"/>
+        <property name="office.classes.dir" location="${office.program.dir}${file.separator}classes"/>
+
+        <property name="office.rdb" value="${office.program.dir}${file.separator}types.rdb"/>
+        <property name="office.unopkg" value="${office.program.dir}${file.separator}unopkg"/>
+        <property name="office.soffice" value="${office.program.dir}${file.separator}soffice"/>
+        
+        <property name="sdk.bin.dir" location="${oo.sdk.home}${file.separator}${sdk.os.dir}${file.separator}bin"/>        
+        <property name="sdk.idl.dir" location="${oo.sdk.home}${file.separator}idl"/> 
+        <property name="sdk.autodoc" value="${sdk.bin.dir}${file.separator}autodoc"/>
+        <property name="sdk.idlc" value="${sdk.bin.dir}${file.separator}idlc"/>
+        <property name="sdk.regmerge" value="${sdk.bin.dir}${file.separator}regmerge"/>
+        <property name="sdk.javamaker" value="${sdk.bin.dir}${file.separator}javamaker"/>
+
+        <dirname property="project.dir" file="build.xml"/>       
+        <property name="uno.package.name" value="${project.dir}${file.separator}${dist.dir}${file.separator}${project.name}.oxt"/>
+        <property name="src.dir.absolute" value="${project.dir}${file.separator}${src.dir}"/>
+        
+        <property name="idl.out" value="${project.dir}${file.separator}${build.dir}${file.separator}idl"/>
+        <property name="idl.out.urd" value="${idl.out}/urd"/>
+        <property name="idl.out.rdb" value="${idl.out}/rdb"/>
+        <property name="idl.rdb.name" value="types.rdb"/>
+        <property name="idl.rdb.fullpath" value="${idl.out.rdb}/${idl.rdb.name}"/>
+        
+        <property name="images.base.dir" value="${build.dir}/img"/>
+        
+        <mkdir dir="${idl.out}"/>
+        <mkdir dir="${idl.out.urd}"/>
+        <mkdir dir="${idl.out.rdb}"/>
+        <mkdir dir="${images.base.dir}"/>
+
+    </target>
+
+    <!-- ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ -->
+    <!-- handle images -->
+    <target name="-uno-images-condition" description="check images" depends="-uno-project-init">
+        <available file="${images.dir}" type="dir" property="images.required"/>
+    </target>    
+    
+    <target name="images" description="copy images" depends="-uno-images-condition" if="images.required">
+        <mkdir dir="${images.base.dir}/${images.dir}"/>
+        <copy todir="${images.base.dir}/${images.dir}">
+            <fileset dir="${images.dir}"/>
+        </copy>
+    </target>    
+    
+    <!-- ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ -->
+    
+    <target name="-uno-idl-idlc-condition" description="check idlc dependencies" depends="-uno-project-init">
+        <uptodate property="idlc.notRequired" targetfile ="${build.dir}/idlc.compile">
+           <srcfiles dir= "${src.dir}" includes="**/*.idl"/>
+        </uptodate>
+    </target>    
+   
+    <!-- compile UNO idl files: execution -->
+    <target name="-uno-idl-idlc" description="Compile the IDL Conditionally" depends="-uno-idl-idlc-condition" unless="idlc.notRequired">
+        <apply executable="${sdk.idlc}" dir="${office.program.dir}" failonerror="true">
+            <env key="PATH" path="${office.program.dir}"/>
+            <env key="LD_LIBRARY_PATH" path="${office.program.dir}"/> 
+            <arg value="-C"/>
+            <arg value="-O"/>
+            <arg value="${idl.out.urd}"/>
+            <arg value="-I"/>
+            <arg value="${src.dir.absolute}"/>
+            <arg value="-I"/> 
+            <arg value="${sdk.idl.dir}"/> 
+            <fileset dir="${src.dir}" includes="**/*.idl" casesensitive="yes"/>
+        </apply>        
+    </target>
+
+    <!-- ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ -->
+
+    <!-- merge urd files: execution -->
+    <target name="-uno-idl-regmerge" description="Merge urd Files Conditionally" depends="-uno-idl-idlc,-uno-idl-idlc-condition" unless="idlc.notRequired">
+        <!-- to only extract the new files, delete the old rdb -->
+        <delete file="${idl.rdb.fullpath}"/>        
+        <apply executable="${sdk.regmerge}" dir="${office.program.dir}" failonerror="true">
+            <env key="PATH" path="${office.program.dir}"/>
+            <env key="LD_LIBRARY_PATH" path="${office.program.dir}"/>
+            <arg file="${idl.rdb.fullpath}"/>
+            <arg value="/UCR"/>
+            <fileset dir="${idl.out.urd}" includes="**/*.urd" casesensitive="yes"/>
+        </apply>
+    </target>
+
+    <!-- ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ -->
+
+    <!-- should javamaker be executed -->
+    <target name="-uno-idl-javamaker-condition" description="check if rdb was created" depends="-uno-idl-regmerge,-uno-idl-idlc-condition">
+        <available file="${idl.rdb.name}" filepath="${idl.out.rdb}" property="javamaker.Required"/>
+    </target>
+    
+    <!-- generate Java class files from type library: execution -->
+    <target name="-uno-idl-javamaker" depends="-uno-idl-regmerge,-uno-idl-idlc-condition,-uno-idl-javamaker-condition" if="javamaker.Required" unless="idlc.notRequired">
+        <echo message="generating java class files from rdb..."/>
+        <exec executable="${sdk.javamaker}" dir="${office.program.dir}" failonerror="true">
+            <env key="PATH" path="${office.program.dir}"/>                
+            <env key="LD_LIBRARY_PATH" path="${office.program.dir}"/>
+            <arg value="-BUCR"/>
+            <arg value="-O"/>
+            <arg value="${project.dir}${file.separator}${build.classes.dir}"/>
+            <arg file="${idl.rdb.fullpath}"/>
+            <arg value="-X"/>
+            <arg value="${office.rdb}"/>
+        </exec>
+    </target>
+
+    <!-- ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ -->
+
+    <target name="-uno-idl-result" depends="-uno-idl-javamaker">
+        <touch file="${build.dir}/idlc.compile"/>
+        <echo message="build UNO idl files finished"/>
+    </target>
+ 
+    <!-- the main target, called in recursive builds -->
+    <target name="uno-idl-compile" description="Compiles UNO idl files" depends="-uno-idl-result"/>
+
+    <!-- ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ -->    
+    
+    <target name="jar" depends="-uno-project-init,uno-idl-compile,compile,-pre-jar,-do-jar-with-manifest,-do-jar-without-manifest,-do-jar-with-mainclass,-do-jar-with-libraries,-post-jar,-external-jars">
+        <jar basedir="${build.classes.dir}" compress="true" jarfile="${dist.jar}" excludes="**/*.xcu,**/*.xcs,**/*.idl,**/*.xml">
+            <manifest>
+                <attribute name="Class-Path" value="${external.jars}"/> 
+                <attribute name="RegistrationClassName" value="${registration.classname}"/>
+            </manifest>            
+        </jar>
+    </target>
+
+    <target name="-external-jars" depends="-rm-external-jars,-add-external-jars"/>
+        
+    <target name="-add-external-jars" depends="-external-jars-condition" if="do.externalJars">
+        <!-- sets property external.jars for classpath -->
+        <property file="${dist.dir}/${external.jar.dir}/jars.properties"/>
+    </target>
+
+    <target name="-rm-external-jars" depends="-external-jars-condition" unless="do.externalJars">
+        <!-- empty property, if no jars -->
+        <property name="external.jars" value=""/>
+    </target>
+    
+    <target name="-external-jars-condition">
+        <available file="${dist.dir}/${external.jar.dir}" type="dir" property="do.externalJars"/>
+    </target>
+    
+    <!-- ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ -->
+    
+    <target name="uno-package" description="Creates UNO extension pacakge" depends="jar,images">
+        <echo message="creating UNO extension package ..."/>
+        <delete file="${uno.package.name}"/>
+        <zip  destfile="${uno.package.name}">
+            <fileset dir="${src.dir}" includes="**/*.xcu,**/*.xcs" casesensitive="yes"/>
+            <fileset dir="${dist.dir}" includes="**/*.jar" casesensitive="yes"/>
+            <fileset dir="${images.base.dir}" includes="**" casesensitive="yes"/>
+            <fileset dir="${idl.out.rdb}" includes="**/*.rdb" casesensitive="yes"/>
+            <zipfileset dir="${src.dir}" includes="uno-extension-manifest.xml" fullpath="META-INF/manifest.xml"/>
+        </zip>
+    </target>
+
+    <!-- ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ -->    
+    
+    <target name="uno-deploy" description="Deploys UNO extension package" depends="uno-package">
+        <echo message="deploying UNO extension package ..."/>
+        <echo message="${office.unopkg} add -f ${uno.package.name}"/>
+        <exec executable="${office.unopkg}" dir="${office.program.dir}" failonerror="true">
+            <arg value="add"/>
+            <arg value="-f"/>
+            <arg file="${uno.package.name}"/>
+        </exec>           
+    </target>
+    
+    <!-- ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ -->    
+    
+    <target name="uno-debug" description="Debugss UNO extension package in Target Office" depends="uno-package">
+		<!-- security fail for executing this without netbeans -->
+        <fail unless="netbeans.home">This target can only run inside the NetBeans IDE.</fail>
+		<!-- start debugger and get connection address jpda.address -->
+        <nbjpdastart name="Debug Office" addressproperty="jpda.address" transport="dt_socket">
+            <classpath path="${build.classes.dir}"/>
+            <sourcepath path="${src.dir}"/>
+        </nbjpdastart>
+		<!-- register component in temporaary user installation -->
+        <echo message="debugging UNO extension package ..."/>
+        <echo message="wait until preparation is finished."/>
+        <echo message="  deploying UNO extension package for debugging ..."/>
+        <echo message="  ${office.unopkg} add -f ${uno.package.name}"/>
+        <exec executable="${office.unopkg}" dir="${office.program.dir}">
+            <arg value="add"/>
+            <arg value="-f"/>
+            <arg file="${uno.package.name}"/>
+            <env key="UserInstallation" value="${office.debug.user.directory}"/>
+        </exec>           
+		<!-- start Office with debug Java and user installation -->
+        <echo message="  starting the Office with ..."/>
+        <echo message="  user installation: ${office.debug.user.directory}"/>
+        <echo message="  debug options:     &quot;-Xdebug&quot; &quot;-Xrunjdwp:transport=dt_socket,address=${jpda.address}&quot;"/>
+        <echo message="  ${office.soffice}"/>
+        <echo message="preparation finished."/>
+        <exec executable="${office.soffice}" dir="${office.program.dir}" failonerror="true">
+            <env key="UserInstallation" value="${office.debug.user.directory}"/>
+            <env key="JAVA_TOOL_OPTIONS" value="&quot;-Xdebug&quot; &quot;-Xrunjdwp:transport=dt_socket,address=${jpda.address}&quot;"/>
+        </exec>           
+   </target>
+    
+</project>
