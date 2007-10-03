@@ -87,11 +87,9 @@ public class StoreConvertor implements Convertor {
                         } else if (o instanceof DVD) {
                           st.addDVD((DVD)o);  
                         } else {
-                            //ErrorManager.getDefault().log(ErrorManager.WARNING, "Shopping cart contains unknown item: "+o);
                             System.err.println("Shopping cart contains unknown item: "+o);
                         }
                     } else {
-                        //ErrorManager.getDefault().log(ErrorManager.WARNING, "Shopping cart contains item which cannot be convertor: "+e);
                         System.err.println("Shopping cart contains item which cannot be convertor: "+e);
                     }
                 }

@@ -51,11 +51,12 @@ import java.util.Map;
 import java.util.Set;
 import java.util.jar.Attributes;
 import java.util.jar.Manifest;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.netbeans.api.convertor.ConvertorDescriptor;
 import org.netbeans.api.convertor.ConvertorException;
 import org.netbeans.api.convertor.Convertors;
 import org.netbeans.spi.convertor.Convertor;
-import org.openide.ErrorManager;
 import org.openide.modules.ModuleInfo;
 import org.openide.util.Lookup;
 import org.openide.util.LookupEvent;
@@ -123,11 +124,11 @@ public class ConvertorsPool implements LookupListener {
                 // No idea why, but if it is we will just skip the ClassLoader test.
                 ClassLoader clsLoader = cls.getClassLoader();
                 if (clsLoader != null && !(clsLoader.loadClass(o.getClass().getName()) == o.getClass())) {
-                    ErrorManager.getDefault().log(ErrorManager.WARNING, "Object "+o+" cannot be stored by convertor "+cd+", because of classloader mismatch. Skipping convertor."); // NOI18N
+                    Logger.getLogger(getClass().getName()).log(Level.WARNING, "Object "+o+" cannot be stored by convertor "+cd+", because of classloader mismatch. Skipping convertor."); // NOI18N
                     continue;
                 }
             } catch (Exception e) {
-                ErrorManager.getDefault().notify(ErrorManager.INFORMATIONAL, e);
+                Logger.getLogger(getClass().getName()).log(Level.FINE, "", e);
                 continue;
             }
             
@@ -164,8 +165,7 @@ public class ConvertorsPool implements LookupListener {
         try {
             en = currentClassLoader.getResources("META-INF/MANIFEST.MF"); // NOI18N
         } catch (IOException ex) {
-            ex.printStackTrace();
-            ErrorManager.getDefault().notify(ErrorManager.ERROR, ex);
+            Logger.getLogger(getClass().getName()).log(Level.INFO, "Cannot read manifest.", ex);
             return;
         }
         while (en.hasMoreElements ()) {
@@ -181,7 +181,8 @@ public class ConvertorsPool implements LookupListener {
                     is.close();
                 }
             } catch (IOException ex) {
-                ErrorManager.getDefault().log(ErrorManager.ERROR, "Cannot read file "+u+". The file will be ignored."); // NOI18N
+                Logger.getLogger(getClass().getName()).log(Level.INFO, 
+                        "Cannot read file "+u+". The file will be ignored.", ex); // NOI18N
             }
 
         }
@@ -204,7 +205,7 @@ public class ConvertorsPool implements LookupListener {
                     // parse following format:  "{namespace}element, class"
                     int endOfNamespace = conv.indexOf('}');
                     if (endOfNamespace == -1) {
-                        ErrorManager.getDefault().log(ErrorManager.WARNING, "Attribute "+ // NOI18N
+                        Logger.getLogger(getClass().getName()).log(Level.WARNING, "Attribute "+ // NOI18N
                             appendNumber(NETBEANS_CONVERTOR, index)+
                             " of convertor "+convertor+ // NOI18N
                             " does not contain namespace: "+conv); // NOI18N
@@ -220,7 +221,7 @@ public class ConvertorsPool implements LookupListener {
                     }
                     rootElement = rootElement.trim();
                     if (rootElement.length() == 0) {
-                        ErrorManager.getDefault().log(ErrorManager.WARNING, "Attribute "+ // NOI18N
+                        Logger.getLogger(getClass().getName()).log(Level.WARNING, "Attribute "+ // NOI18N
                             appendNumber(NETBEANS_CONVERTOR, index)+
                             " of convertor "+convertor+ // NOI18N
                             " does not contain element: "+conv); // NOI18N
@@ -242,7 +243,8 @@ public class ConvertorsPool implements LookupListener {
                 // parse following format:  "{namespace}element"
                 int endOfNamespace = conv.indexOf('}');
                 if (endOfNamespace == -1) {
-                    ErrorManager.getDefault().log(ErrorManager.WARNING, "Attribute "+ // NOI18N
+                    Logger.getLogger(getClass().getName()).log(Level.WARNING,
+                       "Attribute "+ // NOI18N
                         NETBEANS_SIMPLY_CONVERTIBLE+
                         " for class "+name+ // NOI18N
                         " does not contain namespace: "+conv); // NOI18N
@@ -252,7 +254,8 @@ public class ConvertorsPool implements LookupListener {
                 String rootElement = conv.substring(endOfNamespace+1);
                 rootElement = rootElement.trim();
                 if (rootElement.length() == 0) {
-                    ErrorManager.getDefault().log(ErrorManager.WARNING, "Attribute "+ // NOI18N
+                    Logger.getLogger(getClass().getName()).log(Level.WARNING,
+                        "Attribute "+ // NOI18N
                         NETBEANS_SIMPLY_CONVERTIBLE+
                         " for class "+name+ // NOI18N
                         " does not contain element: "+conv); // NOI18N
@@ -321,7 +324,7 @@ public class ConvertorsPool implements LookupListener {
                         Class c = InstanceUtils.findClass(convertor);
                         delegate = (Convertor)c.newInstance();
                     } catch (Exception e) {
-                        ErrorManager.getDefault().log(ErrorManager.WARNING, e.toString());
+                        Logger.getLogger(getClass().getName()).log(Level.WARNING, e.toString(), e);
                     }
                 }
             }

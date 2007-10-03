@@ -45,7 +45,6 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.util.Properties;
 import org.netbeans.api.convertor.ConvertorException;
-import org.openide.ErrorManager;
 import org.openide.util.Lookup;
 import org.openide.util.Utilities;
 
@@ -70,7 +69,7 @@ public class InstanceUtils {
             }
         } catch (Exception e) {
             ConvertorException e2 = new ConvertorException("Cannot instantiate class "+val); // NOI18N
-            ErrorManager.getDefault().annotate(e2, e);
+            e2.initCause(e);
             throw e2;
         }
     }
@@ -95,7 +94,7 @@ public class InstanceUtils {
             }
         } catch (Exception e) {
             ConvertorException e2 = new ConvertorException("Cannot instantiate method "+val); // NOI18N
-            ErrorManager.getDefault().annotate(e2, e);
+            e2.initCause(e);
             throw e2;
         }
     }
@@ -108,6 +107,4 @@ public class InstanceUtils {
             return Class.forName(name, true, c);
         }
     }
-
-    
 }

@@ -50,7 +50,6 @@ import java.util.TreeSet;
 import org.netbeans.api.convertor.ConvertorException;
 import org.netbeans.spi.convertor.Convertor;
 import org.netbeans.spi.convertor.SimplyConvertible;
-import org.openide.ErrorManager;
 import org.w3c.dom.CDATASection;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -172,7 +171,7 @@ public final class PropertiesConvertor implements Convertor {
         } catch (Exception ex) {
             ConvertorException ex2 = new ConvertorException("Unexpected exception. SimplyConvertible could "+ // NOI18N
                 "not instantiate element "+element); // NOI18N
-            ErrorManager.getDefault().annotate(ex2, ex);
+            ex2.initCause(ex);
             throw ex2;
         }
     }

@@ -41,10 +41,8 @@
 
 package org.shoppingcartconvertor;
 
-import java.io.IOException;
 import java.util.Iterator;
 import org.netbeans.api.convertor.book.Book;
-import org.netbeans.api.convertor.ConvertorDescriptor;
 import org.netbeans.api.convertor.Convertors;
 import org.netbeans.api.convertor.dvd.DVD;
 import org.netbeans.api.convertor.shoppingcart.ShoppingCart;
@@ -53,10 +51,6 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
-import org.w3c.dom.Text;
-import org.xml.sax.ErrorHandler;
-import org.xml.sax.InputSource;
-import org.xml.sax.SAXException;
 
 
 /**
@@ -85,11 +79,9 @@ public class ShoppingCartConvertor implements Convertor {
                     } else if (o instanceof DVD) {
                       sc.addDVD((DVD)o);  
                     } else {
-                        //ErrorManager.getDefault().log(ErrorManager.WARNING, "Shopping cart contains unknown item: "+o);
                         System.err.println("Shopping cart contains unknown item: "+o);
                     }
                 } else {
-                    //ErrorManager.getDefault().log(ErrorManager.WARNING, "Shopping cart contains item which cannot be convertor: "+e);
                     System.err.println("Shopping cart contains item which cannot be convertor: "+e);
                 }
             }
