@@ -238,7 +238,6 @@ public final class ThemeBuilderProjectWizardIterator implements WizardDescriptor
      */
     public final void removeChangeListener(ChangeListener l) {
     }
-
     private static Pattern sourceFilePattern = Pattern.compile(".*\\.(css|java|js|properties|mf|xml|txt|ThemeService)$", Pattern.CASE_INSENSITIVE);
 
     private static void unZipFile(InputStream source, File projectRoot, Map<String, String> paramMap) throws IOException {
@@ -264,17 +263,31 @@ public final class ThemeBuilderProjectWizardIterator implements WizardDescriptor
                     FileChannel channel = new RandomAccessFile(file, "rw").getChannel();
                     FileLock lock = channel.lock();
                     OutputStream out = Channels.newOutputStream(channel);
-                    String line;
-                    StringBuffer sb = new StringBuffer();
                     try {
-                        Set<String> keys = paramMap.keySet();
-                        while ((line = reader.readLine()) != null) {
-                            for (String key : keys) {
-                                line = line.replaceAll("@" + key + "@", paramMap.get(key));
+                        if (sourceFilePattern.matcher(entryName).matches()) {
+                            String line;
+                            StringBuffer sb = new StringBuffer();
+
+                            Set<String> keys = paramMap.keySet();
+                            while ((line = reader.readLine()) != null) {
+                                for (String key : keys) {
+                                    line = line.replaceAll("@" + key + "@", paramMap.get(key));
+                                }
+                                sb.append(line + "\n");
                             }
-                            sb.append(line + "\n");
+                            out.write(sb.toString().getBytes());
+                        } else {
+                            final byte[] buffer = new byte[4096];
+                            int len;
+                            for (;;) {
+                                len = ((InputStream)zipInputStream).read(buffer);
+
+                                if (len == -1) {
+                                    break;
+                                }
+                                out.write(buffer, 0, len);
+                            }
                         }
-                        out.write(sb.toString().getBytes());
                     } finally {
                         lock.release();
                         out.close();
