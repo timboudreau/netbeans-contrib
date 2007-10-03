@@ -65,7 +65,7 @@ import org.openide.filesystems.FileObject;
 public class DetailComboFactory extends ComboBoxControlFactory {
     
     private static final Logger log = Logger.getLogger(DetailComboFactory.class.getName());
-    private static boolean LOGGABLE = log.isLoggable(Level.FINE);
+    private static boolean LOGABLE = log.isLoggable(Level.FINE);
     
     private String masterID;
     private Map/*<Object, List>*/ myNames;
@@ -131,7 +131,7 @@ public class DetailComboFactory extends ComboBoxControlFactory {
     private JComboBox findMaster(JComboBox me) {
         JComponent parent = (JComponent)me.getParent().getParent();
         if ( ! (parent instanceof EViewPanel)) {
-            if (LOGGABLE) log.fine("Wrong parent in findMaster " + parent);
+            if (LOGABLE) log.fine("Wrong parent in findMaster " + parent);
             return null;
         }
         EViewPanel panel = (EViewPanel)parent;
@@ -145,7 +145,7 @@ public class DetailComboFactory extends ComboBoxControlFactory {
     private ControlFactory findMasterFactory(JComboBox me) {
         JComponent parent = (JComponent)me.getParent().getParent();
         if ( ! (parent instanceof EViewPanel)) {
-            if (LOGGABLE) log.fine("Wrong parent in findMasterFactory " + parent);
+            if (LOGABLE) log.fine("Wrong parent in findMasterFactory " + parent);
             return null;
         }
         EViewPanel panel = (EViewPanel)parent;
