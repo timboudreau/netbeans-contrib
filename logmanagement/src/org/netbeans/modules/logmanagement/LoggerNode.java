@@ -51,14 +51,21 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.awt.event.ActionEvent;
+import java.util.logging.LogManager;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
-import org.netbeans.modules.logmanagement.ui.LogViewerConfigUI;
+import org.netbeans.modules.logmanagement.actions.FilterAction;
+import org.netbeans.modules.logmanagement.actions.FormatterChooserAction;
+import org.netbeans.modules.logmanagement.actions.LevelChooserAction;
+import org.netbeans.modules.logmanagement.handlers.CustomHandler;
 import org.openide.nodes.AbstractNode;
 import org.openide.nodes.Children;
 import org.openide.nodes.Sheet;
 import org.openide.util.NbBundle;
 import org.openide.util.Utilities;
+import org.openide.windows.IOProvider;
+import org.openide.windows.InputOutput;
+import org.openide.windows.OutputWriter;
 
 
 
@@ -69,7 +76,6 @@ import org.openide.util.Utilities;
 class LoggerNode extends AbstractNode {
 
     private Logger logger;
-
 
     LoggerNode(Logger logger) {
         super(!logger.getChilderns().isEmpty() ? Children.create(new LoggerFactory(logger), true) : Children.LEAF);
@@ -107,10 +113,19 @@ class LoggerNode extends AbstractNode {
     }
 
     public void showOutput() {
-        LogViewerConfigUI.CreateLogViewerConfigUI(logger);
+        Action[] actions = new Action[3];
+
+
+        CustomHandler streamHandler = new CustomHandler();
+        actions[0] = new LevelChooserAction(logger);
+        actions[1] = new FormatterChooserAction(streamHandler);
+        actions[2] = new FilterAction();
+        InputOutput io = IOProvider.getDefault().getIO(logger.getName(), actions);
+        OutputWriter w = io.getOut();
+        streamHandler.setOutputWriter(w);
+        LogManager.getLogManager().getLogger(logger.getName()).addHandler(streamHandler);
+        io.select();
     }
-
-
 
     /**
      *
@@ -145,6 +160,4 @@ class LoggerNode extends AbstractNode {
             showOutput();
         }
     }
-
-   
 }
