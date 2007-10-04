@@ -57,6 +57,9 @@ public class ErrorInfoImpl implements ErrorInfo {
         this.column = column;
     }
     
+    public void adsorb(ErrorInfo other) {
+	message += '\n' + other.getMessage();
+    }
     
     public int getColumn() {
         return column;

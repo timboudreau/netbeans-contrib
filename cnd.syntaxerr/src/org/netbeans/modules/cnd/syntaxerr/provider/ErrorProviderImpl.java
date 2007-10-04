@@ -33,10 +33,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.StringTokenizer;
+import java.util.*;
 import javax.swing.text.BadLocationException;
 import org.netbeans.editor.BaseDocument;
 import org.netbeans.modules.cnd.api.project.NativeFileItem;
@@ -45,8 +42,6 @@ import org.netbeans.modules.cnd.syntaxerr.DebugUtils;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
 import org.openide.loaders.DataObject;
-import org.openide.text.NbDocument;
-import org.openide.util.Exceptions;
 
 /**
  * ErrorProvider implementation
@@ -74,7 +69,7 @@ class ErrorProviderImpl extends ErrorProvider {
     }
 
     // FIXUP: a temporary implementation
-    public Collection<ErrorInfo> getErrorsImpl(DataObject dao, BaseDocument doc) throws IOException, BadLocationException {
+    private Collection<ErrorInfo> getErrorsImpl(DataObject dao, BaseDocument doc) throws IOException, BadLocationException {
 	
 	// Fixup: since error highlighting does not work in headers, we'd better switch it off at all
         NativeFileItemSet itemSet = dao.getLookup().lookup(NativeFileItemSet.class);
@@ -88,7 +83,7 @@ class ErrorProviderImpl extends ErrorProvider {
 	
         String compiler = getCompiler(dao);
         if( compiler != null ) {
-            Collection<ErrorInfo> result = new ArrayList<ErrorInfo>();
+            ErrorBag result = new ErrorBag();
             FileObject fo = dao.getPrimaryFile();
             File tmpDir = new File(System.getProperty("java.io.tmpdir"));
             File tmpFile = File.createTempFile(fo.getName() + '_', "." + fo.getExt(), tmpDir); // NOI18N
@@ -103,14 +98,44 @@ class ErrorProviderImpl extends ErrorProvider {
             Process compilerProcess = Runtime.getRuntime().exec(command, null, FileUtil.toFile(fo.getParent()));
             InputStream stream = compilerProcess.getErrorStream();
             parseCompilerOutput(stream, tmpFile.getAbsolutePath(), result);
+//	    result = merge(result);
             stream.close();
             if( DebugUtils.CLEAN_TMP ) {
                 tmpFile.delete();
             }
             if( DebugUtils.TRACE ) System.err.printf("DONE %s\n", command);
-            return result;
+            return result.getResult();
         }
         return Collections.emptyList();
+    }
+
+    private static class ErrorBag {
+	
+	Map<Integer, ErrorInfoImpl> errors = new HashMap<Integer, ErrorInfoImpl>();
+	Map<Integer, ErrorInfoImpl> warnings = new HashMap<Integer, ErrorInfoImpl>();
+	
+	public void add(String message, boolean error, int line, int column) {
+	    ErrorInfoImpl info = new ErrorInfoImpl(message, error, line, column);
+	    Map<Integer, ErrorInfoImpl> map = error ? errors : warnings;
+	    ErrorInfoImpl existent = map.get(line);
+	    if( existent == null ) {
+		map.put(line, info);
+	    }
+	    else {
+		existent.adsorb(info);
+	    }
+	}
+	
+	public Collection<ErrorInfo> getResult() {
+	    Collection<ErrorInfo> result = new ArrayList<ErrorInfo>(errors.size() + warnings.size());
+	    for( ErrorInfo info : errors.values() ) {
+		result.add(info);
+	    }
+	    for( ErrorInfo info : warnings.values() ) {
+		result.add(info);
+	    }
+	    return result;
+	}
     }
     
     private String getOptions(DataObject dao) {
@@ -124,10 +149,10 @@ class ErrorProviderImpl extends ErrorProvider {
                     sb.append(" -I ");
                     sb.append(path);
                 }
-    //            for( String def : item.getUserMacroDefinitions() ) {
-    //                sb.append(" -D ");
-    //                sb.append(def);
-    //            }
+		for( String def : item.getUserMacroDefinitions() ) {
+		    sb.append(" -D");
+		    sb.append(def);
+		}
                 break;
             }
             sb.append(' ');
@@ -136,20 +161,20 @@ class ErrorProviderImpl extends ErrorProvider {
     }
 
     // FIXUP: a temporary implementation, just to try how it looks like
-    private void parseCompilerOutput(InputStream stream, String interestingFileName, Collection<ErrorInfo> errors) throws IOException {
+    private void parseCompilerOutput(InputStream stream, String interestingFileName, ErrorBag errorBag) throws IOException {
         BufferedReader reader = new BufferedReader(new InputStreamReader(stream));
         for( String line = reader.readLine(); line != null; line = reader.readLine() ) {
-            parseCompilerOutputLine(line, interestingFileName, errors);
+            parseCompilerOutputLine(line, interestingFileName, errorBag);
         }
     }
     
-    private void parseCompilerOutputLine(String line, String interestingFileName, Collection<ErrorInfo> errors) {
+    private void parseCompilerOutputLine(String line, String interestingFileName, ErrorBag errorBag) {
         if( DebugUtils.TRACE ) System.err.printf("\tPARSING: \t%s\n", line);
-        findErrorOrWarning(line, ": error: ", true, interestingFileName, errors); // NOI18N
-        findErrorOrWarning(line, ": warning: ", false, interestingFileName, errors); // NOI18N
+        findErrorOrWarning(line, ": error: ", true, interestingFileName, errorBag); // NOI18N
+        findErrorOrWarning(line, ": warning: ", false, interestingFileName, errorBag); // NOI18N
     }
     
-    private void findErrorOrWarning(String line, String keyword, boolean error, String interestingFileName, Collection<ErrorInfo> errors) {
+    private void findErrorOrWarning(String line, String keyword, boolean error, String interestingFileName, ErrorBag errorBag) {
         int pos = line.indexOf(keyword);
         if( pos > 0 ) {
             int beforeErrPos = pos;
@@ -171,7 +196,7 @@ class ErrorProviderImpl extends ErrorProvider {
 		    }
                     String message = line.substring(afterErrPos);
                     if( DebugUtils.TRACE ) System.err.printf("\t\tFILE: %s LINE: %8d COL: %d MESSAGE: %s\n", fileName, lineNum, colNum, message);
-                    errors.add(new ErrorInfoImpl(message, error, lineNum, colNum));
+		    errorBag.add(message, error, lineNum, colNum);
                 }
             }
         }
