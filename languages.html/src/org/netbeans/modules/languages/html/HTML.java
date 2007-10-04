@@ -25,12 +25,14 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Stack;
+import javax.swing.text.AbstractDocument;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
 import javax.swing.text.StyledDocument;
 import org.netbeans.api.languages.ASTItem;
 import org.netbeans.api.languages.CharInput;
 import org.netbeans.api.lexer.Token;
+import org.netbeans.api.lexer.TokenHierarchy;
 import org.netbeans.api.lexer.TokenSequence;
 import org.netbeans.api.languages.Context;
 import org.netbeans.api.languages.SyntaxContext;
@@ -120,7 +122,7 @@ public class HTML {
     // tag completion ..........................................................
     
     public static String complete (Context context) {
-        TokenSequence ts = context.getTokenSequence ();
+        TokenSequence ts = getTokenSequence (context);
         ts.moveNext ();
         Token t = ts.token ();
         if (t == null) return null;
@@ -139,49 +141,54 @@ public class HTML {
     // indent ..................................................................
     
     public static void indent (Context context) {
-        TokenSequence ts = context.getTokenSequence ();
-        Document doc = context.getDocument ();
-        int indent;
-        Token t;
-        do {
-            ts.movePrevious ();
-            t = ts.token ();
-        } while (t.text ().toString ().trim ().length () == 0);
-        String text = t.text ().toString ();
-        String type = t.id ().name ();
-        int ln = NbDocument.findLineNumber ((StyledDocument) doc, ts.offset ());
-        int start = NbDocument.findLineOffset ((StyledDocument) doc, ln);
-        if (text.equals (">") || text.equals ("/>")) {
+        AbstractDocument document = (AbstractDocument) context.getDocument ();
+        document.readLock ();
+        try {
+            TokenSequence ts = getTokenSequence (context);
+            int indent;
+            Token t;
             do {
-                if (!ts.movePrevious ()) break;
+                ts.movePrevious ();
                 t = ts.token ();
-            } while (!t.text ().toString ().equals ("<"));
-            indent = getIndent (ts, doc);
-        } else
-        if (type.equals ("html_attribute_value") || 
-            type.equals ("html_attribute_name") ||
-            type.equals ("html_element_name") ||
-            type.equals ("html_operator")
-        ) {
-            do {
-                if (!ts.movePrevious ()) break;
-                t = ts.token ();
-            } while (
-                !t.text ().toString ().equals ("<") &&
-                ts.offset () > start
-            );
-            if (t.text ().toString ().equals ("<"))
-                indent = getIndent (ts, doc) + 4;
-            else {
-                ts.moveNext ();
-                indent = getIndent (ts, doc);
-            }
-        } else
-        if (text.equals ("<")) {
-            indent = getIndent (ts, doc) + 4;
-        } else
-            indent = getIndent (ts, doc);
-        indent (doc, context.getJTextComponent ().getCaret ().getDot (), indent);
+            } while (t.text ().toString ().trim ().length () == 0);
+            String text = t.text ().toString ();
+            String type = t.id ().name ();
+            int ln = NbDocument.findLineNumber ((StyledDocument) document, ts.offset ());
+            int start = NbDocument.findLineOffset ((StyledDocument) document, ln);
+            if (text.equals (">") || text.equals ("/>")) {
+                do {
+                    if (!ts.movePrevious ()) break;
+                    t = ts.token ();
+                } while (!t.text ().toString ().equals ("<"));
+                indent = getIndent (ts, document);
+            } else
+            if (type.equals ("html_attribute_value") || 
+                type.equals ("html_attribute_name") ||
+                type.equals ("html_element_name") ||
+                type.equals ("html_operator")
+            ) {
+                do {
+                    if (!ts.movePrevious ()) break;
+                    t = ts.token ();
+                } while (
+                    !t.text ().toString ().equals ("<") &&
+                    ts.offset () > start
+                );
+                if (t.text ().toString ().equals ("<"))
+                    indent = getIndent (ts, document) + 4;
+                else {
+                    ts.moveNext ();
+                    indent = getIndent (ts, document);
+                }
+            } else
+            if (text.equals ("<")) {
+                indent = getIndent (ts, document) + 4;
+            } else
+                indent = getIndent (ts, document);
+            indent (document, context.getJTextComponent ().getCaret ().getDot (), indent);
+        } finally {
+            document.readUnlock ();
+        }
     }
     
     private static int getIndent (TokenSequence ts, Document doc) {
@@ -203,6 +210,18 @@ public class HTML {
             doc.insertString (offset, sb.toString (), null);
         } catch (BadLocationException ex) {
             ErrorManager.getDefault ().notify (ex);
+        }
+    }
+    
+    private static TokenSequence getTokenSequence (Context context) {
+        TokenHierarchy tokenHierarchy = TokenHierarchy.get (context.getDocument ());
+        TokenSequence ts = tokenHierarchy.tokenSequence ();
+        while (true) {
+            ts.move (context.getOffset ());
+            if (!ts.moveNext ()) return ts;
+            TokenSequence ts2 = ts.embedded ();
+            if (ts2 == null) return ts;
+            ts = ts2;
         }
     }
     
@@ -230,12 +249,10 @@ public class HTML {
     public static List tags (Context context) {
         if (context instanceof SyntaxContext) return Collections.EMPTY_LIST;
         List tags = getLibrary ().getItems ("TAG");
-        List items = new ArrayList (tags.size ());
+        List<CompletionItem> items = new ArrayList<CompletionItem> (tags.size ());
         Iterator it = tags.iterator ();
         while (it.hasNext ()) {
             String tag = (String) it.next ();
-            String description = getLibrary ().getProperty 
-                ("TAG", tag, "description");
             items.add (CompletionItem.create (tag.toUpperCase ()));
         }
         return items;
@@ -243,46 +260,72 @@ public class HTML {
 
     public static List attributes (Context context) {
         if (context instanceof SyntaxContext) return Collections.EMPTY_LIST;
-        String tagName = tagName (context.getTokenSequence ());
-        if (tagName == null) return Collections.EMPTY_LIST;
-        List r = getLibrary ().getItems (tagName);
-        if (r == null) return Collections.EMPTY_LIST;
-        //S ystem.out.println("attributes " + r);
-        List items = new ArrayList (r.size ());
-        Iterator it = r.iterator ();
-        while (it.hasNext ()) {
-            String tag = (String) it.next ();
-            String description = getLibrary ().getProperty 
-                (tagName, tag, "description");
-            items.add (CompletionItem.create (tag.toUpperCase ()));
+        AbstractDocument document = (AbstractDocument) context.getDocument ();
+        document.readLock ();
+        try {
+            TokenSequence tokenSequence = getTokenSequence (context);
+            String tagName = tagName (tokenSequence);
+            if (tagName == null) return Collections.EMPTY_LIST;
+            List r = getLibrary ().getItems (tagName);
+            if (r == null) return Collections.EMPTY_LIST;
+            //S ystem.out.println("attributes " + r);
+            List<CompletionItem> items = new ArrayList<CompletionItem> (r.size ());
+            Iterator it = r.iterator ();
+            while (it.hasNext ()) {
+                String tag = (String) it.next ();
+                items.add (CompletionItem.create (tag.toUpperCase ()));
+            }
+            //S ystem.out.println("attributeDescriptions " + attributeDescriptions);
+            return items;
+        } finally {
+            document.readUnlock ();
         }
-        //S ystem.out.println("attributeDescriptions " + attributeDescriptions);
-        return items;
     }
     
 
     // marks ...................................................................
     
     public static boolean isDeprecatedAttribute (Context context) {
-        Token t = context.getTokenSequence ().token ();
-        if (t == null) return false;
-        String attribName = t.text ().toString ().toLowerCase ();
-        String tagName = tagName (context.getTokenSequence ());
-        if (tagName == null) return false;
-        return "true".equals (getLibrary ().getProperty (tagName, attribName, "deprecated"));
+        AbstractDocument document = (AbstractDocument) context.getDocument ();
+        document.readLock ();
+        try {
+            TokenSequence tokenSequence = getTokenSequence (context);
+            Token t = tokenSequence.token ();
+            if (t == null) return false;
+            String attribName = t.text ().toString ().toLowerCase ();
+            String tagName = tagName (tokenSequence);
+            if (tagName == null) return false;
+            return "true".equals (getLibrary ().getProperty (tagName, attribName, "deprecated"));
+        } finally {
+            document.readUnlock ();
+        }
     }
 
     public static boolean isDeprecatedTag (Context context) {
-        Token t = context.getTokenSequence ().token ();
-        if (t == null) return false;
-        String tagName = t.text ().toString ().toLowerCase ();
-        return "true".equals (getLibrary ().getProperty ("TAG", tagName, "deprecated"));
+        AbstractDocument document = (AbstractDocument) context.getDocument ();
+        document.readLock ();
+        try {
+            TokenSequence tokenSequence = getTokenSequence (context);
+            Token t = tokenSequence.token ();
+            if (t == null) return false;
+            String tagName = t.text ().toString ().toLowerCase ();
+            return "true".equals (getLibrary ().getProperty ("TAG", tagName, "deprecated"));
+        } finally {
+            document.readUnlock ();
+        }
     }
 
     public static boolean isEndTagRequired (Context context) {
-        Token t = context.getTokenSequence ().token ();
-        if (t == null) return false;
-        return isEndTagRequired (t.id ().name ().toLowerCase ());
+        AbstractDocument document = (AbstractDocument) context.getDocument ();
+        document.readLock ();
+        try {
+            TokenSequence tokenSequence = getTokenSequence (context);
+            Token t = tokenSequence.token ();
+            if (t == null) return false;
+            return isEndTagRequired (t.id ().name ().toLowerCase ());
+        } finally {
+            document.readUnlock ();
+        }
     }
 
     static boolean isEndTagRequired (String tagName) {
@@ -292,7 +335,7 @@ public class HTML {
     
     public static ASTNode process (SyntaxContext context) {
         ASTNode n = (ASTNode) context.getASTPath ().getRoot ();
-        List l = new ArrayList ();
+        List<ASTItem> l = new ArrayList<ASTItem> ();
         resolve (n, new Stack (), l, true);
         return ASTNode.create (n.getMimeType (), n.getNT (), l, n.getOffset ());
     }
@@ -318,7 +361,7 @@ public class HTML {
     
     private static ASTNode clone (String mimeType, String nt, int offset, List children) {
         Iterator it = children.iterator ();
-        List l = new ArrayList ();
+        List<ASTItem> l = new ArrayList<ASTItem> ();
         while (it.hasNext ()) {
             Object o = it.next ();
             if (o instanceof ASTToken)
@@ -334,7 +377,7 @@ public class HTML {
     }
     
     private static ASTToken clone (ASTToken token) {
-        List<ASTItem> children = new ArrayList ();
+        List<ASTItem> children = new ArrayList<ASTItem> ();
         Iterator<ASTItem> it = token.getChildren ().iterator ();
         while (it.hasNext ()) {
             ASTItem item = it.next ();
@@ -357,7 +400,7 @@ public class HTML {
         return clone (n.getMimeType (), nt, n.getOffset (), n.getChildren ());
     }
     
-    private static void resolve (ASTNode n, Stack s, List l, boolean findUnpairedTags) {
+    private static void resolve (ASTNode n, Stack s, List<ASTItem> l, boolean findUnpairedTags) {
         Iterator<ASTItem> it = n.getChildren ().iterator ();
         while (it.hasNext ()) {
             ASTItem item = it.next ();
@@ -393,9 +436,9 @@ public class HTML {
                 int indexS = s.lastIndexOf (name);
                 if (indexS >= 0) {
                     int indexL = ((Integer) s.get (indexS + 1)).intValue ();
-                    List ll = l.subList (indexL, l.size ());
+                    List<ASTItem> ll = l.subList (indexL, l.size ());
                     ll.set (0, clone ((ASTNode) ll.get (0), "startTag"));
-                    List ll1 = new ArrayList (ll);
+                    List<ASTItem> ll1 = new ArrayList<ASTItem> (ll);
                     ll1.add (node);
                     ASTNode tag = clone (
                         node.getMimeType (),
