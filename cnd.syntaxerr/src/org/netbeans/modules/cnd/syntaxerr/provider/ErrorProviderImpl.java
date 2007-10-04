@@ -135,7 +135,7 @@ class ErrorProviderImpl extends ErrorProvider {
     private void parseCompilerOutputLine(String line, String interestingFileName, Collection<ErrorInfo> errors) {
         if( DebugUtils.TRACE ) System.err.printf("\tPARSING: \t%s\n", line);
         findErrorOrWarning(line, ": error: ", true, interestingFileName, errors); // NOI18N
-        findErrorOrWarning(line, ": warning: ", true, interestingFileName, errors); // NOI18N
+        findErrorOrWarning(line, ": warning: ", false, interestingFileName, errors); // NOI18N
     }
     
     private void findErrorOrWarning(String line, String keyword, boolean error, String interestingFileName, Collection<ErrorInfo> errors) {
