@@ -75,6 +75,17 @@ class ErrorProviderImpl extends ErrorProvider {
 
     // FIXUP: a temporary implementation
     public Collection<ErrorInfo> getErrorsImpl(DataObject dao, BaseDocument doc) throws IOException, BadLocationException {
+	
+	// Fixup: since error highlighting does not work in headers, we'd better switch it off at all
+        NativeFileItemSet itemSet = dao.getLookup().lookup(NativeFileItemSet.class);
+        if( itemSet != null ) {
+            for( NativeFileItem item : itemSet ) {
+		if( item.getLanguage() == NativeFileItem.Language.C_HEADER ) {
+		    return Collections.emptyList();
+		}
+	    }
+	}
+	
         String compiler = getCompiler(dao);
         if( compiler != null ) {
             Collection<ErrorInfo> result = new ArrayList<ErrorInfo>();
