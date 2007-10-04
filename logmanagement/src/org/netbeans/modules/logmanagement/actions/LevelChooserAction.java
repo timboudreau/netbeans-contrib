@@ -110,7 +110,6 @@ public class LevelChooserAction extends AbstractAction {
         if (source instanceof JButton) {
             JButton button = (JButton) source;
             wormup(button);
-            button.setSelected(true);
             Point point = button.getLocationOnScreen();
 
             menu.setInvoker(button);
