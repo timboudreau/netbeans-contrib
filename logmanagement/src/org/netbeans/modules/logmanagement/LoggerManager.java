@@ -48,7 +48,6 @@
 package org.netbeans.modules.logmanagement;
 
 import java.util.List;
-import java.util.logging.LogManager;
 import java.util.logging.LoggingMXBean;
 
 /**
@@ -62,7 +61,7 @@ import java.util.logging.LoggingMXBean;
     private static LoggerManager instance;
 
     private LoggerManager() {
-        this.loggingMXBean = LogManager.getLoggingMXBean();
+        this.loggingMXBean = MXConnecter.getInstance().getLoggingMXBean();
     }
 
     public static synchronized LoggerManager getInstance() {

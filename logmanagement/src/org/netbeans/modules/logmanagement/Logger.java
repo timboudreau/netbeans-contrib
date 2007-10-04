@@ -49,7 +49,6 @@ package org.netbeans.modules.logmanagement;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.LogManager;
 import java.util.logging.LoggingMXBean;
 import org.openide.DialogDisplayer;
 import org.openide.NotifyDescriptor;
@@ -62,7 +61,7 @@ public class Logger implements Comparable<Logger> {
 
     private final String name;
     private List<Logger> childerns = new ArrayList<Logger>();
-    private LoggingMXBean loggingMXBean = LogManager.getLoggingMXBean();
+    private LoggingMXBean loggingMXBean = MXConnecter.getInstance().getLoggingMXBean();
 
     public Logger(String name) {
         this.name = name;

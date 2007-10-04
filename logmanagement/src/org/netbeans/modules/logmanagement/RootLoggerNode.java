@@ -28,8 +28,6 @@
 package org.netbeans.modules.logmanagement;
 
 import java.awt.Image;
-import java.util.logging.LogManager;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -39,7 +37,6 @@ import javax.swing.Action;
 import org.openide.nodes.AbstractNode;
 import org.openide.nodes.Children;
 import org.openide.nodes.Sheet;
-import org.openide.util.Exceptions;
 import org.openide.util.NbBundle;
 import org.openide.util.Utilities;
 import org.openide.windows.WindowManager;
@@ -132,14 +129,7 @@ public class RootLoggerNode extends AbstractNode {
         }
 
         public void actionPerformed(ActionEvent e) {
-            try {
-                LogManager.getLogManager().readConfiguration();
-                refresh();
-            } catch (IOException ex) {
-                Exceptions.printStackTrace(ex);
-            } catch (SecurityException ex) {
-                Exceptions.printStackTrace(ex);
-            }
+          //TODO
         }
     }
 
