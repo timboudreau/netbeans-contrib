@@ -249,6 +249,11 @@ public class HighlightWhitespace implements PropertyChangeListener {
 
             try {
                 for (;;) {
+                    if (pos == doc.getLength() + 1) {
+                        // Hotfix for a very common BLE. Seems to work.
+                        pos--;
+                    }
+
                     int rowEnd = Utilities.getRowEnd(doc, pos) + 1;
                     int lastNonWhite = Utilities.getRowLastNonWhite(doc, pos);
 
