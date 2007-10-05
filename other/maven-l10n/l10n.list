@@ -10,6 +10,10 @@ ${l10n-module}/netbeans/grammar/**/Bundle.properties
 ${l10n-module}/netbeans/grammar/**/*.gif
 ${l10n-module}/netbeans/grammar/**/*.html
 ${l10n-module}/netbeans/grammar/**/*.png
+${l10n-module}/netbeans/feature/**/Bundle.properties
+${l10n-module}/netbeans/feature/**/*.gif
+${l10n-module}/netbeans/feature/**/*.html
+${l10n-module}/netbeans/feature/**/*.png
 ${l10n-module}/netbeans/j2ee/**/Bundle.properties
 ${l10n-module}/netbeans/j2ee/**/*.gif
 ${l10n-module}/netbeans/j2ee/**/*.html
