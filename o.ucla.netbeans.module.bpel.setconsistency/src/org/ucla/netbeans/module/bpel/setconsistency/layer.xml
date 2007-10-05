@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE filesystem PUBLIC "-//NetBeans//DTD Filesystem 1.1//EN" "http://www.netbeans.org/dtds/filesystem-1_1.dtd">
+<filesystem>
+    
+    <folder name="Loaders">
+        <folder name="text">
+            <folder name="x-bpel+xml">
+                <folder name="Actions">
+                    <file name="sep-1.instance">
+                        <attr name="instanceClass" stringvalue="javax.swing.JSeparator"/>
+                        <attr name="position" intvalue="1800"/>
+                    </file>
+                    <file name="org-ucla-netbeans-module-bpel-setconsistency-actions-EditSetConsistencyRuleAction.instance">
+                        <attr name="position" intvalue="2500"/>
+                    </file>
+                    
+                    <file name="org-ucla-netbeans-module-bpel-setconsistency-actions-RunSetConsistencyValidatorAction.instance">
+                        <attr name="position" intvalue="2600"/>
+                    </file>
+                </folder>
+            </folder>
+        </folder>
+    </folder>
+                    
+</filesystem>
