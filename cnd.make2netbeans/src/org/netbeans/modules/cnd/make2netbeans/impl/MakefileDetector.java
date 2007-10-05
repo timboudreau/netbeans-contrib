@@ -57,11 +57,11 @@ public class MakefileDetector {
     //symbols that are unlikely to be found in makefile
     private static final char[] InvalidSymbols = {'{', '}', '[', ']', ';'};
     //comment symbol in makefiles
-    private static final String[] CommentSymbol = {"#"};
+    private static final String[] CommentSymbol = {"#"}; // NOI18N
     //symbols that are unlikely to be comment symbol in makefile
     private static final char[] InvalidCommentSymbol = {'*'};
-    private static final String[] AssignmentSymbol = {"=", ":=", "+="};
-    private static String Include = "include";
+    private static final String[] AssignmentSymbol = {"=", ":=", "+="}; // NOI18N
+    private static String Include = "include"; // NOI18N
     //file that will be checked
     private File mkfile;
 
@@ -121,7 +121,7 @@ public class MakefileDetector {
             j = s.indexOf(AssignmentSymbol[i]);
             if (j > 0 && j != s.length() - 1) {
                 String u = s.substring(0, j - 1);
-                if (u.indexOf(" ") != -1) {
+                if (u.indexOf(" ") != -1) { // NOI18N
                     //there is more than one word before '='
                     return false;
                 }
@@ -153,7 +153,7 @@ public class MakefileDetector {
         if (isComment(t) || !hasValidSymbols(t)) {
             return false;
         }
-        return t.indexOf(":") > 0;
+        return t.indexOf(":") > 0; // NOI18N
     }
 
     //the simplest check for rule
@@ -161,7 +161,7 @@ public class MakefileDetector {
         if (second == null) {
             return false;
         }
-        if (isTarget(first) && second.startsWith("    ")) {
+        if (isTarget(first) && second.startsWith("    ")) { // NOI18N
             return true;
         }
         return false;
@@ -178,14 +178,14 @@ public class MakefileDetector {
         boolean isMk = false;
         String s = "";
         String name = mkfile.getName().toLowerCase();
-        if (name.contains("configure")) {
+        if (name.contains("configure")) { // NOI18N
             return false;
         }
         try {
             BufferedReader in = new BufferedReader(new FileReader(mkfile.getPath()));
             s = in.readLine();
             s.trim();
-            if (s.startsWith("#!")) {
+            if (s.startsWith("#!")) { // NOI18N
                 //it's a script
                 return false;
             }

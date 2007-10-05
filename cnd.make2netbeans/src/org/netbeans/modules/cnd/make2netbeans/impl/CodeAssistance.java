@@ -59,11 +59,11 @@ public class CodeAssistance implements CodeAssistanceInterface {
     private boolean isAnalysed;
     private boolean doneTargets;
     /** Doc Target */
-    public static final String DOC = "info";
+    public static final String DOC = "info"; // NOI18N
     /** Install Target */
-    public static final String INSTALL = "install";
+    public static final String INSTALL = "install"; // NOI18N
     /** Test Target */
-    public static final String TEST = "test";
+    public static final String TEST = "test"; // NOI18N
     private ArrayList<MakefileTarget> targets;
     private String installTarget;
     private String docTarget;
@@ -84,8 +84,8 @@ public class CodeAssistance implements CodeAssistanceInterface {
         Global.clear();
         try {
             Global.pwd = new File(makefilePath);
-            System.out.println("-------------------------------");
-            System.out.println("MAKEFILE PATH " + makefilePath);
+            System.out.println("-------------------------------"); // NOI18N
+            System.out.println("MAKEFILE PATH " + makefilePath); // NOI18N
             Global.pwd = new File(Global.pwd.getParentFile(), File.separator);
             MakefileLexer lexer = new MakefileLexer(new FileReader(makefilePath));
             MakefileParser parser = new MakefileParser(lexer);
@@ -104,7 +104,7 @@ public class CodeAssistance implements CodeAssistanceInterface {
                 }
             }
         } catch (Exception e) {
-            System.out.println("CodeAssistance.analyse : Unexpected Exception" + e);
+            System.out.println("CodeAssistance.analyse : Unexpected Exception" + e); // NOI18N
         }
     }
 
@@ -188,22 +188,22 @@ public class CodeAssistance implements CodeAssistanceInterface {
 
     //get the type of specified target (Aggregate, Documentation, Install, Clean, Test or Intermediate
     private MakefileTarget.Types getTargetType(String targetName) {
-        if (targetName.contains(".") || targetName.contains(File.separator) || targetName.contains("$")) {
+        if (targetName.contains(".") || targetName.contains(File.separator) || targetName.contains("$")) { // NOI18N
             return MakefileTarget.Types.INTERMEDIATE;
         }
-        if (targetName.equals("all")) {
+        if (targetName.equals("all")) { // NOI18N
             return MakefileTarget.Types.AGGREGATE;
         }
-        if (targetName.contains("info") || targetName.contains("doc")) {
+        if (targetName.contains("info") || targetName.contains("doc")) { // NOI18N
             return MakefileTarget.Types.DOCUMENTATION;
         }
-        if (targetName.contains("install")) {
+        if (targetName.contains("install")) { // NOI18N
             return MakefileTarget.Types.INSTALL;
         }
-        if (targetName.contains("clean")) {
+        if (targetName.contains("clean")) { // NOI18N
             return MakefileTarget.Types.CLEAN;
         }
-        if (targetName.contains("test")) {
+        if (targetName.contains("test")) { // NOI18N
             return MakefileTarget.Types.TEST;
         }
         return MakefileTarget.Types.INTERMEDIATE;

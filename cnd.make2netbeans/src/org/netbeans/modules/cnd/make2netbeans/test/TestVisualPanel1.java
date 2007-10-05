@@ -56,8 +56,8 @@ import org.netbeans.modules.cnd.makeproject.api.remote.FilePathAdaptor;
  */
 public final class TestVisualPanel1 extends JPanel {
 
-    private static final String DEFAULT_BUILD = "${MAKE} ";
-    private static final String DEFAULT_CLEAN = "${MAKE} clean ";
+    private static final String DEFAULT_BUILD = "${MAKE} "; // NOI18N
+    private static final String DEFAULT_CLEAN = "${MAKE} clean "; // NOI18N
 
     /** Creates new form TestVisualPanel1 */
     public TestVisualPanel1() {
@@ -78,7 +78,7 @@ public final class TestVisualPanel1 extends JPanel {
      */
     @Override
     public String getName() {
-        return "Step #1";
+        return "Step #1"; // NOI18N
     }
 
     /** This method is called from within the constructor to
@@ -114,7 +114,7 @@ public final class TestVisualPanel1 extends JPanel {
         setLayout(new java.awt.GridBagLayout());
 
         folderLabel.setLabelFor(projectFolderTextField);
-        org.openide.awt.Mnemonics.setLocalizedText(folderLabel, "Specify a new project folder:");
+        org.openide.awt.Mnemonics.setLocalizedText(folderLabel, "Specify a new project folder:"); // NOI18N
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 0;
@@ -133,7 +133,7 @@ public final class TestVisualPanel1 extends JPanel {
         gridBagConstraints.weightx = 1.0;
         add(projectFolderTextField, gridBagConstraints);
 
-        org.openide.awt.Mnemonics.setLocalizedText(projectBrowseButton, "Browse");
+        org.openide.awt.Mnemonics.setLocalizedText(projectBrowseButton, "Browse"); // NOI18N
         projectBrowseButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 projectBrowseButtonActionPerformed(evt);
@@ -146,7 +146,7 @@ public final class TestVisualPanel1 extends JPanel {
         add(projectBrowseButton, gridBagConstraints);
 
         makefileLabel.setLabelFor(makefilePathTextField);
-        org.openide.awt.Mnemonics.setLocalizedText(makefileLabel, "Specify path to existing makefile:");
+        org.openide.awt.Mnemonics.setLocalizedText(makefileLabel, "Specify path to existing makefile:"); // NOI18N
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 3;
@@ -164,7 +164,7 @@ public final class TestVisualPanel1 extends JPanel {
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         add(makefilePathTextField, gridBagConstraints);
 
-        org.openide.awt.Mnemonics.setLocalizedText(makefileBrowseButton, "Browse");
+        org.openide.awt.Mnemonics.setLocalizedText(makefileBrowseButton, "Browse"); // NOI18N
         makefileBrowseButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 makefileBrowseButtonActionPerformed(evt);
@@ -188,7 +188,7 @@ public final class TestVisualPanel1 extends JPanel {
         add(buildCommandTextField, gridBagConstraints);
 
         buildLabel.setLabelFor(buildCommandTextField);
-        org.openide.awt.Mnemonics.setLocalizedText(buildLabel, "Specify build command:");
+        org.openide.awt.Mnemonics.setLocalizedText(buildLabel, "Specify build command:"); // NOI18N
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 5;
@@ -196,7 +196,7 @@ public final class TestVisualPanel1 extends JPanel {
         add(buildLabel, gridBagConstraints);
 
         cleanLabel.setLabelFor(cleanCommandTextField);
-        org.openide.awt.Mnemonics.setLocalizedText(cleanLabel, "Specify clean command:");
+        org.openide.awt.Mnemonics.setLocalizedText(cleanLabel, "Specify clean command:"); // NOI18N
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 7;
@@ -215,7 +215,7 @@ public final class TestVisualPanel1 extends JPanel {
         add(cleanCommandTextField, gridBagConstraints);
 
         outputLabel.setLabelFor(outputTextField);
-        org.openide.awt.Mnemonics.setLocalizedText(outputLabel, "Specify build result:");
+        org.openide.awt.Mnemonics.setLocalizedText(outputLabel, "Specify build result:"); // NOI18N
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 9;
@@ -233,7 +233,7 @@ public final class TestVisualPanel1 extends JPanel {
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         add(outputTextField, gridBagConstraints);
 
-        org.openide.awt.Mnemonics.setLocalizedText(outputBrowseButton, "Browse");
+        org.openide.awt.Mnemonics.setLocalizedText(outputBrowseButton, "Browse"); // NOI18N
         outputBrowseButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 outputBrowseButtonActionPerformed(evt);
@@ -249,7 +249,7 @@ public final class TestVisualPanel1 extends JPanel {
         jTextArea1.setFont(jTextArea1.getFont().deriveFont(jTextArea1.getFont().getSize()-1f));
         jTextArea1.setLineWrap(true);
         jTextArea1.setRows(5);
-        jTextArea1.setText("Project Folder is the directory in which all the project files will be stored. Existing makefile is the main makefile of existing project that is to be converted into NetBeans project. The Build and Clean commands are commands that map the IDE's Build and Clean actions to shell commands. They could be executing an existing Makefile like \"make -f Makefile\" and \"make -f Makefile clean\". Build Result is the full path to the output of the Build Command and could be a path to an executable or library.");
+        jTextArea1.setText("Project Folder is the directory in which all the project files will be stored. Existing makefile is the main makefile of existing project that is to be converted into NetBeans project. The Build and Clean commands are commands that map the IDE's Build and Clean actions to shell commands. They could be executing an existing Makefile like \"make -f Makefile\" and \"make -f Makefile clean\". Build Result is the full path to the output of the Build Command and could be a path to an executable or library."); // NOI18N
         jTextArea1.setWrapStyleWord(true);
         jScrollPane1.setViewportView(jTextArea1);
 
@@ -277,14 +277,14 @@ public final class TestVisualPanel1 extends JPanel {
         add(depthSpinner, gridBagConstraints);
 
         depthLabel.setLabelFor(depthSpinner);
-        org.openide.awt.Mnemonics.setLocalizedText(depthLabel, "Maximal depth of subprojects nesting:");
+        org.openide.awt.Mnemonics.setLocalizedText(depthLabel, "Maximal depth of subprojects nesting:"); // NOI18N
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 12;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
         add(depthLabel, gridBagConstraints);
 
-        org.openide.awt.Mnemonics.setLocalizedText(prefixLabel, "Prefix for projects names:");
+        org.openide.awt.Mnemonics.setLocalizedText(prefixLabel, "Prefix for projects names:"); // NOI18N
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 13;
@@ -302,7 +302,7 @@ public final class TestVisualPanel1 extends JPanel {
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         add(prefixTextField, gridBagConstraints);
 
-        org.openide.awt.Mnemonics.setLocalizedText(invokeDwarfDiscovery, "Invoke dwarf-based discovery");
+        org.openide.awt.Mnemonics.setLocalizedText(invokeDwarfDiscovery, "Invoke dwarf-based discovery"); // NOI18N
         invokeDwarfDiscovery.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 invokeDwarfDiscoveryActionPerformed(evt);
@@ -335,11 +335,11 @@ public final class TestVisualPanel1 extends JPanel {
             }
 
             public String getDescription() {
-                return "All files";
+                return "All files"; // NOI18N
             }
         };
 
-        JFileChooser fileChooser = new FileChooser("Select Executable Path", "Select", JFileChooser.DIRECTORIES_ONLY, new FileFilter[]{all}, seed, false);
+        JFileChooser fileChooser = new FileChooser("Select Executable Path", "Select", JFileChooser.DIRECTORIES_ONLY, new FileFilter[]{all}, seed, false); // NOI18N
         int ret = fileChooser.showOpenDialog(this);
         if (ret == JFileChooser.CANCEL_OPTION) {
             return;
@@ -383,11 +383,11 @@ public final class TestVisualPanel1 extends JPanel {
             }
 
             public String getDescription() {
-                return "All files";
+                return "All files"; // NOI18N
             }
         };
 
-        JFileChooser fileChooser = new FileChooser("Select Project Folder", "Select", JFileChooser.DIRECTORIES_ONLY, new FileFilter[]{all}, seed, false);
+        JFileChooser fileChooser = new FileChooser("Select Project Folder", "Select", JFileChooser.DIRECTORIES_ONLY, new FileFilter[]{all}, seed, false); // NOI18N
         int ret = fileChooser.showOpenDialog(this);
         if (ret == JFileChooser.CANCEL_OPTION) {
             return;
@@ -408,7 +408,7 @@ public final class TestVisualPanel1 extends JPanel {
         } else {
             seed = System.getProperty("user.home"); // NOI18N
         }
-        JFileChooser fileChooser = new FileChooser("Select Makefile", "Select", JFileChooser.FILES_ONLY, new FileFilter[]{MakefileFileFilter.getInstance()}, seed, false);
+        JFileChooser fileChooser = new FileChooser("Select Makefile", "Select", JFileChooser.FILES_ONLY, new FileFilter[]{MakefileFileFilter.getInstance()}, seed, false); // NOI18N
         int ret = fileChooser.showOpenDialog(this);
         if (ret == JFileChooser.CANCEL_OPTION) {
             return;
@@ -422,9 +422,9 @@ public final class TestVisualPanel1 extends JPanel {
             makefilePath = makefile.getPath();
         }
         String makefileName = makefilePath.substring(makefilePath.lastIndexOf(File.separator) + 1, makefilePath.length());
-        buildCommand += " -f " + makefileName;
+        buildCommand += " -f " + makefileName; // NOI18N
         buildCommandTextField.setText(buildCommand);
-        cleanCommand = DEFAULT_BUILD + " -f " + makefileName + " clean";
+        cleanCommand = DEFAULT_BUILD + " -f " + makefileName + " clean"; // NOI18N
         cleanCommandTextField.setText(cleanCommand);
     }//GEN-LAST:event_makefileBrowseButtonActionPerformed
 

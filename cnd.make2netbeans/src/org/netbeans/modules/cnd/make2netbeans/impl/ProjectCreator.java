@@ -83,9 +83,9 @@ import org.w3c.dom.Element;
 public class ProjectCreator {
 
     //default makefile name
-    private static final String MAKEFILE_NAME = "Makefile";
+    private static final String MAKEFILE_NAME = "Makefile"; // NOI18N
     //project type
-    private static final String TYPE = "org.netbeans.modules.cnd.makeproject";
+    private static final String TYPE = "org.netbeans.modules.cnd.makeproject"; // NOI18N
     //configuration namespace
     private static final String PROJECT_CONFIGURATION_NAMESPACE = "http://www.netbeans.org/ns/make-project/1";
     private String workingDir;
@@ -174,7 +174,7 @@ public class ProjectCreator {
         }
         CodeAssistance ca = new CodeAssistance();
         Vector<String> includes = new Vector<String>(ca.getIncludes(makefilePath));
-        String target = "Default";
+        String target = "Default"; // NOI18N
 
         MakeConfiguration extConf = new MakeConfiguration(dirF.getPath(), target, MakeConfiguration.TYPE_MAKEFILE);
         String workingDirRel = IpeUtils.toRelativePath(dirF.getPath(), FilePathAdaptor.naturalize(workingDir));
@@ -189,12 +189,12 @@ public class ProjectCreator {
                 extConf.getRequiredProjectsConfiguration().add(new LibraryItem.ProjectItem(new MakeArtifact(
                         sub, //String projectLocation
                         0, // int configurationType
-                        "Default", // String configurationName
+                        "Default", // String configurationName // NOI18N
                         true, // boolean active
                         false, // boolean build
                         sub, // String workingDirectory
-                        "${MAKE}  -f "+sub+"-Makefile.mk CONF=Default", // String buildCommand
-                        "${MAKE}  -f "+sub+"-Makefile.mk CONF=Default clean", // String cleanCommand
+                        "${MAKE}  -f "+sub+"-Makefile.mk CONF=Default", // String buildCommand // NOI18N
+                        "${MAKE}  -f "+sub+"-Makefile.mk CONF=Default clean", // String cleanCommand // NOI18N
                         "" //String output
                         )));
             }
@@ -227,7 +227,7 @@ public class ProjectCreator {
             it = sourceFiles.iterator();
         }
         AntProjectHelper h1 = null;
-        makefileName = name + "-" + makefileName + ".mk";
+        makefileName = name + "-" + makefileName + ".mk"; // NOI18N
         h1 = createProject(dirF, displayName, makefileName, new MakeConfiguration[]{extConf}, it, importantItemsIterator, runDiscovery);
         return h1;
     }
@@ -256,10 +256,10 @@ public class ProjectCreator {
         AntProjectHelper h = ProjectGenerator.createProject(dirFO, TYPE);
         Element data = h.getPrimaryConfigurationData(true);
         Document doc = data.getOwnerDocument();
-        Element nameEl = doc.createElementNS(PROJECT_CONFIGURATION_NAMESPACE, "name");
+        Element nameEl = doc.createElementNS(PROJECT_CONFIGURATION_NAMESPACE, "name"); // NOI18N
         nameEl.appendChild(doc.createTextNode(displayName));
         data.appendChild(nameEl);
-        Element nativeProjectType = doc.createElementNS(PROJECT_CONFIGURATION_NAMESPACE, "make-project-type");
+        Element nativeProjectType = doc.createElementNS(PROJECT_CONFIGURATION_NAMESPACE, "make-project-type"); // NOI18N
         nativeProjectType.appendChild(doc.createTextNode("" + 0));
         data.appendChild(nativeProjectType);
         h.putPrimaryConfigurationData(data, true);
@@ -280,7 +280,7 @@ public class ProjectCreator {
         projectDescriptor.save();
 
         // create Makefile
-        copyURLFile("nbresloc:/org/netbeans/modules/cnd/makeproject/resources/MasterMakefile", projectDescriptor.getBaseDir() + File.separator + projectDescriptor.getProjectMakefileName());
+        copyURLFile("nbresloc:/org/netbeans/modules/cnd/makeproject/resources/MasterMakefile", projectDescriptor.getBaseDir() + File.separator + projectDescriptor.getProjectMakefileName()); // NOI18N
         return h;
     }
 
@@ -332,10 +332,10 @@ public class ProjectCreator {
         }
         while (tok.hasMoreElements()) {
             String part = tok.nextToken();
-            if (part.contains(":") || part.equals("..")) {
+            if (part.contains(":") || part.equals("..")) { // NOI18N
                 continue;
             }
-            if (part.contains(".")) {
+            if (part.contains(".")) { // NOI18N
                 fld.addItem(new Item(relativePath));
                 continue;
             }

@@ -146,11 +146,11 @@ class ErrorProviderImpl extends ErrorProvider {
         if( itemSet != null ) {
             for( NativeFileItem item : itemSet ) {
                 for( String path : item.getUserIncludePaths() ) {
-                    sb.append(" -I ");
+                    sb.append(" -I "); // NOI18N
                     sb.append(path);
                 }
 		for( String def : item.getUserMacroDefinitions() ) {
-		    sb.append(" -D");
+		    sb.append(" -D"); // NOI18N
 		    sb.append(def);
 		}
                 break;

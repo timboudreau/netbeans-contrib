@@ -64,14 +64,14 @@ public final class TestAction extends CallableSystemAction {
     public void performAction() {
         TestWizardAction t = new TestWizardAction();
         t.performAction();
-        String projectFolder = (String) t.getValue("projectFolder");
-        String makefilePath = (String) t.getValue("makefilePath");
-        String buildCommand = (String) t.getValue("buildCommand");
-        String cleanCommand = (String) t.getValue("cleanCommand");
-        String output = (String) t.getValue("output");
-        String prefix = (String) t.getValue("prefix");
-        int depth = ((Integer)t.getValue("depth")).intValue();
-        boolean dwarf = ((Boolean)t.getValue("dwarf")).booleanValue();
+        String projectFolder = (String) t.getValue("projectFolder"); // NOI18N
+        String makefilePath = (String) t.getValue("makefilePath"); // NOI18N
+        String buildCommand = (String) t.getValue("buildCommand"); // NOI18N
+        String cleanCommand = (String) t.getValue("cleanCommand"); // NOI18N
+        String output = (String) t.getValue("output"); // NOI18N
+        String prefix = (String) t.getValue("prefix"); // NOI18N
+        int depth = ((Integer)t.getValue("depth")).intValue(); // NOI18N
+        boolean dwarf = ((Boolean)t.getValue("dwarf")).booleanValue(); // NOI18N
         if (projectFolder != null && makefilePath != null) {
             File makefile = new File(makefilePath);
             makefilePath = makefile.getPath();
@@ -88,13 +88,13 @@ public final class TestAction extends CallableSystemAction {
             p.setInvokeDwarfProvider(dwarf);
             try {
                 p.generate();
-                NotifyDescriptor d = new NotifyDescriptor.Message("The project has been created. It is located in " + projectFolder + ".", NotifyDescriptor.INFORMATION_MESSAGE);
+                NotifyDescriptor d = new NotifyDescriptor.Message("The project has been created. It is located in " + projectFolder + ".", NotifyDescriptor.INFORMATION_MESSAGE); // NOI18N
                 DialogDisplayer.getDefault().notify(d);
             } catch (IllegalArgumentException e) {
-                NotifyDescriptor d = new NotifyDescriptor.Message("There is already a project in specified folder", NotifyDescriptor.INFORMATION_MESSAGE);
+                NotifyDescriptor d = new NotifyDescriptor.Message("There is already a project in specified folder", NotifyDescriptor.INFORMATION_MESSAGE); // NOI18N
                 DialogDisplayer.getDefault().notify(d);
             } catch (IOException e) {
-                System.out.println("TestAction.performAction: Exception: " + e);
+                System.out.println("TestAction.performAction: Exception: " + e); // NOI18N
             }
         }
     }
@@ -114,7 +114,7 @@ public final class TestAction extends CallableSystemAction {
     protected void initialize() {
         super.initialize();
         // see org.openide.util.actions.SystemAction.iconResource() javadoc for more details
-        putValue("noIconInMenu", Boolean.TRUE);
+        putValue("noIconInMenu", Boolean.TRUE); // NOI18N
     }
 
     /**

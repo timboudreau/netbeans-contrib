@@ -66,23 +66,23 @@ public final class TestWizardAction extends CallableSystemAction {
     public void performAction() {
         WizardDescriptor wizardDescriptor = new WizardDescriptor(getPanels());
         // {0} will be replaced by WizardDesriptor.Panel.getComponent().getName()
-        wizardDescriptor.setTitleFormat(new MessageFormat("{0}"));
-        wizardDescriptor.setTitle("Make2NetBeans");
+        wizardDescriptor.setTitleFormat(new MessageFormat("{0}")); // NOI18N
+        wizardDescriptor.setTitle("Make2NetBeans"); // NOI18N
         Dialog dialog = DialogDisplayer.getDefault().createDialog(wizardDescriptor);
         dialog.setVisible(true);
         dialog.toFront();
         boolean cancelled = wizardDescriptor.getValue() != WizardDescriptor.FINISH_OPTION;
         if (!cancelled) {
             TestVisualPanel1 p = (TestVisualPanel1) panels[0].getComponent();
-            putValue("makefilePath", p.getMakefilePath());
-            putValue("projectFolder", p.getProjectFolder());
-            putValue("projectName", p.getProjectName());
-            putValue("buildCommand", p.getBuildCommand());
-            putValue("cleanCommand", p.getCleanCommand());
-            putValue("output", p.getOutput());
-            putValue("prefix", p.getPrefixName());
-            putValue("depth", p.getDepthLevel());
-            putValue("dwarf", p.isInvokeDwarfProvider());
+            putValue("makefilePath", p.getMakefilePath()); // NOI18N
+            putValue("projectFolder", p.getProjectFolder()); // NOI18N
+            putValue("projectName", p.getProjectName()); // NOI18N
+            putValue("buildCommand", p.getBuildCommand()); // NOI18N
+            putValue("cleanCommand", p.getCleanCommand()); // NOI18N
+            putValue("output", p.getOutput()); // NOI18N
+            putValue("prefix", p.getPrefixName()); // NOI18N
+            putValue("depth", p.getDepthLevel()); // NOI18N
+            putValue("dwarf", p.isInvokeDwarfProvider()); // NOI18N
         }
     }
 
@@ -104,15 +104,15 @@ public final class TestWizardAction extends CallableSystemAction {
                     // assume Swing components
                     JComponent jc = (JComponent) c;
                     // Sets step number of a component
-                    jc.putClientProperty("WizardPanel_contentSelectedIndex", new Integer(i));
+                    jc.putClientProperty("WizardPanel_contentSelectedIndex", new Integer(i)); // NOI18N
                     // Sets steps names for a panel
-                    jc.putClientProperty("WizardPanel_contentData", steps);
+                    jc.putClientProperty("WizardPanel_contentData", steps); // NOI18N
                     // Turn on subtitle creation on each step
-                    jc.putClientProperty("WizardPanel_autoWizardStyle", Boolean.TRUE);
+                    jc.putClientProperty("WizardPanel_autoWizardStyle", Boolean.TRUE); // NOI18N
                     // Show steps on the left side with the image on the background
-                    jc.putClientProperty("WizardPanel_contentDisplayed", Boolean.TRUE);
+                    jc.putClientProperty("WizardPanel_contentDisplayed", Boolean.TRUE); // NOI18N
                     // Turn on numbering of all steps
-                    jc.putClientProperty("WizardPanel_contentNumbered", Boolean.TRUE);
+                    jc.putClientProperty("WizardPanel_contentNumbered", Boolean.TRUE); // NOI18N
                 }
             }
         }
@@ -124,7 +124,7 @@ public final class TestWizardAction extends CallableSystemAction {
      * @return a human presentable name of the action
      */
     public String getName() {
-        return "Start Wizard";
+        return "Start Wizard"; // NOI18N
     }
 
     /**

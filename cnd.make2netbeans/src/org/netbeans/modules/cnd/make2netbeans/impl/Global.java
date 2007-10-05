@@ -129,7 +129,7 @@ public abstract class Global {
         // unknown variable stays as is
         if (!Global.globalVars.containsKey(varName)) {
             if (!Global.localVars.containsKey(varName)) {
-                return new String("$(" + varName + ")");
+                return new String("$(" + varName + ")"); // NOI18N
             } else {
                 return eval(Global.localVars.get(varName));
             }
@@ -176,12 +176,12 @@ public abstract class Global {
             Map.Entry<String, String> item = it.next();
             String name = eval(item.getKey());
             String value = eval(item.getValue());
-            if (value != null && value.startsWith("\\\"") && value.endsWith("\\\"")&& value.length()>=4){
-                value = "\""+value.substring(2,value.length()-2)+"\"";
-            } else if (value != null && value.startsWith("'\"") && value.endsWith("\"'")&& value.length()>=4){
-                value = "\""+value.substring(2,value.length()-2)+"\"";
+            if (value != null && value.startsWith("\\\"") && value.endsWith("\\\"")&& value.length()>=4){ // NOI18N
+                value = "\""+value.substring(2,value.length()-2)+"\""; // NOI18N
+            } else if (value != null && value.startsWith("'\"") && value.endsWith("\"'")&& value.length()>=4){ // NOI18N
+                value = "\""+value.substring(2,value.length()-2)+"\""; // NOI18N
             }
-            defines.append(eval(item.getKey()) + "=" + eval(item.getValue() + " "));
+            defines.append(eval(item.getKey()) + "=" + eval(item.getValue() + " ")); // NOI18N
         }
         return defines.toString();
     }

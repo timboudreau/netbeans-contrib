@@ -326,9 +326,9 @@ class Eval {
                                     if (pattern[1] == "") {
                                         pattern[2] = pattern[0];
                                         pattern[0] = "";
-                                        pattern[1] = "%";
+                                        pattern[1] = "%"; // NOI18N
                                         replacement[0] = "";
-                                        replacement[1] = "%";
+                                        replacement[1] = "%"; // NOI18N
                                         replacement[2] = evalPatternArg();
                                     } else {
                                         // read REPLACEMENT
@@ -348,7 +348,7 @@ class Eval {
                                  */
                                 {
                                     String func = vars.element().toString();
-                                    if (func.equals("subst")) {
+                                    if (func.equals("subst")) { // NOI18N
                                         // delete function name
                                         vars.remove();
                                         String from = evalFirstArg();
@@ -356,7 +356,7 @@ class Eval {
                                         String text = evalLastArg();
                                         // get value of builtin function
                                         vars.element().append(subst(from, to, text));
-                                    } else if (func.equals("patsubst")) {
+                                    } else if (func.equals("patsubst")) { // NOI18N
                                         // delete function name
                                         vars.remove();
                                         String[] pattern = pattern(evalFirstArg());
@@ -364,23 +364,23 @@ class Eval {
                                         String text = evalLastArg();
                                         // get value of builtin function
                                         vars.element().append(patsubst(pattern, replacement, text));
-                                    } else if (func.equals("strip")) {
+                                    } else if (func.equals("strip")) { // NOI18N
                                         // delete function name
                                         vars.remove();
                                         String string = evalOnlyArg();
                                         // get value of builtin function
                                         vars.element().append(strip(string));
-                                    } else if (func.equals("findstring")) {
+                                    } else if (func.equals("findstring")) { // NOI18N
                                         // delete function name
                                         vars.remove();
                                         String find = evalFirstArg();
                                         String in = evalLastArg();
                                         // get value of builtin function
                                         vars.element().append(findstring(find, in));
-                                    } else if (func.equals("filter")) {
+                                    } else if (func.equals("filter")) { // NOI18N
                                         // delete function name
                                         vars.remove();
-                                        String[] patterns = evalFirstArg().trim().split("( |\t)+", 0);
+                                        String[] patterns = evalFirstArg().trim().split("( |\t)+", 0); // NOI18N
                                         LinkedList<String[]> list = new LinkedList<String[]>();
                                         for (int i = 0; i < patterns.length; i++) {
                                             list.add(pattern(patterns[i]));
@@ -388,10 +388,10 @@ class Eval {
                                         String text = evalLastArg();
                                         // get value of builtin function
                                         vars.element().append(filter(list, text));
-                                    } else if (func.equals("filter-out")) {
+                                    } else if (func.equals("filter-out")) { // NOI18N
                                         // delete function name
                                         vars.remove();
-                                        String[] patterns = evalFirstArg().trim().split("( |\t)+", 0);
+                                        String[] patterns = evalFirstArg().trim().split("( |\t)+", 0); // NOI18N
                                         LinkedList<String[]> list = new LinkedList<String[]>();
                                         for (int i = 0; i < patterns.length; i++) {
                                             list.add(pattern(patterns[i]));
@@ -399,65 +399,65 @@ class Eval {
                                         String text = evalLastArg();
                                         // get value of builtin function
                                         vars.element().append(filter_out(list, text));
-                                    } else if (func.equals("sort")) {
+                                    } else if (func.equals("sort")) { // NOI18N
                                         // delete function name
                                         vars.remove();
                                         String list = evalOnlyArg();
                                         // get value of builtin function
                                         vars.element().append(sort(list));
-                                    } else if (func.equals("dir")) {
+                                    } else if (func.equals("dir")) { // NOI18N
                                         // delete function name
                                         vars.remove();
                                         String names = evalOnlyArg();
                                         // get value of builtin function
                                         vars.element().append(dir(names));
-                                    } else if (func.equals("notdir")) {
+                                    } else if (func.equals("notdir")) { // NOI18N
                                         // delete function name
                                         vars.remove();
                                         String names = evalOnlyArg();
                                         // get value of builtin function
                                         vars.element().append(notdir(names));
-                                    } else if (func.equals("suffix")) {
+                                    } else if (func.equals("suffix")) { // NOI18N
                                         // delete function name
                                         vars.remove();
                                         String names = evalOnlyArg();
                                         // get value of builtin function
                                         vars.element().append(suffix(names));
-                                    } else if (func.equals("basename")) {
+                                    } else if (func.equals("basename")) { // NOI18N
                                         // delete function name
                                         vars.remove();
                                         String names = evalOnlyArg();
                                         // get value of builtin function
                                         vars.element().append(basename(names));
-                                    } else if (func.equals("addsuffix")) {
+                                    } else if (func.equals("addsuffix")) { // NOI18N
                                         // delete function name
                                         vars.remove();
                                         String suffix = evalFirstArg();
                                         String names = evalLastArg();
                                         // get value of builtin function
                                         vars.element().append(addsuffix(suffix, names));
-                                    } else if (func.equals("addprefix")) {
+                                    } else if (func.equals("addprefix")) { // NOI18N
                                         // delete function name
                                         vars.remove();
                                         String prefix = evalFirstArg();
                                         String names = evalLastArg();
                                         // get value of builtin function
                                         vars.element().append(addprefix(prefix, names));
-                                    } else if (func.equals("join")) {
+                                    } else if (func.equals("join")) { // NOI18N
                                         // delete function name
                                         vars.remove();
                                         String list1 = evalFirstArg();
                                         String list2 = evalLastArg();
                                         // get value of builtin function
                                         vars.element().append(join(list1, list2));
-                                    } else if (func.equals("word")) {
+                                    } else if (func.equals("word")) { // NOI18N
                                         // delete function name
                                         vars.remove();
                                         String n = evalFirstArg();
                                         String text = evalLastArg();
                                         // get value of builtin function
                                         vars.element().append(word(n, text));
-                                    } else if (func.equals("wordlist")) {
+                                    } else if (func.equals("wordlist")) { // NOI18N
                                         // delete function name
                                         vars.remove();
                                         String s = evalFirstArg();
@@ -465,25 +465,25 @@ class Eval {
                                         String text = evalLastArg();
                                         // get value of builtin function
                                         vars.element().append(wordlist(s, e, text));
-                                    } else if (func.equals("words")) {
+                                    } else if (func.equals("words")) { // NOI18N
                                         // delete function name
                                         vars.remove();
                                         String text = evalOnlyArg();
                                         // get value of builtin function
                                         vars.element().append(words(text));
-                                    } else if (func.equals("firstword")) {
+                                    } else if (func.equals("firstword")) { // NOI18N
                                         // delete function name
                                         vars.remove();
                                         String names = evalOnlyArg();
                                         // get value of builtin function
                                         vars.element().append(firstword(names));
-                                    } else if (func.equals("wildcard")) {
+                                    } else if (func.equals("wildcard")) { // NOI18N
                                         // delete function name
                                         vars.remove();
                                         String pattern = evalOnlyArg();
                                         // get value of builtin function
                                         vars.element().append(wildcard(pattern));
-                                    } else if (func.equals("foreach")) {
+                                    } else if (func.equals("foreach")) { // NOI18N
                                         // delete function name
                                         vars.remove();
                                         String var = evalFirstArg();
@@ -491,7 +491,7 @@ class Eval {
                                         String text = noevalLastArg();
                                         // get value of builtin function
                                         vars.element().append(foreach(var, list, text));
-                                    } else if (func.equals("if")) {
+                                    } else if (func.equals("if")) { // NOI18N
                                         // delete function name
                                         vars.remove();
                                         String result;
@@ -505,7 +505,7 @@ class Eval {
                                         }
                                         // get value of builtin function
                                         vars.element().append(result);
-                                    } else if (func.equals("call")) {
+                                    } else if (func.equals("call")) { // NOI18N
                                         // delete function name
                                         vars.remove();
                                         LinkedList<String> params = new LinkedList<String>();
@@ -516,7 +516,7 @@ class Eval {
                                         }
                                         // get value of builtin function
                                         vars.element().append(call(variable, params));
-                                    } else if (func.equals("shell")) {
+                                    } else if (func.equals("shell")) { // NOI18N
                                         // delete function name
                                         vars.remove();
                                         String command = evalOnlyArg();
@@ -589,7 +589,7 @@ class Eval {
                 // there are no any `%' in string src
                 {
                     // remove double baskslashes
-                    result[0] = src.replaceAll("\\\\", "\\");
+                    result[0] = src.replaceAll("\\\\", "\\"); // NOI18N
                     result[1] = "";
                     result[2] = "";
                     return result;
@@ -599,7 +599,7 @@ class Eval {
                 // src starts with `%'
                 {
                     result[0] = "";
-                    result[1] = "%";
+                    result[1] = "%"; // NOI18N
                     result[2] = src.substring(1);
                     return result;
                 }
@@ -611,8 +611,8 @@ class Eval {
                         if (src.charAt(index - 1) == '\\') {
                             index = index + 1;
                         } else {
-                            result[0] = src.substring(0, index).replaceAll("\\\\", "\\");
-                            result[1] = "%";
+                            result[0] = src.substring(0, index).replaceAll("\\\\", "\\"); // NOI18N
+                            result[1] = "%"; // NOI18N
                             result[2] = src.substring(index + 1);
                             return result;
                         }
@@ -621,7 +621,7 @@ class Eval {
                     } // while (index != -1)
                 } // default
         } // switch(index)
-        result[0] = src.replaceAll("\\\\", "\\").replaceAll("\\%", "%");
+        result[0] = src.replaceAll("\\\\", "\\").replaceAll("\\%", "%"); // NOI18N
         result[1] = "";
         result[2] = "";
         return result;
@@ -653,7 +653,7 @@ class Eval {
                                 }
                             default:
                                 {
-                                    result.append("$" + c);
+                                    result.append("$" + c); // NOI18N
                                     break;
                                 }
                         }
@@ -699,29 +699,29 @@ class Eval {
     private String patsubst(String[] pattern, String[] replacement, String text) {
         String[] words;
         String result = new String("");
-        if (pattern[1].equals("%")) {
-            words = text.trim().split("( |\t)+", 0);
+        if (pattern[1].equals("%")) { // NOI18N
+            words = text.trim().split("( |\t)+", 0); // NOI18N
         } else {
-            return text.replaceAll("\\B" + pattern[0] + "\\B", replacement[0] + replacement[1] + replacement[2]);
+            return text.replaceAll("\\B" + pattern[0] + "\\B", replacement[0] + replacement[1] + replacement[2]); // NOI18N
         }
         for (int i = 0; i < words.length; i++) {
             if (words[i].startsWith(pattern[0]) && words[i].endsWith(pattern[2])) {
                 result += replacement[0];
-                if (replacement[1].equals("%")) {
+                if (replacement[1].equals("%")) { // NOI18N
                     result += words[i].substring(pattern[0].length(), words[i].length() - pattern[2].length());
                 }
                 result += replacement[2];
             } else {
                 result += words[i];
             }
-            result += " ";
+            result += " "; // NOI18N
         }
         return strip(result);
     }
 
     private String strip(String string) {
         try {
-            return string.trim().replaceAll("( |\t)+", " ");
+            return string.trim().replaceAll("( |\t)+", " "); // NOI18N
         } catch (Exception e) {
             System.err.println("evalfunc.g: unexpected Exception in " + "EvalFuncLexer.strip():\n" + e);
             return new String("");
@@ -737,11 +737,11 @@ class Eval {
 
     private String filter(LinkedList<String[]> patterns, String text) {
         String result = new String("");
-        String[] words = text.trim().split("( |\t)+", 0);
+        String[] words = text.trim().split("( |\t)+", 0); // NOI18N
         for (int i = 0; i < words.length; i = i + 1) {
             for (int j = 0; j < patterns.size(); j++) {
-                if (words[i].startsWith(patterns.get(j)[0]) && words[i].endsWith(patterns.get(j)[2]) && (words[i].length() == patterns.get(j)[0].length() + patterns.get(j)[2].length() || patterns.get(j)[1] == "%")) {
-                    result += words[i] + " ";
+                if (words[i].startsWith(patterns.get(j)[0]) && words[i].endsWith(patterns.get(j)[2]) && (words[i].length() == patterns.get(j)[0].length() + patterns.get(j)[2].length() || patterns.get(j)[1] == "%")) { // NOI18N
+                    result += words[i] + " "; // NOI18N
                     break;
                 }
             }
@@ -754,17 +754,17 @@ class Eval {
 
     private String filter_out(LinkedList<String[]> patterns, String text) {
         String result = new String("");
-        String[] words = text.trim().split("( |\t)+", 0);
+        String[] words = text.trim().split("( |\t)+", 0); // NOI18N
         for (int i = 0; i < words.length; i = i + 1) {
             boolean filter = true;
             for (int j = 0; j < patterns.size(); j++) {
-                if (words[i].startsWith(patterns.get(j)[0]) && words[i].endsWith(patterns.get(j)[2]) && (words[i].length() == patterns.get(j)[0].length() + patterns.get(j)[2].length() || patterns.get(j)[1] == "%")) {
+                if (words[i].startsWith(patterns.get(j)[0]) && words[i].endsWith(patterns.get(j)[2]) && (words[i].length() == patterns.get(j)[0].length() + patterns.get(j)[2].length() || patterns.get(j)[1] == "%")) { // NOI18N
                     filter = false;
                     break;
                 }
             }
             if (filter) {
-                result += words[i] + " ";
+                result += words[i] + " "; // NOI18N
             }
         }
         if (result.length() < 1) {
@@ -774,7 +774,7 @@ class Eval {
     }
 
     private String sort(String list) {
-        String[] words = list.trim().split("( |\t)+", 0);
+        String[] words = list.trim().split("( |\t)+", 0); // NOI18N
         if (words.length == 0) {
             return "";
         }
@@ -783,10 +783,10 @@ class Eval {
         }
         Arrays.sort(words);
         String prev = words[0];
-        String result = words[0] + " ";
+        String result = words[0] + " "; // NOI18N
         for (int i = 1; i < words.length; i++) {
             if (!prev.equals(words[i])) {
-                result += words[i] + " ";
+                result += words[i] + " "; // NOI18N
                 prev = words[i];
             }
         }
@@ -798,7 +798,7 @@ class Eval {
     //--------------------------------------------------------
 
     private String dir(String names) {
-        String[] words = names.trim().split("( |\t)+", 0);
+        String[] words = names.trim().split("( |\t)+", 0); // NOI18N
         String result = "";
         for (int i = 0; i < words.length; i++) {
             int index = words[i].lastIndexOf('/');
@@ -806,17 +806,17 @@ class Eval {
             if (index == words[i].length()) {
                 tmp = words[i];
             } else if (index == -1) {
-                tmp = "./";
+                tmp = "./"; // NOI18N
             } else {
                 tmp = words[i].substring(0, index + 1);
             }
-            result += tmp + " ";
+            result += tmp + " "; // NOI18N
         }
         return result.substring(0, result.length() - 1);
     }
 
     private String notdir(String names) {
-        String[] words = names.trim().split("( |\t)+", 0);
+        String[] words = names.trim().split("( |\t)+", 0); // NOI18N
         String result = new String("");
         for (int i = 0; i < words.length; i++) {
             int index = words[i].lastIndexOf('/');
@@ -824,9 +824,9 @@ class Eval {
             if (index == words[i].length()) {
                 tmp = "";
             } else if (index == -1) {
-                tmp = words[i] + " ";
+                tmp = words[i] + " "; // NOI18N
             } else {
-                tmp = words[i].substring(index + 1, words[i].length()) + " ";
+                tmp = words[i].substring(index + 1, words[i].length()) + " "; // NOI18N
             }
             result += tmp;
         }
@@ -834,28 +834,28 @@ class Eval {
     }
 
     private String suffix(String names) {
-        String[] words = names.trim().split("( |\t)+", 0);
+        String[] words = names.trim().split("( |\t)+", 0); // NOI18N
         String result = "";
         for (int i = 0; i < words.length; i++) {
             int slash = words[i].lastIndexOf('/');
             int dot = words[i].lastIndexOf('.');
             if (dot > slash) {
-                result += words[i].substring(dot, words[i].length()) + " ";
+                result += words[i].substring(dot, words[i].length()) + " "; // NOI18N
             }
         }
         return result.substring(0, result.length() - 1);
     }
 
     private String basename(String names) {
-        String[] words = names.trim().split("( |\t)+", 0);
+        String[] words = names.trim().split("( |\t)+", 0); // NOI18N
         String result = "";
         for (int i = 0; i < words.length; i++) {
             int slash = words[i].lastIndexOf('/');
             int dot = words[i].lastIndexOf('.');
             if (dot > slash) {
-                result += words[i].substring(0, dot) + " ";
+                result += words[i].substring(0, dot) + " "; // NOI18N
             } else {
-                result += words[i] + " ";
+                result += words[i] + " "; // NOI18N
             }
         }
         return result.substring(0, result.length() - 1);
@@ -863,7 +863,7 @@ class Eval {
 
     private String addsuffix(String suffix, String names) {
         try {
-            return strip(names).replaceAll(" ", suffix + " ") + suffix;
+            return strip(names).replaceAll(" ", suffix + " ") + suffix; // NOI18N
         } catch (java.lang.NullPointerException e) {
             System.err.println("evalfunc.g: unexpected Exception in " + "EvalFuncLexer.addsuffix():\n" + e);
             return new String("");
@@ -872,7 +872,7 @@ class Eval {
 
     private String addprefix(String prefix, String names) {
         try {
-            return prefix + strip(names).replaceAll(" ", " " + prefix);
+            return prefix + strip(names).replaceAll(" ", " " + prefix); // NOI18N
         } catch (java.lang.NullPointerException e) {
             System.err.println("evalfunc.g: unexpected Exception in " + "EvalFuncLexer.addprefix():\n" + e);
             return new String("");
@@ -880,16 +880,16 @@ class Eval {
     }
 
     private String join(String list1, String list2) {
-        String[] words1 = list1.trim().split("( |\t)+", 0);
-        String[] words2 = list2.trim().split("( |\t)+", 0);
+        String[] words1 = list1.trim().split("( |\t)+", 0); // NOI18N
+        String[] words2 = list2.trim().split("( |\t)+", 0); // NOI18N
         String[] min = (words1.length > words2.length) ? words2 : words1;
         String[] max = (words1.length < words2.length) ? words2 : words1;
         String result = "";
         for (int i = 0; i < min.length; i++) {
-            result += words1[i] + words2[i] + " ";
+            result += words1[i] + words2[i] + " "; // NOI18N
         }
         for (int i = min.length; i < max.length; i++) {
-            result += max[i] + " ";
+            result += max[i] + " "; // NOI18N
         }
         return result.substring(0, result.length() - 1);
     }
@@ -897,7 +897,7 @@ class Eval {
     private String word(String n, String text) {
         try {
             Integer integer = Integer.parseInt(n.trim());
-            String[] words = text.trim().split("( |\t)+", 0);
+            String[] words = text.trim().split("( |\t)+", 0); // NOI18N
             if (integer > words.length) {
                 return "";
             }
@@ -918,13 +918,13 @@ class Eval {
             if (begin > end) {
                 return "";
             }
-            String[] words = text.trim().split("( |\t)+", 0);
+            String[] words = text.trim().split("( |\t)+", 0); // NOI18N
             if (begin > words.length) {
                 return "";
             }
             String result = "";
             for (int i = begin; (i < words.length) && (i <= end); i++) {
-                result += words[i] + " ";
+                result += words[i] + " "; // NOI18N
             }
             return result.substring(0, result.length() - 1);
         } catch (Exception ex) {
@@ -934,12 +934,12 @@ class Eval {
     }
 
     private String words(String text) {
-        String[] words = text.trim().split("( |\t)+", 0);
+        String[] words = text.trim().split("( |\t)+", 0); // NOI18N
         return String.valueOf(words.length);
     }
 
     private String firstword(String text) {
-        String[] words = text.trim().split("( |\t)+", 0);
+        String[] words = text.trim().split("( |\t)+", 0); // NOI18N
         return words[0];
     }
 
@@ -947,15 +947,15 @@ class Eval {
     private String wildcard(String pattern) {
         try {
             String[] arr = new String[3];
-            arr[0] = "sh";
-            arr[1] = "-c";
-            arr[2] = "ls " + pattern;
+            arr[0] = "sh"; // NOI18N
+            arr[1] = "-c"; // NOI18N
+            arr[2] = "ls " + pattern; // NOI18N
             Process child = Runtime.getRuntime().exec(arr);
             BufferedReader in = new BufferedReader(new InputStreamReader(child.getInputStream()));
             String result = new String();
             String tmp;
             while ((tmp = in.readLine()) != null) {
-                result += " " + tmp;
+                result += " " + tmp; // NOI18N
             }
             return result.trim();
         } catch (Exception e) {
@@ -970,10 +970,10 @@ class Eval {
 
     private String foreach(String var, String list, String text) {
         String result = new String("");
-        String[] words = list.trim().split("( |\t)+", 0);
+        String[] words = list.trim().split("( |\t)+", 0); // NOI18N
         for (int i = 0; i < words.length; i++) {
             Global.localVars.put(var, words[i]);
-            result += Global.eval(text) + " ";
+            result += Global.eval(text) + " "; // NOI18N
             Global.localVars = new TreeMap<String, String>();
         }
         if (result.length() < 1) {
@@ -1004,15 +1004,15 @@ class Eval {
     private String shell(String cmd) {
         try {
             String[] arr = new String[3];
-            arr[0] = "sh";
-            arr[1] = "-c";
+            arr[0] = "sh"; // NOI18N
+            arr[1] = "-c"; // NOI18N
             arr[2] = cmd;
             Process child = Runtime.getRuntime().exec(arr);
             BufferedReader in = new BufferedReader(new InputStreamReader(child.getInputStream()));
             String result = new String();
             String tmp;
             while ((tmp = in.readLine()) != null) {
-                result += " " + tmp;
+                result += " " + tmp; // NOI18N
             }
             if (child.waitFor() != 0) {
                 return "";

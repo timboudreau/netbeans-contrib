@@ -55,7 +55,7 @@ import org.netbeans.modules.cnd.api.utils.AllSourceFileFilter;
 public class DividerImpl implements DivideProject {
 
     private static String[] SourceSuffix;
-    private static final String[] MakefileName = {"Makefile", "makefile", "GNUMakefile"};
+    private static final String[] MakefileName = {"Makefile", "makefile", "GNUMakefile"}; // NOI18N
     private ArrayList<String> NewNames; //list of new makefil names
     private File mkfile; //main makefile
     private ArrayList<File> projectFiles; //list of project files
@@ -129,7 +129,7 @@ public class DividerImpl implements DivideProject {
     private boolean isProjFile(File f) {
         String name = f.getName();
         for (int i = 0; i < SourceSuffix.length; i++) {
-            if (name.endsWith("." + SourceSuffix[i])) {
+            if (name.endsWith("." + SourceSuffix[i])) { // NOI18N
                 return true;
             }
         }

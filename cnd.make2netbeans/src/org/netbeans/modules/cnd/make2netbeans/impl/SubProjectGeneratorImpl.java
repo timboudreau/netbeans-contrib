@@ -91,7 +91,7 @@ public class SubProjectGeneratorImpl implements SubProjectGenerator {
         AntProjectHelper parent = generateProject(f, d, prefix, invokeDwarf &&(level==depthLevel));
         if (d.canBeDivided()) {
             if (prefix.length()>0) {
-                prefix +="."+f.getName();
+                prefix +="."+f.getName(); // NOI18N
             }
             level++;
             List<File> subpr = d.getSubprojects();
@@ -134,7 +134,7 @@ public class SubProjectGeneratorImpl implements SubProjectGenerator {
         }
         String displayName;
         if (prefix.length()>0){
-            displayName = prefix+"."+projectName;
+            displayName = prefix+"."+projectName; // NOI18N
         } else {
             displayName = projectName;
         }
