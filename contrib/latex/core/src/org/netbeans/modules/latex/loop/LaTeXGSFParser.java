@@ -48,6 +48,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.WeakHashMap;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.netbeans.api.gsf.CompilationInfo;
 import org.netbeans.api.gsf.Element;
 import org.netbeans.api.gsf.ElementHandle;
@@ -96,7 +98,6 @@ public class LaTeXGSFParser implements Parser {
             for (LaTeXSourceFactory f : Lookup.getDefault().lookupAll(LaTeXSourceFactory.class)) {
                 if (f.supports(file)) {
                     main = f.findMainFile(file);
-                    System.err.println("f=" + f + ", main=" + main);
                     if (main != null)
                         break;
                 }
@@ -126,6 +127,18 @@ public class LaTeXGSFParser implements Parser {
                 assert object instanceof Node;
                 
                 return new OffsetRange(((Node) object).getStartingPosition().getOffsetValue(), ((Node) object).getEndingPosition().getOffsetValue());
+            }
+
+            public boolean isTranslatingSource() {
+                return false;
+            }
+
+            public int getLexicalOffset(ParserResult result, int astOffset) {
+                return astOffset;
+            }
+
+            public int getAstOffset(ParserResult result, int lexicalOffset) {
+                return lexicalOffset;
             }
         };
     }
@@ -192,11 +205,8 @@ public class LaTeXGSFParser implements Parser {
             
             long end = System.currentTimeMillis();
             
-//            if (reparseTimeDebug) {
-//                TimesCollector.getDefault().reportTime((FileObject) getMainFile(), "latex-parse", "LaTeX Parse", (endParsing - startParsing));
-//                TimesCollector.getDefault().reportTime((FileObject) getMainFile(), "latex-parse-complete", "LaTeX Parse Complete", (end - start));
-//                System.err.println("Reparse done, main file=" + getMainFile() + ", parse time=" + (endParsing - startParsing) + "ms, complete time=" + (end - start) + "ms.");
-//            }
+            Logger.getLogger("TIMER").log(Level.FINE, "LaTeX Parse", new Object[] {main, (endParsing - startParsing)});
+            Logger.getLogger("TIMER").log(Level.FINE, "LaTeX Parse Complete", new Object[] {main, (end - start)});
             
 //        } finally {
 //            pcs.firePropertyChange("parsing", Boolean.TRUE, Boolean.FALSE);
