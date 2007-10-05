@@ -50,6 +50,7 @@ public class Installer extends ModuleInstall {
 
     @Override
     public void close() {
+        
         //store Perspective config to perspective dir
         MainParser paser=MainParser.getInstance();
         paser.store();

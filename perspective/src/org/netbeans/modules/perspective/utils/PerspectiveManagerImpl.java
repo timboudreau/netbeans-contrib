@@ -56,11 +56,10 @@ import org.netbeans.modules.perspective.views.Perspective;
  *
  * @author Anuradha G
  */
-public class PerspectiveManagerImpl extends PerspectiveManager{
+public class PerspectiveManagerImpl extends PerspectiveManager {
 
     private static PerspectiveManagerImpl instance;
-   private List<Perspective> perspectives = new ArrayList<Perspective>();
-    
+    private List<Perspective> perspectives = new ArrayList<Perspective>();
     private Perspective selected;
 
     public static synchronized PerspectiveManagerImpl getInstance() {
@@ -78,7 +77,6 @@ public class PerspectiveManagerImpl extends PerspectiveManager{
     }
 
     private PerspectiveManagerImpl() {
-        
     }
 
     public void registerPerspective(int index, Perspective perspective) {
@@ -88,12 +86,11 @@ public class PerspectiveManagerImpl extends PerspectiveManager{
             perspectives.add(index, perspective);
         }
         arrangeIndexs();
-        
     }
 
     public void registerPerspective(Perspective perspective, boolean arrange) {
         //deregistor  if exist
-        deregisterPerspective(perspective,arrange);
+        deregisterPerspective(perspective, arrange);
         if (perspectives.size() > perspective.getIndex()) {
             perspectives.add(perspective.getIndex(), perspective);
         } else {
@@ -102,33 +99,37 @@ public class PerspectiveManagerImpl extends PerspectiveManager{
 
         if (arrange) {
             arrangeIndexs();
-            
         }
     }
 
     public void deregisterPerspective(Perspective perspective) {
         deregisterPerspective(perspective, true);
     }
-    public void deregisterPerspective(Perspective perspective,boolean arrange) {
+
+    public void deregisterPerspective(Perspective perspective, boolean arrange) {
         perspectives.remove(perspective);
-        if(arrange){
+        if (arrange) {
             arrangeIndexs();
-        ToolbarStyleSwitchUI.getInstance().reset();
-        ToolbarStyleSwitchUI.getInstance().loadQuickPerspectives();
+            ToolbarStyleSwitchUI.getInstance().reset();
+            ToolbarStyleSwitchUI.getInstance().loadQuickPerspectives();
         }
-        
     }
-    
 
     public void setSelected(Perspective perspective) {
-        
+
+        setSelected(perspective, true);
+    }
+
+    public void setSelected(Perspective perspective, boolean switchPerspective) {
         selected = perspective;
-        ModeController.getInstance().switchView(perspective);
+        if (switchPerspective) {
+            ModeController.getInstance().switchView(perspective);
+        }
         ToolbarStyleSwitchUI.getInstance().setSelected(selected);
     }
 
     public Perspective getSelected() {
-        return selected;   
+        return selected;
     }
 
     public Perspective findPerspectiveByID(String id) {
@@ -139,6 +140,7 @@ public class PerspectiveManagerImpl extends PerspectiveManager{
         }
         return null;
     }
+
     public Perspective findPerspectiveByAlias(String alias) {
         for (Perspective perspective : perspectives) {
             if (perspective.getAlias().equals(alias)) {
@@ -150,9 +152,8 @@ public class PerspectiveManagerImpl extends PerspectiveManager{
 
     public void clear() {
         perspectives.clear();
-        
+
         selected = null;
-        
     }
 
     public void arrangeIndexs() {

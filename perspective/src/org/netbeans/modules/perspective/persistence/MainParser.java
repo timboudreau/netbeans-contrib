@@ -41,7 +41,6 @@
 
 package org.netbeans.modules.perspective.persistence;
 
-import java.awt.EventQueue;
 import java.io.IOException;
 import java.util.List;
 import org.netbeans.modules.perspective.PerspectiveManager;
@@ -52,7 +51,6 @@ import org.netbeans.modules.perspective.views.Perspective;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.Repository;
 import org.openide.util.Exceptions;
-import org.openide.windows.WindowManager;
 
 /**
  * MainPaser.java
@@ -72,11 +70,6 @@ public class MainParser {
     private FileObject builtinDefault;
     private FileObject builtinCustom;
 
-
-
-
-    
-
     private MainParser() {
         //Creating Parser instance
         config = Repository.getDefault().getDefaultFileSystem().findResource(CONFIG_DIR);
@@ -86,7 +79,7 @@ public class MainParser {
 
     public static synchronized MainParser getInstance() {
         if (instance == null) {
-            
+
             instance = new MainParser();
         }
         return instance;
@@ -126,15 +119,14 @@ public class MainParser {
 
 
 
-        //Loading Perspectives from Config 
+        //Loading Perspectives from Config
         FileObject[] viewChildren = config.getChildren();
         for (FileObject fileObject : viewChildren) {
             try {
 
                 Perspective decoded = paser.decode(fileObject.getInputStream());
-                if (decoded!=null && ( decoded.getName().startsWith("custom_")// NOI18N
-                        || PerspectiveManagerImpl.getInstance().findPerspectiveByID(decoded.getName()) != null)) {
-                    
+                if (decoded != null && (decoded.getName().startsWith("custom_") || PerspectiveManagerImpl.getInstance().findPerspectiveByID(decoded.getName()) != null)) {
+
                     PerspectiveManagerImpl.getInstance().registerPerspective(decoded, false);
                 }
             } catch (IOException ex) {
@@ -146,18 +138,23 @@ public class MainParser {
 
 
         PerspectiveManagerImpl.getInstance().arrangeIndexsToExistIndexs();
-        WindowManager.getDefault().invokeWhenUIReady(new Runnable() {
+        
+        String id = PerspectivePreferences.getInstance().getSelectedPerspective();
+        Perspective selected = null;
+        if (id != null) {
+            selected = PerspectiveManagerImpl.getInstance().findPerspectiveByID(id);
+        }
+        if (selected == null) {
 
-            public void run() {
-                EventQueue.invokeLater(new Runnable() {
-
-                    public void run() {
-
-                        loadSelectedPerspective();
-                    }
-                });
-            }
-        });
+            List<Perspective> perspectives = PerspectiveManager.getDefault().getPerspectives();
+            //Loading default Perspecive as selected Perspective
+            selected = perspectives.size() > 0 ? perspectives.get(0) : null;
+        }
+        if (selected != null) {
+            PerspectiveManagerImpl.getInstance().setSelected(selected,false);
+            ToolbarStyleSwitchUI.getInstance().loadQuickPerspectives();
+            //Load selected perspective
+        }
     }
 
     private void processPerspectives(ClassLoader contextLoader, FileObject[] builtinChildren) {
@@ -165,9 +162,9 @@ public class MainParser {
             try {
                 String name = (String) fileObject.getAttribute("class"); //NOI18N
                 Class perspectiveClass = contextLoader.loadClass(name);
-                
+
                 Object object = perspectiveClass.newInstance();
-                //Perspective Object Created 
+                //Perspective Object Created
                 if (object instanceof Perspective) {
                     Perspective perspective = (Perspective) object;
                     PerspectiveManagerImpl.getInstance().registerPerspective(perspective, false);
@@ -189,7 +186,7 @@ public class MainParser {
             selected = PerspectiveManagerImpl.getInstance().findPerspectiveByID(id);
         }
         if (selected == null) {
-            
+
             List<Perspective> perspectives = PerspectiveManager.getDefault().getPerspectives();
             //Loading default Perspecive as selected Perspective
             selected = perspectives.size() > 0 ? perspectives.get(0) : null;
@@ -224,14 +221,19 @@ public class MainParser {
             PerspectivePreferences.getInstance().setSelectedPerspective(selected.getName());
             if (PerspectivePreferences.getInstance().isTrackOpened()) {
                 new OpenedViewTracker(selected);
+            }else{
+                PerspectiveManagerImpl.getInstance().setSelected(selected);
             }
         }
+        
     }
 
     public synchronized void reset() throws IOException {
         PerspectivePreferences.getInstance().reset();
         ToolbarStyleSwitchUI.getInstance().reset();
+
         cleanDir();
         restore();
+        loadSelectedPerspective();
     }
 }
