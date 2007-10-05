@@ -129,7 +129,7 @@ public class SaveAsUI extends javax.swing.JDialog {
             if (perspective.equals(selected)) {
                 continue;
             }
-            if (prev.isEmpty()) {
+            if (prev.length() == 0) {
                 cmbPosition.addItem(Here + " - " + perspective.getAlias());
             } else {
                 cmbPosition.addItem(prev + Here + " - " + perspective.getAlias());
@@ -286,7 +286,7 @@ public class SaveAsUI extends javax.swing.JDialog {
     }
 
     private void validateName() {
-        if (txtName.getText().isEmpty()) {
+        if (txtName.getText().length() == 0) {
             btnOK.setEnabled(false);
         } else {
             btnOK.setEnabled(true);
