@@ -71,6 +71,9 @@ public class VauStructuralElementNode extends StructuralNode {
 //        super(element, element.isValid() ? new AbstractLookup(ic) : Lookup.EMPTY);
         super(element);
         
+        if (element.isValid())
+            getCookieSet().add(new OpenCookieImpl());
+        
 //        ic.add(new OpenCookieImpl());
         
         setIconBase("org/netbeans/modules/latex/gui/nb/autedit_icon");
