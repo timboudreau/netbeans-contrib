@@ -82,7 +82,7 @@
     <folder name="OptionsDialog">
         <!-- Perspctive Caregory -->
         <file name="org-netbeans-modules-perspective-options-PerspectiveOptionsCategory.instance">
-            <attr name="position" intvalue="800"/>
+            <attr name="position" intvalue="1000"/>
         </file>
     </folder>
     <!-- Shortcuts -->
