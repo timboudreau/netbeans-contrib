@@ -34,6 +34,10 @@ import org.netbeans.api.retouche.source.ClassIndex;
 import org.netbeans.modules.retouche.source.usages.ClassIndexImpl;
 import org.netbeans.modules.retouche.source.usages.ClassIndexManager;
 import org.netbeans.modules.retouche.source.usages.Index;
+import org.netbeans.modules.ruby.elements.IndexedClass;
+import org.netbeans.modules.ruby.elements.IndexedElement;
+import org.netbeans.modules.ruby.elements.IndexedField;
+import org.netbeans.modules.ruby.elements.IndexedMethod;
 import org.openide.ErrorManager;
 import org.openide.awt.StatusDisplayer;
 import org.openide.filesystems.FileObject;
@@ -79,15 +83,19 @@ final class IndexBrowserTopComponent extends TopComponent {
                 //Ignore extra messages.
                 if (e.getValueIsAdjusting()) return;
 
-                ListSelectionModel lsm =
-                    (ListSelectionModel)e.getSource();
-                if (!lsm.isSelectionEmpty()) {
-                    int selectedRow = lsm.getMinSelectionIndex();
-                    if (matchTable.getModel() instanceof SearchMatchModel) {
-                        SearchMatchModel model = (SearchMatchModel)matchTable.getModel();
-                        SearchResult result = model.getSearchResultAt(selectedRow);
-                        show(result);
+                try {
+                    ListSelectionModel lsm =
+                        (ListSelectionModel)e.getSource();
+                    if (!lsm.isSelectionEmpty()) {
+                        int selectedRow = lsm.getMinSelectionIndex();
+                        if (matchTable.getModel() instanceof SearchMatchModel) {
+                            SearchMatchModel model = (SearchMatchModel)matchTable.getModel();
+                            SearchResult result = model.getSearchResultAt(selectedRow);
+                            show(result);
+                        }
                     }
+                } catch (Exception ex) {
+                    ;
                 }
             }
         });
@@ -98,7 +106,8 @@ final class IndexBrowserTopComponent extends TopComponent {
         indexList.addListSelectionListener(new ListSelectionListener() {
             public void valueChanged(ListSelectionEvent ev) {
                 if (!ev.getValueIsAdjusting()) {
-                    int row = indexList.getSelectedIndex();
+                    //int row = indexList.getSelectedIndex();
+                    int row = ev.getFirstIndex();
                     if (row == -1) {
                         indexLabel.setText("");
                         segmentLabel.setText("");
@@ -208,8 +217,48 @@ final class IndexBrowserTopComponent extends TopComponent {
         }
         docIdField.setText(Integer.toString(result.getDocumentNumber()));
         
-        TableModel model = new SearchDocumentTableModel(result);
+        final TableModel model = new SearchDocumentTableModel(result);
         documentTable.setModel(model);
+        documentTable.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
+            public void valueChanged(ListSelectionEvent evt) {
+                //int index = evt.getFirstIndex();
+                if (evt.getValueIsAdjusting()) {
+                    return;
+                }
+                int index = documentTable.getSelectedRow();
+                String s = (String)model.getValueAt(index, 1);
+                String key = (String)model.getValueAt(index, 0);
+                if ("method".equals(key)) {
+                    // Decode the attributes
+                    int attributeIndex = s.indexOf(';');
+                    if (attributeIndex != -1) {
+                        int flags = IndexedElement.stringToFlag(s, attributeIndex+1);
+                        if (flags != 0) {
+                            String desc = IndexedMethod.decodeFlags(flags);
+                            s = s.substring(0, attributeIndex) + desc + s.substring(attributeIndex+3);
+                        }
+                    }
+                } else if ("attrs".equals(key)) {
+                    // Decode the attributes
+                    int flags = IndexedElement.stringToFlag(s, 0);
+                    if (flags != 0) {
+                        String desc = IndexedClass.decodeFlags(flags);
+                        s = desc + s.substring(2);
+                    }
+                } else if ("field".equals(key)) {
+                    // Decode the attributes
+                    int attributeIndex = s.indexOf(';');
+                    if (attributeIndex != -1) {
+                        int flags = IndexedElement.stringToFlag(s, attributeIndex+1);
+                        if (flags != 0) {
+                            String desc = IndexedField.decodeFlags(flags);
+                            s = s.substring(0, attributeIndex) + desc + s.substring(attributeIndex+3);
+                        }
+                    }
+                } // TODO: attribute
+                selectedElementField.setText(s);
+            }
+        });
         
         // Temporary hack because the other search model doesn't work right -- duplicate entries
         showDocument(result.getDocumentNumber());
@@ -220,7 +269,7 @@ final class IndexBrowserTopComponent extends TopComponent {
      * WARNING: Do NOT modify this code. The content of this method is
      * always regenerated by the Form Editor.
      */
-    // <editor-fold defaultstate="collapsed" desc=" Generated Code ">//GEN-BEGIN:initComponents
+    // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
         jRadioButton3 = new javax.swing.JRadioButton();
@@ -255,6 +304,8 @@ final class IndexBrowserTopComponent extends TopComponent {
         jLabel6 = new javax.swing.JLabel();
         segmentLabel = new javax.swing.JLabel();
         lukeButton = new javax.swing.JButton();
+        jLabel7 = new javax.swing.JLabel();
+        selectedElementField = new javax.swing.JTextField();
 
         org.openide.awt.Mnemonics.setLocalizedText(jRadioButton3, "jRadioButton3");
         jRadioButton3.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
@@ -262,7 +313,7 @@ final class IndexBrowserTopComponent extends TopComponent {
 
         org.openide.awt.Mnemonics.setLocalizedText(jLabel1, "Key:");
 
-        keyCombo.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "class", "method", "field", "attribute", "constant", "fqn", "file", "module", "extends", "require" }));
+        keyCombo.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "class", "method", "field", "attribute", "constant", "fqn", "file", "module", "extends", "require", "dbtable" }));
 
         org.openide.awt.Mnemonics.setLocalizedText(jLabel2, "Name:");
 
@@ -274,7 +325,7 @@ final class IndexBrowserTopComponent extends TopComponent {
 
         org.openide.awt.Mnemonics.setLocalizedText(jLabel3, "Type:");
 
-        typeCombo.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Prefix", "Exact", "Regexp" }));
+        typeCombo.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Prefix", "Prefix (IC)", "Exact", "Regexp", "CamelCase", "Regexp (IC)" }));
 
         org.openide.awt.Mnemonics.setLocalizedText(searchButton, "Search");
         searchButton.addActionListener(new java.awt.event.ActionListener() {
@@ -329,10 +380,10 @@ final class IndexBrowserTopComponent extends TopComponent {
                 .add(prevButton)
                 .add(6, 6, 6)
                 .add(nextButton)
-                .addContainerGap(174, Short.MAX_VALUE))
+                .addContainerGap(203, Short.MAX_VALUE))
             .add(jPanel2Layout.createSequentialGroup()
                 .add(20, 20, 20)
-                .add(jScrollPane2, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 484, Short.MAX_VALUE))
+                .add(jScrollPane2, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 513, Short.MAX_VALUE))
         );
         jPanel2Layout.setVerticalGroup(
             jPanel2Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
@@ -343,7 +394,7 @@ final class IndexBrowserTopComponent extends TopComponent {
                     .add(prevButton)
                     .add(nextButton))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(jScrollPane2, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 390, Short.MAX_VALUE))
+                .add(jScrollPane2, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 366, Short.MAX_VALUE))
         );
 
         jSplitPane1.setRightComponent(jPanel2);
@@ -351,7 +402,6 @@ final class IndexBrowserTopComponent extends TopComponent {
         indexGroup.add(allIndexButton);
         allIndexButton.setSelected(true);
         org.openide.awt.Mnemonics.setLocalizedText(allIndexButton, "All Indices");
-        allIndexButton.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         allIndexButton.setMargin(new java.awt.Insets(0, 0, 0, 0));
         allIndexButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -361,7 +411,6 @@ final class IndexBrowserTopComponent extends TopComponent {
 
         indexGroup.add(indexForButton);
         org.openide.awt.Mnemonics.setLocalizedText(indexForButton, "Indices for:");
-        indexForButton.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         indexForButton.setEnabled(false);
         indexForButton.setMargin(new java.awt.Insets(0, 0, 0, 0));
         indexForButton.addActionListener(new java.awt.event.ActionListener() {
@@ -413,7 +462,7 @@ final class IndexBrowserTopComponent extends TopComponent {
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED))
                     .add(org.jdesktop.layout.GroupLayout.LEADING, jButton1))
                 .add(8, 8, 8)
-                .add(jScrollPane3, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 333, Short.MAX_VALUE))
+                .add(jScrollPane3, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 372, Short.MAX_VALUE))
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
@@ -445,6 +494,15 @@ final class IndexBrowserTopComponent extends TopComponent {
             }
         });
 
+        org.openide.awt.Mnemonics.setLocalizedText(jLabel7, "Element:");
+
+        selectedElementField.setEditable(false);
+        selectedElementField.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                selectedElementFieldActionPerformed(evt);
+            }
+        });
+
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
@@ -453,7 +511,7 @@ final class IndexBrowserTopComponent extends TopComponent {
                 .addContainerGap()
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                     .add(layout.createSequentialGroup()
-                        .add(jSplitPane1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 691, Short.MAX_VALUE)
+                        .add(jSplitPane1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 751, Short.MAX_VALUE)
                         .addContainerGap())
                     .add(layout.createSequentialGroup()
                         .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
@@ -480,10 +538,15 @@ final class IndexBrowserTopComponent extends TopComponent {
                                     .add(indexLabel)
                                     .add(layout.createSequentialGroup()
                                         .add(segmentLabel)
-                                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 514, Short.MAX_VALUE)
+                                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 574, Short.MAX_VALUE)
                                         .add(lukeButton))))
                             .add(org.jdesktop.layout.GroupLayout.LEADING, jLabel4))
-                        .add(20, 20, 20))))
+                        .add(20, 20, 20))
+                    .add(layout.createSequentialGroup()
+                        .add(jLabel7)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                        .add(selectedElementField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 687, Short.MAX_VALUE)
+                        .addContainerGap())))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
@@ -506,7 +569,11 @@ final class IndexBrowserTopComponent extends TopComponent {
                         .add(searchButton))
                     .add(jPanel1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(jSplitPane1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 428, Short.MAX_VALUE)
+                .add(jSplitPane1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 404, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                    .add(jLabel7)
+                    .add(selectedElementField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(jLabel4)
@@ -663,8 +730,15 @@ private void search(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_search
     if (type.equals("Prefix")) {
         kind = NameKind.PREFIX;
     }
+    if (type.equals("Prefix (IC)")) {
+        kind = NameKind.CASE_INSENSITIVE_PREFIX;
+    }
     if (type.equals("Regexp")) {
         kind = NameKind.REGEXP;
+    } else if (type.equals("CamelCase")) {
+        kind = NameKind.CAMEL_CASE;
+    } else if (type.equals("Regexp (IC)")) {
+        kind = NameKind.CASE_INSENSITIVE_REGEXP;
     }
     Map<URL, ClassIndexImpl> map = ClassIndexManager.getDefault().getAllIndices();
     Set<SearchResult> result = new HashSet<SearchResult>();
@@ -683,6 +757,10 @@ private void search(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_search
         Exceptions.printStackTrace(ioe);
     }
 }//GEN-LAST:event_search
+
+private void selectedElementFieldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_selectedElementFieldActionPerformed
+    // TODO add your handling code here:
+}//GEN-LAST:event_selectedElementFieldActionPerformed
 
 private IndexReader indexReader;
 
@@ -704,6 +782,7 @@ private IndexReader indexReader;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel6;
+    private javax.swing.JLabel jLabel7;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JRadioButton jRadioButton3;
@@ -719,6 +798,7 @@ private IndexReader indexReader;
     private javax.swing.JButton prevButton;
     private javax.swing.JButton searchButton;
     private javax.swing.JLabel segmentLabel;
+    private javax.swing.JTextField selectedElementField;
     private javax.swing.JComboBox typeCombo;
     // End of variables declaration//GEN-END:variables
     
