@@ -38,9 +38,9 @@
  * Version 2 license, then the option applies only if the new code is
  * made subject to such option by the copyright holder.
  */
-
 package org.netbeans.modules.perspective.persistence;
 
+import java.awt.EventQueue;
 import java.io.IOException;
 import java.util.List;
 import org.netbeans.modules.perspective.PerspectiveManager;
@@ -51,6 +51,7 @@ import org.netbeans.modules.perspective.views.Perspective;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.Repository;
 import org.openide.util.Exceptions;
+import org.openide.windows.WindowManager;
 
 /**
  * MainPaser.java
@@ -59,11 +60,17 @@ import org.openide.util.Exceptions;
 public class MainParser {
 
     private static final String BASE_DIR = "perspectives"; //NOI18N
+
     private static final String EXT = "pv"; //NOI18N
+
     private static final String CONFIG_DIR = BASE_DIR + "/config"; //NOI18N
+
     private static final String BUILTIN_DIR = BASE_DIR + "/builtin"; //NOI18N
+
     private static final String DEFAULT_DIR = "/default"; //NOI18N
+
     private static final String CUSTOM_DIR = "/custom"; //NOI18N
+
     private static MainParser instance;
     private PerspectiveParser paser = new PerspectiveParser();
     private FileObject config;
@@ -138,11 +145,14 @@ public class MainParser {
 
 
         PerspectiveManagerImpl.getInstance().arrangeIndexsToExistIndexs();
-        
+
         String id = PerspectivePreferences.getInstance().getSelectedPerspective();
         Perspective selected = null;
+        boolean firstTime = false;
         if (id != null) {
             selected = PerspectiveManagerImpl.getInstance().findPerspectiveByID(id);
+        } else {
+            firstTime = true;
         }
         if (selected == null) {
 
@@ -151,9 +161,24 @@ public class MainParser {
             selected = perspectives.size() > 0 ? perspectives.get(0) : null;
         }
         if (selected != null) {
-            PerspectiveManagerImpl.getInstance().setSelected(selected,false);
-            ToolbarStyleSwitchUI.getInstance().loadQuickPerspectives();
-            //Load selected perspective
+            if (firstTime) {
+                WindowManager.getDefault().invokeWhenUIReady(new Runnable() {
+
+                    public void run() {
+                        EventQueue.invokeLater(new Runnable() {
+
+                            public void run() {
+                                loadSelectedPerspective();
+                            }
+                        });
+                    }
+                });
+            } else {
+                PerspectiveManagerImpl.getInstance().setSelected(selected, false);
+                ToolbarStyleSwitchUI.getInstance().loadQuickPerspectives();
+            }
+            
+        //Load selected perspective
         }
     }
 
@@ -182,8 +207,10 @@ public class MainParser {
     private void loadSelectedPerspective() {
         String id = PerspectivePreferences.getInstance().getSelectedPerspective();
         Perspective selected = null;
+
         if (id != null) {
             selected = PerspectiveManagerImpl.getInstance().findPerspectiveByID(id);
+
         }
         if (selected == null) {
 
@@ -194,7 +221,7 @@ public class MainParser {
         if (selected != null) {
             PerspectiveManager.getDefault().setSelected(selected);
             ToolbarStyleSwitchUI.getInstance().loadQuickPerspectives();
-            //Load selected perspective
+          //Load selected perspective
         }
     }
 
@@ -221,11 +248,11 @@ public class MainParser {
             PerspectivePreferences.getInstance().setSelectedPerspective(selected.getName());
             if (PerspectivePreferences.getInstance().isTrackOpened()) {
                 new OpenedViewTracker(selected);
-            }else{
+            } else {
                 PerspectiveManagerImpl.getInstance().setSelected(selected);
             }
         }
-        
+
     }
 
     public synchronized void reset() throws IOException {
