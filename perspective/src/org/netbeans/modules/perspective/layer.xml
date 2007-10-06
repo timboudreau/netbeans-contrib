@@ -88,7 +88,7 @@
     <!-- Shortcuts -->
     <folder name="Shortcuts">
         <!--Quick Switch Shortcut -->
-        <file name="OS-P.shadow">
+        <file name="OS-S.shadow">
             <attr name="originalFile" stringvalue="Actions/Perspective/org-netbeans-modules-perspective-actions-QuickSwitch.instance"/>
         </file>
     </folder>
