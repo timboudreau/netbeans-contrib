@@ -81,8 +81,9 @@
     <!-- Options Dialog -->
     <folder name="OptionsDialog">
         <!-- Perspctive Caregory -->
-        <file name="org-netbeans-modules-perspective-options-PerspectiveOptionsCategory.instance"/>
-        <attr name="position" intvalue="800"/>
+        <file name="org-netbeans-modules-perspective-options-PerspectiveOptionsCategory.instance">
+            <attr name="position" intvalue="800"/>
+        </file>
     </folder>
     <!-- Shortcuts -->
     <folder name="Shortcuts">
@@ -131,16 +132,7 @@
     <!--Custom javaOutput Mode that use by Java Browsing Perspectie-->
     <file name="javaOutput.wsmode" url="modes/javaOutput.wsmode"/>
     <folder name="javaOutput"/> 
-    <!--overwrite default commonpalette mode with custom outline.wsmode config
-            see org.netbeans.modules.perspective.modes package
-            -->
-    <file name="commonpalette.wsmode" url="modes/outline.wsmode"/>
-    <folder name="commonpalette"/> 
-    <!--overwrite default explorer mode with custom explorer.wsmode config 
-            see org.netbeans.modules.perspective.modes package
-            -->
-    <file name="explorer.wsmode" url="modes/explorer.wsmode"/>
-    <folder name="explorer"/> 
+
     <!--Custom javaExplorer Mode that use by Java Browsing Perspectie and Debug Perspective-->
     <file name="javaExplorer.wsmode" url="modes/javaExplorer.wsmode"/>
     <folder name="javaExplorer"/>
