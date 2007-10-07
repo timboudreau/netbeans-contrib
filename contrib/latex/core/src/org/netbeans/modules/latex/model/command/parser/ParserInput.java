@@ -47,8 +47,8 @@ import java.io.IOException;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
-import javax.swing.event.DocumentEvent;
-import javax.swing.event.DocumentListener;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
 import org.netbeans.api.lexer.TokenHierarchy;
@@ -62,17 +62,14 @@ import org.netbeans.modules.latex.editor.TexLanguage;
 import org.netbeans.modules.latex.model.Utilities;
 
 import org.netbeans.modules.latex.model.command.SourcePosition;
-import org.netbeans.modules.latex.model.lexer.TexTokenId;
 import org.openide.util.Exceptions;
 
 /**
  *
  * @author Jan Lahoda
  */
-public class ParserInput implements DocumentListener {
+public class ParserInput {
 
-    private boolean changed;
-    
     private FileObject file;
     private TokenSequence ts;
     private Document document;
@@ -80,15 +77,11 @@ public class ParserInput implements DocumentListener {
     private Set usedFiles;
     
     private Document getDocument(FileObject fo, Collection documents) throws IOException {
-        changed = false;
-        
         Document ad = (Document) Utilities.getDefault().openDocument(fo);
         
         if (ad == null) {
             throw new IOException("Cannot open document for file: " + FileUtil.getFileDisplayName(fo));
         }
-        
-        ad.addDocumentListener(this);
         
         documents.add(ad);
         
@@ -97,6 +90,7 @@ public class ParserInput implements DocumentListener {
     
     /** Creates a new instance of ParserInput */
     public ParserInput(FileObject file, Collection documents) throws IOException {
+        Logger.getLogger("TIMER").log(Level.FINE, "ParserInput", new Object[] {file, this});
         assert file != null;
         this.file = file;
         document = getDocument(this.file, documents);
@@ -167,17 +161,6 @@ public class ParserInput implements DocumentListener {
     public void goBack(int howMany) {
         while (howMany > 0 && ts.movePrevious())
             howMany--;
-    }
-    
-    public void changedUpdate(DocumentEvent e) {
-    }
-    
-    public synchronized void insertUpdate(DocumentEvent e) {
-        changed = true;
-    }
-    
-    public synchronized void removeUpdate(DocumentEvent e) {
-        changed = true;
     }
     
 }
