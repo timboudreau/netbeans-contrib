@@ -48,13 +48,13 @@ import org.openide.modules.ModuleInstall;
  */
 public class Installer extends ModuleInstall {
 
+
     @Override
-    public void close() {
-        
-        //store Perspective config to perspective dir
+    public boolean closing() {
+       //store Perspective config to perspective dir
         MainParser paser=MainParser.getInstance();
         paser.store();
-
+        return super.closing();
     }
 
     @Override

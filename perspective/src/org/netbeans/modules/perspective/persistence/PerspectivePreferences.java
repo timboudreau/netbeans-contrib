@@ -42,7 +42,6 @@
 /*
  * PerspectivePreferences.java
  */
-
 package org.netbeans.modules.perspective.persistence;
 
 import java.util.prefs.Preferences;
@@ -56,11 +55,40 @@ public class PerspectivePreferences {
 
     private Preferences preferences = NbPreferences.forModule(PerspectivePreferences.class);
     private static PerspectivePreferences instance;
-    private  final String SELECTED = "selected"; //NOI18N
-    private  final String TRACK_OPENED = "track_opened"; //NOI18N
-    private  final String TRACK_ACTIVE = "track_active"; //NOI18N
-    private  final String CLOSE_OPENED = "close_opened"; //NOI18N
-    private  final String CUSTOM_PERSPECTIVE_COUNT = "cp_count"; //NOI18N
+    private static final String SELECTED = "selected"; //NOI18N
+
+    private static final String INDEX = "index"; //NOI18N
+
+    private static final String NAME = "name"; //NOI18N
+
+    private static final String OPEN = "open"; //NOI18N
+
+    private static final String ALIAS = "alias"; //NOI18N
+
+    private static final String SEPARATOR_B = "separator_b"; //NOI18N
+
+    private static final String SEPARATOR_A = "separator_a"; //NOI18N
+
+    private static final String VIEWS = "views"; //NOI18N
+
+    private static final String ACTIVE_TC = "active_tc"; //NOI18N
+
+    private static final String IMAGE_PATH = "image_path"; //NOI18N
+
+    private static final String MODE = "mode"; //NOI18N
+
+    private static final String TC = "tc"; //NOI18N
+
+    private static final String GLOBEL = "globel"; //NOI18N
+
+    private static final String TRACK_OPENED = "track_opened"; //NOI18N
+
+    private static final String TRACK_ACTIVE = "track_active"; //NOI18N
+
+    private static final String CLOSE_OPENED = "close_opened"; //NOI18N
+
+    private static final String CUSTOM_PERSPECTIVE_COUNT = "cp_count"; //NOI18N
+
 
     private PerspectivePreferences() {
     }
@@ -106,24 +134,81 @@ public class PerspectivePreferences {
         preferences.putBoolean(CLOSE_OPENED, b);
     }
 
-    public synchronized String  getCustomPerspectiveName() {
+    public synchronized String getCustomPerspectiveName() {
         String name = "custom_"; //NOI18N
-        int count=preferences.getInt(CUSTOM_PERSPECTIVE_COUNT, 1);
-        name+=count;
+        int count = preferences.getInt(CUSTOM_PERSPECTIVE_COUNT, 1);
+        name += count;
         preferences.putInt(CUSTOM_PERSPECTIVE_COUNT, ++count);
         return name;
     }
-    public boolean  isCompatible(){
-        return preferences.getBoolean("Version", false);
-    }
-    public void  setCompatible(boolean b){
-         preferences.putBoolean("Version", b);
-    }
-    
-    public void reset(){
+
+    public void reset() {
         preferences.putInt(CUSTOM_PERSPECTIVE_COUNT, 1);
         preferences.putBoolean(CLOSE_OPENED, true);
         preferences.putBoolean(TRACK_ACTIVE, false);
         preferences.putBoolean(TRACK_OPENED, false);
     }
+
+//    public void readPerspective(Perspective perspective) {
+//
+//        Preferences perspectivePreferences = preferences.node(perspective.getName());
+//        
+//        Preferences globel = perspectivePreferences;
+//        Preferences viewsPreferences = perspectivePreferences.node(VIEWS);
+//        Preferences activeTCPreferences = perspectivePreferences.node(ACTIVE_TC);
+//        perspective.setIndex(globel.getInt(INDEX, perspective.getIndex()));
+//        perspective.setName(globel.get(NAME, perspective.getName()));
+//        perspective.setName(globel.get(ALIAS, perspective.getAlias()));
+//        perspective.setImagePath(globel.get(IMAGE_PATH, perspective.getImagePath()));
+//        perspective.setBeforeSeparator(globel.getBoolean(SEPARATOR_B, perspective.isBeforeSeparator()));
+//        perspective.setAfterSeparator(globel.getBoolean(SEPARATOR_A, perspective.isAfterSeparator()));
+//        try {
+//            String[] views = viewsPreferences.childrenNames();
+//            List<String> modes = new ArrayList<String>();
+//
+//            for (String name : views) {
+//                Preferences viewPreferences = viewsPreferences.node(name);
+//                String mode = viewPreferences.get(MODE, null);
+//                modes.add(mode);
+//                perspective.addComponent(viewPreferences.get(TC, null), mode, viewPreferences.getInt(INDEX, 0), viewPreferences.getBoolean(OPEN, false));
+//            }
+//            for (String mode : modes) {
+//                String tc = activeTCPreferences.get(mode, null);
+//                perspective.setActiveComponent(mode, tc);
+//            }
+//
+//
+//
+//        } catch (BackingStoreException ex) {
+//            Exceptions.printStackTrace(ex);
+//        }
+//
+//    }
+//
+//    public void persistencePerspective(Perspective perspective) {
+//        Preferences perspectivePreferences = preferences.node(perspective.getName());
+//        Preferences globel = perspectivePreferences;
+//        Preferences viewsPreferences = perspectivePreferences.node(VIEWS);
+//        Preferences activeTCPreferences = perspectivePreferences.node(ACTIVE_TC);
+//        globel.putInt(INDEX, perspective.getIndex());
+//        globel.put(NAME, perspective.getName());
+//        globel.put(ALIAS, perspective.getAlias());
+//        globel.put(IMAGE_PATH, perspective.getImagePath());
+//        globel.putBoolean(SEPARATOR_B, perspective.isBeforeSeparator());
+//        globel.putBoolean(SEPARATOR_A, perspective.isAfterSeparator());
+//
+//        List<View> views = perspective.getViews();
+//        Map<String, String> activeTCs = perspective.getActiveTCs();
+//        for (View view : views) {
+//            Preferences viewPreferences = viewsPreferences.node(view.getTopcomponentID());
+//            viewPreferences.put(MODE, view.getMode());
+//            viewPreferences.put(TC, view.getTopcomponentID());
+//            viewPreferences.putInt(INDEX, view.getIndex());
+//        }
+//
+//        for (String key : activeTCs.keySet()) {
+//            String tcID = activeTCs.get(key);
+//            activeTCPreferences.put(key, tcID);
+//        }
+//    }
 }

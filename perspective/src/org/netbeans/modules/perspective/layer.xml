@@ -95,28 +95,26 @@
     
     <!--  Perspective folder-->
     <folder name="perspectives">
-        <!--Config folder contains  serialized perspectives-->
-        <folder name="config">
+    <!--Config folder contains  serialized perspectives-->
+    <folder name="config">
+        
+    </folder>
+    <!-- built-in Perspectives Registry -->
+    <folder name="builtin">
+        
+        <folder name="default">
+            <!--default java Perspective-->
+            <file name="org-netbeans-modules-perspective.builtin-BuiltInDefaultView.instance"/>
+            
+            <!-- java browser Perspective-->
+            <file name="org-netbeans-modules-perspective.builtin-BuiltInJavaBrowsingView.instance"/>
+            
+            <!--debug java Perspective-->
+            <file name="org-netbeans-modules-perspective.builtin-BuiltInJavaDebugView.instance"/>
             
         </folder>
-        <!-- built-in Perspectives Registry -->
-        <folder name="builtin">
-            <!--default java Perspective-->
-            <folder name="default">
-                <file name="java">
-                    <attr name="class" stringvalue="org.netbeans.modules.perspective.builtin.BuiltInDefaultView" />            
-                </file>  
-                <!-- java browser Perspective-->
-                <file name="java_browsing">
-                    <attr name="class" stringvalue="org.netbeans.modules.perspective.builtin.BuiltInJavaBrowsingView" />         
-                </file>
-                <!--debug java Perspective-->
-                <file name="debug">
-                    <attr name="class" stringvalue="org.netbeans.modules.perspective.builtin.BuiltInJavaDebugView" />             
-                </file>     
-            </folder>
-            <folder name="custom">
-            </folder>
+        <folder name="custom"/>
+            
         </folder>
     </folder>
     
@@ -132,7 +130,7 @@
     <!--Custom javaOutput Mode that use by Java Browsing Perspectie-->
     <file name="javaOutput.wsmode" url="modes/javaOutput.wsmode"/>
     <folder name="javaOutput"/> 
-
+    
     <!--Custom javaExplorer Mode that use by Java Browsing Perspectie and Debug Perspective-->
     <file name="javaExplorer.wsmode" url="modes/javaExplorer.wsmode"/>
     <folder name="javaExplorer"/>

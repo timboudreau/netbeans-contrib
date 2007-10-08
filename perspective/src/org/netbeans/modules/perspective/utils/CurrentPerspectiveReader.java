@@ -49,6 +49,8 @@ package org.netbeans.modules.perspective.utils;
 import java.util.Set;
 import org.netbeans.modules.perspective.hacks.ModeHackTopComponent;
 import org.netbeans.modules.perspective.views.Perspective;
+import org.netbeans.modules.perspective.views.PerspectiveMode;
+import org.netbeans.modules.perspective.views.View;
 import org.openide.windows.Mode;
 import org.openide.windows.TopComponent;
 import org.openide.windows.WindowManager;
@@ -81,17 +83,21 @@ public class CurrentPerspectiveReader {
 
                 mode.dockInto(new ModeHackTopComponent());
             }
+            PerspectiveMode perspectiveMode=new PerspectiveMode(mode.getName());
+            perspective.addPerspectiveMode(perspectiveMode);
             TopComponent[] topComponents = mode.getTopComponents();
-            for (TopComponent tc : topComponents) {
+            for (int i=0;i<topComponents.length; i++) {
+                TopComponent tc =topComponents[i];
                 String tcID = windowManager.findTopComponentID(tc);
                 if (!(tcID.startsWith("ModeHackTopComponent"))) {//NOI18N
-                    
-                    perspective.addComponent(tcID, mode.getName(), tc.isOpened());
+                    View view=new View(tcID, i, tc.isOpened());
+                    perspectiveMode.addView(view);
                 }
             }
             TopComponent stc = mode.getSelectedTopComponent();
             if (stc != null) {
-                perspective.setActiveComponent(mode.getName(), windowManager.findTopComponentID(stc));
+                View view=perspectiveMode.findViewByTCID( windowManager.findTopComponentID(stc));
+                perspectiveMode.setActiveView(view);
             }
         }
     }

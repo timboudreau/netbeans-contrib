@@ -46,10 +46,7 @@
 
 package org.netbeans.modules.perspective.utils;
 
-import java.util.Set;
 import org.netbeans.modules.perspective.views.Perspective;
-import org.netbeans.modules.perspective.views.View;
-import org.openide.windows.TopComponent;
 import org.openide.windows.WindowManager;
 
 /**
@@ -61,19 +58,7 @@ public class OpenedViewTracker {
     WindowManager windowManager = WindowManager.getDefault();
 
     public OpenedViewTracker(Perspective perspective) {
-        Set<TopComponent> opened = windowManager.getRegistry().getOpened();
-        for (TopComponent topComponent : opened) {
-            String tcId = windowManager.findTopComponentID(topComponent);
-            View view = perspective.findView(tcId);
-            if (windowManager.isEditorTopComponent(topComponent)) {
-                continue;
-            }
-            if (view == null) {
-                String modeName = windowManager.findMode(topComponent).getName();
-                perspective.addComponent( tcId,modeName, true);
-            } else {
-                view.setOpen(true);
-            }
-        }
+        perspective.clear();
+        new CurrentPerspectiveReader(perspective);
     }
 }

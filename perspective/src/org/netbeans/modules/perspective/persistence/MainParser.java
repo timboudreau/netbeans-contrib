@@ -42,14 +42,18 @@ package org.netbeans.modules.perspective.persistence;
 
 import java.awt.EventQueue;
 import java.io.IOException;
+import java.util.Enumeration;
 import java.util.List;
 import org.netbeans.modules.perspective.PerspectiveManager;
 import org.netbeans.modules.perspective.utils.PerspectiveManagerImpl;
 import org.netbeans.modules.perspective.ui.ToolbarStyleSwitchUI;
 import org.netbeans.modules.perspective.utils.OpenedViewTracker;
 import org.netbeans.modules.perspective.views.Perspective;
+import org.openide.cookies.InstanceCookie;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.Repository;
+import org.openide.loaders.DataFolder;
+import org.openide.loaders.DataObject;
 import org.openide.util.Exceptions;
 import org.openide.windows.WindowManager;
 
@@ -61,7 +65,7 @@ public class MainParser {
 
     private static final String BASE_DIR = "perspectives"; //NOI18N
 
-    private static final String EXT = "pv"; //NOI18N
+    private static final String EXT = "perspective"; //NOI18N
 
     private static final String CONFIG_DIR = BASE_DIR + "/config"; //NOI18N
 
@@ -76,6 +80,7 @@ public class MainParser {
     private FileObject config;
     private FileObject builtinDefault;
     private FileObject builtinCustom;
+    private PerspectivePreferences perspectivePreferences = PerspectivePreferences.getInstance();
 
     private MainParser() {
         //Creating Parser instance
@@ -101,28 +106,15 @@ public class MainParser {
     }
 
     public synchronized void restore() {
-        if (!PerspectivePreferences.getInstance().isCompatible()) {
-            try {
-                cleanDir();
-                PerspectivePreferences.getInstance().setCompatible(true);
-            } catch (IOException ex) {
-                Exceptions.printStackTrace(ex);
-            }
-        }
-        ClassLoader contextLoader = Thread.currentThread().getContextClassLoader();
-
         PerspectiveManagerImpl.getInstance().clear();
         if (builtinDefault != null) {
             //Loading default Perspectives from layer
-            FileObject[] builtinDefaultChildren = builtinDefault.getChildren();
-            processPerspectives(contextLoader, builtinDefaultChildren);
+            readPerspectives(builtinDefault);
         }
         if (builtinCustom != null) {
             //Loading custom Perspectives from layer
-            FileObject[] builtinCustomChildren = builtinCustom.getChildren();
-            processPerspectives(contextLoader, builtinCustomChildren);
+            readPerspectives(builtinCustom);
         }
-
 
 
 
@@ -132,7 +124,7 @@ public class MainParser {
             try {
 
                 Perspective decoded = paser.decode(fileObject.getInputStream());
-                if (decoded != null && (decoded.getName().startsWith("custom_") || PerspectiveManagerImpl.getInstance().findPerspectiveByID(decoded.getName()) != null)) {
+                if (decoded != null && (decoded.getName().startsWith("custom_")/*NOI18N*/ || PerspectiveManagerImpl.getInstance().findPerspectiveByID(decoded.getName()) != null)) {
 
                     PerspectiveManagerImpl.getInstance().registerPerspective(decoded, false);
                 }
@@ -146,29 +138,31 @@ public class MainParser {
 
         PerspectiveManagerImpl.getInstance().arrangeIndexsToExistIndexs();
 
-        String id = PerspectivePreferences.getInstance().getSelectedPerspective();
+        String id = perspectivePreferences.getSelectedPerspective();
         Perspective selected = null;
         boolean firstTime = false;
         if (id != null) {
             selected = PerspectiveManagerImpl.getInstance().findPerspectiveByID(id);
-        } else {
-            firstTime = true;
         }
         if (selected == null) {
 
             List<Perspective> perspectives = PerspectiveManager.getDefault().getPerspectives();
             //Loading default Perspecive as selected Perspective
             selected = perspectives.size() > 0 ? perspectives.get(0) : null;
+            firstTime = true;
         }
         if (selected != null) {
+            //if first time views shoude dock else just select to improve startup time
             if (firstTime) {
+                final Perspective p = selected;
                 WindowManager.getDefault().invokeWhenUIReady(new Runnable() {
 
                     public void run() {
                         EventQueue.invokeLater(new Runnable() {
 
                             public void run() {
-                                loadSelectedPerspective();
+                                PerspectiveManager.getDefault().setSelected(p);
+                                ToolbarStyleSwitchUI.getInstance().loadQuickPerspectives();
                             }
                         });
                     }
@@ -177,52 +171,40 @@ public class MainParser {
                 PerspectiveManagerImpl.getInstance().setSelected(selected, false);
                 ToolbarStyleSwitchUI.getInstance().loadQuickPerspectives();
             }
-            
-        //Load selected perspective
+
         }
     }
 
-    private void processPerspectives(ClassLoader contextLoader, FileObject[] builtinChildren) {
-        for (FileObject fileObject : builtinChildren) {
-            try {
-                String name = (String) fileObject.getAttribute("class"); //NOI18N
-                Class perspectiveClass = contextLoader.loadClass(name);
+    private void readPerspectives(FileObject fileObject) {
+        DataFolder folder = DataFolder.findFolder(fileObject);
+        Enumeration<DataObject> children = folder.children(false);
+        while (children.hasMoreElements()) {
 
-                Object object = perspectiveClass.newInstance();
-                //Perspective Object Created
-                if (object instanceof Perspective) {
-                    Perspective perspective = (Perspective) object;
-                    PerspectiveManagerImpl.getInstance().registerPerspective(perspective, false);
-                }
-            } catch (InstantiationException ex) {
-                Exceptions.printStackTrace(ex);
-            } catch (IllegalAccessException ex) {
+            DataObject dataObject = children.nextElement();
+            if (dataObject instanceof DataFolder) {
+                continue;
+            }
+            InstanceCookie ic = dataObject.getCookie(InstanceCookie.class);
+            if (ic == null) {
+                continue;
+            }
+            try {
+                Perspective perspective = (Perspective) ic.instanceCreate();
+                PerspectiveManagerImpl.getInstance().registerPerspective(perspective, false);
+            //TODO 
+                //perspectivePreferences.readPerspective(perspective);
+            } catch (IOException ex) {
                 Exceptions.printStackTrace(ex);
             } catch (ClassNotFoundException ex) {
                 Exceptions.printStackTrace(ex);
             }
-        }
-    }
 
-    private void loadSelectedPerspective() {
-        String id = PerspectivePreferences.getInstance().getSelectedPerspective();
-        Perspective selected = null;
 
-        if (id != null) {
-            selected = PerspectiveManagerImpl.getInstance().findPerspectiveByID(id);
+
 
         }
-        if (selected == null) {
 
-            List<Perspective> perspectives = PerspectiveManager.getDefault().getPerspectives();
-            //Loading default Perspecive as selected Perspective
-            selected = perspectives.size() > 0 ? perspectives.get(0) : null;
-        }
-        if (selected != null) {
-            PerspectiveManager.getDefault().setSelected(selected);
-            ToolbarStyleSwitchUI.getInstance().loadQuickPerspectives();
-          //Load selected perspective
-        }
+
     }
 
     public synchronized void store() {
@@ -239,14 +221,16 @@ public class MainParser {
                     }
                 }
                 paser.encode(perspective, fileObject.getOutputStream());
+            //TODO 
+                // perspectivePreferences.persistencePerspective(perspective);
             } catch (IOException ex) {
                 Exceptions.printStackTrace(ex);
             }
         }
         Perspective selected = PerspectiveManagerImpl.getInstance().getSelected();
         if (selected != null) {
-            PerspectivePreferences.getInstance().setSelectedPerspective(selected.getName());
-            if (PerspectivePreferences.getInstance().isTrackOpened()) {
+            perspectivePreferences.setSelectedPerspective(selected.getName());
+            if (perspectivePreferences.isTrackOpened()) {
                 new OpenedViewTracker(selected);
             } else {
                 PerspectiveManagerImpl.getInstance().setSelected(selected);
@@ -256,11 +240,9 @@ public class MainParser {
     }
 
     public synchronized void reset() throws IOException {
-        PerspectivePreferences.getInstance().reset();
+        perspectivePreferences.reset();
         ToolbarStyleSwitchUI.getInstance().reset();
-
         cleanDir();
         restore();
-        loadSelectedPerspective();
     }
 }

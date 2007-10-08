@@ -38,8 +38,6 @@
  * Version 2 license, then the option applies only if the new code is
  * made subject to such option by the copyright holder.
  */
-
-
 package org.netbeans.modules.perspective.views;
 
 import java.io.Serializable;
@@ -48,49 +46,22 @@ import java.io.Serializable;
  * Represent TopComponent State In Perspective (ex: Mode ID,Open or not) 
  * @author Anuradha G
  */
-public class View implements Serializable{
+public class View implements Serializable, Comparable<View> {
+
     private static final long serialVersionUID = 1l;
     private String topcomponentID;
-    private String mode;
+    private int index;
     private boolean open;
-    
-    /**
-     * Create View 
-     * @param topcomponentID TopComponent ID
-     * @param mode Mode ID
-     */
-    public View(String topcomponentID, String mode) {
-        this.topcomponentID = topcomponentID;
-        this.mode = mode;
-    }
 
-    /**
-     * Create View 
-     * @param topcomponentID TopComponent ID
-     * @param mode Mode ID
-     * @param open TopComponent opened or not 
-     */
-    public View(String topcomponentID, String mode, boolean open) {
+
+
+    public View(String topcomponentID, int index, boolean open) {
         this.topcomponentID = topcomponentID;
-        this.mode = mode;
+        this.index = index;
         this.open = open;
     }
 
-    /**
-     * Return Mode ID
-     * @return Mode ID
-     */
-    public String getMode() {
-        return mode;
-    }
 
-    /**
-     * Set Mode ID
-     * @param mode Mode ID 
-     */
-    public void setMode(String mode) {
-        this.mode = mode;
-    }
 
     /**
      * Return TopComponent ID
@@ -123,6 +94,46 @@ public class View implements Serializable{
     public void setOpen(boolean open) {
         this.open = open;
     }
-    
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final View other = (View) obj;
+        if ((this.topcomponentID == null || !this.topcomponentID.equals(other.topcomponentID))) {
+            return false;
+        }
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 3;
+        hash = 67 * hash + (this.topcomponentID != null ? this.topcomponentID.hashCode() : 0);
+        return hash;
+    }
+
+    public int compareTo(View o) {
+        if (o == null)
+            return 1;
+        if (index == o.index)
+            return 0;
+        if (index > o.index)
+            return 1;
+
+        return -1;
+    }
+
+    public int getIndex() {
+        return index;
+    }
+
+    public void setIndex(int index) {
+        this.index = index;
+    }
     
 }

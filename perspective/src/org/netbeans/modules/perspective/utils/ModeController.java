@@ -46,11 +46,11 @@ package org.netbeans.modules.perspective.utils;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import org.netbeans.modules.perspective.persistence.PerspectivePreferences;
 import org.netbeans.modules.perspective.views.Perspective;
 import org.netbeans.modules.perspective.views.PerspectiveListener;
+import org.netbeans.modules.perspective.views.PerspectiveMode;
 import org.netbeans.modules.perspective.views.View;
 import org.openide.windows.Mode;
 import org.openide.windows.TopComponent;
@@ -75,8 +75,12 @@ class ModeController {
     private ModeController() {
         windowManager = WindowManager.getDefault();
     }
-
-    private void dock(String mode, String id, boolean open, boolean active) {
+    private void setActiveView(View  view){
+        TopComponent topComponent = windowManager.findTopComponent(view.getTopcomponentID());
+        if(topComponent!=null)
+            topComponent.requestActive();
+    }
+    private void dock(String mode, String id, boolean open, int index) {
         Mode windowMode = windowManager.findMode(mode);
 
         TopComponent topComponent = windowManager.findTopComponent(id);
@@ -88,10 +92,8 @@ class ModeController {
             windowMode.dockInto(topComponent);
         }
         if (open) {
-            topComponent.open();
-            if (active) {
-                topComponent.requestVisible();
-            }
+            topComponent.openAtTabPosition(index);
+            
         }
     }
     Perspective selected;
@@ -122,12 +124,18 @@ class ModeController {
             //close opened TC's
             closeAll();
         }
-        //begin switch
-        List<View> views = perspective.getViews();
-        Map<String, String> activeTCs = perspective.getActiveTCs();
-        for (View view : views) {
-            dock(view.getMode(), view.getTopcomponentID(), view.isOpen(), activeTCs.containsValue(view.getTopcomponentID()));
+        Set<PerspectiveMode> perspectiveModes = perspective.getPerspectiveModes();
+        for (PerspectiveMode perspectiveMode : perspectiveModes) {
+            Set<View> views = perspectiveMode.getViews();
+            for (View view : views) {
+                 dock(perspectiveMode.getId(), view.getTopcomponentID(),
+                         view.isOpen(), view.getIndex());
+            }
+            View active=perspectiveMode.getActiveView();
+            if(active!=null)
+                setActiveView(active);
         }
+
         //end switch
     }
 
@@ -142,4 +150,5 @@ class ModeController {
             tc.close();
         }
     }
+    
 }

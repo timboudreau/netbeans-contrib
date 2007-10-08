@@ -1,8 +1,8 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
- *
+ * 
  * Copyright 1997-2007 Sun Microsystems, Inc. All rights reserved.
- *
+ * 
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common
  * Development and Distribution License("CDDL") (collectively, the
@@ -20,30 +20,68 @@
  * License Header, with the fields enclosed by brackets [] replaced by
  * your own identifying information:
  * "Portions Copyrighted [year] [name of copyright owner]"
- *
+ * 
  * Contributor(s):
- *
+ * 
  * Portions Copyrighted 2007 Sun Microsystems, Inc.
  */
-package org.netbeans.modules.perspective;
+package org.netbeans.modules.perspective.views;
 
-import java.util.List;
-import org.netbeans.modules.perspective.utils.PerspectiveManagerImpl;
-import org.netbeans.modules.perspective.views.Perspective;
+import java.io.Serializable;
+import java.util.Collections;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
 /**
  *
  * @author Anuradha G
  */
-public abstract class PerspectiveManager {
+public class PerspectiveMode implements Serializable {
 
-    public static PerspectiveManager getDefault() {
-        return PerspectiveManagerImpl.getInstance();
+    private static final long serialVersionUID = 109201292838l;
+    private String id;
+    private View activeView;
+    private Set<View> views = new LinkedHashSet<View>();
+
+    public PerspectiveMode(String id) {
+        this.id = id;
     }
 
-    public abstract Perspective getSelected();
-    public abstract Perspective findPerspectiveByID(String id) ;
-    public abstract Perspective findPerspectiveByAlias(String alias);
-    public abstract List<Perspective> getPerspectives() ;
-    public abstract void setSelected(Perspective perspective);
+    public String getId() {
+        return id;
+    }
+
+    public void setActiveView(View activeView) {
+        this.activeView = activeView;
+    }
+
+    public View getActiveView() {
+        return activeView;
+    }
+
+    public void addView(View view) {
+        views.add(view);
+    }
+
+    public void removeView(View view) {
+        views.remove(view);
+    }
+
+    public Set<View> getViews() {
+        return Collections.unmodifiableSet(views);
+    }
+
+    public View findViewByTCID(String id) {
+        for (View view : views) {
+            if (view.getTopcomponentID().equals(id))
+                return view;
+        }
+
+        return null;
+    }
+
+    public void clear() {
+        views.clear();
+        setActiveView(null);
+    }
 }
