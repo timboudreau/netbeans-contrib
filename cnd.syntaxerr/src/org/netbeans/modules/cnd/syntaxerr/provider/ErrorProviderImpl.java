@@ -83,14 +83,26 @@ class ErrorProviderImpl extends ErrorProvider {
 	
         String compiler = getCompiler(dao);
         if( compiler != null ) {
+	    
             ErrorBag result = new ErrorBag();
             FileObject fo = dao.getPrimaryFile();
             File tmpDir = new File(System.getProperty("java.io.tmpdir"));
-            File tmpFile = File.createTempFile(fo.getName() + '_', "." + fo.getExt(), tmpDir); // NOI18N
+    
+	    // ensure prefix is not less than 3, otherwise createTempFile throws
+	    String prefix = fo.getName();
+	    switch( prefix.length() ) { 
+	    // it can't be 0
+	    case 1: prefix += "__"; break;
+	    case 2: prefix += '_'; break;
+	    default:
+	    }
+
+            File tmpFile = File.createTempFile(prefix, "." + fo.getExt(), tmpDir); // NOI18N
             FileWriter writer = new FileWriter(tmpFile);
             doc.write(writer, 0, doc.getLength());
             writer.write(System.getProperty("line.separator"));
             writer.close();
+	    
             // TODO: set correct options
             String command = compiler + " -c -o /dev/null -I . " + getOptions(dao) + ' ' + tmpFile.getAbsolutePath(); // NOI18N
             if( DebugUtils.SLEEP_ON_PARSE ) DebugUtils.sleep(3000);
