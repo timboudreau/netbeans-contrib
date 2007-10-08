@@ -35,6 +35,7 @@ import java.util.Collection;
 import javax.swing.SwingUtilities;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
+import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
 import javax.swing.text.Position;
 import javax.swing.text.StyledDocument;
@@ -189,9 +190,13 @@ class FileHighliter implements DocumentListener {
         line.addPropertyChangeListener(new PropertyChangeListener() {
             public void propertyChange(PropertyChangeEvent ev){
                 String type = ev.getPropertyName();
-                if ((type ==null) || type.equals(Annotatable.PROP_TEXT)){
+                if (type.equals(Annotatable.PROP_TEXT)){
                     line.removePropertyChangeListener(this);
-                    annotation.detach();
+		    // annotation.detach() shows an exception if the line has been already deleted
+		    int lineCount = NbDocument.findLineNumber((StyledDocument) doc, doc.getLength());
+		    if( line.getLineNumber() < lineCount ) {
+			annotation.detach();
+		    }
                     annotations.remove(annotation);
                 }
             }
