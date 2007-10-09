@@ -25,13 +25,17 @@
  *
  * Portions Copyrighted 2007 Sun Microsystems, Inc.
  */
-
 package org.netbeans.modules.logmanagement.actions;
 
+import java.awt.Point;
 import java.awt.event.ActionEvent;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.JButton;
+import javax.swing.JCheckBoxMenuItem;
+import javax.swing.JPopupMenu;
+import javax.swing.event.PopupMenuEvent;
+import javax.swing.event.PopupMenuListener;
 import org.netbeans.modules.logmanagement.Logger;
 import org.openide.util.NbBundle;
 import org.openide.util.Utilities;
@@ -43,20 +47,53 @@ import org.openide.util.Utilities;
 public class FilterAction extends AbstractAction {
 
     private static final long serialVersionUID = 1l;
+    private JPopupMenu menu = new JPopupMenu();
+    private boolean wormup;
 
     public FilterAction() {
-      
+
         putValue(Action.SMALL_ICON, new javax.swing.ImageIcon(Utilities.loadImage("org/netbeans/modules/logmanagement/resources/filter.png", true)));
-        putValue(Action.SHORT_DESCRIPTION, NbBundle.getMessage(Logger.class,"filter"));
+        putValue(Action.SHORT_DESCRIPTION, NbBundle.getMessage(Logger.class, "filter"));
+        menu.add(new JCheckBoxMenuItem("TODO"));//NOI18N
     }
-    
+
     public void actionPerformed(ActionEvent e) {
         Object source = e.getSource();
-        if(source instanceof JButton){
-            JButton button=(JButton) source;
+        if (source instanceof JButton) {
+            JButton button = (JButton) source;
+            wormup(button);
+            Point point = button.getLocationOnScreen();
+
+            menu.setInvoker(button);
+            menu.setVisible(true);
+            menu.setLocation(point.x + (button.getWidth()), point.y);
+        }
+    }
+
+    private synchronized void wormup(final JButton button) {
+        if (!wormup) {
+            wormup = true;
             button.setFocusPainted(false);
-            button.setSelected(true);
-        
+            menu.addPopupMenuListener(new PopupMenuListener() {
+
+                public void popupMenuWillBecomeVisible(PopupMenuEvent e) {
+                    if (button != null) {
+                        button.setSelected(true);
+                    }
+                }
+
+                public void popupMenuWillBecomeInvisible(PopupMenuEvent e) {
+                    if (button != null) {
+                        button.setSelected(false);
+                    }
+                }
+
+                public void popupMenuCanceled(PopupMenuEvent e) {
+                    if (button != null) {
+                        button.setSelected(false);
+                    }
+                }
+            });
         }
     }
 }

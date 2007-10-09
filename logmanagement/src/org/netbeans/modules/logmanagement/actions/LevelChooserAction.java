@@ -30,8 +30,6 @@ package org.netbeans.modules.logmanagement.actions;
 
 import java.awt.Point;
 import java.awt.event.ActionEvent;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.logging.Level;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
@@ -55,53 +53,71 @@ public class LevelChooserAction extends AbstractAction {
     private Logger logger;
     private JPopupMenu menu = new JPopupMenu();
     private ButtonGroup group = new ButtonGroup();
-    private Map<Level, JRadioButtonMenuItem> map = new HashMap<Level, JRadioButtonMenuItem>();
     private boolean wormup;
 
+    
     public LevelChooserAction(Logger logger) {
         putValue(Action.SHORT_DESCRIPTION, NbBundle.getMessage(Logger.class, "level"));
         putValue(Action.SMALL_ICON, new javax.swing.ImageIcon(Utilities.loadImage("org/netbeans/modules/logmanagement/resources/level.png", true)));
         this.logger = logger;
+        Level selected = Level.parse(logger.getLevel());
         JRadioButtonMenuItem all = new JRadioButtonMenuItem(new LevelAction(Level.ALL));
         menu.add(all);
         group.add(all);
-        map.put(Level.ALL, all);
+        if(Level.ALL.equals(selected))
+            all.setSelected(true);
 
         JRadioButtonMenuItem config = new JRadioButtonMenuItem(new LevelAction(Level.CONFIG));
         menu.add(config);
         group.add(config);
-        map.put(Level.CONFIG, config);
+        if(Level.CONFIG.equals(selected))
+            config.setSelected(true);
+
 
         JRadioButtonMenuItem fine = new JRadioButtonMenuItem(new LevelAction(Level.FINE));
         menu.add(fine);
         group.add(fine);
-        map.put(Level.FINE, fine);
+       if(Level.FINE.equals(selected))
+            fine.setSelected(true);
+        
         JRadioButtonMenuItem finer = new JRadioButtonMenuItem(new LevelAction(Level.FINER));
         menu.add(finer);
         group.add(finer);
-        map.put(Level.FINER, finer);
+        if(Level.FINER.equals(selected))
+            finer.setSelected(true);
+        
         JRadioButtonMenuItem finest = new JRadioButtonMenuItem(new LevelAction(Level.FINEST));
         menu.add(finest);
         group.add(finest);
-        map.put(Level.FINEST, finest);
+        if(Level.FINEST.equals(selected))
+            finest.setSelected(true);
+        
         JRadioButtonMenuItem info = new JRadioButtonMenuItem(new LevelAction(Level.INFO));
         menu.add(info);
         group.add(info);
-        map.put(Level.INFO, info);
+        if(Level.INFO.equals(selected))
+            info.setSelected(true);
+       
         JRadioButtonMenuItem off = new JRadioButtonMenuItem(new LevelAction(Level.OFF));
         menu.add(off);
         group.add(off);
-        map.put(Level.OFF, off);
+        if(Level.OFF.equals(selected))
+            off.setSelected(true);
+        
         JRadioButtonMenuItem server = new JRadioButtonMenuItem(new LevelAction(Level.SEVERE));
         menu.add(server);
         group.add(server);
-        map.put(Level.SEVERE, server);
+        if(Level.SEVERE.equals(selected))
+            server.setSelected(true);
+        
         JRadioButtonMenuItem warning = new JRadioButtonMenuItem(new LevelAction(Level.WARNING));
         menu.add(warning);
         group.add(warning);
-        map.put(Level.WARNING, warning);
-        JRadioButtonMenuItem selected = map.get(Level.parse(logger.getLevel()));
-        if(selected!=null)selected.setSelected(true);
+        if(Level.WARNING.equals(selected))
+            warning.setSelected(true);
+        
+        
+        
     }
 
 
@@ -120,6 +136,7 @@ public class LevelChooserAction extends AbstractAction {
 
     private synchronized void wormup(final JButton button) {
         if (!wormup) {
+            wormup=true;
             button.setFocusPainted(false);
             menu.addPopupMenuListener(new PopupMenuListener() {
 
@@ -155,7 +172,7 @@ public class LevelChooserAction extends AbstractAction {
 
         public void actionPerformed(ActionEvent e) {
             logger.setLevel(level.getName());
-            map.get(level).setSelected(true);
+           
         }
     }
 }

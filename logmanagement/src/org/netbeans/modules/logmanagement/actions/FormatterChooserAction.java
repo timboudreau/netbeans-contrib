@@ -25,13 +25,10 @@
  *
  * Portions Copyrighted 2007 Sun Microsystems, Inc.
  */
-
 package org.netbeans.modules.logmanagement.actions;
 
 import java.awt.Point;
 import java.awt.event.ActionEvent;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.logging.Formatter;
 import java.util.logging.SimpleFormatter;
 import java.util.logging.StreamHandler;
@@ -58,30 +55,31 @@ public class FormatterChooserAction extends AbstractAction {
     private StreamHandler customHandler;
     private JPopupMenu menu = new JPopupMenu();
     private ButtonGroup group = new ButtonGroup();
-    private Map<Class<?>, JRadioButtonMenuItem> map = new HashMap<Class<?>, JRadioButtonMenuItem>();
     private boolean wormup;
 
     public FormatterChooserAction(StreamHandler customHandler) {
         putValue(Action.SHORT_DESCRIPTION, NbBundle.getMessage(Logger.class, "formatter"));
         putValue(Action.SMALL_ICON, new javax.swing.ImageIcon(Utilities.loadImage("org/netbeans/modules/logmanagement/resources/formatter.png", true)));
         this.customHandler = customHandler;
-        SimpleFormatter simpleFormatter= new SimpleFormatter();
-        JRadioButtonMenuItem all = new JRadioButtonMenuItem(new LevelAction( NbBundle.getMessage(Logger.class, "default_formatter"),simpleFormatter));
-        menu.add(all);
-        group.add(all);
-        map.put(SimpleFormatter.class, all);
+        SimpleFormatter simpleFormatter = new SimpleFormatter();
+        JRadioButtonMenuItem simpale = new JRadioButtonMenuItem(new LevelAction(NbBundle.getMessage(Logger.class, "default_formatter"), simpleFormatter));
+        menu.add(simpale);
+        group.add(simpale);
 
-        XMLFormatter xmlFormatter= new XMLFormatter();
-        JRadioButtonMenuItem xmlItem = new JRadioButtonMenuItem(new LevelAction( NbBundle.getMessage(Logger.class, "xml_formatter"),xmlFormatter));
+        XMLFormatter xmlFormatter = new XMLFormatter();
+        JRadioButtonMenuItem xmlItem = new JRadioButtonMenuItem(new LevelAction(NbBundle.getMessage(Logger.class, "xml_formatter"), xmlFormatter));
         menu.add(xmlItem);
         group.add(xmlItem);
-        map.put(XMLFormatter.class, xmlItem);
 
-       
-        JRadioButtonMenuItem selected = map.get(customHandler.getFormatter().getClass());
-       if(selected!=null)selected.setSelected(true);
+        if (customHandler.getFormatter() instanceof SimpleFormatter) {
+            simpale.setSelected(true);
+        } else if( customHandler.getFormatter() instanceof XMLFormatter){
+            xmlItem.setSelected(true);
+
+        }
+
+
     }
-
 
     public void actionPerformed(ActionEvent e) {
         Object source = e.getSource();
@@ -92,12 +90,13 @@ public class FormatterChooserAction extends AbstractAction {
 
             menu.setInvoker(button);
             menu.setVisible(true);
-            menu.setLocation(point.x+ (button.getWidth()), point.y);
+            menu.setLocation(point.x + (button.getWidth()), point.y);
         }
     }
 
     private synchronized void wormup(final JButton button) {
         if (!wormup) {
+            wormup = true;
             button.setFocusPainted(false);
             menu.addPopupMenuListener(new PopupMenuListener() {
 
@@ -126,14 +125,14 @@ public class FormatterChooserAction extends AbstractAction {
 
         private Formatter formatter;
 
-        public LevelAction(String name,Formatter formatter) {
+        public LevelAction(String name, Formatter formatter) {
             this.formatter = formatter;
-             putValue(NAME, name);
+            putValue(NAME, name);
         }
 
         public void actionPerformed(ActionEvent e) {
             customHandler.setFormatter(formatter);
-            map.get(formatter.getClass()).setSelected(true);
+
         }
     }
 }

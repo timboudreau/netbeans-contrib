@@ -102,7 +102,7 @@ public class RootLoggerNode extends AbstractNode {
     protected Sheet createSheet() {
         return new LoggerSheet(logger).getSheet();
     }
-
+  
     /**
      *
      * @param popup
