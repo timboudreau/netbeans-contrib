@@ -329,7 +329,7 @@ public class JCAPSImplementationType implements SAWImplementationType {
                     "saveTaskVO.setOutput(output);" + 
                     "saveTaskVO.setCustomAttributesMap(customAttributesMap);" + 
                     "outputVO = workFlowManager.saveTasks(saveTaskVO);" + 
-                    "return outputVO;com } ";
+                    "return outputVO;} ";
         } catch (Exception e) {
             e.printStackTrace();
         }
