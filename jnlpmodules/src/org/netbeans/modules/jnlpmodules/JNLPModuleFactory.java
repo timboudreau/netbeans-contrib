@@ -1,21 +1,44 @@
 /*
- * The contents of this file are subject to the terms of the Common Development
- * and Distribution License (the License). You may not use this file except in
- * compliance with the License.
+ * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * You can obtain a copy of the License at http://www.netbeans.org/cddl.html
- * or http://www.netbeans.org/cddl.txt.
+ * Copyright 1997-2007 Sun Microsystems, Inc. All rights reserved.
  *
- * When distributing Covered Code, include this CDDL Header Notice in each file
- * and include the License file at http://www.netbeans.org/cddl.txt.
- * If applicable, add the following below the CDDL Header, with the fields
- * enclosed by brackets [] replaced by your own identifying information:
+ * The contents of this file are subject to the terms of either the GNU
+ * General Public License Version 2 only ("GPL") or the Common
+ * Development and Distribution License("CDDL") (collectively, the
+ * "License"). You may not use this file except in compliance with the
+ * License. You can obtain a copy of the License at
+ * http://www.netbeans.org/cddl-gplv2.html
+ * or nbbuild/licenses/CDDL-GPL-2-CP. See the License for the
+ * specific language governing permissions and limitations under the
+ * License.  When distributing the software, include this License Header
+ * Notice in each file and include the License file at
+ * nbbuild/licenses/CDDL-GPL-2-CP.  Sun designates this
+ * particular file as subject to the "Classpath" exception as provided
+ * by Sun in the GPL Version 2 section of the License file that
+ * accompanied this code. If applicable, add the following below the
+ * License Header, with the fields enclosed by brackets [] replaced by
+ * your own identifying information:
  * "Portions Copyrighted [year] [name of copyright owner]"
  *
+ * Contributor(s):
+ *
  * The Original Software is NetBeans. The Initial Developer of the Original
- * Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
- * Microsystems, Inc. All Rights Reserved.
+ * Software is Nokia. Portions Copyright 2003 Nokia.
+ * All Rights Reserved.
+ *
+ * If you wish your version of this file to be governed by only the CDDL
+ * or only the GPL Version 2, indicate your decision by adding
+ * "[Contributor] elects to include this software in this distribution
+ * under the [CDDL or GPL Version 2] license." If you do not indicate a
+ * single choice of license, a recipient has the option to distribute
+ * your version of this file under either the CDDL, the GPL Version 2 or
+ * to extend the choice of license to its licensees as provided above.
+ * However, if you add GPL Version 2 code and therefore, elected the GPL
+ * Version 2 license, then the option applies only if the new code is
+ * made subject to such option by the copyright holder.
  */
+
 package org.netbeans.modules.jnlpmodules;
 
 import java.io.File;
@@ -35,13 +58,14 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.jar.Attributes;
 import java.util.jar.Manifest;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.netbeans.Events;
 import org.netbeans.InvalidException;
 import org.netbeans.Module;
 import org.netbeans.ModuleFactory;
 import org.netbeans.ModuleManager;
 import org.netbeans.core.startup.ModuleSystem;
-import org.openide.ErrorManager;
 
 /**
  *
@@ -52,9 +76,9 @@ public class JNLPModuleFactory extends ModuleFactory {
     private static final String MANIFEST_LOCATION = "META-INF/MANIFEST.MF";
     
     private static final String CONFIG_LOCATION = "META-INF/netbeans-location.properties";
-    
-    static final ErrorManager err = ErrorManager.getDefault().getInstance("org.netbeans.modules.jnlpmodules"); // NOI18N
 
+    private static final Logger log = Logger.getLogger(JNLPModuleFactory.class.getName());
+    
     // non module jars on classpath sorted by their original
     // location (location is a key, set of all jar names is
     // value in this map.
@@ -71,7 +95,7 @@ public class JNLPModuleFactory extends ModuleFactory {
         try {
             scanManifests();
         } catch (IOException ioe) {
-            err.notify(ioe);
+            log.log(Level.SEVERE, "Cannot scan manifests", ioe); // NOI18N
         }
     }
 
@@ -88,12 +112,12 @@ public class JNLPModuleFactory extends ModuleFactory {
         Attributes attr = mani.getMainAttributes();
         String module = attr.getValue("OpenIDE-Module");
         String prefixURL = prefixedModules.get(module);
-        String location = moduleLocations.get(module);;
+        String location = moduleLocations.get(module);
 //        System.out.println("Factory creating prefixed " + module + " prefixURL == " + prefixURL + " location == " + location);
         try {
             return new ClasspathModule(mgr, ev, mani, history,  prefixURL, location, loader, this);
         } catch (IOException ioe) {
-            err.notify(ioe);
+            log.log(Level.SEVERE, "Cannot create classpath module.", ioe); // NOI18N
         }
         return null;
     }
@@ -111,7 +135,7 @@ public class JNLPModuleFactory extends ModuleFactory {
             ignoredPrefixes.add("jar:" + f.toURI().toURL()); // NOI18N
             initializePrefixLocations(loader);
         } catch (MalformedURLException e) {
-            err.notify(ErrorManager.INFORMATIONAL, e);
+            log.log(Level.FINE, "Cannot convert JDK location to jar: protocol", e); // NOI18N
         }
         
         Enumeration<URL> e = loader.getResources(MANIFEST_LOCATION); // NOI18N
@@ -134,8 +158,8 @@ public class JNLPModuleFactory extends ModuleFactory {
                         continue MANIFESTS1;
                     }
                 }
-                if (err.isLoggable(ErrorManager.INFORMATIONAL)) {
-                    err.log("Checking boot manifest: " + manifestUrlS);
+                if (log.isLoggable(Level.FINE)) {
+                    log.fine("Checking boot manifest: " + manifestUrlS);
                 }
 
                 InputStream is;
@@ -143,7 +167,7 @@ public class JNLPModuleFactory extends ModuleFactory {
                     is = manifestUrl.openStream();
                 } catch (IOException ioe) {
                     // Debugging for e.g. #32493 - which JAR was guilty?
-                    err.annotate(ioe, ErrorManager.UNKNOWN, "URL: " + manifestUrl, null, null, null); // NOI18N
+                    log.log(Level.INFO, "Problem with URL: " + manifestUrl, ioe); // NOI18N
                     throw ioe;
                 }
                 try {
@@ -158,8 +182,8 @@ public class JNLPModuleFactory extends ModuleFactory {
                                 attr.getValue("OpenIDE-Archive-Branding") != null) { // NOI18N
                             addPrefixNonModule(prefix, location);
                             checkedManifests.add(manifestUrl);
-                            if (err.isLoggable(ErrorManager.INFORMATIONAL)) {
-                                err.log("Added prefix: " + prefix + " with location: " + location);
+                            if (log.isLoggable(Level.FINE)) {
+                                log.fine("Added prefix: " + prefix + " with location: " + location);
                             }
                         } else { // module jar:
                             addPrefixModule(prefix, attr.getValue("OpenIDE-Module"), location);
@@ -187,16 +211,16 @@ public class JNLPModuleFactory extends ModuleFactory {
             }
         }
         
-        err.log(ErrorManager.INFORMATIONAL, "!!! WARNING: Jar " + 
+        log.warning("!!! WARNING: Jar " + 
             jarFileName + " with prefix " + prefix + 
                 " is not specified in META-INF/netbeans-location.properties!"); 
         
         if (attr.getValue("OpenIDE-Module") != null) {
-            err.log(ErrorManager.INFORMATIONAL, "Assuming that Jar " + 
+            log.warning("Assuming that Jar " + 
             jarFileName + " with prefix " + prefix + " is a regular module."); 
             return "modules";
         }
-        err.log(ErrorManager.INFORMATIONAL, "Putting Jar " + 
+        log.warning("Putting Jar " + 
             jarFileName + " with prefix " + prefix + " to JNLP classpath!!!");
         
         return "core";
@@ -219,7 +243,7 @@ public class JNLPModuleFactory extends ModuleFactory {
         for (Iterator it = jarFileNames.iterator(); it.hasNext(); ) {
             warning += (String)it.next() + ", ";
         }
-        err.log(warning);
+        log.warning(warning);
         return null;
     }
     
@@ -258,7 +282,7 @@ public class JNLPModuleFactory extends ModuleFactory {
             prefixedModules.put(module, prefix);
             moduleLocations.put(module, location);
         } else {
-            err.log(ErrorManager.WARNING, "Module: " + module + 
+            log.warning("Module: " + module + 
                 " has more jars first: " + s + " second: " + prefix);
         }
     }
@@ -293,11 +317,11 @@ public class JNLPModuleFactory extends ModuleFactory {
                     p.load(is);
                     is.close();
                 } catch (IOException ioe) {
-                    err.notify(ioe);
+                    log.log(Level.WARNING, "Cannot read: " + configURL, ioe); // NOI18N
                 }
             }
         } catch (IOException ioe) {
-            err.notify(ioe);
+            log.log(Level.WARNING, "Problem when getting config resources.", ioe);
         }
         for (Object key : p.keySet()) {
             pl.put((String)key, (String)p.get(key));
@@ -331,10 +355,10 @@ public class JNLPModuleFactory extends ModuleFactory {
                     }
                 }
             }
-            if (err.isLoggable(ErrorManager.INFORMATIONAL)) {
-                err.log(ErrorManager.INFORMATIONAL, "Constructing ClasspathDelegateClassLoader with prefixes: ");
+            if (log.isLoggable(Level.FINE)) {
+                log.fine("Constructing ClasspathDelegateClassLoader with prefixes: ");
                 for (Iterator it = s.iterator(); it.hasNext(); ) {
-                    err.log(ErrorManager.INFORMATIONAL, it.next().toString());
+                    log.fine(it.next().toString());
                 }
                 
             }
@@ -343,6 +367,7 @@ public class JNLPModuleFactory extends ModuleFactory {
         return classpathDelegateClassLoader;
     }
     
+    @Override
     public boolean removeBaseClassLoader() {
         return true;
     }
