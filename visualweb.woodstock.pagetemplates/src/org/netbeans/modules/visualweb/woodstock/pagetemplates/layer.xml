@@ -2,7 +2,7 @@
 <!DOCTYPE filesystem PUBLIC "-//NetBeans//DTD Filesystem 1.1//EN" "http://www.netbeans.org/dtds/filesystem-1_1.dtd">
 <filesystem>
     <folder name="Templates">
-        <folder name="PageTemplates">
+        <folder name="PageLayoutTemplates">
             <file name="PageTemplate1.jsp" url="/org/netbeans/modules/visualweb/woodstock/pagetemplates/PageTemplate1.jsp.template">
                 <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.visualweb.woodstock.pagetemplates.Bundle"/>
                 <attr name="name" stringvalue="PageTemplate1" />
@@ -10,7 +10,7 @@
                 <attr name="previewImage" urlvalue="nbresloc:/org/netbeans/modules/visualweb/woodstock/pagetemplates/resources/PageTemplate1-preview.jpg" />
                 <attr name="resources" urlvalue="nbresloc:/org/netbeans/modules/visualweb/woodstock/pagetemplates/resources/PageTemplate1-resources.zip" />
                 <attr name="position" intvalue="100"/>
-                <attr name="pageTemplate" boolvalue="true"/>
+                <attr name="pageLayoutTemplate" boolvalue="true"/>
                 <attr name="description" stringvalue="PageTemplate1_Desciption"/>
                 <attr name="javax.script.ScriptEngine" stringvalue="freemarker"/>
             </file>
@@ -25,7 +25,7 @@
                 <attr name="previewImage" urlvalue="nbresloc:/org/netbeans/modules/visualweb/woodstock/pagetemplates/resources/PageTemplate2-preview.jpg" />
                 <attr name="resources" urlvalue="nbresloc:/org/netbeans/modules/visualweb/woodstock/pagetemplates/resources/PageTemplate2-resources.zip" />
                 <attr name="position" intvalue="300"/>
-                <attr name="pageTemplate" boolvalue="true"/>
+                <attr name="pageLayoutTemplate" boolvalue="true"/>
                 <attr name="description" stringvalue="PageTemplate2_Desciption"/>
                 <attr name="javax.script.ScriptEngine" stringvalue="freemarker"/>
             </file>
@@ -40,7 +40,7 @@
                 <attr name="previewImage" urlvalue="nbresloc:/org/netbeans/modules/visualweb/woodstock/pagetemplates/resources/PageTemplate3-preview.jpg" />
                 <attr name="resources" urlvalue="nbresloc:/org/netbeans/modules/visualweb/woodstock/pagetemplates/resources/PageTemplate3-resources.zip" />
                 <attr name="position" intvalue="500"/>
-                <attr name="pageTemplate" boolvalue="true"/>
+                <attr name="pageLayoutTemplate" boolvalue="true"/>
                 <attr name="description" stringvalue="PageTemplate3_Desciption"/>
                 <attr name="javax.script.ScriptEngine" stringvalue="freemarker"/>
             </file>
@@ -55,7 +55,7 @@
                 <attr name="previewImage" urlvalue="nbresloc:/org/netbeans/modules/visualweb/woodstock/pagetemplates/resources/PageTemplate4-preview.jpg" />
                 <attr name="resources" urlvalue="nbresloc:/org/netbeans/modules/visualweb/woodstock/pagetemplates/resources/PageTemplate4-resources.zip" />
                 <attr name="position" intvalue="700"/>
-                <attr name="pageTemplate" boolvalue="true"/>
+                <attr name="pageLayoutTemplate" boolvalue="true"/>
                 <attr name="description" stringvalue="PageTemplate4_Desciption"/>
                 <attr name="javax.script.ScriptEngine" stringvalue="freemarker"/>
             </file>
@@ -70,7 +70,7 @@
                 <attr name="previewImage" urlvalue="nbresloc:/org/netbeans/modules/visualweb/woodstock/pagetemplates/resources/PageTemplate5-preview.jpg" />
                 <attr name="resources" urlvalue="nbresloc:/org/netbeans/modules/visualweb/woodstock/pagetemplates/resources/PageTemplate5-resources.zip" />
                 <attr name="position" intvalue="900"/>
-                <attr name="pageTemplate" boolvalue="true"/>
+                <attr name="pageLayoutTemplate" boolvalue="true"/>
                 <attr name="description" stringvalue="PageTemplate5_Desciption"/>
                 <attr name="javax.script.ScriptEngine" stringvalue="freemarker"/>
             </file>
@@ -85,7 +85,7 @@
                 <attr name="previewImage" urlvalue="nbresloc:/org/netbeans/modules/visualweb/woodstock/pagetemplates/resources/PageTemplate6-preview.jpg" />
                 <attr name="resources" urlvalue="nbresloc:/org/netbeans/modules/visualweb/woodstock/pagetemplates/resources/PageTemplate6-resources.zip" />
                 <attr name="position" intvalue="1100"/>
-                <attr name="pageTemplate" boolvalue="true"/>
+                <attr name="pageLayoutTemplate" boolvalue="true"/>
                 <attr name="description" stringvalue="PageTemplate6_Desciption"/>
                 <attr name="javax.script.ScriptEngine" stringvalue="freemarker"/>
             </file>
@@ -100,7 +100,7 @@
                 <attr name="previewImage" urlvalue="nbresloc:/org/netbeans/modules/visualweb/woodstock/pagetemplates/resources/PageTemplate7-preview.jpg" />
                 <attr name="resources" urlvalue="nbresloc:/org/netbeans/modules/visualweb/woodstock/pagetemplates/resources/PageTemplate7-resources.zip" />
                 <attr name="position" intvalue="1300"/>
-                <attr name="pageTemplate" boolvalue="true"/>
+                <attr name="pageLayoutTemplate" boolvalue="true"/>
                 <attr name="description" stringvalue="PageTemplate7_Desciption"/>
                 <attr name="javax.script.ScriptEngine" stringvalue="freemarker"/>
             </file>
@@ -115,7 +115,7 @@
                 <attr name="previewImage" urlvalue="nbresloc:/org/netbeans/modules/visualweb/woodstock/pagetemplates/resources/PageTemplate8-preview.jpg" />
                 <attr name="resources" urlvalue="nbresloc:/org/netbeans/modules/visualweb/woodstock/pagetemplates/resources/PageTemplate8-resources.zip" />
                 <attr name="position" intvalue="1500"/>
-                <attr name="pageTemplate" boolvalue="true"/>
+                <attr name="pageLayoutTemplate" boolvalue="true"/>
                 <attr name="description" stringvalue="PageTemplate8_Desciption"/>
                 <attr name="javax.script.ScriptEngine" stringvalue="freemarker"/>
             </file>
@@ -130,7 +130,7 @@
                 <attr name="previewImage" urlvalue="nbresloc:/org/netbeans/modules/visualweb/woodstock/pagetemplates/resources/PageTemplate9-preview.jpg" />
                 <attr name="resources" urlvalue="nbresloc:/org/netbeans/modules/visualweb/woodstock/pagetemplates/resources/PageTemplate9-resources.zip" />
                 <attr name="position" intvalue="1700"/>
-                <attr name="pageTemplate" boolvalue="true"/>
+                <attr name="pageLayoutTemplate" boolvalue="true"/>
                 <attr name="description" stringvalue="PageTemplate9_Desciption"/>
                 <attr name="javax.script.ScriptEngine" stringvalue="freemarker"/>
             </file>
@@ -145,7 +145,7 @@
                 <attr name="previewImage" urlvalue="nbresloc:/org/netbeans/modules/visualweb/woodstock/pagetemplates/resources/PageTemplate10-preview.jpg" />
                 <attr name="resources" urlvalue="nbresloc:/org/netbeans/modules/visualweb/woodstock/pagetemplates/resources/PageTemplate10-resources.zip" />
                 <attr name="position" intvalue="1900"/>
-                <attr name="pageTemplate" boolvalue="true"/>
+                <attr name="pageLayoutTemplate" boolvalue="true"/>
                 <attr name="description" stringvalue="PageTemplate10_Desciption"/>
                 <attr name="javax.script.ScriptEngine" stringvalue="freemarker"/>
             </file>
@@ -160,7 +160,7 @@
                 <attr name="previewImage" urlvalue="nbresloc:/org/netbeans/modules/visualweb/woodstock/pagetemplates/resources/PageTemplate11-preview.jpg" />
                 <attr name="resources" urlvalue="nbresloc:/org/netbeans/modules/visualweb/woodstock/pagetemplates/resources/PageTemplate11-resources.zip" />
                 <attr name="position" intvalue="2100"/>
-                <attr name="pageTemplate" boolvalue="true"/>
+                <attr name="pageLayoutTemplate" boolvalue="true"/>
                 <attr name="description" stringvalue="PageTemplate11_Desciption"/>
                 <attr name="javax.script.ScriptEngine" stringvalue="freemarker"/>
             </file>
