@@ -36,7 +36,6 @@ import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JPopupMenu;
 import javax.swing.event.PopupMenuEvent;
 import javax.swing.event.PopupMenuListener;
-import org.netbeans.modules.logmanagement.Logger;
 import org.openide.util.NbBundle;
 import org.openide.util.Utilities;
 
@@ -53,7 +52,7 @@ public class FilterAction extends AbstractAction {
     public FilterAction() {
 
         putValue(Action.SMALL_ICON, new javax.swing.ImageIcon(Utilities.loadImage("org/netbeans/modules/logmanagement/resources/filter.png", true)));
-        putValue(Action.SHORT_DESCRIPTION, NbBundle.getMessage(Logger.class, "filter"));
+        putValue(Action.SHORT_DESCRIPTION, NbBundle.getMessage(FilterAction.class, "filter"));
         menu.add(new JCheckBoxMenuItem("TODO"));//NOI18N
     }
 

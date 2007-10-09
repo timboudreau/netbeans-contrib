@@ -57,7 +57,7 @@ public class LevelChooserAction extends AbstractAction {
 
     
     public LevelChooserAction(Logger logger) {
-        putValue(Action.SHORT_DESCRIPTION, NbBundle.getMessage(Logger.class, "level"));
+        putValue(Action.SHORT_DESCRIPTION, NbBundle.getMessage(LevelChooserAction.class, "level"));
         putValue(Action.SMALL_ICON, new javax.swing.ImageIcon(Utilities.loadImage("org/netbeans/modules/logmanagement/resources/level.png", true)));
         this.logger = logger;
         Level selected = Level.parse(logger.getLevel());

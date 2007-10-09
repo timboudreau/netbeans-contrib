@@ -41,7 +41,6 @@ import javax.swing.JPopupMenu;
 import javax.swing.JRadioButtonMenuItem;
 import javax.swing.event.PopupMenuEvent;
 import javax.swing.event.PopupMenuListener;
-import org.netbeans.modules.logmanagement.Logger;
 import org.openide.util.NbBundle;
 import org.openide.util.Utilities;
 
@@ -58,16 +57,16 @@ public class FormatterChooserAction extends AbstractAction {
     private boolean wormup;
 
     public FormatterChooserAction(StreamHandler customHandler) {
-        putValue(Action.SHORT_DESCRIPTION, NbBundle.getMessage(Logger.class, "formatter"));
+        putValue(Action.SHORT_DESCRIPTION, NbBundle.getMessage(FormatterChooserAction.class, "formatter"));
         putValue(Action.SMALL_ICON, new javax.swing.ImageIcon(Utilities.loadImage("org/netbeans/modules/logmanagement/resources/formatter.png", true)));
         this.customHandler = customHandler;
         SimpleFormatter simpleFormatter = new SimpleFormatter();
-        JRadioButtonMenuItem simpale = new JRadioButtonMenuItem(new LevelAction(NbBundle.getMessage(Logger.class, "default_formatter"), simpleFormatter));
+        JRadioButtonMenuItem simpale = new JRadioButtonMenuItem(new LevelAction(NbBundle.getMessage(FormatterChooserAction.class, "default_formatter"), simpleFormatter));
         menu.add(simpale);
         group.add(simpale);
 
         XMLFormatter xmlFormatter = new XMLFormatter();
-        JRadioButtonMenuItem xmlItem = new JRadioButtonMenuItem(new LevelAction(NbBundle.getMessage(Logger.class, "xml_formatter"), xmlFormatter));
+        JRadioButtonMenuItem xmlItem = new JRadioButtonMenuItem(new LevelAction(NbBundle.getMessage(FormatterChooserAction.class, "xml_formatter"), xmlFormatter));
         menu.add(xmlItem);
         group.add(xmlItem);
 
