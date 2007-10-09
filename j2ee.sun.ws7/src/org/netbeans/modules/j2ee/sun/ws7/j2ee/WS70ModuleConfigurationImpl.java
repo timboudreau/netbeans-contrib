@@ -118,17 +118,26 @@ public class WS70ModuleConfigurationImpl implements DeploymentPlanConfiguration,
     
     /** Conduit to pass the cmp mapping information directly to the configuration
      *  backend.
+     * 
+     *  !PW FIXME This method is for ejb-jar's only.  Any reason why it even needs
+     *  to be implemented in ws7 plugin?
      */
     public void setMappingInfo(OriginalCMPMapping[] mapping){
-        checkConfiguration(config);
-        SunONEDeploymentConfiguration s1config = (SunONEDeploymentConfiguration) config;
-        EjbJarRoot ejbJarRoot = s1config.getEjbJarRoot();
-        if (ejbJarRoot != null) {
-            ejbJarRoot.mapCmpBeans(mapping);
-        }
+        throw new UnsupportedOperationException("Not supported.");
     }
 
+    
+    /** Called through j2eeserver when a new EJB resource may need to be added to the
+     *  user's project.
+     * 
+     *  !PW FIXME This method is for ejb-jar's only.  Any reason why it even needs
+     *  to be implemented in ws7 plugin?
+     */
+    public void setCMPResource(String ejbName, String jndiName) throws ConfigurationException {
+        throw new UnsupportedOperationException("Not supported.");
+    }
 
+    
     /** Retrieves the context root field from sun-web.xml for this module, if the module is a
      *  web application.  Otherwise, returns null.
      */

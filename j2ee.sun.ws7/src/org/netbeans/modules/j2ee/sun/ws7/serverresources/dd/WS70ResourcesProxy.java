@@ -343,5 +343,10 @@ public class WS70ResourcesProxy implements WS70Resources {
     public void write(java.io.File f) throws java.io.IOException, org.netbeans.modules.schema2beans.Schema2BeansRuntimeException {
         if (resourcesRoot!=null) resourcesRoot.write(f);
     }
+
+    public boolean isTrivial(String nameProperty) {
+        // Root nodes are non-trivial by definition.
+        return false;
+    }
     
 }
