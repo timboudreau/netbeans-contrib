@@ -64,6 +64,7 @@ import org.openide.util.NbBundle;
 import org.openide.util.Lookup;
 
 import org.netbeans.core.NbTopManager;
+import org.netbeans.modules.remotesfs.MemoryFileSystem;
 import org.openide.NotifyDescriptor;
 
 /**
@@ -168,7 +169,7 @@ public class ZeroAdminInstall extends ModuleInstall implements PropertyChangeLis
             StatusDisplayer.getDefault().setStatusText(NbBundle.getBundle(ZeroAdminInstall.class).getString("MSG_FinishLoading"));
         } catch (Exception x) {
             Logger.getLogger(ZeroAdminInstall.class.getName()).log(
-                    Level.INFO, "", x);
+                    Level.SEVERE, "", x);
             NotifyDescriptor nd = new NotifyDescriptor.Message(
                 NbBundle.getBundle(ZeroAdminInstall.class).getString("MSG_FailedToInitialize"),
                 NotifyDescriptor.ERROR_MESSAGE
@@ -222,16 +223,7 @@ public class ZeroAdminInstall extends ModuleInstall implements PropertyChangeLis
             // unable to operate
             return;
         }
-        FileSystem sfs = Repository.getDefault().getDefaultFileSystem();
-        Method getUserLayerMethod = sfs.getClass().getDeclaredMethod("getUserLayer", new Class[0]);
-        getUserLayerMethod.setAccessible(true);
-        MultiFileSystem multi = (MultiFileSystem)getUserLayerMethod.invoke(sfs, new Object[0]);
-        getUserLayerMethod.setAccessible(false);
-        Method getDelegatesMethod = multi.getClass().getSuperclass().getDeclaredMethod("getDelegates", new Class[0]);
-        getDelegatesMethod.setAccessible(true);
-        FileSystem[] delegates = (FileSystem[])getDelegatesMethod.invoke(multi, new Object[0]);
-        getDelegatesMethod.setAccessible(false);
-        writableLayer = delegates[0];
+        writableLayer = MemoryFileSystem.getInstance();
     }
     
     /** Retrieves the data from the server and installs them to the
