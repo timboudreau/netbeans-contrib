@@ -71,7 +71,6 @@ public class ControlPointsCursorTest {
         conn3.setRouter (RouterFactory.createOrthogonalSearchRouter ());
         conn3.setControlPointShape (PointShape.SQUARE_FILLED_SMALL);
         conn3.setEndPointShape (PointShape.SQUARE_FILLED_BIG);
-        conn3.setCursor (Cursor.getPredefinedCursor (Cursor.CROSSHAIR_CURSOR));
         conn3.setControlPointsCursor (Cursor.getPredefinedCursor (Cursor.MOVE_CURSOR));
         conn3.setPaintControlPoints (false);
         scene.addChild (conn3);

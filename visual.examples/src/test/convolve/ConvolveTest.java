@@ -57,7 +57,7 @@ public class ConvolveTest extends Scene {
 
         createNormalWidget (50, 50, "This is normal Widget - no effect");
         createConvolveWidget (blurKernel, 100, 150, "This is ConvolveWidget - the image with label has to be blurred");
-        createConvolveWidget (dropShadowKernel, 150, 250, "This is ConvolveWidget - the image with label has to be blurred");
+        createConvolveWidget (dropShadowKernel, 150, 250, "This is ConvolveWidget - the image with label has to drop shadow");
     }
 
     private void createNormalWidget (int x, int y, String text) {

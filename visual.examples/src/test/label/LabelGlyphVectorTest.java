@@ -41,7 +41,7 @@ public class LabelGlyphVectorTest {
 
         createLabel (layer, 100, 100, "We are glyph-vector labels");
         createLabel (layer, 100, 150, "Zoom the scene in/out using Ctrl+MouseWheel");
-        createLabel (layer, 100, 200, "The labels should be rendered correctly all the time (not clipping)");
+        createLabel (layer, 100, 200, "The labels should be rendered correctly all the time (no clipping)");
 
         SceneSupport.show (scene);
     }
