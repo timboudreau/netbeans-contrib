@@ -168,8 +168,7 @@ public class ZeroAdminInstall extends ModuleInstall implements PropertyChangeLis
     
             StatusDisplayer.getDefault().setStatusText(NbBundle.getBundle(ZeroAdminInstall.class).getString("MSG_FinishLoading"));
         } catch (Exception x) {
-            Logger.getLogger(ZeroAdminInstall.class.getName()).log(
-                    Level.SEVERE, "", x);
+            log.log(Level.SEVERE, "", x);
             NotifyDescriptor nd = new NotifyDescriptor.Message(
                 NbBundle.getBundle(ZeroAdminInstall.class).getString("MSG_FailedToInitialize"),
                 NotifyDescriptor.ERROR_MESSAGE
@@ -218,12 +217,14 @@ public class ZeroAdminInstall extends ModuleInstall implements PropertyChangeLis
      * it to the writableLayer variable.
      */
     private void initRemoteSaving() throws Exception {
-
+        log.fine("initRemoteSaving");
         if (!cfgProxy.isConnected()) {
             // unable to operate
+            log.fine("Not connected - unable to initRemoteSaving.");
             return;
         }
         writableLayer = MemoryFileSystem.getInstance();
+        log.fine("Writable layer successfully initialized.");
     }
     
     /** Retrieves the data from the server and installs them to the
@@ -232,13 +233,15 @@ public class ZeroAdminInstall extends ModuleInstall implements PropertyChangeLis
      * @return true if successfully installed, false otherwise
      */
     private boolean installUserData() throws Exception {
-
+        log.entering(getClass().getName(), "installUserData");
         if (!cfgProxy.isConnected()) {
+            log.exiting(getClass().getName(), "installUserData1", false);
             return false;
         }
 
         char[] data = cfgProxy.getUserData();
         if (data == null) {
+            log.exiting(getClass().getName(), "installUserData2", false);
             return false;
         }
 
@@ -249,6 +252,7 @@ public class ZeroAdminInstall extends ModuleInstall implements PropertyChangeLis
                 copy(bufFs.getRoot(), writableLayer.getRoot(), true);
             }
         });
+        log.exiting(getClass().getName(), "installUserData", true);
         return true;
     }
     
@@ -398,8 +402,7 @@ public class ZeroAdminInstall extends ModuleInstall implements PropertyChangeLis
                 cfgProxy.saveUserData(bufFs.getBuffer());
 
             } catch (Exception re) {
-                Logger.getLogger(ZeroAdminInstall.class.getName()).log(
-                        Level.INFO, "", re);
+                log.log(Level.SEVERE, "", re);
                 NotifyDescriptor nd = new NotifyDescriptor.Message(
                     NbBundle.getBundle(ZeroAdminInstall.class).getString("MSG_SavingToServerFailed"),
                     NotifyDescriptor.ERROR_MESSAGE
@@ -563,7 +566,9 @@ public class ZeroAdminInstall extends ModuleInstall implements PropertyChangeLis
                 rd.close();
 
             } catch(Exception e) {
-                throw new IOException( e.toString() );
+                IOException ioe = new IOException();
+                ioe.initCause(e);
+                throw ioe;
             }
             
             return data.toString();
