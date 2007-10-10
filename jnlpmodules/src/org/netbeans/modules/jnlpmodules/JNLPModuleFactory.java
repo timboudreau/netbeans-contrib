@@ -339,13 +339,14 @@ public class JNLPModuleFactory extends ModuleFactory {
             Set m = mgr.getModules();
             for (Iterator it = m.iterator(); it.hasNext(); ) {
                 Module m1 = (Module)it.next();
-                if (  m1.getCodeName().equals("org.netbeans.bootstrap/1") ||
-                      m1.getCodeName().equals("org.netbeans.core.startup/1") ||
-                      m1.getCodeName().equals("org.netbeans.modules.jnlpmodules") ||
-                      m1.getCodeName().equals("org.openide.modules") ||
-                      m1.getCodeName().equals("org.openide.util") ||
-                      m1.getCodeName().equals("org.openide.filesystems")
-                ) {
+                String loc1 = moduleLocations.get(m1.getCodeName());
+                if (loc1 == null) {
+                    log.warning("We don't have location for module " + m1); // NOI18N
+                }
+                if ((loc1 != null) &&
+                    (loc1.startsWith("lib") ||
+                     loc1.startsWith("core"))
+                   ) {
                     if (m1 instanceof ClasspathModule) {
                         ClasspathModule cpm1 = (ClasspathModule)m1;
                         List<String> cp = new ArrayList<String>();

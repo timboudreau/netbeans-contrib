@@ -25,6 +25,8 @@ import java.net.URL;
 import java.io.*;
 import java.net.MalformedURLException;
 import java.security.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.netbeans.ModuleManager;
 import org.netbeans.Module;
 import org.netbeans.ProxyClassLoader;
@@ -36,7 +38,9 @@ import org.netbeans.ProxyClassLoader;
  * @author David Strupl
  */
 public class ClasspathDelegateClassLoader extends ProxyClassLoader {
-
+    
+    private static final Logger log = Logger.getLogger(ClasspathDelegateClassLoader.class.getName());
+    
     /** Common prefix of all JDK jars */
     private String jdkPrefix = null;
     
@@ -196,7 +200,7 @@ public class ClasspathDelegateClassLoader extends ProxyClassLoader {
             File f = new File(jdk);
             jdkPrefix = "jar:" + f.toURI().toURL(); // NOI18N
         } catch (MalformedURLException e) {
-            e.printStackTrace();
+            log.log(Level.WARNING, "", e); // NOI18N
         }
     }
     
@@ -204,19 +208,19 @@ public class ClasspathDelegateClassLoader extends ProxyClassLoader {
         Set m = mgr.getModules();
         for (Iterator it = m.iterator(); it.hasNext(); ) {
             Module m1 = (Module)it.next();
-            if (  m1.getCodeName().equals("org.netbeans.bootstrap/1") ||
-                  m1.getCodeName().equals("org.netbeans.core.startup/1") ||
-                  m1.getCodeName().equals("org.netbeans.modules.jnlpmodules") ||
-                  m1.getCodeName().equals("org.openide.modules") ||
-                  m1.getCodeName().equals("org.openide.util") ||
-                  m1.getCodeName().equals("org.openide.filesystems")
-            ) {
-                if (m1 instanceof ClasspathModule) {
-                    ClasspathModule cpm1 = (ClasspathModule)m1;
+            if (m1 instanceof ClasspathModule) {
+                ClasspathModule cpm1 = (ClasspathModule)m1;
+                if (((cpm1.location != null)) && 
+                    (cpm1.location.startsWith("lib") ||
+                     cpm1.location.startsWith("core")
+                    )) {
                     List<String> cp = new ArrayList<String>();
                     cp.add(cpm1.prefixURL);
                     cpm1.computePrefixes(cp);
                     prefixes.addAll(cp);
+                    if (log.isLoggable(Level.FINE)) {
+                        log.fine("ClasspathDelegateClassLoader adding " + cp); // NOI18N
+                    }
                 }
             }
         }

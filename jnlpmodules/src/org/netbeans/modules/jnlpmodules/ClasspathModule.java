@@ -116,7 +116,7 @@ public final class ClasspathModule extends Module {
 //    private final Set oldClassLoaders = new WeakSet(3); // Set<OneModuleClassLoader>
     
     String prefixURL; // non null for prefix modules
-    private String location; // non null for prefix modules
+    String location; // non null for prefix modules
     private ClassLoader delegate; // non null for prefix modules
 
     private Manifest manifest;
@@ -471,15 +471,13 @@ public final class ClasspathModule extends Module {
         computePrefixes(classp);
         // #27853:
         getManager().refineClassLoader(this, loaders);
-        
+        if (location == null) {
+            logger.warning("Location is null in classLoaderUp for " + this);
+        }
         try {
-                if ((delegate != null) &&
-                    ( (getCodeName().equals("org.netbeans.bootstrap/1")) ||
-                      (getCodeName().equals("org.netbeans.core.startup/1")) ||
-                      (getCodeName().equals("org.netbeans.modules.jnlpmodules")) || 
-                      (getCodeName().equals("org.openide.modules")) ||
-                      (getCodeName().equals("org.openide.util")) ||
-                      (getCodeName().equals("org.openide.filesystems")) //  ??? (getCodeName().equals("org.netbeans.libs.xerces/1")) ||
+                if (((delegate != null) && (location != null)) && 
+                    (location.startsWith("lib") ||
+                     location.startsWith("core")
                     )
                 ) {
                     classloader = delegate;
@@ -492,7 +490,7 @@ public final class ClasspathModule extends Module {
             ioe.initCause(iae);
             throw ioe;
         }
-        //oldClassLoaders.add(classloader);
+        logger.fine(getCodeName() + " will use " + classloader);
     }
     
     /**
