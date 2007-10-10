@@ -1,5 +1,4 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE filesystem PUBLIC "-//NetBeans//DTD Filesystem 1.0//EN" "http://www.netbeans.org/dtds/filesystem-1_0.dtd">
 <!--
 DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
 
@@ -27,7 +26,7 @@ your own identifying information:
 Contributor(s):
 
 The Original Software is NetBeans. The Initial Developer of the Original
-Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
+Software is Sun Microsystems, Inc. Portions Copyright 1997-2007 Sun
 Microsystems, Inc. All Rights Reserved.
 
 If you wish your version of this file to be governed by only the CDDL
@@ -41,25 +40,28 @@ However, if you add GPL Version 2 code and therefore, elected the GPL
 Version 2 license, then the option applies only if the new code is
 made subject to such option by the copyright holder.
 -->
-<filesystem>
 
-    <folder name="org-netbeans-modules-java-hints">
-        <folder name="rules">
-            <folder name="errors">
-<!--                <file name="org-netbeans-modules-javahints-DeclarationFixer.instance" />-->
-                <file name="org-netbeans-modules-javahints-TypoDetector.instance"/>
-            </folder>
+<!--
+XML Schema to define the project.xml for a freeform project.
+Cf. http://projects.netbeans.org/buildsys/design.html#freeform
+-->
 
-            <folder name="hints">
-<!--                <file name="org-netbeans-modules-javahints-DeclarationFixer.instance" />-->
-                <folder name="general">
-                    <file name="org-netbeans-modules-javahints-NPECheck.instance"/>
-                </folder>
-            </folder>
-            
-            <folder name="suggestions">
-            </folder>
-        </folder>
-    </folder>
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+            targetNamespace="http://www.netbeans.org/ns/npe-check-hints/1"
+            xmlns="http://www.netbeans.org/ns/spellchecker-wordlist/1"
+            elementFormDefault="qualified">
 
-</filesystem>
+    <xsd:element name="npe-check-hints">
+        <xsd:complexType>
+            <xsd:sequence>
+                <xsd:element name="check-for-null" minOccurs="0" maxOccurs="unbounded" type="fqn"/>
+            </xsd:sequence>
+        </xsd:complexType>
+    </xsd:element>
+    
+    <xsd:simpleType name="fqn">
+        <xsd:restriction base="xsd:string">
+        </xsd:restriction>
+    </xsd:simpleType>
+    
+</xsd:schema>
