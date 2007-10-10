@@ -29,7 +29,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.netbeans.ModuleManager;
 import org.netbeans.Module;
-import org.netbeans.ProxyClassLoader;
 
 /**
  * This classloader is used to directly delegate to the delegate class loader.
@@ -37,7 +36,7 @@ import org.netbeans.ProxyClassLoader;
  * loading of the JDK classes plus the classes with given prefixes.
  * @author David Strupl
  */
-public class ClasspathDelegateClassLoader extends ProxyClassLoader {
+public class ClasspathDelegateClassLoader extends ClassLoader {
     
     private static final Logger log = Logger.getLogger(ClasspathDelegateClassLoader.class.getName());
     
@@ -52,7 +51,7 @@ public class ClasspathDelegateClassLoader extends ProxyClassLoader {
     
     /** Creates a new instance of DelegatingClassLoader */
     public ClasspathDelegateClassLoader(Collection<String> prefixes, ClassLoader delegate, ModuleManager manager) {
-        super(new ClassLoader[0], false);
+        super();
         initJdkPrefixes();
         this.mgr = manager;
         this.prefixes = new HashSet<String>(prefixes);
@@ -64,15 +63,6 @@ public class ClasspathDelegateClassLoader extends ProxyClassLoader {
         });
     }
 
-    /**
-     * We do not delegate anything to the parent by code in ProxyClassLoader
-     * but we do that ourselves from simpleFindClass.
-     */
-    @Override
-    protected boolean shouldDelegateResource(String pkg, ClassLoader parent) {
-        return false;
-    }
-    
     @Override
     protected synchronized Class loadClass(String name, boolean resolve)
                                             throws ClassNotFoundException {
@@ -97,8 +87,7 @@ public class ClasspathDelegateClassLoader extends ProxyClassLoader {
     /**
      * Overriden to directly delegate and not to define the classes here.
      */
-    @Override
-    protected Class doLoadClass(String pkg, String name) {
+    private Class doLoadClass(String pkg, String name) {
         String fileName = name.replace('.', '/') + ".class";
         try {
             for (Enumeration en = delegate.getResources(fileName); en.hasMoreElements(); ) {
@@ -144,26 +133,6 @@ public class ClasspathDelegateClassLoader extends ProxyClassLoader {
         return Policy.getPolicy().getPermissions(cs);       
     }        
     
-    /**
-     * Finds the named resource in the delegate classloader. Returns all of the
-     * resources for which method acceptResourceURL returned true.
-     */ 
-    @Override
-    protected java.util.Enumeration<URL> simpleFindResources(String name) throws IOException {
-        ArrayList<URL> ar = new ArrayList<URL>();
-        for (Enumeration<URL> en = delegate.getResources(name); en.hasMoreElements(); ) {
-            URL url = en.nextElement();
-            if (acceptResourceURL(url, name)) {
-                ar.add(url);
-            }
-        }
-        if (! ar.isEmpty()) {
-            return java.util.Collections.enumeration(ar);
-        } else {
-            return super.simpleFindResources(name);
-        }
-    }
-
     /**
      * We accept the resource if it's either from JDK or normally using the
      * prefixes.
