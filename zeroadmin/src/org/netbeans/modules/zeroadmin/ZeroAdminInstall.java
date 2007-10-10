@@ -132,22 +132,22 @@ public class ZeroAdminInstall extends ModuleInstall implements PropertyChangeLis
             // Set URL timeouts (only if not set already)
             String defConnTimeout = System.getProperty("sun.net.client.defaultConnectTimeout","120000");
             System.setProperty("sun.net.client.defaultConnectTimeout",defConnTimeout);
-            System.out.println("[zeroadmin] sun.net.client.defaultConnectTimeout = " + defConnTimeout);
+            log.info("[zeroadmin] sun.net.client.defaultConnectTimeout = " + defConnTimeout);
 
             String defReadTimeout = System.getProperty("sun.net.client.defaultReadTimeout","120000");
             System.setProperty("sun.net.client.defaultReadTimeout",defReadTimeout);
-            System.out.println("[zeroadmin] sun.net.client.defaultReadTimeout = " + defReadTimeout);
+            log.info("[zeroadmin] sun.net.client.defaultReadTimeout = " + defReadTimeout);
             
             StatusDisplayer.getDefault().setStatusText(NbBundle.getBundle(ZeroAdminInstall.class).getString("MSG_StartLoading"));
             Hashtable t = new Hashtable();
 
             // Initialize remote connection to ZeroAdminServlet
             String urlStr = System.getProperty("netbeans.config.url", "appres:8080//zeroadmin/desktop/nbconfig");
-            System.out.println("[zeroadmin] netbeans.config.url = " + urlStr);
+            log.info("[zeroadmin] netbeans.config.url = " + urlStr);
 
             interval = Integer.parseInt( 
                 System.getProperty("netbeans.config.interval", "60000") );
-            System.out.println("[zeroadmin] netbeans.config.interval = " + interval);
+            log.info("[zeroadmin] netbeans.config.interval = " + interval);
 
             cfgProxy = new ConfigProxy(new URL(urlStr));
             
@@ -426,8 +426,8 @@ public class ZeroAdminInstall extends ModuleInstall implements PropertyChangeLis
             _userName = System.getProperty("netbeans.appuser", "operator");
             
             String apphost = System.getProperty("netbeans.apphost", "localhost");
-            System.out.println("[zeroadmin] netbeans.apphost = " + apphost);
-            System.out.println("[zeroadmin] netbeans.appuser = " + _userName);
+            log.info("[zeroadmin] netbeans.apphost = " + apphost);
+            log.info("[zeroadmin] netbeans.appuser = " + _userName);
         }
         
         public void init() throws IOException {
