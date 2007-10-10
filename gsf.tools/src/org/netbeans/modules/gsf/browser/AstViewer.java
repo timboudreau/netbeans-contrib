@@ -54,10 +54,12 @@ import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
+import javax.swing.text.JTextComponent;
 import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
+import org.netbeans.api.gsf.CompilationInfo;
 import org.netbeans.api.gsf.Error;
 import org.netbeans.api.gsf.ParseEvent;
 import org.netbeans.api.gsf.ParseListener;
@@ -69,6 +71,7 @@ import org.netbeans.editor.ext.ExtSyntaxSupport;
 import org.netbeans.modules.editor.NbEditorDocument;
 import org.netbeans.modules.gsf.Language;
 import org.netbeans.modules.gsf.LanguageRegistry;
+import org.netbeans.modules.ruby.AstUtilities;
 import org.netbeans.spi.gsf.DefaultParserFile;
 import org.openide.ErrorManager;
 import org.openide.cookies.EditorCookie;
@@ -101,6 +104,7 @@ public class AstViewer extends TopComponent {
     private boolean listen = true;
     private CaretListener caretListener;
     private JEditorPane lastPane;
+    private ParserResult lastResult;
     private ExtSyntaxSupport syntax;
 
     //    private static class Listener implements PropertyChangeListener {
@@ -309,7 +313,12 @@ public class AstViewer extends TopComponent {
             lastDocument = (NbEditorDocument)pane.getDocument();
         }
 
+        lastResult = result;
+
         int pos = pane.getCaret().getDot();
+        String mimeType = (String)pane.getDocument().getProperty("mimeType");
+        Language l = LanguageRegistry.getInstance().getLanguageByMimeType(mimeType);
+        pos = l.getParser().getPositionManager().getAstOffset(result, pos);
         showPosition(pos);
     }
 
@@ -422,6 +431,7 @@ public class AstViewer extends TopComponent {
             parser.parseFiles(sourceFiles, listener, reader);
 
             ParserResult result = resultHolder[0];
+            lastResult = result;
 
             astNode = result.getAst();
 
@@ -574,6 +584,9 @@ public class AstViewer extends TopComponent {
             }
 
             int position = e.getDot();
+            String mimeType = (String)lastPane.getDocument().getProperty("mimeType");
+            Language l = LanguageRegistry.getInstance().getLanguageByMimeType(mimeType);
+            position = l.getParser().getPositionManager().getAstOffset(lastResult, position);
             showPosition(position);
         }
     }
