@@ -237,12 +237,9 @@ public final class ClasspathModule extends Module {
      * and cannot be uninstalled or manipulated in any way.
      */
     public boolean isFixed() {
-        return getCodeName().equals("org.netbeans.bootstrap/1") ||
-               getCodeName().equals("org.netbeans.core.startup/1") ||
-               getCodeName().equals("org.netbeans.modules.jnlpmodules") ||
-               getCodeName().equals("org.openide.modules") ||
-               getCodeName().equals("org.openide.util") ||
-               getCodeName().equals("org.openide.filesystems"); // ??? getCodeName().equals("org.netbeans.libs.xerces/1") ||
+        return ((location != null) && 
+                    (location.startsWith("lib") ||
+                     location.startsWith("core")));
     }
 
     /** Find any extensions loaded by the module, as well as any localized
@@ -263,6 +260,8 @@ public final class ClasspathModule extends Module {
                     logger.warning( "WARNING: Class-Path value " + ext + " from " + this + " is illegal according to the Java Extension Mechanism: must be relative and not move up directories");
                 }
                 String extName = ext.substring(0, ext.lastIndexOf('.')); // without suffix
+                // try also the name of the file converted by the MakeJNLP ant task:
+                String extName2 = extName.replace('/', '-');
                 String subLocation = null; // location of the extension
                 if (extName.lastIndexOf('/') < 0) {
                     subLocation = location;
@@ -271,6 +270,7 @@ public final class ClasspathModule extends Module {
                     extName = extName.substring(extName.lastIndexOf('/')+1, extName.length());
                 }
                 logger.fine("subLocation " + subLocation + " extName " + extName);
+                logger.fine("extName2 " + extName2);
                 Set s = factory.getPrefixNonModules(subLocation);
                 logger.fine("    set under subLocation " + s);
                 String extPrefix = null;
@@ -278,6 +278,10 @@ public final class ClasspathModule extends Module {
                     String p = (String)it.next();
                     if (p.indexOf("RM")>=0) { // using "RM"+ is an ugly hack that should be removed
                         if (p.indexOf("RM"+extName+".jar")>=0) { 
+                            extPrefix = p;
+                            break;
+                        }
+                        if (p.indexOf("RM"+extName2+".jar")>=0) { 
                             extPrefix = p;
                             break;
                         }
@@ -290,6 +294,7 @@ public final class ClasspathModule extends Module {
                 }
                 if (extPrefix == null) {
                     // Ignore unloadable extensions.
+                    logger.warning("Class-Path entry " + ext + " not found in module " + this);
                     continue;
                 }                    
                 //No need to sync on extensionOwners - we are in write mutex
