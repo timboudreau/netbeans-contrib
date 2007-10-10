@@ -92,7 +92,7 @@ class ErrorProviderImpl extends ErrorProvider {
 	    String prefix = fo.getName();
 	    switch( prefix.length() ) { 
 	    // it can't be 0
-	    case 1: prefix += "__"; break;
+	    case 1: prefix += "__"; break; // NOI18N
 	    case 2: prefix += '_'; break;
 	    default:
 	    }
