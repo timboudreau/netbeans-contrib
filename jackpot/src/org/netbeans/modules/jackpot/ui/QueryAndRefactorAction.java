@@ -102,7 +102,7 @@ public class QueryAndRefactorAction extends NodeAction {
     }
     
     public String getName() {
-        return NbBundle.getMessage(QueryAndRefactorAction.class, "Actions/Jackpot");
+        return NbBundle.getMessage(QueryAndRefactorAction.class, "CTL_QueryAndRefactorAction");
     }
     
     protected String getString(String key) {
