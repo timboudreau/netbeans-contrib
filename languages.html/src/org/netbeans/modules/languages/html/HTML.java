@@ -39,9 +39,6 @@ import org.netbeans.api.languages.SyntaxContext;
 import org.netbeans.api.languages.ASTNode;
 import org.netbeans.api.languages.ASTToken;
 import org.netbeans.api.languages.CompletionItem;
-import org.netbeans.api.languages.Language;
-import org.netbeans.api.languages.LanguageDefinitionNotFoundException;
-import org.netbeans.api.languages.LanguagesManager;
 import org.netbeans.api.languages.LibrarySupport;
 import org.openide.ErrorManager;
 import org.openide.text.NbDocument;
@@ -84,16 +81,10 @@ public class HTML {
             input.setIndex (start);
             break;
         }
-        try {
-            Language language = LanguagesManager.get ().getLanguage ("text/html");
-            return new Object[] {
-                ASTToken.create (language, "javascript", "", 0, 0, null),
-                "DEFAULT"
-            };
-        } catch (LanguageDefinitionNotFoundException ex) {
-            ex.printStackTrace ();
-            return null;
-        }
+        return new Object[] {
+            ASTToken.create ("text/html", "javascript", "", 0),
+            "DEFAULT"
+        };
     }
     
     public static Object[] readCSS (CharInput input) {
@@ -121,16 +112,10 @@ public class HTML {
             input.setIndex (start);
             break;
         }
-        try {
-            Language language = LanguagesManager.get ().getLanguage ("text/html");
-            return new Object[] {
-                ASTToken.create (language, "css", "", 0, 0, null),
-                "DEFAULT"
-            };
-        } catch (LanguageDefinitionNotFoundException ex) {
-            ex.printStackTrace ();
-            return null;
-        }
+        return new Object[] {
+            ASTToken.create ("text/html", "css", "", 0),
+            "DEFAULT"
+        };
     }
 
     
@@ -352,7 +337,7 @@ public class HTML {
         ASTNode n = (ASTNode) context.getASTPath ().getRoot ();
         List<ASTItem> l = new ArrayList<ASTItem> ();
         resolve (n, new Stack (), l, true);
-        return ASTNode.create (n.getLanguage (), n.getNT (), l, n.getOffset ());
+        return ASTNode.create (n.getMimeType (), n.getNT (), l, n.getOffset ());
     }
     
     
@@ -374,7 +359,7 @@ public class HTML {
         return library;
     }
     
-    private static ASTNode clone (Language language, String nt, int offset, List children) {
+    private static ASTNode clone (String mimeType, String nt, int offset, List children) {
         Iterator it = children.iterator ();
         List<ASTItem> l = new ArrayList<ASTItem> ();
         while (it.hasNext ()) {
@@ -384,11 +369,11 @@ public class HTML {
             else
                 l.add (clone ((ASTNode) o));
         }
-        return ASTNode.create (language, nt, l, offset);
+        return ASTNode.create (mimeType, nt, l, offset);
     }
     
     private static ASTNode clone (ASTNode n) {
-        return clone (n.getLanguage (), n.getNT (), n.getOffset (), n.getChildren ());
+        return clone (n.getMimeType (), n.getNT (), n.getOffset (), n.getChildren ());
     }
     
     private static ASTToken clone (ASTToken token) {
@@ -402,8 +387,8 @@ public class HTML {
                 children.add (clone ((ASTToken) item));
         }
         return ASTToken.create (
-            token.getLanguage (),
-            token.getTypeID (),
+            token.getMimeType (),
+            token.getType (),
             token.getIdentifier (),
             token.getOffset (),
             token.getLength (),
@@ -412,7 +397,7 @@ public class HTML {
     }
     
     private static ASTNode clone (ASTNode n, String nt) {
-        return clone (n.getLanguage (), nt, n.getOffset (), n.getChildren ());
+        return clone (n.getMimeType (), nt, n.getOffset (), n.getChildren ());
     }
     
     private static void resolve (ASTNode n, Stack s, List<ASTItem> l, boolean findUnpairedTags) {
@@ -456,7 +441,7 @@ public class HTML {
                     List<ASTItem> ll1 = new ArrayList<ASTItem> (ll);
                     ll1.add (node);
                     ASTNode tag = clone (
-                        node.getLanguage (),
+                        node.getMimeType (),
                         "tag",
                         ((ASTNode) ll1.get (0)).getOffset (),
                         ll1
