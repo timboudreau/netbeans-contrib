@@ -53,7 +53,7 @@ import javax.swing.SwingUtilities;
 public class UIAccessibilityTester extends javax.swing.JFrame {
 
     /** Version of UIAccessibilityTester. */
-    public String versionID = "2.4";
+    public String versionID = "2.5";
 
 
     private static UIAccessibilityTester instance;

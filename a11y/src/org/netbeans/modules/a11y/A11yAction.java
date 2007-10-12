@@ -57,6 +57,7 @@ import org.netbeans.modules.form.RADComponent;
 import org.netbeans.modules.form.FormCookie;
 import org.netbeans.modules.form.FormModel;
 import org.netbeans.modules.form.RADVisualFormContainer;
+import org.netbeans.modules.form.ViewConverter;
 import org.netbeans.modules.form.VisualReplicator;
 
 import org.openide.windows.IOProvider;
@@ -172,7 +173,7 @@ public class A11yAction extends CookieAction {
             
             //frame = (Frame)FormDesigner.createContainerView(formContainer, frameClass);
             
-            VisualReplicator replicator = new VisualReplicator(frameClass, null, 0);
+            VisualReplicator replicator = new VisualReplicator(false, new ViewConverter[] { new VisualReplicator.DefaultConverter() }, null); 
             replicator.setTopMetaComponent(formContainer);
             frame = (Frame) replicator.createClone();
             
