@@ -108,9 +108,9 @@ public class Hk2StartServer extends StartServer implements ProgressObject {
         mode = MODE.DEBUG;
       
 
-//////        
-//////        RequestProcessor.getDefault().post(new Hk2StartRunnable(dm, this), 0, Thread.NORM_PRIORITY);
-//////        addDebugModeUri();
+        
+        RequestProcessor.getDefault().post(new Hk2StartRunnable(dm, this), 0, Thread.NORM_PRIORITY);
+        addDebugModeUri();
         return this;
     }
     
