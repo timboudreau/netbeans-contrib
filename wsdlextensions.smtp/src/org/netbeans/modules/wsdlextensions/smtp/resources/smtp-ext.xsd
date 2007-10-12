@@ -24,9 +24,7 @@
     <!-- Extensibility Element for the WSDL Binding -->
     <xs:element name="binding" type="smtp:tBinding">
         <xs:annotation>
-            <xs:documentation>
-            "binding" indicates a smtp protocol based binding.
-            </xs:documentation>
+            <xs:documentation>DESC_Element_binding</xs:documentation>
         </xs:annotation>
     </xs:element>
     <xs:complexType name="tBinding">
@@ -41,9 +39,7 @@
 
     <xs:element name="proxy" type="smtp:tProxy">
         <xs:annotation>
-            <xs:documentation>
-            "operation" indicates a smtp protocol based operation.
-          </xs:documentation>
+            <xs:documentation>DESC_Element_proxy</xs:documentation>
         </xs:annotation>
     </xs:element>
     <xs:complexType name="tProxy">
@@ -51,22 +47,22 @@
             <xs:extension base="wsdl:tExtensibilityElement">
                 <xs:attribute name="host" type="xs:string" use="required">
                     <xs:annotation>
-                        <xs:documentation>The host for sending SMTP messages.</xs:documentation>
+                        <xs:documentation>DESC_Attribute_host</xs:documentation>
                     </xs:annotation>
                 </xs:attribute>
                 <xs:attribute name="port" type="xs:int" use="optional">
                     <xs:annotation>
-                        <xs:documentation>The port used for sending SMTP messages.</xs:documentation>
+                        <xs:documentation>DESC_Attribute_port</xs:documentation>
                     </xs:annotation>
                 </xs:attribute>
                 <xs:attribute name="userName" type="xs:string" use="required">
                     <xs:annotation>
-                        <xs:documentation>The username for sending SMTP messages.</xs:documentation>
+                        <xs:documentation>DESC_Attribute_userName</xs:documentation>
                     </xs:annotation>
                 </xs:attribute>
                 <xs:attribute name="password" type="xs:string" use="required">
                     <xs:annotation>
-                        <xs:documentation>The password for sending SMTP messages.</xs:documentation>
+                        <xs:documentation>DESC_Attribute_password</xs:documentation>
                     </xs:annotation>
                 </xs:attribute>
             </xs:extension>
@@ -78,9 +74,7 @@
     <!-- Extensibility Element for the WSDL Operation -->
     <xs:element name="operation" type="smtp:tOperation">
         <xs:annotation>
-            <xs:documentation>
-            "operation" indicates a smtp protocol based operation.
-          </xs:documentation>
+            <xs:documentation>DESC_Element_operation</xs:documentation>
         </xs:annotation>
     </xs:element>
     <xs:complexType name="tOperation">
@@ -93,9 +87,7 @@
     <!-- Extensibility Element for the WSDL Operation Input -->
     <xs:element name="input" type="smtp:tInput">
         <xs:annotation>
-            <xs:documentation>
-            "input" indicates a smtp protocol based operation input.
-          </xs:documentation>
+            <xs:documentation>DESC_Element_input</xs:documentation>
 	<xs:appinfo>
                 <prop:ElementProperties  xmlns:prop="http://xml.netbeans.org/schema/wsdlui/property">
                     <prop:Property attributeName="message" propertyOrder="1" >
@@ -147,47 +139,47 @@
                 </xs:sequence>
                 <xs:attribute name="message" type="xs:string" use="optional">
                     <xs:annotation>
-                        <xs:documentation>Refers to the message part containing the SMTP message to be sent.</xs:documentation>
+                        <xs:documentation>DESC_Attribute_message</xs:documentation>
                     </xs:annotation>
                 </xs:attribute>
                 <xs:attribute name="subject" type="xs:string" use="optional">
                     <xs:annotation>
-                        <xs:documentation>Refers to the message part containing the subject of the SMTP message.</xs:documentation>
+                        <xs:documentation>DESC_Attribute_subject</xs:documentation>
                     </xs:annotation>
                 </xs:attribute>
                 <xs:attribute name="from" type="xs:string" use="optional">
                     <xs:annotation>
-                        <xs:documentation>Refers to the message part containing the sender of the SMTP message.  This is generally an email address</xs:documentation>
+                        <xs:documentation>DESC_Attribute_from</xs:documentation>
                     </xs:annotation>
                 </xs:attribute>
                 <xs:attribute name="charset" type="xs:string" use="optional">
                     <xs:annotation>
-                        <xs:documentation>Refers to the message part containing the character set of the SMTP message.</xs:documentation>
+                        <xs:documentation>DESC_Attribute_charset</xs:documentation>
                     </xs:annotation>
                 </xs:attribute>
                 <xs:attribute name="use" type="smtp:useTypes" use="optional">
                     <xs:annotation>
-                        <xs:documentation>Refers to the use type. Whether encoder or literal.</xs:documentation>
+                        <xs:documentation>DESC_Attribute_use</xs:documentation>
                     </xs:annotation>
 		</xs:attribute>
                 <xs:attribute name="encodingStyle" type="xs:string" use="optional">
                     <xs:annotation>
-                        <xs:documentation>Specifies the encoding type associated with the SMTP Message. This also defines the encoder type responsible to process the encoded data. </xs:documentation>
+                        <xs:documentation>DESC_Attribute_encodingStyle</xs:documentation>
                     </xs:annotation>
                 </xs:attribute>
                 <xs:attribute name="to" type="xs:string" use="optional">
                     <xs:annotation>
-                        <xs:documentation>Specifies to whom the mail is addressed . </xs:documentation>
+                        <xs:documentation>DESC_Attribute_to</xs:documentation>
                     </xs:annotation>
                 </xs:attribute>
                 <xs:attribute name="cc" type="xs:string" use="optional">
                     <xs:annotation>
-                        <xs:documentation>Specifies to whom the mail is addressed in the  cc field . </xs:documentation>
+                        <xs:documentation>DESC_Attribute_cc</xs:documentation>
                     </xs:annotation>
                 </xs:attribute>
 		<xs:attribute name="bcc" type="xs:string" use="optional">
                     <xs:annotation>
-                        <xs:documentation>Specifies to whom the mail is addressed in bcc. </xs:documentation>
+                        <xs:documentation>DESC_Attribute_bcc</xs:documentation>
                     </xs:annotation>
                 </xs:attribute>
             </xs:extension>
@@ -202,9 +194,7 @@
     <!-- Extensibility Element for the WSDL Operation Output -->
     <xs:element name="output" type="smtp:tOutput">
         <xs:annotation>
-            <xs:documentation>
-            "output" indicates a smtp protocol based operation output.
-          </xs:documentation>
+            <xs:documentation>DESC_Element_output</xs:documentation>
         </xs:annotation>
     </xs:element>
     <xs:complexType name="tOutput">
@@ -219,9 +209,7 @@
     <!-- Attachment(s) definition -->
     <xs:element name="attachment" type="smtp:tAttachment">
         <xs:annotation>
-            <xs:documentation>
-            "attachment" is an attachment to an SMTP message
-          </xs:documentation>
+            <xs:documentation>DESC_Element_attachment</xs:documentation>
         </xs:annotation>
     </xs:element>
     <xs:complexType name="tAttachment">
@@ -229,17 +217,17 @@
             <xs:extension base="wsdl:tExtensibilityElement">
                 <xs:attribute name="contentType" type="xs:string" use="required" >
                     <xs:annotation>
-                        <xs:documentation>Refers to the message part containing the content type of the attachment</xs:documentation>
+                        <xs:documentation>DESC_Attribute_contentType</xs:documentation>
                     </xs:annotation>
                 </xs:attribute>
                 <xs:attribute name="name" type="xs:string" use="required">
                     <xs:annotation>
-                        <xs:documentation>Refers to the message part containing the name of the attachment</xs:documentation>
+                        <xs:documentation>DESC_Attribute_name</xs:documentation>
                     </xs:annotation>
                 </xs:attribute>
                 <xs:attribute name="content" type="xs:string" use="required">
                     <xs:annotation>
-                        <xs:documentation>Refers to the message part containing the contents of the attachment</xs:documentation>
+                        <xs:documentation>DESC_Attribute_content</xs:documentation>
                     </xs:annotation>
                 </xs:attribute>
             </xs:extension>
@@ -251,9 +239,7 @@
     <!-- Extensibility Element for the WSDL Port -->
     <xs:element name="address" type="smtp:tAddress">
         <xs:annotation>
-            <xs:documentation>
-            "address" indicates a smtp protocol based service address.
-            </xs:documentation>
+            <xs:documentation>DESC_Element_address</xs:documentation>
         </xs:annotation>
     </xs:element>
     <xs:complexType name="tAddress">
@@ -261,32 +247,32 @@
             <xs:extension base="wsdl:tExtensibilityElement">
 		<xs:attribute name="location" type="xs:string" use="required">
 		    <xs:annotation>
-                        <xs:documentation>Specifies the location of the receiver using the standard "mailto" URL Scheme (RFC 2368) </xs:documentation>
+                        <xs:documentation>DESC_Attribute_location</xs:documentation>
                     </xs:annotation>
                 </xs:attribute>
 		<xs:attribute name="smtpserver" type="xs:string" use="optional">
 		    <xs:annotation>
-                        <xs:documentation>Specifies the SMTP server to use to route SMTP messages</xs:documentation>
+                        <xs:documentation>DESC_Attribute_smtpserver</xs:documentation>
                     </xs:annotation>
                 </xs:attribute>
                 <xs:attribute name="smtpport" type="xs:int" use="optional">
 		    <xs:annotation>
-                        <xs:documentation>Specifies the SMTP server's port  to route SMTP messages</xs:documentation>
+                        <xs:documentation>DESC_Attribute_smtpport</xs:documentation>
                     </xs:annotation>
                 </xs:attribute>
                 <xs:attribute name="username" type="xs:string" use="optional">
 		    <xs:annotation>
-                        <xs:documentation>Specifies the username for the smtpserver to send mail</xs:documentation>
+                        <xs:documentation>DESC_Attribute_username</xs:documentation>
                     </xs:annotation>
                 </xs:attribute>
 		<xs:attribute name="password" type="xs:string" use="optional">
 		    <xs:annotation>
-                        <xs:documentation>Specifies the password to connect to the SMTPserver</xs:documentation>
+                        <xs:documentation>DESC_Attribute_password</xs:documentation>
                     </xs:annotation>
                 </xs:attribute>
 		<xs:attribute name="useSSL" type="xs:boolean" use="optional">
 		    <xs:annotation>
-                        <xs:documentation>Specifies whether to use ssl for connection</xs:documentation>
+                        <xs:documentation>DESC_Attribute_useSSL</xs:documentation>
                     </xs:annotation>
                 </xs:attribute>
             </xs:extension>
