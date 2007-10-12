@@ -42,8 +42,11 @@
 package org.netbeans.modules.j2ee.hk2.nodes;
 
 import java.awt.Image;
+import java.io.File;
 import javax.enterprise.deploy.spi.TargetModuleID;
 import javax.enterprise.deploy.spi.status.ProgressObject;
+import javax.swing.JFileChooser;
+import javax.swing.JFrame;
 import org.netbeans.api.progress.ProgressHandle;
 import org.netbeans.api.progress.ProgressHandleFactory;
 import org.netbeans.modules.j2ee.deployment.plugins.api.InstanceProperties;
@@ -52,15 +55,20 @@ import org.netbeans.modules.j2ee.deployment.plugins.api.UISupport.ServerIcon;
 
 
 import org.netbeans.modules.j2ee.hk2.Hk2DeploymentManager;
+import org.netbeans.modules.j2ee.hk2.ide.FastDeploy;
 import org.netbeans.modules.j2ee.hk2.ide.Hk2PluginProperties;
 import org.netbeans.modules.j2ee.hk2.ide.Hk2TargetModuleID;
 import org.netbeans.modules.j2ee.hk2.nodes.actions.OpenURLAction;
 import org.netbeans.modules.j2ee.hk2.nodes.actions.OpenURLActionCookie;
 import org.netbeans.modules.j2ee.hk2.nodes.actions.RefreshModulesAction;
+import org.netbeans.modules.j2ee.hk2.nodes.actions.DeployDirectoryAction;
+import org.netbeans.modules.j2ee.hk2.nodes.actions.DeployDirectoryCookie;
 import org.netbeans.modules.j2ee.hk2.nodes.actions.RefreshModulesCookie;
 import org.netbeans.modules.j2ee.hk2.nodes.actions.Refreshable;
 import org.netbeans.modules.j2ee.hk2.nodes.actions.UndeployModuleAction;
 import org.netbeans.modules.j2ee.hk2.nodes.actions.UndeployModuleCookie;
+import org.openide.DialogDisplayer;
+import org.openide.NotifyDescriptor;
 
 import org.openide.filesystems.Repository;
 import org.openide.loaders.DataFolder;
@@ -99,52 +107,51 @@ public class Hk2ItemNode extends AbstractNode {
                         ((Refreshable)children).updateKeys();
                 }
             });
-        } else if(type.equals(ItemType.J2EE_APPLICATION)) {
-            getCookieSet().add(new OpenURLActionCookie() {
-                public String getWebURL() {
-                    if(module == null || lookup == null)
-                        return null;
-                    
-                    try {
-                        Hk2DeploymentManager dm = (Hk2DeploymentManager)lookup.lookup(Hk2DeploymentManager.class);
-                        String app =  module.getModuleID();
-                        
-
-                        
-                        InstanceProperties ip = dm.getInstanceProperties();
-                        
-                        String host = ip.getProperty(Hk2PluginProperties.PROPERTY_HOST);
-                        String httpPort = ip.getProperty(InstanceProperties.HTTP_PORT_NUMBER);
-                        if(app == null || host == null || httpPort == null)
-                            return null;
-                        
-                        return HTTP_HEADER + host + ":" + httpPort + "/"+app;
-                    } catch (Throwable t) {
-                        return null;
-                    }
-                }
-            });
-            getCookieSet().add(new UndeployModuleCookie() {
+            getCookieSet().add(new DeployDirectoryCookie() {
                 private boolean isRunning = false;
-                
-                public Task undeploy() {
-                    final Hk2DeploymentManager dm = 
+                public void deployDirectory() {
+                    
+                    JFileChooser chooser = new JFileChooser();
+                    chooser.setDialogTitle(NbBundle.getMessage(Hk2ItemNode.class, "LBL_ChooseButton")); //NOI18N
+                    chooser.setDialogType(JFileChooser.CUSTOM_DIALOG);
+                    chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+                    //chooser.setApproveButtonMnemonic("Choose_Button_Mnemonic".charAt(0)); //NOI18N
+                    chooser.setMultiSelectionEnabled(false);
+                    
+                    //chooser.setAcceptAllFileFilterUsed(false);
+                    //chooser.setApproveButtonToolTipText(NbBundle.getMessage(Hk2ItemNode.class, "LBL_ChooserName")); //NOI18N
+                    //chooser.getAccessibleContext().setAccessibleName(NbBundle.getMessage(Hk2ItemNode.class, "LBL_ChooserName")); //NOI18N
+                    //chooser.getAccessibleContext().setAccessibleDescription(NbBundle.getMessage(Hk2ItemNode.class, "LBL_ChooserName")); //NOI18N
+                    
+                    int returnValue = chooser.showDialog(new JFrame(), NbBundle.getMessage(Hk2ItemNode.class, "LBL_ChooseButton")); //NOI18N
+                    
+                    if(returnValue != JFileChooser.APPROVE_OPTION){
+                        return;
+                        
+                    }
+                    
+                    final File dir=new File(chooser.getSelectedFile().getAbsolutePath());
+                    final Hk2DeploymentManager dm =
                             (Hk2DeploymentManager)lookup.lookup(Hk2DeploymentManager.class);
-                    final ProgressHandle handle = ProgressHandleFactory.createHandle(NbBundle.getMessage(Hk2ItemNode.class,
-                            "LBL_UndeployProgress", ((Hk2TargetModuleID)module).getModuleID()));
+                    final String message=NbBundle.getMessage(Hk2ItemNode.class,
+                            "LBL_DeployProgress", chooser.getSelectedFile().getAbsolutePath());
+                    final ProgressHandle handle = ProgressHandleFactory.createHandle(message);
                     
                     Runnable r = new Runnable() {
                         public void run() {
                             isRunning = true;
                             
-                            // Save the current time so that we can deduct that the undeploy
+                            // Save the current time so that we can deduct that the deploy
                             // failed due to timeout
                             long start = System.currentTimeMillis();
+                            FastDeploy g= new FastDeploy(dm);
+                            ProgressObject o =g.initialDeploy(null, dir,dir.getName()) ;
+                            handle.progress(o.getDeploymentStatus().getMessage());
                             
-                            ProgressObject o = dm.undeploy(new TargetModuleID[] {module});
                             
-                            while(!o.getDeploymentStatus().isCompleted() && System.currentTimeMillis() - start < TIMEOUT) {
-//                                System.out.println("o.getDeploymentStatus()"+o.getDeploymentStatus());
+                            while(!(o.getDeploymentStatus().isCompleted()||o.getDeploymentStatus().isFailed()) && System.currentTimeMillis() - start < TIMEOUT) {
+                                //                                System.out.println("o.getDeploymentStatus()"+o.getDeploymentStatus());
+                                handle.progress(o.getDeploymentStatus().getMessage());
                                 try {
                                     Thread.sleep(500);
                                 } catch(InterruptedException ex) {
@@ -153,58 +160,123 @@ public class Hk2ItemNode extends AbstractNode {
                             }
                             handle.progress(o.getDeploymentStatus().getMessage());
                             handle.finish();
-                            isRunning = false;
-                        }
-                    };
-                    
-                    handle.start();
-                    return RequestProcessor.getDefault().post(r);
-                }
-                
-                public synchronized boolean isRunning() {
-                    return isRunning;
-                }
-            });
-        } else if (type.equals(ItemType.JDBC_NATIVE_DATASOURCES) ||
-                type.equals(ItemType.JDBC_MANAGED_DATASOURCES) ||
-                type.equals(ItemType.CONNECTION_POOLS)) {
-            getCookieSet().add(new UndeployModuleCookie() {
-                private boolean isRunning = false;
-                
-                public Task undeploy() {
-                    final Hk2DeploymentManager dm =(Hk2DeploymentManager) lookup.lookup(Hk2DeploymentManager.class);
-                    final ProgressHandle handle = ProgressHandleFactory.createHandle(NbBundle.getMessage(Hk2ItemNode.class,
-                            "LBL_UndeployProgress", getDisplayName()));
-                    
-                    Runnable r = new Runnable() {
-                        public void run() {
-                            isRunning = true;
                             
-//////      ludo                      Hk2DatasourceManager dsManager = new Hk2DatasourceManager(dm);
-//////                            
-//////                            // Undeploying
-//////                            if(type.equals(ItemType.JDBC_NATIVE_DATASOURCES)) {
-//////                                dsManager.undeployNativeDataSource(getDisplayName());
-//////                            } else if (type.equals(ItemType.JDBC_MANAGED_DATASOURCES)) {
-//////                                dsManager.undeployManagedDataSource(getDisplayName());
-//////                            } else if (type.equals(ItemType.CONNECTION_POOLS)) {
-//////                                dsManager.undeployConnectionPool(getDisplayName());
-//////                            }
-//////                            
-                            handle.finish();
+                            NotifyDescriptor d = new NotifyDescriptor.Message(o.getDeploymentStatus().getMessage(), NotifyDescriptor.INFORMATION_MESSAGE);
+                            d.setTitle(message);
+                            DialogDisplayer.getDefault().notify(d);
                             isRunning = false;
                         }
                     };
                     
                     handle.start();
-                    return RequestProcessor.getDefault().post(r);
+                    RequestProcessor.getDefault().post(r);
                 }
-                
-                public synchronized boolean isRunning() {
-                    return isRunning;
-                }
-            });
-        }
+            });        } else if(type.equals(ItemType.J2EE_APPLICATION)) {
+                getCookieSet().add(new OpenURLActionCookie() {
+                    public String getWebURL() {
+                        if(module == null || lookup == null)
+                            return null;
+                        
+                        try {
+                            Hk2DeploymentManager dm = (Hk2DeploymentManager)lookup.lookup(Hk2DeploymentManager.class);
+                            String app =  module.getModuleID();
+                            
+                            
+                            
+                            InstanceProperties ip = dm.getInstanceProperties();
+                            
+                            String host = ip.getProperty(Hk2PluginProperties.PROPERTY_HOST);
+                            String httpPort = ip.getProperty(InstanceProperties.HTTP_PORT_NUMBER);
+                            if(app == null || host == null || httpPort == null)
+                                return null;
+                            
+                            return HTTP_HEADER + host + ":" + httpPort + "/"+app;
+                        } catch (Throwable t) {
+                            return null;
+                        }
+                    }
+                });
+                getCookieSet().add(new UndeployModuleCookie() {
+                    private boolean isRunning = false;
+                    
+                    public Task undeploy() {
+                        final Hk2DeploymentManager dm =
+                                (Hk2DeploymentManager)lookup.lookup(Hk2DeploymentManager.class);
+                        final ProgressHandle handle = ProgressHandleFactory.createHandle(NbBundle.getMessage(Hk2ItemNode.class,
+                                "LBL_UndeployProgress", ((Hk2TargetModuleID)module).getModuleID()));
+                        
+                        Runnable r = new Runnable() {
+                            public void run() {
+                                isRunning = true;
+                                
+                                // Save the current time so that we can deduct that the undeploy
+                                // failed due to timeout
+                                long start = System.currentTimeMillis();
+                                
+                                ProgressObject o = dm.undeploy(new TargetModuleID[] {module});
+                                
+                                while(!o.getDeploymentStatus().isCompleted() && System.currentTimeMillis() - start < TIMEOUT) {
+                                    //                                System.out.println("o.getDeploymentStatus()"+o.getDeploymentStatus());
+                                    try {
+                                        Thread.sleep(500);
+                                    } catch(InterruptedException ex) {
+                                        // Nothing to do
+                                    }
+                                }
+                                handle.progress(o.getDeploymentStatus().getMessage());
+                                handle.finish();
+                                isRunning = false;
+                            }
+                        };
+                        
+                        handle.start();
+                        return RequestProcessor.getDefault().post(r);
+                    }
+                    
+                    public synchronized boolean isRunning() {
+                        return isRunning;
+                    }
+                });
+            } else if (type.equals(ItemType.JDBC_NATIVE_DATASOURCES) ||
+            type.equals(ItemType.JDBC_MANAGED_DATASOURCES) ||
+            type.equals(ItemType.CONNECTION_POOLS)) {
+                getCookieSet().add(new UndeployModuleCookie() {
+                    private boolean isRunning = false;
+                    
+                    public Task undeploy() {
+                        final Hk2DeploymentManager dm =(Hk2DeploymentManager) lookup.lookup(Hk2DeploymentManager.class);
+                        final ProgressHandle handle = ProgressHandleFactory.createHandle(NbBundle.getMessage(Hk2ItemNode.class,
+                                "LBL_UndeployProgress", getDisplayName()));
+                        
+                        Runnable r = new Runnable() {
+                            public void run() {
+                                isRunning = true;
+                                
+                                //////      ludo                      Hk2DatasourceManager dsManager = new Hk2DatasourceManager(dm);
+                                //////
+                                //////                            // Undeploying
+                                //////                            if(type.equals(ItemType.JDBC_NATIVE_DATASOURCES)) {
+                                //////                                dsManager.undeployNativeDataSource(getDisplayName());
+                                //////                            } else if (type.equals(ItemType.JDBC_MANAGED_DATASOURCES)) {
+                                //////                                dsManager.undeployManagedDataSource(getDisplayName());
+                                //////                            } else if (type.equals(ItemType.CONNECTION_POOLS)) {
+                                //////                                dsManager.undeployConnectionPool(getDisplayName());
+                                //////                            }
+                                //////
+                                handle.finish();
+                                isRunning = false;
+                            }
+                        };
+                        
+                        handle.start();
+                        return RequestProcessor.getDefault().post(r);
+                    }
+                    
+                    public synchronized boolean isRunning() {
+                        return isRunning;
+                    }
+                });
+            }
     }
     
     public Hk2ItemNode(Lookup lookup, TargetModuleID module, ItemType type) {
@@ -258,7 +330,8 @@ public class Hk2ItemNode extends AbstractNode {
         if(type.equals(ItemType.J2EE_APPLICATION_FOLDER)
                 || type.equals(ItemType.REFRESHABLE_FOLDER)) {
             actions = new SystemAction[] {
-                SystemAction.get(RefreshModulesAction.class)
+                SystemAction.get(RefreshModulesAction.class),
+                SystemAction.get(DeployDirectoryAction.class)
             };
         } else if(type.equals(ItemType.J2EE_APPLICATION)) {
             actions = new SystemAction[] {
