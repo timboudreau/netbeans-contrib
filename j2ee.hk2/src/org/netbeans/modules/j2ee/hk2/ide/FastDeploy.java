@@ -94,7 +94,13 @@ public class FastDeploy extends IncrementalDeployment {
         return tmi;
     }
     
-    /**
+    public ProgressObject initialDeploy(Target target,  File dir, String moduleName) {
+        System.out.println("initialDeploy  = " + dir);
+        
+        Hk2ManagerImpl tmi = new Hk2ManagerImpl((Hk2DeploymentManager)dm);
+        tmi.initialDeploy(target, dir,moduleName);
+        return tmi;
+    }    /**
      * 
      * @param targetModuleID 
      * @param appChangeDescriptor 

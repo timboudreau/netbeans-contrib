@@ -123,7 +123,7 @@ public class Hk2InstantiatingIterator implements WizardDescriptor.InstantiatingI
     public Set instantiate() throws IOException {
         Set <InstanceProperties> result = new HashSet<InstanceProperties>();
         String displayName =  (String)wizard.getProperty("ServInstWizard_displayName"); // NOI18N
-        String url = "["+glassFishHomeLocation+"]"+Hk2DeploymentFactory.URI_PREFIX + ":" + host + ":" + adminPort;    // NOI18N
+        String url = "["+glassFishHomeLocation+"]"+Hk2DeploymentFactory.URI_PREFIX + ":" + host + ":" + httpPort;    // NOI18N
         
         try {
             InstanceProperties ip = InstanceProperties.createInstanceProperties(url, userName, password, displayName);

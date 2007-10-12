@@ -124,15 +124,19 @@ public class Hk2ManagerImpl implements ProgressObject, Runnable {
         pes = new ProgressEventSupport(this);
     }
     
-    
-    
-    
-    
+    /*calculate the module name form the dir (parent/parent for build/web parent dir for the proje
+     * ject name
+     */
+      
     public void initialDeploy(Target t,  File dir)  {
+        initialDeploy(t,dir, dir.getParentFile().getParentFile().getName());
+    }
+    
+    public void initialDeploy(Target t,  File dir, String moduleName)  {
         try {
             //file is someting like /Users/ludo/WebApplication91/build/web
             String docBaseURI = URLEncoder.encode(dir.getAbsoluteFile().toURI().toASCIIString(),"UTF-8");
-            String docBase = dir.getParentFile().getParentFile().getName();
+            String docBase = moduleName;
             String ctxPath = docBase;///ctx.getAttributeValue ("path");
             this.tmId = new Hk2TargetModuleID(t, ctxPath, docBase); //NOI18N
             
