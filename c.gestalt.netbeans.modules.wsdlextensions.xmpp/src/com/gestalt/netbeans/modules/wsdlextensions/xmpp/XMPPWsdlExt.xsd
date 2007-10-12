@@ -6,9 +6,7 @@
     <xs:import namespace="http://schemas.xmlsoap.org/wsdl/"/>
     <xs:element name="binding" type="xmpp:tBinding">
         <xs:annotation>
-            <xs:documentation>
-                "binding" indicates a protocol based binding.
-            </xs:documentation>
+            <xs:documentation>DESC_Element_binding</xs:documentation>
         </xs:annotation>
     </xs:element>
     <xs:complexType name="tBinding">
@@ -19,15 +17,13 @@
     <xs:element name="operation" type="xmpp:tOperation"/>
     <xs:complexType name="tOperation">
         <xs:annotation>
-            <xs:documentation>
-                "operation" defines the protocol based operation binding details.
-            </xs:documentation>
+            <xs:documentation>DESC_ComplexType_tOperation</xs:documentation>
         </xs:annotation>
         <xs:complexContent>
             <xs:extension base="wsdl:tExtensibilityElement">
                 <xs:attribute name="name" type="xmpp:operationName" use="required">
                     <xs:annotation>
-                        <xs:documentation>Select the name of the operation. JoinGroup allows you to join a specified Group Chat.  LeaveGroup allows you to leave the specified Group Chat(s).  SendMessage allows you to send an Instant Message to a single user or to a group chat.  Kick allows you to kick participants from a group chat.  Create allows you to create a group chat.  Destroy allows you to destroy a group chat.</xs:documentation>
+                        <xs:documentation>DESC_Attribute_name</xs:documentation>
                     </xs:annotation>
                 </xs:attribute>
             </xs:extension>
@@ -48,9 +44,7 @@
     </xs:simpleType>        
     <xs:element name="input" type="xmpp:tInput">
         <xs:annotation>
-            <xs:documentation>
-                Defines the protocol based operation message details.
-            </xs:documentation>
+            <xs:documentation>DESC_Element_input</xs:documentation>
             <xs:appinfo>
                 <prop:ElementProperties  xmlns:prop="http://xml.netbeans.org/schema/wsdlui/property">
                     <prop:Property attributeName="jabberId" propertyOrder="1">
@@ -97,37 +91,37 @@
             <xs:extension base="wsdl:tExtensibilityElement">
                 <xs:attribute name="jabberId" type="xs:string" use="optional">
                     <xs:annotation>
-                        <xs:documentation>The jabberId for whom the message is from</xs:documentation>
+                        <xs:documentation>DESC_Attribute_jabberId</xs:documentation>
                     </xs:annotation>
                 </xs:attribute>
                 <xs:attribute name="packetId" type="xs:string" use="optional">
                     <xs:annotation>
-                        <xs:documentation>The Packet ID of the message</xs:documentation>
+                        <xs:documentation>DESC_Attribute_packetId</xs:documentation>
                     </xs:annotation>
                 </xs:attribute>
                 <xs:attribute name="message" type="xs:string" use="optional">
                     <xs:annotation>
-                        <xs:documentation>The content of the message</xs:documentation>
+                        <xs:documentation>DESC_Attribute_message</xs:documentation>
                     </xs:annotation>
                 </xs:attribute>
                 <xs:attribute name="groupChat" type="xs:string" use="optional">
                     <xs:annotation>
-                        <xs:documentation>Is this message destined for a group chat (yes or no)</xs:documentation>
+                        <xs:documentation>DESC_Attribute_groupChat</xs:documentation>
                     </xs:annotation>
                 </xs:attribute>
                 <xs:attribute name="groupList" type="xs:string" use="optional">
                     <xs:annotation>
-                        <xs:documentation>a list of comma separted groups to join or leave (e.g. room@conference.localhost,roomA@conference.localhost)</xs:documentation>
+                        <xs:documentation>DESC_Attribute_groupList</xs:documentation>
                     </xs:annotation>
                 </xs:attribute>
                 <xs:attribute name="userList" type="xs:string" use="optional">
                     <xs:annotation>
-                        <xs:documentation>a list of comma separted users to invite to a group chat or kick from a room.  For invites the users must be the full JID (e.g. bob@b-0498.int.gestalt-llc.com/resource), for kicks it must be the alias of the user in the room (e.g. bob)</xs:documentation>
+                        <xs:documentation>DESC_Attribute_userList</xs:documentation>
                     </xs:annotation>
                 </xs:attribute>
                 <xs:attribute name="roomName" type="xs:string" use="optional">
                     <xs:annotation>
-                        <xs:documentation>The room name that you are wanting to invite users to or kick users from</xs:documentation>
+                        <xs:documentation>DESC_Attribute_roomName</xs:documentation>
                     </xs:annotation>
                 </xs:attribute>
             </xs:extension>
@@ -135,9 +129,7 @@
     </xs:complexType>
     <xs:element name="output" type="xmpp:tOutput">
         <xs:annotation>
-            <xs:documentation>
-                Defines the protocol based operation message details.
-            </xs:documentation>
+            <xs:documentation>DESC_Element_output</xs:documentation>
             <xs:appinfo>
                 <prop:ElementProperties  xmlns:prop="http://xml.netbeans.org/schema/wsdlui/property">
                     <prop:Property attributeName="jabberId" propertyOrder="1">
@@ -164,17 +156,17 @@
             <xs:extension base="wsdl:tExtensibilityElement">
                 <xs:attribute name="jabberId" type="xs:string" use="optional">
                     <xs:annotation>
-                        <xs:documentation>The jabberId for whom the message is destined</xs:documentation>
+                        <xs:documentation>DESC_Attribute_jabberId</xs:documentation>
                     </xs:annotation>
                 </xs:attribute>
                 <xs:attribute name="packetId" type="xs:string" use="optional">
                     <xs:annotation>
-                        <xs:documentation>The Packet ID of the message</xs:documentation>
+                        <xs:documentation>DESC_Attribute_packetId</xs:documentation>
                     </xs:annotation>
                 </xs:attribute>
                 <xs:attribute name="message" type="xs:string" use="optional">
                     <xs:annotation>
-                        <xs:documentation>The content of the message</xs:documentation>
+                        <xs:documentation>DESC_Attribute_message</xs:documentation>
                     </xs:annotation>
                 </xs:attribute>
             </xs:extension>
@@ -182,9 +174,7 @@
     </xs:complexType>
     <xs:element name="fault" type="xmpp:tFault">
         <xs:annotation>
-            <xs:documentation>
-                Defines the protocol based operation fault details.
-            </xs:documentation>
+            <xs:documentation>DESC_Element_fault</xs:documentation>
         </xs:annotation>
     </xs:element>
     <xs:complexType name="tFault">
@@ -195,9 +185,7 @@
     </xs:complexType>        
     <xs:element name="address" type="xmpp:tAddress">
         <xs:annotation>
-            <xs:documentation>
-                "address" indicates protocol based service address.
-            </xs:documentation>
+            <xs:documentation>DESC_Element_address</xs:documentation>
         </xs:annotation>
     </xs:element>
     <xs:complexType name="tAddress">
@@ -205,32 +193,32 @@
             <xs:extension base="wsdl:tExtensibilityElement">
                 <xs:attribute name="domain" type="xs:string">
                     <xs:annotation>
-                        <xs:documentation>The domain where the XMPP server is located</xs:documentation>
+                        <xs:documentation>DESC_Attribute_domain</xs:documentation>
                     </xs:annotation>
                 </xs:attribute>
                 <xs:attribute name="username" type="xs:string">
                     <xs:annotation>
-                        <xs:documentation>The username to login in to the XMPP server</xs:documentation>
+                        <xs:documentation>DESC_Attribute_username</xs:documentation>
                     </xs:annotation>
                 </xs:attribute>
                 <xs:attribute name="password" type="xs:string">
                     <xs:annotation>
-                        <xs:documentation>The password to login to the XMPP server</xs:documentation>
+                        <xs:documentation>DESC_Attribute_password</xs:documentation>
                     </xs:annotation>
                 </xs:attribute>
                 <xs:attribute name="resource" type="xs:string">
                     <xs:annotation>
-                        <xs:documentation>The resource for this user</xs:documentation>
+                        <xs:documentation>DESC_Attribute_resource</xs:documentation>
                     </xs:annotation>
                 </xs:attribute>
                 <xs:attribute name="port" type="xs:string">
                     <xs:annotation>
-                        <xs:documentation>The port number of the XMPP server</xs:documentation>
+                        <xs:documentation>DESC_Attribute_port</xs:documentation>
                     </xs:annotation>
                 </xs:attribute>
                 <xs:attribute name="group" type="xs:string">
                     <xs:annotation>
-                        <xs:documentation>The name of the group you wish to join (Group Chat)</xs:documentation>
+                        <xs:documentation>DESC_Attribute_group</xs:documentation>
                     </xs:annotation>
                 </xs:attribute>
             </xs:extension>
