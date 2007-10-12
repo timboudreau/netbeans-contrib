@@ -190,7 +190,7 @@ public class Hk2ItemNode extends AbstractNode {
                             if(app == null || host == null || httpPort == null)
                                 return null;
                             
-                            return HTTP_HEADER + host + ":" + httpPort + "/"+app;
+                            return HTTP_HEADER + host + ":" + httpPort + "/"+app+"/";
                         } catch (Throwable t) {
                             return null;
                         }
