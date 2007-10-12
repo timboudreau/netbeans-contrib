@@ -6,9 +6,7 @@
     <xs:import namespace="http://schemas.xmlsoap.org/wsdl/" schemaLocation="wsdl.xsd"/>
     <xs:element name="binding" type="rss:tBinding">
         <xs:annotation>
-            <xs:documentation>
-                "binding" indicates a protocol based binding.
-            </xs:documentation>
+            <xs:documentation>DESC_Element_binding</xs:documentation>
         </xs:annotation>
     </xs:element>
     <xs:complexType name="tBinding">
@@ -20,15 +18,13 @@
     <xs:element name="operation" type="rss:tOperation"/>
     <xs:complexType name="tOperation">
         <xs:annotation>
-            <xs:documentation>
-                "operation" defines the protocol based operation binding details.
-            </xs:documentation>
+            <xs:documentation>DESC_ComplexType_tOperation</xs:documentation>
         </xs:annotation>
         <xs:complexContent>
             <xs:extension base="wsdl:tExtensibilityElement">
                 <xs:attribute name="name" type="rss:operationName" use="required">
                     <xs:annotation>
-                        <xs:documentation>Select the name of the operation. Subscribe provides the capability to receive notifications of new feed entries from external feeds. Publish allows components to send the RSS BC a new entry to publish to its internal feed store.</xs:documentation>
+                        <xs:documentation>DESC_Attribute_name</xs:documentation>
                     </xs:annotation>
                 </xs:attribute>
             </xs:extension>
@@ -42,9 +38,7 @@
     </xs:simpleType>        
     <xs:element name="address" type="rss:tAddress">
         <xs:annotation>
-            <xs:documentation>
-                "address" indicates protocol based service address.
-            </xs:documentation>
+            <xs:documentation>DESC_Element_address</xs:documentation>
         </xs:annotation>
     </xs:element>
     <xs:complexType name="tAddress">
@@ -52,37 +46,37 @@
             <xs:extension base="wsdl:tExtensibilityElement">
                 <xs:attribute name="feedTitle" type="xs:string">
                     <xs:annotation>
-                        <xs:documentation>Feed title is the title of your feed. For example in RSS 2.0 this corresponds to the Channel Title. Required only for publish.</xs:documentation>
+                        <xs:documentation>DESC_Attribute_feedTitle</xs:documentation>
                     </xs:annotation>
                 </xs:attribute>
                 <xs:attribute name="feedDescription" type="xs:string">
                     <xs:annotation>
-                        <xs:documentation>Feed description is the description of your feed. For example in RSS 2.0 this corresponds to the Channel Description. Required only for publish.</xs:documentation>
+                        <xs:documentation>DESC_Attribute_feedDescription</xs:documentation>
                     </xs:annotation>
                 </xs:attribute>
                 <xs:attribute name="feedType" type="xs:string">
                     <xs:annotation>
-                        <xs:documentation>Feed type is used to specify the type and version of your feed. Format is type_version, for example "rss_2.0" or "atom_1.0". Required only for publish.</xs:documentation>
+                        <xs:documentation>DESC_Attribute_feedType</xs:documentation>
                     </xs:annotation>
                 </xs:attribute>
                 <xs:attribute name="location" type="xs:anyURI">
                     <xs:annotation>
-                        <xs:documentation>Feed URL has different meanings for publish and subscribe. For publish this correlates to the local address, port, and path you wish your feed to use; for example http://localhost:8282/myfeed/latest. This is the URL you would point a subscribe to as well as your favorite RSS Reader. For subscribe feedUrl correlates to the external RSS feed URL; for example http://www.cnn.com/feed/news.</xs:documentation>
+                        <xs:documentation>DESC_Attribute_location</xs:documentation>
                     </xs:annotation>
                 </xs:attribute>
                 <xs:attribute name="username" type="xs:string">
                     <xs:annotation>
-                        <xs:documentation>Required when subscribing to a secure feed</xs:documentation>
+                        <xs:documentation>DESC_Attribute_username</xs:documentation>
                     </xs:annotation>
                 </xs:attribute>
                 <xs:attribute name="password" type="xs:string">
                     <xs:annotation>
-                        <xs:documentation>Required when subscribing to a secure feed.</xs:documentation>
+                        <xs:documentation>DESC_Attribute_password</xs:documentation>
                     </xs:annotation>
                 </xs:attribute>
                 <xs:attribute name="correlationId" type="xs:string">
                     <xs:annotation>
-                        <xs:documentation>This id is used to store the list of URL's in a collection so that it can be matched up with the consumer subscribe service unit. In the consumer subscribe service unit there is another rss wsdl defining this id for a match. When a match is found the RSS BC begins polling the list of URLs. This id must be unique amound all RSS WSDL's and therefore the RSS BC will fail a service unit deployment where an id is duplicated.</xs:documentation>
+                        <xs:documentation>DESC_Attribute_correlationId</xs:documentation>
                     </xs:annotation>
                 </xs:attribute>
             </xs:extension>
@@ -90,9 +84,7 @@
     </xs:complexType>
     <xs:element name="input" type="rss:tInput">
         <xs:annotation>
-            <xs:documentation>
-            "input" indicates a rss protocol based operation input.
-            </xs:documentation>
+            <xs:documentation>DESC_Element_input</xs:documentation>
             <xs:appinfo>
                 <prop:ElementProperties  xmlns:prop="http://xml.netbeans.org/schema/wsdlui/property">
                     <prop:Property attributeName="pollingInterval" propertyOrder="1">
@@ -140,55 +132,53 @@
     </xs:element>
     <xs:complexType name="tInput">
         <xs:annotation>
-            <xs:documentation>
-                "input" defines the protocol based input binding details.
-            </xs:documentation>
+            <xs:documentation>DESC_ComplexType_tInput</xs:documentation>
         </xs:annotation>
         <xs:complexContent>
             <xs:extension base="wsdl:tExtensibilityElement">
                 <xs:attribute name="pollingInterval" type="xs:int" use="optional">
                     <xs:annotation>
-                        <xs:documentation>The time unit in seconds to poll for feed changes. Required only for subscribe.</xs:documentation>
+                        <xs:documentation>DESC_Attribute_pollingInterval</xs:documentation>
                     </xs:annotation>
                 </xs:attribute>
                 <xs:attribute name="filterByType" type="rss:filterType" use="optional">
                     <xs:annotation>
-                        <xs:documentation>Specify whether to filter or not. Two values are supported: none and publishDate. Default is publishDate. To specify that you want all the feed entries everytime a change has occured specify "none". If you wish to only receive the latest feed entries, determined by the publish date of the entry, then specify "publishDate". The "publishDate" value is also used in conjunction with the filterByValue attribute. Required only for subscribe.</xs:documentation>
+                        <xs:documentation>DESC_Attribute_filterByType</xs:documentation>
                     </xs:annotation>
                 </xs:attribute>
                 <xs:attribute name="filterByValue" type="xs:string" use="optional">
                     <xs:annotation>
-                        <xs:documentation>Used when filterByType is publishDate. The values supported are: now or an actual date + time in the format yyyy-MM-dd HH:mm (military style). The vale now means to use the current date + time as the first filter date. This will notify you only of the recent changes, nothing historical. Here is an example: filterByValue="now". If you specify an actual date + time, that value will be used as the first filter date. Here is an example: filterByValue="2007-05-02 14:30. Required only for subcribe."</xs:documentation>
+                        <xs:documentation>DESC_Attribute_filterByValue</xs:documentation>
                     </xs:annotation>
                 </xs:attribute>
                 <xs:attribute name="entryTitle" type="xs:string" use="optional">
                     <xs:annotation>
-                        <xs:documentation>The title of the new entry</xs:documentation>
+                        <xs:documentation>DESC_Attribute_entryTitle</xs:documentation>
                     </xs:annotation>
                 </xs:attribute>
                 <xs:attribute name="entryLink" type="xs:string" use="optional">
                     <xs:annotation>
-                        <xs:documentation>The link for the new entry</xs:documentation>
+                        <xs:documentation>DESC_Attribute_entryLink</xs:documentation>
                     </xs:annotation>
                 </xs:attribute>
                 <xs:attribute name="entryDescription" type="xs:string" use="optional">
                     <xs:annotation>
-                        <xs:documentation>Then content of the new entry</xs:documentation>
+                        <xs:documentation>DESC_Attribute_entryDescription</xs:documentation>
                     </xs:annotation>
                 </xs:attribute>
                 <xs:attribute name="latitude" type="xs:string" use="optional">
                     <xs:annotation>
-                        <xs:documentation>The latitude representing the GeoRSS Point</xs:documentation>
+                        <xs:documentation>DESC_Attribute_latitude</xs:documentation>
                     </xs:annotation>
                 </xs:attribute>
                 <xs:attribute name="longitude" type="xs:string" use="optional">
                     <xs:annotation>
-                        <xs:documentation>The longitude representing the GeoRSS Point</xs:documentation>
+                        <xs:documentation>DESC_Attribute_longitude</xs:documentation>
                     </xs:annotation>
                 </xs:attribute>
                 <xs:attribute name="feedList" type="xs:string" use="optional">
                     <xs:annotation>
-                        <xs:documentation>The list of Feed URL's to poll for changes</xs:documentation>
+                        <xs:documentation>DESC_Attribute_feedList</xs:documentation>
                     </xs:annotation>
                 </xs:attribute>
             </xs:extension>
