@@ -428,8 +428,8 @@ public class DBHelper {
         PreparedStatement pstmt = dbConnection.prepareStatement( dbModifySQL );
         
         try {
-            pstmt.setString( 1, dbUser );
-            pstmt.setString( 2, dbData );
+            pstmt.setString( 2, dbUser );
+            pstmt.setString( 1, dbData );
             pstmt.executeUpdate();
         } catch( SQLException se ) {
             throw se;
