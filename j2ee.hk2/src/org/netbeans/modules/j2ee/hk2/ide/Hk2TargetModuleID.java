@@ -100,7 +100,7 @@ public class Hk2TargetModuleID implements TargetModuleID {
     
     
     public String getWebURL () {
-        return ((Hk2Target)target).getServerUri () + path.replaceAll(" ", "%20");
+        return ((Hk2Target)target).getServerUri () +"/"+ path.replaceAll(" ", "%20");
 
     }
     

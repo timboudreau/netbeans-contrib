@@ -66,12 +66,10 @@ import org.netbeans.modules.j2ee.hk2.ide.Hk2TargetModuleID;
  * @author Ludo
  */
 public class Hk2DeploymentManager implements DeploymentManager {
-    Hk2Target target = new Hk2Target("http://localhost:8080/");
-    Hk2Target targets[] = {target};
+
     
     
     private InstanceProperties instanceProperties;
-    private Hk2J2eePlatformImpl hk2Platform;
 
     private Hk2PluginProperties ip;
 
@@ -316,6 +314,10 @@ public class Hk2DeploymentManager implements DeploymentManager {
      * @throws java.lang.IllegalStateException 
      */
     public Target[] getTargets() throws IllegalStateException {
+       String s=  "http://" + getInstanceProperties().getProperty(Hk2PluginProperties.PROPERTY_HOST) + ":" + getInstanceProperties().getProperty(InstanceProperties.HTTP_PORT_NUMBER ); //NOI18N
+
+        Hk2Target target = new Hk2Target(s);
+        Hk2Target targets[] = {target};
         return targets;
     }
 
