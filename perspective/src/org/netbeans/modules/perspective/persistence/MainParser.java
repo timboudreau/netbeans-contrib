@@ -71,22 +71,19 @@ public class MainParser {
 
     private static final String BUILTIN_DIR = BASE_DIR + "/builtin"; //NOI18N
 
-    private static final String DEFAULT_DIR = "/default"; //NOI18N
-
-    private static final String CUSTOM_DIR = "/custom"; //NOI18N
-
+ 
     private static MainParser instance;
     private PerspectiveParser paser = new PerspectiveParser();
     private FileObject config;
-    private FileObject builtinDefault;
-    private FileObject builtinCustom;
+    private FileObject builtin;
+  
     private PerspectivePreferences perspectivePreferences = PerspectivePreferences.getInstance();
 
     private MainParser() {
         //Creating Parser instance
         config = Repository.getDefault().getDefaultFileSystem().findResource(CONFIG_DIR);
-        builtinDefault = Repository.getDefault().getDefaultFileSystem().findResource(BUILTIN_DIR + DEFAULT_DIR);
-        builtinCustom = Repository.getDefault().getDefaultFileSystem().findResource(BUILTIN_DIR + CUSTOM_DIR);
+        builtin = Repository.getDefault().getDefaultFileSystem().findResource(BUILTIN_DIR);
+       
     }
 
     public static synchronized MainParser getInstance() {
@@ -107,16 +104,10 @@ public class MainParser {
 
     public synchronized void restore() {
         PerspectiveManagerImpl.getInstance().clear();
-        if (builtinDefault != null) {
+        if (builtin != null) {
             //Loading default Perspectives from layer
-            readPerspectives(builtinDefault);
+            readPerspectives(builtin);
         }
-        if (builtinCustom != null) {
-            //Loading custom Perspectives from layer
-            readPerspectives(builtinCustom);
-        }
-
-
 
         //Loading Perspectives from Config
         FileObject[] viewChildren = config.getChildren();
@@ -177,7 +168,7 @@ public class MainParser {
 
     private void readPerspectives(FileObject fileObject) {
         DataFolder folder = DataFolder.findFolder(fileObject);
-        Enumeration<DataObject> children = folder.children(false);
+        Enumeration<DataObject> children = folder.children(true);
         while (children.hasMoreElements()) {
 
             DataObject dataObject = children.nextElement();
