@@ -27,9 +27,7 @@
 	<!-- JMS protocol "binding" definition -->
 	<xs:element name="binding" type="exec:tBinding">
 		<xs:annotation>
-			<xs:documentation>
-	      	"binding" indicates a JMS protocol based binding.
-	      </xs:documentation>
+			<xs:documentation>DESC_Element_binding</xs:documentation>
 		</xs:annotation>
 	</xs:element>
 	<xs:complexType name="tBinding">
@@ -41,9 +39,7 @@
 	<!-- JMS protocol "address" definition -->
 	<xs:element name="address" type="exec:tAddress">
 		<xs:annotation>
-			<xs:documentation>
-                    "address" indicates a JMS protocol based service address.
-                    </xs:documentation>
+			<xs:documentation>DESC_Element_address</xs:documentation>
 			<xs:appinfo>
 				<prop:ElementProperties xmlns:prop="http://xml.netbeans.org/schema/wsdlui/property">
 					<prop:PropertyGroup name="SSH" groupOrder="1"/>
@@ -66,17 +62,17 @@
 				<xs:sequence/>
 				<xs:attribute name="hostName" type="xs:string" use="required">
 					<xs:annotation>
-						<xs:documentation>The name of the host machine to execute the command on</xs:documentation>
+						<xs:documentation>DESC_Attribute_hostName</xs:documentation>
 					</xs:annotation>
 				</xs:attribute>
 				<xs:attribute name="userName" type="xs:string" use="optional">
 					<xs:annotation>
-						<xs:documentation>The user name to use to connect to the remote host</xs:documentation>
+						<xs:documentation>DESC_Attribute_userName</xs:documentation>
 					</xs:annotation>
 				</xs:attribute>
 				<xs:attribute name="password" type="xs:string" use="optional">
 					<xs:annotation>
-						<xs:documentation>The password to use to connect to the remote host</xs:documentation>
+						<xs:documentation>DESC_Attribute_password</xs:documentation>
 					</xs:annotation>
 				</xs:attribute>
 			</xs:extension>
@@ -85,9 +81,7 @@
 	<!-- JMS protocol "operation" definition -->
 	<xs:element name="operation" type="exec:tOperation">
 		<xs:annotation>
-			<xs:documentation>
-	      	"operation" indicates an EXEC based operation.
-	      </xs:documentation>
+			<xs:documentation>DESC_Element_operation</xs:documentation>
 		</xs:annotation>
 	</xs:element>
 	<xs:complexType name="tOperation">
@@ -97,18 +91,18 @@
                                 <!-- common to both consumer and provider -->
 				<xs:attribute name="command" type="xs:string" use="required">
 					<xs:annotation>
-						<xs:documentation>Defines the command to be executed</xs:documentation>
+						<xs:documentation>DESC_Attribute_command</xs:documentation>
 					</xs:annotation>
 				</xs:attribute>
                                 <!-- only applies to consumer -->
 				<xs:attribute name="pollingInterval" type="xs:int" use="optional">
 					<xs:annotation>
-						<xs:documentation>Defines the polling interval (in seconds) for repetitive receiving. This attribute is not applicable for invoke mode and invoke-once polling pattern.</xs:documentation>
+						<xs:documentation>DESC_Attribute_pollingInterval</xs:documentation>
 					</xs:annotation>
 				</xs:attribute>
                                 <xs:attribute name="pollingPattern" type="exec:tPollingPattern" use="optional">
                                         <xs:annotation>
-                                                <xs:documentation>Defines the polling pattern for receiving mode. This attribute is not applicable for invoke mode.</xs:documentation>
+                                                <xs:documentation>DESC_Attribute_pollingPattern</xs:documentation>
                                         </xs:annotation>
                                 </xs:attribute>
                                 <!-- only applies to provider -->
@@ -118,9 +112,7 @@
 	<!-- EXEC protocol input and output definition -->
 	<xs:element name="message" type="exec:tMessage">
 		<xs:annotation>
-			<xs:documentation>
-	      	"message" indicates a JMS protocol based JMS message to/from WSDL message mapping
-	      </xs:documentation>
+			<xs:documentation>DESC_Element_message</xs:documentation>
 		</xs:annotation>
 	</xs:element>
 	<xs:complexType name="tMessage">
@@ -129,27 +121,27 @@
 				<xs:sequence/>
 				<xs:attribute name="use" type="exec:useTypes" use="optional">
 					<xs:annotation>
-						<xs:documentation>When messageType is TextMessage, this attribute defines the use type which affects how the text message is interpreted, i.e., literal</xs:documentation>
+						<xs:documentation>DESC_Attribute_use</xs:documentation>
 					</xs:annotation>
 				</xs:attribute>
 				<xs:attribute name="encodingStyle" type="xs:string" use="optional">
 					<xs:annotation>
-						<xs:documentation>When use is encoded, this attribute defines the encoding style</xs:documentation>
+						<xs:documentation>DESC_Attribute_encodingStyle</xs:documentation>
 					</xs:annotation>
 				</xs:attribute>
                                 <xs:attribute name="recordsToBeSkipped" type="xs:unsignedInt" use="optional">
 					<xs:annotation>
-						<xs:documentation>This attribute defines the number of records to be skipped from stdout. Sometimes table headers need to be skipped.</xs:documentation>
+						<xs:documentation>DESC_Attribute_recordsToBeSkipped</xs:documentation>
 					</xs:annotation>
 				</xs:attribute>
                                 <xs:attribute name="delimitersOfRecord" type="xs:string" use="optional">
 					<xs:annotation>
-						<xs:documentation>If stdout contains multiple records, this attribute defines the delimiters of record. If any of the delimiters is matched, a record is found. Default is no delimiters, so the whole stdout is treated as one record. To define multiple delimiters, use comma to separate them, e.g., \n,\r\n</xs:documentation>
+						<xs:documentation>DESC_Attribute_delimitersOfRecord</xs:documentation>
 					</xs:annotation>
 				</xs:attribute>
                                 <xs:attribute name="injectContextInfo" type="xs:boolean" use="optional">
 					<xs:annotation>
-						<xs:documentation>This attribute defines if context information (such as host name, command executed etc.) should be injected into the record. Default is true.</xs:documentation>
+						<xs:documentation>DESC_Attribute_injectContextInfo</xs:documentation>
 					</xs:annotation>
 				</xs:attribute>
 			</xs:extension>
