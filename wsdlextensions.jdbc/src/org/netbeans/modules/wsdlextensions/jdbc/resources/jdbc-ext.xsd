@@ -23,9 +23,7 @@
 	<xs:import namespace="http://schemas.xmlsoap.org/wsdl/" schemaLocation="wsdl.xsd"/>
 	<xs:element name="binding" type="jdbc:tBinding">
 		<xs:annotation>
-			<xs:documentation>
-	      	"binding" indicates a jdbc protocol based binding.
-	      </xs:documentation>
+			<xs:documentation>DESC_Element_binding</xs:documentation>
 		</xs:annotation>
 	</xs:element>
 	<xs:complexType name="tBinding">
@@ -37,9 +35,7 @@
 	<xs:element name="operation" type="jdbc:tOperation"/>
 	<xs:complexType name="tOperation">
 		<xs:annotation>
-			<xs:documentation>
-	      	"operation" defines the jdbc protocol based operation binding details..
-	      </xs:documentation>
+			<xs:documentation>DESC_ComplexType_tOperation</xs:documentation>
 		</xs:annotation>
 	</xs:complexType>
 	
@@ -62,9 +58,7 @@
 
 	<xs:element name="input" type="jdbc:tInput">
 		<xs:annotation>
-			<xs:documentation>
-	      	"input" defines the jdbc protocol based operation input binding details
-	      </xs:documentation>
+			<xs:documentation>DESC_Element_input</xs:documentation>
 		</xs:annotation>
 	</xs:element>
 	<xs:complexType name="tInput">
@@ -72,62 +66,62 @@
 			<xs:extension base="wsdl:tExtensibilityElement">				
 				<xs:attribute name="operationType" type="jdbc:operationTypes" use="required">
 					<xs:annotation>
-						<xs:documentation>Defines the jdbc operation type valid values are insert, update, delete etc</xs:documentation>
+						<xs:documentation>DESC_Attribute_operationType</xs:documentation>
 					</xs:annotation>
 				</xs:attribute>
 				<xs:attribute name="numberOfRecords" type="xs:string">
 					<xs:annotation>
-						<xs:documentation>Defines number of records to be retrieved, useful in case of select operation</xs:documentation>
+						<xs:documentation>DESC_Attribute_numberOfRecords</xs:documentation>
 					</xs:annotation>
 				</xs:attribute>
 				<xs:attribute name="paramOrder" type="xs:string" use="optional">
 					<xs:annotation>
-						<xs:documentation>Defines the order of input colums of a table or parameters for procedures. This order is used to populate prepared statementand procedures.</xs:documentation>
+						<xs:documentation>DESC_Attribute_paramOrder</xs:documentation>
 					</xs:annotation>
 				</xs:attribute>
 				<xs:attribute name="sql" type="xs:string" use="required">
 					<xs:annotation>
-						<xs:documentation>Defines the sql for execution</xs:documentation>
+						<xs:documentation>DESC_Attribute_sql</xs:documentation>
 					</xs:annotation>
 				</xs:attribute>
 				<xs:attribute name="PKName" type="xs:string" use="required">
 					<xs:annotation>
-						<xs:documentation>Defines the primary key of the table for polling </xs:documentation>
+						<xs:documentation>DESC_Attribute_PKName</xs:documentation>
 					</xs:annotation>
 				</xs:attribute>
 				<xs:attribute name="Transaction" type="jdbc:tTransaction">
 					<xs:annotation>
-						<xs:documentation>To enable XATransaction or NOTransaction Support </xs:documentation>
+						<xs:documentation>DESC_Attribute_Transaction</xs:documentation>
 					</xs:annotation>
 				</xs:attribute>
 				<xs:attribute name="MarkColumnValue" type="xs:string">
 					<xs:annotation>
-						<xs:documentation>A string representing the value that the column will be set to. If the column type is boolean true/false set, if column type is integer 1.2.3... is set, else date then systime is used</xs:documentation>
+						<xs:documentation>DESC_Attribute_MarkColumnValue</xs:documentation>
 					</xs:annotation>
 				</xs:attribute>
 				<xs:attribute name="PollingPostProcessing" type="jdbc:tPollingPostProcessing" use="optional" default="Delete">
 					<xs:annotation>
-						<xs:documentation>Defines the operation to be performed after the poll process is completed enumeration value</xs:documentation>
+						<xs:documentation>DESC_Attribute_PollingPostProcessing</xs:documentation>
 					</xs:annotation>
 				</xs:attribute>
 				<xs:attribute name="MoveRowToTableName" type="xs:string">
 					<xs:annotation>
-						<xs:documentation>This is the name of the table that we will move the row to.It must already be created in the database</xs:documentation>
+						<xs:documentation>DESC_Attribute_MoveRowToTableName</xs:documentation>
 					</xs:annotation>
 				</xs:attribute>
 				<xs:attribute name="TableName" type="xs:string">
 					<xs:annotation>
-						<xs:documentation>The name of the table that contains the data</xs:documentation>
+						<xs:documentation>DESC_Attribute_TableName</xs:documentation>
 					</xs:annotation>
 				</xs:attribute>
 				<xs:attribute name="MarkColumnName" type="xs:string">
 					<xs:annotation>
-						<xs:documentation>A string that represents that name of the column that will be marked if the pollprocessing is markcolumn selected </xs:documentation>
+						<xs:documentation>DESC_Attribute_MarkColumnName</xs:documentation>
 					</xs:annotation>
 				</xs:attribute>
 				<xs:attribute name="PollMilliSeconds" type="xs:int">
 				    <xs:annotation>
-					<xs:documentation>Defines the polling interval that JDBC Binding Component searches for records in the database.  The polling interval is specified in milliseconds and has a default value of 10000ms. This attribute has no effect for writing.</xs:documentation>
+					<xs:documentation>DESC_Attribute_PollMilliSeconds</xs:documentation>
 				    </xs:annotation>
 				</xs:attribute>
 			</xs:extension>
@@ -135,9 +129,7 @@
 	</xs:complexType>	
 	<xs:element name="output" type="jdbc:tOutput">
 		<xs:annotation>
-			<xs:documentation>
-	      	"output" defines the jdbc protocol based operation output binding details
-	      </xs:documentation>
+			<xs:documentation>DESC_Element_output</xs:documentation>
 		</xs:annotation>
 	</xs:element>
 	<xs:complexType name="tOutput">
@@ -145,7 +137,7 @@
 			<xs:extension base="wsdl:tExtensibilityElement">
 				<xs:attribute name="returnPartName" type="xs:string" use="optional">
 					<xs:annotation>
-						<xs:documentation>Defines the message part name which is returned. Used in insert operation.</xs:documentation>
+						<xs:documentation>DESC_Attribute_returnPartName</xs:documentation>
 					</xs:annotation>
 				</xs:attribute>
 				</xs:extension>
@@ -171,9 +163,7 @@
 
 	<xs:element name="address" type="jdbc:tAddress">
 		<xs:annotation>
-			<xs:documentation>
-	      	"address" indicates a jdbc protocol based service address.
-	      </xs:documentation>
+			<xs:documentation>DESC_Element_address</xs:documentation>
 		</xs:annotation>
 	</xs:element>
 	<xs:complexType name="tAddress">
@@ -181,7 +171,7 @@
 			<xs:extension base="wsdl:tExtensibilityElement">
 				<xs:attribute name="jndiName" type="xs:string" use="required">
 					<xs:annotation>
-						<xs:documentation>Defines the JNDI name of the jdbc database resource.</xs:documentation>
+						<xs:documentation>DESC_Attribute_jndiName</xs:documentation>
 					</xs:annotation>
 				</xs:attribute>
 			</xs:extension>
