@@ -23,9 +23,7 @@
 	<xs:import namespace="http://schemas.xmlsoap.org/wsdl/" schemaLocation="wsdl.xsd"/>
 	<xs:element name="binding" type="dcom:tBinding">
 		<xs:annotation>
-			<xs:documentation>
-	      	"binding" indicates a dcom protocol based binding.
-	      </xs:documentation>
+			<xs:documentation>DESC_Element_binding</xs:documentation>
 		</xs:annotation>
 	</xs:element>
 	<xs:complexType name="tBinding">
@@ -34,9 +32,7 @@
 			<!-- could add more attributes to the binding -->
 				<xs:attribute name="uuid" type="xs:string" use="required">
 					<xs:annotation>
-						<xs:documentation>
-							"Global Uniquie ID" UUID of COM component to be invoked.
-						</xs:documentation>
+						<xs:documentation>DESC_Attribute_uuid</xs:documentation>
 					</xs:annotation>
 				</xs:attribute>
 			</xs:extension>
@@ -45,17 +41,13 @@
 	<xs:element name="operation" type="dcom:tOperation"/>
 	<xs:complexType name="tOperation">
 		<xs:annotation>
-			<xs:documentation>
-			      	"operation" defines the dcom protocol based operation binding details.
-			</xs:documentation>
+			<xs:documentation>DESC_ComplexType_tOperation</xs:documentation>
 		</xs:annotation>
 		<xs:complexContent>
 			<xs:extension base="wsdl:tExtensibilityElement">
 				<xs:attribute name="methodname" type="xs:string" use="required">
 					<xs:annotation>
-						<xs:documentation>
-							"MethodName" methodname of COM component to be invoked.
-						</xs:documentation>
+						<xs:documentation>DESC_Attribute_methodname</xs:documentation>
 					</xs:annotation>
 				</xs:attribute>                                
 			</xs:extension>
@@ -63,9 +55,7 @@
 	</xs:complexType>
 	<xs:element name="message" type="dcom:tMessage">
 		<xs:annotation>
-                    <xs:documentation>
-	      		"Message" indicates a dcom protocol based operation message.
-                    </xs:documentation>
+                    <xs:documentation>DESC_Element_message</xs:documentation>
 		</xs:annotation>
 	</xs:element>
 	<xs:complexType name="tMessage">
@@ -76,9 +66,7 @@
 	</xs:complexType>
         <xs:element name="address" type="dcom:tAddress">
 		<xs:annotation>
-                    <xs:documentation>
-	      		"address" indicates a dcom protocol based service address.
-                    </xs:documentation>
+                    <xs:documentation>DESC_Element_address</xs:documentation>
 		</xs:annotation>
 	</xs:element>
 	<xs:complexType name="tAddress">
@@ -86,30 +74,22 @@
 			<xs:extension base="wsdl:tExtensibilityElement">
 				<xs:attribute name="domain" type="xs:string" use="required">
 					<xs:annotation>
-						<xs:documentation>
-							"Domain" Domain name of the server where COM component is present.
-						</xs:documentation>
+						<xs:documentation>DESC_Attribute_domain</xs:documentation>
 					</xs:annotation>
 				</xs:attribute>
 				<xs:attribute name="server" type="xs:string" use="required">
 					<xs:annotation>
-						<xs:documentation>
-							"Server" Name of the system where COM component is present.
-						</xs:documentation>
+						<xs:documentation>DESC_Attribute_server</xs:documentation>
 					</xs:annotation>
 				</xs:attribute>
 				<xs:attribute name="username" type="xs:string" use="required">
 					<xs:annotation>
-						<xs:documentation>
-							"User Name" User Name to invoke the COM component.
-						</xs:documentation>
+						<xs:documentation>DESC_Attribute_username</xs:documentation>
 					</xs:annotation>
 				</xs:attribute>
 				<xs:attribute name="password" type="xs:string" use="required">
 					<xs:annotation>
-						<xs:documentation>
-							"Password" Password to invoke the COM component.
-						</xs:documentation>
+						<xs:documentation>DESC_Attribute_password</xs:documentation>
 					</xs:annotation>
 				</xs:attribute>
 			</xs:extension>
