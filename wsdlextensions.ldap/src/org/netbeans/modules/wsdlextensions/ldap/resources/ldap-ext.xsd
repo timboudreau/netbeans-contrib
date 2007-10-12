@@ -23,9 +23,7 @@
 	<xs:import namespace="http://schemas.xmlsoap.org/wsdl/" schemaLocation="wsdl.xsd"/>
 	<xs:element name="binding" type="ldap:tBinding">
 		<xs:annotation>
-			<xs:documentation>
-	      	"binding" indicates a ldap protocol based binding.
-	      </xs:documentation>
+			<xs:documentation>DESC_Element_binding</xs:documentation>
 		</xs:annotation>
 	</xs:element>
 	<xs:complexType name="tBinding">
@@ -37,15 +35,13 @@
 	<xs:element name="operation" type="ldap:tOperation"/>
 	<xs:complexType name="tOperation">
 		<xs:annotation>
-			<xs:documentation>
-	      	"operation" defines the ldap protocol based operation binding details..
-	      </xs:documentation>
+			<xs:documentation>DESC_ComplexType_tOperation</xs:documentation>
 		</xs:annotation>
                 <xs:complexContent>
 			<xs:extension base="wsdl:tExtensibilityElement">				
 				<xs:attribute name="type" type="ldap:operationTypes" use="required">
 					<xs:annotation>
-						<xs:documentation>Defines the ldap operation type valid values are Search</xs:documentation>
+						<xs:documentation>DESC_Attribute_type</xs:documentation>
 					</xs:annotation>
 				</xs:attribute>
 			</xs:extension>
@@ -60,9 +56,7 @@
 
 	<xs:element name="input" type="ldap:tInput">
 		<xs:annotation>
-			<xs:documentation>
-	      	"input" defines the ldap protocol based operation input binding details
-	      </xs:documentation>
+			<xs:documentation>DESC_Element_input</xs:documentation>
 		</xs:annotation>
 	</xs:element>
 	<xs:complexType name="tInput">
@@ -70,9 +64,7 @@
 	</xs:complexType>	
 	<xs:element name="output" type="ldap:tOutput">
 		<xs:annotation>
-			<xs:documentation>
-	      	"output" defines the ldap protocol based operation output binding details
-	      </xs:documentation>
+			<xs:documentation>DESC_Element_output</xs:documentation>
 		</xs:annotation>
 	</xs:element>
 	<xs:complexType name="tOutput">
@@ -80,12 +72,12 @@
 			<xs:extension base="wsdl:tExtensibilityElement">
 				<xs:attribute name="returnPartName" type="xs:string" use="optional">
 					<xs:annotation>
-						<xs:documentation>Defines the message part name which is returned. Used in Search operation.</xs:documentation>
+						<xs:documentation>DESC_Attribute_returnPartName</xs:documentation>
 					</xs:annotation>
 				</xs:attribute>
 				<xs:attribute name="attributes" type="xs:string" use="optional">
 					<xs:annotation>
-						<xs:documentation>Defines list of attributes to be retrieved</xs:documentation>
+						<xs:documentation>DESC_Attribute_attributes</xs:documentation>
 					</xs:annotation>
 				</xs:attribute>
 				</xs:extension>
@@ -94,9 +86,7 @@
 
 	<xs:element name="address" type="ldap:tAddress">
 		<xs:annotation>
-			<xs:documentation>
-	      	"address" indicates a ldap protocol based service address.
-	      </xs:documentation>
+			<xs:documentation>DESC_Element_address</xs:documentation>
 		</xs:annotation>
 	</xs:element>
 	<xs:complexType name="tAddress">
@@ -104,7 +94,7 @@
 			<xs:extension base="wsdl:tExtensibilityElement">
 				<xs:attribute name="location" type="xs:string" use="required">
 					<xs:annotation>
-						<xs:documentation>Defines LDAP server url address.</xs:documentation>
+						<xs:documentation>DESC_Attribute_location</xs:documentation>
 					</xs:annotation>
 				</xs:attribute>
 			</xs:extension>
