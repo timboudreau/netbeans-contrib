@@ -23,9 +23,7 @@
 	<xs:import namespace="http://schemas.xmlsoap.org/wsdl/" schemaLocation="wsdl.xsd"/>
 	<xs:element name="binding" type="ims:tBinding">
 		<xs:annotation>
-			<xs:documentation>
-	      		"binding" indicates a ims protocol based binding.
-			</xs:documentation>
+			<xs:documentation>DESC_Element_binding</xs:documentation>
 		</xs:annotation>
 	</xs:element>
 	<xs:complexType name="tBinding">
@@ -37,9 +35,7 @@
 	<xs:element name="operation" type="ims:tOperation"/>
 	<xs:complexType name="tOperation">
 		<xs:annotation>
-			<xs:documentation>
-	      		"operation" defines the ims protocol based operation binding details.
-			 </xs:documentation>
+			<xs:documentation>DESC_ComplexType_tOperation</xs:documentation>
 		</xs:annotation>
 	<xs:complexContent>
 		<xs:extension base="wsdl:tExtensibilityElement">
@@ -48,9 +44,7 @@
 	</xs:complexType>
 	<xs:element name="message" type="ims:tMessage">
 		<xs:annotation>
-			<xs:documentation>
-	      		"Message" indicates a ims protocol based operation message.
-			</xs:documentation>
+			<xs:documentation>DESC_Element_message</xs:documentation>
 		</xs:annotation>
 	</xs:element>
 	<xs:complexType name="tMessage">
@@ -58,163 +52,117 @@
 			<xs:extension base="wsdl:tExtensibilityElement">
 				<xs:attribute name="irmLen" type="xs:int" default="80" use="optional">
 					<xs:annotation>
-						<xs:documentation>
-							"IMS Request Message Length" indicates the length of the IRM structure.
-						</xs:documentation>
+						<xs:documentation>DESC_Attribute_irmLen</xs:documentation>
 					</xs:annotation>
 				</xs:attribute>			
 				<xs:attribute name="irmId" default="*SAMPL1*" type="ims:irmId" use="optional">
 					<xs:annotation>
-						<xs:documentation>
-						"Request Message ID" indicates the identifier of the user exits that is to be driven after the complete message is received.
-						</xs:documentation>
+						<xs:documentation>DESC_Attribute_irmId</xs:documentation>
 					</xs:annotation>
 				</xs:attribute>	
 				<xs:attribute name="irmTimer" default=".25 SEC" type="ims:irmTimer" use="optional">
 					<xs:annotation>
-						<xs:documentation>
-						"Request Timer" indicates the time delay for the receive to the Datastore after an ACK or RESUME TPIPE.
-						</xs:documentation>
+						<xs:documentation>DESC_Attribute_irmTimer</xs:documentation>
 					</xs:annotation>
 				</xs:attribute>
 				<xs:attribute name="irmSocket" default="Persistent" type="ims:irmSocket" use="optional">
 					<xs:annotation>
-						<xs:documentation>
-						"Socket" indicates the socket connection type.
-						</xs:documentation>
+						<xs:documentation>DESC_Attribute_irmSocket</xs:documentation>
 					</xs:annotation>
 				</xs:attribute>
 				<xs:attribute name="irmClientId" type="xs:string" use="required">
 					<xs:annotation>
-						<xs:documentation>
-						"Client ID" indicates the name of the Client ID to be used by IMS Connect.
-						</xs:documentation>
+						<xs:documentation>DESC_Attribute_irmClientId</xs:documentation>
 					</xs:annotation>
 				</xs:attribute>
 				<xs:attribute name="irmMod" default="NO_MFS" type="ims:irmMod" use="optional">
 					<xs:annotation>
-						<xs:documentation>
-						"Mod" indicates whether the MFS Message Output Descriptor is returned as part of the output.
-						</xs:documentation>
+						<xs:documentation>DESC_Attribute_irmMod</xs:documentation>
 					</xs:annotation>
 				</xs:attribute>
 				<xs:attribute name="irmCommitMode" default="COMMIT_MODE_1" type="ims:irmCommitMode" use="optional">
 					<xs:annotation>
-						<xs:documentation>
-						"Commit Mode" indicates commit mode.
-						</xs:documentation>
+						<xs:documentation>DESC_Attribute_irmCommitMode</xs:documentation>
 					</xs:annotation>
 				</xs:attribute>
 				<xs:attribute name="irmSyncLevel" default="SYNC_LEVEL_NONE" type="ims:irmSyncLevel" use="optional">
 					<xs:annotation>
-						<xs:documentation>
-						"Sync Level" indicates whether the message is to be confirmed with an ACK for Commit Mode 1 processing.
-						</xs:documentation>
+						<xs:documentation>DESC_Attribute_irmSyncLevel</xs:documentation>
 					</xs:annotation>
 				</xs:attribute>
 				<xs:attribute name="irmAck" default="NO_ACK" type="ims:irmAck" use="optional">
 					<xs:annotation>
-						<xs:documentation>
-						"Ack" indicates a positive or negative acknowledgement response expression sent to IMS Connect and forwarded to IMS.
-						</xs:documentation>
+						<xs:documentation>DESC_Attribute_irmAck</xs:documentation>
 					</xs:annotation>
 				</xs:attribute>
 				<xs:attribute name="irmFlow" default="No_Auto_Flow" type="ims:irmFlow" use="optional">
 					<xs:annotation>
-						<xs:documentation>
-						"Flow" indicates the Flow Control properties.
-						</xs:documentation>
+						<xs:documentation>DESC_Attribute_irmFlow</xs:documentation>
 					</xs:annotation>
 				</xs:attribute>
 				<xs:attribute name="irmTranCode" type="xs:string" use="optional">
 					<xs:annotation>
-						<xs:documentation>
-						"Transaction Code" indicates the default IMS transaction code.
-						</xs:documentation>
+						<xs:documentation>DESC_Attribute_irmTranCode</xs:documentation>
 					</xs:annotation>
 				</xs:attribute>
 				<xs:attribute name="irmTranCodeSrc" default="CFG" type="ims:irmTranCodeSrc" use="optional">
 					<xs:annotation>
-						<xs:documentation>
-						"Transaction Code Source" indicates from where the IMS transaction code is to be taken.
-						</xs:documentation>
+						<xs:documentation>DESC_Attribute_irmTranCodeSrc</xs:documentation>
 					</xs:annotation>
 				</xs:attribute>
 				<xs:attribute name="irmDestId" type="xs:string" use="required">
 					<xs:annotation>
-						<xs:documentation>
-						"Destination Id" indicates the datastore name.
-						</xs:documentation>
+						<xs:documentation>DESC_Attribute_irmDestId</xs:documentation>
 					</xs:annotation>
 				</xs:attribute>
 				<xs:attribute name="irmLterm" type="xs:string" use="optional">
 					<xs:annotation>
-						<xs:documentation>
-						"Lterm" indicates the IMS LTERM override name.
-						</xs:documentation>
+						<xs:documentation>DESC_Attribute_irmLterm</xs:documentation>
 					</xs:annotation>
 				</xs:attribute>
 				<xs:attribute name="irmRacfGrpName" type="xs:string" use="required">
 					<xs:annotation>
-						<xs:documentation>
-						"RACF Group Name" indicates the RACF Group Name if RACF is to be used.
-						</xs:documentation>
+						<xs:documentation>DESC_Attribute_irmRacfGrpName</xs:documentation>
 					</xs:annotation>
 				</xs:attribute>
 				<xs:attribute name="irmRacfUserId" type="xs:string" use="required">
 					<xs:annotation>
-						<xs:documentation>
-						"RACF User Id" indicates the RACF User Id if RACF is to be used.
-						</xs:documentation>
+						<xs:documentation>DESC_Attribute_irmRacfUserId</xs:documentation>
 					</xs:annotation>
 				</xs:attribute>
 				<xs:attribute name="irmRacfPwd" type="xs:string" use="required">
 					<xs:annotation>
-						<xs:documentation>
-						"RACF Password" indicates the RACF password if RACF is to be used.
-						</xs:documentation>
+						<xs:documentation>DESC_Attribute_irmRacfPwd</xs:documentation>
 					</xs:annotation>
 				</xs:attribute>
 				<xs:attribute name="irmHeaderEncod" default="ISO-8859-1" type="xs:string" use="optional">
 					<xs:annotation>
-						<xs:documentation>
-						"IRM Header Encoding" indicates the encoding of the IRM Header properties sent to IMS Connect.
-						</xs:documentation>
+						<xs:documentation>DESC_Attribute_irmHeaderEncod</xs:documentation>
 					</xs:annotation>
 				</xs:attribute>
 				<xs:attribute name="sendDataEncod" default="NO TRANSLATION" type="xs:string" use="optional">
 					<xs:annotation>
-						<xs:documentation>
-						"Send Data Encoding" indicates the encoding translation (if any) to apply to the message body sent to IMS Connect.
-						</xs:documentation>
+						<xs:documentation>DESC_Attribute_sendDataEncod</xs:documentation>
 					</xs:annotation>
 				</xs:attribute>
 				<xs:attribute name="replyDataEncod" default="ISO-8859-1" type="xs:string" use="optional">
 					<xs:annotation>
-						<xs:documentation>
-						"Reply Data Encoding" indicates the encoding of the message body received back from IMS Connect.
-						</xs:documentation>
+						<xs:documentation>DESC_Attribute_replyDataEncod</xs:documentation>
 					</xs:annotation>
 				</xs:attribute>
 				<xs:attribute name="use" type="ims:useTypes" default="literal" use="optional">
 					<xs:annotation>
-						<xs:documentation>
-							"Use" specifies whether you are using encoder or not.
-						</xs:documentation>
+						<xs:documentation>DESC_Attribute_use</xs:documentation>
 					</xs:annotation>
 				</xs:attribute>
 				<xs:attribute name="encodingStyle" type="xs:anyURI" use="optional">
 					<xs:annotation>
-						<xs:documentation>
-							"encodingStyle" message encoding style.
-						</xs:documentation>
+						<xs:documentation>DESC_Attribute_encodingStyle</xs:documentation>
 					</xs:annotation>
 				</xs:attribute>
 				<xs:attribute name="part" type="xs:string" use="optional">
 					<xs:annotation>
-						<xs:documentation>
-						"party" indicates the primary key value based on which the record is to be retrieved.
-						</xs:documentation>
+						<xs:documentation>DESC_Attribute_part</xs:documentation>
 					</xs:annotation>
 				</xs:attribute>
 			</xs:extension>
@@ -291,9 +239,7 @@
 	</xs:simpleType>	
 	<xs:element name="address" type="ims:tAddress">
 		<xs:annotation>
-			<xs:documentation>
-	      		"address" indicates a ims protocol based service address.
-			</xs:documentation>
+			<xs:documentation>DESC_Element_address</xs:documentation>
 		</xs:annotation>
 	</xs:element>
 	<xs:complexType name="tAddress">
@@ -301,16 +247,12 @@
 			<xs:extension base="wsdl:tExtensibilityElement">
 				<xs:attribute name="imsServer" type="xs:string" use="required">
 					<xs:annotation>
-						<xs:documentation>
-							"imsServer" Name of the IMS Server.
-						</xs:documentation>
+						<xs:documentation>DESC_Attribute_imsServer</xs:documentation>
 					</xs:annotation>
 				</xs:attribute>
 				<xs:attribute name="imsPort" type="xs:int" use="required">
 					<xs:annotation>
-						<xs:documentation>
-							"imsPort" where IMS Server is hosted.
-						</xs:documentation>
+						<xs:documentation>DESC_Attribute_imsPort</xs:documentation>
 					</xs:annotation>
 				</xs:attribute>
 			</xs:extension>
