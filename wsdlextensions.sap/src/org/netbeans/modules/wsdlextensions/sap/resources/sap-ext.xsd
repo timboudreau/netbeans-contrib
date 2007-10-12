@@ -35,7 +35,7 @@
                 <xs:extension base="wsdl:tExtensibilityElement">
                     <xs:attribute name="transactionalMode" use="required">
                         <xs:annotation>
-                            <xs:documentation>Messages are Transactional or Non-Transactional in nature.</xs:documentation>
+                            <xs:documentation>DESC_Attribute_transactionalMode</xs:documentation>
                         </xs:annotation>
                         <xs:simpleType>
                             <xs:restriction base="xs:string">
@@ -54,12 +54,12 @@
                     </xs:attribute>
                     <xs:attribute name="transactionIDVerificationDatabase" use="optional" type="xs:string">
                         <xs:annotation>
-                            <xs:documentation>Fully qualified path to the transaction database.</xs:documentation>
+                            <xs:documentation>DESC_Attribute_transactionIDVerificationDatabase</xs:documentation>
                         </xs:annotation>
                     </xs:attribute>
                     <xs:attribute name="maximumTIDDatabaseRows" type="xs:long" use="optional">
                         <xs:annotation>
-                            <xs:documentation>Maximum number of rows allowed for the TID database.</xs:documentation>
+                            <xs:documentation>DESC_Attribute_maximumTIDDatabaseRows</xs:documentation>
                         </xs:annotation>
                     </xs:attribute>
                 </xs:extension>
@@ -68,9 +68,7 @@
     </xs:element>
     <xs:element name="operation">
         <xs:annotation>
-            <xs:documentation>
-                "operation" indicates a sap protocol based operation.
-            </xs:documentation>
+            <xs:documentation>DESC_Element_operation</xs:documentation>
         </xs:annotation>
         <xs:complexType>
             <xs:complexContent>
@@ -94,7 +92,7 @@
                 <xs:extension base="wsdl:tExtensibilityElement">
                     <xs:attribute name="functionName" type="xs:string"  use="required">
                         <xs:annotation>
-                            <xs:documentation>Name of the BAPI or RFC function corresponding to this operation.</xs:documentation>
+                            <xs:documentation>DESC_Attribute_functionName</xs:documentation>
                         </xs:annotation>
                     </xs:attribute>
                 </xs:extension>
@@ -115,9 +113,7 @@
     </xs:element>
     <xs:element name="message">
         <xs:annotation>
-            <xs:documentation>
-                SAP message.
-            </xs:documentation>
+            <xs:documentation>DESC_Element_message</xs:documentation>
         </xs:annotation>
         <xs:complexType>
             <xs:complexContent>
@@ -128,9 +124,7 @@
     </xs:element>
     <xs:element name="fault">
         <xs:annotation>
-            <xs:documentation>
-                "Fault" defines the sap protocol based write type of operations binding details.
-            </xs:documentation>
+            <xs:documentation>DESC_Element_fault</xs:documentation>
         </xs:annotation>
         <xs:complexType>
             <xs:complexContent>
@@ -141,9 +135,7 @@
     </xs:element>
     <xs:element name="address">
         <xs:annotation>
-            <xs:documentation>
-                "address" indicates a sap protocol based service address.
-            </xs:documentation>
+            <xs:documentation>DESC_Element_address</xs:documentation>
         </xs:annotation>
         <xs:complexType>
             <xs:complexContent>
@@ -158,37 +150,37 @@
                    
                      <xs:attribute name="applicationServerHostname" type="xs:string" use="required">
                         <xs:annotation>
-                            <xs:documentation>The Hostname of the SAP R/3 Application Server.</xs:documentation>
+                            <xs:documentation>DESC_Attribute_applicationServerHostname</xs:documentation>
                         </xs:annotation>
                     </xs:attribute>
                     <xs:attribute name="clientNumber" type="xs:string" use="required">
                         <xs:annotation>
-                            <xs:documentation>The SAP Client Number used to access the R/3 system.  Note, this is an alphanumeric string so do not omit any leading zeroes (0's).</xs:documentation>
+                            <xs:documentation>DESC_Attribute_clientNumber</xs:documentation>
                         </xs:annotation>
                     </xs:attribute>
                     <xs:attribute name="systemNumber" type="xs:string" use="required">
                         <xs:annotation>
-                            <xs:documentation>System Number of the SAP R/3 Application Server. This parameter should be configured when NOT using SAP Load Balancing.</xs:documentation>
+                            <xs:documentation>DESC_Attribute_systemNumber</xs:documentation>
                         </xs:annotation>
                     </xs:attribute>
                     <xs:attribute name="systemID" type="xs:string" use="required">
                         <xs:annotation>
-                            <xs:documentation>The ID of the SAP R/3 System.</xs:documentation>
+                            <xs:documentation>DESC_Attribute_systemID</xs:documentation>
                         </xs:annotation>
                     </xs:attribute>
                     <xs:attribute name="user" type="xs:string" use="required">
                         <xs:annotation>
-                            <xs:documentation>The SAP user name. This MUST be defined before specifying the Password.</xs:documentation>
+                            <xs:documentation>DESC_Attribute_user</xs:documentation>
                         </xs:annotation>
                     </xs:attribute>
                     <xs:attribute name="password" type="xs:string" use="required">
                         <xs:annotation>
-                            <xs:documentation>The password for the SAP user.</xs:documentation>
+                            <xs:documentation>DESC_Attribute_password</xs:documentation>
                         </xs:annotation>
                     </xs:attribute>
                     <xs:attribute name="language" default="EN" use="optional">
                         <xs:annotation>
-                            <xs:documentation>The Language used for SAP R/3 access.</xs:documentation>
+                            <xs:documentation>DESC_Attribute_language</xs:documentation>
                         </xs:annotation>
                         <xs:simpleType>
                             <xs:restriction base="xs:string">
@@ -201,40 +193,27 @@
                     </xs:attribute>
                     <xs:attribute name="enableABAPDebugWindow" type="sap:noYes" use="optional" default="No">
                         <xs:annotation>
-                            <xs:documentation>Enable ABAP Debug Window.</xs:documentation>
+                            <xs:documentation>DESC_Attribute_enableABAPDebugWindow</xs:documentation>
                         </xs:annotation>
                     </xs:attribute>
                     <xs:attribute name="gatewayHostname" type="xs:string" use="optional">
                         <xs:annotation>
-                            <xs:documentation>This parameter should be configured when NOT using SAP Load Balancing.  Specify an Optional Gateway host name for the Application Server.  NOTE: Do not specify any optional Router String here, as the value will be prepended to the Gateway Hostname.</xs:documentation>
+                            <xs:documentation>DESC_Attribute_gatewayHostname</xs:documentation>
                         </xs:annotation>
                     </xs:attribute>
                     <xs:attribute name="gatewayService" type="xs:string" use="optional">
                         <xs:annotation>
-                            <xs:documentation>This parameter should be configured when NOT using SAP Load Balancing.  Specify an Optional Gateway Service for the Application Server.  The SAP recommended value is the string "sapgw" concatenated with the SAP System Number.  For example with a System Number of "01", the Gateway Service is "sapgw01".</xs:documentation>
+                            <xs:documentation>DESC_Attribute_gatewayService</xs:documentation>
                         </xs:annotation>
                     </xs:attribute>
                     <xs:attribute name="isSAPSystemUnicode" type="sap:noYes" default="Yes">
                         <xs:annotation>
-                            <xs:documentation>Choose yes if the R/3 System is unicode.</xs:documentation>
+                            <xs:documentation>DESC_Attribute_isSAPSystemUnicode</xs:documentation>
                         </xs:annotation>
                     </xs:attribute>
                     <xs:attribute name="routerString" type="xs:string" use="optional">
                         <xs:annotation>
-                            <xs:documentation>This parameter is OPTIONAL and ONLY needs to be provided in 
-                                order to gain access to a SAP system that's behind a firewall.
-                                The string is composed of the hostname(s) or IP address(es)
-                                of all the SAP Routers that are in between this BOS (Business 
-                                Object Server) and the SAP Gateway Host.  For example, if 
-                                there are two routers, saprouter1, and saprouter2 (in order) 
-                                from the BOS to the Application Server, the Router String will 
-                                be determined as: 
-                                saprouter1:       204.79.199.5 
-                                saprouter2:       207.105.30.146 
-                                Router String:    /H/204.79.199.5/H/207.105.30.146/H/ 
-                                Don't forget the the "H" tokens to separate the routers 
-                                as well as the beginning and ending ones.
-                            </xs:documentation>
+                            <xs:documentation>DESC_Attribute_routerString</xs:documentation>
                         </xs:annotation>
                     </xs:attribute>
                 </xs:extension>
@@ -243,9 +222,7 @@
     </xs:element>    
     <xs:element name="addressparams">
             <xs:annotation>
-                <xs:documentation>
-                    "addressparams" indicates a sap protocol based parameter.
-                </xs:documentation>
+                <xs:documentation>DESC_Element_addressparams</xs:documentation>
             </xs:annotation>
             <xs:complexType>
                 <xs:complexContent>
@@ -269,17 +246,17 @@
                 <xs:extension base="wsdl:tExtensibilityElement">
                     <xs:attribute name="useLoadBalancing" type="sap:noYes" default="No">
                         <xs:annotation>
-                            <xs:documentation>Use Load Balancing.</xs:documentation>
+                            <xs:documentation>DESC_Attribute_useLoadBalancing</xs:documentation>
                         </xs:annotation>
                     </xs:attribute>
                     <xs:attribute name="applicationServerGroup" type="xs:string" use="optional">
                         <xs:annotation>
-                            <xs:documentation>This parameter should be configured ONLY when using SAP Load Balancing.  Enter the name of the group of SAP Application Servers that will be sharing the workload.</xs:documentation>
+                            <xs:documentation>DESC_Attribute_applicationServerGroup</xs:documentation>
                         </xs:annotation>
                     </xs:attribute>
                     <xs:attribute name="messageServerHostname" type="xs:string" use="optional">
                         <xs:annotation>
-                            <xs:documentation>Specify the host name of the R/3 Message Server IF using Load Balancing.  NOTE: Do not specify any optional Router String here, as the value will be prepended.</xs:documentation>
+                            <xs:documentation>DESC_Attribute_messageServerHostname</xs:documentation>
                         </xs:annotation>
                     </xs:attribute>
                 </xs:extension>
@@ -297,7 +274,7 @@
                 <xs:extension base="wsdl:tExtensibilityElement">
                     <xs:attribute name="programID" type="xs:string" use="required">
                         <xs:annotation>
-                            <xs:documentation>Specify the Program ID for the SAP service.  Note, this much match EXACTLY (case-sensitive) with what's shown in SAPGUI transaction SM59.</xs:documentation>
+                            <xs:documentation>DESC_Attribute_programID</xs:documentation>
                         </xs:annotation>
                     </xs:attribute>
                 </xs:extension>
