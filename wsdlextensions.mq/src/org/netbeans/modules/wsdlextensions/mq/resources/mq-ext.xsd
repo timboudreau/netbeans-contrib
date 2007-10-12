@@ -26,9 +26,7 @@
 	<xs:import namespace="http://schemas.xmlsoap.org/wsdl/" schemaLocation="wsdl.xsd"/>
 	<xs:element name="binding" type="mq:tBinding">
 		<xs:annotation>
-			<xs:documentation>
-	      	"binding" indicates a websphere mq  protocol based binding.
-	      </xs:documentation>
+			<xs:documentation>DESC_Element_binding</xs:documentation>
 		</xs:annotation>
 	</xs:element>
 	<xs:complexType name="tBinding">
@@ -39,40 +37,36 @@
 	</xs:complexType>
 	<xs:element name="operation" type="mq:tOperation">
             <xs:annotation>
-			<xs:documentation>
-	      	"operation" indicates a mq protocol based operation.
-	      </xs:documentation>
+			<xs:documentation>DESC_Element_operation</xs:documentation>
 		</xs:annotation>
 	</xs:element>
 	<xs:complexType name="tOperation">
 		<xs:annotation>
-			<xs:documentation>
-	      	"operation" defines the websphere mq protocol based operation binding details..
-                        </xs:documentation>
+			<xs:documentation>DESC_ComplexType_tOperation</xs:documentation>
 		</xs:annotation>
 		<xs:complexContent>
 			<xs:extension base="wsdl:tExtensibilityElement">
                             
                                 <xs:attribute name="queueName" type="xs:string" use="required">
 					<xs:annotation>
-						<xs:documentation>The name of the queue manager to which to put message</xs:documentation>
+						<xs:documentation>DESC_Attribute_queueName</xs:documentation>
 					</xs:annotation>
 				</xs:attribute>
                                 
                                 
                                 <xs:attribute name="queueOpenOptions" type="xs:long" use="optional">
 					<xs:annotation>
-						<xs:documentation>Queue Open Options</xs:documentation>
+						<xs:documentation>DESC_Attribute_queueOpenOptions</xs:documentation>
 					</xs:annotation>
 				</xs:attribute>
                                 <xs:attribute name="transaction" type="mq:TransactionTypes" use="optional" default="NoTransaction">
 					<xs:annotation>
-						<xs:documentation>Tranction type</xs:documentation>
+						<xs:documentation>DESC_Attribute_transaction</xs:documentation>
 					</xs:annotation>
 				</xs:attribute>
                                 <xs:attribute name="pollingInterval" type="xs:long" use="optional">
 				    <xs:annotation>
-					<xs:documentation>Defines the polling interval that MQ Binding Component searches for queue message in the specified queue.  The polling interval is specified in milliseconds and has a default value of 1000ms. This attribute has no effect for mqput.</xs:documentation>
+					<xs:documentation>DESC_Attribute_pollingInterval</xs:documentation>
 				    </xs:annotation>
 				</xs:attribute>
 			</xs:extension>
@@ -81,9 +75,7 @@
         
 	<xs:element name="input" type="mq:tInput">
 		<xs:annotation>
-			<xs:documentation>
-	      	"input" indicates a put protocol based operation input.
-	      </xs:documentation>
+			<xs:documentation>DESC_Element_input</xs:documentation>
 		</xs:annotation>
 	</xs:element>
          
@@ -92,7 +84,7 @@
 		<xs:extension base="wsdl:tExtensibilityElement">
                     <xs:attribute name="parts" type="xs:string" use="required">
                         <xs:annotation>
-                            <xs:documentation>The name of the message header</xs:documentation>
+                            <xs:documentation>DESC_Attribute_parts</xs:documentation>
 			</xs:annotation>
                     </xs:attribute>	
                </xs:extension>
@@ -113,9 +105,7 @@
 	</xs:complexType>
 	 <xs:element name="body" type="mq:tMessage">
 		<xs:annotation>
-			<xs:documentation>
-	      	"Message body" indicates a input part.
-	      </xs:documentation>
+			<xs:documentation>DESC_Element_body</xs:documentation>
 		</xs:annotation>
 	</xs:element>
         <xs:complexType name="tMessage">
@@ -123,19 +113,19 @@
 			<xs:extension base="wsdl:tExtensibilityElement">
                                 <xs:attribute name="MessageBody" type="xs:string" use="required">
 					<xs:annotation>
-						<xs:documentation>documentation needed</xs:documentation>
+						<xs:documentation>DESC_Attribute_MessageBody</xs:documentation>
 					</xs:annotation>
 				</xs:attribute>
                                 <xs:attribute name="use" type="mq:useTypes" use="required"/>
                                 <xs:attribute name="encodingStyle" type="xs:anyURI" use="optional"/>
 				<xs:attribute name="MessageType" type="mq:messageTypes" use="required">
 					<xs:annotation>
-						<xs:documentation>documentation needed</xs:documentation>
+						<xs:documentation>DESC_Attribute_MessageType</xs:documentation>
 					</xs:annotation>
 				</xs:attribute>
                                 <xs:attribute name="SyncPoint" type="xs:boolean" use="required">
 					<xs:annotation>
-						<xs:documentation>documentation needed</xs:documentation>
+						<xs:documentation>DESC_Attribute_SyncPoint</xs:documentation>
 					</xs:annotation>
 				</xs:attribute>
                                 
@@ -145,9 +135,7 @@
         
         <xs:element name="header" type="mq:tMessageHeader">
 		<xs:annotation>
-			<xs:documentation>
-	      	"messageheader" indicates a output part.
-	      </xs:documentation>
+			<xs:documentation>DESC_Element_header</xs:documentation>
 		</xs:annotation>
 	</xs:element>
         <xs:complexType name="tMessageHeader">
@@ -177,9 +165,7 @@
 	
         <xs:element name="address" type="mq:tAddress">
 		<xs:annotation>
-			<xs:documentation>
-	      	"address" indicates a mq protocol based service address.
-	      </xs:documentation>
+			<xs:documentation>DESC_Element_address</xs:documentation>
 		</xs:annotation>
 	</xs:element>
         <xs:complexType name="tAddress">
@@ -187,37 +173,37 @@
 			<xs:extension base="wsdl:tExtensibilityElement">
 				<xs:attribute name="hostName" type="xs:string" use="optional">
 					<xs:annotation>
-						<xs:documentation>The name of the machine where the q manager resides..</xs:documentation>
+						<xs:documentation>DESC_Attribute_hostName</xs:documentation>
 					</xs:annotation>
 				</xs:attribute>
                                 <xs:attribute name="portNumber" type="xs:int" use="required">
 					<xs:annotation>
-						<xs:documentation>The listening port number on which the queue manager is bound</xs:documentation>
+						<xs:documentation>DESC_Attribute_portNumber</xs:documentation>
 					</xs:annotation>
 				</xs:attribute>
                                 <xs:attribute name="queueManagerName" type="xs:string" use="required">
 					<xs:annotation>
-						<xs:documentation>The name of the queue manager to which this bc will connect</xs:documentation>
+						<xs:documentation>DESC_Attribute_queueManagerName</xs:documentation>
 					</xs:annotation>
 				</xs:attribute>
                                 <xs:attribute name="channelName" type="xs:string" use="required">
 					<xs:annotation>
-						<xs:documentation>The name of the channel used</xs:documentation>
+						<xs:documentation>DESC_Attribute_channelName</xs:documentation>
 					</xs:annotation>
 				</xs:attribute>
                                 <xs:attribute name="codedCharacterSetID" type="xs:string" use="optional">
 					<xs:annotation>
-						<xs:documentation>Coded Character Set ID</xs:documentation>
+						<xs:documentation>DESC_Attribute_codedCharacterSetID</xs:documentation>
 					</xs:annotation>
 				</xs:attribute>
                                 <xs:attribute name="userID" type="xs:string" use="optional">
 					<xs:annotation>
-						<xs:documentation>User ID.</xs:documentation>
+						<xs:documentation>DESC_Attribute_userID</xs:documentation>
 					</xs:annotation>
 				</xs:attribute>
                                 <xs:attribute name="password" type="xs:string" use="optional">
 					<xs:annotation>
-						<xs:documentation>The password to use to connect to the mq.</xs:documentation>
+						<xs:documentation>DESC_Attribute_password</xs:documentation>
 					</xs:annotation>				</xs:attribute>				
 			</xs:extension>
 		</xs:complexContent>
