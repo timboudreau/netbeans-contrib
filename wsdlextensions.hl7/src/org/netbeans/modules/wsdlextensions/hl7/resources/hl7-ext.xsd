@@ -25,9 +25,7 @@
     <!-- Extensibility Element for the WSDL Binding -->
     <xs:element name="binding" type="hl7:tBinding">
         <xs:annotation>
-            <xs:documentation>
-		"binding" indicates a hl7 protocol based binding.
-            </xs:documentation>
+            <xs:documentation>DESC_Element_binding</xs:documentation>
         </xs:annotation>
     </xs:element>
     <xs:complexType name="tBinding">
@@ -40,9 +38,7 @@
     <!-- Extensibility Element for the WSDL Operation -->
     <xs:element name="operation" type="hl7:tOperation">
         <xs:annotation>
-            <xs:documentation>
-            "operation" indicates a hl7 protocol based operation.
-          </xs:documentation>
+            <xs:documentation>DESC_Element_operation</xs:documentation>
         </xs:annotation>
     </xs:element>
     <xs:complexType name="tOperation">
@@ -60,9 +56,7 @@
     <!-- Extensibility Element for the WSDL Operation Input -->
     <xs:element name="message" type="hl7:tMessage">
         <xs:annotation>
-            <xs:documentation>
-            "message" indicates a hl7 protocol based HL7 message to/from WSDL message mapping
-          </xs:documentation>
+            <xs:documentation>DESC_Element_message</xs:documentation>
         </xs:annotation>
     </xs:element>
     <xs:complexType name="tMessage">
@@ -70,17 +64,17 @@
             <xs:extension base="wsdl:tExtensibilityElement">
 	    <xs:attribute name="part" type="xs:string" use="optional">
 			<xs:annotation>
-				<xs:documentation>Defines the references to the abstract message part in the WSDL.</xs:documentation>
+				<xs:documentation>DESC_Attribute_part</xs:documentation>
 			</xs:annotation>
 		</xs:attribute>
 		<xs:attribute name="use" type="hl7:useTypes" use="optional" default="encoded">
                     <xs:annotation>
-                        <xs:documentation>The use type which affects how the message is interpreted. The default is "encoded"</xs:documentation>
+                        <xs:documentation>DESC_Attribute_use</xs:documentation>
                     </xs:annotation>
                 </xs:attribute>
                 <xs:attribute name="encodingStyle" type="xs:string" use="optional" default="hl7encoder-1.0">
                     <xs:annotation>
-                        <xs:documentation>when use is encoded, this attribute defines the encoding style</xs:documentation>
+                        <xs:documentation>DESC_Attribute_encodingStyle</xs:documentation>
                     </xs:annotation>
                 </xs:attribute>
 	   </xs:extension>
@@ -126,7 +120,7 @@
 	</xs:simpleType>
 	 <xs:simpleType name="yyyyMMddHHmm">
 	 <xs:annotation>
-            <xs:documentation>Year Month and Date information.</xs:documentation>
+            <xs:documentation>DESC_SimpleType_yyyyMMddHHmm</xs:documentation>
         </xs:annotation>
          <xs:restriction base="xs:string">
             <xs:pattern value="[0-9][0-9][0-9][0-9](0[1-9]|1[0-2])(0[1-9]|1[0-9]|2[0-9]|3[0-1])(0[0-9]|1[0-9]|2[0-3])[0-5][0-9]"/>
@@ -156,9 +150,7 @@
     <!-- Extensibility Element for the WSDL Port -->
     <xs:element name="address" type="hl7:tAddress">
         <xs:annotation>
-            <xs:documentation>
-            "address" indicates a hl7 protocol based service address.
-            </xs:documentation>
+            <xs:documentation>DESC_Element_address</xs:documentation>
         </xs:annotation>
     </xs:element>
     <xs:complexType name="tAddress">
@@ -176,12 +168,12 @@
                 </xs:attribute> -->
 		<xs:attribute name="location" type="xs:string" default="hl7://localhost:4040" use="optional">
 		    <xs:annotation>
-                        <xs:documentation>The connectivity information to connect to HL7 Server. Format hl7://ip:portnumber </xs:documentation>
+                        <xs:documentation>DESC_Attribute_location</xs:documentation>
                     </xs:annotation>
                 </xs:attribute>
 		<xs:attribute name="transportProtocolName" type="xs:string" use="optional">
 		    <xs:annotation>
-                        <xs:documentation>The transport protocol to use to tranport the hl7 messages</xs:documentation>
+                        <xs:documentation>DESC_Attribute_transportProtocolName</xs:documentation>
                     </xs:annotation>
                 </xs:attribute>
             </xs:extension>
@@ -191,9 +183,7 @@
     <!-- Extensibility Element for the WSDL Port -->
     <xs:element name="protocolproperties" type="hl7:tProtocolProperties">
         <xs:annotation>
-            <xs:documentation>
-            "protocolproperties" indicates hl7 protocol properties.
-            </xs:documentation>
+            <xs:documentation>DESC_Element_protocolproperties</xs:documentation>
         </xs:annotation>
     </xs:element>
     <xs:complexType name="tProtocolProperties">
@@ -201,87 +191,87 @@
             <xs:extension base="wsdl:tExtensibilityElement">
 		<xs:attribute name="acknowledgmentMode" type="hl7:ackTypes" use="optional">
                     <xs:annotation>
-                        <xs:documentation>Defines the acknowledgement mode to use to acknowledge the hl7 transactions</xs:documentation>
+                        <xs:documentation>DESC_Attribute_acknowledgmentMode</xs:documentation>
                     </xs:annotation>
                 </xs:attribute>
 		 <xs:attribute name="llpType" type="hl7:llpTypes" use="optional" default="MLLPv1">
                     <xs:annotation>
-                        <xs:documentation>Defines the type of Lower Layer Protocol to use</xs:documentation>
+                        <xs:documentation>DESC_Attribute_llpType</xs:documentation>
                     </xs:annotation>
                 </xs:attribute>
 		<xs:attribute name="startBlockCharacter" type="xs:byte" default="11" use="optional">
                     <xs:annotation>
-                        <xs:documentation>Defines Start Block Character Value in decimal ascii number. The allowed range is 1 to 127. Unless there is a conflict, the value should be ASCII VT, i.e., decimal 11.</xs:documentation>
+                        <xs:documentation>DESC_Attribute_startBlockCharacter</xs:documentation>
                     </xs:annotation>
                 </xs:attribute>
 		<xs:attribute name="endDataCharacter" type="xs:byte" default="28" use="optional">
                     <xs:annotation>
-                        <xs:documentation>Defines End Data Character Value in decimal ascii number. The allowed range is 1 to 127. Unless there is a conflict, the value should be ASCII FS, i.e., decimal 28.</xs:documentation>
+                        <xs:documentation>DESC_Attribute_endDataCharacter</xs:documentation>
                     </xs:annotation>
                 </xs:attribute>
 		<xs:attribute name="endBlockCharacter" type="xs:byte" default="13" use="optional">
                     <xs:annotation>
-                        <xs:documentation>Defines End Block Character Value in decimal ascii number. The allowed range is 1 to 127. To be strictly compliant with the HL7 Standard, this parameter MUST be set to a Carriage Return, i.e., decimal 13.</xs:documentation>
+                        <xs:documentation>DESC_Attribute_endBlockCharacter</xs:documentation>
                     </xs:annotation>
                 </xs:attribute>
 		<xs:attribute name="hllpChecksumEnabled" type="xs:boolean" use="optional">
                     <xs:annotation>
-                        <xs:documentation>Enables or disables HLLP Checksum</xs:documentation>
+                        <xs:documentation>DESC_Attribute_hllpChecksumEnabled</xs:documentation>
                     </xs:annotation>
                 </xs:attribute>
 		<xs:attribute name="seqNumEnabled" type="xs:boolean" use="optional">
 		    <xs:annotation>
-                        <xs:documentation>Enables or disables sequence number protocol</xs:documentation>
+                        <xs:documentation>DESC_Attribute_seqNumEnabled</xs:documentation>
                     </xs:annotation>
                 </xs:attribute>
 		<xs:attribute name="processingID" type="hl7:processingID" use="optional" default="D">
                     <xs:annotation>
-                        <xs:documentation>Defines the ProcessingID value against which MSH-11-ProcessingID field in the received message is validated when validateMSH is set to true. Valid values are "P", "D" or "T"</xs:documentation>
+                        <xs:documentation>DESC_Attribute_processingID</xs:documentation>
                     </xs:annotation>
                 </xs:attribute>
 		<xs:attribute name="versionID" type="hl7:verIDs" use="optional" default="2.3.1">
                     <xs:annotation>
-                        <xs:documentation>Defines the versionID value against which MSH-12-VersionID field in the received message is validated when validateMSH is set to true. Valid values are "2.1", "2.2" , "2.3", "2.3.1", "2.4", "2.5" or "3.0"</xs:documentation>
+                        <xs:documentation>DESC_Attribute_versionID</xs:documentation>
                     </xs:annotation>
                 </xs:attribute>
 		<xs:attribute name="validateMSH" type="xs:boolean" use="optional" >
                     <xs:annotation>
-                        <xs:documentation>Enables or disables the MSH segment validation</xs:documentation>
+                        <xs:documentation>DESC_Attribute_validateMSH</xs:documentation>
                     </xs:annotation>
                 </xs:attribute>
 		<xs:attribute name="enabledSFT" type="xs:boolean" use="optional" >
                     <xs:annotation>
-                        <xs:documentation>Enables or disables SFT segment processing</xs:documentation>
+                        <xs:documentation>DESC_Attribute_enabledSFT</xs:documentation>
                     </xs:annotation>
                 </xs:attribute>
 		<xs:attribute name="softwareVendorOrganization" type="xs:string" use="optional" default="Sun Microsystems, Inc" >
                     <xs:annotation>
-                        <xs:documentation>Defines the Software Vendor Organization field (SFT-1-Software Vendor Organization) which identifies the vendor who is responsible for maintaining the application.</xs:documentation>
+                        <xs:documentation>DESC_Attribute_softwareVendorOrganization</xs:documentation>
                     </xs:annotation>
                 </xs:attribute>
 		<xs:attribute name="softwareCertifiedVersionOrReleaseNumber" type="xs:string" use="optional" default="6.0" >
                     <xs:annotation>
-                        <xs:documentation>Specifies HL7 segment SFT-02, the Software Certified Version or Release Number. The latest software version number or release number for the sending system, helps to provide a more complete profile of the application that is sending or receiving HL7 messages.</xs:documentation>
+                        <xs:documentation>DESC_Attribute_softwareCertifiedVersionOrReleaseNumber</xs:documentation>
                     </xs:annotation>
                 </xs:attribute>
 		<xs:attribute name="softwareProductName" type="xs:string" use="optional" default="Sun Open ESB HL7 Binding Component" >
                     <xs:annotation>
-                        <xs:documentation>Specifies HL7 segment SFT-03, the name of the software product that submitted the transaction.The software product name is a key component for identifying the sending application.</xs:documentation>
+                        <xs:documentation>DESC_Attribute_softwareProductName</xs:documentation>
                     </xs:annotation>
                 </xs:attribute>
 		<xs:attribute name="softwareBinaryID" type="xs:string" use="optional" default="6.0" >
                     <xs:annotation>
-                        <xs:documentation>Specifies HL7 segment SFT-04, the Software Binary ID. This property is available starting with HL7 version 2.5. Software Binary IDs are issued by a vendor for each unique software version instance. These IDs are used to differentiate between differing versions of the same software.Identical Primary IDs indicate that the software is identical at the binary level, but configuration settings may differ.</xs:documentation>
+                        <xs:documentation>DESC_Attribute_softwareBinaryID</xs:documentation>
                     </xs:annotation>
                 </xs:attribute>
 		<xs:attribute name="softwareProductInformation" type="xs:string" use="optional" default="It is a binding component for HL7 over TCP/IP connection" >
                     <xs:annotation>
-                        <xs:documentation>Specifies HL7 segment SFT-05, software product identification information. This may include a description of the software application, configuration settings,modifications made to the software.</xs:documentation>
+                        <xs:documentation>DESC_Attribute_softwareProductInformation</xs:documentation>
                     </xs:annotation>
                 </xs:attribute>
 		<xs:attribute name="softwareInstallDate" type="hl7:yyyyMMddHHmm" use="optional" >
                     <xs:annotation>
-                        <xs:documentation>Specifies HL7 segment SFT-06, the Software Install Date. This is the date(format should be YYYYMMDDHHSS) on which the submitting software was installed at the sending site.</xs:documentation>
+                        <xs:documentation>DESC_Attribute_softwareInstallDate</xs:documentation>
                     </xs:annotation> 
                 </xs:attribute> 
            </xs:extension>
