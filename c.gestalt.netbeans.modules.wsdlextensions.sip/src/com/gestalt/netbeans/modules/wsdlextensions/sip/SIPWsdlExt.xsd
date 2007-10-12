@@ -6,9 +6,7 @@
     <xs:import namespace="http://schemas.xmlsoap.org/wsdl/" schemaLocation="wsdl.xsd"/>
     <xs:element name="binding" type="sip:tBinding">
         <xs:annotation>
-            <xs:documentation>
-                "binding" indicates a protocol based binding.
-            </xs:documentation>
+            <xs:documentation>DESC_Element_binding</xs:documentation>
         </xs:annotation>
     </xs:element>
     <xs:complexType name="tBinding">
@@ -20,15 +18,13 @@
     <xs:element name="operation" type="sip:tOperation"/>
     <xs:complexType name="tOperation">
         <xs:annotation>
-            <xs:documentation>
-                "operation" defines the protocol based operation binding details.
-            </xs:documentation>
+            <xs:documentation>DESC_ComplexType_tOperation</xs:documentation>
         </xs:annotation>
         <xs:complexContent>
             <xs:extension base="wsdl:tExtensibilityElement">
                 <xs:attribute name="name" type="sip:operationName" use="required">
                     <xs:annotation>
-                        <xs:documentation>Select the name of the operation.</xs:documentation>
+                        <xs:documentation>DESC_Attribute_name</xs:documentation>
                     </xs:annotation>
                 </xs:attribute>
             </xs:extension>
@@ -44,9 +40,7 @@
     </xs:simpleType>       
     <xs:element name="address" type="sip:tAddress">
         <xs:annotation>
-            <xs:documentation>
-                "address" indicates protocol based service address.
-            </xs:documentation>
+            <xs:documentation>DESC_Element_address</xs:documentation>
         </xs:annotation>
     </xs:element>
     <xs:complexType name="tAddress">
@@ -54,27 +48,27 @@
             <xs:extension base="wsdl:tExtensibilityElement">
                 <xs:attribute name="proxyDomain" type="xs:string" use="required">
                     <xs:annotation>
-                        <xs:documentation>Location of the SIP Proxy.</xs:documentation>
+                        <xs:documentation>DESC_Attribute_proxyDomain</xs:documentation>
                     </xs:annotation>
                 </xs:attribute>
                 <xs:attribute name="proxyPort" type="xs:string" use="required">
                     <xs:annotation>
-                        <xs:documentation>The SIP Listening Port of the Proxy</xs:documentation>
+                        <xs:documentation>DESC_Attribute_proxyPort</xs:documentation>
                     </xs:annotation>
                 </xs:attribute>
                 <xs:attribute name="proxyTimeout" type="xs:string" use="required">
                     <xs:annotation>
-                        <xs:documentation>Time out of the Proxy</xs:documentation>
+                        <xs:documentation>DESC_Attribute_proxyTimeout</xs:documentation>
                     </xs:annotation>
                 </xs:attribute>
                 <xs:attribute name="username" type="xs:string">
                     <xs:annotation>
-                        <xs:documentation>The username to login to the SIP Proxy</xs:documentation>
+                        <xs:documentation>DESC_Attribute_username</xs:documentation>
                     </xs:annotation>
                 </xs:attribute>
                 <xs:attribute name="password" type="xs:string">
                     <xs:annotation>
-                        <xs:documentation>The password needed to login to the SIP Proxy</xs:documentation>
+                        <xs:documentation>DESC_Attribute_password</xs:documentation>
                     </xs:annotation>
                 </xs:attribute>
             </xs:extension>
@@ -82,9 +76,7 @@
     </xs:complexType>
     <xs:element name="input" type="sip:tInput">
         <xs:annotation>
-            <xs:documentation>
-            "input" indicates a sip protocol based operation input.
-            </xs:documentation>
+            <xs:documentation>DESC_Element_input</xs:documentation>
             <xs:appinfo>
                 <prop:ElementProperties  xmlns:prop="http://xml.netbeans.org/schema/wsdlui/property">
                     <prop:Property attributeName="requestMethod" propertyOrder="1">
@@ -118,35 +110,33 @@
     </xs:element>
     <xs:complexType name="tInput">
         <xs:annotation>
-            <xs:documentation>
-                "input" defines the protocol based input binding details.
-            </xs:documentation>
+            <xs:documentation>DESC_ComplexType_tInput</xs:documentation>
         </xs:annotation>
         <xs:complexContent>
             <xs:extension base="wsdl:tExtensibilityElement">
                 <xs:attribute name="requestMethod" type="xs:string" use="optional">
                     <xs:annotation>
-                        <xs:documentation>The SIP method type such as MESSAGE, INVITE, BYE, or CANCEL.</xs:documentation>
+                        <xs:documentation>DESC_Attribute_requestMethod</xs:documentation>
                     </xs:annotation>
                 </xs:attribute>
                 <xs:attribute name="responseMethod" type="xs:string" use="optional">
                     <xs:annotation>
-                        <xs:documentation>Specify the SIP Method type to response to. If you wish to send a 200 to an INVITE, the INVITE is the response Method.</xs:documentation>
+                        <xs:documentation>DESC_Attribute_responseMethod</xs:documentation>
                     </xs:annotation>
                 </xs:attribute>
                 <xs:attribute name="responseStatus" type="xs:int" use="optional">
                     <xs:annotation>
-                        <xs:documentation>The response status code to send such as 200.</xs:documentation>
+                        <xs:documentation>DESC_Attribute_responseStatus</xs:documentation>
                     </xs:annotation>
                 </xs:attribute>
                 <xs:attribute name="content" type="xs:string" use="optional">
                     <xs:annotation>
-                        <xs:documentation>When sending a MESSAGE request content is the value of the instant message. When sending or responding to an INVITE the content is the SDP.</xs:documentation>
+                        <xs:documentation>DESC_Attribute_content</xs:documentation>
                     </xs:annotation>
                 </xs:attribute>
                 <xs:attribute name="remoteUri" type="xs:string" use="optional">
                     <xs:annotation>
-                        <xs:documentation>The SIP uri of the remote user you want to send a Request or send a response. An example would be bob@bob.com.</xs:documentation>
+                        <xs:documentation>DESC_Attribute_remoteUri</xs:documentation>
                     </xs:annotation>
                 </xs:attribute>
             </xs:extension>
