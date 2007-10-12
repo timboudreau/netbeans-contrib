@@ -6,9 +6,7 @@
     <xs:import namespace="http://schemas.xmlsoap.org/wsdl/" schemaLocation="wsdl.xsd"/>
     <xs:element name="binding" type="uddi:tBinding">
         <xs:annotation>
-            <xs:documentation>
-                "binding" indicates a protocol based binding.
-            </xs:documentation>
+            <xs:documentation>DESC_Element_binding</xs:documentation>
         </xs:annotation>
     </xs:element>
     <xs:complexType name="tBinding">
@@ -19,16 +17,12 @@
     </xs:complexType>
     <xs:element name="operation" type="uddi:tOperation">
         <xs:annotation>
-            <xs:documentation>
-                "operation" indicates a uddi protocol based operation.
-            </xs:documentation>
+            <xs:documentation>DESC_Element_operation</xs:documentation>
         </xs:annotation>
     </xs:element>
     <xs:complexType name="tOperation">
         <xs:annotation>
-            <xs:documentation>
-                "operation" defines the uddi protocol based operation binding details.
-            </xs:documentation>
+            <xs:documentation>DESC_ComplexType_tOperation</xs:documentation>
         </xs:annotation>
         <xs:complexContent>
             <xs:extension base="wsdl:tExtensibilityElement">
@@ -38,9 +32,7 @@
     </xs:complexType>
     <xs:element name="input" type="uddi:tInput">
         <xs:annotation>
-            <xs:documentation>
-                Defines the protocol based operation message details.
-            </xs:documentation>
+            <xs:documentation>DESC_Element_input</xs:documentation>
             <xs:appinfo>
                 <prop:ElementProperties  xmlns:prop="http://xml.netbeans.org/schema/wsdlui/property">
                     <prop:Property attributeName="businessname" propertyOrder="1">
@@ -59,20 +51,18 @@
     </xs:element>
     <xs:complexType name="tInput">
         <xs:annotation>
-            <xs:documentation>
-                "input" defines the protocol based input binding details.
-            </xs:documentation>
+            <xs:documentation>DESC_ComplexType_tInput</xs:documentation>
         </xs:annotation>
         <xs:complexContent>
             <xs:extension base="wsdl:tExtensibilityElement">
                 <xs:attribute name="businessname" type="xs:string">
                     <xs:annotation>
-                        <xs:documentation>The business name to search for in UDDI</xs:documentation>
+                        <xs:documentation>DESC_Attribute_businessname</xs:documentation>
                     </xs:annotation>
                 </xs:attribute>
                 <xs:attribute name="servicename" type="xs:string">
                     <xs:annotation>
-                        <xs:documentation>The service name to search for in UDDI</xs:documentation>
+                        <xs:documentation>DESC_Attribute_servicename</xs:documentation>
                     </xs:annotation>
                 </xs:attribute>
             </xs:extension>
@@ -80,9 +70,7 @@
     </xs:complexType>
     <xs:element name="fault" type="uddi:tFault">
         <xs:annotation>
-            <xs:documentation>
-                Defines the protocol based operation fault details.
-            </xs:documentation>
+            <xs:documentation>DESC_Element_fault</xs:documentation>
         </xs:annotation>
     </xs:element>
     <xs:complexType name="tFault">
@@ -93,16 +81,12 @@
     </xs:complexType>        
     <xs:element name="address" type="uddi:tAddress">
         <xs:annotation>
-            <xs:documentation>
-                "address" indicates protocol based service address.
-            </xs:documentation>
+            <xs:documentation>DESC_Element_address</xs:documentation>
         </xs:annotation>
     </xs:element>
     <xs:element name="service" type="uddi:tService">
         <xs:annotation>
-            <xs:documentation>
-                Defines the uddi service.
-            </xs:documentation>
+            <xs:documentation>DESC_Element_service</xs:documentation>
         </xs:annotation>
     </xs:element>
     <xs:complexType name="tService">
@@ -117,12 +101,12 @@
             <xs:extension base="wsdl:tExtensibilityElement">
 		<xs:attribute name="publishuri" type="xs:string" use="required">
 		    <xs:annotation>
-                        <xs:documentation>Specifies the UDDI URI used to publish endpoints</xs:documentation>
+                        <xs:documentation>DESC_Attribute_publishuri</xs:documentation>
                     </xs:annotation>
                 </xs:attribute>
 		<xs:attribute name="inquiryuri" type="xs:string" use="required">
 		    <xs:annotation>
-                        <xs:documentation>Specifies the UDDI URI used to query for endpoints</xs:documentation>
+                        <xs:documentation>DESC_Attribute_inquiryuri</xs:documentation>
                     </xs:annotation>
                 </xs:attribute>
             </xs:extension>
