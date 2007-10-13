@@ -18,6 +18,10 @@ ${l10n-module}/netbeans/j2ee/**/Bundle.properties
 ${l10n-module}/netbeans/j2ee/**/*.gif
 ${l10n-module}/netbeans/j2ee/**/*.html
 ${l10n-module}/netbeans/j2ee/**/*.png
+${l10n-module}/netbeans/junit/**/Bundle.properties
+${l10n-module}/netbeans/junit/**/*.gif
+${l10n-module}/netbeans/junit/**/*.html
+${l10n-module}/netbeans/junit/**/*.png
 ${l10n-module}/netbeans/libs/embedder/**/Bundle.properties
 ${l10n-module}/netbeans/libs/embedder/**/*.gif
 ${l10n-module}/netbeans/libs/embedder/**/*.html
