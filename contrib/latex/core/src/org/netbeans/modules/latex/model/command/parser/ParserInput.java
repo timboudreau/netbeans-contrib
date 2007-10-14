@@ -75,6 +75,7 @@ public class ParserInput {
     private Document document;
     private int index;
     private Set usedFiles;
+    private final boolean firstMoveNextSucceeded;
     
     private Document getDocument(FileObject fo, Collection documents) throws IOException {
         Document ad = (Document) Utilities.getDefault().openDocument(fo);
@@ -113,16 +114,15 @@ public class ParserInput {
         TokenHierarchy h = TokenHierarchy.create(text[0], TexLanguage.description());
         
         ts = h.tokenSequence();
-        ts.moveNext();
+        firstMoveNextSucceeded = ts.moveNext();
         usedFiles = new HashSet();
         usedFiles.add(file);
     }
     
     public SourcePosition getPosition() {
-        int toUse = index > 0 ? index : 0;
-        int offset = ts.offset();
+        int toUse = firstMoveNextSucceeded ? ts.offset() : 0;
         
-        return new SourcePosition(file, document, offset);
+        return new SourcePosition(file, document, toUse);
     }
     
     public int getIndex() {
@@ -146,6 +146,9 @@ public class ParserInput {
     }
     
     public boolean hasNext() {
+        if (!firstMoveNextSucceeded)
+            return false;
+        
         if (!ts.moveNext())
             return false;
         
@@ -159,8 +162,12 @@ public class ParserInput {
     }
     
     public void goBack(int howMany) {
-        while (howMany > 0 && ts.movePrevious())
-            howMany--;
+        while (howMany > 0) {
+            howMany -= ts.token().length();
+            if (!ts.movePrevious()) {
+                return ;
+            }
+        }
     }
     
 }
