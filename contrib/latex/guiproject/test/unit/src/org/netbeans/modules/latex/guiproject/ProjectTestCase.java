@@ -51,6 +51,7 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import org.netbeans.api.project.ProjectManager;
+import org.netbeans.core.startup.Main;
 import org.netbeans.junit.NbTestCase;
 import org.netbeans.modules.latex.UnitUtilities;
 import org.openide.ErrorManager;
@@ -119,11 +120,20 @@ public class ProjectTestCase extends NbTestCase {
     protected FileObject   prj2Impl;
     
     public void setUp() throws IOException, SAXException, PropertyVetoException {
-        UnitUtilities.prepareTest(new String[] {"/org/netbeans/modules/latex/guiproject/resources/mf-layer.xml", "/org/netbeans/modules/latex/resources/mf-layer.xml"}, new Object[] {
+        System.setProperty("netbeans.user", getWorkDir().getAbsolutePath());
+        new File(new File(getWorkDir(), "var"), "log").mkdirs();
+
+        System.setProperty("netbeans.test.latex.enable", "true");
+
+        FileUtil.setMIMEType("tex", "text/x-tex");
+        
+        UnitUtilities.prepareTest(new String[] {"/org/netbeans/modules/latex/guiproject/resources/mf-layer.xml", "/org/netbeans/modules/latex/resources/mf-layer.xml", "/org/netbeans/modules/latex/resources/mf-layer.xml"}, new Object[] {
             new LaTeXGUIProjectFactory(),
             new LaTeXGUIProjectFactorySourceFactory(),
 	    new LaTeXFileOwnerQuery(),
         });
+        
+        Main.initializeURLFactory();
         
         FileObject testDir = UnitUtilities.makeScratchDir(this);
         File workdir = FileUtil.toFile(testDir);
