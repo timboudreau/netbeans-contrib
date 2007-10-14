@@ -50,12 +50,11 @@ import javax.swing.text.Document;
 import javax.swing.text.StyledDocument;
 import org.netbeans.api.progress.ProgressHandle;
 import org.netbeans.api.progress.ProgressHandleFactory;
+import org.netbeans.core.startup.Main;
 import org.netbeans.junit.NbTestCase;
 import org.netbeans.modules.latex.UnitUtilities;
 import org.netbeans.modules.latex.model.Utilities;
-import org.netbeans.modules.latex.model.command.LaTeXSource;
 import org.netbeans.modules.latex.model.command.Node;
-import org.netbeans.modules.latex.model.command.impl.LaTeXSourceImpl;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
 import org.openide.text.NbDocument;
@@ -73,13 +72,18 @@ public class FindUsagesActionTest extends NbTestCase {
     }
 
     protected void setUp() throws Exception {
+        System.setProperty("netbeans.user", getWorkDir().getAbsolutePath());
+        new File(new File(getWorkDir(), "var"), "log").mkdirs();
         System.setProperty("netbeans.test.latex.enable", "true");
         
-        UnitUtilities.prepareTest(new String[0], new Object[0]);
+        UnitUtilities.prepareTest(new String[] {"/org/netbeans/modules/latex/resources/mf-layer.xml"}, new Object[0]);
         
         dataDir = FileUtil.toFileObject(new File(getDataDir(), "FindUsagesActionTest"));
         
         assertNotNull(dataDir);
+        
+        FileUtil.setMIMEType("tex", "text/x-tex");
+        Main.initializeURLFactory();
     }
 
     public void testFindUsagesLabel1() throws Exception {
@@ -128,7 +132,6 @@ public class FindUsagesActionTest extends NbTestCase {
         del.clear();
         
         Collection errors = new ArrayList();
-        LaTeXSourceImpl lsi =  new LaTeXSourceImpl(testFileObject);
         Document doc = Utilities.getDefault().openDocument(testFileObject);
         int offset = NbDocument.findLineOffset((StyledDocument) doc, line - 1) + column - 1;
         

@@ -48,14 +48,18 @@ import java.util.Iterator;
 import java.util.List;
 import javax.swing.text.Document;
 import javax.swing.text.StyledDocument;
+import org.netbeans.api.gsf.CancellableTask;
 import org.netbeans.api.progress.ProgressHandle;
 import org.netbeans.api.progress.ProgressHandleFactory;
+import org.netbeans.api.retouche.source.CompilationController;
+import org.netbeans.api.retouche.source.Phase;
+import org.netbeans.api.retouche.source.Source;
+import org.netbeans.core.startup.Main;
 import org.netbeans.junit.NbTestCase;
 import org.netbeans.modules.latex.UnitUtilities;
+import org.netbeans.modules.latex.model.LaTeXParserResult;
 import org.netbeans.modules.latex.model.Utilities;
-import org.netbeans.modules.latex.model.command.LaTeXSource;
 import org.netbeans.modules.latex.model.command.Node;
-import org.netbeans.modules.latex.model.command.impl.LaTeXSourceImpl;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
 import org.openide.text.NbDocument;
@@ -73,13 +77,18 @@ public class RenameActionTest extends NbTestCase {
     }
 
     protected void setUp() throws Exception {
+        System.setProperty("netbeans.user", getWorkDir().getAbsolutePath());
+        new File(new File(getWorkDir(), "var"), "log").mkdirs();
         System.setProperty("netbeans.test.latex.enable", "true");
         
-        UnitUtilities.prepareTest(new String[0], new Object[0]);
+        UnitUtilities.prepareTest(new String[] {"/org/netbeans/modules/latex/resources/mf-layer.xml"}, new Object[0]);
         
         dataDir = FileUtil.toFileObject(new File(getDataDir(), "RenameActionTest"));
         
         assertNotNull(dataDir);
+
+        FileUtil.setMIMEType("tex", "text/x-tex");
+        Main.initializeURLFactory();
     }
 
     public void testRenameLabel1() throws Exception {
@@ -128,7 +137,6 @@ public class RenameActionTest extends NbTestCase {
         del.clear();
         
         Collection errors = new ArrayList();
-        LaTeXSourceImpl lsi =  new LaTeXSourceImpl(testFileObject);
         Document doc = Utilities.getDefault().openDocument(testFileObject);
         int offset = NbDocument.findLineOffset((StyledDocument) doc, line - 1) + column - 1;
         
@@ -150,24 +158,25 @@ public class RenameActionTest extends NbTestCase {
         
         del.refactor.refactor(results, handle);
         
-        LaTeXSource.Lock lock = null;
+        Source s = Source.forFileObject(testFileObject);
         
-        try {
-            lock = lsi.lock();
-            
-            for (Iterator i = lsi.getDocument().getFiles().iterator(); i.hasNext(); ) {
-                FileObject file = (FileObject) i.next();
+        s.runUserActionTask(new CancellableTask<CompilationController>() {
+            public void cancel() {}
+            public void run(CompilationController parameter) throws Exception {
+                parameter.toPhase(Phase.UP_TO_DATE);
                 
-                String name = file.getName();
+                LaTeXParserResult lpr = (LaTeXParserResult) parameter.getParserResult();
                 
-                dumpDocument(name, Utilities.getDefault().openDocument(file));
-                compareReferenceFiles(name + ".ref", name + ".pass", name + ".diff");
+                for (Iterator i = lpr.getDocument().getFiles().iterator(); i.hasNext();) {
+                    FileObject file = (FileObject) i.next();
+
+                    String name = file.getName();
+
+                    dumpDocument(name, Utilities.getDefault().openDocument(file));
+                    compareReferenceFiles(name + ".ref", name + ".pass", name + ".diff");
+                }
             }
-        } finally {
-            if (lock != null) {
-                lsi.unlock(lock);
-            }
-        }
+        }, true);
         
         compareReferenceFiles(fileName + "-usages.ref", fileName + "-usages.pass", fileName + "-usages.diff");
     }
