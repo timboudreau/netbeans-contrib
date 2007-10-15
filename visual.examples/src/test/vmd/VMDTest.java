@@ -104,7 +104,95 @@ public class VMDTest {
     }
 
     static void createPin (VMDGraphScene scene, String nodeID, String pinID, Image image, String name, String type) {
-        ((VMDPinWidget) scene.addPin (nodeID, pinID)).setProperties (name, null);
+        VMDPinWidget pinWidget = ((VMDPinWidget) scene.addPin (nodeID, pinID));
+        pinWidget.setProperties (name, null);
+
+        // uncomment this in case, you would like to allow to move a node by dragging any area of the node (including pins)
+//        final Widget nodeWidget = scene.findWidget (nodeID);
+//        final WidgetAction originalMoveAction = ActionFactory.createMoveAction ();
+//
+//        pinWidget.getActions ().addAction (new WidgetAction() {
+//
+//            public State mouseClicked (Widget widget, WidgetMouseEvent event) {
+//                Point point = nodeWidget.convertSceneToLocal (widget.convertLocalToScene (event.getPoint ()));
+//                return originalMoveAction.mouseClicked (nodeWidget, new WidgetMouseEvent (event.getEventID (), new MouseEvent (widget.getScene ().getView (), 0, event.getWhen (), event.getModifiersEx (), point.x, point.y, event.getClickCount (), event.isPopupTrigger (), event.getButton ())));
+//            }
+//
+//            public State mousePressed (Widget widget, WidgetMouseEvent event) {
+//                Point point = nodeWidget.convertSceneToLocal (widget.convertLocalToScene (event.getPoint ()));
+//                return originalMoveAction.mousePressed (nodeWidget, new WidgetMouseEvent (event.getEventID (), new MouseEvent (widget.getScene ().getView (), 0, event.getWhen (), event.getModifiersEx (), point.x, point.y, event.getClickCount (), event.isPopupTrigger (), event.getButton ())));
+//            }
+//
+//            public State mouseReleased (Widget widget, WidgetMouseEvent event) {
+//                Point point = nodeWidget.convertSceneToLocal (widget.convertLocalToScene (event.getPoint ()));
+//                return originalMoveAction.mouseReleased (nodeWidget, new WidgetMouseEvent (event.getEventID (), new MouseEvent (widget.getScene ().getView (), 0, event.getWhen (), event.getModifiersEx (), point.x, point.y, event.getClickCount (), event.isPopupTrigger (), event.getButton ())));
+//            }
+//
+//            public State mouseEntered (Widget widget, WidgetMouseEvent event) {
+//                Point point = nodeWidget.convertSceneToLocal (widget.convertLocalToScene (event.getPoint ()));
+//                return originalMoveAction.mouseEntered (nodeWidget, new WidgetMouseEvent (event.getEventID (), new MouseEvent (widget.getScene ().getView (), 0, event.getWhen (), event.getModifiersEx (), point.x, point.y, event.getClickCount (), event.isPopupTrigger (), event.getButton ())));
+//            }
+//
+//            public State mouseExited (Widget widget, WidgetMouseEvent event) {
+//                Point point = nodeWidget.convertSceneToLocal (widget.convertLocalToScene (event.getPoint ()));
+//                return originalMoveAction.mouseExited (nodeWidget, new WidgetMouseEvent (event.getEventID (), new MouseEvent (widget.getScene ().getView (), 0, event.getWhen (), event.getModifiersEx (), point.x, point.y, event.getClickCount (), event.isPopupTrigger (), event.getButton ())));
+//            }
+//
+//            public State mouseDragged (Widget widget, WidgetMouseEvent event) {
+//                Point point = nodeWidget.convertSceneToLocal (widget.convertLocalToScene (event.getPoint ()));
+//                return originalMoveAction.mouseDragged (nodeWidget, new WidgetMouseEvent (event.getEventID (), new MouseEvent (widget.getScene ().getView (), 0, event.getWhen (), event.getModifiersEx (), point.x, point.y, event.getClickCount (), event.isPopupTrigger (), event.getButton ())));
+//            }
+//
+//            public State mouseMoved (Widget widget, WidgetMouseEvent event) {
+//                Point point = nodeWidget.convertSceneToLocal (widget.convertLocalToScene (event.getPoint ()));
+//                return originalMoveAction.mouseMoved (nodeWidget, new WidgetMouseEvent (event.getEventID (), new MouseEvent (widget.getScene ().getView (), 0, event.getWhen (), event.getModifiersEx (), point.x, point.y, event.getClickCount (), event.isPopupTrigger (), event.getButton ())));
+//            }
+//
+//            public State mouseWheelMoved (Widget widget, WidgetMouseWheelEvent event) {
+//                Point point = nodeWidget.convertSceneToLocal (widget.convertLocalToScene (event.getPoint ()));
+//                return originalMoveAction.mouseWheelMoved (nodeWidget, new WidgetMouseWheelEvent (event.getEventID (), new MouseWheelEvent (widget.getScene ().getView (), 0, event.getWhen (), event.getModifiersEx (), point.x, point.y, event.getClickCount (), event.isPopupTrigger (), event.getScrollType (), event.getScrollAmount (), event.getWheelRotation ())));
+//            }
+//
+//            public State keyTyped (Widget widget, WidgetKeyEvent event) {
+//                return originalMoveAction.keyTyped (nodeWidget, event);
+//            }
+//
+//            public State keyPressed (Widget widget, WidgetKeyEvent event) {
+//                return originalMoveAction.keyPressed (nodeWidget, event);
+//            }
+//
+//            public State keyReleased (Widget widget, WidgetKeyEvent event) {
+//                return originalMoveAction.keyReleased (nodeWidget, event);
+//            }
+//
+//            public State focusGained (Widget widget, WidgetFocusEvent event) {
+//                return originalMoveAction.focusGained (nodeWidget, event);
+//            }
+//
+//            public State focusLost (Widget widget, WidgetFocusEvent event) {
+//                return originalMoveAction.focusLost (nodeWidget, event);
+//            }
+//
+//            public State dragEnter (Widget widget, WidgetDropTargetDragEvent event) {
+//                return originalMoveAction.dragEnter (nodeWidget, event);
+//            }
+//
+//            public State dragOver (Widget widget, WidgetDropTargetDragEvent event) {
+//                return originalMoveAction.dragOver (nodeWidget, event);
+//            }
+//
+//            public State dropActionChanged (Widget widget, WidgetDropTargetDragEvent event) {
+//                return originalMoveAction.dropActionChanged (nodeWidget, event);
+//            }
+//
+//            public State dragExit (Widget widget, WidgetDropTargetEvent event) {
+//                return originalMoveAction.dragExit (nodeWidget, event);
+//            }
+//
+//            public State drop (Widget widget, WidgetDropTargetDropEvent event) {
+//                return originalMoveAction.drop (nodeWidget, event);
+//            }
+//        });
     }
 
     static void createEdge (VMDGraphScene scene, String sourcePinID, String targetNodeID) {
