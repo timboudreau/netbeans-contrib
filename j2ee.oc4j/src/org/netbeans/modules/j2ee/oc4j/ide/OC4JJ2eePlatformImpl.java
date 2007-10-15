@@ -70,7 +70,8 @@ public class OC4JJ2eePlatformImpl extends J2eePlatformImpl {
     }
     
     public boolean isToolSupported(String toolName) {
-        if ("oracle.toplink.essentials.ejb.cmp3.EntityManagerFactoryProvider".equals(toolName)) {
+        if ("oracle.toplink.essentials.ejb.cmp3.EntityManagerFactoryProvider".equals(toolName) //NOI18N
+                || "oracle.toplink.essentials.PersistenceProvider".equals(toolName)) { //NOI18N
             return true;
         }
         return false;
