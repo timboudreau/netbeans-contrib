@@ -85,6 +85,12 @@ public class NPECheckTest extends TreeRuleTestBase {
         performAnalysisTest("test/Test.java", "package test; class Test {private void te|st() {String o = null; if (null != o) {o.toString();}}}");
     }
     
+    public void testIf9() throws Exception {
+        performAnalysisTest("test/Test.java",
+                            "package test; class Test {private void te|st(String s) {if (s == null) {} s.length();}}}",
+                            "0:73-0:81:verifier:Possibly Dereferencing null");
+    }
+    
     public void testTernary() throws Exception {
         performAnalysisTest("test/Test.java", "package test; class Test {private void te|st(int i) {String s = i == 0 ? \"\" : null; s.length();}}");
     }
@@ -99,6 +105,35 @@ public class NPECheckTest extends TreeRuleTestBase {
     
     public void testCheckForNull2() throws Exception {
         performAnalysisTest("test/Test.java", "package test; class Test {private void te|st() {s.length();} @Nullable private String s; @interface Nullable {}}", "0:47-0:55:verifier:Possibly Dereferencing null");
+    }
+    
+    public void testAssignNullToNotNull() throws Exception {
+        performAnalysisTest("test/Test.java", "package test; class Test {private void te|st() {s = null;} @NotNull private String s; @interface NotNull {}}", "0:47-0:55:verifier:ANNNV");
+    }
+    
+    public void testPossibleAssignNullToNotNull() throws Exception {
+        performAnalysisTest("test/Test.java", "package test; class Test {private void te|st(int i) {String s2 = null; if (i == 0) {s2 = \"\";} s = s2;} @NotNull private String s; @interface NotNull {}}", "0:93-0:99:verifier:PANNNV");
+    }
+    
+    public void testNullCheckAnd1() throws Exception {
+        performAnalysisTest("test/Test.java", "package test; class Test {private void te|st() {String s = null; if (s != null && s.length() > 0) {}}}");
+    }
+    
+    public void testNullCheckAnd2() throws Exception {
+        performAnalysisTest("test/Test.java", "package test; class Test {private void te|st() {String s = null; if (s == null && s.length() > 0) {}}}", "0:81-0:89:verifier:DN");
+    }
+    
+    public void testNullCheckOr1() throws Exception {
+        performAnalysisTest("test/Test.java", "package test; class Test {private void test() {String s = null; if (s != null || s.length() > 0) {}}}", 89 - 48, "0:81-0:89:verifier:DN");
+    }
+    
+    public void testNullCheckOr2() throws Exception {
+        performAnalysisTest("test/Test.java", "package test; class Test {private void test() {String s = null; if (s == null || s.length() > 0) {}}}", 89 - 48);
+    }
+    
+    public void testContinue1() throws Exception {
+        performAnalysisTest("test/Test.java",
+                            "package test; class Test {private void te|st(String[] sa) {for (String s : sa) {if (s == null) continue; s.length();}}}");
     }
     
     @Override

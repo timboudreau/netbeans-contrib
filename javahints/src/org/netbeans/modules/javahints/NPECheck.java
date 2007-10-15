@@ -30,13 +30,18 @@ package org.netbeans.modules.javahints;
 
 import com.sun.source.tree.AssignmentTree;
 import com.sun.source.tree.BinaryTree;
+import com.sun.source.tree.BreakTree;
+import com.sun.source.tree.ClassTree;
 import com.sun.source.tree.ConditionalExpressionTree;
+import com.sun.source.tree.ContinueTree;
 import com.sun.source.tree.IdentifierTree;
 import com.sun.source.tree.IfTree;
 import com.sun.source.tree.LiteralTree;
 import com.sun.source.tree.MemberSelectTree;
 import com.sun.source.tree.MethodInvocationTree;
 import com.sun.source.tree.NewClassTree;
+import com.sun.source.tree.ReturnTree;
+import com.sun.source.tree.Tree;
 import com.sun.source.tree.Tree.Kind;
 import com.sun.source.tree.VariableTree;
 import com.sun.source.util.TreePath;
@@ -44,6 +49,7 @@ import com.sun.source.util.TreePathScanner;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -69,6 +75,8 @@ import org.openide.filesystems.FileObject;
 import org.openide.util.NbBundle;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+
+import static org.netbeans.modules.javahints.NPECheck.State.*;
 
 /**
  *
@@ -125,15 +133,40 @@ public class NPECheck extends AbstractHint {
         public State visitAssignment(AssignmentTree node, Void p) {
             Element e = info.getTrees().getElement(new TreePath(getCurrentPath(), node.getVariable()));
             
-            if (e == null || !LOCAL_VARIABLES.contains(e.getKind())) {
+            if (e == null) {
                 return super.visitAssignment(node, p);
             }
             
             State r = scan(node.getExpression(), p);
             
-            variable2State.put((VariableElement) e, r);
+            if (LOCAL_VARIABLES.contains(e.getKind())) {
+                variable2State.put((VariableElement) e, r);
+            }
             
             scan(node.getVariable(), p);
+            
+            State elementState = getStateFromAnnotations(e);
+            
+            if (elementState == NOT_NULL) {
+                String key = null;
+
+                if (r == NULL) {
+                    key = "ERR_AssigningNullToNotNull";
+                }
+
+                if (r == POSSIBLE_NULL_REPORT) {
+                    key = "ERR_PossibleAssigingNullToNotNull";
+                }
+            
+                if (key != null) {
+                    long start = info.getTrees().getSourcePositions().getStartPosition(info.getCompilationUnit(), node);
+                    long end = info.getTrees().getSourcePositions().getEndPosition(info.getCompilationUnit(), node);
+
+                    String displayName = NbBundle.getMessage(NPECheck.class, key);
+                    List<Fix> fixes = Collections.singletonList(FixFactory.createSuppressWarnings(info, getCurrentPath(), "null"));
+                    warnings.add(ErrorDescriptionFactory.createErrorDescription(getSeverity().toEditorSeverity(), displayName, fixes, info.getFileObject(), (int) start, (int) end));
+                }
+            }
             
             return r;
         }
@@ -215,8 +248,16 @@ public class NPECheck extends AbstractHint {
             
             if (node.getElseStatement() == null) {
                 for (Entry<VariableElement, State> e : variableStatesAfterThen.entrySet()) {
-                    if (testedTo.get(e.getKey()) == State.NULL && e.getValue() == State.NOT_NULL) {
-                        variable2State.put(e.getKey(), State.NOT_NULL);
+                    if (testedTo.get(e.getKey()) == State.NULL) {
+                        if (e.getValue() == State.NOT_NULL) {
+                            variable2State.put(e.getKey(), State.NOT_NULL);
+                        }
+                    } else {
+                        State c = collect(variable2State.get(e.getKey()), e.getValue());
+                        
+                        if (c != POSSIBLE_NULL) {
+                            variable2State.put(e.getKey(), c);
+                        }
                     }
                 }
             } else {
@@ -237,6 +278,20 @@ public class NPECheck extends AbstractHint {
                 }
             }
             
+            boolean thenExitsFromAllBranches = new ExitsFromAllBranches(info).scan(new TreePath(getCurrentPath(), node.getThenStatement()), null) == Boolean.TRUE;
+            
+            if (!thenExitsFromAllBranches) {
+                for (Entry<VariableElement, State> test : testedTo.entrySet()) {
+                    if (variable2State.get(test.getKey()) == POSSIBLE_NULL || variable2State.get(test.getKey()) == null) {
+                        variable2State.put(test.getKey(), POSSIBLE_NULL_REPORT);
+                    }
+                }
+            } else {
+                for (Entry<VariableElement, State> test : testedTo.entrySet()) {
+                    variable2State.put(test.getKey(), test.getValue().reverse());
+                }
+            }
+            
             testedTo = oldTestedTo;
             
             return null;
@@ -245,7 +300,36 @@ public class NPECheck extends AbstractHint {
         @Override
         public State visitBinary(BinaryTree node, Void p) {
             State left = scan(node.getLeftOperand(), p);
-            State right = scan(node.getRightOperand(), p);
+            boolean rightAlreadyProcessed = false;
+            
+            if (node.getKind() == Kind.CONDITIONAL_AND) {
+                Map<VariableElement, State> oldVariable2State = variable2State;
+                
+                variable2State.putAll(testedTo);
+                scan(node.getRightOperand(), p);
+                variable2State = oldVariable2State;
+                
+                rightAlreadyProcessed = true;
+            }
+            
+            if (node.getKind() == Kind.CONDITIONAL_OR) {
+                Map<VariableElement, State> oldVariable2State = variable2State;
+                
+                for (Entry<VariableElement, State> e : testedTo.entrySet()) {
+                    variable2State.put(e.getKey(), e.getValue().reverse());
+                }
+                
+                scan(node.getRightOperand(), p);
+                variable2State = oldVariable2State;
+                
+                rightAlreadyProcessed = true;
+            }
+            
+            State right = null;
+            
+            if (!rightAlreadyProcessed) {
+                right = scan(node.getRightOperand(), p);
+            }
             
             if (node.getKind() == Kind.EQUAL_TO) {
                 if (right == State.NULL) {
@@ -412,7 +496,7 @@ public class NPECheck extends AbstractHint {
     
     private static final Set<ElementKind> LOCAL_VARIABLES = EnumSet.of(ElementKind.EXCEPTION_PARAMETER, ElementKind.LOCAL_VARIABLE, ElementKind.PARAMETER);
     
-    private static enum State {
+    static enum State {
         NULL,
         POSSIBLE_NULL,
         POSSIBLE_NULL_REPORT,
@@ -430,6 +514,59 @@ public class NPECheck extends AbstractHint {
                 default: throw new IllegalStateException();
             }
         }
+        
+        public static State collect(State s1, State s2) {
+            if (s1 == s2) return s1;
+            if (s1 == NULL && s2 == NOT_NULL) return POSSIBLE_NULL_REPORT;
+            if (s1 == NOT_NULL && s2 == NULL) return POSSIBLE_NULL_REPORT;
+            if (s1 == POSSIBLE_NULL_REPORT && s2 != POSSIBLE_NULL) return POSSIBLE_NULL_REPORT;
+            if (s1 != POSSIBLE_NULL && s2 == POSSIBLE_NULL_REPORT) return POSSIBLE_NULL_REPORT;
+            
+            return POSSIBLE_NULL;
+        }
+    }
+    
+    //XXX copied from IntroduceHint:
+    private static final class ExitsFromAllBranches extends TreePathScanner<Boolean, Void> {
+        
+        private CompilationInfo info;
+        private Set<Tree> seenTrees = new HashSet<Tree>();
+
+        public ExitsFromAllBranches(CompilationInfo info) {
+            this.info = info;
+        }
+
+        @Override
+        public Boolean scan(Tree tree, Void p) {
+            seenTrees.add(tree);
+            return super.scan(tree, p);
+        }
+
+        @Override
+        public Boolean visitIf(IfTree node, Void p) {
+            return scan(node.getThenStatement(), null) == Boolean.TRUE && scan(node.getElseStatement(), null) == Boolean.TRUE;
+        }
+
+        @Override
+        public Boolean visitReturn(ReturnTree node, Void p) {
+            return true;
+        }
+
+        @Override
+        public Boolean visitBreak(BreakTree node, Void p) {
+            return !seenTrees.contains(info.getTreeUtilities().getBreakContinueTarget(getCurrentPath()));
+        }
+
+        @Override
+        public Boolean visitContinue(ContinueTree node, Void p) {
+            return !seenTrees.contains(info.getTreeUtilities().getBreakContinueTarget(getCurrentPath()));
+        }
+
+        @Override
+        public Boolean visitClass(ClassTree node, Void p) {
+            return false;
+        }
+        
     }
     
 }
