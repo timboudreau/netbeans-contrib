@@ -28,15 +28,18 @@
 package org.netbeans.modules.logmanagement;
 
 import java.awt.Image;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.awt.event.ActionEvent;
+import java.util.logging.LogManager;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import org.openide.nodes.AbstractNode;
 import org.openide.nodes.Children;
 import org.openide.nodes.Sheet;
+import org.openide.util.Exceptions;
 import org.openide.util.NbBundle;
 import org.openide.util.Utilities;
 import org.openide.windows.WindowManager;
@@ -90,7 +93,7 @@ public class RootLoggerNode extends AbstractNode {
 
     @Override
     public String getShortDescription() {
-        return NbBundle.getMessage(LoggerNode.class,"Log_Levele_:_") + logger.getLevel();
+        return NbBundle.getMessage(LoggerNode.class, "Logger_Level")+" : " + logger.getLevel();//NOI18N
     }
 
     public synchronized void refresh() {
@@ -129,7 +132,13 @@ public class RootLoggerNode extends AbstractNode {
         }
 
         public void actionPerformed(ActionEvent e) {
-          //TODO
+            try {
+                LogManager.getLogManager().readConfiguration();
+            } catch (IOException ex) {
+                Exceptions.printStackTrace(ex);
+            } catch (SecurityException ex) {
+                Exceptions.printStackTrace(ex);
+            }
         }
     }
 

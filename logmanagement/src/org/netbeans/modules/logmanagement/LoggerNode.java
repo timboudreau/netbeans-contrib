@@ -100,7 +100,7 @@ class LoggerNode extends AbstractNode {
 
     @Override
     public String getShortDescription() {
-        return NbBundle.getMessage(LoggerNode.class, "Log_Levele_:_") + logger.getLevel();
+        return NbBundle.getMessage(LoggerNode.class, "Logger_Level")+" : " + logger.getLevel();//NOI18N
     }
 
     /**
