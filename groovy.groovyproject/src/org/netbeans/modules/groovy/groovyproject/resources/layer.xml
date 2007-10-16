@@ -2,7 +2,7 @@
 <!DOCTYPE filesystem PUBLIC "-//NetBeans//DTD Filesystem 1.1//EN" "http://www.netbeans.org/dtds/filesystem-1_1.dtd">
 <filesystem>
     <folder name="Templates">
-        <folder name="Scripting">
+        <folder name="Groovy">
             <file name="Groovy.groovy" url="main.groovy">
                 <attr name="template" boolvalue="true" />
                 <attr name="templateWizardURL" urlvalue="nbresloc:/org/netbeans/modules/groovy/groovyproject/resources/Groovy.html" />
@@ -17,7 +17,7 @@
             </file>
         </folder>
         <folder name="Project">
-            <folder name="Scripting">
+            <folder name="Groovy">
                 <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.groovy.groovyproject.ui.wizards.Bundle"/>
                 <attr name="instantiatingWizardURL" urlvalue="nbresloc:/org/netbeans/modules/groovy/groovyproject/resources/desktop.html"/>
 
