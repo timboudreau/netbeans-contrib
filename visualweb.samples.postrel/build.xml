@@ -68,7 +68,8 @@ made subject to such option by the copyright holder.
         <!-- sample complibs -->
         <echo message="Copying sample complibs." />
         <mkdir dir="${complibs.dest}" /> <!-- Create the dir because complibs mgr looks there for complibs. -->
-        <copy file="${complibs.repos}/ui/ui.complib" todir="${complibs.dest}" flatten="true"/>
+        <!-- Remove the BP components for now since they don't work -->
+        <!-- copy file="${complibs.repos}/ui/ui.complib" todir="${complibs.dest}" flatten="true"/ -->
         <copy file="${complibs.repos}/dynamicfaces/dynamicfaces.complib" todir="${complibs.dest}" flatten="true"/>
     </target>
 
