@@ -5,19 +5,7 @@
         <folder name="Edit">
             <file name="org-netbeans-modules-linetools-actions-ExchangeDotAndMark.instance">
                 <attr name="instanceClass" stringvalue="org.netbeans.modules.linetools.actions.ExchangeDotAndMark"/>
-            </file>
-            <file name="org-netbeans-modules-linetools-actions-MoveLineUp.instance">
-                <attr name="instanceClass" stringvalue="org.netbeans.modules.linetools.actions.MoveLineUp"/>
-            </file>
-            <file name="org-netbeans-modules-linetools-actions-MoveLineDown.instance">
-                <attr name="instanceClass" stringvalue="org.netbeans.modules.linetools.actions.MoveLineDown"/>
-            </file>
-            <file name="org-netbeans-modules-linetools-actions-CopyLineUp.instance">
-                <attr name="instanceClass" stringvalue="org.netbeans.modules.linetools.actions.CopyLineUp"/>
-            </file>
-            <file name="org-netbeans-modules-linetools-actions-CopyLineDown.instance">
-                <attr name="instanceClass" stringvalue="org.netbeans.modules.linetools.actions.CopyLineDown"/>
-            </file>
+            </file>           
             <file name="org-netbeans-modules-linetools-actions-SortLinesAscending.instance">
                 <attr name="instanceClass" stringvalue="org.netbeans.modules.linetools.actions.SortLinesAscending"/>
             </file>
@@ -47,38 +35,23 @@
             <folder name="Line">
                 <file name="org-netbeans-modules-linetools-actions-ExchangeDotAndMark.shadow">
                     <attr name="originalFile" stringvalue="Actions/Edit/org-netbeans-modules-linetools-actions-ExchangeDotAndMark.instance"/>
-                </file>
-                <file name="org-netbeans-modules-linetools-actions-MoveLineUp.shadow">
-                    <attr name="originalFile" stringvalue="Actions/Edit/org-netbeans-modules-linetools-actions-MoveLineUp.instance"/>
-                </file>
-                <file name="org-netbeans-modules-linetools-actions-MoveLineDown.shadow">
-                    <attr name="originalFile" stringvalue="Actions/Edit/org-netbeans-modules-linetools-actions-MoveLineDown.instance"/>
-                </file>
-                <attr name="org-netbeans-modules-linetools-actions-MoveLineUp.shadow/org-netbeans-modules-linetools-actions-MoveLineDown.shadow" boolvalue="true"/>
-                <file name="org-netbeans-modules-linetools-actions-CopyLineUp.shadow">
-                    <attr name="originalFile" stringvalue="Actions/Edit/org-netbeans-modules-linetools-actions-CopyLineUp.instance"/>
-                </file>
-                <attr name="org-netbeans-modules-linetools-actions-MoveLineDown.shadow/org-netbeans-modules-linetools-actions-CopyLineUp.shadow" boolvalue="true"/>
-                <file name="org-netbeans-modules-linetools-actions-CopyLineDown.shadow">
-                    <attr name="originalFile" stringvalue="Actions/Edit/org-netbeans-modules-linetools-actions-CopyLineDown.instance"/>
-                </file>
-                <attr name="org-netbeans-modules-linetools-actions-CopyLineUp.shadow/org-netbeans-modules-linetools-actions-CopyLineDown.shadow" boolvalue="true"/>
+                </file>               
+                <attr name="org-netbeans-modules-linetools-actions-ExchangeDotAndMark.shadow/org-netbeans-modules-linetools-actions-SortLinesAscending.shadow" boolvalue="true"/>
                 <file name="org-netbeans-modules-linetools-actions-SortLinesAscending.shadow">
                     <attr name="originalFile" stringvalue="Actions/Edit/org-netbeans-modules-linetools-actions-SortLinesAscending.instance"/>
                 </file>
-                <attr name="org-netbeans-modules-linetools-actions-CopyLineDown.shadow/org-netbeans-modules-linetools-actions-SortLinesAscending.shadow" boolvalue="true"/>
+                <attr name="org-netbeans-modules-linetools-actions-SortLinesAscending.shadow/org-netbeans-modules-linetools-actions-SortLinesDescending.shadow" boolvalue="true"/>
                 <file name="org-netbeans-modules-linetools-actions-SortLinesDescending.shadow">
                     <attr name="originalFile" stringvalue="Actions/Edit/org-netbeans-modules-linetools-actions-SortLinesDescending.instance"/>
                 </file>
-                <attr name="org-netbeans-modules-linetools-actions-SortLinesAscending.shadow/org-netbeans-modules-linetools-actions-SortLinesDescending.shadow" boolvalue="true"/>
+                <attr name="org-netbeans-modules-linetools-actions-SortLinesDescending.shadow/org-netbeans-modules-linetools-actions-MatchCase.shadow" boolvalue="true"/>
                 <file name="org-netbeans-modules-linetools-actions-MatchCase.shadow">
                     <attr name="originalFile" stringvalue="Actions/Edit/org-netbeans-modules-linetools-actions-MatchCase.instance"/>
                 </file>
-                <attr name="org-netbeans-modules-linetools-actions-SortLinesDescending.shadow/org-netbeans-modules-linetools-actions-MatchCase.shadow" boolvalue="true"/>
+                <attr name="org-netbeans-modules-linetools-actions-MatchCase.shadow/org-netbeans-modules-linetools-actions-RemoveDuplicateLines.shadow" boolvalue="true"/>
                 <file name="org-netbeans-modules-linetools-actions-RemoveDuplicateLines.shadow">
                     <attr name="originalFile" stringvalue="Actions/Edit/org-netbeans-modules-linetools-actions-RemoveDuplicateLines.instance"/>
                 </file>
-                <attr name="org-netbeans-modules-linetools-actions-MatchCase.shadow/org-netbeans-modules-linetools-actions-RemoveDuplicateLines.shadow" boolvalue="true"/>
                 <file name="org-netbeans-modules-linetools-actions-Filter.shadow">
                     <attr name="originalFile" stringvalue="Actions/Edit/org-netbeans-modules-linetools-actions-Filter.instance"/>
                 </file>
@@ -95,62 +68,38 @@
     </folder>
     <folder name="Toolbars">
         <folder name="Line">
-            <file name="org-netbeans-modules-linetools-actions-MoveLineUp.shadow">
-                <attr name="originalFile" stringvalue="Actions/Edit/org-netbeans-modules-linetools-actions-MoveLineUp.instance"/>
-            </file>
-            <attr name="org-netbeans-modules-linetools-actions-MoveLineUp.shadow/org-netbeans-modules-linetools-actions-MoveLineDown.shadow" boolvalue="true"/>
-            <file name="org-netbeans-modules-linetools-actions-MoveLineDown.shadow">
-                <attr name="originalFile" stringvalue="Actions/Edit/org-netbeans-modules-linetools-actions-MoveLineDown.instance"/>
-            </file>
-            <file name="org-netbeans-modules-linetools-actions-CopyLineUp.shadow">
-                <attr name="originalFile" stringvalue="Actions/Edit/org-netbeans-modules-linetools-actions-CopyLineUp.instance"/>
-            </file>
-            <attr name="org-netbeans-modules-linetools-actions-MoveLineDown.shadow/org-netbeans-modules-linetools-actions-CopyLineUp.shadow" boolvalue="true"/>
-            <file name="org-netbeans-modules-linetools-actions-CopyLineDown.shadow">
-                <attr name="originalFile" stringvalue="Actions/Edit/org-netbeans-modules-linetools-actions-CopyLineDown.instance"/>
-            </file>
-            <attr name="org-netbeans-modules-linetools-actions-CopyLineUp.shadow/org-netbeans-modules-linetools-actions-CopyLineDown.shadow" boolvalue="true"/>
             <file name="org-netbeans-modules-linetools-actions-SortLinesAscending.shadow">
                 <attr name="originalFile" stringvalue="Actions/Edit/org-netbeans-modules-linetools-actions-SortLinesAscending.instance"/>
-            </file>
-            <attr name="org-netbeans-modules-linetools-actions-CopyLineDown.shadow/org-netbeans-modules-linetools-actions-SortLinesAscending.shadow" boolvalue="true"/>
+            </file>            
+            <attr name="org-netbeans-modules-linetools-actions-SortLinesAscending.shadow/org-netbeans-modules-linetools-actions-SortLinesDescending.shadow" boolvalue="true"/>
             <file name="org-netbeans-modules-linetools-actions-SortLinesDescending.shadow">
                 <attr name="originalFile" stringvalue="Actions/Edit/org-netbeans-modules-linetools-actions-SortLinesDescending.instance"/>
             </file>
-            <attr name="org-netbeans-modules-linetools-actions-SortLinesAscending.shadow/org-netbeans-modules-linetools-actions-SortLinesDescending.shadow" boolvalue="true"/>
+            <attr name="org-netbeans-modules-linetools-actions-SortLinesDescending.shadow/org-netbeans-modules-linetools-actions-MatchCase.shadow" boolvalue="true"/>
             <file name="org-netbeans-modules-linetools-actions-MatchCase.shadow">
                 <attr name="originalFile" stringvalue="Actions/Edit/org-netbeans-modules-linetools-actions-MatchCase.instance"/>
             </file>
-            <attr name="org-netbeans-modules-linetools-actions-SortLinesDescending.shadow/org-netbeans-modules-linetools-actions-MatchCase.shadow" boolvalue="true"/>
+            <attr name="org-netbeans-modules-linetools-actions-MatchCase.shadow/org-netbeans-modules-linetools-actions-RemoveDuplicateLines.shadow" boolvalue="true"/>
             <file name="org-netbeans-modules-linetools-actions-RemoveDuplicateLines.shadow">
                 <attr name="originalFile" stringvalue="Actions/Edit/org-netbeans-modules-linetools-actions-RemoveDuplicateLines.instance"/>
             </file>
-            <attr name="org-netbeans-modules-linetools-actions-MatchCase.shadow/org-netbeans-modules-linetools-actions-RemoveDuplicateLines.shadow" boolvalue="true"/>
+            <attr name="org-netbeans-modules-linetools-actions-RemoveDuplicateLines.shadow/org-netbeans-modules-linetools-actions-Filter.shadow" boolvalue="true"/>
             <file name="org-netbeans-modules-linetools-actions-Filter.shadow">
                 <attr name="originalFile" stringvalue="Actions/Edit/org-netbeans-modules-linetools-actions-Filter.instance"/>
             </file>
-            <attr name="org-netbeans-modules-linetools-actions-RemoveDuplicateLines.shadow/org-netbeans-modules-linetools-actions-Filter.shadow" boolvalue="true"/>
+            <attr name="org-netbeans-modules-linetools-actions-Filter.shadow/org-netbeans-modules-linetools-actions-FilterOutput.shadow" boolvalue="true"/>
             <file name="org-netbeans-modules-linetools-actions-FilterOutput.shadow">
                 <attr name="originalFile" stringvalue="Actions/Edit/org-netbeans-modules-linetools-actions-FilterOutput.instance"/>
             </file>
-            <attr name="org-netbeans-modules-linetools-actions-Filter.shadow/org-netbeans-modules-linetools-actions-FilterOutput.shadow" boolvalue="true"/>
+            <attr name="org-netbeans-modules-linetools-actions-FilterOutput.shadow/org-netbeans-modules-linetools-actions-CycleSlashBackslashDotDashAction.shadow" boolvalue="true"/>
+            <file name="org-netbeans-modules-linetools-actions-CycleSlashBackslashDotDashAction.shadow">
+                <attr name="originalFile" stringvalue="Actions/Edit/org-netbeans-modules-linetools-actions-CycleSlashBackslashDotDashAction.instance"/>
+            </file>
         </folder>
     </folder>
     <folder name="Shortcuts">
         <file name="O-S-X.shadow">
             <attr name="originalFile" stringvalue="Actions/Edit/org-netbeans-modules-linetools-actions-ExchangeDotAndMark.instance"/>
-        </file>
-        <file name="O-UP.shadow">
-            <attr name="originalFile" stringvalue="Actions/Edit/org-netbeans-modules-linetools-actions-MoveLineUp.instance"/>
-        </file>
-        <file name="O-DOWN.shadow">
-            <attr name="originalFile" stringvalue="Actions/Edit/org-netbeans-modules-linetools-actions-MoveLineDown.instance"/>
-        </file>
-        <file name="O-S-UP.shadow">
-            <attr name="originalFile" stringvalue="Actions/Edit/org-netbeans-modules-linetools-actions-CopyLineUp.instance"/>
-        </file>
-        <file name="O-S-DOWN.shadow">
-            <attr name="originalFile" stringvalue="Actions/Edit/org-netbeans-modules-linetools-actions-CopyLineDown.instance"/>
         </file>
         <file name="D-O-O.shadow">
             <attr name="originalFile" stringvalue="Actions/Edit/org-netbeans-modules-linetools-actions-CycleSlashBackslashDotDashAction.instance"/>

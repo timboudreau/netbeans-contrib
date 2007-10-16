@@ -55,7 +55,7 @@ public final class SortLinesAscending extends AbstractLineAction {
     }
 
     public String getName() {
-        return NbBundle.getMessage(CopyLineUp.class, "CTL_SortLinesAscending"); // NOI18N
+        return NbBundle.getMessage(SortLinesAscending.class, "CTL_SortLinesAscending"); // NOI18N
     }
 
     protected String iconResource() {

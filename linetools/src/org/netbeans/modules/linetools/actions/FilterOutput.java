@@ -55,7 +55,7 @@ public final class FilterOutput extends AbstractLineAction {
     }
 
     public String getName() {
-        return NbBundle.getMessage(CopyLineUp.class, "CTL_FilterOutput"); // NOI18N
+        return NbBundle.getMessage(FilterOutput.class, "CTL_FilterOutput"); // NOI18N
     }
 
     protected String iconResource() {
