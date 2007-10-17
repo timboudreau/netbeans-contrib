@@ -61,7 +61,7 @@ public class RulesDataLoader extends UniFileLoader {
 
     /** Create a new rules file data loader. */
     public RulesDataLoader() {
-        super("org.netbeans.modules.jackpot.RulesDataObject");
+        super("org.netbeans.modules.jackpot.rules.RulesDataObject");
     }
     
     protected String defaultDisplayName() {
