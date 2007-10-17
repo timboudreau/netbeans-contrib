@@ -45,6 +45,7 @@ made subject to such option by the copyright holder.
   <folder name="Menu">
     <folder name="Versioning">
       <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.vcscore.actions.Bundle"/>
+      <attr name="position" intvalue="900"/>
       <file name="org-netbeans-modules-vcscore-actions-VcsManagerAction.instance"/>
       <!--
       <folder name="GlobalCommands">
@@ -219,5 +220,13 @@ made subject to such option by the copyright holder.
           <file name="VCSCommandOutput.settings" url="CommandOutputTopComponent.settings"/>
       </folder>
   </folder>
+
+  <folder name="Projects">
+        <folder name="Actions">
+            <file name="org-netbeans-modules-vcscore-VcsFSCommandsAction.instance">
+                <attr name="position" intvalue="355"/>
+            </file>
+        </folder>
+    </folder>
 
 </filesystem>
