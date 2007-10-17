@@ -52,7 +52,7 @@ public class JCAPSImplementationType implements SAWImplementationType {
         String methodBody = new String();
         try {
             //    methodBody = Utils.mergeTemplateInString("checkout.template", null, stringWriter);
-            methodBody = "{com.sun.saw.WorkFlowManager workFlowManager = com.sun.saw.WorkFlowManager.getInstance();" + "com.sun.saw.vo.CheckoutTaskVO checkoutTaskVO = new com.sun.saw.vo.CheckoutTaskVO();" + "       checkoutTaskVO.setTaskIdList(taskIdList);" + "checkoutTaskVO.setUserId(userId);" + "com.sun.saw.vo.OutputVO outputTaskVO = null;" + "outputTaskVO = workFlowManager.checkoutTasks(checkoutTaskVO);" + "return outputTaskVO;  }";
+            methodBody = "{com.sun.saw.WorkFlowManager workFlowManager = com.sun.saw.WorkFlowManager.getInstance();" + "com.sun.saw.vo.CheckoutTaskVO checkoutTaskVO = new com.sun.saw.vo.CheckoutTaskVO();" + "       checkoutTaskVO.setTaskIdList(taskIdList);" + "checkoutTaskVO.setUserId(userId);" + "com.sun.saw.vo.OutputVO outputVO = null;" + "outputVO = workFlowManager.checkoutTasks(checkoutTaskVO);" + "return outputVO;  }";
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -85,9 +85,9 @@ public class JCAPSImplementationType implements SAWImplementationType {
             methodBody = "{com.sun.saw.WorkFlowManager workFlowManager = com.sun.saw.WorkFlowManager.getInstance();" 
                     + "com.sun.saw.vo.CheckoutTaskVO checkoutTaskVO = new com.sun.saw.vo.CheckoutTaskVO();" + 
                     "checkoutTaskVO.setTaskIdList(taskIdList);" + "checkoutTaskVO.setUserId(userId);" + 
-                    "com.sun.saw.vo.OutputVO outputTaskVO = null;" + 
-                    "outputTaskVO = workFlowManager.checkoutTasks(checkoutTaskVO);" +
-                    "return outputTaskVO;}";
+                    "com.sun.saw.vo.OutputVO outputVO = null;" + 
+                    "outputVO = workFlowManager.checkoutTasks(checkoutTaskVO);" +
+                    "return outputVO;}";
         } catch (Exception e) {
             e.printStackTrace();
         }
