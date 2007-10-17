@@ -96,6 +96,7 @@
         <folder name="MIMEResolver">
             <file name="Rulesresolver.xml" url="resources/Rulesresolver.xml">
                 <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.jackpot.rules.Bundle"/>
+                <attr name="position" intvalue="365"/>
             </file>
         </folder>
     </folder>

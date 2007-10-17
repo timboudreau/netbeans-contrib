@@ -46,6 +46,7 @@ made subject to such option by the copyright holder.
         <folder name="MIMEResolver">
             <file name="Velocity.xml" url="Velocity.xml">
                 <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.languages.velocity.Bundle"/>
+                <attr name="position" intvalue="275"/>
             </file>
         </folder>
     </folder>
@@ -60,7 +61,7 @@ made subject to such option by the copyright holder.
         <folder name="Scripting">
             <attr name="position" intvalue="20"/>
             <file name="EmptyVelocity.vm" url="EmptyVelocity.vm">
-                <attr name="template" boolvalue="true" />
+                <attr name="template" boolvalue="true"/>
                 <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.languages.velocity.Bundle"/>
                 <attr name="templateWizardURL" urlvalue="nbresloc:/org/netbeans/modules/languages/velocity/EmptyVelocityFileDescription.html"/>
             </file>

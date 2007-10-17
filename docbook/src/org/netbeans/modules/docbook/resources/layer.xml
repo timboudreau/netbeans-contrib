@@ -55,6 +55,7 @@ made subject to such option by the copyright holder.
             <file name="org-netbeans-modules-docbook-resolver.xml" url="resolver.xml">
                 <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.docbook.Bundle"/>
                 <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/docbook/resources/docbook.png"/>
+                <attr name="position" intvalue="404"/>
             </file>
         </folder>
     </folder>
