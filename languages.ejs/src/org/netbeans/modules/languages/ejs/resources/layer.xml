@@ -57,7 +57,8 @@
             <file name="EJSResolver.xml" url="EJSResolver.xml">
                 <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.languages.ejs.resources.Bundle"/>
                 <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/languages/ejs/resources/ejs.png"/>
-           </file>
+               <attr name="position" intvalue="195"/>
+            </file>
         </folder>
     </folder>
     <folder name="Templates">

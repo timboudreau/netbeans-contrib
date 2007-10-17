@@ -23,6 +23,7 @@ Microsystems, Inc. All Rights Reserved.
         <folder name="MIMEResolver">
             <file name="Prolog.xml" url="Prolog.xml">
                 <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.languages.prolog.Bundle"/>
+                <attr name="position" intvalue="283"/>
             </file>
         </folder>
     </folder>

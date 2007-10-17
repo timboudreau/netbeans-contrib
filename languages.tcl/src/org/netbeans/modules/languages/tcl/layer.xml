@@ -46,6 +46,7 @@ made subject to such option by the copyright holder.
         <folder name="MIMEResolver">
             <file name="TCL.xml" url="TCL.xml">
                 <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.languages.tcl.Bundle"/>
+                <attr name="position" intvalue="285"/>
             </file>
         </folder>
     </folder>
