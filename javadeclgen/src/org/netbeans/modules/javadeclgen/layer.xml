@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE filesystem PUBLIC "-//NetBeans//DTD Filesystem 1.1//EN" "http://www.netbeans.org/dtds/filesystem-1_1.dtd">
+<filesystem>
+    <folder name="Actions">
+        <folder name="Edit">
+            <file name="org-netbeans-modules-javadeclgen-actions-ParameterDeclaration.instance">
+                <attr name="instanceClass" stringvalue="org.netbeans.modules.javadeclgen.actions.ParameterDeclaration"/>
+            </file>
+            <file name="org-netbeans-modules-javadeclgen-actions-ParameterDeclarationWithComma.instance">
+                <attr name="instanceClass" stringvalue="org.netbeans.modules.javadeclgen.actions.ParameterDeclarationWithComma"/>
+            </file>
+            <file name="org-netbeans-modules-javadeclgen-actions-VariableDeclaration.instance">
+                <attr name="instanceClass" stringvalue="org.netbeans.modules.javadeclgen.actions.VariableDeclaration"/>
+            </file>
+            <file name="org-netbeans-modules-javadeclgen-actions-VariableDeclarationWithInitializer.instance">
+                <attr name="instanceClass" stringvalue="org.netbeans.modules.javadeclgen.actions.VariableDeclarationWithInitializer"/>
+            </file>
+            <file name="org-netbeans-modules-javadeclgen-actions-VariableDeclarationWithCastInitializer.instance">
+                <attr name="instanceClass" stringvalue="org.netbeans.modules.javadeclgen.actions.VariableDeclarationWithCastInitializer"/>
+            </file>
+            <file name="org-netbeans-modules-javadeclgen-actions-ArrayParameterDeclaration.instance">
+                <attr name="instanceClass" stringvalue="org.netbeans.modules.javadeclgen.actions.ArrayParameterDeclaration"/>
+            </file>
+            <file name="org-netbeans-modules-javadeclgen-actions-ArrayParameterDeclarationWithComma.instance">
+                <attr name="instanceClass" stringvalue="org.netbeans.modules.javadeclgen.actions.ArrayParameterDeclarationWithComma"/>
+            </file>
+            <file name="org-netbeans-modules-javadeclgen-actions-ArrayVariableDeclaration.instance">
+                <attr name="instanceClass" stringvalue="org.netbeans.modules.javadeclgen.actions.ArrayVariableDeclaration"/>
+            </file>
+            <file name="org-netbeans-modules-javadeclgen-actions-ArrayVariableDeclarationWithInitializer.instance">
+                <attr name="instanceClass" stringvalue="org.netbeans.modules.javadeclgen.actions.ArrayVariableDeclarationWithInitializer"/>
+            </file>
+            <file name="org-netbeans-modules-javadeclgen-actions-ArrayVariableDeclarationWithCastInitializer.instance">
+                <attr name="instanceClass" stringvalue="org.netbeans.modules.javadeclgen.actions.ArrayVariableDeclarationWithCastInitializer"/>
+            </file>
+        </folder>
+    </folder>
+    <folder name="Shortcuts">
+        <file name="O-U SPACE.shadow">
+            <attr name="originalFile" stringvalue="Actions/Edit/org-netbeans-modules-javadeclgen-actions-ParameterDeclaration.instance"/>
+        </file>
+        <file name="O-U COMMA.shadow">
+            <attr name="originalFile" stringvalue="Actions/Edit/org-netbeans-modules-javadeclgen-actions-ParameterDeclarationWithComma.instance"/>
+        </file>
+        <file name="O-U SEMICOLON.shadow">
+            <attr name="originalFile" stringvalue="Actions/Edit/org-netbeans-modules-javadeclgen-actions-VariableDeclaration.instance"/>
+        </file>
+        <file name="O-U EQUALS.shadow">
+            <attr name="originalFile" stringvalue="Actions/Edit/org-netbeans-modules-javadeclgen-actions-VariableDeclarationWithInitializer.instance"/>
+        </file>
+        <file name="O-U S-9.shadow">
+            <attr name="originalFile" stringvalue="Actions/Edit/org-netbeans-modules-javadeclgen-actions-VariableDeclarationWithCastInitializer.instance"/>
+        </file>
+        <file name="D-O-U SPACE.shadow">
+            <attr name="originalFile" stringvalue="Actions/Edit/org-netbeans-modules-javadeclgen-actions-ArrayParameterDeclaration.instance"/>
+        </file>
+        <file name="D-O-U COMMA.shadow">
+            <attr name="originalFile" stringvalue="Actions/Edit/org-netbeans-modules-javadeclgen-actions-ArrayParameterDeclarationWithComma.instance"/>
+        </file>
+        <file name="D-O-U SEMICOLON.shadow">
+            <attr name="originalFile" stringvalue="Actions/Edit/org-netbeans-modules-javadeclgen-actions-ArrayVariableDeclaration.instance"/>
+        </file>
+        <file name="D-O-U EQUALS.shadow">
+            <attr name="originalFile" stringvalue="Actions/Edit/org-netbeans-modules-javadeclgen-actions-ArrayVariableDeclarationWithInitializer.instance"/>
+        </file>
+        <file name="D-O-U S-9.shadow">
+            <attr name="originalFile" stringvalue="Actions/Edit/org-netbeans-modules-javadeclgen-actions-ArrayVariableDeclarationWithCastInitializer.instance"/>
+        </file>
+    </folder>
+    <folder name="Services">
+        <folder name="JavaHelp">
+            <file name="org-netbeans-modules-javadeclgen-help-set.xml" url="help-set.xml"/>
+        </folder>
+    </folder>    
+</filesystem>
