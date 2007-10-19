@@ -6,6 +6,11 @@
 
 package org.netbeans.modules.workflow.editor.view.design;
 
+import java.awt.BorderLayout;
+import java.awt.Color;
+import javax.swing.JComponent;
+import javax.swing.JScrollPane;
+
 /**
  *
  * @author  radval
@@ -15,6 +20,7 @@ public class WorkflowDesignViewPanel extends javax.swing.JPanel {
     /** Creates new form WorkflowDesignViewPanel */
     public WorkflowDesignViewPanel() {
         initComponents();
+        initGUI();
     }
     
     /** This method is called from within the constructor to
@@ -47,7 +53,21 @@ public class WorkflowDesignViewPanel extends javax.swing.JPanel {
         );
     }// </editor-fold>//GEN-END:initComponents
     
-    
+    private void initGUI() {
+        setLayout(new BorderLayout());
+        
+        MainScene scene = new MainScene();
+        scene.setBackground(Color.BLUE);
+        
+        JComponent sceneView = scene.createView();
+        
+        JScrollPane panel = new JScrollPane(sceneView);
+        panel.getVerticalScrollBar().setUnitIncrement(16);
+        panel.getHorizontalScrollBar().setUnitIncrement(16);
+        panel.setBorder(null);
+        add(panel, BorderLayout.CENTER);
+        
+    }
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel jLabel1;
     // End of variables declaration//GEN-END:variables
