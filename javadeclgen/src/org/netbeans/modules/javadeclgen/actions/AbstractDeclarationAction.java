@@ -41,6 +41,8 @@
 package org.netbeans.modules.javadeclgen.actions;
 
 import java.awt.Toolkit;
+import java.util.HashMap;
+import java.util.Map;
 import javax.swing.JEditorPane;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.JTextComponent;
@@ -99,14 +101,26 @@ public abstract class AbstractDeclarationAction extends CookieAction {
             // get token chain at the offset
             TokenItem tokenItem = ((ExtSyntaxSupport) syntaxSupport).getTokenChain(offset - 1, offset);
             
+            
+            final String type = tokenItem.getTokenID().getName();            
             // is this an identifier
-            if (tokenItem != null && "identifier".equals(tokenItem.getTokenID().getName())) { // NOI18N
+            if (tokenItem != null) { 
                 String image = tokenItem.getImage();
-                if (image != null && image.length() > 0) {
-                    char c = image.charAt(0);
-                    if (Character.isUpperCase(c)) {
+                if ("identifier".equals(type)) { // NOI18N
+                    if (image != null && image.length() > 0) {
                         replaceText(textComponent, tokenItem.getOffset(), image);
-                        return;
+                    }
+                } else if (image != null) {
+                    if ("boolean".equals(image)
+                            || "byte".equals(image)
+                            || "char".equals(image)
+                            || "double".equals(image)
+                            || "float".equals(image)
+                            || "int".equals(image)
+                            || "long".equals(image)
+                            || "short".equals(image)
+                            ) {
+                        replaceText(textComponent, tokenItem.getOffset(), image);                        
                     }
                 }
             }
@@ -121,14 +135,47 @@ public abstract class AbstractDeclarationAction extends CookieAction {
     }
     
     protected static String wrapAsParam(String paramName, boolean plural) {
-        return wrapAsCodeTemplateParameter(
-                String.valueOf(Character.toLowerCase(paramName.charAt(0))) +
-                paramName.substring(1) +
-                (plural ? "s" : ""));
+        return wrapAsCodeTemplateParameter(getSmartParamName(paramName, plural));
     }
     
     protected static String wrapAsCodeTemplateParameter(String text) {
         return PARAMETER_PREFIX + text + PARAMETER_SUFFIX;
+    }
+    
+    private static final Map<String, String> singularMap = new HashMap<String, String>();
+    private static final Map<String, String> pluralMap = new HashMap<String, String>();
+    static {
+        singularMap.put("boolean", "condition");
+        singularMap.put("byte", "b");
+        singularMap.put("char", "c");
+        singularMap.put("double", "d");
+        singularMap.put("float", "f");
+        singularMap.put("int", "i");
+        singularMap.put("long", "l");
+        singularMap.put("short", "s");
+        singularMap.put("Iterator", "it");
+        singularMap.put("StringBuilder", "sb");
+        singularMap.put("StringBuffer", "sb");
+        
+        pluralMap.put("boolean", "conditions");
+        pluralMap.put("Iterator", "its");
+        pluralMap.put("StringBuilder", "sbs");
+        pluralMap.put("StringBuffer", "sbs");     
+    }
+    
+    private static String getSmartParamName(String paramName, boolean plural) {
+        String smartParamName = null;
+        if (plural) {
+            smartParamName = pluralMap.get(paramName);
+        } else {
+            smartParamName = singularMap.get(paramName);            
+        }
+        if (smartParamName != null) {
+            return smartParamName;
+        }
+        return String.valueOf(Character.toLowerCase(paramName.charAt(0))) +
+                paramName.substring(1) + 
+                (plural ? "s" : "");
     }
     
     protected abstract void replaceText(JTextComponent textComponent, int offset, String text);
