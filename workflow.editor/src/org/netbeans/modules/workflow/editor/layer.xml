@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE filesystem PUBLIC "-//NetBeans//DTD Filesystem 1.1//EN" "http://www.netbeans.org/dtds/filesystem-1_1.dtd">
+<filesystem>
+    <folder name="WorkflowPalette">
+        <folder name="events">
+            <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.workflow.editor.palette.Bundle"/>
+            <file name="StartEvent.xml" url="nbresloc:/org/netbeans/modules/workflow/editor/palette/items/events/StartEvent.xml" />
+            <file name="IntermediateEvent.xml" url="nbresloc:/org/netbeans/modules/workflow/editor/palette/items/events/IntermediateEvent.xml" />
+            <file name="EndEvent.xml" url="nbresloc:/org/netbeans/modules/workflow/editor/palette/items/events/EndEvent.xml" />
+        </folder>
+    </folder>   
+</filesystem>
