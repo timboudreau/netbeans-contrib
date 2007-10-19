@@ -30,6 +30,17 @@ import java.awt.*;
 public class SceneSupport {
 
     public static void show (final Scene scene) {
+        if (SwingUtilities.isEventDispatchThread ())
+            showEDT (scene);
+        else
+            SwingUtilities.invokeLater (new Runnable() {
+                public void run () {
+                    showEDT (scene);
+                }
+            });
+    }
+
+    private static void showEDT (Scene scene) {
         JComponent sceneView = scene.getView ();
         if (sceneView == null)
             sceneView = scene.createView ();
@@ -37,15 +48,37 @@ public class SceneSupport {
     }
 
     public static void show (final JComponent sceneView) {
+        if (SwingUtilities.isEventDispatchThread ())
+            showEDT (sceneView);
+        else
+            SwingUtilities.invokeLater (new Runnable() {
+                public void run () {
+                    showEDT (sceneView);
+                }
+            });
+    }
+
+    private static void showEDT (JComponent sceneView) {
         JScrollPane panel = new JScrollPane (sceneView);
         panel.getHorizontalScrollBar ().setUnitIncrement (32);
         panel.getHorizontalScrollBar ().setBlockIncrement (256);
         panel.getVerticalScrollBar ().setUnitIncrement (32);
         panel.getVerticalScrollBar ().setBlockIncrement (256);
-        showCore (panel);
+        showCoreEDT (panel);
     }
 
     public static void showCore (final JComponent view) {
+        if (SwingUtilities.isEventDispatchThread ())
+            showCoreEDT (view);
+        else
+            SwingUtilities.invokeLater (new Runnable() {
+                public void run () {
+                    showCoreEDT (view);
+                }
+            });
+    }
+
+    private static void showCoreEDT (JComponent view) {
         int width=800,height=600;
         JFrame frame = new JFrame ();//new JDialog (), true);
         frame.add (view, BorderLayout.CENTER);
