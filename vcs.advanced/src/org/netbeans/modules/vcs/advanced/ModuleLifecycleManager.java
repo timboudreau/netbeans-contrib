@@ -41,36 +41,35 @@
 
 package org.netbeans.modules.vcs.advanced;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.swing.JOptionPane;
+
 import org.openide.modules.ModuleInstall;
-import org.openide.filesystems.FileLock;
-import org.openide.filesystems.Repository;
-import org.openide.filesystems.FileObject;
-import org.openide.ErrorManager;
-import org.openide.xml.XMLUtil;
 import org.openide.util.RequestProcessor;
 import org.openide.util.NbBundle;
-import org.xml.sax.*;
-import org.w3c.dom.*;
-
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.swing.*;
-import java.io.OutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.ByteArrayInputStream;
+import org.openide.modules.ModuleInfo;
+import org.openide.util.Lookup;
 
 /**
  * Ensures that new versioning modules (New CVS, etc.) are disabled when this module installs.
  * 
- * @author Maros Sandor
+ * @author Maros Sandor, Martin Entlicher
  */
-public class ModuleLifecycleManager extends ModuleInstall implements ErrorHandler, EntityResolver {
+public class ModuleLifecycleManager extends ModuleInstall {
     
-    static final String [] newModules = {
+    private static final Set newModules = new HashSet(Arrays.asList(new String[] {
         "org.netbeans.modules.versioning.system.cvss",
-    };
+        "org.netbeans.modules.subversion",
+        "org.netbeans.modules.mercurial",
+    }));
     
     public void restored() {
         disableNewModules();
@@ -79,80 +78,92 @@ public class ModuleLifecycleManager extends ModuleInstall implements ErrorHandle
     private void disableNewModules() {
         Runnable runnable = new Runnable() {
             public void run() {
-                outter: for (int i = 0; i < newModules.length; i++) {
-                    FileLock lock = null;
-                    OutputStream os = null;
-                    try {
-                        String newModule = newModules[i];
-                        String newModuleXML = "Modules/" + newModule.replace('.', '-') + ".xml";
-                        FileObject fo = Repository.getDefault().getDefaultFileSystem().findResource(newModuleXML);
-                        if (fo == null) continue;
-                        Document document = readModuleDocument(fo);
-
-                        NodeList list = document.getDocumentElement().getElementsByTagName("param");
-                        int n = list.getLength();
-                        for (int j = 0; j < n; j++) {
-                            Element node = (Element) list.item(j);
-                            if ("enabled".equals(node.getAttribute("name"))) {
-                                Text text = (Text) node.getChildNodes().item(0);
-                                String value = text.getNodeValue();
-                                if ("true".equals(value)) {
-                                    text.setNodeValue("false");
-                                    break;
-                                } else {
-                                    continue outter;
-                                }
-                            }
-                        }
-                        JOptionPane.showMessageDialog(null, 
-                                                      NbBundle.getBundle(ModuleLifecycleManager.class).getString("MSG_Install_Warning"), 
-                                                      NbBundle.getBundle(ModuleLifecycleManager.class).getString("MSG_Install_Warning_Title"), 
-                                                      JOptionPane.WARNING_MESSAGE);
-                        lock = fo.lock();
-                        os = fo.getOutputStream(lock);
-
-                        XMLUtil.write(document, os, "UTF-8");
-                    } catch (Exception e) {
-                        ErrorManager.getDefault().notify(ErrorManager.INFORMATIONAL, e);
-                    } finally {
-                        if (os != null) try { os.close(); } catch (IOException ex) {}
-                        if (lock != null) lock.releaseLock();
+                Set modulesToDisable = new HashSet();
+                Collection modules = Lookup.getDefault().lookupAll(ModuleInfo.class);
+                for (Iterator it = modules.iterator(); it.hasNext(); ) {
+                    ModuleInfo module = (ModuleInfo) it.next();
+                    if (newModules.contains(module.getCodeNameBase()) && module.isEnabled()) {
+                        modulesToDisable.add(module);
                     }
+                }
+                if (modulesToDisable.size() > 0) {
+                    JOptionPane.showMessageDialog(null, 
+                                                  NbBundle.getBundle(ModuleLifecycleManager.class).getString("MSG_Install_Warning"), 
+                                                  NbBundle.getBundle(ModuleLifecycleManager.class).getString("MSG_Install_Warning_Title"), 
+                                                  JOptionPane.WARNING_MESSAGE);
+                    disableModules(modulesToDisable);
                 }
             }
         };
         RequestProcessor.getDefault().post(runnable);
     }
 
-    private Document readModuleDocument(FileObject fo) throws ParserConfigurationException, SAXException, IOException {
-        DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-        dbf.setValidating(false);
-        DocumentBuilder parser = dbf.newDocumentBuilder();
-        parser.setEntityResolver(this);
-        parser.setErrorHandler(this);
-        InputStream is = fo.getInputStream();
-        Document document = parser.parse(is);
-        is.close();
-        return document;
-    }
-
-    public InputSource resolveEntity(String publicId, String systemId) throws SAXException, IOException {
-        return new InputSource(new ByteArrayInputStream(new byte[0]));
-    }
-    
-    public void error(SAXParseException exception) throws SAXException {
-        ErrorManager.getDefault().notify(ErrorManager.INFORMATIONAL, exception);
-    }
-
-    public void fatalError(SAXParseException exception) throws SAXException {
-        ErrorManager.getDefault().notify(ErrorManager.INFORMATIONAL, exception);
-    }
-
-    public void warning(SAXParseException exception) throws SAXException {
-        ErrorManager.getDefault().notify(ErrorManager.INFORMATIONAL, exception);
-    }
-
     public void uninstalled() {
         ProfilesFactory.getDefault().shutdown();
     }
+
+    // Module hacks:
+    // Inspired by contrib/modulemanager/src/org/netbeans/modules/modulemanager/Hacks
+
+    private Object moduleManager;
+
+    private synchronized Object getModuleManager () {
+        if (moduleManager != null) return moduleManager;
+        Object mgr = null;
+        try {
+            Class clazz = Class.forName ("org.netbeans.core.startup.Main",
+                    false,
+                    Thread.currentThread().getContextClassLoader ());
+            assert clazz != null : "Class org.netbeans.core.startup.Main found.";
+
+            Method getModuleSystemMethod = (Method) clazz.getMethod ("getModuleSystem", new Class[0]);
+            assert getModuleSystemMethod != null : "Method getModuleSystem() found.";
+            getModuleSystemMethod.setAccessible (true);
+
+            Object moduleSystem = getModuleSystemMethod.invoke (null, new Object[0]);
+            assert moduleSystem != null : "Method getModuleSystem() returns ModuleSystem.";
+
+            clazz = moduleSystem.getClass ();
+            Method getManager = clazz.getMethod ("getManager", new Class[0]);
+            assert getManager != null : "Method getManager() found.";
+            getManager.setAccessible (true);
+
+            mgr = getManager.invoke (moduleSystem, new Object[0]);
+            assert mgr != null : "Method getManager() returns ModuleManager.";
+
+        } catch (Exception x) {
+            Logger.getLogger(getClass().getName()).log (Level.INFO, x.getMessage (), x);
+        }
+
+        //err.log (Level.FINE, "org.netbeans.ModuleManager found.");
+        moduleManager = mgr;
+        return mgr;
+    }
+
+    private Object disableModules (Set modules) {
+        Object res = null;
+        try {
+            Object mgr = getModuleManager();
+            Class clazz = mgr.getClass ();
+            Method doSomethingM = (Method) clazz.getMethod ("disable", new Class[] { Set.class });
+            //assert doSomethingM != null : "Method " + something + "(" + Arrays.asList(parameterTypes) + ") found.";
+            doSomethingM.setAccessible (true);
+
+            res = doSomethingM.invoke (mgr, new Object[] { modules });
+            //assert res == null || resultType.isInstance (res) : "Method ModuleManager." + something + "() returns " + resultType + " or null " + res;
+
+        } catch (NoSuchMethodException nsme) {
+            Logger.getLogger(getClass().getName()).log (Level.INFO, nsme.getMessage (), nsme);
+        } catch (IllegalAccessException iae) {
+            Logger.getLogger(getClass().getName()).log (Level.INFO, iae.getMessage (), iae);
+        } catch (InvocationTargetException ite) {
+            throw new IllegalArgumentException (ite.getCause ());
+        } finally {
+
+        }
+
+        //err.log (Level.FINER, "ModuleManager." + something + "(" + args + ") returns " + res);
+        return res;
+    }
+
 }
