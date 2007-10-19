@@ -209,7 +209,7 @@ public class JCAPSImplementationType implements SAWImplementationType {
 
     public SAWMethod getEscalateTask() {
         SAWMethod sawMethod = new SAWMethod();
-        sawMethod.setMethodName("escalateTask");
+        sawMethod.setMethodName("escalateTasks");
         Vector parametersVector = new Vector();
         ParamObject paramObj = new ParamObject();
         ParamObject paramObj1 = new ParamObject();
