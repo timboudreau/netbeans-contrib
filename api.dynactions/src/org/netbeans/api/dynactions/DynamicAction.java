@@ -38,6 +38,7 @@ import javax.swing.JMenuItem;
 import org.openide.awt.Actions;
 import org.openide.awt.DynamicMenuContent;
 import org.openide.util.Lookup;
+import org.openide.util.actions.Presenter;
 import org.openide.util.lookup.Lookups;
 
 /**
@@ -46,9 +47,8 @@ import org.openide.util.lookup.Lookups;
  *
  * @author Tim Boudreau
  */
-public abstract class DynamicAction extends GenericContextSensitiveAction implements DynamicMenuContent {
-    private Reference <JComponent> presenter;
-    protected DynamicAction (Lookup lkp, Class clazz) {
+public abstract class DynamicAction<T> extends GenericContextSensitiveAction<T> implements Presenter.Popup {
+    protected DynamicAction (Lookup lkp, Class<T> clazz) {
         super (lkp, clazz);
     }
 
@@ -57,27 +57,28 @@ public abstract class DynamicAction extends GenericContextSensitiveAction implem
         return new ArrayList <Action> (lkp.lookupAll(Action.class));
     }
     
-    protected JComponent createPresenter() {
-        JMenuItem result = new JMenuItem();
+    private class JMI extends JMenuItem implements DynamicMenuContent {
+        public JComponent[] getMenuPresenters() {
+            if (DynamicAction.this.isEnabled()) {
+                return new JComponent[] { this };
+            } else {
+                return new JComponent[0];
+            }
+        }
+
+        public JComponent[] synchMenuPresenters(JComponent[] items) {
+            return getMenuPresenters();
+        }
+    }
+    
+    protected JMenuItem createPresenter() {
+        JMenuItem result = new JMI();
         Actions.connect(result, this, true);
         return result;
     }
 
-    public JComponent[] getMenuPresenters() {
-        if (isEnabled()) {
-            JComponent result = presenter == null ? null : presenter.get();
-            if (result == null) {
-                result = createPresenter();
-                presenter = new WeakReference <JComponent> (result);
-            }
-            return new JComponent[] { result };
-        } else {
-            return new JComponent[0];
-        }
-    }
-
-    public JComponent[] synchMenuPresenters(JComponent[] items) {
-        return getMenuPresenters();
+    public final JMenuItem getPopupPresenter() {
+        return createPresenter();
     }
     
     /*

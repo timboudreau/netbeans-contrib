@@ -84,11 +84,11 @@ public abstract class GenericContextSensitiveAction <T> implements ContextAwareA
         setEnabled (checkEnabled (coll, c));
     }
 
-    protected GenericContextSensitiveAction(Class c) {
+    protected GenericContextSensitiveAction(Class<T> c) {
         this ((Lookup) null, c);
     }
 
-    protected GenericContextSensitiveAction(String bundleKey, Class c) {
+    protected GenericContextSensitiveAction(String bundleKey, Class<T> c) {
         this ((Lookup) null, c);
         if (bundleKey != null) {
             String name;
@@ -111,7 +111,7 @@ public abstract class GenericContextSensitiveAction <T> implements ContextAwareA
         }
     }
 
-    private void init (Class c) {
+    private void init (Class<T> c) {
         if (c == null) {
             throw new NullPointerException ("Passed class is null"); //NOI18N
         }
@@ -119,7 +119,7 @@ public abstract class GenericContextSensitiveAction <T> implements ContextAwareA
         Sensor.register(lookup, c, n);
     }
 
-    protected final Class getClassesNeededInLookupForEnablement() {
+    protected final Class<T> getClassesNeededInLookupForEnablement() {
         return targetClass;
     }
 

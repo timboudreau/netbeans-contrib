@@ -68,7 +68,7 @@ public final class Sensor <T> {
 
     private Lookup.Result <T> result;
     private Lookup lkp;
-    private final Class targetClass;
+    private final Class<T> targetClass;
     Set <WeakReference <Notifiable<T>>> toNotify =
             new HashSet <WeakReference <Notifiable<T>>> ();
 
