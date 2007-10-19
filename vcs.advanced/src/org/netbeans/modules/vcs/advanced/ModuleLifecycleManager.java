@@ -69,6 +69,7 @@ public class ModuleLifecycleManager extends ModuleInstall {
         "org.netbeans.modules.versioning.system.cvss",
         "org.netbeans.modules.subversion",
         "org.netbeans.modules.mercurial",
+        "org.netbeans.modules.localhistory",
     }));
     
     public void restored() {
