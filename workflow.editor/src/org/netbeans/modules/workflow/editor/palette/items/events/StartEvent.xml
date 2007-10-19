@@ -22,8 +22,8 @@
 <editor_palette_item version="1.0">
     <class name="org.netbeans.modules.workflow.editor.palette.items.events.StartEvent"/>
     
-    <icon16 urlvalue="resources/images/startx16.png" />
-    <icon32 urlvalue="resources/images/startx32.png" />
+    <icon16 urlvalue="org/netbeans/modules/workflow/editor/palette/items/events/resources/images/startx16.PNG" />
+    <icon32 urlvalue="org/netbeans/modules/workflow/editor/palette/items/events/resources/images/startx32.PNG" />
     <description localizing-bundle="org.netbeans.modules.workflow.editor.palette.items.events.Bundle"
                display-name-key="NAME_html-startEvent"
                tooltip-key="HINT_html-startEvent" />

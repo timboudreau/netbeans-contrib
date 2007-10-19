@@ -22,8 +22,8 @@
 <editor_palette_item version="1.0">
     <class name="org.netbeans.modules.workflow.editor.palette.items.events.EndEvent"/>
     
-    <icon16 urlvalue="resources/images/endx16.png" />
-    <icon32 urlvalue="resources/images/endx32.png" />
+    <icon16 urlvalue="org/netbeans/modules/workflow/editor/palette/items/events/resources/images/endx16.PNG" />
+    <icon32 urlvalue="org/netbeans/modules/workflow/editor/palette/items/events/resources/images/endx32.PNG" />
     <description localizing-bundle="org.netbeans.modules.workflow.editor.palette.items.events.Bundle"
                display-name-key="NAME_html-EndEvent"
                tooltip-key="HINT_html-EndEvent" />
