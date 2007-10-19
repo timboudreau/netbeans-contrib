@@ -5,14 +5,12 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
-import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Enumeration;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import javax.swing.JFileChooser;
@@ -20,11 +18,14 @@ import javax.swing.JFileChooser;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
 import org.apache.lucene.index.IndexReader;
-import org.netbeans.api.gsf.Index.SearchResult;
-import org.netbeans.api.gsf.NameKind;
 import org.netbeans.modules.retouche.source.usages.ClassIndexImpl;
 import org.netbeans.modules.retouche.source.usages.ClassIndexManager;
 import org.netbeans.modules.retouche.source.usages.PersistentClassIndex;
+import org.netbeans.modules.ruby.RubyIndexer;
+import org.netbeans.modules.ruby.elements.IndexedClass;
+import org.netbeans.modules.ruby.elements.IndexedElement;
+import org.netbeans.modules.ruby.elements.IndexedField;
+import org.netbeans.modules.ruby.elements.IndexedMethod;
 import org.openide.util.Exceptions;
 import org.openide.util.HelpCtx;
 import org.openide.util.NbBundle;
@@ -71,7 +72,77 @@ public final class DumpIndex extends CallableSystemAction {
             }
         }
     }
+    
+    private String sortCommaList(String s) {
+        String[] items = s.split(",");
+        Arrays.sort(items);
+        StringBuilder sb = new StringBuilder();
+        for (String item : items) {
+            if (sb.length() > 0) {
+                sb.append(",");
+            }
+            sb.append(item);
+        }
 
+        return sb.toString();
+    }
+
+    private String prettyPrintValue(String key, String value) {
+        if (value == null) {
+            return value;
+        }
+
+        if (key.equals("timeStamp")) {
+            return "-----------------";
+        }
+//        int timeStamp = value.indexOf("timeStamp=");
+//        if (timeStamp != -1) {
+//            // Strip it out, replace with ----'s to make diffs more manageable
+//            // timeStamp=20071019181657325
+//            int start = timeStamp+"timeStamp".length();
+//            assert value.substring(start, start+17).matches("\\d\\d\\d\\d\\d\\d\\d\\d\\d\\d\\d\\d\\d\\d\\d\\d\\d");
+//            value = value.substring(0, start) + "-----------------" + value.substring(start+17);
+//        }
+
+        if ("method".equals(key)) {
+            // Decode the attributes
+            int attributeIndex = value.indexOf(';');
+            if (attributeIndex != -1) {
+                int flags = IndexedElement.stringToFlag(value, attributeIndex+1);
+                if (flags != 0) {
+                    String desc = IndexedMethod.decodeFlags(flags);
+                    value = value.substring(0, attributeIndex) + desc + value.substring(attributeIndex+3);
+                }
+            }
+        } else if ("attrs".equals(key)) {
+            // Decode the attributes
+            int flags = IndexedElement.stringToFlag(value, 0);
+            if (flags != 0) {
+                String desc = IndexedClass.decodeFlags(flags);
+                value = desc + value.substring(2);
+            } else {
+                value = "|CLASS|";
+            }
+        } else if ("field".equals(key)) {
+            // Decode the attributes
+            int attributeIndex = value.indexOf(';');
+            if (attributeIndex != -1) {
+                int flags = IndexedElement.stringToFlag(value, attributeIndex+1);
+                if (flags != 0) {
+                    String desc = IndexedField.decodeFlags(flags);
+                    value = value.substring(0, attributeIndex) + desc + value.substring(attributeIndex+3);
+                }
+            }
+        } else { // Only sort value lists like requies and includes that aren't methods since the arg lists should stay in order
+            if (value.indexOf(',') != -1) {
+                value = sortCommaList(value);
+            }
+        }
+
+        return value;
+    }
+
+    
     private void writeDocument(Writer writer, IndexReader reader) {
         for (int i = 0; i < reader.maxDoc(); i++) {
             try {
@@ -137,7 +208,7 @@ public final class DumpIndex extends CallableSystemAction {
                     writer.write(label + ":" + j + ":");
                     writer.write(m.key);
                     writer.write('=');
-                    writer.write(m.value);
+                    writer.write(prettyPrintValue(m.key, m.value));
                     writer.write('\n');
                 }
             } catch (IOException ioe) {
