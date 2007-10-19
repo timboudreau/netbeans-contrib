@@ -52,7 +52,9 @@ public class ArrayParameterDeclaration extends AbstractDeclarationAction {
     protected void replaceText(JTextComponent textComponent, int offset, String text) {
         StringBuffer sb = new StringBuffer(text);
         sb.append("[] ");
-        sb.append(String.valueOf(Character.toLowerCase(text.charAt(0))) + text.substring(1));
+        sb.append(wrapAsParam(text, true));
+        sb.append(" ");
+        sb.append(CURSOR);
         
         JavaDeclGenOperations.replaceText(textComponent, offset, text.length(), sb.toString());
     }   

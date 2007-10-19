@@ -52,18 +52,19 @@ public class ArrayVariableDeclarationWithInitializer extends AbstractDeclaration
     protected void replaceText(JTextComponent textComponent, int offset, String text) {
         StringBuffer sb = new StringBuffer(text);
         sb.append("[] ");
-        sb.append(String.valueOf(Character.toLowerCase(text.charAt(0))) + text.substring(1));
+        sb.append(wrapAsParam(text, true));
         sb.append(" = ");
-        sb.append(" new ");
-        sb.append(text);
-        sb.append("[] {};");
+        sb.append(wrapAsCodeTemplateParameter("initializer default=\"new " + text + "[] { }\""));
+        sb.append("{ ");
+        sb.append(";");
+        sb.append(CURSOR);
         
         JavaDeclGenOperations.replaceText(textComponent, offset, text.length(), sb.toString());
         
         // Use pending delete
-        int dotPosition = textComponent.getCaretPosition() - 1;
-        textComponent.setCaretPosition(dotPosition - (4 + text.length() + 5));
-        textComponent.getCaret().moveDot(dotPosition);
+//        int dotPosition = textComponent.getCaretPosition() - 1;
+//        textComponent.setCaretPosition(dotPosition - (4 + text.length() + 5));
+//        textComponent.getCaret().moveDot(dotPosition);
     }
     
     public String getName() {

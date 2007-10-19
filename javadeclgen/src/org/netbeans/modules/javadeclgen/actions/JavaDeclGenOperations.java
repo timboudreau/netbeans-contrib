@@ -44,6 +44,8 @@ import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
 import javax.swing.text.JTextComponent;
 import org.netbeans.editor.BaseDocument;
+import org.netbeans.lib.editor.codetemplates.api.CodeTemplate;
+import org.netbeans.lib.editor.codetemplates.api.CodeTemplateManager;
 import org.openide.ErrorManager;
 
 /**
@@ -64,7 +66,13 @@ public class JavaDeclGenOperations {
             if (length > 0) {
                 document.remove(offset, length);
             }
-            document.insertString(offset, text, null);
+            CodeTemplateManager codeTemplateManager = CodeTemplateManager.get(document);
+            if (codeTemplateManager == null) {                
+                document.insertString(offset, text, null);
+            } else {
+                CodeTemplate codeTemplate = codeTemplateManager.createTemporary(text);
+                codeTemplate.insert(textComponent);
+            }
         } catch (BadLocationException ble) {
             ErrorManager.getDefault().notify(ble);
         } finally {

@@ -60,6 +60,10 @@ import org.netbeans.editor.ext.ExtSyntaxSupport;
  * @author Sandip V. Chitale (Sandip.Chitale@Sun.Com)
  */
 public abstract class AbstractDeclarationAction extends CookieAction {
+    private static final String PARAMETER_PREFIX = "${";
+    private static final String PARAMETER_SUFFIX = "}";
+    protected static final String BLANK = wrapAsCodeTemplateParameter("blank default=\"\"");
+    protected static final String CURSOR = wrapAsCodeTemplateParameter("cursor");
     
     protected void performAction(Node[] activatedNodes) {
         EditorCookie ec = (EditorCookie) activatedNodes[0].getCookie(EditorCookie.class);
@@ -110,6 +114,21 @@ public abstract class AbstractDeclarationAction extends CookieAction {
             ErrorManager.getDefault().notify(ble);
         }
         Toolkit.getDefaultToolkit().beep();
+    }
+    
+    protected static String wrapAsParam(String paramName) {
+        return wrapAsParam(paramName, false);
+    }
+    
+    protected static String wrapAsParam(String paramName, boolean plural) {
+        return wrapAsCodeTemplateParameter(
+                String.valueOf(Character.toLowerCase(paramName.charAt(0))) +
+                paramName.substring(1) +
+                (plural ? "s" : ""));
+    }
+    
+    protected static String wrapAsCodeTemplateParameter(String text) {
+        return PARAMETER_PREFIX + text + PARAMETER_SUFFIX;
     }
     
     protected abstract void replaceText(JTextComponent textComponent, int offset, String text);

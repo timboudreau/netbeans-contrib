@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+    Document   : help-toc.xml
+    Created on : Oct 17 2007
+    Author     : sc32560
+    Description:
+        Purpose of the document follows.
+-->
+
+<index version="2.0">	
+  <indexitem text="Java Decl Gen Module" target="homeID" />	
+</index>

@@ -52,15 +52,18 @@ public class ArrayVariableDeclarationWithCastInitializer extends AbstractDeclara
     protected void replaceText(JTextComponent textComponent, int offset, String text) {
         StringBuffer sb = new StringBuffer(text);
         sb.append("[] ");
-        sb.append(String.valueOf(Character.toLowerCase(text.charAt(0))) + text.substring(1));
+        sb.append(wrapAsParam(text, true));
         sb.append(" = ");
         sb.append("(");
         sb.append(text);
-        sb.append("[])");
+        sb.append("[");
+        sb.append("]) ");
+        sb.append(BLANK);
         sb.append(";");
+        sb.append(CURSOR);
         
         JavaDeclGenOperations.replaceText(textComponent, offset, text.length(), sb.toString());
-        textComponent.setCaretPosition(textComponent.getCaretPosition() - 1);
+//        textComponent.setCaretPosition(textComponent.getCaretPosition() - 1);
     }   
     
     public String getName() {
