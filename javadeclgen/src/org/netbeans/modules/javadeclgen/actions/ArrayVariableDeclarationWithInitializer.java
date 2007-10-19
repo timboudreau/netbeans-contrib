@@ -55,7 +55,6 @@ public class ArrayVariableDeclarationWithInitializer extends AbstractDeclaration
         sb.append(wrapAsParam(text, true));
         sb.append(" = ");
         sb.append(wrapAsCodeTemplateParameter("initializer default=\"new " + text + "[] { }\""));
-        sb.append("{ ");
         sb.append(";");
         sb.append(CURSOR);
         
