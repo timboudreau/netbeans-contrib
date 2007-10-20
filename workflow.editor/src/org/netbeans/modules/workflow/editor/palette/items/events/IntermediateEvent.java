@@ -19,19 +19,20 @@
 
 package org.netbeans.modules.workflow.editor.palette.items.events;
 
-import org.netbeans.modules.workflow.editor.palette.WorklfowActiveEditorDrop;
+import org.netbeans.modules.workflow.editor.palette.PaletteItemConstants;
+import org.netbeans.modules.workflow.editor.palette.WorkflowActiveEditorDrop;
 
 
 /*
  * 
  */
-public class IntermediateEvent extends WorklfowActiveEditorDrop {
+public class IntermediateEvent extends WorkflowActiveEditorDrop {
     
     /** 
      * Creates a new instance of TimeBasedAggregator 
      */
     public IntermediateEvent() {
-        mPath = "IntermediateEvent";
+        mPath = PaletteItemConstants.WIDGET_INTERMEDIATE_EVENT;
     }
     
 }

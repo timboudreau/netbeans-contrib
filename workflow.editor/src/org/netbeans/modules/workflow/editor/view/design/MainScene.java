@@ -39,12 +39,69 @@
 
 package org.netbeans.modules.workflow.editor.view.design;
 
-import org.netbeans.api.visual.widget.Scene;
+import java.awt.Point;
+import java.awt.datatransfer.DataFlavor;
+import java.awt.datatransfer.Transferable;
+import java.awt.datatransfer.UnsupportedFlavorException;
+import org.netbeans.api.visual.action.AcceptProvider;
+import org.netbeans.api.visual.action.ActionFactory;
+import org.netbeans.api.visual.action.ConnectorState;
+import org.netbeans.api.visual.action.WidgetAction;
+import org.netbeans.api.visual.model.ObjectScene;
+import org.netbeans.api.visual.widget.Widget;
+import org.netbeans.modules.workflow.editor.palette.WorkflowActiveEditorDrop;
+import org.openide.nodes.Node;
 
 /**
  *
  * @author radval
  */
-public class MainScene extends Scene {
+public class MainScene extends ObjectScene {
 
+    public MainScene() {
+        WidgetAction acceptAction = ActionFactory.createAcceptAction(new SceneAcceptProvider());
+        this.getActions().addAction(acceptAction);
+    }
+    
+    private class SceneAcceptProvider implements AcceptProvider {
+
+        public ConnectorState isAcceptable(Widget widget, Point point, Transferable transferable) {
+            return ConnectorState.ACCEPT;
+        }
+
+        public void accept(Widget widget, Point point, Transferable transferable) {
+            if(widget instanceof MainScene) {
+                if (transferable != null) {
+                    for (DataFlavor flavor : transferable.getTransferDataFlavors()) {
+                        Class repClass = flavor.getRepresentationClass();
+                        if (WorkflowActiveEditorDrop.class.isAssignableFrom(repClass)) {
+                            try {
+                                WorkflowActiveEditorDrop drop = (WorkflowActiveEditorDrop) transferable.getTransferData(flavor);
+                                String componentName = drop.getComponentName();
+                                if(componentName != null) {
+                                    WidgetFactory factory = WidgetFactory.getDefault(MainScene.this);
+                                    Widget newWidget = factory.createWidget(componentName);
+                                    if(newWidget != null) {
+                                        newWidget.setPreferredLocation(point);
+                                        widget.addChild(newWidget);
+                                        widget.getScene().validate();
+                                        break;
+                                    }
+                                }
+                            } catch(Exception ex) {
+                                ex.printStackTrace();
+                            }
+                        }
+                    }
+                }
+                /*
+                Widget child = new StartEventWidget(MainScene.this, null);
+                child.setPreferredLocation(point);
+                widget.addChild(child);*/
+            }
+        }
+        
+    }
+    
+    
 }

@@ -8,6 +8,8 @@ package org.netbeans.modules.workflow.editor.view.design;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Point;
 import javax.swing.JComponent;
 import javax.swing.JScrollPane;
 
@@ -57,7 +59,8 @@ public class WorkflowDesignViewPanel extends javax.swing.JPanel {
         setLayout(new BorderLayout());
         
         MainScene scene = new MainScene();
-        scene.setBackground(Color.BLUE);
+        scene.setBackground(Color.WHITE);
+        
         
         JComponent sceneView = scene.createView();
         
@@ -66,6 +69,11 @@ public class WorkflowDesignViewPanel extends javax.swing.JPanel {
         panel.getHorizontalScrollBar().setUnitIncrement(16);
         panel.setBorder(null);
         add(panel, BorderLayout.CENTER);
+        
+        StartEventWidget startWidget = new StartEventWidget(scene, null);
+        //startWidget.setPreferredLocation(new Point(100, 100));
+        //startWidget.setPreferredSize(new Dimension(50, 50));
+        scene.addChild(startWidget);
         
     }
     // Variables declaration - do not modify//GEN-BEGIN:variables

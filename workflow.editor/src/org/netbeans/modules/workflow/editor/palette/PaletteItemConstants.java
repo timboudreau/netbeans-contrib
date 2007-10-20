@@ -37,26 +37,18 @@
  * Portions Copyrighted 2007 Sun Microsystems, Inc.
  */
 
-package org.netbeans.modules.workflow.editor.view.design;
-
-import java.awt.Image;
-import org.netbeans.api.visual.model.ObjectScene;
-import org.openide.util.Lookup;
-import org.openide.util.Utilities;
+package org.netbeans.modules.workflow.editor.palette;
 
 /**
  *
  * @author radval
  */
-public class IntermediateEventWidget extends AbstractWidget {
+public class PaletteItemConstants {
 
-    public IntermediateEventWidget(ObjectScene scene, Lookup lookup) {
-        super(scene, lookup);
-    }
+    public static final String WIDGET_START_EVENT = "StartEvent";
     
-    @Override
-    public Image getImage() {
-        return Utilities.loadImage("org/netbeans/modules/workflow/editor/palette/items/events/resources/images/intermediatex16.PNG");
-    }
-
+    public static final String WIDGET_INTERMEDIATE_EVENT = "IntermediateEvent";
+    
+    public static final String WIDGET_END_EVENT = "EndEvent";
+    
 }

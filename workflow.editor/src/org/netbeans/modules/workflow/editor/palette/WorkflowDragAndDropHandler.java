@@ -33,14 +33,30 @@ import org.openide.util.datatransfer.ExTransferable;
 public class WorkflowDragAndDropHandler extends DragAndDropHandler {
     private static final java.util.logging.Logger mLog = java.util.logging.Logger.getLogger(WorkflowDragAndDropHandler.class.getName());
 
+    /**
+     * <code>DataFlavor</code> of palette items dragged from palette to editor. 
+     * The trasfer data returned from <code>Transferable</code> for this 
+     * <code>DataFlavor</code> is the <code>Lookup</code> of the <code>Node</code>
+     * representing the palette item being dragged.
+     */
+    public static final DataFlavor ITEM_DATA_FLAVOR;
+    static {
+        try {
+            ITEM_DATA_FLAVOR = new DataFlavor("text/active_editor_flavor;class=org.netbeans.modules.workflow.editor.palette.WorkflowActiveEditorDrop", // NOI18N
+                    "Paste Item", // XXX missing I18N!
+                    Lookup.class.getClassLoader());
+        } catch (ClassNotFoundException e) {
+            throw new AssertionError(e);
+        }
+    }
+    
     public WorkflowDragAndDropHandler() {
     }
 
     public void customize(ExTransferable t, Lookup item) {
-        String body = (String) item.lookup(String.class);
-        mLog.info("body: " + body);
-        WorklfowActiveEditorDrop  drop = new WorklfowActiveEditorDrop(body);
-        PaletteItemTransferable s = new PaletteItemTransferable(drop);
+        WorkflowActiveEditorDrop activeDrop = (WorkflowActiveEditorDrop) item.lookup(WorkflowActiveEditorDrop.class);
+        mLog.info("WorkflowActiveEditorDrop: " + activeDrop);
+        PaletteItemTransferable s = new PaletteItemTransferable(activeDrop);
         t.put(s);
     }
 
@@ -54,10 +70,10 @@ public class WorkflowDragAndDropHandler extends DragAndDropHandler {
     
     private static class PaletteItemTransferable extends ExTransferable.Single {
         
-        private WorklfowActiveEditorDrop drop;
+        private WorkflowActiveEditorDrop drop;
 
-        PaletteItemTransferable(WorklfowActiveEditorDrop drop) {
-            super(ActiveEditorDrop.FLAVOR);
+        PaletteItemTransferable(WorkflowActiveEditorDrop drop) {
+            super(ITEM_DATA_FLAVOR);
             this.drop = drop;
         }
                

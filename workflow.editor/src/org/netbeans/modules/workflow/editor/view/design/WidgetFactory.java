@@ -39,10 +39,48 @@
 
 package org.netbeans.modules.workflow.editor.view.design;
 
+import org.netbeans.api.visual.model.ObjectScene;
+import org.netbeans.modules.workflow.editor.palette.PaletteItemConstants;
+
 /**
  *
  * @author radval
  */
 public class WidgetFactory {
 
+    private static WidgetFactory mInstance;
+    
+    private ObjectScene mScene;
+    
+    private WidgetFactory(ObjectScene scene) {
+        this.mScene = scene;
+    }
+    
+    
+    public static WidgetFactory getDefault(ObjectScene scene) {
+        
+        if(mInstance == null) {
+            mInstance = new WidgetFactory(scene);
+        }
+        
+        return mInstance;
+    }
+    
+    public AbstractWidget createWidget(String componentName) {
+        AbstractWidget widget = null;
+        
+        if(componentName.equals(PaletteItemConstants.WIDGET_START_EVENT)) {
+            widget = new StartEventWidget(mScene, null);
+        } else if(componentName.equals(PaletteItemConstants.WIDGET_INTERMEDIATE_EVENT)) {
+            widget = new IntermediateEventWidget(mScene, null);
+        } else if(componentName.equals(PaletteItemConstants.WIDGET_END_EVENT)) {
+            widget = new EndEventWidget(mScene, null);
+        }
+        
+        return widget;
+    }
+    
+    private void init() {
+        
+    }
 }

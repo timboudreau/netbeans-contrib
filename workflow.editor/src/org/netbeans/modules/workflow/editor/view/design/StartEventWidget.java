@@ -39,10 +39,27 @@
 
 package org.netbeans.modules.workflow.editor.view.design;
 
+import java.awt.Image;
+import org.netbeans.api.visual.action.ActionFactory;
+import org.netbeans.api.visual.action.WidgetAction;
+import org.netbeans.api.visual.model.ObjectScene;
+import org.netbeans.api.visual.widget.Scene;
+import org.netbeans.api.visual.widget.general.IconNodeWidget;
+import org.openide.util.Lookup;
+import org.openide.util.Utilities;
+
 /**
  *
  * @author radval
  */
-public class StartEventWidget {
+public class StartEventWidget extends AbstractWidget {
 
+    public StartEventWidget(ObjectScene scene, Lookup lookup) {
+        super(scene, lookup);
+    }
+
+    @Override
+    public Image getImage() {
+        return Utilities.loadImage("org/netbeans/modules/workflow/editor/palette/items/events/resources/images/startx16.PNG");
+    }
 }

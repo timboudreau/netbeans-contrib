@@ -17,22 +17,34 @@
  * Microsystems, Inc. All Rights Reserved.
  */
 
-package org.netbeans.modules.workflow.editor.palette.items.events;
 
-import org.netbeans.modules.workflow.editor.palette.PaletteItemConstants;
-import org.netbeans.modules.workflow.editor.palette.WorkflowActiveEditorDrop;
+package org.netbeans.modules.workflow.editor.palette;
+import javax.swing.text.BadLocationException;
+import javax.swing.text.JTextComponent;
+import org.openide.text.ActiveEditorDrop;
+
 
 
 /*
  * 
  */
-public class EndEvent extends WorkflowActiveEditorDrop {
+public class WorkflowActiveEditorDrop implements ActiveEditorDrop {
     
-    /** 
-     * Creates a new instance of TupleBasedAggregator 
-     */
-    public EndEvent() {
-        mPath = PaletteItemConstants.WIDGET_END_EVENT;
+    protected String mPath;
+
+    public WorkflowActiveEditorDrop() {
+    }
+
+    public WorkflowActiveEditorDrop(String path) {
+        mPath = path;
+    }
+
+    public boolean handleTransfer(JTextComponent targetComponent) {
+        return true;
     }
     
+    public String getComponentName() {
+        return mPath;
+    }
+
 }

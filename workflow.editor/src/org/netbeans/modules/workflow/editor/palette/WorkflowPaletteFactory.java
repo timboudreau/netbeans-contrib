@@ -41,7 +41,7 @@ public class WorkflowPaletteFactory {
     public static PaletteController getPalette() {
     	try {
         if (palette == null)
-            palette = PaletteFactory.createPalette(WORKFLOW_PALETTE_FOLDER, new WorkflowPaletteActions());//, null, new WorkflowDragAndDropHandler());
+            palette = PaletteFactory.createPalette(WORKFLOW_PALETTE_FOLDER, new WorkflowPaletteActions(), null, new WorkflowDragAndDropHandler());
             
     	} catch (IOException e) {
             e.printStackTrace();

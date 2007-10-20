@@ -39,10 +39,24 @@
 
 package org.netbeans.modules.workflow.editor.view.design;
 
+import java.awt.Image;
+import org.netbeans.api.visual.model.ObjectScene;
+import org.openide.util.Lookup;
+import org.openide.util.Utilities;
+
 /**
  *
  * @author radval
  */
-public class EndEventWidget {
+public class EndEventWidget extends AbstractWidget {
+
+    public EndEventWidget(ObjectScene scene, Lookup lookup) {
+        super(scene, lookup);
+     }
+    
+    @Override
+    public Image getImage() {
+        return Utilities.loadImage("org/netbeans/modules/workflow/editor/palette/items/events/resources/images/endx16.PNG");
+    }
 
 }

@@ -39,7 +39,15 @@
 
 package org.netbeans.modules.workflow.editor.view.design;
 
-import org.netbeans.api.visual.widget.Scene;
+import java.awt.Color;
+import java.awt.Image;
+import javax.swing.BorderFactory;
+import org.netbeans.api.visual.action.ActionFactory;
+import org.netbeans.api.visual.action.WidgetAction;
+import org.netbeans.api.visual.layout.LayoutFactory;
+import org.netbeans.api.visual.model.ObjectScene;
+import org.netbeans.api.visual.widget.ImageWidget;
+import org.netbeans.api.visual.widget.LabelWidget;
 import org.netbeans.api.visual.widget.Widget;
 import org.openide.util.Lookup;
 
@@ -49,7 +57,44 @@ import org.openide.util.Lookup;
  */
 public abstract class AbstractWidget extends Widget {
 
-    public AbstractWidget(Scene scene, Lookup lookup) {
+    private LabelWidget mLabelWidget;
+    
+    private ImageWidget mImageWidget;
+    
+    public AbstractWidget(ObjectScene scene, Lookup lookup) {
         super(scene);
+        initWidget();
     }
+    
+    private void initWidget() {
+        this.setLayout(LayoutFactory.createVerticalFlowLayout());
+        this.setBorder(BorderFactory.createLineBorder(Color.BLACK));
+        mLabelWidget = new LabelWidget(getScene());
+        this.addChild(mLabelWidget);
+        
+        mImageWidget = new ImageWidget(getScene(), getImage());
+        this.addChild(mImageWidget);
+        
+        ObjectScene scene = (ObjectScene) getScene();
+                
+        WidgetAction selectAction = scene.createSelectAction();
+        this.getActions().addAction(selectAction);
+        
+        WidgetAction moveAction = ActionFactory.createMoveAction();
+        this.getActions().addAction(moveAction);
+        
+        WidgetAction hoverAction = scene.createObjectHoverAction();
+        this.getActions().addAction(hoverAction);
+        
+    }
+    
+    public void setLabel(String label) {
+        mLabelWidget.setLabel(label);
+    }
+    
+    public String getLabel() {
+        return mLabelWidget.getLabel();
+    }
+    
+    public abstract Image getImage();
 }

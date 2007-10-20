@@ -19,20 +19,21 @@
 
 package org.netbeans.modules.workflow.editor.palette.items.events;
 
-import org.netbeans.modules.workflow.editor.palette.WorklfowActiveEditorDrop;
+import org.netbeans.modules.workflow.editor.palette.PaletteItemConstants;
+import org.netbeans.modules.workflow.editor.palette.WorkflowActiveEditorDrop;
 
 
 
 /*
  * 
  */
-public class StartEvent extends WorklfowActiveEditorDrop {
+public class StartEvent extends WorkflowActiveEditorDrop {
     
     /** 
      * Creates a new instance of RelationAggregator 
      */
     public StartEvent() {
-        mPath = "StartEvent";
+        mPath = PaletteItemConstants.WIDGET_START_EVENT;
     }
     
 }
