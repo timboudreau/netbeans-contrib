@@ -1,0 +1,6 @@
+Manifest-Version: 1.0
+OpenIDE-Module: org.netbeans.modules.moduleresolver
+OpenIDE-Module-Install: org/netbeans/modules/moduleresolver/ResolverInstaller.class
+OpenIDE-Module-Layer: org/netbeans/modules/moduleresolver/resources/layer.xml
+OpenIDE-Module-Localizing-Bundle: org/netbeans/modules/moduleresolver/resources/Bundle.properties
+OpenIDE-Module-Specification-Version: 1.0
