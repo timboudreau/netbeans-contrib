@@ -92,17 +92,30 @@ public class MashupToolbar extends JToolBar {
         outputButton.setToolTipText("Toggle Output");
         toolBar.add(outputButton);
         
-        // Validate button.
-        JButton validateButton = new JButton(new ValidationAction(mObj));
-        validateButton.setToolTipText("Validate");
-        toolBar.add(validateButton);
-        
         JButton addTableButton = new JButton(new AddTableAction(mObj));
         addTableButton.setToolTipText("Add Table");
         toolBar.add(addTableButton);
         
         toolBar.addSeparator();
         
+        // Edit join view button.
+        JButton editButton = new JButton(new EditJoinAction(mObj));
+        editButton.setToolTipText("Edit Join");
+        toolBar.add(editButton);
+        
+        // Edit join view button.
+        JButton editDBButton = new JButton(new EditConnectionAction(mObj));
+        editDBButton.setToolTipText("Edit Database Properties");
+        toolBar.add(editDBButton);
+        
+        // Runtime input button.
+        JButton runtimeInputButton = new JButton(new RuntimeInputAction(mObj));
+        runtimeInputButton.setToolTipText("Edit Runtime Input Arguments");
+        toolBar.add(runtimeInputButton);
+        
+        toolBar.addSeparator();
+        
+            
         // Fit to page button.
         JButton fitButton = new JButton(new FitToPageAction(mObj));
         fitButton.setToolTipText("Fit to Page");
@@ -136,36 +149,25 @@ public class MashupToolbar extends JToolBar {
         toolBar.add(zoomBox);
         
         toolBar.addSeparator();
-        
+              
         // Auto layout button.
         JButton layoutButton = new JButton(new AutoLayoutAction(mObj));
         layoutButton.setToolTipText("Auto Layout");
         toolBar.add(layoutButton);
         
-        toolBar.addSeparator();
-        
-        // Edit join view button.
-        JButton editButton = new JButton(new EditJoinAction(mObj));
-        editButton.setToolTipText("Edit Join");
-        toolBar.add(editButton);
-        
-        // Edit join view button.
-        JButton editDBButton = new JButton(new EditConnectionAction(mObj));
-        editDBButton.setToolTipText("Edit Database Properties");
-        toolBar.add(editDBButton);
-        
-        // Runtime input button.
-        JButton runtimeInputButton = new JButton(new RuntimeInputAction(mObj));
-        runtimeInputButton.setToolTipText("Edit Runtime Input Arguments");
-        toolBar.add(runtimeInputButton);
-        
-        toolBar.addSeparator();
-        
+        // Validate button.
+        JButton validateButton = new JButton(new ValidationAction(mObj));
+        validateButton.setToolTipText("Validate");
+        toolBar.add(validateButton);
+     
+             
         // Run collaboration button.
         JButton runButton = new JButton(new TestRunAction(mObj));
         runButton.setToolTipText("Run");
         toolBar.add(runButton);
         
+        toolBar.addSeparator();
+            
         return toolBar;
     }
 }
