@@ -67,8 +67,6 @@ import org.openide.windows.IOProvider;
 import org.openide.windows.InputOutput;
 import org.openide.windows.OutputWriter;
 
-
-
 /**
  *
  * @author Anuradha G
@@ -76,6 +74,7 @@ import org.openide.windows.OutputWriter;
 class LoggerNode extends AbstractNode {
 
     private Logger logger;
+    private InputOutput inputOutput;
 
     LoggerNode(Logger logger) {
         super(!logger.getChilderns().isEmpty() ? Children.create(new LoggerFactory(logger), true) : Children.LEAF);
@@ -100,7 +99,7 @@ class LoggerNode extends AbstractNode {
 
     @Override
     public String getShortDescription() {
-        return NbBundle.getMessage(LoggerNode.class, "Logger_Level")+" : " + logger.getLevel();//NOI18N
+        return NbBundle.getMessage(LoggerNode.class, "Logger_Level") + logger.getLevel();
     }
 
     /**
@@ -113,18 +112,8 @@ class LoggerNode extends AbstractNode {
     }
 
     public void showOutput() {
-        Action[] actions = new Action[3];
 
-
-        CustomHandler streamHandler = new CustomHandler();
-        actions[0] = new LevelChooserAction(logger);
-        actions[1] = new FormatterChooserAction(streamHandler);
-        actions[2] = new FilterAction();
-        InputOutput io = IOProvider.getDefault().getIO(logger.getName(), actions);
-        OutputWriter w = io.getOut();
-        streamHandler.setOutputWriter(w);
-        LogManager.getLogManager().getLogger(logger.getName()).addHandler(streamHandler);
-        io.select();
+        getInputOutput().select();
     }
 
     /**
@@ -144,6 +133,11 @@ class LoggerNode extends AbstractNode {
     }
 
     @Override
+    public Action getPreferredAction() {
+        return new OutputAction();
+    }
+
+    @Override
     protected Sheet createSheet() {
         return new LoggerSheet(logger).getSheet();
     }
@@ -159,5 +153,26 @@ class LoggerNode extends AbstractNode {
         public void actionPerformed(ActionEvent e) {
             showOutput();
         }
+    }
+
+    private synchronized InputOutput getInputOutput() {
+        if (inputOutput == null) {
+            Action[] actions = new Action[2];
+            //TODO
+        //Action[] actions = new Action[3];
+
+
+            CustomHandler streamHandler = new CustomHandler();
+            actions[0] = new LevelChooserAction(logger);
+            actions[1] = new FormatterChooserAction(streamHandler);
+            //TODO
+        //actions[2] = new FilterAction();
+            inputOutput = IOProvider.getDefault().getIO(logger.getName(), actions);
+            OutputWriter w = inputOutput.getOut();
+            w.append(NbBundle.getMessage(LoggerNode.class, "Output_Note") + logger.getLevel());
+            streamHandler.setOutputWriter(w);
+            LogManager.getLogManager().getLogger(logger.getName()).addHandler(streamHandler);
+        }
+        return inputOutput;
     }
 }
