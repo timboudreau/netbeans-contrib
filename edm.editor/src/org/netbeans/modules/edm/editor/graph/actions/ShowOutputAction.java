@@ -75,6 +75,7 @@ public class ShowOutputAction extends AbstractAction {
            topComp.close();
        } else {
            topComp.open();
+           topComp.requestActive();
            topComp.setVisible(true);
        }
     }
