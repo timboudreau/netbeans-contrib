@@ -39,8 +39,11 @@
 
 package org.netbeans.modules.hudsonfindbugs;
 
+import java.net.URL;
+import java.util.ArrayList;
 import java.util.List;
 import junit.framework.TestCase;
+import org.netbeans.modules.apisupport.project.NbModuleProject;
 import org.netbeans.spi.tasklist.FileTaskScanner.Callback;
 import org.netbeans.spi.tasklist.Task;
 import org.openide.filesystems.FileObject;
@@ -50,6 +53,8 @@ import org.openide.filesystems.FileObject;
  * @author Jaroslav Tulach <jtulach@netbeans.org>
  */
 public class FindBugsTaskScannerTest extends TestCase {
+
+    FindBugsTaskScanner scan;
     
     public FindBugsTaskScannerTest(String testName) {
         super(testName);
@@ -58,6 +63,13 @@ public class FindBugsTaskScannerTest extends TestCase {
     @Override
     protected void setUp() throws Exception {
         super.setUp();
+        
+        URL url = getClass().getResource("err.xml");
+        String ext = url.toExternalForm();
+        int last = ext.lastIndexOf('/');
+        
+        url = new URL(ext.substring(0, last + 1));
+        scan = new FindBugsTaskScanner(url);
     }
 
     @Override
@@ -65,7 +77,11 @@ public class FindBugsTaskScannerTest extends TestCase {
         super.tearDown();
     }
 
-    public void testCreate() {
+    public void testParseXML() throws Exception {
+        List<Task> arr = new ArrayList<Task>();
+        FileObject fo = null;
+        scan.parse("err", fo, arr);
+        assertEquals("One bug", 1, arr.size());
     }
 
 }

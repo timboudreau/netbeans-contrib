@@ -39,49 +39,72 @@
 
 package org.netbeans.modules.hudsonfindbugs;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.parsers.SAXParser;
+import javax.xml.parsers.SAXParserFactory;
 import org.netbeans.api.project.FileOwnerQuery;
 import org.netbeans.api.project.Project;
 import org.netbeans.modules.apisupport.project.NbModuleProject;
 import org.netbeans.spi.tasklist.FileTaskScanner;
+import org.netbeans.spi.tasklist.PushTaskScanner;
 import org.netbeans.spi.tasklist.Task;
+import org.netbeans.spi.tasklist.TaskScanningScope;
 import org.openide.filesystems.FileObject;
+import org.openide.util.Lookup;
+import org.xml.sax.Attributes;
+import org.xml.sax.SAXException;
+import org.xml.sax.helpers.DefaultHandler;
 
 /**
  *
  * @author Jaroslav Tulach <jtulach@netbeans.org>
  */
-public class FindBugsTaskScanner extends FileTaskScanner {
-    FindBugsTaskScanner() {
+final class FindBugsTaskScanner extends PushTaskScanner {
+    private final URL root;
+    
+    
+    FindBugsTaskScanner(URL root) {
         super("displayName", "description", "huh");
+        this.root = root;
     }
     
-    public static FindBugsTaskScanner create() {
-        return new FindBugsTaskScanner();
-    }
-
-    public List<? extends Task> scan(FileObject resource) {
-        ArrayList<Task> res = new ArrayList<Task>();
-        Project p = FileOwnerQuery.getOwner(resource);
-        String cnb = cnb(p);
-        if (cnb != null) {
-            
-        }
-        
-        return res;
-    }
-
-    public void attach(Callback callback) {
-        // no listening, no need for callbacks
-    }
-    
-    
-    private static void parse(String cnb) throws MalformedURLException {
+    public static FindBugsTaskScanner create() throws MalformedURLException {
         URL root = new URL("http://deadlock.netbeans.org/hudson/job/FindBugs/lastSuccessfulBuild/artifact/nbbuild/build/findbugs/"); // NOI18N
+        return new FindBugsTaskScanner(root);
+    }
+
+    
+    @Override
+    public void setScope(TaskScanningScope scope, Callback callback) {
+        String cnb = cnb(scope.getLookup());
+        if (cnb != null) {
+            callback.started();
+//            callback.setTasks(file, tasks);
+            callback.finished();
+        }
+    }
+
+    
+    
+    final void parse(String cnb, FileObject project, List<Task> cummulate) 
+    throws IOException, SAXException, ParserConfigurationException {
         URL errors = new URL(root, cnb.replace('.', '-') + ".xml");
+        
+        SAXParser sax = SAXParserFactory.newInstance().newSAXParser();
+        
+        InputStream is = errors.openStream();
+        try {
+            Parse p = new Parse(project, cummulate);
+            sax.parse(is, p);
+        } finally {
+            is.close();
+        }
         
     }
 
@@ -89,11 +112,59 @@ public class FindBugsTaskScanner extends FileTaskScanner {
     // apisupport/project related tricks
     //
     
-    private static String cnb(Project p) {
-        NbModuleProject nbmp = p.getLookup().lookup(NbModuleProject.class);
+    private static String cnb(Lookup where) {
+        NbModuleProject nbmp = where.lookup(NbModuleProject.class);
         if (nbmp == null) {
             return null;
         }
         return nbmp.getCodeNameBase();
     }
+    
+    //
+    // end of apisupport/project tricks
+    //
+    
+    private static final class Parse extends DefaultHandler {
+        private final FileObject project;
+        private final List<Task> cummulate;
+
+        
+        private String type;
+        private int priority;
+        private String category;
+        private String currentTag = "";
+        
+        public Parse(FileObject project, List<Task> cummulate) {
+            this.project = project;
+            this.cummulate = cummulate;
+        }
+
+        @Override
+        public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException {
+            currentTag = localName;
+            if ("BugInstance".equals(localName)) {
+                type = attributes.getValue("type");
+                priority = Integer.valueOf(attributes.getValue("priority"));
+                category = attributes.getValue("category");
+                return;
+            }
+            if (currentTag.equals("BugInstance") && "SourceLine".equals(localName)) {
+                int line = Integer.valueOf(attributes.getValue("start"));
+                Task t = Task.create(project, category, type, line);
+                cummulate.add(t);
+            }
+        }
+
+        @Override
+        public void endElement(String uri, String localName, String qName) throws SAXException {
+            if ("BugInstance".equals("localName")) {
+                type = null;
+                priority = -1;
+                category = null;
+                return;
+            }
+        }
+        
+        
+    } // end of Parse
 }
