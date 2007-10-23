@@ -45,6 +45,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Stack;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
@@ -132,23 +133,25 @@ final class FindBugsTaskScanner extends PushTaskScanner {
         private String type;
         private int priority;
         private String category;
-        private String currentTag = "";
+        private Stack<String> currentTag;
         
         public Parse(FileObject project, List<Task> cummulate) {
             this.project = project;
             this.cummulate = cummulate;
+            this.currentTag = new Stack<String>();
         }
 
         @Override
-        public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException {
-            currentTag = localName;
-            if ("BugInstance".equals(localName)) {
+        public void startElement(String uri, String localName, String name, Attributes attributes) throws SAXException {
+            String enclosingTag = currentTag.isEmpty() ? "" : currentTag.peek();
+            currentTag.push(name);
+            if ("BugInstance".equals(name)) {
                 type = attributes.getValue("type");
                 priority = Integer.valueOf(attributes.getValue("priority"));
                 category = attributes.getValue("category");
                 return;
             }
-            if (currentTag.equals("BugInstance") && "SourceLine".equals(localName)) {
+            if (enclosingTag.equals("BugInstance") && "SourceLine".equals(name)) {
                 int line = Integer.valueOf(attributes.getValue("start"));
                 Task t = Task.create(project, category, type, line);
                 cummulate.add(t);
@@ -156,7 +159,9 @@ final class FindBugsTaskScanner extends PushTaskScanner {
         }
 
         @Override
-        public void endElement(String uri, String localName, String qName) throws SAXException {
+        public void endElement(String uri, String localName, String name) throws SAXException {
+            String ending = currentTag.pop();
+            assert ending.equals(name);
             if ("BugInstance".equals("localName")) {
                 type = null;
                 priority = -1;

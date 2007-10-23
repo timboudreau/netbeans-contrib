@@ -43,17 +43,20 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import junit.framework.TestCase;
+import org.netbeans.junit.NbTestCase;
 import org.netbeans.modules.apisupport.project.NbModuleProject;
 import org.netbeans.spi.tasklist.FileTaskScanner.Callback;
 import org.netbeans.spi.tasklist.Task;
 import org.openide.filesystems.FileObject;
+import org.openide.filesystems.FileUtil;
+import org.openide.filesystems.LocalFileSystem;
 
 /**
  *
  * @author Jaroslav Tulach <jtulach@netbeans.org>
  */
-public class FindBugsTaskScannerTest extends TestCase {
-
+public class FindBugsTaskScannerTest extends NbTestCase {
+    FileObject root;
     FindBugsTaskScanner scan;
     
     public FindBugsTaskScannerTest(String testName) {
@@ -62,7 +65,7 @@ public class FindBugsTaskScannerTest extends TestCase {
 
     @Override
     protected void setUp() throws Exception {
-        super.setUp();
+        clearWorkDir();
         
         URL url = getClass().getResource("err.xml");
         String ext = url.toExternalForm();
@@ -70,6 +73,10 @@ public class FindBugsTaskScannerTest extends TestCase {
         
         url = new URL(ext.substring(0, last + 1));
         scan = new FindBugsTaskScanner(url);
+
+        LocalFileSystem lfs = new LocalFileSystem();
+        lfs.setRootDirectory(getWorkDir());
+        root = lfs.getRoot();
     }
 
     @Override
@@ -79,7 +86,7 @@ public class FindBugsTaskScannerTest extends TestCase {
 
     public void testParseXML() throws Exception {
         List<Task> arr = new ArrayList<Task>();
-        FileObject fo = null;
+        FileObject fo = FileUtil.createFolder(root, "openide/util/enum");
         scan.parse("err", fo, arr);
         assertEquals("One bug", 1, arr.size());
     }
