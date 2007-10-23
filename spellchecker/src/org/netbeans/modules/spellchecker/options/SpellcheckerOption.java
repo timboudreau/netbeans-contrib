@@ -42,7 +42,7 @@ package org.netbeans.modules.spellchecker.options;
 
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
-import org.netbeans.spi.options.OptionsCategory;
+import org.netbeans.spi.options.AdvancedOption;
 import org.netbeans.spi.options.OptionsPanelController;
 import org.openide.util.Utilities;
 
@@ -50,7 +50,7 @@ import org.openide.util.Utilities;
  *
  * @author Jan Lahoda
  */
-public class SpellcheckerOption extends OptionsCategory {
+public class SpellcheckerOption extends AdvancedOption {
 
     /**
      * Creates a new instance of SpellcheckerOption
@@ -62,11 +62,13 @@ public class SpellcheckerOption extends OptionsCategory {
         return new SpellcheckerOptionsPanelController();
     }
 
-    public String getCategoryName() {
-        return "&Spellchecker";
+    @Override
+    public String getDisplayName() {
+        return "Spellchecker";
     }
 
-    public String getTitle() {
+    @Override
+    public String getTooltip() {
         return "Spellchecker";
     }
     
@@ -79,4 +81,5 @@ public class SpellcheckerOption extends OptionsCategory {
         
         return i;
     }
+
 }

@@ -67,7 +67,10 @@ made subject to such option by the copyright holder.
     </folder>
 
     <folder name="OptionsDialog">
-        <file name="org-netbeans-modules-spellchecker-options-SpellcheckerOption.instance"/>
+        <folder name="Advanced">
+            <file name="org-netbeans-modules-spellchecker-options-SpellcheckerOption.instance"/>
+            <attr name="Ant.instance/org-netbeans-modules-spellchecker-options-SpellcheckerOption.instance" boolvalue="true" />
+        </folder>
     </folder>
 
 </filesystem>
