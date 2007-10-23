@@ -43,7 +43,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Stack;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
@@ -53,7 +56,9 @@ import org.netbeans.spi.tasklist.PushTaskScanner;
 import org.netbeans.spi.tasklist.Task;
 import org.netbeans.spi.tasklist.TaskScanningScope;
 import org.openide.filesystems.FileObject;
+import org.openide.util.Exceptions;
 import org.openide.util.Lookup;
+import org.openide.util.RequestProcessor;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
@@ -63,6 +68,8 @@ import org.xml.sax.helpers.DefaultHandler;
  * @author Jaroslav Tulach <jtulach@netbeans.org>
  */
 final class FindBugsTaskScanner extends PushTaskScanner {
+    private static final RequestProcessor RP = new RequestProcessor("Hudson FindBugs for NetBeans"); // NOI18N
+    
     private final URL root;
     
     
@@ -79,17 +86,17 @@ final class FindBugsTaskScanner extends PushTaskScanner {
     
     @Override
     public void setScope(TaskScanningScope scope, Callback callback) {
-        String cnb = cnb(scope.getLookup());
-        if (cnb != null) {
-            callback.started();
-//            callback.setTasks(file, tasks);
-            callback.finished();
+        ParseRequest req = new ParseRequest();
+        if (cnb(scope.getLookup(), req)) {
+            req.callback = callback;
+            req.scanner = this;
+            RP.post(req);
         }
     }
 
     
     
-    final void parse(String cnb, FileObject project, List<Task> cummulate) 
+    final void parse(String cnb, FileObject project, Map<FileObject,List<Task>> cummulate) 
     throws IOException, SAXException, ParserConfigurationException {
         URL errors = new URL(root, cnb.replace('.', '-') + ".xml");
         
@@ -109,28 +116,56 @@ final class FindBugsTaskScanner extends PushTaskScanner {
     // apisupport/project related tricks
     //
     
-    private static String cnb(Lookup where) {
+    private static boolean cnb(Lookup where, ParseRequest req) {
         NbModuleProject nbmp = where.lookup(NbModuleProject.class);
         if (nbmp == null) {
-            return null;
+            return false;
         }
-        return nbmp.getCodeNameBase();
+        req.cnb = nbmp.getCodeNameBase();
+        req.projectRoot = nbmp.getProjectDirectory();
+        return true;
     }
     
     //
     // end of apisupport/project tricks
     //
+
+    private static final class ParseRequest implements Runnable {
+        FindBugsTaskScanner scanner;
+        String cnb;
+        FileObject projectRoot;
+        Callback callback;
+
+        public void run() {
+            callback.started();
+            Map<FileObject, List<Task>> map = new HashMap<FileObject, List<Task>>();
+            try {
+                scanner.parse(cnb, projectRoot, map);
+                for (Map.Entry<FileObject, List<Task>> entry : map.entrySet()) {
+                    callback.setTasks(entry.getKey(), entry.getValue());
+                }
+            } catch (IOException ex) {
+                Exceptions.printStackTrace(ex);
+            } catch (SAXException ex) {
+                Exceptions.printStackTrace(ex);
+            } catch (ParserConfigurationException ex) {
+                Exceptions.printStackTrace(ex);
+            } finally {
+                callback.finished();
+            }
+        }
+    }
     
     private static final class Parse extends DefaultHandler {
         private final FileObject project;
-        private final List<Task> cummulate;
+        private final Map<FileObject,List<Task>> cummulate;
         
         private String type;
         private int priority;
         private String category;
         private Stack<String> currentTag;
         
-        public Parse(FileObject project, List<Task> cummulate) {
+        public Parse(FileObject project, Map<FileObject,List<Task>> cummulate) {
             this.project = project;
             this.cummulate = cummulate;
             this.currentTag = new Stack<String>();
@@ -152,7 +187,12 @@ final class FindBugsTaskScanner extends PushTaskScanner {
                 FileObject src = project.getFileObject("src/" + attributes.getValue("sourcepath"));
                 if (src != null) {
                     Task t = Task.create(src, category, type, line);
-                    cummulate.add(t);
+                    List<Task> arr = cummulate.get(src);
+                    if (arr == null) {
+                        arr = new ArrayList<Task>();
+                        cummulate.put(src, arr);
+                    }
+                    arr.add(t);
                 }
             }
         }

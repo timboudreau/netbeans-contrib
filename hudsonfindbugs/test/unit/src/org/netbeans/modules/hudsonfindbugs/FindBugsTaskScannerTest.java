@@ -41,7 +41,9 @@ package org.netbeans.modules.hudsonfindbugs;
 
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import junit.framework.TestCase;
 import org.netbeans.junit.NbTestCase;
 import org.netbeans.modules.apisupport.project.NbModuleProject;
@@ -85,16 +87,19 @@ public class FindBugsTaskScannerTest extends NbTestCase {
     }
 
     public void testParseXML() throws Exception {
-        List<Task> arr = new ArrayList<Task>();
+        Map<FileObject,List<Task>> map = new HashMap<FileObject, List<Task>>();
         FileObject fo = FileUtil.createFolder(root, "openide/util/enum");
-        FileObject array = FileUtil.createData(fo, "src/org/openide/util/enum/ArrayEnumeration.java");
+        FileObject arrayEnumeration = FileUtil.createData(fo, "src/org/openide/util/enum/ArrayEnumeration.java");
         
         
-        scan.parse("err", fo, arr);
+        scan.parse("err", fo, map);
+        assertEquals("One bug", 1, map.size());
+        List<Task> arr = map.get(arrayEnumeration);
+        assertNotNull("This fileobject has the tasks", arr);
         assertEquals("One bug", 1, arr.size());
         
         Task t = arr.get(0);
-        if (!t.equals(Task.create(array, "Unknown", "EI_EXPOSE_REP2", 63))) {
+        if (!t.equals(Task.create(arrayEnumeration, "Unknown", "EI_EXPOSE_REP2", 63))) {
             fail("Task is wrong: " + t);
         }
     }
