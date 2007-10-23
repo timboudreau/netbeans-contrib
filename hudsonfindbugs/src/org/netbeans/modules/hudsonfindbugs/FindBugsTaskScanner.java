@@ -87,6 +87,12 @@ final class FindBugsTaskScanner extends PushTaskScanner {
     @Override
     public void setScope(TaskScanningScope scope, Callback callback) {
         ParseRequest req = new ParseRequest();
+        if (req == null) {
+            req.callback = callback;
+            RP.post(req);
+            return;
+        }
+        
         if (cnb(scope.getLookup(), req)) {
             req.callback = callback;
             req.scanner = this;
@@ -137,6 +143,11 @@ final class FindBugsTaskScanner extends PushTaskScanner {
         Callback callback;
 
         public void run() {
+            if (cnb == null) {
+                callback.clearAllTasks();
+                return;
+            }
+            
             callback.started();
             Map<FileObject, List<Task>> map = new HashMap<FileObject, List<Task>>();
             try {
