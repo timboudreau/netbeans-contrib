@@ -95,7 +95,7 @@ final class FindBugsTaskScanner extends PushTaskScanner {
     @Override
     public void setScope(TaskScanningScope scope, Callback callback) {
         ParseRequest req = new ParseRequest();
-        if (req == null) {
+        if (scope == null) {
             req.callback = callback;
             RP.post(req);
             return;
