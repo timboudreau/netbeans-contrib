@@ -87,8 +87,16 @@ public class FindBugsTaskScannerTest extends NbTestCase {
     public void testParseXML() throws Exception {
         List<Task> arr = new ArrayList<Task>();
         FileObject fo = FileUtil.createFolder(root, "openide/util/enum");
+        FileObject array = FileUtil.createData(fo, "src/org/openide/util/enum/ArrayEnumeration.java");
+        
+        
         scan.parse("err", fo, arr);
         assertEquals("One bug", 1, arr.size());
+        
+        Task t = arr.get(0);
+        if (!t.equals(Task.create(array, "Unknown", "EI_EXPOSE_REP2", 63))) {
+            fail("Task is wrong: " + t);
+        }
     }
 
 }

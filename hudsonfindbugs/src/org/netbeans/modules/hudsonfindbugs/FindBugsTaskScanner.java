@@ -43,16 +43,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Stack;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
-import org.netbeans.api.project.FileOwnerQuery;
-import org.netbeans.api.project.Project;
 import org.netbeans.modules.apisupport.project.NbModuleProject;
-import org.netbeans.spi.tasklist.FileTaskScanner;
 import org.netbeans.spi.tasklist.PushTaskScanner;
 import org.netbeans.spi.tasklist.Task;
 import org.netbeans.spi.tasklist.TaskScanningScope;
@@ -128,7 +124,6 @@ final class FindBugsTaskScanner extends PushTaskScanner {
     private static final class Parse extends DefaultHandler {
         private final FileObject project;
         private final List<Task> cummulate;
-
         
         private String type;
         private int priority;
@@ -145,6 +140,7 @@ final class FindBugsTaskScanner extends PushTaskScanner {
         public void startElement(String uri, String localName, String name, Attributes attributes) throws SAXException {
             String enclosingTag = currentTag.isEmpty() ? "" : currentTag.peek();
             currentTag.push(name);
+            
             if ("BugInstance".equals(name)) {
                 type = attributes.getValue("type");
                 priority = Integer.valueOf(attributes.getValue("priority"));
@@ -153,8 +149,11 @@ final class FindBugsTaskScanner extends PushTaskScanner {
             }
             if (enclosingTag.equals("BugInstance") && "SourceLine".equals(name)) {
                 int line = Integer.valueOf(attributes.getValue("start"));
-                Task t = Task.create(project, category, type, line);
-                cummulate.add(t);
+                FileObject src = project.getFileObject("src/" + attributes.getValue("sourcepath"));
+                if (src != null) {
+                    Task t = Task.create(src, category, type, line);
+                    cummulate.add(t);
+                }
             }
         }
 
