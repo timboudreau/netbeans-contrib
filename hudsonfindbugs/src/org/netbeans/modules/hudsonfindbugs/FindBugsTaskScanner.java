@@ -41,6 +41,9 @@ package org.netbeans.modules.hudsonfindbugs;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.ref.Reference;
+import java.lang.ref.SoftReference;
+import java.lang.ref.WeakReference;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -58,6 +61,7 @@ import org.netbeans.spi.tasklist.TaskScanningScope;
 import org.openide.filesystems.FileObject;
 import org.openide.util.Exceptions;
 import org.openide.util.Lookup;
+import org.openide.util.NbBundle;
 import org.openide.util.RequestProcessor;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
@@ -74,7 +78,11 @@ final class FindBugsTaskScanner extends PushTaskScanner {
     
     
     FindBugsTaskScanner(URL root) {
-        super("displayName", "description", "huh");
+        super(
+            NbBundle.getMessage(FindBugsTaskScanner.class, "MSG_NbFindBugs"),
+            "description", 
+            "huh"
+        );
         this.root = root;
     }
     
@@ -197,7 +205,7 @@ final class FindBugsTaskScanner extends PushTaskScanner {
                 int line = Integer.valueOf(attributes.getValue("start"));
                 FileObject src = project.getFileObject("src/" + attributes.getValue("sourcepath"));
                 if (src != null) {
-                    Task t = Task.create(src, category, type, line);
+                    Task t = Task.create(src, "warning", Msgs.getLocalizedMessage(type), line);
                     List<Task> arr = cummulate.get(src);
                     if (arr == null) {
                         arr = new ArrayList<Task>();
@@ -219,7 +227,83 @@ final class FindBugsTaskScanner extends PushTaskScanner {
                 return;
             }
         }
-        
-        
     } // end of Parse
+    
+    private static final class Msgs extends DefaultHandler {
+        private static Reference<Map<String,String>> map;
+        static {
+            map = new SoftReference<Map<String, String>>(null);
+        }
+        
+
+        
+        public static String getLocalizedMessage(String msg) {
+            Map<String,String> m = map.get();
+            if (m == null) {
+                m = new HashMap<String, String>();
+                
+                InputStream is = Msgs.class.getResourceAsStream("messages.xml");
+                try {
+                    SAXParser sax = SAXParserFactory.newInstance().newSAXParser();
+                    Msgs p = new Msgs(m);
+                    sax.parse(is, p);
+                } catch (SAXException ex) {
+                    Exceptions.printStackTrace(ex);
+                } catch (ParserConfigurationException ex) {
+                    Exceptions.printStackTrace(ex);
+                } catch (IOException ex) {
+                    Exceptions.printStackTrace(ex);
+                } finally {
+                    try {
+                        is.close();
+                    } catch (IOException ex) {
+                        Exceptions.printStackTrace(ex);
+                    }
+                }
+                map = new SoftReference<Map<String, String>>(m);
+            }
+            
+            
+            String r = m.get(msg);
+            return r != null ? r : msg;
+        }
+        
+        
+        private String type;
+        private String descrShort;
+        private StringBuilder text;
+        private Map<String,String> push;
+
+        private Msgs(Map<String,String> map) {
+            this.push = map;
+        }
+        
+        @Override
+        public void startElement(String uri, String localName, String name, Attributes attributes) throws SAXException {
+            if ("BugPattern".equals(name)) {
+                type = attributes.getValue("type");
+                return;
+            }
+            text = new StringBuilder();
+        }
+
+        @Override
+        public void endElement(String uri, String localName, String name) throws SAXException {
+            if ("BugPattern".equals(name)) {
+                type = null;
+                return;
+            }
+            if ("ShortDescription".equals(name) && type != null) {
+                push.put(type, text.toString());
+                return;
+            }
+        }
+
+        @Override
+        public void characters(char[] ch, int start, int length) throws SAXException {
+            if (text != null) {
+                text.append(ch, start, length);
+            }
+        }
+    } // end of Msgs
 }

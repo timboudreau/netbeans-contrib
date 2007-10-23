@@ -99,7 +99,8 @@ public class FindBugsTaskScannerTest extends NbTestCase {
         assertEquals("One bug", 1, arr.size());
         
         Task t = arr.get(0);
-        if (!t.equals(Task.create(arrayEnumeration, "Unknown", "EI_EXPOSE_REP2", 63))) {
+        String expMsg = "May expose internal representation by incorporating reference to mutable object";
+        if (!t.equals(Task.create(arrayEnumeration, "warning", expMsg, 63))) {
             fail("Task is wrong: " + t);
         }
     }
