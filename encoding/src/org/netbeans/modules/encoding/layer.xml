@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE filesystem PUBLIC "-//NetBeans//DTD Filesystem 1.1//EN" "http://www.netbeans.org/dtds/filesystem-1_1.dtd">
+<filesystem>
+    <folder name="Actions">
+        <folder name="File">
+            <file name="org-netbeans-modules-encoding-actions-OpenInEncoding.instance"/>
+            <file name="org-netbeans-modules-encoding-actions-SaveInEncoding.instance"/>
+        </folder>
+    </folder>
+    <folder name="Menu">
+        <folder name="File">
+            <file name="org-netbeans-modules-encoding-actions-OpenInEncoding.shadow">
+                <attr name="originalFile" stringvalue="Actions/File/org-netbeans-modules-encoding-actions-OpenInEncoding.instance"/>
+                <attr name="position" intvalue="950"/>
+            </file>
+            <file name="org-netbeans-modules-encoding-actions-SaveInEncoding.shadow">
+                <attr name="originalFile" stringvalue="Actions/File/org-netbeans-modules-encoding-actions-SaveInEncoding.instance"/>
+                <attr name="position" intvalue="1725"/>
+            </file>
+        </folder>
+    </folder>
+</filesystem>
