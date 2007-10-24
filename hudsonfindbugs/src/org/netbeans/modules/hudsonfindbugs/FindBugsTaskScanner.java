@@ -152,7 +152,9 @@ final class FindBugsTaskScanner extends PushTaskScanner {
 
         public void run() {
             if (cnb == null) {
-                callback.clearAllTasks();
+                if (callback != null) {
+                    callback.clearAllTasks();
+                }
                 return;
             }
             
