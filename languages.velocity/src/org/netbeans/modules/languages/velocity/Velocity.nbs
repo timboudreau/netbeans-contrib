@@ -99,7 +99,7 @@ TOKEN:vm_identifier:(
 }
 <IN_VM> {
     TOKEN:vm_whitespace:( [" " "\t" "\n" "\r"]+ )
-    TOKEN:vm_operator {
+    TOKEN:vm_operator: {
         pattern:( "(" );
         end_state:"IN_VM2";
         counter:"i++";
@@ -108,12 +108,12 @@ TOKEN:vm_identifier:(
 <IN_VM2> {
     TOKEN:vm_identifier:( "$"? ["a"-"z" "A"-"Z"] ["a"-"z" "A"-"Z" "0"-"9" "-" "_"]* )
     TOKEN:vm_operator:( "." | "(" | ")" | "[" | "]" | "=" | "," )
-    TOKEN:vm_operator {
+    TOKEN:vm_operator: {
         pattern:( "(" );
         end_state:"IN_VM2";
         counter:"i++";
     }
-    TOKEN:vm_operator {
+    TOKEN:vm_operator: {
         pattern:( ")" );
         end_state:"IN_VM2";
         end_state2:"DEFAULT";
