@@ -82,9 +82,6 @@ import org.netbeans.modules.j2ee.dd.api.application.Application;
 import org.netbeans.modules.j2ee.dd.api.application.DDProvider;
 import org.netbeans.modules.j2ee.dd.api.application.Module;
 import org.netbeans.modules.j2ee.deployment.plugins.api.InstanceProperties;
-import org.netbeans.modules.j2ee.oc4j.config.EarDeploymentConfiguration;
-import org.netbeans.modules.j2ee.oc4j.config.EjbDeploymentConfiguration;
-import org.netbeans.modules.j2ee.oc4j.config.WarDeploymentConfiguration;
 import org.netbeans.modules.j2ee.oc4j.config.gen.OrionWebApp;
 import org.netbeans.modules.j2ee.oc4j.ide.OC4JDeploymentStatus;
 import org.netbeans.modules.j2ee.oc4j.ide.OC4JErrorManager;
@@ -254,17 +251,7 @@ public class OC4JDeploymentManager implements DeploymentManager, ProgressObject,
      * @throws javax.enterprise.deploy.spi.exceptions.InvalidModuleException
      */
     public DeploymentConfiguration createConfiguration(DeployableObject deployableObject) throws InvalidModuleException {
-        ModuleType type = deployableObject.getType();
-        if (type == ModuleType.WAR) {
-            return new WarDeploymentConfiguration(deployableObject);
-        } else if (type == ModuleType.EAR) {
-            return new EarDeploymentConfiguration(deployableObject);
-        } else if (type == ModuleType.EJB) {
-            return new EjbDeploymentConfiguration(deployableObject);
-        } else {
-            throw new InvalidModuleException("Unsupported module type: " + type.toString()); // NOI18N
-        }
-        
+        throw new RuntimeException("This should never be called"); // NOI18N
     }
     
     /**

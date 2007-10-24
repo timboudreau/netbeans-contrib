@@ -67,7 +67,6 @@ import org.netbeans.modules.j2ee.oc4j.util.OC4JPluginUtils;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
 import org.openide.util.NbBundle;
-import sun.jdbc.odbc.ee.ConnectionPool;
 
 /**
  *

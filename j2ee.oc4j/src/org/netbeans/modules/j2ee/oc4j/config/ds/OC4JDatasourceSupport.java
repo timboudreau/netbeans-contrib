@@ -70,7 +70,6 @@ import org.openide.loaders.DataObject;
 import org.openide.loaders.DataObjectNotFoundException;
 import org.openide.util.Exceptions;
 import org.openide.util.NbBundle;
-import sun.jdbc.odbc.ee.ConnectionPool;
 
 /**
  * Support class for Datasource management
