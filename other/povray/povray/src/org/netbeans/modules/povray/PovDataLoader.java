@@ -38,13 +38,9 @@
  * Version 2 license, then the option applies only if the new code is
  * made subject to such option by the copyright holder.
  */
-/*
- * PovDataLoader.java
- *
- * Created on February 16, 2005, 2:26 PM
- */
 
 package org.netbeans.modules.povray;
+
 import java.io.IOException;
 import org.openide.filesystems.FileObject;
 import org.openide.loaders.DataObjectExistsException;
@@ -59,9 +55,8 @@ import org.openide.util.NbBundle;
  *
  * @author Timothy Boudreau
  */
-publicclass PovDataLoader extends UniFileLoader {
-    
-    /** Creates a new instance of PovDataLoader */
+public class PovDataLoader extends UniFileLoader {
+
     public PovDataLoader() {
         super ("org.netbeans.modules.povray.PovRayDataObject"); //NOI18N
         ExtensionList list = new ExtensionList();
@@ -69,7 +64,7 @@ publicclass PovDataLoader extends UniFileLoader {
         list.addExtension("inc"); //NOI18N
         setExtensions(list);
         setDisplayName(NbBundle.getMessage(PovDataLoader.class, "TYPE_Povray")); //NOI18N
-    }  
+    }
 
     protected MultiDataObject createMultiObject(FileObject primaryFile) throws DataObjectExistsException, IOException {
         return new PovRayDataObject (primaryFile, this);
