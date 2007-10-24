@@ -287,7 +287,7 @@ class WrapperIterator implements WizardDescriptor.InstantiatingIterator, WizardO
             return result;
         }
         catch (WizardException ex) {
-            throw new IOException (ex);
+            throw new IOException(ex.toString());
         }
     }
     
