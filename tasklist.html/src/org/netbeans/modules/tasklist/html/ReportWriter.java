@@ -41,27 +41,8 @@
 
 package org.netbeans.modules.tasklist.html;
 
-import javax.swing.text.*;
-import javax.swing.event.*;
-import java.awt.*;
-import java.awt.event.*;
-import javax.swing.*;
-import java.io.*;
-import java.util.List;
-import java.util.ArrayList;
-import org.openide.ErrorManager;
-import org.openide.explorer.view.*;
-
-
-import org.openide.loaders.DataObject;
-import org.openide.text.Line;
-
-import org.netbeans.modules.html.*;
-
-import org.w3c.tidy.*;
-
-import org.netbeans.modules.tasklist.core.TLUtils;
-
+import java.io.PrintWriter;
+import java.io.StringWriter;
 
 /** Special PrintWriter which has intimate knowledge of
     the "Report" class in org.w3c.tidy.Report. It uses
