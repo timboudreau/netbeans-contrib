@@ -150,21 +150,19 @@ public class ToolbarStyleSwitchUI extends JToolBar {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        jSeparator1 = new javax.swing.JToolBar.Separator();
         btnList = new javax.swing.JButton();
 
-        setFloatable(false);
         setRollover(true);
-        add(jSeparator1);
 
         btnList.setFocusable(false);
         btnList.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
         btnList.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
         add(btnList);
+
+        getAccessibleContext().setAccessibleName(org.openide.util.NbBundle.getMessage(ToolbarStyleSwitchUI.class, "ToolbarStyleSwitchUI.AccessibleContext.accessibleName")); // NOI18N
     }// </editor-fold>//GEN-END:initComponents
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnList;
-    private javax.swing.JToolBar.Separator jSeparator1;
     // End of variables declaration//GEN-END:variables
     private JToggleButton btnSelected;
     private JToggleButton btnNext;
