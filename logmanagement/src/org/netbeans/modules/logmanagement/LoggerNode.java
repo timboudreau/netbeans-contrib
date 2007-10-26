@@ -132,10 +132,6 @@ class LoggerNode extends AbstractNode {
         return actionsList.toArray(new Action[0]);
     }
 
-    @Override
-    public Action getPreferredAction() {
-        return new OutputAction();
-    }
 
     @Override
     protected Sheet createSheet() {
