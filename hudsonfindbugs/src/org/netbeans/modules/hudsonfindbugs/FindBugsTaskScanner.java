@@ -51,6 +51,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Stack;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
@@ -73,6 +75,7 @@ import org.xml.sax.helpers.DefaultHandler;
  */
 final class FindBugsTaskScanner extends PushTaskScanner {
     private static final RequestProcessor RP = new RequestProcessor("Hudson FindBugs for NetBeans"); // NOI18N
+    private static final Logger LOG = Logger.getLogger(FindBugsTaskScanner.class.getName());
     
     private final URL root;
     
@@ -166,7 +169,8 @@ final class FindBugsTaskScanner extends PushTaskScanner {
                     callback.setTasks(entry.getKey(), entry.getValue());
                 }
             } catch (IOException ex) {
-                Exceptions.printStackTrace(ex);
+                LOG.info(ex.getMessage());
+                LOG.log(Level.FINE, ex.getMessage(), ex);
             } catch (SAXException ex) {
                 Exceptions.printStackTrace(ex);
             } catch (ParserConfigurationException ex) {
