@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE filesystem PUBLIC "-//NetBeans//DTD Filesystem 1.1//EN" "http://www.netbeans.org/dtds/filesystem-1_1.dtd">
+<filesystem>
+    <folder name="Actions">
+        <folder name="Edit">
+            <file name="org-netbeans-modules-fileopenserver-OpenFileInExternalEditorAction.instance"/>
+            <file name="org-netbeans-modules-fileopenserver-StartFileOpenServerAction.instance"/>
+            </folder>
+    </folder>
+    <folder name="Menu">
+        <folder name="File">
+            <file name="org-netbeans-modules-fileopenserver-OpenFileInExternalEditorAction.shadow">
+                <attr name="originalFile" stringvalue="Actions/Edit/org-netbeans-modules-fileopenserver-OpenFileInExternalEditorAction.instance"/>
+                <attr name="position" intvalue="2587"/>
+            </file>
+            <file name="org-netbeans-modules-fileopenserver-StartFileOpenServerAction.shadow">
+                <attr name="originalFile" stringvalue="Actions/Edit/org-netbeans-modules-fileopenserver-StartFileOpenServerAction.instance"/>
+                <attr name="position" intvalue="2550"/>
+            </file>
+            <file name="org-netbeans-modules-fileopenserver-separatorAfter.instance">
+                <attr name="instanceClass" stringvalue="javax.swing.JSeparator"/>
+                <attr name="position" intvalue="2593"/>
+            </file>
+        </folder>
+    </folder>
+    <folder name="OptionsDialog">
+        <file name="org-netbeans-modules-fileopenserver-FileOpenServerOptionsCategory.instance"/>
+    </folder>
+    <folder name="Toolbars">
+        <folder name="File">
+            <file name="org-netbeans-modules-fileopenserver-OpenFileInExternalEditorAction.shadow">
+                <attr name="originalFile" stringvalue="Actions/Edit/org-netbeans-modules-fileopenserver-OpenFileInExternalEditorAction.instance"/>
+                <attr name="position" intvalue="700"/>
+            </file>
+            <file name="org-netbeans-modules-fileopenserver-StartFileOpenServerAction.shadow">
+                <attr name="originalFile" stringvalue="Actions/Edit/org-netbeans-modules-fileopenserver-StartFileOpenServerAction.instance"/>
+                <attr name="position" intvalue="500"/>
+            </file>
+            </folder>
+    </folder>
+</filesystem>
