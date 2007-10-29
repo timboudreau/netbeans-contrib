@@ -1,0 +1,14 @@
+
+/**
+ * Javadoc comment for <code>JavaFXExample</code> class.
+ * @author Ivan Petrov
+ */
+class JavaFXExample {
+
+    attribute a: String;
+    function sample(): String;
+}// line comment
+
+operation  JavaFXExample.sample () {
+    return a;
+}
