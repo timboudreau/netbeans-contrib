@@ -79,4 +79,9 @@ made subject to such option by the copyright holder.
             </file>
             </folder>
     </folder>
+    <folder name="Shortcuts">
+        <file name="O-E.shadow">
+            <attr name="originalFile" stringvalue="Actions/Edit/org-netbeans-modules-fileopenserver-OpenFileInExternalEditorAction.instance"/>
+        </file>
+    </folder>
 </filesystem>
