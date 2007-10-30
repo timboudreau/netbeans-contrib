@@ -102,11 +102,12 @@ public class JavaFXEditorKit extends NbEditorKit{
     @Override
     protected Action[] createActions() {
         Action[] superActions = super.createActions();
+        ResetFXPreviewExecution resetAction = new ResetFXPreviewExecution();
         Action[] javafxActions = new Action[] {
             new CommentAction("//"),
             new UncommentAction("//"),
-            new ToggleFXPreviewExecution(),
-            new ResetFXPreviewExecution(),
+            new ToggleFXPreviewExecution(resetAction),
+            resetAction,
             new ToggleFXSyntaxErrorDetection(),
             new JavaDefaultKeyTypedAction(),
             new JavaDeleteCharAction(deletePrevCharAction, false),
@@ -117,9 +118,11 @@ public class JavaFXEditorKit extends NbEditorKit{
     
     public static class ToggleFXPreviewExecution extends BaseAction implements org.openide.util.actions.Presenter.Toolbar {
         PreviewButton b = null;
+        ResetFXPreviewExecution resetAction = null;
         
-        public ToggleFXPreviewExecution() {
+        public ToggleFXPreviewExecution(ResetFXPreviewExecution resetAction) {
             super(toggleFXPreviewExecution);
+            this.resetAction = resetAction;
             putValue(Action.SMALL_ICON, new ImageIcon(org.openide.util.Utilities.loadImage(
                     "org/netbeans/modules/javafx/editor/resources/preview.png"))); // NOI18N
             putValue(SHORT_DESCRIPTION,NbBundle.getBundle(JavaFXEditorKit.class).getString("enable-fx-preview-execution"));
@@ -129,9 +132,11 @@ public class JavaFXEditorKit extends NbEditorKit{
             JavaFXDocument doc = getJavaFXDocument(target);
             if (doc != null){
                 if(doc.executionAllowed()) {
+                    resetAction.setActionButtonEnabled(false);
                     doc.enableExecution(false);
                     putValue(SHORT_DESCRIPTION,NbBundle.getBundle(JavaFXEditorKit.class).getString("enable-fx-preview-execution"));
                 }else {
+                    resetAction.setActionButtonEnabled(true);
                     doc.enableExecution(true);
                     putValue(SHORT_DESCRIPTION,NbBundle.getBundle(JavaFXEditorKit.class).getString("disable-fx-preview-execution"));
                     JavaFXPier.showPreview(doc);
@@ -340,11 +345,17 @@ public class JavaFXEditorKit extends NbEditorKit{
             return null;
         }
         
+        public void setActionButtonEnabled(boolean enabled){
+            b.setEnabled(enabled);
+            b.validate();
+        }
+        
         public java.awt.Component getToolbarPresenter() {
             b = new JButton();
             b.setAction(this);
             b.putClientProperty("hideActionText", Boolean.TRUE); //NOI18N
             b.setText("");
+            b.setEnabled(false);
             return b;
         }
     }    
