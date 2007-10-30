@@ -182,4 +182,13 @@ Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
                 org.netbeans.modules.portalpack.portlets.genericportlets.ddapi.PublicRenderParameterType
             </implements>
         </meta-element>
+        <meta-element>
+            <dtd-name>event-definition-referenceType</dtd-name>
+            <namespace>http://java.sun.com/xml/ns/portlet/portlet-app_2_0.xsd</namespace>
+            <bean-name>EventDefinitionReferenceType</bean-name>
+            <implements> 
+                org.netbeans.modules.portalpack.portlets.genericportlets.ddapi.EventDefinitionReferenceType
+            </implements>
+        </meta-element>
+
 </metaDD>

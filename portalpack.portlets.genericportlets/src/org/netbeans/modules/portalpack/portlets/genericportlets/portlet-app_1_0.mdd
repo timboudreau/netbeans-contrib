@@ -27,6 +27,10 @@ Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
             </implements>
 
             <user-code>
+                public java.net.URI getPortletDefaultNamespace()
+                {
+                    throw new org.netbeans.modules.portalpack.portlets.genericportlets.ddapi.common.VersionNotSupportedException(PortletApp.VERSION_1_0);
+                }
                 public void setResourceBundle(java.lang.String value)
                 {
                     throw new org.netbeans.modules.portalpack.portlets.genericportlets.ddapi.common.VersionNotSupportedException(PortletApp.VERSION_1_0);
@@ -252,12 +256,12 @@ Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
             </implements>
 
             <user-code>
-                public void setSupportedProcessingEvent(int index, javax.xml.namespace.QName value)
+                public void setSupportedProcessingEvent(int index, org.netbeans.modules.portalpack.portlets.genericportlets.ddapi.EventDefinitionReferenceType value)
                 {
                     throw new org.netbeans.modules.portalpack.portlets.genericportlets.ddapi.common.VersionNotSupportedException(PortletApp.VERSION_1_0);
                 }
 
-                public javax.xml.namespace.QName getSupportedProcessingEvent(int index)
+                public org.netbeans.modules.portalpack.portlets.genericportlets.ddapi.EventDefinitionReferenceType getSupportedProcessingEvent(int index)
                 {
                     throw new org.netbeans.modules.portalpack.portlets.genericportlets.ddapi.common.VersionNotSupportedException(PortletApp.VERSION_1_0);
                 }
@@ -267,32 +271,37 @@ Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
                     throw new org.netbeans.modules.portalpack.portlets.genericportlets.ddapi.common.VersionNotSupportedException(PortletApp.VERSION_1_0);
                 }
 
-                public void setSupportedProcessingEvent(javax.xml.namespace.QName[] value)
+                public void setSupportedProcessingEvent(org.netbeans.modules.portalpack.portlets.genericportlets.ddapi.EventDefinitionReferenceType[] value)
                 {
                     throw new org.netbeans.modules.portalpack.portlets.genericportlets.ddapi.common.VersionNotSupportedException(PortletApp.VERSION_1_0);
                 }
 
-                public javax.xml.namespace.QName[] getSupportedProcessingEvent()
+                public org.netbeans.modules.portalpack.portlets.genericportlets.ddapi.EventDefinitionReferenceType[] getSupportedProcessingEvent()
                 {
                     throw new org.netbeans.modules.portalpack.portlets.genericportlets.ddapi.common.VersionNotSupportedException(PortletApp.VERSION_1_0);
                 }
 
-                public int addSupportedProcessingEvent(javax.xml.namespace.QName value)
+                public int addSupportedProcessingEvent(org.netbeans.modules.portalpack.portlets.genericportlets.ddapi.EventDefinitionReferenceType value)
                 {
                     throw new org.netbeans.modules.portalpack.portlets.genericportlets.ddapi.common.VersionNotSupportedException(PortletApp.VERSION_1_0);
                 }
 
-                public int removeSupportedProcessingEvent(javax.xml.namespace.QName value)
+                public int removeSupportedProcessingEvent(org.netbeans.modules.portalpack.portlets.genericportlets.ddapi.EventDefinitionReferenceType value)
                 {
                     throw new org.netbeans.modules.portalpack.portlets.genericportlets.ddapi.common.VersionNotSupportedException(PortletApp.VERSION_1_0);
                 }
 
-                public void setSupportedPublishingEvent(int index, javax.xml.namespace.QName value)
+                public org.netbeans.modules.portalpack.portlets.genericportlets.ddapi.EventDefinitionReferenceType newEventDefinitionReferenceType()
                 {
                     throw new org.netbeans.modules.portalpack.portlets.genericportlets.ddapi.common.VersionNotSupportedException(PortletApp.VERSION_1_0);
                 }
 
-                public javax.xml.namespace.QName getSupportedPublishingEvent(int index)
+                public void setSupportedPublishingEvent(int index, org.netbeans.modules.portalpack.portlets.genericportlets.ddapi.EventDefinitionReferenceType value)
+                {
+                    throw new org.netbeans.modules.portalpack.portlets.genericportlets.ddapi.common.VersionNotSupportedException(PortletApp.VERSION_1_0);
+                }   
+
+                public org.netbeans.modules.portalpack.portlets.genericportlets.ddapi.EventDefinitionReferenceType getSupportedPublishingEvent(int index)
                 {
                     throw new org.netbeans.modules.portalpack.portlets.genericportlets.ddapi.common.VersionNotSupportedException(PortletApp.VERSION_1_0);
                 }
@@ -302,22 +311,22 @@ Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
                     throw new org.netbeans.modules.portalpack.portlets.genericportlets.ddapi.common.VersionNotSupportedException(PortletApp.VERSION_1_0);
                 }
 
-                public void setSupportedPublishingEvent(javax.xml.namespace.QName[] value)
+                public void setSupportedPublishingEvent(org.netbeans.modules.portalpack.portlets.genericportlets.ddapi.EventDefinitionReferenceType[] value)
                 {
                     throw new org.netbeans.modules.portalpack.portlets.genericportlets.ddapi.common.VersionNotSupportedException(PortletApp.VERSION_1_0);
                 }
 
-                public javax.xml.namespace.QName[] getSupportedPublishingEvent()
+                public org.netbeans.modules.portalpack.portlets.genericportlets.ddapi.EventDefinitionReferenceType[] getSupportedPublishingEvent()
                 {
                     throw new org.netbeans.modules.portalpack.portlets.genericportlets.ddapi.common.VersionNotSupportedException(PortletApp.VERSION_1_0);
                 }
 
-                public int addSupportedPublishingEvent(javax.xml.namespace.QName value)
+                public int addSupportedPublishingEvent(org.netbeans.modules.portalpack.portlets.genericportlets.ddapi.EventDefinitionReferenceType value)
                 {
                     throw new org.netbeans.modules.portalpack.portlets.genericportlets.ddapi.common.VersionNotSupportedException(PortletApp.VERSION_1_0);
                 }
 
-                public int removeSupportedPublishingEvent(javax.xml.namespace.QName value)
+                public int removeSupportedPublishingEvent(org.netbeans.modules.portalpack.portlets.genericportlets.ddapi.EventDefinitionReferenceType value)
                 {
                     throw new org.netbeans.modules.portalpack.portlets.genericportlets.ddapi.common.VersionNotSupportedException(PortletApp.VERSION_1_0);
                 }
@@ -353,6 +362,40 @@ Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
                 }
 
                 public int removeSupportedPublicRenderParameter(java.lang.String value)
+                {
+                    throw new org.netbeans.modules.portalpack.portlets.genericportlets.ddapi.common.VersionNotSupportedException(PortletApp.VERSION_1_0);
+                }
+
+                public void setUrlGenerationListener(int index, java.lang.String value)
+                {
+                    throw new org.netbeans.modules.portalpack.portlets.genericportlets.ddapi.common.VersionNotSupportedException(PortletApp.VERSION_1_0);
+                }
+        
+                public java.lang.String getUrlGenerationListener(int index)
+                {
+                    throw new org.netbeans.modules.portalpack.portlets.genericportlets.ddapi.common.VersionNotSupportedException(PortletApp.VERSION_1_0);
+                }
+        
+                public int sizeUrlGenerationListener()
+                {
+                     throw new org.netbeans.modules.portalpack.portlets.genericportlets.ddapi.common.VersionNotSupportedException(PortletApp.VERSION_1_0);
+                }
+
+                public void setUrlGenerationListener(java.lang.String[] value)
+                {
+                   throw new org.netbeans.modules.portalpack.portlets.genericportlets.ddapi.common.VersionNotSupportedException(PortletApp.VERSION_1_0);
+                }
+                public java.lang.String[] getUrlGenerationListener()
+                {
+                    throw new org.netbeans.modules.portalpack.portlets.genericportlets.ddapi.common.VersionNotSupportedException(PortletApp.VERSION_1_0);
+                }
+
+                public int addUrlGenerationListener(java.lang.String value)
+                {
+                    throw new org.netbeans.modules.portalpack.portlets.genericportlets.ddapi.common.VersionNotSupportedException(PortletApp.VERSION_1_0);
+                }
+
+                public int removeUrlGenerationListener(java.lang.String value)
                 {
                     throw new org.netbeans.modules.portalpack.portlets.genericportlets.ddapi.common.VersionNotSupportedException(PortletApp.VERSION_1_0);
                 }
