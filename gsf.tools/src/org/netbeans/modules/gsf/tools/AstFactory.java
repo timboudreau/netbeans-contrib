@@ -49,11 +49,11 @@ import javax.swing.text.Document;
 
 import org.netbeans.api.gsf.ParserResult;
 import org.netbeans.api.gsf.CancellableTask;
-import org.netbeans.api.retouche.source.CompilationInfo;
-import org.netbeans.api.retouche.source.Phase;
-import org.netbeans.api.retouche.source.RescheduleListener;
-import org.netbeans.api.retouche.source.Source;
-import org.netbeans.api.retouche.source.support.EditorAwareSourceTaskFactory;
+import org.netbeans.napi.gsfret.source.CompilationInfo;
+import org.netbeans.napi.gsfret.source.Phase;
+import org.netbeans.napi.gsfret.source.RescheduleListener;
+import org.netbeans.napi.gsfret.source.Source;
+import org.netbeans.napi.gsfret.source.support.EditorAwareSourceTaskFactory;
 import org.netbeans.modules.gsf.browser.AstViewer;
 import org.openide.cookies.EditorCookie;
 import org.openide.filesystems.FileObject;
