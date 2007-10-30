@@ -420,6 +420,37 @@ made subject to such option by the copyright holder.
         </condition>    
     </target>
     
+    <macrodef name="unsignjars">
+        <attribute name="jar"/>
+        <sequential>
+            
+            <!--Remove any existing signature from a jar file-->
+            <tempfile prefix="unsignjar-" destdir="${java.io.tmpdir}" property="temp.file"/>
+            <echo message="Removing signature from JAR: @{jar}"/>
+            <mkdir dir="${temp.file}"/>
+            
+            <unjar src="@{jar}" dest="${temp.file}">
+                <patternset>
+                    <include name="**"/>
+                    <exclude name="META-INF/*.SF"/>
+                    <exclude name="META-INF/*.DSA"/>
+                    <exclude name="META-INF/*.RSA"/>
+                </patternset>
+            </unjar>
+            <delete file="@{jar}" failonerror="true"/>
+            
+            <!-- Touch it in case the file didn;t have a manifest.
+                 Otherwise the JAR task below will fail if the manifest
+                 file doesn't exist -->
+            <mkdir dir="${temp.file}/META-INF"/>
+            <touch file="${temp.file}/META-INF/MANIFEST.MF"/>
+            <jar destfile="@{jar}"
+                 basedir="${temp.file}"
+                 includes="**"
+                 manifest="${temp.file}/META-INF/MANIFEST.MF"/>
+            <delete dir="${temp.file}" failonerror="true"/>
+        </sequential>
+    </macrodef>
     <target name="-pack200-jars" depends="-pack200-property-check" if="pack200.jar.compess.true">
         <echo>Packing Jars with Pack200</echo>
         <pack200Extended src="${dist.jar}" destfile="${dist.jar}.pack.gz" GZIPOutput="true">
@@ -430,6 +461,13 @@ made subject to such option by the copyright holder.
         </pack200Extended>
     </target>
     <target name="-repack-pack200-jars" depends="-pack200-need-repack" if="pack200.need.repack">
+        <echo>Unsign Jars</echo>
+        <!-- TODO Fix it-->
+        <unsignjars jar="${dist.jar}"/>
+        <unsignjars jar="${dist.dir}/lib/Filters.jar"/>
+        <unsignjars jar="${dist.dir}/lib/javafx-netbeans-fxuserlib.jar"/>
+        <unsignjars jar="${dist.dir}/lib/javafxrt.jar"/>
+        <unsignjars jar="${dist.dir}/lib/swing-layout.jar"/>
         <echo>Repacking Jars</echo>
         <pack200Extended repack="true" src="${dist.jar}" destfile="${dist.jar}.tmp">
             <fileset dir="dist">
