@@ -15,14 +15,14 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import org.openide.filesystems.FileObject;
-import org.openide.src.ClassElement;
+/*import org.openide.src.ClassElement;
 import org.openide.src.Identifier;
 import org.openide.src.Import;
 import org.openide.src.MethodElement;
 import org.openide.src.MethodParameter;
 import org.openide.src.SourceElement;
 import org.openide.src.SourceException;
-import org.openide.src.Type;
+import org.openide.src.Type;*/
 
 /**
  *
