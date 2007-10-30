@@ -108,6 +108,8 @@ public class PortletXmlEventingHelper {
                 eventDefinitionType.setQname(evtObject.getQName());
              else
                 eventDefinitionType.setName(evtObject.getName());
+             if(evtObject.getValueType() != null)
+                eventDefinitionType.setValueType(evtObject.getValueType());   
              portletApp.addEventDefinition(eventDefinitionType);
         }catch (Exception e){
             logger.log(Level.SEVERE,"Error in Adding Publish Events",e);

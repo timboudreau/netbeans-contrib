@@ -182,7 +182,7 @@ public class AddEventPanel extends javax.swing.JDialog {
         return;
     }
     String value = valueType.getText();
-    if(value == null || value.trim().length() == 0 || !CoreUtil.validateJavaTypeName(value))
+    if(value == null || value.trim().length() == 0 || !CoreUtil.validatePackageName(value))
     {
         NotifyDescriptor nd = new NotifyDescriptor.Message(NbBundle.getMessage(AddRenderParameterPanel.class, "NOT_A_VALID_VALUE_TYPE"),NotifyDescriptor.ERROR_MESSAGE);
         DialogDisplayer.getDefault().notify(nd);
@@ -210,9 +210,11 @@ public class AddEventPanel extends javax.swing.JDialog {
             qName = new QName(namespace,localPart,prefix);
         evtObject = new EventObject();
         evtObject.setQName(qName);
+        evtObject.setValueType(value);
     }else{
         evtObject = new EventObject();
         evtObject.setName(localPart);
+        evtObject.setValueType(value);
     }
     this.setVisible(false);
     this.dispose();

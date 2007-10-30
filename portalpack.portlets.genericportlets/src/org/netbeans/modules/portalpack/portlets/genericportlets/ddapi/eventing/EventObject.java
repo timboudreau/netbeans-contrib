@@ -26,6 +26,7 @@ public class EventObject {
     
     private QName qName;
     private String name;
+    private String valueType;
     
     public void setQName(QName qName)
     {
@@ -63,7 +64,14 @@ public class EventObject {
             return false;
     }
     
+    public void setValueType(String valueType)
+    {
+        this.valueType = valueType;
+    }
     
+    public String getValueType()
+    {
+        return valueType;
+    }
     
-
 }
