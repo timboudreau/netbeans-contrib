@@ -300,7 +300,7 @@ public class PortletXmlHelper {
             PortletApp portletApp = dbObj.getPortletApp();
             FileLock lock = dbObj.getPrimaryFile().lock();
             OutputStream out = dbObj.getPrimaryFile().getOutputStream(lock);
-//TODO            ((BaseBean)portletApp).write(out);
+          // ((BaseBean)portletApp).write(out);
             portletApp.write(out);
             try{
                  out.flush();

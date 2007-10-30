@@ -145,33 +145,35 @@ public interface PortletType {
         
         //*** new methods added for portlet 2.0 spec
         
-        public void setSupportedProcessingEvent(int index, javax.xml.namespace.QName value);
+        public void setSupportedProcessingEvent(int index, org.netbeans.modules.portalpack.portlets.genericportlets.ddapi.EventDefinitionReferenceType value);
 
-	public javax.xml.namespace.QName getSupportedProcessingEvent(int index);
+	public org.netbeans.modules.portalpack.portlets.genericportlets.ddapi.EventDefinitionReferenceType getSupportedProcessingEvent(int index);
 
 	public int sizeSupportedProcessingEvent();
 
-	public void setSupportedProcessingEvent(javax.xml.namespace.QName[] value);
+	public void setSupportedProcessingEvent(org.netbeans.modules.portalpack.portlets.genericportlets.ddapi.EventDefinitionReferenceType[] value);
 
-	public javax.xml.namespace.QName[] getSupportedProcessingEvent();
+	public org.netbeans.modules.portalpack.portlets.genericportlets.ddapi.EventDefinitionReferenceType[] getSupportedProcessingEvent();
 
-	public int addSupportedProcessingEvent(javax.xml.namespace.QName value);
+	public int addSupportedProcessingEvent(org.netbeans.modules.portalpack.portlets.genericportlets.ddapi.EventDefinitionReferenceType value);
 
-	public int removeSupportedProcessingEvent(javax.xml.namespace.QName value);
+	public int removeSupportedProcessingEvent(org.netbeans.modules.portalpack.portlets.genericportlets.ddapi.EventDefinitionReferenceType value);
 
-	public void setSupportedPublishingEvent(int index, javax.xml.namespace.QName value);
+	public org.netbeans.modules.portalpack.portlets.genericportlets.ddapi.EventDefinitionReferenceType newEventDefinitionReferenceType();
 
-	public javax.xml.namespace.QName getSupportedPublishingEvent(int index);
+	public void setSupportedPublishingEvent(int index, org.netbeans.modules.portalpack.portlets.genericportlets.ddapi.EventDefinitionReferenceType value);
+
+	public org.netbeans.modules.portalpack.portlets.genericportlets.ddapi.EventDefinitionReferenceType getSupportedPublishingEvent(int index);
 
 	public int sizeSupportedPublishingEvent();
 
-	public void setSupportedPublishingEvent(javax.xml.namespace.QName[] value);
+	public void setSupportedPublishingEvent(org.netbeans.modules.portalpack.portlets.genericportlets.ddapi.EventDefinitionReferenceType[] value);
 
-	public javax.xml.namespace.QName[] getSupportedPublishingEvent();
+	public org.netbeans.modules.portalpack.portlets.genericportlets.ddapi.EventDefinitionReferenceType[] getSupportedPublishingEvent();
 
-	public int addSupportedPublishingEvent(javax.xml.namespace.QName value);
+	public int addSupportedPublishingEvent(org.netbeans.modules.portalpack.portlets.genericportlets.ddapi.EventDefinitionReferenceType value);
 
-	public int removeSupportedPublishingEvent(javax.xml.namespace.QName value);
+	public int removeSupportedPublishingEvent(org.netbeans.modules.portalpack.portlets.genericportlets.ddapi.EventDefinitionReferenceType value);
 
 	public void setSupportedPublicRenderParameter(int index, java.lang.String value);
 
@@ -186,6 +188,20 @@ public interface PortletType {
 	public int addSupportedPublicRenderParameter(java.lang.String value);
 
 	public int removeSupportedPublicRenderParameter(java.lang.String value);
+        
+        public void setUrlGenerationListener(int index, java.lang.String value);
+        
+        public java.lang.String getUrlGenerationListener(int index);
+        
+        public int sizeUrlGenerationListener();
+
+	public void setUrlGenerationListener(java.lang.String[] value);
+
+	public java.lang.String[] getUrlGenerationListener();
+
+	public int addUrlGenerationListener(java.lang.String value);
+
+	public int removeUrlGenerationListener(java.lang.String value);
 
 	public void setContainerRuntimeOption(int index, org.netbeans.modules.portalpack.portlets.genericportlets.ddapi.ContainerRuntimeOptionType value);
 

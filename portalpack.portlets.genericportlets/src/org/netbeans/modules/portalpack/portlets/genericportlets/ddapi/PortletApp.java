@@ -108,6 +108,7 @@ public interface PortletApp {
 	public SecurityConstraintType newSecurityConstraintType();
         
         //************ New methods for portlet 2.0
+        public java.net.URI getPortletDefaultNamespace();
         
         public void setResourceBundle(java.lang.String value);
 

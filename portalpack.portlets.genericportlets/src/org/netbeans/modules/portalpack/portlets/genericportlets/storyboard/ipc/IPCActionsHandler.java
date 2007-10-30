@@ -12,6 +12,7 @@ package org.netbeans.modules.portalpack.portlets.genericportlets.storyboard.ipc;
 import java.awt.Point;
 import org.netbeans.api.visual.action.ActionFactory;
 import org.netbeans.api.visual.vmd.VMDPinWidget;
+import org.netbeans.modules.portalpack.portlets.genericportlets.ddapi.eventing.EventObject;
 import org.netbeans.modules.portalpack.portlets.genericportlets.ddapi.eventing.PortletEventException;
 import org.netbeans.modules.portalpack.portlets.genericportlets.node.PortletNode;
 import org.netbeans.modules.portalpack.portlets.genericportlets.node.ddloaders.PortletXMLDataObject;
@@ -38,24 +39,26 @@ public class IPCActionsHandler {
         String evtName = pin.getEventName();
         scene.removePin(pin.getKey());
         PortletNode node = (PortletNode)scene.getPortletNode(nodeKey);
+        EventObject event = pin.getEvent();
         if(node != null)
         {
             try{
-//TODO                 node.getDataObject().getPortletEventingHandler().deleteProcessEvent(node.getName(),evtName);
+                if(event != null)
+                    node.getDataObject().getPortletEventingHandler().deleteProcessEvent(node.getName(),event);
             }catch(Exception e){
                 System.out.println("Event could not be deleted  properly");
             }
         }
     }
     
-    public void generatePublishEventSource(String nodeKey,String eventName)
+    public void generatePublishEventSource(String nodeKey,EventObject evtObject)
     {
         PortletNode portletNode = scene.getPortletNode(nodeKey);
-      //  try{
-//TODO            portletNode.getDataObject().getPortletEventingHandler().generatePublishEventMethod(portletNode.getName(), eventName);
-//        }catch(PortletEventException e){
-  //          e.printStackTrace();
-    //    }
+        try{
+            portletNode.getDataObject().getPortletEventingHandler().generatePublishEventMethod(portletNode.getName(), evtObject);
+        }catch(PortletEventException e){
+            e.printStackTrace();
+        }
     }
      
     public void generateProcessEventSource(String nodeKey,String eventName)

@@ -22,6 +22,7 @@ import javax.xml.namespace.QName;
 import org.netbeans.api.project.FileOwnerQuery;
 import org.netbeans.api.project.Project;
 import org.netbeans.modules.portalpack.portlets.genericportlets.core.util.NetbeanConstants;
+import org.netbeans.modules.portalpack.portlets.genericportlets.ddapi.eventing.EventObject;
 import org.netbeans.modules.portalpack.portlets.genericportlets.ddapi.eventing.PortletEventException;
 import org.netbeans.modules.portalpack.portlets.genericportlets.ddapi.eventing.PortletEventingHandler;
 import org.netbeans.modules.portalpack.portlets.genericportlets.node.ddloaders.PortletXMLDataObject;
@@ -49,59 +50,59 @@ public class PortletEventingHandlerImpl implements PortletEventingHandler{
        helper = new PortletXmlEventingHelper(this.dbObj);
     }
 
-    public QName[] getPublishEvents(String portletName) {
+    public EventObject[] getPublishEvents(String portletName) {
         return helper.getPublishEvents(portletName);
     }
 
-    public QName[] getProcessEvents(String portletName) {
+    public EventObject[] getProcessEvents(String portletName) {
         return helper.getProcessEvents(portletName);
     }
 
-    public boolean addProcessEvent(String targetPortlet, QName event, Map properties) throws PortletEventException {
-        throw new UnsupportedOperationException("Not supported yet.");
+    public boolean addProcessEvent(String targetPortlet, EventObject event, Map properties) throws PortletEventException {
+        return helper.addProcessEvent(targetPortlet, event, properties);
     }
 
-    public boolean addPublishEvent(String portlet, QName evt, Map properties) throws PortletEventException {
+    public boolean addPublishEvent(String portlet, EventObject evt, Map properties) throws PortletEventException {
         return helper.addPublishEvent(portlet, evt, properties);
     }
 
-    public boolean deleteProcessEvent(String portlet, QName evt) throws PortletEventException {
+    public boolean deleteProcessEvent(String portlet, EventObject evt) throws PortletEventException {
+        return helper.deleteProcessEvent(portlet,evt);
+    }
+
+    public boolean deletePublishEvent(String portlet, EventObject evt) throws PortletEventException {
+        return helper.deletePublishEvent(portlet,evt);
+    }
+
+    public boolean isProcessEventExists(String portlet, EventObject evt) {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
-    public boolean deletePublishEvent(String portlet, QName evt) throws PortletEventException {
+    public boolean isPublishEventExists(String portlet, EventObject evt) {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
-    public boolean isProcessEventExists(String portlet, QName evt) {
+    public boolean renamePublishEvent(String portlet, EventObject oldEvent, EventObject newEvent, Map properties) throws PortletEventException {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
-    public boolean isPublishEventExists(String portlet, QName evt) {
+    public boolean renameProcessEvent(String portlet, EventObject oldEvent, EventObject newEvent, Map properties) throws PortletEventException {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
-    public boolean renamePublishEvent(String portlet, QName oldEvent, QName newEvent, Map properties) throws PortletEventException {
+    public String getPublishEventMethodBody(String portlet, EventObject eventName, boolean newMethod) throws PortletEventException {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
-    public boolean renameProcessEvent(String portlet, QName oldEvent, QName newEvent, Map properties) throws PortletEventException {
+    public String getProcessEventMethodBody(String portlet, EventObject eventName, boolean newMethod) throws PortletEventException {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
-    public String getPublishEventMethodBody(String portlet, QName eventName, boolean newMethod) throws PortletEventException {
+    public boolean generatePublishEventMethod(String portlet, EventObject eventName) throws PortletEventException {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
-    public String getProcessEventMethodBody(String portlet, QName eventName, boolean newMethod) throws PortletEventException {
-        throw new UnsupportedOperationException("Not supported yet.");
-    }
-
-    public boolean generatePublishEventMethod(String portlet, QName eventName) throws PortletEventException {
-        throw new UnsupportedOperationException("Not supported yet.");
-    }
-
-    public boolean generateProcessEventMethod(String portlet, QName eventName) throws PortletEventException {
+    public boolean generateProcessEventMethod(String portlet, EventObject eventName) throws PortletEventException {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 

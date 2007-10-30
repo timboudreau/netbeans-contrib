@@ -214,7 +214,7 @@ public class PortletXMLDataObject extends XMLDataObject//XmlMultiViewDataObject
     public String getPortletSpecVersion()
     {
         if(portletApp == null) return "";
-//TODO        String version = ((BaseBean)portletApp).getAttributeValue("version");
+       // String version = ((BaseBean)portletApp).getAttributeValue("version");
         String version = portletApp.getVersion();
         if(version.equals(PortletApp.VERSION_2_0))
             return PortletApp.VERSION_2_0;

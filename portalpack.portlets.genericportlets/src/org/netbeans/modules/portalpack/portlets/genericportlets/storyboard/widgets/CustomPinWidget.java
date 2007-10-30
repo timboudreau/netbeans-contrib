@@ -22,6 +22,7 @@ package org.netbeans.modules.portalpack.portlets.genericportlets.storyboard.widg
 import java.util.Properties;
 import org.netbeans.api.visual.vmd.VMDPinWidget;
 import org.netbeans.api.visual.widget.Scene;
+import org.netbeans.modules.portalpack.portlets.genericportlets.ddapi.eventing.EventObject;
 
 /**
  *
@@ -31,6 +32,7 @@ public class CustomPinWidget extends VMDPinWidget {
     private String key;
     private String eventName;
     private String nodeKey;
+    private EventObject event;
     public CustomPinWidget(Scene scene)
     {
         super(scene);
@@ -55,6 +57,16 @@ public class CustomPinWidget extends VMDPinWidget {
     public String getEventName()
     {
         return eventName;
+    }
+    
+    public EventObject getEvent()
+    {
+        return event;
+    }
+    
+    public void setEvent(EventObject event)
+    {
+        this.event = event;
     }
     
     public String getNodeKey()

@@ -65,7 +65,7 @@ public class EventPinPopUpMenuProvider implements PopupMenuProvider, ActionListe
     public void actionPerformed(ActionEvent e) {
         if(e.getActionCommand().equals(ACTION_GENERATE_SOURCE)){
             if(widget == null) return;
-            scene.getTaskHandler().generatePublishEventSource(widget.getNodeKey(),widget.getEventName());
+            scene.getTaskHandler().generatePublishEventSource(widget.getNodeKey(),widget.getEvent());
         }
     }
     

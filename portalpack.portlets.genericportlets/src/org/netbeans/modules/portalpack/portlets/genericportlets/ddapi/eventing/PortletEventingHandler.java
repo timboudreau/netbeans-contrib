@@ -28,33 +28,33 @@ import javax.xml.namespace.QName;
  */
 public interface PortletEventingHandler {
     
-    public QName[] getPublishEvents(String portletName);
+    public EventObject[] getPublishEvents(String portletName);
     
-    public QName[] getProcessEvents(String portletName);
+    public EventObject[] getProcessEvents(String portletName);
     
-    public boolean  addProcessEvent(String targetPortlet,QName event,Map properties) throws PortletEventException;
+    public boolean  addProcessEvent(String targetPortlet,EventObject event,Map properties) throws PortletEventException;
     
-    public boolean  addPublishEvent(String portlet,QName evt,Map properties) throws PortletEventException;
+    public boolean  addPublishEvent(String portlet,EventObject evt,Map properties) throws PortletEventException;
     
-    public boolean  deleteProcessEvent(String portlet,QName evt)throws PortletEventException;
+    public boolean  deleteProcessEvent(String portlet,EventObject evt)throws PortletEventException;
     
-    public boolean  deletePublishEvent(String portlet,QName evt)throws PortletEventException;
+    public boolean  deletePublishEvent(String portlet,EventObject evt)throws PortletEventException;
     
-    public boolean  isProcessEventExists(String portlet,QName evt);
+    public boolean  isProcessEventExists(String portlet,EventObject evt);
     
-    public boolean  isPublishEventExists(String portlet,QName evt);
+    public boolean  isPublishEventExists(String portlet,EventObject evt);
   
-    public boolean  renamePublishEvent(String portlet,QName oldEvent,QName newEvent,Map properties)throws PortletEventException;
+    public boolean  renamePublishEvent(String portlet,EventObject oldEvent,EventObject newEvent,Map properties)throws PortletEventException;
    
-    public boolean  renameProcessEvent(String portlet,QName oldEvent,QName newEvent,Map properties)throws PortletEventException;
+    public boolean  renameProcessEvent(String portlet,EventObject oldEvent,EventObject newEvent,Map properties)throws PortletEventException;
     
-    public String getPublishEventMethodBody(String portlet,QName eventName, boolean newMethod) throws PortletEventException;
+    public String getPublishEventMethodBody(String portlet,EventObject eventName, boolean newMethod) throws PortletEventException;
     
-    public String getProcessEventMethodBody(String portlet,QName eventName, boolean newMethod) throws PortletEventException;
+    public String getProcessEventMethodBody(String portlet,EventObject eventName, boolean newMethod) throws PortletEventException;
     
-    public boolean generatePublishEventMethod(String portlet,QName eventName)throws PortletEventException;
+    public boolean generatePublishEventMethod(String portlet,EventObject eventName)throws PortletEventException;
     
-    public boolean generateProcessEventMethod(String portlet,QName eventName)throws PortletEventException;
+    public boolean generateProcessEventMethod(String portlet,EventObject eventName)throws PortletEventException;
     
     public boolean isEventingSupported();
     

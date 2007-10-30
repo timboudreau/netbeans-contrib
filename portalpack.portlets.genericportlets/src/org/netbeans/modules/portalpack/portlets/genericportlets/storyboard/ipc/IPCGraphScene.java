@@ -1,21 +1,21 @@
 /*
-  * The contents of this file are subject to the terms of the Common Development
-  * and Distribution License (the License). You may not use this file except in
-  * compliance with the License.
-  *
-  * You can obtain a copy of the License at http://www.netbeans.org/cddl.html
-  * or http://www.netbeans.org/cddl.txt.
-  *
-  * When distributing Covered Code, include this CDDL Header Notice in each file
-  * and include the License file at http://www.netbeans.org/cddl.txt.
-  * If applicable, add the following below the CDDL Header, with the fields
-  * enclosed by brackets [] replaced by your own identifying information:
-  * "Portions Copyrighted [year] [name of copyright owner]"
-  *
-  * The Original Software is NetBeans. The Initial Developer of the Original
-  * Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
-  * Microsystems, Inc. All Rights Reserved.
-  */
+ * The contents of this file are subject to the terms of the Common Development
+ * and Distribution License (the License). You may not use this file except in
+ * compliance with the License.
+ *
+ * You can obtain a copy of the License at http://www.netbeans.org/cddl.html
+ * or http://www.netbeans.org/cddl.txt.
+ *
+ * When distributing Covered Code, include this CDDL Header Notice in each file
+ * and include the License file at http://www.netbeans.org/cddl.txt.
+ * If applicable, add the following below the CDDL Header, with the fields
+ * enclosed by brackets [] replaced by your own identifying information:
+ * "Portions Copyrighted [year] [name of copyright owner]"
+ *
+ * The Original Software is NetBeans. The Initial Developer of the Original
+ * Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
+ * Microsystems, Inc. All Rights Reserved.
+ */
 
 package org.netbeans.modules.portalpack.portlets.genericportlets.storyboard.ipc;
 
@@ -32,7 +32,6 @@ import org.netbeans.modules.portalpack.portlets.genericportlets.storyboard.ipc.a
 import org.netbeans.modules.portalpack.portlets.genericportlets.storyboard.widgets.CustomPinWidget;
 import java.awt.Image;
 import java.awt.Paint;
-
 import java.awt.Point;
 import java.awt.datatransfer.Transferable;
 import java.awt.event.MouseEvent;
@@ -54,13 +53,19 @@ import org.netbeans.api.visual.action.ActionFactory;
 import org.netbeans.api.visual.action.AcceptProvider;
 import java.awt.datatransfer.DataFlavor;
 import java.util.Hashtable;
+import java.util.logging.Level;
+import javax.swing.SwingUtilities;
 import javax.xml.namespace.QName;
 import org.netbeans.api.visual.action.TextFieldInplaceEditor;
 import org.netbeans.api.visual.action.WidgetAction.State;
 import org.netbeans.api.visual.border.BorderFactory;
 import org.netbeans.modules.portalpack.portlets.genericportlets.core.util.CoreUtil;
+import org.netbeans.modules.portalpack.portlets.genericportlets.ddapi.eventing.EventObject;
 import org.netbeans.modules.portalpack.portlets.genericportlets.ddapi.eventing.PortletEventException;
+import org.netbeans.modules.portalpack.portlets.genericportlets.ddapi.eventing.impl.PortletXmlEventingHelper;
+import org.netbeans.modules.portalpack.portlets.genericportlets.ddapi.impl.PortletXmlHelper;
 import org.netbeans.modules.portalpack.portlets.genericportlets.node.PortletNode;
+import org.netbeans.modules.portalpack.portlets.genericportlets.node.actions.ui.AddEventPanel;
 import org.netbeans.modules.portalpack.portlets.genericportlets.node.ddloaders.PortletXMLDataObject;
 import org.netbeans.modules.portalpack.portlets.genericportlets.storyboard.ipc.actions.EdgePopUpMenuProvider;
 import org.netbeans.modules.portalpack.portlets.genericportlets.storyboard.ipc.actions.EventPinPopUpMenuProvider;
@@ -76,6 +81,7 @@ import org.openide.windows.WindowManager;
  * @author Satyaranjan
  */
 public class IPCGraphScene extends CustomVMDGraphScene {
+
     private static Logger logger = Logger.getLogger(NetbeanConstants.PORTAL_LOGGER);
     private static final Image IMAGE_LIST = Utilities.loadImage("de/eppleton/visualexplorer/resources/list_16.png"); // NOI18N
     private static final Image IMAGE_CANVAS = Utilities.loadImage("de/eppleton/visualexplorer/resources/custom_displayable_16.png"); // NOI18N
@@ -84,484 +90,505 @@ public class IPCGraphScene extends CustomVMDGraphScene {
     private static final Image GLYPH_PRE_CODE = Utilities.loadImage("de/eppleton/visualexplorer/resources/preCodeGlyph.png"); // NOI18N
     private static final Image GLYPH_POST_CODE = Utilities.loadImage("de/eppleton/visualexplorer/resources/postCodeGlyph.png"); // NOI18N
     private static final Image GLYPH_CANCEL = Utilities.loadImage("de/eppleton/visualexplorer/resources/cancelGlyph.png"); // NOI18N
-    private static final Image IMAGE_PORTLET=Utilities.loadImage("org/netbeans/modules/portalpack/portlets/genericportlets/resources/portletapp.gif");// NOI18N
-    private static final Image IMAGE_PUBLISH_EVENT=Utilities.loadImage("org/netbeans/modules/portalpack/portlets/genericportlets/resources/generate.png");// NOI18N
-    private static final Image IMAGE_PROCESS_EVENT=Utilities.loadImage("org/netbeans/modules/portalpack/portlets/genericportlets/resources/consume.png");// NOI18N
-
+    private static final Image IMAGE_PORTLET = Utilities.loadImage("org/netbeans/modules/portalpack/portlets/genericportlets/resources/portletapp.gif"); // NOI18N
+    private static final Image IMAGE_PUBLISH_EVENT = Utilities.loadImage("org/netbeans/modules/portalpack/portlets/genericportlets/resources/generate.png"); // NOI18N
+    private static final Image IMAGE_PROCESS_EVENT = Utilities.loadImage("org/netbeans/modules/portalpack/portlets/genericportlets/resources/consume.png"); // NOI18N
     private static Paint PAINT_BACKGROUND;
-
     static {
-        Image sourceImage = Utilities.loadImage ("org/netbeans/modules/portalpack/portlets/genericportlets/resources/paper_grid.png"); // NOI18N
-        int width = sourceImage.getWidth (null);
-        int height = sourceImage.getHeight (null);
-        BufferedImage image = new BufferedImage (width, height, BufferedImage.TYPE_INT_RGB);
-        Graphics2D graphics = image.createGraphics ();
-        graphics.drawImage (sourceImage, 0, 0, null);
-        graphics.dispose ();
-        PAINT_BACKGROUND = new TexturePaint (image, new Rectangle (0, 0, width, height));
+        Image sourceImage = Utilities.loadImage("org/netbeans/modules/portalpack/portlets/genericportlets/resources/paper_grid.png"); // NOI18N
+        int width = sourceImage.getWidth(null);
+        int height = sourceImage.getHeight(null);
+        BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+        Graphics2D graphics = image.createGraphics();
+        graphics.drawImage(sourceImage, 0, 0, null);
+        graphics.dispose();
+        PAINT_BACKGROUND = new TexturePaint(image, new Rectangle(0, 0, width, height));
     }
- 
     private static int nodeID = 1;
     private static int edgeID = 1;
-    
-    private static  Hashtable nodeMap = new Hashtable();
-    private static  Hashtable edgeMap = new Hashtable();
-   
+    private static Hashtable nodeMap = new Hashtable();
+    private static Hashtable edgeMap = new Hashtable();
     private WidgetAction popupMenuAction;
-    private WidgetAction editorAction = ActionFactory.createInplaceEditorAction(new EventNameTextFieldEditor(this));
+   // private WidgetAction editorAction = ActionFactory.createInplaceEditorAction(new EventNameTextFieldEditor(this));
     private WidgetAction eventingPopUpMenuProvider;
     private WidgetAction consumeEventPopUpMenuProvider;
- 
     private WidgetAction connectAction;
     private WidgetAction reconnectAction;
     private IPCStoryBoardTopComponent ipcTop;
     private IPCActionsHandler actionsHandler;
-    
+
     /** Creates a new instance of IPCGraphScene */
-    
     public IPCGraphScene(IPCStoryBoardTopComponent ipcTop) {
         super();
         this.ipcTop = ipcTop;
         this.actionsHandler = new IPCActionsHandler(this);
-      
-       connectAction = ActionFactory.createConnectAction (connectionLayer, new SceneConnectProvider (this));
-       popupMenuAction = ActionFactory.createPopupMenuAction (new IPCPopUpMenuProvider (this));
-       eventingPopUpMenuProvider = ActionFactory.createPopupMenuAction(new EventPinPopUpMenuProvider(this));
-       consumeEventPopUpMenuProvider = ActionFactory.createPopupMenuAction(new ConsumeEventPinMenuProvider(this));
-       setBorder(BorderFactory.createBevelBorder(true));
-       setBackground(PAINT_BACKGROUND);
+
+        connectAction = ActionFactory.createConnectAction(connectionLayer, new SceneConnectProvider(this));
+        popupMenuAction = ActionFactory.createPopupMenuAction(new IPCPopUpMenuProvider(this));
+        eventingPopUpMenuProvider = ActionFactory.createPopupMenuAction(new EventPinPopUpMenuProvider(this));
+        consumeEventPopUpMenuProvider = ActionFactory.createPopupMenuAction(new ConsumeEventPinMenuProvider(this));
+        setBorder(BorderFactory.createBevelBorder(true));
+        setBackground(PAINT_BACKGROUND);
         getActions().addAction(popupMenuAction);
-        getActions().addAction(ActionFactory.createAcceptAction(new AcceptProvider() {  
+        getActions().addAction(ActionFactory.createAcceptAction(new AcceptProvider() {
+
             public ConnectorState isAcceptable(Widget widget, Point point, Transferable transferable) {
                 Object obj = null;
-                try{
-                  
-                    obj = transferable.getTransferData(new DataFlavor("application/x-java-openide-nodednd; class=org.openide.nodes.Node","application/x-java-openide-nodednd"));
-               
-                
-                }catch(Exception e){
+                try {
+
+                    obj = transferable.getTransferData(new DataFlavor("application/x-java-openide-nodednd; class=org.openide.nodes.Node", "application/x-java-openide-nodednd"));
+                } catch (Exception e) {
                     e.printStackTrace();
                 }
-                 
-                 if(obj == null)
-                 {
-                
-                     return ConnectorState.REJECT;
-                     
-                 }else if(obj instanceof PortletNode)
-                 {
-                     return ConnectorState.ACCEPT;
-                 }
-                 return ConnectorState.REJECT;
-               
+
+                if (obj == null) {
+
+                    return ConnectorState.REJECT;
+                } else if (obj instanceof PortletNode) {
+                    return ConnectorState.ACCEPT;
+                }
+                return ConnectorState.REJECT;
             }
-            
+
             public void accept(Widget widget, Point point, Transferable transferable) {
-                try{
-                    Object obj = transferable.getTransferData(new DataFlavor("application/x-java-openide-nodednd; class=org.openide.nodes.Node","application/x-java-openide-nodednd"));
-                    PortletNode node = (PortletNode)obj;
-                    addPortletNode(node,point);
-                }catch(Exception e){
+                try {
+                    Object obj = transferable.getTransferData(new DataFlavor("application/x-java-openide-nodednd; class=org.openide.nodes.Node", "application/x-java-openide-nodednd"));
+                    PortletNode node = (PortletNode) obj;
+                    addPortletNode(node, point);
+                } catch (Exception e) {
                     e.printStackTrace();
-                }    
-               
+                }
             }
-       
         }));
-        
     }
-    
-    public IPCActionsHandler getTaskHandler()
-    {
+
+    public IPCActionsHandler getTaskHandler() {
         return actionsHandler;
     }
-    
-    public  void addPortletNode(PortletNode node,Point point) {
-        
+
+    public void addPortletNode(PortletNode node, Point point) {
+
         String name = node.getName();
         String key = node.getID();
-        if(checkIfNodePresent(key))
+        if (checkIfNodePresent(key)) {
             return;
-        
-        //check if eventing is supported for this portlet 
-        if(!node.getDataObject().getPortletEventingHandler().isEventingSupported())
+        }
+        //check if eventing is supported for this portlet
+        if (!node.getDataObject().getPortletEventingHandler().isEventingSupported()) {
             return;
+        }
         List glyphs = new ArrayList();
         glyphs.add(IMAGE_PORTLET);
-        CustomNodeWidget mobileWidget = (CustomNodeWidget)WidgetUtil.createNode(this, point.x, point.y, IMAGE_LIST, key, name, "List", glyphs);
+        CustomNodeWidget mobileWidget = (CustomNodeWidget) WidgetUtil.createNode(this, point.x, point.y, IMAGE_LIST, key, name, "List", glyphs);
         mobileWidget.getActions().addAction(connectAction);
-        mobileWidget.getActions().addAction(ActionFactory.createPopupMenuAction(new NodePopUpMenuProvider(this,key)));
+        mobileWidget.getActions().addAction(ActionFactory.createPopupMenuAction(new NodePopUpMenuProvider(this, key)));
         //mobileWidget.getActions().addAction(ActionFactory.createResizeAction());
         String nodeID = key;
         PortletXMLDataObject dobj = node.getDataObject();
-        QName[] events = dobj.getPortletEventingHandler().getPublishEvents(name);
-        if(events != null)
-        {
-             for(int i=0;i<events.length;i++)
-             {    
-                 addEventPinToNode(nodeID,events[i]);
-             }
-        }
-        
-        QName[] processEvents = dobj.getPortletEventingHandler().getProcessEvents(name);
-        if(processEvents != null)
-        {
-            for(int i=0;i<processEvents.length;i++)
-            {
-                addProcessEventPinToNode(nodeID,processEvents[i]);
+        EventObject[] events = dobj.getPortletEventingHandler().getPublishEvents(name);
+        if (events != null) {
+            for (int i = 0; i < events.length; i++) {
+                addEventPinToNode(nodeID, events[i]);
             }
-        }    
-      
+        }
+
+        EventObject[] processEvents = dobj.getPortletEventingHandler().getProcessEvents(name);
+        if (processEvents != null) {
+            for (int i = 0; i < processEvents.length; i++) {
+                addProcessEventPinToNode(nodeID, processEvents[i]);
+            }
+        }
+
         nodeMap.put(nodeID, node);
-        checkAndPerformNodeDependency((CustomNodeWidget)mobileWidget);
+        checkAndPerformNodeDependency((CustomNodeWidget) mobileWidget);
         validate();
     }
-    
-   
-    
-    public boolean checkIfNodePresent(String nodeID)
-    {
-        if(nodeMap.get(nodeID) != null)
+
+    public boolean checkIfNodePresent(String nodeID) {
+        if (nodeMap.get(nodeID) != null) {
             return true;
-        else
+        } else {
             return false;
-    }
-    
-    CustomPinWidget addEventPinToNode(String nodeID,QName event)
-    {
-         String eventName = event.toString();
-        // String localPart = "";
-         VMDPinWidget pin1 = WidgetUtil.createPin(this,nodeID, nodeID+"_"+eventName, IMAGE_PUBLISH_EVENT, eventName, "Element");
-         ((CustomPinWidget)pin1).setEventName(eventName);
-         pin1.getActions().addAction(connectAction);
-         pin1.getActions().addAction(editorAction);
-         pin1.getActions().addAction(eventingPopUpMenuProvider);
-         return (CustomPinWidget)pin1;
-    }
-    
-    CustomPinWidget addProcessEventPinToNode(String nodeID,QName event)
-    {
-         String eventName = event.toString();
-         VMDPinWidget consumePin = WidgetUtil.createPin(this, nodeID, nodeID+"_"+"consume_"+eventName, IMAGE_PROCESS_EVENT, "consume_"+eventName, "Element");
-         ((CustomPinWidget)consumePin).setEventName(eventName);
-         ((CustomPinWidget)consumePin).getActions().addAction(consumeEventPopUpMenuProvider);
-         return (CustomPinWidget)consumePin;
-    }
-    
-    public void deletePortletNodeFromScene(String nodeID,boolean removeRef) {
-        Object obj = nodeMap.get(nodeID);
-        if(obj != null) {
-           this.removeNodeWithEdges(nodeID);
-           if(removeRef)
-               nodeMap.remove(nodeID);
-            
         }
     }
-    
-    public void addEvent(String nodeKey)
-    {
-        // findWidget(nodeKey).revalidate();
-          PortletNode node = getPortletNode(nodeKey);
-          if(node == null)
-              return;
-          //TODO String evtName = resolveNewEventName(node);
-          String evtName = "New Event";
-          QName evtQName = new QName(evtName);
-          addEventPinToNode(nodeKey, evtQName);
-          try{
-               if(!node.getDataObject().getPortletEventingHandler().addPublishEvent(node.getName(), evtQName,null))
-               return;
-          }catch(Exception e){
-              e.printStackTrace();
-              return;
-          }
-          //check dependency..
-          Widget nodeWidget = findWidget(nodeKey);
-          if(nodeWidget != null && nodeWidget instanceof CustomNodeWidget)
-          {
-            removeEdgesOfNode(nodeKey);
-            checkAndPerformNodeDependency((CustomNodeWidget)nodeWidget);
-          }
-          
-          validate();
-          //revalidate();
+
+    CustomPinWidget addEventPinToNode(String nodeID, EventObject event) {
+        String eventName = null;
+        if(event.isQName())
+            eventName = event.getQName().toString();
+        else
+            eventName = event.getName();
+        // String localPart = "";
+        VMDPinWidget pin1 = WidgetUtil.createPin(this, nodeID, nodeID + "_" + eventName, IMAGE_PUBLISH_EVENT, eventName, "Element");
+        ((CustomPinWidget) pin1).setEventName(eventName);
+        ((CustomPinWidget) pin1).setEvent(event);
+        pin1.getActions().addAction(connectAction);
+       // pin1.getActions().addAction(editorAction);
+        pin1.getActions().addAction(eventingPopUpMenuProvider);
+        return (CustomPinWidget) pin1;
     }
-    
-    private String resolveNewEventName(PortletNode node)
-    {
+
+    CustomPinWidget addProcessEventPinToNode(String nodeID, EventObject event) {
+        String eventName = null;
+        if(event.isQName())
+            eventName = event.getQName().toString();
+        else
+            eventName = event.getName();
+        VMDPinWidget consumePin = WidgetUtil.createPin(this, nodeID, nodeID + "_" + "consume_" + eventName, IMAGE_PROCESS_EVENT, "consume_" + eventName, "Element");
+        ((CustomPinWidget) consumePin).setEventName(eventName);
+        ((CustomPinWidget) consumePin).setEvent(event);
+        ((CustomPinWidget) consumePin).getActions().addAction(consumeEventPopUpMenuProvider);
+        return (CustomPinWidget) consumePin;
+    }
+
+    public void deletePortletNodeFromScene(String nodeID, boolean removeRef) {
+        Object obj = nodeMap.get(nodeID);
+        if (obj != null) {
+            this.removeNodeWithEdges(nodeID);
+            if (removeRef) {
+                nodeMap.remove(nodeID);
+            }
+        }
+    }
+
+    public void addEvent(final String nodeKey) {
+        // findWidget(nodeKey).revalidate();
+        final PortletNode node = getPortletNode(nodeKey);
+        if (node == null) {
+            return;
+        }
+        //TODO String evtName = resolveNewEventName(node);
+        try {
+          //  SwingUtilities.invokeLater(new Runnable() {
+
+               // public void run() {
+                    AddEventPanel panel = new AddEventPanel(WindowManager.getDefault().getMainWindow());
+                   // String evtName = "New Event";
+                    
+                    EventObject evtQName = panel.getEvent();
+                    
+                    if(evtQName == null)
+                        return;
+                    
+                    addEventPinToNode(nodeKey, evtQName);
+                    try {
+                        if (!node.getDataObject().getPortletEventingHandler().addPublishEvent(node.getName(), evtQName, null)) {
+                            return;
+                        }
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        return;
+                    }
+                    //check dependency..
+                    Widget nodeWidget = findWidget(nodeKey);
+                    if (nodeWidget != null && nodeWidget instanceof CustomNodeWidget) {
+                        removeEdgesOfNode(nodeKey);
+                        checkAndPerformNodeDependency((CustomNodeWidget) nodeWidget);
+                    }
+
+                    validate();
+                //}
+           // });
+        } catch (Exception e) {
+            logger.log(Level.SEVERE, "Error adding new event.", e);
+        }
+
+        //revalidate();
+    }
+
+    private String resolveNewEventName(PortletNode node) {
         String prefix = "New_Event";
         String evtName = prefix;
-        int i=1;
+        int i = 1;
 //TODO        while(node.getDataObject().getPortletEventingHandler().isPublishEventExists(node.getName(),evtName))
         {
-            evtName =  prefix + "_"+i;
+            evtName = prefix + "_" + i;
             i++;
         }
         return evtName;
     }
-    
-    private void deleteEdgeFromScene(String edgeID,boolean removeRef) {
+
+    private void deleteEdgeFromScene(String edgeID, boolean removeRef) {
         Object obj = edgeMap.get(edgeID);
-        if(obj != null) {
-           // nodeMap.remove(nodeID);
-          //  if(removeRef)
-            try{
+        if (obj != null) {
+            // nodeMap.remove(nodeID);
+            //  if(removeRef)
+            try {
                 this.removeEdge(edgeID);
-            }catch(Exception e){
+            } catch (Exception e) {
                 e.printStackTrace();
             }
-            
         }
     }
-    
-    void checkAndPerformNodeDependency(CustomNodeWidget nodeWidget)
-    {
-        String orgNodeKey = nodeWidget.getNodeKey();   //getNodeName();
-        PortletNode orgPortletNode = (PortletNode)nodeMap.get(orgNodeKey);
+
+    void checkAndPerformNodeDependency(CustomNodeWidget nodeWidget) {
+        String orgNodeKey = nodeWidget.getNodeKey(); //getNodeName();
+        PortletNode orgPortletNode = (PortletNode) nodeMap.get(orgNodeKey);
         String orgNodename = orgPortletNode.getName();
-        QName[] consumeEvts = orgPortletNode.getDataObject().getPortletEventingHandler().getProcessEvents(orgNodename);
-        QName[] sourceEvts = orgPortletNode.getDataObject().getPortletEventingHandler().getPublishEvents(orgNodename);
+        EventObject[] consumeEvts = orgPortletNode.getDataObject().getPortletEventingHandler().getProcessEvents(orgNodename);
+        EventObject[] sourceEvts = orgPortletNode.getDataObject().getPortletEventingHandler().getPublishEvents(orgNodename);
         Set s = nodeMap.keySet();
         Iterator it = s.iterator();
-        while(it.hasNext())
-        {
-            String ndKey = (String)it.next();
-            PortletNode portletNode = (PortletNode)nodeMap.get(ndKey);
-            if(portletNode == null) continue;
-            QName[] evts = portletNode.getDataObject().getPortletEventingHandler().getPublishEvents(portletNode.getName());
-            
-            for(int i=0;i<consumeEvts.length;i++)
-            {
-   //TODO             if(hasString(consumeEvts[i], evts))
+        while (it.hasNext()) {
+            String ndKey = (String) it.next();
+            PortletNode portletNode = (PortletNode) nodeMap.get(ndKey);
+            if (portletNode == null) {
+                continue;
+            }
+            EventObject[] evts = portletNode.getDataObject().getPortletEventingHandler().getPublishEvents(portletNode.getName());
+
+            for (int i = 0; i < consumeEvts.length; i++) {
+                //TODO             if(hasString(consumeEvts[i], evts))
+                EventObject[] consumeEvent = hasEvent(consumeEvts[i],evts);
+                if(consumeEvent != null)
                 {
-                    Object ob = findWidget(ndKey+"_"+consumeEvts[i]);
-                    if(ob != null && ob instanceof CustomPinWidget)
+                    for(int k =0;k<consumeEvent.length;k++)
                     {
-                       CustomPinWidget pin = (CustomPinWidget)ob;
-                       if(pin == null)
-                       {
+                    String consumeEventName = getEventName(consumeEvent[k]);//getEventName(consumeEvts[i]);
+                    Object ob = findWidget(ndKey + "_" + consumeEventName);
+                    System.out.println("Node Key ::::::::::::::::: " + ndKey + "_" + consumeEventName);
+                    if (ob != null && ob instanceof CustomPinWidget) {
+                        CustomPinWidget pin = (CustomPinWidget) ob;
+                        if (pin == null) {
                             continue;
-                       }
-                       
-                       connectBothPortletNodes(pin,nodeWidget);
+                        }
+
+                        connectBothPortletNodes(pin, nodeWidget,consumeEvts[i]);
+                    }
                     }
                 }
             }
-            
-            QName[] targetConsumeEvts = portletNode.getDataObject().getPortletEventingHandler().getProcessEvents(portletNode.getName());
-            for(int i=0;i<sourceEvts.length;i++)
-            {
-                //ignore circular dependency 
-                if(orgNodeKey.equals(ndKey))
+
+            EventObject[] targetConsumeEvts = portletNode.getDataObject().getPortletEventingHandler().getProcessEvents(portletNode.getName());
+            for (int i = 0; i < sourceEvts.length; i++) {
+                //ignore circular dependency
+                if (orgNodeKey.equals(ndKey))// {
                     continue;
-                
-     //TODO           if(hasString(sourceEvts[i], targetConsumeEvts))
+
+                    //TODO           if(hasString(sourceEvts[i], targetConsumeEvts))
+              //  }
+                EventObject[] consumeEvent = hasEvent(sourceEvts[i],targetConsumeEvts);
+                 if(consumeEvent != null)
                 {
-                    Object ob = findWidget(orgNodeKey+"_"+sourceEvts[i]);
-                    if(ob instanceof CustomPinWidget)
-                    {
-                       CustomPinWidget pin = (CustomPinWidget)ob;
-                       if(pin == null)
-                       {
+                     for(int k=0;k<consumeEvent.length;k++)
+                     {
+                    String sourceEventName = getEventName(sourceEvts[i]);
+                    Object ob = findWidget(orgNodeKey + "_" + sourceEventName);
+                    if (ob instanceof CustomPinWidget) {
+                        CustomPinWidget pin = (CustomPinWidget) ob;
+                        if (pin == null) {
                             continue;
-                       }
-                       VMDNodeWidget targetNodeWidget = (VMDNodeWidget)findWidget(ndKey);
-                       if(targetNodeWidget != null)
-                             connectBothPortletNodes(pin,(CustomNodeWidget)targetNodeWidget);
+                        }
+                        VMDNodeWidget targetNodeWidget = (VMDNodeWidget) findWidget(ndKey);
+                        if (targetNodeWidget != null) {
+                            connectBothPortletNodes(pin, (CustomNodeWidget) targetNodeWidget,consumeEvent[k]);
+                        }
                     }
+                     }
                 }
+            
             }
         }
     }
     
-    private void connectBothPortletNodes(CustomPinWidget sourceWidget,CustomNodeWidget targetNode)
+    private String getEventName(EventObject evt)
     {
-            String eventName = ((CustomPinWidget)sourceWidget).getEventName();
-            CustomPinWidget consumePin = (CustomPinWidget)findWidget(targetNode.getNodeKey()+"_"+"consume_"+eventName);
-            
-            //a create a cosumer pin
-            if(consumePin == null){
-                 consumePin = (CustomPinWidget)WidgetUtil.createPin(this, targetNode.getNodeKey(), targetNode.getNodeKey()+"_"+"consume_"+eventName, IMAGE_PROCESS_EVENT, "consume_"+eventName, "Element");
-                 consumePin.setEventName(eventName);
-                 consumePin.getActions().addAction(consumeEventPopUpMenuProvider);
-            }
-           // else
-            //    System.out.println("Pin Exist..............");
-            
-            String edge = "edge" + edgeID ++;
-            Widget edgeWidget = addEdge (edge);
-            edgeWidget.getActions().addAction(ActionFactory.createPopupMenuAction (new EdgePopUpMenuProvider(edge,this,consumePin,sourceWidget)));
-            setEdgeSource(edge,((CustomPinWidget)sourceWidget).getKey());
-            setEdgeTarget(edge,consumePin.getKey());
-            edgeMap.put(edge, new Object());
+        String evtName = null;
+        if(evt.isQName())
+             evtName = evt.getQName().toString();
+        else
+             evtName = evt.getName();
+        return evtName;
     }
-    
-    private boolean hasString(String org,String[] arr)
-    {
-        for(int i=0;i<arr.length;i++)
-        {
-            if(org.equals(arr[i]))
+
+    private void connectBothPortletNodes(CustomPinWidget sourceWidget, CustomNodeWidget targetNode,EventObject consumeEvent) {
+        EventObject event = ((CustomPinWidget) sourceWidget).getEvent();
+        String eventName = getEventName(event);
+
+        String consumeEventName = getEventName(consumeEvent);
+        CustomPinWidget consumePin = (CustomPinWidget) findWidget(targetNode.getNodeKey()+"_"+"consume_"+consumeEventName);
+
+        //a create a cosumer pin
+        if (consumePin == null) {
+            consumePin = (CustomPinWidget) WidgetUtil.createPin(this, targetNode.getNodeKey(), targetNode.getNodeKey()+"_"+"consume_"+consumeEventName, IMAGE_PROCESS_EVENT, "consume_"+consumeEventName, "Element");
+            consumePin.setEventName(eventName);
+            consumePin.getActions().addAction(consumeEventPopUpMenuProvider);
+        }
+        // else
+        //    System.out.println("Pin Exist..............");
+        String edge = "edge" + edgeID++;
+        Widget edgeWidget = addEdge(edge);
+        edgeWidget.getActions().addAction(ActionFactory.createPopupMenuAction(new EdgePopUpMenuProvider(edge, this, consumePin, sourceWidget)));
+        setEdgeSource(edge, ((CustomPinWidget) sourceWidget).getKey());
+        setEdgeTarget(edge, consumePin.getKey());
+        edgeMap.put(edge, new Object());
+    }
+
+    private boolean hasString(String org, String[] arr) {
+        for (int i = 0; i < arr.length; i++) {
+            if (org.equals(arr[i])) {
                 return true;
+            }
         }
         return false;
     }
     
-    public void resetScene() {
-       
-       
+    private EventObject[] hasEvent(EventObject evt, EventObject[] evts) {
         
+        List eventList = new ArrayList();
+        for(int i=0;i<evts.length;i++)
+        {
+            if(PortletXmlEventingHelper.checkEventsNameForEqual(evt, evts[i]))
+                //return evts[i];
+                eventList.add(evts[i]);
+        }
+        if(eventList.size() == 0)
+            return null; 
+        return (EventObject [])eventList.toArray(new EventObject[0]);
+    }
+
+    public void resetScene() {
+
+
+
         Set edgekeys = edgeMap.keySet();
         Iterator edgeit = edgekeys.iterator();
-        while(edgeit.hasNext()) {
-            String edgeId = (String)edgeit.next();
-     ///       deleteEdgeFromScene(edgeId,false);
+        while (edgeit.hasNext()) {
+            String edgeId = (String) edgeit.next();
+            ///       deleteEdgeFromScene(edgeId,false);
         }
-        
+
         Set keys = nodeMap.keySet();
         Iterator it = keys.iterator();
-        while(it.hasNext()) {
-            String nodeId = (String)it.next();
-            deletePortletNodeFromScene(nodeId,false);
+        while (it.hasNext()) {
+            String nodeId = (String) it.next();
+            deletePortletNodeFromScene(nodeId, false);
         }
         //this.validate();
         nodeMap.clear();
-        
+
         nodeMap.clear();
         edgeMap.clear();
         this.removeChildren();
         revalidate(true);
         ipcTop.reset();
         //this.
-       
-        
+
         //this.resetScene();
     }
-    
-   
-    
-    //inner class started
-      private class SceneCreateAction extends WidgetAction.Adapter {
 
-        public State mousePressed (Widget widget, WidgetMouseEvent event) {
-            if (event.getClickCount () == 1)
-                if (event.getButton () == MouseEvent.BUTTON1 || event.getButton () == MouseEvent.BUTTON2) {
+//inner class started
+    private class SceneCreateAction extends WidgetAction.Adapter {
+
+        public State mousePressed(Widget widget, WidgetMouseEvent event) {
+            if (event.getClickCount() == 1) {
+                if (event.getButton() == MouseEvent.BUTTON1 || event.getButton() == MouseEvent.BUTTON2) {
 
                     //addNode ("node" + nodeCounter ++).setPreferredLocation (widget.convertLocalToScene (event.getPoint ()));
-
                     return State.CONSUMED;
                 }
+            }
             return State.REJECTED;
         }
-
     }
 
     private class SceneConnectProvider implements ConnectProvider {
 
         private Widget source = null;
-    ////    private VMDPinWidget target = null;
+        ////    private VMDPinWidget target = null;
         private CustomNodeWidget targetNode = null;
         private IPCGraphScene scene;
-        public SceneConnectProvider(IPCGraphScene scene)
-        {
+
+        public SceneConnectProvider(IPCGraphScene scene) {
             this.scene = scene;
         }
 
-        public boolean isSourceWidget (Widget sourceWidget) {
-            
-         
-            if(sourceWidget instanceof VMDPinWidget)
-            {
-                VMDPinWidget pinWidget = (VMDPinWidget)sourceWidget;
-                
-                source = (VMDPinWidget)sourceWidget;
+        public boolean isSourceWidget(Widget sourceWidget) {
+
+
+            if (sourceWidget instanceof VMDPinWidget) {
+                VMDPinWidget pinWidget = (VMDPinWidget) sourceWidget;
+
+                source = (VMDPinWidget) sourceWidget;
                 return true;
-               
-            }
-            else
+            } else {
                 return false;
-           
-        }
-
-        public ConnectorState isTargetWidget (Widget sourceWidget, Widget targetWidget) {
-           
-            if(targetWidget != null && targetWidget instanceof CustomNodeWidget)
-            {
-                targetNode = (CustomNodeWidget)targetWidget;
-                return ConnectorState.ACCEPT;
-            }else{
-                Widget widget = targetWidget.getParentWidget();
-                if(widget instanceof CustomNodeWidget)
-                {
-                   
-                    targetNode = (CustomNodeWidget)widget;
-                    return ConnectorState.ACCEPT;
-                }
-                else
-                return ConnectorState.REJECT_AND_STOP;
             }
-           
         }
 
-        public boolean hasCustomTargetWidgetResolver (Scene scene) {
+        public ConnectorState isTargetWidget(Widget sourceWidget, Widget targetWidget) {
+
+            if (targetWidget != null && targetWidget instanceof CustomNodeWidget) {
+                targetNode = (CustomNodeWidget) targetWidget;
+                return ConnectorState.ACCEPT;
+            } else {
+                Widget widget = targetWidget.getParentWidget();
+                if (widget instanceof CustomNodeWidget) {
+
+                    targetNode = (CustomNodeWidget) widget;
+                    return ConnectorState.ACCEPT;
+                } else {
+                    return ConnectorState.REJECT_AND_STOP;
+                }
+            }
+        }
+
+        public boolean hasCustomTargetWidgetResolver(Scene scene) {
             return false;
         }
 
-        public Widget resolveTargetWidget (Scene scene, Point sceneLocation) {
-           
+        public Widget resolveTargetWidget(Scene scene, Point sceneLocation) {
+
             return null;
         }
 
-        public void createConnection (Widget sourceWidget, Widget targetWidget) {
-            
-           
-            if(source == null || targetNode == null)
+        public void createConnection(Widget sourceWidget, Widget targetWidget) {
+
+
+            if (source == null || targetNode == null) {
                 return;
-            if(sourceWidget == null || targetWidget == null)
-                return;
-            
-            String eventName = ((CustomPinWidget)sourceWidget).getEventName();
-            CustomPinWidget consumePin = (CustomPinWidget)findWidget(targetNode.getNodeKey()+"_"+"consume_"+eventName);
-            
-            //a create a cosumer pin
-            if(consumePin == null){
-                 consumePin = (CustomPinWidget)WidgetUtil.createPin(scene, targetNode.getNodeKey(), targetNode.getNodeKey()+"_"+"consume_"+eventName, IMAGE_PROCESS_EVENT, "consume_"+eventName, "Element");
-                 consumePin.setEventName(eventName);
-                 consumePin.getActions().addAction(consumeEventPopUpMenuProvider);
             }
-           // else
-           //   System.out.println("Pin Exist..............");
-            String edge = "edge" + edgeID ++;
-            Widget edgeWidget = addEdge (edge);
-            edgeWidget.getActions().addAction(ActionFactory.createPopupMenuAction (new EdgePopUpMenuProvider(edge,scene,consumePin,sourceWidget)));
-            setEdgeSource(edge,((CustomPinWidget)sourceWidget).getKey());
-            setEdgeTarget(edge,consumePin.getKey());
-            edgeMap.put(edge, new Object());
+            if (sourceWidget == null || targetWidget == null) {
+                return;
+            }
             
-            PortletNode targetPortletNode = (PortletNode)nodeMap.get(targetNode.getNodeKey());
-            if(targetPortletNode != null)
-            {
-                try{
-//TODO                     targetPortletNode.getDataObject().getPortletEventingHandler().addProcessEvent(targetPortletNode.getName(), eventName,null);
-                }catch(Exception e){
+            EventObject event = ((CustomPinWidget) sourceWidget).getEvent();
+            String eventName = getEventName(event);
+            CustomPinWidget consumePin = (CustomPinWidget) findWidget(targetNode.getNodeKey()+"_"+"consume_"+eventName);
+
+            //a create a cosumer pin
+            if (consumePin == null) {
+                consumePin = (CustomPinWidget) WidgetUtil.createPin(scene, targetNode.getNodeKey(), targetNode.getNodeKey()+"_"+"consume_"+eventName, IMAGE_PROCESS_EVENT, "consume_"+eventName, "Element");
+                consumePin.setEventName(eventName);
+                consumePin.getActions().addAction(consumeEventPopUpMenuProvider);
+            }
+            // else
+            //   System.out.println("Pin Exist..............");
+            String edge = "edge" + edgeID++;
+            Widget edgeWidget = addEdge(edge);
+            edgeWidget.getActions().addAction(ActionFactory.createPopupMenuAction(new EdgePopUpMenuProvider(edge, scene, consumePin, sourceWidget)));
+            setEdgeSource(edge, ((CustomPinWidget) sourceWidget).getKey());
+            setEdgeTarget(edge, consumePin.getKey());
+            edgeMap.put(edge, new Object());
+
+            PortletNode targetPortletNode = (PortletNode) nodeMap.get(targetNode.getNodeKey());
+            if (targetPortletNode != null) {
+                try {
+                     targetPortletNode.getDataObject().getPortletEventingHandler().addProcessEvent(targetPortletNode.getName(), event,null);
+                } catch (Exception e) {
                     e.printStackTrace();
                 }
             }
             //added code to put the data in map
             Widget parentSourceWidget = sourceWidget.getParentWidget();
-            if(parentSourceWidget instanceof VMDNodeWidget)
-            {
+            if (parentSourceWidget instanceof VMDNodeWidget) {
                 //System.out.println("Parent Node name is--------------------"+ ((CustomNodeWidget)parentSourceWidget).getNodeKey());
-                
             }
             parentSourceWidget = targetWidget.getParentWidget();
-            if(parentSourceWidget instanceof VMDNodeWidget)
-            {
-               // System.out.println("Target Parent Node name is--------------------"+ ((CustomNodeWidget)parentSourceWidget).getNodeKey());
-                
+            if (parentSourceWidget instanceof VMDNodeWidget) {
+                // System.out.println("Target Parent Node name is--------------------"+ ((CustomNodeWidget)parentSourceWidget).getNodeKey());
             }
-         
         }
-
     }
 
     private class SceneReconnectProvider implements ReconnectProvider {
@@ -570,152 +597,140 @@ public class IPCGraphScene extends CustomVMDGraphScene {
         String originalNode;
         String replacementNode;
 
-        public void reconnectingStarted (ConnectionWidget connectionWidget, boolean reconnectingSource) {
+        public void reconnectingStarted(ConnectionWidget connectionWidget, boolean reconnectingSource) {
         }
 
-        public void reconnectingFinished (ConnectionWidget connectionWidget, boolean reconnectingSource) {
+        public void reconnectingFinished(ConnectionWidget connectionWidget, boolean reconnectingSource) {
         }
 
-        public boolean isSourceReconnectable (ConnectionWidget connectionWidget) {
-            Object object = findObject (connectionWidget);
-            edge = isEdge (object) ? (String) object : null;
-            originalNode = edge != null ? getEdgeSource (edge) : null;
+        public boolean isSourceReconnectable(ConnectionWidget connectionWidget) {
+            Object object = findObject(connectionWidget);
+            edge = isEdge(object) ? (String) object : null;
+            originalNode = edge != null ? getEdgeSource(edge) : null;
             return originalNode != null;
         }
 
-        public boolean isTargetReconnectable (ConnectionWidget connectionWidget) {
-            Object object = findObject (connectionWidget);
-            edge = isEdge (object) ? (String) object : null;
-            originalNode = edge != null ? getEdgeTarget (edge) : null;
+        public boolean isTargetReconnectable(ConnectionWidget connectionWidget) {
+            Object object = findObject(connectionWidget);
+            edge = isEdge(object) ? (String) object : null;
+            originalNode = edge != null ? getEdgeTarget(edge) : null;
             return originalNode != null;
         }
 
-        public ConnectorState isReplacementWidget (ConnectionWidget connectionWidget, Widget replacementWidget, boolean reconnectingSource) {
-            Object object = findObject (replacementWidget);
-            replacementNode = isNode (object) ? (String) object : null;
-            if (replacementNode != null)
+        public ConnectorState isReplacementWidget(ConnectionWidget connectionWidget, Widget replacementWidget, boolean reconnectingSource) {
+            Object object = findObject(replacementWidget);
+            replacementNode = isNode(object) ? (String) object : null;
+            if (replacementNode != null) {
                 return ConnectorState.ACCEPT;
+            }
             return object != null ? ConnectorState.REJECT_AND_STOP : ConnectorState.REJECT;
         }
 
-        public boolean hasCustomReplacementWidgetResolver (Scene scene) {
+        public boolean hasCustomReplacementWidgetResolver(Scene scene) {
             return false;
         }
 
-        public Widget resolveReplacementWidget (Scene scene, Point sceneLocation) {
+        public Widget resolveReplacementWidget(Scene scene, Point sceneLocation) {
             return null;
         }
-        
-        public void reconnect (ConnectionWidget connectionWidget, Widget replacementWidget, boolean reconnectingSource) {
-            if (replacementWidget == null)
-                removeEdge (edge);
-            else if (reconnectingSource)
-                setEdgeSource (edge, replacementNode);
-            else
-                setEdgeTarget (edge, replacementNode);
-        }
 
-    }  
-    
-    public PortletNode getPortletNode(String nodeKey)
-    {
-        return (PortletNode)nodeMap.get(nodeKey);
-    }
-    
-    private void removeEdgesOfNode(String nodeKey)
-    {
-        Collection pins = getNodePins(nodeKey);
-        Iterator pinsIt = pins.iterator();
-        while(pinsIt.hasNext())
-        {
-            String pin= (String)pinsIt.next();
-            Collection edges = findPinEdges(pin,true,true);//((CustomPinWidget)widget).getKey(),true,true);
-        
-            Iterator it = edges.iterator();
-            while(it.hasNext())
-            {
-                removeEdge((String)it.next());
+        public void reconnect(ConnectionWidget connectionWidget, Widget replacementWidget, boolean reconnectingSource) {
+            if (replacementWidget == null) {
+                removeEdge(edge);
+            } else if (reconnectingSource) {
+                setEdgeSource(edge, replacementNode);
+            } else {
+                setEdgeTarget(edge, replacementNode);
             }
         }
     }
-    
+
+    public PortletNode getPortletNode(String nodeKey) {
+        return (PortletNode) nodeMap.get(nodeKey);
+    }
+
+    private void removeEdgesOfNode(String nodeKey) {
+        Collection pins = getNodePins(nodeKey);
+        Iterator pinsIt = pins.iterator();
+        while (pinsIt.hasNext()) {
+            String pin = (String) pinsIt.next();
+            Collection edges = findPinEdges(pin, true, true); //((CustomPinWidget)widget).getKey(),true,true);
+            Iterator it = edges.iterator();
+            while (it.hasNext()) {
+                removeEdge((String) it.next());
+            }
+        }
+    }
 }
 
 class EventNameTextFieldEditor implements TextFieldInplaceEditor {
+
     private final IPCGraphScene scene;
-    public EventNameTextFieldEditor(IPCGraphScene scene)
-    {
+
+    public EventNameTextFieldEditor(IPCGraphScene scene) {
         this.scene = scene;
     }
+
     public boolean isEnabled(Widget widget) {
         return true;
     }
 
     public String getText(Widget widget) {
-        
+
         return ((CustomPinWidget) widget).getPinName();
     }
 
     public void setText(final Widget widget, String text) {
-        if(!CoreUtil.validateString(text, false))
-        {
-            NotifyDescriptor nd =new  NotifyDescriptor.Message("Invalid Event Name",NotifyDescriptor.ERROR_MESSAGE);
+        if (!CoreUtil.validateString(text, false)) {
+            NotifyDescriptor nd = new NotifyDescriptor.Message("Invalid Event Name", NotifyDescriptor.ERROR_MESSAGE);
             DialogDisplayer.getDefault().notify(nd);
             return;
         }
         final String nodeKey = ((CustomPinWidget) widget).getNodeKey();
         PortletNode pNode = scene.getPortletNode(nodeKey);
-        
-        if(JOptionPane.showConfirmDialog(WindowManager.getDefault().getMainWindow(),"Are you sure to rename the Event ? ", "Rename", JOptionPane.YES_NO_OPTION)==
-                                                        JOptionPane.NO_OPTION)
-            return;
-        QName[] existingPublishEvents = pNode.getDataObject().getPortletEventingHandler().getPublishEvents(pNode.getName());
- //TODO       if(WidgetUtil.hasString(text,existingPublishEvents))
-        if(1 != 0) //TODO
-        {
-            
-            JOptionPane.showMessageDialog(WindowManager.getDefault().getMainWindow(),"An Event with same name already exists.", "Rename", JOptionPane.ERROR_MESSAGE);
-                                                        
+
+        if (JOptionPane.showConfirmDialog(WindowManager.getDefault().getMainWindow(), "Are you sure to rename the Event ? ", "Rename", JOptionPane.YES_NO_OPTION) == JOptionPane.NO_OPTION) {
             return;
         }
-        
+       //TODO QName[] existingPublishEvents = pNode.getDataObject().getPortletEventingHandler().getPublishEvents(pNode.getName());
+        //TODO       if(WidgetUtil.hasString(text,existingPublishEvents))
+        if (1 != 0) {
+
+            JOptionPane.showMessageDialog(WindowManager.getDefault().getMainWindow(), "An Event with same name already exists.", "Rename", JOptionPane.ERROR_MESSAGE);
+
+            return;
+        }
+
         String oldEventName = ((CustomPinWidget) widget).getEventName();
         ((CustomPinWidget) widget).setPinName(text);
         ((CustomPinWidget) widget).setEventName(text);
-       
-        
-       
-  //      try{
+
+
+
+        //      try{
 ////TODO          pNode.getDataObject().getPortletEventingHandler().renamePublishEvent(pNode.getName() , oldEventName,text,null);
-   //     }catch(PortletEventException e){
-    //        e.printStackTrace();
-     //   }
-        
+        //     }catch(PortletEventException e){
+        //        e.printStackTrace();
+        //   }
         //remove edges
-        
         Collection pins = scene.getNodePins(nodeKey);
         Iterator pinsIt = pins.iterator();
-        while(pinsIt.hasNext())
-        {
-            String pin= (String)pinsIt.next();
-            Collection edges = scene.findPinEdges(pin,true,true);//((CustomPinWidget)widget).getKey(),true,true);
-        
+        while (pinsIt.hasNext()) {
+            String pin = (String) pinsIt.next();
+            Collection edges = scene.findPinEdges(pin, true, true); //((CustomPinWidget)widget).getKey(),true,true);
             Iterator it = edges.iterator();
-            while(it.hasNext())
-            {
-                scene.removeEdge((String)it.next());
+            while (it.hasNext()) {
+                scene.removeEdge((String) it.next());
             }
         }
-        scene.removePin(((CustomPinWidget)widget).getKey());
+        scene.removePin(((CustomPinWidget) widget).getKey());
 //TODO        scene.addEventPinToNode(nodeKey,text);
         Widget nodeWidget = scene.findWidget(nodeKey);
-        Object ob = scene.findWidget(nodeKey+"_"+text);
-        System.out.println("Find Widget :::::::::::::::::::::::::::; "+ob);
-        if(nodeWidget != null && nodeWidget instanceof CustomNodeWidget)
-            scene.checkAndPerformNodeDependency((CustomNodeWidget)nodeWidget);
-       
+        Object ob = scene.findWidget(nodeKey + "_" + text);
+        System.out.println("Find Widget :::::::::::::::::::::::::::; " + ob);
+        if (nodeWidget != null && nodeWidget instanceof CustomNodeWidget) {
+            scene.checkAndPerformNodeDependency((CustomNodeWidget) nodeWidget);
+        }
         scene.revalidate();
-       
     }
-
 }
