@@ -19,7 +19,7 @@ Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
 -->
 <!DOCTYPE filesystem PUBLIC "-//NetBeans//DTD Filesystem 1.1//EN" "http://www.netbeans.org/dtds/filesystem-1_1.dtd">
 <filesystem>
-   
+    
     <folder name="Actions">
         <folder name="Window">
             <file name="org-netbeans-modules-portalpack-portlets-genericportlets-storyboard-ipc-IPCStoryBoardAction.instance"/>
@@ -103,7 +103,7 @@ Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
                 </folder>
             </folder>
             
-           <folder name="x-dd-portlet20+xml">
+            <folder name="x-dd-portlet20+xml">
                 <folder name="Actions">
                     <file name="org-openide-actions-CopyAction.instance">
                         <attr name="position" intvalue="500"/>
@@ -152,17 +152,21 @@ Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
             </folder>
         </folder>
     </folder>
-   <!--
+    
     <folder name="Menu">
         <folder name="Window">
-            <file name="IPCStoryBoardAction.shadow">
-                <attr name="originalFile" stringvalue="Actions/Window/org-netbeans-modules-portalpack-portlets-genericportlets-storyboard-ipc-IPCStoryBoardAction.instance"/>
-            </file>
+            <folder name="Other">
+                <folder name="Portal Pack">
+                    <file name="IPCStoryBoardAction.shadow">
+                        <attr name="originalFile" stringvalue="Actions/Window/org-netbeans-modules-portalpack-portlets-genericportlets-storyboard-ipc-IPCStoryBoardAction.instance"/>
+                    </file>
+                </folder>
+            </folder>
         </folder>
-    </folder>-->
+    </folder>
     <folder name="Services">
         <folder name="MIMEResolver">
-           
+            
             <file name="PortletResolver.xml" url="PortletResolver.xml">
                 <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.portalpack.portlets.genericportlets.Bundle"/>
             </file>
@@ -172,18 +176,18 @@ Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
         </folder>
     </folder>
     <folder name="Templates">
+        
+        <folder name="JSP_Servlet">
+            <file name="JSR-168Portlet">
+                <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.portalpack.portlets.genericportlets.Bundle"/>
+                <attr name="instantiatingIterator" newvalue="org.netbeans.modules.portalpack.portlets.genericportlets.filetype.jsr168.NetbeansNewPortletClassWizardIterator"/>
+                <attr name="template" boolvalue="true"/>
+                <attr name="templateCategory" stringvalue="web-types"/>
+                <attr name="SystemFileSystem.icon" urlvalue="nbresloc:org/netbeans/modules/portalpack/portlets/genericportlets/resources/portletapp.gif"/>
+                <attr name="templateWizardURL" urlvalue="nbresloc:org/netbeans/modules/portalpack/portlets/genericportlets/filetype/jsr168/netbeansNewPortletClass.html"/>
+            </file>
             
-            <folder name="JSP_Servlet">
-                <file name="JSR-168Portlet" url="templates/JSR168Portlet">
-                    <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.portalpack.portlets.genericportlets.Bundle"/>
-                    <attr name="instantiatingIterator" newvalue="org.netbeans.modules.portalpack.portlets.genericportlets.filetype.jsr168.NetbeansNewPortletClassWizardIterator"/>
-                    <attr name="template" boolvalue="true"/>
-                    <attr name="templateCategory" stringvalue="web-types"/>
-                    <attr name="SystemFileSystem.icon" urlvalue="nbresloc:org/netbeans/modules/portalpack/portlets/genericportlets/resources/portletapp.gif"/>
-                    <attr name="templateWizardURL" urlvalue="nbresloc:org/netbeans/modules/portalpack/portlets/genericportlets/filetype/jsr168/netbeansNewPortletClass.html"/>
-                </file>
-                
-                <file name="PortletFilter" url="templates/PortletFilter">
+            <file name="PortletFilter">
                 <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.portalpack.portlets.genericportlets.Bundle"/>
                 <attr name="instantiatingIterator" newvalue="org.netbeans.modules.portalpack.portlets.genericportlets.filetype.filters.NewFilterWizardWizardIterator"/>
                 <attr name="template" boolvalue="true"/>
@@ -192,14 +196,14 @@ Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
                 <attr name="templateWizardURL" urlvalue="nbresloc:/org/netbeans/modules/portalpack/portlets/genericportlets/filetype/filters/newFilterWizard.html"/>
             </file>
         </folder>
-            <folder name="Other">
+        <folder name="Other">
             <file name="PortletTemplate.portlet" url="PortletTemplate.portlet">
                 <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.portalpack.portlets.genericportlets.Bundle"/>
                 <!--<attr name="template" boolvalue="true"/>-->
             </file>
             <file name="PortletXMLTemplate.xml" url="PortletXMLTemplate.xml">
                 <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.portalpack.portlets.genericportlets.Bundle"/>
-               <!-- <attr name="template" boolvalue="true"/>-->
+                <!-- <attr name="template" boolvalue="true"/>-->
             </file>
         </folder>
     </folder>
@@ -218,64 +222,64 @@ Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
     -->
     <folder name="genericportlets"> 
         <folder name="templates">
-             <file name="jsr168portlet.java" url="nbresloc:templates/jsr168portlet.template">
+            <file name="jsr168portlet.java" url="nbresloc:templates/jsr168portlet.template">
                 <attr name="position" intvalue="0"/>
                 <attr name="javax.script.ScriptEngine" stringvalue="freemarker"/>
-             </file>
-             <file name="jsr168portletwithjsp.java" url="nbresloc:templates/jsr168portletwithjsp.template">
+            </file>
+            <file name="jsr168portletwithjsp.java" url="nbresloc:templates/jsr168portletwithjsp.template">
                 <attr name="position" intvalue="0"/>
                 <attr name="javax.script.ScriptEngine" stringvalue="freemarker"/>
-             </file>    
-             <file name="portlet168-portlet.template" url="nbresloc:templates/portlet168-portlet.template">
-                 <attr name="position" intvalue="0"/>
-                <attr name="javax.script.ScriptEngine" stringvalue="freemarker"/>
-             </file>    
-             <file name="portlet168-xml.template" url="nbresloc:templates/portlet168-xml.template">
+            </file>    
+            <file name="portlet168-portlet.template" url="nbresloc:templates/portlet168-portlet.template">
                 <attr name="position" intvalue="0"/>
                 <attr name="javax.script.ScriptEngine" stringvalue="freemarker"/>
-             </file>    
-             <file name="jsptemplate.jsp" url="nbresloc:templates/jsptemplate.jsp">
-                 <attr name="position" intvalue="0"/>
-                 <attr name="javax.script.ScriptEngine" stringvalue="freemarker"/>
-             </file>
-             <!-- portlet20 related entries -->
-             <file name="portlet20-xml.template" url="nbresloc:templates/portlet20-xml.template">
-                 <attr name="position" intvalue="0"/>
-                 <attr name="javax.script.ScriptEngine" stringvalue="freemarker"/>
-             </file>
-             <file name="portlet20-portlet.template" url="nbresloc:templates/portlet20-portlet.template">
+            </file>    
+            <file name="portlet168-xml.template" url="nbresloc:templates/portlet168-xml.template">
                 <attr name="position" intvalue="0"/>
                 <attr name="javax.script.ScriptEngine" stringvalue="freemarker"/>
-             </file>
-             <file name="portlet20-filter.java" url="nbresloc:templates/portletfilter.template">
+            </file>    
+            <file name="jsptemplate.jsp" url="nbresloc:templates/jsptemplate.jsp">
+                <attr name="position" intvalue="0"/>
+                <attr name="javax.script.ScriptEngine" stringvalue="freemarker"/>
+            </file>
+            <!-- portlet20 related entries -->
+            <file name="portlet20-xml.template" url="nbresloc:templates/portlet20-xml.template">
+                <attr name="position" intvalue="0"/>
+                <attr name="javax.script.ScriptEngine" stringvalue="freemarker"/>
+            </file>
+            <file name="portlet20-portlet.template" url="nbresloc:templates/portlet20-portlet.template">
+                <attr name="position" intvalue="0"/>
+                <attr name="javax.script.ScriptEngine" stringvalue="freemarker"/>
+            </file>
+            <file name="portlet20-filter.java" url="nbresloc:templates/portletfilter.template">
                 <attr name="position" intvalue="0"/>
                 <attr name="javax.script.ScriptEngine" stringvalue="freemarker"/>
             </file>
         </folder>
-      </folder>
-      
-      <folder name="portlet-libraries">
-          <file name="portlet-api-1.0.jar" url="nbresloc:templates/lib/portlet-api-1.0.jar"/> 
-          <file name="portlettaglib-1.0.jar" url="nbresloc:templates/lib/portlettaglib-1.0.jar"/> 
-          <file name="portlet.tld" url="nbresloc:templates/lib/portlet.tld"/> 
-      </folder>
-
-      <!-- Portlet WebFramework -->
-      <folder name="j2ee">
+    </folder>
+    
+    <folder name="portlet-libraries">
+        <file name="portlet-api-1.0.jar" url="nbresloc:templates/lib/portlet-api-1.0.jar"/> 
+        <file name="portlettaglib-1.0.jar" url="nbresloc:templates/lib/portlettaglib-1.0.jar"/> 
+        <file name="portlet.tld" url="nbresloc:templates/lib/portlet.tld"/> 
+    </folder>
+    
+    <!-- Portlet WebFramework -->
+    <folder name="j2ee">
         <folder name="webtier">
             <folder name="framework">
                 <file name="org-netbeans-modules-portalpack-portlets-genericportlets-frameworks-jsr168-JSR168WebFrameworkProvider.instance"/> 
             </folder>
         </folder>
     </folder>
- 
+    
     
     <folder name="org-netbeans-api-project-libraries">
         <folder name="Libraries">
-             <file name="portlet10lib.xml" url="portlet10lib.xml"/>
+            <file name="portlet10lib.xml" url="portlet10lib.xml"/>
         </folder>
         <folder name="Libraries">
-             <file name="portlet20lib.xml" url="portlet20lib.xml"/>
+            <file name="portlet20lib.xml" url="portlet20lib.xml"/>
         </folder>
     </folder>
     <!--
@@ -286,5 +290,5 @@ Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
         </folder>
      </folder>
     </folder>-->
-
+    
 </filesystem>
