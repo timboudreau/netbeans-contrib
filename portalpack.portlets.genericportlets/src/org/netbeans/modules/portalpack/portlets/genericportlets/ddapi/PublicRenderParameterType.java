@@ -22,43 +22,43 @@ package org.netbeans.modules.portalpack.portlets.genericportlets.ddapi;
  */
 public interface PublicRenderParameterType {
 
-    public void setDescription(int index, java.lang.String value);
+        public void setDescription(int index, java.lang.String value);
 
-    public java.lang.String getDescription(int index);
+	public java.lang.String getDescription(int index);
 
-    public int sizeDescription();
+	public int sizeDescription();
 
-    public void setDescription(java.lang.String[] value);
+	public void setDescription(java.lang.String[] value);
 
-    public java.lang.String[] getDescription();
+	public java.lang.String[] getDescription();
 
-    public int addDescription(java.lang.String value);
+	public int addDescription(java.lang.String value);
 
-    public int removeDescription(java.lang.String value);
+	public int removeDescription(java.lang.String value);
 
-    public void setIdentifier(java.lang.String value);
+	public void setIdentifier(java.lang.String value);
 
-    public java.lang.String getIdentifier();
+	public java.lang.String getIdentifier();
 
-    public void setQname(javax.xml.namespace.QName value);
+	public void setQname(javax.xml.namespace.QName value);
 
-    public javax.xml.namespace.QName getQname();
+	public javax.xml.namespace.QName getQname();
 
-    public void setName(java.lang.String value);
+	public void setName(java.lang.String value);
 
-    public java.lang.String getName();
+	public java.lang.String getName();
 
-    public void setAlias(int index, javax.xml.namespace.QName value);
+	public void setAlias(int index, javax.xml.namespace.QName value);
 
-    public javax.xml.namespace.QName getAlias(int index);
+	public javax.xml.namespace.QName getAlias(int index);
 
-    public int sizeAlias();
+	public int sizeAlias();
 
-    public void setAlias(javax.xml.namespace.QName[] value);
+	public void setAlias(javax.xml.namespace.QName[] value);
 
-    public javax.xml.namespace.QName[] getAlias();
+	public javax.xml.namespace.QName[] getAlias();
 
-    public int addAlias(javax.xml.namespace.QName value);
+	public int addAlias(javax.xml.namespace.QName value);
 
-    public int removeAlias(javax.xml.namespace.QName value);
+	public int removeAlias(javax.xml.namespace.QName value);
 }
