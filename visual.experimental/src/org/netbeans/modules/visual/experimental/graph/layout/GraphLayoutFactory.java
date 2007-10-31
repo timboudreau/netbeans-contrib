@@ -45,15 +45,11 @@ import org.netbeans.modules.visual.experimental.graph.layout.hierarchical.Hierar
 
 /**
  *
- * @author Thomas
+ * @author Thomas Wuerthinger
  */
 public final class GraphLayoutFactory {
 
 	public static <N, E> GraphLayout<N, E> createHierarchicalGraphLayout() {
 		return new HierarchicalGraphLayout<N, E>();
-	}
-
-	public static <N, E> GraphLayout<N, E> createHierarchicalGraphLayout(ConnectionManager<E> connectionManager) {
-		return new HierarchicalGraphLayout<N, E>(connectionManager);
 	}
 }
