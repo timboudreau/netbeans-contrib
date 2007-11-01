@@ -39,66 +39,37 @@
 
 package org.netbeans.modules.hudsonfindbugs;
 
+import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import org.netbeans.junit.NbTestCase;
-import org.netbeans.spi.tasklist.Task;
-import org.openide.filesystems.FileObject;
-import org.openide.filesystems.FileUtil;
-import org.openide.filesystems.LocalFileSystem;
+import org.netbeans.api.project.Project;
+import org.netbeans.modules.hudsonfindbugs.spi.FindBugsQueryImplementation;
+import org.netbeans.modules.java.j2seproject.J2SEProject;
+import org.netbeans.spi.project.support.ant.AntProjectHelper;
+import org.netbeans.spi.project.support.ant.EditableProperties;
+import org.openide.util.Exceptions;
 
 /**
  *
- * @author Jaroslav Tulach <jtulach@netbeans.org>
+ * @author Martin Grebac
  */
-public class FindBugsTaskScannerTest extends NbTestCase {
-    FileObject root;
-    FindBugsTaskScanner scan;
+public final class J2seFindBugsQueryProvider implements FindBugsQueryImplementation {
+
+    public J2seFindBugsQueryProvider() {}
     
-    public FindBugsTaskScannerTest(String testName) {
-        super(testName);
-    }            
-
-    @Override
-    protected void setUp() throws Exception {
-        clearWorkDir();
-        
-        URL url = getClass().getResource("err.xml");
-        String ext = url.toExternalForm();
-        int last = ext.lastIndexOf('/');
-        
-        url = new URL(ext.substring(0, last + 1));
-        scan = new FindBugsTaskScanner();
-
-        LocalFileSystem lfs = new LocalFileSystem();
-        lfs.setRootDirectory(getWorkDir());
-        root = lfs.getRoot();
-    }
-
-    @Override
-    protected void tearDown() throws Exception {
-        super.tearDown();
-    }
-
-    public void testParseXML() throws Exception {
-        Map<FileObject,List<Task>> map = new HashMap<FileObject, List<Task>>();
-        FileObject fo = FileUtil.createFolder(root, "openide/util/enum");
-        FileObject arrayEnumeration = FileUtil.createData(fo, "src/org/openide/util/enum/ArrayEnumeration.java");
-        
-        URL url = this.getClass().getClassLoader().getResource("org/netbeans/modules/hudsonfindbugs/err.xml");
-        scan.parse(url, fo, map);
-        assertEquals("One bug", 1, map.size());
-        List<Task> arr = map.get(arrayEnumeration);
-        assertNotNull("This fileobject has the tasks", arr);
-        assertEquals("One bug", 1, arr.size());
-        
-        Task t = arr.get(0);
-        String expMsg = "May expose internal representation by incorporating reference to mutable object";
-        if (!t.equals(Task.create(arrayEnumeration, "warning", expMsg, 63))) {
-            fail("Task is wrong: " + t);
+    public URL getFindBugsUrl(Project project, boolean remote) {
+        if (!remote) throw new UnsupportedOperationException("Local files not yet supported.");
+        URL url = null;
+        if (project instanceof J2SEProject) {
+            try {
+                J2SEProject j2sePrj = (J2SEProject) project;
+                EditableProperties ep = j2sePrj.getAntProjectHelper().getProperties(AntProjectHelper.PROJECT_PROPERTIES_PATH);
+                String urlValue = ep.getProperty(FINDBUGS_PROJECT_PROPERTY);
+                url = new URL(urlValue);
+            } catch (MalformedURLException ex) {
+                Exceptions.printStackTrace(ex);
+            }
         }
+        return url;
     }
 
 }

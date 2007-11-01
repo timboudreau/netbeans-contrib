@@ -43,10 +43,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.lang.ref.Reference;
 import java.lang.ref.SoftReference;
-import java.lang.ref.WeakReference;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -56,7 +55,8 @@ import java.util.logging.Logger;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
-import org.netbeans.modules.apisupport.project.NbModuleProject;
+import org.netbeans.api.project.Project;
+import org.netbeans.modules.hudsonfindbugs.spi.FindBugsQueryImplementation;
 import org.netbeans.spi.tasklist.PushTaskScanner;
 import org.netbeans.spi.tasklist.Task;
 import org.netbeans.spi.tasklist.TaskScanningScope;
@@ -76,49 +76,54 @@ import org.xml.sax.helpers.DefaultHandler;
 final class FindBugsTaskScanner extends PushTaskScanner {
     private static final RequestProcessor RP = new RequestProcessor("Hudson FindBugs for NetBeans"); // NOI18N
     private static final Logger LOG = Logger.getLogger(FindBugsTaskScanner.class.getName());
-    
-    private final URL root;
-    
-    
-    FindBugsTaskScanner(URL root) {
+        
+    FindBugsTaskScanner() {
         super(
             NbBundle.getMessage(FindBugsTaskScanner.class, "MSG_NbFindBugs"),
             "description", 
             "huh"
         );
-        this.root = root;
     }
     
-    public static FindBugsTaskScanner create() throws MalformedURLException {
-        URL root = new URL("http://deadlock.netbeans.org/hudson/job/FindBugs/lastSuccessfulBuild/artifact/nbbuild/build/findbugs/"); // NOI18N
-        return new FindBugsTaskScanner(root);
+    public static FindBugsTaskScanner create() {
+        return new FindBugsTaskScanner();
     }
 
     
     @Override
     public void setScope(TaskScanningScope scope, Callback callback) {
-        ParseRequest req = new ParseRequest();
         if (scope == null) {
+            ParseRequest req = new ParseRequest();
             req.callback = callback;
             RP.post(req);
             return;
-        }
-        
-        if (cnb(scope.getLookup(), req)) {
-            req.callback = callback;
-            req.scanner = this;
-            RP.post(req);
+        } else {
+            Collection<Project> projects = (Collection<Project>) scope.getLookup().lookupAll(Project.class);
+            if ((projects == null) || (projects.isEmpty())) return;
+            
+            for (Project project : projects) {
+                ParseRequest req = new ParseRequest();
+                req.projectRoot = project.getProjectDirectory();
+                Collection<FindBugsQueryImplementation> queries = (Collection<FindBugsQueryImplementation>) 
+                        Lookup.getDefault().lookupAll(FindBugsQueryImplementation.class);
+                URL url = null;
+                for (FindBugsQueryImplementation fbqi : queries) {
+                    url = fbqi.getFindBugsUrl(project, true);
+                    if (url != null) break;
+                }
+                req.url = url;
+                req.callback = callback;
+                req.scanner = this;
+                RP.post(req);
+            }
         }
     }
 
     
     
-    final void parse(String cnb, FileObject project, Map<FileObject,List<Task>> cummulate) 
+    final void parse(URL errors, FileObject project, Map<FileObject,List<Task>> cummulate) 
     throws IOException, SAXException, ParserConfigurationException {
-        URL errors = new URL(root, cnb.replace('.', '-') + ".xml");
-        
-        SAXParser sax = SAXParserFactory.newInstance().newSAXParser();
-        
+        SAXParser sax = SAXParserFactory.newInstance().newSAXParser();        
         InputStream is = errors.openStream();
         try {
             Parse p = new Parse(project, cummulate);
@@ -129,32 +134,14 @@ final class FindBugsTaskScanner extends PushTaskScanner {
         
     }
 
-    //
-    // apisupport/project related tricks
-    //
-    
-    private static boolean cnb(Lookup where, ParseRequest req) {
-        NbModuleProject nbmp = where.lookup(NbModuleProject.class);
-        if (nbmp == null) {
-            return false;
-        }
-        req.cnb = nbmp.getCodeNameBase();
-        req.projectRoot = nbmp.getProjectDirectory();
-        return true;
-    }
-    
-    //
-    // end of apisupport/project tricks
-    //
-
     private static final class ParseRequest implements Runnable {
         FindBugsTaskScanner scanner;
-        String cnb;
         FileObject projectRoot;
         Callback callback;
+        URL url;
 
         public void run() {
-            if (cnb == null) {
+            if (url == null) {
                 if (callback != null) {
                     callback.clearAllTasks();
                 }
@@ -164,7 +151,7 @@ final class FindBugsTaskScanner extends PushTaskScanner {
             callback.started();
             Map<FileObject, List<Task>> map = new HashMap<FileObject, List<Task>>();
             try {
-                scanner.parse(cnb, projectRoot, map);
+                scanner.parse(url, projectRoot, map);
                 for (Map.Entry<FileObject, List<Task>> entry : map.entrySet()) {
                     callback.setTasks(entry.getKey(), entry.getValue());
                 }
