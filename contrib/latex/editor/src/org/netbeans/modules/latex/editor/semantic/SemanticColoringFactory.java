@@ -42,10 +42,10 @@
 package org.netbeans.modules.latex.editor.semantic;
 
 import org.netbeans.api.gsf.CancellableTask;
-import org.netbeans.api.retouche.source.CompilationInfo;
-import org.netbeans.api.retouche.source.Phase;
-import org.netbeans.api.retouche.source.Source.Priority;
-import org.netbeans.api.retouche.source.support.EditorAwareSourceTaskFactory;
+import org.netbeans.napi.gsfret.source.CompilationInfo;
+import org.netbeans.napi.gsfret.source.Phase;
+import org.netbeans.napi.gsfret.source.Source.Priority;
+import org.netbeans.napi.gsfret.source.support.EditorAwareSourceTaskFactory;
 import org.openide.filesystems.FileObject;
 
 /**

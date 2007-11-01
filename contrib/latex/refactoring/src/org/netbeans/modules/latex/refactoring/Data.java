@@ -40,7 +40,7 @@
  */
 package org.netbeans.modules.latex.refactoring;
 
-import org.netbeans.api.retouche.source.Source;
+import org.netbeans.napi.gsfret.source.Source;
 import org.netbeans.modules.refactoring.api.Problem;
 
 /**

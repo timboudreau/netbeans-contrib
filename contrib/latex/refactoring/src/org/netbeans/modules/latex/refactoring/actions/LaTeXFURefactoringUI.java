@@ -43,7 +43,7 @@ package org.netbeans.modules.latex.refactoring.actions;
 import java.awt.Component;
 import javax.swing.JPanel;
 import javax.swing.event.ChangeListener;
-import org.netbeans.api.retouche.source.Source;
+import org.netbeans.napi.gsfret.source.Source;
 import org.netbeans.modules.latex.refactoring.Data;
 import org.netbeans.modules.latex.refactoring.ui.NewNamePanel;
 import org.netbeans.modules.refactoring.api.AbstractRefactoring;

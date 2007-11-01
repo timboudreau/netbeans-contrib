@@ -62,7 +62,7 @@ import org.netbeans.api.editor.settings.AttributesUtilities;
 import org.netbeans.api.editor.settings.FontColorSettings;
 import org.netbeans.api.gsf.CancellableTask;
 import org.netbeans.api.lexer.Token;
-import org.netbeans.api.retouche.source.CompilationInfo;
+import org.netbeans.napi.gsfret.source.CompilationInfo;
 import org.netbeans.modules.latex.editor.ColoringEvaluator;
 import org.netbeans.modules.latex.editor.TexColoringNames;
 import org.netbeans.modules.latex.model.LaTeXParserResult;

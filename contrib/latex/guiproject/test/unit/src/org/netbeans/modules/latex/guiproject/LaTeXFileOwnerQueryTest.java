@@ -47,9 +47,9 @@ import java.io.IOException;
 import org.netbeans.api.gsf.CancellableTask;
 import org.netbeans.api.project.FileOwnerQuery;
 import org.netbeans.api.project.Project;
-import org.netbeans.api.retouche.source.CompilationController;
-import org.netbeans.api.retouche.source.Phase;
-import org.netbeans.api.retouche.source.Source;
+import org.netbeans.napi.gsfret.source.CompilationController;
+import org.netbeans.napi.gsfret.source.Phase;
+import org.netbeans.napi.gsfret.source.Source;
 import org.openide.filesystems.FileObject;
 
 /**

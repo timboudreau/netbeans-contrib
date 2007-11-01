@@ -44,16 +44,16 @@
 package org.netbeans.modules.latex.editor.fold;
 
 import java.util.ArrayList;
-import org.netbeans.api.retouche.source.Phase;
-import org.netbeans.api.retouche.source.Source.Priority;
+import org.netbeans.napi.gsfret.source.Phase;
+import org.netbeans.napi.gsfret.source.Source.Priority;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.Stack;
 import javax.swing.text.Document;
 import org.netbeans.api.editor.fold.FoldType;
 import org.netbeans.api.gsf.CancellableTask;
-import org.netbeans.api.retouche.source.CompilationInfo;
-import org.netbeans.api.retouche.source.support.EditorAwareSourceTaskFactory;
+import org.netbeans.napi.gsfret.source.CompilationInfo;
+import org.netbeans.napi.gsfret.source.support.EditorAwareSourceTaskFactory;
 import org.netbeans.modules.latex.editor.fold.FoldMaintainerImpl.FoldInfo;
 import org.netbeans.modules.latex.model.LaTeXParserResult;
 import org.netbeans.modules.latex.model.Utilities;

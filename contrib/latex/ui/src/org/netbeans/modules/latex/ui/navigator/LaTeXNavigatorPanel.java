@@ -47,7 +47,7 @@ import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.ListSelectionModel;
 import org.netbeans.api.gsf.CancellableTask;
-import org.netbeans.api.retouche.source.CompilationInfo;
+import org.netbeans.napi.gsfret.source.CompilationInfo;
 import org.netbeans.modules.latex.model.LaTeXParserResult;
 import org.netbeans.modules.latex.model.structural.StructuralNodeFactory;
 import org.netbeans.spi.navigator.NavigatorPanel;

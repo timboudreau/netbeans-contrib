@@ -43,10 +43,10 @@ package org.netbeans.modules.latex.ui.navigator;
 import java.util.Collections;
 import java.util.List;
 import org.netbeans.api.gsf.CancellableTask;
-import org.netbeans.api.retouche.source.CompilationInfo;
-import org.netbeans.api.retouche.source.Phase;
-import org.netbeans.api.retouche.source.Source.Priority;
-import org.netbeans.api.retouche.source.support.LookupBasedSourceTaskFactory;
+import org.netbeans.napi.gsfret.source.CompilationInfo;
+import org.netbeans.napi.gsfret.source.Phase;
+import org.netbeans.napi.gsfret.source.Source.Priority;
+import org.netbeans.napi.gsfret.source.support.LookupBasedSourceTaskFactory;
 import org.openide.filesystems.FileObject;
 import org.openide.util.Lookup;
 
