@@ -37,11 +37,6 @@
  * However, if you add GPL Version 2 code and therefore, elected the GPL
  * Version 2 license, then the option applies only if the new code is
  * made subject to such option by the copyright holder.
- */ /*
- * LoggerNode.java
- *
- * Created on Sep 11, 2007, 1:47:28 PM
- *
  */
 
 package org.netbeans.modules.logmanagement;
