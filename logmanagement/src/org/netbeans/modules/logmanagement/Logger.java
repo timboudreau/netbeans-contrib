@@ -38,12 +38,6 @@
  * Version 2 license, then the option applies only if the new code is
  * made subject to such option by the copyright holder.
  */
-/*
- * Logger.java
- *
- * Created on Sep 11, 2007, 11:50:55 AM
- *
- */
 
 package org.netbeans.modules.logmanagement;
 
@@ -54,21 +48,20 @@ import org.openide.DialogDisplayer;
 import org.openide.NotifyDescriptor;
 
 /**
- *
  * @author Anuradha G
  */
 public class Logger implements Comparable<Logger> {
 
     private final String name;
-    private List<Logger> childerns = new ArrayList<Logger>();
+    private List<Logger> children = new ArrayList<Logger>();
     private LoggingMXBean loggingMXBean = MXConnecter.getInstance().getLoggingMXBean();
 
     public Logger(String name) {
         this.name = name;
     }
 
-    public List<Logger> getChilderns() {
-        return childerns;
+    public List<Logger> getChildren() {
+        return children;
     }
 
     public String getLevel() {
@@ -102,12 +95,12 @@ public class Logger implements Comparable<Logger> {
 
     public Logger findLogger(String name) {
         Logger logger = null;
-        for (Logger l : childerns) {
+        for (Logger l : children) {
             if (l.getName().equals(name)) {
                 return l;
             }
         }
-        for (Logger l : childerns) {
+        for (Logger l : children) {
             logger = l.findLogger(name);
             if (logger != null) {
                 break;
@@ -117,11 +110,11 @@ public class Logger implements Comparable<Logger> {
     }
 
     public void addLogger(Logger logger) {
-        childerns.add(logger);
+        children.add(logger);
     }
 
     public void removeLogger(Logger logger) {
-        childerns.remove(logger);
+        children.remove(logger);
     }
 
     @Override

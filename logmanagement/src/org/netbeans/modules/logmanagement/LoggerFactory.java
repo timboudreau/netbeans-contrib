@@ -64,7 +64,7 @@ import org.openide.nodes.Node;
 
     protected boolean createKeys(List<Logger> arg0) {
 
-        arg0.addAll(logger.getChilderns());
+        arg0.addAll(logger.getChildren());
         Collections.sort(arg0);
         return true;
     }

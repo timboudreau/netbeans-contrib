@@ -76,7 +76,7 @@ import java.util.logging.LoggingMXBean;
     }
 
     public void refresh() {
-        root.getChilderns().clear();
+        root.getChildren().clear();
         List<String> loggerNames = loggingMXBean.getLoggerNames();
         for (String name : loggerNames) {
             addLogger(name);
@@ -117,7 +117,7 @@ import java.util.logging.LoggingMXBean;
     }
 
     private void printTree(Logger root, String tab) {
-        List<Logger> childerns = root.getChilderns();
+        List<Logger> childerns = root.getChildren();
         for (Logger logger : childerns) {
             System.out.println(tab + logger.getName() + "  -+");// NOI18N
             printTree(logger, tab + "\t");// NOI18N

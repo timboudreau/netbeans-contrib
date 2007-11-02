@@ -71,7 +71,7 @@ class LoggerNode extends AbstractNode {
     private InputOutput inputOutput;
 
     LoggerNode(Logger logger) {
-        super(!logger.getChilderns().isEmpty() ? Children.create(new LoggerFactory(logger), true) : Children.LEAF);
+        super(!logger.getChildren().isEmpty() ? Children.create(new LoggerFactory(logger), true) : Children.LEAF);
         this.logger = logger;
     }
 
