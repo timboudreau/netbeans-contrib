@@ -48,6 +48,7 @@ import org.netbeans.modules.hudsonfindbugs.spi.FindBugsQueryImplementation;
 import org.netbeans.modules.java.j2seproject.J2SEProject;
 import org.netbeans.spi.project.support.ant.AntProjectHelper;
 import org.netbeans.spi.project.support.ant.EditableProperties;
+import org.openide.ErrorManager;
 
 /**
  *
@@ -74,7 +75,7 @@ public final class J2seFindBugsQueryProvider implements FindBugsQueryImplementat
             } catch (MalformedURLException ex) {
                 LOG.log(Level.INFO, "URL incorrect: " + urlValue + ex.getLocalizedMessage());
             }
-        }
+        }ErrorManager.getDefault();
         return url;
     }
 
