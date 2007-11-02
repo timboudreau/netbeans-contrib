@@ -56,7 +56,7 @@ import org.openide.ErrorManager;
  */
 public final class J2seFindBugsQueryProvider implements FindBugsQueryImplementation {
 
-    private static final Logger LOG = Logger.getLogger(FindBugsTaskScanner.class.getName());
+    private static final Logger LOG = Logger.getLogger(J2seFindBugsQueryProvider.class.getName());
 
     public J2seFindBugsQueryProvider() {}
     
