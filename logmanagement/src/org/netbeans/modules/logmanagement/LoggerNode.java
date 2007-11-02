@@ -49,7 +49,6 @@ import java.awt.event.ActionEvent;
 import java.util.logging.LogManager;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
-import org.netbeans.modules.logmanagement.actions.FilterAction;
 import org.netbeans.modules.logmanagement.actions.FormatterChooserAction;
 import org.netbeans.modules.logmanagement.actions.LevelChooserAction;
 import org.netbeans.modules.logmanagement.handlers.CustomHandler;
@@ -160,7 +159,7 @@ class LoggerNode extends AbstractNode {
         //actions[2] = new FilterAction();
             inputOutput = IOProvider.getDefault().getIO(logger.getName(), actions);
             OutputWriter w = inputOutput.getOut();
-            w.append(NbBundle.getMessage(LoggerNode.class, "Output_Note") + logger.getLevel());
+            w.append(NbBundle.getMessage(LoggerNode.class, "Output_Note") + logger.getLevel() + "\n");
             streamHandler.setOutputWriter(w);
             LogManager.getLogManager().getLogger(logger.getName()).addHandler(streamHandler);
         }
