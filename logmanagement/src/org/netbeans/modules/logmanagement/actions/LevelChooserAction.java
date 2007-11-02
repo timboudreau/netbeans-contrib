@@ -48,52 +48,47 @@ import org.openide.util.Utilities;
  */
 public class LevelChooserAction extends AbstractAction {
 
-    private Logger logger;
-    private JPopupMenu menu = new JPopupMenu();
-    private ButtonGroup group = new ButtonGroup();
-    private boolean wormup;
+    private final Logger logger;
 
     public LevelChooserAction(Logger logger) {
         putValue(Action.SHORT_DESCRIPTION, NbBundle.getMessage(LevelChooserAction.class, "level"));
         putValue(Action.SMALL_ICON, new javax.swing.ImageIcon(Utilities.loadImage("org/netbeans/modules/logmanagement/resources/level.png", true)));
         this.logger = logger;
-        Level selected = Level.parse(logger.getLevel());
-
-        for (Level lvl : new Level[] {Level.ALL, Level.CONFIG, Level.FINE, Level.FINER, Level.FINEST, Level.INFO, Level.OFF, Level.SEVERE, Level.WARNING}) {
-            JRadioButtonMenuItem mi = new JRadioButtonMenuItem(new LevelAction(lvl));
-            menu.add(mi);
-            group.add(mi);
-            if (lvl.equals(selected)) {
-                mi.setSelected(true);
-            }
-        }
     }
 
     public void actionPerformed(ActionEvent e) {
         Object source = e.getSource();
         if (source instanceof JButton) {
             final JButton button = (JButton) source;
-            if (!wormup) {
-                wormup = true;
-                button.setFocusPainted(false);
-                menu.addPopupMenuListener(new PopupMenuListener() {
-                    public void popupMenuWillBecomeVisible(PopupMenuEvent e) {
-                        if (button != null) {
-                            button.setSelected(true);
-                        }
-                    }
-                    public void popupMenuWillBecomeInvisible(PopupMenuEvent e) {
-                        if (button != null) {
-                            button.setSelected(false);
-                        }
-                    }
-                    public void popupMenuCanceled(PopupMenuEvent e) {
-                        if (button != null) {
-                            button.setSelected(false);
-                        }
-                    }
-                });
+            button.setFocusPainted(false);
+            JPopupMenu menu = new JPopupMenu();
+            ButtonGroup group = new ButtonGroup();
+            Level selected = Level.parse(logger.getLevel());
+            for (Level lvl : new Level[] {Level.ALL, Level.CONFIG, Level.FINE, Level.FINER, Level.FINEST, Level.INFO, Level.OFF, Level.SEVERE, Level.WARNING}) {
+                JRadioButtonMenuItem mi = new JRadioButtonMenuItem(new LevelAction(lvl));
+                menu.add(mi);
+                group.add(mi);
+                if (lvl.equals(selected)) {
+                    mi.setSelected(true);
+                }
             }
+            menu.addPopupMenuListener(new PopupMenuListener() {
+                public void popupMenuWillBecomeVisible(PopupMenuEvent e) {
+                    if (button != null) {
+                        button.setSelected(true);
+                    }
+                }
+                public void popupMenuWillBecomeInvisible(PopupMenuEvent e) {
+                    if (button != null) {
+                        button.setSelected(false);
+                    }
+                }
+                public void popupMenuCanceled(PopupMenuEvent e) {
+                    if (button != null) {
+                        button.setSelected(false);
+                    }
+                }
+            });
             Point point = button.getLocationOnScreen();
             menu.setInvoker(button);
             menu.setVisible(true);
