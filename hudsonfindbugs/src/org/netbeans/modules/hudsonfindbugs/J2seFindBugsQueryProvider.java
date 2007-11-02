@@ -41,18 +41,21 @@ package org.netbeans.modules.hudsonfindbugs;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.netbeans.api.project.Project;
 import org.netbeans.modules.hudsonfindbugs.spi.FindBugsQueryImplementation;
 import org.netbeans.modules.java.j2seproject.J2SEProject;
 import org.netbeans.spi.project.support.ant.AntProjectHelper;
 import org.netbeans.spi.project.support.ant.EditableProperties;
-import org.openide.ErrorManager;
 
 /**
  *
  * @author Martin Grebac
  */
 public final class J2seFindBugsQueryProvider implements FindBugsQueryImplementation {
+
+    private static final Logger LOG = Logger.getLogger(FindBugsTaskScanner.class.getName());
 
     public J2seFindBugsQueryProvider() {}
     
@@ -69,7 +72,7 @@ public final class J2seFindBugsQueryProvider implements FindBugsQueryImplementat
                     url = new URL(urlValue);
                 }
             } catch (MalformedURLException ex) {
-                ErrorManager.getDefault().log(ErrorManager.INFORMATIONAL, "URL incorrect: " + urlValue + ex.getLocalizedMessage());
+                LOG.log(Level.INFO, "URL incorrect: " + urlValue + ex.getLocalizedMessage());
             }
         }
         return url;
