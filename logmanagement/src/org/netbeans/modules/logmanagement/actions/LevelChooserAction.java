@@ -48,7 +48,6 @@ import org.openide.util.Utilities;
  */
 public class LevelChooserAction extends AbstractAction {
 
-    private static final long serialVersionUID = 1l;
     private Logger logger;
     private JPopupMenu menu = new JPopupMenu();
     private ButtonGroup group = new ButtonGroup();
@@ -73,40 +72,32 @@ public class LevelChooserAction extends AbstractAction {
     public void actionPerformed(ActionEvent e) {
         Object source = e.getSource();
         if (source instanceof JButton) {
-            JButton button = (JButton) source;
-            wormup(button);
+            final JButton button = (JButton) source;
+            if (!wormup) {
+                wormup = true;
+                button.setFocusPainted(false);
+                menu.addPopupMenuListener(new PopupMenuListener() {
+                    public void popupMenuWillBecomeVisible(PopupMenuEvent e) {
+                        if (button != null) {
+                            button.setSelected(true);
+                        }
+                    }
+                    public void popupMenuWillBecomeInvisible(PopupMenuEvent e) {
+                        if (button != null) {
+                            button.setSelected(false);
+                        }
+                    }
+                    public void popupMenuCanceled(PopupMenuEvent e) {
+                        if (button != null) {
+                            button.setSelected(false);
+                        }
+                    }
+                });
+            }
             Point point = button.getLocationOnScreen();
-
             menu.setInvoker(button);
             menu.setVisible(true);
             menu.setLocation(point.x+ (button.getWidth()), point.y);
-        }
-    }
-
-    private synchronized void wormup(final JButton button) {
-        if (!wormup) {
-            wormup=true;
-            button.setFocusPainted(false);
-            menu.addPopupMenuListener(new PopupMenuListener() {
-
-                public void popupMenuWillBecomeVisible(PopupMenuEvent e) {
-                    if (button != null) {
-                        button.setSelected(true);
-                    }
-                }
-
-                public void popupMenuWillBecomeInvisible(PopupMenuEvent e) {
-                    if (button != null) {
-                        button.setSelected(false);
-                    }
-                }
-
-                public void popupMenuCanceled(PopupMenuEvent e) {
-                    if (button != null) {
-                        button.setSelected(false);
-                    }
-                }
-            });
         }
     }
 
