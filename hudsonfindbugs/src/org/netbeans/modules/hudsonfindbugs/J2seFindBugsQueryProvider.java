@@ -46,7 +46,7 @@ import org.netbeans.modules.hudsonfindbugs.spi.FindBugsQueryImplementation;
 import org.netbeans.modules.java.j2seproject.J2SEProject;
 import org.netbeans.spi.project.support.ant.AntProjectHelper;
 import org.netbeans.spi.project.support.ant.EditableProperties;
-import org.openide.util.Exceptions;
+import org.openide.ErrorManager;
 
 /**
  *
@@ -59,14 +59,17 @@ public final class J2seFindBugsQueryProvider implements FindBugsQueryImplementat
     public URL getFindBugsUrl(Project project, boolean remote) {
         if (!remote) throw new UnsupportedOperationException("Local files not yet supported.");
         URL url = null;
+        String urlValue = null;
         if (project instanceof J2SEProject) {
             try {
                 J2SEProject j2sePrj = (J2SEProject) project;
                 EditableProperties ep = j2sePrj.getAntProjectHelper().getProperties(AntProjectHelper.PROJECT_PROPERTIES_PATH);
-                String urlValue = ep.getProperty(FINDBUGS_PROJECT_PROPERTY);
-                url = new URL(urlValue);
+                urlValue = ep.getProperty(FINDBUGS_PROJECT_PROPERTY);
+                if (urlValue != null) {
+                    url = new URL(urlValue);
+                }
             } catch (MalformedURLException ex) {
-                Exceptions.printStackTrace(ex);
+                ErrorManager.getDefault().log(ErrorManager.INFORMATIONAL, "URL incorrect: " + urlValue + ex.getLocalizedMessage());
             }
         }
         return url;
