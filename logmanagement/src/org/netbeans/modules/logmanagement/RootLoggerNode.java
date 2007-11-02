@@ -93,7 +93,7 @@ public class RootLoggerNode extends AbstractNode {
 
     @Override
     public String getShortDescription() {
-        return NbBundle.getMessage(LoggerNode.class, "Logger_Level")+" : " + logger.getLevel();//NOI18N
+        return NbBundle.getMessage(LoggerNode.class, "Logger_Level", logger.getLevel());
     }
 
     public synchronized void refresh() {

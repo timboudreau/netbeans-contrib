@@ -93,7 +93,7 @@ class LoggerNode extends AbstractNode {
 
     @Override
     public String getShortDescription() {
-        return NbBundle.getMessage(LoggerNode.class, "Logger_Level") + logger.getLevel();
+        return NbBundle.getMessage(LoggerNode.class, "Logger_Level", logger.getLevel());
     }
 
     /**
@@ -159,7 +159,7 @@ class LoggerNode extends AbstractNode {
         //actions[2] = new FilterAction();
             inputOutput = IOProvider.getDefault().getIO(logger.getName(), actions);
             OutputWriter w = inputOutput.getOut();
-            w.append(NbBundle.getMessage(LoggerNode.class, "Output_Note") + logger.getLevel() + "\n");
+            w.append(NbBundle.getMessage(LoggerNode.class, "FMT_Output_Note", logger.getLevel()) + "\n");
             streamHandler.setOutputWriter(w);
             LogManager.getLogManager().getLogger(logger.getName()).addHandler(streamHandler);
         }

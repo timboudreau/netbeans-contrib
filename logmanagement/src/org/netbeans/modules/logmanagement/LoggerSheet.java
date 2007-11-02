@@ -62,7 +62,7 @@ import org.openide.util.NbBundle;
             info.put(nameProp);
             PropertySupport.Reflection<String> levelProp = new PropertySupport.Reflection<String>(logger, String.class, "getLevel", "setLevel");//NOI18N
             nameProp.setName("level"); //NOI18N
-            levelProp.setDisplayName(NbBundle.getMessage(LoggerNode.class,"Logger_Level"));
+            levelProp.setDisplayName(NbBundle.getMessage(LoggerNode.class,"Logger_Level_prop"));
             levelProp.setPropertyEditorClass(LevelPropertyEditor.class);
             
             info.put(levelProp);
