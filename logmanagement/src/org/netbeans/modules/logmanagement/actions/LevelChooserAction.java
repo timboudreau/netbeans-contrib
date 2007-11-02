@@ -44,7 +44,6 @@ import org.openide.util.NbBundle;
 import org.openide.util.Utilities;
 
 /**
- *
  * @author Anuradha G
  */
 public class LevelChooserAction extends AbstractAction {
@@ -55,71 +54,21 @@ public class LevelChooserAction extends AbstractAction {
     private ButtonGroup group = new ButtonGroup();
     private boolean wormup;
 
-    
     public LevelChooserAction(Logger logger) {
         putValue(Action.SHORT_DESCRIPTION, NbBundle.getMessage(LevelChooserAction.class, "level"));
         putValue(Action.SMALL_ICON, new javax.swing.ImageIcon(Utilities.loadImage("org/netbeans/modules/logmanagement/resources/level.png", true)));
         this.logger = logger;
         Level selected = Level.parse(logger.getLevel());
-        JRadioButtonMenuItem all = new JRadioButtonMenuItem(new LevelAction(Level.ALL));
-        menu.add(all);
-        group.add(all);
-        if(Level.ALL.equals(selected))
-            all.setSelected(true);
 
-        JRadioButtonMenuItem config = new JRadioButtonMenuItem(new LevelAction(Level.CONFIG));
-        menu.add(config);
-        group.add(config);
-        if(Level.CONFIG.equals(selected))
-            config.setSelected(true);
-
-
-        JRadioButtonMenuItem fine = new JRadioButtonMenuItem(new LevelAction(Level.FINE));
-        menu.add(fine);
-        group.add(fine);
-       if(Level.FINE.equals(selected))
-            fine.setSelected(true);
-        
-        JRadioButtonMenuItem finer = new JRadioButtonMenuItem(new LevelAction(Level.FINER));
-        menu.add(finer);
-        group.add(finer);
-        if(Level.FINER.equals(selected))
-            finer.setSelected(true);
-        
-        JRadioButtonMenuItem finest = new JRadioButtonMenuItem(new LevelAction(Level.FINEST));
-        menu.add(finest);
-        group.add(finest);
-        if(Level.FINEST.equals(selected))
-            finest.setSelected(true);
-        
-        JRadioButtonMenuItem info = new JRadioButtonMenuItem(new LevelAction(Level.INFO));
-        menu.add(info);
-        group.add(info);
-        if(Level.INFO.equals(selected))
-            info.setSelected(true);
-       
-        JRadioButtonMenuItem off = new JRadioButtonMenuItem(new LevelAction(Level.OFF));
-        menu.add(off);
-        group.add(off);
-        if(Level.OFF.equals(selected))
-            off.setSelected(true);
-        
-        JRadioButtonMenuItem server = new JRadioButtonMenuItem(new LevelAction(Level.SEVERE));
-        menu.add(server);
-        group.add(server);
-        if(Level.SEVERE.equals(selected))
-            server.setSelected(true);
-        
-        JRadioButtonMenuItem warning = new JRadioButtonMenuItem(new LevelAction(Level.WARNING));
-        menu.add(warning);
-        group.add(warning);
-        if(Level.WARNING.equals(selected))
-            warning.setSelected(true);
-        
-        
-        
+        for (Level lvl : new Level[] {Level.ALL, Level.CONFIG, Level.FINE, Level.FINER, Level.FINEST, Level.INFO, Level.OFF, Level.SEVERE, Level.WARNING}) {
+            JRadioButtonMenuItem mi = new JRadioButtonMenuItem(new LevelAction(lvl));
+            menu.add(mi);
+            group.add(mi);
+            if (lvl.equals(selected)) {
+                mi.setSelected(true);
+            }
+        }
     }
-
 
     public void actionPerformed(ActionEvent e) {
         Object source = e.getSource();
@@ -167,12 +116,11 @@ public class LevelChooserAction extends AbstractAction {
 
         public LevelAction(Level level) {
             this.level = level;
-             putValue(NAME, level.getLocalizedName());
+            putValue(NAME, level.getLocalizedName());
         }
 
         public void actionPerformed(ActionEvent e) {
             logger.setLevel(level.getName());
-           
         }
     }
 }
