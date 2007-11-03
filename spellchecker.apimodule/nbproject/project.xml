@@ -27,6 +27,7 @@
                 <package>org.netbeans.modules.spellchecker.spi</package>
                 <package>org.netbeans.modules.spellchecker.spi.dictionary</package>
                 <package>org.netbeans.modules.spellchecker.spi.language</package>
+                <package>org.netbeans.modules.spellchecker.spi.language.support</package>
             </public-packages>
         </data>
     </configuration>
