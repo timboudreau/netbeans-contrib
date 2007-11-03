@@ -101,8 +101,9 @@ made subject to such option by the copyright holder.
             </fileset>
         </copy>
         
-        <copy tofile="${temp.template.src.dir}/docs/theme_info.html"
-              file="${temp.themes.dir}/doc/sjwuic_themes.html"/>
+        <copy todir="${temp.template.dir}/doc">
+              <fileset dir="${temp.themes.dir}/doc"/>
+        </copy>      
         
         <!-- copy messages.properties to messages_en.properties JSF hack -->
         <copy tofile="${temp.template.src.dir}/messages/messages_en.properties"
@@ -123,15 +124,15 @@ made subject to such option by the copyright holder.
         
         <copy todir="${temp.template.dir}/tools">
             <fileset dir="${temp.themes.dir}/tools">
-                <include name="javascript/custom_rhino.jar" /> 
-                <include name="javascript/tools.jar" /> 
+                <include name="custom_rhino.jar" /> 
+                <include name="woodstock-tools.jar" /> 
             </fileset>
         </copy>
         
         <zip basedir="${temp.dir}/WoodstockThemeTemplate/"
             zipfile="${basedir}/src/org/netbeans/modules/themebuilder/resources/WoodstockThemeTemplate.zip"/>
             
-        <delete  dir="${temp.dir}" />  
+        <!--delete  dir="${temp.dir}" /-->  
     </target>
     
 </project>

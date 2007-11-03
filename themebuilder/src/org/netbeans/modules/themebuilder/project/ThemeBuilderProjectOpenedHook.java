@@ -89,7 +89,7 @@ public class ThemeBuilderProjectOpenedHook extends ProjectOpenedHook {
             out = privatePropsFile.getOutputStream();
             String userPropsInfo = null;
             if (buildProperties.getAbsolutePath().contains("\\")) {
-                userPropsInfo = "user.properties.file=" + buildProperties.getAbsolutePath().replaceAll("\\", "/");
+                userPropsInfo = "user.properties.file=" + buildProperties.getAbsolutePath().replaceAll("\\\\", "/");
             } else {
                 userPropsInfo = "user.properties.file=" + buildProperties.getAbsolutePath();
             }
