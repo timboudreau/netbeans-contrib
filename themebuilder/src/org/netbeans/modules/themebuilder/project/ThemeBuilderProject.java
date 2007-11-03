@@ -65,6 +65,11 @@ import org.openide.util.lookup.Lookups;
 public final class ThemeBuilderProject implements Project{
     
     /**
+     * Project sub directory containing src files
+     */
+    public static final String SRC_DIR = "src"; //NOI18N
+    
+    /**
      * Project sub directory containing CSS files
      */
     public static final String CSS_DIR = "css"; //NOI18N
@@ -91,6 +96,7 @@ public final class ThemeBuilderProject implements Project{
     
     private Lookup projectLookup;
     private final FileObject projectDir;
+    private final FileObject srcDir;
     
     private AntProjectHelper helper;
     
@@ -103,6 +109,7 @@ public final class ThemeBuilderProject implements Project{
         this.helper = helper;
         projectDir = helper.getProjectDirectory();
         projectLookup = createLookup();
+        srcDir = getSrcFolder();
     }
     
     /**
@@ -154,13 +161,17 @@ public final class ThemeBuilderProject implements Project{
         return folder;
     }
     
+    public FileObject getSrcFolder() {
+        return findFolder(projectDir, SRC_DIR);
+    }
+    
     /**
      * Get the File Object corresponding to CSS folder
      * @param create
      * @return FileObject
      */
     public FileObject getCssFolder() {
-        return findFolder(projectDir, CSS_DIR);
+        return findFolder(srcDir, CSS_DIR);
     }
     
     /**
@@ -169,7 +180,7 @@ public final class ThemeBuilderProject implements Project{
      * @return
      */
     public FileObject getImagesFolder() {
-        return findFolder(projectDir, IMAGES_DIR);
+        return findFolder(srcDir, IMAGES_DIR);
     }
     
     /**
@@ -178,7 +189,7 @@ public final class ThemeBuilderProject implements Project{
      * @return
      */
     public FileObject getJavaScriptFolder() {
-        return findFolder(projectDir, JAVASCRIPT_DIR);
+        return findFolder(srcDir, JAVASCRIPT_DIR);
     }
     
     /**
@@ -187,7 +198,7 @@ public final class ThemeBuilderProject implements Project{
      * @return
      */
     public FileObject getMessagesFolder() {
-        return  findFolder(projectDir, MESSAGES_DIR);
+        return  findFolder(srcDir, MESSAGES_DIR);
     }
     
     /**
@@ -196,6 +207,6 @@ public final class ThemeBuilderProject implements Project{
      * @return FileObject
      */
     public FileObject getPropertiesFolder() {
-        return findFolder(projectDir, PROPERTIES_DIR);
+        return findFolder(srcDir, PROPERTIES_DIR);
     }
 }

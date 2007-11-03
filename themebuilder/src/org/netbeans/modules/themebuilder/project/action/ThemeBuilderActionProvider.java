@@ -83,6 +83,7 @@ public final class ThemeBuilderActionProvider implements ActionProvider{
     public String[] getSupportedActions() {
         return new String[] {
             COMMAND_BUILD,
+            COMMAND_REBUILD,
             COMMAND_CLEAN,
             COMMAND_DELETE,
             COMMAND_COPY,
