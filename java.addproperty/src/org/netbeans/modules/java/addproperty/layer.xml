@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE filesystem PUBLIC "-//NetBeans//DTD Filesystem 1.1//EN" "http://www.netbeans.org/dtds/filesystem-1_1.dtd">
+<filesystem>
+    <folder name="Actions">
+        <folder name="Source">
+            <file name="org-netbeans-modules-java-addproperty-actions-AddPropertyAction.instance"/>
+        </folder>
+    </folder>
+    <folder name="Menu">
+        <folder name="Source">
+            <file name="org-netbeans-modules-java-addproperty-actions-AddPropertyAction.shadow">
+                <attr name="originalFile" stringvalue="Actions/Source/org-netbeans-modules-java-addproperty-actions-AddPropertyAction.instance"/>
+                <attr name="position" intvalue="3300"/>
+            </file>
+            <file name="org-netbeans-modules-java-addproperty-actions-separatorAfter.instance">
+                <attr name="instanceClass" stringvalue="javax.swing.JSeparator"/>
+                <attr name="position" intvalue="3400"/>
+            </file>
+            <file name="org-netbeans-modules-java-addproperty-actions-separatorBefore.instance">
+                <attr name="instanceClass" stringvalue="javax.swing.JSeparator"/>
+                <attr name="position" intvalue="3250"/>
+            </file>
+        </folder>
+    </folder>
+    <folder name="Templates">        
+        <folder name="org.netbeans.modules.java.addproperty">        
+            <file name="AddProperty.freemarker" url="AddProperty.freemarker">
+                <attr name="template" boolvalue="true"/>
+            </file>
+        </folder>
+    </folder>
+</filesystem>
