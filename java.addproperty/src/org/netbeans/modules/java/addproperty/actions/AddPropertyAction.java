@@ -38,13 +38,12 @@
  * Version 2 license, then the option applies only if the new code is
  * made subject to such option by the copyright holder.
  */
-
 package org.netbeans.modules.java.addproperty.actions;
 
 import javax.swing.JEditorPane;
 import javax.swing.text.BadLocationException;
-import javax.swing.text.Document;
 import javax.swing.text.StyledDocument;
+import org.netbeans.modules.java.addproperty.api.AddPropertyGenerator;
 import org.netbeans.modules.java.addproperty.ui.AddPropertyPanel;
 import org.openide.DialogDisplayer;
 import org.openide.NotifyDescriptor;
@@ -69,19 +68,20 @@ public final class AddPropertyAction extends CookieAction {
         EditorCookie editorCookie = activatedNodes[0].getLookup().lookup(EditorCookie.class);
         final AddPropertyPanel addPropertyPanel = AddPropertyPanel.getINSTANCE();
         NotifyDescriptor d =
-             new NotifyDescriptor.Confirmation(addPropertyPanel, "Add Property",
-                                               NotifyDescriptor.OK_CANCEL_OPTION, NotifyDescriptor.PLAIN_MESSAGE);
-         if (DialogDisplayer.getDefault().notify(d) == NotifyDescriptor.OK_OPTION) {
-             JEditorPane[] editorPanes = editorCookie.getOpenedPanes();
-             if (editorPanes != null) {
+                new NotifyDescriptor.Confirmation(addPropertyPanel, "Add Property",
+                NotifyDescriptor.OK_CANCEL_OPTION, NotifyDescriptor.PLAIN_MESSAGE);
+        if (DialogDisplayer.getDefault().notify(d) == NotifyDescriptor.OK_OPTION) {
+            JEditorPane[] editorPanes = editorCookie.getOpenedPanes();
+            if (editorPanes != null) {
                 final JEditorPane editorPane = editorPanes[0];
                 final StyledDocument document = (StyledDocument) editorPane.getDocument();
                 try {
                     NbDocument.runAtomicAsUser(document, new Runnable() {
+
                         public void run() {
                             try {
                                 document.insertString(editorPane.getCaretPosition(),
-                                        addPropertyPanel.getAddProperty(),
+                                        AddPropertyGenerator.getDefault().generate(addPropertyPanel.getAddPropertyConfig()),
                                         null);
                             } catch (BadLocationException ex) {
                                 Exceptions.printStackTrace(ex);
@@ -91,8 +91,8 @@ public final class AddPropertyAction extends CookieAction {
                 } catch (BadLocationException ex) {
                     Exceptions.printStackTrace(ex);
                 }
-             }
-         }
+            }
+        }
     }
 
     protected int mode() {
@@ -127,7 +127,6 @@ public final class AddPropertyAction extends CookieAction {
 //    protected String iconResource() {
 //        return "org/netbeans/modules/java/addproperty/ui/resources/addproperty.png";
 //    }
-
     public HelpCtx getHelpCtx() {
         return HelpCtx.DEFAULT_HELP;
     }

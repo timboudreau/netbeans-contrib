@@ -14,7 +14,7 @@
      */
 </#if>
     public <#if static >static </#if>${type}<#if indexed >[]</#if> <#if type = "boolean" >is<#else>get</#if>${capitalizedName}() {
-        return this.${name};
+        return <#if !static >this.</#if>${name};
     }
 </#if>
 <#if generateSetter >
@@ -31,7 +31,7 @@
 <#if bound >
         ${type}<#if indexed >[]</#if> old${name} = new${name};
 </#if>
-        this.${name} = new${name};
+        <#if !static >this.</#if>${name} = new${name};
 <#if bound >
         propertyChangeSupport.firePropertyChange(${PROP_NAME}, old${name}, new${name});
 </#if>
@@ -50,7 +50,7 @@
      */
 </#if>
     public <#if static >static </#if>${type} <#if type = "boolean" >is<#else>get</#if>${capitalizedName}(int index) {
-        return this.${name}[index];
+        return <#if !static >this.</#if>${name}[index];
     }
 </#if>
 <#if generateSetter >
@@ -63,7 +63,7 @@
      */
 </#if>
     public <#if static >static </#if>void set${capitalizedName}(int index, ${type} new${name}) {
-        this.${name}[index] = new${name};
+        <#if !static >this.</#if>${name}[index] = new${name};
     }
 </#if>
 </#if>

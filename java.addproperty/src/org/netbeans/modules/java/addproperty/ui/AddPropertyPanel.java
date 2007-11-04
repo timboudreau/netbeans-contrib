@@ -38,26 +38,14 @@
  * Version 2 license, then the option applies only if the new code is
  * made subject to such option by the copyright holder.
  */
-
 package org.netbeans.modules.java.addproperty.ui;
 
 import java.awt.Rectangle;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.Reader;
-import java.io.StringWriter;
-import javax.script.ScriptContext;
-import javax.script.ScriptEngine;
-import javax.script.ScriptEngineManager;
-import javax.script.ScriptException;
 import javax.swing.SwingUtilities;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
-import org.netbeans.lib.editor.codetemplates.api.CodeTemplate;
-import org.netbeans.lib.editor.codetemplates.api.CodeTemplateManager;
-import org.openide.filesystems.FileObject;
-import org.openide.filesystems.Repository;
-import org.openide.util.Exceptions;
+import org.netbeans.modules.java.addproperty.api.AddPropertyConfig;
+import org.netbeans.modules.java.addproperty.api.AddPropertyGenerator;
 
 /**
  * A simple GUI for Add Property action.
@@ -67,14 +55,7 @@ import org.openide.util.Exceptions;
 public class AddPropertyPanel extends javax.swing.JPanel {
 
     private static AddPropertyPanel INSTANCE;
-
-    private static final String TEMPLATE_PATH = "Templates/org.netbeans.modules.java.addproperty/AddProperty.freemarker"; // NOI18N
-
-    private static FileObject templateFileObject;
-
-    private CodeTemplateManager codeTemplateManager;
-    
-    private static boolean propNameModified = false;    
+    private static boolean propNameModified = false;
     private DocumentListener propNameTextFieldDocumentListener;
 
     public static AddPropertyPanel getINSTANCE() {
@@ -88,9 +69,9 @@ public class AddPropertyPanel extends javax.swing.JPanel {
     private AddPropertyPanel() {
         initComponents();
         previewScrollPane.putClientProperty(
-            "HighlightsLayerExcludes", // NOI18N
-            "^org\\.netbeans\\.modules\\.editor\\.lib2\\.highlighting\\.CaretRowHighlighting$" // NOI18N
-        );
+                "HighlightsLayerExcludes", // NOI18N
+                "^org\\.netbeans\\.modules\\.editor\\.lib2\\.highlighting\\.CaretRowHighlighting$" // NOI18N
+                );
 
         nameTextField.getDocument().addDocumentListener(new DocumentListener() {
 
@@ -105,10 +86,11 @@ public class AddPropertyPanel extends javax.swing.JPanel {
             public void changedUpdate(DocumentEvent e) {
             }
         });
-        
+
         propNameTextFieldDocumentListener = new DocumentListener() {
+
             public void insertUpdate(DocumentEvent e) {
-                propNameModified = true;                
+                propNameModified = true;
                 showPreview();
             }
 
@@ -127,7 +109,6 @@ public class AddPropertyPanel extends javax.swing.JPanel {
     public void addNotify() {
         super.addNotify();
         previewEditorPane.setText("");
-        codeTemplateManager = CodeTemplateManager.get(previewEditorPane.getDocument());
         propNameModified = false;
         showPreview();
     }
@@ -138,115 +119,42 @@ public class AddPropertyPanel extends javax.swing.JPanel {
             propNameTextField.setText("PROP_" + nameTextField.getText().toUpperCase());
             propNameTextField.getDocument().addDocumentListener(propNameTextFieldDocumentListener);
         }
-        
-        final String previewTemplate = generatePreview();
-        CodeTemplate codeTemplate = codeTemplateManager.createTemporary(previewTemplate);
-//        previewEditorPane.setText("");
-//        codeTemplate.insert(previewEditorPane);
+        final String previewTemplate = AddPropertyGenerator.getDefault().generate(getAddPropertyConfig());
         previewEditorPane.setText(previewTemplate);
         SwingUtilities.invokeLater(new Runnable() {
+
             public void run() {
                 previewEditorPane.setCaretPosition(0);
-                previewEditorPane.scrollRectToVisible(new Rectangle(0,0,1,1));
+                previewEditorPane.scrollRectToVisible(new Rectangle(0, 0, 1, 1));
             }
         });
     }
-    
-    public String getAddProperty() {
-        return generatePreview();
-    }
-    
-    private static final String INDENT = "       ";
-    private String generatePreview() {
-        ScriptEngine scriptEngine = getScriptEngine();
-        if (scriptEngine != null) {
-            FileObject template = getTemplateFileObject();
-            if (template != null && template.isValid()) {
-                final String type = typeComboBox.getSelectedItem().toString().trim();
-                final String name = nameTextField.getText().trim();
-                String access = "";
-                if (privateRadioButton.isSelected()) {
-                    access = "private ";
-                } else if (protectedRadioButton.isSelected()) {
-                    access = "protected ";
-                } else if (publicRadioButton.isSelected()) {
-                    access =  "public ";
-                }
-                ScriptContext scriptContext = scriptEngine.getContext();
-                StringWriter writer = new StringWriter();
-                scriptContext.setWriter(writer);
-                scriptContext.setAttribute(FileObject.class.getName(), template, ScriptContext.ENGINE_SCOPE);
-                scriptContext.setAttribute(ScriptEngine.FILENAME, template.getNameExt(), ScriptContext.ENGINE_SCOPE);
-                scriptContext.setAttribute("access", access, ScriptContext.ENGINE_SCOPE);
-                scriptContext.setAttribute("type", type, ScriptContext.ENGINE_SCOPE);
-                scriptContext.setAttribute("name", name, ScriptContext.ENGINE_SCOPE);
-                scriptContext.setAttribute("capitalizedName", capitalize(name), ScriptContext.ENGINE_SCOPE);
-                scriptContext.setAttribute("static", Boolean.valueOf(staticCheckBox.isSelected()), ScriptContext.ENGINE_SCOPE);
-                scriptContext.setAttribute("final", Boolean.valueOf(finalCheckBox.isSelected()), ScriptContext.ENGINE_SCOPE);
-                scriptContext.setAttribute("generateGetter", Boolean.valueOf(generateGetterAndSetterRadioButton.isSelected() || generateGetterRadioButton.isSelected()), ScriptContext.ENGINE_SCOPE);
-                scriptContext.setAttribute("generateSetter", Boolean.valueOf(generateGetterAndSetterRadioButton.isSelected() || generateSetterRadioButton.isSelected()), ScriptContext.ENGINE_SCOPE);
-                scriptContext.setAttribute("generateJavadoc", Boolean.valueOf(generateJavadocCheckBox.isSelected()), ScriptContext.ENGINE_SCOPE);
-                scriptContext.setAttribute("bound", Boolean.valueOf(boundCheckBox.isSelected()), ScriptContext.ENGINE_SCOPE);
-                scriptContext.setAttribute("PROP_NAME", propNameTextField.getText().trim(), ScriptContext.ENGINE_SCOPE);
-                scriptContext.setAttribute("vetoable", Boolean.valueOf(vetoableCheckBox.isSelected()), ScriptContext.ENGINE_SCOPE);
-                scriptContext.setAttribute("indexed", Boolean.valueOf(indexedCheckBox.isSelected()), ScriptContext.ENGINE_SCOPE);
-                scriptContext.setAttribute("generatePropertyChangeSupport", Boolean.valueOf(generatePropertyChangeSupportCheckBox.isSelected()), ScriptContext.ENGINE_SCOPE);
-                scriptContext.setAttribute("generateVetoablePropertyChangeSupport", Boolean.valueOf(generateVetoablePropertyChangeSupportCheckBox.isSelected()), ScriptContext.ENGINE_SCOPE);
 
-                Reader templateReader = null;
-                try {
-                    templateReader = new InputStreamReader(template.getInputStream());
-                    scriptEngine.eval(templateReader);
-                    return writer.toString();
-                } catch (ScriptException ex) {
-                    Exceptions.printStackTrace(ex);
-                } catch (IOException ioe) {
-                    Exceptions.printStackTrace(ioe);
-                } finally {
-                    if (writer != null) {
-                        try {
-                            writer.close();
-                        } catch (IOException ex) {
-                            Exceptions.printStackTrace(ex);
-                        }
-                    }
-                    if (templateReader != null) {
-                        try {
-                            templateReader.close();
-                        } catch (IOException ex) {
-                            Exceptions.printStackTrace(ex);
-                        }
-
-                    }
-                }
-            }
+    public AddPropertyConfig getAddPropertyConfig() {
+        final String type = typeComboBox.getSelectedItem().toString().trim();
+        final String name = nameTextField.getText().trim();
+        AddPropertyConfig.ACCESS access = AddPropertyConfig.ACCESS.PACKAGE;
+        if (privateRadioButton.isSelected()) {
+            access = AddPropertyConfig.ACCESS.PRIVATE;
+        } else if (protectedRadioButton.isSelected()) {
+            access = AddPropertyConfig.ACCESS.PROTECTED;
+        } else if (publicRadioButton.isSelected()) {
+            access = AddPropertyConfig.ACCESS.PUBLIC;
         }
-        
-        return "/*Error*/";
-    }
 
-    private static FileObject getTemplateFileObject() {
-        if (templateFileObject == null) {
-            templateFileObject = Repository.getDefault().getDefaultFileSystem().getRoot().getFileObject(TEMPLATE_PATH);
+        AddPropertyConfig.GENERATE generate = AddPropertyConfig.GENERATE.GETTER_AND_SETTER;
+        if (generateGetterAndSetterRadioButton.isSelected()) {
+            generate = AddPropertyConfig.GENERATE.GETTER_AND_SETTER;
+        } else if (generateGetterRadioButton.isSelected()) {
+            generate = AddPropertyConfig.GENERATE.GETTER;
+        } else if (generateSetterRadioButton.isSelected()) {
+            generate = AddPropertyConfig.GENERATE.SETTER;
         }
-        return templateFileObject;
-    }
 
-    private static ScriptEngine getScriptEngine() {
-        return new ScriptEngineManager().getEngineByName("freemarker"); // NOI18N
-    }
+        AddPropertyConfig addPropertyConfig = new AddPropertyConfig(
+                name, type, access, staticCheckBox.isSelected(), finalCheckBox.isSelected(), generate, generateJavadocCheckBox.isSelected(), boundCheckBox.isSelected(), propNameTextField.getText().trim(), vetoableCheckBox.isSelected(), indexedCheckBox.isSelected(), generatePropertyChangeSupportCheckBox.isSelected(), generateVetoablePropertyChangeSupportCheckBox.isSelected());
 
-    private static String capitalize(String string) {
-        if (string == null) {
-            return null;
-        }
-        if (string.length() > 0) {
-            final char charAtZero = string.charAt(0);
-            if (Character.isLowerCase(charAtZero)) {
-                string = Character.toUpperCase(charAtZero) + string.substring(1);
-            }
-        }
-        return string;
+        return addPropertyConfig;
     }
 
     /** This method is called from within the constructor to
@@ -543,7 +451,6 @@ public class AddPropertyPanel extends javax.swing.JPanel {
                 .addContainerGap())
         );
     }// </editor-fold>//GEN-END:initComponents
-
     private void finalCheckBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_finalCheckBoxActionPerformed
         generateGetterAndSetterRadioButton.setEnabled(!finalCheckBox.isSelected());
         generateSetterRadioButton.setEnabled(!finalCheckBox.isSelected());
@@ -642,5 +549,4 @@ public class AddPropertyPanel extends javax.swing.JPanel {
     private javax.swing.JLabel typeLabel;
     private javax.swing.JCheckBox vetoableCheckBox;
     // End of variables declaration//GEN-END:variables
-
 }
