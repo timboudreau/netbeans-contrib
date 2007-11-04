@@ -1,81 +1,77 @@
-       ${access}<#if static >static </#if><#if final >final </#if>${type}<#if indexed >[]</#if> ${name}<#if final > = /* initializer */</#if>;
+
+    ${access}<#if static >static </#if><#if final >final </#if>${type}<#if indexed >[]</#if> ${name}<#if final > = /* initializer */</#if>;
 <#if bound >
 
-       public static final ${PROP_NAME} = "${PROP_NAME}";
+    public static final String ${PROP_NAME} = "${PROP_NAME}";
 </#if>
 <#if generateGetter >
 
 <#if generateJavadoc >
-       /**
-        * Get the value of ${name}
-        *
-        * @return the value of ${name}
-        */
+    /**
+     * Get the value of ${name}
+     *
+     * @return the value of ${name}
+     */
 </#if>
-       public <#if static >static </#if>${type}<#if indexed >[]</#if> <#if type = "boolean" >is<#else>get</#if>${capitalizedName}() {
-           return this.${name};
-       }
+    public <#if static >static </#if>${type}<#if indexed >[]</#if> <#if type = "boolean" >is<#else>get</#if>${capitalizedName}() {
+        return this.${name};
+    }
 </#if>
 <#if generateSetter >
 <#if !final >
 
 <#if generateJavadoc >
-       /**
-        * Set the value of ${name}
-        *
-        * @param new value of ${name}
-        */
+    /**
+     * Set the value of ${name}
+     *
+     * @param new value of ${name}
+     */
 </#if>
-       public <#if static >static </#if>void set${capitalizedName}(${type}<#if indexed >[]</#if> new${name}) {
+    public <#if static >static </#if>void set${capitalizedName}(${type}<#if indexed >[]</#if> new${name}) {
 <#if bound >
-           ${type}<#if indexed >[]</#if> old${name} = new${name};
+        ${type}<#if indexed >[]</#if> old${name} = new${name};
 </#if>
-           this.${name} = new${name};
+        this.${name} = new${name};
 <#if bound >
-           propertyChangeSupport.firePropertyChange(${PROP_NAME}, old${name}, new${name});
+        propertyChangeSupport.firePropertyChange(${PROP_NAME}, old${name}, new${name});
 </#if>
-       }
+    }
 </#if>
 </#if>
 <#if indexed >
 <#if generateGetter >
 
 <#if generateJavadoc >
-       /**
-        * Get the value of ${name} at specified index
-        *
-        * @parame index
-        * @return the value of ${name} at specified index
-        */
+    /**
+     * Get the value of ${name} at specified index
+     *
+     * @parame index
+     * @return the value of ${name} at specified index
+     */
 </#if>
-       public <#if static >static </#if>${type} <#if type = "boolean" >is<#else>get</#if>${capitalizedName}(int index) {
-           return this.${name}[index];
-       }
+    public <#if static >static </#if>${type} <#if type = "boolean" >is<#else>get</#if>${capitalizedName}(int index) {
+        return this.${name}[index];
+    }
 </#if>
 <#if generateSetter >
-
 <#if generateJavadoc >
-       /**
-        * Set the value of ${name} at specified index.
-        *
-        * @param index
-        * @param new value of ${name} at specified index
-        */
+    /**
+     * Set the value of ${name} at specified index.
+     *
+     * @param index
+     * @param new value of ${name} at specified index
+     */
 </#if>
-       public <#if static >static </#if>void set${capitalizedName}(int index, ${type} new${name}) {
-           this.${name}[index] = new${name};
-       }
+    public <#if static >static </#if>void set${capitalizedName}(int index, ${type} new${name}) {
+        this.${name}[index] = new${name};
+    }
 </#if>
 </#if>
-
 <#if generatePropertyChangeSupport >
+
     private java.beans.PropertyChangeSupport propertyChangeSupport = new java.beans.PropertyChangeSupport(this);
 </#if>
-
 <#if generateVetoablePropertyChangeSupport >
+
     private java.beans.VetoableChangeSupport vetoableChangeSupport = new java.beans.VetoableChangeSupport(this);
 </#if>
-
-
-
-

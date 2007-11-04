@@ -151,25 +151,27 @@ public class AddPropertyPanel extends javax.swing.JPanel {
             }
         });
     }
-
+    
+    public String getAddProperty() {
+        return generatePreview();
+    }
+    
     private static final String INDENT = "       ";
     private String generatePreview() {
-        final String type = typeComboBox.getSelectedItem().toString().trim();
-        final String name = nameTextField.getText().trim();
-        String access = "";
-        if (privateRadioButton.isSelected()) {
-            access = "private ";
-        } else if (protectedRadioButton.isSelected()) {
-            access = "protected ";
-        } else if (publicRadioButton.isSelected()) {
-            access =  "public ";
-        }
-
         ScriptEngine scriptEngine = getScriptEngine();
-
         if (scriptEngine != null) {
             FileObject template = getTemplateFileObject();
             if (template != null && template.isValid()) {
+                final String type = typeComboBox.getSelectedItem().toString().trim();
+                final String name = nameTextField.getText().trim();
+                String access = "";
+                if (privateRadioButton.isSelected()) {
+                    access = "private ";
+                } else if (protectedRadioButton.isSelected()) {
+                    access = "protected ";
+                } else if (publicRadioButton.isSelected()) {
+                    access =  "public ";
+                }
                 ScriptContext scriptContext = scriptEngine.getContext();
                 StringWriter writer = new StringWriter();
                 scriptContext.setWriter(writer);
@@ -189,7 +191,7 @@ public class AddPropertyPanel extends javax.swing.JPanel {
                 scriptContext.setAttribute("vetoable", Boolean.valueOf(vetoableCheckBox.isSelected()), ScriptContext.ENGINE_SCOPE);
                 scriptContext.setAttribute("indexed", Boolean.valueOf(indexedCheckBox.isSelected()), ScriptContext.ENGINE_SCOPE);
                 scriptContext.setAttribute("generatePropertyChangeSupport", Boolean.valueOf(generatePropertyChangeSupportCheckBox.isSelected()), ScriptContext.ENGINE_SCOPE);
-                scriptContext.setAttribute("generateVetoablePropertyChangeSupport", Boolean.valueOf(generatePropertyChangeSupportCheckBox.isSelected()), ScriptContext.ENGINE_SCOPE);
+                scriptContext.setAttribute("generateVetoablePropertyChangeSupport", Boolean.valueOf(generateVetoablePropertyChangeSupportCheckBox.isSelected()), ScriptContext.ENGINE_SCOPE);
 
                 Reader templateReader = null;
                 try {
@@ -219,161 +221,8 @@ public class AddPropertyPanel extends javax.swing.JPanel {
                 }
             }
         }
-
-        StringBuilder stringBuilder = new StringBuilder();
-
-        //  Declaration
-        stringBuilder.append(INDENT);
-        if (privateRadioButton.isSelected() || protectedRadioButton.isSelected() || publicRadioButton.isSelected()) {
-            stringBuilder.append(access + " ");
-        }
-
-        if (staticCheckBox.isSelected()) {
-            stringBuilder.append("static ");
-        }
-
-        if (finalCheckBox.isSelected()) {
-            stringBuilder.append("final ");
-        }
-
-        stringBuilder.append(type);
-        if (indexedCheckBox.isSelected()) {
-            stringBuilder.append("[]");
-        }
-        stringBuilder.append(" ");
-        stringBuilder.append(name);
-        if (finalCheckBox.isSelected()) {
-            stringBuilder.append(" = /* initial value */");
-        }
-        stringBuilder.append(";\n");
-
-        // Getter
-        if (generateGetterAndSetterRadioButton.isSelected() || generateGetterRadioButton.isSelected()) {
-            stringBuilder.append("\n");
-            if (generateJavadocCheckBox.isSelected()) {
-                stringBuilder.append(INDENT);
-                stringBuilder.append("/**\n");
-                stringBuilder.append(INDENT);
-                stringBuilder.append(" * Get the value of " + nameTextField.getText().trim() + "\n");
-                stringBuilder.append(INDENT);
-                stringBuilder.append(" *\n");
-                stringBuilder.append(INDENT);
-                stringBuilder.append(" * @return the value of " + nameTextField.getText().trim() + "\n");
-                stringBuilder.append(INDENT);
-                stringBuilder.append(" */\n");
-            }
-            stringBuilder.append(INDENT);
-            stringBuilder.append("public "
-                    + (staticCheckBox.isSelected() ? "static " : "")
-                    + type
-                    + (indexedCheckBox.isSelected() ? "[]" : "")
-                    + " "
-                    + ("boolean".equals(type) || "Boolean".equals(type) ? "is" : "get") + name + "() {\n"
-                    + INDENT
-                    +  "    return this." + name + ";\n"
-                    + INDENT
-                    + "}\n"
-                    );
-            if (indexedCheckBox.isSelected()) {
-                stringBuilder.append("\n");
-                if (generateJavadocCheckBox.isSelected()) {
-                    stringBuilder.append(INDENT);
-                    stringBuilder.append("/**\n");
-                    stringBuilder.append(INDENT);
-                    stringBuilder.append(" * Get the value of " + nameTextField.getText().trim() + " at specified index\n");
-                    stringBuilder.append(INDENT);
-                    stringBuilder.append(" *\n");
-                    stringBuilder.append(INDENT);
-                    stringBuilder.append(" * @parame index\n");
-                    stringBuilder.append(INDENT);
-                    stringBuilder.append(" * @return the value of " + nameTextField.getText().trim() + " at specified index\n");
-                    stringBuilder.append(INDENT);
-                    stringBuilder.append(" */\n");
-                }
-                stringBuilder.append(INDENT);
-                stringBuilder.append("public "
-                        + (staticCheckBox.isSelected() ? "static " : "")
-                        + type
-                        + " "
-                        + ("boolean".equals(type) || "Boolean".equals(type) ? "is" : "get") + name + "(int index) {\n"
-                        + INDENT
-                        +  "    return this." + name + "[index];\n"
-                        + INDENT
-                        + "}\n"
-                        );
-            }
-        }
-
-        // Setter
-        if (!finalCheckBox.isSelected()) {
-            if (generateGetterAndSetterRadioButton.isSelected() || generateSetterRadioButton.isSelected()) {
-                stringBuilder.append("\n");
-                if (generateJavadocCheckBox.isSelected()) {
-                    stringBuilder.append(INDENT);
-                    stringBuilder.append("/**\n");
-                    stringBuilder.append(INDENT);
-                    stringBuilder.append(" * Set the value of " + nameTextField.getText().trim() + "\n");
-                    stringBuilder.append(INDENT);
-                    stringBuilder.append(" *\n");
-                    stringBuilder.append(INDENT);
-                    stringBuilder.append(" * @param new value of " + nameTextField.getText().trim() + "\n");
-                    stringBuilder.append(INDENT);
-                    stringBuilder.append(" */\n");
-                }
-                stringBuilder.append(INDENT);
-                stringBuilder.append("public "
-                        + (staticCheckBox.isSelected() ? "static " : "")
-                        + "void "
-                        + "set"
-                        + name
-                        + "("
-                        + type
-                        + (indexedCheckBox.isSelected() ? "[] " : " ")
-                        + "new" + name
-                        + ") {\n"
-                        + INDENT
-                        +  "    this." + name + " = new" + name + ";\n"
-                        + INDENT
-                        + "}\n"
-                    );
-                if (indexedCheckBox.isSelected()) {
-                    stringBuilder.append("\n");
-                    if (generateJavadocCheckBox.isSelected()) {
-                        stringBuilder.append(INDENT);
-                        stringBuilder.append("/**\n");
-                        stringBuilder.append(INDENT);
-                        stringBuilder.append(" * Set the value of " + nameTextField.getText().trim() + " at specified index.\n");
-                        stringBuilder.append(INDENT);
-                        stringBuilder.append(" *\n");
-                        stringBuilder.append(INDENT);
-                        stringBuilder.append(" * @param index\n");
-                        stringBuilder.append(INDENT);
-                        stringBuilder.append(" * @param new value of " + nameTextField.getText().trim() + " at specified index\n");
-                        stringBuilder.append(INDENT);
-                        stringBuilder.append(" */\n");
-                    }
-                    stringBuilder.append(INDENT);
-                    stringBuilder.append("public "
-                            + (staticCheckBox.isSelected() ? "static " : "")
-                            + "void "
-                            + "set"
-                            + name
-                            + "("
-                            + "int index, "
-                            + type
-                            + " "
-                            + "new" + name
-                            + ") {\n"
-                            + INDENT
-                            +  "    this." + name + "[index] = new" + name + ";\n"
-                            + INDENT
-                            + "}\n"
-                        );
-                }
-            }
-        }
-
-        return stringBuilder.toString();
+        
+        return "/*Error*/";
     }
 
     private static FileObject getTemplateFileObject() {

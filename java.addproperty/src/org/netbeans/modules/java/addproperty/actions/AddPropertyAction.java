@@ -41,6 +41,10 @@
 
 package org.netbeans.modules.java.addproperty.actions;
 
+import javax.swing.JEditorPane;
+import javax.swing.text.BadLocationException;
+import javax.swing.text.Document;
+import javax.swing.text.StyledDocument;
 import org.netbeans.modules.java.addproperty.ui.AddPropertyPanel;
 import org.openide.DialogDisplayer;
 import org.openide.NotifyDescriptor;
@@ -48,6 +52,8 @@ import org.openide.cookies.EditorCookie;
 import org.openide.filesystems.FileObject;
 import org.openide.loaders.DataObject;
 import org.openide.nodes.Node;
+import org.openide.text.NbDocument;
+import org.openide.util.Exceptions;
 import org.openide.util.HelpCtx;
 import org.openide.util.NbBundle;
 import org.openide.util.actions.CookieAction;
@@ -66,7 +72,26 @@ public final class AddPropertyAction extends CookieAction {
              new NotifyDescriptor.Confirmation(addPropertyPanel, "Add Property",
                                                NotifyDescriptor.OK_CANCEL_OPTION, NotifyDescriptor.PLAIN_MESSAGE);
          if (DialogDisplayer.getDefault().notify(d) == NotifyDescriptor.OK_OPTION) {
-             // really do it...
+             JEditorPane[] editorPanes = editorCookie.getOpenedPanes();
+             if (editorPanes != null) {
+                final JEditorPane editorPane = editorPanes[0];
+                final StyledDocument document = (StyledDocument) editorPane.getDocument();
+                try {
+                    NbDocument.runAtomicAsUser(document, new Runnable() {
+                        public void run() {
+                            try {
+                                document.insertString(editorPane.getCaretPosition(),
+                                        addPropertyPanel.getAddProperty(),
+                                        null);
+                            } catch (BadLocationException ex) {
+                                Exceptions.printStackTrace(ex);
+                            }
+                        }
+                    });
+                } catch (BadLocationException ex) {
+                    Exceptions.printStackTrace(ex);
+                }
+             }
          }
     }
 
