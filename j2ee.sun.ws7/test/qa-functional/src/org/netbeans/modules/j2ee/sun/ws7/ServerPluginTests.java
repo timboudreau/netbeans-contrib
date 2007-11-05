@@ -394,6 +394,7 @@ public class ServerPluginTests extends JellyTestCase {
         String imageName = getName();
         tcName = getName();
         isRemote = true; //localhost
+        isRemoveServer = true;
         String host = pb.getRemoteHost();
         logger.info("TS_COCO_SR_03: Register a remote webserver with SSL port successfully.");
 
@@ -497,6 +498,7 @@ public class ServerPluginTests extends JellyTestCase {
         String imageName = getName();
         tcName = getName();
         isRemote = true;
+        isRemoveServer = true;
         String host = pb.getRemoteHost();
         logger.info("TS_COCO_SR_04: Register a remote webserver with non SSL port successfully.");
 
@@ -786,7 +788,7 @@ public class ServerPluginTests extends JellyTestCase {
         String imageName = getName();
         tcName = getName();
         isRemote = false; //localhost
-        isRemoveServer = false;
+        isRemoveServer = true;
 
         logger.info("TS_COCO_SR_07: Registration with local webserver non-existent port.");
 
@@ -873,6 +875,7 @@ public class ServerPluginTests extends JellyTestCase {
         String imageName = getName();
         tcName = getName();
         isRemote = false; //localhost
+        isRemoveServer = true;
 
         logger.info("TS_COCO_SR_08: Registration with remote webserver non-existent port.");
 
@@ -1056,21 +1059,22 @@ public class ServerPluginTests extends JellyTestCase {
 
         /*JNDI Name is mandatory*/
         JLabelOperator jndiNameLabel = new JLabelOperator(nfwo,"JNDI");
-        if("JNDI Name:*".equals(jndiNameLabel.getText())) {
+        if("JNDI Name:".equals(jndiNameLabel.getText())) {
             isFail = true;
             logger.severe("JNDI Name field not marked mandatory(*)");
         }
 
         /*Database Vendor is mandatory*/
+        /*
         JLabelOperator databaseVendor = new JLabelOperator(nfwo,"Database");
-        if("Database Vendor:*".equals(databaseVendor.getText())) {
+        if("Database Vendor:".equals(databaseVendor.getText())) {
             isFail = true;
             logger.severe("Database Vendor field not marked mandatory(*)");
-        }
+        }*/
 
         /*Data Source Class Name is mandatory*/
         JLabelOperator dsClassName = new JLabelOperator(nfwo,"Data ");
-        if("Data Source Class Name:*".equals(dsClassName.getText())) {
+        if("Data Source Class Name:".equals(dsClassName.getText())) {
             isFail = true;
             logger.severe("Data Source Class Name field not marked mandatory(*)");
         }
