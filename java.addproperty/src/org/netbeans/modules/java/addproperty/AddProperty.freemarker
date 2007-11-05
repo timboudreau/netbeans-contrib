@@ -2,7 +2,7 @@
     ${access}<#if static >static </#if><#if final >final </#if>${type}<#if indexed >[]</#if> ${name}<#if final > = /* initializer */</#if>;
 <#if bound >
 
-    public static final String ${PROP_NAME} = "${PROP_NAME}";
+    public static final String ${PROP_NAME} = "${name}";
 </#if>
 <#if generateGetter >
 
