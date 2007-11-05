@@ -111,7 +111,7 @@ public class Highlighting extends AbstractHighlightsContainer implements TokenHi
     // ----------------------------------------------------------------------
 
     public void tokenHierarchyChanged(TokenHierarchyEvent evt) {
-        TokenChange<? extends TokenId> tc = evt.tokenChange();
+        TokenChange<?> tc = evt.tokenChange();
         int affectedArea [] = null;
         
         TokenSequence<? extends TokenId> seq = tc.currentTokenSequence();
@@ -187,7 +187,7 @@ public class Highlighting extends AbstractHighlightsContainer implements TokenHi
                 
                 if (sequences == null) {
                     // initialize
-                    TokenSequence<? extends TokenId> seq = scanner.tokenSequence().subSequence(startOffset, endOffset);
+                    TokenSequence<?> seq = scanner.tokenSequence().subSequence(startOffset, endOffset);
                     sequences = new ArrayList<TokenSequence<? extends TokenId>>();
                     sequences.add(seq);
                 }
@@ -220,7 +220,7 @@ public class Highlighting extends AbstractHighlightsContainer implements TokenHi
                         boolean hasNextToken;
 
                         while (true == (hasNextToken = seq.moveNext())) {
-                            TokenSequence<? extends TokenId> embeddedSeq = seq.embedded();
+                            TokenSequence<?> embeddedSeq = seq.embedded();
                             if (embeddedSeq != null) {
                                 sequences.add(sequences.size(), embeddedSeq);
                                 break;

@@ -122,7 +122,7 @@ public final class JavaMatcher implements BracesMatcher, BracesMatcherFactory {
             
             // We are in plain java
             
-            List<TokenSequence<? extends TokenId>> list;
+            List<TokenSequence<?>> list;
             if (backward) {
                 list = th.tokenSequenceList(seq.languagePath(), 0, originOffset);
             } else {
@@ -167,7 +167,7 @@ public final class JavaMatcher implements BracesMatcher, BracesMatcherFactory {
     public static List<TokenSequence<? extends TokenId>> getEmbeddedTokenSequences(
         TokenHierarchy<?> th, int offset, boolean backwardBias, Language<? extends TokenId> language
     ) {
-        List<TokenSequence<? extends TokenId>> sequences = th.embeddedTokenSequences(offset, backwardBias);
+        List<TokenSequence<?>> sequences = th.embeddedTokenSequences(offset, backwardBias);
 
         for(int i = sequences.size() - 1; i >= 0; i--) {
             TokenSequence<? extends TokenId> seq = sequences.get(i);
