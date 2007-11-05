@@ -45,7 +45,9 @@ package org.netbeans.modules.java.addproperty.api;
  */
 public class AddPropertyConfig {
     // Default Add Property template path
-    private String TEMPLATE_PATH = "Templates/org.netbeans.modules.java.addproperty/AddProperty.freemarker"; // NOI18N
+    public static final String DEFAULT_TEMPLATE_PATH = "Templates/org.netbeans.modules.java.addproperty/AddProperty.freemarker"; // NOI18N
+    
+    private String TEMPLATE_PATH = DEFAULT_TEMPLATE_PATH; // NOI18N
 
     public enum ACCESS {PRIVATE, PACKAGE, PROTECTED, PUBLIC};
     public enum GENERATE {GETTER_AND_SETTER, GETTER, SETTER, NONE};
@@ -109,7 +111,7 @@ public class AddPropertyConfig {
         return TEMPLATE_PATH;
     }
 
-    protected void setTEMPLATE_PATH(String TEMPLATE_PATH) {
+    public void setTEMPLATE_PATH(String TEMPLATE_PATH) {
         this.TEMPLATE_PATH = TEMPLATE_PATH;
     }        
 

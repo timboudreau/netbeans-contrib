@@ -107,9 +107,11 @@ public class AddPropertyPanel extends javax.swing.JPanel {
 
     @Override
     public void addNotify() {
-        super.addNotify();
+        super.addNotify();        
         previewEditorPane.setText("");
         propNameModified = false;
+        generatePropertyChangeSupportCheckBox.setSelected(false);
+        generateVetoablePropertyChangeSupportCheckBox.setSelected(false);
         showPreview();
     }
 
@@ -153,7 +155,6 @@ public class AddPropertyPanel extends javax.swing.JPanel {
 
         AddPropertyConfig addPropertyConfig = new AddPropertyConfig(
                 name, type, access, staticCheckBox.isSelected(), finalCheckBox.isSelected(), generate, generateJavadocCheckBox.isSelected(), boundCheckBox.isSelected(), propNameTextField.getText().trim(), vetoableCheckBox.isSelected(), indexedCheckBox.isSelected(), generatePropertyChangeSupportCheckBox.isSelected(), generateVetoablePropertyChangeSupportCheckBox.isSelected());
-
         return addPropertyConfig;
     }
 
@@ -446,8 +447,8 @@ public class AddPropertyPanel extends javax.swing.JPanel {
                     .add(generateVetoablePropertyChangeSupportCheckBox))
                 .add(8, 8, 8)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(previewScrollPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 438, Short.MAX_VALUE)
-                    .add(previewLabel))
+                    .add(previewLabel)
+                    .add(previewScrollPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 353, Short.MAX_VALUE))
                 .addContainerGap())
         );
     }// </editor-fold>//GEN-END:initComponents
