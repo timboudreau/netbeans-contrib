@@ -54,6 +54,16 @@ import com.sun.star.lang.XSingleComponentFactory;
 import com.sun.star.registry.XRegistryKey;
 import com.sun.star.lib.uno.helper.WeakBase;
 import com.sun.star.uno.XInterface;
+import java.io.File;
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.List;
+import javax.swing.table.TableModel;
 
 
 /**
@@ -72,19 +82,6 @@ public final class ConfigurationViewer extends WeakBase
     private static final String m_implementationName = ConfigurationViewer.class.getName();
     private static final String[] m_serviceNames = {
         "com.sun.star.frame.ProtocolHandler" };
-
-    private static final String[] CONFIG_ROOTS = {
-        "Writer",
-        "Calc",
-        "Base",
-        "Draw",
-        "Impress",
-        "Math",
-        "Commands",
-        "TypeDetection",
-        "DataAccess",
-        "CalcAddIns"
-    };
 
     public ConfigurationViewer( XComponentContext context )
     {
@@ -174,7 +171,7 @@ public final class ConfigurationViewer extends WeakBase
             if ( aURL.Path.compareTo("ViewConfig") == 0 )
             {
                 try {
-                    showAsSpreadsheet();
+                    showAsTable();
                 } catch( Exception e ) {
                     e.printStackTrace();
                 }
@@ -199,9 +196,7 @@ public final class ConfigurationViewer extends WeakBase
         ConfigurationAccess configAccess = new ConfigurationAccess( m_xContext );
         
         XSpreadsheetDocument doc = null; 
-        String configPath = "/org.openoffice.Office.";
-        for( String rootName : CONFIG_ROOTS ) {
-            String rootPath = configPath + rootName;
+        for( String rootPath : findConfigurationRoots() ) {
             if( !configAccess.isValidRootPath( rootPath ) )
                 continue;
             
@@ -216,7 +211,7 @@ public final class ConfigurationViewer extends WeakBase
             // lock all actions
             actionInterface.addActionLock();
             
-            ConfigurationProcessor processor = new SpreadsheetConfigurationProcessor( doc, rootName );
+            ConfigurationProcessor processor = new SpreadsheetConfigurationProcessor( doc, rootPath );
             configAccess.browse( rootPath, processor );
             processor.format();
 
@@ -230,6 +225,57 @@ public final class ConfigurationViewer extends WeakBase
             
             actionInterface.removeActionLock();
         }
+    }
+
+    public List<String> findConfigurationRoots() {
+        XComponentContext bootstrap = (XComponentContext)UnoRuntime.queryInterface( XComponentContext.class, 
+                m_xContext.getValueByName( "/singletons/com.sun.star.configuration.bootstrap.theBootstrapContext" ));
+        String[] schemaURLs = bootstrap.getValueByName( "/modules/com.sun.star.configuration/bootstrap/SchemaDataUrl" ).toString().split( " " );
+        LinkedList<String> roots = new LinkedList<String>();
+        for( String strUrl : schemaURLs ) {
+            try {
+                URL url = new URL( strUrl );
+                File dir = new File( url.toURI() );
+                if( !dir.isDirectory() )
+                    continue;
+                dir = new File( new File( dir, "org"), "openoffice" );
+                findConfigurationRoots( roots, dir, "/org.openoffice." );
+            } catch( Exception e ) {
+                //ignore
+            }
+        }
+        return roots;
+    }
+    
+    private void findConfigurationRoots( List<String> roots, File dir, String prefix ) throws URISyntaxException, MalformedURLException {
+        for( File f : dir.listFiles() ) {
+            if( f.isFile() ) {
+                String fileName = f.getName();
+                if( fileName.endsWith( ".xcs" ) ) {
+                    roots.add( prefix+fileName.substring( 0, fileName.length()-4 ) );
+                }
+            } else if( f.isDirectory() ) {
+                findConfigurationRoots( roots, f, prefix+f.getName()+"." );
+            }
+        }
+    }
+    
+    public void showAsTable() throws Exception {
+        ConfigurationAccess configAccess = new ConfigurationAccess( m_xContext );
+        
+        List<TableModel> models = new LinkedList<TableModel>();
+        List<String> configRoots = findConfigurationRoots();
+        List<String> validatedRoots = new ArrayList<String>( configRoots.size() );
+        for( String rootName : configRoots ) {
+            if( configAccess.isValidRootPath( rootName ) )
+                validatedRoots.add( rootName );
+        }
+        Collections.sort( validatedRoots );
+        ConfigManager configManager = new ConfigManager( validatedRoots, configAccess );
+        
+        ConfigFrame cf = new ConfigFrame( configManager );
+        cf.pack();
+        cf.setVisible( true );
     }
 
     protected XSpreadsheetDocument createSpreadsheetDocument() throws java.lang.Exception {
