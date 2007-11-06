@@ -106,7 +106,8 @@ public enum EJSTokenId implements TokenId {
                     return LanguageEmbedding.create(HTMLTokenId.language(), 0, 0, true);
                 case JAVASCRIPT:
                 case JAVASCRIPT_EXPRESSION:
-                    return LanguageEmbedding.create(org.netbeans.api.lexer.Language.find("text/javascript") , 0, 0);
+                    Language<?> lang = org.netbeans.api.lexer.Language.find("text/javascript");
+                    return LanguageEmbedding.create(lang, 0, 0);
                 default:
                     return null;
             }
