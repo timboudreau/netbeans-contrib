@@ -72,7 +72,6 @@ public class JavaSemanticTokenList implements TokenList {
     private Document doc;
 
     public JavaSemanticTokenList() {
-        new Exception("" + System.identityHashCode(this)).printStackTrace();
     }
 
     public synchronized void set(List<Position[]> identifiers, Document doc) {
@@ -160,8 +159,14 @@ public class JavaSemanticTokenList implements TokenList {
             if (l == null) {
                 return ;
             }
+
+            Document doc = parameter.getDocument();
             
-            ScannerImpl si = new ScannerImpl(parameter.getDocument(), parameter);
+            if (doc == null) {
+                return ;
+            }
+            
+            ScannerImpl si = new ScannerImpl(doc, parameter);
             List<Position[]> pos = new ArrayList<Position[]>();
             
             si.scan(parameter.getCompilationUnit(), pos);
