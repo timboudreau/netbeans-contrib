@@ -46,8 +46,9 @@ package org.netbeans.modules.accelerators.terminal;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.openide.DialogDisplayer;
-import org.openide.ErrorManager;
 import org.openide.NotifyDescriptor;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
@@ -62,8 +63,7 @@ import org.openide.util.actions.NodeAction;
  */
 public class RunTerminalAction extends NodeAction {
 
-    private static final ErrorManager LOGGER = ErrorManager.getDefault().getInstance("org.netbeans.modules.accelerators.terminal"); // NOI18N
-    private static final boolean LOG = LOGGER.isLoggable(ErrorManager.INFORMATIONAL);
+    private static final Logger LOGGER = Logger.getLogger("org.netbeans.modules.accelerators.terminal"); // NOI18N
 
     public RunTerminalAction() {
         putValue("noIconInMenu", Boolean.TRUE); // NOI18N
@@ -93,13 +93,11 @@ public class RunTerminalAction extends NodeAction {
     private void runTerminal(FileObject fo) {
         String command = TerminalOptions.getInstance().getTerminalCommand();
         if (command == null || command.trim().length() <= 0) {
-            ErrorManager.getDefault().log(ErrorManager.USER, NbBundle.getMessage(RunTerminalAction.class, "MSG_NoCommand"));
+            LOGGER.info(NbBundle.getMessage(RunTerminalAction.class, "MSG_NoCommand"));
             return;
         }
         
-        if (LOG) {
-            LOGGER.log(ErrorManager.INFORMATIONAL, "Active file is '" + fo + "'."); // NOI18N
-        }
+        LOGGER.log(Level.FINE, "Active file is {0}", fo); // NOI18N
         
         File wd = null;
         if (fo != null ) {
@@ -107,17 +105,14 @@ public class RunTerminalAction extends NodeAction {
             wd = FileUtil.toFile(folder);
         }
         
-        if (LOG) {
-            LOGGER.log(ErrorManager.INFORMATIONAL, "Running '" + command + "'."); // NOI18N
-            LOGGER.log(ErrorManager.INFORMATIONAL, "Working dir is '" + wd + "'."); // NOI18N
-        }
+        LOGGER.log(Level.FINE, "Running {0}", command); // NOI18N
+        LOGGER.log(Level.FINE, "Working dir is {0}", wd); // NOI18N
         
         try {
             Runtime.getRuntime().exec(command, null, wd);
         } catch (IOException e) {
-            if (LOG) {
-                LOGGER.notify(ErrorManager.INFORMATIONAL, e);
-            }
+            // Stupid NetBeans, would want WARNING here, but that triggers the exception dialog
+            LOGGER.log(Level.INFO, null, e);
             String message = NbBundle.getMessage(RunTerminalAction.class, "MSG_Error", e.getLocalizedMessage());
             DialogDisplayer.getDefault().notify(new NotifyDescriptor.Message(message, NotifyDescriptor.ERROR_MESSAGE));
         }
