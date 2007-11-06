@@ -78,6 +78,8 @@ public class TerminalOptions extends SystemOption {
             } else {
                 return "cmd.exe /c start cmd.exe"; // NOI18N
             }
+        } else if (Utilities.isMac()) {
+            return "/Applications/Utilities/Terminal.app/Contents/MacOS/Terminal"; // NOI18N
         } else if (System.getProperty("Env-GNOME_DESKTOP_SESSION_ID") != null) { // NOI18N
             return "gnome-terminal"; // NOI18N
         } else if (Utilities.isUnix()) {

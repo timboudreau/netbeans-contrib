@@ -46,7 +46,9 @@ package org.netbeans.modules.accelerators.terminal;
 
 import java.io.File;
 import java.io.IOException;
+import org.openide.DialogDisplayer;
 import org.openide.ErrorManager;
+import org.openide.NotifyDescriptor;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
 import org.openide.nodes.Node;
@@ -113,7 +115,11 @@ public class RunTerminalAction extends NodeAction {
         try {
             Runtime.getRuntime().exec(command, null, wd);
         } catch (IOException e) {
-            ErrorManager.getDefault().notify(e);
+            if (LOG) {
+                LOGGER.notify(ErrorManager.INFORMATIONAL, e);
+            }
+            String message = NbBundle.getMessage(RunTerminalAction.class, "MSG_Error", e.getLocalizedMessage());
+            DialogDisplayer.getDefault().notify(new NotifyDescriptor.Message(message, NotifyDescriptor.ERROR_MESSAGE));
         }
     }
 }
