@@ -45,5 +45,6 @@ made subject to such option by the copyright holder.
     <taskdef name="pack200" classname="javafx.netbeans.fxuserlib.anttasks.Pack200Task"/>
     <taskdef name="unpack200" classname="javafx.netbeans.fxuserlib.anttasks.Unpack200Task"/>
     <taskdef name="pack200Extended" classname="javafx.netbeans.fxuserlib.anttasks.Pack200ExtendedTask"/>
+    <taskdef name="unsignjar" classname="javafx.netbeans.fxuserlib.anttasks.UnsignJarTask"/>
     <taskdef name="unpack200Extednded" classname="javafx.netbeans.fxuserlib.anttasks.Unpack200ExtendedTask"/>
 </antlib>

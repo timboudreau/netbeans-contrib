@@ -462,12 +462,13 @@ made subject to such option by the copyright holder.
     </target>
     <target name="-repack-pack200-jars" depends="-pack200-need-repack" if="pack200.need.repack">
         <echo>Unsign Jars</echo>
-        <!-- TODO Fix it-->
-        <unsignjars jar="${dist.jar}"/>
-        <unsignjars jar="${dist.dir}/lib/Filters.jar"/>
-        <unsignjars jar="${dist.dir}/lib/javafx-netbeans-fxuserlib.jar"/>
-        <unsignjars jar="${dist.dir}/lib/javafxrt.jar"/>
-        <unsignjars jar="${dist.dir}/lib/swing-layout.jar"/>
+        <unsignjar>
+            <fileset dir="dist">
+                <include name="*.jar"/>
+                <include name="lib/*.jar"/>
+            </fileset>    
+        </unsignjar>
+
         <echo>Repacking Jars</echo>
         <pack200Extended repack="true" src="${dist.jar}" destfile="${dist.jar}.tmp">
             <fileset dir="dist">
