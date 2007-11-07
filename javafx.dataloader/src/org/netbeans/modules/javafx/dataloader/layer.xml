@@ -119,6 +119,10 @@ made subject to such option by the copyright holder.
         <folder name="text">
             <folder name="x-fx">
 
+                <attr name="displayName" stringvalue="JavaFX"/>
+                
+                <attr name="useCustomEditorKit" boolvalue="true"/>
+                
                 <folder name="extensions">
                     <file name="fx"/>
                 </folder>
@@ -131,6 +135,11 @@ made subject to such option by the copyright holder.
                 <file name="structure.instance">
                     <attr name="instanceOf" stringvalue="org.netbeans.api.gsf.StructureScanner"/>
                     <attr name="instanceClass" stringvalue="org.netbeans.modules.javafx.JavaFXStructureAnalyzer"/>
+                </file>
+                
+                <file name="language.instance">
+                    <attr name="instanceOf" stringvalue="org.netbeans.api.gsf.GsfLanguage"/>
+                    <attr name="instanceClass" stringvalue="org.netbeans.modules.javafx.JavaFXLanguage"/>
                 </file>
             </folder>
         </folder>

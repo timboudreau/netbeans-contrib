@@ -42,6 +42,7 @@ package org.netbeans.modules.javafx.editor;
 
 import java.awt.Component;
 import java.awt.event.ActionEvent;
+import java.util.Map;
 import javax.swing.Action;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -53,6 +54,8 @@ import javax.swing.text.JTextComponent;
 import javax.swing.text.TextAction;
 import org.netbeans.editor.BaseAction;
 import org.netbeans.editor.BaseDocument;
+import org.netbeans.editor.Settings;
+import org.netbeans.editor.SettingsNames;
 import org.netbeans.modules.editor.NbEditorKit;
 import org.openide.util.NbBundle;
 import javax.swing.text.*;
@@ -81,6 +84,18 @@ public class JavaFXEditorKit extends NbEditorKit{
     
     public JavaFXEditorKit() {
         super();
+        
+            Settings.addInitializer (new Settings.Initializer () {
+                public String getName() {
+                    return FX_MIME_TYPE;
+                }
+
+                @SuppressWarnings("unchecked")
+                public void updateSettingsMap (Class kitClass, Map settingsMap) {
+                        settingsMap.put (SettingsNames.CODE_FOLDING_ENABLE, Boolean.TRUE);
+                }
+
+            });
     }
     
     @Override
