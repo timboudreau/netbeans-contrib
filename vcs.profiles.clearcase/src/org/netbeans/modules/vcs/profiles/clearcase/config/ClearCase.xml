@@ -101,6 +101,24 @@ made subject to such option by the copyright holder.
         <variable name="QUOTE" basic="false">
             <value>\"</value>
         </variable>
+		<variable name="POSSIBLE_FILE_STATUSES" basic="false">
+            <value>"Current", "Missing", "Locally Modified", "Checked Out"</value>
+        </variable>
+        <variable name="VCS_FILE_STATUS_MISSING" basic="false">
+            <value>Missing</value>
+        </variable>
+        <variable name="VCS_FOLDER_STATUS_MISSING" basic="false">
+            <value>Missing</value>
+        </variable>
+        <variable name="POSSIBLE_FILE_STATUSES_LOCALIZED" basic="false">
+            <value>"getBundle(org/netbeans/modules/vcs/profiles/clearcase/config/Bundle).getString(ClearCase_FileStatus_Current)", "getBundle(org/netbeans/modules/vcs/profiles/clearcase/config/Bundle).getString(ClearCase_FileStatus_Missing)", "getBundle(org/netbeans/modules/vcs/profiles/clearcase/config/Bundle).getString(ClearCase_FileStatus_LM)", "getBundle(org/netbeans/modules/vcs/profiles/clearcase/config/Bundle).getString(ClearCase_FileStatus_CO)"</value>
+        </variable>
+        <variable name="POSSIBLE_FILE_STATUSES_LOCALIZED_SHORT" basic="false">
+            <value>"getBundle(org/netbeans/modules/vcs/profiles/clearcase/config/Bundle).getString(ClearCase_FileStatus_Short_Current)", "getBundle(org/netbeans/modules/vcs/profiles/clearcase/config/Bundle).getString(ClearCase_FileStatus_Short_Missing)", "getBundle(org/netbeans/modules/vcs/profiles/clearcase/config/Bundle).getString(ClearCase_FileStatus_Short_LM)", "getBundle(org/netbeans/modules/vcs/profiles/clearcase/config/Bundle).getString(ClearCase_FileStatus_Short_CO)"</value>
+        </variable>
+		<variable name="MAX_CMD_LENGTH" basic="false">
+            <value>1000</value>
+        </variable>
     </variables>
 
 
@@ -120,7 +138,7 @@ made subject to such option by the copyright holder.
                   <value>getBundle(org/netbeans/modules/vcs/profiles/clearcase/config/Bundle).getString(LIST_Mnemonic)</value>
                 </property>
                 <property name="exec">
-                    <value>org.netbeans.modules.vcs.profiles.clearcase.list.ClearCaseListCommand.class LIST_CMD</value>
+                    <value>org.netbeans.modules.vcs.profiles.clearcase.list.ClearCaseListCommand.class LIST_CMD DIFF_CMD</value>
                 </property>
                 <property name="data.date.index">
                     <value>-1</value>
@@ -140,12 +158,23 @@ made subject to such option by the copyright holder.
                 <property name="data.fileName.index">
                     <value>0</value>
                 </property>
+		<property name="data.revision.index">
+		    <value>2</value>
+	  	</property>
                 <property name="data.regex">
                     <value>(.*$)</value>
                 </property>
                 <property name="error.regex">
                     <value>(.*$)</value>
                 </property>
+            </command>
+            <command name="DIFF_CMD">
+                <property name="exec">
+                    <value>${RUN} ${ClearCaseCMD} diff -options \"-status_only\" -pred ${FILE}</value>
+                </property>
+				<property name="ignoreFail">
+				    <value>true</value>
+			    </property>
             </command>
             <command name="LIST_CMD">
                 <property name="exec">
@@ -180,7 +209,7 @@ made subject to such option by the copyright holder.
             <!-- Check in command -->
             <command displayName="getBundle(org/netbeans/modules/vcs/profiles/clearcase/config/Bundle).getString(CMD_Check_In)" name="CHECKIN">
                 <property name="exec">
-                    <value>${RUNM} ${ClearCaseCMD} checkin -ptime -identical -c ${QUOTE}${REASON}${QUOTE} $[? QPATHS][${QPATHS}][.] ${NUR}</value>
+                    <value>org.netbeans.modules.vcs.profiles.clearcase.commands.ClearCaseCheckinCommand.class CHECKIN_CMD</value>
                 </property>
                 <property name="inputDescriptor">
                     <value>LABEL(getBundle(org/netbeans/modules/vcs/profiles/clearcase/config/Bundle).getString(CMD_Check_In)) PROMPT_FOR(REASON, getBundle(org/netbeans/modules/vcs/profiles/clearcase/config/Bundle).getString(REASON), , ACCESSIBILITY(MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/clearcase/config/Bundle).getString(REASON_MNEMONIC))) </value>
@@ -199,6 +228,14 @@ made subject to such option by the copyright holder.
                 </property>
                 <property name="associatedCommandInterfaceName">
                     <value>org.netbeans.api.vcs.commands.CheckInCommand</value>
+                </property>
+		<property name="disabledOnStatus">
+                   <value>"Local", "Current"</value>
+                </property>
+            </command>
+            <command name="CHECKIN_CMD">
+                <property name="exec">
+                    <value>${RUNM} ${ClearCaseCMD} checkin -ptime -identical -c ${QUOTE}${COMMENT}${QUOTE} $[? QPATHS][${QPATHS}][.] ${NUR}</value>
                 </property>
             </command>
 
@@ -221,6 +258,9 @@ made subject to such option by the copyright holder.
                 </property>
                 <property name="runOnMultipleFiles">
                     <value>true</value>
+                </property>
+				<property name="disabledOnStatus">
+                   <value>"Local"</value>
                 </property>
         </command>
 
@@ -245,6 +285,12 @@ made subject to such option by the copyright holder.
                 <property name="runOnMultipleFiles">
                     <value>true</value>
                 </property>
+				<property name="disabledOnStatus">
+                   <value>"Local"</value>
+                </property>
+				<property name="associatedCommandInterfaceName">
+				    <value>org.netbeans.api.vcs.commands.CheckOutCommand</value>
+				</property>
         </command>
 
             <!-- Implicit edit command -->
@@ -267,7 +313,7 @@ made subject to such option by the copyright holder.
         </command>
 
             <!-- Post-facto reserve command -->
-            <command displayName="getBundle(org/netbeans/modules/vcs/profiles/clearcase/config/Bundle).getString(CMD_Reserve)" name="LOCK">
+            <command displayName="getBundle(org/netbeans/modules/vcs/profiles/clearcase/config/Bundle).getString(CMD_Reserve)" name="RESERVE">
                 <property name="exec">
                     <value>${RUNM} ${ClearCaseCMD} reserve $[? QPATHS][${QPATHS}][.] ${NUR}</value>
                 </property>
@@ -279,6 +325,9 @@ made subject to such option by the copyright holder.
                 </property>
                 <property name="runOnMultipleFiles">
                     <value>true</value>
+                </property>
+				<property name="disabledOnStatus">
+                   <value>"Local"</value>
                 </property>
         </command>
 
@@ -292,18 +341,56 @@ made subject to such option by the copyright holder.
                 <property name="onRoot">
                     <value>true</value>
                 </property>
-                <property name="refreshCurrentFolder">
+                <property name="onDir">
                     <value>true</value>
+                </property>
+                <property name="onFile">
+                    <value>false</value>
                 </property>
                 <property name="refreshParentFolder">
                     <value>true</value>
                 </property>
- 	        <property name="checkForModifications">
-	            <value>true</value>
-	        </property>
+                <property name="refreshCurrentFolder">
+                    <value>true</value>
+                </property>
+                <property name="refreshRecursivelyPatternMatched">
+                    <value>unco</value>
+                </property>
                 <property name="runOnMultipleFiles">
                     <value>true</value>
                 </property>
+				<property name="disabledOnStatus">
+                   <value>"Local", "Current"</value>
+                </property>
+        </command>
+         <command displayName="getBundle(org/netbeans/modules/vcs/profiles/clearcase/config/Bundle).getString(CMD_Undo_Checkout)" name="UNDO CHECKOUT">
+                <property name="exec">
+                    <value>${RUNM} ${ClearCaseCMD} unco -keep $[? QPATHS][${QPATHS}][.] ${NUR}</value>
+                </property>
+                <property name="onRoot">
+                    <value>false</value>
+                </property>
+                <property name="onDir">
+                    <value>false</value>
+                </property>
+                <property name="onFile">
+                    <value>true</value>
+                </property>
+                <property name="refreshCurrentFolder">
+                    <value>true</value>
+                </property>
+				<property name="checkForModifications">
+	                <value>true</value>
+	            </property>
+                <property name="runOnMultipleFiles">
+                    <value>true</value>
+                </property>
+				<property name="disabledOnStatus">
+                   <value>"Local", "Current"</value>
+                </property>
+				<property name="associatedCommandInterfaceName">
+				    <value>org.netbeans.api.vcs.commands.UncheckOutCommand</value>
+				</property>
         </command>
 
             <!-- Unreserve command -->
@@ -320,6 +407,9 @@ made subject to such option by the copyright holder.
                 <property name="runOnMultipleFiles">
                     <value>true</value>
                 </property>
+				<property name="disabledOnStatus">
+                   <value>"Local"</value>
+                </property>
         </command>
 
             <!-- Add to source control command -->
@@ -331,6 +421,9 @@ made subject to such option by the copyright holder.
                     <value>LABEL(getBundle(org/netbeans/modules/vcs/profiles/clearcase/config/Bundle).getString(CMD_Add_To_Source_Control)) PROMPT_FOR(REASON, getBundle(org/netbeans/modules/vcs/profiles/clearcase/config/Bundle).getString(REASON), , ACCESSIBILITY(MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/clearcase/config/Bundle).getString(REASON_MNEMONIC))) </value>
                 </property>
                 <property name="refreshCurrentFolder">
+                    <value>true</value>
+                </property>
+                <property name="refreshParentOfCurrentFolder">
                     <value>true</value>
                 </property>
                 <property name="onDir">
@@ -350,7 +443,7 @@ made subject to such option by the copyright holder.
             <!-- Make directory command -->
             <command displayName="getBundle(org/netbeans/modules/vcs/profiles/clearcase/config/Bundle).getString(CMD_Mkdir)" name="MKDIR">
                 <property name="exec">
-                    <value>${RUNM} ${ClearCaseCMD} mkdir -nc ${QUOTE}$[? FILE][${FILE}${PS}][]${DIRNAME}${QUOTE} ${NUR}</value>
+                    <value>org.netbeans.modules.vcs.profiles.clearcase.commands.ClearCaseMkdirCommand.class MKDIR_CMD_2</value>
                 </property>
                 <property name="onRoot">
                     <value>true</value>
@@ -364,6 +457,15 @@ made subject to such option by the copyright holder.
                 <property name="refreshCurrentFolder">
                     <value>true</value>
                 </property>
+                <property name="refreshParentFolder">
+                    <value>true</value>
+                </property>
+            </command>
+
+            <command name="MKDIR_CMD_2">
+                <property name="exec">
+                    <value>${RUNM} ${ClearCaseCMD} mkdir -nc ${QUOTE}$[? FILE][${FILE}${PS}][]${DIRNAME}${QUOTE}</value>
+                </property>
             </command>
 
             <!-- Make directory command for automatic tools (Web module) -->
@@ -374,6 +476,9 @@ made subject to such option by the copyright holder.
                 <property name="refreshCurrentFolder">
                     <value>true</value>
                 </property>
+		<property name="associatedCommandInterfaceName">
+		    <value>org.netbeans.api.vcs.commands.AddFolderCommand</value>
+		</property>
             </command>
 
             <!-- Remove command -->
@@ -396,13 +501,19 @@ made subject to such option by the copyright holder.
                 <property name="runOnMultipleFiles">
                     <value>true</value>
                 </property>
+				<property name="disabledOnStatus">
+                   <value>"Local"</value>
+                </property>
+		<property name="associatedCommandInterfaceName">
+		    <value>org.netbeans.api.vcs.commands.RemoveCommand</value>
+		</property>
             </command>
 
             <!-- Remove directory command -->
             <command
             displayName="getBundle(org/netbeans/modules/vcs/profiles/clearcase/config/Bundle).getString(CMD_RemoveDirectory)" name="RMNAME DIR">
                 <property name="exec">
-                    <value>${RUNM} ${ClearCaseCMD} rmname -c ${QUOTE}${REASON}${QUOTE} $[? QPATHS][${QPATHS}][.] ${NUR}</value>
+				     <value>org.netbeans.modules.vcs.profiles.clearcase.commands.ClearCaseRmdirCommand.class RMDIR_CMD</value>
                 </property>
                 <property name="onRoot">
                     <value>false</value>
@@ -416,14 +527,28 @@ made subject to such option by the copyright holder.
                 <property name="inputDescriptor">
                     <value>LABEL(getBundle(org/netbeans/modules/vcs/profiles/clearcase/config/Bundle).getString(CMD_RemoveDirectory)) PROMPT_FOR(REASON, getBundle(org/netbeans/modules/vcs/profiles/clearcase/config/Bundle).getString(REASON), , ACCESSIBILITY(MNEMONIC_getBundle(org/netbeans/modules/vcs/profiles/clearcase/config/Bundle).getString(REASON_MNEMONIC))) </value>
                 </property>
-                <property name="refreshParentFolder">
+                <property name="refreshParentOfCurrentFolder">
                     <value>true</value>
                 </property>
                 <property name="runOnMultipleFiles">
                     <value>true</value>
                 </property>
+				<property name="refreshOnFail">
+				    <value>1</value>
+			    </property>
+				<property name="disabledOnStatus">
+                   <value>"Local"</value>
+                </property>
+		<property name="associatedCommandInterfaceName">
+		    <value>org.netbeans.api.vcs.commands.RemoveCommand</value>
+		</property>
             </command>
 
+            <command name="RMDIR_CMD">
+                <property name="exec">
+                    <value>${RUNM} ${ClearCaseCMD} rmname -c ${QUOTE}${COMMENT}${QUOTE} $[? QPATHS][${QPATHS}][.] ${NUR}</value>
+                </property>
+            </command>
 <separator/>
 
             <!-- Find checkouts - recurse -->
@@ -473,6 +598,9 @@ made subject to such option by the copyright holder.
                 <property name="onRoot">
                     <value>true</value>
                 </property>
+				<property name="disabledOnStatus">
+                   <value>"Local"</value>
+                </property>
             </command>
 
             <!-- Show history as text -->
@@ -489,6 +617,9 @@ made subject to such option by the copyright holder.
                 <property name="runOnMultipleFiles">
                     <value>true</value>
                 </property>
+				<property name="disabledOnStatus">
+                   <value>"Local"</value>
+                </property>
         </command>
 
             <!-- Show history graphically -->
@@ -502,6 +633,12 @@ made subject to such option by the copyright holder.
                 <property name="runOnMultipleFiles">
                     <value>true</value>
                 </property>
+				<property name="disabledOnStatus">
+                   <value>"Local"</value>
+                </property>
+				<property name="associatedCommandInterfaceName">
+				    <value>org.netbeans.api.vcs.commands.HistoryCommand</value>
+				</property>
         </command>
 
             <!-- Show the graphical version tree -->
@@ -513,11 +650,36 @@ made subject to such option by the copyright holder.
                     <value>true</value>
                 </property>
                 <property name="runOnMultipleFiles">
-                    <value>true</value>
+                    <value>false</value>
+                </property>
+              <property name="concurrentExec">
+                <value>0</value>
+              </property>
+				<property name="disabledOnStatus">
+                   <value>"Local"</value>
                 </property>
         </command>
 
 <separator/>
+
+            <!-- Print Working View -->
+            <command displayName="getBundle(org/netbeans/modules/vcs/profiles/clearcase/config/Bundle).getString(CMD_Print_Working_View)" name="PRINT WORKING VIEW">
+                <property name="exec">
+                    <value>${RUNM} ${ClearCaseCMD} pwv</value>
+                </property>
+                <property name="onRoot">
+                    <value>true</value>
+                </property>
+                <property name="onDir">
+                    <value>false</value>
+                </property>
+                <property name="onFile">
+                    <value>false</value>
+                </property>
+				<property name="display">
+				    <value>true</value>
+			  	</property>
+            </command>
 
             <!-- Properties of element -->
             <command displayName="getBundle(org/netbeans/modules/vcs/profiles/clearcase/config/Bundle).getString(CMD_Properties_Of_Version)" name="PROPERTIES OF VERSION">
@@ -530,6 +692,9 @@ made subject to such option by the copyright holder.
                 <property name="runOnMultipleFiles">
                   <value>true</value>
                 </property>
+				<property name="associatedCommandInterfaceName">
+				    <value>org.netbeans.api.vcs.commands.PropertiesCommand</value>
+				</property>
             </command>
 
             <!-- Diff graphically -->
@@ -540,12 +705,18 @@ made subject to such option by the copyright holder.
                 <property name="onRoot">
                     <value>true</value>
                 </property>
-                <property name="ignoreFail">
-                    <value>true</value>
-                </property>
                 <property name="runOnMultipleFiles">
-                    <value>true</value>
+                    <value>false</value>
                 </property>
+				<property name="disabledOnStatus">
+                    <value>"Local"</value>
+                </property>
+              <property name="ignoreFail">
+                <value>true</value>
+              </property>				
+				<property name="associatedCommandInterfaceName">
+				    <value>org.netbeans.api.vcs.commands.DiffCommand</value>
+				</property>
         </command>
 
         <!-- Start a merge graphically. This doesn't take
@@ -569,6 +740,10 @@ made subject to such option by the copyright holder.
             <property name="runOnMultipleFiles">
                 <value>true</value>
             </property>
+			<property name="disabledOnStatus">
+                <value>"Local"</value>
+            </property>
+
         </command>
 
       </command>

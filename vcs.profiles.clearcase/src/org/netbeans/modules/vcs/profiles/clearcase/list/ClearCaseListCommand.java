@@ -42,12 +42,14 @@
 package org.netbeans.modules.vcs.profiles.clearcase.list;
 
 import java.io.*;
-import java.util.Hashtable;
+import java.util.*;
 
 import org.netbeans.modules.vcscore.VcsFileSystem;
 import org.netbeans.modules.vcscore.commands.CommandOutputListener;
 import org.netbeans.modules.vcscore.commands.CommandDataOutputListener;
 import org.netbeans.modules.vcscore.util.*;
+import org.netbeans.modules.vcscore.commands.*;
+
 
 import org.netbeans.modules.vcs.profiles.list.AbstractListCommand;
 
@@ -59,6 +61,10 @@ public class ClearCaseListCommand extends AbstractListCommand
 {
     /** Directory in which we are executing */
     private String dir = null;
+
+	private VcsFileSystem fileSystem;
+	private Hashtable vars;
+	private String[] args;
 
     /** Creates new ClearCaseListCommand */
     public ClearCaseListCommand()
@@ -73,10 +79,12 @@ public class ClearCaseListCommand extends AbstractListCommand
     public void setFileSystem(VcsFileSystem fileSystem) 
     {
         super.setFileSystem(fileSystem);
+		this.fileSystem = fileSystem;
     }
 
     private void initDir(Hashtable vars)
     {
+		this.vars = vars;
         String rootDir = (String) vars.get("ROOTDIR"); // NOI18N
         if (rootDir == null)
         {
@@ -124,6 +132,7 @@ public class ClearCaseListCommand extends AbstractListCommand
                         CommandDataOutputListener stdoutListener, String dataRegex,
                         CommandDataOutputListener stderrListener, String errorRegex)
     {
+		this.args = args;
         this.stdoutNRListener = stdoutNRListener;
         this.stderrNRListener = stderrNRListener;
         this.stderrListener = stderrListener;
@@ -143,8 +152,11 @@ public class ClearCaseListCommand extends AbstractListCommand
             return false;
         }
 
+		checkFileModification();
+
         return !shouldFail;
     }
+
 
     /**
      * Output data. The architecture of the VCS generic module for
@@ -178,7 +190,7 @@ public class ClearCaseListCommand extends AbstractListCommand
 		final int nameIndex = 0;
 
         // The separator between the name
-        final String statusSep = "@@";
+        final String statusSep = "@@";  //NOI18N
 
         String line = elements[0];
 
@@ -193,7 +205,7 @@ public class ClearCaseListCommand extends AbstractListCommand
 
         // fileInfo holds the filename and annotation of the file in an
         // array indices 0 and 1, respectively
-        String[] fileInfo = new String[2];
+        String[] fileInfo = new String[3];
 
         // Put the name in the fileInfo
         fileInfo[0] = line.substring(nameIndex, statIndex);
@@ -204,22 +216,86 @@ public class ClearCaseListCommand extends AbstractListCommand
         File file = new File(dir + File.separator + fileInfo[0]);
         if (file != null && file.isDirectory() )
         {
-            fileInfo[0] += "/";
+            fileInfo[0] += "/";  //NOI18N
         }
 
         ////////////////////////////////////////////////////////////////
         // Map the status
 
-        if (line.indexOf("[checkedout but removed]") > -1)
-            fileInfo[1] = "CHECKEDOUT REMOVED";
-        else if (line.indexOf("CHECKEDOUT") > -1)
-            fileInfo[1] = "CHECKEDOUT";
-        else if (line.indexOf("[eclipsed]") > -1)
-            fileInfo[1] = "ECLIPSED";
-        else
-            fileInfo[1] = line.substring(statIndex + 2, line.indexOf(' ', statIndex + 2)); // Trim the rule
+        if (line.indexOf("[checkedout but removed]") > -1) {  //NOI18N
+            fileInfo[1] = "Missing";     //NOI18N
+			fileInfo[2] = getVersion(line);
+        } else if (line.indexOf("CHECKEDOUT") > -1) { //NOI18N
+			fileInfo[1] = "Checked Out"; //NOI18N
+			fileInfo[2] = getVersion(line);
+        } else if (line.indexOf("[eclipsed]") > -1) { //NOI18N
+            fileInfo[1] = "Eclipsed"; //NOI18N
+			fileInfo[2] = null;
+        } else {
+			fileInfo[1] = "Current"; //NOI18N
+			fileInfo[2] = line.substring(statIndex + 2, line.indexOf(' ', statIndex + 2)); // Trim the rule
+		}
         
         // Put it in the output. Wierd.
     	filesByName.put(fileInfo[0], fileInfo);
     }
+
+	private String getVersion(String line) {
+		// Strip out the file name because it may contain whitespaces.
+		line = line.substring(line.indexOf("@@")); //NOI18N
+		StringTokenizer tokenizer = new StringTokenizer(line);
+
+		tokenizer.nextToken();
+		tokenizer.nextToken();
+
+		// The third token in the status line is the version
+		return tokenizer.nextToken();
+	}
+
+	private void checkFileModification() {
+		Iterator iter = filesByName.keySet().iterator();
+
+		while (iter.hasNext()) {
+			String fileName = (String) iter.next();
+			String[] fileInfo = (String[]) filesByName.get(fileName);
+			if (fileInfo[1] == "Checked Out") {   //NOI18N
+				if (checkModified(fileName)) 
+					fileInfo[1] = "Locally Modified";  //NOI18N
+			}
+		}
+	}
+			
+	private boolean checkModified(String fileName) {
+		vars.put("FILE", fileName);   //NOI18N
+		VcsCommand cmd = fileSystem.getCommand(args[1]);
+        VcsCommandExecutor vce = fileSystem.getVcsFactory().getCommandExecutor(cmd, vars);
+        fileSystem.getCommandsPool().preprocessCommand(vce, vars, fileSystem);
+        fileSystem.getCommandsPool().startExecutor(vce, fileSystem);
+
+		/*final boolean modified[] = {true};
+        vce.addDataOutputListener(new CommandDataOutputListener() {
+				public void outputData(String elements[]) {
+					String element = elements[0];
+					if (modified[0]) {
+						if (element != null) {
+							if (element.indexOf("identical") != -1) 
+								modified[0] = false;
+						}
+					}
+				}
+			});
+		*/
+        try {
+            fileSystem.getCommandsPool().waitToFinish(vce);
+        } catch (InterruptedException iexc) {
+            fileSystem.getCommandsPool().kill(vce);
+		}
+
+        if (vce.getExitStatus() != VcsCommandExecutor.SUCCEEDED) {
+            return true;
+        }
+
+		return false;
+	}
+
 }
