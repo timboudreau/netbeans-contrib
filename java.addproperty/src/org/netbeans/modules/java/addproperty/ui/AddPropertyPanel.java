@@ -121,8 +121,8 @@ public class AddPropertyPanel extends javax.swing.JPanel {
             propNameTextField.setText("PROP_" + nameTextField.getText().toUpperCase());
             propNameTextField.getDocument().addDocumentListener(propNameTextFieldDocumentListener);
         }
-        boundTipLabel.setEnabled(boundCheckBox.isSelected());
-        vetoableTipLabel.setEnabled(boundCheckBox.isSelected() && vetoableCheckBox.isSelected());
+        boundTipLabel.setEnabled(boundCheckBox.isSelected() && (!generatePropertyChangeSupportCheckBox.isSelected()));
+        vetoableTipLabel.setEnabled(boundCheckBox.isSelected() && vetoableCheckBox.isSelected() && (!generateVetoablePropertyChangeSupportCheckBox.isSelected()));
         propNameTipLabel.setEnabled(propNameModified);
         final String previewTemplate = AddPropertyGenerator.getDefault().generate(getAddPropertyConfig());
         previewEditorPane.setText(previewTemplate);
