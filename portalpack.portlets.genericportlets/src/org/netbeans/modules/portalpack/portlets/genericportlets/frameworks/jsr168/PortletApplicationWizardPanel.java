@@ -19,36 +19,44 @@
 
 package org.netbeans.modules.portalpack.portlets.genericportlets.frameworks.jsr168;
 
-import java.awt.Component;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
+import javax.swing.JComponent;
+import javax.swing.JPanel;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+import org.netbeans.modules.web.api.webmodule.ExtenderController;
 import org.netbeans.modules.web.api.webmodule.WebModule;
-import org.netbeans.modules.web.spi.webmodule.FrameworkConfigurationPanel;
+import org.netbeans.modules.web.spi.webmodule.WebModuleExtender;
 import org.openide.WizardDescriptor;
-import org.openide.WizardValidationException;
+import org.openide.filesystems.FileObject;
 import org.openide.util.HelpCtx;
 import org.openide.util.NbBundle;
 
 /**
  * Panel just asking for basic info.
  */
-public class PortletApplicationWizardPanel implements 
-        WizardDescriptor.ValidatingPanel, WizardDescriptor.FinishablePanel, FrameworkConfigurationPanel {
+public class PortletApplicationWizardPanel extends WebModuleExtender {
     
     private WizardDescriptor wizardDescriptor;
     private PortletApplicationCustomPanel component;
+    private JSR168WebFrameworkProvider framework;
+    private ExtenderController controller;
+    private boolean customizer;
     private WebModule wm;
     
     /** Creates a new instance of templateWizardPanel */
-    public PortletApplicationWizardPanel(WebModule wm) {
-       this.wm = wm;
+    public PortletApplicationWizardPanel(JSR168WebFrameworkProvider framework, WebModule wm, ExtenderController controller, boolean customizer) {
+        this.framework = framework;
+        this.controller = controller;
+        this.customizer = customizer;
+        this.wm = wm;
     }
     
-    public Component getComponent() {
+    public JComponent getComponent() {
+        if(customizer) return new JPanel();
         if (component == null) {
             component = new PortletApplicationCustomPanel(this,wm);
             component.setName(NbBundle.getMessage(PortletApplicationWizardPanel.class, "LBL_CreateProjectStep"));
@@ -61,8 +69,9 @@ public class PortletApplicationWizardPanel implements
     }
     
     public boolean isValid() {
+        if(customizer) return true;
         getComponent();
-        return component.valid(wizardDescriptor);
+        return component.valid();
     }
     
     private final Set/*<ChangeListener>*/ listeners = new HashSet(1);
@@ -87,37 +96,30 @@ public class PortletApplicationWizardPanel implements
         }
     }
     
-    public void readSettings(Object settings) {
-        wizardDescriptor = (WizardDescriptor) settings;
-        getComponent();
-        component.read(wizardDescriptor);
+    public boolean getCustomizer()
+    {
+        return customizer;
     }
-    
-    public void storeSettings(Object settings) {
-        WizardDescriptor d = (WizardDescriptor) settings;
-        getComponent();
-        component.store(d);
-    }
-    
-    public boolean isFinishPanel() {
-        return true;
-    }
-    
-    public void validate() throws WizardValidationException {
-        getComponent();
-        component.validate(wizardDescriptor);
-    }
-    
-    public void enableComponents(boolean enable) {
-       getComponent();
-       component.enableComponents(enable);
-       // throw new UnsupportedOperationException("Not supported yet.");
-    }
-    
     public Map getData()
     {
         getComponent();
         return component.getData();
     }
 
+
+    @Override
+    public void update() {
+        if(customizer) return;
+        getComponent();
+        component.update();
+    }
+
+    @Override
+    public Set<FileObject> extend(WebModule webModule) {
+        return framework.extendImpl(webModule);
+    }
+    
+    public ExtenderController getController() {
+        return controller;
+    }
 }

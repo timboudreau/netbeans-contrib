@@ -19,8 +19,6 @@
 
 package org.netbeans.modules.portalpack.portlets.genericportlets.frameworks.jsr168;
 
-import org.netbeans.modules.portalpack.portlets.genericportlets.core.codegen.CodeGenConstants;
-import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -37,11 +35,11 @@ import org.netbeans.api.project.Sources;
 import org.netbeans.modules.portalpack.portlets.genericportlets.core.PortletContext;
 import org.netbeans.modules.portalpack.portlets.genericportlets.core.util.CoreUtil;
 import org.netbeans.modules.portalpack.portlets.genericportlets.core.util.NetbeanConstants;
+import org.netbeans.modules.web.api.webmodule.ExtenderController;
 import org.netbeans.modules.web.api.webmodule.WebModule;
-import org.netbeans.spi.project.ui.support.ProjectChooser;
 import org.openide.WizardDescriptor;
-import org.openide.WizardValidationException;
 import org.openide.filesystems.FileObject;
+import org.openide.util.NbBundle;
 
 /**
  * 
@@ -71,47 +69,33 @@ import org.openide.filesystems.FileObject;
         portletShortTitleTf.getDocument().addDocumentListener(this);
         pkgTf.getDocument().addDocumentListener(this);
     }
+
+    void update() {
+        viewCheckbox.setEnabled(false);
+        enableCheckBoxes(false);
+        srcCombo.setEditable(false);
+        srcCombo.setEnabled(false);
+       
+        enableTextComponents(false);
+    }
      
     private void initData()
-    {
-        /*portletClassNameTf.setEnabled(false);
-        portletNameTf.setEnabled(false);
-        portletTitleTf.setEnabled(false);
-        portletDescTf.setEnabled(false);
-        portletDisplayNameTf.setEnabled(false);
-        portletShortTitleTf.setEnabled(false);
-        pkgTf.setEnabled(false);*/
-        isCreatePortlet.setEnabled(true);
-        isCreatePortlet.setSelected(false);
-        enableCheckBoxes(false);
-        //make editable false
-        /*portletClassNameTf.setEditable(false);
-        portletNameTf.setEditable(false);
-        portletTitleTf.setEditable(false);
-        portletDescTf.setEditable(false);
-        portletDisplayNameTf.setEditable(false);
-        portletShortTitleTf.setEditable(false);
-        pkgTf.setEditable(false);*/
-        enableTextComponents(false);
-        
+    {           
         if(wm != null)
         {         
             Project project = FileOwnerQuery.getOwner(wm.getDocumentBase());
             Sources sources = (Sources)project.getLookup().lookup(Sources.class);
             SourceGroup[] groups = sources.getSourceGroups(JavaProjectConstants.SOURCES_TYPE_JAVA);
-             //FileObject[] sources = wm.getJavaSources();
+          
             for(int i=0;i<groups.length;i++)
-                 srcCombo.addItem(new CustomSourceGroup(groups[i]));
+                srcCombo.addItem(new CustomSourceGroup(groups[i]));
+            
         }else{
-             srcCombo.setEnabled(false);
-             srcCombo.setEditable(false);
+            
         }
-        
+        portletVersion.removeAllItems();
         portletVersion.addItem(NetbeanConstants.PORTLET_1_0);
         portletVersion.addItem(NetbeanConstants.PORTLET_2_0);
-      //  Project project = FileOwnerQuery.getOwner(wm.getDocumentBase());
-      //  Sources sources = (Sources)project.getLookup().lookup(Sources.class);
-     //   SourceGroup[] groups = sources.getSourceGroups(JavaProjectConstants.SOURCES_TYPE_JAVA);
             
     }
     
@@ -367,27 +351,17 @@ import org.openide.filesystems.FileObject;
         boolean selected = isCreatePortlet.isSelected();
         
         if(!selected){
-        /*    portletClassNameTf.setEnabled(false);
-            portletNameTf.setEnabled(false);
-            portletDescTf.setEnabled(false);
-            portletDisplayNameTf.setEnabled(false);
-            portletTitleTf.setEnabled(false);
-            portletShortTitleTf.setEnabled(false);
-            pkgTf.setEnabled(false);*/
+        
             enableTextComponents(selected);
             enableCheckBoxes(false);
             srcCombo.setEnabled(false);
+            srcCombo.setEditable(false);
         }else{
-            /*portletClassNameTf.setEnabled(true);
-            portletNameTf.setEnabled(true);
-            portletDescTf.setEnabled(true);
-            portletDisplayNameTf.setEnabled(true);
-            portletTitleTf.setEnabled(true);
-            portletShortTitleTf.setEnabled(true);
-            pkgTf.setEnabled(true);*/
+            
             enableTextComponents(selected);
             enableCheckBoxes(true);
-            if(wm != null)
+            
+            if(!panel.getCustomizer() && srcCombo.getModel().getSize() != 0)
                 srcCombo.setEnabled(true);
         }
         
@@ -429,12 +403,12 @@ import org.openide.filesystems.FileObject;
         
     }
     
-    boolean valid(WizardDescriptor wizardDescriptor) {
-
-        if(wizardDescriptor == null) return true;
+    boolean valid() {
+        ExtenderController controller = panel.getController();
+        if(controller == null) return true;
         boolean selected = isCreatePortlet.isSelected();
         if(!selected){
-            wizardDescriptor.putProperty("WizardPanel_errorMessage", "");
+            controller.setErrorMessage(null);
             return true;
         }
         
@@ -444,76 +418,51 @@ import org.openide.filesystems.FileObject;
         } else{
             if(!CoreUtil.validatePackageName(pkgTf.getText()))
             {
-                wizardDescriptor.putProperty("WizardPanel_errorMessage",
-                    "Invalid package name..");
+                 controller.setErrorMessage(NbBundle.getMessage(PortletApplicationPanelVisual.class,"MSG_INVALID_PACKAGE_NAME"));
                  return false;
             }
         }
         if(portletNameTf.getText() == null || portletNameTf.getText().trim().length() == 0)
         {
-              wizardDescriptor.putProperty("WizardPanel_errorMessage",
-                    "Portlet Name cannot be empty...");
+              controller.setErrorMessage(NbBundle.getMessage(PortletApplicationPanelVisual.class,"MSG_PORTLET_NAME_CANNOT_BE_EMPTY")); 
               return false;
         }
         if(portletClassNameTf.getText() == null || portletClassNameTf.getText().trim().length() == 0)
         {
-             wizardDescriptor.putProperty("WizardPanel_errorMessage",
-                    "Portlet class cannot be empty...");
+              controller.setErrorMessage(NbBundle.getMessage(PortletApplicationPanelVisual.class,"MSG_PORTLET_CLASS_CANNOT_BE_EMPTY")); 
               return false;
         }else if(!CoreUtil.validateJavaTypeName(portletClassNameTf.getText()))
         {
-            wizardDescriptor.putProperty("WizardPanel_errorMessage",
-                    "Invalid Class Name");
+            controller.setErrorMessage(NbBundle.getMessage(PortletApplicationPanelVisual.class,"MSG_INVALID_CLASS")); 
               return false;
         }else if(!CoreUtil.validateString(portletNameTf.getText(),false))
         {
-            wizardDescriptor.putProperty("WizardPanel_errorMessage",
-                    org.openide.util.NbBundle.getMessage(PortletApplicationPanelVisual.class, "MSG_INVALID_PORTLET_NAME"));
+            
+            controller.setErrorMessage(org.openide.util.NbBundle.getMessage(PortletApplicationPanelVisual.class, "MSG_INVALID_PORTLET_NAME"));
             return false;
         }else if(!CoreUtil.validateString(portletTitleTf.getText(),true))
         {
-            wizardDescriptor.putProperty("WizardPanel_errorMessage",
-                    org.openide.util.NbBundle.getMessage(PortletApplicationPanelVisual.class, "MSG_INVALID_PORTLET_TITLE"));
+            controller.setErrorMessage(org.openide.util.NbBundle.getMessage(PortletApplicationPanelVisual.class, "MSG_INVALID_PORTLET_TITLE"));
             return false;
         }else if(portletShortTitleTf.getText() != null &&
                     portletShortTitleTf.getText().trim().length() != 0 &&
                     !CoreUtil.validateString(portletShortTitleTf.getText(),true))
         {
-            wizardDescriptor.putProperty("WizardPanel_errorMessage",
-                    org.openide.util.NbBundle.getMessage(PortletApplicationPanelVisual.class, "MSG_INVALID_PORTLET_SHORT_TITLE"));
+           controller.setErrorMessage(org.openide.util.NbBundle.getMessage(PortletApplicationPanelVisual.class, "MSG_INVALID_PORTLET_SHORT_TITLE"));
             return false;
         }else if(!CoreUtil.validateXmlString(portletDisplayNameTf.getText().trim()))
         {
-            wizardDescriptor.putProperty("WizardPanel_errorMessage",
-                    org.openide.util.NbBundle.getMessage(PortletApplicationPanelVisual.class, "MSG_INVALID_PORTLET_DISPLAY_NAME"));
+            controller.setErrorMessage(org.openide.util.NbBundle.getMessage(PortletApplicationPanelVisual.class, "MSG_INVALID_PORTLET_DISPLAY_NAME"));
             return false;
         }else if(!CoreUtil.validateXmlString(portletDescTf.getText().trim()))
         {
-            wizardDescriptor.putProperty("WizardPanel_errorMessage",
-                    org.openide.util.NbBundle.getMessage(PortletApplicationPanelVisual.class, "MSG_INVALID_PORTLET_DESC"));
+            controller.setErrorMessage(org.openide.util.NbBundle.getMessage(PortletApplicationPanelVisual.class, "MSG_INVALID_PORTLET_DESC"));
             return false;
         }
-        wizardDescriptor.putProperty("WizardPanel_errorMessage", "");
+        controller.setErrorMessage(null);
         return true;
     }
-    
-    void store(WizardDescriptor d) {
-      
-        d.putProperty("package",pkgTf.getText());
-        if(isCreatePortlet.isSelected())
-            d.putProperty("generate_portlet","true");
-        else
-            d.putProperty("generate_portlet","false");
-        d.putProperty(CodeGenConstants.PORTLET_NAME,portletNameTf.getText().trim());
-        d.putProperty(CodeGenConstants.PORTLET_CLASS,portletClassNameTf.getText().trim());
-        d.putProperty(CodeGenConstants.PORTLET_DISPLAY_NAME,portletDisplayNameTf.getText().trim());
-        d.putProperty(CodeGenConstants.PORTLET_DESCRIPTION,portletDescTf.getText().trim());
-        d.putProperty(CodeGenConstants.PORTLET_TITLE,portletTitleTf.getText().trim());
-        d.putProperty(CodeGenConstants.PORTLET_SHORT_TITLE,portletShortTitleTf.getText().trim());
-        String portletSpecVersion = (String) portletVersion.getSelectedItem();
-        d.putProperty(CodeGenConstants.PORTLET_SPEC_VERSION,(String)portletVersion.getSelectedItem());
-    }
-    
+   
     /**
      * 
      * @return 
@@ -557,24 +506,6 @@ import org.openide.filesystems.FileObject;
        
     }
     
-    void read(WizardDescriptor settings) {
-        File projectLocation = (File) settings.getProperty("projdir");
-        if (projectLocation == null || projectLocation.getParentFile() == null || !projectLocation.getParentFile().isDirectory()) {
-            projectLocation = ProjectChooser.getProjectsFolder();
-        } else {
-            projectLocation = projectLocation.getParentFile();
-        }
-        
-        String projectName = (String) settings.getProperty("name");
-        if(projectName == null) {
-            projectName = "";
-        }
-    }
-    
-    void validate(WizardDescriptor d) throws WizardValidationException {
-        // nothing to validate
-    }
-    
     // Implementation of DocumentListener --------------------------------------
     
     public void changedUpdate(DocumentEvent e) {
@@ -609,41 +540,12 @@ import org.openide.filesystems.FileObject;
         panel.fireChangeEvent(); // Notify that the panel changed
     }
     
-    /**
-     * 
-     * @param enable 
-     */
-    public void enableComponents(boolean enable)
-    {
-        if(!enable)
-        {
-            enableTextComponents(false);
-            enableCheckBoxes(false);
-        }
-        else if(enable && isCreatePortlet.isSelected())
-        {
-            enableTextComponents(true);
-            enableCheckBoxes(true);
-        }
-        else if(enable && !isCreatePortlet.isSelected())
-        {
-            enableTextComponents(false);
-            enableCheckBoxes(false);
-        }
-        
-        isCreatePortlet.setEnabled(enable);
-        portletVersion.setEnabled(enable);
-       /// isCreateJsps.setEnabled(enable);
-        if(wm != null)
-            srcCombo.setEnabled(enable);
-      
-    }
-    
     private void enableCheckBoxes(boolean enable)
     {
         isCreateJsps.setEnabled(enable);
         editCheckbox.setEnabled(enable);
         helpCheckbox.setEnabled(enable);
+        viewCheckbox.setEnabled(false);
         
     }
     private void enableTextComponents(boolean enable)

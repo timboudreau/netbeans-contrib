@@ -105,7 +105,7 @@ public class PortletProjectUtil {
                 try {
                   
                     if (createJsp(jspFileObj, context.getViewJsp())) {
-                        mergeJSPTemplate(templateFileObj, jspFileObj, context.getPortletName() + " - VIEW MODE",getJspName(context.getViewJsp()));
+                        mergeJSPTemplate(templateFileObj, jspFileObj, context.getPortletName() + " - VIEW MODE",getJspName(context.getViewJsp()),context);
                     }
                 } catch (IOException ex) {
                     logger.log(java.util.logging.Level.SEVERE, ex.getMessage(), ex);
@@ -113,7 +113,7 @@ public class PortletProjectUtil {
             } else if (modes[i].equals("EDIT")) {
                 try {
                     if (createJsp(jspFileObj, context.getEditJsp())) {
-                        mergeJSPTemplate(templateFileObj, jspFileObj, context.getPortletName() + " - EDIT MODE", getJspName(context.getEditJsp()));
+                        mergeJSPTemplate(templateFileObj, jspFileObj, context.getPortletName() + " - EDIT MODE", getJspName(context.getEditJsp()),context);
                     }
                 } catch (IOException ex) {
                     logger.log(java.util.logging.Level.SEVERE, ex.getMessage(), ex);
@@ -122,7 +122,7 @@ public class PortletProjectUtil {
             if (modes[i].equals("HELP")) {
                 try {
                     if (createJsp(jspFileObj, context.getHelpJsp())) {
-                        mergeJSPTemplate(templateFileObj, jspFileObj, context.getPortletName() + " - Help MODE", getJspName(context.getHelpJsp()));
+                        mergeJSPTemplate(templateFileObj, jspFileObj, context.getPortletName() + " - Help MODE", getJspName(context.getHelpJsp()),context);
                     }
                 } catch (IOException ex) {
                     logger.log(java.util.logging.Level.SEVERE, ex.getMessage(), ex);
@@ -172,11 +172,12 @@ public class PortletProjectUtil {
         // mt.createFromTemplate(webDf, jspName);
     }
 
-    private static void mergeJSPTemplate(FileObject template, FileObject folder, String desc, String jspName) {
+    private static void mergeJSPTemplate(FileObject template, FileObject folder, String desc, String jspName,PortletContext context) {
         try {
-
+            String version = context.getPortletVersion();
             java.util.Map values = new java.util.HashMap();
             values.put("DESC", desc);
+            values.put("VERSION",version);
 
             org.netbeans.modules.portalpack.portlets.genericportlets.core.util.TemplateHelper.mergeTemplateToFile(template, folder, jspName, values);
       

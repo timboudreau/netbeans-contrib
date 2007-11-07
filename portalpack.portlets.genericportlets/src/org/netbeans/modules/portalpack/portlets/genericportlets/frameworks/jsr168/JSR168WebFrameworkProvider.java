@@ -23,18 +23,22 @@ import java.io.File;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
+import org.netbeans.api.java.project.JavaProjectConstants;
 import org.netbeans.api.project.FileOwnerQuery;
 import org.netbeans.api.project.Project;
+import org.netbeans.api.project.SourceGroup;
+import org.netbeans.api.project.Sources;
 import org.netbeans.api.project.libraries.Library;
 import org.netbeans.api.project.libraries.LibraryManager;
 import org.netbeans.modules.portalpack.portlets.genericportlets.core.PortletContext;
 import org.netbeans.modules.portalpack.portlets.genericportlets.core.codegen.WebDescriptorGenerator;
 import org.netbeans.modules.portalpack.portlets.genericportlets.core.util.NetbeanConstants;
 import org.netbeans.modules.portalpack.portlets.genericportlets.frameworks.util.PortletProjectUtil;
+import org.netbeans.modules.web.api.webmodule.ExtenderController;
 import org.netbeans.modules.web.api.webmodule.WebModule;
 import org.netbeans.modules.web.project.api.WebProjectLibrariesModifier;
-import org.netbeans.modules.web.spi.webmodule.FrameworkConfigurationPanel;
 import org.netbeans.modules.web.spi.webmodule.WebFrameworkProvider;
+import org.netbeans.modules.web.spi.webmodule.WebModuleExtender;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
 import org.openide.util.Lookup;
@@ -54,7 +58,15 @@ public class JSR168WebFrameworkProvider extends WebFrameworkProvider{
         super(NbBundle.getMessage(JSR168WebFrameworkProvider.class, "LBL_PORTLET_FRAMEWORK"),NbBundle.getMessage(JSR168WebFrameworkProvider.class, "LBL_PORTLET_FRAMEWORK_DESC"));
     }
     
-    public Set extend(WebModule wm) {
+    public WebModuleExtender createWebModuleExtender(WebModule wm, ExtenderController controller) {
+        
+        boolean customizer = (wm != null && isInWebModule(wm));
+        panel = new  PortletApplicationWizardPanel(this,wm,controller,customizer);
+        
+        return panel;
+    }
+    
+    public Set extendImpl(WebModule wm) {
        Set resultSet = new LinkedHashSet();
        final  FileObject documentBase = wm.getDocumentBase();
         Project project = FileOwnerQuery.getOwner(documentBase);
@@ -85,7 +97,12 @@ public class JSR168WebFrameworkProvider extends WebFrameworkProvider{
          String pkg = (String)data.get("package");
          FileObject srcFolder = (FileObject)data.get("src_folder");
          if(srcFolder == null)
-             srcFolder = wm.getJavaSources()[0];
+         {
+            Sources sources = (Sources)project.getLookup().lookup(Sources.class);
+            SourceGroup[] groups = sources.getSourceGroups(JavaProjectConstants.SOURCES_TYPE_JAVA);
+            if(groups.length > 0)
+                srcFolder = groups[0].getRootFolder();
+         }
          if(pkg == null) pkg = "";
          if(((String)data.get("generate_portlet")).equals("true"))
          {
@@ -119,16 +136,6 @@ public class JSR168WebFrameworkProvider extends WebFrameworkProvider{
         File portletXmlFile = new File(FileUtil.toFile(wm.getWebInf()),"portlet.xml");
         return new File[]{portletXmlFile};
         
-    }
-
-    public FrameworkConfigurationPanel getConfigurationPanel(WebModule wm) {
-       
-       if(wm != null && isInWebModule(wm))
-           return null;
-       panel = new  PortletApplicationWizardPanel(wm);
-        
-        return panel;
-       
     }
 
 }

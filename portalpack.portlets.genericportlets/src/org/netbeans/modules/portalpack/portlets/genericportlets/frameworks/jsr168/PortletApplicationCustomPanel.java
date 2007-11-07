@@ -22,8 +22,6 @@ package org.netbeans.modules.portalpack.portlets.genericportlets.frameworks.jsr1
 import java.util.Map;
 import javax.swing.JScrollPane;
 import org.netbeans.modules.web.api.webmodule.WebModule;
-import org.openide.WizardDescriptor;
-import org.openide.WizardValidationException;
 
 /**
  *
@@ -44,13 +42,13 @@ public class PortletApplicationCustomPanel extends JScrollPane{
         visPanel = new PortletApplicationPanelVisual(panel,wm);
         this.getViewport().add(visPanel);    
     }
-    
-    boolean valid(WizardDescriptor wizardDescriptor) {
-        return visPanel.valid(wizardDescriptor);
+
+    void update() {
+        visPanel.update();
     }
     
-    void store(WizardDescriptor d) {
-        visPanel.store(d);
+    boolean valid() {
+        return visPanel.valid();
     }
     
     /**
@@ -60,19 +58,5 @@ public class PortletApplicationCustomPanel extends JScrollPane{
     public Map getData()
     {
         return visPanel.getData();
-    }
-    
-    void read(WizardDescriptor settings) {
-        visPanel.read(settings);
-    }
-    
-    void validate(WizardDescriptor d) throws WizardValidationException {
-        // nothing to validate
-        visPanel.validate(d);
-    }   
-    
-    void enableComponents(boolean enable)
-    {
-        visPanel.enableComponents(enable);
     }
 }

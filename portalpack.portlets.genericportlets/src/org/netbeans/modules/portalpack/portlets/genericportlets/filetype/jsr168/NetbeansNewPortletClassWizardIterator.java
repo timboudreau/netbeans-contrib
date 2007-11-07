@@ -46,6 +46,7 @@ import org.netbeans.modules.portalpack.portlets.genericportlets.core.util.Netbea
 import org.netbeans.modules.portalpack.portlets.genericportlets.core.util.NetbeansUtil;
 import org.netbeans.modules.portalpack.portlets.genericportlets.filetype.jsr168.impl.NewJSR168CreatePortletComponent;
 import org.netbeans.modules.portalpack.portlets.genericportlets.frameworks.util.PortletProjectUtil;
+import org.netbeans.modules.portalpack.portlets.genericportlets.node.ddloaders.PortletXMLDataObject;
 import org.netbeans.spi.java.project.support.ui.templates.JavaTemplates;
 import org.netbeans.spi.project.ui.templates.support.Templates;
 import org.openide.WizardDescriptor;
@@ -54,6 +55,7 @@ import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
 import org.openide.loaders.DataFolder;
 import org.openide.loaders.DataObject;
+import org.openide.loaders.DataObjectNotFoundException;
 import org.openide.loaders.TemplateWizard;
 
 /**
@@ -176,6 +178,27 @@ public final class NetbeansNewPortletClassWizardIterator implements WizardDescri
         
         if(context.getHasJsps())
         {
+            //code added to find portlet spec version
+             
+            String webInfDir = component.getWebInfDir();
+            if(webInfDir != null){
+                 FileObject portletXmlObj = FileUtil.toFileObject(new File(webInfDir + File.separator + "portlet.xml"));
+                 PortletXMLDataObject portletXmlDataObject = null;
+
+                 if(portletXmlObj != null)
+                 {
+                    try {
+                       portletXmlDataObject = (PortletXMLDataObject) DataObject.find(portletXmlObj);
+                    } catch (DataObjectNotFoundException ex) {
+                       logger.log(Level.SEVERE, "Portlet XML DataObject Not found.", ex);
+                    }
+                 }
+            
+                 if(portletXmlDataObject != null)
+                     context.setPortletVersion(portletXmlDataObject.getPortletSpecVersion());
+                 else
+                     context.setPortletVersion(NetbeanConstants.PORTLET_1_0);
+            } 
             PortletProjectUtil.createJSPs(FileUtil.toFileObject(new File(component.getWebInfDir())),context);
         }
         ResultContext retVal = new ResultContext();
