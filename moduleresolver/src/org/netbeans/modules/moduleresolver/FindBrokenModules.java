@@ -261,7 +261,11 @@ public final class FindBrokenModules {
                     missingElements.add (missing);
                 }
             }
-            res.put (el, missingElements);
+            // XXX: don't report module which cannot fix
+            // TODO: report broken deps instead be silent
+            if (! missingElements.isEmpty ()) {
+                res.put (el, missingElements);
+            }
         }
         return res;
     }
