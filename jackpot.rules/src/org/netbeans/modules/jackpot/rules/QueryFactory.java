@@ -112,16 +112,16 @@ public class QueryFactory implements QueryProvider {
             throw new FileNotFoundException("modules/org-netbeans-modules-java-source.jar");
         sb.append(jar.getCanonicalPath());
         sb.append(File.pathSeparator);
-        jar = locator.locate("modules/ext/javac-api.jar",                          // NOI18N
+        jar = locator.locate("modules/ext/javac-api-nb-7.0-b07.jar",                          // NOI18N
                              "org.netbeans.libs.javacapi", false);                 // NOI18N
         if (jar == null)
-            throw new FileNotFoundException("modules/ext/javac-api.jar");
+            throw new FileNotFoundException("modules/ext/javac-api-nb-7.0-b07.jar");
         sb.append(jar.getCanonicalPath());
         sb.append(File.pathSeparator);
-        jar = locator.locate("modules/ext/javac-impl.jar",                         // NOI18N
+        jar = locator.locate("modules/ext/javac-impl-nb-7.0-b07.jar",                         // NOI18N
                              "org.netbeans.libs.javacimpl", false);                // NOI18N
         if (jar == null)
-            throw new FileNotFoundException("modules/ext/javac-impl.jar");
+            throw new FileNotFoundException("modules/ext/javac-impl-nb-7.0-b07.jar");
         sb.append(jar.getCanonicalPath());
         return sb.toString();
     }
