@@ -48,7 +48,6 @@ import org.netbeans.modules.javafx.lexer.JavaFXTokenId;
 import org.netbeans.api.lexer.Language;
 import org.netbeans.api.lexer.TokenHierarchy;
 import org.netbeans.api.lexer.TokenId;
-import org.netbeans.api.lexer.TokenId;
 import org.netbeans.api.lexer.TokenSequence;
 import org.netbeans.spi.editor.bracesmatching.BracesMatcher;
 import org.netbeans.spi.editor.bracesmatching.BracesMatcherFactory;
@@ -135,7 +134,7 @@ public final class JavaFXBracesMatcher implements BracesMatcher, BracesMatcherFa
             
             // We are in plain java
             
-            List<TokenSequence<? extends TokenId>> list;
+            List<TokenSequence<?>> list;
             if (backward) {
                 list = th.tokenSequenceList(seq.languagePath(), 0, originOffset);
             } else {
@@ -180,7 +179,7 @@ public final class JavaFXBracesMatcher implements BracesMatcher, BracesMatcherFa
     public static List<TokenSequence<? extends TokenId>> getEmbeddedTokenSequences(
         TokenHierarchy<?> th, int offset, boolean backwardBias, Language<? extends TokenId> language
     ) {
-        List<TokenSequence<? extends TokenId>> sequences = th.embeddedTokenSequences(offset, backwardBias);
+        List<TokenSequence<?>> sequences = th.embeddedTokenSequences(offset, backwardBias);
 
         for(int i = sequences.size() - 1; i >= 0; i--) {
             TokenSequence<? extends TokenId> seq = sequences.get(i);
