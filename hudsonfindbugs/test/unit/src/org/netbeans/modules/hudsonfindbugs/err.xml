@@ -18,6 +18,17 @@
     </Field>
     <SourceLine classname="org.openide.util.enum.ArrayEnumeration" start="63" end="63" startBytecode="11" endBytecode="11" sourcefile="ArrayEnumeration.java" sourcepath="org/openide/util/enum/ArrayEnumeration.java"/>
   </BugInstance>
+  <BugInstance type="EI_EXPOSE_REP2" priority="2" abbrev="EI2" category="MALICIOUS_CODE">
+    <Class classname="org.openide.util.enum.ArrayEnumeration">
+      <SourceLine classname="org.openide.util.enum.ArrayEnumeration" start="5" end="10" sourcefile="ArrayEnumeration.java" sourcepath="org/openide/util/enum/ArrayEnumeration.java"/>
+    </Class>
+    <Method classname="org.openide.util.enum.ArrayEnumeration" name="&lt;init&gt;" signature="([Ljava/lang/Object;)V" isStatic="false">
+      <SourceLine classname="org.openide.util.enum.ArrayEnumeration" start="5" end="8" startBytecode="0" endBytecode="78" sourcefile="ArrayEnumeration.java" sourcepath="org/openide/util/enum/ArrayEnumeration.java"/>
+    </Method>
+    <Field classname="org.openide.util.enum.ArrayEnumeration" name="array" signature="[Ljava/lang/Object;" isStatic="true">
+      <SourceLine classname="org.openide.util.enum.ArrayEnumeration" sourcefile="ArrayEnumeration.java" sourcepath="org/openide/util/enum/ArrayEnumeration.java"/>
+    </Field>
+  </BugInstance>
   <Errors></Errors>
   <FindBugsSummary timestamp="Mon, 22 Oct 2007 03:36:36 +0000" total_classes="9" total_bugs="1" total_size="156" num_packages="1" cpu_seconds="1.46" clock_seconds="1.76" peak_mbytes="81.00" gc_seconds="0.03" priority_2="1">
     <PackageStats package="org.openide.util.enum" total_bugs="1" total_types="9" total_size="156" priority_2="1">

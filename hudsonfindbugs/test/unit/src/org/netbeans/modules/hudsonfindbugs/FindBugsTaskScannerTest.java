@@ -89,14 +89,19 @@ public class FindBugsTaskScannerTest extends NbTestCase {
         
         URL url = this.getClass().getClassLoader().getResource("org/netbeans/modules/hudsonfindbugs/err.xml");
         scan.parse(url, fo, map);
-        assertEquals("One bug", 1, map.size());
+        assertEquals("One file", 1, map.size());
         List<Task> arr = map.get(arrayEnumeration);
         assertNotNull("This fileobject has the tasks", arr);
-        assertEquals("One bug", 1, arr.size());
+        assertEquals("Two bugs", 2, arr.size());
         
         Task t = arr.get(0);
         String expMsg = "May expose internal representation by incorporating reference to mutable object";
         if (!t.equals(Task.create(arrayEnumeration, "warning", expMsg, 63))) {
+            fail("Task is wrong: " + t);
+        }
+
+        t = arr.get(1);
+        if (!t.equals(Task.create(arrayEnumeration, "warning", expMsg, 5))) {
             fail("Task is wrong: " + t);
         }
     }

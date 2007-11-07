@@ -39,6 +39,7 @@
 
 package org.netbeans.modules.hudsonfindbugs;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.ref.Reference;
@@ -49,18 +50,19 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Stack;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
+import org.netbeans.api.project.FileOwnerQuery;
 import org.netbeans.api.project.Project;
 import org.netbeans.modules.hudsonfindbugs.spi.FindBugsQueryImplementation;
 import org.netbeans.spi.tasklist.PushTaskScanner;
 import org.netbeans.spi.tasklist.Task;
 import org.netbeans.spi.tasklist.TaskScanningScope;
 import org.openide.filesystems.FileObject;
+import org.openide.filesystems.FileUtil;
 import org.openide.util.Exceptions;
 import org.openide.util.Lookup;
 import org.openide.util.NbBundle;
@@ -99,22 +101,40 @@ final class FindBugsTaskScanner extends PushTaskScanner {
             return;
         } else {
             Collection<Project> projects = (Collection<Project>) scope.getLookup().lookupAll(Project.class);
-            if ((projects == null) || (projects.isEmpty())) return;
-            
-            for (Project project : projects) {
-                ParseRequest req = new ParseRequest();
-                req.projectRoot = project.getProjectDirectory();
-                Collection<FindBugsQueryImplementation> queries = (Collection<FindBugsQueryImplementation>) 
-                        Lookup.getDefault().lookupAll(FindBugsQueryImplementation.class);
-                URL url = null;
-                for (FindBugsQueryImplementation fbqi : queries) {
-                    url = fbqi.getFindBugsUrl(project, true);
-                    if (url != null) break;
+            if ((projects == null) || (projects.isEmpty())) {
+                FileObject file = scope.getLookup().lookup(FileObject.class);
+                if (file != null) {
+                    ParseRequest req = new ParseRequest();
+                    Project project = FileOwnerQuery.getOwner(file);
+                    req.projectRoot = file;
+                    Collection<FindBugsQueryImplementation> queries = (Collection<FindBugsQueryImplementation>) 
+                            Lookup.getDefault().lookupAll(FindBugsQueryImplementation.class);
+                    URL url = null;
+                    for (FindBugsQueryImplementation fbqi : queries) {
+                        url = fbqi.getFindBugsUrl(project, true);
+                        if (url != null) break;
+                    }
+                    req.url = url;
+                    req.callback = callback;
+                    req.scanner = this;
+                    RP.post(req);
                 }
-                req.url = url;
-                req.callback = callback;
-                req.scanner = this;
-                RP.post(req);
+            } else {            
+                for (Project project : projects) {
+                    ParseRequest req = new ParseRequest();
+                    req.projectRoot = project.getProjectDirectory();
+                    Collection<FindBugsQueryImplementation> queries = (Collection<FindBugsQueryImplementation>) 
+                            Lookup.getDefault().lookupAll(FindBugsQueryImplementation.class);
+                    URL url = null;
+                    for (FindBugsQueryImplementation fbqi : queries) {
+                        url = fbqi.getFindBugsUrl(project, true);
+                        if (url != null) break;
+                    }
+                    req.url = url;
+                    req.callback = callback;
+                    req.scanner = this;
+                    RP.post(req);
+                }
             }
         }
     }
@@ -169,34 +189,58 @@ final class FindBugsTaskScanner extends PushTaskScanner {
     }
     
     private static final class Parse extends DefaultHandler {
-        private final FileObject project;
+        private final FileObject scope;
         private final Map<FileObject,List<Task>> cummulate;
         
         private String type;
         private int priority;
         private String category;
-        private Stack<String> currentTag;
+        private int line;
+        private FileObject src;
+        private Project project;
         
-        public Parse(FileObject project, Map<FileObject,List<Task>> cummulate) {
-            this.project = project;
+        public Parse(FileObject scope, Map<FileObject,List<Task>> cummulate) {
+            this.scope = scope;
             this.cummulate = cummulate;
-            this.currentTag = new Stack<String>();
+            if (!scope.isFolder()) {
+                this.project = FileOwnerQuery.getOwner(scope);
+            }
         }
 
         @Override
+        public void startDocument () {
+            this.line = -1;
+            this.src = null;
+        }
+        
+        @Override
         public void startElement(String uri, String localName, String name, Attributes attributes) throws SAXException {
-            String enclosingTag = currentTag.isEmpty() ? "" : currentTag.peek();
-            currentTag.push(name);
-            
             if ("BugInstance".equals(name)) {
                 type = attributes.getValue("type");
                 priority = Integer.valueOf(attributes.getValue("priority"));
                 category = attributes.getValue("category");
                 return;
             }
-            if (enclosingTag.equals("BugInstance") && "SourceLine".equals(name)) {
-                int line = Integer.valueOf(attributes.getValue("start"));
-                FileObject src = project.getFileObject("src/" + attributes.getValue("sourcepath"));
+            if ("SourceLine".equals(name)) {
+                String lineNumberStr = attributes.getValue("start");
+                if (lineNumberStr != null) {
+                    line = Integer.valueOf(attributes.getValue("start"));
+                }
+                String sourcePath = attributes.getValue("sourcepath");
+                if (scope.isFolder()) {
+                    src = scope.getFileObject("src/" + sourcePath);
+                } else {
+                    File sourceFile = FileUtil.toFile(scope);
+                    if (sourceFile.getAbsolutePath().indexOf(sourcePath) > -1) {
+                        src = scope;
+                    }
+                }
+            }
+        }
+
+        @Override
+        public void endElement(String uri, String localName, String name) throws SAXException {            
+            if ("BugInstance".equals(name)) {
                 if (src != null) {
                     Task t = Task.create(src, "warning", Msgs.getLocalizedMessage(type), line);
                     List<Task> arr = cummulate.get(src);
@@ -206,17 +250,11 @@ final class FindBugsTaskScanner extends PushTaskScanner {
                     }
                     arr.add(t);
                 }
-            }
-        }
-
-        @Override
-        public void endElement(String uri, String localName, String name) throws SAXException {
-            String ending = currentTag.pop();
-            assert ending.equals(name);
-            if ("BugInstance".equals("localName")) {
                 type = null;
                 priority = -1;
                 category = null;
+                src = null;
+                line = -1;
                 return;
             }
         }
@@ -263,7 +301,6 @@ final class FindBugsTaskScanner extends PushTaskScanner {
         
         
         private String type;
-        private String descrShort;
         private StringBuilder text;
         private Map<String,String> push;
 
