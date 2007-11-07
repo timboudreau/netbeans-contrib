@@ -46,6 +46,7 @@ package org.netbeans.modules.jemmysupport.generator;
  *
  * Created on March 12, 2002, 11:16 AM
  */
+import java.awt.event.MouseEvent;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import org.openide.DialogDescriptor;
@@ -85,6 +86,7 @@ public class ComponentsEditorPanel extends javax.swing.JPanel implements ChangeL
             super();
         }
 
+        @Override
         public Component getTreeCellRendererComponent(JTree tree, Object value, boolean sel, boolean expanded, boolean leaf, int row, boolean hasFocus) {
             super.getTreeCellRendererComponent(tree, value, sel, expanded, leaf, row,hasFocus);
             try {
@@ -93,7 +95,7 @@ public class ComponentsEditorPanel extends javax.swing.JPanel implements ChangeL
                     setIcon(icon);
             } catch (Exception e) {
                 ErrorManager.getDefault().notify(ErrorManager.WARNING, e);
-            };
+            }
             return this;
         }
 
@@ -118,19 +120,21 @@ public class ComponentsEditorPanel extends javax.swing.JPanel implements ChangeL
     }
     
     void nodeChanged(TreePath paths[]) {
-        if (paths==null) {
+        if (paths == null) {
             propertySheet.setNodes(new Node[0]);
-        } else try {
-            Node nodes[]=new Node[paths.length];
-            for (int i=0; i<paths.length; i++) {
-                DefaultMutableTreeNode node = (DefaultMutableTreeNode) paths[i].getLastPathComponent();
-                nodes[i]=new BeanNode(node.getUserObject());
+        } else {
+            try {
+                Node newNodes[] = new Node[paths.length];
+                for (int i = 0; i < paths.length; i++) {
+                    DefaultMutableTreeNode node = (DefaultMutableTreeNode) paths[i].getLastPathComponent();
+                    newNodes[i] = new BeanNode(node.getUserObject());
+                }
+                propertySheet.setNodes(newNodes);
+            } catch (IntrospectionException ex) {
+                propertySheet.setNodes(new Node[0]);
             }
-            propertySheet.setNodes(nodes);
-        } catch (IntrospectionException ex) {
-            propertySheet.setNodes(new Node[0]);
         }
-    }        
+    }   
     
     /** This method is called from within the constructor to
      * initialize the form.
@@ -183,7 +187,7 @@ public class ComponentsEditorPanel extends javax.swing.JPanel implements ChangeL
     }//GEN-LAST:event_treeKeyReleased
 
     private void treeMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_treeMouseClicked
-        if ((evt.getModifiers()==evt.BUTTON3_MASK)&&(tree.getSelectionCount()>0)&&!tree.isRowSelected(0)) {
+        if ((evt.getModifiers()==MouseEvent.BUTTON3_MASK)&&(tree.getSelectionCount()>0)&&!tree.isRowSelected(0)) {
             if (popup==null) {
                 popup=new JPopupMenu();
                 JMenuItem del=new JMenuItem(NbBundle.getMessage(ComponentsEditorPanel.class, "CTL_Delete"));
