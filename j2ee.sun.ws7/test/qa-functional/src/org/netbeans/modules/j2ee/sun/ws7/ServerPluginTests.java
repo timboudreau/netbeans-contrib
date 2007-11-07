@@ -56,6 +56,7 @@ import java.awt.Robot;
 import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
 import org.netbeans.jellytools.properties.Property;
+import org.netbeans.jemmy.operators.JListOperator;
 import org.netbeans.jemmy.operators.JTableOperator;
 
 /**
@@ -165,7 +166,7 @@ public class ServerPluginTests extends JellyTestCase {
             Thread.sleep(sleepTimeMedium);
 
             JDialogOperator ifSure = new JDialogOperator("Remove Server Instance");
-            new JButtonOperator(ifSure, "Ok").clickMouse();
+            new JButtonOperator(ifSure, "Yes").clickMouse();
 
         }
         if(isTestCase) {
@@ -196,7 +197,7 @@ public class ServerPluginTests extends JellyTestCase {
         popupMenu.pushMenuNoBlock("Add Server...");
 
         JDialogOperator jdo = new JDialogOperator("Add Server Instance");
-        JComboBoxOperator jco = new JComboBoxOperator(jdo,"Sun Java System Application Server");
+        JListOperator jco = new JListOperator(jdo, 1);
         jco.selectItem("Sun Java System Web Server 7.0");
         logger.info("Choose " + pb.getSjsString());
         JTextFieldOperator jto = new JTextFieldOperator(jdo,pb.getSjsString());
@@ -252,7 +253,7 @@ public class ServerPluginTests extends JellyTestCase {
         Node comp1 = new Node(rto.tree(),"Servers|" + pb.getRegistrationName());
         JPopupMenuOperator prop = comp1.callPopup();
         prop.pushMenuNoBlock("Properties");
-        JDialogOperator propDialog = new JDialogOperator("Server Manager");
+        JDialogOperator propDialog = new JDialogOperator("Servers");
 
         //pb.getSjsString() = "debug";
         String[] expectedValues = { pb.getRegistrationName(), pb.getSjsString(), pb.getAdminPwd(), pb.isRemote()?pb.getRemoteHost():pb.getLocalHost() + ":" + pb.getAdminSSLPort(), pb.getWsInstallDir(), pb.getAdminUser()};
@@ -298,7 +299,7 @@ public class ServerPluginTests extends JellyTestCase {
         Thread.sleep(sleepTimeMedium);
 
         JDialogOperator jdo = new JDialogOperator("Add Server Instance");
-        JComboBoxOperator jco = new JComboBoxOperator(jdo,"Sun Java System Application Server");
+        JListOperator jco = new JListOperator(jdo, 1);
         jco.selectItem(pb.getSjsString());
         logger.info("Choose " + pb.getSjsString());
         JTextFieldOperator jto = new JTextFieldOperator(jdo,pb.getSjsString());
@@ -358,7 +359,7 @@ public class ServerPluginTests extends JellyTestCase {
         Node comp1 = new Node(rto.tree(),"Servers|" + pb.getRegistrationName());
         JPopupMenuOperator prop = comp1.callPopup();
         prop.pushMenuNoBlock("Properties");
-        JDialogOperator propDialog = new JDialogOperator("Server Manager");
+        JDialogOperator propDialog = new JDialogOperator("Servers");
 
         //pb.getSjsString() = "debug";
         String[] expectedValues = { pb.getRegistrationName(), pb.getSjsString(), pb.getAdminPwd(), pb.isRemote()?pb.getRemoteHost():pb.getLocalHost() + ":" + pb.getAdminPort(), pb.getWsInstallDir(), pb.getAdminUser()};
@@ -406,7 +407,7 @@ public class ServerPluginTests extends JellyTestCase {
         Thread.sleep(sleepTimeMedium);
 
         JDialogOperator jdo = new JDialogOperator("Add Server Instance");
-        JComboBoxOperator jco = new JComboBoxOperator(jdo,"Sun Java System Application Server");
+        JListOperator jco = new JListOperator(jdo, 1);
         jco.selectItem(pb.getSjsString());
         logger.info("Choose " + pb.getSjsString());
         JTextFieldOperator jto = new JTextFieldOperator(jdo,pb.getSjsString());
@@ -462,7 +463,7 @@ public class ServerPluginTests extends JellyTestCase {
         Node comp1 = new Node(rto.tree(),"Servers|" + pb.getRegistrationName());
         JPopupMenuOperator prop = comp1.callPopup();
         prop.pushMenuNoBlock("Properties");
-        JDialogOperator propDialog = new JDialogOperator("Server Manager");
+        JDialogOperator propDialog = new JDialogOperator("Servers");
 
         //pb.getSjsString() = "debug";
         String[] expectedValues = { pb.getRegistrationName(), pb.getSjsString(), pb.getAdminPwd(), host + ":" + pb.getRemoteSSLPort(), pb.getWsInstallDir(), pb.getAdminUser()};
@@ -510,7 +511,7 @@ public class ServerPluginTests extends JellyTestCase {
         Thread.sleep(sleepTimeMedium);
 
         JDialogOperator jdo = new JDialogOperator("Add Server Instance");
-        JComboBoxOperator jco = new JComboBoxOperator(jdo,"Sun Java System Application Server");
+        JListOperator jco = new JListOperator(jdo, 1);
         jco.selectItem(pb.getSjsString());
         logger.info("Choose " + pb.getSjsString());
         JTextFieldOperator jto = new JTextFieldOperator(jdo,pb.getSjsString());
@@ -566,7 +567,7 @@ public class ServerPluginTests extends JellyTestCase {
         Node comp1 = new Node(rto.tree(),"Servers|" + pb.getRegistrationName());
         JPopupMenuOperator prop = comp1.callPopup();
         prop.pushMenuNoBlock("Properties");
-        JDialogOperator propDialog = new JDialogOperator("Server Manager");
+        JDialogOperator propDialog = new JDialogOperator("Servers");
 
         //pb.getSjsString() = "debug";
         String[] expectedValues = { pb.getRegistrationName(), pb.getSjsString(), pb.getAdminPwd(), host + ":" + pb.getRemotePort(), pb.getWsInstallDir(), pb.getAdminUser()};
@@ -600,7 +601,7 @@ public class ServerPluginTests extends JellyTestCase {
         String imageName = getName();
         tcName = getName();
         isRemote = false; //localhost
-        isRemoveServer = false;
+        isRemoveServer = true;
 
 
         logger.info("TS_COCO_SR_05: Registration with local webserver non-existent installation directory.");
@@ -613,7 +614,7 @@ public class ServerPluginTests extends JellyTestCase {
         Thread.sleep(sleepTimeMedium);
 
         JDialogOperator jdo = new JDialogOperator("Add Server Instance");
-        JComboBoxOperator jco = new JComboBoxOperator(jdo,"Sun Java System Application Server");
+        JListOperator jco = new JListOperator(jdo, 1);
         jco.selectItem(pb.getSjsString());
         logger.info("Choose " + pb.getSjsString());
         JTextFieldOperator jto = new JTextFieldOperator(jdo,pb.getSjsString());
@@ -700,6 +701,7 @@ public class ServerPluginTests extends JellyTestCase {
         String imageName = getName();
         tcName = getName();
         isRemote = false; //localhost
+        isRemoveServer = true;
 
         logger.info("TS_COCO_SR_06: Registration with remote webserver non-existent installation directory. ");
 
@@ -711,7 +713,7 @@ public class ServerPluginTests extends JellyTestCase {
         Thread.sleep(sleepTimeMedium);
 
         JDialogOperator jdo = new JDialogOperator("Add Server Instance");
-        JComboBoxOperator jco = new JComboBoxOperator(jdo,"Sun Java System Application Server");
+        JListOperator jco = new JListOperator(jdo, 1);
         jco.selectItem(pb.getSjsString());
         logger.info("Choose " + pb.getSjsString());
         JTextFieldOperator jto = new JTextFieldOperator(jdo,pb.getSjsString());
@@ -800,7 +802,7 @@ public class ServerPluginTests extends JellyTestCase {
         Thread.sleep(sleepTimeMedium);
 
         JDialogOperator jdo = new JDialogOperator("Add Server Instance");
-        JComboBoxOperator jco = new JComboBoxOperator(jdo,"Sun Java System Application Server");
+        JListOperator jco = new JListOperator(jdo, 1);
         jco.selectItem(pb.getSjsString());
         logger.info("Choose " + pb.getSjsString());
         JTextFieldOperator jto = new JTextFieldOperator(jdo,pb.getSjsString());
@@ -887,7 +889,7 @@ public class ServerPluginTests extends JellyTestCase {
         Thread.sleep(sleepTimeMedium);
 
         JDialogOperator jdo = new JDialogOperator("Add Server Instance");
-        JComboBoxOperator jco = new JComboBoxOperator(jdo,"Sun Java System Application Server");
+        JListOperator jco = new JListOperator(jdo, 1);
         jco.selectItem(pb.getSjsString());
         logger.info("Choose " + pb.getSjsString());
         JTextFieldOperator jto = new JTextFieldOperator(jdo,pb.getSjsString());
@@ -1091,13 +1093,13 @@ public class ServerPluginTests extends JellyTestCase {
 
         RuntimeTabOperator rto = new RuntimeTabOperator();
         Thread.sleep(1000);
-        Node comp = new Node(rto.tree(), "Servers|Local|cuspy:cuspy|JDBC Resources|jdbc");
+        Node comp = new Node(rto.tree(),"Servers|" + pb.getRegistrationName() + "|" + pb.getConfigName() +":" +pb.getVsName() + "|JDBC Resources|Test");
         new PropertiesAction().perform(comp);
-        PropertySheetOperator pso = new PropertySheetOperator("jdbc");
+        PropertySheetOperator pso = new PropertySheetOperator("Test");
         PropertyHandler ph = new PropertyHandler(pso);
 
         Property px = null;
-        for(int i = 0; i < new JTableOperator(pso).getRowCount(); i++) {
+        for(int i = 1; i < new JTableOperator(pso).getRowCount(); i++) {
             px = new Property(pso,i);
             logger.info("Initial value of \"" + px.getName() + "\" = " + px.getValue());
         }
@@ -1124,9 +1126,9 @@ public class ServerPluginTests extends JellyTestCase {
         pso.close();
         Thread.sleep(2000);
 
-        comp = new Node(rto.tree(), "Servers|Local|cuspy:cuspy|JDBC Resources|jdbc");
+        comp = new Node(rto.tree(),"Servers|" + pb.getRegistrationName() + "|" + pb.getConfigName() +":" +pb.getVsName() + "|JDBC Resources|Test");
         new PropertiesAction().perform(comp);
-        pso = new PropertySheetOperator("jdbc");
+        pso = new PropertySheetOperator("Test");
         ph = new PropertyHandler(pso);
 
         if(!ph.getProperty("enabled").equals("false")) {
@@ -1157,7 +1159,7 @@ public class ServerPluginTests extends JellyTestCase {
         new ScreenCapturer().capture(getName() + "_edited",pb.getResultDir(),logger);
         Thread.sleep(2000);
         px = null;
-        for(int i = 0; i < new JTableOperator(pso).getRowCount(); i++) {
+        for(int i = 1; i < new JTableOperator(pso).getRowCount(); i++) {
             px = new Property(pso,i);
             logger.info("Final value of \"" + px.getName() + "\" = " + px.getValue() + " after editing.");
         }
@@ -1183,7 +1185,7 @@ public class ServerPluginTests extends JellyTestCase {
         PropertyHandler ph = new PropertyHandler(pso);
 
         Property px = null;
-        for(int i = 0; i < new JTableOperator(pso).getRowCount(); i++) {
+        for(int i = 1; i < new JTableOperator(pso).getRowCount(); i++) {
             px = new Property(pso,i);
             logger.info("Initial value of \"" + px.getName() + "\" = " + px.getValue());
         }
@@ -1239,7 +1241,7 @@ public class ServerPluginTests extends JellyTestCase {
 
 
         px = null;
-        for(int i = 0; i < new JTableOperator(pso).getRowCount(); i++) {
+        for(int i = 1; i < new JTableOperator(pso).getRowCount(); i++) {
             px = new Property(pso,i);
             logger.info("Final value of \"" + px.getName() + "\" = " + px.getValue() + " after editing.");
         }
@@ -1378,13 +1380,13 @@ public class ServerPluginTests extends JellyTestCase {
 
         System.out.println(new JTextFieldOperator(npw,3).getText());
 
-        /*2 is Server combobox index*/
-        JComboBoxOperator server = new JComboBoxOperator(npw,2); //"Bundled Tomcat (5.5.17)");
+        /*1 is Server combobox index*/
+        JComboBoxOperator server = new JComboBoxOperator(npw,1); //"Bundled Tomcat (5.5.17)");
         Thread.sleep(1000);
         server.selectItem(pb.getRegistrationName());
 
-        /*3 is JavaEEVersion combobox index*/
-        JComboBoxOperator javaEEVersion = new JComboBoxOperator(npw,3);    //pb.getJavaEEVersion());
+        /*2 is JavaEEVersion combobox index*/
+        JComboBoxOperator javaEEVersion = new JComboBoxOperator(npw,2);    //pb.getJavaEEVersion());
         Thread.sleep(1000);
         javaEEVersion.selectItem(pb.getJavaEEVersion());
         //System.out.println(">>" + javaEEVersion.getTextField().getText());
@@ -1397,7 +1399,7 @@ public class ServerPluginTests extends JellyTestCase {
         System.out.println("::" + app.getText());
 
         JPopupMenuOperator jpop = app.callPopup();
-        jpop.pushMenu("Deploy Project");
+        jpop.pushMenu("Run");
         Thread.sleep(5000);
 
 
@@ -1429,12 +1431,12 @@ public class ServerPluginTests extends JellyTestCase {
 
         System.out.println(new JTextFieldOperator(npw,3).getText());
 
-        JComboBoxOperator server = new JComboBoxOperator(npw,2);//"Bundled Tomcat (5.5.17)");
+        JComboBoxOperator server = new JComboBoxOperator(npw,1);//"Bundled Tomcat (5.5.17)");
         server.selectItem(pb.getRegistrationName());
         //Bundled Tomcat (5.5.17)");
 
 
-        JComboBoxOperator javaEEVersion = new JComboBoxOperator(npw,3);
+        JComboBoxOperator javaEEVersion = new JComboBoxOperator(npw,2);
         javaEEVersion.selectItem(pb.getJavaEEVersion());
         //System.out.println(">>" + javaEEVersion.getTextField().getText());
 
@@ -1446,7 +1448,7 @@ public class ServerPluginTests extends JellyTestCase {
         System.out.println("::" + app.getText());
 
         JPopupMenuOperator jpop = app.callPopup();
-        jpop.pushMenu("Deploy Project");
+        jpop.pushMenu("Run");
         System.out.println(":>:" + jpop.getLabel());
         Thread.sleep(5000);
 
@@ -1697,7 +1699,7 @@ public class ServerPluginTests extends JellyTestCase {
         //Thread.sleep(sleepTimeMedium);
 
         JDialogOperator jdo = new JDialogOperator("Add Server Instance");
-        JComboBoxOperator jco = new JComboBoxOperator(jdo,"Sun Java System Application Server");
+        JListOperator jco = new JListOperator(jdo, 1);
         jco.clickMouse();
         jco.releaseMouse();
         jco.selectItem(pb.getSjsString());
@@ -1848,7 +1850,7 @@ public class ServerPluginTests extends JellyTestCase {
         NbDialogOperator infoBar = new NbDialogOperator("Remove Server Instance");
         Thread.sleep(1500);
         logger.info("Alert found. " + new JLabelOperator(infoBar, "Do you really want to remove").getText());
-        new JButtonOperator(infoBar,"Ok").clickMouse();
+        new JButtonOperator(infoBar,"Yes").clickMouse();
 
         /*IMPORTANT*/
         System.out.println("Sleeping for 15 sec");
