@@ -66,6 +66,7 @@ import org.openide.loaders.DataObject;
 
 import org.openide.filesystems.FileObject;
 import java.io.StringReader;
+import java.util.ArrayList;
 import net.java.javafx.type.expr.ValidationError;
 import org.netbeans.spi.gsf.DefaultError;
 import org.netbeans.api.gsf.Error;
@@ -94,6 +95,10 @@ import net.java.javafx.type.expr.VariableExpression;
 import net.java.javafx.type.expr.AllocationExpression;
 import net.java.javafx.type.expr.ExpressionStatement;
 import net.java.javafx.type.expr.Expression;
+import net.java.javafx.typeImpl.completion.SimpleCharStream;
+import net.java.javafx.typeImpl.completion.CompletionParser;
+import net.java.javafx.typeImpl.completion.Token;
+import net.java.javafx.type.expr.Locatable;
 
 /**
  * @author ads
@@ -181,10 +186,11 @@ public class FXParser implements Parser {
             LineMap lineMap = null;
             Compilation compilation = null;
             CompilationUnit unit = null;
+            String text = null;
 
             try {
                 DataObject dataObject = DataObject.find( file.getFileObject() );
-                EditorCookie editorCookie = 
+                EditorCookie editorCookie =
                     dataObject.getCookie(EditorCookie.class);
                 doc = editorCookie.getDocument();
 
@@ -192,13 +198,11 @@ public class FXParser implements Parser {
                     JavaFXPier.sourceChanged((JavaFXDocument)doc);
                 }
 
+                text = doc.getText(0, doc.getLength());
+                lineMap = new LineMap(text);
+
                 if (((JavaFXDocument)doc).errorAndSyntaxAllowed()) {
-                    String text = null;
                     try {
-                        text = doc.getText(0, doc.getLength());
-
-                        lineMap = new LineMap(text);
-
                         compilation = JavaFXPier.getCompilation(file.getFileObject());
                         unit = JavaFXPier.readCompilationUnit(compilation, file.getFileObject().getPath(), new StringReader(text));
 
@@ -219,7 +223,8 @@ public class FXParser implements Parser {
                 int offset = reader.getCaretOffset(file);
                 result = new FXParserResult(file);
                 if (unit != null)
-                    fillResults(unit, lineMap,  result);
+                    fillResultsForNavigator(unit, lineMap,  result);
+                fillResultsForFolding(text, lineMap,  result);
             } catch (Exception ioe) {
                 listener.exception(ioe);
             }
@@ -229,7 +234,94 @@ public class FXParser implements Parser {
         }
     }
 
-    private void fillResults(CompilationUnit unit, LineMap lineMap, FXParserResult result) {
+    private enum State { initial, lbrace, _import };
+    private class FSM {
+        State state = State.initial;
+        int beginOffset = 0;
+        int lastSemicolonOffset = 0;
+    }
+    
+    private void fillResultsForFolding(String text, LineMap lineMap, FXParserResult result) {
+            
+        SimpleCharStream charStream = new SimpleCharStream(new StringReader(text));
+        CompletionParser completionParser = new CompletionParser(charStream);
+        Token token = completionParser.getNextToken();
+
+        List<FSM> fsmList = new ArrayList<FSM>();
+        FSM currentFSM = new FSM();
+        fsmList.add(currentFSM);
+        int endOffset = 0;
+ 
+        while (token.kind != 0) {
+            switch (token.kind) {
+                case CompletionParser.IMPORT:
+                    if (currentFSM.state != State._import) {
+                        currentFSM.beginOffset = lineMap.getOffset(new LocatableImpl(token));
+                        currentFSM.state = State._import;
+                    }
+                    break;
+                case CompletionParser.IDENTIFIER:
+                    break;
+                case CompletionParser.LBRACE:
+                    switch (currentFSM.state) {
+                        case lbrace:
+                            currentFSM = new FSM();
+                            fsmList.add(currentFSM);
+                        case initial:
+                            currentFSM.beginOffset = lineMap.getOffset(new LocatableImpl(token));
+                            currentFSM.state = State.lbrace;
+                            break;
+                    }
+                    break;
+                case CompletionParser.RBRACE:
+                    switch (currentFSM.state) {
+                        case lbrace:
+                           endOffset = lineMap.getOffset(new LocatableImpl(token)) + 1;
+                           JavaFXElement element = new JavaFXElement(ElementKind.OTHER, "CODE_FOLD", new OffsetRange(currentFSM.beginOffset, endOffset), null);
+                           result.addElement(element);
+                           if (fsmList.size() > 1) {
+                               fsmList.remove(fsmList.size() - 1);
+                               currentFSM = fsmList.get(fsmList.size() - 1);
+                           }
+                           else {
+                               currentFSM.state = State.initial;
+                           }
+                           break;
+                    }
+                    break;
+                default:
+                    if (token.image.contentEquals("."))
+                        break;
+                    if (currentFSM != null) {
+                        if (token.image.contentEquals(";")) {
+                            if (currentFSM.state == State._import)
+                                currentFSM.lastSemicolonOffset = lineMap.getOffset(new LocatableImpl(token));
+                            break;
+                        }
+                        switch (currentFSM.state) {
+                            case _import:
+                                JavaFXElement element = new JavaFXElement(ElementKind.OTHER, "CODE_FOLD", new OffsetRange(currentFSM.beginOffset + 1, currentFSM.lastSemicolonOffset), null);
+                                result.addElement(element);
+                                currentFSM.state = State.initial;
+                                break;
+                        }
+                    }
+            }
+            try {
+                token = completionParser.getNextToken();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
+        if (currentFSM.state == State._import) {
+            JavaFXElement element = new JavaFXElement(ElementKind.OTHER, "CODE_FOLD", new OffsetRange(currentFSM.beginOffset + 1, currentFSM.lastSemicolonOffset), null);
+            result.addElement(element);
+            currentFSM = null;
+        }
+    }
+
+    private void fillResultsForNavigator(CompilationUnit unit, LineMap lineMap, FXParserResult result) {
         Iterator functionsListIterator = unit.getFunctions().iterator();
         while (functionsListIterator.hasNext()) {
             Object obj = functionsListIterator.next();
@@ -294,7 +386,7 @@ public class FXParser implements Parser {
             result.addElement(element);
         }
     }
-    
+
     private Set<Modifier> getModifiers(Accessible type) {
         Set<Modifier> modifiers = new TreeSet<Modifier>();
         if (type.isPrivate())
@@ -312,5 +404,51 @@ public class FXParser implements Parser {
     public <T extends Element> T resolveHandle( CompilationInfo info, ElementHandle<T>  handle  ) {
         // TODO Auto-generated method stub
         return (T) ((JavaFXElementHandleImpl) handle).getElement();
+    }
+    
+    class LocatableImpl implements Locatable {
+        
+        private int beginColumn;
+        private int endColumn;
+        private int beginLine;
+        private int endLine;
+        private String uRI;
+        
+        public LocatableImpl(Token token) {
+            beginColumn = token.beginColumn;
+            endColumn =  token.endColumn;
+            beginLine =  token.beginLine;
+            endLine =  token.endLine;
+        }
+        public int getBeginLine() {
+            return beginLine;
+        }
+        public void setBeginLine(int line) {
+            beginLine = line;
+        }
+        public int getEndLine() {
+            return beginLine;
+        }
+        public void setEndLine(int line) {
+            endLine = line;
+        }
+        public int getBeginColumn() {
+            return beginColumn;
+        }
+        public void setBeginColumn(int column) {
+            beginColumn = column;
+        }
+        public int getEndColumn() {
+            return endColumn;
+        }
+        public void setEndColumn(int column) {
+            endColumn = column;
+        }
+        public String getURI() {
+            return uRI;
+        }
+        public void setURI(String uri) {
+            uRI = uri;
+        }
     }
 }

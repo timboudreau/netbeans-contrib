@@ -81,12 +81,14 @@ public class JavaFXStructureAnalyzer implements StructureScanner{
         List<StructureItem> structure = new ArrayList<StructureItem>(elements.size());
         
         for (JavaFXElement element: elements) {
-            JavaFXStructureItem structureItem = new JavaFXStructureItem(info.getFileObject(), element);
-            for (JavaFXElement nestedElement: element.getNested(element)) {
-                JavaFXStructureItem nestedStructureItem = new JavaFXStructureItem(info.getFileObject(), nestedElement);
-                structureItem.addNested(nestedStructureItem);
+            if (element.getKind() != ElementKind.OTHER) {
+                JavaFXStructureItem structureItem = new JavaFXStructureItem(info.getFileObject(), element);
+                for (JavaFXElement nestedElement: element.getNested(element)) {
+                    JavaFXStructureItem nestedStructureItem = new JavaFXStructureItem(info.getFileObject(), nestedElement);
+                    structureItem.addNested(nestedStructureItem);
+                }
+                structure.add(structureItem);
             }
-            structure.add(structureItem);
         }
         return structure;
     }
@@ -97,9 +99,22 @@ public class JavaFXStructureAnalyzer implements StructureScanner{
         return folds;
     }
 */    
-    public Map<String, List<OffsetRange>> folds(CompilationInfo arg0) {
-        Map<String, List<OffsetRange>> map = new HashMap<String, List<OffsetRange>>();
-        return map;
+    public Map<String, List<OffsetRange>> folds(CompilationInfo info) {
+        Map<String,List<OffsetRange>> folds = new HashMap<String,List<OffsetRange>>();
+        List<OffsetRange> codefolds = new ArrayList<OffsetRange>();
+        folds.put("codeblocks", codefolds); // NOI18N
+
+        this.result = (FXParserResult)info.getParserResult();
+        
+        List<JavaFXElement> elements = result.getElementsList();
+        List<StructureItem> structure = new ArrayList<StructureItem>(elements.size());
+        
+        for (JavaFXElement element: elements) {
+            if (element.getKind() == ElementKind.OTHER)
+                codefolds.add(element.getOffsetRange());
+        }
+
+        return folds;
     }
     
     private class JavaFXStructureItem implements StructureItem {
