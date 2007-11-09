@@ -60,6 +60,13 @@ made subject to such option by the copyright holder.
                     </run-dependency>
                 </dependency>
                 <dependency>
+                    <code-name-base>org.netbeans.modules.java.editor</code-name-base>
+                    <run-dependency>
+                        <release-version>1</release-version>
+                        <specification-version>2.10</specification-version>
+                    </run-dependency>
+                </dependency>
+                <dependency>
                     <code-name-base>org.netbeans.modules.java.j2seplatform</code-name-base>
                     <run-dependency>
                         <release-version>1</release-version>
