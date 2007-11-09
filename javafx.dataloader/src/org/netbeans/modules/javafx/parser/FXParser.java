@@ -241,6 +241,7 @@ public class FXParser implements Parser {
         int beginOffset = 0;
         int lastSemicolonOffset = 0;
         int lbraceCounter = 0;
+        int importEndLineOffset = 0;
     }
     
     private void fillResultsForFolding(String text, LineMap lineMap, FXParserResult result) {
@@ -253,10 +254,11 @@ public class FXParser implements Parser {
         FSM currentFSM = new FSM();
         fsmList.add(currentFSM);
         int endOffset = 0;
- 
+  
         while (token.kind != 0) {
             switch (token.kind) {
                 case CompletionParser.IMPORT:
+                    currentFSM.importEndLineOffset = lineMap.getOffset(new LocatableImpl(token.endLine + 1, 1, token.endLine + 1, 1)) - 1;
                     switch (currentFSM.state)
                     {
                         case closed_import:
@@ -366,11 +368,15 @@ public class FXParser implements Parser {
             }
         }
 
-        if (currentFSM.state == State._import) {
-            if (currentFSM.lastSemicolonOffset > currentFSM.beginOffset + 1) {
+        switch (currentFSM.state) {
+            case closed_import:
                 JavaFXElement element = new JavaFXElement(ElementKind.OTHER, "CODE_FOLD", new OffsetRange(currentFSM.beginOffset + 1, currentFSM.lastSemicolonOffset), null);
                 result.addElement(element);
-            }
+                break;
+            case _import:
+                element = new JavaFXElement(ElementKind.OTHER, "CODE_FOLD", new OffsetRange(currentFSM.beginOffset + 1, currentFSM.importEndLineOffset), null);
+                result.addElement(element);
+                break;
         }
     }
 
@@ -472,6 +478,12 @@ public class FXParser implements Parser {
             endColumn =  token.endColumn;
             beginLine =  token.beginLine;
             endLine =  token.endLine;
+        }
+        public LocatableImpl(int beginLine, int beginColumn, int endLine, int endColumn) {
+            this.beginColumn = beginColumn;
+            this.endColumn =  endColumn;
+            this.beginLine =  beginLine;
+            this.endLine =  endLine;
         }
         public int getBeginLine() {
             return beginLine;
