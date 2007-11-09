@@ -1,7 +1,25 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE filesystem PUBLIC "-//NetBeans//DTD Filesystem 1.1//EN" "http://www.netbeans.org/dtds/filesystem-1_1.dtd">
 <filesystem>
-<folder name="TaskList">
+<folder name="Projects">
+        <folder name="org-netbeans-modules-apisupport-project">
+            <folder name="Lookup">
+                <file name="HudsonFindBugsLookupProvider.instance">
+                    <attr name="instanceOf" stringvalue="org.netbeans.spi.project.LookupProvider"/>
+                    <attr name="instanceCreate" methodvalue="org.netbeans.modules.hudsonfindbugs.FindBugsProjectLookupProvider.createNBMLookupProvider"/>
+                </file>
+            </folder>
+        </folder>
+        <folder name="org-netbeans-modules-java-j2seproject">
+            <folder name="Lookup">
+                <file name="HudsonFindBugsLookupProvider.instance">
+                    <attr name="instanceOf" stringvalue="org.netbeans.spi.project.LookupProvider"/>
+                    <attr name="instanceCreate" methodvalue="org.netbeans.modules.hudsonfindbugs.FindBugsProjectLookupProvider.createJ2SELookupProvider"/>
+                </file>
+            </folder>
+        </folder>
+    </folder>
+    <folder name="TaskList">
     <folder name="Scanners">
         <file name="NetBeansFindBugs.instance">
             <attr name="instanceOf" stringvalue="org.netbeans.spi.tasklist.FileTaskScanner"/>

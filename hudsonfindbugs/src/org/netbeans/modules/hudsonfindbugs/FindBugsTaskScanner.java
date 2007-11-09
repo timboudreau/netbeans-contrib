@@ -57,14 +57,13 @@ import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 import org.netbeans.api.project.FileOwnerQuery;
 import org.netbeans.api.project.Project;
-import org.netbeans.modules.hudsonfindbugs.spi.FindBugsQueryImplementation;
+import org.netbeans.modules.hudsonfindbugs.api.FindBugsQuery;
 import org.netbeans.spi.tasklist.PushTaskScanner;
 import org.netbeans.spi.tasklist.Task;
 import org.netbeans.spi.tasklist.TaskScanningScope;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
 import org.openide.util.Exceptions;
-import org.openide.util.Lookup;
 import org.openide.util.NbBundle;
 import org.openide.util.RequestProcessor;
 import org.xml.sax.Attributes;
@@ -107,13 +106,7 @@ final class FindBugsTaskScanner extends PushTaskScanner {
                     ParseRequest req = new ParseRequest();
                     Project project = FileOwnerQuery.getOwner(file);
                     req.projectRoot = file;
-                    Collection<FindBugsQueryImplementation> queries = (Collection<FindBugsQueryImplementation>) 
-                            Lookup.getDefault().lookupAll(FindBugsQueryImplementation.class);
-                    URL url = null;
-                    for (FindBugsQueryImplementation fbqi : queries) {
-                        url = fbqi.getFindBugsUrl(project, true);
-                        if (url != null) break;
-                    }
+                    URL url = FindBugsQuery.getFindBugsUrl(project, true);
                     req.url = url;
                     req.callback = callback;
                     req.scanner = this;
@@ -123,13 +116,7 @@ final class FindBugsTaskScanner extends PushTaskScanner {
                 for (Project project : projects) {
                     ParseRequest req = new ParseRequest();
                     req.projectRoot = project.getProjectDirectory();
-                    Collection<FindBugsQueryImplementation> queries = (Collection<FindBugsQueryImplementation>) 
-                            Lookup.getDefault().lookupAll(FindBugsQueryImplementation.class);
-                    URL url = null;
-                    for (FindBugsQueryImplementation fbqi : queries) {
-                        url = fbqi.getFindBugsUrl(project, true);
-                        if (url != null) break;
-                    }
+                    URL url = FindBugsQuery.getFindBugsUrl(project, true);
                     req.url = url;
                     req.callback = callback;
                     req.scanner = this;

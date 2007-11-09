@@ -39,50 +39,43 @@
 
 package org.netbeans.modules.hudsonfindbugs;
 
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import org.netbeans.api.project.Project;
-import org.netbeans.modules.hudsonfindbugs.spi.FindBugsQueryImplementation;
-import org.netbeans.modules.java.j2seproject.J2SEProject;
-import org.netbeans.spi.project.support.ant.AntProjectHelper;
-import org.netbeans.spi.project.support.ant.EditableProperties;
+import org.netbeans.spi.project.LookupProvider;
+import org.openide.util.Lookup;
+import org.openide.util.lookup.Lookups;
 
 /**
  *
- * @author Martin Grebac
+ * @author mkleint
  */
-public final class J2seFindBugsQueryProvider implements FindBugsQueryImplementation {
-
-    private static final Logger LOG = Logger.getLogger(J2seFindBugsQueryProvider.class.getName());
-
-    public J2seFindBugsQueryProvider() {}
+public class FindBugsProjectLookupProvider implements LookupProvider {
     
-    public static FindBugsQueryImplementation createInstance() {
-        // TODO possibly also use just one static instance everywhere..
-        return new J2seFindBugsQueryProvider();
+    enum Type {
+        J2SE,
+        NBM
+    }
+    private Type type;
+    
+    private FindBugsProjectLookupProvider(Type type) {
+        this.type = type;
     }
     
-    
-    public URL getFindBugsUrl(Project project, boolean remote) {
-        if (!remote) throw new UnsupportedOperationException("Local files not yet supported.");
-        URL url = null;
-        String urlValue = null;
-        // TODO when the provider is only in project's lookup this condition is not necessary.
-        if (project instanceof J2SEProject) {
-            try {
-                J2SEProject j2sePrj = (J2SEProject) project;
-                EditableProperties ep = j2sePrj.getAntProjectHelper().getProperties(AntProjectHelper.PROJECT_PROPERTIES_PATH);
-                urlValue = ep.getProperty(FINDBUGS_PROJECT_PROPERTY);
-                if (urlValue != null) {
-                    url = new URL(urlValue);
-                }
-            } catch (MalformedURLException ex) {
-                LOG.log(Level.INFO, "URL incorrect: " + urlValue + ex.getLocalizedMessage());
-            }
+
+    public Lookup createAdditionalLookup(Lookup baseContext) {
+        //TODO asset check on the content of lookup
+        if (type == Type.J2SE) {
+            return Lookups.singleton(J2seFindBugsQueryProvider.createInstance());
+        } else if (type == Type.NBM) {
+            return Lookups.singleton(NBMFindBugsQueryProvider.createInstance());
         }
-        return url;
+        return null;
+    }
+    
+    public static LookupProvider createJ2SELookupProvider() {
+        return new FindBugsProjectLookupProvider(Type.J2SE);
+    }
+    
+    public static LookupProvider createNBMLookupProvider() {
+        return new FindBugsProjectLookupProvider(Type.NBM);
     }
 
 }

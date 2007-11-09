@@ -42,7 +42,7 @@ package org.netbeans.modules.hudsonfindbugs;
 import java.net.MalformedURLException;
 import java.net.URL;
 import org.netbeans.api.project.Project;
-import org.netbeans.modules.apisupport.project.NbModuleProject;
+import org.netbeans.modules.apisupport.project.spi.NbModuleProvider;
 import org.netbeans.modules.hudsonfindbugs.spi.FindBugsQueryImplementation;
 import org.openide.util.Exceptions;
 
@@ -58,16 +58,17 @@ public final class NBMFindBugsQueryProvider implements FindBugsQueryImplementati
     public NBMFindBugsQueryProvider() {}
     
     public static FindBugsQueryImplementation createInstance() {
+        // TODO possibly also use just one static instance everywhere..
         return new NBMFindBugsQueryProvider();
     }
     
     public URL getFindBugsUrl(Project project, boolean remote) {
         if (!remote) throw new UnsupportedOperationException("Local files not yet supported.");
         URL url = null;
-        if (project instanceof NbModuleProject) {
+        NbModuleProvider prov = project.getLookup().lookup(NbModuleProvider.class);
+        if (prov != null && prov.getModuleType() == NbModuleProvider.NETBEANS_ORG) {
             try {
-                NbModuleProject nbPrj = (NbModuleProject) project;
-                String urlStr = NB_HUDSON_FBUGS_URLROOT + nbPrj.getCodeNameBase().replace('.', '-') + ".xml";
+                String urlStr = NB_HUDSON_FBUGS_URLROOT + prov.getCodeNameBase().replace('.', '-') + ".xml";
                 url = new URL(urlStr);
             } catch (MalformedURLException ex) {
                 Exceptions.printStackTrace(ex);
