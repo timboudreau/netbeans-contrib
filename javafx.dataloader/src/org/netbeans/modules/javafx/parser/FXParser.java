@@ -235,7 +235,7 @@ public class FXParser implements Parser {
         }
     }
 
-    private enum State { initial, lbrace, suspected, _import, string };
+    private enum State { initial, lbrace, suspected, suspected_identifier, _import, closed_import, string };
     private class FSM {
         State state = State.initial;
         int beginOffset = 0;
@@ -257,15 +257,34 @@ public class FXParser implements Parser {
         while (token.kind != 0) {
             switch (token.kind) {
                 case CompletionParser.IMPORT:
-                    if (currentFSM.state != State._import) {
-                        currentFSM.beginOffset = lineMap.getOffset(new LocatableImpl(token));
-                        currentFSM.state = State._import;
+                    switch (currentFSM.state)
+                    {
+                        case closed_import:
+                            currentFSM.state = State._import;
+                        case _import:
+                            break;
+                        default:
+                            currentFSM.beginOffset = lineMap.getOffset(new LocatableImpl(token));
+                            currentFSM.state = State._import;
+                            break;
                     }
                     break;
-                case CompletionParser.supertype:
-                case CompletionParser.IDENTIFIER:
-                    break;
                 case CompletionParser.as:
+                case CompletionParser.supertype:
+                    break;
+                case CompletionParser.IDENTIFIER:
+                    switch (currentFSM.state) {
+                        case _import:
+                            break;
+                        case closed_import:
+                           if (currentFSM.lastSemicolonOffset > currentFSM.beginOffset + 1) {
+                                JavaFXElement element = new JavaFXElement(ElementKind.OTHER, "CODE_FOLD", new OffsetRange(currentFSM.beginOffset + 1, currentFSM.lastSemicolonOffset + 1), null);
+                                result.addElement(element);
+                            }
+                        case initial:
+                            currentFSM.state = State.suspected_identifier;
+                            break;
+                    }
                     break;
                 case CompletionParser.operation:
                 case CompletionParser.function:
@@ -286,6 +305,7 @@ public class FXParser implements Parser {
                 case CompletionParser.LBRACE:
                     switch (currentFSM.state) {
                         case suspected:
+                        case suspected_identifier:
                             currentFSM = new FSM();
                             fsmList.add(currentFSM);
                             currentFSM.state = State.lbrace;
@@ -308,9 +328,7 @@ public class FXParser implements Parser {
                                     fsmList.remove(fsmList.size() - 1);
                                     currentFSM = fsmList.get(fsmList.size() - 1);
                                 }
-                                else {
                                     currentFSM.state = State.initial;
-                                }
                             }
                             break;
                     }
@@ -318,10 +336,15 @@ public class FXParser implements Parser {
                 default:
                     if (token.image.contentEquals("."))
                         break;
+                    if (currentFSM.state == State.suspected_identifier) {
+                        currentFSM.state = State.initial;
+                        break;
+                    }
                     if (currentFSM.state == State._import) {
                         if (token.image.contentEquals("*"))
                             break;
                         if (token.image.contentEquals(";")) {
+                            currentFSM.state = State.closed_import;
                             currentFSM.lastSemicolonOffset = lineMap.getOffset(new LocatableImpl(token));
                             break;
                         }
