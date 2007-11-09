@@ -1,0 +1,6 @@
+Manifest-Version: 1.0
+OpenIDE-Module: org.netbeans.modules.stackanalyzer
+OpenIDE-Module-Layer: org/netbeans/modules/stackanalyzer/layer.xml
+OpenIDE-Module-Localizing-Bundle: org/netbeans/modules/stackanalyzer/Bundle.properties
+OpenIDE-Module-Specification-Version: 1.0
+
