@@ -86,6 +86,7 @@ import net.java.javafx.type.Attribute;
 import net.java.javafx.type.Accessible;
 import net.java.javafx.type.expr.VariableDeclaration;
 import net.java.javafx.type.expr.FunctionDefinition;
+import net.java.javafx.type.expr.ChangeRule;
 import net.java.javafx.type.expr.CompilationUnit;
 import net.java.javafx.type.expr.StatementList;
 import net.java.javafx.type.expr.Statement;
@@ -94,10 +95,11 @@ import net.java.javafx.type.expr.VariableExpression;
 import net.java.javafx.type.expr.AllocationExpression;
 import net.java.javafx.type.expr.ExpressionStatement;
 import net.java.javafx.type.expr.Expression;
-import net.java.javafx.typeImpl.completion.SimpleCharStream;
 import net.java.javafx.typeImpl.completion.CompletionParser;
-import net.java.javafx.typeImpl.completion.Token;
 import net.java.javafx.type.expr.Locatable;
+import net.java.javafx.typeImpl.completion.SimpleCharStream;
+import net.java.javafx.typeImpl.completion.Token;
+
 
 /**
  * @author ads
@@ -233,11 +235,12 @@ public class FXParser implements Parser {
         }
     }
 
-    private enum State { initial, lbrace, _import };
+    private enum State { initial, lbrace, suspected, _import, string };
     private class FSM {
         State state = State.initial;
         int beginOffset = 0;
         int lastSemicolonOffset = 0;
+        int lbraceCounter = 0;
     }
     
     private void fillResultsForFolding(String text, LineMap lineMap, FXParserResult result) {
@@ -245,7 +248,7 @@ public class FXParser implements Parser {
         SimpleCharStream charStream = new SimpleCharStream(new StringReader(text));
         CompletionParser completionParser = new CompletionParser(charStream);
         Token token = completionParser.getNextToken();
-
+        
         List<FSM> fsmList = new ArrayList<FSM>();
         FSM currentFSM = new FSM();
         fsmList.add(currentFSM);
@@ -259,53 +262,78 @@ public class FXParser implements Parser {
                         currentFSM.state = State._import;
                     }
                     break;
+                case CompletionParser.supertype:
                 case CompletionParser.IDENTIFIER:
+                    break;
+                case CompletionParser.as:
+                    break;
+                case CompletionParser.operation:
+                case CompletionParser.function:
+                case CompletionParser.TRIGGER:
+                case CompletionParser.type:
+                    switch (currentFSM.state) {
+                        case _import:
+                            if (currentFSM.lastSemicolonOffset > currentFSM.beginOffset + 1) {
+                                JavaFXElement element = new JavaFXElement(ElementKind.OTHER, "CODE_FOLD", new OffsetRange(currentFSM.beginOffset + 1, currentFSM.lastSemicolonOffset + 1), null);
+                                result.addElement(element);
+                            }
+                        case lbrace:
+                        case initial:
+                            currentFSM.state = State.suspected;
+                            break;
+                    }
                     break;
                 case CompletionParser.LBRACE:
                     switch (currentFSM.state) {
-                        case lbrace:
+                        case suspected:
                             currentFSM = new FSM();
                             fsmList.add(currentFSM);
-                        case initial:
-                            currentFSM.beginOffset = lineMap.getOffset(new LocatableImpl(token));
                             currentFSM.state = State.lbrace;
-                            break;
+                            currentFSM.beginOffset = lineMap.getOffset(new LocatableImpl(token));
+                       case lbrace:
+                           currentFSM.lbraceCounter++;
+                           break;
                     }
                     break;
                 case CompletionParser.RBRACE:
                     switch (currentFSM.state) {
+                        case suspected:
                         case lbrace:
-                           endOffset = lineMap.getOffset(new LocatableImpl(token)) + 1;
-                           JavaFXElement element = new JavaFXElement(ElementKind.OTHER, "CODE_FOLD", new OffsetRange(currentFSM.beginOffset, endOffset), null);
-                           result.addElement(element);
-                           if (fsmList.size() > 1) {
-                               fsmList.remove(fsmList.size() - 1);
-                               currentFSM = fsmList.get(fsmList.size() - 1);
-                           }
-                           else {
-                               currentFSM.state = State.initial;
-                           }
-                           break;
+                            currentFSM.lbraceCounter--;
+                            if (currentFSM.lbraceCounter == 0) {
+                                endOffset = lineMap.getOffset(new LocatableImpl(token)) + 1;
+                                JavaFXElement element = new JavaFXElement(ElementKind.OTHER, "CODE_FOLD", new OffsetRange(currentFSM.beginOffset, endOffset), null);
+                                result.addElement(element);
+                                if (fsmList.size() > 1) {
+                                    fsmList.remove(fsmList.size() - 1);
+                                    currentFSM = fsmList.get(fsmList.size() - 1);
+                                }
+                                else {
+                                    currentFSM.state = State.initial;
+                                }
+                            }
+                            break;
                     }
                     break;
                 default:
                     if (token.image.contentEquals("."))
                         break;
-                    if (currentFSM != null) {
+                    if (currentFSM.state == State._import) {
+                        if (token.image.contentEquals("*"))
+                            break;
                         if (token.image.contentEquals(";")) {
-                            if (currentFSM.state == State._import)
-                                currentFSM.lastSemicolonOffset = lineMap.getOffset(new LocatableImpl(token));
+                            currentFSM.lastSemicolonOffset = lineMap.getOffset(new LocatableImpl(token));
                             break;
                         }
-                        switch (currentFSM.state) {
-                            case _import:
-                                if (currentFSM.lastSemicolonOffset != 0){
-                                    JavaFXElement element = new JavaFXElement(ElementKind.OTHER, "CODE_FOLD", new OffsetRange(currentFSM.beginOffset + 1, currentFSM.lastSemicolonOffset + 1), null);
-                                    result.addElement(element);
-                                    currentFSM.state = State.initial;
-                                }
-                                break;
-                        }
+                    }
+                    switch (currentFSM.state) {
+                        case _import:
+                            if (currentFSM.lastSemicolonOffset > currentFSM.beginOffset + 1) {
+                                JavaFXElement element = new JavaFXElement(ElementKind.OTHER, "CODE_FOLD", new OffsetRange(currentFSM.beginOffset + 1, currentFSM.lastSemicolonOffset + 1), null);
+                                result.addElement(element);
+                            }
+                            currentFSM.state = State.initial;
+                            break;
                     }
             }
             try {
@@ -316,9 +344,10 @@ public class FXParser implements Parser {
         }
 
         if (currentFSM.state == State._import) {
-            JavaFXElement element = new JavaFXElement(ElementKind.OTHER, "CODE_FOLD", new OffsetRange(currentFSM.beginOffset + 1, currentFSM.lastSemicolonOffset + 1), null);
-            result.addElement(element);
-            currentFSM = null;
+            if (currentFSM.lastSemicolonOffset > currentFSM.beginOffset + 1) {
+                JavaFXElement element = new JavaFXElement(ElementKind.OTHER, "CODE_FOLD", new OffsetRange(currentFSM.beginOffset + 1, currentFSM.lastSemicolonOffset), null);
+                result.addElement(element);
+            }
         }
     }
 
