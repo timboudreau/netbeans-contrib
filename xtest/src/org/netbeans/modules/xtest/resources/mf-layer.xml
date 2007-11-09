@@ -68,6 +68,7 @@ made subject to such option by the copyright holder.
                      e.g. for SuiteProject it is not enabled. -->
                 <attr name="templateCategory" stringvalue="junit"/>
             </file>
+            <attr name="position" intvalue="3000"/>
         </folder>
     </folder>
     <folder name="Projects" >
