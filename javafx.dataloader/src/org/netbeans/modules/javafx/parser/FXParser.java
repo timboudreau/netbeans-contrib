@@ -86,7 +86,6 @@ import net.java.javafx.type.Attribute;
 import net.java.javafx.type.Accessible;
 import net.java.javafx.type.expr.VariableDeclaration;
 import net.java.javafx.type.expr.FunctionDefinition;
-import net.java.javafx.type.expr.ChangeRule;
 import net.java.javafx.type.expr.CompilationUnit;
 import net.java.javafx.type.expr.StatementList;
 import net.java.javafx.type.expr.Statement;
@@ -300,9 +299,11 @@ public class FXParser implements Parser {
                         }
                         switch (currentFSM.state) {
                             case _import:
-                                JavaFXElement element = new JavaFXElement(ElementKind.OTHER, "CODE_FOLD", new OffsetRange(currentFSM.beginOffset + 1, currentFSM.lastSemicolonOffset), null);
-                                result.addElement(element);
-                                currentFSM.state = State.initial;
+                                if (currentFSM.lastSemicolonOffset != 0){
+                                    JavaFXElement element = new JavaFXElement(ElementKind.OTHER, "CODE_FOLD", new OffsetRange(currentFSM.beginOffset + 1, currentFSM.lastSemicolonOffset + 1), null);
+                                    result.addElement(element);
+                                    currentFSM.state = State.initial;
+                                }
                                 break;
                         }
                     }
@@ -315,7 +316,7 @@ public class FXParser implements Parser {
         }
 
         if (currentFSM.state == State._import) {
-            JavaFXElement element = new JavaFXElement(ElementKind.OTHER, "CODE_FOLD", new OffsetRange(currentFSM.beginOffset + 1, currentFSM.lastSemicolonOffset), null);
+            JavaFXElement element = new JavaFXElement(ElementKind.OTHER, "CODE_FOLD", new OffsetRange(currentFSM.beginOffset + 1, currentFSM.lastSemicolonOffset + 1), null);
             result.addElement(element);
             currentFSM = null;
         }
