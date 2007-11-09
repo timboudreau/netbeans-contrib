@@ -143,7 +143,7 @@ public class WebStartTest extends NbTestCase {
         } catch (MutexException mux) {
             throw (IOException) mux.getException();
         }
-        File testFile = new File(prj.getProjectDirectory().getFileObject("nbproject/project.properties").getPath());
+        File testFile = new File(File.separator+prj.getProjectDirectory().getFileObject("nbproject/project.properties").getPath());
         File passFile = new File(dataDir, "project.properties.pass");
         
         assertFile(testFile, passFile, dataDir);
@@ -153,7 +153,7 @@ public class WebStartTest extends NbTestCase {
         assertNotNull(configProvider);
         wsProperties.createConfigurationFiles(configProvider, Boolean.valueOf(wsProperties.getProperty(WebStartProjectProperties.JNLP_ENABLED)).booleanValue());
         
-        testFile = new File(prj.getProjectDirectory().getFileObject("nbproject/jnlp-impl.xml").getPath());
+        testFile = new File(File.separator+prj.getProjectDirectory().getFileObject("nbproject/jnlp-impl.xml").getPath());
         passFile = new File(dataDir, "jnlp-impl.xml.pass");
         assertFile(testFile, passFile, dataDir);
     }

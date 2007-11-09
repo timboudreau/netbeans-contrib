@@ -3,6 +3,7 @@ build.classes.excludes=**/*.java,**/*.form
 build.classpath=\
     ${javac.classpath}:\
     ${src.dir}:\
+    ${build.classes.dir}:\
     ${libs.JavaFXUserLib.classpath}
 # This directory is removed when the project is cleaned:
 build.dir=build
@@ -47,11 +48,12 @@ jnlp.codebase.url=
 jnlp.enabled=true
 jnlp.fx.main.jar.value=lib/javafxrt.jar
 jnlp.offline-allowed=false
-jnlp.signed=false
+jnlp.signed=true
 main.class=webstartfxproject.Main
 main.fx.class=net.java.javafx.FXShell
 manifest.file=manifest.mf
 meta.inf.dir=${src.dir}/META-INF
+pack200.jar.compress=false
 platform.active=default_platform
 run.classpath=\
     ${javac.classpath}:\
