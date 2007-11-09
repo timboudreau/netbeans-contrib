@@ -48,5 +48,10 @@ made subject to such option by the copyright holder.
     <folder name="config">
       <file name="ClearCase.xml" url="/org/netbeans/modules/vcs/profiles/clearcase/config/ClearCase.xml"/>
     </folder>
+    <folder name="versioningMenu">
+      <file name="ClearCase.xml">
+        <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.vcs.profiles.clearcase.Bundle" />
+      </file>
+    </folder>
   </folder>
 </filesystem>

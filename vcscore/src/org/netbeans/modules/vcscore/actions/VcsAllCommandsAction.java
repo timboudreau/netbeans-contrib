@@ -235,12 +235,12 @@ public class VcsAllCommandsAction extends SystemAction implements Presenter.Menu
                 }
                 if (m1[0] == null) {
                     ErrorManager.getDefault().log(ErrorManager.INFORMATIONAL, "'"+eMenu.getText()+"' not found among global commands.");
-                    return ;
+                    m1 = new JMenuItem[] {};
                 }
                 JMenuItem[] contextMenu = getContextMenu(inMenu, lookup);
                 //setMenuItems(mergeMenu(globalMenu, contextMenu));
                 JMenuItem[] mMenu = mergeMenu(m1,contextMenu);
-                JPopupMenu popup = ((MergedMenuItem)mMenu[0]).getPopupMenu();
+                JPopupMenu popup = ((JMenu)mMenu[0]).getPopupMenu();
                 Component[] items = popup.getComponents();
                 eMenu.removeAll();
                 for(int j=0; j<items.length; j++){                   
@@ -291,6 +291,25 @@ public class VcsAllCommandsAction extends SystemAction implements Presenter.Menu
                     if (inMenu) m1[i].setIcon(icon);
                 }
             }
+            if (m1.length == 0) {
+                JMenuItem mm;
+                String text1 = eMenu.getText();
+                int j;
+                for (j = 0; j < m2.length; j++) {
+                    if (!(m2[j] instanceof JMenu)) continue;
+                    String text2 = m2[j].getText();
+                    if (text1.equals(text2)) {
+                        break;
+                    }
+                }
+                if (j < m2.length) {
+                    return m2;
+                } else {
+                    mm = new MergedMenuItem(eMenu.getText(), eMenu.getMnemonic(),
+                                            addContextPlaceHolder(eMenu));
+                }
+                m1 = new JMenuItem[] { mm };
+            }
             JMenuItem[] m = new JMenuItem[m1.length + m2.length];
             for (int k = 0; k < m1.length; k++) {
                 m[k] = m1[k];
@@ -328,6 +347,13 @@ public class VcsAllCommandsAction extends SystemAction implements Presenter.Menu
             setMnemonic(m1.getMnemonic());
         }
         
+        public MergedMenuItem(String text, int mnemonic, JMenu m2) {            
+            this.m1 = null;
+            this.m2 = m2;
+            setText(text);
+            setMnemonic(mnemonic);
+        }
+        
         /** Overrides superclass method. Adds lazy popup menu creation
           * if it is necessary. */
         public JPopupMenu getPopupMenu() {
@@ -336,10 +362,10 @@ public class VcsAllCommandsAction extends SystemAction implements Presenter.Menu
         }
 
         private void createPopup() {
-            JPopupMenu popupM1 = m1.getPopupMenu();
-            //addElements(popupM1.getSubElements());
-            addElements(m1);
-            add(new JSeparator());
+            if (m1 != null) {
+                addElements(m1);
+                add(new JSeparator());
+            }
             //addElements(m2.getPopupMenu().getSubElements());
             addElements(m2);
             popupCreated = true;
