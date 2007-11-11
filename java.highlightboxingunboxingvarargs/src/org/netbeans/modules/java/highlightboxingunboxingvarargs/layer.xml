@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE filesystem PUBLIC "-//NetBeans//DTD Filesystem 1.1//EN" "http://www.netbeans.org/dtds/filesystem-1_1.dtd">
+<filesystem>
+    <folder name="Actions">
+        <folder name="Edit">
+            <file name="org-netbeans-modules-java-highlightboxingunboxingvarargs-actions-HighlightBoxing.instance"/>
+            <file name="org-netbeans-modules-java-highlightboxingunboxingvarargs-actions-HighlightUnboxing.instance"/>
+        </folder>
+    </folder>
+    <folder name="Menu">
+        <folder name="View">
+            <file name="org-netbeans-modules-java-highlightboxingunboxingvarargs-actions-HighlightBoxing.shadow">
+                <attr name="originalFile" stringvalue="Actions/Edit/org-netbeans-modules-java-highlightboxingunboxingvarargs-actions-HighlightBoxing.instance"/>
+                <attr name="position" intvalue="1300"/>
+            </file>
+            <file name="org-netbeans-modules-java-highlightboxingunboxingvarargs-actions-HighlightUnboxing.shadow">
+                <attr name="originalFile" stringvalue="Actions/Edit/org-netbeans-modules-java-highlightboxingunboxingvarargs-actions-HighlightUnboxing.instance"/>
+                <attr name="position" intvalue="1400"/>
+            </file>
+            <file name="org-netbeans-modules-java-highlightboxingunboxingvarargs-actions-separatorAfter.instance">
+                <attr name="instanceClass" stringvalue="javax.swing.JSeparator"/>
+                <attr name="position" intvalue="1500"/>
+            </file>
+            <file name="org-netbeans-modules-java-highlightboxingunboxingvarargs-actions-separatorBefore.instance">
+                <attr name="instanceClass" stringvalue="javax.swing.JSeparator"/>
+                <attr name="position" intvalue="1250"/>
+            </file>
+        </folder>
+    </folder>
+    <folder name="Toolbars">
+        <folder name="View">
+            <file name="org-netbeans-modules-java-highlightboxingunboxingvarargs-actions-HighlightBoxing.shadow">
+                <attr name="originalFile" stringvalue="Actions/Edit/org-netbeans-modules-java-highlightboxingunboxingvarargs-actions-HighlightBoxing.instance"/>
+                <attr name="position" intvalue="600"/>
+            </file>
+            <file name="org-netbeans-modules-java-highlightboxingunboxingvarargs-actions-HighlightUnboxing.shadow">
+                <attr name="originalFile" stringvalue="Actions/Edit/org-netbeans-modules-java-highlightboxingunboxingvarargs-actions-HighlightUnboxing.instance"/>
+                <attr name="position" intvalue="700"/>
+            </file>
+        </folder>
+    </folder>
+</filesystem>
