@@ -24,7 +24,7 @@
  * Contributor(s):
  *
  * The Original Software is NetBeans. The Initial Developer of the Original
- * Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
+ * Software is Sun Microsystems, Inc. Portions Copyright 1997-2007 Sun
  * Microsystems, Inc. All Rights Reserved.
  *
  * If you wish your version of this file to be governed by only the CDDL
@@ -40,180 +40,244 @@
  */
 package org.netbeans.modules.editor.hints.i18n;
 
+import com.sun.source.tree.BinaryTree;
+import com.sun.source.tree.ExpressionTree;
+import com.sun.source.tree.IdentifierTree;
+import com.sun.source.tree.LiteralTree;
+import com.sun.source.tree.MemberSelectTree;
+import com.sun.source.tree.MethodInvocationTree;
+import com.sun.source.tree.Tree;
+import com.sun.source.tree.Tree.Kind;
+import com.sun.source.util.SourcePositions;
+import com.sun.source.util.TreePath;
+import com.sun.source.util.TreePathScanner;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
+import java.util.EnumSet;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.logging.Logger;
+import javax.lang.model.element.TypeElement;
+import javax.lang.model.type.DeclaredType;
+import javax.lang.model.type.TypeKind;
+import javax.lang.model.type.TypeMirror;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
 import javax.swing.text.StyledDocument;
-import org.netbeans.modules.i18n.HardCodedString;
-import org.netbeans.modules.i18n.I18nString;
+import org.netbeans.api.java.lexer.JavaTokenId;
+import org.netbeans.api.java.source.CompilationInfo;
+import org.netbeans.api.java.source.TreePathHandle;
+import org.netbeans.api.lexer.TokenHierarchy;
+import org.netbeans.api.lexer.TokenSequence;
 import org.netbeans.modules.i18n.java.JavaI18nSupport;
-import org.netbeans.modules.properties.BundleStructure;
-import org.netbeans.modules.properties.Element.ItemElem;
+import org.netbeans.modules.java.hints.spi.AbstractHint;
 import org.netbeans.modules.properties.PropertiesDataObject;
-import org.netbeans.modules.properties.PropertiesStructure;
 import org.netbeans.spi.editor.hints.ChangeInfo;
 import org.netbeans.spi.editor.hints.ErrorDescription;
 import org.netbeans.spi.editor.hints.ErrorDescriptionFactory;
 import org.netbeans.spi.editor.hints.Fix;
-import org.netbeans.spi.editor.hints.ProvidersList;
-import org.netbeans.spi.editor.hints.support.ErrorParserSupport;
+import org.netbeans.spi.editor.hints.Severity;
 import org.openide.ErrorManager;
-import org.openide.cookies.LineCookie;
-import org.openide.cookies.SaveCookie;
 import org.openide.filesystems.FileObject;
 import org.openide.loaders.DataObject;
-import org.openide.loaders.DataObjectNotFoundException;
-import org.openide.text.Line;
 import org.openide.text.NbDocument;
 
 /**
  *
  * @author Jan Lahoda
  */
-public class I18NChecker extends ErrorParserSupport {
+public class I18NChecker extends AbstractHint {
     
-    /** Creates a new instance of I18NChecker */
+    static Logger LOG = Logger.getLogger(I18NChecker.class.getName());
+    
+    private AtomicBoolean cancelled = new AtomicBoolean(false);
+    
     public I18NChecker() {
+        super(true, true, HintSeverity.CURRENT_LINE_WARNING);
     }
 
-    public List parseForErrors(final Document doc) {
-        if (!ProvidersList.isProviderEnabled(I18NProviderDescription.I18N_ERROR_PROVIDER))
-            return Collections.EMPTY_LIST;
+    public void cancel() {
+        cancelled.set(true);
+    }
+
+    private boolean hashI18NComment(TokenHierarchy th, Document doc, long offset) throws BadLocationException {
+        TokenSequence ts = th.tokenSequence();
+
+        ts.move((int) offset);
+
+        while (ts.moveNext()) {
+            if (ts.token().id() == JavaTokenId.WHITESPACE && ts.token().text().toString().contains("\n")) {
+                return false;
+            }
+            if (ts.token().id() == JavaTokenId.LINE_COMMENT && ts.token().text().toString().contains("NOI18N")) {
+                return true;
+            }
+        }
         
+        return false;
+    }
+    
+    private static final Set<String> LOCALIZING_METHODS = new HashSet<String>(Arrays.asList("getString", "getBundle", "getMessage"));
+    
+    public List<ErrorDescription> run(CompilationInfo compilationInfo, TreePath treePath) {
         //TODO: generate unique 
         try {
-            final DataObject od = (DataObject) doc.getProperty(Document.StreamDescriptionProperty);
+            final DataObject od = DataObject.find(compilationInfo.getFileObject());
+            final Document doc = compilationInfo.getDocument();
             
-            if (od == null)
-                return Collections.EMPTY_LIST;
+            if (doc == null || treePath.getParentPath() == null || !getTreeKinds().contains(treePath.getLeaf().getKind())) {
+                return null;
+            }
             
-            final JavaI18nSupport support = new JavaI18nSupport(od);
-            final HardCodedString[] hcs = support.getFinder().findAllHardCodedStrings();
-            final List result = new ArrayList();
-            final FileObject bundleFO = od.getPrimaryFile().getParent().getFileObject("Bundle.properties");
-            final PropertiesDataObject bundle = (PropertiesDataObject) (bundleFO != null ? DataObject.find(bundleFO) : null); //TODO: cast
+            //check that the treePath is a "top-level" String expression:
+            TreePath expression = treePath;
             
-            if (hcs != null) {
-                for (int cntr = 0; cntr < hcs.length; cntr++) {
-                    final HardCodedString hardCoded = hcs[cntr];
-
-                    if (hardCoded.getLength() == 2)
-                        continue; //ignore empty strings
-                    
-                    Fix addToBundle = new Fix() {
-                        public String getText() {
-                            return (bundle == null ? "Create new bundle and r" : "R") + "eplace with localized string";
-                        }
-                        public ChangeInfo implement() {
-                            PropertiesDataObject bundleInt = bundle;
-                            
-                            if (bundleInt == null) {
-                                try {
-                                    FileObject bundleFO = od.getPrimaryFile().getParent().createData("Bundle.properties");
-                                    assert bundleFO != null;
-                                    bundleInt = (PropertiesDataObject) DataObject.find(bundleFO); //TODO: cast
-                                } catch (IOException ex) {
-                                    ex.printStackTrace();
-                                }
-                            }
-                            
-                            if (bundleInt == null) {
-                                //something was wrong, cannot continue:
-                                return null;
-                            }
-                            
-                            final I18nString string = support.getDefaultI18nString(hardCoded);
-                            
-                            string.setReplaceFormat(null);
-                            string.getSupport().getResourceHolder().setResource(bundleInt);
-                            
-                            support.getResourceHolder().addProperty(string.getKey(), string.getValue(), string.getComment());
-                            support.getReplacer().replace(hardCoded, string);
-                            
-                            SaveCookie sc = (SaveCookie) bundleInt.getCookie(SaveCookie.class);
-                            
-                            if (sc != null) {
-                                try {
-                                    sc.save();
-                                } catch (IOException e) {
-                                    ErrorManager.getDefault().notify(ErrorManager.INFORMATIONAL, e);
-                                }
-                            }
-                            
-                            return null;
-                        }
-                    };
-                    
-                    Fix addNOI18N = new Fix() {
-                        public String getText() {
-                            return "Add // NOI18N";
-                        }
-                        
-                        public ChangeInfo implement() {
-                            try {
-                                int line = NbDocument.findLineNumber((StyledDocument) doc, hardCoded.getStartPosition().getOffset());
-                                int writeOffset = NbDocument.findLineOffset((StyledDocument) doc, line + 1) - 1; //TODO: last line in the document not handled correctly
-                                
-                                doc.insertString(writeOffset, " // NOI18N", null);
-                            } catch (BadLocationException ex) {
-                                ErrorManager.getDefault().notify(ex);
-                            }
-                            return null;
-                        }
-                    };
-                    
-                    int severity = ProvidersList.getErrorSeverity(I18NProviderDescription.I18N_ERROR_PROVIDER, I18NProviderDescription.HARDCODED_STRINGS);
-
-                    result.add(ErrorDescriptionFactory.createErrorDescription(severity, "Hardcoded String", Arrays.asList(new Object[] {addToBundle, addNOI18N}), getLinePart(doc, od, hcs[cntr])));
+            while (expression.getParentPath().getLeaf().getKind() == Kind.PLUS) {
+                expression = expression.getParentPath();
+            }
+            
+            if (expression != treePath) {
+                return null;
+            }
+            
+            //check for localized string:
+            if (treePath.getParentPath().getLeaf().getKind() == Kind.METHOD_INVOCATION) {
+                MethodInvocationTree mit = (MethodInvocationTree) treePath.getParentPath().getLeaf();
+                ExpressionTree  method = mit.getMethodSelect();
+                String methodName = null;
+                
+                switch (method.getKind()) {
+                    case MEMBER_SELECT:
+                        methodName = ((MemberSelectTree) method).getIdentifier().toString();
+                        break;
+                    case IDENTIFIER:
+                        methodName = ((IdentifierTree) method).getName().toString();
+                        break;
+                }
+                
+                if (LOCALIZING_METHODS.contains(methodName)) {
+                    return null;
                 }
             }
             
+            final long hardCodedOffset = compilationInfo.getTrees().getSourcePositions().getStartPosition(compilationInfo.getCompilationUnit(), treePath.getLeaf());
+            if (hashI18NComment(compilationInfo.getTokenHierarchy(), doc, hardCodedOffset)) {
+                return null;
+            }
+            
+            if (hashI18NComment(compilationInfo.getTokenHierarchy(), doc, compilationInfo.getTrees().getSourcePositions().getStartPosition(compilationInfo.getCompilationUnit(), treePath.getLeaf()))) {
+                return null;
+            }
+            
+            BuildArgumentsVisitor v = new BuildArgumentsVisitor(compilationInfo);
+            
+            v.scan(treePath, null);
+            
+            final JavaI18nSupport support = new JavaI18nSupport(od);
+            final FileObject bundleFO = od.getPrimaryFile().getParent().getFileObject("Bundle.properties"); // NOI18N
+            final PropertiesDataObject bundle = (PropertiesDataObject) (bundleFO != null ? DataObject.find(bundleFO) : null); //TODO: cast
+            
+            Fix addToBundle = new AddToBundleFix(bundle, od, TreePathHandle.create(treePath, compilationInfo), support, v.format.toString(), v.arguments);
+            
+            Fix addNOI18N = new Fix() {
+                public String getText() {
+                    return "Add // NOI18N";
+                }
+                
+                public ChangeInfo implement() {
+                    try {
+                        int line = NbDocument.findLineNumber((StyledDocument) doc, (int) hardCodedOffset);
+                        int writeOffset = NbDocument.findLineOffset((StyledDocument) doc, line + 1) - 1; //TODO: last line in the document not handled correctly
+                        
+                        doc.insertString(writeOffset, " // NOI18N", null);
+                    } catch (BadLocationException ex) {
+                        ErrorManager.getDefault().notify(ex);
+                    }
+                    return null;
+                }
+            };
+            
+            Severity severity = Severity.VERIFIER;
+            
+            final List<ErrorDescription> result = new ArrayList<ErrorDescription>();
+            
+            result.add(ErrorDescriptionFactory.createErrorDescription(severity, "Hardcoded String", Arrays.asList(new Fix[] {addToBundle, addNOI18N}), compilationInfo.getFileObject(), (int) hardCodedOffset, (int) hardCodedOffset));
+            
             return result;
-        } catch (DataObjectNotFoundException ex) {
+        } catch (BadLocationException ex) {
+            ErrorManager.getDefault().notify(ErrorManager.INFORMATIONAL, ex);
+        } catch (IndexOutOfBoundsException ex) {
+            ErrorManager.getDefault().notify(ErrorManager.INFORMATIONAL, ex);
+        } catch (IOException ex) {
             ErrorManager.getDefault().notify(ex);
         }
-        return Collections.EMPTY_LIST;
+        return null;
     }
     
-    private Line.Part getLinePart(Document doc, DataObject od, HardCodedString hcs) {
-        LineCookie lc = (LineCookie) od.getCookie(LineCookie.class);
-        int startOffset = hcs.getStartPosition().getOffset();
+    private static class BuildArgumentsVisitor extends TreePathScanner<Void, Object> {
         
-        return lc.getLineSet().getOriginal(NbDocument.findLineNumber((StyledDocument) doc, startOffset)).createPart(NbDocument.findLineColumn((StyledDocument) doc, startOffset), hcs.getLength());
-    }
-    
-    /** Adds new property (key-valkue pair) to resource object. 
-     * @param key key value, if it is <code>null</code> nothing is done
-     * @param value 'value' value, can be <code>null</code>
-     * @param comment comment, can be <code>null</code>
-     * @param forceNewValue if there already exists a key forces to reset its value
-     */
-    public ItemElem addProperty(PropertiesDataObject resource, Object key, Object value, String comment, boolean forceNewValue) {//TODO: force value, always create unique lables (see above)
-        if(resource == null || key == null) return null;
-
-        String keyValue     = key.toString();
-        String valueValue   = value == null ? "" : value.toString();
-        String commentValue = comment;
+        private CompilationInfo info;
+        private StringBuffer format = new StringBuffer();
+        private List<String> arguments = new ArrayList<String>();
+        private int argIndex;
         
-        // write to bundle primary file
-        BundleStructure bundleStructure = ((PropertiesDataObject)resource).getBundleStructure();
-        PropertiesStructure propStructure = bundleStructure.getNthEntry(0).getHandler().getStructure();
-        ItemElem item = propStructure.getItem(keyValue);
-
-        if(item == null) {
-            // Item doesn't exist in this entry -> create it.
-            propStructure.addItem(keyValue, valueValue, commentValue);
-            item = propStructure.getItem(keyValue);
-        } else if(!item.getValue().equals(valueValue) && forceNewValue) {
-            item.setValue(valueValue);
-            item.setComment(commentValue);
+        public BuildArgumentsVisitor(CompilationInfo info) {
+            this.info = info;
         }
         
-        return item;
+        public @Override Void visitBinary(BinaryTree tree, Object p) {
+            handleTree(new TreePath(getCurrentPath(), tree.getLeftOperand()));
+            handleTree(new TreePath(getCurrentPath(), tree.getRightOperand()));
+            return null;
+        }
+        
+        public @Override Void visitLiteral(LiteralTree tree, Object p) {
+            format.append((String) tree.getValue());
+            return null;
+        }
+        
+        public void handleTree(TreePath tp) {
+            Tree tree = tp.getLeaf();
+            if (tree.getKind() == Kind.STRING_LITERAL) {
+                format.append((String) ((LiteralTree) tree).getValue());
+                return;
+            }
+            if (tree.getKind() == Kind.PLUS) {
+                scan(tree, null);
+                return;
+            }
+            SourcePositions pos = info.getTrees().getSourcePositions();
+            int start = (int)pos.getStartPosition(tp.getCompilationUnit(), tree);
+            int end = (int)pos.getEndPosition(tp.getCompilationUnit(), tree);            
+            TypeMirror type = info.getTrees().getTypeMirror(tp);
+            
+            if (type != null && type.getKind() == TypeKind.DECLARED && "java.lang.String".equals((((TypeElement)((DeclaredType)type).asElement()).getQualifiedName()))) { // NOI18N
+                arguments.add(info.getText().substring(start, end));
+            } else {
+                arguments.add("String.valueOf(" + info.getText().substring(start, end) + ")"); // NOI18N
+            }
+            format.append("{" + (argIndex++) + "}"); // NOI18N
+        }
+        
     }
     
+    public Set<Kind> getTreeKinds() {
+        return EnumSet.of(Kind.STRING_LITERAL, Kind.PLUS);
+    }
+
+    public String getId() {
+        return I18NChecker.class.getName();
+    }
+
+    public String getDisplayName() {
+        return "I18N Checker";
+    }
+
+    public String getDescription() {
+        return "I18N Checker";
+    }
+
 }
