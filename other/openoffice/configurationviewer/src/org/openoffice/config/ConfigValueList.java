@@ -41,53 +41,53 @@
 
 package org.openoffice.config;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  *
  * @author S. Aubrecht
  */
-class ConfigValue {
+public class ConfigValueList {
     
-    private String prefix;
-    private String configPath;
-    private Object userValue;
-    private Object sharedValue;
+    private String fullPath;
+    private String configLeaf;
+    private List<ConfigValue> values = null;
+    private ConfigurationAccess configAccess;
     
-    /** Creates a new instance of ConfigValue */
-    public ConfigValue( String configPath, Object shared, Object user ) {
-        this.configPath = configPath;
-        this.sharedValue = shared;
-        this.userValue = user;
-    }
-
-    public String getConfigPath() {
-        if( null != prefix )
-            return prefix+"."+configPath;
-        return configPath;
-    }
-
-    public Object getUserValue() {
-        return userValue;
-    }
-
-    public void setUserValue(Object userValue) {
-        this.userValue = userValue;
-    }
-
-    public Object getSharedValue() {
-        return sharedValue;
-    }
-
-    public void setSharedValue(Object sharedValue) {
-        this.sharedValue = sharedValue;
+    /** Creates a new instance of ConfigValueList */
+    public ConfigValueList( ConfigurationAccess configAccess, String fullPath, String configLeaf ) {
+        this.configAccess = configAccess;
+        this.fullPath = fullPath;
+        this.configLeaf = configLeaf;
     }
     
-    public boolean isDefaultValue() {
-        return (null == sharedValue && null == userValue)
-                ||
-               (null != sharedValue && null != userValue && sharedValue.equals(userValue ) );
+    public String getFullPath() {
+        return fullPath;
     }
     
-    public void setPrefix( String prefix ) {
-        this.prefix = prefix;
+    public String toString() {
+        return configLeaf;
+    }
+    
+    public void add( ConfigValue val ) {
+        if( null == values ) {
+            values = new ArrayList<ConfigValue>();
+        }
+        values.add( val );
+    }
+    
+    public List<? extends ConfigValue> getValues( boolean forceRefresh ) {
+        if( null == values || forceRefresh ) {
+            values = new ArrayList<ConfigValue>();
+            load();
+        }
+        return values;
+    }
+    
+    private void load() {
+        ListConfigurationProcessor processor = new ListConfigurationProcessor( this );
+        configAccess.browse( fullPath, processor );
+        processor.format();
     }
 }
