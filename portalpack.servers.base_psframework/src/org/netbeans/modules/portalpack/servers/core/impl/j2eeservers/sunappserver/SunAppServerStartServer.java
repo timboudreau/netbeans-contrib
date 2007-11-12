@@ -20,6 +20,8 @@
 package org.netbeans.modules.portalpack.servers.core.impl.j2eeservers.sunappserver;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -30,6 +32,7 @@ import org.netbeans.modules.portalpack.servers.core.PSLogViewer;
 import org.netbeans.modules.portalpack.servers.core.api.PSDeploymentManager;
 import org.netbeans.modules.portalpack.servers.core.api.PSStartServerInf;
 import org.netbeans.modules.portalpack.servers.core.common.LogManager;
+import org.netbeans.modules.portalpack.servers.core.util.Command;
 import org.netbeans.modules.portalpack.servers.core.util.NetbeanConstants;
 import org.netbeans.modules.portalpack.servers.core.util.PSConfigObject;
 import org.openide.ErrorManager;
@@ -49,8 +52,10 @@ public class SunAppServerStartServer extends PSStartServerInf{
         this.psconfig = dm.getPSConfig();
     }
 
-    public void doStartServer() throws Exception {       
-        runProcess(makeStartCommand(), true); //NO I18N
+    public void doStartServer() throws Exception {  
+        File pwdFile = prepareTempPWDFile();
+        runProcess(makeStartCommand(pwdFile), true); //NO I18N
+        pwdFile.delete();
         viewAdminLogs();      
     }
         
@@ -58,80 +63,97 @@ public class SunAppServerStartServer extends PSStartServerInf{
         runProcess(makeStopCommand(), true); //NO I18N       
     }
      
-    private int runProcess(String str, boolean wait) throws Exception {
-        final Process child = Runtime.getRuntime().exec(str);
+    private int runProcess(Command cmd, boolean wait) throws Exception {
+        final Process child = Runtime.getRuntime().exec(cmd.getCmdArray());
              
         LogManager manager = new LogManager(dm);
-        manager.openServerLog(child,str + System.currentTimeMillis());
+        manager.openServerLog(child,cmd.toString() + System.currentTimeMillis());
         if (wait)
             child.waitFor();        
         return child.exitValue(); 
         
     }
     
-    
-    private String makeStartCommand() {
-        
-        StringBuffer command = new StringBuffer();
-        command.append(psconfig.getServerHome())
-                .append(File.separator)
-                .append("bin")
-                .append(File.separator)
-                .append("asadmin");
-        if (org.openide.util.Utilities.isWindows()){
-            command.append(".bat");
+    private File prepareTempPWDFile() throws IOException
+    {
+        String passwordFile = ".pcpwd.txt";
+        File file = new File(passwordFile);
+        if(file.exists())
+            file.delete();
+        FileOutputStream fout = null;
+        try {
+             fout = new FileOutputStream(file);
+             fout.write(new String("AS_ADMIN_PASSWORD="+psconfig.getProperty(SunAppServerConstants.SERVER_PASSWORD)).getBytes());
+             fout.flush();
+        } catch (FileNotFoundException ex) {
+            throw ex;
+        } catch(IOException ex){
+            throw ex;
+        }finally{
+            try{
+                fout.close();
+            }catch(Exception e){
+                //do nothing.
+            }
         }
-        
-        command.append(" ")
-               .append("start-domain")
-               .append(" ")
-               .append(psconfig.getDefaultDomain());
-        
-        return command.toString();
+        return file;
     }
     
-     private String makeStopCommand() {
-        
-        StringBuffer command = new StringBuffer();
-        command.append(psconfig.getServerHome())
-                .append(File.separator)
-                .append("bin")
-                .append(File.separator)
-                .append("asadmin");
-        if (org.openide.util.Utilities.isWindows()){
-            command.append(".bat");
+    private Command makeStartCommand(File passwordFile)
+    {
+        Command cmd = new Command();
+        String ext = "";
+         if (org.openide.util.Utilities.isWindows()){
+            ext = ".bat";
         }
+        cmd.add(psconfig.getServerHome() + File.separator + "bin" + File.separator + "asadmin" + ext);
+        cmd.add("start-domain"); 
+        cmd.add("--user");
+        cmd.add(psconfig.getProperty(SunAppServerConstants.SERVER_USER));
+        cmd.add("--passwordfile");
+        cmd.add(passwordFile.getAbsolutePath());
+        cmd.add(psconfig.getDefaultDomain());
+                
+        logger.info(cmd.toString());    
+        logger.info("Password file: "+passwordFile.toString());
+        return cmd;
         
-        command.append(" ")
-               .append("stop-domain")
-               .append(" ")
-               .append(psconfig.getDefaultDomain());
+    }
+    
+     private Command makeStopCommand() {
         
-        return command.toString();
+        Command cmd = new Command();
+        String ext = "";
+         if (org.openide.util.Utilities.isWindows()){
+            ext = ".bat";
+        }
+        cmd.add(psconfig.getServerHome() + File.separator + "bin" + File.separator + "asadmin" + ext);
+        cmd.add("stop-domain"); 
+        cmd.add(psconfig.getDefaultDomain());
+        
+        return cmd;
     }
     
 
-    private String makeStartDebugCommand() {
+    private Command makeStartDebugCommand(File passwordFile) {
         
-        StringBuffer command = new StringBuffer();
-        command.append(psconfig.getServerHome())
-                .append(File.separator)
-                .append("bin")
-                .append(File.separator)
-                .append("asadmin");
-        if (org.openide.util.Utilities.isWindows()){
-            command.append(".bat");
+        Command cmd = new Command();
+        String ext = "";
+         if (org.openide.util.Utilities.isWindows()){
+            ext = ".bat";
         }
-        
-        command.append(" ")
-               .append("start-domain")
-               .append(" ")
-               .append(" --debug=true")
-               .append(" ")
-               .append(psconfig.getDefaultDomain());
-
-        
-        return command.toString();
+        cmd.add(psconfig.getServerHome() + File.separator + "bin" + File.separator + "asadmin" + ext);
+        cmd.add("start-domain"); 
+        cmd.add("--user");
+        cmd.add(psconfig.getProperty(SunAppServerConstants.SERVER_USER));
+        cmd.add("--passwordfile");
+        cmd.add(passwordFile.getAbsolutePath());
+        cmd.add("--debug=true");
+        cmd.add(psconfig.getDefaultDomain());
+                
+        logger.info(cmd.toString());    
+        logger.info("Password file: "+passwordFile.toString());
+        return cmd;
     }
     
     private void viewAdminLogs(){
@@ -167,7 +189,9 @@ public class SunAppServerStartServer extends PSStartServerInf{
     }
 
     public void doStartDebug() throws Exception {
-        runProcess(makeStartDebugCommand(), true); //NO I18N
+        File pwdFile = prepareTempPWDFile();
+        runProcess(makeStartDebugCommand(pwdFile), true); //NO I18N
+        pwdFile.delete();
         viewAdminLogs();
     }
 
