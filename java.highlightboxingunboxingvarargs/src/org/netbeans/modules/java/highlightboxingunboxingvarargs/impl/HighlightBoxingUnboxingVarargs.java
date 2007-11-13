@@ -1,8 +1,8 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
- *
+ * 
  * Copyright 1997-2007 Sun Microsystems, Inc. All rights reserved.
- *
+ * 
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common
  * Development and Distribution License("CDDL") (collectively, the
@@ -20,7 +20,7 @@
  * License Header, with the fields enclosed by brackets [] replaced by
  * your own identifying information:
  * "Portions Copyrighted [year] [name of copyright owner]"
- *
+ * 
  * If you wish your version of this file to be governed by only the CDDL
  * or only the GPL Version 2, indicate your decision by adding
  * "[Contributor] elects to include this software in this distribution
@@ -31,56 +31,76 @@
  * However, if you add GPL Version 2 code and therefore, elected the GPL
  * Version 2 license, then the option applies only if the new code is
  * made subject to such option by the copyright holder.
- *
+ * 
  * Contributor(s):
- *
+ * 
  * Portions Copyrighted 2007 Sun Microsystems, Inc.
  */
 
-package org.netbeans.modules.java.highlightboxingunboxingvarargs.actions;
-
-import javax.swing.JMenuItem;
-import org.netbeans.modules.java.highlightboxingunboxingvarargs.impl.HighlightBoxingUnboxingVarargs;
-import org.openide.util.HelpCtx;
-import org.openide.util.NbBundle;
-import org.openide.util.actions.BooleanStateAction;
+package org.netbeans.modules.java.highlightboxingunboxingvarargs.impl;
 
 /**
  *
  * @author Sandip V. Chitale (Sandip.Chitale@Sun.Com)
  */
-public final class HighlightBoxing extends BooleanStateAction {
+public class HighlightBoxingUnboxingVarargs {
 
-     @Override
-    protected void initialize() {
-        super.initialize();
-        putProperty(PROP_BOOLEAN_STATE, HighlightBoxingUnboxingVarargs.isHighlightBoxing());
+    private static boolean highlightBoxing;
+    private static boolean highlightUnboxing;
+    private static boolean highlightVarargs;
 
+    /**
+     * Get the value of highlightBoxing
+     *
+     * @return the value of highlightBoxing
+     */
+    public static boolean isHighlightBoxing() {
+        return highlightBoxing;
     }
 
-    @Override
-    public void setBooleanState(boolean highlight) {
-        super.setBooleanState(highlight);
-        HighlightBoxingUnboxingVarargs.setHighlightBoxing(getBooleanState());
+    /**
+     * Set the value of highlightBoxing
+     *
+     * @param new value of highlightBoxing
+     */
+    public static void setHighlightBoxing(boolean newhighlightBoxing) {
+        highlightBoxing = newhighlightBoxing;
     }
 
-    public String getName() {
-        return NbBundle.getMessage(HighlightBoxing.class, "CTL_HighlightBoxing");
+    /**
+     * Get the value of highlightUnboxing
+     *
+     * @return the value of highlightUnboxing
+     */
+    public static boolean isHighlightUnboxing() {
+        return highlightUnboxing;
     }
 
-    @Override
-    protected String iconResource() {
-        return "org/netbeans/modules/java/highlightboxingunboxingvarargs/actions/resources/box.gif";
+    /**
+     * Set the value of highlightUnboxing
+     *
+     * @param new value of highlightUnboxing
+     */
+    public static void setHighlightUnboxing(boolean newhighlightUnboxing) {
+        highlightUnboxing = newhighlightUnboxing;
     }
 
-    public HelpCtx getHelpCtx() {
-        return HelpCtx.DEFAULT_HELP;
+    /**
+     * Get the value of highlightVarargs
+     *
+     * @return the value of highlightVarargs
+     */
+    public static boolean isHighlightVarargs() {
+        return highlightVarargs;
     }
 
-    @Override
-    public JMenuItem getMenuPresenter() {
-        final JMenuItem menuPresenter = super.getMenuPresenter();
-        menuPresenter.setIcon(null);
-        return menuPresenter;
-    }        
+    /**
+     * Set the value of highlightVarargs
+     *
+     * @param new value of highlightVarargs
+     */
+    public static void setHighlightVarargs(boolean newhighlightVarargs) {
+        highlightVarargs = newhighlightVarargs;
+    }
+
 }

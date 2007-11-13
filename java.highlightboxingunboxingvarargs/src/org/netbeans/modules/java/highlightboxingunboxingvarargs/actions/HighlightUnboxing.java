@@ -40,7 +40,7 @@
 package org.netbeans.modules.java.highlightboxingunboxingvarargs.actions;
 
 import javax.swing.JMenuItem;
-import org.netbeans.modules.java.highlightboxingunboxingvarargs.impl.HighlightHighlightUnboxingVarargs;
+import org.netbeans.modules.java.highlightboxingunboxingvarargs.impl.HighlightBoxingUnboxingVarargs;
 import org.openide.util.HelpCtx;
 import org.openide.util.NbBundle;
 import org.openide.util.actions.BooleanStateAction;
@@ -54,13 +54,13 @@ public final class HighlightUnboxing extends BooleanStateAction {
      @Override
     protected void initialize() {
         super.initialize();
-        putProperty(PROP_BOOLEAN_STATE, HighlightHighlightUnboxingVarargs.isHighlightUnboxing());
+        putProperty(PROP_BOOLEAN_STATE, HighlightBoxingUnboxingVarargs.isHighlightUnboxing());
     }
 
     @Override
     public void setBooleanState(boolean highlight) {
         super.setBooleanState(highlight);
-        HighlightHighlightUnboxingVarargs.setHighlightUnboxing(getBooleanState());
+        HighlightBoxingUnboxingVarargs.setHighlightUnboxing(getBooleanState());
     }
 
     public String getName() {
