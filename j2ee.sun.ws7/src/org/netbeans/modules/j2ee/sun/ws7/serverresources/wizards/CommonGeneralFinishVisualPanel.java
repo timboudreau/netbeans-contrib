@@ -386,13 +386,8 @@ public class CommonGeneralFinishVisualPanel extends javax.swing.JPanel implement
         }
         String jLabel = (String)this.jLabels[index].getText();
         //if (!item.equals(val) && !jLabel.equals(bundle.getString("LBL_" + __JndiName)) ) {  // don't save jndi name here or it will break 'duplicate jndi name validation' in edit mode
-        if (!item.equals(val) && jLabel.equals(bundle.getString("LBL_" + __JndiName)) ) {  
-            item = item + data.getTargetFile();
+        if (!item.equals(val)) {
             data.setString(fieldName, item);
-        }
-        if (!item.equals(val)){
-            data.setString(fieldName, item);
-            //panel.fireChangeEvent();
         }
         panel.fireChangeEvent();
     }
@@ -408,7 +403,9 @@ public class CommonGeneralFinishVisualPanel extends javax.swing.JPanel implement
     
      public void setHelper(ResourceConfigHelper helper){
         this.helper = helper;
-        this.helper.getData().setString("jndi-name", helper.getData().getTargetFile()); //NOI18N
+        String jndiName = this.helper.getData().getString("jndi-name");
+        if (jndiName == null || jndiName.trim().length() == 0)
+            this.helper.getData().setString("jndi-name", helper.getData().getTargetFile()); //NOI18N
         refreshFields();
     }
 }
