@@ -266,7 +266,8 @@ public class FXParser implements Parser {
                         case _import:
                             break;
                         default:
-                            currentFSM.beginOffset = lineMap.getOffset(new LocatableImpl(token));
+                            LocatableImpl lt = new LocatableImpl(token);
+                            currentFSM.beginOffset = lineMap.getOffset(lt) + lineMap.getLength(lt);
                             currentFSM.state = State._import;
                             break;
                     }
@@ -280,7 +281,7 @@ public class FXParser implements Parser {
                             break;
                         case closed_import:
                            if (currentFSM.lastSemicolonOffset > currentFSM.beginOffset + 1) {
-                                JavaFXElement element = new JavaFXElement(ElementKind.OTHER, "CODE_FOLD", new OffsetRange(currentFSM.beginOffset + 1, currentFSM.lastSemicolonOffset + 1), null);
+                                JavaFXElement element = new JavaFXElement(ElementKind.OTHER, "IMPORT_FOLD", new OffsetRange(currentFSM.beginOffset + 1, currentFSM.lastSemicolonOffset + 1), null);
                                 result.addElement(element);
                             }
                         case initial:
@@ -295,7 +296,7 @@ public class FXParser implements Parser {
                     switch (currentFSM.state) {
                         case _import:
                             if (currentFSM.lastSemicolonOffset > currentFSM.beginOffset + 1) {
-                                JavaFXElement element = new JavaFXElement(ElementKind.OTHER, "CODE_FOLD", new OffsetRange(currentFSM.beginOffset + 1, currentFSM.lastSemicolonOffset + 1), null);
+                                JavaFXElement element = new JavaFXElement(ElementKind.OTHER, "IMPORT_FOLD", new OffsetRange(currentFSM.beginOffset + 1, currentFSM.lastSemicolonOffset + 1), null);
                                 result.addElement(element);
                             }
                         case lbrace:
@@ -354,7 +355,7 @@ public class FXParser implements Parser {
                     switch (currentFSM.state) {
                         case _import:
                             if (currentFSM.lastSemicolonOffset > currentFSM.beginOffset + 1) {
-                                JavaFXElement element = new JavaFXElement(ElementKind.OTHER, "CODE_FOLD", new OffsetRange(currentFSM.beginOffset + 1, currentFSM.lastSemicolonOffset + 1), null);
+                                JavaFXElement element = new JavaFXElement(ElementKind.OTHER, "IMPORT_FOLD", new OffsetRange(currentFSM.beginOffset + 1, currentFSM.lastSemicolonOffset + 1), null);
                                 result.addElement(element);
                             }
                             currentFSM.state = State.initial;
@@ -370,11 +371,11 @@ public class FXParser implements Parser {
 
         switch (currentFSM.state) {
             case closed_import:
-                JavaFXElement element = new JavaFXElement(ElementKind.OTHER, "CODE_FOLD", new OffsetRange(currentFSM.beginOffset + 1, currentFSM.lastSemicolonOffset), null);
+                JavaFXElement element = new JavaFXElement(ElementKind.OTHER, "IMPORT_FOLD", new OffsetRange(currentFSM.beginOffset + 1, currentFSM.lastSemicolonOffset), null);
                 result.addElement(element);
                 break;
             case _import:
-                element = new JavaFXElement(ElementKind.OTHER, "CODE_FOLD", new OffsetRange(currentFSM.beginOffset + 1, currentFSM.importEndLineOffset), null);
+                element = new JavaFXElement(ElementKind.OTHER, "IMPORT_FOLD", new OffsetRange(currentFSM.beginOffset + 1, currentFSM.importEndLineOffset), null);
                 result.addElement(element);
                 break;
         }

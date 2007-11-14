@@ -102,7 +102,9 @@ public class JavaFXStructureAnalyzer implements StructureScanner{
     public Map<String, List<OffsetRange>> folds(CompilationInfo info) {
         Map<String,List<OffsetRange>> folds = new HashMap<String,List<OffsetRange>>();
         List<OffsetRange> codefolds = new ArrayList<OffsetRange>();
+        List<OffsetRange> importfolds = new ArrayList<OffsetRange>();
         folds.put("codeblocks", codefolds); // NOI18N
+        folds.put("imports", importfolds); // NOI18N
 
         this.result = (FXParserResult)info.getParserResult();
         
@@ -111,7 +113,11 @@ public class JavaFXStructureAnalyzer implements StructureScanner{
         
         for (JavaFXElement element: elements) {
             if (element.getKind() == ElementKind.OTHER)
-                codefolds.add(element.getOffsetRange());
+                if (element.getName().contentEquals("IMPORT_FOLD")) {
+                    importfolds.add(element.getOffsetRange());
+                } else {
+                    codefolds.add(element.getOffsetRange());
+                }
         }
 
         return folds;
