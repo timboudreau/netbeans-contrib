@@ -39,4 +39,19 @@
             </file>
         </folder>
     </folder>
+
+    <folder name="Editors">
+        <folder name="text">
+            <folder name="x-jsp">
+                <file name="org-netbeans-modules-java-highlightboxingunboxingvarargs-impl-HighlighterFactory.instance" />
+            </folder>
+            <folder name="x-tag">
+                <file name="org-netbeans-modules-java-highlightboxingunboxingvarargs-impl-HighlighterFactory.instance" />
+            </folder>
+            <folder name="x-java">
+                <file name="org-netbeans-modules-java-highlightboxingunboxingvarargs-impl-HighlighterFactory.instance" />
+            </folder>
+        </folder>
+    </folder>
+    
 </filesystem>
