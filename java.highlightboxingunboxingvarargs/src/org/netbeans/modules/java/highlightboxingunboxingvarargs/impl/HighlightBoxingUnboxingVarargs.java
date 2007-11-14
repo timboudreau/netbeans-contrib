@@ -38,6 +38,8 @@
  */
 
 package org.netbeans.modules.java.highlightboxingunboxingvarargs.impl;
+import javax.swing.event.ChangeListener;
+import org.openide.util.ChangeSupport;
 
 /**
  *
@@ -49,6 +51,8 @@ public class HighlightBoxingUnboxingVarargs {
     private static boolean highlightUnboxing;
     private static boolean highlightVarargs;
 
+    private static ChangeSupport cs = new ChangeSupport(HighlightBoxingUnboxingVarargs.class);
+    
     /**
      * Get the value of highlightBoxing
      *
@@ -65,6 +69,7 @@ public class HighlightBoxingUnboxingVarargs {
      */
     public static void setHighlightBoxing(boolean newhighlightBoxing) {
         highlightBoxing = newhighlightBoxing;
+        cs.fireChange();
     }
 
     /**
@@ -83,6 +88,7 @@ public class HighlightBoxingUnboxingVarargs {
      */
     public static void setHighlightUnboxing(boolean newhighlightUnboxing) {
         highlightUnboxing = newhighlightUnboxing;
+        cs.fireChange();
     }
 
     /**
@@ -101,6 +107,15 @@ public class HighlightBoxingUnboxingVarargs {
      */
     public static void setHighlightVarargs(boolean newhighlightVarargs) {
         highlightVarargs = newhighlightVarargs;
+        
+        cs.fireChange();
     }
 
+    public static void addChangeListener(ChangeListener l) {
+        cs.addChangeListener(l);
+    }
+    
+    public static void removeChangeListener(ChangeListener l) {
+        cs.removeChangeListener(l);
+    }
 }
