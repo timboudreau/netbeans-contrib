@@ -195,39 +195,37 @@ public class FXParser implements Parser {
                     dataObject.getCookie(EditorCookie.class);
                 doc = editorCookie.getDocument();
 
+                text = doc.getText(0, doc.getLength());
+                lineMap = new LineMap(text);
+                try {
+                    CharSequence buffer = reader.read(file);
+                    int offset = reader.getCaretOffset(file);
+                    result = new FXParserResult(file);
+                    fillResultsForFolding(text, lineMap,  result);
+                } catch (Exception ioe) {
+                    listener.exception(ioe);
+                }
+                
                 if ((doc != null) && (doc instanceof JavaFXDocument) && ((JavaFXDocument)doc).executionAllowed()){
                     JavaFXPier.sourceChanged((JavaFXDocument)doc);
                 }
-
-                text = doc.getText(0, doc.getLength());
-                lineMap = new LineMap(text);
 
                 if (((JavaFXDocument)doc).errorAndSyntaxAllowed()) {
                     try {
                         compilation = JavaFXPier.getCompilation(file.getFileObject());
                         unit = JavaFXPier.readCompilationUnit(compilation, file.getFileObject().getPath(), new StringReader(text));
-
+                        if (unit != null)
+                            fillResultsForNavigator(unit, lineMap,  result);
                         processErrors(compilation, lineMap, file.getFileObject(), listener);
                     } catch (Exception e) {
     //                    e.printStackTrace();
                     }
                 }
-            }catch (DataObjectNotFoundException e) {
+            } catch (DataObjectNotFoundException e) {
             // TODO Auto-generated catch block
             //e.printStackTrace();
-            }catch (Exception e){
+            } catch (Exception e){
                 //in case nocument was closed while parser is working
-            }
-
-            try {
-                CharSequence buffer = reader.read(file);
-                int offset = reader.getCaretOffset(file);
-                result = new FXParserResult(file);
-                if (unit != null)
-                    fillResultsForNavigator(unit, lineMap,  result);
-                fillResultsForFolding(text, lineMap,  result);
-            } catch (Exception ioe) {
-                listener.exception(ioe);
             }
 
             ParseEvent doneEvent = new ParseEvent(ParseEvent.Kind.PARSE, file, result);
