@@ -2,6 +2,9 @@
 <!DOCTYPE filesystem PUBLIC "-//NetBeans//DTD Filesystem 1.1//EN" "http://www.netbeans.org/dtds/filesystem-1_1.dtd">
 <filesystem>
     <folder name="Actions">
+        <folder name="Build">
+            <file name="org-netbeans-modules-java-highlightboxingunboxingvarargs-actions-HighlightVarargs.instance"/>
+        </folder>
         <folder name="Edit">
             <file name="org-netbeans-modules-java-highlightboxingunboxingvarargs-actions-HighlightBoxing.instance"/>
             <file name="org-netbeans-modules-java-highlightboxingunboxingvarargs-actions-HighlightUnboxing.instance"/>
@@ -16,6 +19,10 @@
             <file name="org-netbeans-modules-java-highlightboxingunboxingvarargs-actions-HighlightUnboxing.shadow">
                 <attr name="originalFile" stringvalue="Actions/Edit/org-netbeans-modules-java-highlightboxingunboxingvarargs-actions-HighlightUnboxing.instance"/>
                 <attr name="position" intvalue="1400"/>
+            </file>
+            <file name="org-netbeans-modules-java-highlightboxingunboxingvarargs-actions-HighlightVarargs.shadow">
+                <attr name="originalFile" stringvalue="Actions/Build/org-netbeans-modules-java-highlightboxingunboxingvarargs-actions-HighlightVarargs.instance"/>
+                <attr name="position" intvalue="1450"/>
             </file>
             <file name="org-netbeans-modules-java-highlightboxingunboxingvarargs-actions-separatorAfter.instance">
                 <attr name="instanceClass" stringvalue="javax.swing.JSeparator"/>
@@ -37,19 +44,23 @@
                 <attr name="originalFile" stringvalue="Actions/Edit/org-netbeans-modules-java-highlightboxingunboxingvarargs-actions-HighlightUnboxing.instance"/>
                 <attr name="position" intvalue="700"/>
             </file>
+            <file name="org-netbeans-modules-java-highlightboxingunboxingvarargs-actions-HighlightVarargs.shadow">
+                <attr name="originalFile" stringvalue="Actions/Build/org-netbeans-modules-java-highlightboxingunboxingvarargs-actions-HighlightVarargs.instance"/>
+                <attr name="position" intvalue="800"/>
+            </file>
         </folder>
     </folder>
 
     <folder name="Editors">
         <folder name="text">
             <folder name="x-jsp">
-                <file name="org-netbeans-modules-java-highlightboxingunboxingvarargs-impl-HighlighterFactory.instance" />
+                <file name="org-netbeans-modules-java-highlightboxingunboxingvarargs-impl-HighlighterFactory.instance"/>
             </folder>
             <folder name="x-tag">
-                <file name="org-netbeans-modules-java-highlightboxingunboxingvarargs-impl-HighlighterFactory.instance" />
+                <file name="org-netbeans-modules-java-highlightboxingunboxingvarargs-impl-HighlighterFactory.instance"/>
             </folder>
             <folder name="x-java">
-                <file name="org-netbeans-modules-java-highlightboxingunboxingvarargs-impl-HighlighterFactory.instance" />
+                <file name="org-netbeans-modules-java-highlightboxingunboxingvarargs-impl-HighlighterFactory.instance"/>
             </folder>
         </folder>
     </folder>
