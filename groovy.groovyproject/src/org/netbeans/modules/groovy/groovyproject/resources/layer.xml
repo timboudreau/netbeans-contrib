@@ -3,15 +3,23 @@
 <filesystem>
     <folder name="Templates">
         <folder name="Groovy">
-            <file name="Groovy.groovy" url="main.groovy">
+            <file name="GroovyScript.groovy" url="main.groovy">
+                <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.groovy.groovyproject.resources.Bundle"/>
                 <attr name="template" boolvalue="true" />
-                <attr name="templateWizardURL" urlvalue="nbresloc:/org/netbeans/modules/groovy/groovyproject/resources/Groovy.html" />
+                <attr name="templateWizardURL" urlvalue="nbresloc:/org/netbeans/modules/groovy/groovyproject/resources/GroovyScript.html" />
+            </file>
+            <file name="GroovyClass.groovy" url="GroovyClass.groovy">
+                <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.groovy.groovyproject.resources.Bundle"/>
+                <attr name="template" boolvalue="true" />
+                <attr name="templateWizardURL" urlvalue="nbresloc:/org/netbeans/modules/groovy/groovyproject/resources/GroovyClass.html" />
             </file>
             <file name="TestGroovy.groovy" url="test.groovy">
+                <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.groovy.groovyproject.resources.Bundle"/>
                 <attr name="template" boolvalue="true" />
                 <attr name="templateWizardURL" urlvalue="nbresloc:/org/netbeans/modules/groovy/groovyproject/resources/Groovy.html" />
             </file>
             <file name="SuiteTestGroovy.groovy" url="suite.groovy">
+                <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.groovy.groovyproject.resources.Bundle"/>
                 <attr name="template" boolvalue="true" />
                 <attr name="templateWizardURL" urlvalue="nbresloc:/org/netbeans/modules/groovy/groovyproject/resources/Groovy.html" />
             </file>
