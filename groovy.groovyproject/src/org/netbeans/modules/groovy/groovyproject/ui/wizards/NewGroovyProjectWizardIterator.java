@@ -226,9 +226,6 @@ public class NewGroovyProjectWizardIterator implements WizardDescriptor.Instanti
     private FileObject getMainScriptFO (FileObject sourcesRoot, String mainScript) {
         // ignore unvalid mainScript ???
         mainScript = mainScript.replace(".", "/");
-        
-        System.out.println("### " + mainScript + ".groovy");
-        
         return sourcesRoot.getFileObject(mainScript + ".groovy"); // NOI18N
     }
 
