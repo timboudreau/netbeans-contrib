@@ -77,7 +77,6 @@ import org.netbeans.modules.editor.highlights.spi.DefaultHighlight;
 import org.netbeans.modules.editor.highlights.spi.Highlighter;
 import org.netbeans.modules.i18n.ResourceHolder;
 import org.netbeans.modules.i18n.java.JavaI18nSupport;
-import org.netbeans.modules.properties.PropertiesDataObject;
 import org.netbeans.spi.editor.hints.ChangeInfo;
 import org.netbeans.spi.editor.hints.Fix;
 import org.openide.ErrorManager;
@@ -93,7 +92,7 @@ import org.openide.util.MapFormat;
  */
 class AddToBundleFix implements Fix {
     
-    private PropertiesDataObject bundle;
+    private DataObject bundle;
     private DataObject od;
     
     private JavaI18nSupport support;
@@ -104,7 +103,7 @@ class AddToBundleFix implements Fix {
     private Document doc;
     
     
-    public AddToBundleFix(PropertiesDataObject bundle, DataObject od, TreePathHandle handle, JavaI18nSupport support, String format, List<String> argument) {
+    public AddToBundleFix(DataObject bundle, DataObject od, TreePathHandle handle, JavaI18nSupport support, String format, List<String> argument) {
         super();
         this.bundle = bundle;
         this.od = od;
@@ -140,7 +139,7 @@ class AddToBundleFix implements Fix {
             try {
                 FileObject bundleFO = od.getPrimaryFile().getParent().createData("Bundle.properties");
                 assert bundleFO != null;
-                bundle = (PropertiesDataObject) DataObject.find(bundleFO);
+                bundle = DataObject.find(bundleFO);
             }  catch (IOException ex) {
                 Logger.global.log(Level.INFO, ex.getLocalizedMessage(), ex);
             }

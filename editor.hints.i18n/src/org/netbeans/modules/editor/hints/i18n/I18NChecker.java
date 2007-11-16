@@ -74,7 +74,6 @@ import org.netbeans.api.lexer.TokenHierarchy;
 import org.netbeans.api.lexer.TokenSequence;
 import org.netbeans.modules.i18n.java.JavaI18nSupport;
 import org.netbeans.modules.java.hints.spi.AbstractHint;
-import org.netbeans.modules.properties.PropertiesDataObject;
 import org.netbeans.spi.editor.hints.ChangeInfo;
 import org.netbeans.spi.editor.hints.ErrorDescription;
 import org.netbeans.spi.editor.hints.ErrorDescriptionFactory;
@@ -84,6 +83,7 @@ import org.openide.ErrorManager;
 import org.openide.filesystems.FileObject;
 import org.openide.loaders.DataObject;
 import org.openide.text.NbDocument;
+import org.openide.util.NbBundle;
 
 /**
  *
@@ -178,13 +178,13 @@ public class I18NChecker extends AbstractHint {
             
             final JavaI18nSupport support = new JavaI18nSupport(od);
             final FileObject bundleFO = od.getPrimaryFile().getParent().getFileObject("Bundle.properties"); // NOI18N
-            final PropertiesDataObject bundle = (PropertiesDataObject) (bundleFO != null ? DataObject.find(bundleFO) : null); //TODO: cast
+            final DataObject bundle = bundleFO != null ? DataObject.find(bundleFO) : null; //TODO: cast
             
             Fix addToBundle = new AddToBundleFix(bundle, od, TreePathHandle.create(treePath, compilationInfo), support, v.format.toString(), v.arguments);
             
             Fix addNOI18N = new Fix() {
                 public String getText() {
-                    return "Add // NOI18N";
+                    return NbBundle.getMessage(I18NChecker.class, "LBL_NoI18N");
                 }
                 
                 public ChangeInfo implement() {
@@ -192,7 +192,7 @@ public class I18NChecker extends AbstractHint {
                         int line = NbDocument.findLineNumber((StyledDocument) doc, (int) hardCodedOffset);
                         int writeOffset = NbDocument.findLineOffset((StyledDocument) doc, line + 1) - 1; //TODO: last line in the document not handled correctly
                         
-                        doc.insertString(writeOffset, " // NOI18N", null);
+                        doc.insertString(writeOffset, " // NOI18N", null); // NOI18N
                     } catch (BadLocationException ex) {
                         ErrorManager.getDefault().notify(ex);
                     }
@@ -200,7 +200,7 @@ public class I18NChecker extends AbstractHint {
                 }
             };
             
-            Severity severity = Severity.VERIFIER;
+            Severity severity = getSeverity().toEditorSeverity();
             
             final List<ErrorDescription> result = new ArrayList<ErrorDescription>();
             
