@@ -3,7 +3,7 @@
 <filesystem>
     <folder name="Templates">
         <folder name="Groovy">
-            <file name="GroovyScript.groovy" url="main.groovy">
+            <file name="GroovyScript.groovy" url="GroovyScript.groovy">
                 <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.groovy.groovyproject.resources.Bundle"/>
                 <attr name="template" boolvalue="true" />
                 <attr name="templateWizardURL" urlvalue="nbresloc:/org/netbeans/modules/groovy/groovyproject/resources/GroovyScript.html" />
