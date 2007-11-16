@@ -215,7 +215,7 @@ public class GroovyProjectGenerator {
             return;
         }
         
-        FileObject mainTemplate = Repository.getDefault().getDefaultFileSystem().findResource( "Templates/Scripting/Groovy.groovy" ); // NOI18N
+        FileObject mainTemplate = Repository.getDefault().getDefaultFileSystem().findResource( "Templates/Groovy/GroovyScript.groovy" ); // NOI18N
 
         if ( mainTemplate == null ) {
             return; // Don't know the template

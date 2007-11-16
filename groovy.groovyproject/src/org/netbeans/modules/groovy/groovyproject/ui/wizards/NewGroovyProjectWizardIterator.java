@@ -63,7 +63,6 @@ import org.openide.WizardDescriptor;
 import org.openide.filesystems.FileLock;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
-import org.openide.util.Exceptions;
 import org.openide.util.NbBundle;
 
 
@@ -226,15 +225,11 @@ public class NewGroovyProjectWizardIterator implements WizardDescriptor.Instanti
     // helper methods, finds mainclass's FileObject
     private FileObject getMainScriptFO (FileObject sourcesRoot, String mainScript) {
         // ignore unvalid mainScript ???
-        FileObject mainScriptFO = sourcesRoot.getFileObject(mainScript, "groovy"); // NOI18N
-        if (mainScriptFO == null) {
-            try {
-                mainScriptFO = sourcesRoot.createData(mainScript, "groovy");
-            } catch (IOException ioe) {
-                Exceptions.printStackTrace(ioe);
-            }
-        }
-        return mainScriptFO;
+        mainScript = mainScript.replace(".", "/");
+        
+        System.out.println("### " + mainScript + ".groovy");
+        
+        return sourcesRoot.getFileObject(mainScript + ".groovy"); // NOI18N
     }
 
     static String getPackageName (String displayName) {
