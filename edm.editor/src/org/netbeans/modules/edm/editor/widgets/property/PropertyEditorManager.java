@@ -71,6 +71,8 @@ public class PropertyEditorManager {
                 "org.netbeans.modules.edm.editor.widgets.property.editor.OuterFilterConditionEditor");  
         editorMap.put("TARGET_STMT_TYPE",
                 "org.netbeans.modules.edm.editor.widgets.property.editor.StatementTypeCustomEditor"); 
+        editorMap.put("RESPONSE_TYPE",
+                "org.netbeans.modules.edm.editor.widgets.property.editor.ResponseTypeStrategyEditor");        
     }
     
     private PropertyEditorManager() {
