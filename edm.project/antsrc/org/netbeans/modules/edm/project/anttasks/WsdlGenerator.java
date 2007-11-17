@@ -40,6 +40,7 @@
  */
 package org.netbeans.modules.edm.project.anttasks;
 
+
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -85,6 +86,7 @@ import org.netbeans.modules.sql.framework.model.SQLDefinition;
 import org.netbeans.modules.sql.framework.model.RuntimeDatabaseModel;
 import org.netbeans.modules.sql.framework.model.RuntimeInput;
 
+
 /**
  * This class generates an EDM WSDL file given an EDM engine file name
  *
@@ -102,6 +104,8 @@ public class WsdlGenerator {
                                                 {"12","xsd:string"},
                                               };
     
+    public String RespTYPE = null;    
+    public String resp;
     static {
         initFactory();
     }
@@ -171,6 +175,10 @@ public class WsdlGenerator {
             ETLDefinitionImpl defnImpl = new ETLDefinitionImpl(element, null);
             SQLDefinition sqlDefn = defnImpl.getSQLDefinition();
             RuntimeDatabaseModel rtModel = sqlDefn.getRuntimeDbModel();
+            
+            resp=sqlDefn.getResponseTypeStr();
+            
+
             if(rtModel != null) {
                 RuntimeInput rtInput = rtModel.getRuntimeInput();
                 if(rtInput != null) {
@@ -189,7 +197,7 @@ public class WsdlGenerator {
         } catch(Exception e) {
             e.printStackTrace();
         }
-        return new HashMap();
+		  return new HashMap();
     }
     
     /**
@@ -208,7 +216,7 @@ public class WsdlGenerator {
             sink.close();
         } catch (Exception e) {
             logger.info(e.getMessage());
-            throw new WsdlGenerateException(e);
+          throw new WsdlGenerateException(e);
         }
         
     }
@@ -224,7 +232,7 @@ public class WsdlGenerator {
         modifyServices();
         modifyPartnerLink();
     }
-    
+
     private void addInlineOutputItemSchema(Element root){
         Element outputItem = getElementByName(root, "outputItem");
         Document doc = (Document) root.getParentNode().getParentNode().getParentNode();
@@ -239,18 +247,41 @@ public class WsdlGenerator {
                 outputSeqList.item(0).removeChild(outputSeqList.item(0).getChildNodes().item(i));
             }
         }
-            
-        Node sequence = outputSeqList.item(0);
         
-        Enumeration e = outputColumnTable.keys();
-        while (e.hasMoreElements())
+         Node sequence = outputSeqList.item(0);
+       
+       RespTYPE=resp.toString().toUpperCase();
+        
+   
+       
+       if(RespTYPE.equals("JSON"))
         {
-            Element child = doc.createElementNS("http://www.w3.org/2001/XMLSchema", "xsd:element");
-            String key = e.nextElement().toString();
-            child.setAttribute("name", key);
-            child.setAttribute("type", outputColumnTable.get(key).toString());
-            sequence.appendChild(child);
+          //  System.out.print(" There should be no xsd:elements for JSON");
         }
+        else 
+        if(RespTYPE.equals("WEBROWSET"))
+        {
+         //   System.out.print(" There should be no xsd:elements for WEBROWSET");
+        }
+        else
+        if(RespTYPE.equals("RELATIONALMAP"))
+        {
+            Enumeration e = outputColumnTable.keys();
+          //  System.out.println("Keys:"+e);
+            while (e.hasMoreElements())
+            {
+                Element child = doc.createElementNS("http://www.w3.org/2001/XMLSchema", "xsd:element");
+                String key = e.nextElement().toString();
+                child.setAttribute("name", key);
+                child.setAttribute("type", outputColumnTable.get(key).toString());
+            
+             //   System.out.println("key"+key);
+              //  System.out.println("Values"+outputColumnTable.get(key).toString());
+                sequence.appendChild(child);
+             }
+        }
+       
+       
     }
     
     private Hashtable createListOfColumns() {
@@ -343,6 +374,8 @@ public class WsdlGenerator {
         
         Map inputParams = getEngineInputParams();
         Iterator iterator = inputParams.keySet().iterator();
+      
+
         while (iterator.hasNext()) {
             Object key = iterator.next();
             RuntimeAttribute ra = (RuntimeAttribute) inputParams.get(key);
@@ -351,8 +384,8 @@ public class WsdlGenerator {
             child.setAttribute("name", ra.getAttributeName());
             child.setAttribute("type", getAttributeType(ra));
             sequence.appendChild(child);
-        }
         
+        }        
         // Generate Inline Schema for the outputItem from the engine file
         addInlineOutputItemSchema(root);
     }
@@ -558,3 +591,4 @@ public class WsdlGenerator {
     }
     
 }
+

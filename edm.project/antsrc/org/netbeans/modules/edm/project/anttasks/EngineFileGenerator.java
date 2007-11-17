@@ -119,7 +119,7 @@ public class EngineFileGenerator  {
             db = (AxionDB) DBFactory.getInstance().getDatabase(DB.AXIONDB);
             stmts = (AxionStatements) db.getStatements();
             pipelineStmts = db.getAxionPipelineStatements();
-            linkTableMap = new HashMap<DBConnectionDefinition, String>();           
+            linkTableMap = new HashMap<DBConnectionDefinition, String>();              
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -142,7 +142,7 @@ public class EngineFileGenerator  {
         context.setUsingFullyQualifiedTablePrefix(false);
         context.setUsingUniqueTableName(table, true);
         String localName = db.getUnescapedName(db.getEvaluatorFactory().evaluate(table, context));
-        String createSql = getCreateRemoteTableSQL(table, localName, linkName);
+        String createSql = getCreateRemoteTableSQL(table, localName, linkName); 
         String dropSql = this.getDropExternalTableSQL(table, localName, true, context);
         this.edmProcessDef.addVTableNode(localName, String.valueOf(table.getObjectType()), dropSql, createSql);
     }
@@ -164,6 +164,7 @@ public class EngineFileGenerator  {
         def.parseXML(root);
         
         SQLDefinition sqlDefinition = def.getSQLDefinition();
+        
         populateConnectionDefinitions(sqlDefinition);
         DBConnectionDefinition tgtConnDef = ((SQLDBModel)
                 sqlDefinition.getTargetDatabaseModels().get(0)).getConnectionDefinition();
@@ -199,7 +200,11 @@ public class EngineFileGenerator  {
             }
         }
         
-        String engineContent = this.edmProcessDef.generateEngineFile();
+        
+       this.edmProcessDef.setMashupResponse(sqlDefinition.getResponseTypeStr());
+        String engineContent = this.edmProcessDef.generateEngineFile();       
+       
+       
         fos = new FileOutputStream(engineFile);        
         fos.write(engineContent.getBytes("UTF-8"));
         fos.flush();
