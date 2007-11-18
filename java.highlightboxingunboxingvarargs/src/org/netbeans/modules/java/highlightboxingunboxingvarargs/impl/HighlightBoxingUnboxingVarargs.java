@@ -1,8 +1,8 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
- * 
+ *
  * Copyright 1997-2007 Sun Microsystems, Inc. All rights reserved.
- * 
+ *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common
  * Development and Distribution License("CDDL") (collectively, the
@@ -20,7 +20,7 @@
  * License Header, with the fields enclosed by brackets [] replaced by
  * your own identifying information:
  * "Portions Copyrighted [year] [name of copyright owner]"
- * 
+ *
  * If you wish your version of this file to be governed by only the CDDL
  * or only the GPL Version 2, indicate your decision by adding
  * "[Contributor] elects to include this software in this distribution
@@ -31,28 +31,110 @@
  * However, if you add GPL Version 2 code and therefore, elected the GPL
  * Version 2 license, then the option applies only if the new code is
  * made subject to such option by the copyright holder.
- * 
+ *
  * Contributor(s):
- * 
+ *
  * Portions Copyrighted 2007 Sun Microsystems, Inc.
  */
 
 package org.netbeans.modules.java.highlightboxingunboxingvarargs.impl;
+
+import java.awt.Color;
 import javax.swing.event.ChangeListener;
 import org.openide.util.ChangeSupport;
 
-/**
+/**this
  *
  * @author Sandip V. Chitale (Sandip.Chitale@Sun.Com)
  */
 public class HighlightBoxingUnboxingVarargs {
 
+    static final String HIGHLIGHT_BACKGROUND_COLORS = "HIGHLIGHT_BACKGROUND_COLORS";
     private static boolean highlightBoxing;
     private static boolean highlightUnboxing;
     private static boolean highlightVarargs;
+   
+    private static Color DEFAULT_boxingHighlightBackground   = new Color(254, 244, 173);
+    private static Color DEFAULT_unboxingHighlightBackground = new Color(255, 184, 178);
+    private static Color DEFAULT_varargsHighlightBackground  = new Color(201, 229, 251);
 
-    private static ChangeSupport cs = new ChangeSupport(HighlightBoxingUnboxingVarargs.class);
+    private static Color boxingHighlightBackground   = DEFAULT_boxingHighlightBackground;
+    private static Color unboxingHighlightBackground = DEFAULT_unboxingHighlightBackground;
+    private static Color varargsHighlightBackground  = DEFAULT_varargsHighlightBackground;
+
+    /**
+     * Get the value of boxingHighlightBackground
+     *
+     * @return the value of boxingHighlightBackground
+     */
+    public static Color getBoxingHighlightBackground() {
+        return boxingHighlightBackground;
+    }
+
+    /**
+     * Set the value of boxingHighlightBackground
+     *
+     * @param new value of boxingHighlightBackground
+     */
+    public static void setBoxingHighlightBackground(Color newboxingHighlightBackground) {
+        boxingHighlightBackground = newboxingHighlightBackground;
+        cs.fireChange();
+    }
+
+    /**
+     * Get the value of unboxingHighlightBackground
+     *
+     * @return the value of unboxingHighlightBackground
+     */
+    public static Color getUnboxingHighlightBackground() {
+        return unboxingHighlightBackground;
+    }
+
+    /**
+     * Set the value of unboxingHighlightBackground
+     *
+     * @param new value of unboxingHighlightBackground
+     */
+    public static void setUnboxingHighlightBackground(Color newunboxingHighlightBackground) {
+        unboxingHighlightBackground = newunboxingHighlightBackground;
+        cs.fireChange();
+    }
+
+    /**
+     * Get the value of varargsHighlightBackground
+     *
+     * @return the value of varargsHighlightBackground
+     */
+    public static Color getVarargsHighlightBackground() {
+        return varargsHighlightBackground;
+    }
+
+    /**
+     * Set the value of varargsHighlightBackground
+     *
+     * @param new value of varargsHighlightBackground
+     */
+    public static void setVarargsHighlightBackground(Color newvarargsHighlightBackground) {
+        varargsHighlightBackground = newvarargsHighlightBackground;
+        cs.fireChange();
+    }
+
+    /**
+     * Set the value of HighlightBackground colors
+     *
+     */
+    public static void setHighlightBackgrounds(
+            Color newboxingHighlightBackground,
+            Color newunboxingHighlightBackground,
+            Color newvarargsHighlightBackground) {
+        boxingHighlightBackground = newboxingHighlightBackground;
+        unboxingHighlightBackground = newunboxingHighlightBackground;
+        varargsHighlightBackground = newvarargsHighlightBackground;
+        propertyChangeSupport.firePropertyChange(HIGHLIGHT_BACKGROUND_COLORS, null, null);       
+    }
     
+    private static ChangeSupport cs = new ChangeSupport(HighlightBoxingUnboxingVarargs.class);
+
     /**
      * Get the value of highlightBoxing
      *
@@ -107,15 +189,53 @@ public class HighlightBoxingUnboxingVarargs {
      */
     public static void setHighlightVarargs(boolean newhighlightVarargs) {
         highlightVarargs = newhighlightVarargs;
-        
+
         cs.fireChange();
     }
 
     public static void addChangeListener(ChangeListener l) {
         cs.addChangeListener(l);
     }
-    
+
     public static void removeChangeListener(ChangeListener l) {
         cs.removeChangeListener(l);
     }
+    
+    
+    private String bogus;
+
+    public static final String PROP_BOGUS = "bogus";
+
+    /**
+     * Get the value of bogus
+     *
+     * @return the value of bogus
+     */
+    public String getBogus() {
+        return this.bogus;
+    }
+
+    /**
+     * Set the value of bogus
+     *
+     * @param new value of bogus
+     */
+    public void setBogus(String newbogus) {
+        String oldbogus = bogus;
+        this.bogus = newbogus;
+        propertyChangeSupport.firePropertyChange(PROP_BOGUS, oldbogus, newbogus);
+    }
+
+    private static java.beans.PropertyChangeSupport propertyChangeSupport = new java.beans.PropertyChangeSupport(HighlightBoxingUnboxingVarargs.class);
+
+    public static void addPropertyChangeListener(java.beans.PropertyChangeListener listener )
+    {
+        propertyChangeSupport.addPropertyChangeListener( listener );
+    }
+
+    public static void removePropertyChangeListener(java.beans.PropertyChangeListener listener )
+    {
+        propertyChangeSupport.removePropertyChangeListener( listener );
+    }
+
 }

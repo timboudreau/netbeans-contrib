@@ -34,6 +34,11 @@
             </file>
         </folder>
     </folder>
+    <folder name="OptionsDialog">
+        <folder name="Advanced">
+            <file name="org-netbeans-modules-java-highlightboxingunboxingvarargs-impl-HighlightboxingunboxingvarargsAdvancedOption.instance"/>
+        </folder>
+    </folder>
     <folder name="Toolbars">
         <folder name="View">
             <file name="org-netbeans-modules-java-highlightboxingunboxingvarargs-actions-HighlightBoxing.shadow">
@@ -50,7 +55,6 @@
             </file>
         </folder>
     </folder>
-
     <folder name="Editors">
         <folder name="text">
             <folder name="x-jsp">
@@ -63,6 +67,5 @@
                 <file name="org-netbeans-modules-java-highlightboxingunboxingvarargs-impl-HighlighterFactory.instance"/>
             </folder>
         </folder>
-    </folder>
-    
+    </folder>    
 </filesystem>
