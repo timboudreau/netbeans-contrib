@@ -1,0 +1,22 @@
+<?xml version='1.0' encoding='ISO-8859-1'?>
+
+<!DOCTYPE map PUBLIC "-//Sun Microsystems Inc.//DTD JavaHelp Map Version 1.0//EN"
+                     "http://java.sun.com/products/javahelp/map_1_0.dtd">
+
+<!--     
+*     Copyright (c) 2006 Sun Microsystems, Inc. All rights reserved.
+*     Use is subject to license terms.
+-->
+
+<!DOCTYPE map PUBLIC "-//Sun Microsystems Inc.//DTD JavaHelp Map Version 2.0//EN" "http://java.sun.com/products/javahelp/map_2_0.dtd">
+<map version="2.0">
+    <mapID target="javafx_about_javafx" url="about_javafx.html"/>
+	<mapID target="javafx_credits.html" url="credits.html"/>
+	<mapID target="javafx_editing_javafx_source" url="editing_javafx_source.html"/>
+	<mapID target="javafx_javafx_quickref" url="javafx_quickref.html"/>
+	<mapID target="javafx_javafx_quickref_toclink" url="javafx_quickref.html#toclink"/>
+	<mapID target="javafx_javafxoptions" url="javafx_options.html"/>
+	<mapID target="javafx_usingjavafxpad" url="using_javafxpad.html"/>
+    <mapID target="org.netbeans.modules.javafx.project.ui.wizards.PanelConfigureProject_APP" url="newjavafxsappwiz-nameandloc.html"/>
+</map>
+
