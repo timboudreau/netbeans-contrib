@@ -27,6 +27,8 @@ public class PS71ServerConstant {
 
     public static final String PS_71 = "PS_71";
     public static final String PS_71_URI_PREFIX = "sun:ps71";
+    public static final String PS_72_URI_PREFIX = "sun:ps72";
+    public static final String PS_72 = "PS_72";
     public static final String JMX_CONNECTOR_PORT= "JmxConnectorPort";
 
 }

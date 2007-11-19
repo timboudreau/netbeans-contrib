@@ -24,8 +24,8 @@ import org.netbeans.modules.portalpack.servers.core.api.PSDeploymentManager;
 import org.netbeans.modules.portalpack.servers.core.api.PSConfigPanelManager;
 import org.netbeans.modules.portalpack.servers.core.api.PSNodeConfiguration;
 import org.netbeans.modules.portalpack.servers.core.api.PSTaskHandler;
-import org.netbeans.modules.portalpack.servers.core.common.enterprise.PSCommandHandler;
 import org.netbeans.modules.portalpack.servers.core.util.PSConfigObject;
+import org.netbeans.modules.portalpack.servers.sunps7.impl.PSCommandHandler;
 
 /**
  *

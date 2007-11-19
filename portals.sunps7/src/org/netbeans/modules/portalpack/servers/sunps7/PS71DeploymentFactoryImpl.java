@@ -42,7 +42,7 @@ public class PS71DeploymentFactoryImpl extends PSDeploymentFactory{
     }
 
     public String getDisplayName() {
-        return "Sun Java System Portal Server 7.x";
+        return "Sun Java System Portal Server 7.0/7.1 (Updates)";
     }
 
     public String getURIPrefix() {

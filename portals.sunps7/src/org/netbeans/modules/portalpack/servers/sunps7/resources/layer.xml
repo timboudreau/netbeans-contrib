@@ -59,6 +59,41 @@ Microsystems, Inc. All Rights Reserved.
                 
                 
             </folder>
+            
+            <folder name="SunPortalServer72">
+                <file name="Descriptor" url="/org/netbeans/modules/portalpack/servers/sunps7/resources/nbdep.xml"/>
+                <file name="Factory.instance">
+                    <attr name="instanceCreate" methodvalue="org.netbeans.modules.portalpack.servers.sunps72.PS72DeploymentFactoryImpl.create"/>
+                    <attr name="instanceClass" stringvalue="org.netbeans.modules.portalpack.servers.sunps72.PS72DeploymentFactoryImpl"/>
+                    <attr name="instanceOf" stringvalue="javax.enterprise.deploy.spi.factories.DeploymentFactory"/>
+                </file>
+                <file name="RegistryNodeFactory.instance">
+                    <attr name="instanceClass" stringvalue="org.netbeans.modules.portalpack.servers.core.nodes.PSRegistryNodeFactory"/>
+                    <attr name="instanceOf" stringvalue="org.netbeans.modules.j2ee.deployment.plugins.spi.RegistryNodeFactory"/>
+                </file>
+                <file name="J2eePlatformFactory.instance">
+                    <attr name="instanceCreate" newvalue="org.netbeans.modules.portalpack.servers.core.PSJ2eePlatformFactory"/>
+                    <attr name="instanceClass" stringvalue="org.netbeans.modules.servers.core.PSJ2eePlatformFactory"/>
+                    <attr name="instanceOf" stringvalue="org.netbeans.modules.j2ee.deployment.plugins.spi.J2eePlatformFactory"/>
+                </file>
+                <file name="OptionalFactory.instance">
+                    <attr name="instanceCreate" newvalue="org.netbeans.modules.portalpack.servers.sunps72.PS72OptionalFactory"/>
+                    <attr name="instanceClass" stringvalue="org.netbeans.modules.servers.sunps72.PS72OptionalFactory"/>
+                    <attr name="instanceOf" stringvalue="org.netbeans.modules.j2ee.deployment.plugins.spi.OptionalDeploymentManagerFactory"/>
+                </file>
+                 <file name="SunPortalModuleConfigurationFactory.instance">
+                    <attr name="instanceClass" stringvalue="org.netbeans.modules.portalpack.servers.core.impl.config.SunPortalModuleConfigurationFactory"/>
+                    <attr name="instanceOf" stringvalue="org.netbeans.modules.j2ee.deployment.plugins.spi.config.ModuleConfigurationFactory"/>
+                </file>
+                
+                <folder name="DeploymentFileNames">
+                    <folder name="WAR">
+                        <file name="WEB-INF\sun-portlet.xml"/>
+                        <file name="WEB-INF\portlet.xml"/>
+                    </folder>
+                </folder>      
+            </folder>
+            
         </folder> 
     </folder>
     
