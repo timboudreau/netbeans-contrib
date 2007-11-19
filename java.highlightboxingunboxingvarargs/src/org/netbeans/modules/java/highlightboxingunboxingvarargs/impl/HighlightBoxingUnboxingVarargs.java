@@ -40,27 +40,31 @@
 package org.netbeans.modules.java.highlightboxingunboxingvarargs.impl;
 
 import java.awt.Color;
+import java.beans.PropertyChangeSupport;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.prefs.Preferences;
 import javax.swing.event.ChangeListener;
 import org.openide.util.ChangeSupport;
+import org.openide.util.NbPreferences;
 
-/**this
+/**
  *
  * @author Sandip V. Chitale (Sandip.Chitale@Sun.Com)
  */
 public class HighlightBoxingUnboxingVarargs {
 
+    private static Preferences preferences;
+
     static final String HIGHLIGHT_BACKGROUND_COLORS = "HIGHLIGHT_BACKGROUND_COLORS";
+
     private static boolean highlightBoxing;
     private static boolean highlightUnboxing;
     private static boolean highlightVarargs;
-   
+
     private static Color DEFAULT_boxingHighlightBackground   = new Color(254, 244, 173);
     private static Color DEFAULT_unboxingHighlightBackground = new Color(255, 184, 178);
     private static Color DEFAULT_varargsHighlightBackground  = new Color(201, 229, 251);
-
-    private static Color boxingHighlightBackground   = DEFAULT_boxingHighlightBackground;
-    private static Color unboxingHighlightBackground = DEFAULT_unboxingHighlightBackground;
-    private static Color varargsHighlightBackground  = DEFAULT_varargsHighlightBackground;
 
     /**
      * Get the value of boxingHighlightBackground
@@ -68,7 +72,8 @@ public class HighlightBoxingUnboxingVarargs {
      * @return the value of boxingHighlightBackground
      */
     public static Color getBoxingHighlightBackground() {
-        return boxingHighlightBackground;
+        int boxingHighlightBackgroundRGB = getPreferences().getInt("BOXING_HIGHLIGHT_BACKGROUND_COLOR", DEFAULT_boxingHighlightBackground.getRGB());
+        return new Color(boxingHighlightBackgroundRGB);
     }
 
     /**
@@ -77,8 +82,7 @@ public class HighlightBoxingUnboxingVarargs {
      * @param new value of boxingHighlightBackground
      */
     public static void setBoxingHighlightBackground(Color newboxingHighlightBackground) {
-        boxingHighlightBackground = newboxingHighlightBackground;
-        cs.fireChange();
+        getPreferences().putInt("BOXING_HIGHLIGHT_BACKGROUND_COLOR", newboxingHighlightBackground.getRGB());
     }
 
     /**
@@ -87,7 +91,8 @@ public class HighlightBoxingUnboxingVarargs {
      * @return the value of unboxingHighlightBackground
      */
     public static Color getUnboxingHighlightBackground() {
-        return unboxingHighlightBackground;
+        int unboxingHighlightBackgroundRGB = getPreferences().getInt("UNBOXING_HIGHLIGHT_BACKGROUND_COLOR", DEFAULT_unboxingHighlightBackground.getRGB());
+        return new Color(unboxingHighlightBackgroundRGB);
     }
 
     /**
@@ -96,8 +101,7 @@ public class HighlightBoxingUnboxingVarargs {
      * @param new value of unboxingHighlightBackground
      */
     public static void setUnboxingHighlightBackground(Color newunboxingHighlightBackground) {
-        unboxingHighlightBackground = newunboxingHighlightBackground;
-        cs.fireChange();
+        getPreferences().putInt("UNBOXING_HIGHLIGHT_BACKGROUND_COLOR", newunboxingHighlightBackground.getRGB());
     }
 
     /**
@@ -106,7 +110,8 @@ public class HighlightBoxingUnboxingVarargs {
      * @return the value of varargsHighlightBackground
      */
     public static Color getVarargsHighlightBackground() {
-        return varargsHighlightBackground;
+        int varargsHighlightBackgroundRGB = getPreferences().getInt("VARARGS_HIGHLIGHT_BACKGROUND_COLOR", DEFAULT_varargsHighlightBackground.getRGB());
+        return new Color(varargsHighlightBackgroundRGB);
     }
 
     /**
@@ -115,8 +120,7 @@ public class HighlightBoxingUnboxingVarargs {
      * @param new value of varargsHighlightBackground
      */
     public static void setVarargsHighlightBackground(Color newvarargsHighlightBackground) {
-        varargsHighlightBackground = newvarargsHighlightBackground;
-        cs.fireChange();
+        getPreferences().putInt("VARARGS_HIGHLIGHT_BACKGROUND_COLOR", newvarargsHighlightBackground.getRGB());
     }
 
     /**
@@ -127,12 +131,12 @@ public class HighlightBoxingUnboxingVarargs {
             Color newboxingHighlightBackground,
             Color newunboxingHighlightBackground,
             Color newvarargsHighlightBackground) {
-        boxingHighlightBackground = newboxingHighlightBackground;
-        unboxingHighlightBackground = newunboxingHighlightBackground;
-        varargsHighlightBackground = newvarargsHighlightBackground;
-        propertyChangeSupport.firePropertyChange(HIGHLIGHT_BACKGROUND_COLORS, null, null);       
+        setBoxingHighlightBackground(newboxingHighlightBackground);
+        setUnboxingHighlightBackground(newunboxingHighlightBackground);
+        setVarargsHighlightBackground(newvarargsHighlightBackground);
+        propertyChangeSupport.firePropertyChange(HIGHLIGHT_BACKGROUND_COLORS, null, null);
     }
-    
+
     private static ChangeSupport cs = new ChangeSupport(HighlightBoxingUnboxingVarargs.class);
 
     /**
@@ -189,7 +193,6 @@ public class HighlightBoxingUnboxingVarargs {
      */
     public static void setHighlightVarargs(boolean newhighlightVarargs) {
         highlightVarargs = newhighlightVarargs;
-
         cs.fireChange();
     }
 
@@ -200,33 +203,8 @@ public class HighlightBoxingUnboxingVarargs {
     public static void removeChangeListener(ChangeListener l) {
         cs.removeChangeListener(l);
     }
-    
-    
-    private String bogus;
 
-    public static final String PROP_BOGUS = "bogus";
-
-    /**
-     * Get the value of bogus
-     *
-     * @return the value of bogus
-     */
-    public String getBogus() {
-        return this.bogus;
-    }
-
-    /**
-     * Set the value of bogus
-     *
-     * @param new value of bogus
-     */
-    public void setBogus(String newbogus) {
-        String oldbogus = bogus;
-        this.bogus = newbogus;
-        propertyChangeSupport.firePropertyChange(PROP_BOGUS, oldbogus, newbogus);
-    }
-
-    private static java.beans.PropertyChangeSupport propertyChangeSupport = new java.beans.PropertyChangeSupport(HighlightBoxingUnboxingVarargs.class);
+    private static PropertyChangeSupport propertyChangeSupport = new PropertyChangeSupport(HighlightBoxingUnboxingVarargs.class);
 
     public static void addPropertyChangeListener(java.beans.PropertyChangeListener listener )
     {
@@ -236,6 +214,27 @@ public class HighlightBoxingUnboxingVarargs {
     public static void removePropertyChangeListener(java.beans.PropertyChangeListener listener )
     {
         propertyChangeSupport.removePropertyChangeListener( listener );
+    }
+
+    public static Preferences getPreferences() {
+        if (preferences == null) {
+            preferences = NbPreferences.forModule(HighlightBoxingUnboxingVarargs.class);
+        }
+        return preferences;
+    }
+
+    private static Map<Integer, Color> colorCache;
+
+    private static Color getColorForRGB(int rgb) {
+        if (colorCache == null) {
+            colorCache = new HashMap<Integer, Color>();
+        }
+        Color color = colorCache.get(rgb);
+        if (color == null) {
+            color = new Color(rgb);
+            colorCache.put(rgb, color);
+        }
+        return color;
     }
 
 }
