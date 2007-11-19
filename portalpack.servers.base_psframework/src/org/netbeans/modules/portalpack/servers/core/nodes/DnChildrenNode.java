@@ -97,9 +97,17 @@ public class DnChildrenNode extends Children.Keys {
                         }catch(Exception e){
                             return;
                         }
-                        
+                       
                         if(nodeDataMap != null)
-                            nodeDataMap.remove(baseDN);
+                        {
+                            if(nodeDataMap.remove(baseDN) == null)
+                            {
+                                if(baseDN != null)
+                                {
+                                    Object ob = nodeDataMap.remove(baseDN.toLowerCase());
+                                }
+                            }
+                        }
                     }
                     
                     logger.log(Level.FINEST,"Map :::: "+nodeDataMap);
