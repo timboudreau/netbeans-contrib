@@ -63,6 +63,8 @@ import org.openide.windows.InputOutput;
  */
 public class OC4JLogger {
     
+    private static final Logger LOGGER = Logger.getLogger(OC4JLogger.class.getName());
+    
     /**
      * Amount of time in milliseconds to wait between checks of the input
      * stream
@@ -149,17 +151,29 @@ public class OC4JLogger {
     public synchronized void selectIO() {
         io.select();
     }
-    
+
+    // TODO fix this ugly design
     private static InputStream[] getInputStreamsFromFiles(File[] files) {
         InputStream[] inputStreams = new InputStream[files.length];
-        
+
         try {
-            for(int i=0 ; i<files.length ; i++)
+            for (int i = 0; i < files.length ; i++) {
                 inputStreams[i] = new FileInputStream(files[i]);
-        } catch(FileNotFoundException ex) {
+            }
+        } catch (FileNotFoundException ex) {
+            for (int i = 0; i < inputStreams.length; i++) {
+                try {
+                    if (inputStreams[i] != null) {
+                        inputStreams[i].close();
+                    }
+                } catch (IOException e) {
+                    LOGGER.log(Level.FINE, null, e);
+                }
+            }
+            LOGGER.log(Level.INFO, null, ex);
             return new InputStream[] {};
         }
-        
+
         return inputStreams;
     }
     

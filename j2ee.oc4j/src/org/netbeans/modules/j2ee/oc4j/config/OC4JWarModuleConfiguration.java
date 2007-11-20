@@ -179,7 +179,9 @@ public class OC4JWarModuleConfiguration extends OC4JModuleConfiguration
         if (evt.getPropertyName() == DataObject.PROP_MODIFIED &&
                 evt.getNewValue() == Boolean.FALSE) {
             // dataobject has been modified, orionWebApp graph is out of sync
-            orionWebApp = null;
+            synchronized (this) {
+                orionWebApp = null;
+            }
         }
     }
     
@@ -268,7 +270,9 @@ public class OC4JWarModuleConfiguration extends OC4JModuleConfiguration
                 SaveCookie cookie = (SaveCookie) deploymentDescriptorDO.getCookie(SaveCookie.class);
                 cookie.save();
             }
-            orionWebApp = newOrionWebApp;
+            synchronized (this) {
+                orionWebApp = newOrionWebApp;
+            }
         } catch (BadLocationException ble) {
             throw new ConfigurationException(ble.getMessage(), ble);
         } catch (IOException ioe) {

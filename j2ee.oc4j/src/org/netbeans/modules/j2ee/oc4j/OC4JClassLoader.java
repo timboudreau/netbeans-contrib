@@ -59,7 +59,6 @@ import java.util.logging.Logger;
 public class OC4JClassLoader extends URLClassLoader {
     
     private ClassLoader oldLoader;
-    private String serverRoot;
     
     private static Map<String, OC4JClassLoader> instances = new HashMap<String, OC4JClassLoader>();
     
@@ -79,8 +78,6 @@ public class OC4JClassLoader extends URLClassLoader {
     
     private OC4JClassLoader(String serverRoot) {
         super(new URL[0], OC4JDeploymentFactory.class.getClassLoader());
-        
-        this.serverRoot = serverRoot;
         
         try{
             URL[] urls = new URL[] {

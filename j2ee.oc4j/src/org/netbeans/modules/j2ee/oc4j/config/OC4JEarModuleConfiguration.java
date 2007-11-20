@@ -114,7 +114,9 @@ public class OC4JEarModuleConfiguration extends OC4JModuleConfiguration
         if (evt.getPropertyName() == DataObject.PROP_MODIFIED &&
                 evt.getNewValue() == Boolean.FALSE) {
             // dataobject has been modified, orionWebApp graph is out of sync
-            orionApplication = null;
+            synchronized (this) {
+                orionApplication = null;
+            }
         }
     }
     

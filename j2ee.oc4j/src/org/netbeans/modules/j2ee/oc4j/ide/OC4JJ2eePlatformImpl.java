@@ -59,12 +59,10 @@ import org.openide.util.Utilities;
  */
 public class OC4JJ2eePlatformImpl extends J2eePlatformImpl {
     
-    private OC4JDeploymentManager dm;
     private LibraryImplementation[] libraries;
     private OC4JPluginProperties properties;
     
     public OC4JJ2eePlatformImpl(OC4JDeploymentManager dm) {
-        this.dm = dm;
         this.properties = dm.getProperties();
         initLibraries();
     }
@@ -101,7 +99,7 @@ public class OC4JJ2eePlatformImpl extends J2eePlatformImpl {
     }
     
     public LibraryImplementation[] getLibraries() {
-        return libraries;
+        return libraries.clone();
     }
     
     public java.awt.Image getIcon() {

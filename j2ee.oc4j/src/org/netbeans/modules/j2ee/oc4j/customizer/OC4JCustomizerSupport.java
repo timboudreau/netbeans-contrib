@@ -551,11 +551,13 @@ public final class OC4JCustomizerSupport {
             String message = null;
             String approveButtonName = null;
             String approveButtonNameMne = null;
-            if (this.type == JAVADOC) {
+            if (JAVADOC.equals(this.type)) {
                 title = NbBundle.getMessage(OC4JCustomizerSupport.class,"TXT_OpenJavadoc");
                 message = NbBundle.getMessage(OC4JCustomizerSupport.class,"TXT_Javadoc");
                 approveButtonName = NbBundle.getMessage(OC4JCustomizerSupport.class,"TXT_OpenJavadoc");
                 approveButtonNameMne = NbBundle.getMessage(OC4JCustomizerSupport.class,"MNE_OpenJavadoc");
+            } else {
+                throw new IllegalStateException("Can't add element for classpath"); // NOI18N
             }
             chooser.setDialogTitle(title);
             chooser.setApproveButtonText(approveButtonName);

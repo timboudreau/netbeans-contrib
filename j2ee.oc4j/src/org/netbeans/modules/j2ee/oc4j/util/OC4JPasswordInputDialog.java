@@ -51,8 +51,6 @@ import org.openide.util.NbBundle;
  */
 public class OC4JPasswordInputDialog extends NotifyDescriptor {
     
-    private String user;
-    
     /**
      * The text field used to enter the input.
      */
@@ -66,8 +64,7 @@ public class OC4JPasswordInputDialog extends NotifyDescriptor {
      */
     public OC4JPasswordInputDialog(String user) {
         super(null, title, NotifyDescriptor.OK_CANCEL_OPTION, NotifyDescriptor.PLAIN_MESSAGE, null, null);
-        
-        this.user = user;
+
         panel = new OC4JPasswordInputPanel(user);
         
         super.setMessage(panel);

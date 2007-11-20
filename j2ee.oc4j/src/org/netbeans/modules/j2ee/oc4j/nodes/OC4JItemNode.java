@@ -298,13 +298,13 @@ public class OC4JItemNode extends AbstractNode {
     
     public static class ItemType {
         
-        public static ItemType J2EE_APPLICATION_FOLDER = new ItemType();
-        public static ItemType J2EE_APPLICATION = new ItemType();
-        public static ItemType J2EE_APPLICATION_SYSTEM = new ItemType();
-        public static ItemType REFRESHABLE_FOLDER = new ItemType();
-        public static ItemType JDBC_MANAGED_DATASOURCES = new ItemType();
-        public static ItemType JDBC_NATIVE_DATASOURCES = new ItemType();
-        public static ItemType CONNECTION_POOLS = new ItemType();
+        public static final ItemType J2EE_APPLICATION_FOLDER = new ItemType();
+        public static final ItemType J2EE_APPLICATION = new ItemType();
+        public static final ItemType J2EE_APPLICATION_SYSTEM = new ItemType();
+        public static final ItemType REFRESHABLE_FOLDER = new ItemType();
+        public static final ItemType JDBC_MANAGED_DATASOURCES = new ItemType();
+        public static final ItemType JDBC_NATIVE_DATASOURCES = new ItemType();
+        public static final ItemType CONNECTION_POOLS = new ItemType();
         
         private ItemType() {}
     }

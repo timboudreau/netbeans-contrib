@@ -134,7 +134,9 @@ public class OC4JEjbModuleConfiguration extends OC4JModuleConfiguration
         if (evt.getPropertyName() == DataObject.PROP_MODIFIED &&
                 evt.getNewValue() == Boolean.FALSE) {
             // dataobject has been modified, orionWebApp graph is out of sync
-            orionEjbJar = null;
+            synchronized (this) {
+                orionEjbJar = null;
+            }
         }
     }
     
