@@ -72,10 +72,12 @@ operation Introduction.composeNode() {
         x:20
         y:60
         font: Font{face:VERDANA, style:ITALIC, size:14}
-        content:"This tutorial provides examples of 2D vector graphics. Source code
-for each example displayed in text area. Or it can be browsed separtely 
-in Netbeans in corresponding package. Every example can be shown 
-separately in Netbeans preview window.
+        content:"This tutorial provides examples of 2D vector graphics using the 
+JavaFX Script language. For each example selected, the source code is 
+displayed in the text area below. The source code can also be browsed 
+separately in the NetBeans IDE by selecting the corresponding  Java 
+package in the Projects window. Each example can also be shown separately 
+in the IDE's Preview window.
 "
     }]
     };
