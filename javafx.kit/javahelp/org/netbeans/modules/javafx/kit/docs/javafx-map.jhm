@@ -17,6 +17,6 @@
 	<mapID target="javafx_javafx_quickref_toclink" url="javafx_quickref.html#toclink"/>
 	<mapID target="javafx_javafxoptions" url="javafx_options.html"/>
 	<mapID target="javafx_usingjavafxpad" url="using_javafxpad.html"/>
-    <mapID target="org.netbeans.modules.javafx.project.ui.wizards.PanelConfigureProject_APP" url="newjavafxsappwiz-nameandloc.html"/>
+    <mapID target="org.netbeans.modules.javafx.project.ui.wizards.PanelConfigureProject_APP" url="newjavafxappwiz-nameandloc.html"/>
 </map>
 
