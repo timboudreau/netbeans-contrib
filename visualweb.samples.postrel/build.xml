@@ -50,10 +50,10 @@ made subject to such option by the copyright holder.
         <!-- properties -->
         <property name="webapps.dest"       location="${build.classes.dir}/org/netbeans/modules/visualweb/samples/postrel" />
         <property name="webapps.desc.dest"  location="${webapps.dest}/descriptions" />
-        <property name="webapps.repos"      location="../webapps" />
+        <property name="webapps.repos"      location="webapps" />
         <property name="webapps.desc"       location="${webapps.repos}/descriptions" />
-        <property name="complibs.dest"      location="release/samples/complibs" />
-        <property name="complibs.repos"     location="../complibs" />
+        <property name="complibs.dest"      location="${cluster}/samples/complibs" />
+        <property name="complibs.repos"     location="complibs" />
     </target>
 
     <target name="gather-samples" depends="-init">
@@ -73,10 +73,4 @@ made subject to such option by the copyright holder.
         <copy file="${complibs.repos}/dynamicfaces/dynamicfaces.complib" todir="${complibs.dest}" flatten="true"/>
     </target>
 
-    <target name="clean" depends="projectized-common.clean,complibs-clean" />
-
-    <!-- Clean out the complibs directory. -->
-    <target name="complibs-clean" depends="-init">
-        <delete dir="${complibs.dest}" verbose="true"/>
-    </target>    
 </project>

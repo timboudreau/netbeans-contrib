@@ -1,0 +1,55 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html>
+  <head>
+    <title>Currency Trader -- readme</title>
+  </head>
+  <body>
+
+<P STYLE="border-top: none; border-bottom: 1px solid #000000; border-left: none; border-right: none; padding-top: 0in; padding-bottom: 0.03in; padding-left: 0in; padding-right: 0in">
+<BR><BR>
+</P>
+<P STYLE="border-top: none; border-bottom: 1px solid #000000; border-left: none; border-right: none; padding-top: 0in; padding-bottom: 0.03in; padding-left: 0in; padding-right: 0in">
+<B>README</B></P>
+
+<p><B>Currency Trader</B> is an example that demonstrates how to 
+employ Ajax techniques with Ajax-unaware JavaServer Faces components using NetBeans Visual Web and Dynamic Faces technology. The example employs both the Ajax Zone and Ajax Transaction components. The example comprises one rendered page and is entirely Ajax-based; no conventional page submissions occur.
+</p>
+<p>
+The Currency Trader example simulates real-time foreign exchange trading. The Exchange Rates table lists various currency pairs (such as EUR/USD) along with their sell and buy prices. The prices denote the exchange rate to sell or buy one unit of the primary currency, the first of the two currencies in the pair. For example, a sell price
+of 1.2752 for EUR/USD denotes that a trader receives 1.2752 US dollars (USD) when selling one Euro (EUR). Similarly, a buy price of 1.2755 for EUR/USD denotes that a trader pays 1.2755 US dollars (USD) when buying one Euro (EUR). As another example, a sell price
+of 112.31 for USD/JPY denotes that a trader receives 112.31 Japanese Yen (JPY) when selling one US dollar (USD). Similarly, a buy price of 112.35 for USD/JPY denotes that a trader pays 112.35 Japanese Yen (JPY) when buying one US dollar (USD).
+</p>
+<p>
+Ajax requests poll the server every few seconds to retrieve the latest exchange rates and update the web page Document Object Model (DOM). 
+When a sell or buy price changes, up or down arrows display to give a visual sign of the change.
+</p>
+<p>
+There are two types of currency trades: Buy and Sell. In a Buy trade, the trader buys some amount of the primary currency and later sells that amount (or less) of the primary currency. The idea is to buy low and sell high in order to make a profit. For example, a trader might buy 100,000 Euros (paying, say, 125,000 US dollars) and later sell that same amount of Euros. If the trader receives, say, 126,000 US dollars from the sale, the trader profits 1,000 US dollars.
+</p>
+<p>
+Similarly, in a Sell trade, the trader initially sells some amount of the primary currency and later buys back that amount (or less) of the primary currency. Again, the idea is to buy back the primary currency at a lower rate in order to make a profit. For example, a trader might sell 100,000 Euros (receiving, say, 125,000 US dollars) and later buy back that same amount of Euros. If the trader pays, say, 120,000 US dollars in the buyback, the trader profits 5,000 US dollars.
+</p>
+<p>
+When the trader initiates the first exchange (buying the primary currency in the case of a Buy trade or selling the primary currency in the case of a Sell trade), it is known as <i>opening a position.</i> When the trader initiates the second exchange (selling the primary currency in the case of a Buy trade or buying back the primary currency in the case of a Sell trade), it is known as <i>closing a position</i>. Once a position is closed, the trader sustains a profit or loss from the trade.
+</p>
+<p>
+To open a position in the Currency Trader example, use the dropdowns in the panel labeled <i>Open a Position</i> to choose a currency pair, the type of trade (Sell or Buy), and an amount. 
+Then click the Open button. The position appears in the Open Positions table below. The position displays the <i>open price,</i> which is the relevant price (the sell price in the case of a Sell trade or the buy price in the case of a Buy trade) at the time the position was opened. The position also displays the <i>current price,</i> which is the relevant price (the buy price in the case of a Sell trade or the sell price in the case of a Buy trade) the trader would sustain if the trader were to close the position at the present time. You will notice that as exchange rates are updated in the Exchange Rates table, the corresponding figures are also updated in the Current Price column of the Open Positions table. Again, up or down arrows display to give a visual sign of the change.
+</p>
+<p>
+Each open position also displays a <i>floating profit</i> figure. This is the profit (or loss) the trader would sustain if the trader were to close the position at the present time. Since the floating profit is calculated based on the current price, when exchange rates are updated in the Exchange Rates table and the Current Price column of the Open Positions table, the corresponding figures in the Floating Profit column are also updated. Again, up or down arrows display to give a visual sign of the change. The floating profit is also calculated based on the amount selected in the Close Amount dropdown, which is the amount of the primary currency the trader intends to sell or buy back in order to close the trade. When the trader changes the selection in the Close Amount dropdown, an Ajax request is sent to the server to recalculate the floating profit and update the web page Document Object Model (DOM). When the trader clicks the Close button, a closed position is created. The open position is either removed  from the Open Positions table or the figure in the Amount column is adjusted by subtracting the figure in the Close Amount dropdown. At the same time, a new position appears in the Closed Positions table, and the Total Profit figure at the top of the page is updated. Again, all updates to the page are achieved via Ajax requests leveraging Dynamic Faces technology. No conventional page submissions occur.
+</p>
+<p>For information on installing and running the example, see the accompanying online technical article "Installing the Currency Trader Sample Application."</p>
+<!-- "Exploring" article is not yet available.
+<p>For more information, see the accompanying online technical article "Exploring the Currency Trader Sample Application."</p>
+-->
+</TD>
+</TR>
+</TBODY>
+</TABLE>
+</BODY>
+</HTML>
+
+  </body>
+</html>
