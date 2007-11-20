@@ -1,0 +1,3 @@
+org.netbeans.modules.latex.ui.navigator.DebugNavigatorFactory
+org.netbeans.modules.latex.ui.navigator.LaTeXNavigatorFactory
+org.netbeans.modules.latex.ui.ToolbarUpdater

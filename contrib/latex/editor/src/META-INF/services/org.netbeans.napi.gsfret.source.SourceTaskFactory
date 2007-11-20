@@ -1,0 +1,3 @@
+org.netbeans.modules.latex.editor.semantic.SemanticColoringFactory
+org.netbeans.modules.latex.editor.fold.FoldTask$Factory
+org.netbeans.modules.latex.editor.spellchecker.SpellcheckerDataCollector$Factory
