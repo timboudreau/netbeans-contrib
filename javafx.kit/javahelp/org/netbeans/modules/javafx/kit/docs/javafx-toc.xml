@@ -8,10 +8,10 @@
 			<tocitem text="JavaFX Applications" target="javafx_javafx_quickref_toclink" />
 		</tocitem>
 	</tocitem>
-	<tocitem text="JavaFX Script Development" expand="false">
-		<tocitem text="About JavaFX Script Development in NetBeans" target="javafx_about_javafx" />
+	<tocitem text="JavaFX Applications" expand="false">
+		<tocitem text="About JavaFX Applications" target="javafx_about_javafx" />
 		<tocitem text="Working With JavaFX Projects" target="javafx_javafx_quickref" />
-		<tocitem text="About Editing JavaFX Source Files" target="javafx_editing_javafx_source" />
+		<tocitem text="Editing JavaFX Source Files" target="javafx_editing_javafx_source" />
 		<tocitem text="Customizing JavaFX Syntax Settings" target="javafx_javafxoptions" />
 		<tocitem text="Using the JavaFX Preview Pad" target="javafx_usingjavafxpad" />
 	</tocitem>
