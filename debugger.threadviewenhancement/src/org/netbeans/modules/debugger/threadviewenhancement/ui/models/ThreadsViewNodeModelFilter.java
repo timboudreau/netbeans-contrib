@@ -58,7 +58,11 @@ public class ThreadsViewNodeModelFilter implements NodeModelFilter {
 
     public String getDisplayName(NodeModel original, Object node) throws UnknownTypeException {
         if (node instanceof CallStackFrame) {
-            return Utils.getDisplayName((CallStackFrame) node);           
+            CallStackFrame callStackFrame = (CallStackFrame) node;
+            boolean isCurrentCallStackFrame = Utils.isCurrentStackFrame(callStackFrame);
+            return (isCurrentCallStackFrame ? "<html><b>" : "") +
+                    Utils.getDisplayName(callStackFrame) +   
+                   (isCurrentCallStackFrame ? "</b>" : "");
         }
         return original.getDisplayName(node);
     }

@@ -252,7 +252,7 @@ public class Utils {
         if (callStackFrame != null) {
             JPDADebugger debugger = getDebugger(callStackFrame);
             if (debugger != null) {
-                return callStackFrame == debugger.getCurrentCallStackFrame();
+                return callStackFrame.equals(debugger.getCurrentCallStackFrame());
             }
         }        
         return false;
