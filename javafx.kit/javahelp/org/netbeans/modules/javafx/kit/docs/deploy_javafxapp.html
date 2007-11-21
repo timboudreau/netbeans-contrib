@@ -1,0 +1,62 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<!--       
+*     Copyright (c) 2007 Sun Microsystems, Inc. All rights reserved.
+*     Use is subject to license terms.
+-->
+<html>
+<head>
+	<title>Deployinhg JavaFX Script Applications</title>
+<link href="nbdocs:/org/netbeans/modules/usersguide/ide.css"  rel="stylesheet" type="text/css">
+</head>
+<body>
+<h2>Deploying JavaFX Script Applications</h2>
+<p> <small><a href="#seealso">See Also</a>&nbsp; </small> 
+
+
+<p>You can deploy your JavaFX Script application  as a standalone application or as an application enabled with Java Web Start. To deploy with the Java Web Start, you must first create a special launch file (JNLP file) for your application written in the JavaFX Script language. When you click on a link to that JNLP file, it causes the browser to launch Java Web Start, which then automatically downloads, caches, and runs the given JavaFX Script application. </p>
+<p><b>To run a standalone application from the IDE: </b></p>
+<ol>
+      <li>In the Projects window, select the main node for your project and right-click it. </li>
+      <li>Select Run Project.</li>
+</ol>
+<p><b>To run a standalone application from the command line: </b></p>
+<ol>
+	<li>Navigate to the project's <code>dist</code> folder.</li>
+	<li>Type the following at the command prompt: <br>
+		&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code>java -jar <i>application_jar_name.jar &nbsp;main_JavaFX_class_name.Main</i></code></li>
+</ol>
+<p><b>To build  and run a JNLP application using the IDE:</b>
+<ol>
+<li>In the Projects window, right-click your project's node and select Properties. </li>
+<li> In Project Properties dialog, select the Application &gt; WebStart category.</li>
+<li>Select the Enable Web Start and Compress JARs with Pack 200 checkboxes on the right-hand pane.</li>
+<li>In the Categories pane, select the Run cateogry and select the Enable Run with Java Web Start checkbox.</li>
+<li>Click OK</li>
+  <li>In the Projects window, right-click the project's node again and select Build Project.<br>
+    The IDE adds a <code>master.jnlp</code> file in your main project folder and several other <code></code> JNLP related files in your project's <code>dist</code> and <code>nbproject</code> folders. </li>
+  <li>Right-click your project's node and select Run Project.</li>
+</ol>
+<!--<p><b>To run a standalone application with Java Web Start: </b></p>
+<ol>
+	<li>After you build the JNLP application for your JavaFX Script project, navigate to the project's <code>dist</code> folder.</li>
+	<li>Type the following at the command prompt: <br>
+		&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code>java -jar <i>application_jar_name.jar &nbsp;main_JavaFX_class_name.Main</i></code></li>
+</ol>
+-->
+<dl>
+<dt><a name="seealso">See Also</a></dt>
+<dd><a href="about_javafx.html">About JavaFX Script Applications</a></dd>
+<dd><a href="javafx_quickref.html">Working With JavaFX Script Projects </a></dd>
+</dl>
+
+<hr>
+<p><font size=-2><a href="credits.html">Legal Notices</a></font>
+</p>
+<table cellpadding="50" border="0">
+  <tr>
+    <td>&nbsp;</td>
+  </tr>
+</table>
+
+</body>
+</html>

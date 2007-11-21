@@ -5,14 +5,15 @@
 <toc version="2.0">
 	<tocitem text="IDE Basics">
 		<tocitem text="Getting Started">
-			<tocitem text="JavaFX Applications" target="javafx_javafx_quickref_toclink" />
+			<tocitem text="JavaFX Script Applications" target="javafx_quickref_toclink" />
 		</tocitem>
 	</tocitem>
-	<tocitem text="JavaFX Applications" expand="false">
-		<tocitem text="About JavaFX Applications" target="javafx_about_javafx" />
-		<tocitem text="Working With JavaFX Projects" target="javafx_javafx_quickref" />
-		<tocitem text="Editing JavaFX Source Files" target="javafx_editing_javafx_source" />
-		<tocitem text="Customizing JavaFX Syntax Settings" target="javafx_javafxoptions" />
-		<tocitem text="Using the JavaFX Preview Pad" target="javafx_usingjavafxpad" />
+	<tocitem text="JavaFX Script Applications" expand="false">
+		<tocitem text="About JavaFX Script Applications" target="javafx_about_javafx" />
+		<tocitem text="Working With JavaFX Script Projects" target="javafx_quickref" />
+		<tocitem text="Editing JavaFX Script Source Files" target="javafx_editing_source" />
+		<tocitem text="Customizing Syntax Settings" target="javafx_options" />
+		<tocitem text="Using the JavaFX Script Preview Feature" target="javafx_using_javafxpreview" />
+		<tocitem text="Deploying JavaFX Script Applications" target="javafx_deploy_javafxapp" />
 	</tocitem>
 </toc>	

@@ -12,11 +12,12 @@
 <map version="2.0">
     <mapID target="javafx_about_javafx" url="about_javafx.html"/>
 	<mapID target="javafx_credits.html" url="credits.html"/>
-	<mapID target="javafx_editing_javafx_source" url="editing_javafx_source.html"/>
-	<mapID target="javafx_javafx_quickref" url="javafx_quickref.html"/>
-	<mapID target="javafx_javafx_quickref_toclink" url="javafx_quickref.html#toclink"/>
-	<mapID target="javafx_javafxoptions" url="javafx_options.html"/>
-	<mapID target="javafx_usingjavafxpad" url="using_javafxpad.html"/>
+	<mapID target="javafx_editing_source" url="editing_javafx_source.html"/>
+	<mapID target="javafx_quickref" url="javafx_quickref.html"/>
+	<mapID target="javafx_quickref_toclink" url="javafx_quickref.html#toclink"/>
+	<mapID target="javafx_options" url="javafx_options.html"/>
+	<mapID target="javafx_using_javafxpreview" url="using_javafxpreview.html"/>
+	<mapID target="javafx_deploy_javafxapp" url="deploy_javafxapp.html"/>
     <mapID target="org.netbeans.modules.javafx.project.ui.wizards.PanelConfigureProject_APP" url="newjavafxappwiz-nameandloc.html"/>
 </map>
 
