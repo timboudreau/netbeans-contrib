@@ -41,11 +41,16 @@
 package org.netbeans.modules.java.addproperty.ui;
 
 import java.awt.Rectangle;
+import javax.lang.model.element.TypeElement;
 import javax.swing.SwingUtilities;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
+import org.netbeans.api.java.source.ClasspathInfo;
+import org.netbeans.api.java.source.ElementHandle;
+import org.netbeans.api.java.source.ui.TypeElementFinder;
 import org.netbeans.modules.java.addproperty.api.AddPropertyConfig;
 import org.netbeans.modules.java.addproperty.api.AddPropertyGenerator;
+import org.openide.filesystems.FileObject;
 
 /**
  * A simple GUI for Add Property action.
@@ -54,19 +59,12 @@ import org.netbeans.modules.java.addproperty.api.AddPropertyGenerator;
  */
 public class AddPropertyPanel extends javax.swing.JPanel {
 
-    private static AddPropertyPanel INSTANCE;
     private static boolean propNameModified = false;
     private DocumentListener propNameTextFieldDocumentListener;
-
-    public static AddPropertyPanel getINSTANCE() {
-        if (INSTANCE == null) {
-            INSTANCE = new AddPropertyPanel();
-        }
-        return INSTANCE;
-    }
-
-    /** Creates new form AddPropertyPanel */
-    private AddPropertyPanel() {
+    private FileObject file;
+    
+    public AddPropertyPanel(FileObject file) {
+        this.file = file;
         initComponents();
         previewScrollPane.putClientProperty(
                 "HighlightsLayerExcludes", // NOI18N
@@ -215,7 +213,11 @@ public class AddPropertyPanel extends javax.swing.JPanel {
 
         browseTypeButton.setText(org.openide.util.NbBundle.getMessage(AddPropertyPanel.class, "AddPropertyPanel.browseTypeButton.text")); // NOI18N
         browseTypeButton.setToolTipText(org.openide.util.NbBundle.getMessage(AddPropertyPanel.class, "AddPropertyPanel.browseTypeButton.toolTipText")); // NOI18N
-        browseTypeButton.setEnabled(false);
+        browseTypeButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                browseTypeButtonActionPerformed(evt);
+            }
+        });
 
         accessGroup.add(privateRadioButton);
         privateRadioButton.setSelected(true);
@@ -425,9 +427,9 @@ public class AddPropertyPanel extends javax.swing.JPanel {
                 .addContainerGap())
         );
 
-        layout.linkSize(new java.awt.Component[] {nameLabel, previewLabel, typeLabel}, org.jdesktop.layout.GroupLayout.HORIZONTAL);
-
         layout.linkSize(new java.awt.Component[] {finalCheckBox, packageRadioButton, privateRadioButton, protectedRadioButton, publicRadioButton, staticCheckBox}, org.jdesktop.layout.GroupLayout.HORIZONTAL);
+
+        layout.linkSize(new java.awt.Component[] {nameLabel, previewLabel, typeLabel}, org.jdesktop.layout.GroupLayout.HORIZONTAL);
 
         layout.setVerticalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
@@ -551,6 +553,16 @@ public class AddPropertyPanel extends javax.swing.JPanel {
     private void generatePropertyChangeSupportCheckBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_generatePropertyChangeSupportCheckBoxActionPerformed
         showPreview();
     }//GEN-LAST:event_generatePropertyChangeSupportCheckBoxActionPerformed
+
+    private void browseTypeButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_browseTypeButtonActionPerformed
+        ElementHandle<TypeElement> type = TypeElementFinder.find(ClasspathInfo.create(file), null);
+        
+        if (type != null) {
+            String fqn = type.getQualifiedName().toString();
+            
+            typeComboBox.setSelectedItem(fqn);
+        }
+    }//GEN-LAST:event_browseTypeButtonActionPerformed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.ButtonGroup accessGroup;

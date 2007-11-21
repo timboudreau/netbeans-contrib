@@ -29,4 +29,17 @@
             </file>
         </folder>
     </folder>
+
+    <folder name="Editors">
+        <folder name="text">
+            <folder name="x-java">
+                <folder name="codegenerators">
+                    <file name="org-netbeans-modules-java-addproperty-impl-AddPropertyCodeGenerator$Factory.instance">
+                        <attr name="position" intvalue="600"/>
+                    </file>
+                </folder>
+            </folder>
+        </folder>
+    </folder>
+    
 </filesystem>

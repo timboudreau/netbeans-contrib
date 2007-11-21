@@ -40,18 +40,21 @@
  */
 package org.netbeans.modules.java.addproperty.actions;
 
+import com.sun.source.util.TreePath;
+import java.io.IOException;
+import java.util.LinkedList;
+import java.util.List;
 import javax.swing.JEditorPane;
-import javax.swing.text.BadLocationException;
 import javax.swing.text.StyledDocument;
-import org.netbeans.modules.java.addproperty.api.AddPropertyGenerator;
-import org.netbeans.modules.java.addproperty.ui.AddPropertyPanel;
-import org.openide.DialogDisplayer;
-import org.openide.NotifyDescriptor;
+import org.netbeans.api.java.source.CompilationController;
+import org.netbeans.api.java.source.JavaSource;
+import org.netbeans.api.java.source.Task;
+import org.netbeans.modules.java.addproperty.impl.AddPropertyCodeGenerator;
+import org.netbeans.modules.java.editor.codegen.CodeGenerator;
 import org.openide.cookies.EditorCookie;
 import org.openide.filesystems.FileObject;
 import org.openide.loaders.DataObject;
 import org.openide.nodes.Node;
-import org.openide.text.NbDocument;
 import org.openide.util.Exceptions;
 import org.openide.util.HelpCtx;
 import org.openide.util.NbBundle;
@@ -66,29 +69,29 @@ public final class AddPropertyAction extends CookieAction {
 
     protected void performAction(Node[] activatedNodes) {
         EditorCookie editorCookie = activatedNodes[0].getLookup().lookup(EditorCookie.class);
-        final AddPropertyPanel addPropertyPanel = AddPropertyPanel.getINSTANCE();
-        NotifyDescriptor d =
-                new NotifyDescriptor.Confirmation(addPropertyPanel, "Add Property",
-                NotifyDescriptor.OK_CANCEL_OPTION, NotifyDescriptor.PLAIN_MESSAGE);
-        if (DialogDisplayer.getDefault().notify(d) == NotifyDescriptor.OK_OPTION) {
-            JEditorPane[] editorPanes = editorCookie.getOpenedPanes();
-            if (editorPanes != null) {
-                final JEditorPane editorPane = editorPanes[0];
-                final StyledDocument document = (StyledDocument) editorPane.getDocument();
-                try {
-                    NbDocument.runAtomicAsUser(document, new Runnable() {
+        JEditorPane[] editorPanes = editorCookie.getOpenedPanes();
+        if (editorPanes != null) {
+            final JEditorPane editorPane = editorPanes[0];
+            final StyledDocument document = (StyledDocument) editorPane.getDocument();
 
-                        public void run() {
-                            try {
-                                document.insertString(editorPane.getCaretPosition(),
-                                        AddPropertyGenerator.getDefault().generate(addPropertyPanel.getAddPropertyConfig()),
-                                        null);
-                            } catch (BadLocationException ex) {
-                                Exceptions.printStackTrace(ex);
+            JavaSource js = JavaSource.forDocument(document);
+            if (js != null) {
+                try {
+                    final int caretOffset = editorPane.getCaretPosition();
+                    final List<CodeGenerator> gens = new LinkedList<CodeGenerator>();
+                    js.runUserActionTask(new Task<CompilationController>() {
+                        public void run(CompilationController controller) throws Exception {
+                            controller.toPhase(JavaSource.Phase.PARSED);
+                            TreePath path = controller.getTreeUtilities().pathFor(caretOffset);
+                            for (CodeGenerator gen : new AddPropertyCodeGenerator.Factory().create(controller, path)) {
+                                gens.add(gen);
                             }
                         }
-                    });
-                } catch (BadLocationException ex) {
+                    }, true);
+                    if (gens.size() > 0) {
+                        gens.get(0).invoke(editorPane);
+                    }
+                } catch (IOException ex) {
                     Exceptions.printStackTrace(ex);
                 }
             }
@@ -119,7 +122,7 @@ public final class AddPropertyAction extends CookieAction {
                 }
             }
         }
-        return enabled;
+        return false;
     }
 
 //
