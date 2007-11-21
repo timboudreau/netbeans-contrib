@@ -98,7 +98,7 @@ import org.openide.windows.WindowManager;
 
 /**
  *
- * @author sc32560
+ * @author Sandip V. Chitale (Sandip.Chitale@Sun.Com)
  */
 public class ThreadsViewNodeActionsProviderFilter  implements NodeActionsProviderFilter {
     

@@ -48,7 +48,7 @@ import org.netbeans.spi.viewmodel.UnknownTypeException;
 
 /**
  *
- * @author sc32560
+ * @author Sandip V. Chitale (Sandip.Chitale@Sun.Com)
  */
 public class ThreadsViewNodeModelFilter implements NodeModelFilter {
     public static final String CALL_STACK =
