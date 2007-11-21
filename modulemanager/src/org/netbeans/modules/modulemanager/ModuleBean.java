@@ -321,15 +321,18 @@ public final class ModuleBean implements Runnable, PropertyChangeListener {
     // ModuleNode uses these as keys, so make sure even if recreated after change
     // in list of modules that the node selection is retained. Cf. #23757 however:
     
+    @Override
     public boolean equals(Object o) {
         return (o instanceof ModuleBean) &&
             codeNameBase.equals(((ModuleBean)o).codeNameBase);
     }
     
+    @Override
     public int hashCode() {
         return 35632846 ^ codeNameBase.hashCode();
     }
     
+    @Override
     public String toString() {
         return "ModuleBean[" + codeNameBase + "]"; // NOI8N
     }
@@ -628,7 +631,7 @@ public final class ModuleBean implements Runnable, PropertyChangeListener {
         }
         
         private static Set<ModuleInfo> takeModuleInfos (Collection<Union2<ModuleInfo, File>> infoOrJars) {
-            Set<ModuleInfo> res = new TreeSet<ModuleInfo> ();
+            Set<ModuleInfo> res = new HashSet<ModuleInfo> ();
             for (Union2<ModuleInfo, File> u : infoOrJars) {
                 if (u.hasFirst ()) {
                     res.add (u.first ());
@@ -949,14 +952,17 @@ public final class ModuleBean implements Runnable, PropertyChangeListener {
             arg = org.openide.util.Union2.createSecond (jar);
             assert arg != null : "Union2<ModuleInfo, File> cannot be null when create Update for command " + command;
         }
+        @Override
         public boolean equals(Object o) {
             if (! (o instanceof Update)) return false;
             Update u = (Update)o;
             return command.equals(u.command) && arg.equals(u.arg);
         }
+        @Override
         public int hashCode() {
             return command.hashCode() ^ arg.hashCode();
         }
+        @Override
         public String toString() {
             return "Update[" + command + "," + arg + "]"; // NOI18N
         }

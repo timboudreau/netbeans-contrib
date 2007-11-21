@@ -132,26 +132,27 @@ public class ModuleSelectionPanel extends javax.swing.JPanel
         }
 
         Node.Property [] properties = new Node.Property [] {
-                new PropertySupport.ReadWrite (
+                new PropertySupport.ReadWrite<Boolean> (
                     "enabled", // NOI18N
                     Boolean.TYPE,
                     org.openide.util.NbBundle.getMessage (ModuleNode.class, "PROP_modules_enabled"),
                     org.openide.util.NbBundle.getMessage (ModuleNode.class, "HINT_modules_enabled")
                 ) {
-                    public Object getValue () {
+                    public Boolean getValue () {
                         return null;
                     }
 
-                    public void setValue (Object o) {
+                    public void setValue (Boolean b) {
                     }
+
                 },
-                new PropertySupport.ReadOnly (
+                new PropertySupport.ReadOnly<String> (
                     "specificationVersion", // NOI18N
                     String.class,
                     org.openide.util.NbBundle.getMessage (ModuleNode.class, "PROP_modules_specversion"),
                     org.openide.util.NbBundle.getMessage (ModuleNode.class, "HINT_modules_specversion")
                 ) {
-                    public Object getValue () {
+                    public String getValue () {
                         return null;
                     }
                 }
@@ -446,10 +447,12 @@ public class ModuleSelectionPanel extends javax.swing.JPanel
             return mgr;
         }
         
+        @Override
         protected void componentActivated() {
             ExplorerUtils.activateActions (mgr, true);
         }
         
+        @Override
         protected void componentDeactivated() {
             ExplorerUtils.activateActions (mgr, false);
         }
@@ -459,7 +462,7 @@ public class ModuleSelectionPanel extends javax.swing.JPanel
      */
     public void propertyChange(PropertyChangeEvent evt) {
         if ((evt.getSource() == manager) 
-            && (manager.PROP_SELECTED_NODES.equals(evt.getPropertyName()) || manager.PROP_NODE_CHANGE.equals (evt.getPropertyName ()))) {
+            && (ExplorerManager.PROP_SELECTED_NODES.equals(evt.getPropertyName()) || ExplorerManager.PROP_NODE_CHANGE.equals (evt.getPropertyName ()))) {
             
             final Node[] nodes = manager.getSelectedNodes();
             String text = ""; // NOI18N
