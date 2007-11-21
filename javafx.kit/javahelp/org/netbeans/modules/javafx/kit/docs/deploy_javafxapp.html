@@ -31,18 +31,26 @@
 <li> In Project Properties dialog, select the Application &gt; WebStart category.</li>
 <li>Select the Enable Web Start and Compress JARs with Pack 200 checkboxes on the right-hand pane.</li>
 <li>In the Categories pane, select the Run cateogry and select the Enable Run with Java Web Start checkbox.</li>
-<li>Click OK</li>
-  <li>In the Projects window, right-click the project's node again and select Build Project.<br>
-    The IDE adds a <code>master.jnlp</code> file in your main project folder and several other <code></code> JNLP related files in your project's <code>dist</code> and <code>nbproject</code> folders. </li>
+<li>Click OK.</li>
+<li>In the Projects window, right-click the project's node again and select Build Project.<br>
+    The IDE adds the following files to your project's folders:
+      <ul>
+    <li><code>jnlp-impl.xml</code> in <code>nbproject</code> folder - contains the set of ANT targets needed to generate the JNLP file, and all other related files. </li>
+	<li><code>master.jnlp</code> file in your project's main folder - used to create the <code>launhc.jnlp</code> file. </li>
+    <li><code>launch.jnlp</code> and <code>launch.html</code> files in the <code>dist</code> folder - the <code>launch.html</code> file is linked to <code>launch.jnlp</code> file)</li>
+</ul>
   <li>Right-click your project's node and select Run Project.</li>
 </ol>
-<!--<p><b>To run a standalone application with Java Web Start: </b></p>
-<ol>
-	<li>After you build the JNLP application for your JavaFX Script project, navigate to the project's <code>dist</code> folder.</li>
-	<li>Type the following at the command prompt: <br>
-		&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code>java -jar <i>application_jar_name.jar &nbsp;main_JavaFX_class_name.Main</i></code></li>
-</ol>
--->
+<p><b>To run a standalone application with Java Web Start: </b></p>
+Do one of the following after you build the JNLP application for your JavaFX Script project:
+<ul>
+	<li>Navigate to the project's <code>dist</code> folder and double-click the <code>launch.jnlp</code> file.</li>
+	<li></code>Navigate to the project's <code>dist</code> folder and type the following at the command prompt:<br>
+			&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code>javaws launch.jnlp <i></i></code></li>
+
+	</li>
+</ul>
+
 <dl>
 <dt><a name="seealso">See Also</a></dt>
 <dd><a href="about_javafx.html">About JavaFX Script Applications</a></dd>
