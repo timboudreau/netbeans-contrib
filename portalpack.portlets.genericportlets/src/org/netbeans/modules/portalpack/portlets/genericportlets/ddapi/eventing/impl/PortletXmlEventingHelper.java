@@ -140,7 +140,9 @@ public class PortletXmlEventingHelper {
             logger.severe("Portlet : "+portletName + " not defined in portlet.xml !!!");
             return false;
         }
-      /*  try{
+        
+        //add EventDefinition if not present
+        try{
              PortletApp portletApp = dbObj.getPortletApp();
              EventDefinitionType eventDefinitionType = portletApp.newEventDefinitionType();
             // QName qName = new QName(((BaseBean)portletApp).getDefaultNamespace(),evt.getLocalPart());
@@ -148,10 +150,12 @@ public class PortletXmlEventingHelper {
                 eventDefinitionType.setQname(evtObject.getQName());
              else
                 eventDefinitionType.setName(evtObject.getName());
-             portletApp.addEventDefinition(eventDefinitionType);
+             EventDefinitionType[] evts = portletApp.getEventDefinition();
+             if(!checkIfEventDefinitionAlreadyPresent(eventDefinitionType, evts))
+                portletApp.addEventDefinition(eventDefinitionType);
         }catch (Exception e){
             logger.log(Level.SEVERE,"Error in Adding Publish Events",e);
-        }*/
+        }
   
         //QName[] list = getPublishEvents(portletName);
         EventDefinitionReferenceType[] evts = portlet.getSupportedProcessingEvent();
@@ -246,6 +250,29 @@ public class PortletXmlEventingHelper {
     }
     
     public boolean checkIfEventAlreadyPresent(EventDefinitionReferenceType evt,EventDefinitionReferenceType[] evts)
+    {
+        String name = evt.getName();
+        QName qName = evt.getQname();
+        if(name == null || name.length() == 0) name = null;
+        
+        for(int i=0;i<evts.length;i++)
+        {
+            if(qName == null)
+            {
+                String tempName = evts[i].getName();
+                if(name == null) continue;
+                if(name.equals(tempName)) return true;
+            }else{
+                QName tempQName = evts[i].getQname();
+                if(qName == null) continue;
+                if(qName.equals(tempQName)) return true;
+            }
+        }
+        
+        return false;
+    }
+    
+    private boolean checkIfEventDefinitionAlreadyPresent(EventDefinitionType evt, EventDefinitionType[] evts)
     {
         String name = evt.getName();
         QName qName = evt.getQname();
