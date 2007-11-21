@@ -10,14 +10,21 @@
         </testset>
     </testbag>
 
+    <testbag testattribs="unit,editor" executor="jvm" compiler="jvm-compiler" name="JavaFX Editor Unit Tests">
+        <testset dir="../../editor/test/unit/src">
+            <patternset>
 
-    <testbag testattribs="unit" executor="jvm" compiler="jvm-compiler" name="JavaFX Unit Tests">
+                <include name="**/*"/>
+
+            </patternset>
+        </testset>
+    </testbag>
+
+    <testbag testattribs="unit,project" executor="jvm" compiler="jvm-compiler" name="JavaFX Project Unit Tests">
         <testset dir="unit/src">
             <patternset>
 
-                <!--include name="**/*"/-->
-
-                <include name="**/BootClassPathImplementationTest.*"/>
+                <include name="**/*"/>
 
             </patternset>
         </testset>
