@@ -50,7 +50,7 @@ public class EventPinPopUpMenuProvider implements PopupMenuProvider, ActionListe
         item.setActionCommand(ACTION_GENERATE_SOURCE);
         item.addActionListener(this);
         item.setBackground(Color.WHITE);
-        menu.add(item);
+        //TODO menu.add(item);
         
         //menu.setBorder(Border);
     }
