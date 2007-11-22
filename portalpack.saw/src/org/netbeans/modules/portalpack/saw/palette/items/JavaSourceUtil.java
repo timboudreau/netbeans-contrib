@@ -76,14 +76,6 @@ public class JavaSourceUtil {
     public static void resolveImports() {
     }
 
-    public static void addFramework(FileObject fObject) {
-        try {
-            WebModule.getWebModule(fObject).getClassPath().getClassLoader(false).loadClass("com.sun.workflow.PortalTaskVO");
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
     public static boolean addMethod(FileObject fObject, final String methodName) {
         boolean couldAddMethod = true;
         try {

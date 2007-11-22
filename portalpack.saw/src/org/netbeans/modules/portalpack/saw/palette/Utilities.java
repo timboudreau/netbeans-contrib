@@ -58,18 +58,16 @@ public class Utilities {
         if(doc == null){
             return;
         }
-        if(doc instanceof BaseDocument){
-            ((BaseDocument)doc).atomicLock();
-        }
+       
         int start = insert(s,target,doc);
         
         if(reformat && start >= 0 && doc instanceof BaseDocument) {
             int end = start + s.length();
             Formatter f = ((BaseDocument)doc).getFormatter();
+            f.reformatLock();        
             f.reformat((BaseDocument)doc,start,end);
-        }
-        if(doc instanceof BaseDocument)
-            ((BaseDocument)doc).atomicUnlock();
+            f.reformatUnlock();
+        } 
     }
 
     private static int insert(String s, JTextComponent target, Document doc)
