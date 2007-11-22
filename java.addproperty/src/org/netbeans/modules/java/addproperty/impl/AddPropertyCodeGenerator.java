@@ -65,6 +65,11 @@ import org.openide.NotifyDescriptor;
 import org.openide.filesystems.FileObject;
 import org.openide.util.Exceptions;
 import javax.swing.text.JTextComponent;
+import org.netbeans.api.java.lexer.JavaTokenId;
+import org.netbeans.api.java.source.Comment;
+import org.netbeans.api.java.source.Comment.Style;
+import org.netbeans.api.lexer.TokenHierarchy;
+import org.netbeans.api.lexer.TokenSequence;
 import org.netbeans.modules.java.editor.codegen.CodeGenerator;
 import org.openide.loaders.DataObject;
 
@@ -103,8 +108,11 @@ public class AddPropertyCodeGenerator implements CodeGenerator {
                         parameter.toPhase(Phase.ELEMENTS_RESOLVED);
 
                         String code = AddPropertyGenerator.getDefault().generate(addPropertyPanel.getAddPropertyConfig());
-                        Tree t = parameter.getTreeUtilities().parseExpression("new Object() {" + code + "}", new SourcePositions[1]);
-
+                        TokenSequence<JavaTokenId> ts = TokenHierarchy.create(code, JavaTokenId.language()).tokenSequence(JavaTokenId.language());
+                        SourcePositions[] positions = new SourcePositions[1];
+                        String prefix = "new Object() {";
+                        Tree t = parameter.getTreeUtilities().parseExpression(prefix + code + "}", positions);
+                        
                         assert t != null && t.getKind() == Kind.NEW_CLASS;
 
                         ClassTree orig = (ClassTree) parameter.getCompilationUnit().getTypeDecls().get(0);
@@ -116,6 +124,18 @@ public class AddPropertyCodeGenerator implements CodeGenerator {
                             ct = parameter.getTreeMaker().addClassMember(ct, member);
 
                             h.scan(new TreePath(path, member), null);
+                            
+                            //attach the javadoc comment:
+                            ts.move((int) positions[0].getStartPosition(null, member) - prefix.length());
+                            
+                            boolean movePreviousPassed;
+                            
+                            while ((movePreviousPassed = ts.movePrevious()) && ts.token().id() == JavaTokenId.WHITESPACE)
+                                ;
+                            
+                            if (movePreviousPassed && ts.token().id() == JavaTokenId.JAVADOC_COMMENT) {
+                                parameter.getTreeMaker().addComment(member, Comment.create(Style.JAVADOC, -1, -1, -1, ts.token().text().toString()), true);
+                            }
                         }
 
                         parameter.rewrite(orig, ct);
