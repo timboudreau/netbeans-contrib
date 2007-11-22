@@ -61,7 +61,7 @@ public class HintsTaskScanner extends PushTaskScanner {
         super("HintsTaskScanner", "HintsTaskScanner", null);
     }
     
-    private static final Logger LOG = Logger.getLogger(HintsTaskScanner.class.getName());
+    static final Logger LOG = Logger.getLogger("org.netbeans.modules.javahints.tasklist");
     
     private TaskScanningScope scope;
     private Callback callback;
@@ -153,7 +153,9 @@ public class HintsTaskScanner extends PushTaskScanner {
         public void run() {
             FileObject file = getFileOrRoot();
 
-            LOG.log(Level.FINE, "dequeued work for: {0}", file);
+            if (LOG.isLoggable(Level.FINE)) {
+                LOG.log(Level.FINE, "dequeued work for: {0}", FileUtil.getFileDisplayName(file));
+            }
 
             ClassPath cp = ClassPath.getClassPath(file, ClassPath.SOURCE);
 

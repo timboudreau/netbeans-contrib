@@ -36,6 +36,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.logging.Level;
 import org.netbeans.api.java.source.CancellableTask;
 import org.netbeans.api.java.source.ClasspathInfo;
 import org.netbeans.api.java.source.CompilationController;
@@ -65,6 +66,16 @@ public class TasksResolver {
     private static Map<FileObject, TaskImpl> fake2Task = new HashMap<FileObject, TaskImpl>();
     
     public static synchronized void enqueue(FileObject root, List<FileObject> files, Callback callback) throws IOException {
+        if (HintsTaskScanner.LOG.isLoggable(Level.FINE)) {
+            List<String> fileNames = new LinkedList<String>();
+            
+            for (FileObject f : files) {
+                fileNames.add(FileUtil.getFileDisplayName(f));
+            }
+            
+            HintsTaskScanner.LOG.log(Level.FINE, "enqueue, root={0}, files={1}", new Object[]{FileUtil.getFileDisplayName(root), fileNames});
+        }
+        
         //XXX: coalescing of work:
         FileObject fake = temp.getRoot().createData("temp" + count++, "java");
         TaskImpl t = new TaskImpl(root, files, callback);
@@ -97,6 +108,11 @@ public class TasksResolver {
             
             try {
             ClasspathInfo cpInfo = ClasspathInfo.create(root);
+            
+            if (HintsTaskScanner.LOG.isLoggable(Level.FINE)) {
+                HintsTaskScanner.LOG.log(Level.FINE, "processing root={0}", FileUtil.getFileDisplayName(root));
+            }
+
             JavaSource js = JavaSource.create(cpInfo, toProcess);
             final int[] i = new int[1];
             
@@ -126,6 +142,15 @@ public class TasksResolver {
             
             remainingFiles.removeAll(processedFiles);
             
+            if (HintsTaskScanner.LOG.isLoggable(Level.FINE)) {
+                List<String> remainingFilesNames = new LinkedList<String>();
+
+                for (FileObject f : remainingFiles) {
+                    remainingFilesNames.add(FileUtil.getFileDisplayName(f));
+                }
+                HintsTaskScanner.LOG.log(Level.FINE, "remainingFiles {0}", remainingFilesNames);
+            }
+            
             if (!remainingFiles.isEmpty()) {
                 enqueue(root, new LinkedList<FileObject>(remainingFiles), callback);
             }
@@ -135,6 +160,9 @@ public class TasksResolver {
         }
         
         public void cancel() {
+            if (HintsTaskScanner.LOG.isLoggable(Level.FINE)) {
+                HintsTaskScanner.LOG.log(Level.FINE, "cancelled", new Throwable());
+            }
             cancel.set(true);
         }
 
