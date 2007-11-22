@@ -39,19 +39,18 @@
 
 package org.netbeans.modules.java.addproperty.impl;
 
-import com.sun.source.tree.ClassTree;
-import com.sun.source.tree.IdentifierTree;
+import com.sun.source.tree.CompilationUnitTree;
 import com.sun.source.tree.MemberSelectTree;
-import com.sun.source.tree.NewClassTree;
-import com.sun.source.tree.Tree;
+import com.sun.source.tree.MethodTree;
 import com.sun.source.tree.Tree.Kind;
-import com.sun.source.util.SourcePositions;
 import com.sun.source.util.TreePath;
 import com.sun.source.util.TreePathScanner;
 import java.io.IOException;
 import java.util.Collections;
-import javax.lang.model.element.PackageElement;
+import javax.lang.model.element.Element;
 import javax.lang.model.element.TypeElement;
+import javax.lang.model.type.TypeKind;
+import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
 import org.netbeans.api.java.source.CompilationController;
 import org.netbeans.api.java.source.JavaSource;
@@ -65,13 +64,13 @@ import org.openide.NotifyDescriptor;
 import org.openide.filesystems.FileObject;
 import org.openide.util.Exceptions;
 import javax.swing.text.JTextComponent;
-import org.netbeans.api.java.lexer.JavaTokenId;
-import org.netbeans.api.java.source.Comment;
-import org.netbeans.api.java.source.Comment.Style;
-import org.netbeans.api.lexer.TokenHierarchy;
-import org.netbeans.api.lexer.TokenSequence;
+import javax.swing.text.Position;
+import javax.swing.text.StyledDocument;
+import org.netbeans.modules.editor.indent.api.Reformat;
+import org.netbeans.modules.java.addproperty.api.AddPropertyConfig;
 import org.netbeans.modules.java.editor.codegen.CodeGenerator;
 import org.openide.loaders.DataObject;
+import org.openide.text.NbDocument;
 
 /**
  *
@@ -92,118 +91,100 @@ public class AddPropertyCodeGenerator implements CodeGenerator {
         if (o instanceof DataObject) {
             DataObject d = (DataObject) o;
             
-            perform(d.getPrimaryFile());
+            perform(d.getPrimaryFile(), component);
         }
     }
 
-    public static void perform(FileObject file) {
+    public static void perform(FileObject file, JTextComponent pane) {
         final AddPropertyPanel addPropertyPanel = new AddPropertyPanel(file);
         NotifyDescriptor d =
                 new NotifyDescriptor.Confirmation(addPropertyPanel, "Add Property",
                 NotifyDescriptor.OK_CANCEL_OPTION, NotifyDescriptor.PLAIN_MESSAGE);
         if (DialogDisplayer.getDefault().notify(d) == NotifyDescriptor.OK_OPTION) {
-            try {
-                JavaSource.forFileObject(file).runModificationTask(new Task<WorkingCopy>() {
-                    public void run(WorkingCopy parameter) throws Exception {
-                        parameter.toPhase(Phase.ELEMENTS_RESOLVED);
-
-                        String code = AddPropertyGenerator.getDefault().generate(addPropertyPanel.getAddPropertyConfig());
-                        TokenSequence<JavaTokenId> ts = TokenHierarchy.create(code, JavaTokenId.language()).tokenSequence(JavaTokenId.language());
-                        SourcePositions[] positions = new SourcePositions[1];
-                        String prefix = "new Object() {";
-                        Tree t = parameter.getTreeUtilities().parseExpression(prefix + code + "}", positions);
-                        
-                        assert t != null && t.getKind() == Kind.NEW_CLASS;
-
-                        ClassTree orig = (ClassTree) parameter.getCompilationUnit().getTypeDecls().get(0);
-                        ClassTree ct = orig;
-                        TreePath path = new TreePath(new TreePath(parameter.getCompilationUnit()), orig);
-                        ImportFQNsHack h = new ImportFQNsHack(parameter);
-
-                        for (Tree member : ((NewClassTree) t).getClassBody().getMembers()) {
-                            ct = parameter.getTreeMaker().addClassMember(ct, member);
-
-                            h.scan(new TreePath(path, member), null);
-                            
-                            //attach the javadoc comment:
-                            ts.move((int) positions[0].getStartPosition(null, member) - prefix.length());
-                            
-                            boolean movePreviousPassed;
-                            
-                            while ((movePreviousPassed = ts.movePrevious()) && ts.token().id() == JavaTokenId.WHITESPACE)
-                                ;
-                            
-                            if (movePreviousPassed && ts.token().id() == JavaTokenId.JAVADOC_COMMENT) {
-                                parameter.getTreeMaker().addComment(member, Comment.create(Style.JAVADOC, -1, -1, -1, ts.token().text().toString()), true);
-                            }
-                        }
-
-                        parameter.rewrite(orig, ct);
-                    }
-                }).commit();
-            } catch (IOException ex) {
-                Exceptions.printStackTrace(ex);
-            }
+            insertCode(file, pane, addPropertyPanel.getAddPropertyConfig());
         }
     }
 
-    private static final class ImportFQNsHack extends TreePathScanner<String, Void> {
+    static void insertCode(final FileObject file, final JTextComponent pane, final AddPropertyConfig config) {
+        try {
+            final Document doc = pane.getDocument();
+            final Reformat r = Reformat.get(pane.getDocument());
+
+            r.lock();
+
+            try {
+                NbDocument.runAtomicAsUser((StyledDocument) doc, new Runnable() {
+                    public void run() {
+                        try {
+                            String code = AddPropertyGenerator.getDefault().generate(config);
+                            int startOffset = pane.getCaretPosition();
+                            
+                            doc.insertString(startOffset, code, null);
+                            
+                            final Position start = doc.createPosition(startOffset);
+                            final Position end = doc.createPosition(startOffset + code.length());
+
+                            JavaSource.forFileObject(file).runModificationTask(new Task<WorkingCopy>() {
+                                public void run(WorkingCopy parameter) throws Exception {
+                                    parameter.toPhase(Phase.RESOLVED);
+
+                                    new ImportFQNsHack(parameter, start.getOffset(), end.getOffset()).scan(parameter.getCompilationUnit(), null);
+                                    
+                                    CompilationUnitTree cut = parameter.getCompilationUnit();
+                                    
+                                    parameter.rewrite(cut, parameter.getTreeMaker().CompilationUnit(cut.getPackageName(), cut.getImports(), cut.getTypeDecls(), cut.getSourceFile()));
+                                }
+                            }).commit();
+
+                            r.reformat(start.getOffset(), end.getOffset());
+
+                        } catch (IOException ex) {
+                            Exceptions.printStackTrace(ex);
+                        } catch (BadLocationException ex) {
+                            Exceptions.printStackTrace(ex);
+                        }
+                    }
+                    });
+            } finally {
+                r.unlock();
+            }
+        } catch (BadLocationException ex) {
+            Exceptions.printStackTrace(ex);
+        }
+        }
+    
+    private static final class ImportFQNsHack extends TreePathScanner<Void, Void> {
         
         private WorkingCopy wc;
+        private int start;
+        private int end;
 
-        public ImportFQNsHack(WorkingCopy wc) {
+        public ImportFQNsHack(WorkingCopy wc, int start, int end) {
             this.wc = wc;
+            this.start = start;
+            this.end = end;
         }
 
         @Override
-        public String visitIdentifier(IdentifierTree node, Void p) {
-            return node.getName().toString();
+        public Void visitMemberSelect(MemberSelectTree node, Void p) {
+            int s = (int) wc.getTrees().getSourcePositions().getStartPosition(wc.getCompilationUnit(), node);
+            int e = (int) wc.getTrees().getSourcePositions().getEndPosition(wc.getCompilationUnit(), node);
+            
+            if (s >= start && e <= end) {
+                Element el = wc.getTrees().getElement(getCurrentPath());
+                
+                if (el != null && (el.getKind().isClass() || el.getKind().isInterface()) && ((TypeElement) el).asType().getKind() != TypeKind.ERROR) {
+                    wc.rewrite(node, wc.getTreeMaker().QualIdent(el));
+                    return null;
+                }
+            }
+            
+            return super.visitMemberSelect(node, p);
         }
 
         @Override
-        public String visitMemberSelect(MemberSelectTree node, Void p) {
-            String parents = scan(node.getExpression(), p);
-            
-            if (parents == null) {
-                return null;
-            }
-            
-            String current = parents + '.' + node.getIdentifier().toString();
-            
-            if (getCurrentPath().getParentPath().getLeaf().getKind() != Kind.MEMBER_SELECT) {
-                TypeElement e = wc.getElements().getTypeElement(current);
-                
-                if (e == null) {
-                    e = wc.getElements().getTypeElement(parents);
-                    
-                    if (e != null) {
-                        wc.rewrite(node.getExpression(), wc.getTreeMaker().QualIdent(e));
-                    }
-                } else {
-                    wc.rewrite(node, wc.getTreeMaker().QualIdent(e));
-                }
-                return null;
-            } else {
-                TypeElement e = wc.getElements().getTypeElement(current);
-
-                if (e != null) {
-                    return current;
-                }
-                
-                PackageElement pack = wc.getElements().getPackageElement(current);
-                
-                if (pack != null) {
-                    return current;
-                }
-                
-                
-                e = wc.getElements().getTypeElement(parents);
-
-                if (e != null) {
-                    wc.rewrite(node.getExpression(), wc.getTreeMaker().QualIdent(e));
-                }
-                return null;
-            }
+        public Void visitMethod(MethodTree node, Void p) {
+            return super.visitMethod(node, p);
         }
         
     }
