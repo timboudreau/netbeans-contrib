@@ -467,7 +467,6 @@ public class SemanticAnalysis implements SemanticAnalyzer {
             try {
                 token = completionParser.getNextToken();
             } catch (Error e) {
-                e.printStackTrace();
             }
         }
 
