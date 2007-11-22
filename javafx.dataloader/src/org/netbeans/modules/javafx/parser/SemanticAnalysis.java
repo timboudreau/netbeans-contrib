@@ -369,7 +369,11 @@ public class SemanticAnalysis implements SemanticAnalyzer {
             
         SimpleCharStream charStream = new SimpleCharStream(new StringReader(text));
         CompletionParser completionParser = new CompletionParser(charStream);
-        Token token = completionParser.getNextToken();
+        Token token = null;
+        try {
+            token = completionParser.getNextToken();
+        } catch (Error e) {
+        }
         Token predToken = null;
         Token predPredToken = null;
         Token predPredPredToken = null;

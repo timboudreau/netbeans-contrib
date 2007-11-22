@@ -246,7 +246,11 @@ public class FXParser implements Parser {
             
         SimpleCharStream charStream = new SimpleCharStream(new StringReader(text));
         CompletionParser completionParser = new CompletionParser(charStream);
-        Token token = completionParser.getNextToken();
+        Token token = null;
+        try {
+            token = completionParser.getNextToken();
+        } catch (java.lang.Error e) {
+        }
         
         List<FSM> fsmList = new ArrayList<FSM>();
         FSM currentFSM = new FSM();
