@@ -363,7 +363,7 @@ public class FXParser implements Parser {
             }
             try {
                 token = completionParser.getNextToken();
-            } catch (Exception e) {
+            } catch (java.lang.Error e) {
                 e.printStackTrace();
             }
         }
