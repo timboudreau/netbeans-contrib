@@ -3,25 +3,30 @@
 <filesystem>
     <folder name="Templates">
         <folder name="Groovy">
+            <attr name="position" intvalue="260"/>
             <file name="GroovyScript.groovy" url="GroovyScript.groovy">
                 <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.groovy.groovyproject.resources.Bundle"/>
-                <attr name="template" boolvalue="true" />
-                <attr name="templateWizardURL" urlvalue="nbresloc:/org/netbeans/modules/groovy/groovyproject/resources/GroovyScript.html" />
+                <attr name="position" intvalue="100"/>
+                <attr name="template" boolvalue="true"/>
+                <attr name="templateWizardURL" urlvalue="nbresloc:/org/netbeans/modules/groovy/groovyproject/resources/GroovyScript.html"/>
             </file>
             <file name="GroovyClass.groovy" url="GroovyClass.groovy">
                 <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.groovy.groovyproject.resources.Bundle"/>
-                <attr name="template" boolvalue="true" />
-                <attr name="templateWizardURL" urlvalue="nbresloc:/org/netbeans/modules/groovy/groovyproject/resources/GroovyClass.html" />
+                <attr name="position" intvalue="0"/>
+                <attr name="template" boolvalue="true"/>
+                <attr name="templateWizardURL" urlvalue="nbresloc:/org/netbeans/modules/groovy/groovyproject/resources/GroovyClass.html"/>
             </file>
             <file name="TestGroovy.groovy" url="test.groovy">
                 <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.groovy.groovyproject.resources.Bundle"/>
-                <attr name="template" boolvalue="true" />
-                <attr name="templateWizardURL" urlvalue="nbresloc:/org/netbeans/modules/groovy/groovyproject/resources/Groovy.html" />
+                <attr name="position" intvalue="400"/>
+                <attr name="template" boolvalue="true"/>
+                <attr name="templateWizardURL" urlvalue="nbresloc:/org/netbeans/modules/groovy/groovyproject/resources/Groovy.html"/>
             </file>
             <file name="SuiteTestGroovy.groovy" url="suite.groovy">
                 <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.groovy.groovyproject.resources.Bundle"/>
-                <attr name="template" boolvalue="true" />
-                <attr name="templateWizardURL" urlvalue="nbresloc:/org/netbeans/modules/groovy/groovyproject/resources/Groovy.html" />
+                <attr name="position" intvalue="300"/>
+                <attr name="template" boolvalue="true"/>
+                <attr name="templateWizardURL" urlvalue="nbresloc:/org/netbeans/modules/groovy/groovyproject/resources/Groovy.html"/>
             </file>
         </folder>
         <folder name="Project">
@@ -29,17 +34,17 @@
                 <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.groovy.groovyproject.ui.wizards.Bundle"/>
                 <attr name="instantiatingWizardURL" urlvalue="nbresloc:/org/netbeans/modules/groovy/groovyproject/resources/desktop.html"/>
 
+                <attr name="position" intvalue="130"/>
                 <file name="emptyGroovy.xml">
+                    <attr name="position" intvalue="200"/>
                     <attr name="template" boolvalue="true"/>
                     <attr name="instantiatingIterator" newvalue="org.netbeans.modules.groovy.groovyproject.ui.wizards.NewGroovyProjectWizardIterator"/>
                     <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.groovy.groovyproject.ui.wizards.Bundle"/>
                     <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/groovy/groovyproject/resources/groovyProject.gif"/>
                     <attr name="instantiatingWizardURL" urlvalue="nbresloc:/org/netbeans/modules/groovy/groovyproject/resources/emptyProject.html"/>
                 </file>
-        
-                <attr name="emptyGroovy.xml/emptyGroovyLibrary.xml" boolvalue="true"/>
-
                 <file name="emptyGroovyLibrary.xml">
+                    <attr name="position" intvalue="300"/>
                     <attr name="template" boolvalue="true"/>
                     <attr name="instantiatingIterator" methodvalue="org.netbeans.modules.groovy.groovyproject.ui.wizards.NewGroovyProjectWizardIterator.library"/>
                     <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.groovy.groovyproject.ui.wizards.Bundle"/>
