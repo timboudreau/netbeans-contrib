@@ -59,12 +59,21 @@ import org.openide.filesystems.FileObject;
  */
 public class AddPropertyPanel extends javax.swing.JPanel {
 
+    private static AddPropertyPanel INSTANCE;
+
     private static boolean propNameModified = false;
     private DocumentListener propNameTextFieldDocumentListener;
-    private FileObject file;
-    
-    public AddPropertyPanel(FileObject file) {
-        this.file = file;
+    private FileObject fileObject;
+
+    public static AddPropertyPanel getINSTANCE(FileObject fileObject) {
+        if (INSTANCE == null) {
+            INSTANCE = new AddPropertyPanel();
+        }
+        INSTANCE.setFileObject(fileObject);
+        return INSTANCE;
+    }
+
+    private AddPropertyPanel() {
         initComponents();
         previewScrollPane.putClientProperty(
                 "HighlightsLayerExcludes", // NOI18N
@@ -105,12 +114,20 @@ public class AddPropertyPanel extends javax.swing.JPanel {
 
     @Override
     public void addNotify() {
-        super.addNotify();        
+        super.addNotify();
         previewEditorPane.setText("");
         propNameModified = false;
         generatePropertyChangeSupportCheckBox.setSelected(false);
         generateVetoablePropertyChangeSupportCheckBox.setSelected(false);
         showPreview();
+    }
+
+    FileObject getFileObject() {
+        return fileObject;
+    }
+
+    void setFileObject(FileObject fileObject) {
+        this.fileObject = fileObject;
     }
 
     private void showPreview() {
@@ -555,11 +572,11 @@ public class AddPropertyPanel extends javax.swing.JPanel {
     }//GEN-LAST:event_generatePropertyChangeSupportCheckBoxActionPerformed
 
     private void browseTypeButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_browseTypeButtonActionPerformed
-        ElementHandle<TypeElement> type = TypeElementFinder.find(ClasspathInfo.create(file), null);
-        
+        ElementHandle<TypeElement> type = TypeElementFinder.find(ClasspathInfo.create(fileObject), null);
+
         if (type != null) {
             String fqn = type.getQualifiedName().toString();
-            
+
             typeComboBox.setSelectedItem(fqn);
         }
     }//GEN-LAST:event_browseTypeButtonActionPerformed

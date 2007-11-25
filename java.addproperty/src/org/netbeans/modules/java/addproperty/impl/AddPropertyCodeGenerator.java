@@ -1,8 +1,8 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
- * 
+ *
  * Copyright 1997-2007 Sun Microsystems, Inc. All rights reserved.
- * 
+ *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common
  * Development and Distribution License("CDDL") (collectively, the
@@ -20,7 +20,7 @@
  * License Header, with the fields enclosed by brackets [] replaced by
  * your own identifying information:
  * "Portions Copyrighted [year] [name of copyright owner]"
- * 
+ *
  * If you wish your version of this file to be governed by only the CDDL
  * or only the GPL Version 2, indicate your decision by adding
  * "[Contributor] elects to include this software in this distribution
@@ -31,9 +31,9 @@
  * However, if you add GPL Version 2 code and therefore, elected the GPL
  * Version 2 license, then the option applies only if the new code is
  * made subject to such option by the copyright holder.
- * 
+ *
  * Contributor(s):
- * 
+ *
  * Portions Copyrighted 2007 Sun Microsystems, Inc.
  */
 
@@ -80,23 +80,23 @@ public class AddPropertyCodeGenerator implements CodeGenerator {
 
     public AddPropertyCodeGenerator() {
     }
-    
+
     public String getDisplayName() {
         return "Add Property...";
     }
 
     public void invoke(JTextComponent component) {
         Object o = component.getDocument().getProperty(Document.StreamDescriptionProperty);
-        
+
         if (o instanceof DataObject) {
             DataObject d = (DataObject) o;
-            
+
             perform(d.getPrimaryFile(), component);
         }
     }
 
     public static void perform(FileObject file, JTextComponent pane) {
-        final AddPropertyPanel addPropertyPanel = new AddPropertyPanel(file);
+        final AddPropertyPanel addPropertyPanel = AddPropertyPanel.getINSTANCE(file);
         NotifyDescriptor d =
                 new NotifyDescriptor.Confirmation(addPropertyPanel, "Add Property",
                 NotifyDescriptor.OK_CANCEL_OPTION, NotifyDescriptor.PLAIN_MESSAGE);
@@ -118,9 +118,9 @@ public class AddPropertyCodeGenerator implements CodeGenerator {
                         try {
                             String code = AddPropertyGenerator.getDefault().generate(config);
                             int startOffset = pane.getCaretPosition();
-                            
+
                             doc.insertString(startOffset, code, null);
-                            
+
                             final Position start = doc.createPosition(startOffset);
                             final Position end = doc.createPosition(startOffset + code.length());
 
@@ -129,9 +129,9 @@ public class AddPropertyCodeGenerator implements CodeGenerator {
                                     parameter.toPhase(Phase.RESOLVED);
 
                                     new ImportFQNsHack(parameter, start.getOffset(), end.getOffset()).scan(parameter.getCompilationUnit(), null);
-                                    
+
                                     CompilationUnitTree cut = parameter.getCompilationUnit();
-                                    
+
                                     parameter.rewrite(cut, parameter.getTreeMaker().CompilationUnit(cut.getPackageName(), cut.getImports(), cut.getTypeDecls(), cut.getSourceFile()));
                                 }
                             }).commit();
@@ -152,9 +152,9 @@ public class AddPropertyCodeGenerator implements CodeGenerator {
             Exceptions.printStackTrace(ex);
         }
         }
-    
+
     private static final class ImportFQNsHack extends TreePathScanner<Void, Void> {
-        
+
         private WorkingCopy wc;
         private int start;
         private int end;
@@ -169,16 +169,16 @@ public class AddPropertyCodeGenerator implements CodeGenerator {
         public Void visitMemberSelect(MemberSelectTree node, Void p) {
             int s = (int) wc.getTrees().getSourcePositions().getStartPosition(wc.getCompilationUnit(), node);
             int e = (int) wc.getTrees().getSourcePositions().getEndPosition(wc.getCompilationUnit(), node);
-            
+
             if (s >= start && e <= end) {
                 Element el = wc.getTrees().getElement(getCurrentPath());
-                
+
                 if (el != null && (el.getKind().isClass() || el.getKind().isInterface()) && ((TypeElement) el).asType().getKind() != TypeKind.ERROR) {
                     wc.rewrite(node, wc.getTreeMaker().QualIdent(el));
                     return null;
                 }
             }
-            
+
             return super.visitMemberSelect(node, p);
         }
 
@@ -186,7 +186,7 @@ public class AddPropertyCodeGenerator implements CodeGenerator {
         public Void visitMethod(MethodTree node, Void p) {
             return super.visitMethod(node, p);
         }
-        
+
     }
 
     public static final class Factory implements CodeGenerator.Factory {
@@ -195,13 +195,13 @@ public class AddPropertyCodeGenerator implements CodeGenerator {
             while (path != null && path.getLeaf().getKind() != Kind.CLASS) {
                 path = path.getParentPath();
             }
-            
+
             if (path == null) {
                 return Collections.emptyList();
             }
-            
+
             return Collections.singleton(new AddPropertyCodeGenerator());
         }
-        
+
     }
 }
