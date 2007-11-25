@@ -72,10 +72,10 @@ public class AddPropertyGeneratorImpl extends AddPropertyGenerator {
                         access = "private ";
                         break;
                     case PROTECTED:
-                        access = "private ";
+                        access = "protected ";
                         break;
                     case PUBLIC:
-                        access = "private ";
+                        access = "public ";
                         break;
                     default:
                         access = "";
