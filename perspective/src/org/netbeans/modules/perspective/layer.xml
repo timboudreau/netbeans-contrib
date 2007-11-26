@@ -99,28 +99,8 @@
         <folder name="config">
             
         </folder>
-        <!-- built-in Perspectives Registry -->
-        <folder name="builtin">
-            
-            <folder name="default">
-                <!--default java Perspective-->
-                <file name="org-netbeans-modules-perspective.builtin-BuiltInDefaultView.instance">
-                    <attr name="position" intvalue="5000"/>
-                </file>
-                <!-- java browser Perspective-->
-                <file name="org-netbeans-modules-perspective.builtin-BuiltInJavaBrowsingView.instance">
-                    <attr name="position" intvalue="2000"/>
-                </file>
-                <!--debug java Perspective-->
-                <file name="org-netbeans-modules-perspective.builtin-BuiltInJavaDebugView.instance">
-                    <attr name="position" intvalue="3000"/>
-                </file>
-            </folder>
-            
-            
-        </folder>
     </folder>
-    
+    <folder name="perspective"></folder>
     <!--window system config folder-->
     <folder name="Windows2">
     <!--Tc components folder-->
@@ -128,20 +108,6 @@
         <!--Modehack Tc Settings file -->
         <file name="ModeHackTopComponent.settings" url="hacks/ModeHackTopComponentSettings.xml"/>
     </folder>
-    <!--Window System Mode Folder-->
-    <folder name="Modes">
-    <!--Custom javaOutput Mode that use by Java Browsing Perspectie-->
-    <file name="javaOutput.wsmode" url="modes/javaOutput.wsmode"/>
-    <folder name="javaOutput"/> 
     
-    <!--Custom javaExplorer Mode that use by Java Browsing Perspectie and Debug Perspective-->
-    <file name="javaExplorer.wsmode" url="modes/javaExplorer.wsmode"/>
-    <folder name="javaExplorer"/>
-        <!--Custom javaExplorer Mode that use by Java Browsing Perspectie and Debug Perspective-->
-        <file name="javaExplorer2.wsmode" url="modes/javaExplorer2.wsmode"/>
-        <folder name="javaExplorer2"/>
-            
-        </folder>    
     </folder>
-    
 </filesystem>

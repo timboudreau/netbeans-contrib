@@ -90,7 +90,6 @@
             </module-dependencies>
             <public-packages>
                 <package>org.netbeans.modules.perspective</package>
-                <package>org.netbeans.modules.perspective.views</package>
             </public-packages>
         </data>
         <spellchecker-wordlist xmlns="http://www.netbeans.org/ns/spellchecker-wordlist/1">

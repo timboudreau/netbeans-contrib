@@ -48,8 +48,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import org.netbeans.modules.perspective.persistence.PerspectivePreferences;
-import org.netbeans.modules.perspective.views.Perspective;
-import org.netbeans.modules.perspective.views.PerspectiveListener;
+import org.netbeans.modules.perspective.views.PerspectiveImpl;
+import org.netbeans.modules.perspective.PerspectiveListener;
 import org.netbeans.modules.perspective.views.PerspectiveMode;
 import org.netbeans.modules.perspective.views.View;
 import org.openide.windows.Mode;
@@ -96,9 +96,9 @@ class ModeController {
             
         }
     }
-    Perspective selected;
+    PerspectiveImpl selected;
 
-    public void switchView(Perspective perspective) {
+    public void switchView(PerspectiveImpl perspective) {
         List<PerspectiveListener> perspetiveListners = null;
         if (perspective == null) {
             return;

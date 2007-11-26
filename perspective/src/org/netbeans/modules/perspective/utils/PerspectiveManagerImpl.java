@@ -48,9 +48,10 @@ package org.netbeans.modules.perspective.utils;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import org.netbeans.modules.perspective.Perspective;
 import org.netbeans.modules.perspective.PerspectiveManager;
 import org.netbeans.modules.perspective.ui.ToolbarStyleSwitchUI;
-import org.netbeans.modules.perspective.views.Perspective;
+import org.netbeans.modules.perspective.views.PerspectiveImpl;
 
 /**
  *
@@ -59,8 +60,8 @@ import org.netbeans.modules.perspective.views.Perspective;
 public class PerspectiveManagerImpl extends PerspectiveManager {
 
     private static PerspectiveManagerImpl instance;
-    private List<Perspective> perspectives = new ArrayList<Perspective>();
-    private Perspective selected;
+    private List<PerspectiveImpl> perspectives = new ArrayList<PerspectiveImpl>();
+    private PerspectiveImpl selected;
 
     public static synchronized PerspectiveManagerImpl getInstance() {
 
@@ -71,7 +72,7 @@ public class PerspectiveManagerImpl extends PerspectiveManager {
         return instance;
     }
 
-    public List<Perspective> getPerspectives() {
+    public List<PerspectiveImpl> getPerspectives() {
 
         return Collections.unmodifiableList(perspectives);
     }
@@ -79,7 +80,7 @@ public class PerspectiveManagerImpl extends PerspectiveManager {
     private PerspectiveManagerImpl() {
     }
 
-    public void registerPerspective(int index, Perspective perspective) {
+    public void registerPerspective(int index, PerspectiveImpl perspective) {
         if (perspectives.size() <= index) {
             perspectives.add(perspective);
         } else {
@@ -88,7 +89,7 @@ public class PerspectiveManagerImpl extends PerspectiveManager {
         arrangeIndexs();
     }
 
-    public void registerPerspective(Perspective perspective, boolean arrange) {
+    public void registerPerspective(PerspectiveImpl perspective, boolean arrange) {
         //deregistor  if exist
         deregisterPerspective(perspective, arrange);
         if (perspectives.size() > perspective.getIndex()) {
@@ -102,11 +103,11 @@ public class PerspectiveManagerImpl extends PerspectiveManager {
         }
     }
 
-    public void deregisterPerspective(Perspective perspective) {
+    public void deregisterPerspective(PerspectiveImpl perspective) {
         deregisterPerspective(perspective, true);
     }
 
-    public void deregisterPerspective(Perspective perspective, boolean arrange) {
+    public void deregisterPerspective(PerspectiveImpl perspective, boolean arrange) {
         perspectives.remove(perspective);
         if (arrange) {
             arrangeIndexs();
@@ -117,10 +118,10 @@ public class PerspectiveManagerImpl extends PerspectiveManager {
 
     public void setSelected(Perspective perspective) {
 
-        setSelected(perspective, true);
+        setSelected((PerspectiveImpl)perspective, true);
     }
 
-    public void setSelected(Perspective perspective, boolean switchPerspective) {
+    public void setSelected(PerspectiveImpl perspective, boolean switchPerspective) {
         selected = perspective;
         if (switchPerspective) {
             ModeController.getInstance().switchView(perspective);
@@ -128,12 +129,12 @@ public class PerspectiveManagerImpl extends PerspectiveManager {
         ToolbarStyleSwitchUI.getInstance().setSelected(selected);
     }
 
-    public Perspective getSelected() {
+    public PerspectiveImpl getSelected() {
         return selected;
     }
 
-    public Perspective findPerspectiveByID(String id) {
-        for (Perspective perspective : perspectives) {
+    public PerspectiveImpl findPerspectiveByID(String id) {
+        for (PerspectiveImpl perspective : perspectives) {
             if (perspective.getName().equals(id)) {
                 return perspective;
             }
@@ -141,8 +142,8 @@ public class PerspectiveManagerImpl extends PerspectiveManager {
         return null;
     }
 
-    public Perspective findPerspectiveByAlias(String alias) {
-        for (Perspective perspective : perspectives) {
+    public PerspectiveImpl findPerspectiveByAlias(String alias) {
+        for (PerspectiveImpl perspective : perspectives) {
             if (perspective.getAlias().equals(alias)) {
                 return perspective;
             }
@@ -157,7 +158,7 @@ public class PerspectiveManagerImpl extends PerspectiveManager {
     }
 
     public void arrangeIndexs() {
-        for (Perspective perspective : perspectives) {
+        for (PerspectiveImpl perspective : perspectives) {
             perspective.setIndex(perspectives.indexOf(perspective));
         }
         Collections.sort(perspectives);
@@ -165,7 +166,7 @@ public class PerspectiveManagerImpl extends PerspectiveManager {
 
     public void arrangeIndexsToExistIndexs() {
         Collections.sort(perspectives);
-        for (Perspective perspective : perspectives) {
+        for (PerspectiveImpl perspective : perspectives) {
             perspective.setIndex(perspectives.indexOf(perspective));
         }
         Collections.sort(perspectives);

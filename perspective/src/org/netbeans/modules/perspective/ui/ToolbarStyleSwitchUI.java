@@ -60,7 +60,7 @@ import javax.swing.event.PopupMenuEvent;
 import javax.swing.event.PopupMenuListener;
 import org.netbeans.modules.perspective.utils.PerspectiveManagerImpl;
 import org.netbeans.modules.perspective.actions.SwitchAction;
-import org.netbeans.modules.perspective.views.Perspective;
+import org.netbeans.modules.perspective.views.PerspectiveImpl;
 import org.openide.util.Utilities;
 
 /**
@@ -74,9 +74,8 @@ public class ToolbarStyleSwitchUI extends JToolBar {
 
     /** Creates new form BeanForm */
     public ToolbarStyleSwitchUI() {
-        initComponents();
 
-        btnList.setAction(new SwitchListAction());
+        initComponents();
         btnSelected = new JToggleButton();
         btnNext = new JToggleButton();
         btnSelected.setFocusable(false);
@@ -85,6 +84,8 @@ public class ToolbarStyleSwitchUI extends JToolBar {
         buttonGroup.add(btnNext);
         add(btnSelected);
         add(btnNext);
+        btnList.setAction(new SwitchListAction());
+
         menu.addPopupMenuListener(new PopupMenuListener() {
 
             public void popupMenuWillBecomeVisible(PopupMenuEvent e) {
@@ -119,20 +120,14 @@ public class ToolbarStyleSwitchUI extends JToolBar {
     }
 
     public void showPerspectiveList() {
-        List<Perspective> perspectives = PerspectiveManagerImpl.getInstance().getPerspectives();
+        List<PerspectiveImpl> perspectives = PerspectiveManagerImpl.getInstance().getPerspectives();
         menu.removeAll();
 
-        for (Perspective perspective : perspectives) {
+        for (PerspectiveImpl perspective : perspectives) {
             if (perspective.equals(selected)) {
                 continue;
             }
-            if (perspective.isBeforeSeparator()) {
-                menu.addSeparator();
-            }
             menu.add(new SwitchAction(perspective, true));
-            if (perspective.isAfterSeparator()) {
-                menu.addSeparator();
-            }
         }
 
         Point point = btnList.getLocationOnScreen();
@@ -167,10 +162,10 @@ public class ToolbarStyleSwitchUI extends JToolBar {
     private JToggleButton btnSelected;
     private JToggleButton btnNext;
     private ButtonGroup buttonGroup = new ButtonGroup();
-    private Perspective selected;
-    private Perspective previous;
+    private PerspectiveImpl selected;
+    private PerspectiveImpl previous;
 
-    public void setSelected(Perspective selected) {
+    public void setSelected(PerspectiveImpl selected) {
         previous = this.selected;
         this.selected = selected;
     }
@@ -186,11 +181,11 @@ public class ToolbarStyleSwitchUI extends JToolBar {
             return;
         }
 
-        Perspective next = null;
+        PerspectiveImpl next = null;
 
         if (previous == null || selected.equals(previous)) {
             int index = selected.getIndex();
-            List<Perspective> perspectives = PerspectiveManagerImpl.getInstance().getPerspectives();
+            List<PerspectiveImpl> perspectives = PerspectiveManagerImpl.getInstance().getPerspectives();
             if (index < (perspectives.size() - 1)) {
                 next = perspectives.get(++index);
             } else {

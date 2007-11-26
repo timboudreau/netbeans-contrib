@@ -40,22 +40,15 @@
  */
 package org.netbeans.modules.perspective.persistence;
 
-import java.awt.EventQueue;
 import java.io.IOException;
-import java.util.Enumeration;
 import java.util.List;
-import org.netbeans.modules.perspective.PerspectiveManager;
 import org.netbeans.modules.perspective.utils.PerspectiveManagerImpl;
 import org.netbeans.modules.perspective.ui.ToolbarStyleSwitchUI;
 import org.netbeans.modules.perspective.utils.OpenedViewTracker;
-import org.netbeans.modules.perspective.views.Perspective;
-import org.openide.cookies.InstanceCookie;
+import org.netbeans.modules.perspective.views.PerspectiveImpl;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.Repository;
-import org.openide.loaders.DataFolder;
-import org.openide.loaders.DataObject;
 import org.openide.util.Exceptions;
-import org.openide.windows.WindowManager;
 
 /**
  * MainPaser.java
@@ -64,26 +57,20 @@ import org.openide.windows.WindowManager;
 public class MainParser {
 
     private static final String BASE_DIR = "perspectives"; //NOI18N
-
     private static final String EXT = "perspective"; //NOI18N
-
     private static final String CONFIG_DIR = BASE_DIR + "/config"; //NOI18N
-
-    private static final String BUILTIN_DIR = BASE_DIR + "/builtin"; //NOI18N
-
- 
+    private static final String BUILTIN_DIR = "perspective"; //NOI18N
     private static MainParser instance;
     private PerspectiveParser paser = new PerspectiveParser();
     private FileObject config;
-    private FileObject builtin;
-  
+    private FileObject perspectiveBase;
     private PerspectivePreferences perspectivePreferences = PerspectivePreferences.getInstance();
 
     private MainParser() {
         //Creating Parser instance
         config = Repository.getDefault().getDefaultFileSystem().findResource(CONFIG_DIR);
-        builtin = Repository.getDefault().getDefaultFileSystem().findResource(BUILTIN_DIR);
-       
+        perspectiveBase = Repository.getDefault().getDefaultFileSystem().findResource(BUILTIN_DIR);
+
     }
 
     public static synchronized MainParser getInstance() {
@@ -104,9 +91,9 @@ public class MainParser {
 
     public synchronized void restore() {
         PerspectiveManagerImpl.getInstance().clear();
-        if (builtin != null) {
+        if (perspectiveBase != null) {
             //Loading default Perspectives from layer
-            readPerspectives(builtin);
+            readPerspectives(perspectiveBase);
         }
 
         //Loading Perspectives from Config
@@ -114,7 +101,7 @@ public class MainParser {
         for (FileObject fileObject : viewChildren) {
             try {
 
-                Perspective decoded = paser.decode(fileObject.getInputStream());
+                PerspectiveImpl decoded = paser.decode(fileObject.getInputStream());
                 if (decoded != null && (decoded.getName().startsWith("custom_")/*NOI18N*/ || PerspectiveManagerImpl.getInstance().findPerspectiveByID(decoded.getName()) != null)) {
 
                     PerspectiveManagerImpl.getInstance().registerPerspective(decoded, false);
@@ -130,95 +117,54 @@ public class MainParser {
         PerspectiveManagerImpl.getInstance().arrangeIndexsToExistIndexs();
 
         String id = perspectivePreferences.getSelectedPerspective();
-        Perspective selected = null;
-        boolean firstTime = false;
+        PerspectiveImpl selected = null;
         if (id != null) {
             selected = PerspectiveManagerImpl.getInstance().findPerspectiveByID(id);
         }
         if (selected == null) {
 
-            List<Perspective> perspectives = PerspectiveManager.getDefault().getPerspectives();
-            //Loading default Perspecive as selected Perspective
+            List<PerspectiveImpl> perspectives = PerspectiveManagerImpl.getInstance().getPerspectives();
+            //Loading default Perspecive as selected PerspectiveImpl
             selected = perspectives.size() > 0 ? perspectives.get(0) : null;
-            firstTime = true;
         }
         if (selected != null) {
-            //if first time views shoude dock else just select to improve startup time
-            if (firstTime) {
-                final Perspective p = selected;
-                WindowManager.getDefault().invokeWhenUIReady(new Runnable() {
 
-                    public void run() {
-                        EventQueue.invokeLater(new Runnable() {
+            PerspectiveManagerImpl.getInstance().setSelected(selected, false);
+            ToolbarStyleSwitchUI.getInstance().loadQuickPerspectives();
 
-                            public void run() {
-                                PerspectiveManager.getDefault().setSelected(p);
-                                ToolbarStyleSwitchUI.getInstance().loadQuickPerspectives();
-                            }
-                        });
-                    }
-                });
-            } else {
-                PerspectiveManagerImpl.getInstance().setSelected(selected, false);
-                ToolbarStyleSwitchUI.getInstance().loadQuickPerspectives();
-            }
 
         }
     }
 
-    private void readPerspectives(FileObject fileObject) {
-        DataFolder folder = DataFolder.findFolder(fileObject);
-        Enumeration<DataObject> children = folder.children(true);
-        while (children.hasMoreElements()) {
-
-            DataObject dataObject = children.nextElement();
-            if (dataObject instanceof DataFolder) {
-                continue;
-            }
-            InstanceCookie ic = dataObject.getCookie(InstanceCookie.class);
-            if (ic == null) {
-                continue;
-            }
-            try {
-                Perspective perspective = (Perspective) ic.instanceCreate();
-                PerspectiveManagerImpl.getInstance().registerPerspective(perspective, false);
-            //TODO 
-                //perspectivePreferences.readPerspective(perspective);
-            } catch (IOException ex) {
-                Exceptions.printStackTrace(ex);
-            } catch (ClassNotFoundException ex) {
-                Exceptions.printStackTrace(ex);
-            }
-
-
-
-
+    private void readPerspectives(FileObject fo) {
+        PerspectiveReader reader = new PerspectiveReader();
+        for (FileObject fileObject : fo.getChildren()) {
+            PerspectiveImpl p = reader.readPerspective(fileObject);
+            PerspectiveManagerImpl.getInstance().registerPerspective(p, false);
         }
-
-
     }
 
     public synchronized void store() {
-        final List<Perspective> perspectives = PerspectiveManagerImpl.getInstance().getPerspectives();
-        for (Perspective perspective : perspectives) {
+        final List<PerspectiveImpl> perspectives = PerspectiveManagerImpl.getInstance().getPerspectives();
+        for (PerspectiveImpl p : perspectives) {
             try {
-                perspective.removePerspectiveListeners();
-                FileObject fileObject = config.getFileObject(perspective.getName(), EXT);
+                p.removePerspectiveListeners();
+                FileObject fileObject = config.getFileObject(p.getName(), EXT);
                 if (fileObject == null) {
                     try {
-                        fileObject = config.createData(perspective.getName(), EXT);
+                        fileObject = config.createData(p.getName(), EXT);
                     } catch (IOException ex) {
                         Exceptions.printStackTrace(ex);
                     }
                 }
-                paser.encode(perspective, fileObject.getOutputStream());
+                paser.encode(p, fileObject.getOutputStream());
             //TODO 
-                // perspectivePreferences.persistencePerspective(perspective);
+            // perspectivePreferences.persistencePerspective(perspective);
             } catch (IOException ex) {
                 Exceptions.printStackTrace(ex);
             }
         }
-        Perspective selected = PerspectiveManagerImpl.getInstance().getSelected();
+        PerspectiveImpl selected = PerspectiveManagerImpl.getInstance().getSelected();
         if (selected != null) {
             perspectivePreferences.setSelectedPerspective(selected.getName());
             if (perspectivePreferences.isTrackOpened()) {

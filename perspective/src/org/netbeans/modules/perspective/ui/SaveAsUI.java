@@ -56,7 +56,7 @@ import javax.swing.event.ListSelectionListener;
 import org.netbeans.modules.perspective.utils.PerspectiveManagerImpl;
 import org.netbeans.modules.perspective.persistence.PerspectivePreferences;
 import org.netbeans.modules.perspective.utils.CurrentPerspectiveReader;
-import org.netbeans.modules.perspective.views.Perspective;
+import org.netbeans.modules.perspective.views.PerspectiveImpl;
 import org.openide.DialogDisplayer;
 import org.openide.NotifyDescriptor;
 import org.openide.util.NbBundle;
@@ -71,7 +71,7 @@ public class SaveAsUI extends javax.swing.JDialog {
     private static final long serialVersionUID = 1l;
     private DefaultListModel defaultListModel = new DefaultListModel();
     private static String Here = NbBundle.getMessage(SaveAsUI.class,"HERE");
-    private Perspective selected;
+    private PerspectiveImpl selected;
 
     /** Creates new form SaveAsUI */
     private SaveAsUI() {
@@ -82,13 +82,11 @@ public class SaveAsUI extends javax.swing.JDialog {
 
             public void valueChanged(ListSelectionEvent e) {
 
-                Perspective perspective = (Perspective) modeList.getSelectedValue();
+                PerspectiveImpl perspective = (PerspectiveImpl) modeList.getSelectedValue();
                 if (perspective != null) {
                     txtName.setText(perspective.getAlias());
                     selected = perspective;
 
-                    before.setSelected(perspective.isBeforeSeparator());
-                    after.setSelected(perspective.isAfterSeparator());
                     loadcmbPerspectives();
                     cmbPosition.setSelectedIndex(perspective.getIndex());
                 } else {
@@ -104,28 +102,25 @@ public class SaveAsUI extends javax.swing.JDialog {
         validateName();
     }
 
-    private void clear() {
-        before.setSelected(false);
-        after.setSelected(false);
-    }
+ 
 
     private void loadPerspectives() {
         defaultListModel.clear();
-        List<Perspective> perspectives = PerspectiveManagerImpl.getInstance().getPerspectives();
-        for (Perspective perspective : perspectives) {
+        List<PerspectiveImpl> perspectives = PerspectiveManagerImpl.getInstance().getPerspectives();
+        for (PerspectiveImpl perspective : perspectives) {
             defaultListModel.addElement(perspective);
         }
     }
 
     private void loadcmbPerspectives() {
-        List<Perspective> perspectives = PerspectiveManagerImpl.getInstance().getPerspectives();
+        List<PerspectiveImpl> perspectives = PerspectiveManagerImpl.getInstance().getPerspectives();
         cmbPosition.removeAllItems();
         if (perspectives.size() == 0) {
             cmbPosition.addItem(Here);
             return;
         }
         String prev = "";
-        for (Perspective perspective : perspectives) {
+        for (PerspectiveImpl perspective : perspectives) {
             if (perspective.equals(selected)) {
                 continue;
             }
@@ -156,8 +151,6 @@ public class SaveAsUI extends javax.swing.JDialog {
         lblDescription = new javax.swing.JLabel();
         lblPosition = new javax.swing.JLabel();
         cmbPosition = new javax.swing.JComboBox();
-        after = new javax.swing.JCheckBox();
-        before = new javax.swing.JCheckBox();
         jLabel1 = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
@@ -183,14 +176,6 @@ public class SaveAsUI extends javax.swing.JDialog {
 
         lblPosition.setText(NbBundle.getMessage(SaveAsUI.class,"SaveAsUI.lblPosition.text")); // NOI18N
 
-        org.openide.awt.Mnemonics.setLocalizedText(after, org.openide.util.NbBundle.getMessage(SaveAsUI.class, "SaveAsUI.after.text")); // NOI18N
-        after.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        after.setMargin(new java.awt.Insets(0, 0, 0, 0));
-
-        org.openide.awt.Mnemonics.setLocalizedText(before, org.openide.util.NbBundle.getMessage(SaveAsUI.class, "SaveAsUI.before.text")); // NOI18N
-        before.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        before.setMargin(new java.awt.Insets(0, 0, 0, 0));
-
         jLabel1.setText(org.openide.util.NbBundle.getMessage(SaveAsUI.class, "SaveAsUI.jLabel1.text")); // NOI18N
 
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(getContentPane());
@@ -212,16 +197,10 @@ public class SaveAsUI extends javax.swing.JDialog {
                             .add(layout.createSequentialGroup()
                                 .add(lblName, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 94, Short.MAX_VALUE)
                                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)))
-                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                            .add(layout.createSequentialGroup()
-                                .add(before)
-                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                                .add(after))
-                            .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
-                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING, false)
-                                    .add(org.jdesktop.layout.GroupLayout.TRAILING, txtName)
-                                    .add(org.jdesktop.layout.GroupLayout.TRAILING, cmbPosition, 0, 239, Short.MAX_VALUE)))))
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING, false)
+                            .add(org.jdesktop.layout.GroupLayout.TRAILING, txtName)
+                            .add(org.jdesktop.layout.GroupLayout.TRAILING, cmbPosition, 0, 239, Short.MAX_VALUE)))
                     .add(jLabel1))
                 .addContainerGap())
         );
@@ -241,11 +220,7 @@ public class SaveAsUI extends javax.swing.JDialog {
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(lblPosition)
                     .add(cmbPosition, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.UNRELATED)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(before)
-                    .add(after))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 20, Short.MAX_VALUE)
                 .add(jLabel1)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(jScrollPane1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 163, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
@@ -274,7 +249,7 @@ public class SaveAsUI extends javax.swing.JDialog {
     private class CancelAction extends AbstractAction {
 
         private static final long serialVersionUID = 1l;
-        Perspective mode;
+        PerspectiveImpl mode;
 
         public CancelAction() {
             putValue(NAME, NbBundle.getMessage(SaveAsUI.class,"Cancel"));
@@ -295,17 +270,17 @@ public class SaveAsUI extends javax.swing.JDialog {
 
     private void validateExist() {
         String id = txtName.getText();
-        Perspective perspective = PerspectiveManagerImpl.getInstance().findPerspectiveByAlias(id);
+        PerspectiveImpl perspective = PerspectiveManagerImpl.getInstance().findPerspectiveByAlias(id);
         if (perspective != null) {
             modeList.setSelectedValue(perspective, true);
         } else {
             modeList.clearSelection();
-            clear();
+            
         }
     }
 
     private void saveAsMutilMode() {
-        Perspective perspective = (Perspective) modeList.getSelectedValue();
+        PerspectiveImpl perspective = (PerspectiveImpl) modeList.getSelectedValue();
         if (perspective != null) {
             NotifyDescriptor d = new NotifyDescriptor.Confirmation("'"+perspective.getAlias()+ NbBundle.getMessage(SaveAsUI.class,"OverWrite_Massage"), NbBundle.getMessage(SaveAsUI.class,"Overwrite_Perspective"),
                     NotifyDescriptor.YES_NO_OPTION);
@@ -316,16 +291,14 @@ public class SaveAsUI extends javax.swing.JDialog {
             perspective.clear();
         }else{
          
-         perspective = new Perspective(PerspectivePreferences.getInstance().getCustomPerspectiveName(),
+         perspective = new PerspectiveImpl(PerspectivePreferences.getInstance().getCustomPerspectiveName(),
                  txtName.getText().trim());
-         Perspective selectedPerspective=PerspectiveManagerImpl.getInstance().getSelected();
+         PerspectiveImpl selectedPerspective=PerspectiveManagerImpl.getInstance().getSelected();
          perspective.setImagePath(selectedPerspective.getImagePath());
         }
         
 
         new CurrentPerspectiveReader(perspective);
-        perspective.setBeforeSeparator(before.isSelected());
-        perspective.setAfterSeparator(after.isSelected());
         PerspectiveManagerImpl.getInstance().registerPerspective(cmbPosition.getSelectedIndex(), perspective);
         PerspectiveManagerImpl.getInstance().setSelected(perspective);
         ToolbarStyleSwitchUI.getInstance().loadQuickPerspectives();
@@ -335,7 +308,7 @@ public class SaveAsUI extends javax.swing.JDialog {
     private class SaveAs extends AbstractAction {
 
         private static final long serialVersionUID = 1l;
-        Perspective mode;
+        PerspectiveImpl mode;
 
         public SaveAs() {
             putValue(NAME, NbBundle.getMessage(SaveAsUI.class,"OK"));
@@ -347,8 +320,6 @@ public class SaveAsUI extends javax.swing.JDialog {
     }
     
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JCheckBox after;
-    private javax.swing.JCheckBox before;
     private javax.swing.JButton btnCancel;
     private javax.swing.JButton btnOK;
     private javax.swing.JComboBox cmbPosition;

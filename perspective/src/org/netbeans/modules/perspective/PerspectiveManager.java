@@ -29,7 +29,6 @@ package org.netbeans.modules.perspective;
 
 import java.util.List;
 import org.netbeans.modules.perspective.utils.PerspectiveManagerImpl;
-import org.netbeans.modules.perspective.views.Perspective;
 
 /**
  *
@@ -44,6 +43,6 @@ public abstract class PerspectiveManager {
     public abstract Perspective getSelected();
     public abstract Perspective findPerspectiveByID(String id) ;
     public abstract Perspective findPerspectiveByAlias(String alias);
-    public abstract List<Perspective> getPerspectives() ;
+    public abstract List<? extends Perspective> getPerspectives() ;
     public abstract void setSelected(Perspective perspective);
 }

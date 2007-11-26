@@ -40,25 +40,22 @@
  */
 
 /*
- * OpenedViewTracker.java
- *
+ * PerspetiveListner.java
  */
 
-package org.netbeans.modules.perspective.utils;
-
-import org.netbeans.modules.perspective.views.PerspectiveImpl;
-import org.openide.windows.WindowManager;
+package org.netbeans.modules.perspective;
 
 /**
- *
+ * Perspective Listener
  * @author Anuradha G
  */
-public class OpenedViewTracker {
-
-    WindowManager windowManager = WindowManager.getDefault();
-
-    public OpenedViewTracker(PerspectiveImpl perspective) {
-        perspective.clear();
-        new CurrentPerspectiveReader(perspective);
-    }
+public interface PerspectiveListener {
+    /**
+     * Get called  when Perspective opening 
+     */
+    void perspetiveOpening();
+    /**
+     * Get called when Perspective closing 
+     */
+    void perspetiveClosing();
 }

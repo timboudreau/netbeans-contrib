@@ -1,8 +1,8 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
- *
+ * 
  * Copyright 1997-2007 Sun Microsystems, Inc. All rights reserved.
- *
+ * 
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common
  * Development and Distribution License("CDDL") (collectively, the
@@ -20,13 +20,7 @@
  * License Header, with the fields enclosed by brackets [] replaced by
  * your own identifying information:
  * "Portions Copyrighted [year] [name of copyright owner]"
- *
- * Contributor(s):
- *
- * The Original Software is NetBeans. The Initial Developer of the Original
- * Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
- * Microsystems, Inc. All Rights Reserved.
- *
+ * 
  * If you wish your version of this file to be governed by only the CDDL
  * or only the GPL Version 2, indicate your decision by adding
  * "[Contributor] elects to include this software in this distribution
@@ -37,28 +31,65 @@
  * However, if you add GPL Version 2 code and therefore, elected the GPL
  * Version 2 license, then the option applies only if the new code is
  * made subject to such option by the copyright holder.
+ * 
+ * Contributor(s):
+ * 
+ * Portions Copyrighted 2007 Sun Microsystems, Inc.
  */
-
-/*
- * OpenedViewTracker.java
- *
- */
-
-package org.netbeans.modules.perspective.utils;
+package org.netbeans.modules.perspective.persistence;
 
 import org.netbeans.modules.perspective.views.PerspectiveImpl;
-import org.openide.windows.WindowManager;
+import org.netbeans.modules.perspective.views.PerspectiveMode;
+import org.netbeans.modules.perspective.views.View;
+import org.openide.filesystems.FileObject;
 
 /**
  *
  * @author Anuradha G
  */
-public class OpenedViewTracker {
+public class PerspectiveReader {
 
-    WindowManager windowManager = WindowManager.getDefault();
+    public PerspectiveImpl readPerspective(FileObject fo) {
+        PerspectiveImpl perspective = new PerspectiveImpl(fo.getName(),
+                fo.getAttribute("alias").toString());
+        perspective.setDiscription((String) fo.getAttribute("discription"));
+        perspective.setImagePath((String) fo.getAttribute("image"));
+        perspective.setIndex((Integer) fo.getAttribute("position"));
 
-    public OpenedViewTracker(PerspectiveImpl perspective) {
-        perspective.clear();
-        new CurrentPerspectiveReader(perspective);
+        FileObject[] children = fo.getChildren();
+        for (FileObject fileObject : children) {
+            if ("modes".equals(fileObject.getName())) {
+                FileObject[] fos = fileObject.getChildren();
+                for (FileObject object : fos) {
+                    perspective.addPerspectiveMode(readMode(object));
+                }
+
+                
+            }
+        }
+
+        return perspective;
+    }
+
+    private PerspectiveMode readMode(FileObject fo) {
+        PerspectiveMode mode = new PerspectiveMode(fo.getName());
+        String active = (String) fo.getAttribute("active");
+        FileObject[] fileObjects = fo.getChildren();
+        for (FileObject fileObject : fileObjects) {
+          View view=readView(fileObject);
+          if(view.getTopcomponentID().equals(active)){
+            mode.setActiveView(view);
+          }
+          mode.addView(view);
+        }
+
+        return mode;
+    }
+
+    private View readView(FileObject fileObject) {
+        int index = (Integer) fileObject.getAttribute("index");
+        boolean opened = (Boolean) fileObject.getAttribute("opened");
+        View view = new View(fileObject.getName(), index, opened);
+        return view;
     }
 }

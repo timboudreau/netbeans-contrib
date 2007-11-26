@@ -48,7 +48,7 @@ package org.netbeans.modules.perspective.utils;
 
 import java.util.Set;
 import org.netbeans.modules.perspective.hacks.ModeHackTopComponent;
-import org.netbeans.modules.perspective.views.Perspective;
+import org.netbeans.modules.perspective.views.PerspectiveImpl;
 import org.netbeans.modules.perspective.views.PerspectiveMode;
 import org.netbeans.modules.perspective.views.View;
 import org.openide.windows.Mode;
@@ -63,12 +63,12 @@ public class CurrentPerspectiveReader {
 
     private WindowManager windowManager = WindowManager.getDefault();
 
-    public CurrentPerspectiveReader(Perspective perspective) {
+    public CurrentPerspectiveReader(PerspectiveImpl perspective) {
 
         genarate(perspective);
     }
 
-    private void genarate(Perspective perspective) {
+    private void genarate(PerspectiveImpl perspective) {
         Set<? extends Mode> modes = windowManager.getModes();
         for (Mode mode : modes) {
             if (windowManager.isEditorMode(mode)) {

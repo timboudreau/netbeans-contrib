@@ -57,29 +57,29 @@ public class PerspectivePreferences {
     private static PerspectivePreferences instance;
     private static final String SELECTED = "selected"; //NOI18N
 
-    private static final String INDEX = "index"; //NOI18N
-
-    private static final String NAME = "name"; //NOI18N
-
-    private static final String OPEN = "open"; //NOI18N
-
-    private static final String ALIAS = "alias"; //NOI18N
-
-    private static final String SEPARATOR_B = "separator_b"; //NOI18N
-
-    private static final String SEPARATOR_A = "separator_a"; //NOI18N
-
-    private static final String VIEWS = "views"; //NOI18N
-
-    private static final String ACTIVE_TC = "active_tc"; //NOI18N
-
-    private static final String IMAGE_PATH = "image_path"; //NOI18N
-
-    private static final String MODE = "mode"; //NOI18N
-
-    private static final String TC = "tc"; //NOI18N
-
-    private static final String GLOBEL = "globel"; //NOI18N
+//    private static final String INDEX = "index"; //NOI18N
+//
+//    private static final String NAME = "name"; //NOI18N
+//
+//    private static final String OPEN = "open"; //NOI18N
+//
+//    private static final String ALIAS = "alias"; //NOI18N
+//
+//    private static final String SEPARATOR_B = "separator_b"; //NOI18N
+//
+//    private static final String SEPARATOR_A = "separator_a"; //NOI18N
+//
+//    private static final String VIEWS = "views"; //NOI18N
+//
+//    private static final String ACTIVE_TC = "active_tc"; //NOI18N
+//
+//    private static final String IMAGE_PATH = "image_path"; //NOI18N
+//
+//    private static final String MODE = "mode"; //NOI18N
+//
+//    private static final String TC = "tc"; //NOI18N
+//
+//    private static final String GLOBEL = "globel"; //NOI18N
 
     private static final String TRACK_OPENED = "track_opened"; //NOI18N
 

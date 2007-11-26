@@ -49,7 +49,7 @@ import java.awt.event.ActionEvent;
 import javax.swing.AbstractAction;
 import org.netbeans.modules.perspective.ui.ToolbarStyleSwitchUI;
 import org.netbeans.modules.perspective.utils.PerspectiveManagerImpl;
-import org.netbeans.modules.perspective.views.Perspective;
+import org.netbeans.modules.perspective.views.PerspectiveImpl;
 import org.openide.util.Utilities;
 
 /**
@@ -59,10 +59,10 @@ import org.openide.util.Utilities;
 public class SwitchAction extends AbstractAction {
 
     private static final long serialVersionUID = 1l;
-    private Perspective perspective;
+    private PerspectiveImpl perspective;
     private boolean fireToolbarUpdate;
 
-    public SwitchAction(Perspective perspective) {
+    public SwitchAction(PerspectiveImpl perspective) {
         putValue(NAME, perspective.getAlias());
         String path = perspective.getImagePath();
         if (path != null) {
@@ -71,7 +71,7 @@ public class SwitchAction extends AbstractAction {
         this.perspective = perspective;
     }
 
-    public SwitchAction(Perspective perspective, boolean fireToolbarUpdate) {
+    public SwitchAction(PerspectiveImpl perspective, boolean fireToolbarUpdate) {
         this(perspective);
         this.fireToolbarUpdate = fireToolbarUpdate;
     }
