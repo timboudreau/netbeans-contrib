@@ -1,0 +1,183 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE filesystem PUBLIC "-//NetBeans//DTD Filesystem 1.1//EN" "http://www.netbeans.org/dtds/filesystem-1_1.dtd">
+<filesystem>
+    <!--  Perspective folder-->
+    <folder name="perspective">
+        <folder name="default">
+            <attr name="alias" stringvalue="Default"/>
+            <attr name="discription" stringvalue="Netbeans Default Layout"/>
+            <attr name="position" intvalue="1000"/>
+            <attr name="image" stringvalue="org/netbeans/modules/perspective/java/resources/java.png"/>
+            <folder name="modes">
+                <folder name="explorer">
+                    <attr name="active" stringvalue="projectTabLogical_tc"/>
+                    <folder name="projectTabLogical_tc">
+                        <attr name="index" intvalue="0"/>
+                        <attr name="opened" boolvalue="true"/>
+                    </folder>
+                    <folder name="projectTab_tc">
+                        <attr name="index" intvalue="1"/>
+                        <attr name="opened" boolvalue="true"/>
+                    </folder>
+                    <folder name="runtime">
+                        <attr name="index" intvalue="2"/>
+                        <attr name="opened" boolvalue="true"/>
+                    </folder>
+                    <folder name="favorites">
+                        <attr name="index" intvalue="3"/>
+                        <attr name="opened" boolvalue="false"/>
+                    </folder>
+                </folder>
+                <folder name="navigator">
+                    <attr name="active" stringvalue="navigatorTC"/>
+                    <folder name="navigatorTC">
+                        <attr name="index" intvalue="0"/>
+                        <attr name="opened" boolvalue="true"/>
+                    </folder>
+                </folder>
+                <folder name="output">
+                    <attr name="active" stringvalue="output"/>
+                    <folder name="output">
+                        <attr name="index" intvalue="0"/>
+                        <attr name="opened" boolvalue="flase"/>
+                    </folder>
+                    <folder name="TaskListTopComponent">
+                        <attr name="index" intvalue="1"/>
+                        <attr name="opened" boolvalue="flase"/>
+                    </folder>
+                    <folder name="DeclarationTopComponent">
+                        <attr name="index" intvalue="2"/>
+                        <attr name="opened" boolvalue="flase"/>
+                    </folder>
+                    <folder name="JavadocTopComponent">
+                        <attr name="index" intvalue="3"/>
+                        <attr name="opened" boolvalue="flase"/>
+                    </folder>
+                </folder>
+            </folder>
+        </folder>
+        <folder name="javabrowsing">
+            <attr name="alias" stringvalue="Java Browsing"/>
+            <attr name="discription" stringvalue="Java Browsing"/>
+            <attr name="position" intvalue="2000"/>
+            <attr name="image" stringvalue="org/netbeans/modules/perspective/java/resources/java_browsing.png"/>
+            <folder name="modes">
+                <folder name="javaExplorer">
+                    <attr name="active" stringvalue="projectTabLogical_tc"/>
+                    <folder name="projectTabLogical_tc">
+                        <attr name="index" intvalue="0"/>
+                        <attr name="opened" boolvalue="true"/>
+                    </folder>
+                </folder>
+                <folder name="javaExplorer2">
+                    <attr name="active" stringvalue="DeclarationTopComponent"/>
+                    <folder name="DeclarationTopComponent">
+                        <attr name="index" intvalue="0"/>
+                        <attr name="opened" boolvalue="true"/>
+                    </folder>
+                </folder>
+                <folder name="commonpalette">
+                    <attr name="active" stringvalue="output"/>
+                    <folder name="favorites">
+                        <attr name="index" intvalue="0"/>
+                        <attr name="opened" boolvalue="flase"/>
+                    </folder>
+                    <folder name="navigatorTC">
+                        <attr name="index" intvalue="1"/>
+                        <attr name="opened" boolvalue="true"/>
+                    </folder>
+                </folder>
+                <folder name="javaOutput">
+                    <folder name="JavadocTopComponent">
+                        <attr name="index" intvalue="0"/>
+                        <attr name="opened" boolvalue="true"/>
+                    </folder>
+                </folder>
+            </folder>
+        </folder>
+        <folder name="debug">
+            <attr name="alias" stringvalue="Java Debug"/>
+            <attr name="discription" stringvalue="Java Debugging"/>
+            <attr name="position" intvalue="3000"/>
+            <attr name="image" stringvalue="org/netbeans/modules/perspective/java/resources/debug.png"/>
+            <folder name="modes">
+                <folder name="javaExplorer">
+                    <attr name="active" stringvalue="callstackView"/>
+                    <folder name="projectTabLogical_tc">
+                        <attr name="index" intvalue="0"/>
+                        <attr name="opened" boolvalue="false"/>
+                    </folder>
+                    <folder name="watchesView">
+                        <attr name="index" intvalue="1"/>
+                        <attr name="opened" boolvalue="true"/>
+                    </folder>
+                    <folder name="callstackView">
+                        <attr name="index" intvalue="2"/>
+                        <attr name="opened" boolvalue="true"/>
+                    </folder>
+                </folder>
+                <folder name="javaExplorer2">
+                    <attr name="active" stringvalue="localsView"/>
+                    <folder name="projectTab_tc">
+                        <attr name="index" intvalue="0"/>
+                        <attr name="opened" boolvalue="false"/>
+                    </folder>
+                    <folder name="localsView">
+                        <attr name="index" intvalue="1"/>
+                        <attr name="opened" boolvalue="true"/>
+                    </folder>
+                    <folder name="breakpointsView">
+                        <attr name="index" intvalue="2"/>
+                        <attr name="opened" boolvalue="true"/>
+                    </folder>
+                </folder>
+                <folder name="commonpalette">
+                    <attr name="active" stringvalue="output"/>
+                    <folder name="favorites">
+                        <attr name="index" intvalue="0"/>
+                        <attr name="opened" boolvalue="flase"/>
+                    </folder>
+                    <folder name="navigatorTC">
+                        <attr name="index" intvalue="1"/>
+                        <attr name="opened" boolvalue="true"/>
+                    </folder>
+                </folder>
+                <folder name="output">
+                    <attr name="active" stringvalue="output"/>
+                    <folder name="output">
+                        <attr name="index" intvalue="0"/>
+                        <attr name="opened" boolvalue="true"/>
+                    </folder>
+                    <folder name="TaskListTopComponent">
+                        <attr name="index" intvalue="1"/>
+                        <attr name="opened" boolvalue="true"/>
+                    </folder>
+                    <folder name="DeclarationTopComponent">
+                        <attr name="index" intvalue="2"/>
+                        <attr name="opened" boolvalue="flase"/>
+                    </folder>
+                    <folder name="JavadocTopComponent">
+                        <attr name="index" intvalue="3"/>
+                        <attr name="opened" boolvalue="flase"/>
+                    </folder>
+                </folder>
+            </folder>
+        </folder>
+    </folder>
+    
+    <!--window system config folder-->
+    <folder name="Windows2">
+        <folder name="Modes">
+        <!--Custom javaOutput Mode that use by Java Browsing Perspectie-->
+        <file name="javaOutput.wsmode" url="modes/javaOutput.wsmode"/>
+        <folder name="javaOutput"></folder>
+        <!--Custom javaExplorer Mode that use by Java Browsing Perspectie and Debug Perspective-->
+        <file name="javaExplorer.wsmode" url="modes/javaExplorer.wsmode"/>
+        <folder name="javaExplorer"></folder>
+        <!--Custom javaExplorer Mode that use by Java Browsing Perspectie and Debug Perspective-->
+        <file name="javaExplorer2.wsmode" url="modes/javaExplorer2.wsmode"/>
+        <folder name="javaExplorer2"></folder> 
+      </folder>  
+    </folder>
+    
+</filesystem>

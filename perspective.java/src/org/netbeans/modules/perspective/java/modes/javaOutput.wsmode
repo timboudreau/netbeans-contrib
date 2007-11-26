@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mode version="2.3">
+    <module name="org.netbeans.modules.perspective.java"  />
+    <name unique="javaOutput" />
+  <kind type="view" />
+  <state type="joined" />
+  <constraints>
+    <path orientation="vertical" number="10" weight="0.3"/>
+    <path orientation="horizontal" number="40" weight="0.55"/>
+    <path orientation="vertical" number="60" weight="0.3"/>
+
+  </constraints>
+  <bounds x="128" y="523" width="512" height="154" />
+  <frame state="0"/>
+    <active-tc  id="output" />
+    <empty-behavior permanent="true"/>
+</mode>
+
+
