@@ -42,24 +42,14 @@
 
 package org.netbeans.modules.remotefs.core;
 
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.util.Enumeration;
-import java.util.NoSuchElementException;
-
-import javax.swing.Timer;
-
-import org.openide.TopManager;
+import org.openide.filesystems.FileObject;
+import org.openide.filesystems.FileStateInvalidException;
+import org.openide.filesystems.FileSystem;
 import org.openide.loaders.DataFolder;
-import org.openide.filesystems.*;
 import org.openide.util.actions.CookieAction;
 import org.openide.nodes.Node;
+import org.openide.util.Exceptions;
 import org.openide.util.HelpCtx;
-import org.openide.util.NbBundle;
-import org.openide.util.enum.AlterEnumeration;
-import org.openide.util.enum.FilterEnumeration;
-import org.openide.util.enum.SequenceEnumeration;
-import org.openide.util.enum.QueueEnumeration;
 
 /** Action for synchronizing filesystem.
 *
@@ -84,7 +74,7 @@ public class SynchronizeAction extends CookieAction {
                ((RemoteFileSystem)fs).synchronize(fo.getPackageNameExt('/','.'));
         }
         catch (FileStateInvalidException e) { 
-          TopManager.getDefault().notifyException(e);
+          Exceptions.printStackTrace(e);
         }
       }
     }

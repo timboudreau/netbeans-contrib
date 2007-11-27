@@ -58,8 +58,6 @@ import org.openide.filesystems.*;
 import org.openide.options.*;
 import org.openide.util.NbBundle;
 import org.openide.util.actions.SystemAction;
-import org.openide.util.enum.SingletonEnumeration;
-import org.openide.util.enum.SequenceEnumeration;
 
 /** Managed Remote FIleSystem class
  * @author Libor Martinek

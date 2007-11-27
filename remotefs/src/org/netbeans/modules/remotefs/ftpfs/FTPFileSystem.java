@@ -60,10 +60,9 @@ import org.netbeans.modules.remotefs.ftpclient.*;
 import org.openide.*;
 import org.openide.filesystems.*;
 import org.openide.options.*;
+import org.openide.util.Exceptions;
 import org.openide.util.NbBundle;
 import org.openide.util.actions.SystemAction;
-import org.openide.util.enum.SingletonEnumeration;
-import org.openide.util.enum.SequenceEnumeration;
 import org.openide.util.RequestProcessor;
 
 
@@ -338,7 +337,7 @@ public class FTPFileSystem extends RemoteFileSystem implements  FTPClient.Reconn
   }
 
   public boolean notifyReconnect(String mess) {
-      Object obj = TopManager.getDefault().notify(new NotifyDescriptor("Connection to server "+getServer()+" lost: "+mess+"\nReconnect?",
+      Object obj = DialogDisplayer.getDefault().notify(new NotifyDescriptor("Connection to server "+getServer()+" lost: "+mess+"\nReconnect?",
         "Question",NotifyDescriptor.YES_NO_OPTION ,NotifyDescriptor.QUESTION_MESSAGE,null, null));
       if (obj==NotifyDescriptor.YES_OPTION) 
            return true;
@@ -362,7 +361,7 @@ public class FTPFileSystem extends RemoteFileSystem implements  FTPClient.Reconn
     javax.swing.JCheckBox chbox = new javax.swing.JCheckBox("Don't ask again. Always use newer file");
     chbox.setSelected(false);
     panel.add(chbox);
-    Object obj = TopManager.getDefault().notify(new NotifyDescriptor(panel,
+    Object obj = DialogDisplayer.getDefault().notify(new NotifyDescriptor(panel,
        "Question",NotifyDescriptor.YES_NO_OPTION ,NotifyDescriptor.QUESTION_MESSAGE,ops, ops[which]));
     if (chbox.isSelected()) getFTPSettings().setAskWhichFile(false);
     if (obj == ops[0]) return 0;
@@ -375,7 +374,7 @@ public class FTPFileSystem extends RemoteFileSystem implements  FTPClient.Reconn
     ops[1] = "From FTPServer"; 
     int which = file1.before(file2)?0:1;
     //TODO: better message (branch, merge ...)
-    Object obj = TopManager.getDefault().notify(new NotifyDescriptor(
+    Object obj = DialogDisplayer.getDefault().notify(new NotifyDescriptor(
        "Both files in FTP server and in cache were modified. It means that two diffrent version of this file exist.\n"+
        computeSystemName().substring(0,computeSystemName().length()-1)+path+", size "+size1+" bytes, last modified "+file1.toString()+"\n"+
        getCache().getPath()+path.replace('/',File.separatorChar)+", size "+size2+" bytes, last modified "+file2.toString()+"\n"+
@@ -424,7 +423,7 @@ public class FTPFileSystem extends RemoteFileSystem implements  FTPClient.Reconn
     javax.swing.JCheckBox chbox = new javax.swing.JCheckBox("Don't ask again. Always use new file from server");
     chbox.setSelected(false);
     panel.add(chbox);
-    Object obj = TopManager.getDefault().notify(new NotifyDescriptor(panel,
+    Object obj = DialogDisplayer.getDefault().notify(new NotifyDescriptor(panel,
        "Question",NotifyDescriptor.YES_NO_OPTION ,NotifyDescriptor.QUESTION_MESSAGE,null,NotifyDescriptor.YES_OPTION));
     if (chbox.isSelected()) getFTPSettings().setAskServerChangedFile(false);
     if (obj == NotifyDescriptor.YES_OPTION) return true;
@@ -439,7 +438,7 @@ public class FTPFileSystem extends RemoteFileSystem implements  FTPClient.Reconn
     ops[1] = "No";
     ops[2] = "Yes for All";
     ops[3] = "No for All";
-    Object obj = TopManager.getDefault().notify(new NotifyDescriptor(
+    Object obj = DialogDisplayer.getDefault().notify(new NotifyDescriptor(
        (isDir?"The directory "+path+" in cache was delete externally.\nDo you want to the delete directory and all the subdirectories also from server?\n":
         "The file "+path+" in cache was delete externaly.\nDo you want to delete the file also from server?\n"),
        "External deletion",NotifyDescriptor.YES_NO_OPTION ,NotifyDescriptor.QUESTION_MESSAGE,ops,ops[1]));  
@@ -462,7 +461,7 @@ public class FTPFileSystem extends RemoteFileSystem implements  FTPClient.Reconn
     ops[1] = "No";
     ops[2] = "Yes for All";
     ops[3] = "No for All";
-    Object obj = TopManager.getDefault().notify(new NotifyDescriptor(
+    Object obj = DialogDisplayer.getDefault().notify(new NotifyDescriptor(
       (isDir?"The directory "+path+" on server was delete externally.\nDo you want to delete the directory and all the subdirectories also from cache?\n":
       "The file "+path+" on server was delete externally.\nDo you want to delete the file also from cache?\n"),
       "External deletion",NotifyDescriptor.YES_NO_OPTION ,NotifyDescriptor.QUESTION_MESSAGE,ops,ops[1]));  
@@ -484,7 +483,7 @@ public class FTPFileSystem extends RemoteFileSystem implements  FTPClient.Reconn
   }
 
   public void notifyException(Exception e) {
-    TopManager.getDefault().notifyException(e);
+    Exceptions.printStackTrace(e);
   }
  
 } 

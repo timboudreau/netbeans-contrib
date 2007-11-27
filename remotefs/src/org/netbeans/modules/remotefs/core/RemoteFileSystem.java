@@ -42,24 +42,14 @@
 
 package org.netbeans.modules.remotefs.core;
 
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyVetoException;
 import java.io.*;
-import java.text.MessageFormat;
-import java.util.Enumeration;
-import java.util.Hashtable;
-import java.util.ResourceBundle;
-import java.util.StringTokenizer;
-import java.util.Date;
 import java.net.*;
 
 import org.openide.*;
 import org.openide.filesystems.*;
 import org.openide.options.*;
-import org.openide.util.NbBundle;
+import org.openide.util.Exceptions;
 import org.openide.util.actions.*;
-import org.openide.util.enum.SingletonEnumeration;
-import org.openide.util.enum.SequenceEnumeration;
 import org.openide.util.RequestProcessor;
 
 /** Remote FIleSystem class
@@ -102,7 +92,7 @@ implements AbstractFileSystem.List, AbstractFileSystem.Info, AbstractFileSystem.
     list = a;
     
     // Set listeners
-    TopManager.getDefault().getRepository().addRepositoryListener( new RepositoryListener() {
+    Repository.getDefault().addRepositoryListener( new RepositoryListener() {
         public void fileSystemAdded(RepositoryEvent ev) {
            addedFS(ev.getFileSystem());
         }  
@@ -149,7 +139,7 @@ implements AbstractFileSystem.List, AbstractFileSystem.Info, AbstractFileSystem.
 
   private void readObject(ObjectInputStream s)  throws IOException, ClassNotFoundException {
     s.defaultReadObject();
-    TopManager.getDefault().getRepository().addRepositoryListener( new RepositoryListener() {
+    Repository.getDefault().addRepositoryListener( new RepositoryListener() {
         public void fileSystemAdded(RepositoryEvent ev) {
            addedFS(ev.getFileSystem());
         }  
@@ -331,7 +321,7 @@ implements AbstractFileSystem.List, AbstractFileSystem.Info, AbstractFileSystem.
         post(new Runnable() {
             public void run() {
                 try { f.synchronize(); }
-                catch(IOException e) {  TopManager.getDefault().notifyException(e); }
+                catch(IOException e) {  Exceptions.printStackTrace(e); }
             }
         });
       }
@@ -339,7 +329,7 @@ implements AbstractFileSystem.List, AbstractFileSystem.Info, AbstractFileSystem.
     }
     catch(IOException e) { 
       //if (DEBUG) e.printStackTrace(); 
-      TopManager.getDefault().notifyException(e);
+      Exceptions.printStackTrace(e);
     }
   }
   
@@ -353,7 +343,7 @@ implements AbstractFileSystem.List, AbstractFileSystem.Info, AbstractFileSystem.
          post(new Runnable() {
             public void run() {
                 try {f.downloadAll(); }
-                catch(IOException e) {  TopManager.getDefault().notifyException(e); }
+                catch(IOException e) {  Exceptions.printStackTrace(e); }
             }
          });
       }
@@ -361,7 +351,7 @@ implements AbstractFileSystem.List, AbstractFileSystem.Info, AbstractFileSystem.
     }
     catch(IOException e) { 
       //if (DEBUG) e.printStackTrace(); 
-      TopManager.getDefault().notifyException(e);
+      Exceptions.printStackTrace(e);
     }
   }
   
@@ -377,7 +367,7 @@ implements AbstractFileSystem.List, AbstractFileSystem.Info, AbstractFileSystem.
     }
     catch(IOException e) { 
       //if (DEBUG) e.printStackTrace(); 
-      TopManager.getDefault().notifyException(e);
+      Exceptions.printStackTrace(e);
     }
   }
  
@@ -403,7 +393,7 @@ implements AbstractFileSystem.List, AbstractFileSystem.Info, AbstractFileSystem.
       //else System.out.println("FTPFileSystem.children: ftpfile "+name+" NOT FOUND");
     }
     catch (IOException e) {
-      TopManager.getDefault().notifyException(e);
+      Exceptions.printStackTrace(e);
     }
     return seznam;
   }
@@ -521,7 +511,7 @@ implements AbstractFileSystem.List, AbstractFileSystem.Info, AbstractFileSystem.
       // else System.out.println("FTPFileSystem.lastModified: ftpfile "+name+" NOT FOUND");
     }
     catch (IOException e) {
-      TopManager.getDefault().notifyException(e);
+      Exceptions.printStackTrace(e);
     }
     return date;
   }
@@ -540,7 +530,7 @@ implements AbstractFileSystem.List, AbstractFileSystem.Info, AbstractFileSystem.
       //else System.out.println("FTPFileSystem.folder: ftpfile "+name+" NOT FOUND");
     }
     catch (IOException e) {
-      TopManager.getDefault().notifyException(e);
+      Exceptions.printStackTrace(e);
     }
     return true;
   }
@@ -559,7 +549,7 @@ implements AbstractFileSystem.List, AbstractFileSystem.Info, AbstractFileSystem.
       //else System.out.println("FTPFileSystem.readOnly: ftpfile "+name+" NOT FOUND");
     }
     catch (IOException e) {
-       TopManager.getDefault().notifyException(e);
+       Exceptions.printStackTrace(e);
     }  
     return false;
   }
@@ -598,7 +588,7 @@ implements AbstractFileSystem.List, AbstractFileSystem.Info, AbstractFileSystem.
       //else System.out.println("FTPFileSystem.size: ftpfile "+name+" NOT FOUND");
     }
     catch (IOException e) {
-      TopManager.getDefault().notifyException(e);
+      Exceptions.printStackTrace(e);
     }  
     return 0;
   }

@@ -88,9 +88,9 @@ public final class RemoteManager  {
     boolean managerexist = false;
     RemoteManager manager = null;
       // find existing manager
-      Enumeration enum = managers.elements();
-      while (enum.hasMoreElements()) {
-        manager = (RemoteManager)(enum.nextElement());
+      Enumeration en = managers.elements();
+      while (en.hasMoreElements()) {
+        manager = (RemoteManager)(en.nextElement());
         int compareresult = manager.getClient().compare(loginfo);
         if (compareresult == 0)  {
           // same
