@@ -1,0 +1,6 @@
+Manifest-Version: 1.0
+OpenIDE-Module: org.netbeans.modules.java.srclessopen/0
+OpenIDE-Module-Implementation-Version: 1
+xOpenIDE-Module-Layer: org/netbeans/modules/java/srclessopen/layer.xml
+OpenIDE-Module-Localizing-Bundle: org/netbeans/modules/java/srclessopen/Bundle.properties
+
