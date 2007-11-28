@@ -44,13 +44,16 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.netbeans.modules.cnd.api.model.CsmFile;
 import org.netbeans.modules.cnd.api.model.CsmFunction;
 import org.netbeans.modules.cnd.api.model.CsmObject;
+import org.netbeans.modules.cnd.api.model.CsmOffsetable;
 import org.netbeans.modules.cnd.api.model.CsmProject;
 import org.netbeans.modules.cnd.api.model.CsmScope;
 import org.netbeans.modules.cnd.api.model.deep.CsmCondition;
 import org.netbeans.modules.cnd.api.model.deep.CsmExpression;
 import org.netbeans.modules.cnd.api.model.deep.CsmStatement;
+import org.netbeans.modules.cnd.api.model.services.CsmFileInfoQuery;
 import org.netbeans.modules.cnd.api.model.services.CsmFileReferences;
 import org.netbeans.modules.cnd.api.model.util.CsmKindUtilities;
 import org.netbeans.modules.cnd.api.model.xref.CsmReference;
@@ -128,9 +131,16 @@ public class CallModelImpl implements CallModel {
             owner = ((CsmFunction)owner).getDefinition();
         }
         if (CsmKindUtilities.isFunctionDefinition(owner)) {
+            final List<CsmOffsetable> list = CsmFileInfoQuery.getDefault().getUnusedCodeBlocks(((CsmFunction)owner).getContainingFile());
             final HashMap<CsmObject,CsmReference> set = new HashMap<CsmObject,CsmReference>();
             references.accept((CsmScope)owner, new CsmFileReferences.Visitor() {
                 public void visit(CsmReference r) {
+                    for(CsmOffsetable offset:list){
+                        if (offset.getStartOffset()<=r.getStartOffset() &&
+                            offset.getEndOffset()  >=r.getEndOffset()){
+                            return;
+                        }
+                    }
                     CsmObject o = r.getReferencedObject();
                     if (CsmKindUtilities.isFunction(o) &&
                         !CsmKindUtilities.isFunction(r.getOwner())){
