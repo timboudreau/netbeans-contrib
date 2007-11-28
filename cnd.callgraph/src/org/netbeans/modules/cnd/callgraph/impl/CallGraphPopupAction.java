@@ -41,25 +41,60 @@
 
 package org.netbeans.modules.cnd.callgraph.impl;
 
-import java.awt.event.ActionEvent;
-import javax.swing.AbstractAction;
+import org.netbeans.modules.cnd.callgraph.api.StartPoint;
+import org.netbeans.modules.cnd.callgraph.api.ui.CallGraphModelFactory;
+import org.openide.cookies.EditorCookie;
+import org.openide.nodes.Node;
+import org.openide.util.HelpCtx;
 import org.openide.util.NbBundle;
-import org.openide.windows.TopComponent;
+import org.openide.util.actions.CookieAction;
 
 /**
  *
  * @author Alexander Simon
  */
-public class CallGraphAction extends AbstractAction {
+public final class CallGraphPopupAction extends CookieAction {
 
-    public CallGraphAction() {
-        super(NbBundle.getMessage(CallGraphAction.class, "CTL_CallGraphAction"));
-//        putValue(SMALL_ICON, new ImageIcon(Utilities.loadImage(CallGraphTopComponent.ICON_PATH, true)));
+    protected void performAction(Node[] activatedNodes) {
+        StartPoint start = CallGraphModelFactory.getDefault().getStartPoint(activatedNodes);
+        if (start != null){
+            CallGraphTopComponent view = CallGraphTopComponent.findInstance();
+            view.setStartPoint(start); 
+            view.open();
+            view.requestActive();
+        }
     }
 
-    public void actionPerformed(ActionEvent evt) {
-        TopComponent win = CallGraphTopComponent.findInstance();
-        win.open();
-        win.requestActive();
+    @Override
+    protected boolean enable(Node[] activatedNodes) {
+        return CallGraphModelFactory.getDefault().getStartPoint(activatedNodes) != null;
+    }
+
+    protected int mode() {
+        return CookieAction.MODE_EXACTLY_ONE;
+    }
+
+    public String getName() {
+        return NbBundle.getMessage(CallGraphPopupAction.class, "CTL_CallGraphPopupAction");
+    }
+
+    protected Class[] cookieClasses() {
+        return new Class[]{EditorCookie.class};
+    }
+
+    @Override
+    protected void initialize() {
+        super.initialize();
+        // see org.openide.util.actions.SystemAction.iconResource() Javadoc for more details
+        putValue("noIconInMenu", Boolean.TRUE);
+    }
+
+    public HelpCtx getHelpCtx() {
+        return HelpCtx.DEFAULT_HELP;
+    }
+
+    @Override
+    protected boolean asynchronous() {
+        return false;
     }
 }
