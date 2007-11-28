@@ -36,12 +36,6 @@
                 <extensionAttr name="pollingInterval" defaultValue="10" />
                 <extensionAttr name="filterByType" defaultValue="publishDate" />
                 <extensionAttr name="filterByValue" defaultValue="now" />
-                <extensionAttr name="entryTitle" defaultValue="" />
-                <extensionAttr name="entryLink" defaultValue="" />
-                <extensionAttr name="entryDescription" defaultValue="" />
-                <extensionAttr name="latitude" defaultValue="" />
-                <extensionAttr name="longitude" defaultValue="" />
-                <extensionAttr name="feedList" defaultValue="" />
             </extensionElement>
         </wsdlElement>
         <wsdlElement name="BindingOperationOutput">
@@ -50,13 +44,7 @@
         </wsdlElement>
         <wsdlElement name="ServicePort">
             <extensionElement name="address" >
-                <extensionAttr name="feedTitle" defaultValue=""/>
-                <extensionAttr name="feedDescription" defaultValue=""/>
-                <extensionAttr name="feedType" defaultValue=""/>
                 <extensionAttr name="location" defaultValue="http://gallemore.blogspot.com/feeds/posts/default?alt=rss"/>
-                <extensionAttr name="username" defaultValue=""/>
-                <extensionAttr name="password" defaultValue=""/>
-                <extensionAttr name="correlationId" defaultValue=""/>
             </extensionElement>
         </wsdlElement>
         <wsdlElement name="Binding">

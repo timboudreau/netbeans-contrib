@@ -126,6 +126,11 @@
                             <prop:SimpleCustomizer name="PartChooser"/>
                         </prop:BuiltInCustomizer>
                     </prop:Property>
+                    <prop:Property attributeName="destinationUrl" propertyOrder="10">
+                        <prop:BuiltInCustomizer>
+                            <prop:SimpleCustomizer name="PartChooser"/>
+                        </prop:BuiltInCustomizer>
+                    </prop:Property>
                 </prop:ElementProperties>
             </xs:appinfo>
         </xs:annotation>
@@ -179,6 +184,11 @@
                 <xs:attribute name="feedList" type="xs:string" use="optional">
                     <xs:annotation>
                         <xs:documentation>DESC_Attribute_feedList</xs:documentation>
+                    </xs:annotation>
+                </xs:attribute>
+                <xs:attribute name="destinationUrl" type="xs:string" use="optional">
+                    <xs:annotation>
+                        <xs:documentation>DESC_Attribute_destinationUrl</xs:documentation>
                     </xs:annotation>
                 </xs:attribute>
             </xs:extension>
