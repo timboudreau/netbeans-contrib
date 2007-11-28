@@ -61,12 +61,12 @@ public final class CallGraphTopComponent extends TopComponent {
     /** path to the icon used by the component and its open action */
 //    static final String ICON_PATH = "SET/PATH/TO/ICON/HERE";
 
-    private static final String PREFERRED_ID = "CallGraphTopComponent";
+    private static final String PREFERRED_ID = "CallGraphTopComponent"; // NOI18N
 
     private CallGraphTopComponent() {
         initComponents();
-        setName(NbBundle.getMessage(CallGraphTopComponent.class, "CTL_CallGraphTopComponent"));
-        setToolTipText(NbBundle.getMessage(CallGraphTopComponent.class, "HINT_CallGraphTopComponent"));
+        setName(NbBundle.getMessage(CallGraphTopComponent.class, "CTL_CallGraphTopComponent")); // NOI18N
+        setToolTipText(NbBundle.getMessage(CallGraphTopComponent.class, "HINT_CallGraphTopComponent")); // NOI18N
 //        setIcon(Utilities.loadImage(ICON_PATH, true));
     }
 

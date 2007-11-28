@@ -47,10 +47,11 @@ import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
+import javax.swing.JRadioButtonMenuItem;
 import javax.swing.SwingUtilities;
 import org.netbeans.modules.cnd.callgraph.api.Call;
 import org.netbeans.modules.cnd.callgraph.api.CallModel;
-import org.netbeans.modules.cnd.callgraph.api.CallNode;
+import org.netbeans.modules.cnd.callgraph.impl.CallNode;
 import org.netbeans.modules.cnd.callgraph.api.StartPoint;
 import org.openide.explorer.ExplorerManager;
 import org.openide.explorer.view.BeanTreeView;
@@ -58,6 +59,7 @@ import org.openide.nodes.AbstractNode;
 import org.openide.nodes.Children;
 import org.openide.nodes.Node;
 import org.openide.util.HelpCtx;
+import org.openide.util.NbBundle;
 import org.openide.util.actions.Presenter;
 
 /**
@@ -77,7 +79,8 @@ public class CallGraphPanel extends JPanel implements ExplorerManager.Provider, 
         initComponents();
         getTreeView().setRootVisible(false);
         Children.Array children = new Children.SortedArray();
-        actions = new Action[]{new RefreshAction()};
+        actions = new Action[]{new RefreshAction(),
+                               null, new WhoIsCalledAction(), new WhoCallsAction()};
         root = new AbstractNode(children){
             @Override
             public Action[] getActions(boolean context) {
@@ -109,6 +112,7 @@ public class CallGraphPanel extends JPanel implements ExplorerManager.Provider, 
         jToolBar1.setRollover(true);
 
         refresh.setIcon(new javax.swing.ImageIcon(getClass().getResource("/org/netbeans/modules/cnd/callgraph/resources/refresh.png"))); // NOI18N
+        refresh.setToolTipText(org.openide.util.NbBundle.getMessage(CallGraphPanel.class, "RefreshAction")); // NOI18N
         refresh.setFocusable(false);
         refresh.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
         refresh.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
@@ -120,7 +124,8 @@ public class CallGraphPanel extends JPanel implements ExplorerManager.Provider, 
         jToolBar1.add(refresh);
         jToolBar1.add(jSeparator1);
 
-        calls.setIcon(new javax.swing.ImageIcon(getClass().getResource("/org/netbeans/modules/cnd/callgraph/resources/who_is_included.png"))); // NOI18N
+        calls.setIcon(new javax.swing.ImageIcon(getClass().getResource("/org/netbeans/modules/cnd/callgraph/resources/who_is_called.png"))); // NOI18N
+        calls.setToolTipText(org.openide.util.NbBundle.getMessage(CallGraphPanel.class, "CallsAction")); // NOI18N
         calls.setFocusable(false);
         calls.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
         calls.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
@@ -131,7 +136,8 @@ public class CallGraphPanel extends JPanel implements ExplorerManager.Provider, 
         });
         jToolBar1.add(calls);
 
-        callers.setIcon(new javax.swing.ImageIcon(getClass().getResource("/org/netbeans/modules/cnd/callgraph/resources/who_includes.png"))); // NOI18N
+        callers.setIcon(new javax.swing.ImageIcon(getClass().getResource("/org/netbeans/modules/cnd/callgraph/resources/who_calls.png"))); // NOI18N
+        callers.setToolTipText(org.openide.util.NbBundle.getMessage(CallGraphPanel.class, "CallersAction")); // NOI18N
         callers.setFocusable(false);
         callers.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
         callers.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
@@ -247,7 +253,7 @@ public class CallGraphPanel extends JPanel implements ExplorerManager.Provider, 
     private class RefreshAction extends AbstractAction implements Presenter.Popup {
         private JMenuItem menuItem;
         public RefreshAction() {
-            putValue(Action.NAME, "Refresh"); 
+            putValue(Action.NAME, NbBundle.getMessage(CallGraphPanel.class, "RefreshAction"));  // NOI18N
             putValue(Action.SMALL_ICON, refresh.getIcon());
             menuItem = new JMenuItem((String)getValue(Action.NAME)); 
             menuItem.setAction(this);
@@ -258,6 +264,43 @@ public class CallGraphPanel extends JPanel implements ExplorerManager.Provider, 
         }
 
         public final JMenuItem getPopupPresenter() {
+            return menuItem;
+        }
+    }
+    private class WhoCallsAction extends AbstractAction implements Presenter.Popup {
+        private JRadioButtonMenuItem menuItem;
+        public WhoCallsAction() {
+            putValue(Action.NAME, NbBundle.getMessage(CallGraphPanel.class, "CallersAction"));  // NOI18N
+            putValue(Action.SMALL_ICON, callers.getIcon());
+            menuItem = new JRadioButtonMenuItem((String)getValue(Action.NAME)); 
+            menuItem.setAction(this);
+        }
+ 
+        public void actionPerformed(ActionEvent e) {
+            setDirection(false);
+        }
+
+        public final JMenuItem getPopupPresenter() {
+            menuItem.setSelected(!isCalls);
+            return menuItem;
+        }
+    }
+
+    private class WhoIsCalledAction extends AbstractAction implements Presenter.Popup {
+        private JRadioButtonMenuItem menuItem;
+        public WhoIsCalledAction() {
+            putValue(Action.NAME, NbBundle.getMessage(CallGraphPanel.class, "CallsAction"));  // NOI18N
+            putValue(Action.SMALL_ICON, calls.getIcon());
+            menuItem = new JRadioButtonMenuItem((String)getValue(Action.NAME)); 
+            menuItem.setAction(this);
+        }
+ 
+        public void actionPerformed(ActionEvent e) {
+            setDirection(true);
+        }
+
+        public final JMenuItem getPopupPresenter() {
+            menuItem.setSelected(isCalls);
             return menuItem;
         }
     }

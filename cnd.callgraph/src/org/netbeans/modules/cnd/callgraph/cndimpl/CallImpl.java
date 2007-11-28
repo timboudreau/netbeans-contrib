@@ -48,6 +48,7 @@ import org.netbeans.modules.cnd.api.model.util.CsmKindUtilities;
 import org.netbeans.modules.cnd.api.model.xref.CsmReference;
 import org.netbeans.modules.cnd.callgraph.api.Call;
 import org.netbeans.modules.cnd.modelutil.CsmImageLoader;
+import org.openide.util.NbBundle;
 
 /**
  *
@@ -117,7 +118,7 @@ public class CallImpl implements Call {
                 name = f.getName();
             }
         } else {
-            name = "Unknown";
+            name = getString("UnknownName"); // NOI18N
         }
     }
 
@@ -133,4 +134,7 @@ public class CallImpl implements Call {
         return null;
     }
 
+    private String getString(String key) {
+        return NbBundle.getMessage(getClass(), key);
+    }
 }

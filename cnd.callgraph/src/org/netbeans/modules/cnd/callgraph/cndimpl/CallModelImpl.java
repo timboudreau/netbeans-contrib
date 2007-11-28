@@ -128,14 +128,12 @@ public class CallModelImpl implements CallModel {
             owner = ((CsmFunction)owner).getDefinition();
         }
         if (CsmKindUtilities.isFunctionDefinition(owner)) {
-            //final CsmFunctionDefinition analyzedDefinition = (CsmFunctionDefinition)owner;
-            //final CsmFunction analyzedDeclaration = analyzedDefinition.getDeclaration();
             final HashMap<CsmObject,CsmReference> set = new HashMap<CsmObject,CsmReference>();
             references.accept((CsmScope)owner, new CsmFileReferences.Visitor() {
                 public void visit(CsmReference r) {
                     CsmObject o = r.getReferencedObject();
                     if (CsmKindUtilities.isFunction(o) &&
-                        !CsmKindUtilities.isFunction(r.getOwner())){//!analyzedDefinition.equals(o) && !analyzedDeclaration.equals(o)) {
+                        !CsmKindUtilities.isFunction(r.getOwner())){
                         if (!set.containsKey(o)) {
                             set.put(o, r);
                         }

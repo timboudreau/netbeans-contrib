@@ -1,8 +1,8 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
- *
+ * 
  * Copyright 1997-2007 Sun Microsystems, Inc. All rights reserved.
- *
+ * 
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common
  * Development and Distribution License("CDDL") (collectively, the
@@ -20,13 +20,7 @@
  * License Header, with the fields enclosed by brackets [] replaced by
  * your own identifying information:
  * "Portions Copyrighted [year] [name of copyright owner]"
- *
- * Contributor(s):
- *
- * The Original Software is NetBeans. The Initial Developer of the Original
- * Software is Sun Microsystems, Inc. Portions Copyright 1997-2007 Sun
- * Microsystems, Inc. All Rights Reserved.
- *
+ * 
  * If you wish your version of this file to be governed by only the CDDL
  * or only the GPL Version 2, indicate your decision by adding
  * "[Contributor] elects to include this software in this distribution
@@ -37,29 +31,65 @@
  * However, if you add GPL Version 2 code and therefore, elected the GPL
  * Version 2 license, then the option applies only if the new code is
  * made subject to such option by the copyright holder.
+ * 
+ * Contributor(s):
+ * 
+ * Portions Copyrighted 2007 Sun Microsystems, Inc.
  */
 
 package org.netbeans.modules.cnd.callgraph.impl;
 
-import java.awt.event.ActionEvent;
-import javax.swing.AbstractAction;
-import org.openide.util.NbBundle;
-import org.openide.windows.TopComponent;
+import org.netbeans.modules.cnd.callgraph.api.*;
+import java.awt.Image;
+import javax.swing.Action;
+import org.netbeans.modules.cnd.callgraph.api.ui.CallGraphActionsFactory;
+import org.openide.nodes.AbstractNode;
+import org.openide.nodes.Children;
 
 /**
  *
  * @author Alexander Simon
  */
-public class CallGraphAction extends AbstractAction {
-
-    public CallGraphAction() {
-        super(NbBundle.getMessage(CallGraphAction.class, "CTL_CallGraphAction")); // NOI18N
-//        putValue(SMALL_ICON, new ImageIcon(Utilities.loadImage(CallGraphTopComponent.ICON_PATH, true)));
+public class CallNode extends AbstractNode {
+    private Call object;
+    private CallModel model;
+    
+    public CallNode(Call element, CallModel model, boolean isCalls) {
+        this(element, new CallChildren(element, model, isCalls), model);
     }
 
-    public void actionPerformed(ActionEvent evt) {
-        TopComponent win = CallGraphTopComponent.findInstance();
-        win.open();
-        win.requestActive();
+    public CallNode(Call element, Children children, CallModel model) {
+        super(children);
+        object = element;
+        this.model = model;
+        setName(element.getName());
+    }
+
+    @Override
+    public Image getIcon(int param) {
+        Image res = object.getIcon(param);
+        if (res == null){
+            res = super.getIcon(param);
+        }
+        return res;
+    }
+    
+    @Override
+    public Image getOpenedIcon(int param) {
+        return getIcon(param);
+    }
+    
+    @Override
+    public Action getPreferredAction() {
+        return CallGraphActionsFactory.getDefault().gotoAction(object);
+    }
+
+    @Override
+    public Action[] getActions(boolean context) {
+        Action action = getPreferredAction();
+        if (action != null){
+            return new Action[]{action};
+        }
+        return new Action[]{};
     }
 }

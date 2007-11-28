@@ -34,6 +34,9 @@
             <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
               <Image iconType="3" name="/org/netbeans/modules/cnd/callgraph/resources/refresh.png"/>
             </Property>
+            <Property name="toolTipText" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
+              <ResourceString bundle="org/netbeans/modules/cnd/callgraph/impl/Bundle.properties" key="RefreshAction" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
+            </Property>
             <Property name="focusable" type="boolean" value="false"/>
             <Property name="horizontalTextPosition" type="int" value="0"/>
             <Property name="verticalTextPosition" type="int" value="3"/>
@@ -47,7 +50,10 @@
         <Component class="javax.swing.JToggleButton" name="calls">
           <Properties>
             <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
-              <Image iconType="3" name="/org/netbeans/modules/cnd/callgraph/resources/who_is_included.png"/>
+              <Image iconType="3" name="/org/netbeans/modules/cnd/callgraph/resources/who_is_called.png"/>
+            </Property>
+            <Property name="toolTipText" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
+              <ResourceString bundle="org/netbeans/modules/cnd/callgraph/impl/Bundle.properties" key="CallsAction" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
             </Property>
             <Property name="focusable" type="boolean" value="false"/>
             <Property name="horizontalTextPosition" type="int" value="0"/>
@@ -60,7 +66,10 @@
         <Component class="javax.swing.JToggleButton" name="callers">
           <Properties>
             <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
-              <Image iconType="3" name="/org/netbeans/modules/cnd/callgraph/resources/who_includes.png"/>
+              <Image iconType="3" name="/org/netbeans/modules/cnd/callgraph/resources/who_calls.png"/>
+            </Property>
+            <Property name="toolTipText" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
+              <ResourceString bundle="org/netbeans/modules/cnd/callgraph/impl/Bundle.properties" key="CallersAction" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
             </Property>
             <Property name="focusable" type="boolean" value="false"/>
             <Property name="horizontalTextPosition" type="int" value="0"/>

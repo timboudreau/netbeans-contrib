@@ -75,7 +75,7 @@ public final class CallGraphPopupAction extends CookieAction {
     }
 
     public String getName() {
-        return NbBundle.getMessage(CallGraphPopupAction.class, "CTL_CallGraphPopupAction");
+        return NbBundle.getMessage(CallGraphPopupAction.class, "CTL_CallGraphPopupAction"); // NOI18N
     }
 
     protected Class[] cookieClasses() {
@@ -86,7 +86,7 @@ public final class CallGraphPopupAction extends CookieAction {
     protected void initialize() {
         super.initialize();
         // see org.openide.util.actions.SystemAction.iconResource() Javadoc for more details
-        putValue("noIconInMenu", Boolean.TRUE);
+        putValue("noIconInMenu", Boolean.TRUE); // NOI18N
     }
 
     public HelpCtx getHelpCtx() {
