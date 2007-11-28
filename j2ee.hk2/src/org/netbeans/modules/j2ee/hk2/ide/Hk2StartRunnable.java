@@ -65,6 +65,10 @@ import org.openide.util.NbBundle;
  */
 public class Hk2StartRunnable implements Runnable {
     
+    private static final String GFV3_LIB_DIR_NAME = "lib"; // NOI18N
+    private static final String GFV3_MODULES_DIR_NAME = "modules"; // NOI18N
+    private static final String GFV3_SNAPSHOT_JAR_NAME = "glassfish-10.0-SNAPSHOT.jar"; // NOI18N"
+    
     
     private Hk2DeploymentManager dm;
     private String instanceName;
@@ -155,14 +159,20 @@ public class Hk2StartRunnable implements Runnable {
     }
     
     private NbProcessDescriptor createProcessDescriptor() {
-
-        String startScript = System.getProperty("java.home")+"/bin/java" ; 
-        String jarlocation = ip.getProperty(Hk2PluginProperties.PROPERTY_HK2_HOME) +"/lib/glassfish-10.0-SNAPSHOT.jar";
-        if (!new File(jarlocation).exists()){
-            fireStartProgressEvent(StateType.FAILED, createProgressMessage("MSG_START_SERVER_FAILED_FNF")); //NOI18N
-            return null;
+        String startScript = System.getProperty("java.home") + "/bin/java" ; 
+        String hk2Home = ip.getProperty(Hk2PluginProperties.PROPERTY_HK2_HOME);
+        
+        String jarLocation = hk2Home + "/" + GFV3_MODULES_DIR_NAME + "/" + GFV3_SNAPSHOT_JAR_NAME;
+        if (!new File(jarLocation).exists()){
+            // !PW Older V3 installs (pre 12/01/07) put snapshot jar in lib folder.
+            jarLocation = hk2Home + "/" + GFV3_LIB_DIR_NAME + "/" + GFV3_SNAPSHOT_JAR_NAME;
+            if (!new File(jarLocation).exists()){
+                fireStartProgressEvent(StateType.FAILED, createProgressMessage("MSG_START_SERVER_FAILED_FNF")); //NOI18N
+                return null;
+            }
         }
-        return new NbProcessDescriptor(startScript, " -jar \""+jarlocation+"\""); //NOI18N
+        
+        return new NbProcessDescriptor(startScript, " -jar \"" + jarLocation + "\""); //NOI18N
     }
     
     private Process createProcess() {

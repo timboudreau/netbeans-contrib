@@ -143,9 +143,13 @@ public class AddServerLocationPanel implements WizardDescriptor.Panel, ChangeLis
     }
     
     private boolean isValidV3Install(File installDir) {
-        File glassfishRef = new File(installDir, "lib" + File.separator + "glassfish-10.0-SNAPSHOT.jar");
+        File glassfishRef = new File(installDir, "modules" + File.separator + "glassfish-10.0-SNAPSHOT.jar");
         if(!glassfishRef.exists()) {
-            return false;
+            // !PW Older V3 installs (pre 12/01/07) put snapshot jar in lib folder.
+            glassfishRef = new File(installDir, "lib" + File.separator + "glassfish-10.0-SNAPSHOT.jar");
+            if(!glassfishRef.exists()) {
+                return false;
+            }
         }
         
         File containerRef = new File(installDir, "config" + File.separator + "glassfish.container");
