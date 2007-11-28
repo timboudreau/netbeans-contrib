@@ -45,6 +45,8 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
 import javax.swing.JComponent;
 import javax.swing.JEditorPane;
 import javax.swing.JPanel;
@@ -73,6 +75,8 @@ public class JavaFXDocument extends NbEditorDocument{
 
     boolean executionEnabled = false;
     boolean errorAndSyntaxEnabled = false;
+    boolean compReqNew = false;
+    boolean compReqNewP = false;
     
     public JavaFXDocument(Class kitClass) {
 
@@ -100,6 +104,21 @@ public class JavaFXDocument extends NbEditorDocument{
     @Override
     public Component createEditor(JEditorPane pane){
         editor = super.createEditor(pane);
+        
+        final JavaFXDocument doc = this;
+        
+        FocusListener focusListener = new FocusListener() {
+            public void focusGained(FocusEvent e) {
+                doc.compReqNew(true);
+                doc.compReqNewP(true);
+            }
+
+            public void focusLost(FocusEvent e) {
+            }
+        };
+        
+        pane.addFocusListener(focusListener);
+        
         Class clQEP = null;
         try{  
             clQEP = Class.forName("org.openide.text.QuietEditorPane");
@@ -139,6 +158,22 @@ public class JavaFXDocument extends NbEditorDocument{
             return split;
             
         }
+    }
+    
+    public void compReqNew(boolean value){
+        this.compReqNew = value;
+    }
+
+    public boolean isCompReqNew(){
+        return compReqNew;
+    }
+    
+    public void compReqNewP(boolean value){
+        this.compReqNewP = value;
+    }
+
+    public boolean isCompReqNewP(){
+        return compReqNewP;
     }
     
     public DataObject getDataObject(){

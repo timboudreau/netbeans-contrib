@@ -61,7 +61,7 @@ function FiltersExample.composeNode() = Group {
     
 Canvas {
     var node = FiltersExample{
-        transform:translate(100,20)
+        transform:translate(120,40)
     }
     content:[node,
         View {
@@ -69,15 +69,65 @@ Canvas {
                 text:
 "<html> 
    <body>
-       <p>Click the links below to see the effect of several different shapes.</p>                
-       <li><a href='{#(operation(){node.currentFilter = [];})}'>None</a></li>
-       <li><a href='{#(operation(){node.currentFilter = ShadowFilter;})}'>Shadow</a></li>
-       <li><a href='{#(operation(){node.currentFilter = GaussianBlur {radius: 6};})}'>Blur</a></li>
-       <li><a href='{#(operation(){node.currentFilter = Noise {distribution: 0};})}'>Noise</a></li>
-       <li><a href='{#(operation(){node.currentFilter =ShapeBurst;})}'>ShapeBurst</a></li>
+       <p>Click the buttons below to see the effect of several different shapes.</p>                
    </body>
 </html>"                
             }
+        },View {
+            transform:translate(0,20)
+            content:
+                GroupPanel{
+                    cursor: DEFAULT
+                    var row1 = Row {alignment: BASELINE}
+                    var row2 = Row {alignment: BASELINE}
+                    var row3 = Row {alignment: BASELINE}
+                    var row4 = Row {alignment: BASELINE}
+                    var row5 = Row {alignment: BASELINE}
+                    var column1 = Column { }
+                    rows: [row1, row2, row3, row4, row5]
+                    columns: [column1]
+                    content:[
+                        Button{
+                            preferredSize: {width: 110}
+                            row:row1
+                            column: column1
+                            text: "None"
+                            opaque: false
+                            action: operation(){node.currentFilter = [];}
+                        },
+                        Button{
+                            preferredSize: {width: 110}
+                            row:row2
+                            column: column1
+                            text: "Shadow"
+                            opaque: false
+                            action: operation(){node.currentFilter = ShadowFilter;}
+                        },
+                        Button{
+                            preferredSize: {width: 110}
+                            row:row3
+                            column: column1
+                            text: "Blur"
+                            opaque: false
+                            action: operation(){node.currentFilter = GaussianBlur {radius: 6};}
+                        },
+                        Button{
+                            preferredSize: {width: 110}
+                            row:row4
+                            column: column1
+                            text: "Noise"
+                            opaque: false
+                            action: operation(){node.currentFilter = Noise {distribution: 0};}
+                        },
+                        Button{
+                            preferredSize: {width: 110}
+                            row:row5
+                            column: column1
+                            text: "ShapeBurst"
+                            opaque: false
+                            action: operation(){node.currentFilter =ShapeBurst;}
+                        }
+                    ]}
         }
     ]
 }

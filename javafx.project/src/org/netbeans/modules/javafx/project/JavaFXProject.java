@@ -760,6 +760,8 @@ public final class JavaFXProject implements Project, AntProjectListener {
 //                "Templates/WebServices/WebServiceClient" // NOI18N
         };
 
+
+
         public String[] getRecommendedTypes() {
 
             EditableProperties ep = helper

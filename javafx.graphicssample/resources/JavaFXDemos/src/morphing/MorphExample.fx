@@ -53,6 +53,7 @@ Group {
         transform: translate(10, 10)
         content: Button {
             text: "Morph"
+            opaque: false
             action: operation() {morph.morph = [0,.01..1] dur 2000;}
         }
     }

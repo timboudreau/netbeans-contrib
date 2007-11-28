@@ -91,15 +91,64 @@ Canvas {
                 text:
 "<html> 
    <body>
-       <p>Click the links below to see the effect of several different shapes.</p>                
-       <li><a href='{#(operation(){node.transformation = [];})}'>None</a></li>
-       <li><a href='{#(operation(){node.transformation = translate(100, 20);})}'>Translate</a></li>
-       <li><a href='{#(operation(){node.transformation = rotate(20, 0, 0);})}'>Rotate</a></li>
-       <li><a href='{#(operation(){node.transformation = scale(2.0, 2.0);})}'>Scale</a></li>
-       <li><a href='{#(operation(){node.transformation =skew(10, 10);})}'>Skew</a></li>
+       <p>Click the buttons below to see the effect of several different shapes.</p>                
    </body>
 </html>"                
             }
-        }
+        },View {
+            transform:translate(0,20)
+            content:
+                GroupPanel{
+                    cursor: DEFAULT
+                    var row1 = Row {alignment: BASELINE}
+                    var row2 = Row {alignment: BASELINE}
+                    var row3 = Row {alignment: BASELINE}
+                    var row4 = Row {alignment: BASELINE}
+                    var row5 = Row {alignment: BASELINE}
+                    var column1 = Column { }
+                    rows: [row1, row2, row3, row4, row5]
+                    columns: [column1]
+                    content:[
+                        Button{
+                            preferredSize: {width: 100}
+                            row:row1
+                            column: column1
+                            text: "None"
+                            opaque: false
+                            action: operation(){node.transformation = [];}
+                        },
+                        Button{
+                            preferredSize: {width: 100}
+                            row:row2
+                            column: column1
+                            text: "Translate"
+                            opaque: false
+                            action: operation(){node.transformation = translate(100, 20);}
+                        },
+                        Button{
+                            preferredSize: {width: 100}
+                            row:row3
+                            column: column1
+                            text: "Rotate"
+                            opaque: false
+                            action: operation(){node.transformation = rotate(20, 0, 0);}
+                        },
+                        Button{
+                            preferredSize: {width: 100}
+                            row:row4
+                            column: column1
+                            text: "Scale"
+                            opaque: false
+                            action: operation(){node.transformation = scale(2.0, 2.0);}
+                        },
+                        Button{
+                            preferredSize: {width: 100}
+                            row:row5
+                            column: column1
+                            text: "Skew"
+                            opaque: false
+                            action: operation(){node.transformation =skew(10, 10);}
+                        }
+                ]}}
     ]
 }        

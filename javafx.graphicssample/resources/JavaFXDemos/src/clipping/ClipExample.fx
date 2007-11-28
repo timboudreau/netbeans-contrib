@@ -94,14 +94,48 @@ Canvas {
                 text:
 "<html> 
    <body>
-       <p>Click the links below to see the effect of several different shapes.</p>                
-       <li><a href='{#(operation(){clip.shape = Rect { x: 40, y: 40, width: 220, height: 80};})}'>Rectangle</a></li>
-       <li><a href='{#(operation(){clip.shape = Circle { cx: 150, cy: 80, radius: 60 };})}'>Circle</a></li>
-       <li><a href='{#(operation(){clip.shape = Text { x: 30, y: 30, font: new Font("Verdana", "BOLD", 100), content: "Text" };})}'>Text</a></li>
+       <p>Click the buttons below to see the effect of several different shapes.</p>                
    </body>
 </html>"                
                                     
             }
-        }
+        },View {
+            transform:translate(370,20)
+            content:
+                GroupPanel{
+                    cursor: DEFAULT
+                    var row1 = Row {alignment: BASELINE}
+                    var row2 = Row {alignment: BASELINE}
+                    var row3 = Row {alignment: BASELINE}
+                    var column1 = Column { }
+                    rows: [row1, row2, row3]
+                    columns: [column1]
+                    content:[
+                        Button{
+                            preferredSize: {width: 120}
+                            row:row1
+                            column: column1
+                            text: "Rectangle"
+                            opaque: false
+                            action: operation(){clip.shape = Rect { x: 40, y: 40, width: 220, height: 80};}
+                        },
+                        Button{
+                            preferredSize: {width: 120}
+                            row:row2
+                            column: column1
+                            text: "Circle"
+                            opaque: false
+                            action: operation(){clip.shape = Circle { cx: 150, cy: 80, radius: 60 };}
+                        },
+                        Button{
+                            preferredSize: {width: 120}
+                            row:row3
+                            column: column1
+                            text: "Text"
+                            opaque: false
+                            action: operation(){clip.shape = Text { x: 30, y: 30, font: new Font("Verdana", "BOLD", 100), content: "Text" };}
+                        }
+                    ]
+                }}
     ]
 }
