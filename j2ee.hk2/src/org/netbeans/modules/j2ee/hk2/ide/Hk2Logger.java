@@ -139,7 +139,7 @@ public class Hk2Logger {
      * @param s message to write
      */
     public synchronized void write(String s) {
-        io.getOut().println(s);
+        io.getOut().print(s);
     }
     
     /**
