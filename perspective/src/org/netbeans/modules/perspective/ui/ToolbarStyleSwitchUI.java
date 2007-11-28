@@ -44,7 +44,6 @@
  *
  * Created on September 8, 2007, 11:18 AM
  */
-
 package org.netbeans.modules.perspective.ui;
 
 import java.awt.Component;
@@ -197,18 +196,22 @@ public class ToolbarStyleSwitchUI extends JToolBar {
 
         //add Actions
         SwitchAction selecedAction = new SwitchAction(selected);
-        SwitchAction nextAction = new SwitchAction(next);
-
         btnSelected.setAction(selecedAction);
-        btnNext.setAction(nextAction);
 
+
+
+
+        if (!selected.equals(next)) {
+            SwitchAction nextAction = new SwitchAction(next);
+            btnNext.setAction(nextAction);
+        }
         buttonGroup.setSelected(btnSelected.getModel(), true);
     }
 
     private class SwitchListAction extends AbstractAction {
 
         public SwitchListAction() {
-            putValue(SMALL_ICON, new javax.swing.ImageIcon(Utilities.loadImage("org/netbeans/modules/perspective/resources/perspective.png",true)));
+            putValue(SMALL_ICON, new javax.swing.ImageIcon(Utilities.loadImage("org/netbeans/modules/perspective/resources/perspective.png", true)));
         }
 
         public void actionPerformed(ActionEvent e) {
