@@ -293,7 +293,7 @@ public class SaveAsUI extends javax.swing.JDialog {
             if (selectedPerspective != null) {
                 perspective.setImagePath(selectedPerspective.getImagePath());
             } else {
-                perspective.setImagePath("org/netbeans/modules/perspective/resources/custom.png");
+                perspective.setImagePath("org/netbeans/modules/perspective/resources/custom.png");//NOI18N
             }
         }
 
