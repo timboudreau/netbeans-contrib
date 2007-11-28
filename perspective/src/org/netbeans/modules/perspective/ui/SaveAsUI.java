@@ -43,7 +43,6 @@
  *
  * Created on August 5, 2007, 5:22 PM
  */
-
 package org.netbeans.modules.perspective.ui;
 
 import java.awt.event.ActionEvent;
@@ -70,7 +69,7 @@ public class SaveAsUI extends javax.swing.JDialog {
 
     private static final long serialVersionUID = 1l;
     private DefaultListModel defaultListModel = new DefaultListModel();
-    private static String Here = NbBundle.getMessage(SaveAsUI.class,"HERE");
+    private static String Here = NbBundle.getMessage(SaveAsUI.class, "HERE");
     private PerspectiveImpl selected;
 
     /** Creates new form SaveAsUI */
@@ -93,7 +92,7 @@ public class SaveAsUI extends javax.swing.JDialog {
                     selected = null;
                     loadcmbPerspectives();
                 }
-                
+
                 validateName();
             }
         });
@@ -101,8 +100,6 @@ public class SaveAsUI extends javax.swing.JDialog {
         loadPerspectives();
         validateName();
     }
-
- 
 
     private void loadPerspectives() {
         defaultListModel.clear();
@@ -233,7 +230,6 @@ public class SaveAsUI extends javax.swing.JDialog {
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
-
     private void txtNameKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtNameKeyReleased
         validateName();
         validateExist();
@@ -252,7 +248,7 @@ public class SaveAsUI extends javax.swing.JDialog {
         PerspectiveImpl mode;
 
         public CancelAction() {
-            putValue(NAME, NbBundle.getMessage(SaveAsUI.class,"Cancel"));
+            putValue(NAME, NbBundle.getMessage(SaveAsUI.class, "Cancel"));
         }
 
         public void actionPerformed(ActionEvent e) {
@@ -275,28 +271,32 @@ public class SaveAsUI extends javax.swing.JDialog {
             modeList.setSelectedValue(perspective, true);
         } else {
             modeList.clearSelection();
-            
+
         }
     }
 
     private void saveAsMutilMode() {
         PerspectiveImpl perspective = (PerspectiveImpl) modeList.getSelectedValue();
         if (perspective != null) {
-            NotifyDescriptor d = new NotifyDescriptor.Confirmation("'"+perspective.getAlias()+ NbBundle.getMessage(SaveAsUI.class,"OverWrite_Massage"), NbBundle.getMessage(SaveAsUI.class,"Overwrite_Perspective"),
+            NotifyDescriptor d = new NotifyDescriptor.Confirmation("'" + perspective.getAlias() + NbBundle.getMessage(SaveAsUI.class, "OverWrite_Massage"), NbBundle.getMessage(SaveAsUI.class, "Overwrite_Perspective"),
                     NotifyDescriptor.YES_NO_OPTION);
             if (DialogDisplayer.getDefault().notify(d) != NotifyDescriptor.YES_OPTION) {
                 return;
             }
             PerspectiveManagerImpl.getInstance().deregisterPerspective(perspective);
             perspective.clear();
-        }else{
-         
-         perspective = new PerspectiveImpl(PerspectivePreferences.getInstance().getCustomPerspectiveName(),
-                 txtName.getText().trim());
-         PerspectiveImpl selectedPerspective=PerspectiveManagerImpl.getInstance().getSelected();
-         perspective.setImagePath(selectedPerspective.getImagePath());
+        } else {
+
+            perspective = new PerspectiveImpl(PerspectivePreferences.getInstance().getCustomPerspectiveName(),
+                    txtName.getText().trim());
+            PerspectiveImpl selectedPerspective = PerspectiveManagerImpl.getInstance().getSelected();
+            if (selectedPerspective != null) {
+                perspective.setImagePath(selectedPerspective.getImagePath());
+            } else {
+                perspective.setImagePath("org/netbeans/modules/perspective/resources/custom.png");
+            }
         }
-        
+
 
         new CurrentPerspectiveReader(perspective);
         PerspectiveManagerImpl.getInstance().registerPerspective(cmbPosition.getSelectedIndex(), perspective);
@@ -311,14 +311,13 @@ public class SaveAsUI extends javax.swing.JDialog {
         PerspectiveImpl mode;
 
         public SaveAs() {
-            putValue(NAME, NbBundle.getMessage(SaveAsUI.class,"OK"));
+            putValue(NAME, NbBundle.getMessage(SaveAsUI.class, "OK"));
         }
 
         public void actionPerformed(ActionEvent e) {
             saveAsMutilMode();
         }
     }
-    
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnCancel;
     private javax.swing.JButton btnOK;
