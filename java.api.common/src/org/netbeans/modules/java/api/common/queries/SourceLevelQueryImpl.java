@@ -82,7 +82,7 @@ class SourceLevelQueryImpl implements SourceLevelQueryImplementation {
         return null;
     }
     
-    // TMYSIK TODO: copied from J2SEProjectUtilities, should be part of some API probably (JavaPlatformManager?)
+    // XXX copied from J2SEProjectUtilities, should be part of some API probably (JavaPlatformManager?)
     private static JavaPlatform getActivePlatform(final String activePlatformId) {
         final JavaPlatformManager pm = JavaPlatformManager.getDefault();
         if (activePlatformId == null) {

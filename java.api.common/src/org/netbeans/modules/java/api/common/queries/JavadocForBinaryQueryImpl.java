@@ -126,13 +126,13 @@ class JavadocForBinaryQueryImpl implements JavadocForBinaryQueryImplementation {
             }
             
             public void addChangeListener(final ChangeListener l) {
-                // TMYSIK do we need assert?
+                // XXX do we need assert?
                 assert l != null;
                 changeSupport.addChangeListener(l);
             }
             
             public void removeChangeListener(final ChangeListener l) {
-                // TMYSIK do we need assert?
+                // XXX do we need assert?
                 assert l != null;
                 changeSupport.removeChangeListener(l);
             }

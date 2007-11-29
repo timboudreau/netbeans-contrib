@@ -64,7 +64,7 @@ public final class FileEncodingQuerySupport {
      */
     public static FileEncodingQueryImplementation create(PropertyEvaluator eval, String sourceEncodingPropertyName) {
         Parameters.notNull("eval", eval);
-        // TMYSIK
+        // XXX or just notNull() ?
         Parameters.notWhitespace("sourceEncodingPropertyName", sourceEncodingPropertyName);
         
         return new FileEncodingQueryImpl(eval, sourceEncodingPropertyName);

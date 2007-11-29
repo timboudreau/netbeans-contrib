@@ -117,7 +117,7 @@ public final class PlatformUiSupport {
      * Like {@link #storePlatform(EditableProperties, UpdateHelper, Object, Object)}, but platform name may be
      * <code>null</code> (in such case the default platform is used).
      * @param props project's shared properties.
-     * @param helper AntProjectHelper that is capable to upgrade project metadata if needed.
+     * @param helper {@link UpdateHelper} that is capable to upgrade project metadata if needed.
      * @param projectConfigurationNamespace project configuration namespace.
      * @param platformName platform name to store, can be <code>null</code>.
      * @param sourceLevel specification version to store.
@@ -141,7 +141,7 @@ public final class PlatformUiSupport {
     /**
      * Stores active platform, <i>javac.source</i> and <i>javac.target</i> into the project's metadata.
      * @param props project's shared properties
-     * @param helper TMYSIK AntProjectHelper that is capable to upgrade project metadata if needed.
+     * @param helper {@link UpdateHelper} that is capable to upgrade project metadata if needed.
      * @param projectConfigurationNamespace project configuration namespace.
      * @param platformKey the {@link PlatformKey} got from the platform model.
      * @param sourceLevelKey {@link SourceLevelKey} representing source level; can be <code>null</code>.
@@ -235,11 +235,6 @@ public final class PlatformUiSupport {
             javacSource = JDK_1_5.toString();
         }
 
-        // TMYSIK - remove
-        // #89131: these levels are not actually distinct from 1.5.
-        if (javacSource.equals("1.6") || javacSource.equals("1.7")) {
-            javacSource = "1.5";
-        }
         if (!javacSource.equals(props.getProperty(javacSourceKey))) {
             props.setProperty(javacSourceKey, javacSource);
         }
