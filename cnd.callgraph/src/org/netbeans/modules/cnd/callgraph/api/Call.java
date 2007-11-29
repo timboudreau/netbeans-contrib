@@ -46,8 +46,15 @@ import java.awt.Image;
  * @author Alexander Simon
  */
 public interface Call extends Comparable<Call>{
-    String getName();
-    String getDescription();
-    Image getIcon(int param);
-    Object getUserObject();
+    Object getReferencedCall();
+
+    Object getFunctionDeclaration();
+    String getFunctionName();
+    String getFunctionDescription();
+    Image getFunctionIcon();
+    
+    Object getCallOwner();
+    String getOwnerName();
+    String getOwnerDescription();
+    Image getOwnerIcon();
 }

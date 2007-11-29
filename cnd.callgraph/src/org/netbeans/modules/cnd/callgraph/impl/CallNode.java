@@ -41,10 +41,11 @@ package org.netbeans.modules.cnd.callgraph.impl;
 
 import org.netbeans.modules.cnd.callgraph.api.*;
 import java.awt.Image;
+import java.awt.Point;
 import javax.swing.Action;
+import org.netbeans.api.visual.widget.Widget;
 import org.netbeans.modules.cnd.callgraph.api.ui.CallGraphActionsFactory;
 import org.openide.nodes.AbstractNode;
-import org.openide.nodes.Children;
 
 /**
  *
@@ -52,22 +53,55 @@ import org.openide.nodes.Children;
  */
 public class CallNode extends AbstractNode {
     private Call object;
-    private CallModel model;
-    
-    public CallNode(Call element, CallModel model, boolean isCalls) {
-        this(element, new CallChildren(element, model, isCalls), model);
+    private CallGraphState model;
+    private boolean isCalls;
+
+    public CallNode(Call element, CallGraphState model, boolean isCalls) {
+        this(element, model, isCalls, false);
     }
 
-    public CallNode(Call element, Children children, CallModel model) {
-        super(children);
+    public CallNode(Call element, CallGraphState model, boolean isCalls, boolean isRoot) {
+        super(new CallChildren(element, model, isCalls));
         object = element;
         this.model = model;
-        setName(element.getName());
-    }
+        this.isCalls = isCalls;
+        if (isCalls) {
+            setName(element.getFunctionDescription());
+        } else {
+            setName(element.getOwnerDescription());
+        }
 
+        Function toFunction = new Function(element,true);
+        Widget to = model.getScene().findWidget(toFunction);
+        if (to == null){
+            to = model.getScene().addNode(toFunction);
+            to.setPreferredLocation (new Point (100, 100));
+        }
+        if (!isRoot && element.getCallOwner() != null) {
+            Function fromFunction = new Function(element, false);
+            Widget from = model.getScene().findWidget(fromFunction);
+            if (from == null) {
+                from = model.getScene().addNode(fromFunction);
+                from.setPreferredLocation(new Point(10, 10));
+            }
+            if (model.getScene().findEdgesBetween(toFunction, fromFunction).size()==0) {
+                model.getScene().addEdge(element);
+                model.getScene().setEdgeSource(element, fromFunction);
+                model.getScene().setEdgeTarget(element, toFunction);
+            }
+        }
+        model.getScene().validate();
+        model.getSceneLayout().invokeLayout();
+    }
+    
     @Override
     public Image getIcon(int param) {
-        Image res = object.getIcon(param);
+        Image res = null;
+        if (isCalls) {
+            res = object.getFunctionIcon();
+        } else {
+            res = object.getOwnerIcon();
+        }
         if (res == null){
             res = super.getIcon(param);
         }

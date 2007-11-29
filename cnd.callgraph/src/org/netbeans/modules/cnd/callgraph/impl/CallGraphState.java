@@ -39,65 +39,32 @@
 
 package org.netbeans.modules.cnd.callgraph.impl;
 
-import org.netbeans.modules.cnd.callgraph.api.*;
-import java.util.Collections;
-import java.util.List;
-import org.openide.nodes.Children;
-import org.openide.nodes.Node;
+import org.netbeans.api.visual.layout.SceneLayout;
+import org.netbeans.modules.cnd.callgraph.api.CallModel;
 
 /**
  *
  * @author Alexander Simon
  */
-public class CallChildren extends Children.Keys<Call> {
-    private Call object;
-    private CallGraphState model;
-    private boolean isInited = false;
-    private boolean isCalls;
-
-    public CallChildren(Call element, CallGraphState model, boolean isCalls) {
-        this.object = element;
+public class CallGraphState {
+    private CallModel model;
+    private CallGraphScene scene;
+    private SceneLayout sceneLayout;
+    public CallGraphState(CallModel model, CallGraphScene scene, SceneLayout sceneLayout){
         this.model = model;
-        this.isCalls = isCalls;
+        this.scene = scene;
+        this.sceneLayout = sceneLayout;
     }
- 
-    public void dispose(){
-        if (isInited) {
-            isInited = false;
-            setKeys(new Call[0]);
-        }
+
+    public CallModel getModel() {
+        return model;
     }
-    
-    private synchronized void resetKeys(){
-        List<Call> set;
-        if (isCalls) {
-            set = model.getModel().getCalls(object);
-        } else {
-            set = model.getModel().getCallers(object);
-        }
-        if (set != null && set.size() > 0) {
-            Collections.<Call>sort(set);
-            setKeys(set);
-            return;
-        }
-        setKeys(new Call[0]);
+
+    public CallGraphScene getScene() {
+        return scene;
     }
-    
-    protected Node[] createNodes(Call call) {
-        Node node = new CallNode(call, model, isCalls);
-        return new Node[]{node};
-    }
-    
-    @Override
-    protected void addNotify() {
-        isInited = true;
-        resetKeys();
-        super.addNotify();
-    }
-    
-    @Override
-    protected void removeNotify() {
-        super.removeNotify();
-        dispose();
+
+    public SceneLayout getSceneLayout() {
+        return sceneLayout;
     }
 }

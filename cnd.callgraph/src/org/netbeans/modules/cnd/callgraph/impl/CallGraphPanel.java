@@ -43,14 +43,19 @@ package org.netbeans.modules.cnd.callgraph.impl;
 
 import java.awt.event.ActionEvent;
 import java.beans.PropertyVetoException;
+import java.util.ArrayList;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JRadioButtonMenuItem;
+import javax.swing.JScrollPane;
 import javax.swing.SwingUtilities;
+import org.netbeans.api.visual.graph.layout.GraphLayout;
+import org.netbeans.api.visual.graph.layout.GridGraphLayout;
+import org.netbeans.api.visual.layout.LayoutFactory;
+import org.netbeans.api.visual.layout.SceneLayout;
 import org.netbeans.modules.cnd.callgraph.api.Call;
-import org.netbeans.modules.cnd.callgraph.api.CallModel;
 import org.netbeans.modules.cnd.callgraph.impl.CallNode;
 import org.netbeans.modules.cnd.callgraph.api.StartPoint;
 import org.openide.explorer.ExplorerManager;
@@ -73,6 +78,8 @@ public class CallGraphPanel extends JPanel implements ExplorerManager.Provider, 
     private Action[] actions;
     private StartPoint startPoint;
     private boolean isCalls = true;
+    private CallGraphScene scene = new CallGraphScene();
+    private SceneLayout sceneLayout;
     
     /** Creates new form CallGraphPanel */
     public CallGraphPanel() {
@@ -88,6 +95,14 @@ public class CallGraphPanel extends JPanel implements ExplorerManager.Provider, 
             }
         };
         getExplorerManager().setRootContext(root);
+        jSplitPane1.setDividerLocation(0.5);
+        initGraph();
+    }
+    
+    private void initGraph() {
+        GraphLayout<Function,Call> layout = new GridGraphLayout<Function,Call>();
+        sceneLayout = LayoutFactory.createSceneGraphLayout(scene, layout);
+        sceneLayout.invokeLayout();
     }
     
     /** This method is called from within the constructor to
@@ -103,7 +118,9 @@ public class CallGraphPanel extends JPanel implements ExplorerManager.Provider, 
         jSeparator1 = new javax.swing.JToolBar.Separator();
         calls = new javax.swing.JToggleButton();
         callers = new javax.swing.JToggleButton();
+        jSplitPane1 = new javax.swing.JSplitPane();
         treeView = new BeanTreeView();
+        graphView = new JScrollPane(scene.createView());
 
         setLayout(new java.awt.BorderLayout());
 
@@ -149,7 +166,14 @@ public class CallGraphPanel extends JPanel implements ExplorerManager.Provider, 
         jToolBar1.add(callers);
 
         add(jToolBar1, java.awt.BorderLayout.LINE_START);
-        add(treeView, java.awt.BorderLayout.CENTER);
+
+        jSplitPane1.setDividerLocation(200);
+        jSplitPane1.setResizeWeight(0.5);
+        jSplitPane1.setOneTouchExpandable(true);
+        jSplitPane1.setLeftComponent(treeView);
+        jSplitPane1.setRightComponent(graphView);
+
+        add(jSplitPane1, java.awt.BorderLayout.CENTER);
     }// </editor-fold>//GEN-END:initComponents
 
     private void refreshActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_refreshActionPerformed
@@ -189,15 +213,20 @@ public class CallGraphPanel extends JPanel implements ExplorerManager.Provider, 
     }
 
     private synchronized void update() {
+        ArrayList<Function> nodes = new ArrayList<Function>(scene.getNodes());
+        for(Function f : nodes){
+            scene.removeNodeWithEdges(f);
+        }
+        sceneLayout.invokeLayout();
         if (startPoint != null && startPoint.isValid()){
             final Children children = root.getChildren();
             if (!Children.MUTEX.isReadAccess()){
                 Children.MUTEX.writeAccess(new Runnable(){
                     public void run() {
                         children.remove(children.getNodes());
-                        CallModel model = startPoint.getModel();
+                        CallGraphState model = new CallGraphState(startPoint.getModel(), scene, sceneLayout);
                         Call call = startPoint.startCall();
-                        final Node node = new CallNode(call, model, isCalls);
+                        final Node node = new CallNode(call, model, isCalls, true);
                         children.add(new Node[]{node});
                         try {
                             getExplorerManager().setSelectedNodes(new Node[]{node});
@@ -244,7 +273,9 @@ public class CallGraphPanel extends JPanel implements ExplorerManager.Provider, 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JToggleButton callers;
     private javax.swing.JToggleButton calls;
+    private javax.swing.JScrollPane graphView;
     private javax.swing.JToolBar.Separator jSeparator1;
+    private javax.swing.JSplitPane jSplitPane1;
     private javax.swing.JToolBar jToolBar1;
     private javax.swing.JButton refresh;
     private javax.swing.JScrollPane treeView;

@@ -43,7 +43,6 @@ import java.awt.Image;
 import org.netbeans.modules.cnd.api.model.CsmFunction;
 import org.netbeans.modules.cnd.api.model.CsmFunctionDefinition;
 import org.netbeans.modules.cnd.api.model.CsmMember;
-import org.netbeans.modules.cnd.api.model.CsmObject;
 import org.netbeans.modules.cnd.api.model.util.CsmKindUtilities;
 import org.netbeans.modules.cnd.api.model.xref.CsmReference;
 import org.netbeans.modules.cnd.callgraph.api.Call;
@@ -56,44 +55,59 @@ import org.openide.util.NbBundle;
  */
 public class CallImpl implements Call {
 
+    private CsmFunction owner;
     private CsmReference reference;
     private CsmFunction function;
-    private String name;
     
-    public CallImpl(CsmReference reference){
-        this.reference = reference;
-    }
-
-    public CallImpl(CsmReference reference, CsmFunction function){
+    public CallImpl(CsmFunction owner, CsmReference reference, CsmFunction function){
+        this.owner = owner;
         this.function = function;
         this.reference = reference;
     }
 
-    public Object getUserObject() {
+    public Object getReferencedCall() {
         return reference;
     }
 
-    public int compareTo(Call o) {
-        return getName().compareTo(o.getName());
+    public Object getFunctionDeclaration() {
+        return function;
     }
 
-    public String getName() {
-        if (name == null) {
-            setName();
-        }
-        return name;
+    public Object getCallOwner() {
+        return owner;
     }
 
-    public String getDescription() {
-        return getName();
+    public String getFunctionName() {
+        return function.getName();
+    }
+
+    public String getOwnerName() {
+        return owner.getName();
+    }
+
+    public String getFunctionDescription() {
+        return getDescription(function);
+    }
+
+    public String getOwnerDescription() {
+        return getDescription(owner);
+    }
+
+    public Image getOwnerIcon() {
+        return getIcon(owner);
     }
     
-    public Image getIcon(int param) {
+    public Image getFunctionIcon() {
+        return getIcon(function);
+    }
+
+    public int compareTo(Call o) {
+        return getFunctionName().compareTo(o.getFunctionName());
+    }
+
+    private Image getIcon(CsmFunction f) {
         try {
-            CsmObject csmObj = getCsmObject();
-            if (csmObj != null) {
-                return CsmImageLoader.getImage(csmObj);
-            }
+            return CsmImageLoader.getImage(f);
         } catch (AssertionError ex){
             ex.printStackTrace();
         } catch (Exception ex) {
@@ -102,36 +116,32 @@ public class CallImpl implements Call {
         return null;
     }
 
-    private void setName() {
-        CsmFunction f = getCsmObject();
-        if (f != null){
-            if (CsmKindUtilities.isFunctionDefinition(f)) {
-                CsmFunction decl = ((CsmFunctionDefinition)f).getDeclaration();
-                if (decl != null){
-                    f = decl;
-                }
+    private String getDescription(CsmFunction f) {
+        f = getFunction(f);
+        if (CsmKindUtilities.isFunctionDefinition(f)) {
+            CsmFunction decl = ((CsmFunctionDefinition) f).getDeclaration();
+            if (decl != null) {
+                f = decl;
             }
-            if (f instanceof CsmMember) {
-                CsmMember m = (CsmMember) f;
-                name = f.getName()+" in "+m.getContainingClass().getName();
-            } else {
-                name = f.getName();
-            }
-        } else {
-            name = getString("UnknownName"); // NOI18N
         }
+        String n;
+        if (f instanceof CsmMember) {
+            CsmMember m = (CsmMember) f;
+            n = f.getName() + " in " + m.getContainingClass().getName();
+        } else {
+            n = f.getName();
+        }
+        return n;
     }
 
-    public CsmFunction getCsmObject() {
-        if (function != null) {
-            return function;
-        }
-            
-        CsmObject o = reference.getReferencedObject();
-        if (o instanceof CsmFunction) {
-            return (CsmFunction)o;
-        }
-        return null;
+    private CsmFunction getFunction(CsmFunction f) {
+       if (CsmKindUtilities.isFunctionDefinition(f)) {
+           CsmFunction decl = ((CsmFunctionDefinition)f).getDeclaration();
+           if (decl != null){
+               f = decl;
+           }
+       }
+       return f;
     }
 
     private String getString(String key) {

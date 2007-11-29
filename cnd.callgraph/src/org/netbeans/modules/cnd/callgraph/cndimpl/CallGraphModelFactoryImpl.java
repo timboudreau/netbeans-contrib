@@ -104,7 +104,11 @@ public class CallGraphModelFactoryImpl extends CallGraphModelFactory {
         public Call startCall() {
             if (call==null){
                 CsmReference ref = new CndReference(function);
-                call = new CallImpl(ref);
+                if (isCalls) {
+                    call = new CallImpl(function, ref, function);
+                } else {
+                    call = new CallImpl(function, ref, function);
+                }
             }
             return call;
         }

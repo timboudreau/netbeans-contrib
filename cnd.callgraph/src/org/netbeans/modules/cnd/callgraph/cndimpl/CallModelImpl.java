@@ -44,8 +44,8 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import org.netbeans.modules.cnd.api.model.CsmFile;
 import org.netbeans.modules.cnd.api.model.CsmFunction;
+import org.netbeans.modules.cnd.api.model.CsmFunctionDefinition;
 import org.netbeans.modules.cnd.api.model.CsmObject;
 import org.netbeans.modules.cnd.api.model.CsmOffsetable;
 import org.netbeans.modules.cnd.api.model.CsmProject;
@@ -77,15 +77,15 @@ public class CallModelImpl implements CallModel {
     }
 
     public List<Call> getCallers(Call function) {
-        CsmReference ref = (CsmReference) function.getUserObject();
+        CsmReference ref = (CsmReference) function.getReferencedCall();
         CsmObject owner = getOwner(ref);
         if (!CsmKindUtilities.isFunction(owner)) {
-            owner = ref.getOwner();
+            ref.getOwner();
         }
         if (CsmKindUtilities.isFunction(owner)) {
             HashMap<CsmFunction,CsmReference> set = new HashMap<CsmFunction,CsmReference>();
-            for(CsmReference r : repository.getReferences(owner, project, true)){
-                CsmFunction o = getOwner(r);
+            for(CsmReference r : repository.getReferences(owner, project, false)){
+                CsmFunction o = getFunctionDeclaration(getOwner(r));
                 if (o != null) {
                     if (!set.containsKey(o)) {
                         set.put(o, r);
@@ -94,7 +94,7 @@ public class CallModelImpl implements CallModel {
             }
             List<Call> res = new ArrayList<Call>();
             for(Map.Entry<CsmFunction,CsmReference> r : set.entrySet()){
-                res.add(new CallImpl(r.getValue(),r.getKey()));
+                res.add(new CallImpl(r.getKey(), r.getValue(), getFunctionDeclaration((CsmFunction)owner)));
             }
             return res;
         } else {
@@ -102,12 +102,23 @@ public class CallModelImpl implements CallModel {
         }
     }
 
+    private CsmFunction getFunctionDeclaration(CsmFunction definition){
+        if (definition != null) {
+            if (CsmKindUtilities.isFunctionDefinition(definition)) {
+                return ((CsmFunctionDefinition)definition).getDeclaration();
+            }
+        }
+        return definition;
+    }
+    
     private CsmFunction getOwner(CsmReference ref){
         CsmObject o = ref.getOwner();
         if (CsmKindUtilities.isExpression(o)){
             o = ((CsmExpression)o).getScope();
         } else if (o instanceof CsmCondition){
             o = ((CsmCondition)o).getScope();
+        } else if (CsmKindUtilities.isFunction(o)){
+            return (CsmFunction) o;
         }
         if (CsmKindUtilities.isStatement(o)){
             CsmScope scope = ((CsmStatement)o).getScope();
@@ -125,14 +136,14 @@ public class CallModelImpl implements CallModel {
     }
     
     public List<Call> getCalls(Call definition) {
-        CsmReference ref = (CsmReference) definition.getUserObject();
+        CsmReference ref = (CsmReference) definition.getReferencedCall();
         CsmObject owner = ref.getReferencedObject();
         if (CsmKindUtilities.isFunctionDeclaration(owner)){
             owner = ((CsmFunction)owner).getDefinition();
         }
         if (CsmKindUtilities.isFunctionDefinition(owner)) {
             final List<CsmOffsetable> list = CsmFileInfoQuery.getDefault().getUnusedCodeBlocks(((CsmFunction)owner).getContainingFile());
-            final HashMap<CsmObject,CsmReference> set = new HashMap<CsmObject,CsmReference>();
+            final HashMap<CsmFunction,CsmReference> set = new HashMap<CsmFunction,CsmReference>();
             references.accept((CsmScope)owner, new CsmFileReferences.Visitor() {
                 public void visit(CsmReference r) {
                     for(CsmOffsetable offset:list){
@@ -144,15 +155,16 @@ public class CallModelImpl implements CallModel {
                     CsmObject o = r.getReferencedObject();
                     if (CsmKindUtilities.isFunction(o) &&
                         !CsmKindUtilities.isFunction(r.getOwner())){
+                        o = getFunctionDeclaration((CsmFunction)o);
                         if (!set.containsKey(o)) {
-                            set.put(o, r);
+                            set.put((CsmFunction)o, r);
                         }
                     }
                 }
             });
             List<Call> res = new ArrayList<Call>();
-            for(CsmReference r : set.values()){
-                res.add(new CallImpl(r));
+            for(Map.Entry<CsmFunction,CsmReference> r : set.entrySet()){
+                res.add(new CallImpl( getFunctionDeclaration(((CsmFunction)owner)), r.getValue(),r.getKey()));
             }
             return res;
         } else {
