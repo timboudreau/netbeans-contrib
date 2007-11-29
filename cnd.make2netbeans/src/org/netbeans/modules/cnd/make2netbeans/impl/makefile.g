@@ -542,6 +542,10 @@ options
     needWS = b;
   }
   
+    protected Token createToken(int type) throws InstantiationException, IllegalAccessException {
+        return new antlr.CommonToken();
+    }
+
   /* when the lexer has hit EOF condition.
    */
   public void uponEOF() 

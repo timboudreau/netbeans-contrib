@@ -105,6 +105,7 @@ public class CodeAssistance implements CodeAssistanceInterface {
             }
         } catch (Exception e) {
             System.out.println("CodeAssistance.analyse : Unexpected Exception" + e); // NOI18N
+            e.printStackTrace();
         }
     }
 
