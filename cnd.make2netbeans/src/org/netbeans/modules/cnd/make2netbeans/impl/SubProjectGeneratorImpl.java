@@ -118,14 +118,14 @@ public class SubProjectGeneratorImpl implements SubProjectGenerator {
         creator.init(path, newWorkingDir, makefilePath);
         creator.setBuildCommand(buildCommand);
         creator.setCleanCommand(cleanCommand);
-        File makefile = new File(makefilePath);
+        File subMakefile = new File(makefilePath);
 
         creator.setOutput(output);
-        d.init(makefile);
+        d.init(subMakefile);
         d.canBeDivided();
         List<File> flist = d.getFiles();
         creator.setSourceFiles(flist);
-        if (d.canBeDivided()) {
+        if (!runDiscovery && d.canBeDivided()) {
             List<String> subpr = new ArrayList<String>();
             for (File file : d.getSubprojects()) {
                 subpr.add(file.getName());
