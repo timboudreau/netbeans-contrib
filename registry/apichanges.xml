@@ -1,0 +1,302 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
+
+Copyright 1997-2007 Sun Microsystems, Inc. All rights reserved.
+
+
+The contents of this file are subject to the terms of either the GNU
+General Public License Version 2 only ("GPL") or the Common
+Development and Distribution License("CDDL") (collectively, the
+"License"). You may not use this file except in compliance with the
+License. You can obtain a copy of the License at
+http://www.netbeans.org/cddl-gplv2.html
+or nbbuild/licenses/CDDL-GPL-2-CP. See the License for the
+specific language governing permissions and limitations under the
+License.  When distributing the software, include this License Header
+Notice in each file and include the License file at
+nbbuild/licenses/CDDL-GPL-2-CP.  Sun designates this
+particular file as subject to the "Classpath" exception as provided
+by Sun in the GPL Version 2 section of the License file that
+accompanied this code. If applicable, add the following below the
+License Header, with the fields enclosed by brackets [] replaced by
+your own identifying information:
+"Portions Copyrighted [year] [name of copyright owner]"
+
+Contributor(s):
+
+The Original Software is NetBeans. The Initial Developer of the Original
+Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
+Microsystems, Inc. All Rights Reserved.
+
+If you wish your version of this file to be governed by only the CDDL
+or only the GPL Version 2, indicate your decision by adding
+"[Contributor] elects to include this software in this distribution
+under the [CDDL or GPL Version 2] license." If you do not indicate a
+single choice of license, a recipient has the option to distribute
+your version of this file under either the CDDL, the GPL Version 2 or
+to extend the choice of license to its licensees as provided above.
+However, if you add GPL Version 2 code and therefore, elected the GPL
+Version 2 license, then the option applies only if the new code is
+made subject to such option by the copyright holder.
+-->
+<?xml-stylesheet type="text/xml" href="../../../nbbuild/javadoctools/apichanges.xsl"?>
+<!DOCTYPE apichanges PUBLIC "-//NetBeans//DTD API changes list 1.0//EN" "../../../nbbuild/javadoctools/apichanges.dtd">
+
+<!--
+
+INFO FOR PEOPLE ADDING CHANGES:
+
+Check the DTD (apichanges.dtd) for details on the syntax. You do not
+need to regenerate the HTML, as this is part of Javadoc generation; just
+change the XML. Rough syntax of a change (several parts optional):
+
+<change>
+    <api name="compiler"/>
+    <summary>Some brief description here, can use <b>XHTML</b></summary>
+    <version major="1" minor="99"/>
+    <date day="13" month="6" year="2001"/>
+    <author login="jrhacker"/>
+    <compatibility addition="yes"/>
+    <description>
+        The main description of the change here.
+        Again can use full <b>XHTML</b> as needed.
+    </description>
+    <class package="org.openide.compiler" name="DoWhatIWantCompiler"/>
+    <issue number="14309"/>
+</change>
+
+Also permitted elements: <package>, <branch>. <version> is API spec
+version, recommended for all new changes. <compatibility> should say
+if things were added/modified/deprecated/etc. and give all information
+related to upgrading old code. List affected top-level classes and
+link to issue numbers if applicable. See the DTD for more details.
+
+Changes need not be in any particular order, they are sorted in various
+ways by the stylesheet anyway.
+
+Dates are assumed to mean "on the trunk". If you *also* make the same
+change on a stabilization branch, use the <branch> tag to indicate this
+and explain why the change was made on a branch in the <description>.
+
+Please only change this file on the trunk! Rather: you can change it
+on branches if you want, but these changes will be ignored; only the
+trunk version of this file is important.
+
+Deprecations do not count as incompatible, assuming that code using the
+deprecated calls continues to see their documented behavior. But do
+specify deprecation="yes" in <compatibility>.
+
+This file is not a replacement for Javadoc: it is intended to list changes,
+not describe the complete current behavior, for which ordinary documentation
+is the proper place.
+
+-->
+
+<apichanges>
+
+    <!-- First, a list of API names you may use: -->
+    <apidefs>
+        <apidef name="registry">Registry API</apidef>
+        <!-- etc. -->
+    </apidefs>
+
+    <!-- ACTUAL CHANGES BEGIN HERE: -->
+
+    <changes>
+        <change>
+            <api name="registry"/>
+            <summary>A few compatible and incompatible changes</summary>
+            <version major="1" minor="7"/>
+            <date day="18" month="12" year="2003"/>
+            <author login="rmatous"/>
+            <compatibility binary="incompatible" source="incompatible" addition="yes" deletion="yes"/>
+            <description>
+                A few compatible and incompatible changes:
+                <p/>There is waste of time to traverse to root whenever is root necessary. But there is missing convenient getRootContext method (see also getAbsoluteContextName() that returns full path from the root context).
+                <ul>
+                    <li>                         
+                        Added method  public Context  org.netbeans.api.registry.Context.getRootContext()	
+                    </li>
+                    <li>                         
+                        Added method  public BasicContext org.netbeans.spi.registry.BasicContext.getRootContext()                        
+                    </li>
+                </ul>
+                <p/>A little confusing constructor for ObjectRef  replaced  with two constructors.
+                <ul>             
+                    <li>
+                        Removed constructor  public org.netbeans.api.registry.ObjectRef(Context rootCtx, Context ctx, String ctxName, String bindingName))                        
+                    </li>
+                    <li>
+                        Added constructor public org.netbeans.api.registry.ObjectRef(ContextrootCtx, String ctxName, String bindingName)
+                    </li>                    
+                    <li>
+                        Added constructor public org.netbeans.api.registry.ObjectRef(Context ctx, String bindingName)                        
+                    </li>                    
+                    <li>                         
+                        Removed method public static ObjectRef org.netbeans.spi.registry.SpiUtils.createObjectRef(RootContext rootCtx, BasicContext ctx, String contextName, String bindingName) 
+                    </li>
+                    <li>                         
+                        Added method public static ObjectRef org.netbeans.spi.registry.SpiUtils.createObjectRef (BasicContext rootCtx, String ctxName, String bindingName)
+                    </li>
+                    <li>                         
+                        Added method public static ObjectRef org.netbeans.spi.registry.SpiUtils.createObjectRef (BasicContext ctx, String bindingName) 	                                                
+                    </li>
+                </ul>
+                <p/>In RootContext are all 3 methods optional and can throw UnsupportedOperationException. Method flush was never implemented and method getMutex won't be necessary beacuse just one Mutext will be shared for all Contexts. 
+                Method findObject could be used for backward compatibility replacing current autosave functionality but its not vital and can be ommited. So I suggest to remove RootContex from API.
+                <ul>
+                    <li>                         
+                        Removed interface  org.netbeans.spi.registry.RootContext 
+                    </li>
+                    <li>                         
+                        Removed method public ObjectRef org.netbeans.api.registry.Context.findObject(Object obj)                        
+                    </li>
+                </ul>
+            </description>
+            <class package="org.netbeans.api.registry" name="Context"/>
+            <class package="org.netbeans.api.registry" name="ObjectRef"/>
+            <class link="no" package="org.netbeans.spi.registry" name="RootContext"/>
+            <class package="org.netbeans.spi.registry" name="SpiUtils"/>
+            <class package="org.netbeans.spi.registry" name="BasicContext"/>
+            <issue number="38109"/>
+        </change>
+        
+        <change >
+            <api name="registry"/>
+            <summary>Added ability to create merged Contexts</summary>
+            <version major="1" minor="6"/>
+            <date day="18" month="9" year="2003"/>
+            <author login="rmatous"/>
+            <compatibility addition="yes"/>
+            <description>
+                Following API changes was made to provide ability to create merged
+                Contexts:<br/>
+                <ul>
+                  <li>added method <code>org.netbeans.api.registry.Context.merge(Context[])</code>,
+                        which returns implementation of <code>org.netbeans.api.registry.Context</code></li>
+                  <li>added method <code>org.netbeans.spi.registry.SpiUtils.merge(MergedContextProvider)</code>,
+                        which returns implementation of <code>org.netbeans.spi.registry.BasicContext</code></li>
+                  <li>added interface <code>org.netbeans.spi.registry.MergedContextProvider</code>,
+                which provides delegates for merged context and notifies about changes.</li>
+                </ul>
+                Subcontext, bindings and attributes for context are merged according
+                their names overtaken from their delegates.<br/>
+            </description>
+            <class package="org.netbeans.api.registry" name="Context"/>            
+            <class package="org.netbeans.spi.registry" name="SpiUtils"/>
+            <class package="org.netbeans.spi.registry" name="MergedContextProvider"/>                        
+            <issue number="34057"/>
+        </change>
+                
+		<change >
+			<api name="registry"/>
+			<summary>SPIUtils.createRootContext(Map) removed</summary>
+			<version major="1" minor="5"/>
+			<date day="12" month="6" year="2003"/>
+			<author login="dkonecny"/>
+			<compatibility binary="incompatible" source="incompatible" deprecation="yes" deletion="yes"/>
+			<description>
+				SPIUtils.createRootContext(Map) method will be removed. Use method
+				org.netbeans.api.registry.fs.FileSystemContextFactory.createContext(FileObject) 
+				from core/registry module instead. It is possible that this method is already in use and 
+				so it was left in the API for week or two with warning message. Remove its usage immediatelly
+				because it will be removed very soon, definitely before release.
+			</description>
+			<issue number="34342"/>
+		</change>
+
+		<change >
+			<api name="registry"/>
+			<summary>Context.getOrderedNames() added</summary>
+			<version major="1" minor="4"/>
+			<date day="11" month="6" year="2003"/>
+			<author login="dkonecny"/>
+			<compatibility addition="yes"/>
+			<description>
+				Context.getOrderedNames() method was added and allows listing
+				of names of ordered items of the context. See method JavaDoc 
+				for more details.
+			</description>
+			<issue number="34274"/>
+		</change>
+
+		<change >
+			<api name="registry"/>
+			<summary>AttributeEvent.getAttributeName() can return null</summary>
+			<version major="1" minor="3"/>
+			<date day="5" month="6" year="2003"/>
+			<author login="dkonecny"/>
+			<compatibility semantic="incompatible"/>
+			<description>
+				AttributeEvent.getAttributeName() can return null. It can happen
+				when concrete source of the change was not clear. Client should
+				reexamine all attributes.
+			</description>
+		</change>
+
+		<change >
+			<api name="registry"/>
+			<summary>A few compatible and incompatible changes</summary>
+			<version major="1" minor="2"/>
+			<date day="23" month="5" year="2003"/>
+			<author login="dkonecny"/>
+			<compatibility binary="incompatible" source="incompatible" deprecation="yes" addition="yes" deletion="yes"/>
+			<description>
+				A few compatible and incompatible changes:
+				<ul>
+					<li>
+					The Context.getObjects method was removed. It was not implemented and so
+					nobody should be using it. The Context.getOrderedObjects should be used instead.
+					</li>
+					<li>
+					ContextFactory.getRootContext method was deprecated and will be removed. Use
+					Context.getDefault() method instead. It is possible that this method is already in use and 
+					so it was left in the API for week or two with warning message. Remove its usage immediatelly
+					because it will be removed very soon, definitely before release.
+					</li>
+					<li>
+					ContextAdaptor convenient class was added.
+					</li>
+				</ul>
+			</description>
+		</change>
+
+    </changes>
+
+    <!-- Now the surrounding HTML text and document structure: -->
+
+    <htmlcontents>
+<!--
+
+                            NO NO NO NO NO!
+
+         ==============>    DO NOT EDIT ME!  <==============
+
+          AUTOMATICALLY GENERATED FROM APICHANGES.XML, DO NOT EDIT
+
+                SEE openide/registry/api/apichanges.xml
+
+-->
+    <head>
+      <title>Change History for the Registry API</title>
+      <link rel="stylesheet" href="prose.css" type="text/css"/>
+    </head>
+    <body>
+
+<p class="overviewlink"><a href="overview-summary.html">Overview</a></p>
+
+<h1>Introduction</h1>
+
+<p>This document lists changes made to the <a href="@TOP@/index.html">Registry API</a>.</p>
+
+<!-- The actual lists of changes, as summaries and details: -->
+
+      <hr/><standard-changelists module-code-name="org.netbeans.modules.registry"/>
+
+      <hr/><p>@FOOTER@</p>
+
+    </body>
+  </htmlcontents>
+
+</apichanges>

@@ -1,0 +1,323 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+   - DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
+   -
+   - Copyright 1997-2007 Sun Microsystems, Inc. All rights reserved.
+   -
+   - The contents of this file are subject to the terms of either the GNU
+   - General Public License Version 2 only ("GPL") or the Common
+   - Development and Distribution License("CDDL") (collectively, the
+   - "License"). You may not use this file except in compliance with the
+   - License. You can obtain a copy of the License at
+   - http://www.netbeans.org/cddl-gplv2.html
+   - or nbbuild/licenses/CDDL-GPL-2-CP. See the License for the
+   - specific language governing permissions and limitations under the
+   - License.  When distributing the software, include this License Header
+   - Notice in each file and include the License file at
+   - nbbuild/licenses/CDDL-GPL-2-CP.  Sun designates this
+   - particular file as subject to the "Classpath" exception as provided
+   - by Sun in the GPL Version 2 section of the License file that
+   - accompanied this code. If applicable, add the following below the
+   - License Header, with the fields enclosed by brackets [] replaced by
+   - your own identifying information:
+   - "Portions Copyrighted [year] [name of copyright owner]"
+   -
+   - Contributor(s):
+   -
+   - The Original Software is NetBeans. The Initial Developer of the Original
+   - Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
+   - Microsystems, Inc. All Rights Reserved.
+   -
+   - If you wish your version of this file to be governed by only the CDDL
+   - or only the GPL Version 2, indicate your decision by adding
+   - "[Contributor] elects to include this software in this distribution
+   - under the [CDDL or GPL Version 2] license." If you do not indicate a
+   - single choice of license, a recipient has the option to distribute
+   - your version of this file under either the CDDL, the GPL Version 2 or
+   - to extend the choice of license to its licensees as provided above.
+   - However, if you add GPL Version 2 code and therefore, elected the GPL
+   - Version 2 license, then the option applies only if the new code is
+   - made subject to such option by the copyright holder.
+  -->
+
+<?xml-stylesheet href="../../nbbuild/javadoctools/apichanges.xsl" type="text/xsl"?>
+<!DOCTYPE apichanges PUBLIC "-//NetBeans//DTD API changes list 1.0//EN" "../../nbbuild/javadoctools/apichanges.dtd">
+
+<!-- INFO FOR PEOPLE ADDING CHANGES:
+[most of contents snipped - see openide's apichanges for how-to instructions]
+<change>
+    <api name="compiler"/>
+    <summary>Some brief description here, can use <b>XHTML</b></summary>
+    <version major="1" minor="99"/>
+    <date day="13" month="6" year="2001"/>
+    <author login="jrhacker"/>
+    <compatibility addition="yes"/>
+    <description>
+        The main description of the change here.
+        Again can use full <b>XHTML</b> as needed.
+    </description>
+    <class package="org.openide.compiler" name="DoWhatIWantCompiler"/>
+    <issue number="14309"/>
+</change>
+-->
+
+<apichanges>
+
+<!-- First, a list of API names you may use: -->
+<apidefs>
+<apidef name="looks">Looks SPI</apidef>
+<apidef name="nodes2looks">Nodes to Looks API</apidef>
+</apidefs>
+
+<!-- ACTUAL CHANGES BEGIN HERE: -->
+
+<changes>
+
+    <change id="LookSelector.FINAL">
+	<api name="looks"/>
+	<summary>Redesign of LookSelecotrs</summary>
+	<version major="1" minor="9"/>
+	<date day="1" month="10" year="2003"/>
+	<author login="phrebejk"/>
+	<compatibility source="incompatible" 
+		       binary="incompatible"
+		       modification="yes"/>
+	<description>
+	In order to implement reasonable caching in selectors
+	and in ProxyLook. The LookSelector was made final
+	class. Factory methods and LookProviders have to
+	be used to create LookSelectors.
+	</description>
+	<class package="org.netbeans.spi.looks" name="LookSelector"/>
+	<issue number="34774"/>
+    </change>
+    
+    <change id="ProxyLook.undelegateObject">
+	<api name="looks"/>
+	<summary>undelegateObject method added</summary>
+	<version major="1" minor="8"/>
+	<date day="30" month="7" year="2003"/>
+	<author login="phrebejk"/>
+	<compatibility addition="yes"/>
+	<description>
+	ProxyLook allows for changing the representedObject
+	for sublooks by overriding the delegateObject method.
+	However for correct firing of events from the 
+	ProxyLook there needs to be an inverse method also.
+	So the undelegateObject method has been added into
+	ProxyLook class.
+	</description>
+	<class package="org.netbeans.spi.looks" name="ProxyLook"/>
+	<issue number="34773"/>
+    </change>
+
+    <change id="Look.fireChange">
+	<api name="looks"/>
+	<summary>Simplification of event firing</summary>
+	<version major="1" minor="7"/>
+	<date day="8" month="7" year="2003"/>
+	<author login="phrebejk"/>
+	<compatibility source="incompatible" 
+		       binary="incompatible"
+		       modification="yes"/>
+	<description>
+	Methods for firing (fireNameChange, fireDisplayNameChange,
+	fireIconChange, ...) replaced with fireChange( repObj, mask )
+	method. Mask allows for firing multiple events. Property
+	changes should be fired using firePropertyChange( repObj, propName)
+	method. Method number constants moved from ProxyLook to Look
+	class.	
+	</description>
+	<class package="org.netbeans.spi.looks" name="Look"/>
+    </change>
+
+    <change id="ProxyLook.RENAME">
+	<api name="looks"/>
+	<summary>Rename of ProxyLook.SET_NAME to RENAME</summary>
+	<version major="1" minor="7"/>
+	<date day="17" month="6" year="2003"/>
+	<author login="phrebejk"/>
+	<compatibility source="incompatible" 
+		       binary="incompatible"
+		       modification="yes"/>
+	<description>
+	The method setName() in the Look class has changed it's
+	name to rename in Looks 1.1. But this fact was not reflected
+	in the name of the constant of this method in ProxyLook.
+	These two names need to be in sync thus renaming. 
+	</description>
+	<class package="org.netbeans.spi.looks" name="ProxyLook"/>
+    </change>
+
+    <change>
+	<api name="looks"/>
+	<summary>Making attachTo and detachFrom protected.</summary>
+	<version major="1" minor="6"/>
+	<date day="2" month="6" year="2003"/>
+	<author login="phrebejk"/>
+	<compatibility source="incompatible" 
+		       binary="incompatible"
+		       modification="yes"/>
+	<description>
+	Methods attachTo and detachFrom are rather SPI than API thus
+	makung them protected. This also allows for overriding these
+	methods in ProxyLook. These methods are now automatically
+	called from add/removeLookListener. The listener cache in
+	Look takes care of calling attachTo/detachFrom only once
+	per represented object even if the [Look,rep. obj] pair
+	is used in more views or in more ProxyLooks. For more info 
+	about necessity of this approach see also the EventDeliveryTest.
+	</description>
+	<class package="org.netbeans.spi.looks" name="Look"/>
+    </change>
+
+    <change>
+	<api name="looks"/>
+	<summary>Allowing attachTo method to throw ClassCast or Illegal
+		Argument exception when inappropriate object passed
+		as parameter</summary>
+	<version major="1" minor="5"/>
+	<date day="19" month="5" year="2003"/>
+	<author login="phrebejk"/>
+	<compatibility addition="yes"/>
+	<description>
+	It should be possible for a Look to state out that the object
+	passed as parameter into the attachTo method is invalid for
+	given Look, i.e. the look is not able to work with that
+	represented object.
+	</description>
+	<class package="org.netbeans.spi.looks" name="Look"/>
+	<issue number="20392"/>
+    </change>
+
+    <change>
+	<api name="looks"/>
+	<summary>Rename of Look.refeshChildren(...) to fireChildrenChange(...)</summary>
+	<version major="1" minor="4"/>
+	<date day="16" month="5" year="2003"/>
+	<author login="phrebejk"/>
+	<compatibility source="incompatible" 
+		       binary="incompatible"
+		       modification="yes"/>
+	<description>
+        Method refreshChildren( Object ) renamed to fireChildrenChange 
+	in order to mage the name consistent with other firing
+	methods in the Look class.
+	</description>
+	<class package="org.netbeans.spi.looks" name="Look"/>
+	<issue number="33681"/>
+    </change>
+
+    <change>
+	<api name="looks"/>
+	<summary>Rename of fireNodeDestroyed(...) to fireObjectDestroyed(...)</summary>
+	<version major="1" minor="3"/>
+	<date day="12" month="5" year="2003"/>
+	<author login="phrebejk"/>
+	<compatibility source="incompatible" 
+		       binary="incompatible"
+		       modification="yes"/>
+	<description>
+        Method fireNodeDestroyed( Object ) renamed to fireObjectDestroyed( ... )
+	with same signature. The Looks API should be independent on 
+	Nodes as much as possible.
+	</description>
+	<class package="org.netbeans.spi.looks" name="Look"/>
+	<issue number="32250"/>
+    </change>
+
+
+    <change>
+	<api name="nodes2looks"/>
+	<summary>Look node adds InstanceCookie.Of into own lookup</summary>
+	<version major="1" minor="2"/>
+	<date day="12" month="5" year="2003"/>
+	<author login="phrebejk"/>
+	<compatibility addition="yes"/>
+	<description>
+	In order to allow access to the represented object given the look node,
+        the look node now adds <code>InstanceCookie.Of</code> into its own lookup. Using
+	this cookie one can get the represented object from the Node.
+	</description>
+	<issue number="25256"/>
+    </change>
+
+    <change>
+	<api name="looks"/>
+	<summary>Rename of setName(...) to rename(...)</summary>
+	<version major="1" minor="1"/>
+	<date day="5" month="5" year="2003"/>
+	<author login="phrebejk"/>
+	<compatibility source="incompatible" 
+		       binary="incompatible"
+		       modification="yes"/>
+	<description>
+        Method setName( Object, String, Lookup ) renamed to rename with
+	same signature. Throwing IOException when underlying data 
+	structure does not allow for changing the name.
+	</description>
+	<class package="org.netbeans.spi.looks" name="Look"/>
+	<issue number="33331"/>
+    </change>
+
+
+    <change id="nodes2looks-1.0">
+	<api name="nodes2looks"/>
+	<summary>Initial version of Nodes to Looks API</summary>
+	<version major="1" minor="0"/>
+	<date day="30" month="4" year="2003"/>
+	<author login="phrebejk"/>
+	<compatibility addition="yes"/>
+	<description>
+	    First version of Nodes -&gt; Looks bridge introduced.
+	</description>	
+    </change>
+    <change id="looks-1.0">
+	<api name="looks"/>
+	<summary>Initial version of Looks SPI</summary>
+	<version major="1" minor="0"/>
+	<date day="30" month="4" year="2003"/>
+	<author login="phrebejk"/>
+	<compatibility addition="yes"/>
+	<description>
+	    First version of Looks SPI introduced.
+	</description>	
+    </change>
+</changes>
+
+  <!-- Now the surrounding HTML text and document structure: -->
+
+  <htmlcontents>
+<!--
+
+                            NO NO NO NO NO!
+
+         ==============>    DO NOT EDIT ME!  <======================
+
+          AUTOMATICALLY GENERATED FROM APICHANGES.XML, DO NOT EDIT
+
+                SEE xml/api/doc/changes/apichanges.xml
+
+-->
+    <head>
+      <title>Looks API changes by date</title>
+      <link rel="stylesheet" href="prose.css" type="text/css"/>
+    </head>
+    <body>
+
+<p class="overviewlink"><a href="overview-summary.html">Overview</a></p>
+
+<h1>Introduction</h1>
+
+<p>This document lists changes made to the Looks API. Please ask on the 
+<code>dev@openide.netbeans.org</code>
+mailing list if you have any questions about the details of a
+change, or are wondering how to convert existing code to be compatible.</p>
+
+      <hr/><standard-changelists module-code-name="org.netbeans.modules.looks/2"/>
+
+      <hr/><p>@FOOTER@</p>
+
+    </body>
+  </htmlcontents>
+</apichanges>
