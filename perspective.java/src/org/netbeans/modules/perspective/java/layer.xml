@@ -168,13 +168,13 @@
     <!--window system config folder-->
     <folder name="Windows2">
         <folder name="Modes">
-        <!--Custom javaOutput Mode that use by Java Browsing Perspective-->
+        <!--Custom javaOutput Mode that use by Java Browsing Perspectie-->
         <file name="javaOutput.wsmode" url="modes/javaOutput.wsmode"/>
         <folder name="javaOutput"></folder>
-        <!--Custom javaExplorer Mode that use by Java Browsing Perspective and Debug Perspective-->
+        <!--Custom javaExplorer Mode that use by Java Browsing Perspectie and Debug Perspective-->
         <file name="javaExplorer.wsmode" url="modes/javaExplorer.wsmode"/>
         <folder name="javaExplorer"></folder>
-        <!--Custom javaExplorer Mode that use by Java Browsing Perspective and Debug Perspective-->
+        <!--Custom javaExplorer Mode that use by Java Browsing Perspectie and Debug Perspective-->
         <file name="javaExplorer2.wsmode" url="modes/javaExplorer2.wsmode"/>
         <folder name="javaExplorer2"></folder> 
       </folder>  
