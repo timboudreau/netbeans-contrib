@@ -86,6 +86,7 @@ public abstract class Global {
     public static void clear() {
         globalVars = new TreeMap<String, String>();
         includeDirs = new HashSet<String>();
+        macros = new HashMap<String, String>();
         makefiles = new LinkedList<LexerSharedInputState>();
         done = false;
     }
