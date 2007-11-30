@@ -48,18 +48,6 @@ import java.awt.Image;
 public interface Function {
     /**
      * 
-     * @return Function declaration
-     */
-    Object getDeclaration();
-
-    /**
-     * 
-     * @return Function definition
-     */
-    Object getDefinition();
-    
-    /**
-     * 
      * @return Function short name
      */
     String getName();
@@ -81,4 +69,9 @@ public interface Function {
      * @return Function icon
      */
     Image getIcon();
+    
+    /**
+     * Open function in editor
+     */
+    void open();
 }

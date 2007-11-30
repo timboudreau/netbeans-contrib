@@ -45,7 +45,6 @@ import java.awt.Point;
 import javax.swing.Action;
 import org.netbeans.api.visual.widget.ConnectionWidget;
 import org.netbeans.api.visual.widget.Widget;
-import org.netbeans.modules.cnd.callgraph.api.ui.CallGraphActionsFactory;
 import org.openide.nodes.AbstractNode;
 
 /**
@@ -67,19 +66,19 @@ public class CallNode extends AbstractNode {
         this.model = model;
         this.isCalls = isCalls;
         if (isCalls) {
-            setName(element.getCalledFunction().getName());
+            setName(element.getCallee().getName());
         } else {
-            setName(element.getCallOwner().getName());
+            setName(element.getCaller().getName());
         }
 
-        Function toFunction = element.getCalledFunction();
+        Function toFunction = element.getCallee();
         Widget to = model.getScene().findWidget(toFunction);
         if (to == null){
             to = model.getScene().addNode(toFunction);
             to.setPreferredLocation (new Point (100, 100));
         }
-        if (!isRoot && element.getCallOwner() != null) {
-            Function fromFunction = element.getCallOwner();
+        if (!isRoot && element.getCaller() != null) {
+            Function fromFunction = element.getCaller();
             Widget from = model.getScene().findWidget(fromFunction);
             if (from == null) {
                 from = model.getScene().addNode(fromFunction);
@@ -98,9 +97,9 @@ public class CallNode extends AbstractNode {
     @Override
     public String getHtmlDisplayName() {
         if (isCalls) {
-            return object.getCalledFunction().getHtmlDisplayName();
+            return object.getCallee().getHtmlDisplayName();
         } else {
-            return object.getCallOwner().getHtmlDisplayName();
+            return object.getCaller().getHtmlDisplayName();
         }
     }
     
@@ -108,9 +107,9 @@ public class CallNode extends AbstractNode {
     public Image getIcon(int param) {
         Image res = null;
         if (isCalls) {
-            res = object.getCalledFunction().getIcon();
+            res = object.getCallee().getIcon();
         } else {
-            res = object.getCallOwner().getIcon();
+            res = object.getCaller().getIcon();
         }
         if (res == null){
             res = super.getIcon(param);
@@ -125,7 +124,7 @@ public class CallNode extends AbstractNode {
     
     @Override
     public Action getPreferredAction() {
-        return CallGraphActionsFactory.getDefault().gotoAction(object);
+        return new GoToReferenceAction(object);
     }
 
     @Override

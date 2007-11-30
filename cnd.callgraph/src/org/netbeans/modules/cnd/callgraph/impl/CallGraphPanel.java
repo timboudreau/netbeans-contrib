@@ -206,6 +206,10 @@ public class CallGraphPanel extends JPanel implements ExplorerManager.Provider, 
         callers.setSelected(!isCalls);
     }
     
+//    public void showCallGraph(CallModel model, Direction direction, Call start){
+//        
+//    }
+    
     public void setStartPoint(StartPoint startPoint) {
         this.startPoint = startPoint;
         this.isCalls = startPoint.isCalls();

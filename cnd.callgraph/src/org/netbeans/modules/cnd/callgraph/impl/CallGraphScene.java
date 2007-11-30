@@ -19,8 +19,6 @@
 
 package org.netbeans.modules.cnd.callgraph.impl;
 
-import java.awt.Color;
-import javax.swing.AbstractAction;
 import org.netbeans.api.visual.action.ActionFactory;
 import org.netbeans.api.visual.action.EditProvider;
 import org.netbeans.api.visual.action.WidgetAction;
@@ -37,7 +35,6 @@ import org.netbeans.api.visual.widget.Scene;
 import org.netbeans.api.visual.widget.Widget;
 import org.netbeans.modules.cnd.callgraph.api.Call;
 import org.netbeans.modules.cnd.callgraph.api.Function;
-import org.netbeans.modules.cnd.callgraph.api.ui.CallGraphActionsFactory;
 
 /**
  * @author David Kaspar
@@ -96,10 +93,7 @@ public class CallGraphScene extends GraphScene<Function,Call> {
         }
         
         public void edit(Widget widget) {
-            AbstractAction action = CallGraphActionsFactory.getDefault().gotoAction(node);
-            if (action != null){
-                action.actionPerformed(null);
-            }
+            node.open();
         }
     }
 
@@ -110,10 +104,7 @@ public class CallGraphScene extends GraphScene<Function,Call> {
         }
         
         public void edit(Widget widget) {
-            AbstractAction action = CallGraphActionsFactory.getDefault().gotoAction(call);
-            if (action != null){
-                action.actionPerformed(null);
-            }
+            call.open();
         }
     }
 

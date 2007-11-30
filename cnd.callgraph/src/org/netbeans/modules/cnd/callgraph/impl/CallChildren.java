@@ -71,7 +71,7 @@ public class CallChildren extends Children.Keys<Call> {
     private synchronized void resetKeys(){
         List<Call> set;
         if (isCalls) {
-            set = model.getModel().getCalls(object);
+            set = model.getModel().getCallees(object);
         } else {
             set = model.getModel().getCallers(object);
         }

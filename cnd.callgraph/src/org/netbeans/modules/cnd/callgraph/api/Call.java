@@ -44,7 +44,11 @@ package org.netbeans.modules.cnd.callgraph.api;
  * @author Alexander Simon
  */
 public interface Call extends Comparable<Call>{
-    Object getReferencedCall();
-    Function getCalledFunction();
-    Function getCallOwner();
+    /**
+     * Open call in editor
+     */
+    void open();
+
+    Function getCallee();
+    Function getCaller();
 }

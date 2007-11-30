@@ -49,6 +49,7 @@ import org.netbeans.modules.cnd.api.model.xref.CsmReference;
 import org.netbeans.modules.cnd.callgraph.api.Call;
 import org.netbeans.modules.cnd.callgraph.api.Function;
 import org.netbeans.modules.cnd.modelutil.CsmImageLoader;
+import org.netbeans.modules.cnd.modelutil.CsmUtilities;
 import org.openide.util.NbBundle;
 
 /**
@@ -71,16 +72,20 @@ public class CallImpl implements Call {
         return reference;
     }
 
-    public Function getCalledFunction() {
+    public void open() {
+        CsmUtilities.openSource(reference);
+    }
+
+    public Function getCallee() {
         return function;
     }
 
-    public Function getCallOwner() {
+    public Function getCaller() {
         return owner;
     }
 
     public int compareTo(Call o) {
-        return getCalledFunction().getName().compareTo(o.getCalledFunction().getName());
+        return getCallee().getName().compareTo(o.getCallee().getName());
     }
 
     private static class FunctionImpl implements Function {
@@ -159,6 +164,10 @@ public class CallImpl implements Call {
             return null;
         }
 
+        public void open() {
+            CsmUtilities.openSource(function.getDefinition());
+        }
+
         @Override
         public boolean equals(Object obj) {
             if (obj instanceof FunctionImpl) {
@@ -171,5 +180,6 @@ public class CallImpl implements Call {
         public int hashCode() {
             return getDeclaration().hashCode();
         }
+
     }
 }

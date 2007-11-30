@@ -70,6 +70,16 @@ public final class CallGraphTopComponent extends TopComponent {
 //        setIcon(Utilities.loadImage(ICON_PATH, true));
     }
 
+//    public void showCallGraph(CallModel model, Direction direction, Call start){
+//        setName(start.getCallee().getName()+" - "+NbBundle.getMessage(getClass(), "CTL_CallGraphTopComponent")); // NOI18N
+//        removeAll();
+//        CallGraphPanel panel = new CallGraphPanel();
+//        add(panel, BorderLayout.CENTER);
+//        validate();
+//        panel.showCallGraph(model, direction, start);
+//        panel.requestFocusInWindow();
+//    }
+        
     public void setStartPoint(StartPoint startPoint) {
         setName(startPoint.getName()+" - "+NbBundle.getMessage(getClass(), "CTL_CallGraphTopComponent")); // NOI18N
         removeAll();

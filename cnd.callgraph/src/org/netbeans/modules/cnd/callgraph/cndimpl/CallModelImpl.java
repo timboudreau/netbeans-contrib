@@ -77,7 +77,8 @@ public class CallModelImpl implements CallModel {
     }
 
     public List<Call> getCallers(Call function) {
-        CsmReference ref = (CsmReference) function.getReferencedCall();
+        CallImpl functionImpl = (CallImpl) function;
+        CsmReference ref = (CsmReference) functionImpl.getReferencedCall();
         CsmObject owner = getOwner(ref);
         if (!CsmKindUtilities.isFunction(owner)) {
             ref.getOwner();
@@ -135,8 +136,9 @@ public class CallModelImpl implements CallModel {
         return null;
     }
     
-    public List<Call> getCalls(Call definition) {
-        CsmReference ref = (CsmReference) definition.getReferencedCall();
+    public List<Call> getCallees(Call definition) {
+        CallImpl definitionImpl = (CallImpl) definition;
+        CsmReference ref = (CsmReference) definitionImpl.getReferencedCall();
         CsmObject owner = ref.getReferencedObject();
         if (CsmKindUtilities.isFunctionDeclaration(owner)){
             owner = ((CsmFunction)owner).getDefinition();
