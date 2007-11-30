@@ -43,6 +43,7 @@ import org.netbeans.modules.cnd.callgraph.api.*;
 import java.awt.Image;
 import java.awt.Point;
 import javax.swing.Action;
+import org.netbeans.api.visual.widget.ConnectionWidget;
 import org.netbeans.api.visual.widget.Widget;
 import org.netbeans.modules.cnd.callgraph.api.ui.CallGraphActionsFactory;
 import org.openide.nodes.AbstractNode;
@@ -66,26 +67,26 @@ public class CallNode extends AbstractNode {
         this.model = model;
         this.isCalls = isCalls;
         if (isCalls) {
-            setName(element.getFunctionDescription());
+            setName(element.getCalledFunction().getName());
         } else {
-            setName(element.getOwnerDescription());
+            setName(element.getCallOwner().getName());
         }
 
-        Function toFunction = new Function(element,true);
+        Function toFunction = element.getCalledFunction();
         Widget to = model.getScene().findWidget(toFunction);
         if (to == null){
             to = model.getScene().addNode(toFunction);
             to.setPreferredLocation (new Point (100, 100));
         }
         if (!isRoot && element.getCallOwner() != null) {
-            Function fromFunction = new Function(element, false);
+            Function fromFunction = element.getCallOwner();
             Widget from = model.getScene().findWidget(fromFunction);
             if (from == null) {
                 from = model.getScene().addNode(fromFunction);
                 from.setPreferredLocation(new Point(10, 10));
             }
             if (model.getScene().findEdgesBetween(toFunction, fromFunction).size()==0) {
-                model.getScene().addEdge(element);
+                ConnectionWidget connection = (ConnectionWidget) model.getScene().addEdge(element);
                 model.getScene().setEdgeSource(element, fromFunction);
                 model.getScene().setEdgeTarget(element, toFunction);
             }
@@ -93,14 +94,23 @@ public class CallNode extends AbstractNode {
         model.getScene().validate();
         model.getSceneLayout().invokeLayout();
     }
+
+    @Override
+    public String getHtmlDisplayName() {
+        if (isCalls) {
+            return object.getCalledFunction().getHtmlDisplayName();
+        } else {
+            return object.getCallOwner().getHtmlDisplayName();
+        }
+    }
     
     @Override
     public Image getIcon(int param) {
         Image res = null;
         if (isCalls) {
-            res = object.getFunctionIcon();
+            res = object.getCalledFunction().getIcon();
         } else {
-            res = object.getOwnerIcon();
+            res = object.getCallOwner().getIcon();
         }
         if (res == null){
             res = super.getIcon(param);

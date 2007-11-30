@@ -40,12 +40,14 @@
 package org.netbeans.modules.cnd.callgraph.cndimpl;
 
 import java.awt.Image;
+import org.netbeans.modules.cnd.api.model.CsmClass;
 import org.netbeans.modules.cnd.api.model.CsmFunction;
 import org.netbeans.modules.cnd.api.model.CsmFunctionDefinition;
 import org.netbeans.modules.cnd.api.model.CsmMember;
 import org.netbeans.modules.cnd.api.model.util.CsmKindUtilities;
 import org.netbeans.modules.cnd.api.model.xref.CsmReference;
 import org.netbeans.modules.cnd.callgraph.api.Call;
+import org.netbeans.modules.cnd.callgraph.api.Function;
 import org.netbeans.modules.cnd.modelutil.CsmImageLoader;
 import org.openide.util.NbBundle;
 
@@ -55,96 +57,119 @@ import org.openide.util.NbBundle;
  */
 public class CallImpl implements Call {
 
-    private CsmFunction owner;
+    private Function owner;
     private CsmReference reference;
-    private CsmFunction function;
+    private Function function;
     
     public CallImpl(CsmFunction owner, CsmReference reference, CsmFunction function){
-        this.owner = owner;
-        this.function = function;
+        this.owner = new FunctionImpl(owner);
         this.reference = reference;
+        this.function = new FunctionImpl(function);
     }
 
     public Object getReferencedCall() {
         return reference;
     }
 
-    public Object getFunctionDeclaration() {
+    public Function getCalledFunction() {
         return function;
     }
 
-    public Object getCallOwner() {
+    public Function getCallOwner() {
         return owner;
     }
 
-    public String getFunctionName() {
-        return function.getName();
-    }
-
-    public String getOwnerName() {
-        return owner.getName();
-    }
-
-    public String getFunctionDescription() {
-        return getDescription(function);
-    }
-
-    public String getOwnerDescription() {
-        return getDescription(owner);
-    }
-
-    public Image getOwnerIcon() {
-        return getIcon(owner);
-    }
-    
-    public Image getFunctionIcon() {
-        return getIcon(function);
-    }
-
     public int compareTo(Call o) {
-        return getFunctionName().compareTo(o.getFunctionName());
+        return getCalledFunction().getName().compareTo(o.getCalledFunction().getName());
     }
 
-    private Image getIcon(CsmFunction f) {
-        try {
-            return CsmImageLoader.getImage(f);
-        } catch (AssertionError ex){
-            ex.printStackTrace();
-        } catch (Exception ex) {
-            ex.printStackTrace();
+    private static class FunctionImpl implements Function {
+        private CsmFunction function;
+        private String htmlDisplayName = "";
+        
+        private FunctionImpl(CsmFunction function){
+            this.function = function;
         }
-        return null;
-    }
 
-    private String getDescription(CsmFunction f) {
-        f = getFunction(f);
-        if (CsmKindUtilities.isFunctionDefinition(f)) {
-            CsmFunction decl = ((CsmFunctionDefinition) f).getDeclaration();
-            if (decl != null) {
-                f = decl;
+        public Object getDeclaration() {
+            if (CsmKindUtilities.isFunctionDefinition(function)) {
+                CsmFunction f = ((CsmFunctionDefinition)function).getDeclaration();
+                if (f != null) {
+                    return f;
+                }
             }
+            return function;
         }
-        String n;
-        if (f instanceof CsmMember) {
-            CsmMember m = (CsmMember) f;
-            n = f.getName() + " in " + m.getContainingClass().getName();
-        } else {
-            n = f.getName();
+
+        public Object getDefinition() {
+            if (CsmKindUtilities.isFunctionDeclaration(function)) {
+                CsmFunction f = function.getDefinition();
+                if (f != null) {
+                    return f;
+                }
+            }
+            return function;
         }
-        return n;
-    }
 
-    private CsmFunction getFunction(CsmFunction f) {
-       if (CsmKindUtilities.isFunctionDefinition(f)) {
-           CsmFunction decl = ((CsmFunctionDefinition)f).getDeclaration();
-           if (decl != null){
-               f = decl;
-           }
-       }
-       return f;
-    }
+        public String getName() {
+            return function.getName();
+        }
 
-    private String getString(String key) {
-        return NbBundle.getMessage(getClass(), key);
+        public String getHtmlDisplayName() {
+            if( htmlDisplayName.length() == 0) {
+                htmlDisplayName = createHtmlDisplayName();
+            }
+            return htmlDisplayName;
+        }
+    
+        private String createHtmlDisplayName() {
+            String displayName = function.getName().replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;"); // NOI18N
+	    try { 
+		CsmFunction f = (CsmFunction)getDeclaration();
+		if (CsmKindUtilities.isClassMember(f)){
+		    CsmClass cls = ((CsmMember)f).getContainingClass();
+		    if (cls != null && cls.getName().length()>0) {
+			String name = cls.getName().replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;"); // NOI18N
+			String in = NbBundle.getMessage(CallImpl.class, "LBL_inClass"); //NOI18N                    
+			return displayName+"<font color='!controlShadow'>  " + in + " " + name; // NOI18N
+		    }
+		}
+	    }
+	    catch( AssertionError ex ) {
+		ex.printStackTrace();
+	    }
+	    catch( Exception ex ) {
+		ex.printStackTrace();
+	    }
+            return displayName;
+        }
+
+        public String getDescription() {
+            return function.getSignature();
+        }
+
+        public Image getIcon() {
+            try {
+                return CsmImageLoader.getImage((CsmFunction)getDefinition());
+            } catch (AssertionError ex) {
+                ex.printStackTrace();
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+            return null;
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (obj instanceof FunctionImpl) {
+                return getDeclaration().equals(((FunctionImpl) obj).getDeclaration());
+            }
+            return super.equals(obj);
+        }
+
+        @Override
+        public int hashCode() {
+            return getDeclaration().hashCode();
+        }
     }
 }

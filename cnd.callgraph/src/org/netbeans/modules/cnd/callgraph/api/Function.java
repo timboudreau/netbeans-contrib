@@ -39,12 +39,46 @@
 
 package org.netbeans.modules.cnd.callgraph.api;
 
+import java.awt.Image;
+
 /**
  *
  * @author Alexander Simon
  */
-public interface Call extends Comparable<Call>{
-    Object getReferencedCall();
-    Function getCalledFunction();
-    Function getCallOwner();
+public interface Function {
+    /**
+     * 
+     * @return Function declaration
+     */
+    Object getDeclaration();
+
+    /**
+     * 
+     * @return Function definition
+     */
+    Object getDefinition();
+    
+    /**
+     * 
+     * @return Function short name
+     */
+    String getName();
+    
+    /**
+     * 
+     * @return Function html name to disply in tree/list view
+     */
+    String getHtmlDisplayName();
+
+    /**
+     * 
+     * @return Function full name
+     */
+    String getDescription();
+    
+    /**
+     * 
+     * @return Function icon
+     */
+    Image getIcon();
 }

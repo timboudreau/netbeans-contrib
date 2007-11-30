@@ -56,6 +56,7 @@ import org.netbeans.api.visual.graph.layout.GridGraphLayout;
 import org.netbeans.api.visual.layout.LayoutFactory;
 import org.netbeans.api.visual.layout.SceneLayout;
 import org.netbeans.modules.cnd.callgraph.api.Call;
+import org.netbeans.modules.cnd.callgraph.api.Function;
 import org.netbeans.modules.cnd.callgraph.impl.CallNode;
 import org.netbeans.modules.cnd.callgraph.api.StartPoint;
 import org.openide.explorer.ExplorerManager;

@@ -20,6 +20,7 @@
 package org.netbeans.modules.cnd.callgraph.impl;
 
 import org.netbeans.api.visual.action.ActionFactory;
+import org.netbeans.api.visual.action.EditProvider;
 import org.netbeans.api.visual.action.WidgetAction;
 import org.netbeans.api.visual.anchor.AnchorFactory;
 import org.netbeans.api.visual.anchor.AnchorShape;
@@ -30,7 +31,11 @@ import org.netbeans.api.visual.widget.ConnectionWidget;
 import org.netbeans.api.visual.widget.LabelWidget;
 import org.netbeans.api.visual.widget.LayerWidget;
 import org.netbeans.api.visual.widget.Widget;
+import org.netbeans.modules.cnd.api.model.CsmFunction;
+import org.netbeans.modules.cnd.api.model.xref.CsmReference;
 import org.netbeans.modules.cnd.callgraph.api.Call;
+import org.netbeans.modules.cnd.callgraph.api.Function;
+import org.netbeans.modules.cnd.modelutil.CsmUtilities;
 
 /**
  * @author David Kaspar
@@ -43,6 +48,10 @@ public class CallGraphScene extends GraphScene<Function,Call> {
     private LayerWidget connectionLayer;
 
     private WidgetAction moveAction = ActionFactory.createMoveAction ();
+    private WidgetAction openAction = ActionFactory.createEditAction (new EditProvider() {
+            public void edit (Widget widget) {
+            }
+        });
 
     public CallGraphScene() {
         mainLayer = new LayerWidget (this);
@@ -55,7 +64,8 @@ public class CallGraphScene extends GraphScene<Function,Call> {
     protected Widget attachNodeWidget (Function node) {
         LabelWidget label = new LabelWidget (this, node.getName());
         label.setBorder (BORDER_4);
-        label.getActions ().addAction (moveAction);
+        label.getActions().addAction(moveAction);
+        label.getActions().addAction(ActionFactory.createEditAction(new NodeEditProvider(node)));
         mainLayer.addChild (label);
         return label;
     }
@@ -63,6 +73,7 @@ public class CallGraphScene extends GraphScene<Function,Call> {
     protected Widget attachEdgeWidget(Call edge) {
         ConnectionWidget connection = new ConnectionWidget (this);
         connection.setTargetAnchorShape (AnchorShape.TRIANGLE_FILLED);
+        connection.getActions().addAction(ActionFactory.createEditAction(new EdgeEditProvider(edge)));
         connectionLayer.addChild (connection);
         return connection;
     }
@@ -77,4 +88,25 @@ public class CallGraphScene extends GraphScene<Function,Call> {
         ((ConnectionWidget) findWidget (edge)).setTargetAnchor (AnchorFactory.createRectangularAnchor (w));
     }
 
+    private static class NodeEditProvider implements EditProvider {
+        private Function node;
+        private NodeEditProvider(Function node){
+            this.node = node;
+        }
+        
+        public void edit(Widget widget) {
+            CsmUtilities.openSource((CsmFunction)node.getDefinition());
+        }
+    }
+
+    private static class EdgeEditProvider implements EditProvider {
+        private Call call;
+        private EdgeEditProvider(Call call){
+            this.call = call;
+        }
+        
+        public void edit(Widget widget) {
+            CsmUtilities.openSource((CsmReference)call.getReferencedCall());
+        }
+    }
 }
