@@ -49,8 +49,8 @@ made subject to such option by the copyright holder.
         <type>classpath</type>
         <resource>jar:nbinst://javafx/modules/ext/javafx/javafxrt.jar!/</resource>
         <resource>jar:nbinst://javafx/modules/ext/javafx/Filters.jar!/</resource>
-        <resource>jar:nbinst://javafx/modules/ext/javafx/swing-layout.jar!/</resource>
         <resource>jar:nbinst://javafx/modules/javafx-netbeans-fxuserlib.jar!/</resource>
+        <resource>jar:nbinst://org.jdesktop.layout/modules/ext/swing-layout-1.0.3.jar!/</resource>
     </volume>
     <volume>
         <type>src</type>
