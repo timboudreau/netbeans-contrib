@@ -52,7 +52,6 @@ import org.openide.filesystems.FileObject;
 /**
  * Returns source level of project Java source files.
  * @author David Konecny
- * @since org.netbeans.modules.java.api.common/0 1.0
  */
 class SourceLevelQueryImpl implements SourceLevelQueryImplementation {
 

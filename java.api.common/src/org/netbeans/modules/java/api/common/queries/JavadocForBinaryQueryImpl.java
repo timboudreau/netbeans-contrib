@@ -58,7 +58,6 @@ import org.openide.util.WeakListeners;
 /**
  * Finds Javadoc (if it is built) corresponding to binaries in a project.
  * @author David Konecny, Jesse Glick
- * @since org.netbeans.modules.java.api.common/0 1.0
  */
 class JavadocForBinaryQueryImpl implements JavadocForBinaryQueryImplementation {
     

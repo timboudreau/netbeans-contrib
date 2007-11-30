@@ -49,60 +49,61 @@ import org.netbeans.api.project.ProjectManager;
 import org.netbeans.spi.project.support.ant.AntProjectHelper;
 import org.netbeans.spi.project.support.ant.EditableProperties;
 import org.openide.util.MutexException;
+import org.openide.util.Parameters;
 
 
 /**
- * Proxy for the AntProjectHelper which defers the update of the project metadata
- * to explicit user action. Currently it is hard coded for update from
- * "http://www.netbeans.org/ns/j2se-project/1" to "http://www.netbeans.org/ns/j2se-project/2".
- * In future it should define plugable SPI.
+ * Proxy for the {@link AntProjectHelper} which defers the update of the project metadata
+ * to explicit user action. Caller has to provide implementation of {@link UpdateProject}
+ * which takes care of updating project itself.
  * @author Tomas Zezula, Tomas Mysik
+ * @see UpdateProject
  */
-public class UpdateHelper {
+public final class UpdateHelper {
 
     private final UpdateProject updateProject;
     private final AntProjectHelper helper;
 
     /**
-     * Creates new UpdateHelper
-     * @param project
-     * @param helper AntProjectHelper
-     * @param cfg AuxiliaryConfiguration
-     * @param notifier used to ask user about project update
+     * Create new {@link UpdateHelper}.
+     * @param updateProject {@link UpdateProject} which takes care of updating project itself.
+     * @param helper {@link AntProjectHelper} to be proxied.
      */
     public UpdateHelper(UpdateProject updateProject, AntProjectHelper helper) {
-        assert updateProject != null && helper != null;
-        
+        Parameters.notNull("updateProject", updateProject);
+        Parameters.notNull("helper", helper);
+
         this.updateProject = updateProject;
         this.helper = helper;
     }
 
     /**
-     * Returns the AntProjectHelper.getProperties(), {@link AntProjectHelper#getProperties(String)}
+     * In the case that the project is of current version or the properties
+     * are not {@link AntProjectHelper#PROJECT_PROPERTIES_PATH} it calls
+     * {@link AntProjectHelper#getProperties(String)} otherwise it asks for updated project properties.
      * @param path a relative URI in the project directory.
-     * @return a set of properties
+     * @return a set of properties.
      */
     public EditableProperties getProperties(final String path) {
-        //Properties are the same in both j2seproject/1 and j2seproject/2
         return ProjectManager.mutex().readAccess(new Mutex.Action<EditableProperties>() {
             public EditableProperties run() {
                 if (!isCurrent() && AntProjectHelper.PROJECT_PROPERTIES_PATH.equals(path)) {
                     // only project properties were changed
                     return updateProject.getUpdatedProjectProperties();
-                } else {
-                    return helper.getProperties(path);
                 }
+                return helper.getProperties(path);
             }
         });
     }
 
     /**
-     * In the case that the project is of current version or the properties are not {@link AntProjectHelper#PROJECT_PROPERTIES_PATH}
-     * it calls AntProjectHelper.putProperties(), {@link AntProjectHelper#putProperties(String, EditableProperties)}
-     * otherwise it asks user to updata project. If the user agrees with the project update, it does the update and calls
-     * AntProjectHelper.putProperties().
+     * In the case that the project is of current version or the properties
+     * are not {@link AntProjectHelper#PROJECT_PROPERTIES_PATH} it calls
+     * {@link AntProjectHelper#putProperties(String, EditableProperties)} otherwise it asks to update project.
+     * If the project can be updated, it does the update and calls
+     * {@link AntProjectHelper#putProperties(String, EditableProperties)}.
      * @param path a relative URI in the project directory.
-     * @param props a set of properties
+     * @param props a set of properties.
      */
     public void putProperties(final String path, final EditableProperties props) {
         ProjectManager.mutex().writeAccess(
@@ -124,30 +125,29 @@ public class UpdateHelper {
     }
 
     /**
-     * In the case that the project is of current version or shared is false it delegates to
-     * AntProjectHelper.getPrimaryConfigurationData(), {@link AntProjectHelper#getPrimaryConfigurationData(boolean)}.
+     * In the case that the project is of current version or shared is <code>false</code> it delegates to
+     * {@link AntProjectHelper#getPrimaryConfigurationData(boolean)}.
      * Otherwise it creates an in memory update of shared configuration data and returns it.
-     * @param shared if true, refers to <code>project.xml</code>, else refers to
-     *               <code>private.xml</code>
-     * @return the configuration data that is available
+     * @param shared if <code>true</code>, refers to <e>project.xml</e>, else refers to
+     *               <e>private.xml</e>.
+     * @return the configuration data that is available.
      */
     public Element getPrimaryConfigurationData(final boolean shared) {
         return ProjectManager.mutex().readAccess(new Mutex.Action<Element>() {
             public Element run() {
                 if (!shared || isCurrent()) { //Only shared props should cause update
                     return helper.getPrimaryConfigurationData(shared);
-                } else {
-                    return updateProject.getUpdatedSharedConfigurationData();
                 }
+                return updateProject.getUpdatedSharedConfigurationData();
             }
         });
     }
 
     /**
-     * In the case that the project is of current version or shared is false it calls AntProjectHelper.putPrimaryConfigurationData(),
+     * In the case that the project is of current version or shared is <code>false</code> it calls
      * {@link AntProjectHelper#putPrimaryConfigurationData(Element, boolean)}.
-     * Otherwise it asks user to update the project. If the user agrees with the project update, it does the update and calls
-     * AntProjectHelper.PrimaryConfigurationData().
+     * Otherwise the project can be updated, it does the update and calls
+     * {@link AntProjectHelper#putPrimaryConfigurationData(Element, boolean)}.
      * @param element the configuration data
      * @param shared if true, refers to <code>project.xml</code>, else refers to
      * <code>private.xml</code>
@@ -168,41 +168,49 @@ public class UpdateHelper {
             }
         });
     }
-    
+
     /**
-     * Request an saving of update. If the project is not of current version the user will be asked to update the project.
-     * If the user agrees with an update the project is updated.
-     * @return true if the metadata are of current version or updated
+     * Request saving of update. If the project is not of current version and the project can be updated, then
+     * the update is done.
+     * @return <code>true</code> if the metadata are of current version or updated.
+     * @throws IOException if error occurs during saving.
      */
     public boolean requestUpdate() throws IOException {
         try {
             return ProjectManager.mutex().writeAccess(new Mutex.ExceptionAction<Boolean>() {
                 public Boolean run() throws IOException {
                     if (isCurrent()) {
-                        return Boolean.TRUE;
+                        return true;
                     }
                     if (!updateProject.canUpdate()) {
-                        return Boolean.FALSE;
+                        return false;
                     }
                     updateProject.saveUpdate();
-                    return Boolean.TRUE;
+                    return true;
                 }
-            }).booleanValue();
+            });
 
         } catch (MutexException ex) {
             Exception inner = ex.getException();
             if (inner instanceof IOException) {
                 throw (IOException) inner;
-            } else {
-                throw (RuntimeException) inner;
             }
+            throw (RuntimeException) inner;
         }
     }
-    
+
+    /**
+     * Return <code>true</code> if the project is of current version.
+     * @return <code>true</code> if the project is of current version.
+     */
     public boolean isCurrent() {
         return updateProject.isCurrent();
     }
-    
+
+    /**
+     * Get the {@link AntProjectHelper} that is proxied.
+     * @return the {@link AntProjectHelper} that is proxied.
+     */
     public AntProjectHelper getAntProjectHelper() {
         return helper;
     }
