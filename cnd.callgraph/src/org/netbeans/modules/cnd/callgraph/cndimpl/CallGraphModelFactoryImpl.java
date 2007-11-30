@@ -81,7 +81,10 @@ public class CallGraphModelFactoryImpl extends CallGraphModelFactory {
                 isCalls = false;
             }
         }
-        return new CndStartPoint(function, project, isCalls);
+        if (function != null) {
+            return new CndStartPoint(function, project, isCalls);
+        }
+        return null;
     }
 
     private static class CndStartPoint implements StartPoint{
