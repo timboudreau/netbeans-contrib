@@ -128,7 +128,7 @@ public class CallGraphModelFactoryImpl extends CallGraphModelFactory {
         }
 
         public boolean isValid() {
-            return function.getContainingFile().isValid();
+            return project.isValid() && function.getContainingFile().isValid();
         }
     }
     
