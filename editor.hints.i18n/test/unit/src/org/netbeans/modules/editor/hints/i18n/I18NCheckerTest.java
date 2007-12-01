@@ -40,6 +40,7 @@
  */
 package org.netbeans.modules.editor.hints.i18n;
 
+import com.sun.source.tree.Tree.Kind;
 import com.sun.source.util.TreePath;
 import java.util.List;
 import org.netbeans.api.java.source.CompilationInfo;
@@ -73,23 +74,47 @@ public class I18NCheckerTest extends TreeRuleTestBase {
     }
     
     public void testSimple() throws Exception {
-        performAnalysisTest("test/Test.java", "package test; public class Test {private String s = \"s\";}", 102-48, "0:52-0:52:verifier:Hardcoded String");
+        performAnalysisTest("test/Test.java", "package test; public class Test {private String s = \"|s\";}", "0:52-0:52:hint:Hardcoded String");
     }
     
     public void testSimpleNOI18N() throws Exception {
-        performAnalysisTest("test/Test.java", "package test; public class Test {\nprivate String s = \"s\";//NOI18N\n}", 104-48);
+        performAnalysisTest("test/Test.java", "package test; public class Test {\nprivate String s = \"|s\";//NOI18N\n}");
     }
     
     public void testSimpleNoNOI18N() throws Exception {
-        performAnalysisTest("test/Test.java", "package test; public class Test {\nprivate String s = \"s\";\n//NOI18N}", 104-48, "1:19-1:19:verifier:Hardcoded String");
+        performAnalysisTest("test/Test.java", "package test; public class Test {\nprivate String s = \"|s\";\n//NOI18N}", "1:19-1:19:hint:Hardcoded String");
     }
     
     public void testAddToBundle() throws Exception {
-        performFixTest("test/Test.java", "package test; public class Test {\nprivate String s = \"s\";}", 97 - 43, "1:19-1:19:verifier:Hardcoded String", "A", "package test; import java.util.ResourceBundle; public class Test { private String s = ResourceBundle.getBundle(\"Bundle.properties\").getString(\"s\");}");
+        performFixTest("test/Test.java", "package test; public class Test {\nprivate String s = \"s\";}", 97 - 43, "1:19-1:19:hint:Hardcoded String", "A", "package test; import java.util.ResourceBundle; public class Test { private String s = ResourceBundle.getBundle(\"Bundle.properties\").getString(\"s\");}");
+    }
+    
+    public void testZeroLengthString() throws Exception {
+        performAnalysisTest("test/Test.java", "package test; public class Test {\nprivate String s = \"|\";\n}");
+    }
+    
+    public void testNoStringLiteral() throws Exception {
+        performAnalysisTest("test/Test.java", "package test; public class Test {\nprivate void t() {String s2 = null; String s = s|2 + s2;}\n}");
+    }
+    
+    public void testCompound1() throws Exception {
+        performAnalysisTest("test/Test.java", "package test; public class Test {\nprivate void t() {String s2 = null; String s = \"x\" + s|2 + s2;}\n}", "1:47-1:47:hint:Hardcoded String");
+    }
+    
+    public void testCompound2() throws Exception {
+        performAnalysisTest("test/Test.java", "package test; public class Test {\nprivate void t() {String s2 = null; String s = \"\" + s|2 + s2;}\n}");
     }
     
     @Override
     protected List<ErrorDescription> computeErrors(CompilationInfo info, TreePath path) {
+        if ("testNoStringLiteral".equals(getName()) || "testCompound1".equals(getName()) || "testCompound2".equals(getName())) {
+            while (path.getLeaf().getKind() != Kind.PLUS) {
+                path = path.getParentPath();
+            }
+            while (path.getParentPath().getLeaf().getKind() == Kind.PLUS) {
+                path = path.getParentPath();
+            }
+        }
         return new I18NChecker().run(info, path);
     }
 

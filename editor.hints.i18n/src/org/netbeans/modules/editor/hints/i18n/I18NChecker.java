@@ -180,6 +180,11 @@ public class I18NChecker extends AbstractHint {
             final FileObject bundleFO = od.getPrimaryFile().getParent().getFileObject("Bundle.properties"); // NOI18N
             final DataObject bundle = bundleFO != null ? DataObject.find(bundleFO) : null; //TODO: cast
             
+            if (v.format.toString().length() == 0 || !v.wasLiteral) {
+                //ignore zero-length string literals and "plus" expressions without a literal
+                return null;
+            }
+            
             Fix addToBundle = new AddToBundleFix(bundle, od, TreePathHandle.create(treePath, compilationInfo), support, v.format.toString(), v.arguments);
             
             Fix addNOI18N = new Fix() {
@@ -222,6 +227,7 @@ public class I18NChecker extends AbstractHint {
         private CompilationInfo info;
         private StringBuffer format = new StringBuffer();
         private List<String> arguments = new ArrayList<String>();
+        private boolean wasLiteral;
         private int argIndex;
         
         public BuildArgumentsVisitor(CompilationInfo info) {
@@ -235,14 +241,17 @@ public class I18NChecker extends AbstractHint {
         }
         
         public @Override Void visitLiteral(LiteralTree tree, Object p) {
-            format.append((String) tree.getValue());
+            if (((String) tree.getValue()).length() > 0) {
+                wasLiteral = true;
+                format.append((String) tree.getValue());
+            }
             return null;
         }
         
         public void handleTree(TreePath tp) {
             Tree tree = tp.getLeaf();
             if (tree.getKind() == Kind.STRING_LITERAL) {
-                format.append((String) ((LiteralTree) tree).getValue());
+                scan(tree, null);
                 return;
             }
             if (tree.getKind() == Kind.PLUS) {
