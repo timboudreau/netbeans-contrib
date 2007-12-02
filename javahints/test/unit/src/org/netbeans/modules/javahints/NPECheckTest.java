@@ -301,6 +301,16 @@ public class NPECheckTest extends TreeRuleTestBase {
                             "}", "3:20-3:28:verifier:Possibly Dereferencing null");
     }
     
+    public void testCCE() throws Exception {
+        performAnalysisTest("test/Test.java",
+                            "package test;\n" +
+                            "class Test {\n" +
+                            "    private void tes|t() {\n" +
+                            "        c.s Object method = new Object();\n" +
+                            "    }" +
+                            "}"/*, "3:20-3:28:verifier:Possibly Dereferencing null"*/);
+    }
+    
     @Override
     protected List<ErrorDescription> computeErrors(CompilationInfo info, TreePath path) {
         return new NPECheck().run(info, path);

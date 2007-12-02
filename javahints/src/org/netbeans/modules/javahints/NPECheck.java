@@ -146,7 +146,7 @@ public class NPECheck extends AbstractHint {
         public State visitAssignment(AssignmentTree node, Void p) {
             Element e = info.getTrees().getElement(new TreePath(getCurrentPath(), node.getVariable()));
             
-            if (e == null) {
+            if (e == null || !VARIABLE_ELEMENT.contains(e.getKind())) {
                 return super.visitAssignment(node, p);
             }
             
