@@ -77,7 +77,11 @@ class SharabilityQueryImpl implements SharabilityQueryImplementation, PropertyCh
         this.evaluator = evaluator;
         this.srcRoots = srcRoots;
         this.testRoots = testRoots;
-        this.additionalSourceRoots = additionalSourceRoots;
+        if (additionalSourceRoots != null) {
+            this.additionalSourceRoots = new ArrayList<String>(additionalSourceRoots);
+        } else {
+            this.additionalSourceRoots = additionalSourceRoots;
+        }
         this.srcRoots.addPropertyChangeListener(this);
         this.testRoots.addPropertyChangeListener(this);
     }
