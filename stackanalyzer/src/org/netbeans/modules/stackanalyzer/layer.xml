@@ -59,9 +59,9 @@ made subject to such option by the copyright holder.
             <file name="AnalyzeStackTopComponent.settings" url="AnalyzeStackTopComponentSettings.xml"/>
         </folder>
         <folder name="Modes">
-            <folder name="rightSlidingSide">
+            <folder name="properties">
                 <file name="AnalyzeStackTopComponent.wstcref" url="AnalyzeStackTopComponentWstcref.xml"/>
             </folder>
         </folder>
-    </folder>
+        </folder>
 </filesystem>
