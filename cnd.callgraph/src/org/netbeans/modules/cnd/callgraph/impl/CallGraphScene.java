@@ -23,9 +23,9 @@ import java.awt.Point;
 import java.awt.Rectangle;
 import java.util.Arrays;
 import java.util.Comparator;
-import java.util.ConcurrentModificationException;
 import java.util.HashMap;
 import java.util.Set;
+import javax.swing.SwingUtilities;
 import org.netbeans.api.visual.action.ActionFactory;
 import org.netbeans.api.visual.action.EditProvider;
 import org.netbeans.api.visual.action.WidgetAction;
@@ -62,8 +62,6 @@ public class CallGraphScene extends GraphScene<Function,Call> {
     private WidgetAction moveAction = ActionFactory.createMoveAction();
     private WidgetAction hoverAction = createWidgetHoverAction();
 
-    Object lock = new String("Call Graph lock"); // NOI18N
-
     public CallGraphScene() {
         mainLayer = new LayerWidget (this);
         addChild(mainLayer);
@@ -78,59 +76,72 @@ public class CallGraphScene extends GraphScene<Function,Call> {
     }
     
     public void doLayout(){
-        synchronized(lock) {
-            try {
+        Runnable run = new Runnable() {
+            public void run() {
                 sceneLayout.invokeLayout();
                 validate();
-            } catch (ConcurrentModificationException ex){
-                ex.printStackTrace();
             }
+        };
+        if (SwingUtilities.isEventDispatchThread()) {
+            run.run();
+        } else {
+            SwingUtilities.invokeLater(run);
         }
     }
 
-    @Override
-    protected void paintWidget() {
-        synchronized (lock) {
-            super.paintWidget();
-        }
-    }
-
-    @Override
-    protected void paintChildren() {
-        synchronized (lock) {
-            if (isValidated()) {
-                super.paintChildren();
-                this.getBounds();
+    public void addCallToScene(final Call element) {
+        Runnable run = new Runnable() {
+            public void run() {
+                Function toFunction = element.getCallee();
+                Widget to = findWidget(toFunction);
+                if (to == null) {
+                    to = addNode(toFunction);
+                    to.setPreferredLocation(new Point(100, 100));
+                }
+                if (element.getCaller() != null) {
+                    Function fromFunction = element.getCaller();
+                    Widget from = findWidget(fromFunction);
+                    if (from == null) {
+                        from = addNode(fromFunction);
+                        from.setPreferredLocation(new Point(10, 10));
+                    }
+                    if (findEdgesBetween(fromFunction, toFunction).size() == 0) {
+                        if (toFunction.equals(fromFunction)) {
+                            addLoopEdge(element, toFunction);
+                        } else {
+                            addEdge(element);
+                            setEdgeSource(element, fromFunction);
+                            setEdgeTarget(element, toFunction);
+                        }
+                    }
+                }
             }
+        };
+        if (SwingUtilities.isEventDispatchThread()) {
+            run.run();
+        } else {
+            SwingUtilities.invokeLater(run);
         }
     }
 
-    protected Widget attachNodeWidget(Function node) {
-        LabelWidget label = null;
-        synchronized (lock) {
-            label = new MyLabelWidget(this, node.getName());
-            label.setBorder(BORDER_4);
-            label.getActions().addAction(moveAction);
-            label.getActions().addAction(hoverAction);
-            label.getActions().addAction(ActionFactory.createEditAction(new NodeEditProvider(node)));
-            mainLayer.addChild(label);
+    public void addFunctionToScene(final Function element) {
+        Runnable run = new Runnable() {
+            public void run() {
+                Widget to = findWidget(element);
+                if (to == null) {
+                    to = addNode(element);
+                    to.setPreferredLocation(new Point(100, 100));
+                }
+            }
+        };
+        if (SwingUtilities.isEventDispatchThread()) {
+            run.run();
+        } else {
+            SwingUtilities.invokeLater(run);
         }
-        return label;
     }
 
-    protected Widget attachEdgeWidget(Call edge) {
-        ConnectionWidget connection = null;
-        synchronized (lock) {
-            connection = new ConnectionWidget (this);
-            connection.setTargetAnchorShape(AnchorShape.TRIANGLE_FILLED);
-            connection.getActions().addAction(hoverAction);
-            connection.getActions().addAction(ActionFactory.createEditAction(new EdgeEditProvider(edge)));
-            connectionLayer.addChild(connection);
-        }
-        return connection;
-    }
-
-    public void addLoopEdge(Call edge, Function targetNode) {
+    private void addLoopEdge(Call edge, Function targetNode) {
         ConnectionWidget connection = (ConnectionWidget)addEdge(edge);
         Widget w = findWidget(targetNode);
         connection.setRouter(router);
@@ -141,18 +152,34 @@ public class CallGraphScene extends GraphScene<Function,Call> {
         connection.setTargetAnchor(anchor);
     }
 
+
+    protected Widget attachNodeWidget(Function node) {
+        LabelWidget label = new MyLabelWidget(this, node.getName());
+        label.setBorder(BORDER_4);
+        label.getActions().addAction(moveAction);
+        label.getActions().addAction(hoverAction);
+        label.getActions().addAction(ActionFactory.createEditAction(new NodeEditProvider(node)));
+        mainLayer.addChild(label);
+        return label;
+    }
+
+    protected Widget attachEdgeWidget(Call edge) {
+        ConnectionWidget connection = new ConnectionWidget(this);
+        connection.setTargetAnchorShape(AnchorShape.TRIANGLE_FILLED);
+        connection.getActions().addAction(hoverAction);
+        connection.getActions().addAction(ActionFactory.createEditAction(new EdgeEditProvider(edge)));
+        connectionLayer.addChild(connection);
+        return connection;
+    }
+
     protected void attachEdgeSourceAnchor(Call edge, Function oldSourceNode, Function sourceNode) {
-        synchronized (lock) {
-            Widget w = sourceNode != null ? findWidget(sourceNode) : null;
-            ((ConnectionWidget) findWidget(edge)).setSourceAnchor (AnchorFactory.createRectangularAnchor(w));
-        }
+        Widget w = sourceNode != null ? findWidget(sourceNode) : null;
+        ((ConnectionWidget) findWidget(edge)).setSourceAnchor(AnchorFactory.createRectangularAnchor(w));
     }
 
     protected void attachEdgeTargetAnchor(Call edge, Function oldTargetNode, Function targetNode) {
-        synchronized (lock) {
-            Widget w = targetNode != null ? findWidget(targetNode) : null;
-            ((ConnectionWidget) findWidget(edge)).setTargetAnchor (AnchorFactory.createRectangularAnchor(w));
-        }
+        Widget w = targetNode != null ? findWidget(targetNode) : null;
+        ((ConnectionWidget) findWidget(edge)).setTargetAnchor(AnchorFactory.createRectangularAnchor(w));
     }
 
     private static class NodeEditProvider implements EditProvider {

@@ -41,10 +41,8 @@ package org.netbeans.modules.cnd.callgraph.impl;
 
 import org.netbeans.modules.cnd.callgraph.api.*;
 import java.awt.Image;
-import java.awt.Point;
 import java.util.ArrayList;
 import javax.swing.Action;
-import org.netbeans.api.visual.widget.Widget;
 import org.openide.nodes.AbstractNode;
 
 /**
@@ -66,29 +64,7 @@ public class CallNode extends AbstractNode {
         } else {
             setName(element.getCaller().getName());
         }
-        Function toFunction = element.getCallee();
-        Widget to = model.getScene().findWidget(toFunction);
-        if (to == null){
-            to = model.getScene().addNode(toFunction);
-            to.setPreferredLocation (new Point (100, 100));
-        }
-        if (element.getCaller() != null) {
-            Function fromFunction = element.getCaller();
-            Widget from = model.getScene().findWidget(fromFunction);
-            if (from == null) {
-                from = model.getScene().addNode(fromFunction);
-                from.setPreferredLocation(new Point(10, 10));
-            }
-            if (model.getScene().findEdgesBetween(fromFunction, toFunction).size()==0) {
-                if (toFunction.equals(fromFunction)) {
-                    model.getScene().addLoopEdge(element, toFunction);
-                } else {
-                    model.getScene().addEdge(element);
-                    model.getScene().setEdgeSource(element, fromFunction);
-                    model.getScene().setEdgeTarget(element, toFunction);
-                }
-            }
-        }
+        model.addCallToScene(element);
     }
 
     @Override

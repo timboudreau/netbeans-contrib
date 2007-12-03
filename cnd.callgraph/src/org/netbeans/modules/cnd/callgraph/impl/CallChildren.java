@@ -104,7 +104,7 @@ public class CallChildren extends Children.Keys<Call> {
             return new Node[]{(Node)call};
         }
         Node node = new CallNode(call, model, isCalls);
-        model.getScene().doLayout();
+        model.doLayout();
         return new Node[]{node};
     }
     

@@ -40,10 +40,8 @@
 package org.netbeans.modules.cnd.callgraph.impl;
 
 import java.awt.Image;
-import java.awt.Point;
 import java.util.ArrayList;
 import javax.swing.Action;
-import org.netbeans.api.visual.widget.Widget;
 import org.netbeans.modules.cnd.callgraph.api.Function;
 import org.openide.nodes.AbstractNode;
 
@@ -60,11 +58,7 @@ public class FunctionRootNode extends AbstractNode {
         object = element;
         this.model = model;
         setName(element.getName());
-        Widget to = model.getScene().findWidget(element);
-        if (to == null){
-            to = model.getScene().addNode(element);
-            to.setPreferredLocation (new Point (100, 100));
-        }
+        model.addFunctionToScene(element);
     }
 
     @Override
@@ -105,4 +99,5 @@ public class FunctionRootNode extends AbstractNode {
         }
         return model.getActions();
     }
+
 }
