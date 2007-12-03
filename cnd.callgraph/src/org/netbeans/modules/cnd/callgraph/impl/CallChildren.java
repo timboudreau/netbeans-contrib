@@ -94,8 +94,6 @@ public class CallChildren extends Children.Keys<Call> {
         if (set != null && set.size() > 0) {
             Collections.<Call>sort(set);
             setKeys(set);
-            model.getSceneLayout().invokeLayout();
-            model.getScene().validate();
             return;
         }
         setKeys(new Call[0]);
@@ -106,6 +104,7 @@ public class CallChildren extends Children.Keys<Call> {
             return new Node[]{(Node)call};
         }
         Node node = new CallNode(call, model, isCalls);
+        model.getScene().doLayout();
         return new Node[]{node};
     }
     

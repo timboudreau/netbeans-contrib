@@ -42,6 +42,7 @@ package org.netbeans.modules.cnd.callgraph.impl;
 import org.netbeans.modules.cnd.callgraph.api.*;
 import java.awt.Image;
 import java.awt.Point;
+import java.util.ArrayList;
 import javax.swing.Action;
 import org.netbeans.api.visual.widget.Widget;
 import org.openide.nodes.AbstractNode;
@@ -125,10 +126,17 @@ public class CallNode extends AbstractNode {
 
     @Override
     public Action[] getActions(boolean context) {
+        ArrayList<Action> actions = new ArrayList<Action>();
         Action action = getPreferredAction();
         if (action != null){
-            return new Action[]{action};
+            actions.add(action);
+            actions.add(new GoToReferenceAction(object.getCaller(), 1));
+            actions.add(new GoToReferenceAction(object.getCallee(), 2));
+            actions.add(null);
         }
-        return new Action[]{};
+        for(Action a:model.getActions()) {
+            actions.add(a);
+        }
+        return actions.toArray(new Action[actions.size()]);
     }
 }

@@ -54,6 +54,9 @@ import org.openide.util.NbBundle;
  * @author Alexander Simon
  */
 public class GoToReferenceAction extends AbstractAction {
+    public static final int FUNCTION = 0;
+    public static final int CALLER = 1;
+    public static final int CALLEE = 2;
     
     private Call call;
     private Function function;
@@ -63,9 +66,19 @@ public class GoToReferenceAction extends AbstractAction {
         putValue(Action.NAME, getString("GoToReference")); // NOI18N
     }
 
-    public GoToReferenceAction(Function function) {
+    public GoToReferenceAction(Function function, int what) {
         this.function = function;
-        putValue(Action.NAME, getString("GoToReference")); // NOI18N
+        switch(what){
+            case 0:
+                putValue(Action.NAME, getString("GoToFunction")); // NOI18N
+                break;
+            case 1:
+                putValue(Action.NAME, getString("GoToCaller")); // NOI18N
+                break;
+            case 2:
+                putValue(Action.NAME, getString("GoToCallee")); // NOI18N
+                break;
+        }
     }
     
     public void actionPerformed(ActionEvent e) {

@@ -89,7 +89,7 @@ public class FunctionImpl implements Function {
     }
 
     public void open() {
-        CsmUtilities.openSource(function.getDefinition());
+        CsmUtilities.openSource(getDefinition());
     }
 
     @Override

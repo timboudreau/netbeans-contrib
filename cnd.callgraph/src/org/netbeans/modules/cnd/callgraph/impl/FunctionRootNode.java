@@ -41,6 +41,7 @@ package org.netbeans.modules.cnd.callgraph.impl;
 
 import java.awt.Image;
 import java.awt.Point;
+import java.util.ArrayList;
 import javax.swing.Action;
 import org.netbeans.api.visual.widget.Widget;
 import org.netbeans.modules.cnd.callgraph.api.Function;
@@ -87,15 +88,21 @@ public class FunctionRootNode extends AbstractNode {
     
     @Override
     public Action getPreferredAction() {
-        return new GoToReferenceAction(object);
+        return new GoToReferenceAction(object, 0);
     }
 
     @Override
     public Action[] getActions(boolean context) {
         Action action = getPreferredAction();
         if (action != null){
-            return new Action[]{action};
+            ArrayList<Action> actions = new ArrayList<Action>();
+            actions.add(action);
+            actions.add(null);
+            for(Action a:model.getActions()) {
+                actions.add(a);
+            }
+            return actions.toArray(new Action[actions.size()]);
         }
-        return new Action[]{};
+        return model.getActions();
     }
 }

@@ -79,7 +79,6 @@ public class CallGraphPanel extends JPanel implements ExplorerManager.Provider, 
     private CallModel model;
     private boolean isCalls = true;
     private CallGraphScene scene = new CallGraphScene();
-    private SceneLayout sceneLayout;
     
     /** Creates new form CallGraphPanel */
     public CallGraphPanel() {
@@ -87,7 +86,8 @@ public class CallGraphPanel extends JPanel implements ExplorerManager.Provider, 
         getTreeView().setRootVisible(false);
         Children.Array children = new Children.SortedArray();
         actions = new Action[]{new RefreshAction(),
-                               null, new WhoIsCalledAction(), new WhoCallsAction()};
+                               null, new WhoIsCalledAction(), new WhoCallsAction(),
+                               null, new ExportAction(scene, this)};
         root = new AbstractNode(children){
             @Override
             public Action[] getActions(boolean context) {
@@ -101,7 +101,8 @@ public class CallGraphPanel extends JPanel implements ExplorerManager.Provider, 
     
     private void initGraph() {
         GraphLayout<Function,Call> layout = new GridGraphLayout<Function,Call>();
-        sceneLayout = LayoutFactory.createSceneGraphLayout(scene, layout);
+        SceneLayout sceneLayout = LayoutFactory.createSceneGraphLayout(scene, layout);
+        scene.setLayout(sceneLayout);
         sceneLayout.invokeLayout();
     }
     
@@ -217,8 +218,7 @@ public class CallGraphPanel extends JPanel implements ExplorerManager.Provider, 
         for(Function f : nodes){
             scene.removeNodeWithEdges(f);
         }
-        sceneLayout.invokeLayout();
-        scene.validate();
+        scene.doLayout();
         model.refresh();
         final Function function = model.getRoot();
         if (function != null){
@@ -227,8 +227,9 @@ public class CallGraphPanel extends JPanel implements ExplorerManager.Provider, 
                 Children.MUTEX.writeAccess(new Runnable(){
                     public void run() {
                         children.remove(children.getNodes());
-                        CallGraphState state = new CallGraphState(model, scene, sceneLayout);
+                        CallGraphState state = new CallGraphState(model, scene, actions);
                         final Node node = new FunctionRootNode(function, state, isCalls);
+                        scene.doLayout();
                         children.add(new Node[]{node});
                         try {
                             getExplorerManager().setSelectedNodes(new Node[]{node});

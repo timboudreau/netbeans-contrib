@@ -39,6 +39,7 @@
 
 package org.netbeans.modules.cnd.callgraph.impl;
 
+import javax.swing.Action;
 import org.netbeans.api.visual.layout.SceneLayout;
 import org.netbeans.modules.cnd.callgraph.api.CallModel;
 
@@ -49,11 +50,12 @@ import org.netbeans.modules.cnd.callgraph.api.CallModel;
 public class CallGraphState {
     private CallModel model;
     private CallGraphScene scene;
-    private SceneLayout sceneLayout;
-    public CallGraphState(CallModel model, CallGraphScene scene, SceneLayout sceneLayout){
+    private Action[] actions;
+    
+    public CallGraphState(CallModel model, CallGraphScene scene, Action[] actions){
         this.model = model;
         this.scene = scene;
-        this.sceneLayout = sceneLayout;
+        this.actions = actions;
     }
 
     public CallModel getModel() {
@@ -64,7 +66,7 @@ public class CallGraphState {
         return scene;
     }
 
-    public SceneLayout getSceneLayout() {
-        return sceneLayout;
+    public Action[] getActions() {
+        return actions;
     }
 }
