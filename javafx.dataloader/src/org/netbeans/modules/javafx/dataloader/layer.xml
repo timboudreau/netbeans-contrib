@@ -61,6 +61,9 @@ made subject to such option by the copyright holder.
                     <file name="org-netbeans-modules-javafx-editor-JavaFXCompletionProvider.instance"/>
                 </folder>
 
+                <folder name="Popup">
+                    <file name="format"/>
+                </folder>
 
                 <file name="language.instance">
                     <attr name="instanceCreate" methodvalue="org.netbeans.modules.javafx.lexer.JavaFXTokenId.language"/>
@@ -151,6 +154,12 @@ made subject to such option by the copyright holder.
                     <attr name="instanceOf" stringvalue="org.netbeans.api.gsf.GsfLanguage"/>
                     <attr name="instanceClass" stringvalue="org.netbeans.modules.javafx.JavaFXLanguage"/>
                 </file>
+                
+                <file name="formatter.instance">
+                    <attr name="instanceOf" stringvalue="org.netbeans.api.gsf.Formatter"/>
+                    <attr name="instanceClass" stringvalue="org.netbeans.modules.javafx.editor.JavaFXFormatter"/>
+                </file>
+                
             </folder>
         </folder>
     </folder>
