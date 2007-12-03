@@ -44,7 +44,7 @@ package org.netbeans.modules.cnd.callgraph.impl;
 import java.awt.BorderLayout;
 import java.io.Serializable;
 import java.util.logging.Logger;
-import org.netbeans.modules.cnd.callgraph.api.StartPoint;
+import org.netbeans.modules.cnd.callgraph.api.CallModel;
 import org.netbeans.modules.cnd.callgraph.impl.CallGraphPanel;
 import org.openide.util.NbBundle;
 import org.openide.windows.TopComponent;
@@ -70,23 +70,13 @@ public final class CallGraphTopComponent extends TopComponent {
 //        setIcon(Utilities.loadImage(ICON_PATH, true));
     }
 
-//    public void showCallGraph(CallModel model, Direction direction, Call start){
-//        setName(start.getCallee().getName()+" - "+NbBundle.getMessage(getClass(), "CTL_CallGraphTopComponent")); // NOI18N
-//        removeAll();
-//        CallGraphPanel panel = new CallGraphPanel();
-//        add(panel, BorderLayout.CENTER);
-//        validate();
-//        panel.showCallGraph(model, direction, start);
-//        panel.requestFocusInWindow();
-//    }
-        
-    public void setStartPoint(StartPoint startPoint) {
-        setName(startPoint.getName()+" - "+NbBundle.getMessage(getClass(), "CTL_CallGraphTopComponent")); // NOI18N
+    public void setModel(CallModel model) {
+        setName(model.getName()+" - "+NbBundle.getMessage(getClass(), "CTL_CallGraphTopComponent")); // NOI18N
         removeAll();
         CallGraphPanel panel = new CallGraphPanel();
         add(panel, BorderLayout.CENTER);
         validate();
-        panel.setStartPoint(startPoint);
+        panel.setModel(model);
         panel.requestFocusInWindow();
     }
     

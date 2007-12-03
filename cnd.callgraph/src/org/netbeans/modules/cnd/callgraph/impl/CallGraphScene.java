@@ -19,15 +19,24 @@
 
 package org.netbeans.modules.cnd.callgraph.impl;
 
+import java.awt.Point;
+import java.awt.Rectangle;
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.Set;
 import org.netbeans.api.visual.action.ActionFactory;
 import org.netbeans.api.visual.action.EditProvider;
 import org.netbeans.api.visual.action.WidgetAction;
+import org.netbeans.api.visual.anchor.Anchor;
 import org.netbeans.api.visual.anchor.AnchorFactory;
 import org.netbeans.api.visual.anchor.AnchorShape;
 import org.netbeans.api.visual.border.Border;
 import org.netbeans.api.visual.border.BorderFactory;
 import org.netbeans.api.visual.graph.GraphScene;
 import org.netbeans.api.visual.model.ObjectState;
+import org.netbeans.api.visual.router.Router;
+import org.netbeans.api.visual.router.RouterFactory;
 import org.netbeans.api.visual.widget.ConnectionWidget;
 import org.netbeans.api.visual.widget.LabelWidget;
 import org.netbeans.api.visual.widget.LayerWidget;
@@ -45,9 +54,11 @@ public class CallGraphScene extends GraphScene<Function,Call> {
 
     private LayerWidget mainLayer;
     private LayerWidget connectionLayer;
+    private Router router;
 
     private WidgetAction moveAction = ActionFactory.createMoveAction();
     private WidgetAction hoverAction = createWidgetHoverAction();
+
 
     public CallGraphScene() {
         mainLayer = new LayerWidget (this);
@@ -55,8 +66,10 @@ public class CallGraphScene extends GraphScene<Function,Call> {
 
         connectionLayer = new LayerWidget (this);
         addChild(connectionLayer);
+        router = RouterFactory.createOrthogonalSearchRouter (mainLayer, connectionLayer);
     }
 
+    
     protected Widget attachNodeWidget (Function node) {
         LabelWidget label = new MyLabelWidget(this, node.getName());
         label.setBorder (BORDER_4);
@@ -74,6 +87,17 @@ public class CallGraphScene extends GraphScene<Function,Call> {
         connection.getActions().addAction(ActionFactory.createEditAction(new EdgeEditProvider(edge)));
         connectionLayer.addChild (connection);
         return connection;
+    }
+
+    public void addLoopEdge(Call edge, Function targetNode) {
+        ConnectionWidget connection = (ConnectionWidget)addEdge(edge);
+        Widget w = findWidget(targetNode);
+        connection.setRouter(router);
+        MyVMDNodeAnchor anchor = new MyVMDNodeAnchor(w);
+        setEdgeSource(edge, targetNode);
+        connection.setSourceAnchor(anchor);
+        setEdgeTarget(edge, targetNode);
+        connection.setTargetAnchor(anchor);
     }
 
     protected void attachEdgeSourceAnchor(Call edge, Function oldSourceNode, Function sourceNode) {
@@ -120,6 +144,152 @@ public class CallGraphScene extends GraphScene<Function,Call> {
             }
             setForeground (getScene().getLookFeel().getLineColor(state));
             repaint ();
+        }
+    }
+
+    private static class MyVMDNodeAnchor extends Anchor {
+
+        private boolean requiresRecalculation = true;
+        private HashMap<Entry, Result> results = new HashMap<Entry, Result>();
+        private final boolean vertical;
+
+        public MyVMDNodeAnchor(Widget widget) {
+            super(widget);
+            this.vertical = true;
+        }
+
+        /**
+         * Notifies when an entry is registered
+         * @param entry the registered entry
+         */
+        @Override
+        protected void notifyEntryAdded(Entry entry) {
+            requiresRecalculation = true;
+        }
+
+        /**
+         * Notifies when an entry is unregistered
+         * @param entry the unregistered entry
+         */
+        @Override
+        protected void notifyEntryRemoved(Entry entry) {
+            results.remove(entry);
+            requiresRecalculation = true;
+        }
+
+        /**
+         * Notifies when the anchor is going to be revalidated.
+         * @since 2.8
+         */
+        @Override
+        protected void notifyRevalidate() {
+            requiresRecalculation = true;
+        }
+
+        private void recalculate() {
+            if (!requiresRecalculation) {
+                return;
+            }
+
+            Widget widget = getRelatedWidget();
+            Point relatedLocation = getRelatedSceneLocation();
+
+            Rectangle bounds = widget.convertLocalToScene(widget.getBounds());
+
+            HashMap<Entry, Float> topmap = new HashMap<Entry, Float>();
+            HashMap<Entry, Float> bottommap = new HashMap<Entry, Float>();
+
+            for (Entry entry : getEntries()) {
+                Point oppositeLocation = getOppositeSceneLocation(entry);
+                if (oppositeLocation == null || relatedLocation == null) {
+                    results.put(entry, new Result(new Point(bounds.x, bounds.y), DIRECTION_ANY));
+                    continue;
+                }
+
+                int dy = oppositeLocation.y - relatedLocation.y;
+                int dx = oppositeLocation.x - relatedLocation.x;
+
+                if (vertical) {
+                    if (dy > 0) {
+                        bottommap.put(entry, (float) dx / (float) dy);
+                    } else if (dy < 0) {
+                        topmap.put(entry, (float) -dx / (float) dy);
+                    } else {
+                        topmap.put(entry, dx < 0 ? Float.MAX_VALUE : Float.MIN_VALUE);
+                    }
+                } else {
+                    if (dx > 0) {
+                        bottommap.put(entry, (float) dy / (float) dx);
+                    } else if (dy < 0) {
+                        topmap.put(entry, (float) -dy / (float) dx);
+                    } else {
+                        topmap.put(entry, dy < 0 ? Float.MAX_VALUE : Float.MIN_VALUE);
+                    }
+                }
+            }
+
+            Entry[] topList = toArray(topmap);
+            Entry[] bottomList = toArray(bottommap);
+
+            int pinGap = 0;
+            int y = bounds.y - pinGap;
+            int x = bounds.x - pinGap;
+            int len = topList.length;
+
+            for (int a = 0; a < len; a++) {
+                Entry entry = topList[a];
+                if (vertical) {
+                    x = bounds.x + (a + 1) * bounds.width / (len + 1);
+                } else {
+                    y = bounds.y + (a + 1) * bounds.height / (len + 1);
+                }
+                results.put(entry, new Result(new Point(x, y), vertical ? Direction.TOP : Direction.LEFT));
+            }
+
+            y = bounds.y + bounds.height + pinGap;
+            x = bounds.x + bounds.width + pinGap;
+            len = bottomList.length;
+
+            for (int a = 0; a < len; a++) {
+                Entry entry = bottomList[a];
+                if (vertical) {
+                    x = bounds.x + (a + 1) * bounds.width / (len + 1);
+                } else {
+                    y = bounds.y + (a + 1) * bounds.height / (len + 1);
+                }
+                results.put(entry, new Result(new Point(x, y), vertical ? Direction.BOTTOM : Direction.RIGHT));
+            }
+
+            requiresRecalculation = false;
+        }
+
+        private Entry[] toArray(final HashMap<Entry, Float> map) {
+            Set<Entry> keys = map.keySet();
+            Entry[] entries = keys.toArray(new Entry[keys.size()]);
+            Arrays.sort(entries, new Comparator<Entry>() {
+
+                public int compare(Entry o1, Entry o2) {
+                    float f = map.get(o1) - map.get(o2);
+                    if (f > 0.0f) {
+                        return 1;
+                    } else if (f < 0.0f) {
+                        return -1;
+                    } else {
+                        return 0;
+                    }
+                }
+            });
+            return entries;
+        }
+
+        /**
+         * Computes a result (position and direction) for a specific entry.
+         * @param entry the entry
+         * @return the calculated result
+         */
+        public Result compute(Entry entry) {
+            recalculate();
+            return results.get(entry);
         }
     }
 }

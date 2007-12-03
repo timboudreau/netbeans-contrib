@@ -56,9 +56,8 @@ import org.netbeans.api.visual.graph.layout.GridGraphLayout;
 import org.netbeans.api.visual.layout.LayoutFactory;
 import org.netbeans.api.visual.layout.SceneLayout;
 import org.netbeans.modules.cnd.callgraph.api.Call;
+import org.netbeans.modules.cnd.callgraph.api.CallModel;
 import org.netbeans.modules.cnd.callgraph.api.Function;
-import org.netbeans.modules.cnd.callgraph.impl.CallNode;
-import org.netbeans.modules.cnd.callgraph.api.StartPoint;
 import org.openide.explorer.ExplorerManager;
 import org.openide.explorer.view.BeanTreeView;
 import org.openide.nodes.AbstractNode;
@@ -77,7 +76,7 @@ public class CallGraphPanel extends JPanel implements ExplorerManager.Provider, 
     private ExplorerManager explorerManager = new ExplorerManager();
     private AbstractNode root;
     private Action[] actions;
-    private StartPoint startPoint;
+    private CallModel model;
     private boolean isCalls = true;
     private CallGraphScene scene = new CallGraphScene();
     private SceneLayout sceneLayout;
@@ -206,13 +205,9 @@ public class CallGraphPanel extends JPanel implements ExplorerManager.Provider, 
         callers.setSelected(!isCalls);
     }
     
-//    public void showCallGraph(CallModel model, Direction direction, Call start){
-//        
-//    }
-    
-    public void setStartPoint(StartPoint startPoint) {
-        this.startPoint = startPoint;
-        this.isCalls = startPoint.isCalls();
+    public void setModel(CallModel model) {
+        this.model = model;
+        this.isCalls = model.isCalls();
         updateButtons();
         update();
     }
@@ -223,15 +218,17 @@ public class CallGraphPanel extends JPanel implements ExplorerManager.Provider, 
             scene.removeNodeWithEdges(f);
         }
         sceneLayout.invokeLayout();
-        if (startPoint != null && startPoint.isValid()){
+        scene.validate();
+        model.refresh();
+        final Function function = model.getRoot();
+        if (function != null){
             final Children children = root.getChildren();
             if (!Children.MUTEX.isReadAccess()){
                 Children.MUTEX.writeAccess(new Runnable(){
                     public void run() {
                         children.remove(children.getNodes());
-                        CallGraphState model = new CallGraphState(startPoint.getModel(), scene, sceneLayout);
-                        Call call = startPoint.startCall();
-                        final Node node = new CallNode(call, model, isCalls, true);
+                        CallGraphState state = new CallGraphState(model, scene, sceneLayout);
+                        final Node node = new FunctionRootNode(function, state, isCalls);
                         children.add(new Node[]{node});
                         try {
                             getExplorerManager().setSelectedNodes(new Node[]{node});

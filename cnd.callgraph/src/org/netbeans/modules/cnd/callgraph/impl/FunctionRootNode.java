@@ -1,8 +1,8 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
- *
+ * 
  * Copyright 1997-2007 Sun Microsystems, Inc. All rights reserved.
- *
+ * 
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common
  * Development and Distribution License("CDDL") (collectively, the
@@ -20,13 +20,7 @@
  * License Header, with the fields enclosed by brackets [] replaced by
  * your own identifying information:
  * "Portions Copyrighted [year] [name of copyright owner]"
- *
- * Contributor(s):
- *
- * The Original Software is NetBeans. The Initial Developer of the Original
- * Software is Sun Microsystems, Inc. Portions Copyright 1997-2007 Sun
- * Microsystems, Inc. All Rights Reserved.
- *
+ * 
  * If you wish your version of this file to be governed by only the CDDL
  * or only the GPL Version 2, indicate your decision by adding
  * "[Contributor] elects to include this software in this distribution
@@ -37,46 +31,71 @@
  * However, if you add GPL Version 2 code and therefore, elected the GPL
  * Version 2 license, then the option applies only if the new code is
  * made subject to such option by the copyright holder.
+ * 
+ * Contributor(s):
+ * 
+ * Portions Copyrighted 2007 Sun Microsystems, Inc.
  */
 
 package org.netbeans.modules.cnd.callgraph.impl;
 
-import org.netbeans.modules.cnd.callgraph.cndimpl.*;
-import java.awt.event.ActionEvent;
-import javax.swing.AbstractAction;
+import java.awt.Image;
+import java.awt.Point;
 import javax.swing.Action;
-import org.netbeans.modules.cnd.callgraph.api.Call;
+import org.netbeans.api.visual.widget.Widget;
 import org.netbeans.modules.cnd.callgraph.api.Function;
-import org.openide.util.NbBundle;
+import org.openide.nodes.AbstractNode;
 
 /**
  *
  * @author Alexander Simon
  */
-public class GoToReferenceAction extends AbstractAction {
-    
-    private Call call;
-    private Function function;
-    
-    public GoToReferenceAction(Call call) {
-        this.call = call;
-        putValue(Action.NAME, getString("GoToReference")); // NOI18N
-    }
+public class FunctionRootNode extends AbstractNode {
+    private Function object;
+    private CallGraphState model;
 
-    public GoToReferenceAction(Function function) {
-        this.function = function;
-        putValue(Action.NAME, getString("GoToReference")); // NOI18N
-    }
-    
-    public void actionPerformed(ActionEvent e) {
-        if (call != null) {
-            call.open();
-        } else {
-            function.open();
+    public FunctionRootNode(Function element, CallGraphState model, boolean isCalls) {
+        super(new CallChildren(element, model, isCalls));
+        object = element;
+        this.model = model;
+        setName(element.getName());
+        Widget to = model.getScene().findWidget(element);
+        if (to == null){
+            to = model.getScene().addNode(element);
+            to.setPreferredLocation (new Point (100, 100));
         }
     }
 
-    private String getString(String key) {
-        return NbBundle.getMessage(getClass(), key);
+    @Override
+    public String getHtmlDisplayName() {
+        return object.getHtmlDisplayName();
+    }
+    
+    @Override
+    public Image getIcon(int param) {
+        Image res = object.getIcon();
+        if (res == null){
+            res = super.getIcon(param);
+        }
+        return res;
+    }
+    
+    @Override
+    public Image getOpenedIcon(int param) {
+        return getIcon(param);
+    }
+    
+    @Override
+    public Action getPreferredAction() {
+        return new GoToReferenceAction(object);
+    }
+
+    @Override
+    public Action[] getActions(boolean context) {
+        Action action = getPreferredAction();
+        if (action != null){
+            return new Action[]{action};
+        }
+        return new Action[]{};
     }
 }

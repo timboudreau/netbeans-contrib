@@ -44,19 +44,27 @@ import java.util.Collections;
 import java.util.List;
 import org.openide.nodes.Children;
 import org.openide.nodes.Node;
+import org.openide.util.RequestProcessor;
 
 /**
  *
  * @author Alexander Simon
  */
 public class CallChildren extends Children.Keys<Call> {
-    private Call object;
+    private Call call;
+    private Function function;
     private CallGraphState model;
     private boolean isInited = false;
     private boolean isCalls;
 
-    public CallChildren(Call element, CallGraphState model, boolean isCalls) {
-        this.object = element;
+    public CallChildren(Call call, CallGraphState model, boolean isCalls) {
+        this.call = call;
+        this.model = model;
+        this.isCalls = isCalls;
+    }
+
+    public CallChildren(Function function, CallGraphState model, boolean isCalls) {
+        this.function = function;
         this.model = model;
         this.isCalls = isCalls;
     }
@@ -71,19 +79,32 @@ public class CallChildren extends Children.Keys<Call> {
     private synchronized void resetKeys(){
         List<Call> set;
         if (isCalls) {
-            set = model.getModel().getCallees(object);
+            if (call != null) {
+                set = model.getModel().getCallees(call.getCallee());
+            } else {
+                set = model.getModel().getCallees(function);
+            }
         } else {
-            set = model.getModel().getCallers(object);
+            if (call != null) {
+                set = model.getModel().getCallers(call.getCaller());
+            } else {
+                set = model.getModel().getCallers(function);
+            }
         }
         if (set != null && set.size() > 0) {
             Collections.<Call>sort(set);
             setKeys(set);
+            model.getSceneLayout().invokeLayout();
+            model.getScene().validate();
             return;
         }
         setKeys(new Call[0]);
     }
     
     protected Node[] createNodes(Call call) {
+        if (call instanceof LoadingNode) {
+            return new Node[]{(Node)call};
+        }
         Node node = new CallNode(call, model, isCalls);
         return new Node[]{node};
     }
@@ -91,10 +112,15 @@ public class CallChildren extends Children.Keys<Call> {
     @Override
     protected void addNotify() {
         isInited = true;
-        resetKeys();
+        setKeys(new Call[]{new LoadingNode()});
+        RequestProcessor.getDefault().post(new Runnable() {
+            public void run() {
+                resetKeys();
+            }
+        });
         super.addNotify();
     }
-    
+
     @Override
     protected void removeNotify() {
         super.removeNotify();

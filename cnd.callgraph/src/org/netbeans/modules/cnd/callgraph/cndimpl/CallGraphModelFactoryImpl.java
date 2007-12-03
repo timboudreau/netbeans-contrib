@@ -39,16 +39,13 @@
 
 package org.netbeans.modules.cnd.callgraph.cndimpl;
 
-import org.netbeans.modules.cnd.api.model.CsmFile;
 import org.netbeans.modules.cnd.api.model.CsmFunction;
 import org.netbeans.modules.cnd.api.model.CsmObject;
 import org.netbeans.modules.cnd.api.model.CsmProject;
 import org.netbeans.modules.cnd.api.model.util.CsmKindUtilities;
 import org.netbeans.modules.cnd.api.model.xref.CsmReference;
 import org.netbeans.modules.cnd.api.model.xref.CsmReferenceResolver;
-import org.netbeans.modules.cnd.callgraph.api.Call;
 import org.netbeans.modules.cnd.callgraph.api.CallModel;
-import org.netbeans.modules.cnd.callgraph.api.StartPoint;
 import org.netbeans.modules.cnd.callgraph.api.ui.CallGraphModelFactory;
 import org.openide.nodes.Node;
 
@@ -59,7 +56,7 @@ import org.openide.nodes.Node;
 public class CallGraphModelFactoryImpl extends CallGraphModelFactory {
 
     @Override
-    public StartPoint getStartPoint(Node[] activatedNodes) {
+    public CallModel getModel(Node[] activatedNodes) {
         if (activatedNodes == null || activatedNodes.length == 0) {
             return null;
         }
@@ -82,91 +79,8 @@ public class CallGraphModelFactoryImpl extends CallGraphModelFactory {
             }
         }
         if (function != null) {
-            return new CndStartPoint(function, project, isCalls);
+            return new CallModelImpl(project, function, isCalls);
         }
         return null;
-    }
-
-    private static class CndStartPoint implements StartPoint{
-        private CsmFunction function = null;
-        private CsmProject project = null;
-        private boolean isCalls = true;
-        private CallImpl call;
-        private CallModelImpl model;
-        
-        private CndStartPoint(CsmFunction function, CsmProject project, boolean isCalls){
-            this.function = function;
-            this.project = project;
-            this.isCalls = isCalls;
-        }
-
-        public boolean isCalls() {
-            return isCalls;
-        }
-
-        public Call startCall() {
-            if (call==null){
-                CsmReference ref = new CndReference(function);
-                if (isCalls) {
-                    call = new CallImpl(function, ref, function);
-                } else {
-                    call = new CallImpl(function, ref, function);
-                }
-            }
-            return call;
-        }
-
-        public CallModel getModel() {
-            if (model == null){
-                model = new CallModelImpl(project);
-            }
-            return model;
-        }
-
-        public String getName() {
-            return function.getName();
-        }
-
-        public boolean isValid() {
-            return project.isValid() && function.getContainingFile().isValid();
-        }
-    }
-    
-    private static class CndReference implements CsmReference {
-        private CsmFunction function = null;
-        private CndReference(CsmFunction function){
-            this.function = function;
-        }
-        public CsmObject getReferencedObject() {
-            return function;
-        }
-
-        public CsmObject getOwner() {
-            return function;
-        }
-
-        public CsmFile getContainingFile() {
-            return function.getContainingFile();
-        }
-
-        public int getStartOffset() {
-            return function.getStartOffset();
-        }
-
-        public int getEndOffset() {
-            return function.getEndOffset();
-        }
-
-        public Position getStartPosition() {
-            return function.getStartPosition();
-        }
-
-        public Position getEndPosition() {
-            return function.getEndPosition();
-        }
-
-        public String getText() {
-            return function.getText();
-        }
     }
 }

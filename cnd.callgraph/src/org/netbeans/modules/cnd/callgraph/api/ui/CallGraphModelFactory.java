@@ -39,7 +39,7 @@
 
 package org.netbeans.modules.cnd.callgraph.api.ui;
 
-import org.netbeans.modules.cnd.callgraph.api.StartPoint;
+import org.netbeans.modules.cnd.callgraph.api.CallModel;
 import org.openide.nodes.Node;
 import org.openide.util.Lookup;
 
@@ -53,7 +53,7 @@ public abstract class CallGraphModelFactory {
     protected CallGraphModelFactory() {
     }
 
-    public abstract StartPoint getStartPoint(Node[] activatedNodes);
+    public abstract CallModel getModel(Node[] activatedNodes);
     
     public static CallGraphModelFactory getDefault() {
         return DEFAULT;
@@ -67,9 +67,9 @@ public abstract class CallGraphModelFactory {
         }
 
         @Override
-        public StartPoint getStartPoint(Node[] activatedNodes) {
+        public CallModel getModel(Node[] activatedNodes) {
             for (CallGraphModelFactory resolver : res.allInstances()) {
-                StartPoint out = resolver.getStartPoint(activatedNodes);
+                CallModel out = resolver.getModel(activatedNodes);
                 if (out != null) {
                     return out;
                 }

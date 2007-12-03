@@ -41,7 +41,7 @@
 
 package org.netbeans.modules.cnd.callgraph.impl;
 
-import org.netbeans.modules.cnd.callgraph.api.StartPoint;
+import org.netbeans.modules.cnd.callgraph.api.CallModel;
 import org.netbeans.modules.cnd.callgraph.api.ui.CallGraphModelFactory;
 import org.openide.cookies.EditorCookie;
 import org.openide.nodes.Node;
@@ -56,10 +56,10 @@ import org.openide.util.actions.CookieAction;
 public final class CallGraphPopupAction extends CookieAction {
 
     protected void performAction(Node[] activatedNodes) {
-        StartPoint start = CallGraphModelFactory.getDefault().getStartPoint(activatedNodes);
-        if (start != null){
+        CallModel model = CallGraphModelFactory.getDefault().getModel(activatedNodes);
+        if (model != null){
             CallGraphTopComponent view = CallGraphTopComponent.findInstance();
-            view.setStartPoint(start); 
+            view.setModel(model); 
             view.open();
             view.requestActive();
         }
@@ -67,7 +67,7 @@ public final class CallGraphPopupAction extends CookieAction {
 
     @Override
     protected boolean enable(Node[] activatedNodes) {
-        return CallGraphModelFactory.getDefault().getStartPoint(activatedNodes) != null;
+        return CallGraphModelFactory.getDefault().getModel(activatedNodes) != null;
     }
 
     protected int mode() {

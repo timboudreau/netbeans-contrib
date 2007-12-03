@@ -60,6 +60,7 @@ import org.netbeans.modules.cnd.api.model.xref.CsmReference;
 import org.netbeans.modules.cnd.api.model.xref.CsmReferenceRepository;
 import org.netbeans.modules.cnd.callgraph.api.Call;
 import org.netbeans.modules.cnd.callgraph.api.CallModel;
+import org.netbeans.modules.cnd.callgraph.api.Function;
 
 /**
  *
@@ -69,20 +70,46 @@ public class CallModelImpl implements CallModel {
     private CsmReferenceRepository repository;
     private CsmFileReferences references;
     private CsmProject project;
+    private CsmFunction root;
+    private boolean isCalls;
     
-    public CallModelImpl(CsmProject project){
+    public CallModelImpl(CsmProject project, CsmFunction root, boolean isCalls){
         repository = CsmReferenceRepository.getDefault();
         references = CsmFileReferences.getDefault();
         this.project = project;
+        this.root = root;
+        this.isCalls = isCalls;
     }
 
-    public List<Call> getCallers(Call function) {
-        CallImpl functionImpl = (CallImpl) function;
-        CsmReference ref = (CsmReference) functionImpl.getReferencedCall();
-        CsmObject owner = getOwner(ref);
-        if (!CsmKindUtilities.isFunction(owner)) {
-            ref.getOwner();
+    public boolean isCalls() {
+        return isCalls;
+    }
+
+    public Function getRoot() {
+        if (root != null) {
+            return new FunctionImpl(root);
         }
+        return null;
+    }
+
+    public String getName() {
+        if (root != null) {
+            return root.getName();
+        }
+        return "";
+    }
+
+    public void refresh() {
+        if (root != null) {
+            if (!project.isValid() || !root.getContainingFile().isValid()){
+                root = null;
+            }
+        }
+    }
+    
+    public List<Call> getCallers(Function declaration) {
+        FunctionImpl functionImpl = (FunctionImpl) declaration;
+        CsmFunction owner = functionImpl.getDeclaration();
         if (CsmKindUtilities.isFunction(owner)) {
             HashMap<CsmFunction,CsmReference> set = new HashMap<CsmFunction,CsmReference>();
             for(CsmReference r : repository.getReferences(owner, project, false)){
@@ -136,13 +163,9 @@ public class CallModelImpl implements CallModel {
         return null;
     }
     
-    public List<Call> getCallees(Call definition) {
-        CallImpl definitionImpl = (CallImpl) definition;
-        CsmReference ref = (CsmReference) definitionImpl.getReferencedCall();
-        CsmObject owner = ref.getReferencedObject();
-        if (CsmKindUtilities.isFunctionDeclaration(owner)){
-            owner = ((CsmFunction)owner).getDefinition();
-        }
+    public List<Call> getCallees(Function definition) {
+        FunctionImpl definitionImpl = (FunctionImpl) definition;
+        CsmFunction owner = definitionImpl.getDefinition();
         if (CsmKindUtilities.isFunctionDefinition(owner)) {
             final List<CsmOffsetable> list = CsmFileInfoQuery.getDefault().getUnusedCodeBlocks(((CsmFunction)owner).getContainingFile());
             final HashMap<CsmFunction,CsmReference> set = new HashMap<CsmFunction,CsmReference>();

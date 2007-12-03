@@ -51,12 +51,20 @@ public interface CallModel {
      * @param function
      * @return list of all function definitions that has call of function
      */
-    List<Call> getCallers(Call function);
+    List<Call> getCallers(Function declaration);
     
     /**
      * 
      * @param definition
      * @return list of all called functions from definition
      */
-    List<Call> getCallees(Call definition);
+    List<Call> getCallees(Function definition);
+
+    boolean isCalls();
+    
+    Function getRoot();
+    
+    String getName();
+    
+    void refresh();
 }
