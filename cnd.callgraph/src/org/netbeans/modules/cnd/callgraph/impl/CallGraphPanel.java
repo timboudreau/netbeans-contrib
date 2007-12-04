@@ -209,6 +209,7 @@ public class CallGraphPanel extends JPanel implements ExplorerManager.Provider, 
     public void setModel(CallModel model) {
         this.model = model;
         this.isCalls = model.isCalls();
+        scene.setModel(model);
         updateButtons();
         update();
     }

@@ -21,13 +21,19 @@ package org.netbeans.modules.cnd.callgraph.impl;
 
 import java.awt.Point;
 import java.awt.Rectangle;
+import java.awt.event.ActionEvent;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Set;
+import javax.swing.AbstractAction;
+import javax.swing.Action;
+import javax.swing.JMenuItem;
+import javax.swing.JPopupMenu;
 import javax.swing.SwingUtilities;
 import org.netbeans.api.visual.action.ActionFactory;
 import org.netbeans.api.visual.action.EditProvider;
+import org.netbeans.api.visual.action.PopupMenuProvider;
 import org.netbeans.api.visual.action.WidgetAction;
 import org.netbeans.api.visual.anchor.Anchor;
 import org.netbeans.api.visual.anchor.AnchorFactory;
@@ -45,7 +51,11 @@ import org.netbeans.api.visual.widget.LayerWidget;
 import org.netbeans.api.visual.widget.Scene;
 import org.netbeans.api.visual.widget.Widget;
 import org.netbeans.modules.cnd.callgraph.api.Call;
+import org.netbeans.modules.cnd.callgraph.api.CallModel;
 import org.netbeans.modules.cnd.callgraph.api.Function;
+import org.openide.util.NbBundle;
+import org.openide.util.RequestProcessor;
+import org.openide.util.actions.Presenter;
 
 /**
  * @author David Kaspar
@@ -61,6 +71,9 @@ public class CallGraphScene extends GraphScene<Function,Call> {
 
     private WidgetAction moveAction = ActionFactory.createMoveAction();
     private WidgetAction hoverAction = createWidgetHoverAction();
+    private WidgetAction popupAction = ActionFactory.createPopupMenuAction(new MyPopupMenuProvider());
+    
+    private CallModel callModel;
 
     public CallGraphScene() {
         mainLayer = new LayerWidget (this);
@@ -73,6 +86,10 @@ public class CallGraphScene extends GraphScene<Function,Call> {
     
     public void setLayout(SceneLayout sceneLayout){
         this.sceneLayout = sceneLayout;
+    }
+    
+    public void setModel(CallModel model){
+        callModel = model;
     }
     
     public void doLayout(){
@@ -159,6 +176,7 @@ public class CallGraphScene extends GraphScene<Function,Call> {
         label.getActions().addAction(moveAction);
         label.getActions().addAction(hoverAction);
         label.getActions().addAction(ActionFactory.createEditAction(new NodeEditProvider(node)));
+        label.getActions().addAction(popupAction);
         mainLayer.addChild(label);
         return label;
     }
@@ -362,6 +380,73 @@ public class CallGraphScene extends GraphScene<Function,Call> {
         public Result compute(Entry entry) {
             recalculate();
             return results.get(entry);
+        }
+    }
+
+    private class MyPopupMenuProvider implements PopupMenuProvider {
+        public JPopupMenu getPopupMenu(Widget widget, Point localLocation) {
+            JPopupMenu menu = null;
+            Object node = findObject(widget);
+            if (node instanceof Function){
+                final Function f = (Function) node;
+                menu = new JPopupMenu();
+                menu.add(new GoToReferenceAction(f,0));
+                menu.add(new ExpandCallees(f));
+                menu.add(new ExpandCallers(f));
+            }
+            return menu;
+        }
+    }
+
+    private class ExpandCallees extends AbstractAction implements Presenter.Popup {
+        private JMenuItem menuItem;
+        private Function function;
+        public ExpandCallees(Function function) {
+            this.function = function;
+            putValue(Action.NAME, NbBundle.getMessage(CallGraphScene.class, "ExpandCallees"));  // NOI18N
+            menuItem = new JMenuItem((String)getValue(Action.NAME)); 
+            menuItem.setAction(this);
+        }
+
+        public void actionPerformed(ActionEvent e) {
+            RequestProcessor.getDefault().post(new Runnable() {
+                public void run() {
+                    for(Call call : callModel.getCallees(function)){
+                        addCallToScene(call);
+                        doLayout();
+                    }
+                }
+            });
+        }
+
+        public final JMenuItem getPopupPresenter() {
+            return menuItem;
+        }
+    }
+
+    private class ExpandCallers extends AbstractAction implements Presenter.Popup {
+        private JMenuItem menuItem;
+        private Function function;
+        public ExpandCallers(Function function) {
+            this.function = function;
+            putValue(Action.NAME, NbBundle.getMessage(CallGraphScene.class, "ExpandCallers"));  // NOI18N
+            menuItem = new JMenuItem((String)getValue(Action.NAME)); 
+            menuItem.setAction(this);
+        }
+
+        public void actionPerformed(ActionEvent e) {
+            RequestProcessor.getDefault().post(new Runnable() {
+                public void run() {
+                    for(Call call : callModel.getCallers(function)){
+                        addCallToScene(call);
+                        doLayout();
+                    }
+                }
+            });
+        }
+
+        public final JMenuItem getPopupPresenter() {
+            return menuItem;
         }
     }
 }
