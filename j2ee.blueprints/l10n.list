@@ -1,3 +1,4 @@
 # j2ee/blueprints
 read global
+j2ee/blueprints/external/blueprints-solutions-catalog.zip
 ${l10n-module}/src/org/netbeans/modules/j2ee/blueprints/ui/projects/descriptions/*.html

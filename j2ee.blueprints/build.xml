@@ -52,6 +52,52 @@ made subject to such option by the copyright holder.
     
     <target name="netbeans-extra" depends="release"/>
     
+     <target name="netbeans-extra-ml" depends="release-ml" />
+    
+    <target name="release-ml" depends="basic-init,check-run-mlbuild" if="run.ml.build">
+      <taskdef name="repeat" classname="org.netbeans.nbbuild.Repeat"
+               classpath="${nb_all}/nbbuild/nbantext.jar"/>
+      <repeat target="release-one-locale" name="locale" values="${locales}"/>
+    </target>
+  
+    <target name="basic-init" depends="projectized-common.basic-init">
+    <condition property="locjar.locales" value="${locales}">
+      <and>
+        <isset property="locales" />
+        <not>
+          <isset property="locjar.locales"/>
+        </not>
+      </and>
+    </condition>
+    </target>
+    
+    <target name="check-run-mlbuild" depends="basic-init">
+    <available file="${nb_all}/translatedfiles/src/j2ee/blueprints" type="dir" property="translated.src.dir.exist"/>
+    <condition property="run.ml.build" value="true">
+      <and>
+        <isset property="translated.src.dir.exist"/>
+        <isset property="locjar.locales"/>
+        <length string="${locjar.locales}" when="greater" length="0"/>
+      </and>
+    </condition>
+   </target>
+   
+   <target name="release-one-locale" if="locale">
+      <copy todir="${netbeans.dest.dir}">
+          <fileset dir="${nb_all}/translatedfiles/src/j2ee/blueprints/release">
+              <include name="**/*_${locale}.*"/>
+              <exclude name="netbeans*.png"/>
+              <exclude name="netbeans*.icns"/>
+              <exclude name="shortcuts*.pdf"/>
+          </fileset>
+      </copy>
+      <copy todir="${cluster}">
+          <fileset dir="${nb_all}/translatedfiles/src/j2ee/blueprints/release">
+              <include name="shortcuts_${locale}.pdf"/>
+          </fileset>
+      </copy>
+   </target>
+   
     <!-- Define schema2beans task -->
     <target name="s2binit" depends="build-init">
         <taskdef name="schema2beans" classname="org.netbeans.modules.s2banttask.Schema2BeansAntTask">
