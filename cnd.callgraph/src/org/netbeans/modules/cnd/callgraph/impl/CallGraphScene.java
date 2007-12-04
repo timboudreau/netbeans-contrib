@@ -22,9 +22,11 @@ package org.netbeans.modules.cnd.callgraph.impl;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Set;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
@@ -106,14 +108,33 @@ public class CallGraphScene extends GraphScene<Function,Call> {
         }
     }
 
+    public void clean() {
+        Runnable run = new Runnable() {
+            public void run() {
+                List<Function> list = new ArrayList<Function>(getNodes());
+                for (Function f : list) {
+                    removeNodeWithEdges(f);
+                }
+                doLayout();
+            }
+        };
+        if (SwingUtilities.isEventDispatchThread()) {
+            run.run();
+        } else {
+            SwingUtilities.invokeLater(run);
+        }
+    }
+
     public void addCallToScene(final Call element) {
         Runnable run = new Runnable() {
             public void run() {
+                boolean isDoLayout = false;
                 Function toFunction = element.getCallee();
                 Widget to = findWidget(toFunction);
                 if (to == null) {
                     to = addNode(toFunction);
                     to.setPreferredLocation(new Point(100, 100));
+                    isDoLayout = true;
                 }
                 if (element.getCaller() != null) {
                     Function fromFunction = element.getCaller();
@@ -121,6 +142,7 @@ public class CallGraphScene extends GraphScene<Function,Call> {
                     if (from == null) {
                         from = addNode(fromFunction);
                         from.setPreferredLocation(new Point(10, 10));
+                        isDoLayout = true;
                     }
                     if (findEdgesBetween(fromFunction, toFunction).size() == 0) {
                         if (toFunction.equals(fromFunction)) {
@@ -130,7 +152,11 @@ public class CallGraphScene extends GraphScene<Function,Call> {
                             setEdgeSource(element, fromFunction);
                             setEdgeTarget(element, toFunction);
                         }
+                        isDoLayout = true;
                     }
+                }
+                if (isDoLayout) {
+                    doLayout();
                 }
             }
         };
@@ -148,6 +174,7 @@ public class CallGraphScene extends GraphScene<Function,Call> {
                 if (to == null) {
                     to = addNode(element);
                     to.setPreferredLocation(new Point(100, 100));
+                    doLayout();
                 }
             }
         };
@@ -413,7 +440,6 @@ public class CallGraphScene extends GraphScene<Function,Call> {
                 public void run() {
                     for(Call call : callModel.getCallees(function)){
                         addCallToScene(call);
-                        doLayout();
                     }
                 }
             });
@@ -439,7 +465,6 @@ public class CallGraphScene extends GraphScene<Function,Call> {
                 public void run() {
                     for(Call call : callModel.getCallers(function)){
                         addCallToScene(call);
-                        doLayout();
                     }
                 }
             });

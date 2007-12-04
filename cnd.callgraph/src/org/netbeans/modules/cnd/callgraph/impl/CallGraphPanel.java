@@ -43,7 +43,6 @@ package org.netbeans.modules.cnd.callgraph.impl;
 
 import java.awt.event.ActionEvent;
 import java.beans.PropertyVetoException;
-import java.util.ArrayList;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.JMenuItem;
@@ -215,11 +214,7 @@ public class CallGraphPanel extends JPanel implements ExplorerManager.Provider, 
     }
 
     private synchronized void update() {
-        ArrayList<Function> nodes = new ArrayList<Function>(scene.getNodes());
-        for(Function f : nodes){
-            scene.removeNodeWithEdges(f);
-        }
-        scene.doLayout();
+        scene.clean();
         model.refresh();
         final Function function = model.getRoot();
         if (function != null){
@@ -230,7 +225,6 @@ public class CallGraphPanel extends JPanel implements ExplorerManager.Provider, 
                         children.remove(children.getNodes());
                         CallGraphState state = new CallGraphState(model, scene, actions);
                         final Node node = new FunctionRootNode(function, state, isCalls);
-                        scene.doLayout();
                         children.add(new Node[]{node});
                         try {
                             getExplorerManager().setSelectedNodes(new Node[]{node});
