@@ -144,7 +144,7 @@ public class Hk2ManagerImpl implements ProgressObject, Runnable {
             command = "deploy?path=" + dir.getAbsoluteFile()+"?name="+docBase; // NOI18N
             
             cmdType = CommandType.DISTRIBUTE;
-            System.out.println("deploy command="+command);
+//            System.out.println("deploy command="+command);
             String msg = NbBundle.getMessage(Hk2ManagerImpl.class, "MSG_DeploymentInProgress");
             pes.fireHandleProgressEvent(null, new Status(ActionType.EXECUTE, cmdType, msg, StateType.RUNNING));
             rp().post(this, 0, Thread.NORM_PRIORITY);
@@ -166,7 +166,7 @@ public class Hk2ManagerImpl implements ProgressObject, Runnable {
             command = "redeploy?name=" +targetModuleID.getModuleID(); // NOI18N
             
             cmdType = CommandType.DISTRIBUTE;
-            System.out.println("redeploy command="+command);
+//            System.out.println("redeploy command="+command);
             String msg = NbBundle.getMessage(Hk2ManagerImpl.class, "MSG_DeploymentInProgress");
             pes.fireHandleProgressEvent(null, new Status(ActionType.EXECUTE, cmdType, msg, StateType.RUNNING));
             rp().post(this, 0, Thread.NORM_PRIORITY);
@@ -196,10 +196,10 @@ public class Hk2ManagerImpl implements ProgressObject, Runnable {
     public  TargetModuleID[] getTargetModuleID(Target t){
         
         command = "list-applications"; // NOI18N
-        System.out.println("in getTargetModuleID imple.....");
+//        System.out.println("in getTargetModuleID imple.....");
         cmdType = CommandType.DISTRIBUTE;
         run();
-        System.out.println("tmidNames" + tmidNames);
+//        System.out.println("tmidNames" + tmidNames);
         if (tmidNames==null){
             return null;
         }
@@ -307,7 +307,7 @@ public class Hk2ManagerImpl implements ProgressObject, Runnable {
         } catch (IOException ex) {
             ex.printStackTrace();
         }
-        System.out.println("m"+m);
+//        System.out.println("m"+m);
         tmidNames = new ArrayList();
         outputContainers = new ArrayList();
         
@@ -316,9 +316,9 @@ public class Hk2ManagerImpl implements ProgressObject, Runnable {
         if(outputMessage==null){
             outputMessage="";
         }
-        System.out.println("Exit code is " + outputCode);
+//        System.out.println("Exit code is " + outputCode);
         if (!outputCode.equalsIgnoreCase("Success")) {
-            System.out.println("message-> " + outputMessage);
+//            System.out.println("message-> " + outputMessage);
             pes.fireHandleProgressEvent(tmId, new Status(ActionType.EXECUTE, cmdType, outputMessage, StateType.FAILED));
             return;
         }else {
@@ -334,7 +334,7 @@ public class Hk2ManagerImpl implements ProgressObject, Runnable {
         StringTokenizer token = new StringTokenizer(containers, ",");
         while (token.hasMoreTokens()) {
             String container = token.nextToken();
-            System.out.println("Container : " + container);
+//            System.out.println("Container : " + container);
             outputContainers.add(container);
             // get container attributes
             Attributes contAttr = m.getAttributes(container);
@@ -348,7 +348,7 @@ public class Hk2ManagerImpl implements ProgressObject, Runnable {
                 String app = appsToken.nextToken();
                 //  tmidNames.add(app);
                 Attributes appAttr = m.getAttributes(app);
-                System.out.println("Module deployed " + appAttr.getValue("message"));
+//                System.out.println("Module deployed " + appAttr.getValue("message"));
                 tmidNames.add(appAttr.getValue("message"));
             }
         }
@@ -378,7 +378,7 @@ public class Hk2ManagerImpl implements ProgressObject, Runnable {
                 String uri = tm.getPlainUri();
                 String withoutSpaces = (uri + command).replaceAll(" ", "%20");  //NOI18N
                 urlToConnectTo = new URL(withoutSpaces);
-                System.out.println("withoutSpaces  "+withoutSpaces);
+//                System.out.println("withoutSpaces  "+withoutSpaces);
                 
                 
                 conn = urlToConnectTo.openConnection();
@@ -418,7 +418,7 @@ public class Hk2ManagerImpl implements ProgressObject, Runnable {
                 if (Boolean.getBoolean("org.netbeans.modules.hk2.LogManagerCommands")) { // NOI18N
                     int code = hconn.getResponseCode();
                     String message = "  receiving response, code: " + code;
-                    System.out.println(message);
+//                    System.out.println(message);
                     ErrorManager.getDefault().notify(ErrorManager.INFORMATIONAL, new Exception(message));
                 }
                 // Send the request data (if any)
@@ -490,7 +490,7 @@ public class Hk2ManagerImpl implements ProgressObject, Runnable {
                 }
                 // throw t;
             } finally {
-                System.out.println("output is...:"+outputMessage);
+//                System.out.println("output is...:"+outputMessage);
                 if (reader != null) {
                     try {
                         reader.close();

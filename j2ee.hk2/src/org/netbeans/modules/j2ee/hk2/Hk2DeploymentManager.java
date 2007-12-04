@@ -112,7 +112,7 @@ public class Hk2DeploymentManager implements DeploymentManager {
      * @throws javax.enterprise.deploy.spi.exceptions.InvalidModuleException 
      */
     public DeploymentConfiguration createConfiguration(DeployableObject deployableObject) throws InvalidModuleException {
-        System.out.println("in createConfiguration"+deployableObject);
+//        System.out.println("in createConfiguration"+deployableObject);
         return new Hk2Configuration(deployableObject);
     }
 
@@ -357,7 +357,7 @@ public class Hk2DeploymentManager implements DeploymentManager {
        
     
        String s=  "http://" + getInstanceProperties().getProperty(Hk2PluginProperties.PROPERTY_HOST) + ":" + getInstanceProperties().getProperty(InstanceProperties.HTTP_PORT_NUMBER )+ "/__asadmin/"; //NOI18N
-System.out.println("getPlainUri"+s);
+//System.out.println("getPlainUri"+s);
 return s;
     }
     

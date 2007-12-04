@@ -74,7 +74,7 @@ public class FastDeploy extends IncrementalDeployment {
      * @param dm 
      */
     public FastDeploy(DeploymentManager dm) {
-        System.out.println("fastdeploy");
+//        System.out.println("fastdeploy");
         this.dm =dm;
     }
     
@@ -87,7 +87,7 @@ public class FastDeploy extends IncrementalDeployment {
      * @return 
      */
     public ProgressObject initialDeploy(Target target, J2eeModule app, ModuleConfiguration configuration, File dir) {
-        System.out.println("initialDeploy ModuleConfiguration = " + configuration);
+//        System.out.println("initialDeploy ModuleConfiguration = " + configuration);
         
         Hk2ManagerImpl tmi = new Hk2ManagerImpl((Hk2DeploymentManager)dm);
         tmi.initialDeploy(target, dir);
@@ -95,7 +95,7 @@ public class FastDeploy extends IncrementalDeployment {
     }
     
     public ProgressObject initialDeploy(Target target,  File dir, String moduleName) {
-        System.out.println("initialDeploy  = " + dir);
+//        System.out.println("initialDeploy  = " + dir);
         
         Hk2ManagerImpl tmi = new Hk2ManagerImpl((Hk2DeploymentManager)dm);
         tmi.initialDeploy(target, dir,moduleName);
@@ -107,7 +107,7 @@ public class FastDeploy extends IncrementalDeployment {
      * @return 
      */
     public ProgressObject incrementalDeploy(TargetModuleID targetModuleID, AppChangeDescriptor appChangeDescriptor) {
-        System.out.println("incrementalDeploy");
+//        System.out.println("incrementalDeploy");
         Hk2ManagerImpl tmi = new Hk2ManagerImpl((Hk2DeploymentManager)dm);
         tmi.reDeploy(targetModuleID);
         return tmi;    }
@@ -131,7 +131,7 @@ public class FastDeploy extends IncrementalDeployment {
             return false;
         }
         // return dm.isLocal();
-        System.out.println("canFileDeploy");
+//        System.out.println("canFileDeploy");
         return true;
         
     }
@@ -164,7 +164,7 @@ public class FastDeploy extends IncrementalDeployment {
      * @return 
      */
     public File getDirectoryForNewApplication(Target target, J2eeModule app, ModuleConfiguration configuration) {
-        System.out.println("getDirectoryForNewApplication");
+//        System.out.println("getDirectoryForNewApplication");
         return null;
     }
     
