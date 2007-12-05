@@ -432,6 +432,8 @@ public class CallGraphScene extends GraphScene<Function,Call> {
             this.function = function;
             putValue(Action.NAME, NbBundle.getMessage(CallGraphScene.class, "ExpandCallees"));  // NOI18N
             menuItem = new JMenuItem((String)getValue(Action.NAME)); 
+            putValue(Action.SMALL_ICON, new javax.swing.ImageIcon(
+                    CallGraphScene.class.getResource("/org/netbeans/modules/cnd/callgraph/resources/who_is_called.png"))); // NOI18N
             menuItem.setAction(this);
         }
 
@@ -456,6 +458,8 @@ public class CallGraphScene extends GraphScene<Function,Call> {
         public ExpandCallers(Function function) {
             this.function = function;
             putValue(Action.NAME, NbBundle.getMessage(CallGraphScene.class, "ExpandCallers"));  // NOI18N
+            putValue(Action.SMALL_ICON, new javax.swing.ImageIcon(
+                    CallGraphScene.class.getResource("/org/netbeans/modules/cnd/callgraph/resources/who_calls.png"))); // NOI18N
             menuItem = new JMenuItem((String)getValue(Action.NAME)); 
             menuItem.setAction(this);
         }
