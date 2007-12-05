@@ -40,15 +40,12 @@
  */
 package org.netbeans.modules.perspective.views;
 
-import java.io.Serializable;
-
 /**
  * Represent TopComponent State In Perspective (ex: Mode ID,Open or not) 
  * @author Anuradha G
  */
-public class View implements Serializable, Comparable<View> {
+public class View implements  Comparable<View> {
 
-    private static final long serialVersionUID = 1l;
     private String topcomponentID;
     private int index;
     private boolean open;

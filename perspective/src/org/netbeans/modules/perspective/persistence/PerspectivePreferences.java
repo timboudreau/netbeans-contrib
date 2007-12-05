@@ -57,29 +57,6 @@ public class PerspectivePreferences {
     private static PerspectivePreferences instance;
     private static final String SELECTED = "selected"; //NOI18N
 
-//    private static final String INDEX = "index"; //NOI18N
-//
-//    private static final String NAME = "name"; //NOI18N
-//
-//    private static final String OPEN = "open"; //NOI18N
-//
-//    private static final String ALIAS = "alias"; //NOI18N
-//
-//    private static final String SEPARATOR_B = "separator_b"; //NOI18N
-//
-//    private static final String SEPARATOR_A = "separator_a"; //NOI18N
-//
-//    private static final String VIEWS = "views"; //NOI18N
-//
-//    private static final String ACTIVE_TC = "active_tc"; //NOI18N
-//
-//    private static final String IMAGE_PATH = "image_path"; //NOI18N
-//
-//    private static final String MODE = "mode"; //NOI18N
-//
-//    private static final String TC = "tc"; //NOI18N
-//
-//    private static final String GLOBEL = "globel"; //NOI18N
 
     private static final String TRACK_OPENED = "track_opened"; //NOI18N
 
@@ -149,66 +126,4 @@ public class PerspectivePreferences {
         preferences.putBoolean(TRACK_OPENED, false);
     }
 
-//    public void readPerspective(Perspective perspective) {
-//
-//        Preferences perspectivePreferences = preferences.node(perspective.getName());
-//        
-//        Preferences globel = perspectivePreferences;
-//        Preferences viewsPreferences = perspectivePreferences.node(VIEWS);
-//        Preferences activeTCPreferences = perspectivePreferences.node(ACTIVE_TC);
-//        perspective.setIndex(globel.getInt(INDEX, perspective.getIndex()));
-//        perspective.setName(globel.get(NAME, perspective.getName()));
-//        perspective.setName(globel.get(ALIAS, perspective.getAlias()));
-//        perspective.setImagePath(globel.get(IMAGE_PATH, perspective.getImagePath()));
-//        perspective.setBeforeSeparator(globel.getBoolean(SEPARATOR_B, perspective.isBeforeSeparator()));
-//        perspective.setAfterSeparator(globel.getBoolean(SEPARATOR_A, perspective.isAfterSeparator()));
-//        try {
-//            String[] views = viewsPreferences.childrenNames();
-//            List<String> modes = new ArrayList<String>();
-//
-//            for (String name : views) {
-//                Preferences viewPreferences = viewsPreferences.node(name);
-//                String mode = viewPreferences.get(MODE, null);
-//                modes.add(mode);
-//                perspective.addComponent(viewPreferences.get(TC, null), mode, viewPreferences.getInt(INDEX, 0), viewPreferences.getBoolean(OPEN, false));
-//            }
-//            for (String mode : modes) {
-//                String tc = activeTCPreferences.get(mode, null);
-//                perspective.setActiveComponent(mode, tc);
-//            }
-//
-//
-//
-//        } catch (BackingStoreException ex) {
-//            Exceptions.printStackTrace(ex);
-//        }
-//
-//    }
-//
-//    public void persistencePerspective(Perspective perspective) {
-//        Preferences perspectivePreferences = preferences.node(perspective.getName());
-//        Preferences globel = perspectivePreferences;
-//        Preferences viewsPreferences = perspectivePreferences.node(VIEWS);
-//        Preferences activeTCPreferences = perspectivePreferences.node(ACTIVE_TC);
-//        globel.putInt(INDEX, perspective.getIndex());
-//        globel.put(NAME, perspective.getName());
-//        globel.put(ALIAS, perspective.getAlias());
-//        globel.put(IMAGE_PATH, perspective.getImagePath());
-//        globel.putBoolean(SEPARATOR_B, perspective.isBeforeSeparator());
-//        globel.putBoolean(SEPARATOR_A, perspective.isAfterSeparator());
-//
-//        List<View> views = perspective.getViews();
-//        Map<String, String> activeTCs = perspective.getActiveTCs();
-//        for (View view : views) {
-//            Preferences viewPreferences = viewsPreferences.node(view.getTopcomponentID());
-//            viewPreferences.put(MODE, view.getMode());
-//            viewPreferences.put(TC, view.getTopcomponentID());
-//            viewPreferences.putInt(INDEX, view.getIndex());
-//        }
-//
-//        for (String key : activeTCs.keySet()) {
-//            String tcID = activeTCs.get(key);
-//            activeTCPreferences.put(key, tcID);
-//        }
-//    }
 }

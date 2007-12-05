@@ -48,7 +48,6 @@
 package org.netbeans.modules.perspective.views;
 
 import org.netbeans.modules.perspective.PerspectiveListener;
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashSet;
@@ -60,9 +59,8 @@ import org.netbeans.modules.perspective.Perspective;
  *
  * @author Anuradha G
  */
-public  class PerspectiveImpl implements Perspective,Serializable, Comparable<PerspectiveImpl> {
+public  class PerspectiveImpl implements Perspective, Comparable<PerspectiveImpl> {
 
-    private static final long serialVersionUID = 109201292839l;
     private String name;
     private String alias;
     private String discription;

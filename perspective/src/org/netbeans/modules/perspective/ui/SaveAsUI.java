@@ -275,7 +275,7 @@ public class SaveAsUI extends javax.swing.JDialog {
         }
     }
 
-    private void saveAsMutilMode() {
+    private void saveAsPerspective() {
         PerspectiveImpl perspective = (PerspectiveImpl) modeList.getSelectedValue();
         if (perspective != null) {
             NotifyDescriptor d = new NotifyDescriptor.Confirmation("'" + perspective.getAlias() + NbBundle.getMessage(SaveAsUI.class, "OverWrite_Massage"), NbBundle.getMessage(SaveAsUI.class, "Overwrite_Perspective"),
@@ -315,7 +315,7 @@ public class SaveAsUI extends javax.swing.JDialog {
         }
 
         public void actionPerformed(ActionEvent e) {
-            saveAsMutilMode();
+            saveAsPerspective();
         }
     }
     // Variables declaration - do not modify//GEN-BEGIN:variables

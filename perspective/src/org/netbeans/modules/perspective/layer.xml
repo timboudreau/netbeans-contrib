@@ -92,15 +92,8 @@
             <attr name="originalFile" stringvalue="Actions/Perspective/org-netbeans-modules-perspective-actions-QuickSwitch.instance"/>
         </file>
     </folder>
-    
-    <!--  Perspective folder-->
-    <folder name="perspectives">
-        <!--Config folder contains  serialized perspectives-->
-        <folder name="config">
-            
-        </folder>
-    </folder>
-    <folder name="perspective"></folder>
+
+    <folder name="perspectives"></folder>
     <!--window system config folder-->
     <folder name="Windows2">
     <!--Tc components folder-->
@@ -108,6 +101,5 @@
         <!--Modehack Tc Settings file -->
         <file name="ModeHackTopComponent.settings" url="hacks/ModeHackTopComponentSettings.xml"/>
     </folder>
-    
     </folder>
 </filesystem>

@@ -27,7 +27,6 @@
  */
 package org.netbeans.modules.perspective.views;
 
-import java.io.Serializable;
 import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.Set;
@@ -36,9 +35,7 @@ import java.util.Set;
  *
  * @author Anuradha G
  */
-public class PerspectiveMode implements Serializable {
-
-    private static final long serialVersionUID = 109201292838l;
+public class PerspectiveMode   {
     private String id;
     private View activeView;
     private Set<View> views = new LinkedHashSet<View>();

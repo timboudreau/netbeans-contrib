@@ -42,6 +42,7 @@ package org.netbeans.modules.perspective.persistence;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.concurrent.Callable;
 import org.netbeans.modules.perspective.utils.PerspectiveManagerImpl;
 import org.netbeans.modules.perspective.ui.ToolbarStyleSwitchUI;
 import org.netbeans.modules.perspective.utils.OpenedViewTracker;
@@ -56,21 +57,16 @@ import org.openide.util.Exceptions;
  */
 public class MainParser {
 
-    private static final String BASE_DIR = "perspectives"; //NOI18N
-    private static final String EXT = "perspective"; //NOI18N
-    private static final String CONFIG_DIR = BASE_DIR + "/config"; //NOI18N
-    private static final String BUILTIN_DIR = "perspective"; //NOI18N
-    private static MainParser instance;
-    private PerspectiveParser paser = new PerspectiveParser();
-    private FileObject config;
+    private static final String LAYER_DIR = "perspectives"; //NOI18N
+     private static MainParser instance;
     private FileObject perspectiveBase;
+
     private PerspectivePreferences perspectivePreferences = PerspectivePreferences.getInstance();
 
     private MainParser() {
         //Creating Parser instance
-        config = Repository.getDefault().getDefaultFileSystem().findResource(CONFIG_DIR);
-        perspectiveBase = Repository.getDefault().getDefaultFileSystem().findResource(BUILTIN_DIR);
-
+        perspectiveBase = Repository.getDefault().getDefaultFileSystem().findResource(LAYER_DIR);
+       
     }
 
     public static synchronized MainParser getInstance() {
@@ -81,39 +77,26 @@ public class MainParser {
         return instance;
     }
 
-    private synchronized void cleanDir() throws IOException {
-        //"Cleaning Dir"
-        FileObject[] children = config.getChildren();
+    private void clear(FileObject fo) {
+        FileObject[] children = fo.getChildren();
         for (FileObject fileObject : children) {
-            fileObject.delete();
+            try {
+                if (fileObject.isFolder()) {
+                    clear(fileObject);
+                    fileObject.delete();
+                } else {
+                    fileObject.delete();
+                }
+            } catch (IOException ex) {
+                Exceptions.printStackTrace(ex);
+            }
         }
     }
 
     public synchronized void restore() {
         PerspectiveManagerImpl.getInstance().clear();
-        if (perspectiveBase != null) {
-            //Loading default Perspectives from layer
-            readPerspectives(perspectiveBase);
-        }
-
-        //Loading Perspectives from Config
-        FileObject[] viewChildren = config.getChildren();
-        for (FileObject fileObject : viewChildren) {
-            try {
-
-                PerspectiveImpl decoded = paser.decode(fileObject.getInputStream());
-                if (decoded != null && (decoded.getName().startsWith("custom_")/*NOI18N*/ || PerspectiveManagerImpl.getInstance().findPerspectiveByID(decoded.getName()) != null)) {
-
-                    PerspectiveManagerImpl.getInstance().registerPerspective(decoded, false);
-                }
-            } catch (IOException ex) {
-                Exceptions.printStackTrace(ex);
-            } catch (ClassNotFoundException ex) {
-                Exceptions.printStackTrace(ex);
-            }
-        }
-
-
+        //Loading default Perspectives from layer
+        readPerspectives(perspectiveBase);
         PerspectiveManagerImpl.getInstance().arrangeIndexsToExistIndexs();
 
         String id = perspectivePreferences.getSelectedPerspective();
@@ -145,25 +128,7 @@ public class MainParser {
     }
 
     public synchronized void store() {
-        final List<PerspectiveImpl> perspectives = PerspectiveManagerImpl.getInstance().getPerspectives();
-        for (PerspectiveImpl p : perspectives) {
-            try {
-                p.removePerspectiveListeners();
-                FileObject fileObject = config.getFileObject(p.getName(), EXT);
-                if (fileObject == null) {
-                    try {
-                        fileObject = config.createData(p.getName(), EXT);
-                    } catch (IOException ex) {
-                        Exceptions.printStackTrace(ex);
-                    }
-                }
-                paser.encode(p, fileObject.getOutputStream());
-            //TODO 
-            // perspectivePreferences.persistencePerspective(perspective);
-            } catch (IOException ex) {
-                Exceptions.printStackTrace(ex);
-            }
-        }
+        //reset to selected
         PerspectiveImpl selected = PerspectiveManagerImpl.getInstance().getSelected();
         if (selected != null) {
             perspectivePreferences.setSelectedPerspective(selected.getName());
@@ -173,13 +138,29 @@ public class MainParser {
                 PerspectiveManagerImpl.getInstance().setSelected(selected);
             }
         }
+        clear(perspectiveBase);
+        PerspectiveWriter perspectiveWriter=new PerspectiveWriter();
+        final List<PerspectiveImpl> perspectives = PerspectiveManagerImpl.getInstance().getPerspectives();
+        for (PerspectiveImpl p : perspectives) {
+            try {
+                perspectiveWriter.writePerspective(perspectiveBase, p);
+            } catch (IOException ex) {
+                Exceptions.printStackTrace(ex);
+            }
+        }
+
 
     }
 
     public synchronized void reset() throws IOException {
         perspectivePreferences.reset();
         ToolbarStyleSwitchUI.getInstance().reset();
-        cleanDir();
+        Callable  callable=(Callable) perspectiveBase.getAttribute("removeWritables");
+        try {
+            callable.call();
+        } catch (Exception ex) {
+            Exceptions.printStackTrace(ex);
+        }
         restore();
     }
 }
