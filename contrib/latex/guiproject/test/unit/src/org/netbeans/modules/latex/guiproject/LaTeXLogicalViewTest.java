@@ -43,26 +43,18 @@
  */
 package org.netbeans.modules.latex.guiproject;
 
-import java.beans.PropertyVetoException;
-import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import org.netbeans.api.project.Project;
 import org.netbeans.api.project.ProjectManager;
-import org.netbeans.junit.NbTestCase;
-import org.netbeans.modules.latex.UnitUtilities;
 import org.netbeans.spi.project.ui.LogicalViewProvider;
-import org.openide.filesystems.FileLock;
 import org.openide.filesystems.FileObject;
-import org.openide.filesystems.FileUtil;
 import org.openide.nodes.FilterNode;
 import org.openide.nodes.Node;
 import org.openide.util.Lookup;
-import org.xml.sax.SAXException;
 
 /**
  *
@@ -82,7 +74,7 @@ public class LaTeXLogicalViewTest extends ProjectTestCase {
     
     private void projectFilesTestImpl(FileObject project, Collection positiveFiles, Collection negativeFiles) throws IOException {
         Project p = ProjectManager.getDefault().findProject(project);
-        LogicalViewProvider logicalViewProvider = (LogicalViewProvider) p.getLookup().lookup(LogicalViewProvider.class);
+        LogicalViewProvider logicalViewProvider = p.getLookup().lookup(LogicalViewProvider.class);
         Node logicalView = logicalViewProvider.createLogicalView();
         Node logicalViewImpl = new FilterNode(logicalView);
         
@@ -93,10 +85,10 @@ public class LaTeXLogicalViewTest extends ProjectTestCase {
             assertNotNull("Node corresponding to: " + target + " not found.", found);
             assertTrue("Returned node is not a recursive child of the original node: root= " + logicalViewImpl + ", found=" + found, isAncestor(logicalViewImpl, found));
             
-            Lookup.Template tmpl = new Lookup.Template(null, null, target);
-            Collection res = found.getLookup().lookup(tmpl).allInstances();
+            Lookup.Template<Object> tmpl = new Lookup.Template<Object>(null, null, target);
+            Collection<? extends Object> res = found.getLookup().lookup(tmpl).allInstances();
 
-            assertEquals("The lookup do not have correct content! root=" + logicalViewImpl + ", found=" + found, Collections.singleton(target), new HashSet(res));
+            assertEquals("The lookup do not have correct content! root=" + logicalViewImpl + ", found=" + found, Collections.singleton(target), new HashSet<Object>(res));
         }
         
         for (Iterator i = negativeFiles.iterator(); i.hasNext(); ) {
@@ -109,7 +101,7 @@ public class LaTeXLogicalViewTest extends ProjectTestCase {
     
     private void nonProjectFilesTestImpl(FileObject project, FileObject file) throws IOException {
         Project p = ProjectManager.getDefault().findProject(project);
-        LogicalViewProvider logicalViewProvider = (LogicalViewProvider) p.getLookup().lookup(LogicalViewProvider.class);
+        LogicalViewProvider logicalViewProvider = p.getLookup().lookup(LogicalViewProvider.class);
         Node logicalView = logicalViewProvider.createLogicalView();
         Node logicalViewImpl = new FilterNode(logicalView);
         Node   found  = logicalViewProvider.findPath(logicalViewImpl, file);
