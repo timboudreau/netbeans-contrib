@@ -43,11 +43,13 @@ package org.netbeans.modules.latex.editor.semantic;
 
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -128,6 +130,8 @@ public class SemanticColoring implements CancellableTask<CompilationInfo> {
         
         DocumentNode dn = ((LaTeXParserResult) parameter.getParserResult()).getDocument();
         final Map<Token, List<AttributeSet>> token2Attributes = new HashMap<Token, List<AttributeSet>>();
+        final Map<String, List<Token>> possiblyUnusedLabel2Tokens = new HashMap<String, List<Token>>();
+        final Set<String> seenLabels = new HashSet<String>();
         
         dn.traverse(new TraverseHandler() {
             public boolean commandStart(final CommandNode node) {
@@ -167,9 +171,24 @@ public class SemanticColoring implements CancellableTask<CompilationInfo> {
                     return true;
                 
                 AttributeSet attrs = null;
+                @SuppressWarnings("unchecked")
+                final List<Token>[] tokenList = new List[1];
                 
                 if (node.getArgument().hasAttribute(Command.Param.ATTR_NO_PARSE)) {
                     attrs = getColoringForName(TexColoringNames.DEFINITION);
+                } else {
+                    if (node.getArgument().hasAttribute("#label")) { // NOI18N
+                        String label = node.getText().toString();
+
+                        if (!seenLabels.contains(label)) {
+                            possiblyUnusedLabel2Tokens.put(label, tokenList[0] = new LinkedList<Token>());
+                        }
+                } else {
+                    if (node.getArgument().hasAttribute("#ref")) { // NOI18N
+                        String label = node.getText().toString();
+                        
+                        seenLabels.add(label);
+                        possiblyUnusedLabel2Tokens.remove(label);
                 } else {
                     if (node.getArgument().isEnumerable()) {
                         if (node.isValidEnum()) {
@@ -192,6 +211,8 @@ public class SemanticColoring implements CancellableTask<CompilationInfo> {
                         }
                     }
                 }
+                }
+                }
                 
                 final AttributeSet attrsFin = attrs;
                 
@@ -202,6 +223,9 @@ public class SemanticColoring implements CancellableTask<CompilationInfo> {
                                 for (Iterator<Node> children = node.getChildrenIterator(); children.hasNext();) {
                                     for (Token t : children.next().getNodeTokens()) {
                                         add(token2Attributes, t, attrsFin);
+                                        if (tokenList[0] != null) {
+                                            tokenList[0].add(t);
+                                        }
                                     }
                                 }
                             } else {
@@ -217,6 +241,9 @@ public class SemanticColoring implements CancellableTask<CompilationInfo> {
                                         continue;
                                     }
                                     add(token2Attributes, t, attrsFin);
+                                    if (tokenList[0] != null) {
+                                        tokenList[0].add(t);
+                                    }
                                     first = false;
                                 }
                             }
@@ -271,9 +298,17 @@ public class SemanticColoring implements CancellableTask<CompilationInfo> {
         final PositionsBag bag = new PositionsBag(null);
 //        long start = System.currentTimeMillis();
         
+        final AttributeSet unused = AttributesUtilities.createImmutable(getColoringForName(TexColoringNames.UNUSED), AttributesUtilities.createImmutable("unused-browseable", Boolean.TRUE)); // NOI18N
+
         document.render(new Runnable() {
             public void run() {
                 try {
+                    for (List<Token> tokens : possiblyUnusedLabel2Tokens.values()) {
+                        for (Token t : tokens) {
+                            add(token2Attributes, t, unused);
+                        }
+                    }
+
                     for (Entry<Token, List<AttributeSet>> e : token2Attributes.entrySet()) {
                         Token t = e.getKey();
                         AttributeSet c = AttributesUtilities.createComposite(e.getValue().toArray(new AttributeSet[0]));

@@ -67,6 +67,7 @@ made subject to such option by the copyright holder.
     <fontcolor name="mod-command-correct"/>
     <fontcolor name="mod-command-definition" foreColor="808000"/>
     <fontcolor name="mod-math" bgColor="C8DAFF" />
+    <fontcolor name="mod-unused" foreColor="gray" />
 <!--mod-enum-arg-incorrect
 whitespace
 mod-enum-arg-correct

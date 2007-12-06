@@ -80,4 +80,6 @@ public class TexColoringNames {
     public static final String WORD_INCORRECT     = "mod-word-incorrect";
     public static final String WORD_INCOMPLETE    = "mod-word-incomplete";
     
+    public static final String UNUSED             = "mod-unused";
+    
 }
