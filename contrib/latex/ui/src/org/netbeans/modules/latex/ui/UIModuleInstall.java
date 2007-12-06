@@ -43,8 +43,15 @@
  */
 package org.netbeans.modules.latex.ui;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.netbeans.modules.latex.model.command.DebuggingSupport;
 import org.openide.modules.ModuleInstall;
+import org.openide.util.Lookup;
 
 /**
  *
@@ -59,6 +66,28 @@ public class UIModuleInstall extends ModuleInstall {
     public void restored() {
         DebuggingSupport.getDefault().addPropertyChangeListener(new DebugImpl());
         Autodetector.registerAutodetection();
+        
+        //XXX: hack to make tasklist work for tex files.
+        ClassLoader loader = Lookup.getDefault().lookup(ClassLoader.class);
+        
+        try {
+            Class settings = loader.loadClass("org.netbeans.modules.tasklist.todo.settings.Settings");
+            Method getDefault = settings.getDeclaredMethod("getDefault");
+            Class commentTags = loader.loadClass("org.netbeans.modules.tasklist.todo.settings.Settings$CommentTags");
+            Constructor commentTagsConstr = commentTags.getConstructor(String.class);
+            
+            commentTagsConstr.setAccessible(true);
+            Object commentTagsInstance = commentTagsConstr.newInstance("%");
+            Field mime2comments = settings.getDeclaredField("mime2comments");
+            Method put = Map.class.getMethod("put", Object.class, Object.class);
+            
+            mime2comments.setAccessible(true);
+            
+            put.invoke(mime2comments.get(getDefault.invoke(null)), "text/x-tex", commentTagsInstance);
+            put.invoke(mime2comments.get(getDefault.invoke(null)), "text/x-bibtex", commentTagsInstance);
+        } catch (Exception e) {
+            Logger.getLogger(UIModuleInstall.class.getName()).log(Level.INFO, null, e);
+        }
 
         super.restored();
     }
