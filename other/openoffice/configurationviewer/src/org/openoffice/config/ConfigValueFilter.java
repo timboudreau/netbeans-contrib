@@ -41,51 +41,37 @@
 
 package org.openoffice.config;
 
-import java.util.ArrayList;
-import java.util.List;
-
 /**
  *
  * @author S. Aubrecht
  */
-public class ConfigValueList {
+public abstract class ConfigValueFilter {
     
-    private String fullPath;
-    private String displayName;
-    private List<ConfigValue> values = null;
-    
-    /** Creates a new instance of ConfigValueList */
-    public ConfigValueList( String fullConfigPath, String displayName ) {
-        this.fullPath = fullConfigPath;
-        this.displayName = displayName;
+    /** Creates a new instance of ConfigValueFilter */
+    private ConfigValueFilter() {
     }
     
-    public String getFullPath() {
-        return fullPath;
+    public abstract boolean isDisplayAble( ConfigValue value );
+    
+    public static ConfigValueFilter getDefaultFilter() {
+        return new EmptyFilter();
     }
     
-    public String toString() {
-        return displayName;
+    public static ConfigValueFilter getUserValuesOnlyFilter() {
+        return new UserValueOnlyFilter();
     }
     
-    public void add( ConfigValue val ) {
-        if( null == values ) {
-            values = new ArrayList<ConfigValue>();
+    private static class EmptyFilter extends ConfigValueFilter {
+        public boolean isDisplayAble( ConfigValue value ) {
+            return true;
         }
-        values.add( val );
     }
     
-    public List<? extends ConfigValue> getValues( ConfigurationAccess configAccess, boolean forceRefresh ) {
-        if( null == values || forceRefresh ) {
-            values = new ArrayList<ConfigValue>();
-            load( configAccess );
+    private static class UserValueOnlyFilter extends ConfigValueFilter {
+        public boolean isDisplayAble( ConfigValue value ) {
+            return (null != value.getSharedValue() && null != value.getUserValue() && !value.getSharedValue().equals( value.getUserValue() ))
+                || (null != value.getSharedValue() && null == value.getUserValue() && value.getSharedValue().toString().length() > 0)
+                || (null == value.getSharedValue() && null != value.getUserValue() && value.getUserValue().toString().length() >0);
         }
-        return values;
-    }
-    
-    private void load( ConfigurationAccess configAccess ) {
-        ListConfigurationProcessor processor = new ListConfigurationProcessor( this );
-        configAccess.browse( fullPath, processor );
-        processor.format();
     }
 }

@@ -41,7 +41,19 @@
 
 package org.openoffice.config;
 
+import com.sun.star.beans.Property;
+import com.sun.star.beans.XHierarchicalPropertySet;
+import com.sun.star.beans.XHierarchicalPropertySetInfo;
+import com.sun.star.beans.XPropertySet;
+import com.sun.star.container.XHierarchicalNameAccess;
+import com.sun.star.container.XNameAccess;
+import com.sun.star.lang.XComponent;
+import com.sun.star.uno.Type;
+import com.sun.star.uno.UnoRuntime;
+import com.sun.star.uno.XInterface;
+import com.sun.star.util.XChangesBatch;
 import java.util.ArrayList;
+import java.util.List;
 import javax.swing.JOptionPane;
 import javax.swing.table.AbstractTableModel;
 
@@ -53,6 +65,11 @@ import javax.swing.table.AbstractTableModel;
 public class ConfigTableModel extends AbstractTableModel {
     
     private ArrayList<ConfigValue> values = new ArrayList<ConfigValue>();
+    private ConfigManager manager;
+    
+    public ConfigTableModel( ConfigManager manager ) {
+        this.manager = manager;
+    }
     
     public int getRowCount() {
         return values.size();
@@ -68,7 +85,7 @@ public class ConfigTableModel extends AbstractTableModel {
         ConfigValue val = values.get( rowIndex );
         switch( columnIndex ) {
             case 0:
-                return val.getConfigPath();
+                return val.getDisplayName();
             case 1: 
                 return val.getSharedValue();
             case 2: {
@@ -82,11 +99,11 @@ public class ConfigTableModel extends AbstractTableModel {
         return null;
     }
     
-    void add( String configPath, Object sharedValue, Object userValue ) {
-        ConfigValue val = new ConfigValue( configPath, sharedValue, userValue );
-        values.add( val );
-    }
-    
+//    void add( String configPath, Object sharedValue, Object userValue ) {
+//        ConfigValue val = new ConfigValue( configPath, sharedValue, userValue );
+//        values.add( val );
+//    }
+//    
     void add( ConfigValue val ) {
         values.add( val );
     }
@@ -96,7 +113,10 @@ public class ConfigTableModel extends AbstractTableModel {
     }
 
     public void setValueAt(Object aValue, int rowIndex, int columnIndex) {
-        JOptionPane.showMessageDialog( null, "Editing is not supported yet." );
+        if( rowIndex < 0 || rowIndex >= values.size() )
+            return;
+        ConfigValue cv = values.get( rowIndex );
+        manager.updateValue( cv, aValue );
     }
 
     public String getColumnName(int column) {
@@ -109,5 +129,9 @@ public class ConfigTableModel extends AbstractTableModel {
                 return "User Value";
         }
         return super.getColumnName(column);
+    }
+    
+    List<? extends ConfigValue> getValueList() {
+        return new ArrayList<ConfigValue>( values );
     }
 }

@@ -41,51 +41,69 @@
 
 package org.openoffice.config;
 
-import java.util.ArrayList;
+import java.awt.Frame;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.List;
+import javax.swing.JFileChooser;
+import javax.swing.JOptionPane;
 
 /**
  *
  * @author S. Aubrecht
  */
-public class ConfigValueList {
+public class ConfigDataExporter {
     
-    private String fullPath;
-    private String displayName;
-    private List<ConfigValue> values = null;
-    
-    /** Creates a new instance of ConfigValueList */
-    public ConfigValueList( String fullConfigPath, String displayName ) {
-        this.fullPath = fullConfigPath;
-        this.displayName = displayName;
+    private static File initialDir = new File( System.getProperty("user.home") );
+    /** Creates a new instance of ConfigDataExporter */
+    public ConfigDataExporter() {
     }
     
-    public String getFullPath() {
-        return fullPath;
-    }
-    
-    public String toString() {
-        return displayName;
-    }
-    
-    public void add( ConfigValue val ) {
-        if( null == values ) {
-            values = new ArrayList<ConfigValue>();
+    public void export( Frame frame, List<? extends ConfigValue> values ) {
+        File outputFile = selectFile( frame );
+        if( null == outputFile )
+            return;
+        
+        BufferedWriter writer = null;
+        try {
+            writer = new BufferedWriter( new FileWriter(outputFile) );
+            for( ConfigValue cv : values ) {
+                writer.append( cv.getFullConfigPath() );
+                writer.append( '=' );
+                Object val = cv.isDefaultValue() ? cv.getSharedValue() : cv.getUserValue();
+                if( null != val )
+                    writer.append( val.toString() );
+                writer.newLine();
+            }
+            writer.flush();
+            JOptionPane.showMessageDialog( frame, "Configuration data stored in:\n" + outputFile.getPath() );
+        } catch( IOException ioE ) {
+            ioE.printStackTrace();
+        } finally {
+            if( null != writer ) {
+                try {
+                writer.close();
+                } catch( IOException e ) {
+                    //ignore
+                }
+            }
         }
-        values.add( val );
     }
     
-    public List<? extends ConfigValue> getValues( ConfigurationAccess configAccess, boolean forceRefresh ) {
-        if( null == values || forceRefresh ) {
-            values = new ArrayList<ConfigValue>();
-            load( configAccess );
-        }
-        return values;
-    }
-    
-    private void load( ConfigurationAccess configAccess ) {
-        ListConfigurationProcessor processor = new ListConfigurationProcessor( this );
-        configAccess.browse( fullPath, processor );
-        processor.format();
+    private File selectFile( Frame frame ) {
+////        return new File("c:/ooconfig.txt");
+//        return new File( initialDir, "ooconfig.txt" );
+        JFileChooser chooser = new JFileChooser();
+        chooser.setCurrentDirectory( initialDir );
+        chooser.setDialogTitle( "Export data to" );
+        chooser.setFileSelectionMode( JFileChooser.FILES_ONLY );
+        chooser.setMultiSelectionEnabled( false );
+        int option = chooser.showSaveDialog( frame );
+        if( option != chooser.APPROVE_OPTION )
+            return null;
+        initialDir = chooser.getCurrentDirectory();
+        return chooser.getSelectedFile();
     }
 }

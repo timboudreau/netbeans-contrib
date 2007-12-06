@@ -41,6 +41,7 @@
 
 package org.openoffice.config;
 
+import com.sun.star.beans.Property;
 import com.sun.star.beans.PropertyState;
 import com.sun.star.beans.PropertyValue;
 import com.sun.star.beans.UnknownPropertyException;
@@ -51,6 +52,7 @@ import com.sun.star.container.XHierarchicalNameAccess;
 import com.sun.star.container.XNameAccess;
 import com.sun.star.lang.NoSupportException;
 import com.sun.star.lang.WrappedTargetException;
+import com.sun.star.lang.XComponent;
 import com.sun.star.lang.XMultiComponentFactory;
 import com.sun.star.lang.XMultiServiceFactory;
 import com.sun.star.task.XInteractionAbort;
@@ -70,7 +72,6 @@ public class ConfigurationAccess {
     private XComponentContext context;
     private XMultiServiceFactory userProvider;
     private XMultiServiceFactory sharedProvider;
-    private XHierarchicalNameAccess userConfigAccess;
     
     /** Creates a new instance of ConfigurationAccess */
     public ConfigurationAccess( XComponentContext context ) {
@@ -101,9 +102,30 @@ public class ConfigurationAccess {
         prop.Name = "nodepath";
         prop.Value = path;
         
+        PropertyValue prop2 = new PropertyValue();
+        
+        prop2.Name = "nocache";
+        prop2.Value = Boolean.TRUE;
+        
         XMultiServiceFactory provider = userConfig ? getUserProvider() : getSharedProvider();
         
-        return (XInterface)provider.createInstanceWithArguments( "com.sun.star.configuration.ConfigurationAccess", new Object[] {prop} );
+        return (XInterface)provider.createInstanceWithArguments( "com.sun.star.configuration.ConfigurationAccess", new Object[] {prop, prop2} );
+    }
+    
+    protected XInterface createUpdateView( String path ) throws com.sun.star.uno.Exception {
+        PropertyValue prop = new PropertyValue();
+        
+        prop.Name = "nodepath";
+        prop.Value = path;
+        
+        PropertyValue prop2 = new PropertyValue();
+        
+        prop2.Name = "enableasync";
+        prop2.Value = Boolean.FALSE;
+        
+        XMultiServiceFactory provider = getUserProvider();
+        
+        return (XInterface)provider.createInstanceWithArguments( "com.sun.star.configuration.ConfigurationUpdateAccess", new Object[] {prop, prop2} );
     }
     
     /**
@@ -151,6 +173,16 @@ public class ConfigurationAccess {
             return; //nothing to browse here
         
         browse( userRoot, sharedRoot, processor );
+        
+        if( null != userRoot ) {
+            ((XComponent) UnoRuntime.queryInterface(XComponent.class,userRoot)).dispose();
+            userRoot = null;
+        }
+        
+        if( null != sharedRoot ) {
+            ((XComponent) UnoRuntime.queryInterface(XComponent.class,sharedRoot)).dispose();
+            sharedRoot = null;
+        }
     }
     
     protected void browse( XInterface userNode, XInterface sharedNode, ConfigurationProcessor processor ) {
@@ -207,6 +239,7 @@ public class ConfigurationAccess {
         } else if( null != userElementNames ) {
             elementNames = userElementNames;
         }
+        
         
         // and process them one by one
         for( String childName : elementNames ) {

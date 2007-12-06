@@ -47,22 +47,28 @@ package org.openoffice.config;
  */
 class ConfigValue {
     
-    private String prefix;
-    private String configPath;
+    private String fullConfigPath;
+    private String displayPrefix;
+    private String nodeName;
     private Object userValue;
     private Object sharedValue;
     
     /** Creates a new instance of ConfigValue */
-    public ConfigValue( String configPath, Object shared, Object user ) {
-        this.configPath = configPath;
+    public ConfigValue( String fullPath, String nodeName, Object shared, Object user ) {
+        this.fullConfigPath = fullPath;
+        this.nodeName = nodeName;
         this.sharedValue = shared;
         this.userValue = user;
     }
 
-    public String getConfigPath() {
-        if( null != prefix )
-            return prefix+"."+configPath;
-        return configPath;
+    public String getDisplayName() {
+        if( null != displayPrefix )
+            return displayPrefix+"."+nodeName;
+        return nodeName;
+    }
+    
+    public String getFullConfigPath() {
+        return fullConfigPath;
     }
 
     public Object getUserValue() {
@@ -87,7 +93,7 @@ class ConfigValue {
                (null != sharedValue && null != userValue && sharedValue.equals(userValue ) );
     }
     
-    public void setPrefix( String prefix ) {
-        this.prefix = prefix;
+    public void setDisplayPrefix( String displayPrefix ) {
+        this.displayPrefix = displayPrefix;
     }
 }

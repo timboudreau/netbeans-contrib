@@ -78,7 +78,6 @@ public class ConfigFrame extends javax.swing.JFrame {
     /** Creates new form ConfigFrame */
     public ConfigFrame( ConfigManager manager ) {
         this.manager = manager;
-        initComponents();
         
         try {
             UIManager.setLookAndFeel( UIManager.getSystemLookAndFeelClassName() );
@@ -86,6 +85,8 @@ public class ConfigFrame extends javax.swing.JFrame {
             //ignore
             ex.printStackTrace();
         }
+        
+        initComponents();
 
         jScrollPane1.setVisible( false );
         lblNoData.setVisible( false );
@@ -99,16 +100,22 @@ public class ConfigFrame extends javax.swing.JFrame {
     
     private void switchTableModel( boolean forceRefresh ) {
         TreePath selPath = treeRoots.getSelectionPath();
-        if( null == selPath )
+        if( null == selPath ) {
+            jScrollPane1.setVisible( false );
+            lblNoData.setVisible( false );
+            lblInitial.setVisible( true );
+            btnExport.setEnabled( false );
             return;
+        }
         final DefaultMutableTreeNode selNode = (DefaultMutableTreeNode)selPath.getLastPathComponent();
+        final ConfigValueFilter filter = checkUserEntriesOnly.isSelected() ? ConfigValueFilter.getUserValuesOnlyFilter() : ConfigValueFilter.getDefaultFilter();
         getRootPane().setCursor( Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR) );
         
         getRootPane().getGlassPane().setVisible(true);
         Runnable runnable = new Runnable() {
             public void run() {
-                final ConfigTableModel model = new ConfigTableModel();
-                collectDataFromChildren( selNode, model, null );
+                final ConfigTableModel model = new ConfigTableModel( manager );
+                collectDataFromChildren( selNode, model, null, filter );
 
                 SwingUtilities.invokeLater( new Runnable() {
                     public void run() {
@@ -118,6 +125,7 @@ public class ConfigFrame extends javax.swing.JFrame {
                         lblInitial.setVisible( false );
                         getRootPane().setCursor( Cursor.getDefaultCursor() );
                         getRootPane().getGlassPane().setVisible(false);
+                        btnExport.setEnabled( treeRoots.getSelectionPath() != null && model.getRowCount() > 0 );
                     }
                 });
             }
@@ -125,12 +133,14 @@ public class ConfigFrame extends javax.swing.JFrame {
         new Thread( runnable ).start();
     }
     
-    private void collectDataFromChildren( DefaultMutableTreeNode node, ConfigTableModel model, String prefix ) {
+    private void collectDataFromChildren( DefaultMutableTreeNode node, ConfigTableModel model, String prefix, ConfigValueFilter filter ) {
         if( node.isLeaf() ) {
             ConfigValueList list = (ConfigValueList)node.getUserObject();
-            for( ConfigValue cv : list.getValues( false ) ) {
-                cv.setPrefix( prefix );
-                model.add( cv );
+            for( ConfigValue cv : list.getValues( manager.getConfigAccess(), false ) ) {
+                if( filter.isDisplayAble( cv ) ) {
+                    cv.setDisplayPrefix( prefix );
+                    model.add( cv );
+                }
             }
         } else {
             for( Enumeration en = node.children(); en.hasMoreElements(); ) {
@@ -138,7 +148,7 @@ public class ConfigFrame extends javax.swing.JFrame {
                 String newPrefix = child.getUserObject().toString();
                 if( null != prefix )
                     newPrefix = prefix + '.' + newPrefix;
-                collectDataFromChildren( child, model, newPrefix );
+                collectDataFromChildren( child, model, newPrefix, filter );
             }
         }
     }
@@ -161,6 +171,9 @@ public class ConfigFrame extends javax.swing.JFrame {
         tblContents = new javax.swing.JTable();
         lblInitial = new javax.swing.JLabel();
         lblNoData = new javax.swing.JLabel();
+        btnExport = new javax.swing.JButton();
+        checkUserEntriesOnly = new javax.swing.JCheckBox();
+        jLabel1 = new javax.swing.JLabel();
 
         getContentPane().setLayout(new java.awt.GridBagLayout());
 
@@ -219,17 +232,65 @@ public class ConfigFrame extends javax.swing.JFrame {
         jSplitPane1.setRightComponent(jPanel1);
 
         gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 1;
-        gridBagConstraints.gridwidth = 3;
+        gridBagConstraints.gridwidth = 4;
         gridBagConstraints.gridheight = 3;
         gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
         gridBagConstraints.weightx = 1.0;
         gridBagConstraints.weighty = 1.0;
         getContentPane().add(jSplitPane1, gridBagConstraints);
 
+        btnExport.setText("Export");
+        btnExport.setEnabled(false);
+        btnExport.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                export(evt);
+            }
+        });
+
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 2;
+        gridBagConstraints.gridy = 4;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.EAST;
+        gridBagConstraints.insets = new java.awt.Insets(3, 3, 3, 0);
+        getContentPane().add(btnExport, gridBagConstraints);
+
+        checkUserEntriesOnly.setText("Show user entries only");
+        checkUserEntriesOnly.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        checkUserEntriesOnly.setMargin(new java.awt.Insets(0, 0, 0, 0));
+        checkUserEntriesOnly.setOpaque(false);
+        checkUserEntriesOnly.addItemListener(new java.awt.event.ItemListener() {
+            public void itemStateChanged(java.awt.event.ItemEvent evt) {
+                checkUserEntriesOnlyItemStateChanged(evt);
+            }
+        });
+
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 4;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+        gridBagConstraints.insets = new java.awt.Insets(3, 3, 3, 3);
+        getContentPane().add(checkUserEntriesOnly, gridBagConstraints);
+
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 4;
+        gridBagConstraints.weightx = 1.0;
+        getContentPane().add(jLabel1, gridBagConstraints);
+
         pack();
     }// </editor-fold>//GEN-END:initComponents
+
+    private void checkUserEntriesOnlyItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_checkUserEntriesOnlyItemStateChanged
+        switchTableModel( true );
+    }//GEN-LAST:event_checkUserEntriesOnlyItemStateChanged
+
+    private void export(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_export
+        ConfigDataExporter exporter = new ConfigDataExporter();
+        ConfigTableModel model = (ConfigTableModel)tblContents.getModel();
+        exporter.export( this, model.getValueList() );
+    }//GEN-LAST:event_export
 
     private void rootSelectionChanged(javax.swing.event.TreeSelectionEvent evt) {//GEN-FIRST:event_rootSelectionChanged
         btnRefreshTable.setEnabled( treeRoots.getSelectionPath() != null );
@@ -241,7 +302,10 @@ public class ConfigFrame extends javax.swing.JFrame {
     }//GEN-LAST:event_refreshTable
     
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton btnExport;
     private javax.swing.JButton btnRefreshTable;
+    private javax.swing.JCheckBox checkUserEntriesOnly;
+    private javax.swing.JLabel jLabel1;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
@@ -253,9 +317,4 @@ public class ConfigFrame extends javax.swing.JFrame {
     // End of variables declaration//GEN-END:variables
     
 
-    private static class TableModelComparator implements Comparator<TableModel> {
-        public int compare(TableModel o1, TableModel o2) {
-            return o1.toString().compareTo( o2.toString() );
-        }
-    }
 }

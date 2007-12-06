@@ -75,9 +75,9 @@ public class ListConfigurationProcessor implements ConfigurationProcessor {
 
         Object user = convert( userValue );
         
-        configPath = configPath.substring( list.getFullPath().length()+1 );
+        String nodeName = configPath.substring( list.getFullPath().length()+1 );
         
-        list.add( new ConfigValue( configPath, shared, user ) );
+        list.add( new ConfigValue( configPath, nodeName, shared, user ) );
     }
 
     public void processStructuralElement( String configPath, XInterface userNode, XInterface sharedNode ) {
@@ -86,9 +86,9 @@ public class ListConfigurationProcessor implements ConfigurationProcessor {
     public void format() {
     }
 
-    protected Object convert( Object val ) {
+    static Object convert( Object val ) {
         if( null == val )
-            return "";
+            return null;
         try {
             if( AnyConverter.isVoid( val ) )
                 return null;
@@ -96,6 +96,8 @@ public class ListConfigurationProcessor implements ConfigurationProcessor {
                 StringBuffer buffer = new StringBuffer();
                 buffer.append( '[' );
                 final int [] arr = (int [])val;
+                if( arr.length == 0 )
+                    return null;
                 for( int i=0; i<arr.length; i++ ) {
                     buffer.append( arr[i] );
                     if( i < arr.length-1 )
@@ -108,6 +110,8 @@ public class ListConfigurationProcessor implements ConfigurationProcessor {
                 StringBuffer buffer = new StringBuffer();
                 buffer.append( '[' );
                 final long [] arr = (long [])val;
+                if( arr.length == 0 )
+                    return null;
                 for( int i=0; i<arr.length; i++ ) {
                     buffer.append( arr[i] );
                     if( i < arr.length-1 )
@@ -120,6 +124,8 @@ public class ListConfigurationProcessor implements ConfigurationProcessor {
                 StringBuffer buffer = new StringBuffer();
                 buffer.append( '[' );
                 final Object [] arr = (Object [])val;
+                if( arr.length == 0 )
+                    return null;
                 for( int i=0; i<arr.length; i++ ) {
                     buffer.append( convert( arr[i] ) );
                     if( i < arr.length-1 )
@@ -135,7 +141,7 @@ public class ListConfigurationProcessor implements ConfigurationProcessor {
             ccE.printStackTrace();
             return null;
         }
-        return val.toString();
+        return val;
     }
 
 }
