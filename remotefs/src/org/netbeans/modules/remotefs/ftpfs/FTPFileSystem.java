@@ -86,8 +86,11 @@ public class FTPFileSystem extends RemoteFileSystem implements  FTPClient.Reconn
   /** Constructor.
   */
   public FTPFileSystem () {
+      this(new FTPLogInfo());
+  }
+  public FTPFileSystem (FTPLogInfo info) {
     super();
-    loginfo = new FTPLogInfo();
+    loginfo = info;
     setRefreshTime (getFTPSettings().getRefreshTime());
     cachedir = new File(getDefaultCache());
     

@@ -1,0 +1,6 @@
+Manifest-Version: 1.0
+OpenIDE-Module: org.netbeans.modules.remotefs.ui
+OpenIDE-Module-Layer: org/netbeans/modules/remotefs/ui/layer.xml
+OpenIDE-Module-Localizing-Bundle: org/netbeans/modules/remotefs/ui/Bundle.properties
+OpenIDE-Module-Specification-Version: 1.0
+
