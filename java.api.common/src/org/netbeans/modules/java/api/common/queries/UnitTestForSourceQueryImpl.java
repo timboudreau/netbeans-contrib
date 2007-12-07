@@ -41,6 +41,7 @@
 
 package org.netbeans.modules.java.api.common.queries;
 
+import org.netbeans.modules.java.api.common.SourceRoots;
 import java.net.URL;
 import org.netbeans.api.project.FileOwnerQuery;
 import org.netbeans.api.project.Project;

@@ -41,6 +41,7 @@
 
 package org.netbeans.modules.java.api.common.queries;
 
+import org.netbeans.modules.java.api.common.SourceRoots;
 import java.io.File;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;

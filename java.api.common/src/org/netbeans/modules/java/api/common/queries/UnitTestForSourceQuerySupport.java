@@ -39,6 +39,7 @@
 
 package org.netbeans.modules.java.api.common.queries;
 
+import org.netbeans.modules.java.api.common.SourceRoots;
 import org.netbeans.spi.java.queries.MultipleRootsUnitTestForSourceQueryImplementation;
 import org.openide.util.Parameters;
 

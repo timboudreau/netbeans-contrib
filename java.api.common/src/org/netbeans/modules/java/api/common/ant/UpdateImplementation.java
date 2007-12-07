@@ -37,33 +37,62 @@
  * Portions Copyrighted 2007 Sun Microsystems, Inc.
  */
 
-package org.netbeans.modules.java.api.common.queries;
+package org.netbeans.modules.java.api.common.ant;
 
-import org.netbeans.modules.java.api.common.SourceRoots;
-import org.netbeans.spi.java.queries.SourceForBinaryQueryImplementation;
-import org.netbeans.spi.project.support.ant.AntProjectHelper;
-import org.netbeans.spi.project.support.ant.PropertyEvaluator;
-import org.openide.util.Parameters;
+import java.io.IOException;
+import org.netbeans.spi.project.support.ant.EditableProperties;
+import org.w3c.dom.Element;
 
 /**
- * CompiledSourceForBinaryQuerySupport is a support class for creating a query to provide
- * information about where Java sources corresponding to binaries (classfiles) can be found.
- * @since org.netbeans.modules.java.api.common/0 1.0
+ * Interface that has to be implemented in order to use {@link UpdateHelper}. It represents and does the project update
+ * process itself.
  * @author Tomas Mysik
- * @see SourceForBinaryQueryImplementation
+ * @see UpdateHelper
  */
-public final class CompiledSourceForBinaryQuerySupport {
+public interface UpdateImplementation {
 
-    private CompiledSourceForBinaryQuerySupport() {
-    }
+    /**
+     * Return <code>true</code> if the project is of current version.
+     * @return <code>true</code> if the project is of current version.
+     */
+    boolean isCurrent();
 
-    public static SourceForBinaryQueryImplementation create(AntProjectHelper helper, PropertyEvaluator evaluator,
-            SourceRoots srcRoots, SourceRoots testRoots) {
-        Parameters.notNull("helper", helper);
-        Parameters.notNull("evaluator", evaluator);
-        Parameters.notNull("srcRoots", srcRoots);
-        Parameters.notNull("testRoots", testRoots);
+    /**
+     * Return <code>true</code> if the project can be updated.
+     * @return <code>true</code> if the project can be updated.
+     */
+    boolean canUpdate();
 
-        return new CompiledSourceForBinaryQueryImpl(helper, evaluator, srcRoots, testRoots);
+    /**
+     * Saving of update. If the project is of current version it should probably do nothing.
+     * @throws IOException if error occurs during saving.
+     */
+    void saveUpdate() throws IOException;
+
+    /**
+     * Creates probably an in memory update of shared configuration data and return it.
+     * @return the configuration data that is available.
+     * @see {@link UpdateHelper#getPrimaryConfigurationData(boolean)}
+     */
+    Element getUpdatedSharedConfigurationData();
+
+    /**
+     * Creates probably an in memory update of project properties.
+     * @return a set of properties.
+     * @see {@link UpdateHelper#getProperties(String)}
+     */
+    EditableProperties getUpdatedProjectProperties();
+
+    // XXX remove this? probably useless
+    /**
+     * Interface that can be used by the {@link UpdateProject} to ask user about
+     * the project update.
+     */
+    public static interface Notifier {
+        /**
+         * Ask user to update the project.
+         * @return <code>true</code> if the project could be updated.
+         */
+        boolean canUpdate();
     }
 }

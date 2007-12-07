@@ -61,7 +61,7 @@ import org.openide.util.Parameters;
  */
 public final class UpdateHelper {
 
-    private final UpdateProject updateProject;
+    private final UpdateImplementation updateProject;
     private final AntProjectHelper helper;
 
     /**
@@ -69,7 +69,7 @@ public final class UpdateHelper {
      * @param updateProject {@link UpdateProject} which takes care of updating project itself.
      * @param helper {@link AntProjectHelper} to be proxied.
      */
-    public UpdateHelper(UpdateProject updateProject, AntProjectHelper helper) {
+    public UpdateHelper(UpdateImplementation updateProject, AntProjectHelper helper) {
         Parameters.notNull("updateProject", updateProject);
         Parameters.notNull("helper", helper);
 

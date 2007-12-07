@@ -37,33 +37,23 @@
  * Portions Copyrighted 2007 Sun Microsystems, Inc.
  */
 
-package org.netbeans.modules.java.api.common.queries;
+package org.netbeans.modules.java.api.common;
 
-import org.netbeans.modules.java.api.common.SourceRoots;
-import org.netbeans.spi.java.queries.SourceForBinaryQueryImplementation;
-import org.netbeans.spi.project.support.ant.AntProjectHelper;
+import org.netbeans.modules.java.api.common.ant.UpdateHelper;
 import org.netbeans.spi.project.support.ant.PropertyEvaluator;
-import org.openide.util.Parameters;
+import org.netbeans.spi.project.support.ant.ReferenceHelper;
 
 /**
- * CompiledSourceForBinaryQuerySupport is a support class for creating a query to provide
- * information about where Java sources corresponding to binaries (classfiles) can be found.
- * @since org.netbeans.modules.java.api.common/0 1.0
+ *
  * @author Tomas Mysik
- * @see SourceForBinaryQueryImplementation
  */
-public final class CompiledSourceForBinaryQuerySupport {
+public final class SourceRootsSupport {
 
-    private CompiledSourceForBinaryQuerySupport() {
+    private SourceRootsSupport() {
     }
 
-    public static SourceForBinaryQueryImplementation create(AntProjectHelper helper, PropertyEvaluator evaluator,
-            SourceRoots srcRoots, SourceRoots testRoots) {
-        Parameters.notNull("helper", helper);
-        Parameters.notNull("evaluator", evaluator);
-        Parameters.notNull("srcRoots", srcRoots);
-        Parameters.notNull("testRoots", testRoots);
-
-        return new CompiledSourceForBinaryQueryImpl(helper, evaluator, srcRoots, testRoots);
+    public static SourceRoots create(UpdateHelper helper, PropertyEvaluator evaluator, ReferenceHelper refHelper,
+            String projectConfigurationNamespace, String elementName, boolean isTest, String newRootNameTemplate) {
+        return new SourceRootsImpl(helper, evaluator, refHelper, projectConfigurationNamespace, elementName, isTest, newRootNameTemplate);
     }
 }

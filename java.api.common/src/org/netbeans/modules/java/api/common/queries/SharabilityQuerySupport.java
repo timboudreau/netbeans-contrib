@@ -39,6 +39,7 @@
 
 package org.netbeans.modules.java.api.common.queries;
 
+import org.netbeans.modules.java.api.common.SourceRoots;
 import java.util.List;
 import org.netbeans.spi.project.support.ant.AntProjectHelper;
 import org.netbeans.spi.project.support.ant.PropertyEvaluator;

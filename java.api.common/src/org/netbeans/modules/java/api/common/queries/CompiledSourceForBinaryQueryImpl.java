@@ -40,6 +40,7 @@
  */
 package org.netbeans.modules.java.api.common.queries;
 
+import org.netbeans.modules.java.api.common.SourceRoots;
 import java.io.File;
 import java.util.Arrays;
 import java.util.List;
