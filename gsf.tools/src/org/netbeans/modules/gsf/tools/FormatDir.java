@@ -8,8 +8,6 @@ import javax.swing.JFileChooser;
 import javax.swing.SwingUtilities;
 import javax.swing.text.Document;
 
-import org.netbeans.api.gsf.FormattingPreferences;
-import org.netbeans.modules.gsf.GsfFormattingPreferences;
 import org.netbeans.modules.gsf.Language;
 import org.netbeans.modules.gsf.LanguageRegistry;
 import org.openide.awt.StatusDisplayer;
@@ -122,10 +120,9 @@ public final class FormatDir extends CallableSystemAction {
         }
 
         int indentSize = language.getFormatter().indentSize();
-        FormattingPreferences preferences = new GsfFormattingPreferences(indentSize, indentSize);
         int startOffset = 0;
         int endOffset = doc.getLength();
-        language.getFormatter().reindent(doc, startOffset, endOffset, null, preferences);
+        language.getFormatter().reindent(doc, startOffset, endOffset, null);
 
         // Save
         SaveCookie sc = dobj.getCookie(SaveCookie.class);
