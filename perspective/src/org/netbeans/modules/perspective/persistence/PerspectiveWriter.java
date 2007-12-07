@@ -54,7 +54,7 @@ public class PerspectiveWriter {
     public void writePerspective(FileObject base, PerspectiveImpl pi) throws IOException {
         FileObject fileObject = base.createFolder(pi.getName());
         fileObject.setAttribute("alias", pi.getAlias());
-        fileObject.setAttribute("description", pi.getDiscription());
+        fileObject.setAttribute("description", pi.getDescription());
         fileObject.setAttribute("image", pi.getImagePath());
         fileObject.setAttribute("position", pi.getIndex());
         FileObject modesFileObject = fileObject.createFolder("modes");

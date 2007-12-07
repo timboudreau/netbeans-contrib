@@ -63,7 +63,7 @@ public  class PerspectiveImpl implements Perspective, Comparable<PerspectiveImpl
 
     private String name;
     private String alias;
-    private String discription;
+    private String description;
     private int index;
     private Set<PerspectiveMode> perspectiveModes = new LinkedHashSet<PerspectiveMode>();
     private List<PerspectiveListener> perspectiveListener = new ArrayList<PerspectiveListener>();
@@ -95,12 +95,12 @@ public  class PerspectiveImpl implements Perspective, Comparable<PerspectiveImpl
         this.alias = alias;
     }
 
-    public String getDiscription() {
-        return discription;
+    public String getDescription() {
+        return description;
     }
 
-    public void setDiscription(String discription) {
-        this.discription = discription;
+    public void setDescription(String description) {
+        this.description = description;
     }
 
     

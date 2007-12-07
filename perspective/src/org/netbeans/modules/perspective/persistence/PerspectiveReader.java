@@ -52,7 +52,7 @@ public class PerspectiveReader {
     public PerspectiveImpl readPerspective(FileObject fo) {
         PerspectiveImpl perspective = new PerspectiveImpl(fo.getName(),
                 fo.getAttribute("alias").toString());
-        perspective.setDiscription((String) fo.getAttribute("description"));
+        perspective.setDescription((String) fo.getAttribute("description"));
         perspective.setImagePath((String) fo.getAttribute("image"));
         perspective.setIndex((Integer) fo.getAttribute("position"));
 

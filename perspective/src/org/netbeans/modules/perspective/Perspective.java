@@ -47,7 +47,7 @@ import java.util.List;
 public interface Perspective {
 
     String getAlias();
-    String getDiscription();
+    String getDescription();
     void addPerspectiveListener(PerspectiveListener listner);
     void removePerspectiveListener(PerspectiveListener listner);
     List<PerspectiveListener> getPerspectiveListeners();
