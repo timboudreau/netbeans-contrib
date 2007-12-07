@@ -155,6 +155,7 @@ public final class DumpIndex extends CallableSystemAction {
                 List<Match> data;
                 data = new ArrayList<Match>();
 
+                @SuppressWarnings("unchecked")
                 Enumeration<Field> en = luceneDoc.fields();
 
                 while (en.hasMoreElements()) {
