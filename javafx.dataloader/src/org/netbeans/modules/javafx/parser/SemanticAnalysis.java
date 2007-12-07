@@ -52,6 +52,7 @@ import org.netbeans.api.gsf.OffsetRange;
 import org.netbeans.api.gsf.SemanticAnalyzer;
 import net.java.javafx.typeImpl.Compilation;
 import java.io.StringReader;
+import java.io.File;
 import net.java.javafx.type.expr.CompilationUnit;
 import java.util.Iterator;
 import net.java.javafx.type.Type;
@@ -64,6 +65,9 @@ import net.java.javafx.type.expr.ValidationError;
 import net.java.javafx.type.expr.Locatable;
 import org.netbeans.modules.javafx.editor.JavaFXPier;
 import org.netbeans.modules.javafx.editor.JavaFXDocument;
+import org.openide.filesystems.FileObject;
+import java.net.URI;
+import org.openide.filesystems.FileUtil;
 
 /**
  * Walk through the JRuby AST and note interesting things
@@ -75,13 +79,16 @@ import org.netbeans.modules.javafx.editor.JavaFXDocument;
  *   See section 7.8 in http://www.rubycentral.com/faq/rubyfaq-7.html
  * @author Tor Norbye
  */
+
+
 public class SemanticAnalysis implements SemanticAnalyzer {
-    boolean cancelled;
+
+    private boolean cancelled;
     private Map<OffsetRange, ColoringAttributes> semanticHighlights;
 
     public SemanticAnalysis() {
     }
-
+            
     public Map<OffsetRange, ColoringAttributes> getHighlights() {
         return semanticHighlights;
     }
@@ -257,7 +264,7 @@ public class SemanticAnalysis implements SemanticAnalyzer {
         }
         return false;
     }*/
-    
+
     public void run(CompilationInfo info) {
         resume();
         if (isCancelled()) {
@@ -328,21 +335,20 @@ public class SemanticAnalysis implements SemanticAnalyzer {
         {
             CompilationUnit unit = (CompilationUnit)unitsIterator.next();
                     
-            String packagename = unit.getPackageName();
-            int classNameOffset = 0;
-            if (packagename != null)
-                classNameOffset = packagename.length() + 1;
             Iterator classesListIterator = unit.getClasses().iterator();
             while (classesListIterator.hasNext()) {
                 Type type = (Type)classesListIterator.next();
 
                 int offset = lineMap.getOffset(type);
-                classesList.put(type.getName().substring(classNameOffset), offset);
-
+                String name = getPureName(unit, type.getName());
+                classesList.put(name, offset);
+                
                 Iterator attributesIterator = type.getAttributes();
                 while (attributesIterator.hasNext()) {
                     Attribute attribute = (Attribute)attributesIterator.next();
-                    attributesList.add(attribute.getName());
+                    String attrName = attribute.getName();
+                    int attrOffset = lineMap.getOffset(attribute);
+                    attributesList.add(attrName);
                 }
             }
         }
@@ -483,5 +489,14 @@ public class SemanticAnalysis implements SemanticAnalyzer {
         } else {
             this.semanticHighlights = null;
         }
+    }
+    
+    private String getPureName(CompilationUnit unit, String name) {
+        String packagename = unit.getPackageName();
+        int classNameOffset = 0;
+        if (packagename != null) {
+            classNameOffset = packagename.length() + 1;
+        }
+        return name.substring(classNameOffset);
     }
 }

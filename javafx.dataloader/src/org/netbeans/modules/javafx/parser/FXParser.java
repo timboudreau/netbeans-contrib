@@ -40,6 +40,7 @@
  */
 package org.netbeans.modules.javafx.parser;
 
+import java.io.File;
 import java.util.List;
 
 import javax.swing.text.Document;
@@ -66,7 +67,9 @@ import org.openide.loaders.DataObject;
 
 import org.openide.filesystems.FileObject;
 import java.io.StringReader;
+import java.net.URI;
 import java.util.ArrayList;
+import java.util.HashMap;
 import net.java.javafx.type.expr.ValidationError;
 import org.netbeans.spi.gsf.DefaultError;
 import org.netbeans.api.gsf.Error;
@@ -75,6 +78,7 @@ import org.netbeans.api.gsf.ParseListener;
 import org.netbeans.spi.gsf.DefaultPosition;
 import org.netbeans.modules.javafx.JavaFXElementHandleImpl;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 import org.netbeans.api.gsf.ElementKind;
@@ -99,6 +103,7 @@ import net.java.javafx.typeImpl.completion.CompletionParser;
 import net.java.javafx.type.expr.Locatable;
 import net.java.javafx.typeImpl.completion.SimpleCharStream;
 import net.java.javafx.typeImpl.completion.Token;
+import org.openide.filesystems.FileUtil;
 
 
 /**
@@ -214,8 +219,10 @@ public class FXParser implements Parser {
                     try {
                         compilation = JavaFXPier.getCompilation(file.getFileObject());
                         unit = JavaFXPier.readCompilationUnit(compilation, file.getFileObject().getPath(), new StringReader(text));
-                        if (unit != null)
+                        if (unit != null) {
                             fillResultsForNavigator(unit, lineMap,  result);
+                            fillResultsForGoTo(compilation, lineMap, file.getFileObject(), result);
+                        }
                         processErrors(compilation, lineMap, file.getFileObject(), listener);
                     } catch (Exception e) {
     //                    e.printStackTrace();
@@ -384,6 +391,7 @@ public class FXParser implements Parser {
     }
 
     private void fillResultsForNavigator(CompilationUnit unit, LineMap lineMap, FXParserResult result) {
+      
         Iterator functionsListIterator = unit.getFunctions().iterator();
         while (functionsListIterator.hasNext()) {
             Object obj = functionsListIterator.next();
@@ -428,6 +436,8 @@ public class FXParser implements Parser {
             Type type = (Type)classesListIterator.next();
             Set<Modifier> classModifiers = getModifiers(type);
             JavaFXElement element = new JavaFXElement(ElementKind.CLASS, type.getName(), lineMap.getOffsetRange(type), classModifiers);
+            String name = getPureName(unit, type.getName());
+            
             Iterator attributesIterator = type.getDeclaredAttributes();
             while (attributesIterator.hasNext()) {
                 Attribute attribute = (Attribute)attributesIterator.next();
@@ -447,6 +457,101 @@ public class FXParser implements Parser {
             }
             result.addElement(element);
         }
+    }
+    
+    private void fillResultsForGoTo(Compilation compilation, LineMap lineMap, FileObject fo, FXParserResult result) {
+      
+        Map unitsMap = compilation.getCompilationUnits();
+        Iterator unitsIterator = unitsMap.values().iterator();
+        
+        while (unitsIterator.hasNext())
+        {
+            CompilationUnit unit = (CompilationUnit)unitsIterator.next();
+            if (unit.getURI().startsWith("jar"))
+                continue;
+        
+            Iterator functionsListIterator = unit.getFunctions().iterator();
+            while (functionsListIterator.hasNext()) {
+                Object obj = functionsListIterator.next();
+                if (obj instanceof FunctionDefinition) {
+                    FunctionDefinition function = (FunctionDefinition)obj;
+                    if (function.getScope() == null) {
+                        addDeclaration(fo, new Declaration(function.getName(),  uriToFileObject(function.getURI()), function.getBeginLine() - 1, function.getBeginColumn() - 1));
+                    }
+                }
+            }
+            StatementList statementsList = unit.getStatements();
+            for (int i = 0; i < statementsList.getSize(); i++) {
+                Statement statement = statementsList.getStatement(i);
+                if (statement instanceof VariableDeclaration) {
+                    VariableDeclaration variableDeclaration = (VariableDeclaration)statement;
+                    ExpressionList expressionList = variableDeclaration.getVariables();
+                    for (int j = 0; j < expressionList.getSize(); j++) {
+                        VariableExpression expression = (VariableExpression)expressionList.getExpression(j);
+                        addDeclaration(fo, new Declaration(expression.getVarName(),  uriToFileObject(expression.getURI()),expression.getBeginLine() - 1, expression.getBeginColumn() - 1));
+                    }
+                }
+            }
+
+            Iterator classesListIterator = unit.getClasses().iterator();
+            while (classesListIterator.hasNext()) {
+                Type type = (Type)classesListIterator.next();
+                
+                String name = getPureName(unit, type.getName());
+                addDeclaration(fo, new Declaration(name,  uriToFileObject(type.getURI()), type.getBeginLine() - 1, type.getBeginColumn() - 1));
+
+                Iterator attributesIterator = type.getDeclaredAttributes();
+                while (attributesIterator.hasNext()) {
+                    Attribute attribute = (Attribute)attributesIterator.next();
+                    addDeclaration(fo, new Declaration(attribute.getName(),  uriToFileObject(type.getURI()), attribute.getBeginLine() - 1, attribute.getBeginColumn() - 1));
+                }
+                Iterator operationsIterator = type.getDeclaredOperations();
+                while (operationsIterator.hasNext()) {
+                    Type operation = (Type)operationsIterator.next();
+                    addDeclaration(fo, new Declaration(operation.getName(),  uriToFileObject(operation.getURI()), operation.getBeginLine() - 1, operation.getBeginColumn() - 1));
+                }
+            }
+        }
+    }
+    
+    private static Map<FileObject, ArrayList<Declaration>> declarationsMap = new HashMap<FileObject, ArrayList<Declaration>>();
+
+    public static ArrayList<Declaration> getDeclarations(FileObject fo) {
+        return declarationsMap.get(fo);
+    }
+    
+    private FileObject uriToFileObject(String _uri) {
+        if (_uri.startsWith("jar"))
+            return null;
+        URI uri = null;
+        File file = null;
+        if (file == null) {
+            try {
+                uri = new URI(_uri);
+            } catch (Exception e) {
+            }
+            if ((uri != null)&&(uri.getScheme().contentEquals("file")))
+                try {
+                    file = new File(uri);
+                } catch (Exception e) {
+                    int r = 0;
+                }
+            else
+                file = new File(_uri);
+        }
+        if (file != null)
+            return FileUtil.toFileObject(file);
+        else
+            return null;
+    }
+    
+    private void addDeclaration(FileObject key, Declaration decl) {
+        ArrayList<Declaration> declarations = declarationsMap.get(key);
+        if (declarations == null) {
+            declarations = new ArrayList<Declaration>();
+            declarationsMap.put(key, declarations);
+        }
+        declarations.add(decl);
     }
 
     private Set<Modifier> getModifiers(Accessible type) {
@@ -517,6 +622,41 @@ public class FXParser implements Parser {
         }
         public void setURI(String uri) {
             uRI = uri;
+        }
+    }
+    
+    private String getPureName(CompilationUnit unit, String name) {
+        String packagename = unit.getPackageName();
+        int classNameOffset = 0;
+        if (packagename != null) {
+            classNameOffset = packagename.length() + 1;
+        }
+        return name.substring(classNameOffset);
+    }
+    
+    public class Declaration {
+        private String      name;
+        private FileObject  fileObject;
+        private int         line;
+        private int         column;
+        
+        public Declaration(String name, FileObject fileObject, int line, int column) {
+            this.name = name;
+            this.fileObject = fileObject;
+            this.line = line;
+            this.column = column;
+        }
+        public String getName() {
+            return name;
+        }
+        public FileObject getFileObject() {
+            return fileObject;
+        }
+        public int getLine() {
+            return line;
+        }
+        public int getColumn() {
+            return column;
         }
     }
 }

@@ -126,7 +126,9 @@ public class JavaFXEditorKit extends NbEditorKit{
             new ToggleFXSyntaxErrorDetection(),
             new JavaDefaultKeyTypedAction(),
             new JavaDeleteCharAction(deletePrevCharAction, false),
-            new JavaInsertBreakAction()
+            new JavaInsertBreakAction(),
+            new JavaFXGoToDeclarationAction()
+
         };
         return TextAction.augmentList(superActions, javafxActions);
     }
