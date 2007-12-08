@@ -65,7 +65,7 @@ import org.openide.awt.HtmlBrowser.URLDisplayer;
 public class AddServerLocationVisualPanel extends javax.swing.JPanel implements Retriever.Updater {
     
     private static final String V3_DOWNLOAD_URL = 
-            "http://java.net/download/javaee5/v3/releases/preview/glassfish-snapshot-v3-preview1-b2.zip";
+            "http://java.net/download/javaee5/v3/releases/preview/glassfish-snapshot-v3-preview1.zip";
 //    private static final String JRUBY_DOWNLOAD_URL = 
 //            "http://dist.codehaus.org/jruby/jruby-bin-1.0.0RC3.zip";
     
