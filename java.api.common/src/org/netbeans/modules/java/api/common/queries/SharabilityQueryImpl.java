@@ -46,6 +46,7 @@ import java.io.File;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import org.openide.util.Mutex;
 import org.netbeans.api.project.ProjectManager;
@@ -79,9 +80,9 @@ class SharabilityQueryImpl implements SharabilityQueryImplementation, PropertyCh
         this.srcRoots = srcRoots;
         this.testRoots = testRoots;
         if (additionalSourceRoots != null) {
-            this.additionalSourceRoots = new ArrayList<String>(additionalSourceRoots);
+            this.additionalSourceRoots = Collections.unmodifiableList(additionalSourceRoots);
         } else {
-            this.additionalSourceRoots = additionalSourceRoots;
+            this.additionalSourceRoots = Collections.<String>emptyList();
         }
         this.srcRoots.addPropertyChangeListener(this);
         this.testRoots.addPropertyChangeListener(this);
@@ -115,7 +116,7 @@ class SharabilityQueryImpl implements SharabilityQueryImplementation, PropertyCh
 
         int size = srcProps.length;
         size += testProps.length;
-        size += getAdditionalSourceRootsSize();
+        size += additionalSourceRoots.size();
         List<String> props = new ArrayList<String>(size);
 
         for (String src : srcProps) {
@@ -124,22 +125,8 @@ class SharabilityQueryImpl implements SharabilityQueryImplementation, PropertyCh
         for (String test : testProps) {
             props.add("${" + test + "}"); // NOI18N
         }
-        addAdditionalSourceRoots(props);
+        props.addAll(additionalSourceRoots);
 
         return helper.createSharabilityQuery(evaluator, props.toArray(new String[props.size()]), buildDirectories);
-    }
-
-    private int getAdditionalSourceRootsSize() {
-        if (additionalSourceRoots == null) {
-            return 0;
-        }
-        return additionalSourceRoots.size();
-    }
-
-    private void addAdditionalSourceRoots(final List<String> props) {
-        if (additionalSourceRoots == null) {
-            return;
-        }
-        props.addAll(additionalSourceRoots);
     }
 }
