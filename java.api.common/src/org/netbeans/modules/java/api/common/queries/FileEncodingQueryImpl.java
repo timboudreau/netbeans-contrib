@@ -72,7 +72,7 @@ class FileEncodingQueryImpl extends FileEncodingQueryImplementation implements P
     }
     
     public Charset getEncoding(FileObject file) {
-        Parameters.notNull("file", file);
+        Parameters.notNull("file", file); // NOI18N
         
         synchronized (this) {
             if (cache != null) {

@@ -61,7 +61,7 @@ public final class SourceLevelQuerySupport {
      * @return a {@link SourceLevelQueryImplementation} to find out specification source level of Java source files.
      */
     public static SourceLevelQueryImplementation create(PropertyEvaluator evaluator) {
-        Parameters.notNull("evaluator", evaluator);
+        Parameters.notNull("evaluator", evaluator); // NOI18N
         
         return new SourceLevelQueryImpl(evaluator);
     }

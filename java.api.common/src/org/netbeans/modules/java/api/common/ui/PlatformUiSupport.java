@@ -280,9 +280,9 @@ public final class PlatformUiSupport {
      */
     public static ComboBoxModel createSourceLevelComboBoxModel(ComboBoxModel platformComboBoxModel,
             String initialSourceLevel, String initialTargetLevel, JDK minimalJDKVersion) {
-        Parameters.notNull("platformComboBoxModel", platformComboBoxModel);
-        Parameters.notNull("initialSourceLevel", initialSourceLevel);
-        Parameters.notNull("initialTargetLevel", initialTargetLevel);
+        Parameters.notNull("platformComboBoxModel", platformComboBoxModel); // NOI18N
+        Parameters.notNull("initialSourceLevel", initialSourceLevel); // NOI18N
+        Parameters.notNull("initialTargetLevel", initialTargetLevel); // NOI18N
 
         return new SourceLevelComboBoxModel(platformComboBoxModel, initialSourceLevel, initialTargetLevel,
                 minimalJDKVersion);
@@ -299,9 +299,9 @@ public final class PlatformUiSupport {
      */
     public static ComboBoxModel createSourceLevelComboBoxModel(ComboBoxModel platformComboBoxModel,
             String initialSourceLevel, String initialTargetLevel) {
-        Parameters.notNull("platformComboBoxModel", platformComboBoxModel);
-        Parameters.notNull("initialSourceLevel", initialSourceLevel);
-        Parameters.notNull("initialTargetLevel", initialTargetLevel);
+        Parameters.notNull("platformComboBoxModel", platformComboBoxModel); // NOI18N
+        Parameters.notNull("initialSourceLevel", initialSourceLevel); // NOI18N
+        Parameters.notNull("initialTargetLevel", initialTargetLevel); // NOI18N
 
         return new SourceLevelComboBoxModel(platformComboBoxModel, initialSourceLevel, initialTargetLevel, null);
     }

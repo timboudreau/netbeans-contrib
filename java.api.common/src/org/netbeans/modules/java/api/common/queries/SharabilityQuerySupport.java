@@ -70,10 +70,10 @@ public final class SharabilityQuerySupport {
      */
     public static SharabilityQueryImplementation create(AntProjectHelper helper, PropertyEvaluator evaluator,
             SourceRoots srcRoots, SourceRoots testRoots, final List<String> additionalSourceRoots) {
-        Parameters.notNull("helper", helper);
-        Parameters.notNull("evaluator", evaluator);
-        Parameters.notNull("srcRoots", srcRoots);
-        Parameters.notNull("testRoots", testRoots);
+        Parameters.notNull("helper", helper); // NOI18N
+        Parameters.notNull("evaluator", evaluator); // NOI18N
+        Parameters.notNull("srcRoots", srcRoots); // NOI18N
+        Parameters.notNull("testRoots", testRoots); // NOI18N
 
         return new SharabilityQueryImpl(helper, evaluator, srcRoots, testRoots, additionalSourceRoots);
     }

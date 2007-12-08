@@ -63,8 +63,8 @@ public final class JavadocForBinaryQuerySupport {
      * @return a {@link JavadocForBinaryQueryImplementation} to find Javadoc.
      */
     public static JavadocForBinaryQueryImplementation create(AntProjectHelper helper, PropertyEvaluator evaluator) {
-        Parameters.notNull("helper", helper);
-        Parameters.notNull("evaluator", evaluator);
+        Parameters.notNull("helper", helper); // NOI18N
+        Parameters.notNull("evaluator", evaluator); // NOI18N
         
         return new JavadocForBinaryQueryImpl(helper, evaluator);
     }

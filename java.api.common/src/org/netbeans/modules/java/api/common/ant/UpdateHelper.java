@@ -70,8 +70,8 @@ public final class UpdateHelper {
      * @param helper {@link AntProjectHelper} to be proxied.
      */
     public UpdateHelper(UpdateImplementation updateProject, AntProjectHelper helper) {
-        Parameters.notNull("updateProject", updateProject);
-        Parameters.notNull("helper", helper);
+        Parameters.notNull("updateProject", updateProject); // NOI18N
+        Parameters.notNull("helper", helper); // NOI18N
 
         this.updateProject = updateProject;
         this.helper = helper;

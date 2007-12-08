@@ -63,9 +63,8 @@ public final class FileEncodingQuerySupport {
      * @return a {@link FileEncodingQueryImplementation} to provide information about encoding of a file.
      */
     public static FileEncodingQueryImplementation create(PropertyEvaluator eval, String sourceEncodingPropertyName) {
-        Parameters.notNull("eval", eval);
-        // XXX or just notNull() ?
-        Parameters.notWhitespace("sourceEncodingPropertyName", sourceEncodingPropertyName);
+        Parameters.notNull("eval", eval); // NOI18N
+        Parameters.notNull("sourceEncodingPropertyName", sourceEncodingPropertyName); // NOI18N
         
         return new FileEncodingQueryImpl(eval, sourceEncodingPropertyName);
     }

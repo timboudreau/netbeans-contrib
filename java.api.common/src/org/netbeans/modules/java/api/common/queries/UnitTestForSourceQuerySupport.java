@@ -64,8 +64,8 @@ public final class UnitTestForSourceQuerySupport {
      */
     public static MultipleRootsUnitTestForSourceQueryImplementation create(SourceRoots sourceRoots,
             SourceRoots testRoots) {
-        Parameters.notNull("sourceRoots", sourceRoots);
-        Parameters.notNull("testRoots", testRoots);
+        Parameters.notNull("sourceRoots", sourceRoots); // NOI18N
+        Parameters.notNull("testRoots", testRoots); // NOI18N
 
         return new UnitTestForSourceQueryImpl(sourceRoots, testRoots);
     }
