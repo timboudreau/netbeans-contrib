@@ -1,0 +1,840 @@
+# DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
+#
+# Copyright 1997-2007 Sun Microsystems, Inc. All rights reserved.
+#
+# The contents of this file are subject to the terms of either the GNU
+# General Public License Version 2 only ("GPL") or the Common
+# Development and Distribution License("CDDL") (collectively, the
+# "License"). You may not use this file except in compliance with the
+# License. You can obtain a copy of the License at
+# http://www.netbeans.org/cddl-gplv2.html
+# or nbbuild/licenses/CDDL-GPL-2-CP. See the License for the
+# specific language governing permissions and limitations under the
+# License.  When distributing the software, include this License Header
+# Notice in each file and include the License file at
+# nbbuild/licenses/CDDL-GPL-2-CP.  Sun designates this
+# particular file as subject to the "Classpath" exception as provided
+# by Sun in the GPL Version 2 section of the License file that
+# accompanied this code. If applicable, add the following below the
+# License Header, with the fields enclosed by brackets [] replaced by
+# your own identifying information:
+# "Portions Copyrighted [year] [name of copyright owner]"
+#
+# Contributor(s):
+#
+# The Original Software is NetBeans. The Initial Developer of the Original
+# Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
+# Microsystems, Inc. All Rights Reserved.
+#
+# If you wish your version of this file to be governed by only the CDDL
+# or only the GPL Version 2, indicate your decision by adding
+# "[Contributor] elects to include this software in this distribution
+# under the [CDDL or GPL Version 2] license." If you do not indicate a
+# single choice of license, a recipient has the option to distribute
+# your version of this file under either the CDDL, the GPL Version 2 or
+# to extend the choice of license to its licensees as provided above.
+# However, if you add GPL Version 2 code and therefore, elected the GPL
+# Version 2 license, then the option applies only if the new code is
+# made subject to such option by the copyright holder.
+
+# Scala.nbs
+# @author Caoyuan Deng
+
+#upper = ‘A’ | . . . | ‘Z’ | ‘$’ | ‘_’ and Unicode Lu
+#lower = ‘a’ | . . . | ‘z’ and Unicode Ll
+#letter = upper | lower and Unicode categories Lo, Lt, Nl
+#digit = ‘0’ | . . . | ‘9’
+#opchar = “all other characters in\u0020-007F and Unicode categories
+#Sm, So except parentheses ([]) and periods”
+
+TOKEN:element_start: (
+    "<"  ["a"-"z" "A"-"Z" "!" "?"]["a"-"z" "A"-"Z" "0"-"9" "-" "_" ":"]*
+)
+TOKEN:end_element: (
+    "</" ["a"-"z" "A"-"Z" "!" "?"]["a"-"z" "A"-"Z" "0"-"9" "-" "_" ":"]* ">"
+)
+TOKEN:pi: (
+    "<?" - "?>"
+)
+TOKEN:xml_comment: ("<!--" - "-->")
+<DEFAULT>:TOKEN:cdsect_start: ("<![CDATA["):<IN_CDSEC>
+<IN_CDSEC> {
+    TOKEN:cddata: ([^"]"]+)
+    TOKEN:cddata: ("]" [^">"])
+    TOKEN:cdsect_end: ("]>"):<DEFAULT>
+}
+
+#TOKEN:xml: (
+#    "<"  ["a"-"z" "A"-"Z"]["a"-"z" "A"-"Z" "0"-"9" "-" "_" ":"]* [^">"]* "/>" |
+#    "<"  ["a"-"z" "A"-"Z"]["a"-"z" "A"-"Z" "0"-"9" "-" "_" ":"]* [^">"]* ">" 
+#    [^">"]* 
+#    "<"  ["a"-"z" "A"-"Z"]["a"-"z" "A"-"Z" "0"-"9" "-" "_" ":"]* [^">"]* "/>"
+#)
+
+
+
+<DEFAULT>:TOKEN:comment: ("/*"):<IN_COMMENT>
+<IN_COMMENT> {
+    TOKEN:comment_keyword: (
+        "@author" |
+        "@deprecated" |
+        "@exception" |
+        "@param" |
+        "@pre" |
+        "@return" |
+        "@see" |
+        "@since" |
+        "@throws" |
+        "@todo" |
+        "@version"
+    )
+    TOKEN:comment: ("@")
+    TOKEN:comment: ([^"@" "*"]+)
+    TOKEN:comment: ("*" [^"/"])
+    TOKEN:comment: ("*/"):<DEFAULT>
+}
+
+TOKEN:line_comment: ("//" [^"\n" "\r"]*)
+
+
+###### keywords
+## abstract case catch class def
+## do else extends false final
+## finally for forSome if implicit
+## import match new null object
+## override package private protected requires
+## return sealed super this throw
+## trait try true type val
+## var while with yield
+## _ : = => <- <: <% >: # @
+TOKEN:keyword: ( 
+    "abstract" |
+    "case" |
+    "class" |
+    "def" |
+    "do" |
+    "false" |
+    "final" |
+    "for" |
+    "if" |
+    "implicit" |
+    "import" |
+    "lazy" |
+    "new" |
+    "null" |
+    "object" |
+    "override" |
+    "package" |
+    "private" |
+    "protected" |
+    "return" |
+    "sealed" |
+    "super" |
+    "synchronized" |
+    "this" |
+    "throw" |
+    "trait" |
+    "try" |
+    "true" |
+    "type" |
+    "val" |
+    "var" |
+    "while" |
+    "_" | ":" | "<:" | "<%" | ">:" | "#" | "@"
+)
+
+## The tokens that can terminate a statement are: literals, identifiers and the following
+## delimiters and reserved words:
+##     this null true false return type <xmlstart>
+##     _ ) ] }
+## A case token can begin a statement only
+## That means: all keyword and delimiters except above should eat all followed [" " "\t" "\n" "\r"]*
+## they are: 
+## catch else extends finally forSome, match, requires, with, yield
+
+
+## keywords II
+## The tokens that can begin a statement are all Scala tokens except the following delimiters
+## and reserved words: (<nl> before them should be eaten)
+##     catch else extends finally forSome match requires with yield
+##     , . ; : _ = => <- <: <% >: # [ ) ] }
+## Notice: _ : = => <- <: <% >: # is also keyword
+## That means: all keyword and delimiters above should eat all preceded [" " "\t" "\n" "\r"]*
+TOKEN:catch: (
+    [" " "\t" "\n" "\r"]* "catch"
+)
+TOKEN:else: (
+    [" " "\t" "\n" "\r"]* "else"
+)
+TOKEN:extends: (
+    [" " "\t" "\n" "\r"]* "extends"
+)
+TOKEN:finally: (
+    [" " "\t" "\n" "\r"]* "finally"
+)
+TOKEN:forSome: (
+    [" " "\t" "\n" "\r"]* "forSome"
+)
+TOKEN:match: (
+    [" " "\t" "\n" "\r"]* "match"
+)
+TOKEN:requires: (
+    [" " "\t" "\n" "\r"]* "requires"
+)
+TOKEN:with: (
+    [" " "\t" "\n" "\r"]* "with"
+)
+TOKEN:yield: (
+    [" " "\t" "\n" "\r"]* "yield" [" " "\t" "\n" "\r"]*
+)
+TOKEN:eq: (
+    "=" [" " "\t" "\n" "\r"]*
+)
+TOKEN:rarrow: (
+    [" " "\t" "\n" "\r"]* "=>" [" " "\t" "\n" "\r"]* 
+)
+TOKEN:larrow: (
+    [" " "\t" "\n" "\r"]* "<-" [" " "\t" "\n" "\r"]* 
+)
+
+## Operators
+TOKEN:operator: (
+    ["!" "%" "&" "+" "-" "<" "?" "@" "\\" "^" "`" "|" "~" "*" ]
+    ["!" "%" "&" "+" "-" "<" "=" ">" "?" "@" "\\" "^" "`" "|" "~" "#" ":" "/" "*"]* 
+    |
+    ["#" ":" "@"]
+    ["!" "%" "&" "+" "-" "<" "=" ">" "?" "@" "\\" "^" "`" "|" "~" "#" ":" "/" "*"]+ 
+    |
+    ["="]
+    ["!" "%" "&" "+" "-" "<" "=" "?" "@" "\\" "^" "`" "|" "~" "#" ":" "/" "*"]+ 
+    ["!" "%" "&" "+" "-" "<" "=" ">" "?" "@" "\\" "^" "`" "|" "~" "#" ":" "/" "*"]*
+    |
+    ["/"]
+    ["!" "%" "&" "+" "-" "<" "=" "?" "@" "\\" "^" "`" "|" "~" "#" ":" "/"]*
+)
+## Hacking for xml
+TOKEN:rangle: (
+    ">" ["!" "%" "&" "+" "-" "=" ">" "?" "@" "\\" "^" "`" "|" "~" "#" ":" "/" "*"]*
+)
+TOKEN:slashrangle: (
+    "/>" ["!" "%" "&" "+" "-" "<" "=" ">" "?" "@" "\\" "^" "`" "|" "~" "#" ":" "/" "*"]*
+)
+
+## separators
+TOKEN:separator: (
+    "[" | "]" | "(" | ")" | "," | ";"
+)
+TOKEN:dot: (
+    [" " "\t" "\n" "\r"]* "." [" " "\t" "\n" "\r"]*
+)
+TOKEN:lcurl: (
+    "{"
+)
+TOKEN:rcurl: (
+    "}"
+)
+
+
+### identifier
+# upper = ‘A’ | . . . | ‘Z’ | ‘$’ | ‘_’ and Unicode Lu
+# lower = ‘a’ | . . . | ‘z’ and Unicode Ll
+# letter = upper | lower and Unicode categories Lo, Lt, Nl
+# digit = ‘0’ | . . . | ‘9’
+# opchar = “all other characters in\u0020-007F and Unicode categories Sm, So 
+#          except parentheses ([]) and periods”
+#   [^ "\u0000"-"\u001F" "[" "]" "(" ")" "."]
+# op = opchar {opchar}
+# idrest = {letter | digit} [‘_’ op]
+#   (["a"-"z" "A"-"Z" "$" "_" "0"-"9"])* ("_" ([^ " " "\t" "\n" "\r" "[" "]" "(" ")" "." ";"])+)?
+# varid: lower idrest
+TOKEN:varid: ( 
+    ["a"-"z"] 
+    (["a"-"z" "A"-"Z" "$" "_" "0"-"9"])* ("_" ([^" " "\t" "\n" "\r" "[" "]" "(" ")" "." ";" "="])+)?
+)
+# varid: upper idrest
+TOKEN:upperid: (
+    ["_"]
+    (["a"-"z" "A"-"Z" "$" "_" "0"-"9"])+ ("_" ([^" " "\t" "\n" "\r" "[" "]" "(" ")" "." ";" "="])+)? 
+    |
+    ["A"-"Z" "$"] 
+    (["a"-"z" "A"-"Z" "$" "_" "0"-"9"])* ("_" ([^" " "\t" "\n" "\r" "[" "]" "(" ")" "." ";" "="])+)?
+)
+
+TOKEN:stringid: (
+    "\'" ( 
+        [^ "\\" "\"" "\n" "\r"] |
+        ("\\" (
+            . |
+            (["0"-"7"] ["0"-"7"] ["0"-"7"]) |
+            ("x" ["0"-"9" "a"-"f" "A"-"F"] ["0"-"9" "a"-"f" "A"-"F"]) |
+            ("u" ["0"-"9" "a"-"f" "A"-"F"] ["0"-"9" "a"-"f" "A"-"F"] ["0"-"9" "a"-"f" "A"-"F"] ["0"-"9" "a"-"f" "A"-"F"])
+        ))
+    )*
+    "\'"
+)
+
+
+### Literal
+TOKEN:string: (
+    "\"" ( 
+        [^ "\\" "\"" "\n" "\r"] |
+        ("\\" (
+            . |
+            (["0"-"7"] ["0"-"7"] ["0"-"7"]) |
+            ("x" ["0"-"9" "a"-"f" "A"-"F"] ["0"-"9" "a"-"f" "A"-"F"]) |
+            ("u" ["0"-"9" "a"-"f" "A"-"F"] ["0"-"9" "a"-"f" "A"-"F"] ["0"-"9" "a"-"f" "A"-"F"] ["0"-"9" "a"-"f" "A"-"F"])
+        ))
+    )* 
+    "\""
+)
+TOKEN:string: (
+    "\"\"\"" ( 
+        [^ "\\" "\"" "\n" "\r"] |
+        ("\\" (
+            . |
+            (["0"-"7"] ["0"-"7"] ["0"-"7"]) |
+            ("x" ["0"-"9" "a"-"f" "A"-"F"] ["0"-"9" "a"-"f" "A"-"F"]) |
+            ("u" ["0"-"9" "a"-"f" "A"-"F"] ["0"-"9" "a"-"f" "A"-"F"] ["0"-"9" "a"-"f" "A"-"F"] ["0"-"9" "a"-"f" "A"-"F"])
+        ))
+    )* 
+    "\"\"\""
+)
+
+TOKEN:char: (
+    "\'" ( 
+        [^ "\\" "\'" "\n" "\r"] |
+        ("\\" (
+            . |
+            (["0"-"7"] ["0"-"7"] ["0"-"7"]) |
+            ("x" ["0"-"9" "a"-"f" "A"-"F"] ["0"-"9" "a"-"f" "A"-"F"]) |
+            ("u" ["0"-"9" "a"-"f" "A"-"F"] ["0"-"9" "a"-"f" "A"-"F"] ["0"-"9" "a"-"f" "A"-"F"] ["0"-"9" "a"-"f" "A"-"F"])
+        ))
+    ) 
+    "\'"
+)
+
+TOKEN:symbal: (
+    "\'" (["a"-"z" "A"-"Z" "$" "_" "0"-"9"])* ("_" ([^" " "\t" "\n" "\r" "[" "]" "(" ")" "." ";" "="])+)?
+)
+
+TOKEN:integer: (
+    ["0"-"9"] ['l' 'L']? |
+    ["1"-"9"] ["0"-"9"]* ['l' 'L']? |
+    "0" ["0"-"7"]+ ['l' 'L']? |
+    "0" ["x" "X"] ["0"-"9" "a"-"f" "A"-"F"]+ ['l' 'L']? 
+)
+
+TOKEN:float: (
+    ["0"-"9"]+ "." ["0"-"9"]* (["e" "E"] ["+" "-"]? ["0"-"9"]+)? ["f" "F" "d" "D"]? |
+    "." ["0"-"9"]+ (["e" "E"] ["+" "-"]? ["0"-"9"]+)? ["f" "F" "d" "D"]? |
+    ["0"-"9"]+ ["e" "E"] ["+" "-"]? ["0"-"9"]+ ["f" "F" "d" "D"]? |
+    ["0"-"9"]+ (["e" "E"] ["+" "-"]? ["0"-"9"]+)? ["f" "F" "d" "D"]
+)
+
+
+TOKEN:nl: (
+    ["\n" "\r"]+
+)
+
+TOKEN:whitespace:( 
+    [" " "\t"]+ 
+)
+
+
+########## grammar #############################################################
+
+SKIP:whitespace
+SKIP:comment
+SKIP:line_comment
+SKIP:xml_comment
+SKIP:comment_keyword
+
+S = CompilationUnit;
+
+OpId = <operator>
+     | <rangle>
+     | <slashrangle>;
+
+PlainId = <upperid>
+        | <varid>
+        | OpId;
+
+Id = PlainId
+   | <stringid>;
+
+# all (<nl>)* behind ";" should also be eaten
+Semi = ";" (<nl>)*
+     | (<nl>)+ [";" (<nl>)*];
+
+Literal = <integer>
+        | <float>
+        | <char>
+        | <string>
+        | <symbal>
+        | "true" 
+        | "false"
+        | "null";
+
+QualId = Id (<dot> Id)*;
+
+Ids = Id ("," Id)*;
+
+## Hacking for: Path = StableId ["." "this"], since Path is also belongs to SimpleType etc
+StableId = PathId (<dot> PathId)*;
+PathId = Id
+       | "this"
+       | "super" [ClassQualifier] <dot> Id;
+ClassQualifier = "[" Id "]";
+
+## Hacking for: SimpleType = StableId ["." "type"] (TypeArgs | "#" Id)*
+##  "." "type" should only be in SimpleType, but since StableId may also belongs to SimpleType,
+##  we cannot add any more "." "anything" behind StableId
+TypeStableId = TypeId (<dot> TypeId)*;
+TypeId = PathId
+       | "_" "*"
+       | "type";
+
+Types = Type ("," Type)*;
+Type = InfixType [<rarrow> Type | ExistentialClause]
+     | "(" [<rarrow> Type | (<nl>)] ")" <rarrow> Type;
+
+ExistentialClause = <forSome> <lcurl> (<nl>)* ExistentialDcl (Semi ExistentialDcl)* <rcurl>;
+ExistentialDcl = "type" Id [TypeParamClause] [">:" Type] ["<:" Type]
+               | "val" Ids ":" Type;
+
+InfixType = CompoundType (Id [<nl>] CompoundType)*;
+CompoundType = AnnotType ("with" AnnotType)* [Refinement]
+             | Refinement;
+AnnotType = (Annotation)* SimpleType ["*"];
+
+SimpleType = TypeStableId (TypeArgs | "#" Id)*
+           | "(" Types [","] ")" (TypeArgs | "#" Id)*;
+TypeArgs = "[" Types "]";
+
+Refinement = <lcurl> (<nl>)* [RefineStat (Semi RefineStat)*] <rcurl>;
+RefineStat = DclDef;
+
+Ascription = ":" (CompoundType | (Annotation)+ | "_" "*");
+
+Expr = "if" "(" Expr ")" (<nl>)* Expr [<else> (<nl>)* Expr]
+     | "while" "(" Expr ")" (<nl>)* Expr
+     | "try" <lcurl> (<nl>)* BlockStats <rcurl> [<catch> (<nl>)* <lcurl> (<nl>)* CaseClauses <rcurl>] [<finally> Expr]
+     | "do" Expr [Semi] "while" "(" Expr ")"
+     | "for" ("(" Enumerators ")" | <lcurl> (<nl>)* Enumerators <rcurl>) (<nl>)* [<yield>] Expr
+     | "throw" Expr
+     | "return" [Expr]
+     | PostfixExpr [Ascription | <match> (<nl>)* <lcurl> (<nl>)* CaseClauses <rcurl> | <eq> Expr | <rarrow> Expr];
+
+Bindings = "(" Binding ("," Binding)* ")";
+Binding = Id ":" Type;
+
+## Hacking for: Expr = (Bindings | id) ‘=>’ Expr | Expr1
+##     Bindings = "(" Binding ("," Binding)* ")";
+##     Binding = Id [":" Type];
+## Since 
+##     CaseClause = "case" Pattern [Guard] "=>" CaseBlockStats; 
+## where 
+##     Guard = "if" PostfixExpr; 
+## Thus we cannot add another ("=>" Expr) after an expr which level is lower than 
+## or same with PostfixExpr
+## Haking for:
+##     PostfixExpr = InfixExpr [Id [<nl>]];
+##     InfixExpr = PrefixExpr  (Id [<nl>] InfixExpr)*;
+PostfixExpr = PrefixExpr (Id [<nl>] [PrefixExpr])*;
+PrefixExpr = [PrefixOp] SimpleExpr;
+PrefixOp = "-" 
+         | "+" 
+         | "~" 
+         | "!";
+
+SimpleExpr = SimpleExpr1 (<dot> SimpleExpr1 | SimpleExpr2)*
+           | SimpleExpr2 (<dot> SimpleExpr1 | SimpleExpr2)* # or (SimpleExpr2)+ (<dot> SimpleExpr1 [SimpleExpr2])*
+           | NewExpr     (<dot> SimpleExpr1 | SimpleExpr2)*
+           | XmlExpr;
+SimpleExpr1 = PathId ((TypeArgs)* | ":" InfixType)
+            | Literal (TypeArgs)*;
+#SimpleExpr1 = PathId (TypeArgs)*;
+SimpleExpr2 = "_" (TypeArgs)*
+            | Prths (TypeArgs)*
+            | Block (TypeArgs)*;
+
+## Hacking for: "new" ([EarlyDef] ClassParents [TemplateBody] | TemplateBody)
+## Since EalyBody and TemplateBody all start with "{" and TemplateBody is super set of EarlyBody,
+## So, we have to use TemplateBody instead of EarlyBody
+##    NewExpr = "new" [Block] AnnotType ClassTemplateBody [<dot> Id];
+##    ClassTemplateBody = (PrthsOrBlock ("with" AnnotType)* (TypeArgs)*)*;
+##    ClassParents = AnnotType (Arguments)* ("with" AnnotType)*;
+## A possible expr: NewExpr = "new" [Block] ClassParents (PrthsOrBlock (TypeArgs)*)* [<dot> Id];
+NewExpr = "new" (ClassParents [TemplateBody] | TemplateBody [ClassParents [TemplateBody]]) (TypeArgs)*;
+
+Arguments = Prths
+          | Block;
+
+## Hacking for Prths = "(" [Expr ("," Expr)* [","]] ")";
+Prths = "(" (<nl>)* PrthsExpr ("," (<nl>)* PrthsExpr)* (<nl>)* ")";
+PrthsExpr = Expr
+          | ;
+
+Block = <lcurl> (<nl>)* (BlockStats | CaseClauses) <rcurl>;
+TemplateBody = <lcurl> (<nl>)* TemplateStats <rcurl> [<with>];
+
+####### Blocked Statements: #############
+TemplateStats = TemplateStat (Semi TemplateStat)*;
+TemplateStat = Import
+             | (Annotation)* (Modifier)* DclDef
+             | Expr
+             | ;
+
+BlockStats = BlockStat (Semi BlockStat)*;
+BlockStat = Import
+          | ["implicit"] DclDef
+          | (LocalModifier)+ TmplDef
+          | Expr
+          | ;
+
+## Hacking for CaseClause BlockStats, where another "case" starting TmplDef maybe 
+## recognized as a CaseClause in LL(k)
+CaseBlockStats = CaseBlockStat (Semi CaseBlockStat)*;
+CaseBlockStat = Import
+              | ["implicit"] (ValDclDef | VarDclDef | FunDclDef | TypeDclDef)
+              | (LocalModifier)+ TmplDef
+              | Expr
+              | ;
+
+CaseClauses = (CaseClause)+;
+CaseClause = "case" CasePattern [Guard] <rarrow> CaseBlockStats;
+Guard = "if" PostfixExpr;
+
+## Hacking for :
+##     Enumerator = Generator
+##                | Guard
+##                | "val" Pattern1 "=" Expr;
+Enumerators = Generator (Semi Generator)*;
+Generator = ["val"] Pattern1 (<larrow> Expr [[<nl>] Guard] | <eq> Expr)
+          | ;
+
+
+XmlExpr = (Element)+
+        | CDSect (Element)*
+        | <pi> (Element)*;
+XmlContent = Element
+           | CDSect
+           | <pi>;
+Element = <element_start> (Attribute)* (<slashrangle> | <rangle> (Content)* <end_element>);
+CDSect = <cdsect_start> <cddata> <cdsect_end>;
+Content = CharData
+        | XmlContent
+        | ScalaExpr;
+CharData = Literal
+         | <keyword>
+         | <varid>
+         | <upperid>
+         | <operator>
+         | <separator>
+         | <dot>
+         | <nl>;
+Attribute = Name <eq> AttValue;
+AttValue = <string> # "\"" {CharQ | CharRef} "\""
+         | <stringid> # "’" {CharA | CharRef} "’"
+         | ScalaExpr
+         | <nl>;
+Name = <varid>
+     | <upperid>
+     | <keyword>;
+ScalaExpr = <lcurl> (<nl>)* BlockStats <rcurl>;
+
+Patterns = Pattern ("," Pattern)*
+         | "_" "*"
+         | ;
+Pattern = Pattern1 ("|" Pattern1)*;
+Pattern1 = SimplePattern (Id [<nl>] SimplePattern)*;
+
+## Hacking: used only by PatDef
+Pattern2 = "_"
+         | Literal
+         | StableId ["@" Type] ["(" Patterns ["_" "*"] ")"]
+         | "(" Patterns ")"
+         | XmlPattern;
+
+SimplePattern = "_"
+              | Literal
+              | StableId [(":" | "@") Type] ["(" Patterns ["_" "*"] ")"]
+              | "(" Patterns ")"
+              | XmlPattern;
+
+CasePattern = CasePattern1 ("|" CasePattern1)*;
+CasePattern1 = CasePattern0 (Id [<nl>] CasePattern0)*;
+CasePattern0 = "_"
+             | Literal
+             | StableId [(":" | "@") InfixType] ["(" Patterns ["_" "*"] ")"]
+             | "(" Patterns ")"
+             | XmlPattern;
+
+XmlPattern = ElemPattern;
+ElemPattern = <element_start> (<slashrangle> | <rangle> (ContentP)* <end_element>);
+ContentP = ElemPattern
+         | CDSect
+         | <pi>
+         | CharData
+         | ScalaPatterns;
+ScalaPatterns = <lcurl> (<nl>)* patterns <rcurl>;
+
+
+TypeParamClause = "[" VariantTypeParam ("," VariantTypeParam)* "]";
+VariantTypeParam = ["+" | "-"] TypeParam;
+
+FunTypeParamClause = "[" TypeParam ("," TypeParam)* "]";
+TypeParam = Id [">:" Type] ["<:" Type] ["<%" Type];
+
+Modifier = LocalModifier
+         | AccessModifier
+         | "override";
+
+LocalModifier = "abstract"
+              | "final"
+              | "sealed"
+              | "implicit"
+              | "lazy";
+
+AccessModifier = ("private" | "protected") [AccessQualifier];
+AccessQualifier = "[" (Id | "this") "]";
+
+Annotation = "@" AnnotationExpr;
+AnnotationExpr = AnnotType Arguments [<lcurl> (<nl>)* (NameValuePair)* <rcurl>];
+NameValuePair = "val" Id <eq> PrefixExpr;
+
+Import = "import" ImportExpr ("," ImportExpr)*;
+## Hacking for: ImportExpr = StableId "." (Id | "_" | ImportSelectors);
+ImportExpr = ImportId;
+ImportSelectors = <lcurl> (<nl>)* ImportSelector ("," ImportSelector)* <rcurl>;
+ImportSelector = (Id [<rarrow> (Id | "_")] | "_");
+
+ImportId = ImportId0 (<dot> ImportId0)*;
+ImportId0 = Id
+          | "super" [ClassQualifier] <dot> Id
+          | "_"
+          | ImportSelectors;
+
+## Hacking for TemplateStat: Dcl and Def all belong to TemplateStat
+DclDef = ValDclDef
+       | VarDclDef
+       | FunDclDef
+       | TypeDclDef
+       | TmplDef;
+ValDclDef = "val" PatDef [":" Type] [<eq> Expr];
+VarDclDef = "var" PatDef [":" Type] [<eq> Expr];
+FunDclDef = "def" Id [FunTypeParamClause] [ParamClauses] ([":" Type] [<eq> ["synchronized"] Expr] | <lcurl> [BlockStats] <rcurl>)
+          | "this" [ParamClauses] (<eq> ConstrExpr | ConstrBlock);
+TypeDclDef = "type" Id [TypeParamClause] ([">:" Type] ["<:" Type] ["<%" Type] | <eq> Type);
+
+PatDef = Pattern2 ("," Pattern2)*;
+
+ParamClauses = (ParamClause)+;
+ParamClause = "(" [["implicit"] Params] ")";
+Params = Param ("," Param)*;
+Param = (Annotation)* Id [":" ParamType];
+ParamType = Type ["*"]
+          | <rarrow> Type;
+
+ConstrExpr = SelfInvocation
+           | ConstrBlock;
+SelfInvocation = "this" (Arguments)+;
+ConstrBlock = <lcurl> (<nl>)* SelfInvocation (Semi BlockStat)* <rcurl>;
+
+TmplDef = ClassDef
+        | ObjectDef
+        | TraitDef;
+ClassDef  = ["case"] "class" Id [TypeParamClause] (Annotation)* [AccessModifier] ClassParamClauses            
+            [<requires> AnnotType] [ClassTemplateOpt];
+ObjectDef = ["case"] "object" Id [ClassTemplateOpt];
+TraitDef  = "trait" Id [TypeParamClause] [<requires> AnnotType] [TraitTemplateOpt];
+
+ClassParamClauses = ("(" (<nl>)* [ClassParams] (<nl>)* ")")* ["(" (<nl>)* "implicit" ClassParams (<nl>)* ")"];
+ClassParams = ClassParam ("," (<nl>)* ClassParam)*;
+ClassParam = (Annotation)* [(Modifier)* ("val" | "var")] Id [":" ParamType];
+
+ClassTemplateOpt = <extends> (ClassParents [TemplateBody] | TemplateBody [ClassParents [TemplateBody]])
+                 | TemplateBody;
+TraitTemplateOpt = <extends> (TraitParents [TemplateBody] | TemplateBody [TraitParents [TemplateBody]])
+                 | TemplateBody;
+
+ClassParents = AnnotType (Prths)* (<with> AnnotType)*;
+TraitParents = AnnotType (<with> AnnotType)*;
+
+## Hacking for: [<nl>] TemplateBody
+## Since Semi (which is ";" | <nl>) is separator between TopStat, we can not add [<nl>] TemplateBody at
+## the end of ClassDef etc, instead, we have to let TemplateBody also be a TopStats
+TopStats = TopStat (Semi TopStat)*;
+#TopStat =  Expr | Packaging | Import;
+TopStat = (Annotation)* (Modifier)* TmplDef
+        | Import
+        | Packaging
+        | TemplateBody
+        | ;
+
+Packaging = "package" QualId <lcurl> (<nl>)* TopStats <rcurl>;
+CompilationUnit = (<nl>)* ["package" QualId Semi] TopStats;
+
+
+########### CODE FOLDING #######################################################
+FOLD:ClassDef:{
+    fold_display_name: "Class: $Id$";
+}
+
+FOLD:TraitDef:{
+    fold_display_name: "Trait: $Id$";
+}
+
+FOLD:ObjectDef:{
+    fold_display_name: "Object: $Id$";
+}
+
+FOLD:FunDclDef:{
+    fold_display_name: "Function: $Id$";
+}
+
+#FOLD:MethodDeclaration:{
+#    fold_display_name: "Methos: $MethodName$";
+#}
+#FOLD:block:"{...}"
+
+
+########## NAVIGATOR ###########################################################
+NAVIGATOR:ClassDef: {
+    display_name: "$Id$";
+    icon: "/org/netbeans/modules/languages/resources/class.gif";
+}
+
+NAVIGATOR:TraitDef: {
+    display_name: "$Id$";
+    icon: "/org/netbeans/modules/languages/resources/class.gif";
+}
+
+NAVIGATOR:ObjectDef: {
+    display_name: "$Id$";
+    icon: "/org/netbeans/modules/languages/resources/class.gif";
+}
+
+NAVIGATOR:FunDclDef: {
+    display_name: "$Id$";
+    icon: "/org/netbeans/modules/languages/resources/method.gif";
+}
+
+NAVIGATOR:TypeDclDef: {
+    display_name: "$Id$";
+    icon: "/org/netbeans/modules/languages/resources/method.gif";
+}
+
+NAVIGATOR:ValDclDef: {
+    display_name: "$PatDef$";
+    icon: "/org/netbeans/modules/languages/resources/variable.gif";
+}
+
+NAVIGATOR:VarDclDef: {
+    display_name: "$PatDef$";
+    icon: "/org/netbeans/modules/languages/resources/method.gif";
+}
+
+NAVIGATOR:Expr: {
+    display_name: "Expr";
+    icon: "/org/netbeans/modules/languages/resources/method.gif";
+}
+
+
+NAVIGATOR:SimpleExpr: {
+    display_name: "SimpleExpr";
+    icon: "/org/netbeans/modules/languages/resources/method.gif";
+}
+
+NAVIGATOR:XmlExpr: {
+    display_name: "XmlExpr";
+    icon: "/org/netbeans/modules/languages/resources/method.gif";
+}
+
+NAVIGATOR:CaseBlockStat: {
+    display_name: "CaseBlockStat";
+    icon: "/org/netbeans/modules/languages/resources/method.gif";
+}
+
+
+MARK:ERROR: {
+    type:"Error";
+    message:"LBL_SYNTAX_ERROR";
+}
+
+MARK:error: {
+    type:"Error";
+    message:"LBL_UNEXPECTED_CHARACTER";
+}
+
+########### colors #############################################################
+COLOR:keyword,catch,else,extends,finally,forSome,match,requires,with,yield,eq,rarrow,larrow: {
+    foreground_color: "0x0000FE";
+}
+
+COLOR:Type,InfixType,AnnotType,SimpleType: {
+    foreground_color: "black";
+    font_type: "bold";
+}
+
+COLOR:ClassDef.Id, TraitDef.Id, ObjectDef.Id: {
+    foreground_color: "black";
+    font_type: "bold";
+}
+
+COLOR:FunDclDef.Id: {
+    foreground_color: "black";
+    underline_color: "0x000000";
+}
+
+COLOR:integer,float: {
+    foreground_color: "0x780000";
+}
+
+COLOR:sting,char: {
+    foreground_color: "0xCE7B00";
+}
+
+COLOR:comment,line_comment,xml_comment: {
+    foreground_color: "0x737373";
+    #defualt_coloring: "comment";
+}
+
+COLOR:comment_keyword: {
+    foreground_color: "0x737373";
+    font_type:"bold";
+}
+
+COLOR:PostfixExpr.Id,PrefixExpr.PrefixOp: {
+    foreground_color: "0x2E92C7";
+}
+
+COLOR:element_start,end_element,Element.rslashangle,Element.rangle,ElemPattern.rslashangle,ElemPattern.rangle: {
+    foreground_color: "0x228B22";
+}
+
+########### complete and indentation ########################################################
+COMPLETE "(:)"
+COMPLETE "{:}"
+COMPLETE "\":\""
+COMPLETE "':'"
+COMPLETE "[:]"
+
+######## Brace matching
+BRACE "{:}"
+BRACE "(:)"
+BRACE "[:]"
+BRACE "\":\""
+
+INDENT "(:)"
+INDENT "{:}"
+INDENT "[:]"
+INDENT "\\s*(((if|while)\\s*\\(|else\\s*|else\\s+if\\s*\\(|for\\s*\\(.*\\))[^{;]*)"
+
+BUNDLE "org.netbeans.modules.languages.scala.editor.Bundle"
+
+SELECTION ( ["a"-"z" "A"-"Z" "0"-"9" "_" "$"] )
+
+COMMENT_LINE {
+    prefix:"//";
+}
