@@ -77,7 +77,7 @@
                     </folder>
                 </folder>
                 <folder name="commonpalette">
-                    <attr name="active" stringvalue="output"/>
+                    <attr name="active" stringvalue="navigatorTC"/>
                     <folder name="favorites">
                         <attr name="index" intvalue="0"/>
                         <attr name="opened" boolvalue="flase"/>
@@ -102,19 +102,18 @@
             <attr name="image" stringvalue="org/netbeans/modules/perspective/java/resources/debug.png"/>
             <folder name="modes">
                 <folder name="javaExplorer">
-                    <attr name="active" stringvalue="callstackView"/>
-                    <folder name="projectTabLogical_tc">
-                        <attr name="index" intvalue="0"/>
-                        <attr name="opened" boolvalue="false"/>
-                    </folder>
+                    <attr name="active" stringvalue="output"/>
+                    
                     <folder name="watchesView">
+                        <attr name="index" intvalue="0"/>
+                        <attr name="opened" boolvalue="true"/>
+                    </folder>
+                    <folder name="output">
                         <attr name="index" intvalue="1"/>
                         <attr name="opened" boolvalue="true"/>
                     </folder>
-                    <folder name="callstackView">
-                        <attr name="index" intvalue="2"/>
-                        <attr name="opened" boolvalue="true"/>
-                    </folder>
+                    
+                    
                 </folder>
                 <folder name="javaExplorer2">
                     <attr name="active" stringvalue="localsView"/>
@@ -132,26 +131,34 @@
                     </folder>
                 </folder>
                 <folder name="commonpalette">
-                    <attr name="active" stringvalue="output"/>
-                    <folder name="favorites">
+                    <attr name="active" stringvalue="callstackView"/>
+                    <folder name="callstackView">
                         <attr name="index" intvalue="0"/>
+                        <attr name="opened" boolvalue="true"/>
+                    </folder>
+                    <folder name="favorites">
+                        <attr name="index" intvalue="1"/>
                         <attr name="opened" boolvalue="flase"/>
                     </folder>
                     <folder name="navigatorTC">
-                        <attr name="index" intvalue="1"/>
-                        <attr name="opened" boolvalue="true"/>
+                        <attr name="index" intvalue="2"/>
+                        <attr name="opened" boolvalue="false"/>
                     </folder>
                 </folder>
-                <folder name="output">
-                    <attr name="active" stringvalue="output"/>
-                    <folder name="output">
+                <folder name="leftSlidingSide">         
+                    <folder name="projectTabLogical_tc">
                         <attr name="index" intvalue="0"/>
                         <attr name="opened" boolvalue="true"/>
                     </folder>
+                </folder> 
+                <folder name="bottomSlidingSide">
                     <folder name="TaskListTopComponent">
                         <attr name="index" intvalue="1"/>
                         <attr name="opened" boolvalue="true"/>
                     </folder>
+                </folder> 
+                <folder name="output">
+                    <attr name="active" stringvalue="DeclarationTopComponent"/> 
                     <folder name="DeclarationTopComponent">
                         <attr name="index" intvalue="2"/>
                         <attr name="opened" boolvalue="flase"/>
@@ -168,16 +175,16 @@
     <!--window system config folder-->
     <folder name="Windows2">
         <folder name="Modes">
-        <!--Custom javaOutput Mode that use by Java Browsing Perspective-->
-        <file name="javaOutput.wsmode" url="modes/javaOutput.wsmode"/>
-        <folder name="javaOutput"></folder>
-        <!--Custom javaExplorer Mode that use by Java Browsing Perspective and Debug Perspective-->
-        <file name="javaExplorer.wsmode" url="modes/javaExplorer.wsmode"/>
-        <folder name="javaExplorer"></folder>
-        <!--Custom javaExplorer Mode that use by Java Browsing Perspective and Debug Perspective-->
-        <file name="javaExplorer2.wsmode" url="modes/javaExplorer2.wsmode"/>
-        <folder name="javaExplorer2"></folder> 
-      </folder>  
+            <!--Custom javaOutput Mode that use by Java Browsing Perspective-->
+            <file name="javaOutput.wsmode" url="modes/javaOutput.wsmode"/>
+            <folder name="javaOutput"></folder>
+            <!--Custom javaExplorer Mode that use by Java Browsing Perspective and Debug Perspective-->
+            <file name="javaExplorer.wsmode" url="modes/javaExplorer.wsmode"/>
+            <folder name="javaExplorer"></folder>
+            <!--Custom javaExplorer Mode that use by Java Browsing Perspective and Debug Perspective-->
+            <file name="javaExplorer2.wsmode" url="modes/javaExplorer2.wsmode"/>
+            <folder name="javaExplorer2"></folder> 
+        </folder>  
     </folder>
     
 </filesystem>
