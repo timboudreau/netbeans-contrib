@@ -138,6 +138,36 @@ import org.xml.sax.XMLReader;
  */
 public class ParseJobFactory implements QueueWorkProcessor <FileObject, ParseJob> {
     private final Dispatcher <FileObject, ParseJob> queue;
+    private static final Pattern DETECT_CHAPTER_PATTERN = Pattern.compile("(<\\s*chapter.*?)+");
+    private static final Pattern DETECT_ARTICLE_PATTERN = Pattern.compile("(<\\s*article.*?)+?");
+    private static final Pattern DETECT_DTD_PATTERN = Pattern.compile("<\\s*!DOCTYPE.*?");
+    private static final Pattern DETECT_SOLBOOK_COURSE_PATTERN = Pattern.compile("(<\\s*course.*?)+?");
+    private static final Pattern DETECT_SOLBOOK_HELPSET_PATTERN = Pattern.compile("(<\\s*helpset.*?)+?");
+    private static final Pattern DETECT_SOLBOOK_SLIDESET_PATTERN = Pattern.compile("(<\\s*slideset.*?)+?");
+    private static final Pattern DETECT_SOLBOOK_BOOK_PATTERN = Pattern.compile("(<\\s*book.*?)+?");
+
+    private static final String DTD_CHAPTER =
+"\n<!DOCTYPE chapter PUBLIC \"-//OASIS//DTD DocBook XML V4.4//EN\" \"http://www.oasis-open.org/docbook/xml/4.4/docbookx.dtd\">\n";
+
+    private static final String DTD_ARTICLE =
+"\n<!DOCTYPE article PUBLIC \"-//OASIS//DTD DocBook XML V4.4//EN\" \"http://www.oasis-open.org/docbook/xml/4.4/docbookx.dtd\">\n";
+
+    private static final String DTD_SOLBOOK_COURSE =
+"\n<!DOCTYPE course PUBLIC \"-//Sun Microsystems//DTD XML-SolBook 3.5 //EN\" \"xsolbook.dtd\">\n";
+
+    private static final String DTD_SOLBOOK_HELPSET =
+"\n<!DOCTYPE helpset PUBLIC \"-//Sun Microsystems//DTD XML-SolBook 3.5 //EN\" \"xsolbook.dtd\">\n";
+    
+    private static final String DTD_SOLBOOK_SLIDESET =
+"\n<!DOCTYPE slideset PUBLIC \"-//Sun Microsystems//DTD XML-SolBook 3.5 //EN\" \"xsolbook.dtd\">\n";
+  
+    private static final String DTD_SOLBOOK_BOOK =
+"\n<!DOCTYPE book PUBLIC \"-//Sun Microsystems//DTD XML-SolBook 3.5 //EN\" \"xsolbook.dtd\">\n";
+    
+
+    
+    
+    
 
     public ParseJobFactory() {
         queue = new Dispatcher <FileObject, ParseJob> (this);
@@ -322,15 +352,6 @@ public class ParseJobFactory implements QueueWorkProcessor <FileObject, ParseJob
         }
     }
 
-    private static final Pattern DETECT_CHAPTER_PATTERN = Pattern.compile("(<\\s*chapter.*?)+");
-    private static final Pattern DETECT_ARTICLE_PATTERN = Pattern.compile("(<\\s*article.*?)+?");
-    private static final Pattern DETECT_DTD_PATTERN = Pattern.compile("<\\s*!DOCTYPE.*?");
-
-    private static final String DTD_CHAPTER =
-"\n<!DOCTYPE chapter PUBLIC \"-//OASIS//DTD DocBook XML V4.4//EN\" \"http://www.oasis-open.org/docbook/xml/4.4/docbookx.dtd\">\n";
-
-    private static final String DTD_ARTICLE =
-"\n<!DOCTYPE article PUBLIC \"-//OASIS//DTD DocBook XML V4.4//EN\" \"http://www.oasis-open.org/docbook/xml/4.4/docbookx.dtd\">\n";
 
     private static CharSequence maybeInsertFakeDtd (CharSequence seq) {
 //        if (true) return seq;
@@ -363,6 +384,62 @@ public class ParseJobFactory implements QueueWorkProcessor <FileObject, ParseJob
                         }
                     }
                     b.insert (insertPos, DTD_ARTICLE);
+                    System.err.println("MAKE IT AN ARTICLE:\n" + b);
+                    return b;
+                } else if (DETECT_SOLBOOK_BOOK_PATTERN.matcher (seq).find()) {
+                    StringBuilder b = new StringBuilder (seq);
+                    int insertPos = 0;
+                    if (b.indexOf("<?xml") >= 0) {
+                        //XXX can have multiple processing instructions - find
+                        //last <?.*>
+                        insertPos = b.indexOf ("?>" + 2);
+                        if (insertPos < 0) {
+                            insertPos = 0;
+                        }
+                    }
+                    b.insert (insertPos, DTD_SOLBOOK_BOOK);
+                    System.err.println("MAKE IT AN ARTICLE:\n" + b);
+                    return b;
+                } else if (DETECT_SOLBOOK_SLIDESET_PATTERN.matcher (seq).find()) {
+                    StringBuilder b = new StringBuilder (seq);
+                    int insertPos = 0;
+                    if (b.indexOf("<?xml") >= 0) {
+                        //XXX can have multiple processing instructions - find
+                        //last <?.*>
+                        insertPos = b.indexOf ("?>" + 2);
+                        if (insertPos < 0) {
+                            insertPos = 0;
+                        }
+                    }
+                    b.insert (insertPos, DTD_SOLBOOK_SLIDESET);
+                    System.err.println("MAKE IT AN ARTICLE:\n" + b);
+                    return b;
+                } else if (DETECT_SOLBOOK_COURSE_PATTERN.matcher (seq).find()) {
+                    StringBuilder b = new StringBuilder (seq);
+                    int insertPos = 0;
+                    if (b.indexOf("<?xml") >= 0) {
+                        //XXX can have multiple processing instructions - find
+                        //last <?.*>
+                        insertPos = b.indexOf ("?>" + 2);
+                        if (insertPos < 0) {
+                            insertPos = 0;
+                        }
+                    }
+                    b.insert (insertPos, DTD_SOLBOOK_COURSE);
+                    System.err.println("MAKE IT AN ARTICLE:\n" + b);
+                    return b;
+                } else if (DETECT_SOLBOOK_HELPSET_PATTERN.matcher (seq).find()) {
+                    StringBuilder b = new StringBuilder (seq);
+                    int insertPos = 0;
+                    if (b.indexOf("<?xml") >= 0) {
+                        //XXX can have multiple processing instructions - find
+                        //last <?.*>
+                        insertPos = b.indexOf ("?>" + 2);
+                        if (insertPos < 0) {
+                            insertPos = 0;
+                        }
+                    }
+                    b.insert (insertPos, DTD_SOLBOOK_HELPSET);
                     System.err.println("MAKE IT AN ARTICLE:\n" + b);
                     return b;
                 }
