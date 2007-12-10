@@ -58,7 +58,7 @@ final class Config {
     public static final String DOCBOOK_XML_VERSION;
     public static final String[] BROWSER_FILES;
     public static final String[] GRAPHICS_FILES;
-
+    
     static {
         Properties p = new Properties();
         try {

@@ -73,7 +73,12 @@ import org.openide.util.RequestProcessor;
 import org.openide.util.Utilities;
 
 /**
- *
+ * Add a new chapter to an existing docbeans chapter. 
+ * Generates the generic xml chapter file and pre-populates with 
+ * dummy data. 
+ * 
+ * todo move this chapter template to another file and call file
+ * from code.
  * @author Tim Boudreau
  */
 public class AddChapterAction extends AbstractAction implements ContextAwareAction, LookupListener {

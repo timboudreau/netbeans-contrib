@@ -56,7 +56,7 @@ import org.openide.util.Exceptions;
  *
  * Sparse array integer keyed map.  Similar to a standard Collections map,
  * but considerably more efficient for this purpose, it simply an array
- * if integer indices that have values and an array of objects mapped to
+ * of integer indices that have values and an array of objects mapped to
  * those indices.  Entries may be added only in ascending order, enabling
  * use of Arrays.binarySearch() to quickly locate the relevant entry.
  * <p>

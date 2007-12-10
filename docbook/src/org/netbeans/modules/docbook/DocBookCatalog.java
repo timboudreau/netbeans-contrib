@@ -59,6 +59,9 @@ import org.xml.sax.EntityResolver;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
+/* Specifies the various DTD and schemas
+ * 
+ */
 public class DocBookCatalog implements CatalogProvider {
     
     //maps are package private for unit tests

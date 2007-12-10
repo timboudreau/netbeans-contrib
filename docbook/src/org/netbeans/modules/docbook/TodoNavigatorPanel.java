@@ -122,7 +122,7 @@ public final class TodoNavigatorPanel extends FileChangeAdapter implements Navig
     public TodoNavigatorPanel() {}
 
     public String getDisplayName() {
-        return "DocBook To-Dos"; // XXX I18N
+        return "Documentation To-Dos"; // XXX I18N
     }
 
     public String getDisplayHint() {
@@ -238,6 +238,8 @@ public final class TodoNavigatorPanel extends FileChangeAdapter implements Navig
         item.open();
     }
 
+    //Defines the syntax that is recognized by the Navigator Notes 
+    //panel of the XML editor
     static final Pattern TODO_PATTERN =
         Pattern.compile (
         "\\[content\\]|" +
@@ -251,6 +253,8 @@ public final class TodoNavigatorPanel extends FileChangeAdapter implements Navig
 \[content\]|\[more content\]|\[title\]|\[todo.*?[\s*|\w*]\s*(.*\n|.*?)\]|XXX\s*(.*?)\s*\n|<note>\s*(.*)\s*</note>
  */
 
+    //parses the document for the TODO_PATTERNs.
+    //@returns the nearest element to the matched pattern (for some patterns, not all)
     static Item[] parse(final DataObject d) throws IOException {
         EditorCookie ck = (EditorCookie) d.getCookie(EditorCookie.class);
         CharSequence content = null;
@@ -473,6 +477,9 @@ public final class TodoNavigatorPanel extends FileChangeAdapter implements Navig
             //do nothing - performance
         }
 
+        /* Determine which color to render the corresponding to-do pattern
+         * in the Navigator Notes window.
+         */
         public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
             Item item = (Item) value;
             Color c;

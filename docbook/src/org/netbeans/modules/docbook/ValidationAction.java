@@ -63,7 +63,7 @@ import org.xml.sax.SAXParseException;
 import org.xml.sax.XMLReader;
 
 /**
- *
+ * Performs the XML validation against the associated schema.
  * @author Tim Boudreau
  */
 public class ValidationAction extends AbstractAction implements ContextAwareAction, LookupListener {
