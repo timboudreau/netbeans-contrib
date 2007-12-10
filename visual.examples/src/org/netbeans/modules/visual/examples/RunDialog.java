@@ -94,6 +94,7 @@ public class RunDialog extends javax.swing.JFrame {
         "test.list.ListTest",
         "test.listeners.ObjectSceneListenerTest",
         "test.lod.LevelOfDetailsTest",
+        "test.lod.TwoLimitsLevelOfDetailsTest",
         "test.move.SnapToGridTest",
         "test.multiline.MultiLineTest",
         "test.multiview.MultiViewTableTest",
