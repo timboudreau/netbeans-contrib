@@ -60,6 +60,7 @@ import org.netbeans.api.docbook.Callback;
 import org.netbeans.api.docbook.ParseJob;
 import org.netbeans.api.docbook.ParsingService;
 import org.netbeans.modules.docbook.*;
+import org.netbeans.modules.docbook.resources.solbook.*;
 import org.openide.filesystems.FileAttributeEvent;
 import org.openide.filesystems.FileChangeListener;
 import org.openide.filesystems.FileEvent;
@@ -78,6 +79,10 @@ public final class ParsingServiceImpl extends ParsingService implements FileChan
     private final List <Reference<Callback>> registered = new LinkedList <Reference <Callback>> ();
 
     public ParsingServiceImpl(DocBookDataObject obj) {
+        this (obj.getPrimaryFile());
+    }
+
+    public ParsingServiceImpl(SolBookDataObject obj) {
         this (obj.getPrimaryFile());
     }
 
