@@ -64,6 +64,7 @@ public class SwitchAction extends AbstractAction {
 
     public SwitchAction(PerspectiveImpl perspective) {
         putValue(NAME, perspective.getAlias());
+        putValue(SHORT_DESCRIPTION, perspective.getDescription());
         String path = perspective.getImagePath();
         if (path != null) {
             putValue(SMALL_ICON, new javax.swing.ImageIcon(Utilities.loadImage(path,true)));
