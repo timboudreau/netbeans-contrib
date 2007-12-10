@@ -50,6 +50,7 @@ made subject to such option by the copyright holder.
         <unzip src="external/docbook-xsl-${libs.docbook-xsl.version}.zip" dest="build/docbook-libs"/>
         <unzip src="external/slides-${libs.docbook-slides.version}.zip" dest="build/docbook-libs"/>
         <unzip src="external/docbook-xml-${libs.docbook-xml.version}.zip" dest="build/docbook-libs/docbook-xml-${libs.docbook-xml.version}"/>
+        <unzip src="external/solbook-xml-${libs.solbook-xml.version}.zip" dest="build/docbook-libs/solbook-xml-${libs.solbook-xml.version}"/>
         <property name="browser.dir" location="build/docbook-libs/slides-${libs.docbook-slides.version}/browser"/>
         <fileset id="browser.files.list" dir="${browser.dir}">
             <exclude name="**/ChangeLog"/>
@@ -70,6 +71,7 @@ made subject to such option by the copyright holder.
             <entry key="docbook-xml.version" value="${libs.docbook-xml.version}"/>
             <entry key="browser.files" value="${browser.files}"/>
             <entry key="graphics.files" value="${graphics.files}"/>
+            <entry key="solbook-xml.version" value="${libs.solbook-xml.version}"/>
         </propertyfile>
     </target>
 
@@ -90,6 +92,8 @@ made subject to such option by the copyright holder.
                 <include name="docbook-xml-${libs.docbook-xml.version}/*.dtd"/>
                 <include name="docbook-xml-${libs.docbook-xml.version}/*.mod"/>
                 <include name="docbook-xml-${libs.docbook-xml.version}/ent/*.ent"/>
+                <include name="solbook-xml-${libs.solbook-xml.version}/*.dtd"/>
+                <include name="solbook-xml-${libs.solbook-xml.version}/*.xml"/>
                 <exclude name="**/ChangeLog"/>
             </fileset>
         </copy>
@@ -144,6 +148,8 @@ made subject to such option by the copyright holder.
                 <file location="external/docbook-xml-${libs.docbook-xml.version}-license.txt"/>
                 <text>For the included Saxon 8 XSLT processor:</text>
                 <file location="ext/MPL-1.0.txt"/>
+                <text>For the included Solbook XML DTD:</text>
+                <file location="external/solbook-xml-${libs.solbook-xml.version}-license.txt"/>
             </license>
         </makenbm>
     </target>
