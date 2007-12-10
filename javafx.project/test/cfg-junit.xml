@@ -25,10 +25,25 @@
             <patternset>
 
                 <include name="**/*"/>
+                <exclude name="**/CreateJavaFXProjectTest*"/>
+                <exclude name="**/TestUtil.class"/>
+                <exclude name="**/MockLookup.class"/>
+
 
             </patternset>
         </testset>
     </testbag>
+
+    <testbag testattribs="unit,project" executor="ide" compiler="jvm-compiler" name="JavaFX Project Unit Tests">
+        <testset dir="unit/src">
+            <patternset>
+
+                <include name="**/CreateJavaFXProjectTest*"/>
+
+            </patternset>
+        </testset>
+    </testbag>
+
 
 
     <executor name="jvm" antfile="build-junit.xml" target="run_tests_in_jvm"/>
