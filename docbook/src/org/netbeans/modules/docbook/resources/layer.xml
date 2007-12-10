@@ -92,6 +92,47 @@ made subject to such option by the copyright holder.
                 <attr name="templateWizardURL" urlvalue="nbresloc:/org/netbeans/modules/docbook/resources/book-template-desc.html"/>
                 <attr name="template" boolvalue="true"/>
             </file>
+            <file name="solbook-book.xml" url="nbresloc:/org/netbeans/modules/docbook/resources/solbook/templates/solbook-book-template.xml">
+                <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.docbook.Bundle"/>
+                <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/docbook/resources/solbook/templates/solbook.png"/>
+                <attr name="templateWizardURL" urlvalue="nbresloc:/org/netbeans/modules/docbook/resources/solbook/templates/solbook-book-template-desc.html"/>
+                <attr name="template" boolvalue="true"/>
+            </file>
+            <file name="solbook-chapter.xml" url="nbresloc:/org/netbeans/modules/docbook/resources/solbook/templates/solbook-chapter-template.xml">
+                <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.docbook.Bundle"/>
+                <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/docbook/resources/solbook/templates/solbook.png"/>
+                <attr name="templateWizardURL" urlvalue="nbresloc:/org/netbeans/modules/docbook/resources/solbook/templates/solbook-chapter-template-desc.html"/>
+                <attr name="template" boolvalue="true"/>
+            </file>
+            <!-- No Longer Supported
+            <file name="solbook-course.xml" url="nbresloc:/org/netbeans/modules/docbook/resources/solbook/templates/solbook-course-template.xml">
+                <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.docbook.Bundle"/>
+                <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/docbook/resources/solbook/templates/solbook.png"/>
+                <attr name="templateWizardURL" urlvalue="nbresloc:/org/netbeans/modules/docbook/resources/solbook/templates/solbook-course-template-desc.html"/>
+                <attr name="template" boolvalue="true"/>
+            </file>
+            -->
+             <file name="solbook-article.xml" url="nbresloc:/org/netbeans/modules/docbook/resources/solbook/templates/solbook-article-template.xml">
+                <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.docbook.Bundle"/>
+                <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/docbook/resources/solbook/templates/solbook.png"/>
+                <attr name="templateWizardURL" urlvalue="nbresloc:/org/netbeans/modules/docbook/resources/solbook/templates/solbook-article-template-desc.html"/>
+                <attr name="template" boolvalue="true"/>
+            </file>
+             <file name="solbook-helpset.xml" url="nbresloc:/org/netbeans/modules/docbook/resources/solbook/templates/solbook-helpset-template.xml">
+                <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.docbook.Bundle"/>
+                <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/docbook/resources/solbook/templates/solbook.png"/>
+                <attr name="templateWizardURL" urlvalue="nbresloc:/org/netbeans/modules/docbook/resources/solbook/templates/solbook-helpset-template-desc.html"/>
+                <attr name="template" boolvalue="true"/>
+            </file>
+<!-- No Longer Supports
+            <file name="solbook-slideset.xml" url="nbresloc:/org/netbeans/modules/docbook/resources/solbook/templates/solbook-slideset-template.xml">
+                <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.docbook.Bundle"/>
+                <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/docbook/resources/solbook/templates/solbook.png"/>
+                <attr name="templateWizardURL" urlvalue="nbresloc:/org/netbeans/modules/docbook/resources/solbook/templates/solbook-slideset-template-desc.html"/>
+                <attr name="template" boolvalue="true"/>
+            </file>
+-->            
+            
         </folder>
     </folder>
     <folder name="Navigator">
@@ -115,6 +156,15 @@ made subject to such option by the copyright holder.
                         <attr name="originalFile" stringvalue="Navigator/Panels/org-netbeans-modules-docbook-TodoNavigatorPanel.instance"/>
                     </file>
                 </folder>
+                <folder name="x-solbook+xml">
+                    <file name="org-netbeans-modules-docbook-DocBookNavigatorPanel.shadow">
+                        <attr name="originalFile" stringvalue="Navigator/Panels/org-netbeans-modules-docbook-resources-solbook-SolBookNavigatorPanel.instance"/>
+                    </file>
+                    <file name="TodoPanel.shadow">
+                        <attr name="originalFile" stringvalue="Navigator/Panels/org-netbeans-modules-docbook-resources-solbook-TodoNavigatorPanel.instance"/>
+                    </file>
+                </folder>
+                
             </folder>
         </folder>
     </folder>
@@ -177,6 +227,62 @@ made subject to such option by the copyright holder.
                     </file>
                 </folder>
             </folder>
+            <folder name="x-solbook+xml">
+                <folder name="Actions">
+                    <file name="org-openide-actions-OpenAction.instance">
+                        <attr name="position" intvalue="100"/>
+                    </file>
+                    <file name="org-netbeans-modules-docbook-resources-solbook-ToHtmlAction.instance">
+                        <attr name="position" intvalue="200"/>
+                    </file>
+                    <file name="org-openide-actions-FileSystemAction.instance">
+                        <attr name="position" intvalue="300"/>
+                    </file>
+                    <file name="sep-1.instance">
+                        <attr name="instanceClass" stringvalue="javax.swing.JSeparator"/>
+                        <attr name="position" intvalue="400"/>
+                    </file>
+                    <file name="org-openide-actions-CutAction.instance">
+                        <attr name="position" intvalue="500"/>
+                    </file>
+                    <file name="org-openide-actions-CopyAction.instance">
+                        <attr name="position" intvalue="600"/>
+                    </file>
+                    <file name="sep-2.instance">
+                        <attr name="instanceClass" stringvalue="javax.swing.JSeparator"/>
+                        <attr name="position" intvalue="700"/>
+                    </file>
+                    <file name="org-openide-actions-DeleteAction.instance">
+                        <attr name="position" intvalue="800"/>
+                    </file>
+                    <file name="org-openide-actions-RenameAction.instance">
+                        <attr name="position" intvalue="900"/>
+                    </file>
+                    <file name="sep-3.instance">
+                        <attr name="instanceClass" stringvalue="javax.swing.JSeparator"/>
+                        <attr name="position" intvalue="1000"/>
+                    </file>
+                    <file name="org-openide-actions-SaveAsTemplateAction.instance">
+                        <attr name="position" intvalue="1100"/>
+                    </file>
+                    <file name="org-netbeans-modules-docbook-resources-solbook-AddChapterAction.instance">
+                        <attr name="position" intvalue="1300"/>
+                    </file>
+                    <file name="org-netbeans-modules-docbook-resources-solbook-ValidationAction.instance">
+                        <attr name="position" intvalue="1200"/>
+                    </file>
+                    <file name="sep-4.instance">
+                        <attr name="instanceClass" stringvalue="javax.swing.JSeparator"/>
+                        <attr name="position" intvalue="1400"/>
+                    </file>
+                    <file name="org-openide-actions-ToolsAction.instance">
+                        <attr name="position" intvalue="1500"/>
+                    </file>
+                    <file name="org-openide-actions-PropertiesAction.instance">
+                        <attr name="position" intvalue="1600"/>
+                    </file>
+                </folder>
+            </folder>            
         </folder>
     </folder>
 
@@ -202,4 +308,15 @@ made subject to such option by the copyright holder.
     <folder name="docbook">
         <file name="docbook.css" url="docbook.css"/>
     </folder>
+   <folder name="Menu">
+      <folder name="Window">
+         <folder name="DocBeans">
+               <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.docbook.Bundle"/>            
+               <file name="DocBeans.shadow">
+               <attr name="originalFile" stringvalue="Actions/Modeling/org-netbeans-modules-docbook-resources-ui-menu-DocBeansAction.instance"/>    		
+                <attr name="position" intvalue="340"/>
+                </file>
+         </folder>
+      </folder>
+   </folder>     
 </filesystem>

@@ -71,6 +71,51 @@ made subject to such option by the copyright holder.
     </file>
     <file>
         <ext name="xml"/>
+        <resolver mime="text/x-solbook+xml">
+            <xml-rule>
+           <doctype public-id="-//Sun Microsystems//DTD XML-SolBook 3.5 //EN"/>
+                <element name="book"/>
+            </xml-rule>
+        </resolver>
+    </file>
+    <file>
+        <ext name="xml"/>
+        <resolver mime="text/x-solbook+xml">
+            <xml-rule>
+           <doctype public-id="-//Sun Microsystems//DTD XML-SolBook 3.5 //EN"/>
+                <element name="course"/>
+            </xml-rule>
+        </resolver>
+    </file>
+    <file>
+        <ext name="xml"/>
+        <resolver mime="text/x-solbook+xml">
+            <xml-rule>
+           <doctype public-id="-//Sun Microsystems//DTD XML-SolBook 3.5 //EN"/>
+                <element name="article"/>
+            </xml-rule>
+        </resolver>
+    </file>
+    <file>
+        <ext name="xml"/>
+        <resolver mime="text/x-solbook+xml">
+            <xml-rule>
+           <doctype public-id="-//Sun Microsystems//DTD XML-SolBook 3.5 //EN"/>
+                <element name="helpset"/>
+            </xml-rule>
+        </resolver>
+    </file>
+    <file>
+        <ext name="xml"/>
+        <resolver mime="text/x-solbook+xml">
+            <xml-rule>
+           <doctype public-id="-//Sun Microsystems//DTD XML-SolBook 3.5 //EN"/>
+                <element name="slideset"/>
+            </xml-rule>
+        </resolver>
+    </file>   
+    <file>
+        <ext name="xml"/>
         <resolver mime="text/x-docbook+xml">
             <xml-rule>
                 <element name="chapter"/>
@@ -93,4 +138,101 @@ made subject to such option by the copyright holder.
             </xml-rule>
         </resolver>
     </file>
+    <file>
+        <ext name="xml"/>
+        <resolver mime="text/x-solbook+xml">
+            <xml-rule>
+                <element name="preface"/>
+            </xml-rule>
+        </resolver>
+    </file>
+    <file>
+        <ext name="xml"/>
+        <resolver mime="text/x-solbook+xml">
+            <xml-rule>
+                <element name="chapter"/>
+            </xml-rule>
+        </resolver>
+    </file>
+    <file>
+        <ext name="xml"/>
+        <resolver mime="text/x-solbook+xml">
+            <xml-rule>
+                <element name="reference"/>
+            </xml-rule>
+        </resolver>
+    </file>
+    <file>
+        <ext name="xml"/>
+        <resolver mime="text/x-solbook+xml">
+            <xml-rule>
+                <element name="appendix"/>
+            </xml-rule>
+        </resolver>
+    </file>
+    <file>
+        <ext name="xml"/>
+        <resolver mime="text/x-solbook+xml">
+            <xml-rule>
+                <element name="glossary"/>
+            </xml-rule>
+        </resolver>
+    </file>
+    <file>
+        <ext name="xml"/>
+        <resolver mime="text/x-solbook+xml">
+            <xml-rule>
+                <element name="bibliography"/>
+            </xml-rule>
+        </resolver>
+    </file>
+    <file>
+        <ext name="xml"/>
+        <resolver mime="text/x-solbook+xml">
+            <xml-rule>
+                <element name="index"/>
+            </xml-rule>
+        </resolver>
+    </file>
+    <file>
+        <ext name="xml"/>
+        <resolver mime="text/x-solbook+xml">
+            <xml-rule>
+                <element name="part"/>
+            </xml-rule>
+        </resolver>
+    </file>
+    <file>
+        <ext name="xml"/>
+        <resolver mime="text/x-solbook+xml">
+            <xml-rule>
+                <element name="module"/>
+            </xml-rule>
+        </resolver>
+    </file>
+    <file>
+        <ext name="xml"/>
+        <resolver mime="text/x-solbook+xml">
+            <xml-rule>
+                <element name="glossary"/>
+            </xml-rule>
+        </resolver>
+    </file>
+    <file>
+        <ext name="xml"/>
+        <resolver mime="text/x-solbook+xml">
+            <xml-rule>
+                <element name="topicgroup"/>
+            </xml-rule>
+        </resolver>
+    </file>
+    <file>
+        <ext name="xml"/>
+        <resolver mime="text/x-solbook+xml">
+            <xml-rule>
+                <element name="topic"/>
+            </xml-rule>
+        </resolver>
+    </file>
+
 </MIME-resolver>

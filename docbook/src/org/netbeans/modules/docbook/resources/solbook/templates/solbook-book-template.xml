@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE book PUBLIC "-//Sun Microsystems//DTD XML-SolBook 3.5 //EN" "xsolbook.dtd"[
+<!ENTITY abstract SYSTEM "XXX abstract.xml">
+<!ENTITY typeconv SYSTEM "XXX typeconv.xml">
+<!ENTITY sundocs SYSTEM "XXX sundocs.xml">
+<!ENTITY fr-other-trademarks SYSTEM "XXX fr-other-trademarks.xml">
+<!ENTITY other-trademarks SYSTEM "XXX other-trademarks.xml">
+<!ENTITY sun-trademarks SYSTEM "XXX sun-trademarks.xml">
+<!ENTITY preface SYSTEM "XXX preface.xml">
+<!ENTITY fr-legal SYSTEM "XXX fr-legal.xml">
+<!ENTITY legal SYSTEM "XXX legal.xml">
+<!ENTITY chapterOne SYSTEM "XXX chapterOne.xml">
+]>
+
+
+<book id="XXX bookId" lang="en"> 
+    <title>Book [title]</title>
+&abstract;
+&typeconv;
+&sundocs;
+&fr-other-trademarks;
+&other-trademarks;
+&sun-trademarks;
+&preface;
+&fr-legal;
+&legal;
+&chapterOne;
+    [more content]
+</book>
+

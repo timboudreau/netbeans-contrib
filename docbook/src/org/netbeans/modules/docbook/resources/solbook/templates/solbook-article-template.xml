@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE article PUBLIC "-//Sun Microsystems//DTD XML-SolBook 3.5 //EN" "xsolbook.dtd"[
+]>
+
+
+<article id="XXX " lang="en"> 
+    <title>Article [title]</title>
+    <articleinfo></articleinfo>
+    <highlights></highlights>
+    <sect1></sect1>
+    [content]
+</article>

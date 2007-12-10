@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE helpset PUBLIC "-//Sun Microsystems//DTD XML-SolBook 3.5 //EN" "xsolbook.dtd"[
+]>
+
+
+<helpset id="XXX " lang="en"> 
+<title>Solbook Helpset [title]</title>
+<helpinfo></helpinfo>
+<task></task>    
+<topic></topic>
+<topicgroup></topicgroup>
+    [content]
+</helpset>

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE course PUBLIC "-//Sun Microsystems//DTD XML-SolBook 3.5 //EN" "xsolbook.dtd"[
+]>
+
+
+<course id="XXX " lang="en"> 
+    <title>Solbook Course [title]</title>
+<courseinfo></courseinfo>
+<module></module>
+<appendix></appendix>
+<glossary></glossary>
+<index></index>
+    [content]
+</course>
