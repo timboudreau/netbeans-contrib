@@ -41,41 +41,66 @@
  *
  * Contributor(s): Jan Lahoda.
  */
-package org.netbeans.modules.latex.model.structural;
+package org.netbeans.modules.latex.model;
+import org.netbeans.modules.latex.model.command.SourcePosition;
 
-import java.util.Collection;
-import java.util.Collections;
-import org.netbeans.modules.latex.model.ParseError;
-import org.netbeans.modules.latex.model.command.Node;
-
-/**SPI
+/**
  *
  * @author Jan Lahoda
  */
-public abstract class DelegatedParser {
+public final class ParseError {
 
-    /** Creates a new instance of DelegatedParser */
-    public DelegatedParser() {
+    public static ParseError create(Severity severity, String code, String message, SourcePosition pos) {
+        return create(severity, code, message, pos, null);
     }
 
-    public abstract String[] getSupportedAttributes();
+    public static ParseError create(Severity severity, String code, String displayName, SourcePosition start, SourcePosition end, String... parameters) {
+        return new ParseError(severity, code, displayName, start, end, parameters);
+    }
+    
+    private final Severity severity;
+    private final String code;
+    private final String displayName;
+    private final SourcePosition start;
+    private final SourcePosition end;
+    private final String[] parameters;
 
-    public abstract StructuralElement getElement(Node node);
+    public ParseError(Severity severity, String code, String displayName, SourcePosition start, SourcePosition end, String[] parameters) {
+        this.severity = severity;
+        this.code = code;
+        this.displayName = displayName;
+        this.start = start;
+        this.end = end;
+        this.parameters = parameters;
+    }
 
-    public void reset() {}
-    
-    public void parsingFinished() {}
-    
-    public StructuralElement updateElement(Node node, StructuralElement element) {
-        return getElement(node);
+    public Severity getSeverity() {
+        return severity;
+    }
+
+    public String getCode() {
+        return code;
+    }
+
+    public String getDisplayName() {
+        return displayName;
+    }
+
+    public SourcePosition getEnd() {
+        return end;
+    }
+
+    public SourcePosition getStart() {
+        return start;
+    }
+
+    public String[] getParameters() {
+        return parameters;
     }
     
-    public Object getKey(Node node) {
-        return null;
+    public enum Severity {
+        ERROR, WARNING;
     }
     
-    public Collection<ParseError> getErrors() {
-        return Collections.<ParseError>emptyList();
-    }
     
 }

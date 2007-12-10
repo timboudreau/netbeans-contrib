@@ -62,6 +62,8 @@ import org.netbeans.modules.latex.gui.StateNode;
 import org.netbeans.modules.latex.gui.VArcEdgeNode;
 import org.netbeans.modules.latex.gui.VCurveEdgeNode;
 import org.netbeans.modules.latex.gui.VVCurveEdgeNode;
+import org.netbeans.modules.latex.model.ParseError;
+import org.netbeans.modules.latex.model.ParseError.Severity;
 import org.netbeans.modules.latex.model.Utilities;
 import org.netbeans.modules.latex.model.command.ArgumentNode;
 import org.netbeans.modules.latex.model.command.Command;
@@ -72,9 +74,6 @@ import org.netbeans.modules.latex.model.command.SourcePosition;
 import org.netbeans.modules.latex.model.command.TextNode;
 import org.netbeans.modules.latex.model.structural.DelegatedParser;
 import org.netbeans.modules.latex.model.structural.StructuralElement;
-import org.netbeans.spi.editor.hints.ErrorDescription;
-import org.netbeans.spi.editor.hints.ErrorDescriptionFactory;
-import org.netbeans.spi.editor.hints.Severity;
 import org.openide.ErrorManager;
 
 /**
@@ -89,7 +88,7 @@ public final class VauParserImpl {
     public VauParserImpl() {
     }
 
-    public NodeStorage parse(CommandNode node, Collection<ErrorDescription> errors) {
+    public NodeStorage parse(CommandNode node, Collection<ParseError> errors) {
         NodeStorage storage = new NodeStorage();
         
         parsePicture(node, storage, errors);
@@ -97,7 +96,7 @@ public final class VauParserImpl {
         return storage;
     }
 
-    private void parsePicture(CommandNode node, NodeStorage storage, Collection<ErrorDescription> errors) {
+    private void parsePicture(CommandNode node, NodeStorage storage, Collection<ParseError> errors) {
         VauTraverseHandler vth = new VauTraverseHandler(getCommandHandlers(), storage, errors);
         
         node.traverse(vth);
@@ -106,10 +105,10 @@ public final class VauParserImpl {
     private static class VauTraverseHandler extends DefaultTraverseHandler {
         private Map commandHandlers;
         private NodeStorage storage;
-        Collection<ErrorDescription> errors;
+        Collection<ParseError> errors;
         private Map attributes;
         
-        public VauTraverseHandler(Map commandHandlers, NodeStorage storage, Collection<ErrorDescription> errors) {
+        public VauTraverseHandler(Map commandHandlers, NodeStorage storage, Collection<ParseError> errors) {
             this.commandHandlers = commandHandlers;
             this.storage         = storage;
             this.errors          = errors;
@@ -170,7 +169,7 @@ public final class VauParserImpl {
         }
     }
     
-    private static int[] parseCoordinates(TextNode node, Collection<ErrorDescription> errors) {
+    private static int[] parseCoordinates(TextNode node, Collection<ParseError> errors) {
         String coordinatesString = node.getText().toString().trim();
         
         if (   coordinatesString.charAt(0) != '('
@@ -213,7 +212,7 @@ public final class VauParserImpl {
         }
     }
     
-    private static Map/*String->String*/ parseOptions(TextNode node, Collection<ErrorDescription> errors) {
+    private static Map/*String->String*/ parseOptions(TextNode node, Collection<ParseError> errors) {
         String options = node.getText().toString();
         StringTokenizer tokenizer = new StringTokenizer(options, ",");
         Map             result    = new HashMap();
@@ -259,7 +258,7 @@ public final class VauParserImpl {
     }
     
     private static interface CommandParser {
-        public void parseCommand(CommandNode command, NodeStorage storage, Collection<ErrorDescription> errors, Map attributes);
+        public void parseCommand(CommandNode command, NodeStorage storage, Collection<ParseError> errors, Map attributes);
         public String[] getSupportedCommandsName();
     }
     
@@ -275,7 +274,7 @@ public final class VauParserImpl {
             };
         }
         
-        public void parseCommand(CommandNode command, NodeStorage storage, Collection<ErrorDescription> errors, Map attributes) {
+        public void parseCommand(CommandNode command, NodeStorage storage, Collection<ParseError> errors, Map attributes) {
             if (command.getCommand().getCommand().length() > 12)
                 edgeBorder = false;
             else
@@ -302,7 +301,7 @@ public final class VauParserImpl {
             };
         }
         
-        public void parseCommand(CommandNode command, NodeStorage storage, Collection<ErrorDescription> errors, Map attributes) {
+        public void parseCommand(CommandNode command, NodeStorage storage, Collection<ParseError> errors, Map attributes) {
             boolean isFinal = false;
             String commandString = command.getCommand().getCommand();
             
@@ -399,7 +398,7 @@ public final class VauParserImpl {
     }
     
     private abstract class AbstractEdgeParser implements CommandParser {
-        protected EdgeNode parseEdge(CommandNode command, Class nodeClass, NodeStorage storage, Collection<ErrorDescription> errors, Map attributes) {
+        protected EdgeNode parseEdge(CommandNode command, Class nodeClass, NodeStorage storage, Collection<ParseError> errors, Map attributes) {
             String   commandString = command.getCommand().getCommand();
             boolean  isLeft        = commandString.charAt(commandString.length() - 1) == 'L';
             Node     leftState     = storage.getObjectByID(command.getArgument(command.getArgumentCount() - 3).getText().toString());
@@ -471,7 +470,7 @@ public final class VauParserImpl {
             };
         }
         
-        public void parseCommand(CommandNode command, NodeStorage storage, Collection<ErrorDescription> errors, Map attributes) {
+        public void parseCommand(CommandNode command, NodeStorage storage, Collection<ParseError> errors, Map attributes) {
             parseEdge(command, LineEdgeNode.class, storage, errors, attributes);
         }
         
@@ -488,7 +487,7 @@ public final class VauParserImpl {
             };
         }
         
-        public void parseCommand(CommandNode command, NodeStorage storage, Collection<ErrorDescription> errors, Map attributes) {
+        public void parseCommand(CommandNode command, NodeStorage storage, Collection<ParseError> errors, Map attributes) {
             String   commandString = command.getCommand().getCommand();
             int orientation = LoopEdgeNode.NORTH;
             
@@ -561,7 +560,7 @@ public final class VauParserImpl {
             };
         }
         
-        public void parseCommand(CommandNode command, NodeStorage storage, Collection<ErrorDescription> errors, Map attributes) {
+        public void parseCommand(CommandNode command, NodeStorage storage, Collection<ParseError> errors, Map attributes) {
             String   commandString = command.getCommand().getCommand();
             boolean  isBig         = commandString.charAt(1) == 'L';
             
@@ -582,7 +581,7 @@ public final class VauParserImpl {
             };
         }
         
-        public void parseCommand(CommandNode command, NodeStorage storage, Collection<ErrorDescription> errors, Map attributes) {
+        public void parseCommand(CommandNode command, NodeStorage storage, Collection<ParseError> errors, Map attributes) {
             VArcEdgeNode varcEdge  = (VArcEdgeNode) parseEdge(command, VArcEdgeNode.class, storage, errors, attributes);
             
             if (varcEdge == null)
@@ -621,7 +620,7 @@ public final class VauParserImpl {
             };
         }
         
-        public void parseCommand(CommandNode command, NodeStorage storage, Collection<ErrorDescription> errors, Map attributes) {
+        public void parseCommand(CommandNode command, NodeStorage storage, Collection<ParseError> errors, Map attributes) {
             VCurveEdgeNode varcEdge = (VCurveEdgeNode) parseEdge(command, VCurveEdgeNode.class, storage, errors, attributes);
             
             if (varcEdge == null)
@@ -670,7 +669,7 @@ public final class VauParserImpl {
             };
         }
         
-        public void parseCommand(CommandNode command, NodeStorage storage, Collection<ErrorDescription> errors, Map attributes) {
+        public void parseCommand(CommandNode command, NodeStorage storage, Collection<ParseError> errors, Map attributes) {
             VVCurveEdgeNode varcEdge = (VVCurveEdgeNode) parseEdge(command, VVCurveEdgeNode.class, storage, errors, attributes);
 
             if (varcEdge == null)
@@ -738,7 +737,7 @@ public final class VauParserImpl {
             };
         }
         
-        public void parseCommand(CommandNode command, NodeStorage storage, Collection<ErrorDescription> errors, Map attributes) {
+        public void parseCommand(CommandNode command, NodeStorage storage, Collection<ParseError> errors, Map attributes) {
             String cmd = command.getCommand().getCommand();
             
             if ("\\RstEdgeLineStyle".equals(cmd)) {
@@ -785,15 +784,15 @@ public final class VauParserImpl {
         }
     }
     
-    private static ErrorDescription createError(final String description, final SourcePosition pos) {
+    private static ParseError createError(final String description, final SourcePosition pos) {
         final Document doc = pos.getDocument();
-        final ErrorDescription[] result = new ErrorDescription[1];
+        final ParseError[] result = new ParseError[1];
         
         assert doc != null;
         
         doc.render(new Runnable() {
             public void run() {
-                result[0] = ErrorDescriptionFactory.createErrorDescription(Severity.ERROR, description, doc, pos.getLine());
+                result[0] = ParseError.create(Severity.ERROR, "error.unknown", description, pos);
             }
         });
         

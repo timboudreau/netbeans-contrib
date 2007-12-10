@@ -50,7 +50,6 @@ import org.netbeans.api.gsf.ParserResult;
 import org.netbeans.modules.latex.model.command.CommandUtilities;
 import org.netbeans.modules.latex.model.command.DocumentNode;
 import org.netbeans.modules.latex.model.structural.StructuralElement;
-import org.netbeans.spi.editor.hints.ErrorDescription;
 import org.openide.filesystems.FileObject;
 
 /**
@@ -63,15 +62,15 @@ public final class LaTeXParserResult extends ParserResult {
     private StructuralElement structuralRoot;
     private CommandUtilities utils;
     private FileObject mainFile;
-    private Collection<ErrorDescription> errors;
+    private Collection<ParseError> errors;
             
-    public LaTeXParserResult(ParserFile file, FileObject mainFile, DocumentNode root, StructuralElement structuralRoot, CommandUtilities utils, Collection<ErrorDescription> errors) {
+    public LaTeXParserResult(ParserFile file, FileObject mainFile, DocumentNode root, StructuralElement structuralRoot, CommandUtilities utils, Collection<ParseError> errors) {
         super(file);
         this.root = root;
         this.structuralRoot = structuralRoot;
         this.utils = utils;
         this.mainFile = mainFile;
-        this.errors = Collections.unmodifiableCollection(new LinkedList<ErrorDescription>(errors));
+        this.errors = Collections.unmodifiableCollection(new LinkedList<ParseError>(errors));
     }
 
     public Element getRoot() {
@@ -98,7 +97,7 @@ public final class LaTeXParserResult extends ParserResult {
         return structuralRoot;
     }
 
-    public Collection<ErrorDescription> getErrors() {
+    public Collection<ParseError> getErrors() {
         return errors;
     }
 

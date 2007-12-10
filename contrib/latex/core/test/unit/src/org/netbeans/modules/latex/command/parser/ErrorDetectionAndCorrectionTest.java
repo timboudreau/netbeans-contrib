@@ -54,10 +54,10 @@ import java.util.Iterator;
 import javax.swing.text.Document;
 import org.netbeans.core.startup.Main;
 import org.netbeans.modules.latex.UnitUtilities;
+import org.netbeans.modules.latex.model.ParseError;
 import org.netbeans.modules.latex.model.command.DocumentNode;
 import org.netbeans.modules.latex.model.command.SourcePosition;
 import org.netbeans.modules.latex.model.command.parser.CommandParser;
-import org.netbeans.spi.editor.hints.ErrorDescription;
 import org.openide.filesystems.FileObject;
 
 import org.openide.filesystems.FileUtil;
@@ -131,7 +131,7 @@ public class ErrorDetectionAndCorrectionTest extends  NbTestCase {
         
         assertNotNull("The test file " + testFileName + " translated to " + testFile.getPath() + " was not found on the filesystems.", testFileObject);
         
-        Collection<ErrorDescription> errors = new ArrayList<ErrorDescription>();
+        Collection<ParseError> errors = new ArrayList<ParseError>();
         Collection<Document> documents = new ArrayList<Document>();
         
         DocumentNode node = new CommandParser().parse(testFileObject, documents, errors);
@@ -140,10 +140,10 @@ public class ErrorDetectionAndCorrectionTest extends  NbTestCase {
         Iterator iter = errors.iterator();
         
         while (iter.hasNext()) {
-            ErrorDescription err = (ErrorDescription) iter.next();
-            PositionRef pos = err.getRange().getBegin();
+            ParseError err = (ParseError) iter.next();
+            SourcePosition pos = err.getStart();
             
-            getRef().println("(" + pos.getLine() + ":" + pos.getColumn() + "):" + err.getDescription());
+            getRef().println("(" + pos.getLine() + ":" + pos.getColumn() + "):" + err.getDisplayName());
         }
         
         getLog().println("ErrorDetectionAndCorrection test end.");

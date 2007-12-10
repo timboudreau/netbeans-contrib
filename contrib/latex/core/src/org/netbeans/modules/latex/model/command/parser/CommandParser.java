@@ -53,6 +53,7 @@ import java.util.Iterator;
 import java.util.Map;
 import javax.swing.text.Document;
 import org.netbeans.api.lexer.Token;
+import org.netbeans.modules.latex.model.ParseError;
 import org.netbeans.modules.latex.model.Utilities;
 
 import org.netbeans.modules.latex.model.command.ArgumentNode;
@@ -78,13 +79,11 @@ import org.netbeans.modules.latex.model.command.impl.NodeImpl;
 import org.netbeans.modules.latex.model.command.impl.ParagraphNodeImpl;
 import org.netbeans.modules.latex.model.command.impl.TextNodeImpl;
 import org.netbeans.modules.latex.model.lexer.TexTokenId;
-import org.netbeans.spi.editor.hints.ErrorDescription;
-import org.netbeans.spi.editor.hints.ErrorDescriptionFactory;
-import org.netbeans.spi.editor.hints.Severity;
 import org.openide.ErrorManager;
 import org.openide.filesystems.FileLock;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileSystem;
+import org.openide.util.Exceptions;
 
 /** LaTeX command parser. Generates tree of commands. The model is in
  *  {@link org.netbeans.modules.latex.model.command}.
@@ -102,7 +101,7 @@ public final class CommandParser {
     public CommandParser() {
     }
     
-    private Collection<ErrorDescription>  errors;
+    private Collection<ParseError>  errors;
     private Collection/*<String>*/ labels;
     
     private Map<Environment, FileObject> env2BeginText = new HashMap<Environment, FileObject>();
@@ -134,7 +133,7 @@ public final class CommandParser {
 //        return result;
 //    }
 
-    /*public*/private synchronized DocumentNode parseImpl(FileObject mainFile, Collection documents, Collection<ErrorDescription> errors) throws IOException {
+    /*public*/private synchronized DocumentNode parseImpl(FileObject mainFile, Collection documents, Collection<ParseError> errors) throws IOException {
         this.errors    = errors;
         this.documents = documents;
 //        this.usedFiles = new ArrayList();
@@ -164,11 +163,11 @@ public final class CommandParser {
         return parse(mainFile, new ArrayList());
     }
     
-    /*public*/private DocumentNode parse(FileObject mainFile, Collection<ErrorDescription> errors) throws IOException {
+    /*public*/private DocumentNode parse(FileObject mainFile, Collection<ParseError> errors) throws IOException {
         return parse(mainFile, new HashSet(), errors);
     }
     
-    public synchronized DocumentNode parse(FileObject mainFile, Collection documents, Collection<ErrorDescription> errors) throws IOException {
+    public synchronized DocumentNode parse(FileObject mainFile, Collection documents, Collection<ParseError> errors) throws IOException {
 //        Collection coll = new HashSet();
 //        
 //        try {
@@ -404,17 +403,8 @@ public final class CommandParser {
         }
     }
     
-    private ErrorDescription createError(final String message, final SourcePosition pos) {
-        final Document doc = pos.getDocument();
-        final ErrorDescription[] result = new ErrorDescription[1];
-        
-        doc.render(new Runnable() {
-            public void run() {
-                result[0] = ErrorDescriptionFactory.createErrorDescription(Severity.ERROR, message, doc, pos.getLine() + 1);
-            }
-        });
-        
-        return result[0];
+    private ParseError createError(final String message, final SourcePosition pos) {
+        return ParseError.create(ParseError.Severity.ERROR, "error.unknown", message, pos);
     }
     
     private void handleArguments(ArgumentContainingNodeImpl cni, ParserInput input) throws IOException {
@@ -511,6 +501,10 @@ public final class CommandParser {
         Command actual = findCommand(parent, input, command.text());
         
         if (actual == null) {
+            SourcePosition end = new SourcePosition(input.getPosition().getDocument(), input.getPosition().getOffsetValue() + command.length());
+            ParseError error = ParseError.create(ParseError.Severity.WARNING, "unknown.command", "Unknown command: " + command.text().toString(), input.getPosition(), end, command.text().toString());
+            
+            errors.add(error);
             actual = CommandNodeImpl.NULL_COMMAND;
         }
         
@@ -975,7 +969,7 @@ public final class CommandParser {
         node.setEndingPosition(input.getPosition());
         
         if (errorRecovery) {
-            ErrorDescription err = createError("Missing closing bracket added.", node.getEndingPosition());
+            ParseError err = createError("Missing closing bracket added.", node.getEndingPosition());
             
             errors.add(err);
             
@@ -1021,6 +1015,8 @@ public final class CommandParser {
         Environment   env = findEnvironment(beginText);
         
         if (env == null) {
+            ParseError error = ParseError.create(ParseError.Severity.WARNING, "unknown.environment", "Unknown environment: " + beginText, anode.getStartingPosition(), anode.getEndingPosition(), beginText);
+            errors.add(error);
             env = BlockNodeImpl.NULL_ENVIRONMENT;
         }
         

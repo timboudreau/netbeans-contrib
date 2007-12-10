@@ -45,12 +45,12 @@ package org.netbeans.modules.latex.model.structural.parser;
 
 import java.io.IOException;
 import java.util.*;
+import org.netbeans.modules.latex.model.ParseError;
 import org.netbeans.modules.latex.model.Queue;
 import org.netbeans.modules.latex.model.command.*;
 import org.netbeans.modules.latex.model.structural.DelegatedParser;
 import org.netbeans.modules.latex.model.structural.StructuralElement;
 import org.netbeans.modules.latex.model.structural.label.LabelStructuralElement;
-import org.netbeans.spi.editor.hints.ErrorDescription;
 import org.openide.ErrorManager;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.Repository;
@@ -77,7 +77,7 @@ public final class StructuralParserImpl {
         mainElement = new MainStructuralElement();
     }
     
-    public StructuralElement parse(DocumentNode dn, List<ErrorDescription> errors) {
+    public StructuralElement parse(DocumentNode dn, List<ParseError> errors) {
         List<DelegatedParser> parsers = getDelegatedParsers();
         
         for (DelegatedParser p : parsers) {

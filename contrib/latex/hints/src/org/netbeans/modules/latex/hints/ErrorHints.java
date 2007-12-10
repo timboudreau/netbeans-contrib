@@ -44,17 +44,24 @@ package org.netbeans.modules.latex.hints;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.EnumMap;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import javax.swing.text.Document;
 import org.netbeans.api.gsf.CancellableTask;
 import org.netbeans.napi.gsfret.source.CompilationInfo;
 import org.netbeans.napi.gsfret.source.Phase;
 import org.netbeans.napi.gsfret.source.Source.Priority;
 import org.netbeans.napi.gsfret.source.support.EditorAwareSourceTaskFactory;
 import org.netbeans.modules.latex.model.LaTeXParserResult;
+import org.netbeans.modules.latex.model.ParseError;
 import org.netbeans.spi.editor.hints.ErrorDescription;
+import org.netbeans.spi.editor.hints.ErrorDescriptionFactory;
+import org.netbeans.spi.editor.hints.Fix;
 import org.netbeans.spi.editor.hints.HintsController;
+import org.netbeans.spi.editor.hints.Severity;
 import org.openide.filesystems.FileObject;
 
 /**
@@ -66,31 +73,78 @@ public class ErrorHints implements CancellableTask<CompilationInfo> {
     public void cancel() {
     }
 
-    public void run(CompilationInfo parameter) throws Exception {
+    public void run(final CompilationInfo parameter) throws Exception {
+        final Document doc = parameter.getDocument();
+        
+        if (doc == null) return ;
+        
         LaTeXParserResult lpr = (LaTeXParserResult) parameter.getParserResult();
         
-        Map<FileObject, List<ErrorDescription>> sortedErrors = sortErrors(lpr.getErrors());
-        List<ErrorDescription> errors = sortedErrors.get(parameter.getFileObject());
+        Map<FileObject, List<ParseError>> sortedErrors = sortErrors(lpr.getErrors());
+        List<ParseError> errors = sortedErrors.get(parameter.getFileObject());
         
-        if (errors == null) errors = Collections.<ErrorDescription>emptyList();
+        if (errors == null) errors = Collections.<ParseError>emptyList();
         
-        HintsController.setErrors(parameter.getFileObject(), ErrorHints.class.getName(), errors);
+        final List<ErrorDescription> editorErrors = new LinkedList<ErrorDescription>();
+        
+        for (final ParseError e : errors) {
+            final Severity s = latex2EditorSeverity.get(e.getSeverity());
+            final List<Fix> fixes = new LinkedList<Fix>();
+            
+            FixProvider p = code2StringProvider.get(e.getCode());
+            
+            if (p != null) {
+                List<Fix> providedFixes = p.resolveFixes(parameter, e);
+                
+                if (providedFixes != null) {
+                    fixes.addAll(providedFixes);
+                }
+            }
+
+            doc.render(new Runnable() {
+                public void run() {
+                    if (e.getEnd() == null) {
+                        editorErrors.add(ErrorDescriptionFactory.createErrorDescription(s, e.getDisplayName(), fixes, doc, e.getStart().getLine()));
+                    } else {
+                        editorErrors.add(ErrorDescriptionFactory.createErrorDescription(s, e.getDisplayName(), fixes, parameter.getFileObject(), e.getStart().getOffsetValue(), e.getEnd().getOffsetValue()));
+                    }
+                }
+            });
+        }
+        
+        HintsController.setErrors(parameter.getFileObject(), ErrorHints.class.getName(), editorErrors);
     }
 
-    private Map<FileObject, List<ErrorDescription>> sortErrors(Collection<ErrorDescription> errors) {
-        Map<FileObject, List<ErrorDescription>> result = new HashMap<FileObject, List<ErrorDescription>>();
+    private Map<FileObject, List<ParseError>> sortErrors(Collection<ParseError> errors) {
+        Map<FileObject, List<ParseError>> result = new HashMap<FileObject, List<ParseError>>();
         
-        for (ErrorDescription err : errors) {
-            List<ErrorDescription> errs = result.get(err.getFile());
+        for (ParseError err : errors) {
+            FileObject file = (FileObject) err.getStart().getFile();
+            List<ParseError> errs = result.get(file);
             
             if (errs == null) {
-                result.put(err.getFile(), errs = new ArrayList<ErrorDescription>());
+                result.put(file, errs = new ArrayList<ParseError>());
             }
             
             errs.add(err);
         }
         
         return result;
+    }
+    
+    private static final Map<ParseError.Severity, Severity> latex2EditorSeverity;
+    private static final Map<String, FixProvider> code2StringProvider;
+    
+    static {
+        latex2EditorSeverity = new EnumMap<ParseError.Severity, Severity>(ParseError.Severity.class);
+        
+        latex2EditorSeverity.put(ParseError.Severity.ERROR, Severity.ERROR);
+        latex2EditorSeverity.put(ParseError.Severity.WARNING, Severity.WARNING);
+        
+        code2StringProvider = new HashMap<String, FixProvider>();
+        
+        code2StringProvider.put("unknown.command", new AddPackageFixProvider(true));
+        code2StringProvider.put("unknown.environment", new AddPackageFixProvider(false));
     }
     
     public static final class Factory extends EditorAwareSourceTaskFactory {

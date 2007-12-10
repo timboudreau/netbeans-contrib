@@ -62,11 +62,9 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import javax.swing.JComponent;
+import org.netbeans.modules.latex.model.ParseError;
 import org.netbeans.modules.latex.model.Utilities;
 import org.netbeans.modules.latex.model.command.SourcePosition;
-import org.netbeans.spi.editor.hints.ErrorDescription;
-import org.netbeans.spi.editor.hints.ErrorDescriptionFactory;
-import org.netbeans.spi.editor.hints.Severity;
 
 /**
  *
@@ -138,7 +136,7 @@ public class NodeStorage extends Node implements PropertyChangeListener {
             String error = "Node with id=" + node.getID() + " already in the collection. Current node: " + getObjectByID(node.getID()) + ", new node: " + node + ".";
             
             if (errors != null) {
-                errors.add(ErrorDescriptionFactory.createErrorDescription(Severity.ERROR, error, null, pos.getLine()));
+                errors.add(ParseError.create(ParseError.Severity.ERROR, "error.unknown", error, pos));
             } else {
                 throw new IllegalArgumentException(error);
             }

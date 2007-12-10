@@ -51,6 +51,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Stack;
+import org.netbeans.modules.latex.model.ParseError;
 import org.netbeans.modules.latex.model.command.ArgumentContainingNode;
 import org.netbeans.modules.latex.model.command.ArgumentNode;
 import org.netbeans.modules.latex.model.command.BlockNode;
@@ -59,9 +60,6 @@ import org.netbeans.modules.latex.model.command.Environment;
 import org.netbeans.modules.latex.model.command.Node;
 import org.netbeans.modules.latex.model.structural.DelegatedParser;
 import org.netbeans.modules.latex.model.structural.StructuralElement;
-import org.netbeans.spi.editor.hints.ErrorDescription;
-import org.netbeans.spi.editor.hints.ErrorDescriptionFactory;
-import org.netbeans.spi.editor.hints.Severity;
 import org.openide.filesystems.FileObject;
 import org.openide.util.actions.SystemAction;
 
@@ -85,7 +83,7 @@ public class LabelDelegatedParser extends DelegatedParser {
     
     private Stack captions = new Stack();
     private Map/*<String, List or LabelStructuralElement>*/ label2Refs = new HashMap();
-    private Map<String, ErrorDescription> errors = new HashMap<String, ErrorDescription>();
+    private Map<String, ParseError> errors = new HashMap<String, ParseError>();
     
     private void handleEnvCommand(CommandNode cnode) {
         Node parent = cnode.getParent();
@@ -115,7 +113,7 @@ public class LabelDelegatedParser extends DelegatedParser {
         
         if (fromMap instanceof List) {
             ((List) fromMap).add(el);
-            errors.put(el.getLabel(), ErrorDescriptionFactory.createErrorDescription(Severity.WARNING, "Undefined label: " + el.getLabel(), (FileObject) anode.getStartingPosition().getFile(), anode.getStartingPosition().getOffsetValue(), anode.getEndingPosition().getOffsetValue()));
+            errors.put(el.getLabel(), ParseError.create(ParseError.Severity.WARNING, "warning.unknown", "Undefined label: " + el.getLabel(), anode.getStartingPosition(), anode.getEndingPosition()));
         } else {
             ((LabelStructuralElement) fromMap).addSubElement(el);
         }
@@ -197,7 +195,7 @@ public class LabelDelegatedParser extends DelegatedParser {
         };
     }
     
-    public Collection<ErrorDescription> getErrors() {
+    public Collection<ParseError> getErrors() {
         return errors.values();
     }
     

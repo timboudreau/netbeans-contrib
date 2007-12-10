@@ -64,6 +64,7 @@ import org.netbeans.api.gsf.PositionManager;
 import org.netbeans.api.gsf.SemanticAnalyzer;
 import org.netbeans.api.gsf.SourceFileReader;
 import org.netbeans.modules.latex.model.LaTeXParserResult;
+import org.netbeans.modules.latex.model.ParseError;
 import org.netbeans.modules.latex.model.command.DocumentNode;
 import org.netbeans.modules.latex.model.command.LaTeXSourceFactory;
 import org.netbeans.modules.latex.model.command.Node;
@@ -71,7 +72,6 @@ import org.netbeans.modules.latex.model.command.impl.CommandUtilitiesImpl;
 import org.netbeans.modules.latex.model.command.parser.CommandParser;
 import org.netbeans.modules.latex.model.structural.StructuralElement;
 import org.netbeans.modules.latex.model.structural.parser.StructuralParserImpl;
-import org.netbeans.spi.editor.hints.ErrorDescription;
 import org.openide.filesystems.FileObject;
 import org.openide.util.Exceptions;
 import org.openide.util.Lookup;
@@ -91,7 +91,7 @@ public class LaTeXGSFParser implements Parser {
         assert files.size() == 1;
         
         try {
-            List<ErrorDescription> errors = new LinkedList<ErrorDescription>();
+            List<ParseError> errors = new LinkedList<ParseError>();
             FileObject file = files.get(0).getFileObject();
             FileObject main = null;
             
@@ -159,7 +159,7 @@ public class LaTeXGSFParser implements Parser {
         return null;
     }
 
-    private DocumentNode reparseImpl(FileObject main, List<ErrorDescription> errors) throws IOException {
+    private DocumentNode reparseImpl(FileObject main, List<ParseError> errors) throws IOException {
 //        try {
             long start = System.currentTimeMillis();
             

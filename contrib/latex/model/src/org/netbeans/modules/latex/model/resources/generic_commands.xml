@@ -527,6 +527,7 @@ made subject to such option by the copyright holder.
 </command>
 
 <command name="\usepackage">
+  <attribute name="#usepackage-command" value="true" />
   <argument type="nonmandatory">
     <attribute name="#packageoptions" value="true" />
 

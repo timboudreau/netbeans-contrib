@@ -48,11 +48,11 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
+import org.netbeans.modules.latex.model.ParseError;
 import org.netbeans.modules.latex.model.command.CommandNode;
 import org.netbeans.modules.latex.model.command.Node;
 import org.netbeans.modules.latex.model.structural.DelegatedParser;
 import org.netbeans.modules.latex.model.structural.StructuralElement;
-import org.netbeans.spi.editor.hints.ErrorDescription;
 
 
 /**
@@ -61,14 +61,14 @@ import org.netbeans.spi.editor.hints.ErrorDescription;
  */
 public final class VauParser extends DelegatedParser {
 
-    private List<ErrorDescription> errors;
+    private List<ParseError> errors;
     
     public VauParser() {
     }
 
     public StructuralElement getElement(Node node) {
         if (errors == null) {
-            errors = new LinkedList<ErrorDescription>();
+            errors = new LinkedList<ParseError>();
         }
         
         if (node instanceof CommandNode) {
@@ -83,8 +83,8 @@ public final class VauParser extends DelegatedParser {
     }
 
     @Override
-    public Collection<ErrorDescription> getErrors() {
-        return errors == null ? Collections.<ErrorDescription>emptyList() : errors;
+    public Collection<ParseError> getErrors() {
+        return errors == null ? Collections.<ParseError>emptyList() : errors;
     }
 
     @Override

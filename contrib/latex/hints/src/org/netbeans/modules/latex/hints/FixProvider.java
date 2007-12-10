@@ -23,10 +23,9 @@
  *
  * Contributor(s):
  *
- * The Original Software is the LaTeX module.
- * The Initial Developer of the Original Software is Jan Lahoda.
- * Portions created by Jan Lahoda_ are Copyright (C) 2002-2007.
- * All Rights Reserved.
+ * The Original Software is NetBeans. The Initial Developer of the Original
+ * Software is Sun Microsystems, Inc. Portions Copyright 1997-2007 Sun
+ * Microsystems, Inc. All Rights Reserved.
  *
  * If you wish your version of this file to be governed by only the CDDL
  * or only the GPL Version 2, indicate your decision by adding
@@ -38,44 +37,21 @@
  * However, if you add GPL Version 2 code and therefore, elected the GPL
  * Version 2 license, then the option applies only if the new code is
  * made subject to such option by the copyright holder.
- *
- * Contributor(s): Jan Lahoda.
  */
-package org.netbeans.modules.latex.model.structural;
 
-import java.util.Collection;
-import java.util.Collections;
+package org.netbeans.modules.latex.hints;
+
+import java.util.List;
 import org.netbeans.modules.latex.model.ParseError;
-import org.netbeans.modules.latex.model.command.Node;
+import org.netbeans.napi.gsfret.source.CompilationInfo;
+import org.netbeans.spi.editor.hints.Fix;
 
-/**SPI
+/**
  *
  * @author Jan Lahoda
  */
-public abstract class DelegatedParser {
+public interface FixProvider {
 
-    /** Creates a new instance of DelegatedParser */
-    public DelegatedParser() {
-    }
-
-    public abstract String[] getSupportedAttributes();
-
-    public abstract StructuralElement getElement(Node node);
-
-    public void reset() {}
-    
-    public void parsingFinished() {}
-    
-    public StructuralElement updateElement(Node node, StructuralElement element) {
-        return getElement(node);
-    }
-    
-    public Object getKey(Node node) {
-        return null;
-    }
-    
-    public Collection<ParseError> getErrors() {
-        return Collections.<ParseError>emptyList();
-    }
+    public List<Fix> resolveFixes(CompilationInfo info, ParseError error);
     
 }
