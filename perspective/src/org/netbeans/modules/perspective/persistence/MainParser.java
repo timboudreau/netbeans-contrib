@@ -58,15 +58,14 @@ import org.openide.util.Exceptions;
 public class MainParser {
 
     private static final String LAYER_DIR = "perspectives"; //NOI18N
-     private static MainParser instance;
+    private static MainParser instance;
     private FileObject perspectiveBase;
-
     private PerspectivePreferences perspectivePreferences = PerspectivePreferences.getInstance();
 
     private MainParser() {
         //Creating Parser instance
         perspectiveBase = Repository.getDefault().getDefaultFileSystem().findResource(LAYER_DIR);
-       
+
     }
 
     public static synchronized MainParser getInstance() {
@@ -139,7 +138,7 @@ public class MainParser {
             }
         }
         clear(perspectiveBase);
-        PerspectiveWriter perspectiveWriter=new PerspectiveWriter();
+        PerspectiveWriter perspectiveWriter = new PerspectiveWriter();
         final List<PerspectiveImpl> perspectives = PerspectiveManagerImpl.getInstance().getPerspectives();
         for (PerspectiveImpl p : perspectives) {
             try {
@@ -155,11 +154,13 @@ public class MainParser {
     public synchronized void reset() throws IOException {
         perspectivePreferences.reset();
         ToolbarStyleSwitchUI.getInstance().reset();
-        Callable  callable=(Callable) perspectiveBase.getAttribute("removeWritables");
-        try {
-            callable.call();
-        } catch (Exception ex) {
-            Exceptions.printStackTrace(ex);
+        Callable callable = (Callable) perspectiveBase.getAttribute("removeWritables");
+        if (callable != null) {
+            try {
+                callable.call();
+            } catch (Exception ex) {
+                Exceptions.printStackTrace(ex);
+            }
         }
         restore();
     }
