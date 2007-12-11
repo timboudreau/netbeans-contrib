@@ -739,28 +739,6 @@ NAVIGATOR:VarDclDef: {
     icon: "/org/netbeans/modules/languages/resources/method.gif";
 }
 
-NAVIGATOR:Expr: {
-    display_name: "Expr";
-    icon: "/org/netbeans/modules/languages/resources/method.gif";
-}
-
-
-NAVIGATOR:SimpleExpr: {
-    display_name: "SimpleExpr";
-    icon: "/org/netbeans/modules/languages/resources/method.gif";
-}
-
-NAVIGATOR:XmlExpr: {
-    display_name: "XmlExpr";
-    icon: "/org/netbeans/modules/languages/resources/method.gif";
-}
-
-NAVIGATOR:CaseBlockStat: {
-    display_name: "CaseBlockStat";
-    icon: "/org/netbeans/modules/languages/resources/method.gif";
-}
-
-
 MARK:ERROR: {
     type:"Error";
     message:"LBL_SYNTAX_ERROR";
