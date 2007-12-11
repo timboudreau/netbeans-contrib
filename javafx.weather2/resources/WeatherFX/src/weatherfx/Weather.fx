@@ -188,27 +188,18 @@ function Weather.createTodayClickableArea() {
             
             lowsTriangleTransform.scale = [2.2,2.19 .. 1.0] dur 800 linear;
 
-            lowsTriangleTransform.tx = [10..0] dur 1000;
-            lowsTriangleTransform.ty = [-7..0] dur 1000;
-            highsTriangleTransform.ty = [11..0] dur 1000;
-            highsTriangleTransform.tx = [105..0] dur 1000;            
+            lowsTriangleTransform.tx = [105..0] dur 1000;
+            lowsTriangleTransform.ty = [-6..0] dur 1000;
+            
+            highsTriangleTransform.tx = [10..0] dur 1000;            
+            highsTriangleTransform.ty = [11..0] dur 1000;         
             
             todayLowsTY = [70..0] dur 1000;
             todayHighsTY = [-70..0] dur 1000;
             tomorrowLowsTY = [0..70] dur 500;
             tomorrowHighsTY = [0..-70] dur 500;
         }
-/*
-        onMouseEntered: operation (e:CanvasMouseEvent) {                       
-            System.out.println("entered today");
-            self.opacity = [0.00,0.01 .. 0.5] dur 1000;
-        }
-        onMouseExited: operation (e:CanvasMouseEvent) {                       
-            System.out.println("exited today");
 
-            self.opacity = [0.5, 0.49 .. 0] dur 1000;
-        }
-*/
     };
 }
 
@@ -223,10 +214,11 @@ function Weather.createTomorrowClickableArea() {
             todayNodesOpacity = [1.0,0.99 .. 0.0] dur 1000;
             lowsTriangleTransform.scale = [1.0,1.01 .. 2.2] dur 800 linear;
             
-            lowsTriangleTransform.tx = [0..10] dur 1000;
-            lowsTriangleTransform.ty = [0..-7] dur 1000;
+            highsTriangleTransform.tx = [0..10] dur 1000;
             highsTriangleTransform.ty = [0..11] dur 1000;
-            highsTriangleTransform.tx = [0..105] dur 1000;            
+
+            lowsTriangleTransform.tx = [0..105] dur 1000;                     
+            lowsTriangleTransform.ty = [0..-6] dur 1000;                    
             
             todayLowsTY = [0..70] dur 500;
             todayHighsTY = [0..-70] dur 500;
@@ -524,7 +516,8 @@ Group {
             filter: [ShadowFilter {x:1 y:-1 radius: 3}]
             content: [
         Group {
-            transform: [rotate(bind weatherModel.windDirection +111,192,98)]
+            transform: [Rotate { angle: bind weatherModel.windDirection - 68
+                                 cx: 192 cy: 98} ] 
             content: [
         Path {
             d: [

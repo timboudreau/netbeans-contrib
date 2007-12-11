@@ -68,10 +68,9 @@ var f = Frame {
     title: "WeatherFX"
     onClose: operation() { System.exit(0); }
     resizable: false
-    //undecorated: true
+    centerOnScreen:true
+    visible:true    
 };
-f.pack();
-f.visible = true;
 
 
 operation showWeather(weatherCode:String, weather:Weather) {
