@@ -63,10 +63,7 @@ public class TestIDEWindowA11YAction extends NodeAction {
     }
     
     public boolean enable(Node[] node) {
-        if(Boolean.getBoolean("a11ytest.IDE"))
-            return true;
-        else
-            return false;
+        return true;
     }
     
     /**
