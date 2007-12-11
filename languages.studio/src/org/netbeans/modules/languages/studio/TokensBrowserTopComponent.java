@@ -59,6 +59,9 @@ import java.util.ConcurrentModificationException;
 import javax.swing.JEditorPane;
 import javax.swing.JScrollPane;
 import javax.swing.tree.DefaultTreeModel;
+import org.netbeans.api.languages.Language;
+import org.netbeans.api.languages.LanguageDefinitionNotFoundException;
+import org.netbeans.api.languages.LanguagesManager;
 
 
 /**
@@ -201,9 +204,14 @@ final class TokensBrowserTopComponent extends TopComponent {
                 if (t == null) return;
                 Token token = t.getToken ();
                 if (token == null) return;
+                Language language = null;
+                try {
+                    language = LanguagesManager.get().getLanguage(t.getMimeType());
+                } catch (LanguageDefinitionNotFoundException ex) {}
+                if (language == null) return; 
                 ASTToken stoken = ASTToken.create (
-                    t.getMimeType (),
-                    token.id ().name (), 
+                    language,
+                    token.id().ordinal(),
                     token.text ().toString (), 
                     t.getOffset ()
                 );

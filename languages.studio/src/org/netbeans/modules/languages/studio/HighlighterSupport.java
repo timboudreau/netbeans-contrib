@@ -51,7 +51,8 @@ public class HighlighterSupport {
     public void highlight (Document doc, ASTItem item) {
         removeHighlight ();
         highlight = Highlighting.getHighlighting (doc).highlight (
-            item, 
+            item.getOffset(),
+            item.getEndOffset(),
             getHighlightAS ()
         );
         refresh (doc, item.getOffset ());
