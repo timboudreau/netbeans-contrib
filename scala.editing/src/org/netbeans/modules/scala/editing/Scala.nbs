@@ -623,7 +623,7 @@ DclDef = ValDclDef
 ValDclDef = "val" PatDef [":" Type] [<eq> Expr];
 VarDclDef = "var" PatDef [":" Type] [<eq> Expr];
 FunDclDef = "def" Id [FunTypeParamClause] [ParamClauses] ([":" Type] [<eq> Expr] | <lcurly> [BlockStats] <rcurly>)
-          | "this" [ParamClauses] (<eq> ConstrExpr | ConstrBlock);
+          | "def" "this" [ParamClauses] (<eq> ConstrExpr | ConstrBlock);
 TypeDclDef = "type" Id [TypeParamClause] ([">:" Type] ["<:" Type] ["<%" Type] | <eq> Type);
 
 PatDef = Pattern2 ("," Pattern2)*;
