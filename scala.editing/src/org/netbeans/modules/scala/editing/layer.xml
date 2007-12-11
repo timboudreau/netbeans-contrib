@@ -103,7 +103,7 @@ made subject to such option by the copyright holder.
                 <file name="Settings.settings" url="LanguagesOptions.settings"/>
                 <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.scala.editing.Bundle"/>
                 <file name="language.nbs" url="Scala.nbs">
-                    <attr name="icon" stringvalue="org/netbeans/modules/languages/javascript/JavaScript.png"/>
+                    <attr name="icon" stringvalue="org/netbeans/modules/scala/scala16x16.png"/>
                 </file>
             </folder>
             <!--folder name="x-string">

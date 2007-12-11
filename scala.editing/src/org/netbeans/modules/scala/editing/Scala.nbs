@@ -130,7 +130,6 @@ TOKEN:keyword: (
     "return" |
     "sealed" |
     "super" |
-    "synchronized" |
     "this" |
     "throw" |
     "trait" |
@@ -227,10 +226,10 @@ TOKEN:separator: (
 TOKEN:dot: (
     [" " "\t" "\n" "\r"]* "." [" " "\t" "\n" "\r"]*
 )
-TOKEN:lcurl: (
+TOKEN:lcurly: (
     "{"
 )
-TOKEN:rcurl: (
+TOKEN:rcurly: (
     "}"
 )
 
@@ -398,7 +397,7 @@ Types = Type ("," Type)*;
 Type = InfixType [<rarrow> Type | ExistentialClause]
      | "(" [<rarrow> Type | (<nl>)] ")" <rarrow> Type;
 
-ExistentialClause = <forSome> <lcurl> (<nl>)* ExistentialDcl (Semi ExistentialDcl)* <rcurl>;
+ExistentialClause = <forSome> <lcurly> (<nl>)* ExistentialDcl (Semi ExistentialDcl)* <rcurly>;
 ExistentialDcl = "type" Id [TypeParamClause] [">:" Type] ["<:" Type]
                | "val" Ids ":" Type;
 
@@ -411,19 +410,19 @@ SimpleType = TypeStableId (TypeArgs | "#" Id)*
            | "(" Types [","] ")" (TypeArgs | "#" Id)*;
 TypeArgs = "[" Types "]";
 
-Refinement = <lcurl> (<nl>)* [RefineStat (Semi RefineStat)*] <rcurl>;
+Refinement = <lcurly> (<nl>)* [RefineStat (Semi RefineStat)*] <rcurly>;
 RefineStat = DclDef;
 
 Ascription = ":" (CompoundType | (Annotation)+ | "_" "*");
 
 Expr = "if" "(" Expr ")" (<nl>)* Expr [<else> (<nl>)* Expr]
      | "while" "(" Expr ")" (<nl>)* Expr
-     | "try" <lcurl> (<nl>)* BlockStats <rcurl> [<catch> (<nl>)* <lcurl> (<nl>)* CaseClauses <rcurl>] [<finally> Expr]
+     | "try" <lcurly> (<nl>)* BlockStats <rcurly> [<catch> (<nl>)* <lcurly> (<nl>)* CaseClauses <rcurly>] [<finally> Expr]
      | "do" Expr [Semi] "while" "(" Expr ")"
-     | "for" ("(" Enumerators ")" | <lcurl> (<nl>)* Enumerators <rcurl>) (<nl>)* [<yield>] Expr
+     | "for" ("(" Enumerators ")" | <lcurly> (<nl>)* Enumerators <rcurly>) (<nl>)* [<yield>] Expr
      | "throw" Expr
      | "return" [Expr]
-     | PostfixExpr [Ascription | <match> (<nl>)* <lcurl> (<nl>)* CaseClauses <rcurl> | <eq> Expr | <rarrow> Expr];
+     | PostfixExpr [Ascription | <match> (<nl>)* <lcurly> (<nl>)* CaseClauses <rcurly> | <eq> Expr | <rarrow> Expr];
 
 Bindings = "(" Binding ("," Binding)* ")";
 Binding = Id ":" Type;
@@ -475,8 +474,8 @@ Prths = "(" (<nl>)* PrthsExpr ("," (<nl>)* PrthsExpr)* (<nl>)* ")";
 PrthsExpr = Expr
           | ;
 
-Block = <lcurl> (<nl>)* (BlockStats | CaseClauses) <rcurl>;
-TemplateBody = <lcurl> (<nl>)* TemplateStats <rcurl> [<with>];
+Block = <lcurly> (<nl>)* (BlockStats | CaseClauses) <rcurly>;
+TemplateBody = <lcurly> (<nl>)* TemplateStats <rcurly> [<with>];
 
 ####### Blocked Statements: #############
 TemplateStats = TemplateStat (Semi TemplateStat)*;
@@ -541,7 +540,7 @@ AttValue = <string> # "\"" {CharQ | CharRef} "\""
 Name = <varid>
      | <upperid>
      | <keyword>;
-ScalaExpr = <lcurl> (<nl>)* BlockStats <rcurl>;
+ScalaExpr = <lcurly> (<nl>)* BlockStats <rcurly>;
 
 Patterns = Pattern ("," Pattern)*
          | "_" "*"
@@ -577,7 +576,7 @@ ContentP = ElemPattern
          | <pi>
          | CharData
          | ScalaPatterns;
-ScalaPatterns = <lcurl> (<nl>)* patterns <rcurl>;
+ScalaPatterns = <lcurly> (<nl>)* patterns <rcurly>;
 
 
 TypeParamClause = "[" VariantTypeParam ("," VariantTypeParam)* "]";
@@ -600,13 +599,13 @@ AccessModifier = ("private" | "protected") [AccessQualifier];
 AccessQualifier = "[" (Id | "this") "]";
 
 Annotation = "@" AnnotationExpr;
-AnnotationExpr = AnnotType Arguments [<lcurl> (<nl>)* (NameValuePair)* <rcurl>];
+AnnotationExpr = AnnotType Arguments [<lcurly> (<nl>)* (NameValuePair)* <rcurly>];
 NameValuePair = "val" Id <eq> PrefixExpr;
 
 Import = "import" ImportExpr ("," ImportExpr)*;
 ## Hacking for: ImportExpr = StableId "." (Id | "_" | ImportSelectors);
 ImportExpr = ImportId;
-ImportSelectors = <lcurl> (<nl>)* ImportSelector ("," ImportSelector)* <rcurl>;
+ImportSelectors = <lcurly> (<nl>)* ImportSelector ("," ImportSelector)* <rcurly>;
 ImportSelector = (Id [<rarrow> (Id | "_")] | "_");
 
 ImportId = ImportId0 (<dot> ImportId0)*;
@@ -623,7 +622,7 @@ DclDef = ValDclDef
        | TmplDef;
 ValDclDef = "val" PatDef [":" Type] [<eq> Expr];
 VarDclDef = "var" PatDef [":" Type] [<eq> Expr];
-FunDclDef = "def" Id [FunTypeParamClause] [ParamClauses] ([":" Type] [<eq> ["synchronized"] Expr] | <lcurl> [BlockStats] <rcurl>)
+FunDclDef = "def" Id [FunTypeParamClause] [ParamClauses] ([":" Type] [<eq> Expr] | <lcurly> [BlockStats] <rcurly>)
           | "this" [ParamClauses] (<eq> ConstrExpr | ConstrBlock);
 TypeDclDef = "type" Id [TypeParamClause] ([">:" Type] ["<:" Type] ["<%" Type] | <eq> Type);
 
@@ -639,7 +638,7 @@ ParamType = Type ["*"]
 ConstrExpr = SelfInvocation
            | ConstrBlock;
 SelfInvocation = "this" (Arguments)+;
-ConstrBlock = <lcurl> (<nl>)* SelfInvocation (Semi BlockStat)* <rcurl>;
+ConstrBlock = <lcurly> (<nl>)* SelfInvocation (Semi BlockStat)* <rcurly>;
 
 TmplDef = ClassDef
         | ObjectDef
@@ -672,9 +671,14 @@ TopStat = (Annotation)* (Modifier)* TmplDef
         | TemplateBody
         | ;
 
-Packaging = "package" QualId <lcurl> (<nl>)* TopStats <rcurl>;
+Packaging = "package" QualId <lcurly> (<nl>)* TopStats <rcurly>;
 CompilationUnit = (<nl>)* ["package" QualId Semi] TopStats;
 
+
+SYNTAX_ERROR:Expr: {
+    token_identifier:";";
+    nt:"Expr";
+}
 
 ########### CODE FOLDING #######################################################
 FOLD:ClassDef:{
@@ -831,7 +835,7 @@ INDENT "{:}"
 INDENT "[:]"
 INDENT "\\s*(((if|while)\\s*\\(|else\\s*|else\\s+if\\s*\\(|for\\s*\\(.*\\))[^{;]*)"
 
-BUNDLE "org.netbeans.modules.languages.scala.editor.Bundle"
+BUNDLE "org.netbeans.modules.scala.editor.Bundle"
 
 SELECTION ( ["a"-"z" "A"-"Z" "0"-"9" "_" "$"] )
 
