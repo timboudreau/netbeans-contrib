@@ -358,8 +358,8 @@ PlainId = <upperid>
         | <varid>
         | OpId;
 
-Id = PlainId
-   | <stringid>;
+NameId = PlainId
+       | <stringid>;
 
 # all (<nl>)* behind ";" should also be eaten
 Semi = ";" (<nl>)*
@@ -374,18 +374,18 @@ Literal = <integer>
         | "false"
         | "null";
 
-QualId = Id (<dot> Id)*;
+QualId = NameId (<dot> NameId)*;
 
-Ids = Id ("," Id)*;
+Ids = NameId ("," NameId)*;
 
 ## Hacking for: Path = StableId ["." "this"], since Path is also belongs to SimpleType etc
 StableId = PathId (<dot> PathId)*;
-PathId = Id
+PathId = NameId
        | "this"
-       | "super" [ClassQualifier] <dot> Id;
-ClassQualifier = "[" Id "]";
+       | "super" [ClassQualifier] <dot> NameId;
+ClassQualifier = "[" NameId "]";
 
-## Hacking for: SimpleType = StableId ["." "type"] (TypeArgs | "#" Id)*
+## Hacking for: SimpleType = StableId ["." "type"] (TypeArgs | "#" NameId)*
 ##  "." "type" should only be in SimpleType, but since StableId may also belongs to SimpleType,
 ##  we cannot add any more "." "anything" behind StableId
 TypeStableId = TypeId (<dot> TypeId)*;
@@ -398,16 +398,16 @@ Type = InfixType [<rarrow> Type | ExistentialClause]
      | "(" [<rarrow> Type | (<nl>)] ")" <rarrow> Type;
 
 ExistentialClause = <forSome> <lcurly> (<nl>)* ExistentialDcl (Semi ExistentialDcl)* <rcurly>;
-ExistentialDcl = "type" Id [TypeParamClause] [">:" Type] ["<:" Type]
+ExistentialDcl = "type" NameId [TypeParamClause] [">:" Type] ["<:" Type]
                | "val" Ids ":" Type;
 
-InfixType = CompoundType (Id [<nl>] CompoundType)*;
+InfixType = CompoundType (NameId [<nl>] CompoundType)*;
 CompoundType = AnnotType ("with" AnnotType)* [Refinement]
              | Refinement;
 AnnotType = (Annotation)* SimpleType ["*"];
 
-SimpleType = TypeStableId (TypeArgs | "#" Id)*
-           | "(" Types [","] ")" (TypeArgs | "#" Id)*;
+SimpleType = TypeStableId (TypeArgs | "#" NameId)*
+           | "(" Types [","] ")" (TypeArgs | "#" NameId)*;
 TypeArgs = "[" Types "]";
 
 Refinement = <lcurly> (<nl>)* [RefineStat (Semi RefineStat)*] <rcurly>;
@@ -425,11 +425,11 @@ Expr = "if" "(" Expr ")" (<nl>)* Expr [<else> (<nl>)* Expr]
      | PostfixExpr [Ascription | <match> (<nl>)* <lcurly> (<nl>)* CaseClauses <rcurly> | <eq> Expr | <rarrow> Expr];
 
 Bindings = "(" Binding ("," Binding)* ")";
-Binding = Id ":" Type;
+Binding = NameId ":" Type;
 
 ## Hacking for: Expr = (Bindings | id) ‘=>’ Expr | Expr1
 ##     Bindings = "(" Binding ("," Binding)* ")";
-##     Binding = Id [":" Type];
+##     Binding = NameId [":" Type];
 ## Since 
 ##     CaseClause = "case" Pattern [Guard] "=>" CaseBlockStats; 
 ## where 
@@ -437,9 +437,9 @@ Binding = Id ":" Type;
 ## Thus we cannot add another ("=>" Expr) after an expr which level is lower than 
 ## or same with PostfixExpr
 ## Haking for:
-##     PostfixExpr = InfixExpr [Id [<nl>]];
-##     InfixExpr = PrefixExpr  (Id [<nl>] InfixExpr)*;
-PostfixExpr = PrefixExpr (Id [<nl>] [PrefixExpr])*;
+##     PostfixExpr = InfixExpr [NameId [<nl>]];
+##     InfixExpr = PrefixExpr  (NameId [<nl>] InfixExpr)*;
+PostfixExpr = PrefixExpr (NameId [<nl>] [PrefixExpr])*;
 PrefixExpr = [PrefixOp] SimpleExpr;
 PrefixOp = "-" 
          | "+" 
@@ -460,10 +460,10 @@ SimpleExpr2 = "_" (TypeArgs)*
 ## Hacking for: "new" ([EarlyDef] ClassParents [TemplateBody] | TemplateBody)
 ## Since EalyBody and TemplateBody all start with "{" and TemplateBody is super set of EarlyBody,
 ## So, we have to use TemplateBody instead of EarlyBody
-##    NewExpr = "new" [Block] AnnotType ClassTemplateBody [<dot> Id];
+##    NewExpr = "new" [Block] AnnotType ClassTemplateBody [<dot> NameId];
 ##    ClassTemplateBody = (PrthsOrBlock ("with" AnnotType)* (TypeArgs)*)*;
 ##    ClassParents = AnnotType (Arguments)* ("with" AnnotType)*;
-## A possible expr: NewExpr = "new" [Block] ClassParents (PrthsOrBlock (TypeArgs)*)* [<dot> Id];
+## A possible expr: NewExpr = "new" [Block] ClassParents (PrthsOrBlock (TypeArgs)*)* [<dot> NameId];
 NewExpr = "new" (ClassParents [TemplateBody] | TemplateBody [ClassParents [TemplateBody]]) (TypeArgs)*;
 
 Arguments = Prths
@@ -546,7 +546,7 @@ Patterns = Pattern ("," Pattern)*
          | "_" "*"
          | ;
 Pattern = Pattern1 ("|" Pattern1)*;
-Pattern1 = SimplePattern (Id [<nl>] SimplePattern)*;
+Pattern1 = SimplePattern (NameId [<nl>] SimplePattern)*;
 
 ## Hacking: used only by PatDef
 Pattern2 = "_"
@@ -562,7 +562,7 @@ SimplePattern = "_"
               | XmlPattern;
 
 CasePattern = CasePattern1 ("|" CasePattern1)*;
-CasePattern1 = CasePattern0 (Id [<nl>] CasePattern0)*;
+CasePattern1 = CasePattern0 (NameId [<nl>] CasePattern0)*;
 CasePattern0 = "_"
              | Literal
              | StableId [(":" | "@") InfixType] ["(" Patterns ["_" "*"] ")"]
@@ -583,7 +583,7 @@ TypeParamClause = "[" VariantTypeParam ("," VariantTypeParam)* "]";
 VariantTypeParam = ["+" | "-"] TypeParam;
 
 FunTypeParamClause = "[" TypeParam ("," TypeParam)* "]";
-TypeParam = Id [">:" Type] ["<:" Type] ["<%" Type];
+TypeParam = NameId [">:" Type] ["<:" Type] ["<%" Type];
 
 Modifier = LocalModifier
          | AccessModifier
@@ -596,21 +596,21 @@ LocalModifier = "abstract"
               | "lazy";
 
 AccessModifier = ("private" | "protected") [AccessQualifier];
-AccessQualifier = "[" (Id | "this") "]";
+AccessQualifier = "[" (NameId | "this") "]";
 
 Annotation = "@" AnnotationExpr [<nl>];
 AnnotationExpr = AnnotType (Arguments)* [<lcurly> (<nl>)* (NameValuePair)* <rcurly>];
-NameValuePair = "val" Id <eq> PrefixExpr;
+NameValuePair = "val" NameId <eq> PrefixExpr;
 
 Import = "import" ImportExpr ("," ImportExpr)*;
-## Hacking for: ImportExpr = StableId "." (Id | "_" | ImportSelectors);
+## Hacking for: ImportExpr = StableId "." (NameId | "_" | ImportSelectors);
 ImportExpr = ImportId;
 ImportSelectors = <lcurly> (<nl>)* ImportSelector ("," ImportSelector)* <rcurly>;
-ImportSelector = (Id [<rarrow> (Id | "_")] | "_");
+ImportSelector = (NameId [<rarrow> (NameId | "_")] | "_");
 
 ImportId = ImportId0 (<dot> ImportId0)*;
-ImportId0 = Id
-          | "super" [ClassQualifier] <dot> Id
+ImportId0 = NameId
+          | "super" [ClassQualifier] <dot> NameId
           | "_"
           | ImportSelectors;
 
@@ -622,16 +622,16 @@ DclDef = ValDclDef
        | TmplDef;
 ValDclDef = "val" PatDef [":" Type] [<eq> Expr];
 VarDclDef = "var" PatDef [":" Type] [<eq> Expr];
-FunDclDef = "def" Id [FunTypeParamClause] [ParamClauses] ([":" Type] [<eq> Expr] | <lcurly> [BlockStats] <rcurly>)
+FunDclDef = "def" NameId [FunTypeParamClause] [ParamClauses] ([":" Type] [<eq> Expr] | <lcurly> [BlockStats] <rcurly>)
           | "def" "this" [ParamClauses] (<eq> ConstrExpr | ConstrBlock);
-TypeDclDef = "type" Id [TypeParamClause] ([">:" Type] ["<:" Type] ["<%" Type] | <eq> Type);
+TypeDclDef = "type" NameId [TypeParamClause] ([">:" Type] ["<:" Type] ["<%" Type] | <eq> Type);
 
 PatDef = Pattern2 ("," Pattern2)*;
 
 ParamClauses = (ParamClause)+;
 ParamClause = "(" [["implicit"] Params] ")";
 Params = Param ("," Param)*;
-Param = (Annotation)* Id [":" ParamType];
+Param = (Annotation)* NameId [":" ParamType];
 ParamType = Type ["*"]
           | <rarrow> Type;
 
@@ -643,14 +643,14 @@ ConstrBlock = <lcurly> (<nl>)* SelfInvocation (Semi BlockStat)* <rcurly>;
 TmplDef = ClassDef
         | ObjectDef
         | TraitDef;
-ClassDef  = ["case"] "class" Id [TypeParamClause] (Annotation)* [AccessModifier] ClassParamClauses            
+ClassDef  = ["case"] "class" NameId [TypeParamClause] (Annotation)* [AccessModifier] ClassParamClauses            
             [<requires> AnnotType] [ClassTemplateOpt];
-ObjectDef = ["case"] "object" Id [ClassTemplateOpt];
-TraitDef  = "trait" Id [TypeParamClause] [<requires> AnnotType] [TraitTemplateOpt];
+ObjectDef = ["case"] "object" NameId [ClassTemplateOpt];
+TraitDef  = "trait" NameId [TypeParamClause] [<requires> AnnotType] [TraitTemplateOpt];
 
 ClassParamClauses = ("(" (<nl>)* [ClassParams] (<nl>)* ")")* ["(" (<nl>)* "implicit" ClassParams (<nl>)* ")"];
 ClassParams = ClassParam ("," (<nl>)* ClassParam)*;
-ClassParam = (Annotation)* [(Modifier)* ("val" | "var")] Id [":" ParamType];
+ClassParam = (Annotation)* [(Modifier)* ("val" | "var")] NameId [":" ParamType];
 
 ClassTemplateOpt = <extends> (ClassParents [TemplateBody] | TemplateBody [ClassParents [TemplateBody]])
                  | TemplateBody;
@@ -682,19 +682,19 @@ SYNTAX_ERROR:Expr: {
 
 ########### CODE FOLDING #######################################################
 FOLD:ClassDef:{
-    fold_display_name: "Class: $Id$";
+    fold_display_name: "Class: $NameId$";
 }
 
 FOLD:TraitDef:{
-    fold_display_name: "Trait: $Id$";
+    fold_display_name: "Trait: $NameId$";
 }
 
 FOLD:ObjectDef:{
-    fold_display_name: "Object: $Id$";
+    fold_display_name: "Object: $NameId$";
 }
 
 FOLD:FunDclDef:{
-    fold_display_name: "Function: $Id$";
+    fold_display_name: "Function: $NameId$";
 }
 
 #FOLD:MethodDeclaration:{
@@ -705,27 +705,27 @@ FOLD:FunDclDef:{
 
 ########## NAVIGATOR ###########################################################
 NAVIGATOR:ClassDef: {
-    display_name: "$Id$";
+    display_name: "$NameId$";
     icon: "/org/netbeans/modules/languages/resources/class.gif";
 }
 
 NAVIGATOR:TraitDef: {
-    display_name: "$Id$";
+    display_name: "$NameId$";
     icon: "/org/netbeans/modules/languages/resources/class.gif";
 }
 
 NAVIGATOR:ObjectDef: {
-    display_name: "$Id$";
+    display_name: "$NameId$";
     icon: "/org/netbeans/modules/languages/resources/class.gif";
 }
 
 NAVIGATOR:FunDclDef: {
-    display_name: "$Id$";
+    display_name: "$NameId$";
     icon: "/org/netbeans/modules/languages/resources/method.gif";
 }
 
 NAVIGATOR:TypeDclDef: {
-    display_name: "$Id$";
+    display_name: "$NameId$";
     icon: "/org/netbeans/modules/languages/resources/method.gif";
 }
 
@@ -759,12 +759,12 @@ COLOR:Type,InfixType,AnnotType,SimpleType: {
     font_type: "bold";
 }
 
-COLOR:ClassDef.Id, TraitDef.Id, ObjectDef.Id: {
+COLOR:ClassDef.NameId, TraitDef.NameId, ObjectDef.NameId: {
     foreground_color: "black";
     font_type: "bold";
 }
 
-COLOR:FunDclDef.Id: {
+COLOR:FunDclDef.NameId: {
     foreground_color: "black";
     underline_color: "0x000000";
 }
@@ -787,7 +787,7 @@ COLOR:comment_keyword: {
     font_type:"bold";
 }
 
-COLOR:PostfixExpr.Id,PrefixExpr.PrefixOp: {
+COLOR:PostfixExpr.NameId,PrefixExpr.PrefixOp: {
     foreground_color: "0x2E92C7";
 }
 
