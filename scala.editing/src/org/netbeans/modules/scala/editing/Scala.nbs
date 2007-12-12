@@ -500,7 +500,7 @@ CaseBlockStat = Import
               | Expr
               | ;
 
-CaseClauses = (CaseClause)+;
+CaseClauses = CaseClause (CaseClause)*;
 CaseClause = "case" CasePattern [Guard] <rarrow> CaseBlockStats;
 Guard = "if" PostfixExpr;
 
@@ -508,13 +508,14 @@ Guard = "if" PostfixExpr;
 ##     Enumerator = Generator
 ##                | Guard
 ##                | "val" Pattern1 "=" Expr;
-Enumerators = Generator (Semi Generator)*;
-Generator = ["val"] Pattern1 ("<-" Expr [Guard] | <eq> Expr)
+Enumerators = Generator (Semi Enumerator)*;
+Generator = ["val"] Pattern1 "<-" Expr [Guard];
+Enumerator = ["val"] Pattern1 ("<-" Expr [Guard] | <eq> Expr)
           | Guard
           | ;
 
 
-XmlExpr = (Element)+
+XmlExpr = Element (Element)*
         | CDSect (Element)*
         | <pi> (Element)*;
 XmlContent = Element
