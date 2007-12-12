@@ -241,19 +241,19 @@ TOKEN:rcurly: (
 #   [^ "\u0000"-"\u001F" "[" "]" "(" ")" "."]
 # op = opchar {opchar}
 # idrest = {letter | digit} [‘_’ op]
-#   (["a"-"z" "A"-"Z" "$" "_" "0"-"9"])* ("_" ([^ " " "\t" "\n" "\r" "[" "]" "(" ")" "," "." ";"])+)?
+#   (["a"-"z" "A"-"Z" "$" "_" "0"-"9"])* ("_" ([^ " " "\t" "\n" "\r" "[" "]" "(" ")" "," "." ";" "=" ":"])+)?
 # varid: lower idrest
 TOKEN:varid: ( 
     ["a"-"z"] 
-    (["a"-"z" "A"-"Z" "$" "_" "0"-"9"])* ("_" ([^" " "\t" "\n" "\r" "[" "]" "(" ")" "," "." ";" "="])+)?
+    (["a"-"z" "A"-"Z" "$" "_" "0"-"9"])* ("_" ([^" " "\t" "\n" "\r" "[" "]" "(" ")" "," "." ";" "=" ":"])+)?
 )
 # varid: upper idrest
 TOKEN:upperid: (
     ["_"]
-    (["a"-"z" "A"-"Z" "$" "_" "0"-"9"])+ ("_" ([^" " "\t" "\n" "\r" "[" "]" "(" ")" ","  "." ";" "="])+)? 
+    (["a"-"z" "A"-"Z" "$" "_" "0"-"9"])+ ("_" ([^" " "\t" "\n" "\r" "[" "]" "(" ")" ","  "." ";" "=" ":"])+)? 
     |
     ["A"-"Z" "$"] 
-    (["a"-"z" "A"-"Z" "$" "_" "0"-"9"])* ("_" ([^" " "\t" "\n" "\r" "[" "]" "(" ")" ","  "." ";" "="])+)?
+    (["a"-"z" "A"-"Z" "$" "_" "0"-"9"])* ("_" ([^" " "\t" "\n" "\r" "[" "]" "(" ")" ","  "." ";" "=" ":"])+)?
 )
 
 TOKEN:stringid: (
@@ -412,12 +412,12 @@ RefineStat = DclDef;
 
 Expr = "if" "(" Expr ")" (<nl>)* Expr [<else> (<nl>)* Expr]
      | "while" "(" Expr ")" (<nl>)* Expr
-     | "try" <lcurly> (<nl>)* BlockStats <rcurly> [<catch> (<nl>)* <lcurly> (<nl>)* CaseClauses <rcurly>] [<finally> Expr]
+     | "try" (<nl>)* <lcurly> (<nl>)* BlockStats <rcurly> [<catch> (<nl>)* <lcurly> (<nl>)* CaseClauses <rcurly>] [<finally> Expr]
      | "do" Expr [Semi] "while" "(" Expr ")"
      | "for" ("(" Enumerators ")" | <lcurly> (<nl>)* Enumerators <rcurly>) (<nl>)* [<yield>] Expr
      | "throw" Expr
      | "return" [Expr]
-     | PostfixExpr [Ascription [<rarrow> Expr] | <match> (<nl>)* <lcurly> (<nl>)* CaseClauses <rcurly> | <eq> Expr | <rarrow> Expr];
+     | PostfixExpr [Ascription [<rarrow> BlockStats] | <match> (<nl>)* <lcurly> (<nl>)* CaseClauses <rcurly> | <eq> Expr | <rarrow> BlockStats];
 Ascription = ":" (InfixType | (Annotation)+);
 ## Here we have to do a mixed hacking:
 ## 1. Hacking for: Expr = (Bindings | id) ‘=>’ Expr | Expr1
@@ -681,10 +681,10 @@ Packaging = "package" QualId <lcurly> (<nl>)* TopStats <rcurly>;
 CompilationUnit = (<nl>)* ["package" QualId Semi] TopStats;
 
 
-SYNTAX_ERROR:Expr: {
-    token_identifier:";";
-    nt:"Expr";
-}
+#SYNTAX_ERROR:Expr: {
+#    token_identifier:";";
+#    nt:"Expr";
+#}
 
 ########### CODE FOLDING #######################################################
 FOLD:ClassDef:{
