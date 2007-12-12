@@ -213,15 +213,15 @@ TOKEN:operator: (
 )
 ## Hacking for xml
 TOKEN:rangle: (
-    ">" ["!" "%" "&" "+" "-" "=" ">" "?" "@" "\\" "^" "`" "|" "~" "#" ":" "/" "*"]*
+    ">"  ["!" "%" "&" "+" "-" "=" ">" "?" "@" "\\" "^" "`" "|" "~" "#" ":" "/" "*"]*
 )
 TOKEN:slashrangle: (
-    "/>" ["!" "%" "&" "+" "-" "<" "=" ">" "?" "@" "\\" "^" "`" "|" "~" "#" ":" "/" "*"]*
+    "/>" ["!" "%" "&" "+" "-" "=" ">" "?" "@" "\\" "^" "`" "|" "~" "#" ":" "/" "*"]*
 )
 
 ## separators
 TOKEN:separator: (
-    "[" | "]" | "(" | ")" | "," | ";"
+    "[" | "]" | "(" | ")" | ";"
 )
 TOKEN:dot: (
     [" " "\t" "\n" "\r"]* "." [" " "\t" "\n" "\r"]*
@@ -231,6 +231,9 @@ TOKEN:lcurly: (
 )
 TOKEN:rcurly: (
     "}"
+)
+TOKEN:comma: (
+    [" " "\t" "\n" "\r"]* "," [" " "\t" "\n" "\r"]*
 )
 
 
@@ -244,19 +247,19 @@ TOKEN:rcurly: (
 #   [^ "\u0000"-"\u001F" "[" "]" "(" ")" "."]
 # op = opchar {opchar}
 # idrest = {letter | digit} [‘_’ op]
-#   (["a"-"z" "A"-"Z" "$" "_" "0"-"9"])* ("_" ([^ " " "\t" "\n" "\r" "[" "]" "(" ")" "." ";"])+)?
+#   (["a"-"z" "A"-"Z" "$" "_" "0"-"9"])* ("_" ([^ " " "\t" "\n" "\r" "[" "]" "(" ")" "," "." ";"])+)?
 # varid: lower idrest
 TOKEN:varid: ( 
     ["a"-"z"] 
-    (["a"-"z" "A"-"Z" "$" "_" "0"-"9"])* ("_" ([^" " "\t" "\n" "\r" "[" "]" "(" ")" "." ";" "="])+)?
+    (["a"-"z" "A"-"Z" "$" "_" "0"-"9"])* ("_" ([^" " "\t" "\n" "\r" "[" "]" "(" ")" "," "." ";" "="])+)?
 )
 # varid: upper idrest
 TOKEN:upperid: (
     ["_"]
-    (["a"-"z" "A"-"Z" "$" "_" "0"-"9"])+ ("_" ([^" " "\t" "\n" "\r" "[" "]" "(" ")" "." ";" "="])+)? 
+    (["a"-"z" "A"-"Z" "$" "_" "0"-"9"])+ ("_" ([^" " "\t" "\n" "\r" "[" "]" "(" ")" ","  "." ";" "="])+)? 
     |
     ["A"-"Z" "$"] 
-    (["a"-"z" "A"-"Z" "$" "_" "0"-"9"])* ("_" ([^" " "\t" "\n" "\r" "[" "]" "(" ")" "." ";" "="])+)?
+    (["a"-"z" "A"-"Z" "$" "_" "0"-"9"])* ("_" ([^" " "\t" "\n" "\r" "[" "]" "(" ")" ","  "." ";" "="])+)?
 )
 
 TOKEN:stringid: (
@@ -288,7 +291,7 @@ TOKEN:string: (
 )
 TOKEN:string: (
     "\"\"\"" ( 
-        [^ "\\" "\"" "\n" "\r"] |
+        [^ "\\" "\""] |
         ("\\" (
             . |
             (["0"-"7"] ["0"-"7"] ["0"-"7"]) |
@@ -376,7 +379,7 @@ Literal = <integer>
 
 QualId = NameId (<dot> NameId)*;
 
-Ids = NameId ("," NameId)*;
+Ids = NameId (<comma> NameId)*;
 
 ## Hacking for: Path = StableId ["." "this"], since Path is also belongs to SimpleType etc
 StableId = PathId (<dot> PathId)*;
@@ -393,7 +396,7 @@ TypeId = PathId
        | "_" "*"
        | "type";
 
-Types = Type ("," Type)*;
+Types = Type (<comma> Type)*;
 Type = InfixType [<rarrow> Type | ExistentialClause]
      | "(" [<rarrow> Type | (<nl>)] ")" <rarrow> Type;
 
@@ -407,7 +410,7 @@ CompoundType = AnnotType ("with" AnnotType)* [Refinement]
 AnnotType = (Annotation)* SimpleType ["*"];
 
 SimpleType = TypeStableId (TypeArgs | "#" NameId)*
-           | "(" Types [","] ")" (TypeArgs | "#" NameId)*;
+           | "(" Types [<comma>] ")" (TypeArgs | "#" NameId)*;
 TypeArgs = "[" Types "]";
 
 Refinement = <lcurly> (<nl>)* [RefineStat (Semi RefineStat)*] <rcurly>;
@@ -424,7 +427,7 @@ Expr = "if" "(" Expr ")" (<nl>)* Expr [<else> (<nl>)* Expr]
      | "return" [Expr]
      | PostfixExpr [Ascription | <match> (<nl>)* <lcurly> (<nl>)* CaseClauses <rcurly> | <eq> Expr | <rarrow> Expr];
 
-Bindings = "(" Binding ("," Binding)* ")";
+Bindings = "(" Binding (<comma> Binding)* ")";
 Binding = NameId ":" Type;
 
 ## Hacking for: Expr = (Bindings | id) ‘=>’ Expr | Expr1
@@ -470,7 +473,7 @@ Arguments = Prths
           | Block;
 
 ## Hacking for Prths = "(" [Expr ("," Expr)* [","]] ")";
-Prths = "(" (<nl>)* PrthsExpr ("," (<nl>)* PrthsExpr)* (<nl>)* ")";
+Prths = "(" (<nl>)* PrthsExpr (<comma> PrthsExpr)* (<nl>)* ")";
 PrthsExpr = Expr
           | ;
 
@@ -542,22 +545,22 @@ Name = <varid>
      | <keyword>;
 ScalaExpr = <lcurly> (<nl>)* BlockStats <rcurly>;
 
-Patterns = Pattern ("," Pattern)*
-         | "_" "*"
+Patterns = Pattern (<comma> Pattern)*
          | ;
 Pattern = Pattern1 ("|" Pattern1)*;
-Pattern1 = SimplePattern (NameId [<nl>] SimplePattern)*;
+Pattern1 = SimplePattern (NameId [<nl>] SimplePattern)*
+         | "_" "*";
 
 ## Hacking: used only by PatDef
-Pattern2 = "_"
+Pattern2 = "_" ["*"]
          | Literal
-         | StableId ["@" Type] ["(" Patterns ["_" "*"] ")"]
+         | StableId ["@" Type] ["(" Patterns ")"]
          | "(" Patterns ")"
          | XmlPattern;
 
 SimplePattern = "_"
               | Literal
-              | StableId [(":" | "@") Type] ["(" Patterns ["_" "*"] ")"]
+              | StableId [(":" | "@") Type] ["(" Patterns ")"]
               | "(" Patterns ")"
               | XmlPattern;
 
@@ -565,7 +568,7 @@ CasePattern = CasePattern1 ("|" CasePattern1)*;
 CasePattern1 = CasePattern0 (NameId [<nl>] CasePattern0)*;
 CasePattern0 = "_"
              | Literal
-             | StableId [(":" | "@") InfixType] ["(" Patterns ["_" "*"] ")"]
+             | StableId [(":" | "@") InfixType] ["(" Patterns ")"]
              | "(" Patterns ")"
              | XmlPattern;
 
@@ -579,10 +582,10 @@ ContentP = ElemPattern
 ScalaPatterns = <lcurly> (<nl>)* patterns <rcurly>;
 
 
-TypeParamClause = "[" VariantTypeParam ("," VariantTypeParam)* "]";
+TypeParamClause = "[" VariantTypeParam (<comma> VariantTypeParam)* "]";
 VariantTypeParam = ["+" | "-"] TypeParam;
 
-FunTypeParamClause = "[" TypeParam ("," TypeParam)* "]";
+FunTypeParamClause = "[" TypeParam (<comma> TypeParam)* "]";
 TypeParam = NameId [">:" Type] ["<:" Type] ["<%" Type];
 
 Modifier = LocalModifier
@@ -602,10 +605,10 @@ Annotation = "@" AnnotationExpr [<nl>];
 AnnotationExpr = AnnotType (Arguments)* [<lcurly> (<nl>)* (NameValuePair)* <rcurly>];
 NameValuePair = "val" NameId <eq> PrefixExpr;
 
-Import = "import" ImportExpr ("," ImportExpr)*;
+Import = "import" ImportExpr (<comma> ImportExpr)*;
 ## Hacking for: ImportExpr = StableId "." (NameId | "_" | ImportSelectors);
 ImportExpr = ImportId;
-ImportSelectors = <lcurly> (<nl>)* ImportSelector ("," ImportSelector)* <rcurly>;
+ImportSelectors = <lcurly> (<nl>)* ImportSelector (<comma> ImportSelector)* <rcurly>;
 ImportSelector = (NameId [<rarrow> (NameId | "_")] | "_");
 
 ImportId = ImportId0 (<dot> ImportId0)*;
@@ -622,15 +625,15 @@ DclDef = ValDclDef
        | TmplDef;
 ValDclDef = "val" PatDef [":" Type] [<eq> Expr];
 VarDclDef = "var" PatDef [":" Type] [<eq> Expr];
-FunDclDef = "def" NameId [FunTypeParamClause] [ParamClauses] ([":" Type] [<eq> Expr] | <lcurly> [BlockStats] <rcurly>)
+FunDclDef = "def" NameId [FunTypeParamClause] [ParamClauses] ([":" Type] [<eq> Expr] | <lcurly> BlockStats <rcurly>)
           | "def" "this" [ParamClauses] (<eq> ConstrExpr | ConstrBlock);
 TypeDclDef = "type" NameId [TypeParamClause] ([">:" Type] ["<:" Type] ["<%" Type] | <eq> Type);
 
-PatDef = Pattern2 ("," Pattern2)*;
+PatDef = Pattern2 (<comma> Pattern2)*;
 
 ParamClauses = (ParamClause)+;
 ParamClause = "(" [["implicit"] Params] ")";
-Params = Param ("," Param)*;
+Params = Param (<comma> Param)*;
 Param = (Annotation)* NameId [":" ParamType];
 ParamType = Type ["*"]
           | <rarrow> Type;
@@ -648,8 +651,8 @@ ClassDef  = ["case"] "class" NameId [TypeParamClause] (Annotation)* [AccessModif
 ObjectDef = ["case"] "object" NameId [ClassTemplateOpt];
 TraitDef  = "trait" NameId [TypeParamClause] [<requires> AnnotType] [TraitTemplateOpt];
 
-ClassParamClauses = ("(" (<nl>)* [ClassParams] (<nl>)* ")")* ["(" (<nl>)* "implicit" ClassParams (<nl>)* ")"];
-ClassParams = ClassParam ("," (<nl>)* ClassParam)*;
+ClassParamClauses = ("(" (<nl>)* [ClassParams] ")")* ["(" (<nl>)* "implicit" ClassParams (<nl>)* ")"];
+ClassParams = ClassParam (<comma> ClassParam)*;
 ClassParam = (Annotation)* [(Modifier)* ("val" | "var")] NameId [":" ParamType];
 
 ClassTemplateOpt = <extends> (ClassParents [TemplateBody] | TemplateBody [ClassParents [TemplateBody]])
