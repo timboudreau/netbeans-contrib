@@ -69,25 +69,26 @@ made subject to such option by the copyright holder.
                         </folder>
                     </folder>
                 </folder>
-                
+<!--                
                  <folder name="HyperlinkProviders">
                     <file name="JavaFXHyperlinkProvider.instance">
                         <attr name="instanceClass" stringvalue="org.netbeans.modules.javafx.editor.JavaFXHyperlinkProvider"/>
                         <attr name="instanceOf" stringvalue="org.netbeans.lib.editor.hyperlink.spi.HyperlinkProviderExt"/>
                     </file>
                 </folder>
-
-<!--
+-->
                 <folder name="Popup">
+                    <file name="format"/>
+<!--                
                     <folder name="Navigate">
                         <file name="org-netbeans-modules-javafx-editor-JavaFXGoToDeclarationAction.shadow">
                             <attr name="originalFile" stringvalue="Actions/Edit/org-netbeans-modules-javafx-editor-JavaFXGoToDeclarationAction.instance"/>
                             <attr name="position" intvalue="400"/>
                         </file>
                     </folder>
-
+-->
                 </folder>
--->                
+                
                 <folder name="CompletionProviders">
                     <file name="org-netbeans-modules-javafx-editor-JavaFXCompletionProvider.instance"/>
                 </folder>
@@ -181,6 +182,11 @@ made subject to such option by the copyright holder.
                 <file name="language.instance">
                     <attr name="instanceOf" stringvalue="org.netbeans.api.gsf.GsfLanguage"/>
                     <attr name="instanceClass" stringvalue="org.netbeans.modules.javafx.JavaFXLanguage"/>
+                </file>
+                
+                <file name="formatter.instance">
+                    <attr name="instanceOf" stringvalue="org.netbeans.api.gsf.Formatter"/>
+                    <attr name="instanceClass" stringvalue="org.netbeans.modules.javafx.editor.JavaFXFormatter"/>
                 </file>
             </folder>
         </folder>
