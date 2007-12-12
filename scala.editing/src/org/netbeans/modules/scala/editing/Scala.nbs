@@ -139,7 +139,7 @@ TOKEN:keyword: (
     "val" |
     "var" |
     "while" |
-    "_" | ":" | "<:" | "<%" | ">:" | "#" | "@"
+    "_" | ":" | "<-" | "<:" | "<%" | ">:" | "#" | "@"
 )
 
 ## The tokens that can terminate a statement are: literals, identifiers and the following
@@ -191,9 +191,6 @@ TOKEN:eq: (
 )
 TOKEN:rarrow: (
     [" " "\t" "\n" "\r"]* "=>" [" " "\t" "\n" "\r"]* 
-)
-TOKEN:larrow: (
-    [" " "\t" "\n" "\r"]* "<-" [" " "\t" "\n" "\r"]* 
 )
 
 ## Operators
@@ -512,7 +509,8 @@ Guard = "if" PostfixExpr;
 ##                | Guard
 ##                | "val" Pattern1 "=" Expr;
 Enumerators = Generator (Semi Generator)*;
-Generator = ["val"] Pattern1 (<larrow> Expr [[<nl>] Guard] | <eq> Expr)
+Generator = ["val"] Pattern1 ("<-" Expr [Guard] | <eq> Expr)
+          | Guard
           | ;
 
 
@@ -548,27 +546,32 @@ ScalaExpr = <lcurly> (<nl>)* BlockStats <rcurly>;
 Patterns = Pattern (<comma> Pattern)*
          | ;
 Pattern = Pattern1 ("|" Pattern1)*;
-Pattern1 = SimplePattern (NameId [<nl>] SimplePattern)*
-         | "_" "*";
+Pattern1 = Pattern3;
 
 ## Hacking: used only by PatDef
 Pattern2 = "_" ["*"]
          | Literal
-         | StableId ["@" Type] ["(" Patterns ")"]
+         | StableId [("(" Patterns ")" | "@" Pattern3)]
          | "(" Patterns ")"
          | XmlPattern;
 
-SimplePattern = "_"
+## The following (":" InfixType) should be (":" Type), but for example:
+##     case rw: List[TemplateHolder] => rw
+## where, (List[TemplateHolder] => rw) which is behind ":", may be parsed as a 
+## function type rather then a (Type => Expr), so we here have to limit the Type to InfixType
+
+Pattern3 = SimplePattern (NameId [<nl>] SimplePattern)*;
+SimplePattern = "_" ["*"]
               | Literal
-              | StableId [(":" | "@") Type] ["(" Patterns ")"]
+              | StableId [("(" Patterns ")" | "@" Pattern3 | ":" InfixType)]
               | "(" Patterns ")"
               | XmlPattern;
 
 CasePattern = CasePattern1 ("|" CasePattern1)*;
 CasePattern1 = CasePattern0 (NameId [<nl>] CasePattern0)*;
-CasePattern0 = "_"
+CasePattern0 = "_" ["*"]
              | Literal
-             | StableId [(":" | "@") InfixType] ["(" Patterns ")"]
+             | StableId [("(" Patterns ")" | "@" Pattern3 | ":" InfixType)]
              | "(" Patterns ")"
              | XmlPattern;
 
