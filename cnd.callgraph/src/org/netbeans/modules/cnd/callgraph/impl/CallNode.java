@@ -44,6 +44,7 @@ import java.awt.Image;
 import java.util.ArrayList;
 import javax.swing.Action;
 import org.openide.nodes.AbstractNode;
+import org.openide.util.Utilities;
 
 /**
  *
@@ -87,9 +88,17 @@ public class CallNode extends AbstractNode {
         if (res == null){
             res = super.getIcon(param);
         }
-        return res;
+        return mergeBadge(res);
     }
-    
+
+    private Image mergeBadge(Image original) {
+        if (isCalls) {
+            return Utilities.mergeImages(original, callBadge, 8, 8);
+        } else {
+            return Utilities.mergeImages(original, backcallBadge, 0, 0);
+        }
+    }
+
     @Override
     public Image getOpenedIcon(int param) {
         return getIcon(param);
@@ -115,4 +124,7 @@ public class CallNode extends AbstractNode {
         }
         return actions.toArray(new Action[actions.size()]);
     }
+
+    public static Image callBadge = Utilities.loadImage( "org/netbeans/modules/cnd/callgraph/resources/call.gif" ); // NOI18N
+    private static Image backcallBadge = Utilities.loadImage( "org/netbeans/modules/cnd/callgraph/resources/backcall.gif" ); // NOI18N
 }

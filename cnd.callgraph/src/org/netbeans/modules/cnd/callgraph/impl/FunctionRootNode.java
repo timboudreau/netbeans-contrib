@@ -44,6 +44,7 @@ import java.util.ArrayList;
 import javax.swing.Action;
 import org.netbeans.modules.cnd.callgraph.api.Function;
 import org.openide.nodes.AbstractNode;
+import org.openide.util.Utilities;
 
 /**
  *
@@ -52,11 +53,13 @@ import org.openide.nodes.AbstractNode;
 public class FunctionRootNode extends AbstractNode {
     private Function object;
     private CallGraphState model;
+    private boolean isCalls;
 
     public FunctionRootNode(Function element, CallGraphState model, boolean isCalls) {
         super(new CallChildren(element, model, isCalls));
         object = element;
         this.model = model;
+        this.isCalls = isCalls;
         setName(element.getName());
         model.addFunctionToScene(element);
     }
@@ -72,9 +75,16 @@ public class FunctionRootNode extends AbstractNode {
         if (res == null){
             res = super.getIcon(param);
         }
-        return res;
+        return mergeBadge(res);
     }
     
+    private Image mergeBadge(Image original) {
+        if (isCalls) {
+            return Utilities.mergeImages(original, CallNode.callBadge, 8, 8);
+        }
+        return original;
+    }
+
     @Override
     public Image getOpenedIcon(int param) {
         return getIcon(param);
