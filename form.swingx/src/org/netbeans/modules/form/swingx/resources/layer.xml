@@ -54,6 +54,9 @@ made subject to such option by the copyright holder.
             <file name="VerticalLayout.palette_item" url="VerticalLayout.palette_item">
                 <attr name="position" intvalue="1000"/>
             </file>
+            <file name="HorizontalLayout.palette_item" url="HorizontalLayout.palette_item">
+                <attr name="position" intvalue="1100"/>
+            </file>
         </folder>
     </folder>
 
