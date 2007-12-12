@@ -413,8 +413,6 @@ TypeArgs = "[" Types "]";
 Refinement = <lcurly> (<nl>)* [RefineStat (Semi RefineStat)*] <rcurly>;
 RefineStat = DclDef;
 
-Ascription = ":" (CompoundType | (Annotation)+ | "_" "*");
-
 Expr = "if" "(" Expr ")" (<nl>)* Expr [<else> (<nl>)* Expr]
      | "while" "(" Expr ")" (<nl>)* Expr
      | "try" <lcurly> (<nl>)* BlockStats <rcurly> [<catch> (<nl>)* <lcurly> (<nl>)* CaseClauses <rcurly>] [<finally> Expr]
@@ -422,12 +420,10 @@ Expr = "if" "(" Expr ")" (<nl>)* Expr [<else> (<nl>)* Expr]
      | "for" ("(" Enumerators ")" | <lcurly> (<nl>)* Enumerators <rcurly>) (<nl>)* [<yield>] Expr
      | "throw" Expr
      | "return" [Expr]
-     | PostfixExpr [Ascription | <match> (<nl>)* <lcurly> (<nl>)* CaseClauses <rcurly> | <eq> Expr | <rarrow> Expr];
-
-Bindings = "(" Binding (<comma> Binding)* ")";
-Binding = NameId ":" Type;
-
-## Hacking for: Expr = (Bindings | id) ‘=>’ Expr | Expr1
+     | PostfixExpr [Ascription [<rarrow> Expr] | <match> (<nl>)* <lcurly> (<nl>)* CaseClauses <rcurly> | <eq> Expr | <rarrow> Expr];
+Ascription = ":" (InfixType | (Annotation)+);
+## Here we have to do a mixed hacking:
+## 1. Hacking for: Expr = (Bindings | id) ‘=>’ Expr | Expr1
 ##     Bindings = "(" Binding ("," Binding)* ")";
 ##     Binding = NameId [":" Type];
 ## Since 
@@ -435,8 +431,13 @@ Binding = NameId ":" Type;
 ## where 
 ##     Guard = "if" PostfixExpr; 
 ## Thus we cannot add another ("=>" Expr) after an expr which level is lower than 
-## or same with PostfixExpr
-## Haking for:
+## or same as PostfixExpr
+##
+## 2. Hacking for: Ascription = ":" (CompoundType | (Annotation)+ | "_" "*");
+## Since (Bindings | id) ‘=>’ Expr also conflicts with (PostfixExpr Ascription "=>" Expr), 
+## we have to combine them as: Ascription = ":" (Type | (Annotation)+);
+
+## Hacking for:
 ##     PostfixExpr = InfixExpr [NameId [<nl>]];
 ##     InfixExpr = PrefixExpr  (NameId [<nl>] InfixExpr)*;
 PostfixExpr = PrefixExpr (NameId [<nl>] [PrefixExpr])*;
@@ -450,7 +451,7 @@ SimpleExpr = SimpleExpr1 (<dot> SimpleExpr1 | SimpleExpr2)*
            | SimpleExpr2 (<dot> SimpleExpr1 | SimpleExpr2)* # or (SimpleExpr2)+ (<dot> SimpleExpr1 [SimpleExpr2])*
            | NewExpr     (<dot> SimpleExpr1 | SimpleExpr2)*
            | XmlExpr;
-SimpleExpr1 = PathId ((TypeArgs)* | ":" InfixType)
+SimpleExpr1 = PathId (TypeArgs)*
             | Literal (TypeArgs)*;
 #SimpleExpr1 = PathId (TypeArgs)*;
 SimpleExpr2 = "_" (TypeArgs)*
@@ -552,7 +553,7 @@ Pattern1 = Pattern3;
 ## Hacking: used only by PatDef
 Pattern2 = "_" ["*"]
          | Literal
-         | StableId [("(" Patterns ")" | "@" Pattern3)]
+         | StableId ["(" Patterns ")" | "@" Pattern3]
          | "(" Patterns ")"
          | XmlPattern;
 
@@ -564,7 +565,7 @@ Pattern2 = "_" ["*"]
 Pattern3 = SimplePattern (NameId [<nl>] SimplePattern)*;
 SimplePattern = "_" ["*"]
               | Literal
-              | StableId [("(" Patterns ")" | "@" Pattern3 | ":" InfixType)]
+              | StableId ["(" Patterns ")" | "@" Pattern3 | ":" InfixType]
               | "(" Patterns ")"
               | XmlPattern;
 
@@ -572,7 +573,7 @@ CasePattern = CasePattern1 ("|" CasePattern1)*;
 CasePattern1 = CasePattern0 (NameId [<nl>] CasePattern0)*;
 CasePattern0 = "_" ["*"]
              | Literal
-             | StableId [("(" Patterns ")" | "@" Pattern3 | ":" InfixType)]
+             | StableId ["(" Patterns ")" | "@" Pattern3 | ":" InfixType]
              | "(" Patterns ")"
              | XmlPattern;
 
