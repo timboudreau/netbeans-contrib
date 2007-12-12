@@ -473,7 +473,7 @@ Arguments = Prths
           | Block;
 
 ## Hacking for Prths = "(" [Expr ("," Expr)* [","]] ")";
-Prths = "(" (<nl>)* PrthsExpr (<comma> PrthsExpr)* (<nl>)* ")";
+Prths = "(" (<nl>)* PrthsExpr (<comma> (<nl>)* PrthsExpr)* (<nl>)* ")";
 PrthsExpr = Expr
           | ;
 
