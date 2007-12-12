@@ -139,7 +139,10 @@ TOKEN:keyword: (
     "val" |
     "var" |
     "while" |
-    "_" | ":" | "<-" | "<:" | "<%" | ">:" | "#" | "@"
+    "_" | "<-" | "<:" | "<%" | ">:" | "#" | "@"
+)
+TOKEN:colon: (
+   ":"
 )
 
 ## The tokens that can terminate a statement are: literals, identifiers and the following
@@ -530,13 +533,15 @@ CharData = Literal
          | <upperid>
          | <operator>
          | <separator>
+         | <colon>
          | <dot>
          | <nl>;
-Attribute = Name <eq> AttValue;
+Attribute = NSName <eq> AttValue;
 AttValue = <string> # "\"" {CharQ | CharRef} "\""
          | <stringid> # "’" {CharA | CharRef} "’"
          | ScalaExpr
          | <nl>;
+NSName = Name (":" Name)*;
 Name = <varid>
      | <upperid>
      | <keyword>;
@@ -756,7 +761,7 @@ MARK:error: {
 }
 
 ########### colors #############################################################
-COLOR:keyword,catch,else,extends,finally,forSome,match,requires,with,yield,eq,rarrow,larrow: {
+COLOR:keyword,colon,catch,else,extends,finally,forSome,match,requires,with,yield,eq,rarrow,larrow: {
     foreground_color: "0x0000FE";
 }
 
