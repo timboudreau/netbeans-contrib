@@ -99,7 +99,7 @@ class ModeController {
     PerspectiveImpl selected;
 
     public void switchView(PerspectiveImpl perspective) {
-        List<PerspectiveListener> perspetiveListners = null;
+        List<PerspectiveListener> perspetiveListners ;
         if (perspective == null) {
             return;
         }

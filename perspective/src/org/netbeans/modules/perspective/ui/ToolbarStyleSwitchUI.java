@@ -180,7 +180,7 @@ public class ToolbarStyleSwitchUI extends JToolBar {
             return;
         }
 
-        PerspectiveImpl next = null;
+        PerspectiveImpl next ;
 
         if (previous == null || selected.equals(previous)) {
             int index = selected.getIndex();
