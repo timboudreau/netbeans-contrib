@@ -542,7 +542,6 @@ Name = <varid>
      | <keyword>;
 ScalaExpr = <lcurly> (<nl>)* BlockStats <rcurly>;
 
-Patterns = Pattern ("," Pattern)*;
 Pattern = Pattern1 ("|" Pattern1)*
         | ;
 Pattern1 = Pattern3;
@@ -550,8 +549,8 @@ Pattern1 = Pattern3;
 ## Hacking: used only by PatDef
 Pattern2 = "_" ["*"]
          | Literal
-         | StableId ["(" Patterns ")" | "@" Pattern3]
-         | "(" Patterns ")"
+         | StableId ["(" (<nl>)* Patterns (<nl>)* ")" | "@" Pattern3]
+         | "(" (<nl>)* Patterns (<nl>)* ")"
          | XmlPattern;
 
 ## The following (":" InfixType) should be (":" Type), but for example:
@@ -562,16 +561,16 @@ Pattern2 = "_" ["*"]
 Pattern3 = SimplePattern (NameId [<nl>] SimplePattern)*;
 SimplePattern = "_" ["*"]
               | Literal
-              | StableId ["(" Patterns ")" | "@" Pattern3 | ":" InfixType]
-              | "(" Patterns ")"
+              | StableId ["(" (<nl>)* Patterns (<nl>)* ")" | "@" Pattern3 | ":" InfixType]
+              | "(" (<nl>)* Patterns (<nl>)* ")"
               | XmlPattern;
 
 CasePattern = CasePattern1 ("|" CasePattern1)*;
 CasePattern1 = CasePattern0 (NameId [<nl>] CasePattern0)*;
 CasePattern0 = "_" ["*"]
              | Literal
-             | StableId ["(" Patterns ")" | "@" Pattern3 | ":" InfixType]
-             | "(" Patterns ")"
+             | StableId ["(" (<nl>)* Patterns (<nl>)* ")" | "@" Pattern3 | ":" InfixType]
+             | "(" (<nl>)* Patterns (<nl>)* ")"
              | XmlPattern;
 
 XmlPattern = ElemPattern;
@@ -581,7 +580,9 @@ ContentP = ElemPattern
          | <pi>
          | CharData
          | ScalaPatterns;
-ScalaPatterns = <lcurly> (<nl>)* Patterns <rcurly>;
+ScalaPatterns = <lcurly> (<nl>)* Patterns (<nl>)* <rcurly>;
+
+Patterns = Pattern ("," (<nl>)* Pattern)*;
 
 
 TypeParamClause = "[" VariantTypeParam ("," VariantTypeParam)* "]";
@@ -633,9 +634,9 @@ TypeDclDef = "type" NameId [TypeParamClause] ([">:" Type] ["<:" Type] ["<%" Type
 
 PatDef = Pattern2 ("," Pattern2)*;
 
-ParamClauses = (ParamClause)+;
-ParamClause = "(" [["implicit"] Params] ")";
-Params = Param ("," Param)*;
+ParamClauses = ParamClause (ParamClause)*;
+ParamClause = "(" (<nl>)* [["implicit"] Params] (<nl>)* ")";
+Params = Param ("," (<nl>)* Param)*;
 Param = (Annotation)* NameId [":" ParamType];
 ParamType = Type ["*"]
           | <rarrow> Type;
@@ -653,8 +654,8 @@ ClassDef  = ["case"] "class" NameId [TypeParamClause] (Annotation)* [AccessModif
 ObjectDef = ["case"] "object" NameId [ClassTemplateOpt];
 TraitDef  = "trait" NameId [TypeParamClause] [<requires> AnnotType] [TraitTemplateOpt];
 
-ClassParamClauses = ("(" (<nl>)* [ClassParams] ")")* ["(" (<nl>)* "implicit" ClassParams (<nl>)* ")"];
-ClassParams = ClassParam ("," ClassParam)*;
+ClassParamClauses = ("(" (<nl>)* [ClassParams] (<nl>)* ")")* ["(" (<nl>)* "implicit" ClassParams (<nl>)* ")"];
+ClassParams = ClassParam ("," (<nl>)* ClassParam)*;
 ClassParam = (Annotation)* [(Modifier)* ("val" | "var")] NameId [":" ParamType];
 
 ClassTemplateOpt = <extends> (ClassParents [TemplateBody] | TemplateBody [ClassParents [TemplateBody]])
