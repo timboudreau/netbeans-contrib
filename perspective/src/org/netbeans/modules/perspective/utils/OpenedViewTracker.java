@@ -47,7 +47,6 @@
 package org.netbeans.modules.perspective.utils;
 
 import org.netbeans.modules.perspective.views.PerspectiveImpl;
-import org.openide.windows.WindowManager;
 
 /**
  *
@@ -55,7 +54,7 @@ import org.openide.windows.WindowManager;
  */
 public class OpenedViewTracker {
 
-    WindowManager windowManager = WindowManager.getDefault();
+   
 
     public OpenedViewTracker(PerspectiveImpl perspective) {
         perspective.clear();

@@ -69,7 +69,7 @@ public class SaveAsUI extends javax.swing.JDialog {
 
     private static final long serialVersionUID = 1l;
     private DefaultListModel defaultListModel = new DefaultListModel();
-    private static String Here = NbBundle.getMessage(SaveAsUI.class, "HERE");
+    private static final String Here = NbBundle.getMessage(SaveAsUI.class, "HERE");
     private PerspectiveImpl selected;
 
     /** Creates new form SaveAsUI */
