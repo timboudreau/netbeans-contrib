@@ -58,13 +58,13 @@ final class PerspectivePanel extends javax.swing.JPanel {
         chAddOpened.addChangeListener(new ChangeListener() {
 
             public void stateChanged(ChangeEvent e) {
-                controller.changed();
+                controller.fireChanged();
             }
         });
         chCloseOpened.addChangeListener(new ChangeListener() {
 
             public void stateChanged(ChangeEvent e) {
-                controller.changed();
+                controller.fireChanged();
             }
         });
     }
