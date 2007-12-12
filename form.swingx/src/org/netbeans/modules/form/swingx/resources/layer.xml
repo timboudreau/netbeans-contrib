@@ -65,6 +65,8 @@ made subject to such option by the copyright holder.
                 <attr name="template" boolvalue="true"/>
                 <attr name="instantiatingWizardURL" urlvalue="nbresloc:/org/netbeans/modules/form/swingx/resources/templates/JXFrame.html"/>
                 <attr name="instantiatingIterator" methodvalue="org.netbeans.modules.form.wizard.TemplateWizardIterator.create"/>
+                <attr name="SystemFileSystem.icon" urlvalue="nbresloc:/org/netbeans/modules/form/resources/palette/frame_16.png"/>
+                <attr name="SystemFileSystem.icon32" urlvalue="nbresloc:/org/netbeans/modules/form/resources/palette/frame_32.png"/>
                 <attr name="templateCategory" stringvalue="java-forms"/>
                 <attr name="requiredLibrary" stringvalue="swingx"/>
                 <attr name="requiredClass" stringvalue="org.jdesktop.swingx.JXFrame"/>
