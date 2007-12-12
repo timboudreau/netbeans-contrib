@@ -50,10 +50,9 @@ import org.openide.util.NbBundle;
  */
 final class PerspectivePanel extends javax.swing.JPanel {
 
-    private final PerspectiveOptionsPanelController controller;
+   
 
     PerspectivePanel(final PerspectiveOptionsPanelController controller) {
-        this.controller = controller;
         initComponents();
         chAddOpened.addChangeListener(new ChangeListener() {
 

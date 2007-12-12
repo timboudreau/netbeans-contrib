@@ -89,7 +89,7 @@ public class PerspectiveReader {
     private View readView(FileObject fileObject) {
         int index = (Integer) fileObject.getAttribute("index");
         boolean opened = (Boolean) fileObject.getAttribute("opened");
-        View view = new View(fileObject.getName(), index, opened);
-        return view;
+        return new View(fileObject.getName(), index, opened);
+       
     }
 }

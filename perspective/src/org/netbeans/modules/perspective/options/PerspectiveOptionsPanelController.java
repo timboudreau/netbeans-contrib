@@ -101,7 +101,7 @@ final class PerspectiveOptionsPanelController extends OptionsPanelController {
         return panel;
     }
 
-    void changed() {
+    void fireChanged() {
         if (!changed) {
             changed = true;
             pcs.firePropertyChange(OptionsPanelController.PROP_CHANGED, false, true);
