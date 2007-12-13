@@ -80,7 +80,7 @@ class SharabilityQueryImpl implements SharabilityQueryImplementation, PropertyCh
         this.srcRoots = srcRoots;
         this.testRoots = testRoots;
         if (additionalSourceRoots != null) {
-            this.additionalSourceRoots = Collections.unmodifiableList(additionalSourceRoots);
+            this.additionalSourceRoots = Collections.unmodifiableList(new ArrayList<String>(additionalSourceRoots));
         } else {
             this.additionalSourceRoots = Collections.<String>emptyList();
         }
