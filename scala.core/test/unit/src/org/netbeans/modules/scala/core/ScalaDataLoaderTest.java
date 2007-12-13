@@ -24,7 +24,8 @@ public class ScalaDataLoaderTest extends NbTestCase {
         MockServices.setServices(MR.class);
         clearWorkDir();
     }
-    
+
+/* XXX moved to editor module    
     public void testBasicFunctionality() throws Exception {
         URL templateURL = ScalaDataLoader.class.getResource("resources/ScalaTemplate.scala");
         FileObject templateFO = URLMapper.findFileObject(templateURL);
@@ -35,6 +36,7 @@ public class ScalaDataLoaderTest extends NbTestCase {
         DataObject helloDO = templateDO.createFromTemplate(folder, "Hello");
         assertNotNull(helloDO);
     }
+*/
     
     public static final class MR extends MIMEResolver {
         
