@@ -126,7 +126,7 @@ public final class TodoNavigatorPanel extends FileChangeAdapter implements Navig
     }
 
     public String getDisplayHint() {
-        return "Displays notes and to-do items from DocBook sources"; // XXX I18N
+        return "Displays notes and to-do items from DocBook/SolBook sources"; // XXX I18N
     }
 
     public JComponent getComponent() {

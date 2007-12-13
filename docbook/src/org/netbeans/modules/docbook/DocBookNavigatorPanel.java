@@ -110,7 +110,7 @@ public final class DocBookNavigatorPanel implements NavigatorPanel {
     }
     
     public String getDisplayHint() {
-        return "Displays an outline of interesting DocBook items."; // XXX I18N
+        return "Displays an outline of interesting DocBook/SolBook items."; // XXX I18N
     }
     
     public JComponent getComponent() {
