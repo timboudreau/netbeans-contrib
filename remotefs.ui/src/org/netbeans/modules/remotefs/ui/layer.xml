@@ -9,9 +9,12 @@
     </folder>
     <folder name="Menu">
         <folder name="Window">
-            <file name="ExplorerAction.shadow">
-                <attr name="originalFile" stringvalue="Actions/Window/org-netbeans-modules-remotefs-ui-ExplorerAction.instance"/>
-            </file>
+            <folder name="Other">
+                <file name="ExplorerAction.shadow">
+                    <attr name="originalFile" stringvalue="Actions/Window/org-netbeans-modules-remotefs-ui-ExplorerAction.instance"/>
+                    <attr name="position" intvalue="2003"/>
+                </file>
+            </folder>
         </folder>
     </folder>
     <folder name="Windows2">
@@ -20,7 +23,9 @@
         </folder>
         <folder name="Modes">
             <folder name="explorer">
-                <file name="ExplorerTopComponent.wstcref" url="ExplorerTopComponentWstcref.xml"/>
+                <file name="ExplorerTopComponent.wstcref" url="ExplorerTopComponentWstcref.xml">
+                    <attr name="position" intvalue="331"/>
+                </file>
             </folder>
         </folder>
     </folder>
