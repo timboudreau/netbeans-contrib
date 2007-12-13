@@ -261,7 +261,7 @@ TOKEN:upperid: (
 
 TOKEN:stringid: (
     "\'" ( 
-        [^ "\\" "\"" "\n" "\r"] |
+        [^ "\\" "\'" "\n" "\r"] |
         ("\\" (
             . |
             (["0"-"7"] ["0"-"7"] ["0"-"7"]) |
@@ -453,7 +453,6 @@ SimpleExpr = SimpleExpr1 (<dot> SimpleExpr1 | SimpleExpr2)*
            | XmlExpr;
 SimpleExpr1 = PathId (TypeArgs)*
             | Literal (TypeArgs)*;
-#SimpleExpr1 = PathId (TypeArgs)*;
 SimpleExpr2 = "_" (TypeArgs)*
             | Prths (TypeArgs)*
             | Block (TypeArgs)*;
