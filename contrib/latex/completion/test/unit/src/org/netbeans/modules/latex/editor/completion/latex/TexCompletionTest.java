@@ -139,6 +139,8 @@ public class TexCompletionTest extends NbTestCase {
         FileUtil.setMIMEType("bib", "text/x-bibtex");
         
         Main.initializeURLFactory();
+        
+        TexCompletionItem.TEST_DO_NOT_HIDE = true;
     }
     
     public void testrefargsorted() throws Exception {

@@ -98,8 +98,10 @@ public abstract class TexCompletionItem implements CompletionItem {
     }
 
     public void defaultAction(final JTextComponent component) {
-        Completion.get().hideCompletion();
-        Completion.get().hideDocumentation();
+        if (!TEST_DO_NOT_HIDE) {
+            Completion.get().hideCompletion();
+            Completion.get().hideDocumentation();
+        }
         NbDocument.runAtomic((StyledDocument) component.getDocument(), new Runnable() {
             public void run() {
                 Document doc = component.getDocument();
@@ -166,6 +168,8 @@ public abstract class TexCompletionItem implements CompletionItem {
     public CharSequence getInsertPrefix() {
         return getText();
     }
+    
+    static boolean TEST_DO_NOT_HIDE = false;
     
     public static final class CommandCompletionItem extends TexCompletionItem implements ChangeListener {
         
