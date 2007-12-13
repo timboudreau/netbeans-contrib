@@ -413,16 +413,7 @@ TypeArgs = "[" Types "]";
 Refinement = <lcurly> (<nl>)* [RefineStat (Semi RefineStat)*] <rcurly>;
 RefineStat = DclDef;
 
-Expr = "if" "(" Expr ")" (<nl>)* Expr [<else> (<nl>)* Expr]
-     | "while" "(" Expr ")" (<nl>)* Expr
-     | "try" (<nl>)* <lcurly> (<nl>)* BlockStats <rcurly> [<catch> (<nl>)* <lcurly> (<nl>)* CaseClauses <rcurly>] [<finally> Expr]
-     | "do" Expr [Semi] "while" "(" Expr ")"
-     | "for" ("(" Enumerators ")" | <lcurly> (<nl>)* Enumerators <rcurly>) (<nl>)* [<yield>] Expr
-     | "throw" Expr
-     | "return" [Expr]
-     | PostfixExpr [Ascription [<rarrow> BlockStats] | <match> (<nl>)* <lcurly> (<nl>)* CaseClauses <rcurly> | <eq> Expr | <rarrow> BlockStats];
-Ascription = ":" (InfixType | (Annotation)+);
-## Here we have to do a mixed hacking:
+## Here we have to do a mixed hacking for various Expr:
 ## 1. Hacking for: Expr = (Bindings | id) ‘=>’ Expr | Expr1
 ##     Bindings = "(" Binding ("," Binding)* ")";
 ##     Binding = NameId [":" Type];
@@ -432,10 +423,19 @@ Ascription = ":" (InfixType | (Annotation)+);
 ##     Guard = "if" PostfixExpr; 
 ## Thus we cannot add another ("=>" Expr) after an expr which level is lower than 
 ## or same as PostfixExpr
-##
-## 2. Hacking for: Ascription = ":" (CompoundType | (Annotation)+ | "_" "*");
-## Since (Bindings | id) ‘=>’ Expr also conflicts with (PostfixExpr Ascription "=>" Expr), 
-## we have to combine them as: Ascription = ":" (Type | (Annotation)+);
+Expr = CtrlExpr
+     | PostfixExpr [Ascription [<rarrow> BlockStats] | <match> (<nl>)* <lcurly> (<nl>)* CaseClauses <rcurly> | <eq> Expr | <rarrow> BlockStats];
+Ascription = ":" (CompoundType | (Annotation)+);
+
+CtrlExpr = "if" "(" Expr ")" (<nl>)* Expr [<else> (<nl>)* Expr]
+         | "while" "(" Expr ")" (<nl>)* Expr
+         | "try" (<nl>)* <lcurly> (<nl>)* BlockStats <rcurly> [<catch> (<nl>)* <lcurly> (<nl>)* CaseClauses <rcurly>] [<finally> Expr]
+         | "do" Expr [Semi] "while" "(" Expr ")"
+         | "for" ("(" Enumerators ")" | <lcurly> (<nl>)* Enumerators <rcurly>) (<nl>)* [<yield>] Expr
+         | "throw" Expr
+         | "return" [Expr];
+
+
 
 ## Hacking for:
 ##     PostfixExpr = InfixExpr [NameId [<nl>]];
@@ -448,7 +448,7 @@ PrefixOp = "-"
          | "!";
 
 SimpleExpr = SimpleExpr1 (<dot> SimpleExpr1 | SimpleExpr2)*
-           | SimpleExpr2 (<dot> SimpleExpr1 | SimpleExpr2)* # or (SimpleExpr2)+ (<dot> SimpleExpr1 [SimpleExpr2])*
+           | SimpleExpr2 (<dot> SimpleExpr1 | SimpleExpr2)*
            | NewExpr     (<dot> SimpleExpr1 | SimpleExpr2)*
            | XmlExpr;
 SimpleExpr1 = PathId (TypeArgs)*
@@ -470,10 +470,19 @@ NewExpr = "new" (ClassParents [TemplateBody] | TemplateBody [ClassParents [Templ
 Arguments = Prths
           | Block;
 
-## Hacking for Prths = "(" [Expr ("," Expr)* [","]] ")";
+## Hacking for: Prths = "(" [Expr ("," Expr)* [","]] ")";
+## To let a optional [","] at the end, we just let PrthsExpr can be empty
 Prths = "(" (<nl>)* PrthsExpr ("," (<nl>)* PrthsExpr)* (<nl>)* ")";
-PrthsExpr = Expr
+PrthsExpr = CtrlExpr
+          | PostfixExpr [AscriptionInPrths [<rarrow> BlockStats] | <match> (<nl>)* <lcurly> (<nl>)* CaseClauses <rcurly> | <eq> Expr | <rarrow> BlockStats]
           | ;
+## Hacking for: Ascription and Binding;
+##     Ascription = ":" (CompoundType | (Annotation)+ | "_" "*")
+##     Bindings = "(" Binding ("," Binding)* ")";
+##     Binding = NameId [":" Type];
+## Since (Bindings | id) ‘=>’ Expr also conflicts with (PostfixExpr Ascription "=>" Expr), 
+## we have to combine them as: Ascription = ":" (Type | (Annotation)+);
+AscriptionInPrths = ":" (Type | (Annotation)+);
 
 Block = <lcurly> (<nl>)* (BlockStats | CaseClauses) <rcurly>;
 TemplateBody = <lcurly> (<nl>)* TemplateStats <rcurly> [<with>];
@@ -505,10 +514,6 @@ CaseClauses = CaseClause (CaseClause)*;
 CaseClause = "case" CasePattern [Guard] <rarrow> CaseBlockStats;
 Guard = "if" PostfixExpr;
 
-## Hacking for :
-##     Enumerator = Generator
-##                | Guard
-##                | "val" Pattern1 "=" Expr;
 Enumerators = Generator (Semi Enumerator)*;
 Generator = ["val"] Pattern1 "<-" Expr [Guard];
 Enumerator = ["val"] Pattern1 ("<-" Expr [Guard] | <eq> Expr)
@@ -558,18 +563,19 @@ Pattern2 = "_" ["*"]
          | "(" (<nl>)* Patterns (<nl>)* ")"
          | XmlPattern;
 
-## The following (":" InfixType) should be (":" Type), but for example:
-##     case rw: List[TemplateHolder] => rw
-## where, (List[TemplateHolder] => rw) which is behind ":", may be parsed as a 
-## function type rather then a (Type => Expr), so we here have to limit the Type to InfixType
-
 Pattern3 = SimplePattern (NameId [<nl>] SimplePattern)*;
 SimplePattern = "_" ["*"]
               | Literal
-              | StableId ["(" (<nl>)* Patterns (<nl>)* ")" | "@" Pattern3 | ":" InfixType]
+              | StableId ["(" (<nl>)* Patterns (<nl>)* ")" | "@" Pattern3 | ":" Type]
               | "(" (<nl>)* Patterns (<nl>)* ")"
               | XmlPattern;
 
+## Hacking for pattern in case clause:
+## The only difference from Pattern for case clause is:
+## we use (":" InfixType) rather than (":" Type). For example:
+##     case rw: List[TemplateHolder] => rw
+## where, (List[TemplateHolder] => rw) which is behind ":", may be parsed as a 
+## function type rather then a (Type => Expr), so we here have to limit the Type to InfixType
 CasePattern = CasePattern1 ("|" CasePattern1)*;
 CasePattern1 = CasePattern0 (NameId [<nl>] CasePattern0)*;
 CasePattern0 = "_" ["*"]
@@ -631,13 +637,13 @@ DclDef = ValDclDef
        | FunDclDef
        | TypeDclDef
        | TmplDef;
-ValDclDef = "val" PatDef [":" Type] [<eq> Expr];
-VarDclDef = "var" PatDef [":" Type] [<eq> Expr];
+ValDclDef = "val" PatDef [<eq> Expr];
+VarDclDef = "var" PatDef [<eq> Expr];
 FunDclDef = "def" NameId [FunTypeParamClause] [ParamClauses] ([":" Type] [<eq> Expr] | <lcurly> BlockStats <rcurly>)
           | "def" "this" [ParamClauses] (<eq> ConstrExpr | ConstrBlock);
 TypeDclDef = "type" NameId [TypeParamClause] ([">:" Type] ["<:" Type] ["<%" Type] | <eq> Type);
 
-PatDef = Pattern2 ("," Pattern2)*;
+PatDef = Pattern2 ("," Pattern2)* [":" Type] ;
 
 ParamClauses = ParamClause (ParamClause)*;
 ParamClause = "(" (<nl>)* [["implicit"] Params] (<nl>)* ")";
