@@ -131,7 +131,7 @@ public class SensorTest extends TestCase {
         n.assertNotNotified();
         sensor.doRegister (n);
         assertEquals (2, sensor.toNotify.size());
-        WeakReference wr = new WeakReference (n);
+        WeakReference<N> wr = new WeakReference<N> (n);
         n = null;
         for (int i=0; i < 10; i++) {
             System.gc();

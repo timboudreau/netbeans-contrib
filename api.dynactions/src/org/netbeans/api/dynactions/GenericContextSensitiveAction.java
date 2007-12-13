@@ -283,6 +283,8 @@ public abstract class GenericContextSensitiveAction <T> implements ContextAwareA
 
     public final void actionPerformed (ActionEvent ae) {
         T t = (T) lookup.lookup(targetClass);
+        assert t != null : "No instance of " + targetClass.getName() + 
+                " in " + lookup;
         performAction (t);
     }
 

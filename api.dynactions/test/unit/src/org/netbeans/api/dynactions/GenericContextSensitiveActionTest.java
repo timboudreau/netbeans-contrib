@@ -95,16 +95,15 @@ public class GenericContextSensitiveActionTest extends TestCase {
         }
     }
     
-    private static final class A extends GenericContextSensitiveAction {
+    private static final class A extends GenericContextSensitiveAction<String> {
         
         public A() {
             super (String.class);
         }
 
-        public void performAction(Collection c) {
-        }
-
-        protected void performAction(Object t) {
+        @Override
+        protected void performAction(String t) {
+            throw new UnsupportedOperationException("Not supported yet.");
         }
     }
 }

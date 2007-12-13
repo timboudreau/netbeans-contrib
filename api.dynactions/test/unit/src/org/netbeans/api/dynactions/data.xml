@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE filesystem PUBLIC "-//NetBeans//DTD Filesystem 1.1//EN" "http://www.netbeans.org/dtds/filesystem-1_1.dtd">
+<filesystem>
+    <file name="check.txt"/>
+    <folder name="root1">
+        <folder name="org-netbeans-api-dynactions-Obj">
+            <file name="org-netbeans-api-dynactions-Action1.instance"/>
+        </folder>
+        <folder name="org-netbeans-api-dynactions-Interface1">
+            <file name="org-netbeans-api-dynactions-Action2.instance"/>
+        </folder>
+        <folder name="org-netbeans-api-objectloader-ObjectLoader">
+            <folder name="org-netbeans-api-dynactions-OtherObj">
+                <file name="org-netbeans-api-dynactions-OtherObjSensitiveAction.instance"/>
+            </folder>
+        </folder>
+    </folder>
+</filesystem>

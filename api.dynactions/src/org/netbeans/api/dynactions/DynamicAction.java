@@ -28,18 +28,12 @@
 
 package org.netbeans.api.dynactions;
 
-import java.lang.ref.Reference;
-import java.lang.ref.WeakReference;
-import java.util.ArrayList;
-import java.util.List;
-import javax.swing.Action;
 import javax.swing.JComponent;
 import javax.swing.JMenuItem;
 import org.openide.awt.Actions;
 import org.openide.awt.DynamicMenuContent;
 import org.openide.util.Lookup;
 import org.openide.util.actions.Presenter;
-import org.openide.util.lookup.Lookups;
 
 /**
  * An action which can be registered in a layer for use by a Node, and
@@ -52,11 +46,6 @@ public abstract class DynamicAction<T> extends GenericContextSensitiveAction<T> 
         super (lkp, clazz);
     }
 
-    public static List <Action> getActions (String layerPath) {
-        Lookup lkp = Lookups.forPath(layerPath);
-        return new ArrayList <Action> (lkp.lookupAll(Action.class));
-    }
-    
     private class JMI extends JMenuItem implements DynamicMenuContent {
         public JComponent[] getMenuPresenters() {
             if (DynamicAction.this.isEnabled()) {
