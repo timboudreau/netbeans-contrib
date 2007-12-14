@@ -758,15 +758,21 @@ NAVIGATOR:TypeDclDef: {
     icon: "/org/netbeans/modules/languages/resources/method.gif";
 }
 
-NAVIGATOR:ValDclDef: {
+NAVIGATOR:TemplateStat.DclDef.ValDclDef: {
     display_name: "$PatDef$";
     icon: "/org/netbeans/modules/languages/resources/variable.gif";
 }
 
-NAVIGATOR:VarDclDef: {
+NAVIGATOR:TemplateStat.DclDef.VarDclDef: {
     display_name: "$PatDef$";
+    icon: "/org/netbeans/modules/languages/resources/variable.gif";
+}
+
+NAVIGATOR:CaseClause: {
+    display_name: "case $CasePattern$";
     icon: "/org/netbeans/modules/languages/resources/method.gif";
 }
+
 
 MARK:ERROR: {
     type:"Error";
