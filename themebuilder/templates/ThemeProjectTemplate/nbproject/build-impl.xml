@@ -12,7 +12,6 @@ is divided into following sections:
 
 -->
 <project name="theme-impl" default="jar" basedir="..">
-    
     <!-- 
     ======================
     INITIALIZATION SECTION 
@@ -24,21 +23,14 @@ is divided into following sections:
     </target>
     
     <target name="-init-private" depends="-pre-init">
-        <property file="nbproject/private/config.properties"/>
-        <property file="nbproject/private/configs/${config}.properties"/>
         <property file="nbproject/private/private.properties"/>
     </target>
     
     <target name="-init-user" depends="-pre-init,-init-private">
         <property file="${user.properties.file}"/>
-        <!-- The two properties below are usually overridden -->
-        <!-- by the active platform. Just a fallback. -->
-        <property name="default.javac.source" value="1.4"/>
-        <property name="default.javac.target" value="1.4"/>
     </target>
     
     <target name="-init-project" depends="-pre-init,-init-private,-init-user">
-        <property file="nbproject/configs/${config}.properties"/>
         <property file="nbproject/project.properties"/>
         
         <!-- make basedir a package -->
@@ -46,20 +38,30 @@ is divided into following sections:
             <path path="${basedir}"/>
             <unpackagemapper from="*" to="*"/>
         </pathconvert>
-        <pathconvert property="theme.package.path">
+        <pathconvert property="theme.package-path">
             <path path="${theme.package}"/>
             <unpackagemapper from="*" to="*"/>
             <map from="${basedir.package}/" to=""/>
         </pathconvert>
         
-        <property name="tools.jar"
-                  value="${tools.dir}/javascript/tools.jar"/>
-        <property name="rhino.jar"
-                  value="${tools.dir}/javascript/custom_rhino.jar"/>
-        <property name="javascript.nls.path" 
-                  value="${build.dir}/${theme.package.path}/javascript/theme/nls"/>  
-        <property name="uncompressed_javascript.nls.path" 
-                  value="${build.dir}/${theme.package.path}/javascript_uncompressed/theme/nls"/>
+        <property name="theme.build-package-path" location="${build.dir}/${theme.package-path}"/>
+        <property name="theme.src-package-path" location="${src.dir}/${theme.package-path}"/>
+        
+        <property name="tools.jar" value="${tools.dir}/woodstock-tools.jar"/>
+        <property name="rhino.jar" value="${tools.dir}/custom_rhino.jar"/>
+        
+        <condition property="build-compressJS" >
+            <isset property="compress.javascript"/>
+        </condition>
+        
+        <condition property="build-combineImages" >
+            <isset property="build.combinedImages"/>
+        </condition>
+        
+        <condition property="build-jsdoc" >
+            <isset property="build.javascriptDocs"/>
+        </condition>
+        
     </target>
     
     <target name="-do-init" depends="-pre-init,-init-private,-init-user,-init-project">
@@ -85,33 +87,53 @@ is divided into following sections:
     ====================
     -->
     
-    <target name="-pre-pre-jar" >
-        <copy todir="${build.dir}/${theme.package.path}/javascript_uncompressed">
-            <fileset dir="${src.dir}/${theme.package.path}/javascript">
-                 
-            </fileset>
-        </copy>
-        <delete dir="${javascript.nls.path}" />
-    </target>
     
-    <target name="-pre-jar" depends="-pre-pre-jar">
+    <target name="-pre-jar">
         <!-- Empty placeholder for easier customization. -->
         <!-- You can override this target in the ../build.xml file. -->
     </target>
     
-    <target name="-build-theme" description="Buildin the Theme">
-        <mkdir dir="${build.dir}"/>
+    
+    
+    <target name="-post-jar">
+        <!-- Empty placeholder for easier customization. -->
+        <!-- You can override this target in the ../build.xml file. -->
+    </target>
+    <target name="jar" depends="-init,-pre-jar, -build-theme, -build-javascript-theme, -post-jar" description="Build JAR."/>
+    
+    <!--
+    ===============
+    CLEANUP SECTION
+    ===============
+    -->
+    <target name="-do-clean" depends="-init">
+        <delete dir="${build.dir}"/>
+        <delete dir="${dist.dir}"/>
+    </target>
+    <target name="-post-clean">
+        <!-- Empty placeholder for easier customization. -->
+        <!-- You can override this target in the ../build.xml file. -->
+    </target>
+    <target name="clean" depends="-init,-do-clean,-post-clean" description="Clean build products."/>
+    
+    <!--
+    ===================
+    Theme Build targets
+    ===================
+    -->
+    
+    <target name="-build-theme" description="Building the Theme">
+        <mkdir dir="${theme.build-package-path}" />
+        
         <copy todir="${build.dir}">
             <fileset dir="src">
                 <exclude name="**/*.java" />
+                <exclude name="**/*.js" />
             </fileset>
         </copy>
         
         <copy todir="${build.dir}/META-INF">
-            
-            <fileset dir="META-INF">
-                
-            </fileset>
+            <fileset dir="META-INF"/>
         </copy>
         
         <javac srcdir="${src.dir}" 
@@ -121,39 +143,112 @@ is divided into following sections:
                 <pathelement path="${libs.woodstock-components.classpath}"/>
             </classpath>
         </javac>
-    </target>
-    
-    <target name="-compress-javascript" if="compress.javascript">          
         
-        <java jar="${tools.jar}" failonerror="true" fork="true">
-            <arg value="-compress"/>
-            <arg value="-sourcePath"/>
-            <arg value="${build.dir}/${theme.package.path}/javascript"/>
-            <arg value="-rhinoJar"/>
-            <arg value="${rhino.jar}"/>
-            <arg value="-verbose"/>
-        </java>
+        <!-- Combine CSS -->
         
+        <property name="theme.master.css" value="css_master.css"/>
+        <property name="theme.master-all.css" value="css_master-all.css"/>
+        <antcall target="combineCSS">
+            <param name="_to-dir_" value="${theme.build-package-path}/css"/>
+            <param name="_from-dir_" value="${theme.src-package-path}/css"/>
+            <param name="_files-to-combine_" value="${theme.master.css}"/>
+            <param name="_combined-file_" 
+                   value="${theme.build-package-path}/css/${theme.master-all.css}"/>
+        </antcall>
+        
+        <!-- Combine Java Script -->
+     
+        <property name="js-dest-uncmp" location="${theme.build-package-path}/javascript_uncompressed"/>
+        <property name="js-dest-cmp" location="${theme.build-package-path}/javascript"/>
+        <property name="js-src" value="${theme.src-package-path}/javascript"/>
+        <property name="theme.webui-js-files" value="webui-js-files"/>
+        <property name="theme.webui.js" value="webui.js"/>
+        
+        <property name="theme.webui-all-js-files" value="webui-all-js-files"/>
+        <property name="theme.webui-all.js" value="webui-all.js"/>
+        <property name="theme.webui-jsfx.js" value="webui-jsfx.js"/>
+        <property name="theme.webui-jsfx-all.js" value="webui-jsfx-all.js"/>
+        <property name="theme.webui-jsfx-js-files" value="webui-jsfx-js-files"/>
+        <property name="theme.webui-jsfx-all-js-files" value="webui-jsfx-all-js-files"/>
+        
+        <antcall target="combineJavascript">
+            <param name="_to-dir_" value="${js-dest-uncmp}"/>
+            <param name="_from-dir_" value="${js-src}"/>
+            <param name="_pattern-set_" value="${theme.webui-js-files}"/>
+            <param name="_combined-file_" 
+                   value="${js-dest-uncmp}/${theme.webui.js}"/>
+        </antcall>
+        <antcall target="combineJavascript">
+            <param name="_to-dir_" value="${js-dest-uncmp}"/>
+            <param name="_from-dir_" value="${js-src}"/>
+            <param name="_pattern-set_"
+                   value="${theme.webui-all-js-files}"/>
+            <param name="_combined-file_" 
+                   value="${js-dest-uncmp}/${theme.webui-all.js}"/>
+        </antcall>
+        <antcall target="combineJavascript">
+            <param name="_to-dir_" value="${js-dest-uncmp}"/>
+            <param name="_from-dir_" value="${js-src}"/>
+            <param name="_pattern-set_"
+                   value="${theme.webui-jsfx-js-files}"/>
+            <param name="_combined-file_" 
+                   value="${js-dest-uncmp}/${theme.webui-jsfx.js}"/>
+        </antcall>
+        <antcall target="combineJavascript">
+            <param name="_to-dir_" value="${js-dest-uncmp}"/>
+            <param name="_from-dir_" value="${js-src}"/>
+            <param name="_pattern-set_"
+                   value="${theme.webui-jsfx-all-js-files}"/>
+            <param name="_combined-file_" 
+                   value="${js-dest-uncmp}/${theme.webui-jsfx-all.js}"/>
+        </antcall>
+        
+        <!-- Compress Java Script -->
+        
+        <antcall target="compressJavascript">
+            <param name="_to-dir_" value="${js-dest-cmp}"/>
+            <param name="_from-dir_" value="${js-dest-uncmp}"/>
+        </antcall>
+        
+        <!-- Combine Images -->
+        
+        <antcall target="combineImages">
+            <param name="theme.build-dir" value="${build.dir}"/>
+            <param name="theme.src-dir" value="${theme.src-package-path}"/>
+            <param name="theme.build-package-path" value="${theme.build-package-path}"/>
+            <param name="theme.combined-image" value="combinedImage.png"/>
+        </antcall>
+        
+        <!-- Build the Theme jar -->
+        <mkdir dir="${dist.dir}"/>
+        <jar manifest="META-INF/MANIFEST.MF" 
+             destfile="${dist.dir}/${dist.jar}"
+             basedir="${build.dir}"
+        />
     </target>
     
     <target name="-build-javascript-theme">
+        <property name="javascript.nls.path" 
+                  value="${build.dir}/${theme.package-path}/javascript/theme/nls"/>  
+        <property name="uncompressed_javascript.nls.path" 
+                  value="${build.dir}/${theme.package-path}/javascript_uncompressed/theme/nls"/>
         <mkdir dir="${uncompressed_javascript.nls.path}"/> 
         <!-- The uncompressed version is the JSON pretty printed version 
 	  -->
-	<java classname="com.sun.webui.theme.ResourceBundleTheme"
-		logError="yes"
-		failonerror="true" fork="true">
-	    <arg value="-dir"/>
-	    <arg value="${uncompressed_javascript.nls.path}"/>
-	    <arg value="-theme"/>
-	    <arg value="${theme.name}"/>
-	    <arg value="-prettyprint"/>
-	    <arg value="4"/>
-	    <classpath>
-		 <pathelement path="${libs.woodstock-components.classpath}"/>
+        <java classname="com.sun.webui.theme.ResourceBundleTheme"
+              logError="yes"
+              failonerror="true" fork="true">
+            <arg value="-dir"/>
+            <arg value="${uncompressed_javascript.nls.path}"/>
+            <arg value="-theme"/>
+            <arg value="${theme.name}"/>
+            <arg value="-prettyprint"/>
+            <arg value="4"/>
+            <classpath>
+                <pathelement path="${libs.woodstock-components.classpath}"/>
                 <pathelement path="${dist.dir}/${dist.jar}"/>
-	    </classpath>
-	</java>
+            </classpath>
+        </java>
         
         <mkdir dir="${javascript.nls.path}"/>    
         <java classname="com.sun.webui.theme.ResourceBundleTheme"
@@ -173,37 +268,406 @@ is divided into following sections:
         <jar destfile="${dist.dir}/${dist.jar}"
              update="true"
              basedir="${build.dir}"
-             includes="${theme.package.path}/javascript/theme/nls/**/*.js, ${theme.package.path}/javascript_uncompressed/theme/nls/**/*.js">
+             includes="${theme.package-path}/javascript/theme/nls/**/*.js, ${theme.package-path}/javascript_uncompressed/theme/nls/**/*.js">
         </jar>
         
     </target>
     
-    <target name="-do-jar" description="Building the Jar.">
-        <mkdir dir="${dist.dir}"/>
-        <jar manifest="META-INF/MANIFEST.MF" 
-             destfile="${dist.dir}/${dist.jar}"
-             basedir="${build.dir}"
-        />
-    </target>
-    
-    <target name="-post-jar">
-        <!-- Empty placeholder for easier customization. -->
-        <!-- You can override this target in the ../build.xml file. -->
-    </target>
-    <target name="jar" depends="-init,-pre-jar, -build-theme, -compress-javascript, -do-jar, -build-javascript-theme, -post-jar" description="Build JAR."/>
-    
     <!--
-    ===============
-    CLEANUP SECTION
-    ===============
+ ===========================================================================================
+ -->   
+ 
+    <property name="theme.exclude-js-files" value="exclude-js-files"/>
+    
+    <!-- The files that are commonly omitted. Some files (e.g., dnd.js) may be
+         included via widgets. -->
+    <patternset id="exclude-js-files">
+        <exclude name="addRemove.js" />
+        <exclude name="commonTasksSection.js" />
+        <exclude name="dnd.js" />
+        <exclude name="editableList.js" />
+        <exclude name="fileChooser.js" />
+        <exclude name="orderableList.js" />
+        <exclude name="scheduler.js" />
+        <exclude name="table.js" />
+        <exclude name="tree.js" />
+        <exclude name="wizard.js" />
+        <exclude name="widget/dndContainer.js" />
+        <exclude name="theme/nls/"/>
+    </patternset>
+    
+    <!-- "webui.js" -->
+    <patternset id="webui-js-files">
+    <include name="**/*.js"/>
+    <exclude name="widget/jsfx/**" />
+    <patternset refid="${theme.exclude-js-files}"/>
+    </patternset>
+    
+    <!-- "webui-all.js" -->
+    <patternset id="webui-all-js-files">
+        <include name="**/*.js"/>
+        <exclude name="widget/jsfx/**" />
+        <exclude name="theme/nls/"/>
+    </patternset>
+    
+    <!-- "webui-jsfx.js" -->
+    <patternset id="webui-jsfx-js-files">
+    <include name="**/*.js"/>
+    <patternset refid="${theme.exclude-js-files}"/>
+    </patternset>
+    
+    <!-- "webui-jsfx-all.js" -->
+    <patternset id="webui-jsfx-all-js-files">
+        <include name="**/*.js"/>
+        <exclude name="theme/nls/"/>
+    </patternset>
+    
+    <!-- ################## CSS targets ##################### -->
+
+    <!-- Set the "css-uptodate" property  if ${_combined-file_}" is 
+	 newer than "${_from-dir_}/*.css"
     -->
-    <target name="-do-clean" depends="-init">
-        <delete dir="${build.dir}"/>
-        <delete dir="${dist.dir}"/>
+    <target name="css-uptodate">
+        <uptodate property="css-uptodate">
+            <srcfiles dir="${_from-dir_}"
+               includes="*.css"/>
+            <mergemapper to="${_combined-file_}"/>
+        </uptodate>
     </target>
-    <target name="-post-clean">
-        <!-- Empty placeholder for easier customization. -->
-        <!-- You can override this target in the ../build.xml file. -->
+    
+    <!-- Parameters
+
+	_to-dir_ - the destination directory for css files
+	_from-dir_ - the source directory of the css files.
+	_files-to-combine_ - the comma separated list of files to combine.
+			In this case it is a list of files that contain
+			"import" statements.
+	_combined-file_ - the combined css file.
+
+	This also copies and filters CSS files from
+	"${_from-dir_}" to "${_to-dir_}".
+
+	Should depend on a copy CSS
+    -->
+    <target name="combineCSS" depends="css-uptodate"
+            unless="css-uptodate">
+        
+        <mkdir dir="${_to-dir_}"/>
+        
+        <!-- Should be a separate "copyCSS" -->
+        <!-- Copy and filter files into the temporary dir -->
+        <!--
+	<copy todir="${_to-dir_}">
+	    <fileset dir="${_from-dir_}">
+              <exclude name="**/CVS/**" />
+	    </fileset>
+            <filterset>
+                <filter token="THEME_CSS" value="${theme.css-name}"/>
+            </filterset>
+	</copy>
+	-->
+
+        <java jar="${tools.jar}" failonerror="true" fork="true">
+            <arg value="-combineCSS"/>
+            <arg value="-sourceDir"/>
+            <arg value="${_to-dir_}"/>
+            <arg value="-fileList"/>
+            <arg value="${_files-to-combine_}"/>
+            <arg value="-outFile"/>
+            <arg value="${_combined-file_}"/>
+            <arg value="-verbose"/>
+        </java>
+        
+        <!-- Add copyright to combined file -->
+        <!--
+        <replaceregexp match="^" byline="false" replace="${copyright-css}"> 
+            <fileset file="${_combined-file_}"/>
+        </replaceregexp>
+        -->
+        
     </target>
-    <target name="clean" depends="-init,-do-clean,-post-clean" description="Clean build products."/>
-</project>
+    
+    <!-- #############  Javascript targets ################### -->
+
+    <!-- Sets the "javascript-uptodate" property if
+	 files in "${_from-dir_}/**/*.js" are older than files in
+	 "${_to-dir_}/**/*.js". 
+
+	 Assumes properties
+
+	 _to-dir_ - destinatiotn directory of "**/*.js" files
+	 _from-dir_ - source directory of "**/*.js" files
+    -->
+    <target name="javascript-uptodate">
+        <uptodate property="javascript-uptodate">
+            <srcfiles dir="${_from-dir_}" includes="**/*.js"/>
+            <mapper type="glob" from="*" to="${_to-dir_}/*"/>
+        </uptodate>
+    </target>
+    
+    <!-- Copy and filter all javascript files to "${_to-dir_}"
+	 from "${_from-dir_}" if the "javascript-uptodate" property is set.
+
+	 Parameters
+
+	 _to-dir_ - destination directory of "**/*.js"
+	 _from-dir_ - source directory of "**/*.js"
+
+	Assumes
+
+	${theme.js-filter-set} used to filter js files.
+    -->
+    <target name="copyJavascript" depends="javascript-uptodate"
+            unless="javascript-uptodate">
+        
+        <mkdir dir="${_to-dir_}"/>
+        
+        <!-- Note that copy only copies files if outdated.
+	     This allows "javascript_uncompressed" for example
+	     to be used for dependency checking when compressing files.
+	-->
+        <!-- Copy and filter javascript files into _to-dir_ -->
+        <copy todir="${_to-dir_}">
+            <fileset dir="${_from-dir_}">
+                <exclude name="**/CVS/**"/>
+            </fileset>
+            <!--filterset refid="${theme.js-filter-set}"/-->
+        </copy>
+    </target>
+    
+    <!-- Set the combined-js-uptodate property if
+	"${_combined-file_}" is newer than "${_from-dir_}/**/*.js"
+    -->
+    <target name="combined-js-uptodate" depends="copyJavascript">
+        <uptodate property="combined-js-uptodate">
+            <srcfiles dir="${_from-dir_}" includes="**/*.js"
+               excludes="theme/nls/"/>
+            <mergemapper to="${_combined-file_}"/>
+        </uptodate>
+    </target>
+    
+    <!--  Create the combined file ${_combined-file_}.
+
+	Parameters
+
+	_to-dir_ - root of the destination for combined files
+	_from-dir_ - the source of the javascipt files.
+			   This directory will be written into.
+	_pattern-set_ - the patternset refid defining the files to combine.
+	_combined-file_ - the combined js file.
+
+    -->
+    <target name="combineJavascript" depends="combined-js-uptodate"
+            unless="combined-js-uptodate"
+            description="Create a combined javascript file.">
+        
+        <echo message="Combining ${_combined-file_}"/>
+        
+        <!-- create a "location" for portability -->
+        <property name="__from-dir-loc__"
+           location="${_to-dir_}"/>
+        <pathconvert property="__files-to-combine__" pathsep=",">
+            <fileset dir="${__from-dir-loc__}">
+                <patternset refid="${_pattern-set_}"/>
+            </fileset>
+            <mapper type="glob" 
+             from="${__from-dir-loc__}${file.separator}*" to="*"/>
+        </pathconvert>
+        
+        <java jar="${tools.jar}" failonerror="true" fork="true">
+            <arg value="-combineJS"/>
+            <arg value="-sourceDir"/>
+            <arg value="${__from-dir-loc__}"/>
+            <arg value="-fileList"/>
+            <arg value="${__files-to-combine__}"/>
+            <arg value="-modulePrefix"/>
+            <arg value="${theme.js-module-prefix}"/>
+            <arg value="-outFile"/>
+            <arg value="${_combined-file_}"/>
+            <arg value="-verbose"/>
+        </java>
+        
+        <!-- Add copyright to combined file -->
+        <!--
+        <replaceregexp match="^" byline="false" replace="${copyright}"> 
+            <fileset file="${_combined-file_}"/>
+        </replaceregexp>
+        -->
+    </target>
+    
+    <!-- Set the compressed-js-uptodate property if
+	"${_to-dir_}/**/*.js" files are newer than 
+	"${_from-dir_}/**/*.js"
+    -->
+    <target name="compressed-js-uptodate">
+        <uptodate property="compressed-js-uptodate">
+            <srcfiles dir="${_from-dir_}" 
+               includes="**/*.js"
+               excludes="theme/nls/,**/${theme.webui.js},**/${theme.webui-all.js},**/${theme.webui-jsfx.js},**/${theme.webui-jsfx-all.js}"/>
+            <mapper type="glob" from="*" to="${_to-dir_}/*"/>
+        </uptodate>
+    </target>
+    
+    <!-- Parameters
+
+	_to-dir_ - root of the destination for combined files
+	_from-dir_ - the source of the javascipt files.
+
+        Comment out build-compressJS in the build.properties file if you
+        don't want to compress when modifying JavaScript files
+
+	To simplify the dependency checking it is expected that
+	there are files in "${_from-dir_}", so either "combineJavascript"
+	or "copyJavascript" should have been called.
+
+	Expects Global "${rhino.jar}" to be set.
+    -->
+    <target name="compressJavascript" if="build-compressJS" 
+            depends="compressed-js-uptodate" unless="compressed-js-uptodate">
+        
+        <mkdir dir="${_to-dir_}"/>
+        
+        <!-- Use property location to overcome issues with
+	     Windows paths and pathconvert.
+	-->
+        <property name="__from-dir-loc__" location="${_from-dir_}"/>
+        <property name="__to-dir-loc__" location="${_to-dir_}"/>
+        
+        <!-- make sure to exclude the "nls" directory -->
+        <pathconvert property="__files-to-compress__" pathsep=",">
+            <fileset dir="${__from-dir-loc__}">
+                <exclude name="**/nls/"/>
+                <depend targetdir="${__to-dir-loc__}">
+                    <mapper type="glob" from="*" to="*"/>
+                </depend>
+            </fileset>
+            <mapper type="glob" 
+             from="${__from-dir-loc__}${file.separator}*" to="*"/>
+        </pathconvert>
+        
+        <!-- Always add "webui.js" since it is always a generated file -->
+        <java jar="${tools.jar}" failonerror="true" fork="true">
+            <arg value="-compressJS"/>
+            <arg value="-sourceDir"/>
+            <arg value="${__from-dir-loc__}"/>
+            <arg value="-destDir"/>
+            <arg value="${__to-dir-loc__}"/>
+            <arg value="-fileList"/>
+            <arg value="${__files-to-compress__}"/>
+            <arg value="-rhinoJar"/>
+            <arg value="${rhino.jar}"/>
+            <arg value="-verbose"/>
+        </java>
+        
+        <!-- Add copyrights stripped by compression tool -->
+        <!--
+        <replaceregexp match="^" byline="false" replace="${copyright}"> 
+            <fileset dir="${__to-dir-loc__}"
+                     includes="${__files-to-compress__}"/>
+        </replaceregexp>
+        -->
+    </target>
+    
+    <!-- If the combinedImage file is newer than any image file and
+	 the images.properties file, set "images-uptodate".
+    -->
+    <target name="images-uptodate">
+        <uptodate property="images-uptodate">
+            <srcfiles dir="${theme.src-dir}"
+               includes="images/**/*,properties/images.properties"/>
+            <mergemapper 
+                to="${theme.build-package-path}/images/other/${theme.combined-image}"/>
+        </uptodate>
+    </target>
+    
+    <target name="combineImages" if="build-combineImages"
+            depends="images-uptodate" unless="images-uptodate" 
+            description="Combine images.">
+        
+        <java jar="${tools.jar}" failonerror="true" fork="true">
+            <arg value="-combineImages"/>
+            <arg value="-sourceDir"/>
+            <arg value="${theme.build-dir}"/>
+            <arg value="-imageFile"/>
+            <arg value="${theme.build-package-path}/images/other/${theme.combined-image}"/>
+            <arg value="-imagePropertyFile"/>
+            <arg value="${theme.build-package-path}/properties/images.properties"/>
+            <arg value="-outFile"/>
+            <arg value="${theme.build-package-path}/properties/images.properties"/>
+        </java>
+        
+    </target>
+    
+    <!-- Set the jsdoc-uptodate property if
+	"${_to-dir_}/index.html" is newer than "${_from-dir_}/**/*.js"
+    -->
+    <target name="jsdoc-uptodate">
+	<uptodate property="jsdoc-uptodate">
+	    <srcfiles dir="${theme.build-package-path}/javascript_uncompressed"
+		includes="**/*.js"
+		excludes="theme/nls/,**/${theme.webui.js},**/${theme.webui-all.js},**/${theme.webui-jsfx.js},**/${theme.webui-jsfx-all.js}"/>
+	    <mergemapper to="${jsdocs}/index.html"/>
+	</uptodate>
+    </target>
+
+    
+    <!-- Parameters
+
+        Comment out build-jsdoc in the build.properties file if you
+        don't want jsDoc to build when modifying JavaScript files
+
+	To simplify the dependency checking it is expected that
+	there are files in "${_from-dir_}", so either "combineJavascript"
+	or "copyJavascript" should have been called.
+
+	Expects Global "${rhino.jar}" to be set.
+    -->
+    <target name="jsdoc" if="build-jsdoc" depends="jsdoc-uptodate"
+            unless="jsdoc-uptodate">
+        
+        <property name="_to-dir_" value="${jsdocs}"/>
+        <property name="_from-dir_" 
+           value="${theme.build-package-path}/javascript_uncompressed"/>
+        
+           <mkdir dir="${_to-dir_}"/>
+           
+           <!-- Use property location to overcome issues with
+	     Windows paths and pathconvert.
+	-->
+           <property name="__from-dir-loc__" location="${_from-dir_}"/>
+           <property name="__to-dir-loc__" location="${_to-dir_}"/>
+           
+           <!-- make sure to exclude the "nls" directory -->
+           <pathconvert property="__files-to-doc__" pathsep=" ">
+               <fileset dir="${__from-dir-loc__}">
+                   <exclude name="**/nls/"/>
+                   <exclude name="${theme.webui.js}"/>
+                   <exclude name="${theme.webui-all.js}"/>
+                   <exclude name="${theme.webui-jsfx.js}"/>
+                   <exclude name="${theme.webui-jsfx-all.js}"/>
+                   <depend targetdir="${__to-dir-loc__}">
+                       <mapper type="glob" from="*" to="*"/>
+                   </depend>
+               </fileset>
+               <mapper type="glob" from="*" to="*"/>
+           </pathconvert>
+           
+           <!-- Always add "webui.js" since it is always a generated file -->
+           <java jar="${rhino.jar}" failonerror="true" fork="true">
+               <sysproperty key="jsdoc.dir" value="${jsdoc.dir}"/>
+               <arg value="${jsdoc.exec}"/>
+               <arg value="-d=${_to-dir_}"/>
+               <arg value="-t=${jsdoc.template}"/>
+               <arg line="${__files-to-doc__}"/>
+           </java>
+           
+           <!-- JsDoc doesn't link source files correctly for subdirectories,
+             so we'll just remove them for now. 
+        -->
+           <delete>
+               <fileset dir="${_to-dir_}" includes="**/*.src.html"/>
+           </delete>
+       </target>
+       
+   </project>
+   
