@@ -454,8 +454,8 @@ SimpleExpr = SimpleExpr1 (<dot> SimpleExpr1 | SimpleExpr2)*
 SimpleExpr1 = PathId (TypeArgs)*
             | Literal (TypeArgs)*;
 SimpleExpr2 = "_" (TypeArgs)*
-            | Prths (TypeArgs)*
-            | Block (TypeArgs)*;
+            | PrthsBody (TypeArgs)*
+            | BlockBody (TypeArgs)*;
 
 ## Hacking for: "new" ([EarlyDef] ClassParents [TemplateBody] | TemplateBody)
 ## Since EalyBody and TemplateBody all start with "{" and TemplateBody is super set of EarlyBody,
@@ -466,12 +466,12 @@ SimpleExpr2 = "_" (TypeArgs)*
 ## A possible expr: NewExpr = "new" [Block] ClassParents (PrthsOrBlock (TypeArgs)*)* [<dot> NameId];
 NewExpr = "new" (ClassParents [TemplateBody] | TemplateBody [ClassParents [TemplateBody]]) (TypeArgs)*;
 
-Arguments = Prths
-          | Block;
+Arguments = PrthsBody
+          | BlockBody;
 
 ## Hacking for: Prths = "(" [Expr ("," Expr)* [","]] ")";
 ## To let a optional [","] at the end, we just let PrthsExpr can be empty
-Prths = "(" (<nl>)* ExprInPrths ("," (<nl>)* ExprInPrths)* (<nl>)* ")";
+PrthsBody = "(" (<nl>)* ExprInPrths ("," (<nl>)* ExprInPrths)* (<nl>)* ")";
 ExprInPrths = CtrlExpr
             | PostfixExpr [AscriptionInPrths [<rarrow> Expr] | <match> (<nl>)* <lcurly> (<nl>)* CaseClauses <rcurly> | <eq> Expr | <rarrow> Expr]
             | ;
@@ -483,15 +483,19 @@ ExprInPrths = CtrlExpr
 ## we have to combine them as: Ascription = ":" (Type | (Annotation)+);
 AscriptionInPrths = ":" (Type | (Annotation)+);
 
-Block = <lcurly> (<nl>)* (BlockStats | CaseClauses) <rcurly>;
+BlockBody = <lcurly> (<nl>)* (BlockStats | CaseClauses) <rcurly>;
 TemplateBody = <lcurly> (<nl>)* TemplateStats <rcurly> [<with>];
 
 ####### Blocked Statements: #############
 TemplateStats = TemplateStat (Semi TemplateStat)*;
 TemplateStat = Import
              | (Annotation)* (Modifier)* DclDef
-             | Expr
+             | ExprInTemplate
              | ;
+## Hacking for TemplateBody ::= [nl] ‘{’ [id [‘:’ Type] ‘=>’] TemplateStat {semi TemplateStat} ‘}’
+## Where, [id [‘:’ Type] ‘=>’] conflicts with Expr
+ExprInTemplate = CtrlExpr
+               | PostfixExpr [Ascription [<rarrow> TemplateStats] | <match> (<nl>)* <lcurly> (<nl>)* CaseClauses <rcurly> | <eq> Expr | <rarrow> TemplateStats];
 
 BlockStats = BlockStat (Semi BlockStat)*;
 BlockStat = Import
@@ -519,11 +523,14 @@ CaseClauses = CaseClause (CaseClause)*;
 CaseClause = "case" CasePattern [Guard] <rarrow> CaseBlockStats;
 Guard = "if" PostfixExpr;
 
+## The old style for-comprehensions' generator: ["val"] Pattern1 "<-" Expr [Guard]; 
+## has been depracated in Version 2.6 
 Enumerators = Generator (Semi Enumerator)*;
-Generator = ["val"] Pattern1 "<-" Expr [Guard];
-Enumerator = ["val"] Pattern1 ("<-" Expr [Guard] | <eq> Expr)
-          | Guard
-          | ;
+Generator = Pattern1 "<-" Expr [Guard];
+Enumerator = Generator
+           | Guard
+           | "val" Pattern1 <eq> Expr
+           | ;
 
 
 XmlExpr = Element (Element)*
@@ -679,7 +686,7 @@ ClassTemplateOpt = <extends> (ClassParents [TemplateBody] | TemplateBody [ClassP
 TraitTemplateOpt = <extends> (TraitParents [TemplateBody] | TemplateBody [TraitParents [TemplateBody]])
                  | TemplateBody;
 
-ClassParents = AnnotType (Prths)* (<with> AnnotType)*;
+ClassParents = AnnotType (PrthsBody)* (<with> AnnotType)*;
 TraitParents = AnnotType (<with> AnnotType)*;
 
 ## Hacking for: [<nl>] TemplateBody
