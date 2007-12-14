@@ -47,57 +47,18 @@ made subject to such option by the copyright holder.
 
     <property name="extnl" location="../../nbbuild/external"/>
     <property name="build.gensrc.dir" location="build/gensrc"/>
-
+    <property name="bp.locale.dir" location="${nb_all}/translatedfiles/src/j2ee/blueprints"/>
+    <property name="build.locale.dir" location="${nb_all}/translatedfiles/src/j2ee/blueprints/src"/>
+    
     <target name="jar" depends="init,extra-solutions,dd2beansgen,compile,projectized-common.jar"/>
     
     <target name="netbeans-extra" depends="release"/>
     
-     <target name="netbeans-extra-ml" depends="release-ml" />
+    <target name="netbeans-extra-ml" depends="build-localejar" />
     
-    <target name="release-ml" depends="basic-init,check-run-mlbuild" if="run.ml.build">
-      <taskdef name="repeat" classname="org.netbeans.nbbuild.Repeat"
-               classpath="${nb_all}/nbbuild/nbantext.jar"/>
-      <repeat target="release-one-locale" name="locale" values="${locales}"/>
-    </target>
-  
-    <target name="basic-init" depends="projectized-common.basic-init">
-    <condition property="locjar.locales" value="${locales}">
-      <and>
-        <isset property="locales" />
-        <not>
-          <isset property="locjar.locales"/>
-        </not>
-      </and>
-    </condition>
-    </target>
+    <target name="build-localejar" depends="init,buildjar-ml,jar-ml,updatejar-ml,clean-ml"
+          description="Builds localized jar"/> 
     
-    <target name="check-run-mlbuild" depends="basic-init">
-    <available file="${nb_all}/translatedfiles/src/j2ee/blueprints" type="dir" property="translated.src.dir.exist"/>
-    <condition property="run.ml.build" value="true">
-      <and>
-        <isset property="translated.src.dir.exist"/>
-        <isset property="locjar.locales"/>
-        <length string="${locjar.locales}" when="greater" length="0"/>
-      </and>
-    </condition>
-   </target>
-   
-   <target name="release-one-locale" if="locale">
-      <copy todir="${netbeans.dest.dir}">
-          <fileset dir="${nb_all}/translatedfiles/src/j2ee/blueprints/release">
-              <include name="**/*_${locale}.*"/>
-              <exclude name="netbeans*.png"/>
-              <exclude name="netbeans*.icns"/>
-              <exclude name="shortcuts*.pdf"/>
-          </fileset>
-      </copy>
-      <copy todir="${cluster}">
-          <fileset dir="${nb_all}/translatedfiles/src/j2ee/blueprints/release">
-              <include name="shortcuts_${locale}.pdf"/>
-          </fileset>
-      </copy>
-   </target>
-   
     <!-- Define schema2beans task -->
     <target name="s2binit" depends="build-init">
         <taskdef name="schema2beans" classname="org.netbeans.modules.s2banttask.Schema2BeansAntTask">
@@ -140,5 +101,95 @@ made subject to such option by the copyright holder.
         <mkdir dir="${cluster}/modules/ext/blueprints"/>
         <property name="bp-lib-dir" location="${cluster}/modules/ext/blueprints"/>
         <unzip dest="${bp-lib-dir}" src="${build.classes.dir}/org/netbeans/modules/j2ee/blueprints/lib/blueprints-lib.zip"/>
+    </target>
+    
+    <target name="buildjar-ml">
+      <condition property="locjar.locales" value="${locales}">
+      <and>
+        <isset property="locales" />
+        <not>
+          <isset property="locjar.locales"/>
+        </not>
+      </and>
+      </condition>  
+      <taskdef name="repeat" classname="org.netbeans.nbbuild.Repeat"
+               classpath="${nb_all}/nbbuild/nbantext.jar"/>
+      <repeat target="setup-one-locale" name="locale" values="${locales}"/>
+    </target>
+    
+    <target name="setup-one-locale" if="locale">
+        <mkdir dir="${build.locale.dir}"/>
+        <condition property="localejar_exists">
+            <and>
+            <available file="${bp.locale.dir}/external/blueprints-solutions-catalog_${locale}.zip" type="file"/>
+            </and>
+        </condition>
+        <antcall target="unzip-bp-jar"/>
+   </target>
+   
+   <target name="unzip-bp-jar" if="localejar_exists">
+        <unzip src="${bp.locale.dir}/external/blueprints-solutions-catalog_${locale}.zip" dest="${build.locale.dir}/org/netbeans/modules/j2ee/blueprints"/>
+   </target>
+   
+   <target name="jar-ml" depends="buildjar-ml">
+        <taskdef name="locjar" 
+                 classname="org.netbeans.nbbuild.LocalizedJar" 
+                 classpath="${nb_all}/nbbuild/nbantext.jar"/>
+        <locjar warnMissingDir="true"
+                basedir="${bp.locale.dir}/src"
+                jarfile="${cluster}/modules/org-netbeans-modules-j2ee-blueprints.jar"/>
+    </target>
+    
+    <target name="updatejar-ml">
+      <condition property="locjar.locales" value="${locales}">
+      <and>
+        <isset property="locales" />
+        <not>
+          <isset property="locjar.locales"/>
+        </not>
+      </and>
+      </condition>  
+      <taskdef name="repeat" classname="org.netbeans.nbbuild.Repeat"
+               classpath="${nb_all}/nbbuild/nbantext.jar"/>
+      <repeat target="update-one-locale" name="locale" values="${locales}"/>
+    </target>
+    
+    <target name="update-one-locale" if="locale">
+        <condition property="update-bp">
+          <and>
+              <available file="${bp.locale.dir}/external/blueprints-solutions-catalog_${locale}.zip" type="file"/>
+              <available file="${cluster}/modules/locale/org-netbeans-modules-j2ee-blueprints_${locale}.jar" type="file"/>
+          </and>
+        </condition>
+        <antcall target="updatejar-ml-images"/>
+    </target>
+    
+    <target name="updatejar-ml-images" if="update-bp">
+      <delete dir="${bp.locale.dir}/bp_images/org/netbeans/modules/j2ee/blueprints"/>
+      <mkdir dir="${bp.locale.dir}/bp_images/org/netbeans/modules/j2ee/blueprints"/>
+      <unzip src="${bp.locale.dir}/external/blueprints-solutions-catalog_${locale}.zip"
+             dest="${bp.locale.dir}/bp_images/org/netbeans/modules/j2ee/blueprints">
+          <patternset>
+              <include name="**/*.gif"/>
+              <include name="**/*.jpg"/>
+              <include name="**/*.png"/>
+          </patternset>
+      </unzip>
+      <jar basedir="${bp.locale.dir}/bp_images"
+           destfile="${cluster}/modules/locale/org-netbeans-modules-j2ee-blueprints_${locale}.jar"
+           update="true" duplicate="preserve">
+      </jar>
+      <delete dir="${bp.locale.dir}/bp_images"/>
+      <echo message="Created and Updated blueprints jar ${cluster}/modules/locale/org-netbeans-modules-j2ee-blueprints_${locale}.jar"/>
+    </target>
+    
+    <target name="clean-ml" depends="buildjar-ml,jar-ml,updatejar-ml" description="Cleans temporary stuff for localization">
+        <delete>
+           <fileset dir="${nb_all}/translatedfiles/src">
+                <include name="j2ee/blueprints/src/org/netbeans/modules/j2ee/blueprints/BundleBpcatalog*"/>
+                <include name="j2ee/blueprints/src/org/netbeans/modules/j2ee/blueprints/BundleGenerated*"/>
+            </fileset>
+        </delete>
+        <delete dir="${bp.locale.dir}/src/org/netbeans/modules/j2ee/blueprints/catalog"/>
     </target>
 </project>
