@@ -424,7 +424,7 @@ RefineStat = DclDef;
 ## Thus we cannot add another ("=>" Expr) after an expr which level is lower than 
 ## or same as PostfixExpr
 Expr = CtrlExpr
-     | PostfixExpr [Ascription [<rarrow> BlockStats] | <match> (<nl>)* <lcurly> (<nl>)* CaseClauses <rcurly> | <eq> Expr | <rarrow> BlockStats];
+     | PostfixExpr [Ascription [<rarrow> Expr] | <match> (<nl>)* <lcurly> (<nl>)* CaseClauses <rcurly> | <eq> Expr | <rarrow> Expr];
 Ascription = ":" (CompoundType | (Annotation)+);
 
 CtrlExpr = "if" "(" Expr ")" (<nl>)* Expr [<else> (<nl>)* Expr]
@@ -473,7 +473,7 @@ Arguments = Prths
 ## To let a optional [","] at the end, we just let PrthsExpr can be empty
 Prths = "(" (<nl>)* PrthsExpr ("," (<nl>)* PrthsExpr)* (<nl>)* ")";
 PrthsExpr = CtrlExpr
-          | PostfixExpr [AscriptionInPrths [<rarrow> BlockStats] | <match> (<nl>)* <lcurly> (<nl>)* CaseClauses <rcurly> | <eq> Expr | <rarrow> BlockStats]
+          | PostfixExpr [AscriptionInPrths [<rarrow> Expr] | <match> (<nl>)* <lcurly> (<nl>)* CaseClauses <rcurly> | <eq> Expr | <rarrow> Expr]
           | ;
 ## Hacking for: Ascription and Binding;
 ##     Ascription = ":" (CompoundType | (Annotation)+ | "_" "*")
@@ -497,8 +497,12 @@ BlockStats = BlockStat (Semi BlockStat)*;
 BlockStat = Import
           | ["implicit"] DclDef
           | (LocalModifier)+ TmplDef
-          | Expr
+          | ExprInBlock
           | ;
+## Hacking for: ResultExpr = (Bindings | NameId [":" CompoundType]) "=>" BlockStats;
+## Where, the right part of "=>" is BlockStats vs Expr in anonynous function expression
+ExprInBlock = CtrlExpr
+            | PostfixExpr [Ascription [<rarrow> BlockStats] | <match> (<nl>)* <lcurly> (<nl>)* CaseClauses <rcurly> | <eq> Expr | <rarrow> BlockStats];
 
 ## Hacking for CaseClause BlockStats, where another "case" starting TmplDef maybe 
 ## recognized as a CaseClause in LL(k)
@@ -506,7 +510,7 @@ CaseBlockStats = CaseBlockStat (Semi CaseBlockStat)*;
 CaseBlockStat = Import
               | ["implicit"] (ValDclDef | VarDclDef | FunDclDef | TypeDclDef)
               | (LocalModifier)+ TmplDef
-              | Expr
+              | ExprInBlock
               | ;
 
 CaseClauses = CaseClause (CaseClause)*;
