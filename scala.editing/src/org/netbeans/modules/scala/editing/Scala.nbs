@@ -471,10 +471,10 @@ Arguments = Prths
 
 ## Hacking for: Prths = "(" [Expr ("," Expr)* [","]] ")";
 ## To let a optional [","] at the end, we just let PrthsExpr can be empty
-Prths = "(" (<nl>)* PrthsExpr ("," (<nl>)* PrthsExpr)* (<nl>)* ")";
-PrthsExpr = CtrlExpr
-          | PostfixExpr [AscriptionInPrths [<rarrow> Expr] | <match> (<nl>)* <lcurly> (<nl>)* CaseClauses <rcurly> | <eq> Expr | <rarrow> Expr]
-          | ;
+Prths = "(" (<nl>)* ExprInPrths ("," (<nl>)* ExprInPrths)* (<nl>)* ")";
+ExprInPrths = CtrlExpr
+            | PostfixExpr [AscriptionInPrths [<rarrow> Expr] | <match> (<nl>)* <lcurly> (<nl>)* CaseClauses <rcurly> | <eq> Expr | <rarrow> Expr]
+            | ;
 ## Hacking for: Ascription and Binding;
 ##     Ascription = ":" (CompoundType | (Annotation)+ | "_" "*")
 ##     Bindings = "(" Binding ("," Binding)* ")";
@@ -510,8 +510,10 @@ CaseBlockStats = CaseBlockStat (Semi CaseBlockStat)*;
 CaseBlockStat = Import
               | ["implicit"] (ValDclDef | VarDclDef | FunDclDef | TypeDclDef)
               | (LocalModifier)+ TmplDef
-              | ExprInBlock
+              | ExprInCaseBlock
               | ;
+ExprInCaseBlock = CtrlExpr
+                | PostfixExpr [Ascription [<rarrow> CaseBlockStats] | <match> (<nl>)* <lcurly> (<nl>)* CaseClauses <rcurly> | <eq> Expr | <rarrow> CaseBlockStats];
 
 CaseClauses = CaseClause (CaseClause)*;
 CaseClause = "case" CasePattern [Guard] <rarrow> CaseBlockStats;
