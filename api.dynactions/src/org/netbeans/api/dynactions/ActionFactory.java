@@ -64,7 +64,7 @@ public abstract class ActionFactory {
         return new ArrayList <Action> (lkp.lookupAll(Action.class));
     }
     
-    public static ActionFactory lookup (Lookup.Provider provider, String rootFolder) {
+    public static LookupActionFactory lookup (Lookup.Provider provider, String rootFolder) {
         return new LookupActionFactory(provider, rootFolder);
     }
 }

@@ -56,23 +56,32 @@ import org.openide.util.lookup.Lookups;
  *
  * @author Tim Boudreau
  */
-final class LookupActionFactory extends ActionFactory {
-    private final Provider provider;
+public final class LookupActionFactory extends ActionFactory {
+    private Provider provider;
     private final String rootFolder;
     
     LookupActionFactory (Lookup.Provider provider, String rootFolder) {
         this.provider = provider;
         this.rootFolder = rootFolder;
     }
+    
+    public final LookupActionFactory setLookupProvider (Lookup.Provider provider) {
+        this.provider = provider;
+        return this;
+    }
 
     @Override
     public Action[] getActions() {
+        if (provider == null) {
+            throw new IllegalStateException ("Provider is not set");
+        }
         //PENDING - various places we could cache data for performance
         Lookup lkp = provider.getLookup();
         List <Action> result = new ArrayList <Action>();
         //Get all the items in the lookup - use Lookup.Item to avoid
         //aggressively resolving items in the lookup where possible
-        Collection <? extends Lookup.Item> cc = lkp.lookupResult(Object.class).allItems();
+        Collection <? extends Lookup.Item> cc = 
+                lkp.lookupResult(Object.class).allItems();
         
         //Iterate them
         for (Lookup.Item item : cc) {
@@ -102,7 +111,8 @@ final class LookupActionFactory extends ActionFactory {
                             if (fld != null) {
                                 Lookup actionsLookup = Lookups.forPath(
                                         rootFolder + "/" + name + "/" + ltn);
-                                System.err.println("Actions lookup: " + actionsLookup);
+                                System.err.println("Actions lookup: " + 
+                                        actionsLookup);
                                 
                                 result.addAll (actionsLookup.lookupAll(
                                         Action.class));
