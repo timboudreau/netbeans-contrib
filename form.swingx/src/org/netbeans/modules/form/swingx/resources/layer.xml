@@ -58,6 +58,12 @@ made subject to such option by the copyright holder.
                 <attr name="position" intvalue="1100"/>
             </file>
         </folder>
+
+        <folder name="Borders">
+            <file name="DropShadowBorder.palette_item" url="DropShadowBorder.palette_item">
+                <attr name="position" intvalue="900"/>
+            </file>
+        </folder>
     </folder>
 
     <folder name="Templates">
