@@ -64,6 +64,14 @@ made subject to such option by the copyright holder.
                 <attr name="position" intvalue="900"/>
             </file>
         </folder>
+
+        <folder name="SwingX">
+            <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.form.swingx.resources.Bundle"/>
+            <attr name="position" intvalue="250"/>
+            <file name="JXBusyLabel.palette_item" url="JXBusyLabel.palette_item">
+                <attr name="position" intvalue="100"/>
+            </file>
+        </folder>
     </folder>
 
     <folder name="Templates">
