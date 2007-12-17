@@ -35,12 +35,12 @@
             <xs:documentation>DESC_Element_input</xs:documentation>
             <xs:appinfo>
                 <prop:ElementProperties  xmlns:prop="http://xml.netbeans.org/schema/wsdlui/property">
-                    <prop:Property attributeName="businessname" propertyOrder="1">
+                    <prop:Property attributeName="businessName" propertyOrder="1">
                         <prop:BuiltInCustomizer>
                             <prop:SimpleCustomizer name="PartChooser"/>
                         </prop:BuiltInCustomizer>
                     </prop:Property>
-                    <prop:Property attributeName="servicename" propertyOrder="2">
+                    <prop:Property attributeName="serviceName" propertyOrder="2">
                         <prop:BuiltInCustomizer>
                             <prop:SimpleCustomizer name="PartChooser"/>
                         </prop:BuiltInCustomizer>
@@ -99,12 +99,12 @@
     <xs:complexType name="tAddress">
         <xs:complexContent>
             <xs:extension base="wsdl:tExtensibilityElement">
-		<xs:attribute name="publishuri" type="xs:string" use="required">
+		<xs:attribute name="publishUri" type="xs:string" use="required">
 		    <xs:annotation>
                         <xs:documentation>DESC_Attribute_publishuri</xs:documentation>
                     </xs:annotation>
                 </xs:attribute>
-		<xs:attribute name="inquiryuri" type="xs:string" use="required">
+		<xs:attribute name="inquiryUri" type="xs:string" use="required">
 		    <xs:annotation>
                         <xs:documentation>DESC_Attribute_inquiryuri</xs:documentation>
                     </xs:annotation>

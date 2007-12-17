@@ -33,8 +33,8 @@
     <template name="UDDITransport">
         <wsdlElement name="BindingOperationInput">
             <extensionElement name="input" >
-                <extensionAttr name="businessname" defaultValue="" />
-                <extensionAttr name="servicename" defaultValue="" />
+                <extensionAttr name="businessName" defaultValue="" />
+                <extensionAttr name="serviceName" defaultValue="" />
             </extensionElement>
         </wsdlElement>
         <wsdlElement name="BindingOperationOutput">
@@ -43,8 +43,8 @@
         </wsdlElement>
         <wsdlElement name="ServicePort">
             <extensionElement name="address" >
-                <extensionAttr name="publishuri"  defaultValue="http://localhost/publish"/>
-                <extensionAttr name="inquiryuri" defaultValue="http://localhost/inquiry"/>
+                <extensionAttr name="publishUri"  defaultValue="http://localhost/publish"/>
+                <extensionAttr name="inquiryUri" defaultValue="http://localhost/inquiry"/>
             </extensionElement>
         </wsdlElement>
         <wsdlElement name="Binding">
