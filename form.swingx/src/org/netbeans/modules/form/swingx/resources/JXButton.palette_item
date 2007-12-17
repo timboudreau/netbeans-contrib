@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<palette_item version="1.0">
+  <component classname="org.jdesktop.swingx.JXButton" type="visual" />
+  <description localizing-bundle="org.netbeans.modules.form.swingx.resources.Bundle"
+               display-name-key="NAME_JXButton"
+               tooltip-key="HINT_JXButton" />
+  <classpath>
+      <resource type="library" name="swingx" />
+  </classpath>
+</palette_item>
