@@ -41,8 +41,6 @@
 package org.netbeans.modules.languages.execution;
 
 import java.io.File;
-import java.io.InputStream;
-import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
 import org.openide.filesystems.FileObject;
@@ -81,9 +79,6 @@ public class ExecutionDescriptor {
     Class<? extends DebuggerImplementation> debugger;    
 
     boolean interactive;
-    InputStream targetIn;
-    PrintStream targetOut;
-    PrintStream targetErr;
     
     public ExecutionDescriptor() {
     }
@@ -99,14 +94,6 @@ public class ExecutionDescriptor {
         assert (pwd != null) && pwd.isDirectory() : pwd + " is a directory";
     }
     
-    public ExecutionDescriptor(final String displayName, final File pwd, InputStream targetIn, PrintStream targetOut, PrintStream targetErr) {
-        this.displayName = displayName;
-        this.pwd = pwd;
-        this.targetIn = targetIn;
-        this.targetOut = targetOut;
-        this.targetErr = targetErr;
-    }
-
     public ExecutionDescriptor cmd(final File cmd) {
         this.cmd = cmd;
         assert (cmd != null) && cmd.isFile() : cmd + " is a file";
