@@ -69,7 +69,6 @@ import org.openide.util.Utilities;
 public class ToolbarStyleSwitchUI extends JToolBar {
 
     private static ToolbarStyleSwitchUI instance;
-    private JPopupMenu menu = new JPopupMenu();
 
     /** Creates new form BeanForm */
     public ToolbarStyleSwitchUI() {
@@ -85,6 +84,22 @@ public class ToolbarStyleSwitchUI extends JToolBar {
         add(btnNext);
         btnList.setAction(new SwitchListAction());
 
+
+    }
+
+    public static synchronized ToolbarStyleSwitchUI getInstance() {
+        if (instance == null) {
+            instance = new ToolbarStyleSwitchUI();
+        }
+        return instance;
+    }
+
+    public Component getStatusLineElement() {
+        return this;
+    }
+
+    public void showPerspectiveList() {
+        JPopupMenu menu = new JPopupMenu();
         menu.addPopupMenuListener(new PopupMenuListener() {
 
             public void popupMenuWillBecomeVisible(PopupMenuEvent e) {
@@ -105,22 +120,7 @@ public class ToolbarStyleSwitchUI extends JToolBar {
                 }
             }
         });
-    }
-
-    public static synchronized ToolbarStyleSwitchUI getInstance() {
-        if (instance == null) {
-            instance = new ToolbarStyleSwitchUI();
-        }
-        return instance;
-    }
-
-    public Component getStatusLineElement() {
-        return this;
-    }
-
-    public void showPerspectiveList() {
         List<PerspectiveImpl> perspectives = PerspectiveManagerImpl.getInstance().getPerspectives();
-        menu.removeAll();
 
         for (PerspectiveImpl perspective : perspectives) {
             if (perspective.equals(selected)) {
@@ -177,17 +177,19 @@ public class ToolbarStyleSwitchUI extends JToolBar {
     public void loadQuickPerspectives() {
 
         if (selected == null) {
+            btnSelected.setAction(null);
+            btnNext.setAction(null);
             return;
         }
 
-        PerspectiveImpl next ;
+        PerspectiveImpl next = null;
 
         if (previous == null || selected.equals(previous)) {
             int index = selected.getIndex();
             List<PerspectiveImpl> perspectives = PerspectiveManagerImpl.getInstance().getPerspectives();
             if (index < (perspectives.size() - 1)) {
                 next = perspectives.get(++index);
-            } else {
+            } else if (perspectives.size() > 0) {
                 next = perspectives.get(0);
             }
         } else {
@@ -201,10 +203,13 @@ public class ToolbarStyleSwitchUI extends JToolBar {
 
 
 
-        if (!selected.equals(next)) {
+        if (next != null && !selected.equals(next)) {
             SwitchAction nextAction = new SwitchAction(next);
             btnNext.setAction(nextAction);
+        } else {
+            btnNext.setAction(null);
         }
+
         buttonGroup.setSelected(btnSelected.getModel(), true);
     }
 

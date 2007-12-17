@@ -36,44 +36,40 @@
  * 
  * Portions Copyrighted 2007 Sun Microsystems, Inc.
  */
-package org.netbeans.modules.perspective.persistence;
 
-import java.io.IOException;
-import java.util.Set;
+package org.netbeans.modules.perspective.nodes;
+
+import javax.swing.AbstractAction;
+import org.netbeans.modules.perspective.utils.PerspectiveManagerImpl;
 import org.netbeans.modules.perspective.views.PerspectiveImpl;
-import org.netbeans.modules.perspective.views.PerspectiveMode;
-import org.netbeans.modules.perspective.views.View;
-import org.openide.filesystems.FileObject;
+import org.openide.nodes.Children;
+import org.openide.nodes.Node;
 
 /**
  *
- * @author Anuradha G
+ * @author Anuradha
  */
-public class PerspectiveWriter {
-
-     void writePerspective(FileObject base, PerspectiveImpl pi) throws IOException {
-        FileObject fileObject = base.createFolder(pi.getName());
-        fileObject.setAttribute("alias", pi.getAlias());
-        fileObject.setAttribute("description", pi.getDescription()!=null? pi.getDescription():"");
-        fileObject.setAttribute("image", pi.getImagePath());
-        fileObject.setAttribute("position", pi.getIndex());
-        FileObject modesFileObject = fileObject.createFolder("modes");
-        Set<PerspectiveMode> modes = pi.getPerspectiveModes();
-        
-        for (PerspectiveMode mode : modes) {
-            FileObject modeFileObject = modesFileObject.createFolder(mode.getId());
-            View activeView = mode.getActiveView();
-            if(activeView!=null)
-              modeFileObject.setAttribute("active", activeView.getTopcomponentID());
-            Set<View> views = mode.getViews();
-            for (View view : views) {
-                FileObject viewFileObject = modeFileObject.createFolder(view.
-                        getTopcomponentID());
-                viewFileObject.setAttribute("index", view.getIndex());
-                viewFileObject.setAttribute("opened", view.isOpen());
-            }
-
-        }
-
+public class PerspectiveChildern extends Children.Keys<PerspectiveImpl>{
+    private AbstractAction defaultAction;
+    public PerspectiveChildern() {
     }
+
+    public PerspectiveChildern(AbstractAction defaultAction) {
+        this.defaultAction = defaultAction;
+    }
+
+    
+    
+    @Override
+    protected Node[] createNodes(PerspectiveImpl key) {
+           
+            return new Node[]{new PerspectiveNode(key,defaultAction)};
+    }
+
+    @Override
+    protected void addNotify() {
+        super.addNotify();
+        setKeys(PerspectiveManagerImpl.getInstance().getPerspectives());
+    }
+  
 }

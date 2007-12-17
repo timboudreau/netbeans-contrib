@@ -1,5 +1,4 @@
 <?xml version="1.0" encoding="UTF-8"?>
-
 <!--
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
@@ -42,7 +41,6 @@
  * made subject to such option by the copyright holder.
  */
 -->
-
 <!DOCTYPE filesystem PUBLIC "-//NetBeans//DTD Filesystem 1.1//EN" "http://www.netbeans.org/dtds/filesystem-1_1.dtd">
 <filesystem>
     <!-- Perspective Actions -->
@@ -51,8 +49,11 @@
             <!-- Qucik Action -->
             <file name="org-netbeans-modules-perspective-actions-QuickSwitch.instance"/>
             <!-- Reset Action -->
+            <file name="org-netbeans-modules-perspective-menus-OpenPerspectivesAction.instance"/>
+            <file name="org-netbeans-modules-perspective-menus-RemovePerspectiveAction.instance"/>
             <file name="org-netbeans-modules-perspective-menus-ResetAction.instance"/>
             <!-- Save as Action -->
+            <file name="org-netbeans-modules-perspective-menus-ResetPerspectiveAction.instance"/>
             <file name="org-netbeans-modules-perspective-menus-SaveAsAction.instance"/>
         </folder>
     </folder>
@@ -64,14 +65,32 @@
             <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.perspective.Bundle"/>
             <!-- position attribute (between tools and window menu)-->
             <attr name="position" intvalue="1150"/>
+             <file name="org-netbeans-modules-perspective-menus-OpenPerspectivesAction.shadow">
+                <attr name="originalFile" stringvalue="Actions/Perspective/org-netbeans-modules-perspective-menus-OpenPerspectivesAction.instance"/>
+                <attr name="position" intvalue="100"/>
+            </file>
             <!-- Save as menu -->
             <file name="org-netbeans-perspective-menus-SaveAsAction.shadow">
-                <attr name="position" intvalue="100"/>
+                <attr name="position" intvalue="500"/>
                 <attr name="originalFile" stringvalue="Actions/Perspective/org-netbeans-modules-perspective-menus-SaveAsAction.instance"/>
             </file>
+          
+            <file name="org-netbeans-modules-perspective-menus-RemovePerspectiveAction.shadow">
+                <attr name="originalFile" stringvalue="Actions/Perspective/org-netbeans-modules-perspective-menus-RemovePerspectiveAction.instance"/>
+                <attr name="position" intvalue="600"/>
+            </file>
+            <file name="org-netbeans-modules-perspective-menus-ResetPerspectiveAction.shadow">
+                <attr name="originalFile" stringvalue="Actions/Perspective/org-netbeans-modules-perspective-menus-ResetPerspectiveAction.instance"/>
+                <attr name="position" intvalue="1500"/>
+            </file>
+
             <!-- Reset menu -->
+            <file name="Separator.instance" >
+                <attr name="instanceClass" stringvalue="javax.swing.JSeparator"/>
+                <attr name="position" intvalue="1750"/>
+            </file>
             <file name="org-netbeans-modules-perspective-menus-ResetAction.shadow">
-                <attr name="position" intvalue="200"/>
+                <attr name="position" intvalue="2000"/>
                 <attr name="originalFile" stringvalue="Actions/Perspective/org-netbeans-modules-perspective-menus-ResetAction.instance"/>
             </file>
             
@@ -92,14 +111,14 @@
             <attr name="originalFile" stringvalue="Actions/Perspective/org-netbeans-modules-perspective-actions-QuickSwitch.instance"/>
         </file>
     </folder>
-
+    
     <folder name="perspectives"></folder>
     <!--window system config folder-->
     <folder name="Windows2">
-    <!--Tc components folder-->
-    <folder name="Components">
-        <!--Modehack Tc Settings file -->
-        <file name="ModeHackTopComponent.settings" url="hacks/ModeHackTopComponentSettings.xml"/>
-    </folder>
+        <!--Tc components folder-->
+        <folder name="Components">
+            <!--Modehack Tc Settings file -->
+            <file name="ModeHackTopComponent.settings" url="hacks/ModeHackTopComponentSettings.xml"/>
+        </folder>
     </folder>
 </filesystem>

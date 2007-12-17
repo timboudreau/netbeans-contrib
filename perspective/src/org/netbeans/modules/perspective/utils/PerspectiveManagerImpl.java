@@ -42,7 +42,6 @@
 /*
  * PerspectiveManager.java
  */
-
 package org.netbeans.modules.perspective.utils;
 
 import java.util.ArrayList;
@@ -80,6 +79,10 @@ public class PerspectiveManagerImpl extends PerspectiveManager {
     private PerspectiveManagerImpl() {
     }
 
+    public void replasePerspective(int index, PerspectiveImpl perspective) {
+        perspectives.set(index, perspective);
+    }
+
     public void registerPerspective(int index, PerspectiveImpl perspective) {
         if (perspectives.size() <= index) {
             perspectives.add(perspective);
@@ -87,6 +90,7 @@ public class PerspectiveManagerImpl extends PerspectiveManager {
             perspectives.add(index, perspective);
         }
         arrangeIndexs();
+
     }
 
     public void registerPerspective(PerspectiveImpl perspective, boolean arrange) {
@@ -118,12 +122,12 @@ public class PerspectiveManagerImpl extends PerspectiveManager {
 
     public void setSelected(Perspective perspective) {
 
-        setSelected((PerspectiveImpl)perspective, true);
+        setSelected((PerspectiveImpl) perspective, true);
     }
 
     public void setSelected(PerspectiveImpl perspective, boolean switchPerspective) {
         selected = perspective;
-        if (switchPerspective) {
+        if (switchPerspective &&perspective!=null) {
             ModeController.getInstance().switchView(perspective);
         }
         ToolbarStyleSwitchUI.getInstance().setSelected(selected);

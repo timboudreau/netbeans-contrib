@@ -14,7 +14,7 @@ public final class ResetAction extends CallableSystemAction {
     private static final long serialVersionUID = 1l;
 
     public void performAction() {
-        NotifyDescriptor d = new NotifyDescriptor.Confirmation(NbBundle.getMessage(ResetAction.class,"Reset_Comfrom_Massage"), NbBundle.getMessage(ResetAction.class,"Reset_Perspectives"), NotifyDescriptor.OK_CANCEL_OPTION);
+        NotifyDescriptor d = new NotifyDescriptor.Confirmation(NbBundle.getMessage(ResetAction.class,"Reset_ALL_Comfrom_Massage"), NbBundle.getMessage(ResetAction.class,"Reset_Perspectives_H"), NotifyDescriptor.OK_CANCEL_OPTION);
         if (DialogDisplayer.getDefault().notify(d) == NotifyDescriptor.OK_OPTION) {
             try {
                 MainParser.getInstance().reset();

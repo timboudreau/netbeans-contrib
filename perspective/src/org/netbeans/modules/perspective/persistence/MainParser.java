@@ -43,6 +43,7 @@ package org.netbeans.modules.perspective.persistence;
 import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.Callable;
+import org.netbeans.modules.perspective.Perspective;
 import org.netbeans.modules.perspective.utils.PerspectiveManagerImpl;
 import org.netbeans.modules.perspective.ui.ToolbarStyleSwitchUI;
 import org.netbeans.modules.perspective.utils.OpenedViewTracker;
@@ -78,17 +79,20 @@ public class MainParser {
 
     private void clear(FileObject fo) {
         FileObject[] children = fo.getChildren();
-        for (FileObject fileObject : children) {
-            try {
+        try {
+            for (FileObject fileObject : children) {
+
                 if (fileObject.isFolder()) {
                     clear(fileObject);
                     fileObject.delete();
                 } else {
                     fileObject.delete();
                 }
-            } catch (IOException ex) {
-                Exceptions.printStackTrace(ex);
+
             }
+            fo.delete();
+        } catch (IOException ex) {
+            Exceptions.printStackTrace(ex);
         }
     }
 
@@ -126,6 +130,24 @@ public class MainParser {
         }
     }
 
+    public synchronized void persistPerspective(PerspectiveImpl p) {
+        PerspectiveWriter perspectiveWriter = new PerspectiveWriter();
+        hidePerspective(p);
+        try {
+            perspectiveWriter.writePerspective(perspectiveBase, p);
+        } catch (IOException ex) {
+            Exceptions.printStackTrace(ex);
+        }
+    }
+
+    public synchronized void hidePerspective(PerspectiveImpl p) {
+        FileObject fo = Repository.getDefault().getDefaultFileSystem().
+                findResource(LAYER_DIR + "/" + p.getName());
+        if (fo != null) {
+            clear(fo);
+        }
+    }
+
     public synchronized void store() {
         //reset to selected
         PerspectiveImpl selected = PerspectiveManagerImpl.getInstance().getSelected();
@@ -133,24 +155,36 @@ public class MainParser {
             perspectivePreferences.setSelectedPerspective(selected.getName());
             if (perspectivePreferences.isTrackOpened()) {
                 new OpenedViewTracker(selected);
+                persistPerspective(selected);
             } else {
                 PerspectiveManagerImpl.getInstance().setSelected(selected);
+
             }
         }
-        clear(perspectiveBase);
-        PerspectiveWriter perspectiveWriter = new PerspectiveWriter();
-        final List<PerspectiveImpl> perspectives = PerspectiveManagerImpl.getInstance().getPerspectives();
-        for (PerspectiveImpl p : perspectives) {
+
+    }
+    
+    public void resetPerspective(PerspectiveImpl p){
+       FileObject fo = Repository.getDefault().getDefaultFileSystem().
+                findResource(LAYER_DIR + "/" + p.getName());
+        if (fo != null) {
+            Callable callable = (Callable) fo.getAttribute("removeWritables");
+        if (callable != null) {
             try {
-                perspectiveWriter.writePerspective(perspectiveBase, p);
-            } catch (IOException ex) {
+                callable.call();
+                PerspectiveReader reader = new PerspectiveReader();
+                PerspectiveImpl newPi = reader.readPerspective(fo);
+                newPi.setIndex(p.getIndex());
+                PerspectiveManagerImpl.getInstance().replasePerspective(p.getIndex(), newPi);
+                 PerspectiveManagerImpl.getInstance().setSelected(newPi);
+            } catch (Exception ex) {
                 Exceptions.printStackTrace(ex);
             }
         }
-
-
+        }
+    
     }
-
+    
     public synchronized void reset() throws IOException {
         perspectivePreferences.reset();
         ToolbarStyleSwitchUI.getInstance().reset();

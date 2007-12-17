@@ -46,89 +46,75 @@
 package org.netbeans.modules.perspective.ui;
 
 import java.awt.event.ActionEvent;
-import java.util.List;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import javax.swing.AbstractAction;
-import javax.swing.DefaultListModel;
 import javax.swing.JButton;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
+import javax.swing.tree.TreeSelectionModel;
+import org.netbeans.modules.perspective.nodes.PerspectiveChildern;
+import org.netbeans.modules.perspective.nodes.PerspectiveNode;
+import org.netbeans.modules.perspective.persistence.MainParser;
 import org.netbeans.modules.perspective.utils.PerspectiveManagerImpl;
 import org.netbeans.modules.perspective.persistence.PerspectivePreferences;
 import org.netbeans.modules.perspective.utils.CurrentPerspectiveReader;
 import org.netbeans.modules.perspective.views.PerspectiveImpl;
 import org.openide.DialogDisplayer;
 import org.openide.NotifyDescriptor;
+import org.openide.explorer.ExplorerManager;
+import org.openide.explorer.view.BeanTreeView;
+import org.openide.explorer.view.ListView;
+import org.openide.nodes.AbstractNode;
+import org.openide.nodes.Node;
 import org.openide.util.NbBundle;
+import org.openide.util.RequestProcessor;
 import org.openide.windows.WindowManager;
 
 /**
  *
  * @author  Anurdha
  */
-public class SaveAsUI extends javax.swing.JDialog {
+public class SaveAsUI extends javax.swing.JDialog implements ExplorerManager.Provider {
 
-    private static final long serialVersionUID = 1l;
-    private DefaultListModel defaultListModel = new DefaultListModel();
-    private static final String Here = NbBundle.getMessage(SaveAsUI.class, "HERE");
+    
+    private ExplorerManager explorerManager = new ExplorerManager();
+private static final long serialVersionUID = 1l;
+
     private PerspectiveImpl selected;
-
     /** Creates new form SaveAsUI */
     private SaveAsUI() {
         super(WindowManager.getDefault().getMainWindow(), true);
         initComponents();
-        modeList.setModel(defaultListModel);
-        modeList.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
+        BeanTreeView listView=(BeanTreeView) viewList;
+       
+        listView.setPopupAllowed(false);
+        listView.setRootVisible(false);
+        listView.setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
 
-            public void valueChanged(ListSelectionEvent e) {
-
-                PerspectiveImpl perspective = (PerspectiveImpl) modeList.getSelectedValue();
-                if (perspective != null) {
-                    txtName.setText(perspective.getAlias());
-                    selected = perspective;
-
-                    loadcmbPerspectives();
-                    cmbPosition.setSelectedIndex(perspective.getIndex());
-                } else {
-                    selected = null;
-                    loadcmbPerspectives();
+      
+         explorerManager.addPropertyChangeListener(new PropertyChangeListener() {
+         
+            public void propertyChange(PropertyChangeEvent evt) {
+                Node[] nodes = explorerManager.getSelectedNodes();
+                if (nodes.length == 0) {
+                    return;
                 }
 
-                validateName();
-            }
-        });
-        loadcmbPerspectives();
+                Node selectedNode = nodes[0];
+                if(selectedNode instanceof PerspectiveNode){
+                PerspectiveNode node=(PerspectiveNode) selectedNode;
+                 txtName.setText(node.getDisplayName());
+                    selected = node.getPerspectiveImpl();
+                    validateName();
+                }
+            }});
+        
         loadPerspectives();
         validateName();
     }
 
     private void loadPerspectives() {
-        defaultListModel.clear();
-        List<PerspectiveImpl> perspectives = PerspectiveManagerImpl.getInstance().getPerspectives();
-        for (PerspectiveImpl perspective : perspectives) {
-            defaultListModel.addElement(perspective);
-        }
-    }
-
-    private void loadcmbPerspectives() {
-        List<PerspectiveImpl> perspectives = PerspectiveManagerImpl.getInstance().getPerspectives();
-        cmbPosition.removeAllItems();
-        if (perspectives.size() == 0) {
-            cmbPosition.addItem(Here);
-            return;
-        }
-        String prev = "";
-        for (PerspectiveImpl perspective : perspectives) {
-            if (perspective.equals(selected)) {
-                continue;
-            }
-            if (prev.length() == 0) {
-                cmbPosition.addItem(Here + " - " + perspective.getAlias());
-            } else {
-                cmbPosition.addItem(prev + Here + " - " + perspective.getAlias());
-            }
-            prev = perspective.getAlias() + " - ";
-        }
-        cmbPosition.addItem(prev + Here);
+       explorerManager.setRootContext(new AbstractNode(new PerspectiveChildern()));
+      
     }
 
     /** This method is called from within the constructor to
@@ -141,25 +127,18 @@ public class SaveAsUI extends javax.swing.JDialog {
 
         btnCancel = new JButton(new CancelAction());
         btnOK = new JButton(new SaveAs());
-        jScrollPane1 = new javax.swing.JScrollPane();
-        modeList = new javax.swing.JList();
         lblName = new javax.swing.JLabel();
         txtName = new javax.swing.JTextField();
         lblDescription = new javax.swing.JLabel();
-        lblPosition = new javax.swing.JLabel();
-        cmbPosition = new javax.swing.JComboBox();
         jLabel1 = new javax.swing.JLabel();
+        viewList = new BeanTreeView();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setTitle(org.openide.util.NbBundle.getMessage(SaveAsUI.class, "SaveAsUI.title")); // NOI18N
-        setResizable(false);
 
         org.openide.awt.Mnemonics.setLocalizedText(btnCancel, org.openide.util.NbBundle.getMessage(SaveAsUI.class, "Cancel")); // NOI18N
 
         org.openide.awt.Mnemonics.setLocalizedText(btnOK, org.openide.util.NbBundle.getMessage(SaveAsUI.class, "OK")); // NOI18N
-
-        modeList.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
-        jScrollPane1.setViewportView(modeList);
 
         lblName.setText(NbBundle.getMessage(SaveAsUI.class,"Name")); // NOI18N
 
@@ -171,9 +150,9 @@ public class SaveAsUI extends javax.swing.JDialog {
 
         lblDescription.setText(NbBundle.getMessage(SaveAsUI.class,"Saveas_Header")); // NOI18N
 
-        lblPosition.setText(NbBundle.getMessage(SaveAsUI.class,"SaveAsUI.lblPosition.text")); // NOI18N
-
         jLabel1.setText(org.openide.util.NbBundle.getMessage(SaveAsUI.class, "SaveAsUI.jLabel1.text")); // NOI18N
+
+        viewList.setBorder(javax.swing.BorderFactory.createEtchedBorder(null, javax.swing.UIManager.getDefaults().getColor("CheckBoxMenuItem.selectionBackground")));
 
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -182,23 +161,17 @@ public class SaveAsUI extends javax.swing.JDialog {
             .add(layout.createSequentialGroup()
                 .addContainerGap()
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jScrollPane1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 337, Short.MAX_VALUE)
+                    .add(viewList, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 280, Short.MAX_VALUE)
+                    .add(lblDescription, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 280, Short.MAX_VALUE)
+                    .add(jLabel1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 280, Short.MAX_VALUE)
+                    .add(layout.createSequentialGroup()
+                        .add(lblName, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 50, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                        .add(txtName, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 226, Short.MAX_VALUE))
                     .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
                         .add(btnOK)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(btnCancel))
-                    .add(lblDescription)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
-                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                            .add(lblPosition, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 98, Short.MAX_VALUE)
-                            .add(layout.createSequentialGroup()
-                                .add(lblName, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 94, Short.MAX_VALUE)
-                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)))
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING, false)
-                            .add(org.jdesktop.layout.GroupLayout.TRAILING, txtName)
-                            .add(org.jdesktop.layout.GroupLayout.TRAILING, cmbPosition, 0, 239, Short.MAX_VALUE)))
-                    .add(jLabel1))
+                        .add(btnCancel)))
                 .addContainerGap())
         );
 
@@ -206,22 +179,18 @@ public class SaveAsUI extends javax.swing.JDialog {
 
         layout.setVerticalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
+            .add(layout.createSequentialGroup()
                 .addContainerGap()
                 .add(lblDescription)
                 .add(8, 8, 8)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(lblName)
                     .add(txtName, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(lblPosition)
-                    .add(cmbPosition, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 20, Short.MAX_VALUE)
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.UNRELATED)
                 .add(jLabel1)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(jScrollPane1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 163, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.UNRELATED)
+                .add(viewList, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 226, Short.MAX_VALUE)
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(btnCancel)
                     .add(btnOK))
@@ -232,7 +201,7 @@ public class SaveAsUI extends javax.swing.JDialog {
     }// </editor-fold>//GEN-END:initComponents
     private void txtNameKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtNameKeyReleased
         validateName();
-        validateExist();
+        
     }//GEN-LAST:event_txtNameKeyReleased
 
     public static void createSaveAsUI() {
@@ -264,19 +233,10 @@ public class SaveAsUI extends javax.swing.JDialog {
         }
     }
 
-    private void validateExist() {
-        String id = txtName.getText();
-        PerspectiveImpl perspective = PerspectiveManagerImpl.getInstance().findPerspectiveByAlias(id);
-        if (perspective != null) {
-            modeList.setSelectedValue(perspective, true);
-        } else {
-            modeList.clearSelection();
-
-        }
-    }
+    
 
     private void saveAsPerspective() {
-        PerspectiveImpl perspective = (PerspectiveImpl) modeList.getSelectedValue();
+        PerspectiveImpl perspective = (PerspectiveImpl) selected;
         if (perspective != null) {
             NotifyDescriptor d = new NotifyDescriptor.Confirmation("'" + perspective.getAlias() + NbBundle.getMessage(SaveAsUI.class, "OverWrite_Massage"), NbBundle.getMessage(SaveAsUI.class, "Overwrite_Perspective"),
                     NotifyDescriptor.YES_NO_OPTION);
@@ -299,9 +259,16 @@ public class SaveAsUI extends javax.swing.JDialog {
 
 
         new CurrentPerspectiveReader(perspective);
-        PerspectiveManagerImpl.getInstance().registerPerspective(cmbPosition.getSelectedIndex(), perspective);
+        PerspectiveManagerImpl.getInstance().registerPerspective(perspective, true);
         PerspectiveManagerImpl.getInstance().setSelected(perspective);
         ToolbarStyleSwitchUI.getInstance().loadQuickPerspectives();
+        final PerspectiveImpl pi = perspective;
+        RequestProcessor.getDefault().post(new Runnable() {
+
+            public void run() {
+                MainParser.getInstance().persistPerspective(pi);
+            }
+        });
         dispose();
     }
 
@@ -318,16 +285,17 @@ public class SaveAsUI extends javax.swing.JDialog {
             saveAsPerspective();
         }
     }
+
+    public ExplorerManager getExplorerManager() {
+        return explorerManager;
+    }
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnCancel;
     private javax.swing.JButton btnOK;
-    private javax.swing.JComboBox cmbPosition;
     private javax.swing.JLabel jLabel1;
-    private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JLabel lblDescription;
     private javax.swing.JLabel lblName;
-    private javax.swing.JLabel lblPosition;
-    private javax.swing.JList modeList;
     private javax.swing.JTextField txtName;
+    private javax.swing.JScrollPane viewList;
     // End of variables declaration//GEN-END:variables
 }

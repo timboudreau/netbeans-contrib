@@ -74,15 +74,7 @@ public class CurrentPerspectiveReader {
             if (windowManager.isEditorMode(mode)) {
                 continue;
             }
-            //hack
-            if (mode.getName().startsWith("anonymousMode")) {//NOI18N
-                
-                if (mode.getTopComponents().length == 1 && mode.getTopComponents()[0] instanceof ModeHackTopComponent) {
-                    continue;
-                }
-
-                mode.dockInto(new ModeHackTopComponent());
-            }
+        
             PerspectiveMode perspectiveMode=new PerspectiveMode(mode.getName());
             perspective.addPerspectiveMode(perspectiveMode);
             TopComponent[] topComponents = mode.getTopComponents();

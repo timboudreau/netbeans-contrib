@@ -49,7 +49,7 @@ import org.openide.filesystems.FileObject;
  */
 public class PerspectiveReader {
 
-    public PerspectiveImpl readPerspective(FileObject fo) {
+     PerspectiveImpl readPerspective(FileObject fo) {
         PerspectiveImpl perspective = new PerspectiveImpl(fo.getName(),
                 fo.getAttribute("alias").toString());
         perspective.setDescription((String) fo.getAttribute("description"));

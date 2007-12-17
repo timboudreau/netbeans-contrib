@@ -36,44 +36,60 @@
  * 
  * Portions Copyrighted 2007 Sun Microsystems, Inc.
  */
-package org.netbeans.modules.perspective.persistence;
+package org.netbeans.modules.perspective.nodes;
 
-import java.io.IOException;
-import java.util.Set;
+import java.awt.Image;
+import javax.swing.AbstractAction;
+import javax.swing.Action;
 import org.netbeans.modules.perspective.views.PerspectiveImpl;
-import org.netbeans.modules.perspective.views.PerspectiveMode;
-import org.netbeans.modules.perspective.views.View;
-import org.openide.filesystems.FileObject;
+import org.openide.nodes.AbstractNode;
+import org.openide.nodes.Children;
+import org.openide.util.Utilities;
 
 /**
  *
- * @author Anuradha G
+ * @author Anuradha
  */
-public class PerspectiveWriter {
+public class PerspectiveNode extends AbstractNode {
 
-     void writePerspective(FileObject base, PerspectiveImpl pi) throws IOException {
-        FileObject fileObject = base.createFolder(pi.getName());
-        fileObject.setAttribute("alias", pi.getAlias());
-        fileObject.setAttribute("description", pi.getDescription()!=null? pi.getDescription():"");
-        fileObject.setAttribute("image", pi.getImagePath());
-        fileObject.setAttribute("position", pi.getIndex());
-        FileObject modesFileObject = fileObject.createFolder("modes");
-        Set<PerspectiveMode> modes = pi.getPerspectiveModes();
-        
-        for (PerspectiveMode mode : modes) {
-            FileObject modeFileObject = modesFileObject.createFolder(mode.getId());
-            View activeView = mode.getActiveView();
-            if(activeView!=null)
-              modeFileObject.setAttribute("active", activeView.getTopcomponentID());
-            Set<View> views = mode.getViews();
-            for (View view : views) {
-                FileObject viewFileObject = modeFileObject.createFolder(view.
-                        getTopcomponentID());
-                viewFileObject.setAttribute("index", view.getIndex());
-                viewFileObject.setAttribute("opened", view.isOpen());
-            }
+    private PerspectiveImpl perspectiveImpl;
+    private AbstractAction defaultAction;
 
+    public PerspectiveNode(PerspectiveImpl perspectiveImpl) {
+        super(Children.LEAF);
+        this.perspectiveImpl = perspectiveImpl;
+    }
+
+    public PerspectiveNode(PerspectiveImpl perspectiveImpl, AbstractAction defaultAction) {
+        this(perspectiveImpl);
+        this.defaultAction = defaultAction;
+    }
+
+    @Override
+    public Image getIcon(int type) {
+        return Utilities.loadImage(perspectiveImpl.getImagePath(), true);
+    }
+
+    @Override
+    public String getDisplayName() {
+        return perspectiveImpl.getAlias();
+    }
+
+    @Override
+    public String getShortDescription() {
+        return perspectiveImpl.getDescription();
+    }
+
+    public PerspectiveImpl getPerspectiveImpl() {
+        return perspectiveImpl;
+    }
+
+    @Override
+    public Action getPreferredAction() {
+        if (defaultAction!=null) {
+            return defaultAction;
+        } else {
+            return super.getPreferredAction();
         }
-
     }
 }

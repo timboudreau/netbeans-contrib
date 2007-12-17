@@ -50,6 +50,7 @@ import java.util.Set;
 import org.netbeans.modules.perspective.persistence.PerspectivePreferences;
 import org.netbeans.modules.perspective.views.PerspectiveImpl;
 import org.netbeans.modules.perspective.PerspectiveListener;
+import org.netbeans.modules.perspective.hacks.ModeHackTopComponent;
 import org.netbeans.modules.perspective.views.PerspectiveMode;
 import org.netbeans.modules.perspective.views.View;
 import org.openide.windows.Mode;
@@ -88,7 +89,11 @@ class ModeController {
         if (windowMode == null || topComponent == null) {
             return;
         }
-        if (!windowMode.equals(windowManager.findMode(topComponent))) {
+        Mode old=windowManager.findMode(topComponent);
+        if (old.getName().startsWith("anonymousMode")) {//NOI18N              
+                old.dockInto(new ModeHackTopComponent());
+            }
+        if (!windowMode.equals(old)) {
             windowMode.dockInto(topComponent);
         }
         if (open) {
