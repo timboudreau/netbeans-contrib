@@ -406,8 +406,10 @@ TypeId = PathId
        | "type";
 
 Types = Type (<comma> (<nl>)* Type)*;
-Type = InfixType [<rarrow> (<nl>)* Type | ExistentialClause]
-     | "(" <rarrow> (<nl>)* Type ")" <rarrow> (<nl>)* Type;
+Type = InfixType [<rarrow> (<nl>)* Type | ExistentialClause];
+## Hacking for:
+#     | "(" <rarrow> (<nl>)* Type ")" <rarrow> (<nl>)* Type;
+# @see SimpleType
 
 ExistentialClause = <forSome> <lcurly> (<nl>)* ExistentialDcl (Semi ExistentialDcl)* <rcurly>;
 ExistentialDcl = "type" NameId [TypeParamClause] [">:" Type] ["<:" Type]
@@ -419,7 +421,7 @@ CompoundType = AnnotType (<with> AnnotType)* [Refinement]
 AnnotType = (Annotation)* SimpleType ["*"];
 
 SimpleType = TypeStableId (TypeArgs | "#" NameId)*
-           | "(" Types1 ")" (TypeArgs | "#" NameId)*;
+           | "(" (Types1 | <rarrow> (<nl>)* Type) ")" (TypeArgs | "#" NameId)*;
 ## Hacking for: Type (<comma> Type)* [<comma>];
 Types1 = Type1 (<comma> (<nl>)* Type1)*;
 Type1 = Type
