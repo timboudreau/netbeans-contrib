@@ -387,7 +387,7 @@ Literal = <integer>
 
 QualId = NameId (<dot> (<nl>)* NameId)*;
 
-Ids = NameId (<comma> NameId)*;
+Ids = NameId (<comma> (<nl>)* NameId)*;
 
 ## Hacking for: Path = StableId ["." "this"], since Path is also belongs to SimpleType etc
 StableId = PathId (<dot> (<nl>)* PathId)*;
@@ -404,7 +404,7 @@ TypeId = PathId
        | "_"
        | "type";
 
-Types = Type (<comma> Type)*;
+Types = Type (<comma> (<nl>)* Type)*;
 Type = InfixType [<rarrow> (<nl>)* Type | ExistentialClause]
      | "(" <rarrow> (<nl>)* Type ")" <rarrow> (<nl>)* Type;
 
@@ -420,7 +420,7 @@ AnnotType = (Annotation)* SimpleType ["*"];
 SimpleType = TypeStableId (TypeArgs | "#" NameId)*
            | "(" Types1 ")" (TypeArgs | "#" NameId)*;
 ## Hacking for: Type (<comma> Type)* [<comma>];
-Types1 = Type1 (<comma> Type1)*;
+Types1 = Type1 (<comma> (<nl>)* Type1)*;
 Type1 = Type
       | ;
 TypeArgs = "[" Types "]";
@@ -623,10 +623,10 @@ ScalaPatterns = <lcurly> (<nl>)* Patterns (<nl>)* <rcurly>;
 Patterns = Pattern (<comma> (<nl>)* Pattern)*;
 
 
-TypeParamClause = "[" VariantTypeParam (<comma> VariantTypeParam)* "]";
+TypeParamClause = "[" VariantTypeParam (<comma> (<nl>)* VariantTypeParam)* "]";
 VariantTypeParam = ["+" | "-"] TypeParam;
 
-FunTypeParamClause = "[" TypeParam (<comma> TypeParam)* "]";
+FunTypeParamClause = "[" TypeParam (<comma> (<nl>)* TypeParam)* "]";
 
 ## Hacking for TypeParam = NameId [">:" Type] ["<:" Type] ["<%" Type];
 ## Is the ScalaReference error? the following code is from examples.tcpoly.collection.HOSeq
@@ -653,7 +653,7 @@ NameValuePair = "val" NameId <eq> (<nl>)* PrefixExpr;
 Import = "import" ImportExpr (<comma> ImportExpr)*;
 ## Hacking for: ImportExpr = StableId "." (NameId | "_" | ImportSelectors);
 ImportExpr = ImportId;
-ImportSelectors = <lcurly> (<nl>)* ImportSelector (<comma> ImportSelector)* <rcurly>;
+ImportSelectors = <lcurly> (<nl>)* ImportSelector (<comma> (<nl>)* ImportSelector)* <rcurly>;
 ImportSelector = (NameId [<rarrow> (<nl>)* (NameId | "_")] | "_");
 
 ImportId = ImportId0 (<dot> (<nl>)* ImportId0)*;
@@ -674,7 +674,7 @@ FunDclDef = "def" NameId [FunTypeParamClause] [ParamClauses] ([":" Type] [<eq> (
           | "def" "this" [ParamClauses] (<eq> (<nl>)* ConstrExpr | ConstrBlock);
 TypeDclDef = "type" NameId [TypeParamClause] ([">:" Type] ["<:" Type] ["<%" Type] | <eq> (<nl>)* Type);
 
-PatDef = Pattern2 (<comma> Pattern2)* [":" Type] ;
+PatDef = Pattern2 (<comma> (<nl>)* Pattern2)* [":" Type] ;
 
 ParamClauses = ParamClause (ParamClause)*;
 ParamClause = "(" (<nl>)* [["implicit"] Params] (<nl>)* ")";
