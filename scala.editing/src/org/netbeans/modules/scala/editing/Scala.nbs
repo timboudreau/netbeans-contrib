@@ -194,7 +194,7 @@ TOKEN:eq: (
     [" " "\t" "\n" "\r"]* "="
 )
 TOKEN:rarrow: (
-    [" " "\t" "\n" "\r"]* "=>" [" " "\t" "\n" "\r"]* 
+    [" " "\t" "\n" "\r"]* "=>"
 )
 
 ## Operators
@@ -405,8 +405,8 @@ TypeId = PathId
        | "type";
 
 Types = Type (<comma> Type)*;
-Type = InfixType [<rarrow> Type | ExistentialClause]
-     | "(" <rarrow> Type ")" <rarrow> Type;
+Type = InfixType [<rarrow> (<nl>)* Type | ExistentialClause]
+     | "(" <rarrow> (<nl>)* Type ")" <rarrow> (<nl>)* Type;
 
 ExistentialClause = <forSome> <lcurly> (<nl>)* ExistentialDcl (Semi ExistentialDcl)* <rcurly>;
 ExistentialDcl = "type" NameId [TypeParamClause] [">:" Type] ["<:" Type]
@@ -439,7 +439,7 @@ RefineStat = DclDef;
 ## Thus we cannot add another ("=>" Expr) after an expr which level is lower than 
 ## or same as PostfixExpr
 Expr = CtrlExpr
-     | PostfixExpr [Ascription [<rarrow> Expr] | <match> (<nl>)* <lcurly> (<nl>)* CaseClauses <rcurly> | <eq> (<nl>)* Expr | <rarrow> Expr];
+     | PostfixExpr [Ascription [<rarrow> (<nl>)* Expr] | <match> (<nl>)* <lcurly> (<nl>)* CaseClauses <rcurly> | <eq> (<nl>)* Expr | <rarrow> (<nl>)* Expr];
 Ascription = ":" (CompoundType | (Annotation)+);
 
 CtrlExpr = "if" "(" (<nl>)* Expr ")" (<nl>)* Expr [<else> (<nl>)* Expr]
@@ -488,7 +488,7 @@ Arguments = PrthsBody
 ## To let a optional [","] at the end, we just let PrthsExpr can be empty
 PrthsBody = "(" (<nl>)* ExprInPrths (<comma> (<nl>)* ExprInPrths)* (<nl>)* ")";
 ExprInPrths = CtrlExpr
-            | PostfixExpr [AscriptionInPrths [<rarrow> Expr] | <match> (<nl>)* <lcurly> (<nl>)* CaseClauses <rcurly> | <eq> (<nl>)* Expr | <rarrow> Expr]
+            | PostfixExpr [AscriptionInPrths [<rarrow> (<nl>)* Expr] | <match> (<nl>)* <lcurly> (<nl>)* CaseClauses <rcurly> | <eq> (<nl>)* Expr | <rarrow> (<nl>)* Expr]
             | ;
 ## Hacking for: Ascription and Binding;
 ##     Ascription = ":" (CompoundType | (Annotation)+ | "_" "*")
@@ -510,7 +510,7 @@ TemplateStat = Import
 ## Hacking for TemplateBody ::= [nl] ‘{’ [id [‘:’ Type] ‘=>’] TemplateStat {semi TemplateStat} ‘}’
 ## Where, [id [‘:’ Type] ‘=>’] conflicts with Expr
 ExprInTemplate = CtrlExpr
-               | PostfixExpr [Ascription [<rarrow> TemplateStats] | <match> (<nl>)* <lcurly> (<nl>)* CaseClauses <rcurly> | <eq> (<nl>)* Expr | <rarrow> TemplateStats];
+               | PostfixExpr [Ascription [<rarrow> (<nl>)* TemplateStats] | <match> (<nl>)* <lcurly> (<nl>)* CaseClauses <rcurly> | <eq> (<nl>)* Expr | <rarrow> (<nl>)* TemplateStats];
 
 BlockStats = BlockStat (Semi BlockStat)*;
 BlockStat = Import
@@ -521,7 +521,7 @@ BlockStat = Import
 ## Hacking for: ResultExpr = (Bindings | NameId [":" CompoundType]) "=>" BlockStats;
 ## Where, the right part of "=>" is BlockStats vs Expr in anonynous function expression
 ExprInBlock = CtrlExpr
-            | PostfixExpr [Ascription [<rarrow> BlockStats] | <match> (<nl>)* <lcurly> (<nl>)* CaseClauses <rcurly> | <eq> (<nl>)* Expr | <rarrow> BlockStats];
+            | PostfixExpr [Ascription [<rarrow> (<nl>)* BlockStats] | <match> (<nl>)* <lcurly> (<nl>)* CaseClauses <rcurly> | <eq> (<nl>)* Expr | <rarrow> (<nl>)* BlockStats];
 
 ## Hacking for CaseClause BlockStats, where another "case" starting TmplDef maybe 
 ## recognized as a CaseClause in LL(k)
@@ -532,10 +532,10 @@ CaseBlockStat = Import
               | ExprInCaseBlock
               | ;
 ExprInCaseBlock = CtrlExpr
-                | PostfixExpr [Ascription [<rarrow> CaseBlockStats] | <match> (<nl>)* <lcurly> (<nl>)* CaseClauses <rcurly> | <eq> (<nl>)* Expr | <rarrow> CaseBlockStats];
+                | PostfixExpr [Ascription [<rarrow> (<nl>)* CaseBlockStats] | <match> (<nl>)* <lcurly> (<nl>)* CaseClauses <rcurly> | <eq> (<nl>)* Expr | <rarrow> (<nl>)* CaseBlockStats];
 
 CaseClauses = CaseClause (CaseClause)*;
-CaseClause = "case" CasePattern [Guard] <rarrow> CaseBlockStats;
+CaseClause = "case" CasePattern [Guard] <rarrow> (<nl>)* CaseBlockStats;
 Guard = "if" PostfixExpr;
 
 ## The old style for-comprehensions' generator: ["val"] Pattern1 "<-" Expr [Guard]; 
@@ -654,7 +654,7 @@ Import = "import" ImportExpr (<comma> ImportExpr)*;
 ## Hacking for: ImportExpr = StableId "." (NameId | "_" | ImportSelectors);
 ImportExpr = ImportId;
 ImportSelectors = <lcurly> (<nl>)* ImportSelector (<comma> ImportSelector)* <rcurly>;
-ImportSelector = (NameId [<rarrow> (NameId | "_")] | "_");
+ImportSelector = (NameId [<rarrow> (<nl>)* (NameId | "_")] | "_");
 
 ImportId = ImportId0 (<dot> (<nl>)* ImportId0)*;
 ImportId0 = NameId
@@ -681,7 +681,7 @@ ParamClause = "(" (<nl>)* [["implicit"] Params] (<nl>)* ")";
 Params = Param (<comma> (<nl>)* Param)*;
 Param = (Annotation)* NameId [":" ParamType];
 ParamType = Type ["*"]
-          | <rarrow> Type;
+          | <rarrow> (<nl>)* Type;
 
 ConstrExpr = SelfInvocation
            | ConstrBlock;
