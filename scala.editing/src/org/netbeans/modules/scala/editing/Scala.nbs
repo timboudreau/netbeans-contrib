@@ -61,7 +61,7 @@ TOKEN:xml_comment: ("<!--" - "-->")
 <IN_CDSEC> {
     TOKEN:cddata: ([^"]"]+)
     TOKEN:cddata: ("]" [^">"])
-    TOKEN:cdsect_end: ("]>"):<DEFAULT>
+    TOKEN:cdsect_end: ("]]>"):<DEFAULT>
 }
 
 #TOKEN:xml: (
