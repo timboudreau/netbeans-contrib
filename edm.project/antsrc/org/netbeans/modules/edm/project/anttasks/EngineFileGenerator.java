@@ -201,7 +201,6 @@ public class EngineFileGenerator  {
         }
         
         
-       this.edmProcessDef.setMashupResponse(sqlDefinition.getResponseTypeStr());
         String engineContent = this.edmProcessDef.generateEngineFile();       
        
        
