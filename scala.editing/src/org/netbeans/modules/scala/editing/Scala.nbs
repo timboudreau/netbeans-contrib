@@ -221,16 +221,24 @@ TOKEN:slashrangle: (
 
 ## separators
 TOKEN:separator: (
-    "[" | "]" | "(" | ")" | ";" | ","
-)
-TOKEN:dot: (
-    [" " "\t" "\n" "\r"]* "." [" " "\t" "\n" "\r"]*
+    "[" | "]" | "(" | ")" | ";"
 )
 TOKEN:lcurly: (
     "{"
 )
 TOKEN:rcurly: (
     "}"
+)
+## Here, try to eat all <nl> before following separators, if there are comments 
+## before them, the <nl> after comments should also be eaten by this regex
+## @NOTICE: we can usally apply (<nl>)* after a separator or keyword in LL(k). But
+##          It may not work if apply (<nl>)* before them, so it's better to solve 
+##          these <nl> in token definition
+TOKEN:dot: (
+    [" " "\t" "\n" "\r"]* "." [" " "\t" "\n" "\r"]*
+)
+TOKEN:comma: (
+    [" " "\t" "\n" "\r"]* ","
 )
 
 
@@ -376,7 +384,7 @@ Literal = <integer>
 
 QualId = NameId (<dot> NameId)*;
 
-Ids = NameId ("," NameId)*;
+Ids = NameId (<comma> NameId)*;
 
 ## Hacking for: Path = StableId ["." "this"], since Path is also belongs to SimpleType etc
 StableId = PathId (<dot> PathId)*;
@@ -393,9 +401,9 @@ TypeId = PathId
        | "_"
        | "type";
 
-Types = Type ("," Type)*;
+Types = Type (<comma> Type)*;
 Type = InfixType [<rarrow> Type | ExistentialClause]
-     | "(" [<rarrow> Type | (<nl>)] ")" <rarrow> Type;
+     | "(" <rarrow> Type ")" <rarrow> Type;
 
 ExistentialClause = <forSome> <lcurly> (<nl>)* ExistentialDcl (Semi ExistentialDcl)* <rcurly>;
 ExistentialDcl = "type" NameId [TypeParamClause] [">:" Type] ["<:" Type]
@@ -407,7 +415,11 @@ CompoundType = AnnotType ("with" AnnotType)* [Refinement]
 AnnotType = (Annotation)* SimpleType ["*"];
 
 SimpleType = TypeStableId (TypeArgs | "#" NameId)*
-           | "(" Types [","] ")" (TypeArgs | "#" NameId)*;
+           | "(" Types1 ")" (TypeArgs | "#" NameId)*;
+## Hacking for: Type (<comma> Type)* [<comma>];
+Types1 = Type1 (<comma> Type1)*;
+Type1 = Type
+      | ;
 TypeArgs = "[" Types "]";
 
 Refinement = <lcurly> (<nl>)* [RefineStat (Semi RefineStat)*] <rcurly>;
@@ -471,7 +483,7 @@ Arguments = PrthsBody
 
 ## Hacking for: Prths = "(" [Expr ("," Expr)* [","]] ")";
 ## To let a optional [","] at the end, we just let PrthsExpr can be empty
-PrthsBody = "(" (<nl>)* ExprInPrths ("," (<nl>)* ExprInPrths)* (<nl>)* ")";
+PrthsBody = "(" (<nl>)* ExprInPrths (<comma> (<nl>)* ExprInPrths)* (<nl>)* ")";
 ExprInPrths = CtrlExpr
             | PostfixExpr [AscriptionInPrths [<rarrow> Expr] | <match> (<nl>)* <lcurly> (<nl>)* CaseClauses <rcurly> | <eq> Expr | <rarrow> Expr]
             | ;
@@ -605,13 +617,13 @@ ContentP = ElemPattern
          | ScalaPatterns;
 ScalaPatterns = <lcurly> (<nl>)* Patterns (<nl>)* <rcurly>;
 
-Patterns = Pattern ("," (<nl>)* Pattern)*;
+Patterns = Pattern (<comma> (<nl>)* Pattern)*;
 
 
-TypeParamClause = "[" VariantTypeParam ("," VariantTypeParam)* "]";
+TypeParamClause = "[" VariantTypeParam (<comma> VariantTypeParam)* "]";
 VariantTypeParam = ["+" | "-"] TypeParam;
 
-FunTypeParamClause = "[" TypeParam ("," TypeParam)* "]";
+FunTypeParamClause = "[" TypeParam (<comma> TypeParam)* "]";
 
 ## Hacking for TypeParam = NameId [">:" Type] ["<:" Type] ["<%" Type];
 ## Is the ScalaReference error? the following code is from examples.tcpoly.collection.HOSeq
@@ -635,10 +647,10 @@ Annotation = "@" AnnotationExpr [<nl>];
 AnnotationExpr = AnnotType (Arguments)* [<lcurly> (<nl>)* (NameValuePair)* <rcurly>];
 NameValuePair = "val" NameId <eq> PrefixExpr;
 
-Import = "import" ImportExpr ("," ImportExpr)*;
+Import = "import" ImportExpr (<comma> ImportExpr)*;
 ## Hacking for: ImportExpr = StableId "." (NameId | "_" | ImportSelectors);
 ImportExpr = ImportId;
-ImportSelectors = <lcurly> (<nl>)* ImportSelector ("," ImportSelector)* <rcurly>;
+ImportSelectors = <lcurly> (<nl>)* ImportSelector (<comma> ImportSelector)* <rcurly>;
 ImportSelector = (NameId [<rarrow> (NameId | "_")] | "_");
 
 ImportId = ImportId0 (<dot> ImportId0)*;
@@ -659,11 +671,11 @@ FunDclDef = "def" NameId [FunTypeParamClause] [ParamClauses] ([":" Type] [<eq> E
           | "def" "this" [ParamClauses] (<eq> ConstrExpr | ConstrBlock);
 TypeDclDef = "type" NameId [TypeParamClause] ([">:" Type] ["<:" Type] ["<%" Type] | <eq> Type);
 
-PatDef = Pattern2 ("," Pattern2)* [":" Type] ;
+PatDef = Pattern2 (<comma> Pattern2)* [":" Type] ;
 
 ParamClauses = ParamClause (ParamClause)*;
 ParamClause = "(" (<nl>)* [["implicit"] Params] (<nl>)* ")";
-Params = Param ("," (<nl>)* Param)*;
+Params = Param (<comma> (<nl>)* Param)*;
 Param = (Annotation)* NameId [":" ParamType];
 ParamType = Type ["*"]
           | <rarrow> Type;
@@ -682,7 +694,7 @@ ObjectDef = ["case"] "object" NameId [ClassTemplateOpt];
 TraitDef  = "trait" NameId [TypeParamClause] [<requires> AnnotType] [TraitTemplateOpt];
 
 ClassParamClauses = ("(" (<nl>)* [ClassParams] (<nl>)* ")")* ["(" (<nl>)* "implicit" ClassParams (<nl>)* ")"];
-ClassParams = ClassParam ("," (<nl>)* ClassParam)*;
+ClassParams = ClassParam (<comma> (<nl>)* ClassParam)*;
 ClassParam = (Annotation)* [(Modifier)* ("val" | "var")] NameId [":" ParamType];
 
 ClassTemplateOpt = <extends> (ClassParents [TemplateBody] | TemplateBody [ClassParents [TemplateBody]])
