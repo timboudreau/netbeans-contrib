@@ -52,7 +52,10 @@ import org.netbeans.api.queries.FileEncodingQuery;
 import org.netbeans.modules.languages.execution.ExecutionDescriptor;
 import org.netbeans.modules.languages.execution.ExecutionService;
 import org.netbeans.modules.languages.execution.RegexpOutputRecognizer;
+import org.openide.DialogDisplayer;
+import org.openide.NotifyDescriptor;
 import org.openide.filesystems.FileObject;
+import org.openide.filesystems.FileUtil;
 import org.openide.modules.InstalledFileLocator;
 import org.openide.util.Exceptions;
 import org.openide.util.Utilities;
@@ -117,11 +120,11 @@ public class ScalaExecution extends ExecutionService {
 
         if (descriptor != null) {
             if (descriptor.getCmd() == null) {
-                descriptor.cmd(new File("/Users/dcaoyuan/apps/scala/share/scala/bin/scala"));
+                descriptor.cmd(getScala());
             }
-
+            
             descriptor.addBinPath(true);
-        }
+        }        
     }
 
     /** Create a Ruby execution service with the given source-encoding charset */
@@ -295,7 +298,7 @@ public class ScalaExecution extends ExecutionService {
     }
     
     public static String getJavaHome() {
-        String javaHome = System.getProperty("jruby.java.home"); // NOI18N
+        String javaHome = System.getProperty("scala.java.home"); // NOI18N
 
         if (javaHome == null) {
             javaHome = System.getProperty("java.home"); // NOI18N
@@ -304,22 +307,68 @@ public class ScalaExecution extends ExecutionService {
         return javaHome;
     }
 
+    public static String getScalaHome() {
+        String scalaHome = System.getProperty("scala.home"); // NOI18N
+
+        if (scalaHome == null) {
+            scalaHome = System.getenv("SCALA_HOME"); // NOI18N
+            if (scalaHome != null) {
+                System.setProperty("scala.home", scalaHome);
+            }
+        }
+        if (scalaHome != null) {
+            return scalaHome;
+        } else {
+            NotifyDescriptor d = new NotifyDescriptor.Message(
+                    "SCALA_HOME environment variable may not be set, or is invalid.\n" +
+                    "Please set SCALA_HOME first!", NotifyDescriptor.INFORMATION_MESSAGE);
+            DialogDisplayer.getDefault().notify(d);
+            return null;
+        }
+    }
+    
+    public static File getScala() {
+        FileObject scalaFo = null;
+        String scalaHome = getScalaHome();
+        if (scalaHome != null) {
+            File scalaHomeDir = new File(getScalaHome());
+            if (scalaHomeDir.exists() && scalaHomeDir.isDirectory()) {
+                try {
+                    FileObject scalaHomeFo = FileUtil.createData(scalaHomeDir);
+                    FileObject bin = scalaHomeFo.getFileObject("bin");             //NOI18N
+                    if (Utilities.isWindows()) {
+                        scalaFo = bin.getFileObject("scala", "exe");
+                        if (scalaFo == null) {
+                            scalaFo = bin.getFileObject("scala", "bat");
+                        }
+                    } else {
+                        scalaFo = bin.getFileObject("scala", null);    //NOI18N
+                    }
+                } catch (IOException ex) {
+                    Exceptions.printStackTrace(ex);
+                }
+            }
+        }
+        if (scalaFo != null) {
+            return FileUtil.toFile(scalaFo);
+        } else {
+            NotifyDescriptor d = new NotifyDescriptor.Message(
+                    "Can not found ${SCALA_HOME}/bin/scala, the environment variable SCALA_HOME may be invalid.\n" +
+                    "Please set proper SCALA_HOME first!", NotifyDescriptor.INFORMATION_MESSAGE);
+            DialogDisplayer.getDefault().notify(d);
+            return null;
+        }
+    }
+    
+
     /**
-     * Add settings in the environment appropriate for running JRuby:
-     * add the given directory into the path, and set up JRUBY_HOME
+     * Add settings in the environment appropriate for running Scala:
+     * add the given directory into the path, and set up SCALA_HOME
      */
     public @Override void setupProcessEnvironment(Map<String, String> env) {
         super.setupProcessEnvironment(env);
-        env.put("SCALA_HOME", "/Users/dcaoyuan/apps/scala/share/scala");
-//        // In case we're launching JRuby:
-//        ScalaInstallation installation = ScalaInstallation.getInstance();
-//        if (installation.isJRubySet()) {
-//            File rubyHome = installation.getRubyHome();
-//            String jrubyHome = rubyHome.getAbsolutePath();
-//            env.put("JRUBY_HOME", jrubyHome); // NOI18N
-//            env.put("JRUBY_BASE", jrubyHome); // NOI18N
-//            env.put("JAVA_HOME", getJavaHome()); // NOI18N
-//        }
+        env.put("JAVA_HOME", getJavaHome());
+        env.put("SCALA_HOME", getScalaHome());
     }
     
     /** Package-private for unit test. */
