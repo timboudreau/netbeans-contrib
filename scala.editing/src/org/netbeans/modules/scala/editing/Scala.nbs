@@ -414,7 +414,7 @@ ExistentialDcl = "type" NameId [TypeParamClause] [">:" Type] ["<:" Type]
                | "val" Ids ":" Type;
 
 InfixType = CompoundType (NameId [<nl>] CompoundType)*;
-CompoundType = AnnotType ("with" AnnotType)* [Refinement]
+CompoundType = AnnotType (<with> AnnotType)* [Refinement]
              | Refinement;
 AnnotType = (Annotation)* SimpleType ["*"];
 
@@ -568,6 +568,7 @@ CharData = Literal
          | <separator>
          | <colon>
          | <dot>
+         | <comma>
          | <nl>;
 Attribute = NSName <eq> (<nl>)* AttValue;
 AttValue = <string> # "\"" {CharQ | CharRef} "\""
