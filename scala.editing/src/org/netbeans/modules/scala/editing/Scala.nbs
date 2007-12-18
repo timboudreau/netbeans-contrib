@@ -165,8 +165,9 @@ TOKEN:colon: (
 TOKEN:catch: (
     [" " "\t" "\n" "\r"]* "catch"
 )
+## Hacking for: [Semi] "else" in if expr, eat ";"
 TOKEN:else: (
-    [" " "\t" "\n" "\r"]* "else"
+    [" " "\t" "\n" "\r" ";"]* "else"
 )
 TOKEN:extends: (
     [" " "\t" "\n" "\r"]* "extends"
