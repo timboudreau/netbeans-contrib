@@ -612,7 +612,11 @@ TypeParamClause = "[" VariantTypeParam ("," VariantTypeParam)* "]";
 VariantTypeParam = ["+" | "-"] TypeParam;
 
 FunTypeParamClause = "[" TypeParam ("," TypeParam)* "]";
-TypeParam = NameId [">:" Type] ["<:" Type] ["<%" Type];
+
+## Hacking for TypeParam = NameId [">:" Type] ["<:" Type] ["<%" Type];
+## Is the ScalaReference error? the following code is from examples.tcpoly.collection.HOSeq
+##   trait Accumulator[+coll[x], elT] {...}
+TypeParam = NameId [TypeParamClause] [">:" Type] ["<:" Type] ["<%" Type];
 
 Modifier = LocalModifier
          | AccessModifier
