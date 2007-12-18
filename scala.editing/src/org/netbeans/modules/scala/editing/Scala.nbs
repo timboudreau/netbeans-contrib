@@ -107,40 +107,38 @@ TOKEN:line_comment: ("//" [^"\n" "\r"]*)
 ## trait try true type val
 ## var while with yield
 ## _ : = => <- <: <% >: # @
-TOKEN:keyword: ( 
-    "abstract" |
-    "case" |
-    "class" |
-    "def" |
-    "do" |
-    "false" |
-    "final" |
-    "for" |
-    "if" |
-    "implicit" |
-    "import" |
-    "lazy" |
-    "new" |
-    "null" |
-    "object" |
-    "override" |
-    "package" |
-    "private" |
-    "protected" |
-    "return" |
-    "sealed" |
-    "super" |
-    "this" |
-    "throw" |
-    "trait" |
-    "try" |
-    "true" |
-    "type" |
-    "val" |
-    "var" |
-    "while" |
-    "@"
-)
+TOKEN:abstract: ("abstract")
+TOKEN:case: ("case")
+TOKEN:class: ("class")
+TOKEN:def: ("def")
+TOKEN:do: ("do")
+TOKEN:false: ("false")
+TOKEN:final: ("final")
+TOKEN:for: ("for")
+TOKEN:if: ("if")
+TOKEN:implicit: ("implicit")
+TOKEN:import: ("import")
+TOKEN:lazy: ("lazy")
+TOKEN:new: ("new")
+TOKEN:null: ("null")
+TOKEN:object: ("object")
+TOKEN:override: ("override")
+TOKEN:package: ("package")
+TOKEN:private: ("private")
+TOKEN:protected: ("protected")
+TOKEN:return: ("return")
+TOKEN:sealed: ("sealed")
+TOKEN:super: ("super")
+TOKEN:this: ("this")
+TOKEN:throw: ("throw")
+TOKEN:trait: ("trait")
+TOKEN:try: ("try")
+TOKEN:true: ("true")
+TOKEN:type: ("type")
+TOKEN:val: ("val")
+TOKEN:var: ("var")
+TOKEN:while: ("while")
+TOKEN:at: ("@")
 
 ## The tokens that can terminate a statement are: literals, identifiers and the following
 ## delimiters and reserved words:
@@ -417,9 +415,9 @@ Literal = <integer>
         | <char>
         | <string>
         | <symbal>
-        | "true" 
-        | "false"
-        | "null";
+        | <true> 
+        | <false>
+        | <null>;
 
 QualId = NameId (<dot> (<nl>)* NameId)*;
 
@@ -428,8 +426,8 @@ Ids = NameId (<comma> (<nl>)* NameId)*;
 ## Hacking for: Path = StableId ["." "this"], since Path is also belongs to SimpleType etc
 StableId = PathId (<dot> (<nl>)* PathId)*;
 PathId = NameId
-       | "this"
-       | "super" [ClassQualifier] <dot> (<nl>)* NameId;
+       | <this>
+       | <super> [ClassQualifier] <dot> (<nl>)* NameId;
 ClassQualifier = <lsqr> NameId <rsqr>;
 
 ## Hacking for: SimpleType = StableId ["." "type"] (TypeArgs | "#" NameId)*
@@ -438,7 +436,7 @@ ClassQualifier = <lsqr> NameId <rsqr>;
 TypeStableId = TypeId (<dot> (<nl>)* TypeId)*;
 TypeId = PathId
        | <under>
-       | "type";
+       | <type>;
 
 Types = Type (<comma> (<nl>)* Type)*;
 Type = InfixType [<rarrow> (<nl>)* Type | ExistentialClause];
@@ -447,8 +445,8 @@ Type = InfixType [<rarrow> (<nl>)* Type | ExistentialClause];
 # @see SimpleType
 
 ExistentialClause = <forSome> <lcurly> (<nl>)* ExistentialDcl (Semi ExistentialDcl)* <rcurly>;
-ExistentialDcl = "type" NameId [TypeParamClause] [<tupper> Type] [<tlower> Type]
-               | "val" Ids <colon> Type;
+ExistentialDcl = <type> NameId [TypeParamClause] [<tupper> Type] [<tlower> Type]
+               | <val> Ids <colon> Type;
 
 InfixType = CompoundType (NameId [<nl>] CompoundType)*;
 CompoundType = AnnotType (<with> AnnotType)* [Refinement]
@@ -480,13 +478,13 @@ Expr = CtrlExpr
      | PostfixExpr [Ascription [<rarrow> (<nl>)* Expr] | <match> (<nl>)* <lcurly> (<nl>)* CaseClauses <rcurly> | <eq> (<nl>)* Expr | <rarrow> (<nl>)* Expr];
 Ascription = <colon> (CompoundType | (Annotation)+);
 
-CtrlExpr = "if" <lprth> (<nl>)* Expr <rprth> (<nl>)* Expr [<else> (<nl>)* Expr]
-         | "while" <lprth> (<nl>)* Expr <rprth> (<nl>)* Expr
-         | "try" (<nl>)* <lcurly> (<nl>)* BlockStats <rcurly> [<catch> (<nl>)* <lcurly> (<nl>)* CaseClauses <rcurly>] [<finally> (<nl>)* Expr]
-         | "do" Expr [Semi] "while" <lprth> (<nl>)* Expr <rprth>
-         | "for" (<lprth> (<nl>)* Enumerators <rprth> | <lcurly> (<nl>)* Enumerators <rcurly>) [<yield>] (<nl>)* Expr
-         | "throw" Expr
-         | "return" [Expr];
+CtrlExpr = <if> <lprth> (<nl>)* Expr <rprth> (<nl>)* Expr [<else> (<nl>)* Expr]
+         | <while> <lprth> (<nl>)* Expr <rprth> (<nl>)* Expr
+         | <try> (<nl>)* <lcurly> (<nl>)* BlockStats <rcurly> [<catch> (<nl>)* <lcurly> (<nl>)* CaseClauses <rcurly>] [<finally> (<nl>)* Expr]
+         | <do> Expr [Semi] <while> <lprth> (<nl>)* Expr <rprth>
+         | <for> (<lprth> (<nl>)* Enumerators <rprth> | <lcurly> (<nl>)* Enumerators <rcurly>) [<yield>] (<nl>)* Expr
+         | <throw> Expr
+         | <return> [Expr];
 
 
 
@@ -517,7 +515,7 @@ SimpleExpr2 = <under> (TypeArgs)*
 ##    ClassTemplateBody = (PrthsOrBlock ("with" AnnotType)* (TypeArgs)*)*;
 ##    ClassParents = AnnotType (Arguments)* ("with" AnnotType)*;
 ## A possible expr: NewExpr = "new" [Block] ClassParents (PrthsOrBlock (TypeArgs)*)* [<dot> NameId];
-NewExpr = "new" (ClassParents [TemplateBody] | TemplateBody [ClassParents [TemplateBody]]) (TypeArgs)*;
+NewExpr = <new> (ClassParents [TemplateBody] | TemplateBody [ClassParents [TemplateBody]]) (TypeArgs)*;
 
 Arguments = PrthsBody
           | BlockBody;
@@ -552,7 +550,7 @@ ExprInTemplate = CtrlExpr
 
 BlockStats = BlockStat (Semi BlockStat)*;
 BlockStat = Import
-          | ["implicit"] DclDef
+          | [<implicit>] DclDef
           | (LocalModifier)+ TmplDef
           | ExprInBlock
           | ;
@@ -565,7 +563,7 @@ ExprInBlock = CtrlExpr
 ## recognized as a CaseClause in LL(k)
 CaseBlockStats = CaseBlockStat (Semi CaseBlockStat)*;
 CaseBlockStat = Import
-              | ["implicit"] (ValDclDef | VarDclDef | FunDclDef | TypeDclDef)
+              | [<implicit>] (ValDclDef | VarDclDef | FunDclDef | TypeDclDef)
               | (LocalModifier)+ TmplDef
               | ExprInCaseBlock
               | ;
@@ -573,8 +571,8 @@ ExprInCaseBlock = CtrlExpr
                 | PostfixExpr [Ascription [<rarrow> (<nl>)* CaseBlockStats] | <match> (<nl>)* <lcurly> (<nl>)* CaseClauses <rcurly> | <eq> (<nl>)* Expr | <rarrow> (<nl>)* CaseBlockStats];
 
 CaseClauses = CaseClause (CaseClause)*;
-CaseClause = "case" CasePattern [Guard] <rarrow> (<nl>)* CaseBlockStats;
-Guard = "if" PostfixExpr;
+CaseClause = <case> CasePattern [Guard] <rarrow> (<nl>)* CaseBlockStats;
+Guard = <if> PostfixExpr;
 
 ## The old style for-comprehensions' generator: ["val"] Pattern1 "<-" Expr [Guard]; 
 ## has been depracated in Version 2.6 
@@ -582,7 +580,7 @@ Enumerators = Generator (Semi Enumerator)*;
 Generator = Pattern1 <larrow> Expr [Guard];
 Enumerator = Generator
            | Guard
-           | "val" Pattern1 <eq> (<nl>)*  Expr
+           | <val> Pattern1 <eq> (<nl>)*  Expr
            | ;
 
 
@@ -598,16 +596,9 @@ Content = CharData
         | XmlContent
         | ScalaExpr;
 CharData = Literal
-         | <keyword>
          | <varid>
          | <upperid>
          | <operator>
-         | <eq>
-         | <colon>
-         | <dot>
-         | <comma>
-         | <hash>
-         | <under>
          | <semi>
          | <lprth>
          | <rprth>
@@ -618,6 +609,44 @@ CharData = Literal
          | <tlower>
          | <tupper>
          | <tview>
+         | <at>
+         | <eq>
+         | <colon>
+         | <dot>
+         | <comma>
+         | <hash>
+         | <under>
+         | <abstract>
+         | <case>
+         | <class>
+         | <def>
+         | <do>
+         | <false>
+         | <final>
+         | <for>
+         | <if>
+         | <implicit>
+         | <import>
+         | <lazy>
+         | <new>
+         | <null>
+         | <object>
+         | <override>
+         | <package>
+         | <private>
+         | <protected>
+         | <return>
+         | <sealed>
+         | <super>
+         | <this>
+         | <throw>
+         | <trait>
+         | <try>
+         | <true>
+         | <type>
+         | <val>
+         | <var>
+         | <while>
          | <catch>
          | <else>
          | <extends>
@@ -636,7 +665,52 @@ AttValue = <string> # "\"" {CharQ | CharRef} "\""
 NSName = Name (<colon> Name)*;
 Name = <varid>
      | <upperid>
-     | <keyword>;
+     | <eq>
+     | <colon>
+     | <dot>
+     | <comma>
+     | <hash>
+     | <under>
+     | <abstract>
+     | <case>
+     | <class>
+     | <def>
+     | <do>
+     | <false>
+     | <final>
+     | <for>
+     | <if>
+     | <implicit>
+     | <import>
+     | <lazy>
+     | <new>
+     | <null>
+     | <object>
+     | <override>
+     | <package>
+     | <private>
+     | <protected>
+     | <return>
+     | <sealed>
+     | <super>
+     | <this>
+     | <throw>
+     | <trait>
+     | <try>
+     | <true>
+     | <type>
+     | <val>
+     | <var>
+     | <while>
+     | <catch>
+     | <else>
+     | <extends>
+     | <finally>
+     | <forSome>
+     | <match>
+     | <requires>
+     | <with>
+     | <yield>;
 ScalaExpr = <lcurly> (<nl>)* BlockStats <rcurly>;
 
 Pattern = Pattern1 ("|" Pattern1)*
@@ -646,14 +720,14 @@ Pattern1 = Pattern3;
 ## Hacking: used only by PatDef
 Pattern2 = <under> ["*"]
          | Literal
-         | StableId [<lprth> (<nl>)* Patterns (<nl>)* <rprth> | "@" Pattern3]
+         | StableId [<lprth> (<nl>)* Patterns (<nl>)* <rprth> | <at> Pattern3]
          | <lprth> (<nl>)* Patterns (<nl>)* <rprth>
          | XmlPattern;
 
 Pattern3 = SimplePattern (NameId [<nl>] SimplePattern)*;
 SimplePattern = <under> ["*"]
               | Literal
-              | StableId [<lprth> (<nl>)* Patterns (<nl>)* <rprth> | "@" Pattern3 | <colon> Type]
+              | StableId [<lprth> (<nl>)* Patterns (<nl>)* <rprth> | <at> Pattern3 | <colon> Type]
               | <lprth> (<nl>)* Patterns (<nl>)* <rprth>
               | XmlPattern;
 
@@ -667,7 +741,7 @@ CasePattern = CasePattern1 ("|" CasePattern1)*;
 CasePattern1 = CasePattern0 (NameId [<nl>] CasePattern0)*;
 CasePattern0 = <under> ["*"]
              | Literal
-             | StableId [<lprth> (<nl>)* Patterns (<nl>)* <rprth> | "@" Pattern3 | <colon> InfixType]
+             | StableId [<lprth> (<nl>)* Patterns (<nl>)* <rprth> | <at> Pattern3 | <colon> InfixType]
              | <lprth> (<nl>)* Patterns (<nl>)* <rprth>
              | XmlPattern;
 
@@ -695,22 +769,22 @@ TypeParam = NameId [TypeParamClause] [<tupper> Type] [<tlower> Type] [<tview> Ty
 
 Modifier = LocalModifier
          | AccessModifier
-         | "override";
+         | <override>;
 
-LocalModifier = "abstract"
-              | "final"
-              | "sealed"
-              | "implicit"
-              | "lazy";
+LocalModifier = <abstract>
+              | <final>
+              | <sealed>
+              | <implicit>
+              | <lazy>;
 
-AccessModifier = ("private" | "protected") [AccessQualifier];
-AccessQualifier = <lsqr> (NameId | "this") <rsqr>;
+AccessModifier = (<private> | <protected>) [AccessQualifier];
+AccessQualifier = <lsqr> (NameId | <this>) <rsqr>;
 
-Annotation = "@" AnnotationExpr [<nl>];
+Annotation = <at> AnnotationExpr [<nl>];
 AnnotationExpr = AnnotType (Arguments)* [<lcurly> (<nl>)* (NameValuePair)* <rcurly>];
-NameValuePair = "val" NameId <eq> (<nl>)* PrefixExpr;
+NameValuePair = <val> NameId <eq> (<nl>)* PrefixExpr;
 
-Import = "import" ImportExpr (<comma> ImportExpr)*;
+Import = <import> ImportExpr (<comma> ImportExpr)*;
 ## Hacking for: ImportExpr = StableId "." (NameId | "_" | ImportSelectors);
 ImportExpr = ImportId;
 ImportSelectors = <lcurly> (<nl>)* ImportSelector (<comma> (<nl>)* ImportSelector)* <rcurly>;
@@ -718,7 +792,7 @@ ImportSelector = (NameId [<rarrow> (<nl>)* (NameId | <under>)] | <under>);
 
 ImportId = ImportId0 (<dot> (<nl>)* ImportId0)*;
 ImportId0 = NameId
-          | "super" [ClassQualifier] <dot> (<nl>)* NameId
+          | <super> [ClassQualifier] <dot> (<nl>)* NameId
           | <under>
           | ImportSelectors;
 
@@ -728,16 +802,16 @@ DclDef = ValDclDef
        | FunDclDef
        | TypeDclDef
        | TmplDef;
-ValDclDef = "val" PatDef [<eq> (<nl>)* Expr];
-VarDclDef = "var" PatDef [<eq> (<nl>)* Expr];
-FunDclDef = "def" NameId [FunTypeParamClause] [ParamClauses] ([<colon> Type] [<eq> (<nl>)* Expr] | <lcurly> BlockStats <rcurly>)
-          | "def" "this" [ParamClauses] (<eq> (<nl>)* ConstrExpr | ConstrBlock);
-TypeDclDef = "type" NameId [TypeParamClause] ([">:" Type] ["<:" Type] ["<%" Type] | <eq> (<nl>)* Type);
+ValDclDef = <val> PatDef [<eq> (<nl>)* Expr];
+VarDclDef = <var> PatDef [<eq> (<nl>)* Expr];
+FunDclDef = <def> NameId [FunTypeParamClause] [ParamClauses] ([<colon> Type] [<eq> (<nl>)* Expr] | <lcurly> BlockStats <rcurly>)
+          | <def> <this> [ParamClauses] (<eq> (<nl>)* ConstrExpr | ConstrBlock);
+TypeDclDef = <type> NameId [TypeParamClause] ([<tupper> Type] [<tlower> Type] [<tview> Type] | <eq> (<nl>)* Type);
 
 PatDef = Pattern2 (<comma> (<nl>)* Pattern2)* [<colon> Type] ;
 
 ParamClauses = ParamClause (ParamClause)*;
-ParamClause = <lprth> (<nl>)* [["implicit"] Params] (<nl>)* <rprth>;
+ParamClause = <lprth> (<nl>)* [[<implicit>] Params] (<nl>)* <rprth>;
 Params = Param (<comma> (<nl>)* Param)*;
 Param = (Annotation)* NameId [<colon> ParamType];
 ParamType = Type ["*"]
@@ -745,20 +819,20 @@ ParamType = Type ["*"]
 
 ConstrExpr = SelfInvocation
            | ConstrBlock;
-SelfInvocation = "this" (Arguments)+;
+SelfInvocation = <this> (Arguments)+;
 ConstrBlock = <lcurly> (<nl>)* SelfInvocation (Semi BlockStat)* <rcurly>;
 
 TmplDef = ClassDef
         | ObjectDef
         | TraitDef;
-ClassDef  = ["case"] "class" NameId [TypeParamClause] (Annotation)* [AccessModifier] ClassParamClauses            
+ClassDef  = [<case>] <class> NameId [TypeParamClause] (Annotation)* [AccessModifier] ClassParamClauses            
             [<requires> AnnotType] [ClassTemplateOpt];
-ObjectDef = ["case"] "object" NameId [ClassTemplateOpt];
-TraitDef  = "trait" NameId [TypeParamClause] [<requires> AnnotType] [TraitTemplateOpt];
+ObjectDef = [<case>] <object> NameId [ClassTemplateOpt];
+TraitDef  = <trait> NameId [TypeParamClause] [<requires> AnnotType] [TraitTemplateOpt];
 
-ClassParamClauses = (<lprth> (<nl>)* [ClassParams] (<nl>)* <rprth>)* [<lprth> (<nl>)* "implicit" ClassParams (<nl>)* <rprth>];
+ClassParamClauses = (<lprth> (<nl>)* [ClassParams] (<nl>)* <rprth>)* [<lprth> (<nl>)* <implicit> ClassParams (<nl>)* <rprth>];
 ClassParams = ClassParam (<comma> (<nl>)* ClassParam)*;
-ClassParam = (Annotation)* [(Modifier)* ("val" | "var")] NameId [<colon> ParamType];
+ClassParam = (Annotation)* [(Modifier)* (<val> | <var>)] NameId [<colon> ParamType];
 
 ClassTemplateOpt = <extends> (ClassParents [TemplateBody] | TemplateBody [ClassParents [TemplateBody]])
                  | TemplateBody;
@@ -779,8 +853,8 @@ TopStat = (Annotation)* (Modifier)* TmplDef
         | TemplateBody
         | ;
 
-Packaging = "package" QualId <lcurly> (<nl>)* TopStats <rcurly>;
-CompilationUnit = (<nl>)* ["package" QualId Semi] TopStats;
+Packaging = <package> QualId <lcurly> (<nl>)* TopStats <rcurly>;
+CompilationUnit = (<nl>)* [<package> QualId Semi] TopStats;
 
 
 #SYNTAX_ERROR:Expr: {
@@ -864,7 +938,56 @@ MARK:error: {
 }
 
 ########### colors #############################################################
-COLOR:keyword,catch,else,extends,finally,forSome,match,requires,with,yield,eq,colon,rarrow,larrow,tlower,tupper,tview: {
+COLOR:
+abstract,
+case,
+class,
+def,
+do,
+false,
+final,
+for,
+if,
+implicit,
+import,
+lazy,
+new,
+null,
+object,
+override,
+package,
+private,
+protected,
+return,
+sealed,
+super,
+this,
+throw,
+trait,
+try,
+true,
+type,
+val,
+var,
+while,
+catch,
+else,
+extends,
+finally,
+forSome,
+match,
+requires,
+with,
+yield,
+at,
+eq,
+colon,
+rarrow,
+larrow,
+tlower,
+tupper,
+tview: 
+{
     foreground_color: "0x0000FE";
 }
 
