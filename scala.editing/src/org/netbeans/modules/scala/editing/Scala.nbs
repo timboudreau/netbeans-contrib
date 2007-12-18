@@ -163,32 +163,32 @@ TOKEN:colon: (
 ## Notice: _ : = => <- <: <% >: # is also keyword
 ## That means: all keyword and delimiters above should eat all preceded [" " "\t" "\n" "\r"]*
 TOKEN:catch: (
-    [" " "\t" "\n" "\r"]* "catch"
+    [" " "\t" "\n" "\r"]* "catch" [" " "\t" "\n" "\r"]+
 )
 ## Hacking for: [Semi] "else" in if expr, eat ";"
 TOKEN:else: (
-    [" " "\t" "\n" "\r" ";"]* "else"
+    [" " "\t" "\n" "\r" ";"]* "else" [" " "\t" "\n" "\r"]+
 )
 TOKEN:extends: (
-    [" " "\t" "\n" "\r"]* "extends"
+    [" " "\t" "\n" "\r"]* "extends" [" " "\t" "\n" "\r"]+
 )
 TOKEN:finally: (
-    [" " "\t" "\n" "\r"]* "finally"
+    [" " "\t" "\n" "\r"]* "finally" [" " "\t" "\n" "\r"]+
 )
 TOKEN:forSome: (
-    [" " "\t" "\n" "\r"]* "forSome"
+    [" " "\t" "\n" "\r"]* "forSome" [" " "\t" "\n" "\r"]+
 )
 TOKEN:match: (
-    [" " "\t" "\n" "\r"]* "match"
+    [" " "\t" "\n" "\r"]* "match" [" " "\t" "\n" "\r"]+
 )
 TOKEN:requires: (
-    [" " "\t" "\n" "\r"]* "requires"
+    [" " "\t" "\n" "\r"]* "requires" [" " "\t" "\n" "\r"]+
 )
 TOKEN:with: (
-    [" " "\t" "\n" "\r"]* "with"
+    [" " "\t" "\n" "\r"]* "with" [" " "\t" "\n" "\r"]+
 )
 TOKEN:yield: (
-    [" " "\t" "\n" "\r"]* "yield"
+    [" " "\t" "\n" "\r"]* "yield" [" " "\t" "\n" "\r"]+
 )
 TOKEN:eq: (
     [" " "\t" "\n" "\r"]* "="
@@ -444,7 +444,7 @@ Ascription = ":" (CompoundType | (Annotation)+);
 
 CtrlExpr = "if" "(" (<nl>)* Expr ")" (<nl>)* Expr [<else> (<nl>)* Expr]
          | "while" "(" (<nl>)* Expr ")" (<nl>)* Expr
-         | "try" (<nl>)* <lcurly> (<nl>)* BlockStats <rcurly> [<catch> (<nl>)* <lcurly> (<nl>)* CaseClauses <rcurly>] [<finally> Expr]
+         | "try" (<nl>)* <lcurly> (<nl>)* BlockStats <rcurly> [<catch> (<nl>)* <lcurly> (<nl>)* CaseClauses <rcurly>] [<finally> (<nl>)* Expr]
          | "do" Expr [Semi] "while" "(" (<nl>)* Expr ")"
          | "for" ("(" (<nl>)* Enumerators ")" | <lcurly> (<nl>)* Enumerators <rcurly>) [<yield>] (<nl>)* Expr
          | "throw" Expr
