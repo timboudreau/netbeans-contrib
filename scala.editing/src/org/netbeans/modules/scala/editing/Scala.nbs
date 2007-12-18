@@ -566,9 +566,19 @@ CharData = Literal
          | <upperid>
          | <operator>
          | <separator>
+         | <eq>
          | <colon>
          | <dot>
          | <comma>
+         | <catch>
+         | <else>
+         | <extends>
+         | <finally>
+         | <forSome>
+         | <match>
+         | <requires>
+         | <with>
+         | <yield>
          | <nl>;
 Attribute = NSName <eq> (<nl>)* AttValue;
 AttValue = <string> # "\"" {CharQ | CharRef} "\""
