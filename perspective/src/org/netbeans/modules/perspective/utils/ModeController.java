@@ -91,7 +91,8 @@ class ModeController {
         }
         Mode old=windowManager.findMode(topComponent);
         if (old.getName().startsWith("anonymousMode")) {//NOI18N              
-                old.dockInto(new ModeHackTopComponent());
+            if(old.getTopComponents().length<=1)    
+            old.dockInto(new ModeHackTopComponent());
             }
         if (!windowMode.equals(old)) {
             windowMode.dockInto(topComponent);
