@@ -190,13 +190,14 @@ TOKEN:yield: (
     [" " "\t" "\n" "\r"]* "yield" [" " "\t" "\n" "\r"]*
 )
 TOKEN:eq: (
-    "=" [" " "\t" "\n" "\r"]*
+    [" " "\t" "\n" "\r"]* "="
 )
 TOKEN:rarrow: (
     [" " "\t" "\n" "\r"]* "=>" [" " "\t" "\n" "\r"]* 
 )
 
 ## Operators
+## add [" " "\t" "\n" "\r"]* before "=" leading operators to avoid conflict with <eq>
 TOKEN:operator: (
     ["!" "%" "&" "+" "-" "<" "?" "\\" "^" "`" "|" "~" "*" ]
     ["!" "%" "&" "+" "-" "<" "=" ">" "?" "@" "\\" "^" "`" "|" "~" "#" ":" "/" "*"]* 
@@ -204,6 +205,7 @@ TOKEN:operator: (
     ["#" ":" "@"]
     ["!" "%" "&" "+" "-" "<" "=" ">" "?" "@" "\\" "^" "`" "|" "~" "#" ":" "/" "*"]+ 
     |
+    [" " "\t" "\n" "\r"]*
     ["="]
     ["!" "%" "&" "+" "-" "<" "=" "?" "@" "\\" "^" "`" "|" "~" "#" ":" "/" "*"]+ 
     ["!" "%" "&" "+" "-" "<" "=" ">" "?" "@" "\\" "^" "`" "|" "~" "#" ":" "/" "*"]*
@@ -436,7 +438,7 @@ RefineStat = DclDef;
 ## Thus we cannot add another ("=>" Expr) after an expr which level is lower than 
 ## or same as PostfixExpr
 Expr = CtrlExpr
-     | PostfixExpr [Ascription [<rarrow> Expr] | <match> (<nl>)* <lcurly> (<nl>)* CaseClauses <rcurly> | <eq> Expr | <rarrow> Expr];
+     | PostfixExpr [Ascription [<rarrow> Expr] | <match> (<nl>)* <lcurly> (<nl>)* CaseClauses <rcurly> | <eq> (<nl>)* Expr | <rarrow> Expr];
 Ascription = ":" (CompoundType | (Annotation)+);
 
 CtrlExpr = "if" "(" (<nl>)* Expr ")" (<nl>)* Expr [<else> (<nl>)* Expr]
@@ -485,7 +487,7 @@ Arguments = PrthsBody
 ## To let a optional [","] at the end, we just let PrthsExpr can be empty
 PrthsBody = "(" (<nl>)* ExprInPrths (<comma> (<nl>)* ExprInPrths)* (<nl>)* ")";
 ExprInPrths = CtrlExpr
-            | PostfixExpr [AscriptionInPrths [<rarrow> Expr] | <match> (<nl>)* <lcurly> (<nl>)* CaseClauses <rcurly> | <eq> Expr | <rarrow> Expr]
+            | PostfixExpr [AscriptionInPrths [<rarrow> Expr] | <match> (<nl>)* <lcurly> (<nl>)* CaseClauses <rcurly> | <eq> (<nl>)* Expr | <rarrow> Expr]
             | ;
 ## Hacking for: Ascription and Binding;
 ##     Ascription = ":" (CompoundType | (Annotation)+ | "_" "*")
@@ -507,7 +509,7 @@ TemplateStat = Import
 ## Hacking for TemplateBody ::= [nl] ‘{’ [id [‘:’ Type] ‘=>’] TemplateStat {semi TemplateStat} ‘}’
 ## Where, [id [‘:’ Type] ‘=>’] conflicts with Expr
 ExprInTemplate = CtrlExpr
-               | PostfixExpr [Ascription [<rarrow> TemplateStats] | <match> (<nl>)* <lcurly> (<nl>)* CaseClauses <rcurly> | <eq> Expr | <rarrow> TemplateStats];
+               | PostfixExpr [Ascription [<rarrow> TemplateStats] | <match> (<nl>)* <lcurly> (<nl>)* CaseClauses <rcurly> | <eq> (<nl>)* Expr | <rarrow> TemplateStats];
 
 BlockStats = BlockStat (Semi BlockStat)*;
 BlockStat = Import
@@ -518,7 +520,7 @@ BlockStat = Import
 ## Hacking for: ResultExpr = (Bindings | NameId [":" CompoundType]) "=>" BlockStats;
 ## Where, the right part of "=>" is BlockStats vs Expr in anonynous function expression
 ExprInBlock = CtrlExpr
-            | PostfixExpr [Ascription [<rarrow> BlockStats] | <match> (<nl>)* <lcurly> (<nl>)* CaseClauses <rcurly> | <eq> Expr | <rarrow> BlockStats];
+            | PostfixExpr [Ascription [<rarrow> BlockStats] | <match> (<nl>)* <lcurly> (<nl>)* CaseClauses <rcurly> | <eq> (<nl>)* Expr | <rarrow> BlockStats];
 
 ## Hacking for CaseClause BlockStats, where another "case" starting TmplDef maybe 
 ## recognized as a CaseClause in LL(k)
@@ -529,7 +531,7 @@ CaseBlockStat = Import
               | ExprInCaseBlock
               | ;
 ExprInCaseBlock = CtrlExpr
-                | PostfixExpr [Ascription [<rarrow> CaseBlockStats] | <match> (<nl>)* <lcurly> (<nl>)* CaseClauses <rcurly> | <eq> Expr | <rarrow> CaseBlockStats];
+                | PostfixExpr [Ascription [<rarrow> CaseBlockStats] | <match> (<nl>)* <lcurly> (<nl>)* CaseClauses <rcurly> | <eq> (<nl>)* Expr | <rarrow> CaseBlockStats];
 
 CaseClauses = CaseClause (CaseClause)*;
 CaseClause = "case" CasePattern [Guard] <rarrow> CaseBlockStats;
@@ -541,7 +543,7 @@ Enumerators = Generator (Semi Enumerator)*;
 Generator = Pattern1 "<-" Expr [Guard];
 Enumerator = Generator
            | Guard
-           | "val" Pattern1 <eq> Expr
+           | "val" Pattern1 <eq> (<nl>)*  Expr
            | ;
 
 
@@ -565,7 +567,7 @@ CharData = Literal
          | <colon>
          | <dot>
          | <nl>;
-Attribute = NSName <eq> AttValue;
+Attribute = NSName <eq> (<nl>)* AttValue;
 AttValue = <string> # "\"" {CharQ | CharRef} "\""
          | <stringid> # "’" {CharA | CharRef} "’"
          | ScalaExpr
@@ -645,7 +647,7 @@ AccessQualifier = "[" (NameId | "this") "]";
 
 Annotation = "@" AnnotationExpr [<nl>];
 AnnotationExpr = AnnotType (Arguments)* [<lcurly> (<nl>)* (NameValuePair)* <rcurly>];
-NameValuePair = "val" NameId <eq> PrefixExpr;
+NameValuePair = "val" NameId <eq> (<nl>)* PrefixExpr;
 
 Import = "import" ImportExpr (<comma> ImportExpr)*;
 ## Hacking for: ImportExpr = StableId "." (NameId | "_" | ImportSelectors);
@@ -665,11 +667,11 @@ DclDef = ValDclDef
        | FunDclDef
        | TypeDclDef
        | TmplDef;
-ValDclDef = "val" PatDef [<eq> Expr];
-VarDclDef = "var" PatDef [<eq> Expr];
-FunDclDef = "def" NameId [FunTypeParamClause] [ParamClauses] ([":" Type] [<eq> Expr] | <lcurly> BlockStats <rcurly>)
-          | "def" "this" [ParamClauses] (<eq> ConstrExpr | ConstrBlock);
-TypeDclDef = "type" NameId [TypeParamClause] ([">:" Type] ["<:" Type] ["<%" Type] | <eq> Type);
+ValDclDef = "val" PatDef [<eq> (<nl>)* Expr];
+VarDclDef = "var" PatDef [<eq> (<nl>)* Expr];
+FunDclDef = "def" NameId [FunTypeParamClause] [ParamClauses] ([":" Type] [<eq> (<nl>)* Expr] | <lcurly> BlockStats <rcurly>)
+          | "def" "this" [ParamClauses] (<eq> (<nl>)* ConstrExpr | ConstrBlock);
+TypeDclDef = "type" NameId [TypeParamClause] ([">:" Type] ["<:" Type] ["<%" Type] | <eq> (<nl>)* Type);
 
 PatDef = Pattern2 (<comma> Pattern2)* [":" Type] ;
 
