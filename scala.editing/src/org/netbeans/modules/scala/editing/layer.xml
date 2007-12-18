@@ -55,7 +55,7 @@ made subject to such option by the copyright holder.
         <folder name="MIMEResolver">
             <file name="ScalaResolver.xml" url="ScalaResolver.xml">
                 <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.scala.editing.Bundle"/>
-                <attr name="position" intvalue="190"/>
+                <attr name="position" intvalue="1000"/>
             </file>
         </folder>
     </folder>
