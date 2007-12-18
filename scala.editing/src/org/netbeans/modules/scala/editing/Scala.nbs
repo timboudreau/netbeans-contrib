@@ -235,7 +235,7 @@ TOKEN:rcurly: (
 ##          It may not work if apply (<nl>)* before them, so it's better to solve 
 ##          these <nl> in token definition
 TOKEN:dot: (
-    [" " "\t" "\n" "\r"]* "." [" " "\t" "\n" "\r"]*
+    [" " "\t" "\n" "\r"]* "."
 )
 TOKEN:comma: (
     [" " "\t" "\n" "\r"]* ","
@@ -382,21 +382,21 @@ Literal = <integer>
         | "false"
         | "null";
 
-QualId = NameId (<dot> NameId)*;
+QualId = NameId (<dot> (<nl>)* NameId)*;
 
 Ids = NameId (<comma> NameId)*;
 
 ## Hacking for: Path = StableId ["." "this"], since Path is also belongs to SimpleType etc
-StableId = PathId (<dot> PathId)*;
+StableId = PathId (<dot> (<nl>)* PathId)*;
 PathId = NameId
        | "this"
-       | "super" [ClassQualifier] <dot> NameId;
+       | "super" [ClassQualifier] <dot> (<nl>)* NameId;
 ClassQualifier = "[" NameId "]";
 
 ## Hacking for: SimpleType = StableId ["." "type"] (TypeArgs | "#" NameId)*
 ##  "." "type" should only be in SimpleType, but since StableId may also belongs to SimpleType,
 ##  we cannot add any more "." "anything" behind StableId
-TypeStableId = TypeId (<dot> TypeId)*;
+TypeStableId = TypeId (<dot> (<nl>)* TypeId)*;
 TypeId = PathId
        | "_"
        | "type";
@@ -459,9 +459,9 @@ PrefixOp = "-"
          | "~" 
          | "!";
 
-SimpleExpr = SimpleExpr1 (<dot> SimpleExpr1 | SimpleExpr2)*
-           | SimpleExpr2 (<dot> SimpleExpr1 | SimpleExpr2)*
-           | NewExpr     (<dot> SimpleExpr1 | SimpleExpr2)*
+SimpleExpr = SimpleExpr1 (<dot> (<nl>)* SimpleExpr1 | SimpleExpr2)*
+           | SimpleExpr2 (<dot> (<nl>)* SimpleExpr1 | SimpleExpr2)*
+           | NewExpr     (<dot> (<nl>)* SimpleExpr1 | SimpleExpr2)*
            | XmlExpr;
 SimpleExpr1 = PathId (TypeArgs)*
             | Literal (TypeArgs)*;
@@ -653,9 +653,9 @@ ImportExpr = ImportId;
 ImportSelectors = <lcurly> (<nl>)* ImportSelector (<comma> ImportSelector)* <rcurly>;
 ImportSelector = (NameId [<rarrow> (NameId | "_")] | "_");
 
-ImportId = ImportId0 (<dot> ImportId0)*;
+ImportId = ImportId0 (<dot> (<nl>)* ImportId0)*;
 ImportId0 = NameId
-          | "super" [ClassQualifier] <dot> NameId
+          | "super" [ClassQualifier] <dot> (<nl>)* NameId
           | "_"
           | ImportSelectors;
 
