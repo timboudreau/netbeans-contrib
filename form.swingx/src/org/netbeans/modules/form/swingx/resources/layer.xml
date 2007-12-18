@@ -74,6 +74,9 @@ made subject to such option by the copyright holder.
             <file name="JXButton.palette_item" url="JXButton.palette_item">
                 <attr name="position" intvalue="200"/>
             </file>
+            <file name="JXCollapsiblePane.palette_item" url="JXCollapsiblePane.palette_item">
+                <attr name="position" intvalue="300"/>
+            </file>
         </folder>
     </folder>
 
