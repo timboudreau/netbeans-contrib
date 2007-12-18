@@ -188,7 +188,7 @@ TOKEN:with: (
     [" " "\t" "\n" "\r"]* "with"
 )
 TOKEN:yield: (
-    [" " "\t" "\n" "\r"]* "yield" [" " "\t" "\n" "\r"]*
+    [" " "\t" "\n" "\r"]* "yield"
 )
 TOKEN:eq: (
     [" " "\t" "\n" "\r"]* "="
@@ -446,7 +446,7 @@ CtrlExpr = "if" "(" (<nl>)* Expr ")" (<nl>)* Expr [<else> (<nl>)* Expr]
          | "while" "(" (<nl>)* Expr ")" (<nl>)* Expr
          | "try" (<nl>)* <lcurly> (<nl>)* BlockStats <rcurly> [<catch> (<nl>)* <lcurly> (<nl>)* CaseClauses <rcurly>] [<finally> Expr]
          | "do" Expr [Semi] "while" "(" (<nl>)* Expr ")"
-         | "for" ("(" (<nl>)* Enumerators ")" | <lcurly> (<nl>)* Enumerators <rcurly>) (<nl>)* [<yield>] Expr
+         | "for" ("(" (<nl>)* Enumerators ")" | <lcurly> (<nl>)* Enumerators <rcurly>) [<yield>] (<nl>)* Expr
          | "throw" Expr
          | "return" [Expr];
 
