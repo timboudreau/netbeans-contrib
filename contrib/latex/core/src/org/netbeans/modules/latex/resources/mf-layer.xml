@@ -106,6 +106,12 @@ Contributor(s): Jan Lahoda
                 <file name="parser.instance">
                     <attr name="instanceClass" stringvalue="org.netbeans.modules.latex.loop.LaTeXGSFParser" />
                 </file>
+                
+                <file name="language.instance">
+                    <attr name="instanceOf" stringvalue="org.netbeans.api.gsf.GsfLanguage"/>
+                    <attr name="instanceClass" stringvalue="org.netbeans.modules.latex.loop.LaTeXGSFLanguage"/>
+                </file>
+                
             </folder>
         </folder>
     </folder>
