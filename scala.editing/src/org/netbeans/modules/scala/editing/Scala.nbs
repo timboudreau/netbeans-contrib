@@ -865,6 +865,7 @@ BRACE "\":\""
 INDENT "(:)"
 INDENT "{:}"
 INDENT "[:]"
+INDENT ".*(((=>|=)\\s*)[^;,]*)"
 INDENT "\\s*(((if|while)\\s*\\(|else\\s*|else\\s+if\\s*\\(|for\\s*\\(.*\\))[^{;]*)"
 
 BUNDLE "org.netbeans.modules.scala.editing.Bundle"
