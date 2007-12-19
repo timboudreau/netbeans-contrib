@@ -56,12 +56,12 @@ TOKEN:end_element: (
 TOKEN:pi: (
     "<?" - "?>"
 )
-TOKEN:xml_comment: ("<!--" - "-->")
-<DEFAULT>:TOKEN:cdsect_start: ("<![CDATA["):<IN_CDSEC>
+TOKEN:xml_comment: ( "<!--" - "-->" )
+<DEFAULT>:TOKEN:cdsect_start: ( "<![CDATA[" ):<IN_CDSEC>
 <IN_CDSEC> {
-    TOKEN:cddata: ([^"]"]+)
-    TOKEN:cddata: ("]" [^">"])
-    TOKEN:cdsect_end: ("]]>"):<DEFAULT>
+    TOKEN:cddata: ( [^"]"]+ )
+    TOKEN:cddata: ( "]" [^">"] )
+    TOKEN:cdsect_end: ( "]]>" ):<DEFAULT>
 }
 
 #TOKEN:xml: (
@@ -73,7 +73,7 @@ TOKEN:xml_comment: ("<!--" - "-->")
 
 
 
-<DEFAULT>:TOKEN:comment: ("/*"):<IN_COMMENT>
+<DEFAULT>:TOKEN:comment: ( "/*" ):<IN_COMMENT>
 <IN_COMMENT> {
     TOKEN:comment_keyword: (
         "@author" |
@@ -88,13 +88,13 @@ TOKEN:xml_comment: ("<!--" - "-->")
         "@todo" |
         "@version"
     )
-    TOKEN:comment: ("@")
-    TOKEN:comment: ([^"@" "*"]+)
-    TOKEN:comment: ("*" [^"/"])
-    TOKEN:comment: ("*/"):<DEFAULT>
+    TOKEN:comment: ( "@" )
+    TOKEN:comment: ( [^"@" "*"]+ )
+    TOKEN:comment: ( "*" [^"/"] )
+    TOKEN:comment: ( "*/" ):<DEFAULT>
 }
 
-TOKEN:line_comment: ("//" [^"\n" "\r"]*)
+TOKEN:line_comment: ( "//" [^"\n" "\r"]* )
 
 
 ###### keywords
@@ -107,38 +107,38 @@ TOKEN:line_comment: ("//" [^"\n" "\r"]*)
 ## trait try true type val
 ## var while with yield
 ## _ : = => <- <: <% >: # @
-TOKEN:abstract: ("abstract")
-TOKEN:case: ("case")
-TOKEN:class: ("class")
-TOKEN:def: ("def")
-TOKEN:do: ("do")
-TOKEN:false: ("false")
-TOKEN:final: ("final")
-TOKEN:for: ("for")
-TOKEN:if: ("if")
-TOKEN:implicit: ("implicit")
-TOKEN:import: ("import")
-TOKEN:lazy: ("lazy")
-TOKEN:new: ("new")
-TOKEN:null: ("null")
-TOKEN:object: ("object")
-TOKEN:override: ("override")
-TOKEN:package: ("package")
-TOKEN:private: ("private")
-TOKEN:protected: ("protected")
-TOKEN:return: ("return")
-TOKEN:sealed: ("sealed")
-TOKEN:super: ("super")
-TOKEN:this: ("this")
-TOKEN:throw: ("throw")
-TOKEN:trait: ("trait")
-TOKEN:try: ("try")
-TOKEN:true: ("true")
-TOKEN:type: ("type")
-TOKEN:val: ("val")
-TOKEN:var: ("var")
-TOKEN:while: ("while")
-TOKEN:at: ("@")
+TOKEN:abstract: ( "abstract" )
+TOKEN:case: ( "case" )
+TOKEN:class: ( "class" )
+TOKEN:def: ( "def" )
+TOKEN:do: ( "do" )
+TOKEN:false: ( "false" )
+TOKEN:final: ( "final" )
+TOKEN:for: ( "for" )
+TOKEN:if: ( "if" )
+TOKEN:implicit: ( "implicit" )
+TOKEN:import: ( "import" )
+TOKEN:lazy: ( "lazy" )
+TOKEN:new: ( "new" )
+TOKEN:null: ( "null" )
+TOKEN:object: ( "object" )
+TOKEN:override: ( "override" )
+TOKEN:package: ( "package" )
+TOKEN:private: ( "private" )
+TOKEN:protected: ( "protected" )
+TOKEN:return: ( "return" )
+TOKEN:sealed: ( "sealed" )
+TOKEN:super: ( "super" )
+TOKEN:this: ( "this" )
+TOKEN:throw: ( "throw" )
+TOKEN:trait: ( "trait" )
+TOKEN:try: ( "try" )
+TOKEN:true: ( "true" )
+TOKEN:type: ( "type" )
+TOKEN:val: ( "val" )
+TOKEN:var: ( "var" )
+TOKEN:while: ( "while ")
+TOKEN:at: ( "@" )
 
 ## The tokens that can terminate a statement are: literals, identifiers and the following
 ## delimiters and reserved words:
@@ -189,13 +189,13 @@ TOKEN:eq: (
     [" " "\t" "\n" "\r"]* "="
 )
 TOKEN:colon: (
-   [" " "\t" "\n" "\r"]* ":"
+    [" " "\t" "\n" "\r"]* ":"
 )
 TOKEN:hash: (
-   [" " "\t" "\n" "\r"]* "#"
+    [" " "\t" "\n" "\r"]* "#"
 )
 TOKEN:under: (
-   [" " "\t" "\n" "\r"]* "_"
+    [" " "\t" "\n" "\r"]* "_"
 )
 TOKEN:rarrow: (
     [" " "\t" "\n" "\r"]* "=>"
@@ -292,26 +292,26 @@ TOKEN:comma: (
 # varid: lower idrest
 TOKEN:varid: ( 
     ["a"-"z"] 
-    (["a"-"z" "A"-"Z" "$" "_" "0"-"9"])* ("_" ([^" " "\t" "\n" "\r" "[" "]" "(" ")" "," "." ";" "=" ":" "{" "}"])+)?
+    ( ["a"-"z" "A"-"Z" "$" "_" "0"-"9"] )* ( "_" ( [^" " "\t" "\n" "\r" "[" "]" "(" ")" "," "." ";" "=" ":" "{" "}"] )+ )?
 )
 # varid: upper idrest
 TOKEN:upperid: (
     [" " "\t"]* ["_"]
-    (["a"-"z" "A"-"Z" "$" "_" "0"-"9"])+ ("_" ([^" " "\t" "\n" "\r" "[" "]" "(" ")" ","  "." ";" "=" ":" "{" "}"])+)? 
+    ( ["a"-"z" "A"-"Z" "$" "_" "0"-"9"])+ ( "_" ( [^" " "\t" "\n" "\r" "[" "]" "(" ")" ","  "." ";" "=" ":" "{" "}"] )+ )? 
     |
     ["A"-"Z" "$"] 
-    (["a"-"z" "A"-"Z" "$" "_" "0"-"9"])* ("_" ([^" " "\t" "\n" "\r" "[" "]" "(" ")" ","  "." ";" "=" ":" "{" "}"])+)?
+    ( ["a"-"z" "A"-"Z" "$" "_" "0"-"9"])* ( "_" ( [^" " "\t" "\n" "\r" "[" "]" "(" ")" ","  "." ";" "=" ":" "{" "}"] )+ )?
 )
 
 TOKEN:stringid: (
     "\'" ( 
         [^ "\\" "\'" "\n" "\r"] |
-        ("\\" (
+        ( "\\" (
             . |
-            (["0"-"7"] ["0"-"7"] ["0"-"7"]) |
-            ("x" ["0"-"9" "a"-"f" "A"-"F"] ["0"-"9" "a"-"f" "A"-"F"]) |
-            ("u" ["0"-"9" "a"-"f" "A"-"F"] ["0"-"9" "a"-"f" "A"-"F"] ["0"-"9" "a"-"f" "A"-"F"] ["0"-"9" "a"-"f" "A"-"F"])
-        ))
+            ( ["0"-"7"] ["0"-"7"] ["0"-"7"] ) |
+            ( "x" ["0"-"9" "a"-"f" "A"-"F"] ["0"-"9" "a"-"f" "A"-"F"] ) |
+            ( "u" ["0"-"9" "a"-"f" "A"-"F"] ["0"-"9" "a"-"f" "A"-"F"] ["0"-"9" "a"-"f" "A"-"F"] ["0"-"9" "a"-"f" "A"-"F"] )
+        ) )
     )*
     "\'"
 )
@@ -321,44 +321,45 @@ TOKEN:stringid: (
 TOKEN:string: (
     "\"" ( 
         [^ "\\" "\"" "\n" "\r"] |
-        ("\\" (
+        ( "\\" (
             . |
-            (["0"-"7"] ["0"-"7"] ["0"-"7"]) |
-            ("x" ["0"-"9" "a"-"f" "A"-"F"] ["0"-"9" "a"-"f" "A"-"F"]) |
-            ("u" ["0"-"9" "a"-"f" "A"-"F"] ["0"-"9" "a"-"f" "A"-"F"] ["0"-"9" "a"-"f" "A"-"F"] ["0"-"9" "a"-"f" "A"-"F"])
-        ))
+            ( ["0"-"7"] ["0"-"7"] ["0"-"7"] ) |
+            ( "x" ["0"-"9" "a"-"f" "A"-"F"] ["0"-"9" "a"-"f" "A"-"F"] ) |
+            ( "u" ["0"-"9" "a"-"f" "A"-"F"] ["0"-"9" "a"-"f" "A"-"F"] ["0"-"9" "a"-"f" "A"-"F"] ["0"-"9" "a"-"f" "A"-"F"] )
+        ) )
     )* 
     "\""
 )
 TOKEN:string: (
     "\"\"\""
-    (["\""]? ["\""]? [^"\""] |
-     ("\\" 
-      (. |
-       (["0"-"7"] ["0"-"7"] ["0"-"7"]) |
-       ("x" ["0"-"9" "a"-"f" "A"-"F"] ["0"-"9" "a"-"f" "A"-"F"]) |
-       ("u" ["0"-"9" "a"-"f" "A"-"F"] ["0"-"9" "a"-"f" "A"-"F"] ["0"-"9" "a"-"f" "A"-"F"] ["0"-"9" "a"-"f" "A"-"F"])
+    ( ["\""]? ["\""]? [^"\""] |
+      ( "\\" 
+        ( . |
+          ( ["0"-"7"] ["0"-"7"] ["0"-"7"]) |
+          ( "x" ["0"-"9" "a"-"f" "A"-"F"] ["0"-"9" "a"-"f" "A"-"F"] ) |
+          ( "u" ["0"-"9" "a"-"f" "A"-"F"] ["0"-"9" "a"-"f" "A"-"F"] ["0"-"9" "a"-"f" "A"-"F"] ["0"-"9" "a"-"f" "A"-"F"] )
+        )
       )
-     )
     )*
     "\"\"\""
 )
 
 TOKEN:char: (
-    "\'" ( 
-        [^ "\\" "\'" "\n" "\r"] |
-        ("\\" (
-            . |
-            (["0"-"7"] ["0"-"7"] ["0"-"7"]) |
-            ("x" ["0"-"9" "a"-"f" "A"-"F"] ["0"-"9" "a"-"f" "A"-"F"]) |
-            ("u" ["0"-"9" "a"-"f" "A"-"F"] ["0"-"9" "a"-"f" "A"-"F"] ["0"-"9" "a"-"f" "A"-"F"] ["0"-"9" "a"-"f" "A"-"F"])
-        ))
+    "\'" 
+    ( [^ "\\" "\'" "\n" "\r"] |
+      ( "\\" 
+        ( . |
+          ( ["0"-"7"] ["0"-"7"] ["0"-"7"] ) |
+          ( "x" ["0"-"9" "a"-"f" "A"-"F"] ["0"-"9" "a"-"f" "A"-"F"] ) |
+          ( "u" ["0"-"9" "a"-"f" "A"-"F"] ["0"-"9" "a"-"f" "A"-"F"] ["0"-"9" "a"-"f" "A"-"F"] ["0"-"9" "a"-"f" "A"-"F"] )
+        ) 
+      )
     ) 
     "\'"
 )
 
 TOKEN:symbal: (
-    "\'" (["a"-"z" "A"-"Z" "$" "_" "0"-"9"])* ("_" ([^" " "\t" "\n" "\r" "[" "]" "(" ")" "." ";" "="])+)?
+    "\'" ( ["a"-"z" "A"-"Z" "$" "_" "0"-"9"] )* ( "_" ( [^" " "\t" "\n" "\r" "[" "]" "(" ")" "." ";" "="] )+ )?
 )
 
 TOKEN:integer: (
@@ -369,10 +370,10 @@ TOKEN:integer: (
 )
 
 TOKEN:float: (
-    ["0"-"9"]+ "." ["0"-"9"]* (["e" "E"] ["+" "-"]? ["0"-"9"]+)? ["f" "F" "d" "D"]? |
-    "." ["0"-"9"]+ (["e" "E"] ["+" "-"]? ["0"-"9"]+)? ["f" "F" "d" "D"]? |
+    ["0"-"9"]+ "." ["0"-"9"]* ( ["e" "E"] ["+" "-"]? ["0"-"9"]+ )? ["f" "F" "d" "D"]? |
+    "." ["0"-"9"]+ ( ["e" "E"] ["+" "-"]? ["0"-"9"]+ )? ["f" "F" "d" "D"]? |
     ["0"-"9"]+ ["e" "E"] ["+" "-"]? ["0"-"9"]+ ["f" "F" "d" "D"]? |
-    ["0"-"9"]+ (["e" "E"] ["+" "-"]? ["0"-"9"]+)? ["f" "F" "d" "D"]
+    ["0"-"9"]+ ( ["e" "E"] ["+" "-"]? ["0"-"9"]+ )? ["f" "F" "d" "D"]
 )
 
 
