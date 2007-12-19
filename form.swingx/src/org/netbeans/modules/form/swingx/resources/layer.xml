@@ -77,6 +77,9 @@ made subject to such option by the copyright holder.
             <file name="JXCollapsiblePane.palette_item" url="JXCollapsiblePane.palette_item">
                 <attr name="position" intvalue="300"/>
             </file>
+            <file name="JXDatePicker.palette_item" url="JXDatePicker.palette_item">
+                <attr name="position" intvalue="400"/>
+            </file>
         </folder>
     </folder>
 
