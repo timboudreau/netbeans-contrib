@@ -42,46 +42,19 @@ made subject to such option by the copyright holder.
    -->
 <!DOCTYPE filesystem PUBLIC "-//NetBeans//DTD Filesystem 1.1//EN" "http://www.netbeans.org/dtds/filesystem-1_1.dtd">
 <filesystem>
-    <folder name="Actions">
-        <folder name="LaTeX">
-            <file name="org-netbeans-modules-latex-refactoring-actions-FindUsagesAction.instance">
-                <attr name="instanceClass" stringvalue="org.netbeans.modules.latex.refactoring.actions.FindUsagesAction"/>
-            </file>
-            <file name="org-netbeans-modules-latex-refactoring-actions-RenameAction.instance">
-                <attr name="instanceClass" stringvalue="org.netbeans.modules.latex.refactoring.actions.RenameAction"/>
-            </file>
-        </folder>
-    </folder>
-    <folder name="Menu">
-        <folder name="LaTeX">
-            <attr name="org-netbeans-modules-latex-ui-actions-ShowPostInstallWizardAction.shadow/org-netbeans-modules-latex-refactoring-actions-separatorBefore.instance" boolvalue="true"/>
-            <file name="org-netbeans-modules-latex-refactoring-actions-RenameAction.shadow">
-                <attr name="originalFile" stringvalue="Actions/LaTeX/org-netbeans-modules-latex-refactoring-actions-RenameAction.instance"/>
-            </file>
-            <file name="org-netbeans-modules-latex-refactoring-actions-separatorBefore.instance">
-                <attr name="instanceClass" stringvalue="javax.swing.JSeparator"/>
-            </file>
-            <attr name="org-netbeans-modules-latex-refactoring-actions-separatorBefore.instance/org-netbeans-modules-latex-refactoring-actions-FindUsagesAction.shadow" boolvalue="true"/>
-            <file name="org-netbeans-modules-latex-refactoring-actions-FindUsagesAction.shadow">
-                <attr name="originalFile" stringvalue="Actions/LaTeX/org-netbeans-modules-latex-refactoring-actions-FindUsagesAction.instance"/>
-            </file>
-            <attr name="org-netbeans-modules-latex-refactoring-actions-FindUsagesAction.shadow/org-netbeans-modules-latex-refactoring-actions-RenameAction.shadow" boolvalue="true"/>
-            <attr name="org-netbeans-modules-latex-refactoring-actions-RenameAction.shadow/org-netbeans-modules-latex-refactoring-actions-separatorBefore.instance" boolvalue="false"/>
-        </folder>
-    </folder>
     <folder name="Editors">
         <folder name="text">
             <folder name="x-tex">
                 <folder name="Popup">
-                    <attr name="Separatorb-tc.instance/org-netbeans-modules-latex-refactoring-actions-FindUsagesAction.shadow" boolvalue="true"/>
-                    <file name="org-netbeans-modules-latex-refactoring-actions-FindUsagesAction.shadow">
-                        <attr name="originalFile" stringvalue="Actions/LaTeX/org-netbeans-modules-latex-refactoring-actions-FindUsagesAction.instance"/>
+                    <attr name="Separatorb-tc.instance/RefactoringWhereUsed.instance" boolvalue="true"/>
+                    <file name="RefactoringWhereUsed.instance">
+                        <attr name="instanceCreate" methodvalue="org.netbeans.modules.refactoring.api.ui.RefactoringActionsFactory.whereUsedAction"/>
                     </file>
-                    <attr name="org-netbeans-modules-latex-refactoring-actions-FindUsagesAction.shadow/org-netbeans-modules-latex-refactoring-actions-RenameAction.shadow" boolvalue="true"/>
-                    <file name="org-netbeans-modules-latex-refactoring-actions-RenameAction.shadow">
-                        <attr name="originalFile" stringvalue="Actions/LaTeX/org-netbeans-modules-latex-refactoring-actions-RenameAction.instance"/>
+                    <attr name="RefactoringWhereUsed.instance/RefactoringRename.instance" boolvalue="true"/>
+                    <file name="RefactoringRename.instance">
+                        <attr name="instanceCreate" methodvalue="org.netbeans.modules.refactoring.api.ui.RefactoringActionsFactory.renameAction"/>
                     </file>
-                    <attr name="org-netbeans-modules-latex-refactoring-actions-RenameAction.shadow/Separatorc.instance" boolvalue="true"/>
+                    <attr name="RefactoringRename.instance/Separatorc.instance" boolvalue="true"/>
                     <file name="Separatorc.instance">
                         <attr name="instanceClass" stringvalue="javax.swing.JSeparator"/>
                     </file>
