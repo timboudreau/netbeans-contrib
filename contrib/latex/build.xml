@@ -48,7 +48,7 @@ made subject to such option by the copyright holder.
     <import file="nbproject/build-impl.xml"/>
 
     <target name="test">
-        <subant target="test" buildpath="core:bibtex:completion:guiproject:refactoring:hints" inheritall="false" failonerror="false">
+        <subant target="test" buildpath="core:editor:bibtex:completion:guiproject:refactoring:hints" inheritall="false" failonerror="false">
 	    <property name="test-unit-sys-prop.nbjunit.workdir" location="${java.io.tmpdir}/latex/tests" />
 	</subant>
         
