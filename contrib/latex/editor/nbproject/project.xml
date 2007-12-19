@@ -240,6 +240,11 @@ made subject to such option by the copyright holder.
                     </run-dependency>
                 </dependency>
             </module-dependencies>
+            <test-dependencies>
+                <test-type>
+                    <name>unit</name>
+                </test-type>
+            </test-dependencies>
             <friend-packages>
                 <friend>org.netbeans.modules.latex.ui</friend>
                 <package>org.netbeans.modules.latex.editor</package>

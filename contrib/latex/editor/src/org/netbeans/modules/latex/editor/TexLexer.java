@@ -79,7 +79,7 @@ public class TexLexer implements Lexer<TexTokenId> {
         return Integer.valueOf(state);
     }
     
-    private static final String SPECIAL_COMMAND_CHARS = "{}\\ []'`^\"~=.()|"; // NOI18N
+    private static final String SPECIAL_COMMAND_CHARS = "{}\\ []'`^\"~=.()|%"; // NOI18N
     
     protected boolean isEOF(int read) {
         return (read == LexerInput.EOF) || (read == 65535 /*this is some nasty bug. no time for investigate it. it was in my code. should no be needed - remove when everything all is done.*/);

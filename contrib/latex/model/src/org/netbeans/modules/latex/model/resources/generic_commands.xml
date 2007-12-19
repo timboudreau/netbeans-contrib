@@ -66,6 +66,9 @@ made subject to such option by the copyright holder.
 <command name="\|">
 </command>
 
+<command name="\%">
+</command>
+
 <command name="\index">
   <argument type="mandatory">
     <attribute name="#text" value="true" />
