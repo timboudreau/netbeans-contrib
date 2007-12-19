@@ -498,15 +498,23 @@ PrefixOp = "-"
          | "~" 
          | "!";
 
-SimpleExpr = SimpleExpr1 (<dot> (<nl>)* SimpleExpr1 | SimpleExpr2)*
-           | SimpleExpr2 (<dot> (<nl>)* SimpleExpr1 | SimpleExpr2)*
-           | NewExpr     (<dot> (<nl>)* SimpleExpr1 | SimpleExpr2)*
+SimpleExpr = TypedPathId    (<dot> (<nl>)* TypedPathId | TypedArguments)*
+           | TypedLiteral   (<dot> (<nl>)* TypedPathId | TypedArguments)*
+           | TypedWildCard  (<dot> (<nl>)* TypedPathId | TypedArguments)*
+           | TypedPrthsBody (<dot> (<nl>)* TypedPathId | TypedArguments)*
+           | TypedBlockBody (<dot> (<nl>)* TypedPathId)*
+           | NewExpr        (<dot> (<nl>)* TypedPathId | TypedArguments)*
            | XmlExpr;
-SimpleExpr1 = PathId (TypeArgs)*
-            | Literal (TypeArgs)*;
-SimpleExpr2 = <under> (TypeArgs)*
-            | PrthsBody (TypeArgs)*
-            | BlockBody (TypeArgs)*;
+
+TypedPathId    = PathId    (TypeArgs)*;
+TypedLiteral   = Literal   (TypeArgs)*;
+TypedWildCard  = <under>   (TypeArgs)*;
+TypedPrthsBody = PrthsBody (TypeArgs)*;
+TypedBlockBody = BlockBody (TypeArgs)*;
+
+TypedArguments = TypedWildCard
+               | TypedPrthsBody
+               | TypedBlockBody;
 
 ## Hacking for: "new" ([EarlyDef] ClassParents [TemplateBody] | TemplateBody)
 ## Since EalyBody and TemplateBody all start with "{" and TemplateBody is super set of EarlyBody,
