@@ -369,8 +369,18 @@ TOKEN:integer: (
     "0" ["x" "X"] ["0"-"9" "a"-"f" "A"-"F"]+ ['l' 'L']? 
 )
 
+## Hacking for: ["0"-"9"]+ "." ["0"-"9"]* ( ["e" "E"] ["+" "-"]? ["0"-"9"]+ )? ["f" "F" "d" "D"]? |
+## In sepacial case, for example: 9.seconds, should be scanned as integer 9 followed by "."
+## So, we write the regex as:
+##    ["0"-"9"]+ "." [" " "\t"]+ |
+##    ["0"-"9"]+ "." ["0"-"9"]+ ( ["e" "E"] ["+" "-"]? ["0"-"9"]+ )? ["f" "F" "d" "D"]? |
+##    ["0"-"9"]+ "." ["e" "E"] ["+" "-"]? ["0"-"9"]+ ["f" "F" "d" "D"]? |
+## "." must followed by float content, a "9." is scanned as float only when followed by whitespace
+## @TODO "9." followed by <nl>: a float or may be an integer that can be followed by operator? 
 TOKEN:float: (
-    ["0"-"9"]+ "." ["0"-"9"]* ( ["e" "E"] ["+" "-"]? ["0"-"9"]+ )? ["f" "F" "d" "D"]? |
+    ["0"-"9"]+ "." [" " "\t"]+ |
+    ["0"-"9"]+ "." ["0"-"9"]+ ( ["e" "E"] ["+" "-"]? ["0"-"9"]+ )? ["f" "F" "d" "D"]? |
+    ["0"-"9"]+ "." ["e" "E"] ["+" "-"]? ["0"-"9"]+ ["f" "F" "d" "D"]? |
     "." ["0"-"9"]+ ( ["e" "E"] ["+" "-"]? ["0"-"9"]+ )? ["f" "F" "d" "D"]? |
     ["0"-"9"]+ ["e" "E"] ["+" "-"]? ["0"-"9"]+ ["f" "F" "d" "D"]? |
     ["0"-"9"]+ ( ["e" "E"] ["+" "-"]? ["0"-"9"]+ )? ["f" "F" "d" "D"]
