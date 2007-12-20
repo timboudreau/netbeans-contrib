@@ -92,7 +92,7 @@ TOKEN:xml_comment: ( "<!--" - "-->" )
     TOKEN:comment: ( [^"@" "*"]+ )
     TOKEN:comment: ( "*" [^"/"] )
     TOKEN:comment: ( "*/" ):<DEFAULT>
-}
+    }
 
 TOKEN:line_comment: ( "//" [^"\n" "\r"]* )
 
@@ -194,8 +194,9 @@ TOKEN:colon: (
 TOKEN:hash: (
     [" " "\t" "\n" "\r"]* "#"
 )
+## don't add [" " "\t" "\n" "\r"]* before "_", otherwise the "_" begin varid will not be scanned properly 
 TOKEN:under: (
-    [" " "\t" "\n" "\r"]* "_"
+    "_"
 )
 TOKEN:rarrow: (
     [" " "\t" "\n" "\r"]* "=>"
@@ -296,7 +297,7 @@ TOKEN:varid: (
 )
 # varid: upper idrest
 TOKEN:upperid: (
-    [" " "\t"]* ["_"]
+    ["_"]
     ( ["a"-"z" "A"-"Z" "$" "_" "0"-"9"])+ ( "_" ( [^" " "\t" "\n" "\r" "[" "]" "(" ")" ","  "." ";" "=" ":" "{" "}"] )+ )? 
     |
     ["A"-"Z" "$"] 
@@ -541,9 +542,14 @@ Arguments = ParenExpr
 
 ## Hacking for: Prths = "(" [Expr ("," Expr)* [","]] ")";
 ## To let a optional [","] at the end, we just let PrthsExpr can be empty
-ParenExpr = <lparen> (<nl>)* ExprInParen (<comma> (<nl>)* ExprInParen)* (<nl>)* <rparen>;
+## @NOTICE 
+## Although "," is used to separator one expr, but, all <nl> in parenthsis should be ignor,
+## so, we use (ExprInParen)+ here, and let ExprInParen include <nl>.
+## ** Should combine them to one expr in semantic analyzer **
+ParenExpr = <lparen> (<nl>)* (ExprInParen)+ (<comma> (<nl>)* (ExprInParen)+)* (<nl>)* <rparen>;
 ExprInParen = CtrlExpr
             | PostfixExpr [AscriptionInPrths [<rarrow> (<nl>)* Expr] | <match> (<nl>)* <lbrace> (<nl>)* CaseClauses <rbrace> | <eq> (<nl>)* Expr | <rarrow> (<nl>)* Expr]
+            | <nl>
             | ;
 ## Hacking for: Ascription and Binding;
 ##     Ascription = ":" (CompoundType | (Annotation)+ | "_" "*")
