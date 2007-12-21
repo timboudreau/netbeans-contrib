@@ -1,42 +1,20 @@
 /*
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
+ * The contents of this file are subject to the terms of the Common Development
+ * and Distribution License (the License). You may not use this file except in
+ * compliance with the License.
  *
- * Copyright 1997-2007 Sun Microsystems, Inc. All rights reserved.
+ * You can obtain a copy of the License at http://www.netbeans.org/cddl.html
+ * or http://www.netbeans.org/cddl.txt.
  *
- * The contents of this file are subject to the terms of either the GNU
- * General Public License Version 2 only ("GPL") or the Common
- * Development and Distribution License("CDDL") (collectively, the
- * "License"). You may not use this file except in compliance with the
- * License. You can obtain a copy of the License at
- * http://www.netbeans.org/cddl-gplv2.html
- * or nbbuild/licenses/CDDL-GPL-2-CP. See the License for the
- * specific language governing permissions and limitations under the
- * License.  When distributing the software, include this License Header
- * Notice in each file and include the License file at
- * nbbuild/licenses/CDDL-GPL-2-CP.  Sun designates this
- * particular file as subject to the "Classpath" exception as provided
- * by Sun in the GPL Version 2 section of the License file that
- * accompanied this code. If applicable, add the following below the
- * License Header, with the fields enclosed by brackets [] replaced by
- * your own identifying information:
+ * When distributing Covered Code, include this CDDL Header Notice in each file
+ * and include the License file at http://www.netbeans.org/cddl.txt.
+ * If applicable, add the following below the CDDL Header, with the fields
+ * enclosed by brackets [] replaced by your own identifying information:
  * "Portions Copyrighted [year] [name of copyright owner]"
- *
- * Contributor(s):
  *
  * The Original Software is NetBeans. The Initial Developer of the Original
  * Software is Sun Microsystems, Inc. Portions Copyright 1997-2007 Sun
  * Microsystems, Inc. All Rights Reserved.
- *
- * If you wish your version of this file to be governed by only the CDDL
- * or only the GPL Version 2, indicate your decision by adding
- * "[Contributor] elects to include this software in this distribution
- * under the [CDDL or GPL Version 2] license." If you do not indicate a
- * single choice of license, a recipient has the option to distribute
- * your version of this file under either the CDDL, the GPL Version 2 or
- * to extend the choice of license to its licensees as provided above.
- * However, if you add GPL Version 2 code and therefore, elected the GPL
- * Version 2 license, then the option applies only if the new code is
- * made subject to such option by the copyright holder.
  */
 package org.netbeans.modules.edm.project.anttasks;
 
@@ -60,15 +38,15 @@ import org.netbeans.modules.sql.framework.model.SQLDefinition;
 import org.netbeans.modules.sql.framework.model.SQLDBTable;
 import com.sun.sql.framework.utils.StringUtil;
 import com.sun.sql.framework.exception.BaseException;
-import org.netbeans.modules.model.database.DBConnectionDefinition;
-import org.netbeans.modules.model.database.DBTable;
-import org.netbeans.modules.model.database.DatabaseModel;
-import org.netbeans.modules.sql.framework.evaluators.database.DB;
-import org.netbeans.modules.sql.framework.evaluators.database.DBFactory;
-import org.netbeans.modules.sql.framework.evaluators.database.StatementContext;
-import org.netbeans.modules.sql.framework.evaluators.database.axion.AxionDB;
-import org.netbeans.modules.sql.framework.evaluators.database.axion.AxionPipelineStatements;
-import org.netbeans.modules.sql.framework.evaluators.database.axion.AxionStatements;
+import org.netbeans.modules.sql.framework.model.DBConnectionDefinition;
+import org.netbeans.modules.sql.framework.model.DBTable;
+import org.netbeans.modules.sql.framework.model.DatabaseModel;
+import org.netbeans.modules.sql.framework.codegen.DB;
+import org.netbeans.modules.sql.framework.codegen.DBFactory;
+import org.netbeans.modules.sql.framework.codegen.StatementContext;
+import org.netbeans.modules.sql.framework.codegen.axion.AxionDB;
+import org.netbeans.modules.sql.framework.codegen.axion.AxionPipelineStatements;
+import org.netbeans.modules.sql.framework.codegen.axion.AxionStatements;
 import org.netbeans.modules.sql.framework.model.SQLConstants;
 import org.netbeans.modules.sql.framework.model.SQLJoinView;
 import org.netbeans.modules.sql.framework.model.SourceTable;
@@ -119,7 +97,7 @@ public class EngineFileGenerator  {
             db = (AxionDB) DBFactory.getInstance().getDatabase(DB.AXIONDB);
             stmts = (AxionStatements) db.getStatements();
             pipelineStmts = db.getAxionPipelineStatements();
-            linkTableMap = new HashMap<DBConnectionDefinition, String>();              
+            linkTableMap = new HashMap<DBConnectionDefinition, String>();           
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -141,8 +119,8 @@ public class EngineFileGenerator  {
         StatementContext context = new StatementContext();
         context.setUsingFullyQualifiedTablePrefix(false);
         context.setUsingUniqueTableName(table, true);
-        String localName = db.getUnescapedName(db.getEvaluatorFactory().evaluate(table, context));
-        String createSql = getCreateRemoteTableSQL(table, localName, linkName); 
+        String localName = db.getUnescapedName(db.getGeneratorFactory().generate(table, context));
+        String createSql = getCreateRemoteTableSQL(table, localName, linkName);
         String dropSql = this.getDropExternalTableSQL(table, localName, true, context);
         this.edmProcessDef.addVTableNode(localName, String.valueOf(table.getObjectType()), dropSql, createSql);
     }
@@ -164,7 +142,6 @@ public class EngineFileGenerator  {
         def.parseXML(root);
         
         SQLDefinition sqlDefinition = def.getSQLDefinition();
-        
         populateConnectionDefinitions(sqlDefinition);
         DBConnectionDefinition tgtConnDef = ((SQLDBModel)
                 sqlDefinition.getTargetDatabaseModels().get(0)).getConnectionDefinition();
@@ -200,10 +177,7 @@ public class EngineFileGenerator  {
             }
         }
         
-        
-        String engineContent = this.edmProcessDef.generateEngineFile();       
-       
-       
+        String engineContent = this.edmProcessDef.generateEngineFile();
         fos = new FileOutputStream(engineFile);        
         fos.write(engineContent.getBytes("UTF-8"));
         fos.flush();
