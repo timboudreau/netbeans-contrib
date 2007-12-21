@@ -55,12 +55,17 @@ made subject to such option by the copyright holder.
   </folder>
 
     <folder name="Menu">
-       <folder name="LaTeX">
+       <folder name="Help">
            <file name="org-netbeans-modules-latex-ui-actions-ShowPostInstallWizardAction.shadow">
 	        <attr name="originalFile" stringvalue="Actions/LaTeX/org-netbeans-modules-latex-editor-completion-latex-help-InstallHelpAction.instance"/>
+                <attr name="position" intvalue="1190"/>
            </file>
            
-           <attr name="org-netbeans-modules-latex-ui-actions-ShowPostInstallWizardAction.shadow/org-netbeans-modules-latex-refactoring-actions-separatorBefore.instance" boolvalue="true"/>
+            <file name="SeparatorAfterLaTeXItems.instance">
+                <attr name="instanceClass" stringvalue="javax.swing.JSeparator"/>
+                <attr name="position" intvalue="1195"/>
+            </file>
+            
         </folder>
     </folder>
 

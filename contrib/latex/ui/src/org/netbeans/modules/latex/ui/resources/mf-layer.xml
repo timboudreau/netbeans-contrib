@@ -76,29 +76,32 @@ Contributor(s): Jan Lahoda
            </file>
            <attr name="PrintToLaTeX.instance/Separator4.instance" boolvalue="true"/>
        </folder>
-       <folder name="LaTeX">
-          <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.latex.ui.Bundle"/>
+       <folder name="Edit">
            <folder name="Bibliography">
                <file name="CiteAction.instance">
                     <attr name="instanceClass" stringvalue="org.netbeans.modules.latex.ui.actions.CiteAction"/>
                </file>
+               
+               <attr name="position" intvalue="3020"/>
            </folder>
            
-           <file name="CountWordsAction.instance">
-                <attr name="instanceClass" stringvalue="org.netbeans.modules.latex.ui.actions.CountWordsAction"/>
-           </file>
             <folder name="References">
                <file name="RefAction.instance">
                     <attr name="instanceClass" stringvalue="org.netbeans.modules.latex.ui.actions.RefAction"/>
                </file>
+               
+               <attr name="position" intvalue="3040"/>
            </folder>
-            <file name="org-netbeans-modules-latex-ui-actions-GoToFileAction.instance"/>
+           
+            <file name="SeparatorAfterLaTeXItems.instance">
+                <attr name="instanceClass" stringvalue="javax.swing.JSeparator"/>
+                <attr name="position" intvalue="3060"/>
+            </file>
         </folder>
     </folder>
 
     <folder name="Actions">
         <folder name="LaTeX">
-           <file name="org-netbeans-modules-latex-ui-actions-GoToFileAction.instance"/>
            <file name="org-netbeans-modules-latex-ui-actions-CountWordsAction.instance"/>
            <file name="org-netbeans-modules-latex-ui-actions-CiteAction.instance"/>
            <file name="org-netbeans-modules-latex-ui-actions-RefAction.instance"/>
@@ -177,9 +180,6 @@ Contributor(s): Jan Lahoda
     </folder>
     
     <folder name="Shortcuts">
-        <file name="AS-P.instance">
-            <attr name="instanceClass" stringvalue="org.netbeans.modules.latex.ui.actions.GoToFileAction"/>
-        </file>
         <file name="AS-W.instance">
             <attr name="instanceClass" stringvalue="org.netbeans.modules.latex.ui.actions.CountWordsAction"/>
         </file>

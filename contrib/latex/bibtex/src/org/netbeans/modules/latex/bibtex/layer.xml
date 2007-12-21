@@ -43,7 +43,7 @@ made subject to such option by the copyright holder.
 -->
 <filesystem>
     <folder name="Menu">
-       <folder name="LaTeX">
+       <folder name="Edit">
             <folder name="Bibliography">
                 <file name="org-netbeans-modules-latex-bibtex-EditEntryAction.instance" />
                 <file name="org-netbeans-modules-latex-bibtex-NewEntryAction.instance" />
