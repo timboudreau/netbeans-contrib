@@ -42,7 +42,6 @@ package org.netbeans.modules.codetemplatetools.ui.view;
 
 import java.awt.Toolkit;
 import java.awt.Window;
-import java.awt.event.InputEvent;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
@@ -56,19 +55,14 @@ import javax.swing.JDialog;
 import javax.swing.JEditorPane;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
-import javax.swing.KeyStroke;
 import javax.swing.ListModel;
 import javax.swing.SwingUtilities;
 import javax.swing.filechooser.FileFilter;
 import javax.swing.text.Document;
 import javax.swing.text.Position;
-import org.netbeans.api.editor.mimelookup.MimeLookup;
-import org.netbeans.api.editor.mimelookup.MimePath;
 import org.netbeans.lib.editor.codetemplates.api.CodeTemplate;
 import org.netbeans.lib.editor.codetemplates.api.CodeTemplateManager;
-import org.netbeans.modules.editor.options.BaseOptions;
 import org.openide.ErrorManager;
-import org.openide.util.Lookup;
 import org.openide.windows.WindowManager;
 import org.openide.xml.XMLUtil;
 import org.w3c.dom.Element;
@@ -138,22 +132,8 @@ public class CodeTemplatesPanel extends javax.swing.JPanel {
     private void deleteTemplates(CodeTemplate[] templates) {
         if (templates == null) {
             return;
-        }        
-
-        Class kitClass = editorPane.getEditorKit().getClass();
-        BaseOptions baseOptions = (BaseOptions) BaseOptions.getOptions(kitClass);
-        Map abbreviationsMap = baseOptions.getAbbrevMap();
-        if (abbreviationsMap == null) {
-            // ?
-            return;
         }
-        for (CodeTemplate template : templates) {
-            String templateName = template.getAbbreviation();
-            if (templateName != null && templateName.length() > 0) {
-                abbreviationsMap.remove(templateName);
-            }
-        }        
-        baseOptions.setAbbrevMap(abbreviationsMap);
+        CodeTemplateUtils.deleteTemplates(editorPane, templates);
         loadModel();
     }
 
@@ -185,11 +165,12 @@ public class CodeTemplatesPanel extends javax.swing.JPanel {
     }
 
     /** Elements */
-    private static final String TAG_ROOT = "abbrevs"; //NOI18N
-    private static final String TAG_ABBREV = "abbrev"; //NOI18N
+    private static final String TAG_CODE_TEMPLATES = "codetemplates"; //NOI18N
+    private static final String TAG_CODE_TEMPLATE = "codetemplate"; //NOI18N
+    private static final String TAG_CODE = "code"; //NOI18N
     
     /** Attributes */
-    private static final String ATTR_KEY = "key"; //NOI18N
+    private static final String ATTR_ABBREVIATION = "abbreviation"; //NOI18N
     private static final String ATTR_ACTION = "action"; //NOI18N
     private static final String ATTR_REMOVE = "remove"; //NOI18N
     private static final String ATTR_XML_SPACE = "xml:space"; //NOI18N    
@@ -232,27 +213,27 @@ public class CodeTemplatesPanel extends javax.swing.JPanel {
             try {
                 Element rootElement = null;
                 if (file.isDirectory() && file.getName().endsWith(".tmbundle")) { // NOI18N
-                    // No generics - still must be compilable on 5.5
-                    String defaultMimeType = editorPane.getEditorKit().getContentType();
-                    Map/*<String,Map<String,String>>*/ propsByMime = new TmBundleImport().importBundle(file, defaultMimeType);
-                    Iterator/*<Map.Entry>*/ it = propsByMime.entrySet().iterator();
-                    while (it.hasNext()) {
-                        Map.Entry entry = (Map.Entry)it.next();
-                        String mimeType = (String)entry.getKey();
-                        Map/*<String,String>*/ props = (Map)entry.getValue();
-                        
-                        Lookup lookup = MimeLookup.getLookup(MimePath.get(mimeType));
-                        BaseOptions baseOptions = lookup.lookup(BaseOptions.class);
-                        Map abbreviationsMap = baseOptions.getAbbrevMap();
-                        if (abbreviationsMap == null) {
-                            abbreviationsMap = props;
-                        } else {
-                            abbreviationsMap.putAll(props);
-                        }
-                        baseOptions.setAbbrevMap(abbreviationsMap);
-                        loadModel();
-                    }
-                        
+                    // TODO for tor
+//                    // No generics - still must be compilable on 5.5
+//                    String defaultMimeType = editorPane.getEditorKit().getContentType();
+//                    Map/*<String,Map<String,String>>*/ propsByMime = new TmBundleImport().importBundle(file, defaultMimeType);
+//                    Iterator/*<Map.Entry>*/ it = propsByMime.entrySet().iterator();
+//                    while (it.hasNext()) {
+//                        Map.Entry entry = (Map.Entry)it.next();
+//                        String mimeType = (String)entry.getKey();
+//                        Map/*<String,String>*/ props = (Map)entry.getValue();
+//                        
+//                        Lookup lookup = MimeLookup.getLookup(MimePath.get(mimeType));
+//                        BaseOptions baseOptions = lookup.lookup(BaseOptions.class);
+//                        Map abbreviationsMap = baseOptions.getAbbrevMap();
+//                        if (abbreviationsMap == null) {
+//                            abbreviationsMap = props;
+//                        } else {
+//                            abbreviationsMap.putAll(props);
+//                        }
+//                        CodeTemplateUtils.saveTemplates(editorPane, abbreviationsMap);
+//                        loadModel();
+//                    }
                     return;
                 } else {
                     InputSource inputSource = new InputSource(new FileReader(file));
@@ -260,39 +241,41 @@ public class CodeTemplatesPanel extends javax.swing.JPanel {
                     rootElement = doc.getDocumentElement();
                 }
 
-                if (!TAG_ROOT.equals(rootElement.getTagName())) {
+                if (!TAG_CODE_TEMPLATES.equals(rootElement.getTagName())) {
                     // Wrong root element
                     return;
                 }
                 Map properties = new HashMap();
                 Map mapa = new HashMap();
 
-                NodeList abbr = rootElement.getElementsByTagName(TAG_ABBREV);
-                int len = abbr.getLength();
+                NodeList codeTemplates = rootElement.getElementsByTagName(TAG_CODE_TEMPLATE);
+                int len = codeTemplates.getLength();
                 for (int i=0; i < len; i++){
-                    Node node = abbr.item(i);
-                    Element FCElement = (Element)node;
+                    Node node = codeTemplates.item(i);
+                    Element element = (Element)node;
 
-                    if (FCElement == null){
+                    if (element == null){
                         continue;
                     }
 
-                    String key       = FCElement.getAttribute(ATTR_KEY);
-                    String delete    = FCElement.getAttribute(ATTR_REMOVE);
+                    String abbbreviation = element.getAttribute(ATTR_ABBREVIATION);
+                    String remove    = element.getAttribute(ATTR_REMOVE);
                     String expanded  = "";
-
-                    if (! Boolean.valueOf(delete).booleanValue()){
-                        NodeList textList = FCElement.getChildNodes();
-                        if (textList.getLength() > 0) {
-                            Node subNode = textList.item(0);
-                            if (subNode instanceof Text) {
-                                Text textNode = (Text) subNode;
-                                expanded = textNode.getData();
+                    // Skip removed
+                    if (! Boolean.valueOf(remove).booleanValue()){
+                        NodeList codeList = element.getElementsByTagName(TAG_CODE);
+                        if (codeList.getLength() > 0) {
+                            Node codeNode = codeList.item(0);
+                            Node codeText = codeNode.getFirstChild();
+                            if (codeText instanceof Text) {
+                                expanded = ((Text) codeText).getData();
                             }
+                        } else {
+                            continue;
                         }
                     }
 
-                    properties.put(key, expanded);
+                    properties.put(abbbreviation, expanded);
                 }
 
                 if (properties.size()>0){
@@ -317,7 +300,7 @@ public class CodeTemplatesPanel extends javax.swing.JPanel {
                 //    CreateCodeTemplatePanel.saveTemplate(editorPane, key, value, true);
                 //}
                 // Do a single batch save
-                CreateCodeTemplatePanel.saveTemplates(editorPane, mapa);
+                CodeTemplateUtils.saveTemplates(editorPane, mapa);
                 loadModel();
             } catch (FileNotFoundException ex) {
                 ErrorManager.getDefault().notify(ex);

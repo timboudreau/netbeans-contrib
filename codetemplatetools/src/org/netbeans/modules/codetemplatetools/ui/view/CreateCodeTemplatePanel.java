@@ -44,6 +44,9 @@ import java.awt.Toolkit;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
 import javax.swing.JDialog;
@@ -55,11 +58,13 @@ import javax.swing.event.CaretListener;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.text.BadLocationException;
+
+import org.netbeans.api.editor.mimelookup.MimePath;
 import org.netbeans.lib.editor.codetemplates.api.CodeTemplate;
 import org.netbeans.lib.editor.codetemplates.spi.CodeTemplateParameter;
 import org.netbeans.modules.codetemplatetools.SelectionCodeTemplateProcessor;
-import org.netbeans.modules.editor.options.BaseOptions;
 import org.openide.ErrorManager;
+import org.openide.util.Lookup;
 import org.openide.windows.WindowManager;
 
 /**
@@ -240,59 +245,15 @@ public class CreateCodeTemplatePanel extends javax.swing.JPanel {
         try {
             String templateName = templateNameTextField.getText().trim();
             String templateText = templateTextEditorPane.getText();
-            saveTemplate(editorPane, templateName, templateText, modifying);
+            CodeTemplateUtils.saveTemplate(editorPane, templateName, templateText, modifying);
         } finally {
             done();
         }
     }
     
     static void saveTemplate(JEditorPane editorPane, String templateName, String templateText) {
-        saveTemplate(editorPane, templateName, templateText, true);
+        CodeTemplateUtils.saveTemplate(editorPane, templateName, templateText, true);
     }
-    
-    static void saveTemplate(JEditorPane editorPane, String templateName, String templateText, boolean modifying) {
-        if (templateName.length() == 0) {
-            return;
-        }
-        Class kitClass = editorPane.getEditorKit().getClass();
-        BaseOptions baseOptions = (BaseOptions) BaseOptions.getOptions(kitClass);
-        Map abbreviationsMap = baseOptions.getAbbrevMap();
-        if (abbreviationsMap == null) {
-            abbreviationsMap = new HashMap();
-        } else {
-            if (!modifying) {
-                String existingTemplateText = (String) abbreviationsMap.get(templateName);
-                if (existingTemplateText != null) {
-                    if  (JOptionPane.showConfirmDialog(WindowManager.getDefault().getMainWindow(),
-                    "Code Template " + templateName + " already exists. Overwrite?",
-                    "Overwrite exiting Code Template",
-                    JOptionPane.OK_CANCEL_OPTION) != JOptionPane.OK_OPTION) {
-                        return;
-                    }
-                    // fall through
-                }
-            }
-        }
-        abbreviationsMap.put(templateName, templateText);
-        baseOptions.setAbbrevMap(abbreviationsMap);
-    }
-
-    // Batch save all the given abbreviations into the map for the given editor's mimetype
-    static void saveTemplates(JEditorPane editorPane, Map<String,String> abbrevs) {
-        if (abbrevs.size() == 0) {
-            return;
-        }
-        Class kitClass = editorPane.getEditorKit().getClass();
-        BaseOptions baseOptions = (BaseOptions) BaseOptions.getOptions(kitClass);
-        Map abbreviationsMap = baseOptions.getAbbrevMap();
-        if (abbreviationsMap == null) {
-            abbreviationsMap = abbrevs;
-        } else {
-            abbreviationsMap.putAll(abbrevs);
-        }
-        baseOptions.setAbbrevMap(abbreviationsMap);
-    }
-    
     
     private void cancel() {
         done();

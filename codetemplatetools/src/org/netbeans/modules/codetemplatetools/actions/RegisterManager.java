@@ -43,9 +43,7 @@ package org.netbeans.modules.codetemplatetools.actions;
 import java.awt.BorderLayout;
 import java.awt.Toolkit;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.Iterator;
-import java.util.Map;
 import javax.swing.JComboBox;
 import javax.swing.JEditorPane;
 import javax.swing.JLabel;
@@ -55,7 +53,7 @@ import javax.swing.SwingUtilities;
 import javax.swing.text.Document;
 import org.netbeans.lib.editor.codetemplates.api.CodeTemplate;
 import org.netbeans.lib.editor.codetemplates.api.CodeTemplateManager;
-import org.netbeans.modules.editor.options.BaseOptions;
+import org.netbeans.modules.codetemplatetools.ui.view.CodeTemplateUtils;
 import org.openide.windows.WindowManager;
 
 /**
@@ -235,17 +233,6 @@ public class RegisterManager {
     }
     
     private static void setRegisterValue(JEditorPane editorPane, String register, String text) {
-        Class kitClass = editorPane.getEditorKit().getClass();
-        BaseOptions baseOptions = (BaseOptions) BaseOptions.getOptions(kitClass);
-        if (baseOptions == null) {
-            beep();
-            return;
-        }
-        Map abbreviationsMap = baseOptions.getAbbrevMap();
-        if (abbreviationsMap == null) {
-            abbreviationsMap = new HashMap();
-        }
-        abbreviationsMap.put(REGISTER_PREFIX + register, text);
-        baseOptions.setAbbrevMap(abbreviationsMap);
+        CodeTemplateUtils.saveTemplate(editorPane, REGISTER_PREFIX + register, text, true);        
     }
 }

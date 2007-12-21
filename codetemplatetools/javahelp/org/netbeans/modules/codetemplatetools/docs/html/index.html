@@ -85,13 +85,16 @@
         <ul>
             <li>Invoke <img alt="Show Templates ..." src="templates.gif"/> <b>Show Templates...</b> action </li>
             <li>Click on <b>Import...</b> to import code templates</li>
-            <li>Select the xml file containing code templates. The xml file format is same as the <code>.netbeans/&lt;nb-version&gt;/Editors/text/x-java/abbreviations.xml</code>. For example:</li>
+            <li>Select the xml file containing code templates. The xml file format is same as the <code>.netbeans/&lt;nb-version&gt;/config/Editors/&lt;mime-type&gt;/CodeTemplates/org-netbeans-modules-editor-settings-CustomCodeTemplates.xml</code>.
+            For example:</li>
             <pre>
 &lt;?xml version="1.0" encoding="UTF-8"?&gt;
-&lt;!DOCTYPE abbrevs PUBLIC "-//NetBeans//DTD Editor Abbreviations settings 1.0//EN" "http://www.netbeans.org/dtds/EditorAbbreviations-1_0.dtd"&gt;
-&lt;abbrevs&gt;
-    &lt;abbrev key="ps" xml:space="preserve"&gt;PrintStream&lt;/abbrev&gt;
-            &lt;/abbrevs&gt;</pre>
+&lt;!DOCTYPE codetemplates PUBLIC "-//NetBeans//DTD Editor Code Templates settings 1.0//EN" "http://www.netbeans.org/dtds/EditorCodeTemplates-1_0.dtd"&gt;
+&lt;codetemplates&gt;
+    &lt;codetemplate abbreviation="com" xml:space="preserve"&gt;
+        &lt;code&gt;/* */&lt;/code&gt;
+    &lt;/codetemplate&gt;
+&lt;/codetemplates&gt;</pre>
         </ul>
         <h3>To use Registers </h3>
         <ul>
