@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE filesystem PUBLIC "-//NetBeans//DTD Filesystem 1.1//EN" "http://www.netbeans.org/dtds/filesystem-1_1.dtd">
+<filesystem>
+    <folder name="Actions">
+        <folder name="Tools">
+            <file name="org-netbeans-modules-pathtools-CopyPathsAction.instance"/>
+            <file name="org-netbeans-modules-pathtools-ExplorePathAction.instance"/>
+            <file name="org-netbeans-modules-pathtools-ShellOnPathsAction.instance"/>
+            <file name="org-netbeans-modules-pathtools-EditPathsAction.instance"/>
+        </folder>
+    </folder>
+    <folder name="Menu">
+        <folder name="Edit">
+            <file name="org-netbeans-modules-pathtools-separatorBefore.instance">
+                <attr name="instanceClass" stringvalue="javax.swing.JSeparator"/>
+                <attr name="position" intvalue="8000"/>
+            </file>
+            <file name="org-netbeans-modules-pathtools-CopyPathsAction.shadow">
+                <attr name="originalFile" stringvalue="Actions/Tools/org-netbeans-modules-pathtools-CopyPathsAction.instance"/>
+                <attr name="position" intvalue="8010"/>
+            </file>
+        </folder>
+        <folder name="Tools">
+            <file name="org-netbeans-modules-pathtools-separatorBefore.instance">
+                <attr name="instanceClass" stringvalue="javax.swing.JSeparator"/>
+                <attr name="position" intvalue="1280"/>
+            </file>
+            <file name="org-netbeans-modules-pathtools-ExplorePathAction.shadow">
+                <attr name="originalFile" stringvalue="Actions/Tools/org-netbeans-modules-pathtools-ExplorePathAction.instance"/>
+                <attr name="position" intvalue="1284"/>
+            </file>
+            <file name="org-netbeans-modules-pathtools-ShellOnPathsAction.shadow">
+                <attr name="originalFile" stringvalue="Actions/Tools/org-netbeans-modules-pathtools-ShellOnPathsAction.instance"/>
+                <attr name="position" intvalue="1288"/>
+            </file>
+            <file name="org-netbeans-modules-pathtools-EditPathsAction.shadow">
+                <attr name="originalFile" stringvalue="Actions/Tools/org-netbeans-modules-pathtools-EditPathsAction.instance"/>
+                <attr name="position" intvalue="1292"/>
+            </file>
+        </folder>
+    </folder>
+    <folder name="Toolbars">
+        <folder name="Edit">
+            <file name="org-netbeans-modules-pathtools-CopyPathsAction.shadow">
+                <attr name="originalFile" stringvalue="Actions/Tools/org-netbeans-modules-pathtools-CopyPathsAction.instance"/>
+                <attr name="position" intvalue="1000"/>
+            </file>
+            <file name="org-netbeans-modules-pathtools-ExplorePathAction.shadow">
+                <attr name="originalFile" stringvalue="Actions/Tools/org-netbeans-modules-pathtools-ExplorePathAction.instance"/>
+                <attr name="position" intvalue="1010"/>
+            </file>
+            <file name="org-netbeans-modules-pathtools-ShellOnPathsAction.shadow">
+                <attr name="originalFile" stringvalue="Actions/Tools/org-netbeans-modules-pathtools-ShellOnPathsAction.instance"/>
+                <attr name="position" intvalue="1020"/>
+            </file>
+            <file name="org-netbeans-modules-pathtools-EditPathsAction.shadow">
+                <attr name="originalFile" stringvalue="Actions/Tools/org-netbeans-modules-pathtools-EditPathsAction.instance"/>
+                <attr name="position" intvalue="1030"/>
+            </file>
+        </folder>
+    </folder>
+    <folder name="Loaders" >
+        <folder name="folder" >
+            <folder name="any" >
+                <folder name="Actions" >
+                    <file name="org-netbeans-modules-pathtools-CopyPathsAction.shadow">
+                        <attr name="originalFile" stringvalue="Actions/Tools/org-netbeans-modules-pathtools-CopyPathsAction.instance"/>
+                        <attr name="position" intvalue="1550"/>
+                    </file>
+                    <file name="org-netbeans-modules-pathtools-ExplorePathAction.shadow">
+                        <attr name="originalFile" stringvalue="Actions/Tools/org-netbeans-modules-pathtools-ExplorePathAction.instance"/>
+                        <attr name="position" intvalue="1560"/>
+                    </file>
+                    <file name="org-netbeans-modules-pathtools-separatorAfter.instance">
+                        <attr name="instanceClass" stringvalue="javax.swing.JSeparator"/>
+                        <attr name="position" intvalue="1570"/>
+                    </file>
+                </folder>
+            </folder>
+        </folder>
+        <folder name="text" >
+            <folder name="x-java" >
+                <folder name="Actions" >
+                    <file name="org-netbeans-modules-pathtools-CopyPathsAction.shadow">
+                        <attr name="originalFile" stringvalue="Actions/Tools/org-netbeans-modules-pathtools-CopyPathsAction.instance"/>
+                        <attr name="position" intvalue="2850"/>
+                    </file>
+                    <file name="org-netbeans-modules-pathtools-ExplorePathAction.shadow">
+                        <attr name="originalFile" stringvalue="Actions/Tools/org-netbeans-modules-pathtools-ExplorePathAction.instance"/>
+                        <attr name="position" intvalue="2860"/>
+                    </file>
+                    <file name="org-netbeans-modules-pathtools-separatorAfter.instance">
+                        <attr name="instanceClass" stringvalue="javax.swing.JSeparator"/>
+                        <attr name="position" intvalue="2870"/>
+                    </file>
+                </folder>
+            </folder>
+        </folder>
+    </folder>
+    <folder name="Projects" >
+        <folder name="Actions" >
+            <file name="org-netbeans-modules-pathtools-separatorBefore.instance">
+                <attr name="instanceClass" stringvalue="javax.swing.JSeparator"/>
+                <attr name="position" intvalue="1550"/>
+            </file>
+            <file name="org-netbeans-modules-pathtools-CopyPathsAction.shadow">
+                <attr name="originalFile" stringvalue="Actions/Tools/org-netbeans-modules-pathtools-CopyPathsAction.instance"/>
+                <attr name="position" intvalue="1560"/>
+            </file>
+            <file name="org-netbeans-modules-pathtools-ExplorePathAction.shadow">
+                <attr name="originalFile" stringvalue="Actions/Tools/org-netbeans-modules-pathtools-ExplorePathAction.instance"/>
+                <attr name="position" intvalue="1570"/>
+            </file>
+        </folder>
+    </folder>
+    <folder name="OptionsDialog">
+        <folder name="Advanced">
+            <file name="org-netbeans-modules-pathtools-PathtoolsAdvancedOption.instance"/>
+        </folder>
+    </folder>
+</filesystem>
