@@ -39,18 +39,10 @@
 
 package org.netbeans.api.dynactions;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashSet;
+import org.netbeans.api.objectregistries.Registry;
 import java.util.List;
-import java.util.Set;
 import javax.swing.Action;
-import org.netbeans.api.objectloader.ObjectLoader;
-import org.openide.filesystems.FileObject;
-import org.openide.filesystems.Repository;
 import org.openide.util.Lookup;
-import org.openide.util.Lookup.Provider;
-import org.openide.util.lookup.Lookups;
 
 /**
  * An ActionFactory that interoperates with a Lookup.Provider and a folder
@@ -59,113 +51,21 @@ import org.openide.util.lookup.Lookups;
  * @author Tim Boudreau
  */
 public final class LookupActionFactory extends ActionFactory {
-    private Provider provider;
-    private final String rootFolder;
-    
+    private Registry<Action> registry;
     LookupActionFactory (Lookup.Provider provider, String rootFolder) {
-        this.provider = provider;
-        this.rootFolder = rootFolder;
+        this.registry = new Registry (Action.class, provider, rootFolder);
+        
     }
     
     public final LookupActionFactory setLookupProvider (Lookup.Provider provider) {
-        this.provider = provider;
+        this.registry.setProvider(provider);
         return this;
     }
 
-    @Override
+    
     public Action[] getActions() {
-        if (provider == null) {
-            throw new IllegalStateException ("Provider is not set");
-        }
-        //PENDING - various places we could cache data for performance
-        Lookup lkp = provider.getLookup();
-        List <Action> result = new ArrayList <Action>();
-        //Get all the items in the lookup - use Lookup.Item to avoid
-        //aggressively resolving items in the lookup where possible
-        Collection <? extends Lookup.Item> cc = 
-                lkp.lookupResult(Object.class).allItems();
-        
-        //Iterate them
-        for (Lookup.Item item : cc) {
-            //Get all the interface and supertype names for each object in the
-            //lookup
-            Set <String> names = allNames (item.getType());
-            //Iterate them
-            for (String name : names) {
-                //See if there is an sfs folder ala com-foo-bar-Baz under
-                //our root folder
-                FileObject folder = folderFor (name);
-                if (folder != null) {
-                    //If so, make a FolderLookup over it and add all actions
-                    //in the FolderLookup to the result
-                    if (ObjectLoader.class.isAssignableFrom(item.getType())) {
-                        //Special handling so we can have ObjectLoader-sensitive
-                        //actions that are sensitive not to ObjectLoader.class,
-                        //but to the type of object it will load
-                        ObjectLoader ldr = (ObjectLoader) item.getInstance();
-                        Class typeItLoads = ldr.type();
-                        //Look for folders ala
-                        //root/org-netbeans-api-dynactions-ObjectLoader/com-foo-bar-Baz
-                        //which contain actions
-                        Set <String> loaderTypeNames = allNames(typeItLoads);
-                        for (String ltn : loaderTypeNames) {
-                            FileObject fld = folder.getFileObject(ltn);
-                            if (fld != null) {
-                                Lookup actionsLookup = Lookups.forPath(
-                                        rootFolder + "/" + name + "/" + ltn);
-                                System.err.println("Actions lookup: " + 
-                                        actionsLookup);
-                                
-                                result.addAll (actionsLookup.lookupAll(
-                                        Action.class));
-                            }
-                        }
-                    } else {
-                        Lookup actionsLookup = Lookups.forPath(rootFolder + "/" + 
-                                name);
-                        result.addAll (actionsLookup.lookupAll(Action.class));
-                    }
-                }
-            }
-        }
-        Action[] actions = (Action[]) result.toArray(new Action[result.size()]);
-        return actions;
-    }
-    
-    FileObject folderFor (String typeName) {
-        FileObject result = Repository.getDefault().getDefaultFileSystem().
-                getRoot().getFileObject(rootFolder + "/" + typeName);
-        
-        if (result != null && !result.isFolder()) {
-            throw new IllegalStateException (result.getPath() + " is a " +
-                    "file, not a folder");
-        }
-        System.err.println("Folder for " + typeName + " returns " + (result == null ? "null" : result.getPath()));
+        List<Action> actions = registry.get();
+        Action[] result = (Action[]) actions.toArray(new Action[actions.size()]);
         return result;
-    }
-    
-    Set<String> allNames (Class c) {
-        Set <String> s = new HashSet<String>();
-        iter (c, s);
-        System.err.println("All names of " + c.getName() + ": " + s);
-        return s;
-    }
-    
-    private void iter (Class type, Set <String> s) {
-        if (type == null) {
-            return;
-        }
-        s.add(xform(type.getName()));
-        for (Class clazz : type.getInterfaces()) {
-            iter (clazz, s);
-        }
-        if (type != Object.class) {
-            Class zuper = type.getSuperclass();
-            iter (zuper, s);
-        }
-    }
-    
-    private String xform(String typeName) {
-        return typeName.replace('.', '-');
     }
 }
