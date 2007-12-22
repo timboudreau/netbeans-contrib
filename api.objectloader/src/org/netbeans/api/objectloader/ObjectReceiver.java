@@ -39,8 +39,10 @@
 package org.netbeans.api.objectloader;
 
 /**
+ * Callback object which is passed an object (on the Swing event thread)
+ * after it has been loaded in the background by an ObjectLoader.
  *
- * @author tim
+ * @author Tim Boudreau
  */
 public interface ObjectReceiver<T> {
 

@@ -45,5 +45,23 @@ package org.netbeans.api.objectloader;
  * @author Tim Boudreau
  */
 public enum States {
-    UNLOADED, LOADING, LOADED, NOT_LOADABLE
+    /**
+     * The ObjectLoader has not yet tried to load the object
+     */
+    UNLOADED, 
+    /**
+     * The ObjectLoader is in the process of loading the object
+     */
+    LOADING, 
+    /**
+     * The ObjectLoader has a cached copy of the object (in the case of
+     * Weak and Soft CacheStrategies, this does not guarantee that a 
+     * subsequent call to get() on the ObjectLoader will be synchronous.
+     */
+    LOADED, 
+    /**
+     * The ObjectLoader tried to load the object, and an exception
+     * occurred.  To clear this state, call ObjectLoader.reset().
+     */
+    NOT_LOADABLE
 }

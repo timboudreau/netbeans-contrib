@@ -42,6 +42,10 @@ package org.netbeans.api.objectloader;
 import java.lang.ref.Reference;
 
 /**
+ * Factory which creates a reference to the passed object, which will be
+ * used by an ObjectLoader for caching an object.  See also
+ * <code><a href="CacheStrategies.html">CacheStrategies</a></code> for 
+ * standard cache strategies.
  *
  * @author Tim Boudreau
  */
