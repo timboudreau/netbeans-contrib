@@ -28,7 +28,7 @@
                 <pathelement location="${netbeans.dest.dir}/java1/ant/lib/ant.jar"/>
                 <pathelement location="${cluster}/${module.jar}"/>
                 <pathelement location="${cluster}/modules/org-netbeans-modules-etl-editor.jar"/>
-                <pathelement location="../external/edmengine.jar"/>
+                <pathelement location="external/edmengine.jar"/>
             </classpath>
         </javac>
         
@@ -43,14 +43,6 @@
         </jar>
     </target>
     
-    <target name="do-edmpro" depends="init">
-        <mkdir dir="${cluster}/modules/ext/edmpro" />
-        <copy todir="${cluster}/modules/ext/edmpro">
-            <fileset dir="../external">
-                <include name="edmengine.jar" />
-            </fileset>
-        </copy>
-    </target>    
-    
-    <target name="netbeans-extra" depends="ant-extra,do-edmpro"/> 
+    <target name="netbeans-extra" depends="ant-extra"/>
+
 </project>
