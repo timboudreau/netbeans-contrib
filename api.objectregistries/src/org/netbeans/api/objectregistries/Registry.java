@@ -32,7 +32,7 @@
  * Version 2 license, then the option applies only if the new code is
  * made subject to such option by the copyright holder.
  * 
- * Contributor(s): Tim Boudreau
+ * Contributor(s):
  * 
  * Portions Copyrighted 2007 Sun Microsystems, Inc.
  */
@@ -40,148 +40,40 @@
 package org.netbeans.api.objectregistries;
 
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
-import org.netbeans.api.objectloader.ObjectLoader;
-import org.openide.filesystems.FileObject;
-import org.openide.filesystems.Repository;
-import org.openide.util.Lookup;
 import org.openide.util.Lookup.Provider;
 import org.openide.util.lookup.Lookups;
 
 /**
- * A generic registry of objects in some folder in the system filesystem,
- * with special support for registering objects against the type that an
- * ObjectLoader will load, such that you can get the instance of the object
- * registered without actually triggering I/O.
- * <p/>
- * Objects may be registered as .instance files or similar, under folders that
- * specify type names underneath the root folder.  If the Lookup contains
- * an object of a type matching that folder name, all registered objects 
- * of type <code>type</code> in that folder are returned.
+ * Abstraction for a registry of objects which can return a list of
+ * objects of a given type.
  *
  * @author Tim Boudreau
  */
-public final class Registry<Type> {
-    private Provider provider;
-    private final Class<Type> type;
-    private final String rootFolder;
-    /**
-     * Create a new registry
-     * @param type The type of objects you are interested in
-     * @param provider A Lookup.Provider
-     * @param rootFolder A folder in the system filesystem
-     */
-    public Registry (Class<Type> type, Lookup.Provider provider, String rootFolder) {
-        this.type = type;
-        this.provider = provider;
-        this.rootFolder = rootFolder;
+public abstract class Registry<T> {
+    Registry() {}
+    public abstract List<T> get();
+    
+    public static <T> ByLookupRegistry<T> byLookup (Class<T> type, Provider provider, String path) {
+        return new ByLookupRegistry<T>(type, provider, path);
     }
     
-    public void setProvider (Provider provider) {
-        this.provider = provider;
+    public static <T> Registry<T> simple (Class<T> type, String path) {
+        return new SimpleRegistry (path, type);
     }
+    
+    private static final class SimpleRegistry<T> extends Registry<T> {
+        private final String path;
+        private final Class type;
+        SimpleRegistry(String path, Class<T> type) {
+            this.path = path;
+            this.type = type;
+        }
 
-    /**
-     * Get all of the objects of the given type in this registry.
-     * @return A list of objects
-     * @throws IllegalStateException if the Lookup.Provider is null
-     */
-    public List<Type> get() {
-        if (provider == null) {
-            throw new IllegalStateException ("Provider is not set");
-        }
-        //PENDING - various places we could cache data for performance
-        Lookup lkp = provider.getLookup();
-        List <Type> result = new ArrayList <Type>();
-        //Get all the items in the lookup - use Lookup.Item to avoid
-        //aggressively resolving items in the lookup where possible
-        Collection <? extends Lookup.Item> cc = 
-                lkp.lookupResult(Object.class).allItems();
-        
-        //Iterate them
-        for (Lookup.Item item : cc) {
-            //Get all the interface and supertype names for each object in the
-            //lookup
-            Set <String> names = allNames (item.getType());
-            //Iterate them
-            for (String name : names) {
-                //See if there is an sfs folder ala com-foo-bar-Baz under
-                //our root folder
-                FileObject folder = folderFor (name);
-                if (folder != null) {
-                    //If so, make a FolderLookup over it and add all actions
-                    //in the FolderLookup to the result
-                    if (ObjectLoader.class.isAssignableFrom(item.getType())) {
-                        //Special handling so we can have ObjectLoader-sensitive
-                        //actions that are sensitive not to ObjectLoader.class,
-                        //but to the type of object it will load
-                        ObjectLoader ldr = (ObjectLoader) item.getInstance();
-                        Class typeItLoads = ldr.type();
-                        //Look for folders ala
-                        //root/org-netbeans-api-dynactions-ObjectLoader/com-foo-bar-Baz
-                        //which contain actions
-                        Set <String> loaderTypeNames = allNames(typeItLoads);
-                        for (String ltn : loaderTypeNames) {
-                            FileObject fld = folder.getFileObject(ltn);
-                            if (fld != null) {
-                                Lookup actionsLookup = Lookups.forPath(
-                                        rootFolder + "/" + name + "/" + ltn);
-//                                System.err.println("Actions lookup: " + 
-//                                        actionsLookup);
-                                
-                                result.addAll (actionsLookup.lookupAll(
-                                        type));
-                            }
-                        }
-                    } else {
-                        Lookup actionsLookup = Lookups.forPath(rootFolder + "/" + 
-                                name);
-                        result.addAll (actionsLookup.lookupAll(type));
-                    }
-                }
-            }
-        }
-        return result;
-    }
-    
-    private FileObject folderFor (String typeName) {
-        FileObject result = Repository.getDefault().getDefaultFileSystem().
-                getRoot().getFileObject(rootFolder + "/" + typeName);
-        
-        if (result != null && !result.isFolder()) {
-            throw new IllegalStateException (result.getPath() + " is a " +
-                    "file, not a folder");
-        }
-//        System.err.println("Folder for " + typeName + " returns " + 
-//        (result == null ? "null" : result.getPath()));
-        return result;
-    }
-    
-    private Set<String> allNames (Class c) {
-        Set <String> s = new HashSet<String>();
-        iter (c, s);
-//        System.err.println("All names of " + c.getName() + ": " + s);
-        return s;
-    }
-    
-    private void iter (Class type, Set <String> s) {
-        if (type == null) {
-            return;
-        }
-        s.add(xform(type.getName()));
-        for (Class clazz : type.getInterfaces()) {
-            iter (clazz, s);
-        }
-        if (type != Object.class) {
-            Class zuper = type.getSuperclass();
-            iter (zuper, s);
+        @Override
+        public List<T> get() {
+            //Pending:  Could just cast the result of lookupAll()
+            return new ArrayList<T>(Lookups.forPath(path).lookupAll(type));
         }
     }
-    
-    private String xform(String typeName) {
-        return typeName.replace('.', '-');
-    }    
 }

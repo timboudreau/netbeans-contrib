@@ -42,6 +42,7 @@ package org.netbeans.api.dynactions;
 import org.netbeans.api.objectregistries.Registry;
 import java.util.List;
 import javax.swing.Action;
+import org.netbeans.api.objectregistries.ByLookupRegistry;
 import org.openide.util.Lookup;
 
 /**
@@ -51,10 +52,9 @@ import org.openide.util.Lookup;
  * @author Tim Boudreau
  */
 public final class LookupActionFactory extends ActionFactory {
-    private Registry<Action> registry;
+    private ByLookupRegistry<Action> registry;
     LookupActionFactory (Lookup.Provider provider, String rootFolder) {
-        this.registry = new Registry (Action.class, provider, rootFolder);
-        
+        this.registry = Registry.byLookup(Action.class, provider, rootFolder);
     }
     
     public final LookupActionFactory setLookupProvider (Lookup.Provider provider) {
