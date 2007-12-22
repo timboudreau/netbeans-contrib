@@ -307,9 +307,9 @@ TOKEN:upperid: (
     ["A"-"Z" "$"] 
     ( ["a"-"z" "A"-"Z" "$" "_" "0"-"9"])* ( "_" ( [^" " "\t" "\n" "\r" "[" "]" "(" ")" ","  "." ";" "=" ":" "{" "}"] )+ )?
 )
-
-TOKEN:stringid: (
-    "\'" ( 
+## Backquoted id
+TOKEN:bquotedid: (
+    "`" ( 
         [^ "\\" "\'" "\n" "\r"] |
         ( "\\" (
             . |
@@ -318,7 +318,7 @@ TOKEN:stringid: (
             ( "u" ["0"-"9" "a"-"f" "A"-"F"] ["0"-"9" "a"-"f" "A"-"F"] ["0"-"9" "a"-"f" "A"-"F"] ["0"-"9" "a"-"f" "A"-"F"] )
         ) )
     )*
-    "\'"
+    "`"
 )
 
 
@@ -420,7 +420,7 @@ PlainId = <upperid>
         | OpId;
 
 NameId = PlainId
-       | <stringid>;
+       | <bquotedid>;
 
 # all (<nl>)* behind ";" should also be eaten
 Semi = <semi> (<nl>)*
@@ -688,7 +688,7 @@ CharData = Literal
          | <nl>;
 Attribute = NSName <eq> (<nl>)* AttValue;
 AttValue = <string> # "\"" {CharQ | CharRef} "\""
-         | <stringid> # "’" {CharA | CharRef} "’"
+         | <bquotedid> # "’" {CharA | CharRef} "’"
          | ScalaExpr
          | <nl>;
 NSName = Name (<colon> Name)*;
