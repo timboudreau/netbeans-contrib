@@ -88,11 +88,15 @@ TOKEN:xml_comment: ( "<!--" - "-->" )
         "@todo" |
         "@version"
     )
+    TOKEN:comment: ( "/*" ):<IN_COMMENT>
     TOKEN:comment: ( "@" )
     TOKEN:comment: ( [^"@" "*"]+ )
     TOKEN:comment: ( "*" [^"/"] )
-    TOKEN:comment: ( "*/" ):<DEFAULT>
+    TOKEN:comment: {
+        pattern:( "*/" );
+        end_state:"DEFAULT";
     }
+}
 
 TOKEN:line_comment: ( "//" [^"\n" "\r"]* )
 
@@ -514,7 +518,7 @@ SimpleExpr = TypedPathId    (<dot> (<nl>)* TypedPathId | TypedArguments)*
            | TypedLiteral   (<dot> (<nl>)* TypedPathId | TypedArguments)*
            | TypedWildCard  (<dot> (<nl>)* TypedPathId | TypedArguments)*
            | TypedParenExpr (<dot> (<nl>)* TypedPathId | TypedArguments)*
-           | TypedBlockExpr (<dot> (<nl>)* TypedPathId)*
+           | TypedBlockExpr (<dot> (<nl>)* TypedPathId [TypedArguments])*
            | NewExpr        (<dot> (<nl>)* TypedPathId | TypedArguments)*
            | XmlExpr;
 
