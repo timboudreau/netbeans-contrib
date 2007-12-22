@@ -248,6 +248,9 @@ TOKEN:slashrangle: (
 )
 
 ## separators
+TOKEN:quote: (
+    "\'"
+)
 TOKEN:lparen: (
     "("
 )
@@ -363,9 +366,9 @@ TOKEN:char: (
     "\'"
 )
 
-TOKEN:symbal: (
-    "\'" ( ["a"-"z" "A"-"Z" "$" "_" "0"-"9"] )* ( "_" ( [^" " "\t" "\n" "\r" "[" "]" "(" ")" "." ";" "="] )+ )?
-)
+#TOKEN:symbal: (
+#    "\'" ( ["a"-"z" "A"-"Z" "$" "_" "0"-"9"] )* ( "_" ( [^" " "\t" "\n" "\r" "[" "]" "(" ")" "." ";" "="] )+ )?
+#)
 
 TOKEN:integer: (
     ["0"-"9"] ['l' 'L']? |
@@ -422,6 +425,8 @@ PlainId = <upperid>
 NameId = PlainId
        | <bquotedid>;
 
+Symbol = <quote> PlainId;
+
 # all (<nl>)* behind ";" should also be eaten
 Semi = <semi> (<nl>)*
      | (<nl>)+ [";" (<nl>)*];
@@ -430,7 +435,7 @@ Literal = <integer>
         | <float>
         | <char>
         | <string>
-        | <symbal>
+        | Symbol
         | <true> 
         | <false>
         | <null>;
@@ -688,7 +693,7 @@ CharData = Literal
          | <nl>;
 Attribute = NSName <eq> (<nl>)* AttValue;
 AttValue = <string> # "\"" {CharQ | CharRef} "\""
-         | <bquotedid> # "’" {CharA | CharRef} "’"
+         | <quote> Name <quote> # "’" {CharA | CharRef} "’"
          | ScalaExpr
          | <nl>;
 NSName = Name (<colon> Name)*;
