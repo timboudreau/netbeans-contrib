@@ -84,6 +84,11 @@ public class DynamicActionsDataNode extends DataNode {
     
     @Override
     public Action[] getActions (boolean popup) {
-        return actionFactory.getActions();
+        Action[] actions = super.getActions(popup);
+        Action[] others = actionFactory.getActions();
+        Action[] result = new Action[actions.length + others.length];
+        System.arraycopy(actions, 0, result, 0, actions.length);
+        System.arraycopy(others, 0, result, actions.length, others.length);
+        return result;
     }
 }

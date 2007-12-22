@@ -28,9 +28,12 @@
 
 package org.netbeans.pojoeditors.api;
 
+import java.io.Serializable;
+import java.util.Arrays;
 import java.util.List;
 import javax.swing.Action;
-import org.openide.loaders.DataNode;
+import org.netbeans.api.dynactions.ActionFactory;
+import org.netbeans.modules.dynactions.nodes.DynamicActionsDataNode;
 import org.openide.nodes.Children;
 import org.openide.util.Lookup;
 
@@ -38,18 +41,25 @@ import org.openide.util.Lookup;
  *
  * @author Tim Boudreau
  */
-public class PojoDataNode extends DataNode {
-    protected PojoDataNode (PojoDataObject dob, Children kids, Lookup lkp) {
-        super (dob, kids, lkp);
+public class PojoDataNode<T extends Serializable> extends DynamicActionsDataNode {
+    protected PojoDataNode (PojoDataObject<T> dob, Children kids, Lookup lkp, String actionContext) {
+        super (dob, kids, lkp, actionContext);
     }
     
-    protected PojoDataNode (PojoDataObject dob, Children kids) {
-        super (dob, kids);
+    protected PojoDataNode (PojoDataObject<T> dob, Children kids, String actionContext) {
+        super (dob, kids, actionContext);
+    }
+    
+    protected PojoDataNode (PojoDataObject<T> dob, Children kids, Lookup lkp, ActionFactory factory) {
+        super (dob, kids, lkp, factory);
     }
     
     @Override
+    @SuppressWarnings("unchecked")
     public final Action[] getActions (boolean popup) {
-        List <Action> actions = ((PojoDataObject) getDataObject()).getOpenActions();
+        Action[] base = super.getActions(popup);
+        List <Action> actions = getPojoDob().getOpenActions();
+        actions.addAll(Arrays.asList(base));
         onGetActions (actions);
         Action[] result = new Action[actions.size()];
         result = actions.toArray(result);
@@ -58,8 +68,13 @@ public class PojoDataNode extends DataNode {
 
     @Override
     public Action getPreferredAction() {
-        Action result = ((PojoDataObject) getDataObject()).getDefaultOpenAction();
+        Action result = getPojoDob().getDefaultOpenAction();
         return result == null ? super.getPreferredAction() : result;
+    }
+    
+    @SuppressWarnings("unchecked")
+    private PojoDataObject<T> getPojoDob() {
+        return (PojoDataObject<T>) getDataObject();
     }
     
     /**
@@ -71,5 +86,4 @@ public class PojoDataNode extends DataNode {
     protected void onGetActions(List<Action> actions) {
         //do nothing by default
     }
-    
 }

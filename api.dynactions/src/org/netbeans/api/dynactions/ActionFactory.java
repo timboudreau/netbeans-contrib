@@ -46,24 +46,74 @@ import org.openide.util.Lookup;
 import org.openide.util.lookup.Lookups;
 
 /**
+ * Factory which can produce an array of Actions, presumably given some
+ * contextual information with which to look them up.
  *
- * @author tim
+ * @author Tim Boudreau
  */
 public abstract class ActionFactory {
     public abstract Action[] getActions();
+    /**
+     * Creates a merged ActionFactory that combines several others
+     * @param factories Other ActionFactories
+     * @return An Action Factory that returns the sum of all actions returned
+     * by the passed action factories
+     */
     public static ActionFactory create (ActionFactory... factories) {
         return new CompoundActionFactory(factories);
     }
     
+    /**
+     * Create an ActionFactory over a folder in the system filesystem (or
+     * if run in the bare platform, META-INF/services
+     * 
+     * @param context The path to where actions should be looked up
+     * @return An action factory
+     */
     public static ActionFactory context(String context) {
         return new SfsActionFactory(context);
     }
 
+    /**
+     * Convenience method for getting a list of actions based on 
+     * Lookups.forPath().
+     * @param context
+     * @return
+     */
     public static List<Action> getActions (String context) {
         Lookup lkp = Lookups.forPath(context);
         return new ArrayList <Action> (lkp.lookupAll(Action.class));
     }
     
+    /**
+     * Create an ActionFactory which will find actions based on the contents
+     * of a lookup, as follows:  The root folder is passed in, and is the
+     * base path to the parent folder for actions.
+     * <p/>
+     * Underneath that folder are folders which identify fully qualified
+     * class names, with .'s replaced with -'s.  So, for example, if you want
+     * to register actions for anything containing an instance of com.foo.Bar,
+     * you would register a file such as
+     * <pre>
+     * rootfolder/com-foo-Bar/MyBarAction.instance
+     * </pre>
+     * <code>ObjectLoader</code> (a class which handles loading expensive-to-load
+     * objects on a background thread) is handled specially, with one additional
+     * layer of indirection:  You can register objects against <i>the type that
+     * an ObjectLoader will load</i>.  Say you have a loader for Foo objects.
+     * You want to write actions that can run against com.foo.Foo objects, but which will
+     * not trigger the object actually being loaded unless the action is 
+     * really invoked.  So you create a file:
+     * <pre>
+     * rootfolder/org-netbeans-api-ObjectLoader/com-foo-Foo/MyActionThatRunsAgainstFoo.instance
+     * </pre>
+     * 
+     * @param provider A thing which has a getLookup() method;  the lookup's
+     * contents will determine the actions available
+     * @param rootFolder A folder which is the base folder for finding folders
+     * related to specific types
+     * @return A LookupActionFactory
+     */
     public static LookupActionFactory lookup (Lookup.Provider provider, String rootFolder) {
         return new LookupActionFactory(provider, rootFolder);
     }

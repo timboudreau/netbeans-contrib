@@ -42,8 +42,6 @@ package org.netbeans.api.objectloader;
 import java.awt.EventQueue;
 import java.io.IOException;
 import java.lang.ref.Reference;
-import java.lang.ref.SoftReference;
-import java.lang.ref.WeakReference;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -52,6 +50,7 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import org.openide.util.Lookup;
 
 /**
  * Type-safe loading of an object on a background thread.
@@ -69,7 +68,7 @@ public abstract class ObjectLoader<T> {
     
     //PENDING:  Make thread limit settable?
     private static final ExecutorService POOL = 
-            Executors.newFixedThreadPool(Integer.MAX_VALUE);
+            Executors.newFixedThreadPool(20);
     
     private Set <ObjectReceiver<T>> receivers = 
             new HashSet<ObjectReceiver<T>>();
@@ -186,10 +185,9 @@ public abstract class ObjectLoader<T> {
     
     private Future<T> future;
     private synchronized void beginLoad() {
-        if (future == null && !receivers.isEmpty()) {
+//        if (future == null && !receivers.isEmpty()) {
             setState (States.LOADING);
             future = POOL.submit(new Loader());
-        }
     }
     
     private synchronized void cancelLoad() {
@@ -211,7 +209,6 @@ public abstract class ObjectLoader<T> {
         List <ObjectReceiver<T>> toCall;
         T result;
         public T call() throws Exception {
-            setState (States.LOADING);
             try {
                 result = load();
                 setState(States.LOADED);
@@ -244,7 +241,14 @@ public abstract class ObjectLoader<T> {
         private final class Deliverer implements Runnable {
             public void run() {
                 for (ObjectReceiver<T> receiver : toCall) {
-                    receiver.received(result);
+                    ClassLoader ldr = Lookup.getDefault().lookup(ClassLoader.class);
+                    ClassLoader current = Thread.currentThread().getContextClassLoader();
+                    try {
+                        Thread.currentThread().setContextClassLoader(ldr);
+                        receiver.received(result);
+                    } finally {
+                        Thread.currentThread().setContextClassLoader(current);
+                    }
                 }
             }
         }

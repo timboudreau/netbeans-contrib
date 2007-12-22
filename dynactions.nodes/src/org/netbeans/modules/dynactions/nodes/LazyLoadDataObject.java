@@ -50,6 +50,7 @@ import org.openide.filesystems.FileObject;
 import org.openide.loaders.DataObjectExistsException;
 import org.openide.loaders.MultiDataObject;
 import org.openide.loaders.MultiFileLoader;
+import org.openide.util.Exceptions;
 import org.openide.util.Lookup;
 import org.openide.util.lookup.AbstractLookup;
 import org.openide.util.lookup.InstanceContent;
@@ -88,7 +89,7 @@ public abstract class LazyLoadDataObject<T> extends MultiDataObject {
         super (fo, fileLoader);
         this.ldr = new OL(type, strategy);
         lkp = new ProxyLookup (new AbstractLookup(content), 
-                Lookups.fixed(this, ldr));
+                fo.canRead() ? Lookups.fixed(this, ldr) : Lookups.singleton(this));
     }
 
     public LazyLoadDataObject(FileObject fo, MultiFileLoader ldr, Class type) 
@@ -99,6 +100,18 @@ public abstract class LazyLoadDataObject<T> extends MultiDataObject {
     @Override
     public final Lookup getLookup() {
         return lkp;
+    }
+    
+    protected Class<T> type() {
+        return ldr.type();
+    }
+    
+    /**
+     * Convenience method called when an object has been loaded from disk.
+     * @param object The object that was loaded
+     */
+    protected void loaded (T object) {
+        
     }
 
     /**
@@ -111,20 +124,28 @@ public abstract class LazyLoadDataObject<T> extends MultiDataObject {
      * @throws java.io.IOException if there is an error loading
      */
     protected T load (InputStream stream) throws IOException {
+        System.err.println("LazyLoadDataObject.load");
         ObjectInputStream in = new ObjectInputStream(
                 new BufferedInputStream(stream));
+        ClassLoader all = Lookup.getDefault().lookup(ClassLoader.class);
+        ClassLoader curr = Thread.currentThread().getContextClassLoader();
+        Thread.currentThread().setContextClassLoader(all);
         try {
             Object result = in.readObject();
+            System.err.println("Read " + result);
+            loaded ((T) result);
             return (T) result;
         } catch (ClassNotFoundException ex) {
+            Exceptions.printStackTrace(ex);
             throw new IOException (ex);
         } finally {
             in.close();
+            Thread.currentThread().setContextClassLoader(curr);
         }
     }
     
     private final class OL extends ObjectLoader<T> {
-        private OL(Class type, CacheStrategy strategy) {
+        private OL(Class<T> type, CacheStrategy strategy) {
             super (type, strategy);
         }
 
@@ -138,6 +159,7 @@ public abstract class LazyLoadDataObject<T> extends MultiDataObject {
                             "is of " + "type " + result.getClass() + 
                             " not the expected " + " type " + super.type());
                 }
+                loaded ((T) result);
                 return (T) result;
             } else {
                 return null;

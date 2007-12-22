@@ -21,7 +21,7 @@
  * your own identifying information:
  * "Portions Copyrighted [year] [name of copyright owner]"
  *
- * Contributor(s):
+ * Contributor(s): Tim Boudreau
  *
  * Portions Copyrighted 2007 Sun Microsystems, Inc.
  */
@@ -30,39 +30,33 @@ package org.netbeans.pojoeditors.api;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.beans.PropertyVetoException;
-import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.IOException;
-import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.OutputStream;
 import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
+import java.util.Collection;
 import java.util.List;
-import java.util.Set;
 import javax.swing.Action;
-import org.openide.ErrorManager;
+import org.netbeans.api.objectloader.CacheStrategy;
+import org.netbeans.api.objectloader.ObjectLoader;
+import org.netbeans.modules.dynactions.nodes.LazyLoadDataObject;
 import org.openide.actions.EditAction;
 import org.openide.actions.OpenAction;
 import org.openide.actions.ViewAction;
+import org.openide.cookies.SaveCookie;
 import org.openide.filesystems.FileLock;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileSystem;
-import org.openide.loaders.DataFolder;
-import org.openide.loaders.DataLoader;
-import org.openide.loaders.DataObject;
 import org.openide.loaders.DataObjectExistsException;
+import org.openide.loaders.MultiFileLoader;
 import org.openide.nodes.Node;
-import org.openide.nodes.Node.Cookie;
 import org.openide.util.Exceptions;
-import org.openide.util.HelpCtx;
-import org.openide.util.Lookup;
 import org.openide.util.WeakListeners;
 import org.openide.util.actions.SystemAction;
-import org.openide.util.lookup.AbstractLookup;
-import org.openide.util.lookup.InstanceContent;
 
 /**
  * Base class for data objects which represent serialized Java objects and can
@@ -70,17 +64,13 @@ import org.openide.util.lookup.InstanceContent;
  *
  * @author Tim Boudreau
  */
-public abstract class PojoDataObject<T extends Serializable> extends DataObject {
-    protected final InstanceContent content = new InstanceContent();
-    private final Lookup lkp;
+public abstract class PojoDataObject<T extends Serializable> extends LazyLoadDataObject implements Discardable {
+    
     private final Class <T> pojoType;
-    private PropertyChangeListener pcl;
-    private int editorCount;
     private final EditorFactory<T> factory;
+    private final PropertyChangeListener pcl = new PCL();
     /**
-     * Create a new PojoDataObject.  The actual Java object represented will
-     * be deserialized the first time it is needed, and can be found in the
-     * Lookup of this DataObject (or use the convenience method getPojo()).
+     * Create a new PojoDataObject.  The Java object
      *
      * @param ob The FileObject represented
      * @param ldr The loader that is a factory for DataObjects of this type
@@ -88,12 +78,14 @@ public abstract class PojoDataObject<T extends Serializable> extends DataObject 
      * @param factory A factory for editors over this serialized object
      * @throws org.openide.loaders.DataObjectExistsException
      */
-    protected PojoDataObject (FileObject ob, DataLoader ldr, Class<T> pojoType, EditorFactory<T> factory) throws DataObjectExistsException {
-        super (ob, ldr);
+    protected PojoDataObject (FileObject ob, MultiFileLoader ldr, Class<T> pojoType, CacheStrategy strategy, EditorFactory<T> factory) throws DataObjectExistsException {
+        super (ob, ldr, pojoType, strategy);
         this.pojoType = pojoType;
         this.factory = factory;
-        lkp = new AbstractLookup (content);
-        disposePojo();
+        Collection <Node.Cookie> cookies = factory.createCookies(this);
+        for (Node.Cookie cookie : cookies) {
+            content.add (cookie);
+        }
     }
 
     /**
@@ -121,6 +113,20 @@ public abstract class PojoDataObject<T extends Serializable> extends DataObject 
         }
         return null;
     }
+    
+    protected final void loaded (T pojo) {
+        listenTo(pojo);
+        onLoad (pojo);
+    }
+    
+    /**
+     * Called when the object has been loaded (or restored from a modified state)
+     * from disk.
+     * @param pojo The object
+     */
+    protected void onLoad (T pojo) {
+        listenTo(pojo);
+    }
 
     final List <Action> getOpenActions () {
         List<EditorFactory.Kind> kinds = factory.supportedKinds();
@@ -142,7 +148,7 @@ public abstract class PojoDataObject<T extends Serializable> extends DataObject 
         }
         return actions;
     }
-
+    
     @Override
     protected final Node createNodeDelegate() {
         return createNode();
@@ -165,25 +171,12 @@ public abstract class PojoDataObject<T extends Serializable> extends DataObject 
      * @param clazz A type
      * @return An object or null
      */
+    /*
     @Override
     public final <T extends Cookie> T getCookie (Class<T> clazz) {
         return getLookup().lookup(clazz);
     }
-
-    @Override
-    public final Lookup getLookup() {
-        return lkp;
-    }
-
-    /**
-     * Override to provide additional contents for the Lookup on initialization
-     * and whenever the Pojo is explicitly disposed.
-     *
-     * @return
-     */
-    protected Set getInitialLookupContents() {
-        return new HashSet<Object>(factory.createCookies(this));
-    }
+     */ 
 
     void editorOpened(PojoEditor<T> editor) {
         factory.notifyOpened(editor);
@@ -197,52 +190,15 @@ public abstract class PojoDataObject<T extends Serializable> extends DataObject 
         return factory.getOpenEditorCount();
     }
 
-    void disposePojo() {
-        Set <Object> set = new HashSet<Object> (getInitialLookupContents());
-        set.add (this);
-        content.set(set, null);
-        content.add (new LazyLoadStub(), new C());
-        setModified (false);
-        onDispose();
-    }
-
-    /**
-     * Convenience method for doing some work when the Java object has its
-     * state reset to that on disk (i.e. the user was editing and elected not
-     * to save changes).
-     */
-    protected void onDispose() {
-
-    }
-
-    T doLoad() throws IOException {
-        FileObject fob = getPrimaryFile();
-        if (fob.isValid()) {
-            ObjectInputStream in = new ObjectInputStream (
-                    new BufferedInputStream (
-                    fob.getInputStream()));
-            T pojo = null;
-            try {
-                pojo = load (in);
-                listenTo (pojo);
-            } catch (Exception e) {
-                Exceptions.printStackTrace(e);
-            } finally {
-                in.close();
-            }
-            return pojo;
-        }
-        return null;
-    }
-
     private void listenTo (T pojo) {
         try {
             Method m = pojoType.getDeclaredMethod("addPropertyChangeListener",
                     PropertyChangeListener.class);
-            pcl = new PCL();
             PropertyChangeListener weak = WeakListeners.propertyChange(pcl,
                     pojo);
+            System.err.println("Invoking add pcl");
             m.invoke(pojo, weak);
+            System.err.println("pcl added");
         } catch (IllegalAccessException ex) {
             Exceptions.printStackTrace(ex);
         } catch (IllegalArgumentException ex) {
@@ -257,156 +213,72 @@ public abstract class PojoDataObject<T extends Serializable> extends DataObject 
     }
 
     /**
-     * Load the Java object from the passed input stream.  Note it is not
-     * necessary to close the input stream.  To change how loading works,
-     * or handle version issues, override.  By default, just calls in.readObject()
-     * and returns the result.
-     * @param in
-     * @return
+     * Override to change the way the pojo is written to disk.  By default
+     * it is simply written to an ObjectOutputStream.
+     * <p/>
+     * This method is called in an atomic action on the filesystem, with the
+     * primary file's lock held, so no additional locking should be needed.
+     * The stream will be closed on this methods exit.  So only I/O code is
+     * needed in this method.
+     * @param pojo
      * @throws java.io.IOException
-     * @throws java.lang.ClassNotFoundException
      */
-    protected T load(ObjectInputStream in) throws IOException, ClassNotFoundException {
-        Object result = in.readObject();
-        if (result != null && !pojoType.isInstance(result)) {
-            throw new IOException ("Expected " + pojoType.getName() + " but " +
-                    "serialized object is of type " + result.getClass());
+    protected void save (final T pojo, OutputStream stream) throws IOException {
+        ObjectOutputStream oout = new ObjectOutputStream (stream);
+        try {
+            oout.writeObject (pojo);
+        } finally {
+            oout.close();
         }
-        return (T) result;
     }
-
-    public boolean isDeleteAllowed() {
-        return getPrimaryFile().canWrite() && getPrimaryFile().isValid();
+    
+    public void discardModifications() {
+        ldr.reset();
     }
-
-    public boolean isCopyAllowed() {
-        return getPrimaryFile().canRead();
-    }
-
-    public boolean isMoveAllowed() {
-        return getPrimaryFile().canRead() && getPrimaryFile().canWrite();
-    }
-
-    public boolean isRenameAllowed() {
-        return isMoveAllowed();
-    }
-
-    public HelpCtx getHelpCtx() {
-        return HelpCtx.DEFAULT_HELP;
-    }
-
-    protected DataObject handleCopy(final DataFolder f) throws IOException {
-        FileSystem fs = f.getPrimaryFile().getFileSystem();
-        final FileObject[] target = new FileObject[1];
-        fs.runAtomicAction(new FileSystem.AtomicAction() {
-            public void run() throws IOException {
-                FileObject mine = getPrimaryFile();
-                target[0] = getPrimaryFile().copy(f.getPrimaryFile(), mine.getName(), mine.getExt());
-            }
-        });
-        FileObject created = target[0];
-        if (created != null) {
-            return DataObject.find (created);
-        }
-        return null;
-    }
-
-    protected void handleDelete() throws IOException {
+    
+    private void doSave (final T pojo) throws IOException {
         FileSystem fs = getPrimaryFile().getFileSystem();
         fs.runAtomicAction(new FileSystem.AtomicAction() {
             public void run() throws IOException {
-                FileObject fob = getPrimaryFile();
-                FileLock lock = fob.lock();
+                FileLock lock = getPrimaryFile().lock();
+                OutputStream out = new BufferedOutputStream(getPrimaryFile().getOutputStream(lock));
                 try {
-                    setValid (false);
-                } catch (PropertyVetoException e) {
-                    IOException ise = new IOException ("Could not invalidate " +
-                            fob.getPath());
-                    ErrorManager.getDefault().annotate(ise,
-                            e.getLocalizedMessage());
-                    throw ise;
-                }
-                try {
-                    fob.delete(lock);
+                    save (pojo, out);
+                    content.remove(save);
+                    setModified(false);
                 } finally {
+                    out.close();
                     lock.releaseLock();
                 }
             }
         });
     }
-
-    protected FileObject handleRename(final String name) throws IOException {
-        final FileObject fob = getPrimaryFile();
-        FileSystem fs = fob.getFileSystem();
-        final FileObject[] target = new FileObject [1];
-        fs.runAtomicAction(new FileSystem.AtomicAction() {
-            public void run() throws IOException {
-                FileLock lock = fob.lock();
-                try {
-                    fob.rename(lock, name, fob.getExt());
-                    target[0] = fob;
-                } finally {
-                    lock.releaseLock();
-                }
-            }
-        });
-        return target[0];
-    }
-
-    protected FileObject handleMove(final DataFolder df) throws IOException {
-        final FileObject fob = getPrimaryFile();
-        FileSystem fs = fob.getFileSystem();
-        final FileObject[] target = new FileObject [1];
-        fs.runAtomicAction(new FileSystem.AtomicAction() {
-            public void run() throws IOException {
-                FileLock lock = fob.lock();
-                try {
-                    FileObject fld = df.getPrimaryFile();
-                    target[0] = fob.move(lock, fld, fob.getName(), fob.getExt());
-                } finally {
-                    lock.releaseLock();
-                }
-            }
-        });
-        return target[0];
-    }
-
-    protected DataObject handleCreateFromTemplate(DataFolder df, String name) throws IOException {
-        //XXX pending
-        return null;
-    }
-
-    public T getPojo() {
-        return getLookup().lookup (pojoType);
-    }
-
-    private class C implements InstanceContent.Convertor<LazyLoadStub, T> {
-        public T convert(LazyLoadStub obj) {
-            try {
-                return doLoad();
-            } catch (IOException ex) {
-                Exceptions.printStackTrace(ex);
-                return null;
-            }
-        }
-
-        public Class<? extends T> type(LazyLoadStub obj) {
-            return pojoType;
-        }
-
-        public String id(LazyLoadStub obj) {
-            return "pojo"; //XXX ???
-        }
-
-        public String displayName(LazyLoadStub obj) {
-            return id (obj);
-        }
-    }
-
-    private static final class LazyLoadStub{}
+    
     private class PCL implements PropertyChangeListener {
         public void propertyChange(PropertyChangeEvent arg0) {
-            setModified (true);
+            if (!isModified()) {
+                System.err.println("PCL got change " + arg0);
+                setModified (true);
+                T obj = (T) arg0.getSource();
+                content.add(save = new Save(obj));
+            }
+        }
+    }
+    
+    private Save save = null;
+    private class Save implements SaveCookie {
+        private T pojo;
+        public Save (T pojo) {
+            //Hard reference the pojo for the life of the SaveCookie, so
+            //a modified pojo cannot be garbage collected
+            this.pojo = pojo;
+        }
+        
+        public void save() throws IOException {
+            assert isModified();
+            PojoDataObject.this.doSave(pojo);
+            content.remove (this);
+            save = null;
         }
     }
 }

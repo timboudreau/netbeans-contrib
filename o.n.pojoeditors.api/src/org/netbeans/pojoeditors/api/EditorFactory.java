@@ -31,11 +31,9 @@ package org.netbeans.pojoeditors.api;
 import java.awt.EventQueue;
 import java.io.Serializable;
 import java.util.HashMap;
-import java.util.Map;
 import java.lang.ref.Reference;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
@@ -95,6 +93,10 @@ public abstract class EditorFactory<T extends Serializable> {
     public abstract Kind defaultKind();
     
     public final synchronized PojoEditor<T> get (Kind kind, PojoDataObject<T> obj) {
+        return get (kind, obj, true);
+    }
+    
+    private final synchronized PojoEditor<T> get (Kind kind, PojoDataObject<T> obj, boolean create) {
         assert EventQueue.isDispatchThread();
         Collection<Reference <PojoEditor<T>>> refs = editors.get (kind);
         PojoEditor<T> result = null;
@@ -109,10 +111,12 @@ public abstract class EditorFactory<T extends Serializable> {
                 }
             }
         }
-        if (result == null) {
+        if (result == null && create) {
             result = create (obj, kind);
             if (result != null) {
                 refs.add (new WeakReference<PojoEditor<T>>(result));
+                result.open();
+                result.requestActive();
             }
         }
         return result;
@@ -121,8 +125,12 @@ public abstract class EditorFactory<T extends Serializable> {
     void notifyOpened(PojoEditor<T> ed) {
         Collection<Reference <PojoEditor<T>>> refs = editors.get (ed.getKind());
         if (refs == null) {
-            throw new IllegalStateException ("Editor instantiated without " +
-                    "using action - probably a bug: " + ed);
+//            throw new IllegalStateException ("Editor instantiated without " +
+//                    "using action - probably a bug: " + ed);
+//            refs = new ArrayList <Reference<PojoEditor<T>>> (Collections.singleton(new WeakReference<PojoEditor<T>>>(ed)));
+            refs = new ArrayList <Reference<PojoEditor<T>>>(3);
+            refs.add (new WeakReference<PojoEditor<T>> (ed));
+            editors.put(ed.getKind(), refs);
         }
         for (Iterator<Reference<PojoEditor<T>>> it = refs.iterator(); it.hasNext();) {
             Reference<PojoEditor<T>> ref = it.next();
@@ -160,6 +168,9 @@ public abstract class EditorFactory<T extends Serializable> {
         //Iterate all kinds
         for (Kind k : Kind.values()) {
             Collection<Reference <PojoEditor<T>>> refs = editors.get (k);
+            if (refs == null) {
+                continue;
+            }
             //Iterate all known editors of each kind
             for (Iterator<Reference<PojoEditor<T>>> it = refs.iterator(); it.hasNext();) {
                 Reference<PojoEditor<T>> ref = it.next();
@@ -253,5 +264,24 @@ public abstract class EditorFactory<T extends Serializable> {
         Open (PojoDataObject<T> dob) {
             super(dob);
         }
+    }
+    
+    PojoEditorFinder createFinder (PojoDataObject<T> ob) {
+        return new PojoEditorFinderImpl(ob);
+    }
+    
+    private class PojoEditorFinderImpl implements PojoEditorFinder<T> {
+        PojoDataObject<T> ob;
+        PojoEditorFinderImpl (PojoDataObject<T> ob) {
+            this.ob = ob;
+        }
+        
+        public PojoEditor find(Kind kind, boolean openIfNecessary) {
+            if (supportedKinds().contains(kind)) {
+                return get (kind, ob, openIfNecessary);
+            }
+            return null;
+        }
+        
     }
 }
