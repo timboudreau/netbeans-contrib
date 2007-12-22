@@ -53,6 +53,8 @@ import org.openide.util.Lookup.Provider;
 import org.openide.util.lookup.Lookups;
 
 /**
+ * An ActionFactory that interoperates with a Lookup.Provider and a folder
+ * in the system filesystem.
  *
  * @author Tim Boudreau
  */

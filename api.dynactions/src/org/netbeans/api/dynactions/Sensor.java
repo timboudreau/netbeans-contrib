@@ -97,6 +97,13 @@ public final class Sensor <T> {
         return sensor;
     }
 
+    /**
+     * Request that this Notifiable be notified of changes in type
+     * <code>clazz</code> in the specified Lookup.
+     * @param lkp The Lookup
+     * @param clazz The type
+     * @param n A callback
+     */
     public static <T> void register (Lookup lkp, Class <T> clazz, Notifiable<T> n) {
         Map <Class, Sensor> m = sensors.get(lkp);
         Sensor <T> sensor;
@@ -114,10 +121,23 @@ public final class Sensor <T> {
         sensor.doRegister (n);
     }
 
+    /**
+     * Request that this Notifiable be notified of changes in type
+     * <code>clazz</code> in the default lookup.
+     * @param clazz The type
+     * @param n A callback
+     */
     public static <T> void registerOnDefaultLookup (Class<T> clazz, Notifiable<T> n) {
         register (Lookup.getDefault(), clazz, n);
     }
 
+    /**
+     * Request that this Notifiable be notified of changes in type
+     * <code>clazz</code> in global action context lookup 
+     * (org.openide.util.Utilities.actionsGlobalContext()).
+     * @param clazz The type
+     * @param n A callback
+     */
     public static <T> void registerOnGlobalActionContextLookup (Class<T> clazz, Notifiable<T> n) {
         register (Utilities.actionsGlobalContext(), clazz, n);
     }
@@ -253,6 +273,11 @@ public final class Sensor <T> {
         }
     }
 
+    /**
+     * An object that can be called back when the contents of a Lookup 
+     * changes
+     * @param T The type of object this notifiable is interested in
+     */
     public interface Notifiable <T> {
         public void notify (Collection <T> coll, Class target);
     }

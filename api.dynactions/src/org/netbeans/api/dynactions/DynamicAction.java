@@ -36,9 +36,9 @@ import org.openide.util.Lookup;
 import org.openide.util.actions.Presenter;
 
 /**
- * An action which can be registered in a layer for use by a Node, and
- * which will not be visible if it is disabled.
- *
+ * A context-sensitive action which is invisible in popup menus when it
+ * is disabled.
+ * 
  * @author Tim Boudreau
  */
 public abstract class DynamicAction<T> extends GenericContextSensitiveAction<T> implements Presenter.Popup {

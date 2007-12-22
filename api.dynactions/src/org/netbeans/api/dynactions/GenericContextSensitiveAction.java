@@ -64,14 +64,25 @@ import org.openide.util.NbBundle;
 import org.openide.util.Utilities;
 
 /**
+ * Basically a modern version of CookieAction - an action which can be enabled
+ * or disabled depending on the presence or absence of a particular type in
+ * a Lookup.
+ * <p/>
  * Any subclass needs two public constructors - one no-arg and one taking an
- * arg of Lookup
+ * arg of Lookup, unless they override createContextAwareInstance().  
  *
  * @author Tim Boudreau
  */
 public abstract class GenericContextSensitiveAction <T> implements ContextAwareAction {
     protected final Lookup lookup;
     protected Class <T> targetClass;
+    /**
+     * Create an action which will be conditionally enabled when an object of
+     * a particular type is present in a Lookup.
+     * 
+     * @param lookup The Lookup
+     * @param c The type in the Lookup which this action should be sensitive to
+     */
     protected GenericContextSensitiveAction(Lookup lookup, Class <T> c) {
         this.lookup = lookup == null ? Utilities.actionsGlobalContext() :
             lookup;
@@ -84,10 +95,25 @@ public abstract class GenericContextSensitiveAction <T> implements ContextAwareA
         setEnabled (checkEnabled (coll, c));
     }
 
+    /**
+     * Create an action which will be conditionally enabled when an object of
+     * a particular type is present in a Lookup.  Instances created using
+     * this constructor operate over the global action context returned by
+     * Utilities.actionsGlobalContext().
+     * 
+     * @param c The type to be sensitive to
+     */
     protected GenericContextSensitiveAction(Class<T> c) {
         this ((Lookup) null, c);
     }
 
+    /**
+     * Create an action which will be conditionally enabled when an object of
+     * a particular type is present in a Lookup.
+     * @param bundleKey A String key for a display name which will be found in
+     * a Bundle.properties file in the same package as this subclass
+     * @param The type to be sensitive to
+     */
     protected GenericContextSensitiveAction(String bundleKey, Class<T> c) {
         this ((Lookup) null, c);
         if (bundleKey != null) {
@@ -104,13 +130,13 @@ public abstract class GenericContextSensitiveAction <T> implements ContextAwareA
         }
     }
 
-    protected GenericContextSensitiveAction (Lookup lkp) {
-        this.lookup = lkp;
-        if (this.lookup == null) {
-            throw new NullPointerException ("Null lookup!");
-        }
-    }
-
+//    protected GenericContextSensitiveAction (Lookup lkp) {
+//        this.lookup = lkp;
+//        if (this.lookup == null) {
+//            throw new NullPointerException ("Null lookup!");
+//        }
+//    }
+//
     private void init (Class<T> c) {
         if (c == null) {
             throw new NullPointerException ("Passed class is null"); //NOI18N
@@ -123,6 +149,19 @@ public abstract class GenericContextSensitiveAction <T> implements ContextAwareA
         return targetClass;
     }
 
+    /**
+     * Create an instance of this action which will operate against the passed
+     * Lookup.  This method is used to create instances in popup menus, which
+     * should be sensitive to the Lookup of some specific file or object,
+     * regardless of the global selection.
+     * <p/>
+     * The default implementation tries to find a constructor of this 
+     * subclass which takes a Lookup as an argument, and invoke it.  If
+     * there is no such constructor, it will throw an exception.
+     * 
+     * @param lookup The Lookup
+     * @return An instance of this action for this particular lookup
+     */
     public Action createContextAwareInstance(Lookup lookup) {
         Class clazz = getClass();
         try {
@@ -260,6 +299,16 @@ public abstract class GenericContextSensitiveAction <T> implements ContextAwareA
         }
     }
 
+    /**
+     * Determine if the action should be enabled.  Called on changes in the
+     * Lookup this action works against.  By default, the action is enabled
+     * if the collection is not empty.  Override to add additional logic.
+     * 
+     * @param coll The collection of objects of the type passed to the 
+     * constructor, which are present in the Lookup
+     * @param clazz The type
+     * @return whether or not the action should be enabled.
+     */
     protected boolean checkEnabled(Collection <? extends T> coll, Class clazz) {
         return !coll.isEmpty();
     }
@@ -288,5 +337,9 @@ public abstract class GenericContextSensitiveAction <T> implements ContextAwareA
         performAction (t);
     }
 
+    /**
+     * Actually perform the action
+     * @param t The object from the lookup which this action will work against
+     */
     protected abstract void performAction(T t);
 }
