@@ -77,12 +77,6 @@
     TOKEN:whitespace: ( [" " "\t" "\n" "\r"]* )
 }
 
-#TOKEN:element_start: (
-#    "<"  ["a"-"z" "A"-"Z" "!" "?"]["a"-"z" "A"-"Z" "0"-"9" "-" "_" ":"]*
-#)
-#TOKEN:end_element: (
-#    "</" ["a"-"z" "A"-"Z" "!" "?"]["a"-"z" "A"-"Z" "0"-"9" "-" "_" ":"]* ">"
-#)
 TOKEN:xml_pi: (
     "<?" - "?>"
 )
@@ -93,14 +87,6 @@ TOKEN:xml_comment: ( "<!--" - "-->" )
     TOKEN:cddata: ( "]" [^">"] )
     TOKEN:cdsect_end: ( "]]>" ):<DEFAULT>
 }
-
-#TOKEN:xml: (
-#    "<"  ["a"-"z" "A"-"Z"]["a"-"z" "A"-"Z" "0"-"9" "-" "_" ":"]* [^">"]* "/>" |
-#    "<"  ["a"-"z" "A"-"Z"]["a"-"z" "A"-"Z" "0"-"9" "-" "_" ":"]* [^">"]* ">" 
-#    [^">"]* 
-#    "<"  ["a"-"z" "A"-"Z"]["a"-"z" "A"-"Z" "0"-"9" "-" "_" ":"]* [^">"]* "/>"
-#)
-
 
 
 <DEFAULT>:TOKEN:comment: ( "/*" ):<IN_COMMENT>
@@ -254,7 +240,7 @@ TOKEN:tview: (
 ## Operators
 ## add [" " "\t" "\n" "\r"]* before "=" leading operators to avoid conflict with <eq>
 TOKEN:operator: (
-    ["!" "%" "&" "+" "-" "<" "?" "\\" "^" "`" "|" "~" "*" ]
+    ["!" "%" "&" "+" "-" "<" ">" "?" "\\" "^" "`" "|" "~" "*" ]
     ["!" "%" "&" "+" "-" "=" ">" "?" "@" "\\" "^" "`" "|" "~" "#" ":" "/" "*"]* 
     |
     [" " "\t" "\n" "\r"]*
@@ -267,14 +253,7 @@ TOKEN:operator: (
     ["!" "%" "&" "+" "-" "<" "=" ">" "?" "@" "\\" "^" "`" "|" "~" "#" ":" "/" "*"]*
     |
     ["/"]
-    ["!" "%" "&" "+" "-" "<" "=" "?" "@" "\\" "^" "`" "|" "~" "#" ":" "/"]*
-)
-## Hacking for xml
-TOKEN:rangle: (
-    ">"  ["!" "%" "&" "+" "-" "=" ">" "?" "@" "\\" "^" "`" "|" "~" "#" ":" "/" "*"]*
-)
-TOKEN:slashrangle: (
-    "/>" ["!" "%" "&" "+" "-" "=" ">" "?" "@" "\\" "^" "`" "|" "~" "#" ":" "/" "*"]*
+    ["!" "%" "&" "+" "-" "<" "=" ">" "?" "@" "\\" "^" "`" "|" "~" "#" ":" "/"]*
 )
 
 ## separators
@@ -440,13 +419,9 @@ SKIP:comment_keyword
 
 S = CompilationUnit;
 
-OpId = <operator>
-     | <rangle>
-     | <slashrangle>;
-
 PlainId = <upperid>
         | <varid>
-        | OpId;
+        | <operator>;
 
 NameId = PlainId
        | <bquotedid>;
@@ -532,8 +507,6 @@ CtrlExpr = <if> <lparen> (<nl>)* Expr <rparen> (<nl>)* Expr [<else> (<nl>)* Expr
          | <for> (<lparen> (<nl>)* Enumerators <rparen> | <lbrace> (<nl>)* Enumerators <rbrace>) [<yield>] (<nl>)* Expr
          | <throw> Expr
          | <return> [Expr];
-
-
 
 ## Hacking for:
 ##     PostfixExpr = InfixExpr [NameId [<nl>]];
