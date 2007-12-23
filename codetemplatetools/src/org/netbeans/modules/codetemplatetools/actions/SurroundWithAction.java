@@ -40,18 +40,24 @@
  */
 package org.netbeans.modules.codetemplatetools.actions;
 
-import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.util.Collection;
-import javax.swing.AbstractAction;
+import java.util.LinkedHashSet;
+import java.util.Set;
 import javax.swing.JComponent;
-import javax.swing.JMenu;
-import javax.swing.JMenuItem;
+import javax.swing.JDialog;
+import javax.swing.JList;
+import javax.swing.JScrollPane;
+import javax.swing.KeyStroke;
+import javax.swing.ListSelectionModel;
 import javax.swing.text.Document;
 import javax.swing.text.JTextComponent;
 import org.netbeans.modules.codetemplatetools.SelectionCodeTemplateProcessor;
-import org.openide.awt.DynamicMenuContent;
-import org.openide.awt.Mnemonics;
+import org.netbeans.modules.codetemplatetools.ui.view.CodeTemplateListCellRenderer;
 import org.openide.cookies.EditorCookie;
 import org.openide.nodes.Node;
 import org.openide.util.HelpCtx;
@@ -61,7 +67,8 @@ import org.openide.util.actions.CookieAction;
 import org.netbeans.editor.Registry;
 import org.netbeans.lib.editor.codetemplates.api.CodeTemplate;
 import org.netbeans.lib.editor.codetemplates.api.CodeTemplateManager;
-import org.netbeans.modules.codetemplatetools.ui.view.Icons;
+import org.netbeans.modules.codetemplatetools.ui.view.CodeTemplateListModel;
+import org.openide.windows.WindowManager;
 
 /**
  *
@@ -69,95 +76,112 @@ import org.netbeans.modules.codetemplatetools.ui.view.Icons;
  */
 public final class SurroundWithAction extends CookieAction {
     private static String selectionParameterString = "${" + SelectionCodeTemplateProcessor.SELECTION_PARAMETER;
+
     boolean isForSelection(CodeTemplate codeTemplate) {
         return codeTemplate.getParametrizedText().indexOf(selectionParameterString) != -1;
     }
-    
-    private SurroundWithTemplatesMenu surroundWithTemplatesMenu;
-    
+
+    @Override
     protected void performAction(Node[] activatedNodes) {
+        final JTextComponent textComponent = Registry.getMostActiveComponent();
+        if (textComponent != null) {
+            Document document = textComponent.getDocument();
+            CodeTemplateManager codeTemplateManager = CodeTemplateManager.get(document);
+            if (codeTemplateManager != null) {
+                Collection codeTemplatesCollection = codeTemplateManager.getCodeTemplates();
+               Set<CodeTemplate> selectionCodeTemplates = new LinkedHashSet<CodeTemplate>();
+                if (textComponent.getSelectedText() == null) {
+                    selectionCodeTemplates.addAll(codeTemplatesCollection);
+                } else {
+                    for (Object ct : codeTemplatesCollection) {
+                        CodeTemplate codeTemplate = (CodeTemplate) ct;
+                        if (isForSelection(codeTemplate)) {
+                            selectionCodeTemplates.add(codeTemplate);
+                        }
+                    }                    
+                    selectionCodeTemplates.addAll(codeTemplatesCollection);
+                }
+                if (selectionCodeTemplates.size() > 0) {
+                    CodeTemplate[] selectionCodeTemplatesArray = selectionCodeTemplates.toArray(new CodeTemplate[0]);
+                    final JList templatesList = new JList();
+                    templatesList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+                    final CodeTemplateListModel codeTemplatesListModel = new CodeTemplateListModel(selectionCodeTemplatesArray);
+                    templatesList.setModel(codeTemplatesListModel);
+                    templatesList.setCellRenderer(new CodeTemplateListCellRenderer());
+
+                    final JDialog dialog = new JDialog(WindowManager.getDefault().getMainWindow(),
+                            "Select a template to insert",
+                            true) {
+                        @Override
+                        public void addNotify() {
+                            super.addNotify();
+                            templatesList.requestFocusInWindow();
+                        }
+                    };                    
+                    dialog.setDefaultCloseOperation(JDialog.HIDE_ON_CLOSE);
+                    dialog.setContentPane(new JScrollPane(templatesList));                    
+                    templatesList.registerKeyboardAction(
+                            new ActionListener() {
+                                public void actionPerformed(ActionEvent e) {
+                                    dialog.setVisible(false);
+                                    CodeTemplate codeTemplate = (CodeTemplate) templatesList.getSelectedValue();
+                                    if (codeTemplate != null) {
+                                        codeTemplate.insert(textComponent);
+                                    }
+                                }
+                            }
+                            ,KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0, false)
+                            ,JComponent.WHEN_FOCUSED);
+                    templatesList.registerKeyboardAction(
+                            new ActionListener() {
+                                public void actionPerformed(ActionEvent e) {
+                                    dialog.setVisible(false);
+                                }
+                            }
+                            ,KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0, false)
+                            ,JComponent.WHEN_FOCUSED);
+                            
+                    templatesList.addMouseListener(new MouseAdapter() {
+                        @Override
+                        public void mouseClicked(MouseEvent e) {
+                            if (e.getClickCount() == 2) {
+                                dialog.setVisible(false);
+                                CodeTemplate codeTemplate = (CodeTemplate) templatesList.getSelectedValue();
+                                if (codeTemplate != null) {
+                                    codeTemplate.insert(textComponent);
+                                }
+                            }
+                        }
+                    });   
+                    dialog.setSize(300, 250);
+                    dialog.setBounds(Utilities.findCenterBounds(dialog.getSize()));
+                    dialog.setVisible(true);
+                }
+            }
+        }
     }
-    
-    public JMenuItem getMenuPresenter() {
-        JMenu menu = new SurroundWithTemplatesMenu();
-        String label = NbBundle.getMessage(SurroundWithAction.class, "CTL_SurroundWithAction");
-        Mnemonics.setLocalizedText(menu, label);
-        return menu;        
-    }
-    
+
     protected int mode() {
         return CookieAction.MODE_EXACTLY_ONE;
     }
-    
+
     public String getName() {
         return NbBundle.getMessage(SurroundWithAction.class, "CTL_SurroundWithAction");
     }
-    
+
     protected Class[] cookieClasses() {
         return new Class[] {
             EditorCookie.class
         };
     }
-    
+
     public HelpCtx getHelpCtx() {
         return HelpCtx.DEFAULT_HELP;
     }
-    
+
+    @Override
     protected boolean asynchronous() {
         return false;
-    }
-    
-    private class SurroundWithTemplatesMenu extends JMenu implements DynamicMenuContent {
-        public JComponent[] getMenuPresenters() {
-            // Clean
-            removeAll();
-
-            JTextComponent textComponent = Registry.getMostActiveComponent();
-            if (textComponent != null) {
-                Document document = textComponent.getDocument();
-                CodeTemplateManager codeTemplateManager = CodeTemplateManager.get(document);
-                if (codeTemplateManager != null) {
-                    Collection codeTemplatesCollection = codeTemplateManager.getCodeTemplates();
-                    CodeTemplate[] codeTemplates = (CodeTemplate[]) codeTemplatesCollection.toArray(new CodeTemplate[0]);
-                    for (int i = 0; i < codeTemplates.length; i++) {
-                        CodeTemplate codeTemplate = codeTemplates[i];
-                        if (isForSelection(codeTemplate)) {
-                            add(new InsertCodeTemplateAction(textComponent, codeTemplate));
-                        }
-                    }
-                }
-            }
-            return new JComponent[] {this};
-        }
-
-        public JComponent[] synchMenuPresenters(JComponent[] items) {
-            return getMenuPresenters();
-        }
-    }
-    
-    private static class InsertCodeTemplateAction extends AbstractAction {
-        private JTextComponent textComponent;
-        private CodeTemplate codeTemplate;
-        
-        InsertCodeTemplateAction(JTextComponent textComponent, CodeTemplate codeTemplate) {
-            super(codeTemplate.getAbbreviation(), Icons.TEMPLATE_FOR_SELECTION_ICON);
-            this.textComponent = textComponent;
-            this.codeTemplate = codeTemplate;
-            if (Utilities.getOperatingSystem() == Utilities.OS_MAC) {
-                // HACK On MacOS the menu items need to be always enabled. why?
-                setEnabled(true);
-            } else {
-                setEnabled(textComponent.isEditable() && textComponent.getSelectedText() != null);
-            }
-        }
-        
-        public void actionPerformed(ActionEvent e) {
-            if (textComponent.isEditable()) {
-                codeTemplate.insert(textComponent);
-            } else {
-                Toolkit.getDefaultToolkit().beep();
-            }
-        }
     }
 }
 

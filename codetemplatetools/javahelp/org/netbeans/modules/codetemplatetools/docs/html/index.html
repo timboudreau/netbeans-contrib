@@ -16,6 +16,8 @@
         </ul>
         <table border="0" cellspacing="4" cellpadding="4">
             <tr><th>Action</th><th>Key bindings</th></tr>
+            <tr><td>Expand Template</td><td><code>Ctrl+J SPACE</code></td></tr>
+            <tr><td>Surround With...</td><td><code>Ctrl+J T</code></td></tr>
             <tr><td>Cut to Register</td><td><code>Ctrl+J R X</code></td></tr>
             <tr><td>Copy to Register</td><td><code>Ctrl+J R C</code></td></tr>
             <tr><td>Paste from Register</td><td><code>Ctrl+J R V</code></td></tr>
@@ -24,7 +26,7 @@
         <h3>To create a Code Template from selection in the editor </h3>
         <ul>
             <li>Select text in editor </li>
-            <li>Invoke <img alt="Create Template..." src="newtemplate.gif"/> <b>Create Template...</b> action </li>
+            <li>Invoke <img alt="Create Template..." src="newtemplate.gif"> <b>Create Template...</b> action </li>
             <li>Name the template and insert any parameters using the <code>${parameter-name}</code>
             syntax </li>
             <li>Supports additonal parameters:
@@ -53,19 +55,20 @@
         <p><img alt="createtemplate.jpg" src="createtemplate.jpg"></p>        
         <h3>To insert a Code Template </h3>
         <ul>
-            <li>Invoke  <img alt="Show Templates ..." src="templates.gif"/> <b>Show Templates...</b> action </li>
+            <li>Invoke  <img alt="Show Templates ..." src="templates.gif"> <b>Show Templates...</b> action </li>
             <li>Select a template from the list and preview it </li>
             <li>Click on Insert to insert the selected Code Template </li>
         </ul>
         <p><img alt="templates.jpg" src="templates.jpg">
         </p>
         <p>NOTE: The templates which use the ${selection} parameter are shown with <img alt="Templates with ${selection} parameter" src="templateforselection.gif"/> icon.</p>
-        <h3>Surround With Menu</h3>
-        The Surround With menu shows all the templates that make use of the ${selection} parameter. This allows an easy way to insert such templates.
+        <h3>Surround With Action</h3>
+        The Surround With Action shows all the templates in a dialog. You can select a template and type ENTER or double click to insert that template. If the editor has 
+        a selection the templates that make use of the ${selection} parameter are shown at the front of the list.
         <h3>To create a Code Template </h3>
         <ul>
-            <li>Invoke <img alt="Show Templates ..." src="templates.gif"/> <b>Show Templates...</b> action </li>
-            <li>Click on <img alt="Create Template..." src="newtemplate.gif"/> <b>New...</b> to create a template. </li>
+            <li>Invoke <img alt="Show Templates ..." src="templates.gif"> <b>Show Templates...</b> action </li>
+            <li>Click on <img alt="Create Template..." src="newtemplate.gif"> <b>New...</b> to create a template. </li>
         </ul>
         <h3>To expand a Code Template </h3>
         <ul>
@@ -76,14 +79,14 @@
         </p>
         <h3>To modify or delete a Code Template </h3>
         <ul>
-            <li>Invoke <img alt="Show Templates ..." src="templates.gif"/> <b>Show Templates...</b> action </li>
+            <li>Invoke <img alt="Show Templates ..." src="templates.gif"> <b>Show Templates...</b> action </li>
             <li>Select a template from the list and preview it </li>
             <li>Click on <b>Modify...</b> to modify the selected template </li>
             <li>Click on <b>Delete...</b> to delete the selected template </li>
         </ul>
         <h3>To import Code Templates</h3>
         <ul>
-            <li>Invoke <img alt="Show Templates ..." src="templates.gif"/> <b>Show Templates...</b> action </li>
+            <li>Invoke <img alt="Show Templates ..." src="templates.gif"> <b>Show Templates...</b> action </li>
             <li>Click on <b>Import...</b> to import code templates</li>
             <li>Select the xml file containing code templates. The xml file format is same as the <code>.netbeans/&lt;nb-version&gt;/config/Editors/&lt;mime-type&gt;/CodeTemplates/org-netbeans-modules-editor-settings-CustomCodeTemplates.xml</code>.
             For example:</li>
