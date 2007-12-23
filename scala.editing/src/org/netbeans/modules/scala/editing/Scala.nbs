@@ -833,11 +833,10 @@ TopStats = TopStat (Semi TopStat)*;
 TopStat = (Annotation)* (Modifier)* TmplDef
         | Import
         | Packaging
-        | Template
         | ;
 
-Packaging = <package> QualId <lbrace> (<nl>)* TopStats <rbrace>;
-CompilationUnit = (<nl>)* [<package> QualId Semi] TopStats;
+Packaging = <package> QualId [<lbrace> (<nl>)* TopStats <rbrace>];
+CompilationUnit = (<nl>)* TopStats;
 
 
 #SYNTAX_ERROR:Expr: {
