@@ -40,6 +40,7 @@
  */
 package org.netbeans.modules.codetemplatetools.actions;
 
+import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
@@ -53,9 +54,11 @@ import javax.swing.JDialog;
 import javax.swing.JList;
 import javax.swing.JScrollPane;
 import javax.swing.KeyStroke;
+import javax.swing.ListModel;
 import javax.swing.ListSelectionModel;
 import javax.swing.text.Document;
 import javax.swing.text.JTextComponent;
+import javax.swing.text.Position;
 import org.netbeans.modules.codetemplatetools.SelectionCodeTemplateProcessor;
 import org.netbeans.modules.codetemplatetools.ui.view.CodeTemplateListCellRenderer;
 import org.openide.cookies.EditorCookie;
@@ -103,7 +106,40 @@ public final class SurroundWithAction extends CookieAction {
                 }
                 if (selectionCodeTemplates.size() > 0) {
                     CodeTemplate[] selectionCodeTemplatesArray = selectionCodeTemplates.toArray(new CodeTemplate[0]);
-                    final JList templatesList = new JList();
+                    final JList templatesList = new JList(){
+                        @Override
+                        public int getNextMatch(String prefix, int startIndex, Position.Bias bias) {
+                            ListModel listModel = getModel();
+                            if (listModel instanceof CodeTemplateListModel) {
+                                prefix = prefix.toLowerCase();
+                                CodeTemplateListModel codeTemplateListModel = (CodeTemplateListModel) listModel;
+                                int size = codeTemplateListModel.getSize();
+                                int select = -1;
+                                for (int i = startIndex; i < size; i++) {
+                                    CodeTemplate codeTemplate = (CodeTemplate) codeTemplateListModel.getElementAt(i);
+                                    if (codeTemplate.getAbbreviation().toLowerCase().startsWith(prefix)) {
+                                        select = i;
+                                        break;
+                                    }
+                                }
+                                if (select == -1) {
+                                    for (int i = 0; i < startIndex; i++) {
+                                        CodeTemplate codeTemplate = (CodeTemplate) codeTemplateListModel.getElementAt(i);
+                                        if (codeTemplate.getAbbreviation().toLowerCase().startsWith(prefix)) {
+                                            select = i;
+                                            break;
+                                        }
+                                    }
+                                }
+                                if (select != -1) {
+                                    return select;
+                                }
+                            }
+                            Toolkit.getDefaultToolkit().beep();
+                            return -1;
+                        }
+                    };
+                    
                     templatesList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
                     final CodeTemplateListModel codeTemplatesListModel = new CodeTemplateListModel(selectionCodeTemplatesArray);
                     templatesList.setModel(codeTemplatesListModel);
