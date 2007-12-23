@@ -47,13 +47,43 @@
 #opchar = “all other characters in\u0020-007F and Unicode categories
 #Sm, So except parentheses ([]) and periods”
 
-TOKEN:element_start: (
-    "<"  ["a"-"z" "A"-"Z" "!" "?"]["a"-"z" "A"-"Z" "0"-"9" "-" "_" ":"]*
-)
-TOKEN:end_element: (
-    "</" ["a"-"z" "A"-"Z" "!" "?"]["a"-"z" "A"-"Z" "0"-"9" "-" "_" ":"]* ">"
-)
-TOKEN:pi: (
+## XML mode
+<DEFAULT>:TOKEN:xml_element_start: ( 
+    "<"  ["a"-"z" "A"-"Z" "?" "!"]["a"-"z" "A"-"Z" "0"-"9" "-" "_" ":"]* ):<IN_XML_ELEMENT>
+<DEFAULT>:TOKEN:xml_end_element_start: (
+    "</" ["a"-"z" "A"-"Z" "?" "!"]["a"-"z" "A"-"Z" "0"-"9" "-" "_" ":"]* ):<IN_XML_ELEMENT>
+
+<IN_XML_ELEMENT> {
+    TOKEN:xml_attribute_name: ( ["a"-"z" "A"-"Z"]["a"-"z" "A"-"Z" "0"-"9" "-" "_" ":"]* ):<IN_XML_ATTRIBUTE>
+    TOKEN:whitespace: ( [" " "\t" "\n" "\r"]* )
+    TOKEN:xml_element_end: ( "?"? ">" ):<DEFAULT>
+    TOKEN:xml_end_element_end: ( "/>" ):<DEFAULT>
+}
+
+<IN_XML_ATTRIBUTE> {
+    TOKEN:eq: ( "=" ):<IN_XML_ATTRIBUTE2>
+    TOKEN:whitespace: ( [" " "\t" "\n" "\r"]* )
+    TOKEN:xml_element_end: ( "?"? ">" ):<DEFAULT>
+    TOKEN:xml_end_element_end: ( "/>" ):<DEFAULT>
+    TOKEN:xml_attribute_name: ( [^ " " ">" "=" "\t" "\n" "\r"]+ )
+}
+
+<IN_XML_ATTRIBUTE2> {
+    TOKEN:xml_attribute_value: ( 
+        "\"" [^ "\"" "\n" "\r"]* "\"" |
+        "\'" [^ "\'" "\n" "\r"]* "\'"
+    ):<IN_XML_ELEMENT>
+    TOKEN:xml_scala_expr: ( "{" - "}" ):<IN_XML_ELEMENT>
+    TOKEN:whitespace: ( [" " "\t" "\n" "\r"]* )
+}
+
+#TOKEN:element_start: (
+#    "<"  ["a"-"z" "A"-"Z" "!" "?"]["a"-"z" "A"-"Z" "0"-"9" "-" "_" ":"]*
+#)
+#TOKEN:end_element: (
+#    "</" ["a"-"z" "A"-"Z" "!" "?"]["a"-"z" "A"-"Z" "0"-"9" "-" "_" ":"]* ">"
+#)
+TOKEN:xml_pi: (
     "<?" - "?>"
 )
 TOKEN:xml_comment: ( "<!--" - "-->" )
@@ -614,18 +644,22 @@ Enumerator = Generator
            | ;
 
 
-XmlExpr = Element (Element)*
-        | CDSect (Element)*
-        | <pi> (Element)*;
-XmlContent = Element
-           | CDSect
-           | <pi>;
-Element = <element_start> (Attribute)* (<slashrangle> | <rangle> (Content)* <end_element>);
-CDSect = <cdsect_start> <cddata> <cdsect_end>;
-Content = CharData | <quote>
-        | XmlContent
-        | ScalaExpr;
-CharData = Literal
+XmlExpr = XmlElement (XmlElement)*
+        | XmlCDSect  (XmlElement)*
+        | <xml_pi>   (XmlElement)*;
+
+XmlElement = <xml_element_start> (XmlAttribute)* (<xml_end_element_end> | <xml_element_end> (XmlContent)* XmlEndTag);
+
+XmlEndTag = <xml_end_element_start> (XmlAttribute)* <xml_element_end>;
+XmlAttribute = <xml_attribute_name> <eq> (<xml_attribute_value> | <xml_scala_expr>);
+
+XmlCDSect = <cdsect_start> <cddata> <cdsect_end>;
+XmlContent = XmlCharData
+           | XmlElement
+           | XmlCDSect
+           | <xml_pi>
+           | XmlScalaExpr;
+XmlCharData = Literal
          | <varid>
          | <upperid>
          | <operator>
@@ -646,6 +680,7 @@ CharData = Literal
          | <comma>
          | <hash>
          | <under>
+         | <quote>
          | <abstract>
          | <case>
          | <class>
@@ -687,61 +722,7 @@ CharData = Literal
          | <with>
          | <yield>
          | <nl>;
-Attribute = NSName <eq> (<nl>)* AttValue;
-AttValue = <string> # "\"" {CharQ | CharRef} "\""
-         | <quote> CharData <quote> # "’" {CharA | CharRef} "’"
-         | ScalaExpr
-         | <nl>;
-NSName = Name (<colon> Name)*;
-Name = <varid>
-     | <upperid>
-     | <eq>
-     | <colon>
-     | <dot>
-     | <comma>
-     | <hash>
-     | <under>
-     | <abstract>
-     | <case>
-     | <class>
-     | <def>
-     | <do>
-     | <false>
-     | <final>
-     | <for>
-     | <if>
-     | <implicit>
-     | <import>
-     | <lazy>
-     | <new>
-     | <null>
-     | <object>
-     | <override>
-     | <package>
-     | <private>
-     | <protected>
-     | <return>
-     | <sealed>
-     | <super>
-     | <this>
-     | <throw>
-     | <trait>
-     | <try>
-     | <true>
-     | <type>
-     | <val>
-     | <var>
-     | <while>
-     | <catch>
-     | <else>
-     | <extends>
-     | <finally>
-     | <forSome>
-     | <match>
-     | <requires>
-     | <with>
-     | <yield>;
-ScalaExpr = <lbrace> (<nl>)* BlockStats <rbrace>;
+XmlScalaExpr = <lbrace> (<nl>)* BlockStats <rbrace>;
 
 Pattern = Pattern1 ("|" Pattern1)*
         | ;
@@ -775,14 +756,13 @@ CasePattern0 = <under> ["*"]
              | <lparen> (<nl>)* Patterns (<nl>)* <rparen>
              | XmlPattern;
 
-XmlPattern = ElemPattern;
-ElemPattern = <element_start> (<slashrangle> | <rangle> (ContentP)* <end_element>);
-ContentP = ElemPattern
-         | CDSect
-         | <pi>
-         | CharData
-         | ScalaPatterns;
-ScalaPatterns = <lbrace> (<nl>)* Patterns (<nl>)* <rbrace>;
+XmlPattern = <xml_element_start> (XmlAttribute)* (<xml_end_element_end> | <xml_element_end> (XmlContentP)* XmlEndTag);
+XmlContentP = XmlCharData
+            | XmlPattern
+            | XmlCDSect
+            | <xml_pi>
+            | XmlScalaPatterns;
+XmlScalaPatterns = <lbrace> (<nl>)* Patterns (<nl>)* <rbrace>;
 
 Patterns = Pattern (<comma> (<nl>)* Pattern)*;
 
@@ -1058,7 +1038,7 @@ COLOR:PostfixExpr.NameId,PrefixExpr.PrefixOp: {
     foreground_color: "0x2E92C7";
 }
 
-COLOR:element_start,end_element,Element.rslashangle,Element.rangle,ElemPattern.rslashangle,ElemPattern.rangle: {
+COLOR:xml_element_start,xml_end_element_start,xml_element_end,xml_end_element_end: {
     foreground_color: "0x228B22";
 }
 
