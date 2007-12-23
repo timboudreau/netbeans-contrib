@@ -10,20 +10,22 @@
         IDE. This module provides the following actions:</p>
         <table border="0" cellspacing="4" cellpadding="4">
             <tr><th>Action</th><th>Key binding</th><th>Icon</th></tr>
-            <tr><td>Decompile</td><td><code>Ctrl-F9</code></td><td><img alt="Decompile" src="nbjad.gif"></td></tr>
+            <tr><td>Decompile</td><td><code>Ctrl+Shift-F9</code></td><td><img alt="Decompile" src="nbjad.gif"></td></tr>
         </table>
         <h2>How to configure Jad</h2>
         Download the Jad decompiler from http://www.kpdus.com/jad.html, install
         it and configure the location in the <b>Tools:Options:Decompile</b>panel.
         Make sure you read and follow the Jad license.
         <h2>How it works</h2>
-        When the <b>View:Decompile</b> action or the <b>Decompile</b> action in
-        the pop up menu is invoked on the selected <code>.class</code> file node
-        the Jad decompiler is invoked on it with the following options:
+        When the <b>View:Decompile</b> (<code>Ctrl+Shift-F9</code>) action or the
+        <b>Decompile</b> action in the pop up menu is invoked on the selected
+        <code>.class</code> file node the Jad decompiler is invoked on it with
+        the following options:
         <pre>
 jad -o -r -s .java -d &lt;user.home&gt;/.nbjad [additional jad options] .class-file
 
 where:
+
 -o - overwrite the output files
 -r - create folder structure consistent with package specified in the <code>.class</code> file
 -s - suffix for output files i.e. .java
@@ -75,8 +77,8 @@ The following additonal options can be specified using the
         </pre>
         <p>
             The output window shows the status of decompilation. 
-            <i><b>Decompile</b> action in the pop up menu is not available on the
-            <code>.class</code> files inside a <code>jar</code> file.</i>
+            <i>Unfortunately the <b>Decompile</b> action in the pop up menu is not
+            available on the <code>.class</code> files inside a <code>jar</code> file.</i>
         </p>
         <p>
             If the <code>.class</code> file is inside a <code>jar</code> file it is

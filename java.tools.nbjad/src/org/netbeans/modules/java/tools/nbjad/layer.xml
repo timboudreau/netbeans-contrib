@@ -46,7 +46,7 @@
     </folder>
     
     <folder name="Shortcuts">
-        <file name="D-F9.shadow">
+        <file name="D-S-F9.shadow">
             <attr name="originalFile" stringvalue="Actions/Tools/org-netbeans-modules-java-tools-nbjad-actions-DecompileAction.instance"/>
         </file>        
     </folder>
