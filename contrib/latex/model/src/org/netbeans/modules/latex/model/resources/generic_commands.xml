@@ -351,7 +351,7 @@ made subject to such option by the copyright holder.
   <attribute name="hide-command" value="true" />
   <argument type="mandatory">
     <attribute name="#text" value="true" />
-    <attribute name="font-style" value="emphesise" />
+    <attribute name="font-style" value="emphasise" />
     <attribute name="hide-surrounding-brackets" value="true" />
   </argument>
 </command>

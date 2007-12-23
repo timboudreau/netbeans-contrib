@@ -183,37 +183,51 @@ public class SemanticColoring implements CancellableTask<CompilationInfo> {
                         if (!seenLabels.contains(label)) {
                             possiblyUnusedLabel2Tokens.put(label, tokenList[0] = new LinkedList<Token>());
                         }
-                } else {
-                    if (node.getArgument().hasAttribute("#ref")) { // NOI18N
-                        String label = node.getText().toString();
-                        
-                        seenLabels.add(label);
-                        possiblyUnusedLabel2Tokens.remove(label);
-                } else {
-                    if (node.getArgument().isEnumerable()) {
-                        if (node.isValidEnum()) {
-                            attrs = getColoringForName(TexColoringNames.ENUM_ARG_CORRECT);
-                        } else {
-                            attrs = getColoringForName(TexColoringNames.ENUM_ARG_INCORRECT);
-                        }
                     } else {
-                        ArgumentContainingNode cnode = node.getCommand();
+                        if (node.getArgument().hasAttribute("#ref")) { // NOI18N
+                            String label = node.getText().toString();
 
-                        if (cnode instanceof CommandNode && cnode.getParent() instanceof BlockNode) {
-                            BlockNode bnode = (BlockNode) cnode.getParent();
-                            Environment env = bnode.getEnvironment();
-
-                            if (env != null) {
-                                attrs = getColoringForName(TexColoringNames.ENUM_ARG_CORRECT);
+                            seenLabels.add(label);
+                            possiblyUnusedLabel2Tokens.remove(label);
+                        } else {
+                            if (node.getArgument().isEnumerable()) {
+                                if (node.isValidEnum()) {
+                                    attrs = getColoringForName(TexColoringNames.ENUM_ARG_CORRECT);
+                                } else {
+                                    attrs = getColoringForName(TexColoringNames.ENUM_ARG_INCORRECT);
+                                }
                             } else {
-                                attrs = getColoringForName(TexColoringNames.ENUM_ARG_INCORRECT);
+                                if (node.hasAttribute("extended-coloring-modifier")) {
+                                    String modifier = node.getAttribute("extended-coloring-modifier");
+                                    
+                                    if (modifier.endsWith("*")) {
+                                        modifier = modifier.substring(0, modifier.length() - 1);
+                                    }
+                                    
+                                    attrs = getColoringForName(node.getAttribute("extended-coloring-modifier"));
+                                } else {
+                                    if (node.hasAttribute("font-style")) {
+                                        attrs = getColoringForName("mod-font-style-" + node.getAttribute("font-style"));
+                                    } else {
+                                        ArgumentContainingNode cnode = node.getCommand();
+
+                                        if (cnode instanceof CommandNode && cnode.getParent() instanceof BlockNode) {
+                                            BlockNode bnode = (BlockNode) cnode.getParent();
+                                            Environment env = bnode.getEnvironment();
+
+                                            if (env != null) {
+                                                attrs = getColoringForName(TexColoringNames.ENUM_ARG_CORRECT);
+                                            } else {
+                                                attrs = getColoringForName(TexColoringNames.ENUM_ARG_INCORRECT);
+                                            }
+                                        }
+                                    }
+                                }
                             }
                         }
                     }
                 }
-                }
-                }
-                
+               
                 final AttributeSet attrsFin = attrs;
                 
                 document.render(new Runnable() {
