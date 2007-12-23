@@ -168,14 +168,14 @@ public class CodeTemplatesPanel extends javax.swing.JPanel {
     private static final String TAG_CODE_TEMPLATES = "codetemplates"; //NOI18N
     private static final String TAG_CODE_TEMPLATE = "codetemplate"; //NOI18N
     private static final String TAG_CODE = "code"; //NOI18N
-    
+
     /** Attributes */
     private static final String ATTR_ABBREVIATION = "abbreviation"; //NOI18N
     private static final String ATTR_ACTION = "action"; //NOI18N
     private static final String ATTR_REMOVE = "remove"; //NOI18N
-    private static final String ATTR_XML_SPACE = "xml:space"; //NOI18N    
+    private static final String ATTR_XML_SPACE = "xml:space"; //NOI18N
     private static final String VALUE_XML_SPACE = "preserve"; //NOI18N
-    
+
     private void importTemplates() {
         JFileChooser jFileChooser = new JFileChooser();
         jFileChooser.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
@@ -207,7 +207,7 @@ public class CodeTemplatesPanel extends javax.swing.JPanel {
                 return "NetBeans Abbrev files (*.xml)";
             }
         });
-        
+
         if (jFileChooser.showOpenDialog(WindowManager.getDefault().getMainWindow()) == JFileChooser.APPROVE_OPTION) {
             File file = jFileChooser.getSelectedFile();
             try {
@@ -222,7 +222,7 @@ public class CodeTemplatesPanel extends javax.swing.JPanel {
 //                        Map.Entry entry = (Map.Entry)it.next();
 //                        String mimeType = (String)entry.getKey();
 //                        Map/*<String,String>*/ props = (Map)entry.getValue();
-//                        
+//
 //                        Lookup lookup = MimeLookup.getLookup(MimePath.get(mimeType));
 //                        BaseOptions baseOptions = lookup.lookup(BaseOptions.class);
 //                        Map abbreviationsMap = baseOptions.getAbbrevMap();
@@ -290,7 +290,7 @@ public class CodeTemplatesPanel extends javax.swing.JPanel {
                         }
                     }
                 }
-                
+
                 // Write templates out
                 // Don't iterate and save each one, since every individual save
                 // fires changes that cause a lot of work.
@@ -308,10 +308,10 @@ public class CodeTemplatesPanel extends javax.swing.JPanel {
                 ErrorManager.getDefault().notify(ex);
             } catch (SAXException ex) {
                 ErrorManager.getDefault().notify(ex);
-            } 
+            }
         }
     }
-    
+
     /** This method is called from within the constructor to
      * initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is
@@ -581,7 +581,7 @@ public class CodeTemplatesPanel extends javax.swing.JPanel {
                     return;
                 }
                 break;
-        }       
+        }
         Object[] selectedObjects =  templatesList.getSelectedValues();
         CodeTemplate[] selectedTemplates = new CodeTemplate[selectedObjects.length];
         System.arraycopy(selectedObjects, 0, selectedTemplates, 0, selectedObjects.length);
@@ -618,19 +618,4 @@ public class CodeTemplatesPanel extends javax.swing.JPanel {
     private javax.swing.JScrollPane templatesScrollPane;
     // End of variables declaration//GEN-END:variables
 
-    private static class CodeTemplateListModel extends AbstractListModel {
-        private CodeTemplate[] codeTemplates;
-
-        CodeTemplateListModel(CodeTemplate[] codeTemplates) {
-            this.codeTemplates = codeTemplates;
-        }
-
-        public int getSize() {
-            return codeTemplates.length;
-        }
-
-        public Object getElementAt(int index) {
-            return codeTemplates[index];
-        }
-    }
 }
