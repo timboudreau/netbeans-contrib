@@ -33,18 +33,22 @@
                       <Group type="103" groupAlignment="0" attributes="0">
                           <Group type="102" attributes="0">
                               <Group type="103" groupAlignment="0" attributes="0">
-                                  <Component id="staticCheckBox" linkSize="1" min="-2" max="-2" attributes="0"/>
-                                  <Component id="privateRadioButton" linkSize="1" min="-2" max="-2" attributes="0"/>
+                                  <Component id="staticCheckBox" linkSize="3" min="-2" max="-2" attributes="0"/>
+                                  <Component id="privateRadioButton" linkSize="3" min="-2" max="-2" attributes="0"/>
                               </Group>
                               <EmptySpace max="-2" attributes="0"/>
                               <Group type="103" groupAlignment="0" attributes="0">
-                                  <Component id="finalCheckBox" linkSize="1" min="-2" max="-2" attributes="0"/>
+                                  <Group type="102" attributes="0">
+                                      <Component id="finalCheckBox" min="-2" max="-2" attributes="0"/>
+                                      <EmptySpace max="-2" attributes="0"/>
+                                      <Component id="finalRequiresInitializerTipLabel" min="-2" max="-2" attributes="0"/>
+                                  </Group>
                                   <Group type="102" alignment="0" attributes="0">
-                                      <Component id="packageRadioButton" linkSize="1" min="-2" max="-2" attributes="0"/>
+                                      <Component id="packageRadioButton" linkSize="3" min="-2" max="-2" attributes="0"/>
                                       <EmptySpace max="-2" attributes="0"/>
-                                      <Component id="protectedRadioButton" linkSize="1" min="-2" max="-2" attributes="0"/>
+                                      <Component id="protectedRadioButton" linkSize="3" min="-2" max="-2" attributes="0"/>
                                       <EmptySpace max="-2" attributes="0"/>
-                                      <Component id="publicRadioButton" linkSize="1" min="-2" max="-2" attributes="0"/>
+                                      <Component id="publicRadioButton" linkSize="3" min="-2" max="-2" attributes="0"/>
                                   </Group>
                               </Group>
                           </Group>
@@ -56,7 +60,7 @@
                                       <EmptySpace min="-2" max="-2" attributes="0"/>
                                       <Component id="boundTipLabel" min="-2" max="-2" attributes="0"/>
                                       <EmptySpace max="-2" attributes="0"/>
-                                      <Component id="propNameTextField" pref="511" max="32767" attributes="0"/>
+                                      <Component id="propNameTextField" pref="453" max="32767" attributes="0"/>
                                       <EmptySpace max="-2" attributes="0"/>
                                       <Component id="propNameTipLabel" min="-2" max="-2" attributes="0"/>
                                   </Group>
@@ -87,14 +91,22 @@
                               <EmptySpace min="-2" max="-2" attributes="0"/>
                               <Component id="browseTypeButton" min="-2" pref="86" max="-2" attributes="0"/>
                           </Group>
-                          <Component id="nameTextField" alignment="0" pref="645" max="32767" attributes="2"/>
+                          <Group type="102" alignment="0" attributes="0">
+                              <Component id="nameTextField" min="-2" pref="165" max="-2" attributes="2"/>
+                              <EmptySpace max="-2" attributes="0"/>
+                              <Component id="equalsLabel" min="-2" max="-2" attributes="0"/>
+                              <EmptySpace max="-2" attributes="0"/>
+                              <Component id="initializerTextField" pref="366" max="32767" attributes="0"/>
+                              <EmptySpace max="-2" attributes="0"/>
+                              <Component id="semicolonLabel" min="-2" max="-2" attributes="0"/>
+                          </Group>
                       </Group>
                   </Group>
                   <Group type="102" alignment="0" attributes="1">
                       <EmptySpace min="-2" max="-2" attributes="0"/>
                       <Component id="previewLabel" linkSize="2" min="-2" max="-2" attributes="0"/>
                       <EmptySpace min="-2" max="-2" attributes="0"/>
-                      <Component id="previewScrollPane" pref="645" max="32767" attributes="2"/>
+                      <Component id="previewScrollPane" pref="580" max="32767" attributes="2"/>
                   </Group>
               </Group>
               <EmptySpace min="-2" max="-2" attributes="0"/>
@@ -108,6 +120,9 @@
               <Group type="103" groupAlignment="3" attributes="0">
                   <Component id="nameLabel" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="nameTextField" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="equalsLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="semicolonLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="initializerTextField" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
               <EmptySpace min="-2" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
@@ -127,7 +142,10 @@
                       <EmptySpace min="-2" max="-2" attributes="0"/>
                       <Component id="staticCheckBox" min="-2" max="-2" attributes="0"/>
                   </Group>
-                  <Component id="finalCheckBox" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Group type="103" alignment="1" groupAlignment="3" attributes="0">
+                      <Component id="finalCheckBox" alignment="3" min="-2" max="-2" attributes="0"/>
+                      <Component id="finalRequiresInitializerTipLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                  </Group>
               </Group>
               <EmptySpace min="-2" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
@@ -178,6 +196,27 @@
       <Properties>
         <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
           <ResourceString bundle="org/netbeans/modules/java/addproperty/ui/Bundle.properties" key="AddPropertyPanel.nameTextField.text" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
+        </Property>
+      </Properties>
+    </Component>
+    <Component class="javax.swing.JLabel" name="equalsLabel">
+      <Properties>
+        <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
+          <ResourceString bundle="org/netbeans/modules/java/addproperty/ui/Bundle.properties" key="AddPropertyPanel.equalsLabel.text" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
+        </Property>
+      </Properties>
+    </Component>
+    <Component class="javax.swing.JTextField" name="initializerTextField">
+      <Properties>
+        <Property name="toolTipText" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
+          <ResourceString bundle="org/netbeans/modules/java/addproperty/ui/Bundle.properties" key="AddPropertyPanel.initializerTextField.toolTipText" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
+        </Property>
+      </Properties>
+    </Component>
+    <Component class="javax.swing.JLabel" name="semicolonLabel">
+      <Properties>
+        <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
+          <ResourceString bundle="org/netbeans/modules/java/addproperty/ui/Bundle.properties" key="AddPropertyPanel.semicolonLabel.text" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
         </Property>
       </Properties>
     </Component>
@@ -294,6 +333,17 @@
       <Events>
         <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="finalCheckBoxActionPerformed"/>
       </Events>
+    </Component>
+    <Component class="javax.swing.JLabel" name="finalRequiresInitializerTipLabel">
+      <Properties>
+        <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
+          <Image iconType="3" name="/org/netbeans/modules/java/addproperty/ui/resources/tip.png"/>
+        </Property>
+        <Property name="toolTipText" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
+          <ResourceString bundle="org/netbeans/modules/java/addproperty/ui/Bundle.properties" key="AddPropertyPanel.finalRequiresInitializerTipLabel.toolTipText" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
+        </Property>
+        <Property name="enabled" type="boolean" value="false"/>
+      </Properties>
     </Component>
     <Component class="javax.swing.JRadioButton" name="generateGetterAndSetterRadioButton">
       <Properties>

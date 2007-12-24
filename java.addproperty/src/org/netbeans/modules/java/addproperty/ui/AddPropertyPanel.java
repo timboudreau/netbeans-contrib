@@ -80,8 +80,7 @@ public class AddPropertyPanel extends javax.swing.JPanel {
                 "^org\\.netbeans\\.modules\\.editor\\.lib2\\.highlighting\\.CaretRowHighlighting$" // NOI18N
                 );
 
-        nameTextField.getDocument().addDocumentListener(new DocumentListener() {
-
+        DocumentListener documentListener = new DocumentListener() {            
             public void insertUpdate(DocumentEvent e) {
                 showPreview();
             }
@@ -92,7 +91,10 @@ public class AddPropertyPanel extends javax.swing.JPanel {
 
             public void changedUpdate(DocumentEvent e) {
             }
-        });
+        };
+        
+        nameTextField.getDocument().addDocumentListener(documentListener);
+        initializerTextField.getDocument().addDocumentListener(documentListener);
 
         propNameTextFieldDocumentListener = new DocumentListener() {
 
@@ -136,13 +138,14 @@ public class AddPropertyPanel extends javax.swing.JPanel {
             propNameTextField.setText("PROP_" + nameTextField.getText().toUpperCase());
             propNameTextField.getDocument().addDocumentListener(propNameTextFieldDocumentListener);
         }
+        equalsLabel.setEnabled(initializerTextField.getText().trim().length() > 0);
+        finalRequiresInitializerTipLabel.setEnabled(finalCheckBox.isSelected() && initializerTextField.getText().trim().length() == 0);
         boundTipLabel.setEnabled(boundCheckBox.isSelected() && (!generatePropertyChangeSupportCheckBox.isSelected()));
         vetoableTipLabel.setEnabled(boundCheckBox.isSelected() && vetoableCheckBox.isSelected() && (!generateVetoablePropertyChangeSupportCheckBox.isSelected()));
         propNameTipLabel.setEnabled(propNameModified);
         final String previewTemplate = AddPropertyGenerator.getDefault().generate(getAddPropertyConfig());
         previewEditorPane.setText(previewTemplate);
         SwingUtilities.invokeLater(new Runnable() {
-
             public void run() {
                 previewEditorPane.setCaretPosition(0);
                 previewEditorPane.scrollRectToVisible(new Rectangle(0, 0, 1, 1));
@@ -153,6 +156,7 @@ public class AddPropertyPanel extends javax.swing.JPanel {
     public AddPropertyConfig getAddPropertyConfig() {
         final String type = typeComboBox.getSelectedItem().toString().trim();
         final String name = nameTextField.getText().trim();
+        final String initializer = initializerTextField.getText().trim();
         AddPropertyConfig.ACCESS access = AddPropertyConfig.ACCESS.PACKAGE;
         if (privateRadioButton.isSelected()) {
             access = AddPropertyConfig.ACCESS.PRIVATE;
@@ -172,7 +176,7 @@ public class AddPropertyPanel extends javax.swing.JPanel {
         }
 
         AddPropertyConfig addPropertyConfig = new AddPropertyConfig(
-                name, type, access, staticCheckBox.isSelected(), finalCheckBox.isSelected(), generate, generateJavadocCheckBox.isSelected(), boundCheckBox.isSelected(), propNameTextField.getText().trim(), vetoableCheckBox.isSelected(), indexedCheckBox.isSelected(), generatePropertyChangeSupportCheckBox.isSelected(), generateVetoablePropertyChangeSupportCheckBox.isSelected());
+                name, initializer, type, access, staticCheckBox.isSelected(), finalCheckBox.isSelected(), generate, generateJavadocCheckBox.isSelected(), boundCheckBox.isSelected(), propNameTextField.getText().trim(), vetoableCheckBox.isSelected(), indexedCheckBox.isSelected(), generatePropertyChangeSupportCheckBox.isSelected(), generateVetoablePropertyChangeSupportCheckBox.isSelected());
         return addPropertyConfig;
     }
 
@@ -188,6 +192,9 @@ public class AddPropertyPanel extends javax.swing.JPanel {
         getterSetterGroup = new javax.swing.ButtonGroup();
         nameLabel = new javax.swing.JLabel();
         nameTextField = new javax.swing.JTextField();
+        equalsLabel = new javax.swing.JLabel();
+        initializerTextField = new javax.swing.JTextField();
+        semicolonLabel = new javax.swing.JLabel();
         typeLabel = new javax.swing.JLabel();
         typeComboBox = new javax.swing.JComboBox();
         browseTypeButton = new javax.swing.JButton();
@@ -197,6 +204,7 @@ public class AddPropertyPanel extends javax.swing.JPanel {
         publicRadioButton = new javax.swing.JRadioButton();
         staticCheckBox = new javax.swing.JCheckBox();
         finalCheckBox = new javax.swing.JCheckBox();
+        finalRequiresInitializerTipLabel = new javax.swing.JLabel();
         generateGetterAndSetterRadioButton = new javax.swing.JRadioButton();
         generateGetterRadioButton = new javax.swing.JRadioButton();
         generateSetterRadioButton = new javax.swing.JRadioButton();
@@ -217,6 +225,12 @@ public class AddPropertyPanel extends javax.swing.JPanel {
         nameLabel.setText(org.openide.util.NbBundle.getMessage(AddPropertyPanel.class, "AddPropertyPanel.nameLabel.text")); // NOI18N
 
         nameTextField.setText(org.openide.util.NbBundle.getMessage(AddPropertyPanel.class, "AddPropertyPanel.nameTextField.text")); // NOI18N
+
+        equalsLabel.setText(org.openide.util.NbBundle.getMessage(AddPropertyPanel.class, "AddPropertyPanel.equalsLabel.text")); // NOI18N
+
+        initializerTextField.setToolTipText(org.openide.util.NbBundle.getMessage(AddPropertyPanel.class, "AddPropertyPanel.initializerTextField.toolTipText")); // NOI18N
+
+        semicolonLabel.setText(org.openide.util.NbBundle.getMessage(AddPropertyPanel.class, "AddPropertyPanel.semicolonLabel.text")); // NOI18N
 
         typeLabel.setText(org.openide.util.NbBundle.getMessage(AddPropertyPanel.class, "AddPropertyPanel.typeLabel.text")); // NOI18N
 
@@ -282,6 +296,10 @@ public class AddPropertyPanel extends javax.swing.JPanel {
                 finalCheckBoxActionPerformed(evt);
             }
         });
+
+        finalRequiresInitializerTipLabel.setIcon(new javax.swing.ImageIcon(getClass().getResource("/org/netbeans/modules/java/addproperty/ui/resources/tip.png"))); // NOI18N
+        finalRequiresInitializerTipLabel.setToolTipText(org.openide.util.NbBundle.getMessage(AddPropertyPanel.class, "AddPropertyPanel.finalRequiresInitializerTipLabel.toolTipText")); // NOI18N
+        finalRequiresInitializerTipLabel.setEnabled(false);
 
         getterSetterGroup.add(generateGetterAndSetterRadioButton);
         generateGetterAndSetterRadioButton.setSelected(true);
@@ -396,7 +414,10 @@ public class AddPropertyPanel extends javax.swing.JPanel {
                                     .add(privateRadioButton))
                                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                                    .add(finalCheckBox)
+                                    .add(layout.createSequentialGroup()
+                                        .add(finalCheckBox)
+                                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                                        .add(finalRequiresInitializerTipLabel))
                                     .add(layout.createSequentialGroup()
                                         .add(packageRadioButton)
                                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
@@ -411,7 +432,7 @@ public class AddPropertyPanel extends javax.swing.JPanel {
                                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                                         .add(boundTipLabel)
                                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                                        .add(propNameTextField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 511, Short.MAX_VALUE)
+                                        .add(propNameTextField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 453, Short.MAX_VALUE)
                                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                                         .add(propNameTipLabel))
                                     .add(layout.createSequentialGroup()
@@ -435,18 +456,25 @@ public class AddPropertyPanel extends javax.swing.JPanel {
                                 .add(typeComboBox, 0, 0, Short.MAX_VALUE)
                                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                                 .add(browseTypeButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 86, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                            .add(nameTextField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 645, Short.MAX_VALUE)))
+                            .add(layout.createSequentialGroup()
+                                .add(nameTextField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 165, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                                .add(equalsLabel)
+                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                                .add(initializerTextField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 366, Short.MAX_VALUE)
+                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                                .add(semicolonLabel))))
                     .add(layout.createSequentialGroup()
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(previewLabel)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(previewScrollPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 645, Short.MAX_VALUE)))
+                        .add(previewScrollPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 580, Short.MAX_VALUE)))
                 .addContainerGap())
         );
 
-        layout.linkSize(new java.awt.Component[] {finalCheckBox, packageRadioButton, privateRadioButton, protectedRadioButton, publicRadioButton, staticCheckBox}, org.jdesktop.layout.GroupLayout.HORIZONTAL);
-
         layout.linkSize(new java.awt.Component[] {nameLabel, previewLabel, typeLabel}, org.jdesktop.layout.GroupLayout.HORIZONTAL);
+
+        layout.linkSize(new java.awt.Component[] {packageRadioButton, privateRadioButton, protectedRadioButton, publicRadioButton, staticCheckBox}, org.jdesktop.layout.GroupLayout.HORIZONTAL);
 
         layout.setVerticalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
@@ -454,7 +482,10 @@ public class AddPropertyPanel extends javax.swing.JPanel {
                 .addContainerGap()
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(nameLabel)
-                    .add(nameTextField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                    .add(nameTextField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                    .add(equalsLabel)
+                    .add(semicolonLabel)
+                    .add(initializerTextField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(typeLabel)
@@ -470,7 +501,9 @@ public class AddPropertyPanel extends javax.swing.JPanel {
                             .add(privateRadioButton))
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(staticCheckBox))
-                    .add(finalCheckBox))
+                    .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                        .add(finalCheckBox)
+                        .add(finalRequiresInitializerTipLabel)))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(generateGetterAndSetterRadioButton)
@@ -586,7 +619,9 @@ public class AddPropertyPanel extends javax.swing.JPanel {
     private javax.swing.JCheckBox boundCheckBox;
     private javax.swing.JLabel boundTipLabel;
     private javax.swing.JButton browseTypeButton;
+    private javax.swing.JLabel equalsLabel;
     private javax.swing.JCheckBox finalCheckBox;
+    private javax.swing.JLabel finalRequiresInitializerTipLabel;
     private javax.swing.JRadioButton generateGetterAndSetterRadioButton;
     private javax.swing.JRadioButton generateGetterRadioButton;
     private javax.swing.JCheckBox generateJavadocCheckBox;
@@ -595,6 +630,7 @@ public class AddPropertyPanel extends javax.swing.JPanel {
     private javax.swing.JCheckBox generateVetoablePropertyChangeSupportCheckBox;
     private javax.swing.ButtonGroup getterSetterGroup;
     private javax.swing.JCheckBox indexedCheckBox;
+    private javax.swing.JTextField initializerTextField;
     private javax.swing.JLabel nameLabel;
     private javax.swing.JTextField nameTextField;
     private javax.swing.JRadioButton packageRadioButton;
@@ -606,6 +642,7 @@ public class AddPropertyPanel extends javax.swing.JPanel {
     private javax.swing.JLabel propNameTipLabel;
     private javax.swing.JRadioButton protectedRadioButton;
     private javax.swing.JRadioButton publicRadioButton;
+    private javax.swing.JLabel semicolonLabel;
     private javax.swing.JCheckBox staticCheckBox;
     private javax.swing.JComboBox typeComboBox;
     private javax.swing.JLabel typeLabel;
