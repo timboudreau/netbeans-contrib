@@ -45,14 +45,14 @@ made subject to such option by the copyright holder.
     <import file="../../nbbuild/templates/projectized.xml"/>
 
     <target name="init" depends="projectized.init">
-        <mkdir dir="build/tmp"/>
         <available property="uni-names.txt" file="build/tmp/uni-names.txt"/>
         <antcall target="subst-uni-names.txt"/>
     </target>
 
     <target name="subst-uni-names.txt" unless="uni-names.txt">
         <!-- LFI #1836; CAUTION: not currently approved for use in shipped modules! -->
-        <copy file="external/UnicodeData-4.0.0.txt" tofile="build/tmp/uni-names.txt"/>
+        <mkdir dir="build/tmp"/>
+        <gunzip src="external/UnicodeData-4.0.0.txt.gz" dest="build/tmp/uni-names.txt"/>
         <replaceregexp file="build/tmp/uni-names.txt" match="^" replace="~" byline="true"/>
         <replaceregexp file="build/tmp/uni-names.txt" match="^~([0-9A-F]{4});([A-Z0-9 -]+);.*$" replace="\1 \2" byline="true"/>
         <replaceregexp file="build/tmp/uni-names.txt" match="~.*\n" replace="" flags="g"/>
