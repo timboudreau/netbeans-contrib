@@ -64,6 +64,18 @@ public class PojoDataNode<T extends Serializable> extends DynamicActionsDataNode
         result = actions.toArray(result);
         return result;
     }
+    
+    protected void hintChildrenChanged() {
+        //do nothing
+    }
+    
+    /**
+     * Override to attach weak listeners to the pojo
+     * @param pojo The pojo
+     */
+    protected void onLoad (T pojo) {
+        
+    }
 
     @Override
     public Action getPreferredAction() {

@@ -55,20 +55,8 @@ public class CarDataNode extends PojoDataNode<Car> {
         setIconBaseWithExtension(IMAGE_ICON_BASE);
     }
 
-    void notifyChildChange() {
+    @Override
+    protected void hintChildrenChanged() {
         factory.refresh();
     }
-
-//    /** Creates a property sheet. */
-//    @Override
-//    protected Sheet createSheet() {
-//        Sheet s = super.createSheet();
-//        Sheet.Set ss = s.get(Sheet.PROPERTIES);
-//        if (ss == null) {
-//            ss = Sheet.createPropertiesSet();
-//            s.put(ss);
-//        }
-//        // TODO add some relevant properties: ss.put(...)
-//        return s;
-//    }
 }

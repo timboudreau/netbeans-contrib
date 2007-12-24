@@ -44,8 +44,6 @@ import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
-import java.lang.ref.Reference;
-import java.lang.ref.WeakReference;
 import java.util.Arrays;
 import java.util.List;
 import org.netbeans.api.objectloader.CacheStrategies;
@@ -64,7 +62,6 @@ import org.openide.loaders.DataObjectExistsException;
 import org.openide.util.Exceptions;
 
 public class CarDataObject extends PojoDataObject<Car> {
-    private Reference <CarDataNode> nodeRef;
     public CarDataObject(FileObject pf, CarDataLoader loader) throws DataObjectExistsException, IOException {
         super (pf, loader, Car.class, CacheStrategies.WEAK, new CarEditorFactory());
     }
@@ -72,7 +69,6 @@ public class CarDataObject extends PojoDataObject<Car> {
     @Override
     protected PojoDataNode createNode() {
         CarDataNode node = new CarDataNode(this);
-        nodeRef = new WeakReference<CarDataNode> (node);
         return node;
     }
 
@@ -116,24 +112,10 @@ public class CarDataObject extends PojoDataObject<Car> {
     @Override
     protected boolean propertyChange(Car src, String property, Object old, Object nue) {
         if (property.equals(Car.PROP_PASSENGER_LIST)) {
-            childrenChanged();
+            super.hintNodeChildrenChanged();
         }
         return super.propertyChange(src, property, old, nue);
     }
-    
-    @Override
-    protected void onModificationsDiscarded() {
-        System.err.println("onModificationsDiscarded");
-        childrenChanged();
-    }
-    
-    private void childrenChanged() {
-        CarDataNode nd = nodeRef == null ? null : nodeRef.get();
-        if (nd != null) {
-            nd.notifyChildChange();
-        }
-    }
-    
     
     private static final class CarEditorFactory extends EditorFactory {
         @Override

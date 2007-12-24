@@ -35,6 +35,8 @@ import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.io.Serializable;
+import java.lang.ref.Reference;
+import java.lang.ref.WeakReference;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -47,6 +49,7 @@ import javax.swing.Action;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import org.netbeans.api.objectloader.CacheStrategy;
+import org.netbeans.api.objectloader.States;
 import org.netbeans.modules.dynactions.nodes.LazyLoadDataObject;
 import org.openide.actions.EditAction;
 import org.openide.actions.OpenAction;
@@ -121,6 +124,10 @@ public abstract class PojoDataObject<T extends Serializable> extends LazyLoadDat
     protected final void loaded (T pojo) {
         listenTo(pojo);
         onLoad (pojo);
+        PojoDataNode nd = nodeRef == null ? null : nodeRef.get();
+        if (nd != null) {
+            nd.onLoad(pojo);
+        }
     }
     
     /**
@@ -129,7 +136,7 @@ public abstract class PojoDataObject<T extends Serializable> extends LazyLoadDat
      * @param pojo The object
      */
     protected void onLoad (T pojo) {
-        listenTo(pojo);
+        //do nothing by default
     }
 
     final List <Action> getOpenActions () {
@@ -153,9 +160,19 @@ public abstract class PojoDataObject<T extends Serializable> extends LazyLoadDat
         return actions;
     }
     
+    private Reference <PojoDataNode> nodeRef;
+    
     @Override
     protected final Node createNodeDelegate() {
-        return createNode();
+        PojoDataNode nd = createNode();
+        nodeRef = new WeakReference<PojoDataNode>(nd);
+        if (ldr.getState() == States.LOADED) {
+            T t = (T) ldr.getCachedInstance();
+            if (t != null) {
+                nd.onLoad(t);
+            }
+        }
+        return nd;
     }
 
     /**
@@ -243,7 +260,15 @@ public abstract class PojoDataObject<T extends Serializable> extends LazyLoadDat
         }
         setModified (false);
         onModificationsDiscarded();
+        hintNodeChildrenChanged();
         fire();
+    }
+    
+    protected final void hintNodeChildrenChanged() {
+        PojoDataNode nd = nodeRef == null ? null : nodeRef.get();
+        if (nd != null) {
+            nd.hintChildrenChanged();
+        }
     }
     
     protected void onModificationsDiscarded() {

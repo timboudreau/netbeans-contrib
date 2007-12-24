@@ -102,6 +102,10 @@ public abstract class ObjectLoader<T> {
         return type;
     }
     
+    public T getCachedInstance() {
+        return reference == null ? null : reference.get();
+    }
+    
     /**
      * Clear the cached object and reset the state to States.UNLOADED.
      * Call this method if a previous attempt to load threw an exception and
