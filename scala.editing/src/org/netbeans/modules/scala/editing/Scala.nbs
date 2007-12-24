@@ -345,7 +345,7 @@ TOKEN:upperid: (
     ( ["a"-"z" "A"-"Z" "$" "_" "0"-"9"])* ( "_" ( [^" " "\t" "\n" "\r" "[" "]" "(" ")" ","  "." ";" "=" ":" "{" "}"] )+ )?
 )
 ## Backquoted id
-TOKEN:bquotedid: (
+TOKEN:bquoteid: (
     "`" ( 
         [^ "\\" "\'" "\n" "\r"] |
         ( "\\" (
@@ -448,7 +448,7 @@ PlainId = <upperid>
         | <operator>;
 
 NameId = PlainId
-       | <bquotedid>;
+       | <bquoteid>;
 
 Symbol = <quote> PlainId;
 
@@ -1037,6 +1037,12 @@ COLOR:PostfixExpr.NameId,PrefixExpr.PrefixOp: {
 COLOR:xml_element_start,xml_end_element_start,xml_element_end,xml_end_element_end: {
     foreground_color: "0x228B22";
 }
+
+COMPLETION:varid, upperid, keyword, operator, separator, comment: {
+    text1:org.netbeans.modules.scala.editing.Scala.completionItems;
+    confirmChars:";(,.";
+}
+
 
 ########### complete and indentation ########################################################
 COMPLETE "(:)"
