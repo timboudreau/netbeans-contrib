@@ -104,14 +104,38 @@ TOKEN:xml_comment: ( "<!--" - "-->" )
         "@todo" |
         "@version"
     )
-    TOKEN:comment: ( "/*" ):<IN_COMMENT>
+    TOKEN:comment: ( "/*" ):<IN_COMMENT2>
     TOKEN:comment: ( "@" )
-    TOKEN:comment: ( [^"@" "*"]+ )
-    TOKEN:comment: ( "*" [^"/"] )
+    TOKEN:comment: ( [^"@" "*" "/"]+ )
+    TOKEN:comment: ( "*" [^"/" "*"]* )
+    TOKEN:comment: ( "/" [^"*"]* )
     TOKEN:comment: {
         pattern:( "*/" );
         end_state:"DEFAULT";
+#        end_state:"IN_COMMENT2";
     }
+}
+
+<IN_COMMENT2> {
+    TOKEN:comment_keyword: (
+        "@author" |
+        "@deprecated" |
+        "@exception" |
+        "@param" |
+        "@pre" |
+        "@return" |
+        "@see" |
+        "@since" |
+        "@throws" |
+        "@todo" |
+        "@version"
+    )
+    TOKEN:comment: ( "/*" ):<IN_COMMENT>
+    TOKEN:comment: ( "@" )
+    TOKEN:comment: ( [^"@" "*" "/"]+ )
+    TOKEN:comment: ( "*" [^"/" "*"]* )
+    TOKEN:comment: ( "/" [^"*"] )
+    TOKEN:comment: ( "*/" ):<IN_COMMENT>
 }
 
 TOKEN:line_comment: ( "//" [^"\n" "\r"]* )
