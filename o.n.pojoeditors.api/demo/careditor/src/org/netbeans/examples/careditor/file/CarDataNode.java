@@ -38,6 +38,7 @@
  */
 package org.netbeans.examples.careditor.file;
 
+import org.netbeans.api.objectloader.ObjectLoader;
 import org.netbeans.examples.careditor.pojos.Car;
 import org.netbeans.pojoeditors.api.PojoDataNode;
 import org.openide.nodes.Children;
@@ -45,10 +46,17 @@ import org.openide.nodes.Children;
 public class CarDataNode extends PojoDataNode<Car> {
 
     private static final String IMAGE_ICON_BASE = "org/netbeans/examples/careditor/file/car.gif";
-
+    private final PersonChildFactory factory;
     public CarDataNode(CarDataObject obj) {
         super(obj, Children.LEAF, obj.getLookup(), "actioncontext");
+        ObjectLoader ldr = getLookup().lookup (ObjectLoader.class);
+        assert ldr != null;
+        setChildren (Children.create(factory = new PersonChildFactory(ldr), true));
         setIconBaseWithExtension(IMAGE_ICON_BASE);
+    }
+
+    void notifyChildChange() {
+        factory.refresh();
     }
 
 //    /** Creates a property sheet. */

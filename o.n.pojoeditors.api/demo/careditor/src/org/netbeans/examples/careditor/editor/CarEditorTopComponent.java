@@ -48,28 +48,31 @@ import org.openide.util.Utilities;
 public class CarEditorTopComponent extends PojoEditor<Car> {
     /** path to the icon used by the component and its open action */
     static final String ICON_PATH = "org/netbeans/examples/careditor/editor/car.gif";
+    CarEditorForm form;
     public CarEditorTopComponent(CarDataObject obj) {
         super (obj, Kind.OPEN);
         init();
     }
-    
-    public CarEditorTopComponent (String path) {
-        super (path, Kind.OPEN);
-        init();
+
+    @Override
+    protected void onClose() {
+        if (form != null) {
+            removeAll();
+        }
+    }
+
+    @Override
+    protected void onSet(Car pojo) {
+        form.set(pojo);
     }
     
     @Override
     protected Component createEditorUI(Car pojo) {
-        Component result = new CarEditorForm ();
-        return result;
+        form = new CarEditorForm ();
+        return form;
     }
-    
+
     private void init() {
         setIcon(Utilities.loadImage(ICON_PATH, true));
     }
-    
-    @Override
-    public void onClose() {
-        this.removeAll();
-    }    
 }

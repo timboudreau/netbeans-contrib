@@ -44,6 +44,8 @@ import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
+import java.lang.ref.Reference;
+import java.lang.ref.WeakReference;
 import java.util.Arrays;
 import java.util.List;
 import org.netbeans.api.objectloader.CacheStrategies;
@@ -62,18 +64,16 @@ import org.openide.loaders.DataObjectExistsException;
 import org.openide.util.Exceptions;
 
 public class CarDataObject extends PojoDataObject<Car> {
-
+    private Reference <CarDataNode> nodeRef;
     public CarDataObject(FileObject pf, CarDataLoader loader) throws DataObjectExistsException, IOException {
         super (pf, loader, Car.class, CacheStrategies.WEAK, new CarEditorFactory());
     }
 
     @Override
     protected PojoDataNode createNode() {
-        return new CarDataNode(this);
-    }
-
-    public void discardModifications() {
-        throw new UnsupportedOperationException("Not supported yet.");
+        CarDataNode node = new CarDataNode(this);
+        nodeRef = new WeakReference<CarDataNode> (node);
+        return node;
     }
 
     @Override
@@ -92,26 +92,45 @@ public class CarDataObject extends PojoDataObject<Car> {
         }
         return DataObject.find(nue);
     }
-    
     @Override
     protected Car load (InputStream stream) throws IOException {
         System.err.println("LazyLoadDataObject.load");
         ObjectInputStream in = new ObjectInputStream(
                 new BufferedInputStream(stream));
-//        ClassLoader all = Lookup.getDefault().lookup(ClassLoader.class);
-//        ClassLoader curr = Thread.currentThread().getContextClassLoader();
-//        Thread.currentThread().setContextClassLoader(all);
         try {
             Object result = in.readObject();
             System.err.println("Read " + result);
             loaded ((Car) result);
+            Thread.sleep(5000);
             return (Car) result;
+        } catch (InterruptedException ex) {
+            throw new IOException(ex);
         } catch (ClassNotFoundException ex) {
             Exceptions.printStackTrace(ex);
             throw new IOException (ex);
         } finally {
             in.close();
-//            Thread.currentThread().setContextClassLoader(curr);
+        }
+    }
+    
+    @Override
+    protected boolean propertyChange(Car src, String property, Object old, Object nue) {
+        if (property.equals(Car.PROP_PASSENGER_LIST)) {
+            childrenChanged();
+        }
+        return super.propertyChange(src, property, old, nue);
+    }
+    
+    @Override
+    protected void onModificationsDiscarded() {
+        System.err.println("onModificationsDiscarded");
+        childrenChanged();
+    }
+    
+    private void childrenChanged() {
+        CarDataNode nd = nodeRef == null ? null : nodeRef.get();
+        if (nd != null) {
+            nd.notifyChildChange();
         }
     }
     

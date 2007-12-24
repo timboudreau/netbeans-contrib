@@ -68,4 +68,9 @@ public final class LookupActionFactory extends ActionFactory {
         Action[] result = (Action[]) actions.toArray(new Action[actions.size()]);
         return result;
     }
+    
+    @Override
+    public String toString() {
+        return super.toString() + '[' + registry +"]" ;
+    }
 }

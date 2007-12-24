@@ -39,10 +39,14 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import javax.swing.Action;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import org.netbeans.api.objectloader.CacheStrategy;
-import org.netbeans.api.objectloader.ObjectLoader;
 import org.netbeans.modules.dynactions.nodes.LazyLoadDataObject;
 import org.openide.actions.EditAction;
 import org.openide.actions.OpenAction;
@@ -232,8 +236,18 @@ public abstract class PojoDataObject<T extends Serializable> extends LazyLoadDat
         }
     }
     
-    public void discardModifications() {
+    public final void discardModifications() {
         ldr.reset();
+        if (save != null) {
+            content.remove(save);
+        }
+        setModified (false);
+        onModificationsDiscarded();
+        fire();
+    }
+    
+    protected void onModificationsDiscarded() {
+        
     }
     
     private void doSave (final T pojo) throws IOException {
@@ -254,13 +268,59 @@ public abstract class PojoDataObject<T extends Serializable> extends LazyLoadDat
         });
     }
     
+    /**
+     * Called when a property change is received from the pojo.  Return true
+     * if it means this DataObject should mark itself as modified.  The default
+     * implementation always returns true.  If the dataobject is already marked
+     * as modified, that state is retained.
+     * 
+     * @param src The pojo
+     * @param property The property name
+     * @param old The old value
+     * @param nue The new value
+     * @return true if the dataobject should mark itself as modified
+     */
+    protected boolean propertyChange (T src, String property, Object old, Object nue) {
+        return true;
+    }
+    
+    private final Set<ChangeListener> listeners = 
+            Collections.synchronizedSet(new HashSet<ChangeListener>());
+    /**
+     * Add a change listener.  The listener will be notified if 
+     * discardModifications() is called, instructing any UI displaying this
+     * object to reload it.
+     * 
+     * @param l the listener
+     */
+    public final void addChangeListener (ChangeListener l) {
+        listeners.add (l);
+    }
+    
+    /**
+     * Remove a change listener
+     * @param l The listener
+     */
+    public final void removeChangeListener (ChangeListener l) {
+        listeners.remove(l);
+    }
+    
+    private void fire() {
+        ChangeListener[] arr = (ChangeListener[]) listeners.toArray(new ChangeListener[listeners.size()]);
+        for (ChangeListener cl : arr) {
+            cl.stateChanged(new ChangeEvent(this));
+        }
+    }
+    
     private class PCL implements PropertyChangeListener {
-        public void propertyChange(PropertyChangeEvent arg0) {
+        public void propertyChange(PropertyChangeEvent e) {
             if (!isModified()) {
-                System.err.println("PCL got change " + arg0);
-                setModified (true);
-                T obj = (T) arg0.getSource();
-                content.add(save = new Save(obj));
+                System.err.println("PCL got change " + e);
+                if (PojoDataObject.this.propertyChange ((T) e.getSource(), e.getPropertyName(), e.getOldValue(), e.getNewValue())) {
+                    setModified (true);
+                    T obj = (T) e.getSource();
+                    content.add(save = new Save(obj));
+                }
             }
         }
     }

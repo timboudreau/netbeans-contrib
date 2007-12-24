@@ -127,7 +127,9 @@ public abstract class ObjectLoaderAction<T> extends GenericContextSensitiveActio
     private class R implements ObjectReceiver<T> {
         private ProgressHandle handle;
         public void received(T t) {
-            handle.finish();
+            if (handle != null) {
+                handle.finish();
+            }
             performed (t);
         }
 

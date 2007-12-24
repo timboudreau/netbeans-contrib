@@ -55,7 +55,6 @@ public class PojoDataNode<T extends Serializable> extends DynamicActionsDataNode
     }
     
     @Override
-    @SuppressWarnings("unchecked")
     public final Action[] getActions (boolean popup) {
         Action[] base = super.getActions(popup);
         List <Action> actions = getPojoDob().getOpenActions();

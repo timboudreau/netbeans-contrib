@@ -123,13 +123,14 @@ public abstract class LazyLoadDataObject<T> extends MultiDataObject {
      * @return The loaded object.
      * @throws java.io.IOException if there is an error loading
      */
-    protected T load (InputStream stream) throws IOException {
+    protected abstract T load (InputStream stream) throws IOException; 
+    /*{
         System.err.println("LazyLoadDataObject.load");
         ObjectInputStream in = new ObjectInputStream(
                 new BufferedInputStream(stream));
-        ClassLoader all = Lookup.getDefault().lookup(ClassLoader.class);
-        ClassLoader curr = Thread.currentThread().getContextClassLoader();
-        Thread.currentThread().setContextClassLoader(all);
+//        ClassLoader all = Lookup.getDefault().lookup(ClassLoader.class);
+//        ClassLoader curr = Thread.currentThread().getContextClassLoader();
+//        Thread.currentThread().setContextClassLoader(all);
         try {
             Object result = in.readObject();
             System.err.println("Read " + result);
@@ -140,9 +141,10 @@ public abstract class LazyLoadDataObject<T> extends MultiDataObject {
             throw new IOException (ex);
         } finally {
             in.close();
-            Thread.currentThread().setContextClassLoader(curr);
+//            Thread.currentThread().setContextClassLoader(curr);
         }
     }
+     */ 
     
     private final class OL extends ObjectLoader<T> {
         private OL(Class<T> type, CacheStrategy strategy) {

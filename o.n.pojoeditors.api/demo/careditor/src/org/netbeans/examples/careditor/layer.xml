@@ -40,6 +40,11 @@ Portions Copyrighted 2007 Sun Microsystems, Inc.
 <!DOCTYPE filesystem PUBLIC "-//NetBeans//DTD Filesystem 1.1//EN" "http://www.netbeans.org/dtds/filesystem-1_1.dtd">
 <filesystem>
     <folder name="actioncontext">
+        <folder name="org-netbeans-api-objectloader-ObjectLoader">
+            <folder name="org-netbeans-examples-careditor-pojos-Car">
+                <file name="org-netbeans-examples-careditor-actions-AddPassengerAction.instance"/>
+            </folder>
+        </folder>
     </folder>
     
     <folder name="Loaders">

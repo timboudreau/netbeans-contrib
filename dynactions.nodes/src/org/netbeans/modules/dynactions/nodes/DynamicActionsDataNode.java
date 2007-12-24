@@ -39,6 +39,7 @@
 
 package org.netbeans.modules.dynactions.nodes;
 
+import java.util.Arrays;
 import javax.swing.Action;
 import org.netbeans.api.dynactions.ActionFactory;
 import org.openide.loaders.DataNode;
@@ -86,6 +87,7 @@ public class DynamicActionsDataNode extends DataNode {
     public Action[] getActions (boolean popup) {
         Action[] actions = super.getActions(popup);
         Action[] others = actionFactory.getActions();
+        System.err.println("ActionFactory " + actionFactory + "returned " + Arrays.asList(others));
         Action[] result = new Action[actions.length + others.length];
         System.arraycopy(actions, 0, result, 0, actions.length);
         System.arraycopy(others, 0, result, actions.length, others.length);

@@ -38,76 +38,35 @@
  */
 package org.netbeans.examples.careditor.editor;
 
-import com.jgoodies.binding.PresentationModel;
-import com.jgoodies.binding.adapter.Bindings;
+import java.util.Collection;
 import java.util.logging.Logger;
 import javax.swing.SwingUtilities;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
+import org.netbeans.api.dynactions.Sensor;
+import org.netbeans.api.dynactions.Sensor.Notifiable;
 import org.netbeans.examples.careditor.pojos.Car;
+import org.netbeans.pojoeditors.api.PojoDataObject;
 import org.netbeans.pojoeditors.api.PojoEditor;
+import org.openide.cookies.SaveCookie;
 
-public class CarEditorForm extends javax.swing.JPanel {
-    
+public class CarEditorForm extends javax.swing.JPanel implements Notifiable<SaveCookie>, DocumentListener {
     private static final Logger logger = Logger.getLogger(CarEditorForm.class.getName());
-    
-    // TODO: JGoodies validation
-
-    // no need to worry about serialization or transient fields, at least when
-    // used in our TopComponent, because it does its own serialization via the
-    // Stub inner class.  it does not try to save the current editor form instance;
-    //instead it creates a new one each time.
-    private PresentationModel presentationModel;
-    
     public CarEditorForm() {
         initComponents();
+        makeField.getDocument().addDocumentListener(this);
+        yearField.getDocument().addDocumentListener(this);
+        modelField.getDocument().addDocumentListener(this);
     }
-    
+        
+    Sensor<SaveCookie> sensor;
     @Override
     public void addNotify() {
         super.addNotify();
-        initBinding();
-        System.err.println("Added to editor: " + this);
-    }
-    
-    @Override
-    public void removeNotify() {
-        super.removeNotify();
-        if (presentationModel != null) {
-            uninitBinding();
-        }
-    }
-    
-    // called from TC
-    void uninitBinding() {
-        logger.info("uninitBinding is underway");
-
-        assert(presentationModel != null);
-
-        presentationModel.setBean(null);
-        presentationModel = null;
-
-        makeField.setText(null);
-        modelField.setText(null);
-        yearField.setText(null);
-
-        logger.info("Unbound Car");
-    }
-    
-    // Called from TC Hook JGoodies data binding up to matisse-generated code.
-    void initBinding() {
         PojoEditor<Car> provider = (PojoEditor<Car>) SwingUtilities.getAncestorOfClass(PojoEditor.class, this);
-        Car car = provider.getPojo();
-        assert car != null;
-        logger.info("initBinding is underway for " + car);
-        
-        presentationModel = new PresentationModel(car);
-
-// You have to use a JFormattedTextField for numeric values. There is no way around it.
-        Bindings.bind(yearField, presentationModel.getModel(Car.PROP_YEAR));
-        Bindings.bind(makeField, presentationModel.getModel(Car.PROP_MAKE));
-        Bindings.bind(modelField, presentationModel.getModel(Car.PROP_MODEL));
-
-        logger.info("Bound Car");
-    }    
+        PojoDataObject dob = provider.getLookup().lookup(PojoDataObject.class);
+        Sensor.register(dob.getLookup(), SaveCookie.class, this);
+    }
     
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
@@ -118,6 +77,8 @@ public class CarEditorForm extends javax.swing.JPanel {
         modelField = new javax.swing.JTextField();
         yearLabel = new javax.swing.JLabel();
         yearField = new javax.swing.JFormattedTextField();
+        jButton1 = new javax.swing.JButton();
+        problemLabel = new javax.swing.JLabel();
 
         makeLabel.setText(org.openide.util.NbBundle.getMessage(CarEditorForm.class, "CarEditorForm.makeLabel.text_1")); // NOI18N
 
@@ -131,6 +92,17 @@ public class CarEditorForm extends javax.swing.JPanel {
 
         yearField.setText("null");
 
+        jButton1.setText(org.openide.util.NbBundle.getMessage(CarEditorForm.class, "CarEditorForm.jButton1.text")); // NOI18N
+        jButton1.setEnabled(false);
+        jButton1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton1ActionPerformed(evt);
+            }
+        });
+
+        problemLabel.setForeground(java.awt.Color.red);
+        problemLabel.setText(org.openide.util.NbBundle.getMessage(CarEditorForm.class, "CarEditorForm.problemLabel.text")); // NOI18N
+
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
@@ -143,9 +115,13 @@ public class CarEditorForm extends javax.swing.JPanel {
                     .add(yearLabel))
                 .add(33, 33, 33)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(modelField)
-                    .add(makeField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 196, Short.MAX_VALUE)
-                    .add(yearField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 62, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                    .add(problemLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 514, Short.MAX_VALUE)
+                    .add(modelField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 514, Short.MAX_VALUE)
+                    .add(makeField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 514, Short.MAX_VALUE)
+                    .add(layout.createSequentialGroup()
+                        .add(yearField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 62, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 296, Short.MAX_VALUE)
+                        .add(jButton1)))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -162,19 +138,89 @@ public class CarEditorForm extends javax.swing.JPanel {
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(yearLabel)
-                    .add(yearField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(40, Short.MAX_VALUE))
+                    .add(yearField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                    .add(jButton1))
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(problemLabel)
+                .addContainerGap(17, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
+
+    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+        PojoEditor<Car> provider = (PojoEditor<Car>) SwingUtilities.getAncestorOfClass(PojoEditor.class, this);
+        PojoDataObject dob = provider.getLookup().lookup(PojoDataObject.class);
+        dob.discardModifications();
+    }//GEN-LAST:event_jButton1ActionPerformed
     
     
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton jButton1;
     private javax.swing.JTextField makeField;
     private javax.swing.JLabel makeLabel;
     private javax.swing.JTextField modelField;
     private javax.swing.JLabel modelLabel;
+    private javax.swing.JLabel problemLabel;
     private javax.swing.JFormattedTextField yearField;
     private javax.swing.JLabel yearLabel;
     // End of variables declaration//GEN-END:variables
 
+    public void notify(Collection<SaveCookie> coll, Class target) {
+        jButton1.setEnabled (!coll.isEmpty());
+    }
+    
+    boolean inInit = false;
+    void set (Car car) {
+        try {
+            inInit = true;
+            makeField.setText (car.getMake());
+            modelField.setText (car.getModel());
+            try {
+                yearField.setText (Integer.toString(car.getYear()));
+                problemLabel.setText(" ");
+            } catch (NumberFormatException e) {
+                problemLabel.setText (e.getLocalizedMessage());
+            }
+            PojoEditor<Car> provider = (PojoEditor<Car>) SwingUtilities.getAncestorOfClass(PojoEditor.class, this);
+            PojoDataObject dob = provider.getLookup().lookup(PojoDataObject.class);
+            jButton1.setEnabled (dob.isModified());
+        } finally {
+            inInit = false;
+        }
+    }
+
+    public void insertUpdate(DocumentEvent e) {
+        change(e);
+    }
+
+    public void removeUpdate(DocumentEvent e) {
+        change(e);
+    }
+
+    public void changedUpdate(DocumentEvent e) {
+        change(e);
+    }
+    
+    private void change (DocumentEvent e) {
+        if (inInit) {
+            return;
+        }
+        PojoEditor<Car> provider = (PojoEditor<Car>) SwingUtilities.getAncestorOfClass(PojoEditor.class, this);
+        Car car = provider.getPojo();
+        if (car != null) {
+            if (e.getDocument() == makeField.getDocument()) {
+                car.setMake(makeField.getText());
+            } else if (e.getDocument() == modelField.getDocument()) {
+                car.setModel(modelField.getText());
+            } else if (e.getDocument() == yearField.getDocument()) {
+                try {
+                    car.setYear (Integer.parseInt(yearField.getText()));
+                    problemLabel.setText (" ");
+                } catch (NumberFormatException ex) {
+                    problemLabel.setText(ex.getLocalizedMessage());
+                }
+            } else {
+                throw new AssertionError (e.getDocument());
+            }
+        }
+    }
 }

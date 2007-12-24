@@ -31,6 +31,7 @@ package org.netbeans.pojoeditors.api;
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.EventQueue;
+import java.awt.FlowLayout;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.IOException;
@@ -39,8 +40,13 @@ import java.io.ObjectStreamException;
 import java.io.Serializable;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
+import java.net.MalformedURLException;
 import java.net.URL;
 import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JProgressBar;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import org.netbeans.api.objectloader.ObjectLoader;
 import org.netbeans.api.objectloader.ObjectReceiver;
 import org.netbeans.pojoeditors.api.EditorFactory.Kind;
@@ -60,7 +66,6 @@ import org.openide.util.Exceptions;
 import org.openide.util.Lookup;
 import org.openide.util.Mutex;
 import org.openide.util.NbBundle;
-import org.openide.util.WeakListeners;
 import org.openide.util.lookup.Lookups;
 import org.openide.util.lookup.ProxyLookup;
 import org.openide.windows.CloneableTopComponent;
@@ -68,10 +73,20 @@ import org.openide.windows.CloneableTopComponent;
 /**
  * Base class for TopComponents that are editors over PojoDataObjects.  Handles
  * the bookkeeping of the set of open editors, etc.
- *
+ * <p/>
  * If writeReplace is not overridden, the default serialization code will expect
  * that this editor has a public constructor that takes an argument of
  * PojoDataObject&lt;T&gt;.
+ * <p/>
+ * Unless you override writeExternal() and readResolve(), any subclass should
+ * have two constructors:  One that takes an instance of the exact type of 
+ * DataObject it edits, and one that takes a String (for the case that a 
+ * file was moved or deleted).
+ * <p/>
+ * Instances of PojoEditor already have their layout manager set to BorderLayout
+ * and expect it to remain so.  The typical use case is to create a panel for
+ * actual editing of the object in question;  it will automatically be added
+ * if returned from createEditorUI().
  * 
  * @author Tim Boudreau
  */
@@ -82,7 +97,6 @@ public abstract class PojoEditor<T extends Serializable> extends CloneableTopCom
     private final NodeListener nodeListener = new NL();
     protected PojoEditor (PojoDataObject<T> dataObject, EditorFactory.Kind kind) {
         this.kind = kind;
-        init (dataObject);
         if (dataObject != null) { //if null, could not deserialize
             ProxyLookup lkp = new ProxyLookup (
                     dataObject.getLookup(), 
@@ -91,26 +105,10 @@ public abstract class PojoEditor<T extends Serializable> extends CloneableTopCom
             associateLookup (lkp);
             setDisplayName (dataObject.getName());
         }
+        init (dataObject);
         setLayout (new BorderLayout());
-    }
-    
-    /**
-     * Alternate constructor for the case where the file in fact cannot be
-     * opened.
-     * 
-     * @param path The string path to the file
-     * @param kind The kind of editor this is
-     */
-    protected PojoEditor (String path, EditorFactory.Kind kind) {
-        this.kind = kind;
-        int ix = path.lastIndexOf('/');
-        if (ix != -1) {
-            path = path.substring (ix);
-        }
-        setDisplayName(path);
-        add (new JLabel (NbBundle.getMessage(PojoEditor.class, 
-                "LBL_FileGone", path)), BorderLayout.CENTER);
-        setLayout (new BorderLayout());
+        add (new ProgressPanel(dataObject.getPrimaryFile().getPath()), 
+                BorderLayout.CENTER);
     }
     
     Kind getKind() {
@@ -119,15 +117,18 @@ public abstract class PojoEditor<T extends Serializable> extends CloneableTopCom
         
     private void init(PojoDataObject<T> dataObject) {
         this.dataObject = dataObject;
-        dataObject.addPropertyChangeListener(WeakListeners.propertyChange(
-                modListener, dataObject));
         setActivatedNodes(new Node[] { dataObject.getNodeDelegate()});
         updateDisplayName();
     }
     
     /**
-     * Create a custom lookup for this component
-     * @return
+     * Create a custom lookup for this component.  Note this method is called
+     * in the superclass constructor, so be careful about relying on instance
+     * fields being initialized.
+     * <p/>
+     * The default implementation returns an empty lookup.
+     * 
+     * @return A lookup
      */
     protected Lookup createLookup() {
         return Lookup.EMPTY;
@@ -178,27 +179,33 @@ public abstract class PojoEditor<T extends Serializable> extends CloneableTopCom
         System.err.println("Component opened on " + this);
         assert EventQueue.isDispatchThread();
         super.componentOpened();
-        dataObject.editorOpened(this);
-        dataObject.addPropertyChangeListener(modListener);
-        dataObject.getNodeDelegate().addNodeListener(nodeListener);
-        onOpen();
-        if (pojo == null) {
-            System.err.println("Invoking load");
-            load();
-        } else {
-            System.err.println("Pojo already loaded");
+        if (dataObject != null) {
+            dataObject.editorOpened(this);
+            dataObject.addPropertyChangeListener(modListener);
+            dataObject.getNodeDelegate().addNodeListener(nodeListener);
+            dataObject.addChangeListener(cl);
+            onOpen();
+            if (pojo == null) {
+                System.err.println("Invoking load");
+                load();
+            } else {
+                System.err.println("Pojo already loaded");
+            }
         }
     }
     
     @Override
     protected final void componentClosed() {
         assert EventQueue.isDispatchThread();
-        dataObject.editorClosed(this);
-        dataObject.removePropertyChangeListener(modListener);
-        dataObject.getNodeDelegate().removeNodeListener(nodeListener);
-        onClose();
-        if (pojo != null && dataObject != null) {
-            clear(pojo);
+        if (dataObject != null) {
+            dataObject.editorClosed(this);
+            dataObject.removePropertyChangeListener(modListener);
+            dataObject.getNodeDelegate().removeNodeListener(nodeListener);
+            dataObject.removeChangeListener(cl);
+            onClose();
+            if (pojo != null && dataObject != null) {
+                clear(pojo);
+            }
         }
     }
 
@@ -224,6 +231,10 @@ public abstract class PojoEditor<T extends Serializable> extends CloneableTopCom
         return pojo;
     }
     
+    protected void onEditorAdded (Component editor) {
+        //do nothing
+    }
+    
     private T pojo;
     protected final void set (T pojo) {
         if (pojo == null) {
@@ -231,16 +242,17 @@ public abstract class PojoEditor<T extends Serializable> extends CloneableTopCom
         }
         System.err.println("Set " + pojo);
         this.pojo = pojo;
-        onSet (pojo);
-        if (getComponents().length == 0 || getComponents()[0].getClass() == JLabel.class) {
+        if (getComponents().length == 0 || getComponents()[0].getClass() == ProgressPanel.class) {
             removeAll();
             Component editor = createEditorUI(pojo);
             System.err.println("Adding " + editor);
             add (editor, BorderLayout.CENTER);
+            onEditorAdded (editor);
             invalidate();
             revalidate();
             repaint();
         }
+        onSet (pojo);
     }
     
     protected void onSet (T pojo) {
@@ -291,17 +303,22 @@ public abstract class PojoEditor<T extends Serializable> extends CloneableTopCom
                 public void setSynchronous(boolean val) {
                     System.err.println("Set synchronous " + val);
                     if (!val && !EventQueue.isDispatchThread()) {
-                        try {
-                            EventQueue.invokeAndWait(new Runnable() {
-                                public void run() {
-                                    JLabel lbl = new JLabel("Loading...");
-                                    add(lbl, BorderLayout.CENTER);
-                                }
-                            });
-                        } catch (InterruptedException ex) {
-                            Exceptions.printStackTrace(ex);
-                        } catch (InvocationTargetException ex) {
-                            Exceptions.printStackTrace(ex);
+                        if (!(getComponents()[0] instanceof ProgressPanel)) {
+                            try {
+                                EventQueue.invokeAndWait(new Runnable() {
+                                    public void run() {
+                                        ProgressPanel pnl = new ProgressPanel(getDataObject().getPrimaryFile().getPath());
+                                        add(pnl, BorderLayout.CENTER);
+                                        PojoEditor.this.invalidate();
+                                        PojoEditor.this.revalidate();
+                                        PojoEditor.this.repaint();
+                                    }
+                                });
+                            } catch (InterruptedException ex) {
+                                Exceptions.printStackTrace(ex);
+                            } catch (InvocationTargetException ex) {
+                                Exceptions.printStackTrace(ex);
+                            }
                         }
                     }
                 }
@@ -389,11 +406,10 @@ public abstract class PojoEditor<T extends Serializable> extends CloneableTopCom
             }
         }
     }
-    
 
     @Override
     public int getPersistenceType() {
-        return !dataObject.isValid() ? PERSISTENCE_NEVER : 
+        return (dataObject == null || !dataObject.isValid()) ? PERSISTENCE_NEVER : 
             PERSISTENCE_ONLY_OPENED;
     }
 
@@ -418,26 +434,39 @@ public abstract class PojoEditor<T extends Serializable> extends CloneableTopCom
 
     @Override
     protected Object writeReplace() throws ObjectStreamException {
-        return new Stub<T> (dataObject, getClass());
+        PojoDataObject dob = getDataObject();
+        if (dob == null || !dob.getPrimaryFile().isValid()) {
+            return null;
+        } else {
+            FileObject ob = dob.getPrimaryFile();
+            String url = URLMapper.findURL(ob, URLMapper.INTERNAL).toString();
+            return new Stub (url, getClass(), dob.getPojoType());
+        }
     }
     
     private static final class Stub<T extends Serializable> implements Serializable {
-        private long serialVersionUid = 10394L;
-        private final URL url;
+        private long serialVersionUID = 10395L;
+        private final String url;
         private Class<T> pojoType;
         private Class editorType;
-        Stub (PojoDataObject<T> dob, Class editorType) {
-            FileObject ob = dob.getPrimaryFile();
-            url = URLMapper.findURL(ob, URLMapper.INTERNAL);
-            pojoType = dob.getPojoType();
+        Stub (String url, Class editorType, Class<T> pojoType) {
+            this.url = url;
             this.editorType = editorType;
+            this.pojoType = pojoType;
         }
         
         @SuppressWarnings("unchecked")
         private PojoDataObject<T> getDataObject() throws IOException {
-            FileObject ob = URLMapper.findFileObject(url);
-            if (ob != null) {
-                DataObject dob = DataObject.find(ob);
+            URL theUrl;
+            try {
+                theUrl = new URL (this.url);
+            } catch (MalformedURLException dead) {
+                //Editor saved over a dead object
+                return null;
+            }
+            FileObject file = URLMapper.findFileObject(theUrl);
+            if (file != null) {
+                DataObject dob = DataObject.find(file);
                 if (dob instanceof PojoDataObject) {
                     PojoDataObject pdo = (PojoDataObject) dob;
                     if (pojoType.equals(pdo.getPojoType())) {
@@ -457,10 +486,13 @@ public abstract class PojoEditor<T extends Serializable> extends CloneableTopCom
  
         public Object readResolve() {
             try {
-                //XXX not sure if this is a good idea
                 PojoDataObject<T> ob = getDataObject();
-                PojoEditor ed = (PojoEditor) editorType.getConstructor(ob.getClass()).newInstance(ob);
-                return ed;
+                PojoEditor ed;
+                if (ob != null) {
+                    return editorType.getConstructor(ob.getClass()).newInstance(ob);
+                } else {
+                    return null;
+                }
             } catch (Exception e) {
                 Exceptions.printStackTrace(e);
                 return null;
@@ -528,6 +560,39 @@ public abstract class PojoEditor<T extends Serializable> extends CloneableTopCom
 
         public void propertyChange(PropertyChangeEvent evt) {
             
+        }
+    }
+    
+    private static final class ProgressPanel extends JPanel {
+        ProgressPanel(String path) {
+            setLayout(new FlowLayout());
+            JProgressBar progress = new JProgressBar();
+            add (progress);
+            progress.setIndeterminate(true);
+            JLabel lbl = new JLabel (NbBundle.getMessage(PojoEditor.class, 
+                    "Loading", path));
+            add (lbl);
+        }
+    }
+    
+    final CL cl = new CL();
+    private final class CL implements ChangeListener {
+        public void stateChanged(ChangeEvent e) {
+            removeAll();
+            PojoDataObject dob = getDataObject();
+            if (dob == null || !dob.isValid()) {
+                add (new JLabel(NbBundle.getMessage(PojoEditor.class, "LBL_Dead")));
+                invalidate();
+                revalidate();
+                repaint();
+                dataObject = null;
+            } else {
+                add (new ProgressPanel(dob.getPrimaryFile().getPath()));
+                invalidate();
+                revalidate();
+                repaint();
+                load();
+            }
         }
         
     }
