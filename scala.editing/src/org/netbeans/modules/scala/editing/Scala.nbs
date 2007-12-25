@@ -441,7 +441,8 @@ SKIP:line_comment
 SKIP:xml_comment
 SKIP:comment_keyword
 
-S = CompilationUnit;
+## CompilationUnit
+S = (<nl>)* TopStats;
 
 PlainId = <upperid>
         | <varid>
@@ -853,14 +854,13 @@ TraitParents = AnnotType (<with> AnnotType)*;
 ## Since Semi (which is ";" | <nl>) is separator between TopStat, we can not add [<nl>] Template at
 ## the end of ClassDef etc, instead, we have to let Template also be a TopStats
 TopStats = TopStat (Semi TopStat)*;
-#TopStat =  Expr | Packaging | Import;
-TopStat = (Annotation)* (Modifier)* TmplDef
+TopStat = TopTmplDef
         | Import
         | Packaging
         | ;
 
+TopTmplDef = (Annotation)* (Modifier)* TmplDef;
 Packaging = <package> QualId [<lbrace> (<nl>)* TopStats <rbrace>];
-CompilationUnit = (<nl>)* TopStats;
 
 
 #SYNTAX_ERROR:Expr: {
