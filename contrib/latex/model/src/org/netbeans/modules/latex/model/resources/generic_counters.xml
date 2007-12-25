@@ -1,4 +1,3 @@
-<?xml version="1.0" encoding="UTF-8"?>
 <!--
 DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
 
@@ -26,7 +25,7 @@ your own identifying information:
 Contributor(s):
 
 The Original Software is the LaTeX module. The Initial Developer of the Original
-Software is Jan Lahoda. Portions Copyright 2003-2004 Sun
+Software is Jan Lahoda. Portions Copyright 2003-2007 Sun
 Microsystems, Inc. All Rights Reserved.
 
 If you wish your version of this file to be governed by only the CDDL
@@ -40,28 +39,18 @@ However, if you add GPL Version 2 code and therefore, elected the GPL
 Version 2 license, then the option applies only if the new code is
 made subject to such option by the copyright holder.
 -->
-<!DOCTYPE file PUBLIC "-//NetBeans//LaTeX Commands Description 1.0//EN" "command_description.dtd"
-[
-<!ENTITY genericCommands
-         SYSTEM "generic_commands.xml" >
-<!ENTITY genericEnvironments
-         SYSTEM "generic_environments.xml" >
-<!ENTITY genericCounters
-         SYSTEM "generic_counters.xml" >
-]>
-
-<file name="default-latex-docclass" type="docclass">
-  <options />
-
-  <environments>
-    &genericEnvironments;
-  </environments>
-
-  <commands>
-    &genericCommands;
-  </commands>
-  
-  <counters>
-      &genericCounters;
-  </counters>
-</file>
+<counter name="section" />
+<counter name="subsection" />
+<counter name="subsubsection" />
+<counter name="paragraph" />
+<counter name="subparagraph" />
+<counter name="page" />
+<counter name="equation" />
+<counter name="figure" />
+<counter name="table" />
+<counter name="footnote" />
+<counter name="mpfootnote" />
+<counter name="enumi" />
+<counter name="enumii" />
+<counter name="enumiii" />
+<counter name="enumiv" />

@@ -48,6 +48,8 @@ made subject to such option by the copyright holder.
          SYSTEM "generic_environments.xml" >
 <!ENTITY genericOptions
          SYSTEM "generic_options.xml" >
+<!ENTITY genericCounters
+         SYSTEM "generic_counters.xml" >
 <!ENTITY genericSymbols
          SYSTEM "symbols_generic.xml" >
 ]>
@@ -110,4 +112,10 @@ made subject to such option by the copyright holder.
     </command>
 
   </commands>
+
+  <counters>
+      &genericCounters;
+      <counter name="part" />
+      <counter name="chapter" />
+  </counters>
 </file>

@@ -463,27 +463,31 @@ public final class CommandParser {
             }
             
             boolean freeText = actual.getArgument(currentArgument).getType() == Command.Param.FREE;
-            
-            if (!ParserUtilities.isOpeningBracket(read) && (actual.getArgument(currentArgument).getType() != Command.Param.FREE)) {
-                errors.add(createError("A non-free argument looking like a free argument", input.getPosition()));
-                break;
-//                throw new ParseException(input);
-            }
-            
-//            System.err.println("read = " + read );
-//            if (read.id() != TexTokenId.COMP_BRACKET_LEFT && read.id() != TexTokenId.RECT_BRACKET_LEFT) {
-//                throw new ParseException(input);
-//            }
-            
             ArgumentNodeImpl ani = new ArgumentNodeImpl(cni, true, currentCommandDefiningNode);
             Command.Param param = actual.getArgument(currentArgument);
             
             ani.setArgument(param);
             
-            if (param.hasAttribute(Command.Param.ATTR_NO_PARSE))
-                handleAddArgument(cni, currentArgument, (ArgumentNodeImpl) parseBalancedText(input, ani, true /*!!!!!!*/));
-            else
-                handleAddArgument(cni, currentArgument, (ArgumentNodeImpl) parseGroup(input, ani, true, freeText, true /*!!!!!!*/, param.hasAttribute("contains-paragraph"), false));
+            
+            if (!ParserUtilities.isOpeningBracket(read) && (actual.getArgument(currentArgument).getType() != Command.Param.FREE)) {
+                if (read.id() == TexTokenId.COMMAND) {
+                    ani.setStartingPosition(input.getPosition());
+                    input.next();
+                    ani.setEndingPosition(input.getPosition());
+
+                    handleAddArgument(cni, currentArgument, ani);
+
+                } else {
+                    errors.add(createError("A non-free argument looking like a free argument", input.getPosition()));
+                    break;
+                }
+            } else {
+                if (param.hasAttribute(Command.Param.ATTR_NO_PARSE)) {
+                    handleAddArgument(cni, currentArgument, (ArgumentNodeImpl) parseBalancedText(input, ani, true /*!!!!!!*/));
+                } else {
+                    handleAddArgument(cni, currentArgument, (ArgumentNodeImpl) parseGroup(input, ani, true, freeText, true /*!!!!!!*/, param.hasAttribute("contains-paragraph"), false));
+                }
+            }
             
             currentArgument++;
             
@@ -550,8 +554,7 @@ public final class CommandParser {
         
         if ("\\newcommand".equals(cni.getCommand().getCommand()) || "\\renewcommand".equals(cni.getCommand().getCommand())) {//TODO: this is quite obsolette way :-)
             if (cni.getArgumentCount() == 4) {//TODO: this is quite obsolette way :-)
-                Iterator nameTokens = cni.getArgument(0).getDeepNodeTokens().iterator(); nameTokens.next();/*{*/
-                String name = ((Token) nameTokens.next()).text().toString(); //!!!Check that it has exactly one argument of type command!
+                String name = ParserUtilities.getArgumentValue(cni.getArgument(0)).toString(); //!!!Check that it has exactly one argument of type command!
                 Iterator argTokens = cni.getArgument(1).getDeepNodeTokens().iterator(); if (argTokens.hasNext()) argTokens.next();
                 String argCountString = argTokens.hasNext() ? ((Token) argTokens.next()).text().toString() : ""; //!!!Check that it has exact one argument of type number!
 //                System.err.println(cni.getCommand().getCommand() + "{" + name + "}[" + argCountString + "]{" + cni.getArgument(2).getText() + "}");
@@ -687,6 +690,27 @@ public final class CommandParser {
                 } catch (IOException e) {
                     errors.add(createError("Cannot include file \"" + fileName + "\" reason:" + e.getMessage() + ".", cni.getStartingPosition()));
                 }
+            }
+        }
+        
+        for (int cntr = 0; cntr < cni.getArgumentCount(); cntr++) {
+            ArgumentNode an = cni.getArgument(cntr);
+            
+            if (an.hasAttribute("new-counter")) {
+                Command newCommand = new Command("\\the" + ParserUtilities.getArgumentValue(an), 0, false);
+
+                CommandCollection coll;
+                
+                if (currentCommandDefiningNode == cni) {
+                    coll = cni.getCommandCollection();
+                } else {
+                    coll = new CommandCollection();
+
+                    cni.setCommandCollection(coll);
+                    currentCommandDefiningNode = cni;
+                }
+
+                coll.addCommand(newCommand);
             }
         }
         

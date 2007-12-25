@@ -663,6 +663,7 @@ made subject to such option by the copyright holder.
 
   <argument type="mandatory">
     <attribute name="#code" value="true" />
+    <attribute name="#no-parse" value="true" />
   </argument>
 </command>
 
@@ -746,6 +747,7 @@ made subject to such option by the copyright holder.
   <argument type="mandatory">
     <attribute name="#code" value="true" />
     <attribute name="#envname" value="true" />
+    <attribute name="new-counter" value="true" />
   </argument>
 
   <argument type="nonmandatory">
@@ -760,6 +762,7 @@ made subject to such option by the copyright holder.
 
   <argument type="nonmandatory">
     <attribute name="#code" value="true" />
+    <attribute name="existing-counter" value="true" />
   </argument>
 
 </command>
@@ -980,5 +983,64 @@ made subject to such option by the copyright holder.
 
 <command name="\b">
     <argument type="mandatory">
+    </argument>
+</command>
+
+<command name="\hyphenation">
+    <attribute name="preamble" value="true" />
+    <argument type="mandatory">
+        <attribute name="#code" value="true" />
+    </argument>
+</command>
+
+<command name="\newcounter">
+    <argument type="mandatory">
+        <attribute name="#code" value="true" />
+        <attribute name="new-counter" value="true" />
+    </argument>
+    <argument type="nonmandatory">
+        <attribute name="#code" value="true" />
+        <attribute name="existing-counter" value="true" />
+    </argument>
+</command>
+
+<command name="\setcounter">
+    <argument type="mandatory">
+        <attribute name="#code" value="true" />
+        <attribute name="existing-counter" value="true" />
+    </argument>
+    <argument type="mandatory">
+        <attribute name="#code" value="true" />
+    </argument>
+</command>
+
+<command name="\addtocounter">
+    <argument type="mandatory">
+        <attribute name="#code" value="true" />
+        <attribute name="existing-counter" value="true" />
+    </argument>
+    <argument type="mandatory">
+        <attribute name="#code" value="true" />
+    </argument>
+</command>
+
+<command name="\stepcounter">
+    <argument type="mandatory">
+        <attribute name="#code" value="true" />
+        <attribute name="existing-counter" value="true" />
+    </argument>
+</command>
+
+<command name="\refstepcounter">
+    <argument type="mandatory">
+        <attribute name="#code" value="true" />
+        <attribute name="existing-counter" value="true" />
+    </argument>
+</command>
+
+<command name="\value">
+    <argument type="mandatory">
+        <attribute name="#code" value="true" />
+        <attribute name="existing-counter" value="true" />
     </argument>
 </command>

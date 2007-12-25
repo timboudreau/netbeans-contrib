@@ -46,6 +46,8 @@ made subject to such option by the copyright holder.
          SYSTEM "generic_commands.xml" >
 <!ENTITY genericEnvironments
          SYSTEM "generic_environments.xml" >
+<!ENTITY genericCounters
+         SYSTEM "generic_counters.xml" >
 <!ENTITY genericSymbols
          SYSTEM "symbols_generic.xml" >
 ]>
@@ -216,4 +218,8 @@ made subject to such option by the copyright holder.
     </argument>
     </command>
   </commands>
+
+  <counters>
+      &genericCounters;
+  </counters>
 </file>

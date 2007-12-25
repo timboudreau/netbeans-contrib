@@ -46,9 +46,11 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.EnumMap;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import javax.swing.text.Document;
 import org.netbeans.api.gsf.CancellableTask;
 import org.netbeans.napi.gsfret.source.CompilationInfo;
@@ -101,6 +103,10 @@ public class ErrorHints implements CancellableTask<CompilationInfo> {
                 }
             }
 
+            if (fixes.isEmpty() && code2Ignore.contains(e.getCode())) {
+                continue;
+            }
+            
             doc.render(new Runnable() {
                 public void run() {
                     if (e.getEnd() == null) {
@@ -134,6 +140,7 @@ public class ErrorHints implements CancellableTask<CompilationInfo> {
     
     private static final Map<ParseError.Severity, Severity> latex2EditorSeverity;
     private static final Map<String, FixProvider> code2StringProvider;
+    private static final Set<String> code2Ignore;
     
     static {
         latex2EditorSeverity = new EnumMap<ParseError.Severity, Severity>(ParseError.Severity.class);
@@ -145,6 +152,11 @@ public class ErrorHints implements CancellableTask<CompilationInfo> {
         
         code2StringProvider.put("unknown.command", new AddPackageFixProvider(true));
         code2StringProvider.put("unknown.environment", new AddPackageFixProvider(false));
+        
+        code2Ignore = new HashSet();
+        
+        code2Ignore.add("unknown.command");
+        code2Ignore.add("unknown.environment");
     }
     
     public static final class Factory extends EditorAwareSourceTaskFactory {

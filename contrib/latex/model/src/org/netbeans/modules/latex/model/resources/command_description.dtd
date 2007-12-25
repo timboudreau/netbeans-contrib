@@ -106,6 +106,13 @@ made subject to such option by the copyright holder.
 <!--- Put your DTDDoc comment here. -->
 <!ELEMENT options (option)*>
 
+<!ELEMENT counter (description?, attribute*)>
+<!ATTLIST counter
+    name CDATA #REQUIRED
+  >
+
+<!ELEMENT counters (counter)*>
+
 <!--- Put your DTDDoc comment here. -->
 <!ELEMENT include EMPTY>
 <!ATTLIST include
@@ -116,7 +123,7 @@ made subject to such option by the copyright holder.
 <!ELEMENT includes (include)*>
 
 <!--- Put your DTDDoc comment here. -->
-<!ELEMENT file (description?,includes?,attribute*,options,environments,commands)*>
+<!ELEMENT file (description?,includes?,attribute*,options,environments,commands,counters?)*>
 <!ATTLIST file
     name CDATA #REQUIRED
     type (package|docclass) #REQUIRED

@@ -96,6 +96,10 @@ import org.xml.sax.*;
             handler.start_option(attrs);
         } else if ("environments".equals(name)) {
             handler.start_environments(attrs);
+        } else if ("counters".equals(name)) {
+            handler.start_counters(attrs);
+        } else if ("counter".equals(name)) {
+            handler.start_counter(attrs);
         }
     }
     
@@ -128,6 +132,10 @@ import org.xml.sax.*;
             handler.end_option();
         } else if ("environments".equals(name)) {
             handler.end_environments();
+        } else if ("counters".equals(name)) {
+            handler.end_counters();
+        } else if ("counter".equals(name)) {
+            handler.end_counter();
         }
     }
     

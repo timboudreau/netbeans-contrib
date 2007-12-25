@@ -45,8 +45,10 @@ package org.netbeans.modules.latex.editor.completion.latex;
 
 import java.io.IOException;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
 import javax.swing.text.JTextComponent;
@@ -78,6 +80,7 @@ import org.netbeans.modules.latex.model.command.BlockNode;
 import org.netbeans.modules.latex.model.command.Command;
 import org.netbeans.modules.latex.model.command.CommandNode;
 import org.netbeans.modules.latex.model.command.CommandPackage;
+import org.netbeans.modules.latex.model.command.DefaultTraverseHandler;
 import org.netbeans.modules.latex.model.command.Environment;
 import org.netbeans.modules.latex.model.lexer.TexTokenId;
 import org.netbeans.spi.editor.completion.CompletionProvider;
@@ -86,7 +89,6 @@ import org.netbeans.spi.editor.completion.CompletionTask;
 import org.netbeans.spi.editor.completion.support.AsyncCompletionQuery;
 import org.netbeans.spi.editor.completion.support.AsyncCompletionTask;
 import org.netbeans.modules.latex.model.command.Node;
-import org.netbeans.modules.latex.model.command.ParagraphNode;
 import org.netbeans.modules.latex.model.command.SourcePosition;
 import org.openide.ErrorManager;
 import org.openide.filesystems.FileObject;
@@ -340,6 +342,61 @@ public class TexCompletion implements CompletionProvider {
 
         }
 
+    private static class CounterCompletionHandler implements ArgumentCompletionHandler {
+        
+        public String[] getArgumentTags() {
+            return new String[] {"existing-counter"};
+        }
+        
+        public void getCompletionResult(CompletionResultSet set, LaTeXParserResult lpr, final ArgumentNode node, String prefix, int start) {
+            final Set<String> counters = new HashSet<String>();
+            
+            lpr.getDocument().traverse(new DefaultTraverseHandler() {
+                private boolean alreadyFound;
+                @Override
+                public boolean commandStart(CommandNode node) {
+                    return !alreadyFound;
+                }
+                @Override
+                public boolean argumentStart(ArgumentNode n) {
+                    alreadyFound |= node == n;
+                    
+                    if (!alreadyFound && n.hasAttribute("new-counter")) {
+                        counters.add(getArgumentValue(n).toString());
+                    }
+                    
+                    if (!alreadyFound && n.hasAttribute("#documentclass")) {
+                        String name = getArgumentValue(n).toString();
+                        CommandPackage cp = CommandPackage.getCommandPackageForName(name);
+                        
+                        if (cp == null) {
+                            cp = CommandPackage.getDefaultDocumentClass();
+                        }
+                        
+                        counters.addAll(cp.getCounters());
+                    }
+                    
+                    return !alreadyFound;
+                }
+                @Override
+                public boolean blockStart(BlockNode node) {
+                    return !alreadyFound;
+                }
+            });
+            
+            for (String name : counters) {
+                if (name.startsWith(prefix)) {
+                    set.addItem(new ValueCompletionItem(start, name));
+                }
+            }
+        }
+        
+        public String preprocessPrefix(LaTeXParserResult lpr, ArgumentNode node, String prefix) {
+            return prefix;
+        }
+        
+    }
+    
     private static final TexFileFilter TEX_FILTER = new TexFileFilter("text/x-tex");
 
     private static class TexFileFilter implements FileObjectFilter {
@@ -400,6 +457,7 @@ public class TexCompletion implements CompletionProvider {
         new InputArgumentCompletionHandler(),
         new EnvironmentArgumentCompletionHandler(),
         new DocumentClassArgumentCompletionHandler(),
+        new CounterCompletionHandler(),
     };
     
     private static boolean isArgumentCurlyBracket(ArgumentNode anode) {
@@ -473,7 +531,7 @@ public class TexCompletion implements CompletionProvider {
     }
     
     private static class Query extends AsyncCompletionQuery {
-        
+
         protected void query(final CompletionResultSet resultSet, final Document doc, final int caretOffset) {
             final DataObject od = (DataObject) doc.getProperty(Document.StreamDescriptionProperty); //TODO: this won't work in SA
             Source source = Source.forDocument(doc);
@@ -505,7 +563,7 @@ public class TexCompletion implements CompletionProvider {
                             Position pos = doc.createPosition(caretOffset);
                             String prefix = token.text().subSequence(0, caretOffset - start).toString();
                             
-                            getCommandsForPrefix(resultSet, lpr, doc, od, pos, prefix, start);
+                                getCommandsForPrefix(resultSet, lpr, doc, od, pos, prefix, start);
                         }
                         
                         if (isArgument(lpr, doc, caretOffset)) {
@@ -528,6 +586,39 @@ public class TexCompletion implements CompletionProvider {
     }
 
 
+    //XXX:
+    private static CharSequence getArgumentValue(ArgumentNode an) {
+        CharSequence argumentText = an.getFullText();
+        
+        switch (an.getArgument().getType()) {
+            case Command.Param.MANDATORY:
+                return removeBrackets(argumentText, '{', '}');
+            case Command.Param.NONMANDATORY:
+                return removeBrackets(argumentText, '[', ']');
+            case Command.Param.FREE:
+                return argumentText;
+            case Command.Param.SPECIAL:
+                //do not know what to do with this:
+                return argumentText;
+            default:
+                throw new IllegalArgumentException("Unknown argument type:" + an.getArgument().getType());
+        }
+    }
+    
+    private static CharSequence removeBrackets(CharSequence text, char open, char close) {
+        CharSequence result = text;
+        
+        if (result.length() > 0 && result.charAt(0) == open) {
+            result = result.subSequence(1, result.length());
+        }
+        
+        if (result.length() > 0 && result.charAt(result.length() - 1) == close) {
+            result = result.subSequence(0, result.length() - 1);
+        }
+        
+        return result;
+    }
+    
 //    public static final Token<TexTokenId> getToken(Document doc, int offset) throws ClassCastException {
 //        TokenSequence<TexTokenId> ts = (TokenSequence<TexTokenId>) TokenHierarchy.get(doc).tokenSequence();
 //        

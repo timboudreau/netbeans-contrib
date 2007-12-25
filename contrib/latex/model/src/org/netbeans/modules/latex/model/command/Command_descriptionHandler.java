@@ -150,6 +150,32 @@ import org.xml.sax.*;
     
     /**
      *
+     * A container element start event handling method.
+     * @param meta attributes
+     */
+    public void start_counter(final AttributeList meta) throws SAXException;
+    
+    /**
+     *
+     * A container element end event handling method.
+     */
+    public void end_counter() throws SAXException;
+    
+    /**
+     *
+     * A container element start event handling method.
+     * @param meta attributes
+     */
+    public void start_counters(final AttributeList meta) throws SAXException;
+    
+    /**
+     *
+     * A container element end event handling method.
+     */
+    public void end_counters() throws SAXException;
+    
+    /**
+     *
      * A data element event handling method.
      * @param data value or null
      * @param meta attributes

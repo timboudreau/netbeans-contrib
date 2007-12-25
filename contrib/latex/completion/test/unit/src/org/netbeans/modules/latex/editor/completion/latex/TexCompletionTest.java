@@ -227,6 +227,14 @@ public class TexCompletionTest extends NbTestCase {
         test("", "completion/RefArgCorrectlyReplaced.tex", 6, 5, 0);
     }
     
+    public void testCountersTest1() throws Exception {
+        test("", "completion/CountersTest.tex", 7, 8);
+    }
+    
+    public void testCountersTest2() throws Exception {
+        test("", "completion/CountersTest.tex", 8, 10);
+    }
+    
     private List<? extends CompletionItem> getItems(JEditorPane editor) throws Exception {
         CompletionProvider provider = new TexCompletion();
         

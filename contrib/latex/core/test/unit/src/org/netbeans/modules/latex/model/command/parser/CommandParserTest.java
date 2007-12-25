@@ -93,7 +93,7 @@ public class CommandParserTest extends NbTestCase {
     
     public static Test suite() {
         TestSuite suite = new TestSuite();
-        List<String> ignoredTests = Arrays.asList(new String[] {"testNewCommand2", "testEnvironmentInEnvironment3"});
+        List<String> ignoredTests = Arrays.asList(new String[] {"testNewCommand2", "testEnvironmentInEnvironment3", "testUserCommands"});
 
         //testNewCommand2 is failing, exclude:
         for (Enumeration e = new TestSuite(CommandParserTest.class).tests(); e.hasMoreElements(); ) {
@@ -442,4 +442,55 @@ public class CommandParserTest extends NbTestCase {
         }, true);
     }
 
+    public void testUserCommands() throws Exception {
+        final FileObject testFileObject = dataDir.getFileObject("testUserCommands.tex");
+        
+        assertNotNull(testFileObject);
+        
+        Source.forFileObject(testFileObject).runUserActionTask(new CancellableTask<CompilationController>() {
+            public void cancel() {}
+            public void run(CompilationController parameter) throws Exception {
+                parameter.toPhase(Phase.RESOLVED);
+                
+                LaTeXParserResult lpr = (LaTeXParserResult) parameter.getParserResult();
+                
+                assertTrue(lpr.getErrors().toString(), lpr.getErrors().isEmpty());
+            }
+        }, true);
+    }
+    
+    public void testNewCommand3() throws Exception {
+        final FileObject testFileObject = dataDir.getFileObject("testNewCommand3.tex");
+        
+        assertNotNull(testFileObject);
+        
+        Source.forFileObject(testFileObject).runUserActionTask(new CancellableTask<CompilationController>() {
+            public void cancel() {}
+            public void run(CompilationController parameter) throws Exception {
+                parameter.toPhase(Phase.RESOLVED);
+                
+                LaTeXParserResult lpr = (LaTeXParserResult) parameter.getParserResult();
+                
+                assertTrue(lpr.getErrors().toString(), lpr.getErrors().isEmpty());
+            }
+        }, true);
+    }
+    
+    public void testCounter1() throws Exception {
+        final FileObject testFileObject = dataDir.getFileObject("testCounter1.tex");
+        
+        assertNotNull(testFileObject);
+        
+        Source.forFileObject(testFileObject).runUserActionTask(new CancellableTask<CompilationController>() {
+            public void cancel() {}
+            public void run(CompilationController parameter) throws Exception {
+                parameter.toPhase(Phase.RESOLVED);
+                
+                LaTeXParserResult lpr = (LaTeXParserResult) parameter.getParserResult();
+                
+                assertTrue(lpr.getErrors().toString(), lpr.getErrors().isEmpty());
+            }
+        }, true);
+    }
+    
 }

@@ -101,6 +101,10 @@ public final class ParseError {
     public enum Severity {
         ERROR, WARNING;
     }
-    
+
+    @Override
+    public String toString() {
+        return "[" + String.valueOf(start) + "-" + String.valueOf(end) + ":" + displayName + "]";
+    }
     
 }

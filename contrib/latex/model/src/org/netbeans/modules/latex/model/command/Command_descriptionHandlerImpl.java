@@ -272,5 +272,29 @@ import org.xml.sax.*;
         
         param.addValue(meta.getValue("value"));
     }
+
+    public void start_counter(AttributeList meta) throws SAXException {
+        if (DEBUG) System.err.println("start_option: " + meta);
+        
+        lastAttributable.push(new AttributableImpl());
+        
+        String name = meta.getValue("name");
+        Command cmd = new Command("\\the" + name, 0, false);
+        
+        pack.getCounters().add(name);
+        lastElementable.peek().getCommands().put(cmd.getCommand(), cmd);
+    }
+
+    public void end_counter() throws SAXException {
+        if (DEBUG) System.err.println("end_counter");
+
+        lastAttributable.pop();
+    }
+
+    public void start_counters(AttributeList meta) throws SAXException {
+    }
+
+    public void end_counters() throws SAXException {
+    }
     
 }

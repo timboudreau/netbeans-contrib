@@ -104,6 +104,7 @@ made subject to such option by the copyright holder.
         <file name="generic_commands.xml" url="generic_commands.xml" />
         <file name="generic_environments.xml" url="generic_environments.xml" />
         <file name="generic_options.xml" url="generic_options.xml" />
+        <file name="generic_counters.xml" url="generic_counters.xml" />
         <file name="symbols_generic.xml" url="symbols_generic.xml" />
         <file name="symbols_latexsym.xml" url="symbols_latexsym.xml" />
         <file name="symbols_amsfonts.xml" url="symbols_amsfonts.xml" />

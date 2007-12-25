@@ -74,7 +74,8 @@ public final class CommandPackage extends NamedAttributableWithSubElements {
     private int type = 0;
     
     private Map<String, Option> options;
-    private Set<String>              includes;
+    private Set<String>         includes;
+    private Set<String>         counters;
     
     /*package private*/void setType(int type) {
         this.type = type;
@@ -100,6 +101,13 @@ public final class CommandPackage extends NamedAttributableWithSubElements {
             return includes = new HashSet<String>();
 
         return includes;
+    }
+    
+    public synchronized Set<String> getCounters() {
+        if (counters == null)
+            return counters = new HashSet<String>();
+
+        return counters;
     }
     
     private static Map<String, CommandPackage> name2documentClass = null;
@@ -143,7 +151,7 @@ public final class CommandPackage extends NamedAttributableWithSubElements {
      *
      * @returns Collection<String> of names of known document classes.
      */
-    public static synchronized Collection getKnownDocumentClasses() {
+    public static synchronized Collection<String> getKnownDocumentClasses() {
         return Collections.unmodifiableCollection(getName2DocumentClass().keySet());
     }
     
@@ -151,7 +159,7 @@ public final class CommandPackage extends NamedAttributableWithSubElements {
      *
      * @returns Collection<String> of names of known packages.
      */
-    public static synchronized Collection getKnownPackages() {
+    public static synchronized Collection<String> getKnownPackages() {
         return Collections.unmodifiableCollection(getName2Package().keySet());
     }
     
