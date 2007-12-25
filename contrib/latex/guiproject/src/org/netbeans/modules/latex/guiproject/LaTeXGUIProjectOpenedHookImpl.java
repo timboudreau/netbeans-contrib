@@ -44,9 +44,6 @@
 package org.netbeans.modules.latex.guiproject;
 
 import org.netbeans.spi.project.ui.ProjectOpenedHook;
-import org.openide.ErrorManager;
-import org.openide.util.Lookup;
-import org.openide.util.RequestProcessor;
 
 /**
  *
@@ -64,44 +61,10 @@ public class LaTeXGUIProjectOpenedHookImpl extends ProjectOpenedHook {
     protected void projectOpened() {
         LaTeXGUIProjectUpgrader.getUpgrader().upgrade(project);
         ProjectReparsedTaskFactory.get().registerFile(project.getMainFile());
-        assureParsed();
     }
 
     protected void projectClosed() {
-        ProjectReparsedTaskFactory.get().registerFile(project.getMainFile());
-    }
-    
-    private void assureParsed() {
-//        RequestProcessor.getDefault().post(new Runnable() {
-//	    public void run() {
-//                //an attempt to prevent deadlock between TexKit.<clinit> and TexSettingsInitializer:
-//                try {
-//                    ClassLoader cl = (ClassLoader) Lookup.getDefault().lookup(ClassLoader.class);
-//                    
-//                    cl.loadClass("org.netbeans.modules.latex.editor.TexKit");
-//                } catch (Exception e) {
-//                    ErrorManager.getDefault().notify(ErrorManager.INFORMATIONAL, e);
-//                }
-//                
-//                LaTeXSource      source = project.getSource();
-//	        LaTeXSource.Lock lock = null;
-//		
-////                System.err.println("source=" + source);
-//		try {
-////                    System.err.println("LaTeXGUIProject.assureParsed trying to obtain lock");
-//		    lock = source.lock(true);
-////                    System.err.println("LaTeXGUIProject.assureParsed trying lock obtained=" + lock);
-//		} finally {
-//                    if (lock != null) {
-////                        System.err.println("LaTeXGUIProject.assureParsed unlock the lock");
-//                        source.unlock(lock);
-////                        System.err.println("LaTeXGUIProject.assureParsed unlocking done");
-//                    } else {
-////                        System.err.println("LaTeXGUIProject.assureParsed no unlocking (lock == null)");
-//                    }
-//		}
-//	    }
-//	});
+        ProjectReparsedTaskFactory.get().unregisterFile(project.getMainFile());
     }
     
 }
