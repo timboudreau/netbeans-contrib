@@ -69,34 +69,7 @@ made subject to such option by the copyright holder.
     <fontcolor name="mod-math" bgColor="C8DAFF" />
     <fontcolor name="mod-unused" foreColor="gray" />
     
-    <fontcolor name="mod-ext-subsection*">
-        <font style="bold"/>
-    </fontcolor>
-    <fontcolor name="mod-ext-subsubsection">
-        <font style="bold"/>
-    </fontcolor>
-    <fontcolor name="mod-ext-subparagraph*">
-        <font style="bold"/>
-    </fontcolor>
-    <fontcolor name="mod-ext-section*">
-        <font style="bold"/>
-    </fontcolor>
-    <fontcolor name="mod-ext-subparagraph">
-        <font style="bold"/>
-    </fontcolor>
-    <fontcolor name="mod-ext-subsection">
-        <font style="bold"/>
-    </fontcolor>
-    <fontcolor name="mod-ext-paragraph">
-        <font style="bold"/>
-    </fontcolor>
-    <fontcolor name="mod-ext-section">
-        <font style="bold"/>
-    </fontcolor>
-    <fontcolor name="mod-ext-paragraph*">
-        <font style="bold"/>
-    </fontcolor>
-    <fontcolor name="mod-ext-subsubsection*">
+    <fontcolor name="mod-caption">
         <font style="bold"/>
     </fontcolor>
     

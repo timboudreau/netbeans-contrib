@@ -42,6 +42,7 @@
 package org.netbeans.modules.latex.editor.semantic;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -203,22 +204,28 @@ public class SemanticColoring implements CancellableTask<CompilationInfo> {
                                     if (modifier.endsWith("*")) {
                                         modifier = modifier.substring(0, modifier.length() - 1);
                                     }
-                                    
-                                    attrs = getColoringForName(node.getAttribute("extended-coloring-modifier"));
+
+                                    if (captionColorings.contains(modifier)) {
+                                        attrs = getColoringForName("mod-caption");
+                                    }
                                 } else {
-                                    if (node.hasAttribute("font-style")) {
-                                        attrs = getColoringForName("mod-font-style-" + node.getAttribute("font-style"));
+                                    if (node.hasAttribute("#caption")) {
+                                        attrs = getColoringForName("mod-caption");
                                     } else {
-                                        ArgumentContainingNode cnode = node.getCommand();
+                                        if (node.hasAttribute("font-style")) {
+                                            attrs = getColoringForName("mod-font-style-" + node.getAttribute("font-style"));
+                                        } else {
+                                            ArgumentContainingNode cnode = node.getCommand();
 
-                                        if (cnode instanceof CommandNode && cnode.getParent() instanceof BlockNode) {
-                                            BlockNode bnode = (BlockNode) cnode.getParent();
-                                            Environment env = bnode.getEnvironment();
+                                            if (cnode instanceof CommandNode && cnode.getParent() instanceof BlockNode) {
+                                                BlockNode bnode = (BlockNode) cnode.getParent();
+                                                Environment env = bnode.getEnvironment();
 
-                                            if (env != null) {
-                                                attrs = getColoringForName(TexColoringNames.ENUM_ARG_CORRECT);
-                                            } else {
-                                                attrs = getColoringForName(TexColoringNames.ENUM_ARG_INCORRECT);
+                                                if (env != null) {
+                                                    attrs = getColoringForName(TexColoringNames.ENUM_ARG_CORRECT);
+                                                } else {
+                                                    attrs = getColoringForName(TexColoringNames.ENUM_ARG_INCORRECT);
+                                                }
                                             }
                                         }
                                     }
@@ -358,4 +365,14 @@ public class SemanticColoring implements CancellableTask<CompilationInfo> {
         
         return fontColorSettings.getTokenFontColors(name);
     }
+    
+    private static final Set<String> captionColorings = new HashSet<String>(Arrays.asList(
+        "mod-ext-part",
+        "mod-ext-chapter",
+        "mod-ext-section",
+        "mod-ext-subsection",
+        "mod-ext-subsubsection",
+        "mod-ext-paragraph",
+        "mod-ext-subparagraph"
+    ));
 }
