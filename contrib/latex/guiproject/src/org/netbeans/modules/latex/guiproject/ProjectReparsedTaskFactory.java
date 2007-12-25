@@ -84,7 +84,13 @@ public class ProjectReparsedTaskFactory extends SourceTaskFactory {
     }
     
     static ProjectReparsedTaskFactory get() {
-        return Lookup.getDefault().lookup(ProjectReparsedTaskFactory.class);
+        for (SourceTaskFactory f : Lookup.getDefault().lookupAll(SourceTaskFactory.class)) {
+            if (f.getClass() == ProjectReparsedTaskFactory.class) {
+                return (ProjectReparsedTaskFactory) f;
+            }
+        }
+        
+        return null;
     }
     
     synchronized void registerFile(FileObject main) {
