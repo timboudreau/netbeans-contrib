@@ -48,6 +48,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import javax.swing.text.Document;
 import org.netbeans.api.gsf.CancellableTask;
 import org.netbeans.modules.latex.model.LaTeXParserResult;
+import org.netbeans.modules.latex.model.Utilities;
 import org.netbeans.modules.latex.model.command.ArgumentNode;
 import org.netbeans.modules.latex.model.command.BlockNode;
 import org.netbeans.modules.latex.model.command.CommandNode;
@@ -166,7 +167,11 @@ public class HintsProcessor implements CancellableTask<CompilationInfo> {
                     List<ErrorDescription> h = p.computeHints(info, n);
 
                     if (h != null) {
-                        hints.addAll(h);
+                        for (ErrorDescription ed : h) {
+                            if (info.getFileObject().equals(ed.getFile())) {
+                                hints.add(ed);
+                            }
+                        }
                     }
                 } catch (Exception ex) {
                     Exceptions.printStackTrace(ex);

@@ -126,6 +126,13 @@ public class CheckCountersHintTest extends NbTestCase {
              "\\end{document}\n");
     }
     
+    public void testNewTheorem() throws Exception {
+        testAnalyze("\\documentclass{book}\n" + 
+             "\\newtheorem{a}{a}[section]\n" + 
+             "\\begin{document}\n" + 
+             "\\end{document}\n");
+    }
+    
     private List<ErrorDescription> computeHint(CompilationInfo info) throws Exception {
         HintProvider provider = new CheckCountersHint();
         List<ErrorDescription> ed = HintsProcessor.compute(info, Collections.singletonList(provider), new AtomicBoolean());
