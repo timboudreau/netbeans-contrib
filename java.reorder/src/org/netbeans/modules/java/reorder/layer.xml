@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE filesystem PUBLIC "-//NetBeans//DTD Filesystem 1.1//EN" "http://www.netbeans.org/dtds/filesystem-1_1.dtd">
+<filesystem>
+    <folder name="Actions">
+        <folder name="Edit">
+            <file name="org-netbeans-modules-java-reorder-SwapBackwards.instance"/>
+            <file name="org-netbeans-modules-java-reorder-SwapForward.instance"/>
+        </folder>
+    </folder>
+    <folder name="Menu">
+        <folder name="Source">
+            <file name="org-netbeans-modules-java-reorder-separatorBefore.instance">
+                <attr name="instanceClass" stringvalue="javax.swing.JSeparator"/>
+                <attr name="position" intvalue="5050"/>
+            </file>
+            <file name="org-netbeans-modules-java-reorder-SwapBackwards.shadow">
+                <attr name="originalFile" stringvalue="Actions/Edit/org-netbeans-modules-java-reorder-SwapBackwards.instance"/>
+                <attr name="position" intvalue="5060"/>
+            </file>
+            <file name="org-netbeans-modules-java-reorder-SwapForward.shadow">
+                <attr name="originalFile" stringvalue="Actions/Edit/org-netbeans-modules-java-reorder-SwapForward.instance"/>
+                <attr name="position" intvalue="5070"/>
+            </file>
+            <file name="org-netbeans-modules-java-reorder-separatorAfter.instance">
+                <attr name="instanceClass" stringvalue="javax.swing.JSeparator"/>
+                <attr name="position" intvalue="5080"/>
+            </file>
+        </folder>
+    </folder>
+    <folder name="Shortcuts">
+        <file name="DO-COMMA.shadow">
+            <attr name="originalFile" stringvalue="Actions/Edit/org-netbeans-modules-java-reorder-SwapBackwards.instance"/>
+        </file>
+        <file name="DO-PERIOD.shadow">
+            <attr name="originalFile" stringvalue="Actions/Edit/org-netbeans-modules-java-reorder-SwapForward.instance"/>
+        </file>        
+    </folder>
+</filesystem>
