@@ -65,7 +65,7 @@ import org.openide.util.Exceptions;
 
 /**
  * Operations for swaping items in a list of paramters, arguments and array initializers.
- * 
+ *
  * @author Sandip V. Chitale (Sandip.Chitale@Sun.Com)
  */
 public class SwapOperations {
@@ -79,13 +79,9 @@ public class SwapOperations {
             );
 
     private static class Token {
-        private long startPosition;
-        private long endPosition;
         private String text;
 
-        public Token(long startPosition, long endPosition, String text) {
-            this.startPosition = startPosition;
-            this.endPosition = endPosition;
+        public Token(String text) {
             this.text = text;
         }
 
@@ -95,20 +91,22 @@ public class SwapOperations {
 
         @Override
         public String toString() {
-            return "(" + startPosition + "," + endPosition + ")" + text;
+            return text;
         }
     }
 
+    // Swap with pervious item
     static void swapBackward(final JEditorPane editorPane) {
         swap(editorPane, Bias.BACKWARD);
     }
 
+    // Swap with next item
     static void swapForward(final JEditorPane editorPane) {
         swap(editorPane, Bias.FORWARD);
     }
 
-    static void swap(final JEditorPane editorPane,
-            final Bias bias) {
+    static void swap(final JEditorPane editorPane, final Bias bias) {
+        // Non editable
         if (!editorPane.isEditable()) {
             Toolkit.getDefaultToolkit().beep();
             return;
@@ -116,6 +114,7 @@ public class SwapOperations {
 
         final Document doc = editorPane.getDocument();
 
+        // Is it Java code
         JavaSource javaSource = JavaSource.forDocument(doc);
         if (javaSource == null) {
             Toolkit.getDefaultToolkit().beep();
@@ -124,7 +123,6 @@ public class SwapOperations {
 
         try {
             javaSource.runUserActionTask(new CancellableTask<CompilationController>() {
-
                 public void cancel() {
                 }
 
@@ -132,6 +130,7 @@ public class SwapOperations {
                     // Move to resolved phase
                     compilationController.toPhase(Phase.ELEMENTS_RESOLVED);
 
+                    // Get the caret
                     int caretAt = editorPane.getCaretPosition();
 
                     CompilationUnitTree compilationUnitTree = compilationController.getCompilationUnit();
@@ -161,33 +160,36 @@ public class SwapOperations {
                                     trees = newArrayTree.getInitializers();
                                     break;
                             }
+
+                            // minimum two items required for swapping
                             if (trees != null && trees.size() >= 2) {
                                 SourcePositions sourcePositions = compilationController.getTrees().getSourcePositions();
                                 final long firstStart = sourcePositions.getStartPosition(compilationUnitTree, trees.get(0));
                                 final long lastEnd = sourcePositions.getEndPosition(compilationUnitTree, trees.get(trees.size() - 1));
 
-                                int caretOffset = -1;
-
+                                // Is the caret in the range
                                 if (firstStart <= caretAt && caretAt <= lastEnd) {
+                                    int caretOffset = -1;
                                     List<Token> tokens = new LinkedList<SwapOperations.Token>();
                                     int currentTokenIndex = -1;
                                     Token currentToken = null;
                                     long previousEnd = -1;
+
+                                    // Add items and intevening whitespaces to a list
+                                    // Also remember the item that surrounds the caret
                                     for (Tree variableTree : trees) {
                                         long startPosition = sourcePositions.getStartPosition(compilationUnitTree, variableTree);
                                         long endPosition = sourcePositions.getEndPosition(compilationUnitTree, variableTree);
                                         if (previousEnd != -1) {
                                             try {
-                                                tokens.add(new Token(previousEnd,
-                                                                     startPosition,
-                                                                     doc.getText((int) (previousEnd),
+                                                tokens.add(new Token(doc.getText((int) (previousEnd),
                                                                                  (int) (startPosition - previousEnd))));
                                             } catch (BadLocationException ex) {
                                                 Exceptions.printStackTrace(ex);
                                                 return;
                                             }
                                         }
-                                        final Token token = new Token(startPosition, endPosition, variableTree.toString());
+                                        final Token token = new Token(variableTree.toString());
                                         tokens.add(token);
 
                                         if (startPosition <= caretAt && caretAt <= endPosition) {
@@ -197,6 +199,7 @@ public class SwapOperations {
                                         }
                                         previousEnd = endPosition;
                                     }
+
                                     if (tokens.size() > 0 && currentTokenIndex != -1) {
                                         Token current = tokens.get(currentTokenIndex);
                                         switch (bias) {
@@ -220,6 +223,7 @@ public class SwapOperations {
                                                 break;
                                         }
 
+                                        // Build the insertion string
                                         final StringBuilder stringBuilder = new StringBuilder();
                                         int offset = 0;
                                         final int[] moveCaretOffset = new int[1];
@@ -232,6 +236,7 @@ public class SwapOperations {
                                             stringBuilder.append(text);
                                         }
 
+                                        // Now replace the old text with new text
                                         try {
                                             NbDocument.runAtomicAsUser((StyledDocument) doc, new Runnable() {
                                                 public void run() {
