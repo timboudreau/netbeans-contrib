@@ -42,7 +42,7 @@ public class FunctionImpl implements Function {
     }
 
     public String getName() {
-        return function.getName();
+        return function.getName().toString();
     }
 
     public String getHtmlDisplayName() {
@@ -53,13 +53,13 @@ public class FunctionImpl implements Function {
     }
 
     private String createHtmlDisplayName() {
-        String displayName = function.getName().replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;");
+        String displayName = function.getName().toString().replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;");
         try {
             CsmFunction f = (CsmFunction) getDeclaration();
             if (CsmKindUtilities.isClassMember(f)) {
                 CsmClass cls = ((CsmMember) f).getContainingClass();
                 if (cls != null && cls.getName().length() > 0) {
-                    String name = cls.getName().replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;");
+                    String name = cls.getName().toString().replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;");
                     String in = NbBundle.getMessage(CallImpl.class, "LBL_inClass");
                     //NOI18N
                     return displayName + "<font color=\'!controlShadow\'>  " + in + " " + name;
@@ -74,7 +74,7 @@ public class FunctionImpl implements Function {
     }
 
     public String getDescription() {
-        return function.getSignature();
+        return function.getSignature().toString();
     }
 
     public Image getIcon() {

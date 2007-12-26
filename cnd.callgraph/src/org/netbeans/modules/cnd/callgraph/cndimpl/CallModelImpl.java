@@ -94,7 +94,7 @@ public class CallModelImpl implements CallModel {
 
     public String getName() {
         if (root != null) {
-            return root.getName();
+            return root.getName().toString();
         }
         return "";
     }
