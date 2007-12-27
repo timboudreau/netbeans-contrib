@@ -38,6 +38,7 @@
  */
 package org.netbeans.modules.java.reorder;
 
+import com.sun.source.tree.ClassTree;
 import com.sun.source.tree.CompilationUnitTree;
 import com.sun.source.tree.MethodInvocationTree;
 import com.sun.source.tree.MethodTree;
@@ -72,7 +73,8 @@ public class SwapOperations {
     enum Bias {BACKWARD, FORWARD};
 
     private static EnumSet<Tree.Kind> kindSet = EnumSet.of(
-            Tree.Kind.METHOD
+            Tree.Kind.CLASS
+            ,Tree.Kind.METHOD
             ,Tree.Kind.METHOD_INVOCATION
             ,Tree.Kind.NEW_CLASS
             ,Tree.Kind.NEW_ARRAY
@@ -143,9 +145,26 @@ public class SwapOperations {
                         if (kindSet.contains(kind)) {
                             List<? extends Tree> trees = null;
                             switch(kind) {
+                                case CLASS:
+                                    ClassTree classTree = (ClassTree) tree;
+                                    trees = classTree.getImplementsClause();                                    
+                                    break;
                                 case METHOD:
                                     MethodTree methodTree = (MethodTree) tree;
                                     trees = methodTree.getParameters();
+                                    if (trees != null && trees.size() >= 2) {
+                                        SourcePositions sourcePositions = compilationController.getTrees().getSourcePositions();
+                                        final long firstStart = sourcePositions.getStartPosition(compilationUnitTree, trees.get(0));
+                                        final long lastEnd = sourcePositions.getEndPosition(compilationUnitTree, trees.get(trees.size() - 1));
+
+                                        // Is the caret in the range
+                                        if (firstStart <= caretAt && caretAt <= lastEnd) {
+                                            // good
+                                        } else {
+                                            // try throws clause
+                                            trees = methodTree.getThrows();
+                                        }
+                                    }
                                     break;
                                 case METHOD_INVOCATION:
                                     MethodInvocationTree methodInvocationTree = (MethodInvocationTree) tree;
