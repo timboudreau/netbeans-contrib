@@ -95,6 +95,14 @@ made subject to such option by the copyright holder.
                 <attr name="instanceClass" stringvalue="org.netbeans.modules.javahints.tasklist.HintsTaskScanner"/>
             </file>
         </folder>
+    </folder>
+    
+    <folder name="org.netbeans.modules.java.source">
+        <folder name="options">
+            <file name="Snippets.instance">
+                <attr name="instanceClass" stringvalue="org.netbeans.modules.javahints.options.CodeStyleAdvancedOption"/>
+            </file>
         </folder>
+    </folder>
     
 </filesystem>
