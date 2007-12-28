@@ -1,0 +1,9 @@
+Manifest-Version: 1.0
+OpenIDE-Module: org.netbeans.modules.freemarker
+OpenIDE-Module-Layer: org/netbeans/modules/freemarker/layer.xml
+OpenIDE-Module-Localizing-Bundle: org/netbeans/modules/freemarker/Bundle.properties
+OpenIDE-Module-Specification-Version: 1.0
+
+Name: org/netbeans/modules/freemarker/loader/FreemarkerDataLoader.class
+OpenIDE-Module-Class: Loader
+
