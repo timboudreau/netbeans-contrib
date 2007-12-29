@@ -260,8 +260,10 @@ public final class Sensor <T> {
     private void removeNotify() {
         Map <Class, Sensor> m = sensors.get (lkp);
         if (m != null) {
-            Sensor <T> sensor = m.remove (targetClass);
-            assert sensor == this;
+            Sensor <T> sensor = m.get (targetClass);
+            if (sensor == this) {
+                m.remove (sensor);
+            }
             if (m.isEmpty()) {
                 sensors.remove (lkp);
             }
