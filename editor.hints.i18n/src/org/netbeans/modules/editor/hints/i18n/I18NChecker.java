@@ -57,7 +57,9 @@ import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.WeakHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Logger;
 import javax.lang.model.element.TypeElement;
@@ -67,7 +69,9 @@ import javax.lang.model.type.TypeMirror;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
 import javax.swing.text.StyledDocument;
+import org.netbeans.api.java.classpath.ClassPath;
 import org.netbeans.api.java.lexer.JavaTokenId;
+import org.netbeans.api.java.queries.UnitTestForSourceQuery;
 import org.netbeans.api.java.source.CompilationInfo;
 import org.netbeans.api.java.source.TreePathHandle;
 import org.netbeans.api.lexer.TokenHierarchy;
@@ -123,6 +127,9 @@ public class I18NChecker extends AbstractHint {
     private static final Set<String> LOCALIZING_METHODS = new HashSet<String>(Arrays.asList("getString", "getBundle", "getMessage"));
     
     public List<ErrorDescription> run(CompilationInfo compilationInfo, TreePath treePath) {
+        if (isTest(compilationInfo.getFileObject()))
+            return null;
+        
         //TODO: generate unique 
         try {
             final DataObject od = DataObject.find(compilationInfo.getFileObject());
@@ -289,4 +296,25 @@ public class I18NChecker extends AbstractHint {
         return "I18N Checker";
     }
 
+    private Map<FileObject, Boolean> isTest = new WeakHashMap<FileObject, Boolean>();
+    
+    private synchronized boolean isTest(FileObject file) {
+        Boolean r = isTest.get(file);
+        
+        if (r != null) {
+            return r;
+        }
+        
+        ClassPath cp = ClassPath.getClassPath(file, ClassPath.SOURCE);
+        FileObject root = cp.findOwnerRoot(file);
+        
+        if (root != null) {
+            r = UnitTestForSourceQuery.findSources(root).length > 0;
+        } else {
+            r = false;
+        }
+        
+        isTest.put(file, r);
+        return r;
+    }
 }
