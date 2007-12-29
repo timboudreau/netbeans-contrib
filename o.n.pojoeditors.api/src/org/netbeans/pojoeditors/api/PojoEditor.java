@@ -44,6 +44,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
@@ -75,6 +76,7 @@ import org.openide.util.actions.SystemAction;
 import org.openide.util.lookup.Lookups;
 import org.openide.util.lookup.ProxyLookup;
 import org.openide.windows.CloneableTopComponent;
+import org.openide.windows.WindowManager;
 
 /**
  * Base class for TopComponents that are editors over PojoDataObjects.  Handles
@@ -118,17 +120,74 @@ public abstract class PojoEditor<T extends Serializable> extends CloneableTopCom
         add (new ProgressPanel(dataObject.getPrimaryFile().getPath()), 
                 BorderLayout.CENTER);
         int mask = Toolkit.getDefaultToolkit().getMenuShortcutKeyMask();
-        getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_S, mask), 
+        getInputMap(WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(
+                KeyStroke.getKeyStroke(KeyEvent.VK_S, mask), 
                 "save");
-        getActionMap().put("save", SystemAction.get(SaveAction.class));
+        getActionMap().put("save", 
+                SystemAction.get(SaveAction.class));
     }
     
     public ExplorerManager getExplorerManager() {
         return mgr;
     }
     
+    /**
+     * Overridden to send focus to the return value of
+     * getInitialFocusComponent().
+     */
+    @Override
+    public final void requestFocus() {
+        super.requestFocus();
+        Component c = getInitialFocusComponent();
+        if (c != null && c.isDisplayable()) {
+            c.requestFocus();
+        }
+    }
+    
+    /**
+     * Overridden to send focus to the return value of
+     * getInitialFocusComponent().
+     */
+    public final boolean requestFocusInWindow () {
+        boolean result = super.requestFocusInWindow();
+        Component c = getInitialFocusComponent();
+        if (c != null && c.isDisplayable()) {
+            result = c.requestFocusInWindow();
+        }
+        return result;
+    }
+    
+    /**
+     * Overridden to send focus to the return value of
+     * getInitialFocusComponent().
+     */
+    @Override
+    public final boolean requestFocus (boolean tranzient) {
+        boolean result = super.requestFocus(tranzient);
+        Component c = getInitialFocusComponent();
+        if (c != null && c.isDisplayable()) {
+            if (c instanceof JComponent) {
+                result = ((JComponent) c).requestFocus(tranzient);
+            } else {
+                c.requestFocus();
+                result = true;
+            }
+        }
+        return result;
+    }
+    
     Kind getKind() {
         return kind;
+    }
+
+    /**
+     * Get the component that should be focused when this TopComponent
+     * has requestFocus() called on it
+     * 
+     * @return A component or null if none
+     */
+    protected Component getInitialFocusComponent() {
+        return null;
     }
         
     private void init(PojoDataObject<T> dataObject) {
@@ -200,6 +259,7 @@ public abstract class PojoEditor<T extends Serializable> extends CloneableTopCom
             dataObject.addPropertyChangeListener(modListener);
             dataObject.getNodeDelegate().addNodeListener(nodeListener);
             dataObject.addChangeListener(cl);
+            dataObject.addPojoPropertyChangeListener(pojoListener);
             onOpen();
             if (pojo == null) {
                 System.err.println("Invoking load");
@@ -251,6 +311,14 @@ public abstract class PojoEditor<T extends Serializable> extends CloneableTopCom
         //do nothing
     }
     
+    private void setCenterComponent (Component c) {
+        removeAll();
+        add (c, BorderLayout.CENTER);
+        invalidate();
+        revalidate();
+        repaint();
+    }
+    
     private T pojo;
     protected final void set (T pojo) {
         if (pojo == null) {
@@ -261,18 +329,15 @@ public abstract class PojoEditor<T extends Serializable> extends CloneableTopCom
         if (getComponents().length == 0 || getComponents()[0].getClass() == ProgressPanel.class) {
             removeAll();
             Component editor = createEditorUI(pojo);
-            System.err.println("Adding " + editor);
-            add (editor, BorderLayout.CENTER);
-            onEditorAdded (editor);
-            invalidate();
-            revalidate();
-            repaint();
+            setCenterComponent (editor);
+            if (WindowManager.getDefault().getRegistry().getActivated() == this) {
+                requestFocusInWindow();
+            }
         }
         onSet (pojo);
     }
     
     protected void onSet (T pojo) {
-        System.err.println("onSet " + pojo);
     }
     
     private final void clear (T oldPojo) {
@@ -289,45 +354,39 @@ public abstract class PojoEditor<T extends Serializable> extends CloneableTopCom
     }
     
     protected void onClear(T oldPojo) {
-        System.err.println("onClear " + oldPojo);
     }
     
     protected void onLoadFailed (Exception e) {
-        System.err.println("onLoadFailed " + e);
     }
     
     private final Object loadLock = new Object();
     private ObjectReceiver<T> receiver;
     private void load() {
         if (getDataObject() == null) {
-            System.err.println("Dataobject null.  Punt.");
+            setCenterComponent(new JLabel(NbBundle.getMessage(PojoEditor.class,
+                    "LBL_NO_DOB")));
             return;
         }
         ObjectLoader<T> ldr = getLookup().lookup(ObjectLoader.class);
         if (ldr == null) {
-            System.err.println("Loader null.  Punt");
-            //XXX put a label in the content area
+            setCenterComponent(new JLabel(NbBundle.getMessage(PojoEditor.class,
+                    "LBL_NO_LOADER", getDataObject().getPrimaryFile().getPath())));
             return;
         }
         synchronized (loadLock) {
             if (receiver != null) {
                 //Already loading
-                System.err.println("Already loading.  Punt.");
                 return;
             }
             receiver = new ObjectReceiver<T>() {
                 public void setSynchronous(boolean val) {
-                    System.err.println("Set synchronous " + val);
                     if (!val && !EventQueue.isDispatchThread()) {
                         if (!(getComponents()[0] instanceof ProgressPanel)) {
                             try {
                                 EventQueue.invokeAndWait(new Runnable() {
                                     public void run() {
                                         ProgressPanel pnl = new ProgressPanel(getDataObject().getPrimaryFile().getPath());
-                                        add(pnl, BorderLayout.CENTER);
-                                        PojoEditor.this.invalidate();
-                                        PojoEditor.this.revalidate();
-                                        PojoEditor.this.repaint();
+                                        setCenterComponent(pnl);
                                     }
                                 });
                             } catch (InterruptedException ex) {
@@ -340,7 +399,6 @@ public abstract class PojoEditor<T extends Serializable> extends CloneableTopCom
                 }
 
                 public void received(T t) {
-                    System.err.println("Load completed with " + t);
                     try {
                         set (t);
                     } finally {
@@ -349,14 +407,14 @@ public abstract class PojoEditor<T extends Serializable> extends CloneableTopCom
                 }
 
                 public void failed(Exception e) {
-                    System.err.println("Load failed");
                     e.printStackTrace();
                     done();
+                    removeAll();
+                    setCenterComponent (new JLabel (e.getLocalizedMessage()));
                     onLoadFailed (e);
                 }
                 
                 private void done() {
-                    System.err.println("load completed");
                     synchronized (loadLock) {
                         receiver = null;
                     }
@@ -364,7 +422,6 @@ public abstract class PojoEditor<T extends Serializable> extends CloneableTopCom
 
             };
         }
-        System.err.println("off we go...");
         ldr.get(receiver);
     }
     
@@ -594,6 +651,7 @@ public abstract class PojoEditor<T extends Serializable> extends CloneableTopCom
     final CL cl = new CL();
     private final class CL implements ChangeListener {
         public void stateChanged(ChangeEvent e) {
+            //discard modifications was called - reload
             removeAll();
             PojoDataObject dob = getDataObject();
             if (dob == null || !dob.isValid()) {
@@ -610,6 +668,17 @@ public abstract class PojoEditor<T extends Serializable> extends CloneableTopCom
                 load();
             }
         }
+    }
+    
+    private final PojoListener pojoListener = new PojoListener();
+    private final class PojoListener implements PropertyChangeListener {
+        public void propertyChange(PropertyChangeEvent evt) {
+            pojoChanged ((T) evt.getSource(), evt.getPropertyName(), 
+                    evt.getOldValue(), evt.getNewValue());
+        }
+    }
+    
+    protected void pojoChanged(T source, String propertyName, Object oldValue, Object newValue) {
         
     }
 }

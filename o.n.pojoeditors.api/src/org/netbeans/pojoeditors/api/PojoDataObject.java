@@ -43,6 +43,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import javax.swing.Action;
@@ -265,9 +266,15 @@ public abstract class PojoDataObject<T extends Serializable> extends LazyLoadDat
      * state.
      */
     public final void discardModifications() {
+        if (!isModified()) {
+            return;
+        }
         ldr.reset();
-        if (save != null) {
-            content.remove(save);
+        synchronized (PojoDataObject.this) {
+            if (save != null) {
+                content.remove(save);
+                save = null;
+            }
         }
         setModified (false);
         try {
@@ -306,9 +313,9 @@ public abstract class PojoDataObject<T extends Serializable> extends LazyLoadDat
                 OutputStream out = new BufferedOutputStream(getPrimaryFile().getOutputStream(lock));
                 try {
                     save (pojo, out);
-                    content.remove(save);
                     setModified(false);
                 } finally {
+                    content.remove(save);
                     out.close();
                     lock.releaseLock();
                 }
@@ -360,6 +367,25 @@ public abstract class PojoDataObject<T extends Serializable> extends LazyLoadDat
         }
     }
     
+    private final Set<Reference<PropertyChangeListener>> pojoListeners = 
+            new HashSet<Reference<PropertyChangeListener>>();
+    
+    void addPojoPropertyChangeListener (PropertyChangeListener pce) {
+        pojoListeners.add (new WeakReference<PropertyChangeListener>(pce));
+    }
+
+    void removePojoPropertyChangeListener (PropertyChangeListener pce) {
+        for (Iterator <Reference<PropertyChangeListener>> i=pojoListeners.iterator(); i.hasNext();) {
+            Reference<PropertyChangeListener> r = i.next();
+            PropertyChangeListener pcl = r.get();
+            if (pcl == null) {
+                i.remove();
+            } else if (pcl == pce) {
+                i.remove();
+            }
+        }
+    }
+    
     private class PCL implements PropertyChangeListener {
         public void propertyChange(PropertyChangeEvent e) {
             System.err.println("PCL got change " + e);
@@ -367,7 +393,20 @@ public abstract class PojoDataObject<T extends Serializable> extends LazyLoadDat
                     e.getPropertyName(), e.getOldValue(), e.getNewValue())) {
                 setModified (true);
                 T obj = (T) e.getSource();
-                content.add(save = new Save(obj));
+                synchronized (PojoDataObject.this) {
+                    if (save == null) {
+                        content.add(save = new Save(obj));
+                    }
+                }
+            }
+            for (Iterator <Reference<PropertyChangeListener>> i=pojoListeners.iterator(); i.hasNext();) {
+                Reference<PropertyChangeListener> r = i.next();
+                PropertyChangeListener pcl = r.get();
+                if (pcl == null) {
+                    i.remove();
+                } else {
+                    pcl.propertyChange(e);
+                }
             }
         }
     }
@@ -384,8 +423,10 @@ public abstract class PojoDataObject<T extends Serializable> extends LazyLoadDat
         public void save() throws IOException {
             assert isModified();
             PojoDataObject.this.doSave(pojo);
-            content.remove (this);
-            save = null;
+//            synchronized (PojoDataObject.this) {
+//                content.remove (this);
+//                save = null;
+//            }
         }
     }
 }
