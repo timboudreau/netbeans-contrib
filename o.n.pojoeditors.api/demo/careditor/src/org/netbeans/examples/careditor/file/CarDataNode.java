@@ -38,25 +38,119 @@
  */
 package org.netbeans.examples.careditor.file;
 
+import java.awt.datatransfer.Transferable;
+import java.io.IOException;
+import java.util.List;
 import org.netbeans.api.objectloader.ObjectLoader;
+import org.netbeans.api.objectloader.ObjectReceiver;
+import org.netbeans.api.progress.ProgressHandle;
+import org.netbeans.api.progress.ProgressHandleFactory;
+import org.netbeans.examples.careditor.file.PersonNode.CarExchanger;
 import org.netbeans.examples.careditor.pojos.Car;
 import org.netbeans.pojoeditors.api.PojoDataNode;
 import org.openide.nodes.Children;
+import org.openide.nodes.Node;
+import org.openide.nodes.NodeTransfer;
+import org.openide.util.Exceptions;
+import org.openide.util.NbBundle;
+import org.openide.util.datatransfer.ExTransferable;
+import org.openide.util.datatransfer.PasteType;
 
 public class CarDataNode extends PojoDataNode<Car> {
-
     private static final String IMAGE_ICON_BASE = "org/netbeans/examples/careditor/file/car.gif";
-    private final PersonChildFactory factory;
+    private PersonChildFactory factory;
     public CarDataNode(CarDataObject obj) {
-        super(obj, Children.LEAF, obj.getLookup(), "actioncontext");
-        ObjectLoader ldr = getLookup().lookup (ObjectLoader.class);
-        assert ldr != null;
-        setChildren (Children.create(factory = new PersonChildFactory(ldr), true));
+        this(obj, new PersonChildFactory(obj.getLookup().lookup(ObjectLoader.class)));
         setIconBaseWithExtension(IMAGE_ICON_BASE);
+    }
+    
+    private CarDataNode (CarDataObject obj, PersonChildFactory factory) {
+        super (obj, Children.create(factory, true), obj.getLookup(), "actioncontext");
+        this.factory = factory;
     }
 
     @Override
     protected void hintChildrenChanged() {
         factory.refresh();
+    }
+    
+    @Override
+    public PasteType getDropType(Transferable t, int action, int index) {
+        PasteType result = createPassengerPasteType(t, action);
+        if (result == null) {
+            result = super.getDropType(t, action, index);
+        }
+        return result;
+    }
+    
+    private PasteType createPassengerPasteType (Transferable t, int action) {
+        Node n = NodeTransfer.node(t, action);
+        CarExchanger exchanger = n == null ? null : 
+            n.getLookup().lookup(CarExchanger.class);
+        PasteType result = null;
+        if (exchanger != null) {
+            result = new PassengerPasteType(exchanger, this);
+        }
+        return result;
+    }
+
+    @Override
+    protected void createPasteTypes(Transferable t, List<PasteType> s) {
+        PasteType type = createPassengerPasteType(t, 0);
+        if (type != null) {
+            s.add(type);
+        }
+    }    
+    
+    private static final class PassengerPasteType extends PasteType {
+        private final CarExchanger exchanger;
+        private final CarDataNode target;
+        PassengerPasteType (CarExchanger exchanger, CarDataNode target) {
+            this.exchanger = exchanger;
+            this.target = target;
+        }
+
+        @Override
+        public Transferable paste() throws IOException {
+            ObjectLoader<Car> ldr = target.getLookup().lookup(ObjectLoader.class);
+            Car car = ldr.getCachedInstance();
+            if (car != null) {
+                exchanger.carChanged(car);
+            } else {
+                ldr.get(new OL());
+            }
+            return ExTransferable.EMPTY;
+        }
+        
+        private class OL implements ObjectReceiver<Car> {
+            private ProgressHandle handle;
+            public void setSynchronous(boolean val) {
+                if (!val) {
+                    startProgress();
+                }
+            }
+
+            public void received(Car t) {
+                exchanger.carChanged(t);
+                stopProgress();
+            }
+
+            public void failed(Exception e) {
+                Exceptions.printStackTrace(e);
+                stopProgress();
+            }
+            
+            private synchronized void startProgress() {
+                handle = ProgressHandleFactory.createHandle(NbBundle.getMessage(CarDataNode.class, "MSG_Loading", 
+                        target.getDisplayName()));
+                handle.start();
+            }
+            
+            private synchronized void stopProgress() {
+                if (handle != null) {
+                    handle.finish();
+                }
+            }
+        }
     }
 }

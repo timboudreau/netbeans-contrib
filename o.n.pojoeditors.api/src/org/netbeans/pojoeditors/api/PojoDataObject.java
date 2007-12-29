@@ -93,6 +93,7 @@ public abstract class PojoDataObject<T extends Serializable> extends LazyLoadDat
         for (Node.Cookie cookie : cookies) {
             content.add (cookie);
         }
+        content.add (factory);
     }
 
     /**
@@ -122,6 +123,8 @@ public abstract class PojoDataObject<T extends Serializable> extends LazyLoadDat
     }
     
     protected final void loaded (T pojo) {
+        super.loaded(pojo);
+        System.err.println("Loaded: " + pojo);
         listenTo(pojo);
         onLoad (pojo);
         PojoDataNode nd = nodeRef == null ? null : nodeRef.get();
@@ -212,6 +215,7 @@ public abstract class PojoDataObject<T extends Serializable> extends LazyLoadDat
     }
 
     private void listenTo (T pojo) {
+        System.err.println("Listen to " + pojo);
         try {
             Method m = pojoType.getDeclaredMethod("addPropertyChangeListener",
                     PropertyChangeListener.class);
@@ -251,19 +255,34 @@ public abstract class PojoDataObject<T extends Serializable> extends LazyLoadDat
         } finally {
             oout.close();
         }
+        System.err.println(this + " saved");
     }
     
+    /**
+     * Set this data object to an unloaded state.  Override 
+     * onModificationsDiscarded() to remove all references to this
+     * DataObject's pojo from any existing UI and set it to an uninitialized
+     * state.
+     */
     public final void discardModifications() {
         ldr.reset();
         if (save != null) {
             content.remove(save);
         }
         setModified (false);
-        onModificationsDiscarded();
-        hintNodeChildrenChanged();
-        fire();
+        try {
+            onModificationsDiscarded();
+        } finally {
+            hintNodeChildrenChanged();
+            fire();
+        }
     }
     
+    /**
+     * Call this method to trigger notifying the node that it may need to
+     * referesh its children, without instantiating the node if it does not
+     * already exist.
+     */
     protected final void hintNodeChildrenChanged() {
         PojoDataNode nd = nodeRef == null ? null : nodeRef.get();
         if (nd != null) {
@@ -271,11 +290,15 @@ public abstract class PojoDataObject<T extends Serializable> extends LazyLoadDat
         }
     }
     
+    /**
+     * Called when something has invoked discardModifications.
+     */
     protected void onModificationsDiscarded() {
         
     }
     
     private void doSave (final T pojo) throws IOException {
+        System.err.println("Save " + getName());
         FileSystem fs = getPrimaryFile().getFileSystem();
         fs.runAtomicAction(new FileSystem.AtomicAction() {
             public void run() throws IOException {
@@ -331,7 +354,7 @@ public abstract class PojoDataObject<T extends Serializable> extends LazyLoadDat
     }
     
     private void fire() {
-        ChangeListener[] arr = (ChangeListener[]) listeners.toArray(new ChangeListener[listeners.size()]);
+        ChangeListener[] arr = listeners.toArray(new ChangeListener[listeners.size()]);
         for (ChangeListener cl : arr) {
             cl.stateChanged(new ChangeEvent(this));
         }
@@ -339,13 +362,12 @@ public abstract class PojoDataObject<T extends Serializable> extends LazyLoadDat
     
     private class PCL implements PropertyChangeListener {
         public void propertyChange(PropertyChangeEvent e) {
-            if (!isModified()) {
-                System.err.println("PCL got change " + e);
-                if (PojoDataObject.this.propertyChange ((T) e.getSource(), e.getPropertyName(), e.getOldValue(), e.getNewValue())) {
-                    setModified (true);
-                    T obj = (T) e.getSource();
-                    content.add(save = new Save(obj));
-                }
+            System.err.println("PCL got change " + e);
+            if (PojoDataObject.this.propertyChange ((T) e.getSource(), 
+                    e.getPropertyName(), e.getOldValue(), e.getNewValue())) {
+                setModified (true);
+                T obj = (T) e.getSource();
+                content.add(save = new Save(obj));
             }
         }
     }

@@ -16,21 +16,26 @@
     <DimensionLayout dim="0">
       <Group type="103" groupAlignment="0" attributes="0">
           <Group type="102" alignment="0" attributes="0">
-              <EmptySpace min="-2" max="-2" attributes="0"/>
+              <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
-                  <Component id="makeLabel" alignment="0" min="-2" max="-2" attributes="0"/>
-                  <Component id="modelLabel" alignment="0" min="-2" max="-2" attributes="0"/>
-                  <Component id="yearLabel" alignment="0" min="-2" max="-2" attributes="0"/>
-              </Group>
-              <EmptySpace min="-2" pref="33" max="-2" attributes="0"/>
-              <Group type="103" groupAlignment="0" attributes="0">
-                  <Component id="problemLabel" alignment="0" pref="514" max="32767" attributes="0"/>
-                  <Component id="modelField" alignment="0" pref="514" max="32767" attributes="2"/>
-                  <Component id="makeField" alignment="0" pref="514" max="32767" attributes="2"/>
-                  <Group type="102" attributes="0">
-                      <Component id="yearField" min="-2" pref="62" max="-2" attributes="0"/>
-                      <EmptySpace pref="296" max="32767" attributes="0"/>
-                      <Component id="jButton1" min="-2" max="-2" attributes="0"/>
+                  <Component id="jScrollPane1" alignment="0" pref="579" max="32767" attributes="0"/>
+                  <Group type="102" alignment="0" attributes="0">
+                      <Group type="103" groupAlignment="0" attributes="0">
+                          <Component id="makeLabel" alignment="0" min="-2" max="-2" attributes="0"/>
+                          <Component id="modelLabel" alignment="0" min="-2" max="-2" attributes="0"/>
+                          <Component id="yearLabel" alignment="0" min="-2" max="-2" attributes="0"/>
+                      </Group>
+                      <EmptySpace min="-2" pref="33" max="-2" attributes="0"/>
+                      <Group type="103" groupAlignment="0" attributes="0">
+                          <Component id="problemLabel" alignment="0" pref="514" max="32767" attributes="0"/>
+                          <Component id="modelField" alignment="0" pref="514" max="32767" attributes="2"/>
+                          <Component id="makeField" alignment="0" pref="514" max="32767" attributes="2"/>
+                          <Group type="102" attributes="0">
+                              <Component id="yearField" min="-2" pref="62" max="-2" attributes="0"/>
+                              <EmptySpace pref="296" max="32767" attributes="0"/>
+                              <Component id="jButton1" min="-2" max="-2" attributes="0"/>
+                          </Group>
+                      </Group>
                   </Group>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
@@ -58,7 +63,9 @@
               </Group>
               <EmptySpace max="-2" attributes="0"/>
               <Component id="problemLabel" min="-2" max="-2" attributes="0"/>
-              <EmptySpace pref="17" max="32767" attributes="0"/>
+              <EmptySpace max="32767" attributes="0"/>
+              <Component id="jScrollPane1" min="-2" pref="249" max="-2" attributes="0"/>
+              <EmptySpace max="-2" attributes="0"/>
           </Group>
       </Group>
     </DimensionLayout>
@@ -127,5 +134,12 @@
         </Property>
       </Properties>
     </Component>
+    <Container class="javax.swing.JScrollPane" name="jScrollPane1">
+      <AuxValues>
+        <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="new BeanTreeView();"/>
+      </AuxValues>
+
+      <Layout class="org.netbeans.modules.form.compat2.layouts.support.JScrollPaneSupportLayout"/>
+    </Container>
   </SubComponents>
 </Form>

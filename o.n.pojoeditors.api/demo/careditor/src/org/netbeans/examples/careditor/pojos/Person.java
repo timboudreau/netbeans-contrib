@@ -61,8 +61,9 @@ public class Person implements Serializable {
     public void setFirstName(final String firstName) {
         String oldFirstName = this.firstName;
         this.firstName = firstName;
-        
-        pcs.firePropertyChange(PROP_FIRST_NAME, oldFirstName, firstName);
+        if (pcs != null) {
+            pcs.firePropertyChange(PROP_FIRST_NAME, oldFirstName, firstName);
+        }
     }
 
     public String getLastName() {
@@ -72,8 +73,9 @@ public class Person implements Serializable {
     public void setLastName(final String lastName) {
         String oldLastName = this.lastName;
         this.lastName = lastName;
-        
-        pcs.firePropertyChange(PROP_LAST_NAME, oldLastName, lastName);
+        if (pcs != null) {
+            pcs.firePropertyChange(PROP_LAST_NAME, oldLastName, lastName);
+        }
     }
 
     public int getAge() {
@@ -83,22 +85,22 @@ public class Person implements Serializable {
     public void setAge(final int age) {
         int oldAge = this.age;
         this.age = age;
-        
-        pcs.firePropertyChange(PROP_AGE, oldAge, age);
+        if (pcs != null) {
+            pcs.firePropertyChange(PROP_AGE, oldAge, age);
+        }
     }
     
     public void addPropertyChangeListener(PropertyChangeListener pcl) {
         if (pcs == null) {
-            pcs  = new PropertyChangeSupport(this);
+            pcs = new PropertyChangeSupport(this);
         }
         pcs.addPropertyChangeListener(pcl);
     }
     
     public void removePropertyChangeListener(PropertyChangeListener pcl) {
-        if (pcs == null) {
-            return;
+        if (pcs != null) {
+            pcs.removePropertyChangeListener(pcl);
         }
-        pcs.removePropertyChangeListener(pcl);
     }
     
     @Override

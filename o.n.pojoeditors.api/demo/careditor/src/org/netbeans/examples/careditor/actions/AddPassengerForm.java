@@ -26,6 +26,13 @@ final class AddPassengerForm extends javax.swing.JPanel {
         jComboBox1.setModel(mdl);
     }
     
+    public AddPassengerForm(Person person) {
+        this();
+        jTextField1.setText(person.getFirstName());
+        jTextField2.setText(person.getLastName());
+        jComboBox1.setSelectedItem(Integer.toString(person.getAge()));
+    }
+    
     String getFirstName() {
         String result = jTextField1.getText();
         result = result.trim().length() == 0 ? null : result;

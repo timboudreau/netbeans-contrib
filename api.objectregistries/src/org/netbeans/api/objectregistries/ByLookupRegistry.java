@@ -44,6 +44,8 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.netbeans.api.objectloader.ObjectLoader;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.Repository;
@@ -68,6 +70,8 @@ public final class ByLookupRegistry<Type> extends Registry<Type> {
     private Provider provider;
     private final Class<Type> type;
     private final String rootFolder;
+    private static final Logger logger = Logger.getLogger(
+            ByLookupRegistry.class.getName());
     /**
      * Create a new registry
      * @param type The type of objects you are interested in
@@ -82,6 +86,14 @@ public final class ByLookupRegistry<Type> extends Registry<Type> {
     
     public void setProvider (Provider provider) {
         this.provider = provider;
+    }
+    
+    @Override
+    public String toString() {
+        String provString = provider == null ? "null" : 
+            provider.getLookup().toString();
+        return super.toString() + " over " + rootFolder + " type " + 
+                type.getName() + ' ' + provString;
     }
 
     /**
@@ -120,6 +132,9 @@ public final class ByLookupRegistry<Type> extends Registry<Type> {
                         //but to the type of object it will load
                         ObjectLoader ldr = (ObjectLoader) item.getInstance();
                         Class typeItLoads = ldr.type();
+                        if (logger.isLoggable(Level.FINER)) logger.log(
+                                Level.FINER, "Object loader lookup on type " + 
+                                ldr.type().getName());
                         //Look for folders ala
                         //root/org-netbeans-api-dynactions-ObjectLoader/com-foo-bar-Baz
                         //which contain actions
@@ -127,19 +142,39 @@ public final class ByLookupRegistry<Type> extends Registry<Type> {
                         for (String ltn : loaderTypeNames) {
                             FileObject fld = folder.getFileObject(ltn);
                             if (fld != null) {
-                                Lookup actionsLookup = Lookups.forPath(
-                                        rootFolder + "/" + name + "/" + ltn);
-//                                System.err.println("Actions lookup: " + 
-//                                        actionsLookup);
+                                if (logger.isLoggable(Level.FINER)) logger.log(
+                                        Level.FINER, "Found folder " + fld.getPath());
                                 
-                                result.addAll (actionsLookup.lookupAll(
+                                Lookup currLookup = Lookups.forPath(
+                                        rootFolder + "/" + name + "/" + ltn);
+                                result.addAll (currLookup.lookupAll(
                                         type));
+                            } else if (logger.isLoggable(Level.FINER)) {
+                                logger.log(Level.FINER, "Did not find folder " + ltn);
                             }
                         }
                     } else {
-                        Lookup actionsLookup = Lookups.forPath(rootFolder + "/" + 
-                                name);
-                        result.addAll (actionsLookup.lookupAll(type));
+                        String folderName = folder.getPath();
+                        if (logger.isLoggable(Level.FINER)) logger.log(
+                                Level.FINER, "Try to lookup on " + folderName);
+                        
+                        Lookup lookupForType = Lookups.forPath(folderName);
+                        Collection <? extends Type> all = 
+                                lookupForType.lookupAll(type);
+                        
+                        if (logger.isLoggable(Level.FINER)) {
+                        if (!all.isEmpty()) {
+                            logger.log(
+                                    Level.FINER, "Got " + all + " for " + 
+                                    rootFolder);
+                        } else {
+                            logger.log(Level.FINER, "  empty for " + 
+                                    type.getName() + 
+                                    ".   All contents: " + 
+                                    lookupForType.lookupAll(Object.class));
+                        }
+                        }
+                        result.addAll (all);
                     }
                 }
             }
@@ -155,15 +190,18 @@ public final class ByLookupRegistry<Type> extends Registry<Type> {
             throw new IllegalStateException (result.getPath() + " is a " +
                     "file, not a folder");
         }
-//        System.err.println("Folder for " + typeName + " returns " + 
-//        (result == null ? "null" : result.getPath()));
+        
+        if (logger.isLoggable(Level.FINEST)) logger.log(Level.FINEST, 
+            "Folder for " + typeName + " returns " + 
+            (result == null ? "null" : result.getPath()));
         return result;
     }
     
     private Set<String> allNames (Class c) {
         Set <String> s = new HashSet<String>();
         iter (c, s);
-//        System.err.println("All names of " + c.getName() + ": " + s);
+        if (logger.isLoggable(Level.FINEST)) logger.log(Level.FINEST, 
+            "All names of " + c.getName() + ": " + s);
         return s;
     }
     

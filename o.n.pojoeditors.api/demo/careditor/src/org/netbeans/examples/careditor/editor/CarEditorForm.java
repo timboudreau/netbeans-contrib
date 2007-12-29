@@ -49,6 +49,7 @@ import org.netbeans.examples.careditor.pojos.Car;
 import org.netbeans.pojoeditors.api.PojoDataObject;
 import org.netbeans.pojoeditors.api.PojoEditor;
 import org.openide.cookies.SaveCookie;
+import org.openide.explorer.view.BeanTreeView;
 
 public class CarEditorForm extends javax.swing.JPanel implements Notifiable<SaveCookie>, DocumentListener {
     private static final Logger logger = Logger.getLogger(CarEditorForm.class.getName());
@@ -79,6 +80,7 @@ public class CarEditorForm extends javax.swing.JPanel implements Notifiable<Save
         yearField = new javax.swing.JFormattedTextField();
         jButton1 = new javax.swing.JButton();
         problemLabel = new javax.swing.JLabel();
+        jScrollPane1 = new BeanTreeView();
 
         makeLabel.setText(org.openide.util.NbBundle.getMessage(CarEditorForm.class, "CarEditorForm.makeLabel.text_1")); // NOI18N
 
@@ -110,18 +112,21 @@ public class CarEditorForm extends javax.swing.JPanel implements Notifiable<Save
             .add(layout.createSequentialGroup()
                 .addContainerGap()
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(makeLabel)
-                    .add(modelLabel)
-                    .add(yearLabel))
-                .add(33, 33, 33)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(problemLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 514, Short.MAX_VALUE)
-                    .add(modelField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 514, Short.MAX_VALUE)
-                    .add(makeField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 514, Short.MAX_VALUE)
+                    .add(jScrollPane1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 579, Short.MAX_VALUE)
                     .add(layout.createSequentialGroup()
-                        .add(yearField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 62, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 296, Short.MAX_VALUE)
-                        .add(jButton1)))
+                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                            .add(makeLabel)
+                            .add(modelLabel)
+                            .add(yearLabel))
+                        .add(33, 33, 33)
+                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                            .add(problemLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 514, Short.MAX_VALUE)
+                            .add(modelField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 514, Short.MAX_VALUE)
+                            .add(makeField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 514, Short.MAX_VALUE)
+                            .add(layout.createSequentialGroup()
+                                .add(yearField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 62, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 296, Short.MAX_VALUE)
+                                .add(jButton1)))))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -142,7 +147,9 @@ public class CarEditorForm extends javax.swing.JPanel implements Notifiable<Save
                     .add(jButton1))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(problemLabel)
-                .addContainerGap(17, Short.MAX_VALUE))
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .add(jScrollPane1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 249, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap())
         );
     }// </editor-fold>//GEN-END:initComponents
 
@@ -155,6 +162,7 @@ public class CarEditorForm extends javax.swing.JPanel implements Notifiable<Save
     
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton jButton1;
+    private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JTextField makeField;
     private javax.swing.JLabel makeLabel;
     private javax.swing.JTextField modelField;

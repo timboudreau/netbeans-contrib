@@ -90,12 +90,10 @@ public class CarDataObject extends PojoDataObject<Car> {
     }
     @Override
     protected Car load (InputStream stream) throws IOException {
-        System.err.println("LazyLoadDataObject.load");
         ObjectInputStream in = new ObjectInputStream(
                 new BufferedInputStream(stream));
         try {
             Object result = in.readObject();
-            System.err.println("Read " + result);
             loaded ((Car) result);
             Thread.sleep(5000);
             return (Car) result;
@@ -107,6 +105,12 @@ public class CarDataObject extends PojoDataObject<Car> {
         } finally {
             in.close();
         }
+    }
+
+    @Override
+    protected void save(Car car, OutputStream stream) throws IOException {
+        System.err.println("CarDataObject.save " + car + " to " + stream);
+        super.save(car, stream);
     }
     
     @Override

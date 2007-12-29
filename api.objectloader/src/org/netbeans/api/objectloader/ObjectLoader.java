@@ -106,6 +106,26 @@ public abstract class ObjectLoader<T> {
         return reference == null ? null : reference.get();
     }
     
+    public T getSynchronous() throws IOException {
+        T result = getCachedInstance();
+        if (result == null) {
+            if (EventQueue.isDispatchThread()) {
+                throw new IllegalStateException("Cannot load on event thread");
+            }
+            setState (States.LOADING);
+            boolean ok = false;
+            try {
+                result = load();
+                ok = true;
+                set(result);
+            } finally {
+                setState (ok ? States.LOADED : States.NOT_LOADABLE);
+            }
+            
+        }
+        return result;
+    }
+    
     /**
      * Clear the cached object and reset the state to States.UNLOADED.
      * Call this method if a previous attempt to load threw an exception and

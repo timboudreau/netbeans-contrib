@@ -39,10 +39,8 @@
 
 package org.netbeans.modules.dynactions.nodes;
 
-import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.ObjectInputStream;
 import org.netbeans.api.objectloader.CacheStrategies;
 import org.netbeans.api.objectloader.CacheStrategy;
 import org.netbeans.api.objectloader.ObjectLoader;
@@ -50,7 +48,6 @@ import org.openide.filesystems.FileObject;
 import org.openide.loaders.DataObjectExistsException;
 import org.openide.loaders.MultiDataObject;
 import org.openide.loaders.MultiFileLoader;
-import org.openide.util.Exceptions;
 import org.openide.util.Lookup;
 import org.openide.util.lookup.AbstractLookup;
 import org.openide.util.lookup.InstanceContent;
@@ -102,6 +99,10 @@ public abstract class LazyLoadDataObject<T> extends MultiDataObject {
         return lkp;
     }
     
+    /**
+     * Return the type of the object that represents this file.
+     * @return
+     */
     protected Class<T> type() {
         return ldr.type();
     }
@@ -116,35 +117,13 @@ public abstract class LazyLoadDataObject<T> extends MultiDataObject {
 
     /**
      * Load the object from the primary file's input stream.  Called on a
-     * background thread.  The default implementation tries to read an 
-     * object from an ObjectInputStream.
+     * background thread.  
      * 
      * @param stream The input stream for the primary file
      * @return The loaded object.
      * @throws java.io.IOException if there is an error loading
      */
     protected abstract T load (InputStream stream) throws IOException; 
-    /*{
-        System.err.println("LazyLoadDataObject.load");
-        ObjectInputStream in = new ObjectInputStream(
-                new BufferedInputStream(stream));
-//        ClassLoader all = Lookup.getDefault().lookup(ClassLoader.class);
-//        ClassLoader curr = Thread.currentThread().getContextClassLoader();
-//        Thread.currentThread().setContextClassLoader(all);
-        try {
-            Object result = in.readObject();
-            System.err.println("Read " + result);
-            loaded ((T) result);
-            return (T) result;
-        } catch (ClassNotFoundException ex) {
-            Exceptions.printStackTrace(ex);
-            throw new IOException (ex);
-        } finally {
-            in.close();
-//            Thread.currentThread().setContextClassLoader(curr);
-        }
-    }
-     */ 
     
     private final class OL extends ObjectLoader<T> {
         private OL(Class<T> type, CacheStrategy strategy) {
@@ -161,6 +140,7 @@ public abstract class LazyLoadDataObject<T> extends MultiDataObject {
                             "is of " + "type " + result.getClass() + 
                             " not the expected " + " type " + super.type());
                 }
+                System.err.println("Invoking loaded on " + LazyLoadDataObject.this);
                 loaded ((T) result);
                 return (T) result;
             } else {

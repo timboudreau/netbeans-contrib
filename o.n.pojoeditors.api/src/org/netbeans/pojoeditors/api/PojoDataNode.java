@@ -21,13 +21,15 @@
  * your own identifying information:
  * "Portions Copyrighted [year] [name of copyright owner]"
  * 
- * Contributor(s):
+ * Contributor(s): Tim Boudreau
  * 
  * Portions Copyrighted 2007 Sun Microsystems, Inc.
  */
 
 package org.netbeans.pojoeditors.api;
 
+import java.awt.datatransfer.Transferable;
+import java.io.IOException;
 import java.io.Serializable;
 import java.util.Arrays;
 import java.util.List;
@@ -36,8 +38,11 @@ import org.netbeans.api.dynactions.ActionFactory;
 import org.netbeans.modules.dynactions.nodes.DynamicActionsDataNode;
 import org.openide.nodes.Children;
 import org.openide.util.Lookup;
+import org.openide.util.datatransfer.PasteType;
 
 /**
+ * DataNode subclass for use with PojoDataObject, supporting pluggable actions.
+ * Allows dynamic action registration against the node's lookup.
  *
  * @author Tim Boudreau
  */
@@ -65,16 +70,22 @@ public class PojoDataNode<T extends Serializable> extends DynamicActionsDataNode
         return result;
     }
     
+    /**
+     * Called when the pojo of the owning DataObject is unloaded because 
+     * modifications were reverted.  Typical implementation refreshes the children
+     * of this node.  Default implementation does nothing.
+     */
     protected void hintChildrenChanged() {
         //do nothing
     }
-    
+
     /**
-     * Override to attach weak listeners to the pojo
+     * Override to attach weak listeners to the pojo.  Default implementation
+     * does nothing.
      * @param pojo The pojo
      */
     protected void onLoad (T pojo) {
-        
+        //do nothing
     }
 
     @Override
@@ -89,7 +100,7 @@ public class PojoDataNode<T extends Serializable> extends DynamicActionsDataNode
     }
     
     /**
-     * Add actions to the list to have them appear on the popup.  The list
+     * Add or sort actions to the list to have them appear on the popup.  The list
      * is pre-populated with whatever open actions the DataObject supports.
      * 
      * @param actions A list of actions that may be modified

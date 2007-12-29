@@ -1,10 +1,46 @@
 /*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
+ * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
+ * 
+ * Copyright 1997-2007 Sun Microsystems, Inc. All rights reserved.
+ * 
+ * The contents of this file are subject to the terms of either the GNU
+ * General Public License Version 2 only ("GPL") or the Common
+ * Development and Distribution License("CDDL") (collectively, the
+ * "License"). You may not use this file except in compliance with the
+ * License. You can obtain a copy of the License at
+ * http://www.netbeans.org/cddl-gplv2.html
+ * or nbbuild/licenses/CDDL-GPL-2-CP. See the License for the
+ * specific language governing permissions and limitations under the
+ * License.  When distributing the software, include this License Header
+ * Notice in each file and include the License file at
+ * nbbuild/licenses/CDDL-GPL-2-CP.  Sun designates this
+ * particular file as subject to the "Classpath" exception as provided
+ * by Sun in the GPL Version 2 section of the License file that
+ * accompanied this code. If applicable, add the following below the
+ * License Header, with the fields enclosed by brackets [] replaced by
+ * your own identifying information:
+ * "Portions Copyrighted [year] [name of copyright owner]"
+ * 
+ * If you wish your version of this file to be governed by only the CDDL
+ * or only the GPL Version 2, indicate your decision by adding
+ * "[Contributor] elects to include this software in this distribution
+ * under the [CDDL or GPL Version 2] license." If you do not indicate a
+ * single choice of license, a recipient has the option to distribute
+ * your version of this file under either the CDDL, the GPL Version 2 or
+ * to extend the choice of license to its licensees as provided above.
+ * However, if you add GPL Version 2 code and therefore, elected the GPL
+ * Version 2 license, then the option applies only if the new code is
+ * made subject to such option by the copyright holder.
+ * 
+ * Contributor(s): Tom Wheeler, Tim Boudreau
+ * 
+ * Portions Copyrighted 2007 Sun Microsystems, Inc.
  */
-
 package org.netbeans.examples.careditor.file;
 
+import java.io.IOException;
+import java.lang.ref.Reference;
+import java.lang.ref.WeakReference;
 import java.util.List;
 import org.netbeans.api.objectloader.ObjectLoader;
 import org.netbeans.api.objectloader.ObjectReceiver;
@@ -19,7 +55,7 @@ import org.openide.util.Exceptions;
  *
  * @author Tim Boudreau
  */
-public class PersonChildFactory extends ChildFactory<Person> {
+class PersonChildFactory extends ChildFactory<Person> {
     private R receiver = new R();
     private ObjectLoader<Car> ldr;
     
@@ -32,59 +68,38 @@ public class PersonChildFactory extends ChildFactory<Person> {
         super.refresh(true);
     }
 
+    private Reference<Car> carRef = null;
     @Override
     protected Node createNodeForKey(Person key) {
-        return new PersonNode(key);
+        Car car = carRef == null ? null : carRef.get();
+        if (car != null) {
+            return new PersonNode(key, car);
+        } else {
+            //We're populating children, but the parent node has been
+            //garbage collected - it was hidden or similar while
+            //we were creating the keys
+            return null;
+        }
     }
 
     protected boolean createKeys(List<Person> toPopulate) {
-        Car c = null;
         boolean loadable = ldr.getState() != States.NOT_LOADABLE;
-        int ct = 0;
-        while (c == null && loadable && ct < 5) {
-            System.err.println("Loop " + ct);
-            synchronized (receiver) {
-                //Try to get the car
-                c = receiver.car;
-                System.err.println("Got car? " + (c == null));
-                //If we didn't get it and the receiver is not loading
-                if (c == null && !receiver.loading) {
-                    ldr.get(receiver);
-                    //If it is cached, we can synchronously get it now
-                    c = receiver.car;
-                }
-                System.err.println("Got car now? " + (c == null));
-                //Didn't get it?
-                if (c == null) {
-                    //See if the synchronous flag was set to false
-                    if (!receiver.sync) {
-                        try {
-                            //Wait for received() to be called, but time out
-                            //eventually
-                            System.err.println("Waiting...");
-                            receiver.wait(5000);
-                        } catch (InterruptedException ex) {
-                            System.err.println("Interrupted");
-                            break;
-                        }
-                    }
-                    //Now, unless loading is taking a long time, get the car
-                    c = receiver.car;
-                    System.err.println("OK, got car now? " + (c == null));
-                }
-                //Check if loading failed so we can dump out of the loop
-                loadable = ldr.getState() != States.NOT_LOADABLE;
-            }
-            ct++;
-        }
         if (!loadable) {
             return true;
+        } else {
+            try {
+                Car c = ldr.getSynchronous();
+                boolean result = c != null;
+                if (result) {
+                    carRef = new WeakReference<Car>(c);
+                    toPopulate.addAll(c.getPassengerList());
+                }
+            } catch (IOException ex) {
+                Exceptions.printStackTrace(ex);
+                return true;
+            }
         }
-        boolean result = c != null;
-        if (result) {
-            toPopulate.addAll(c.getPassengerList());
-        }
-        return result;
+        return true;
     }
     
     

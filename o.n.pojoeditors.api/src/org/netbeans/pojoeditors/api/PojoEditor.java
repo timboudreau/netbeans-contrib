@@ -32,6 +32,8 @@ import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.EventQueue;
 import java.awt.FlowLayout;
+import java.awt.Toolkit;
+import java.awt.event.KeyEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.IOException;
@@ -45,6 +47,7 @@ import java.net.URL;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
+import javax.swing.KeyStroke;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import org.netbeans.api.objectloader.ObjectLoader;
@@ -52,8 +55,10 @@ import org.netbeans.api.objectloader.ObjectReceiver;
 import org.netbeans.pojoeditors.api.EditorFactory.Kind;
 import org.openide.DialogDisplayer;
 import org.openide.NotifyDescriptor;
+import org.openide.actions.SaveAction;
 import org.openide.awt.UndoRedo;
 import org.openide.cookies.SaveCookie;
+import org.openide.explorer.ExplorerManager;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.URLMapper;
 import org.openide.loaders.DataObject;
@@ -66,6 +71,7 @@ import org.openide.util.Exceptions;
 import org.openide.util.Lookup;
 import org.openide.util.Mutex;
 import org.openide.util.NbBundle;
+import org.openide.util.actions.SystemAction;
 import org.openide.util.lookup.Lookups;
 import org.openide.util.lookup.ProxyLookup;
 import org.openide.windows.CloneableTopComponent;
@@ -90,11 +96,12 @@ import org.openide.windows.CloneableTopComponent;
  * 
  * @author Tim Boudreau
  */
-public abstract class PojoEditor<T extends Serializable> extends CloneableTopComponent {
+public abstract class PojoEditor<T extends Serializable> extends CloneableTopComponent implements ExplorerManager.Provider {
     private PojoDataObject<T> dataObject;
     private final ModificationListener modListener = new ModificationListener();
     private final EditorFactory.Kind kind;
     private final NodeListener nodeListener = new NL();
+    private final ExplorerManager mgr = new ExplorerManager();
     protected PojoEditor (PojoDataObject<T> dataObject, EditorFactory.Kind kind) {
         this.kind = kind;
         if (dataObject != null) { //if null, could not deserialize
@@ -105,10 +112,19 @@ public abstract class PojoEditor<T extends Serializable> extends CloneableTopCom
             associateLookup (lkp);
             setDisplayName (dataObject.getName());
         }
+        mgr.setRootContext(dataObject.getNodeDelegate());
         init (dataObject);
         setLayout (new BorderLayout());
         add (new ProgressPanel(dataObject.getPrimaryFile().getPath()), 
                 BorderLayout.CENTER);
+        int mask = Toolkit.getDefaultToolkit().getMenuShortcutKeyMask();
+        getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_S, mask), 
+                "save");
+        getActionMap().put("save", SystemAction.get(SaveAction.class));
+    }
+    
+    public ExplorerManager getExplorerManager() {
+        return mgr;
     }
     
     Kind getKind() {

@@ -73,7 +73,9 @@ public class Car implements Serializable {
     public void setMake(final String make) {
         String oldMake = this.make;
         this.make = make;
-        pcs.firePropertyChange(PROP_MAKE, oldMake, make);
+        if (pcs != null) {
+            pcs.firePropertyChange(PROP_MAKE, oldMake, make);
+        }
     }
 
     public String getModel() {
@@ -83,7 +85,9 @@ public class Car implements Serializable {
     public void setModel(final String model) {
         String oldModel = this.model;
         this.model = model;
-        pcs.firePropertyChange(PROP_MODEL, oldModel, model);
+        if (pcs != null) {
+            pcs.firePropertyChange(PROP_MODEL, oldModel, model);
+        }
     }
 
     public int getYear() {
@@ -93,7 +97,9 @@ public class Car implements Serializable {
     public void setYear(final int year) {
         int oldYear = this.year;
         this.year = year;
-        pcs.firePropertyChange(PROP_YEAR, oldYear, year);
+        if (pcs != null) {
+            pcs.firePropertyChange(PROP_YEAR, oldYear, year);
+        }
     }
     
     public List<Person> getPassengerList() {
@@ -108,9 +114,11 @@ public class Car implements Serializable {
         
         passengerList.add(p);
 
-        logger.info("adding passenger; has listeners? " + pcs.hasListeners(this.PROP_PASSENGER_LIST));
-        
-        pcs.firePropertyChange(PROP_PASSENGER_LIST, oldPassengerList, passengerList);
+        logger.info("adding passenger; has listeners? " + (pcs == null ? "false" : 
+            ""+ pcs.hasListeners(Car.PROP_PASSENGER_LIST)));
+        if (pcs != null) {
+            pcs.firePropertyChange(PROP_PASSENGER_LIST, oldPassengerList, passengerList);
+        }
     }
     
     public void removePassenger(Person p) {
@@ -121,8 +129,9 @@ public class Car implements Serializable {
         oldPassengerList.addAll(passengerList);
         
         passengerList.remove(p);
-
-        pcs.firePropertyChange(PROP_PASSENGER_LIST, oldPassengerList, passengerList);
+        if (pcs != null) {
+            pcs.firePropertyChange(PROP_PASSENGER_LIST, oldPassengerList, passengerList);
+        }
     }
     
     public void addPropertyChangeListener(PropertyChangeListener pcl) {
@@ -137,6 +146,17 @@ public class Car implements Serializable {
             return;
         }
         pcs.removePropertyChangeListener(pcl);
+    }
+    
+    /**
+     * Called by PersonNode when a passenger's properties change
+     */
+    public void fireForPersonChange() {
+        //In practice one would probably override the serialization code to
+        //listen on Person objects, and attach a listener to them on load/add
+        if (pcs != null) {
+            pcs.firePropertyChange("person", null, null);
+        }
     }
     
     @Override

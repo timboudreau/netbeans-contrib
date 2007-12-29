@@ -45,6 +45,9 @@ Portions Copyrighted 2007 Sun Microsystems, Inc.
                 <file name="org-netbeans-examples-careditor-actions-AddPassengerAction.instance"/>
             </folder>
         </folder>
+        <folder name="org-netbeans-examples-careditor-pojos-Person">
+            <file name="org-netbeans-examples-careditor-actions-EditPersonAction.instance"/>
+        </folder>
     </folder>
     
     <folder name="Loaders">
