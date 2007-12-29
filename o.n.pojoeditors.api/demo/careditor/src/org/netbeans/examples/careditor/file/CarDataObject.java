@@ -95,7 +95,7 @@ public class CarDataObject extends PojoDataObject<Car> {
         try {
             Object result = in.readObject();
             loaded ((Car) result);
-            Thread.sleep(5000);
+            Thread.sleep(800);
             return (Car) result;
         } catch (InterruptedException ex) {
             throw new IOException(ex);

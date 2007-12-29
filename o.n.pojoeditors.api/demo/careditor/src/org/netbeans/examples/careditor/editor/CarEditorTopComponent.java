@@ -55,6 +55,13 @@ public class CarEditorTopComponent extends PojoEditor<Car> {
     }
 
     @Override
+    protected void pojoChanged(Car source, String propertyName, Object oldValue, Object newValue) {
+        //The DataObject is listening to our Car, and calls us back if the
+        //car has changed (for example, a cloned editor has changed a property)
+        form.externalChanged(source, propertyName, oldValue, newValue);
+    }
+
+    @Override
     protected void onClose() {
         if (form != null) {
             removeAll();
@@ -74,5 +81,12 @@ public class CarEditorTopComponent extends PojoEditor<Car> {
 
     private void init() {
         setIcon(Utilities.loadImage(ICON_PATH, true));
+    }
+
+    @Override
+    protected Component getInitialFocusComponent() {
+        //Will be null if invoked before createEditorUI is called
+        return form == null ? null : form.isDisplayable() ?
+            form.getInitialFocusComponent() : null;
     }
 }

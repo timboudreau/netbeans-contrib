@@ -38,6 +38,7 @@
  */
 package org.netbeans.examples.careditor.editor;
 
+import java.awt.Component;
 import java.util.Collection;
 import java.util.logging.Logger;
 import javax.swing.SwingUtilities;
@@ -67,6 +68,10 @@ public class CarEditorForm extends javax.swing.JPanel implements Notifiable<Save
         PojoEditor<Car> provider = (PojoEditor<Car>) SwingUtilities.getAncestorOfClass(PojoEditor.class, this);
         PojoDataObject dob = provider.getLookup().lookup(PojoDataObject.class);
         Sensor.register(dob.getLookup(), SaveCookie.class, this);
+    }
+    
+    Component getInitialFocusComponent() {
+        return makeField;
     }
     
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
@@ -208,27 +213,54 @@ public class CarEditorForm extends javax.swing.JPanel implements Notifiable<Save
         change(e);
     }
     
-    private void change (DocumentEvent e) {
-        if (inInit) {
+    private boolean inExternalChange;
+    void externalChanged (Car car, String propName, Object old, Object nue) {
+        if (inChange) {
             return;
         }
-        PojoEditor<Car> provider = (PojoEditor<Car>) SwingUtilities.getAncestorOfClass(PojoEditor.class, this);
-        Car car = provider.getPojo();
-        if (car != null) {
-            if (e.getDocument() == makeField.getDocument()) {
-                car.setMake(makeField.getText());
-            } else if (e.getDocument() == modelField.getDocument()) {
-                car.setModel(modelField.getText());
-            } else if (e.getDocument() == yearField.getDocument()) {
-                try {
-                    car.setYear (Integer.parseInt(yearField.getText()));
-                    problemLabel.setText (" ");
-                } catch (NumberFormatException ex) {
-                    problemLabel.setText(ex.getLocalizedMessage());
+        inExternalChange = true;
+        try {
+            if (Car.PROP_MAKE.equals(propName)) {
+                makeField.setText (nue == null ? "" : nue.toString());
+            } else if (Car.PROP_MODEL.equals(propName)) {
+                modelField.setText(nue == null ? "" : nue.toString());
+            } else if (Car.PROP_YEAR.equals(propName)) {
+                yearField.setText(nue == null ? "0" : nue.toString());
+            }
+        } finally {
+            inExternalChange = false;
+        }
+    }
+    
+    private boolean inChange;
+    private void change (DocumentEvent e) {
+        if (inInit || inExternalChange) {
+            return;
+        }
+        inChange = true;
+        try {
+            PojoEditor<Car> provider = (PojoEditor<Car>) SwingUtilities.getAncestorOfClass(PojoEditor.class, this);
+            Car car = provider.getPojo();
+            if (car != null) {
+                if (e.getDocument() == makeField.getDocument()) {
+                    car.setMake(makeField.getText());
+                } else if (e.getDocument() == modelField.getDocument()) {
+                    car.setModel(modelField.getText());
+                } else if (e.getDocument() == yearField.getDocument()) {
+                    try {
+                        car.setYear (Integer.parseInt(yearField.getText()));
+                        problemLabel.setText (" ");
+                    } catch (NumberFormatException ex) {
+                        problemLabel.setText(ex.getLocalizedMessage());
+                    }
+                } else {
+                    throw new AssertionError (e.getDocument());
                 }
             } else {
-                throw new AssertionError (e.getDocument());
+                throw new IllegalStateException ("Could not find car in " + provider);
             }
+        } finally {
+            inChange = false;
         }
     }
 }

@@ -104,6 +104,12 @@ public class Person implements Serializable {
     }
     
     @Override
+    protected void finalize() throws Throwable {
+        System.err.println("Person " + firstName + " " + lastName + " " + age + 
+                " finalized");
+    }
+    
+    @Override
     public String toString() {
         StringBuffer buff = new StringBuffer();
         

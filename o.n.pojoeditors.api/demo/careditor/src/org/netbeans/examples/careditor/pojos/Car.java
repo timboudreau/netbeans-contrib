@@ -82,6 +82,12 @@ public class Car implements Serializable {
         return model;
     }
 
+    @Override
+    protected void finalize() throws Throwable {
+        System.err.println("Car " + make + " " + model + " " + year + 
+                " finalized");
+    }
+
     public void setModel(final String model) {
         String oldModel = this.model;
         this.model = model;
