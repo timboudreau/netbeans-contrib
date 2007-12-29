@@ -71,6 +71,7 @@ made subject to such option by the copyright holder.
             </folder>
             
             <folder name="suggestions">
+                <file name="org-netbeans-modules-javahints-NegateCondition.instance"/>
             </folder>
         </folder>
     </folder>
