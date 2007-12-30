@@ -74,7 +74,7 @@ class ErrorProviderImpl extends ErrorProvider {
 	// Fixup: since error highlighting does not work in headers, we'd better switch it off at all
         NativeFileItemSet itemSet = dao.getLookup().lookup(NativeFileItemSet.class);
         if( itemSet != null ) {
-            for( NativeFileItem item : itemSet ) {
+            for( NativeFileItem item : itemSet.getItems() ) {
 		if( item.getLanguage() == NativeFileItem.Language.C_HEADER ) {
 		    return Collections.emptyList();
 		}
@@ -156,7 +156,7 @@ class ErrorProviderImpl extends ErrorProvider {
         StringBuilder sb = new StringBuilder();
         NativeFileItemSet itemSet = dao.getLookup().lookup(NativeFileItemSet.class);
         if( itemSet != null ) {
-            for( NativeFileItem item : itemSet ) {
+            for( NativeFileItem item : itemSet.getItems() ) {
                 for( String path : item.getUserIncludePaths() ) {
                     sb.append(" -I "); // NOI18N
                     sb.append(path);
