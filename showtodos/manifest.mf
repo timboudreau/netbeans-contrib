@@ -1,6 +1,5 @@
 Manifest-Version: 1.0
 OpenIDE-Module: org.netbeans.modules.showtodos
-OpenIDE-Module-Install: org/netbeans/modules/showtodos/ShowTodosModuleInstall.class
 OpenIDE-Module-Layer: org/netbeans/modules/showtodos/layer.xml
 OpenIDE-Module-Localizing-Bundle: org/netbeans/modules/showtodos/Bundle.properties
 OpenIDE-Module-Specification-Version: 1.0
