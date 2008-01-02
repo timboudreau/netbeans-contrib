@@ -42,22 +42,9 @@
 
 package org.netbeans.modules.remotefs.core;
 
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyVetoException;
-import java.io.*;
-import java.text.MessageFormat;
-import java.util.Enumeration;
-import java.util.Hashtable;
-import java.util.ResourceBundle;
-import java.util.StringTokenizer;
-import java.util.Date;
-import java.net.*;
-
-import org.openide.*;
-import org.openide.filesystems.*;
-import org.openide.options.*;
-import org.openide.util.NbBundle;
-import org.openide.util.actions.SystemAction;
+import java.io.IOException;
+import org.openide.filesystems.FileStatusEvent;
+import org.openide.filesystems.FileSystemCapability;
 
 /** Managed Remote FIleSystem class
  * @author Libor Martinek
@@ -86,6 +73,7 @@ public abstract class ManagedRemoteFileSystem extends RemoteFileSystem
     setCapability (cap);
   }
 
+    @Override
   protected void removeClient() {
     if (manager != null) {
       manager.remove(this);
@@ -98,6 +86,7 @@ public abstract class ManagedRemoteFileSystem extends RemoteFileSystem
   /** Test whether filesystem is connected to server.
    * @return Value of property connected.
    */
+    @Override
   public boolean isConnected() {
     if (manager==null)  return false;
     return manager.getClient().isConnected();
@@ -109,7 +98,9 @@ public abstract class ManagedRemoteFileSystem extends RemoteFileSystem
   public void setConnected(boolean connected) {
     // is new state different?
     //System.out.println("ManagedRemoteFileSystem.setConnected");
-    if (isConnected() == connected)   return; 
+    if (isConnected() == connected) {
+            return;
+        } 
     if (!connected) {  // will be disconnected
            // exists other filesystem with same server
            if (manager.moreOwners()) {

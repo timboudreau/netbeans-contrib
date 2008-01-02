@@ -49,7 +49,9 @@ package org.netbeans.modules.remotefs.core;
  */
 public interface LogInfo extends java.io.Serializable{
 
-  /** Return human redable description of this LogInfo */
+    /** Return human redable description of this LogInfo
+     * @return 
+     */
   public String displayName();
 
 

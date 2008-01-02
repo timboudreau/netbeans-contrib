@@ -39,7 +39,6 @@
  *
  * Contributor(s): Libor Martinek.
  */
-
 package org.netbeans.modules.remotefs.core;
 
 import org.openide.filesystems.FileObject;
@@ -51,68 +50,69 @@ import org.openide.util.Exceptions;
 import org.openide.util.HelpCtx;
 import org.openide.util.actions.NodeAction;
 
-
 /** Action for connect/disconnect filesystem.
-*
-* @author Libor Martinek
-*/
+ *
+ * @author Libor Martinek
+ */
 public class ConnectAction extends NodeAction {
-  static final long serialVersionUID = -7910677883191530621L;
-  private RemoteFileSystem fs = null;  
-    
-  /** @return DataFolder class */
+
+    static final long serialVersionUID = -7910677883191530621L;
+    private RemoteFileSystem fs = null;
+
+    /**
+     * @param nodes 
+     * @return DataFolder class */
 //  protected Class[] cookieClasses () {
 //    return new Class[] { DataFolder.class };
 //  }
-
     protected boolean enable(Node[] nodes) {
-         if (nodes == null) {
-             return false;
-         }
-         DataFolder df = (DataFolder) nodes[0].getCookie(DataFolder.class);
-         if (df != null && nodes.length == 1) {
-             FileObject fo = df.getPrimaryFile();
-          return (fo.isRoot());
+        if (nodes == null|| nodes.length == 0) {
+            return false;
         }
-      return false;
+        DataFolder df = nodes[0].getCookie(DataFolder.class);
+        if (df != null && nodes.length == 1) {
+            FileObject fo = df.getPrimaryFile();
+            return (fo.isRoot());
+        }
+        return false;
     }
-  
-     protected void performAction(Node[] nodes) {
-         DataFolder df = (DataFolder) nodes[0].getCookie(DataFolder.class);
+
+    protected void performAction(Node[] nodes) {
+        DataFolder df = nodes[0].getCookie(DataFolder.class);
         if (df != null) {
-             FileObject fo = df.getPrimaryFile();
-          try {
-             FileSystem tmp = fo.getFileSystem();
-                 if (tmp instanceof RemoteFileSystem) {
-                     ((RemoteFileSystem) tmp).connectOnBackground(!((RemoteFileSystem) tmp).isConnected());
-          }
-             } catch (FileStateInvalidException e) {
-                 Exceptions.printStackTrace(e);
-          }
+            FileObject fo = df.getPrimaryFile();
+            try {
+                FileSystem tmp = fo.getFileSystem();
+                if (tmp instanceof RemoteFileSystem) {
+                    ((RemoteFileSystem) tmp).connectOnBackground(!((RemoteFileSystem) tmp).isConnected());
+                }
+            } catch (FileStateInvalidException e) {
+                Exceptions.printStackTrace(e);
+            }
         }
     }
-  
+
     protected void setFS(RemoteFileSystem fs) {
-         this.fs = fs;
+        this.fs = fs;
     }
-  
-     public String getName() {
-         if (fs == null) {
-             return "Connect/Disconnect";
+
+    public String getName() {
+        if (fs == null) {
+            return "Connect/Disconnect";
+        }
+        if (fs.isConnected()) {
+            return "Go Offline";
+        } else {
+            return "Go Online";
+        }
     }
-         if (fs.isConnected()) {
-             return "Go Offline";
-         } else {
-             return "Go Online";
-         }
-     }
-  
-     public HelpCtx getHelpCtx() {
-      return HelpCtx.DEFAULT_HELP;
+
+    public HelpCtx getHelpCtx() {
+        return HelpCtx.DEFAULT_HELP;
     }
-  
-     @Override
-     protected boolean asynchronous() {
-         return false;
-  }
- }
+
+    @Override
+    protected boolean asynchronous() {
+        return false;
+    }
+}

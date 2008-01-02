@@ -41,7 +41,7 @@
  */
 
   package org.netbeans.modules.remotefs.core;
-  
+
  import org.openide.filesystems.FileObject;
  import org.openide.filesystems.FileStateInvalidException;
  import org.openide.filesystems.FileSystem;
@@ -66,7 +66,7 @@
   
      protected void performAction(Node[] nodes) {
       for (int i = 0; i < nodes.length; i++) {
-             DataFolder df = (DataFolder) nodes[i].getCookie(DataFolder.class);
+             DataFolder df = nodes[i].getCookie(DataFolder.class);
         if (df != null) {
                  FileObject fo = df.getPrimaryFile();
           try {

@@ -1,5 +1,4 @@
 package org.netbeans.modules.remotefs.ui;
-
 import java.awt.Component;
 import java.awt.Dialog;
 import java.io.IOException;
@@ -12,44 +11,32 @@ import org.netbeans.modules.remotefs.ftpclient.FTPClient;
 import org.netbeans.modules.remotefs.ftpclient.FTPLogInfo;
 import org.netbeans.modules.remotefs.ftpfs.FTPFileSystem;
 import org.openide.DialogDisplayer;
-
 import org.openide.WizardDescriptor;
 import org.openide.filesystems.FileLock;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileSystem;
 import org.openide.filesystems.Repository;
-import org.openide.loaders.DataFolder;
 import org.openide.loaders.DataObject;
-import org.openide.loaders.DataObjectNotFoundException;
 import org.openide.util.Exceptions;
 import org.openide.util.HelpCtx;
 import org.openide.util.Utilities;
 import org.openide.util.actions.CallableSystemAction;
-
 /**
  * Action that launches a wizard to register a new FTP site in the Explorer window.
  * 
  */
 public final class NewFTPSiteWizardAction extends CallableSystemAction {
-
     private WizardDescriptor.Panel[] panels;
-    private DataFolder df;
     private static NewFTPSiteWizardAction instance;
-
     private NewFTPSiteWizardAction() {
         putValue(SMALL_ICON, new ImageIcon(Utilities.loadImage("org/netbeans/modules/remotefs/ui/resources/globe-sextant-16x16.png", true)));
-
     }
-
     public static CallableSystemAction getInstance() {
         if (instance == null) {
             instance = new NewFTPSiteWizardAction();
         }
-        // instance.df = df;
-
         return instance;
     }
-
     public void performAction() {
         WizardDescriptor wizardDescriptor = new WizardDescriptor(getPanels());
         // {0} will be replaced by WizardDesriptor.Panel.getComponent().getName()
@@ -70,15 +57,15 @@ public final class NewFTPSiteWizardAction extends CallableSystemAction {
                 info.setUser(props.get(NewFTPSiteVisualPanel1.SITE_USER).toString());
                 info.setPassword(props.get(NewFTPSiteVisualPanel1.SITE_PWD).toString());
                 //info.setName(props.get(NewFTPSiteVisualPanel1.SITE_NAME).toString());
-                // info.setInitialFolder(props.get(NewFTPSiteVisualPanel1.SITE_INIT_FOLDER).toString());
-                final FileSystem fs = new FTPFileSystem(info);
-                
-                Repository.getDefault().addFileSystem(fs);
+                info.setRootFolder(props.get(NewFTPSiteVisualPanel1.SITE_INIT_FOLDER).toString());
+                info.setPassiveMode((Boolean)props.get(NewFTPSiteVisualPanel1.SITE_PASSIVE_MODE));
+                final FTPFileSystem fs = new FTPFileSystem(info);
+              //  Repository.getDefault().addFileSystem(fs);
+                ((RootNode.RootNodeChildren)ftpx.getChildren()).add(fs);
                 try {
                     DataObject find = DataObject.find(Repository.getDefault().getDefaultFileSystem().getRoot().getFileObject("FTPSites"));
                     FileObject fld = find.getPrimaryFile();
                     String baseName = info.getUser() + "@" + info.getHost();
-
                     FileObject writeTo = fld.createData(baseName, "ser");
                     FileLock lock = writeTo.lock();
                     try {
@@ -94,11 +81,9 @@ public final class NewFTPSiteWizardAction extends CallableSystemAction {
                 } catch (IOException ioe) {
                     Exceptions.printStackTrace(ioe);
                 }
-
             }
         }
     }
-
     /**
      * Initialize panels representing individual wizard's steps and sets
      * various properties for them influencing wizard appearance.
@@ -130,22 +115,20 @@ public final class NewFTPSiteWizardAction extends CallableSystemAction {
         }
         return panels;
     }
-
     public String getName() {
         return "Start Sample Wizard";
     }
-
-    public @Override
-    String iconResource() {
+    
+    @Override
+    public String iconResource() {
         return null;
     }
-
     public HelpCtx getHelpCtx() {
         return HelpCtx.DEFAULT_HELP;
     }
-
-    protected @Override
-    boolean asynchronous() {
+    
+    @Override
+    protected boolean asynchronous() {
         return false;
     }
 }

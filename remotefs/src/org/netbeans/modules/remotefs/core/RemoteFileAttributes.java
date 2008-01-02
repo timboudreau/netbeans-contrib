@@ -42,7 +42,8 @@
 
 package org.netbeans.modules.remotefs.core;
 
-import java.util.*;
+import java.util.Date;
+
 
 /** Remote File attributes. Class for storing attributes for files from remote server.
  *

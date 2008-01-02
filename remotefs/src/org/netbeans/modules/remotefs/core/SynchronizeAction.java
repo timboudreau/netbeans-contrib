@@ -65,13 +65,14 @@ public class SynchronizeAction extends CookieAction {
 
   protected void performAction (Node[] nodes)  {
     for (int i = 0; i < nodes.length; i++) {
-      DataFolder df = (DataFolder)nodes[i].getCookie (DataFolder.class);
+      DataFolder df = nodes[i].getCookie(DataFolder.class);
       if (df != null) {
         FileObject fo = df.getPrimaryFile ();
         try {
            FileSystem fs = fo.getFileSystem();
-           if (fs instanceof RemoteFileSystem) 
-               ((RemoteFileSystem)fs).synchronize(fo.getPackageNameExt('/','.'));
+           if (fs instanceof RemoteFileSystem) {
+                        ((RemoteFileSystem) fs).synchronize(fo.getPath());
+                    }
         }
         catch (FileStateInvalidException e) { 
           Exceptions.printStackTrace(e);
@@ -92,4 +93,10 @@ public class SynchronizeAction extends CookieAction {
     return HelpCtx.DEFAULT_HELP;
   }
 
+    @Override
+    protected boolean asynchronous() {
+        return false;
+    }
+
+  
 }

@@ -9,7 +9,6 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.Action;
-import org.netbeans.modules.remotefs.ftpclient.FTPLogInfo;
 import org.netbeans.modules.remotefs.ftpfs.FTPFileSystem;
 import org.openide.filesystems.FileSystem;
 import org.openide.filesystems.Repository;
@@ -26,10 +25,17 @@ import org.openide.util.Utilities;
 
 public class RootNode extends AbstractNode {
 
+    private List<FTPFileSystem> ftpFileSystems;
     private static final Image ICON = Utilities.loadImage("org/netbeans/modules/remotefs/ui/resources/entire-network-16x16.png");
 
     public RootNode(List<FTPFileSystem> sites) throws DataObjectNotFoundException {
         super(new RootNodeChildren(sites));
+        this.ftpFileSystems = sites;
+    }
+
+    @Override
+    public boolean canCopy() {
+        return false;
     }
 
     @Override
@@ -43,7 +49,7 @@ public class RootNode extends AbstractNode {
     }
 
     @Override
-        public Action[] getActions(boolean context) {
+    public Action[] getActions(boolean context) {
         DataFolder df = getLookup().lookup(DataFolder.class);
         return new Action[]{AddFTPSiteAction.getInstance()};
     }
@@ -58,7 +64,7 @@ public class RootNode extends AbstractNode {
         return "FTP Sites";
     }
 
-    private static class RootNodeChildren extends Children.Keys {
+    public static class RootNodeChildren extends Children.Keys {
 
         private List<FTPFileSystem> ftpFileSystems;
         private final transient Logger logger = Logger.getLogger(RootNodeChildren.class.getName());
@@ -66,7 +72,7 @@ public class RootNode extends AbstractNode {
         private RootNodeChildren(List<FTPFileSystem> sites) {
             this.ftpFileSystems = sites;
             setKeys(sites.toArray(new FTPFileSystem[0]));
-            Repository.getDefault().addRepositoryListener(new RepositoryListener() {
+  /*          Repository.getDefault().addRepositoryListener(new RepositoryListener() {
 
                         public void fileSystemAdded(RepositoryEvent ev) {
                             logger.log(Level.INFO, "FileSystem added!");
@@ -90,7 +96,7 @@ public class RootNode extends AbstractNode {
                         //ignore
                         }
                     });
-        }
+   */     }
 
         @Override
         protected Node[] createNodes(Object key) {
@@ -100,6 +106,16 @@ public class RootNode extends AbstractNode {
                 Exceptions.printStackTrace(ex);
                 return new Node[]{};
             }
+        }
+
+        public void add(FTPFileSystem fsToAdd) {
+            ftpFileSystems.add(fsToAdd);
+            this.setKeys(ftpFileSystems);
+        }
+        
+        public void remove(FTPFileSystem fsToRemove) {
+            ftpFileSystems.remove(fsToRemove);
+            this.setKeys(ftpFileSystems);
         }
     }
 }
