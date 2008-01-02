@@ -83,6 +83,9 @@ made subject to such option by the copyright holder.
             <file name="JXFrame.palette_item" url="JXFrame.palette_item">
                 <attr name="position" intvalue="500"/>
             </file>
+            <file name="JXGraph.palette_item" url="JXGraph.palette_item">
+                <attr name="position" intvalue="600"/>
+            </file>
         </folder>
     </folder>
 
