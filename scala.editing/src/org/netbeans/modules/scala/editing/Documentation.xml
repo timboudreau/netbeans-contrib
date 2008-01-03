@@ -82,222 +82,155 @@ made subject to such option by the copyright holder.
     <node key="with"       context="root" type="keyword" library="keyword" documentation="JavaScript keyword."/>
     <node key="yield"       context="root" type="keyword" library="keyword" documentation="Reserved for ECM extensions."/>
     
-    <node key="arguments[]"       context="root" library="JS Core" type="field"/>
-        <node key="callee"      context="arguments,member" library="JS Core" type="field"/>
-        <node key="length"      context="arguments,member" library="JS Core" type="field"/>
-    <node key="Array"           context="root" library="JS Core" type="interface"/>
-        <node key="Array"       context="constructor" library="JS Core" type="constructor"/>
-        <node key="length"      context="member" library="JS Core" type="field"/>
-        <node key="concat"      context="member" library="JS Core" type="method"/>
-        <node key="join"        context="member" library="JS Core" type="method"/>
-        <node key="pop"         context="member" library="JS Core" type="method"/>
-        <node key="push"        context="member" library="JS Core" type="method"/>
-        <node key="reverse"     context="member" library="JS Core" type="method"/>
-        <node key="shift"       context="member" library="JS Core" type="method"/>
-        <node key="slice"       context="member" library="JS Core" type="method"/>
-        <node key="sort"        context="member" library="JS Core" type="method"/>
-        <node key="splice"      context="member" library="JS Core" type="method"/>
-        <node key="unshift"     context="member" library="JS Core" type="method"/>
-    <node key="Boolean"         context="root" library="JS Core" type="interface"/>
-        <node key="Boolean"     context="constructor" library="JS Core" type="constructor"/>
-        <node key="toString"     context="member" library="JS Core" type="method"/>
-        <node key="valueOf"     context="member" library="JS Core" type="method"/>
-    <node key="Date"            context="root" library="JS Core" type="interface"/>
-        <node key="Date"     context="constructor" library="JS Core" type="constructor"/>
-        
-        <node key="parse"       context="Date" library="JS Core" type="method"/>
-        <node key="UTC"         context="Date" library="JS Core" type="method"/>
-        
-        <node key="getDate"     context="member" library="JS Core" type="method"/>
-        <node key="getDay"      context="member" library="JS Core" type="method"/>
-        <node key="getFullYear" context="member" library="JS Core" type="method"/>
-        <node key="getHours"    context="member" library="JS Core" type="method"/>
-        <node key="getMilliseconds" context="member" library="JS Core" type="method"/>
-        <node key="getMinutes"  context="member" library="JS Core" type="method"/>
-        <node key="getMonth"    context="member" library="JS Core" type="method"/>
-        <node key="getSeconds"  context="member" library="JS Core" type="method"/>
-        <node key="getUTCDate"  context="member" library="JS Core" type="method"/>
-        <node key="getUTCDay"   context="member" library="JS Core" type="method"/>
-        <node key="getUTCFullYear" context="member" library="JS Core" type="method"/>
-        <node key="getUTCHours" context="member" library="JS Core" type="method"/>
-        <node key="getUTCMilliseconds" context="member" library="JS Core" type="method"/>
-        <node key="getUTCMinutes"   context="member" library="JS Core" type="method"/>
-        <node key="getUTCMonth" context="member" library="JS Core" type="method"/>
-        <node key="getUTCSeconds" context="member" library="JS Core" type="method"/>
-        <node key="getTime"     context="member" library="JS Core" type="method"/>
-        <node key="getTimezoneOffset" context="member" library="JS Core" type="method"/>
-        <node key="getYear"     context="member" library="JS Core" type="method"/>        
-        <node key="setDate"     context="member" library="JS Core" type="method"/>
-        <node key="setFullYear" context="member" library="JS Core" type="method"/>
-        <node key="setHours"    context="member" library="JS Core" type="method"/>
-        <node key="setMilliseconds" context="member" library="JS Core" type="method"/>
-        <node key="setMinutes"  context="member" library="JS Core" type="method"/>
-        <node key="setMonth"    context="member" library="JS Core" type="method"/>
-        <node key="setSeconds"  context="member" library="JS Core" type="method"/>
-        <node key="setUTCDate"  context="member" library="JS Core" type="method"/>
-        <node key="setUTCFullYear" context="member" library="JS Core" type="method"/>
-        <node key="setUTCHours" context="member" library="JS Core" type="method"/>
-        <node key="setUTCMilliseconds"  context="member" library="JS Core" type="method"/>
-        <node key="setUTCMinutes"   context="member" library="JS Core" type="method"/>
-        <node key="setUTCMonth" context="member" library="JS Core" type="method"/>
-        <node key="setUTCSeconds"   context="member" library="JS Core" type="method"/>
-        <node key="setTime"     context="member" library="JS Core" type="method"/>
-        <node key="setYear"     context="member" library="JS Core" type="method"/>
-        <node key="toDateString" context="member" library="JS Core" type="method"/>
-        <node key="toGMTString" context="member" library="JS Core" type="method"/>
-        <node key="toLocaleDateString" context="member" library="JS Core" type="method"/>
-        <node key="toLocaleTimeString" context="member" library="JS Core" type="method"/>
-        <node key="toString"     context="member" library="JS Core" type="method"/>
-        <node key="toTimeString" context="member" library="JS Core" type="method"/>
-        <node key="toUTCString" context="member" library="JS Core" type="method"/>
-    <node key="decodeURI"       context="root" library="JS Core" type="method"/>
-    <node key="decodeURIComponent" context="root" library="JS Core" type="method"/>
-    <node key="encodeURI"       context="root" library="JS Core" type="method"/>
-    <node key="encodeURIComponent" context="root" library="JS Core" type="method"/>
-    <node key="Error"           context="root" library="JS Core" type="interface"/>
-        <node key="Error"       context="constructor" library="JS Core" type="constructor"/>
-        <node key="message"     context="member" library="JS Core" type="field"/>
-        <node key="name"        context="member" library="JS Core" type="field"/>
-        <node key="toString"    context="member" library="JS Core" type="method"/>
-    <node key="escape"          context="root" library="JS Core" type="method"/>
-    <node key="eval"            context="root" library="JS Core" type="method"/>
-    <node key="EvalError"       context="root" library="JS Core" type="interface"/>
-        <node key="EvalError"   context="constructor" library="JS Core" type="constructor"/>
-        <node key="message"     context="member" library="JS Core" type="field"/>
-        <node key="name"        context="member" library="JS Core" type="field"/>
-    <node key="Function"        context="root" library="JS Core" type="interface"/>
-        <node key="Function"    context="constructor" library="JS Core" type="constructor"/>
-        <node key="arguments"   context="member" library="JS Core" type="field"/>
-        <node key="caller"      context="member" library="JS Core" type="field"/>
-        <node key="length"      context="member" library="JS Core" type="field"/>
-        <node key="prototype"   context="member" library="JS Core" type="field"/>
-        
-        <node key="apply"       context="member" library="JS Core" type="method"/>
-        <node key="call"        context="member" library="JS Core" type="method"/>
-        <node key="toString"    context="member" library="JS Core" type="method"/>
-    <node key="Infinity"        context="root" library="JS Core" type="constant"/>
-    <node key="isFinite"        context="root" library="JS Core" type="method"/>
-    <node key="isNaN"           context="root" library="JS Core" type="method"/>
-    <node key="Math"            context="root" library="JS Core" type="interface"/>
-        <node key="E"           context="Math" library="JS Core" type="constant"/>
-        <node key="LN10"        context="Math" library="JS Core" type="constant"/>
-        <node key="LN2"         context="Math" library="JS Core" type="constant"/>
-        <node key="LOG10E"      context="Math" library="JS Core" type="constant"/>
-        <node key="LOG2E"       context="Math" library="JS Core" type="constant"/>
-        <node key="PI"          context="Math" library="JS Core" type="constant"/>
-        <node key="SQRT1_2"     context="Math" library="JS Core" type="constant"/>
-        <node key="SQRT2"       context="Math" library="JS Core" type="constant"/>
-        
-        <node key="abs"         context="Math" library="JS Core" type="method"/>
-        <node key="acos"        context="Math" library="JS Core" type="method"/>
-        <node key="asin"        context="Math" library="JS Core" type="method"/>
-        <node key="atan"        context="Math" library="JS Core" type="method"/>
-        <node key="atan2"       context="Math" library="JS Core" type="method"/>
-        <node key="ceil"        context="Math" library="JS Core" type="method"/>
-        <node key="cos"         context="Math" library="JS Core" type="method"/>
-        <node key="exp"         context="Math" library="JS Core" type="method"/>
-        <node key="floor"       context="Math" library="JS Core" type="method"/>
-        <node key="log"         context="Math" library="JS Core" type="method"/>
-        <node key="max"         context="Math" library="JS Core" type="method"/>
-        <node key="min"         context="Math" library="JS Core" type="method"/>
-        <node key="pow"         context="Math" library="JS Core" type="method"/>
-        <node key="random"      context="Math" library="JS Core" type="method"/>
-        <node key="round"       context="Math" library="JS Core" type="method"/>
-        <node key="sin"         context="Math" library="JS Core" type="method"/>
-        <node key="sqrt"        context="Math" library="JS Core" type="method"/>
-        <node key="tan"         context="Math" library="JS Core" type="method"/>
-    <node key="NaN"             context="root" library="JS Core" type="constant"/>
-    <node key="Number"          context="root" library="JS Core" type="interface"/>
-        <node key="Number"      context="constructor" library="JS Core" type="constructor"/>
-        <node key="MAX_VALUE"   context="Number" library="JS Core" type="constant"/>
-        <node key="MIN_VALUE"   context="Number" library="JS Core" type="constant"/>
-        <node key="NaN"         context="Number" library="JS Core" type="constant"/>
-        <node key="NEGATIVE_INFINITY" context="Number" library="JS Core" type="constant"/>
-        <node key="POSITIVE_INFINITY" context="Number" library="JS Core" type="constant"/>
-        
-        <node key="toString"    context="member" library="JS Core" type="method"/>
-        <node key="toLocaleString" context="member" library="JS Core" type="method"/>
-        <node key="toFixed"     context="member" library="JS Core" type="method"/>
-        <node key="toExponential" context="member" library="JS Core" type="method"/>
-        <node key="toPrecision" context="member" library="JS Core" type="method"/>
-    <node key="Object"          context="root" library="JS Core" type="interface"/>
-        <node key="Object"      context="constructor" library="JS Core" type="constructor"/>
-        <node key="constructor" context="member" library="JS Core" type="field"/>
-        
-        <node key="hasOwnProperty" context="member" library="JS Core" type="method"/>
-        <node key="isPrototypeOf" context="member" library="JS Core" type="method"/>
-        <node key="propertyIsEnumerable" context="member" library="JS Core" type="method"/>
-        <node key="toLocaleString" context="member" library="JS Core" type="method"/>
-        <node key="toString"    context="member" library="JS Core" type="method"/>
-        <node key="valueOf"     context="member" library="JS Core" type="method"/>
-    <node key="parseFloat"      context="root" library="JS Core" type="method"/>
-    <node key="parseInt"        context="root" library="JS Core" type="method"/>
-    <node key="RangeError"      context="root" library="JS Core" type="interface"/>
-        <node key="RangeError"  context="constructor" library="JS Core" type="constructor"/>
-        <node key="message"     context="member" library="JS Core" type="field"/>
-        <node key="name"        context="member" library="JS Core" type="field"/>
-    <node key="ReferenceError"  context="root" library="JS Core" type="interface"/>
-        <node key="ReferenceError" context="constructor" library="JS Core" type="constructor"/>
-        <node key="message"     context="member" library="JS Core" type="field"/>
-        <node key="name"        context="member" library="JS Core" type="field"/>
-    <node key="RegExp"          context="root" library="JS Core" type="interface"/>
-        <node key="RegExp"      context="constructor" library="JS Core" type="constructor"/>
-        <node key="global"      context="member" library="JS Core" type="field"/>
-        <node key="ignoreCase"  context="member" library="JS Core" type="field"/>
-        <node key="lastIndex"   context="member" library="JS Core" type="field"/>
-        <node key="multiline"   context="member" library="JS Core" type="field"/>
-        <node key="source"      context="member" library="JS Core" type="field"/>
-        
-        <node key="exec"        context="member" library="JS Core" type="method"/>
-        <node key="test"        context="member" library="JS Core" type="method"/>
-    <node key="String"          context="root" library="JS Core" type="interface"/>
-        <node key="String"      context="constructor" library="JS Core" type="constructor"/>
-        <node key="length"      context="member" library="JS Core" type="field"/>
-        
-        <node key="fromCharCode" context="String" library="JS Core" type="method"/>
-        
-        <node key="charAt"      context="member" library="JS Core" type="method"/>
-        <node key="charCodeAt"  context="member" library="JS Core" type="method"/>
-        <node key="oncat"     context="member" library="JS Core" type="method"/>
-        <node key="indexOf"     context="member" library="JS Core" type="method"/>
-        <node key="lastIndexOf" context="member" library="JS Core" type="method"/>
-        <node key="match"       context="member" library="JS Core" type="method"/>
-        <node key="replace"     context="member" library="JS Core" type="method"/>
-        <node key="search"      context="member" library="JS Core" type="method"/>
-        <node key="slice"       context="member" library="JS Core" type="method"/>
-        <node key="split"       context="member" library="JS Core" type="method"/>
-        <node key="substring"   context="member" library="JS Core" type="method"/>
-        <node key="substr"      context="member" library="JS Core" type="method"/>
-        <node key="toLowerCase" context="member" library="JS Core" type="method"/>
-        <node key="toString"    context="member" library="JS Core" type="method"/>
-        <node key="toUpperCase" context="member" library="JS Core" type="method"/>
-        <node key="valueOf"     context="member" library="JS Core" type="method"/>
-
-        <node key="anchor"      context="member" library="JS Core" type="method"/>
-        <node key="big"         context="member" library="JS Core" type="method"/>
-        <node key="blink"       context="member" library="JS Core" type="method"/>
-        <node key="bold"        context="member" library="JS Core" type="method"/>
-        <node key="fixed"       context="member" library="JS Core" type="method"/>
-        <node key="fontcolor"   context="member" library="JS Core" type="method"/>
-        <node key="fontsize"    context="member" library="JS Core" type="method"/>
-        <node key="italics"     context="member" library="JS Core" type="method"/>
-        <node key="link"        context="member" library="JS Core" type="method"/>
-        <node key="small"       context="member" library="JS Core" type="method"/>
-        <node key="strike"      context="member" library="JS Core" type="method"/>
-        <node key="sub"         context="member" library="JS Core" type="method"/>
-        <node key="sup"         context="member" library="JS Core" type="method"/>
-    <node key="SyntaxError"     context="root" library="JS Core" type="interface"/>
-        <node key="SyntaxError" context="constructor" library="JS Core" type="constructor"/>
-        <node key="message"     context="member" library="JS Core" type="field"/>
-        <node key="name"        context="member" library="JS Core" type="field"/>
-    <node key="TypeError"       context="root" library="JS Core" type="interface"/>
-        <node key="TypeError"   context="constructor" library="JS Core" type="constructor"/>
-        <node key="message"     context="member" library="JS Core" type="field"/>
-        <node key="name"        context="member" library="JS Core" type="field"/>
-    <node key="undefined"       context="root" library="JS Core" type="field"/>
-    <node key="unescape"        context="root" library="JS Core" type="method"/>
-    <node key="URIError"        context="root" library="JS Core" type="interface"/>
-        <node key="URIError"    context="constructor" library="JS Core" type="constructor"/>
-        <node key="message"     context="member" library="JS Core" type="field"/>
-        <node key="name"        context="member" library="JS Core" type="field"/>
+    <node key="any2ArrowAssoc(x)"       context="root" library="Predef" type="method"/>
+    <node key="any2stringadd(x)"      context="root" library="Predef" type="method"/>
+    <node key="assert(assertion)"      context="root" library="Predef" type="method"/>
+    <node key="assert(assertion, message)"           context="root" library="Predef" type="method"/>
+    <node key="assume(assumption)"       context="root" library="Predef" type="method"/>
+    <node key="assume(assumption, message)"      context="root" library="Predef" type="field"/>
+    <node key="boolean2Boolean(x)"      context="root" library="Predef" type="method"/>
+    <node key="booleanWrapper(x)"        context="root" library="Predef" type="method"/>
+    <node key="byte2Byte(x)"         context="root" library="Predef" type="method"/>
+    <node key="byte2double(x)"        context="root" library="Predef" type="method"/>
+    <node key="byte2float(x)"     context="root" library="Predef" type="method"/>
+    <node key="byte2long(x)"       context="root" library="Predef" type="method"/>
+    <node key="byte2short(x)"       context="root" library="Predef" type="method"/>
+    <node key="byteWrapper(x)"        context="root" library="Predef" type="method"/>
+    <node key="char2Character(x)"      context="root" library="Predef" type="method"/>
+    <node key="char2double(x)"     context="root" library="Predef" type="method"/>
+    <node key="char2float(x)"         context="root" library="Predef" type="method"/>
+    <node key="char2int(x)"     context="root" library="Predef" type="method"/>
+    <node key="char2long(x)"     context="root" library="Predef" type="method"/>
+    <node key="charWrapper(x)"     context="root" library="Predef" type="method"/>
+    <node key="classOf"            context="root" library="Predef" type="method"/>
+    <node key="currentThread"     context="root" library="Predef" type="method"/>
+    <node key="double2Double(x)"       context="root" library="Predef" type="method"/>
+    <node key="doubleWrapper(x)"         context="root" library="Predef" type="method"/>
+    <node key="error(message)"     context="root" library="Predef" type="method"/>
+    <node key="exit"      context="root" library="Predef" type="method"/>
+    <node key="exit(status)" context="root" library="Predef" type="method"/>
+    <node key="float2Float(x)"    context="root" library="Predef" type="method"/>
+    <node key="float2double(x)" context="root" library="Predef" type="method"/>
+    <node key="floatWrapper(x)"  context="root" library="Predef" type="method"/>
+    <node key="format(text, xs)"    context="root" library="Predef" type="method"/>
+    <node key="identity(x)"  context="root" library="Predef" type="method"/>
+    <node key="int2Integer(x)"  context="root" library="Predef" type="method"/>
+    <node key="int2double(x)"   context="root" library="Predef" type="method"/>
+    <node key="int2float(x)" context="root" library="Predef" type="method"/>
+    <node key="int2long(x)" context="root" library="Predef" type="method"/>
+    <node key="intWrapper(x)" context="root" library="Predef" type="method"/>
+    <node key="iterable2ordered(xs)"   context="root" library="Predef" type="method"/>
+    <node key="long2Long(x)" context="root" library="Predef" type="method"/>
+    <node key="long2double(x)" context="root" library="Predef" type="method"/>
+    <node key="long2float(x)"     context="root" library="Predef" type="method"/>
+    <node key="longWrapper(x)" context="root" library="Predef" type="method"/>
+    <node key="print(x)"     context="root" library="Predef" type="method"/>        
+    <node key="printf(text, xs)"     context="root" library="Predef" type="method"/>
+    <node key="println(x)" context="root" library="Predef" type="method"/>
+    <node key="println"    context="root" library="Predef" type="method"/>
+    <node key="readBoolean" context="root" library="Predef" type="method"/>
+    <node key="readByte"  context="root" library="Predef" type="method"/>
+    <node key="readChar"    context="root" library="Predef" type="method"/>
+    <node key="readDouble"  context="root" library="Predef" type="method"/>
+    <node key="readFloat"  context="root" library="Predef" type="method"/>
+    <node key="readInt" context="root" library="Predef" type="method"/>
+    <node key="readLine" context="root" library="Predef" type="method"/>
+    <node key="readLine(text, args)"  context="root" library="Predef" type="method"/>
+    <node key="readLong"   context="root" library="Predef" type="method"/>
+    <node key="readShort" context="root" library="Predef" type="method"/>
+    <node key="readf(format)"   context="root" library="Predef" type="method"/>
+    <node key="readf1(format)"     context="root" library="Predef" type="method"/>
+    <node key="readf2(format)"     context="root" library="Predef" type="method"/>
+    <node key="readf3(format)" context="root" library="Predef" type="method"/>
+    <node key="short2Short(x)" context="root" library="Predef" type="method"/>
+    <node key="short2double(x)" context="root" library="Predef" type="method"/>
+    <node key="short2float(x)" context="root" library="Predef" type="method"/>
+    <node key="short2int(x)"     context="root" library="Predef" type="method"/>
+    <node key="short2long(x)" context="root" library="Predef" type="method"/>
+    <node key="shortWrapper(x)" context="root" library="Predef" type="method"/>
+    <node key="stringBuilderWrapper(x)"       context="root" library="Predef" type="method"/>
+    <node key="stringWrapper(x)" context="root" library="Predef" type="method"/>
+    <node key="tuple22ordered((x1, x2) => )"       context="root" library="Predef" type="method"/>
+    <node key="tuple32ordered((x1, x2, x3) => )" context="root" library="Predef" type="method"/>
+    <node key="tuple42ordered((x1, x2, x3, x4) => )"           context="root" library="Predef" type="method"/>
+    <node key="tuple52ordered((x1, x2, x3, x4, x5) => )"           context="root" library="Predef" type="method"/>
+    <node key="tuple62ordered((x1, x2, x3, x4, x5, x6) => )"           context="root" library="Predef" type="method"/>
+    <node key="tuple72ordered((x1, x2, x3, x4, x5, x6, x7) => )"           context="root" library="Predef" type="method"/>
+    <node key="tuple82ordered((x1, x2, x3, x4, x5, x6, x7, x8) => )"           context="root" library="Predef" type="method"/>
+    <node key="tuple92ordered((x1, x2, x3, x4, x5, x6, x7, x8, x9) => )"           context="root" library="Predef" type="method"/>
+    <node key="unit2ordered(x)"        context="root" library="Predef" type="method"/>
+    
+    <node key="Byte"       context="type" library="Type" type="interface"/>  
+    <node key="Short"       context="type" library="Type" type="interface"/> 
+    <node key="Int"       context="type" library="Type" type="interface"/> 
+    <node key="Float"       context="type" library="Type" type="interface"/> 
+    <node key="Double"       context="type" library="Type" type="interface"/> 
+    <node key="Boolean"       context="type" library="Type" type="interface"/> 
+    <node key="Array[]"       context="type" library="Type" type="interface"/> 
+    <node key="Stream[]"       context="type" library="Type" type="interface"/> 
+ 
+    <node key="Math"        context="root" library="Predef" type="interface"/>
+    <node key="E"           context="Math" library="Double" type="constant"/>
+    <node key="EPS_DOUBLE"        context="Math" library="Double" type="constant"/>
+    <node key="EPS_FLOAT"         context="Math" library="Float" type="constant"/>
+    <node key="MAX_BYTE"      context="Math" library="Byte" type="constant"/>
+    <node key="MAX_CHAR"       context="Math" library="Char" type="constant"/>
+    <node key="MAX_DOUBLE"          context="Math" library="Double" type="constant"/>
+    <node key="MAX_FLOAT"     context="Math" library="Float" type="constant"/>
+    <node key="MAX_INT"       context="Math" library="Int" type="constant"/>
+    <node key="MAX_LONG"     context="Math" library="Long" type="constant"/>
+    <node key="MAX_SHORT"       context="Math" library="Short" type="constant"/>
+    <node key="MIN_BYTE"      context="Math" library="Byte" type="constant"/>
+    <node key="MIN_CHAR"       context="Math" library="Char" type="constant"/>
+    <node key="MIN_DOUBLE"          context="Math" library="Double" type="constant"/>
+    <node key="MIN_FLOAT"     context="Math" library="Float" type="constant"/>
+    <node key="MIN_INT"       context="Math" library="Int" type="constant"/>
+    <node key="MIN_LONG"     context="Math" library="Long" type="constant"/>
+    <node key="MIN_SHORT"       context="Math" library="Short" type="constant"/>
+    
+    <node key="IEEEremainder(x, y)"         context="Math" library="Double" type="method"/>
+    <node key="abs(x)"        context="Math" library="Double" type="method"/>
+    <node key="acos(x)"        context="Math" library="Double" type="method"/>
+    <node key="asin(x)"        context="Math" library="Double" type="method"/>
+    <node key="atan(x)"        context="Math" library="Double" type="method"/>
+    <node key="atan2(x)"       context="Math" library="Double" type="method"/>
+    <node key="ceil(x)"        context="Math" library="Double" type="method"/>
+    <node key="cos(x)"         context="Math" library="Double" type="method"/>
+    <node key="exp(x)"         context="Math" library="Double" type="method"/>
+    <node key="floor(x)"       context="Math" library="Double" type="method"/>
+    <node key="log(x)"         context="Math" library="Double" type="method"/>
+    <node key="max(x, y)"         context="Math" library="Double" type="method"/>
+    <node key="min(x, y)"         context="Math" library="Double" type="method"/>
+    <node key="pow(x, y)"         context="Math" library="Double" type="method"/>
+    <node key="random"      context="Math" library="Double" type="method"/>
+    <node key="rint(x)"       context="Math" library="Double" type="method"/>
+    <node key="round(x)"       context="Math" library="Double" type="method"/>
+    <node key="sin(x)"         context="Math" library="Double" type="method"/>
+    <node key="sqrt(x)"        context="Math" library="Double" type="method"/>
+    <node key="tan(x)"         context="Math" library="Double" type="method"/>
+    <node key="toDegrees(x)"         context="Math" library="Double" type="method"/>
+    <node key="toRadians(x)"         context="Math" library="Double" type="method"/>
+    
+    <!-- Method of Any -->
+    <node key="!=(x)"    context="member" library="Boolean" type="method"/>
+    <node key="==(x)" context="member" library="Boolean" type="method"/>
+    <node key="equals(x)" context="member" library="Boolean" type="method"/>
+    <node key="hashCode" context="member" library="Int" type="method"/>
+    <node key="toString"    context="member" library="String" type="method"/>
+    <node key="isInstanceOf[T0]"      context="member" library="Boolean" type="method"/>
+    <node key="asInstanceOf[T0]"  context="member" library="T0" type="method"/>
+    
+    <!-- Method of AnyRef -->
+    <node key="getClass"      context="member" library="Class" type="method"/>
+    <node key="clone"     context="member" library="AnyRef" type="method"/>
+    <node key="eq(x)" context="member" library="Boolean" type="method"/>
+    <node key="ne(x)" context="member" library="Boolean" type="method"/>
+    <node key="finalize"          context="member" library="Unit" type="method"/>
+    <node key="notify" context="member" library="Unit" type="method"/>
+    <node key="notifyAll" context="member" library="Unit" type="method"/>
+    <node key="synchronized[T0](x)" context="member" library="T0" type="method"/>
+    <node key="wait(x)"     context="member" library="Unit" type="method"/>
+    <node key="wait"      context="member" library="Unit" type="method"/>
+    <node key="wait(x, y)"        context="member" library="Unit" type="method"/>
+    
 </documentation>
