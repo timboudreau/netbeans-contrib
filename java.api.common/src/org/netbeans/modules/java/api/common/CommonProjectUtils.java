@@ -21,12 +21,6 @@
  * your own identifying information:
  * "Portions Copyrighted [year] [name of copyright owner]"
  *
- * Contributor(s):
- *
- * The Original Software is NetBeans. The Initial Developer of the Original
- * Software is Sun Microsystems, Inc. Portions Copyright 1997-2007 Sun
- * Microsystems, Inc. All Rights Reserved.
- *
  * If you wish your version of this file to be governed by only the CDDL
  * or only the GPL Version 2, indicate your decision by adding
  * "[Contributor] elects to include this software in this distribution
@@ -37,49 +31,49 @@
  * However, if you add GPL Version 2 code and therefore, elected the GPL
  * Version 2 license, then the option applies only if the new code is
  * made subject to such option by the copyright holder.
+ *
+ * Contributor(s):
+ *
+ * Portions Copyrighted 2008 Sun Microsystems, Inc.
  */
-package org.netbeans.modules.java.api.common.queries;
+
+package org.netbeans.modules.java.api.common;
 
 import org.netbeans.api.java.platform.JavaPlatform;
 import org.netbeans.api.java.platform.JavaPlatformManager;
 import org.netbeans.api.java.platform.Specification;
-import org.netbeans.modules.java.api.common.CommonProjectUtils;
-import org.netbeans.spi.java.queries.SourceLevelQueryImplementation;
-import org.netbeans.spi.project.support.ant.PropertyEvaluator;
-import org.netbeans.spi.project.support.ant.PropertyUtils;
-import org.netbeans.spi.project.support.ant.EditableProperties;
-import org.openide.filesystems.FileObject;
 
 /**
- * Returns source level of project Java source files.
- * @author David Konecny
+ * Common project utilities. This is a helper class; all methods are static.
+ * @author Tomas Mysik
  */
-class SourceLevelQueryImpl implements SourceLevelQueryImplementation {
+public final class CommonProjectUtils {
 
-    private final PropertyEvaluator evaluator;
-
-    public SourceLevelQueryImpl(PropertyEvaluator evaluator) {
-        assert evaluator != null;
-        
-        this.evaluator = evaluator;
+    private CommonProjectUtils() {
     }
-    
-    public String getSourceLevel(FileObject javaFile) {
-        final String activePlatform = evaluator.getProperty("platform.active"); //NOI18N
-        if (CommonProjectUtils.getActivePlatform(activePlatform) != null) {
-            String sl = evaluator.getProperty("javac.source"); //NOI18N
-            if (sl != null && sl.length() > 0) {
-                return sl;
-            }
-            return null;
+
+    // XXX copied from J2SEProjectUtilities, should be part of some API probably (JavaPlatformManager?)
+    /**
+     * Returns the active platform used by the project or null if the active
+     * project platform is broken.
+     * @param activePlatformId the name of platform used by Ant script or null
+     * for default platform.
+     * @return active {@link JavaPlatform} or null if the project's platform
+     * is broken
+     */
+    public static JavaPlatform getActivePlatform(final String activePlatformId) {
+        final JavaPlatformManager pm = JavaPlatformManager.getDefault();
+        if (activePlatformId == null) {
+            return pm.getDefaultPlatform();
         }
-        
-        EditableProperties props = PropertyUtils.getGlobalProperties();
-        String sl = props.get("default.javac.source"); //NOI18N
-        if (sl != null && sl.length() > 0) {
-            return sl;
+
+        JavaPlatform[] installedPlatforms = pm.getPlatforms(null, new Specification("j2se", null)); //NOI18N
+        for (JavaPlatform javaPlatform : installedPlatforms) {
+            String antName = javaPlatform.getProperties().get("platform.ant.name"); //NOI18N
+            if (antName != null && antName.equals(activePlatformId)) {
+                return javaPlatform;
+            }
         }
         return null;
     }
-    
 }
