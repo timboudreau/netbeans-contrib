@@ -89,6 +89,9 @@ made subject to such option by the copyright holder.
             <file name="JXHyperlink.palette_item" url="JXHyperlink.palette_item">
                 <attr name="position" intvalue="800"/>
             </file>
+            <file name="JXLabel.palette_item" url="JXLabel.palette_item">
+                <attr name="position" intvalue="900"/>
+            </file>
         </folder>
     </folder>
 
