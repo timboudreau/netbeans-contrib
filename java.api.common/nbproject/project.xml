@@ -42,6 +42,15 @@
                     </run-dependency>
                 </dependency>
                 <dependency>
+                    <code-name-base>org.netbeans.modules.project.libraries</code-name-base>
+                    <build-prerequisite/>
+                    <compile-dependency/>
+                    <run-dependency>
+                        <release-version>1</release-version>
+                        <specification-version>1.16</specification-version>
+                    </run-dependency>
+                </dependency>
+                <dependency>
                     <code-name-base>org.netbeans.modules.projectapi</code-name-base>
                     <build-prerequisite/>
                     <compile-dependency/>
@@ -134,6 +143,7 @@
                 <friend>org.netbeans.modules.web.project</friend>
                 <package>org.netbeans.modules.java.api.common</package>
                 <package>org.netbeans.modules.java.api.common.ant</package>
+                <package>org.netbeans.modules.java.api.common.classpath</package>
                 <package>org.netbeans.modules.java.api.common.queries</package>
                 <package>org.netbeans.modules.java.api.common.ui</package>
             </friend-packages>
