@@ -117,7 +117,7 @@ public class ServiceImpl extends ServicesComponentImpl implements Service {
     }
 
     public void setScopeAttr(String scope) {
-        super.setAttribute(SCOPE_ATTR_PROP, ServicesAttributes.attrName, scope);
+        super.setAttribute(SCOPE_ATTR_PROP, ServicesAttributes.attrScope, scope);
     }
     
 }
