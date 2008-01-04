@@ -86,6 +86,9 @@ made subject to such option by the copyright holder.
             <file name="JXGraph.palette_item" url="JXGraph.palette_item">
                 <attr name="position" intvalue="600"/>
             </file>
+            <file name="JXHyperlink.palette_item" url="JXHyperlink.palette_item">
+                <attr name="position" intvalue="800"/>
+            </file>
         </folder>
     </folder>
 
