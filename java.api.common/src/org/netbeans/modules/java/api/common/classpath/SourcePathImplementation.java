@@ -270,7 +270,7 @@ public final class SourcePathImplementation implements ClassPathImplementation, 
         private final List<List<String>> paths;
         private final FileObject parent;
         private final FileObject child;
-        private final List<String> listnerAddedDirs = new ArrayList<String>();
+        private final List<String> listenerAddedDirs = new ArrayList<String>();
 
         public SourceRootScannerTask(SourcePathImplementation s, FileChangeListener origFcl, List<List<String>> pths,
                 FileObject parent, FileObject child) {
@@ -285,7 +285,7 @@ public final class SourcePathImplementation implements ClassPathImplementation, 
             spi.invalidate();
         }
 
-        private void addListners(List<String> path, int cIndx) {
+        private void addListeners(List<String> path, int cIndx) {
             int size = path.size();
             FileObject currParent = parent;
             FileObject curr = child;
@@ -295,8 +295,8 @@ public final class SourcePathImplementation implements ClassPathImplementation, 
                 curr = currParent.getFileObject(path.get(i));
                 if ((curr != null) && (curr.isFolder())) {
                     relDir = FileUtil.getRelativePath(parent, curr);
-                    if (!listnerAddedDirs.contains(relDir)) {
-                        listnerAddedDirs.add(relDir);
+                    if (!listenerAddedDirs.contains(relDir)) {
+                        listenerAddedDirs.add(relDir);
                         weakFcl = FileUtil.weakFileChangeListener(fcl,
                                 curr);
                         curr.addFileChangeListener(weakFcl);
@@ -336,8 +336,8 @@ public final class SourcePathImplementation implements ClassPathImplementation, 
                     }
                 } else {
                     if ((cIndx != -1) && (pIndx == (cIndx - 1))) {
-                        // add listner and fire change event if leaf directory is created
-                        addListners(path, cIndx);
+                        // add listener and fire change event if leaf directory is created
+                        addListeners(path, cIndx);
                     }
                 }
             }
