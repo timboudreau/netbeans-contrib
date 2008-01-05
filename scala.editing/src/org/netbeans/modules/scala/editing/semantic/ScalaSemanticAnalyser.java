@@ -56,6 +56,7 @@ import org.netbeans.api.languages.ASTToken;
 import org.netbeans.api.languages.ParserManager;
 import org.netbeans.api.languages.ParserManager.State;
 import org.netbeans.api.languages.SyntaxContext;
+import org.netbeans.api.languages.database.ContextRoot;
 import org.netbeans.modules.scala.editing.features.MarkOccurrencesSupport;
 import org.netbeans.modules.scala.editing.semantic.Template.Kind;
 import org.netbeans.modules.scala.editing.spi.ScalaIndexProvider;
@@ -86,7 +87,7 @@ public class ScalaSemanticAnalyser {
     private static ScalaSemanticAnalyser ANALYSER_FOR_INDEXING = new ScalaSemanticAnalyser(true);
     private Document doc;
     private ASTNode astRoot; // syntax ast root
-    private ContextRoot ctxRoot; // semantic root
+    private ContextRoot<ScalaContext> ctxRoot; // semantic root
     /**
      * @NOTICE we should avoid re-entrant of analyse. There is a case may cause that:
      * When document is modified, it will be setDirty in PersistentClassIndex, and request
@@ -177,7 +178,7 @@ public class ScalaSemanticAnalyser {
      */
     }
 
-    public static ContextRoot getCtxRoot(Document doc, ASTNode astRoot) {
+    public static ContextRoot<ScalaContext> getCtxRoot(Document doc, ASTNode astRoot) {
         ScalaSemanticAnalyser analyser = getAnalyser(doc);
         ContextRoot ctxRoot = analyser.getCtxRoot();
         if (ctxRoot != null) {
@@ -199,7 +200,7 @@ public class ScalaSemanticAnalyser {
         return ctxRoot;
     }
 
-    public static ContextRoot getCurrentCtxRoot(Document doc) {
+    public static ContextRoot<ScalaContext> getCurrentCtxRoot(Document doc) {
         ScalaSemanticAnalyser analyser = getAnalyser(doc);
         return analyser.getCtxRoot();
     }
@@ -214,7 +215,8 @@ public class ScalaSemanticAnalyser {
     public ContextRoot analyse(ASTNode astRoot) {
         if (this.astRoot != astRoot) {
             this.astRoot = astRoot;
-            ContextRoot ctxRootInParsing = new ContextRoot(astRoot);
+            ContextRoot<ScalaContext> ctxRootInParsing = 
+                    new ContextRoot<ScalaContext>(new ScalaContext(astRoot.getOffset(), astRoot.getEndOffset()));
             process(ctxRootInParsing, astRoot, ctxRootInParsing.getRootContext());
             ctxRoot = ctxRootInParsing;
             return ctxRoot;
@@ -223,7 +225,7 @@ public class ScalaSemanticAnalyser {
         }
     }
 
-    private void process(ContextRoot ctxRoot, ASTItem n, ScalaContext currentContext) {
+    private void process(ContextRoot<ScalaContext> ctxRoot, ASTItem n, ScalaContext currentContext) {
         if (isNode(n, "TopStats")) {
             /**
              * pre-process
@@ -296,7 +298,7 @@ public class ScalaSemanticAnalyser {
         }
     }
 
-    private void preProcessFunctionClause(ContextRoot ctxRoot, ASTItem function) {
+    private void preProcessFunctionClause(ContextRoot<ScalaContext> ctxRoot, ASTItem function) {
         String nameStr = "";
         String argumentsStr = "";
         int arityInt = 0;
@@ -550,7 +552,7 @@ public class ScalaSemanticAnalyser {
         return pendingItems;
     }
 
-    private Map<ASTItem, ScalaContext> processFunDclDef(ContextRoot ctxRoot, ASTItem funDclDef, ScalaContext currCtx) {
+    private Map<ASTItem, ScalaContext> processFunDclDef(ContextRoot<ScalaContext> ctxRoot, ASTItem funDclDef, ScalaContext currCtx) {
         Map<ASTItem, ScalaContext> pendingItems = new HashMap<ASTItem, ScalaContext>();
         ScalaContext ctx = new ScalaContext(funDclDef.getOffset(), funDclDef.getEndOffset());
         currCtx.addContext(ctx);
@@ -609,7 +611,7 @@ public class ScalaSemanticAnalyser {
         }
     }
 
-    private void preProcessAttibuteDeclaration(ContextRoot ctxRoot, ASTItem attribute) {
+    private void preProcessAttibuteDeclaration(ContextRoot<ScalaContext> ctxRoot, ASTItem attribute) {
         ASTItem attributeName = attribute.getChildren().get(0);
         if (attributeName != null) {
             if (isNode(attributeName, "ModuleAttribute")) {
@@ -654,7 +656,7 @@ public class ScalaSemanticAnalyser {
         ctxRoot.getRootContext().addDefinition(moduleDef);
     }
 
-    private void processExportAttribute(ContextRoot ctxRoot, ASTItem attribute) {
+    private void processExportAttribute(ContextRoot<ScalaContext> ctxRoot, ASTItem attribute) {
         for (ASTItem item : attribute.getChildren()) {
             if (isNode(item, "FunctionNames")) {
                 ErlExport exportDef = new ErlExport(attribute.getOffset(), attribute.getEndOffset());
@@ -794,7 +796,7 @@ public class ScalaSemanticAnalyser {
         }
     }
 
-    private void processAnyExpr(ContextRoot ctxRoot, ASTItem expr, ScalaContext currCtx, boolean containsVarDef) {
+    private void processAnyExpr(ContextRoot<ScalaContext> ctxRoot, ASTItem expr, ScalaContext currCtx, boolean containsVarDef) {
         if (isNode(expr, "TemplateStats") || isNode(expr, "BlockStats") || isNode(expr, "CaseBlockStats")) {
             processBlockStates(ctxRoot, expr, currCtx);
         } else if (isNode(expr, "SimpleExpr")) {
@@ -1074,7 +1076,7 @@ public class ScalaSemanticAnalyser {
         }
     }
 
-    private void processSimpleExpr(ContextRoot ctxRoot, ASTItem simpleExpr, ScalaContext currCtx) {
+    private void processSimpleExpr(ContextRoot<ScalaContext> ctxRoot, ASTItem simpleExpr, ScalaContext currCtx) {
         boolean isFunCall = false;
         boolean isLocalCall = false;
         boolean isNewExpr = false;
