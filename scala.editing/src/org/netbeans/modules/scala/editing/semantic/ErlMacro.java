@@ -45,7 +45,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
-import org.netbeans.modules.languages.features.DatabaseDefinition;
+import org.netbeans.api.languages.database.DatabaseDefinition;
 
 /**
  *

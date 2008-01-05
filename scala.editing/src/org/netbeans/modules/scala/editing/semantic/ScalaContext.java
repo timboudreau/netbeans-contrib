@@ -45,8 +45,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import org.netbeans.modules.languages.features.DatabaseDefinition;
-import org.netbeans.modules.languages.features.DatabaseItem;
+import org.netbeans.api.languages.database.DatabaseDefinition;
+import org.netbeans.api.languages.database.DatabaseItem;
 
 /**
  *

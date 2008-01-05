@@ -43,7 +43,7 @@ package org.netbeans.modules.scala.editing.semantic;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import org.netbeans.modules.languages.features.DatabaseDefinition;
+import org.netbeans.api.languages.database.DatabaseDefinition;
 
 /**
  *

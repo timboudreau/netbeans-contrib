@@ -46,7 +46,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-import org.netbeans.modules.languages.features.DatabaseDefinition;
+import org.netbeans.api.languages.database.DatabaseDefinition;
 
 /**
  *
