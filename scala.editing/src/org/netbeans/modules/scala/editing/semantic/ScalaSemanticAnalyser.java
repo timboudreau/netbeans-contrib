@@ -944,7 +944,6 @@ public class ScalaSemanticAnalyser {
             for (ASTItem item : expr.getChildren()) {
                 if (isNode(item, "FunClauses")) {
                     ScalaContext funContext = new ScalaContext(expr.getOffset(), expr.getEndOffset());
-                    funContext.setName("FunExpr");
                     currCtx.addContext(funContext);
 
                     for (ASTItem child : item.getChildren()) {
@@ -1012,7 +1011,6 @@ public class ScalaSemanticAnalyser {
             }
         } else if (isNode(expr, "TryExpr")) {
             ScalaContext ctx = new ScalaContext(expr.getOffset(), expr.getEndOffset());
-            ctx.setName("TryExpr");
             currCtx.addContext(ctx);
 
             ASTItem tryBlockStats = null;

@@ -41,124 +41,18 @@
 
 package org.netbeans.modules.scala.editing.semantic;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
+import org.netbeans.api.languages.database.DatabaseContext;
 import org.netbeans.api.languages.database.DatabaseDefinition;
-import org.netbeans.api.languages.database.DatabaseItem;
 
 /**
  *
  * @author Caoyuan Deng
  */
-public class ScalaContext extends DatabaseItem {
-	
-    private String name;
-    private ScalaContext parent;
-    private List<ScalaContext> contexts;
-    private List<DatabaseDefinition> definitions;
-	    
+public class ScalaContext extends DatabaseContext {
+		    
     ScalaContext(int offset, int endOffset) {
-        super(offset, endOffset);
-    }
-
-    private void setParent(ScalaContext parent) {
-        this.parent = parent;
-    }
-    
-    protected ScalaContext getParent() {
-        return parent;
-    }
-    
-    public void setName(String name) {
-        this.name = name;
-    }
-    
-    public String getName() {
-        return name;
-    }
-
-    public List<ScalaContext> getContexts() {
-        if (contexts == null) {
-            return Collections.<ScalaContext>emptyList();
-        }
-        return contexts;
-    }
-    
-    public void addContext(ScalaContext context) {
-        if (contexts == null) {
-            contexts = new ArrayList<ScalaContext>();
-	}
-        context.setParent(this);
-	contexts.add(context);
-    }
-
-    public void addDefinition(DatabaseDefinition definition) {
-        if (definitions == null) {
-            definitions = new ArrayList<DatabaseDefinition>();
-	} 
-        definitions.add(definition);
-    }
-
-    public ScalaContext getBestContextAt(int offset) {
-        ScalaContext result = null;
-        if (contexts != null) {
-            /** search children first */
-            for (ScalaContext context : contexts) {
-                if (context.contains(offset)) {
-                    result = context.getBestContextAt(offset);
-		    break;
-		}
-	    }  
-	}
-	if (result != null) {
-            return result;
-	} else {
-            if (this.contains(offset)) {
-                return this;
-	    } else {
-                /* we should return null here, since it may under a parent context's call, 
-		 * we shall tell the parent there is none in this and children of this
-		 */
-                return null; 
-	    } 
-	}
-    }
-
-    private boolean contains(int offset) {
-        return offset >= getOffset() && offset < getEndOffset();
-    }
-
-
-    protected <T extends DatabaseDefinition> T getFirstDefinition(Class<T> type) {
-        if (definitions == null) return null;
-        for (DatabaseDefinition definition : definitions) {
-            if (type.isInstance(definition)) {
-                return (T)definition;
-            }
-        }
-        return null;
-    }
-    
-    protected <T extends DatabaseDefinition> Collection<T> getDefinitions(Class<T> type) {
-        if (definitions == null) return Collections.<T>emptyList();
-        Collection<T> result = new ArrayList<T>();
-        for (DatabaseDefinition definition: definitions) {
-            if (type.isInstance(definition)) {
-                result.add((T)definition);
-            }
-        }
-        return result;
-    }
-    
-    protected void collectDefinitionsInScopeTo(Collection<DatabaseDefinition> scopeDefinitions) {
-        if (definitions != null) {
-            scopeDefinitions.addAll(definitions);
-        } 
-	if (parent != null) {
-	    parent.collectDefinitionsInScopeTo(scopeDefinitions);
-	}
+        super(null, "", offset, endOffset);
     }
     
     Function getFunctionInScope(String name, int arity) {
@@ -167,6 +61,7 @@ public class ScalaContext extends DatabaseItem {
     
     Function getFunctionInScope(String moduleName, String name, int arity) {
         Function result = null;
+        List<DatabaseDefinition> definitions = getDefinitions();
 	if (definitions != null) {
 	    for (DatabaseDefinition definition : definitions) {
                 if (definition instanceof Function &&
@@ -187,6 +82,7 @@ public class ScalaContext extends DatabaseItem {
 	if (result != null) {
             return result;
 	} else {
+            ScalaContext parent = (ScalaContext) getParent();
             if (parent != null) {
                 return parent.getFunctionInScope(moduleName, name, arity);
 	    } else {
@@ -206,27 +102,6 @@ public class ScalaContext extends DatabaseItem {
     ErlMacro getMacroInScope(String name) {
 	return getDefinitionInScopeByName(ErlMacro.class, name);
     }    
-
-    public <T extends DatabaseDefinition> T getDefinitionInScopeByName(Class<T> type, String name) {
-        T result = null;
-	if (definitions != null) {
-	    for (DatabaseDefinition definition : definitions) {
-                if (type.isInstance(definition) && name.equals(definition.getName())) {
-                    result = (T) definition;
-		    break;
-	        }
-	    }
-	}
-	if (result != null) {
-            return result;
-	} else {
-            if (parent != null) {
-                return parent.getDefinitionInScopeByName(type, name);
-	    } else {
-                return null;
-	    }
-	} 
-    }
     
 }
 
