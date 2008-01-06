@@ -52,6 +52,8 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.StringTokenizer;
+import java.util.jar.JarFile;
+import java.util.jar.Manifest;
 import org.netbeans.api.java.platform.JavaPlatform;
 import org.netbeans.api.java.platform.JavaPlatformManager;
 import org.netbeans.api.java.platform.Specification;
@@ -157,39 +159,23 @@ public class Hk2PluginProperties {
         List<URL> list = new ArrayList<URL>();
         File serverDir = new File(getHk2JHomeLocation());
         try {
-            File jarDir = new File(serverDir, "modules");
-            if(!jarDir.exists()) {
-                // !PW Older V3 installs (pre 12/01/07) put jars in lib folder.
-                jarDir = new File(serverDir, "lib");
-                if(!jarDir.exists()) {
-                    // jar folder does not exist, return empty list.
-                    return list;
-                }
+            //get the wrapper jar (empty) that lists all the dependant ee 5 jars.
+            //needed for compilation with the correct jars
+            File ee5lib = new File(serverDir, "lib/javaee-5.0.jar");
+            Manifest m = new JarFile(ee5lib).getManifest();
+
+            String dependantJars = m.getMainAttributes().getValue("Class-Path");
+
+            StringTokenizer token = new StringTokenizer(dependantJars, " ");
+            while (token.hasMoreTokens()) {
+                String jar = token.nextToken();
+//                System.out.println("dependantJars : " + jar);
+                File j = new File(serverDir, "lib/" + jar);
+                list.add(CustomizerSupport.fileToUrl(j));
+
             }
-            File ee5lib = new File(jarDir, "javaee.jar");
-            if (ee5lib.exists()) {
-                list.add(CustomizerSupport.fileToUrl(ee5lib));
-            } else {
-                list.add(CustomizerSupport.fileToUrl(new File(jarDir, "jars/servlet-api-2.5.jar")));
-                list.add(CustomizerSupport.fileToUrl(new File(jarDir, "jars/transaction-api-1.1.jar")));
-                list.add(CustomizerSupport.fileToUrl(new File(jarDir, "jars/activation-1.1.jar")));
-//                list.add(CustomizerSupport.fileToUrl(new File(jarDir, "jars/mail-1.4.1ea-SNAPSHOT.jar")));
-                list.add(CustomizerSupport.fileToUrl(new File(jarDir, "jars/jsp-api-2.1.1-SNAPSHOT.jar")));
-                list.add(CustomizerSupport.fileToUrl(new File(jarDir, "jars/ejb-api-3.0.jar")));
-                list.add(CustomizerSupport.fileToUrl(new File(jarDir, "jars/jaxws-api-2.0.jar")));
-                list.add(CustomizerSupport.fileToUrl(new File(jarDir, "jars/jaxrpc-api-1.1.jar")));
-                list.add(CustomizerSupport.fileToUrl(new File(jarDir, "jars/jaxb-api-2.1.jar")));
-                list.add(CustomizerSupport.fileToUrl(new File(jarDir, "jars/jms-api-1.1.jar")));
-                list.add(CustomizerSupport.fileToUrl(new File(jarDir, "jars/persistence-api-1.0.jar")));
-                list.add(CustomizerSupport.fileToUrl(new File(jarDir, "jars/saaj-api-1.3.jar")));
-                list.add(CustomizerSupport.fileToUrl(new File(jarDir, "jars/deployment-api-1.2.jar")));
-                list.add(CustomizerSupport.fileToUrl(new File(jarDir, "jars/jsr250-api-1.0.jar")));
-                list.add(CustomizerSupport.fileToUrl(new File(jarDir, "jars/connector-api-1.5.jar")));
-                list.add(CustomizerSupport.fileToUrl(new File(jarDir, "jars/security-api-1.1.jar")));
-                list.add(CustomizerSupport.fileToUrl(new File(jarDir, "jars/jsr173_api-1.0.jar")));
-                list.add(CustomizerSupport.fileToUrl(new File(jarDir, "jars/jsr181-api-1.0-MR1.jar")));
-            }
-        } catch(MalformedURLException ex) {
+
+        } catch (Exception ex) {
             ErrorManager.getDefault().notify(ErrorManager.INFORMATIONAL, ex);
         }
         return list;
