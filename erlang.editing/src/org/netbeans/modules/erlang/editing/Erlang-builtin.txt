@@ -1,0 +1,4548 @@
+erlang(3)                  ERLANG MODULE DEFINITION                  erlang(3)
+
+
+
+MODULE
+       erlang - The Erlang BIFs
+
+DESCRIPTION
+       By  convention, most built-in functions (BIFs) are seen as being in the
+       module erlang. A number of the BIFs are viewed more or less as part  of
+       the  Erlang programming language and are auto-imported. Thus, it is not
+       necessary  to  specify   the   module   name   and   both   the   calls
+       atom_to_list(Erlang) and erlang:atom_to_list(Erlang) are identical.
+
+       In  the text, auto-imported BIFs are listed without module prefix. BIFs
+       listed with module prefix are not auto-imported.
+
+       BIFs may fail for a variety of  reasons.  All  BIFs  fail  with  reason
+       badarg  if  they  are  called  with arguments of an incorrect type. The
+       other reasons that may make BIFs fail are described in connection  with
+       the description of each individual BIF.
+
+       Some BIFs may be used in guard tests, these are marked with "Allowed in
+       guard tests".
+
+
+DATA TYPES
+       ext_binary()
+         a binary data object,
+         structured according to the Erlang external term format
+
+       iodata() = iolist() | binary()
+
+       iolist() = [char() | binary() | iolist()]
+         a binary is allowed as the tail of the list
+
+EXPORTS
+       abs(Number) -> int() | float()
+
+              Types  Number = number()
+
+              Returns an integer or float which is the  arithmetical  absolute
+              value of Number.
+
+              >abs(-3.33).
+
+              3.33000
+              >abs(-3).
+
+              3
+
+              Allowed in guard tests.
+
+       erlang:append_element(Tuple1, Term) -> Tuple2
+
+              Types  Tuple1 = Tuple2 = tuple()
+                     Term = term()
+
+              Returns  a new tuple which has one element more than Tuple1, and
+              contains the elements in Tuple1 followed by  Term  as  the  last
+              element.           Semantically           equivalent          to
+              list_to_tuple(tuple_to_list(Tuple ++ [Term]), but much faster.
+
+              >erlang:append_element({one, two}, three).
+
+              {one,two,three}
+
+       apply(Fun, Args) -> term() | empty()
+
+              Types  Fun = fun()
+                     Args = [term()]
+
+              Call a fun, passing the elements in Args as arguments.
+
+              Note: If the number of elements in the arguments  are  known  at
+              compile-time,  the call is better written as Fun(Arg1, Arg2, ...
+              ArgN).
+
+   Warning:
+       Earlier, Fun could also be given as {Module, Function},  equivalent  to
+       apply(Module,  Function,  Args). This usage is deprecated and will stop
+       working in a future release of Erlang/OTP.
+
+
+       apply(Module, Function, Args) -> term() | empty()
+
+              Types  Module = Function = atom()
+                     Args = [term()]
+
+              Returns the result of applying Function in Module to  Args.  The
+              applied  function must be exported from Module. The arity of the
+              function is the length of Args.
+
+              >apply(lists, reverse, [[a, b, c]]).
+
+              [c,b,a]
+
+              apply can be used to evaluate BIFs  by  using  the  module  name
+              erlang.
+
+              >apply(erlang, atom_to_list, ['Erlang']).
+
+              "Erlang"
+
+              Note:  If the number of arguments are known at compile-time, the
+              call is  better  written  as  Module:Function(Arg1,  Arg2,  ...,
+              ArgN).
+
+              Failure:  error_handler:undefined_function/3  is  called  if the
+              applied function is not exported. The error handler can be rede-
+              fined  (see  process_flag/2). If the error_handler is undefined,
+              or if the user has redefined the default  error_handler  so  the
+              replacement  module is undefined, an error with the reason undef
+              is generated.
+
+       atom_to_list(Atom) -> string()
+
+              Types  Atom = atom()
+
+              Returns a string which corresponds to the text representation of
+              Atom.
+
+              >atom_to_list('Erlang').
+
+              "Erlang"
+
+       binary_to_list(Binary) -> [char()]
+
+              Types  Binary = binary()
+
+              Returns  a  list  of  integers  which correspond to the bytes of
+              Binary.
+
+       binary_to_list(Binary, Start, Stop) -> [char()]
+
+              Types  Binary = binary()
+                     Start = Stop = 1..size(Binary)
+
+              As binary_to_list/1, but returns a list of integers  correspond-
+              ing to the bytes from position Start to position Stop in Binary.
+              Positions in the binary are numbered starting from 1.
+
+       binary_to_term(Binary) -> term()
+
+              Types  Binary = ext_binary()
+
+              Returns an Erlang term which  is  the  result  of  decoding  the
+              binary  object  Binary,  which  must be encoded according to the
+              Erlang external term format. See also term_to_binary/1.
+
+       erlang:bump_reductions(Reductions) -> void()
+
+              Types  Reductions = int()
+
+              This implementation-dependent function increments the  reduction
+              counter  for  the  calling  process.  In  the Beam emulator, the
+              reduction counter is normally incremented by one for each  func-
+              tion  and  BIF  call,  and  a  context switch is forced when the
+              counter reaches 1000.
+
+   Warning:
+       This BIF might be removed in a future version of the Beam machine with-
+       out  prior  warning.  It  is unlikely to be implemented in other Erlang
+       implementations.
+
+
+       erlang:cancel_timer(TimerRef) -> Time | false
+
+              Types  TimerRef = ref()
+                     Time = int()
+
+              Cancels  a  timer,  where  TimerRef  was  returned   by   either
+              erlang:send_after/3  or  erlang:start_timer/3.  If  the timer is
+              there to be removed, the function returns the time in  millisec-
+              onds  left  until  the timer would have expired, otherwise false
+              (which means that TimerRef  was  never  a  timer,  that  it  has
+              already  been  cancelled,  or  that it has already delivered its
+              message).
+
+              See   also   erlang:send_after/3,   erlang:start_timer/3,    and
+              erlang:read_timer/1.
+
+              Note: Cancelling a timer does not guarantee that the message has
+              not already been delivered to the message queue.
+
+       check_process_code(Pid, Module) -> bool()
+
+              Types  Pid = pid()
+                     Module = atom()
+
+              Returns true if the process Pid is executing old code  for  Mod-
+              ule.  That  is,  if the current call of the process executes old
+              code for this module, or if the process has  references  to  old
+              code  for this module, or if the process contains funs that ref-
+              erences old code for this module. Otherwise, it returns false.
+
+              >check_process_code(Pid, lists).
+
+              false
+
+              See also code(3).
+
+       concat_binary(ListOfBinaries)
+
+              Do not use; use list_to_binary/1 instead.
+
+       date() -> {Year, Month, Day}
+
+              Types  Year = Month = Day = int()
+
+              Returns the current date as {Year, Month, Day}.
+
+              The time zone and daylight saving time correction depend on  the
+              underlying OS.
+
+              >date().
+
+              {1995, 2, 19}
+
+       delete_module(Module) -> true | undefined
+
+              Types  Module = atom()
+
+              Makes  the  current code for Module become old code, and deletes
+              all references for this module from the  export  table.  Returns
+              undefined if the module does not exist, otherwise true.
+
+   Warning:
+       This  BIF  is intended for the code server (see code(3)) and should not
+       be used elsewhere.
+
+
+       Failure: badarg if there is already an old version of Module.
+
+       erlang:demonitor(MonitorRef) -> true
+
+              Types  MonitorRef = ref()
+
+              If MonitorRef is a reference which the calling process  obtained
+              by  calling  erlang:monitor/2, this monitoring is turned off. If
+              the monitoring is already turned off, nothing happens.
+
+              Once erlang:demonitor(MonitorRef) has returned it is  guaranteed
+              that no {'DOWN', MonitorRef, _, _, _} message due to the monitor
+              will be placed in the callers message queue  in  the  future.  A
+              {'DOWN',  MonitorRef, _, _, _} message might have been placed in
+              the callers message queue prior to the call, though.  Therefore,
+              in  most  cases, it is advisable to remove such a 'DOWN' message
+              from the  message  queue  after  monitoring  has  been  stopped.
+              erlang:demonitor(MonitorRef,  [flush])  can  be  used instead of
+              erlang:demonitor(MonitorRef) if this cleanup is wanted.
+
+   Note:
+       Prior to OTP release R11B (erts version 5.5) erlang:demonitor/1 behaved
+       completely asynchronous, i.e., the monitor was active until the "demon-
+       itor signal" reached the monitored entity.  This  had  one  undesirable
+       effect,  though.  You  could never know when you were guaranteed not to
+       receive a DOWN message due to the monitor.
+
+       Current behavior can  be  viewed  as  two  combined  operations:  asyn-
+       chronously send a "demonitor signal" to the monitored entity and ignore
+       any future results of the monitor.
+
+
+       Failure: It is an error if MonitorRef refers to a monitoring started by
+       another  process. Not all such cases are cheap to check; if checking is
+       cheap, the call fails with badarg  (for  example  if  MonitorRef  is  a
+       remote reference).
+
+       erlang:demonitor(MonitorRef, OptionList) -> true
+
+              Types  MonitorRef = ref()
+                     OptionList = [Option]
+                     Option = flush
+
+              erlang:demonitor(MonitorRef, []) is equivalent to erlang:demoni-
+              tor(MonitorRef).
+
+              Currently the following Options are valid:
+
+                flush:
+                    Remove (one) {_, MonitorRef, _, _, _} message, if there is
+                    one,  from  the callers message queue after monitoring has
+                    been stopped.
+
+
+
+                    Calling erlang:demonitor(MonitorRef, [flush])  is  equiva-
+                    lent to:
+
+
+
+
+                        erlang:demonitor(MonitorRef),
+                        receive
+                            {_, MonitorRef, _, _, _} ->
+                                true
+                        after 0 ->
+                                true
+                        end
+
+   Note:
+       More options may be added in the future.
+
+
+       Failure:  badarg  if  OptionList  is  not a list, or if Option is not a
+       valid option, or the same failure as for erlang:demonitor/1
+
+       disconnect_node(Node) -> bool() | ignored
+
+              Types  Node = atom()
+
+              Forces the disconnection of a node. This will appear to the node
+              Node  as  if the local node has crashed. This BIF is mainly used
+              in the Erlang network authentication protocols. Returns true  if
+              disconnection  succeeds,  otherwise  false. If the local node is
+              not alive, the function returns ignored.
+
+       erlang:display(Term) -> true
+
+              Types  Term = term()
+
+              Prints a text representation of Term on the standard output.
+
+   Warning:
+       This BIF is intended for debugging only.
+
+
+       element(N, Tuple) -> term()
+
+              Types  N = 1..size(Tuple)
+                     Tuple = tuple()
+
+              Returns the Nth element (numbering from 1) of Tuple.
+
+              >element(2, {a, b, c}).
+
+              b
+
+              Allowed in guard tests.
+
+       erase() -> [{Key, Val}]
+
+              Types  Key = Val = term()
+
+              Returns the process dictionary and deletes it.
+
+              >put(key1, {1, 2, 3}),
+              put(key2, [a, b, c]),
+              erase().
+
+              [{key1,{1,2,3}},{key2,[a,b,c]}]
+
+       erase(Key) -> Val | undefined
+
+              Types  Key = Val = term()
+
+              Returns the value Val associated with Key and  deletes  it  from
+              the process dictionary. Returns undefined if no value is associ-
+              ated with Key.
+
+              >put(key1, {merry, lambs, are, playing}),
+              X = erase(key1),
+              {X, erase(key1)}.
+
+              {{merry,lambs,are,playing},undefined}
+
+       erlang:error(Reason)
+
+              Types  Reason = term()
+
+              Stops the execution of the calling process with the reason  Rea-
+              son,  where  Reason  is any term. The actual exit reason will be
+              {Reason, Where}, where Where is a list  of  the  functions  most
+              recently  called  (the current function first). Since evaluating
+              this function causes the process to terminate, it has no  return
+              value.
+
+              >catch erlang:error(foobar).
+
+              {'EXIT',{foobar,[{erl_eval,do_apply,5},
+                               {erl_eval,expr,5},
+                               {shell,exprs,6},
+                               {shell,eval_loop,3}]}}
+
+       erlang:error(Reason, Args)
+
+              Types  Reason = term()
+                     Args = [term()]
+
+              Stops  the execution of the calling process with the reason Rea-
+              son, where Reason is any term. The actual exit  reason  will  be
+              {Reason,  Where},  where  Where  is a list of the functions most
+              recently called (the current function first). Args  is  expected
+              to be the list of arguments for the current function; in Beam it
+              will be used to provide the actual  arguments  for  the  current
+              function  in  the  Where  term.  Since  evaluating this function
+              causes the process to terminate, it has no return value.
+
+       exit(Reason)
+
+              Types  Reason = term()
+
+              Stops the execution of the calling process with the exit  reason
+              Reason, where Reason is any term. Since evaluating this function
+              causes the process to terminate, it has no return value.
+
+              >exit(foobar).
+
+              ** exited: foobar **
+              >catch exit(foobar).
+
+              {'EXIT', foobar}
+
+       exit(Pid, Reason) -> true
+
+              Types  Pid = pid()
+                     Reason = term()
+
+              Sends an exit signal with exit reason Reason to the process Pid.
+
+              The following behavior apply if Reason is any term except normal
+              or kill:
+
+              If Pid is not trapping exits, Pid itself  will  exit  with  exit
+              reason  Reason.  If  Pid  is  trapping exits, the exit signal is
+              transformed into a message {'EXIT', From, Reason} and  delivered
+              to  the  message  queue  of  Pid. From is the pid of the process
+              which sent the exit signal. See also process_flag/2.
+
+              If Reason is the atom normal, Pid will not exit. If it is  trap-
+              ping  exits,  the  exit  signal  is  transformed  into a message
+              {'EXIT', From, normal} and delivered to its message queue.
+
+              If Reason is the atom  kill,  that  is  if  exit(Pid,  kill)  is
+              called,  an  untrappable  exit  signal is sent to Pid which will
+              unconditionally exit with exit reason killed.
+
+       erlang:fault(Reason)
+
+              Types  Reason = term()
+
+              Stops the execution of the calling process with the reason  Rea-
+              son. This is an old equivalent to erlang:error(Reason).
+
+       erlang:fault(Reason, Args)
+
+              Types  Reason = term()
+                     Args = [term()]
+
+              Stops  the execution of the calling process with the reason Rea-
+              son. This is an old equivalent to erlang:error(Reason, Args) .
+
+       float(Number) -> float()
+
+              Types  Number = number()
+
+              Returns a float by converting Number to a float.
+
+              >float(55).
+
+              55.0000
+
+              Allowed in guard tests.
+
+   Note:
+       Note that if used on the top-level in a guard, it will test whether the
+       argument  is  a  floating  point  number;  for  clarity, use is_float/1
+       instead.
+
+       When float/1 is used in an expression in a guard, such as 'float(A)  ==
+       4.0', it converts a number as described above.
+
+
+       float_to_list(Float) -> string()
+
+              Types  Float = float()
+
+              Returns a string which corresponds to the text representation of
+              Float.
+
+              >float_to_list(7.0).
+
+              "7.00000000000000000000e+00"
+
+       erlang:fun_info(Fun) -> [{Item, Info}]
+
+              Types  Fun = fun()
+                     Item, Info -- see below
+
+              Returns a list containing information about the  fun  Fun.  Each
+              element  of  the list is a tuple. The order of the tuples is not
+              defined, and more tuples may be added in a future release.
+
+   Warning:
+       This BIF is mainly intended for debugging, but it can  occasionally  be
+       useful  in  library  functions that might need to verify, for instance,
+       the arity of a fun.
+
+
+       There are two types of funs with slightly different semantics:
+
+       A fun created by fun M:F/A is called an external fun. Calling  it  will
+       always  call  the function F with arity A in the latest code for module
+       M. Note that module M does not even need to be loaded when the fun  fun
+       M:F/A is created.
+
+       All  other  funs are called local. When a local fun is called, the same
+       version of the code that created the fun will be called (even if  newer
+       version of the module has been loaded).
+
+       The  following  elements  will  always  be present in the list for both
+       local and external funs:
+
+         {type, Type}:
+             Type is either local or external.
+
+         {module, Module}:
+             Module (an atom) is the module name.
+
+
+
+             If Fun is a local fun, Module is the module in which the  fun  is
+             defined.
+
+
+
+             If  Fun  is  an  external  fun, Module is the module that the fun
+             refers to.
+
+         {name, Name}:
+             Name (an atom) is a function name.
+
+
+
+             If Fun is a local fun, Name is the name  of  the  local  function
+             that  implements  the  fun.  (This name was generated by the com-
+             piler, and is generally only of informational use.  As  it  is  a
+             local  function,  it  is not possible to call it directly.) If no
+             code is currently loaded for the fun, [] will be returned instead
+             of an atom.
+
+
+
+             If Fun is an external fun, Name is the name of the exported func-
+             tion that the fun refers to.
+
+         {arity, Arity}:
+             Arity is the number of arguments that the fun  should  be  called
+             with.
+
+         {env, Env}:
+             Env  (a  list)  is the environment or free variables for the fun.
+             (For external funs, the returned list is always empty.)
+
+       The following elements will only be present  in  the  list  if  Fun  is
+       local:
+
+         {pid, Pid}:
+             Pid is the pid of the process that originally created the fun.
+
+         {index, Index}:
+             Index (an integer) is an index into the module's fun table.
+
+         {new_index, Index}:
+             Index (an integer) is an index into the module's fun table.
+
+         {new_uniq, Uniq}:
+             Uniq (a binary) is a unique value for this fun.
+
+         {uniq, Uniq}:
+             Uniq (an integer) is a unique value for this fun.
+
+       erlang:fun_info(Fun, Item) -> {Item, Info}
+
+              Types  Fun = fun()
+                     Item, Info -- see below
+
+              Returns  information about Fun as specified by Item, in the form
+              {Item, Info}.
+
+              For any fun, Item can be any of the atoms module,  name,  arity,
+              or env.
+
+              For  a  local  fun,  Item  can  also  be any of the atoms index,
+              new_index, new_uniq, uniq, and pid. For  an  external  fun,  the
+              value of any of these items is always the atom undefined.
+
+              See erlang:fun_info/1.
+
+       erlang:fun_to_list(Fun) -> string()
+
+              Types  Fun = fun()
+
+              Returns a string which corresponds to the text representation of
+              Fun.
+
+       erlang:function_exported(Module, Function, Arity) -> bool()
+
+              Types  Module = Function = atom()
+                     Arity = int()
+
+              Returns true if the module Module  is  loaded  and  contains  an
+              exported function Function/Arity; otherwise false.
+
+              Returns  false  for  any  BIF (functions implemented in C rather
+              than in Erlang).
+
+              This function is retained mainly for backwards compatibility.
+
+       garbage_collect() -> true
+
+              Forces an immediate garbage collection of the currently  execut-
+              ing process. The function should not be used, unless it has been
+              noticed -- or there are good reasons  to  suspect  --  that  the
+              spontaneous  garbage  collection  will  occur too late or not at
+              all. Improper use may seriously degrade system performance.
+
+              Compatibility note: In versions of OTP prior to R7, the  garbage
+              collection  took  place  at the next context switch, not immedi-
+              ately.  To  force   a   context   switch   after   a   call   to
+              erlang:garbage_collect(), it was sufficient to make any function
+              call.
+
+       garbage_collect(Pid) -> bool()
+
+              Types  Pid = pid()
+
+              Works like erlang:garbage_collect() but on any process. The same
+              caveats  apply.  Returns  false if Pid refers to a dead process;
+              true otherwise.
+
+       get() -> [{Key, Val}]
+
+              Types  Key = Val = term()
+
+              Returns the process dictionary as a list of {Key, Val} tuples.
+
+              >put(key1, merry),
+              put(key2, lambs),
+              put(key3, {are, playing}),
+              get().
+
+              [{key1,merry},{key2,lambs},{key3,{are,playing}}]
+
+       get(Key) -> Val | undefined
+
+              Types  Key = Val = term()
+
+              Returns the value Valassociated with Key in the process  dictio-
+              nary, or undefined if Key does not exist.
+
+              >put(key1, merry),
+              put(key2, lambs),
+              put({any, [valid, term]}, {are, playing}),
+              get({any, [valid, term]}).
+
+              {are,playing}
+
+       erlang:get_cookie() -> Cookie | nocookie
+
+              Types  Cookie = atom()
+
+              Returns  the  magic  cookie  of  the  local node, if the node is
+              alive; otherwise the atom nocookie.
+
+       get_keys(Val) -> [Key]
+
+              Types  Val = Key = term()
+
+              Returns a list of keys which are associated with the  value  Val
+              in the process dictionary.
+
+              >put(mary, {1, 2}),
+              put(had, {1, 2}),
+              put(a, {1, 2}),
+              put(little, {1, 2}),
+              put(dog, {1, 3}),
+              put(lamb, {1, 2}),
+              get_keys({1, 2}).
+
+              [mary,had,a,little,lamb]
+
+       erlang:get_stacktrace() -> [{Module, Function, Arity | Args}]
+
+              Types  Module = Function = atom()
+                     Arity = int()
+                     Args = [term()]
+
+              Get  the call stack backtrace (stacktrace) of the last exception
+              in the calling process as a list of  {Module,  Function,  Arity}
+              tuples.  The  Arity field in the first tuple may be the argument
+              list of that function call instead of an arity integer,  depend-
+              ing on the exception.
+
+              If  there  has  not been any exceptions in a process, the stack-
+              trace is []. After a code change for the process, the stacktrace
+              may also be reset to [].
+
+              The  stacktrace  is the same data as the catch operator returns,
+              for example:
+
+              {'EXIT', {badarg, Stacktrace}} = catch abs(x)
+
+              See also erlang:error/1 and erlang:error/2.
+
+       group_leader() -> GroupLeader
+
+              Types  GroupLeader = pid()
+
+              Returns the pid of the group leader for the process which evalu-
+              ates the function.
+
+              Every  process  is a member of some process group and all groups
+              have a group leader. All IO from the group is channeled  to  the
+              group  leader.  When  a new process is spawned, it gets the same
+              group leader as  the  spawning  process.  Initially,  at  system
+              start-up, init is both its own group leader and the group leader
+              of all processes.
+
+       group_leader(GroupLeader, Pid) -> true
+
+              Types  GroupLeader = Pid = pid()
+
+              Sets the group leader of Pid to GroupLeader. Typically, this  is
+              used  when  a processes started from a certain shell should have
+              another group leader than init.
+
+              See also group_leader/0.
+
+       halt()
+
+              Halts the Erlang runtime system and indicates normal exit to the
+              calling environment. Has no return value.
+
+              >halt().
+
+              os_prompt%
+
+       halt(Status)
+
+              Types  Status = int()>=0 | string()
+
+              Status  must  be  a non-negative integer, or a string. Halts the
+              Erlang runtime system. Has no return  value.  If  Status  is  an
+              integer, it is returned as an exit status of Erlang to the call-
+              ing environment. If Status is a string, produces an Erlang crash
+              dump  with String as slogan, and then exits with a non-zero sta-
+              tus code.
+
+              Note that on many platforms, only the  status  codes  0-255  are
+              supported by the operating system.
+
+       erlang:hash(Term, Range) -> Hash
+
+              Returns  a  hash  value  for Term within the range 1..Range. The
+              allowed range is 1..2^27-1.
+
+   Warning:
+       This BIF is deprecated as the hash value may differ on different archi-
+       tectures.  Also  the  hash values for integer terms larger than 2^27 as
+       well as large binaries are very poor. The BIF is retained for  backward
+       compatibility  reasons  (it  may  have been used to hash records into a
+       file), but all new code should use one of the  BIFs  erlang:phash/2  or
+       erlang:phash2/1, 2 instead.
+
+
+       hd(List) -> term()
+
+              Types  List = [term()]
+
+              Returns the head of List, that is, the first element.
+
+              >hd([1,2,3,4,5]).
+
+              1
+
+              Allowed in guard tests.
+
+              Failure: badarg if List is the empty list [].
+
+       erlang:hibernate(Module, Function, Args)
+
+              Types  Module = Function = atom()
+                     Args = [term()]
+
+              Puts  the  calling  process  into  a wait state where its memory
+              allocation has been reduced as much as possible, which is useful
+              if  the  process  does not expect to receive any messages in the
+              near future.
+
+              The process will be awaken when a message is  sent  to  it,  and
+              control  will resume in Module:Function with the arguments given
+              by Args with the call stack emptied, meaning  that  the  process
+              will  terminate  when  that function returns. Thus erlang:hiber-
+              nate/3 will never return to its caller.
+
+              If the process has any message in its message queue, the process
+              will be awaken immediately in the same way as described above.
+
+              In  more  technical  terms,  what erlang:hibernate/3 does is the
+              following. It discards the call stack for the process.  Then  it
+              garbage  collects the process. After the garbage collection, all
+              live data is in one continuous heap. The heap is  then  shrunken
+              to  the exact same size as the live data which it holds (even if
+              that size is less than the minimum heap size for the process).
+
+              If the size of the live data in the process  is  less  than  the
+              minimum  heap size, the first garbage collection occurring after
+              the process has been awaken will ensure that the  heap  size  is
+              changed to a size not smaller than the minimum heap size.
+
+              Note  that  emptying  the  call stack means that any surrounding
+              catch is removed and has to be  re-inserted  after  hibernation.
+              One  effect  of  this  is  that processes started using proc_lib
+              (also indirectly, such  as  gen_server  processes),  should  use
+              proc_lib:hibernate/3  instead  to ensure that the exception han-
+              dler continues to work when the process wakes up.
+
+       erlang:info(Type) -> Res
+
+              This BIF is now equivalent to erlang:system_info/1.
+
+       integer_to_list(Integer) -> string()
+
+              Types  Integer = int()
+
+              Returns a string which corresponds to the text representation of
+              Integer.
+
+              >integer_to_list(77).
+
+              "77"
+
+       erlang:integer_to_list(Integer, Base) -> string()
+
+              Types  Integer = int()
+                     Base = 2..36
+
+              Returns a string which corresponds to the text representation of
+              Integer in base Base.
+
+              >erlang:integer_to_list(1023, 16).
+
+              "3FF"
+
+       iolist_to_binary(IoListOrBinary) -> binary()
+
+              Types  IoListOrBinary = iolist() | binary()
+
+              Returns a binary which is made from the integers and binaries in
+              IoListOrBinary.
+
+              >Bin1 = <<1,2,3>>.
+
+              <<1,2,3>>
+              >Bin2 = <<4,5>>.
+
+              <<4,5>>
+              >Bin3 = <<6>>.
+
+              <<6>>
+              >iolist_to_binary([Bin1,1,[2,3,Bin2],4|Bin3]).
+
+              <<1,2,3,1,2,3,4,5,4,6>>
+
+       iolist_size(Item) -> int()
+
+              Types  Item = iolist() | binary()
+
+              Returns an integer which is the size in bytes of the binary that
+              would be the result of iolist_to_binary(Item).
+
+              >iolist_size([1,2|<<3,4>>]).
+
+              4
+
+       is_alive() -> bool()
+
+              Returns true if the local node is alive; that is,  if  the  node
+              can  be  part  of  a  distributed  system. Otherwise, it returns
+              false.
+
+       is_atom(Term) -> bool()
+
+              Types  Term = term()
+
+              Returns true if Term is an atom; otherwise returns false.
+
+              Allowed in guard tests.
+
+       is_binary(Term) -> bool()
+
+              Types  Term = term()
+
+              Returns true if Term is a binary; otherwise returns false.
+
+              Allowed in guard tests.
+
+       is_boolean(Term) -> bool()
+
+              Types  Term = term()
+
+              Returns true if Term is either the atom true or the  atom  false
+              (i.e. a boolean); otherwise returns false.
+
+              Allowed in guard tests.
+
+       erlang:is_builtin(Module, Function, Arity) -> bool()
+
+              Types  Module = Function = atom()
+                     Arity = int()
+
+              Returns true if Module:Function/Arity is a BIF implemented in C;
+              otherwise returns false. This BIF  is  useful  for  builders  of
+              cross reference tools.
+
+       is_float(Term) -> bool()
+
+              Types  Term = term()
+
+              Returns  true  if  Term  is  a  floating point number; otherwise
+              returns false.
+
+              Allowed in guard tests.
+
+       is_function(Term) -> bool()
+
+              Types  Term = term()
+
+              Returns true if Term is a fun; otherwise returns false.
+
+              Allowed in guard tests.
+
+       is_function(Term, Arity) -> bool()
+
+              Types  Term = term()
+                     Arity = int()
+
+              Returns true if Term is a fun that can  be  applied  with  Arity
+              number of arguments; otherwise returns false.
+
+              Allowed in guard tests.
+
+   Warning:
+       Currently, is_function/2 will also return true if the first argument is
+       a tuple fun (a tuple containing two atoms). In a future release,  tuple
+       funs will no longer be supported and is_function/2 will return false if
+       given a tuple fun.
+
+
+       is_integer(Term) -> bool()
+
+              Types  Term = term()
+
+              Returns true if Term is an integer; otherwise returns false.
+
+              Allowed in guard tests.
+
+       is_list(Term) -> bool()
+
+              Types  Term = term()
+
+              Returns true if Term is a list with zero or more elements;  oth-
+              erwise returns false.
+
+              Allowed in guard tests.
+
+       is_number(Term) -> bool()
+
+              Types  Term = term()
+
+              Returns  true  if  Term is either an integer or a floating point
+              number; otherwise returns false.
+
+              Allowed in guard tests.
+
+       is_pid(Term) -> bool()
+
+              Types  Term = term()
+
+              Returns true if Term is a pid  (process  identifier);  otherwise
+              returns false.
+
+              Allowed in guard tests.
+
+       is_port(Term) -> bool()
+
+              Types  Term = term()
+
+              Returns  true  if  Term  is a port identifier; otherwise returns
+              false.
+
+              Allowed in guard tests.
+
+       is_process_alive(Pid) -> bool()
+
+              Types  Pid = pid()
+
+              Pid must refer to a process at the local node. Returns  true  if
+              the process exists and is alive, that is, has not exited. Other-
+              wise, returns false.
+
+       is_record(Term, RecordTag) -> bool()
+
+              Types  Term = term()
+                     RecordTag = atom()
+
+              Returns true if Term is a tuple and its first element is Record-
+              Tag. Otherwise, returns false.
+
+   Note:
+       Normally  the  compiler treats calls to is_record/2 specially. It emits
+       code to verify that Term is a tuple, that its first element is  Record-
+       Tag,  and  that the size is correct. However, if the RecordTag is not a
+       literal atom, the is_record/2 BIF will be called instead and  the  size
+       of the tuple will not be verified.
+
+
+       Allowed in guard tests, if RecordTag is a literal atom.
+
+       is_record(Term, RecordTag, Size) -> bool()
+
+              Types  Term = term()
+                     RecordTag = atom()
+                     Size = int()
+
+              RecordTag  must be an atom. Returns true if Term is a tuple, its
+              first element is RecordTag, and its  size  is  Size.  Otherwise,
+              returns false.
+
+              Allowed  in  guard  tests,  provided that RecordTag is a literal
+              atom and Size is a literal integer.
+
+   Note:
+       This BIF is documented for  completeness.  In  most  cases  is_record/2
+       should be used.
+
+
+       is_reference(Term) -> bool()
+
+              Types  Term = term()
+
+              Returns true if Term is a reference; otherwise returns false.
+
+              Allowed in guard tests.
+
+       is_tuple(Term) -> bool()
+
+              Types  Term = term()
+
+              Returns true if Term is a tuple; otherwise returns false.
+
+              Allowed in guard tests.
+
+       length(List) -> int()
+
+              Types  List = [term()]
+
+              Returns the length of List.
+
+              >length([1,2,3,4,5,6,7,8,9]).
+
+              9
+
+              Allowed in guard tests.
+
+       link(Pid) -> true
+
+              Types  Pid = pid() | port()
+
+              Creates  a  link between the calling process and another process
+              (or port) Pid, if there is not such a link already. If a process
+              attempts  to  create  a link to itself, nothing is done. Returns
+              true.
+
+              If Pid does not exist, the behavior of the BIF depends on if the
+              calling process is trapping exits or not (see process_flag/2):
+
+                * If  the  calling process is not trapping exits, and checking
+                  Pid is cheap -- that is, if Pid is  local  --  link/1  fails
+                  with reason noproc.
+
+                * Otherwise,  if the calling process is trapping exits, and/or
+                  Pid is remote, link/1 returns true, but an exit signal  with
+                  reason noproc is sent to the calling process.
+
+       list_to_atom(String) -> atom()
+
+              Types  String = string()
+
+              Returns the atom whose text representation is String.
+
+              >list_to_atom("Erlang").
+
+              'Erlang'
+
+       list_to_binary(IoList) -> binary()
+
+              Types  IoList = iolist()
+
+              Returns a binary which is made from the integers and binaries in
+              IoList.
+
+              >Bin1 = <<1,2,3>>.
+
+              <<1,2,3>>
+              >Bin2 = <<4,5>>.
+
+              <<4,5>>
+              >Bin3 = <<6>>.
+
+              <<6>>
+              >list_to_binary([Bin1,1,[2,3,Bin2],4|Bin3]).
+
+              <<1,2,3,1,2,3,4,5,4,6>>
+
+       list_to_existing_atom(String) -> atom()
+
+              Types  String = string()
+
+              Returns the atom whose text representation is String,  but  only
+              if there already exists such atom.
+
+              Failure:  badarg  if  there does not already exist an atom whose
+              text representation is String.
+
+       list_to_float(String) -> float()
+
+              Types  String = string()
+
+              Returns the float whose text representation is String.
+
+              >list_to_float("2.2017764e+0").
+
+              2.20178
+
+              Failure: badarg if String contains a  bad  representation  of  a
+              float.
+
+       list_to_integer(String) -> int()
+
+              Types  String = string()
+
+              Returns an integer whose text representation is String.
+
+              >list_to_integer("123").
+
+              123
+
+              Failure:  badarg  if  String contains a bad representation of an
+              integer.
+
+       erlang:list_to_integer(String, Base) -> int()
+
+              Types  String = string()
+                     Base = 2..36
+
+              Returns an integer whose text representation  in  base  Base  is
+              String.
+
+              >erlang:list_to_integer("3FF", 16).
+
+              1023
+
+              Failure:  badarg  if  String contains a bad representation of an
+              integer.
+
+       list_to_pid(String) -> pid()
+
+              Types  String = string()
+
+              Returns a pid whose text representation is String.
+
+   Warning:
+       This BIF is intended for debugging and for use in the Erlang  operating
+       system. It should not be used in application programs.
+
+
+       >list_to_pid("<0.4.1>").
+
+       <0.4.1>
+
+       Failure: badarg if String contains a bad representation of a pid.
+
+       list_to_tuple(List) -> tuple()
+
+              Types  List = [term()]
+
+              Returns  a tuple which corresponds to List. List can contain any
+              Erlang terms.
+
+              >list_to_tuple([share, ['Ericsson_B', 163]]).
+
+              {share, ['Ericsson_B', 163]}
+
+       load_module(Module, Binary) -> {module, Module} | {error, Reason}
+
+              Types  Module = atom()
+                     Binary = binary()
+                     Reason = badfile | not_purged | badfile
+
+              If Binary contains the object code for the module  Module,  this
+              BIF  loads  that  object  code. Also, if the code for the module
+              Module already exists, all export  references  are  replaced  so
+              they  point to the newly loaded code. The previously loaded code
+              is kept in the system as old code, as there may  still  be  pro-
+              cesses which are executing that code. It returns either {module,
+              Module}, or {error, Reason} if loading fails. Reason is  one  of
+              the following:
+
+                badfile:
+                    The object code in Binary has an incorrect format.
+
+                not_purged:
+                    Binary  contains  a  module which cannot be loaded because
+                    old code for this module already exists.
+
+                badfile:
+                    The object code contains code for another module than Mod-
+                    ule
+
+   Warning:
+       This  BIF  is intended for the code server (see code(3)) and should not
+       be used elsewhere.
+
+
+       erlang:loaded() -> [Module]
+
+              Types  Module = atom()
+
+              Returns a list of all loaded Erlang modules (current and/or  old
+              code), including preloaded modules.
+
+              See also code(3).
+
+       erlang:localtime() -> {Date, Time}
+
+              Types  Date = {Year, Month, Day}
+                     Time = {Hour, Minute, Second}
+                      Year = Month = Day = Hour = Minute = Second = int()
+
+              Returns  the  current  local  date and time {{Year, Month, Day},
+              {Hour, Minute, Second}}.
+
+              The time zone and daylight saving time correction depend on  the
+              underlying OS.
+
+              >erlang:localtime().
+
+              {{1996,11,6},{14,45,17}}
+
+       erlang:localtime_to_universaltime({Date1, Time1}) -> {Date2, Time2}
+
+              Types  Date1 = Date2 = {Year, Month, Day}
+                     Time1 = Time2 = {Hour, Minute, Second}
+                      Year = Month = Day = Hour = Minute = Second = int()
+
+              Converts  local  date  and  time  to  Universal Time Coordinated
+              (UTC), if this is supported by the underlying OS. Otherwise,  no
+              conversion is done and {Date1, Time1} is returned.
+
+              >erlang:localtime_to_universaltime({{1996,11,6},{14,45,17}}).
+
+              {{1996,11,6},{13,45,17}}
+
+              Failure:  badarg if Date1 or Time1 do not denote a valid date or
+              time.
+
+       erlang:localtime_to_universaltime({Date1,  Time1},  IsDst)  ->  {Date2,
+       Time2}
+
+              Types  Date1 = Date2 = {Year, Month, Day}
+                     Time1 = Time2 = {Hour, Minute, Second}
+                      Year = Month = Day = Hour = Minute = Second = int()
+                     IsDst = true | false | undefined
+
+              Converts local date and time to Universal Time Coordinated (UTC)
+              just like erlang:localtime_to_universaltime/1,  but  the  caller
+              decides if daylight saving time is active or not.
+
+              If  IsDst  ==  true the {Date1, Time1} is during daylight saving
+              time, if IsDst == false it is not, and if IsDst == undefined the
+              underlying   OS   may  guess,  which  is  the  same  as  calling
+              erlang:localtime_to_universaltime({Date1, Time1}).
+
+              >erlang:localtime_to_universaltime({{1996,11,6},{14,45,17}}, true).
+
+              {{1996,11,6},{12,45,17}}
+              >erlang:localtime_to_universaltime({{1996,11,6},{14,45,17}}, false).
+
+              {{1996,11,6},{13,45,17}}
+              >erlang:localtime_to_universaltime({{1996,11,6},{14,45,17}}, undefined).
+
+              {{1996,11,6},{13,45,17}}
+
+              Failure: badarg if Date1 or Time1 do not denote a valid date  or
+              time.
+
+       make_ref() -> ref()
+
+              Returns an almost unique reference.
+
+              The  returned  reference  will  reoccur after approximately 2^82
+              calls; therefore it is unique enough for practical purposes.
+
+              >make_ref().
+
+              #Ref<0.0.0.135>
+
+       erlang:make_tuple(Arity, InitialValue) -> tuple()
+
+              Types  Arity = int()
+                     InitialValue = term()
+
+              Returns a new tuple of the given Arity, where all  elements  are
+              InitialValue.
+
+              >erlang:make_tuple(4, []).
+
+              {[],[],[],[]}
+
+       erlang:md5(Data) -> Digest
+
+              Types  Data = iodata()
+                     Digest = binary()
+
+              Computes  an  MD5  message digest from Data, where the length of
+              the digest is 128 bits (16 bytes). Data is a binary or a list of
+              small integers and binaries.
+
+              See  The MD5 Message Digest Algorithm (RFC 1321) for more infor-
+              mation about MD5.
+
+       erlang:md5_final(Context) -> Digest
+
+              Types  Context = Digest = binary()
+
+              Finishes the update of an MD5 Context and returns  the  computed
+              MD5 message digest.
+
+       erlang:md5_init() -> Context
+
+              Types  Context = binary()
+
+              Creates  an  MD5  context,  to  be  used  in subsequent calls to
+              md5_update/2.
+
+       erlang:md5_update(Context, Data) -> NewContext
+
+              Types  Data = iodata()
+                     Context = NewContext = binary()
+
+              Updates an MD5 Context with Data, and returns a NewContext.
+
+       erlang:memory() -> [{Type, Size}]
+
+              Types  Type, Size -- see below
+
+              Returns a list containing information about  memory  dynamically
+              allocated  by the Erlang emulator. Each element of the list is a
+              tuple {Type, Size}. The first element Typeis an atom  describing
+              memory  type.  The second element Sizeis memory size in bytes. A
+              description of each memory type follows:
+
+                total:
+                    The total amount of memory currently allocated,  which  is
+                    the  same as the sum of memory size for processes and sys-
+                    tem.
+
+                processes:
+                    The total amount of  memory  currently  allocated  by  the
+                    Erlang processes.
+
+                processes_used:
+                    The  total  amount  of memory currently used by the Erlang
+                    processes.
+
+
+
+                    This memory is part of the memory presented  as  processes
+                    memory.
+
+                system:
+                    The total amount of memory currently allocated by the emu-
+                    lator that is not directly related to any Erlang  process.
+
+
+
+                    Memory  presented  as  processes  is  not included in this
+                    memory.
+
+                atom:
+                    The total amount of memory currently allocated for  atoms.
+
+
+
+                    This memory is part of the memory presented as system mem-
+                    ory.
+
+                atom_used:
+                    The total amount of memory currently used for atoms.
+
+
+
+                    This memory is part of the memory presented as  atom  mem-
+                    ory.
+
+                binary:
+                    The  total  amount of memory currently allocated for bina-
+                    ries.
+
+
+
+                    This memory is part of the memory presented as system mem-
+                    ory.
+
+                code:
+                    The  total amount of memory currently allocated for Erlang
+                    code.
+
+
+
+                    This memory is part of the memory presented as system mem-
+                    ory.
+
+                ets:
+                    The  total  amount  of  memory currently allocated for ets
+                    tables.
+
+
+
+                    This memory is part of the memory presented as system mem-
+                    ory.
+
+                maximum:
+                    The  maximum  total  amount  of memory allocated since the
+                    emulator was started.
+
+
+
+                    This tuple is only present when the emulator is  run  with
+                    instrumentation.
+
+
+
+                    For information on how to run the emulator with instrumen-
+                    tation see instrument(3) and/or erl(1).
+
+   Note:
+       The system value is not complete. Some allocated memory that should  be
+       part  of  the  system  value  are not. For example, memory allocated by
+       drivers is missing.
+
+       When the emulator is run with instrumentation, the system value is more
+       accurate,  but  memory  directly  allocated by malloc (and friends) are
+       still not part of the system value. Direct calls  to  malloc  are  only
+       done  from  OS  specific runtime libraries and perhaps from user imple-
+       mented Erlang drivers that do not use the memory  allocation  functions
+       in the driver interface.
+
+       Since  the  total value is the sum of processes and system the error in
+       system will propagate to the total value.
+
+
+       The different values has the following relation to each  other.  Values
+       beginning with an uppercase letter is not part of the result.
+
+
+               total = processes + system
+               processes = processes_used + ProcessesNotUsed
+               system = atom + binary + code + ets + OtherSystem
+               atom = atom_used + AtomNotUsed
+
+               RealTotal = processes + RealSystem
+               RealSystem = system + MissedSystem
+
+   Note:
+       The  total  value  is supposed to be the total amount of memory dynami-
+       cally allocated by the emulator. Shared libraries, the code of the emu-
+       lator  itself,  and  the  emulator  stack(s)  are  not  supposed  to be
+       included. That is, the total value is not supposed to be equal  to  the
+       total  size  of  all  pages mapped to the emulator. Furthermore, due to
+       fragmentation and pre-reservation of memory areas, the size of the mem-
+       ory  segments which contain the dynamically allocated memory blocks can
+       be substantially larger than the total size of  the  dynamically  allo-
+       cated memory blocks.
+
+
+       More tuples in the returned list may be added in the future.
+
+       erlang:memory(Type | [Type]) -> Size | [{Type, Size}]
+
+              Types  Type, Size -- see below
+
+              Returns  the  memory  size in bytes allocated for memory of type
+              Type. The argument can also be given as a list of Type atoms, in
+              which  case  a  corresponding  list  of  {Type,  Size} tuples is
+              returned.
+
+              See erlang:memory/0.
+
+              Failure: badarg if the emulator is not run with  instrumentation
+              when Type == maximum.
+
+       module_loaded(Module) -> bool()
+
+              Types  Module = atom()
+
+              Returns  true  if the module Module is loaded, otherwise returns
+              false. It does not attempt to load the module.
+
+   Warning:
+       This BIF is intended for the code server (see code(3)) and  should  not
+       be used elsewhere.
+
+
+       erlang:monitor(Type, Item) -> MonitorRef
+
+              Types  Type = process
+                     Item = pid() | {RegName, Node} | RegName
+                      RegName = atom()
+                      Node = node()
+                     MonitorRef = reference()
+
+              The calling process starts monitoring Item which is an object of
+              type Type.
+
+              Currently only processes can be monitored, i.e. the only allowed
+              Type is process, but other types may be allowed in the future.
+
+              Item can be:
+
+                pid():
+                    The pid of the process to monitor.
+
+                {RegName, Node}:
+                    A tuple consisting of a registered name of a process and a
+                    node name. The process residing on the node Node with  the
+                    registered name RegName will be monitored.
+
+                RegName:
+                    The  process  locally  registered as RegName will be moni-
+                    tored.
+
+   Note:
+       When a process is monitored by registered name, the  process  that  has
+       the registered name at the time when erlang:monitor/2 is called will be
+       monitored. The monitor will not be effected, if the registered name  is
+       unregistered.
+
+
+       A  'DOWN'  message will be sent to the monitoring process if Item dies,
+       if Item does not exist, or if the connection is lost to the node  which
+       Item resides on. A 'DOWN' message has the following pattern:
+
+       {'DOWN', MonitorRef, Type, Object, Info}
+
+       where MonitorRef and Type are the same as described above, and:
+
+         Object:
+             A reference to the monitored object:
+
+
+
+               * the  pid of the monitored process, if Item was specified as a
+                 pid.
+
+               * {RegName, Node}, if Item was specifed as {RegName, Node}.
+
+               * {RegName, Node}, if Item was specified as RegName. Node  will
+                 in this case be the name of the local node (node()).
+
+         Info:
+             Either  the exit reason of the process, noproc (non-existing pro-
+             cess), or noconnection (no connection to Node).
+
+   Note:
+       If/when erlang:monitor/2 is extended (e.g. to handle other  item  types
+       than process), other possible values for Object, and Info in the 'DOWN'
+       message will be introduced.
+
+
+       The monitoring is turned off either when the 'DOWN' message is sent, or
+       when erlang:demonitor/1 is called.
+
+       If  an  attempt  is  made  to monitor a process on an older node (where
+       remote process monitoring is not implemented or one where  remote  pro-
+       cess  monitoring by registered name is not implemented), the call fails
+       with badarg.
+
+       Making several calls to erlang:monitor/2 for the same Item  is  not  an
+       error; it results in as many, completely independent, monitorings.
+
+   Note:
+       The format of the 'DOWN' message changed in the 5.2 version of the emu-
+       lator (OTP release R9B) for monitor by registered name. The Object ele-
+       ment  of  the 'DOWN' message could in earlier versions sometimes be the
+       pid of the monitored process and sometimes be the registered name.  Now
+       the  Object element is always a tuple consisting of the registered name
+       and the node name. Processes on new  nodes  (emulator  version  5.2  or
+       greater) will always get 'DOWN' messages on the new format even if they
+       are monitoring processes on old nodes.  Processes  on  old  nodes  will
+       always get 'DOWN' messages on the old format.
+
+
+       monitor_node(Node, Flag) -> true
+
+              Types  Node = node()
+                     Flag = bool()
+
+              Monitors  the status of the node Node. If Flag is true, monitor-
+              ing is turned on; if Flag is false, monitoring is turned off.
+
+              Making several calls to monitor_node(Node, true)  for  the  same
+              Node is not an error; it results in as many, completely indepen-
+              dent, monitorings.
+
+              If Node fails or does not exist, the message {nodedown, Node} is
+              delivered  to  the  process.  If a process has made two calls to
+              monitor_node(Node, true) and Node terminates, two nodedown  mes-
+              sages are delivered to the process. If there is no connection to
+              Node, there will be an attempt to create one. If this  fails,  a
+              nodedown message is delivered.
+
+              Nodes  connected  through hidden connections can be monitored as
+              any other node.
+
+              Failure: badargif the local node is not alive.
+
+       erlang:monitor_node(Node, Flag, Options) -> true
+
+              Types  Node = node()
+                     Flag = bool()
+                     Options = [Option]
+                     Option = allow_passive_connect
+
+              Behaves as monitor_node/2 except that it allows an extra  option
+              to be given, namely allow_passive_connect. The option allows the
+              bif to wait the normal net connection timeout for the  monitored
+              node  to connect itself, even if it cannot be actively connected
+              from this node (i.e. it is blocked). The state where this  might
+              be  useful  can  only  be  achieved  by  using the kernel option
+              dist_auto_connect once. If that kernel option is not  used,  the
+              allow_passive_connect option has no effect.
+
+   Note:
+       The  allow_passive_connect  option  is  used  internally  and is seldom
+       needed in applications  where  the  network  topology  and  the  kernel
+       options in effect is known in advance.
+
+
+       Failure:  badarg  if  the local node is not alive or the option list is
+       malformed.
+
+       node() -> Node
+
+              Types  Node = node()
+
+              Returns the name of the local node. If the node  is  not  alive,
+              nonode@nohost is returned instead.
+
+              Allowed in guard tests.
+
+       node(Arg) -> Node
+
+              Types  Arg = pid() | port() | ref()
+                     Node = node()
+
+              Returns  the node where Arg is located. Arg can be a pid, a ref-
+              erence, or a port. If the local node is not alive, nonode@nohost
+              is returned.
+
+              Allowed in guard tests.
+
+       nodes() -> Nodes
+
+              Types  Nodes = [node()]
+
+              Returns a list of all visible nodes in the system, excluding the
+              local node. Same as nodes(visible).
+
+       nodes(Arg | [Arg]) -> Nodes
+
+              Types  Arg = visible | hidden | connected | this | known
+                     Nodes = [node()]
+
+              Returns a list of nodes according to argument given. The  result
+              returned  when the argument is a list, is the list of nodes sat-
+              isfying the disjunction(s) of the list elements.
+
+              Arg can be any of the following:
+
+                visible:
+                    Nodes connected to this node through normal connections.
+
+                hidden:
+                    Nodes connected to this node through hidden connections.
+
+                connected:
+                    All nodes connected to this node.
+
+                this:
+                    This node.
+
+                known:
+                    Nodes which are known to this node, i.e., connected,  pre-
+                    viously connected, etc.
+
+              Some  equalities:  [node()]  =  nodes(this),  nodes(connected) =
+              nodes([visible, hidden]), and nodes() = nodes(visible).
+
+              If the local node is not alive, nodes(this) ==  nodes(known)  ==
+              [nonode@nohost],  for  any  other  Arg  the  empty  list  []  is
+              returned.
+
+       now() -> {MegaSecs, Secs, MicroSecs}
+
+              Types  MegaSecs = Secs = MicroSecs = int()
+
+              Returns the tuple  {MegaSecs,  Secs,  MicroSecs}  which  is  the
+              elapsed time since 00:00 GMT, January 1, 1970 (zero hour) on the
+              assumption that the underlying OS supports this. Otherwise, some
+              other point in time is chosen. It is also guaranteed that subse-
+              quent calls to this BIF returns continuously increasing  values.
+              Hence,  the  return  value  from  now()  can be used to generate
+              unique time-stamps. It can only be used to check the local  time
+              of  day if the time-zone info of the underlying operating system
+              is properly configured.
+
+       open_port(PortName, PortSettings) -> port()
+
+              Types  PortName = {spawn, Command} | {fd, In, Out}
+                      Command = string()
+                      In = Out = int()
+                     PortSettings = [Opt]
+                      Opt = {packet, N} | stream | {line, L}  |  {cd,  Dir}  |
+                     {env,  Env}  |  exit_status  |  use_stdio | nouse_stdio |
+                     stderr_to_stdout | in | out | binary | eof
+                       N = 1 | 2 | 4
+                       L = int()
+                       Dir = string()
+                       Env = [{Name, Val}]
+                        Name = string()
+                        Val = string() | false
+
+              Returns a port identifier as the result of opening a new  Erlang
+              port. A port can be seen as an external Erlang process. PortName
+              is one of the following:
+
+                {spawn, Command}:
+                    Starts an external program. Command is  the  name  of  the
+                    external  program  which will be run. Command runs outside
+                    the Erlang work space unless an  Erlang  driver  with  the
+                    name  Command  is  found.  If  found,  that driver will be
+                    started. A driver runs  in  the  Erlang  workspace,  which
+                    means that it is linked with the Erlang runtime system.
+
+
+
+                    When  starting  external  programs  on Solaris, the system
+                    call vfork is used in preference to fork  for  performance
+                    reasons,  although  it has a history of being less robust.
+                    If there are problems with using vfork, setting the  envi-
+                    ronment variable ERL_NO_VFORK to any value will cause fork
+                    to be used instead.
+
+                {fd, In, Out}:
+                    Allows an Erlang process to access  any  currently  opened
+                    file  descriptors  used  by Erlang. The file descriptor In
+                    can be used for standard input, and  the  file  descriptor
+                    Out  for  standard  output.  It  is  only used for various
+                    servers in the Erlang operating system (shell  and  user).
+                    Hence, its use is very limited.
+
+              PortSettings  is a list of settings for the port. Valid settings
+              are:
+
+                {packet, N}:
+                    Messages are preceded by their length, sent  in  N  bytes,
+                    with  the  most significant byte first. Valid values for N
+                    are 1, 2, or 4.
+
+                stream:
+                    Output messages are sent without packet lengths.  A  user-
+                    defined  protocol  must be used between the Erlang process
+                    and the external object.
+
+                {line, L}:
+                    Messages are delivered on a  per  line  basis.  Each  line
+                    (delimited by the OS-dependent newline sequence) is deliv-
+                    ered in one single message. The  message  data  format  is
+                    {Flag,  Line},  where Flag is either eol or noeol and Line
+                    is  the  actual  data  delivered  (without   the   newline
+                    sequence).
+
+
+
+                    L specifies the maximum line length in bytes. Lines longer
+                    than this will be delivered in more than one message, with
+                    the Flag set to noeol for all but the last message. If end
+                    of file is encountered anywhere else than immediately fol-
+                    lowing  a  newline  sequence,  the  last line will also be
+                    delivered with the Flag set to noeol. In all other  cases,
+                    lines are delivered with Flag set to eol.
+
+
+
+                    The {packet, N} and {line, L} settings are mutually exclu-
+                    sive.
+
+                {cd, Dir}:
+                    This is only valid for {spawn, Command}. The external pro-
+                    gram  starts  using Dir as its working directory. Dir must
+                    be a string. Not available on VxWorks.
+
+                {env, Env}:
+                    This is only valid for {spawn, Command}.  The  environment
+                    of  the  started process is extended using the environment
+                    specifications in Env.
+
+
+
+                    Env should be a list of tuples {Name, Val}, where Name  is
+                    the  name of an environment variable, and Val is the value
+                    it is to have in the spawned port process. Both  Name  and
+                    Val  must  be  strings. The one exception is Val being the
+                    atom false (in analogy with  os:getenv/1),  which  removes
+                    the environment variable. Not available on VxWorks.
+
+                exit_status:
+                    This  is  only  valid  for  {spawn, Command} where Command
+                    refers to an external program.
+
+
+
+                    When the external process connected to the port  exits,  a
+                    message  of the form {Port, {exit_status, Status}} is sent
+                    to the connected process, where Status is the exit  status
+                    of  the  external  process. If the program aborts, on Unix
+                    the same convention  is  used  as  the  shells  do  (i.e.,
+                    128+signal).
+
+
+
+                    If  the eof option has been given as well, the eof message
+                    and the  exit_status  message  appear  in  an  unspecified
+                    order.
+
+
+
+                    If the port program closes its stdout without exiting, the
+                    exit_status option will not work.
+
+                use_stdio:
+                    This is only valid for {spawn,  Command}.  It  allows  the
+                    standard  input  and  output (file descriptors 0 and 1) of
+                    the spawned (UNIX) process for communication with  Erlang.
+
+                nouse_stdio:
+                    The  opposite  of use_stdio. Uses file descriptors 3 and 4
+                    for communication with Erlang.
+
+                stderr_to_stdout:
+                    Affects ports to external programs. The  executed  program
+                    gets  its  standard  error file redirected to its standard
+                    output file. stderr_to_stdout and nouse_stdio are mutually
+                    exclusive.
+
+                in: The port can only be used for input.
+
+                out:
+                    The port can only be used for output.
+
+                binary:
+                    All IO from the port are binary data objects as opposed to
+                    lists of bytes.
+
+                eof:
+                    The port will not be closed at the end  of  the  file  and
+                    produce an exit signal. Instead, it will remain open and a
+                    {Port, eof} message will be sent to  the  process  holding
+                    the port.
+
+              The  default  is  stream for all types of port and use_stdio for
+              spawned ports.
+
+              Failure: If the port cannot be opened, the exit  reason  is  the
+              Posix error code which most closely describes the error, or ein-
+              val if no Posix code is appropriate. The following  Posix  error
+              codes may appear:
+
+                enomem:
+                    There was not enough memory to create the port.
+
+                eagain:
+                    There are no more available operating system processes.
+
+                enametoolong:
+                    The external command given was too long.
+
+                emfile:
+                    There are no more available file descriptors.
+
+                enfile:
+                    A file or port table is full.
+
+              During  use of a port opened using {spawn, Name}, errors arising
+              when sending messages to it are reported to the  owning  process
+              using signals of the form {'EXIT', Port, PosixCode}. See file(3)
+              for possible values of PosixCode.
+
+               The maximum number of ports that can be open at the  same  time
+              is  1024  by  default,  but can be configured by the environment
+              variable ERL_MAX_PORTS.
+
+       erlang:phash(Term, Range) -> Hash
+
+              Types  Term = term()
+                     Range = 1..2^32
+                     Hash = 1..Range
+
+              Portable hash function that will give the same hash for the same
+              Erlang  term regardless of machine architecture and ERTS version
+              (the BIF was introduced in ERTS 4.9.1.1). Range can be between 1
+              and  2^32, the function returns a hash value for Term within the
+              range 1..Range.
+
+              This  BIF  could  be  used  instead  of   the   old   deprecated
+              erlang:hash/2  BIF,  as  it  calculates  better  hashes  for all
+              datatypes, but consider using phash2/1, 2 instead.
+
+       erlang:phash2(Term [, Range]) -> Hash
+
+              Types  Term = term()
+                     Range = 1..2^32
+                     Hash = 0..Range-1
+
+              Portable hash function that will give the same hash for the same
+              Erlang  term regardless of machine architecture and ERTS version
+              (the BIF was introduced in ERTS 5.2). Range can be between 1 and
+              2^32,  the  function  returns  a  hash value for Term within the
+              range 0..Range-1. When called  without  the  Range  argument,  a
+              value in the range 0..2^27-1 is returned.
+
+              This BIF should always be used for hashing terms. It distributes
+              small integers better than phash/2, and it is faster for bignums
+              and binaries.
+
+              Note  that  the  range 0..Range-1 is different from the range of
+              phash/2 (1..Range).
+
+       pid_to_list(Pid) -> string()
+
+              Types  Pid = pid()
+
+              Returns a string which corresponds to the text representation of
+              Pid.
+
+   Warning:
+       This  BIF is intended for debugging and for use in the Erlang operating
+       system. It should not be used in application programs.
+
+
+       port_close(Port) -> true
+
+              Types  Port = port() | atom()
+
+              Closes an open port. Roughly the same as Port ! {self(),  close}
+              except  for  the  error behaviour (see below), and that the port
+              does not reply with {Port, closed}. Any process may close a port
+              with  port_close/1,  not only the port owner (the connected pro-
+              cess).
+
+              For comparison: Port ! {self(), close} fails with badarg if Port
+              cannot  be sent to (i.e., Port refers neither to a port nor to a
+              process). If Port is a closed port nothing happens. If  Port  is
+              an open port and the calling process is the port owner, the port
+              replies with {Port, closed} when all buffers have  been  flushed
+              and  the  port  really closes, but if the calling process is not
+              the port owner the port owner fails with badsig.
+
+              Note that any process can close a port using Port !  {PortOwner,
+              close}  just  as  if it itself was the port owner, but the reply
+              always goes to the port owner.
+
+              In short:  port_close(Port)  has  a  cleaner  and  more  logical
+              behaviour than Port ! {self(), close}.
+
+              Failure:  badarg  if  Port is not an open port or the registered
+              name of an open port.
+
+       port_command(Port, Data) -> true
+
+              Types  Port = port() | atom()
+                     Data = iodata()
+
+              Sends data to a port. Same as Port ! {self(),  {command,  Data}}
+              except for the error behaviour (see below). Any process may send
+              data to a port with port_command/2, not only the port owner (the
+              connected process).
+
+              For  comparison:  Port  !  {self(),  {command, Data}} fails with
+              badarg if Port cannot be sent to (i.e., Port refers neither to a
+              port  nor  to a process). If Port is a closed port the data mes-
+              sage disappears without a sound. If Port is open and the calling
+              process is not the port owner, the port owner fails with badsig.
+              The port owner fails with badsig also if Data is not a valid  IO
+              list.
+
+              Note  that  any  process  can  send to a port using Port ! {Por-
+              tOwner, {command, Data}} just as  if  it  itself  was  the  port
+              owner.
+
+              In  short: port_command(Port, Data) has a cleaner and more logi-
+              cal behaviour than Port ! {self(), {command, Data}}.
+
+              Failure: badarg if Port is not an open port  or  the  registered
+              name of an open port.
+
+       port_connect(Port, Pid) -> true
+
+              Types  Port = port() | atom()
+                     Pid = pid()
+
+              Sets  the  port  owner  (the connected port) to Pid. Roughly the
+              same as Port ! {self(), {connect, Pid}} except for  the  follow-
+              ing:
+
+                * The error behavior differs, see below.
+
+                * The port does not reply with {Port, connected}.
+
+                * The new port owner gets linked to the port.
+
+              The  old  port  owner  stays linked to the port and have to call
+              unlink(Port) if this is not desired. Any  process  may  set  the
+              port owner to be any process with port_connect/2.
+
+              For  comparison:  Port  !  {self(),  {connect,  Pid}} fails with
+              badarg if Port cannot be sent to (i.e., Port refers neither to a
+              port  nor  to  a process). If Port is a closed port nothing hap-
+              pens. If Port is an open port and the  calling  process  is  the
+              port  owner,  the port replies with {Port, connected} to the old
+              port owner. Note that the old port owner is still linked to  the
+              port,  and  that the new is not. If Port is an open port and the
+              calling process is not the port owner, the port owner fails with
+              badsig.  The  port owner fails with badsig also if Pid is not an
+              existing local pid.
+
+              Note that any process can set the port owner using Port !  {Por-
+              tOwner, {connect, Pid}} just as if it itself was the port owner,
+              but the reply always goes to the port owner.
+
+              In short: port_connect(Port, Pid) has a cleaner and more logical
+              behaviour than Port ! {self(), {connect, Pid}}.
+
+              Failure:  badarg  if  Port is not an open port or the registered
+              name of an open port, or if Pid is not an existing local pid.
+
+       port_control(Port, Operation, Data) -> Res
+
+              Types  Port = port() | atom()
+                     Operation = int()
+                     Data = Res = iodata()
+
+              Performs a synchronous control operation on a port. The  meaning
+              of  Operation  and  Data  depends on the port, i.e., on the port
+              driver. Not all port drivers support this control feature.
+
+              Returns: a list of integers in the range 0  through  255,  or  a
+              binary,  depending  on  the  port  driver.  The  meaning  of the
+              returned data also depends on the port driver.
+
+              Failure: badarg if Port is not an open port  or  the  registered
+              name  of an open port, if Operation cannot fit in a 32-bit inte-
+              ger, if the port driver does  not  support  synchronous  control
+              operations,  or  if  the  port  driver so decides for any reason
+              (probably something wrong with Operation or Data).
+
+       erlang:port_call(Port, Operation, Data) -> term()
+
+              Types  Port = port() | atom()
+                     Operation = int()
+                     Data = term()
+
+              Performs a synchronous call to a port. The meaning of  Operation
+              and  Data depends on the port, i.e., on the port driver. Not all
+              port drivers support this feature.
+
+              Port is a port identifier, referring to a driver.
+
+              Operation is an integer, which is passed on to the driver.
+
+              Data is any Erlang term. This data is converted to  binary  term
+              format and sent to the port.
+
+              Returns:  a  term  from  the driver. The meaning of the returned
+              data also depends on the port driver.
+
+              Failure: badarg if Port is not an open port  or  the  registered
+              name  of an open port, if Operation cannot fit in a 32-bit inte-
+              ger, if the port driver does  not  support  synchronous  control
+              operations,  or  if  the  port  driver so decides for any reason
+              (probably something wrong with Operation or Data).
+
+       erlang:port_info(Port) -> [{Item, Info}] | undefined
+
+              Types  Port = port() | atom()
+                     Item, Info -- see below
+
+              Returns a list containing  tuples  with  information  about  the
+              Port,  or  undefined  if  the port is not open. The order of the
+              tuples is not defined, nor are all the tuples mandatory.
+
+                {registered_name, RegName}:
+                    RegName (an atom) is the registered name of the  port.  If
+                    the port has no registered name, this tuple is not present
+                    in the list.
+
+                {id, Index}:
+                    Index (an integer) is the internal index of the port. This
+                    index may be used to separate ports.
+
+                {connected, Pid}:
+                    Pid is the process connected to the port.
+
+                {links, Pids}:
+                    Pids  is  a  list  of  pids to which processes the port is
+                    linked.
+
+                {name, String}:
+                    String is the command name set by open_port.
+
+                {input, Bytes}:
+                    Bytes is the total number of bytes read from the port.
+
+                {output, Bytes}:
+                    Bytes is the total number of bytes written to the port.
+
+              Failure: badarg if Port is not a local port.
+
+       erlang:port_info(Port, Item) -> {Item, Info} | undefined | []
+
+              Types  Port = port() | atom()
+                     Item, Info -- see below
+
+              Returns information about Port as specified by  Item,  or  unde-
+              fined  if the port is not open. Also, if Item == registered_name
+              and the port has no registered name, [] is returned.
+
+              For valid values of Item, and corresponding values of Info,  see
+              erlang:port_info/1.
+
+              Failure: badarg if Port is not a local port.
+
+       erlang:port_to_list(Port) -> string()
+
+              Types  Port = port()
+
+              Returns a string which corresponds to the text representation of
+              the port identifier Port.
+
+   Warning:
+       This BIF is intended for debugging and for use in the Erlang  operating
+       system. It should not be used in application programs.
+
+
+       erlang:ports() -> [port()]
+
+              Returns a list of all ports on the local node.
+
+       pre_loaded() -> [Module]
+
+              Types  Module = atom()
+
+              Returns  a  list  of  Erlang modules which are pre-loaded in the
+              system. As all loading of code is done through the file  system,
+              the  file  system  must  have  been loaded previously. Hence, at
+              least the module init must be pre-loaded.
+
+       erlang:process_display(Pid, Type) -> void()
+
+              Types  Pid = pid()
+                     Type = backtrace
+
+              Writes information about  the  local  process  Pid  on  standard
+              error.  The  currently  allowed value for the atom Type is back-
+              trace, which shows the contents of  the  call  stack,  including
+              information  about  the  call  chain,  with the most recent data
+              printed last. The format of the output is not further defined.
+
+       process_flag(Flag, Value) -> OldValue
+
+              Types  Flag, Value, OldValue -- see below
+
+              Sets certain flags for the process which  calls  this  function.
+              Returns the old value of the flag.
+
+                process_flag(trap_exit, Boolean):
+                    When  trap_exit is set to true, exit signals arriving to a
+                    process are converted to {'EXIT', From, Reason}  messages,
+                    which  can  be received as ordinary messages. If trap_exit
+                    is set to false, the process exits if it receives an  exit
+                    signal other than normal and the exit signal is propagated
+                    to its linked processes. Application processes should nor-
+                    mally not trap exits.
+
+
+
+                    See also exit/2.
+
+                process_flag(error_handler, Module):
+                    This  is  used  by a process to redefine the error handler
+                    for undefined function calls and undefined registered pro-
+                    cesses. Inexperienced users should not use this flag since
+                    code autoloading is dependent on the correct operation  of
+                    the error handling module.
+
+                process_flag(min_heap_size, MinHeapSize):
+                    This  changes  the  minimum heap size for the calling pro-
+                    cess.
+
+                process_flag(priority, Level):
+                    This sets the process priority.  Level  is  an  atom.  All
+                    implementations  support  three priority levels, low, nor-
+                    mal, and high. The default is normal.
+
+                process_flag(save_calls, N):
+                    N must be an integer in the interval 0..10000. If N  >  0,
+                    call  saving  is  made active for the process, which means
+                    that information about the N most recent  global  function
+                    calls,  BIF  calls, sends and receives made by the process
+                    are saved in a list, which  can  be  retrieved  with  pro-
+                    cess_info(Pid,  last_calls). A global function call is one
+                    in which the module of the  function  is  explicitly  men-
+                    tioned.  Only  a  fixed  amount of information is saved: a
+                    tuple {Module, Function, Arity} for  function  calls,  and
+                    the  mere  atoms send, 'receive' and timeout for sends and
+                    receives ('receive' when a message is received and timeout
+                    when  a  receive times out). If N = 0, call saving is dis-
+                    abled for the process, which is the default. Whenever  the
+                    size  of  the  call  saving  list is set, its contents are
+                    reset.
+
+       process_flag(Pid, Flag, Value) -> OldValue
+
+              Types  Pid = pid()
+                     Flag, Value, OldValue -- see below
+
+              Sets certain flags for the process Pid, in the  same  manner  as
+              process_flag/2.  Returns  the old value of the flag. The allowed
+              values for Flag are only a  subset  of  those  allowed  in  pro-
+              cess_flag/2, namely: save_calls.
+
+              Failure: badarg if Pid is not a local process.
+
+       process_info(Pid) -> [{Item, Info}] | undefined
+
+              Types  Pid = pid()
+                     Item, Info -- see below
+
+              Returns a list containing tuples with information about the pro-
+              cess Pid, or undefined if the process is not alive. The order of
+              the tuples is not defined, nor are all the tuples mandatory.
+
+   Warning:
+       This BIF is intended for debugging only.
+
+
+         {current_function, {Module, Function, Args}}:
+             Module,  Function,  Args is the current function call of the pro-
+             cess.
+
+         {dictionary, Dictionary}:
+             Dictionary is the dictionary of the process.
+
+         {error_handler, Module}:
+             Module is the error handler module used by the process (for unde-
+             fined function calls, for example).
+
+         {group_leader, GroupLeader}:
+             GroupLeader is group leader for the IO of the process.
+
+         {heap_size, Size}:
+             Size is the heap size of the process in words.
+
+         {initial_call, {Module, Function, Arity}}:
+             Module,  Function,  Arity is the initial function call with which
+             the process was spawned.
+
+         {links, Pids}:
+             Pids is a list of pids, with processes to which the process has a
+             link.
+
+         {message_queue_len, MessageQueueLen}:
+             MessageQueueLen  is  the number of messages currently in the mes-
+             sage queue of the process. This is the length of  the  list  Mes-
+             sageQueue returned as the info item messages (see below).
+
+         {messages, MessageQueue}:
+             MessageQueue is a list of the messages to the process, which have
+             not yet been processed.
+
+         {priority, Level}:
+             Level is the current priority level for the process. Only low and
+             normal are always supported.
+
+         {reductions, Number}:
+             Number is the number of reductions executed by the process.
+
+         {registered_name, Atom}:
+             Atom is the registered name of the process. If the process has no
+             registered name, this tuple is not present in the list.
+
+         {stack_size, Size}:
+             Size is the stack size of the process in words.
+
+         {status, Status}:
+             Status is the status of the process. Status is  waiting  (waiting
+             for a message), running, runnable (ready to run, but another pro-
+             cess is running), or suspended (suspended on a "busy" port or  by
+             the erlang:suspend_process/1 BIF).
+
+         {trap_exit, Boolean}:
+             Boolean is true if the process is trapping exits, otherwise it is
+             false.
+
+       Failure: badarg if Pid is not a local process.
+
+       process_info(Pid, Item) -> {Item, Info} | undefined | []
+
+              Types  Pid = pid()
+                     Item, Info -- see below
+
+              Returns information about the process Pid as specified by  Item,
+              or  undefined if the process is not alive. Also, if Item == reg-
+              istered_name and the process  has  no  registered  name,  []  is
+              returned.
+
+              The  value  of Item, and corresponding value of Info, can be any
+              of the values specified for process_info/1.
+
+              In addition to the above, also the following items -- with  cor-
+              responding values -- are allowed:
+
+                {backtrace, Bin}:
+                    The binary Bin contains the same information as the output
+                    from    erlang:process_display(Pid,    backtrace).     Use
+                    binary_to_list/1  to  obtain the string of characters from
+                    the binary.
+
+                {last_calls, false|Calls}:
+                    The value is false if call saving is not  active  for  the
+                    process  (see process_flag/3). If call saving is active, a
+                    list is returned, in which the last element  is  the  most
+                    recent called.
+
+                {memory, Size}:
+                    Size  is  the  size of the process in bytes. This includes
+                    call stack, heap and internal structures.
+
+                {monitored_by, Pids}:
+                    A list of pids  that  are  monitoring  the  process  (with
+                    erlang:monitor/2).
+
+                {monitors, Monitors}:
+                    A  list of monitors (started by erlang:monitor/2) that are
+                    active for the process. For a local process monitor  or  a
+                    remote  process monitor by pid, the list item is {process,
+                    Pid}, and for a remote process monitor by name,  the  list
+                    item is {process, {RegName, Node}}.
+
+              Note  however, that not all implementations support every one of
+              the above Items.
+
+              Failure: badarg if Pid is not a local process.
+
+       processes() -> [pid()]
+
+              Returns a list of all processes on the local node.
+
+              >processes().
+
+              [<0.0.0>,
+               <0.2.0>,
+               <0.4.0>,
+               <0.5.0>,
+               <0.7.0>,
+               <0.8.0>]
+
+       purge_module(Module) -> void()
+
+              Types  Module = atom()
+
+              Removes  old  code  for  Module.  Before  this  BIF   is   used,
+              erlang:check_process_code/2  should  be  called to check that no
+              processes are executing old code in the module.
+
+   Warning:
+       This BIF is intended for the code server (see code(3)) and  should  not
+       be used elsewhere.
+
+
+       Failure: badarg if there is no old code for Module.
+
+       put(Key, Val) -> OldVal | undefined
+
+              Types  Key = Val = OldVal = term()
+
+              Adds  a  new  Key to the process dictionary, associated with the
+              value Val, and returns undefined. If Key already exists, the old
+              value  is  deleted  and replaced by Val and the function returns
+              the old value.
+
+   Note:
+       The values stored when put is evaluated within the  scope  of  a  catch
+       will not be retracted if a throw is evaluated, or if an error occurs.
+
+
+       >X = put(name, walrus), Y = put(name, carpenter),
+       Z = get(name),
+       {X, Y, Z}.
+
+       {undefined,walrus,carpenter}
+
+       erlang:raise(Class, Reason, Stacktrace)
+
+              Types  Class = error | exit | throw
+                     Reason = term()
+                     Stacktrace  =  [{Module,  Function, Arity | Args} | {Fun,
+                     Args}]
+                      Module = Function = atom()
+                      Arity = int()
+                      Args = [term()]
+                      Fun = [fun()]
+
+              Stops the execution of the calling process with an exception  of
+              given class, reason and call stack backtrace (stacktrace).
+
+   Warning:
+       This  BIF is intended for debugging and for use in the Erlang operating
+       system. In general, it should be avoided in  applications,  unless  you
+       know very well what you are doing.
+
+
+       Class  is one of error, exit or throw, so if it were not for the stack-
+       trace  erlang:raise(Class,  Reason,  Stacktrace)   is   equivalent   to
+       erlang:Class(Reason).  Reason  is  any term and Stacktrace is a list as
+       returned from get_stacktrace(), that is a  list  of  3-tuples  {Module,
+       Function,  Arity  |  Args}  where Module and Function are atoms and the
+       third element is an integer arity or an argument list.  The  stacktrace
+       may  also  contain {Fun, Args} tuples where Fun is a local fun and Args
+       is an argument list.
+
+       The stacktrace is used as the exception stacktrace for the calling pro-
+       cess; it will be truncated to the current maximum stacktrace depth.
+
+       Because  evaluating  this  function causes the process to terminate, it
+       has no return value - unless the arguments are invalid, in  which  case
+       the  function  returns the error reason, that is badarg. If you want to
+       be    really    sure     not     to     return     you     can     call
+       erlang:error(erlang:raise(Class,  Reason, Stacktrace)) and hope to dis-
+       tinguish exceptions later.
+
+       erlang:read_timer(TimerRef) -> int() | false
+
+              Types  TimerRef = ref()
+
+              TimerRef is a timer reference returned by erlang:send_after/3 or
+              erlang:start_timer/3.  If  the  timer  is  active,  the function
+              returns the time in  milliseconds  left  until  the  timer  will
+              expire,  otherwise  false (which means that TimerRef was never a
+              timer, that it has been cancelled, or that it has already deliv-
+              ered its message).
+
+              See    also   erlang:send_after/3,   erlang:start_timer/3,   and
+              erlang:cancel_timer/1.
+
+       erlang:ref_to_list(Ref) -> string()
+
+              Types  Ref = ref()
+
+              Returns a string which corresponds to the text representation of
+              Ref.
+
+   Warning:
+       This  BIF is intended for debugging and for use in the Erlang operating
+       system. It should not be used in application programs.
+
+
+       register(RegName, Pid | Port) -> true
+
+              Types  RegName = atom()
+                     Pid = pid()
+                     Port = port()
+
+              Associates the name RegName with a pid  or  a  port  identifier.
+              RegName, which must be an atom, can be used instead of the pid /
+              port identifier in the send operator (RegName ! Message).
+
+              >register(db, Pid).
+
+              true
+
+              Failure: badarg if Pid is not  an  existing,  local  process  or
+              port,  if  RegName  is already in use, if the process or port is
+              already registered (already has a name), or if  RegName  is  the
+              atom undefined.
+
+       registered() -> [RegName]
+
+              Types  RegName = atom()
+
+              Returns  a list of names which have been registered using regis-
+              ter/2.
+
+              >registered().
+
+              [code_server, file_server, init, user, my_db]
+
+       erlang:resume_process(Pid) -> true
+
+              Types  Pid = pid()
+
+              Resume a suspended process Pid.
+
+   Warning:
+       This BIF is intended for debugging only.
+
+
+       Failure: badarg if Pid does not exist.
+
+       round(Number) -> int()
+
+              Types  Number = number()
+
+              Returns an integer by rounding Number.
+
+              >round(5.5).
+
+              6
+
+              Allowed in guard tests.
+
+       self() -> pid()
+
+              Returns the pid (process identifier) of the calling process.
+
+              >self().
+
+              <0.26.0>
+
+              Allowed in guard tests.
+
+       erlang:send(Dest, Msg) -> Msg
+
+              Types  Dest = pid() | port() | RegName | {RegName, Node}
+                     Msg = term()
+                      RegName = atom()
+                      Node = node()
+
+              Sends a message and returns Msg. This is the same as Dest ! Msg.
+
+              Dest  may  be  a  remote or local pid, a (local) port, a locally
+              registered name, or a tuple {RegName,  Node}  for  a  registered
+              name at another node.
+
+       erlang:send(Dest, Msg, [Option]) -> Res
+
+              Types  Dest = pid() | port() | RegName | {RegName, Node}
+                      RegName = atom()
+                      Node = node()
+                     Msg = term()
+                     Option = nosuspend | noconnect
+                     Res = ok | nosuspend | noconnect
+
+              Sends a message and returns ok, or does not send the message but
+              returns something  else  (see  below).  Otherwise  the  same  as
+              erlang:send/2.  See  also  erlang:send_nosuspend/2,3.  for  more
+              detailed explanation and warnings.
+
+              The possible options are:
+
+                nosuspend:
+                    If the sender would have to be suspended to do  the  send,
+                    nosuspend is returned instead.
+
+                noconnect:
+                    If  the  destination  node  would have to be autoconnected
+                    before doing the send, noconnect is returned instead.
+
+   Warning:
+       As with erlang:send_nosuspend/2, 3: Use with extreme care!
+
+
+       erlang:send_after(Time, Dest, Msg) -> TimerRef
+
+              Types  Time = int()
+                      0 <= Time <= 4294967295
+                     Dest = pid() | RegName
+                      LocalPid = pid() (of a process, alive or  dead,  on  the
+                     local node)
+                     Msg = term()
+                     TimerRef = ref()
+
+              Starts  a  timer  which  will send the message Msg to Dest after
+              Time milliseconds.
+
+              If Dest is an atom, it is supposed to be the name  of  a  regis-
+              tered  process. The process referred to by the name is looked up
+              at the time of delivery. No error is given if the name does  not
+              refer to a process.
+
+              If  Dest  is  a pid, the timer will be automatically canceled if
+              the process referred to by the pid is not  alive,  or  when  the
+              process  exits.  This  feature  was  introduced  in erts version
+              5.4.11. Note that timers will not be automatically canceled when
+              Dest is an atom.
+
+              See   also   erlang:start_timer/3,   erlang:cancel_timer/1,  and
+              erlang:read_timer/1.
+
+              Failure: badarg if the arguments does not satisfy  the  require-
+              ments specified above.
+
+       erlang:send_nosuspend(Dest, Msg) -> bool()
+
+              Types  Dest = pid() | port() | RegName | {RegName, Node}
+                      RegName = atom()
+                      Node = node()
+                     Msg = term()
+
+              The  same  as  erlang:send(Dest,  Msg, [nosuspend]), but returns
+              true if the message was sent and false if the  message  was  not
+              sent because the sender would have had to be suspended.
+
+              This function is intended for send operations towards an unreli-
+              able remote node without ever blocking the sending (Erlang) pro-
+              cess.  If  the connection to the remote node (usually not a real
+              Erlang node, but a node written in C  or  Java)  is  overloaded,
+              this  function  will  not  send  the  message  but  return false
+              instead.
+
+              The same happens, if Dest refers to a local port that  is  busy.
+              For all other destinations (allowed for the ordinary send opera-
+              tor '!') this function sends the message and returns true.
+
+              This function is only to be  used  in  very  rare  circumstances
+              where  a  process communicates with Erlang nodes that can disap-
+              pear without any trace causing the TCP buffers and  the  drivers
+              que  to  be  overfull before the node will actually be shut down
+              (due to tick timeouts) by net_kernel.  The  normal  reaction  to
+              take when this happens is some kind of premature shutdown of the
+              other node.
+
+              Note that ignoring the return value  from  this  function  would
+              result  in unreliable message passing, which is contradictory to
+              the Erlang programming model. The message is not  sent  if  this
+              function returns false.
+
+              Note  also  that in many systems, transient states of overloaded
+              queues are normal. The fact that  this  function  returns  false
+              does not in any way mean that the other node is guaranteed to be
+              nonrespoinsive, it could be a temporary overload. Also a  return
+              value  of  true does only mean that the message could be sent on
+              the (TCP) channel without blocking, the message is  not  guaran-
+              teed  to  have arrived at the remote node. Also in the case of a
+              disconnected nonresponsive node, the return value is true  (mim-
+              ics  the behaviour of the ! operator). The expected behaviour as
+              well as the actions to take when the function returns false  are
+              application and hardware specific.
+
+   Warning:
+       Use with extreme care!
+
+
+       erlang:send_nosuspend(Dest, Msg, Options) -> bool()
+
+              Types  Dest = pid() | port() | RegName | {RegName, Node}
+                      RegName = atom()
+                      Node = node()
+                     Msg = term()
+                     Option = noconnect
+
+              The  same  as erlang:send(Dest, Msg, [nosuspend | Options]), but
+              with boolean return value.
+
+              This function behaves like erlang:send_nosuspend/2), but takes a
+              third  parameter,  a  list of options. The only currently imple-
+              mented option is noconnect. The option noconnect makes the func-
+              tion  return false if the remote node is not currently reachable
+              by the local node. The normal behaviour is to try to connect  to
+              the  node, which may stall the process for a shorter period. The
+              use of the noconnect option makes it possible to  be  absolutely
+              sure  not  to  get  even  the  slightest delay when sending to a
+              remote process. This is  especially  useful  when  communicating
+              with  nodes  who  expect  to always be the connecting part (i.e.
+              nodes written in C or Java).
+
+              Whenever the function returns false (either when a suspend would
+              occur  or  when  noconnect  was  specified  and the node was not
+              already connected), the message is guaranteed not to  have  been
+              sent.
+
+   Warning:
+       Use with extreme care!
+
+
+       erlang:set_cookie(Node, Cookie) -> true
+
+              Types  Node = node()
+                     Cookie = atom()
+
+              Sets the magic cookie of Node to the atom Cookie. If Node is the
+              local node, the function also  sets  the  cookie  of  all  other
+              unknown  nodes  to  Cookie (see Distributed Erlang in the Erlang
+              Reference Manual).
+
+              Failure: function_clause if the local node is not alive.
+
+       setelement(Index, Tuple1, Value) -> Tuple2
+
+              Types  Index = 1..size(Tuple1)
+                     Tuple1 = Tuple2 = tuple()
+                     Value = term()
+
+              Returns a tuple which is a copy of the argument Tuple1 with  the
+              element  given  by the integer argument Index (the first element
+              is the element with index 1) replaced by the argument Value.
+
+              >setelement(2, {10, green, bottles}, red).
+
+              {10, red, bottles}
+
+       size(Item) -> int()
+
+              Types  Item = tuple() | binary()
+
+              Returns an integer which is the size of the argument Item, which
+              must be either a tuple or a binary.
+
+              >size({morni, mulle, bwange}).
+
+              3
+
+              Allowed in guard tests.
+
+       spawn(Fun) -> pid()
+
+              Types  Fun = fun()
+
+              Returns  the  pid of a new process started by the application of
+              Fun to the empty list []. Otherwise works like spawn/3.
+
+       spawn(Node, Fun) -> pid()
+
+              Types  Node = node()
+                     Fun = fun()
+
+              Returns the pid of a new process started by the  application  of
+              Fun to the empty list [] on Node. If Node does not exist, a use-
+              less pid is returned. Otherwise works like spawn/3.
+
+       spawn(Module, Function, Args) -> pid()
+
+              Types  Module = Function = atom()
+                     Args = [term()]
+
+              Returns the pid of a new process started by the  application  of
+              Module:Function  to Args. The new process created will be placed
+              in the system scheduler queue and be run some time later.
+
+              error_handler:undefined_function(Module,  Function,   Args)   is
+              evaluated  by  the new process if Module:Function/Arity does not
+              exist (where Arity is the length of Args). The error handler can
+              be  redefined  (see  process_flag/2).  If error_handler is unde-
+              fined, or the user has redefined the default  error_handler  its
+              replacement  is  undefined, a failure with the reason undef will
+              occur.
+
+              >spawn(speed, regulator, [high_speed, thin_cut]).
+
+              <0.13.1>
+
+       spawn(Node, Module, Function, ArgumentList) -> pid()
+
+              Types  Node = node()
+                     Module = Function = atom()
+                     Args = [term()]
+
+              Returns the pid of a new process started by the  application  of
+              Module:Function to Args on Node. If Node does not exists, a use-
+              less pid is returned. Otherwise works like spawn/3.
+
+       spawn_link(Fun) -> pid()
+
+              Types  Fun = fun()
+
+              Returns the pid of a new process started by the  application  of
+              Fun  to the empty list []. A link is created between the calling
+              process and and the new  process,  atomically.  Otherwise  works
+              like spawn/3.
+
+       spawn_link(Node, Fun) ->
+
+              Types  Node = node()
+                     Fun = fun()
+
+              Returns  the  pid of a new process started by the application of
+              Fun to the empty list [] on Node. A link is created between  the
+              calling  process  and  and  the new process, atomically. If Node
+              does not exist, a useless pid is returned (and due to the  link,
+              an  exit signal with exit reason noconnection will be received).
+              Otherwise works like spawn/3.
+
+       spawn_link(Module, Function, Args) -> pid()
+
+              Types  Module = Function = atom()
+                     Args = [term()]
+
+              Returns the pid of a new process started by the  application  of
+              Module:Function  to  Args.  A link is created betwen the calling
+              process and the new process, atomically.  Otherwise  works  like
+              spawn/3.
+
+       spawn_link(Node, Module, Function, Args) -> pid()
+
+              Types  Node = node()
+                     Module = Function = atom()
+                     Args = [term()]
+
+              Returns  the  pid of a new process started by the application of
+              Module:Function to Args on Node. A link is  created  betwen  the
+              calling  process  and  the new process, atomically. If Node does
+              not exist, a useless pid is returned (and due to  the  link,  an
+              exit  signal  with  exit  reason noconnection will be received).
+              Otherwise works like spawn/3.
+
+       erlang:spawn_monitor(Fun) -> {pid(),reference()}
+
+              Types  Fun = fun()
+
+              Returns the pid of a new process started by the  application  of
+              Fun  to the empty list [] and reference for a monitor created to
+              the new process. Otherwise works like spawn/3.
+
+       erlang:spawn_monitor(Module, Function, Args) -> {pid(),reference()}
+
+              Types  Module = Function = atom()
+                     Args = [term()]
+
+              A new process is started by the application  of  Module:Function
+              to  Args, and the process is monitored at the same time. Returns
+              the pid and a reference for the monitor.  Otherwise  works  like
+              spawn/3.
+
+       spawn_opt(Fun, [Option]) -> pid() | {pid(),reference()}
+
+              Types  Fun = fun()
+                     Option  =  link  |  monitor  | {priority, Level} | {full-
+                     sweep_after, Number} | {min_heap_size, Size}
+                      Level = low | normal | high
+                      Number = int()
+                      Size = int()
+
+              Returns the pid of a new process started by the  application  of
+              Fun to the empty list []. Otherwise works like spawn_opt/4.
+
+              If  the  option monitor is given, the newly created process will
+              be monitored and both the pid and reference for the monitor will
+              be returned.
+
+       spawn_opt(Node, Fun, [Option]) -> pid()
+
+              Types  Node = node()
+                     Fun = fun()
+                     Option  =  link  |  {priority, Level} | {fullsweep_after,
+                     Number} | {min_heap_size, Size}
+                      Level = low | normal | high
+                      Number = int()
+                      Size = int()
+
+              Returns the pid of a new process started by the  application  of
+              Fun to the empty list [] on Node. If Node does not exist, a use-
+              less pid is returned. Otherwise works like spawn_opt/4.
+
+       spawn_opt(Module, Function, Args, [Option]) ->  pid()  |  {pid(),refer-
+       ence()}
+
+              Types  Module = Function = atom()
+                     Args = [term()]
+                     Option  =  link  |  monitor  | {priority, Level} | {full-
+                     sweep_after, Number} | {min_heap_size, Size}
+                      Level = low | normal | high
+                      Number = int()
+                      Size = int()
+
+              Works exactly like spawn/3, except that an extra option list  is
+              given when creating the process.
+
+              If  the  option monitor is given, the newly created process will
+              be monitored and both the pid and reference for the monitor will
+              be returned.
+
+                link:
+                    Sets  a  link  to  the  parent  process (like spawn_link/3
+                    does).
+
+                monitor:
+                    Monitor the new process (just like erlang:monitor/2 does).
+
+                {priority, Level}:
+                    Sets  the  priority of the new process. Equivalent to exe-
+                    cuting process_flag(priority, Level) in the start function
+                    of  the  new process, except that the priority will be set
+                    before the process is scheduled in the first time.
+
+                {fullsweep_after, Number}:
+                    This option is only useful for performance tuning. In gen-
+                    eral,  you should not use this option unless you know that
+                    there is problem with execution times and/or  memory  con-
+                    sumption,  and  you  should  measure to make sure that the
+                    option improved matters.
+
+                    The Erlang runtime system uses a generational garbage col-
+                    lection scheme, using an "old heap" for data that has sur-
+                    vived at least one garbage collection. When  there  is  no
+                    more  room on the old heap, a fullsweep garbage collection
+                    will be done.
+
+
+
+                    The fullsweep_after option makes it  possible  to  specify
+                    the  maximum  number  of  generational  collections before
+                    forcing a fullsweep even if there is still room on the old
+                    heap.  Setting the number to zero effectively disables the
+                    general collection algorithm, meaning that all  live  data
+                    is copied at every garbage collection.
+
+
+
+                    Here  are  a  few  cases when it could be useful to change
+                    fullsweep_after. Firstly, if binaries that are  no  longer
+                    used  should be thrown away as soon as possible. (Set Num-
+                    ber to zero.) Secondly, a process that mostly have  short-
+                    lived  data  will  be fullsweeped seldom or never, meaning
+                    that the old heap will contain mostly garbage. To ensure a
+                    fullsweep  once in a while, set Number to a suitable value
+                    such as 10 or 20. Thirdly, in embedded systems  with  lim-
+                    ited  amount  of RAM and no virtual memory, one might want
+                    to preserve memory by setting Number to zero.  (The  value
+                    may be set globally, see erlang:system_flag/2.)
+
+                {min_heap_size, Size}:
+                    This option is only useful for performance tuning. In gen-
+                    eral, you should not use this option unless you know  that
+                    there  is  problem with execution times and/or memory con-
+                    sumption, and you should measure to  make  sure  that  the
+                    option improved matters.
+
+                    Gives  a  minimum  heap  size in words. Setting this value
+                    higher than the system default might speed  up  some  pro-
+                    cesses  because  less  garbage collection is done. Setting
+                    too high value, however, might waste memory and slow  down
+                    the  system  due  to worse data locality. Therefore, it is
+                    recommended to use this option  only  for  fine-tuning  an
+                    application and to measure the execution time with various
+                    Size values.
+
+       spawn_opt(Node, Module, Function, Args, [Option]) -> pid()
+
+              Types  Node = node()
+                     Module = Function = atom()
+                     Args = [term()]
+                     Option = link |  {priority,  Level}  |  {fullsweep_after,
+                     Number} | {min_heap_size, Size}
+                      Level = low | normal | high
+                      Number = int()
+                      Size = int()
+
+              Returns  the  pid of a new process started by the application of
+              Module:Function to Args on Node. If Node does not exist, a  use-
+              less pid is returned. Otherwise works like spawn_opt/4.
+
+       split_binary(Bin, Pos) -> {Bin1, Bin2}
+
+              Types  Bin = Bin1 = Bin2 = binary()
+                     Pos = 1..size(Bin)
+
+              Returns  a tuple containing the binaries which are the result of
+              splitting Bin into two parts at position  Pos.  This  is  not  a
+              destructive  operation. After the operation, there will be three
+              binaries altogether.
+
+              >B = list_to_binary("0123456789").
+
+              <<48,49,50,51,52,53,54,55,56,57>>
+              >size(B).
+
+              10
+              >{B1, B2} = split_binary(B,3).
+
+              {<<48,49,50>>,<<51,52,53,54,55,56,57>>}
+              >size(B1).
+
+              3
+              >size(B2).
+
+              7
+
+       erlang:start_timer(Time, Dest, Msg) -> TimerRef
+
+              Types  Time = int()
+                      0 <= Time <= 4294967295
+                     Dest = LocalPid | RegName
+                      LocalPid = pid() (of a process, alive or  dead,  on  the
+                     local node)
+                      RegName = atom()
+                     Msg = term()
+                     TimerRef = ref()
+
+              Starts  a  timer which will send the message {timeout, TimerRef,
+              Msg} to Dest after Time milliseconds.
+
+              If Dest is an atom, it is supposed to be the name  of  a  regis-
+              tered  process. The process referred to by the name is looked up
+              at the time of delivery. No error is given if the name does  not
+              refer to a process.
+
+              If  Dest  is  a pid, the timer will be automatically canceled if
+              the process referred to by the pid is not  alive,  or  when  the
+              process  exits.  This  feature  was  introduced  in erts version
+              5.4.11. Note that timers will not be automatically canceled when
+              Dest is an atom.
+
+              See   also   erlang:send_after/3,   erlang:cancel_timer/1,   and
+              erlang:read_timer/1.
+
+              Failure: badarg if the arguments does not satisfy  the  require-
+              ments specified above.
+
+       statistics(Type) -> Res
+
+              Types  Type, Res -- see below
+
+              Returns information about the system as specified by Type:
+
+                context_switches:
+                    Returns {ContextSwitches, 0}, where ContextSwitches is the
+                    total number of context switches since the system started.
+
+                exact_reductions:
+
+
+                    Returns        {Total_Exact_Reductions,       Exact_Reduc-
+                    tions_Since_Last_Call}.
+
+
+
+                    NOTE: statistics(exact_reductions)  is  a  more  expensive
+                    operation  than  statistics(reductions)  especially  on an
+                    Erlang machine with smp support.
+
+                garbage_collection:
+                    Returns {Number_of_GCs, Words_Reclaimed, 0}. This informa-
+                    tion may not be valid for all implementations.
+
+                io: Returns {{input, Input}, {output, Output}}, where Input is
+                    the total number of  bytes  received  through  ports,  and
+                    Output is the total number of bytes output to ports.
+
+                reductions:
+
+
+                    Returns {Total_Reductions, Reductions_Since_Last_Call}.
+
+
+
+                    NOTE:  From erts version 5.5 (OTP release R11B) this value
+                    does not include  reductions  performed  in  current  time
+                    slices of currently scheduled processes. If an exact value
+                    is wanted, use statistics(exact_reductions).
+
+                run_queue:
+                    Returns the length of the run queue, that is,  the  number
+                    of processes that are ready to run.
+
+                runtime:
+                    Returns {Total_Run_Time, Time_Since_Last_Call}.
+
+                wall_clock:
+                    Returns            {Total_Wallclock_Time,            Wall-
+                    clock_Time_Since_Last_Call}. wall_clock can be used in the
+                    same  manner as runtime, except that real time is measured
+                    as opposed to runtime or CPU time.
+
+              All times are in milliseconds.
+
+              >statistics(runtime).
+
+              {1690,1620}
+              >statistics(reductions).
+
+              {2046,11}
+              >statistics(garbage_collection).
+
+              {85,23961,0}
+
+       erlang:suspend_process(Pid) -> true
+
+              Types  Pid = pid()
+
+              Suspends the process Pid.
+
+   Warning:
+       This BIF is intended for debugging only.
+
+
+       Failure: badarg if Pid does not exist.
+
+       erlang:system_flag(Flag, Value) -> OldValue
+
+              Types  Flag, Value, OldValue -- see below
+
+              Sets various system properties of the Erlang node.  Returns  the
+              old value of the flag.
+
+                erlang:system_flag(backtrace_depth, Depth):
+                    Sets  the  maximum  depth  of call stack backtraces in the
+                    exit reason element of 'EXIT' tuples.
+
+                erlang:system_flag(fullsweep_after, Number):
+                    Number is a non-negative integer which indicates how  many
+                    times  generational garbages collections can be done with-
+                    out forcing a fullsweep collection. The value  applies  to
+                    new processes; processes already running are not affected.
+
+
+
+                    In low-memory systems (especially without virtual memory),
+                    setting the value to 0 can help to conserve memory.
+
+
+
+                    An alternative way to set this value is through the (oper-
+                    ating system) environment variable ERL_FULLSWEEP_AFTER.
+
+                erlang:system_flag(min_heap_size, MinHeapSize):
+                    Sets the default minimum heap size for processes. The size
+                    is given in words. The new min_heap_size only effects pro-
+                    cesses spawned after the change of min_heap_size has  been
+                    made.  The  min_heap_size  can  be set for individual pro-
+                    cesses by use of spawn_opt/N or process_flag/2.
+
+                erlang:system_flag(multi_scheduling, BlockState):
+
+
+                    BlockState = block | unblock
+
+
+
+                    If multi-scheduling is enabled, more  than  one  scheduler
+                    thread  is  used  by the emulator. Multi-scheduling can be
+                    blocked. When multi-scheduling has been blocked, only  one
+                    scheduler thread will schedule Erlang processes.
+
+
+
+                    If BlockState =:= block, multi-scheduling will be blocked.
+                    If BlockState =:= unblock  and  no-one  else  is  blocking
+                    multi-scheduling  and  this  process  has only blocked one
+                    time, multi-scheduling will be unblocked. One process  can
+                    block  multi-scheduling  multiple  times. If a process has
+                    blocked multiple times, it has to unblock exactly as  many
+                    times  as it has blocked before it has released its multi-
+                    scheduling block. If a process  that  has  blocked  multi-
+                    scheduling  exits,  it will release its blocking of multi-
+                    scheduling.
+
+
+
+                    The return values are disabled, blocked, or  enabled.  The
+                    returned  value describes the state just after the call to
+                    erlang:system_flag(multi_scheduling, BlockState) has  been
+                    made. The return values are described in the documentation
+                    of erlang:system_info(multi_scheduling).
+
+
+
+                    NOTE: Blocking of multi-scheduling should normally not  be
+                    needed.  If you feel that you need to block multi-schedul-
+                    ing, think through the problem at least a couple of  times
+                    again.  Blocking multi-scheduling should only be used as a
+                    last resort since it will most likely be  a  very  ineffi-
+                    cient way to solve the problem.
+
+
+
+                    See also erlang:system_info(multi_scheduling), erlang:sys-
+                    tem_info(multi_scheduling_blockers),    and    erlang:sys-
+                    tem_info(schedulers).
+
+                erlang:system_flag(trace_control_word, TCW):
+                    Sets  the  value  of the node's trace control word to TCW.
+                    TCW should be an unsigned integer.  For  more  information
+                    see  documentation  of  the  set_tcw function in the match
+                    specification documentation in the ERTS User's Guide.
+
+   Note:
+       The schedulers option has been removed as of erts  version  5.5.3.  The
+       number  of  scheduler  threads is determined at emulator boot time, and
+       cannot be changed after that.
+
+
+       erlang:system_info(Type) -> Res
+
+              Types  Type, Res -- see below
+
+              Returns various information about the current system  (emulator)
+              as specified by Type:
+
+                allocated_areas:
+
+
+                    Returns  a list of tuples with information about miscella-
+                    neous allocated memory areas.
+
+
+
+                    Each tuple contains an atom describing type of  memory  as
+                    first  element  and amount of allocated memory in bytes as
+                    second element. In those cases when there  is  information
+                    present  about  allocated and used memory, a third element
+                    is present. This third element contains the amount of used
+                    memory in bytes.
+
+
+
+                    erlang:system_info(allocated_areas) is intended for debug-
+                    ging, and the content is highly implementation  dependent.
+                    The  content  of  the  results  will therefore change when
+                    needed without prior notice.
+
+
+
+                    Note: The sum of these values is not the total  amount  of
+                    memory  allocated by the emulator. Some values are part of
+                    other values, and some memory areas are not  part  of  the
+                    result.  If you are interested in the total amount of mem-
+                    ory allocated by the emulator see erlang:memory/0,1.
+
+                allocator:
+
+
+                    Returns {Allocator, Version, Features, Settings}.
+
+
+
+                    Types:
+
+
+
+                      * Allocator = undefined | elib_malloc | glibc
+
+                      * Version = [int()]
+
+                      * Features = [atom()]
+
+                      * Settings = [{Subsystem, [{Parameter, Value}]}]
+
+                      * Subsystem = atom()
+
+                      * Parameter = atom()
+
+                      * Value = term()
+
+
+
+                    Explanation:
+
+
+
+                      * Allocator corresponds to the  malloc()  implementation
+                        used.  If  Allocator  equals  undefined,  the malloc()
+                        implementation used could not be identified. Currently
+                        elib_malloc and glibc can be identified.
+
+                      * Version  is a list of integers (but not a string) rep-
+                        resenting the version of the  malloc()  implementation
+                        used.
+
+                      * Features  is  a  list of atoms representing allocation
+                        features used.
+
+                      * Settings is a list of subsystems,  their  configurable
+                        parameters,  and  used  values.  Settings  may  differ
+                        between different combinations of  platforms,  alloca-
+                        tors,  and allocation features. Memory sizes are given
+                        in bytes.
+
+
+
+                    See  also   "System   Flags   Effecting   erts_alloc"   in
+                    erts_alloc(3).
+
+                {allocator, Alloc}:
+
+
+                    Returns  information  about  the  specified  allocator. If
+                    Alloc  is  not  a  recognized  allocator,   undefined   is
+                    returned. If Alloc is disabled, false is returned.
+
+
+
+                    Note:  The  information  returned is highly implementation
+                    dependent and may be changed, or removed at any time with-
+                    out prior notice. It was initially intended as a tool when
+                    developing new allocators, but since it might be of inter-
+                    est for others it has been briefly documented.
+
+
+
+                    The recognized allocators are listed in erts_alloc(3), and
+                    after reading this also the  returned  information  should
+                    more  or  less  speak  for  itself.  But  it  can be worth
+                    explaining some things. Call counts are presented  by  two
+                    values.  The  first  value  is  giga calls, and the second
+                    value is calls. mbcs,  and  sbcs  are  abbreviations  for,
+                    respectively,  multiblock carriers, and singleblock carri-
+                    ers. Sizes are presented in bytes. When it is not  a  size
+                    that  is  presented,  it is the amount of something. Sizes
+                    and amounts are often presented by three values, the first
+                    is  current  value,  the second is maximum value since the
+                    last call to erlang:system_info({allocator,  Alloc}),  and
+                    the third is maximum value since the emulator was started.
+                    If only one value is present, it  is  the  current  value.
+                    fix_alloc  memory block types are presented by two values.
+                    The first value is memory pool size and the  second  value
+                    used memory size.
+
+                check_io:
+                    Returns   a   list  containing  miscellaneous  information
+                    regarding the emulators internal I/O checking.  Note,  the
+                    content  of  the  returned list may vary between platforms
+                    and over time. The only thing guaranteed is that a list is
+                    returned.
+
+                compat_rel:
+                    Returns  the  compatibility  mode  of the local node as an
+                    integer. The integer returned  represents  the  Erlang/OTP
+                    release  which  the  current  emulator  has been set to be
+                    backward compatible with. The compatibility  mode  can  be
+                    configured  at  startup by using the command line flag +R,
+                    see erl(1).
+
+                creation:
+                    Returns the creation of the local node as an integer.  The
+                    creation is changed when a node is restarted. The creation
+                    of a node is stored in process identifiers,  port  identi-
+                    fiers, and references. This makes it (to some extent) pos-
+                    sible to distinguish between  identifiers  from  different
+                    incarnations  of  a  node.  Currently  valid creations are
+                    integers in the range 1..3, but this may  (probably  will)
+                    change  in  the  future.  If  the  node is not alive, 0 is
+                    returned.
+
+                dist:
+                    Returns a  binary  containing  a  string  of  distribution
+                    information  formatted  as in Erlang crash dumps. For more
+                    information see the "How to  interpret  the  Erlang  crash
+                    dumps" chapter in the ERTS User's Guide.
+
+                dist_ctrl:
+                    Returns  a  list  of tuples {Node, ControllingEntity}, one
+                    entry for each connected remote node. The Node is the name
+                    of  the  node and the ControllingEntity is the port or pid
+                    responsible for  the  communication  to  that  node.  More
+                    specifically,  the  ControllingEntity  for nodes connected
+                    via TCP/IP (the normal case) is the socket  actually  used
+                    in communication with the specific node.
+
+                driver_version:
+                    Returns a string containing the erlang driver version used
+                    by the runtime system. It will  be  on  the  form  "<major
+                    ver>.<minor ver>".
+
+                elib_malloc:
+                    If  the  emulator uses the elib_malloc memory allocator, a
+                    list of two-element tuples containing  status  information
+                    is  returned;  otherwise, false is returned. The list cur-
+                    rently contains  the  following  two-element  tuples  (all
+                    sizes are presented in bytes):
+
+
+
+                      {heap_size, Size}:
+                          Where Size is the current heap size.
+
+                      {max_alloced_size, Size}:
+                          Where Size is the maximum amount of memory allocated
+                          on the heap since the emulator started.
+
+                      {alloced_size, Size}:
+                          Where Size is the current amount of memory allocated
+                          on the heap.
+
+                      {free_size, Size}:
+                          Where  Size  is the current amount of free memory on
+                          the heap.
+
+                      {no_alloced_blocks, No}:
+                          Where No is the current number of  allocated  blocks
+                          on the heap.
+
+                      {no_free_blocks, No}:
+                          Where No is the current number of free blocks on the
+                          heap.
+
+                      {smallest_alloced_block, Size}:
+                          Where Size is the size  of  the  smallest  allocated
+                          block on the heap.
+
+                      {largest_free_block, Size}:
+                          Where  Size is the size of the largest free block on
+                          the heap.
+
+                fullsweep_after:
+                    Returns  {fullsweep_after,  int()}  which  is  the   full-
+                    sweep_after  garbage  collection  setting used by default.
+                    For  more  information  see  garbage_collection  described
+                    below.
+
+                garbage_collection:
+                    Returns  a  list describing the default garbage collection
+                    settings. A process spawned on the local node by  a  spawn
+                    or  spawn_link will use these garbage collection settings.
+                    The  default  settings  can   be   changed   by   use   of
+                    system_flag/2.  spawn_opt/4  can spawn a process that does
+                    not use the default settings.
+
+                global_heaps_size:
+                    Returns the current size of the shared (global) heap.
+
+                heap_sizes:
+                    Returns a list of integers representing valid  heap  sizes
+                    in  words.  All  Erlang heaps are sized from sizes in this
+                    list.
+
+                heap_type:
+                    Returns the heap type used by the current  emulator.  Cur-
+                    rently the following heap types exist:
+
+
+
+                      private:
+                          Each  process has a heap reserved for its use and no
+                          references between heaps of different processes  are
+                          allowed.   Messages  passed  between  processes  are
+                          copied between heaps.
+
+                      shared:
+                          One heap for use by all processes.  Messages  passed
+                          between processes are passed by reference.
+
+                      hybrid:
+                          A  hybrid  of  the  private and shared heap types. A
+                          shared heap as well as private heaps are used.
+
+                info:
+                    Returns a binary containing a string of miscellaneous sys-
+                    tem  information  formatted  as in Erlang crash dumps. For
+                    more information see the  "How  to  interpret  the  Erlang
+                    crash dumps" chapter in the ERTS User's Guide.
+
+                kernel_poll:
+                    Returns true if the emulator uses some kind of kernel-poll
+                    implementation; otherwise, false.
+
+                loaded:
+                    Returns a binary containing  a  string  of  loaded  module
+                    information  formatted  as in Erlang crash dumps. For more
+                    information see the "How to  interpret  the  Erlang  crash
+                    dumps" chapter in the ERTS User's Guide.
+
+                machine:
+                    Returns a string containing the Erlang machine name.
+
+                modified_timing_level:
+                    Returns the modified timing level (an integer) if modified
+                    timing has been enabled; otherwise, undefined. See the  +T
+                    command  line flag in the documentation of the erl(1) com-
+                    mand for more information on modified timing.
+
+                multi_scheduling:
+
+
+                    Returns disabled, blocked, or enabled.  A  description  of
+                    the return values:
+
+
+
+                      disabled:
+                          The emulator has only one scheduler thread. The emu-
+                          lator does  not  have  SMP  support,  or  have  been
+                          started with only one scheduler thread.
+
+                      blocked:
+                          The emulator has more than one scheduler thread, but
+                          all scheduler threads but  one  have  been  blocked,
+                          i.e., only one scheduler thread will schedule Erlang
+                          processes and execute Erlang code.
+
+                      enabled:
+                          The emulator has more than one scheduler thread, and
+                          no  scheduler  threads  have been blocked, i.e., all
+                          available scheduler  threads  will  schedule  Erlang
+                          processes and execute Erlang code.
+
+
+
+                    See also erlang:system_flag(multi_scheduling, BlockState),
+                    erlang:system_info(multi_scheduling_blockers),         and
+                    erlang:system_info(schedulers).
+
+                multi_scheduling_blockers:
+
+
+                    Returns  a  list of PIDs when multi-scheduling is blocked;
+                    otherwise, the empty list. The PIDs in the list is PIDs of
+                    the  processes  currently blocking multi-scheduling. A PID
+                    will only be present once in the list, even if the  corre-
+                    sponding process has blocked multiple times.
+
+                    See also erlang:system_flag(multi_scheduling, BlockState),
+                    erlang:system_info(multi_scheduling),   and    erlang:sys-
+                    tem_info(schedulers).
+
+                otp_release:
+
+
+                    Returns a string containing the OTP release number.
+
+                process_count:
+                    Returns  the number of processes currently existing at the
+                    local node as an integer. The same  value  as  length(pro-
+                    cesses()) returns.
+
+                process_limit:
+                    Returns  the  maximum number of concurrently existing pro-
+                    cesses at the local node as an integer. This limit can  be
+                    configured  at  startup by using the command line flag +P,
+                    see erl(1).
+
+                procs:
+                    Returns a binary containing a string of process  and  port
+                    information  formatted  as in Erlang crash dumps. For more
+                    information see the "How to  interpret  the  Erlang  crash
+                    dumps" chapter in the ERTS User's Guide.
+
+                scheduler_id:
+
+
+                    Returns  the  scheduler  id (SchedulerId) of the scheduler
+                    thread that the calling process is executing  on.  Schedu-
+                    lerId  is  a  positive  integer; where 1 <= SchedulerId <=
+                    erlang:system_info(schedulers).   See   also   erlang:sys-
+                    tem_info(schedulers).
+
+                schedulers:
+
+
+                    Returns the number of scheduler threads used by the emula-
+                    tor. A scheduler thread  schedules  Erlang  processes  and
+                    Erlang ports, and execute Erlang code and Erlang linked in
+                    driver code.
+
+
+
+                    The number of scheduler threads is determined at  emulator
+                    boot time and cannot be changed after that.
+
+
+
+                    See   also  erlang:system_info(scheduler_id),  erlang:sys-
+                    tem_flag(multi_scheduling,                    BlockState),
+                    erlang:system_info(multi_scheduling),  and and erlang:sys-
+                    tem_info(multi_scheduling_blockers).
+
+                smp_support:
+                    Returns true if the emulator has been  compiled  with  smp
+                    support; otherwise, false.
+
+                system_version:
+                    Returns  a string containing the emulator type and version
+                    as well as some important properties such as the  size  of
+                    the thread pool, etc.
+
+                system_architecture:
+                    Returns a string containing the processor and OS architec-
+                    ture the emulator is built for.
+
+                threads:
+                    Returns true if the emulator has been compiled with thread
+                    support; otherwise, false is returned.
+
+                thread_pool_size:
+
+
+                    Returns  the  number  of async threads in the async thread
+                    pool used for asynchronous driver  calls  (driver_async())
+                    as an integer.
+
+                trace_control_word:
+                    Returns  the  value  of the node's trace control word. For
+                    more information see documentation of the function get_tcw
+                    in "Match Specifications in Erlang", ERTS User's Guide.
+
+                version:
+
+
+                    Returns a string containing the version number of the emu-
+                    lator.
+
+                wordsize:
+                    Returns the word size in bytes as an integer,  i.e.  on  a
+                    32-bit  architecture 4 is returned, and on a 64-bit archi-
+                    tecture 8 is returned.
+
+   Note:
+       The scheduler argument has changed name to scheduler_id. This in  order
+       to avoid mixup with the schedulers argument. The scheduler argument was
+       introduced in ERTS version 5.5 and renamed in ERTS version 5.5.1.
+
+
+       erlang:system_monitor() -> MonSettings
+
+              Types  MonSettings -> {MonitorPid, Options} | undefined
+                      MonitorPid = pid()
+                      Options = [Option]
+                       Option  =  {long_gc,  Time}  |  {large_heap,  Size}   |
+                     busy_port | busy_dist_port
+                        Time = Size = int()
+
+              Returns   the   current   system   monitoring  settings  set  by
+              erlang:system_monitor/2 as {MonitorPid, Options},  or  undefined
+              if  there  are no settings. The order of the options may be dif-
+              ferent from the one that was set.
+
+       erlang:system_monitor(undefined | {MonitorPid, Options}) -> MonSettings
+
+              Types  MonitorPid, Options, MonSettings -- see below
+
+              When  called with the argument undefined, all system performance
+              monitoring settings are cleared.
+
+              Calling the function with {MonitorPid, Options} as argument,  is
+              the  same as calling erlang:system_monitor(MonitorPid, Options).
+
+              Returns  the  previous  system  monitor   settings   just   like
+              erlang:system_monitor/0.
+
+       erlang:system_monitor(MonitorPid, [Option]) -> MonSettings
+
+              Types  MonitorPid = pid()
+                     Option = {long_gc, Time} | {large_heap, Size} | busy_port
+                     | busy_dist_port
+                      Time = Size = int()
+                     MonSettings = {OldMonitorPid, [Option]}
+                      OldMonitorPid = pid()
+
+              Sets system performance  monitoring  options.  MonitorPid  is  a
+              local  pid  that  will  receive system monitor messages, and the
+              second argument is a list of monitoring options:
+
+                {long_gc, Time}:
+                    If a garbage collection in the system takes at least  Time
+                    wallclock   milliseconds,   a   message  {monitor,  GcPid,
+                    long_gc, Info} is sent to MonitorPid.  GcPid  is  the  pid
+                    that  was garbage collected and Info is a list of two-ele-
+                    ment tuples describing the result of the  garbage  collec-
+                    tion.  One of the tuples is {timeout, GcTime} where GcTime
+                    is the actual time for the garbage collection in millisec-
+                    onds.  The  other  are  the  tuples tagged with heap_size,
+                    stack_size,  mbuf_size  and   heap_block_size   from   the
+                    gc_start trace message (see erlang:trace/3).
+
+                {large_heap, Size}:
+                    If a garbage collection in the system results in the allo-
+                    cated size of a heap being at least Size words, a  message
+                    {monitor,  GcPid, large_heap, Info} is sent to MonitorPid.
+                    GcPid and Info are the same as for long_gc  above,  except
+                    that the tuple tagged with timeout is not present.
+
+                busy_port:
+                    If a process in the system gets suspended because it sends
+                    to a busy port, a  message  {monitor,  SusPid,  busy_port,
+                    Port}  is  sent  to MonitorPid. SusPid is the pid that got
+                    suspended when sending to Port.
+
+                busy_dist_port:
+                    If a process in the system gets suspended because it sends
+                    to  a process on a remote node whose inter-node communica-
+                    tion was handled by a busy port, a message {monitor,  Sus-
+                    Pid,  busy_dist_port,  Port} is sent to MonitorPid. SusPid
+                    is the pid that got suspended  when  sending  through  the
+                    inter-node communication port Port.
+
+              Returns   the   previous   system  monitor  settings  just  like
+              erlang:system_monitor/0.
+
+   Note:
+       If a monitoring process gets so large that it itself  starts  to  cause
+       system  monitor  messages  when  garbage  collecting, the messages will
+       enlargen the process's message queue  and  probably  make  the  problem
+       worse.
+
+       Keep the monitoring process neat and do not set the system monitor lim-
+       its too tight.
+
+
+       Failure: badarg if MonitorPid does not exist.
+
+       term_to_binary(Term) -> ext_binary()
+
+              Types  Term = term()
+
+              Returns a binary data object which is  the  result  of  encoding
+              Term according to the Erlang external term format.
+
+              This  can be used for a variety of purposes, for example writing
+              a term to a file in an efficient way, or sending an Erlang  term
+              to  some  type  of  communications channel not supported by dis-
+              tributed Erlang.
+
+              See also binary_to_term/1.
+
+       term_to_binary(Term, [Option]) -> ext_binary()
+
+              Types  Term = term()
+                     Option = compressed
+
+              Returns a binary data object which is  the  result  of  encoding
+              Term according to the Erlang external term format.
+
+              If  the  option compressed is provided, the external term format
+              will be compressed. The compressed format is automatically  rec-
+              ognized by binary_to_term/1 in R7B and later.
+
+              It is also possible to specify a compression level by giving the
+              option {compressed, Level}, where Level is  an  integer  from  0
+              through  9.  0 means that no compression will be done (it is the
+              same as not giving any compressed option); 1 will take the least
+              time  but  may not compress as well as the higher levels; 9 will
+              take the most time and may produce a smaller  result.  Note  the
+              "mays"  in the preceeding sentence; depending on the input term,
+              level 9 compression may or may not produce a smaller result than
+              level 1 compression.
+
+              Currently,  compressed gives the same result as {compressed, 6}.
+
+              The option {minor_version, Version} can be use to  control  some
+              details  of  the encoding. This option was introduced in R11B-4.
+              Currently, the allowed values for Version are 0 and 1.
+
+              {minor_version, 1} forces any floats in the term to  be  encoded
+              in  a  more  space-efficient and exact way (namely in the 64-bit
+              IEEE format, rather than converted to a textual representation).
+              binary_to_term/1 in R11B-4 and later is able decode the new rep-
+              resentation.
+
+              {minor_version, 0} is currently the default, meaning that floats
+              will  be  encoded using a textual representation; this option is
+              useful if you want to ensure that releases prior to  R11B-4  can
+              decode resulting binary.
+
+              See also binary_to_term/1.
+
+       throw(Any)
+
+              Types  Any = term()
+
+              A non-local return from a function. If evaluated within a catch,
+              catch will return the value Any.
+
+              >catch throw({hello, there}).
+
+              {hello, there}
+
+              Failure: nocatch if not evaluated within a catch.
+
+       time() -> {Hour, Minute, Second}
+
+              Types  Hour = Minute = Second = int()
+
+              Returns the current time as {Hour, Minute, Second}.
+
+              The time zone and daylight saving time correction depend on  the
+              underlying OS.
+
+              >time().
+
+              {9,42,44}
+
+       tl(List1) -> List2
+
+              Types  List1 = List2 = [term()]
+
+              Returns  the  tail  of  List1, that is, the list minus the first
+              element.
+
+              >tl([geesties, guilies, beasties]).
+
+              [guilies, beasties]
+
+              Allowed in guard tests.
+
+              Failure: badarg if List is the empty list [].
+
+       erlang:trace(PidSpec, How, FlagList) -> int()
+
+              Types  PidSpec = pid() | existing | new | all
+                     How = bool()
+                     FlagList = [Flag]
+                      Flag -- see below
+
+              Turns on (if How == true) or off (if How  ==  false)  the  trace
+              flags  in  FlagList  for the process or processes represented by
+              PidSpec.
+
+              PidSpec is either a pid for a local process, or one of the  fol-
+              lowing atoms:
+
+                existing:
+                    All processes currently existing.
+
+                new:
+                    All processes that will be created in the future.
+
+                all:
+                    All  currently  existing  processes and all processes that
+                    will be created in the future.
+
+              FlagList can contain any number  of  the  following  flags  (the
+              "message tags" refers to the list of messages following below):
+
+                all:
+                    Set all trace flags except {tracer, Tracer} and cpu_times-
+                    tamp that are in their nature different than the others.
+
+                send:
+                    Trace sending of messages.
+
+
+
+                    Message tags: send, send_to_non_existing_process.
+
+                'receive':
+                    Trace receiving of messages.
+
+
+
+                    Message tags: 'receive'.
+
+                procs:
+                    Trace process related events.
+
+
+
+                    Message tags: spawn,  exit,  register,  unregister,  link,
+                    unlink, getting_linked, getting_unlinked.
+
+                call:
+                    Trace certain function calls. Specify which function calls
+                    to trace by calling erlang:trace_pattern/3.
+
+
+
+                    Message tags: call, return_from.
+
+                silent:
+                    Used in conjunction with the call trace  flag.  The  call,
+                    return_from  and return_to trace messages are inhibited if
+                    this flag is set, but if there are match  specs  they  are
+                    executed as normal.
+
+
+
+                    Silent  mode  is  inhibited  by  executing erlang:trace(_,
+                    false, [silent|_]), or  by  a  match  spec  executing  the
+                    {silent, false} function.
+
+
+
+                    The  silent  trace  flag facilitates setting up a trace on
+                    many or even all processes in the system. Then the  inter-
+                    esting  trace  can  be activated and deactivated using the
+                    {silent, Bool} match spec function, giving a  high  degree
+                    of  control  of  which functions with which arguments that
+                    triggers the trace.
+
+
+
+                    Message tags: call, return_from, return_to. Or rather, the
+                    absence of.
+
+                return_to:
+                    Used  in  conjunction  with the call trace flag. Trace the
+                    actual return from a traced function back to  its  caller.
+                    Only  works  for functions traced with the local option to
+                    erlang:trace_pattern/3.
+
+
+
+                    The semantics is that a trace message is sent when a  call
+                    traced function actually returns, that is, when a chain of
+                    tail recursive calls is ended.  There  will  be  only  one
+                    trace  message sent per chain of tail recursive calls, why
+                    the properties of tail recursiveness  for  function  calls
+                    are  kept  while  tracing  with  this flag. Using call and
+                    return_to trace together makes it possible to know exactly
+                    in which function a process executes at any time.
+
+
+
+                    To  get trace messages containing return values from func-
+                    tions, use the {return_trace} match_spec action instead.
+
+
+
+                    Message tags: return_to.
+
+                running:
+                    Trace scheduling of processes.
+
+
+
+                    Message tags: in, out.
+
+                garbage_collection:
+                    Trace garbage collections of processes.
+
+
+
+                    Message tags: gc_start, gc_end.
+
+                timestamp:
+                    Include a time stamp in all trace messages. The time stamp
+                    (Ts) is of the same form as returned by erlang:now().
+
+                cpu_timestamp:
+                    A  global  trace  flag  for the Erlang node that makes all
+                    trace timestamps be in CPU time, not wallclock. It is only
+                    allowed  with  PidSpec==all. If the host machine operating
+                    system does not support high resolution CPU time  measure-
+                    ments, trace/3 exits with badarg.
+
+                arity:
+                    Used  in  conjunction  with  the  call  trace flag. {M, F,
+                    Arity} will be specified instead of {M, F, Args}  in  call
+                    trace messages.
+
+                set_on_spawn:
+                    Makes  any process created by a traced process inherit its
+                    trace flags, including the set_on_spawn flag.
+
+                set_on_first_spawn:
+                    Makes the  first  process  created  by  a  traced  process
+                    inherit  its trace flags, excluding the set_on_first_spawn
+                    flag.
+
+                set_on_link:
+                    Makes any process linked by a traced process  inherit  its
+                    trace flags, including the set_on_link flag.
+
+                set_on_first_link:
+                    Makes  the  first  process  linked  to by a traced process
+                    inherit its trace flags, excluding  the  set_on_first_link
+                    flag.
+
+                {tracer, Tracer}:
+                    Specify  where  to send the trace messages. Tracer must be
+                    the pid of a local process or the  port  identifier  of  a
+                    local port. If this flag is not given, trace messages will
+                    be sent to the process that called erlang:trace/3.
+
+              The effect of combining set_on_first_link  with  set_on_link  is
+              the   same  as  having  set_on_first_link  alone.  Likewise  for
+              set_on_spawn and set_on_first_spawn.
+
+              If the timestamp flag is not given,  the  tracing  process  will
+              receive  the  trace  messages described below. Pid is the pid of
+              the traced process in which the traced event has  occurred.  The
+              third element of the tuple is the message tag.
+
+              If  the  timestamp flag is given, the first element of the tuple
+              will be trace_ts instead and the timestamp is added last in  the
+              tuple.
+
+                {trace, Pid, 'receive', Msg}:
+                    When Pid receives the message Msg.
+
+                {trace, Pid, send, Msg, To}:
+                    When Pid sends the message Msg to the process To.
+
+                {trace, Pid, send_to_non_existing_process, Msg, To}:
+                    When Pid sends the message Msg to the non-existing process
+                    To.
+
+                {trace, Pid, call, {M, F, Args}}:
+                    When Pid calls a traced function.  The  return  values  of
+                    calls are never supplied, only the call and its arguments.
+
+
+
+                    Note that the trace flag arity can be used to  change  the
+                    contents  of  this  message,  so  that  Arity is specified
+                    instead of Args.
+
+                {trace, Pid, return_to, {M, F, Args}}:
+                    When Pid returns to the  specified  function.  This  trace
+                    message  is  sent if both the call and the return_to flags
+                    are set, and the function is set to  be  traced  on  local
+                    function  calls.  The  message is only sent when returning
+                    from a chain of tail recursive  function  calls  where  at
+                    least  one  call  generated a call trace message (that is,
+                    the functions match specification  matched  and  {message,
+                    false} was not an action).
+
+                {trace, Pid, return_from, {M, F, Args}, ReturnValue}:
+                    When  Pid  returns from the specified function. This trace
+                    message is sent if the call flag is set, and the  function
+                    has  a  match  specification with a return_trace or excep-
+                    tion_trace action.
+
+                {trace, Pid, exception_from, {M, F, Args}, {Class, Value}}:
+                    When Pid exits from  the  specified  function  due  to  an
+                    exception.  This trace message is sent if the call flag is
+                    set, and the function has a match  specification  with  an
+                    exception_trace action.
+
+                {trace, Pid, spawn, Pid2, {M, F, Args}}:
+                    When  Pid  spawns  a  new  process Pid2 with the specified
+                    function call as entry point.
+
+
+
+                    Note that Args is supposed to be the  argument  list,  but
+                    may be any term in the case of an erroneous spawn.
+
+                {trace, Pid, exit, Reason}:
+                    When Pid exits with reason Reason.
+
+                {trace, Pid, link, Pid2}:
+                    When Pid links to a process Pid2.
+
+                {trace, Pid, unlink, Pid2}:
+                    When Pid removes the link from a process Pid2.
+
+                {trace, Pid, getting_linked, Pid2}:
+                    When Pid gets linked to a process Pid2.
+
+                {trace, Pid, getting_unlinked, Pid2}:
+                    When Pid gets unlinked from a process Pid2.
+
+                {trace, Pid, register, RegName}:
+                    When Pid gets the name RegName registered.
+
+                {trace, Pid, unregister, RegName}:
+                    When  Pid  gets  the  name RegName unregistered. Note that
+                    this is  done  automatically  when  a  registered  process
+                    exits.
+
+                {trace, Pid, in, {M, F, Arity} | 0}:
+                    When  Pid  is  scheduled  to  run. The process will run in
+                    function {M, F, Arity}. On some rare occasions the current
+                    function cannot be determined, then the last element Arity
+                    is 0.
+
+                {trace, Pid, out, {M, F, Arity} | 0}:
+                    When Pid is scheduled out.  The  process  was  running  in
+                    function {M, F, Arity}. On some rare occasions the current
+                    function cannot be determined, then the last element Arity
+                    is 0.
+
+                {trace, Pid, gc_start, Info}:
+                    Sent  when garbage collection is about to be started. Info
+                    is a list of two-element tuples, where the  first  element
+                    is  a  key,  and  the  second is the value. You should not
+                    depend on the tuples have any  defined  order.  Currently,
+                    the following keys are defined.
+
+
+
+                      heap_size:
+                          The size of the used part of the heap.
+
+                      old_heap_size:
+                          The size of the used part of the old heap.
+
+                      stack_size:
+                          The actual size of the stack.
+
+                      recent_size:
+                          The  size  of  the  data  that survived the previous
+                          garbage collection.
+
+                      mbuf_size:
+                          The combined size of message buffers associated with
+                          the process.
+
+
+
+                    All sizes are in words.
+
+                {trace, Pid, gc_end, Info}:
+                    Sent  when  garbage  collection is finished. Info contains
+                    the same kind of list as in the gc_start message, but  the
+                    sizes reflect the new sizes after garbage collection.
+
+              If the tracing process dies, the flags will be silently removed.
+
+              Only one process can trace a particular process. For  this  rea-
+              son, attempts to trace an already traced process will fail.
+
+              Returns:  A  number  indicating  the  number  of  processes that
+              matched PidSpec. If PidSpec is a pid, the return value  will  be
+              1.  If  PidSpec  is all or existing the return value will be the
+              number of processes running, excluding tracer processes. If Pid-
+              Spec is new, the return value will be 0.
+
+              Failure:  If  specified arguments are not supported. For example
+              cpu_timestamp is not supported on all platforms.
+
+       erlang:trace_delivered(Tracee) -> Ref
+
+              Types  Tracee = pid() | all
+                     Ref = reference()
+
+              The delivery of trace messages is dislocated  on  the  time-line
+              compared  to  other  events  in the system. If you know that the
+              Tracee has passed some specific point in its execution, and  you
+              want  to  know when at least all trace messages corresponding to
+              events up to this point have reached  the  tracer  you  can  use
+              erlang:trace_delivered(Tracee). A {trace_delivered, Tracee, Ref}
+              message is sent to the caller of  erlang:trace_delivered(Tracee)
+              when  it  is guaranteed that all trace messages have been deliv-
+              ered to the tracer up to the point that the Tracee  had  reached
+              at the time of the call to erlang:trace_delivered(Tracee).
+
+              Note  that the trace_delivered message does not imply that trace
+              messages have been delivered; instead, it implies that all trace
+              messages that should be delivered have been delivered. It is not
+              an error if Tracee isn't, and hasn't been traced by someone, but
+              if  this is the case, no trace messages will have been delivered
+              when the trace_delivered message arrives.
+
+              Note that Tracee has to refer to a process currently, or  previ-
+              ously   existing   on   the   same   node   as   the  caller  of
+              erlang:trace_delivered(Tracee) resides on.  The  special  Tracee
+              atom  all denotes all processes that currently are traced in the
+              node.
+
+              An example: Process A is tracee, port B is tracer, and process C
+              is  the  port owner of B. C wants to close B when A exits. C can
+              ensure   that   the   trace   isn't   truncated    by    calling
+              erlang:trace_delivered(A)   when   A  exits  and  wait  for  the
+              {trace_delivered, A, Ref} message before closing B.
+
+              Failure: badarg if Tracee does not refer to a process  (dead  or
+              alive)  on  the  same  node as the caller of erlang:trace_deliv-
+              ered(Tracee) resides on.
+
+       erlang:trace_info(PidOrFunc, Item) -> Res
+
+              Types  PidOrFunc = pid() | new |  {Module,  Function,  Arity}  |
+                     on_load
+                      Module = Function = atom()
+                      Arity = int()
+                     Item, Res -- see below
+
+              Returns trace information about a process or function.
+
+              To get information about a process, PidOrFunc should be a pid or
+              the atom new. The atom new means that the  default  trace  state
+              for processes to be created will be returned. Item must have one
+              of the following values:
+
+                flags:
+                    Return a list of atoms indicating what kind of  traces  is
+                    enabled  for  the  process.  The  list will be empty if no
+                    traces are enabled, and one  or  more  of  the  followings
+                    atoms    if   traces   are   enabled:   send,   'receive',
+                    set_on_spawn, call, return_to, procs,  set_on_first_spawn,
+                    set_on_link,  running,  garbage_collection, timestamp, and
+                    arity. The order is arbitrary.
+
+                tracer:
+                    Return the identifier for process  or  port  tracing  this
+                    process.  If  this process is not being traced, the return
+                    value will be [].
+
+              To get information about  a  function,  PidOrFunc  should  be  a
+              three-element  tuple:  {Module,  Function,  Arity}  or  the atom
+              on_load. No wildcards are  allowed.  Returns  undefined  if  the
+              function  does  not exist or false if the function is not traced
+              at all. Item must have one of the following values:
+
+                traced:
+                    Return global if this function is traced on  global  func-
+                    tion  calls,  local  if  this  function is traced on local
+                    function calls (i.e local and global function calls),  and
+                    false  if  neither  local  nor  global  function calls are
+                    traced.
+
+                match_spec:
+                    Return the match specification for this  function,  if  it
+                    has one. If the function is locally or globally traced but
+                    has no match specification defined, the returned value  is
+                    [].
+
+                meta:
+                    Return  the  meta  trace  tracer  process or port for this
+                    function, if it has one.  If  the  function  is  not  meta
+                    traced the returned value is false, and if the function is
+                    meta traced but has once detected that the tracer proc  is
+                    invalid, the returned value is [].
+
+                meta_match_spec:
+                    Return  the  meta trace match specification for this func-
+                    tion, if it has one. If the function is  meta  traced  but
+                    has  no match specification defined, the returned value is
+                    [].
+
+                call_count:
+                    Return the call count value for this function or true  for
+                    the  pseudo  function  on_load  if  call  count tracing is
+                    active. Return false otherwise. See also erlang:trace_pat-
+                    tern/3 .
+
+                all:
+                    Return  a  list contaning the {Item, Value} tuples for all
+                    other items, or return false if no tracing is  active  for
+                    this function.
+
+              The  actual  return  value will be {Item, Value}, where Value is
+              the requested information as described above. If  a  pid  for  a
+              dead  process was given, or the name of a non-existing function,
+              Value will be undefined.
+
+              If PidOrFunc is the on_load, the information returned refers  to
+              the default value for code that will be loaded.
+
+       erlang:trace_pattern(MFA, MatchSpec) -> int()
+
+              The  same  as erlang:trace_pattern(MFA, MatchSpec, []), retained
+              for backward compatibility.
+
+       erlang:trace_pattern(MFA, MatchSpec, FlagList) -> int()
+
+              Types  MFA, MatchSpec, FlagList -- see below
+
+              This BIF is used to enable or disable call tracing for  exported
+              functions.  It  must  be combined with erlang:trace/3 to set the
+              call trace flag for one or more processes.
+
+              Conceptually, call tracing works like this:  Inside  the  Erlang
+              virtual  machine  there is a set of processes to be traced and a
+              set of functions to be traced. Tracing will be  enabled  on  the
+              intersection  of  the set. That is, if a process included in the
+              traced process set calls a function included in the traced func-
+              tion  set,  the  trace  action will be taken. Otherwise, nothing
+              will happen.
+
+              Use erlang:trace/3 to add or remove one or more processes to the
+              set  of  traced  processes. Use erlang:trace_pattern/2 to add or
+              remove exported functions to the set of traced functions.
+
+              The erlang:trace_pattern/3 BIF can also add match specifications
+              to  an exported function. A match specification comprises a pat-
+              tern that the arguments to the  function  must  match,  a  guard
+              expression  which  must  evaluate  to  true  and an action to be
+              performed. The default action is to send a trace message. If the
+              pattern  does  not match or the guard fails, the action will not
+              be executed.
+
+              The MFA argument should  be  a  tuple  like  {Module,  Function,
+              Arity} or the atom on_load (described below). It can be the mod-
+              ule, function, and arity for an exported function (or a  BIF  in
+              any  module). The '_' atom can be used to mean any of that kind.
+              Wildcards can be used in any of the following ways:
+
+                {Module, Function, '_'}:
+                    All exported functions of any arity named Function in mod-
+                    ule Module.
+
+                {Module, '_', '_'}:
+                    All exported functions in module Module.
+
+                {'_', '_', '_'}:
+                    All exported functions in all loaded modules.
+
+              Other  combinations,  such  as  {Module,  '_',  Arity},  are not
+              allowed. Local functions will match wildcards only if the  local
+              option is in the FlagList.
+
+              If the MFA argument is the atom on_load, the match specification
+              and flag list will be used on all modules that are newly loaded.
+
+              The MatchSpec argument can take any of the following forms:
+
+                false:
+                    Disable  tracing  for  the matching function(s). Any match
+                    specification will be removed.
+
+                true:
+                    Enable tracing for the matching function(s).
+
+                MatchSpecList:
+                    A list of match specifications. An empty list  is  equiva-
+                    lent  to true. See the ERTS User's Guide for a description
+                    of match specifications.
+
+                restart:
+                    For the FlagList option call_count: restart  the  existing
+                    counters.  The  behaviour  is undefined for other FlagList
+                    options.
+
+                pause:
+                    For the FlagList option  call_count:  pause  the  existing
+                    counters.  The  behaviour  is undefined for other FlagList
+                    options.
+
+              The FlagList parameter is  a  list  of  options.  The  following
+              options are allowed:
+
+                global:
+                    Turn  on  or  off  call  tracing for global function calls
+                    (that is, calls specifying the  module  explicitly).  Only
+                    exported  functions  will match and only global calls will
+                    generate trace messages. This is the default.
+
+                local:
+                    Turn on or off call tracing  for  all  types  of  function
+                    calls.  Trace  messages  will  be sent whenever any of the
+                    specified functions are called, regardless of how they are
+                    called.  If  the  return_to flag is set for the process, a
+                    return_to message will also be  sent  when  this  function
+                    returns to its caller.
+
+                meta | {meta, Pid}:
+                    Turn  on  or  off  meta  tracing for all types of function
+                    calls. Trace messages will be sent to the  tracer  process
+                    or  port  Pid  whenever any of the specified functions are
+                    called, regardless of how they are called. If  no  Pid  is
+                    specified, self() is used as a default tracer process.
+
+
+
+                    Meta  tracing traces all processes and does not care about
+                    the process trace flags set by trace/3,  the  trace  flags
+                    are instead fixed to [call, timestamp].
+
+
+
+                    The  match  spec  function  {return_trace} works with meta
+                    trace and send its trace message to the same  tracer  pro-
+                    cess.
+
+                call_count:
+                    Starts  (MatchSpec  == true) or stops (MatchSpec == false)
+                    call count tracing for all types of  function  calls.  For
+                    every  function a counter is incremented when the function
+                    is called, in any process. No process trace flags need  to
+                    be activated.
+
+
+
+                    If  call  count  tracing is started while already running,
+                    the count is restarted from zero. Running counters can  be
+                    paused  with  MatchSpec == pause. Paused and running coun-
+                    ters can be restarted from zero with MatchSpec == restart.
+
+
+
+                    The counter value can be read with erlang:trace_info/2 .
+
+              The  global  and local options are mutually exclusive and global
+              is the default (if no options are specified). The call_count and
+              meta  options  perform a kind of local tracing, and can also not
+              be combined with global. A function can be  either  globally  or
+              locally  traced.  If global tracing is specified for a specified
+              set of functions; local, meta and call  count  tracing  for  the
+              matching  set  of  local  functions  will  be disabled, and vice
+              versa.
+
+              When disabling trace, the option must match the  type  of  trace
+              that  is set on the function, so that local tracing must be dis-
+              abled with the local option and global tracing with  the  global
+              option (or no option at all), and so forth.
+
+              There is no way to directly change part of a match specification
+              list. If a function has a match specification, you  can  replace
+              it  with a completely new one. If you need to change an existing
+              match specification, use the erlang:trace_info/2 BIF to retrieve
+              the existing match specification.
+
+              Returns  the  number  of exported functions that matched the MFA
+              argument. This will be zero if none matched at all.
+
+       trunc(Number) -> int()
+
+              Types  Number = number()
+
+              Returns an integer by the truncating Number.
+
+              >trunc(5.5).
+
+              5
+
+              Allowed in guard tests.
+
+       tuple_to_list(Tuple) -> [term()]
+
+              Types  Tuple = tuple()
+
+              Returns a list which corresponds to Tuple. Tuple may contain any
+              Erlang terms.
+
+              >tuple_to_list({share, {'Ericsson_B', 163}}).
+
+              [share, {'Ericsson_B', 163}]
+
+       erlang:universaltime() -> {Date, Time}
+
+              Types  Date = {Year, Month, Day}
+                     Time = {Hour, Minute, Second}
+                      Year = Month = Day = Hour = Minute = Second = int()
+
+              Returns  the  current  date and time according to Universal Time
+              Coordinated (UTC), also called GMT, in the form  {{Year,  Month,
+              Day},  {Hour,  Minute,  Second}}  if supported by the underlying
+              operating system. If not, erlang:universaltime()  is  equivalent
+              to erlang:localtime().
+
+              >erlang:universaltime().
+
+              {{1996,11,6},{14,18,43}}
+
+       erlang:universaltime_to_localtime({Date1, Time1}) -> {Date2, Time2}
+
+              Types  Date1 = Date2 = {Year, Month, Day}
+                     Time1 = Time2 = {Hour, Minute, Second}
+                      Year = Month = Day = Hour = Minute = Second = int()
+
+              Converts Universal Time Coordinated (UTC) date and time to local
+              date and time, if this is supported by the underlying OS. Other-
+              wise, no conversion is done, and {Date1, Time1} is returned.
+
+              >erlang:universaltime_to_localtime({{1996,11,6},{14,18,43}}).
+
+              {{1996,11,7},{15,18,43}}
+
+              Failure:  badarg if Date1 or Time1 do not denote a valid date or
+              time.
+
+       unlink(Id) -> true
+
+              Types  Id = pid() | port()
+
+              Removes the link, if there is one, between the  calling  process
+              and the process or port referred to by Id.
+
+              Returns  true and does not fail, even if there is no link to Id,
+              or if Id does not exist.
+
+              Once unlink(Id) has returned it  is  guaranteed  that  the  link
+              between  the  caller  and  the  entity  referred to by Id has no
+              effect on the caller in the future (unless  the  link  is  setup
+              again).  If caller is trapping exits, an {'EXIT', Id, _} message
+              due to the link might have been placed in  the  callers  message
+              queue  prior to the call, though. Note, the {'EXIT', Id, _} mes-
+              sage can be the result of the link, but can also be  the  result
+              of  Id  calling  exit/2.  Therefore,  it  may  be appropriate to
+              cleanup the message queue when trapping exits after the call  to
+              unlink(Id), as follow:
+
+
+                  unlink(Id),
+                  receive
+                      {'EXIT', Id, _} ->
+                          true
+                  after 0 ->
+                          true
+                  end
+
+   Note:
+       Prior  to  OTP  release  R11B  (erts version 5.5) unlink/1 behaved com-
+       pletely asynchronous, i.e., the link was active until the "unlink  sig-
+       nal"  reached  the  linked  entity.  This  had  one undesirable effect,
+       though. You could never  know  when  you  were  guaranteed  not  to  be
+       effected by the link.
+
+       Current  behavior  can  be  viewed  as  two  combined operations: asyn-
+       chronously send an "unlink signal" to the linked entity and ignore  any
+       future results of the link.
+
+
+       unregister(RegName) -> true
+
+              Types  RegName = atom()
+
+              Removes  the registered name RegName, associated with a pid or a
+              port identifier.
+
+              >unregister(db).
+
+              true
+
+              Users are advised not to unregister system processes.
+
+              Failure: badarg if RegName is not a registered name.
+
+       whereis(RegName) -> pid() | port() | undefined
+
+              Returns the pid or port identifier with the registered name Reg-
+              Name. Returns undefined if the name is not registered.
+
+              >whereis(db).
+
+              <0.43.0>
+
+       erlang:yield() -> true
+
+              Voluntarily  let  other  processes (if any) get a chance to exe-
+              cute. Using erlang:yield() is similar to receive after 1  ->  ok
+              end, except that yield() is faster.
+
+AUTHORS
+       Joe Armstrong - support@erlang.ericsson.se
+       Mike Williams - support@erlang.ericsson.se
+       Robert Virding - support@erlang.ericsson.se
+       Claes Wikström - support@erlang.ericsson.se
+       Rickard Green - support@erlang.ericsson.se
+
+
+
+Ericsson AB                     kernel  2.11.4                       erlang(3)
