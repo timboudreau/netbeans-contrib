@@ -161,7 +161,19 @@ public class Hk2PluginProperties {
         try {
             //get the wrapper jar (empty) that lists all the dependant ee 5 jars.
             //needed for compilation with the correct jars
-            File ee5lib = new File(serverDir, "lib/javaee-5.0.jar");
+            File jarDir = new File(serverDir, "modules");
+            if(!jarDir.exists()) {
+                // !PW Older V3 installs (pre 12/01/07) put jars in lib folder.
+                jarDir = new File(serverDir, "lib");
+                if(!jarDir.exists()) {
+                    // jar folder does not exist, return empty list.
+                    return list;
+                }
+            }
+            File ee5lib = new File(jarDir, "javaee-5.0.jar");
+            if (!ee5lib.exists()) {//should not happen
+                return list;
+            }
             Manifest m = new JarFile(ee5lib).getManifest();
 
             String dependantJars = m.getMainAttributes().getValue("Class-Path");
@@ -170,7 +182,7 @@ public class Hk2PluginProperties {
             while (token.hasMoreTokens()) {
                 String jar = token.nextToken();
 //                System.out.println("dependantJars : " + jar);
-                File j = new File(serverDir, "lib/" + jar);
+                File j = new File(jarDir,  jar);
                 list.add(CustomizerSupport.fileToUrl(j));
 
             }
