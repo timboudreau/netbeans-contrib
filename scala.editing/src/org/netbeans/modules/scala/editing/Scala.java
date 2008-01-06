@@ -68,8 +68,10 @@ import org.netbeans.api.languages.LanguageDefinitionNotFoundException;
 import org.netbeans.api.languages.LanguagesManager;
 import org.netbeans.api.languages.LibrarySupport;
 import org.netbeans.api.languages.SyntaxContext;
-import org.netbeans.api.languages.database.ContextRoot;
+import org.netbeans.api.languages.database.DatabaseContext;
 import org.netbeans.api.languages.database.DatabaseDefinition;
+import org.netbeans.api.languages.database.DatabaseItem;
+import org.netbeans.api.languages.database.DatabaseUsage;
 import org.netbeans.api.lexer.Token;
 import org.netbeans.api.lexer.TokenHierarchy;
 import org.netbeans.api.lexer.TokenSequence;
@@ -79,6 +81,7 @@ import org.netbeans.modules.editor.NbEditorDocument;
 import org.netbeans.modules.editor.NbEditorUtilities;
 import org.netbeans.modules.scala.editing.semantic.Function;
 import org.netbeans.modules.scala.editing.semantic.ErlInclude;
+import org.netbeans.modules.scala.editing.semantic.ScalaContext;
 import org.netbeans.modules.scala.editing.semantic.ScalaSemanticAnalyser;
 import org.netbeans.modules.scala.editing.semantic.Var;
 import org.netbeans.modules.scala.editing.spi.ScalaIndexProvider;
@@ -165,7 +168,7 @@ public class Scala {
         AbstractDocument doc = (AbstractDocument) context.getDocument();
         doc.readLock();
         try {
-            ContextRoot ctxRoot = ScalaSemanticAnalyser.getCurrentCtxRoot(doc);
+            ScalaContext rootCtx = ScalaSemanticAnalyser.getCurrentCtxRoot(doc);
             TokenSequence tokenSequence = getTokenSequence(context);
             List<CompletionItem> result = new ArrayList<CompletionItem>();
             Token token = previousToken(tokenSequence);
@@ -288,8 +291,16 @@ public class Scala {
         }
         ASTToken token = (ASTToken) leaf;
         ASTNode astRoot = (ASTNode) path.getRoot();
-        ContextRoot ctxRoot = ScalaSemanticAnalyser.getCtxRoot(doc, astRoot);
-        return ctxRoot.getDefinition(token);
+        ScalaContext rootCtx = ScalaSemanticAnalyser.getRootContext(doc, astRoot);
+        DatabaseItem dbItem = rootCtx.getDatabaseItem(token.getOffset());
+        if (dbItem != null) {
+            if (dbItem instanceof DatabaseDefinition) {
+                return (DatabaseDefinition) dbItem;
+            } else if (dbItem instanceof DatabaseUsage){
+                return ((DatabaseUsage) dbItem).getDefinition();
+            }
+        }
+        return null;
     }
 
     private static Runnable getGotoDeclarationTask(ASTPath path, StyledDocument doc) {
@@ -454,12 +465,12 @@ public class Scala {
     private static Collection<CompletionItem> getMembers(Document doc, int offset) {
         membersBuf.clear();
         String title = getDocumentName(doc);
-        ContextRoot ctxRoot = ScalaSemanticAnalyser.getCurrentCtxRoot(doc);
-        if (ctxRoot == null) {
+        ScalaContext rootCtx = ScalaSemanticAnalyser.getCurrentCtxRoot(doc);
+        if (rootCtx == null) {
             return membersBuf;
         }
 
-        Collection<DatabaseDefinition> definitions = ctxRoot.getDefinitionsInScope(offset);
+        Collection<DatabaseDefinition> definitions = getDefinitionsInScope(rootCtx, offset);
         for (DatabaseDefinition definition : definitions) {
             CompletionItem item = toCompletionItem(definition, title);
             if (item != null) {
@@ -468,6 +479,14 @@ public class Scala {
         }
         return membersBuf;
     }
+    
+    public static Collection<DatabaseDefinition> getDefinitionsInScope(ScalaContext rootCtx, int offset) {
+        DatabaseContext closestCtx = rootCtx.getClosestContext(offset);
+        Collection<DatabaseDefinition> scopeDefinitions = new ArrayList<DatabaseDefinition>();
+        closestCtx.collectDefinitionsInScope(scopeDefinitions);
+	return scopeDefinitions;
+    }
+
     
     static CompletionItem toCompletionItem(DatabaseDefinition definition, String title) {
         if (definition instanceof Var) {
