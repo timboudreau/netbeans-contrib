@@ -147,7 +147,7 @@ public class ScalaSemanticAnalyser {
             analyser = new ScalaSemanticAnalyser(doc);
             docToAnalyser.put(doc, analyser);
 
-            /** ugly hacking to add MarkOccurrencesSupport */
+            /** ugly hacking to add MarkOccurrencesSupport_ */
             MarkOccurrencesSupport.checkInstallation(doc);
         }
 
@@ -423,7 +423,7 @@ public class ScalaSemanticAnalyser {
                         ASTToken varToken = getIdTokenFromNameId(nameId);
                         Var varDfn = new Var(varToken.getIdentifier(), varToken.getOffset(), varToken.getEndOffset(), Var.Scope.PARAMETER);
                         ctx.addDefinition(varDfn);
-                        ctxRoot.registerUsage(varToken, varDfn);
+                        ctx.addUsage(varToken, varDfn);
                     }
                     List<ASTItem> types = query(item1, "ClassParams/ClassParam/ParamType/Type");
                     for (ASTItem type : types) {
@@ -448,9 +448,9 @@ public class ScalaSemanticAnalyser {
         }
 
         if (nameToken != null) {
-            Template tmplDfn = new Template(nameToken.getIdentifier(), tmplDef.getOffset(), tmplDef.getEndOffset(), kind);
+            Template tmplDfn = new Template(nameToken.getIdentifier(), nameToken.getOffset(), nameToken.getEndOffset(), kind);
             currCtx.addDefinition(tmplDfn);
-            ctxRoot.registerUsage(nameToken, tmplDfn);
+            currCtx.addUsage(nameToken, tmplDfn);
         }
         
         return pendingItems;
@@ -503,7 +503,7 @@ public class ScalaSemanticAnalyser {
                             if (varDfn == null) {
                                 varDfn = new Var(nameStr, varToken.getOffset(), varToken.getEndOffset(), Var.Scope.PARAMETER);
                                 currCtx.addDefinition(varDfn);
-                                ctxRoot.registerUsage(varToken, varDfn);
+                                currCtx.addUsage(varToken, varDfn);
                             } else {
                             // error
                             }
@@ -520,7 +520,7 @@ public class ScalaSemanticAnalyser {
                                 if (varDfn == null) {
                                     varDfn = new Var(nameStr, varToken.getOffset(), varToken.getEndOffset(), Var.Scope.PARAMETER);
                                     currCtx.addDefinition(varDfn);
-                                    ctxRoot.registerUsage(varToken, varDfn);
+                                    currCtx.addUsage(varToken, varDfn);
                                 } else {
                                 // error
                                 }
@@ -538,7 +538,7 @@ public class ScalaSemanticAnalyser {
                                 if (varDfn == null) {
                                     varDfn = new Var(nameStr, varToken.getOffset(), varToken.getEndOffset(), Var.Scope.PARAMETER);
                                     currCtx.addDefinition(varDfn);
-                                    ctxRoot.registerUsage(varToken, varDfn);
+                                    currCtx.addUsage(varToken, varDfn);
                                 } else {
                                 // error
                                 }
@@ -559,14 +559,13 @@ public class ScalaSemanticAnalyser {
         String argumentsStr = "";
         for (ASTItem item : funDclDef.getChildren()) {
             if (isNode(item, "NameId")) {
-                ASTToken funName = getIdTokenFromNameId(item);
-                Function funDfn = ctxRoot.getRootContext().getFunctionInScope(funName.getIdentifier(), 0);
+                ASTToken nameToken = getIdTokenFromNameId(item);
+                Function funDfn = ctxRoot.getRootContext().getFunctionInScope(nameToken.getIdentifier(), 0);
                 if (funDfn == null) {
-                    String nameStr = funName.getIdentifier().trim();
-                    funDfn = new Function(nameStr, funDclDef.getOffset(), funDclDef.getEndOffset(), 0);
+                    funDfn = new Function(nameToken.getIdentifier(), nameToken.getOffset(), nameToken.getEndOffset(), 0);
                     ctxRoot.getRootContext().addDefinition(funDfn);
                 }
-                ctxRoot.registerUsage(funName, funDfn);
+                currCtx.addUsage(nameToken, funDfn);
                 if (!argumentsStr.equals("")) {
                     funDfn.addArgumentsOpt(argumentsStr);
                 }
@@ -577,7 +576,7 @@ public class ScalaSemanticAnalyser {
                     ASTToken varToken = getIdTokenFromNameId(nameId);
                     Var varDfn = new Var(varToken.getIdentifier(), varToken.getOffset(), varToken.getEndOffset(), Var.Scope.PARAMETER);
                     ctx.addDefinition(varDfn);
-                    ctxRoot.registerUsage(varToken, varDfn);
+                    ctx.addUsage(varToken, varDfn);
                 }
                 List<ASTItem> types = query(item, "ParamClause/Params/Param/ParamType");
                 for (ASTItem type : types) {
@@ -602,7 +601,7 @@ public class ScalaSemanticAnalyser {
                     ASTToken idToken = getIdTokenFromNameId(lastNameId);
                     Template tmplDfn = currCtx.getDefinitionInScopeByName(Template.class, idToken.getIdentifier());
                     if (tmplDfn != null) {
-                        ctxRoot.registerUsage(idToken, tmplDfn);
+                        currCtx.addUsage(idToken, tmplDfn);
                     }
                 }
             } else if (item instanceof ASTNode) {
@@ -678,7 +677,7 @@ public class ScalaSemanticAnalyser {
                             Function functionDef = ctxRoot.getRootContext().getFunctionInScope(name.getIdentifier(), arityInt);
                             if (functionDef != null) {
                                 exportDef.addFunction(functionDef);
-                                ctxRoot.registerUsage(name, functionDef);
+                                ctxRoot.getRootContext().addUsage(name, functionDef);
                             } else {
                                 /** don't know offset of this function, just add it as 0 offset */
                                 exportDef.addFunction(new Function(name.getIdentifier(), arityInt));
@@ -736,7 +735,7 @@ public class ScalaSemanticAnalyser {
                 includeDef.setPath(pathStr);
 
                 /** add this usage to enable go to declartion */
-                ctxRoot.registerUsage(path, includeDef);
+                ctxRoot.getRootContext().addUsage(path, includeDef);
             }
         }
     }
@@ -759,7 +758,7 @@ public class ScalaSemanticAnalyser {
                 includeDef.setPath(pathStr);
 
                 /** add this usage to enable go to declartion */
-                ctxRoot.registerUsage(path, includeDef);
+                ctxRoot.getRootContext().addUsage(path, includeDef);
             }
         }
     }
@@ -822,7 +821,7 @@ public class ScalaSemanticAnalyser {
                     ASTToken varToken = getIdTokenFromNameId(nameIds.get(0));
                     Var varDfn = new Var(varToken.getIdentifier(), varToken.getOffset(), varToken.getEndOffset(), Var.Scope.LOCAL);
                     ctx.addDefinition(varDfn);
-                    ctxRoot.registerUsage(varToken, varDfn);
+                    ctx.addUsage(varToken, varDfn);
                 } else {
                     // Bindings = "(" Binding ("," Binding)* ")"; Binding = NameId [":" Type]
                     nameIds = query(postfixExpr, "PrefixExpr/SimpleExpr/TypedParenExpr/ParenExpr/ExprInParen/PostfixExpr/PrefixExpr/SimpleExpr/TypedPathId/PathId/NameId");
@@ -830,7 +829,7 @@ public class ScalaSemanticAnalyser {
                         ASTToken varToken = getIdTokenFromNameId(nameId);
                         Var varDfn = new Var(varToken.getIdentifier(), varToken.getOffset(), varToken.getEndOffset(), Var.Scope.LOCAL);
                         ctx.addDefinition(varDfn);
-                        ctxRoot.registerUsage(varToken, varDfn);
+                        ctx.addUsage(varToken, varDfn);
                     }
                 }
                 processAnyExpr(ctxRoot, funExprTail, ctx, false);
@@ -988,11 +987,11 @@ public class ScalaSemanticAnalyser {
                                     functionDef = ScalaIndexProvider.getDefault().getFunction(remoteName.getIdentifier(), funName.getIdentifier(), arityInt);
                                     if (functionDef != null) {
                                         ctxRoot.getRootContext().addDefinition(functionDef);
-                                        ctxRoot.registerUsage(funName, functionDef);
+                                        ctxRoot.getRootContext().addUsage(funName, functionDef);
                                     }
                                 }
                             } else {
-                                ctxRoot.registerUsage(funName, functionDef);
+                                ctxRoot.getRootContext().addUsage(funName, functionDef);
                             }
                         } else if (remoteName != null) {
                             funName = remoteName;
@@ -1002,10 +1001,10 @@ public class ScalaSemanticAnalyser {
                                 functionDef = ErlBuiltIn.getBuiltInFunction(funName.getIdentifier(), arityInt);
                                 if (functionDef != null) {
                                     ctxRoot.getRootContext().addDefinition(functionDef);
-                                    ctxRoot.registerUsage(funName, functionDef);
+                                    ctxRoot.getRootContext().addUsage(funName, functionDef);
                                 }
                             } else {
-                                ctxRoot.registerUsage(funName, functionDef);
+                                ctxRoot.getRootContext().addUsage(funName, functionDef);
                             }
                         }
                     }
@@ -1046,10 +1045,10 @@ public class ScalaSemanticAnalyser {
                         macroDef = ErlMacro.getPreDefined(macroNameStr);
                         if (macroDef != null) {
                             ctxRoot.getRootContext().addDefinition(macroDef);
-                            ctxRoot.registerUsage(macroName, macroDef);
+                            ctxRoot.getRootContext().addUsage(macroName, macroDef);
                         }
                     } else {
-                        ctxRoot.registerUsage(macroName, macroDef);
+                        ctxRoot.getRootContext().addUsage(macroName, macroDef);
                     }
                 }
             }
@@ -1063,10 +1062,10 @@ public class ScalaSemanticAnalyser {
                             if (containsVarDef) {
                                 varDfn = new Var(var.getIdentifier(), expr.getOffset(), expr.getEndOffset(), Var.Scope.LOCAL);
                                 currCtx.addDefinition(varDfn);
-                                ctxRoot.registerUsage(var, varDfn);
+                                currCtx.addUsage(var, varDfn);
                             }
                         } else {
-                            ctxRoot.registerUsage(var, varDfn);
+                            currCtx.addUsage(var, varDfn);
                         }
                     }
                 } else if (item instanceof ASTNode) {
@@ -1143,13 +1142,13 @@ public class ScalaSemanticAnalyser {
                     funDfn = ErlBuiltIn.getBuiltInFunction(funName.getIdentifier(), arityInt);
                     if (funDfn != null) {
                         ctxRoot.getRootContext().addDefinition(funDfn);
-                        ctxRoot.registerUsage(funName, funDfn);
+                        currCtx.addUsage(funName, funDfn);
                     } else {
                         // It may be a apply/update function of var?
                         isVar = true;
                     }
                 } else {
-                    ctxRoot.registerUsage(funName, funDfn);
+                    currCtx.addUsage(funName, funDfn);
                 }
             }
 
@@ -1176,11 +1175,11 @@ public class ScalaSemanticAnalyser {
             if (varId != null && !(varId.getIdentifier().equals("_"))) {
                 Var varDfn = currCtx.getVariableInScope(varId.getIdentifier());
                 if (varDfn != null) {
-                    ctxRoot.registerUsage(varId, varDfn);
+                    currCtx.addUsage(varId, varDfn);
                 } else {
                     Template tmplDfn = currCtx.getDefinitionInScopeByName(Template.class, varId.getIdentifier());
                     if (tmplDfn != null && (tmplDfn.getKind() == Kind.OBJECT || tmplDfn.getKind() == Kind.CLASS)) {
-                        ctxRoot.registerUsage(varId, tmplDfn);
+                        currCtx.addUsage(varId, tmplDfn);
                     }
                 }
             }
@@ -1210,7 +1209,7 @@ public class ScalaSemanticAnalyser {
                 if (tmplId != null && !(tmplId.getIdentifier().equals("_"))) {
                     Template tmplDfn = currCtx.getDefinitionInScopeByName(Template.class, tmplId.getIdentifier());
                     if (tmplDfn != null && (tmplDfn.getKind() == Kind.CLASS || tmplDfn.getKind() == Kind.TRAIT)) {
-                        ctxRoot.registerUsage(tmplId, tmplDfn);
+                        currCtx.addUsage(tmplId, tmplDfn);
                     }
                 }
             }
