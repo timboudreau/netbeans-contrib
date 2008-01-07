@@ -28,7 +28,6 @@
 package org.netbeans.modules.spellchecker.bindings.ruby;
 
 import javax.swing.text.BadLocationException;
-import org.netbeans.api.gsf.GsfTokenId;
 import org.netbeans.api.html.lexer.HTMLTokenId;
 import org.netbeans.api.lexer.TokenId;
 import org.netbeans.api.lexer.TokenSequence;
@@ -73,7 +72,7 @@ public class RhtmlTokenList extends RubyTokenList {
                     }
                 }
             } else if (id == RhtmlTokenId.RUBY || id == RhtmlTokenId.RUBY_EXPR) {
-                TokenSequence<? extends GsfTokenId> t = ts.embedded(RubyTokenId.language());
+                TokenSequence<? extends RubyTokenId> t = ts.embedded(RubyTokenId.language());
                 if (t != null) {
                     // Tokenize Ruby segment
                     int[] span = super.findNextSpellSpan(t, Math.max(offset,ts.offset()));
