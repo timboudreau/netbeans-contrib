@@ -55,8 +55,9 @@ import org.netbeans.api.languages.ASTNode;
 import org.netbeans.api.languages.ASTToken;
 import org.netbeans.api.languages.ParserManager;
 import org.netbeans.api.languages.ParserManager.State;
+import org.netbeans.api.languages.ParserManagerListener;
 import org.netbeans.api.languages.SyntaxContext;
-import org.netbeans.modules.scala.editing.features.MarkOccurrencesSupport;
+import org.netbeans.api.languages.database.DatabaseManager;
 import org.netbeans.modules.scala.editing.semantic.Template.Kind;
 import org.netbeans.modules.scala.editing.spi.ScalaIndexProvider;
 import org.openide.filesystems.FileObject;
@@ -98,10 +99,38 @@ public class ScalaSemanticAnalyser {
      */
     private boolean forIndexing;
 
+    private ParserManager parserManager;
+    private ParserManagerListener parserManagerListener;
+    private boolean updated;
+    
     private ScalaSemanticAnalyser(Document doc) {
         this.doc = doc;
+        parserManager = ParserManager.get(doc);
+        parserManagerListener = new ParserManagerListener() {
+
+            public void parsed(State state, ASTNode root) {
+                if (state == State.PARSING) {
+                    updated = false;
+                    throw new UnsupportedOperationException("Not supported yet.");
+                } else if (state == State.OK) {
+                    if (!updated) {
+                        analyse(root);
+                        updated = true;
+                    }
+                }
+            }
+        };
+        parserManager.addListener(parserManagerListener);
     }
 
+    @Override
+    protected void finalize() throws Throwable {
+        super.finalize();
+        if (parserManager != null && parserManagerListener != null) {
+            parserManager.removeListener(parserManagerListener);           
+        }
+    }    
+    
     private ScalaSemanticAnalyser(boolean forIndexing) {
         this.doc = null;
         this.forIndexing = forIndexing;
@@ -116,7 +145,6 @@ public class ScalaSemanticAnalyser {
     }
 
     public State getState() {
-        ParserManager parserManager = ParserManager.get(doc);
         assert parserManager != null;
         return parserManager.getState();
     }
@@ -147,7 +175,7 @@ public class ScalaSemanticAnalyser {
             docToAnalyser.put(doc, analyser);
 
             /** ugly hacking to add MarkOccurrencesSupport_ */
-            MarkOccurrencesSupport.checkInstallation(doc);
+            //MarkOccurrencesSupport.checkInstallation(doc);
         }
 
         return analyser;
@@ -217,6 +245,7 @@ public class ScalaSemanticAnalyser {
             ScalaContext rootCtxInParsing = new ScalaContext(astRoot.getOffset(), astRoot.getEndOffset());
             process(rootCtxInParsing, astRoot, rootCtxInParsing);
             rootCtx = rootCtxInParsing;
+            DatabaseManager.setRoot(astRoot, rootCtx);
             return rootCtx;
         } else {
             return rootCtx;
