@@ -80,7 +80,7 @@ public final class ClassPathProviderImpl implements ClassPathProvider, PropertyC
     }
 
     /**
-     * <ul>Constants for different classpaths properties
+     * <ul>Constants for different classpath properties
      * <li>JAVAC_CLASSPATH - for compile classpath of sources
      * <li>RUN_CLASSPATH - for execute classpath of sources
      * <li>JAVAC_TEST_CLASSPATH - for compile classpath of tests
@@ -95,16 +95,24 @@ public final class ClassPathProviderImpl implements ClassPathProvider, PropertyC
     }
 
     /**
-     * Type of file classpath is required for.
+     * <ul>Type of file classpath is required for.
+     * <li>UNKNOWN - unknown
+     * <li>SOURCE - java source
+     * <li>TEST_SOURCE - junit test source
+     * <li>CLASS - compiled java class
+     * <li>TEST_CLASS - compiled junit test class
+     * <li>CLASS_IN_JAR - compiled java class packaged in jar
+     * <li>WEB_SOURCE - web source
+     * </ul>
      */
-    private static enum FileType {
+    public static enum FileType {
+        UNKNOWN,
         SOURCE,         // java source
         TEST_SOURCE,    // junit test source
         CLASS,          // compiled java class
         TEST_CLASS,     // compiled junit test class
         CLASS_IN_JAR,   // compiled java class packaged in jar
-        WEB_SOURCE,     // web source
-        UNKNOWN
+        WEB_SOURCE     // web source
     }
 
     /**
@@ -193,11 +201,11 @@ public final class ClassPathProviderImpl implements ClassPathProvider, PropertyC
         return getDir(Path.WEB_ROOT);
     }
 
-     /**
-     * Find what a given file represents.
-     * @param file a file in the project
-     * @return one of FileType.* constants
-     */
+   /**
+    * Find what a given file represents.
+    * @param file a file in the project
+    * @return one of FileType.* constants
+    */
    private FileType getType(FileObject file) {
         for (FileObject root : getPrimarySrcPath()) {
             if (root.equals(file) || FileUtil.isParentOf(root, file)) {
@@ -238,7 +246,7 @@ public final class ClassPathProviderImpl implements ClassPathProvider, PropertyC
                 // treat all these types as source
                 cp = cache.get(ClassPathCache.SOURCE_COMPILATION);
                 if (cp == null) {
-                    cp = customization.getSourceCompileClasspath(getCustomizationContext());
+                    cp = customization.getCompileTimeClasspath(FileType.SOURCE, getCustomizationContext());
                     assert cp != null;
                     cache.put(ClassPathCache.SOURCE_COMPILATION, cp);
                 }
@@ -247,7 +255,7 @@ public final class ClassPathProviderImpl implements ClassPathProvider, PropertyC
             case TEST_SOURCE:
                 cp = cache.get(ClassPathCache.TEST_SOURCE_COMPILATION);
                 if (cp == null) {
-                    cp = customization.getTestCompileClasspath(getCustomizationContext());
+                    cp = customization.getCompileTimeClasspath(FileType.TEST_SOURCE, getCustomizationContext());
                     assert cp != null;
                     cache.put(ClassPathCache.TEST_SOURCE_COMPILATION, cp);
                 }
@@ -270,7 +278,7 @@ public final class ClassPathProviderImpl implements ClassPathProvider, PropertyC
                 // treat all these types as source
                 cp = cache.get(ClassPathCache.SOURCE_RUNTIME);
                 if (cp == null) {
-                    cp = customization.getSourceRunTimeClasspath(getCustomizationContext());
+                    cp = customization.getRunTimeClasspath(FileType.SOURCE, getCustomizationContext());
                     assert cp != null;
                     cache.put(ClassPathCache.SOURCE_RUNTIME, cp);
                 }
@@ -280,7 +288,7 @@ public final class ClassPathProviderImpl implements ClassPathProvider, PropertyC
             case TEST_CLASS:
                 cp = cache.get(ClassPathCache.TEST_SOURCE_RUNTIME);
                 if (cp == null) {
-                    cp = customization.getTestRunTimeClasspath(getCustomizationContext());
+                    cp = customization.getRunTimeClasspath(FileType.TEST_SOURCE, getCustomizationContext());
                     assert cp != null;
                     cache.put(ClassPathCache.TEST_SOURCE_RUNTIME, cp);
                 }
@@ -301,7 +309,7 @@ public final class ClassPathProviderImpl implements ClassPathProvider, PropertyC
                 // treat all these types as source
                 cp = cache.get(ClassPathCache.SOURCE);
                 if (cp == null) {
-                    cp = customization.getSourceSourcePath(getCustomizationContext());
+                    cp = customization.getSourcePath(FileType.SOURCE, getCustomizationContext());
                     assert cp != null;
                     cache.put(ClassPathCache.SOURCE, cp);
                 }
@@ -310,7 +318,7 @@ public final class ClassPathProviderImpl implements ClassPathProvider, PropertyC
             case TEST_SOURCE:
                 cp = cache.get(ClassPathCache.TEST_SOURCE);
                 if (cp == null) {
-                    cp = customization.getTestSourcePath(getCustomizationContext());
+                    cp = customization.getSourcePath(FileType.TEST_SOURCE, getCustomizationContext());
                     assert cp != null;
                     cache.put(ClassPathCache.TEST_SOURCE, cp);
                 }
@@ -319,7 +327,7 @@ public final class ClassPathProviderImpl implements ClassPathProvider, PropertyC
             case WEB_SOURCE:
                 cp = cache.get(ClassPathCache.WEB_SOURCE);
                 if (cp == null) {
-                    cp = customization.getWebSourcePath(getCustomizationContext());
+                    cp = customization.getSourcePath(FileType.WEB_SOURCE, getCustomizationContext());
                     assert cp != null;
                     cache.put(ClassPathCache.WEB_SOURCE, cp);
                 }
@@ -341,6 +349,10 @@ public final class ClassPathProviderImpl implements ClassPathProvider, PropertyC
         return cp;
     }
 
+    /**
+     * Get the classpath of the active Java EE platform.
+     * @return the classpath of Java EE platform.
+     */
     public synchronized ClassPath getJ2eePlatformClassPath() {
         ClassPath cp = cache.get(ClassPathCache.PLATFORM);
         if (cp == null) {
@@ -351,6 +363,9 @@ public final class ClassPathProviderImpl implements ClassPathProvider, PropertyC
         return cp;
     }
 
+    /**
+     * @see ClassPathProvider#findClassPath()
+     */
     public ClassPath findClassPath(FileObject file, String type) {
         FileType fileType = getType(file);
         if (type.equals(ClassPath.COMPILE)) {
@@ -368,6 +383,8 @@ public final class ClassPathProviderImpl implements ClassPathProvider, PropertyC
     /**
      * Return array of all classpaths of the given type in the project.
      * The result is used for example for GlobalPathRegistry registrations.
+     * @param type classpath type - boot, compile or source, see {@link ClassPath} for more information.
+     * @return array of all classpaths of the given type in the project.
      */
     public ClassPath[] getProjectClassPaths(String type) {
         if (ClassPath.BOOT.equals(type)) {
@@ -393,6 +410,8 @@ public final class ClassPathProviderImpl implements ClassPathProvider, PropertyC
     /**
      * Return the given type of the classpath for the project sources
      * (i.e., excluding tests roots).
+     * @param type classpath type - boot, compile or source, see {@link ClassPath} for more information.
+     * @return the given type of the classpath for the project sources.
      */
     public ClassPath getProjectSourcesClassPath(String type) {
         if (ClassPath.BOOT.equals(type)) {
@@ -406,10 +425,21 @@ public final class ClassPathProviderImpl implements ClassPathProvider, PropertyC
         return null;
     }
 
+    /**
+     * Clear the cache if any property changes.
+     */
     public void propertyChange(PropertyChangeEvent evt) {
         dirCache.remove(evt.getPropertyName());
     }
 
+    /**
+     * Get the name of the property of the classpath for the given source group and classpath type.
+     * The property is searched in sources as well as tests and can be <code>null</code> if the root of the given
+     * source group is not found.
+     * @param sg source group the property is searched for.
+     * @param type classpath type - compile or execute, see {@link ClassPath} for more information.
+     * @return the property name or <code>null</code> if nothing found.
+     */
     public String getPropertyName(SourceGroup sg, String type) {
         FileObject root = sg.getRootFolder();
         for (FileObject fo : getPrimarySrcPath()) {
@@ -435,6 +465,12 @@ public final class ClassPathProviderImpl implements ClassPathProvider, PropertyC
         return null;
     }
 
+    /**
+     * This class serves as a container for context provided by {@link ClassPathProviderImpl} instance. It contains its
+     * {@link AntProjectHelper}, {@link PropertyEvaluator} etc.
+     * @author Tomas Mysik
+     * @since org.netbeans.modules.java.api.common/0 1.0
+     */
     public static final class Context {
         private final AntProjectHelper helper;
         private final PropertyEvaluator evaluator;

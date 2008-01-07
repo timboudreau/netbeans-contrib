@@ -49,23 +49,48 @@ import org.openide.filesystems.FileObject;
  */
 public interface ClassPathProviderImplCustomization {
 
+    /**
+     * Get the directory representing files for the given {@link ClassPathProviderImpl.Path path}.
+     * @param path the {@link ClassPathProviderImpl.Path path} of e.g. classes of the given project.
+     * @return {@link FileObject} representing the directory.
+     */
     FileObject getDirectory(ClassPathProviderImpl.Path path);
 
-    ClassPath getSourceCompileClasspath(final ClassPathProviderImpl.Context context);
+    /**
+     * Get the classpath for compiling of the given file type. Typically this can be source or test source.
+     * @param type the {@link ClassPathProviderImpl.FileType type} the classpath is searched for.
+     * @param context context provided by {@link ClassPathProviderImpl}.
+     * @return the classpath for compiling.
+     */
+    ClassPath getCompileTimeClasspath(ClassPathProviderImpl.FileType type, final ClassPathProviderImpl.Context context);
 
-    ClassPath getTestCompileClasspath(final ClassPathProviderImpl.Context context);
+    /**
+     * Get the classpath for executing of the given file type. Typically this can be source or test source.
+     * @param type the {@link ClassPathProviderImpl.FileType type} the classpath is searched for.
+     * @param context context provided by {@link ClassPathProviderImpl}.
+     * @return the classpath for executing.
+     */
+    ClassPath getRunTimeClasspath(ClassPathProviderImpl.FileType type, final ClassPathProviderImpl.Context context);
 
-    ClassPath getSourceRunTimeClasspath(final ClassPathProviderImpl.Context context);
+    /**
+     * Get the classpath for sources of the given file type. Typically this can be source or test source.
+     * @param type the {@link ClassPathProviderImpl.FileType type} the classpath is searched for.
+     * @param context context provided by {@link ClassPathProviderImpl}.
+     * @return the classpath for sources.
+     */
+    ClassPath getSourcePath(ClassPathProviderImpl.FileType type, final ClassPathProviderImpl.Context context);
 
-    ClassPath getTestRunTimeClasspath(final ClassPathProviderImpl.Context context);
-
-    ClassPath getSourceSourcePath(final ClassPathProviderImpl.Context context);
-
-    ClassPath getTestSourcePath(final ClassPathProviderImpl.Context context);
-
-    ClassPath getWebSourcePath(final ClassPathProviderImpl.Context context);
-
+    /**
+     * Get the classpath for the active Java EE platform.
+     * @param context context provided by {@link ClassPathProviderImpl}.
+     * @return the classpath for compiling.
+     */
     ClassPath getJ2eePlatformClassPath(final ClassPathProviderImpl.Context context);
 
+    /**
+     * Get the name of the classpath property.
+     * @param classpathProperty classpath property.
+     * @return the property name.
+     */
     String getPropertyName(ClassPathProviderImpl.ClasspathProperty classpathProperty);
 }
