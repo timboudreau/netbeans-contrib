@@ -1081,7 +1081,7 @@ public class ScalaSemanticAnalyser {
             }
         } else {
             for (ASTItem item : expr.getChildren()) {
-                if (isTokenTypeName(item, "varid") | isTokenTypeName(item, "upperid")) {
+                if (isTokenTypeName(item, "var_identifier") | isTokenTypeName(item, "upper_identifier")) {
                     ASTToken var = (ASTToken) item;
                     if (!(var.getIdentifier().equals("_"))) {
                         Var varDfn = currCtx.getVariableInScope(var.getIdentifier());
@@ -1277,7 +1277,7 @@ public class ScalaSemanticAnalyser {
                 for (ASTItem item2 : item1.getChildren()) {
                     return (ASTToken) item2;
                 }
-            } else if (isToken(item1, "bquoteid")) {
+            } else if (isToken(item1, "bquote_identifier")) {
                 return (ASTToken) item1;
 
             }

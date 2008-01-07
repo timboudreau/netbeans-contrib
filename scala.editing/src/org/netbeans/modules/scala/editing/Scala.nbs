@@ -263,7 +263,7 @@ TOKEN:tview: (
 
 ## Operators
 ## add [" " "\t" "\n" "\r"]* before "=" leading operators to avoid conflict with <eq>
-TOKEN:operator: (
+TOKEN:op_identifier: (
     ["!" "%" "&" "+" "-" "<" ">" "?" "\\" "^" "`" "|" "~" "*" ]
     ["!" "%" "&" "+" "-" "=" ">" "?" "@" "\\" "^" "`" "|" "~" "#" ":" "/" "*"]* 
     |
@@ -332,12 +332,12 @@ TOKEN:comma: (
 # idrest = {letter | digit} [‘_’ op]
 #   (["a"-"z" "A"-"Z" "$" "_" "0"-"9"])* ("_" ([^ " " "\t" "\n" "\r" "[" "]" "(" ")" "," "." ";" "=" ":" "{" "}"])+)?
 # varid: lower idrest
-TOKEN:varid: ( 
+TOKEN:var_identifier: ( 
     ["a"-"z"] 
     ( ["a"-"z" "A"-"Z" "$" "_" "0"-"9"] )* ( "_" ( [^" " "\t" "\n" "\r" "[" "]" "(" ")" "," "." ";" "=" ":" "{" "}"] )+ )?
 )
 # upperid: upper idrest
-TOKEN:upperid: (
+TOKEN:upper_identifier: (
     ["_"]
     ( ["a"-"z" "A"-"Z" "$" "_" "0"-"9"])+ ( "_" ( [^" " "\t" "\n" "\r" "[" "]" "(" ")" ","  "." ";" "=" ":" "{" "}"] )+ )? 
     |
@@ -345,7 +345,7 @@ TOKEN:upperid: (
     ( ["a"-"z" "A"-"Z" "$" "_" "0"-"9"])* ( "_" ( [^" " "\t" "\n" "\r" "[" "]" "(" ")" ","  "." ";" "=" ":" "{" "}"] )+ )?
 )
 ## Backquoted id
-TOKEN:bquoteid: (
+TOKEN:bquote_identifier: (
     "`" ( 
         [^ "\\" "\'" "\n" "\r"] |
         ( "\\" (
@@ -444,12 +444,12 @@ SKIP:comment_keyword
 ## CompilationUnit
 S = (<nl>)* TopStats;
 
-PlainId = <upperid>
-        | <varid>
-        | <operator>;
+PlainId = <upper_identifier>
+        | <var_identifier>
+        | <op_identifier>;
 
 NameId = PlainId
-       | <bquoteid>;
+       | <bquote_identifier>;
 
 Symbol = <quote> PlainId;
 
@@ -684,9 +684,9 @@ XmlContent = XmlCharData
            | <xml_pi>
            | XmlScalaExpr;
 XmlCharData = Literal
-         | <varid>
-         | <upperid>
-         | <operator>
+         | <var_identifier>
+         | <upper_identifier>
+         | <op_identifier>
          | <semi>
          | <lparen>
          | <rparen>
@@ -1096,7 +1096,7 @@ COMMENT_LINE {
     prefix:"//";
 }
 
-COMPLETION:varid, upperid, keyword, operator, separator, comment, whitespace, nl: {
+COMPLETION:var_identifier, upper_identifier, op_identifier, keyword, separator, comment, whitespace, nl: {
     text1:org.netbeans.modules.scala.editing.Scala.completionItems;
     confirmChars:";(,.";
 }
@@ -1111,15 +1111,4 @@ COMPLETION:colon: {
     text1:org.netbeans.modules.scala.editing.Scala.completionItems;
     type: "append";
     confirmChars:";(,.";
-}
-
-
-HYPERLINK:varid:   org.netbeans.modules.scala.editing.Scala.hyperlink
-HYPERLINK:upperid: org.netbeans.modules.scala.editing.Scala.hyperlink
-
-ACTION:goto_declaration: {
-    name: "LBL_GotoDeclaration";
-    performer: org.netbeans.modules.scala.editing.Scala.performGoToDeclaration;
-    enabled:   org.netbeans.modules.scala.editing.Scala.enabledGoToDeclaration;
-    explorer: "false";
 }
