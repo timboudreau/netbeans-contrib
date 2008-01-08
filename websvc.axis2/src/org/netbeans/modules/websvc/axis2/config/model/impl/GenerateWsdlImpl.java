@@ -1,8 +1,8 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
- * 
+ *
  * Copyright 1997-2007 Sun Microsystems, Inc. All rights reserved.
- * 
+ *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common
  * Development and Distribution License("CDDL") (collectively, the
@@ -20,7 +20,13 @@
  * License Header, with the fields enclosed by brackets [] replaced by
  * your own identifying information:
  * "Portions Copyrighted [year] [name of copyright owner]"
- * 
+ *
+ * Contributor(s):
+ *
+ * The Original Software is NetBeans. The Initial Developer of the Original
+ * Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
+ * Microsystems, Inc. All Rights Reserved.
+ *
  * If you wish your version of this file to be governed by only the CDDL
  * or only the GPL Version 2, indicate your decision by adding
  * "[Contributor] elects to include this software in this distribution
@@ -31,32 +37,46 @@
  * However, if you add GPL Version 2 code and therefore, elected the GPL
  * Version 2 license, then the option applies only if the new code is
  * made subject to such option by the copyright holder.
- * 
- * Contributor(s):
- * 
- * Portions Copyrighted 2007 Sun Microsystems, Inc.
  */
+package org.netbeans.modules.websvc.axis2.config.model.impl;
 
-package org.netbeans.modules.websvc.axis2.services.model;
+import org.netbeans.modules.websvc.axis2.config.model.Axis2QNames;
+import org.netbeans.modules.websvc.axis2.config.model.Axis2Visitor;
+import org.netbeans.modules.websvc.axis2.config.model.GenerateWsdl;
+import org.netbeans.modules.websvc.axis2.config.model.Service;
+import org.w3c.dom.Element;
 
-import org.netbeans.modules.websvc.axis2.AxisUtils;
-import org.netbeans.modules.xml.xam.ModelSource;
-import org.openide.filesystems.FileObject;
-
-/**
- *
- * @author mkuchtiak
- */
-public class ServicesUtils {
+public class GenerateWsdlImpl extends Axis2ComponentImpl implements GenerateWsdl {
     
-    public static ServicesModel getServicesModel(FileObject servicesFile, boolean editable) {
-        ServicesModel servicesModel = null;
-        if (servicesFile != null && servicesFile.isValid()) {
-            ModelSource modelSource = AxisUtils.createModelSource(servicesFile,editable);
-            servicesModel = ServicesModelFactory.getInstance().getModel(modelSource);
-            return servicesModel;
-        }
-        return null;
+    private static String TARGET_NAMESPACE_ATTR_PROP = Axis2Attributes.attrTargetNamespace.getName();
+    private static String SCHEMA_NAMESPACE_ATTR_PROP = Axis2Attributes.attrSchemaNamespace.getName();
+    
+    public GenerateWsdlImpl(Axis2ModelImpl model, Element e) {
+        super(model, e);
+    }
+    
+    public GenerateWsdlImpl(Axis2ModelImpl model) {
+        this(model, createElementNS(model, Axis2QNames.GENERATE_WSDL));
+    }
+    
+    public void accept(Axis2Visitor visitor) {
+        visitor.visit(this);
+    }
+
+    public String getTargetNamespaceAttr() {
+        return getAttribute(Axis2Attributes.attrTargetNamespace);
+    }
+
+    public void setTargetNamespaceAttr(String name) {
+        super.setAttribute(TARGET_NAMESPACE_ATTR_PROP, Axis2Attributes.attrTargetNamespace, name);
+    }
+    
+    public String getSchemaNamespaceAttr() {
+        return getAttribute(Axis2Attributes.attrSchemaNamespace);
+    }
+
+    public void setSchemaNamespaceAttr(String name) {
+        super.setAttribute(SCHEMA_NAMESPACE_ATTR_PROP, Axis2Attributes.attrSchemaNamespace, name);
     }
     
 }

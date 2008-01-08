@@ -1,8 +1,8 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
- * 
+ *
  * Copyright 1997-2007 Sun Microsystems, Inc. All rights reserved.
- * 
+ *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common
  * Development and Distribution License("CDDL") (collectively, the
@@ -20,7 +20,13 @@
  * License Header, with the fields enclosed by brackets [] replaced by
  * your own identifying information:
  * "Portions Copyrighted [year] [name of copyright owner]"
- * 
+ *
+ * Contributor(s):
+ *
+ * The Original Software is NetBeans. The Initial Developer of the Original
+ * Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
+ * Microsystems, Inc. All Rights Reserved.
+ *
  * If you wish your version of this file to be governed by only the CDDL
  * or only the GPL Version 2, indicate your decision by adding
  * "[Contributor] elects to include this software in this distribution
@@ -31,32 +37,43 @@
  * However, if you add GPL Version 2 code and therefore, elected the GPL
  * Version 2 license, then the option applies only if the new code is
  * made subject to such option by the copyright holder.
- * 
- * Contributor(s):
- * 
- * Portions Copyrighted 2007 Sun Microsystems, Inc.
  */
+package org.netbeans.modules.websvc.axis2.config.model;
 
-package org.netbeans.modules.websvc.axis2.services.model;
-
-import org.netbeans.modules.websvc.axis2.AxisUtils;
+import java.io.IOException;
+import javax.swing.text.Document;
+import org.netbeans.modules.websvc.axis2.config.model.impl.Axis2ModelImpl;
+import org.netbeans.modules.xml.xam.AbstractModelFactory;
 import org.netbeans.modules.xml.xam.ModelSource;
-import org.openide.filesystems.FileObject;
 
-/**
- *
- * @author mkuchtiak
- */
-public class ServicesUtils {
+public class Axis2ModelFactory extends AbstractModelFactory<Axis2Model> {
+    /**
+     * Creates a new instance of Axis2ModelFactory
+     */
     
-    public static ServicesModel getServicesModel(FileObject servicesFile, boolean editable) {
-        ServicesModel servicesModel = null;
-        if (servicesFile != null && servicesFile.isValid()) {
-            ModelSource modelSource = AxisUtils.createModelSource(servicesFile,editable);
-            servicesModel = ServicesModelFactory.getInstance().getModel(modelSource);
-            return servicesModel;
-        }
-        return null;
+    private Axis2ModelFactory() {
     }
     
+    
+    private static Axis2ModelFactory instance = new Axis2ModelFactory();
+    
+    public static Axis2ModelFactory getInstance() {
+        return instance;
+    }
+    
+    protected Axis2Model createModel(ModelSource source) {
+        Axis2Model AXIS2Model = new Axis2ModelImpl(source);
+        return AXIS2Model;
+    }
+    
+    public Axis2Model getModel(ModelSource source) {
+        Document doc = (Document) source.getLookup().lookup(Document.class);
+        
+        Axis2Model am = (Axis2Model) super.getModel(source);
+        try {
+            am.sync();
+        } catch (IOException ex) {
+        }
+        return am;
+    }
 }

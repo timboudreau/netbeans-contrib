@@ -1,8 +1,8 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
- * 
+ *
  * Copyright 1997-2007 Sun Microsystems, Inc. All rights reserved.
- * 
+ *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common
  * Development and Distribution License("CDDL") (collectively, the
@@ -20,7 +20,13 @@
  * License Header, with the fields enclosed by brackets [] replaced by
  * your own identifying information:
  * "Portions Copyrighted [year] [name of copyright owner]"
- * 
+ *
+ * Contributor(s):
+ *
+ * The Original Software is NetBeans. The Initial Developer of the Original
+ * Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
+ * Microsystems, Inc. All Rights Reserved.
+ *
  * If you wish your version of this file to be governed by only the CDDL
  * or only the GPL Version 2, indicate your decision by adding
  * "[Contributor] elects to include this software in this distribution
@@ -31,32 +37,57 @@
  * However, if you add GPL Version 2 code and therefore, elected the GPL
  * Version 2 license, then the option applies only if the new code is
  * made subject to such option by the copyright holder.
- * 
- * Contributor(s):
- * 
- * Portions Copyrighted 2007 Sun Microsystems, Inc.
  */
+package org.netbeans.modules.websvc.axis2.config.model.impl;
 
-package org.netbeans.modules.websvc.axis2.services.model;
-
-import org.netbeans.modules.websvc.axis2.AxisUtils;
+import org.netbeans.modules.websvc.axis2.config.model.Axis2;
+import org.netbeans.modules.websvc.axis2.config.model.Axis2Component;
+import java.util.Set;
+import javax.xml.namespace.QName;
+import org.netbeans.modules.websvc.axis2.config.model.Axis2ComponentFactory;
+import org.netbeans.modules.websvc.axis2.config.model.Axis2Model;
+import org.netbeans.modules.websvc.axis2.config.model.Axis2QNames;
+import org.netbeans.modules.xml.xam.ComponentUpdater;
 import org.netbeans.modules.xml.xam.ModelSource;
-import org.openide.filesystems.FileObject;
+import org.netbeans.modules.xml.xam.dom.AbstractDocumentModel;
+import org.w3c.dom.Element;
 
-/**
- *
- * @author mkuchtiak
- */
-public class ServicesUtils {
+public class Axis2ModelImpl extends AbstractDocumentModel<Axis2Component> implements Axis2Model {
+    private Axis2ComponentFactory factory;
+    private Axis2 axis2;
     
-    public static ServicesModel getServicesModel(FileObject servicesFile, boolean editable) {
-        ServicesModel servicesModel = null;
-        if (servicesFile != null && servicesFile.isValid()) {
-            ModelSource modelSource = AxisUtils.createModelSource(servicesFile,editable);
-            servicesModel = ServicesModelFactory.getInstance().getModel(modelSource);
-            return servicesModel;
-        }
-        return null;
+    public Axis2ModelImpl(ModelSource source) {
+        super(source);
+        factory = new Axis2ComponentFactoryImpl(this);
     }
     
+    public Axis2 getRootComponent() {
+        return axis2;
+    }
+
+    protected ComponentUpdater<Axis2Component> getComponentUpdater() {
+        return new SyncUpdateVisitor();
+    }
+
+    public Axis2Component createComponent(Axis2Component parent, Element element) {
+        return getFactory().create(element, parent);
+    }
+
+    public Axis2 createRootComponent(Element root) {
+        Axis2 newRegistry = (Axis2) getFactory().create(root, null);
+        if (newRegistry != null) {
+            axis2 = newRegistry;
+        }
+        return newRegistry;
+    }
+
+    public Axis2ComponentFactory getFactory() {
+        return factory;
+    }
+    
+    @Override
+    public Set<QName> getQNames() {
+        return Axis2QNames.getMappedQNames();
+    }
+        
 }

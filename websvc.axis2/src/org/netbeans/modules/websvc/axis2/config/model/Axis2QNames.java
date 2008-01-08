@@ -1,8 +1,8 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
- * 
+ *
  * Copyright 1997-2007 Sun Microsystems, Inc. All rights reserved.
- * 
+ *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common
  * Development and Distribution License("CDDL") (collectively, the
@@ -20,7 +20,13 @@
  * License Header, with the fields enclosed by brackets [] replaced by
  * your own identifying information:
  * "Portions Copyrighted [year] [name of copyright owner]"
- * 
+ *
+ * Contributor(s):
+ *
+ * The Original Software is NetBeans. The Initial Developer of the Original
+ * Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
+ * Microsystems, Inc. All Rights Reserved.
+ *
  * If you wish your version of this file to be governed by only the CDDL
  * or only the GPL Version 2, indicate your decision by adding
  * "[Contributor] elects to include this software in this distribution
@@ -31,32 +37,49 @@
  * However, if you add GPL Version 2 code and therefore, elected the GPL
  * Version 2 license, then the option applies only if the new code is
  * made subject to such option by the copyright holder.
- * 
- * Contributor(s):
- * 
- * Portions Copyrighted 2007 Sun Microsystems, Inc.
  */
+package org.netbeans.modules.websvc.axis2.config.model;
 
-package org.netbeans.modules.websvc.axis2.services.model;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
+import javax.xml.namespace.QName;
 
-import org.netbeans.modules.websvc.axis2.AxisUtils;
-import org.netbeans.modules.xml.xam.ModelSource;
-import org.openide.filesystems.FileObject;
+public enum Axis2QNames {
+    AXIS2("axis2"), //NOI18N
+    SERVICE("service"), //NOI18N
+    SERVICE_CLASS("service-class"), //NOI18N
+    GENERATE_WSDL("generate-wsdl"); //NOI18N
 
-/**
- *
- * @author mkuchtiak
- */
-public class ServicesUtils {
+    public static final String AXIS2_NS = "http://www.netbeans.org/ns/axis2/1";
     
-    public static ServicesModel getServicesModel(FileObject servicesFile, boolean editable) {
-        ServicesModel servicesModel = null;
-        if (servicesFile != null && servicesFile.isValid()) {
-            ModelSource modelSource = AxisUtils.createModelSource(servicesFile,editable);
-            servicesModel = ServicesModelFactory.getInstance().getModel(modelSource);
-            return servicesModel;
-        }
-        return null;
+    private static Set<QName> mappedQNames = new HashSet<QName>();
+    static {
+        mappedQNames.add(AXIS2.getQName());
+        mappedQNames.add(SERVICE.getQName());
+        mappedQNames.add(SERVICE_CLASS.getQName());
+        mappedQNames.add(GENERATE_WSDL.getQName());
+    }
+
+    private QName qname;
+    
+    Axis2QNames(String localName) {
+        qname = new QName(AXIS2_NS, localName);
     }
     
+    public QName getQName() { 
+        return qname; 
+    }
+
+    public String getLocalName() { 
+        return qname.getLocalPart();
+    }
+    
+    public String getQualifiedName() {
+        return qname.getPrefix() + ":" + qname.getLocalPart(); //NOI18N
+    }
+    
+    public static Set<QName> getMappedQNames() {
+        return Collections.unmodifiableSet(mappedQNames);
+    }
 }

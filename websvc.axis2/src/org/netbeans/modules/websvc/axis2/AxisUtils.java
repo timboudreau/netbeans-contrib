@@ -46,10 +46,16 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
+import org.netbeans.modules.xml.xam.ModelSource;
+import org.openide.cookies.EditorCookie;
 import org.openide.filesystems.FileLock;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileSystem;
 import org.openide.filesystems.FileUtil;
+import org.openide.loaders.DataObject;
+import org.openide.loaders.DataObjectNotFoundException;
+import org.openide.util.Lookup;
+import org.openide.util.lookup.Lookups;
 
 /**
  *
@@ -110,5 +116,37 @@ public class AxisUtils {
             }
         }
         return configFolder;
+    }
+    
+    public static ModelSource createModelSource(final FileObject thisFileObj,
+            boolean editable) {
+        assert thisFileObj != null : "Null file object.";
+
+        final DataObject dobj;
+        try {
+            dobj = DataObject.find(thisFileObj);
+            final EditorCookie editor = dobj.getCookie(EditorCookie.class);
+            if (editor != null) {
+                Lookup proxyLookup = Lookups.proxy(
+                   new Lookup.Provider() { 
+                        public Lookup getLookup() {
+                            try {
+                                return Lookups.fixed(new Object[] {editor.openDocument(), dobj, thisFileObj});
+                            } catch (IOException ex) {
+                                return Lookups.fixed(new Object[] {dobj, thisFileObj});
+                            }
+                        }
+
+                    }
+                );
+                return new ModelSource(proxyLookup, editable);
+            }
+        } catch (DataObjectNotFoundException ex) {
+            java.util.logging.Logger.getLogger("global").log(java.util.logging.Level.SEVERE,
+                ex.getMessage(), ex);
+        }
+        
+
+        return null;
     }
 }

@@ -38,12 +38,13 @@
  * Version 2 license, then the option applies only if the new code is
  * made subject to such option by the copyright holder.
  */
-package org.netbeans.modules.websvc.axis2.services.model;
+package org.netbeans.modules.websvc.axis2.config.model;
 
-import org.netbeans.modules.websvc.axis2.TestUtil;
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
 import org.netbeans.junit.NbTestCase;
+import org.netbeans.modules.websvc.axis2.TestUtil;
 import org.netbeans.modules.xml.xam.ModelSource;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
@@ -53,17 +54,17 @@ import org.openide.loaders.DataObjectNotFoundException;
  *
  * @author mkuchtiak
  */
-public class ServicesModelTest extends NbTestCase {
+public class Axis2ModelTest extends NbTestCase {
 
-    private FileObject servicesFo;
+    private FileObject axis2Fo;
 
-    public ServicesModelTest(String testName) {
+    public Axis2ModelTest(String testName) {
         super(testName);
     }
 
     @Override
     protected void setUp() throws Exception {
-        servicesFo =  FileUtil.toFileObject(new File(getDataDir(),"services.xml"));
+        axis2Fo =  FileUtil.toFileObject(new File(getDataDir(),"axis2.xml"));
     }
 
     @Override
@@ -73,40 +74,34 @@ public class ServicesModelTest extends NbTestCase {
     /** Test service model for AddNumbers service
      */
     public void testServiceModel() throws IOException {
-        assertNotNull(servicesFo);
+        assertNotNull(axis2Fo);
         ModelSource source = null;
         try {
-            source = TestUtil.createModelSource(servicesFo, true);
+            source = TestUtil.createModelSource(axis2Fo, true);
         } catch (DataObjectNotFoundException ex) {
             assert false;
             ex.printStackTrace();
             return;
         }
         
-        ServicesModelFactory instance = ServicesModelFactory.getInstance();
-        ServicesModel model = instance.getModel(source);        
+        Axis2ModelFactory instance = Axis2ModelFactory.getInstance();
+        Axis2Model model = instance.getModel(source);
         assertNotNull(model);
         
-        assertFalse(model.isServicesGroup());
-        Service service = (Service)model.getRootComponent();
+        Axis2 axis2 = model.getRootComponent();
+        assertNotNull(axis2);
         
-        assertEquals("POJO: AddressBook Service", service.getDescription().trim());
+        List<Service> services = axis2.getServices();        
+        assertEquals(1, services.size());
+        Service service = services.get(0);
+        
         assertEquals("AddressBookService", service.getNameAttr());
-        assertEquals("application", service.getScopeAttr());
+        assertEquals("sample.addressbook.service.AddressBookService", service.getServiceClass());
         
-        assertEquals(1, service.getParameters().size());
-        
-        assertEquals(1,service.getParameters().size());
-        assertEquals("ServiceClass",service.getParameters().get(0).getNameAttr());
-        assertEquals("sample.addressbook.service.AddressBookService",service.getParameters().get(0).getValue());
-        
-        MessageReceivers receivers = service.geMessageReceivers();
-        assertNotNull(receivers);
-        assertEquals(2, receivers.getMessageReceivers().size());        
-        assertEquals("http://www.w3.org/2004/08/wsdl/in-only",receivers.getMessageReceivers().get(0).getMepAttr());
-        assertEquals("http://www.w3.org/2004/08/wsdl/in-out",receivers.getMessageReceivers().get(1).getMepAttr());
-        assertEquals("org.apache.axis2.rpc.receivers.RPCInOnlyMessageReceiver",receivers.getMessageReceivers().get(0).getClassAttr());
-        assertEquals("org.apache.axis2.rpc.receivers.RPCMessageReceiver",receivers.getMessageReceivers().get(1).getClassAttr());
+        GenerateWsdl generateWsdl = service.getGenerateWsdl();
+        assertNotNull(generateWsdl);
+        assertEquals("http://address.book/",generateWsdl.getTargetNamespaceAttr());
+        assertEquals("http://address.book/xsd",generateWsdl.getSchemaNamespaceAttr());
         
     }
 }

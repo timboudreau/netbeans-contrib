@@ -37,7 +37,7 @@
  * Portions Copyrighted 2007 Sun Microsystems, Inc.
  */
 
-package org.netbeans.modules.websvc.axis2.services.model;
+package org.netbeans.modules.websvc.axis2.config.model;
 
 import org.netbeans.modules.websvc.axis2.AxisUtils;
 import org.netbeans.modules.xml.xam.ModelSource;
@@ -47,14 +47,14 @@ import org.openide.filesystems.FileObject;
  *
  * @author mkuchtiak
  */
-public class ServicesUtils {
+public class Axis2Utils {
     
-    public static ServicesModel getServicesModel(FileObject servicesFile, boolean editable) {
-        ServicesModel servicesModel = null;
-        if (servicesFile != null && servicesFile.isValid()) {
-            ModelSource modelSource = AxisUtils.createModelSource(servicesFile,editable);
-            servicesModel = ServicesModelFactory.getInstance().getModel(modelSource);
-            return servicesModel;
+    public static Axis2Model getAxis2Model(FileObject axisConfigFile, boolean editable) {
+        Axis2Model axisConfigModel = null;
+        if (axisConfigFile != null && axisConfigFile.isValid()) {
+            ModelSource modelSource = AxisUtils.createModelSource(axisConfigFile,editable);
+            axisConfigModel = Axis2ModelFactory.getInstance().getModel(modelSource);
+            return axisConfigModel;
         }
         return null;
     }
