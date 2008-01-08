@@ -43,7 +43,6 @@
 package org.netbeans.modules.remotefs.ftpfs;
 
 import org.openide.modules.ModuleInstall;
-import org.openide.filesystems.FileUtil;
 
 /** FTP filesystem module class.
  *

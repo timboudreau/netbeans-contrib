@@ -57,6 +57,7 @@ import org.openide.filesystems.Repository;
 import org.openide.filesystems.RepositoryEvent;
 import org.openide.filesystems.RepositoryListener;
 import org.openide.filesystems.RepositoryReorderedEvent;
+import org.openide.filesystems.FileObject;
 import org.openide.util.Exceptions;
 import org.openide.util.RequestProcessor;
 import org.openide.util.actions.SystemAction;
@@ -604,16 +605,14 @@ public abstract class RemoteFileSystem extends AbstractFileSystem
      * @return the MIME type textual representation, e.g. <code>"text/plain"</code>
      */
     public String mimeType(String name) {
-        //System.out.println("*** FTPFileSystem.mimetype: name="+name);
-        int i = name.lastIndexOf('.');
-        String s;
-        try {
-            s = FileUtil.getMIMEType(name.substring(i + 1));
-        } catch (IndexOutOfBoundsException e) {
-            s = null;
+        String s = null;
+        FileObject fo = findResource(name);
+        if( fo != null){
+            FileUtil.getMIMEType(fo); // use overloaded  getMIMEType(FileObject fo) instead of deprecated getMIMEType(String name)
         }
         return s == null ? "content/unknown" : s; // NOI18N
     }
+
 
     /** Get the size of the file.
      *

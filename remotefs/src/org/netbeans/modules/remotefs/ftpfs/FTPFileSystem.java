@@ -94,8 +94,8 @@ public class FTPFileSystem extends RemoteFileSystem implements FTPClient.Reconne
             }
         });
         
-        MultiFileSystem sfs = (MultiFileSystem) Repository.getDefault().getDefaultFileSystem();
-        System.out.println();
+//        MultiFileSystem sfs = (MultiFileSystem) Repository.getDefault().getDefaultFileSystem();
+//        System.out.println();
      }
 
     /**
