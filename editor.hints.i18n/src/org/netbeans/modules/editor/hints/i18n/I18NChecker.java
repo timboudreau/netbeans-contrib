@@ -306,7 +306,8 @@ public class I18NChecker extends AbstractHint {
         }
         
         ClassPath cp = ClassPath.getClassPath(file, ClassPath.SOURCE);
-        FileObject root = cp.findOwnerRoot(file);
+        
+        FileObject root = cp != null ? cp.findOwnerRoot(file) : null;
         
         if (root != null) {
             r = UnitTestForSourceQuery.findSources(root).length > 0;
