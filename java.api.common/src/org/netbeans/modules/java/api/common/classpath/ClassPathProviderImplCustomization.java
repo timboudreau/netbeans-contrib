@@ -80,6 +80,7 @@ public interface ClassPathProviderImplCustomization {
      */
     ClassPath getSourcePath(ClassPathProviderImpl.FileType type, final ClassPathProviderImpl.Context context);
 
+    // XXX will be moved to j2ee/utilities or similar
     /**
      * Get the classpath for the active Java EE platform.
      * @param context context provided by {@link ClassPathProviderImpl}.
