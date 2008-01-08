@@ -15,6 +15,7 @@
                 <attr name="position" intvalue="0"/>
                 <attr name="template" boolvalue="true"/>
                 <attr name="templateWizardURL" urlvalue="nbresloc:/org/netbeans/modules/groovy/groovyproject/resources/GroovyClass.html"/>
+                <attr name="javax.script.ScriptEngine" stringvalue="freemarker"/>
             </file>
             <file name="TestGroovy.groovy" url="test.groovy">
                 <attr name="SystemFileSystem.localizingBundle" stringvalue="org.netbeans.modules.groovy.groovyproject.resources.Bundle"/>

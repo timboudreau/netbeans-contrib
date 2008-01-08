@@ -1,10 +1,17 @@
-// Groovy source file
+<#assign licenseFirst = "/*">
+<#assign licensePrefix = " * ">
+<#assign licenseLast = " */">
+<#include "../Licenses/license-${project.license}.txt">
 
-class Greet {
-    def name
-    Greet(who) { name = who[0].toUpperCase() + who[1..-1] }
-    def salute() { println "Hello $name!" }
+<#if package?? && package != "">
+package ${package};
+
+</#if>
+/**
+ *
+ * @author ${user}
+ */
+class ${name} {
+	
 }
 
-g = new Greet('world')  // create object
-g.salute()              // Output "Hello World!"
