@@ -405,7 +405,7 @@ public final class DefaultClassPathProviderImpl implements ClassPathProvider, Pr
                 if (ClassPath.COMPILE.equals(type)) {
                     return propertyNames.javacTestClasspath;
                 } else if (ClassPath.EXECUTE.equals(type)) {
-                    return propertyNames.javacTestClasspath;
+                    return propertyNames.runTestClasspath;
                 }
                 return null;
             }
