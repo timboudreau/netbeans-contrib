@@ -8,5 +8,9 @@
         <folder name="Libraries">
             <file name="jsfportletbridge-1-2.xml" url="jsfportletbridge-1-2.xml"/>
         </folder>
+        <folder name="Libraries">
+            <file name="jsf-portlet-runtime.xml" url="jsf-portlet-runtime.xml"/>
+            <file name="portlet-runtime.xml" url="portlet-runtime.xml"/>
+        </folder>
     </folder>
 </filesystem>
