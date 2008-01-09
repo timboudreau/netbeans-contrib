@@ -7,29 +7,25 @@
 -->
 
 <#if j2eePlatformVersion?? && j2eePlatformVersion = "1.5">
-<jsp:root version="2.1" xmlns:f="http://java.sun.com/jsf/core" xmlns:h="http://java.sun.com/jsf/html" xmlns:jsp="http://java.sun.com/JSP/Page" xmlns:webuijsf="http://www.sun.com/webui/webuijsf" xmlns:p="http://java.sun.com/jsf/portlet/components">
+<jsp:root version="2.1" xmlns:f="http://java.sun.com/jsf/core" xmlns:h="http://java.sun.com/jsf/html" xmlns:jsp="http://java.sun.com/JSP/Page" xmlns:webuijsf="http://www.sun.com/webui/webuijsf">
     <jsp:directive.page contentType="text/html;charset=${encoding}" pageEncoding="${encoding}"/>
     <f:view>
-        <p:portletPage>
-            <div style="-rave-layout: grid; position: relative; height: 400px; width: 400px;">
-                <webuijsf:themeLinks binding="${pound}{${folder}${name}.themeLinks1}" id="themeLinks1"/>
-                <webuijsf:form binding="${pound}{${folder}${name}.form1}" id="form1">
-                </webuijsf:form>
-            </div>
-        </p:portletPage>
+        <div style="-rave-layout: grid; position: relative; height: 400px; width: 400px;">
+            <webuijsf:themeLinks binding="${pound}{${folder}${name}.themeLinks1}" id="themeLinks1"/>
+            <webuijsf:form binding="${pound}{${folder}${name}.form1}" id="form1">
+            </webuijsf:form>
+        </div>
     </f:view>
 </jsp:root>
 <#else>
-<jsp:root version="1.2" xmlns:f="http://java.sun.com/jsf/core" xmlns:h="http://java.sun.com/jsf/html" xmlns:jsp="http://java.sun.com/JSP/Page" xmlns:ui="http://www.sun.com/web/ui" xmlns:p="http://java.sun.com/jsf/portlet/components">
+<jsp:root version="1.2" xmlns:f="http://java.sun.com/jsf/core" xmlns:h="http://java.sun.com/jsf/html" xmlns:jsp="http://java.sun.com/JSP/Page" xmlns:ui="http://www.sun.com/web/ui">
     <jsp:directive.page contentType="text/html;charset=${encoding}" pageEncoding="${encoding}"/>
     <f:view>    
-        <p:portletPage>
-            <div style="-rave-layout: grid; position: relative; left: 0px; top: 0px; width: 400px; height: 400px">
-                <ui:themeLinks binding="${pound}{${folder}${name}.themeLinks1}" id="themeLinks1"/>
-                <ui:form binding="${pound}{${folder}${name}.form1}" id="form1">
-                </ui:form>
-            </div>
-        </p:portletPage>
+        <div style="-rave-layout: grid; position: relative; left: 0px; top: 0px; width: 400px; height: 400px">
+            <ui:themeLinks binding="${pound}{${folder}${name}.themeLinks1}" id="themeLinks1"/>
+            <ui:form binding="${pound}{${folder}${name}.form1}" id="form1">
+            </ui:form>
+        </div>
     </f:view>
 </jsp:root>
 </#if>
