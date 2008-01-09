@@ -127,7 +127,7 @@ public class JavaFXEditorKit extends NbEditorKit{
             new JavaDefaultKeyTypedAction(),
             new JavaDeleteCharAction(deletePrevCharAction, false),
             new JavaInsertBreakAction(),
-//            new JavaFXGoToDeclarationAction()
+            new JavaFXGoToDeclarationAction()
 
         };
         return TextAction.augmentList(superActions, javafxActions);

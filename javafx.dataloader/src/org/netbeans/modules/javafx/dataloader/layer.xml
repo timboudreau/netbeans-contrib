@@ -43,11 +43,9 @@ made subject to such option by the copyright holder.
 <!DOCTYPE filesystem PUBLIC "-//NetBeans//DTD Filesystem 1.1//EN" "http://www.netbeans.org/dtds/filesystem-1_1.dtd">
 <filesystem>
     <folder name="Actions">
-<!--        
         <folder name="Edit">
             <file name="org-netbeans-modules-javafx-editor-JavaFXGoToDeclarationAction.instance"/>
         </folder>
--->        
     </folder>
     <folder name="Services">
         <folder name="MIMEResolver">
@@ -69,30 +67,31 @@ made subject to such option by the copyright holder.
                         </folder>
                     </folder>
                 </folder>
-<!--                
+                
                  <folder name="HyperlinkProviders">
                     <file name="JavaFXHyperlinkProvider.instance">
                         <attr name="instanceClass" stringvalue="org.netbeans.modules.javafx.editor.JavaFXHyperlinkProvider"/>
                         <attr name="instanceOf" stringvalue="org.netbeans.lib.editor.hyperlink.spi.HyperlinkProviderExt"/>
                     </file>
                 </folder>
--->
+
+
                 <folder name="Popup">
-                    <file name="format"/>
-<!--                
                     <folder name="Navigate">
                         <file name="org-netbeans-modules-javafx-editor-JavaFXGoToDeclarationAction.shadow">
                             <attr name="originalFile" stringvalue="Actions/Edit/org-netbeans-modules-javafx-editor-JavaFXGoToDeclarationAction.instance"/>
                             <attr name="position" intvalue="400"/>
                         </file>
                     </folder>
--->
+
                 </folder>
-                
                 <folder name="CompletionProviders">
                     <file name="org-netbeans-modules-javafx-editor-JavaFXCompletionProvider.instance"/>
                 </folder>
 
+                <folder name="Popup">
+                    <file name="format"/>
+                </folder>
 
                 <file name="language.instance">
                     <attr name="instanceCreate" methodvalue="org.netbeans.modules.javafx.lexer.JavaFXTokenId.language"/>
@@ -188,6 +187,7 @@ made subject to such option by the copyright holder.
                     <attr name="instanceOf" stringvalue="org.netbeans.api.gsf.Formatter"/>
                     <attr name="instanceClass" stringvalue="org.netbeans.modules.javafx.editor.JavaFXFormatter"/>
                 </file>
+                
             </folder>
         </folder>
     </folder>
@@ -275,13 +275,12 @@ made subject to such option by the copyright holder.
         </folder>
     </folder>
 
-<!--    
     <folder name="Shortcuts">
         <file name="D-B.shadow">
             <attr name="originalFile" stringvalue="Actions/Edit/org-netbeans-modules-javafx-editor-JavaFXGoToDeclarationAction.instance"/>
         </file>
     </folder>
--->    
+    
     
     <folder name="Templates">
         <attr name="Java/JavaFX" boolvalue="true"/>
