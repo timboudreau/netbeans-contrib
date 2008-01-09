@@ -41,20 +41,4 @@ public interface CustomPortletModeType {
 	public void setPortalManaged(java.lang.String value);
 
 	public java.lang.String getPortalManaged();
-
-	public void setDecorationName(int index, java.lang.String value);
-
-	public java.lang.String getDecorationName(int index);
-
-	public int sizeDecorationName();
-
-	public void setDecorationName(java.lang.String[] value);
-
-	public java.lang.String[] getDecorationName();
-
-	public int addDecorationName(java.lang.String value);
-
-	public int removeDecorationName(java.lang.String value);
-
-
 }

@@ -117,9 +117,9 @@ public interface PortletType {
 
 	public PortletInfoType newPortletInfoType();
 
-	public void setPortletInfo2(PortletInfoType value);
+//	public void setPortletInfo2(PortletInfoType value);
 
-	public PortletInfoType getPortletInfo2();
+//	public PortletInfoType getPortletInfo2();
 
 	public void setPortletPreferences(PortletPreferencesType value);
 
@@ -144,32 +144,32 @@ public interface PortletType {
 	public SecurityRoleRefType newSecurityRoleRefType();
         
         //*** new methods added for portlet 2.0 spec
-        
+             
         public void setSupportedProcessingEvent(int index, org.netbeans.modules.portalpack.portlets.genericportlets.ddapi.EventDefinitionReferenceType value);
 
-	public org.netbeans.modules.portalpack.portlets.genericportlets.ddapi.EventDefinitionReferenceType getSupportedProcessingEvent(int index);
+	public EventDefinitionReferenceType getSupportedProcessingEvent(int index);
 
 	public int sizeSupportedProcessingEvent();
 
-	public void setSupportedProcessingEvent(org.netbeans.modules.portalpack.portlets.genericportlets.ddapi.EventDefinitionReferenceType[] value);
+	public void setSupportedProcessingEvent(EventDefinitionReferenceType[] value);
 
-	public org.netbeans.modules.portalpack.portlets.genericportlets.ddapi.EventDefinitionReferenceType[] getSupportedProcessingEvent();
+	public EventDefinitionReferenceType[] getSupportedProcessingEvent();
 
 	public int addSupportedProcessingEvent(org.netbeans.modules.portalpack.portlets.genericportlets.ddapi.EventDefinitionReferenceType value);
 
 	public int removeSupportedProcessingEvent(org.netbeans.modules.portalpack.portlets.genericportlets.ddapi.EventDefinitionReferenceType value);
 
-	public org.netbeans.modules.portalpack.portlets.genericportlets.ddapi.EventDefinitionReferenceType newEventDefinitionReferenceType();
+	public EventDefinitionReferenceType newEventDefinitionReferenceType();
 
-	public void setSupportedPublishingEvent(int index, org.netbeans.modules.portalpack.portlets.genericportlets.ddapi.EventDefinitionReferenceType value);
+	public void setSupportedPublishingEvent(int index, EventDefinitionReferenceType value);
 
-	public org.netbeans.modules.portalpack.portlets.genericportlets.ddapi.EventDefinitionReferenceType getSupportedPublishingEvent(int index);
+	public EventDefinitionReferenceType getSupportedPublishingEvent(int index);
 
 	public int sizeSupportedPublishingEvent();
 
-	public void setSupportedPublishingEvent(org.netbeans.modules.portalpack.portlets.genericportlets.ddapi.EventDefinitionReferenceType[] value);
+	public void setSupportedPublishingEvent(EventDefinitionReferenceType[] value);
 
-	public org.netbeans.modules.portalpack.portlets.genericportlets.ddapi.EventDefinitionReferenceType[] getSupportedPublishingEvent();
+	public EventDefinitionReferenceType[] getSupportedPublishingEvent();
 
 	public int addSupportedPublishingEvent(org.netbeans.modules.portalpack.portlets.genericportlets.ddapi.EventDefinitionReferenceType value);
 
@@ -188,35 +188,20 @@ public interface PortletType {
 	public int addSupportedPublicRenderParameter(java.lang.String value);
 
 	public int removeSupportedPublicRenderParameter(java.lang.String value);
-        
-        public void setUrlGenerationListener(int index, java.lang.String value);
-        
-        public java.lang.String getUrlGenerationListener(int index);
-        
-        public int sizeUrlGenerationListener();
 
-	public void setUrlGenerationListener(java.lang.String[] value);
+	public void setContainerRuntimeOption(int index, ContainerRuntimeOptionType value);
 
-	public java.lang.String[] getUrlGenerationListener();
-
-	public int addUrlGenerationListener(java.lang.String value);
-
-	public int removeUrlGenerationListener(java.lang.String value);
-
-	public void setContainerRuntimeOption(int index, org.netbeans.modules.portalpack.portlets.genericportlets.ddapi.ContainerRuntimeOptionType value);
-
-	public org.netbeans.modules.portalpack.portlets.genericportlets.ddapi.ContainerRuntimeOptionType getContainerRuntimeOption(int index);
+	public ContainerRuntimeOptionType getContainerRuntimeOption(int index);
 
 	public int sizeContainerRuntimeOption();
 
-	public void setContainerRuntimeOption(org.netbeans.modules.portalpack.portlets.genericportlets.ddapi.ContainerRuntimeOptionType[] value);
+	public void setContainerRuntimeOption(ContainerRuntimeOptionType[] value);
 
-	public org.netbeans.modules.portalpack.portlets.genericportlets.ddapi.ContainerRuntimeOptionType[] getContainerRuntimeOption();
+	public ContainerRuntimeOptionType[] getContainerRuntimeOption();
 
 	public int addContainerRuntimeOption(org.netbeans.modules.portalpack.portlets.genericportlets.ddapi.ContainerRuntimeOptionType value);
 
 	public int removeContainerRuntimeOption(org.netbeans.modules.portalpack.portlets.genericportlets.ddapi.ContainerRuntimeOptionType value);
 
-	public org.netbeans.modules.portalpack.portlets.genericportlets.ddapi.ContainerRuntimeOptionType newContainerRuntimeOptionType();
-
+	public ContainerRuntimeOptionType newContainerRuntimeOptionType();       
 }
