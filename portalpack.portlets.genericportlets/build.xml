@@ -33,7 +33,10 @@ Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
       
     <target name="build-init" depends="projectized.build-init"/>
     <target name="compile" depends="dd2beans_gen,projectized-common.compile">
-        
+        <jar basedir="${build.classes.dir}" includes="org/netbeans/modules/portalpack/portlets/taglib/*" destfile="build/portlettaglib.jar">
+            <metainf dir="src/org/netbeans/modules/portalpack/portlets/genericportlets/" includes="portlet.tld"/>                
+            <metainf dir="src/org/netbeans/modules/portalpack/portlets/genericportlets/" includes="portlet_2_0.tld"/>                
+        </jar>
     </target>
     
     <target name="netbeans-extra" depends="release"/>
@@ -55,6 +58,14 @@ Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
         <copy file="../../external/portlet/portlet-api-1.0.jar"
         todir="${cluster}/modules/ext/portalpack/"/>
         <copy file="../../external/portlet/portlet-api-2.0.jar"
+        todir="${cluster}/modules/ext/portalpack/"/>
+        
+        <copy file="build/portlettaglib.jar"
+        todir="${cluster}/modules/ext/portalpack/"/>
+        
+        <copy file="../../external/portlet/portlet-api-2.0-doc.jar"
+        todir="${cluster}/modules/ext/portalpack/"/>
+        <copy file="../../external/portlet/portlet-api-1.0-doc.jar"
         todir="${cluster}/modules/ext/portalpack/"/>
         
     </target>
