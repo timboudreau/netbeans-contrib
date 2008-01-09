@@ -605,12 +605,7 @@ public abstract class RemoteFileSystem extends AbstractFileSystem
      * @return the MIME type textual representation, e.g. <code>"text/plain"</code>
      */
     public String mimeType(String name) {
-        String s = null;
-        FileObject fo = findResource(name);
-        if( fo != null){
-            FileUtil.getMIMEType(fo); // use overloaded  getMIMEType(FileObject fo) instead of deprecated getMIMEType(String name)
-        }
-        return s == null ? "content/unknown" : s; // NOI18N
+        return null;
     }
 
 
