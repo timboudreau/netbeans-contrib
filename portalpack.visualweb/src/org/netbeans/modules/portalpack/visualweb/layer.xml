@@ -63,4 +63,14 @@ made subject to such option by the copyright holder.
             </file>
         </folder>
     </folder>
+
+    <folder name="j2ee">
+        <folder name="webtier">
+            <folder name="templates">
+                <file name="org-netbeans-modules-portalpack-visualweb-JSFPrivilegedTemplates.instance"> 
+                    <attr name="position" intvalue="200"/>
+                </file>
+            </folder>
+        </folder>
+    </folder>
 </filesystem>
