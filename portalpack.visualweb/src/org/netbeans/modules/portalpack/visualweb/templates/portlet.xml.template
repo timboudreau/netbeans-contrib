@@ -1,0 +1,26 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<portlet-app xmlns='http://java.sun.com/xml/ns/portlet/portlet-app_1_0.xsd' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='http://java.sun.com/xml/ns/portlet/portlet-app_1_0.xsd http://java.sun.com/xml/ns/portlet/portlet-app_1_0.xsd' version='1.0'>
+	<portlet>
+		<description>Created By Visual Web</description>
+		<portlet-name>Visual Web JSF</portlet-name>
+		<display-name>Visual Web JSF Portlet</display-name>
+		<portlet-class>com.sun.faces.portlet.FacesPortlet</portlet-class>
+		<init-param>
+			<name>com.sun.faces.portlet.INIT_VIEW</name>
+                        <description>Portlet init view page</description>
+                        <value>/${page_name}</value>
+		</init-param>
+		<expiration-cache>0</expiration-cache>
+		<supports>
+			<mime-type>text/html</mime-type>
+			<portlet-mode>VIEW</portlet-mode>
+		</supports>
+		<supported-locale>en</supported-locale>
+		<portlet-info>
+                        <title>${portlet_name}</title>
+                        <short-title>${portlet_name}</short-title>
+			<keywords>Visual Web JSF Portlet</keywords>
+		</portlet-info>
+	</portlet>
+</portlet-app>
+
