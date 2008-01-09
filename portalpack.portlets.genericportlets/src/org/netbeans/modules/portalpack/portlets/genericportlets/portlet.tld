@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!DOCTYPE taglib
+    PUBLIC "-//Sun Microsystems, Inc.//DTD JSP Tag Library 1.1//EN"
+    "http://java.sun.com/j2ee/dtds/web-jsptaglibrary_1_1.dtd">
+<taglib>
+
+    <tlibversion>1.0</tlibversion>
+    <jspversion>1.1</jspversion>
+    <shortname>portlet</shortname>
+    <uri>http://java.sun.com/portlet</uri>
+    <info>Portlet Tag Library</info>
+    
+    <tag>
+        <name>defineObjects</name>
+        <tagclass>org.netbeans.modules.portalpack.portlets.taglib.DefineObjectsTag</tagclass>
+        <bodycontent>empty</bodycontent>
+        <info>define portlet objects</info>        
+    </tag>
+    
+    
+    <tag>
+        <name>namespace</name>
+        <tagclass>org.netbeans.modules.portalpack.portlets.taglib.NamespaceTag</tagclass>
+        <bodycontent>empty</bodycontent>
+        <info>produce a unique value for current portlet</info>
+    </tag>
+    
+    <tag>
+        <name>actionURL</name>
+        <tagclass>org.netbeans.modules.portalpack.portlets.taglib.ActionURLTag</tagclass>
+        
+        <bodycontent>JSP</bodycontent>
+        <info>create action url</info>
+        <attribute>
+            <name>portletMode</name>
+            <required>false</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+	<attribute>
+            <name>windowState</name>
+            <required>false</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>        
+        <attribute>
+	    <name>var</name>
+	    <required>false</required>
+	</attribute>
+        <attribute>
+            <name>secure</name>
+            <required>false</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+    </tag>
+ 
+    <tag>
+        <name>renderURL</name>
+        <tagclass>org.netbeans.modules.portalpack.portlets.taglib.RenderURLTag</tagclass>
+	
+        <bodycontent>JSP</bodycontent>
+        <info>create render url</info>
+        <attribute>
+            <name>portletMode</name>
+            <required>false</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+	<attribute>
+            <name>windowState</name>
+            <required>false</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>        
+        <attribute>
+	    <name>var</name>
+	    <required>false</required>
+	</attribute>
+        <attribute>
+            <name>secure</name>
+            <required>false</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+    </tag>
+ 
+    <tag>
+        <name>param</name>
+        <tagclass>org.netbeans.modules.portalpack.portlets.taglib.ParamTag</tagclass>
+        <bodycontent>empty</bodycontent>
+        <info>setup portlet url parameters</info>
+        <attribute>
+            <name>name</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+	<attribute>
+            <name>value</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>                
+    </tag>
+    
+</taglib>
