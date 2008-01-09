@@ -366,40 +366,6 @@ Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
                     throw new org.netbeans.modules.portalpack.portlets.genericportlets.ddapi.common.VersionNotSupportedException(PortletApp.VERSION_1_0);
                 }
 
-                public void setUrlGenerationListener(int index, java.lang.String value)
-                {
-                    throw new org.netbeans.modules.portalpack.portlets.genericportlets.ddapi.common.VersionNotSupportedException(PortletApp.VERSION_1_0);
-                }
-        
-                public java.lang.String getUrlGenerationListener(int index)
-                {
-                    throw new org.netbeans.modules.portalpack.portlets.genericportlets.ddapi.common.VersionNotSupportedException(PortletApp.VERSION_1_0);
-                }
-        
-                public int sizeUrlGenerationListener()
-                {
-                     throw new org.netbeans.modules.portalpack.portlets.genericportlets.ddapi.common.VersionNotSupportedException(PortletApp.VERSION_1_0);
-                }
-
-                public void setUrlGenerationListener(java.lang.String[] value)
-                {
-                   throw new org.netbeans.modules.portalpack.portlets.genericportlets.ddapi.common.VersionNotSupportedException(PortletApp.VERSION_1_0);
-                }
-                public java.lang.String[] getUrlGenerationListener()
-                {
-                    throw new org.netbeans.modules.portalpack.portlets.genericportlets.ddapi.common.VersionNotSupportedException(PortletApp.VERSION_1_0);
-                }
-
-                public int addUrlGenerationListener(java.lang.String value)
-                {
-                    throw new org.netbeans.modules.portalpack.portlets.genericportlets.ddapi.common.VersionNotSupportedException(PortletApp.VERSION_1_0);
-                }
-
-                public int removeUrlGenerationListener(java.lang.String value)
-                {
-                    throw new org.netbeans.modules.portalpack.portlets.genericportlets.ddapi.common.VersionNotSupportedException(PortletApp.VERSION_1_0);
-                }
-
                 public void setContainerRuntimeOption(int index, org.netbeans.modules.portalpack.portlets.genericportlets.ddapi.ContainerRuntimeOptionType value)
                 {
                     throw new org.netbeans.modules.portalpack.portlets.genericportlets.ddapi.common.VersionNotSupportedException(PortletApp.VERSION_1_0);
