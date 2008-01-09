@@ -33,7 +33,7 @@ import org.openide.filesystems.FileUtil;
 public class RegistryLibrary {
     public static final String SUNPS_COMPONENT_FOLDER = "ps71";
     public static final String SUNPS_LIB_DIR = NetbeanConstants.CONFIG_DIR + File.separator + SUNPS_COMPONENT_FOLDER;
-    public String[] libs = {"portletappengine-1.0.jar"};
+    public String[] libs = {"javaee-api-5.jar"};
     private static RegistryLibrary registryLibrary;
     /** Creates a new instance of RegistryLibrary */
     private RegistryLibrary() {

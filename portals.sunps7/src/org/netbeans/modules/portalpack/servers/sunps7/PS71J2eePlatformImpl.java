@@ -30,7 +30,7 @@ public class PS71J2eePlatformImpl extends PSJ2eePlatformImpl{
      protected List getCustomLibraries() {
          List classPath = new ArrayList();
          
-         String[] libFiles = {"portlet-api-1.0.jar","portlettaglib-1.0.jar","portletappengine-1.0.jar"};
+         String[] libFiles = {"javaee-api-5.jar"};
          //PSConfigObject psconfig = psconfig.getPSConfig();
          
          for(int i=0;i<libFiles.length;i++)

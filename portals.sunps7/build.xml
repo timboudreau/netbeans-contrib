@@ -31,7 +31,7 @@ Microsystems, Inc. All Rights Reserved.
      <target name="compile" depends="projectized-common.compile">
           <property name="build.libs.dir" value="${build.classes.dir}/libs"/>
           <mkdir dir="${build.libs.dir}"/>
-          <copy file="../../external/portlet/portletappengine-1.0.jar"
+          <copy file="../../external/javaee/javaee-api-5.jar"
           todir="${build.libs.dir}"/>
      </target>
      
