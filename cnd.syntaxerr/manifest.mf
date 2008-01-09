@@ -1,7 +1,7 @@
 Manifest-Version: 1.0
 OpenIDE-Module: org.netbeans.modules.cnd.syntaxerr
+OpenIDE-Module-Implementation-Version: 1
 OpenIDE-Module-Install: org/netbeans/modules/cnd/syntaxerr/SyntaxErrInstall.class
-OpenIDE-Module-Layer: org/netbeans/modules/cnd/syntaxerr/resources/layer.xml
+DISABLE_OpenIDE-Module-Layer: org/netbeans/modules/cnd/syntaxerr/resources/layer.xml
 OpenIDE-Module-Localizing-Bundle: org/netbeans/modules/cnd/syntaxerr/resources/Bundle.properties
-OpenIDE-Module-Specification-Version: 0.1
 

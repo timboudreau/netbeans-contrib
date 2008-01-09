@@ -29,19 +29,14 @@ package org.netbeans.modules.cnd.syntaxerr.highlighter;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 import javax.swing.text.Document;
 import org.netbeans.editor.BaseDocument;
 import org.netbeans.modules.cnd.syntaxerr.DebugUtils;
 import org.openide.cookies.EditorCookie;
 import org.openide.loaders.DataObject;
 import org.openide.nodes.Node;
-import org.openide.text.DataEditorSupport;
 import org.openide.util.RequestProcessor;
 import org.openide.windows.TopComponent;
 

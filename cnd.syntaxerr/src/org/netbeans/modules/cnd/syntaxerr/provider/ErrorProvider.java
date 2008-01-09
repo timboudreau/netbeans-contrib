@@ -30,7 +30,6 @@ package org.netbeans.modules.cnd.syntaxerr.provider;
 import java.util.Collection;
 import org.netbeans.editor.BaseDocument;
 import org.openide.loaders.DataObject;
-import org.openide.text.NbDocument;
 
 /**
  * An abstract class that provides
