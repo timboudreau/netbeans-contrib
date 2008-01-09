@@ -1,4 +1,44 @@
 /*
+ * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
+ *
+ * Copyright 1997-2007 Sun Microsystems, Inc. All rights reserved.
+ *
+ * The contents of this file are subject to the terms of either the GNU
+ * General Public License Version 2 only ("GPL") or the Common
+ * Development and Distribution License("CDDL") (collectively, the
+ * "License"). You may not use this file except in compliance with the
+ * License. You can obtain a copy of the License at
+ * http://www.netbeans.org/cddl-gplv2.html
+ * or nbbuild/licenses/CDDL-GPL-2-CP. See the License for the
+ * specific language governing permissions and limitations under the
+ * License.  When distributing the software, include this License Header
+ * Notice in each file and include the License file at
+ * nbbuild/licenses/CDDL-GPL-2-CP.  Sun designates this
+ * particular file as subject to the "Classpath" exception as provided
+ * by Sun in the GPL Version 2 section of the License file that
+ * accompanied this code. If applicable, add the following below the
+ * License Header, with the fields enclosed by brackets [] replaced by
+ * your own identifying information:
+ * "Portions Copyrighted [year] [name of copyright owner]"
+ *
+ * Contributor(s):
+ *
+ * The Original Software is NetBeans. The Initial Developer of the Original
+ * Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
+ * Microsystems, Inc. All Rights Reserved.
+ *
+ * If you wish your version of this file to be governed by only the CDDL
+ * or only the GPL Version 2, indicate your decision by adding
+ * "[Contributor] elects to include this software in this distribution
+ * under the [CDDL or GPL Version 2] license." If you do not indicate a
+ * single choice of license, a recipient has the option to distribute
+ * your version of this file under either the CDDL, the GPL Version 2 or
+ * to extend the choice of license to its licensees as provided above.
+ * However, if you add GPL Version 2 code and therefore, elected the GPL
+ * Version 2 license, then the option applies only if the new code is
+ * made subject to such option by the copyright holder.
+ */
+/*
  * MyGlassPane.java
  *
  * @author Michal Hapala, Pavel Stehlik
@@ -8,14 +48,12 @@ package org.netbeans.modules.a11ychecker.traverse;
 import java.awt.*;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
+import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.util.Vector;
 import javax.swing.*;
 
 
-/**
- * We have to provide our own glass pane so that it can paint.
- */
 class MyGlassPane extends JComponent implements ItemListener {
 
     Point point;
@@ -39,6 +77,8 @@ class MyGlassPane extends JComponent implements ItemListener {
         endButton = button;    
         repaint();
     }
+    
+
 
     public OverflowLbl getEndButton(OverflowLbl startButton) {
         OverflowLbl r = startButton;
@@ -54,22 +94,6 @@ class MyGlassPane extends JComponent implements ItemListener {
         return act;
     }
 
-    public String generateTraversalClass() {
-        FocusTraversalPolicyGenerator myGenerator = new FocusTraversalPolicyGenerator();
-        String myFocusClass = null;
-        if (!vecButtons.isEmpty()) {
-            // get start and end
-            if (startButton == null) {
-                startButton = vecButtons.get(0);
-            }
-            if (endButton == null) {
-                endButton = getEndButton(startButton);
-            }
-            myFocusClass = myGenerator.generate(startButton, endButton, vecButtons);
-        }
-        return myFocusClass;
-    }
-
     private void clearButtons() {
         for (int i = 0; i < vecButtons.size(); i++) {
             vecButtons.get(i).setInTabOrder(false);
@@ -77,7 +101,7 @@ class MyGlassPane extends JComponent implements ItemListener {
     }
 
     public void clearTraversals() {
-        int res = JOptionPane.showConfirmDialog(formPanel, "You are to clear all designated Tab traversals. Are you sure you want to do this?", "Warning", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
+        int res = JOptionPane.showConfirmDialog(formPanel, java.util.ResourceBundle.getBundle("org/netbeans/modules/a11ychecker/Bundle").getString("STRING_CLEARALL"), java.util.ResourceBundle.getBundle("org/netbeans/modules/a11ychecker/Bundle").getString("STRING_WARNING"), JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
         if (res == JOptionPane.YES_OPTION) {
             setStart(null);
             setEnd(null);
@@ -123,6 +147,11 @@ class MyGlassPane extends JComponent implements ItemListener {
         selectedBtn=m;
         
         repaint();
+    }
+    
+    public void processKey(KeyEvent e)
+    {
+        int key = e.getKeyCode();
     }
     
     public void deleteClick(OverflowLbl m) {
@@ -180,7 +209,7 @@ class MyGlassPane extends JComponent implements ItemListener {
             }
 
             // TODO vyhodit vsechny komponenty ktery nemuzou/nemaji mit urceny tab order
-            if (!((aComp instanceof JLabel) || (aComp instanceof JProgressBar) || (aComp instanceof JSeparator) )) {
+            if (!((aComp instanceof JTabbedPane) || (aComp instanceof JLabel) || (aComp instanceof JProgressBar) || (aComp instanceof JSeparator) )) {
                 Point pComp = aComp.getLocationOnScreen();
                 // horni levy roh komponenty
                 Point upperLeftCornComp = new Point(pComp.x - pForm.x, pComp.y - pForm.y);
@@ -297,9 +326,11 @@ class MyGlassPane extends JComponent implements ItemListener {
         this.formPanel = formPanel;
         this.editor = editor;
         setDoubleBuffered(true);
-        
-
     }
     
-    
+    public void addActiveComponent(Component c) {
+        RedispatchListener listener = new RedispatchListener(c, this, contentPane);
+        addMouseListener(listener);
+        addMouseMotionListener(listener);
+    }    
 }

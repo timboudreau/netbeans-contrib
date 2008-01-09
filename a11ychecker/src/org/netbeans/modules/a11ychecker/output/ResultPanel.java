@@ -1,34 +1,60 @@
 /*
- * The contents of this file are subject to the terms of the Common Development
- * and Distribution License (the License). You may not use this file except in
- * compliance with the License.
+ * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * You can obtain a copy of the License at http://www.netbeans.org/cddl.html
- * or http://www.netbeans.org/cddl.txt.
+ * Copyright 1997-2007 Sun Microsystems, Inc. All rights reserved.
  *
- * When distributing Covered Code, include this CDDL Header Notice in each file
- * and include the License file at http://www.netbeans.org/cddl.txt.
- * If applicable, add the following below the CDDL Header, with the fields
- * enclosed by brackets [] replaced by your own identifying information:
+ * The contents of this file are subject to the terms of either the GNU
+ * General Public License Version 2 only ("GPL") or the Common
+ * Development and Distribution License("CDDL") (collectively, the
+ * "License"). You may not use this file except in compliance with the
+ * License. You can obtain a copy of the License at
+ * http://www.netbeans.org/cddl-gplv2.html
+ * or nbbuild/licenses/CDDL-GPL-2-CP. See the License for the
+ * specific language governing permissions and limitations under the
+ * License.  When distributing the software, include this License Header
+ * Notice in each file and include the License file at
+ * nbbuild/licenses/CDDL-GPL-2-CP.  Sun designates this
+ * particular file as subject to the "Classpath" exception as provided
+ * by Sun in the GPL Version 2 section of the License file that
+ * accompanied this code. If applicable, add the following below the
+ * License Header, with the fields enclosed by brackets [] replaced by
+ * your own identifying information:
  * "Portions Copyrighted [year] [name of copyright owner]"
+ *
+ * Contributor(s):
  *
  * The Original Software is NetBeans. The Initial Developer of the Original
  * Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
  * Microsystems, Inc. All Rights Reserved.
+ *
+ * If you wish your version of this file to be governed by only the CDDL
+ * or only the GPL Version 2, indicate your decision by adding
+ * "[Contributor] elects to include this software in this distribution
+ * under the [CDDL or GPL Version 2] license." If you do not indicate a
+ * single choice of license, a recipient has the option to distribute
+ * your version of this file under either the CDDL, the GPL Version 2 or
+ * to extend the choice of license to its licensees as provided above.
+ * However, if you add GPL Version 2 code and therefore, elected the GPL
+ * Version 2 license, then the option applies only if the new code is
+ * made subject to such option by the copyright holder.
  */
 package org.netbeans.modules.a11ychecker.output;
 
+import java.awt.Component;
 import java.awt.Dialog;
 import java.awt.Point;
+import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.beans.PropertyEditor;
 import java.lang.reflect.Method;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.ResourceBundle;
 import java.util.Vector;
 import javax.swing.Action;
 import javax.swing.Icon;
@@ -41,7 +67,6 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
-import javax.swing.table.AbstractTableModel;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableColumn;
 import org.netbeans.modules.a11ychecker.FormBroker;
@@ -49,10 +74,10 @@ import org.netbeans.modules.a11ychecker.FormHandler;
 import org.netbeans.modules.a11ychecker.LabelForPropertyPanel;
 import org.netbeans.modules.a11ychecker.PropertyAction;
 import org.netbeans.modules.a11ychecker.PropertyPanel;
+import org.netbeans.modules.a11ychecker.traverse.FocusTraversalPolicyEditor;
 import org.netbeans.modules.a11ychecker.utils.A11YFormUtils;
 import org.netbeans.modules.form.ComponentChooserEditor;
 import org.netbeans.modules.form.FormDesigner;
-import org.netbeans.modules.form.FormEditor;
 import org.netbeans.modules.form.FormModel;
 import org.netbeans.modules.form.FormProperty;
 import org.netbeans.modules.form.FormSettings;
@@ -62,8 +87,9 @@ import org.netbeans.modules.form.RADVisualComponent;
 import org.openide.DialogDescriptor;
 import org.openide.DialogDisplayer;
 import org.openide.NotifyDescriptor;
+import org.openide.awt.Mnemonics;
+import org.openide.explorer.propertysheet.editors.EnhancedCustomPropertyEditor;
 import org.openide.nodes.Node.Property;
-import org.openide.util.Exceptions;
 import org.openide.util.HelpCtx;
 import org.openide.util.NbBundle;
 
@@ -79,20 +105,17 @@ public class ResultPanel extends javax.swing.JPanel implements TableModelListene
     static final String PROP_AUTO_RESOURCING = "autoResourcing"; // NOI18N
     /** auto resourcing value, if off */
     static final int AUTO_OFF = 0;
-    
     /** Dialog for property editor */
     private Dialog dialog;
 
     //
     private int rowIndex;
-    
     //vectors for entries
-
     Vector errors = new Vector();
     Vector warnings = new Vector();
     Vector infos = new Vector();
     TableSorter sorter;
-
+    Property property;
     /** Customized table model */
     public DefaultTableModel model = new DefaultTableModel(new String[]{"Type", "Rule", "Recommendation / Description", "Component"}, 0) {
 
@@ -106,7 +129,7 @@ public class ResultPanel extends javax.swing.JPanel implements TableModelListene
             return false;
         }
     };
-            
+
     /** Creates new form ResultPanel */
     public ResultPanel() {
         sorter = new TableSorter(model);
@@ -161,10 +184,10 @@ public class ResultPanel extends javax.swing.JPanel implements TableModelListene
                 }
             }
         });
-        
+
         setUpAutoI18nCheckBox();
     }
-    
+
     /**
      * Brings up property editor for an a11yeror/warning/info listed in output table
      * @param rowIndex a11yeror/warning/info rown number inside output table
@@ -182,21 +205,24 @@ public class ResultPanel extends javax.swing.JPanel implements TableModelListene
         final String tableValue = (String) messageTable.getModel().getValueAt(rowIndex, 1);
         Class bc = comp.getBeanClass();
         String propertyName = null;
-        if (tableValue.equals("Mnemonic")) {
+        if (tableValue.equals(FormHandler.MNEMONIC_CAT)) {
             if (bc.equals(JLabel.class)) {
                 propertyName = "displayedMnemonic";
             } else {
                 propertyName = "mnemonic";
             }
         }
-        if (tableValue.equals("Description")) {
+        if (tableValue.equals(FormHandler.A11Y_DESC_CAT)) {
             propertyName = "AccessibleContext.accessibleDescription";
         }
-        if (tableValue.equals("Name")) {
+        if (tableValue.equals(FormHandler.A11Y_NAME_CAT)) {
             propertyName = "AccessibleContext.accessibleName";
         }
-        if (tableValue.equals("Label for")) {
+        if (tableValue.equals(FormHandler.LABEL_FOR_CAT)) {
             propertyName = "labelFor";
+        }
+        if (tableValue.equals(FormHandler.TAB_TRAV_CAT)) {
+            propertyName = "focusTraversalPolicy";
         }
         DialogDescriptor descriptor = null;
         final JPanel panel;
@@ -220,6 +246,56 @@ public class ResultPanel extends javax.swing.JPanel implements TableModelListene
             }
             //reinvoke check
             new FormHandler(FormBroker.getDefault().findActiveEditor()).check();
+            return;
+        }
+
+
+        if (propertyName.equals("focusTraversalPolicy")) {
+            // FIXME vyvolat ten traversal editor
+
+            property = comp.getPropertyByName("focusTraversalPolicy", comp.getPropertyByName("focusTraversalPolicy").getClass(), true);
+
+            try {
+                final PropertyEditor propEd = property.getPropertyEditor();
+                propEd.setValue(property.getValue());
+
+                final Component custEditor = propEd.getCustomEditor();
+
+                Object[] options = buttons2();
+                DialogDescriptor descriptor2 = new DialogDescriptor(
+                        custEditor,
+                        "title",
+                        true,
+                        options,
+                        DialogDescriptor.CANCEL_OPTION,
+                        DialogDescriptor.DEFAULT_ALIGN,
+                        HelpCtx.DEFAULT_HELP,
+                        new ActionListener() {
+
+                            public void actionPerformed(ActionEvent e) {
+                                try {
+                                    String action = e.getActionCommand();
+                                    if (OK_COMMAND.equals(action)) {
+                                        property.setValue(property.getPropertyEditor().getValue()); 
+                                    } else if (RESTORE_COMMAND.equals(action)) {
+                                        property.restoreDefaultValue();
+                                    }
+                                    dialog.dispose();
+                                } catch (Exception ex) {
+                                    NotifyDescriptor descriptor = new NotifyDescriptor.Message(
+                                            NbBundle.getBundle(PropertyAction.class).getString("MSG_InvalidValue")); // NOI18N
+                                    DialogDisplayer.getDefault().notify(descriptor);
+                                }
+                            }
+                        });
+                descriptor2.setClosingOptions(new Object[0]);
+                dialog = DialogDisplayer.getDefault().createDialog(descriptor2);
+                dialog.setVisible(true);
+                dialog = null;
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+
             return;
         }
 
@@ -286,13 +362,13 @@ public class ResultPanel extends javax.swing.JPanel implements TableModelListene
     private void setUpAutoI18nCheckBox() {
         FormHandler fh = new FormHandler(FormBroker.getDefault().findActiveEditor());
         FormDesigner designer = fh.getFormDesigner();
-        if(designer != null) {
+        if (designer != null) {
             FormModel formModel = fh.getFormDesigner().getFormModel();
             Integer autoMode = A11YFormUtils.getResourceAutoMode(formModel);
             autoI18nCheckBox.setSelected((autoMode == null || autoMode == 0) ? false : true);
         }
     }
-    
+
     /**
      * Provides access to auto i18n checkbox loacted on output panel
      * @param s selection state
@@ -310,13 +386,13 @@ public class ResultPanel extends javax.swing.JPanel implements TableModelListene
      */
     private void showEditor(RADComponent comp, String beanPropertyName) {
         try {
-            RADProperty props[] = comp.getAllBeanProperties(); 
+            RADProperty props[] = comp.getAllBeanProperties();
             RADProperty rProp = comp.getBeanProperty("icon");
             //java.util.List actionProps = comp.getActionProperties();
 //            RADComponentNode rNode = new RADComponentNode(comp);
 //            FormProperty fProp = rNode.getProperty(beanPropertyName);
 //            Action[] actions = rNode.getActions(false);
-            
+
 //            java.util.List actionProps = comp.getActionProperties();
 //                Iterator iter = actionProps.iterator();
 //                while (iter.hasNext()) {
@@ -326,7 +402,7 @@ public class ResultPanel extends javax.swing.JPanel implements TableModelListene
 //                        action.actionPerformed(null);
 //                    }
 //                }
-            
+
 //            ((Action)Array.get(actions, 17)).actionPerformed(null);
 //            
 //            for (int i = 0; i < actions.length; i++) {
@@ -337,13 +413,13 @@ public class ResultPanel extends javax.swing.JPanel implements TableModelListene
 //                }
 //            }
 
-            
+
             FormProperty prop = comp.getBeanProperty(beanPropertyName);
             //new PropertyAction(prop).actionPerformed(null);
 
             Action action = PropertyAction.createIfEditable(prop);
             action.actionPerformed(null);
-                
+
         } catch (Throwable th) {
             th.printStackTrace();
         }
@@ -356,24 +432,24 @@ public class ResultPanel extends javax.swing.JPanel implements TableModelListene
         DialogDescriptor descriptor;
         descriptor = new DialogDescriptor(panel, header, true, buttons(), DialogDescriptor.CANCEL_OPTION, DialogDescriptor.DEFAULT_ALIGN, HelpCtx.DEFAULT_HELP, new ActionListener() {
 
-                    public void actionPerformed(ActionEvent e) {
-                        try {
-                            String action = e.getActionCommand();
-                            //                    todo
-                            if (OK_COMMAND.equals(action)) {
-                                RADVisualComponent comp = (RADVisualComponent) getComponetByName(panel.getSelectedComponentName(), formDesigner);
-                                Property prop = comp.getPropertyByName("labelFor", comp.getPropertyByName("labelFor").getClass(), true);
-                                ComponentChooserEditor editor = (ComponentChooserEditor) ((FormProperty) prop).getCurrentEditor();
-                                editor.setValue(rvc);
-                                prop.setValue(editor.getValue());
-                            }
-                            dialog.dispose();
-                        } catch (Exception ex) {
-                            NotifyDescriptor descriptor = new NotifyDescriptor.Message(NbBundle.getBundle(ResultPanel.class).getString("MSG_InvalidValue")); // NOI18N
-                            DialogDisplayer.getDefault().notify(descriptor);
-                        }
+            public void actionPerformed(ActionEvent e) {
+                try {
+                    String action = e.getActionCommand();
+                    //                    todo
+                    if (OK_COMMAND.equals(action)) {
+                        RADVisualComponent comp = (RADVisualComponent) getComponetByName(panel.getSelectedComponentName(), formDesigner);
+                        Property prop = comp.getPropertyByName("labelFor", comp.getPropertyByName("labelFor").getClass(), true);
+                        ComponentChooserEditor editor = (ComponentChooserEditor) ((FormProperty) prop).getCurrentEditor();
+                        editor.setValue(rvc);
+                        prop.setValue(editor.getValue());
                     }
-                });
+                    dialog.dispose();
+                } catch (Exception ex) {
+                    NotifyDescriptor descriptor = new NotifyDescriptor.Message(NbBundle.getBundle(ResultPanel.class).getString("MSG_InvalidValue")); // NOI18N
+                    DialogDisplayer.getDefault().notify(descriptor);
+                }
+            }
+        });
         return descriptor;
     }
 
@@ -384,22 +460,22 @@ public class ResultPanel extends javax.swing.JPanel implements TableModelListene
         DialogDescriptor descriptor;
         descriptor = new DialogDescriptor(panel, header, true, buttons(), DialogDescriptor.CANCEL_OPTION, DialogDescriptor.DEFAULT_ALIGN, HelpCtx.DEFAULT_HELP, new ActionListener() {
 
-                    public void actionPerformed(ActionEvent e) {
-                        try {
-                            String action = e.getActionCommand();
-                            //                    todo
-                            if (OK_COMMAND.equals(action)) {
-                                ComponentChooserEditor editor = (ComponentChooserEditor) ((FormProperty) prop).getCurrentEditor();
-                                editor.setValue(panel.getSelectedComponent());
-                                prop.setValue(editor.getValue());
-                            }
-                            dialog.dispose();
-                        } catch (Exception ex) {
-                            NotifyDescriptor descriptor = new NotifyDescriptor.Message(NbBundle.getBundle(ResultPanel.class).getString("MSG_InvalidValue")); // NOI18N
-                            DialogDisplayer.getDefault().notify(descriptor);
-                        }
+            public void actionPerformed(ActionEvent e) {
+                try {
+                    String action = e.getActionCommand();
+                    //                    todo
+                    if (OK_COMMAND.equals(action)) {
+                        ComponentChooserEditor editor = (ComponentChooserEditor) ((FormProperty) prop).getCurrentEditor();
+                        editor.setValue(panel.getSelectedComponent());
+                        prop.setValue(editor.getValue());
                     }
-                });
+                    dialog.dispose();
+                } catch (Exception ex) {
+                    NotifyDescriptor descriptor = new NotifyDescriptor.Message(NbBundle.getBundle(ResultPanel.class).getString("MSG_InvalidValue")); // NOI18N
+                    DialogDisplayer.getDefault().notify(descriptor);
+                }
+            }
+        });
         return descriptor;
     }
 
@@ -411,32 +487,30 @@ public class ResultPanel extends javax.swing.JPanel implements TableModelListene
         DialogDescriptor descriptor;
         descriptor = new DialogDescriptor(panel, header, true, buttons(), DialogDescriptor.CANCEL_OPTION, DialogDescriptor.DEFAULT_ALIGN, HelpCtx.DEFAULT_HELP, new ActionListener() {
 
-                    public void actionPerformed(ActionEvent e) {
-                        try {
-                            String action = e.getActionCommand();
-                            if (OK_COMMAND.equals(action)) {
-                                if (!panel.getValueText().equals("")) {
-                                    String value = panel.getValueText();
-                                    //                                    FIXME kdyz se bude komponenta jmenovat *mnemonic*, bude problem - asi vyreseno 
-                                    if (!header.toLowerCase().contains("mnemonic property")) //mnemonic is an integer property - tohle sem nepochopil :)
-                                    {
-                                        prop.setValue(value);
-                                    } else {
-                                        if (value.length() > 1) {
-                                            throw new IllegalArgumentException("Mnemonic > 1 char");
-                                        } //NOI18N
-                                        char mnemonic = value.charAt(0);
-                                        prop.setValue((int) mnemonic);
-                                    }
-                                }
+            public void actionPerformed(ActionEvent e) {
+                try {
+                    String action = e.getActionCommand();
+                    if (OK_COMMAND.equals(action)) {
+                        if (!panel.getValueText().equals("")) {
+                            String value = panel.getValueText();
+                            if (!header.toLowerCase().contains("mnemonic property")) {
+                                prop.setValue(value);
+                            } else {
+                                if (value.length() > 1) {
+                                    throw new IllegalArgumentException("Mnemonic > 1 char");
+                                } //NOI18N
+                                char mnemonic = value.charAt(0);
+                                prop.setValue((int) mnemonic);
                             }
-                            dialog.dispose();
-                        } catch (Exception ex) {
-                            NotifyDescriptor descriptor = new NotifyDescriptor.Message(NbBundle.getBundle(ResultPanel.class).getString("MSG_InvalidValue")); // NOI18N
-                            DialogDisplayer.getDefault().notify(descriptor);
                         }
                     }
-                });
+                    dialog.dispose();
+                } catch (Exception ex) {
+                    NotifyDescriptor descriptor = new NotifyDescriptor.Message(NbBundle.getBundle(ResultPanel.class).getString("MSG_InvalidValue")); // NOI18N
+                    DialogDisplayer.getDefault().notify(descriptor);
+                }
+            }
+        });
         return descriptor;
     }
 
@@ -462,9 +536,12 @@ public class ResultPanel extends javax.swing.JPanel implements TableModelListene
      */
     public void tableChanged(TableModelEvent e) {
         setColumnWidths();
-        errorsCountLabel.setText("" + errors.size());
-        warnigsCountLabel.setText("" + warnings.size());
-        infosCountLabel.setText("" + infos.size());
+        errorCheckBox.setText("errors: " + errors.size());
+        warningCheckBox.setText("Warnings: " + warnings.size());
+        infoCheckBox.setText("Infos: " + infos.size());
+//        errorsCountLabel.setText("" + errors.size());
+//        warnigsCountLabel.setText("" + warnings.size());
+//        infosCountLabel.setText("" + infos.size());
     }
 
     /**
@@ -474,7 +551,7 @@ public class ResultPanel extends javax.swing.JPanel implements TableModelListene
         errors.clear();
         warnings.clear();
         infos.clear();
-        setSelectedData();
+        showSelectedData();
     }
 
     /**
@@ -515,9 +592,6 @@ public class ResultPanel extends javax.swing.JPanel implements TableModelListene
         errorCheckBox = new javax.swing.JCheckBox();
         warningCheckBox = new javax.swing.JCheckBox();
         infoCheckBox = new javax.swing.JCheckBox();
-        errorsCountLabel = new javax.swing.JLabel();
-        warnigsCountLabel = new javax.swing.JLabel();
-        infosCountLabel = new javax.swing.JLabel();
         checkButton = new javax.swing.JButton();
         autoI18nCheckBox = new javax.swing.JCheckBox();
 
@@ -543,7 +617,7 @@ public class ResultPanel extends javax.swing.JPanel implements TableModelListene
             }
         });
 
-        warningCheckBox.setMnemonic('W');
+        warningCheckBox.setMnemonic('w');
         warningCheckBox.setSelected(true);
         warningCheckBox.setText("Warnings:");
         warningCheckBox.setToolTipText("Show or hide warnings");
@@ -566,18 +640,6 @@ public class ResultPanel extends javax.swing.JPanel implements TableModelListene
                 infoCheckBoxActionPerformed(evt);
             }
         });
-
-        errorsCountLabel.setDisplayedMnemonic('E');
-        errorsCountLabel.setLabelFor(errorCheckBox);
-        errorsCountLabel.setText("0");
-
-        warnigsCountLabel.setDisplayedMnemonic('W');
-        warnigsCountLabel.setLabelFor(warningCheckBox);
-        warnigsCountLabel.setText("0");
-
-        infosCountLabel.setDisplayedMnemonic('i');
-        infosCountLabel.setLabelFor(infoCheckBox);
-        infosCountLabel.setText("0");
 
         checkButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/org/netbeans/modules/a11ychecker/output/refreshIcon.png"))); // NOI18N
         checkButton.setMnemonic('r');
@@ -604,28 +666,19 @@ public class ResultPanel extends javax.swing.JPanel implements TableModelListene
             .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
                 .addContainerGap()
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
-                    .add(org.jdesktop.layout.GroupLayout.LEADING, jScrollPane1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 922, Short.MAX_VALUE)
+                    .add(org.jdesktop.layout.GroupLayout.LEADING, jScrollPane1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 971, Short.MAX_VALUE)
                     .add(layout.createSequentialGroup()
                         .add(errorCheckBox)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(errorsCountLabel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 8, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                        .add(34, 34, 34)
                         .add(warningCheckBox)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(warnigsCountLabel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 21, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                        .add(34, 34, 34)
                         .add(infoCheckBox)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(infosCountLabel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 24, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 462, Short.MAX_VALUE)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 540, Short.MAX_VALUE)
                         .add(autoI18nCheckBox)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.UNRELATED)
                         .add(checkButton)))
                 .addContainerGap())
         );
-
-        layout.linkSize(new java.awt.Component[] {errorsCountLabel, infosCountLabel, warnigsCountLabel}, org.jdesktop.layout.GroupLayout.HORIZONTAL);
-
         layout.setVerticalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(layout.createSequentialGroup()
@@ -634,9 +687,6 @@ public class ResultPanel extends javax.swing.JPanel implements TableModelListene
                     .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                         .add(errorCheckBox)
                         .add(warningCheckBox)
-                        .add(errorsCountLabel)
-                        .add(warnigsCountLabel)
-                        .add(infosCountLabel)
                         .add(infoCheckBox)
                         .add(checkButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 20, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                     .add(autoI18nCheckBox, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 18, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
@@ -647,9 +697,6 @@ public class ResultPanel extends javax.swing.JPanel implements TableModelListene
 
         jScrollPane1.getAccessibleContext().setAccessibleName(org.openide.util.NbBundle.getMessage(ResultPanel.class, "ResultPanel.jScrollPane1.AccessibleContext.accessibleName")); // NOI18N
         jScrollPane1.getAccessibleContext().setAccessibleDescription(org.openide.util.NbBundle.getMessage(ResultPanel.class, "ResultPanel.jScrollPane1.AccessibleContext.accessibleDescription")); // NOI18N
-        errorsCountLabel.getAccessibleContext().setAccessibleDescription(org.openide.util.NbBundle.getMessage(ResultPanel.class, "ResultPanel.errorsCountLabel.AccessibleContext.accessibleDescription")); // NOI18N
-        warnigsCountLabel.getAccessibleContext().setAccessibleDescription(org.openide.util.NbBundle.getMessage(ResultPanel.class, "ResultPanel.warnigsCountLabel.AccessibleContext.accessibleDescription")); // NOI18N
-        infosCountLabel.getAccessibleContext().setAccessibleDescription(org.openide.util.NbBundle.getMessage(ResultPanel.class, "ResultPanel.infosCountLabel.AccessibleContext.accessibleDescription")); // NOI18N
         checkButton.getAccessibleContext().setAccessibleName(org.openide.util.NbBundle.getMessage(ResultPanel.class, "ResultPanel.checkButton.AccessibleContext.accessibleName")); // NOI18N
         autoI18nCheckBox.getAccessibleContext().setAccessibleDescription(org.openide.util.NbBundle.getMessage(ResultPanel.class, "ResultPanel.autoI18nCheckBox.AccessibleContext.accessibleDescription")); // NOI18N
 
@@ -662,36 +709,36 @@ private void checkButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-F
 }//GEN-LAST:event_checkButtonActionPerformed
 
     private void infoCheckBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_infoCheckBoxActionPerformed
-        setSelectedData();
+        showSelectedData();
     }//GEN-LAST:event_infoCheckBoxActionPerformed
 
     private void warningCheckBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_warningCheckBoxActionPerformed
-        setSelectedData();
+        showSelectedData();
     }//GEN-LAST:event_warningCheckBoxActionPerformed
 
     /** Adds new Error to the list */
     public void addNewError(Vector v) {
         errors.add(v); //adds to the internal list
-        //setSelectedData(); //repaint the table, with respect to checkboxes
+        //showSelectedData(); //repaint the table, with respect to checkboxes
     }
 
     /** Adds new Warning to the list */
     public void addNewWarning(Vector v) {
         warnings.add(v);
-        //setSelectedData();
+        //showSelectedData();
     }
 
     /** Adds new Info to the list */
     public void addNewInfo(Vector v) {
         infos.add(v);
-        //setSelectedData();
+        //showSelectedData();
     }
 
     /**
      * Set visible data in table
      * with respect to currently checked CB
      */
-    public synchronized void setSelectedData() {
+    public synchronized void showSelectedData() {
         Vector result = new Vector();
         if (errorCheckBox.isSelected()) {
             for (int i = 0; i < errors.size(); i++) {
@@ -729,11 +776,19 @@ private void checkButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-F
         }
     }
     
-    public synchronized void setSelectedRow() {
-        if (messageTable.getRowCount() > rowIndex) {
-            messageTable.setRowSelectionInterval(rowIndex, rowIndex);
-        }      
+public synchronized void setSelectedRow() {
+    int rowCnt=messageTable.getRowCount();
+    if (rowCnt > rowIndex) {
+        messageTable.setRowSelectionInterval(rowIndex, rowIndex);
+    } else {
+      if (rowCnt > 0 && rowIndex > 1) {
+          messageTable.setRowSelectionInterval(rowIndex - 1, rowIndex - 1);
+      }
+      // nothing else should occur
     }
+    Rectangle r = messageTable.getCellRect(rowIndex, 0, true);
+    messageTable.scrollRectToVisible(r);
+}
  
     private Vector getColumnNames() {
         Vector v = new Vector();
@@ -744,7 +799,7 @@ private void checkButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-F
     }
 
     private void errorCheckBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_errorCheckBoxActionPerformed
-        setSelectedData();
+        showSelectedData();
     }//GEN-LAST:event_errorCheckBoxActionPerformed
 
     /**
@@ -794,12 +849,6 @@ private void checkButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-F
                 //model.fireTableDataChanged();
                 //sorter.fireTableDataChanged();
 
-            //model.fireTableStructureChanged();
-            //model.fireTableDataChanged();
-            //
-            //tohle funguje, ale nevim co s tim -- lita z toho CCE -- chytit? XXX HACK
-            //model.fireTableDataChanged();
-            //sorter.fireTableDataChanged();
         }
 }//GEN-LAST:event_messageTableKeyPressed
 
@@ -815,19 +864,35 @@ private void checkButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-F
         cancelButton.setText("Cancel");
         return new Object[]{okButton, cancelButton};
     }
+    
+        private Object[] buttons2() {
+        ResourceBundle bundle = NbBundle.getBundle(PropertyAction.class);
+        JButton okButton = new JButton(); 
+        Mnemonics.setLocalizedText(okButton, bundle.getString("CTL_OK")); // NOI18N
+        okButton.setActionCommand(OK_COMMAND);
+        JButton cancelButton = new JButton();
+        Mnemonics.setLocalizedText(cancelButton, bundle.getString("CTL_Cancel")); // NOI18N
+        cancelButton.setActionCommand(CANCEL_COMMAND);
+
+            JButton restoreButton = new JButton();
+            Mnemonics.setLocalizedText(restoreButton, bundle.getString("CTL_RestoreDefault")); // NOI18N
+            restoreButton.setActionCommand(RESTORE_COMMAND);
+            return new Object[] {okButton, restoreButton, cancelButton};
+        
+    }
+        
     private static final String OK_COMMAND = "OK"; // NOI18N
 
     private static final String CANCEL_COMMAND = "Cancel"; // NOI18N
+    
+    private static final String RESTORE_COMMAND = "Restore"; // NOI18N
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JCheckBox autoI18nCheckBox;
     private javax.swing.JButton checkButton;
     private javax.swing.JCheckBox errorCheckBox;
-    private javax.swing.JLabel errorsCountLabel;
     private javax.swing.JCheckBox infoCheckBox;
-    private javax.swing.JLabel infosCountLabel;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JTable messageTable;
-    private javax.swing.JLabel warnigsCountLabel;
     private javax.swing.JCheckBox warningCheckBox;
     // End of variables declaration//GEN-END:variables
 }
