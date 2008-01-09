@@ -47,7 +47,6 @@ import java.io.File;
 import java.util.Map;
 import java.util.HashMap;
 import org.netbeans.api.java.classpath.ClassPath;
-import org.netbeans.api.project.SourceGroup;
 import org.netbeans.modules.java.api.common.SourceRoots;
 import org.netbeans.spi.java.classpath.ClassPathFactory;
 import org.netbeans.spi.java.classpath.ClassPathProvider;
@@ -60,12 +59,22 @@ import org.openide.util.Parameters;
 import org.openide.util.WeakListeners;
 
 /**
- * Defines the various class paths for various project types. Each project type has to implement
- * {@link ClassPathProviderImplCustomization}.
+ * Defines the various class paths for various project types.
  * @author Tomas Zezula, David Konecny, Tomas Mysik
  * @since org.netbeans.modules.java.api.common/0 1.0
  */
 public final class DefaultClassPathProviderImpl implements ClassPathProvider, PropertyChangeListener {
+
+    private final AntProjectHelper helper;
+    private final File projectDirectory;
+    private final PropertyEvaluator evaluator;
+    private final SourceRoots sourceRoots;
+    private final SourceRoots testSourceRoots;
+
+    private final Properties properties;
+
+    private final Map<ClassPathCache, ClassPath> cache = new HashMap<ClassPathCache, ClassPath>();
+    private final Map<String, FileObject> dirCache = new HashMap<String, FileObject>();
 
     private static enum FileType {
         UNKNOWN,
@@ -84,31 +93,18 @@ public final class DefaultClassPathProviderImpl implements ClassPathProvider, Pr
         TEST_SOURCE_COMPILATION,
         SOURCE,
         TEST_SOURCE,
-        WEB_SOURCE,
         SOURCE_RUNTIME,
         TEST_SOURCE_RUNTIME,
-        BOOT,
-        PLATFORM
+        BOOT
     }
 
-    private final AntProjectHelper helper;
-    private final File projectDirectory;
-    private final PropertyEvaluator evaluator;
-    private final SourceRoots sourceRoots;
-    private final SourceRoots testSourceRoots;
-
-    private final PropertyNames propertyNames;
-
-    private final Map<ClassPathCache, ClassPath> cache = new HashMap<ClassPathCache, ClassPath>();
-    private final Map<String, FileObject> dirCache = new HashMap<String, FileObject>();
-
     public DefaultClassPathProviderImpl(AntProjectHelper helper, PropertyEvaluator evaluator, SourceRoots sourceRoots,
-            SourceRoots testSourceRoots, PropertyNames propertyNames) {
-        assert helper != null;
-        assert evaluator != null;
-        assert sourceRoots != null;
-        assert testSourceRoots != null;
-        assert propertyNames != null;
+            SourceRoots testSourceRoots, Properties properties) {
+        Parameters.notNull("helper", helper);
+        Parameters.notNull("evaluator", evaluator);
+        Parameters.notNull("sourceRoots", sourceRoots);
+        Parameters.notNull("testSourceRoots", testSourceRoots);
+        Parameters.notNull("properties", properties);
 
         this.helper = helper;
         this.projectDirectory = FileUtil.toFile(helper.getProjectDirectory());
@@ -116,12 +112,12 @@ public final class DefaultClassPathProviderImpl implements ClassPathProvider, Pr
         this.sourceRoots = sourceRoots;
         this.testSourceRoots = testSourceRoots;
         evaluator.addPropertyChangeListener(WeakListeners.propertyChange(this, evaluator));
-        this.propertyNames = propertyNames;
+        this.properties = properties;
     }
 
     private synchronized FileObject getDir(String propname) {
         FileObject fo = dirCache.get(propname);
-        if (fo == null ||  !fo.isValid()) {
+        if (fo == null || !fo.isValid()) {
             String prop = evaluator.getProperty(propname);
             if (prop != null) {
                 fo = helper.resolveFileObject(prop);
@@ -140,15 +136,15 @@ public final class DefaultClassPathProviderImpl implements ClassPathProvider, Pr
     }
 
     private FileObject getBuildClassesDir() {
-        return getDir(propertyNames.buildClassesDir);
+        return getDir(properties.buildClassesDir);
     }
 
     private FileObject getDistJar() {
-        return getDir(propertyNames.distJar);
+        return getDir(properties.distJar);
     }
 
     private FileObject getBuildTestClassesDir() {
-        return getDir(propertyNames.buildTestClassesDir);
+        return getDir(properties.buildTestClassesDir);
     }
 
     /**
@@ -183,14 +179,6 @@ public final class DefaultClassPathProviderImpl implements ClassPathProvider, Pr
         return FileType.UNKNOWN;
     }
 
-    // XXX will be moved to j2ee/utilities or similar
-    private String[] getPropertyNames(String property) {
-       if (propertyNames.javaEEPlatformClasspath != null) {
-           return new String[] {property, propertyNames.javaEEPlatformClasspath};
-       }
-       return new String[] {property};
-    }
-
     private synchronized ClassPath getCompileTimeClasspath(FileType type) {
         ClassPath cp = null;
         switch (type) {
@@ -201,7 +189,7 @@ public final class DefaultClassPathProviderImpl implements ClassPathProvider, Pr
                 if (cp == null) {
                     cp = ClassPathFactory.createClassPath(
                             ProjectClassPathSupport.createPropertyBasedClassPathImplementation(
-                            projectDirectory, evaluator, getPropertyNames(propertyNames.javacClasspath)));
+                            projectDirectory, evaluator, properties.sourceCompileTimeClassPath));
                     cache.put(ClassPathCache.SOURCE_COMPILATION, cp);
                 }
                 break;
@@ -211,7 +199,7 @@ public final class DefaultClassPathProviderImpl implements ClassPathProvider, Pr
                 if (cp == null) {
                     cp = ClassPathFactory.createClassPath(
                             ProjectClassPathSupport.createPropertyBasedClassPathImplementation(
-                            projectDirectory, evaluator, getPropertyNames(propertyNames.javacTestClasspath)));
+                            projectDirectory, evaluator, properties.testSourceCompileTimeClassPath));
                     cache.put(ClassPathCache.TEST_SOURCE_COMPILATION, cp);
                 }
                 break;
@@ -235,7 +223,7 @@ public final class DefaultClassPathProviderImpl implements ClassPathProvider, Pr
                 if (cp == null) {
                     cp = ClassPathFactory.createClassPath(
                             ProjectClassPathSupport.createPropertyBasedClassPathImplementation(
-                            projectDirectory, evaluator, getPropertyNames(propertyNames.runClasspath)));
+                            projectDirectory, evaluator, properties.sourceRunTimeClassPath));
                     cache.put(ClassPathCache.SOURCE_RUNTIME, cp);
                 }
                 break;
@@ -246,7 +234,7 @@ public final class DefaultClassPathProviderImpl implements ClassPathProvider, Pr
                 if (cp == null) {
                     cp = ClassPathFactory.createClassPath(
                             ProjectClassPathSupport.createPropertyBasedClassPathImplementation(
-                            projectDirectory, evaluator, getPropertyNames(propertyNames.runTestClasspath)));
+                            projectDirectory, evaluator, properties.testSourceRunTimeClassPath));
                     cache.put(ClassPathCache.TEST_SOURCE_RUNTIME, cp);
                 }
                 break;
@@ -292,22 +280,6 @@ public final class DefaultClassPathProviderImpl implements ClassPathProvider, Pr
         if (cp == null) {
             cp = ClassPathFactory.createClassPath(new BootClassPathImplementation(evaluator));
             cache.put(ClassPathCache.BOOT, cp);
-        }
-        return cp;
-    }
-
-    // XXX will be moved to j2ee/utilities or similar
-    public synchronized ClassPath getJ2eePlatformClassPath() {
-        if (propertyNames.javaEEPlatformClasspath == null) {
-            // XXX exception?
-            return null;
-        }
-        ClassPath cp = cache.get(ClassPathCache.PLATFORM);
-        if (cp == null) {
-            cp = ClassPathFactory.createClassPath(
-                    ProjectClassPathSupport.createPropertyBasedClassPathImplementation(
-                    projectDirectory, evaluator, new String[] {propertyNames.javaEEPlatformClasspath}));
-            cache.put(ClassPathCache.PLATFORM, cp);
         }
         return cp;
     }
@@ -374,12 +346,13 @@ public final class DefaultClassPathProviderImpl implements ClassPathProvider, Pr
     }
 
     /**
-     * Clear the cache if any property changes.
+     * Clear the related cache if any property changes.
      */
     public void propertyChange(PropertyChangeEvent evt) {
         dirCache.remove(evt.getPropertyName());
     }
 
+    // XXX will be moved to ClassPathModifier
     /**
      * Get the name of the property of the classpath for the given source group and classpath type.
      * The property is searched in sources as well as tests and can be <code>null</code> if the root of the given
@@ -388,14 +361,14 @@ public final class DefaultClassPathProviderImpl implements ClassPathProvider, Pr
      * @param type classpath type - compile or execute, see {@link ClassPath} for more information.
      * @return the property name or <code>null</code> if nothing found.
      */
-    public String getPropertyName(SourceGroup sg, String type) {
+    /*public String getPropertyName(SourceGroup sg, String type) {
         FileObject root = sg.getRootFolder();
         for (FileObject fo : getPrimarySrcPath()) {
             if (root.equals(fo)) {
                 if (ClassPath.COMPILE.equals(type)) {
-                    return propertyNames.javacClasspath;
+                    return propertyNames.sourceCompileTimeClassPath;
                 } else if (ClassPath.EXECUTE.equals(type)) {
-                    return propertyNames.runClasspath;
+                    return propertyNames.sourceRunTimeClassPath;
                 }
                 return null;
             }
@@ -403,18 +376,18 @@ public final class DefaultClassPathProviderImpl implements ClassPathProvider, Pr
         for (FileObject fo : getTestSrcDir()) {
             if (root.equals(fo)) {
                 if (ClassPath.COMPILE.equals(type)) {
-                    return propertyNames.javacTestClasspath;
+                    return propertyNames.testSourceCompileTimeClassPath;
                 } else if (ClassPath.EXECUTE.equals(type)) {
-                    return propertyNames.runTestClasspath;
+                    return propertyNames.testSourceRunTimeClassPath;
                 }
                 return null;
             }
         }
         return null;
-    }
+    }*/
 
     /**
-     * Clear direcotry cache. This method can be suitable while listening to some properties,
+     * Clear directory cache. This method can be suitable while listening to some properties,
      * e.g. {@link org.netbeans.spi.project.support.ant.AntProjectListener#configurationXmlChanged(AntProjectEvent)}.
      */
     public synchronized void clearDirectoryCache() {
@@ -422,44 +395,36 @@ public final class DefaultClassPathProviderImpl implements ClassPathProvider, Pr
     }
 
     /**
-     * Class holding property names like "javac.classpath" etc.
+     * Class holding different properties like "javac.classpath" etc.
      */
-    public static final class PropertyNames {
-        private final String buildClassesDir;
-        private final String buildTestClassesDir;
-        private final String distJar;
-        private final String javacClasspath;
-        private final String javacTestClasspath;
-        private final String runClasspath;
-        private final String runTestClasspath;
-        // XXX will be moved to j2ee/utilities or similar
-        private final String javaEEPlatformClasspath;
+    public static final class Properties {
+        final String buildClassesDir;
+        final String buildTestClassesDir;
+        final String distJar;
 
-        public PropertyNames(String buildClassesDir, String buildTestClassesDir, String distJar, String javacClasspath,
-                String javacTestClasspath, String runClasspath, String runTestClasspath) {
-            this(buildClassesDir, buildTestClassesDir, distJar, javacClasspath, javacTestClasspath, runClasspath,
-                    runTestClasspath, null);
-        }
+        final String[] sourceCompileTimeClassPath;
+        final String[] testSourceCompileTimeClassPath;
+        final String[] sourceRunTimeClassPath;
+        final String[] testSourceRunTimeClassPath;
 
-        public PropertyNames(String buildClassesDir, String buildTestClassesDir, String distJar, String javacClasspath,
-                String javacTestClasspath, String runClasspath, String runTestClasspath,
-                String javaEEPlatformClasspath) {
+        public Properties(String buildClassesDir, String buildTestClassesDir, String distJar,
+                String[] sourceCompileTimeClassPath, String[] testSourceCompileTimeClassPath,
+                String[] sourceRunTimeClassPath, String[] testSourceRunTimeClassPath) {
             Parameters.notNull("buildClassesDir", buildClassesDir);
             Parameters.notNull("buildTestClassesDir", buildTestClassesDir);
             Parameters.notNull("distJar", distJar);
-            Parameters.notNull("javacClasspath", javacClasspath);
-            Parameters.notNull("javacTestClasspath", javacTestClasspath);
-            Parameters.notNull("runClasspath", runClasspath);
-            Parameters.notNull("runTestClasspath", runTestClasspath);
+            Parameters.notNull("sourceCompileTimeClassPath", sourceCompileTimeClassPath);
+            Parameters.notNull("testSourceCompileTimeClassPath", testSourceCompileTimeClassPath);
+            Parameters.notNull("sourceRunTimeClassPath", sourceRunTimeClassPath);
+            Parameters.notNull("testSourceRunTimeClassPath", testSourceRunTimeClassPath);
 
             this.buildClassesDir = buildClassesDir;
             this.buildTestClassesDir = buildTestClassesDir;
             this.distJar = distJar;
-            this.javacClasspath = javacClasspath;
-            this.javacTestClasspath = javacTestClasspath;
-            this.runClasspath = runClasspath;
-            this.runTestClasspath = runTestClasspath;
-            this.javaEEPlatformClasspath = javaEEPlatformClasspath;
+            this.sourceCompileTimeClassPath = sourceCompileTimeClassPath;
+            this.testSourceCompileTimeClassPath = testSourceCompileTimeClassPath;
+            this.sourceRunTimeClassPath = sourceRunTimeClassPath;
+            this.testSourceRunTimeClassPath = testSourceRunTimeClassPath;
         }
     }
 }
