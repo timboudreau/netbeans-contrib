@@ -38,7 +38,6 @@
  * Version 2 license, then the option applies only if the new code is
  * made subject to such option by the copyright holder.
  */
-
 package org.netbeans.modules.scala.editing.semantic;
 
 import java.util.ArrayList;
@@ -98,10 +97,9 @@ public class ScalaSemanticAnalyser {
      * Here's a ugly hacking, we just setForIndexing to avoid this re-entrant
      */
     private boolean forIndexing;
-
     private ParserManager parserManager;
     private ParserManagerListener parserManagerListener;
-    
+
     private ScalaSemanticAnalyser(Document doc) {
         this.doc = doc;
         parserManager = ParserManager.get(doc);
@@ -127,10 +125,10 @@ public class ScalaSemanticAnalyser {
     protected void finalize() throws Throwable {
         super.finalize();
         if (parserManager != null && parserManagerListener != null) {
-            parserManager.removeListener(parserManagerListener);           
+            parserManager.removeListener(parserManagerListener);
         }
-    }    
-    
+    }
+
     public ASTNode getAstRoot() {
         return astRoot;
     }
@@ -397,7 +395,7 @@ public class ScalaSemanticAnalyser {
             } else if (isNode(item, "TmplDef")) {
                 pendingItems.putAll(processTmplDef(rootCtx, item, currCtx));
             } else if (isNode(item, "TypeDclDef")) {
-            // @todo TypeDclDef
+                pendingItems.putAll(processTypeDclDef(rootCtx, item, currCtx));
             }
         }
 
@@ -424,7 +422,7 @@ public class ScalaSemanticAnalyser {
                 kind = Kind.TRAIT;
             }
         }
-        
+
         ASTToken nameToken = null;
         if (kind == Kind.OBJECT || kind == Kind.CLASS) {
             for (ASTItem item1 : defStat.getChildren()) {
@@ -471,10 +469,10 @@ public class ScalaSemanticAnalyser {
             currCtx.addDefinition(tmplDfn);
             currCtx.addUsage(nameToken, tmplDfn);
         }
-        
+
         return pendingItems;
-    }    
-    
+    }
+
     private Map<ASTItem, ScalaContext> processVarValDclDef(ScalaContext ctxRoot, ASTItem nodeContainsDclDef, ScalaContext currCtx) {
         Map<ASTItem, ScalaContext> pendingItems = new HashMap<ASTItem, ScalaContext>();
         List<ASTItem> patterns = new ArrayList<ASTItem>();
@@ -610,6 +608,33 @@ public class ScalaSemanticAnalyser {
         return pendingItems;
     }
 
+    private Map<ASTItem, ScalaContext> processTypeDclDef(ScalaContext rootCtx, ASTItem typeDclDef, ScalaContext currCtx) {
+        Map<ASTItem, ScalaContext> pendingItems = new HashMap<ASTItem, ScalaContext>();
+        for (ASTItem item : typeDclDef.getChildren()) {
+            if (isNode(item, "NameId")) {
+                ASTToken nameToken = getIdTokenFromNameId(item);
+                Type typeDfn = new Type(nameToken.getIdentifier(), nameToken.getOffset(), nameToken.getEndOffset());
+                currCtx.addDefinition(typeDfn);
+                currCtx.addUsage(nameToken, typeDfn);
+
+            } else if (isNode(item, "TypeParamClause")) {
+                List<ASTItem> nameIds = query(item, "VariantTypeParam/TypeParam/NameId");
+                for (ASTItem nameId : nameIds) {
+                    ASTToken nameToken = getIdTokenFromNameId(nameId);
+                /** @todo */
+//                    Var varDfn = new Var(nameToken.getIdentifier(), nameToken.getOffset(), nameToken.getEndOffset(), Var.Scope.PARAMETER);
+//                    ctx.addDefinition(varDfn);
+//                    ctx.addUsage(nameToken, varDfn);
+                }
+            } else if (isNode(item, "Type")) {
+                processAnyType(rootCtx, item, currCtx);
+            } else {
+                pendingItems.put(item, currCtx);
+            }
+        }
+        return pendingItems;
+    }
+
     private void processAnyType(ScalaContext rootCtx, ASTItem type, ScalaContext currCtx) {
         for (ASTItem item : type.getChildren()) {
             if (isNode(item, "TypeStableId")) {
@@ -618,9 +643,14 @@ public class ScalaSemanticAnalyser {
                     // @todo should process package here
                     ASTItem lastNameId = nameIds.get(nameIds.size() - 1);
                     ASTToken idToken = getIdTokenFromNameId(lastNameId);
-                    Template tmplDfn = currCtx.getDefinitionInScopeByName(Template.class, idToken.getIdentifier());
-                    if (tmplDfn != null) {
-                        currCtx.addUsage(idToken, tmplDfn);
+                    Type typeDfn = currCtx.getDefinitionInScopeByName(Type.class, idToken.getIdentifier());
+                    if (typeDfn != null) {
+                        currCtx.addUsage(idToken, typeDfn);
+                    } else {
+                        Template tmplDfn = currCtx.getDefinitionInScopeByName(Template.class, idToken.getIdentifier());
+                        if (tmplDfn != null) {
+                            currCtx.addUsage(idToken, tmplDfn);
+                        }
                     }
                 }
             } else if (item instanceof ASTNode) {

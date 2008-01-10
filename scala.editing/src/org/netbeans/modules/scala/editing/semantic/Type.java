@@ -48,24 +48,12 @@ import org.netbeans.api.languages.database.DatabaseDefinition;
  * @author dcaoyuan
  */
 public class Type extends DatabaseDefinition {
-    public static enum Scope {
-        GLOBAL,
-        LOCAL,
-        PARAMETER
-    }
     
-    private Scope scope;
-    
-    public Type (String name, int offset, int endOffset, Scope contextType) {
+    public Type (String name, int offset, int endOffset) {
         super(name, null, offset, endOffset);
-        this.scope = contextType;
-    }
-
-
-    public Scope getContextType () {
-        return scope;
     }
     
+    @Override
     public String toString () {
         return "Type  " + getName();
     }
