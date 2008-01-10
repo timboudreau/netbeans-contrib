@@ -101,7 +101,6 @@ public class ScalaSemanticAnalyser {
 
     private ParserManager parserManager;
     private ParserManagerListener parserManagerListener;
-    private boolean updated;
     
     private ScalaSemanticAnalyser(Document doc) {
         this.doc = doc;
@@ -110,13 +109,9 @@ public class ScalaSemanticAnalyser {
 
             public void parsed(State state, ASTNode root) {
                 if (state == State.PARSING) {
-                    updated = false;
-                    throw new UnsupportedOperationException("Not supported yet.");
-                } else if (state == State.OK) {
-                    if (!updated) {
-                        analyse(root);
-                        updated = true;
-                    }
+                    return;
+                } else {
+                    analyse(root);
                 }
             }
         };
