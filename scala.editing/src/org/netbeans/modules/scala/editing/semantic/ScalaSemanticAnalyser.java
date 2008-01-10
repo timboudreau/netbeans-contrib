@@ -1124,7 +1124,7 @@ public class ScalaSemanticAnalyser {
             }
         }
 
-        isLocalCall = isFunCall && typedPathIds != null && typedPathIds.size() == 1 && isNode(children.get(0), "TypedPathId");
+        isLocalCall = isFunCall && typedPathIds != null && typedPathIds.size() > 0 && isNode(children.get(0), "TypedPathId");
         isVar = !isLocalCall && typedPathIds != null && typedPathIds.size() > 0 && isNode(children.get(0), "TypedPathId");
         if (isLocalCall) {
             int arityInt = 0;

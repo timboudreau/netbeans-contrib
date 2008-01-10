@@ -1047,7 +1047,7 @@ COLOR:integer,float: {
     foreground_color: "0x780000";
 }
 
-COLOR:sting,char: {
+COLOR:string,char: {
     foreground_color: "0xCE7B00";
 }
 
