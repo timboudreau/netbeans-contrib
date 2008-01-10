@@ -86,7 +86,7 @@ public class ScalaSemanticAnalyser {
     private static Map<Document, ScalaSemanticAnalyser> docToAnalyser = new WeakHashMap<Document, ScalaSemanticAnalyser>();
     private static ScalaSemanticAnalyser ANALYSER_FOR_INDEXING = new ScalaSemanticAnalyser(true);
     private Document doc;
-    private ASTNode astRoot; // syntax ast root
+    private ASTNode astRoot;
     private ScalaContext rootCtx;
     /**
      * @NOTICE we should avoid re-entrant of analyse. There is a case may cause that:
@@ -118,6 +118,11 @@ public class ScalaSemanticAnalyser {
         parserManager.addListener(parserManagerListener);
     }
 
+    private ScalaSemanticAnalyser(boolean forIndexing) {
+        this.doc = null;
+        this.forIndexing = forIndexing;
+    }
+
     @Override
     protected void finalize() throws Throwable {
         super.finalize();
@@ -126,11 +131,6 @@ public class ScalaSemanticAnalyser {
         }
     }    
     
-    private ScalaSemanticAnalyser(boolean forIndexing) {
-        this.doc = null;
-        this.forIndexing = forIndexing;
-    }
-
     public ASTNode getAstRoot() {
         return astRoot;
     }
@@ -168,9 +168,6 @@ public class ScalaSemanticAnalyser {
         if (analyser == null) {
             analyser = new ScalaSemanticAnalyser(doc);
             docToAnalyser.put(doc, analyser);
-
-            /** ugly hacking to add MarkOccurrencesSupport_ */
-            //MarkOccurrencesSupport.checkInstallation(doc);
         }
 
         return analyser;
