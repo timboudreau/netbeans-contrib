@@ -95,31 +95,9 @@ public class PageIterator implements TemplateWizard.Iterator {
     private static final long serialVersionUID = 1L;
     public static final String FILETYPE_WEBFORM = "WebForm";
     public static final String FILETYPE_BEAN = "Bean";
-    private String fileType;
-    private boolean isPortlet;
+    private String fileType = FILETYPE_WEBFORM;
     private int index;
     private transient WizardDescriptor.Panel[] panels;
-
-    public static PageIterator createWebFormIterator() {
-        return new PageIterator(FILETYPE_WEBFORM);
-    }
-
-    public static PageIterator createPortletIterator() {
-        return new PageIterator(FILETYPE_WEBFORM, true);
-    }
-
-    public static PageIterator createBeanIterator() {
-        return new PageIterator(FILETYPE_BEAN);
-    }
-
-    private PageIterator(String fileType) {
-        this(fileType, false);
-    }
-
-    private PageIterator(String fileType, boolean isPortlet) {
-        this.fileType = fileType;
-        this.isPortlet = isPortlet;
-    }
 
     public void initialize(TemplateWizard wizard) {
         index = 0;
@@ -128,7 +106,7 @@ public class PageIterator implements TemplateWizard.Iterator {
         SourceGroup[] sourceGroups = ProjectUtils.getSources(project).getSourceGroups(JavaProjectConstants.SOURCES_TYPE_JAVA);
 
         WizardDescriptor.Panel packagePanel = new PagebeanPackagePanel(project);
-        WizardDescriptor.Panel javaPanel = new SimpleTargetChooserPanel(project, sourceGroups, packagePanel, false, fileType, isPortlet);
+        WizardDescriptor.Panel javaPanel = new SimpleTargetChooserPanel(project, sourceGroups, packagePanel, false, fileType);
         String templateType = Templates.getTemplate(wizard).getExt();
         panels = new WizardDescriptor.Panel[]{javaPanel};
 
@@ -169,10 +147,7 @@ public class PageIterator implements TemplateWizard.Iterator {
 
             // Find a free page name
             String ext = Templates.getTemplate(wizard).getExt();
-            String prefix = "jsp".equals(ext) ? "Page" : "Fragment"; // NOI18N
-            if (isPortlet) {
-                prefix = "Portlet" + prefix; // NOI18N
-            }
+            String prefix = "jsp".equals(ext) ? "PortletPage" : "PortletFragment"; // NOI18N
 
             for (int pageIndex = 1;; pageIndex++) {
                 String name = prefix + pageIndex;
@@ -241,33 +216,27 @@ public class PageIterator implements TemplateWizard.Iterator {
                     }
                     JsfProjectUtils.createProjectProperty(project, JsfProjectConstants.PROP_JSF_PAGEBEAN_PACKAGE, beanPackage);
 
-                    if (isPortlet) {
-                        JsfProjectUtils.createProjectProperty(project, JsfProjectConstants.PROP_START_PAGE, JsfProjectConstants.NO_START_PAGE);
+                    JsfProjectUtils.createProjectProperty(project, JsfProjectConstants.PROP_START_PAGE, JsfProjectConstants.NO_START_PAGE);
 
-                        File filePortlet = new File(FileUtil.toFile(webModule.getWebInf()), "portlet.xml"); // NOI18N
-                        if (!filePortlet.exists()) {
-                            String content = JsfProjectUtils.readResource(Thread.currentThread().getContextClassLoader().getResourceAsStream("org/netbeans/modules/portalpack/visualweb/templates/portlet.xml.template"), "UTF-8"); // NOI18N
-                            content = content.replace("${page_name}", targetName); // NOI18N
-                            content = content.replace("${portlet_name}", ProjectUtils.getInformation(project).getDisplayName()); // NOI18N
-                            FileObject target = FileUtil.createData(webModule.getWebInf(), "portlet.xml"); // NOI18N
-                            JsfProjectUtils.createFile(target, content, "UTF-8"); //NOI18N
-                        }
+                    // Create portlet.xml if not exist
+                    File filePortlet = new File(FileUtil.toFile(webModule.getWebInf()), "portlet.xml"); // NOI18N
+                    if (!filePortlet.exists()) {
+                        String content = JsfProjectUtils.readResource(Thread.currentThread().getContextClassLoader().getResourceAsStream("org/netbeans/modules/portalpack/visualweb/templates/portlet.xml.template"), "UTF-8"); // NOI18N
+                        content = content.replace("${page_name}", targetName); // NOI18N
+                        content = content.replace("${portlet_name}", ProjectUtils.getInformation(project).getDisplayName()); // NOI18N
+                        FileObject target = FileUtil.createData(webModule.getWebInf(), "portlet.xml"); // NOI18N
+                        JsfProjectUtils.createFile(target, content, "UTF-8"); //NOI18N
+                    }
 
-                        ClassPath cp = ClassPath.getClassPath(webModule.getDocumentBase(), ClassPath.COMPILE);
-                        if (cp.findResource("com/sun/faces/portlet/FacesPortlet.class") == null) { //NOI18N
-                            Library libBridge = LibraryManager.getDefault().getLibrary("jsf-portlet-runtime-1.2"); // NOI18N
-                            if (libBridge != null) {
-                                try {
-                                    JsfProjectUtils.addLibraryReferences(project, new Library[] { libBridge }, ClassPath.EXECUTE);
-                                } catch (IOException ioExceptoin) {
-                                }
+                    // Add OpenPortal JSF Portlet Bridge Support library
+                    ClassPath cp = ClassPath.getClassPath(webModule.getDocumentBase(), ClassPath.COMPILE);
+                    if (cp.findResource("com/sun/faces/portlet/FacesPortlet.class") == null) { //NOI18N
+                        Library libBridge = LibraryManager.getDefault().getLibrary("jsf-portlet-runtime-1.2"); // NOI18N
+                        if (libBridge != null) {
+                            try {
+                                JsfProjectUtils.addLibraryReferences(project, new Library[] { libBridge }, ClassPath.EXECUTE);
+                            } catch (IOException ioExceptoin) {
                             }
-                        }
-                    } else {
-                        if ("jsp".equals(template.getExt())) { // NOI18N
-                            setStartPage(project, webModule, dir, targetName);
-                        } else if ("jspf".equals(template.getExt()) && "Page1".equals(targetName)) { // NOI18N
-                            setStartPage(project, webModule, dir, "Page2"); // NOI18N
                         }
                     }
 
@@ -327,19 +296,6 @@ public class PageIterator implements TemplateWizard.Iterator {
             open.open();
         }
         return result;
-    }
-
-    private void setStartPage(Project project, WebModule webModule, FileObject targetFolder, String targetName) {
-        String startPage = targetName + ".jsp";
-        FileObject webFolder = webModule.getDocumentBase();
-        if (webFolder != null) {
-            // Allow the first start page been created under subdir of the web root.
-            String startPath = FileUtil.getRelativePath(webFolder, targetFolder);
-            if (startPath != null && startPath.length() > 0) {
-                startPage = startPath + "/" + startPage;
-            }
-        }
-        JsfProjectUtils.createProjectProperty(project, JsfProjectConstants.PROP_START_PAGE, startPage);
     }
 
     public void previousPanel() {

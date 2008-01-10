@@ -81,9 +81,8 @@ final class SimpleTargetChooserPanel implements WizardDescriptor.Panel, ChangeLi
     private WizardDescriptor wizard;
     private boolean isFolder;
     private String fileType;
-    private boolean isPortlet;
 
-    SimpleTargetChooserPanel( Project project, SourceGroup[] folders, WizardDescriptor.Panel bottomPanel, boolean isFolder, String fileType, boolean isPortlet ) {
+    SimpleTargetChooserPanel( Project project, SourceGroup[] folders, WizardDescriptor.Panel bottomPanel, boolean isFolder, String fileType ) {
         this.folders = folders;
         this.project = project;
         this.bottomPanel = bottomPanel;
@@ -92,7 +91,6 @@ final class SimpleTargetChooserPanel implements WizardDescriptor.Panel, ChangeLi
         }
         this.isFolder = isFolder;
         this.fileType = fileType;
-        this.isPortlet = isPortlet;
         this.gui = null;
     }
 
@@ -261,7 +259,7 @@ final class SimpleTargetChooserPanel implements WizardDescriptor.Panel, ChangeLi
 
     private boolean checkWebForm(String targetName) {
         if (JsfProjectUtils.isJsfProject(project) &&
-            (isPortlet != (JsfProjectUtils.getPortletSupport(project) != null))) {
+            (JsfProjectUtils.getPortletSupport(project) == null)) {
             wizard.putProperty("WizardPanel_errorMessage", NbBundle.getMessage(SimpleTargetChooserPanel.class, "MSG_PortletIncompatible"));
             return false;
         }

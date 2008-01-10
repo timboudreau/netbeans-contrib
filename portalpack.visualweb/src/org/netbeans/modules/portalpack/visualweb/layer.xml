@@ -51,7 +51,7 @@ made subject to such option by the copyright holder.
                 <attr name="position" intvalue="500"/>
                 <attr name="template" boolvalue="true"/>
                 <attr name="templateCategory" stringvalue="web-types"/>
-                <attr name="templateWizardIterator" methodvalue="org.netbeans.modules.portalpack.visualweb.ui.PageIterator.createPortletIterator"/>
+                <attr name="templateWizardIterator" newvalue="org.netbeans.modules.portalpack.visualweb.ui.PageIterator"/>
                 <attr name="templateWizardURL" urlvalue="nbresloc:/org/netbeans/modules/portalpack/visualweb/templates/WebFormTemplateHelp.html"/>
                 <attr name="javax.script.ScriptEngine" stringvalue="freemarker"/>
             </file>
