@@ -232,7 +232,7 @@ public class PSCommandHandler extends DefaultPSTaskHandler {
             PSMBeanException pme = (PSMBeanException)me.getTargetException();
             throw new PSMBeanException(pme.getErrorKey(),pme.getTokens());
              */
-            logger.log(Level.SEVERE,org.openide.util.NbBundle.getBundle(PSCommandHandler.class).getString("Error"),me);
+            logger.log(Level.WARNING,org.openide.util.NbBundle.getBundle(PSCommandHandler.class).getString("Error"),me);
             if(me.getTargetException() instanceof PSMBeanException) {
                 PSMBeanException pme = (PSMBeanException)me.getTargetException();
                 String errMsg = "";
@@ -241,7 +241,7 @@ public class PSCommandHandler extends DefaultPSTaskHandler {
                     errKey = pme.getErrorKey();
                     errMsg = NbBundle.getMessage(PSCommandHandler.class, errKey,pme.getTokens());
                 }catch(Exception e){
-                    logger.log(Level.SEVERE,org.openide.util.NbBundle.getBundle(PSCommandHandler.class).getString("Error"),e);
+                    logger.log(Level.WARNING,org.openide.util.NbBundle.getBundle(PSCommandHandler.class).getString("Error"),e);
                     errMsg = pme.getMessage();
                 }
                 writeErrorToOutput(uri,"MBean Exception : ["+errKey +  "]  " + errMsg);
