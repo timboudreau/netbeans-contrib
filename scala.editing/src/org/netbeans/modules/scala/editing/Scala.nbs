@@ -945,7 +945,7 @@ NAVIGATOR:FunDclDef: {
 
 NAVIGATOR:TypeDclDef: {
     display_name: "$NameId$";
-    icon: "/org/netbeans/modules/languages/resources/method.gif";
+    icon: "/org/netbeans/modules/languages/resources/variable.gif";
 }
 
 NAVIGATOR:TemplateStat.DclDef.ValDclDef: {
@@ -1036,6 +1036,7 @@ COLOR:Type,InfixType,AnnotType,SimpleType: {
 COLOR:ClassDef.NameId, TraitDef.NameId, ObjectDef.NameId: {
     foreground_color: "black";
     font_type: "bold";
+    condition: org.netbeans.modules.scala.editing.Scala.enableSemantic;
 }
 
 COLOR:FunDclDef.NameId: {
