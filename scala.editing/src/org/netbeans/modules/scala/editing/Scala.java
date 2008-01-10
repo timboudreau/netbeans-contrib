@@ -187,14 +187,14 @@ public class Scala {
             
             if (tokenText.equals(".")) {
                 token = previousToken(tokenSequence);
-                if (token.id().name().endsWith("id")) {
+                if (token.id().name().endsWith("identifier") || token.id().name().equals("rparen")) {
                     libraryContext = token.text().toString();
                 }
-            } else if (token.id().name().endsWith("id")) {
+            } else if (token.id().name().endsWith("identifier") || token.id().name().equals("rparen")) {
                 token = previousToken(tokenSequence);
                 if (token.text().toString().equals(".")) {
                     token = previousToken(tokenSequence);
-                    if (token.id().name().endsWith("id")) {
+                    if (token.id().name().endsWith("identifier") || token.id().name().equals("rparen")) {
                         libraryContext = token.text().toString();
                     }
                 } else if (token.text().toString().equals("new")) {
