@@ -432,6 +432,12 @@ public class ScalaSemanticAnalyser {
                     for (ASTItem item2 : item1.getChildren()) {
                         if (isNode(item2, "Template")) {
                             pendingItems.put(item2, ctx);
+                        } else if (isNode(item2, "ClassParents")) {
+                            for (ASTItem item3 : item2.getChildren()) {
+                                if (isNode(item3, "AnnotType")) {
+                                    processAnyType(rootCtx, item3, ctx);
+                                }
+                            }
                         }
                     }
                 } else if (isNode(item1, "ClassParamClauses")) {
@@ -457,6 +463,12 @@ public class ScalaSemanticAnalyser {
                     for (ASTItem item2 : item1.getChildren()) {
                         if (isNode(item2, "Template")) {
                             pendingItems.put(item2, ctx);
+                        } else if (isNode(item2, "TraitParents")) {
+                            for (ASTItem item3 : item2.getChildren()) {
+                                if (isNode(item3, "AnnotType")) {
+                                    processAnyType(rootCtx, item3, ctx);
+                                }
+                            }
                         }
                     }
                 }
