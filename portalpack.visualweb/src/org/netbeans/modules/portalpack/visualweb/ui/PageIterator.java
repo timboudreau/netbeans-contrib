@@ -93,9 +93,6 @@ import org.openide.util.NbBundle;
 public class PageIterator implements TemplateWizard.Iterator {
 
     private static final long serialVersionUID = 1L;
-    public static final String FILETYPE_WEBFORM = "WebForm";
-    public static final String FILETYPE_BEAN = "Bean";
-    private String fileType = FILETYPE_WEBFORM;
     private int index;
     private transient WizardDescriptor.Panel[] panels;
 
@@ -106,7 +103,7 @@ public class PageIterator implements TemplateWizard.Iterator {
         SourceGroup[] sourceGroups = ProjectUtils.getSources(project).getSourceGroups(JavaProjectConstants.SOURCES_TYPE_JAVA);
 
         WizardDescriptor.Panel packagePanel = new PagebeanPackagePanel(project);
-        WizardDescriptor.Panel javaPanel = new SimpleTargetChooserPanel(project, sourceGroups, packagePanel, false, fileType);
+        WizardDescriptor.Panel javaPanel = new SimpleTargetChooserPanel(project, sourceGroups, packagePanel, false);
         String templateType = Templates.getTemplate(wizard).getExt();
         panels = new WizardDescriptor.Panel[]{javaPanel};
 
@@ -132,52 +129,27 @@ public class PageIterator implements TemplateWizard.Iterator {
             return;
         }
 
-        if (fileType.equals(FILETYPE_WEBFORM)) {
-            // Always start with the document root or under
-            FileObject docRoot = JsfProjectUtils.getDocumentRoot(project);
-            FileObject javaDir = JsfProjectUtils.getPageBeanRoot(project);
-            FileObject jspDir = Templates.getTargetFolder(wizard);
-            String relativePath = (jspDir == null) ? null : FileUtil.getRelativePath(docRoot, jspDir);
-            if ((relativePath == null) || (relativePath.indexOf("WEB-INF") != -1)) {
-                Templates.setTargetFolder(wizard, docRoot);
-                jspDir = docRoot;
-            } else if (relativePath.length() > 0) {
-                javaDir = javaDir.getFileObject(relativePath);
-            }
+        // Always start with the document root or under
+        FileObject docRoot = JsfProjectUtils.getDocumentRoot(project);
+        FileObject javaDir = JsfProjectUtils.getPageBeanRoot(project);
+        FileObject jspDir = Templates.getTargetFolder(wizard);
+        String relativePath = (jspDir == null) ? null : FileUtil.getRelativePath(docRoot, jspDir);
+        if ((relativePath == null) || (relativePath.indexOf("WEB-INF") != -1)) {
+            Templates.setTargetFolder(wizard, docRoot);
+            jspDir = docRoot;
+        } else if (relativePath.length() > 0) {
+            javaDir = javaDir.getFileObject(relativePath);
+        }
 
-            // Find a free page name
-            String ext = Templates.getTemplate(wizard).getExt();
-            String prefix = "jsp".equals(ext) ? "PortletPage" : "PortletFragment"; // NOI18N
+        // Find a free page name
+        String ext = Templates.getTemplate(wizard).getExt();
+        String prefix = "jsp".equals(ext) ? "PortletPage" : "PortletFragment"; // NOI18N
 
-            for (int pageIndex = 1;; pageIndex++) {
-                String name = prefix + pageIndex;
-                if ((jspDir.getFileObject(name + "." + ext) == null) && ((javaDir == null) || (javaDir.getFileObject(name + ".java") == null))) { // NOI18N
-                    wizard.setTargetName(name);
-                    return;
-                }
-            }
-        } else if (fileType.equals(FILETYPE_BEAN)) {
-            // Always start with the bean package root or under
-            FileObject javaDir = JsfProjectUtils.getPageBeanRoot(project);
-            if (javaDir == null) {
+        for (int pageIndex = 1;; pageIndex++) {
+            String name = prefix + pageIndex;
+            if ((jspDir.getFileObject(name + "." + ext) == null) && ((javaDir == null) || (javaDir.getFileObject(name + ".java") == null))) { // NOI18N
+                wizard.setTargetName(name);
                 return;
-            }
-
-            FileObject beanDir = Templates.getTargetFolder(wizard);
-            String relativePath = (beanDir == null) ? null : FileUtil.getRelativePath(javaDir, beanDir);
-            if (relativePath == null) {
-                Templates.setTargetFolder(wizard, javaDir);
-                beanDir = javaDir;
-            }
-
-            // Find a free bean name
-            String header = Templates.getTemplate(wizard).getName();
-            for (int beanIndex = 1;; beanIndex++) {
-                String name = header + beanIndex;
-                if (beanDir.getFileObject(name + ".java") == null) { // NOI18N
-                    wizard.setTargetName(name);
-                    return;
-                }
             }
         }
     }

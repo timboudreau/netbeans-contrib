@@ -80,9 +80,8 @@ final class SimpleTargetChooserPanel implements WizardDescriptor.Panel, ChangeLi
     private WizardDescriptor.Panel bottomPanel;
     private WizardDescriptor wizard;
     private boolean isFolder;
-    private String fileType;
 
-    SimpleTargetChooserPanel( Project project, SourceGroup[] folders, WizardDescriptor.Panel bottomPanel, boolean isFolder, String fileType ) {
+    SimpleTargetChooserPanel( Project project, SourceGroup[] folders, WizardDescriptor.Panel bottomPanel, boolean isFolder ) {
         this.folders = folders;
         this.project = project;
         this.bottomPanel = bottomPanel;
@@ -90,7 +89,6 @@ final class SimpleTargetChooserPanel implements WizardDescriptor.Panel, ChangeLi
             bottomPanel.addChangeListener( this );
         }
         this.isFolder = isFolder;
-        this.fileType = fileType;
         this.gui = null;
     }
 
@@ -167,13 +165,46 @@ final class SimpleTargetChooserPanel implements WizardDescriptor.Panel, ChangeLi
             return false;
         }
 
-        // Extra checking that is dependent on the file type
-        if (fileType.equals(PageIterator.FILETYPE_WEBFORM)) {
-            return checkWebForm(targetName);
-        } else if (fileType.equals(PageIterator.FILETYPE_BEAN)) {
-            return checkBean(targetName);
+        if (JsfProjectUtils.isJsfProject(project) &&
+            (JsfProjectUtils.getPortletSupport(project) == null)) {
+            wizard.putProperty("WizardPanel_errorMessage", NbBundle.getMessage(SimpleTargetChooserPanel.class, "MSG_PortletIncompatible"));
+            return false;
         }
 
+        FileObject docRoot = JsfProjectUtils.getDocumentRoot(project);
+        String folderPath = getFolderPath(FileUtil.getFileDisplayName(docRoot));
+        if (folderPath == null) {
+            return false;
+        }
+
+        // 5046660/6345517 Don't allow pages to be created under here
+        // XXX actually '-' already is not a legal Java identifier 
+        if (folderPath.indexOf("WEB-INF") != -1) {  // NOI18N
+            wizard.putProperty("WizardPanel_errorMessage", NbBundle.getMessage(SimpleTargetChooserPanel.class, "MSG_InvalidTargetFolder", folderPath));
+            return false;
+        }
+
+        // Check to make sure that the backing file doesn't already exist.
+        String jspName = targetName + ".jsp";
+        String javaName = targetName + ".java";
+        FileObject javaDir = JsfProjectUtils.getPageBeanRoot(project);
+        String javaPath = folderPath + javaName;
+        if (javaPath.startsWith("/")) {
+            javaPath = javaPath.substring(1);
+        }
+        if (javaDir.getFileObject(javaPath) != null) {
+            wizard.putProperty("WizardPanel_errorMessage", NbBundle.getMessage(SimpleTargetChooserPanel.class, "MSG_PageBeanNameConflict", javaName, jspName)); // NOI18N
+            return false;
+        }
+
+        // Bug 5058134: Warn if page or bean file name differs from existing file by letter case
+        FileObject folderDir = docRoot.getFileObject(folderPath);
+        FileObject srcDir = javaDir.getFileObject(folderPath);
+        if (((folderDir != null) && checkCaseInsensitiveName(folderDir, targetName, "jsp")) ||
+            ((srcDir != null) && checkCaseInsensitiveName(srcDir, targetName, "java"))) {  // NOI18N
+            wizard.putProperty("WizardPanel_errorMessage", NbBundle.getMessage(SimpleTargetChooserPanel.class, "MSG_FileDifferentByCase", targetName));
+        }
+        
         return true;
     }
 
@@ -255,76 +286,6 @@ final class SimpleTargetChooserPanel implements WizardDescriptor.Panel, ChangeLi
         }
 
         return relativePath;
-    }
-
-    private boolean checkWebForm(String targetName) {
-        if (JsfProjectUtils.isJsfProject(project) &&
-            (JsfProjectUtils.getPortletSupport(project) == null)) {
-            wizard.putProperty("WizardPanel_errorMessage", NbBundle.getMessage(SimpleTargetChooserPanel.class, "MSG_PortletIncompatible"));
-            return false;
-        }
-
-        FileObject docRoot = JsfProjectUtils.getDocumentRoot(project);
-        String folderPath = getFolderPath(FileUtil.getFileDisplayName(docRoot));
-        if (folderPath == null) {
-            return false;
-        }
-
-        // 5046660/6345517 Don't allow pages to be created under here
-        // XXX actually '-' already is not a legal Java identifier 
-        if (folderPath.indexOf("WEB-INF") != -1) {  // NOI18N
-            wizard.putProperty("WizardPanel_errorMessage", NbBundle.getMessage(SimpleTargetChooserPanel.class, "MSG_InvalidTargetFolder", folderPath));
-            return false;
-        }
-
-        // Check to make sure that the backing file doesn't already exist.
-        String jspName = targetName + ".jsp";
-        String javaName = targetName + ".java";
-        FileObject javaDir = JsfProjectUtils.getPageBeanRoot(project);
-        String javaPath = folderPath + javaName;
-        if (javaPath.startsWith("/")) {
-            javaPath = javaPath.substring(1);
-        }
-        if (javaDir.getFileObject(javaPath) != null) {
-            wizard.putProperty("WizardPanel_errorMessage", NbBundle.getMessage(SimpleTargetChooserPanel.class, "MSG_PageBeanNameConflict", javaName, jspName)); // NOI18N
-            return false;
-        }
-
-        // Bug 5058134: Warn if page or bean file name differs from existing file by letter case
-        FileObject folderDir = docRoot.getFileObject(folderPath);
-        FileObject srcDir = javaDir.getFileObject(folderPath);
-        if (((folderDir != null) && checkCaseInsensitiveName(folderDir, targetName, "jsp")) ||
-            ((srcDir != null) && checkCaseInsensitiveName(srcDir, targetName, "java"))) {  // NOI18N
-            wizard.putProperty("WizardPanel_errorMessage", NbBundle.getMessage(SimpleTargetChooserPanel.class, "MSG_FileDifferentByCase", targetName));
-        }
-        
-        return true;
-    }
-
-    private boolean checkBean(String targetName) {
-        FileObject javaDir;
-        String beanPath;
-        String bean = (String) wizard.getProperty(JsfProjectConstants.PROP_JSF_PAGEBEAN_PACKAGE);
-        if (bean != null) {
-            bean = bean.replace('.', File.separatorChar);
-            javaDir = JsfProjectUtils.getSourceRoot(project);
-            beanPath = FileUtil.getFileDisplayName(javaDir) + File.separatorChar + bean;
-        } else {
-            javaDir = JsfProjectUtils.getPageBeanRoot(project);
-            beanPath = FileUtil.getFileDisplayName(javaDir);
-        }
-        String folderPath = getFolderPath(beanPath);
-        if (folderPath == null) {
-            return false;
-        }
-
-        // Bug 5058134: Warn if page or bean file name differs from existing file by letter case
-        FileObject srcDir = javaDir.getFileObject(folderPath);
-        if ((srcDir != null) && checkCaseInsensitiveName(srcDir, targetName, "java")) {  // NOI18N
-            wizard.putProperty("WizardPanel_errorMessage", NbBundle.getMessage(SimpleTargetChooserPanel.class, "MSG_FileDifferentByCase", targetName));
-        }
-        
-        return true;
     }
 
     static boolean checkCaseInsensitiveName(FileObject folder, String targetName, String extension) {
@@ -483,22 +444,6 @@ final class SimpleTargetChooserPanel implements WizardDescriptor.Panel, ChangeLi
     }
 
     public void stateChanged(ChangeEvent e) {        
-        if (e.getSource().getClass() == PagebeanPackagePanel.class && fileType.equals(PageIterator.FILETYPE_BEAN)) {
-            String bean = (String) wizard.getProperty(JsfProjectConstants.PROP_JSF_PAGEBEAN_PACKAGE);
-            if (bean != null) {
-                bean = bean.replace('.', '/');
-                FileObject rootFolder = gui.getTargetGroup().getRootFolder();
-                FileObject javaDir = JsfProjectUtils.getSourceRoot(project);
-                if (javaDir != null) {
-                    String srcPath = FileUtil.getRelativePath(rootFolder, javaDir).replace(File.separatorChar, '/');
-                    String beanPath = srcPath + "/" + bean;
-                    String folderName = gui.getTargetFolder();
-                    if (folderName != null && !folderName.equals(beanPath) && !folderName.startsWith(beanPath+"/")) {
-                        gui.setTargetFolder(beanPath);
-                    }
-                }
-            }
-        }
         fireChange();
     }
     
