@@ -1,0 +1,1714 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
+
+Copyright 1997-2007 Sun Microsystems, Inc. All rights reserved.
+
+
+The contents of this file are subject to the terms of either the GNU
+General Public License Version 2 only ("GPL") or the Common
+Development and Distribution License("CDDL") (collectively, the
+"License"). You may not use this file except in compliance with the
+License. You can obtain a copy of the License at
+http://www.netbeans.org/cddl-gplv2.html
+or nbbuild/licenses/CDDL-GPL-2-CP. See the License for the
+specific language governing permissions and limitations under the
+License.  When distributing the software, include this License Header
+Notice in each file and include the License file at
+nbbuild/licenses/CDDL-GPL-2-CP.  Sun designates this
+particular file as subject to the "Classpath" exception as provided
+by Sun in the GPL Version 2 section of the License file that
+accompanied this code. If applicable, add the following below the
+License Header, with the fields enclosed by brackets [] replaced by
+your own identifying information:
+"Portions Copyrighted [year] [name of copyright owner]"
+
+Contributor(s):
+
+The Original Software is NetBeans. The Initial Developer of the Original
+Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
+Microsystems, Inc. All Rights Reserved.
+
+If you wish your version of this file to be governed by only the CDDL
+or only the GPL Version 2, indicate your decision by adding
+"[Contributor] elects to include this software in this distribution
+under the [CDDL or GPL Version 2] license." If you do not indicate a
+single choice of license, a recipient has the option to distribute
+your version of this file under either the CDDL, the GPL Version 2 or
+to extend the choice of license to its licensees as provided above.
+However, if you add GPL Version 2 code and therefore, elected the GPL
+Version 2 license, then the option applies only if the new code is
+made subject to such option by the copyright holder.
+-->
+<!DOCTYPE api-answers PUBLIC "-//NetBeans//DTD Arch Answers//EN" "../../nbbuild/antsrc/org/netbeans/nbbuild/Arch.dtd" [
+  <!ENTITY api-questions SYSTEM "../../nbbuild/antsrc/org/netbeans/nbbuild/Arch-api-questions.xml">
+]>
+
+<api-answers
+  question-version="1.26"
+  module="Actions"
+  author="jtulach@netbeans.org"
+>
+
+  &api-questions;
+
+
+<answer id="arch-what">
+    <p>
+    This module provides support for creation of actions, supports and
+    takes care of their presentation in global menus, toolbars and popup
+    menu. By using methods and other APIs from this module one shall be
+    able to easily create instances of <a href="@JDK@/javax/swing/Action.html">javax.swing.Action</a>
+    which are ready to use in the NetBeans platform.
+    </p>
+</answer>
+
+ <answer id="arch-overall">
+    <p>
+    The architecture of this module builds on existing NetBeans Platform
+    abstractions that has been proven to be useful. 
+    This lowers the amount of changes in comparition
+    from NetBeans 5.0 and concentrates them into relatively small, isolated
+    area. The basic building block is 
+    <a href="@org-openide-util@/org/openide/util/Utilities.html#actionsGlobalContext()">
+        Utilities.actionGlobalContext()
+    </a> and 
+    <a href="@org-openide-util@/org/openide/util/ContextAwareAction.html">
+        ContextAwareAction
+    </a> interface. These were introduced to solve focus problems when 
+    creating pop up menus on window managers with other then click-to-focus
+    behaviours and seem to work quite well.
+    </p>
+    
+    <p>
+    One of the most important goals is to remove the need to work with
+    historic <a href="@org-openide-util@/org/openide/util/actions/SystemAction.html">
+        SystemAction
+    </a> and subclasses. Beyond the fact the they are instances of
+    <a href="@org-openide-util@/org/openide/util/SharedClassObject.html">
+        SharedClassObject
+    </a> and such they have limited, complex and not very useful lifecycle
+    management, they also rely on old and currently already obsolete concepts
+    like <a href="@org-openide-nodes@/org/openide/nodes/Node.Cookie.html">Node.Cookie</a>.
+    By using this module one does not need to care about the 
+    <a href="@org-openide-util@/org/openide/util/actions/SystemAction.html">
+        SystemAction
+    </a> at all. A knowledge and understanding of 
+    <a href="@org-openide-nodes@/org/openide/nodes/Node.Cookie.html">Node.Cookie</a>
+    is required no more as well.
+    </p>
+    
+    <h5>Out Of Scope</h5>
+    
+    <p>
+        Part of overall description is also list of things that are not addressed
+        by the effort. So it is wise to state that the actions module does not 
+        addresses following issues:
+    </p>
+    
+    <ul>
+        <li>Do not change the concept of layers and system file system. 
+            E.g. no namings, registries, etc. 
+            Build on what is available right now.
+        </li>
+        
+        <li>
+            Do not solve <q>make window system separate of the rest of platform</q> effort.
+            Well, the goal is not to prevent such changes, but for example
+            toolbar configurations are not part of the actions rework and can
+            be handled separately.
+        </li>
+    </ul>
+ </answer>
+
+ <answer id="arch-quality">
+    <p>
+    Obviously there is a lot of unit tests for the behaviour of 
+    actions created using API of this module. There are few indicators
+    that are determining if the quality is good:
+    </p>
+    <ul>
+        <li>the provided functionality is working as expected - e.g. test coverage is good enough and tests passes</li>
+        <li>the module is capable enough to replace 90% of usages of the historic APIs</li>
+        <li>ProjectUI API Actions (de facto pioneers of the new way of writing actions, just not general
+        enough) can be migrated to new infrastructure</li>
+        <li>Declarative registrations lowers # of loaded classes and help startup time</li>
+        <li>API follows the modern (e.g. newer than JDK 1.2) Swing patterns and allows easy integration of existing Swing Actions</li>
+        <li>API support can change all its templates to this new API</li>
+    </ul>
+ </answer>
+
+ <answer id="arch-time">
+    <p>
+    The main goal - e.g. no need to rely on 
+    <a href="@org-openide-util@/org/openide/util/actions/SystemAction.html">
+        SystemAction
+    </a> - has to be achived in one release. Best in <b>promo-h</b>.
+    The API is designed in extensible way and covered by tests, so 
+    incremental evolution will be possible in every future release.
+    </p>
+ </answer>
+
+ <answer id="arch-where">
+  <defaultanswer generate='here' />
+ </answer>
+
+
+
+<answer id="arch-usecases">
+    <usecase id="defining-an-action" name="Defining An Action Placeholder" >
+    <p>
+        The new design of actions framework is following the Swing JDK 1.3
+        design as close as possible. That is why it is going to follow the
+        <a href="@JDK@/javax.swing.InputMap">InputMap</a> and
+        <a href="@JDK@/javax.swing.ActionMap">ActionMap</a> separation.
+    </p>    
+    <p>
+        The base constraint for this is to separate definition of action
+        <em>key</em> from the actual definition of an action. The 
+        key is then going to be put into a global 
+        <a href="@JDK@/javax.swing.InputMap">InputMap</a>
+        and assigned to a <a href="@JDK@/javax.swing.KeyStroke">KeyStroke</a>,
+        while the actual action to be invoked is then put into an active
+        <a href="@JDK@/javax.swing.ActionMap">ActionMap</a> and assigned
+        to the specified key.
+    </p>
+    
+    <p>
+        To achieve such state and also handle backward compatibility with older actions
+        definition, all actions created by this module support the notion
+        of a key and communicate with the whole system on registration 
+        of the key and default action implementation into global
+        <a href="@JDK@/javax.swing.InputMap">InputMap</a> and
+        <a href="@JDK@/javax.swing.ActionMap">ActionMap</a>.
+    </p>
+    
+    <p>
+        The basic pattern is based on layer definition inside the <code>Actions/</code>
+        folder and its subfolders in layer where one can creates an action
+        instance using one of the factories methods and assigns it a key:
+    </p>
+<pre>
+  &lt;file name="your-module-prefix-YourActionId.instance" &gt;
+    &lt;attr name="instanceCreate" methodvalue="org.netbeans.spi.actions.Factory.oneOfFactoryMethods" /&gt;
+    &lt;attr name="key" stringvalue="your.module.Key" &gt;
+    &lt;attr name="defaultCreate" newvalue="your.module.prefix.YourAction" &gt;
+  &lt;/file&gt;
+</pre>
+    <p>
+        The above snippet creates a registration of an action that can
+        be then refered from <code>Menu</code>, <code>Toolbar</code>, <code>Shortcuts</code>
+        folders and by default delegates to an active 
+        <a href="@JDK@/javax.swing.ActionMap">ActionMap</a> to find out 
+        the right action delegate to perform the operation - the value of the 
+        <code>key</code> attribute is used to ask the 
+        <a href="@JDK@/javax.swing.ActionMap">ActionMap</a> for the action delegate.
+    </p>
+    
+    <p>
+        Beyond this <q>generic delegator</q> the usual action definition 
+        also includes voluntary definition of a default implementation. E.g.
+        some action that gets invoked if nobody provides a better implementation
+        and registers it to the key into its own <a href="@JDK@/javax.swing.ActionMap">ActionMap</a>.
+        Such default implementation is taken from a value of 
+        <code>defaultCreate</code> attribute and can be instance of 
+        existing class or <code>boolvalue="true"</code> to take
+        the default provided by the <code>oneOfFactoryMethods</code>
+        as discussed in next usecases. This default implementation
+        is put into global <a href="@JDK@/javax.swing.ActionMap">ActionMap</a>
+        which is by default parent map of any 
+        <a href="@org-openide-windows@/org/openide/windows/TopComponent.html">TopComponent</a>.getActionMap()
+        and as such serves as a fallback.
+    </p>
+    
+    <p>
+        By doing this we keep compatibility with registrations of the old
+        actions (they just do not delegate by default) and also ensure that
+        all new actions are by default delegating ones. Also a way to 
+        suply a default implementation is there thus combining the flexibility
+        of each 
+        <a href="@org-openide-windows@/org/openide/windows/TopComponent.html">TopComponent</a>
+        providing own implementation with the comfort of providing a default
+        action suffient for common components.
+    </p>
+    
+    </usecase>
+    
+    
+    <usecase id="always-enabled-action" name="Always Enabled Action" >
+    <p>
+        One can create a context-less, always enabled action. Of course,
+        one can use <a href="@JDK@/javax/swing/AbstractAction.html">javax.swing.AbstractAction</a>
+        to do that, however the support provided by this module allows one
+        important addition - the action can be registered and displayed
+        without loading any of the classes into memory. This is helpful
+        for actions like <q>Open File</q>, <q>Open Project</q>, most of actions
+        in <q>Window</q> submenu that opens singleton components and etc.
+    </p>
+    
+    <p>
+        To register such action in a layer file use following syntax:
+    </p>
+<pre>
+  &lt;file name="your-module-prefix-YourActionId.instance" &gt;
+    &lt;attr name="instanceCreate" methodvalue="org.netbeans.spi.actions.Factory.delegate" /&gt;
+    &lt;attr name="delegate" newvalue="your.module.Listener" &gt;
+    &lt;attr name="defaultCreate" boolvalue="true" &gt;
+  &lt;/file&gt;
+</pre>
+    <p>
+        And write a class <code>your.module.Listener</code> that extends
+        <code>javax.swing.ActionListener</code> and implements its 
+        <code>actionPeformed</code> method. 
+    </p>
+    
+    <p>
+        Such action is going to be always enabled and when invoked the registered
+        listener is going to be instantiated and its method called. The localized
+        name and icon of the action is going to be taken from the localized
+        name and icon for the file using the standard I18N mechanism for
+        layers - e.g. <code>SystemFileSystem.localizingBundle</code>, 
+        <code>SystemFileSystem.icon</code>, <code>SystemFileSystem.icon32</code>
+        attributes. <api category="stable" group="property" name="SystemFileSystem.icon24"
+        type="export" >As actions need also 24x24 color icon, there is additional
+        support for specifying it. Just use 
+        &lt;attr name="SystemFileSystem.icon24" urlvalue="..." /&gt; in the
+        layer to provide definition of 24x24 icon for the action.
+        </api>
+    </p>
+    
+    </usecase>
+    
+    <usecase id="callback-action" name="Callback Action" >
+    <p>
+       If one needs a placeholder action - e.g. an action that has the 
+       name, icon, shortcut, but does not have the actual implementation.
+       One can just use the standard way for registering actions in the
+       layer, just do not provide the <code>defaultCreate</code> attribute.
+       The proper delegate is then going to be discovered in runtime. 
+       It is provided by the actual selected element (usually 
+       <a href="@org-openide-windows@/org/openide/windows/TopComponent.html">TopComponent</a>).
+       Also the enabled/disabled state is governed by the selected element's
+       advices.
+    </p>
+    
+    <p>
+        There are two steps one needs to do to declare such action. First of
+        all one needs to provide a key and register such action in a layer:
+    </p>
+<pre>
+  &lt;file name="your-module-prefix-YourActionId.instance" &gt;
+    &lt;attr name="instanceCreate" methodvalue="org.netbeans.spi.actions.Factory.callback" /&gt;
+    &lt;attr name="key" stringvalue="your.module.Key" &gt;
+  &lt;/file&gt;
+</pre>
+    <p>
+        The localization and icon is taken from the regular layer attributes.
+        The value of the <q>key</q> then becomes the API that others can
+        use to provide implementation of the action. So as a step two, one
+        writes its own implementation of plain <a href="@JDK@/javax/swing/Action.html">javax.swing.Action</a>
+        and registers it into <q>the selected</q> 
+        <a href="@JDK@/javax/swing/ActionMap.html">ActionMap</a> - the 
+        selected action map usually is 
+        <a href="@org-openide-windows@/org/openide/windows/TopComponent.html">TopComponent.getActionMap()</a>
+        of the component one is writing the action for.
+    </p>
+    
+    <p>
+        The <em>callback action</em> is then going to listen on the changes
+        in selected elements and update it state according state of the action
+        one wants to delegate to.
+        <!-- btw. we could also delegate the name of the action! -->
+    </p>
+    
+    </usecase>
+    
+    <usecase id="default-fallback" name="Context and Callback actions with Fallback" >
+    <p>
+        There is a <q>FindAction situation</q>: the action is in fact
+        callback one and for example output window and editor can register
+        its own action delegate into their component
+        <a href="@JDK@/javax/swing/ActionMap.html">ActionMap</a>. 
+        Then all the operation are delegated to the provided delegate.
+        However
+        there is also a <q>default</q> implementation based on presence 
+        of <a href="@org-openidex-util@/org/openidex/search/SearchInfo.html">SearchInfo</a>
+        interface in the context. Project, Files, Favorites views shall
+        just place an instances of 
+        <a href="@org-openidex-util@/org/openidex/search/SearchInfo.html">SearchInfo</a>
+        into their context (usually into context of some of their nodes)
+        and then the default impl shall extract all the needed info from there
+        and act accordigly. Btw.
+        <em>In the old system this does not work. The provider of the default
+        implementation listen of set of components and if it likes them, it
+        adds its delegate into their <a href="@JDK@/javax/swing/ActionMap.html">ActionMap</a>.
+        Ugly, is it not?</em> 
+    </p>
+    
+    <p>
+        The solution to this problem could be in allowing a <q>default</q>
+        fallback action to be specified for any <em>callback</em>. So there
+        would be a factory method that would not only took a key to find
+        the right delegate in the map, but also a implementation of an
+        action to fallback to. In the declarative layer definition 
+        it would be expressed as:
+    </p>
+<pre>
+  &lt;file name="your-module-prefix-YourActionId.instance" &gt;
+    &lt;attr name="instanceCreate" methodvalue="org.netbeans.spi.actions.Factory.callback" /&gt;
+    &lt;attr name="key" stringvalue="your.module.Key" &gt;
+    &lt;attr name="defaultCreate" newvalue="your.module.prefix.FallbackAction" &gt;
+  &lt;/file&gt;
+</pre>
+    <p>
+        The fallback instance would then be instantiated in a lazy fashion, 
+        only if needed - e.g. if no delegate could be found in active context.
+    </p>
+    </usecase>
+    
+    
+    <usecase id="context-aware" name="Context Aware Actions" >
+    <p>
+        To support situation where one module does have a piece of data and
+        wants other module to create an unlimited range of actions that 
+        works on such data, NetBeans provide a powerful mechanism of context
+        aware actions.
+    </p>
+    
+    <p>
+        A module who wishes to expose a piece of data creates an interface
+        in its API to encapsulate them and makes sure the interface get's exposed 
+        in <a href="@org-openide-util@/org/openide/util/Utilities.html#actionsGlobalContext()">
+        Utilities.actionGlobalContext()
+        </a>. This can be done by putting the interface into 
+        <a href="@org-openide-windows@/org/openide/windows/TopComponent.html#getLookup()">lookup</a>
+        of module's top components or 
+        <a href="@org-openide-nodes@/org/openide/nodes/Node.html#getLookup()">lookup of its Nodes</a>.
+    </p>
+    
+    <p>
+        The other modules then just use the <code>context</code> factory method
+        with provided <code>Class&lt;DataType&gt;</code> of the API interface that encapsulates
+        the data and provide subclass of <code>ContextActionPerformer&lt;DataType&gt;</code> 
+        that provides implementation of 
+        <code>actionPerformed(ActionEvent ev, DataType[] arr)</code>
+        handling the execution of the action on given instances of DataType.
+    </p>
+    
+    <p>
+        By using just the <code>ContextActionPerformer</code> one creates action
+        that is always enabled if given <code>DataType</code> is present in the
+        active context, that however may not be enough for all situations.
+        For example project actions needs to extract the project from a
+        file/data object and then decide. For them there is a way to also supply
+        <code>ContextActionController&lt;DataType&gt;</code> that has method 
+        <code>enabled(DataType[] types)</code> to compute the enabled state
+        programmatically and control both the enablement and well as execution.
+    </p>
+ 
+    <p>
+        Context aware actions can be registered in a layer of module to prevent 
+        the actual <code>ContextActionPerformer</code> to be instantiated until
+        really needed:
+    </p>
+<pre>
+  &lt;file name="your-module-prefix-YourActionId.instance" &gt;
+    &lt;attr name="instanceCreate" methodvalue="org.netbeans.spi.actions.Factory.context" /&gt;
+    &lt;attr name="key" stringvalue="your.module.key.for.those.who.want.to.provide.their.own.impl" /&gt;
+    &lt;attr name="defaultCreate" boolvalue="true" /&gt;
+    &lt;attr name="type" stringvalue="your.module.DataType" &gt;
+    &lt;attr name="selectionType" stringvalue="exactlyOne" &gt;
+    &lt;attr name="actionPerformer" newvalue="your.module.ContextActionPerformerImpl" &gt;
+  &lt;/file&gt;
+</pre>
+    <p>
+        As usually, display name and icon are taken by the standard attributes
+        provided by SystemFileSystem.
+    </p>
+    
+    </usecase>
+    
+    <usecase id="trigger-enable-check" name="Trigger Enablement Check" >
+        Imagine an action working on applets only. 
+        How to write it correctly to react to "extends Applet" addition/removal?        
+    </usecase>
+    
+    <usecase id="context-aware-name" name="Adjusting Display Name to Context" >
+    <p>
+        In some situations the display name of the action in menu or popup menu
+        should change according the actual selection. This is supported for 
+        those actions where it makes sence - the callback and context actions.
+    </p>    
+    
+    <p>
+        When creating a callback action one can specify that the name shall
+        be taken from the actual delegate. As a result either default name is
+        used when there is noone to delegate to, or the name of the delegate is
+        shown in menu and popup menu.
+    </p>
+    
+    <p>
+        If one wishes to influence the display name of an context action, one needs to
+        write additional interface <code>ContextActionName</code> that's only
+        method takes an array of <code>DataType</code> and returns string to
+        be used for display name. It is possible to return different 
+        name for popup menu and for top menu.
+    </p>
+    
+    <p>
+        Another problem related to display name is that currently actions'
+        display name can always be influenced by associated context. This 
+        can cause problems to infrastructure like Tools/Options dialog where
+        actions have name of lastly selected node. This is solved by
+        using <code>Lookup.EMPTY</code> by default as the context for the 
+        newly created actions. Menus, Toolbars, will then explicitly bind
+        these actions to <code>Utilities.actionsGlobalContext()</code> which
+        is the context representing the main window.
+    </p>
+    
+    </usecase>
+
+    
+    <usecase id="default-action" name="Marking Default Action In Bold" >
+        <!-- #9679 -->
+        <p>
+            This is really old issue (#9679) and it is still open as it 
+            seemed unsolvable till now. However recently it has been found
+            that there is a way for the action to found out if it is the
+            default action or not, if it uses the <code>Node.getPreferredAction()</code>
+            method. If the context the actions works in contains just one
+            node and someone is building a popup menu for it, then the one
+            action returned from <code>Node.getPreferredAction()</code> can
+            draw itself in bold. So this can work for 
+            <a href="@org-openide-nodes@/org/openide/util/actions/NodeAction.html">NodeAction</a>
+            and
+            <a href="@org-openide-nodes@/org/openide/util/actions/CookieAction.html">CookieAction</a>
+            for the other we need some kind of <q>node awarence</q>.
+        </p>
+        
+        <p>
+            Anyway the <em>default action</em> often depends on the view
+            that invokes the action, so the infrastructure just provides
+            new factory method <code>Utilities.actionsToPopup(actions, context, defaultAction)</code>
+            and the views will be allowed to extract the default action
+            from their elements and use it:
+        </p><pre>
+Node[] arr = ...;                
+Action def = (arr.length == 1) ? arr[0].getPreferredAction() : null;
+createPopup(xpos, ypos, Utilities.actionsToPopup(actions, this, def));
+</pre>
+
+        <p>
+            The default action is then going to be communicated via a 
+            property <api category="stable" group="property" type="export" name="defaultAction" >
+                that is going to be associated on the <a href="@JDK@/javax/swing/JMenuItem.html">JMenuItem</a>
+                created as a presenter for the action.
+            </api>
+        </p>
+        
+        <p>
+            This problem is needs more UI work as the mnemonics behaviour
+            is look and feel specific. That is why there needs to be 
+            <api category="devel" 
+                 group="javax.swing.UIManager" 
+                 name="org.netbeans.actions.DefaultAction"
+                 type="export"
+            >property that can influence whether or not mark the default action
+            in bold.
+            </api>
+            <!-- it has also been discussed whether the first action shall 
+            always be the default or not. But that does not work, as sometimes
+            there is no default action (folder for example). Moreover our
+            APIs allow the default action to be at different place than first,
+            even it is on nice from UI perspective and is not going to be used
+            that much, we need to be ready for such strange situation.
+            -->
+        </p>
+    </usecase>
+    
+    
+    <usecase id="multiselect" name="Handling Multi Selection" >
+        <p>
+            Multiselection support is important for context actions. The other
+            types do not need it. Always enabled are indeed always enabled and
+            the callback actions just should not delegate to more than one
+            delegate, that would unnecessary complicate things.
+        </p>
+        
+        <p>
+            The easy and hopefully useful default behaviour for context actions
+            shall be <q>some of them</q> mode: E.g. regarding of how many elements
+            is selected, if at least one of them provides the desired context data,
+            then the action is enabled, and if invoked, it will get access to
+            all data that provided the context. To implement this one needs 
+            just the notion of <code>DataType</code>, one does not need to care
+            about the properties of the selection provider at all.
+        </p>
+        
+        <p>
+            Anything else however gets more complicated. For example to support
+            <q>just one</q> mode - where the action is enabled if one element
+            is selected and provides the data - checking for present of one
+            data interface is not enough. Doing that could lead to selection
+            of multiple elements where just one of them would provide the correct
+            data type in its context. So it is clear that the action framework
+            needs to be somehow aware of the concept of <q>selected element</q>.
+        </p>
+        
+        <p>
+            Shall the selected element be 
+            <a href="@org-openide-nodes@/org/openide/nodes/Node.html" >Node</a>?
+            Well that is not good idea, as until now we managed to keep the
+            actions API without a reference to Node and including such rich
+            API like <a href="@org-openide-nodes@/overview-summary.html">nodes</a>
+            would needlessly complicate the learning curve. Moreover not 
+            all views are Node based - the CVS <q>before commit</q> table is
+            likely implemented without node backend.
+        </p>
+        
+        <p>
+            This seems to lead to a need for a new API between the actions and
+            the views using the actions. Somehow they need to inform each other
+            about the multiselection situation. The possible ways to do it
+            include:
+        </p>
+        
+        <ul>
+            <!-- preferred by Jesse -->
+            <li>use of <a href="@org-openide-util@/org/openide/util/Lookup.Provider.html" >Lookup.Provider</a>
+                as the element interface - not used that way until now, but 
+                very likely would identify the element. No retrofitting would
+                have to be done for 
+                <a href="@org-openide-nodes@/org/openide/nodes/Node.html" >Node</a>
+                as it already implements that interface.
+            </li>
+            <li>query like pattern - it would process the current context and
+                returned information about the number of selected elements.
+                Would be implemented in Nodes to work correctly with nodes.
+            </li>
+            <li>special <q>element</q> interface - would identify one selected
+                element, <a href="@org-openide-nodes@/org/openide/nodes/Node.html" >Node</a>
+                node would be retrofitted to implement it.
+            </li>
+            <!-- Jesse does not like this one:
+            <li>
+                Lookup based contract - could use the differences between
+                <a href="@org-openide-util@/org/openide/util/Lookup.Result.html#allItems" >Result.allItems</a>
+                and 
+                <a href="@org-openide-util@/org/openide/util/Lookup.Result.html#allInstances" >Result.allInstances</a>
+                to notify the multiselection. The number of returned items
+                would reflect the number of selected elements, those that
+                do not provide the data type would return null. Similar pattern
+                is already used to communitate null vs. Node[0] from 
+                <code>TopComponent.getActivatedNodes()</code>.
+            </li>
+            -->
+        </ul>
+        
+        <p>
+            Regardless of what solution is finally selected, there is a clear
+            need for an API between the actions framework and the views which
+            needs to be addressed.
+        </p>
+        
+    </usecase>
+    
+    <usecase id="survive-focus-change" name="Actions Acting On Last Suitable Context" >
+        <p>
+            Sometimes it is reasonable to let the action to work on previous
+            selection even if current selection does not have such actions. For
+            example one may want the <q>Compile One File</q> action to work
+            on last selected file even if we are for example in output window
+            evaluating the errors printed by the compiler. And vice versa, 
+            the <q>jump to next error</q> action provided by output should 
+            work even if one is already in editor.
+        </p>
+        
+        <p>
+            To create such context and callback actions one needs to specify,
+            during their creation that they <q>survive focus change</q>. Then
+            the action will remain associated with the last context that is 
+            sufficent to trigger it:
+        </p>
+        
+        <ul>
+            <li>the callback action will always delegate to the delegate found in
+            the last <a href="@JDK@/javax/swing/ActionMap.html">ActionMap</a>
+            that provided action for its key.
+            </li>
+            
+            <li>
+            the context action will keep its state associated with data
+            from previous context if the new one does not provide any 
+            instance of the data interface.
+            </li>
+        </ul>
+        
+        <p>
+            One can specify that newly created action shall survive focus change
+            in layer as well. Just add attribute <q>surviveFocusChange</q>
+            to specification of callback and context actions:
+        </p>
+<pre>
+  &lt;file name="your-module-prefix-YourActionId.instance" &gt;
+    &lt;attr name="instanceCreate" methodvalue="org.netbeans.spi.actions.Factory.context" /&gt;
+    &lt;attr name="surviveFocusChange" boolvalue="true" &gt;
+  &lt;/file&gt;
+</pre>
+    </usecase>
+    
+    <usecase id="conditionally-visible-action" name="Conditionally Visible Action" >
+        <p>
+            To write a context menu item which is conditionally visible 
+            (not just enabled), one can use a factory method
+            <code>createConditionallyVisibleMenuItem</code> that
+            takes a factory method which, based on provided context
+            returns an array of actions to make visible. Everything
+            else is then handled by the infrastructure.
+        </p>
+        
+        <p>
+            Another related problem is an action with own presenter. How
+            that is going to be handled? A factory method that takes
+            a lookup and returns JMenuItem or similar would solve the
+            problem.
+        </p>
+    </usecase>
+    
+    <usecase id="action-domains" name="Action Domains" >
+        <!-- #21184  -->
+        <p>
+            There are multiple levels of providing different reactions to
+            the same shortcut or menu item. If the modules that 
+            provide the different actions somehow
+            know about each other, they can agree on a key, define a global
+            callback action based on that key and then, in different contexts
+            (e.g. <a href="@JDK@/javax/swing/ActionMap.html">ActionMap</a>s)
+            each module can register different action. 
+            
+            <api name="ActionMapKeys" category="stable" group="property" type="export" >
+                certain keys has been published by the platform and modules can use
+                them to register their own implementation in action maps of their 
+                components:
+                <ul>
+                    <li><code>"cloneWindow"</code> - an action to be executed when a top component is to be cloned</li>
+                    <li><code>"closeWindow"</code> - an action when a view is about to be closed</li>
+                    <li><code>DefaultEditorKit.copyAction</code> - copy action handler</li>
+                    <li><code>DefaultEditorKit.cutAction</code> - cut action handler</li>
+                    <li><code>"delete"</code> - delete action handler</li>
+                    <li><code>DefaultEditorKit.pasteAction</code> - paste action handler</li>
+                    <li><code>"jumpNext"</code> - when a next element shall be selected</li>
+                    <li><code>"jumpPrev"</code> - when a previous element shall be selected</li>
+                </ul>
+            </api>
+            
+            <br/>
+            
+            This style of <q>sharing</q> however requires that the modules
+            know each other and also that the set of actions that shares the
+            same key is defined at compile time. 
+        </p>
+        
+        <p>
+            There is another level of configurability - completely different
+            actions, not knowing about each other could share the same key
+            if they are enabled in different contexts. For example, one module 
+            defines component which has action <em>copy</em> and registers for
+            it keystroke <em>Ctrl-C</em>. Another module defines different
+            component which has action <em>commit</em> and assigns it a key
+            <em>Alt-C</em>. Later however, the end user or someone assembling
+            and branding own app over these modules, decide that the defaults
+            are not ok and that there is a need to that in both components
+            both the actions can be invoked with <em>Ctrl-C</em>. The current
+            system with <em>context</em> and <em>callback</em> actions does
+            not allow the end user or the assembler of the application to 
+            do such kind of mappings.
+            To implement this it
+            would be needed to allow one keystroke to map to more actions. 
+            The system could know that in the first module component, <em>Ctrl-C</em>
+            maps to <em>copy</em> and in the second module component it maps
+            to <em>commit</em>. 
+         </p>
+         
+         <p>
+            The solution is based on <q>action domains</q>. Any top component 
+            can define its own domain - a place on system file system where
+            its actions can be defined. Then its InputMap and also ActionMap 
+            is going to be constructed from such folder in the same way as
+            global input and action maps are constructed. By default
+            they are going to delegate to the default map, but indeed, they
+            can have its own actions and thus form an action domain. Care
+            has to be taken with respect to to multi keystroke shortcuts - as found out
+            during the <a href="http://openide.netbeans.org/tutorial/reviews/opinions_64621.html">multikeys support review</a>
+            there is a need to for all the keystroke mappings to always share 
+            the common prefix. Also if this is going to be used heavily,
+            there needs to be a way to show these keys in options dialog.
+         </p>
+         <!-- #19485 [TBD, jrechtacek] - Use InputMap for handling of global shorcuts -->
+    </usecase>
+    
+    <usecase id="create-popup-menu" name="Create Popup Menu" >
+        <p>
+        I need to use user-configured shortcuts for private implementation 
+        of well known actions (save, copy) and I need to create a 
+        local popup menu for them. 
+        </p>
+        
+        <p>
+        That is, I need to provide action mappings for keys like 
+        "-openide-Save" and "-openide-Copy", have them bound to my 
+        implementation in my context and have a simple way of creating 
+        popup menu with my actions and all the usual 
+        bells-and whistles (shortcuts automatically shown).        
+        </p>
+    </usecase>
+    
+    <usecase id="dynamic-creation" name="Dynamic Creation of Actions">
+        <p>
+        Imagine module similar to run a terminal emulator on nbextras.org but 
+        more general that let users define links to applications presented 
+        in some toolbar. User can add, remove and customize individual links. 
+        Customization means: set icon, name, external program with parameters 
+        and shortcut (similar to Desktop on your OS). It has a little sense 
+        to code such a module if you couldn't pass as a parameter file 
+        according to context. You need actually one action implemenetation 
+        that could be parametrized and a way how to easily achieve 
+        dynamic registration including all parameters and make this 
+        registration permanent. 
+        </p>
+    </usecase>
+    
+    <!--
+        First see the <a href="@TOP@/org/openide/actions/doc-files/api.html">API description</a>. Here is just
+    a list of frequently asked or interesting questions slowly expanding as
+    people ask them:
+    
+    <h3>Actions faq:</h3>
+    
+    <usecase id="context-action-shortcuts" name="How to define configurable Shortcut for Component based shortcut?" >
+<em><b>Q:</b>
+The usual Swing way of defining Actions for your component is to create an Action instance and put it into the Input and Action maps of your component.
+However how to make this Action's shortcut configurable from the Tools/Keyboard Shortcuts dialog?</em>
+<p>
+In order for the action to show up in Keyboards Shortcut dialog you need the action defined in the 
+layer file under "Actions" folder and have the shortcut defined there under "Keymaps/&lt;Profile Name&gt;" linking to your action.
+</p>
+<pre>
+    &lt;folder name="Actions" &gt;
+        &lt;folder name="Window"&gt;
+            &lt;file name="org-netbeans-core-actions-PreviousViewCallbackAction.instance"/&gt;
+        &lt;/folder&gt;
+    &lt;/folder&gt;
+
+    &lt;folder name="Keymaps"&gt;
+        &lt;folder name="NetBeans"&gt;
+            &lt;file name="S-A-Left.shadow"&gt;
+                &lt;attr name="originalFile" stringvalue="Actions/Window/org-netbeans-core-actions-PreviousViewCallbackAction.instance"/&gt;
+            &lt;/file&gt;
+        &lt;/folder&gt;
+    &lt;/folder&gt;
+</pre>
+<p>
+The mentioned Action has to be a subclass of <code>org.openide.util.actions.CallbackSystemAction</code>. It does not necessarily has to 
+perform the action, it's just a placeholder for linking the shortcut. You might want to override it's <code>getActionMapKey()</code> and give it a 
+reasonable key.
+</p>
+<p>
+The actual action that does the work in your component (preferably a simple Swing <code>javax.swing.Action</code>)
+is to be put into your <code>TopComponent</code>'s <code>ActionMap</code>. The key for the <code>ActionMap</code> 
+has to match the key defined in the global action's <code>getActionMapKey()</code> method.
+</p>
+<pre>
+        getActionMap().put("PreviousViewAction", new MyPreviousTabAction());
+</pre>
+<p>
+This way even actions from multiple <code>TopComponent</code>s with the same gesture (eg. "switch to next tab") can share the same configurable shortcut.
+</p>
+<p>
+Note: Don't define your action's shortcut and don't put it into any of the <code>TopComponent</code>'s
+<code>javax.swing.InputMap</code>. Otherwise the component would not pick up the changed shortcut from the
+global context.
+</p>
+
+    </usecase>
+    
+    -->
+</answer>  
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- Question: compat-i18n
+
+     <question id="compat-i18n">
+            Is your module correctly internationalized?
+            <hint>
+            Correct internationalization means that it obeys instuctions 
+            at <a href="http://www.netbeans.org/devhome/docs/i18n/index.html">
+            NetBeans I18N pages</a>.
+            </hint>
+        </question>
+-->
+<answer id="compat-i18n">
+Yes.
+</answer>
+
+
+
+<!-- Question: compat-standards
+
+     <question id="compat-standards">
+            Does the module implements or defines any standards? Is the 
+            implementation exact or it deviates somehow?
+        </question>
+-->
+<answer id="compat-standards">
+Before the Actions was build on <code>org.openide.util.actions.SystemAction</code>, this
+was recently changed that Actions supports <code>javax.swing.Action</code> which
+is java API standard, and Actions will be improving towards this more and more.
+</answer>
+
+
+
+<!-- Question: compat-version
+
+     <question id="compat-version">
+            Does your module properly coexists with earlier and future
+            versions? Can you correctly read settings? Will future
+            versions be able to read settings?
+            
+            <hint>
+            Very helpful for reading settings is to store version number
+            there, so future versions can decide whether how to read/convert
+            the settings and older versions can ignore the new ones.
+            </hint>
+        </question>
+-->
+<answer id="compat-version">
+Yes up to now it is supposed to be compatible with older versions.
+</answer>
+
+
+
+<!-- Question: dep-jre
+
+     <question id="dep-jre">
+            Which version of JRE you need (1.2, 1.3, 1.4, etc.)?
+            <hint>
+            It is expected that if your module runs on 1.x that it will run 
+            on 1.x+1 if no, state that please. Also describe here cases where
+            you run different code on different versions of JRE and why.
+            </hint>
+        </question>
+-->
+<answer id="dep-jre">
+It uses JRE 1.3.
+</answer>
+
+
+
+<!-- Question: dep-jrejdk
+
+     <question id="dep-jrejdk">
+            Do you require JDK or is JRE enough?
+        </question>
+-->
+<answer id="dep-jrejdk">
+JRE is enough.
+</answer>
+
+
+
+<!-- Question: dep-nb
+
+     <question id="dep-nb">
+            What other NetBeans projects this one depends on?
+            <hint>
+            If you want, describe such projects as imported API using
+            the <code>&lt;api name="identification" type="import or export" category="stable" url="where is the description" /&gt;</code>
+            </hint>
+        </question>
+-->
+<answer id="dep-nb">
+    <api 
+        name="UtilitiesAPI"
+        group="java"
+        type="import"
+        category="official"
+        url="@org-openide-util@/overview-summary.html"
+    /> the only one API that is really required.
+</answer>
+
+
+
+<!-- Question: dep-non-nb
+
+     <question id="dep-non-nb">
+            What other non-NetBeans projects this one depends on?
+            
+            <hint>
+            Some non-NetBeans projects are packaged as NetBeans modules
+            (see <a href="http://libs.netbeans.org">libraries</a>) and
+            it is prefered to use this approach when more modules may
+            depend on such third-party library.
+            </hint>
+        </question>
+-->
+<answer id="dep-non-nb">
+No.
+</answer>
+
+
+
+<!-- Question: dep-platform
+
+     <question id="dep-platform">
+            On which platforms your module run? Any? Does it run in the same
+            way?
+            <hint>
+            If your module is using JNI or deals with special differences of
+            OSes like filesystems, etc. please describe here what they are.
+            </hint>
+        </question>
+-->
+<answer id="dep-platform">
+100% pure Java. It should run anywhere.
+</answer>
+
+
+
+<!-- Question: deploy-jar
+
+     <question id="deploy-jar">
+            Do you deploy just module JAR file(s) or some other files?
+            <hint>
+            If your module consist just from one module JAR file, just confirm that.
+            If it uses more than one JAR, describe where there are located, how
+            they refer to each other. 
+            If it consist of module JAR(s) and other files, please describe
+            what is their purpose, why other files are necessary. Please 
+            make sure that installation/deinstallation leaves the system 
+            in state as it was before installation.
+            </hint>
+        </question>
+-->
+<answer id="deploy-jar">
+    Possible. Of course.
+</answer>
+
+
+<!--
+        <question id="deploy-dependencies" when="final">
+            What do other modules need to do to declare a dependency on this one?
+            <hint>
+                Provide a sample of the actual lines you would add to a module manifest
+                to declare a dependency, for example using OpenIDE-Module-Module-Dependencies
+                or OpenIDE-Module-Requires. You may use the magic token @SPECIFICATION-VERSION@
+                to represent the current specification version of the module.
+            </hint>
+        </question>
+-->
+ <answer id="deploy-dependencies">
+  <p>
+   XXX no answer for deploy-dependencies
+  </p>
+ </answer>
+
+
+<!-- Question: deploy-nbm
+
+     <question id="deploy-nbm">
+            Can you deploy NBM via AutoUpdate center?
+            <hint>
+            If not why?
+            </hint>
+        </question>
+-->
+<answer id="deploy-nbm">
+Yes.
+</answer>
+
+
+
+<!-- Question: deploy-packages
+
+     <question id="deploy-packages">
+            Are packages of your module made inaccessible by not declaring them
+            public?
+            
+            <hint>
+            NetBeans module system allows restriction of access rights to
+            public classes of your module from other modules. This prevents
+            unwanted dependencies of others on your code and should be used
+            whenever possible (<a href="http://www.netbeans.org/download/apis/org/openide/doc-files/upgrade.html#3.4-public-packages">
+            public packages
+            </a>). 
+            </hint>
+        </question>
+-->
+<answer id="deploy-packages">
+Sure.
+</answer>
+
+
+
+<!-- Question: deploy-shared
+
+     <question id="deploy-shared">
+            Do you need to be installed in shared location or only in user directory?
+            <hint>
+            Installation location shall not matter, if it does explain why.
+            </hint>
+        </question>
+-->
+<answer id="deploy-shared">
+Most of the platform cluster depends on this library so it very likely should be 
+in shared location.
+</answer>
+
+
+
+<!-- Question: exec-classloader
+
+     <question id="exec-classloader">
+            Does your code uses own classloader?
+            <hint>
+            A bit unusual. Please explain why and what for.
+            </hint>
+        </question>
+-->
+<answer id="exec-classloader">
+No.
+</answer>
+
+
+
+<!-- Question: exec-component
+
+     <question id="exec-component">
+            Is execution of your code influenced by (string) property
+            of any of your components?
+            
+            <hint>
+            Often <code>JComponent.getClientProperty</code>, <code>Action.getValue</code>
+            or <code>PropertyDescriptor.getValue</code>, etc. are used to influence
+            a behaviour of some code. This of course forms an interface that should
+            be documented. Also if one depends on some interface that an object
+            implements (<code>component instanceof Runnable</code>) that forms an
+            API as well.
+            </hint>
+        </question>
+-->
+<answer id="exec-component">
+    
+    <!-- JST-PENDING
+There are used three values (via <code>Action.getValue()</code>).
+<ul>
+    <li><api name="OpenIDE-Transmodal-Action" group="property" category="devel" type="export">Inidicates action can be performed
+    (typicaly via shortcut) even when dialog is popped out (modal or modeless).</api></li>
+    <li><api name="delegates" group="property" category="devel" type="export">Used internaly in <code>PasteAction</code> delegate action
+    which serves to pass an array of <code>PasteType</code> or <code>Action</code> to global instance (it is the only one
+    which actually performs paste operation).</api></li>
+    <li><api name="iconBase" group="property" category="devel" type="export">Used in companion to Actions.SMALL_ICON. Because there
+    is no way to specify values for other types of icons the value of "iconBase" is used
+    to construct the resource names of disabled, pressed and rollover icons. The value is
+    expected to contain a resource path of the normal icon. Strings "_pressed",
+    "_disabled" and "_rollover" are inserted before the suffix when searching for
+    the other types of icons.</api></li>
+    <li><api name="noIconInMenu" group="property" category="devel" type="export"> 
+    Allowed value <code>Boolean.TRUE</code>.
+    Influences the display of the action in the main menu, the item will have no icon there. Works for Actions that don't define custom MenuPresenter.
+    </api></li>    
+    <li><api name="PreferredIconSize" group="property" category="devel" type="export">
+    Used to support 24x24 icons in toolbars. If toolbar button has client property "PreferredIconSize"
+    set to Integer(24) button tries to load icon with name "iconBase" + "24" eg. "cut24.gif".
+    Strings "_pressed","_disabled" and "_rollover" are inserted before the suffix when searching for
+    the other types of icons eg.:"cut24_pressed.gif".</api></li>
+    <li>
+        <api name="waitFinished" group="property" category="friend" type="export">
+             There is a new contract established between the caller of an action that
+             allows mutual communication and possible synchronous execution even for 
+             actions that by default perform their operations asynchronously. If the
+             action's <code>actionPeformed</code> method is passed <code>ActionEvent</code>
+             with command <q>waitFinished</q> the action shall be executed synchronously.
+             The code:
+             <pre>
+             action.actionPerformed (new ActionEvent (this, 0, "waitFinished"))
+             </pre>
+             shall be executed synchronously, even if the action by default runs asynchronously.
+             All asynchronous actions are asked to obey this contract, <code>CallableSystemAction</code>
+             does it by default. However this contract is defined as friend one 
+             and may be abandoned in future.
+        </api>
+    </li>
+    
+    
+</ul>
+
+    -->
+    
+    <p>
+        A very important aspect for behaviour of runtime behaviour of actions is their 
+        implementation of <api name="ActionsEquality" category="stable" group="java" type="export">
+            It depends implementation of <code>Action.equals(Object)</code> and
+            <code>Action.hashCode()</code> methods. The implementation influences 
+            the behaviour
+            of actions on multi selections - e.g. when a popup menu for more
+            than one node is invoked, only actions available on all of them 
+            (tested by <code>equals</code> method) are shown. Generally
+            actions are equal if they are <em>created with the same factory method
+            providing the same arguments and they are assigned to the 
+            same <a href="@org-openide-util@/org/openide/util/Lookup.html">context</a>
+            </em>.
+        </api>. 
+        
+        Yet another think that needs to be properly implement is the 
+        sharing of the value for <api name="AcceleratorKey" category="stable" group="property" type="export" >
+            the value of <code>Action.ACCELERATOR_KEY</code> needs to be shared
+            between all instances that are created by the same factory, using
+            the same arguments.
+        </api>
+    </p>
+
+</answer>
+
+
+
+<!-- Question: exec-privateaccess
+
+     <question id="exec-privateaccess">
+            Are you aware of any other part of the system calling some of 
+            your methods by reflection?
+            <hint>
+            If so, describe the "contract" as an API. Likely private or friend one, but
+            still API and consider rewrite of it.
+            </hint>
+        </question>
+-->
+<answer id="exec-privateaccess">
+No.
+</answer>
+
+
+
+<!-- Question: exec-property
+
+     <question id="exec-property">
+            Is execution of your code influenced by any environment of
+            system (<code>System.getProperty</code>) property?
+            
+            <hint>
+            If there is a property that can change the behaviour of your 
+            code, somebody will likely use it. You should describe what it does 
+            and the stability category of this API. You may use
+            <PRE>
+                &lt;property name="id" category="private" &gt;
+                    description of the property, where it is used, what it influence, etc.
+                &lt;/property&gt;            
+            </PRE>
+            </hint>
+        </question>
+-->
+<answer id="exec-property">
+
+</answer>
+
+
+
+<!-- Question: exec-reflection
+
+     <question id="exec-reflection">
+            Does your code uses java.lang.reflect to execute some other code?
+            <hint>
+            This usually indicates a missing or unsufficient API in the other
+            part of the system. If the other side is not aware of your dependency
+            this contract can be easily broken.
+            </hint>
+        </question>
+-->
+<answer id="exec-reflection">
+
+</answer>
+
+
+<!-- Question: perf-progress
+
+     <question id="perf-progress">
+            Does your module executes some long running task?
+            <hint>Typically they are tasks like connecting over
+            network, computing huge amount of data, compilation.
+            Such communication should be done asynchronously (for example
+            using <code>RequestProcessor</code>), definitively it should 
+            not block AWT thread.
+            </hint>
+        </question>
+-->
+<answer id="perf-progress">
+No.
+</answer>
+
+
+
+<!-- Question: perf-scale
+
+     <question id="perf-scale">
+            Which external criteria influence the performance of your
+            program (size of file in editor, number of files in menu, 
+            in source directory, etc.) and how well your code scales?
+            Please include some estimates.
+        </question>
+-->
+<answer id="perf-scale">
+This should be irrelevant, as far as I know, Actions shouldn't use any collections
+of data or something like that. One exception I know is global keymap implementation
+which scales linear.
+</answer>
+
+
+
+<!-- Question: perf-startup
+
+     <question id="perf-startup">
+            Does your module executes anything on startup?
+        </question>
+-->
+<answer id="perf-startup">
+No.
+</answer>
+
+
+
+<!-- Question: perf-wakeup
+
+     <question id="perf-wakeup">
+            Is any piece of your code waking up periodically?
+        </question>
+-->
+<answer id="perf-wakeup">
+No. At least I do not know about that.
+</answer>
+
+
+
+<!-- Question: resources-file
+
+     <question id="resources-file">
+            Does your module use <code>java.io.File</code> directly?
+            
+            <hint>
+            NetBeans provide a logical wrapper over plain files called 
+            <code>org.openide.filesystems.FileObject</code> that
+            provides uniform access to such resources and is the prefered
+            way that should be used. But of course there can be situations when
+            this is not suitable.
+            </hint>
+        </question>
+-->
+<answer id="resources-file">
+No.
+</answer>
+
+
+
+<!-- Question: resources-layer
+
+     <question id="resources-layer">
+            Does your module provide own layer? Does it create some files or
+            folders on it? What it is trying to communicate by that and with which 
+            component?
+            
+            <hint>
+            NetBeans allows automatic and declarative installation of resources 
+            by module layers. Module register files into appropriate places
+            and other components use that information to perform their task
+            (build menu, toolbar, window layout, list of templates, set of
+            options, etc.). 
+            </hint>
+        </question>
+-->
+<answer id="resources-layer">
+No in fact. Just concrete action implementation provided by this module
+are typically used in xml layers.
+</answer>
+
+
+
+<!-- Question: resources-mask
+
+     <question id="resources-mask">
+            Does your module mask/hide/override any resource provided by another one in
+            module layer? 
+            
+            <hint>
+            If you mask a file provided by another module, you probably depend
+            on that and do not want the other module to (for example) change
+            the file's name. That module shall thus make that file available as an API
+            of some stability category.
+            </hint>
+        </question>
+-->
+<answer id="resources-mask">
+No.
+</answer>
+
+
+
+<!-- Question: resources-read
+
+     <question id="resources-read">
+            Does your module read any resources from layers? For what purpose?
+            
+            <hint>
+            As this is some kind of intermodule dependency, it is a kind of API.
+            Please describe it and clasify according to 
+            <a href="http://openide.netbeans.org/tutorial/api-design.html#categories">
+            common stability categories</a>.
+            </hint>
+        </question>
+-->
+<answer id="resources-read">
+There are special folders containing actions in xml layers.
+<ul>
+<li><em>Menu</em> contains actions which are present in menu.</li>
+<li><em>Toolbars</em> contains actions which will be present in toolbars.</li>
+<li><em>Shortcuts</em> contains actions which will have assigned shortcuts.</li>
+<li><em>Actions</em> contains actions which are possible to manipulate with (via Options).</li>
+</ul>
+<em>Note:</em> Those layers are not necessarily read by Actions module. Probably 
+it belongs to <em>Window system module</em>.
+</answer>
+
+
+
+
+
+
+
+ <answer id="exec-ant-tasks">
+  <p>
+   No ant tasks.
+  </p>
+ </answer>
+
+
+
+<!--
+        <question id="exec-introspection" when="impl">
+            Does your module use any kind of runtime type information (<code>instanceof</code>,
+            work with <code>java.lang.Class</code>, etc.)?
+            <hint>
+            Check for cases when you have an object of type A and you also
+            expect it to (possibly) be of type B and do some special action. That
+            should be documented. The same applies on operations in meta-level
+            (Class.isInstance(...), Class.isAssignableFrom(...), etc.).
+            </hint>
+        </question>
+-->
+ <answer id="exec-introspection">
+  <p>
+   XXX no answer for exec-introspection
+  </p>
+ </answer>
+
+
+
+ <answer id="exec-process">
+  <p>
+   Not at all.
+  </p>
+ </answer>
+
+ <answer id="exec-threading">
+  <p>
+   Most of the action manipulation shall happen only on AWT event thread. This
+   is going to be enforced by asserts. The constructor can however be called
+   outside of the AWT event thread to lower the load during the action
+   creation and also certain attributes like icon and context less name 
+   can also be got from other threads.
+  </p>
+ </answer>
+
+
+
+
+<!--
+        <question id="format-clipboard" when="impl">
+            Which data flavors (if any) does your code read from or insert to
+            the clipboard (by access to clipboard on means calling methods on <code>java.awt.datatransfer.Transferable</code>?
+            
+            <hint>
+            Often Node's deal with clipboard by usage of <code>Node.clipboardCopy, Node.clipboardCut and Node.pasteTypes</code>.
+            Check your code for overriding these methods.
+            </hint>
+        </question>
+-->
+ <answer id="format-clipboard">
+  <p>
+   XXX no answer for format-clipboard
+  </p>
+ </answer>
+
+
+
+<!--
+        <question id="format-dnd" when="impl">
+            Which protocols (if any) does your code understand during Drag &amp; Drop?
+            <hint>
+            Often Node's deal with clipboard by usage of <code>Node.drag, Node.getDropType</code>. 
+            Check your code for overriding these methods. Btw. if they are not overridden, they
+            by default delegate to <code>Node.clipboardCopy, Node.clipboardCut and Node.pasteTypes</code>.
+            </hint>
+        </question>
+-->
+ <answer id="format-dnd">
+  <p>
+   XXX no answer for format-dnd
+  </p>
+ </answer>
+
+
+
+<!--
+        <question id="format-types" when="impl">
+            Which protocols and file formats (if any) does your module read or write on disk,
+            or transmit or receive over the network? Do you generate an ant build script?
+            Can it be edited and modified? 
+            
+            <hint>
+            <p>
+            Files can be read and written by other programs, modules and users. If they influence
+            your behaviour, make sure you either document the format or claim that it is a private
+            api (using the &lt;api&gt; tag). 
+            </p>
+            
+            <p>
+            If you generate an ant build file, this is very likely going to be seen by end users and
+            they will be attempted to edit it. You should be ready for that and provide here a link
+            to documentation that you have for such purposes and also describe how you are going to
+            understand such files during next release, when you (very likely) slightly change the 
+            format.
+            </p>
+            </hint>
+        </question>
+-->
+ <answer id="format-types">
+  <p>
+   XXX no answer for format-types
+  </p>
+ </answer>
+
+
+
+<!--
+        <question id="lookup-lookup" when="init">
+            Does your module use <code>org.openide.util.Lookup</code>
+            or any similar technology to find any components to communicate with? Which ones?
+            
+            <hint>
+            Please describe the interfaces you are searching for, where 
+            are defined, whether you are searching for just one or more of them,
+            if the order is important, etc. Also classify the stability of such
+            API contract. For that use &lt;api group=&amp;lookup&amp; /&gt; tag.
+            </hint>
+        </question>
+-->
+ <answer id="lookup-lookup">
+  <p>
+   XXX no answer for lookup-lookup
+  </p>
+ </answer>
+
+
+
+<!--
+        <question id="lookup-register" when="final">
+            Do you register anything into lookup for other code to find?
+            <hint>
+            Do you register using layer file or using <code>META-INF/services</code>?
+            Who is supposed to find your component?
+            </hint>
+        </question>
+-->
+ <answer id="lookup-register">
+  <p>
+   XXX no answer for lookup-register
+  </p>
+ </answer>
+
+
+
+<!--
+        <question id="lookup-remove" when="final">
+            Do you remove entries of other modules from lookup?
+            <hint>
+            Why? Of course, that is possible, but it can be dangerous. Is the module
+            your are masking resource from aware of what you are doing?
+            </hint>
+        </question>
+-->
+ <answer id="lookup-remove">
+  <p>
+   XXX no answer for lookup-remove
+  </p>
+ </answer>
+
+
+
+<!--
+        <question id="perf-exit" when="final">
+            Does your module run any code on exit?
+        </question>
+-->
+ <answer id="perf-exit">
+  <p>
+   XXX no answer for perf-exit
+  </p>
+ </answer>
+
+
+
+<!--
+        <question id="perf-huge_dialogs" when="final">
+            Does your module contain any dialogs or wizards with a large number of
+            GUI controls such as combo boxes, lists, trees, or text areas?
+        </question>
+-->
+ <answer id="perf-huge_dialogs">
+  <p>
+   XXX no answer for perf-huge_dialogs
+  </p>
+ </answer>
+
+
+
+<!--
+        <question id="perf-limit" when="init">
+            Are there any hard-coded or practical limits in the number or size of
+            elements your code can handle?
+        </question>
+-->
+ <answer id="perf-limit">
+  <p>
+   XXX no answer for perf-limit
+  </p>
+ </answer>
+
+
+
+<!--
+        <question id="perf-mem" when="final">
+            How much memory does your component consume? Estimate
+            with a relation to the number of windows, etc.
+        </question>
+-->
+ <answer id="perf-mem">
+  <p>
+   XXX no answer for perf-mem
+  </p>
+ </answer>
+
+
+
+<!--
+        <question id="perf-menus" when="final">
+            Does your module use dynamically updated context menus, or
+            context-sensitive actions with complicated and slow enablement logic?
+            <hint>
+                If you do a lot of tricks when adding actions to regular or context menus, you can significantly
+                slow down display of the menu, even when the user is not using your action. Pay attention to
+                actions you add to the main menu bar, and to context menus of foreign nodes or components. If
+                the action is conditionally enabled, or changes its display dynamically, you need to check the
+                impact on performance. In some cases it may be more appropriate to make a simple action that is
+                always enabled but does more detailed checks in a dialog if it is actually run.
+            </hint>
+        </question>
+-->
+ <answer id="perf-menus">
+  <p>
+   XXX no answer for perf-menus
+  </p>
+ </answer>
+
+
+
+<!--
+        <question id="perf-spi" when="init">
+            How the performance of the plugged in code will be enforced?
+            <hint>
+            If you allow foreign code to be plugged into your own module, how
+            do you enforce that it will behave correctly and quickly and will not
+            negatively influence the performance of your own module?
+            </hint>
+        </question>
+-->
+ <answer id="perf-spi">
+  <p>
+   XXX no answer for perf-spi
+  </p>
+ </answer>
+
+
+
+<!--
+        <question id="security-grant" when="final">
+            Does your code grant additional rights to some other code?
+            <hint>Avoid using a class loader that adds extra
+            permissions to loaded code unless really necessary.
+            Also note that your API implementation
+            can also expose unneeded permissions to enemy code by
+            calling AccessController.doPrivileged().</hint>
+        </question>
+-->
+ <answer id="security-grant">
+  <p>
+   XXX no answer for security-grant
+  </p>
+ </answer>
+
+
+
+<!--
+        <question id="security-policy" when="final">
+            Does your functionality require modifications to the standard policy file?
+            <hint>Your code might pass control to third-party code not
+            coming from trusted domains. This could be code downloaded over the
+            network or code coming from libraries that are not bundled
+            with NetBeans. Which permissions need to be granted to which domains?</hint>
+        </question>
+-->
+ <answer id="security-policy">
+  <p>
+   XXX no answer for security-policy
+  </p>
+ </answer>
+
+
+
+
+<!--
+        <question id="compat-deprecation" when="init">
+            How the introduction of your project influences functionality
+            provided by previous version of the product?
+            <hint>
+            If you are planning to deprecate/remove/change any existing APIs,
+            list them here accompanied with the reason explaining why you
+            are doing so.
+            </hint>
+        </question>
+-->
+ <answer id="compat-deprecation">
+  <p>
+   XXX no answer for compat-deprecation
+  </p>
+ </answer>
+
+</api-answers>
