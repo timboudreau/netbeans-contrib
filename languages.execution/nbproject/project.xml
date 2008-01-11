@@ -71,10 +71,11 @@
                     </run-dependency>
                 </dependency>
             </module-dependencies>
-            <public-packages>
+            <friend-packages>
+                <friend>org.netbeans.modules.scala.console</friend>
                 <package>org.netbeans.modules.languages.execution</package>
                 <package>org.netbeans.modules.languages.execution.console</package>
-            </public-packages>
+            </friend-packages>
         </data>
     </configuration>
 </project>
