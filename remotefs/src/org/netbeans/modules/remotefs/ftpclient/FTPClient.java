@@ -49,14 +49,14 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
-import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
-import java.io.RandomAccessFile;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketException;
 import java.util.StringTokenizer;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.netbeans.modules.remotefs.core.RemoteClient;
 import org.netbeans.modules.remotefs.core.LogInfo;
 import org.netbeans.modules.remotefs.core.RemoteFileAttributes;
@@ -77,9 +77,6 @@ public class FTPClient implements RemoteClient {
     private PrintWriter out;
     /** Log stream */
     private PrintWriter log = null;
-    /** Log file descriptor */
-    private File logfile = null;
-    private RandomAccessFile rafile = null;
     /** Socket */
     private Socket socket;
     /** Server socket for data connection */
@@ -109,6 +106,7 @@ public class FTPClient implements RemoteClient {
     /** Timeout */
     private final static int TIMEOUT = 60000;
     private String startdir = "/";
+
     /** Create new FTPClient with this login information
      * @param loginfo
      */
@@ -162,46 +160,8 @@ public class FTPClient implements RemoteClient {
         reconn = ro;
     }
 
-    //***************************************************************************
-    /** Writes text to log stream */
-    private void writeLog(String text) {
-        if (log != null) {
-            log.println(text);
-            log.flush();
-        }
-    }
 
-    //***************************************************************************
-    /** Sets Log to PrintWriter
-     * @param log
-     */
-    public void setLog(PrintWriter log) {
-        this.log = log;
-    }
-
-    //***************************************************************************
-    /** Sets Log to OutputStream
-     * @param log
-     */
-    public void setLog(OutputStream log) {
-        this.log = new PrintWriter(new OutputStreamWriter(log));
-        this.log.println("\n---------------------------------------------------------------------------\n" +
-                "FTP Log Session: " + new java.util.Date().toString() +
-                "\n---------------------------------------------------------------------------");
-    }
-
-    //***************************************************************************
-    /** Sets Log to FileDescriptor. In this case, log outputstream is automatically set during connecting
-     * @param logfile 
-     * @throws IOException  */
-    public void setLog(File logfile) throws IOException {
-        if (!logfile.exists()) {
-            logfile.createNewFile();
-        }
-        this.logfile = logfile;
-    }
-
-    //***************************************************************************
+   //***************************************************************************
     /** Whether passive mode is set.
      * @return Value of property passiveMode.
      */
@@ -240,7 +200,7 @@ public class FTPClient implements RemoteClient {
      */
     protected boolean isUnixType() {
         if (serversystem != null) {
-            return serversystem.toUpperCase().startsWith("UNIX TYPE: L8");
+            return serversystem.toUpperCase().startsWith("UNIX");
         }
         return false;
     }
@@ -257,11 +217,6 @@ public class FTPClient implements RemoteClient {
      * @throws IOException if any error occured
      */
     public synchronized void connect() throws IOException {
-        if (log == null && logfile != null) {
-            rafile = new RandomAccessFile(logfile, "rw");
-            rafile.seek(rafile.length());
-            setLog(new FileOutputStream(rafile.getFD()));
-        }
         socket = new Socket(host, port);
         socket.setSoTimeout(TIMEOUT);
         in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
@@ -299,9 +254,9 @@ public class FTPClient implements RemoteClient {
         out.println(command);
         out.flush();
         if (command.toLowerCase().startsWith("pass")) {
-            writeLog("PASS *****");
+            Logger.getLogger(this.getClass().getName()).log(Level.FINE,"PASS *****");
         } else {
-            writeLog(command);
+            Logger.getLogger(this.getClass().getName()).log(Level.FINE,command);
         }
         // read response
         setResponse();
@@ -632,12 +587,10 @@ public class FTPClient implements RemoteClient {
         String word;
         boolean skip = false;
         boolean error = false;
-        boolean anyerror = false;
         int count = 0;
         int col;
         String month = null;
         int day = 0;
-        int lines = stoken.countTokens();
         while (stoken.hasMoreTokens()) {
             String tmp;
             line = new StringTokenizer(tmp = stoken.nextToken());
@@ -715,7 +668,6 @@ public class FTPClient implements RemoteClient {
             }
             if (skip || error) {
                 if (error) {
-                    anyerror = true;
                     System.out.println("NOT RECOGNIZED: " + tmp);
                 }
                 skip = false;
@@ -736,40 +688,48 @@ public class FTPClient implements RemoteClient {
         return attrib;
     }
 
-    /** List Parser interface */
+    /** List Parser interface 
+     * @deprecated never used
+     */
+    @Deprecated
     public interface ListParser {
 
         /** Parsers list
          * @param list
          * @return
          */
+        @Deprecated
         public RemoteFileAttributes parseList(StringTokenizer list);
     }
 
     /** Add list parser
      * @param parser
      */
+    @Deprecated
     public void addParser(ListParser parser) {
-        throw new Error("Not implemented yet");
+        
     }
 
     /** Add list parser for specified type
      * @param type
      * @param parser
      */
+    @Deprecated
     public void addParser(String type, ListParser parser) {
-        throw new Error("Not implemented yet");
+        
     }
 
     /** Remove list parser
      * @param parser
      * @return
      */
+    @Deprecated
     public boolean removeParser(ListParser parser) {
         return false;
     }
 
     /** Remove all list parsers */
+    @Deprecated
     public void removeAllParsers() {
     }
 
@@ -939,15 +899,43 @@ public class FTPClient implements RemoteClient {
                 socket.close();
                 socket = null;
             }
-            if (log != null) {
-                log.close();
-                log = null;
-            }
-            if (rafile != null) {
-                rafile.close();
-                rafile = null;
-            }
         } catch (IOException e) {
         }
     }
+/* ###########################################################################   
+    DEPRECATED METHODS
+  ########################################################################### */
+ //***************************************************************************
+    /** Sets Log to PrintWriter
+     * @deprecated : Java Logger is used instead
+     * @param log
+     * 
+     */
+    @Deprecated
+    public void setLog(PrintWriter log) {
+       
+    }
+
+    //***************************************************************************
+    /** Sets Log to OutputStream
+     * @deprecated : Java Logger is used instead
+     * @param log
+     */
+    @Deprecated
+    public void setLog(OutputStream log) {
+        
+    }
+
+    //***************************************************************************
+    /** Sets Log to FileDescriptor. In this case, log outputstream is automatically set during connecting
+     * @deprecated : Java Logger is used instead
+     * @param logfile 
+     * @throws IOException  
+     */
+    @Deprecated
+    public void setLog(File logfile) throws IOException {
+       
+    }
+
+ 
 }

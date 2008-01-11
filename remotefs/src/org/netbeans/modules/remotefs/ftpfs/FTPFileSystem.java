@@ -55,7 +55,6 @@ import org.netbeans.modules.remotefs.ftpclient.FTPLogInfo;
 import org.openide.DialogDisplayer;
 import org.openide.NotifyDescriptor;
 import org.openide.filesystems.FileObject;
-import org.openide.filesystems.MultiFileSystem;
 import org.openide.filesystems.Repository;
 import org.openide.options.SystemOption;
 import org.openide.util.Exceptions;
@@ -69,18 +68,41 @@ public class FTPFileSystem extends RemoteFileSystem implements FTPClient.Reconne
     static final long serialVersionUID = -981665601872580022L;
     private static final boolean DEBUG = true;
     /** Name of temporary directoty (if user doesn't entry own one) */
-    private static final String FTPWORK = System.getProperty("netbeans.user") + File.separator + "ftpcache";
+    private static final String FTPWORK;
     /** Whether user already entered cache directory. */
     private boolean enteredcachedir = false;
     /** Global FTP FileSystem settings */
     private FTPSettings ftpsettings = SystemOption.findObject(FTPSettings.class, true);
+    static final String CACHE_FOLDER_NAME = "ftpcache";
 
-    /** Constructor.
+    static {
+        /* BUGFIX for issue #123552
+         * We need a default cache dir. 
+         * The default is "ftpcache" in the filesystem's root. Must be created if it doesn't exist.
+         */
+        FileObject fr = Repository.getDefault().getDefaultFileSystem().getRoot();
+        FileObject fo = fr.getFileObject(CACHE_FOLDER_NAME);
+        if (fo == null) {
+            try {
+                fo = fr.createFolder(CACHE_FOLDER_NAME);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        FTPWORK = fo.getName();
+    }
+
+    /** 
+     * Constructor.
      */
     public FTPFileSystem() {
         this(new FTPLogInfo());
     }
 
+    /**
+     * Constructor.
+     * @param info
+     */
     public FTPFileSystem(FTPLogInfo info) {
         super();
         loginfo = info;
@@ -93,30 +115,7 @@ public class FTPFileSystem extends RemoteFileSystem implements FTPClient.Reconne
                 ftpSettingsChanged(event);
             }
         });
-        
-//        MultiFileSystem sfs = (MultiFileSystem) Repository.getDefault().getDefaultFileSystem();
-//        System.out.println();
-     }
-
-    /**
-     * 
-     * @param fs
-     */
-//    @Override
-//    public void addedFS(org.openide.filesystems.FileSystem fs) {
-//        if (fs == this) {
-//            try {
-//                if (!getSystemName().equals(computeSystemName())) {
-//                    setSystemName(computeSystemName());
-//                }
-//            } catch (java.beans.PropertyVetoException e) {
-//                if (DEBUG) {
-//                    e.printStackTrace();
-//                }
-//            }
-//            super.addedFS(fs);
-//        }
-//    }
+    }
 
     /** Called when FTPSettings changed
      * @param event 

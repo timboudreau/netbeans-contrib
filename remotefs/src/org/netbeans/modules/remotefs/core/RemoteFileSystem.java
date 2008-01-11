@@ -45,24 +45,15 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import org.openide.filesystems.AbstractFileSystem;
 import org.openide.filesystems.DefaultAttributes;
 import org.openide.filesystems.FileStatusEvent;
-import org.openide.filesystems.FileSystemCapability;
-import org.openide.filesystems.FileUtil;
-import org.openide.filesystems.Repository;
-import org.openide.filesystems.RepositoryEvent;
-import org.openide.filesystems.RepositoryListener;
-import org.openide.filesystems.RepositoryReorderedEvent;
-import org.openide.filesystems.FileObject;
 import org.openide.util.Exceptions;
 import org.openide.util.RequestProcessor;
 import org.openide.util.actions.SystemAction;
 
-/** Remote FIleSystem class
+/** Remote FileSystem class
  * @author Libor Martinek
  * @version 1.0
  */
@@ -95,78 +86,9 @@ public abstract class RemoteFileSystem extends AbstractFileSystem
         DefaultAttributes a = new DefaultAttributes(info, change, this);
         attr = a;
         list = a;
-
-//        // Set listeners
-//        Repository.getDefault().addRepositoryListener(new RepositoryListener() {
-//
-//            public void fileSystemAdded(RepositoryEvent ev) {
-//                addedFS(ev.getFileSystem());
-//            }
-//
-//            public void fileSystemRemoved(RepositoryEvent ev) {
-//                removedFS(ev.getFileSystem());
-//            }
-//
-//            public void fileSystemPoolReordered(RepositoryReorderedEvent ev) {
-//            }
-//        });
  }
 
-//    public void removedFS(org.openide.filesystems.FileSystem fs) {
-//        if (fs == this) {
-//            if (requestproc != null) {
-//                requestproc.stop();
-//                requestproc = null;
-//            }
-//            if (isConnected()) {
-//                removeClient();
-//            }
-//        }
-//    }
 
-//    public void addedFS(org.openide.filesystems.FileSystem fs) {
-//        if (fs == this) {
-//            connectOnBackground(true);
-//        /*        post(new java.lang.Runnable() {
-//        public void run() {
-//        setConnected(true);  
-//        getRoot().refresh();
-//        }
-//        }
-//        );
-//         */        }
-//    }
-
-    /** Constructor that allows user to provide own capabilities
-     * for this file system.
-     * @param cap capabilities for this file system
-     */
-//    public RemoteFileSystem( FileSystemCapability cap) {
-//        this();
-//        setCapability(cap);
-//    }
-
-    private void readObject(ObjectInputStream s) throws IOException, ClassNotFoundException {
-        s.defaultReadObject();
-//        Repository.getDefault().addRepositoryListener(new RepositoryListener() {
-//
-//            public void fileSystemAdded(RepositoryEvent ev) {
-//                addedFS(ev.getFileSystem());
-//            }
-//
-//            public void fileSystemRemoved(RepositoryEvent ev) {
-//                removedFS(ev.getFileSystem());
-//            }
-//
-//            public void fileSystemPoolReordered(RepositoryReorderedEvent ev) {
-//            }
-//        });
-    }
-
-    private void writeObject(ObjectOutputStream s) throws IOException {
-        // removeClient(); 
-        s.defaultWriteObject();
-    }
 
     /** Return system action for this filesystem
      * @return actions */

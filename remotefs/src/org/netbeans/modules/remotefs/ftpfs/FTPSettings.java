@@ -99,9 +99,9 @@ public class FTPSettings extends org.openide.options.SystemOption {
    * @param refreshTime New value of property refreshTime.
    */
   public void setRefreshTime(int refreshTime) {
-    int old = this.refreshTime;
-    this.refreshTime = refreshTime;
-    firePropertyChange(PROP_REFRESH_TIME,new Integer(old),new Integer(this.refreshTime));
+    int old = FTPSettings.refreshTime;
+    FTPSettings.refreshTime = refreshTime;
+    firePropertyChange(PROP_REFRESH_TIME,new Integer(old),new Integer(FTPSettings.refreshTime));
   }
   /** Getter for property refreshServer.
    * @return Value of property refreshServer.
@@ -113,7 +113,7 @@ public class FTPSettings extends org.openide.options.SystemOption {
    * @param refreshServer New value of property refreshServer.
    */
   public void setRefreshServer(boolean refreshServer) {
-    this.refreshServer = refreshServer;
+    FTPSettings.refreshServer = refreshServer;
   }
   /** Getter for property scanCache.
    * @return Value of property scanCache.
@@ -125,7 +125,7 @@ public class FTPSettings extends org.openide.options.SystemOption {
    * @param scanCache New value of property scanCache.
    */
   public void setScanCache(boolean scanCache) {
-    this.scanCache = scanCache;
+    FTPSettings.scanCache = scanCache;
   }
   /** Getter for property offlineChanges.
    * @return Value of property offlineChanges.
@@ -137,7 +137,7 @@ public class FTPSettings extends org.openide.options.SystemOption {
    * @param offlineChanges New value of property offlineChanges.
    */
   public void setOfflineChanges(boolean offlineChanges) {
-    this.offlineChanges = offlineChanges;
+    FTPSettings.offlineChanges = offlineChanges;
   }
   /** Getter for property downloadServerChangedFile.
    * @return Value of property downloadServerChangedFile.
@@ -149,7 +149,7 @@ public class FTPSettings extends org.openide.options.SystemOption {
    * @param downloadServerChangedFile New value of property downloadServerChangedFile.
    */
   public void setDownloadServerChangedFile(boolean downloadServerChangedFile) {
-    this.downloadServerChangedFile = downloadServerChangedFile;
+    FTPSettings.downloadServerChangedFile = downloadServerChangedFile;
   }
   /** Getter for property refreshAlways.
    * @return Value of property refreshAlways.
@@ -161,7 +161,7 @@ public class FTPSettings extends org.openide.options.SystemOption {
    * @param refreshAlways New value of property refreshAlways.
    */
   public void setRefreshAlways(boolean refreshAlways) {
-    this.refreshAlways = refreshAlways;
+    FTPSettings.refreshAlways = refreshAlways;
   }
   /** Getter for property askServerChangedFile.
    * @return Value of property askServerChangedFile.
@@ -173,7 +173,7 @@ public class FTPSettings extends org.openide.options.SystemOption {
    * @param askServerChangedFile New value of property askServerChangedFile.
    */
   public void setAskServerChangedFile(boolean askServerChangedFile) {
-    this.askServerChangedFile = askServerChangedFile;
+    FTPSettings.askServerChangedFile = askServerChangedFile;
   }
   /** Getter for property askWhichFile.
    * @return Value of property askWhichFile.
@@ -185,7 +185,7 @@ public class FTPSettings extends org.openide.options.SystemOption {
    * @param askWhichFile New value of property askWhichFile.
    */
   public void setAskWhichFile(boolean askWhichFile) {
-    this.askWhichFile = askWhichFile;
+    FTPSettings.askWhichFile = askWhichFile;
   }
   /** Getter for property passiveMode.
    * @return Value of property passiveMode.
@@ -197,9 +197,9 @@ public class FTPSettings extends org.openide.options.SystemOption {
    * @param passiveMode New value of property passiveMode.
    */
   public void setPassiveMode(boolean passiveMode) {
-    boolean old = this.passiveMode;
+    boolean old = FTPSettings.passiveMode;
     FTPSettings.passiveMode = passiveMode;
-    firePropertyChange(PROP_PASSIVE_MODE,old ? Boolean.TRUE : Boolean.FALSE,this.passiveMode ? Boolean.TRUE : Boolean.FALSE);
+    firePropertyChange(PROP_PASSIVE_MODE,old ? Boolean.TRUE : Boolean.FALSE,FTPSettings.passiveMode ? Boolean.TRUE : Boolean.FALSE);
   }
   /** Getter for property askCacheExternalDelete.
    * @return Value of property askCacheExternalDelete.
@@ -211,7 +211,7 @@ public class FTPSettings extends org.openide.options.SystemOption {
    * @param askCacheExternalDelete New value of property askCacheExternalDelete.
    */
   public void setAskCacheExternalDelete(boolean askCacheExternalDelete) {
-    this.askCacheExternalDelete = askCacheExternalDelete;
+    FTPSettings.askCacheExternalDelete = askCacheExternalDelete;
   }
   /** Getter for property cacheExternalDelete.
    * @return Value of property cacheExternalDelete.
@@ -223,7 +223,7 @@ public class FTPSettings extends org.openide.options.SystemOption {
    * @param cacheExternalDelete New value of property cacheExternalDelete.
    */
   public void setCacheExternalDelete(boolean cacheExternalDelete) {
-    this.cacheExternalDelete = cacheExternalDelete;
+    FTPSettings.cacheExternalDelete = cacheExternalDelete;
   }
   /** Getter for property askServerExternalDelete.
    * @return Value of property askServerExternalDelete.
@@ -235,7 +235,7 @@ public class FTPSettings extends org.openide.options.SystemOption {
    * @param askServerExternalDelete New value of property askServerExternalDelete.
    */
   public void setAskServerExternalDelete(boolean askServerExternalDelete) {
-    this.askServerExternalDelete = askServerExternalDelete;
+    FTPSettings.askServerExternalDelete = askServerExternalDelete;
   }
   /** Getter for property serverExternalDelete.
    * @return Value of property serverExternalDelete.
@@ -247,7 +247,7 @@ public class FTPSettings extends org.openide.options.SystemOption {
    * @param serverExternalDelete New value of property serverExternalDelete.
    */
   public void setServerExternalDelete(boolean serverExternalDelete) {
-    this.serverExternalDelete = serverExternalDelete;
+    FTPSettings.serverExternalDelete = serverExternalDelete;
   }
   
 }
