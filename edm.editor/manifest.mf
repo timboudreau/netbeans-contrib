@@ -5,6 +5,6 @@ OpenIDE-Module-Localizing-Bundle: org/netbeans/modules/edm/editor/Bundle.propert
 OpenIDE-Module-Specification-Version: 1.0
 
 Name: org/netbeans/modules/edm/editor/dataobject/MashupDataLoader.class
-Install-Before: org.openide.loaders.XMLDataObject, org.netbeans.modules.xml.core.XMLDataObject
+Install-Before: org.openide.loaders.XMLDataObject, org.netbeans.modules.xml.XMLDataObject
 OpenIDE-Module-Class: Loader
 
