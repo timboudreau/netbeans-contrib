@@ -153,7 +153,7 @@ public abstract class LazyLoadDataObject<T> extends MultiDataObject {
                             "is of " + "type " + result.getClass() + 
                             " not the expected " + " type " + super.type());
                 }
-                loaded ((T) result);
+//                loaded ((T) result);
                 return (T) result;
             } else {
                 return null;
