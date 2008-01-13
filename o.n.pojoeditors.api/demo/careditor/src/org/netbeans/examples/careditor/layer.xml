@@ -47,6 +47,7 @@ Portions Copyrighted 2007 Sun Microsystems, Inc.
         </folder>
         <folder name="org-netbeans-examples-careditor-pojos-Person">
             <file name="org-netbeans-examples-careditor-actions-EditPersonAction.instance"/>
+            <file name="org-netbeans-examples-careditor-actions-DeletePersonAction.instance"/>
         </folder>
     </folder>
     

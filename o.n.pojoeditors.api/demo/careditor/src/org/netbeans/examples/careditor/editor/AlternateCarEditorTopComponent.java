@@ -71,4 +71,12 @@ public class AlternateCarEditorTopComponent extends PojoEditor<Car> {
     private void init() {
         setIcon(Utilities.loadImage(ICON_PATH, true));
     }
+    
+    @Override
+    protected void pojoChanged(Car source, String propertyName, Object oldValue, Object newValue) {
+        //The DataObject is listening to our Car, and calls us back if the
+        //car has changed (for example, a cloned editor has changed a property)
+        form.externalChanged(source, propertyName, oldValue, newValue);
+    }
+    
 }

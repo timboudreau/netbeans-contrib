@@ -228,12 +228,8 @@ public class CarEditorForm extends javax.swing.JPanel implements Notifiable<Save
             inInit = true;
             makeField.setText (car.getMake());
             modelField.setText (car.getModel());
-            try {
-                yearField.setText (Integer.toString(car.getYear()));
-                problemLabel.setText(" ");
-            } catch (NumberFormatException e) {
-                problemLabel.setText (e.getLocalizedMessage());
-            }
+            yearField.setText (Integer.toString(car.getYear()));
+            problemLabel.setText(" ");
             PojoEditor<Car> provider = (PojoEditor<Car>) SwingUtilities.getAncestorOfClass(PojoEditor.class, this);
             PojoDataObject dob = provider.getLookup().lookup(PojoDataObject.class);
             jButton1.setEnabled (dob.isModified());

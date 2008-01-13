@@ -43,6 +43,7 @@ import java.beans.PropertyEditor;
 import java.beans.PropertyEditorSupport;
 import java.util.Iterator;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import org.netbeans.api.objectloader.ObjectLoader;
 import org.netbeans.api.objectloader.ObjectReceiver;

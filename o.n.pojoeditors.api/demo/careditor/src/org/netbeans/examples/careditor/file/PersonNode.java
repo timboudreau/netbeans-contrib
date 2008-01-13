@@ -73,6 +73,7 @@ final class PersonNode extends DynamicActionsNode {
         this.car = car;
         content.add (person);
         content.add (new CarExchangerImpl());
+        content.add (new PersonRemoverImpl());
         updateDisplayName();
         //Listen for name changes
         person.addPropertyChangeListener(WeakListeners.propertyChange(l, person));
@@ -125,9 +126,17 @@ final class PersonNode extends DynamicActionsNode {
         }
     }
     
+    private final class PersonRemoverImpl implements PersonRemover {
+        public void remove() {
+            Person p = getLookup().lookup (Person.class);
+            car.removePassenger(p);
+        }
+    }
+    
     private static final String[] PROPERTIES_TO_SHOW = new String[] {
         "firstName",
         "lastName",
+        "age",
     };
     
     @Override
