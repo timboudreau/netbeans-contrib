@@ -39,6 +39,8 @@
 
 package org.netbeans.modules.dynactions.nodes;
 
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.beans.PropertyEditor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -47,7 +49,9 @@ import java.util.logging.Logger;
 import org.openide.nodes.Node.Property;
 import org.openide.nodes.PropertySupport;
 import org.openide.nodes.Sheet;
+import org.openide.util.Exceptions;
 import org.openide.util.NbBundle;
+import org.openide.util.WeakListeners;
 
 /**
  * Factory for Property objects corresponding to bean properties on a pojo.
@@ -152,7 +156,7 @@ public final class PropertiesFactory <T> {
         }
     }
 
-    private final class P<T> extends Property {
+    private final class P<T> extends Property<T> {
         private String propName;
         private T pojo;
         P (String name, T pojo) {
@@ -164,7 +168,7 @@ public final class PropertiesFactory <T> {
             setDisplayName (provider.displayNameForProperty(propName));
             setShortDescription(provider.descriptionForProperty(propName));
         }
-
+        
         private PropertyEditor editor = null;
         @Override
         public PropertyEditor getPropertyEditor() {
@@ -183,8 +187,18 @@ public final class PropertiesFactory <T> {
         }
 
         @Override
-        public Object getValue() throws IllegalAccessException, InvocationTargetException {
-            return findGetter().invoke(pojo, new Object[0]);
+        public T getValue() throws IllegalAccessException, InvocationTargetException {
+            try {
+                return cast(getValueType(), getter.invoke(pojo));
+            } catch (IllegalAccessException ex) {
+                try {
+                    getter.setAccessible(true);
+
+                    return cast(getValueType(), getter.invoke(pojo));
+                } finally {
+                    getter.setAccessible(false);
+                }
+            }
         }
 
         @Override
@@ -193,9 +207,23 @@ public final class PropertiesFactory <T> {
         }
 
         @Override
-        public void setValue(Object val) throws IllegalAccessException, IllegalArgumentException, InvocationTargetException {
+        public void setValue(T val) throws IllegalAccessException, IllegalArgumentException, InvocationTargetException {
             findSetter().invoke(pojo, val);
+            editor = null;
         }
+        
+        /**
+         * Like {@link Class#cast} but handles primitive types.
+         * See JDK #6456930.
+         */
+        <T> T cast(Class<T> c, Object o) {
+            if (c.isPrimitive()) {
+                return (T) o;
+            } else {
+                return c.cast(o);
+            }
+        }
+        
 
         private Method getter;
         private Method setter;
