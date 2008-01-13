@@ -29,6 +29,8 @@
 package org.netbeans.pojoeditors.api;
 
 import java.awt.EventQueue;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.beans.PropertyEditor;
 import java.io.Serializable;
 import java.util.Arrays;
@@ -59,16 +61,20 @@ import org.openide.util.Lookup;
  * @author Tim Boudreau
  */
 public class PojoDataNode<T extends Serializable> extends DynamicActionsDataNode {
+    private final PCL pcl = new PCL();
     protected PojoDataNode (PojoDataObject<T> dob, Children kids, Lookup lkp, String actionContext) {
         super (dob, kids, lkp, actionContext);
+        dob.addPojoPropertyChangeListener(pcl);
     }
     
     protected PojoDataNode (PojoDataObject<T> dob, Children kids, String actionContext) {
         super (dob, kids, actionContext);
+        dob.addPojoPropertyChangeListener(pcl);
     }
     
     protected PojoDataNode (PojoDataObject<T> dob, Children kids, Lookup lkp, ActionFactory factory) {
         super (dob, kids, lkp, factory);
+        dob.addPojoPropertyChangeListener(pcl);
     }
     
     /**
@@ -303,6 +309,15 @@ public class PojoDataNode<T extends Serializable> extends DynamicActionsDataNode
 
         public PropertyEditor propertyEditorForProperty(String property, Class valueType) {
             return PojoDataNode.this.propertyEditorForProperty (property, valueType);
+        }
+    }
+    
+    private final class PCL implements PropertyChangeListener {
+        //Propagate property changes to our actual properties
+        public void propertyChange(PropertyChangeEvent evt) {
+            System.err.println("Refiring property change for " + evt.getPropertyName());
+            firePropertyChange(evt.getPropertyName(), evt.getOldValue(), 
+                    evt.getNewValue());
         }
     }
 }

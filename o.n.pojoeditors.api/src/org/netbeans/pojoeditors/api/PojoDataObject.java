@@ -213,7 +213,7 @@ public abstract class PojoDataObject<T extends Serializable> extends LazyLoadDat
         boolean old = isModified();
         if (old != modif) {
             super.setModified(modif);
-            T tRef = (T) ldr.getCachedInstance();
+            T tRef = ldr.getCachedInstance();
             if (modif && tRef == null) {
                 throw new IllegalStateException ("SetModified called with no " +
                         "instance of " + type() + " loaded");
