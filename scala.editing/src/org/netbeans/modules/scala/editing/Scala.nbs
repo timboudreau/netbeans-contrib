@@ -265,7 +265,7 @@ TOKEN:tview: (
 ## add [" " "\t" "\n" "\r"]* before "=" leading operators to avoid conflict with <eq>
 TOKEN:op_identifier: (
     ["!" "%" "&" "+" "-" "<" ">" "?" "\\" "^" "`" "|" "~" "*" ]
-    ["!" "%" "&" "+" "-" "=" ">" "?" "@" "\\" "^" "`" "|" "~" "#" ":" "/" "*"]* 
+    ["!" "%" "&" "+" "-" "=" "<" ">" "?" "@" "\\" "^" "`" "|" "~" "#" ":" "/" "*"]* 
     |
     [" " "\t" "\n" "\r"]*
     ["#" ":" "@"]
@@ -1028,7 +1028,7 @@ tview:
     foreground_color: "0x0000FE";
 }
 
-COLOR:Type,InfixType,AnnotType,SimpleType: {
+COLOR:Type,InfixType,AnnotType,SimpleType,TypeParam.NameId: {
     foreground_color: "black";
     font_type: "bold";
 }
@@ -1086,8 +1086,17 @@ BRACE "\":\""
 INDENT "(:)"
 INDENT "{:}"
 INDENT "[:]"
-INDENT ".*(((=>|=)\\s*)[^;,]*)"
-INDENT "\\s*(((if|while)\\s*\\(|else\\s*|else\\s+if\\s*\\(|for\\s*\\(.*\\))[^{;]*)"
+INDENT ".*(((=|=>|yield)\\s*))"
+INDENT "\\s*(((if|while)\\s*\\(|else\\s*|else\\s+if\\s*\\()[^{;]*)"
+#INDENT "\\s*(def|val|var|type).*=\\s*"
+#INDENT "\\s*for\\s*\\(.*\\)\\s*yield\\s*"
+
+
+#INDENT "(:)"
+#INDENT "{:}"
+#INDENT "[:]"
+#INDENT ".*(((object|=)\\s*)[^;,]*)"
+#INDENT "\\s*(((if|while)\\s*\\(|else\\s*|else\\s+if\\s*\\(|for\\s*\\(.*\\))[^{;]*)"
 
 BUNDLE "org.netbeans.modules.scala.editing.Bundle"
 
