@@ -60,6 +60,7 @@ public class CarEditorForm extends javax.swing.JPanel implements Notifiable<Save
         makeField.getDocument().addDocumentListener(this);
         yearField.getDocument().addDocumentListener(this);
         modelField.getDocument().addDocumentListener(this);
+        ((BeanTreeView) jScrollPane1).setPopupAllowed(false);
     }
         
     Sensor<SaveCookie> sensor;

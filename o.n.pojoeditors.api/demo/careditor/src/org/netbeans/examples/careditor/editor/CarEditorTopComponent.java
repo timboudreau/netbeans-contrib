@@ -39,10 +39,13 @@
 package org.netbeans.examples.careditor.editor;
 
 import java.awt.Component;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import org.netbeans.examples.careditor.file.CarDataObject;
 import org.netbeans.examples.careditor.pojos.Car;
 import org.netbeans.pojoeditors.api.EditorFactory.Kind;
 import org.netbeans.pojoeditors.api.PojoEditor;
+import org.openide.explorer.ExplorerManager;
 import org.openide.util.Utilities;
 
 public class CarEditorTopComponent extends PojoEditor<Car> {
@@ -52,6 +55,13 @@ public class CarEditorTopComponent extends PojoEditor<Car> {
     public CarEditorTopComponent(CarDataObject obj) {
         super (obj, Kind.OPEN);
         init();
+        getExplorerManager().addPropertyChangeListener(new PropertyChangeListener() {
+            public void propertyChange(PropertyChangeEvent evt) {
+                if (ExplorerManager.PROP_SELECTED_NODES.equals(evt.getPropertyName())) {
+                    setActivatedNodes(getExplorerManager().getSelectedNodes());
+                }
+            }
+        });
     }
 
     @Override
