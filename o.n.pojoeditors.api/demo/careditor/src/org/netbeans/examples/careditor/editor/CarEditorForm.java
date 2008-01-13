@@ -47,6 +47,7 @@ import javax.swing.event.DocumentListener;
 import org.netbeans.api.dynactions.Sensor;
 import org.netbeans.api.dynactions.Sensor.Notifiable;
 import org.netbeans.examples.careditor.pojos.Car;
+import org.netbeans.pojoeditors.api.Discardable;
 import org.netbeans.pojoeditors.api.PojoDataObject;
 import org.netbeans.pojoeditors.api.PojoEditor;
 import org.openide.cookies.SaveCookie;
@@ -86,6 +87,9 @@ public class CarEditorForm extends javax.swing.JPanel implements Notifiable<Save
         jButton1 = new javax.swing.JButton();
         problemLabel = new javax.swing.JLabel();
         jScrollPane1 = new BeanTreeView();
+        jScrollPane2 = new javax.swing.JScrollPane();
+        jTextArea1 = new javax.swing.JTextArea();
+        jButton2 = new javax.swing.JButton();
 
         makeLabel.setText(org.openide.util.NbBundle.getMessage(CarEditorForm.class, "CarEditorForm.makeLabel.text_1")); // NOI18N
 
@@ -110,6 +114,17 @@ public class CarEditorForm extends javax.swing.JPanel implements Notifiable<Save
         problemLabel.setForeground(java.awt.Color.red);
         problemLabel.setText(org.openide.util.NbBundle.getMessage(CarEditorForm.class, "CarEditorForm.problemLabel.text")); // NOI18N
 
+        jTextArea1.setColumns(20);
+        jTextArea1.setRows(5);
+        jScrollPane2.setViewportView(jTextArea1);
+
+        jButton2.setText(org.openide.util.NbBundle.getMessage(CarEditorForm.class, "CarEditorForm.jButton2.text")); // NOI18N
+        jButton2.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton2ActionPerformed(evt);
+            }
+        });
+
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
@@ -131,13 +146,17 @@ public class CarEditorForm extends javax.swing.JPanel implements Notifiable<Save
                             .add(layout.createSequentialGroup()
                                 .add(yearField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 62, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 296, Short.MAX_VALUE)
-                                .add(jButton1)))))
+                                .add(jButton1))))
+                    .add(layout.createSequentialGroup()
+                        .add(jScrollPane2, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 410, Short.MAX_VALUE)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                        .add(jButton2, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(layout.createSequentialGroup()
-                .add(17, 17, 17)
+                .addContainerGap()
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(makeLabel)
                     .add(makeField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
@@ -152,22 +171,43 @@ public class CarEditorForm extends javax.swing.JPanel implements Notifiable<Save
                     .add(jButton1))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(problemLabel)
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .add(jScrollPane1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 249, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
+                    .add(layout.createSequentialGroup()
+                        .add(jButton2)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED))
+                    .add(layout.createSequentialGroup()
+                        .add(jScrollPane2, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 135, Short.MAX_VALUE)
+                        .add(7, 7, 7)))
+                .add(jScrollPane1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 249, Short.MAX_VALUE)
                 .addContainerGap())
         );
     }// </editor-fold>//GEN-END:initComponents
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
         PojoEditor<Car> provider = (PojoEditor<Car>) SwingUtilities.getAncestorOfClass(PojoEditor.class, this);
-        PojoDataObject dob = provider.getLookup().lookup(PojoDataObject.class);
-        dob.discardModifications();
+        Discardable discard = provider.getLookup().lookup(Discardable.class);
+        discard.discardModifications();
     }//GEN-LAST:event_jButton1ActionPerformed
+
+    private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
+        PojoEditor<Car> provider = (PojoEditor<Car>) SwingUtilities.getAncestorOfClass(PojoEditor.class, this);
+        PojoDataObject dob = provider.getLookup().lookup(PojoDataObject.class);
+        StringBuilder sb = new StringBuilder();
+        for (Object o : dob.getLookup().lookupAll(Object.class)) {
+            sb.append (o);
+            sb.append ('\n');
+        }
+        jTextArea1.setText (sb.toString());
+    }//GEN-LAST:event_jButton2ActionPerformed
     
     
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton jButton1;
+    private javax.swing.JButton jButton2;
     private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JScrollPane jScrollPane2;
+    private javax.swing.JTextArea jTextArea1;
     private javax.swing.JTextField makeField;
     private javax.swing.JLabel makeLabel;
     private javax.swing.JTextField modelField;

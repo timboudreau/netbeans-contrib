@@ -34,6 +34,7 @@ import java.awt.EventQueue;
 import java.awt.FlowLayout;
 import java.awt.Toolkit;
 import java.awt.event.KeyEvent;
+import java.beans.BeanInfo;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.IOException;
@@ -78,6 +79,9 @@ import org.openide.util.lookup.ProxyLookup;
 import org.openide.windows.CloneableTopComponent;
 import org.openide.windows.WindowManager;
 
+import static org.openide.loaders.DataObject.PROP_NAME;
+import static org.openide.loaders.DataObject.PROP_MODIFIED;
+
 /**
  * Base class for TopComponents that are editors over PojoDataObjects.  Handles
  * the bookkeeping of the set of open editors, etc.
@@ -104,6 +108,7 @@ public abstract class PojoEditor<T extends Serializable> extends CloneableTopCom
     private final EditorFactory.Kind kind;
     private final NodeListener nodeListener = new NL();
     private final ExplorerManager mgr = new ExplorerManager();
+    private long serialVersionUID = 238957L;
     protected PojoEditor (PojoDataObject<T> dataObject, EditorFactory.Kind kind) {
         this.kind = kind;
         if (dataObject != null) { //if null, could not deserialize
@@ -148,6 +153,7 @@ public abstract class PojoEditor<T extends Serializable> extends CloneableTopCom
      * Overridden to send focus to the return value of
      * getInitialFocusComponent().
      */
+    @Override
     public final boolean requestFocusInWindow () {
         boolean result = super.requestFocusInWindow();
         Component c = getInitialFocusComponent();
@@ -211,7 +217,8 @@ public abstract class PojoEditor<T extends Serializable> extends CloneableTopCom
     
     @Override
     protected String preferredID() {
-        return getDataObject() == null ? getClass().getName() : getDataObject().getPrimaryFile().getPath();
+        return getDataObject() == null ? getClass().getName() : 
+            getDataObject().getPrimaryFile().getPath();
     }
     
     public T getPojo() {
@@ -251,7 +258,6 @@ public abstract class PojoEditor<T extends Serializable> extends CloneableTopCom
 
     @Override
     protected final void componentOpened() {
-        System.err.println("Component opened on " + this);
         assert EventQueue.isDispatchThread();
         super.componentOpened();
         if (dataObject != null) {
@@ -262,10 +268,7 @@ public abstract class PojoEditor<T extends Serializable> extends CloneableTopCom
             dataObject.addPojoPropertyChangeListener(pojoListener);
             onOpen();
             if (pojo == null) {
-                System.err.println("Invoking load");
                 load();
-            } else {
-                System.err.println("Pojo already loaded");
             }
         }
     }
@@ -320,6 +323,11 @@ public abstract class PojoEditor<T extends Serializable> extends CloneableTopCom
     }
     
     private T pojo;
+    /**
+     * Set the object this editor is editing.  This will trigger a call to
+     * createEditorUI().
+     * @param pojo
+     */
     protected final void set (T pojo) {
         if (pojo == null) {
             throw new NullPointerException ("Pojo is null");
@@ -353,6 +361,15 @@ public abstract class PojoEditor<T extends Serializable> extends CloneableTopCom
         onClear(oldPojo);
     }
     
+    /**
+     * Called when the pojo has been removed (i.e. discardModifications() or
+     * similar was called).
+     * 
+     * This method is called after the inner component has been removed from
+     * the UI.
+     * 
+     * @param oldPojo The previous value.
+     */
     protected void onClear(T oldPojo) {
     }
     
@@ -385,7 +402,8 @@ public abstract class PojoEditor<T extends Serializable> extends CloneableTopCom
                             try {
                                 EventQueue.invokeAndWait(new Runnable() {
                                     public void run() {
-                                        ProgressPanel pnl = new ProgressPanel(getDataObject().getPrimaryFile().getPath());
+                                        String path = getDataObject().getPrimaryFile().getPath();
+                                        ProgressPanel pnl = new ProgressPanel(path);
                                         setCenterComponent(pnl);
                                     }
                                 });
@@ -600,7 +618,8 @@ public abstract class PojoEditor<T extends Serializable> extends CloneableTopCom
 
     private class ModificationListener implements PropertyChangeListener {
         public void propertyChange(PropertyChangeEvent e) {
-            if (DataObject.PROP_MODIFIED.equals(e.getPropertyName())) {
+            String nm = e.getPropertyName();
+            if (PROP_MODIFIED.equals(nm) || PROP_NAME.equals (nm)) {
                 updateDisplayName();
             } else if (DataObject.PROP_VALID.equals(e.getPropertyName())) {
                 if (!dataObject.isValid()) {
@@ -614,7 +633,6 @@ public abstract class PojoEditor<T extends Serializable> extends CloneableTopCom
     }
     
     private class NL implements NodeListener {
-
         public void childrenAdded(NodeMemberEvent ev) {
             
         }
@@ -632,7 +650,10 @@ public abstract class PojoEditor<T extends Serializable> extends CloneableTopCom
         }
 
         public void propertyChange(PropertyChangeEvent evt) {
-            
+            if (Node.PROP_ICON.equals(evt.getPropertyName())) {
+                Node n = (Node) evt.getSource();
+                setIcon(n.getIcon(BeanInfo.ICON_COLOR_16x16));
+            }
         }
     }
     
@@ -674,10 +695,18 @@ public abstract class PojoEditor<T extends Serializable> extends CloneableTopCom
     private final class PojoListener implements PropertyChangeListener {
         public void propertyChange(PropertyChangeEvent evt) {
             pojoChanged ((T) evt.getSource(), evt.getPropertyName(), 
-                    evt.getOldValue(), evt.getNewValue());
+                evt.getOldValue(), evt.getNewValue());
         }
     }
-    
+
+    /**
+     * Convenience method which is called when a property change has been
+     * detected on the underlying object.  By default does nothing.
+     * @param source The event source as an instance of T
+     * @param propertyName The property name
+     * @param oldValue The old value
+     * @param newValue The new value
+     */
     protected void pojoChanged(T source, String propertyName, Object oldValue, Object newValue) {
         
     }

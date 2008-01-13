@@ -98,14 +98,30 @@ public abstract class ObjectLoader<T> {
      */
     protected abstract T load() throws IOException;
     
+    /**
+     * Get the type of object this loader will load.
+     * @return The type
+     */
     public final Class<T> type() {
         return type;
     }
     
-    public T getCachedInstance() {
+    /**
+     * Get the currently cached instance of the object, if any.
+     * 
+     * @return The object, if loaded
+     */
+    public synchronized T getCachedInstance() {
         return reference == null ? null : reference.get();
     }
     
+    /**
+     * Synchrously fetch the object, loading it if necessary.  Do not call
+     * this method on the event thread or it will throw an exception.
+     * 
+     * @return The object
+     * @throws java.io.IOException
+     */
     public T getSynchronous() throws IOException {
         T result = getCachedInstance();
         if (result == null) {
@@ -229,6 +245,16 @@ public abstract class ObjectLoader<T> {
         reference = strategy.createReference(t);
     }
     
+    
+    /**
+     * Notification method called after all ObjectReceivers have been passed
+     * the object and the Strategy is caching the object. 
+     * @param t The object loaded, or null in the event of failure
+     */
+    protected void postDelivery(T t) {
+        
+    }
+    
     private final class Loader implements Callable<T> {
         List <ObjectReceiver<T>> toCall;
         T result;
@@ -244,7 +270,7 @@ public abstract class ObjectLoader<T> {
                         set (result);
                     }
                 }
-                if (!toCall.isEmpty() && result != null) {
+                if (result != null) {
                     EventQueue.invokeLater(new Deliverer());
                 }
                 return result;
@@ -265,15 +291,17 @@ public abstract class ObjectLoader<T> {
         private final class Deliverer implements Runnable {
             public void run() {
                 for (ObjectReceiver<T> receiver : toCall) {
-                    ClassLoader ldr = Lookup.getDefault().lookup(ClassLoader.class);
-                    ClassLoader current = Thread.currentThread().getContextClassLoader();
-                    try {
-                        Thread.currentThread().setContextClassLoader(ldr);
+//                    ClassLoader ldr = Lookup.getDefault().lookup(ClassLoader.class);
+//                    ClassLoader current = Thread.currentThread().getContextClassLoader();
+//                    try {
+//                        Thread.currentThread().setContextClassLoader(ldr);
                         receiver.received(result);
-                    } finally {
-                        Thread.currentThread().setContextClassLoader(current);
-                    }
+//                    } finally {
+//                        Thread.currentThread().setContextClassLoader(current);
+//                    }
                 }
+                System.err.println("Invoking postDeleivery");
+                postDelivery(result);
             }
         }
         
@@ -287,6 +315,7 @@ public abstract class ObjectLoader<T> {
                 for (ObjectReceiver<T> receiver : toCall) {
                     receiver.failed(ex);
                 }
+                postDelivery (null);
             }
         }
     }

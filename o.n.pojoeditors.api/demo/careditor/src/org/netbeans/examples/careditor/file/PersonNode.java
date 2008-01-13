@@ -40,13 +40,16 @@ package org.netbeans.examples.careditor.file;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.beans.PropertyEditor;
 import javax.swing.Action;
 import org.netbeans.examples.careditor.pojos.Car;
 import org.netbeans.examples.careditor.pojos.Person;
 import org.netbeans.modules.dynactions.nodes.DynamicActionsNode;
+import org.netbeans.modules.dynactions.nodes.PropertiesFactory;
 import org.openide.actions.CutAction;
 import org.openide.actions.PropertiesAction;
 import org.openide.nodes.Children;
+import org.openide.nodes.Sheet;
 import org.openide.util.NbBundle;
 import org.openide.util.WeakListeners;
 import org.openide.util.actions.SystemAction;
@@ -57,18 +60,17 @@ import org.openide.util.lookup.InstanceContent;
  *
  * @author Tim Boudreau
  */
-class PersonNode extends DynamicActionsNode {
+final class PersonNode extends DynamicActionsNode {
     private final InstanceContent content;
     private final L l = new L();
+    private Car car;
     public PersonNode(Person person, Car car) {
         this (person, car, new InstanceContent());
     }
     
     private PersonNode (Person person, Car car, InstanceContent content) {
         this (content);
-        if (car != null) {
-            content.add (car);
-        }
+        this.car = car;
         content.add (person);
         content.add (new CarExchangerImpl());
         updateDisplayName();
@@ -89,7 +91,10 @@ class PersonNode extends DynamicActionsNode {
     }
     
     public void carChanged (Car car) {
-        Car oldCar = getLookup().lookup(Car.class);
+        Car oldCar = this.car;
+        if (car == oldCar) {
+            return;
+        }
         Person p = getLookup().lookup(Person.class);
         if (oldCar != null) {
             oldCar.removePassenger(p);
@@ -98,6 +103,7 @@ class PersonNode extends DynamicActionsNode {
         if (car != null) {
             car.addPassenger(p);
             content.add (car);
+            this.car = car;
         }
     }
     
@@ -109,7 +115,7 @@ class PersonNode extends DynamicActionsNode {
         Action[] result = new Action[layerActions.length + 3];
         System.arraycopy(layerActions, 0, result, 0, layerActions.length);
         result[layerActions.length + 1] = SystemAction.get(CutAction.class);
-        result[layerActions.length + 2] = SystemAction.get(PropertiesAction.class);
+//        result[layerActions.length + 2] = SystemAction.get(PropertiesAction.class);
         return result;
     }
     
@@ -121,6 +127,34 @@ class PersonNode extends DynamicActionsNode {
     
     public interface CarExchanger {
         public void carChanged (Car car);
+    }
+    
+    private static final String[] PROPERTIES_TO_SHOW = new String[] {
+        "firstName",
+        "lastName",
+    };
+    
+    @Override
+    protected Sheet createSheet() {
+        PropertiesFactory factory = PropertiesFactory.create(Person.class, 
+                new IP(), PROPERTIES_TO_SHOW);
+        return factory.createSheet(getLookup().lookup(Person.class));
+    }
+    
+    private static final class IP implements PropertiesFactory.InfoProvider {
+
+        public String displayNameForProperty(String propName) {
+            return NbBundle.getMessage (PersonNode.class, propName);
+        }
+
+        public String descriptionForProperty(String propName) {
+            return NbBundle.getMessage (PersonNode.class, propName + "_desc");
+        }
+
+        public PropertyEditor propertyEditorForProperty(String property, Class valueType) {
+            return null;
+        }
+        
     }
     
     private final class L implements PropertyChangeListener {

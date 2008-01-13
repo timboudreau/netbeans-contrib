@@ -36,6 +36,8 @@ import org.openide.nodes.Children;
 import org.openide.util.Lookup;
 
 /**
+ * An all-purpose node which looks up its actions dynamically based on its
+ * lookup contents.
  *
  * @author Tim Boudreau
  */

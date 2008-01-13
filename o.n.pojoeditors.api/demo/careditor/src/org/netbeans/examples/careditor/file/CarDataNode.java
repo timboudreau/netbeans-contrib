@@ -39,6 +39,11 @@
 package org.netbeans.examples.careditor.file;
 
 import java.awt.datatransfer.Transferable;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
+import java.beans.PropertyEditor;
+import java.beans.PropertyEditorSupport;
+import java.util.Iterator;
 import java.io.IOException;
 import java.util.List;
 import org.netbeans.api.objectloader.ObjectLoader;
@@ -47,18 +52,22 @@ import org.netbeans.api.progress.ProgressHandle;
 import org.netbeans.api.progress.ProgressHandleFactory;
 import org.netbeans.examples.careditor.file.PersonNode.CarExchanger;
 import org.netbeans.examples.careditor.pojos.Car;
+import org.netbeans.examples.careditor.pojos.Person;
 import org.netbeans.pojoeditors.api.PojoDataNode;
 import org.openide.nodes.Children;
 import org.openide.nodes.Node;
 import org.openide.nodes.NodeTransfer;
 import org.openide.util.Exceptions;
 import org.openide.util.NbBundle;
+import org.openide.util.WeakListeners;
 import org.openide.util.datatransfer.ExTransferable;
 import org.openide.util.datatransfer.PasteType;
 
 public class CarDataNode extends PojoDataNode<Car> {
     private static final String IMAGE_ICON_BASE = "org/netbeans/examples/careditor/file/car.gif";
-    private PersonChildFactory factory;
+    private final PersonChildFactory factory;
+    private final PCL pcl = new PCL();
+    @SuppressWarnings("Unchecked")
     public CarDataNode(CarDataObject obj) {
         this(obj, new PersonChildFactory(obj.getLookup().lookup(ObjectLoader.class)));
         setIconBaseWithExtension(IMAGE_ICON_BASE);
@@ -67,6 +76,26 @@ public class CarDataNode extends PojoDataNode<Car> {
     private CarDataNode (CarDataObject obj, PersonChildFactory factory) {
         super (obj, Children.create(factory, true), obj.getLookup(), "actioncontext");
         this.factory = factory;
+    }
+
+    @Override
+    protected void onLoad(Car car) {
+        System.err.println("CarDataNode.onLoad()");
+        //Ensure that the user changing properties of the passengers marks
+        //the dataobject as modified
+        for (Person p : car.getPassengerList()) {
+            p.addPropertyChangeListener(WeakListeners.propertyChange(pcl, p));
+        }
+    }
+
+    @Override
+    protected String[] getPropertyNames() {
+        return new String[] {
+            "make",
+            "model",
+            "year",
+            "passengerList",
+        };
     }
 
     @Override
@@ -112,6 +141,7 @@ public class CarDataNode extends PojoDataNode<Car> {
 
         @Override
         public Transferable paste() throws IOException {
+            @SuppressWarnings("Unchecked")
             ObjectLoader<Car> ldr = target.getLookup().lookup(ObjectLoader.class);
             Car car = ldr.getCachedInstance();
             if (car != null) {
@@ -151,6 +181,48 @@ public class CarDataNode extends PojoDataNode<Car> {
                     handle.finish();
                 }
             }
+        }
+    }
+
+    @Override
+    protected PropertyEditor propertyEditorForProperty(String propName, Class valueType) {
+        if (Car.PROP_PASSENGER_LIST.equals(propName)) {
+            return new PassengerListPropertyEditor();
+        }
+        return null;
+    }
+    
+    private class PassengerListPropertyEditor extends PropertyEditorSupport {
+        PassengerListPropertyEditor() {
+            
+        }
+
+        @Override
+        public String getAsText() {
+            StringBuilder sb = new StringBuilder();
+            List <Person> l = (List<Person>) getValue();
+            if (l != null) {
+                for (Iterator<Person> i=l.iterator(); i.hasNext();) {
+                    Person p = i.next();
+                    String concatName = NbBundle.getMessage (CarDataNode.class,
+                            "FirstNameLastName", p.getFirstName(), 
+                            p.getLastName());
+                    sb.append (concatName);
+                    if (i.hasNext()) {
+                        sb.append (", ");
+                    }
+                }
+            }
+            return sb.toString();
+        }
+        
+    }
+    
+    private class PCL implements PropertyChangeListener {
+        public void propertyChange(PropertyChangeEvent evt) {
+            System.err.println("Car node got property change from person");
+            CarDataObject ob = getLookup().lookup (CarDataObject.class);
+            ob.setModified(true);
         }
     }
 }

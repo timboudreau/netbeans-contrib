@@ -88,13 +88,14 @@ public class CarDataObject extends PojoDataObject<Car> {
         }
         return DataObject.find(nue);
     }
+    
     @Override
     protected Car load (InputStream stream) throws IOException {
         ObjectInputStream in = new ObjectInputStream(
                 new BufferedInputStream(stream));
         try {
             Object result = in.readObject();
-            loaded ((Car) result);
+//            loaded ((Car) result);
             Thread.sleep(800);
             return (Car) result;
         } catch (InterruptedException ex) {
@@ -105,6 +106,10 @@ public class CarDataObject extends PojoDataObject<Car> {
         } finally {
             in.close();
         }
+    }
+    
+    protected void onLoad (Car t) {
+        System.err.println("CarDataObject.onLoad()");
     }
 
     @Override

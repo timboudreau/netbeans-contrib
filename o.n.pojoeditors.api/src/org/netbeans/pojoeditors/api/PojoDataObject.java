@@ -39,22 +39,16 @@ import java.lang.ref.Reference;
 import java.lang.ref.WeakReference;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Set;
-import javax.swing.Action;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import org.netbeans.api.objectloader.CacheStrategy;
 import org.netbeans.api.objectloader.States;
 import org.netbeans.modules.dynactions.nodes.LazyLoadDataObject;
-import org.openide.actions.EditAction;
-import org.openide.actions.OpenAction;
-import org.openide.actions.ViewAction;
 import org.openide.cookies.SaveCookie;
 import org.openide.filesystems.FileLock;
 import org.openide.filesystems.FileObject;
@@ -64,7 +58,6 @@ import org.openide.loaders.MultiFileLoader;
 import org.openide.nodes.Node;
 import org.openide.util.Exceptions;
 import org.openide.util.WeakListeners;
-import org.openide.util.actions.SystemAction;
 
 /**
  * Base class for data objects which represent serialized Java objects and can
@@ -72,7 +65,7 @@ import org.openide.util.actions.SystemAction;
  *
  * @author Tim Boudreau
  */
-public abstract class PojoDataObject<T extends Serializable> extends LazyLoadDataObject implements Discardable {
+public abstract class PojoDataObject<T extends Serializable> extends LazyLoadDataObject<T> {
     
     private final Class <T> pojoType;
     private final EditorFactory<T> factory;
@@ -106,31 +99,18 @@ public abstract class PojoDataObject<T extends Serializable> extends LazyLoadDat
         return pojoType;
     }
 
-    Action getDefaultOpenAction() {
-        EditorFactory.Kind kind = factory.defaultKind();
-        if (kind != null) {
-            switch (kind) {
-            case EDIT :
-                return SystemAction.get(EditAction.class);
-            case VIEW :
-                return SystemAction.get(ViewAction.class);
-            case OPEN :
-                return SystemAction.get(OpenAction.class);
-            default :
-                throw new AssertionError();
-            }
-        }
-        return null;
-    }
-    
     protected final void loaded (T pojo) {
+        System.err.println("PojoDataObject.loaded");
         super.loaded(pojo);
-        System.err.println("Loaded: " + pojo);
         listenTo(pojo);
+        System.err.println("Invoking PojoDataObject.onLoad() with " + pojo);
         onLoad (pojo);
-        PojoDataNode nd = nodeRef == null ? null : nodeRef.get();
+        PojoDataNode<T> nd = nodeRef == null ? null : nodeRef.get();
         if (nd != null) {
-            nd.onLoad(pojo);
+            System.err.println("onLoad to node " + nd);
+            nd.loaded(pojo);
+        } else {
+            System.err.println("Node is null, can't invoke loaded.");
         }
     }
     
@@ -141,39 +121,28 @@ public abstract class PojoDataObject<T extends Serializable> extends LazyLoadDat
      */
     protected void onLoad (T pojo) {
         //do nothing by default
+        System.err.println("PojoDataObject.onLoad");
     }
 
-    final List <Action> getOpenActions () {
-        List<EditorFactory.Kind> kinds = factory.supportedKinds();
-        List <Action> actions = new ArrayList <Action> (7);
-        for (EditorFactory.Kind kind : kinds) {
-            switch (kind) {
-            case EDIT :
-                actions.add (SystemAction.get(EditAction.class));
-                break;
-            case OPEN :
-                actions.add (SystemAction.get(OpenAction.class));
-                break;
-            case VIEW :
-                actions.add (SystemAction.get(ViewAction.class));
-                break;
-            default :
-                throw new AssertionError();
-            }
-        }
-        return actions;
-    }
+//    final List <Action> getOpenActions () {
+//        return factory.getOpenActions();
+//    }
     
-    private Reference <PojoDataNode> nodeRef;
-    
+    private Reference <PojoDataNode<T>> nodeRef;
+
+    /**
+     * Creates the Node delegate for this DataObject.  Override
+     * createNode() to provide a custom node.
+     * @return
+     */
     @Override
     protected final Node createNodeDelegate() {
         PojoDataNode nd = createNode();
-        nodeRef = new WeakReference<PojoDataNode>(nd);
+        nodeRef = new WeakReference<PojoDataNode<T>>(nd);
         if (ldr.getState() == States.LOADED) {
-            T t = (T) ldr.getCachedInstance();
+            T t = ldr.getCachedInstance();
             if (t != null) {
-                nd.onLoad(t);
+                nd.loaded(t);
             }
         }
         return nd;
@@ -186,22 +155,6 @@ public abstract class PojoDataObject<T extends Serializable> extends LazyLoadDat
      * @return The node
      */
     protected abstract PojoDataNode createNode();
-
-    /**
-     * Overridden to use the Lookup.  If you need to modify the content
-     * of the lookup, override getInitialLookupContents(), or add/remove
-     * items from the InstanceContent held by the instance field
-     * <code>content</code>
-     *
-     * @param clazz A type
-     * @return An object or null
-     */
-    /*
-    @Override
-    public final <T extends Cookie> T getCookie (Class<T> clazz) {
-        return getLookup().lookup(clazz);
-    }
-     */ 
 
     void editorOpened(PojoEditor<T> editor) {
         factory.notifyOpened(editor);
@@ -216,15 +169,12 @@ public abstract class PojoDataObject<T extends Serializable> extends LazyLoadDat
     }
 
     private void listenTo (T pojo) {
-        System.err.println("Listen to " + pojo);
         try {
             Method m = pojoType.getDeclaredMethod("addPropertyChangeListener",
                     PropertyChangeListener.class);
             PropertyChangeListener weak = WeakListeners.propertyChange(pcl,
                     pojo);
-            System.err.println("Invoking add pcl");
             m.invoke(pojo, weak);
-            System.err.println("pcl added");
         } catch (IllegalAccessException ex) {
             Exceptions.printStackTrace(ex);
         } catch (IllegalArgumentException ex) {
@@ -256,7 +206,34 @@ public abstract class PojoDataObject<T extends Serializable> extends LazyLoadDat
         } finally {
             oout.close();
         }
-        System.err.println(this + " saved");
+    }
+
+    @Override
+    public final void setModified(boolean modif) {
+        boolean old = isModified();
+        if (old != modif) {
+            super.setModified(modif);
+            T tRef = (T) ldr.getCachedInstance();
+            if (modif && tRef == null) {
+                throw new IllegalStateException ("SetModified called with no " +
+                        "instance of " + type() + " loaded");
+            }
+            if (modif) {
+                synchronized (PojoDataObject.this) {
+                    if (save == null) {
+                        save = new Save (tRef);
+                    }
+                    content.add(save);
+                }
+            } else {
+                synchronized (PojoDataObject.this) {
+                    if (save != null) {
+                        content.remove (save);
+                    }
+                    save = null;
+                }
+            }
+        }
     }
     
     /**
@@ -265,20 +242,18 @@ public abstract class PojoDataObject<T extends Serializable> extends LazyLoadDat
      * DataObject's pojo from any existing UI and set it to an uninitialized
      * state.
      */
-    public final void discardModifications() {
+    protected final void discardModifications() {
         if (!isModified()) {
             return;
         }
         ldr.reset();
-        synchronized (PojoDataObject.this) {
-            if (save != null) {
-                content.remove(save);
-                save = null;
-            }
-        }
         setModified (false);
         try {
             onModificationsDiscarded();
+            PojoDataNode<T> nd = nodeRef == null ? null : nodeRef.get();
+            if (nd != null) {
+                nd.modificationsDiscarded();
+            }
         } finally {
             hintNodeChildrenChanged();
             fire();
@@ -291,7 +266,7 @@ public abstract class PojoDataObject<T extends Serializable> extends LazyLoadDat
      * already exist.
      */
     protected final void hintNodeChildrenChanged() {
-        PojoDataNode nd = nodeRef == null ? null : nodeRef.get();
+        PojoDataNode<T> nd = nodeRef == null ? null : nodeRef.get();
         if (nd != null) {
             nd.hintChildrenChanged();
         }
@@ -305,7 +280,6 @@ public abstract class PojoDataObject<T extends Serializable> extends LazyLoadDat
     }
     
     private void doSave (final T pojo) throws IOException {
-        System.err.println("Save " + getName());
         FileSystem fs = getPrimaryFile().getFileSystem();
         fs.runAtomicAction(new FileSystem.AtomicAction() {
             public void run() throws IOException {
@@ -315,7 +289,10 @@ public abstract class PojoDataObject<T extends Serializable> extends LazyLoadDat
                     save (pojo, out);
                     setModified(false);
                 } finally {
-                    content.remove(save);
+//                    content.remove(save);
+//                    synchronized (PojoDataObject.this) {
+//                        save = null;
+//                    }
                     out.close();
                     lock.releaseLock();
                 }
@@ -377,10 +354,8 @@ public abstract class PojoDataObject<T extends Serializable> extends LazyLoadDat
     void removePojoPropertyChangeListener (PropertyChangeListener pce) {
         for (Iterator <Reference<PropertyChangeListener>> i=pojoListeners.iterator(); i.hasNext();) {
             Reference<PropertyChangeListener> r = i.next();
-            PropertyChangeListener pcl = r.get();
-            if (pcl == null) {
-                i.remove();
-            } else if (pcl == pce) {
+            PropertyChangeListener listener = r.get();
+            if (listener == null || listener == pce) {
                 i.remove();
             }
         }
@@ -388,18 +363,15 @@ public abstract class PojoDataObject<T extends Serializable> extends LazyLoadDat
     
     private class PCL implements PropertyChangeListener {
         public void propertyChange(PropertyChangeEvent e) {
-            System.err.println("PCL got change " + e);
-            if (PojoDataObject.this.propertyChange ((T) e.getSource(), 
+            assert type().isInstance(e.getSource()) : "Got property change " +
+                    "from wrong source: " + e;
+            @SuppressWarnings("Unchecked")
+            T obj = (T) e.getSource();
+            if (PojoDataObject.this.propertyChange (obj, 
                     e.getPropertyName(), e.getOldValue(), e.getNewValue())) {
                 setModified (true);
-                T obj = (T) e.getSource();
-                synchronized (PojoDataObject.this) {
-                    if (save == null) {
-                        content.add(save = new Save(obj));
-                    }
-                }
             }
-            for (Iterator <Reference<PropertyChangeListener>> i=pojoListeners.iterator(); i.hasNext();) {
+            for (Iterator <Reference<PropertyChangeListener>> i = pojoListeners.iterator(); i.hasNext();) {
                 Reference<PropertyChangeListener> r = i.next();
                 PropertyChangeListener pcl = r.get();
                 if (pcl == null) {
@@ -411,9 +383,9 @@ public abstract class PojoDataObject<T extends Serializable> extends LazyLoadDat
         }
     }
     
-    private Save save = null;
-    private class Save implements SaveCookie {
-        private T pojo;
+    private Save save;
+    private class Save implements SaveCookie, Discardable {
+        private final T pojo;
         public Save (T pojo) {
             //Hard reference the pojo for the life of the SaveCookie, so
             //a modified pojo cannot be garbage collected
@@ -421,12 +393,13 @@ public abstract class PojoDataObject<T extends Serializable> extends LazyLoadDat
         }
         
         public void save() throws IOException {
-            assert isModified();
+            assert isModified() : "Save called on unmodified DataObject";
             PojoDataObject.this.doSave(pojo);
-//            synchronized (PojoDataObject.this) {
-//                content.remove (this);
-//                save = null;
-//            }
+        }
+
+        public void discardModifications() {
+            assert isModified() : "Discard modifications called when not modified";
+            PojoDataObject.this.discardModifications();
         }
     }
 }

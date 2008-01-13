@@ -44,10 +44,12 @@ import java.io.InputStream;
 import org.netbeans.api.objectloader.CacheStrategies;
 import org.netbeans.api.objectloader.CacheStrategy;
 import org.netbeans.api.objectloader.ObjectLoader;
+import org.netbeans.api.objectloader.ObjectReceiver;
 import org.openide.filesystems.FileObject;
 import org.openide.loaders.DataObjectExistsException;
 import org.openide.loaders.MultiDataObject;
 import org.openide.loaders.MultiFileLoader;
+import org.openide.util.Exceptions;
 import org.openide.util.Lookup;
 import org.openide.util.lookup.AbstractLookup;
 import org.openide.util.lookup.InstanceContent;
@@ -94,6 +96,15 @@ public abstract class LazyLoadDataObject<T> extends MultiDataObject {
         this (fo, ldr, type, CacheStrategies.WEAK);
     }
     
+    /**
+     * Request that the file be loaded in the background without providing a 
+     * specific ObjectReceiver instance, so that eventually onLoad() will be 
+     * called.
+     */
+    public void requestLoad() {
+        ldr.get((ObjectReceiver)ldr);
+    }
+    
     @Override
     public final Lookup getLookup() {
         return lkp;
@@ -125,7 +136,9 @@ public abstract class LazyLoadDataObject<T> extends MultiDataObject {
      */
     protected abstract T load (InputStream stream) throws IOException; 
     
-    private final class OL extends ObjectLoader<T> {
+    //Just implementing ObjectReceiver to have a way to force a load
+    //from requestLoad()
+    private final class OL extends ObjectLoader<T> implements ObjectReceiver<T> {
         private OL(Class<T> type, CacheStrategy strategy) {
             super (type, strategy);
         }
@@ -134,18 +147,35 @@ public abstract class LazyLoadDataObject<T> extends MultiDataObject {
         protected T load() throws IOException {
             FileObject fob = getPrimaryFile();
             if (fob.canRead()) {
-                Object result = LazyLoadDataObject.this.load (fob.getInputStream());
+                final Object result = LazyLoadDataObject.this.load (fob.getInputStream());
                 if (!super.type().isInstance(result)) {
                     throw new ClassCastException("Serialized instance " +
                             "is of " + "type " + result.getClass() + 
                             " not the expected " + " type " + super.type());
                 }
-                System.err.println("Invoking loaded on " + LazyLoadDataObject.this);
                 loaded ((T) result);
                 return (T) result;
             } else {
                 return null;
             }
+        }
+
+        @Override
+        protected void postDelivery(T t) {
+            loaded (t);
+        }
+
+        public void setSynchronous(boolean val) {
+            if (!val) {
+                
+            }
+        }
+
+        public void received(T t) {
+        }
+
+        public void failed(Exception e) {
+            Exceptions.printStackTrace(e);
         }
     }
 }

@@ -40,11 +40,16 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+import javax.swing.Action;
+import org.openide.actions.EditAction;
+import org.openide.actions.OpenAction;
+import org.openide.actions.ViewAction;
 import org.openide.cookies.EditCookie;
 import org.openide.cookies.OpenCookie;
 import org.openide.cookies.ViewCookie;
 import org.openide.nodes.Node;
 import org.openide.util.Mutex;
+import org.openide.util.actions.SystemAction;
 
 /**
  * Factory which creates TopComponents that are editors over a 
@@ -121,6 +126,45 @@ public abstract class EditorFactory<T extends Serializable> {
         }
         return result;
     }
+    
+    public final List <Action> getOpenActions() {
+        List<EditorFactory.Kind> kinds = supportedKinds();
+        List <Action> actions = new ArrayList <Action> (7);
+        for (EditorFactory.Kind kind : kinds) {
+            switch (kind) {
+            case OPEN :
+                actions.add (SystemAction.get(OpenAction.class));
+                break;
+            case EDIT :
+                actions.add (SystemAction.get(EditAction.class));
+                break;
+            case VIEW :
+                actions.add (SystemAction.get(ViewAction.class));
+                break;
+            default :
+                throw new AssertionError();
+            }
+        }
+        return actions;
+    }
+    
+    public final Action getDefaultOpenAction() {
+        EditorFactory.Kind kind = defaultKind();
+        if (kind != null) {
+            switch (kind) {
+            case EDIT :
+                return SystemAction.get(EditAction.class);
+            case VIEW :
+                return SystemAction.get(ViewAction.class);
+            case OPEN :
+                return SystemAction.get(OpenAction.class);
+            default :
+                throw new AssertionError();
+            }
+        }
+        return null;
+    }
+    
     
     void notifyOpened(PojoEditor<T> ed) {
         Collection<Reference <PojoEditor<T>>> refs = editors.get (ed.getKind());
