@@ -35,7 +35,7 @@ public class EditPersonAction extends GenericContextSensitiveAction<Person> {
     protected void performAction(Person t) {
         AddPassengerForm detailsEditor = new AddPassengerForm(t);
         DialogDescriptor dlg = new DialogDescriptor (detailsEditor, 
-                NbBundle.getMessage(EditPersonAction.class, "TTL_Edit_Person",
+                NbBundle.getMessage(EditPersonAction.class, "TTL_Edit_Person", //NOI18N
                 t.getFirstName(), t.getLastName()));
         if (DialogDisplayer.getDefault().notify(dlg).equals(DialogDescriptor.OK_OPTION)) {
             try {
@@ -50,7 +50,8 @@ public class EditPersonAction extends GenericContextSensitiveAction<Person> {
                     car.fireForPersonChange();
                 }
             } catch (IllegalArgumentException e) {
-                StatusDisplayer.getDefault().setStatusText(e.getLocalizedMessage());
+                StatusDisplayer.getDefault().setStatusText(
+                        e.getLocalizedMessage());
                 Toolkit.getDefaultToolkit().beep();
             }
         }
@@ -58,6 +59,6 @@ public class EditPersonAction extends GenericContextSensitiveAction<Person> {
 
     private void init() {
         setDisplayName(NbBundle.getMessage(EditPersonAction.class, 
-                "ACTION_Edit_Person"));
+                "ACTION_Edit_Person")); //NOI18N
     }
 }

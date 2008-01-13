@@ -38,69 +38,16 @@
  */
 package org.netbeans.examples.careditor.file;
 
-import java.awt.EventQueue;
-import java.io.IOException;
-import java.lang.ref.Reference;
-import java.lang.ref.WeakReference;
-import java.util.List;
-import org.netbeans.api.objectloader.ObjectLoader;
-import org.netbeans.api.objectloader.ObjectReceiver;
-import org.netbeans.api.objectloader.States;
 import org.netbeans.examples.careditor.pojos.Car;
-import org.netbeans.examples.careditor.pojos.Person;
-import org.openide.nodes.ChildFactory;
-import org.openide.nodes.Node;
-import org.openide.util.Exceptions;
 
 /**
- * Creates PersonNode instances for the list of passengers of a Car object,
- * to create children of CarDataObject
+ * Interface contained in the lookup of a PersonNode, which calls back
+ * the Car the person is in and removes the person from the old car
+ * and puts them in the new one.
  *
  * @author Tim Boudreau
  */
-class PersonChildFactory extends ChildFactory<Person> {
-    private ObjectLoader<Car> ldr;
-    
-    PersonChildFactory(ObjectLoader<Car> ldr){
-        this.ldr = ldr;
-    }
-    
-    public void refresh() {
-        super.refresh(true);
-    }
+public interface CarExchanger {
+    public void carChanged (Car car);
 
-    private Reference<Car> carRef = null;
-    @Override
-    protected Node createNodeForKey(Person key) {
-        Car car = carRef == null ? null : carRef.get();
-        if (car != null) {
-            return new PersonNode(key, car);
-        } else {
-            //We're populating children, but the parent node has been
-            //garbage collected - it was hidden or similar while
-            //we were creating the keys
-            return null;
-        }
-    }
-
-    protected boolean createKeys(List<Person> toPopulate) {
-        assert !EventQueue.isDispatchThread();
-        boolean loadable = ldr.getState() != States.NOT_LOADABLE;
-        if (!loadable) {
-            return true;
-        } else {
-            try {
-                Car c = ldr.getSynchronous();
-                boolean result = c != null;
-                if (result) {
-                    carRef = new WeakReference<Car>(c);
-                    toPopulate.addAll(c.getPassengerList());
-                }
-            } catch (IOException ex) {
-                Exceptions.printStackTrace(ex);
-                return true;
-            }
-        }
-        return true;
-    }
 }

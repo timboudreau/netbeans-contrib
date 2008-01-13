@@ -64,6 +64,7 @@ public class AlternateCarEditorTopComponent extends PojoEditor<Car> {
     @Override
     protected Component createEditorUI(Car pojo) {
         form = new AlternateCarEditorForm ();
+        form.set(pojo);
         return form;
     }
 

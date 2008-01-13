@@ -23,8 +23,8 @@ import org.openide.util.NbBundle;
 public final class AddPassengerAction extends ObjectLoaderAction<Car> {
     public AddPassengerAction () {
         super (Car.class);
-        setDisplayName(NbBundle.getMessage(AddPassengerAction.class, "ADD_PASSENGER"));
-        System.err.println("CREATED ACTION");
+        setDisplayName(NbBundle.getMessage(AddPassengerAction.class, 
+                "ADD_PASSENGER")); //NOI18N
     }
     
     public AddPassengerAction(Lookup lkp) {
@@ -35,7 +35,8 @@ public final class AddPassengerAction extends ObjectLoaderAction<Car> {
     protected void performed(Car t) {
         AddPassengerForm form = new AddPassengerForm();
         DialogDescriptor dlg = new DialogDescriptor (form, 
-                NbBundle.getMessage(AddPassengerAction.class, "TTL_ADD_PASSENGER"));
+                NbBundle.getMessage(AddPassengerAction.class, 
+                "TTL_ADD_PASSENGER")); //NOI18N
         if (DialogDisplayer.getDefault().notify(dlg).equals(DialogDescriptor.OK_OPTION)) {
             try {
                 Person p = form.getPerson();
@@ -48,14 +49,11 @@ public final class AddPassengerAction extends ObjectLoaderAction<Car> {
 
     @Override
     protected boolean checkEnabled(Collection<? extends ObjectLoader> coll, Class clazz) {
-        System.err.println("Check enabled on " + coll);
         return super.checkEnabled(coll, clazz);
     }
-
-    
     
     @Override
     protected String getLoadingMessage() {
-        return NbBundle.getMessage(AddPassengerAction.class, "LOADING_CAR");
+        return NbBundle.getMessage(AddPassengerAction.class, "LOADING_CAR"); //NOI18N
     }
 }

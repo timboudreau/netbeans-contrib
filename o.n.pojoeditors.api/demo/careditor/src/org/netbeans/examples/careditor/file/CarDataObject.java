@@ -38,6 +38,8 @@
  */
 package org.netbeans.examples.careditor.file;
 
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -50,6 +52,7 @@ import org.netbeans.api.objectloader.CacheStrategies;
 import org.netbeans.examples.careditor.editor.AlternateCarEditorTopComponent;
 import org.netbeans.examples.careditor.editor.CarEditorTopComponent;
 import org.netbeans.examples.careditor.pojos.Car;
+import org.netbeans.examples.careditor.pojos.Person;
 import org.netbeans.pojoeditors.api.EditorFactory;
 import org.netbeans.pojoeditors.api.PojoDataNode;
 import org.netbeans.pojoeditors.api.PojoDataObject;
@@ -60,8 +63,11 @@ import org.openide.loaders.DataFolder;
 import org.openide.loaders.DataObject;
 import org.openide.loaders.DataObjectExistsException;
 import org.openide.util.Exceptions;
+import org.openide.util.WeakListeners;
 
 public class CarDataObject extends PojoDataObject<Car> {
+    private final PCL pcl = new PCL();
+    
     public CarDataObject(FileObject pf, CarDataLoader loader) throws DataObjectExistsException, IOException {
         super (pf, loader, Car.class, CacheStrategies.WEAK, new CarEditorFactory());
     }
@@ -75,7 +81,7 @@ public class CarDataObject extends PojoDataObject<Car> {
     @Override
     protected DataObject handleCreateFromTemplate(DataFolder df, String name) throws IOException {
         FileObject folder = df.getPrimaryFile();
-        FileObject nue = folder.createData(name + ".car");
+        FileObject nue = folder.createData(name + ".car"); //NOI18N
         FileLock lock = nue.lock();
         OutputStream out = nue.getOutputStream(lock);
         try {
@@ -95,7 +101,6 @@ public class CarDataObject extends PojoDataObject<Car> {
                 new BufferedInputStream(stream));
         try {
             Object result = in.readObject();
-//            loaded ((Car) result);
             Thread.sleep(800);
             return (Car) result;
         } catch (InterruptedException ex) {
@@ -108,22 +113,21 @@ public class CarDataObject extends PojoDataObject<Car> {
         }
     }
     
-    protected void onLoad (Car t) {
-        System.err.println("CarDataObject.onLoad()");
-    }
-
-    @Override
-    protected void save(Car car, OutputStream stream) throws IOException {
-        System.err.println("CarDataObject.save " + car + " to " + stream);
-        super.save(car, stream);
-    }
-    
     @Override
     protected boolean propertyChange(Car src, String property, Object old, Object nue) {
         if (property.equals(Car.PROP_PASSENGER_LIST)) {
             super.hintNodeChildrenChanged();
         }
         return super.propertyChange(src, property, old, nue);
+    }
+
+    @Override
+    protected void onLoad(Car car) {
+        //Ensure that the user changing properties of the passengers marks
+        //the dataobject as modified
+        for (Person p : car.getPassengerList()) {
+            p.addPropertyChangeListener(WeakListeners.propertyChange(pcl, p));
+        }
     }
     
     private static final class CarEditorFactory extends EditorFactory {
@@ -147,6 +151,17 @@ public class CarDataObject extends PojoDataObject<Car> {
         @Override
         public Kind defaultKind() {
             return Kind.OPEN;
+        }
+    }
+    
+    private class PCL implements PropertyChangeListener {
+        public void propertyChange(PropertyChangeEvent evt) {
+            Car car = ldr.getCachedInstance();
+            //Make sure it's not a person that used to belong to us but
+            //was pasted into another car
+            if (car.getPassengerList().contains(evt.getSource())) {
+                setModified(true);
+            }
         }
     }
 }

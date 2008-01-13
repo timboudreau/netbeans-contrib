@@ -39,8 +39,6 @@
 package org.netbeans.examples.careditor.file;
 
 import java.awt.datatransfer.Transferable;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 import java.beans.PropertyEditor;
 import java.beans.PropertyEditorSupport;
 import java.util.Iterator;
@@ -50,7 +48,6 @@ import org.netbeans.api.objectloader.ObjectLoader;
 import org.netbeans.api.objectloader.ObjectReceiver;
 import org.netbeans.api.progress.ProgressHandle;
 import org.netbeans.api.progress.ProgressHandleFactory;
-import org.netbeans.examples.careditor.file.PersonNode.CarExchanger;
 import org.netbeans.examples.careditor.pojos.Car;
 import org.netbeans.examples.careditor.pojos.Person;
 import org.netbeans.pojoeditors.api.PojoDataNode;
@@ -59,14 +56,12 @@ import org.openide.nodes.Node;
 import org.openide.nodes.NodeTransfer;
 import org.openide.util.Exceptions;
 import org.openide.util.NbBundle;
-import org.openide.util.WeakListeners;
 import org.openide.util.datatransfer.ExTransferable;
 import org.openide.util.datatransfer.PasteType;
 
 public class CarDataNode extends PojoDataNode<Car> {
     private static final String IMAGE_ICON_BASE = "org/netbeans/examples/careditor/file/car.gif";
     private final PersonChildFactory factory;
-    private final PCL pcl = new PCL();
     @SuppressWarnings("Unchecked")
     public CarDataNode(CarDataObject obj) {
         this(obj, new PersonChildFactory(obj.getLookup().lookup(ObjectLoader.class)));
@@ -78,16 +73,7 @@ public class CarDataNode extends PojoDataNode<Car> {
         this.factory = factory;
     }
 
-    @Override
-    protected void onLoad(Car car) {
-        System.err.println("CarDataNode.onLoad()");
-        //Ensure that the user changing properties of the passengers marks
-        //the dataobject as modified
-        for (Person p : car.getPassengerList()) {
-            p.addPropertyChangeListener(WeakListeners.propertyChange(pcl, p));
-        }
-    }
-
+    //Names of bean properties of Person we should show on the property sheet
     @Override
     protected String[] getPropertyNames() {
         return new String[] {
@@ -193,9 +179,7 @@ public class CarDataNode extends PojoDataNode<Car> {
     }
     
     private class PassengerListPropertyEditor extends PropertyEditorSupport {
-        PassengerListPropertyEditor() {
-            
-        }
+        PassengerListPropertyEditor() {}
 
         @Override
         public String getAsText() {
@@ -214,15 +198,6 @@ public class CarDataNode extends PojoDataNode<Car> {
                 }
             }
             return sb.toString();
-        }
-        
-    }
-    
-    private class PCL implements PropertyChangeListener {
-        public void propertyChange(PropertyChangeEvent evt) {
-            System.err.println("Car node got property change from person");
-            CarDataObject ob = getLookup().lookup (CarDataObject.class);
-            ob.setModified(true);
         }
     }
 }

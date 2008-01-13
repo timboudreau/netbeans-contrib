@@ -125,10 +125,6 @@ final class PersonNode extends DynamicActionsNode {
         }
     }
     
-    public interface CarExchanger {
-        public void carChanged (Car car);
-    }
-    
     private static final String[] PROPERTIES_TO_SHOW = new String[] {
         "firstName",
         "lastName",
