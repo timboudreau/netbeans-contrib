@@ -57,13 +57,17 @@ import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
 import org.openide.util.HelpCtx;
 import org.openide.util.NbBundle;
+
 // <RAVE>
 import java.io.File;
 import java.util.Enumeration;
-import org.netbeans.modules.visualweb.project.jsf.api.JsfProjectUtils;
-import org.netbeans.modules.visualweb.project.jsf.api.JsfProjectConstants;
 import org.netbeans.api.project.libraries.LibraryManager;
 import org.netbeans.api.java.classpath.ClassPath;
+
+// XXX org.netbeans.modules.visualweb.project.jsf is not accessible under NetBeans 6.0; needs friend-package
+// Use local copy now
+// import org.netbeans.modules.visualweb.project.jsf.api.JsfProjectUtils;
+// import org.netbeans.modules.visualweb.project.jsf.api.JsfProjectConstants;
 // </RAVE>
 
 /**

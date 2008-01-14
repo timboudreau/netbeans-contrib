@@ -41,8 +41,10 @@
 
 package org.netbeans.modules.portalpack.visualweb.ui;
 
-import org.netbeans.modules.visualweb.project.jsf.api.JsfProjectUtils;
-import org.netbeans.modules.visualweb.project.jsf.api.JsfProjectConstants;
+// XXX org.netbeans.modules.visualweb.project.jsf is not accessible under NetBeans 6.0; needs friend-package
+// Use local copy now
+// import org.netbeans.modules.visualweb.project.jsf.api.JsfProjectUtils;
+// import org.netbeans.modules.visualweb.project.jsf.api.JsfProjectConstants;
 
 import java.util.ArrayList;
 import java.util.Iterator;

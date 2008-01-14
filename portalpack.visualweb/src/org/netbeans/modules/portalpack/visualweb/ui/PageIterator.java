@@ -40,10 +40,12 @@
  */
 package org.netbeans.modules.portalpack.visualweb.ui;
 
-import org.netbeans.modules.visualweb.project.jsf.api.JsfProjectConstants;
-import org.netbeans.modules.visualweb.project.jsf.api.JsfProjectUtils;
-import org.netbeans.modules.web.api.webmodule.ExtenderController;
+// XXX org.netbeans.modules.visualweb.project.jsf is not accessible under NetBeans 6.0; needs friend-package
+// Use local copy now
+// import org.netbeans.modules.visualweb.project.jsf.api.JsfProjectUtils;
+// import org.netbeans.modules.visualweb.project.jsf.api.JsfProjectConstants;
 
+import org.netbeans.modules.web.api.webmodule.ExtenderController;
 import org.netbeans.modules.web.api.webmodule.WebModule;
 import org.netbeans.modules.web.api.webmodule.WebFrameworks;
 import org.netbeans.modules.web.spi.webmodule.WebFrameworkProvider;
@@ -188,7 +190,10 @@ public class PageIterator implements TemplateWizard.Iterator {
                     }
                     JsfProjectUtils.createProjectProperty(project, JsfProjectConstants.PROP_JSF_PAGEBEAN_PACKAGE, beanPackage);
 
-                    JsfProjectUtils.createProjectProperty(project, JsfProjectConstants.PROP_START_PAGE, JsfProjectConstants.NO_START_PAGE);
+                    // XXX JsfProjectConstants.NO_START_PAGE will be handled by visualweb under NetBeans 6.1.
+                    // Note: VisualWeb will skip the start page "/" since it's already existed.
+                    // JsfProjectUtils.createProjectProperty(project, JsfProjectConstants.PROP_START_PAGE, JsfProjectConstants.NO_START_PAGE);
+                    JsfProjectUtils.createProjectProperty(project, JsfProjectConstants.PROP_START_PAGE, "/");
 
                     // Create portlet.xml if not exist
                     File filePortlet = new File(FileUtil.toFile(webModule.getWebInf()), "portlet.xml"); // NOI18N
@@ -251,7 +256,7 @@ public class PageIterator implements TemplateWizard.Iterator {
 
                 obj = dTemplate.createFromTemplate(df, targetName, templateParameters);
             }
-        } catch (org.netbeans.modules.visualweb.project.jsf.api.JsfDataObjectException jsfe) {
+        } catch (IOException jsfe) {
             DialogDisplayer.getDefault().notify(new NotifyDescriptor.Message(NbBundle.getMessage(PageIterator.class, "TXT_CantCreatePage", df.getName())));
             return result;
         }
