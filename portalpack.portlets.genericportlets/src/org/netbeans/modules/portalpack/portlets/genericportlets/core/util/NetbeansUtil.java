@@ -28,7 +28,13 @@ import org.netbeans.api.project.Project;
 import org.netbeans.api.project.ProjectInformation;
 import org.netbeans.api.project.ProjectManager;
 import org.netbeans.api.project.ProjectUtils;
+import org.netbeans.api.project.libraries.Library;
+import org.netbeans.spi.project.support.ant.EditableProperties;
+import org.netbeans.spi.project.support.ant.PropertyEvaluator;
+import org.netbeans.api.java.classpath.ClassPath;
 import org.netbeans.modules.web.api.webmodule.WebModule;
+import org.netbeans.modules.web.project.api.WebPropertyEvaluator;
+import org.netbeans.modules.web.project.api.WebProjectLibrariesModifier;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
 
@@ -156,5 +162,45 @@ public class NetbeansUtil {
        // return NetbeansCreatePortletComponent.getWebInfDirForProject(project);     
     }
      
+    /**
+     * Add an array of library references to a web project, qualified by the type parameter.
+     * @param project Project to which the library is to be added
+     * @param libraries Library objects from the LibraryManager registry
+     * @param type Determines whether the library is to be added to the
+     *        design-time classpath (ClassPath.COMPILE) or deployed with the application (ClassPath.EXECUTE)
+     * @return Returns true if the library reference was successfully added
+     * @throws an IOException if there was a problem adding the reference
+     */
+    public static boolean addLibraryReferences(Project project, Library[] libraries, String type) throws IOException {
+        WebProjectLibrariesModifier wplm = (WebProjectLibrariesModifier) project.getLookup().lookup(WebProjectLibrariesModifier.class);
+        if (wplm == null) {
+            // Something is wrong, shouldn't be here.
+            return false;
+        }
+
+        if (ClassPath.COMPILE.equals(type)) {
+            return wplm.addCompileLibraries(libraries);
+        } else if (ClassPath.EXECUTE.equals(type)) {
+            return wplm.addPackageLibraries(libraries, "WEB-INF/lib"); // NOI18N
+        }
+
+        return false;
+    }
+
+    /**
+     * Get the readonly access to web project properties through PropertyEvaluator,
+     * @param project Project to which the properties is to be searched
+     * @return Returns EditableProperties if the properties was successfully found
+     */
+    public static EditableProperties getWebProperties(Project project) {
+        WebPropertyEvaluator wpe = (WebPropertyEvaluator) project.getLookup().lookup(WebPropertyEvaluator.class);
+        if (wpe == null) {
+            // Something is wrong, shouldn't be here.
+            return null;
+        }
+
+        PropertyEvaluator pe = wpe.evaluator();
+        return new EditableProperties(pe.getProperties());
+    }
 }
 
