@@ -99,6 +99,7 @@ public class ScalaSemanticAnalyser {
     private boolean forIndexing;
     private ParserManager parserManager;
     private ParserManagerListener parserManagerListener;
+    private Map<ASTItem, String> astItemToType = new HashMap<ASTItem, String>();
 
     private ScalaSemanticAnalyser(Document doc) {
         this.doc = doc;
@@ -217,10 +218,17 @@ public class ScalaSemanticAnalyser {
         return ctxRoot;
     }
 
+    public static ASTNode getAstRoot(Document doc) {
+        return getAnalyser(doc).astRoot;
+    }    
+
     public static ScalaContext getCurrentCtxRoot(Document doc) {
-        ScalaSemanticAnalyser analyser = getAnalyser(doc);
-        return analyser.getRootContext();
+        return getAnalyser(doc).rootCtx;
     }
+
+    public static Map<ASTItem, String> getTypeMap(Document doc) {
+        return getAnalyser(doc).astItemToType;
+    }    
 
     /**
      * @NOTICE we should avoid re-entrant of analyse. There is a case may cause that:
@@ -598,7 +606,22 @@ public class ScalaSemanticAnalyser {
                 if (!argumentsStr.equals("")) {
                     funDfn.addArgumentsOpt(argumentsStr);
                 }
-
+            } else if (isNode(item, "FunTypeParamClause")) {
+                List<ASTItem> typeParams = query(item, "TypeParam");
+                for (ASTItem typeParam : typeParams) {
+                    for (ASTItem item1 : typeParam.getChildren()) {
+                        if (isNode(item1, "NameId")) {
+                            ASTToken nameToken = getIdTokenFromNameId(item1);
+                            Type typeDfn = new Type(nameToken.getIdentifier(), nameToken.getOffset(), nameToken.getEndOffset());
+                            ctx.addDefinition(typeDfn);
+                            ctx.addUsage(nameToken, typeDfn);
+                        } else if (isNode(item1, "Type")) {
+                            processAnyType(rootCtx, item1, ctx);
+                        } else if (isNode(item1, "TypeParamClause")) {
+                            /** @todo */
+                        }
+                    }
+                }
             } else if (isNode(item, "ParamClauses")) {
                 List<ASTItem> nameIds = query(item, "ParamClause/Params/Param/NameId");
                 for (ASTItem nameId : nameIds) {
@@ -609,10 +632,10 @@ public class ScalaSemanticAnalyser {
                 }
                 List<ASTItem> types = query(item, "ParamClause/Params/Param/ParamType");
                 for (ASTItem type : types) {
-                    processAnyType(rootCtx, type, currCtx);
+                    processAnyType(rootCtx, type, ctx);
                 }
             } else if (isNode(item, "Type")) {
-                processAnyType(rootCtx, item, currCtx);
+                processAnyType(rootCtx, item, ctx);
             } else {
                 pendingItems.put(item, ctx);
             }
@@ -1113,6 +1136,31 @@ public class ScalaSemanticAnalyser {
                     }
                 }
             }
+
+        } else if (isNode(expr, "Literal")) {
+            for (ASTItem item1 : expr.getChildren()) {
+                if (isTokenTypeName(item1, "integer")) {
+                    astItemToType.put(expr, "Integer");
+                    astItemToType.put(item1, "Integer");
+                } else if (isTokenTypeName(item1, "float")) {
+                    astItemToType.put(expr, "Float");
+                    astItemToType.put(item1, "Float");
+                } else if (isTokenTypeName(item1, "char")) {
+                    astItemToType.put(expr, "Char");
+                    astItemToType.put(item1, "Char");
+                } else if (isTokenTypeName(item1, "string")) {
+                    astItemToType.put(expr, "String");
+                    astItemToType.put(item1, "String");
+                } else if (isTokenTypeName(item1, "true") || isTokenTypeName(item1, "false")) {
+                    astItemToType.put(expr, "Boolean");
+                    astItemToType.put(item1, "Boolean");
+                } else if (isTokenTypeName(item1, "null")) {
+                    astItemToType.put(expr, "Null");
+                    astItemToType.put(item1, "Null");
+                } else {
+
+                }
+            }
         } else {
             for (ASTItem item : expr.getChildren()) {
                 if (isTokenTypeName(item, "var_identifier") | isTokenTypeName(item, "upper_identifier")) {
@@ -1265,7 +1313,7 @@ public class ScalaSemanticAnalyser {
                 }
                 if (nameId == null) {
                     return;
-                } // @todo process this super ?
+                } // @todo process "this" and "super" ?
                 ASTToken tmplId = getIdTokenFromNameId(nameId);
                 if (tmplId != null && !(tmplId.getIdentifier().equals("_"))) {
                     Template tmplDfn = currCtx.getDefinitionInScopeByName(Template.class, tmplId.getIdentifier());
@@ -1396,14 +1444,14 @@ public class ScalaSemanticAnalyser {
             return Collections.<ASTItem>emptyList();
         }
         List<ASTItem> result = new ArrayList<ASTItem>();
-        String nameWanted = pathNames.get(fromDepth);
-        int posWanted = pathPositions.get(fromDepth);
+        String wantedName = pathNames.get(fromDepth);
+        int wantedPos = pathPositions.get(fromDepth);
         for (ASTItem fromItem : fromItems) {
             int pos = 0;
             for (ASTItem child : fromItem.getChildren()) {
                 String name = child instanceof ASTToken ? ((ASTToken) child).getIdentifier() : ((ASTNode) child).getNT();
-                if (name.equals(nameWanted)) {
-                    if (pos == posWanted || posWanted == -1) {
+                if (name.equals(wantedName)) {
+                    if (pos == wantedPos || wantedPos == -1) {
                         result.add(child);
                     } else {
                         pos++;

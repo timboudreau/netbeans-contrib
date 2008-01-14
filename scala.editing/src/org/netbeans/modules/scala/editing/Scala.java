@@ -67,6 +67,7 @@ import org.netbeans.api.languages.Language;
 import org.netbeans.api.languages.LanguageDefinitionNotFoundException;
 import org.netbeans.api.languages.LanguagesManager;
 import org.netbeans.api.languages.LibrarySupport;
+import org.netbeans.api.languages.ParserManager;
 import org.netbeans.api.languages.SyntaxContext;
 import org.netbeans.api.languages.database.DatabaseContext;
 import org.netbeans.api.languages.database.DatabaseDefinition;
@@ -168,41 +169,114 @@ public class Scala {
         AbstractDocument doc = (AbstractDocument) context.getDocument();
         doc.readLock();
         try {
+            ParserManager parserManager = ParserManager.get(doc);
+            waitingForParsingFinished(parserManager);
+            ASTNode astRoot = ScalaSemanticAnalyser.getAstRoot(doc);
             ScalaContext rootCtx = ScalaSemanticAnalyser.getCurrentCtxRoot(doc);
+            Map<ASTItem, String> typeMap = ScalaSemanticAnalyser.getTypeMap(doc);
             TokenSequence tokenSequence = getTokenSequence(context);
             List<CompletionItem> result = new ArrayList<CompletionItem>();
             Token token = previousToken(tokenSequence);
             int tokenOffset = tokenSequence.offset();
-            String tokenText = token.text().toString();
+            String tokenText = token.text().toString().trim();
+            ASTPath path = astRoot.findPath(tokenSequence.offset());
+            ASTItem astItem = path.getLeaf();
             String libraryContext = null;
-            
+
             if (tokenText.equals("new")) {
                 result.addAll(getLibrary().getCompletionItems("constructor"));
                 return result;
-            }
-            if (tokenText.equals(":")) {
+            } else if (tokenText.equals(":")) {
                 result.addAll(getLibrary().getCompletionItems("type"));
                 return result;
-            }
-            
-            if (tokenText.equals(".")) {
+            } else if (tokenText.equals(".")) {
                 token = previousToken(tokenSequence);
-                if (token.id().name().endsWith("identifier") || token.id().name().equals("rparen")) {
-                    libraryContext = token.text().toString();
+                if (token.id().name().endsWith("identifier")) {
+                    path = astRoot.findPath(tokenSequence.offset());
+                    astItem = path.getLeaf();
+                    //System.out.println(astItem + " => " + typeMap.get(astItem));
+                    String type = typeMap.get(astItem);
+                    libraryContext = type != null ? type : "";
+                } else if (token.id().name().equals("rparen")) {
+                    int depth = 1;
+                    boolean matched = false;
+                    do {
+                        if (!tokenSequence.movePrevious()) {
+                            break;
+                        } else {
+                            token = tokenSequence.token();
+                            if (token.id().name().equals("lparen")) {
+                                depth--;
+                            } else if (token.id().name().equals("rparen")) {
+                                depth++;
+                            }
+                            if (depth == 0) {
+                                matched = true;
+                                break;
+                            }
+                        }
+                    } while (tokenSequence.token().id().name().endsWith("whitespace") ||
+                            tokenSequence.token().id().name().endsWith("comment"));
+
+                    if (matched) {
+                        token = previousToken(tokenSequence);
+                        if (token.id().name().endsWith("identifier")) {
+                            path = astRoot.findPath(tokenSequence.offset());
+                            astItem = path.getLeaf();
+                            //System.out.println(astItem + " => " + typeMap.get(astItem));
+                            String type = typeMap.get(astItem);
+                            libraryContext = type != null ? type : "";
+                        }
+                    }
                 }
             } else if (token.id().name().endsWith("identifier") || token.id().name().equals("rparen")) {
                 token = previousToken(tokenSequence);
-                if (token.text().toString().equals(".")) {
-                    token = previousToken(tokenSequence);
-                    if (token.id().name().endsWith("identifier") || token.id().name().equals("rparen")) {
-                        libraryContext = token.text().toString();
-                    }
-                } else if (token.text().toString().equals("new")) {
+                if (token.text().toString().trim().equals("new")) {
                     result.addAll(getLibrary().getCompletionItems("constructor"));
                     return result;
-                } else if (token.text().toString().equals(":")) {
+                } else if (token.text().toString().trim().equals(":")) {
                     result.addAll(getLibrary().getCompletionItems("type"));
                     return result;
+                } else if (tokenText.equals(".")) {
+                    token = previousToken(tokenSequence);
+                    if (token.id().name().endsWith("identifier")) {
+                        path = astRoot.findPath(tokenSequence.offset());
+                        astItem = path.getLeaf();
+                        //System.out.println(astItem + " => " + typeMap.get(astItem));
+                        String type = typeMap.get(astItem);
+                        libraryContext = type != null ? type : "";
+                    } else if (token.id().name().equals("rparen")) {
+                        int depth = 1;
+                        boolean matched = false;
+                        do {
+                            if (!tokenSequence.movePrevious()) {
+                                break;
+                            } else {
+                                token = tokenSequence.token();
+                                if (token.id().name().equals("lparen")) {
+                                    depth--;
+                                } else if (token.id().name().equals("rparen")) {
+                                    depth++;
+                                }
+                                if (depth == 0) {
+                                    matched = true;
+                                    break;
+                                }
+                            }
+                        } while (tokenSequence.token().id().name().endsWith("whitespace") ||
+                                tokenSequence.token().id().name().endsWith("comment"));
+
+                        if (matched) {
+                            token = previousToken(tokenSequence);
+                            if (token.id().name().endsWith("identifier")) {
+                                path = astRoot.findPath(tokenSequence.offset());
+                                astItem = path.getLeaf();
+                                //System.out.println(astItem + " => " + typeMap.get(astItem));
+                                String type = typeMap.get(astItem);
+                                libraryContext = type != null ? type : "";
+                            }
+                        }
+                    }
                 }
             }
 
@@ -219,7 +293,19 @@ public class Scala {
             doc.readUnlock();
         }
     }
-    
+
+    private static void waitingForParsingFinished(ParserManager parserManager) {
+        int counter = 0;
+        try {
+            while (((parserManager.getState() == ParserManager.State.NOT_PARSED) ||
+                    (parserManager.getState() == ParserManager.State.PARSING)) && counter < 200) {
+                Thread.sleep(100);
+                counter++;
+            }
+        } catch (InterruptedException e) {
+        }
+    }
+
     /** Hacking method that will be called when render highlighting, we can put 
      * the needed init for this doc here */
     public static boolean enableSemantic(Context context) {
@@ -304,7 +390,7 @@ public class Scala {
         if (dbItem != null) {
             if (dbItem instanceof DatabaseDefinition) {
                 return (DatabaseDefinition) dbItem;
-            } else if (dbItem instanceof DatabaseUsage){
+            } else if (dbItem instanceof DatabaseUsage) {
                 return ((DatabaseUsage) dbItem).getDefinition();
             }
         }
@@ -468,8 +554,8 @@ public class Scala {
         }
         return library;
     }
-
     private static Collection<CompletionItem> membersBuf = new ArrayList<CompletionItem>();
+
     private static Collection<CompletionItem> getMembers(Document doc, int offset) {
         membersBuf.clear();
         String title = getDocumentName(doc);
@@ -487,15 +573,14 @@ public class Scala {
         }
         return membersBuf;
     }
-    
+
     public static Collection<DatabaseDefinition> getDefinitionsInScope(ScalaContext rootCtx, int offset) {
         DatabaseContext closestCtx = rootCtx.getClosestContext(offset);
         Collection<DatabaseDefinition> scopeDefinitions = new ArrayList<DatabaseDefinition>();
         closestCtx.collectDefinitionsInScope(scopeDefinitions);
-	return scopeDefinitions;
+        return scopeDefinitions;
     }
 
-    
     static CompletionItem toCompletionItem(DatabaseDefinition definition, String title) {
         if (definition instanceof Var) {
             Var v = (Var) definition;
@@ -530,7 +615,7 @@ public class Scala {
         }
         return name;
     }
-    
+
     private static String getParametersAsText(ASTNode params) {
         if (params == null) {
             return "";
