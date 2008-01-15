@@ -186,7 +186,7 @@ class ErrorNode extends AbstractNode {
             String folder = linkName.substring(0, index);
             DataObject dobj;
             try {
-                dobj = GroupShadow.getDataObjectByName(folder, group.getPrimaryFile());
+                dobj = GroupShadow.getDataObjectByName(folder);
             } catch (IOException ex) {
                 return;
             }

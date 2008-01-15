@@ -390,7 +390,7 @@ public class GroupShadow extends DataObject
                     fo.getOutputStream(lock)));
             for (Iterator i = list.iterator(); i.hasNext(); ) {
                 String line = (String) i.next();
-                File f = new File(line);
+                File f = FileUtil.normalizeFile(new File(line));
                 FileObject link = FileUtil.toFileObject(f);
                 /* try to convert into a relative file */
                 if (f.isAbsolute()) {
@@ -452,24 +452,22 @@ public class GroupShadow extends DataObject
      * @return  string representing a link to the given file
      */
     public static String getLinkName(FileObject fo) {
-        return fo.getPath();
+//        return fo.getPath();
+        return FileUtil.toFile(fo).getAbsolutePath();
     }
 
     /**
      * Finds a <code>DataObject</code> for a given file name.
-     * Lookup for a file having the specified file name is performed
-     * in just one filesystem.
-     * @param  filename  name of the file, relative to the filesystem it
-     *                   pertains to
-     * @param ref a reference file (look in the same filesystem as this)
+     * @param  filename  name of the file
      * @return  the found <code>DataObject</code>, or <code>null</code>
      *          if a file having the specified name was not found
      * @throws IOException if there was a problem looking for the file
      */
-    static DataObject getDataObjectByName(String filename, FileObject ref)
+    static DataObject getDataObjectByName(String filename)
             throws IOException {
-        FileObject file = ref.getFileSystem().findResource(filename);
-        return (file != null) ? DataObject.find(file) : null;
+		File file = FileUtil.normalizeFile(new File(filename));
+		FileObject fo = FileUtil.toFileObject(file); 
+        return (fo != null) ? DataObject.find(fo) : null;
     }
 
     /* interface DataObject.Container */
@@ -543,7 +541,7 @@ public class GroupShadow extends DataObject
         for (Iterator it = filenames.iterator(); it.hasNext(); ) {
             String filename = (String) it.next();
             try {
-                DataObject obj = getDataObjectByName(filename, getPrimaryFile());
+                DataObject obj = getDataObjectByName(filename);
                 set.add(obj != null ? (Object) obj
                                     : (Object) new String(filename));
             } catch (IOException ex) {
