@@ -38,48 +38,66 @@
  * Version 2 license, then the option applies only if the new code is
  * made subject to such option by the copyright holder.
  */
-/*
- * MyGlassPane.java
- *
- * @author Michal Hapala, Pavel Stehlik
- */
+
 package org.netbeans.modules.a11ychecker.traverse;
 
 import java.awt.*;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.util.Vector;
 import javax.swing.*;
+import org.netbeans.modules.form.FormModel;
+import org.netbeans.modules.form.RADComponent;
+import org.netbeans.modules.form.VisualReplicator;
 
-
+/*
+ * Glass pane which is used as an overlay over the custom editor window. Catches
+ * all mouse actions and processes them accordingly.
+ *
+ * @author Michal Hapala, Pavel Stehlik
+ */
 class MyGlassPane extends JComponent implements ItemListener {
 
-    Point point;
+    FormModel myModel;
+    VisualReplicator myRepl;
+    /** all form components with their representative "buttons"  */
     Vector<OverflowLbl> vecButtons = new Vector<OverflowLbl>();
-    Vector<Component> components = new Vector<Component>();
     FocusTraversalPolicyEditor editor;
     Container formPanel;
     Container contentPane;
+    /** starting button for the traversal, if defined */
     OverflowLbl startButton;
+    /** ending button for the traversal, if defined */
     OverflowLbl endButton;
+    
     private boolean firstRun = true;
     private OverflowLbl lastButton;
     private Component lastClickedComp;
 
-    public void setStart(OverflowLbl button) {    
+    public void setStart(OverflowLbl button) {
         startButton = button;
         repaint();
     }
 
     public void setEnd(OverflowLbl button) {
-        endButton = button;    
+        endButton = button;
         repaint();
     }
-    
 
+    public RADComponent getMetaComponent(Component comp) {
+        return myModel.getMetaComponent(myRepl.getClonedComponentId(comp));
+    }
 
+    /**
+     * Finds end button for the traversal by following the traversal from the 
+     * starting button
+     * @param start button
+     * @return end button
+     */
     public OverflowLbl getEndButton(OverflowLbl startButton) {
         OverflowLbl r = startButton;
         OverflowLbl act = r;
@@ -93,103 +111,107 @@ class MyGlassPane extends JComponent implements ItemListener {
         }
         return act;
     }
-
-    private void clearButtons() {
-        for (int i = 0; i < vecButtons.size(); i++) {
-            vecButtons.get(i).setInTabOrder(false);
-        }
-    }
-
-    public void clearTraversals() {
-        int res = JOptionPane.showConfirmDialog(formPanel, java.util.ResourceBundle.getBundle("org/netbeans/modules/a11ychecker/Bundle").getString("STRING_CLEARALL"), java.util.ResourceBundle.getBundle("org/netbeans/modules/a11ychecker/Bundle").getString("STRING_WARNING"), JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
-        if (res == JOptionPane.YES_OPTION) {
-            setStart(null);
-            setEnd(null);
-            for (int i = 0; i < vecButtons.size(); i++) {
-                vecButtons.get(i).nextcomp = null;
-            }
-            clearButtons();
-            repaint();
-        }
-    }
     
     OverflowLbl selectedBtn = null;
+
+    /**
+     * Processes mouse click on the glass pane. Reselects actual selected button
+     * or creates traversal.
+     * @param m currently selected button
+     * @param actClickedComp currently selected component
+     * @param evt mouse event
+     */
     public void processClick(OverflowLbl m, Component actClickedComp, MouseEvent evt) {
-        if(evt.getButton()==MouseEvent.BUTTON3)
-        {
-            // w/ Control - just reselect
+        if (evt.getButton() == MouseEvent.BUTTON3) {
+            // reselect
             lastClickedComp = actClickedComp;
             lastButton = m;
-        }
-        else if(evt.getButton()==MouseEvent.BUTTON1)
-        {
+        } else if (evt.getButton() == MouseEvent.BUTTON1) {
 
-            // w/o - create traversal
+            // create traversal
             if (lastClickedComp != null) {
-                if(lastClickedComp != actClickedComp) {
-                m.setInTabOrder(true);
-                lastButton.nextbutton = m;
-                lastButton.nextcomp = actClickedComp;
-                lastClickedComp = actClickedComp;
-                lastButton = m;
+                if (lastClickedComp != actClickedComp) {
+                    lastButton.nextbutton = m;
+                    lastButton.nextcomp = actClickedComp;
+                    lastClickedComp = actClickedComp;
+                    lastButton = m;
                 }
             } else if (lastClickedComp == null) {
                 lastClickedComp = actClickedComp;
                 lastButton = m;
-            }                
+            }
         }
-        
+
         for (OverflowLbl overflowLbl : vecButtons) {
-          overflowLbl.setBorder(overflowLbl.state);
-          overflowLbl.isSelected=false;
+            overflowLbl.setBorder(overflowLbl.state);
+            overflowLbl.isSelected = false;
         }
-        
-        selectedBtn=m;
-        
+
+        selectedBtn = m;
+
         repaint();
     }
-    
-    public void processKey(KeyEvent e)
-    {
-        int key = e.getKeyCode();
+
+    /**
+     * Deselects currently selected button
+     */
+    public void deselectButton() {
+        lastClickedComp = null;
+        lastButton = null;
+        selectedBtn = null;
+
+        for (OverflowLbl overflowLbl : vecButtons) {
+            overflowLbl.setBorder(overflowLbl.state);
+            overflowLbl.isSelected = false;
+        }
+
+        repaint();
+
     }
-    
+
+    /**
+     * Deletes traversal that leads to button m
+     * @param m button
+     */
     public void deleteClick(OverflowLbl m) {
         // find arrow which leads to this button
         OverflowLbl lbl = null;
         for (OverflowLbl overflowLbl : vecButtons) {
-          if(overflowLbl.nextbutton == m)
-              lbl = overflowLbl;
+            if (overflowLbl.nextbutton == m) {
+                lbl = overflowLbl;
+            }
         }
-        
-        if(lbl != null)
-        {
-            lbl.nextbutton=null;
-            lbl.nextcomp=null;
-            lbl.setInTabOrder(false);
+
+        if (lbl != null) {
+            lbl.nextbutton = null;
+            lbl.nextcomp = null;
         }
 
         repaint();
     }
     
-    
     Point pForm;
-
+    
+    /**
+     * Loads tab traversal saved in savedBtns and assigns it to components in 
+     * currently loaded form in the custom editor
+     */
     private void loadSavedTabTraversal() {
         if (editor.savedBtns != null) {
-            //projit vsechny komponenty a najit k nim ulozeny tabTraversal
-            
+            // go through all components and finds their saved traversal
             for (OverflowLbl overflowLbl : vecButtons) {
                 for (MySavingButton savedBtn : editor.savedBtns) {
-                    if (savedBtn.getName().equals(overflowLbl.mycomp.getName())) {
+                    if (savedBtn.getName().equals(overflowLbl.getMyCompName())) {
                         Component nextComp = null;
                         // find real next comp
                         for (OverflowLbl overflowLbl2 : vecButtons) {
-                            if (overflowLbl2.mycomp.getName().equals(savedBtn.getNextName())) {
-                                nextComp = overflowLbl2.mycomp;
-                                overflowLbl.nextcomp = nextComp;
-                                overflowLbl.nextbutton = overflowLbl2;
-                                break;
+                            if (overflowLbl2.getMyCompName() != null) {
+                                if (overflowLbl2.getMyCompName().equals(savedBtn.getNextName())) {
+                                    nextComp = overflowLbl2.mycomp;
+                                    overflowLbl.nextcomp = nextComp;
+                                    overflowLbl.nextbutton = overflowLbl2;
+                                    break;
+                                }
                             }
                         }
                         break;
@@ -199,57 +221,95 @@ class MyGlassPane extends JComponent implements ItemListener {
         }
     }
 
-    private void traverseFormPanel(Container container) {
-        // projit komponenty a ziskat jen ty ktere mohou mit urceny tabtraversal
-        for (Component aComp : container.getComponents()) {
-            //pokud je komponenta JPanel rekurzivne opakuj
-            if (aComp instanceof JPanel) {
-                traverseFormPanel((Container) aComp);
-                continue;
+    /**
+     * Adds component to those that a tab traversal can be assigned to.
+     * Skips components like labels or progress bars.
+     * @param aComp Component
+     */
+    private void addEligibleComponent(Component aComp) {
+        if (!((aComp instanceof JLabel) || (aComp instanceof JProgressBar) || (aComp instanceof JSeparator))) {
+            Point pComp = aComp.getLocationOnScreen();
+            // horni levy roh komponenty
+            Point upperLeftCornComp = new Point(pComp.x - pForm.x, pComp.y - pForm.y);
+            OverflowLbl myOverflowBtn = new OverflowLbl(this, aComp);
+            myOverflowBtn.setBounds(upperLeftCornComp.x, upperLeftCornComp.y, aComp.getWidth(), aComp.getHeight());
+
+            add(myOverflowBtn);
+            setComponentZOrder(myOverflowBtn, 0);
+
+            vecButtons.add(myOverflowBtn);
+        }
+    }
+    
+    /**
+     * Traverses component if it is a container or tries to add the component to
+     * be eligible for adding tab traversal
+     * @param comp Component
+     */
+    private void traverseFormComponent(Component comp) {
+        // component is a container
+        if (comp instanceof JPanel || 
+                comp instanceof JSplitPane || 
+                comp instanceof JScrollPane || 
+                comp instanceof JToolBar || 
+                comp instanceof JDesktopPane || 
+                comp instanceof JInternalFrame || 
+                comp instanceof JLayeredPane || 
+                comp instanceof JRootPane) {
+            for (Component aComp : ((Container) comp).getComponents()) {
+                traverseFormComponent((Container) aComp);
+            }
+        } else {
+            // component is a normal component - solve special cases
+            if (comp instanceof JViewport) {
+                Component viewedOne = ((JViewport) comp).getView();
+                if (viewedOne != null) {
+                    traverseFormComponent(viewedOne);
+                }
             }
 
-            // TODO vyhodit vsechny komponenty ktery nemuzou/nemaji mit urceny tab order
-            if (!((aComp instanceof JTabbedPane) || (aComp instanceof JLabel) || (aComp instanceof JProgressBar) || (aComp instanceof JSeparator) )) {
-                Point pComp = aComp.getLocationOnScreen();
-                // horni levy roh komponenty
-                Point upperLeftCornComp = new Point(pComp.x - pForm.x, pComp.y - pForm.y);
-                OverflowLbl myOverflowBtn = new OverflowLbl(this, aComp);
-                myOverflowBtn.setBounds(upperLeftCornComp.x, upperLeftCornComp.y, aComp.getWidth(), aComp.getHeight());
-
-                add(myOverflowBtn);
-                setComponentZOrder(myOverflowBtn, 0);
-
-                vecButtons.add(myOverflowBtn);
+            if (getMetaComponent(comp) != null) {
+                addEligibleComponent(comp);
             }
         }
     }
 
+    /**
+     * Finds all components eligible for tab traversal. Loads saved tab traversal
+     * if there is any.
+     */
     public void runCreate() {
         if (formPanel != null && firstRun == true) {
             firstRun = false;
             pForm = formPanel.getLocationOnScreen();
-            //            componentPoints = new Vector<Point>();
+            // componentPoints = new Vector<Point>();
 
-            for (Component aComp : formPanel.getComponents()) {
-                if (aComp instanceof JLayeredPane) {
-                    for (Component aaComp : ((Container) aComp).getComponents()) {
-                        if (aaComp instanceof JPanel) {
-                            traverseFormPanel((Container) aaComp);
+            if (formPanel instanceof JRootPane) {
+                for (Component aComp : formPanel.getComponents()) {
+                    if (aComp instanceof JLayeredPane) {
+                        for (Component aaComp : ((Container) aComp).getComponents()) {
+                            if (aaComp instanceof JPanel) {
+                                traverseFormComponent((Container) aaComp);
+                            }
                         }
                     }
                 }
+            } else if (formPanel instanceof JPanel) {
+                traverseFormComponent(formPanel);
             }
 
             loadSavedTabTraversal();
 
             // find start and end
             for (int k = 0; k < vecButtons.size(); k++) {
-                OverflowLbl b =  vecButtons.get(k);
-                if (b.mycomp.getName().equals(editor.startName)) {
-                    setStart(b);
-                }
-                if (b.mycomp.getName().equals(editor.endName)) {
-                    setEnd(b);
+                OverflowLbl b = vecButtons.get(k);
+                if (b.getMyCompName() != null) {
+                    if (b.getMyCompName().equals(editor.startName)) {
+                        setStart(b);
+                    }
+                    if (b.getMyCompName().equals(editor.endName)) {
+                        setEnd(b);
+                    }
                 }
             }
         }
@@ -261,7 +321,6 @@ class MyGlassPane extends JComponent implements ItemListener {
     public void itemStateChanged(ItemEvent e) {
         runCreate();
         setVisible(e.getStateChange() == ItemEvent.SELECTED);
-    //setButtonsVisible(e.getStateChange() == ItemEvent.SELECTED);
     }
 
     public static void drawArrow(Graphics2D g2d, int xCenter, int yCenter, int x, int y, float stroke) {
@@ -270,7 +329,7 @@ class MyGlassPane extends JComponent implements ItemListener {
         g2d.setStroke(new BasicStroke(1f));					// make the arrow head solid even if dash pattern has been specified
         Polygon tmpPoly = new Polygon();
         int i1 = 12 + (int) (stroke * 2);
-        int i2 = 6 + (int) stroke;							// make the arrow head the same size regardless of the length length
+        int i2 = 6 + (int) stroke;						// make the arrow head the same size regardless of the length length
         tmpPoly.addPoint(x, y);							// arrow tip
         tmpPoly.addPoint(x + xCor(i1, aDir + .5), y + yCor(i1, aDir + .5));
         tmpPoly.addPoint(x + xCor(i2, aDir), y + yCor(i2, aDir));
@@ -288,6 +347,11 @@ class MyGlassPane extends JComponent implements ItemListener {
         return (int) (len * Math.sin(dir));
     }
 
+    /**
+     * Repaint all traversal arrows and buttons designating start and end
+     * component.
+     * @param g graphics
+     */
     @Override
     protected void paintComponent(Graphics g) {
         if (vecButtons != null) {
@@ -305,32 +369,58 @@ class MyGlassPane extends JComponent implements ItemListener {
             }
             // draw circles
             final int size = 14;
-            if(startButton != null)
-            {
+            if (startButton != null) {
                 g.setColor(Color.GREEN);
                 Rectangle myR1 = startButton.getBounds();
-                g.fillOval(myR1.x + myR1.width / 2 - size/2, myR1.y + myR1.height / 2 - size/2, size, size);
+                g.fillOval(myR1.x + myR1.width / 2 - size / 2, myR1.y + myR1.height / 2 - size / 2, size, size);
             }
-            if(endButton != null)
-            {
+            if (endButton != null) {
                 g.setColor(Color.RED);
                 Rectangle myR1 = endButton.getBounds();
-                g.fillOval(myR1.x + myR1.width / 2 - size/2, myR1.y + myR1.height / 2 - size/2, size, size);
+                g.fillOval(myR1.x + myR1.width / 2 - size / 2, myR1.y + myR1.height / 2 - size / 2, size, size);
             }
         }
     }
     Graphics2D graphics = (Graphics2D) this.getGraphics();
 
-    public MyGlassPane(FocusTraversalPolicyEditor editor, Container contentPane, Container formPanel) {
+    public MyGlassPane(FocusTraversalPolicyEditor editor, Container contentPane, Container formPanel, FormModel m, VisualReplicator r) {
         this.contentPane = contentPane;
         this.formPanel = formPanel;
         this.editor = editor;
         setDoubleBuffered(true);
+        myModel = m;
+        myRepl = r;
+       
+        addMouseListener(new MouseListener() {
+
+            public void mouseClicked(MouseEvent e) {
+            }
+
+            public void mousePressed(MouseEvent e) {
+                final MouseEvent evt = e;
+                deselectButton();
+            }
+
+            public void mouseReleased(MouseEvent e) {
+            }
+
+            public void mouseEntered(MouseEvent e) {
+            }
+
+            public void mouseExited(MouseEvent e) {
+            }
+        });
     }
-    
+
+    /**
+     * Adds component c into components that are oblivious to the glass pane,
+     * i.e. they can be clicked on as usual. This function basically assigns
+     * them a mouse listener.
+     * @param c Component
+     */
     public void addActiveComponent(Component c) {
         RedispatchListener listener = new RedispatchListener(c, this, contentPane);
         addMouseListener(listener);
         addMouseMotionListener(listener);
-    }    
+    }
 }

@@ -38,6 +38,12 @@
  * Version 2 license, then the option applies only if the new code is
  * made subject to such option by the copyright holder.
  */
+
+package org.netbeans.modules.a11ychecker.traverse;
+
+import java.beans.PropertyEditorManager;
+import org.openide.modules.ModuleInstall;
+
 /*
  * Installer.java
  *
@@ -45,16 +51,6 @@
  * with property "FocusTraversalPolicy"
  *
  * @author Michal Hapala, Pavel Stehlik
- */
-
-package org.netbeans.modules.a11ychecker.traverse;
-
-import java.beans.PropertyEditorManager;
-import org.openide.modules.ModuleInstall;
-
-/**
- * Manages a module's lifecycle.
- * Remember that an installer is optional and often not needed at all.
  */
 public class Installer extends ModuleInstall {
     

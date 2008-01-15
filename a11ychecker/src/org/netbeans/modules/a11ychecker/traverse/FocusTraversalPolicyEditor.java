@@ -38,23 +38,15 @@
  * Version 2 license, then the option applies only if the new code is
  * made subject to such option by the copyright holder.
  */
-/*
- * FocusTraversalPolicyEditor.java
- *
- * @author Michal Hapala, Pavel Stehlik
- */
+
 package org.netbeans.modules.a11ychecker.traverse;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
 import java.beans.*;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Vector;
 import javax.swing.JButton;
 import javax.swing.JLabel;
@@ -68,54 +60,52 @@ import org.openide.explorer.propertysheet.PropertyEnv;
 import org.openide.nodes.Node.Property;
 import org.netbeans.modules.form.VisualReplicator;
 
+/*
+ * Main focus traversal editor class
+ *
+ * @author Michal Hapala, Pavel Stehlik
+ */
 public class FocusTraversalPolicyEditor extends PropertyEditorSupport implements FormAwareEditor, ExPropertyEditor {
 
     FormModel myFormModel;
     MyGlassPane myGlassPane;
     PropertyEnv myEnv;
     VisualReplicator myReplicator;
+    
     Vector<MySavingButton> savedBtns;
     String startName;
     String endName;
+    
     RADVisualContainer formContainer;
     JButton checkButton;
     RADComponent topComponent;
-    //    JButton dehideButton;
-    public FocusTraversalPolicyEditor() {
-
+    
+    public RADComponent getMetaComponent(Component comp)
+    {
+        return myFormModel.getMetaComponent( myReplicator.getClonedComponentId(comp) );
     }
 
     /**
-     * 
-     * @return seznam jmen komponent ktere nemaji urceneho naslednika
+     * Creates new MyTraversalPolicy class, to be saved into currently edited
+     * form as a value for focusTraversalPolicy (actual generated class is saved
+     * as a java initialization string, hence it is put into the protected block)
+     * @return new MyTraversalPolicy class
      */
-    public List<String> checkTabTraversalState() {
-        MyTraversalPolicy trav = loadMyTraversalPolicy();
-        Vector<MySavingButton> tmp = trav.getSavedBtns();
-        List<String> compsWithoutNextComp = new ArrayList<String>();
-        for (MySavingButton mySavingButton : tmp) {
-            if (mySavingButton.getNextName() == null) {
-                compsWithoutNextComp.add(mySavingButton.getName());
-            }
-        }
-        return compsWithoutNextComp;
-    }
-
-    public MyTraversalPolicy loadMyTraversalPolicy() {
+    public MyTraversalPolicy createMyTraversalPolicy() {
         MyTraversalPolicy trav = new MyTraversalPolicy();
         trav.setSavedBtns(new Vector<MySavingButton>());
         if (myGlassPane != null) {
             if (myGlassPane.startButton != null) {
-                trav.start = ((OverflowLbl) myGlassPane.startButton).mycomp.getName();
+                trav.start = ((OverflowLbl) myGlassPane.startButton).getMyCompName();
             }
             if (myGlassPane.endButton != null) {
-                trav.end = ((OverflowLbl) myGlassPane.endButton).mycomp.getName();
+                trav.end = ((OverflowLbl) myGlassPane.endButton).getMyCompName();
             }
             for (OverflowLbl overflowLbl : myGlassPane.vecButtons) {
                 MySavingButton s = new MySavingButton();
-                s.setName(overflowLbl.mycomp.getName());
+                s.setName(overflowLbl.getMyCompName());
                 if (overflowLbl.nextcomp != null) {
-                    s.setNextName(overflowLbl.nextcomp.getName());
+                    s.setNextName(overflowLbl.getNextCompName());
                 }
                 trav.getSavedBtns().add(s);
             }
@@ -124,11 +114,10 @@ public class FocusTraversalPolicyEditor extends PropertyEditorSupport implements
     }
 
     public void saveOk() {
-
         if (formContainer != null) {
             Property property = formContainer.getPropertyByName("focusCycleRoot");
             try {
-                property.setValue(property.getValue());
+                property.setValue(Boolean.TRUE);
             } catch (Exception ex) {
                 ex.printStackTrace();
             }
@@ -138,14 +127,18 @@ public class FocusTraversalPolicyEditor extends PropertyEditorSupport implements
     @Override
     public Object getValue() {
         if (formContainer != null) {
-            return loadMyTraversalPolicy();
+            return createMyTraversalPolicy();
         } else {
             return null;
         }
     }
+    
 
     @Override
     public void setValue(Object value) {
+        if(value instanceof RADComponent) {
+            setTopComponent((RADComponent) value);
+        }
         if (value instanceof MyTraversalPolicy) {
             MyTraversalPolicy trav = (MyTraversalPolicy) value;
             savedBtns = trav.getSavedBtns();
@@ -154,9 +147,15 @@ public class FocusTraversalPolicyEditor extends PropertyEditorSupport implements
         }
     }
 
+    /**
+     * Generates new focusTraversalPolicy class as a string to be saved into the
+     * initilization string for the focusTraversalPolicy, hence put into the 
+     * protected block.
+     * @return focusTraversalPolicy class in a string
+     */
     public String generateTraversalClass() {
         if (myFormModel == null || myReplicator == null) {
-            return "";
+            return "null";
         }
 
         FocusTraversalPolicyGenerator myGenerator = new FocusTraversalPolicyGenerator(myFormModel, myReplicator);
@@ -182,6 +181,11 @@ public class FocusTraversalPolicyEditor extends PropertyEditorSupport implements
         return "null";
     }
 
+    /**
+     * Traverses container or component and sets proper names for each of the 
+     * components int the container
+     * @param container Container
+     */
     private void traverseFormPanel(Container container) {
         // projit komponenty a ziskat jen ty ktere mohou mit urceny tabtraversal
         for (Component aComp : container.getComponents()) {
@@ -202,6 +206,12 @@ public class FocusTraversalPolicyEditor extends PropertyEditorSupport implements
         this.topComponent = topComponent;
     }
 
+    /**
+     * Returns newly created custom editor window. Window is filled with
+     * components created with VisualReplicator from currently selected JFrame
+     * or JPanel
+     * @return new custom editor window
+     */
     @Override
     public Component getCustomEditor() {
         CustomFocusTraversalPolicyEditor focusEditorPanel = new CustomFocusTraversalPolicyEditor();
@@ -232,17 +242,17 @@ public class FocusTraversalPolicyEditor extends PropertyEditorSupport implements
                     myReplicator.setTopMetaComponent(actComp);
 
                     Container formPanel = (Container) myReplicator.createClone();
+                    // JFRAME
                     if (formPanel instanceof JRootPane) {
                         FormDesigner designer = FormEditor.getFormDesigner(myFormModel);
                         formPanel.setSize(((Component) designer.getComponent(actComp)).getPreferredSize());
-                        //formPanel.setBorder(BorderFactory.createLineBorder(Color.BLACK));
                         JRootPane myRootPane = new JRootPane();
                         Container contentPane = myRootPane.getContentPane();
                         contentPane.setLayout(null);
                         contentPane.add(formPanel);
 
                         // create glass pane
-                        myGlassPane = new MyGlassPane(this, myRootPane.getContentPane(), formPanel);
+                        myGlassPane = new MyGlassPane(this, myRootPane.getContentPane(), formPanel, myFormModel, myReplicator);
                         focusEditorPanel.setGlassPane(myGlassPane);
                         myRootPane.setGlassPane(myGlassPane);
 
@@ -254,15 +264,41 @@ public class FocusTraversalPolicyEditor extends PropertyEditorSupport implements
                                     }
                                 }
                             }
-                            if (aComp instanceof JTabbedPane) {
-                                myGlassPane.addActiveComponent(aComp);
-                            }
                         }
 
                         //Show the window.
                         focusEditorPanel.setPreferredSize(new Dimension(formPanel.getWidth(), formPanel.getHeight() + 50));
                         focusEditorPanel.add(myRootPane, BorderLayout.CENTER);
-                    } else {
+                    } 
+                    // JPANEL
+                    else if(formPanel instanceof JPanel) {
+                        FormDesigner designer = FormEditor.getFormDesigner(myFormModel);
+                        formPanel.setSize(((Component) designer.getComponent(actComp)).getPreferredSize());
+                        JRootPane myRootPane = new JRootPane();
+                        Container contentPane = myRootPane.getContentPane();
+                        contentPane.setLayout(null);
+                        contentPane.add(formPanel);
+
+                        // create glass pane
+                        myGlassPane = new MyGlassPane(this, myRootPane.getContentPane(), formPanel, myFormModel, myReplicator);
+                        focusEditorPanel.setGlassPane(myGlassPane);
+                        myRootPane.setGlassPane(myGlassPane);
+
+                       // for (Component aComp : formPanel.getComponents()) {
+                           // if (aComp instanceof JLayeredPane) {
+                               // for (Component aaComp : ((Container) aComp).getComponents()) {
+                                    //if (aComp instanceof JPanel) {
+                                        traverseFormPanel(formPanel);
+                                    //}
+                               // }
+                          //  }
+                       // }
+
+                        //Show the window.
+                        focusEditorPanel.setPreferredSize(new Dimension(formPanel.getWidth(), formPanel.getHeight() + 50));
+                        focusEditorPanel.add(myRootPane, BorderLayout.CENTER);
+                    }
+                    else {
                         focusEditorPanel.add(new JLabel(java.util.ResourceBundle.getBundle("org/netbeans/modules/a11ychecker/Bundle").getString("STRING_NOJFRAME")), BorderLayout.CENTER);
                     }
                 } catch (Exception ex) {
@@ -296,6 +332,5 @@ public class FocusTraversalPolicyEditor extends PropertyEditorSupport implements
     }
 
     public void updateFormVersionLevel() {
-    // nothing to do ?
     }
 }

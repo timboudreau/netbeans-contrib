@@ -38,12 +38,7 @@
  * Version 2 license, then the option applies only if the new code is
  * made subject to such option by the copyright holder.
  */
-/*
- * MyTraversalPolicy.java
- *
- *
- * @author Michal Hapala, Pavel Stehlik
- */
+
 package org.netbeans.modules.a11ychecker.traverse;
 
 import java.awt.Component;
@@ -54,6 +49,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Vector;
 
+/*
+ * Class for serializing info about a defined traversal into the value of
+ * FocusTraversalPolicy
+ *
+ * @author Michal Hapala
+ * @author Pavel Stehlik
+ */
 public class MyTraversalPolicy extends FocusTraversalPolicy implements Serializable {
 
     public MyTraversalPolicy() {
@@ -67,39 +69,57 @@ public class MyTraversalPolicy extends FocusTraversalPolicy implements Serializa
         return savedButtons;
     }
     
-    public List<String> checkTabTraversalState()
-    {
-        //System.out.println("checking...");
-        List<String> compsWithoutNextComp = new ArrayList<String>();
+    /**
+     * Checks current state of defined tab traversal and returns errorneous 
+     * components, in this case those that are unaccessible by traversal. To be 
+     * used with A11Y Output Window.
+     * @return list of names of unaccessible components
+     */
+    public List<String> checkTabTraversalState()  {    
+        List<String> comps = new ArrayList<String>();
+        Vector<MySavingButton> tmpButtons = (Vector<MySavingButton>) savedButtons.clone(); 
         for (MySavingButton mySavingButton : savedButtons) {
-            //System.out.println("name: " + (mySavingButton.getName() != null ? mySavingButton.getName() : "null") + ", nextname: " + (mySavingButton.getNextName() != null ? mySavingButton.getNextName() : "null"));
-            if(mySavingButton.getNextName() == null) {
-                compsWithoutNextComp.add(mySavingButton.getName());
+            if(mySavingButton.getNextName() != null) {
+                tmpButtons.remove(mySavingButton);
+                for(MySavingButton button : savedButtons){
+                    if(button.getName().compareTo(mySavingButton.getNextName())==0)
+                    tmpButtons.remove(button);
+                }
             }
         }
-        return compsWithoutNextComp;
+        
+        for(MySavingButton button : tmpButtons){            
+            comps.add(button.getName());
+        }
+        
+        return comps;
     }
 
     public void setSavedBtns(Vector<MySavingButton> savedButtons) {
         this.savedButtons = savedButtons;
     }
 
+    @Override
     public Component getComponentAfter(Container aContainer, Component aComponent) {
         return null;
     }
 
+    @Override
     public Component getComponentBefore(Container aContainer, Component aComponent) {
         return null;
     }
 
+    @Override
     public Component getDefaultComponent(Container aContainer) {
         return null;
     }
 
+    @Override
     public Component getFirstComponent(Container aContainer) {
         return null;
     }
 
+    @Override
     public Component getLastComponent(Container aContainer) {
         return null;
     }

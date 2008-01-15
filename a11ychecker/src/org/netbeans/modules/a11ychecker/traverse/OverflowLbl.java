@@ -42,10 +42,8 @@ package org.netbeans.modules.a11ychecker.traverse;
 
 import java.awt.Color;
 import java.awt.Component;
-import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
-import java.awt.event.KeyListener;
 import java.util.Timer;
 import java.util.TimerTask;
 import javax.swing.BorderFactory;
@@ -53,12 +51,14 @@ import javax.swing.JLabel;
 import javax.swing.border.Border;
 
 /**
- *
- * @author stehlik
+ * Used as a "container" or handler for each of eligible components for 
+ * traversal. Saves his component and next component in traversal. Also 
+ * processes mouse clicks passed onto him and effectively creates or destroys 
+ * tab traversal on the form.
+ * 
+ * @author Michal Hapala, Pavel Stehlik
  */
 public class OverflowLbl extends JLabel {
-
-    private boolean inTabOrder;
     MyGlassPane glass;
     Component mycomp;
     Component nextcomp;
@@ -79,7 +79,35 @@ public class OverflowLbl extends JLabel {
     Border inTabOrderLast = BorderFactory.createCompoundBorder(selectedComp, BorderFactory.createLineBorder(Color.RED, 2));
     
     Timer myTimer;
+    
+    void setMyCompName(String name)
+    {
+        if(mycomp != null && glass.getMetaComponent(mycomp) != null)
+            glass.getMetaComponent(mycomp).setName(name);
+    }
+    
+    String getMyCompName()
+    {
+        if(mycomp == null) return "errorCOMP";
+        if(glass.getMetaComponent(mycomp) == null) return "errorMETA";
+        return glass.getMetaComponent(mycomp).getName();
+    }
+    
+    String getNextCompName()
+    {
+        if(nextcomp == null) return "errorCOMP";
+        if(glass.getMetaComponent(nextcomp) == null) return "errorMETA";
+        return glass.getMetaComponent(nextcomp).getName();
+    }
 
+    /**
+     * Constructor which sets up all default values for variables and most 
+     * importantly adds a mouse listener to the component to process mouse
+     * clicks which create tab traversal.
+     * 
+     * @param glass Glass Pane
+     * @param myComp Component which is to be handled by this OverflowLbl
+     */
     OverflowLbl(final MyGlassPane glass, final Component myComp) {
         super();
         this.glass = glass;
@@ -88,16 +116,6 @@ public class OverflowLbl extends JLabel {
         nextbutton = null;
         final OverflowLbl thisOver = this;
         setBackground(new Color(0f, 0f, 0.5f));
-        
-       addKeyListener( 
-               new KeyListener() {        
-                    public void keyReleased(KeyEvent e) { }
-                    public void keyPressed(KeyEvent e) { 
-                        glass.processKey(e); 
-                    }
-                    public void keyTyped(KeyEvent e) { }
-                }
-       );
         
         addMouseListener(new MouseListener() {
 
@@ -154,14 +172,10 @@ public class OverflowLbl extends JLabel {
 
     }
 
-    public boolean isInTabOrder() {
-        return inTabOrder;
-    }
-
-    public void setInTabOrder(boolean inTabOrder) {
-        this.inTabOrder = inTabOrder;
-    }
-
+    /**
+     * Sets border of the handler according to current state
+     * @param state State
+     */
     public void setBorder(int state) {
         switch (state) {
             case NOTHING: {

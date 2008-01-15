@@ -38,12 +38,6 @@
  * Version 2 license, then the option applies only if the new code is
  * made subject to such option by the copyright holder.
  */
-/*
- * FocusTraversalPolicyGenerator.java
- *
- *
- * @author Michal Hapala, Pavel Stehlik
- */
 
 package org.netbeans.modules.a11ychecker.traverse;
 
@@ -54,6 +48,10 @@ import org.netbeans.modules.form.FormModel;
 import org.netbeans.modules.form.RADComponent;
 import org.netbeans.modules.form.VisualReplicator;
 
+/*
+ * focusTraversalPolicy string generator 
+ * @author Michal Hapala, Pavel Stehlik
+ */
 public class FocusTraversalPolicyGenerator {
     FormModel myModel;
     VisualReplicator myRepl;
@@ -68,6 +66,13 @@ public class FocusTraversalPolicyGenerator {
         return myModel.getMetaComponent( myRepl.getClonedComponentId(comp) );
     }
     
+    /**
+     * Generates string with the proper definition of focusTraversalPolicy class
+     * @param first designated first button in traversal
+     * @param last designated last button in traversal
+     * @param vecButtons all buttons in traversal with their assigned components
+     * @return
+     */
     public String generate(OverflowLbl first,OverflowLbl last, Vector<OverflowLbl> vecButtons) {
         StringWriter myWriter = new StringWriter();
         OverflowLbl rFirst = first;

@@ -38,17 +38,17 @@
  * Version 2 license, then the option applies only if the new code is
  * made subject to such option by the copyright holder.
  */
-/*
- * MySavingButton.java
- *
- *
- * @author Michal Hapala, Pavel Stehlik
- */
 
 package org.netbeans.modules.a11ychecker.traverse;
 
 import java.io.Serializable;
 
+/*
+ * Class for saving info about traversal of one component, i.e. it's name and
+ * the name of the component next in line for traversing.
+ *
+ * @author Michal Hapala, Pavel Stehlik
+ */
 public class MySavingButton implements Serializable {
     
     private String name;

@@ -55,8 +55,8 @@ import org.netbeans.modules.form.ViewConverter;
 import org.netbeans.modules.form.ViewConverter.Convert;
 
 /**
- *
- * @author Mikee
+ * Convertor for VisualReplicator
+ * @author Tomas Pavek
  */
 public class MyConverter implements ViewConverter { 
         public Convert convert(Object component, boolean root, boolean designRestrictions) { 

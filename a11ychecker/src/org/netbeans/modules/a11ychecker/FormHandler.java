@@ -279,12 +279,19 @@ public class FormHandler {
 //							}
 							Object v = traversalPolicy.getValue();
 							if (!(v instanceof org.netbeans.modules.a11ychecker.traverse.MyTraversalPolicy)) {
-								addWarning(TAB_TRAV_CAT, NbBundle.getMessage(FormHandler.class, "Not_our_tabTraversal"), curr.getName());
+								addInfo(TAB_TRAV_CAT, NbBundle.getMessage(FormHandler.class, "Not_our_tabTraversal"), curr.getName());
 							} else {
 								MyTraversalPolicy mtp = (MyTraversalPolicy) v;
 								List<String> s = mtp.checkTabTraversalState();
+								String compList = "";
+								for (int i = 0; i < s.size(); i++) {
+									compList += " " + s.get(i);
+									if (i < s.size() - 1) {
+										compList += ",";
+									}
+								}
 								if (!s.isEmpty()) {
-									addError(TAB_TRAV_CAT, NbBundle.getMessage(FormHandler.class, "Unreachable_components", "<LIST OF COMPS>"), curr.getName());
+									addError(TAB_TRAV_CAT, NbBundle.getMessage(FormHandler.class, "Unreachable_components", compList), curr.getName());
 								}
 
 

@@ -40,7 +40,7 @@
  */
 
 /*
- * CustomFocusTraversalPolicyEditor.java
+ * Window for custom traversal editor
  *
  * @author Michal Hapala, Pavel Stehlik
  */
@@ -55,7 +55,6 @@ public class CustomFocusTraversalPolicyEditor extends javax.swing.JPanel{
         if(glassPane != null) {
             glassPane.runCreate();
             glassPane.setVisible(true);
-            //glassPane.setButtonsVisible(true);
         }
     }
     

@@ -74,7 +74,6 @@ import org.netbeans.modules.a11ychecker.FormHandler;
 import org.netbeans.modules.a11ychecker.LabelForPropertyPanel;
 import org.netbeans.modules.a11ychecker.PropertyAction;
 import org.netbeans.modules.a11ychecker.PropertyPanel;
-import org.netbeans.modules.a11ychecker.traverse.FocusTraversalPolicyEditor;
 import org.netbeans.modules.a11ychecker.utils.A11YFormUtils;
 import org.netbeans.modules.form.ComponentChooserEditor;
 import org.netbeans.modules.form.FormDesigner;
@@ -88,7 +87,6 @@ import org.openide.DialogDescriptor;
 import org.openide.DialogDisplayer;
 import org.openide.NotifyDescriptor;
 import org.openide.awt.Mnemonics;
-import org.openide.explorer.propertysheet.editors.EnhancedCustomPropertyEditor;
 import org.openide.nodes.Node.Property;
 import org.openide.util.HelpCtx;
 import org.openide.util.NbBundle;
@@ -257,21 +255,21 @@ public class ResultPanel extends javax.swing.JPanel implements TableModelListene
 
             try {
                 final PropertyEditor propEd = property.getPropertyEditor();
-                propEd.setValue(property.getValue());
-
+                propEd.setValue(new FormHandler(FormBroker.getDefault().findActiveEditor()).getFes().getFormModel().getTopRADComponent());
+                propEd.setValue(property.getValue());                
+               
                 final Component custEditor = propEd.getCustomEditor();
 
                 Object[] options = buttons2();
                 DialogDescriptor descriptor2 = new DialogDescriptor(
                         custEditor,
-                        "title",
+                        "FocusTraversalPolicy",
                         true,
                         options,
                         DialogDescriptor.CANCEL_OPTION,
                         DialogDescriptor.DEFAULT_ALIGN,
                         HelpCtx.DEFAULT_HELP,
                         new ActionListener() {
-
                             public void actionPerformed(ActionEvent e) {
                                 try {
                                     String action = e.getActionCommand();
@@ -295,7 +293,7 @@ public class ResultPanel extends javax.swing.JPanel implements TableModelListene
             } catch (Exception ex) {
                 ex.printStackTrace();
             }
-
+            new FormHandler(FormBroker.getDefault().findActiveEditor()).check();
             return;
         }
 
@@ -536,7 +534,7 @@ public class ResultPanel extends javax.swing.JPanel implements TableModelListene
      */
     public void tableChanged(TableModelEvent e) {
         setColumnWidths();
-        errorCheckBox.setText("errors: " + errors.size());
+        errorCheckBox.setText("Errors: " + errors.size());
         warningCheckBox.setText("Warnings: " + warnings.size());
         infoCheckBox.setText("Infos: " + infos.size());
 //        errorsCountLabel.setText("" + errors.size());
