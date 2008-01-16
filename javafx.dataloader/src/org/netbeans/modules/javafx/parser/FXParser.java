@@ -61,7 +61,7 @@ import org.netbeans.api.gsf.SemanticAnalyzer;
 import org.netbeans.api.gsf.SourceFileReader;
 import org.netbeans.modules.javafx.editor.JavaFXDocument;
 
-import org.netbeans.modules.javafx.editor.JavaFXPier;
+import org.netbeans.modules.javafx.model.JavaFXModel;
 import org.openide.cookies.EditorCookie;
 import org.openide.loaders.DataObject;
 
@@ -90,7 +90,6 @@ import net.java.javafx.type.Attribute;
 import net.java.javafx.type.Accessible;
 import net.java.javafx.type.expr.VariableDeclaration;
 import net.java.javafx.type.expr.FunctionDefinition;
-import net.java.javafx.type.expr.ChangeRule;
 import net.java.javafx.type.expr.CompilationUnit;
 import net.java.javafx.type.expr.StatementList;
 import net.java.javafx.type.expr.Statement;
@@ -211,14 +210,11 @@ public class FXParser implements Parser {
                     listener.exception(ioe);
                 }
                 
-                if ((doc != null) && (doc instanceof JavaFXDocument) && ((JavaFXDocument)doc).executionAllowed()){
-                    JavaFXPier.sourceChanged((JavaFXDocument)doc);
-                }
-
                 if (((JavaFXDocument)doc).errorAndSyntaxAllowed()) {
                     try {
-                        compilation = JavaFXPier.getCompilation(file.getFileObject());
-                        unit = JavaFXPier.readCompilationUnit(compilation, file.getFileObject().getPath(), new StringReader(text));
+                        compilation = JavaFXModel.getCompilation(file.getFileObject());
+//                        unit = JavaFXModel.readCompilationUnit(compilation, file.getFileObject().getPath(), new StringReader(text));
+                        unit = JavaFXModel.getCompilationUnit((JavaFXDocument)doc);
                         if (unit != null) {
                             fillResultsForNavigator(unit, lineMap,  result);
                             fillResultsForGoTo(compilation, lineMap, file.getFileObject(), result);
@@ -467,7 +463,7 @@ public class FXParser implements Parser {
         while (unitsIterator.hasNext())
         {
             CompilationUnit unit = (CompilationUnit)unitsIterator.next();
-            if (unit.getURI().startsWith("jar"))
+            if (unit.getURI().startsWith("jar") || unit.getURI().equals("javafx.netbeans.preview"))
                 continue;
         
             Iterator functionsListIterator = unit.getFunctions().iterator();

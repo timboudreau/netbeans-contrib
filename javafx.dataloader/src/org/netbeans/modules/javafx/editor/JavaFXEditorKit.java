@@ -40,6 +40,7 @@
  */
 package org.netbeans.modules.javafx.editor;
 
+import org.netbeans.modules.javafx.model.JavaFXModel;
 import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.util.Map;
@@ -156,7 +157,7 @@ public class JavaFXEditorKit extends NbEditorKit{
                     resetAction.setActionButtonEnabled(true);
                     doc.enableExecution(true);
                     putValue(SHORT_DESCRIPTION,NbBundle.getBundle(JavaFXEditorKit.class).getString("disable-fx-preview-execution"));
-                    JavaFXPier.showPreview(doc);
+                    JavaFXModel.showPreview(doc, false);
                 }
             }else{
                 b.setSelected(!b.isSelected());
@@ -347,7 +348,7 @@ public class JavaFXEditorKit extends NbEditorKit{
             JavaFXDocument doc = getJavaFXDocument(target);
             
             if(doc != null && doc.executionAllowed()){
-                JavaFXPier.showPreview(doc);
+                JavaFXModel.showPreview(doc, true);
             }
         }
         

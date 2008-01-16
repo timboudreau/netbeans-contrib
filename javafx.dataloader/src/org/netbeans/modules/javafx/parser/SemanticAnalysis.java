@@ -52,7 +52,6 @@ import org.netbeans.api.gsf.OffsetRange;
 import org.netbeans.api.gsf.SemanticAnalyzer;
 import net.java.javafx.typeImpl.Compilation;
 import java.io.StringReader;
-import java.io.File;
 import net.java.javafx.type.expr.CompilationUnit;
 import java.util.Iterator;
 import net.java.javafx.type.Type;
@@ -63,11 +62,8 @@ import net.java.javafx.typeImpl.completion.Token;
 import java.util.TreeSet;
 import net.java.javafx.type.expr.ValidationError;
 import net.java.javafx.type.expr.Locatable;
-import org.netbeans.modules.javafx.editor.JavaFXPier;
+import org.netbeans.modules.javafx.model.JavaFXModel;
 import org.netbeans.modules.javafx.editor.JavaFXDocument;
-import org.openide.filesystems.FileObject;
-import java.net.URI;
-import org.openide.filesystems.FileUtil;
 
 /**
  * Walk through the JRuby AST and note interesting things
@@ -289,7 +285,7 @@ public class SemanticAnalysis implements SemanticAnalyzer {
             e.printStackTrace();
         }
         
-        Compilation compilation = JavaFXPier.getCompilation(info.getFileObject());
+        Compilation compilation = JavaFXModel.getCompilation(info.getFileObject());
         
         LineMap lineMap = new LineMap(text);
         TreeSet<String> attributesList = new TreeSet<String>();

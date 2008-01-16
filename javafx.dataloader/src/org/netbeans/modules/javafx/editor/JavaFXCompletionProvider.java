@@ -41,6 +41,7 @@
 
 package org.netbeans.modules.javafx.editor;
 
+import org.netbeans.modules.javafx.model.JavaFXModel;
 import net.java.javafx.type.Attribute;
 import net.java.javafx.type.Type;
 import net.java.javafx.type.expr.VariableDeclarator;
@@ -253,7 +254,7 @@ public class JavaFXCompletionProvider implements CompletionProvider {
                     public void run() {
                         List resultList = new LinkedList();
                         JavaFXDocument document = (JavaFXDocument)component.getDocument();
-                        Compilation compilation = JavaFXPier.getCompilation(document);
+                        Compilation compilation = JavaFXModel.getCompilation(document);
                         String fileName = document.getDataObject().getPrimaryFile().getPath();
                         
                         if (compilation == null) {

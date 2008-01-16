@@ -41,12 +41,16 @@
 
 package org.netbeans.modules.javafx.editor;
 
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
+import java.io.IOException;
+import java.io.Writer;
+import javax.swing.event.DocumentEvent.EventType;
+import org.netbeans.modules.javafx.model.JavaFXModel;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
-import java.awt.event.FocusEvent;
-import java.awt.event.FocusListener;
 import javax.swing.JComponent;
 import javax.swing.JEditorPane;
 import javax.swing.JPanel;
@@ -75,12 +79,26 @@ public class JavaFXDocument extends NbEditorDocument{
 
     boolean executionEnabled = false;
     boolean errorAndSyntaxEnabled = false;
-    boolean compReqNew = false;
-    boolean compReqNewP = false;
     
     public JavaFXDocument(Class kitClass) {
-
         super(kitClass);
+    }
+
+    @Override
+    public void write(Writer writer, int pos, int len) throws IOException, BadLocationException {
+        super.write(writer, pos, len);
+        JavaFXModel.fireDependenciesChange(this);
+    }
+    
+    @Override
+    public Formatter getFormatter() {
+        return Formatter.getFormatter(getKitClass());
+    }
+
+    @Override
+    public Component createEditor(JEditorPane pane){
+        JavaFXModel.addDocument(this);
+        
         DocumentListener changeListener = new DocumentListener(){
             public void removeUpdate(DocumentEvent e) {
                 sourceChanged();
@@ -94,23 +112,14 @@ public class JavaFXDocument extends NbEditorDocument{
             }
         };
         addDocumentListener(changeListener);
-    }
-
-    @Override
-    public Formatter getFormatter() {
-        return Formatter.getFormatter(getKitClass());
-    }
-
-    @Override
-    public Component createEditor(JEditorPane pane){
+        
         editor = super.createEditor(pane);
         
         final JavaFXDocument doc = this;
         
         FocusListener focusListener = new FocusListener() {
             public void focusGained(FocusEvent e) {
-                doc.compReqNew(true);
-                doc.compReqNewP(true);
+                doc.createDocumentEvent(0, 0, EventType.CHANGE);
             }
 
             public void focusLost(FocusEvent e) {
@@ -160,29 +169,13 @@ public class JavaFXDocument extends NbEditorDocument{
         }
     }
     
-    public void compReqNew(boolean value){
-        this.compReqNew = value;
-    }
-
-    public boolean isCompReqNew(){
-        return compReqNew;
-    }
-    
-    public void compReqNewP(boolean value){
-        this.compReqNewP = value;
-    }
-
-    public boolean isCompReqNewP(){
-        return compReqNewP;
-    }
-    
     public DataObject getDataObject(){
         return NbEditorUtilities.getDataObject(this);
     }
     
     public void  sourceChanged(){
         synchronized(this){
-            JavaFXPier.sourceChanged(this);
+            JavaFXModel.sourceChanged(this);
         }
     }
     
@@ -195,6 +188,7 @@ public class JavaFXDocument extends NbEditorDocument{
     }
     
     public void renderPreview(final JComponent comp){
+        JavaFXModel.setResultComponent(this, comp);
         SwingUtilities.invokeLater(new Runnable(){
             public void run(){
                 if (panel!=null){
@@ -249,12 +243,7 @@ public class JavaFXDocument extends NbEditorDocument{
             super();
             this.doc = doc;
         }
-/*        
-        public PreviewSplitPane(JavaFXDocument doc, int newOrientation, Component newLeftComponent, Component newRightComponent){
-            super(newOrientation, newLeftComponent, newRightComponent);
-            this.doc = doc;
-        }
-*/     
+        
         public JavaFXDocument getDocument(){
             return doc;
         }
