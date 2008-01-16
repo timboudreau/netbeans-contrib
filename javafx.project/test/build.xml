@@ -10,11 +10,13 @@
 
     <property name="netbeans.dest.dir" location="../../nbbuild/netbeans/"/>
 
+    <property name="javafx.cluster.name" value="javafx"/>
+
     <!-- default testtypes, attributes used when no value is supplied from command line -->
     <!--property name="xtest.testtype" value="qa-functional"/-->
     <property name="xtest.testtype" value="junit"/>
     <!--property name="xtest.attribs" value="ide,unit"/-->
-    <property name="xtest.attribs" value="unit,ide"/>
+    <property name="xtest.attribs" value="all"/>
 
 
 
