@@ -6,8 +6,8 @@
 		<display-name>Visual Web JSF Portlet</display-name>
 		<portlet-class>com.sun.faces.portlet.FacesPortlet</portlet-class>
 		<init-param>
-			<name>com.sun.faces.portlet.INIT_VIEW</name>
                         <description>Portlet init view page</description>
+			<name>com.sun.faces.portlet.INIT_VIEW</name>
                         <value>/${page_name}</value>
 		</init-param>
 		<expiration-cache>0</expiration-cache>
