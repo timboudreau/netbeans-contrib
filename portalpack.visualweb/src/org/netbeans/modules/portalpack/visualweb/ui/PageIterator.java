@@ -199,7 +199,7 @@ public class PageIterator implements TemplateWizard.Iterator {
                     File filePortlet = new File(FileUtil.toFile(webModule.getWebInf()), "portlet.xml"); // NOI18N
                     if (!filePortlet.exists()) {
                         String content = JsfProjectUtils.readResource(Thread.currentThread().getContextClassLoader().getResourceAsStream("org/netbeans/modules/portalpack/visualweb/templates/portlet.xml.template"), "UTF-8"); // NOI18N
-                        content = content.replace("${page_name}", targetName); // NOI18N
+                        content = content.replace("${page_name}", targetName + "." + template.getExt()); // NOI18N
                         content = content.replace("${portlet_name}", ProjectUtils.getInformation(project).getDisplayName()); // NOI18N
                         FileObject target = FileUtil.createData(webModule.getWebInf(), "portlet.xml"); // NOI18N
                         JsfProjectUtils.createFile(target, content, "UTF-8"); //NOI18N
