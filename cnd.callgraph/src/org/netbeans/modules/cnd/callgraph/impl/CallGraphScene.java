@@ -19,6 +19,7 @@
 
 package org.netbeans.modules.cnd.callgraph.impl;
 
+import java.awt.Font;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
@@ -74,6 +75,8 @@ public class CallGraphScene extends GraphScene<Function,Call> {
     private WidgetAction moveAction = ActionFactory.createMoveAction();
     private WidgetAction hoverAction = createWidgetHoverAction();
     private WidgetAction popupAction = ActionFactory.createPopupMenuAction(new MyPopupMenuProvider());
+    private Font defaultItalicFont;
+
     
     private CallModel callModel;
 
@@ -84,6 +87,8 @@ public class CallGraphScene extends GraphScene<Function,Call> {
         connectionLayer = new LayerWidget (this);
         addChild(connectionLayer);
         router = RouterFactory.createOrthogonalSearchRouter (mainLayer, connectionLayer);
+        defaultItalicFont = new Font(getDefaultFont().getName(),
+                              Font.ITALIC, getDefaultFont().getSize());
     }
     
     public void setLayout(SceneLayout sceneLayout){
@@ -199,6 +204,9 @@ public class CallGraphScene extends GraphScene<Function,Call> {
 
     protected Widget attachNodeWidget(Function node) {
         LabelWidget label = new MyLabelWidget(this, node.getName());
+        if (node.isVurtual()) {
+            label.setFont(defaultItalicFont);
+        }
         label.setBorder(BORDER_4);
         label.getActions().addAction(moveAction);
         label.getActions().addAction(hoverAction);

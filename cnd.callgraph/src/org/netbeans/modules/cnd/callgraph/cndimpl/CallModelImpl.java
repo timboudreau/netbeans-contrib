@@ -96,7 +96,7 @@ public class CallModelImpl implements CallModel {
         if (root != null) {
             return root.getName().toString();
         }
-        return "";
+        return ""; // NOI18N
     }
 
     public void refresh() {

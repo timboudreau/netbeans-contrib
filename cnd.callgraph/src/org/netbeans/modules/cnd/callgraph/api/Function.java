@@ -54,7 +54,7 @@ public interface Function {
     
     /**
      * 
-     * @return Function html name to disply in tree/list view
+     * @return Function html name to display in tree/list view
      */
     String getHtmlDisplayName();
 
@@ -70,6 +70,11 @@ public interface Function {
      */
     Image getIcon();
     
+    /**
+     * @return true if function is virtual
+     */
+    boolean isVurtual();
+
     /**
      * Open function in editor
      */
