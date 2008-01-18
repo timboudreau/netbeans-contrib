@@ -22,7 +22,7 @@
 
         <fileset dir="${netbeans.dest.dir}/java1"> <include name="**/*.jar"/> </fileset>        
 
-        <pathelement path="../../../lexer/build/test/unit/classes"/>
+        <pathelement path="../../test/lib/tests-unit.jar"/>
         <pathelement path="../../../performance/insanelib/dist/insanelib.jar"/>
 
         <pathelement path="${netbeans.dest.dir}/ruby1/modules/org-netbeans-api-gsf.jar"/>
