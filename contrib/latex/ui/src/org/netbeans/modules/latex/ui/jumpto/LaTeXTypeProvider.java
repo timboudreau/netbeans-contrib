@@ -93,15 +93,14 @@ public class LaTeXTypeProvider implements TypeProvider {
         return "LaTeX Files Provider";
     }
 
-    public List<? extends TypeDescriptor> getTypeNames(Project project, final String text, SearchType type) {
+    public void computeTypeNames(final Context context, final Result r) {
         //XXX: simplified & !cancellable!:
-        final List<TypeDescriptor> result = new LinkedList<TypeDescriptor>();
         Set<FileObject> mainFiles = new HashSet<FileObject>();
         
         for (LaTeXSourceFactory f : Lookup.getDefault().lookupAll(LaTeXSourceFactory.class)) {
             for (FileObject file : (Iterable<FileObject>) f.getAllKnownFiles()) {
-                if (file.getNameExt().startsWith(text))
-                    result.add(new FileTypeDescriptor(file));
+                if (file.getNameExt().startsWith(context.getText()))
+                    r.addResult(new FileTypeDescriptor(file));
                 
                 if (f.isMainFile(file)) {
                     mainFiles.add(file);
@@ -122,7 +121,7 @@ public class LaTeXTypeProvider implements TypeProvider {
                     LaTeXParserResult lpr = (LaTeXParserResult) parameter.getParserResult();
                     
                     for (StructuralElement e : lpr.getStructuralRoot().getSubElements()) {
-                        gatherStructuralDescriptions(file, e, result, null, text);
+                        gatherStructuralDescriptions(file, e, r, null, context.getText());
                     }
                 }
             }, true);
@@ -130,8 +129,6 @@ public class LaTeXTypeProvider implements TypeProvider {
                 Exceptions.printStackTrace(e);
             }
         }
-        
-        return result;
     }
 
     private String getName(StructuralElement e) {
@@ -141,11 +138,11 @@ public class LaTeXTypeProvider implements TypeProvider {
             return StructuralNodeFactory.createNode(e).getDisplayName();
         }
     }
-    private void gatherStructuralDescriptions(FileObject mainFile, StructuralElement e, List<TypeDescriptor> result, String path, String prefix) {
+    private void gatherStructuralDescriptions(FileObject mainFile, StructuralElement e, Result result, String path, String prefix) {
         String name = getName(e);
         
         if (name.startsWith(prefix))
-            result.add(new StructuralTypeDescriptor(e, name, path, mainFile));
+            result.addResult(new StructuralTypeDescriptor(e, name, path, mainFile));
         
         path = (path != null ? path + "/" : "") + name;
         
