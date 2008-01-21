@@ -340,6 +340,10 @@ made subject to such option by the copyright holder.
 </command>
 
 <command name="\cite">
+  <argument type="nonmandatory">
+    <attribute name="#text" value="true" />
+  </argument>
+  
   <argument type="mandatory">
     <attribute name="#code" value="true" />
 
