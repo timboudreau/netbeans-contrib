@@ -21,12 +21,6 @@
  * your own identifying information:
  * "Portions Copyrighted [year] [name of copyright owner]"
  *
- * Contributor(s):
- *
- * The Original Software is NetBeans. The Initial Developer of the Original
- * Software is Sun Microsystems, Inc. Portions Copyright 1997-2006 Sun
- * Microsystems, Inc. All Rights Reserved.
- *
  * If you wish your version of this file to be governed by only the CDDL
  * or only the GPL Version 2, indicate your decision by adding
  * "[Contributor] elects to include this software in this distribution
@@ -37,72 +31,41 @@
  * However, if you add GPL Version 2 code and therefore, elected the GPL
  * Version 2 license, then the option applies only if the new code is
  * made subject to such option by the copyright holder.
+ *
+ * Contributor(s):
+ *
+ * Portions Copyrighted 2008 Sun Microsystems, Inc.
  */
 
 package org.netbeans.modules.java.tools.nbjad.actions;
 
+import javax.lang.model.element.Element;
+
+import org.netbeans.api.java.classpath.ClassPath;
+import org.netbeans.api.java.source.ClasspathInfo;
+import org.netbeans.api.java.source.ElementHandle;
+import org.netbeans.api.java.source.ClasspathInfo.PathKind;
+import org.netbeans.modules.java.BinaryElementOpen;
 import org.openide.filesystems.FileObject;
-import org.openide.loaders.DataObject;
-import org.openide.nodes.Node;
-import org.openide.util.HelpCtx;
-import org.openide.util.NbBundle;
-import org.openide.util.actions.CookieAction;
 
 /**
+ * Open the decompiled .java file for a .class file.
  * 
  * @author Sandip V. Chitale (Sandip.Chitale@Sun.Com)
  */
-public final class DecompileAction extends CookieAction {
+public class BinaryElementOpenImpl implements BinaryElementOpen {
 
-    public DecompileAction() {
-    }
-
-    protected void performAction(Node[] activatedNodes) {
-        // Get DataObject
-        DataObject dataObject = (DataObject) activatedNodes[0]
-                .getCookie(DataObject.class);
-        if (dataObject != null) {
-            // Get primary FileoBject
-            DecompileSupport.decompile(dataObject.getPrimaryFile());
-        }
-    }
-
-    protected int mode() {
-        return CookieAction.MODE_EXACTLY_ONE;
-    }
-
-    public String getName() {
-        return NbBundle
-                .getMessage(DecompileAction.class, "CTL_DecompileAction");
-    }
-
-    protected boolean enable(Node[] activatedNodes) {
-        if (activatedNodes != null && activatedNodes.length > 0) {
-            DataObject dataObject = (DataObject) activatedNodes[0]
-                    .getCookie(DataObject.class);
-            if (dataObject != null) {
-                FileObject fileObject = dataObject.getPrimaryFile();
-                if (fileObject != null && fileObject.getExt().equals("class")) {
-                    return true;
-                }
+    public boolean open(ClasspathInfo cpInfo,  ElementHandle<? extends Element> toOpen) {
+        ClassPath classPath = cpInfo.getClassPath(PathKind.COMPILE);
+        if (classPath != null) {
+            FileObject fileObject = classPath.findResource(
+                    toOpen.getQualifiedName().replace('.', '/') + ".class");        
+            if (fileObject != null) {
+                DecompileSupport.decompile(fileObject);
+                return true;
             }
         }
         return false;
     }
 
-    protected Class[] cookieClasses() {
-        return new Class[] { DataObject.class };
-    }
-
-    protected String iconResource() {
-        return "org/netbeans/modules/java/tools/nbjad/actions/nbjad.gif";
-    }
-
-    public HelpCtx getHelpCtx() {
-        return HelpCtx.DEFAULT_HELP;
-    }
-
-    protected boolean asynchronous() {
-        return false;
-    }
 }

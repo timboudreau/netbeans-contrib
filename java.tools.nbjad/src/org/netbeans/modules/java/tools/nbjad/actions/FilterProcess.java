@@ -152,7 +152,6 @@ public class FilterProcess {
                     output.add(line);
                 }
             } catch (IOException ioe) {
-                ErrorManager.getDefault().notify(ioe);
             }
         }
     }

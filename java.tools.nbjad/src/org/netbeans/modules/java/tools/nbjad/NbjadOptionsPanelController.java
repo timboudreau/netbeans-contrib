@@ -47,7 +47,6 @@ import javax.swing.JComponent;
 import org.netbeans.spi.options.OptionsPanelController;
 import org.openide.util.HelpCtx;
 import org.openide.util.Lookup;
-import org.openide.util.SharedClassObject;
 
 /**
  *
@@ -59,23 +58,17 @@ final class NbjadOptionsPanelController extends OptionsPanelController {
     private final PropertyChangeSupport pcs = new PropertyChangeSupport(this);
     private boolean changed;
     
-    private NbjadSettings settings;
-            
     public NbjadOptionsPanelController() {
-         settings =(NbjadSettings)SharedClassObject.findObject(NbjadSettings.class, true);
     }
     
     public void update() {
-        panel.getJadLocationTextField().setText(settings.getJadLocation());
-        panel.getJadOptionsTextField().setText(settings.getJadOptions());
+        getPanel().load();
         changed = false;
     }
     
     public void applyChanges() {
-        settings.setJadLocation(panel.getJadLocationTextField().getText());
-        settings.setJadOptions(panel.getJadOptionsTextField().getText());
-        settings.firePropertiesHaveBeenChanged();
-        changed = true;
+        getPanel().store();
+        changed();
     }
     
     public void cancel() {
