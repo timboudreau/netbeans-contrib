@@ -73,7 +73,7 @@ public class Axis2Node extends AbstractNode {
     private java.awt.Image cachedServicesBadge;
     
     public Axis2Node(Project project) {
-        super(Children.LEAF, createLookup(project));
+        super(new Axis2Children(project), createLookup(project));
         setDisplayName(NbBundle.getBundle(Axis2Node.class).getString("LBL_Axis2"));
     }
     

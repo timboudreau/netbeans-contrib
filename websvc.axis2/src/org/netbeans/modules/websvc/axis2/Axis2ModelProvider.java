@@ -39,6 +39,8 @@
 
 package org.netbeans.modules.websvc.axis2;
 
+import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeSupport;
 import org.netbeans.modules.websvc.axis2.config.model.Axis2Model;
 
 /**
@@ -47,9 +49,10 @@ import org.netbeans.modules.websvc.axis2.config.model.Axis2Model;
  */
 public class Axis2ModelProvider {
     private Axis2Model axis2Model;
+    private PropertyChangeSupport propertyChangeSupport;
     
     Axis2ModelProvider() {
-        
+        propertyChangeSupport = new PropertyChangeSupport(this);
     }
     
     Axis2ModelProvider(Axis2Model axis2Model) {
@@ -61,6 +64,16 @@ public class Axis2ModelProvider {
     }
     
     void setAxis2Model(Axis2Model axis2Model) {
+        Axis2Model oldModel = this.axis2Model;      
         this.axis2Model = axis2Model;
+        propertyChangeSupport.firePropertyChange("axis2", oldModel, axis2Model); //NOI18N
+    }
+    
+    public void addPropertyChangeListener(PropertyChangeListener pcl) {
+        propertyChangeSupport.addPropertyChangeListener(pcl);
+    }
+    
+    public void removePropertyChangeListener(PropertyChangeListener pcl) {
+        propertyChangeSupport.removePropertyChangeListener(pcl);
     }
 }
