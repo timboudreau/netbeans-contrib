@@ -56,20 +56,17 @@ import org.netbeans.api.project.Project;
 import org.netbeans.api.project.ProjectUtils;
 import org.netbeans.api.project.SourceGroup;
 
+import org.netbeans.modules.websvc.axis2.Axis2ModelProvider;
 import org.netbeans.modules.websvc.axis2.AxisUtils;
-import org.netbeans.modules.websvc.axis2.services.model.MessageReceiver;
-import org.netbeans.modules.websvc.axis2.services.model.MessageReceivers;
-import org.netbeans.modules.websvc.axis2.services.model.Parameter;
-import org.netbeans.modules.websvc.axis2.services.model.Service;
-import org.netbeans.modules.websvc.axis2.services.model.ServiceGroup;
-import org.netbeans.modules.websvc.axis2.services.model.Services;
-import org.netbeans.modules.websvc.axis2.services.model.ServicesComponentFactory;
+import org.netbeans.modules.websvc.axis2.config.model.Axis2Model;
+import org.netbeans.modules.websvc.axis2.config.model.Axis2Utils;
 import org.netbeans.modules.websvc.axis2.services.model.ServicesModel;
 import org.netbeans.modules.websvc.axis2.services.model.ServicesUtils;
 import org.openide.WizardDescriptor;
 
 import org.netbeans.spi.java.project.support.ui.templates.JavaTemplates;
 import org.netbeans.spi.project.ui.templates.support.Templates;
+import org.openide.cookies.SaveCookie;
 import org.openide.filesystems.FileObject;
 import org.openide.loaders.DataFolder;
 import org.openide.loaders.DataObject;
@@ -108,6 +105,7 @@ public class WsFromJavaWizardIterator implements TemplateWizard.Iterator /*, Ite
         }
         if (dObj != null) {
             generateConfigFile(dObj.getPrimaryFile());
+            addService(dObj.getPrimaryFile());
             return Collections.singleton(dObj);
         }
         else return Collections.<DataObject>emptySet();
@@ -125,45 +123,33 @@ public class WsFromJavaWizardIterator implements TemplateWizard.Iterator /*, Ite
             String serviceClass = classPath.getResourceName(serviceFo, '.', false);
             ServicesModel servicesModel = ServicesUtils.getServicesModel(servicesFo, true);
             if (servicesModel != null) {
-                ServicesComponentFactory factory = servicesModel.getFactory();
-                Parameter param = factory.createParameter();
-                param.setNameAttr("ServiceClass"); //NOI18N
-                param.setValue(serviceClass);
-                MessageReceivers receivers = factory.createMessageReceivers();
-                MessageReceiver receiver1 = factory.createMessageReceiver();
-                MessageReceiver receiver2 = factory.createMessageReceiver();
-                receiver1.setMepAttr("http://www.w3.org/2004/08/wsdl/in-only"); //NOI18N
-                receiver1.setClassAttr("org.apache.axis2.rpc.receivers.RPCInOnlyMessageReceiver"); //NOI18N
-                receiver2.setMepAttr("http://www.w3.org/2004/08/wsdl/in-out"); //NOI18N
-                receiver2.setClassAttr("org.apache.axis2.rpc.receivers.RPCMessageReceiver"); //NOI18N
-                receivers.addMessageReceiver(receiver1);
-                receivers.addMessageReceiver(receiver2);
-                
-                Services services = servicesModel.getRootComponent();
-                if (servicesModel.isServicesGroup()) {
-                    ServiceGroup serviceGroup = (ServiceGroup)services;
-                    Service service = factory.createService();
-                    service.setNameAttr(serviceFo.getName());
-                    service.setScopeAttr("application"); //NOI18N
-                    service.setDescription(serviceFo.getName()+" service"); //NOI18N
-                    service.setMessageReceivers(receivers);
-                    service.addParameter(param);
-                    
-                    servicesModel.startTransaction();
-                    serviceGroup.addService(service);
-                    servicesModel.endTransaction();
-                    
-                } else {
-                    Service service = (Service)services;
-                    
-                    servicesModel.startTransaction();
-                    service.setNameAttr(serviceFo.getName());
-                    service.setScopeAttr("application"); //NOI18N
-                    service.setDescription(serviceFo.getName()+" service"); //NOI18N
-                    service.setMessageReceivers(receivers);
-                    service.addParameter(param);
-                    servicesModel.endTransaction();
-                    
+                WizardUtils.addService(servicesModel, serviceClass, serviceFo);
+            }
+        }
+    }
+    
+    private void addService(FileObject serviceFo) throws IOException {
+        FileObject axis2Folder = AxisUtils.getNbprojectFolder(project.getProjectDirectory());
+        if (axis2Folder != null) {
+            FileObject axis2Fo = axis2Folder.getFileObject("axis2.xml"); //NOI18N
+            if (axis2Fo == null) {
+                AxisUtils.retrieveAxis2FromResource(axis2Folder);
+                axis2Fo = axis2Folder.getFileObject("axis2.xml"); //NOI18N
+            }
+            ClassPath classPath = ClassPath.getClassPath(serviceFo, ClassPath.SOURCE);
+            String serviceClass = classPath.getResourceName(serviceFo, '.', false);
+            
+            axis2Fo = axis2Folder.getFileObject("axis2.xml"); //NOI18N
+            //Axis2Model axis2Model = Axis2Utils.getAxis2Model(axis2Fo, true);
+            
+            Axis2ModelProvider axis2ModelProvider = project.getLookup().lookup(Axis2ModelProvider.class);
+            Axis2Model axis2Model = axis2ModelProvider.getAxis2Model();
+            if (axis2Model != null) {
+                WizardUtils.addService(axis2Model, serviceClass, serviceFo);
+                DataObject dObj = DataObject.find(axis2Fo);
+                if (dObj != null) {
+                    SaveCookie save = dObj.getCookie(SaveCookie.class);
+                    if (save != null) save.save();
                 }
             }
         }
@@ -275,6 +261,5 @@ public class WsFromJavaWizardIterator implements TemplateWizard.Iterator /*, Ite
 
     public final void addChangeListener(ChangeListener l) {}
     public final void removeChangeListener(ChangeListener l) {}
-
 
 }

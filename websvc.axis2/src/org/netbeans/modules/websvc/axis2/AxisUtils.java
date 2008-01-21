@@ -91,6 +91,32 @@ public class AxisUtils {
         });
     }
     
+    public static void retrieveAxis2FromResource(final FileObject targetDir) throws IOException {
+        final String axis2Content =
+                    readResource(AxisUtils.class.getResourceAsStream("/org/netbeans/modules/websvc/axis2/resources/axis2.xml")); //NOI18N
+        FileSystem fs = targetDir.getFileSystem();
+        fs.runAtomicAction(new FileSystem.AtomicAction() {
+            public void run() throws IOException {
+                FileObject axis2Fo = FileUtil.createData(targetDir, "axis2.xml");//NOI18N
+                FileLock lock = axis2Fo.lock();
+                BufferedWriter bw = null;
+                OutputStream os = null;
+                try {
+                    os = axis2Fo.getOutputStream(lock);
+                    bw = new BufferedWriter(new OutputStreamWriter(os));
+                    bw.write(axis2Content);
+                } finally {
+                    if(bw != null)
+                        bw.close();
+                    if(os != null)
+                        os.close();
+                    if(lock != null)
+                        lock.releaseLock();
+                }
+            }
+        });
+    }
+    
     private static String readResource(InputStream is) throws IOException {
         // read the config from resource first
         StringBuffer sb = new StringBuffer();
@@ -116,6 +142,10 @@ public class AxisUtils {
             }
         }
         return configFolder;
+    }
+    
+    public static FileObject getNbprojectFolder(FileObject projectDir) {
+        return projectDir.getFileObject("nbproject"); //NOI18N
     }
     
     public static ModelSource createModelSource(final FileObject thisFileObj,

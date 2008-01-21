@@ -59,12 +59,15 @@ made subject to such option by the copyright holder.
         </folder><!-- Axis2 -->
     </folder>
     <folder name="Projects">
-        <!-- populate J2SE Project Lookup with WS Client Support -->
+        <!-- populate J2SE Project Lookup with Axis2 Support -->
         <folder name="org-netbeans-modules-java-j2seproject">
             <folder name="Nodes">
                 <file name="org-netbeans-modules-websvc-axis2-nodes-AxisNodeFactory.instance">
                     <attr name="position" intvalue="277"/>
                 </file>
+            </folder>
+            <folder name="Lookup">
+                <file name="org.netbeans.modules.websvc.axis2.Axis2LookupProvider.instance"/>
             </folder>
         </folder>
     </folder>
